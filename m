@@ -1,53 +1,95 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 20/26] docs: i2c: instantiating-devices: fix internal
- hyperlink
-Date: Tue, 21 Jan 2020 11:07:41 +0100
-Message-ID: <20200121110741.347bad7a@endymion>
-References: <20200105224006.10321-1-luca@lucaceresoli.net>
-        <20200105225012.11701-1-luca@lucaceresoli.net>
-        <20200105225012.11701-20-luca@lucaceresoli.net>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+Subject: [PATCH v4 1/6] i2c: Allow driver to manage the device's power state during probe
+Date: Tue, 21 Jan 2020 15:41:52 +0200
+Message-ID: <20200121134157.20396-2-sakari.ailus@linux.intel.com>
+References: <20200121134157.20396-1-sakari.ailus@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:54194 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728512AbgAUKHo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 21 Jan 2020 05:07:44 -0500
-In-Reply-To: <20200105225012.11701-20-luca@lucaceresoli.net>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200121134157.20396-1-sakari.ailus@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>, linux-media@vger.kernel.org, Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>, Hyungwoo Yang <hyungwoo.yang@intel.com>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>
-Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 
-On Sun,  5 Jan 2020 23:50:06 +0100, Luca Ceresoli wrote:
-> Use ReST syntax so that a proper hyperlink is generated.
-> 
-> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-> ---
->  Documentation/i2c/instantiating-devices.rst | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/i2c/instantiating-devices.rst b/Documentation/i2c/instantiating-devices.rst
-> index cf5d9828e823..5debaafef64d 100644
-> --- a/Documentation/i2c/instantiating-devices.rst
-> +++ b/Documentation/i2c/instantiating-devices.rst
-> @@ -86,7 +86,7 @@ Method 1c: Declare the I2C devices via ACPI
->  -------------------------------------------
->  
->  ACPI can also describe I2C devices. There is special documentation for this
-> -which is currently located at Documentation/firmware-guide/acpi/enumeration.rst.
-> +which is currently located at :doc:`../firmware-guide/acpi/enumeration` .
+Enable drivers to tell ACPI that there's no need to power on a device for
+probe. Drivers should still perform this by themselves if there's a need
+to. In some cases powering on the device during probe is undesirable, and
+this change enables a driver to choose what fits best for it.
 
-You have an extra space before the dot, I don't think the ReST syntax
-requires that?
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+---
+ drivers/i2c/i2c-core-base.c | 15 ++++++++++++---
+ include/linux/i2c.h         |  3 +++
+ 2 files changed, 15 insertions(+), 3 deletions(-)
 
->  
->  
->  Method 2: Instantiate the devices explicitly
-
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 9f8dcd3f83850..7bf1699c9044d 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -303,6 +303,14 @@ static int i2c_smbus_host_notify_to_irq(const struct i2c_client *client)
+ 	return irq > 0 ? irq : -ENXIO;
+ }
+ 
++static bool probe_low_power(struct device *dev)
++{
++	struct i2c_driver *driver = to_i2c_driver(dev->driver);
++
++	return driver->probe_low_power &&
++		device_property_present(dev, "probe-low-power");
++}
++
+ static int i2c_device_probe(struct device *dev)
+ {
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+@@ -375,7 +383,8 @@ static int i2c_device_probe(struct device *dev)
+ 	if (status < 0)
+ 		goto err_clear_wakeup_irq;
+ 
+-	status = dev_pm_domain_attach(&client->dev, true);
++	status = dev_pm_domain_attach(&client->dev,
++				      !probe_low_power(&client->dev));
+ 	if (status)
+ 		goto err_clear_wakeup_irq;
+ 
+@@ -397,7 +406,7 @@ static int i2c_device_probe(struct device *dev)
+ 	return 0;
+ 
+ err_detach_pm_domain:
+-	dev_pm_domain_detach(&client->dev, true);
++	dev_pm_domain_detach(&client->dev, !probe_low_power(&client->dev));
+ err_clear_wakeup_irq:
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
+@@ -419,7 +428,7 @@ static int i2c_device_remove(struct device *dev)
+ 		status = driver->remove(client);
+ 	}
+ 
+-	dev_pm_domain_detach(&client->dev, true);
++	dev_pm_domain_detach(&client->dev, !probe_low_power(&client->dev));
+ 
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 582ef05ec07ed..6d0d6af393c56 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -229,6 +229,8 @@ enum i2c_alert_protocol {
+  * @address_list: The I2C addresses to probe (for detect)
+  * @clients: List of detected clients we created (for i2c-core use only)
+  * @disable_i2c_core_irq_mapping: Tell the i2c-core to not do irq-mapping
++ * @probe_low_power: Let the driver manage the device's power state
++ *		     during probe and remove.
+  *
+  * The driver.owner field should be set to the module owner of this driver.
+  * The driver.name field should be set to the name of this driver.
+@@ -289,6 +291,7 @@ struct i2c_driver {
+ 	struct list_head clients;
+ 
+ 	bool disable_i2c_core_irq_mapping;
++	bool probe_low_power;
+ };
+ #define to_i2c_driver(d) container_of(d, struct i2c_driver, driver)
+ 
 -- 
-Jean Delvare
-SUSE L3 Support
+2.20.1
