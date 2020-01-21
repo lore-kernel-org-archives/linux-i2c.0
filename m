@@ -1,72 +1,70 @@
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
-Subject: Re: [PATCH v4 6/6] Documentation: ACPI: Document probe-low-power
- _DSD property
-Date: Tue, 21 Jan 2020 18:58:28 +0200
-Message-ID: <20200121165828.GA5440@paasikivi.fi.intel.com>
-References: <20200121134157.20396-1-sakari.ailus@linux.intel.com>
- <20200121134157.20396-7-sakari.ailus@linux.intel.com>
- <CAJZ5v0iJXUjK0n7mkqxagX9FtOmMsLqVMmU2xpQOLSb0aBWSMA@mail.gmail.com>
- <20200121161856.GZ5440@paasikivi.fi.intel.com>
- <CAJZ5v0ho8ry7iTXBTxHMjwcqT+EGT2mRy2rmp+o7rmG0apYimQ@mail.gmail.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH 15/26] docs: i2c: smbus-protocol: enable kernel-doc
+ function syntax
+Date: Tue, 21 Jan 2020 18:31:23 +0100
+Message-ID: <211da679-154f-15e3-52d3-a24d50c526cf@lucaceresoli.net>
+References: <20200105224006.10321-1-luca@lucaceresoli.net>
+ <20200105225012.11701-1-luca@lucaceresoli.net>
+ <20200105225012.11701-15-luca@lucaceresoli.net>
+ <20200120154444.7c1d3863@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0ho8ry7iTXBTxHMjwcqT+EGT2mRy2rmp+o7rmG0apYimQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Bingbu Cao <bingbu.cao@intel.com>, linux-media@vger.kernel.org, Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>, Hyungwoo Yang <hyungwoo.yang@intel.com>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Arnd Bergmann <arnd@arndb.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Mani, Rajmohan" <rajmohan.mani@intel.com>, Tomasz Figa <tfiga@chromium.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20200120154444.7c1d3863@endymion>
+Content-Language: en-US
+Sender: linux-doc-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 21, 2020 at 05:56:39PM +0100, Rafael J. Wysocki wrote:
-> On Tue, Jan 21, 2020 at 5:19 PM Sakari Ailus
-> <sakari.ailus@linux.intel.com> wrote:
-> >
-> > On Tue, Jan 21, 2020 at 05:09:44PM +0100, Rafael J. Wysocki wrote:
-> > > On Tue, Jan 21, 2020 at 2:41 PM Sakari Ailus
-> > > <sakari.ailus@linux.intel.com> wrote:
-> > > >
-> > > > Document the probe-low-power _DSD property and how it is used with I²C
-> > > > drivers.
-> > > >
-> > > > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> > > > ---
-> > > >  .../acpi/dsd/probe-low-power.rst              | 28 +++++++++++++++++++
-> > > >  Documentation/firmware-guide/acpi/index.rst   |  1 +
-> > > >  2 files changed, 29 insertions(+)
-> > > >  create mode 100644 Documentation/firmware-guide/acpi/dsd/probe-low-power.rst
-> > > >
-> > > > diff --git a/Documentation/firmware-guide/acpi/dsd/probe-low-power.rst b/Documentation/firmware-guide/acpi/dsd/probe-low-power.rst
-> > > > new file mode 100644
-> > > > index 0000000000000..e0343ffefe071
-> > > > --- /dev/null
-> > > > +++ b/Documentation/firmware-guide/acpi/dsd/probe-low-power.rst
-> > > > @@ -0,0 +1,28 @@
-> > > > +.. SPDX-License-Identifier: GPL-2.0
-> > > > +
-> > > > +======================================
-> > > > +Probing I²C devices in low power state
-> > > > +======================================
-> > > > +
-> > > > +Introduction
-> > > > +============
-> > > > +
-> > > > +In some cases it may be preferred to leave certain devices powered off for
-> > > > +the entire system bootup if powering on these devices has adverse side
-> > > > +effects, beyond just powering on the said device. The _DSD property
-> > > > +"probe-low-power" has been defined for this purpose.
-> > >
-> > > Well, if you say "has been defined", you need to provide a pointer to
-> > > the definition document (a specification of some sort or similar).
-> >
-> > How about:
-> >
-> > s/has been defined/is used/
-> 
-> I would say "Linux recognizes the ... that can be used for this purpose."
+Hi Jean,
 
-Ack; I'll use this in v5.
+On 20/01/20 15:44, Jean Delvare wrote:
+> On Sun,  5 Jan 2020 23:50:01 +0100, Luca Ceresoli wrote:
+>> Hyperlinks from function names are not generated in headings. Move them in
+>> the plain text so they are rendered as clickable hyerlinks.
+> 
+> typo: hyperlinks
+
+Ok.
+
+>>
+>> While there also remove an unneeded colon in a heading.
+>>
+>> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+>> ---
+>>  Documentation/i2c/smbus-protocol.rst | 64 ++++++++++++++++++----------
+>>  1 file changed, 42 insertions(+), 22 deletions(-)
+>>
+>> diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
+>> index 10c4a989982c..997945e90419 100644
+>> --- a/Documentation/i2c/smbus-protocol.rst
+>> +++ b/Documentation/i2c/smbus-protocol.rst
+>> @@ -62,8 +62,10 @@ This sends a single bit to the device, at the place of the Rd/Wr bit::
+>>  Functionality flag: I2C_FUNC_SMBUS_QUICK
+>>  
+>>  
+>> -SMBus Receive Byte:  i2c_smbus_read_byte()
+>> -==========================================
+>> +SMBus Receive Byte
+>> +==================
+>> +
+>> +Implemented by i2c_smbus_read_byte()
+> 
+> In file i2c-protocol.rst, the wording used is:
+> 
+> This corresponds to i2c_transfer().
+> 
+> For consistency, can we settle for "Implemented by foo()" everywhere?
+
+Good point. For v2 I added a new patch to use "Implemented by" also in
+i2c-protocol.rst.
+
+Thanks.
+
+By extrapolation I guess you want to review the few remaining patches.
+Correnct? In this case I'd wait for that before sending out v2.
 
 -- 
-Sakari Ailus
+Luca
