@@ -1,71 +1,165 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [RFC PATCH 3/5] i2c: core: add function to request an alias
-Date: Tue, 21 Jan 2020 09:05:33 +0000
-Message-ID: <f0eeb661-dc6c-7f11-fca3-cdf1a6e1b953@axentia.se>
-References: <20191231161400.1688-1-wsa+renesas@sang-engineering.com>
- <20191231161400.1688-4-wsa+renesas@sang-engineering.com>
- <20200101165515.GC6226@pendragon.ideasonboard.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+Subject: Re: [PATCH v3 2/5] ACPI: Add a convenience function to tell a device
+ is suspended in probe
+Date: Tue, 21 Jan 2020 11:09:46 +0200
+Message-ID: <20200121090946.GX5440@paasikivi.fi.intel.com>
+References: <20200109154529.19484-1-sakari.ailus@linux.intel.com>
+ <20200109154529.19484-3-sakari.ailus@linux.intel.com>
+ <CAJZ5v0hfGateSt-_EBuyHqLYi5NR4PUFB=wDF+Gu+9-tFXuohg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-am6eur05on2125.outbound.protection.outlook.com ([40.107.22.125]:62013
-        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727360AbgAUJFi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 21 Jan 2020 04:05:38 -0500
-In-Reply-To: <20200101165515.GC6226@pendragon.ideasonboard.com>
-Content-Language: en-US
-Content-ID: <F7A47D78CD61FF4397E30120020A8A10@eurprd02.prod.outlook.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0hfGateSt-_EBuyHqLYi5NR4PUFB=wDF+Gu+9-tFXuohg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Mani, Rajmohan" <rajmohan.mani@intel.com>, Tomasz Figa <tfiga@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Luca Ceresoli <luca@lucaceresoli.net>, Kieran Bingham <kieran@ksquared.org.uk>, Jacopo Mondi <jacopo@jmondi.org>, Vladimir Zapolskiy <vz@mleia.com>
 
-T24gMjAyMC0wMS0wMSAxNzo1NSwgTGF1cmVudCBQaW5jaGFydCB3cm90ZToNCj4gSGkgV29sZnJh
-bSwNCj4gDQo+IFRoYW5rIHlvdSBmb3IgdGhlIHBhdGNoLg0KPiANCj4gT24gVHVlLCBEZWMgMzEs
-IDIwMTkgYXQgMDU6MTM6NThQTSArMDEwMCwgV29sZnJhbSBTYW5nIHdyb3RlOg0KPj4gU29tZSBk
-ZXZpY2VzIGFyZSBhYmxlIHRvIHJlcHJvZ3JhbSB0aGVpciBJMkMgYWRkcmVzcyBhdCBydW50aW1l
-LiBUaGlzDQo+PiBjYW4gcHJldmVudCBhZGRyZXNzIGNvbGxpc2lvbnMgd2hlbiBvbmUgaXMgYWJs
-ZSB0byBhY3RpdmF0ZSBhbmQNCj4+IHJlcHJvZ3JhbSB0aGVzZSBkZXZpY2VzIG9uZSBieSBvbmUu
-IEZvciB0aGF0IHRvIHdvcmssIHRoZXkgbmVlZCB0byBiZQ0KPj4gYXNzaWduZWQgYW4gdW51c2Vk
-IGFkZHJlc3MuIFRoaXMgbmV3IGZ1bmN0aW9ucyBhbGxvd3MgZHJpdmVycyB0byByZXF1ZXN0DQo+
-PiBmb3Igc3VjaCBhbiBhZGRyZXNzLiBJdCBhc3N1bWVzIGFsbCBub24tb2NjdXBpZWQgYWRkcmVz
-c2VzIGFyZSBmcmVlLiBJdA0KPj4gd2lsbCB0aGVuIHNlbmQgYSBtZXNzYWdlIHRvIHN1Y2ggYSBm
-cmVlIGFkZHJlc3MgdG8gbWFrZSBzdXJlIHRoZXJlIGlzDQo+PiByZWFsbHkgbm90aGluZyBsaXN0
-ZW5pbmcgdGhlcmUuDQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2ErcmVu
-ZXNhc0BzYW5nLWVuZ2luZWVyaW5nLmNvbT4NCj4+IC0tLQ0KPj4gIGRyaXZlcnMvaTJjL2kyYy1j
-b3JlLWJhc2UuYyB8IDIyICsrKysrKysrKysrKysrKysrKysrKysNCj4+ICBpbmNsdWRlL2xpbnV4
-L2kyYy5oICAgICAgICAgfCAgMiArKw0KPj4gIDIgZmlsZXMgY2hhbmdlZCwgMjQgaW5zZXJ0aW9u
-cygrKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9pMmMtY29yZS1iYXNlLmMgYi9k
-cml2ZXJzL2kyYy9pMmMtY29yZS1iYXNlLmMNCj4+IGluZGV4IDUxYmQ5NTNkZGZiMi4uNWEwMTBl
-N2U2OThmIDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy9pMmMvaTJjLWNvcmUtYmFzZS5jDQo+PiAr
-KysgYi9kcml2ZXJzL2kyYy9pMmMtY29yZS1iYXNlLmMNCj4+IEBAIC0yMjQxLDYgKzIyNDEsMjgg
-QEAgc3RhdGljIGludCBpMmNfZGV0ZWN0KHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcHRlciwgc3Ry
-dWN0IGkyY19kcml2ZXIgKmRyaXZlcikNCj4+ICAJcmV0dXJuIGVycjsNCj4+ICB9DQo+PiAgDQo+
-IA0KPiBNaXNzaW5nIGtlcm5lbGRvYywgYnV0IHlvdSBhbHJlYWR5IGtub3cgYWJvdXQgdGhpcy4N
-Cj4gDQo+PiArc3RydWN0IGkyY19jbGllbnQgKmkyY19uZXdfYWxpYXNfZGV2aWNlKHN0cnVjdCBp
-MmNfYWRhcHRlciAqYWRhcCkNCj4+ICt7DQo+PiArCXN0cnVjdCBpMmNfY2xpZW50ICphbGlhcyA9
-IEVSUl9QVFIoLUVCVVNZKTsNCj4+ICsJaW50IHJldDsNCj4+ICsJdTE2IGFkZHI7DQo+PiArDQo+
-PiArCWkyY19sb2NrX2J1cyhhZGFwLCBJMkNfTE9DS19TRUdNRU5UKTsNCj4+ICsNCj4+ICsJZm9y
-IChhZGRyID0gMHgwODsgYWRkciA8IDB4Nzg7IGFkZHIrKykgew0KPj4gKwkJcmV0ID0gaTJjX3Nj
-YW5fZm9yX2NsaWVudChhZGFwLCBhZGRyLCBpMmNfdW5sb2NrZWRfcmVhZF9ieXRlX3Byb2JlKTsN
-Cj4+ICsJCWlmIChyZXQgPT0gLUVOT0RFVikgew0KPj4gKwkJCWFsaWFzID0gaTJjX25ld19kdW1t
-eV9kZXZpY2UoYWRhcCwgYWRkcik7DQo+PiArCQkJZGV2X2RiZygmYWRhcC0+ZGV2LCAiRm91bmQg
-YWxpYXM6IDB4JXhcbiIsIGFkZHIpOw0KPj4gKwkJCWJyZWFrOw0KPj4gKwkJfQ0KPj4gKwl9DQo+
-IA0KPiBUaGlzIGxvb2tzIHF1aXRlIGluZWZmaWNpZW50LCBlc3BlY2lhbGx5IGlmIHRoZSBiZWdp
-bm5pbmcgb2YgdGhlIHJhbmdlDQo+IGlzIHBvcHVsYXRlZCB3aXRoIGRldmljZXMuIEZ1cnRoZXJt
-b3JlLCBJIHRoaW5rIHRoZXJlJ3MgYSBoaWdoIHJpc2sgb2YNCj4gZmFsc2UgbmVnYXRpdmVzLCBh
-cyBhY3F1aXJpbmcgYSBmcmVlIGFkZHJlc3MgYW5kIHJlcHJvZ3JhbW1pbmcgdGhlDQo+IGNsaWVu
-dCB0byBtYWtlIHVzZSBvZiBpdCBhcmUgc2VwYXJhdGUgb3BlcmF0aW9ucy4gQW5vdGhlciBjYWxs
-IHRvDQo+IGkyY19uZXdfYWxpYXNfZGV2aWNlKCkgY291bGQgb2NjdXIgaW4tYmV0d2Vlbi4gVGhl
-cmUncyBhbHNvIHRoZSBpc3N1ZQ0KPiB0aGF0IEkyQyBoYXNuJ3QgYmVlbiBkZXNpZ25lZCBmb3Ig
-c2Nhbm5pbmcsIHNvIHNvbWUgZGV2aWNlcyBtYXkgbm90DQo+IGFwcHJlY2lhdGUgdGhpcy4NCj4g
-DQo+IFdoYXQgaGFwcGVuZWQgdG8gdGhlIGlkZWEgb2YgcmVwb3J0aW5nIGJ1c3kgYWRkcmVzcyBy
-YW5nZXMgaW4gdGhlDQo+IGZpcm13YXJlIChEVCwgQUNQSSwgLi4uKSA/DQoNCkFub3RoZXIgYXJn
-dW1lbnQgYWdhaW5zdCBwcm9iaW5nIChwZXJoYXBzIHdlYWssIGJ1dCBzdGlsbCkgaXMgdGhhdCB0
-aGUNCnByb2JlZCBhZGRyZXNzIG1pZ2h0IGFscmVhZHkgYmUgcHJvZ3JhbW1lZCBpbiAob25lIG9m
-KSB0aGUgcmVwcm9ncmFtbWFibGUNCmNoaXAocykgbWFraW5nIGl0IHJlc3BvbmQgdG8gdGhlIHBy
-b2JlIGFuZCB0aHVzIHByZXZlbnRpbmcgdGhlIHVzZSBvZiBhDQpwZXJmZWN0bHkgZ29vZCBhbGlh
-cyBhZGRyZXNzLg0KDQpJbiAvZXh0cmVtZS8gc2l0dWF0aW9ucyB0aGlzIC9taWdodC8gcHJldmVu
-dCBmaW5kaW5nIGEgbmVlZGVkIGFsaWFzIGF0DQphbGwuDQoNCkNoZWVycywNClBldGVyDQo=
+Hi Rafael,
+
+Thank you for the review.
+
+On Mon, Jan 13, 2020 at 11:41:12AM +0100, Rafael J. Wysocki wrote:
+> On Thu, Jan 9, 2020 at 4:44 PM Sakari Ailus
+> <sakari.ailus@linux.intel.com> wrote:
+> >
+> > Add a convenience function to tell whether a device is suspended for probe
+> > or remove, for busses where the custom is that drivers don't need to
+> > resume devices in probe, or suspend them in their remove handlers.
+> >
+> > Returns false on non-ACPI systems.
+> >
+> > Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> > ---
+> >  drivers/acpi/device_pm.c | 35 +++++++++++++++++++++++++++++++++++
+> >  include/linux/acpi.h     |  5 +++++
+> >  2 files changed, 40 insertions(+)
+> >
+> > diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
+> > index 5e4a8860a9c0c..87393020276d8 100644
+> > --- a/drivers/acpi/device_pm.c
+> > +++ b/drivers/acpi/device_pm.c
+> > @@ -1348,4 +1348,39 @@ int acpi_dev_pm_attach(struct device *dev, bool power_on)
+> >         return 1;
+> >  }
+> >  EXPORT_SYMBOL_GPL(acpi_dev_pm_attach);
+> > +
+> > +/**
+> > + * acpi_dev_low_power_state_probe - Tell if a device is in a low power state
+> 
+> "Check the current ACPI power state of a device."
+
+Sounds good.
+
+> 
+> > + *                                 during probe
+> 
+> Why is this limited to probe?
+
+Well.. that was the purpose. It could be used at other times, too, I guess,
+but most of the time runtime PM is the right interface for doing that.
+
+> 
+> The function actually checks whether or not the ACPI power state of
+> the device is low-power at the call time (except that it is a bit racy
+> with respect to _set_power(), so it may not work as expected if called
+> in parallel with that one).
+> 
+> Maybe drop the "probe" part of the name (actually, I would call this
+> function acpi_dev_state_low_power()) and add a paragraph about the
+> potential race with _set_power() to the description?
+
+Agreed, I'll use the text you provided below.
+
+> 
+> > + * @dev: The device
+> 
+> "Physical device the ACPI power state of which to check".
+
+Ok.
+
+> 
+> > + *
+> > + * Tell whether a given device is in a low power state during the driver's probe
+> > + * or remove operation.
+> > + *
+> > + * Drivers of devices on certain busses such as I²C can generally assume (on
+> > + * ACPI based systems) that the devices they control are powered on without
+> > + * driver having to do anything about it. Using struct
+> > + * device_driver.probe_low_power and "probe-low-power" property, this can be
+> > + * negated and the driver has full control of the device power management.
+> 
+> The above information belongs somewhere else in my view.
+
+How about putting it to the DSD ReST property documentation, perhaps with a
+little bit more context? I can add another patch for that.
+
+> 
+> > + * Always returns false on non-ACPI based systems. True is returned on ACPI
+> 
+> "On a system without ACPI, return false.  On a system with ACPI,
+> return true if the current ACPI power state of the device is not D0,
+> or false otherwise.
+> 
+> Note that the power state of a device is not well-defined after it has
+> been passed to acpi_device_set_power() and before that function
+> returns, so it is not valid to ask for the ACPI power state of the
+> device in that time frame."
+
+Works for me.
+
+> 
+> > + * based systems iff the device is in a low power state during probe or remove.
+> > + */
+> > +bool acpi_dev_low_power_state_probe(struct device *dev)
+> > +{
+> > +       int power_state;
+> > +       int ret;
+> > +
+> > +       if (!is_acpi_device_node(dev_fwnode(dev)))
+> > +               return false;
+> 
+> This is (at least) inefficient, because the same check is repeated by
+> ACPI_COMPANION().
+> 
+> If you really want to print the message, it is better to do something like
+> 
+> struct acpi_device *adev = ACPI_COMPANION(dev);
+> 
+> if (!adev)
+>         return false;
+> 
+> ret = acpi_device_get_power(adev, &power_state);
+
+Yes, makes sense.
+
+> 
+> > +
+> > +       ret = acpi_device_get_power(ACPI_COMPANION(dev), &power_state);
+> > +       if (ret) {
+> > +               dev_warn(dev, "Cannot obtain power state (%d)\n", ret);
+> 
+> And the log level of this message is way too high IMO.
+> 
+> This means a firmware bug AFAICS and so after seeing it once on a
+> given system it becomes noise.  I'd use pr_debug() to print it.
+
+I'll switch to dev_dbg() then --- as we have the device.
+
+> 
+> > +               return false;
+> > +       }
+> > +
+> > +       return power_state != ACPI_STATE_D0;
+> > +}
+> > +EXPORT_SYMBOL_GPL(acpi_dev_low_power_state_probe);
+> > +
+> >  #endif /* CONFIG_PM */
+
+-- 
+Kind regards,
+
+Sakari Ailus
