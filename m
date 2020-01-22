@@ -1,35 +1,34 @@
-From: rishi gupta <gupt21@gmail.com>
-Subject: Re: [PATCH v2] HID: mcp2221: add usb to i2c-smbus host bridge driver
-Date: Wed, 22 Jan 2020 18:48:37 +0530
-Message-ID: <CALUj-gsJ4aKDzir2qArSrt3uNMwO-L3KbOzUFpikj6K5pQ=wtw@mail.gmail.com>
-References: <1579581860-29560-1-git-send-email-gupt21@gmail.com> <20200122131320.GA20984@ninjato>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 15/26] docs: i2c: smbus-protocol: enable kernel-doc
+ function syntax
+Date: Wed, 22 Jan 2020 15:26:08 +0100
+Message-ID: <20200122152608.40f7c90c@endymion>
+References: <20200105224006.10321-1-luca@lucaceresoli.net>
+        <20200105225012.11701-1-luca@lucaceresoli.net>
+        <20200105225012.11701-15-luca@lucaceresoli.net>
+        <20200120154444.7c1d3863@endymion>
+        <211da679-154f-15e3-52d3-a24d50c526cf@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20200122131320.GA20984@ninjato>
-Sender: linux-input-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, wsa+renesas@sang-engineering.com, Greg KH <gregkh@linuxfoundation.org>, Linux I2C <linux-i2c@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <211da679-154f-15e3-52d3-a24d50c526cf@lucaceresoli.net>
+Sender: linux-doc-owner@vger.kernel.org
+To: Luca Ceresoli <luca@lucaceresoli.net>
+Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-It is both I2C and SMBus.
-Title of the product itself is "USB 2.0 to I^2C/UART Protocol
-Converter with GPIO"
-https://www.microchip.com/wwwproducts/en/MCP2221A
+On Tue, 21 Jan 2020 18:31:23 +0100, Luca Ceresoli wrote:
+> Good point. For v2 I added a new patch to use "Implemented by" also in
+> i2c-protocol.rst.
 
-If I am mistaken in something, please help me with specific thing so
-that I can dive more from that perspective.
+BTW... I don't know how Wolfram feels about it, but I don't think
+documentation changes need to be split to such fine-grained patches.
+Chances that someone will want to cherry-pick specific changes are very
+low in my opinion, so a large number of patches only means more
+paperwork with little to no benefit. Some splitting is certainly nice
+to make reviews easier, but only to a certain degree.
 
-On Wed, Jan 22, 2020 at 6:43 PM Wolfram Sang <wsa@the-dreams.de> wrote:
->
-> On Tue, Jan 21, 2020 at 10:14:20AM +0530, Rishi Gupta wrote:
-> > MCP2221 is a USB HID to I2C/SMbus host bridge device. This
-> > commit implements i2c and smbus host adapter support. 7-bit
-> > address and i2c multi-message transaction is also supported.
-> >
-> > Signed-off-by: Rishi Gupta <gupt21@gmail.com>
->
-> My main concern is there are quite some limitations in mcp_i2c_xfer().
-> Looking at them, I think we should just drop it. This seems to be an
-> SMBus controller, not I2C. Or?
->
+-- 
+Jean Delvare
+SUSE L3 Support
