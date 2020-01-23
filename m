@@ -1,7 +1,7 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v2 16/28] docs: i2c: smbus-protocol: fix kernel-doc function syntax
-Date: Thu, 23 Jan 2020 15:56:14 +0100
-Message-ID: <20200123145626.8102-3-luca@lucaceresoli.net>
+Subject: [PATCH v2 18/28] docs: i2c: smbus-protocol: fix punctuation
+Date: Thu, 23 Jan 2020 15:56:16 +0100
+Message-ID: <20200123145626.8102-5-luca@lucaceresoli.net>
 References: <20200123135103.20540-1-luca@lucaceresoli.net>
  <20200123145626.8102-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
@@ -13,36 +13,31 @@ To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This clarifies these are functions (and would/will adds a hyperlink to the
-function documentation if/when documented).
+Remove misplaced dot before colon.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
+
 ---
- Documentation/i2c/smbus-protocol.rst | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Changes in v2:
+ - fix subject line (Jean Delvare)
+---
+ Documentation/i2c/smbus-protocol.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
-index 997945e90419..3c0fb3a2044d 100644
+index de7285de5e93..7350e4b2c2fa 100644
 --- a/Documentation/i2c/smbus-protocol.rst
 +++ b/Documentation/i2c/smbus-protocol.rst
-@@ -118,7 +118,7 @@ byte. But this time, the data is a complete word (16 bits)::
+@@ -146,7 +146,7 @@ Implemented by i2c_smbus_write_word_data()
  
- Functionality flag: I2C_FUNC_SMBUS_READ_WORD_DATA
+ This is the opposite of the Read Word operation. 16 bits
+ of data are written to a device, to the designated register that is
+-specified through the Comm byte.::
++specified through the Comm byte::
  
--Note the convenience function i2c_smbus_read_word_swapped is
-+Note the convenience function i2c_smbus_read_word_swapped() is
- available for reads where the two data bytes are the other way
- around (not SMBus compliant, but very popular.)
- 
-@@ -152,7 +152,7 @@ specified through the Comm byte.::
- 
- Functionality flag: I2C_FUNC_SMBUS_WRITE_WORD_DATA
- 
--Note the convenience function i2c_smbus_write_word_swapped is
-+Note the convenience function i2c_smbus_write_word_swapped() is
- available for writes where the two data bytes are the other way
- around (not SMBus compliant, but very popular.)
+   S Addr Wr [A] Comm [A] DataLow [A] DataHigh [A] P
  
 -- 
 2.25.0
