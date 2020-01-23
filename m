@@ -1,7 +1,7 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v2 08/28] docs: i2c: i2c-protocol: properly name start and stop conditions
-Date: Thu, 23 Jan 2020 14:50:43 +0100
-Message-ID: <20200123135103.20540-9-luca@lucaceresoli.net>
+Subject: [PATCH v2 10/28] docs: i2c: i2c-protocol: use proper names for ACK and NACK
+Date: Thu, 23 Jan 2020 14:50:45 +0100
+Message-ID: <20200123135103.20540-11-luca@lucaceresoli.net>
 References: <20200123135103.20540-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,54 +12,27 @@ To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-In I2C there is no such thing as a "start bit" or a "stop bit". Use the
-proper naming: "start condition" and "stop condition".
+Use the proper ACK and NACK naming from the I2C specification instead of
+"accept" and "reverse accept".
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
 ---
- Documentation/i2c/i2c-protocol.rst | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ Documentation/i2c/i2c-protocol.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Documentation/i2c/i2c-protocol.rst b/Documentation/i2c/i2c-protocol.rst
-index f289d7759a51..c090003f55ed 100644
+index 66adac3a5afd..9a4ac944cf9d 100644
 --- a/Documentation/i2c/i2c-protocol.rst
 +++ b/Documentation/i2c/i2c-protocol.rst
-@@ -8,8 +8,8 @@ Key to symbols
- ==============
- 
- =============== =============================================================
--S     (1 bit) : Start bit
--P     (1 bit) : Stop bit
-+S             : Start condition
-+P             : Stop condition
- Rd/Wr (1 bit) : Read/Write bit. Rd equals 1, Wr equals 0.
- A, NA (1 bit) : Accept and reverse accept bit.
- Addr  (7 bits): I2C 7 bit address. Note that this can be expanded as usual to
-@@ -46,9 +46,9 @@ Combined transactions
- 
- This corresponds to i2c_transfer().
- 
--They are just like the above transactions, but instead of a stop bit P
--a start bit S is sent and the transaction continues. An example of
--a byte read, followed by a byte write::
-+They are just like the above transactions, but instead of a stop
-+condition P a start condition S is sent and the transaction continues.
-+An example of a byte read, followed by a byte write::
- 
-   S Addr Rd [A] [Data] NA S Addr Wr [A] Data [A] P
- 
-@@ -77,8 +77,9 @@ I2C_M_NOSTART:
-       S Addr Rd [A] [Data] NA Data [A] P
- 
-     If you set the I2C_M_NOSTART variable for the first partial message,
--    we do not generate Addr, but we do generate the startbit S. This will
--    probably confuse all other clients on your bus, so don't try this.
-+    we do not generate Addr, but we do generate the start condition S.
-+    This will probably confuse all other clients on your bus, so don't
-+    try this.
- 
-     This is often used to gather transmits from multiple data buffers in
-     system memory into something that appears as a single transfer to the
+@@ -11,7 +11,7 @@ Key to symbols
+ S               Start condition
+ P               Stop condition
+ Rd/Wr (1 bit)   Read/Write bit. Rd equals 1, Wr equals 0.
+-A, NA (1 bit)   Accept and reverse accept bit.
++A, NA (1 bit)   Acknowledge (ACK) and Not Acknowledge (NACK) bit
+ Addr  (7 bits)  I2C 7 bit address. Note that this can be expanded as usual to
+                 get a 10 bit I2C address.
+ Comm  (8 bits)  Command byte, a data byte which often selects a register on
 -- 
 2.25.0
