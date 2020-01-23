@@ -1,26 +1,33 @@
-From: Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v10 1/4] dt-binding: eeprom: at24: add vcc-supply property
-Date: Thu, 23 Jan 2020 12:56:08 +0100
-Message-ID: <CAMpxmJUuCbHjsx493L6+nv0KShoqhoS3dfMXGYaGmQ+JQKBipA@mail.gmail.com>
-References: <20200116025637.3524-1-bibby.hsieh@mediatek.com> <20200116025637.3524-2-bibby.hsieh@mediatek.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH v10 3/4] misc: eeprom: at24: support pm_runtime control
+Date: Thu, 23 Jan 2020 12:56:29 +0100
+Message-ID: <CAMpxmJX=qh3oSgOtB6ciKG2tJW5VvYXEqw7ZWPM21_ynaXe++w@mail.gmail.com>
+References: <20200116025637.3524-1-bibby.hsieh@mediatek.com> <20200116025637.3524-4-bibby.hsieh@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200116025637.3524-2-bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tomasz Figa <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Nicolas Boichat <drinkcat-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, srv_heupstream <srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qk1-f196.google.com ([209.85.222.196]:45816 "EHLO
+        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727307AbgAWL4k (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jan 2020 06:56:40 -0500
+Received: by mail-qk1-f196.google.com with SMTP id x1so3046633qkl.12
+        for <linux-i2c@vger.kernel.org>; Thu, 23 Jan 2020 03:56:40 -0800 (PST)
+In-Reply-To: <20200116025637.3524-4-bibby.hsieh@mediatek.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Bibby Hsieh <bibby.hsieh@mediatek.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Tomasz Figa <tfiga@chromium.org>, Nicolas Boichat <drinkcat@chromium.org>, srv_heupstream <srv_heupstream@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-devicetree <devicetree@vger.kernel.org>
 
-czw., 16 sty 2020 o 03:56 Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org> napisa=C5=
+czw., 16 sty 2020 o 03:56 Bibby Hsieh <bibby.hsieh@mediatek.com> napisa=C5=
 =82(a):
 >
-> In some platforms, they disable the power-supply of eeprom due
-> to power consumption reduction. This patch add vcc-supply property.
+> Although in the most platforms, the power of eeprom are alway
+> on, some platforms disable the eeprom power in order to meet
+> low power request. This patch add the pm_runtime ops to control
+> power to support all platforms.
 >
-> Signed-off-by: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
 
 Patch applied.
 
