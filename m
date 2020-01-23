@@ -1,34 +1,56 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PATCH v10 3/4] misc: eeprom: at24: support pm_runtime control
-Date: Thu, 23 Jan 2020 12:56:29 +0100
-Message-ID: <CAMpxmJX=qh3oSgOtB6ciKG2tJW5VvYXEqw7ZWPM21_ynaXe++w@mail.gmail.com>
-References: <20200116025637.3524-1-bibby.hsieh@mediatek.com> <20200116025637.3524-4-bibby.hsieh@mediatek.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v2 1/2] i2c: Enable compile testing for some of drivers
+Date: Thu, 23 Jan 2020 13:46:18 +0100
+Message-ID: <20200123124618.ijzasifjbbmzyh4d@pengutronix.de>
+References: <1578384779-15487-1-git-send-email-krzk@kernel.org>
+ <20200123091228.GB1105@ninjato>
+ <20200123093120.GA2365@pi3>
+ <20200123094107.GD1105@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:45816 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727307AbgAWL4k (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jan 2020 06:56:40 -0500
-Received: by mail-qk1-f196.google.com with SMTP id x1so3046633qkl.12
-        for <linux-i2c@vger.kernel.org>; Thu, 23 Jan 2020 03:56:40 -0800 (PST)
-In-Reply-To: <20200116025637.3524-4-bibby.hsieh@mediatek.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200123094107.GD1105@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Linux Next Mailing List <linux-next@vger.kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Greg KH <greg@kroah.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Bibby Hsieh <bibby.hsieh@mediatek.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Tomasz Figa <tfiga@chromium.org>, Nicolas Boichat <drinkcat@chromium.org>, srv_heupstream <srv_heupstream@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-devicetree <devicetree@vger.kernel.org>
 
-czw., 16 sty 2020 o 03:56 Bibby Hsieh <bibby.hsieh@mediatek.com> napisa=C5=
-=82(a):
->
-> Although in the most platforms, the power of eeprom are alway
-> on, some platforms disable the eeprom power in order to meet
-> low power request. This patch add the pm_runtime ops to control
-> power to support all platforms.
->
-> Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
+On Thu, Jan 23, 2020 at 10:41:07AM +0100, Wolfram Sang wrote:
+> On Thu, Jan 23, 2020 at 10:31:20AM +0100, Krzysztof Kozlowski wrote:
+> > On Thu, Jan 23, 2020 at 10:12:28AM +0100, Wolfram Sang wrote:
+> > > 
+> > > >  config I2C_ZX2967
+> > > >  	tristate "ZTE ZX2967 I2C support"
+> > > > -	depends on ARCH_ZX
+> > > > -	default y
+> > > > +	depends on ARCH_ZX || (COMPILE_TEST && (ARC || ARM || ARM64 || M68K || RISCV || SUPERH || SPARC))
+> > > > +	# COMPILE_TEST needs architectures with readsX()/writesX() primitives
+> > > 
+> > > The list of archs neither looks pretty nor very maintainable. My
+> > > suggestion is that we leave this out of COMPILE_TEST until we have
+> > > something like ARCH_HAS_READS or something. What do you think?
+> > 
+> > Indeed it does not look good. However having compile testing allows
+> > kbuild to run sparse and smatch which already started pointing minor
+> > issues in existing drivers.
+> > 
+> > Yeah... pros and cons... I don't have a strong opinion to keep it. Since
+> > patch is important, maybe let's just skip this part?
+> 
+> Yeah, let's skip it for now. If you or someone is keen on having it,
+> something like ARCH_HAS_READS (<- needs better name) should be
+> introduced so we can use it here. But that can/should be handled
+> incrementally.
 
-Patch applied.
+Isn't this "HAS_IOMEM" already today? The driver compiles for me on
+amd64, too, so ...
 
-Bartosz
+Best regards
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
