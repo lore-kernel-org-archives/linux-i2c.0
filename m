@@ -1,75 +1,27 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: tegra: Restore pinmux on system resume
-Date: Thu, 23 Jan 2020 12:19:27 +0100
-Message-ID: <20200123111927.GH1105@ninjato>
-References: <20191213134417.222720-1-thierry.reding@gmail.com>
+From: Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v10 1/4] dt-binding: eeprom: at24: add vcc-supply property
+Date: Thu, 23 Jan 2020 12:56:08 +0100
+Message-ID: <CAMpxmJUuCbHjsx493L6+nv0KShoqhoS3dfMXGYaGmQ+JQKBipA@mail.gmail.com>
+References: <20200116025637.3524-1-bibby.hsieh@mediatek.com> <20200116025637.3524-2-bibby.hsieh@mediatek.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4C6bbPZ6c/S1npyF"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:52288 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729240AbgAWLT3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 23 Jan 2020 06:19:29 -0500
-Content-Disposition: inline
-In-Reply-To: <20191213134417.222720-1-thierry.reding@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Jon Hunter <jonathanh@nvidia.com>, Dmitry Osipenko <digetx@gmail.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
-
-
---4C6bbPZ6c/S1npyF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200116025637.3524-2-bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tomasz Figa <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Nicolas Boichat <drinkcat-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, srv_heupstream <srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Dec 13, 2019 at 02:44:17PM +0100, Thierry Reding wrote:
-> From: Thierry Reding <treding@nvidia.com>
->=20
-> Depending on the board design, the I2C controllers found on Tegra SoCs
-> may require pinmuxing in order to function. This is done as part of the
-> driver's runtime suspend/resume operations. However, the PM core does
-> not allow devices to go into runtime suspend during system sleep to
-> avoid potential races with the suspend/resume of their parents.
->=20
-> As a result of this, when Tegra SoCs resume from system suspend, their
-> I2C controllers may have lost the pinmux state in hardware, whereas the
-> pinctrl subsystem is not aware of this. To fix this, make sure that if
-> the I2C controller is not runtime suspended, the runtime suspend code is
-> still executed in order to disable the module clock (which we don't need
-> to be enabled during sleep) and set the pinmux to the idle state.
->=20
-> Conversely, make sure that the I2C controller is properly resumed when
-> waking up from sleep so that pinmux settings are properly restored.
->=20
-> This fixes a bug seen with DDC transactions to an HDMI monitor timing
-> out when resuming from system suspend.
->=20
-> Signed-off-by: Thierry Reding <treding@nvidia.com>
+czw., 16 sty 2020 o 03:56 Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org> napisa=C5=
+=82(a):
+>
+> In some platforms, they disable the power-supply of eeprom due
+> to power consumption reduction. This patch add vcc-supply property.
+>
+> Signed-off-by: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-Do we still need this after I applied "[PATCH v5 0/8] NVIDIA Tegra I2C
-driver fixes and improvements" ?
+Patch applied.
 
-
---4C6bbPZ6c/S1npyF
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4pgT4ACgkQFA3kzBSg
-KbYorg//bjTFQloGcIUrKE3jkos9WC0qW9VoPPS2vVkoEIrwXvIVy7IvNjzYaPTy
-ES56UjWsK4/FjZrcrluprZ4GdrwApmSKLzmfXHrY6Z4TTxBQQRg01G6eN4iNMasP
-PX/sbometIjhCYepFZytajnqQxa7MP8MsCitE/dwTkEEE66DbsXmvOeuNSywtuvV
-M/nmgDGd3Lbg7RgjoJjQNs0QmFF0eIOeA18o1K9k46n8mzlEl0QaOf5D9k5NnnHL
-RSw0Hxek6ZQKf8/g29JUgB5uNmUg7lPz0F1/xpgXmXTRO53Murq/QAmWJmoy9nwf
-bkCSdIAQjZMEI69B984Mz8t84NnYTLLFDLFU+Xw6CrAqVp07jjy2vu+iQLO6zjXj
-73AX40xGJcMps61Zp1oN5R0suS9Ly2DbBH99WKZOi4oVKQXdivl5qROrODn/rgpS
-AZy6khg6TmWeSJuWN9PEdUqbRRld/WoX1N6SzydG4b2PXyFHauEfdEa2XLcGSuTj
-yhIbH4KBfLtBU6gyincrK/xsZJqzLSsY2NNfWzVDVhZLpgKqM9DRb599BPc4rGpO
-KApFZs1aIs25VHsrTdgCFgyg9mTvqMTUABIBJQiU+HXeVNGRsNU3vHTXvNtwNFLT
-8XzZd7Bs0lfdZY3TMm8Sg9j3t6E3JbtClgINmGHePt71lKXXGLE=
-=AblB
------END PGP SIGNATURE-----
-
---4C6bbPZ6c/S1npyF--
+Bartosz
