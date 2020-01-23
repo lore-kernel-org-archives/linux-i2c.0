@@ -1,7 +1,7 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v2 24/28] docs: i2c: old-module-parameters: clarify this is for obsolete kernels
-Date: Thu, 23 Jan 2020 15:56:22 +0100
-Message-ID: <20200123145626.8102-11-luca@lucaceresoli.net>
+Subject: [PATCH v2 23/28] docs: i2c: old-module-parameters: fix internal hyperlink
+Date: Thu, 23 Jan 2020 15:56:21 +0100
+Message-ID: <20200123145626.8102-10-luca@lucaceresoli.net>
 References: <20200123135103.20540-1-luca@lucaceresoli.net>
  <20200123145626.8102-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
@@ -13,30 +13,33 @@ To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This section applies only to code for very old kernels. Avoid people
-reading this unnecessarily.
+Use ReST syntax so that a proper hyperlink is generated.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
+
 ---
- Documentation/i2c/old-module-parameters.rst | 5 +++++
- 1 file changed, 5 insertions(+)
+
+Changes in v2:
+ - re-add the reference to the section (Jean Delvare)
+---
+ Documentation/i2c/old-module-parameters.rst | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/Documentation/i2c/old-module-parameters.rst b/Documentation/i2c/old-module-parameters.rst
-index 1a18e2b0f593..92a403d21a62 100644
+index 78a6950e5763..1a18e2b0f593 100644
 --- a/Documentation/i2c/old-module-parameters.rst
 +++ b/Documentation/i2c/old-module-parameters.rst
-@@ -2,6 +2,11 @@
- I2C device driver binding control from user-space
- =================================================
+@@ -12,8 +12,8 @@ address), "force" (to forcibly attach the driver to a given device) and
+ With the conversion of the I2C subsystem to the standard device driver
+ binding model, it became clear that these per-module parameters were no
+ longer needed, and that a centralized implementation was possible. The new,
+-sysfs-based interface is described in the documentation file
+-"instantiating-devices", section "Method 4: Instantiate from user-space".
++sysfs-based interface is described in :doc:`instantiating-devices`, section
++"Method 4: Instantiate from user-space".
  
-+.. NOTE::
-+   Note: this section is only relevant if you are handling some old code
-+   found in kernel 2.6. If you work with more recent kernels, you can
-+   safely skip this section.
-+
- Up to kernel 2.6.32, many I2C drivers used helper macros provided by
- <linux/i2c.h> which created standard module parameters to let the user
- control how the driver would probe I2C buses and attach to devices. These
+ Below is a mapping from the old module parameters to the new interface.
+ 
 -- 
 2.25.0
