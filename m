@@ -1,60 +1,38 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: exynos: Update Kconfig documentation
-Date: Thu, 23 Jan 2020 10:13:32 +0100
-Message-ID: <20200123091332.GC1105@ninjato>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH v2 1/2] i2c: Enable compile testing for some of drivers
+Date: Thu, 23 Jan 2020 10:31:20 +0100
+Message-ID: <20200123093120.GA2365@pi3>
 References: <1578384779-15487-1-git-send-email-krzk@kernel.org>
- <1578384779-15487-2-git-send-email-krzk@kernel.org>
+ <20200123091228.GB1105@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="kVXhAStRUZ/+rrGn"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:51024 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725785AbgAWJNf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 23 Jan 2020 04:13:35 -0500
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1578384779-15487-2-git-send-email-krzk@kernel.org>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
+In-Reply-To: <20200123091228.GB1105@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Linux Next Mailing List <linux-next@vger.kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Greg KH <greg@kroah.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Jan 23, 2020 at 10:12:28AM +0100, Wolfram Sang wrote:
+> 
+> >  config I2C_ZX2967
+> >  	tristate "ZTE ZX2967 I2C support"
+> > -	depends on ARCH_ZX
+> > -	default y
+> > +	depends on ARCH_ZX || (COMPILE_TEST && (ARC || ARM || ARM64 || M68K || RISCV || SUPERH || SPARC))
+> > +	# COMPILE_TEST needs architectures with readsX()/writesX() primitives
+> 
+> The list of archs neither looks pretty nor very maintainable. My
+> suggestion is that we leave this out of COMPILE_TEST until we have
+> something like ARCH_HAS_READS or something. What do you think?
 
---kVXhAStRUZ/+rrGn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Indeed it does not look good. However having compile testing allows
+kbuild to run sparse and smatch which already started pointing minor
+issues in existing drivers.
 
-On Tue, Jan 07, 2020 at 09:12:59AM +0100, Krzysztof Kozlowski wrote:
-> Update the help text to reflect current support devices:
-> 1. The Exynos high speed I2C driver supports Exynos5 (ARMv7), Exynos5433
->    and Exynos7 (both ARMv8) SoCs,
-> 2. The S3C I2C driver supports S3C, S5Pv210 and Exynos{3,4,5} SoCs.
->=20
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Yeah... pros and cons... I don't have a strong opinion to keep it. Since
+patch is important, maybe let's just skip this part?
 
-Looks good. Let's discuss this one question of patch 1 and we are good
-to go!
-
-
---kVXhAStRUZ/+rrGn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4pY7wACgkQFA3kzBSg
-KbbvYhAAmjiDzasn0PDpK65/wMOnzkWYqdzFwh1bqfUK552YcJ0lkmQSNEVJQrkW
-myLYK9FMub2vahd1vJLev1Wncl8v9yP6uckZyZkhtnshpyKwR1vPC7YuekA7qC+T
-xuw+yKLtrECDcYqPbIrKk/KcTCkBDjNW111vJxKTkteOjnF/hZCEKjJrJ3eQz9tH
-HoDEm0Issq4KZDjDHpDw3dQhXkYRfMwKQir3V/RFnAGufUtTr3aW9POipDiDu3W2
-pmYwOkNq8LlIDMntuOhNXeUQg6TUTA8BOzmAbbQeoBMvktlATfJY6aahOpuydkbt
-uncCCGVV1esQI6zo1gGcChwvP4h+XynXJvTiXy/DjckpI1ubrGpFR5MKWCM/ZrRR
-/dyHzvFKtIYXmOj2Qm/Up4nmjuOBSlhhRB1UhgaB4N3j8UJgRniHjVUpx4f1FbmD
-V1D8GzyyDtMZhlhw5+wm+wI4WxnzvWNEe1e2i6ED1cQYnzxPXS0zsJFvwFSJONAt
-xMYSqPZq6f5dr5PO3SifbcoS7lrF8v2K1Av67V7/nvIkahlZfZxRjHAgaVBqj1zW
-86+Ur8gVcsf/BNS2FdZSS/kKq5LBFFKM28Qth/BPhow4/5wSeYHpKV7/hr60wQeO
-dMnAljdZdonS88DTyVHC/aarLq7pDWEZt6pQ/CUQKoJW7v7mhgk=
-=yZ3g
------END PGP SIGNATURE-----
-
---kVXhAStRUZ/+rrGn--
+Best regards,
+Krzysztof
