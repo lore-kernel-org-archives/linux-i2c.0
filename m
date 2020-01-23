@@ -1,49 +1,30 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [PATCH 15/26] docs: i2c: smbus-protocol: enable kernel-doc
- function syntax
-Date: Thu, 23 Jan 2020 10:51:29 +0100
-Message-ID: <37504278-2fea-f894-542c-c0a4f142eb9e@lucaceresoli.net>
-References: <20200105224006.10321-1-luca@lucaceresoli.net>
- <20200105225012.11701-1-luca@lucaceresoli.net>
- <20200105225012.11701-15-luca@lucaceresoli.net>
- <20200120154444.7c1d3863@endymion>
- <211da679-154f-15e3-52d3-a24d50c526cf@lucaceresoli.net>
- <20200122152608.40f7c90c@endymion> <20200122153747.GA21343@ninjato>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH 0/2] Move the SMBus API documentation to libi2c
+Date: Thu, 23 Jan 2020 10:52:46 +0100
+Message-ID: <20200123105246.67732e33@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200122153747.GA21343@ninjato>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>
-Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:56638 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726181AbgAWJws (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 23 Jan 2020 04:52:48 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Lei YU <mine260309@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Luca Ceresoli <luca@lucaceresoli.net>
 
-Hi,
+This is a cross-project patch set moving the SMBus-level API
+documentation from the kernel to libi2c.
 
-On 22/01/20 16:37, Wolfram Sang wrote:
-> On Wed, Jan 22, 2020 at 03:26:08PM +0100, Jean Delvare wrote:
->> On Tue, 21 Jan 2020 18:31:23 +0100, Luca Ceresoli wrote:
->>> Good point. For v2 I added a new patch to use "Implemented by" also in
->>> i2c-protocol.rst.
->>
->> BTW... I don't know how Wolfram feels about it, but I don't think
->> documentation changes need to be split to such fine-grained patches.
-> 
-> I don't mind too much. I think for a first version, fine grained can
-> make review more easy. Maybe the second version could be less patches.
-> Yet for me, since patchwork can handle series of patches, the amount
-> doesn't matter too much. I am super happy that Luca did the work and you
-> did the review!
+[1/2] libi2c: Add a manual page to document the API
+[2/2] docs: i2c: dev-interface: document the actual implementation
 
-I initially split this work in fine-grained patches for better reviewing
-and also because some of the changes were not expected in the beginning:
-while working at an improvement I noticed an unrelated one was needed.
-But I agree the result is quite awkward. Coalescing some of them now
-would be painful, so I'm sending v2 as is. But I'm tackling the
-remaining sections later, and I'm going to do that work in a smaller
-number of patches.
+It applies on top of Luca's recent patch set which cleans up the whole
+i2c documentation. I'll rebase it if needed when Luca sends v2 of his
+patch set.
 
 -- 
-Luca
+Jean Delvare
+SUSE L3 Support
