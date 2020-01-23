@@ -1,42 +1,31 @@
-From: Marc Gonzalez <marc.w.gonzalez@free.fr>
-Subject: Re: [PATCH v2 1/2] i2c: Enable compile testing for some of drivers
-Date: Thu, 23 Jan 2020 16:31:27 +0100
-Message-ID: <2ef0dfb9-6f25-29c7-153b-3e4dfa15df8e@free.fr>
-References: <1578384779-15487-1-git-send-email-krzk@kernel.org>
+From: Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org>
+Subject: [PATCH 0/5] i2c: i2c-stm32f7: enhance FastModePlus support
+Date: Thu, 23 Jan 2020 17:12:45 +0100
+Message-ID: <1579795970-22319-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ns.iliad.fr ([212.27.33.1]:56996 "EHLO ns.iliad.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726232AbgAWPba (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 23 Jan 2020 10:31:30 -0500
-In-Reply-To: <1578384779-15487-1-git-send-email-krzk@kernel.org>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, pierre-yves.mordret-qxv4g6HH51o@public.gmane.org, mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexandre.torgue-qxv4g6HH51o@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, fabrice.gasnier-qxv4g6HH51o@public.gmane.org, alain.volmat-qxv4g6HH51o@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Krzysztof Kozlowski <krzk@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Linux Next Mailing List <linux-next@vger.kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Greg KH <greg@kroah.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
 
-On 07/01/2020 09:12, Krzysztof Kozlowski wrote:
+This serie enhance Fast Mode Plus support in the i2c-stm32f7 driver
+(support suspend/resume) and add the support for the stm32mp15 SoC
+that has new syscfg bits.
 
-> Some of the I2C bus drivers can be compile tested to increase build
-> coverage.  This requires also:
-> 1. Adding dependencies on COMMON_CLK for BCM2835 and Meson I2C
->    controllers,
-> 2. Adding 'if' conditional to 'default y' so they will not get enabled
->    by default on all other architectures,
-> 3. Limiting few compile test options to supported architectures (which
->    provide the readsX()/writesX() primitives).
-> 
->  config I2C_BCM_KONA
->  	tristate "BCM Kona I2C adapter"
-> -	depends on ARCH_BCM_MOBILE
-> -	default y
-> +	depends on ARCH_BCM_MOBILE || COMPILE_TEST
-> +	default y if ARCH_BCM_MOBILE
+Alain Volmat (5):
+  i2c: i2c-stm32f7: disable/restore Fast Mode Plus bits in low power
+    modes
+  dt-bindings: i2c: i2c-stm32f7: add st,stm32mp15-i2c compatible
+  i2c: i2c-stm32f7: add a new st,stm32mp15-i2c compatible
+  ARM: dts: stm32: use st,stm32mp15-i2c compatible for stm32mp151
+  ARM: dts: stm32: add Fast Mode Plus info in I2C nodes of stm32mp151
 
-Why not the simpler:
-default ARCH_BCM_MOBILE
+ .../devicetree/bindings/i2c/st,stm32-i2c.yaml      |  6 +-
+ arch/arm/boot/dts/stm32mp151.dtsi                  | 18 ++++--
+ drivers/i2c/busses/i2c-stm32f7.c                   | 75 +++++++++++++++++++---
+ 3 files changed, 83 insertions(+), 16 deletions(-)
 
-Regards.
+-- 
+2.7.4
