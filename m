@@ -1,56 +1,46 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v2 1/2] i2c: Enable compile testing for some of drivers
-Date: Thu, 23 Jan 2020 13:46:18 +0100
-Message-ID: <20200123124618.ijzasifjbbmzyh4d@pengutronix.de>
-References: <1578384779-15487-1-git-send-email-krzk@kernel.org>
- <20200123091228.GB1105@ninjato>
- <20200123093120.GA2365@pi3>
- <20200123094107.GD1105@ninjato>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH 2/2] docs: i2c: dev-interface: document the actual
+ implementation
+Date: Thu, 23 Jan 2020 14:42:33 +0100
+Message-ID: <ffac66db-0b58-b832-f6b5-d1a1da7a1da9@lucaceresoli.net>
+References: <20200123105246.67732e33@endymion>
+ <20200123111137.5899fa5a@endymion> <20200123110909.GG1105@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200123094107.GD1105@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Linux Next Mailing List <linux-next@vger.kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Greg KH <greg@kroah.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from hostingweb31-40.netsons.net ([89.40.174.40]:51040 "EHLO
+        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726780AbgAWNmf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jan 2020 08:42:35 -0500
+In-Reply-To: <20200123110909.GG1105@ninjato>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Lei YU <mine260309@gmail.com>
 
-On Thu, Jan 23, 2020 at 10:41:07AM +0100, Wolfram Sang wrote:
-> On Thu, Jan 23, 2020 at 10:31:20AM +0100, Krzysztof Kozlowski wrote:
-> > On Thu, Jan 23, 2020 at 10:12:28AM +0100, Wolfram Sang wrote:
-> > > 
-> > > >  config I2C_ZX2967
-> > > >  	tristate "ZTE ZX2967 I2C support"
-> > > > -	depends on ARCH_ZX
-> > > > -	default y
-> > > > +	depends on ARCH_ZX || (COMPILE_TEST && (ARC || ARM || ARM64 || M68K || RISCV || SUPERH || SPARC))
-> > > > +	# COMPILE_TEST needs architectures with readsX()/writesX() primitives
-> > > 
-> > > The list of archs neither looks pretty nor very maintainable. My
-> > > suggestion is that we leave this out of COMPILE_TEST until we have
-> > > something like ARCH_HAS_READS or something. What do you think?
-> > 
-> > Indeed it does not look good. However having compile testing allows
-> > kbuild to run sparse and smatch which already started pointing minor
-> > issues in existing drivers.
-> > 
-> > Yeah... pros and cons... I don't have a strong opinion to keep it. Since
-> > patch is important, maybe let's just skip this part?
+Hi Jean, Wolfram,
+
+On 23/01/20 12:09, Wolfram Sang wrote:
+> On Thu, Jan 23, 2020 at 11:11:37AM +0100, Jean Delvare wrote:
+>> The old i2c-dev API based on inline functions is long gone, we have
+>> libi2c now which implements the same as real functions and comes with
+>> complete API documentation. Update the dev-interface documentation
+>> file accordingly to only mention what can be done without the
+>> library, and redirect the reader to the libi2c manual page for the
+>> rest.
+>>
+>> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+>> Reported-by: Lei YU <mine260309@gmail.com>
+>> Cc: Wolfram Sang <wsa@the-dreams.de>
+>> Cc: Luca Ceresoli <luca@lucaceresoli.net>
 > 
-> Yeah, let's skip it for now. If you or someone is keen on having it,
-> something like ARCH_HAS_READS (<- needs better name) should be
-> introduced so we can use it here. But that can/should be handled
-> incrementally.
+> I wonder if we shouldn't move the 'C library'  paragraph before the 'C
+> example'? To make sure people are aware of it (and use it) early before
+> digging into the low-level C code?
 
-Isn't this "HAS_IOMEM" already today? The driver compiles for me on
-amd64, too, so ...
-
-Best regards
-Uwe
+I agree, it would be better. For the rest it look good.
 
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+Luca
