@@ -1,7 +1,7 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v2 20/28] docs: i2c: instantiating-devices: fix internal hyperlink
-Date: Thu, 23 Jan 2020 15:56:18 +0100
-Message-ID: <20200123145626.8102-7-luca@lucaceresoli.net>
+Subject: [PATCH v2 17/28] docs: i2c: smbus-protocol: fix typo
+Date: Thu, 23 Jan 2020 15:56:15 +0100
+Message-ID: <20200123145626.8102-4-luca@lucaceresoli.net>
 References: <20200123135103.20540-1-luca@lucaceresoli.net>
  <20200123145626.8102-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
@@ -13,7 +13,7 @@ To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Use ReST syntax so that a proper hyperlink is generated.
+The subject is plural, fix the verb.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
@@ -21,23 +21,23 @@ Reviewed-by: Jean Delvare <jdelvare@suse.de>
 ---
 
 Changes in v2:
- - remove space before dot (Jean Delvare)
+ - fix subject line (Jean Delvare)
 ---
- Documentation/i2c/instantiating-devices.rst | 2 +-
+ Documentation/i2c/smbus-protocol.rst | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/i2c/instantiating-devices.rst b/Documentation/i2c/instantiating-devices.rst
-index 53244e2f0378..e823c4ad4e7f 100644
---- a/Documentation/i2c/instantiating-devices.rst
-+++ b/Documentation/i2c/instantiating-devices.rst
-@@ -86,7 +86,7 @@ Method 1c: Declare the I2C devices via ACPI
- -------------------------------------------
+diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
+index 3c0fb3a2044d..de7285de5e93 100644
+--- a/Documentation/i2c/smbus-protocol.rst
++++ b/Documentation/i2c/smbus-protocol.rst
+@@ -145,7 +145,7 @@ SMBus Write Word
+ Implemented by i2c_smbus_write_word_data()
  
- ACPI can also describe I2C devices. There is special documentation for this
--which is currently located at Documentation/firmware-guide/acpi/enumeration.rst.
-+which is currently located at :doc:`../firmware-guide/acpi/enumeration`.
+ This is the opposite of the Read Word operation. 16 bits
+-of data is written to a device, to the designated register that is
++of data are written to a device, to the designated register that is
+ specified through the Comm byte.::
  
- 
- Method 2: Instantiate the devices explicitly
+   S Addr Wr [A] Comm [A] DataLow [A] DataHigh [A] P
 -- 
 2.25.0
