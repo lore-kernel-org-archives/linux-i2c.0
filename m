@@ -1,7 +1,7 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v2 22/28] docs: i2c: instantiating-devices: use monospace for sysfs attributes
-Date: Thu, 23 Jan 2020 15:56:20 +0100
-Message-ID: <20200123145626.8102-9-luca@lucaceresoli.net>
+Subject: [PATCH v2 20/28] docs: i2c: instantiating-devices: fix internal hyperlink
+Date: Thu, 23 Jan 2020 15:56:18 +0100
+Message-ID: <20200123145626.8102-7-luca@lucaceresoli.net>
 References: <20200123135103.20540-1-luca@lucaceresoli.net>
  <20200123145626.8102-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
@@ -13,8 +13,7 @@ To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Use a monospace (literal) formatting for better readability of sysfs
-attributes.
+Use ReST syntax so that a proper hyperlink is generated.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
@@ -22,37 +21,23 @@ Reviewed-by: Jean Delvare <jdelvare@suse.de>
 ---
 
 Changes in v2:
- - reword commit message to not mention filenames
+ - remove space before dot (Jean Delvare)
 ---
- Documentation/i2c/instantiating-devices.rst | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ Documentation/i2c/instantiating-devices.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Documentation/i2c/instantiating-devices.rst b/Documentation/i2c/instantiating-devices.rst
-index 665bf00792ba..e558e0a77e0c 100644
+index 53244e2f0378..e823c4ad4e7f 100644
 --- a/Documentation/i2c/instantiating-devices.rst
 +++ b/Documentation/i2c/instantiating-devices.rst
-@@ -225,15 +225,15 @@ In general, the kernel should know which I2C devices are connected and
- what addresses they live at. However, in certain cases, it does not, so a
- sysfs interface was added to let the user provide the information. This
- interface is made of 2 attribute files which are created in every I2C bus
--directory: new_device and delete_device. Both files are write only and you
--must write the right parameters to them in order to properly instantiate,
--respectively delete, an I2C device.
-+directory: ``new_device`` and ``delete_device``. Both files are write
-+only and you must write the right parameters to them in order to properly
-+instantiate, respectively delete, an I2C device.
+@@ -86,7 +86,7 @@ Method 1c: Declare the I2C devices via ACPI
+ -------------------------------------------
  
--File new_device takes 2 parameters: the name of the I2C device (a string)
--and the address of the I2C device (a number, typically expressed in
--hexadecimal starting with 0x, but can also be expressed in decimal.)
-+File ``new_device`` takes 2 parameters: the name of the I2C device (a
-+string) and the address of the I2C device (a number, typically expressed
-+in hexadecimal starting with 0x, but can also be expressed in decimal.)
+ ACPI can also describe I2C devices. There is special documentation for this
+-which is currently located at Documentation/firmware-guide/acpi/enumeration.rst.
++which is currently located at :doc:`../firmware-guide/acpi/enumeration`.
  
--File delete_device takes a single parameter: the address of the I2C
-+File ``delete_device`` takes a single parameter: the address of the I2C
- device. As no two devices can live at the same address on a given I2C
- segment, the address is sufficient to uniquely identify the device to be
- deleted.
+ 
+ Method 2: Instantiate the devices explicitly
 -- 
 2.25.0
