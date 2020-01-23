@@ -1,85 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/2] i2c: Enable compile testing for some of drivers
-Date: Thu, 23 Jan 2020 11:59:08 +0100
-Message-ID: <20200123105908.GE1105@ninjato>
+Subject: Re: [PATCH v2 2/2] i2c: exynos: Update Kconfig documentation
+Date: Thu, 23 Jan 2020 11:59:12 +0100
+Message-ID: <20200123105912.GF1105@ninjato>
 References: <1578384779-15487-1-git-send-email-krzk@kernel.org>
+ <1578384779-15487-2-git-send-email-krzk@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0029081815602337610=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
-In-Reply-To: <1578384779-15487-1-git-send-email-krzk@kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Linux ARM <linux-arm-kernel@lists.infradead.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>, Linux Next Mailing List <linux-next@vger.kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Jean Delvare <jdelvare@suse.de>
-List-Id: linux-i2c@vger.kernel.org
-
-
---===============0029081815602337610==
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="zjcmjzIkjQU2rmur"
+        protocol="application/pgp-signature"; boundary="27ZtN5FSuKKSZcBU"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:52126 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729094AbgAWK7O (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 23 Jan 2020 05:59:14 -0500
 Content-Disposition: inline
+In-Reply-To: <1578384779-15487-2-git-send-email-krzk@kernel.org>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Linux Next Mailing List <linux-next@vger.kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Greg KH <greg@kroah.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
 
 
---zjcmjzIkjQU2rmur
+--27ZtN5FSuKKSZcBU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 07, 2020 at 09:12:58AM +0100, Krzysztof Kozlowski wrote:
-> Some of the I2C bus drivers can be compile tested to increase build
-> coverage.  This requires also:
-> 1. Adding dependencies on COMMON_CLK for BCM2835 and Meson I2C
->    controllers,
-> 2. Adding 'if' conditional to 'default y' so they will not get enabled
->    by default on all other architectures,
-> 3. Limiting few compile test options to supported architectures (which
->    provide the readsX()/writesX() primitives).
+On Tue, Jan 07, 2020 at 09:12:59AM +0100, Krzysztof Kozlowski wrote:
+> Update the help text to reflect current support devices:
+> 1. The Exynos high speed I2C driver supports Exynos5 (ARMv7), Exynos5433
+>    and Exynos7 (both ARMv8) SoCs,
+> 2. The S3C I2C driver supports S3C, S5Pv210 and Exynos{3,4,5} SoCs.
 >=20
 > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 >=20
 
-Applied to for-next with the zx chunk removed, thanks!
+Applied to for-next, thanks!
 
 
---zjcmjzIkjQU2rmur
+--27ZtN5FSuKKSZcBU
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4pfHgACgkQFA3kzBSg
-KbYnrg/9HyJVjx09jFKG5CydmnTSMXzOKZ7M9Ck+0pdZwsLKttoMrJjFabpiqykr
-A7AOaTgkaQQLK79xHuVHwu5bYCzwVtRBElFNQzwYyFmeIfAd2Cf2LoMBzOC0T7DP
-/nMkU+2PEmeTSZtDuBLLNrckEpw0gcbaXZhLrWIcXaZHpglbonZxa/2DJSEfpLj2
-Z5rpZ17O4X20GEjJ6cunddM7mmNFmoB6I/kYsaOsOmrR0xCXVV+j+IPArvvCj0hQ
-8+LNK/KredOVKemDkXjdYPUXry3l56jTCbiOHumuKCKFL/+bskmvjVhmg7mMaCHd
-fHi3n2/UQFxTinDSWQjQTcd85HQkQIuIK0FAqRhAP3illfHaEZ/Vmt0Yh5+dnutu
-RUkzlrx17lbmOjChb5SJ1Sc7AbJiXT4N/6q3ZmaJv+S+Aa3imwcXmJIDtFzVJd3T
-Q/7noIG4fWOfp+d8ajt3lTJSq0r6eWZjMSAU/gxmG3RYZNikLTpNFcn4gBIIRfzK
-Um1pj+g6leb7Wp2wOS/ONBMdDkLCRgBv9nhhlvQgPfR8me2iJh9ndJFFRWFWxzQc
-v8hEuez1m9rPVG77Kg7CTdIUJcxzjziEP8kTmtlfXB0nfbhG7+XWUsIYeCPnJFqs
-je7itrWyURZUNEZePmRyCRAu2EAwxTy+BIYg68e0WuwfN/CNpXY=
-=RIMX
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4pfIAACgkQFA3kzBSg
+KbbrcA//Tms/+ltBFvXpVJ3+fW0prOmA4azr0VsupDhuUL+TRYlw9eOQrGOwdJrN
+mXGiFIesmGw1uWs/c0OPEaYIFL96C75XvPd8DY5VBr2+HIESpAN+4VgGsG2Z1hh1
+n84Dzmul4cQsh4qTzYPjjIaYYOW17ZiQXmr7Si3oygqOFHGnr41lUwKTsKbJFLKV
+h7wY1+7bP8KyaThxFTUMYeKBPsGV+hrhiBhUk1RyrcuNQZCdDNN+cGh2PYpY9N36
+KoBJ19u0l6h8+FL4iSLS4Oby3h9TL/1EqweiPlsHctVnMcvdeyHjtB9NNUX48SqY
+spkG0lMJl4O8YsK1maNlDpEEHu/mWApdh3vQSbWiDzwlBb58Saqr1SBVklwj922Z
+QgpYvZl0yQE2XWaP/ikuV6N8ey/JiKPdU5jrMKuCpZpiCKCNqMyCfC5WWIlUr8FM
+dxZyQ8bMrzgCCZY9/LwkIOnKLYrQY4yb/wgto2Os8aTQvg2V0dZuOUYoiJp2c/Dq
+W+pke8DJiOJqfAY4fPuFSl+jjPC9JlyLFuKacKDKqpKm/mJ/i0J6sNbC57jwESys
+gAUrmpGmZEYgyT1Ep8xInZA/2LDZuE6JTfSuLO8vawRrKhb21JXaT9Ehkwk2R8BP
+bQnvmVUDg3nlmoMpY21DFeAzppz7p9UFA0RvPqBSOd6c3u6sZaY=
+=PVpe
 -----END PGP SIGNATURE-----
 
---zjcmjzIkjQU2rmur--
-
-
---===============0029081815602337610==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============0029081815602337610==--
+--27ZtN5FSuKKSZcBU--
