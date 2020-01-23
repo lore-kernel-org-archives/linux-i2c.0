@@ -1,47 +1,42 @@
-From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: Restore pinmux on system resume
-Date: Thu, 23 Jan 2020 18:10:19 +0300
-Message-ID: <a9a5eb76-03f9-04d8-1b6c-115ec73fdebf@gmail.com>
-References: <20191213134417.222720-1-thierry.reding@gmail.com>
- <20200123111927.GH1105@ninjato>
+From: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Subject: Re: [PATCH v2 1/2] i2c: Enable compile testing for some of drivers
+Date: Thu, 23 Jan 2020 16:31:27 +0100
+Message-ID: <2ef0dfb9-6f25-29c7-153b-3e4dfa15df8e@free.fr>
+References: <1578384779-15487-1-git-send-email-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200123111927.GH1105@ninjato>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ns.iliad.fr ([212.27.33.1]:56996 "EHLO ns.iliad.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726232AbgAWPba (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 23 Jan 2020 10:31:30 -0500
+In-Reply-To: <1578384779-15487-1-git-send-email-krzk@kernel.org>
 Content-Language: en-US
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Krzysztof Kozlowski <krzk@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Linux Next Mailing List <linux-next@vger.kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Greg KH <greg@kroah.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
 
-23.01.2020 14:19, Wolfram Sang пишет:
-> On Fri, Dec 13, 2019 at 02:44:17PM +0100, Thierry Reding wrote:
->> From: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->>
->> Depending on the board design, the I2C controllers found on Tegra SoCs
->> may require pinmuxing in order to function. This is done as part of the
->> driver's runtime suspend/resume operations. However, the PM core does
->> not allow devices to go into runtime suspend during system sleep to
->> avoid potential races with the suspend/resume of their parents.
->>
->> As a result of this, when Tegra SoCs resume from system suspend, their
->> I2C controllers may have lost the pinmux state in hardware, whereas the
->> pinctrl subsystem is not aware of this. To fix this, make sure that if
->> the I2C controller is not runtime suspended, the runtime suspend code is
->> still executed in order to disable the module clock (which we don't need
->> to be enabled during sleep) and set the pinmux to the idle state.
->>
->> Conversely, make sure that the I2C controller is properly resumed when
->> waking up from sleep so that pinmux settings are properly restored.
->>
->> This fixes a bug seen with DDC transactions to an HDMI monitor timing
->> out when resuming from system suspend.
->>
->> Signed-off-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> 
-> Do we still need this after I applied "[PATCH v5 0/8] NVIDIA Tegra I2C
-> driver fixes and improvements" ?
-> 
+On 07/01/2020 09:12, Krzysztof Kozlowski wrote:
 
-No, it shouldn't be needed.
+> Some of the I2C bus drivers can be compile tested to increase build
+> coverage.  This requires also:
+> 1. Adding dependencies on COMMON_CLK for BCM2835 and Meson I2C
+>    controllers,
+> 2. Adding 'if' conditional to 'default y' so they will not get enabled
+>    by default on all other architectures,
+> 3. Limiting few compile test options to supported architectures (which
+>    provide the readsX()/writesX() primitives).
+> 
+>  config I2C_BCM_KONA
+>  	tristate "BCM Kona I2C adapter"
+> -	depends on ARCH_BCM_MOBILE
+> -	default y
+> +	depends on ARCH_BCM_MOBILE || COMPILE_TEST
+> +	default y if ARCH_BCM_MOBILE
+
+Why not the simpler:
+default ARCH_BCM_MOBILE
+
+Regards.
