@@ -1,37 +1,24 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2 01/28] docs: i2c: sort index logically
-Date: Fri, 24 Jan 2020 13:35:48 +0100
-Message-ID: <20200124133548.7f01344a@endymion>
+Subject: Re: [PATCH v2 02/28] docs: i2c: summary: extend introduction
+Date: Fri, 24 Jan 2020 14:24:08 +0100
+Message-ID: <20200124142408.69d31966@endymion>
 References: <20200123135103.20540-1-luca@lucaceresoli.net>
-        <20200123135103.20540-2-luca@lucaceresoli.net>
+        <20200123135103.20540-3-luca@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:55108 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729774AbgAXMfv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 24 Jan 2020 07:35:51 -0500
-In-Reply-To: <20200123135103.20540-2-luca@lucaceresoli.net>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20200123135103.20540-3-luca@lucaceresoli.net>
+Sender: linux-doc-owner@vger.kernel.org
 To: Luca Ceresoli <luca@lucaceresoli.net>
 Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 23 Jan 2020 14:50:36 +0100, Luca Ceresoli wrote:
-> The index page currently lists sections in alphabetical file order without
-> caring about their content. Sort sections based on their content logically,
-> according to the following structure:
-> 
->  * Intro to I2C/SMBus and their usage in Linux: summary, i2c-protocol,
->    smbus-protocol, instantiating-devices, busses/index, i2c-topology,
->    muxes/i2c-mux-gpio
->  * Implementing drivers: writing-clients, dev-interface,
->    dma-considerations, fault-codes, functionality
->  * Debugging: gpio-fault-injection, i2c-stub
->  * Slave I2C: slave-interface, slave-eeprom-backend
->  * Advanced: ten-bit-addresses
->  * Obsolete info: upgrading-clients, old-module-parameters
+On Thu, 23 Jan 2020 14:50:37 +0100, Luca Ceresoli wrote:
+>  - state the "official" name (I²C, not I2C, according to the spec) at
+>    the beginning but keep using the more practical I2C elsewhere
+>  - mention some known different names
+>  - add link to the specification document
 > 
 > Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 > Reviewed-by: Jean Delvare <jdelvare@suse.de>
@@ -39,103 +26,13 @@ On Thu, 23 Jan 2020 14:50:36 +0100, Luca Ceresoli wrote:
 > ---
 > 
 > Changes in v2:
->  - split sections in groups (suggested by Jean Delvare)
->  - remove consecutive blank lines (reported by Jean Delvare)
+>  - clarify sentence (Jean Delvare)
 > ---
->  Documentation/i2c/index.rst | 59 ++++++++++++++++++++++++++++++-------
->  1 file changed, 48 insertions(+), 11 deletions(-)
-> 
-> diff --git a/Documentation/i2c/index.rst b/Documentation/i2c/index.rst
-> index a0fbaf6d0675..f0f3b9c97abb 100644
-> --- a/Documentation/i2c/index.rst
-> +++ b/Documentation/i2c/index.rst
-> @@ -4,30 +4,67 @@
->  I2C/SMBus Subsystem
->  ===================
->  
-> +Introduction
-> +============
-> +
-> +.. toctree::
-> +   :maxdepth: 1
-> +
-> +   summary
-> +   i2c-protocol
-> +   smbus-protocol
-> +   instantiating-devices
-> +   busses/index
-> +   i2c-topology
-> +   muxes/i2c-mux-gpio
-> +
-> +
-
-You still have a double blank line here, not sure if this is intended?
-
-Looks good otherwise.
+>  Documentation/i2c/summary.rst | 18 ++++++++++++------
+>  1 file changed, 12 insertions(+), 6 deletions(-)
+> (...)
 
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
-
-> +Writing device drivers
-> +======================
-> +
->  .. toctree::
->     :maxdepth: 1
->  
-> +   writing-clients
->     dev-interface
->     dma-considerations
->     fault-codes
->     functionality
-> +
-> +Debugging
-> +=========
-> +
-> +.. toctree::
-> +   :maxdepth: 1
-> +
->     gpio-fault-injection
-> -   i2c-protocol
->     i2c-stub
-> -   i2c-topology
-> -   instantiating-devices
-> -   old-module-parameters
-> -   slave-eeprom-backend
-> +
-> +Slave I2C
-> +=========
-> +
-> +.. toctree::
-> +   :maxdepth: 1
-> +
->     slave-interface
-> -   smbus-protocol
-> -   summary
-> +   slave-eeprom-backend
-> +
-> +Advanced topics
-> +===============
-> +
-> +.. toctree::
-> +   :maxdepth: 1
-> +
->     ten-bit-addresses
-> -   upgrading-clients
-> -   writing-clients
->  
-> -   muxes/i2c-mux-gpio
-> +Legacy documentation
-> +====================
->  
-> -   busses/index
-> +.. toctree::
-> +   :maxdepth: 1
-> +
-> +   upgrading-clients
-> +   old-module-parameters
->  
->  .. only::  subproject and html
->  
-
 
 -- 
 Jean Delvare
