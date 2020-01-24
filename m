@@ -1,62 +1,53 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 079/107] i2c: iop3xx: Fix memory leak in probe error path
-Date: Fri, 24 Jan 2020 09:17:49 -0500
-Message-ID: <20200124141817.28793-79-sashal@kernel.org>
-References: <20200124141817.28793-1-sashal@kernel.org>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2 11/28] docs: i2c: smbus: fix link syntax
+Date: Fri, 24 Jan 2020 15:57:31 +0100
+Message-ID: <20200124155731.5573076a@endymion>
+References: <20200123135103.20540-1-luca@lucaceresoli.net>
+        <20200123135103.20540-12-luca@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
+In-Reply-To: <20200123135103.20540-12-luca@lucaceresoli.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, kbuild test robot <lkp@intel.com>, Dan Carpenter <dan.carpenter@oracle.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+To: Luca Ceresoli <luca@lucaceresoli.net>
+Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+On Thu, 23 Jan 2020 14:50:46 +0100, Luca Ceresoli wrote:
+> Use the proper ReST syntax to generate a valid hyperlink.
+> 
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit e64175776d06a8ceebbfd349d7e66a4a46ca39ef ]
+Subject line is incorrect, it should have "smbus-protocol:" instead of
+"smbus:" for consistency with the other patches.
 
-When handling devm_gpiod_get_optional() errors, free the memory already
-allocated.  This fixes Smatch warnings:
+Other than that this is still
 
-    drivers/i2c/busses/i2c-iop3xx.c:437 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
-    drivers/i2c/busses/i2c-iop3xx.c:442 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-Fixes: fdb7e884ad61 ("i2c: iop: Use GPIO descriptors")
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-iop3xx.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+> ---
+>  Documentation/i2c/smbus-protocol.rst | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
+> index e30eb1d274c6..1600b09ec0be 100644
+> --- a/Documentation/i2c/smbus-protocol.rst
+> +++ b/Documentation/i2c/smbus-protocol.rst
+> @@ -27,8 +27,8 @@ a different protocol operation entirely.
+>  Each transaction type corresponds to a functionality flag. Before calling a
+>  transaction function, a device driver should always check (just once) for
+>  the corresponding functionality flag to ensure that the underlying I2C
+> -adapter supports the transaction in question. See
+> -<file:Documentation/i2c/functionality.rst> for the details.
+> +adapter supports the transaction in question. See :doc:`functionality` for
+> +the details.
+>  
+>  
+>  Key to symbols
 
-diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
-index 38556381f4cad..2f8b8050a2233 100644
---- a/drivers/i2c/busses/i2c-iop3xx.c
-+++ b/drivers/i2c/busses/i2c-iop3xx.c
-@@ -433,13 +433,17 @@ iop3xx_i2c_probe(struct platform_device *pdev)
- 	adapter_data->gpio_scl = devm_gpiod_get_optional(&pdev->dev,
- 							 "scl",
- 							 GPIOD_ASIS);
--	if (IS_ERR(adapter_data->gpio_scl))
--		return PTR_ERR(adapter_data->gpio_scl);
-+	if (IS_ERR(adapter_data->gpio_scl)) {
-+		ret = PTR_ERR(adapter_data->gpio_scl);
-+		goto free_both;
-+	}
- 	adapter_data->gpio_sda = devm_gpiod_get_optional(&pdev->dev,
- 							 "sda",
- 							 GPIOD_ASIS);
--	if (IS_ERR(adapter_data->gpio_sda))
--		return PTR_ERR(adapter_data->gpio_sda);
-+	if (IS_ERR(adapter_data->gpio_sda)) {
-+		ret = PTR_ERR(adapter_data->gpio_sda);
-+		goto free_both;
-+	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!res) {
+
 -- 
-2.20.1
+Jean Delvare
+SUSE L3 Support
