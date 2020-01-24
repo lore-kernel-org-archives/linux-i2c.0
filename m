@@ -1,49 +1,62 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2 03/28] docs: i2c: summary: rewrite the "terminology"
- section
-Date: Fri, 24 Jan 2020 14:28:35 +0100
-Message-ID: <20200124142835.1a5891e7@endymion>
-References: <20200123135103.20540-1-luca@lucaceresoli.net>
-        <20200123135103.20540-4-luca@lucaceresoli.net>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 079/107] i2c: iop3xx: Fix memory leak in probe error path
+Date: Fri, 24 Jan 2020 09:17:49 -0500
+Message-ID: <20200124141817.28793-79-sashal@kernel.org>
+References: <20200124141817.28793-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59086 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387722AbgAXN2i (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 24 Jan 2020 08:28:38 -0500
-In-Reply-To: <20200123135103.20540-4-luca@lucaceresoli.net>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200124141817.28793-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, kbuild test robot <lkp@intel.com>, Dan Carpenter <dan.carpenter@oracle.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>
-Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 
-On Thu, 23 Jan 2020 14:50:38 +0100, Luca Ceresoli wrote:
-> This section, partly dating back to the pre-git era, is somewhat
-> unclear and partly incorrect. Rewrite it almost completely including a
-> reference figure, concise but precise definition of each term and the
-> paths where drivers are found. Particular care has been put in clarifying
-> the relation between adapter and algorithm, which has no correspondence
-> in the I2C spec terminology.
-> 
-> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
-> 
-> ---
-> 
-> Changes in v2:
->  - mention the drivers/i2c/algos/ directory when introducing algos
->    (Jean Delvare)
-> ---
->  Documentation/i2c/i2c.svg     | 1341 +++++++++++++++++++++++++++++++++
->  Documentation/i2c/summary.rst |   36 +-
->  2 files changed, 1363 insertions(+), 14 deletions(-)
->  create mode 100644 Documentation/i2c/i2c.svg
-> (...)
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+[ Upstream commit e64175776d06a8ceebbfd349d7e66a4a46ca39ef ]
 
+When handling devm_gpiod_get_optional() errors, free the memory already
+allocated.  This fixes Smatch warnings:
+
+    drivers/i2c/busses/i2c-iop3xx.c:437 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
+    drivers/i2c/busses/i2c-iop3xx.c:442 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
+
+Fixes: fdb7e884ad61 ("i2c: iop: Use GPIO descriptors")
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/i2c/busses/i2c-iop3xx.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
+index 38556381f4cad..2f8b8050a2233 100644
+--- a/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -433,13 +433,17 @@ iop3xx_i2c_probe(struct platform_device *pdev)
+ 	adapter_data->gpio_scl = devm_gpiod_get_optional(&pdev->dev,
+ 							 "scl",
+ 							 GPIOD_ASIS);
+-	if (IS_ERR(adapter_data->gpio_scl))
+-		return PTR_ERR(adapter_data->gpio_scl);
++	if (IS_ERR(adapter_data->gpio_scl)) {
++		ret = PTR_ERR(adapter_data->gpio_scl);
++		goto free_both;
++	}
+ 	adapter_data->gpio_sda = devm_gpiod_get_optional(&pdev->dev,
+ 							 "sda",
+ 							 GPIOD_ASIS);
+-	if (IS_ERR(adapter_data->gpio_sda))
+-		return PTR_ERR(adapter_data->gpio_sda);
++	if (IS_ERR(adapter_data->gpio_sda)) {
++		ret = PTR_ERR(adapter_data->gpio_sda);
++		goto free_both;
++	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!res) {
 -- 
-Jean Delvare
-SUSE L3 Support
+2.20.1
