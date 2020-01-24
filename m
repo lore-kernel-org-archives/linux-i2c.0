@@ -1,96 +1,142 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: RE: [PATCH 5/5] ARM: dts: stm32: add Fast Mode Plus info in I2C nodes
- of stm32mp151
-Date: Fri, 24 Jan 2020 08:57:21 +0000
-Message-ID: <c7e1ed1294894d5697c649a26f82f498@SFHDAG5NODE2.st.com>
-References: <1579795970-22319-1-git-send-email-alain.volmat@st.com>
- <1579795970-22319-6-git-send-email-alain.volmat@st.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2 01/28] docs: i2c: sort index logically
+Date: Fri, 24 Jan 2020 13:35:48 +0100
+Message-ID: <20200124133548.7f01344a@endymion>
+References: <20200123135103.20540-1-luca@lucaceresoli.net>
+        <20200123135103.20540-2-luca@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
-In-Reply-To: <1579795970-22319-6-git-send-email-alain.volmat@st.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
-To: Alain VOLMAT <alain.volmat@st.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "robh+dt@kernel.org" <robh+dt@kernel.org>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Alexandre TORGUE <alexandre.torgue@st.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "mcoquelin.stm32@gmail.com" <mcoquelin.stm32@gmail.com>, Fabrice GASNIER <fabrice.gasnier@st.com>, "linux-stm32@st-md-mailman.stormreply.com" <linux-stm32@st-md-mailman.stormreply.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:55108 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729774AbgAXMfv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 24 Jan 2020 07:35:51 -0500
+In-Reply-To: <20200123135103.20540-2-luca@lucaceresoli.net>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Luca Ceresoli <luca@lucaceresoli.net>
+Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 
-Ok pour la serie
+On Thu, 23 Jan 2020 14:50:36 +0100, Luca Ceresoli wrote:
+> The index page currently lists sections in alphabetical file order without
+> caring about their content. Sort sections based on their content logically,
+> according to the following structure:
+> 
+>  * Intro to I2C/SMBus and their usage in Linux: summary, i2c-protocol,
+>    smbus-protocol, instantiating-devices, busses/index, i2c-topology,
+>    muxes/i2c-mux-gpio
+>  * Implementing drivers: writing-clients, dev-interface,
+>    dma-considerations, fault-codes, functionality
+>  * Debugging: gpio-fault-injection, i2c-stub
+>  * Slave I2C: slave-interface, slave-eeprom-backend
+>  * Advanced: ten-bit-addresses
+>  * Obsolete info: upgrading-clients, old-module-parameters
+> 
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> 
+> ---
+> 
+> Changes in v2:
+>  - split sections in groups (suggested by Jean Delvare)
+>  - remove consecutive blank lines (reported by Jean Delvare)
+> ---
+>  Documentation/i2c/index.rst | 59 ++++++++++++++++++++++++++++++-------
+>  1 file changed, 48 insertions(+), 11 deletions(-)
+> 
+> diff --git a/Documentation/i2c/index.rst b/Documentation/i2c/index.rst
+> index a0fbaf6d0675..f0f3b9c97abb 100644
+> --- a/Documentation/i2c/index.rst
+> +++ b/Documentation/i2c/index.rst
+> @@ -4,30 +4,67 @@
+>  I2C/SMBus Subsystem
+>  ===================
+>  
+> +Introduction
+> +============
+> +
+> +.. toctree::
+> +   :maxdepth: 1
+> +
+> +   summary
+> +   i2c-protocol
+> +   smbus-protocol
+> +   instantiating-devices
+> +   busses/index
+> +   i2c-topology
+> +   muxes/i2c-mux-gpio
+> +
+> +
 
------Original Message-----
-From: Alain VOLMAT <alain.volmat@st.com> 
-Sent: jeudi 23 janvier 2020 17:13
-To: wsa@the-dreams.de; robh+dt@kernel.org
-Cc: mark.rutland@arm.com; Pierre Yves MORDRET <pierre-yves.mordret@st.com>; mcoquelin.stm32@gmail.com; Alexandre TORGUE <alexandre.torgue@st.com>; linux-i2c@vger.kernel.org; devicetree@vger.kernel.org; linux-stm32@st-md-mailman.stormreply.com; linux-arm-kernel@lists.infradead.org; linux-kernel@vger.kernel.org; Fabrice GASNIER <fabrice.gasnier@st.com>; Alain VOLMAT <alain.volmat@st.com>
-Subject: [PATCH 5/5] ARM: dts: stm32: add Fast Mode Plus info in I2C nodes of stm32mp151
+You still have a double blank line here, not sure if this is intended?
 
-Add the syscfg-fmp property in each i2c node in order to allow Fast Mode Plus speed if clock-frequency >= 1MHz is indicated.
+Looks good otherwise.
 
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
----
- arch/arm/boot/dts/stm32mp151.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-diff --git a/arch/arm/boot/dts/stm32mp151.dtsi b/arch/arm/boot/dts/stm32mp151.dtsi
-index 2dbf32ca9b36..ecd0a932aa78 100644
---- a/arch/arm/boot/dts/stm32mp151.dtsi
-+++ b/arch/arm/boot/dts/stm32mp151.dtsi
-@@ -483,6 +483,7 @@
- 			resets = <&rcc I2C1_R>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-+			st,syscfg-fmp = <&syscfg 0x4 0x1>;
- 			wakeup-source;
- 			status = "disabled";
- 		};
-@@ -497,6 +498,7 @@
- 			resets = <&rcc I2C2_R>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-+			st,syscfg-fmp = <&syscfg 0x4 0x2>;
- 			wakeup-source;
- 			status = "disabled";
- 		};
-@@ -511,6 +513,7 @@
- 			resets = <&rcc I2C3_R>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-+			st,syscfg-fmp = <&syscfg 0x4 0x4>;
- 			wakeup-source;
- 			status = "disabled";
- 		};
-@@ -525,6 +528,7 @@
- 			resets = <&rcc I2C5_R>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-+			st,syscfg-fmp = <&syscfg 0x4 0x10>;
- 			wakeup-source;
- 			status = "disabled";
- 		};
-@@ -1477,6 +1481,7 @@
- 			resets = <&rcc I2C4_R>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-+			st,syscfg-fmp = <&syscfg 0x4 0x8>;
- 			wakeup-source;
- 			status = "disabled";
- 		};
-@@ -1513,6 +1518,7 @@
- 			resets = <&rcc I2C6_R>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-+			st,syscfg-fmp = <&syscfg 0x4 0x20>;
- 			wakeup-source;
- 			status = "disabled";
- 		};
---
-2.7.4
+> +Writing device drivers
+> +======================
+> +
+>  .. toctree::
+>     :maxdepth: 1
+>  
+> +   writing-clients
+>     dev-interface
+>     dma-considerations
+>     fault-codes
+>     functionality
+> +
+> +Debugging
+> +=========
+> +
+> +.. toctree::
+> +   :maxdepth: 1
+> +
+>     gpio-fault-injection
+> -   i2c-protocol
+>     i2c-stub
+> -   i2c-topology
+> -   instantiating-devices
+> -   old-module-parameters
+> -   slave-eeprom-backend
+> +
+> +Slave I2C
+> +=========
+> +
+> +.. toctree::
+> +   :maxdepth: 1
+> +
+>     slave-interface
+> -   smbus-protocol
+> -   summary
+> +   slave-eeprom-backend
+> +
+> +Advanced topics
+> +===============
+> +
+> +.. toctree::
+> +   :maxdepth: 1
+> +
+>     ten-bit-addresses
+> -   upgrading-clients
+> -   writing-clients
+>  
+> -   muxes/i2c-mux-gpio
+> +Legacy documentation
+> +====================
+>  
+> -   busses/index
+> +.. toctree::
+> +   :maxdepth: 1
+> +
+> +   upgrading-clients
+> +   old-module-parameters
+>  
+>  .. only::  subproject and html
+>  
+
+
+-- 
+Jean Delvare
+SUSE L3 Support
