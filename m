@@ -1,60 +1,80 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2 28/28] docs: i2c: writing-clients: properly name the
- stop condition
-Date: Fri, 24 Jan 2020 17:01:10 +0100
-Message-ID: <20200124170110.0a6110b2@endymion>
-References: <20200123135103.20540-1-luca@lucaceresoli.net>
-        <20200123145626.8102-1-luca@lucaceresoli.net>
-        <20200123145626.8102-15-luca@lucaceresoli.net>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [GIT PULL] at24: updates for v5.6
+Date: Fri, 24 Jan 2020 17:46:44 +0100
+Message-ID: <20200124164644.20020-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20200123145626.8102-15-luca@lucaceresoli.net>
-Sender: linux-doc-owner@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>
-Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm1-f42.google.com ([209.85.128.42]:40902 "EHLO
+        mail-wm1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387674AbgAXQqu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Jan 2020 11:46:50 -0500
+Received: by mail-wm1-f42.google.com with SMTP id t14so94181wmi.5
+        for <linux-i2c@vger.kernel.org>; Fri, 24 Jan 2020 08:46:49 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-On Thu, 23 Jan 2020 15:56:26 +0100, Luca Ceresoli wrote:
-> In I2C there is no such thing as a "stop bit". Use the proper naming: "stop
-> condition".
-> 
-> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-> Reported-by: Jean Delvare <jdelvare@suse.de>
-> 
-> ---
-> 
-> This patch is new in v2.
-> ---
->  Documentation/i2c/writing-clients.rst | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/Documentation/i2c/writing-clients.rst b/Documentation/i2c/writing-clients.rst
-> index 82aa33c964d3..978cc8210bf3 100644
-> --- a/Documentation/i2c/writing-clients.rst
-> +++ b/Documentation/i2c/writing-clients.rst
-> @@ -357,9 +357,9 @@ read/written.
->  
->  This sends a series of messages. Each message can be a read or write,
->  and they can be mixed in any way. The transactions are combined: no
-> -stop bit is sent between transaction. The i2c_msg structure contains
-> -for each message the client address, the number of bytes of the message
-> -and the message data itself.
-> +stop condition is issued between transaction. The i2c_msg structure
-> +contains for each message the client address, the number of bytes of the
-> +message and the message data itself.
->  
->  You can read the file ``i2c-protocol`` for more information about the
->  actual I2C protocol.
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Hi Wolfram,
 
-I have reviewed the whole v2 series, so any patch to which I did not
-reply to retains my Reviewed-by tag.
+I'm sorry for the late PR. I was (still am actually) OoO for family
+reasons. I hope you can still pull this for the next merge window.
 
-Thanks Luca!
+This time the release is pretty big for this driver. We have moved the
+support for write-protect pin control into the core nvmem library so that
+all nvmem users can use it automatically. All nvmem changes were acked by
+Srinivas and have been in next for some time. The DT binding document for
+at25 was updated and the patch was acked by Greg KH. The driver also now
+supports regulator control and has suspend/resume callbacks.
 
--- 
-Jean Delvare
-SUSE L3 Support
+Best regards,
+Bartosz
+
+The following changes since commit e42617b825f8073569da76dc4510bfa019b1c35a:
+
+  Linux 5.5-rc1 (2019-12-08 14:57:55 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git at24-updates-for-v5.6
+
+for you to fetch changes up to cd5676db0574cc1c0b234bc3b17565b07290aa72:
+
+  misc: eeprom: at24: support pm_runtime control (2020-01-23 12:52:57 +0100)
+
+----------------------------------------------------------------
+at24 updates for linux v5.6
+
+- minor maintenance: update the license tag, sort headers
+- move support for the write-protect pin into nvmem core
+- add a reference to the new wp-gpios property in nvmem to at25 bindings
+- add support for regulator and pm_runtime control
+
+----------------------------------------------------------------
+Bartosz Golaszewski (3):
+      eeprom: at24: update the license tag
+      eeprom: at24: sort headers alphabetically
+      nvmem: fix a 'makes pointer from integer without a cast' build warning
+
+Bibby Hsieh (2):
+      dt-binding: eeprom: at24: add vcc-supply property
+      misc: eeprom: at24: support pm_runtime control
+
+Khouloud Touil (5):
+      dt-bindings: nvmem: new optional property wp-gpios
+      nvmem: add support for the write-protect pin
+      dt-bindings: at24: make wp-gpios a reference to the property defined by nvmem
+      eeprom: at24: remove the write-protect pin support
+      dt-bindings: at25: add reference for the wp-gpios property
+
+ Documentation/devicetree/bindings/eeprom/at24.yaml |  9 +--
+ Documentation/devicetree/bindings/eeprom/at25.txt  |  2 +
+ Documentation/devicetree/bindings/nvmem/nvmem.yaml | 11 ++++
+ drivers/misc/eeprom/at24.c                         | 72 +++++++++++++++-------
+ drivers/nvmem/core.c                               | 19 +++++-
+ drivers/nvmem/nvmem.h                              |  2 +
+ include/linux/nvmem-provider.h                     |  3 +
+ 7 files changed, 91 insertions(+), 27 deletions(-)
