@@ -1,60 +1,38 @@
-From: Ajay Gupta <ajayg@nvidia.com>
-Subject: RE: In power saving mode i2c_nvidia_gpu modules affect power
- consumption a lot
-Date: Fri, 24 Jan 2020 19:51:12 +0000
-Message-ID: <BYAPR12MB27274DD4157E0CC0EB26CD98DC0E0@BYAPR12MB2727.namprd12.prod.outlook.com>
-References: <CAFv23Qnh2AD-Mgr=v1Ojxaob4aBjUTD+-oLdmyXzBPe0oS6vtw@mail.gmail.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] i2c: parport: fix spelling mistake: "Atmost" -> "At most"
+Date: Sat, 25 Jan 2020 20:20:20 +0000
+Message-ID: <20200125202020.12861-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:17161 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388136AbgAXTvP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Jan 2020 14:51:15 -0500
-In-Reply-To: <CAFv23Qnh2AD-Mgr=v1Ojxaob4aBjUTD+-oLdmyXzBPe0oS6vtw@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: AceLan Kao <acelan.kao@canonical.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-SGkgQWNlTGFuLA0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEFjZUxh
-biBLYW8gPGFjZWxhbi5rYW9AY2Fub25pY2FsLmNvbT4NCj4gU2VudDogVGh1cnNkYXksIERlY2Vt
-YmVyIDE5LCAyMDE5IDQ6NTMgUE0NCj4gVG86IEFqYXkgR3VwdGEgPGFqYXlnQG52aWRpYS5jb20+
-OyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IEluIHBvd2VyIHNhdmluZyBt
-b2RlIGkyY19udmlkaWFfZ3B1IG1vZHVsZXMgYWZmZWN0IHBvd2VyDQo+IGNvbnN1bXB0aW9uIGEg
-bG90DQo+IA0KPiBFeHRlcm5hbCBlbWFpbDogVXNlIGNhdXRpb24gb3BlbmluZyBsaW5rcyBvciBh
-dHRhY2htZW50cw0KPiANCj4gDQo+IEhpIGFsbCwNCj4gDQo+IFdlIGVuY291bnRlcmVkIGFuIGlz
-c3VlIHRoYXQgd2hpbGUgc3dpdGNoaW5nIHRvIHBvd2VyIHNhdmluZyBtb2RlKHVzZQ0KPiBpR1BV
-KSwgdGhlIHBvd2VyIGNvbnN1bXB0aW9uIGdvZXMgdXAgdG8gNDAgV2F0dCwgYW5kIGFmdGVyIHJl
-bW92ZWQNCj4gaTJjX252aWRpYV9ncHUsIGl0IGJlY29tZXMgNSBXYXR0Lg0KPiANCj4gSSd2ZSB0
-cmllZCB0byBjaGVjayB0aGUgZHJpdmVyIHRvIHNlZSBpZiBpdCBjYW4gdGVsbCBpdCdzIHVuZGVy
-IHBvd2VyIHNhdmluZyBtb2RlDQo+IGFuZCBmb3VuZCB0aGF0IHRoZSBmaXJzdCB0aW1lIHlvdSBj
-YWxsIGdwdV9pMmNfY2hlY2tfc3RhdHVzKCksIA0KZ3B1X2kyY19jaGVja19zdGF0dXMoKSBpcyBu
-b3QgcmlnaHQgcGxhY2UgdG8gY2hlY2sgaWYgZHJpdmVyIGlzIHVuZGVyIHBvd2VyIHNhdmluZw0K
-bW9kZS4gWW91IGNhbiBjaGVjayBsc3BjaSBvdXRwdXQgYW5kIGxvb2tzIGZvciAiU3RhdHVzIiBm
-aWVsZCBpbiBQb3dlciBNYW5hZ2VtZW50DQpDYXBhYmlsaXRpZXMuDQpncHVfaTJjX2NoZWNrX3N0
-YXR1cygpIHJlYWRzIEkyQ19NU1RfQ05UTCByZWdpc3RlciB0byBrbm93IHRoZSBzdGF0dXMgb2Yg
-aTJjDQp0cmFuc2FjdGlvbiAoU1RBUlQsIFJFQUQsIFdSSVRFLCBTVE9QKW9uIHRoZSBidXMuIFRo
-aXMgcmVnaXN0ZXIgZG9lc24ndCBoYXZlDQpzdGF0dXMgb2YgcG93ZXIgc2F2aW5nIG1vZGUuDQoN
-Cj4gaXQgZ290IDAgZnJvbQ0KPiByZWFkbCgpLCBhbmQgdGhlIHNlY29uZCBhbmQgdGhlIGZvbGxv
-d2luZyByZWFkbCgpLCBpdCByZXR1cm5zIDB4ZTAwMDAwMDAuIEl0DQo+IGxvb2tzIGxpa2UgYW4g
-ZXJyb3IgY29kZSBjb21iaW5lZCB3aXRoIEkyQ19NU1RfQ05UTF9TVEFUVVNfTk9fQUNLIGFuZA0K
-PiBJMkNfTVNUX0NOVExfU1RBVFVTX1RJTUVPVVQuDQpBIHZhbHVlIG9mIDAgbWVhbnMgbGFzdCBJ
-MkMgdHJhbnNhY3Rpb24gb24gdGhlIGJ1cyB3YXMgc3VjY2Vzc2Z1bC5WYWx1ZQ0KMHhlMDAwMDAw
-MCBtZWFucyBJMkMgYnVzIGlzIHN0aWxsIGJ1c3kgZG9pbmcgdGhlIHRyYW5zYWN0aW9uIA0KKHJl
-ZmVyIEkyQ19NU1RfQ05UTF9TVEFUVVNfQlVTX0JVU1kpLg0KDQo+IA0KPiBNb3Jlb3ZlciwgaTJj
-X252aWRpYV9ncHUgbW9kdWxlIHNlZW1zIGRlcGVuZHMgb24gaW50ZWxfbHBzcyBkcml2ZXIgc2lu
-Y2UgaXQNCj4gcHJvdmlkZXMgaTJjIGludGVyZmFjZS4gU28gaWYgd2UgY2FuIHRvIHVzZSB0aGUg
-YWJvdmUgYmVoYXZpb3IgdG8gY2hlY2sgaXRzDQo+IHN0YXR1cywgdGhlIHN5c3RlbSBoYXZlIHRv
-IGxvYWQgaW50ZWxfbHBzcyBmaXJzdC4gQnV0IGN1cnJlbnRseSwgaXQgc2VlbXMgbm90DQo+IHBv
-c3NpYmxlIHRvIGxvYWQgbW9kdWxlcyBpbiBvdXIgb3JkZXIuDQo+IA0KPiBTbywgSSdtIHdvbmRl
-cmluZyBpZiB3ZSBoYXZlIG90aGVyIG1ldGhvZCB0byBjaGVjayBhbmQgbm90IGxvYWQNCj4gaTJj
-X252aWRpYV9ncHUgbW9kdWxlIG9yIGlmIGl0J3MgcG9zc2libGUgdG8gY2hlY2sgd2h5IGxvYWRp
-bmcgaTJjX252aWRpYV9ncHUNCj4gYWZmZWN0cyBwb3dlciBjb25zdW1wdGlvbiBhIGxvdC4NCg0K
-V2hpY2gga2VybmVsIHZlcnNpb24gZG8geW91IHNlZSB0aGUgaXNzdWUgd2l0aD8NClBvd2VyIG1h
-bmFnZW1lbnQgcmVsYXRlZCBjaGFuZ2VzIHdlcmUgbWVyZ2VkIGluIG1haW5saW5lIGtlcm5lbCB2
-NS4zLiANCklmIHlvdSBhcmUgdXNpbmcgb2xkZXIga2VybmVsIHRoZW4gbmVlZCB0byBwdWxsIHJ1
-bnRpbWUgUE0gcmVsYXRlZCBwYXRjaGVzDQpmcm9tIGxhdGVzdCBrZXJuZWwuDQpodHRwczovL21h
-cmMuaW5mby8/bD1saW51eC11c2ImbT0xNTU5OTQ1NDQ3MDU5MDEmdz0yDQoNCnRoYW5rcw0KPiAg
-bnZwdWJsaWMNCj4gVGhhbmtzLg0KPiANCj4gQmVzdCByZWdhcmRzLA0KPiBBY2VMYW4gS2FvLg0K
+From: Colin Ian King <colin.king@canonical.com>
+
+There is a spelling mistake in a module parameter description.
+Fix it.
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/i2c/busses/i2c-parport.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
+index f8f94a25af26..81eb441b2387 100644
+--- a/drivers/i2c/busses/i2c-parport.c
++++ b/drivers/i2c/busses/i2c-parport.c
+@@ -129,7 +129,7 @@ static int parport[MAX_DEVICE] = {0, -1, -1, -1};
+ module_param_array(parport, int, NULL, 0);
+ MODULE_PARM_DESC(parport,
+ 		 "List of parallel ports to bind to, by index.\n"
+-		 " Atmost " __stringify(MAX_DEVICE) " devices are supported.\n"
++		 " At most " __stringify(MAX_DEVICE) " devices are supported.\n"
+ 		 " Default is one device connected to parport0.\n"
+ );
+ 
+-- 
+2.24.0
