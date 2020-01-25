@@ -1,38 +1,40 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] i2c: parport: fix spelling mistake: "Atmost" -> "At most"
-Date: Sat, 25 Jan 2020 20:20:20 +0000
-Message-ID: <20200125202020.12861-1-colin.king@canonical.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PULL REQUEST] i2c-mux for 5.6-rc1
+Date: Sat, 25 Jan 2020 22:43:09 +0000
+Message-ID: <50c8b786-b261-311c-6c25-07959442c878@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr70094.outbound.protection.outlook.com ([40.107.7.94]:47102
+        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727285AbgAYWnO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 25 Jan 2020 17:43:14 -0500
+Content-Language: en-US
+Content-ID: <8606CEAFE60FF346A1D96D400F9C8B9C@eurprd02.prod.outlook.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-From: Colin Ian King <colin.king@canonical.com>
-
-There is a spelling mistake in a module parameter description.
-Fix it.
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/i2c/busses/i2c-parport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
-index f8f94a25af26..81eb441b2387 100644
---- a/drivers/i2c/busses/i2c-parport.c
-+++ b/drivers/i2c/busses/i2c-parport.c
-@@ -129,7 +129,7 @@ static int parport[MAX_DEVICE] = {0, -1, -1, -1};
- module_param_array(parport, int, NULL, 0);
- MODULE_PARM_DESC(parport,
- 		 "List of parallel ports to bind to, by index.\n"
--		 " Atmost " __stringify(MAX_DEVICE) " devices are supported.\n"
-+		 " At most " __stringify(MAX_DEVICE) " devices are supported.\n"
- 		 " Default is one device connected to parport0.\n"
- );
- 
--- 
-2.24.0
+SGkgV29sZnJhbSwNCg0KVGhpcyBoYXMgYmVlbiBpbiAtbmV4dCBzaW5jZSBhIGNvdXBsZSBvZiB3
+ZWVrcywgYW5kIGhhcyB0aHVzIGJlZW4gdGVzdGVkIHNpbmNlDQpyaWdodCBhZnRlciBTdGVwaGVu
+IGdvdCBiYWNrIGZyb20gaGlzIGJyZWFrLiBBbmQgaXQncyBob3BlZnVsbHkgbm90IHRvbyBsYXRl
+Li4uDQoNClRoZSBtYWluIGZlYXR1cmUgaXMgdGhlIGlkbGUtc3RhdGUgcmV3b3JrIG9mIHRoZSBw
+Y2E5NTR4IGRyaXZlciBmcm9tIEJpd2VuIExpLg0KDQpQbGVhc2UgcHVsbC4NCg0KQ2hlZXJzLA0K
+UGV0ZXINCg0KVGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCBkMWVlZjFjNjE5NzQ5
+YjJhNTdlNTE0YTNmYTY3ZDlhNTE2ZmZhOTE5Og0KDQogIExpbnV4IDUuNS1yYzIgKDIwMTktMTIt
+MTUgMTU6MTY6MDggLTA4MDApDQoNCmFyZSBhdmFpbGFibGUgaW4gdGhlIEdpdCByZXBvc2l0b3J5
+IGF0Og0KDQogIGh0dHBzOi8vZ2l0aHViLmNvbS9wZWRhLXIvaTJjLW11eC5naXQgaTJjLW11eC9m
+b3ItbmV4dA0KDQpmb3IgeW91IHRvIGZldGNoIGNoYW5nZXMgdXAgdG8gZTY1ZTIyOGViMDk2M2Jl
+MzIxODBkYjMwMzlmMGExNDY3YjQyNmFhZToNCg0KICBpMmM6IG11eDogcGNhOTU0eDogc3VwcG9y
+dCBwcm9wZXJ0eSBpZGxlLXN0YXRlICgyMDIwLTAxLTAzIDE1OjAwOjUzICswMTAwKQ0KDQotLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tDQpCaXdlbiBMaSAoMik6DQogICAgICBkdC1iaW5kaW5nczogaTJjOiBzdXBwb3J0IHByb3Bl
+cnR5IGlkbGUtc3RhdGUNCiAgICAgIGkyYzogbXV4OiBwY2E5NTR4OiBzdXBwb3J0IHByb3BlcnR5
+IGlkbGUtc3RhdGUNCg0KUGV0ZXIgUm9zaW4gKDEpOg0KICAgICAgaTJjOiBtdXg6IHBjYTk1NDE6
+IHVzZSB0aGUgQklUIG1hY3JvDQoNCiAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW11
+eC1wY2E5NTR4LnR4dCAgICB8ICAyICsNCiBkcml2ZXJzL2kyYy9tdXhlcy9pMmMtbXV4LXBjYTk1
+NDEuYyAgICAgICAgICAgICAgICB8IDI5ICsrKystLS0tLQ0KIGRyaXZlcnMvaTJjL211eGVzL2ky
+Yy1tdXgtcGNhOTU0eC5jICAgICAgICAgICAgICAgIHwgNjkgKysrKysrKysrKysrKystLS0tLS0t
+LQ0KIDMgZmlsZXMgY2hhbmdlZCwgNjMgaW5zZXJ0aW9ucygrKSwgMzcgZGVsZXRpb25zKC0pDQo=
