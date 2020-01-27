@@ -1,46 +1,44 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH][next] i2c: xiic: fix indentation issue
-Date: Mon, 27 Jan 2020 10:08:27 +0000
-Message-ID: <a49786b8-bf71-727b-0785-62bd606a159b@axentia.se>
-References: <20200126154257.41336-1-colin.king@canonical.com>
- <e20558ec-bf4e-9348-f6cb-a37c5dbbb2de@xilinx.com>
- <6558ccbc-56f7-b30d-df02-1eaf07072c4d@canonical.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH][next][V2] i2c: xiic: fix indentation issue
+Date: Mon, 27 Jan 2020 10:23:03 +0000
+Message-ID: <20200127102303.44133-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6558ccbc-56f7-b30d-df02-1eaf07072c4d@canonical.com>
-Content-Language: en-US
-Content-ID: <9D4CE742CE73534BAB68505071BDB30E@eurprd02.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Colin Ian King <colin.king@canonical.com>, Michal Simek <michal.simek@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:50971 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725845AbgA0KXI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Jan 2020 05:23:08 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Michal Simek <michal.simek@xilinx.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-T24gMjAyMC0wMS0yNyAxMDoyNiwgQ29saW4gSWFuIEtpbmcgd3JvdGU6DQo+IE9uIDI3LzAxLzIw
-MjAgMDc6NDMsIE1pY2hhbCBTaW1layB3cm90ZToNCj4+IE9uIDI2LiAwMS4gMjAgMTY6NDIsIENv
-bGluIEtpbmcgd3JvdGU6DQo+Pj4gRnJvbTogQ29saW4gSWFuIEtpbmcgPGNvbGluLmtpbmdAY2Fu
-b25pY2FsLmNvbT4NCj4+Pg0KPj4+IFRoZXJlIGlzIGEgc3RhdG1lbnQgdGhhdCBpcyBpbmRlbnRl
-ZCBvbmUgbGV2ZWwgdG9vIGRlZXBseSwgcmVtb3ZlDQo+Pg0KPj4gdHlwbyAgICAgICAgICAgICBe
-DQo+IA0KPiBDYW4gdGhpcyBiZSBmaXhlZCB3aGVuIHRoZSBwYXRjaCBpcyBhcHBsaWVkIHJhdGhl
-ciB0aGFuIHNlbmRpbmcgYSBWMj8NCg0KSXQgY2FuLCBidXQgSSB0aGluayB5b3Ugd2lsbCBtYWtl
-IGl0IGVhc2llciBmb3IgV29sZnJhbSBpZiB5b3Ugc2VuZCBhIHYyLg0KV2hpY2ggaXMgdGhlIHJp
-Z2h0IHRoaW5nIHRvIGRvIGFueXdheSBzaW5jZSB5b3UgYXJlIG1pc3NpbmcgYSBGaXhlcyB0YWcu
-DQpJIHRoaW5rIHlvdSBzaG91bGQgaGF2ZSBvbmUsIHNpbmNlIGl0IGlzIGJvcmRlcmxpbmUgaWYg
-dGhpcyBwYXRjaCBpcyBnb2luZw0KdG8gbWFrZSBpdCBiZWZvcmUgNS42Lg0KDQpDaGVlcnMsDQpQ
-ZXRlcg0KDQo+IENvbGluDQo+IA0KPj4NCj4+PiB0aGUgZXh0cmFuZW91cyB0YWIuDQo+Pj4NCj4+
-PiBTaWduZWQtb2ZmLWJ5OiBDb2xpbiBJYW4gS2luZyA8Y29saW4ua2luZ0BjYW5vbmljYWwuY29t
-Pg0KPj4+IC0tLQ0KPj4+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLXhpaWMuYyB8IDIgKy0NCj4+
-PiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pDQo+Pj4NCj4+
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy14aWljLmMgYi9kcml2ZXJzL2ky
-Yy9idXNzZXMvaTJjLXhpaWMuYw0KPj4+IGluZGV4IGIxN2QzMGM5YWI0MC4uOTBjMWMzNjIzOTRk
-IDEwMDY0NA0KPj4+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMteGlpYy5jDQo+Pj4gKysr
-IGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy14aWljLmMNCj4+PiBAQCAtMjYxLDcgKzI2MSw3IEBA
-IHN0YXRpYyBpbnQgeGlpY19jbGVhcl9yeF9maWZvKHN0cnVjdCB4aWljX2kyYyAqaTJjKQ0KPj4+
-ICAJCXhpaWNfZ2V0cmVnOChpMmMsIFhJSUNfRFJSX1JFR19PRkZTRVQpOw0KPj4+ICAJCWlmICh0
-aW1lX2FmdGVyKGppZmZpZXMsIHRpbWVvdXQpKSB7DQo+Pj4gIAkJCWRldl9lcnIoaTJjLT5kZXYs
-ICJGYWlsZWQgdG8gY2xlYXIgcnggZmlmb1xuIik7DQo+Pj4gLQkJCQlyZXR1cm4gLUVUSU1FRE9V
-VDsNCj4+PiArCQkJcmV0dXJuIC1FVElNRURPVVQ7DQo+Pj4gIAkJfQ0KPj4+ICAJfQ0KPj4NCj4+
-IFdoZW4gZml4ZWQuDQo+Pg0KPj4gQWNrZWQtYnk6IE1pY2hhbCBTaW1layA8bWljaGFsLnNpbWVr
-QHhpbGlueC5jb20+DQo+Pg0KPj4gVGhhbmtzLA0KPj4gTWljaGFsDQo+Pg0KPj4NCj4+DQo+Pg0K
-Pj4NCj4+DQo+IA0KDQo=
+From: Colin Ian King <colin.king@canonical.com>
+
+There is a statement that is indented one level too deeply, remove
+the extraneous tab.
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+V2: fix type in commit message
+---
+ drivers/i2c/busses/i2c-xiic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index b17d30c9ab40..90c1c362394d 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -261,7 +261,7 @@ static int xiic_clear_rx_fifo(struct xiic_i2c *i2c)
+ 		xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
+ 		if (time_after(jiffies, timeout)) {
+ 			dev_err(i2c->dev, "Failed to clear rx fifo\n");
+-				return -ETIMEDOUT;
++			return -ETIMEDOUT;
+ 		}
+ 	}
+ 
+-- 
+2.24.0
