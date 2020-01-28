@@ -1,157 +1,62 @@
-From: Tomasz Figa <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v10 4/4] i2c: core: support bus regulator controlling in adapter
-Date: Tue, 28 Jan 2020 16:32:12 +0900
-Message-ID: <CAAFQd5CWqhZpSn=w-r6kSWyNAmjNG1eE6A-z48fxfg4VT_B=3w@mail.gmail.com>
-References: <20200116025637.3524-1-bibby.hsieh@mediatek.com>
- <20200116025637.3524-5-bibby.hsieh@mediatek.com> <20200128063633.GA1088@ninjato>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH][next][V2] i2c: xiic: fix indentation issue
+Date: Tue, 28 Jan 2020 21:45:24 +0000
+Message-ID: <35ed6501-3b26-36a9-d332-d4ed3366ebd8@axentia.se>
+References: <20200127102303.44133-1-colin.king@canonical.com>
+ <2dd84ab2-a7a3-fdd8-6bd6-07f1b3d5cd00@xilinx.com>
+ <20200127120535.GC1847@kadam>
+ <89661e5e-7662-81a5-ec36-57367825de5e@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200128063633.GA1088@ninjato>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Nicolas Boichat <drinkcat-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, srv_heupstream <srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <89661e5e-7662-81a5-ec36-57367825de5e@canonical.com>
+Content-Language: en-US
+Content-ID: <46710B87C475CD45A9ED51494BE6860C@eurprd02.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Colin Ian King <colin.king@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, Michal Simek <michal.simek@xilinx.com>, Johan Hovold <johan@kernel.org>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 28, 2020 at 3:36 PM Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->
-> On Thu, Jan 16, 2020 at 10:56:37AM +0800, Bibby Hsieh wrote:
-> > Although in the most platforms, the bus power of i2c
-> > are alway on, some platforms disable the i2c bus power
-> > in order to meet low power request.
-> >
-> > We get and enable bulk regulator in i2c adapter device.
-> >
-> > Signed-off-by: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
->
-> ...
->
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int i2c_resume(struct device *dev)
-> > +{
-> > +     struct i2c_client *client = i2c_verify_client(dev);
-> > +     struct i2c_adapter *adap = client->adapter;
-> > +     int err;
-> > +
-> > +     if (pm_runtime_status_suspended(&adap->dev)) {
-> > +             err = regulator_enable(adap->bus_reg);
-> > +             if (err)
-> > +                     return err;
-> > +     }
-> > +
-> > +     return pm_generic_resume(dev);
-> > +}
-> > +
-> > +static int i2c_suspend(struct device *dev)
-> > +{
-> > +     struct i2c_client *client = i2c_verify_client(dev);
-> > +     struct i2c_adapter *adap = client->adapter;
-> > +     int err;
-> > +
-> > +     if (!pm_runtime_status_suspended(&adap->dev)) {
-> > +             err = regulator_disable(adap->bus_reg);
-> > +             if (err)
-> > +                     return err;
-> > +     }
-> > +
-> > +     return pm_generic_suspend(dev);
-> > +}
-> > +#endif
-> > +
-> > +#ifdef CONFIG_PM
-> > +static int i2c_runtime_resume(struct device *dev)
-> > +{
-> > +     struct i2c_client *client = i2c_verify_client(dev);
-> > +     struct i2c_adapter *adap = client->adapter;
-> > +     int err;
-> > +
-> > +     err = regulator_enable(adap->bus_reg);
-> > +     if (err)
-> > +             return err;
-> > +
-> > +     return pm_generic_runtime_resume(dev);
-> > +}
-> > +
-> > +static int i2c_runtime_suspend(struct device *dev)
-> > +{
-> > +     struct i2c_client *client = i2c_verify_client(dev);
-> > +     struct i2c_adapter *adap = client->adapter;
-> > +     int err;
-> > +
-> > +     err = pm_generic_runtime_suspend(dev);
-> > +     if (err)
-> > +             return err;
-> > +
-> > +     return regulator_disable(adap->bus_reg);
-> > +}
-> > +#endif
-> > +
-> > +static const struct dev_pm_ops i2c_device_pm = {
-> > +     SET_SYSTEM_SLEEP_PM_OPS(i2c_suspend, i2c_resume)
-> > +     SET_RUNTIME_PM_OPS(i2c_runtime_suspend, i2c_runtime_resume, NULL)
-> > +};
-> > +
->
-> It looks good to me, yet I am not a PM expert. An ack from someone more
-> into that topic would be great, if possible.
->
-> >  static void i2c_device_shutdown(struct device *dev)
-> >  {
-> >       struct i2c_client *client = i2c_verify_client(dev);
-> > @@ -488,6 +563,7 @@ struct bus_type i2c_bus_type = {
-> >       .probe          = i2c_device_probe,
-> >       .remove         = i2c_device_remove,
-> >       .shutdown       = i2c_device_shutdown,
-> > +     .pm             = &i2c_device_pm,
-> >  };
-> >  EXPORT_SYMBOL_GPL(i2c_bus_type);
-> >
-> > @@ -1351,6 +1427,11 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
-> >               goto out_reg;
-> >
-> >       dev_dbg(&adap->dev, "adapter [%s] registered\n", adap->name);
-> > +     adap->bus_reg = devm_regulator_get(&adap->dev, "bus");
-> > +     if (IS_ERR(adap->bus_reg)) {
-> > +             res = PTR_ERR(adap->bus_reg);
-> > +             goto out_reg;
-> > +     }
-> >
-> >       pm_runtime_no_callbacks(&adap->dev);
-> >       pm_suspend_ignore_children(&adap->dev, true);
-> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > index d2f786706657..833b81a680da 100644
-> > --- a/include/linux/i2c.h
-> > +++ b/include/linux/i2c.h
-> > @@ -15,6 +15,7 @@
-> >  #include <linux/device.h>    /* for struct device */
-> >  #include <linux/sched.h>     /* for completion */
-> >  #include <linux/mutex.h>
-> > +#include <linux/regulator/consumer.h>
-> >  #include <linux/rtmutex.h>
-> >  #include <linux/irqdomain.h>         /* for Host Notify IRQ */
-> >  #include <linux/of.h>                /* for struct device_node */
-> > @@ -330,6 +331,7 @@ struct i2c_client {
-> >       int init_irq;                   /* irq set at initialization    */
-> >       int irq;                        /* irq issued by device         */
-> >       struct list_head detected;
-> > +
-> >  #if IS_ENABLED(CONFIG_I2C_SLAVE)
-> >       i2c_slave_cb_t slave_cb;        /* callback for slave mode      */
-> >  #endif
-> > @@ -723,6 +725,7 @@ struct i2c_adapter {
-> >       const struct i2c_adapter_quirks *quirks;
-> >
-> >       struct irq_domain *host_notify_domain;
-> > +     struct regulator *bus_reg;
->
-> "bus_regulator" please. "reg" is ambigious with "register".
->
-> And what Tomasz said, of course.
->
-
-Thanks a lot.
-
-I've added Rafael and linux-pm in another reply quoting the whole patch.
-
-Best regards,
-Tomasz
+T24gMjAyMC0wMS0yNyAxMzowOCwgQ29saW4gSWFuIEtpbmcgd3JvdGU6DQo+IE9uIDI3LzAxLzIw
+MjAgMTI6MDUsIERhbiBDYXJwZW50ZXIgd3JvdGU6DQo+PiBPbiBNb24sIEphbiAyNywgMjAyMCBh
+dCAxMjowMzowMlBNICswMTAwLCBNaWNoYWwgU2ltZWsgd3JvdGU6DQo+Pj4gT24gMjcuIDAxLiAy
+MCAxMToyMywgQ29saW4gS2luZyB3cm90ZToNCj4+Pj4gRnJvbTogQ29saW4gSWFuIEtpbmcgPGNv
+bGluLmtpbmdAY2Fub25pY2FsLmNvbT4NCj4+Pj4NCj4+Pj4gVGhlcmUgaXMgYSBzdGF0ZW1lbnQg
+dGhhdCBpcyBpbmRlbnRlZCBvbmUgbGV2ZWwgdG9vIGRlZXBseSwgcmVtb3ZlDQo+Pj4+IHRoZSBl
+eHRyYW5lb3VzIHRhYi4NCj4+Pj4NCj4+Pj4gU2lnbmVkLW9mZi1ieTogQ29saW4gSWFuIEtpbmcg
+PGNvbGluLmtpbmdAY2Fub25pY2FsLmNvbT4NCj4+Pj4gLS0tDQo+Pj4+IFYyOiBmaXggdHlwZSBp
+biBjb21taXQgbWVzc2FnZQ0KPj4+PiAtLS0NCj4+Pj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
+eGlpYy5jIHwgMiArLQ0KPj4+PiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRl
+bGV0aW9uKC0pDQo+Pj4+DQo+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
+LXhpaWMuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMteGlpYy5jDQo+Pj4+IGluZGV4IGIxN2Qz
+MGM5YWI0MC4uOTBjMWMzNjIzOTRkIDEwMDY0NA0KPj4+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNz
+ZXMvaTJjLXhpaWMuYw0KPj4+PiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXhpaWMuYw0K
+Pj4+PiBAQCAtMjYxLDcgKzI2MSw3IEBAIHN0YXRpYyBpbnQgeGlpY19jbGVhcl9yeF9maWZvKHN0
+cnVjdCB4aWljX2kyYyAqaTJjKQ0KPj4+PiAgCQl4aWljX2dldHJlZzgoaTJjLCBYSUlDX0RSUl9S
+RUdfT0ZGU0VUKTsNCj4+Pj4gIAkJaWYgKHRpbWVfYWZ0ZXIoamlmZmllcywgdGltZW91dCkpIHsN
+Cj4+Pj4gIAkJCWRldl9lcnIoaTJjLT5kZXYsICJGYWlsZWQgdG8gY2xlYXIgcnggZmlmb1xuIik7
+DQo+Pj4+IC0JCQkJcmV0dXJuIC1FVElNRURPVVQ7DQo+Pj4+ICsJCQlyZXR1cm4gLUVUSU1FRE9V
+VDsNCj4+Pj4gIAkJfQ0KPj4+PiAgCX0NCj4+Pj4gIA0KPj4+Pg0KPj4+DQo+Pj4gQXMgd2FzIHN1
+Z2dlc3RlZCBieSBQZXRlciB5b3Ugc2hvdWxkIGFsc28gYWRkIEZpeGVzOiA8c2hhMT4gKCJwYXRj
+aA0KPj4+IHN1YmplY3QiKQ0KPj4+DQo+Pg0KPj4gSXQncyBub3QgcmVhbGx5IGEgYnVnZml4LCBp
+dCdzIGp1c3QgYSBjbGVhbnVwLg0KPiANCj4gSSdtIHN1cnByaXNlZCBpIHdhc24ndCBhc2tlZCBm
+b3IgYSBidWcgbnVtYmVyIHRvby4NCg0KVmVyeSBmdW5ueS4NCg0KSSByZWFsaXplIHRoYXQgeW91
+LCB0aGUgdGhyZWUgY29tcGxhaW5lcnMgKEpvaGFuLCBEYW4gYW5kIENvbGluKSwgdG9nZXRoZXIN
+CmhhdmUgYWxtb3N0IDEwMDAwIGNvbW1pdHMuIFNvLCBJIGZlZWwgYSBiaXQgb3V0cmFua2VkLg0K
+DQpIb3dldmVyLCB0aGlzIHJpZGljdWxlIGlzIHVuZmFpci4NCg0KVGhlIHByb2JsZW0gaGVyZSBp
+cyB0aGF0IENvbGluIHNlbnQgYSB2MiwgaWdub3JpbmcgbXkgc3VnZ2VzdGlvbiB0byBhZGQNCmEg
+Zml4ZXMtdGFnIHdpdGhvdXQgbWVudGlvbmluZyB0aGF0IG15IHN1Z2dlc3Rpb24gd2FzIGluIGZh
+Y3QgaWdub3JlZA0KKGFuZCB3aHkpLiBUaGF0IGlzIGEgc3VyZSB3YXkgdG8gaW52aXRlIHNvbWVv
+bmUgZWxzZSB0byBwb2ludCBvdXQgd2hhdA0Kc2VlbWVkIGxpa2UgYW4gb21pc3Npb24uIFdoaWNo
+IGhhcHBlbmVkLiBBbmQgdGhlbiB0aGlzIGZhcmNlIGVuc3VlZC4NCg0KU28sIENvbGluLCB0YWtl
+IGEgbG9uZyBsb29rIGluIHRoZSBtaXJyb3IgYW5kIGRpcmVjdCB5b3VyIHNhcmNhc20gaW4NCndo
+YXRldmVyIGRpcmVjdGlvbiB5b3UgZmVlbCBhcHByb3ByaWF0ZS4NCg0KSSBhbHNvIG1haW50YWlu
+IHRoYXQgbm9vbmUgd3JpdGVzIGNvZGUgbGlrZSB0aGlzIG9uIHB1cnBvc2UgKGF0IGxlYXN0DQpu
+b3Qgd2l0aG91dCBzb21lIHVsdGVyaW9yIG1vdGl2ZSkuIFRoaXMgaXMgdGhlIGtpbmQgb2Ygc3R1
+ZmYgdGhhdCBjYXVzZQ0KcHJvYmxlbXMgYW5kIHdhc3RlcyB0aW1lIGxhdGVyIHdoZW4gc29tZW9u
+ZSBtaXMtcmVhZHMgdGhlIGNvZGUuIFlvdSB0aHJlZQ0KcGVvcGxlLCB3aXRoIGFsbCB0aG9zZSBj
+b21taXRzLCBzaG91bGQga25vdyB0aGF0LiBNeSBwb2ludCBpcyB0aGF0IHRoaXMNCmlzIG1vcmUg
+dGhhbiBqdXN0IGNsZWFudXAgYW5kIGlzIGluZGVlZCBmaXhpbmcgYSBidWcuIENsYWltaW5nIG90
+aGVyd2lzZQ0KaXMganVzdCBzaWxseS4gVGhlIGNvbXBpbGVyIGlzIG5vdCB0aGUgb25seSBjb25z
+dW1lciBvZiB0aGUgY29kZS4NCg0KQ2hlZXJzLA0KUGV0ZXINCg==
