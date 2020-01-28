@@ -1,62 +1,105 @@
-From: Peter Rosin <peda@axentia.se>
+From: Colin Ian King <colin.king@canonical.com>
 Subject: Re: [PATCH][next][V2] i2c: xiic: fix indentation issue
-Date: Tue, 28 Jan 2020 21:45:24 +0000
-Message-ID: <35ed6501-3b26-36a9-d332-d4ed3366ebd8@axentia.se>
+Date: Tue, 28 Jan 2020 23:10:59 +0000
+Message-ID: <3b287fb5-e344-c13a-2803-09c2958b9b0d@canonical.com>
 References: <20200127102303.44133-1-colin.king@canonical.com>
  <2dd84ab2-a7a3-fdd8-6bd6-07f1b3d5cd00@xilinx.com>
  <20200127120535.GC1847@kadam>
  <89661e5e-7662-81a5-ec36-57367825de5e@canonical.com>
+ <35ed6501-3b26-36a9-d332-d4ed3366ebd8@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <89661e5e-7662-81a5-ec36-57367825de5e@canonical.com>
+In-Reply-To: <35ed6501-3b26-36a9-d332-d4ed3366ebd8@axentia.se>
 Content-Language: en-US
-Content-ID: <46710B87C475CD45A9ED51494BE6860C@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin Ian King <colin.king@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, Michal Simek <michal.simek@xilinx.com>, Johan Hovold <johan@kernel.org>
+To: Peter Rosin <peda@axentia.se>, Dan Carpenter <dan.carpenter@oracle.com>, Michal Simek <michal.simek@xilinx.com>, Johan Hovold <johan@kernel.org>
 Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAyMC0wMS0yNyAxMzowOCwgQ29saW4gSWFuIEtpbmcgd3JvdGU6DQo+IE9uIDI3LzAxLzIw
-MjAgMTI6MDUsIERhbiBDYXJwZW50ZXIgd3JvdGU6DQo+PiBPbiBNb24sIEphbiAyNywgMjAyMCBh
-dCAxMjowMzowMlBNICswMTAwLCBNaWNoYWwgU2ltZWsgd3JvdGU6DQo+Pj4gT24gMjcuIDAxLiAy
-MCAxMToyMywgQ29saW4gS2luZyB3cm90ZToNCj4+Pj4gRnJvbTogQ29saW4gSWFuIEtpbmcgPGNv
-bGluLmtpbmdAY2Fub25pY2FsLmNvbT4NCj4+Pj4NCj4+Pj4gVGhlcmUgaXMgYSBzdGF0ZW1lbnQg
-dGhhdCBpcyBpbmRlbnRlZCBvbmUgbGV2ZWwgdG9vIGRlZXBseSwgcmVtb3ZlDQo+Pj4+IHRoZSBl
-eHRyYW5lb3VzIHRhYi4NCj4+Pj4NCj4+Pj4gU2lnbmVkLW9mZi1ieTogQ29saW4gSWFuIEtpbmcg
-PGNvbGluLmtpbmdAY2Fub25pY2FsLmNvbT4NCj4+Pj4gLS0tDQo+Pj4+IFYyOiBmaXggdHlwZSBp
-biBjb21taXQgbWVzc2FnZQ0KPj4+PiAtLS0NCj4+Pj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
-eGlpYy5jIHwgMiArLQ0KPj4+PiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRl
-bGV0aW9uKC0pDQo+Pj4+DQo+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
-LXhpaWMuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMteGlpYy5jDQo+Pj4+IGluZGV4IGIxN2Qz
-MGM5YWI0MC4uOTBjMWMzNjIzOTRkIDEwMDY0NA0KPj4+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLXhpaWMuYw0KPj4+PiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXhpaWMuYw0K
-Pj4+PiBAQCAtMjYxLDcgKzI2MSw3IEBAIHN0YXRpYyBpbnQgeGlpY19jbGVhcl9yeF9maWZvKHN0
-cnVjdCB4aWljX2kyYyAqaTJjKQ0KPj4+PiAgCQl4aWljX2dldHJlZzgoaTJjLCBYSUlDX0RSUl9S
-RUdfT0ZGU0VUKTsNCj4+Pj4gIAkJaWYgKHRpbWVfYWZ0ZXIoamlmZmllcywgdGltZW91dCkpIHsN
-Cj4+Pj4gIAkJCWRldl9lcnIoaTJjLT5kZXYsICJGYWlsZWQgdG8gY2xlYXIgcnggZmlmb1xuIik7
-DQo+Pj4+IC0JCQkJcmV0dXJuIC1FVElNRURPVVQ7DQo+Pj4+ICsJCQlyZXR1cm4gLUVUSU1FRE9V
-VDsNCj4+Pj4gIAkJfQ0KPj4+PiAgCX0NCj4+Pj4gIA0KPj4+Pg0KPj4+DQo+Pj4gQXMgd2FzIHN1
-Z2dlc3RlZCBieSBQZXRlciB5b3Ugc2hvdWxkIGFsc28gYWRkIEZpeGVzOiA8c2hhMT4gKCJwYXRj
-aA0KPj4+IHN1YmplY3QiKQ0KPj4+DQo+Pg0KPj4gSXQncyBub3QgcmVhbGx5IGEgYnVnZml4LCBp
-dCdzIGp1c3QgYSBjbGVhbnVwLg0KPiANCj4gSSdtIHN1cnByaXNlZCBpIHdhc24ndCBhc2tlZCBm
-b3IgYSBidWcgbnVtYmVyIHRvby4NCg0KVmVyeSBmdW5ueS4NCg0KSSByZWFsaXplIHRoYXQgeW91
-LCB0aGUgdGhyZWUgY29tcGxhaW5lcnMgKEpvaGFuLCBEYW4gYW5kIENvbGluKSwgdG9nZXRoZXIN
-CmhhdmUgYWxtb3N0IDEwMDAwIGNvbW1pdHMuIFNvLCBJIGZlZWwgYSBiaXQgb3V0cmFua2VkLg0K
-DQpIb3dldmVyLCB0aGlzIHJpZGljdWxlIGlzIHVuZmFpci4NCg0KVGhlIHByb2JsZW0gaGVyZSBp
-cyB0aGF0IENvbGluIHNlbnQgYSB2MiwgaWdub3JpbmcgbXkgc3VnZ2VzdGlvbiB0byBhZGQNCmEg
-Zml4ZXMtdGFnIHdpdGhvdXQgbWVudGlvbmluZyB0aGF0IG15IHN1Z2dlc3Rpb24gd2FzIGluIGZh
-Y3QgaWdub3JlZA0KKGFuZCB3aHkpLiBUaGF0IGlzIGEgc3VyZSB3YXkgdG8gaW52aXRlIHNvbWVv
-bmUgZWxzZSB0byBwb2ludCBvdXQgd2hhdA0Kc2VlbWVkIGxpa2UgYW4gb21pc3Npb24uIFdoaWNo
-IGhhcHBlbmVkLiBBbmQgdGhlbiB0aGlzIGZhcmNlIGVuc3VlZC4NCg0KU28sIENvbGluLCB0YWtl
-IGEgbG9uZyBsb29rIGluIHRoZSBtaXJyb3IgYW5kIGRpcmVjdCB5b3VyIHNhcmNhc20gaW4NCndo
-YXRldmVyIGRpcmVjdGlvbiB5b3UgZmVlbCBhcHByb3ByaWF0ZS4NCg0KSSBhbHNvIG1haW50YWlu
-IHRoYXQgbm9vbmUgd3JpdGVzIGNvZGUgbGlrZSB0aGlzIG9uIHB1cnBvc2UgKGF0IGxlYXN0DQpu
-b3Qgd2l0aG91dCBzb21lIHVsdGVyaW9yIG1vdGl2ZSkuIFRoaXMgaXMgdGhlIGtpbmQgb2Ygc3R1
-ZmYgdGhhdCBjYXVzZQ0KcHJvYmxlbXMgYW5kIHdhc3RlcyB0aW1lIGxhdGVyIHdoZW4gc29tZW9u
-ZSBtaXMtcmVhZHMgdGhlIGNvZGUuIFlvdSB0aHJlZQ0KcGVvcGxlLCB3aXRoIGFsbCB0aG9zZSBj
-b21taXRzLCBzaG91bGQga25vdyB0aGF0LiBNeSBwb2ludCBpcyB0aGF0IHRoaXMNCmlzIG1vcmUg
-dGhhbiBqdXN0IGNsZWFudXAgYW5kIGlzIGluZGVlZCBmaXhpbmcgYSBidWcuIENsYWltaW5nIG90
-aGVyd2lzZQ0KaXMganVzdCBzaWxseS4gVGhlIGNvbXBpbGVyIGlzIG5vdCB0aGUgb25seSBjb25z
-dW1lciBvZiB0aGUgY29kZS4NCg0KQ2hlZXJzLA0KUGV0ZXINCg==
+On 28/01/2020 21:45, Peter Rosin wrote:
+> On 2020-01-27 13:08, Colin Ian King wrote:
+>> On 27/01/2020 12:05, Dan Carpenter wrote:
+>>> On Mon, Jan 27, 2020 at 12:03:02PM +0100, Michal Simek wrote:
+>>>> On 27. 01. 20 11:23, Colin King wrote:
+>>>>> From: Colin Ian King <colin.king@canonical.com>
+>>>>>
+>>>>> There is a statement that is indented one level too deeply, remove
+>>>>> the extraneous tab.
+>>>>>
+>>>>> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+>>>>> ---
+>>>>> V2: fix type in commit message
+>>>>> ---
+>>>>>  drivers/i2c/busses/i2c-xiic.c | 2 +-
+>>>>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>>
+>>>>> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+>>>>> index b17d30c9ab40..90c1c362394d 100644
+>>>>> --- a/drivers/i2c/busses/i2c-xiic.c
+>>>>> +++ b/drivers/i2c/busses/i2c-xiic.c
+>>>>> @@ -261,7 +261,7 @@ static int xiic_clear_rx_fifo(struct xiic_i2c *i2c)
+>>>>>  		xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
+>>>>>  		if (time_after(jiffies, timeout)) {
+>>>>>  			dev_err(i2c->dev, "Failed to clear rx fifo\n");
+>>>>> -				return -ETIMEDOUT;
+>>>>> +			return -ETIMEDOUT;
+>>>>>  		}
+>>>>>  	}
+>>>>>  
+>>>>>
+>>>>
+>>>> As was suggested by Peter you should also add Fixes: <sha1> ("patch
+>>>> subject")
+>>>>
+>>>
+>>> It's not really a bugfix, it's just a cleanup.
+>>
+>> I'm surprised i wasn't asked for a bug number too.
+> 
+> Very funny.
+
+Apologies for being flippant. I didn't mean to offend. My bad #1.
+
+> 
+> I realize that you, the three complainers (Johan, Dan and Colin), together
+> have almost 10000 commits. So, I feel a bit outranked.
+> 
+> However, this ridicule is unfair.
+> 
+> The problem here is that Colin sent a v2, ignoring my suggestion to add
+> a fixes-tag without mentioning that my suggestion was in fact ignored
+> (and why). That is a sure way to invite someone else to point out what
+> seemed like an omission. Which happened. And then this farce ensued.
+
+I can only apologize for not adding the fixes tag because I honestly
+didn't see the fixes tag request until after the follow-ups. I didn't
+indent to rile anyone on this and I didn't want to offend anyone by
+purposely ignoring their requires. My bad #2.
+
+> 
+> So, Colin, take a long look in the mirror and direct your sarcasm in
+> whatever direction you feel appropriate.
+
+I did. And I was wrong. My bad #3.
+
+> 
+> I also maintain that noone writes code like this on purpose (at least
+> not without some ulterior motive). This is the kind of stuff that cause
+> problems and wastes time later when someone mis-reads the code. You three
+> people, with all those commits, should know that. My point is that this
+> is more than just cleanup and is indeed fixing a bug. Claiming otherwise
+> is just silly. The compiler is not the only consumer of the code.
+
+Whatever is needed to get fixes into the kernel. Some say it's a bug,
+others don't. As long as it's fixed then I'm happy.  If in the process I
+did the wrong thing I can only apologize profoundly and profusely.
+
+Colin
+
+
+> 
+> Cheers,
+> Peter
+> 
