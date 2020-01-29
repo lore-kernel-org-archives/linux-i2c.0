@@ -1,43 +1,42 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v3 18/28] docs: i2c: smbus-protocol: fix punctuation
-Date: Wed, 29 Jan 2020 16:19:43 +0100
-Message-ID: <20200129151953.31582-19-luca@lucaceresoli.net>
+Subject: [PATCH v3 24/28] docs: i2c: old-module-parameters: clarify this is for obsolete kernels
+Date: Wed, 29 Jan 2020 16:19:49 +0100
+Message-ID: <20200129151953.31582-25-luca@lucaceresoli.net>
 References: <20200129151953.31582-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <20200129151953.31582-1-luca@lucaceresoli.net>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-Remove misplaced dot before colon.
+This section applies only to code for very old kernels. Avoid people
+reading this unnecessarily.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
-
 ---
+ Documentation/i2c/old-module-parameters.rst | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Changes in v2:
- - fix subject line (Jean Delvare)
----
- Documentation/i2c/smbus-protocol.rst | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
-index de7285de5e93..7350e4b2c2fa 100644
---- a/Documentation/i2c/smbus-protocol.rst
-+++ b/Documentation/i2c/smbus-protocol.rst
-@@ -146,7 +146,7 @@ Implemented by i2c_smbus_write_word_data()
+diff --git a/Documentation/i2c/old-module-parameters.rst b/Documentation/i2c/old-module-parameters.rst
+index 1a18e2b0f593..92a403d21a62 100644
+--- a/Documentation/i2c/old-module-parameters.rst
++++ b/Documentation/i2c/old-module-parameters.rst
+@@ -2,6 +2,11 @@
+ I2C device driver binding control from user-space
+ =================================================
  
- This is the opposite of the Read Word operation. 16 bits
- of data are written to a device, to the designated register that is
--specified through the Comm byte.::
-+specified through the Comm byte::
- 
-   S Addr Wr [A] Comm [A] DataLow [A] DataHigh [A] P
- 
++.. NOTE::
++   Note: this section is only relevant if you are handling some old code
++   found in kernel 2.6. If you work with more recent kernels, you can
++   safely skip this section.
++
+ Up to kernel 2.6.32, many I2C drivers used helper macros provided by
+ <linux/i2c.h> which created standard module parameters to let the user
+ control how the driver would probe I2C buses and attach to devices. These
 -- 
 2.25.0
