@@ -1,84 +1,115 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [PATCH v2 01/28] docs: i2c: sort index logically
-Date: Wed, 29 Jan 2020 13:22:35 +0100
-Message-ID: <e941cfae-f267-4c0e-b8e2-1dd99fbdb563@lucaceresoli.net>
-References: <20200123135103.20540-1-luca@lucaceresoli.net>
- <20200123135103.20540-2-luca@lucaceresoli.net>
- <20200124133548.7f01344a@endymion>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH v4 5/6] at24: Support probing while off
+Date: Wed, 29 Jan 2020 14:36:17 +0100
+Message-ID: <CAMpxmJU5dG49N2FA0oSQsOfKrCr3KQ1BisON4c+nUJJmZQG=bQ@mail.gmail.com>
+References: <20200121134157.20396-1-sakari.ailus@linux.intel.com> <20200121134157.20396-6-sakari.ailus@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hostingweb31-40.netsons.net ([89.40.174.40]:49599 "EHLO
-        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726067AbgA2MWi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Jan 2020 07:22:38 -0500
-In-Reply-To: <20200124133548.7f01344a@endymion>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200121134157.20396-6-sakari.ailus@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>, linux-media <linux-media@vger.kernel.org>, Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>, Hyungwoo Yang <hyungwoo.yang@intel.com>, Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 
-Hi Jean,
+wt., 21 sty 2020 o 14:41 Sakari Ailus <sakari.ailus@linux.intel.com> napisa=
+=C5=82(a):
+>
+> In certain use cases (where the chip is part of a camera module, and the
+> camera module is wired together with a camera privacy LED), powering on
+> the device during probe is undesirable. Add support for the at24 to
+> execute probe while being powered off. For this to happen, a hint in form
+> of a device property is required from the firmware.
+>
+> Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> ---
+>  drivers/misc/eeprom/at24.c | 31 +++++++++++++++++++++----------
+>  1 file changed, 21 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 0681d5fdd538a..5fc1162b67618 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -564,6 +564,7 @@ static int at24_probe(struct i2c_client *client)
+>         bool i2c_fn_i2c, i2c_fn_block;
+>         unsigned int i, num_addresses;
+>         struct at24_data *at24;
+> +       bool low_power;
+>         struct regmap *regmap;
+>         bool writable;
+>         u8 test_byte;
+> @@ -701,19 +702,24 @@ static int at24_probe(struct i2c_client *client)
+>
+>         i2c_set_clientdata(client, at24);
+>
+> -       /* enable runtime pm */
+> -       pm_runtime_set_active(dev);
+> +       low_power =3D acpi_dev_state_low_power(&client->dev);
+> +       if (!low_power)
+> +               pm_runtime_set_active(dev);
+> +
+>         pm_runtime_enable(dev);
+>
+>         /*
+> -        * Perform a one-byte test read to verify that the
+> -        * chip is functional.
+> +        * Perform a one-byte test read to verify that the chip is functi=
+onal,
+> +        * unless powering on the device is to be avoided during probe (i=
+.e.
+> +        * it's powered off right now).
+>          */
+> -       err =3D at24_read(at24, 0, &test_byte, 1);
+> -       pm_runtime_idle(dev);
+> -       if (err) {
+> -               pm_runtime_disable(dev);
+> -               return -ENODEV;
+> +       if (!low_power) {
+> +               err =3D at24_read(at24, 0, &test_byte, 1);
+> +               pm_runtime_idle(dev);
+> +               if (err) {
+> +                       pm_runtime_disable(dev);
+> +                       return -ENODEV;
+> +               }
+>         }
+>
+>         if (writable)
+> @@ -728,8 +734,12 @@ static int at24_probe(struct i2c_client *client)
+>
+>  static int at24_remove(struct i2c_client *client)
+>  {
+> +       bool low_power;
+> +
+>         pm_runtime_disable(&client->dev);
+> -       pm_runtime_set_suspended(&client->dev);
+> +       low_power =3D acpi_dev_state_low_power(&client->dev);
 
-On 24/01/20 13:35, Jean Delvare wrote:
-> On Thu, 23 Jan 2020 14:50:36 +0100, Luca Ceresoli wrote:
->> The index page currently lists sections in alphabetical file order without
->> caring about their content. Sort sections based on their content logically,
->> according to the following structure:
->>
->>  * Intro to I2C/SMBus and their usage in Linux: summary, i2c-protocol,
->>    smbus-protocol, instantiating-devices, busses/index, i2c-topology,
->>    muxes/i2c-mux-gpio
->>  * Implementing drivers: writing-clients, dev-interface,
->>    dma-considerations, fault-codes, functionality
->>  * Debugging: gpio-fault-injection, i2c-stub
->>  * Slave I2C: slave-interface, slave-eeprom-backend
->>  * Advanced: ten-bit-addresses
->>  * Obsolete info: upgrading-clients, old-module-parameters
->>
->> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
->> Reviewed-by: Jean Delvare <jdelvare@suse.de>
->>
->> ---
->>
->> Changes in v2:
->>  - split sections in groups (suggested by Jean Delvare)
->>  - remove consecutive blank lines (reported by Jean Delvare)
->> ---
->>  Documentation/i2c/index.rst | 59 ++++++++++++++++++++++++++++++-------
->>  1 file changed, 48 insertions(+), 11 deletions(-)
->>
->> diff --git a/Documentation/i2c/index.rst b/Documentation/i2c/index.rst
->> index a0fbaf6d0675..f0f3b9c97abb 100644
->> --- a/Documentation/i2c/index.rst
->> +++ b/Documentation/i2c/index.rst
->> @@ -4,30 +4,67 @@
->>  I2C/SMBus Subsystem
->>  ===================
->>  
->> +Introduction
->> +============
->> +
->> +.. toctree::
->> +   :maxdepth: 1
->> +
->> +   summary
->> +   i2c-protocol
->> +   smbus-protocol
->> +   instantiating-devices
->> +   busses/index
->> +   i2c-topology
->> +   muxes/i2c-mux-gpio
->> +
->> +
-> 
-> You still have a double blank line here, not sure if this is intended?
+This is inconsistent. You define the low_power field in the context
+structure (BTW the name low_power is a bit vague here - without
+looking at its assignment it would make me think it's about something
+battery-related, how about 'off_at_probe'?) and instead of reusing
+this field here, you call acpi_dev_state_low_power() again. Either
+don't store the context for the life-time of the device if not
+necessary or don't call acpi_dev_state_low_power() at remove, although
+the commit message doesn't describe whether the latter is done on
+purpose.
 
-It's not intended. Thanks for double checking!
+Bartosz
 
-I fixed this patch as well as patch 11. v3 on its way.
-
--- 
-Luca
+> +       if (!low_power)
+> +               pm_runtime_set_suspended(&client->dev);
+>
+>         return 0;
+>  }
+> @@ -743,6 +753,7 @@ static struct i2c_driver at24_driver =3D {
+>         .probe_new =3D at24_probe,
+>         .remove =3D at24_remove,
+>         .id_table =3D at24_ids,
+> +       .probe_low_power =3D true,
+>  };
+>
+>  static int __init at24_init(void)
+> --
+> 2.20.1
+>
