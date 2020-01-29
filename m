@@ -1,119 +1,84 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PATCH v4 1/6] i2c: Allow driver to manage the device's power
- state during probe
-Date: Wed, 29 Jan 2020 14:54:20 +0100
-Message-ID: <CAMpxmJX8gF3TujMMeEgERAFM4YbpgnNjOmuV+U7uWCndqsyGeA@mail.gmail.com>
-References: <20200121134157.20396-1-sakari.ailus@linux.intel.com> <20200121134157.20396-2-sakari.ailus@linux.intel.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: [PATCH v3 00/28] docs: i2c: rework I2C documentation, part I
+Date: Wed, 29 Jan 2020 16:19:25 +0100
+Message-ID: <20200129151953.31582-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20200121134157.20396-2-sakari.ailus@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>, linux-media <linux-media@vger.kernel.org>, Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>, Hyungwoo Yang <hyungwoo.yang@intel.com>, Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
+Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-wt., 21 sty 2020 o 14:41 Sakari Ailus <sakari.ailus@linux.intel.com> napisa=
-=C5=82(a):
->
-> Enable drivers to tell ACPI that there's no need to power on a device for
-> probe. Drivers should still perform this by themselves if there's a need
-> to. In some cases powering on the device during probe is undesirable, and
-> this change enables a driver to choose what fits best for it.
->
-> Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> ---
->  drivers/i2c/i2c-core-base.c | 15 ++++++++++++---
->  include/linux/i2c.h         |  3 +++
->  2 files changed, 15 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 9f8dcd3f83850..7bf1699c9044d 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -303,6 +303,14 @@ static int i2c_smbus_host_notify_to_irq(const struct=
- i2c_client *client)
->         return irq > 0 ? irq : -ENXIO;
->  }
->
-> +static bool probe_low_power(struct device *dev)
-> +{
-> +       struct i2c_driver *driver =3D to_i2c_driver(dev->driver);
-> +
-> +       return driver->probe_low_power &&
-> +               device_property_present(dev, "probe-low-power");
-> +}
-> +
->  static int i2c_device_probe(struct device *dev)
->  {
->         struct i2c_client       *client =3D i2c_verify_client(dev);
-> @@ -375,7 +383,8 @@ static int i2c_device_probe(struct device *dev)
->         if (status < 0)
->                 goto err_clear_wakeup_irq;
->
-> -       status =3D dev_pm_domain_attach(&client->dev, true);
-> +       status =3D dev_pm_domain_attach(&client->dev,
-> +                                     !probe_low_power(&client->dev));
->         if (status)
->                 goto err_clear_wakeup_irq;
->
-> @@ -397,7 +406,7 @@ static int i2c_device_probe(struct device *dev)
->         return 0;
->
->  err_detach_pm_domain:
-> -       dev_pm_domain_detach(&client->dev, true);
-> +       dev_pm_domain_detach(&client->dev, !probe_low_power(&client->dev)=
-);
->  err_clear_wakeup_irq:
->         dev_pm_clear_wake_irq(&client->dev);
->         device_init_wakeup(&client->dev, false);
-> @@ -419,7 +428,7 @@ static int i2c_device_remove(struct device *dev)
->                 status =3D driver->remove(client);
->         }
->
-> -       dev_pm_domain_detach(&client->dev, true);
-> +       dev_pm_domain_detach(&client->dev, !probe_low_power(&client->dev)=
-);
->
->         dev_pm_clear_wake_irq(&client->dev);
->         device_init_wakeup(&client->dev, false);
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 582ef05ec07ed..6d0d6af393c56 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -229,6 +229,8 @@ enum i2c_alert_protocol {
->   * @address_list: The I2C addresses to probe (for detect)
->   * @clients: List of detected clients we created (for i2c-core use only)
->   * @disable_i2c_core_irq_mapping: Tell the i2c-core to not do irq-mappin=
-g
-> + * @probe_low_power: Let the driver manage the device's power state
-> + *                  during probe and remove.
->   *
->   * The driver.owner field should be set to the module owner of this driv=
-er.
->   * The driver.name field should be set to the name of this driver.
-> @@ -289,6 +291,7 @@ struct i2c_driver {
->         struct list_head clients;
->
->         bool disable_i2c_core_irq_mapping;
-> +       bool probe_low_power;
 
-I don't see any users of disable_i2c_core_irq_mapping in current
-mainline. Maybe instead of adding another 1-byte boolean for every
-such property, let's just use the fact that this struct will have at
-least an alignment of 32-bits anyway and merge the two into an int
-field called 'flags' so that we can extend it in the future if needed?
+Hi,
 
-The name 'probe_low_power' is misleading to me too. It makes me think
-it's the default state for some reason. It should be something like
-'allow_low_power_probe'.
+this series is a list of improvements to the I2C documentation.
 
-Bartosz
+It started as a simple reordering of index.rst from alphabetical order to a
+logical order. Then it grew to a mixture of various improvements to each
+section and some cross-section changes.
 
->  };
->  #define to_i2c_driver(d) container_of(d, struct i2c_driver, driver)
->
-> --
-> 2.20.1
->
+I wanted to rework all the sections in a unique series, but after covering
+about one third of them the number of patches has already grown pretty long
+so I'm sending it in its current state. I will continue to cover the rest
+of the sections later.
+
+Each patch is quite self-standing, and most are trivial, so have a good
+reading.
+
+v2 and v3 incorporate many improvements suggested by Jean Delvare and Peter
+Rosin. A special thank you to Jean for his very patient and appreciated
+review work of _all_ of the 26 patches. Thanks to his work the patches are
+now 28. :) Patches 27 and 28 are the new ones.
+
+Luca
+
+Luca Ceresoli (28):
+  docs: i2c: sort index logically
+  docs: i2c: summary: extend introduction
+  docs: i2c: summary: rewrite the "terminology" section
+  docs: i2c: call it "I2C" consistently
+  docs: i2c: fix typo
+  docs: i2c: replace "I2C-transfer" -> "I2C transfer" consistently
+  docs: i2c: i2c-protocol: fix kernel-doc function syntax
+  docs: i2c: i2c-protocol: properly name start and stop conditions
+  docs: i2c: i2c-protocol: remove unneeded colons from table
+  docs: i2c: i2c-protocol: use proper names for ACK and NACK
+  docs: i2c: smbus-protocol: fix link syntax
+  docs: i2c: smbus-protocol: properly name start and stop conditions
+  docs: i2c: smbus-protocol: remove unneeded colons from table
+  docs: i2c: smbus-protocol: use proper names for ACK and NACK
+  docs: i2c: smbus-protocol: enable kernel-doc function syntax
+  docs: i2c: smbus-protocol: fix kernel-doc function syntax
+  docs: i2c: smbus-protocol: fix typo
+  docs: i2c: smbus-protocol: fix punctuation
+  docs: i2c: smbus-protocol: improve I2C Block transactions description
+  docs: i2c: instantiating-devices: fix internal hyperlink
+  docs: i2c: instantiating-devices: rearrange static instatiation
+  docs: i2c: instantiating-devices: use monospace for sysfs attributes
+  docs: i2c: old-module-parameters: fix internal hyperlink
+  docs: i2c: old-module-parameters: clarify this is for obsolete kernels
+  docs: i2c: old-module-parameters: use monospace instead of ""
+  docs: i2c: rename sections so the overall picture is clearer
+  docs: i2c: i2c-protocol: use same wording as smbus-protocol
+  docs: i2c: writing-clients: properly name the stop condition
+
+ Documentation/i2c/dev-interface.rst         |   24 +-
+ Documentation/i2c/dma-considerations.rst    |    2 +-
+ Documentation/i2c/i2c-protocol.rst          |   45 +-
+ Documentation/i2c/i2c-topology.rst          |   72 +-
+ Documentation/i2c/i2c.svg                   | 1341 +++++++++++++++++++
+ Documentation/i2c/index.rst                 |   58 +-
+ Documentation/i2c/instantiating-devices.rst |  115 +-
+ Documentation/i2c/old-module-parameters.rst |   31 +-
+ Documentation/i2c/slave-interface.rst       |    4 +-
+ Documentation/i2c/smbus-protocol.rst        |  107 +-
+ Documentation/i2c/summary.rst               |   62 +-
+ Documentation/i2c/writing-clients.rst       |   16 +-
+ 12 files changed, 1653 insertions(+), 224 deletions(-)
+ create mode 100644 Documentation/i2c/i2c.svg
+
+-- 
+2.25.0
