@@ -1,42 +1,44 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v3 24/28] docs: i2c: old-module-parameters: clarify this is for obsolete kernels
-Date: Wed, 29 Jan 2020 16:19:49 +0100
-Message-ID: <20200129151953.31582-25-luca@lucaceresoli.net>
+Subject: [PATCH v3 19/28] docs: i2c: smbus-protocol: improve I2C Block transactions description
+Date: Wed, 29 Jan 2020 16:19:44 +0100
+Message-ID: <20200129151953.31582-20-luca@lucaceresoli.net>
 References: <20200129151953.31582-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200129151953.31582-1-luca@lucaceresoli.net>
-Sender: linux-doc-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-This section applies only to code for very old kernels. Avoid people
-reading this unnecessarily.
+Clarify from the beginning what these transactions are, and specifically
+how they differ from the SMBus counterparts, i.e. the lack of a Count byte.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
 ---
- Documentation/i2c/old-module-parameters.rst | 5 +++++
- 1 file changed, 5 insertions(+)
+ Documentation/i2c/smbus-protocol.rst | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/i2c/old-module-parameters.rst b/Documentation/i2c/old-module-parameters.rst
-index 1a18e2b0f593..92a403d21a62 100644
---- a/Documentation/i2c/old-module-parameters.rst
-+++ b/Documentation/i2c/old-module-parameters.rst
-@@ -2,6 +2,11 @@
- I2C device driver binding control from user-space
- =================================================
+diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
+index 7350e4b2c2fa..0edaf6069ac1 100644
+--- a/Documentation/i2c/smbus-protocol.rst
++++ b/Documentation/i2c/smbus-protocol.rst
+@@ -282,9 +282,10 @@ This is implemented the following way in the Linux kernel:
+ I2C Block Transactions
+ ======================
  
-+.. NOTE::
-+   Note: this section is only relevant if you are handling some old code
-+   found in kernel 2.6. If you work with more recent kernels, you can
-+   safely skip this section.
-+
- Up to kernel 2.6.32, many I2C drivers used helper macros provided by
- <linux/i2c.h> which created standard module parameters to let the user
- control how the driver would probe I2C buses and attach to devices. These
+-The following I2C block transactions are supported by the
+-SMBus layer and are described here for completeness.
+-They are *NOT* defined by the SMBus specification.
++The following I2C block transactions are similar to the SMBus Block Read
++and Write operations, except these do not have a Count byte. They are
++supported by the SMBus layer and are described here for completeness, but
++they are *NOT* defined by the SMBus specification.
+ 
+ I2C block transactions do not limit the number of bytes transferred
+ but the SMBus layer places a limit of 32 bytes.
 -- 
 2.25.0
