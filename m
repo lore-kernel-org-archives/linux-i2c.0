@@ -1,48 +1,47 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v3 16/28] docs: i2c: smbus-protocol: fix kernel-doc function syntax
-Date: Wed, 29 Jan 2020 16:19:41 +0100
-Message-ID: <20200129151953.31582-17-luca@lucaceresoli.net>
+Subject: [PATCH v3 20/28] docs: i2c: instantiating-devices: fix internal hyperlink
+Date: Wed, 29 Jan 2020 16:19:45 +0100
+Message-ID: <20200129151953.31582-21-luca@lucaceresoli.net>
 References: <20200129151953.31582-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from hostingweb31-40.netsons.net ([89.40.174.40]:57565 "EHLO
+        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727168AbgA2QWx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Jan 2020 11:22:53 -0500
 In-Reply-To: <20200129151953.31582-1-luca@lucaceresoli.net>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
 
 
-This clarifies these are functions (and would/will adds a hyperlink to the
-function documentation if/when documented).
+Use ReST syntax so that a proper hyperlink is generated.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
----
- Documentation/i2c/smbus-protocol.rst | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
-index 997945e90419..3c0fb3a2044d 100644
---- a/Documentation/i2c/smbus-protocol.rst
-+++ b/Documentation/i2c/smbus-protocol.rst
-@@ -118,7 +118,7 @@ byte. But this time, the data is a complete word (16 bits)::
+---
+
+Changes in v2:
+ - remove space before dot (Jean Delvare)
+---
+ Documentation/i2c/instantiating-devices.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/i2c/instantiating-devices.rst b/Documentation/i2c/instantiating-devices.rst
+index 53244e2f0378..e823c4ad4e7f 100644
+--- a/Documentation/i2c/instantiating-devices.rst
++++ b/Documentation/i2c/instantiating-devices.rst
+@@ -86,7 +86,7 @@ Method 1c: Declare the I2C devices via ACPI
+ -------------------------------------------
  
- Functionality flag: I2C_FUNC_SMBUS_READ_WORD_DATA
+ ACPI can also describe I2C devices. There is special documentation for this
+-which is currently located at Documentation/firmware-guide/acpi/enumeration.rst.
++which is currently located at :doc:`../firmware-guide/acpi/enumeration`.
  
--Note the convenience function i2c_smbus_read_word_swapped is
-+Note the convenience function i2c_smbus_read_word_swapped() is
- available for reads where the two data bytes are the other way
- around (not SMBus compliant, but very popular.)
  
-@@ -152,7 +152,7 @@ specified through the Comm byte.::
- 
- Functionality flag: I2C_FUNC_SMBUS_WRITE_WORD_DATA
- 
--Note the convenience function i2c_smbus_write_word_swapped is
-+Note the convenience function i2c_smbus_write_word_swapped() is
- available for writes where the two data bytes are the other way
- around (not SMBus compliant, but very popular.)
- 
+ Method 2: Instantiate the devices explicitly
 -- 
 2.25.0
