@@ -1,62 +1,54 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v3 22/28] docs: i2c: instantiating-devices: use monospace for sysfs attributes
-Date: Wed, 29 Jan 2020 16:19:47 +0100
-Message-ID: <20200129151953.31582-23-luca@lucaceresoli.net>
-References: <20200129151953.31582-1-luca@lucaceresoli.net>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: parport: fix spelling mistake: "Atmost" -> "At most"
+Date: Wed, 29 Jan 2020 21:52:11 +0100
+Message-ID: <20200129205211.GA7586@ninjato>
+References: <20200125202020.12861-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hostingweb31-40.netsons.net ([89.40.174.40]:39308 "EHLO
-        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727176AbgA2QWy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Jan 2020 11:22:54 -0500
-In-Reply-To: <20200129151953.31582-1-luca@lucaceresoli.net>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200125202020.12861-1-colin.king@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
-Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 
 
-Use a monospace (literal) formatting for better readability of sysfs
-attributes.
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+On Sat, Jan 25, 2020 at 08:20:20PM +0000, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+>=20
+> There is a spelling mistake in a module parameter description.
+> Fix it.
+>=20
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
----
+Applied to for-next, thanks!
 
-Changes in v2:
- - reword commit message to not mention filenames
----
- Documentation/i2c/instantiating-devices.rst | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/i2c/instantiating-devices.rst b/Documentation/i2c/instantiating-devices.rst
-index 665bf00792ba..e558e0a77e0c 100644
---- a/Documentation/i2c/instantiating-devices.rst
-+++ b/Documentation/i2c/instantiating-devices.rst
-@@ -225,15 +225,15 @@ In general, the kernel should know which I2C devices are connected and
- what addresses they live at. However, in certain cases, it does not, so a
- sysfs interface was added to let the user provide the information. This
- interface is made of 2 attribute files which are created in every I2C bus
--directory: new_device and delete_device. Both files are write only and you
--must write the right parameters to them in order to properly instantiate,
--respectively delete, an I2C device.
-+directory: ``new_device`` and ``delete_device``. Both files are write
-+only and you must write the right parameters to them in order to properly
-+instantiate, respectively delete, an I2C device.
- 
--File new_device takes 2 parameters: the name of the I2C device (a string)
--and the address of the I2C device (a number, typically expressed in
--hexadecimal starting with 0x, but can also be expressed in decimal.)
-+File ``new_device`` takes 2 parameters: the name of the I2C device (a
-+string) and the address of the I2C device (a number, typically expressed
-+in hexadecimal starting with 0x, but can also be expressed in decimal.)
- 
--File delete_device takes a single parameter: the address of the I2C
-+File ``delete_device`` takes a single parameter: the address of the I2C
- device. As no two devices can live at the same address on a given I2C
- segment, the address is sufficient to uniquely identify the device to be
- deleted.
--- 
-2.25.0
+--LQksG6bCIzRHxTLp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4x8HcACgkQFA3kzBSg
+KbYpPw//b0fRja5Omd9dQyuGA50jUD9ErFfzBopDwUdwGfOCdoaQfS+Dn4OJQxG8
+vtu94uKnUXLDq/gXBJJFJ9MgQrf6gM+pQd/oA4ae0Yh6rj3VlAdOKj0AQ+DDAnZ2
+Gtp3hYpzNX61IUjJ1LTx37tZ1kOJmGRfPTVuTQrmPk+8St4+OhT7gfOA6ORSM7np
+yduIyq5BKqMicFJK2iCpIUDxC94qRTEbGEkVCP9OUU3BM8erXnDleawdsmbZzGTc
+1S3+s/NlRuRqVbnrjE77VncNXKcDAV91TpZIgupVgIdyGfA5UVQtrNbcbE6Rgs31
+Ky/8qDYpkP1votujcc7DPZQ92lIol3C10o2S7WYzsGU5Vf5HZiNEW/UTJMi/GLd2
+yV0zBfE8GqNu478ibJz9eKIFb+7RLjhi/r6tGV4Jdbw/9i0Mr0PkwAGmIsjN8qqO
+1UkZ5/no9qDg3uIzeFcXjmuklmxQhglGV4Vs3uWhcdjMJQTEaFPZ8xAjw+keMmMq
+ECSaw29sus3QwEZPoOUdV2aqRU+ntUYE5RNCVDFjDgGfuwYEvY4LuesM5WCfFVWD
+VqYfLP9x4wqfkBQNe7S5oGuKOFVnEMOCeRZZYsewitqzzAMWePjN22QCr3Q9dV/m
+9YMcG0SxRqqH0nq4lbkL6yDzUJmCiCszqhOeb7iwInSh1MRlTz0=
+=RItn
+-----END PGP SIGNATURE-----
+
+--LQksG6bCIzRHxTLp--
