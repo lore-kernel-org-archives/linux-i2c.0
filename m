@@ -1,7 +1,7 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v3 19/28] docs: i2c: smbus-protocol: improve I2C Block transactions description
-Date: Wed, 29 Jan 2020 16:19:44 +0100
-Message-ID: <20200129151953.31582-20-luca@lucaceresoli.net>
+Subject: [PATCH v3 23/28] docs: i2c: old-module-parameters: fix internal hyperlink
+Date: Wed, 29 Jan 2020 16:19:48 +0100
+Message-ID: <20200129151953.31582-24-luca@lucaceresoli.net>
 References: <20200129151953.31582-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -13,32 +13,33 @@ Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jea
 List-Id: linux-i2c@vger.kernel.org
 
 
-Clarify from the beginning what these transactions are, and specifically
-how they differ from the SMBus counterparts, i.e. the lack of a Count byte.
+Use ReST syntax so that a proper hyperlink is generated.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
----
- Documentation/i2c/smbus-protocol.rst | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
-index 7350e4b2c2fa..0edaf6069ac1 100644
---- a/Documentation/i2c/smbus-protocol.rst
-+++ b/Documentation/i2c/smbus-protocol.rst
-@@ -282,9 +282,10 @@ This is implemented the following way in the Linux kernel:
- I2C Block Transactions
- ======================
+---
+
+Changes in v2:
+ - re-add the reference to the section (Jean Delvare)
+---
+ Documentation/i2c/old-module-parameters.rst | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/i2c/old-module-parameters.rst b/Documentation/i2c/old-module-parameters.rst
+index 78a6950e5763..1a18e2b0f593 100644
+--- a/Documentation/i2c/old-module-parameters.rst
++++ b/Documentation/i2c/old-module-parameters.rst
+@@ -12,8 +12,8 @@ address), "force" (to forcibly attach the driver to a given device) and
+ With the conversion of the I2C subsystem to the standard device driver
+ binding model, it became clear that these per-module parameters were no
+ longer needed, and that a centralized implementation was possible. The new,
+-sysfs-based interface is described in the documentation file
+-"instantiating-devices", section "Method 4: Instantiate from user-space".
++sysfs-based interface is described in :doc:`instantiating-devices`, section
++"Method 4: Instantiate from user-space".
  
--The following I2C block transactions are supported by the
--SMBus layer and are described here for completeness.
--They are *NOT* defined by the SMBus specification.
-+The following I2C block transactions are similar to the SMBus Block Read
-+and Write operations, except these do not have a Count byte. They are
-+supported by the SMBus layer and are described here for completeness, but
-+they are *NOT* defined by the SMBus specification.
+ Below is a mapping from the old module parameters to the new interface.
  
- I2C block transactions do not limit the number of bytes transferred
- but the SMBus layer places a limit of 32 bytes.
 -- 
 2.25.0
