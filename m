@@ -1,63 +1,64 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH v3 27/28] docs: i2c: i2c-protocol: use same wording as smbus-protocol
-Date: Wed, 29 Jan 2020 16:19:52 +0100
-Message-ID: <20200129151953.31582-28-luca@lucaceresoli.net>
+Subject: [PATCH v3 25/28] docs: i2c: old-module-parameters: use monospace instead of ""
+Date: Wed, 29 Jan 2020 16:19:50 +0100
+Message-ID: <20200129151953.31582-26-luca@lucaceresoli.net>
 References: <20200129151953.31582-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from hostingweb31-40.netsons.net ([89.40.174.40]:55015 "EHLO
+        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727184AbgA2QWz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Jan 2020 11:22:55 -0500
 In-Reply-To: <20200129151953.31582-1-luca@lucaceresoli.net>
-Sender: linux-doc-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
 
 
-In smbus-protocol.rst we use the text "Implemented by" for the same meaning
-as "This corresponds to". Change everything to "Implemented by" for
-coherency.
+Use a monospace (literal) formatting for better readability of sysfs
+attributes and the "dummy" client name. This looks much more readable in
+ReST-generated output.
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Reported-by: Jean Delvare <jdelvare@suse.de>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
 ---
 
-This patch is new in v2.
+Changes in v2:
+ - reword commit message to not mention filenames (Jean Delvare)
 ---
- Documentation/i2c/i2c-protocol.rst | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/i2c/old-module-parameters.rst | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/i2c/i2c-protocol.rst b/Documentation/i2c/i2c-protocol.rst
-index 6aafc3880bce..b2092f8f815d 100644
---- a/Documentation/i2c/i2c-protocol.rst
-+++ b/Documentation/i2c/i2c-protocol.rst
-@@ -28,7 +28,7 @@ Count (8 bits)  A data byte containing the length of a block operation.
- Simple send transaction
- =======================
+diff --git a/Documentation/i2c/old-module-parameters.rst b/Documentation/i2c/old-module-parameters.rst
+index 92a403d21a62..3b93cb88eebc 100644
+--- a/Documentation/i2c/old-module-parameters.rst
++++ b/Documentation/i2c/old-module-parameters.rst
+@@ -10,9 +10,9 @@ I2C device driver binding control from user-space
+ Up to kernel 2.6.32, many I2C drivers used helper macros provided by
+ <linux/i2c.h> which created standard module parameters to let the user
+ control how the driver would probe I2C buses and attach to devices. These
+-parameters were known as "probe" (to let the driver probe for an extra
+-address), "force" (to forcibly attach the driver to a given device) and
+-"ignore" (to prevent a driver from probing a given address).
++parameters were known as ``probe`` (to let the driver probe for an extra
++address), ``force`` (to forcibly attach the driver to a given device) and
++``ignore`` (to prevent a driver from probing a given address).
  
--This corresponds to i2c_master_send()::
-+Implemented by i2c_master_send()::
+ With the conversion of the I2C subsystem to the standard device driver
+ binding model, it became clear that these per-module parameters were no
+@@ -47,8 +47,8 @@ New method (sysfs interface)::
+   # echo dummy 0x2f > /sys/bus/i2c/devices/i2c-1/new_device
+   # modprobe <driver>
  
-   S Addr Wr [A] Data [A] Data [A] ... [A] Data [A] P
- 
-@@ -36,7 +36,7 @@ This corresponds to i2c_master_send()::
- Simple receive transaction
- ==========================
- 
--This corresponds to i2c_master_recv()::
-+Implemented by i2c_master_recv()::
- 
-   S Addr Rd [A] [Data] A [Data] A ... A [Data] NA P
- 
-@@ -44,7 +44,7 @@ This corresponds to i2c_master_recv()::
- Combined transactions
- =====================
- 
--This corresponds to i2c_transfer().
-+Implemented by i2c_transfer().
- 
- They are just like the above transactions, but instead of a stop
- condition P a start condition S is sent and the transaction continues.
+-Of course, it is important to instantiate the "dummy" device before loading
++Of course, it is important to instantiate the ``dummy`` device before loading
+ the driver. The dummy device will be handled by i2c-core itself, preventing
+ other drivers from binding to it later on. If there is a real device at the
+ problematic address, and you want another driver to bind to it, then simply
+-pass the name of the device in question instead of "dummy".
++pass the name of the device in question instead of ``dummy``.
 -- 
 2.25.0
