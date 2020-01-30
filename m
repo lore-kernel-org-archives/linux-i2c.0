@@ -1,61 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/3] i2c: cadence: Fix wording in i2c-cadence driver
-Date: Thu, 30 Jan 2020 09:24:08 +0100
-Message-ID: <20200130082408.GF2208@ninjato>
-References: <1578548273-23206-1-git-send-email-shubhrajyoti.datta@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 4/6] i2c: i2c-stm32f7: add PM_SLEEP suspend/resume support
+Date: Thu, 30 Jan 2020 09:38:10 +0100
+Message-ID: <20200130083810.GG2208@ninjato>
+References: <1578317314-17197-1-git-send-email-alain.volmat@st.com>
+ <1578317314-17197-5-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="oFbHfjnMgUMsrGjO"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46522 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726757AbgA3IYK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 30 Jan 2020 03:24:10 -0500
+        protocol="application/pgp-signature"; boundary="oOB74oR0WcNeq9Zb"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1578548273-23206-1-git-send-email-shubhrajyoti.datta@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1578317314-17197-5-git-send-email-alain.volmat-qxv4g6HH51o@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, pierre-yves.mordret-qxv4g6HH51o@public.gmane.org, mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexandre.torgue-qxv4g6HH51o@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, fabrice.gasnier-qxv4g6HH51o@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: shubhrajyoti.datta@gmail.com
-Cc: linux-i2c@vger.kernel.org, michal.simek@xilinx.com, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 
 
---oFbHfjnMgUMsrGjO
+--oOB74oR0WcNeq9Zb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 09, 2020 at 11:07:53AM +0530, shubhrajyoti.datta@gmail.com wrot=
-e:
-> From: Michal Simek <michal.simek@xilinx.com>
+On Mon, Jan 06, 2020 at 02:28:32PM +0100, Alain Volmat wrote:
+> Backup/restore I2C registers as part of the suspend/resume
+> handlers. The device is marked as suspended to ensure that
+> transfers are rejected during the suspended period.
 >=20
-> Fix wording based on checkpatch.pl
->=20
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+> Signed-off-by: Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org>
 
 Applied to for-next, thanks!
 
-BTW there is no patch 3/3, neither in patchwork nor in my inbox.
 
-
---oFbHfjnMgUMsrGjO
+--oOB74oR0WcNeq9Zb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4ykqcACgkQFA3kzBSg
-KbZPlg//f50RGCN9hDFLHrP+VnRQpsNVju1Z/u8tJ2vyt3RjGpGpEJUeuYEXKCBP
-PDpqzFJXPfsUBYCPwPB6ilMqEEphkY+QKXUEs87NpiPSjNR7SBft59MyHi4KIakn
-GZjpDaZATwkh4WrbD4qWP2P5HghY6ceFWktYymNqYPeNSgAR3auywNA8FiuSex+k
-jONE+34Byq4rfL3wlTmqkKWETVB/9zbEZ8eZ/XMJvogdB5Kpj89G/aQHmm5yg/+p
-4dcYKjCOrcDeOt/8MuPbiAuFXmB8TrctpcS+o9udo11pt/uodJwtjJo76E/+AnM+
-swaV4ebmD10yW9ZzYIk1bOtnmUVBhD5IYR5/nj97TlGMdiYzt8J5UjFh4ALTYuJN
-8WFeb+m8XVoFyIbdMbn2LAnixsg9zGdybu7WeR3Hg145dO6RFAoDiCAs/tvymtRY
-D8gUn9ygNEksHe35LNOlzk4Heb5jQct8GLu3Tvcn5IF/IhVhVF1RaF6NXgk9DF6x
-PKFvjpscGeecbupJafqzhAZeO0ap3DAfP6nXMHFUrHcdMj0CONykkTJhShKVxYbA
-uhHo7Yg41vrDlh2sZBW2uLXfzVjU7/rbUBZv5JPd4yPYmAhU2QF98xYmncJFWtnC
-SFRuOqxSLZOGJ/lr2qSt5D7QgmX/F+qaf9Z62XNoL8mggRt5nNM=
-=IYE3
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4yle4ACgkQFA3kzBSg
+KbY32g/+MsJU/Mz6bHmAAS9cTmzSotAvgy/o+WUUunotmJ7EHIyl25iZjMCFrs2z
+Xi3Gk59qbPt4oMVu1wQNhT7NDbvjyyfltJPFyRjevxMfBKwcMGdd6lI4W+jsogCk
+JtzOEIkiDrSXFqrC58/zjxbTV6vxpR0gtvbhnvVUvhtcAaVEWtrKm+f3NE7XoDt3
+E4IhMehFrxlHxaBtzJUzlEyUrv0rRav4knChHnpAgtCHIh5wOVdj2PAMTibteAJ2
+56Mt6MvU+W+vs6enYkDcFCtEu9sgOZF1RM3ozUurkI98Efqn/21M2fP7WtxZMDih
+Ai/bVREnuAeJWI8LA65h9diLll6Wfi+QKlgh8Lq1XQmIfsPtv9kZGD3jCLZ9AEcJ
+Gv//iQpUstLg728O+atN0pTYLyQ0Tuync+LxYnqyFHclpqFb4nwe37zF2gzVMkY8
+H5Xaz+I7jqzG+I42img+kcLYIYbmT7Wjq/LJdivpAA8EzETeLzxX0QVroIDXzcOs
+vGrk26aCR8xAfST/6KAb7AC8G5HSIDYFzsfbGhYMYm6jVvXw2pZYBXGsxtxTOXJ8
+S8GsbiiY+3sND5foLLbEAtqpNgDNnJsPxS3R8MwES/2MiuPp+yEk1oinnS8cY6li
+lom0Vqb3JaX8OQjZDu6uYyPAvhm2ED4jCCSMSvdMJNZtojtASKo=
+=yyQ3
 -----END PGP SIGNATURE-----
 
---oFbHfjnMgUMsrGjO--
+--oOB74oR0WcNeq9Zb--
