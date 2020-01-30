@@ -1,46 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: dev: keep sorting of includes
-Date: Thu, 30 Jan 2020 21:23:12 +0100
-Message-ID: <20200130202312.5107-1-wsa@the-dreams.de>
+From: Prashant Malani <pmalani@chromium.org>
+Subject: [PATCH 00/17] platform/chrome: Replace cros_ec_cmd_xfer_status
+Date: Thu, 30 Jan 2020 12:30:31 -0800
+Message-ID: <20200130203106.201894-1-pmalani@chromium.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:52226 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727089AbgA3UXW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 30 Jan 2020 15:23:22 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Prashant Malani <pmalani@chromium.org>, Akshu Agrawal <akshu.agrawal@amd.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, "moderated list:SOUND - SOC LAYER / DYNAMIC
+        AUDIO POWER MANAGEM..." <alsa-devel@alsa-project.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Evan Green <evgreen@chromium.org>, Fabien Lahoudere <fabien.lahoudere@collabora.com>, Guenter Roeck <groeck@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Hartmut Knaack <knaack.h@gmx.de>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Lars-Peter Clausen <lars@metafoo.de>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.o
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
+Many callers of cros_ec_cmd_xfer_status() use similar setup and cleanup
+code, including setting up the cros_ec_command message struct and
+copying the received buffer.
 
-It makes sense, another patch wanted to duplicate an entry...
+This series introduces a replacement function cros_ec_send_cmd_msg() that
+performs this setup and teardown, and then updates all call sites that
+used xfer_status() to use the new function instead.
 
- drivers/i2c/i2c-dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The final patch in the series drops cros_ec_cmd_xfer_status() altogether.
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 94beacc41302..da020acc9bbd 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -15,6 +15,7 @@
- /* The I2C_RDWR ioctl code is written by Kolja Waschk <waschk@telos.de> */
- 
- #include <linux/cdev.h>
-+#include <linux/compat.h>
- #include <linux/device.h>
- #include <linux/fs.h>
- #include <linux/i2c-dev.h>
-@@ -27,7 +28,6 @@
- #include <linux/notifier.h>
- #include <linux/slab.h>
- #include <linux/uaccess.h>
--#include <linux/compat.h>
- 
- /*
-  * An i2c_dev represents an i2c_adapter ... an I2C or SMBus master, not a
+Prashant Malani (17):
+  platform/chrome: Add EC command msg wrapper
+  platform/chrome: chardev: Use send_cmd_msg()
+  platform/chrome: proto: Use send_cmd_msg
+  platform/chrome: usbpd_logger: Use cmd_send_msg()
+  platform/chrome: sensorhub: Use send_cmd_msg()
+  platform/chrome: debugfs: Use send_cmd_msg()
+  platform/chrome: sysfs: Use send_cmd_msg()
+  extcon: cros_ec: Use cros_ec_send_cmd_msg()
+  hid: google-hammer: Use cros_ec_send_cmd_msg()
+  iio: cros_ec: Use cros_ec_send_cmd_msg()
+  ASoC: cros_ec_codec: Use cros_ec_send_cmd_msg()
+  power: supply: cros: Use cros_ec_send_cmd_msg()
+  pwm: cros-ec: Remove cros_ec_cmd_xfer_status()
+  rtc: cros-ec: Use cros_ec_send_cmd_msg()
+  media: cros-ec-cec: Use cros_ec_send_cmd_msg()
+  i2c: cros-ec-tunnel: Use cros_ec_send_cmd_msg()
+  platform/chrome: Drop cros_ec_cmd_xfer_status()
+
+ drivers/extcon/extcon-usbc-cros-ec.c          |  62 ++------
+ drivers/hid/hid-google-hammer.c               |  23 +--
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c       |  23 ++-
+ .../cros_ec_sensors/cros_ec_sensors_core.c    |  43 +++---
+ .../media/platform/cros-ec-cec/cros-ec-cec.c  |  39 ++---
+ drivers/platform/chrome/cros_ec_chardev.c     |  18 +--
+ drivers/platform/chrome/cros_ec_debugfs.c     | 135 ++++++------------
+ drivers/platform/chrome/cros_ec_proto.c       |  75 ++++++----
+ drivers/platform/chrome/cros_ec_sensorhub.c   |  29 ++--
+ drivers/platform/chrome/cros_ec_sysfs.c       | 106 ++++++--------
+ drivers/platform/chrome/cros_usbpd_logger.c   |  13 +-
+ drivers/power/supply/cros_usbpd-charger.c     |  63 ++------
+ drivers/pwm/pwm-cros-ec.c                     |  27 ++--
+ drivers/rtc/rtc-cros-ec.c                     |  27 ++--
+ include/linux/platform_data/cros_ec_proto.h   |   6 +-
+ sound/soc/codecs/cros_ec_codec.c              |  71 +++------
+ 16 files changed, 276 insertions(+), 484 deletions(-)
+
 -- 
-2.20.1
+2.25.0.341.g760bfbb309-goog
