@@ -1,32 +1,39 @@
-From: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v11 0/2] add power control in i2c and at24
-Date: Thu, 30 Jan 2020 13:11:26 +0800
-Message-ID: <20200130051128.14878-1-bibby.hsieh@mediatek.com>
+From: Bibby Hsieh <bibby.hsieh@mediatek.com>
+Subject: [PATCH v11 1/2] dt-binding: i2c: add bus-supply property
+Date: Thu, 30 Jan 2020 13:11:27 +0800
+Message-ID: <20200130051128.14878-2-bibby.hsieh@mediatek.com>
+References: <20200130051128.14878-1-bibby.hsieh@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: base64
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, drinkcat-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailgw02.mediatek.com ([210.61.82.184]:1802 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726397AbgA3FLi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Jan 2020 00:11:38 -0500
+In-Reply-To: <20200130051128.14878-1-bibby.hsieh@mediatek.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-i2c@vger.kernel.org
+Cc: tfiga@chromium.org, drinkcat@chromium.org, srv_heupstream@mediatek.com, robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, Bibby Hsieh <bibby.hsieh@mediatek.com>
 
-QWx0aG91Z2ggaW4gdGhlIG1vc3QgcGxhdGZvcm1zLCB0aGUgcG93ZXIgb2YgZWVwcm9tIGFuZCBp
-MmMgYXJlIGFsd2F5IG9uLA0Kc29tZSBwbGF0Zm9ybXMgZGlzYWJsZSB0aGUgZWVwcm9tIGFuZCBp
-MmMgcG93ZXIgaW4gb3JkZXIgdG8gbWVldCBsb3cgcG93ZXIgcmVxdWVzdC4NClRoaXMgcGF0Y2gg
-YWRkIHRoZSBwbV9ydW50aW1lIG9wcyB0byBjb250cm9sIHBvd2VyIHRvIHN1cHBvcnQgYWxsIHBs
-YXRmb3Jtcy4NCg0KQ2hhbmdlcyBzaW5jZSB2MTA6DQogLSBmaXh1cCBzb21lIHdvcm5nIGNvZGVz
-DQoNCkNoYW5nZXMgc2luY2Ugdjk6DQogLSBmaXh1cCBidWlsZCBlcnJvcg0KIC0gcmVtb3ZlIHJl
-ZHVuZGFudCBjb2RlDQoNCkNoYW5nZXMgc2luY2Ugdjg6DQogLSBmaXh1cCBzb21lIHdyb25nIGNv
-ZGUNCiAtIHJlbW92ZSByZWR1bmRhbnQgbWVzc2FnZQ0KDQpDaGFuZ2VzIHNpbmNlIHY3Og0KIC0g
-YWRkIGJpbmRpbmcgZGVzY3JpYmUgc3VwcGx5IHByb3BlcnR5IGluIGkyYyBhbmQgYXQyNC4NCiAt
-IG1vdmUgaTJjIGJ1cyBzdXBwbHkgY29udHJvbCBpbiBpMmMtY29yZS4NCiAtIHJlYmFzZSBvbnRv
-IHY1LjUtcmMxDQoNCkNoYW5nZXMgc2luY2UgdjY6DQogLSBhZGQgYmFjayBlcnJvciBjaGVjayBm
-b3IgZGV2bV9yZWd1bGF0b3JfYnVsa19nZXQoKQ0KDQogICAgICAgIFsuLi4gc25pcCAuLi5dDQoN
-CkJpYmJ5IEhzaWVoICgyKToNCiAgZHQtYmluZGluZzogaTJjOiBhZGQgYnVzLXN1cHBseSBwcm9w
-ZXJ0eQ0KICBpMmM6IGNvcmU6IHN1cHBvcnQgYnVzIHJlZ3VsYXRvciBjb250cm9sbGluZyBpbiBh
-ZGFwdGVyDQoNCiBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy50eHQg
-fCAgMyArDQogZHJpdmVycy9pMmMvaTJjLWNvcmUtYmFzZS5jICAgICAgICAgICAgICAgICAgIHwg
-ODEgKysrKysrKysrKysrKysrKysrKw0KIGluY2x1ZGUvbGludXgvaTJjLmggICAgICAgICAgICAg
-ICAgICAgICAgICAgICB8ICAyICsNCiAzIGZpbGVzIGNoYW5nZWQsIDg2IGluc2VydGlvbnMoKykN
-Cg0KLS0gDQoyLjE4LjANCg==
+SW4gc29tZSBwbGF0Zm9ybXMsIHRoZXkgZGlzYWJsZSB0aGUgcG93ZXItc3VwcGx5IG9mIGkyYyBk
+dWUNCnRvIHBvd2VyIGNvbnN1bXB0aW9uIHJlZHVjdGlvbi4gVGhpcyBwYXRjaCBhZGQgYnVzLXN1
+cHBseSBwcm9wZXJ0eS4NCg0KU2lnbmVkLW9mZi1ieTogQmliYnkgSHNpZWggPGJpYmJ5LmhzaWVo
+QG1lZGlhdGVrLmNvbT4NClJldmlld2VkLWJ5OiBSb2IgSGVycmluZyA8cm9iaEBrZXJuZWwub3Jn
+Pg0KLS0tDQogRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMudHh0IHwg
+MyArKysNCiAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspDQoNCmRpZmYgLS1naXQgYS9E
+b2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy50eHQgYi9Eb2N1bWVudGF0
+aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy50eHQNCmluZGV4IDlhNTNkZjQyNDNjNi4u
+ODlkODI3ODA1ZTg5IDEwMDY0NA0KLS0tIGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRp
+bmdzL2kyYy9pMmMudHh0DQorKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3Mv
+aTJjL2kyYy50eHQNCkBAIC05OCw2ICs5OCw5IEBAIHdhbnRzIHRvIHN1cHBvcnQgb25lIG9mIHRo
+ZSBiZWxvdyBmZWF0dXJlcywgaXQgc2hvdWxkIGFkYXB0IHRoZSBiaW5kaW5ncyBiZWxvdy4NCiAJ
+TmFtZXMgb2YgbWFwIHByb2dyYW1tYWJsZSBhZGRyZXNzZXMuDQogCUl0IGNhbiBjb250YWluIGFu
+eSBtYXAgbmVlZGluZyBhbm90aGVyIGFkZHJlc3MgdGhhbiBkZWZhdWx0IG9uZS4NCiANCistIGJ1
+cy1zdXBwbHkNCisJcGhhbmRsZSB0byB0aGUgcmVndWxhdG9yIHRoYXQgcHJvdmlkZXMgcG93ZXIg
+dG8gaTJjLg0KKw0KIEJpbmRpbmcgbWF5IGNvbnRhaW4gb3B0aW9uYWwgImludGVycnVwdHMiIHBy
+b3BlcnR5LCBkZXNjcmliaW5nIGludGVycnVwdHMNCiB1c2VkIGJ5IHRoZSBkZXZpY2UuIEkyQyBj
+b3JlIHdpbGwgYXNzaWduICJpcnEiIGludGVycnVwdCAob3IgdGhlIHZlcnkgZmlyc3QNCiBpbnRl
+cnJ1cHQgaWYgbm90IHVzaW5nIGludGVycnVwdCBuYW1lcykgYXMgcHJpbWFyeSBpbnRlcnJ1cHQg
+Zm9yIHRoZSBzbGF2ZS4NCi0tIA0KMi4xOC4wDQo=
