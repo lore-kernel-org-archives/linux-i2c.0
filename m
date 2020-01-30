@@ -1,63 +1,32 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] docs: i2c: dev-interface: document the actual
- implementation
-Date: Wed, 29 Jan 2020 22:13:37 +0100
-Message-ID: <20200129211337.GG7586@ninjato>
-References: <20200123105246.67732e33@endymion>
- <20200123111137.5899fa5a@endymion>
+From: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v11 0/2] add power control in i2c and at24
+Date: Thu, 30 Jan 2020 13:11:26 +0800
+Message-ID: <20200130051128.14878-1-bibby.hsieh@mediatek.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="reI/iBAAp9kzkmX4"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:41820 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727133AbgA2VNj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 29 Jan 2020 16:13:39 -0500
-Content-Disposition: inline
-In-Reply-To: <20200123111137.5899fa5a@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: base64
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, drinkcat-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Lei YU <mine260309@gmail.com>, Luca Ceresoli <luca@lucaceresoli.net>
 
-
---reI/iBAAp9kzkmX4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
->  So let's say you want to access an I2C adapter from a C program.
-> -First, you need to include these two headers::
-> +First, you need to include these three header files::
-
-Just stumbled over it: maybe just drop the 'three'? No number makes
-maintenance easier and it is not important for the user, I'd think.
-
-> =20
-> +  #include <linux/i2c.h>
->    #include <linux/i2c-dev.h>
-> -  #include <i2c/smbus.h>
-> +  #include <sys/ioctl.h>
-
---reI/iBAAp9kzkmX4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4x9YEACgkQFA3kzBSg
-KbbKfA/+LENepLJ0mwErl5fnqPWA/lmxTAsK2JoYsbFSLRTi12i/kgUMQGxooX/1
-xJaeVnG5NOoBrBWTQwCfaQQbeNiF/sZ7pO7BNOTu+zOqck0EywSTB1u0yGPdAERE
-GEX/xVFV3us252yZ9hCcZKpC1YAdGe3NBtA+OO3wqmiYNqI+F5y72Zu4ib4Inoqa
-RfmmLp6RacspClE9GX4FzKsqLz8pgnb75v+8QED5YgE6d3NDHUvke6JocI3V/kiP
-Z3FvNkO5TaYesjiJKGDVRHVW1C1xTkcdMnElef2BiwICLyKEtxZBJlO7tjtgo2Bk
-Ec76CBlqCrx8Z0tNzhXlOujpjX0B6Rny1FZU81g7CuVcTZU1LcNomEohwcXrFa44
-z9/JtLKUv5r7Ys3PNZFP/2gWSdfnkBWpWa8NW2JCDkoStJtq6Y1fC9yXOnQiV7DP
-gT65psN5YmPFmn5frIP4pDkYsKilq86dPQ4KUG1eT+M33/4AAbmYiIYrJdQIgxk8
-GgHVLHEOpJG7ZtUJRLSRSKS5S/UhSY1+KGHSq5Js9FZrd4u1h+ZZMIhHMgNkGTae
-9c3wjhAEYQF35CNZLwudh9NiHQ41Zh3VXnsCTYYqMQZPcd4VhmcX20ldBR0sydwU
-5uN0VEQbiG/E5ZHuSfOQkTyKF1yt5iKqxGxwbhVpePiUc92l0no=
-=TNX0
------END PGP SIGNATURE-----
-
---reI/iBAAp9kzkmX4--
+QWx0aG91Z2ggaW4gdGhlIG1vc3QgcGxhdGZvcm1zLCB0aGUgcG93ZXIgb2YgZWVwcm9tIGFuZCBp
+MmMgYXJlIGFsd2F5IG9uLA0Kc29tZSBwbGF0Zm9ybXMgZGlzYWJsZSB0aGUgZWVwcm9tIGFuZCBp
+MmMgcG93ZXIgaW4gb3JkZXIgdG8gbWVldCBsb3cgcG93ZXIgcmVxdWVzdC4NClRoaXMgcGF0Y2gg
+YWRkIHRoZSBwbV9ydW50aW1lIG9wcyB0byBjb250cm9sIHBvd2VyIHRvIHN1cHBvcnQgYWxsIHBs
+YXRmb3Jtcy4NCg0KQ2hhbmdlcyBzaW5jZSB2MTA6DQogLSBmaXh1cCBzb21lIHdvcm5nIGNvZGVz
+DQoNCkNoYW5nZXMgc2luY2Ugdjk6DQogLSBmaXh1cCBidWlsZCBlcnJvcg0KIC0gcmVtb3ZlIHJl
+ZHVuZGFudCBjb2RlDQoNCkNoYW5nZXMgc2luY2Ugdjg6DQogLSBmaXh1cCBzb21lIHdyb25nIGNv
+ZGUNCiAtIHJlbW92ZSByZWR1bmRhbnQgbWVzc2FnZQ0KDQpDaGFuZ2VzIHNpbmNlIHY3Og0KIC0g
+YWRkIGJpbmRpbmcgZGVzY3JpYmUgc3VwcGx5IHByb3BlcnR5IGluIGkyYyBhbmQgYXQyNC4NCiAt
+IG1vdmUgaTJjIGJ1cyBzdXBwbHkgY29udHJvbCBpbiBpMmMtY29yZS4NCiAtIHJlYmFzZSBvbnRv
+IHY1LjUtcmMxDQoNCkNoYW5nZXMgc2luY2UgdjY6DQogLSBhZGQgYmFjayBlcnJvciBjaGVjayBm
+b3IgZGV2bV9yZWd1bGF0b3JfYnVsa19nZXQoKQ0KDQogICAgICAgIFsuLi4gc25pcCAuLi5dDQoN
+CkJpYmJ5IEhzaWVoICgyKToNCiAgZHQtYmluZGluZzogaTJjOiBhZGQgYnVzLXN1cHBseSBwcm9w
+ZXJ0eQ0KICBpMmM6IGNvcmU6IHN1cHBvcnQgYnVzIHJlZ3VsYXRvciBjb250cm9sbGluZyBpbiBh
+ZGFwdGVyDQoNCiBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy50eHQg
+fCAgMyArDQogZHJpdmVycy9pMmMvaTJjLWNvcmUtYmFzZS5jICAgICAgICAgICAgICAgICAgIHwg
+ODEgKysrKysrKysrKysrKysrKysrKw0KIGluY2x1ZGUvbGludXgvaTJjLmggICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8ICAyICsNCiAzIGZpbGVzIGNoYW5nZWQsIDg2IGluc2VydGlvbnMoKykN
+Cg0KLS0gDQoyLjE4LjANCg==
