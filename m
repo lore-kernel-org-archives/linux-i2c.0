@@ -1,66 +1,96 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: cadence: Handle transfer_size rollover
-Date: Thu, 30 Jan 2020 09:03:07 +0100
-Message-ID: <20200130080307.GA2208@ninjato>
-References: <20190131213957.11568-1-alex.williams@ettus.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v4 2/5] nvmem: add support for the write-protect pin
+Date: Thu, 30 Jan 2020 09:06:32 +0100
+Message-ID: <CAMuHMdVv+FRnf6fvjEeu50W5PB-Gh2V8Th1h__vt6guMwk2xNQ@mail.gmail.com>
+References: <20200107092922.18408-1-ktouil@baylibre.com> <20200107092922.18408-3-ktouil@baylibre.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46338 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726464AbgA3IDN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 30 Jan 2020 03:03:13 -0500
-Content-Disposition: inline
-In-Reply-To: <20190131213957.11568-1-alex.williams@ettus.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200107092922.18408-3-ktouil@baylibre.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Khouloud Touil <ktouil@baylibre.com>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, baylibre-upstreaming@groups.io, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: alex.williams@ettus.com
-Cc: mical.simek@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Alex Williams <alex.williams@ni.com>
 
+Hi Khouloud,
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Jan 7, 2020 at 10:30 AM Khouloud Touil <ktouil@baylibre.com> wrote:
+> The write-protect pin handling looks like a standard property that
+> could benefit other users if available in the core nvmem framework.
+>
+> Instead of modifying all the memory drivers to check this pin, make
+> the NVMEM subsystem check if the write-protect GPIO being passed
+> through the nvmem_config or defined in the device tree and pull it
+> low whenever writing to the memory.
+>
+> There was a suggestion for introducing the gpiodesc from pdata, but
+> as pdata is already removed it could be replaced by adding it to
+> nvmem_config.
+>
+> Reference: https://lists.96boards.org/pipermail/dev/2018-August/001056.html
+>
+> Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-On Thu, Jan 31, 2019 at 01:39:57PM -0800, alex.williams@ettus.com wrote:
-> From: Alex Williams <alex.williams@ni.com>
->=20
-> Under certain conditions, Cadence's I2C controller's transfer_size
-> register will roll over and generate invalid read transactions. Before
-> this change, the ISR relied solely on the RXDV bit to determine when to
-> write more data to the user's buffer. The invalid read data would cause
-> overruns, smashing stacks and worse.
->=20
-> This change stops the buffer writes to the requested boundary and
-> reports the error. The controller will be reset so normal transactions
-> may resume.
->=20
-> Signed-off-by: Alex Williams <alex.williams@ni.com>
+Thanks for your patch!
 
-Applied to for-next with another Rev-by from Michal given in another
-thread, thanks!
+> --- a/drivers/nvmem/core.c
+> +++ b/drivers/nvmem/core.c
+> @@ -15,6 +15,7 @@
+>  #include <linux/module.h>
+>  #include <linux/nvmem-consumer.h>
+>  #include <linux/nvmem-provider.h>
+> +#include <linux/gpio/consumer.h>
+>  #include <linux/of.h>
+>  #include <linux/slab.h>
+>  #include "nvmem.h"
+> @@ -54,8 +55,14 @@ static int nvmem_reg_read(struct nvmem_device *nvmem, unsigned int offset,
+>  static int nvmem_reg_write(struct nvmem_device *nvmem, unsigned int offset,
+>                            void *val, size_t bytes)
+>  {
+> -       if (nvmem->reg_write)
+> -               return nvmem->reg_write(nvmem->priv, offset, val, bytes);
+> +       int ret;
+> +
+> +       if (nvmem->reg_write) {
+> +               gpiod_set_value_cansleep(nvmem->wp_gpio, 0);
+> +               ret = nvmem->reg_write(nvmem->priv, offset, val, bytes);
+> +               gpiod_set_value_cansleep(nvmem->wp_gpio, 1);
+> +               return ret;
+> +       }
+>
+>         return -EINVAL;
+>  }
+> @@ -338,6 +345,14 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+>                 kfree(nvmem);
+>                 return ERR_PTR(rval);
+>         }
+> +       if (config->wp_gpio)
+> +               nvmem->wp_gpio = config->wp_gpio;
+> +       else
+> +               nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
+> +                                                   GPIOD_OUT_HIGH);
 
+Shouldn't this GPIO be released in nvmem_release(), by calling gpiod_put()?
 
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature; name="signature.asc"
+Once that's implemented, I assume it will be auto-released on registration
+failure by the call to put_device()?
 
------BEGIN PGP SIGNATURE-----
+> +       if (IS_ERR(nvmem->wp_gpio))
+> +               return PTR_ERR(nvmem->wp_gpio);
+> +
+>
+>         kref_init(&nvmem->refcnt);
+>         INIT_LIST_HEAD(&nvmem->cells);
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4yjbcACgkQFA3kzBSg
-Kbb8RxAAiCoAtge6yROLbqYc4Ruq1gKWnE76UU2AbpwSK1GEFdyKat70l9hN0Edb
-7ISc+b+z9X8gYfm8Sx8CjKoqC+B4ldxyZM+hNCOzkMfzbIGUNTllajhZIAb5MEhI
-E405O36pd94ogiFGcTALsgtLgfaC2HDzVTqm5xOyJqJRte+W0palPx4UL6+33PbR
-QYmMkPhA+6AUlnCXsrtDjM13eg3u6gRn/IG/ZfztOPufyzsE3sHaMgyqLhE1puI/
-5N3kjDQQAfespuTspjLm8S7J4cqSxEYpieog6II6NGCRFQTsfiYv6iHCzyywJ5Xk
-t5CgEaqnqZBzr8WFWmpgngz33RrYBTEOPbM5WScvVKaMfm3bKAP20Q23yEaDwZAC
-SfI0SQJAyJ9EZi/z2NuDRi8QgED5hoqchWN0MT9VYhGsSEfZA4q4LiECkHL8Zg85
-VxZMCZcfQHzER3epg0P3imvP5slj6L4LhSzg2mu9JdHUSqcsjIA16E+Di9kZ/eCF
-rJkh8Sb4tK1ClVlnTW4/YtmfC7Ru0XrN5ZFeugZxUurByG5Q3NtezkJHAzrVJGFz
-L3AbX0Fl7lA3/nX/astrsUgG4sXoOG7bWW/7FiA0jWPrX+WglbEbXZQ64I6MXN5E
-TOjyGoxiXCU2zyrlqeiHwf7XDRmzMpxAOLYZjmKgibcX1OcjLBw=
-=WTaX
------END PGP SIGNATURE-----
+Gr{oetje,eeting}s,
 
---J/dobhs11T7y2rNN--
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
