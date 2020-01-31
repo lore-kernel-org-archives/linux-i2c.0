@@ -1,56 +1,92 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/4] i2c: i2c-cros-ec-tunnel: Fix ACPI identifier
-Date: Fri, 31 Jan 2020 08:48:04 +0100
-Message-ID: <20200131074804.GE1028@ninjato>
-References: <20191121211053.48861-1-rrangel@chromium.org>
- <20191121140830.2.I68b9a92ed4def031c3f247d3b49996a2512d762d@changeid>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: linux-next: Tree for Jan 31 (drivers/i2c/busses/i2c-stm32f7.c)
+Date: Thu, 30 Jan 2020 23:49:53 -0800
+Message-ID: <7cd84961-d1f5-03eb-2e00-8f51b2f7121d@infradead.org>
+References: <20200131150606.34caeb7c@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="r7U+bLA8boMOj+mD"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:57240 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728100AbgAaHsH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 31 Jan 2020 02:48:07 -0500
-Content-Disposition: inline
-In-Reply-To: <20191121140830.2.I68b9a92ed4def031c3f247d3b49996a2512d762d@changeid>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200131150606.34caeb7c@canb.auug.org.au>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, M'boumba Cedric Madianga <cedric.madianga@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Raul E Rangel <rrangel@chromium.org>
-Cc: enric.balletbo@collabora.com, Akshu.Agrawal@amd.com, linux-kernel@vger.kernel.org, Guenter Roeck <groeck@chromium.org>, Benson Leung <bleung@chromium.org>, Neil Armstrong <narmstrong@baylibre.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-i2c@vger.kernel.org, dlaurie@chromium.org
+
+On 1/30/20 8:06 PM, Stephen Rothwell wrote:
+> Hi all,
+> 
+> Please do not add any v5.7 material to your linux-next included
+> branches until after v5.6-rc1 has been released.
+> 
+> I am experimenting with a "make htmldocs" build at
+> the end of the day, but it currently has an error:
+> 
+> docutils.utils.SystemMessage: Documentation/driver-api/thermal/cpu-idle-cooling.rst:95: (SEVERE/4) Unexpected section title.
+> 
+> Changes since 20200130:
+> 
+> The amdgpu tree lost its build failure.
+> 
+> The akpm-current tree gained a build failure due to an interaction with
+> the nfsd tree for which I have revertd a commit.
+> 
+> Non-merge commits (relative to Linus' tree): 3654
+>  3320 files changed, 145104 insertions(+), 53102 deletions(-)
+> 
+> ----------------------------------------------------------------------------
+> 
+> I have created today's linux-next tree at
+> git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+> (patches at http://www.kernel.org/pub/linux/kernel/next/ ).  If you
+> are tracking the linux-next tree using git, you should not use "git pull"
+> to do so as that will try to merge the new linux-next release with the
+> old one.  You should use "git fetch" and checkout or reset to the new
+> master.
+> 
+> You can see which trees have been included by looking in the Next/Trees
+> file in the source.  There are also quilt-import.log and merge.log
+> files in the Next directory.  Between each merge, the tree was built
+> with a ppc64_defconfig for powerpc, an allmodconfig for x86_64, a
+> multi_v7_defconfig for arm and a native build of tools/perf. After
+> the final fixups (if any), I do an x86_64 modules_install followed by
+> builds for x86_64 allnoconfig, powerpc allnoconfig (32 and 64 bit),
+> ppc44x_defconfig, allyesconfig and pseries_le_defconfig and i386, sparc
+> and sparc64 defconfig. And finally, a simple boot test of the powerpc
+> pseries_le_defconfig kernel in qemu (with and without kvm enabled).
+> 
+> Below is a summary of the state of the merge.
+> 
+> I am currently merging 315 trees (counting Linus' and 78 trees of bug
+> fix patches pending for the current merge release).
+> 
+> Stats about the size of the tree over time can be seen at
+> http://neuling.org/linux-next-size.html .
+> 
+> Status of my local build tests will be at
+> http://kisskb.ellerman.id.au/linux-next .  If maintainers want to give
+> advice about cross compilers/configs that work, we are always open to add
+> more builds.
+> 
+> Thanks to Randy Dunlap for doing many randconfig builds.  And to Paul
+> Gortmaker for triage and bug fixes.
+> 
+
+on i386:
+
+when CONFIG_I2C is not set/enabled:
+
+../drivers/i2c/busses/i2c-stm32f7.c: In function ‘stm32f7_i2c_suspend’:
+../drivers/i2c/busses/i2c-stm32f7.c:2199:44: error: ‘struct dev_pm_info’ has no member named ‘wakeup_path’
+  if (!device_may_wakeup(dev) && !dev->power.wakeup_path) {
+                                            ^
+../drivers/i2c/busses/i2c-stm32f7.c: In function ‘stm32f7_i2c_resume’:
+../drivers/i2c/busses/i2c-stm32f7.c:2218:44: error: ‘struct dev_pm_info’ has no member named ‘wakeup_path’
+  if (!device_may_wakeup(dev) && !dev->power.wakeup_path) {
+                                            ^
 
 
---r7U+bLA8boMOj+mD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Nov 21, 2019 at 02:10:51PM -0700, Raul E Rangel wrote:
-> The initial patch was using the incorrect identifier.
->=20
-> Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-
-Applied to for-next, thanks!
-
-
---r7U+bLA8boMOj+mD
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4z27QACgkQFA3kzBSg
-Kbb5cg/9H0LUPULqEiQRxGpcaJN3LbVlrAu+cTdTuWalgb2YG4wmZe+NMJptm1Oh
-LDQA1Pb06KUK7apsZ6m6gkjilCYxdbqUuLUJ+sjmUGTonKS3EyLREd1nKYGaNrOO
-d0tYOodUJ3+XtmdgS3gaZiNn8JKAVAicVKUcHhyGgFcRtlsXdWU4D8l1PohMzHeW
-GxWLJ9ieIoEuFcI3fS5uwBeRiXc3puDJpPmzWahRy+l0859MoHcKxwCxY8KNd0Nq
-e8oWyQZ/H1bpHDDQUfuaJhVsj/f6X7rdUdRjxtRi+3zfz6U42HRAvijoc2u+9PU4
-EdvjdNoxLOvce2otSe/rWCpfQ6DlvMq64P5JI4jTygtj7kNh8+KFSoJ8NMDSJ7YL
-d5LP0aptiSVwnvw9FCx6+mRgqhQ3u6/o2G9qOBVmsCaR4h9OlCPf/o0bUUJIbyb6
-0SRpDU3B4lG60V5PvH974GqWTqUyV94138iSVn5hxI0OTgaW7T4/g7Q2CuvXick+
-6y+P7z9xuzs+jWhvnh7bwJVM/wK9Uoep+P3zd0NNl2zzsH/R9nae8ugfMc5v4AtX
-MprSee2weCMHgJC48uBoEYTZOTpP7qsR8KqYByOXz3jwqiypEMBw3T7iicCyLryO
-nCw71PDB9ImgpmBq27pJxh7xX0rdyUcRIfq5YMcCT/ytlsp+FiQ=
-=XrQx
------END PGP SIGNATURE-----
-
---r7U+bLA8boMOj+mD--
+-- 
+~Randy
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
