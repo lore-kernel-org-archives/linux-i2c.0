@@ -1,92 +1,87 @@
-From: Prashant Malani <pmalani@chromium.org>
-Subject: [PATCH 16/17] i2c: cros-ec-tunnel: Use cros_ec_send_cmd_msg()
-Date: Thu, 30 Jan 2020 12:31:08 -0800
-Message-ID: <20200130203106.201894-17-pmalani@chromium.org>
-References: <20200130203106.201894-1-pmalani@chromium.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 5/6] i2c: i2c-stm32f7: allow controller to be
+ wakeup-source
+Date: Fri, 31 Jan 2020 07:56:55 +0100
+Message-ID: <20200131065654.GB1028@ninjato>
+References: <1578317314-17197-1-git-send-email-alain.volmat@st.com>
+ <1578317314-17197-6-git-send-email-alain.volmat@st.com>
+ <20200130083927.GH2208@ninjato>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:41419 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727235AbgA3Ug1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Jan 2020 15:36:27 -0500
-Received: by mail-pl1-f195.google.com with SMTP id t14so1781061plr.8
-        for <linux-i2c@vger.kernel.org>; Thu, 30 Jan 2020 12:36:27 -0800 (PST)
-In-Reply-To: <20200130203106.201894-1-pmalani@chromium.org>
+Received: from sauhun.de ([88.99.104.3]:56920 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726127AbgAaG46 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 31 Jan 2020 01:56:58 -0500
+Content-Disposition: inline
+In-Reply-To: <20200130083927.GH2208@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Prashant Malani <pmalani@chromium.org>, Benson Leung <bleung@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Guenter Roeck <groeck@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Akshu Agrawal <akshu.agrawal@amd.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>
+To: Alain Volmat <alain.volmat@st.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 
-Replace cros_ec_cmd_xfer_status() calls with the new function
-cros_ec_send_cmd_msg() which takes care of the EC message struct setup
-and subsequent cleanup (which is a common pattern among users of
-cros_ec_cmd_xfer_status).
 
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
----
- drivers/i2c/busses/i2c-cros-ec-tunnel.c | 23 +++++++++--------------
- 1 file changed, 9 insertions(+), 14 deletions(-)
+--kORqDWCi7qDJ0mEj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-index 958161c71985d9..50161dff912298 100644
---- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-+++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-@@ -179,9 +179,8 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
- 	const u16 bus_num = bus->remote_bus;
- 	int request_len;
- 	int response_len;
--	int alloc_size;
- 	int result;
--	struct cros_ec_command *msg;
-+	void *ec_buf;
- 
- 	request_len = ec_i2c_count_message(i2c_msgs, num);
- 	if (request_len < 0) {
-@@ -196,36 +195,32 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
- 		return response_len;
- 	}
- 
--	alloc_size = max(request_len, response_len);
--	msg = kmalloc(sizeof(*msg) + alloc_size, GFP_KERNEL);
--	if (!msg)
-+	ec_buf = kmalloc(max(request_len, response_len), GFP_KERNEL);
-+	if (!ec_buf)
- 		return -ENOMEM;
- 
--	result = ec_i2c_construct_message(msg->data, i2c_msgs, num, bus_num);
-+	result = ec_i2c_construct_message(ec_buf, i2c_msgs, num, bus_num);
- 	if (result) {
- 		dev_err(dev, "Error constructing EC i2c message %d\n", result);
- 		goto exit;
- 	}
- 
--	msg->version = 0;
--	msg->command = EC_CMD_I2C_PASSTHRU;
--	msg->outsize = request_len;
--	msg->insize = response_len;
--
--	result = cros_ec_cmd_xfer_status(bus->ec, msg);
-+	result = cros_ec_send_cmd_msg(bus->ec, 0, EC_CMD_I2C_PASSTHRU,
-+				      ec_buf, request_len,
-+				      ec_buf, response_len);
- 	if (result < 0) {
- 		dev_err(dev, "Error transferring EC i2c message %d\n", result);
- 		goto exit;
- 	}
- 
--	result = ec_i2c_parse_response(msg->data, i2c_msgs, &num);
-+	result = ec_i2c_parse_response(ec_buf, i2c_msgs, &num);
- 	if (result < 0)
- 		goto exit;
- 
- 	/* Indicate success by saying how many messages were sent */
- 	result = num;
- exit:
--	kfree(msg);
-+	kfree(ec_buf);
- 	return result;
- }
- 
--- 
-2.25.0.341.g760bfbb309-goog
+On Thu, Jan 30, 2020 at 09:39:27AM +0100, Wolfram Sang wrote:
+> On Mon, Jan 06, 2020 at 02:28:33PM +0100, Alain Volmat wrote:
+> > Allow the i2c-stm32f7 controller to become a wakeup-source
+> > of the system. In such case, when a slave is registered to the
+> > I2C controller, receiving a I2C message targeting that registered
+> > slave address wakes up the suspended system.
+> >=20
+> > In order to be able to wake-up, the I2C controller DT node
+> > must have the property wakeup-source defined and a slave
+> > must be registered.
+> >=20
+> > Signed-off-by: Alain Volmat <alain.volmat@st.com>
+>=20
+> Applied to for-next, thanks!
+
+And I will drop it again because buildbot rightfully complains:
+
+
+> Reported-by: kbuild test robot <lkp@intel.com>
+>=20
+> All errors (new ones prefixed by >>):
+>=20
+>    drivers/i2c/busses/i2c-stm32f7.c: In function 'stm32f7_i2c_suspend':
+> >> drivers/i2c/busses/i2c-stm32f7.c:2199:44: error: 'struct dev_pm_info' =
+has no member named 'wakeup_path'
+>      if (!device_may_wakeup(dev) && !dev->power.wakeup_path) {
+>                                                ^
+>    drivers/i2c/busses/i2c-stm32f7.c: In function 'stm32f7_i2c_resume':
+>    drivers/i2c/busses/i2c-stm32f7.c:2218:44: error: 'struct dev_pm_info' =
+has no member named 'wakeup_path'
+>      if (!device_may_wakeup(dev) && !dev->power.wakeup_path) {
+>                                                ^
+
+wakeup_path is only there if CONFIG_PM. Please fix and send a new
+version.
+
+
+--kORqDWCi7qDJ0mEj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4zz7YACgkQFA3kzBSg
+KbaWShAAsD5Gaj6lEFcuVH415Va4PzT6S2H3CUZIfq7iTBdNKWV8nvABcAaS18FA
+WY9qmpili5WRVugYU+1X4rxzEnSPiO6Sx5s9HGZHPefRlr2B99BknwPRCRkwWb6g
+vGNROAZh+qQuTayJ2UH33dSGtjXQ09KH4uDrIeRBoxWRuOlhxOe1FBmwudzEC4UM
+g3nCUq94rccym19fNkWxATy1RCwd2LZF4RRjj2CQLW+o41hUa/Vtb953oxjKPZHo
+p6lNncLSls4myb0yyqLEfnyFgOaopM7kOaTsgZAElto7WptLPtrcv0M6pCuZGeQx
+jFEqtZqSGNQsnlv4kZIei/Cnwp/zP1wgsHblLH20w1AuKAwq0G91kysEIH6OYak/
+HUL09BSJ25ZVEKDOonq/bIVPlxSvO5C0SYkq+YjgY5ojSCWWLF8ThkUCayynCEu1
+qsLn6oY7bB/8qqpiqPb+rx6M5ZuLLz3RKQmv28WuV2Oyl/KPgjtBXQ4KDG8l5fxI
+bUGHLyMdiyGFoK64lppvjAWp3WSsN8IvcVfRrl7HfTgZ+iGONbCs+ZYVQ9Y3i1gw
+APQl4R/vack7OumxG6wFjRvEpPDfwDvaR6A4yxpi62mp+YwP9NZ93pduvhqrF/DB
+XMvJqyy4aMLZFDC1ioWldHX8FuFEXLqc2BULX/o0S92ZKSRYVc4=
+=wM4/
+-----END PGP SIGNATURE-----
+
+--kORqDWCi7qDJ0mEj--
