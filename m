@@ -1,35 +1,49 @@
 From: Hanjun Guo <guohanjun@huawei.com>
-Subject: [PATCH 1/2] i2c: designware: Add ACPI HID for Hisilicon Hip08-Lite I2C controller
-Date: Sun, 2 Feb 2020 19:34:14 +0800
-Message-ID: <1580643255-38214-1-git-send-email-guohanjun@huawei.com>
+Subject: [PATCH 2/2] ACPI / APD: Add clock frequency for Hisilicon Hip08-Lite I2C controller
+Date: Sun, 2 Feb 2020 19:34:15 +0800
+Message-ID: <1580643255-38214-2-git-send-email-guohanjun@huawei.com>
+References: <1580643255-38214-1-git-send-email-guohanjun@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1580643255-38214-1-git-send-email-guohanjun@huawei.com>
 Sender: linux-acpi-owner@vger.kernel.org
 To: "Rafael J. Wysocki" <rafael@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linuxarm@huawei.com, Sheng Feng <fengsheng5@huawei.com>, Hanjun Guo <guohanjun@huawei.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add ACPI HID HISI02A3 for Hisilicon Hip08 Lite, which has different
-clock frequency from Hip08 for I2C controller.
+I2C clock frequency of Designware ip for Hisilicon Hip08 Lite
+is 125M, use a new ACPI HID to enable it.
 
 Tested-by: Sheng Feng <fengsheng5@huawei.com>
 Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/acpi_apd.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 16dd338..3b7d58c 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -130,6 +130,7 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- 	{ "APMC0D0F", 0 },
- 	{ "HISI02A1", 0 },
- 	{ "HISI02A2", 0 },
-+	{ "HISI02A3", 0 },
- 	{ }
+diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+index 71511ae..ba2612e 100644
+--- a/drivers/acpi/acpi_apd.c
++++ b/drivers/acpi/acpi_apd.c
+@@ -161,6 +161,11 @@ static int st_misc_setup(struct apd_private_data *pdata)
+ 	.fixed_clk_rate = 250000000,
  };
- MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
+ 
++static const struct apd_device_desc hip08_lite_i2c_desc = {
++	.setup = acpi_apd_setup,
++	.fixed_clk_rate = 125000000,
++};
++
+ static const struct apd_device_desc thunderx2_i2c_desc = {
+ 	.setup = acpi_apd_setup,
+ 	.fixed_clk_rate = 125000000,
+@@ -243,6 +248,7 @@ static int acpi_apd_create_device(struct acpi_device *adev,
+ 	{ "CAV9007",  APD_ADDR(thunderx2_i2c_desc) },
+ 	{ "HISI02A1", APD_ADDR(hip07_i2c_desc) },
+ 	{ "HISI02A2", APD_ADDR(hip08_i2c_desc) },
++	{ "HISI02A3", APD_ADDR(hip08_lite_i2c_desc) },
+ 	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
+ 	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
+ #endif
 -- 
 1.7.12.4
