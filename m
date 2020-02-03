@@ -1,57 +1,42 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH v2 1/2] ACPI / APD: Add clock frequency for Hisilicon
- Hip08-Lite I2C controller
-Date: Mon, 3 Feb 2020 12:04:43 +0100
-Message-ID: <CAJZ5v0jBbhyueE4LGp5NWKz_o2edY1EDuhaomVuSj=CmdjU_yg@mail.gmail.com>
-References: <1580693767-5185-1-git-send-email-guohanjun@huawei.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 2/2] docs: i2c: dev-interface: document the actual
+ implementation
+Date: Mon, 3 Feb 2020 13:21:37 +0100
+Message-ID: <20200203132137.6bed750a@endymion>
+References: <20200123105246.67732e33@endymion>
+        <20200123111137.5899fa5a@endymion>
+        <20200129211337.GG7586@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1580693767-5185-1-git-send-email-guohanjun@huawei.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Hanjun Guo <guohanjun@huawei.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linuxarm <linuxarm@huawei.com>, Sheng Feng <fengsheng5@huawei.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:37816 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726272AbgBCMVk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 3 Feb 2020 07:21:40 -0500
+In-Reply-To: <20200129211337.GG7586@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Lei YU <mine260309@gmail.com>, Luca Ceresoli <luca@lucaceresoli.net>
 
-On Mon, Feb 3, 2020 at 2:41 AM Hanjun Guo <guohanjun@huawei.com> wrote:
->
-> I2C clock frequency of Designware ip for Hisilicon Hip08 Lite
-> is 125M, use a new ACPI HID to enable it.
->
-> Tested-by: Sheng Feng <fengsheng5@huawei.com>
-> Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-> ---
->
-> v2:
->  - Reverse the order of the two patches suggested by Andy;
->
->  drivers/acpi/acpi_apd.c | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> index 71511ae..ba2612e 100644
-> --- a/drivers/acpi/acpi_apd.c
-> +++ b/drivers/acpi/acpi_apd.c
-> @@ -161,6 +161,11 @@ static int st_misc_setup(struct apd_private_data *pdata)
->         .fixed_clk_rate = 250000000,
->  };
->
-> +static const struct apd_device_desc hip08_lite_i2c_desc = {
-> +       .setup = acpi_apd_setup,
-> +       .fixed_clk_rate = 125000000,
-> +};
-> +
->  static const struct apd_device_desc thunderx2_i2c_desc = {
->         .setup = acpi_apd_setup,
->         .fixed_clk_rate = 125000000,
-> @@ -243,6 +248,7 @@ static int acpi_apd_create_device(struct acpi_device *adev,
->         { "CAV9007",  APD_ADDR(thunderx2_i2c_desc) },
->         { "HISI02A1", APD_ADDR(hip07_i2c_desc) },
->         { "HISI02A2", APD_ADDR(hip08_i2c_desc) },
-> +       { "HISI02A3", APD_ADDR(hip08_lite_i2c_desc) },
->         { "HISI0173", APD_ADDR(hip08_spi_desc) },
->         { "NXP0001", APD_ADDR(nxp_i2c_desc) },
->  #endif
-> --
+On Wed, 29 Jan 2020 22:13:37 +0100, Wolfram Sang wrote:
+> >  So let's say you want to access an I2C adapter from a C program.
+> > -First, you need to include these two headers::
+> > +First, you need to include these three header files::  
+> 
+> Just stumbled over it: maybe just drop the 'three'? No number makes
+> maintenance easier and it is not important for the user, I'd think.
+> 
+> >  
+> > +  #include <linux/i2c.h>
+> >    #include <linux/i2c-dev.h>
+> > -  #include <i2c/smbus.h>
+> > +  #include <sys/ioctl.h>  
 
-Both patches in the series applied as 5.6 material, thanks!
+Agreed, fixed.
+
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
