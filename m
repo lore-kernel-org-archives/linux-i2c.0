@@ -1,42 +1,28 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 2/2] docs: i2c: dev-interface: document the actual
- implementation
-Date: Mon, 3 Feb 2020 13:21:37 +0100
-Message-ID: <20200203132137.6bed750a@endymion>
-References: <20200123105246.67732e33@endymion>
-        <20200123111137.5899fa5a@endymion>
-        <20200129211337.GG7586@ninjato>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/5] dt-bindings: i2c: i2c-stm32f7: add st,stm32mp15-i2c
+ compatible
+Date: Mon, 3 Feb 2020 12:23:52 +0000
+Message-ID: <20200203122352.GA26745@bogus>
+References: <1579795970-22319-1-git-send-email-alain.volmat@st.com>
+ <1579795970-22319-3-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37816 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726272AbgBCMVk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Feb 2020 07:21:40 -0500
-In-Reply-To: <20200129211337.GG7586@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1579795970-22319-3-git-send-email-alain.volmat-qxv4g6HH51o@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, pierre-yves.mordret-qxv4g6HH51o@public.gmane.org, mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexandre.torgue-qxv4g6HH51o@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, fabrice.gasnier-qxv4g6HH51o@public.gmane.org, alain.volmat-qxv4g6HH51o@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Lei YU <mine260309@gmail.com>, Luca Ceresoli <luca@lucaceresoli.net>
 
-On Wed, 29 Jan 2020 22:13:37 +0100, Wolfram Sang wrote:
-> >  So let's say you want to access an I2C adapter from a C program.
-> > -First, you need to include these two headers::
-> > +First, you need to include these three header files::  
+On Thu, 23 Jan 2020 17:12:47 +0100, Alain Volmat wrote:
+> Add a new stm32mp15 specific compatible to handle FastMode+
+> registers which are different on the stm32mp15 compared
+> to the stm32f7 or stm32h7.
 > 
-> Just stumbled over it: maybe just drop the 'three'? No number makes
-> maintenance easier and it is not important for the user, I'd think.
+> Signed-off-by: Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
-> >  
-> > +  #include <linux/i2c.h>
-> >    #include <linux/i2c-dev.h>
-> > -  #include <i2c/smbus.h>
-> > +  #include <sys/ioctl.h>  
 
-Agreed, fixed.
-
-Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
+Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
