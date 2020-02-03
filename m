@@ -1,51 +1,99 @@
-From: Hanjun Guo <guohanjun@huawei.com>
-Subject: [PATCH v2 1/2] ACPI / APD: Add clock frequency for Hisilicon Hip08-Lite I2C controller
-Date: Mon, 3 Feb 2020 09:36:06 +0800
-Message-ID: <1580693767-5185-1-git-send-email-guohanjun@huawei.com>
+From: AceLan Kao <acelan.kao@canonical.com>
+Subject: Re: In power saving mode i2c_nvidia_gpu modules affect power
+ consumption a lot
+Date: Mon, 3 Feb 2020 10:25:19 +0800
+Message-ID: <CAFv23QmEh4mCT6JX50OFnAGN=Zwt27OCPprKZ5ZrRKccJ+0FWA@mail.gmail.com>
+References: <CAFv23Qnh2AD-Mgr=v1Ojxaob4aBjUTD+-oLdmyXzBPe0oS6vtw@mail.gmail.com>
+ <BYAPR12MB27274DD4157E0CC0EB26CD98DC0E0@BYAPR12MB2727.namprd12.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linuxarm@huawei.com, Sheng Feng <fengsheng5@huawei.com>, Hanjun Guo <guohanjun@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:55338 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727225AbgBCCZc (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 2 Feb 2020 21:25:32 -0500
+Received: from mail-wm1-f70.google.com ([209.85.128.70])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <chia-lin.kao@canonical.com>)
+        id 1iyRQZ-0001fj-68
+        for linux-i2c@vger.kernel.org; Mon, 03 Feb 2020 02:25:31 +0000
+Received: by mail-wm1-f70.google.com with SMTP id p2so3419836wma.3
+        for <linux-i2c@vger.kernel.org>; Sun, 02 Feb 2020 18:25:31 -0800 (PST)
+In-Reply-To: <BYAPR12MB27274DD4157E0CC0EB26CD98DC0E0@BYAPR12MB2727.namprd12.prod.outlook.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ajay Gupta <ajayg@nvidia.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-I2C clock frequency of Designware ip for Hisilicon Hip08 Lite
-is 125M, use a new ACPI HID to enable it.
+Hi Ajay,
 
-Tested-by: Sheng Feng <fengsheng5@huawei.com>
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
----
+I tested it with  v5.5-rc1 kernel at that time.
+After i2c_nvidia_gpu is loaded, it stuck PC state at PC3 during short idle.
 
-v2:
- - Reverse the order of the two patches suggested by Andy;
+Please let me know what kind of logs you need or anything you want me to try.
+Thanks.
 
- drivers/acpi/acpi_apd.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Best regards,
+AceLan Kao.
 
-diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-index 71511ae..ba2612e 100644
---- a/drivers/acpi/acpi_apd.c
-+++ b/drivers/acpi/acpi_apd.c
-@@ -161,6 +161,11 @@ static int st_misc_setup(struct apd_private_data *pdata)
- 	.fixed_clk_rate = 250000000,
- };
- 
-+static const struct apd_device_desc hip08_lite_i2c_desc = {
-+	.setup = acpi_apd_setup,
-+	.fixed_clk_rate = 125000000,
-+};
-+
- static const struct apd_device_desc thunderx2_i2c_desc = {
- 	.setup = acpi_apd_setup,
- 	.fixed_clk_rate = 125000000,
-@@ -243,6 +248,7 @@ static int acpi_apd_create_device(struct acpi_device *adev,
- 	{ "CAV9007",  APD_ADDR(thunderx2_i2c_desc) },
- 	{ "HISI02A1", APD_ADDR(hip07_i2c_desc) },
- 	{ "HISI02A2", APD_ADDR(hip08_i2c_desc) },
-+	{ "HISI02A3", APD_ADDR(hip08_lite_i2c_desc) },
- 	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
- 	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
- #endif
--- 
-1.7.12.4
+Ajay Gupta <ajayg@nvidia.com> 於 2020年1月25日 週六 上午3:51寫道：
+>
+> Hi AceLan,
+>
+> > -----Original Message-----
+> > From: AceLan Kao <acelan.kao@canonical.com>
+> > Sent: Thursday, December 19, 2019 4:53 PM
+> > To: Ajay Gupta <ajayg@nvidia.com>; linux-i2c@vger.kernel.org
+> > Subject: In power saving mode i2c_nvidia_gpu modules affect power
+> > consumption a lot
+> >
+> > External email: Use caution opening links or attachments
+> >
+> >
+> > Hi all,
+> >
+> > We encountered an issue that while switching to power saving mode(use
+> > iGPU), the power consumption goes up to 40 Watt, and after removed
+> > i2c_nvidia_gpu, it becomes 5 Watt.
+> >
+> > I've tried to check the driver to see if it can tell it's under power saving mode
+> > and found that the first time you call gpu_i2c_check_status(),
+> gpu_i2c_check_status() is not right place to check if driver is under power saving
+> mode. You can check lspci output and looks for "Status" field in Power Management
+> Capabilities.
+> gpu_i2c_check_status() reads I2C_MST_CNTL register to know the status of i2c
+> transaction (START, READ, WRITE, STOP)on the bus. This register doesn't have
+> status of power saving mode.
+>
+> > it got 0 from
+> > readl(), and the second and the following readl(), it returns 0xe0000000. It
+> > looks like an error code combined with I2C_MST_CNTL_STATUS_NO_ACK and
+> > I2C_MST_CNTL_STATUS_TIMEOUT.
+> A value of 0 means last I2C transaction on the bus was successful.Value
+> 0xe0000000 means I2C bus is still busy doing the transaction
+> (refer I2C_MST_CNTL_STATUS_BUS_BUSY).
+>
+> >
+> > Moreover, i2c_nvidia_gpu module seems depends on intel_lpss driver since it
+> > provides i2c interface. So if we can to use the above behavior to check its
+> > status, the system have to load intel_lpss first. But currently, it seems not
+> > possible to load modules in our order.
+> >
+> > So, I'm wondering if we have other method to check and not load
+> > i2c_nvidia_gpu module or if it's possible to check why loading i2c_nvidia_gpu
+> > affects power consumption a lot.
+>
+> Which kernel version do you see the issue with?
+> Power management related changes were merged in mainline kernel v5.3.
+> If you are using older kernel then need to pull runtime PM related patches
+> from latest kernel.
+> https://marc.info/?l=linux-usb&m=155994544705901&w=2
+>
+> thanks
+> >  nvpublic
+> > Thanks.
+> >
+> > Best regards,
+> > AceLan Kao.
