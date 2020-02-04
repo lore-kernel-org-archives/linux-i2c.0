@@ -1,94 +1,65 @@
-From: Ajay Gupta <ajayg@nvidia.com>
-Subject: RE: In power saving mode i2c_nvidia_gpu modules affect power
- consumption a lot
-Date: Tue, 4 Feb 2020 01:04:41 +0000
-Message-ID: <BYAPR12MB272756FA2C034C1922B1E97FDC030@BYAPR12MB2727.namprd12.prod.outlook.com>
-References: <CAFv23Qnh2AD-Mgr=v1Ojxaob4aBjUTD+-oLdmyXzBPe0oS6vtw@mail.gmail.com>
- <BYAPR12MB27274DD4157E0CC0EB26CD98DC0E0@BYAPR12MB2727.namprd12.prod.outlook.com>
- <CAFv23QmEh4mCT6JX50OFnAGN=Zwt27OCPprKZ5ZrRKccJ+0FWA@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 2/2] docs: i2c: dev-interface: document the actual
+ implementation
+Date: Tue, 4 Feb 2020 18:17:40 +0100
+Message-ID: <20200204181740.5d8f6645@endymion>
+References: <20200123105246.67732e33@endymion>
+        <20200123111137.5899fa5a@endymion>
+        <20200123110909.GG1105@ninjato>
+        <ffac66db-0b58-b832-f6b5-d1a1da7a1da9@lucaceresoli.net>
+        <20200203142701.5c1db1ba@endymion>
+        <11fd5351-e273-c700-2e6b-2066a5e77798@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from nat-hk.nvidia.com ([203.18.50.4]:64905 "EHLO nat-hk.nvidia.com"
+Received: from mx2.suse.de ([195.135.220.15]:55744 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726369AbgBDBEs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Feb 2020 20:04:48 -0500
-In-Reply-To: <CAFv23QmEh4mCT6JX50OFnAGN=Zwt27OCPprKZ5ZrRKccJ+0FWA@mail.gmail.com>
-Content-Language: en-US
+        id S1727310AbgBDRRp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 4 Feb 2020 12:17:45 -0500
+In-Reply-To: <11fd5351-e273-c700-2e6b-2066a5e77798@lucaceresoli.net>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: AceLan Kao <acelan.kao@canonical.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Luca Ceresoli <luca@lucaceresoli.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Lei YU <mine260309@gmail.com>
 
-SGkgQWNlTGFuDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgt
-aTJjLW93bmVyQHZnZXIua2VybmVsLm9yZyA8bGludXgtaTJjLW93bmVyQHZnZXIua2VybmVsLm9y
-Zz4gT24NCj4gQmVoYWxmIE9mIEFjZUxhbiBLYW8NCj4gU2VudDogU3VuZGF5LCBGZWJydWFyeSAy
-LCAyMDIwIDY6MjUgUE0NCj4gVG86IEFqYXkgR3VwdGEgPGFqYXlnQG52aWRpYS5jb20+DQo+IENj
-OiBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBJbiBwb3dlciBzYXZp
-bmcgbW9kZSBpMmNfbnZpZGlhX2dwdSBtb2R1bGVzIGFmZmVjdCBwb3dlcg0KPiBjb25zdW1wdGlv
-biBhIGxvdA0KPiANCj4gDQo+IA0KPiBIaSBBamF5LA0KPiANCj4gSSB0ZXN0ZWQgaXQgd2l0aCAg
-djUuNS1yYzEga2VybmVsIGF0IHRoYXQgdGltZS4NCktlcm5lbCB2NS41LXJjMSBkb2VzIGhhdmUg
-YWxsIHJ1biB0aW1lIHBtIHBhdGNoZXMuIEkgdGVzdGVkIHdpdGggaXQgb24gbXkgR1BVIGNhcmQg
-YW5kIGl0DQp3b3JrcyBmaW5lIChsc3BjaSBzaG93cyBzdGF0dXMgYXMgRDMpLiANCg0KUGxlYXNl
-IHByb3ZpZGUgZm9sbG93aW5nIGRldGFpbHMgdG8gZGVidWcgdGhlIGlzc3VlIHlvdSBhcmUgc2Vl
-aW5nLg0KDQoxLiBQbGVhc2Ugc2hhcmUgZXhhY3Qgc3RlcHMgdG8gcmVwcm8gdGhlIGlzc3VlLg0K
-Mi4gRG8geW91IGNvbm5lY3QgYW55IFVTQiBUeXBlLUMgZGV2aWNlIEdQVSB0byByZXByb2R1Y2Ug
-dGhlIGlzc3VlPw0KMy4gUGxlYXNlIHJ1biBiZWxvdyAgY29tbWFuZCBhZnRlciB1c2luZyBjb3Jy
-ZWN0IGRldmljZSBJRCBpbiBwbGFjZSBvZiAiMDE6MDAuMyIgYmFzZWQgb24gbHNwY2kgY29tbWFu
-ZC4NCiAgJCBsc3BjaSAgIA0KICAwMTowMC4zIFNlcmlhbCBidXMgY29udHJvbGxlciBbMGM4MF06
-IE5WSURJQSBDb3Jwb3JhdGlvbiBEZXZpY2UgMWFkOSAocmV2IGExKQ0KICAkIHN1ZG8gbHNwY2kg
-LXZ2IC1zIDAxOjAwLjAzDQogIFRoaXMgc2hvdWxkIHNob3cgU3RhdHVzIGFzIEQzIHVuZGVyICJD
-YXBhYmlsaXRpZXM6IFtiNF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDMiDQo0LiBQbGVhc2Ug
-c2hhcmUgY29tcGxldGUgImRtZXNnIiBsb2cuDQo1LiBQbGVhc2Ugc2hhcmUgb3V0cHV0IG9mIGJl
-bG93IGNvbW1hbmQNCiAkIGxzbW9kIHwgZ3JlcCB0eXBlYw0KICQgbHNtb2QgfCBncmVwIG52aWRp
-YQ0KICQgY2F0IC9zeXMvY2xhc3MvdHlwZWMvcG9ydDAvcG9ydDAuPy9zdmlkDQogJCBscyAvc3lz
-L2J1cy90eXBlYy9kZXZpY2VzLw0KDQpUaGFua3MNCj4gbnZwdWJsaWMNCj4gQWZ0ZXIgaTJjX252
-aWRpYV9ncHUgaXMgbG9hZGVkLCBpdCBzdHVjayBQQyBzdGF0ZSBhdCBQQzMgZHVyaW5nIHNob3J0
-IGlkbGUuDQo+IA0KPiBQbGVhc2UgbGV0IG1lIGtub3cgd2hhdCBraW5kIG9mIGxvZ3MgeW91IG5l
-ZWQgb3IgYW55dGhpbmcgeW91IHdhbnQgbWUgdG8NCj4gdHJ5Lg0KPiBUaGFua3MuDQo+IA0KPiBC
-ZXN0IHJlZ2FyZHMsDQo+IEFjZUxhbiBLYW8uDQo+IA0KPiBBamF5IEd1cHRhIDxhamF5Z0Budmlk
-aWEuY29tPiDmlrwgMjAyMOW5tDHmnIgyNeaXpSDpgLHlha0g5LiK5Y2IMzo1MeWvq+mBk++8mg0K
-PiA+DQo+ID4gSGkgQWNlTGFuLA0KPiA+DQo+ID4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0t
-LQ0KPiA+ID4gRnJvbTogQWNlTGFuIEthbyA8YWNlbGFuLmthb0BjYW5vbmljYWwuY29tPg0KPiA+
-ID4gU2VudDogVGh1cnNkYXksIERlY2VtYmVyIDE5LCAyMDE5IDQ6NTMgUE0NCj4gPiA+IFRvOiBB
-amF5IEd1cHRhIDxhamF5Z0BudmlkaWEuY29tPjsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZw0K
-PiA+ID4gU3ViamVjdDogSW4gcG93ZXIgc2F2aW5nIG1vZGUgaTJjX252aWRpYV9ncHUgbW9kdWxl
-cyBhZmZlY3QgcG93ZXINCj4gPiA+IGNvbnN1bXB0aW9uIGEgbG90DQo+ID4gPg0KPiA+ID4NCj4g
-PiA+DQo+ID4gPiBIaSBhbGwsDQo+ID4gPg0KPiA+ID4gV2UgZW5jb3VudGVyZWQgYW4gaXNzdWUg
-dGhhdCB3aGlsZSBzd2l0Y2hpbmcgdG8gcG93ZXIgc2F2aW5nDQo+ID4gPiBtb2RlKHVzZSBpR1BV
-KSwgdGhlIHBvd2VyIGNvbnN1bXB0aW9uIGdvZXMgdXAgdG8gNDAgV2F0dCwgYW5kIGFmdGVyDQo+
-ID4gPiByZW1vdmVkIGkyY19udmlkaWFfZ3B1LCBpdCBiZWNvbWVzIDUgV2F0dC4NCj4gPiA+DQo+
-ID4gPiBJJ3ZlIHRyaWVkIHRvIGNoZWNrIHRoZSBkcml2ZXIgdG8gc2VlIGlmIGl0IGNhbiB0ZWxs
-IGl0J3MgdW5kZXINCj4gPiA+IHBvd2VyIHNhdmluZyBtb2RlIGFuZCBmb3VuZCB0aGF0IHRoZSBm
-aXJzdCB0aW1lIHlvdSBjYWxsDQo+ID4gPiBncHVfaTJjX2NoZWNrX3N0YXR1cygpLA0KPiA+IGdw
-dV9pMmNfY2hlY2tfc3RhdHVzKCkgaXMgbm90IHJpZ2h0IHBsYWNlIHRvIGNoZWNrIGlmIGRyaXZl
-ciBpcyB1bmRlcg0KPiA+IHBvd2VyIHNhdmluZyBtb2RlLiBZb3UgY2FuIGNoZWNrIGxzcGNpIG91
-dHB1dCBhbmQgbG9va3MgZm9yICJTdGF0dXMiDQo+ID4gZmllbGQgaW4gUG93ZXIgTWFuYWdlbWVu
-dCBDYXBhYmlsaXRpZXMuDQo+ID4gZ3B1X2kyY19jaGVja19zdGF0dXMoKSByZWFkcyBJMkNfTVNU
-X0NOVEwgcmVnaXN0ZXIgdG8ga25vdyB0aGUgc3RhdHVzDQo+ID4gb2YgaTJjIHRyYW5zYWN0aW9u
-IChTVEFSVCwgUkVBRCwgV1JJVEUsIFNUT1Apb24gdGhlIGJ1cy4gVGhpcyByZWdpc3Rlcg0KPiA+
-IGRvZXNuJ3QgaGF2ZSBzdGF0dXMgb2YgcG93ZXIgc2F2aW5nIG1vZGUuDQo+ID4NCj4gPiA+IGl0
-IGdvdCAwIGZyb20NCj4gPiA+IHJlYWRsKCksIGFuZCB0aGUgc2Vjb25kIGFuZCB0aGUgZm9sbG93
-aW5nIHJlYWRsKCksIGl0IHJldHVybnMNCj4gPiA+IDB4ZTAwMDAwMDAuIEl0IGxvb2tzIGxpa2Ug
-YW4gZXJyb3IgY29kZSBjb21iaW5lZCB3aXRoDQo+ID4gPiBJMkNfTVNUX0NOVExfU1RBVFVTX05P
-X0FDSyBhbmQgSTJDX01TVF9DTlRMX1NUQVRVU19USU1FT1VULg0KPiA+IEEgdmFsdWUgb2YgMCBt
-ZWFucyBsYXN0IEkyQyB0cmFuc2FjdGlvbiBvbiB0aGUgYnVzIHdhcw0KPiA+IHN1Y2Nlc3NmdWwu
-VmFsdWUNCj4gPiAweGUwMDAwMDAwIG1lYW5zIEkyQyBidXMgaXMgc3RpbGwgYnVzeSBkb2luZyB0
-aGUgdHJhbnNhY3Rpb24gKHJlZmVyDQo+ID4gSTJDX01TVF9DTlRMX1NUQVRVU19CVVNfQlVTWSku
-DQo+ID4NCj4gPiA+DQo+ID4gPiBNb3Jlb3ZlciwgaTJjX252aWRpYV9ncHUgbW9kdWxlIHNlZW1z
-IGRlcGVuZHMgb24gaW50ZWxfbHBzcyBkcml2ZXINCj4gPiA+IHNpbmNlIGl0IHByb3ZpZGVzIGky
-YyBpbnRlcmZhY2UuIFNvIGlmIHdlIGNhbiB0byB1c2UgdGhlIGFib3ZlDQo+ID4gPiBiZWhhdmlv
-ciB0byBjaGVjayBpdHMgc3RhdHVzLCB0aGUgc3lzdGVtIGhhdmUgdG8gbG9hZCBpbnRlbF9scHNz
-DQo+ID4gPiBmaXJzdC4gQnV0IGN1cnJlbnRseSwgaXQgc2VlbXMgbm90IHBvc3NpYmxlIHRvIGxv
-YWQgbW9kdWxlcyBpbiBvdXIgb3JkZXIuDQo+ID4gPg0KPiA+ID4gU28sIEknbSB3b25kZXJpbmcg
-aWYgd2UgaGF2ZSBvdGhlciBtZXRob2QgdG8gY2hlY2sgYW5kIG5vdCBsb2FkDQo+ID4gPiBpMmNf
-bnZpZGlhX2dwdSBtb2R1bGUgb3IgaWYgaXQncyBwb3NzaWJsZSB0byBjaGVjayB3aHkgbG9hZGlu
-Zw0KPiA+ID4gaTJjX252aWRpYV9ncHUgYWZmZWN0cyBwb3dlciBjb25zdW1wdGlvbiBhIGxvdC4N
-Cj4gPg0KPiA+IFdoaWNoIGtlcm5lbCB2ZXJzaW9uIGRvIHlvdSBzZWUgdGhlIGlzc3VlIHdpdGg/
-DQo+ID4gUG93ZXIgbWFuYWdlbWVudCByZWxhdGVkIGNoYW5nZXMgd2VyZSBtZXJnZWQgaW4gbWFp
-bmxpbmUga2VybmVsIHY1LjMuDQo+ID4gSWYgeW91IGFyZSB1c2luZyBvbGRlciBrZXJuZWwgdGhl
-biBuZWVkIHRvIHB1bGwgcnVudGltZSBQTSByZWxhdGVkDQo+ID4gcGF0Y2hlcyBmcm9tIGxhdGVz
-dCBrZXJuZWwuDQo+ID4gaHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtdXNiJm09MTU1OTk0NTQ0
-NzA1OTAxJnc9Mg0KPiA+DQo+ID4gdGhhbmtzDQo+ID4gPiAgbnZwdWJsaWMNCj4gPiA+IFRoYW5r
-cy4NCj4gPiA+DQo+ID4gPiBCZXN0IHJlZ2FyZHMsDQo+ID4gPiBBY2VMYW4gS2FvLg0K
+Hi Luca,
+
+On Mon, 3 Feb 2020 17:35:15 +0100, Luca Ceresoli wrote:
+> On 03/02/20 14:27, Jean Delvare wrote:
+> > Hmmm. It's not like you can do everything with libi2c so you should
+> > always use it. There are several things that can't be done with libi2c
+> > so you will have to do them "manually". Anything that doesn't fit in the
+> > SMBus specification basically. As a matter of fact, i2ctransfer does
+> > not use libi2c.
+> > 
+> > Also, even when using libi2c, you still need to explicitly open the
+> > device node, set the slave address, and close the device when you are
+> > done (just seeing that's missing from the C example but it should be
+> > added). So the C example is still relevant even if you use libi2c.
+> > 
+> > So I'm not sure swapping the sections makes that much sense. What would
+> > help on the other hand is to add a pointer to the C library section at
+> > the point of the C example where using the library would simplify the
+> > code. Would that work for you?  
+> 
+> In my opinion we should first document the recommended way. Assuming
+> libi2c is the recommended way for all uses it is capable of, that means
+> documenting libi2c first.
+> 
+> Additionally, before documenting any of them I'd add a preamble similar
+> to: "The I2C device can be accessed from user space either using the
+> libi2c library or using low-level C functions directly. libi2c is more
+> high-level but has limited functionality.". This is so it's clear to the
+> reader from the beginning that there are two alternative approaches,
+> whose explanation will follow.
+
+Thank you for the suggested improvements, I agree they will make the
+documentation easier to read. I'll integrate these changes in v2.
+
+It might also make sense to add an example of the C library usage in
+libi2c(3).
+
+-- 
+Jean Delvare
+SUSE L3 Support
