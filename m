@@ -1,149 +1,93 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] dt-bindings: convert i2c-cros-ec-tunnel.txt to yaml
-Date: Wed, 5 Feb 2020 17:47:40 +0000
-Message-ID: <20200205174740.GA10738@bogus>
-References: <20200127161213.13339-1-dafna.hirschfeld@collabora.com>
+From: Prashant Malani <pmalani@chromium.org>
+Subject: [PATCH v2 16/17] i2c: cros-ec-tunnel: Use cros_ec_cmd()
+Date: Wed,  5 Feb 2020 11:22:51 -0800
+Message-ID: <20200205192253.187649-1-pmalani@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20200127161213.13339-1-dafna.hirschfeld-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dafna Hirschfeld <dafna.hirschfeld-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, groeck-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, helen.koike-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, ezequiel-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, kernel-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, dafna3-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:35282 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727415AbgBETXE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Feb 2020 14:23:04 -0500
+Received: by mail-pl1-f195.google.com with SMTP id g6so1286216plt.2
+        for <linux-i2c@vger.kernel.org>; Wed, 05 Feb 2020 11:23:04 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Prashant Malani <pmalani@chromium.org>, Benson Leung <bleung@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Guenter Roeck <groeck@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Gwendal Grignou <gwendal@chromium.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Akshu Agrawal <akshu.agrawal@amd.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>
 
-On Mon, Jan 27, 2020 at 05:12:13PM +0100, Dafna Hirschfeld wrote:
-> Convert the binding file i2c-cros-ec-tunnel.txt to yaml format.
-> 
-> This was tested and verified on ARM and ARM64 with:
-> 
-> make dt_binding_check DT_SCHEMA_FILES=Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
-> make dtbs_check DT_SCHEMA_FILES=Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
-> 
-> Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-> ---
->  .../bindings/i2c/i2c-cros-ec-tunnel.txt       | 39 ------------
->  .../bindings/i2c/i2c-cros-ec-tunnel.yaml      | 61 +++++++++++++++++++
->  2 files changed, 61 insertions(+), 39 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt b/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
-> deleted file mode 100644
-> index 898f030eba62..000000000000
-> --- a/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
-> +++ /dev/null
-> @@ -1,39 +0,0 @@
-> -I2C bus that tunnels through the ChromeOS EC (cros-ec)
-> -======================================================
-> -On some ChromeOS board designs we've got a connection to the EC (embedded
-> -controller) but no direct connection to some devices on the other side of
-> -the EC (like a battery and PMIC).  To get access to those devices we need
-> -to tunnel our i2c commands through the EC.
-> -
-> -The node for this device should be under a cros-ec node like google,cros-ec-spi
-> -or google,cros-ec-i2c.
-> -
-> -
-> -Required properties:
-> -- compatible: google,cros-ec-i2c-tunnel
-> -- google,remote-bus: The EC bus we'd like to talk to.
-> -
-> -Optional child nodes:
-> -- One node per I2C device connected to the tunnelled I2C bus.
-> -
-> -
-> -Example:
-> -	cros-ec@0 {
-> -		compatible = "google,cros-ec-spi";
-> -
-> -		...
-> -
-> -		i2c-tunnel {
-> -			compatible = "google,cros-ec-i2c-tunnel";
-> -			#address-cells = <1>;
-> -			#size-cells = <0>;
-> -
-> -			google,remote-bus = <0>;
-> -
-> -			battery: sbs-battery@b {
-> -				compatible = "sbs,sbs-battery";
-> -				reg = <0xb>;
-> -				sbs,poll-retry-count = <1>;
-> -			};
-> -		};
-> -	}
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml b/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
-> new file mode 100644
-> index 000000000000..c1383e607f47
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
-> @@ -0,0 +1,61 @@
-> +# SPDX-License-Identifier: GPL-2.0
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/i2c/i2c-cros-ec-tunnel.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: I2C bus that tunnels through the ChromeOS EC (cros-ec)
-> +
-> +maintainers:
-> +  - Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> +  - Enric Balletbo i Serra <enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-> +  - Guenter Roeck <groeck-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> +
-> +description: |
-> +  On some ChromeOS board designs we've got a connection to the EC (embedded
-> +  controller) but no direct connection to some devices on the other side of
-> +  the EC (like a battery and PMIC). To get access to those devices we need
-> +  to tunnel our i2c commands through the EC.
-> +  The node for this device should be under a cros-ec node like google,cros-ec-spi
-> +  or google,cros-ec-i2c.
+Replace cros_ec_cmd_xfer_status() calls with the new function
+cros_ec_cmd() which takes care of the EC message struct setup and
+subsequent cleanup (which is a common pattern among users of
+cros_ec_cmd_xfer_status).
 
-You should have a ref to /schemas/i2c-controller.yaml here.
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+---
 
-> +
-> +properties:
-> +  compatible:
-> +    const:
-> +      google,cros-ec-i2c-tunnel
-> +
-> +  google,remote-bus:
-> +    $ref: "/schemas/types.yaml#/definitions/uint32"
-> +    description: The EC bus we'd like to talk to.
-> +
-> +  "#address-cells": true
-> +  "#size-cells": true
-> +
-> +patternProperties:
-> +  "^.*@[0-9a-f]+$":
-> +    type: object
-> +    description: One node per I2C device connected to the tunnelled I2C bus.
-> +
-> +additionalProperties: false
-> +
-> +required:
-> +  - compatible
-> +  - google,remote-bus
-> +
-> +examples:
-> +  - |
-> +    cros-ec@0 {
-> +        compatible = "google,cros-ec-spi";
-> +        i2c-tunnel {
-> +            compatible = "google,cros-ec-i2c-tunnel";
-> +            #address-cells = <1>;
-> +            #size-cells = <0>;
-> +            google,remote-bus = <0>;
-> +
-> +            battery: sbs-battery@b {
-> +                compatible = "sbs,sbs-battery";
-> +                reg = <0xb>;
-> +                sbs,poll-retry-count = <1>;
-> +            };
-> +        };
-> +    };
-> -- 
-> 2.17.1
-> 
+Changes in v2:
+- Updated to use new function name and parameter list.
+
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+index 958161c71985d9..d0e0db2008d1ca 100644
+--- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
++++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+@@ -179,9 +179,8 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
+ 	const u16 bus_num = bus->remote_bus;
+ 	int request_len;
+ 	int response_len;
+-	int alloc_size;
+ 	int result;
+-	struct cros_ec_command *msg;
++	void *ec_buf;
+ 
+ 	request_len = ec_i2c_count_message(i2c_msgs, num);
+ 	if (request_len < 0) {
+@@ -196,36 +195,31 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
+ 		return response_len;
+ 	}
+ 
+-	alloc_size = max(request_len, response_len);
+-	msg = kmalloc(sizeof(*msg) + alloc_size, GFP_KERNEL);
+-	if (!msg)
++	ec_buf = kmalloc(max(request_len, response_len), GFP_KERNEL);
++	if (!ec_buf)
+ 		return -ENOMEM;
+ 
+-	result = ec_i2c_construct_message(msg->data, i2c_msgs, num, bus_num);
++	result = ec_i2c_construct_message(ec_buf, i2c_msgs, num, bus_num);
+ 	if (result) {
+ 		dev_err(dev, "Error constructing EC i2c message %d\n", result);
+ 		goto exit;
+ 	}
+ 
+-	msg->version = 0;
+-	msg->command = EC_CMD_I2C_PASSTHRU;
+-	msg->outsize = request_len;
+-	msg->insize = response_len;
+-
+-	result = cros_ec_cmd_xfer_status(bus->ec, msg);
++	result = cros_ec_cmd(bus->ec, 0, EC_CMD_I2C_PASSTHRU, ec_buf,
++			     request_len, ec_buf, response_len, NULL);
+ 	if (result < 0) {
+ 		dev_err(dev, "Error transferring EC i2c message %d\n", result);
+ 		goto exit;
+ 	}
+ 
+-	result = ec_i2c_parse_response(msg->data, i2c_msgs, &num);
++	result = ec_i2c_parse_response(ec_buf, i2c_msgs, &num);
+ 	if (result < 0)
+ 		goto exit;
+ 
+ 	/* Indicate success by saying how many messages were sent */
+ 	result = num;
+ exit:
+-	kfree(msg);
++	kfree(ec_buf);
+ 	return result;
+ }
+ 
+-- 
+2.25.0.341.g760bfbb309-goog
