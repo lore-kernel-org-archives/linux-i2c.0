@@ -1,34 +1,24 @@
-From: "Mr. Theophilus Odadudu" <cristinamedina0010@gmail.com>
-Subject: LETTER OF INQUIRY
-Date: Fri, 7 Feb 2020 15:42:11 -0500
-Message-ID: <CAPNvSTgeN84MC4a+RJ1wBioXqDfarTE4_m4nbA9Dm=S8bmF0WQ__4707.04425112984$1581108142$gmane$org@mail.gmail.com>
-Reply-To: auch197722@gmail.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:38747 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727574AbgBGUmO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 7 Feb 2020 15:42:14 -0500
-Received: by mail-oi1-f195.google.com with SMTP id l9so3298301oii.5
-        for <linux-i2c@vger.kernel.org>; Fri, 07 Feb 2020 12:42:12 -0800 (PST)
-Sender: linux-i2c-owner@vger.kernel.org
+From: pr-tracker-bot@kernel.org
+Subject: Re: [GIT PULL] Additional ACPI updates for v5.6-rc1
+Date: Fri, 07 Feb 2020 21:55:19 +0000
+Message-ID: <158111251949.9631.11774276832242457428.pr-tracker-bot@kernel.org>
+References: <CAJZ5v0iWhN=pxnedntPn5kriN-uEULvTjHADtJj59a5W14a4sQ@mail.gmail.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <CAJZ5v0iWhN=pxnedntPn5kriN-uEULvTjHADtJj59a5W14a4sQ@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Good Day,
+The pull request you sent on Fri, 7 Feb 2020 11:36:02 +0100:
 
-I work as a clerk in a Bank here in Nigeria, I have a very
-confidential Business Proposition for you. There is a said amount of
-money floating in the bank unclaimed, belonging to the bank Foreign
-customer who die with his family in the Ethiopian Airline crash of
-March 11, 2019.
+> git://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git acpi-5.6-rc1-3
 
-I seek your good collaboration to move the fund for our benefit. we
-have agreed that 40% be yours once you help claim.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/ed39ba0ec1156407040e7509cb19299b5dda3815
 
-Do get back to with 1) Your Full Name: (2) Residential Address: (3)
-Phone, Mobile  (4) Scan Copy of Your ID. to apply for claims of the
-funds.
+Thank you!
 
-Regards
-Theophilus Odadudu
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
