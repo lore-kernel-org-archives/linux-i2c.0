@@ -1,25 +1,22 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Subject: [PATCH V2 RESEND] media: v4l2-core: convert to new API with ERRPTR
-Date: Mon, 10 Feb 2020 17:55:21 +0100
-Message-ID: <20200210165521.5112-1-wsa@the-dreams.de>
+Date: Mon, 10 Feb 2020 17:56:21 +0100
+Message-ID: <20200210165621.5189-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43598 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727499AbgBJQze (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 10 Feb 2020 11:55:34 -0500
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
 Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+List-Id: linux-i2c@vger.kernel.org
 
 Use the new APIs instead of the deprecated ones.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
+
+Resent from proper email address. Sorry for the confusion!
+
  drivers/media/v4l2-core/v4l2-i2c.c | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
 
