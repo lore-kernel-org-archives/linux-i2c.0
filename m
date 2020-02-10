@@ -1,47 +1,34 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH RESEND] macintosh: convert to i2c_new_scanned_device
-Date: Mon, 10 Feb 2020 18:04:01 +0100
-Message-ID: <20200210170401.5357-1-wsa+renesas@sang-engineering.com>
+From: Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org>
+Subject: [PATCH] ARM: dts: stm32: set i2c4 bus freq to 400KHz on stm32mp157c-ed1
+Date: Mon, 10 Feb 2020 18:17:21 +0100
+Message-ID: <1581355041-13845-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43684 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727003AbgBJREI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 10 Feb 2020 12:04:08 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, pierre-yves.mordret-qxv4g6HH51o@public.gmane.org, mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexandre.torgue-qxv4g6HH51o@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, fabrice.gasnier-qxv4g6HH51o@public.gmane.org, alain.volmat-qxv4g6HH51o@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: linuxppc-dev@lists.ozlabs.org
-Cc: linux-i2c@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Move from the deprecated i2c_new_probed_device() to the new
-i2c_new_scanned_device(). No functional change for this driver because
-it doesn't check the return code anyhow.
+On this board, the I2C4 bus has only a single slave (pmic) which
+supports I2C Fast Mode hence setting bus frequency to 400 KHz.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org>
 ---
+ arch/arm/boot/dts/stm32mp157c-ed1.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-I can take this via I2C tree if this makes things easier...
-
- drivers/macintosh/therm_windtunnel.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/macintosh/therm_windtunnel.c b/drivers/macintosh/therm_windtunnel.c
-index 8c744578122a..f15fec5e1cb6 100644
---- a/drivers/macintosh/therm_windtunnel.c
-+++ b/drivers/macintosh/therm_windtunnel.c
-@@ -321,10 +321,10 @@ do_attach( struct i2c_adapter *adapter )
- 
- 		memset(&info, 0, sizeof(struct i2c_board_info));
- 		strlcpy(info.type, "therm_ds1775", I2C_NAME_SIZE);
--		i2c_new_probed_device(adapter, &info, scan_ds1775, NULL);
-+		i2c_new_scanned_device(adapter, &info, scan_ds1775, NULL);
- 
- 		strlcpy(info.type, "therm_adm1030", I2C_NAME_SIZE);
--		i2c_new_probed_device(adapter, &info, scan_adm1030, NULL);
-+		i2c_new_scanned_device(adapter, &info, scan_adm1030, NULL);
- 
- 		if( x.thermostat && x.fan ) {
- 			x.running = 1;
+diff --git a/arch/arm/boot/dts/stm32mp157c-ed1.dts b/arch/arm/boot/dts/stm32mp157c-ed1.dts
+index 209dae010be4..ac4f7ee4ad55 100644
+--- a/arch/arm/boot/dts/stm32mp157c-ed1.dts
++++ b/arch/arm/boot/dts/stm32mp157c-ed1.dts
+@@ -135,6 +135,7 @@
+ 	pinctrl-0 = <&i2c4_pins_sleep_a>;
+ 	i2c-scl-rising-time-ns = <185>;
+ 	i2c-scl-falling-time-ns = <20>;
++	clock-frequency = <400000>;
+ 	status = "okay";
+ 	/* spare dmas for other usage */
+ 	/delete-property/dmas;
 -- 
-2.20.1
+2.7.4
