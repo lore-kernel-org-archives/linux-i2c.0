@@ -1,7 +1,7 @@
 From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 09/14] MIPS: DTS: CI20: give eth0_power a defined voltage.
-Date: Tue, 11 Feb 2020 22:41:26 +0100
-Message-ID: <c6697a2551e7ef8e4de4a92f2602b47ba1d52ee4.1581457290.git.hns@goldelico.com>
+Subject: [PATCH 10/14] MIPS: DTS: CI20: add DT node for IR sensor
+Date: Tue, 11 Feb 2020 22:41:27 +0100
+Message-ID: <5ba2ba43f06955bbfcd8465271bb01cfc1101d13.1581457290.git.hns@goldelico.com>
 References: <cover.1581457290.git.hns@goldelico.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,25 +12,33 @@ To: Paul Cercueil <paul@crapouillou.net>, Paul Boddie <paul@boddie.org.uk>, Alex
 Cc: devicetree@vger.kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org, linux-gpio@vger.kernel.org, letux-kernel@openphoenux.org, kernel@pyra-handheld.com
 List-Id: linux-i2c@vger.kernel.org
 
-This is a 3.3V regulator.
+From: Alex Smith <alex.smith@imgtec.com>
 
+The infrared sensor on the CI20 board is connected to a GPIO and can
+be operated by using the gpio-ir-recv driver. Add a DT node for the
+sensor to allow that driver to be used.
+
+Signed-off-by: Alex Smith <alex.smith@imgtec.com>
 Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 ---
- arch/mips/boot/dts/ingenic/ci20.dts | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/boot/dts/ingenic/ci20.dts | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/arch/mips/boot/dts/ingenic/ci20.dts b/arch/mips/boot/dts/ingenic/ci20.dts
-index e02a19db7ef1..e1364f941c7d 100644
+index e1364f941c7d..b4a820313992 100644
 --- a/arch/mips/boot/dts/ingenic/ci20.dts
 +++ b/arch/mips/boot/dts/ingenic/ci20.dts
-@@ -56,6 +56,8 @@
- 	eth0_power: fixedregulator@0 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "eth0_power";
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
- 		gpio = <&gpb 25 GPIO_ACTIVE_LOW>;
+@@ -62,6 +62,11 @@
  		enable-active-high;
  	};
+ 
++	ir: ir-receiver {
++		compatible = "gpio-ir-receiver";
++		gpios = <&gpe 3 GPIO_ACTIVE_LOW>;
++	};
++
+ 	wlan0_power: fixedregulator@1 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "wlan0_power";
 -- 
 2.23.0
