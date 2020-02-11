@@ -1,7 +1,7 @@
 From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 12/14] MIPS: DTS: CI20: add DT node for SW1 as Enter button
-Date: Tue, 11 Feb 2020 22:41:29 +0100
-Message-ID: <be2a188b8f36db4c9e21dfd73fef89d25dc5299e.1581457290.git.hns@goldelico.com>
+Subject: [PATCH 02/14] drm: ingenic-drm: add MODULE_DEVICE_TABLE
+Date: Tue, 11 Feb 2020 22:41:19 +0100
+Message-ID: <94e63f456954f4e0c9a3ee7349f97281241db2f5.1581457290.git.hns@goldelico.com>
 References: <cover.1581457290.git.hns@goldelico.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,46 +12,26 @@ To: Paul Cercueil <paul@crapouillou.net>, Paul Boddie <paul@boddie.org.uk>, Alex
 Cc: devicetree@vger.kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org, linux-gpio@vger.kernel.org, letux-kernel@openphoenux.org, kernel@pyra-handheld.com
 List-Id: linux-i2c@vger.kernel.org
 
-The SW1 button can be used as a simple one-button keyboard
-and is connected to PD17.
-
-Note: SW1 has a second meaning to change the boot sequence
-when pressed while powering on.
+Add MODULE_DEVICE_TABLE so that the driver can load by
+matching the device tree if compiled as module.
 
 Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 ---
- arch/mips/boot/dts/ingenic/ci20.dts | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpu/drm/ingenic/ingenic-drm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/boot/dts/ingenic/ci20.dts b/arch/mips/boot/dts/ingenic/ci20.dts
-index b4a820313992..8f9d182566db 100644
---- a/arch/mips/boot/dts/ingenic/ci20.dts
-+++ b/arch/mips/boot/dts/ingenic/ci20.dts
-@@ -4,6 +4,7 @@
- #include "jz4780.dtsi"
- #include <dt-bindings/clock/ingenic,tcu.h>
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
+index 6d47ef7b148c..d8617096dd8e 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
+@@ -844,6 +844,8 @@ static const struct of_device_id ingenic_drm_of_match[] = {
+ 	{ /* sentinel */ },
+ };
  
- / {
- 	compatible = "img,ci20", "ingenic,jz4780";
-@@ -25,6 +26,17 @@
- 		       0x30000000 0x30000000>;
- 	};
- 
-+	gpio-keys {
-+		compatible = "gpio-keys";
++MODULE_DEVICE_TABLE(of, ingenic_drm_of_match);
 +
-+		sw1 {
-+			label = "ci20:sw1";
-+			linux,code = <KEY_ENTER>;
-+			gpios = <&gpd 17 GPIO_ACTIVE_HIGH>;
-+			wakeup-source;
-+		};
-+	};
-+
- 	leds {
- 		compatible = "gpio-leds";
- 
+ static struct platform_driver ingenic_drm_driver = {
+ 	.driver = {
+ 		.name = "ingenic-drm",
 -- 
 2.23.0
