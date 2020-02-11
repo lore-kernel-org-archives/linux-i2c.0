@@ -1,7 +1,7 @@
 From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 10/14] MIPS: DTS: CI20: add DT node for IR sensor
-Date: Tue, 11 Feb 2020 22:41:27 +0100
-Message-ID: <5ba2ba43f06955bbfcd8465271bb01cfc1101d13.1581457290.git.hns@goldelico.com>
+Subject: [PATCH 06/14] MIPS: CI20: defconfig: compile leds-gpio driver into the kernel and configure for LED triggers
+Date: Tue, 11 Feb 2020 22:41:23 +0100
+Message-ID: <235c328ff497b5e14009ad9f4e12d2db9520f4d9.1581457290.git.hns@goldelico.com>
 References: <cover.1581457290.git.hns@goldelico.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,33 +12,34 @@ To: Paul Cercueil <paul@crapouillou.net>, Paul Boddie <paul@boddie.org.uk>, Alex
 Cc: devicetree@vger.kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org, linux-gpio@vger.kernel.org, letux-kernel@openphoenux.org, kernel@pyra-handheld.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Alex Smith <alex.smith@imgtec.com>
+DTS has been augmented to add some gpio-leds. We need the leds-gpio driver
+and enable the triggers.
 
-The infrared sensor on the CI20 board is connected to a GPIO and can
-be operated by using the gpio-ir-recv driver. Add a DT node for the
-sensor to allow that driver to be used.
-
-Signed-off-by: Alex Smith <alex.smith@imgtec.com>
 Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 ---
- arch/mips/boot/dts/ingenic/ci20.dts | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/mips/configs/ci20_defconfig | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/mips/boot/dts/ingenic/ci20.dts b/arch/mips/boot/dts/ingenic/ci20.dts
-index e1364f941c7d..b4a820313992 100644
---- a/arch/mips/boot/dts/ingenic/ci20.dts
-+++ b/arch/mips/boot/dts/ingenic/ci20.dts
-@@ -62,6 +62,11 @@
- 		enable-active-high;
- 	};
- 
-+	ir: ir-receiver {
-+		compatible = "gpio-ir-receiver";
-+		gpios = <&gpe 3 GPIO_ACTIVE_LOW>;
-+	};
-+
- 	wlan0_power: fixedregulator@1 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "wlan0_power";
+diff --git a/arch/mips/configs/ci20_defconfig b/arch/mips/configs/ci20_defconfig
+index e0d3c9d4c2ae..30a47a7a2994 100644
+--- a/arch/mips/configs/ci20_defconfig
++++ b/arch/mips/configs/ci20_defconfig
+@@ -167,3 +167,16 @@ CONFIG_STACKTRACE=y
+ # CONFIG_FTRACE is not set
+ CONFIG_CMDLINE_BOOL=y
+ CONFIG_CMDLINE="earlycon console=ttyS4,115200 clk_ignore_unused"
++CONFIG_LEDS_CLASS=y
++CONFIG_LEDS_GPIO=y
++CONFIG_LEDS_TRIGGERS=y
++CONFIG_LEDS_TRIGGER_MTD=y
++CONFIG_LEDS_TRIGGER_TIMER=y
++CONFIG_LEDS_TRIGGER_ONESHOT=y
++CONFIG_LEDS_TRIGGER_ONESHOT=y
++CONFIG_LEDS_TRIGGER_HEARTBEAT=y
++CONFIG_LEDS_TRIGGER_BACKLIGHT=m
++CONFIG_LEDS_TRIGGER_CPU=y
++CONFIG_LEDS_TRIGGER_DEFAULT_ON=y
++CONFIG_LEDS_TRIGGER_TRANSIENT=y
++CONFIG_LEDS_TRIGGER_CAMERA=m
 -- 
 2.23.0
