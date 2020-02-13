@@ -1,34 +1,147 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware-pci: Fix BUG_ON during device removal
-Date: Thu, 13 Feb 2020 19:11:02 +0200
-Message-ID: <20200213171102.GC10400@smile.fi.intel.com>
-References: <20200213151503.545269-1-jarkko.nikula@linux.intel.com>
- <20200213161854.GA5929@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200213161854.GA5929@ninjato>
-Sender: stable-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, stable@vger.kernel.org
+From: Dafna Hirschfeld <dafna.hirschfeld-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+Subject: [PATCH v2] dt-bindings: i2c: cros-ec-tunnel: convert i2c-cros-ec-tunnel.txt to yaml
+Date: Thu, 13 Feb 2020 21:54:51 +0100
+Message-ID: <20200213205451.19899-1-dafna.hirschfeld@collabora.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, groeck-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, dafna.hirschfeld-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, helen.koike-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, ezequiel-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, kernel-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, dafna3-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 13, 2020 at 05:18:54PM +0100, Wolfram Sang wrote:
-> On Thu, Feb 13, 2020 at 05:15:03PM +0200, Jarkko Nikula wrote:
-> > Function i2c_dw_pci_remove() -> pci_free_irq_vectors() ->
-> > pci_disable_msi() -> free_msi_irqs() will throw a BUG_ON() for MSI
-> > enabled device since the driver has not released the requested IRQ before
-> > calling the pci_free_irq_vectors().
-> > 
-> > Here driver requests an IRQ using devm_request_irq() but automatic
-> > release happens only after remove callback. Fix this by explicitly
-> > freeing the IRQ before calling pci_free_irq_vectors().
-> 
-> Does it make sense to keep devm for irq handling, then?
+Convert the binding file i2c-cros-ec-tunnel.txt to yaml format.
 
-Only for sake of better error handling in error path in the ->probe().
+This was tested and verified on ARM and ARM64 with:
 
+make dt_binding_check DT_SCHEMA_FILES=Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
+make dtbs_check DT_SCHEMA_FILES=Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
+
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+---
+Changes since v1:
+- changing the subject to start with "dt-bindings: i2c: cros-ec-tunnel:"
+- changing the license to (GPL-2.0-only OR BSD-2-Clause)
+- removing "Guenter Roeck <groeck-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>" from the maintainers list
+- adding ref: /schemas/i2c/i2c-controller.yaml
+
+ .../bindings/i2c/i2c-cros-ec-tunnel.txt       | 39 ------------
+ .../bindings/i2c/i2c-cros-ec-tunnel.yaml      | 63 +++++++++++++++++++
+ 2 files changed, 63 insertions(+), 39 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt b/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
+deleted file mode 100644
+index 898f030eba62..000000000000
+--- a/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
++++ /dev/null
+@@ -1,39 +0,0 @@
+-I2C bus that tunnels through the ChromeOS EC (cros-ec)
+-======================================================
+-On some ChromeOS board designs we've got a connection to the EC (embedded
+-controller) but no direct connection to some devices on the other side of
+-the EC (like a battery and PMIC).  To get access to those devices we need
+-to tunnel our i2c commands through the EC.
+-
+-The node for this device should be under a cros-ec node like google,cros-ec-spi
+-or google,cros-ec-i2c.
+-
+-
+-Required properties:
+-- compatible: google,cros-ec-i2c-tunnel
+-- google,remote-bus: The EC bus we'd like to talk to.
+-
+-Optional child nodes:
+-- One node per I2C device connected to the tunnelled I2C bus.
+-
+-
+-Example:
+-	cros-ec@0 {
+-		compatible = "google,cros-ec-spi";
+-
+-		...
+-
+-		i2c-tunnel {
+-			compatible = "google,cros-ec-i2c-tunnel";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-
+-			google,remote-bus = <0>;
+-
+-			battery: sbs-battery@b {
+-				compatible = "sbs,sbs-battery";
+-				reg = <0xb>;
+-				sbs,poll-retry-count = <1>;
+-			};
+-		};
+-	}
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml b/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
+new file mode 100644
+index 000000000000..a14d821ff65d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.yaml
+@@ -0,0 +1,63 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/i2c-cros-ec-tunnel.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: I2C bus that tunnels through the ChromeOS EC (cros-ec)
++
++maintainers:
++  - Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
++  - Enric Balletbo i Serra <enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
++
++description: |
++  On some ChromeOS board designs we've got a connection to the EC (embedded
++  controller) but no direct connection to some devices on the other side of
++  the EC (like a battery and PMIC). To get access to those devices we need
++  to tunnel our i2c commands through the EC.
++  The node for this device should be under a cros-ec node like google,cros-ec-spi
++  or google,cros-ec-i2c.
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    const:
++      google,cros-ec-i2c-tunnel
++
++  google,remote-bus:
++    $ref: "/schemas/types.yaml#/definitions/uint32"
++    description: The EC bus we'd like to talk to.
++
++  "#address-cells": true
++  "#size-cells": true
++
++patternProperties:
++  "^.*@[0-9a-f]+$":
++    type: object
++    description: One node per I2C device connected to the tunnelled I2C bus.
++
++additionalProperties: false
++
++required:
++  - compatible
++  - google,remote-bus
++
++examples:
++  - |
++    cros-ec@0 {
++        compatible = "google,cros-ec-spi";
++        i2c-tunnel {
++            compatible = "google,cros-ec-i2c-tunnel";
++            #address-cells = <1>;
++            #size-cells = <0>;
++            google,remote-bus = <0>;
++
++            battery: sbs-battery@b {
++                compatible = "sbs,sbs-battery";
++                reg = <0xb>;
++                sbs,poll-retry-count = <1>;
++            };
++        };
++    };
 -- 
-With Best Regards,
-Andy Shevchenko
+2.17.1
