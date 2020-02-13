@@ -1,7 +1,7 @@
 From: Dafna Hirschfeld <dafna.hirschfeld-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Subject: [PATCH v2] dt-bindings: i2c: cros-ec-tunnel: convert i2c-cros-ec-tunnel.txt to yaml
-Date: Thu, 13 Feb 2020 21:54:51 +0100
-Message-ID: <20200213205451.19899-1-dafna.hirschfeld@collabora.com>
+Subject: [PATCH v3 1/2] dt-bindings: i2c: cros-ec-tunnel: convert i2c-cros-ec-tunnel.txt to yaml
+Date: Thu, 13 Feb 2020 22:46:55 +0100
+Message-ID: <20200213214656.9801-1-dafna.hirschfeld@collabora.com>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -22,6 +22,10 @@ Changes since v1:
 - changing the license to (GPL-2.0-only OR BSD-2-Clause)
 - removing "Guenter Roeck <groeck-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>" from the maintainers list
 - adding ref: /schemas/i2c/i2c-controller.yaml
+
+Changes since v2:
+- adding another patch that fixes a warning found by this patch
+
 
  .../bindings/i2c/i2c-cros-ec-tunnel.txt       | 39 ------------
  .../bindings/i2c/i2c-cros-ec-tunnel.yaml      | 63 +++++++++++++++++++
