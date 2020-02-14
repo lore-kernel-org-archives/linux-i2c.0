@@ -1,85 +1,79 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: Re: [PATCH v3 1/2] dt-bindings: i2c: cros-ec-tunnel: convert
- i2c-cros-ec-tunnel.txt to yaml
-Date: Thu, 13 Feb 2020 23:35:35 +0100
-Message-ID: <20200213223535.j2ronp5jicxwa3mv@earth.universe>
-References: <20200213214656.9801-1-dafna.hirschfeld@collabora.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH V2 RESEND] media: v4l2-core: convert to new API with
+ ERRPTR
+Date: Fri, 14 Feb 2020 10:18:02 +0100
+Message-ID: <1e7e14b6-964d-0715-8cfd-364ff4806e22@xs4all.nl>
+References: <20200210165621.5189-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="mekopsgxbxuqqg5i"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200213214656.9801-1-dafna.hirschfeld@collabora.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-Cc: linux-i2c@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, bleung@chromium.org, enric.balletbo@collabora.com, groeck@chromium.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, helen.koike@collabora.com, ezequiel@collabora.com, kernel@collabora.com, dafna3@gmail.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from lb3-smtp-cloud8.xs4all.net ([194.109.24.29]:46047 "EHLO
+        lb3-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727965AbgBNJSG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 14 Feb 2020 04:18:06 -0500
+In-Reply-To: <20200210165621.5189-1-wsa+renesas@sang-engineering.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-media@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>
 
+On 2/10/20 5:56 PM, Wolfram Sang wrote:
+> Use the new APIs instead of the deprecated ones.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---mekopsgxbxuqqg5i
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm dropping this resend from patchwork since it is in the still pending
+PR https://patchwork.linuxtv.org/patch/61113/.
 
-Hi,
+That PR missed the cut for v5.6, so will be merged for v5.7.
 
-On Thu, Feb 13, 2020 at 10:46:55PM +0100, Dafna Hirschfeld wrote:
-> Convert the binding file i2c-cros-ec-tunnel.txt to yaml format.
->=20
-> This was tested and verified on ARM and ARM64 with:
->=20
-> make dt_binding_check DT_SCHEMA_FILES=3DDocumentation/devicetree/bindings=
-/i2c/i2c-cros-ec-tunnel.yaml
-> make dtbs_check DT_SCHEMA_FILES=3DDocumentation/devicetree/bindings/i2c/i=
-2c-cros-ec-tunnel.yaml
->=20
-> Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Regards,
+
+	Hans
+
 > ---
-
-[...]
-
-> +examples:
-> +  - |
-> +    cros-ec@0 {
-> +        compatible =3D "google,cros-ec-spi";
-> +        i2c-tunnel {
-> +            compatible =3D "google,cros-ec-i2c-tunnel";
-> +            #address-cells =3D <1>;
-> +            #size-cells =3D <0>;
-> +            google,remote-bus =3D <0>;
-> +
-> +            battery: sbs-battery@b {
-
-This should be "battery@b {", since node names are supposed to
-match the class of the device instead of the name of the device.
-
-> +                compatible =3D "sbs,sbs-battery";
-> +                reg =3D <0xb>;
-> +                sbs,poll-retry-count =3D <1>;
-> +            };
-> +        };
-> +    };
-
--- Sebastian
-
---mekopsgxbxuqqg5i
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl5FzzcACgkQ2O7X88g7
-+pqUqQ/9GuMhk5davOpFF2G5yyFA4XxDClQX2xS3ZwIm/ZhjexGqwJY4nHOALGrq
-wY+waf/uO/St1kcxRplnbInLSvztdJdwGOYGX8nGSnBA/IgUlA32S/b4TId6R6Bt
-L+BgDuigt6KAuoL8SXfYBaIBwLlIUggfQtqgizfVygyy0NIFp+CeRoXnuOf80MEh
-eTe7Mx6hnBlna0U1c5zLoRvqmzkRcMtFY8koTnBkPhrQTbzGd3AuA3YjPVQjJdpf
-DM2Ze5fzCcimSEqSEoygZ2VMaGU1tMHfKGN0bRccwu+dpAo38JjwNavTRjFMks0T
-Tzr+rTkSfXywTsl4hGQ2D4zUn0F0NhPIdQ/dDjnBLVf3HSFW49VonzhvxE1dV1R8
-ZpY8/i8MdVnSfp4q6qLnKZdB3u6uOg6IhxA9WdYb2/lmn7cgiQkRYfW0ON6HkOA8
-kmLwGikbDPKw+iFn56ut5wS4011HLKSYE5vYdudLg5uphBanJfOydh3HSAL3cRGO
-Lp3Uw0fTy8l/gRoEhdeSAld8afRxXiXeYBLWKur4Y+408eymJY+PnhNjlt0yUSbo
-6xm2Ps1xe030tAjjCKjGzoXGVXKjQlPD1AzTNfZkYQoUOPH7yuJ1nwa8CZ0MQvGW
-BLak1h2FccIuMgUV64zrDaKzI1MuQZ/d7YeS+B83zTaaBZbG8Y8=
-=A5E0
------END PGP SIGNATURE-----
-
---mekopsgxbxuqqg5i--
+> 
+> Resent from proper email address. Sorry for the confusion!
+> 
+>  drivers/media/v4l2-core/v4l2-i2c.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/media/v4l2-core/v4l2-i2c.c b/drivers/media/v4l2-core/v4l2-i2c.c
+> index 5bf99e7c0c09..b4acca75644b 100644
+> --- a/drivers/media/v4l2-core/v4l2-i2c.c
+> +++ b/drivers/media/v4l2-core/v4l2-i2c.c
+> @@ -74,10 +74,10 @@ struct v4l2_subdev
+>  
+>  	/* Create the i2c client */
+>  	if (info->addr == 0 && probe_addrs)
+> -		client = i2c_new_probed_device(adapter, info, probe_addrs,
+> -					       NULL);
+> +		client = i2c_new_scanned_device(adapter, info, probe_addrs,
+> +						NULL);
+>  	else
+> -		client = i2c_new_device(adapter, info);
+> +		client = i2c_new_client_device(adapter, info);
+>  
+>  	/*
+>  	 * Note: by loading the module first we are certain that c->driver
+> @@ -88,7 +88,7 @@ struct v4l2_subdev
+>  	 * want to use the i2c device, so explicitly loading the module
+>  	 * is the best alternative.
+>  	 */
+> -	if (!client || !client->dev.driver)
+> +	if (!i2c_client_has_driver(client))
+>  		goto error;
+>  
+>  	/* Lock the module so we can safely get the v4l2_subdev pointer */
+> @@ -110,7 +110,7 @@ struct v4l2_subdev
+>  	 * If we have a client but no subdev, then something went wrong and
+>  	 * we must unregister the client.
+>  	 */
+> -	if (client && !sd)
+> +	if (!IS_ERR(client) && !sd)
+>  		i2c_unregister_device(client);
+>  	return sd;
+>  }
+> 
