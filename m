@@ -1,16 +1,20 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 128/141] docs: i2c: writing-clients: properly name the stop condition
-Date: Fri, 14 Feb 2020 11:21:08 -0500
-Message-ID: <20200214162122.19794-128-sashal@kernel.org>
-References: <20200214162122.19794-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 171/186] docs: i2c: writing-clients: properly name the stop condition
+Date: Fri, 14 Feb 2020 11:17:00 -0500
+Message-ID: <20200214161715.18113-171-sashal@kernel.org>
+References: <20200214161715.18113-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:54920 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404275AbgBNQUz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:20:55 -0500
+In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
 
 From: Luca Ceresoli <luca@lucaceresoli.net>
 
