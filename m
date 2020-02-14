@@ -1,79 +1,44 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH V2 RESEND] media: v4l2-core: convert to new API with
- ERRPTR
-Date: Fri, 14 Feb 2020 10:18:02 +0100
-Message-ID: <1e7e14b6-964d-0715-8cfd-364ff4806e22@xs4all.nl>
-References: <20200210165621.5189-1-wsa+renesas@sang-engineering.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware-pci: Fix BUG_ON during device removal
+Date: Fri, 14 Feb 2020 11:26:37 +0200
+Message-ID: <a3ddc7c3-5cd5-e338-d776-a98b7deae9d2@linux.intel.com>
+References: <20200213151503.545269-1-jarkko.nikula@linux.intel.com>
+ <20200213161854.GA5929@ninjato> <20200213171102.GC10400@smile.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lb3-smtp-cloud8.xs4all.net ([194.109.24.29]:46047 "EHLO
-        lb3-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727965AbgBNJSG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 14 Feb 2020 04:18:06 -0500
-In-Reply-To: <20200210165621.5189-1-wsa+renesas@sang-engineering.com>
+Received: from mga02.intel.com ([134.134.136.20]:56730 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726179AbgBNJ0k (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 14 Feb 2020 04:26:40 -0500
+In-Reply-To: <20200213171102.GC10400@smile.fi.intel.com>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-media@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, stable@vger.kernel.org
 
-On 2/10/20 5:56 PM, Wolfram Sang wrote:
-> Use the new APIs instead of the deprecated ones.
+On 2/13/20 7:11 PM, Andy Shevchenko wrote:
+> On Thu, Feb 13, 2020 at 05:18:54PM +0100, Wolfram Sang wrote:
+>> On Thu, Feb 13, 2020 at 05:15:03PM +0200, Jarkko Nikula wrote:
+>>> Function i2c_dw_pci_remove() -> pci_free_irq_vectors() ->
+>>> pci_disable_msi() -> free_msi_irqs() will throw a BUG_ON() for MSI
+>>> enabled device since the driver has not released the requested IRQ before
+>>> calling the pci_free_irq_vectors().
+>>>
+>>> Here driver requests an IRQ using devm_request_irq() but automatic
+>>> release happens only after remove callback. Fix this by explicitly
+>>> freeing the IRQ before calling pci_free_irq_vectors().
+>>
+>> Does it make sense to keep devm for irq handling, then?
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+I thought about it and decided devm still saves one line of code in 
+drivers/i2c/busses/i2c-designware-platdrv.c: dw_i2c_plat_remove().
 
-I'm dropping this resend from patchwork since it is in the still pending
-PR https://patchwork.linuxtv.org/patch/61113/.
-
-That PR missed the cut for v5.6, so will be merged for v5.7.
-
-Regards,
-
-	Hans
-
-> ---
+> Only for sake of better error handling in error path in the ->probe().
 > 
-> Resent from proper email address. Sorry for the confusion!
-> 
->  drivers/media/v4l2-core/v4l2-i2c.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/media/v4l2-core/v4l2-i2c.c b/drivers/media/v4l2-core/v4l2-i2c.c
-> index 5bf99e7c0c09..b4acca75644b 100644
-> --- a/drivers/media/v4l2-core/v4l2-i2c.c
-> +++ b/drivers/media/v4l2-core/v4l2-i2c.c
-> @@ -74,10 +74,10 @@ struct v4l2_subdev
->  
->  	/* Create the i2c client */
->  	if (info->addr == 0 && probe_addrs)
-> -		client = i2c_new_probed_device(adapter, info, probe_addrs,
-> -					       NULL);
-> +		client = i2c_new_scanned_device(adapter, info, probe_addrs,
-> +						NULL);
->  	else
-> -		client = i2c_new_device(adapter, info);
-> +		client = i2c_new_client_device(adapter, info);
->  
->  	/*
->  	 * Note: by loading the module first we are certain that c->driver
-> @@ -88,7 +88,7 @@ struct v4l2_subdev
->  	 * want to use the i2c device, so explicitly loading the module
->  	 * is the best alternative.
->  	 */
-> -	if (!client || !client->dev.driver)
-> +	if (!i2c_client_has_driver(client))
->  		goto error;
->  
->  	/* Lock the module so we can safely get the v4l2_subdev pointer */
-> @@ -110,7 +110,7 @@ struct v4l2_subdev
->  	 * If we have a client but no subdev, then something went wrong and
->  	 * we must unregister the client.
->  	 */
-> -	if (client && !sd)
-> +	if (!IS_ERR(client) && !sd)
->  		i2c_unregister_device(client);
->  	return sd;
->  }
-> 
+Yeah, that too.
+
+-- 
+Jarkko
