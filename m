@@ -1,25 +1,68 @@
-From: Alain D'OLIVEIRA <rfalahiyan@iaumajlesi.ac.ir>
-Subject: Besoin de collaborer avec vous.
-Date: Sat, 15 Feb 2020 22:59:42 +0330 (IRST)
-Message-ID: <1606398051.410024.1581794982276.JavaMail.root@iaumajlesi.ac.ir>
-Reply-To: Alain D'OLIVEIRA <alino.doliveira@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RESEND] input: mouse: convert to i2c_new_scanned_device
+Date: Sat, 15 Feb 2020 15:49:03 -0800
+Message-ID: <20200215234903.GN183709@dtor-ws>
+References: <20200210165902.5250-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.iaumajlesi.ac.ir ([93.126.49.142]:58447 "HELO
-        mail.iaumajlesi.ac.ir" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1726254AbgBOVAa (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 15 Feb 2020 16:00:30 -0500
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:41731 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726504AbgBOXtI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 15 Feb 2020 18:49:08 -0500
+Content-Disposition: inline
+In-Reply-To: <20200210165902.5250-1-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: alino.doliveira@gmail.com
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Bonjour,
+On Mon, Feb 10, 2020 at 05:59:02PM +0100, Wolfram Sang wrote:
+> Move from the deprecated i2c_new_probed_device() to the new
+> i2c_new_scanned_device(). Make use of the new ERRPTR if suitable.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Je soussigné Mr Alain D'OLIVEIRA et je suis le conseiller financier d'un investisseur privé libyen disposant d'un énorme capital financier qu'il désire confier sous forme de partenariat de management de fonds ou de prêt. J'aimerais alors collaborer avec vous pour la concrétisation de ce projet. 
+Applied, thank you.
 
-Si vous êtes intéressé, veuillez me répondre pour plus de détails. 
+> ---
+> 
+> Build tested only.
+> 
+>  drivers/input/mouse/psmouse-smbus.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/psmouse-smbus.c b/drivers/input/mouse/psmouse-smbus.c
+> index 027efdd2b2ad..27358e543283 100644
+> --- a/drivers/input/mouse/psmouse-smbus.c
+> +++ b/drivers/input/mouse/psmouse-smbus.c
+> @@ -190,6 +190,7 @@ static int psmouse_smbus_create_companion(struct device *dev, void *data)
+>  	struct psmouse_smbus_dev *smbdev = data;
+>  	unsigned short addr_list[] = { smbdev->board.addr, I2C_CLIENT_END };
+>  	struct i2c_adapter *adapter;
+> +	struct i2c_client *client;
+>  
+>  	adapter = i2c_verify_adapter(dev);
+>  	if (!adapter)
+> @@ -198,12 +199,12 @@ static int psmouse_smbus_create_companion(struct device *dev, void *data)
+>  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_HOST_NOTIFY))
+>  		return 0;
+>  
+> -	smbdev->client = i2c_new_probed_device(adapter, &smbdev->board,
+> -					       addr_list, NULL);
+> -	if (!smbdev->client)
+> +	client = i2c_new_scanned_device(adapter, &smbdev->board, addr_list, NULL);
+> +	if (IS_ERR(client))
+>  		return 0;
+>  
+>  	/* We have our(?) device, stop iterating i2c bus. */
+> +	smbdev->client = client;
+>  	return 1;
+>  }
+>  
+> -- 
+> 2.20.1
+> 
 
-Mr Alain D'OLIVEIRA
-Adresse personnelle: alino.doliveira@gmail.com
+-- 
+Dmitry
