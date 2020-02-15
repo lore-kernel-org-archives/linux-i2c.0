@@ -1,58 +1,33 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH AUTOSEL 5.5 495/542] docs: i2c: writing-clients:
- properly name the stop condition
-Date: Sat, 15 Feb 2020 07:14:02 +0100
-Message-ID: <20200215071402.027c9120@endymion>
-References: <20200214154854.6746-1-sashal@kernel.org>
-        <20200214154854.6746-495-sashal@kernel.org>
+Subject: Re: [PATCH 1/3] i2c: convert SMBus alert setup function to return
+ an ERRPTR
+Date: Sat, 15 Feb 2020 07:20:20 +0100
+Message-ID: <20200215072020.75b1b772@endymion>
+References: <20200210172929.6001-1-wsa+renesas@sang-engineering.com>
+        <20200210172929.6001-2-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200214154854.6746-495-sashal@kernel.org>
+In-Reply-To: <20200210172929.6001-2-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sasha Levin <sashal@kernel.org>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Phil Reid <preid@electromag.com.au>, Wolfram Sang <wsa@the-dreams.de>, Robert Richter <rrichter@marvell.com>, George Cherian <gcherian@marvell.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 14 Feb 2020 10:48:07 -0500, Sasha Levin wrote:
-> From: Luca Ceresoli <luca@lucaceresoli.net>
-> 
-> [ Upstream commit 4fcb445ec688a62da9c864ab05a4bd39b0307cdc ]
-> 
-> In I2C there is no such thing as a "stop bit". Use the proper naming: "stop
-> condition".
-> 
-> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-> Reported-by: Jean Delvare <jdelvare@suse.de>
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  Documentation/i2c/writing-clients.rst | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/Documentation/i2c/writing-clients.rst b/Documentation/i2c/writing-clients.rst
-> index ced309b5e0cc8..3869efdf84cae 100644
-> --- a/Documentation/i2c/writing-clients.rst
-> +++ b/Documentation/i2c/writing-clients.rst
-> @@ -357,9 +357,9 @@ read/written.
->  
->  This sends a series of messages. Each message can be a read or write,
->  and they can be mixed in any way. The transactions are combined: no
-> -stop bit is sent between transaction. The i2c_msg structure contains
-> -for each message the client address, the number of bytes of the message
-> -and the message data itself.
-> +stop condition is issued between transaction. The i2c_msg structure
-> +contains for each message the client address, the number of bytes of the
-> +message and the message data itself.
->  
->  You can read the file ``i2c-protocol`` for more information about the
->  actual I2C protocol.
+Hi Wolfram,
 
-I wouldn't bother backporting this documentation patch to stable and
-longterm trees. That's a minor vocabulary thing really, it does not
-qualify.
+On Mon, 10 Feb 2020 18:29:25 +0100, Wolfram Sang wrote:
+> Only few drivers use this call, so drivers and I2C core are converted at
+> once with this patch. By simply using i2c_new_client_device() instead of
+> i2c_new_device(), we easily can return an ERRPTR for this function as
+> well. To make out of tree users aware that something changed, the
+> function is renamed to i2c_install_smbus_alert().
+
+I wouldn't bother renaming the function. Chances that there actually
+are out-of-tree users of this function are pretty small, and if that is
+the case, they can adjust their code easily in a way that is still
+compatible with old kernels.
 
 -- 
 Jean Delvare
