@@ -1,70 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/3] i2c: convert SMBus alert setup function to return an
- ERRPTR
-Date: Sat, 15 Feb 2020 07:50:18 +0100
-Message-ID: <20200215065018.GA1005@ninjato>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/3] i2c: convert SMBus alert setup function to return
+ an ERRPTR
+Date: Sat, 15 Feb 2020 09:11:39 +0100
+Message-ID: <20200215091139.0311bc7b@endymion>
 References: <20200210172929.6001-1-wsa+renesas@sang-engineering.com>
- <20200210172929.6001-2-wsa+renesas@sang-engineering.com>
- <20200215072020.75b1b772@endymion>
+        <20200210172929.6001-2-wsa+renesas@sang-engineering.com>
+        <20200215072020.75b1b772@endymion>
+        <20200215065018.GA1005@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:37672 "EHLO pokefinder.org"
+Received: from mx2.suse.de ([195.135.220.15]:38830 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725799AbgBOGuY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 15 Feb 2020 01:50:24 -0500
-Content-Disposition: inline
-In-Reply-To: <20200215072020.75b1b772@endymion>
+        id S1725881AbgBOILo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 15 Feb 2020 03:11:44 -0500
+In-Reply-To: <20200215065018.GA1005@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Phil Reid <preid@electromag.com.au>, Robert Richter <rrichter@marvell.com>, George Cherian <gcherian@marvell.com>, linux-kernel@vger.kernel.org
 
+On Sat, 15 Feb 2020 07:50:18 +0100, Wolfram Sang wrote:
+> On Sat, Feb 15, 2020 at 07:20:20AM +0100, Jean Delvare wrote:
+> > Hi Wolfram,
+> > 
+> > On Mon, 10 Feb 2020 18:29:25 +0100, Wolfram Sang wrote:  
+> > > Only few drivers use this call, so drivers and I2C core are converted at
+> > > once with this patch. By simply using i2c_new_client_device() instead of
+> > > i2c_new_device(), we easily can return an ERRPTR for this function as
+> > > well. To make out of tree users aware that something changed, the
+> > > function is renamed to i2c_install_smbus_alert().  
+> > 
+> > I wouldn't bother renaming the function. Chances that there actually
+> > are out-of-tree users of this function are pretty small, and if that is
+> > the case, they can adjust their code easily in a way that is still
+> > compatible with old kernels.  
+> 
+> Agreed, it is easy. But they need to *know* that they need to adjust.
+> Build error makes it obvious. Otherwise, the code will compile and
+> silently not work anymore, I am afraid.
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The code will keep working as long as there is no error, which is a
+rare situation. If/when it happens, they'll get a very visible error
+message in their kernel log.
 
-On Sat, Feb 15, 2020 at 07:20:20AM +0100, Jean Delvare wrote:
-> Hi Wolfram,
->=20
-> On Mon, 10 Feb 2020 18:29:25 +0100, Wolfram Sang wrote:
-> > Only few drivers use this call, so drivers and I2C core are converted at
-> > once with this patch. By simply using i2c_new_client_device() instead of
-> > i2c_new_device(), we easily can return an ERRPTR for this function as
-> > well. To make out of tree users aware that something changed, the
-> > function is renamed to i2c_install_smbus_alert().
->=20
-> I wouldn't bother renaming the function. Chances that there actually
-> are out-of-tree users of this function are pretty small, and if that is
-> the case, they can adjust their code easily in a way that is still
-> compatible with old kernels.
+I understand that this makes them discover the problem later. But we
+are talking about a case which most likely does not exist. On the other
+hand, renaming makes compatibility harder to achieve for them in the
+long term (#ifdefs needed forever), and it makes the work of the
+distribution kernel maintainers harder.
 
-Agreed, it is easy. But they need to *know* that they need to adjust.
-Build error makes it obvious. Otherwise, the code will compile and
-silently not work anymore, I am afraid.
+I don't think we should make our lives harder to help people who keep
+their kernel drivers out of tree. If they are not happy, they know what
+they should do.
 
+Just my 2 cents anyway, your call.
 
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5HlKUACgkQFA3kzBSg
-KbaemRAAtggqw4SVtbyQCRrmfxnLHzx6kn4nh+llG1MMVBv0T00C1mN/VwljvQAO
-lD+fOgYcon9hqXh8NS7CruNfVhOQ0DsWsPEEbagy7ajWiEnMuKWaxlu9hKDdFaWx
-FAuPxhY7i5aS8jkZOK+5d3m3xXJR18dT6NwlwVNAEde4deevE2CnnVixwNwiPZbC
-pOfktojkOIb3YFyC5XO/2Qq0bHnU1XM7nyjHHMqo9wwxZxV8Y+PlQ3M5sjEIN4af
-VSeoIRjaii6cKSlANDylKxpyrF8R24tiJuD8eCUOZR+piG+iQ5eCnhs18f3s5ISC
-nZ3CsbK3yd6dpujDAACaklbIVXEjuVnfQCVmrvIp/HVDO6ttvqx9ecuERRvjdPjO
-w3DuKLRk3+VqkxGt2SsnXU4oih0I410wjRrhq0zvT3toTjocWj6r0zRXn2PW9IoC
-cGebBHvPMsyVQQNCQ04dUmg4P+BY5aa4BFcvQeaVWcy+9sltcpNcLWkmZH/+q964
-w0wtZh4aRemO8GGLDStdU8wXx2hGdPyzMoj7xjPnyXnE+PBnym9Wd0CDvofxa//o
-WFg3eKkSiCxfkqHd9NwvNTiKV1bYllfusWrlaTCjZswJm3wf/PTnyWRXJbLtIer2
-ztTcsLx9CtA/vvAbn3zsOXqcS6N7cxOTAoi1rNzEId64QnIUxJE=
-=XNJq
------END PGP SIGNATURE-----
-
---+QahgC5+KEYLbs62--
+-- 
+Jean Delvare
+SUSE L3 Support
