@@ -1,62 +1,47 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 1/3] i2c: convert SMBus alert setup function to return
- an ERRPTR
-Date: Sat, 15 Feb 2020 09:11:39 +0100
-Message-ID: <20200215091139.0311bc7b@endymion>
-References: <20200210172929.6001-1-wsa+renesas@sang-engineering.com>
-        <20200210172929.6001-2-wsa+renesas@sang-engineering.com>
-        <20200215072020.75b1b772@endymion>
-        <20200215065018.GA1005@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: qiwuchen55@gmail.com
+Subject: [PATCH] i2c: omap: use devm_platform_ioremap_resource()
+Date: Sat, 15 Feb 2020 16:36:43 +0800
+Message-ID: <1581755803-11242-1-git-send-email-qiwuchen55@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:38830 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725881AbgBOILo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 15 Feb 2020 03:11:44 -0500
-In-Reply-To: <20200215065018.GA1005@ninjato>
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:39890 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725852AbgBOIgs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 15 Feb 2020 03:36:48 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Phil Reid <preid@electromag.com.au>, Robert Richter <rrichter@marvell.com>, George Cherian <gcherian@marvell.com>, linux-kernel@vger.kernel.org
+To: vigneshr@ti.com, tony@atomide.com, aaro.koskinen@iki.fi
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, chenqiwu <chenqiwu@xiaomi.com>
 
-On Sat, 15 Feb 2020 07:50:18 +0100, Wolfram Sang wrote:
-> On Sat, Feb 15, 2020 at 07:20:20AM +0100, Jean Delvare wrote:
-> > Hi Wolfram,
-> > 
-> > On Mon, 10 Feb 2020 18:29:25 +0100, Wolfram Sang wrote:  
-> > > Only few drivers use this call, so drivers and I2C core are converted at
-> > > once with this patch. By simply using i2c_new_client_device() instead of
-> > > i2c_new_device(), we easily can return an ERRPTR for this function as
-> > > well. To make out of tree users aware that something changed, the
-> > > function is renamed to i2c_install_smbus_alert().  
-> > 
-> > I wouldn't bother renaming the function. Chances that there actually
-> > are out-of-tree users of this function are pretty small, and if that is
-> > the case, they can adjust their code easily in a way that is still
-> > compatible with old kernels.  
-> 
-> Agreed, it is easy. But they need to *know* that they need to adjust.
-> Build error makes it obvious. Otherwise, the code will compile and
-> silently not work anymore, I am afraid.
+From: chenqiwu <chenqiwu@xiaomi.com>
 
-The code will keep working as long as there is no error, which is a
-rare situation. If/when it happens, they'll get a very visible error
-message in their kernel log.
+Use a new API devm_platform_ioremap_resource() to simplify code.
 
-I understand that this makes them discover the problem later. But we
-are talking about a case which most likely does not exist. On the other
-hand, renaming makes compatibility harder to achieve for them in the
-long term (#ifdefs needed forever), and it makes the work of the
-distribution kernel maintainers harder.
+Signed-off-by: chenqiwu <chenqiwu@xiaomi.com>
+---
+ drivers/i2c/busses/i2c-omap.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-I don't think we should make our lives harder to help people who keep
-their kernel drivers out of tree. If they are not happy, they know what
-they should do.
-
-Just my 2 cents anyway, your call.
-
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 2dfea35..47d994a 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1355,7 +1355,6 @@ static void omap_i2c_unprepare_recovery(struct i2c_adapter *adap)
+ {
+ 	struct omap_i2c_dev	*omap;
+ 	struct i2c_adapter	*adap;
+-	struct resource		*mem;
+ 	const struct omap_i2c_bus_platform_data *pdata =
+ 		dev_get_platdata(&pdev->dev);
+ 	struct device_node	*node = pdev->dev.of_node;
+@@ -1375,8 +1374,7 @@ static void omap_i2c_unprepare_recovery(struct i2c_adapter *adap)
+ 	if (!omap)
+ 		return -ENOMEM;
+ 
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	omap->base = devm_ioremap_resource(&pdev->dev, mem);
++	omap->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(omap->base))
+ 		return PTR_ERR(omap->base);
+ 
 -- 
-Jean Delvare
-SUSE L3 Support
+1.9.1
