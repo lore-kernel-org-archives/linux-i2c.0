@@ -1,68 +1,33 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND] input: mouse: convert to i2c_new_scanned_device
-Date: Sat, 15 Feb 2020 15:49:03 -0800
-Message-ID: <20200215234903.GN183709@dtor-ws>
-References: <20200210165902.5250-1-wsa+renesas@sang-engineering.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH] i2c: use kobj_to_dev() API
+Date: Sun, 16 Feb 2020 22:46:39 +0100
+Message-ID: <d30a1c9a-ad23-1c6a-4195-7a8dd10a9813@lucaceresoli.net>
+References: <1581684997-8322-1-git-send-email-qiwuchen55@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:41731 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726504AbgBOXtI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 15 Feb 2020 18:49:08 -0500
-Content-Disposition: inline
-In-Reply-To: <20200210165902.5250-1-wsa+renesas@sang-engineering.com>
+Received: from hostingweb31-40.netsons.net ([89.40.174.40]:50136 "EHLO
+        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726020AbgBPVqn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 16 Feb 2020 16:46:43 -0500
+In-Reply-To: <1581684997-8322-1-git-send-email-qiwuchen55@gmail.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+To: qiwuchen55@gmail.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, chenqiwu <chenqiwu@xiaomi.com>
 
-On Mon, Feb 10, 2020 at 05:59:02PM +0100, Wolfram Sang wrote:
-> Move from the deprecated i2c_new_probed_device() to the new
-> i2c_new_scanned_device(). Make use of the new ERRPTR if suitable.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Hi,
 
-Applied, thank you.
+On 14/02/20 13:56, qiwuchen55@gmail.com wrote:
+> From: chenqiwu <chenqiwu@xiaomi.com>
+> 
+> Use kobj_to_dev() API instead of container_of().
+> 
+> Signed-off-by: chenqiwu <chenqiwu@xiaomi.com>
 
-> ---
-> 
-> Build tested only.
-> 
->  drivers/input/mouse/psmouse-smbus.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/psmouse-smbus.c b/drivers/input/mouse/psmouse-smbus.c
-> index 027efdd2b2ad..27358e543283 100644
-> --- a/drivers/input/mouse/psmouse-smbus.c
-> +++ b/drivers/input/mouse/psmouse-smbus.c
-> @@ -190,6 +190,7 @@ static int psmouse_smbus_create_companion(struct device *dev, void *data)
->  	struct psmouse_smbus_dev *smbdev = data;
->  	unsigned short addr_list[] = { smbdev->board.addr, I2C_CLIENT_END };
->  	struct i2c_adapter *adapter;
-> +	struct i2c_client *client;
->  
->  	adapter = i2c_verify_adapter(dev);
->  	if (!adapter)
-> @@ -198,12 +199,12 @@ static int psmouse_smbus_create_companion(struct device *dev, void *data)
->  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_HOST_NOTIFY))
->  		return 0;
->  
-> -	smbdev->client = i2c_new_probed_device(adapter, &smbdev->board,
-> -					       addr_list, NULL);
-> -	if (!smbdev->client)
-> +	client = i2c_new_scanned_device(adapter, &smbdev->board, addr_list, NULL);
-> +	if (IS_ERR(client))
->  		return 0;
->  
->  	/* We have our(?) device, stop iterating i2c bus. */
-> +	smbdev->client = client;
->  	return 1;
->  }
->  
-> -- 
-> 2.20.1
-> 
+Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
 
 -- 
-Dmitry
+Luca
