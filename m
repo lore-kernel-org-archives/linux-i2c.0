@@ -1,218 +1,80 @@
-From: Tomasz Figa <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v10 4/4] i2c: core: support bus regulator controlling in adapter
-Date: Mon, 17 Feb 2020 18:45:01 +0900
-Message-ID: <CAAFQd5DtnBhGV-VemTwudm7K-UtFsGg99YGuD-cyR93u0OAPuA@mail.gmail.com>
-References: <20200116025637.3524-1-bibby.hsieh@mediatek.com>
- <20200116025637.3524-5-bibby.hsieh@mediatek.com> <CAAFQd5Bh9dUuu2fzxQSyuyRrEvN5o8PBqPCUTdrC5btN2Q1HVw@mail.gmail.com>
+From: Robert Richter <rrichter@marvell.com>
+Subject: Re: [PATCH 1/3] i2c: convert SMBus alert setup function to return an
+ ERRPTR
+Date: Mon, 17 Feb 2020 11:00:57 +0100
+Message-ID: <20200217100056.di54osv76xlcnhdj@rric.localdomain>
+References: <20200210172929.6001-1-wsa+renesas@sang-engineering.com>
+ <20200210172929.6001-2-wsa+renesas@sang-engineering.com>
+ <20200217075837.2agub5deqdpet3ce@rric.localdomain>
+ <20200217081758.GA2814@ninjato>
+ <64a14944-ed27-9f4f-6d1b-e31508c92692@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAAFQd5Bh9dUuu2fzxQSyuyRrEvN5o8PBqPCUTdrC5btN2Q1HVw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Nicolas Boichat <drinkcat-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, srv_heupstream <srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:22344 "EHLO
+        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726397AbgBQKBr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Feb 2020 05:01:47 -0500
+Content-Disposition: inline
+In-Reply-To: <64a14944-ed27-9f4f-6d1b-e31508c92692@lucaceresoli.net>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Luca Ceresoli <luca@lucaceresoli.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Phil Reid <preid@electromag.com.au>, Jean Delvare <jdelvare@suse.com>, George Cherian <gcherian@marvell.com>, linux-kernel@vger.kernel.org
 
-Hi Rafael,
+On 17.02.20 10:14:52, Luca Ceresoli wrote:
+> Hi,
+> 
+> On 17/02/20 09:17, Wolfram Sang wrote:
+> > 
+> >>> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> >>
+> >>> -struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
+> >>> +struct i2c_client *i2c_install_smbus_alert(struct i2c_adapter *adapter,
+> >>>  					 struct i2c_smbus_alert_setup *setup);
+> >>
+> >> This function naming is a bit odd. It creates a struct i2c_client.
+> >> Then, there is also i2c_new_client_device() and i2c_new_device(). For
+> >> i2c_new_client_device() there are no users at all outside of
+> >> i2c-core-base.c (except for Falcon NIC), it is only a wrapper.
+> > 
+> > i2c_new_device (and friends) returned NULL on error. I am currently
+> > converting all i2c_new_* functions to return an ERRPTR. So,
+> > i2c_new_client_device is the new function, i2c_new_device is deprecated.
+> > If you check v5.6-rc1, you will find many more users. Similarily,
+> > i2c_new_dummy is deprecated (and removed already), i2c_new_dummy_device
+> > is the new thing.
+> > 
+> >> So how about reducing the interface to those both only to:?
+> >>
+> >>  i2c_new_device()
+> >>  i2c_new_device_smbus()
+> > 
+> > Given the above, it would be:
+> > 
+> > 	i2c_new_client_device()
+> > 	i2c_new_smbus_device()
+> > 
+> > Yet, I think this is too vague. Maybe
+> > 
+> > 	i2c_new_smbus_alert_device()
+> 
+> I always found the function naming a bit messy in the linux i2c
+> implementation. Among the names proposed in this thread,
+> i2c_new_smbus_alert_device() is the only one that makes sense to me for
+> the new function: it is not vague, and it is coherent with other names
+> of recently introduced functions (i2c_new_*_device()). Of course the
+> "alert device" is not a real device, but it looks like it is as it has
+> its own "slave" address. So I vote for this name...
 
-On Tue, Jan 28, 2020 at 4:31 PM Tomasz Figa <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
->
-> Hi Rafael,
->
-> On Thu, Jan 16, 2020 at 11:56 AM Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org> wrote:
-> >
-> > Although in the most platforms, the bus power of i2c
-> > are alway on, some platforms disable the i2c bus power
-> > in order to meet low power request.
-> >
-> > We get and enable bulk regulator in i2c adapter device.
-> >
-> > Signed-off-by: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> > ---
-> >  drivers/i2c/i2c-core-base.c | 81 +++++++++++++++++++++++++++++++++++++
-> >  include/linux/i2c.h         |  3 ++
-> >  2 files changed, 84 insertions(+)
-> >
->
-> I posted some comments in a separate reply [1] and Wolfram confirmed
-> that he's fine with the approach [2]. Would you have some time to take
-> a look from the PM point of view? Thanks.
->
-> [1] https://patchwork.ozlabs.org/patch/1223991/#2350984
-> [2] https://patchwork.ozlabs.org/patch/1223991/#2351032
->
-> Please let me know if you want me to CC you directly on any of those replies.
+Yes, better fix the naming now that the i/f is new. As all these
+function create a i2c_client struct, the whole set of functions could
+be also named i2c_client_create*() with specialized functions such as
+i2c_client_create_smbus() or so. It will be clear it is a subset.
 
-Would you have a few minutes to take a look at this?
+Anyway, it's just a function name, but while reading the code it was
+not obvious to me that i2c_install_smbus_alert() is actually a subset
+of i2c_new_client_device(). That said, I like the i2c_client_create*()
+variants.
 
-Thanks,
-Tomasz
-
->
-> Best regards,
-> Tomasz
->
-> > diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> > index 9333c865d4a9..9b9e96b094ca 100644
-> > --- a/drivers/i2c/i2c-core-base.c
-> > +++ b/drivers/i2c/i2c-core-base.c
-> > @@ -306,6 +306,7 @@ static int i2c_smbus_host_notify_to_irq(const struct i2c_client *client)
-> >  static int i2c_device_probe(struct device *dev)
-> >  {
-> >         struct i2c_client       *client = i2c_verify_client(dev);
-> > +       struct i2c_adapter      *adap = client->adapter;
-> >         struct i2c_driver       *driver;
-> >         int status;
-> >
-> > @@ -371,6 +372,12 @@ static int i2c_device_probe(struct device *dev)
-> >
-> >         dev_dbg(dev, "probe\n");
-> >
-> > +       status = regulator_enable(adap->bus_reg);
-> > +       if (status != 0) {
-> > +               dev_err(&adap->dev, "Failed to enable power regulator\n");
-> > +               goto err_clear_wakeup_irq;
-> > +       }
-> > +
-> >         status = of_clk_set_defaults(dev->of_node, false);
-> >         if (status < 0)
-> >                 goto err_clear_wakeup_irq;
-> > @@ -407,6 +414,7 @@ static int i2c_device_probe(struct device *dev)
-> >  static int i2c_device_remove(struct device *dev)
-> >  {
-> >         struct i2c_client       *client = i2c_verify_client(dev);
-> > +       struct i2c_adapter      *adap = client->adapter;
-> >         struct i2c_driver       *driver;
-> >         int status = 0;
-> >
-> > @@ -420,6 +428,8 @@ static int i2c_device_remove(struct device *dev)
-> >         }
-> >
-> >         dev_pm_domain_detach(&client->dev, true);
-> > +       if (!pm_runtime_status_suspended(&adap->dev))
-> > +               regulator_disable(adap->bus_reg);
-> >
-> >         dev_pm_clear_wake_irq(&client->dev);
-> >         device_init_wakeup(&client->dev, false);
-> > @@ -431,6 +441,71 @@ static int i2c_device_remove(struct device *dev)
-> >         return status;
-> >  }
-> >
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int i2c_resume(struct device *dev)
-> > +{
-> > +       struct i2c_client *client = i2c_verify_client(dev);
-> > +       struct i2c_adapter *adap = client->adapter;
-> > +       int err;
-> > +
-> > +       if (pm_runtime_status_suspended(&adap->dev)) {
-> > +               err = regulator_enable(adap->bus_reg);
-> > +               if (err)
-> > +                       return err;
-> > +       }
-> > +
-> > +       return pm_generic_resume(dev);
-> > +}
-> > +
-> > +static int i2c_suspend(struct device *dev)
-> > +{
-> > +       struct i2c_client *client = i2c_verify_client(dev);
-> > +       struct i2c_adapter *adap = client->adapter;
-> > +       int err;
-> > +
-> > +       if (!pm_runtime_status_suspended(&adap->dev)) {
-> > +               err = regulator_disable(adap->bus_reg);
-> > +               if (err)
-> > +                       return err;
-> > +       }
-> > +
-> > +       return pm_generic_suspend(dev);
-> > +}
-> > +#endif
-> > +
-> > +#ifdef CONFIG_PM
-> > +static int i2c_runtime_resume(struct device *dev)
-> > +{
-> > +       struct i2c_client *client = i2c_verify_client(dev);
-> > +       struct i2c_adapter *adap = client->adapter;
-> > +       int err;
-> > +
-> > +       err = regulator_enable(adap->bus_reg);
-> > +       if (err)
-> > +               return err;
-> > +
-> > +       return pm_generic_runtime_resume(dev);
-> > +}
-> > +
-> > +static int i2c_runtime_suspend(struct device *dev)
-> > +{
-> > +       struct i2c_client *client = i2c_verify_client(dev);
-> > +       struct i2c_adapter *adap = client->adapter;
-> > +       int err;
-> > +
-> > +       err = pm_generic_runtime_suspend(dev);
-> > +       if (err)
-> > +               return err;
-> > +
-> > +       return regulator_disable(adap->bus_reg);
-> > +}
-> > +#endif
-> > +
-> > +static const struct dev_pm_ops i2c_device_pm = {
-> > +       SET_SYSTEM_SLEEP_PM_OPS(i2c_suspend, i2c_resume)
-> > +       SET_RUNTIME_PM_OPS(i2c_runtime_suspend, i2c_runtime_resume, NULL)
-> > +};
-> > +
-> >  static void i2c_device_shutdown(struct device *dev)
-> >  {
-> >         struct i2c_client *client = i2c_verify_client(dev);
-> > @@ -488,6 +563,7 @@ struct bus_type i2c_bus_type = {
-> >         .probe          = i2c_device_probe,
-> >         .remove         = i2c_device_remove,
-> >         .shutdown       = i2c_device_shutdown,
-> > +       .pm             = &i2c_device_pm,
-> >  };
-> >  EXPORT_SYMBOL_GPL(i2c_bus_type);
-> >
-> > @@ -1351,6 +1427,11 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
-> >                 goto out_reg;
-> >
-> >         dev_dbg(&adap->dev, "adapter [%s] registered\n", adap->name);
-> > +       adap->bus_reg = devm_regulator_get(&adap->dev, "bus");
-> > +       if (IS_ERR(adap->bus_reg)) {
-> > +               res = PTR_ERR(adap->bus_reg);
-> > +               goto out_reg;
-> > +       }
-> >
-> >         pm_runtime_no_callbacks(&adap->dev);
-> >         pm_suspend_ignore_children(&adap->dev, true);
-> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > index d2f786706657..833b81a680da 100644
-> > --- a/include/linux/i2c.h
-> > +++ b/include/linux/i2c.h
-> > @@ -15,6 +15,7 @@
-> >  #include <linux/device.h>      /* for struct device */
-> >  #include <linux/sched.h>       /* for completion */
-> >  #include <linux/mutex.h>
-> > +#include <linux/regulator/consumer.h>
-> >  #include <linux/rtmutex.h>
-> >  #include <linux/irqdomain.h>           /* for Host Notify IRQ */
-> >  #include <linux/of.h>          /* for struct device_node */
-> > @@ -330,6 +331,7 @@ struct i2c_client {
-> >         int init_irq;                   /* irq set at initialization    */
-> >         int irq;                        /* irq issued by device         */
-> >         struct list_head detected;
-> > +
-> >  #if IS_ENABLED(CONFIG_I2C_SLAVE)
-> >         i2c_slave_cb_t slave_cb;        /* callback for slave mode      */
-> >  #endif
-> > @@ -723,6 +725,7 @@ struct i2c_adapter {
-> >         const struct i2c_adapter_quirks *quirks;
-> >
-> >         struct irq_domain *host_notify_domain;
-> > +       struct regulator *bus_reg;
-> >  };
-> >  #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
-> >
-> > --
-> > 2.18.0
+-Robert
