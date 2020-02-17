@@ -1,80 +1,121 @@
-From: Robert Richter <rrichter@marvell.com>
-Subject: Re: [PATCH 1/3] i2c: convert SMBus alert setup function to return an
- ERRPTR
-Date: Mon, 17 Feb 2020 11:00:57 +0100
-Message-ID: <20200217100056.di54osv76xlcnhdj@rric.localdomain>
-References: <20200210172929.6001-1-wsa+renesas@sang-engineering.com>
- <20200210172929.6001-2-wsa+renesas@sang-engineering.com>
- <20200217075837.2agub5deqdpet3ce@rric.localdomain>
- <20200217081758.GA2814@ninjato>
- <64a14944-ed27-9f4f-6d1b-e31508c92692@lucaceresoli.net>
+From: Khouloud Touil <ktouil@baylibre.com>
+Subject: Re: [PATCH v4 2/5] nvmem: add support for the write-protect pin
+Date: Mon, 17 Feb 2020 14:14:59 +0100
+Message-ID: <CALL1Z1z4450depX-X5VC=r3J7fRkTCkFP5re_ULHiS6O1KQ3rA@mail.gmail.com>
+References: <20200107092922.18408-1-ktouil@baylibre.com> <20200107092922.18408-3-ktouil@baylibre.com>
+ <CAMuHMdVv+FRnf6fvjEeu50W5PB-Gh2V8Th1h__vt6guMwk2xNQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:22344 "EHLO
-        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726397AbgBQKBr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Feb 2020 05:01:47 -0500
-Content-Disposition: inline
-In-Reply-To: <64a14944-ed27-9f4f-6d1b-e31508c92692@lucaceresoli.net>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdVv+FRnf6fvjEeu50W5PB-Gh2V8Th1h__vt6guMwk2xNQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, baylibre-upstreaming@groups.io, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Phil Reid <preid@electromag.com.au>, Jean Delvare <jdelvare@suse.com>, George Cherian <gcherian@marvell.com>, linux-kernel@vger.kernel.org
 
-On 17.02.20 10:14:52, Luca Ceresoli wrote:
-> Hi,
-> 
-> On 17/02/20 09:17, Wolfram Sang wrote:
-> > 
-> >>> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> >>
-> >>> -struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
-> >>> +struct i2c_client *i2c_install_smbus_alert(struct i2c_adapter *adapter,
-> >>>  					 struct i2c_smbus_alert_setup *setup);
-> >>
-> >> This function naming is a bit odd. It creates a struct i2c_client.
-> >> Then, there is also i2c_new_client_device() and i2c_new_device(). For
-> >> i2c_new_client_device() there are no users at all outside of
-> >> i2c-core-base.c (except for Falcon NIC), it is only a wrapper.
-> > 
-> > i2c_new_device (and friends) returned NULL on error. I am currently
-> > converting all i2c_new_* functions to return an ERRPTR. So,
-> > i2c_new_client_device is the new function, i2c_new_device is deprecated.
-> > If you check v5.6-rc1, you will find many more users. Similarily,
-> > i2c_new_dummy is deprecated (and removed already), i2c_new_dummy_device
-> > is the new thing.
-> > 
-> >> So how about reducing the interface to those both only to:?
-> >>
-> >>  i2c_new_device()
-> >>  i2c_new_device_smbus()
-> > 
-> > Given the above, it would be:
-> > 
-> > 	i2c_new_client_device()
-> > 	i2c_new_smbus_device()
-> > 
-> > Yet, I think this is too vague. Maybe
-> > 
-> > 	i2c_new_smbus_alert_device()
-> 
-> I always found the function naming a bit messy in the linux i2c
-> implementation. Among the names proposed in this thread,
-> i2c_new_smbus_alert_device() is the only one that makes sense to me for
-> the new function: it is not vague, and it is coherent with other names
-> of recently introduced functions (i2c_new_*_device()). Of course the
-> "alert device" is not a real device, but it looks like it is as it has
-> its own "slave" address. So I vote for this name...
+Le jeu. 30 janv. 2020 =C3=A0 09:06, Geert Uytterhoeven
+<geert@linux-m68k.org> a =C3=A9crit :
+>
+> Hi Khouloud,
+>
+> On Tue, Jan 7, 2020 at 10:30 AM Khouloud Touil <ktouil@baylibre.com> wrot=
+e:
+> > The write-protect pin handling looks like a standard property that
+> > could benefit other users if available in the core nvmem framework.
+> >
+> > Instead of modifying all the memory drivers to check this pin, make
+> > the NVMEM subsystem check if the write-protect GPIO being passed
+> > through the nvmem_config or defined in the device tree and pull it
+> > low whenever writing to the memory.
+> >
+> > There was a suggestion for introducing the gpiodesc from pdata, but
+> > as pdata is already removed it could be replaced by adding it to
+> > nvmem_config.
+> >
+> > Reference: https://lists.96boards.org/pipermail/dev/2018-August/001056.=
+html
+> >
+> > Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
+> > Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> > Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+>
+> Thanks for your patch!
+>
+> > --- a/drivers/nvmem/core.c
+> > +++ b/drivers/nvmem/core.c
+> > @@ -15,6 +15,7 @@
+> >  #include <linux/module.h>
+> >  #include <linux/nvmem-consumer.h>
+> >  #include <linux/nvmem-provider.h>
+> > +#include <linux/gpio/consumer.h>
+> >  #include <linux/of.h>
+> >  #include <linux/slab.h>
+> >  #include "nvmem.h"
+> > @@ -54,8 +55,14 @@ static int nvmem_reg_read(struct nvmem_device *nvmem=
+, unsigned int offset,
+> >  static int nvmem_reg_write(struct nvmem_device *nvmem, unsigned int of=
+fset,
+> >                            void *val, size_t bytes)
+> >  {
+> > -       if (nvmem->reg_write)
+> > -               return nvmem->reg_write(nvmem->priv, offset, val, bytes=
+);
+> > +       int ret;
+> > +
+> > +       if (nvmem->reg_write) {
+> > +               gpiod_set_value_cansleep(nvmem->wp_gpio, 0);
+> > +               ret =3D nvmem->reg_write(nvmem->priv, offset, val, byte=
+s);
+> > +               gpiod_set_value_cansleep(nvmem->wp_gpio, 1);
+> > +               return ret;
+> > +       }
+> >
+> >         return -EINVAL;
+> >  }
+> > @@ -338,6 +345,14 @@ struct nvmem_device *nvmem_register(const struct n=
+vmem_config *config)
+> >                 kfree(nvmem);
+> >                 return ERR_PTR(rval);
+> >         }
+> > +       if (config->wp_gpio)
+> > +               nvmem->wp_gpio =3D config->wp_gpio;
+> > +       else
+> > +               nvmem->wp_gpio =3D gpiod_get_optional(config->dev, "wp"=
+,
+> > +                                                   GPIOD_OUT_HIGH);
+>
+> Shouldn't this GPIO be released in nvmem_release(), by calling gpiod_put(=
+)?
+>
+> Once that's implemented, I assume it will be auto-released on registratio=
+n
+> failure by the call to put_device()?
 
-Yes, better fix the naming now that the i/f is new. As all these
-function create a i2c_client struct, the whole set of functions could
-be also named i2c_client_create*() with specialized functions such as
-i2c_client_create_smbus() or so. It will be clear it is a subset.
+Hello Geert,
 
-Anyway, it's just a function name, but while reading the code it was
-not obvious to me that i2c_install_smbus_alert() is actually a subset
-of i2c_new_client_device(). That said, I like the i2c_client_create*()
-variants.
+Thanks for your review.
+Yes you are right, I will add that
 
--Robert
+Khouloud,
+>
+> > +       if (IS_ERR(nvmem->wp_gpio))
+> > +               return PTR_ERR(nvmem->wp_gpio);
+> > +
+> >
+> >         kref_init(&nvmem->refcnt);
+> >         INIT_LIST_HEAD(&nvmem->cells);
+>
+> Gr{oetje,eeting}s,
+>
+>                         Geert
+>
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
+8k.org
+>
+> In personal conversations with technical people, I call myself a hacker. =
+But
+> when I'm talking to journalists I just say "programmer" or something like=
+ that.
+>                                 -- Linus Torvalds
