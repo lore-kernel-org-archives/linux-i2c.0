@@ -1,57 +1,52 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH 6/6] arm64: dts: sc7180: Add interconnect for QUP and QSPI
-Date: Mon, 17 Feb 2020 19:18:30 -0800
-Message-ID: <20200218031830.GX955802@ripper>
-References: <1581946205-27189-1-git-send-email-akashast@codeaurora.org>
- <1581946205-27189-7-git-send-email-akashast@codeaurora.org>
+From: Vinod Koul <vkoul@kernel.org>
+Subject: Re: [PATCH v2 1/3] i2c: Add Qualcomm CCI I2C driver
+Date: Tue, 18 Feb 2020 09:57:55 +0530
+Message-ID: <20200218042755.GZ2618@vkoul-mobl>
+References: <1577784397-28682-1-git-send-email-loic.poulain@linaro.org>
+ <CAMZdPi_CYWgCjCLW3TCCAPFnbmn3LYGrzrah+p-_+xZkYbmTPQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:41618 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726415AbgBRDTZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Feb 2020 22:19:25 -0500
-Received: by mail-pg1-f196.google.com with SMTP id 70so10213965pgf.8
-        for <linux-i2c@vger.kernel.org>; Mon, 17 Feb 2020 19:19:24 -0800 (PST)
+Received: from mail.kernel.org ([198.145.29.99]:50040 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726245AbgBRE2A (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 17 Feb 2020 23:28:00 -0500
 Content-Disposition: inline
-In-Reply-To: <1581946205-27189-7-git-send-email-akashast@codeaurora.org>
+In-Reply-To: <CAMZdPi_CYWgCjCLW3TCCAPFnbmn3LYGrzrah+p-_+xZkYbmTPQ@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Akash Asthana <akashast@codeaurora.org>
-Cc: gregkh@linuxfoundation.org, agross@kernel.org, wsa@the-dreams.de, broonie@kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, swboyd@chromium.org, mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org, mka@chromium.org, dianders@chromium.org
+To: wsa@the-dreams.de, Loic Poulain <loic.poulain@linaro.org>
+Cc: Rob Herring <robh+dt@kernel.org>, todor.too@gmail.com, linux-i2c@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>, Todor Tomov <todor.tomov@linaro.org>
 
-On Mon 17 Feb 05:30 PST 2020, Akash Asthana wrote:
+Hi Wolfram,
 
-> Add interconnect ports for GENI QUPs and QSPI to set bus capabilities.
+On 24-01-20, 09:13, Loic Poulain wrote:
+> On Tue, 31 Dec 2019 at 10:23, Loic Poulain <loic.poulain@linaro.org> wrote:
+> >
+> > This commit adds I2C bus support for the Camera Control Interface
+> > (CCI) I2C controller found on the Qualcomm SoC processors. This I2C
+> > controller supports two masters and they are registered to the core.
+> >
+> > CCI versions supported in the driver are MSM8916 and MSM8996.
+> >
+> > This is a rework of the patch posted by Vinod:
+> > https://patchwork.kernel.org/patch/10569961/
+> >
+> > With additional fixes + most of the comments addressed.
+> >
+> > Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
+> > Signed-off-by: Vinod Koul <vkoul@kernel.org>
+> > Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+> > ---
+> >  v2: Remove clock rates config from driver (done via assigned clock)
+> >      Added CCI timeout recovery from Ricardo's patch:
+> >         https://www.spinics.net/lists/linux-i2c/msg36973.html
 > 
-> Signed-off-by: Akash Asthana <akashast@codeaurora.org>
-> ---
-> Note:
->  - This patch depends on series https://patchwork.kernel.org/cover/11313817/
->    [Add SC7180 interconnect provider driver]. It won't compile without that.
-> 
->  arch/arm64/boot/dts/qcom/sc7180.dtsi | 199 +++++++++++++++++++++++++++++++++++
->  1 file changed, 199 insertions(+)
-> 
-> diff --git a/arch/arm64/boot/dts/qcom/sc7180.dtsi b/arch/arm64/boot/dts/qcom/sc7180.dtsi
-> index cc5a94f..04569c9 100644
-> --- a/arch/arm64/boot/dts/qcom/sc7180.dtsi
-> +++ b/arch/arm64/boot/dts/qcom/sc7180.dtsi
-> @@ -352,6 +352,14 @@
->  				interrupts = <GIC_SPI 601 IRQ_TYPE_LEVEL_HIGH>;
->  				#address-cells = <1>;
->  				#size-cells = <0>;
-> +				interconnects = <&qup_virt MASTER_QUP_CORE_0
-> +						&qup_virt SLAVE_QUP_CORE_0>,
-> +						<&gem_noc MASTER_APPSS_PROC
-> +						&config_noc SLAVE_QUP_0>,
-> +						<&aggre1_noc MASTER_QUP_0
-> +						&mc_virt SLAVE_EBI1>;
+> Any feedback on this series?
 
-Please ignore the 80-char "limit" and write this as:
-				interconnects = <&qup_virt MASTER_QUP_CORE_0 &qup_virt SLAVE_QUP_CORE_0>,
-						<&gem_noc ...>,
-						<&aggre1_noc ...>;
+Can you please take some time and review the series and provide feedback
+to Loic, this series has been pending for a long time now
 
-Regards,
-Bjorn
+Thanks
+-- 
+~Vinod
