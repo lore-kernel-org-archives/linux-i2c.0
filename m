@@ -1,46 +1,60 @@
-From: Akash Asthana <akashast@codeaurora.org>
-Subject: Re: [PATCH 6/6] arm64: dts: sc7180: Add interconnect for QUP and QSPI
-Date: Wed, 19 Feb 2020 19:19:11 +0530
-Message-ID: <f82a28c7-63a4-b0e8-3902-5614dfed0f78@codeaurora.org>
+From: Matthias Kaehlcke <mka@chromium.org>
+Subject: Re: [PATCH 4/6] spi: spi-geni-qcom: Add interconnect support
+Date: Wed, 19 Feb 2020 10:09:50 -0800
+Message-ID: <20200219180950.GA24720@google.com>
 References: <1581946205-27189-1-git-send-email-akashast@codeaurora.org>
- <1581946205-27189-7-git-send-email-akashast@codeaurora.org>
- <20200218031830.GX955802@ripper>
+ <1581946205-27189-5-git-send-email-akashast@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail27.static.mailgun.info ([104.130.122.27]:34446 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726551AbgBSNte (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Feb 2020 08:49:34 -0500
-In-Reply-To: <20200218031830.GX955802@ripper>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-serial-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1581946205-27189-5-git-send-email-akashast@codeaurora.org>
+Sender: linux-serial-owner@vger.kernel.org
+To: Akash Asthana <akashast@codeaurora.org>
+Cc: gregkh@linuxfoundation.org, agross@kernel.org, bjorn.andersson@linaro.org, wsa@the-dreams.de, broonie@kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, swboyd@chromium.org, mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org, dianders@chromium.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: gregkh@linuxfoundation.org, agross@kernel.org, wsa@the-dreams.de, broonie@kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, swboyd@chromium.org, mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org, mka@chromium.org, dianders@chromium.org
 
-Hi Bjorn,
+On Mon, Feb 17, 2020 at 07:00:03PM +0530, Akash Asthana wrote:
+> Get the interconnect paths for SPI based Serial Engine device
+> and vote according to the current bus speed of the driver.
+> 
+> Signed-off-by: Akash Asthana <akashast@codeaurora.org>
+> ---
+>  drivers/spi/spi-geni-qcom.c | 65 ++++++++++++++++++++++++++++++++++++++++++---
+>  1 file changed, 62 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/spi/spi-geni-qcom.c b/drivers/spi/spi-geni-qcom.c
+> index c397242..a066ef26 100644
+> --- a/drivers/spi/spi-geni-qcom.c
+> +++ b/drivers/spi/spi-geni-qcom.c
+> @@ -608,16 +653,25 @@ static int spi_geni_remove(struct platform_device *pdev)
+>  	spi_unregister_master(spi);
+>  
+>  	free_irq(mas->irq, spi);
+> +	geni_spi_icc_put(&mas->se);
+>  	pm_runtime_disable(&pdev->dev);
+>  	return 0;
+>  }
+>  
+>  static int __maybe_unused spi_geni_runtime_suspend(struct device *dev)
+>  {
+> +	int ret;
+>  	struct spi_master *spi = dev_get_drvdata(dev);
+>  	struct spi_geni_master *mas = spi_master_get_devdata(spi);
+>  
+> -	return geni_se_resources_off(&mas->se);
+> +	ret = geni_se_resources_off(&mas->se);
+> +	if (ret)
+> +		return ret;
+> +
+> +	icc_set_bw(mas->se.icc_path[GENI_TO_CORE], 0, 0);
 
->> +				interconnects = <&qup_virt MASTER_QUP_CORE_0
->> +						&qup_virt SLAVE_QUP_CORE_0>,
->> +						<&gem_noc MASTER_APPSS_PROC
->> +						&config_noc SLAVE_QUP_0>,
->> +						<&aggre1_noc MASTER_QUP_0
->> +						&mc_virt SLAVE_EBI1>;
-> Please ignore the 80-char "limit" and write this as:
-> 				interconnects = <&qup_virt MASTER_QUP_CORE_0 &qup_virt SLAVE_QUP_CORE_0>,
-> 						<&gem_noc ...>,
-> 						<&aggre1_noc ...>;
->
-> Regards,
-> Bjorn
+This causes my SC7180 system to reset at boot time:
 
-ok
+[    3.509652] qcom-qmp-phy 88e9000.phy-wrapper: Registered Qcom-QMP phy
+[    3.516956] qcom-qusb2-phy 88e3000.phy: Registered Qcom-QUSB2 phy
+[    3.524450] geni_se_qup 8c0000.geniqup: Adding to iommu group 4
+[    3.533896] spi_master spi0: will run message pump with realtime priority
+<reset>
 
-Regards,
-
-Akash
-
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
+The system does not reset when passing 'Bps_to_icc(1000)' (=> 1) instead of 0.
