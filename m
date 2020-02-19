@@ -1,41 +1,26 @@
-From: Akash Asthana <akashast@codeaurora.org>
-Subject: Re: [PATCH 2/6] tty: serial: qcom_geni_serial: Add interconnect
- support
-Date: Wed, 19 Feb 2020 19:01:49 +0530
-Message-ID: <ecf58973-ab26-3363-d934-6c83e8bbec24@codeaurora.org>
-References: <1581946205-27189-1-git-send-email-akashast@codeaurora.org>
- <1581946205-27189-3-git-send-email-akashast@codeaurora.org>
- <20200218223450.GE15781@google.com>
+From: "urs portmann" <mucios@imp.edu.mx>
+Subject: 19-02-2020
+Date: Wed, 19 Feb 2020 21:51:40 +1100
+Message-ID: <20200219105143.0F277180635F48__393.8091149152$1582119487$gmane$org@imp.edu.mx>
+Reply-To: onube@qq.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-serial-owner@vger.kernel.org>
-In-Reply-To: <20200218223450.GE15781@google.com>
-Content-Language: en-US
-Sender: linux-serial-owner@vger.kernel.org
-To: Matthias Kaehlcke <mka@chromium.org>
-Cc: gregkh@linuxfoundation.org, agross@kernel.org, bjorn.andersson@linaro.org, wsa@the-dreams.de, broonie@kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, swboyd@chromium.org, mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org, dianders@chromium.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from scm.imp.edu.mx ([132.247.16.103]:21990 "EHLO scm.imp.edu.mx"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727833AbgBSNh7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 19 Feb 2020 08:37:59 -0500
+Content-Description: Mail message body
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Recipients <mucios@imp.edu.mx>
 
-Hi Matthias,
+Guten Morgen,
+                                          19-02-2020
+Wir haben versucht, Sie zu erreichen und haben noch nichts von Ihnen gehört. Haben Sie unsere letzte E-Mail über Ihre S.p.e.n.d.e erhalten? Wenn nicht, melden Sie sich bitte bei uns, um weitere Informationen zu erhalten.
 
-On 2/19/2020 4:04 AM, Matthias Kaehlcke wrote:
-> On Mon, Feb 17, 2020 at 07:00:01PM +0530, Akash Asthana wrote:
->> Get the interconnect paths for Uart based Serial Engine device
->> and vote according to the baud rate requirement of the driver.
->>
->> Signed-off-by: Akash Asthana <akashast@codeaurora.org>
->> ---
->>
->> +	port->se.avg_bw_cpu = Bps_to_icc(1000);
->> +	port->se.avg_bw_cpu = Bps_to_icc(1000);
-> I guess you mean 'peak_bw_cpu'?
+Wir warten darauf, von Ihnen zu hören, sobald Sie diese Nachricht erhalten, die Sie bei der weiteren Vorgehensweise unterstützt.
 
-Yes I meant peak_bw_cpu here, i will correct it in next version.
-
-Regards,
-
-Akash
-
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
+Mfg
+urs portmann
