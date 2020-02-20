@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH 4/7] i2c: of: remove superfluous parameter from exported function
-Date: Thu, 20 Feb 2020 18:24:00 +0100
-Message-ID: <20200220172403.26062-5-wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH 7/7] i2c: core: hand over reserved devices when requesting ancillary addresses
+Date: Thu, 20 Feb 2020 18:24:03 +0100
+Message-ID: <20200220172403.26062-8-wsa+renesas@sang-engineering.com>
 References: <20200220172403.26062-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,85 +12,51 @@ To: linux-i2c@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org, linux-i3c@lists.infradead.org, Kieran Bingham <kieran@ksquared.org.uk>, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Luca Ceresoli <luca@lucaceresoli.net>, Jacopo Mondi <jacopo@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-'dev' is only used for printing an error message. However, that
-information is not needed because '%pOF' fully describes the location of
-the error. Drop the 'dev' and remove the superfluous parameter.
+With i2c_new_ancillary_address, we can check if the intended driver is
+requesting a reserved address. Update the function to do these checks.
+If the check passes, the "reserved" device will become a regular "dummy"
+device.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core-of.c | 7 +++----
- drivers/i3c/master.c      | 2 +-
- include/linux/i2c.h       | 6 ++----
- 3 files changed, 6 insertions(+), 9 deletions(-)
+ drivers/i2c/i2c-core-base.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-index d8d111ad6c85..710704cd583e 100644
---- a/drivers/i2c/i2c-core-of.c
-+++ b/drivers/i2c/i2c-core-of.c
-@@ -19,8 +19,7 @@
- 
- #include "i2c-core.h"
- 
--int of_i2c_get_board_info(struct device *dev, struct device_node *node,
--			  struct i2c_board_info *info)
-+int of_i2c_get_board_info(struct device_node *node, struct i2c_board_info *info)
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 4000a4384306..ba325f8107a3 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -975,6 +975,8 @@ struct i2c_client *i2c_new_ancillary_device(struct i2c_client *client,
+ 						u16 default_addr)
  {
- 	u32 addr;
- 	int ret;
-@@ -29,7 +28,7 @@ int of_i2c_get_board_info(struct device *dev, struct device_node *node,
+ 	struct device_node *np = client->dev.of_node;
++	struct device *reserved_dev, *adapter_dev = &client->adapter->dev;
++	struct i2c_client *reserved_client;
+ 	u32 addr = default_addr;
+ 	int i;
  
- 	ret = of_property_read_u32(node, "reg", &addr);
- 	if (ret) {
--		dev_err(dev, "of_i2c: invalid reg on %pOF\n", node);
-+		pr_err("of_i2c: invalid reg on %pOF\n", node);
- 		return ret;
+@@ -984,7 +986,21 @@ struct i2c_client *i2c_new_ancillary_device(struct i2c_client *client,
+ 			of_property_read_u32_index(np, "reg", i, &addr);
  	}
  
-@@ -69,7 +68,7 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
- 
- 	dev_dbg(&adap->dev, "of_i2c: register %pOF\n", node);
- 
--	ret = of_i2c_get_board_info(&adap->dev, node, &info);
-+	ret = of_i2c_get_board_info(node, &info);
- 	if (ret)
- 		return ERR_PTR(ret);
- 
-diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
-index 7f8f896fa0c3..cc0549a9fc64 100644
---- a/drivers/i3c/master.c
-+++ b/drivers/i3c/master.c
-@@ -1943,7 +1943,7 @@ of_i3c_master_add_i2c_boardinfo(struct i3c_master_controller *master,
- 	if (!boardinfo)
- 		return -ENOMEM;
- 
--	ret = of_i2c_get_board_info(dev, node, &boardinfo->base);
-+	ret = of_i2c_get_board_info(node, &boardinfo->base);
- 	if (ret)
- 		return ret;
- 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index f834687989f7..d84aaf0d83d5 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -942,8 +942,7 @@ const struct of_device_id
- *i2c_of_match_device(const struct of_device_id *matches,
- 		     struct i2c_client *client);
- 
--int of_i2c_get_board_info(struct device *dev, struct device_node *node,
--			  struct i2c_board_info *info);
-+int of_i2c_get_board_info(struct device_node *node, struct i2c_board_info *info);
- 
- #else
- 
-@@ -969,8 +968,7 @@ static inline const struct of_device_id
- 	return NULL;
+-	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
++	dev_info(adapter_dev, "Address for %s : 0x%x\n", name, addr);
++
++	/* No need to scan muxes, siblings must sit on the same adapter */
++	reserved_dev = device_find_child(adapter_dev, &addr, __i2c_check_addr_busy);
++	reserved_client = i2c_verify_client(reserved_dev);
++
++	if (reserved_client) {
++		if (reserved_client->dev.of_node != np ||
++		    strcmp(reserved_client->name, I2C_RESERVED_DRV_NAME) != 0)
++			return ERR_PTR(-EBUSY);
++
++		strlcpy(reserved_client->name, I2C_DUMMY_DRV_NAME, sizeof(client->name));
++		return reserved_client;
++	}
++
+ 	return i2c_new_dummy_device(client->adapter, addr);
  }
- 
--static inline int of_i2c_get_board_info(struct device *dev,
--					struct device_node *node,
-+static inline int of_i2c_get_board_info(struct device_node *node,
- 					struct i2c_board_info *info)
- {
- 	return -ENOTSUPP;
+ EXPORT_SYMBOL_GPL(i2c_new_ancillary_device);
 -- 
 2.20.1
