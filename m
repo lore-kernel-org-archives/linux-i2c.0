@@ -1,97 +1,78 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH 5/7] i2c: of: error message unification
-Date: Thu, 20 Feb 2020 18:24:01 +0100
-Message-ID: <20200220172403.26062-6-wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH 2/7] i2c: use DEFINE for the dummy driver name
+Date: Thu, 20 Feb 2020 18:23:58 +0100
+Message-ID: <20200220172403.26062-3-wsa+renesas@sang-engineering.com>
 References: <20200220172403.26062-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 In-Reply-To: <20200220172403.26062-1-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-renesas-soc-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org, linux-i3c@lists.infradead.org, Kieran Bingham <kieran@ksquared.org.uk>, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Luca Ceresoli <luca@lucaceresoli.net>, Jacopo Mondi <jacopo@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-- don't prefix the device if %pOF is provided. That information is
-  enough.
-- move the prefix to pr_fmt
-- change prefix from "of_i2c" to "i2c_of" because the code was moved
-  out of the of-domain long ago
+We use it in multiple places, so make sure it is consistent whenever we
+need to change it.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core-of.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/i2c/i2c-core-base.c | 8 ++++----
+ drivers/i2c/i2c-core.h      | 2 ++
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-index 710704cd583e..74b9f3fbb5ef 100644
---- a/drivers/i2c/i2c-core-of.c
-+++ b/drivers/i2c/i2c-core-of.c
-@@ -8,6 +8,8 @@
-  * Copyright (C) 2013, 2018 Wolfram Sang <wsa@the-dreams.de>
-  */
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 8f46d1bb8c62..8df2fa10c48a 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -853,7 +853,7 @@ EXPORT_SYMBOL_GPL(i2c_unregister_device);
  
-+#define pr_fmt(fmt) "i2c_of: " fmt
-+
- #include <dt-bindings/i2c/i2c.h>
- #include <linux/device.h>
- #include <linux/err.h>
-@@ -28,7 +30,7 @@ int of_i2c_get_board_info(struct device_node *node, struct i2c_board_info *info)
  
- 	ret = of_property_read_u32(node, "reg", &addr);
- 	if (ret) {
--		pr_err("of_i2c: invalid reg on %pOF\n", node);
-+		pr_err("invalid reg on %pOF\n", node);
- 		return ret;
- 	}
+ static const struct i2c_device_id dummy_id[] = {
+-	{ "dummy", 0 },
++	{ I2C_DUMMY_DRV_NAME, 0 },
+ 	{ },
+ };
  
-@@ -66,7 +68,7 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
- 	struct i2c_board_info info;
- 	int ret;
- 
--	dev_dbg(&adap->dev, "of_i2c: register %pOF\n", node);
-+	pr_debug("register %pOF\n", node);
- 
- 	ret = of_i2c_get_board_info(node, &info);
- 	if (ret)
-@@ -74,7 +76,7 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
- 
- 	client = i2c_new_client_device(adap, &info);
- 	if (IS_ERR(client))
--		dev_err(&adap->dev, "of_i2c: Failure registering %pOF\n", node);
-+		pr_err("failure registering %pOF\n", node);
- 
- 	return client;
+@@ -869,7 +869,7 @@ static int dummy_remove(struct i2c_client *client)
  }
-@@ -88,7 +90,7 @@ void of_i2c_register_devices(struct i2c_adapter *adap)
- 	if (!adap->dev.of_node)
- 		return;
  
--	dev_dbg(&adap->dev, "of_i2c: walking child nodes\n");
-+	dev_dbg(&adap->dev, "walking child nodes\n");
+ static struct i2c_driver dummy_driver = {
+-	.driver.name	= "dummy",
++	.driver.name	= I2C_DUMMY_DRV_NAME,
+ 	.probe		= dummy_probe,
+ 	.remove		= dummy_remove,
+ 	.id_table	= dummy_id,
+@@ -896,7 +896,7 @@ static struct i2c_driver dummy_driver = {
+ struct i2c_client *i2c_new_dummy_device(struct i2c_adapter *adapter, u16 address)
+ {
+ 	struct i2c_board_info info = {
+-		I2C_BOARD_INFO("dummy", address),
++		I2C_BOARD_INFO(I2C_DUMMY_DRV_NAME, address),
+ 	};
  
- 	bus = of_get_child_by_name(adap->dev.of_node, "i2c-bus");
- 	if (!bus)
-@@ -100,9 +102,7 @@ void of_i2c_register_devices(struct i2c_adapter *adap)
+ 	return i2c_new_client_device(adapter, &info);
+@@ -1487,7 +1487,7 @@ static void i2c_do_del_adapter(struct i2c_driver *driver,
+ static int __unregister_client(struct device *dev, void *dummy)
+ {
+ 	struct i2c_client *client = i2c_verify_client(dev);
+-	if (client && strcmp(client->name, "dummy"))
++	if (client && strcmp(client->name, I2C_DUMMY_DRV_NAME))
+ 		i2c_unregister_device(client);
+ 	return 0;
+ }
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index 517d98be68d2..fb89fabf84d3 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -22,6 +22,8 @@ int i2c_check_7bit_addr_validity_strict(unsigned short addr);
+ int i2c_dev_irq_from_resources(const struct resource *resources,
+ 			       unsigned int num_resources);
  
- 		client = of_i2c_register_device(adap, node);
- 		if (IS_ERR(client)) {
--			dev_err(&adap->dev,
--				 "Failed to create I2C device for %pOF\n",
--				 node);
-+			pr_err("failed to create I2C device for %pOF\n", node);
- 			of_node_clear_flag(node, OF_POPULATED);
- 		}
- 	}
-@@ -243,8 +243,7 @@ static int of_i2c_notify(struct notifier_block *nb, unsigned long action,
- 
- 		client = of_i2c_register_device(adap, rd->dn);
- 		if (IS_ERR(client)) {
--			dev_err(&adap->dev, "failed to create client for '%pOF'\n",
--				 rd->dn);
-+			pr_err("failed to create client for '%pOF'\n", rd->dn);
- 			put_device(&adap->dev);
- 			of_node_clear_flag(rd->dn, OF_POPULATED);
- 			return notifier_from_errno(PTR_ERR(client));
++#define I2C_DUMMY_DRV_NAME "dummy"
++
+ /*
+  * We only allow atomic transfers for very late communication, e.g. to send
+  * the powerdown command to a PMIC. Atomic transfers are a corner case and not
 -- 
 2.20.1
