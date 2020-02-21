@@ -1,153 +1,81 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC PATCH 6/7] i2c: of: mark a whole array of regs as reserved
-Date: Fri, 21 Feb 2020 11:09:21 +0100
-Message-ID: <CAMuHMdUvADDozCX6Bd0dDVejpTY-k42naEnB7Q5Z6w7Yg94_Vw@mail.gmail.com>
-References: <20200220172403.26062-1-wsa+renesas@sang-engineering.com> <20200220172403.26062-7-wsa+renesas@sang-engineering.com>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [RFC PATCH 7/7] i2c: core: hand over reserved devices when
+ requesting ancillary addresses
+Date: Fri, 21 Feb 2020 11:13:48 +0100
+Message-ID: <CAMuHMdV-dfjukuSKiFg4vb4Ntn+XWU0XwHPxyoaWs1vtQVg4cw@mail.gmail.com>
+References: <20200220172403.26062-1-wsa+renesas@sang-engineering.com> <20200220172403.26062-8-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20200220172403.26062-7-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, linux-i3c@lists.infradead.org, Kieran Bingham <kieran@ksquared.org.uk>, =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Luca Ceresoli <luca@lucaceresoli.net>, Jacopo Mondi <jacopo@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200220172403.26062-8-wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-Renesas <linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i3c-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Kieran Bingham <kieran-7hKh/agyDeatmTQ+vhA3Yw@public.gmane.org>, =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund-1zkq55x86MTxsAP9Fp7wbw@public.gmane.org>, Luca Ceresoli <luca-ep08DiM7hqZH3+C6az13tg@public.gmane.org>, Jacopo Mondi <jacopo-AW8dsiIh9cEdnm+yROfE0A@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Wolfram,
 
 On Thu, Feb 20, 2020 at 6:26 PM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> Back then, 'reg' properties in I2C DT bindings only contained one
-> address and this address was assigned a device and, thus, blocked.
-> Meanwhile, chips using multiple addresses are common and the 'reg'
-> property can be an array described by 'reg-names'. This code enhances
-> I2C DT parsing, so it will reserve all addresses described in an array.
-> They will be bound to the 'dummy' driver as 'reserved' iff the first
-> address can be assigned successfully. If that is not the case, the array
-> is not further considered. If one later address of the array can not be
-> assigned, it will be reported but we don't bail out. The driver has to
-> decide if that address is critical or not.
+<wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org> wrote:
+> With i2c_new_ancillary_address, we can check if the intended driver is
+> requesting a reserved address. Update the function to do these checks.
+> If the check passes, the "reserved" device will become a regular "dummy"
+> device.
 >
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Thanks for your patch!
 
-One comment below.
-
-> --- a/drivers/i2c/i2c-core-of.c
-> +++ b/drivers/i2c/i2c-core-of.c
-> @@ -21,20 +21,12 @@
->
->  #include "i2c-core.h"
->
-> -int of_i2c_get_board_info(struct device_node *node, struct i2c_board_info *info)
-> +static void of_i2c_decode_board_info(struct device_node *node, u32 addr,
-> +                                    bool first_addr, struct i2c_board_info *info)
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -975,6 +975,8 @@ struct i2c_client *i2c_new_ancillary_device(struct i2c_client *client,
+>                                                 u16 default_addr)
 >  {
-> -       u32 addr;
-> -       int ret;
-> -
->         memset(info, 0, sizeof(*info));
+>         struct device_node *np = client->dev.of_node;
+> +       struct device *reserved_dev, *adapter_dev = &client->adapter->dev;
+> +       struct i2c_client *reserved_client;
+>         u32 addr = default_addr;
+>         int i;
 >
-> -       ret = of_property_read_u32(node, "reg", &addr);
-> -       if (ret) {
-> -               pr_err("invalid reg on %pOF\n", node);
-> -               return ret;
-> -       }
-> -
-> -       if (of_modalias_node(node, info->type, sizeof(info->type)) < 0)
-> +       if (!first_addr || of_modalias_node(node, info->type, sizeof(info->type)) < 0)
->                 strlcpy(info->type, I2C_RESERVED_DRV_NAME, sizeof(I2C_RESERVED_DRV_NAME));
+> @@ -984,7 +986,21 @@ struct i2c_client *i2c_new_ancillary_device(struct i2c_client *client,
+>                         of_property_read_u32_index(np, "reg", i, &addr);
+>         }
 >
->         if (addr & I2C_TEN_BIT_ADDRESS) {
-> @@ -51,11 +43,27 @@ int of_i2c_get_board_info(struct device_node *node, struct i2c_board_info *info)
->         info->of_node = node;
->         info->fwnode = of_fwnode_handle(node);
->
-> -       if (of_property_read_bool(node, "host-notify"))
-> -               info->flags |= I2C_CLIENT_HOST_NOTIFY;
-> +       if (first_addr) {
-> +               if (of_property_read_bool(node, "host-notify"))
-> +                       info->flags |= I2C_CLIENT_HOST_NOTIFY;
+> -       dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
+> +       dev_info(adapter_dev, "Address for %s : 0x%x\n", name, addr);
 > +
-> +               if (of_get_property(node, "wakeup-source", NULL))
-> +                       info->flags |= I2C_CLIENT_WAKE;
-> +       }
-> +}
+> +       /* No need to scan muxes, siblings must sit on the same adapter */
+> +       reserved_dev = device_find_child(adapter_dev, &addr, __i2c_check_addr_busy);
+> +       reserved_client = i2c_verify_client(reserved_dev);
 > +
-> +int of_i2c_get_board_info(struct device_node *node, struct i2c_board_info *info)
-> +{
-> +       u32 addr;
-> +       int ret;
-> +
-> +       ret = of_property_read_u32(node, "reg", &addr);
+> +       if (reserved_client) {
+> +               if (reserved_client->dev.of_node != np ||
+> +                   strcmp(reserved_client->name, I2C_RESERVED_DRV_NAME) != 0)
+> +                       return ERR_PTR(-EBUSY);
 
-Perhaps the time is ripe to start considering #address-cells, instead
-of assuming 1, here ...
+Missing put_device(reserved_dev).
 
-> +       if (ret) {
-> +               pr_err("invalid reg on %pOF\n", node);
-> +               return ret;
+> +
+> +               strlcpy(reserved_client->name, I2C_DUMMY_DRV_NAME, sizeof(client->name));
+> +               return reserved_client;
 > +       }
->
-> -       if (of_get_property(node, "wakeup-source", NULL))
-> -               info->flags |= I2C_CLIENT_WAKE;
-> +       of_i2c_decode_board_info(node, addr, true, info);
->
->         return 0;
+
+else put_device(reserved_dev)
+
+(perhaps i2c_verify_client() checking dev was not such a great idea, as
+ callers need to act on dev && !verified anyway?)
+
+> +
+>         return i2c_new_dummy_device(client->adapter, addr);
 >  }
-> @@ -64,21 +72,33 @@ EXPORT_SYMBOL_GPL(of_i2c_get_board_info);
->  static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
->                                                  struct device_node *node)
->  {
-> -       struct i2c_client *client;
-> +       struct i2c_client *client, *first_client = ERR_PTR(-ENOENT);
->         struct i2c_board_info info;
-> -       int ret;
-> +       bool first_reg = true;
-> +       struct property *prop;
-> +       const __be32 *cur;
-> +       u32 reg;
->
->         pr_debug("register %pOF\n", node);
->
-> -       ret = of_i2c_get_board_info(node, &info);
-> -       if (ret)
-> -               return ERR_PTR(ret);
-> +       of_property_for_each_u32(node, "reg", prop, cur, reg) {
-
-... and especially here, if this code can ever be reused for i3c, which uses 3.
-
-> +               of_i2c_decode_board_info(node, reg, first_reg, &info);
-> +
-> +               client = i2c_new_client_device(adap, &info);
-> +               if (IS_ERR(client)) {
-> +                       pr_err("failure registering addr 0x%02x for %pOF\n",
-> +                               reg, node);
-> +                       if (first_reg)
-> +                               return client;
-> +               }
->
-> -       client = i2c_new_client_device(adap, &info);
-> -       if (IS_ERR(client))
-> -               pr_err("failure registering %pOF\n", node);
-> +               if (first_reg) {
-> +                       first_client = client;
-> +                       first_reg = false;
-> +               }
-> +       }
->
-> -       return client;
-> +       return first_client;
->  }
->
->  void of_i2c_register_devices(struct i2c_adapter *adap)
+>  EXPORT_SYMBOL_GPL(i2c_new_ancillary_device);
 
 Gr{oetje,eeting}s,
 
                         Geert
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
 
 In personal conversations with technical people, I call myself a hacker. But
 when I'm talking to journalists I just say "programmer" or something like that.
