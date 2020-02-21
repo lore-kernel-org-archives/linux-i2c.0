@@ -1,78 +1,80 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH 2/7] i2c: use DEFINE for the dummy driver name
-Date: Thu, 20 Feb 2020 18:23:58 +0100
-Message-ID: <20200220172403.26062-3-wsa+renesas@sang-engineering.com>
-References: <20200220172403.26062-1-wsa+renesas@sang-engineering.com>
+From: Matthias Kaehlcke <mka@chromium.org>
+Subject: Re: [PATCH 3/6] i2c: i2c-qcom-geni: Add interconnect support
+Date: Thu, 20 Feb 2020 16:24:00 -0800
+Message-ID: <20200221002400.GD24720@google.com>
+References: <1581946205-27189-1-git-send-email-akashast@codeaurora.org>
+ <1581946205-27189-4-git-send-email-akashast@codeaurora.org>
+ <20200218224709.GF15781@google.com>
+ <84a7d97a-4e10-5509-9c87-af8a545c7385@codeaurora.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20200220172403.26062-1-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, linux-i3c@lists.infradead.org, Kieran Bingham <kieran@ksquared.org.uk>, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Luca Ceresoli <luca@lucaceresoli.net>, Jacopo Mondi <jacopo@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-serial-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <84a7d97a-4e10-5509-9c87-af8a545c7385@codeaurora.org>
+Sender: linux-serial-owner@vger.kernel.org
+To: Akash Asthana <akashast@codeaurora.org>
+Cc: gregkh@linuxfoundation.org, agross@kernel.org, bjorn.andersson@linaro.org, wsa@the-dreams.de, broonie@kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, swboyd@chromium.org, mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org, dianders@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
-We use it in multiple places, so make sure it is consistent whenever we
-need to change it.
+Hi Akash,
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/i2c-core-base.c | 8 ++++----
- drivers/i2c/i2c-core.h      | 2 ++
- 2 files changed, 6 insertions(+), 4 deletions(-)
+On Wed, Feb 19, 2020 at 07:17:44PM +0530, Akash Asthana wrote:
+> Hi Matthias,
+> 
+> On 2/19/2020 4:17 AM, Matthias Kaehlcke wrote:
+> > On Mon, Feb 17, 2020 at 07:00:02PM +0530, Akash Asthana wrote:
+> > > Get the interconnect paths for I2C based Serial Engine device
+> > > and vote according to the bus speed of the driver.
+> > > 
+> > > Signed-off-by: Akash Asthana <akashast@codeaurora.org>
+> > > ---
+> > >   drivers/i2c/busses/i2c-qcom-geni.c | 84 ++++++++++++++++++++++++++++++++++++--
+> > >   1 file changed, 80 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> > > index 17abf60c..5de10a1 100644
+> > > --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> > > +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> > >
+> > >   static void geni_i2c_err_misc(struct geni_i2c_dev *gi2c)
+> > >   {
+> > >   	u32 m_cmd = readl_relaxed(gi2c->se.base + SE_GENI_M_CMD0);
+> > > @@ -563,17 +601,34 @@ static int geni_i2c_probe(struct platform_device *pdev)
+> > >   	gi2c->adap.dev.of_node = pdev->dev.of_node;
+> > >   	strlcpy(gi2c->adap.name, "Geni-I2C", sizeof(gi2c->adap.name));
+> > > +	ret = geni_i2c_icc_get(&gi2c->se);
+> > > +	if (ret)
+> > > +		return ret;
+> > > +	/* Set the bus quota to a reasonable value */
+> > > +	gi2c->se.avg_bw_core = Bps_to_icc(1000);
+> > > +	gi2c->se.peak_bw_core = Bps_to_icc(CORE_2X_100_MHZ);
+> > > +	gi2c->se.avg_bw_cpu = Bps_to_icc(1000);
+> > > +	gi2c->se.peak_bw_cpu = Bps_to_icc(1000);
+> > > +	gi2c->se.avg_bw_ddr = Bps_to_icc(gi2c->clk_freq_out);
+> > > +	gi2c->se.peak_bw_ddr = Bps_to_icc(2 * gi2c->clk_freq_out);
+> > > +
+> > > +	/* Vote for core clocks and CPU for register access */
+> > > +	icc_set_bw(gi2c->se.icc_path[GENI_TO_CORE], gi2c->se.avg_bw_core,
+> > > +				gi2c->se.peak_bw_core);
+> > > +	icc_set_bw(gi2c->se.icc_path[CPU_TO_GENI], gi2c->se.avg_bw_cpu,
+> > > +				gi2c->se.peak_bw_cpu);
+> > error handling needed?
+> 
+> I will add error handling for GENI_TO_CORE path in all the drivers. Will it
+> be okay if we don't handle errors for CPU_TO_GENI and GENI_TO_DDR path
+> 
+> as CPU and DDR will be running at much higher frequency?
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 8f46d1bb8c62..8df2fa10c48a 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -853,7 +853,7 @@ EXPORT_SYMBOL_GPL(i2c_unregister_device);
- 
- 
- static const struct i2c_device_id dummy_id[] = {
--	{ "dummy", 0 },
-+	{ I2C_DUMMY_DRV_NAME, 0 },
- 	{ },
- };
- 
-@@ -869,7 +869,7 @@ static int dummy_remove(struct i2c_client *client)
- }
- 
- static struct i2c_driver dummy_driver = {
--	.driver.name	= "dummy",
-+	.driver.name	= I2C_DUMMY_DRV_NAME,
- 	.probe		= dummy_probe,
- 	.remove		= dummy_remove,
- 	.id_table	= dummy_id,
-@@ -896,7 +896,7 @@ static struct i2c_driver dummy_driver = {
- struct i2c_client *i2c_new_dummy_device(struct i2c_adapter *adapter, u16 address)
- {
- 	struct i2c_board_info info = {
--		I2C_BOARD_INFO("dummy", address),
-+		I2C_BOARD_INFO(I2C_DUMMY_DRV_NAME, address),
- 	};
- 
- 	return i2c_new_client_device(adapter, &info);
-@@ -1487,7 +1487,7 @@ static void i2c_do_del_adapter(struct i2c_driver *driver,
- static int __unregister_client(struct device *dev, void *dummy)
- {
- 	struct i2c_client *client = i2c_verify_client(dev);
--	if (client && strcmp(client->name, "dummy"))
-+	if (client && strcmp(client->name, I2C_DUMMY_DRV_NAME))
- 		i2c_unregister_device(client);
- 	return 0;
- }
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index 517d98be68d2..fb89fabf84d3 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -22,6 +22,8 @@ int i2c_check_7bit_addr_validity_strict(unsigned short addr);
- int i2c_dev_irq_from_resources(const struct resource *resources,
- 			       unsigned int num_resources);
- 
-+#define I2C_DUMMY_DRV_NAME "dummy"
-+
- /*
-  * We only allow atomic transfers for very late communication, e.g. to send
-  * the powerdown command to a PMIC. Atomic transfers are a corner case and not
--- 
-2.20.1
+It may still work, but you might never know that there was a problem. I
+would be inclined to check the return value of all invocations of icc_set_bw()
+- including runtime suspend/resume - and log a message if a problem is
+detected. For runtime suspend/resume it would probably be wise to use
+dev_err_ratelimited(), to avoid spamming the system log too much in case of
+a persistent problem.
+
+If others think that error checking all icc_set_bw() calls is overkill
+please speak up :)
+
+Thanks
+
+Matthias
