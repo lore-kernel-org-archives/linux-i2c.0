@@ -1,61 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 16/17] i2c: cros-ec-tunnel: Use cros_ec_cmd()
-Date: Sat, 22 Feb 2020 13:53:48 +0100
-Message-ID: <20200222125348.GL1716@kunai>
-References: <20200205192253.187649-1-pmalani@chromium.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [regression] nct6775 does not load in 5.4 and 5.5, bisected to
+ b84398d6d7f90080
+Date: Sat, 22 Feb 2020 07:41:18 -0800
+Message-ID: <1bdbac08-86f8-2a57-2b0d-8cd2beb2a1c0@roeck-us.net>
+References: <CAM1AHpQ4196tyD=HhBu-2donSsuogabkfP03v1YF26Q7_BgvgA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="L1EIGrW/+75u5Nmw"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:53856 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726839AbgBVMxu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 22 Feb 2020 07:53:50 -0500
-Content-Disposition: inline
-In-Reply-To: <20200205192253.187649-1-pmalani@chromium.org>
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:33382 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727230AbgBVPlV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 22 Feb 2020 10:41:21 -0500
+In-Reply-To: <CAM1AHpQ4196tyD=HhBu-2donSsuogabkfP03v1YF26Q7_BgvgA@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Prashant Malani <pmalani@chromium.org>
-Cc: linux-kernel@vger.kernel.org, Benson Leung <bleung@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Guenter Roeck <groeck@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Akshu Agrawal <akshu.agrawal@amd.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>
+To: Martin Volf <martin.volf.42@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
+On 2/22/20 3:13 AM, Martin Volf wrote:
+> Hello,
+> 
+> hardware monitoring sensors NCT6796D on my Asus PRIME Z390M-PLUS
+> motherboard with Intel i7-9700 CPU don't work with 5.4 and newer linux
+> kernels, the driver nct6775 does not load.
+> 
+> It is working OK in version 5.3. I have used almost all released stable
+> versions from 5.3.8 to 5.3.16; I didn't try older kernels.
+> 
+> Even on new kernels the sensors-detect finds the sensors:
+>          Found `Nuvoton NCT6796D Super IO Sensors' Success!
+>              (address 0x290, driver `nct6775')
+> but "modprobe nct6775" says:
+>          ERROR: could not insert 'nct6775': No such device
+> There is nothing interesting in dmesg.
+> 
 
---L1EIGrW/+75u5Nmw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My wild guess would be that the i801 driver is a bit aggressive with
+reserving memory spaces, but I don't immediately see what it does
+differently in that regard after the offending patch. Does it work
+if you unload the i2c_i801 driver first ?
 
-On Wed, Feb 05, 2020 at 11:22:51AM -0800, Prashant Malani wrote:
-> Replace cros_ec_cmd_xfer_status() calls with the new function
-> cros_ec_cmd() which takes care of the EC message struct setup and
-> subsequent cleanup (which is a common pattern among users of
-> cros_ec_cmd_xfer_status).
->=20
-> Signed-off-by: Prashant Malani <pmalani@chromium.org>
+You could also try to compare the output of /proc/ioports with
+the old and the new kernel, and see if the IO address space used
+by nct6775 in v5.3 is assigned to the i801 driver (or some other
+driver, such as the watchdog driver) in v5.4.
 
-I guess the plan is that this series goes upstream as a whole via some
-chrome-tree? In that case:
+If you are into hacking the kernel, you could also add some
+debug messages into the nct6775 driver to find out where exactly
+it fails. If that helps, maybe we can then add those messages into
+into the driver source to help others if this is observed again.
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-
---L1EIGrW/+75u5Nmw
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5RJFwACgkQFA3kzBSg
-KbZAJhAAno9ex5acdPq9wkA/gSWspLKV9G+6WYa+E0+XcX+w1es1q/X4i1L2+S0k
-ddGemIHCYEgHHxcozQbl64RRnerEUsIyplyc6MFIQ5bv/R38pGpliuL3Y9YcsqLl
-FDxUzUbyTWb8KbkbTFBKuVZDFB8vv7n7ZWJdLbZQ2rf8TZFahbE1lYLVZKHWRQC8
-aizZdg6+bCLRxUyQMWg4NcXTrudmpq6GUzLONWzp0vgzS8OHVWMKUxoSesDDF9Ua
-nAYi5kVPuldgEBO/4oFmAG9cxhSE0t1ZS2fByxBmFuILInszPur5cIPdgBRzISUQ
-iNZZW3Hr58Q5i7eM7G9I7MiaDboYFlc9Xpd8Ltw79ONNR221pgoSQbI4PWJ57NVB
-3+6aT+ivbr32N2t3kb7rcCBWlVGUTRKh67avE5mIkQKfirLs9FqcJZYhI/uLNyyf
-y58QIXp2ghXKV/34hCOwHtg0Sea8qbmiSWkfsyXTKVO7Cjx3Es+A5YB67APzRHtE
-M9HYFETj+FVhYguzWtLMa+yDdYqdHJg6b7JpB8tPT5O74puzkHkQy0gqoELgw+ZK
-HUclo4HHtwLj540miXbGpsRVffGXfQXdVrJZIi9PfdOptE6SFv5qjZdgMX8RkbFT
-JaVa5MKDfUW+vuG4zvP/X9kORxMeWD6/S1FGPlKjvybB/RD/Hp8=
-=scB2
------END PGP SIGNATURE-----
-
---L1EIGrW/+75u5Nmw--
+Thanks,
+Guenter
