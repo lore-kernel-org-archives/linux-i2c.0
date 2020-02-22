@@ -1,85 +1,82 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/5] i2c: i2c-stm32f7: add a new st,stm32mp15-i2c
- compatible
-Date: Sat, 22 Feb 2020 13:40:01 +0100
-Message-ID: <20200222124001.GH1716@kunai>
-References: <1579795970-22319-1-git-send-email-alain.volmat@st.com>
- <1579795970-22319-4-git-send-email-alain.volmat@st.com>
+Subject: Re: [PATCH] i2c: i801: Fix memory corruption in i801_isr_byte_done()
+Date: Sat, 22 Feb 2020 13:45:23 +0100
+Message-ID: <20200222124523.GI1716@kunai>
+References: <0000000000009586b2059c13c7e1@google.com>
+ <20200114073406.qaq3hbrhtx76fkes@kili.mountain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0026860469015539320=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
-In-Reply-To: <1579795970-22319-4-git-send-email-alain.volmat@st.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
-To: Alain Volmat <alain.volmat@st.com>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, alexandre.torgue@st.com, linux-kernel@vger.kernel.org, pierre-yves.mordret@st.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, fabrice.gasnier@st.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
-List-Id: linux-i2c@vger.kernel.org
-
-
---===============0026860469015539320==
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="KscVNZbUup0vZz0f"
+        protocol="application/pgp-signature"; boundary="1E1Oui4vdubnXi3o"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:53746 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726839AbgBVMp0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 22 Feb 2020 07:45:26 -0500
 Content-Disposition: inline
+In-Reply-To: <20200114073406.qaq3hbrhtx76fkes@kili.mountain>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Daniel Kurtz <djkurtz@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, syzbot <syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
 
---KscVNZbUup0vZz0f
+--1E1Oui4vdubnXi3o
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 23, 2020 at 05:12:48PM +0100, Alain Volmat wrote:
-> Add a new stm32mp15 specific compatible to handle FastMode+
-> registers handling which is different on the stm32mp15 compared
-> to the stm32f7 or stm32h7.
-> Indeed, on the stm32mp15, the FastMode+ set and clear registers
-> are separated while on the other platforms (F7 or H7) the control
-> is done in a unique register.
+On Tue, Jan 14, 2020 at 10:34:06AM +0300, Dan Carpenter wrote:
+> Assigning "priv->data[-1] =3D priv->len;" obviously doesn't make sense.
+> What it does is it ends up corrupting the last byte of priv->len so
+> priv->len becomes a very high number.
 >=20
-> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+> Reported-by: syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com
+> Fixes: d3ff6ce40031 ("i2c-i801: Enable IRQ for byte_by_byte transactions")
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> ---
 
-Looks good (patch 2 as well). You'd only need to adapt the naming if you
-change the naming in patch 1, obviously.
+Daniel, Jean: what do you think?
+Also, adding Jarkko to CC who works a lot with this driver...
 
+> Untested.
+>=20
+>  drivers/i2c/busses/i2c-i801.c | 1 -
+>  1 file changed, 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index f5e69fe56532..420d8025901e 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -584,7 +584,6 @@ static void i801_isr_byte_done(struct i801_priv *priv)
+>  					"SMBus block read size is %d\n",
+>  					priv->len);
+>  			}
+> -			priv->data[-1] =3D priv->len;
+>  		}
+> =20
+>  		/* Read next byte */
+> --=20
+> 2.11.0
+>=20
 
---KscVNZbUup0vZz0f
+--1E1Oui4vdubnXi3o
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5RISEACgkQFA3kzBSg
-KbaaDw//TvaXXxfk/UfcOGsDNuLxbiqLPHG3i6DtQPijfEd93ekH6LKIwE5kpDV2
-pbsCUtpHku3mQvQyPScHSdgyMyqbd31mwDSB8waFOfG4SuNDDJXxqo5GltD62/8w
-HSBfAAvF4TM58QMDIaDYokrUhVZm5BJ/Cofv2z4+jBx4uRBWC829pmxvuf/sHWbo
-gti4PZZLQRMbBs6i9/7ShPsLmn4NffZ6+U2GDyVl11EmYdhOP0fMVFPgnbS/0Z7C
-/xfuMFs5Cu3wyq1oHNF0//SurRD4b1YfENh87h+cjYElICT5EUZ+Yv65TPTE4Xpf
-lWUGKKVcJ6nGoYOLCJOz1YoG/cRUtxSG+RCQXVAkwyHuoswOl8UrWyPUuuOh51xf
-AvrobB4WbHE3Z0KtGryxl3q2XEnoA5XHQTl8vOKiPfJTQYsRTb300Oh1Ym25E2H1
-Oj3iUlI2EL2VC+hleMywRQgXZLtGyNL2C2xphOmASWRBC2zVVGcrfr8eaA5V+5AU
-LvFKZPIjVaLa8suLgoxqatPo7d52ZskkXpzOtKOLp5joFYxjaNxjJDRLmlGCaa4g
-EcErYOqMz3SJQuV8jyG+zNrmzZh8/1oQx6u7hkKzU2c0XaPCJhtjv8dXpMYS0Eqf
-eP6JDxzkRYh4GT2xc2GwLpEL9Ysy31G1yw2RhKurA6rRGHJpkMo=
-=epcM
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5RImMACgkQFA3kzBSg
+KbZC0Q/+LOrn7S2BHakC6ciFfhoKlx1JKC1Ts+NkP4nKMIvrQMjYOREwWfvUvMRn
+a1el8fzdk5NbUIp9RVmh0yt+YKxLzcWKKAWjusc8yiTWgJXapVe2Cc2pT/xEER8A
+3APVZAmE7QvSWqbcCjYkBB6KoicYVKvOlIq2sr8OBdE5ERqgUhkGWB9LUh9syAn2
+qLCkfXj9emCWAvV4AvcLk21rG4MlpqMSmzJUlP+nx/fHOkaFAFcUGwj4pHb25iUd
+2a/JWiPpQ2dRX0+jVFL4S0TVCKGjvnvBOr+N3Dt2zQkDa9Ci1HvwAvwTgoRH1qc2
+kgmDm4A6po9WNgz8AhITH+IjuP5ozjEPQHixhOG9r2/BV3LrDnUuhoZboxd/WZSN
+5BLgOQvXbM7kS30droYZDMKCN9hE/TvphA/LuN45/LrzoCLOkMeiJOFGSrLCXZ1c
+bjQuM41PRtsv/kcG4UHkoXCnt9b5f10Pe+qiw4pedI3+4yL1DGZLu6OQMIrO/Yih
+yPNHocAQNoiGIMEKx2mC6gHra+LkHAUsHI+xutxO77VRmiHhQwf+z82P0CMTQSWz
+6gnfkZMG0YM1EASYLaa+7MGvd/Cglg+/oMr5cOfKvE6rZAZMg4kSuTmm0lFWd3eH
+t/YSAUEr8FsE32jUOjcShuLle3UDTeT6VHtCUPs9riSI28T0pR4=
+=hhzM
 -----END PGP SIGNATURE-----
 
---KscVNZbUup0vZz0f--
-
-
---===============0026860469015539320==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============0026860469015539320==--
+--1E1Oui4vdubnXi3o--
