@@ -1,76 +1,70 @@
-From: Matthias Kaehlcke <mka-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 4/6] spi: spi-geni-qcom: Add interconnect support
-Date: Fri, 21 Feb 2020 10:55:00 -0800
-Message-ID: <20200221185500.GE24720@google.com>
-References: <1581946205-27189-1-git-send-email-akashast@codeaurora.org>
- <1581946205-27189-5-git-send-email-akashast@codeaurora.org>
- <20200219180950.GA24720@google.com>
+From: Martin Volf <martin.volf.42@gmail.com>
+Subject: [regression] nct6775 does not load in 5.4 and 5.5, bisected to b84398d6d7f90080
+Date: Sat, 22 Feb 2020 12:13:07 +0100
+Message-ID: <CAM1AHpQ4196tyD=HhBu-2donSsuogabkfP03v1YF26Q7_BgvgA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20200219180950.GA24720-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swboyd-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, mgautam-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-hwmon-owner@vger.kernel.org>
+Sender: linux-hwmon-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>
+Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 19, 2020 at 10:09:50AM -0800, Matthias Kaehlcke wrote:
-> On Mon, Feb 17, 2020 at 07:00:03PM +0530, Akash Asthana wrote:
-> > Get the interconnect paths for SPI based Serial Engine device
-> > and vote according to the current bus speed of the driver.
-> > 
-> > Signed-off-by: Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> > ---
-> >  drivers/spi/spi-geni-qcom.c | 65 ++++++++++++++++++++++++++++++++++++++++++---
-> >  1 file changed, 62 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/spi/spi-geni-qcom.c b/drivers/spi/spi-geni-qcom.c
-> > index c397242..a066ef26 100644
-> > --- a/drivers/spi/spi-geni-qcom.c
-> > +++ b/drivers/spi/spi-geni-qcom.c
-> > @@ -608,16 +653,25 @@ static int spi_geni_remove(struct platform_device *pdev)
-> >  	spi_unregister_master(spi);
-> >  
-> >  	free_irq(mas->irq, spi);
-> > +	geni_spi_icc_put(&mas->se);
-> >  	pm_runtime_disable(&pdev->dev);
-> >  	return 0;
-> >  }
-> >  
-> >  static int __maybe_unused spi_geni_runtime_suspend(struct device *dev)
-> >  {
-> > +	int ret;
-> >  	struct spi_master *spi = dev_get_drvdata(dev);
-> >  	struct spi_geni_master *mas = spi_master_get_devdata(spi);
-> >  
-> > -	return geni_se_resources_off(&mas->se);
-> > +	ret = geni_se_resources_off(&mas->se);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	icc_set_bw(mas->se.icc_path[GENI_TO_CORE], 0, 0);
-> 
-> This causes my SC7180 system to reset at boot time:
-> 
-> [    3.509652] qcom-qmp-phy 88e9000.phy-wrapper: Registered Qcom-QMP phy
-> [    3.516956] qcom-qusb2-phy 88e3000.phy: Registered Qcom-QUSB2 phy
-> [    3.524450] geni_se_qup 8c0000.geniqup: Adding to iommu group 4
-> [    3.533896] spi_master spi0: will run message pump with realtime priority
-> <reset>
-> 
-> The system does not reset when passing 'Bps_to_icc(1000)' (=> 1) instead of 0.
+Hello,
 
-I found this is related with the use of 'earlycon'.
+hardware monitoring sensors NCT6796D on my Asus PRIME Z390M-PLUS
+motherboard with Intel i7-9700 CPU don't work with 5.4 and newer linux
+kernels, the driver nct6775 does not load.
 
-There is a short window where the early console and the 'real' console coexist:
+It is working OK in version 5.3. I have used almost all released stable
+versions from 5.3.8 to 5.3.16; I didn't try older kernels.
 
-[    3.858122] printk: console [ttyMSM0] enabled
-[    3.875692] printk: bootconsole [qcom_geni0] disabled
+Even on new kernels the sensors-detect finds the sensors:
+        Found `Nuvoton NCT6796D Super IO Sensors' Success!
+            (address 0x290, driver `nct6775')
+but "modprobe nct6775" says:
+        ERROR: could not insert 'nct6775': No such device
+There is nothing interesting in dmesg.
 
-The reset probably occurs when the early console tries to write, but the ICC is
-effectively disabled because ttyMSM0 and the other geni ports are runtime
-suspended.
+git bisect found out the first bad commit is
+b84398d6d7f900805662b1619223fd644d862d7c,
+i2c: i801: Use iTCO version 6 in Cannon Lake PCH and beyond
 
-In any case that's not an issue of the SPI driver, but needs to be addressed
-somewhere in the console/UART code.
+Unfortunately I am not able to revert it in v5.4 to confirm it is really
+the culprit.
+
+Is there a way to have working hwmon sensors on my system in newer linux
+kernels?
+
+Thanks,
+
+Martin
+
+--8<--
+lspci
+00:00.0 Host bridge: Intel Corporation 8th Gen Core 8-core Desktop
+Processor Host Bridge/DRAM Registers [Coffee Lake S] (rev 0d)
+00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630
+(Desktop 9 Series) (rev 02)
+00:14.0 USB controller: Intel Corporation Cannon Lake PCH USB 3.1 xHCI
+Host Controller (rev 10)
+00:14.2 RAM memory: Intel Corporation Cannon Lake PCH Shared SRAM (rev 10)
+00:16.0 Communication controller: Intel Corporation Cannon Lake PCH
+HECI Controller (rev 10)
+00:17.0 SATA controller: Intel Corporation Cannon Lake PCH SATA AHCI
+Controller (rev 10)
+00:1b.0 PCI bridge: Intel Corporation Cannon Lake PCH PCI Express Root
+Port #17 (rev f0)
+00:1c.0 PCI bridge: Intel Corporation Cannon Lake PCH PCI Express Root
+Port #1 (rev f0)
+00:1c.6 PCI bridge: Intel Corporation Cannon Lake PCH PCI Express Root
+Port #7 (rev f0)
+00:1d.0 PCI bridge: Intel Corporation Cannon Lake PCH PCI Express Root
+Port #9 (rev f0)
+00:1f.0 ISA bridge: Intel Corporation Z390 Chipset LPC/eSPI Controller (rev 10)
+00:1f.3 Audio device: Intel Corporation Cannon Lake PCH cAVS (rev 10)
+00:1f.4 SMBus: Intel Corporation Cannon Lake PCH SMBus Controller (rev 10)
+00:1f.5 Serial bus controller [0c80]: Intel Corporation Cannon Lake
+PCH SPI Controller (rev 10)
+00:1f.6 Ethernet controller: Intel Corporation Ethernet Connection (7)
+I219-V (rev 10)
