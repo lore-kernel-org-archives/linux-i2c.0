@@ -1,15 +1,15 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 15/40] i2c: hix5hd2: Use generic definitions for bus frequencies
-Date: Mon, 24 Feb 2020 17:15:05 +0200
-Message-ID: <20200224151530.31713-15-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 29/40] i2c: sh_mobile: Use generic definitions for bus frequencies
+Date: Mon, 24 Feb 2020 17:15:19 +0200
+Message-ID: <20200224151530.31713-29-andriy.shevchenko@linux.intel.com>
 References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:62974 "EHLO mga09.intel.com"
+Received: from mga06.intel.com ([134.134.136.31]:59400 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728010AbgBXPPp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 24 Feb 2020 10:15:45 -0500
+        id S1727976AbgBXPPj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Feb 2020 10:15:39 -0500
 In-Reply-To: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -20,38 +20,45 @@ Since we have generic definitions for bus frequencies, let's use them.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-hix5hd2.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-hix5hd2.c b/drivers/i2c/busses/i2c-hix5hd2.c
-index 8497c7a95dd4..961bc1336021 100644
---- a/drivers/i2c/busses/i2c-hix5hd2.c
-+++ b/drivers/i2c/busses/i2c-hix5hd2.c
-@@ -68,8 +68,6 @@
- #define I2C_ARBITRATE_INTR	BIT(1)
- #define I2C_OVER_INTR		BIT(0)
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 82b3b795e0bd..dc29a29904df 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -145,9 +145,6 @@ struct sh_mobile_dt_config {
  
--#define HIX5I2C_MAX_FREQ	400000		/* 400k */
+ #define IIC_FLAG_HAS_ICIC67	(1 << 0)
+ 
+-#define STANDARD_MODE		100000
+-#define FAST_MODE		400000
 -
- enum hix5hd2_i2c_state {
- 	HIX5I2C_STAT_RW_ERR = -1,
- 	HIX5I2C_STAT_INIT,
-@@ -400,12 +398,12 @@ static int hix5hd2_i2c_probe(struct platform_device *pdev)
+ /* Register offsets */
+ #define ICDR			0x00
+ #define ICCR			0x04
+@@ -270,11 +267,11 @@ static int sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
  
- 	if (of_property_read_u32(np, "clock-frequency", &freq)) {
- 		/* use 100k as default value */
--		priv->freq = 100000;
-+		priv->freq = I2C_STANDARD_MODE_FREQ;
- 	} else {
--		if (freq > HIX5I2C_MAX_FREQ) {
--			priv->freq = HIX5I2C_MAX_FREQ;
-+		if (freq > I2C_FAST_MODE_FREQ) {
-+			priv->freq = I2C_FAST_MODE_FREQ;
- 			dev_warn(priv->dev, "use max freq %d instead\n",
--				 HIX5I2C_MAX_FREQ);
-+				 I2C_FAST_MODE_FREQ);
- 		} else {
- 			priv->freq = freq;
- 		}
+ 	i2c_clk_khz = clk_get_rate(pd->clk) / 1000 / pd->clks_per_count;
+ 
+-	if (pd->bus_speed == STANDARD_MODE) {
++	if (pd->bus_speed == I2C_STANDARD_MODE_FREQ) {
+ 		tLOW	= 47;	/* tLOW = 4.7 us */
+ 		tHIGH	= 40;	/* tHD;STA = tHIGH = 4.0 us */
+ 		tf	= 3;	/* tf = 0.3 us */
+-	} else if (pd->bus_speed == FAST_MODE) {
++	} else if (pd->bus_speed == I2C_FAST_MODE_FREQ) {
+ 		tLOW	= 13;	/* tLOW = 1.3 us */
+ 		tHIGH	= 6;	/* tHD;STA = tHIGH = 0.6 us */
+ 		tf	= 3;	/* tf = 0.3 us */
+@@ -851,7 +848,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 		return PTR_ERR(pd->reg);
+ 
+ 	ret = of_property_read_u32(dev->dev.of_node, "clock-frequency", &bus_speed);
+-	pd->bus_speed = (ret || !bus_speed) ? STANDARD_MODE : bus_speed;
++	pd->bus_speed = (ret || !bus_speed) ? I2C_STANDARD_MODE_FREQ : bus_speed;
+ 	pd->clks_per_count = 1;
+ 
+ 	/* Newer variants come with two new bits in ICIC */
 -- 
 2.25.0
