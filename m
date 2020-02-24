@@ -1,7 +1,7 @@
 From: Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 03/89] i2c: brcmstb: Support BCM2711 HDMI BSC controllers
-Date: Mon, 24 Feb 2020 10:06:05 +0100
-Message-ID: <1ed75ec6dc9310afd768c0bbfd8e73268e8cdfa9.1582533919.git-series.maxime@cerno.tech>
+Subject: [PATCH 01/89] dt-bindings: i2c: brcmstb: Convert the BRCMSTB binding to a schema
+Date: Mon, 24 Feb 2020 10:06:03 +0100
+Message-ID: <6649111e9c585f267762bb6c6dd96128e5cfb4ba.1582533919.git-series.maxime@cerno.tech>
 References: <cover.6c896ace9a5a7840e9cec008b553cbb004ca1f91.1582533919.git-series.maxime@cerno.tech>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,92 +9,136 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.6c896ace9a5a7840e9cec008b553cbb004ca1f91.1582533919.git-series.maxime@cerno.tech>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Eric Anholt <eric@anholt.net>
-Cc: dri-devel@lists.freedesktop.org, linux-rpi-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Dave Stevenson <dave.stevenson@raspberrypi.com>, Tim Gover <tim.gover@raspberrypi.com>, Phil Elwell <phil@raspberrypi.com>, Maxime Ripard <maxime@cerno.tech>, Kamal Dasu <kdasu.kdev@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org, linux-rpi-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Dave Stevenson <dave.stevenson@raspberrypi.com>, Tim Gover <tim.gover@raspberrypi.com>, Phil Elwell <phil@raspberrypi.com>, Maxime Ripard <maxime@cerno.tech>, Kamal Dasu <kdasu.kdev@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Rob Herring <robh+dt@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The HDMI blocks in the BCM2771 have an i2c controller to retrieve the
-EDID. This block is split into two parts, the BSC and the AUTO_I2C,
-lying in two separate register areas.
-
-The AUTO_I2C block has a mailbox-like interface and will take away the
-BSC control from the CPU if enabled. However, the BSC is the actually
-the same controller than the one supported by the brcmstb driver, and
-the AUTO_I2C doesn't really bring any immediate benefit.
-
-Let's use the BSC then, but let's also tie the AUTO_I2C registers with a
-separate compatible so that we can enable AUTO_I2C if needed in the
-future.
-
-The AUTO_I2C is enabled by default at boot though, so we first need to
-release the BSC from the AUTO_I2C control.
+Switch the DT binding to a YAML schema to enable the DT validation.
 
 Cc: Kamal Dasu <kdasu.kdev@gmail.com>
 Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>
 Cc: Wolfram Sang <wsa@the-dreams.de>
 Cc: bcm-kernel-feedback-list@broadcom.com
 Cc: linux-i2c@vger.kernel.org
+Cc: devicetree@vger.kernel.org
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 ---
- drivers/i2c/busses/i2c-brcmstb.c | 33 +++++++++++++++++++++++++++++++++-
- 1 file changed, 33 insertions(+)
+ Documentation/devicetree/bindings/i2c/brcm,brcmstb-i2c.yaml | 59 +++++++-
+ Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt       | 26 +---
+ MAINTAINERS                                                 |  2 +-
+ 3 files changed, 60 insertions(+), 27 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/brcm,brcmstb-i2c.yaml
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
 
-diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-index 506991596b68..169a2836922d 100644
---- a/drivers/i2c/busses/i2c-brcmstb.c
-+++ b/drivers/i2c/busses/i2c-brcmstb.c
-@@ -580,6 +580,31 @@ static void brcmstb_i2c_set_bsc_reg_defaults(struct brcmstb_i2c_dev *dev)
- 	brcmstb_i2c_set_bus_speed(dev);
- }
+diff --git a/Documentation/devicetree/bindings/i2c/brcm,brcmstb-i2c.yaml b/Documentation/devicetree/bindings/i2c/brcm,brcmstb-i2c.yaml
+new file mode 100644
+index 000000000000..3189d74096e8
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/brcm,brcmstb-i2c.yaml
+@@ -0,0 +1,59 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/brcm,brcmstb-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Broadcom STB BSC IIC Master Controller
++
++maintainers:
++  - Kamal Dasu <kdasu.kdev@gmail.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    enum:
++      - brcm,brcmstb-i2c
++      - brcm,brcmper-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  interrupt-names:
++    maxItems: 1
++
++  clock-frequency:
++    enum:
++      - 46875
++      - 50000
++      - 93750
++      - 97500
++      - 187500
++      - 200000
++      - 375000
++      - 390000
++
++required:
++  - compatible
++  - reg
++  - clock-frequency
++
++unevaluatedProperties: false
++
++examples:
++  - |
++      bsca: i2c@f0406200 {
++          clock-frequency = <390000>;
++          compatible = "brcm,brcmstb-i2c";
++          interrupt-parent = <&irq0_intc>;
++          reg = <0xf0406200 0x58>;
++          interrupts = <0x18>;
++          interrupt-names = "upg_bsca";
++      };
++
++...
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt b/Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
+deleted file mode 100644
+index 0380609b177a..000000000000
+--- a/Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
++++ /dev/null
+@@ -1,26 +0,0 @@
+-Broadcom stb bsc iic master controller
+-
+-Required properties:
+-
+-- compatible: should be "brcm,brcmstb-i2c" or "brcm,brcmper-i2c"
+-- clock-frequency: 32-bit decimal value of iic master clock freqency in Hz
+-		   valid values are 375000, 390000, 187500, 200000
+-		   93750, 97500, 46875 and 50000
+-- reg: specifies the base physical address and size of the registers
+-
+-Optional properties :
+-
+-- interrupts: specifies the interrupt number, the irq line to be used
+-- interrupt-names: Interrupt name string
+-
+-Example:
+-
+-bsca: i2c@f0406200 {
+-      clock-frequency = <390000>;
+-      compatible = "brcm,brcmstb-i2c";
+-      interrupt-parent = <&irq0_intc>;
+-      reg = <0xf0406200 0x58>;
+-      interrupts = <0x18>;
+-      interrupt-names = "upg_bsca";
+-};
+-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 38fe2f3f7b6f..9e45ed8be540 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3431,7 +3431,7 @@ L:	linux-i2c@vger.kernel.org
+ L:	bcm-kernel-feedback-list@broadcom.com
+ S:	Supported
+ F:	drivers/i2c/busses/i2c-brcmstb.c
+-F:	Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
++F:	Documentation/devicetree/bindings/i2c/brcm,brcmstb-i2c.yaml
  
-+#define AUTOI2C_CTRL0		0x26c
-+#define AUTOI2C_CTRL0_RELEASE_BSC	BIT(1)
-+
-+static int bcm2711_release_bsc(struct brcmstb_i2c_dev *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev->device);
-+	struct resource *iomem;
-+	void __iomem *autoi2c;
-+
-+	/* Map hardware registers */
-+	iomem = platform_get_resource_byname(pdev, IORESOURCE_MEM, "auto-i2c");
-+	autoi2c = devm_ioremap_resource(&pdev->dev, iomem);
-+	if (IS_ERR(autoi2c))
-+		return PTR_ERR(autoi2c);
-+
-+	writel(AUTOI2C_CTRL0_RELEASE_BSC, autoi2c + AUTOI2C_CTRL0);
-+	devm_iounmap(&pdev->dev, autoi2c);
-+
-+	/* We need to reset the controller after the release */
-+	dev->bsc_regmap->iic_enable = 0;
-+	bsc_writel(dev, dev->bsc_regmap->iic_enable, iic_enable);
-+
-+	return 0;
-+}
-+
- static int brcmstb_i2c_probe(struct platform_device *pdev)
- {
- 	int rc = 0;
-@@ -609,6 +634,13 @@ static int brcmstb_i2c_probe(struct platform_device *pdev)
- 		goto probe_errorout;
- 	}
- 
-+	if (of_device_is_compatible(dev->device->of_node,
-+				    "brcm,bcm2711-hdmi-i2c")) {
-+		rc = bcm2711_release_bsc(dev);
-+		if (rc)
-+			goto probe_errorout;
-+	}
-+
- 	rc = of_property_read_string(dev->device->of_node, "interrupt-names",
- 				     &int_name);
- 	if (rc < 0)
-@@ -705,6 +737,7 @@ static SIMPLE_DEV_PM_OPS(brcmstb_i2c_pm, brcmstb_i2c_suspend,
- static const struct of_device_id brcmstb_i2c_of_match[] = {
- 	{.compatible = "brcm,brcmstb-i2c"},
- 	{.compatible = "brcm,brcmper-i2c"},
-+	{.compatible = "brcm,bcm2711-hdmi-i2c"},
- 	{},
- };
- MODULE_DEVICE_TABLE(of, brcmstb_i2c_of_match);
+ BROADCOM BRCMSTB USB2 and USB3 PHY DRIVER
+ M:	Al Cooper <alcooperx@gmail.com>
 -- 
 git-series 0.9.1
