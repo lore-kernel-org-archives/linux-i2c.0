@@ -1,63 +1,72 @@
-From: Andrij Abyzov <drolevar@gmail.com>
-Subject: Re: Strange behavior in i2c-mpc
-Date: Mon, 24 Feb 2020 16:23:20 +0100
-Message-ID: <CADQNx5T1Sq0=-8vJzkDta4FsYhRGgbZzLfd5pxiSY+XWhhaskQ@mail.gmail.com>
-References: <CADQNx5TaaJhCJMPQTtGrNibY082SmjVKa3EG9SDJPsteLnn41A@mail.gmail.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: Re: [PATCH v1 24/40] i2c: owl: Use generic definitions for bus
+ frequencies
+Date: Mon, 24 Feb 2020 20:57:57 +0530
+Message-ID: <20200224152757.GC5656@Mani-XPS-13-9360>
+References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
+ <20200224151530.31713-24-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ed1-f42.google.com ([209.85.208.42]:45028 "EHLO
-        mail-ed1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727299AbgBXPXd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Feb 2020 10:23:33 -0500
-Received: by mail-ed1-f42.google.com with SMTP id g19so12274609eds.11
-        for <linux-i2c@vger.kernel.org>; Mon, 24 Feb 2020 07:23:32 -0800 (PST)
-In-Reply-To: <CADQNx5TaaJhCJMPQTtGrNibY082SmjVKa3EG9SDJPsteLnn41A@mail.gmail.com>
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:38656 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727359AbgBXP2G (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Feb 2020 10:28:06 -0500
+Received: by mail-pl1-f194.google.com with SMTP id t6so4192314plj.5
+        for <linux-i2c@vger.kernel.org>; Mon, 24 Feb 2020 07:28:06 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20200224151530.31713-24-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
 
-Hi all,
+On Mon, Feb 24, 2020 at 05:15:14PM +0200, Andy Shevchenko wrote:
+> Since we have generic definitions for bus frequencies, let's use them.
+> 
+> Cc: "Andreas Färber" <afaerber@suse.de>
+> Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-I=E2=80=99m trying to implement the following transfer with the i2c-mpc dri=
-ver:
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-Read MR: Initiate pressure management
+Thanks,
+Mani
 
-+---------------------+
-|S|6|5|4|3|2|1|0|R|A|S|
-+---------------------+
-
-First S - start condition
-6:0 - slave address
-R - read bit ('1')
-A - wait for slave ACK
-Second S - stop condition.
-
-My guess was that doing that would be enough:
-
-    struct i2c_msg msg =3D {
-        .addr =3D <addr>,
-        .flags =3D I2C_M_RD,
-        .len =3D 0,
-        .buf =3D NULL,
-    };
-
-    return i2c_transfer(data->client->adapter, &msg, 1);
-
-However, when the length parameter is 0, the wait for the CSR_MBB bit
-in lines 617-630 of mpc_xfer in drivers/i2c/busses/i2c-mpc.c times
-out.
-
-I=E2=80=99m checking the NXP P2020 spec, and it says that
-
-     Note that a master can generate a STOP even if the slave has transmitt=
-ed an
-     acknowledge bit, at which point the slave must release the bus.
-
-To me everything seems OK here, but still CSR_MBB never becomes zero.
-Would you be able to give me any advice?
-
-Best regards,
-Andrij Abyzov
+> ---
+>  drivers/i2c/busses/i2c-owl.c | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-owl.c b/drivers/i2c/busses/i2c-owl.c
+> index b6b5a495118b..f9baeeb1a711 100644
+> --- a/drivers/i2c/busses/i2c-owl.c
+> +++ b/drivers/i2c/busses/i2c-owl.c
+> @@ -87,9 +87,6 @@
+>  
+>  #define OWL_I2C_MAX_RETRIES	50
+>  
+> -#define OWL_I2C_DEF_SPEED_HZ	100000
+> -#define OWL_I2C_MAX_SPEED_HZ	400000
+> -
+>  struct owl_i2c_dev {
+>  	struct i2c_adapter	adap;
+>  	struct i2c_msg		*msg;
+> @@ -419,11 +416,11 @@ static int owl_i2c_probe(struct platform_device *pdev)
+>  
+>  	if (of_property_read_u32(dev->of_node, "clock-frequency",
+>  				 &i2c_dev->bus_freq))
+> -		i2c_dev->bus_freq = OWL_I2C_DEF_SPEED_HZ;
+> +		i2c_dev->bus_freq = I2C_STANDARD_MODE_FREQ;
+>  
+>  	/* We support only frequencies of 100k and 400k for now */
+> -	if (i2c_dev->bus_freq != OWL_I2C_DEF_SPEED_HZ &&
+> -	    i2c_dev->bus_freq != OWL_I2C_MAX_SPEED_HZ) {
+> +	if (i2c_dev->bus_freq != I2C_STANDARD_MODE_FREQ &&
+> +	    i2c_dev->bus_freq != I2C_FAST_MODE_FREQ) {
+>  		dev_err(dev, "invalid clock-frequency %d\n", i2c_dev->bus_freq);
+>  		return -EINVAL;
+>  	}
+> -- 
+> 2.25.0
+> 
