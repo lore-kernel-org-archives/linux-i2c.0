@@ -1,35 +1,100 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [RFC PATCH 4/7] i2c: of: remove superfluous parameter from
- exported function
-Date: Mon, 24 Feb 2020 09:12:37 +0100
-Message-ID: <264977e0-f45c-759d-3bc3-5bb23e97bf5a@lucaceresoli.net>
-References: <20200220172403.26062-1-wsa+renesas@sang-engineering.com>
- <20200220172403.26062-5-wsa+renesas@sang-engineering.com>
+From: Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 03/89] i2c: brcmstb: Support BCM2711 HDMI BSC controllers
+Date: Mon, 24 Feb 2020 10:06:05 +0100
+Message-ID: <1ed75ec6dc9310afd768c0bbfd8e73268e8cdfa9.1582533919.git-series.maxime@cerno.tech>
+References: <cover.6c896ace9a5a7840e9cec008b553cbb004ca1f91.1582533919.git-series.maxime@cerno.tech>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hostingweb31-40.netsons.net ([89.40.174.40]:39873 "EHLO
-        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726216AbgBXIMl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Feb 2020 03:12:41 -0500
-In-Reply-To: <20200220172403.26062-5-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.6c896ace9a5a7840e9cec008b553cbb004ca1f91.1582533919.git-series.maxime@cerno.tech>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Eric Anholt <eric@anholt.net>
+Cc: dri-devel@lists.freedesktop.org, linux-rpi-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Dave Stevenson <dave.stevenson@raspberrypi.com>, Tim Gover <tim.gover@raspberrypi.com>, Phil Elwell <phil@raspberrypi.com>, Maxime Ripard <maxime@cerno.tech>, Kamal Dasu <kdasu.kdev@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, linux-i3c@lists.infradead.org, Kieran Bingham <kieran@ksquared.org.uk>, =?UTF-8?Q?Niklas_S=c3=b6derlund?= <niklas.soderlund@ragnatech.se>, Jacopo Mondi <jacopo@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-Hi,
+The HDMI blocks in the BCM2771 have an i2c controller to retrieve the
+EDID. This block is split into two parts, the BSC and the AUTO_I2C,
+lying in two separate register areas.
 
-On 20/02/20 18:24, Wolfram Sang wrote:
-> 'dev' is only used for printing an error message. However, that
-> information is not needed because '%pOF' fully describes the location of
-> the error. Drop the 'dev' and remove the superfluous parameter.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+The AUTO_I2C block has a mailbox-like interface and will take away the
+BSC control from the CPU if enabled. However, the BSC is the actually
+the same controller than the one supported by the brcmstb driver, and
+the AUTO_I2C doesn't really bring any immediate benefit.
 
-Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
+Let's use the BSC then, but let's also tie the AUTO_I2C registers with a
+separate compatible so that we can enable AUTO_I2C if needed in the
+future.
 
+The AUTO_I2C is enabled by default at boot though, so we first need to
+release the BSC from the AUTO_I2C control.
+
+Cc: Kamal Dasu <kdasu.kdev@gmail.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: bcm-kernel-feedback-list@broadcom.com
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+---
+ drivers/i2c/busses/i2c-brcmstb.c | 33 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 33 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
+index 506991596b68..169a2836922d 100644
+--- a/drivers/i2c/busses/i2c-brcmstb.c
++++ b/drivers/i2c/busses/i2c-brcmstb.c
+@@ -580,6 +580,31 @@ static void brcmstb_i2c_set_bsc_reg_defaults(struct brcmstb_i2c_dev *dev)
+ 	brcmstb_i2c_set_bus_speed(dev);
+ }
+ 
++#define AUTOI2C_CTRL0		0x26c
++#define AUTOI2C_CTRL0_RELEASE_BSC	BIT(1)
++
++static int bcm2711_release_bsc(struct brcmstb_i2c_dev *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev->device);
++	struct resource *iomem;
++	void __iomem *autoi2c;
++
++	/* Map hardware registers */
++	iomem = platform_get_resource_byname(pdev, IORESOURCE_MEM, "auto-i2c");
++	autoi2c = devm_ioremap_resource(&pdev->dev, iomem);
++	if (IS_ERR(autoi2c))
++		return PTR_ERR(autoi2c);
++
++	writel(AUTOI2C_CTRL0_RELEASE_BSC, autoi2c + AUTOI2C_CTRL0);
++	devm_iounmap(&pdev->dev, autoi2c);
++
++	/* We need to reset the controller after the release */
++	dev->bsc_regmap->iic_enable = 0;
++	bsc_writel(dev, dev->bsc_regmap->iic_enable, iic_enable);
++
++	return 0;
++}
++
+ static int brcmstb_i2c_probe(struct platform_device *pdev)
+ {
+ 	int rc = 0;
+@@ -609,6 +634,13 @@ static int brcmstb_i2c_probe(struct platform_device *pdev)
+ 		goto probe_errorout;
+ 	}
+ 
++	if (of_device_is_compatible(dev->device->of_node,
++				    "brcm,bcm2711-hdmi-i2c")) {
++		rc = bcm2711_release_bsc(dev);
++		if (rc)
++			goto probe_errorout;
++	}
++
+ 	rc = of_property_read_string(dev->device->of_node, "interrupt-names",
+ 				     &int_name);
+ 	if (rc < 0)
+@@ -705,6 +737,7 @@ static SIMPLE_DEV_PM_OPS(brcmstb_i2c_pm, brcmstb_i2c_suspend,
+ static const struct of_device_id brcmstb_i2c_of_match[] = {
+ 	{.compatible = "brcm,brcmstb-i2c"},
+ 	{.compatible = "brcm,brcmper-i2c"},
++	{.compatible = "brcm,bcm2711-hdmi-i2c"},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, brcmstb_i2c_of_match);
 -- 
-Luca
+git-series 0.9.1
