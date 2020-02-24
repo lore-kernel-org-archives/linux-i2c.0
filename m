@@ -1,44 +1,60 @@
-From: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 02/89] dt-bindings: i2c: brcmstb: Add BCM2711 BSC/AUTO-I2C
- binding
-Date: Mon, 24 Feb 2020 09:48:17 -0800
-Message-ID: <fb3e10e0-9d87-66c0-ad4c-fa8474f6fac0@gmail.com>
-References: <cover.6c896ace9a5a7840e9cec008b553cbb004ca1f91.1582533919.git-series.maxime@cerno.tech>
- <9e427ff22fa40b7146b44aee6468559499deb1f1.1582533919.git-series.maxime@cerno.tech>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [regression] nct6775 does not load in 5.4 and 5.5, bisected to
+ b84398d6d7f90080
+Date: Mon, 24 Feb 2020 10:27:30 -0800
+Message-ID: <20200224182730.GA29799@roeck-us.net>
+References: <CAM1AHpQ4196tyD=HhBu-2donSsuogabkfP03v1YF26Q7_BgvgA@mail.gmail.com>
+ <1bdbac08-86f8-2a57-2b0d-8cd2beb2a1c0@roeck-us.net>
+ <CAM1AHpSKFk9ZosQf=k-Rm2=EFqco7y4Lpfb7m07r=j_uJd4T0A@mail.gmail.com>
+ <85356d1a-f90d-e94d-16eb-1071d4e94753@roeck-us.net>
+ <CAM1AHpSpEFshpUGxKdhLV3XuThQg_XVaPgOWzvrTv6YtzHyO+A@mail.gmail.com>
+ <bec1f81c-09a8-ba48-c6c4-5d9b340f7c0b@roeck-us.net>
+ <20200224101800.GJ2667@lahna.fi.intel.com>
+ <20200224103731.GA10400@smile.fi.intel.com>
+ <20200224105121.GK2667@lahna.fi.intel.com>
+ <20200224112740.GL2667@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <9e427ff22fa40b7146b44aee6468559499deb1f1.1582533919.git-series.maxime-R63rPqgGiG5yDzI6CaY1VQ@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime-R63rPqgGiG5yDzI6CaY1VQ@public.gmane.org>, Nicolas Saenz Julienne <nsaenzjulienne-l3A5Bk7waGM@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
-Cc: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dave Stevenson <dave.stevenson-FnsA7b+Nu9Xg+KzdeAJ3hg@public.gmane.org>, Tim Gover <tim.gover-FnsA7b+Nu9Xg+KzdeAJ3hg@public.gmane.org>, Phil Elwell <phil-FnsA7b+Nu9Xg+KzdeAJ3hg@public.gmane.org>, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-hwmon-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200224112740.GL2667@lahna.fi.intel.com>
+Sender: linux-hwmon-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Martin Volf <martin.volf.42@gmail.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2/24/20 1:06 AM, Maxime Ripard wrote:
-> The HDMI blocks in the BCM2771 have an i2c controller to retrieve the
-> EDID. This block is split into two parts, the BSC and the AUTO_I2C,
-> lying in two separate register areas.
+On Mon, Feb 24, 2020 at 01:27:40PM +0200, Mika Westerberg wrote:
+> On Mon, Feb 24, 2020 at 12:51:25PM +0200, Mika Westerberg wrote:
+> > > I'm wondering if
+> > > 
+> > > 		pci_dev_is_present(...);
+> > > 
+> > > returns false here.
+> > 
+> > Well that might also be the case since lspci shows this:
+> > 
+> > 00:1f.0 ISA bridge: Intel Corporation Z390 Chipset LPC/eSPI Controller (rev 10)
+> > 00:1f.3 Audio device: Intel Corporation Cannon Lake PCH cAVS (rev 10)
+> > 00:1f.4 SMBus: Intel Corporation Cannon Lake PCH SMBus Controller (rev 10)
+> > 
+> > PMC is 1f.2 and not present here. However, it may be that the PMC is
+> > still there it just does not "enumerate" because its devid/vendorid are
+> > set to 0xffff. Similar hiding was done for the P2SB bridge.
 > 
-> The AUTO_I2C block has a mailbox-like interface and will take away the
-> BSC control from the CPU if enabled. However, the BSC is the actually
-> the same controller than the one supported by the brcmstb driver, and
-> the AUTO_I2C doesn't really bring any immediate benefit.
+> Actually I think this is the case here.
 > 
-> We can model it in the DT as a single device with two register range,
-> which will allow us to use or or the other in the driver without
-> changing anything in the DT.
+> I don't know the iTCO_wdt well enough to say if it could live without
+> the ICH_RES_IO_SMI. It looks like this register is used to disable SMI
+> generation but not sure how well it works if it is left to BIOS to
+> configure. I suppose these systems should use WDAT instead.
 > 
-> Cc: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Signed-off-by: Maxime Ripard <maxime-R63rPqgGiG5yDzI6CaY1VQ@public.gmane.org>
 
-Acked-by: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
--- 
-Florian
+In practice the region is only used if
+	if (turn_SMI_watchdog_clear_off >= p->iTCO_version) {
+where turn_SMI_watchdog_clear_off is 1 by default. It is also
+passed to vendor specific code, but that is only relevant for
+really old systems. In short, it isn't really needed for any
+recent-generation systems, and could be made optional with
+a few lines of code in iTCO_wdt.c.
+
+Guenter
