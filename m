@@ -1,87 +1,104 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 32/40] i2c: stm32f4: Use generic definitions for bus frequencies
-Date: Mon, 24 Feb 2020 17:15:22 +0200
-Message-ID: <20200224151530.31713-32-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 20/40] i2c: mt65xx: Use generic definitions for bus frequencies
+Date: Mon, 24 Feb 2020 17:15:10 +0200
+Message-ID: <20200224151530.31713-20-andriy.shevchenko@linux.intel.com>
 References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:62976 "EHLO mga09.intel.com"
+Received: from mga17.intel.com ([192.55.52.151]:53971 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728011AbgBXPPq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 24 Feb 2020 10:15:46 -0500
+        id S1727960AbgBXPPi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Feb 2020 10:15:38 -0500
 In-Reply-To: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Matthias Brugger <matthias.bgg@gmail.com>
 
 Since we have generic definitions for bus frequencies, let's use them.
 
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-stm32f4.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
-index ba600d77a3f8..0a67b44f2755 100644
---- a/drivers/i2c/busses/i2c-stm32f4.c
-+++ b/drivers/i2c/busses/i2c-stm32f4.c
-@@ -91,7 +91,6 @@
- #define STM32F4_I2C_MIN_STANDARD_FREQ	2U
- #define STM32F4_I2C_MIN_FAST_FREQ	6U
- #define STM32F4_I2C_MAX_FREQ		46U
--#define HZ_TO_MHZ			1000000
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 2152ec5f535c..2647e7def4f2 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -56,9 +56,6 @@
+ #define I2C_DMA_4G_MODE			0x0001
  
- /**
-  * struct stm32f4_i2c_msg - client specific data
-@@ -154,7 +153,7 @@ static int stm32f4_i2c_set_periph_clk_freq(struct stm32f4_i2c_dev *i2c_dev)
- 	u32 cr2 = 0;
+ #define I2C_DEFAULT_CLK_DIV		5
+-#define I2C_DEFAULT_SPEED		100000	/* hz */
+-#define MAX_FS_MODE_SPEED		400000
+-#define MAX_HS_MODE_SPEED		3400000
+ #define MAX_SAMPLE_CNT_DIV		8
+ #define MAX_STEP_CNT_DIV		64
+ #define MAX_HS_STEP_CNT_DIV		8
+@@ -450,10 +447,10 @@ static int mtk_i2c_calculate_speed(struct mtk_i2c *i2c, unsigned int clk_src,
+ 	unsigned int best_mul;
+ 	unsigned int cnt_mul;
  
- 	i2c_dev->parent_rate = clk_get_rate(i2c_dev->clk);
--	freq = DIV_ROUND_UP(i2c_dev->parent_rate, HZ_TO_MHZ);
-+	freq = DIV_ROUND_UP(i2c_dev->parent_rate, HZ_PER_MHZ);
+-	if (target_speed > MAX_HS_MODE_SPEED)
+-		target_speed = MAX_HS_MODE_SPEED;
++	if (target_speed > I2C_FAST_MODE_PLUS_FREQ)
++		target_speed = I2C_FAST_MODE_PLUS_FREQ;
  
- 	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD) {
- 		/*
-@@ -190,7 +189,7 @@ static int stm32f4_i2c_set_periph_clk_freq(struct stm32f4_i2c_dev *i2c_dev)
+-	if (target_speed > MAX_FS_MODE_SPEED)
++	if (target_speed > I2C_FAST_MODE_FREQ)
+ 		max_step_cnt = MAX_HS_STEP_CNT_DIV;
+ 	else
+ 		max_step_cnt = MAX_STEP_CNT_DIV;
+@@ -514,9 +511,9 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
+ 	clk_src = parent_clk / i2c->clk_src_div;
+ 	target_speed = i2c->speed_hz;
  
- static void stm32f4_i2c_set_rise_time(struct stm32f4_i2c_dev *i2c_dev)
- {
--	u32 freq = DIV_ROUND_UP(i2c_dev->parent_rate, HZ_TO_MHZ);
-+	u32 freq = DIV_ROUND_UP(i2c_dev->parent_rate, HZ_PER_MHZ);
- 	u32 trise;
+-	if (target_speed > MAX_FS_MODE_SPEED) {
++	if (target_speed > I2C_FAST_MODE_FREQ) {
+ 		/* Set master code speed register */
+-		ret = mtk_i2c_calculate_speed(i2c, clk_src, MAX_FS_MODE_SPEED,
++		ret = mtk_i2c_calculate_speed(i2c, clk_src, I2C_FAST_MODE_FREQ,
+ 					      &l_step_cnt, &l_sample_cnt);
+ 		if (ret < 0)
+ 			return ret;
+@@ -581,7 +578,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
  
- 	/*
-@@ -243,7 +242,7 @@ static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
- 		 * parent rate is not higher than 46 MHz . As a result val
- 		 * is at most 8 bits wide and so fits into the CCR bits [11:0].
+ 	control_reg = mtk_i2c_readw(i2c, OFFSET_CONTROL) &
+ 			~(I2C_CONTROL_DIR_CHANGE | I2C_CONTROL_RS);
+-	if ((i2c->speed_hz > MAX_FS_MODE_SPEED) || (left_num >= 1))
++	if ((i2c->speed_hz > I2C_FAST_MODE_FREQ) || (left_num >= 1))
+ 		control_reg |= I2C_CONTROL_RS;
+ 
+ 	if (i2c->op == I2C_MASTER_WRRD)
+@@ -590,7 +587,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 	mtk_i2c_writew(i2c, control_reg, OFFSET_CONTROL);
+ 
+ 	/* set start condition */
+-	if (i2c->speed_hz <= I2C_DEFAULT_SPEED)
++	if (i2c->speed_hz <= I2C_STANDARD_MODE_FREQ)
+ 		mtk_i2c_writew(i2c, I2C_ST_START_CON, OFFSET_EXT_CONF);
+ 	else
+ 		mtk_i2c_writew(i2c, I2C_FS_START_CON, OFFSET_EXT_CONF);
+@@ -798,7 +795,7 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
+ 		}
+ 	}
+ 
+-	if (i2c->auto_restart && num >= 2 && i2c->speed_hz > MAX_FS_MODE_SPEED)
++	if (i2c->auto_restart && num >= 2 && i2c->speed_hz > I2C_FAST_MODE_FREQ)
+ 		/* ignore the first restart irq after the master code,
+ 		 * otherwise the first transfer will be discarded.
  		 */
--		val = i2c_dev->parent_rate / (100000 << 1);
-+		val = i2c_dev->parent_rate / (I2C_STANDARD_MODE_FREQ << 1);
- 	} else {
- 		/*
- 		 * In fast mode, we compute CCR with duty = 0 as with low
-@@ -263,7 +262,7 @@ static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
- 		 * parent rate is not higher than 46 MHz . As a result val
- 		 * is at most 6 bits wide and so fits into the CCR bits [11:0].
- 		 */
--		val = DIV_ROUND_UP(i2c_dev->parent_rate, 400000 * 3);
-+		val = DIV_ROUND_UP(i2c_dev->parent_rate, I2C_FAST_MODE_FREQ * 3);
+@@ -893,7 +890,7 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
  
- 		/* Select Fast mode */
- 		ccr |= STM32F4_I2C_CCR_FS;
-@@ -807,7 +806,7 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
+ 	ret = of_property_read_u32(np, "clock-frequency", &i2c->speed_hz);
+ 	if (ret < 0)
+-		i2c->speed_hz = I2C_DEFAULT_SPEED;
++		i2c->speed_hz = I2C_STANDARD_MODE_FREQ;
  
- 	i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
- 	ret = of_property_read_u32(np, "clock-frequency", &clk_rate);
--	if (!ret && clk_rate >= 400000)
-+	if (!ret && clk_rate >= I2C_FAST_MODE_FREQ)
- 		i2c_dev->speed = STM32_I2C_SPEED_FAST;
- 
- 	i2c_dev->dev = &pdev->dev;
+ 	ret = of_property_read_u32(np, "clock-div", &i2c->clk_src_div);
+ 	if (ret < 0)
 -- 
 2.25.0
