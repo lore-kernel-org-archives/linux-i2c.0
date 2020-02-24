@@ -1,49 +1,69 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 30/40] i2c: sirf: Use generic definitions for bus frequencies
-Date: Mon, 24 Feb 2020 17:15:20 +0200
-Message-ID: <20200224151530.31713-30-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 36/40] i2c: synquacer: Use generic definitions for bus frequencies
+Date: Mon, 24 Feb 2020 17:15:26 +0200
+Message-ID: <20200224151530.31713-36-andriy.shevchenko@linux.intel.com>
 References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:62974 "EHLO mga09.intel.com"
+Received: from mga17.intel.com ([192.55.52.151]:53981 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728023AbgBXPPq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 24 Feb 2020 10:15:46 -0500
+        id S1728003AbgBXPPm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Feb 2020 10:15:42 -0500
 In-Reply-To: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Barry Song <baohua@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Ard Biesheuvel <ardb@kernel.org>
 
 Since we have generic definitions for bus frequencies, let's use them.
 
-Cc: Barry Song <baohua@kernel.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-sirf.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-synquacer.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
-index fb7a046b3226..bbd022181b13 100644
---- a/drivers/i2c/busses/i2c-sirf.c
-+++ b/drivers/i2c/busses/i2c-sirf.c
-@@ -62,7 +62,6 @@
- #define SIRFSOC_I2C_STOP		BIT(6)
- #define SIRFSOC_I2C_START		BIT(7)
+diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
+index 86026798b4f7..ccd2ed4fa2f1 100644
+--- a/drivers/i2c/busses/i2c-synquacer.c
++++ b/drivers/i2c/busses/i2c-synquacer.c
+@@ -67,10 +67,10 @@
  
--#define SIRFSOC_I2C_DEFAULT_SPEED 100000
- #define SIRFSOC_I2C_ERR_NOACK      1
- #define SIRFSOC_I2C_ERR_TIMEOUT    2
+ /* STANDARD MODE frequency */
+ #define SYNQUACER_I2C_CLK_MASTER_STD(rate)			\
+-	DIV_ROUND_UP(DIV_ROUND_UP((rate), 100000) - 2, 2)
++	DIV_ROUND_UP(DIV_ROUND_UP((rate), I2C_STANDARD_MODE_FREQ) - 2, 2)
+ /* FAST MODE frequency */
+ #define SYNQUACER_I2C_CLK_MASTER_FAST(rate)			\
+-	DIV_ROUND_UP((DIV_ROUND_UP((rate), 400000) - 2) * 2, 3)
++	DIV_ROUND_UP((DIV_ROUND_UP((rate), I2C_FAST_MODE_FREQ) - 2) * 2, 3)
  
-@@ -353,7 +352,7 @@ static int i2c_sirfsoc_probe(struct platform_device *pdev)
- 	err = of_property_read_u32(pdev->dev.of_node,
- 		"clock-frequency", &bitrate);
- 	if (err < 0)
--		bitrate = SIRFSOC_I2C_DEFAULT_SPEED;
-+		bitrate = I2C_STANDARD_MODE_FREQ;
+ /* (clkrate <= 18000000) */
+ /* calculate the value of CS bits in CCR register on standard mode */
+@@ -111,11 +111,11 @@
+ 					& SYNQUACER_I2C_CSR_CS_MASK)
  
- 	/*
- 	 * Due to some hardware design issues, we need to tune the formula.
+ /* min I2C clock frequency 14M */
+-#define SYNQUACER_I2C_MIN_CLK_RATE	(14 * 1000000)
++#define SYNQUACER_I2C_MIN_CLK_RATE	(14 * HZ_PER_MHZ)
+ /* max I2C clock frequency 200M */
+-#define SYNQUACER_I2C_MAX_CLK_RATE	(200 * 1000000)
++#define SYNQUACER_I2C_MAX_CLK_RATE	(200 * HZ_PER_MHZ)
+ /* I2C clock frequency 18M */
+-#define SYNQUACER_I2C_CLK_RATE_18M	(18 * 1000000)
++#define SYNQUACER_I2C_CLK_RATE_18M	(18 * HZ_PER_MHZ)
+ 
+ #define SYNQUACER_I2C_SPEED_FM		400	// Fast Mode
+ #define SYNQUACER_I2C_SPEED_SM		100	// Standard Mode
+@@ -602,7 +602,7 @@ static int synquacer_i2c_probe(struct platform_device *pdev)
+ 	i2c->adapter.nr = pdev->id;
+ 	init_completion(&i2c->completion);
+ 
+-	if (bus_speed < 400000)
++	if (bus_speed < I2C_FAST_MODE_FREQ)
+ 		i2c->speed_khz = SYNQUACER_I2C_SPEED_SM;
+ 	else
+ 		i2c->speed_khz = SYNQUACER_I2C_SPEED_FM;
 -- 
 2.25.0
