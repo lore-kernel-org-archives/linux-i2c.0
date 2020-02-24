@@ -1,104 +1,83 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 20/40] i2c: mt65xx: Use generic definitions for bus frequencies
-Date: Mon, 24 Feb 2020 17:15:10 +0200
-Message-ID: <20200224151530.31713-20-andriy.shevchenko@linux.intel.com>
-References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
+From: Ard Biesheuvel <ardb@kernel.org>
+Subject: Re: [PATCH v1 36/40] i2c: synquacer: Use generic definitions for bus frequencies
+Date: Mon, 24 Feb 2020 16:18:37 +0100
+Message-ID: <CAKv+Gu-syv58pi7OMV3bDn7P5ZhBhMpjiFmLYoJ7t=KuWxVH1g@mail.gmail.com>
+References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com> <20200224151530.31713-36-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga17.intel.com ([192.55.52.151]:53971 "EHLO mga17.intel.com"
+Received: from mail.kernel.org ([198.145.29.99]:43318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727960AbgBXPPi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 24 Feb 2020 10:15:38 -0500
-In-Reply-To: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
+        id S1727783AbgBXPSv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Feb 2020 10:18:51 -0500
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18F0C2084E
+        for <linux-i2c@vger.kernel.org>; Mon, 24 Feb 2020 15:18:50 +0000 (UTC)
+Received: by mail-wr1-f41.google.com with SMTP id y17so2019229wrn.6
+        for <linux-i2c@vger.kernel.org>; Mon, 24 Feb 2020 07:18:50 -0800 (PST)
+In-Reply-To: <20200224151530.31713-36-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Matthias Brugger <matthias.bgg@gmail.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>
 
-Since we have generic definitions for bus frequencies, let's use them.
+On Mon, 24 Feb 2020 at 16:15, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+>
+> Since we have generic definitions for bus frequencies, let's use them.
+>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/i2c-mt65xx.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 2152ec5f535c..2647e7def4f2 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -56,9 +56,6 @@
- #define I2C_DMA_4G_MODE			0x0001
- 
- #define I2C_DEFAULT_CLK_DIV		5
--#define I2C_DEFAULT_SPEED		100000	/* hz */
--#define MAX_FS_MODE_SPEED		400000
--#define MAX_HS_MODE_SPEED		3400000
- #define MAX_SAMPLE_CNT_DIV		8
- #define MAX_STEP_CNT_DIV		64
- #define MAX_HS_STEP_CNT_DIV		8
-@@ -450,10 +447,10 @@ static int mtk_i2c_calculate_speed(struct mtk_i2c *i2c, unsigned int clk_src,
- 	unsigned int best_mul;
- 	unsigned int cnt_mul;
- 
--	if (target_speed > MAX_HS_MODE_SPEED)
--		target_speed = MAX_HS_MODE_SPEED;
-+	if (target_speed > I2C_FAST_MODE_PLUS_FREQ)
-+		target_speed = I2C_FAST_MODE_PLUS_FREQ;
- 
--	if (target_speed > MAX_FS_MODE_SPEED)
-+	if (target_speed > I2C_FAST_MODE_FREQ)
- 		max_step_cnt = MAX_HS_STEP_CNT_DIV;
- 	else
- 		max_step_cnt = MAX_STEP_CNT_DIV;
-@@ -514,9 +511,9 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
- 	clk_src = parent_clk / i2c->clk_src_div;
- 	target_speed = i2c->speed_hz;
- 
--	if (target_speed > MAX_FS_MODE_SPEED) {
-+	if (target_speed > I2C_FAST_MODE_FREQ) {
- 		/* Set master code speed register */
--		ret = mtk_i2c_calculate_speed(i2c, clk_src, MAX_FS_MODE_SPEED,
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, I2C_FAST_MODE_FREQ,
- 					      &l_step_cnt, &l_sample_cnt);
- 		if (ret < 0)
- 			return ret;
-@@ -581,7 +578,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 
- 	control_reg = mtk_i2c_readw(i2c, OFFSET_CONTROL) &
- 			~(I2C_CONTROL_DIR_CHANGE | I2C_CONTROL_RS);
--	if ((i2c->speed_hz > MAX_FS_MODE_SPEED) || (left_num >= 1))
-+	if ((i2c->speed_hz > I2C_FAST_MODE_FREQ) || (left_num >= 1))
- 		control_reg |= I2C_CONTROL_RS;
- 
- 	if (i2c->op == I2C_MASTER_WRRD)
-@@ -590,7 +587,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	mtk_i2c_writew(i2c, control_reg, OFFSET_CONTROL);
- 
- 	/* set start condition */
--	if (i2c->speed_hz <= I2C_DEFAULT_SPEED)
-+	if (i2c->speed_hz <= I2C_STANDARD_MODE_FREQ)
- 		mtk_i2c_writew(i2c, I2C_ST_START_CON, OFFSET_EXT_CONF);
- 	else
- 		mtk_i2c_writew(i2c, I2C_FS_START_CON, OFFSET_EXT_CONF);
-@@ -798,7 +795,7 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
- 		}
- 	}
- 
--	if (i2c->auto_restart && num >= 2 && i2c->speed_hz > MAX_FS_MODE_SPEED)
-+	if (i2c->auto_restart && num >= 2 && i2c->speed_hz > I2C_FAST_MODE_FREQ)
- 		/* ignore the first restart irq after the master code,
- 		 * otherwise the first transfer will be discarded.
- 		 */
-@@ -893,7 +890,7 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
- 
- 	ret = of_property_read_u32(np, "clock-frequency", &i2c->speed_hz);
- 	if (ret < 0)
--		i2c->speed_hz = I2C_DEFAULT_SPEED;
-+		i2c->speed_hz = I2C_STANDARD_MODE_FREQ;
- 
- 	ret = of_property_read_u32(np, "clock-div", &i2c->clk_src_div);
- 	if (ret < 0)
--- 
-2.25.0
+> ---
+>  drivers/i2c/busses/i2c-synquacer.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
+> index 86026798b4f7..ccd2ed4fa2f1 100644
+> --- a/drivers/i2c/busses/i2c-synquacer.c
+> +++ b/drivers/i2c/busses/i2c-synquacer.c
+> @@ -67,10 +67,10 @@
+>
+>  /* STANDARD MODE frequency */
+>  #define SYNQUACER_I2C_CLK_MASTER_STD(rate)                     \
+> -       DIV_ROUND_UP(DIV_ROUND_UP((rate), 100000) - 2, 2)
+> +       DIV_ROUND_UP(DIV_ROUND_UP((rate), I2C_STANDARD_MODE_FREQ) - 2, 2)
+>  /* FAST MODE frequency */
+>  #define SYNQUACER_I2C_CLK_MASTER_FAST(rate)                    \
+> -       DIV_ROUND_UP((DIV_ROUND_UP((rate), 400000) - 2) * 2, 3)
+> +       DIV_ROUND_UP((DIV_ROUND_UP((rate), I2C_FAST_MODE_FREQ) - 2) * 2, 3)
+>
+>  /* (clkrate <= 18000000) */
+>  /* calculate the value of CS bits in CCR register on standard mode */
+> @@ -111,11 +111,11 @@
+>                                         & SYNQUACER_I2C_CSR_CS_MASK)
+>
+>  /* min I2C clock frequency 14M */
+> -#define SYNQUACER_I2C_MIN_CLK_RATE     (14 * 1000000)
+> +#define SYNQUACER_I2C_MIN_CLK_RATE     (14 * HZ_PER_MHZ)
+>  /* max I2C clock frequency 200M */
+> -#define SYNQUACER_I2C_MAX_CLK_RATE     (200 * 1000000)
+> +#define SYNQUACER_I2C_MAX_CLK_RATE     (200 * HZ_PER_MHZ)
+>  /* I2C clock frequency 18M */
+> -#define SYNQUACER_I2C_CLK_RATE_18M     (18 * 1000000)
+> +#define SYNQUACER_I2C_CLK_RATE_18M     (18 * HZ_PER_MHZ)
+>
+>  #define SYNQUACER_I2C_SPEED_FM         400     // Fast Mode
+>  #define SYNQUACER_I2C_SPEED_SM         100     // Standard Mode
+> @@ -602,7 +602,7 @@ static int synquacer_i2c_probe(struct platform_device *pdev)
+>         i2c->adapter.nr = pdev->id;
+>         init_completion(&i2c->completion);
+>
+> -       if (bus_speed < 400000)
+> +       if (bus_speed < I2C_FAST_MODE_FREQ)
+>                 i2c->speed_khz = SYNQUACER_I2C_SPEED_SM;
+>         else
+>                 i2c->speed_khz = SYNQUACER_I2C_SPEED_FM;
+> --
+> 2.25.0
+>
