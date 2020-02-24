@@ -1,60 +1,60 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [regression] nct6775 does not load in 5.4 and 5.5, bisected to
- b84398d6d7f90080
-Date: Mon, 24 Feb 2020 10:27:30 -0800
-Message-ID: <20200224182730.GA29799@roeck-us.net>
-References: <CAM1AHpQ4196tyD=HhBu-2donSsuogabkfP03v1YF26Q7_BgvgA@mail.gmail.com>
- <1bdbac08-86f8-2a57-2b0d-8cd2beb2a1c0@roeck-us.net>
- <CAM1AHpSKFk9ZosQf=k-Rm2=EFqco7y4Lpfb7m07r=j_uJd4T0A@mail.gmail.com>
- <85356d1a-f90d-e94d-16eb-1071d4e94753@roeck-us.net>
- <CAM1AHpSpEFshpUGxKdhLV3XuThQg_XVaPgOWzvrTv6YtzHyO+A@mail.gmail.com>
- <bec1f81c-09a8-ba48-c6c4-5d9b340f7c0b@roeck-us.net>
- <20200224101800.GJ2667@lahna.fi.intel.com>
- <20200224103731.GA10400@smile.fi.intel.com>
- <20200224105121.GK2667@lahna.fi.intel.com>
- <20200224112740.GL2667@lahna.fi.intel.com>
+From: Baruch Siach <baruch@tkos.co.il>
+Subject: Re: [PATCH v1 12/40] i2c: digicolor: Use generic definitions for bus frequencies
+Date: Mon, 24 Feb 2020 20:25:56 +0200
+Message-ID: <87lforon9n.fsf@tarshish>
+References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com> <20200224151530.31713-12-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-hwmon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200224112740.GL2667@lahna.fi.intel.com>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Martin Volf <martin.volf.42@gmail.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from guitar.tcltek.co.il ([192.115.133.116]:48726 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726652AbgBXSd1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Feb 2020 13:33:27 -0500
+In-reply-to: <20200224151530.31713-12-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Mon, Feb 24, 2020 at 01:27:40PM +0200, Mika Westerberg wrote:
-> On Mon, Feb 24, 2020 at 12:51:25PM +0200, Mika Westerberg wrote:
-> > > I'm wondering if
-> > > 
-> > > 		pci_dev_is_present(...);
-> > > 
-> > > returns false here.
-> > 
-> > Well that might also be the case since lspci shows this:
-> > 
-> > 00:1f.0 ISA bridge: Intel Corporation Z390 Chipset LPC/eSPI Controller (rev 10)
-> > 00:1f.3 Audio device: Intel Corporation Cannon Lake PCH cAVS (rev 10)
-> > 00:1f.4 SMBus: Intel Corporation Cannon Lake PCH SMBus Controller (rev 10)
-> > 
-> > PMC is 1f.2 and not present here. However, it may be that the PMC is
-> > still there it just does not "enumerate" because its devid/vendorid are
-> > set to 0xffff. Similar hiding was done for the P2SB bridge.
-> 
-> Actually I think this is the case here.
-> 
-> I don't know the iTCO_wdt well enough to say if it could live without
-> the ICH_RES_IO_SMI. It looks like this register is used to disable SMI
-> generation but not sure how well it works if it is left to BIOS to
-> configure. I suppose these systems should use WDAT instead.
-> 
+Hi Andy,
 
-In practice the region is only used if
-	if (turn_SMI_watchdog_clear_off >= p->iTCO_version) {
-where turn_SMI_watchdog_clear_off is 1 by default. It is also
-passed to vendor specific code, but that is only relevant for
-really old systems. In short, it isn't really needed for any
-recent-generation systems, and could be made optional with
-a few lines of code in iTCO_wdt.c.
+On Mon, Feb 24 2020, Andy Shevchenko wrote:
+> Since we have generic definitions for bus frequencies, let's use them.
+>
+> Cc: Baruch Siach <baruch@tkos.co.il>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Guenter
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+
+baruch
+
+> ---
+>  drivers/i2c/busses/i2c-digicolor.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-digicolor.c b/drivers/i2c/busses/i2c-digicolor.c
+> index 3adf72540db1..79bf187a90b1 100644
+> --- a/drivers/i2c/busses/i2c-digicolor.c
+> +++ b/drivers/i2c/busses/i2c-digicolor.c
+> @@ -18,7 +18,6 @@
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+>  
+> -#define DEFAULT_FREQ		100000
+>  #define TIMEOUT_MS		100
+>  
+>  #define II_CONTROL		0x0
+> @@ -300,7 +299,7 @@ static int dc_i2c_probe(struct platform_device *pdev)
+>  
+>  	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+>  				 &i2c->frequency))
+> -		i2c->frequency = DEFAULT_FREQ;
+> +		i2c->frequency = I2C_STANDARD_MODE_FREQ;
+>  
+>  	i2c->dev = &pdev->dev;
+>  	platform_set_drvdata(pdev, i2c);
+
+-- 
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
