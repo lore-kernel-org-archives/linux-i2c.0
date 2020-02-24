@@ -1,69 +1,74 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 36/40] i2c: synquacer: Use generic definitions for bus frequencies
-Date: Mon, 24 Feb 2020 17:15:26 +0200
-Message-ID: <20200224151530.31713-36-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 08/40] i2c: bcm-iproc: Use generic definitions for bus frequencies
+Date: Mon, 24 Feb 2020 17:14:58 +0200
+Message-ID: <20200224151530.31713-8-andriy.shevchenko@linux.intel.com>
 References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga17.intel.com ([192.55.52.151]:53981 "EHLO mga17.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:62976 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728003AbgBXPPm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 24 Feb 2020 10:15:42 -0500
+        id S1728003AbgBXPPo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Feb 2020 10:15:44 -0500
 In-Reply-To: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Ard Biesheuvel <ardb@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>
 
 Since we have generic definitions for bus frequencies, let's use them.
 
-Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Ray Jui <rjui@broadcom.com>
+Cc: Scott Branden <sbranden@broadcom.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-synquacer.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-bcm-iproc.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
-index 86026798b4f7..ccd2ed4fa2f1 100644
---- a/drivers/i2c/busses/i2c-synquacer.c
-+++ b/drivers/i2c/busses/i2c-synquacer.c
-@@ -67,10 +67,10 @@
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index 30efb7913b2e..627ad88dcf04 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -858,25 +858,25 @@ static int bcm_iproc_i2c_cfg_speed(struct bcm_iproc_i2c_dev *iproc_i2c)
+ 	if (ret < 0) {
+ 		dev_info(iproc_i2c->device,
+ 			"unable to interpret clock-frequency DT property\n");
+-		bus_speed = 100000;
++		bus_speed = I2C_STANDARD_MODE_FREQ;
+ 	}
  
- /* STANDARD MODE frequency */
- #define SYNQUACER_I2C_CLK_MASTER_STD(rate)			\
--	DIV_ROUND_UP(DIV_ROUND_UP((rate), 100000) - 2, 2)
-+	DIV_ROUND_UP(DIV_ROUND_UP((rate), I2C_STANDARD_MODE_FREQ) - 2, 2)
- /* FAST MODE frequency */
- #define SYNQUACER_I2C_CLK_MASTER_FAST(rate)			\
--	DIV_ROUND_UP((DIV_ROUND_UP((rate), 400000) - 2) * 2, 3)
-+	DIV_ROUND_UP((DIV_ROUND_UP((rate), I2C_FAST_MODE_FREQ) - 2) * 2, 3)
+-	if (bus_speed < 100000) {
++	if (bus_speed < I2C_STANDARD_MODE_FREQ) {
+ 		dev_err(iproc_i2c->device, "%d Hz bus speed not supported\n",
+ 			bus_speed);
+ 		dev_err(iproc_i2c->device,
+ 			"valid speeds are 100khz and 400khz\n");
+ 		return -EINVAL;
+-	} else if (bus_speed < 400000) {
+-		bus_speed = 100000;
++	} else if (bus_speed < I2C_FAST_MODE_FREQ) {
++		bus_speed = I2C_STANDARD_MODE_FREQ;
+ 	} else {
+-		bus_speed = 400000;
++		bus_speed = I2C_FAST_MODE_FREQ;
+ 	}
  
- /* (clkrate <= 18000000) */
- /* calculate the value of CS bits in CCR register on standard mode */
-@@ -111,11 +111,11 @@
- 					& SYNQUACER_I2C_CSR_CS_MASK)
+ 	iproc_i2c->bus_speed = bus_speed;
+ 	val = iproc_i2c_rd_reg(iproc_i2c, TIM_CFG_OFFSET);
+ 	val &= ~BIT(TIM_CFG_MODE_400_SHIFT);
+-	val |= (bus_speed == 400000) << TIM_CFG_MODE_400_SHIFT;
++	val |= (bus_speed == I2C_FAST_MODE_FREQ) << TIM_CFG_MODE_400_SHIFT;
+ 	iproc_i2c_wr_reg(iproc_i2c, TIM_CFG_OFFSET, val);
  
- /* min I2C clock frequency 14M */
--#define SYNQUACER_I2C_MIN_CLK_RATE	(14 * 1000000)
-+#define SYNQUACER_I2C_MIN_CLK_RATE	(14 * HZ_PER_MHZ)
- /* max I2C clock frequency 200M */
--#define SYNQUACER_I2C_MAX_CLK_RATE	(200 * 1000000)
-+#define SYNQUACER_I2C_MAX_CLK_RATE	(200 * HZ_PER_MHZ)
- /* I2C clock frequency 18M */
--#define SYNQUACER_I2C_CLK_RATE_18M	(18 * 1000000)
-+#define SYNQUACER_I2C_CLK_RATE_18M	(18 * HZ_PER_MHZ)
+ 	dev_info(iproc_i2c->device, "bus set to %u Hz\n", bus_speed);
+@@ -1029,7 +1029,7 @@ static int bcm_iproc_i2c_resume(struct device *dev)
+ 	/* configure to the desired bus speed */
+ 	val = iproc_i2c_rd_reg(iproc_i2c, TIM_CFG_OFFSET);
+ 	val &= ~BIT(TIM_CFG_MODE_400_SHIFT);
+-	val |= (iproc_i2c->bus_speed == 400000) << TIM_CFG_MODE_400_SHIFT;
++	val |= (iproc_i2c->bus_speed == I2C_FAST_MODE_FREQ) << TIM_CFG_MODE_400_SHIFT;
+ 	iproc_i2c_wr_reg(iproc_i2c, TIM_CFG_OFFSET, val);
  
- #define SYNQUACER_I2C_SPEED_FM		400	// Fast Mode
- #define SYNQUACER_I2C_SPEED_SM		100	// Standard Mode
-@@ -602,7 +602,7 @@ static int synquacer_i2c_probe(struct platform_device *pdev)
- 	i2c->adapter.nr = pdev->id;
- 	init_completion(&i2c->completion);
- 
--	if (bus_speed < 400000)
-+	if (bus_speed < I2C_FAST_MODE_FREQ)
- 		i2c->speed_khz = SYNQUACER_I2C_SPEED_SM;
- 	else
- 		i2c->speed_khz = SYNQUACER_I2C_SPEED_FM;
+ 	bcm_iproc_i2c_enable_disable(iproc_i2c, true);
 -- 
 2.25.0
