@@ -1,97 +1,59 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 05/40] i2c: amd-mp2: Use generic definitions for bus frequencies
-Date: Mon, 24 Feb 2020 17:14:55 +0200
-Message-ID: <20200224151530.31713-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 24/40] i2c: owl: Use generic definitions for bus frequencies
+Date: Mon, 24 Feb 2020 17:15:14 +0200
+Message-ID: <20200224151530.31713-24-andriy.shevchenko@linux.intel.com>
 References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:59397 "EHLO mga06.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:14873 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727822AbgBXPPf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 24 Feb 2020 10:15:35 -0500
+        id S1727974AbgBXPPj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Feb 2020 10:15:39 -0500
 In-Reply-To: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Elie Morisse <syniurge@gmail.com>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Shyam Sundar S K <shyam-sundar.s-k@amd.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
 Since we have generic definitions for bus frequencies, let's use them.
 
-Cc: Elie Morisse <syniurge@gmail.com>
-Cc: Nehal Shah <nehal-bakulchandra.shah@amd.com>
-Cc: Shyam Sundar S K <shyam-sundar.s-k@amd.com>
+Cc: "Andreas Färber" <afaerber@suse.de>
+Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-amd-mp2-plat.c | 27 ++++++++++++++++-----------
- include/linux/i2c.h                   |  2 ++
- 2 files changed, 18 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-owl.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-amd-mp2-plat.c b/drivers/i2c/busses/i2c-amd-mp2-plat.c
-index f5b3f00c6559..9b9d90b98a05 100644
---- a/drivers/i2c/busses/i2c-amd-mp2-plat.c
-+++ b/drivers/i2c/busses/i2c-amd-mp2-plat.c
-@@ -201,32 +201,37 @@ static int i2c_amd_resume(struct amd_i2c_common *i2c_common)
- }
- #endif
+diff --git a/drivers/i2c/busses/i2c-owl.c b/drivers/i2c/busses/i2c-owl.c
+index b6b5a495118b..f9baeeb1a711 100644
+--- a/drivers/i2c/busses/i2c-owl.c
++++ b/drivers/i2c/busses/i2c-owl.c
+@@ -87,9 +87,6 @@
  
-+static const u32 supported_speeds[] = {
-+	I2C_HIGH_SPEED_MODE_FREQ,
-+	I2C_TURBO_MODE_FREQ,
-+	I2C_FAST_MODE_PLUS_FREQ,
-+	I2C_FAST_MODE_FREQ,
-+	I2C_STANDARD_MODE_FREQ,
-+};
-+
- static enum speed_enum i2c_amd_get_bus_speed(struct platform_device *pdev)
- {
- 	u32 acpi_speed;
- 	int i;
--	static const u32 supported_speeds[] = {
--		0, 100000, 400000, 1000000, 1400000, 3400000
--	};
+ #define OWL_I2C_MAX_RETRIES	50
  
- 	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
- 	/* round down to the lowest standard speed */
--	for (i = 1; i < ARRAY_SIZE(supported_speeds); i++) {
--		if (acpi_speed < supported_speeds[i])
-+	for (i = 0; i < ARRAY_SIZE(supported_speeds); i++) {
-+		if (acpi_speed >= supported_speeds[i])
- 			break;
+-#define OWL_I2C_DEF_SPEED_HZ	100000
+-#define OWL_I2C_MAX_SPEED_HZ	400000
+-
+ struct owl_i2c_dev {
+ 	struct i2c_adapter	adap;
+ 	struct i2c_msg		*msg;
+@@ -419,11 +416,11 @@ static int owl_i2c_probe(struct platform_device *pdev)
+ 
+ 	if (of_property_read_u32(dev->of_node, "clock-frequency",
+ 				 &i2c_dev->bus_freq))
+-		i2c_dev->bus_freq = OWL_I2C_DEF_SPEED_HZ;
++		i2c_dev->bus_freq = I2C_STANDARD_MODE_FREQ;
+ 
+ 	/* We support only frequencies of 100k and 400k for now */
+-	if (i2c_dev->bus_freq != OWL_I2C_DEF_SPEED_HZ &&
+-	    i2c_dev->bus_freq != OWL_I2C_MAX_SPEED_HZ) {
++	if (i2c_dev->bus_freq != I2C_STANDARD_MODE_FREQ &&
++	    i2c_dev->bus_freq != I2C_FAST_MODE_FREQ) {
+ 		dev_err(dev, "invalid clock-frequency %d\n", i2c_dev->bus_freq);
+ 		return -EINVAL;
  	}
--	acpi_speed = supported_speeds[i - 1];
-+	acpi_speed = i < ARRAY_SIZE(supported_speeds) ? supported_speeds[i] : 0;
- 
- 	switch (acpi_speed) {
--	case 100000:
-+	case I2C_STANDARD_MODE_FREQ:
- 		return speed100k;
--	case 400000:
-+	case I2C_FAST_MODE_FREQ:
- 		return speed400k;
--	case 1000000:
-+	case I2C_FAST_MODE_PLUS_FREQ:
- 		return speed1000k;
--	case 1400000:
-+	case I2C_TURBO_MODE_FREQ:
- 		return speed1400k;
--	case 3400000:
-+	case I2C_HIGH_SPEED_MODE_FREQ:
- 		return speed3400k;
- 	default:
- 		return speed400k;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 1b9c483bd9f5..d3022a014227 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -46,6 +46,8 @@ typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
- #define I2C_STANDARD_MODE_FREQ		(100 * HZ_PER_KHZ)
- #define I2C_FAST_MODE_FREQ		(400 * HZ_PER_KHZ)
- #define I2C_FAST_MODE_PLUS_FREQ		(1000 * HZ_PER_KHZ)
-+#define I2C_TURBO_MODE_FREQ		(1400 * HZ_PER_KHZ)
-+#define I2C_HIGH_SPEED_MODE_FREQ	(3400 * HZ_PER_KHZ)
- 
- struct module;
- struct property_entry;
 -- 
 2.25.0
