@@ -1,83 +1,63 @@
-From: Ard Biesheuvel <ardb@kernel.org>
-Subject: Re: [PATCH v1 36/40] i2c: synquacer: Use generic definitions for bus frequencies
-Date: Mon, 24 Feb 2020 16:18:37 +0100
-Message-ID: <CAKv+Gu-syv58pi7OMV3bDn7P5ZhBhMpjiFmLYoJ7t=KuWxVH1g@mail.gmail.com>
-References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com> <20200224151530.31713-36-andriy.shevchenko@linux.intel.com>
+From: Andrij Abyzov <drolevar@gmail.com>
+Subject: Re: Strange behavior in i2c-mpc
+Date: Mon, 24 Feb 2020 16:23:20 +0100
+Message-ID: <CADQNx5T1Sq0=-8vJzkDta4FsYhRGgbZzLfd5pxiSY+XWhhaskQ@mail.gmail.com>
+References: <CADQNx5TaaJhCJMPQTtGrNibY082SmjVKa3EG9SDJPsteLnn41A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:43318 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727783AbgBXPSv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 24 Feb 2020 10:18:51 -0500
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18F0C2084E
-        for <linux-i2c@vger.kernel.org>; Mon, 24 Feb 2020 15:18:50 +0000 (UTC)
-Received: by mail-wr1-f41.google.com with SMTP id y17so2019229wrn.6
-        for <linux-i2c@vger.kernel.org>; Mon, 24 Feb 2020 07:18:50 -0800 (PST)
-In-Reply-To: <20200224151530.31713-36-andriy.shevchenko@linux.intel.com>
+Received: from mail-ed1-f42.google.com ([209.85.208.42]:45028 "EHLO
+        mail-ed1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727299AbgBXPXd (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Feb 2020 10:23:33 -0500
+Received: by mail-ed1-f42.google.com with SMTP id g19so12274609eds.11
+        for <linux-i2c@vger.kernel.org>; Mon, 24 Feb 2020 07:23:32 -0800 (PST)
+In-Reply-To: <CADQNx5TaaJhCJMPQTtGrNibY082SmjVKa3EG9SDJPsteLnn41A@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
 
-On Mon, 24 Feb 2020 at 16:15, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
->
-> Since we have generic definitions for bus frequencies, let's use them.
->
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Hi all,
 
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
+I=E2=80=99m trying to implement the following transfer with the i2c-mpc dri=
+ver:
 
-> ---
->  drivers/i2c/busses/i2c-synquacer.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
-> index 86026798b4f7..ccd2ed4fa2f1 100644
-> --- a/drivers/i2c/busses/i2c-synquacer.c
-> +++ b/drivers/i2c/busses/i2c-synquacer.c
-> @@ -67,10 +67,10 @@
->
->  /* STANDARD MODE frequency */
->  #define SYNQUACER_I2C_CLK_MASTER_STD(rate)                     \
-> -       DIV_ROUND_UP(DIV_ROUND_UP((rate), 100000) - 2, 2)
-> +       DIV_ROUND_UP(DIV_ROUND_UP((rate), I2C_STANDARD_MODE_FREQ) - 2, 2)
->  /* FAST MODE frequency */
->  #define SYNQUACER_I2C_CLK_MASTER_FAST(rate)                    \
-> -       DIV_ROUND_UP((DIV_ROUND_UP((rate), 400000) - 2) * 2, 3)
-> +       DIV_ROUND_UP((DIV_ROUND_UP((rate), I2C_FAST_MODE_FREQ) - 2) * 2, 3)
->
->  /* (clkrate <= 18000000) */
->  /* calculate the value of CS bits in CCR register on standard mode */
-> @@ -111,11 +111,11 @@
->                                         & SYNQUACER_I2C_CSR_CS_MASK)
->
->  /* min I2C clock frequency 14M */
-> -#define SYNQUACER_I2C_MIN_CLK_RATE     (14 * 1000000)
-> +#define SYNQUACER_I2C_MIN_CLK_RATE     (14 * HZ_PER_MHZ)
->  /* max I2C clock frequency 200M */
-> -#define SYNQUACER_I2C_MAX_CLK_RATE     (200 * 1000000)
-> +#define SYNQUACER_I2C_MAX_CLK_RATE     (200 * HZ_PER_MHZ)
->  /* I2C clock frequency 18M */
-> -#define SYNQUACER_I2C_CLK_RATE_18M     (18 * 1000000)
-> +#define SYNQUACER_I2C_CLK_RATE_18M     (18 * HZ_PER_MHZ)
->
->  #define SYNQUACER_I2C_SPEED_FM         400     // Fast Mode
->  #define SYNQUACER_I2C_SPEED_SM         100     // Standard Mode
-> @@ -602,7 +602,7 @@ static int synquacer_i2c_probe(struct platform_device *pdev)
->         i2c->adapter.nr = pdev->id;
->         init_completion(&i2c->completion);
->
-> -       if (bus_speed < 400000)
-> +       if (bus_speed < I2C_FAST_MODE_FREQ)
->                 i2c->speed_khz = SYNQUACER_I2C_SPEED_SM;
->         else
->                 i2c->speed_khz = SYNQUACER_I2C_SPEED_FM;
-> --
-> 2.25.0
->
+Read MR: Initiate pressure management
+
++---------------------+
+|S|6|5|4|3|2|1|0|R|A|S|
++---------------------+
+
+First S - start condition
+6:0 - slave address
+R - read bit ('1')
+A - wait for slave ACK
+Second S - stop condition.
+
+My guess was that doing that would be enough:
+
+    struct i2c_msg msg =3D {
+        .addr =3D <addr>,
+        .flags =3D I2C_M_RD,
+        .len =3D 0,
+        .buf =3D NULL,
+    };
+
+    return i2c_transfer(data->client->adapter, &msg, 1);
+
+However, when the length parameter is 0, the wait for the CSR_MBB bit
+in lines 617-630 of mpc_xfer in drivers/i2c/busses/i2c-mpc.c times
+out.
+
+I=E2=80=99m checking the NXP P2020 spec, and it says that
+
+     Note that a master can generate a STOP even if the slave has transmitt=
+ed an
+     acknowledge bit, at which point the slave must release the bus.
+
+To me everything seems OK here, but still CSR_MBB never becomes zero.
+Would you be able to give me any advice?
+
+Best regards,
+Andrij Abyzov
