@@ -1,134 +1,138 @@
-From: Julia Lawall <julia.lawall@inria.fr>
-Subject: Re: [PATCH 1/1] i2c: imc: Add support for Intel iMC SMBus host
- controller. (fwd)
-Date: Mon, 24 Feb 2020 10:13:52 +0100 (CET)
-Message-ID: <alpine.DEB.2.21.2002241012330.2936@hadrien>
+From: Michal Simek <michal.simek@xilinx.com>
+Subject: Re: [PATCH] i2c: xiic: Support disabling multi-master in DT
+Date: Mon, 24 Feb 2020 11:13:46 +0100
+Message-ID: <481fe028-0ec6-eca3-7436-ebbb8527f3d8@xilinx.com>
+References: <20200218135627.24739-1-ext-jaakko.laine@vaisala.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Schaeckeler <schaecsn@gmx.net>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, kbuild-all@lists.01.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr690044.outbound.protection.outlook.com ([40.107.69.44]:15342
+        "EHLO NAM04-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726452AbgBXKOI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Feb 2020 05:14:08 -0500
+In-Reply-To: <20200218135627.24739-1-ext-jaakko.laine@vaisala.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Laine Jaakko EXT <ext-jaakko.laine@vaisala.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "michal.simek@xilinx.com" <michal.simek@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-Hello,
+On 18. 02. 20 14:58, Laine Jaakko EXT wrote:
+> I2C master operating in multimaster mode can get stuck
+> indefinitely if I2C start is detected on bus, but no master
+> has a transaction going.
+> 
+> This is a weakness in I2C standard, which defines no way
+> to recover, since all masters are indefinitely disallowed
+> from interrupting the currently operating master. A start
+> condition can be created for example by an electromagnetic
+> discharge applied near physical I2C lines. Or a already
+> operating master could get reset immediately after sending
+> a start.
+> 
+> If it is known during device tree creation that only a single
+> I2C master will be present on the bus, this deadlock of the
+> I2C bus could be avoided in the driver by ignoring the
+> bus_is_busy register of the xiic, since bus can never be
+> reserved by any other master.
+> 
+> This patch adds this support for detecting multi-master flag
+> in device tree and when not provided, improves I2C reliability
+> by ignoring the therefore unnecessary xiic bus_is_busy register.
+> 
+> Error can be reproduced by pulling I2C SDA -line temporarily low
+> by shorting it to ground, while linux I2C master is operating on
+> it using the xiic driver. The application using the bus will
+> start receiving linux error code 16: "Device or resource busy"
+> indefinitely:
+> 
+> kernel: pca953x 0-0020: failed writing register
+> app: Error writing file, error: 16
+> 
+> With multi-master disabled device will instead receive error
+> code 5: "I/O error" while SDA is grounded, but recover normal
+> operation once short is removed.
+> 
+> kernel: pca953x 0-0020: failed reading register
+> app: Error reading file, error: 5
+> 
+> Signed-off-by: Jaakko Laine <ext-jaakko.laine@vaisala.com>
+> ---
+> 
+> Applies against Linux 5.6-rc1 from master in
+> https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
+> 
+> I would like to point out that that since this patch disables
+> multimaster mode based on the standard I2C multimaster property
+> in device tree (as it propably should) and since the driver has
+> previously supported multimaster even when this property doesn't
+> exist in device tree, there is a possible backwards
+> compatibility issue:
+> 
+> If there are devices relying on the multimaster mode to work
+> without defining the property in device tree, their I2C bus
+> might not work without issues anymore after this patch, since
+> the driver will asume it is the only master on bus and could
+> therefore interrupt the communication of some other master on
+> same bus.
+> 
+> Please suggest some alternative fix if this is not acceptable
+> as is. On the other hand supporting multimaster even on a bus
+> with only a single master does currently cause some
+> reliability issues since the bus can get indefinitely stuck.
+> I don't think there exists a I2C protocol compatible way to
+> resolve the deadlock on multimaster bus.
 
-Devm-allocated data should not be kfreed.  The label probe_out_free does
-not look necessary.
+Wolfram: I don't think this feature is used on this driver a lot but
+clearly this breaks compatibility. Not sure how to handle this properly
+and I am fine with this solution.
 
-julia
+Shubhrajyoti: Any comment?
 
----------- Forwarded message ----------
-Date: Mon, 24 Feb 2020 11:49:07 +0800
-From: kbuild test robot <lkp@intel.com>
-To: kbuild@lists.01.org
-Cc: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 1/1] i2c: imc: Add support for Intel iMC SMBus host
-    controller.
+> 
+>  drivers/i2c/busses/i2c-xiic.c | 52 +++++++++++++++++++++--------------
+>  1 file changed, 32 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+> index 90c1c362394d..37f8d6ee0577 100644
+> --- a/drivers/i2c/busses/i2c-xiic.c
+> +++ b/drivers/i2c/busses/i2c-xiic.c
+> @@ -46,19 +46,20 @@ enum xiic_endian {
+>  
+>  /**
+>   * struct xiic_i2c - Internal representation of the XIIC I2C bus
+> - * @dev:	Pointer to device structure
+> - * @base:	Memory base of the HW registers
+> - * @wait:	Wait queue for callers
+> - * @adap:	Kernel adapter representation
+> - * @tx_msg:	Messages from above to be sent
+> - * @lock:	Mutual exclusion
+> - * @tx_pos:	Current pos in TX message
+> - * @nmsgs:	Number of messages in tx_msg
+> - * @state:	See STATE_
+> - * @rx_msg:	Current RX message
+> - * @rx_pos:	Position within current RX message
+> - * @endianness: big/little-endian byte order
+> - * @clk:	Pointer to AXI4-lite input clock
+> + * @dev:		Pointer to device structure
+> + * @base:		Memory base of the HW registers
+> + * @wait:		Wait queue for callers
+> + * @adap:		Kernel adapter representation
+> + * @tx_msg:		Messages from above to be sent
+> + * @lock:		Mutual exclusion
+> + * @tx_pos:		Current pos in TX message
+> + * @nmsgs:		Number of messages in tx_msg
+> + * @state:		See STATE_
+> + * @rx_msg:		Current RX message
+> + * @rx_pos:		Position within current RX message
+> + * @endianness:		big/little-endian byte order
+> + * @multimaster:	Indicates bus has multiple masters
+> + * @clk:		Pointer to AXI4-lite input clock
 
-CC: kbuild-all@lists.01.org
-In-Reply-To: <1582498270-50674-2-git-send-email-schaecsn@gmx.net>
-References: <1582498270-50674-2-git-send-email-schaecsn@gmx.net>
-TO: Stefan Schaeckeler <schaecsn@gmx.net>
-CC: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Lutomirski <luto@kernel.org>
+nit: I can't see reason for these changes above. I would do it in
+separate patch if you want to align.
 
-Hi Stefan,
-
-I love your patch! Perhaps something to improve:
-
-[auto build test WARNING on wsa/i2c/for-next]
-[also build test WARNING on linux/master linus/master v5.6-rc2 next-20200221]
-[if your patch is applied to the wrong git tree, please drop us a note to help
-improve the system. BTW, we also suggest to use '--base' option to specify the
-base tree in git format-patch, please see https://stackoverflow.com/a/37406982]
-
-url:    https://github.com/0day-ci/linux/commits/Stefan-Schaeckeler/i2c-imc-Add-support-for-Intel-iMC-SMBus-host-controller/20200224-065435
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-:::::: branch date: 5 hours ago
-:::::: commit date: 5 hours ago
-
-If you fix the issue, kindly add following tag
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Julia Lawall <julia.lawall@lip6.fr>
-
->> drivers/i2c/busses/i2c-imc.c:447:1-6: WARNING: invalid free of devm_ allocated data
-
-# https://github.com/0day-ci/linux/commit/d7855ea60367262eb4f8252da00de63a0b546234
-git remote add linux-review https://github.com/0day-ci/linux
-git remote update linux-review
-git checkout d7855ea60367262eb4f8252da00de63a0b546234
-vim +447 drivers/i2c/busses/i2c-imc.c
-
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  382
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  383  static int imc_probe(struct pci_dev *dev, const struct pci_device_id *id)
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  384  {
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  385  	int i, j, err;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  386  	struct imc_priv *priv;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  387  	struct pci_dev *sad;  /* System Address Decoder */
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  388  	u32 sadcntl;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  389
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  390  	/* Sanity check. This device is always at 0x13.0 */
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  391  	if (dev->devfn != PCI_DEVFN(0x13, 0))
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  392  		return -ENODEV;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  393
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  394  	priv = devm_kzalloc(&dev->dev, sizeof(*priv), GFP_KERNEL);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  395  	if (!priv)
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  396  		return -ENOMEM;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  397  	priv->pci_dev = dev;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  398  	pci_set_drvdata(dev, priv);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  399
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  400  	/*
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  401  	 * From sad, we learn the local node id of the socket.
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  402  	 *
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  403  	 * The socket will not change at runtime and so we throw away sad.
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  404  	 */
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  405  	sad = imc_get_related_device(dev->bus, PCI_DEVFN(0x0f, 5),
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  406  				     PCI_DEVICE_ID_INTEL_BROADWELL_IMC_SAD);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  407  	if (!sad) {
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  408  		err = -ENODEV;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  409  		goto probe_out_free;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  410  	}
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  411  	pci_read_config_dword(sad, SADCNTL, &sadcntl);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  412  	pci_dev_put(sad);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  413
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  414  	/*
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  415  	 * From pcu, we access the CLTT polling interval.
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  416  	 *
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  417  	 * The polling interval is set by BIOS. We assume it will not change at
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  418  	 * runtime and cache the initial value.
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  419  	 */
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  420  	priv->pcu.pci_dev = imc_get_related_device(dev->bus, PCI_DEVFN(0x1e, 1),
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  421  					 PCI_DEVICE_ID_INTEL_BROADWELL_IMC_PCU);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  422  	if (!priv->pcu.pci_dev) {
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  423  		err = -ENODEV;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  424  		goto probe_out_free;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  425  	}
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  426  	pci_read_config_dword(priv->pcu.pci_dev, TSODCNTL,
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  427  			      &priv->pcu.tsod_polling_interval);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  428
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  429  	mutex_init(&priv->pcu.mutex);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  430
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  431  	for (i = 0; i < 2; i++) {
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  432  		err = imc_init_channelpair(priv, i,
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  433  					   sadcntl & SADCNTL_LOCAL_NODEID_MASK);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  434  		if (err)
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  435  			goto probe_out_free_channelpair;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  436  	}
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  437
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  438  	return 0;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  439
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  440  probe_out_free_channelpair:
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  441  	for (j = 0; j < i; j++)
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  442  		imc_free_channelpair(priv, j);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  443
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  444  	mutex_destroy(&priv->pcu.mutex);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  445
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  446  probe_out_free:
-d7855ea6036726 Stefan Schaeckeler 2020-02-23 @447  	kfree(priv);
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  448  	return err;
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  449  }
-d7855ea6036726 Stefan Schaeckeler 2020-02-23  450
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+Thanks,
+Michal
