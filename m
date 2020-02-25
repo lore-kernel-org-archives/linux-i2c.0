@@ -1,54 +1,39 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: powermac: correct comment about custom handling
-Date: Tue, 25 Feb 2020 15:26:13 +0100
-Message-ID: <20200225142613.7169-1-wsa@the-dreams.de>
+From: Laine Jaakko EXT <ext-jaakko.laine@vaisala.com>
+Subject: RE: [PATCH] i2c: xiic: Support disabling multi-master in DT
+Date: Tue, 25 Feb 2020 14:27:21 +0000
+Message-ID: <AM0PR06MB5185341478B6919A9CC22271D4ED0@AM0PR06MB5185.eurprd06.prod.outlook.com>
+References: <20200218135627.24739-1-ext-jaakko.laine@vaisala.com>
+ <481fe028-0ec6-eca3-7436-ebbb8527f3d8@xilinx.com>
+ <AM0PR06MB518514EE9C057CB129079825D4ED0@AM0PR06MB5185.eurprd06.prod.outlook.com>
+ <20200225141357.GE3677@ninjato>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:39388 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730525AbgBYO0V (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 25 Feb 2020 09:26:21 -0500
+Received: from mail-eopbgr140071.outbound.protection.outlook.com ([40.107.14.71]:4876
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730734AbgBYO1Z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Feb 2020 09:27:25 -0500
+In-Reply-To: <20200225141357.GE3677@ninjato>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org, Wolfram Sang <wsa@the-dreams.de>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Michal Simek <michal.simek@xilinx.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-The comment had some flaws which are now fixed:
-- the prefix is 'MAC' not 'AAPL'
-- no kernel coding style and too short length
-- 'we do' instead of 'we to'
+-----Original Message-----
+From: Wolfram Sang <wsa@the-dreams.de>=20
+Sent: Tuesday, 25 February, 2020 16:14
+To: Laine Jaakko EXT <ext-jaakko.laine@vaisala.com>
+Cc: Michal Simek <michal.simek@xilinx.com>; linux-i2c@vger.kernel.org; linu=
+x-arm-kernel@lists.infradead.org; Shubhrajyoti Datta <shubhraj@xilinx.com>
+Subject: Re: [PATCH] i2c: xiic: Support disabling multi-master in DT
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- drivers/i2c/busses/i2c-powermac.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+> My favourite is to change alignment to be just one space. Then, we have
+> a bit of overhead now, but never again in the future.
 
-diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
-index 973e5339033c..d565714c1f13 100644
---- a/drivers/i2c/busses/i2c-powermac.c
-+++ b/drivers/i2c/busses/i2c-powermac.c
-@@ -279,14 +279,13 @@ static bool i2c_powermac_get_type(struct i2c_adapter *adap,
- {
- 	char tmp[16];
- 
--	/* Note: we to _NOT_ want the standard
--	 * i2c drivers to match with any of our powermac stuff
--	 * unless they have been specifically modified to handle
--	 * it on a case by case basis. For example, for thermal
--	 * control, things like lm75 etc... shall match with their
--	 * corresponding windfarm drivers, _NOT_ the generic ones,
--	 * so we force a prefix of AAPL, onto the modalias to
--	 * make that happen
-+	/*
-+	 * Note: we do _NOT_ want the standard i2c drivers to match with any of
-+	 * our powermac stuff unless they have been specifically modified to
-+	 * handle it on a case by case basis. For example, for thermal control,
-+	 * things like lm75 etc... shall match with their corresponding
-+	 * windfarm drivers, _NOT_ the generic ones, so we force a prefix of
-+	 * 'MAC', onto the modalias to make that happen
- 	 */
- 
- 	/* First try proper modalias */
--- 
-2.20.1
+Ok, I will add that change as separate patch to V2 patch series.
+
+Thanks,
+Jaakko
