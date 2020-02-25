@@ -1,79 +1,39 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 2/3] watchdog: iTCO_wdt: Make ICH_RES_IO_SMI optional
-Date: Tue, 25 Feb 2020 06:37:09 -0800
-Message-ID: <20200225143709.GA450@roeck-us.net>
-References: <20200225123802.88984-1-mika.westerberg@linux.intel.com>
- <20200225123802.88984-3-mika.westerberg@linux.intel.com>
+From: Michal Simek <michal.simek@xilinx.com>
+Subject: Re: [PATCH] i2c: xiic: Support disabling multi-master in DT
+Date: Tue, 25 Feb 2020 15:37:21 +0100
+Message-ID: <431d520b-24a1-687c-1f4b-4ebe95181a2b@xilinx.com>
+References: <20200218135627.24739-1-ext-jaakko.laine@vaisala.com>
+ <481fe028-0ec6-eca3-7436-ebbb8527f3d8@xilinx.com>
+ <AM0PR06MB518514EE9C057CB129079825D4ED0@AM0PR06MB5185.eurprd06.prod.outlook.com>
+ <20200225141357.GE3677@ninjato>
+ <AM0PR06MB5185341478B6919A9CC22271D4ED0@AM0PR06MB5185.eurprd06.prod.outlook.com>
+ <20200225143245.GF3677@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:41673 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729048AbgBYOhM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Feb 2020 09:37:12 -0500
-Content-Disposition: inline
-In-Reply-To: <20200225123802.88984-3-mika.westerberg@linux.intel.com>
+Received: from mail-dm6nam12on2075.outbound.protection.outlook.com ([40.107.243.75]:6212
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729436AbgBYOho (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Feb 2020 09:37:44 -0500
+In-Reply-To: <20200225143245.GF3677@ninjato>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Wim Van Sebroeck <wim@linux-watchdog.org>, Wolfram Sang <wsa@the-dreams.de>, Martin Volf <martin.volf.42@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Laine Jaakko EXT <ext-jaakko.laine@vaisala.com>
+Cc: Michal Simek <michal.simek@xilinx.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-On Tue, Feb 25, 2020 at 03:38:01PM +0300, Mika Westerberg wrote:
-> The iTCO_wdt driver only needs ICH_RES_IO_SMI I/O resource when either
-> turn_SMI_watchdog_clear_off module parameter is set to match ->iTCO_version
-> (or higher), and when legacy iTCO_vendorsupport is set. Modify the driver
-> so that ICH_RES_IO_SMI is optional if the two conditions are not met.
+On 25. 02. 20 15:32, Wolfram Sang wrote:
 > 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> ---
->  drivers/watchdog/iTCO_wdt.c | 22 +++++++++++++---------
->  1 file changed, 13 insertions(+), 9 deletions(-)
+>>> My favourite is to change alignment to be just one space. Then, we have
+>>> a bit of overhead now, but never again in the future.
+>>
+>> Ok, I will add that change as separate patch to V2 patch series.
 > 
-> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> index 156360e37714..f1692452bc25 100644
-> --- a/drivers/watchdog/iTCO_wdt.c
-> +++ b/drivers/watchdog/iTCO_wdt.c
-> @@ -460,7 +460,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
->  		return -ENODEV;
->  
->  	p->smi_res = platform_get_resource(pdev, IORESOURCE_IO, ICH_RES_IO_SMI);
-> -	if (!p->smi_res)
-> +	if (!p->smi_res && iTCO_vendorsupport)
->  		return -ENODEV;
->  
->  	p->iTCO_version = pdata->version;
-> @@ -492,15 +492,19 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
->  	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
->  	p->update_no_reboot_bit(p->no_reboot_priv, true);
->  
-> -	/* The TCO logic uses the TCO_EN bit in the SMI_EN register */
-> -	if (!devm_request_region(dev, p->smi_res->start,
-> -				 resource_size(p->smi_res),
-> -				 pdev->name)) {
-> -		pr_err("I/O address 0x%04llx already in use, device disabled\n",
-> -		       (u64)SMI_EN(p));
-> -		return -EBUSY;
-> -	}
->  	if (turn_SMI_watchdog_clear_off >= p->iTCO_version) {
-> +		if (!p->smi_res) {
-> +			pr_err("SMI I/O resource is missing\n");
-> +			return -EINVAL;
-> +		}
-> +		/* The TCO logic uses the TCO_EN bit in the SMI_EN register */
-> +		if (!devm_request_region(dev, p->smi_res->start,
-> +					 resource_size(p->smi_res),
-> +					 pdev->name)) {
-> +			pr_err("I/O address 0x%04llx already in use, device disabled\n",
-> +			       (u64)SMI_EN(p));
-> +			return -EBUSY;
-> +		}
+> Perfect, thanks!
+> 
 
-The request_region call is also needed if iTCO_vendorsupport is true.
-Well, not strictly speaking, I guess, but then one could argue that
-it isn't needed at all.
+Wolfram: Any option about that multi-master property?
 
-In this context - looking into the vendorsupport code, I wonder if
-it is time to retire it. Separate patch, of course, but still.
-Any thoughts ?
-
-Guenter
+M
