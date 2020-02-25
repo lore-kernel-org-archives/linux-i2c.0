@@ -1,103 +1,38 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 1/3] watchdog: iTCO_wdt: Export vendorsupport
-Date: Tue, 25 Feb 2020 15:38:00 +0300
-Message-ID: <20200225123802.88984-2-mika.westerberg@linux.intel.com>
-References: <20200225123802.88984-1-mika.westerberg@linux.intel.com>
+From: Laine Jaakko EXT <ext-jaakko.laine@vaisala.com>
+Subject: RE: [PATCH] i2c: xiic: Support disabling multi-master in DT
+Date: Tue, 25 Feb 2020 14:08:22 +0000
+Message-ID: <AM0PR06MB518514EE9C057CB129079825D4ED0@AM0PR06MB5185.eurprd06.prod.outlook.com>
+References: <20200218135627.24739-1-ext-jaakko.laine@vaisala.com>
+ <481fe028-0ec6-eca3-7436-ebbb8527f3d8@xilinx.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200225123802.88984-1-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Wim Van Sebroeck <wim-Q8PRGTgFL9WUCWQAtAn6Ix2eb7JE58TQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Martin Volf <martin.volf.42-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr70070.outbound.protection.outlook.com ([40.107.7.70]:22468
+        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730240AbgBYOI1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Feb 2020 09:08:27 -0500
+In-Reply-To: <481fe028-0ec6-eca3-7436-ebbb8527f3d8@xilinx.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Michal Simek <michal.simek@xilinx.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-In preparation for making ->smi_res optional the iTCO_wdt driver needs
-to know whether vendorsupport is being set to non-zero. For this reason
-export the variable.
-
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/watchdog/iTCO_vendor.h         |  2 ++
- drivers/watchdog/iTCO_vendor_support.c | 16 +++++++++-------
- 2 files changed, 11 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/watchdog/iTCO_vendor.h b/drivers/watchdog/iTCO_vendor.h
-index 0f7373ba10d5..69e92e692ae0 100644
---- a/drivers/watchdog/iTCO_vendor.h
-+++ b/drivers/watchdog/iTCO_vendor.h
-@@ -1,10 +1,12 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- /* iTCO Vendor Specific Support hooks */
- #ifdef CONFIG_ITCO_VENDOR_SUPPORT
-+extern int iTCO_vendorsupport;
- extern void iTCO_vendor_pre_start(struct resource *, unsigned int);
- extern void iTCO_vendor_pre_stop(struct resource *);
- extern int iTCO_vendor_check_noreboot_on(void);
- #else
-+#define iTCO_vendorsupport				0
- #define iTCO_vendor_pre_start(acpibase, heartbeat)	{}
- #define iTCO_vendor_pre_stop(acpibase)			{}
- #define iTCO_vendor_check_noreboot_on()			1
-diff --git a/drivers/watchdog/iTCO_vendor_support.c b/drivers/watchdog/iTCO_vendor_support.c
-index 4f1b96f59349..cf0eaa04b064 100644
---- a/drivers/watchdog/iTCO_vendor_support.c
-+++ b/drivers/watchdog/iTCO_vendor_support.c
-@@ -39,8 +39,10 @@
- /* Broken BIOS */
- #define BROKEN_BIOS		911
- 
--static int vendorsupport;
--module_param(vendorsupport, int, 0);
-+int iTCO_vendorsupport;
-+EXPORT_SYMBOL(iTCO_vendorsupport);
-+
-+module_param_named(vendorsupport, iTCO_vendorsupport, int, 0);
- MODULE_PARM_DESC(vendorsupport, "iTCO vendor specific support mode, default="
- 			"0 (none), 1=SuperMicro Pent3, 911=Broken SMI BIOS");
- 
-@@ -152,7 +154,7 @@ static void broken_bios_stop(struct resource *smires)
- void iTCO_vendor_pre_start(struct resource *smires,
- 			   unsigned int heartbeat)
- {
--	switch (vendorsupport) {
-+	switch (iTCO_vendorsupport) {
- 	case SUPERMICRO_OLD_BOARD:
- 		supermicro_old_pre_start(smires);
- 		break;
-@@ -165,7 +167,7 @@ EXPORT_SYMBOL(iTCO_vendor_pre_start);
- 
- void iTCO_vendor_pre_stop(struct resource *smires)
- {
--	switch (vendorsupport) {
-+	switch (iTCO_vendorsupport) {
- 	case SUPERMICRO_OLD_BOARD:
- 		supermicro_old_pre_stop(smires);
- 		break;
-@@ -178,7 +180,7 @@ EXPORT_SYMBOL(iTCO_vendor_pre_stop);
- 
- int iTCO_vendor_check_noreboot_on(void)
- {
--	switch (vendorsupport) {
-+	switch (iTCO_vendorsupport) {
- 	case SUPERMICRO_OLD_BOARD:
- 		return 0;
- 	default:
-@@ -189,13 +191,13 @@ EXPORT_SYMBOL(iTCO_vendor_check_noreboot_on);
- 
- static int __init iTCO_vendor_init_module(void)
- {
--	if (vendorsupport == SUPERMICRO_NEW_BOARD) {
-+	if (iTCO_vendorsupport == SUPERMICRO_NEW_BOARD) {
- 		pr_warn("Option vendorsupport=%d is no longer supported, "
- 			"please use the w83627hf_wdt driver instead\n",
- 			SUPERMICRO_NEW_BOARD);
- 		return -EINVAL;
- 	}
--	pr_info("vendor-support=%d\n", vendorsupport);
-+	pr_info("vendor-support=%d\n", iTCO_vendorsupport);
- 	return 0;
- }
- 
--- 
-2.25.0
+LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IE1pY2hhbCBTaW1layA8bWljaGFsLnNp
+bWVrQHhpbGlueC5jb20+IA0KU2VudDogTW9uZGF5LCAyNCBGZWJydWFyeSwgMjAyMCAxMjoxNA0K
+VG86IExhaW5lIEphYWtrbyBFWFQgPGV4dC1qYWFra28ubGFpbmVAdmFpc2FsYS5jb20+OyB3c2FA
+dGhlLWRyZWFtcy5kZQ0KQ2M6IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7IG1pY2hhbC5zaW1l
+a0B4aWxpbnguY29tOyBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7IFNodWJo
+cmFqeW90aSBEYXR0YSA8c2h1YmhyYWpAeGlsaW54LmNvbT4NClN1YmplY3Q6IFJlOiBbUEFUQ0hd
+IGkyYzogeGlpYzogU3VwcG9ydCBkaXNhYmxpbmcgbXVsdGktbWFzdGVyIGluIERUDQoNCj4gbml0
+OiBJIGNhbid0IHNlZSByZWFzb24gZm9yIHRoZXNlIGNoYW5nZXMgYWJvdmUuIEkgd291bGQgZG8g
+aXQgaW4NCj4gc2VwYXJhdGUgcGF0Y2ggaWYgeW91IHdhbnQgdG8gYWxpZ24uDQoNCkkgdHJpZWQg
+dG8gcHJlc2VydmUgdGhlIG9yaWdpbmFsIGF1dGhvcnMnIGludGVudGlvbiBvZiBoYXZpbmcgdGhl
+DQpsaW5lcyBhbGlnbmVkLiBNeSBuZXcgcGFyYW1ldGVyIG5hbWUgd2FzIDEgY2hhcmFjdGVyIHRv
+bw0KbG9uZyB0byBmaXQgcHJvcGVybHkgaW4gdGhlIG9yaWdpbmFsIHNwYWNlLiBJIGRvbid0IGhh
+dmUgc3Ryb25nDQpwcmVmZXJlbmNlIG92ZXIgYWxpZ25lZCB2cyBub3QuDQoNCkkgd2lsbCBtYWtl
+IFYyIHdpdGhvdXQgYWxpZ25pbmcgbmV3IHBhcmFtZXRlciBhcyBzdWdnZXN0ZWQNCmlmIHRoaXMg
+aXMgb3RoZXJ3aXNlIG9rLiBUaGlzIHdpbGwgcmVkdWNlIGNoYW5nZWQgbGluZSBjb3VudC4NCg0K
+VGhhbmsgeW91IGZvciByZXZpZXcsDQpKYWFra28NCg==
