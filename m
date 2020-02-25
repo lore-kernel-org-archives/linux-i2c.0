@@ -1,207 +1,77 @@
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Subject: [PATCH v4 4/4] ARM: at91/dt: sama5d2: add i2c gpio pinctrl
-Date: Tue, 25 Feb 2020 17:50:12 +0200
-Message-ID: <20200225155012.22764-4-codrin.ciubotariu@microchip.com>
-References: <20200225155012.22764-1-codrin.ciubotariu@microchip.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v1 13/40] i2c: diolan-u2c: Use generic definitions for
+ bus frequencies
+Date: Tue, 25 Feb 2020 09:36:01 -0800
+Message-ID: <20200225173601.GA22093@roeck-us.net>
+References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
+ <20200224151530.31713-13-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from esa4.microchip.iphmx.com ([68.232.154.123]:48597 "EHLO
-        esa4.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731136AbgBYPuh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Feb 2020 10:50:37 -0500
-In-Reply-To: <20200225155012.22764-1-codrin.ciubotariu@microchip.com>
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:40248 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728051AbgBYRgE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Feb 2020 12:36:04 -0500
+Received: by mail-pg1-f194.google.com with SMTP id t24so2823091pgj.7
+        for <linux-i2c@vger.kernel.org>; Tue, 25 Feb 2020 09:36:04 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20200224151530.31713-13-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, robh+dt@kernel.org, peda@axentia.se, linux@armlinux.org.uk, wsa@the-dreams.de, Kamel Bouhara <kamel.bouhara@bootlin.com>, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+On Mon, Feb 24, 2020 at 05:15:03PM +0200, Andy Shevchenko wrote:
+> Since we have generic definitions for bus frequencies, let's use them.
+> 
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Add the i2c gpio pinctrls to support the i2c bus recovery
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
-[codrin.ciubotariu@microchip.com: removed gpio pull-ups]
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
----
-
-Changes in v4:
- - added Acked-by tag from Ludovic;
-
-Changes in v3:
- - removed gpio pull-ups;
-
-Changes in v2:
- - new patch;
-
- arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts   | 33 +++++++++++++++++++--
- arch/arm/boot/dts/at91-sama5d2_xplained.dts | 33 +++++++++++++++++++--
- 2 files changed, 60 insertions(+), 6 deletions(-)
-
-diff --git a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-index ba7f3e646c26..1c24ac8019ba 100644
---- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-@@ -180,8 +180,11 @@
- 
- 			i2c0: i2c@f8028000 {
- 				dmas = <0>, <0>;
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c0_default>;
-+				pinctrl-1 = <&pinctrl_i2c0_gpio>;
-+				sda-gpios = <&pioA PIN_PD21 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioA PIN_PD22 GPIO_ACTIVE_HIGH>;
- 				status = "okay";
- 			};
- 
-@@ -198,8 +201,11 @@
- 					#address-cells = <1>;
- 					#size-cells = <0>;
- 					clocks = <&pmc PMC_TYPE_PERIPHERAL 19>;
--					pinctrl-names = "default";
-+					pinctrl-names = "default", "gpio";
- 					pinctrl-0 = <&pinctrl_flx0_default>;
-+					pinctrl-1 = <&pinctrl_flx0_gpio>;
-+					sda-gpios = <&pioA PIN_PB28 GPIO_ACTIVE_HIGH>;
-+					scl-gpios = <&pioA PIN_PB29 GPIO_ACTIVE_HIGH>;
- 					atmel,fifo-size = <16>;
- 					status = "okay";
- 				};
-@@ -226,8 +232,11 @@
- 
- 			i2c1: i2c@fc028000 {
- 				dmas = <0>, <0>;
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c1_default>;
-+				pinctrl-1 = <&pinctrl_i2c1_gpio>;
-+				sda-gpios = <&pioA PIN_PC6 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioA PIN_PC7 GPIO_ACTIVE_HIGH>;
- 				status = "okay";
- 
- 				at24@50 {
-@@ -244,18 +253,36 @@
- 					bias-disable;
- 				};
- 
-+				pinctrl_flx0_gpio: flx0_gpio {
-+					pinmux = <PIN_PB28__GPIO>,
-+						 <PIN_PB29__GPIO>;
-+					bias-disable;
-+				};
-+
- 				pinctrl_i2c0_default: i2c0_default {
- 					pinmux = <PIN_PD21__TWD0>,
- 						 <PIN_PD22__TWCK0>;
- 					bias-disable;
- 				};
- 
-+				pinctrl_i2c0_gpio: i2c0_gpio {
-+					pinmux = <PIN_PD21__GPIO>,
-+						 <PIN_PD22__GPIO>;
-+					bias-disable;
-+				};
-+
- 				pinctrl_i2c1_default: i2c1_default {
- 					pinmux = <PIN_PC6__TWD1>,
- 						 <PIN_PC7__TWCK1>;
- 					bias-disable;
- 				};
- 
-+				pinctrl_i2c1_gpio: i2c1_gpio {
-+					pinmux = <PIN_PC6__GPIO>,
-+						 <PIN_PC7__GPIO>;
-+					bias-disable;
-+				};
-+
- 				pinctrl_key_gpio_default: key_gpio_default {
- 					pinmux = <PIN_PA10__GPIO>;
- 					bias-pull-up;
-diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-index 9d0a7fbea725..055ee53e4773 100644
---- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-@@ -129,8 +129,11 @@
- 
- 			i2c0: i2c@f8028000 {
- 				dmas = <0>, <0>;
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c0_default>;
-+				pinctrl-1 = <&pinctrl_i2c0_gpio>;
-+				sda-gpios = <&pioA PIN_PD21 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioA PIN_PD22 GPIO_ACTIVE_HIGH>;
- 				i2c-sda-hold-time-ns = <350>;
- 				status = "okay";
- 
-@@ -331,8 +334,11 @@
- 					#address-cells = <1>;
- 					#size-cells = <0>;
- 					clocks = <&pmc PMC_TYPE_PERIPHERAL 23>;
--					pinctrl-names = "default";
-+					pinctrl-names = "default", "gpio";
- 					pinctrl-0 = <&pinctrl_flx4_default>;
-+					pinctrl-1 = <&pinctrl_flx4_gpio>;
-+					sda-gpios = <&pioA PIN_PD12 GPIO_ACTIVE_HIGH>;
-+					scl-gpios = <&pioA PIN_PD13 GPIO_ACTIVE_HIGH>;
- 					atmel,fifo-size = <16>;
- 					i2c-analog-filter;
- 					i2c-digital-filter;
-@@ -343,11 +349,14 @@
- 
- 			i2c1: i2c@fc028000 {
- 				dmas = <0>, <0>;
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c1_default>;
- 				i2c-analog-filter;
- 				i2c-digital-filter;
- 				i2c-digital-filter-width-ns = <35>;
-+				pinctrl-1 = <&pinctrl_i2c1_gpio>;
-+				sda-gpios = <&pioA PIN_PD4 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioA PIN_PD5 GPIO_ACTIVE_HIGH>;
- 				status = "okay";
- 
- 				at24@54 {
-@@ -441,18 +450,36 @@
- 					bias-disable;
- 				};
- 
-+				pinctrl_flx4_gpio: flx4_gpio {
-+					pinmux = <PIN_PD12__GPIO>,
-+						 <PIN_PD13__GPIO>;
-+					bias-disable;
-+				};
-+
- 				pinctrl_i2c0_default: i2c0_default {
- 					pinmux = <PIN_PD21__TWD0>,
- 						 <PIN_PD22__TWCK0>;
- 					bias-disable;
- 				};
- 
-+				pinctrl_i2c0_gpio: i2c0_gpio {
-+					pinmux = <PIN_PD21__GPIO>,
-+						 <PIN_PD22__GPIO>;
-+					bias-disable;
-+				};
-+
- 				pinctrl_i2c1_default: i2c1_default {
- 					pinmux = <PIN_PD4__TWD1>,
- 						 <PIN_PD5__TWCK1>;
- 					bias-disable;
- 				};
- 
-+				pinctrl_i2c1_gpio: i2c1_gpio {
-+					pinmux = <PIN_PD4__GPIO>,
-+						 <PIN_PD5__GPIO>;
-+					bias-disable;
-+				};
-+
- 				pinctrl_i2s0_default: i2s0_default {
- 					pinmux = <PIN_PC1__I2SC0_CK>,
- 						 <PIN_PC2__I2SC0_MCK>,
--- 
-2.20.1
+> ---
+>  drivers/i2c/busses/i2c-diolan-u2c.c | 12 +++++-------
+>  1 file changed, 5 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
+> index 382f105e0fe3..9ac79547d30b 100644
+> --- a/drivers/i2c/busses/i2c-diolan-u2c.c
+> +++ b/drivers/i2c/busses/i2c-diolan-u2c.c
+> @@ -64,8 +64,6 @@
+>  #define U2C_I2C_SPEED_2KHZ	242	/* 2 kHz, minimum speed */
+>  #define U2C_I2C_SPEED(f)	((DIV_ROUND_UP(1000000, (f)) - 10) / 2 + 1)
+>  
+> -#define U2C_I2C_FREQ_FAST	400000
+> -#define U2C_I2C_FREQ_STD	100000
+>  #define U2C_I2C_FREQ(s)		(1000000 / (2 * (s - 1) + 10))
+>  
+>  #define DIOLAN_USB_TIMEOUT	100	/* in ms */
+> @@ -87,7 +85,7 @@ struct i2c_diolan_u2c {
+>  	int ocount;			/* Number of enqueued messages */
+>  };
+>  
+> -static uint frequency = U2C_I2C_FREQ_STD;	/* I2C clock frequency in Hz */
+> +static uint frequency = I2C_STANDARD_MODE_FREQ;	/* I2C clock frequency in Hz */
+>  
+>  module_param(frequency, uint, S_IRUGO | S_IWUSR);
+>  MODULE_PARM_DESC(frequency, "I2C clock frequency in hertz");
+> @@ -299,12 +297,12 @@ static int diolan_init(struct i2c_diolan_u2c *dev)
+>  {
+>  	int speed, ret;
+>  
+> -	if (frequency >= 200000) {
+> +	if (frequency >= 2 * I2C_STANDARD_MODE_FREQ) {
+>  		speed = U2C_I2C_SPEED_FAST;
+> -		frequency = U2C_I2C_FREQ_FAST;
+> -	} else if (frequency >= 100000 || frequency == 0) {
+> +		frequency = I2C_FAST_MODE_FREQ;
+> +	} else if (frequency >= I2C_STANDARD_MODE_FREQ || frequency == 0) {
+>  		speed = U2C_I2C_SPEED_STD;
+> -		frequency = U2C_I2C_FREQ_STD;
+> +		frequency = I2C_STANDARD_MODE_FREQ;
+>  	} else {
+>  		speed = U2C_I2C_SPEED(frequency);
+>  		if (speed > U2C_I2C_SPEED_2KHZ)
+> -- 
+> 2.25.0
+> 
