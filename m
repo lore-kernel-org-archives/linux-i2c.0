@@ -1,19 +1,18 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v2 3/3] i2c: i801: Do not add ICH_RES_IO_SMI for the
- iTCO_wdt device
-Date: Wed, 26 Feb 2020 05:31:31 -0800
-Message-ID: <f8549db6-de8a-2205-5cef-f0cb457a21f1@roeck-us.net>
+Subject: Re: [PATCH v2 1/3] watchdog: iTCO_wdt: Export vendorsupport
+Date: Wed, 26 Feb 2020 05:32:40 -0800
+Message-ID: <5e56f8b1-c411-69bd-6e02-c0dde3db69dd@roeck-us.net>
 References: <20200226132122.62805-1-mika.westerberg@linux.intel.com>
- <20200226132122.62805-4-mika.westerberg@linux.intel.com>
+ <20200226132122.62805-2-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:38801 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726700AbgBZNbi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Feb 2020 08:31:38 -0500
-In-Reply-To: <20200226132122.62805-4-mika.westerberg@linux.intel.com>
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:33159 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726867AbgBZNcp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Feb 2020 08:32:45 -0500
+In-Reply-To: <20200226132122.62805-2-mika.westerberg@linux.intel.com>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -21,130 +20,100 @@ To: Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@su
 Cc: Martin Volf <martin.volf.42@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 
 On 2/26/20 5:21 AM, Mika Westerberg wrote:
-> Martin noticed that nct6775 driver does not load properly on his system
-> in v5.4+ kernels. The issue was bisected to commit b84398d6d7f9 ("i2c:
-> i801: Use iTCO version 6 in Cannon Lake PCH and beyond") but it is
-> likely not the culprit because the faulty code has been in the driver
-> already since commit 9424693035a5 ("i2c: i801: Create iTCO device on
-> newer Intel PCHs"). So more likely some commit that added PCI IDs of
-> recent chipsets made the driver to create the iTCO_wdt device on Martins
-> system.
+> In preparation for making ->smi_res optional the iTCO_wdt driver needs
+> to know whether vendorsupport is being set to non-zero. For this reason
+> export the variable.
 > 
-> The issue was debugged to be PCI configuration access to the PMC device
-> that is not present. This returns all 1's when read and this caused the
-> iTCO_wdt driver to accidentally request resourses used by nct6775.
-> 
-> It turns out that the SMI resource is only required for some ancient
-> systems, not the ones supported by this driver. For this reason do not
-> populate the SMI resource at all and drop all the related code. The
-> driver now always populates the main I/O resource and only in case of SPT
-> (Intel Sunrisepoint) compatible devices it adds another resource for the
-> NO_REBOOT bit. These two resources are of different types so
-> platform_get_resource() used by the iTCO_wdt driver continues to find
-> the both resources at index 0.
-> 
-> Link: https://lore.kernel.org/linux-hwmon/CAM1AHpQ4196tyD=HhBu-2donSsuogabkfP03v1YF26Q7_BgvgA@mail.gmail.com/
-> Fixes: 9424693035a5 ("i2c: i801: Create iTCO device on newer Intel PCHs")
-> Reported-by: Martin Volf <martin.volf.42@gmail.com>
 > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
+I assume you'll send the series upstream in one go (through i2c ?).
+If not, please let me and Wim know.
+
+Thanks,
+Guenter
+
 > ---
->  drivers/i2c/busses/i2c-i801.c | 45 ++++++++++-------------------------
->  1 file changed, 12 insertions(+), 33 deletions(-)
+>  drivers/watchdog/iTCO_vendor.h         |  2 ++
+>  drivers/watchdog/iTCO_vendor_support.c | 16 +++++++++-------
+>  2 files changed, 11 insertions(+), 7 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index ca4f096fef74..a9c03f5c3482 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -132,11 +132,6 @@
->  #define TCOBASE		0x050
->  #define TCOCTL		0x054
+> diff --git a/drivers/watchdog/iTCO_vendor.h b/drivers/watchdog/iTCO_vendor.h
+> index 0f7373ba10d5..69e92e692ae0 100644
+> --- a/drivers/watchdog/iTCO_vendor.h
+> +++ b/drivers/watchdog/iTCO_vendor.h
+> @@ -1,10 +1,12 @@
+>  /* SPDX-License-Identifier: GPL-2.0 */
+>  /* iTCO Vendor Specific Support hooks */
+>  #ifdef CONFIG_ITCO_VENDOR_SUPPORT
+> +extern int iTCO_vendorsupport;
+>  extern void iTCO_vendor_pre_start(struct resource *, unsigned int);
+>  extern void iTCO_vendor_pre_stop(struct resource *);
+>  extern int iTCO_vendor_check_noreboot_on(void);
+>  #else
+> +#define iTCO_vendorsupport				0
+>  #define iTCO_vendor_pre_start(acpibase, heartbeat)	{}
+>  #define iTCO_vendor_pre_stop(acpibase)			{}
+>  #define iTCO_vendor_check_noreboot_on()			1
+> diff --git a/drivers/watchdog/iTCO_vendor_support.c b/drivers/watchdog/iTCO_vendor_support.c
+> index 4f1b96f59349..cf0eaa04b064 100644
+> --- a/drivers/watchdog/iTCO_vendor_support.c
+> +++ b/drivers/watchdog/iTCO_vendor_support.c
+> @@ -39,8 +39,10 @@
+>  /* Broken BIOS */
+>  #define BROKEN_BIOS		911
 >  
-> -#define ACPIBASE		0x040
-> -#define ACPIBASE_SMI_OFF	0x030
-> -#define ACPICTRL		0x044
-> -#define ACPICTRL_EN		0x080
-> -
->  #define SBREG_BAR		0x10
->  #define SBREG_SMBCTRL		0xc6000c
->  #define SBREG_SMBCTRL_DNV	0xcf000c
-> @@ -1553,7 +1548,7 @@ i801_add_tco_spt(struct i801_priv *priv, struct pci_dev *pci_dev,
->  		pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, hidden);
->  	spin_unlock(&p2sb_spinlock);
+> -static int vendorsupport;
+> -module_param(vendorsupport, int, 0);
+> +int iTCO_vendorsupport;
+> +EXPORT_SYMBOL(iTCO_vendorsupport);
+> +
+> +module_param_named(vendorsupport, iTCO_vendorsupport, int, 0);
+>  MODULE_PARM_DESC(vendorsupport, "iTCO vendor specific support mode, default="
+>  			"0 (none), 1=SuperMicro Pent3, 911=Broken SMI BIOS");
 >  
-> -	res = &tco_res[ICH_RES_MEM_OFF];
-> +	res = &tco_res[1];
->  	if (pci_dev->device == PCI_DEVICE_ID_INTEL_DNV_SMBUS)
->  		res->start = (resource_size_t)base64_addr + SBREG_SMBCTRL_DNV;
->  	else
-> @@ -1563,7 +1558,7 @@ i801_add_tco_spt(struct i801_priv *priv, struct pci_dev *pci_dev,
->  	res->flags = IORESOURCE_MEM;
+> @@ -152,7 +154,7 @@ static void broken_bios_stop(struct resource *smires)
+>  void iTCO_vendor_pre_start(struct resource *smires,
+>  			   unsigned int heartbeat)
+>  {
+> -	switch (vendorsupport) {
+> +	switch (iTCO_vendorsupport) {
+>  	case SUPERMICRO_OLD_BOARD:
+>  		supermicro_old_pre_start(smires);
+>  		break;
+> @@ -165,7 +167,7 @@ EXPORT_SYMBOL(iTCO_vendor_pre_start);
 >  
->  	return platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
-> -					tco_res, 3, &spt_tco_platform_data,
-> +					tco_res, 2, &spt_tco_platform_data,
->  					sizeof(spt_tco_platform_data));
+>  void iTCO_vendor_pre_stop(struct resource *smires)
+>  {
+> -	switch (vendorsupport) {
+> +	switch (iTCO_vendorsupport) {
+>  	case SUPERMICRO_OLD_BOARD:
+>  		supermicro_old_pre_stop(smires);
+>  		break;
+> @@ -178,7 +180,7 @@ EXPORT_SYMBOL(iTCO_vendor_pre_stop);
+>  
+>  int iTCO_vendor_check_noreboot_on(void)
+>  {
+> -	switch (vendorsupport) {
+> +	switch (iTCO_vendorsupport) {
+>  	case SUPERMICRO_OLD_BOARD:
+>  		return 0;
+>  	default:
+> @@ -189,13 +191,13 @@ EXPORT_SYMBOL(iTCO_vendor_check_noreboot_on);
+>  
+>  static int __init iTCO_vendor_init_module(void)
+>  {
+> -	if (vendorsupport == SUPERMICRO_NEW_BOARD) {
+> +	if (iTCO_vendorsupport == SUPERMICRO_NEW_BOARD) {
+>  		pr_warn("Option vendorsupport=%d is no longer supported, "
+>  			"please use the w83627hf_wdt driver instead\n",
+>  			SUPERMICRO_NEW_BOARD);
+>  		return -EINVAL;
+>  	}
+> -	pr_info("vendor-support=%d\n", vendorsupport);
+> +	pr_info("vendor-support=%d\n", iTCO_vendorsupport);
+>  	return 0;
 >  }
 >  
-> @@ -1576,17 +1571,16 @@ static struct platform_device *
->  i801_add_tco_cnl(struct i801_priv *priv, struct pci_dev *pci_dev,
->  		 struct resource *tco_res)
->  {
-> -	return platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
-> -					tco_res, 2, &cnl_tco_platform_data,
-> -					sizeof(cnl_tco_platform_data));
-> +	return platform_device_register_resndata(&pci_dev->dev,
-> +			"iTCO_wdt", -1, tco_res, 1, &cnl_tco_platform_data,
-> +			sizeof(cnl_tco_platform_data));
->  }
->  
->  static void i801_add_tco(struct i801_priv *priv)
->  {
-> -	u32 base_addr, tco_base, tco_ctl, ctrl_val;
->  	struct pci_dev *pci_dev = priv->pci_dev;
-> -	struct resource tco_res[3], *res;
-> -	unsigned int devfn;
-> +	struct resource tco_res[2], *res;
-> +	u32 tco_base, tco_ctl;
->  
->  	/* If we have ACPI based watchdog use that instead */
->  	if (acpi_has_watchdog())
-> @@ -1601,30 +1595,15 @@ static void i801_add_tco(struct i801_priv *priv)
->  		return;
->  
->  	memset(tco_res, 0, sizeof(tco_res));
-> -
-> -	res = &tco_res[ICH_RES_IO_TCO];
-> -	res->start = tco_base & ~1;
-> -	res->end = res->start + 32 - 1;
-> -	res->flags = IORESOURCE_IO;
-> -
->  	/*
-> -	 * Power Management registers.
-> +	 * Always populate the main iTCO IO resource here. The second entry
-> +	 * for NO_REBOOT MMIO is filled by the SPT specific function.
->  	 */
-> -	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 2);
-> -	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPIBASE, &base_addr);
-> -
-> -	res = &tco_res[ICH_RES_IO_SMI];
-> -	res->start = (base_addr & ~1) + ACPIBASE_SMI_OFF;
-> -	res->end = res->start + 3;
-> +	res = &tco_res[0];
-> +	res->start = tco_base & ~1;
-> +	res->end = res->start + 32 - 1;
->  	res->flags = IORESOURCE_IO;
->  
-> -	/*
-> -	 * Enable the ACPI I/O space.
-> -	 */
-> -	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPICTRL, &ctrl_val);
-> -	ctrl_val |= ACPICTRL_EN;
-> -	pci_bus_write_config_dword(pci_dev->bus, devfn, ACPICTRL, ctrl_val);
-> -
->  	if (priv->features & FEATURE_TCO_CNL)
->  		priv->tco_pdev = i801_add_tco_cnl(priv, pci_dev, tco_res);
->  	else
 > 
