@@ -1,31 +1,50 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH v1 06/40] i2c: aspeed: Use generic definitions for bus frequencies
-Date: Tue, 25 Feb 2020 19:54:02 -0800
-Message-ID: <CAFd5g46rCUno1oFaGy2HmA0i3iUkpZCN5kz7=Qoq+Mc5KixufA@mail.gmail.com>
-References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com> <20200224151530.31713-6-andriy.shevchenko@linux.intel.com>
+From: tangbin <tangbin@cmss.chinamobile.com>
+Subject: [PATCH] i2c:i2c-core-of:remove redundant dev_err message
+Date: Wed, 26 Feb 2020 18:39:01 +0800
+Message-ID: <20200226103901.21520-1-tangbin@cmss.chinamobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:39729 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725788AbgBZDyP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Feb 2020 22:54:15 -0500
-Received: by mail-pg1-f193.google.com with SMTP id j15so611564pgm.6
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Feb 2020 19:54:14 -0800 (PST)
-In-Reply-To: <20200224151530.31713-6-andriy.shevchenko@linux.intel.com>
+Received: from cmccmta2.chinamobile.com ([221.176.66.80]:6600 "EHLO
+        cmccmta2.chinamobile.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726679AbgBZKrq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Feb 2020 05:47:46 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, tangbin <tangbin@cmss.chinamobile.com>
 
-On Mon, Feb 24, 2020 at 7:15 AM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
->
-> Since we have generic definitions for bus frequencies, let's use them.
->
-> Cc: Brendan Higgins <brendanhiggins@google.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+of_i2c_register_device already contains error message, so remove
+the redundant dev_err message
 
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: tangbin <tangbin@cmss.chinamobile.com>
+---
+ drivers/i2c/i2c-core-of.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-Thanks!
+diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+index 6787c1f71..7b0a786d3 100644
+--- a/drivers/i2c/i2c-core-of.c
++++ b/drivers/i2c/i2c-core-of.c
+@@ -103,9 +103,7 @@ void of_i2c_register_devices(struct i2c_adapter *adap)
+ 
+ 		client = of_i2c_register_device(adap, node);
+ 		if (IS_ERR(client)) {
+-			dev_err(&adap->dev,
+-				 "Failed to create I2C device for %pOF\n",
+-				 node);
++			return PTR_ERR(client);
+ 			of_node_clear_flag(node, OF_POPULATED);
+ 		}
+ 	}
+@@ -246,8 +244,6 @@ static int of_i2c_notify(struct notifier_block *nb, unsigned long action,
+ 
+ 		client = of_i2c_register_device(adap, rd->dn);
+ 		if (IS_ERR(client)) {
+-			dev_err(&adap->dev, "failed to create client for '%pOF'\n",
+-				 rd->dn);
+ 			put_device(&adap->dev);
+ 			of_node_clear_flag(rd->dn, OF_POPULATED);
+ 			return notifier_from_errno(PTR_ERR(client));
+-- 
+2.20.1.windows.1
