@@ -1,45 +1,103 @@
-From: Francesco Lavra <francescolavra.fl@gmail.com>
-Subject: Re: [PATCH] i2c:i2c-core-of:remove redundant dev_err message
-Date: Wed, 26 Feb 2020 11:58:41 +0100
-Message-ID: <0757d83b-203c-fe40-a8ac-665953d7d336@gmail.com>
-References: <20200226103901.21520-1-tangbin@cmss.chinamobile.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH v2 1/3] watchdog: iTCO_wdt: Export vendorsupport
+Date: Wed, 26 Feb 2020 16:21:20 +0300
+Message-ID: <20200226132122.62805-2-mika.westerberg@linux.intel.com>
+References: <20200226132122.62805-1-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:55032 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728102AbgBZK6o (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Feb 2020 05:58:44 -0500
-In-Reply-To: <20200226103901.21520-1-tangbin@cmss.chinamobile.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-hwmon-owner@vger.kernel.org>
+In-Reply-To: <20200226132122.62805-1-mika.westerberg@linux.intel.com>
+Sender: linux-hwmon-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>, Jean Delvare <jdelvare@suse.com>, Wim Van Sebroeck <wim@linux-watchdog.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Martin Volf <martin.volf.42@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: tangbin <tangbin@cmss.chinamobile.com>, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2/26/20 11:39 AM, tangbin wrote:
-> of_i2c_register_device already contains error message, so remove
-> the redundant dev_err message
-> 
-> Signed-off-by: tangbin <tangbin@cmss.chinamobile.com>
-> ---
->   drivers/i2c/i2c-core-of.c | 6 +-----
->   1 file changed, 1 insertion(+), 5 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-> index 6787c1f71..7b0a786d3 100644
-> --- a/drivers/i2c/i2c-core-of.c
-> +++ b/drivers/i2c/i2c-core-of.c
-> @@ -103,9 +103,7 @@ void of_i2c_register_devices(struct i2c_adapter *adap)
->   
->   		client = of_i2c_register_device(adap, node);
->   		if (IS_ERR(client)) {
-> -			dev_err(&adap->dev,
-> -				 "Failed to create I2C device for %pOF\n",
-> -				 node);
-> +			return PTR_ERR(client);
+In preparation for making ->smi_res optional the iTCO_wdt driver needs
+to know whether vendorsupport is being set to non-zero. For this reason
+export the variable.
 
-This looks like an unrelated (and wrong) change. Why would you alter the 
-semantics of of_i2c_register_devices()? Besides, this function doesn't 
-have a return value.
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/watchdog/iTCO_vendor.h         |  2 ++
+ drivers/watchdog/iTCO_vendor_support.c | 16 +++++++++-------
+ 2 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/watchdog/iTCO_vendor.h b/drivers/watchdog/iTCO_vendor.h
+index 0f7373ba10d5..69e92e692ae0 100644
+--- a/drivers/watchdog/iTCO_vendor.h
++++ b/drivers/watchdog/iTCO_vendor.h
+@@ -1,10 +1,12 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ /* iTCO Vendor Specific Support hooks */
+ #ifdef CONFIG_ITCO_VENDOR_SUPPORT
++extern int iTCO_vendorsupport;
+ extern void iTCO_vendor_pre_start(struct resource *, unsigned int);
+ extern void iTCO_vendor_pre_stop(struct resource *);
+ extern int iTCO_vendor_check_noreboot_on(void);
+ #else
++#define iTCO_vendorsupport				0
+ #define iTCO_vendor_pre_start(acpibase, heartbeat)	{}
+ #define iTCO_vendor_pre_stop(acpibase)			{}
+ #define iTCO_vendor_check_noreboot_on()			1
+diff --git a/drivers/watchdog/iTCO_vendor_support.c b/drivers/watchdog/iTCO_vendor_support.c
+index 4f1b96f59349..cf0eaa04b064 100644
+--- a/drivers/watchdog/iTCO_vendor_support.c
++++ b/drivers/watchdog/iTCO_vendor_support.c
+@@ -39,8 +39,10 @@
+ /* Broken BIOS */
+ #define BROKEN_BIOS		911
+ 
+-static int vendorsupport;
+-module_param(vendorsupport, int, 0);
++int iTCO_vendorsupport;
++EXPORT_SYMBOL(iTCO_vendorsupport);
++
++module_param_named(vendorsupport, iTCO_vendorsupport, int, 0);
+ MODULE_PARM_DESC(vendorsupport, "iTCO vendor specific support mode, default="
+ 			"0 (none), 1=SuperMicro Pent3, 911=Broken SMI BIOS");
+ 
+@@ -152,7 +154,7 @@ static void broken_bios_stop(struct resource *smires)
+ void iTCO_vendor_pre_start(struct resource *smires,
+ 			   unsigned int heartbeat)
+ {
+-	switch (vendorsupport) {
++	switch (iTCO_vendorsupport) {
+ 	case SUPERMICRO_OLD_BOARD:
+ 		supermicro_old_pre_start(smires);
+ 		break;
+@@ -165,7 +167,7 @@ EXPORT_SYMBOL(iTCO_vendor_pre_start);
+ 
+ void iTCO_vendor_pre_stop(struct resource *smires)
+ {
+-	switch (vendorsupport) {
++	switch (iTCO_vendorsupport) {
+ 	case SUPERMICRO_OLD_BOARD:
+ 		supermicro_old_pre_stop(smires);
+ 		break;
+@@ -178,7 +180,7 @@ EXPORT_SYMBOL(iTCO_vendor_pre_stop);
+ 
+ int iTCO_vendor_check_noreboot_on(void)
+ {
+-	switch (vendorsupport) {
++	switch (iTCO_vendorsupport) {
+ 	case SUPERMICRO_OLD_BOARD:
+ 		return 0;
+ 	default:
+@@ -189,13 +191,13 @@ EXPORT_SYMBOL(iTCO_vendor_check_noreboot_on);
+ 
+ static int __init iTCO_vendor_init_module(void)
+ {
+-	if (vendorsupport == SUPERMICRO_NEW_BOARD) {
++	if (iTCO_vendorsupport == SUPERMICRO_NEW_BOARD) {
+ 		pr_warn("Option vendorsupport=%d is no longer supported, "
+ 			"please use the w83627hf_wdt driver instead\n",
+ 			SUPERMICRO_NEW_BOARD);
+ 		return -EINVAL;
+ 	}
+-	pr_info("vendor-support=%d\n", vendorsupport);
++	pr_info("vendor-support=%d\n", iTCO_vendorsupport);
+ 	return 0;
+ }
+ 
+-- 
+2.25.0
