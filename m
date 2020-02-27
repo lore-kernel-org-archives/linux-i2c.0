@@ -1,67 +1,112 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH] macintosh: therm_windtunnel: fix regression when instantiating devices
-Date: Thu, 27 Feb 2020 12:23:57 +1100
-Message-ID: <87imjsu8k2.fsf@mpe.ellerman.id.au>
-References: <20200225141229.5424-1-wsa@the-dreams.de>
+From: "Shah, Nehal-bakulchandra" <nehal-bakulchandra.shah@amd.com>
+Subject: Re: [PATCH v1 05/40] i2c: amd-mp2: Use generic definitions for bus
+ frequencies
+Date: Thu, 27 Feb 2020 10:36:28 +0530
+Message-ID: <1a1aed47-80c6-6de7-16af-4b14adea9c46@amd.com>
+References: <20200224151530.31713-1-andriy.shevchenko@linux.intel.com>
+ <20200224151530.31713-5-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bilbo.ozlabs.org ([203.11.71.1]:44631 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbgB0BYC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 26 Feb 2020 20:24:02 -0500
-In-Reply-To: <20200225141229.5424-1-wsa@the-dreams.de>
+Received: from mail-eopbgr750083.outbound.protection.outlook.com ([40.107.75.83]:2054
+        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725790AbgB0FGn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 27 Feb 2020 00:06:43 -0500
+In-Reply-To: <20200224151530.31713-5-andriy.shevchenko@linux.intel.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linuxppc-dev@lists.ozlabs.org
-Cc: linux-i2c@vger.kernel.org, debian-powerpc@lists.debian.org, Mathieu Malaterre <malat@debian.org>, Wolfram Sang <wsa@the-dreams.de>, Erhard Furtner <erhard_f@mailbox.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Elie Morisse <syniurge@gmail.com>, Shyam Sundar S K <shyam-sundar.s-k@amd.com>
 
-Wolfram Sang <wsa@the-dreams.de> writes:
-> Removing attach_adapter from this driver caused a regression for at
-> least some machines. Those machines had the sensors described in their
-> DT, too, so they didn't need manual creation of the sensor devices. The
-> old code worked, though, because manual creation came first. Creation of
-> DT devices then failed later and caused error logs, but the sensors
-> worked nonetheless because of the manually created devices.
+Hi
+
+On 2/24/2020 8:44 PM, Andy Shevchenko wrote:
+> Since we have generic definitions for bus frequencies, let's use them.
 >
-> When removing attach_adaper, manual creation now comes later and loses
-> the race. The sensor devices were already registered via DT, yet with
-> another binding, so the driver could not be bound to it.
->
-> This fix refactors the code to remove the race and only manually creates
-> devices if there are no DT nodes present. Also, the DT binding is updated
-> to match both, the DT and manually created devices. Because we don't
-> know which device creation will be used at runtime, the code to start
-> the kthread is moved to do_probe() which will be called by both methods.
->
-> Fixes: 3e7bed52719d ("macintosh: therm_windtunnel: drop using attach_adapter")
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=201723
-> Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-> Tested-by: Erhard Furtner <erhard_f@mailbox.org>
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Elie Morisse <syniurge@gmail.com>
+> Cc: Nehal Shah <nehal-bakulchandra.shah@amd.com>
+> Cc: Shyam Sundar S K <shyam-sundar.s-k@amd.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 > ---
+>  drivers/i2c/busses/i2c-amd-mp2-plat.c | 27 ++++++++++++++++-----------
+>  include/linux/i2c.h                   |  2 ++
+>  2 files changed, 18 insertions(+), 11 deletions(-)
 >
-> I suggest this stable-tag: # v4.19+
+> diff --git a/drivers/i2c/busses/i2c-amd-mp2-plat.c b/drivers/i2c/busses/i2c-amd-mp2-plat.c
+> index f5b3f00c6559..9b9d90b98a05 100644
+> --- a/drivers/i2c/busses/i2c-amd-mp2-plat.c
+> +++ b/drivers/i2c/busses/i2c-amd-mp2-plat.c
+> @@ -201,32 +201,37 @@ static int i2c_amd_resume(struct amd_i2c_common *i2c_common)
+>  }
+>  #endif
+>  
+> +static const u32 supported_speeds[] = {
+> +	I2C_HIGH_SPEED_MODE_FREQ,
+> +	I2C_TURBO_MODE_FREQ,
+> +	I2C_FAST_MODE_PLUS_FREQ,
+> +	I2C_FAST_MODE_FREQ,
+> +	I2C_STANDARD_MODE_FREQ,
+> +};
+> +
+>  static enum speed_enum i2c_amd_get_bus_speed(struct platform_device *pdev)
+>  {
+>  	u32 acpi_speed;
+>  	int i;
+> -	static const u32 supported_speeds[] = {
+> -		0, 100000, 400000, 1000000, 1400000, 3400000
+> -	};
+>  
+>  	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
+>  	/* round down to the lowest standard speed */
+> -	for (i = 1; i < ARRAY_SIZE(supported_speeds); i++) {
+> -		if (acpi_speed < supported_speeds[i])
+> +	for (i = 0; i < ARRAY_SIZE(supported_speeds); i++) {
+> +		if (acpi_speed >= supported_speeds[i])
+>  			break;
+>  	}
+> -	acpi_speed = supported_speeds[i - 1];
+> +	acpi_speed = i < ARRAY_SIZE(supported_speeds) ? supported_speeds[i] : 0;
+>  
+>  	switch (acpi_speed) {
+> -	case 100000:
+> +	case I2C_STANDARD_MODE_FREQ:
+>  		return speed100k;
+> -	case 400000:
+> +	case I2C_FAST_MODE_FREQ:
+>  		return speed400k;
+> -	case 1000000:
+> +	case I2C_FAST_MODE_PLUS_FREQ:
+>  		return speed1000k;
+> -	case 1400000:
+> +	case I2C_TURBO_MODE_FREQ:
+>  		return speed1400k;
+> -	case 3400000:
+> +	case I2C_HIGH_SPEED_MODE_FREQ:
+>  		return speed3400k;
+>  	default:
+>  		return speed400k;
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 1b9c483bd9f5..d3022a014227 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -46,6 +46,8 @@ typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
+>  #define I2C_STANDARD_MODE_FREQ		(100 * HZ_PER_KHZ)
+>  #define I2C_FAST_MODE_FREQ		(400 * HZ_PER_KHZ)
+>  #define I2C_FAST_MODE_PLUS_FREQ		(1000 * HZ_PER_KHZ)
+> +#define I2C_TURBO_MODE_FREQ		(1400 * HZ_PER_KHZ)
+> +#define I2C_HIGH_SPEED_MODE_FREQ	(3400 * HZ_PER_KHZ)
+>  
+>  struct module;
+>  struct property_entry;
 
-Looks right to me.
+Fine for me.
 
-> Adding the Debian-PPC List to reach further people maybe willing to
-> test.
->
-> This patch does not depend on "[PATCH RESEND] macintosh: convert to
-> i2c_new_scanned_device". In fact, this one here should go in first as
-> 5.6 material. I will rebase and resend the i2c_new_scanned_device()
-> conversion on top of this regression fix.
->
-> I can also take this via I2C if easier.
+Acked-by: Nehal Shah <nehal-bakulchandra.shah@amd.com>
 
-I think that would be best, it's more I2C related than powerpc arch
-stuff that I could review.
 
-I don't have a machine setup to test this easily, but Erhard has been
-doing a good job of testing things so I'm happy for you to take it with
-his Tested-by.
+Thanks
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-
-cheers
+Nehal Shah
