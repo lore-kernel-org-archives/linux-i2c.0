@@ -1,74 +1,70 @@
-From: Stefan Schaeckeler <schaecsn@gmx.net>
-Subject: Re: [PATCH 0/1] i2c: imc: Add support for Intel iMC SMBus host controller.
-Date: Sun,  1 Mar 2020 11:02:10 -0800 (PST)
-Message-ID: <20200301190210.BC7C96E85603@corona.crabdance.com>
-References: <1582498270-50674-1-git-send-email-schaecsn@gmx.net> <CALCETrXcFrR9V_yjPRh9eJ1=1efo_DCCwGTeusmo2CQXpFFdrw@mail.gmail.com>
-Reply-To: schaecsn@gmx.net
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <CALCETrXcFrR9V_yjPRh9eJ1=1efo_DCCwGTeusmo2CQXpFFdrw@mail.gmail.com>
-        (message from Andy Lutomirski on Tue, 25 Feb 2020 13:49:34 -0800)
-Sender: linux-kernel-owner@vger.kernel.org
-To: luto@kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Tali Perry <tali.perry1@gmail.com>
+Subject: [PATCH v8 1/3] dt-bindings: i2c: npcm7xx: add NPCM I2C controller
+Date: Mon,  2 Mar 2020 00:31:59 +0200
+Message-ID: <20200301223201.185450-2-tali.perry1@gmail.com>
+References: <20200301223201.185450-1-tali.perry1@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
+In-Reply-To: <20200301223201.185450-1-tali.perry1@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
+To: brendanhiggins@google.com, avifishman70@gmail.com, tmaimon77@gmail.com, kfting@nuvoton.com, venture@google.com, yuenn@google.com, benjaminfair@google.com, robh+dt@kernel.org, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com
+Cc: devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>, openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Any,
+Added device tree binding documentation for Nuvoton BMC
+NPCM I2C controller.
 
-> > This patch is based on Andy Lutomirski's iMC SMBus driver patch-set
-> > https://lkml.org/lkml/2016/4/28/926. It never made it into the kernel.=
- I hope
-> > this rewrite will:
-> >
-> >
-> > Overview
-> >
-> > Modern Intel memory controllers host an SMBus controller and connectio=
-n to
-> > DIMMs and their thermal sensors. The memory controller firmware has th=
-ree modes
-> > of operation: Closed Loop Thermal Throttling (CLTT), Open Loop Thermal
-> > Throttling (OLTT) and none.
-> >
-> > - CLTT: The memory controller firmware is periodically accessing the D=
-IMM
-> >   temperature sensor over the SMBus.
-> >
->
->
-> I think this is great!  One question, though: what happens if the
-> system is in CLTT mode but you disable CLTT and claim the bus for too
-> long?  For example, if there's an infinite loop or other lockup which
-> you have the tsod polling interval set to 0?  Does the system catch
-> fire or does the system do something intelligent like temporarily
-> switching to open loop?
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+ .../devicetree/bindings/i2c/i2c-npcm7xx.txt   | 29 +++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
 
-I don't know. Most likely, the current memory throttling rate will be kept=
-.
-That might not be enough for the forthcoming workload and, ehm, the system=
- may
-catch fire.
-
-I assume our use-case is the most common use-case for this driver: our emb=
-edded
-system comes with its own environmental management software. It monitors, =
-among
-other sensor values, the DIMM temperatures and takes action on abnormal va=
-lues.
-If one is concerned about your scenario, then the environmental management
-software needs to consider blocked reads on the sysfs node as a worst case
-scenario and reboot the system.
-
-Nothing can really go wrong while the polling interval is set to 0, though=
-:
-
-- reading and setting pci configuration space registers.
-- calling dev_err, dev_warn and alike.
-- usleep_range(131,140) and up to 20 udelay(9).
-
-What is not clear to me is what if imc_smbus_xfer() is executing while the
-driver is rmmod-ed. Defensively, I set in the driver's remove function the
-tsod_polling_interval back to its original value.
-
-~ Stefan
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+new file mode 100644
+index 000000000000..0ecae950748b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+@@ -0,0 +1,29 @@
++Nuvoton NPCM7XX I2C bus
++
++The NPCM750x includes sixteen I2C bus controllers. All Controllers support
++both master and slave mode. Each controller has two 16 byte HW FIFO for TX and
++RX.
++
++Required properties:
++- compatible      : must be "nuvoton,npcm750-i2c"
++- reg             : Offset and length of the register set for the device.
++- interrupts      : Contain the I2C interrupt with flags for falling edge.
++- clocks          : phandle of I2C reference clock.
++
++Optional:
++- bus-frequency   : Contain the I2C bus frequency,
++			the default I2C bus frequency is 100000.
++- pinctrl-0       : for example <&smbX_pins>, X is module number
++			(on NPCM7XX it's 0 to 15)
++- pinctrl-names   : should be set to "default"
++Example:
++
++	i2c0: i2c@80000 {
++		compatible = "nuvoton,npcm750-i2c";
++		reg = <0x80000 0x1000>;
++		clocks = <&clk NPCM7XX_CLK_APB2>;
++		bus-frequency = <100000>;
++		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&smb0_pins>;
++	};
+-- 
+2.22.0
