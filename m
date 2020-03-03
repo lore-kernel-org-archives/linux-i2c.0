@@ -1,37 +1,48 @@
-From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v1] i2c: tegra: Make timeout error more informative
-Date: Mon,  2 Mar 2020 20:35:12 +0300
-Message-ID: <20200302173512.2743-1-digetx@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH] macintosh: therm_windtunnel: fix regression when instantiating devices
+Date: Tue, 03 Mar 2020 22:08:52 +1100
+Message-ID: <87y2shr8zf.fsf@mpe.ellerman.id.au>
+References: <20200225141229.5424-1-wsa@the-dreams.de> <20200228170033.GB1130@ninjato>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from bilbo.ozlabs.org ([203.11.71.1]:60919 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727880AbgCCLJA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 3 Mar 2020 06:09:00 -0500
+In-Reply-To: <20200228170033.GB1130@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linuxppc-dev@lists.ozlabs.org
+Cc: linux-i2c@vger.kernel.org, debian-powerpc@lists.debian.org, Mathieu Malaterre <malat@debian.org>, Erhard Furtner <erhard_f@mailbox.org>
 
-The I2C timeout error message doesn't tell us what exactly failed and some
-I2C client drivers do not clarify the error either. Adding WARN_ON_ONCE()
-results in a stacktrace being dumped into KMSG, which is very useful for
-debugging purposes.
+Wolfram Sang <wsa@the-dreams.de> writes:
+> On Tue, Feb 25, 2020 at 03:12:29PM +0100, Wolfram Sang wrote:
+>> Removing attach_adapter from this driver caused a regression for at
+>> least some machines. Those machines had the sensors described in their
+>> DT, too, so they didn't need manual creation of the sensor devices. The
+>> old code worked, though, because manual creation came first. Creation of
+>> DT devices then failed later and caused error logs, but the sensors
+>> worked nonetheless because of the manually created devices.
+>> 
+>> When removing attach_adaper, manual creation now comes later and loses
+>> the race. The sensor devices were already registered via DT, yet with
+>> another binding, so the driver could not be bound to it.
+>> 
+>> This fix refactors the code to remove the race and only manually creates
+>> devices if there are no DT nodes present. Also, the DT binding is updated
+>> to match both, the DT and manually created devices. Because we don't
+>> know which device creation will be used at runtime, the code to start
+>> the kthread is moved to do_probe() which will be called by both methods.
+>> 
+>> Fixes: 3e7bed52719d ("macintosh: therm_windtunnel: drop using attach_adapter")
+>> Link: https://bugzilla.kernel.org/show_bug.cgi?id=201723
+>> Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+>> Tested-by: Erhard Furtner <erhard_f@mailbox.org>
+>> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+>
+> Applied to for-current, thanks!
 
-Signed-off-by: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-tegra.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index cbc2ad49043e..b2bb19e05248 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -1245,7 +1245,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 
- 	tegra_i2c_mask_irq(i2c_dev, int_mask);
- 
--	if (time_left == 0) {
-+	if (WARN_ON_ONCE(time_left == 0)) {
- 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
- 		tegra_i2c_init(i2c_dev, true);
- 		return -ETIMEDOUT;
--- 
-2.25.1
+cheers
