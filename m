@@ -1,113 +1,190 @@
-From: Biwen Li <biwen.li@nxp.com>
-Subject: RE: [EXT] Re: [v6] i2c: imx: support slave mode for imx I2C driver
-Date: Wed, 4 Mar 2020 04:13:03 +0000
-Message-ID: <DB7PR04MB4490D8434B77DE285A9518448FE50@DB7PR04MB4490.eurprd04.prod.outlook.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+Subject: Re: [EXT] Re: [v6] i2c: imx: support slave mode for imx I2C driver
+Date: Wed, 4 Mar 2020 06:22:35 +0100
+Message-ID: <20200304052235.mvpjqa2u56joew3r@pengutronix.de>
 References: <20191203114809.21226-1-biwen.li@nxp.com>
  <20191204100005.r56huywxa7h3c6zr@pengutronix.de>
  <9a1a00c1-e9fa-36a1-0e79-3492d9b98d9f@pengutronix.de>
+ <DB7PR04MB4490D8434B77DE285A9518448FE50@DB7PR04MB4490.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr00064.outbound.protection.outlook.com ([40.107.0.64]:32999
-        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725796AbgCDENI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 3 Mar 2020 23:13:08 -0500
-In-Reply-To: <9a1a00c1-e9fa-36a1-0e79-3492d9b98d9f@pengutronix.de>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <DB7PR04MB4490D8434B77DE285A9518448FE50@DB7PR04MB4490.eurprd04.prod.outlook.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
+To: Biwen Li <biwen.li@nxp.com>
+Cc: Aisheng Dong <aisheng.dong@nxp.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "festevam@gmail.com" <festevam@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Xiaobo Xie <xiaobo.xie@nxp.com>, Leo Li <leoyang.li@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Clark Wang <xiaoning.wang@nxp.com>, dl-linux-imx <linux-imx@nxp.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>, Jiafei Pan <jiafei.pan@nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Laurentiu Tudor <laurentiu.tudor@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>, Sascha Hauer <s.hauer@pengutronix.de>
-Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Leo Li <leoyang.li@nxp.com>, Aisheng Dong <aisheng.dong@nxp.com>, Clark Wang <xiaoning.wang@nxp.com>, Xiaobo Xie <xiaobo.xie@nxp.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jiafei Pan <jiafei.pan@nxp.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-SGkgV29sZnJhbSwNCg0KQW55IGNvbW1lbnRzPw0KDQpCZXN0IFJlZ2FyZHMsDQpCaXdlbiBMaQ0K
-DQo+IA0KPiBIaSwNCj4gDQo+IE9uIDA0LjEyLjE5IDExOjAwLCBTYXNjaGEgSGF1ZXIgd3JvdGU6
-DQo+ID4gSGksDQo+ID4NCj4gPiBUaGUgcGF0Y2ggbG9va3Mgb2sgdG8gbWUgbm93LCBidXQgSSBz
-dGlsbCBkbyBub3QgbGlrZSB0aGUgI2lmZGVmZmVyeQ0KPiA+IGFyb3VuZCBDT05GSUdfSTJDX1NM
-QVZFLiBXaXRoIHRoZSBwYXRjaCBJIGp1c3Qgc2VudCAoWW91IGFyZSBvbiBDYzopDQo+ID4gd2Ug
-Y291bGQgYXBwbHkgdGhlIGZvbGxvd2luZyBvbiB5b3VyIHBhdGNoIHdoaWNoIG1ha2VzIGl0IG1v
-cmUNCj4gPiByZWFkYWJsZSBhbmQgaW5jcmVhc2VzIGNvbXBpbGUgY292ZXJhZ2UuDQo+ID4NCj4g
-PiBXb2xmcmFtLCBCaXdlbiwgd2hhdCBkbyB5b3UgdGhpbms/DQo+IA0KPiANCj4gUkNBUiBkZXBl
-bmRzIG9uIHNsYXZlOg0KPiBjb25maWcgSTJDX1JDQVINCj4gDQo+ICAgICAgICAgIHRyaXN0YXRl
-ICJSZW5lc2FzIFItQ2FyIEkyQyBDb250cm9sbGVyIg0KPiANCj4gICAgICAgICAgZGVwZW5kcyBv
-biBBUkNIX1JFTkVTQVMgfHwgQ09NUElMRV9URVNUDQo+IA0KPiAgICAgICAgICBzZWxlY3QgSTJD
-X1NMQVZFDQo+IHNlZToNCj4gZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yY2FyLmMNCj4gDQo+IFNv
-LCBJIHdvdWxkIHN1Z2dlc3QgdG8gZG8gdGhlIHNhbWUgaW4gaW14Lg0KPiANCj4gU28gZmFyLCBJ
-IHRlc3RlZCB0aGlzIHBhdGNoIG9uIGlNWDZTLiBJdCB3b3JrcyBpbiBvbmUgYm9hcmQgKGkyYy1n
-cGlvICsgaTJjLWlteCkNCj4gYW5kIHR3byBib2FyZCAoaTJjLWlteCArIGkyYy1pbXgpIGNvbmZp
-Z3VyYXRpb24uDQo+IFRlc3RlZC1ieTogT2xla3NpaiBSZW1wZWwgPG8ucmVtcGVsQHBlbmd1dHJv
-bml4LmRlPg0KPiANCj4gDQo+ID4NCj4gPiBTYXNjaGENCj4gPg0KPiA+IC0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLTg8LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+ID4NCj4gPiAg
-RnJvbSA1MmY3YzJiZjU5ZGI2MWQ0YjI3YjU5Y2E2NDA0MTM2ZTNlZDc3MzEwIE1vbiBTZXAgMTcN
-Cj4gMDA6MDA6MDANCj4gPiAyMDAxDQo+ID4gRnJvbTogU2FzY2hhIEhhdWVyIDxzLmhhdWVyQHBl
-bmd1dHJvbml4LmRlPg0KPiA+IERhdGU6IFdlZCwgNCBEZWMgMjAxOSAxMDo1NjozNCArMDEwMA0K
-PiA+IFN1YmplY3Q6IFtQQVRDSF0gZml4dXAhIGkyYzogaW14OiBzdXBwb3J0IHNsYXZlIG1vZGUg
-Zm9yIGlteCBJMkMNCj4gPiBkcml2ZXINCj4gPg0KPiA+IC0tLQ0KPiA+ICAgZHJpdmVycy9pMmMv
-YnVzc2VzL2kyYy1pbXguYyB8IDIxICsrKysrKysrKystLS0tLS0tLS0tLQ0KPiA+ICAgMSBmaWxl
-IGNoYW5nZWQsIDEwIGluc2VydGlvbnMoKyksIDExIGRlbGV0aW9ucygtKQ0KPiA+DQo+ID4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMNCj4gPiBiL2RyaXZlcnMvaTJj
-L2J1c3Nlcy9pMmMtaW14LmMgaW5kZXggNDBjY2ZjYTYwMGJmLi5jNWQ5YWU4MjI2Y2QgMTAwNjQ0
-DQo+ID4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYw0KPiA+ICsrKyBiL2RyaXZl
-cnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMNCj4gPiBAQCAtMjAzLDkgKzIwMyw3IEBAIHN0cnVjdCBp
-bXhfaTJjX3N0cnVjdCB7DQo+ID4gICAgICAgc3RydWN0IHBpbmN0cmxfc3RhdGUgKnBpbmN0cmxf
-cGluc19ncGlvOw0KPiA+DQo+ID4gICAgICAgc3RydWN0IGlteF9pMmNfZG1hICAgICAgKmRtYTsN
-Cj4gPiAtI2lmIElTX0VOQUJMRUQoQ09ORklHX0kyQ19TTEFWRSkNCj4gPiAgICAgICBzdHJ1Y3Qg
-aTJjX2NsaWVudCAgICAgICAqc2xhdmU7DQo+ID4gLSNlbmRpZg0KPiA+ICAgfTsNCj4gPg0KPiA+
-ICAgc3RhdGljIGNvbnN0IHN0cnVjdCBpbXhfaTJjX2h3ZGF0YSBpbXgxX2kyY19od2RhdGEgPSB7
-IEBAIC05MTMsMTINCj4gPiArOTExLDEwIEBAIHN0YXRpYyBpbnQgaTJjX2lteF94ZmVyKHN0cnVj
-dCBpMmNfYWRhcHRlciAqYWRhcHRlciwNCj4gPg0KPiA+ICAgICAgIGRldl9kYmcoJmkyY19pbXgt
-PmFkYXB0ZXIuZGV2LCAiPCVzPlxuIiwgX19mdW5jX18pOw0KPiA+DQo+ID4gLSNpZiBJU19FTkFC
-TEVEKENPTkZJR19JMkNfU0xBVkUpDQo+ID4gICAgICAgaWYgKGkyY19pbXgtPnNsYXZlKSB7DQo+
-ID4gICAgICAgICAgICAgICBkZXZfZXJyKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIlBsZWFzZSBu
-b3QgZG8gb3BlcmF0aW9ucw0KPiBvZiBtYXN0ZXIgbW9kZSBpbiBzbGF2ZSBtb2RlIik7DQo+ID4g
-ICAgICAgICAgICAgICByZXR1cm4gLUVCVVNZOw0KPiA+ICAgICAgIH0NCj4gPiAtI2VuZGlmDQo+
-ID4NCj4gPiAgICAgICByZXN1bHQgPSBwbV9ydW50aW1lX2dldF9zeW5jKGkyY19pbXgtPmFkYXB0
-ZXIuZGV2LnBhcmVudCk7DQo+ID4gICAgICAgaWYgKHJlc3VsdCA8IDApDQo+ID4gQEAgLTEwNjgs
-NyArMTA2NCw2IEBAIHN0YXRpYyB1MzIgaTJjX2lteF9mdW5jKHN0cnVjdCBpMmNfYWRhcHRlcg0K
-PiAqYWRhcHRlcikNCj4gPiAgICAgICAgICAgICAgIHwgSTJDX0ZVTkNfU01CVVNfUkVBRF9CTE9D
-S19EQVRBOw0KPiA+ICAgfQ0KPiA+DQo+ID4gLSNpZiBJU19FTkFCTEVEKENPTkZJR19JMkNfU0xB
-VkUpDQo+ID4gICBzdGF0aWMgaW50IGkyY19pbXhfc2xhdmVfaW5pdChzdHJ1Y3QgaW14X2kyY19z
-dHJ1Y3QgKmkyY19pbXgpDQo+ID4gICB7DQo+ID4gICAgICAgaW50IHRlbXA7DQo+ID4gQEAgLTEx
-NTksNiArMTE1NCwxMCBAQCBzdGF0aWMgaW50IGkyY19pbXhfcmVnX3NsYXZlKHN0cnVjdCBpMmNf
-Y2xpZW50DQo+ICpjbGllbnQpDQo+ID4gICB7DQo+ID4gICAgICAgc3RydWN0IGlteF9pMmNfc3Ry
-dWN0ICppMmNfaW14ID0gaTJjX2dldF9hZGFwZGF0YShjbGllbnQtPmFkYXB0ZXIpOw0KPiA+ICAg
-ICAgIGludCByZXQ7DQo+ID4gKw0KPiA+ICsgICAgIGlmICghSVNfRU5BQkxFRChDT05GSUdfSTJD
-X1NMQVZFKSkNCj4gPiArICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOw0KPiA+ICsNCj4gPiAg
-ICAgICBpZiAoaTJjX2lteC0+c2xhdmUpDQo+ID4gICAgICAgICAgICAgICByZXR1cm4gLUVCVVNZ
-Ow0KPiA+DQo+ID4gQEAgLTExNzMsNiArMTE3Miw5IEBAIHN0YXRpYyBpbnQgaTJjX2lteF91bnJl
-Z19zbGF2ZShzdHJ1Y3QgaTJjX2NsaWVudA0KPiAqY2xpZW50KQ0KPiA+ICAgew0KPiA+ICAgICAg
-IHN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lteCA9DQo+ID4gaTJjX2dldF9hZGFwZGF0YShj
-bGllbnQtPmFkYXB0ZXIpOw0KPiA+DQo+ID4gKyAgICAgaWYgKCFJU19FTkFCTEVEKENPTkZJR19J
-MkNfU0xBVkUpKQ0KPiA+ICsgICAgICAgICAgICAgcmV0dXJuIC1FSU5WQUw7DQo+ID4gKw0KPiA+
-ICAgICAgIGlmICghaTJjX2lteC0+c2xhdmUpDQo+ID4gICAgICAgICAgICAgICByZXR1cm4gLUVJ
-TlZBTDsNCj4gPg0KPiA+IEBAIC0xMTg4LDE1ICsxMTkwLDEyIEBAIHN0YXRpYyBpbnQgaTJjX2lt
-eF91bnJlZ19zbGF2ZShzdHJ1Y3QNCj4gPiBpMmNfY2xpZW50ICpjbGllbnQpDQo+ID4NCj4gPiAg
-ICAgICByZXR1cm4gMDsNCj4gPiAgIH0NCj4gPiAtI2VuZGlmDQo+ID4NCj4gPiAgIHN0YXRpYyBj
-b25zdCBzdHJ1Y3QgaTJjX2FsZ29yaXRobSBpMmNfaW14X2FsZ28gPSB7DQo+ID4gICAgICAgLm1h
-c3Rlcl94ZmVyICAgID0gaTJjX2lteF94ZmVyLA0KPiA+ICAgICAgIC5mdW5jdGlvbmFsaXR5ICA9
-IGkyY19pbXhfZnVuYywNCj4gPiAtI2lmIElTX0VOQUJMRUQoQ09ORklHX0kyQ19TTEFWRSkNCj4g
-PiAgICAgICAucmVnX3NsYXZlICAgICAgPSBpMmNfaW14X3JlZ19zbGF2ZSwNCj4gPiAgICAgICAu
-dW5yZWdfc2xhdmUgICAgPSBpMmNfaW14X3VucmVnX3NsYXZlLA0KPiA+IC0jZW5kaWYNCj4gPiAg
-IH07DQo+ID4NCj4gPiAgIHN0YXRpYyBpcnFyZXR1cm5fdCBpMmNfaW14X2lzcihpbnQgaXJxLCB2
-b2lkICpkZXZfaWQpIEBAIC0xMjA4LDEwDQo+ID4gKzEyMDcsMTAgQEAgc3RhdGljIGlycXJldHVy
-bl90IGkyY19pbXhfaXNyKGludCBpcnEsIHZvaWQgKmRldl9pZCkNCj4gPg0KPiA+ICAgICAgIGlm
-IChzdGF0dXMgJiBJMlNSX0lJRikgew0KPiA+ICAgICAgICAgICAgICAgaTJjX2lteF9jbHJfaWZf
-Yml0KHN0YXR1cywgaTJjX2lteCk7IC0jaWYNCj4gPiBJU19FTkFCTEVEKENPTkZJR19JMkNfU0xB
-VkUpDQo+ID4gLSAgICAgICAgICAgICBpZiAoaTJjX2lteC0+c2xhdmUpDQo+ID4gKw0KPiA+ICsg
-ICAgICAgICAgICAgaWYgKElTX0VOQUJMRUQoQ09ORklHX0kyQ19TTEFWRSkgJiYgaTJjX2lteC0+
-c2xhdmUpDQo+ID4gICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBpMmNfaW14X3NsYXZlX2lz
-cihpMmNfaW14KTsgLSNlbmRpZg0KPiA+ICsNCj4gPiAgICAgICAgICAgICAgIGkyY19pbXgtPmky
-Y3NyID0gc3RhdHVzOw0KPiA+ICAgICAgICAgICAgICAgcmV0dXJuIGkyY19pbXhfbWFzdGVyX2lz
-cihpMmNfaW14KTsNCj4gPiAgICAgICB9DQo+ID4NCj4gDQo+IEtpbmQgcmVnYXJkcywNCj4gT2xl
-a3NpaiBSZW1wZWwNCj4gDQo+IC0tDQo+IFBlbmd1dHJvbml4IGUuSy4gICAgICAgICAgICAgICAg
-ICAgICAgICAgICB8DQo+IHwNCj4gSW5kdXN0cmlhbCBMaW51eCBTb2x1dGlvbnMgICAgICAgICAg
-ICAgICAgIHwNCj4gaHR0cHM6Ly9ldXIwMS5zYWZlbGlua3MucHJvdGVjdGlvbi5vdXRsb29rLmNv
-bS8/dXJsPWh0dHAlM0ElMkYlMkZ3d3cuDQo+IHBlbmd1dHJvbml4LmRlJTJGJmFtcDtkYXRhPTAy
-JTdDMDElN0NiaXdlbi5saSU0MG54cC5jb20lN0MyMzc0YQ0KPiA0ODY5MjJmNDYyNTcxN2UwOGQ3
-Nzk3ODZiMmYlN0M2ODZlYTFkM2JjMmI0YzZmYTkyY2Q5OWM1YzMwMTYzDQo+IDUlN0MwJTdDMCU3
-QzYzNzExMTQzMDQwNjQ5NzgzNyZhbXA7c2RhdGE9ZmlXMHhwaFYlMkZGUkxOVTN4DQo+IHhZYVU2
-cXpBeWl5ZFZmSndpSGM1WHUlMkJjdkNRJTNEJmFtcDtyZXNlcnZlZD0wICB8DQo+IFBlaW5lciBT
-dHIuIDYtOCwgMzExMzcgSGlsZGVzaGVpbSwgR2VybWFueSB8IFBob25lOiArNDktNTEyMS0yMDY5
-MTctMA0KPiB8DQo+IEFtdHNnZXJpY2h0IEhpbGRlc2hlaW0sIEhSQSAyNjg2ICAgICAgICAgICB8
-IEZheDoNCj4gKzQ5LTUxMjEtMjA2OTE3LTU1NTUgfA0K
+Hi Biwen,
+
+On Wed, Mar 04, 2020 at 04:13:03AM +0000, Biwen Li wrote:
+> Hi Wolfram,
+> 
+> Any comments?
+
+Wolfram is waiting until you react to our comments. Until this is not
+happened, I will not ACK this patch and Wolfram will not take it.
+
+regards,
+Oleksij
+
+> Best Regards,
+> Biwen Li
+> 
+> > 
+> > Hi,
+> > 
+> > On 04.12.19 11:00, Sascha Hauer wrote:
+> > > Hi,
+> > >
+> > > The patch looks ok to me now, but I still do not like the #ifdeffery
+> > > around CONFIG_I2C_SLAVE. With the patch I just sent (You are on Cc:)
+> > > we could apply the following on your patch which makes it more
+> > > readable and increases compile coverage.
+> > >
+> > > Wolfram, Biwen, what do you think?
+> > 
+> > 
+> > RCAR depends on slave:
+> > config I2C_RCAR
+> > 
+> >          tristate "Renesas R-Car I2C Controller"
+> > 
+> >          depends on ARCH_RENESAS || COMPILE_TEST
+> > 
+> >          select I2C_SLAVE
+> > see:
+> > drivers/i2c/busses/i2c-rcar.c
+> > 
+> > So, I would suggest to do the same in imx.
+> > 
+> > So far, I tested this patch on iMX6S. It works in one board (i2c-gpio + i2c-imx)
+> > and two board (i2c-imx + i2c-imx) configuration.
+> > Tested-by: Oleksij Rempel <o.rempel@pengutronix.de>
+> > 
+> > 
+> > >
+> > > Sascha
+> > >
+> > > ---------------------------8<------------------------------
+> > >
+> > >  From 52f7c2bf59db61d4b27b59ca6404136e3ed77310 Mon Sep 17
+> > 00:00:00
+> > > 2001
+> > > From: Sascha Hauer <s.hauer@pengutronix.de>
+> > > Date: Wed, 4 Dec 2019 10:56:34 +0100
+> > > Subject: [PATCH] fixup! i2c: imx: support slave mode for imx I2C
+> > > driver
+> > >
+> > > ---
+> > >   drivers/i2c/busses/i2c-imx.c | 21 ++++++++++-----------
+> > >   1 file changed, 10 insertions(+), 11 deletions(-)
+> > >
+> > > diff --git a/drivers/i2c/busses/i2c-imx.c
+> > > b/drivers/i2c/busses/i2c-imx.c index 40ccfca600bf..c5d9ae8226cd 100644
+> > > --- a/drivers/i2c/busses/i2c-imx.c
+> > > +++ b/drivers/i2c/busses/i2c-imx.c
+> > > @@ -203,9 +203,7 @@ struct imx_i2c_struct {
+> > >       struct pinctrl_state *pinctrl_pins_gpio;
+> > >
+> > >       struct imx_i2c_dma      *dma;
+> > > -#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> > >       struct i2c_client       *slave;
+> > > -#endif
+> > >   };
+> > >
+> > >   static const struct imx_i2c_hwdata imx1_i2c_hwdata = { @@ -913,12
+> > > +911,10 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+> > >
+> > >       dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+> > >
+> > > -#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> > >       if (i2c_imx->slave) {
+> > >               dev_err(&i2c_imx->adapter.dev, "Please not do operations
+> > of master mode in slave mode");
+> > >               return -EBUSY;
+> > >       }
+> > > -#endif
+> > >
+> > >       result = pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
+> > >       if (result < 0)
+> > > @@ -1068,7 +1064,6 @@ static u32 i2c_imx_func(struct i2c_adapter
+> > *adapter)
+> > >               | I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+> > >   }
+> > >
+> > > -#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> > >   static int i2c_imx_slave_init(struct imx_i2c_struct *i2c_imx)
+> > >   {
+> > >       int temp;
+> > > @@ -1159,6 +1154,10 @@ static int i2c_imx_reg_slave(struct i2c_client
+> > *client)
+> > >   {
+> > >       struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(client->adapter);
+> > >       int ret;
+> > > +
+> > > +     if (!IS_ENABLED(CONFIG_I2C_SLAVE))
+> > > +             return -EINVAL;
+> > > +
+> > >       if (i2c_imx->slave)
+> > >               return -EBUSY;
+> > >
+> > > @@ -1173,6 +1172,9 @@ static int i2c_imx_unreg_slave(struct i2c_client
+> > *client)
+> > >   {
+> > >       struct imx_i2c_struct *i2c_imx =
+> > > i2c_get_adapdata(client->adapter);
+> > >
+> > > +     if (!IS_ENABLED(CONFIG_I2C_SLAVE))
+> > > +             return -EINVAL;
+> > > +
+> > >       if (!i2c_imx->slave)
+> > >               return -EINVAL;
+> > >
+> > > @@ -1188,15 +1190,12 @@ static int i2c_imx_unreg_slave(struct
+> > > i2c_client *client)
+> > >
+> > >       return 0;
+> > >   }
+> > > -#endif
+> > >
+> > >   static const struct i2c_algorithm i2c_imx_algo = {
+> > >       .master_xfer    = i2c_imx_xfer,
+> > >       .functionality  = i2c_imx_func,
+> > > -#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> > >       .reg_slave      = i2c_imx_reg_slave,
+> > >       .unreg_slave    = i2c_imx_unreg_slave,
+> > > -#endif
+> > >   };
+> > >
+> > >   static irqreturn_t i2c_imx_isr(int irq, void *dev_id) @@ -1208,10
+> > > +1207,10 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+> > >
+> > >       if (status & I2SR_IIF) {
+> > >               i2c_imx_clr_if_bit(status, i2c_imx); -#if
+> > > IS_ENABLED(CONFIG_I2C_SLAVE)
+> > > -             if (i2c_imx->slave)
+> > > +
+> > > +             if (IS_ENABLED(CONFIG_I2C_SLAVE) && i2c_imx->slave)
+> > >                       return i2c_imx_slave_isr(i2c_imx); -#endif
+> > > +
+> > >               i2c_imx->i2csr = status;
+> > >               return i2c_imx_master_isr(i2c_imx);
+> > >       }
+> > >
+> > 
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
