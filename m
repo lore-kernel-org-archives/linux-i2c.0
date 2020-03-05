@@ -1,20 +1,16 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 07/58] i2c: altera: Fix potential integer overflow
-Date: Thu,  5 Mar 2020 12:13:28 -0500
-Message-ID: <20200305171420.29595-7-sashal@kernel.org>
-References: <20200305171420.29595-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 07/31] i2c: altera: Fix potential integer overflow
+Date: Thu,  5 Mar 2020 12:14:51 -0500
+Message-ID: <20200305171516.30028-7-sashal@kernel.org>
+References: <20200305171516.30028-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:40644 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727689AbgCEROa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:14:30 -0500
-In-Reply-To: <20200305171420.29595-1-sashal@kernel.org>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20200305171516.30028-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, David Laight <David.Laight@ACULAB.COM>, Thor Thayer <thor.thayer@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
@@ -38,10 +34,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-altera.c b/drivers/i2c/busses/i2c-altera.c
-index 5255d3755411b..1de23b4f3809c 100644
+index f5e1941e65b5a..a1cdcfc74acf6 100644
 --- a/drivers/i2c/busses/i2c-altera.c
 +++ b/drivers/i2c/busses/i2c-altera.c
-@@ -171,7 +171,7 @@ static void altr_i2c_init(struct altr_i2c_dev *idev)
+@@ -182,7 +182,7 @@ static void altr_i2c_init(struct altr_i2c_dev *idev)
  	/* SCL Low Time */
  	writel(t_low, idev->base + ALTR_I2C_SCL_LOW);
  	/* SDA Hold Time, 300ns */
