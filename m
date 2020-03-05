@@ -1,36 +1,62 @@
-From: Johan Jonker <jbx6244-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v1 5/5] dt-bindings: i2c: i2c-rk3x: add description for px30
-Date: Thu,  5 Mar 2020 15:36:11 +0100
-Message-ID: <20200305143611.10733-5-jbx6244@gmail.com>
-References: <20200305143611.10733-1-jbx6244@gmail.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200305143611.10733-1-jbx6244-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/5] i2c: mux: pca954x: Refactor pca954x_irq_handler()
+Date: Thu,  5 Mar 2020 17:53:48 +0200
+Message-ID: <20200305155352.39095-1-andriy.shevchenko@linux.intel.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga06.intel.com ([134.134.136.31]:42076 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726275AbgCEPxz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 5 Mar 2020 10:53:55 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-The description below is already in use for px30.dtsi,
-but was somehow never added to a document, so add
-"rockchip,px30-i2c", "rockchip,rk3399-i2c"
-for i2c nodes on a px30 platform to i2c-rk3x.yaml.
+Refactor pca954x_irq_handler() to:
+  - use for_each_set_bit() macro
+  - use IRQ_RETVAL() macro
 
-Signed-off-by: Johan Jonker <jbx6244-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Above change makes code easy to read and understand.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-rk3x.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.yaml b/Documentation/devicetree/bindings/i2c/i2c-rk3x.yaml
-index edee8f699..61eac76c8 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.yaml
-@@ -33,6 +33,7 @@ properties:
-           - const: rockchip,rk3288-i2c
-       - items:
-           - enum:
-+            - rockchip,px30-i2c
-             - rockchip,rk3308-i2c
-             - rockchip,rk3328-i2c
-           - const: rockchip,rk3399-i2c
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index a0d926ae3f86..819ff95e64ba 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -327,21 +327,18 @@ static DEVICE_ATTR_RW(idle_state);
+ static irqreturn_t pca954x_irq_handler(int irq, void *dev_id)
+ {
+ 	struct pca954x *data = dev_id;
+-	unsigned int child_irq;
+-	int ret, i, handled = 0;
++	unsigned long pending;
++	int ret, i;
+ 
+ 	ret = i2c_smbus_read_byte(data->client);
+ 	if (ret < 0)
+ 		return IRQ_NONE;
+ 
+-	for (i = 0; i < data->chip->nchans; i++) {
+-		if (ret & BIT(PCA954X_IRQ_OFFSET + i)) {
+-			child_irq = irq_linear_revmap(data->irq, i);
+-			handle_nested_irq(child_irq);
+-			handled++;
+-		}
+-	}
+-	return handled ? IRQ_HANDLED : IRQ_NONE;
++	pending = ret >> PCA954X_IRQ_OFFSET;
++	for_each_set_bit(i, &pending, data->chip->nchans)
++		handle_nested_irq(irq_linear_revmap(data->irq, i));
++
++	return IRQ_RETVAL(pending);
+ }
+ 
+ static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
 -- 
-2.11.0
+2.25.1
