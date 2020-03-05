@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 07/31] i2c: altera: Fix potential integer overflow
-Date: Thu,  5 Mar 2020 12:14:51 -0500
-Message-ID: <20200305171516.30028-7-sashal@kernel.org>
-References: <20200305171516.30028-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 06/19] i2c: altera: Fix potential integer overflow
+Date: Thu,  5 Mar 2020 12:15:27 -0500
+Message-ID: <20200305171540.30250-6-sashal@kernel.org>
+References: <20200305171540.30250-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20200305171516.30028-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200305171540.30250-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, David Laight <David.Laight@ACULAB.COM>, Thor Thayer <thor.thayer@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
