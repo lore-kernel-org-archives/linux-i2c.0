@@ -1,41 +1,61 @@
-From: "Juanito S. Galang" <juanito.galang@pagasa.dost.gov.ph>
-Subject: (unknown)
-Date: Thu, 5 Mar 2020 18:46:46 +0800 (PST)
-Message-ID: <1980644409.3575157.1583405206290.JavaMail.zimbra__27698.098348786$1583406997$gmane$org@pagasa.dost.gov.ph>
+From: Alain Volmat <alain.volmat@st.com>
+Subject: [PATCH] i2c: stm32f7: do not backup read-only PECR register
+Date: Thu, 5 Mar 2020 13:59:01 +0100
+Message-ID: <1583413141-1268-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ulan.pagasa.dost.gov.ph ([202.90.128.205]:47754 "EHLO
-        mailgw.pagasa.dost.gov.ph" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725880AbgCELQQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Mar 2020 06:16:16 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, pierre-yves.mordret@st.com
+Cc: alain.volmat@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 List-Id: linux-i2c@vger.kernel.org
 
+The PECR register provides received packet computed PEC value. 
+It makes no sense restoring its value after a reset, and anyway,
+as read-only register it cannot be restored.
 
+Fixes: ea6dd25deeb5 ("i2c: stm32f7: add PM_SLEEP suspend/resume support")
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-Herzlichen Gl=C3=BCckwunsch Lieber Beg=C3=BCnstigter,Sie erhalten diese E-M=
-ail von der Robert Bailey Foundation. Ich bin ein pensionierter Regierungsa=
-ngestellter aus Harlem und ein Gewinner des Powerball Lottery Jackpot im We=
-rt von 343,8 Millionen US-Dollar. Ich bin der gr=C3=B6=C3=9Fte Jackpot-Gewi=
-nner in der Geschichte der New Yorker Lotterie im US-Bundesstaat Amerika. I=
-ch habe diese Lotterie am 27. Oktober 2018 gewonnen und m=C3=B6chte Sie dar=
-=C3=BCber informieren, dass Google in Zusammenarbeit mit Microsoft Ihre "E-=
-Mail-Adresse" auf meine Bitte, einen Spendenbetrag von 3.000.000,00 Million=
-en Euro zu erhalten, =C3=BCbermittelt hat. Ich spende diese 3 Millionen Eur=
-o an Sie, um den Wohlt=C3=A4tigkeitsheimen und armen Menschen in Ihrer Geme=
-inde zu helfen, damit wir die Welt f=C3=BCr alle verbessern k=C3=B6nnen.Wei=
-tere Informationen finden Sie auf der folgenden Website, damit Sie nicht sk=
-eptisch sind
-Diese Spende von 3 Mio. EUR.https://nypost.com/2018/11/14/meet-the-winner-o=
-f-the-biggest-lottery-jackpot-in-new-york-history/Sie k=C3=B6nnen auch mein=
- YouTube f=C3=BCr mehr Best=C3=A4tigung aufpassen:
-https://www.youtube.com/watch?v=3DH5vT18Ysavc
-Bitte beachten Sie, dass alle Antworten an (robertdonation7@gmail.com=C2=A0=
- ) gesendet werden, damit wir das k=C3=B6nnen
-Fahren Sie fort, um das gespendete Geld an Sie zu =C3=BCberweisen.E-Mail: r=
-obertdonation7@gmail.comFreundliche Gr=C3=BC=C3=9Fe,
-Robert Bailey
-* * * * * * * * * * * * * * * *
-Powerball Jackpot Gewinner
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 378956ac6d1d..4d7401d62b71 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -176,7 +176,6 @@
+  * @cr2: Control register 2
+  * @oar1: Own address 1 register
+  * @oar2: Own address 2 register
+- * @pecr: PEC register
+  * @tmgr: Timing register
+  */
+ struct stm32f7_i2c_regs {
+@@ -184,7 +183,6 @@ struct stm32f7_i2c_regs {
+ 	u32 cr2;
+ 	u32 oar1;
+ 	u32 oar2;
+-	u32 pecr;
+ 	u32 tmgr;
+ };
+ 
+@@ -2146,7 +2144,6 @@ static int stm32f7_i2c_regs_backup(struct stm32f7_i2c_dev *i2c_dev)
+ 	backup_regs->cr2 = readl_relaxed(i2c_dev->base + STM32F7_I2C_CR2);
+ 	backup_regs->oar1 = readl_relaxed(i2c_dev->base + STM32F7_I2C_OAR1);
+ 	backup_regs->oar2 = readl_relaxed(i2c_dev->base + STM32F7_I2C_OAR2);
+-	backup_regs->pecr = readl_relaxed(i2c_dev->base + STM32F7_I2C_PECR);
+ 	backup_regs->tmgr = readl_relaxed(i2c_dev->base + STM32F7_I2C_TIMINGR);
+ 
+ 	pm_runtime_put_sync(i2c_dev->dev);
+@@ -2178,7 +2175,6 @@ static int stm32f7_i2c_regs_restore(struct stm32f7_i2c_dev *i2c_dev)
+ 	writel_relaxed(backup_regs->cr2, i2c_dev->base + STM32F7_I2C_CR2);
+ 	writel_relaxed(backup_regs->oar1, i2c_dev->base + STM32F7_I2C_OAR1);
+ 	writel_relaxed(backup_regs->oar2, i2c_dev->base + STM32F7_I2C_OAR2);
+-	writel_relaxed(backup_regs->pecr, i2c_dev->base + STM32F7_I2C_PECR);
+ 
+ 	pm_runtime_put_sync(i2c_dev->dev);
+ 
+-- 
+2.7.4
