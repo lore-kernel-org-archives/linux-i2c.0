@@ -1,18 +1,18 @@
 From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
 Subject: Re: [PATCH v2 3/3] i2c: drivers: Use generic definitions for bus
  frequencies
-Date: Thu, 5 Mar 2020 17:12:42 +0100
-Message-ID: <4a403531-cf0b-0581-1851-e27c4ebed0e5@st.com>
+Date: Thu, 5 Mar 2020 17:21:30 +0100
+Message-ID: <5404d318-6475-23d8-2bc2-bdb34b2e1223@st.com>
 References: <20200227122129.65516-1-andriy.shevchenko@linux.intel.com>
  <20200227122129.65516-3-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:27708 "EHLO
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:21494 "EHLO
         mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725974AbgCEQOV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Mar 2020 11:14:21 -0500
+        by vger.kernel.org with ESMTP id S1725938AbgCEQWz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Mar 2020 11:22:55 -0500
 In-Reply-To: <20200227122129.65516-3-andriy.shevchenko@linux.intel.com>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
@@ -20,7 +20,7 @@ List-Id: linux-i2c@vger.kernel.org
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 Cc: Thor Thayer <thor.thayer@linux.intel.com>, Elie Morisse <syniurge@gmail.com>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Shyam Sundar S K <shyam-sundar.s-k@amd.com>, Brendan Higgins <brendanhiggins@google.com>, Krzysztof Adamski <krzysztof.adamski@nokia.com>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <scott.branden@broadcom.com>, Michal Simek <michal.simek@xilinx.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Baruch Siach <baruch@tkos.co.il>, Guenter Roeck <linux@roeck-us.net>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengu>
 
-Hi andy
+Hi Andy
 
 For i2c-stm32f4.c and i2c-stm32f7.c
 
