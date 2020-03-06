@@ -1,123 +1,176 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v1 2/5] i2c: mux: pca954x: Make use of device properties
-Date: Fri, 6 Mar 2020 15:57:50 +0100
-Message-ID: <db6c657b-6b9c-77f9-f990-90e47f48688e@axentia.se>
-References: <20200305155352.39095-1-andriy.shevchenko@linux.intel.com>
- <20200305155352.39095-2-andriy.shevchenko@linux.intel.com>
- <cf0cf14f-4e43-2a9c-63ed-f5f03ea7b114@axentia.se>
- <20200306095413.GQ1224808@smile.fi.intel.com>
- <b19fb2ed-054a-3fc5-41d4-6ecf3ae1597b@axentia.se>
- <20200306135850.GF1748204@smile.fi.intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 4/6] i2c: designware: Detect the FIFO size in the common
+ code
+Date: Fri, 6 Mar 2020 17:01:38 +0200
+Message-ID: <20200306150138.GN1748204@smile.fi.intel.com>
+References: <20200306131955.12806-1-Sergey.Semin@baikalelectronics.ru>
+ <20200306132151.2ABC38030786@mail.baikalelectronics.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr10122.outbound.protection.outlook.com ([40.107.1.122]:60494
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726565AbgCFO6C (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 6 Mar 2020 09:58:02 -0500
-In-Reply-To: <20200306135850.GF1748204@smile.fi.intel.com>
-Content-Language: en-US
+Received: from mga03.intel.com ([134.134.136.65]:62861 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726650AbgCFPBj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 6 Mar 2020 10:01:39 -0500
+Content-Disposition: inline
+In-Reply-To: <20200306132151.2ABC38030786@mail.baikalelectronics.ru>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Javier Martinez Canillas <javierm@redhat.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+To: Sergey.Semin@baikalelectronics.ru
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Serge Semin <fancer.lancer@gmail.com>, Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Paul Burton <paulburton@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2020-03-06 14:58, Andy Shevchenko wrote:
-> On Fri, Mar 06, 2020 at 12:48:14PM +0100, Peter Rosin wrote:
->> On 2020-03-06 10:54, Andy Shevchenko wrote:
->>> On Thu, Mar 05, 2020 at 09:05:56PM +0000, Peter Rosin wrote:
->>>> On 2020-03-05 16:53, Andy Shevchenko wrote:
->>>>> Device property API allows to gather device resources from different sources,
->>>>> such as ACPI. Convert the drivers to unleash the power of device property API.
->>>
->>> ...
->>>
->>>>>  static const struct i2c_device_id pca954x_id[] = {
->>>>> -	{ "pca9540", pca_9540 },
->>>>> -	{ "pca9542", pca_9542 },
->>>>> -	{ "pca9543", pca_9543 },
->>>>> -	{ "pca9544", pca_9544 },
->>>>> -	{ "pca9545", pca_9545 },
->>>>> -	{ "pca9546", pca_9546 },
->>>>> -	{ "pca9547", pca_9547 },
->>>>> -	{ "pca9548", pca_9548 },
->>>>> -	{ "pca9846", pca_9846 },
->>>>> -	{ "pca9847", pca_9847 },
->>>>> -	{ "pca9848", pca_9848 },
->>>>> -	{ "pca9849", pca_9849 },
->>>>> +	{ "pca9540", .driver_data = (kernel_ulong_t)&chips[pca_9540] },
->>>>> +	{ "pca9542", .driver_data = (kernel_ulong_t)&chips[pca_9542] },
->>>>> +	{ "pca9543", .driver_data = (kernel_ulong_t)&chips[pca_9543] },
->>>>> +	{ "pca9544", .driver_data = (kernel_ulong_t)&chips[pca_9544] },
->>>>> +	{ "pca9545", .driver_data = (kernel_ulong_t)&chips[pca_9545] },
->>>>> +	{ "pca9546", .driver_data = (kernel_ulong_t)&chips[pca_9546] },
->>>>> +	{ "pca9547", .driver_data = (kernel_ulong_t)&chips[pca_9547] },
->>>>> +	{ "pca9548", .driver_data = (kernel_ulong_t)&chips[pca_9548] },
->>>>> +	{ "pca9846", .driver_data = (kernel_ulong_t)&chips[pca_9846] },
->>>>> +	{ "pca9847", .driver_data = (kernel_ulong_t)&chips[pca_9847] },
->>>>> +	{ "pca9848", .driver_data = (kernel_ulong_t)&chips[pca_9848] },
->>>>> +	{ "pca9849", .driver_data = (kernel_ulong_t)&chips[pca_9849] },
->>>>
->>>> It feels odd/wrong to specifically name .driver_data when .name is not there.
->>>> None or both...
->>>
->>> I will add .name as well.
->>>
->>>>> +	data->chip = device_get_match_data(dev);
->>>>>  	if (!data->chip)
->>>>>  		data->chip = &chips[id->driver_data];
->>>>
->>>> These two lines no longer make any sence.
->>>
->>> Please elaborate.
->>>
->>> IIRC Javier explained once that I²C ID table is still good to have to allow
->>> enumeration from user space.
->>
->> id->driver_data is no longer an integer index into chips[]. So, for the I2C
->> ID table case, either device_get_match_data returns the .driver_data as-is
->> from the pca954x_id array, or it returns NULL (I don't know which it is).
+On Fri, Mar 06, 2020 at 04:19:54PM +0300, Sergey.Semin@baikalelectronics.ru wrote:
+> From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 > 
-> No, you took it wrong. device_get_match_data() operates with ACPI/DT tables.
+> The problem with detecting the FIFO depth in the platform driver
+> is that in order to implement this we have to access the controller
+> IC_COMP_PARAM_1 register. Currently it's done before the
+> i2c_dw_set_reg_access() method execution, which is errors prone since
+> the method determines the registers endianness and access mode and we
+> can't use dw_readl/dw_writel accessors before this information is
+> retrieved. We also can't move the i2c_dw_set_reg_access() function
+> invocation to after the master/slave probe functions call (when endianness
+> and access mode are determined), since the FIFO depth information is used
+> by them for initializations. So in order to fix the problem we have no
+> choice but to move the FIFO size detection methods to the common code and
+> call it at the probe stage.
 
-<rant-mode>
+Sounds reasonable.
 
-What do you mean wrong? I said that either A or B holds but did not know which
-(with these definitions):
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-A. device_get_match_data() digs in the i2c_device_id table and returns the
-   .driver_data of the matching entry.
-B. device_get_match_data() behaves as of_device_get_match_data() and does not
-   dig in the i2c_device_id table, and therefore returns NULL when the driver
-   is probed that way.
-
-And that in either of these cases your patch made no sense.
-
-At least that was what I tried to say, using less words...
-
-And then, according to you, B holds. So, I was right: either A or B holds. BTW,
-I obviously meant the either/or construct to be in the exclusive sense where
-both cannot hold (but my statement is also correct in the inclusive-or sense).
-
-I would only have been wrong if the correct description had been some third
-option, which I had not mentioned. But that was apparently not the case.
-
-Cheers,
-Peter
-
+> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Paul Burton <paulburton@kernel.org>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: linux-i2c@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> ---
+>  drivers/i2c/busses/i2c-designware-common.c  | 22 +++++++++++++++++++
+>  drivers/i2c/busses/i2c-designware-core.h    |  1 +
+>  drivers/i2c/busses/i2c-designware-master.c  |  2 ++
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 24 ---------------------
+>  drivers/i2c/busses/i2c-designware-slave.c   |  2 ++
+>  5 files changed, 27 insertions(+), 24 deletions(-)
 > 
->> In the first case, if (!data->chip) ...; is useless dead code. In the latter
->> case, it should be
->>
->> 	if (!data->chip)
->> 		data->chip = (whatever-type-chip-is *)id->driver_data;
->>
->> (If it's this latter case, I get the feeling that changing the .driver_data
->> of pca954x_id is an orthogonal change that has little to do with using
->> device properties instead of of-specifics.)
+> diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+> index 2de7452fcd6d..4291ff6246d8 100644
+> --- a/drivers/i2c/busses/i2c-designware-common.c
+> +++ b/drivers/i2c/busses/i2c-designware-common.c
+> @@ -344,6 +344,28 @@ int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev)
+>  		return -EIO;
+>  }
+>  
+> +void i2c_dw_set_fifo_size(struct dw_i2c_dev *dev)
+> +{
+> +	u32 param, tx_fifo_depth, rx_fifo_depth;
+> +
+> +	/*
+> +	 * Try to detect the FIFO depth if not set by interface driver,
+> +	 * the depth could be from 2 to 256 from HW spec.
+> +	 */
+> +	param = dw_readl(dev, DW_IC_COMP_PARAM_1);
+> +	tx_fifo_depth = ((param >> 16) & 0xff) + 1;
+> +	rx_fifo_depth = ((param >> 8)  & 0xff) + 1;
+> +	if (!dev->tx_fifo_depth) {
+> +		dev->tx_fifo_depth = tx_fifo_depth;
+> +		dev->rx_fifo_depth = rx_fifo_depth;
+> +	} else if (tx_fifo_depth >= 2) {
+> +		dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
+> +				tx_fifo_depth);
+> +		dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
+> +				rx_fifo_depth);
+> +	}
+> +}
+> +
+>  u32 i2c_dw_func(struct i2c_adapter *adap)
+>  {
+>  	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+> index 67edbbde1070..3fbc9f22fcf1 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.h
+> +++ b/drivers/i2c/busses/i2c-designware-core.h
+> @@ -297,6 +297,7 @@ int i2c_dw_acquire_lock(struct dw_i2c_dev *dev);
+>  void i2c_dw_release_lock(struct dw_i2c_dev *dev);
+>  int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev);
+>  int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev);
+> +void i2c_dw_set_fifo_size(struct dw_i2c_dev *dev);
+>  u32 i2c_dw_func(struct i2c_adapter *adap);
+>  void i2c_dw_disable(struct dw_i2c_dev *dev);
+>  void i2c_dw_disable_int(struct dw_i2c_dev *dev);
+> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+> index e8b328242256..05da900cf375 100644
+> --- a/drivers/i2c/busses/i2c-designware-master.c
+> +++ b/drivers/i2c/busses/i2c-designware-master.c
+> @@ -698,6 +698,8 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+>  	if (ret)
+>  		return ret;
+>  
+> +	i2c_dw_set_fifo_size(dev);
+> +
+>  	ret = dev->init(dev);
+>  	if (ret)
+>  		return ret;
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 3b7d58c2fe85..cb494273bb60 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -219,28 +219,6 @@ static void i2c_dw_configure_slave(struct dw_i2c_dev *dev)
+>  	dev->mode = DW_IC_SLAVE;
+>  }
+>  
+> -static void dw_i2c_set_fifo_size(struct dw_i2c_dev *dev)
+> -{
+> -	u32 param, tx_fifo_depth, rx_fifo_depth;
+> -
+> -	/*
+> -	 * Try to detect the FIFO depth if not set by interface driver,
+> -	 * the depth could be from 2 to 256 from HW spec.
+> -	 */
+> -	param = i2c_dw_read_comp_param(dev);
+> -	tx_fifo_depth = ((param >> 16) & 0xff) + 1;
+> -	rx_fifo_depth = ((param >> 8)  & 0xff) + 1;
+> -	if (!dev->tx_fifo_depth) {
+> -		dev->tx_fifo_depth = tx_fifo_depth;
+> -		dev->rx_fifo_depth = rx_fifo_depth;
+> -	} else if (tx_fifo_depth >= 2) {
+> -		dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
+> -				tx_fifo_depth);
+> -		dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
+> -				rx_fifo_depth);
+> -	}
+> -}
+> -
+>  static void dw_i2c_plat_pm_cleanup(struct dw_i2c_dev *dev)
+>  {
+>  	pm_runtime_disable(dev->dev);
+> @@ -362,8 +340,6 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>  				div_u64(clk_khz * t->sda_hold_ns + 500000, 1000000);
+>  	}
+>  
+> -	dw_i2c_set_fifo_size(dev);
+> -
+>  	adap = &dev->adapter;
+>  	adap->owner = THIS_MODULE;
+>  	adap->class = I2C_CLASS_DEPRECATED;
+> diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+> index f5f001738df5..0fc3aa31d46a 100644
+> --- a/drivers/i2c/busses/i2c-designware-slave.c
+> +++ b/drivers/i2c/busses/i2c-designware-slave.c
+> @@ -260,6 +260,8 @@ int i2c_dw_probe_slave(struct dw_i2c_dev *dev)
+>  	if (ret)
+>  		return ret;
+>  
+> +	i2c_dw_set_fifo_size(dev);
+> +
+>  	ret = dev->init(dev);
+>  	if (ret)
+>  		return ret;
+> -- 
+> 2.25.1
 > 
-> But this comment is good, seems I missed that and actually change is not needed
-> indeed.
-> 
+
+-- 
+With Best Regards,
+Andy Shevchenko
