@@ -1,27 +1,27 @@
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH v4 2/4] ARM: at91/dt: sama5d3: add i2c gpio pinctrl
-Date: Mon, 9 Mar 2020 22:20:05 +0100
-Message-ID: <20200309212005.GI3563@piout.net>
+Subject: Re: [PATCH v4 3/4] ARM: at91/dt: sama5d4: add i2c gpio pinctrl
+Date: Mon, 9 Mar 2020 22:20:20 +0100
+Message-ID: <20200309212020.GJ3563@piout.net>
 References: <20200225155012.22764-1-codrin.ciubotariu@microchip.com>
- <20200225155012.22764-2-codrin.ciubotariu@microchip.com>
+ <20200225155012.22764-3-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:50897 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726168AbgCIVUJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Mar 2020 17:20:09 -0400
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:51293 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726168AbgCIVUY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Mar 2020 17:20:24 -0400
 Content-Disposition: inline
-In-Reply-To: <20200225155012.22764-2-codrin.ciubotariu@microchip.com>
+In-Reply-To: <20200225155012.22764-3-codrin.ciubotariu@microchip.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, robh+dt@kernel.org, peda@axentia.se, linux@armlinux.org.uk, wsa@the-dreams.de, Kamel Bouhara <kamel.bouhara@bootlin.com>
 
-On 25/02/2020 17:50:10+0200, Codrin Ciubotariu wrote:
+On 25/02/2020 17:50:11+0200, Codrin Ciubotariu wrote:
 > From: Kamel Bouhara <kamel.bouhara@bootlin.com>
 > 
-> Add the i2c gpio pinctrls to support the i2c bus recovery
+> Add the i2c gpio pinctrls so the i2c bus recovery option can be enabled
 > 
 > Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
 > [codrin.ciubotariu@microchip.com: removed gpio pull-ups]
@@ -38,10 +38,10 @@ On 25/02/2020 17:50:10+0200, Codrin Ciubotariu wrote:
 > Changes in v2:
 >   - none;
 > 
->  arch/arm/boot/dts/sama5d3.dtsi | 33 ++++++++++++++++++++++++++++++---
+>  arch/arm/boot/dts/sama5d4.dtsi | 33 ++++++++++++++++++++++++++++++---
 >  1 file changed, 30 insertions(+), 3 deletions(-)
 > 
-Applied after modifying the subject, thanks.
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Bootlin
