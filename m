@@ -1,32 +1,28 @@
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH v4 3/4] ARM: at91/dt: sama5d4: add i2c gpio pinctrl
-Date: Mon, 9 Mar 2020 22:20:20 +0100
-Message-ID: <20200309212020.GJ3563@piout.net>
+From: Alexandre Belloni <alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v4 4/4] ARM: at91/dt: sama5d2: add i2c gpio pinctrl
+Date: Mon, 9 Mar 2020 22:20:38 +0100
+Message-ID: <20200309212038.GK3563@piout.net>
 References: <20200225155012.22764-1-codrin.ciubotariu@microchip.com>
- <20200225155012.22764-3-codrin.ciubotariu@microchip.com>
+ <20200225155012.22764-4-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:51293 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726168AbgCIVUY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Mar 2020 17:20:24 -0400
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20200225155012.22764-3-codrin.ciubotariu@microchip.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20200225155012.22764-4-codrin.ciubotariu-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Codrin Ciubotariu <codrin.ciubotariu-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Kamel Bouhara <kamel.bouhara-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, robh+dt@kernel.org, peda@axentia.se, linux@armlinux.org.uk, wsa@the-dreams.de, Kamel Bouhara <kamel.bouhara@bootlin.com>
 
-On 25/02/2020 17:50:11+0200, Codrin Ciubotariu wrote:
-> From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+On 25/02/2020 17:50:12+0200, Codrin Ciubotariu wrote:
+> From: Kamel Bouhara <kamel.bouhara-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
 > 
-> Add the i2c gpio pinctrls so the i2c bus recovery option can be enabled
+> Add the i2c gpio pinctrls to support the i2c bus recovery
 > 
-> Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
-> [codrin.ciubotariu@microchip.com: removed gpio pull-ups]
-> Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-> Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+> Signed-off-by: Kamel Bouhara <kamel.bouhara-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
+> [codrin.ciubotariu-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org: removed gpio pull-ups]
+> Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+> Acked-by: Ludovic Desroches <ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
 > ---
 > 
 > Changes in v4:
@@ -36,10 +32,11 @@ On 25/02/2020 17:50:11+0200, Codrin Ciubotariu wrote:
 >  - removed gpio pull-ups;
 > 
 > Changes in v2:
->   - none;
+>  - new patch;
 > 
->  arch/arm/boot/dts/sama5d4.dtsi | 33 ++++++++++++++++++++++++++++++---
->  1 file changed, 30 insertions(+), 3 deletions(-)
+>  arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts   | 33 +++++++++++++++++++--
+>  arch/arm/boot/dts/at91-sama5d2_xplained.dts | 33 +++++++++++++++++++--
+>  2 files changed, 60 insertions(+), 6 deletions(-)
 > 
 Applied, thanks.
 
