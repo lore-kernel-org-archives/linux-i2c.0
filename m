@@ -1,25 +1,25 @@
-From: postmaster@hokusetubad.sakura.ne.jp
-Subject: BUSINESS PROPOSAL
-Date: Mon, 09 Mar 2020 00:51:24 +0900
-Message-ID: <202003081551.028FpOOQ061609__85.6220418185671$1583687414$gmane$org@www752.sakura.ne.jp>
-Reply-To: abulkareem461@gmail.com
+From: "Michael J. Weirsky" <mikhailov@paleo.ru>
+Subject: (unknown)
+Date: Mon, 09 Mar 2020 09:34:56 +0200
+Message-ID: <c9fe6ad1f251265fbddc64f90d5d8ad7__1410.42857883207$1583741370$gmane$org@paleo.ru>
+Reply-To: micjsky@aol.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-2022-JP"
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www752.sakura.ne.jp ([59.106.19.202]:57156 "EHLO
-        www752.sakura.ne.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726297AbgCHRKJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 8 Mar 2020 13:10:09 -0400
+Received: from paleo.ru ([195.178.204.132]:39817 "EHLO mail.paleo.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725796AbgCIIJX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 9 Mar 2020 04:09:23 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: nJreyes@midway.edu
 
-Dearest Friend
 
-I am Mr Abdul Kareem working with Emirate NBD Bank Dubai,United Arab Emirate as Finance Manager.
-I have a very profitable Business that concerns you and will benefit both of us after completion.
-Kindly get back to me for more details.
-Awaiting your response.
-Regards
-Abdul Kareem
+
+-- 
+My name is Michael J. Weirsky, I'm an unemployed Handy man , winner of 
+$273million Jackpot in March 8, 2019. I donate $1.000.000,00 to you. 
+Contact me via email: micjsky@aol.com for info / claim.
+Continue reading: 
+https://abcnews.go.com/WNT/video/jersey-handyman-forward-273m-lottery-winner-61544244
