@@ -1,25 +1,72 @@
-From: "Michael J. Weirsky" <mikhailov@paleo.ru>
-Subject: (unknown)
-Date: Mon, 09 Mar 2020 09:34:56 +0200
-Message-ID: <c9fe6ad1f251265fbddc64f90d5d8ad7__1410.42857883207$1583741370$gmane$org@paleo.ru>
-Reply-To: micjsky@aol.com
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH] i2c: stm32f7: do not backup read-only PECR register
+Date: Mon, 9 Mar 2020 15:52:20 +0100
+Message-ID: <5b19cf9c-9556-09c9-929d-0c396f689521@st.com>
+References: <1583413141-1268-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from paleo.ru ([195.178.204.132]:39817 "EHLO mail.paleo.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725796AbgCIIJX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 9 Mar 2020 04:09:23 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1583413141-1268-1-git-send-email-alain.volmat@st.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alain Volmat <alain.volmat@st.com>, wsa@the-dreams.de
+Cc: alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Alain
 
+Look good for me
 
--- 
-My name is Michael J. Weirsky, I'm an unemployed Handy man , winner of 
-$273million Jackpot in March 8, 2019. I donate $1.000.000,00 to you. 
-Contact me via email: micjsky@aol.com for info / claim.
-Continue reading: 
-https://abcnews.go.com/WNT/video/jersey-handyman-forward-273m-lottery-winner-61544244
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+
+Regards
+
+On 3/5/20 1:59 PM, Alain Volmat wrote:
+> The PECR register provides received packet computed PEC value. 
+> It makes no sense restoring its value after a reset, and anyway,
+> as read-only register it cannot be restored.
+> 
+> Fixes: ea6dd25deeb5 ("i2c: stm32f7: add PM_SLEEP suspend/resume support")
+> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+> ---
+>  drivers/i2c/busses/i2c-stm32f7.c | 4 ----
+>  1 file changed, 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+> index 378956ac6d1d..4d7401d62b71 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -176,7 +176,6 @@
+>   * @cr2: Control register 2
+>   * @oar1: Own address 1 register
+>   * @oar2: Own address 2 register
+> - * @pecr: PEC register
+>   * @tmgr: Timing register
+>   */
+>  struct stm32f7_i2c_regs {
+> @@ -184,7 +183,6 @@ struct stm32f7_i2c_regs {
+>  	u32 cr2;
+>  	u32 oar1;
+>  	u32 oar2;
+> -	u32 pecr;
+>  	u32 tmgr;
+>  };
+>  
+> @@ -2146,7 +2144,6 @@ static int stm32f7_i2c_regs_backup(struct stm32f7_i2c_dev *i2c_dev)
+>  	backup_regs->cr2 = readl_relaxed(i2c_dev->base + STM32F7_I2C_CR2);
+>  	backup_regs->oar1 = readl_relaxed(i2c_dev->base + STM32F7_I2C_OAR1);
+>  	backup_regs->oar2 = readl_relaxed(i2c_dev->base + STM32F7_I2C_OAR2);
+> -	backup_regs->pecr = readl_relaxed(i2c_dev->base + STM32F7_I2C_PECR);
+>  	backup_regs->tmgr = readl_relaxed(i2c_dev->base + STM32F7_I2C_TIMINGR);
+>  
+>  	pm_runtime_put_sync(i2c_dev->dev);
+> @@ -2178,7 +2175,6 @@ static int stm32f7_i2c_regs_restore(struct stm32f7_i2c_dev *i2c_dev)
+>  	writel_relaxed(backup_regs->cr2, i2c_dev->base + STM32F7_I2C_CR2);
+>  	writel_relaxed(backup_regs->oar1, i2c_dev->base + STM32F7_I2C_OAR1);
+>  	writel_relaxed(backup_regs->oar2, i2c_dev->base + STM32F7_I2C_OAR2);
+> -	writel_relaxed(backup_regs->pecr, i2c_dev->base + STM32F7_I2C_PECR);
+>  
+>  	pm_runtime_put_sync(i2c_dev->dev);
+>  
+> 
