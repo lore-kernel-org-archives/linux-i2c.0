@@ -1,201 +1,131 @@
 From: Loic Poulain <loic.poulain@linaro.org>
-Subject: Re: [PATCH v4 1/3] i2c: Add Qualcomm CCI I2C driver
-Date: Mon, 9 Mar 2020 16:25:02 +0100
-Message-ID: <CAMZdPi-O5_RysdvfgVu4dBmF_8jn9sCfU1jzAk3n-WW55ePokA@mail.gmail.com>
-References: <1583515184-9636-1-git-send-email-loic.poulain@linaro.org> <20200307020513.GA1094083@builder>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH v5 2/3] dt-bindings: i2c: Add binding for Qualcomm CCI I2C controller
+Date: Mon,  9 Mar 2020 17:23:17 +0100
+Message-ID: <1583770998-25449-2-git-send-email-loic.poulain@linaro.org>
+References: <1583770998-25449-1-git-send-email-loic.poulain@linaro.org>
 Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <20200307020513.GA1094083@builder>
+In-Reply-To: <1583770998-25449-1-git-send-email-loic.poulain@linaro.org>
 Sender: linux-arm-msm-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: wsa@the-dreams.de, Vinod Koul <vkoul@kernel.org>, Robert Foss <robert.foss@linaro.org>, linux-i2c@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Todor Tomov <todor.tomov@linaro.org>
+To: wsa@the-dreams.de
+Cc: vkoul@kernel.org, robert.foss@linaro.org, bjorn.andersson@linaro.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Bjorn,
+From: Todor Tomov <todor.tomov@linaro.org>
 
-On Sat, 7 Mar 2020 at 03:05, Bjorn Andersson <bjorn.andersson@linaro.org> wrote:
->
-> On Fri 06 Mar 09:19 PST 2020, Loic Poulain wrote:
->
-> > This commit adds I2C bus support for the Camera Control Interface
-> > (CCI) I2C controller found on the Qualcomm SoC processors. This I2C
-> > controller supports two masters and they are registered to the core.
-> >
-> > CCI versions supported in the driver are MSM8916 and MSM8996.
->
-> +SDM845
->
-> >
-> > This is a rework of the patch posted by Vinod:
-> > https://patchwork.kernel.org/patch/10569961/
-> >
-> > With additional fixes + most of the comments addressed.
-> >
-> > Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
-> > Signed-off-by: Vinod Koul <vkoul@kernel.org>
-> > Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-> > Tested-by: Robert Foss <robert.foss@linaro.org>
-> > ---
-> >   v2: Remove clock rates config from driver (done via assigned clock)
-> >      Added CCI timeout recovery from Ricardo's patch:
-> >         https://www.spinics.net/lists/linux-i2c/msg36973.html
-> >  v3: add sdm845 support
-> >      rework cci_init function
-> >  v4: fix checkpatch issue (double semi-colon)
-> >
-> >  drivers/i2c/busses/Kconfig        |  10 +
-> >  drivers/i2c/busses/Makefile       |   1 +
-> >  drivers/i2c/busses/i2c-qcom-cci.c | 787 ++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 798 insertions(+)
-> >  create mode 100644 drivers/i2c/busses/i2c-qcom-cci.c
-> >
-> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> > index 6a0aa76..807a052 100644
-> > --- a/drivers/i2c/busses/Kconfig
-> > +++ b/drivers/i2c/busses/Kconfig
-> > @@ -894,6 +894,16 @@ config I2C_QCOM_GENI
-> >         This driver can also be built as a module.  If so, the module
-> >         will be called i2c-qcom-geni.
-> >
-> > +config I2C_QCOM_CCI
->
-> Please move this above GENI, to keep sort order.
+Add DT binding document for Qualcomm Camera Control Interface (CCI)
+I2C controller.
 
-ack
+Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+---
+ v2: Fix subnode properties, remove mandatory clock names
+ v3: Add sdm845 compatible string
+ v4: no change
+ v5: no change
 
->
-> > +     tristate "Qualcomm Camera Control Interface"
-> > +     depends on ARCH_QCOM || COMPILE_TEST
-> > +     help
-> > +       If you say yes to this option, support will be included for the
-> > +       built-in camera control interface on the Qualcomm SoCs.
-> > +
-> > +       This driver can also be built as a module.  If so, the module
-> > +       will be called i2c-qcom-cci.
-> > +
-> >  config I2C_QUP
-> >       tristate "Qualcomm QUP based I2C controller"
-> >       depends on ARCH_QCOM
-> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> > index 3ab8aeb..9028b77 100644
-> > --- a/drivers/i2c/busses/Makefile
-> > +++ b/drivers/i2c/busses/Makefile
-> > @@ -92,6 +92,7 @@ obj-$(CONFIG_I2C_PUV3)              += i2c-puv3.o
-> >  obj-$(CONFIG_I2C_PXA)                += i2c-pxa.o
-> >  obj-$(CONFIG_I2C_PXA_PCI)    += i2c-pxa-pci.o
-> >  obj-$(CONFIG_I2C_QCOM_GENI)  += i2c-qcom-geni.o
-> > +obj-$(CONFIG_I2C_QCOM_CCI)   += i2c-qcom-cci.o
->
-> Sort order.
+ .../devicetree/bindings/i2c/i2c-qcom-cci.txt       | 92 ++++++++++++++++++++++
+ 1 file changed, 92 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
 
-ack
-
->
-> >  obj-$(CONFIG_I2C_QUP)                += i2c-qup.o
-> >  obj-$(CONFIG_I2C_RIIC)               += i2c-riic.o
-> >  obj-$(CONFIG_I2C_RK3X)               += i2c-rk3x.o
-> > diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-> [..]
-> > +/* Max number of resources + 1 for a NULL terminator */
-> > +#define CCI_RES_MAX  6
-> > +
-> > +
->
-> Extra newline?
->
-> > +#define CCI_I2C_SET_PARAM    1
-> > +#define CCI_I2C_REPORT               8
-> > +#define CCI_I2C_WRITE                9
-> > +#define CCI_I2C_READ         10
-> [..]
-> > +static int cci_i2c_read(struct cci *cci, u16 master,
-> > +                     u16 addr, u8 *buf, u16 len)
-> > +{
-> > +     u32 val, words_read, words_exp;
-> > +     u8 queue = QUEUE_1;
-> > +     int i, index = 0, ret;
-> > +     bool first = true;
-> > +
-> > +     /*
-> > +      * Call validate queue to make sure queue is empty before starting.
-> > +      * This is to avoid overflow / underflow of queue.
-> > +      */
-> > +     ret = cci_validate_queue(cci, master, queue);
-> > +     if (ret < 0)
-> > +             return ret;
-> > +
-> > +     val = CCI_I2C_SET_PARAM | (addr & 0x7f) << 4;
-> > +     writel(val, cci->base + CCI_I2C_Mm_Qn_LOAD_DATA(master, queue));
-> > +
-> > +     val = CCI_I2C_READ | len << 4;
-> > +     writel(val, cci->base + CCI_I2C_Mm_Qn_LOAD_DATA(master, queue));
-> > +
-> > +     ret = cci_run_queue(cci, master, queue);
-> > +     if (ret < 0)
-> > +             return ret;
-> > +
-> > +     words_read = readl(cci->base + CCI_I2C_Mm_READ_BUF_LEVEL(master));
-> > +     words_exp = len / 4 + 1;
-> > +     if (words_read != words_exp) {
-> > +             dev_err(cci->dev, "words read = %d, words expected = %d\n",
-> > +                     words_read, words_exp);
-> > +             return -EIO;
-> > +     }
-> > +
-> > +     do {
-> > +             val = readl(cci->base + CCI_I2C_Mm_READ_DATA(master));
-> > +
-> > +             for (i = 0; i < 4 && index < len; i++) {
-> > +                     if (first) {
->
-> So lower 8 bits of the first word read should always be discarded? Do we
-> know why? Can we have a comment describing this behavior?
-
-Yes, the first byte contains the SID (slave ID), I'll add a comment.
-
-
-> > +             cci->master[i].master = i;
-> > +             cci->master[i].cci = cci;
-> > +
-> > +             i2c_set_adapdata(&cci->master[i].adap, &cci->master[i]);
-> > +             snprintf(cci->master[i].adap.name,
-> > +                      sizeof(cci->master[i].adap.name),
-> > +                      "Qualcomm Camera Control Interface: %d", i);
-> > +
-> > +             /* find the child node for i2c-bus as we are on cci node */
-> > +             of_node = of_get_next_available_child(dev->of_node, of_node);
-> > +             if (!of_node) {
-> > +                     dev_err(dev, "Missing i2c-bus@%d child node\n", i);
-> > +                     return -EINVAL;
-> > +             }
-> > +             cci->master[i].adap.dev.of_node = of_node;
->
-> Won't this break if the two masters are provided in reverse order in the
-> DT?
-
-Indeed, I'm going to rework that.
-
-> > +     /* Interrupt */
-> > +
-> > +     ret = platform_get_irq(pdev, 0);
-> > +     if (ret < 0) {
-> > +             dev_err(dev, "missing IRQ: %d\n", ret);
-> > +             return ret;
-> > +     }
-> > +     cci->irq = ret;
-> > +
-> > +     ret = devm_request_irq(dev, cci->irq, cci_isr,
-> > +                            IRQF_TRIGGER_RISING, dev_name(dev), cci);
->
-> Wouldn't it be better to request the irq after the clocks are enabled?
-> Presumably it won't fire here, but if it does then the isr might access
-> unclocked registers?
->
-> At least you shouldn't have to temporarily disable the irqs until later
-> in the probe?
-
-Yes we can move the request at a later time in the probe.
-
-Regards,
-Loic
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+new file mode 100644
+index 0000000..c6668b7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+@@ -0,0 +1,92 @@
++Qualcomm Camera Control Interface (CCI) I2C controller
++
++PROPERTIES:
++
++- compatible:
++	Usage: required
++	Value type: <string>
++	Definition: must be one of:
++		"qcom,msm8916-cci"
++		"qcom,msm8996-cci"
++		"qcom,sdm845-cci"
++
++- reg
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: base address CCI I2C controller and length of memory
++		    mapped region.
++
++- interrupts:
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: specifies the CCI I2C interrupt. The format of the
++		    specifier is defined by the binding document describing
++		    the node's interrupt parent.
++
++- clocks:
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: a list of phandle, should contain an entry for each
++		    entries in clock-names.
++
++- clock-names
++	Usage: required
++	Value type: <string>
++	Definition: a list of clock names, must include "cci" clock.
++
++- power-domains
++	Usage: required for "qcom,msm8996-cci"
++	Value type: <prop-encoded-array>
++	Definition:
++
++SUBNODES:
++
++The CCI provides I2C masters for one (msm8916) or two i2c busses (msm8996 and
++sdm845), described as subdevices named "i2c-bus@0" and "i2c-bus@1".
++
++PROPERTIES:
++
++- reg:
++	Usage: required
++	Value type: <u32>
++	Definition: Index of the CCI bus/master
++
++- clock-frequency:
++	Usage: optional
++	Value type: <u32>
++	Definition: Desired I2C bus clock frequency in Hz, defaults to 100
++		    kHz if omitted.
++
++Example:
++
++	cci@a0c000 {
++		compatible = "qcom,msm8996-cci";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0xa0c000 0x1000>;
++		interrupts = <GIC_SPI 295 IRQ_TYPE_EDGE_RISING>;
++		clocks = <&mmcc MMSS_MMAGIC_AHB_CLK>,
++			 <&mmcc CAMSS_TOP_AHB_CLK>,
++			 <&mmcc CAMSS_CCI_AHB_CLK>,
++			 <&mmcc CAMSS_CCI_CLK>,
++			 <&mmcc CAMSS_AHB_CLK>;
++		clock-names = "mmss_mmagic_ahb",
++			      "camss_top_ahb",
++			      "cci_ahb",
++			      "cci",
++			      "camss_ahb";
++
++		i2c-bus@0 {
++			reg = <0>;
++			clock-frequency = <400000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c-bus@1 {
++			reg = <1>;
++			clock-frequency = <400000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
+-- 
+2.7.4
