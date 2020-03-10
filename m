@@ -1,43 +1,138 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] i2c: gpio: suppress error on probe defer
-Date: Tue, 10 Mar 2020 09:13:18 +0100
-Message-ID: <CACRpkdYwENREw4uCd_tuWWXfv7k+MHOF6Bq=r+JcBHBt8aGuFQ@mail.gmail.com>
-References: <20200309211618.25535-1-hamish.martin@alliedtelesis.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Loic Poulain <loic.poulain@linaro.org>
+Subject: [PATCH v6 2/3] dt-bindings: i2c: Add binding for Qualcomm CCI I2C controller
+Date: Tue, 10 Mar 2020 09:47:00 +0100
+Message-ID: <1583830021-30141-2-git-send-email-loic.poulain@linaro.org>
+References: <1583830021-30141-1-git-send-email-loic.poulain@linaro.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:38302 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725919AbgCJINd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Mar 2020 04:13:33 -0400
-Received: by mail-lf1-f65.google.com with SMTP id x22so10066802lff.5
-        for <linux-i2c@vger.kernel.org>; Tue, 10 Mar 2020 01:13:31 -0700 (PDT)
-In-Reply-To: <20200309211618.25535-1-hamish.martin@alliedtelesis.co.nz>
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:34535 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726523AbgCJInI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Mar 2020 04:43:08 -0400
+Received: by mail-wr1-f66.google.com with SMTP id z15so14679175wrl.1
+        for <linux-i2c@vger.kernel.org>; Tue, 10 Mar 2020 01:43:06 -0700 (PDT)
+In-Reply-To: <1583830021-30141-1-git-send-email-loic.poulain@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c <linux-i2c@vger.kernel.org>
+To: wsa@the-dreams.de
+Cc: vkoul@kernel.org, robert.foss@linaro.org, bjorn.andersson@linaro.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>
 
-On Mon, Mar 9, 2020 at 10:16 PM Hamish Martin
-<hamish.martin@alliedtelesis.co.nz> wrote:
+From: Todor Tomov <todor.tomov@linaro.org>
 
-> If a GPIO we are trying to use is not available and we are deferring
-> the probe, don't output an error message.
-> This seems to have been the intent of commit 05c74778858d
-> ("i2c: gpio: Add support for named gpios in DT") but the error was
-> still output due to not checking the updated 'retdesc'.
->
-> Fixes: 05c74778858d ("i2c: gpio: Add support for named gpios in DT")
-> Signed-off-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Add DT binding document for Qualcomm Camera Control Interface (CCI)
+I2C controller.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+---
+ v2: Fix subnode properties, remove mandatory clock names
+ v3: Add sdm845 compatible string
+ v4: no change
+ v5: no change
+ v6: no change
 
-Maintainers have varied opinions about this. Some think
-it is a stopgap problem until we get probes ordered by other
-measures, others think developers should simply learn
-the meaning of error -517 and realize it is no error.
+ .../devicetree/bindings/i2c/i2c-qcom-cci.txt       | 92 ++++++++++++++++++++++
+ 1 file changed, 92 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
 
-But this is fine with me.
-
-Yours,
-Linus Walleij
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+new file mode 100644
+index 0000000..c6668b7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+@@ -0,0 +1,92 @@
++Qualcomm Camera Control Interface (CCI) I2C controller
++
++PROPERTIES:
++
++- compatible:
++	Usage: required
++	Value type: <string>
++	Definition: must be one of:
++		"qcom,msm8916-cci"
++		"qcom,msm8996-cci"
++		"qcom,sdm845-cci"
++
++- reg
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: base address CCI I2C controller and length of memory
++		    mapped region.
++
++- interrupts:
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: specifies the CCI I2C interrupt. The format of the
++		    specifier is defined by the binding document describing
++		    the node's interrupt parent.
++
++- clocks:
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: a list of phandle, should contain an entry for each
++		    entries in clock-names.
++
++- clock-names
++	Usage: required
++	Value type: <string>
++	Definition: a list of clock names, must include "cci" clock.
++
++- power-domains
++	Usage: required for "qcom,msm8996-cci"
++	Value type: <prop-encoded-array>
++	Definition:
++
++SUBNODES:
++
++The CCI provides I2C masters for one (msm8916) or two i2c busses (msm8996 and
++sdm845), described as subdevices named "i2c-bus@0" and "i2c-bus@1".
++
++PROPERTIES:
++
++- reg:
++	Usage: required
++	Value type: <u32>
++	Definition: Index of the CCI bus/master
++
++- clock-frequency:
++	Usage: optional
++	Value type: <u32>
++	Definition: Desired I2C bus clock frequency in Hz, defaults to 100
++		    kHz if omitted.
++
++Example:
++
++	cci@a0c000 {
++		compatible = "qcom,msm8996-cci";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0xa0c000 0x1000>;
++		interrupts = <GIC_SPI 295 IRQ_TYPE_EDGE_RISING>;
++		clocks = <&mmcc MMSS_MMAGIC_AHB_CLK>,
++			 <&mmcc CAMSS_TOP_AHB_CLK>,
++			 <&mmcc CAMSS_CCI_AHB_CLK>,
++			 <&mmcc CAMSS_CCI_CLK>,
++			 <&mmcc CAMSS_AHB_CLK>;
++		clock-names = "mmss_mmagic_ahb",
++			      "camss_top_ahb",
++			      "cci_ahb",
++			      "cci",
++			      "camss_ahb";
++
++		i2c-bus@0 {
++			reg = <0>;
++			clock-frequency = <400000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c-bus@1 {
++			reg = <1>;
++			clock-frequency = <400000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
+-- 
+2.7.4
