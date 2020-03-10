@@ -1,27 +1,23 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH 01/89] dt-bindings: i2c: brcmstb: Convert the BRCMSTB
  binding to a schema
-Date: Tue, 10 Mar 2020 11:07:04 +0100
-Message-ID: <20200310100704.GJ1987@ninjato>
+Date: Tue, 10 Mar 2020 11:07:12 +0100
+Message-ID: <20200310100712.GK1987@ninjato>
 References: <cover.6c896ace9a5a7840e9cec008b553cbb004ca1f91.1582533919.git-series.maxime@cerno.tech>
  <6649111e9c585f267762bb6c6dd96128e5cfb4ba.1582533919.git-series.maxime@cerno.tech>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="QnBU6tTI9sljzm9u"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46880 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726199AbgCJKHH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 10 Mar 2020 06:07:07 -0400
+        protocol="application/pgp-signature"; boundary="Ah40dssYA/cDqAW1"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <6649111e9c585f267762bb6c6dd96128e5cfb4ba.1582533919.git-series.maxime@cerno.tech>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <6649111e9c585f267762bb6c6dd96128e5cfb4ba.1582533919.git-series.maxime-R63rPqgGiG5yDzI6CaY1VQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime Ripard <maxime-R63rPqgGiG5yDzI6CaY1VQ@public.gmane.org>
+Cc: Nicolas Saenz Julienne <nsaenzjulienne-l3A5Bk7waGM@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dave Stevenson <dave.stevenson-FnsA7b+Nu9Xg+KzdeAJ3hg@public.gmane.org>, Tim Gover <tim.gover-FnsA7b+Nu9Xg+KzdeAJ3hg@public.gmane.org>, Phil Elwell <phil-FnsA7b+Nu9Xg+KzdeAJ3hg@public.gmane.org>, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Maxime Ripard <maxime@cerno.tech>
-Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Eric Anholt <eric@anholt.net>, dri-devel@lists.freedesktop.org, linux-rpi-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Dave Stevenson <dave.stevenson@raspberrypi.com>, Tim Gover <tim.gover@raspberrypi.com>, Phil Elwell <phil@raspberrypi.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
 
---QnBU6tTI9sljzm9u
+--Ah40dssYA/cDqAW1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -29,37 +25,36 @@ Content-Transfer-Encoding: quoted-printable
 On Mon, Feb 24, 2020 at 10:06:03AM +0100, Maxime Ripard wrote:
 > Switch the DT binding to a YAML schema to enable the DT validation.
 >=20
-> Cc: Kamal Dasu <kdasu.kdev@gmail.com>
-> Cc: Florian Fainelli <f.fainelli@gmail.com>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: bcm-kernel-feedback-list@broadcom.com
-> Cc: linux-i2c@vger.kernel.org
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+> Cc: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Maxime Ripard <maxime-R63rPqgGiG5yDzI6CaY1VQ@public.gmane.org>
 
-I didn't get the cover letter, so I assume I shall pick the I2C patches.
-Please let me have the cover letter next time.
+Applied to for-next, thanks!
 
 
---QnBU6tTI9sljzm9u
+--Ah40dssYA/cDqAW1
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5nZsgACgkQFA3kzBSg
-KbbQ9Q/9GTVZf8R/GtAv29DgISJ/YjMp58JVs7OU6+mBQE0j7tiCJ6PLhm23VGiU
-cdjdeDr1WnNxjFJVz4odMqLO3I6OQ1D5492m9JoDPyulYLf977dEiSMq+k3m50sp
-Fjtmc2wfaeQD3IEdkDtNcFJkFpj90z3u7lQdT3g+HjnVXLMzQqPCKMNJ86uV+Bch
-S5zkZy+T5cNq8ddDKy9pFKtLO5RtVsaJb4voFeCAn3mxvW768XGv6zH0p0YUDeXI
-O+l3CwwFe8V1eqvQceTRu8eSq6k7XD0/EnH9eu0LVee+ou5gWUNgOI5oVyqee1mv
-h9lJ/m4Dwnw5vwRb1Eo3yloQ5laK5Qoacj+PC1ywwQD6VajDelfa67qhjmGBVoMu
-pu5gguaOFKTHsKDodTv3eKkupQmTeSvN50spne+/y8dZk1hth5k9mf6hfahKZYT5
-NLyaSwsgCDnQ7cvJBHE4WkuCBx9yTyVVOTQB4TdtHwvk0NdhQSq8v3cCQeoe73IH
-PipJrkHNeQrag1t/2WQwNQEViKoomxVK/n7zp8AbXfxiarzAmVnNvJi7WHoLotaM
-LKnth/eRoerOtXeF1Owk54u+/V6kJE6mlNcl7RVvHauIANEG5k9p2cmPaXRFGnh0
-n2qmm1mj0HCYrQxIkKJ+qtFeaieY1IQU1op1flY5kftD5ZzqRUk=
-=EeaW
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5nZtAACgkQFA3kzBSg
+KbY+NxAApOA0DgL9E18jKGCjbNUZdoNygycR8UoNEsGm7J/mGOUAW0bk9z4483Tr
+b1Jpea0h2FsKT8Hi8CYLCF7A4Ak4CwDIOOjeFrgekBcrqopEXe9k6uJfHvlVs4CC
+Qj9CfTKsCJNzmdmEF52LTD0PKQ2pQzlIzxv+R6NaCDXdg1ny5gLiJOYh3taZ3Zfv
+g0hk64L428pj3g2BU5CHkMeTakLEc2wyZy4ooK7b0vtGCkGTEKCMwmOh4hpVnpk9
+Q3q0m93ylVuPisnG7KQrKhVYcYJVQylHZeMshW2siLhMRJ99LbAKudsSLJonivHS
+iXZciqZWNOKtwWc33Kc3cGlSYdqc/gFi5o8bxk9mJZO45SvGSbBxCWrb5+HLhORk
+f0yZijL17mcJfnN1gJbFpZNPvEJyLfX/toxP1JAp8JbXuL1DsgOx0u1Icm2ktiH7
++63SvGtyq/970XG81VyKn8Pi05VDaO9Lc9KF+U4e9X4ogVvUF2MXyBQR2N/aufoc
+VHrfcWZBkmx55YyW+T01gsKtdIElXC2MlXdianIcCVRJjGUgNr47JhoGX0kPK7On
+WSrujQEyv3TE1GBFlQ4pcVC4IRysR7QNjx0qhGaDMBP7dvkWQvsNxFjPU0UiQAyH
+D5eCaht02CFa0uQRlHue7QZrUP2JxhWSsW+bNxFeIiL9PSA5buw=
+=aQAg
 -----END PGP SIGNATURE-----
 
---QnBU6tTI9sljzm9u--
+--Ah40dssYA/cDqAW1--
