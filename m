@@ -1,40 +1,65 @@
-From: ''Michael weirsky'' <ronald.pena@11d01.mspz7.gob.ec>
-Subject: =?utf-8?q?Wohlt=C3=A4tigkeitsspende_von_2=2E000=2E000_Millionen_Euro?=
-Date: Tue, 10 Mar 2020 10:13:46 +0200
-Message-ID: <20200310074419.4AD0C2F6B755@mail.11d01.mspz7.gob.ec>
-Reply-To: mikeweirskyspende@gmail.com
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] macintosh: windfarm: fix MODINFO regression
+Date: Tue, 10 Mar 2020 12:22:30 +0100
+Message-ID: <20200310112230.GU1987@ninjato>
+References: <20200303125046.5157-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="DFFMAMYvrfM3lt66"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.11d01.mspz7.gob.ec ([190.152.145.91]:37728 "EHLO
-        mail.11d01.mspz7.gob.ec" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725937AbgCJLV0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Mar 2020 07:21:26 -0400
-Content-Description: Mail message body
+Received: from sauhun.de ([88.99.104.3]:47626 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725937AbgCJLWd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 10 Mar 2020 07:22:33 -0400
+Content-Disposition: inline
+In-Reply-To: <20200303125046.5157-1-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Recipients <ronald.pena@11d01.mspz7.gob.ec>
-
-Lieber Freund,
-
-Ich bin Herr Mike Weirsky, New Jersey, Vereinigte Staaten von Amerika, der =
-Mega-Gewinner von $ 273million In Mega Millions Jackpot, spende ich an 5 zu=
-f=C3=A4llige Personen, wenn Sie diese E-Mail erhalten, dann wurde Ihre E-Ma=
-il nach einem Spinball ausgew=C3=A4hlt.Ich habe den gr=C3=B6=C3=9Ften Teil =
-meines Verm=C3=B6gens auf eine Reihe von Wohlt=C3=A4tigkeitsorganisationen =
-und Organisationen verteilt.Ich habe mich freiwillig dazu entschieden, die =
-Summe von =E2=82=AC 2.000.000,00 an Sie als eine der ausgew=C3=A4hlten 5 zu=
- spenden, um meine Gewinne zu =C3=BCberpr=C3=BCfen.
-Das ist dein Spendencode: [MW530342019]
-www.youtube.com/watch?v=3Dun8yRTmrYMY
-
-Antworten Sie mit dem SPENDE-CODE an diese =
+To: linuxppc-dev@lists.ozlabs.org
+Cc: linux-i2c@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, debian-powerpc@lists.debian.org, Mathieu Malaterre <malat@debian.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Erhard Furtner <erhard_f@mailbox.org>
 
 
-E-Mail:mikeweirskyspende@gmail.com
+--DFFMAMYvrfM3lt66
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ich hoffe, Sie und Ihre Familie gl=C3=BCcklich zu machen.
+On Tue, Mar 03, 2020 at 01:50:46PM +0100, Wolfram Sang wrote:
+> Commit af503716ac14 made sure OF devices get an OF style modalias with
+> I2C events. It assumed all in-tree users were converted, yet it missed
+> some Macintosh drivers.
+>=20
+> Add an OF module device table for all windfarm drivers to make them
+> automatically load again.
+>=20
+> Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices=
+ registered via OF")
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D199471
+> Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+> Tested-by: Erhard Furtner <erhard_f@mailbox.org>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-Gr=C3=BC=C3=9Fe
-Herr Mike Weirsky
+Thanks, Michael! Applied to for-current.
+
+
+--DFFMAMYvrfM3lt66
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5neHIACgkQFA3kzBSg
+KbZ42Q//dNfEfjPawt+cDqqGh5+CwK//7eIn09Pr4z4UdJZoLMzuatBhzhuS4bo3
+P0j7vBn05v8p32Vc1uUl0bMlfMlWLE3sP56yIv3R8zdx+fRrO/48cA+TiEiX/B6S
+mbcQ5/0V7ejXRvB74L73KtiT+Crzh5+Yy7B6BAREzwn4U37fjIxF55YAB2pGAedb
+UHrUkH6eVk6PGFMVmJyWU0hquI7sVyRUHE/UKnHyTK+vHMt+Ymt2zSF8cov7HlG0
+kIR4xp6zqzfVKbksEVJpgvaoe9q5N2YEc5Y/ylh04EwauCEjGi0PjYemFUChmE4i
+VrifBEmKYR1jPA2vjehBeKkaHrshsHi78hRC4PURC2YPL2fz8V+ETpXlOoP+8Zqh
+83K4Go50LMWC9Vq039hdWQ+tgGu1228le33uvuAwNh5uwrDHGlMZ51ttYnr2d3gj
+F30mIp8qfxaWsdFCuRhsXRKUWotY5+zQJiyD3KbS67VtKuxkyU+k5OXx4/wT7eiI
+ZrRNcO+6skAfeBKHaCli4bJ1/yUofjJUGZMH1qTGBxK7FHDO2TfgkBdJUeyREeWx
+HDrV7E1pjLl48M7qPRl4kPJ5eVyFGDbm8yRQBhc4DbFcKNpwKB1czrNqXbkMg8Bj
+btJRrmxxBTWElCTO/ETcEN4WWHaFp8B4HKsV/By6UMpGUNLw1RY=
+=PQWK
+-----END PGP SIGNATURE-----
+
+--DFFMAMYvrfM3lt66--
