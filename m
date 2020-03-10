@@ -1,38 +1,62 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH] macintosh: windfarm: fix MODINFO regression
-Date: Tue, 10 Mar 2020 22:05:09 +1100
-Message-ID: <87wo7sii6y.fsf@mpe.ellerman.id.au>
-References: <20200303125046.5157-1-wsa@the-dreams.de> <20200310091155.GA1987@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCHv2 1/5] i2c: i2c-stm32f7: disable/restore Fast Mode Plus
+ bits in low power modes
+Date: Tue, 10 Mar 2020 12:12:44 +0100
+Message-ID: <20200310111244.GP1987@ninjato>
+References: <1583148787-24236-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="6sj9mcRtP+pTWLOo"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bilbo.ozlabs.org ([203.11.71.1]:44559 "EHLO ozlabs.org"
+Received: from sauhun.de ([88.99.104.3]:47492 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726211AbgCJLFO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 10 Mar 2020 07:05:14 -0400
-In-Reply-To: <20200310091155.GA1987@ninjato>
+        id S1726205AbgCJLMq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 10 Mar 2020 07:12:46 -0400
+Content-Disposition: inline
+In-Reply-To: <1583148787-24236-1-git-send-email-alain.volmat@st.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linuxppc-dev@lists.ozlabs.org
-Cc: linux-i2c@vger.kernel.org, debian-powerpc@lists.debian.org, Mathieu Malaterre <malat@debian.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Erhard Furtner <erhard_f@mailbox.org>
+To: Alain Volmat <alain.volmat@st.com>
+Cc: pierre-yves.mordret@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 
-Wolfram Sang <wsa@the-dreams.de> writes:
-> On Tue, Mar 03, 2020 at 01:50:46PM +0100, Wolfram Sang wrote:
->> Commit af503716ac14 made sure OF devices get an OF style modalias with
->> I2C events. It assumed all in-tree users were converted, yet it missed
->> some Macintosh drivers.
->> 
->> Add an OF module device table for all windfarm drivers to make them
->> automatically load again.
->> 
->> Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices registered via OF")
->> Link: https://bugzilla.kernel.org/show_bug.cgi?id=199471
->> Reported-by: Erhard Furtner <erhard_f@mailbox.org>
->> Tested-by: Erhard Furtner <erhard_f@mailbox.org>
->> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
->
-> Michael, I can take this via I2C again, if you ack it.
 
-Thanks, done.
+--6sj9mcRtP+pTWLOo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-cheers
+On Mon, Mar 02, 2020 at 12:33:07PM +0100, Alain Volmat wrote:
+> Defer the initial enabling of the Fast Mode Plus bits after the
+> stm32f7_i2c_setup_timing call in probe function in order to avoid
+> enabling them if speed is downgraded.
+> Clear & restore the Fast Mode Plus bits in the suspend/resume
+> handlers of the driver.
+>=20
+> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+> Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+>=20
+
+Applied to for-next, thanks!
+
+
+--6sj9mcRtP+pTWLOo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5ndiwACgkQFA3kzBSg
+KbYEHA/+Ii6H+eSACR3Z7Q3F8CXBe8hDrrbKV/s/nJR1yi71hGOHyOhHN/H2odRe
+lCVxKyWLCYhubBtWa/QvgGO9oIBtRfmiW72X6xeOeF8pI9Zwy/n0NOj+GhmrpTOI
+O1rtHwvza+3t5BAf2pohXpil2X9BLhvBrzSLZ9q956N0bHKE2i6A5LWMenyVmZL5
+kEmJ0ok2WJEfeSBF3eDL2hwDZzMRzRL8BRYNj7sXyG4wqbTe3HmZiAdFbMwuSuec
+QbvFnKhtaQCWDGFz/W2eKyIK0H6YDuKpeGWRtW/c/pf5Nk3MXiU3xJCLkAsvmYq0
+WXErJI/nbWyH1fDDV2lVUWd9qUbFdEafVoHqTPZ5HYeOvoRiRAlIT3GrYZzucvNX
+OMsfShttaR5CJVS7ahRuqcJxHXTaJS11Jo6yVH7L1zB4p7DKSXfu4Rf7nvQgyk7x
+zcEdlW8W7sGaPmEpSENRYsHANq3r6q3QpA5A9l14CQtQykIos4E3f9LDwheRn+Ei
+/m8KW1MUqkY2PRsBT+hSlG2GezzHMTo4YXJaiTZi87urY3+LbbcWkHcCwUMfI6vq
+2clES4iA9hZS8GAhUOqPHbQZc/bRM+n7zNmR9JHI1SoDdKpVgOLZv1MLofVJWOWI
+q46Y8Z5LtBHYj59iyZT/qYXVGogkg1PkZIk6/UBSeV2wrKsenxI=
+=J1aj
+-----END PGP SIGNATURE-----
+
+--6sj9mcRtP+pTWLOo--
