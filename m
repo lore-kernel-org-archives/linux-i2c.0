@@ -1,64 +1,34 @@
-From: Alain Volmat <alain.volmat@st.com>
-Subject: [PATCH v2] i2c: stm32f7: do not backup read-only PECR register
-Date: Tue, 10 Mar 2020 12:58:41 +0100
-Message-ID: <1583841521-27897-1-git-send-email-alain.volmat@st.com>
+From: rishi gupta <gupt21@gmail.com>
+Subject: Re: [PATCH v3] HID: mcp2221: add usb to i2c-smbus host bridge
+Date: Tue, 10 Mar 2020 17:41:31 +0530
+Message-ID: <CALUj-gvUthgPRFBje3uJf03S_Fh2m5Ez6JX-A3-mvdW9TYvHhg@mail.gmail.com>
+References: <1580185137-11255-1-git-send-email-gupt21@gmail.com> <nycvar.YFH.7.76.2003101241580.19500@cbobk.fhfr.pm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, pierre-yves.mordret@st.com
-Cc: alain.volmat@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <nycvar.YFH.7.76.2003101241580.19500@cbobk.fhfr.pm>
+Sender: linux-input-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, wsa+renesas@sang-engineering.com, Greg KH <gregkh@linuxfoundation.org>, Linux I2C <linux-i2c@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The PECR register provides received packet computed PEC value. 
-It makes no sense restoring its value after a reset, and anyway,
-as read-only register it cannot be restored.
+I am really grateful to you and all other maintainers.
+You really do a lot work; code review is a manual and time consuming task.
 
-Fixes: ea6dd25deeb5 ("i2c: stm32f7: add PM_SLEEP suspend/resume support")
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
----
-v2: rebase on top of other i2c-stm32f7 patches integrated within i2c-next
+Regards,
+Rishi
 
- drivers/i2c/busses/i2c-stm32f7.c | 4 ----
- 1 file changed, 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 8fe7f8caf91b..6418f5982894 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -176,7 +176,6 @@
-  * @cr2: Control register 2
-  * @oar1: Own address 1 register
-  * @oar2: Own address 2 register
-- * @pecr: PEC register
-  * @tmgr: Timing register
-  */
- struct stm32f7_i2c_regs {
-@@ -184,7 +183,6 @@ struct stm32f7_i2c_regs {
- 	u32 cr2;
- 	u32 oar1;
- 	u32 oar2;
--	u32 pecr;
- 	u32 tmgr;
- };
- 
-@@ -2196,7 +2194,6 @@ static int stm32f7_i2c_regs_backup(struct stm32f7_i2c_dev *i2c_dev)
- 	backup_regs->cr2 = readl_relaxed(i2c_dev->base + STM32F7_I2C_CR2);
- 	backup_regs->oar1 = readl_relaxed(i2c_dev->base + STM32F7_I2C_OAR1);
- 	backup_regs->oar2 = readl_relaxed(i2c_dev->base + STM32F7_I2C_OAR2);
--	backup_regs->pecr = readl_relaxed(i2c_dev->base + STM32F7_I2C_PECR);
- 	backup_regs->tmgr = readl_relaxed(i2c_dev->base + STM32F7_I2C_TIMINGR);
- 	stm32f7_i2c_write_fm_plus_bits(i2c_dev, false);
- 
-@@ -2229,7 +2226,6 @@ static int stm32f7_i2c_regs_restore(struct stm32f7_i2c_dev *i2c_dev)
- 	writel_relaxed(backup_regs->cr2, i2c_dev->base + STM32F7_I2C_CR2);
- 	writel_relaxed(backup_regs->oar1, i2c_dev->base + STM32F7_I2C_OAR1);
- 	writel_relaxed(backup_regs->oar2, i2c_dev->base + STM32F7_I2C_OAR2);
--	writel_relaxed(backup_regs->pecr, i2c_dev->base + STM32F7_I2C_PECR);
- 	stm32f7_i2c_write_fm_plus_bits(i2c_dev, true);
- 
- 	pm_runtime_put_sync(i2c_dev->dev);
--- 
-2.7.4
+On Tue, Mar 10, 2020 at 5:12 PM Jiri Kosina <jikos@kernel.org> wrote:
+>
+> On Tue, 28 Jan 2020, Rishi Gupta wrote:
+>
+> > MCP2221 is a USB HID to I2C/SMbus host bridge device. This
+> > commit implements i2c and smbus host adapter support. 7-bit
+> > address and i2c multi-message transaction is also supported.
+>
+> Applied; sorry this took me a bit longer to review.
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
