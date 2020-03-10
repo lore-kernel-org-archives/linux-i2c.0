@@ -1,28 +1,31 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 02/89] dt-bindings: i2c: brcmstb: Add BCM2711
- BSC/AUTO-I2C binding
-Date: Tue, 10 Mar 2020 11:07:17 +0100
-Message-ID: <20200310100717.GL1987@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 03/89] i2c: brcmstb: Support BCM2711 HDMI BSC controllers
+Date: Tue, 10 Mar 2020 11:12:29 +0100
+Message-ID: <20200310101229.GM1987@ninjato>
 References: <cover.6c896ace9a5a7840e9cec008b553cbb004ca1f91.1582533919.git-series.maxime@cerno.tech>
- <9e427ff22fa40b7146b44aee6468559499deb1f1.1582533919.git-series.maxime@cerno.tech>
+ <1ed75ec6dc9310afd768c0bbfd8e73268e8cdfa9.1582533919.git-series.maxime@cerno.tech>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Mit9XoPEfICDqq/V"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="bPrm2PuLP7ysUh6c"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:46998 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726199AbgCJKMc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 10 Mar 2020 06:12:32 -0400
 Content-Disposition: inline
-In-Reply-To: <9e427ff22fa40b7146b44aee6468559499deb1f1.1582533919.git-series.maxime-R63rPqgGiG5yDzI6CaY1VQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime-R63rPqgGiG5yDzI6CaY1VQ@public.gmane.org>
-Cc: Nicolas Saenz Julienne <nsaenzjulienne-l3A5Bk7waGM@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dave Stevenson <dave.stevenson-FnsA7b+Nu9Xg+KzdeAJ3hg@public.gmane.org>, Tim Gover <tim.gover-FnsA7b+Nu9Xg+KzdeAJ3hg@public.gmane.org>, Phil Elwell <phil-FnsA7b+Nu9Xg+KzdeAJ3hg@public.gmane.org>, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1ed75ec6dc9310afd768c0bbfd8e73268e8cdfa9.1582533919.git-series.maxime@cerno.tech>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Maxime Ripard <maxime@cerno.tech>
+Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Eric Anholt <eric@anholt.net>, dri-devel@lists.freedesktop.org, linux-rpi-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Dave Stevenson <dave.stevenson@raspberrypi.com>, Tim Gover <tim.gover@raspberrypi.com>, Phil Elwell <phil@raspberrypi.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, linux-i2c@vger.kernel.org
 
 
---Mit9XoPEfICDqq/V
+--bPrm2PuLP7ysUh6c
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 24, 2020 at 10:06:04AM +0100, Maxime Ripard wrote:
+On Mon, Feb 24, 2020 at 10:06:05AM +0100, Maxime Ripard wrote:
 > The HDMI blocks in the BCM2771 have an i2c controller to retrieve the
 > EDID. This block is split into two parts, the BSC and the AUTO_I2C,
 > lying in two separate register areas.
@@ -32,40 +35,57 @@ On Mon, Feb 24, 2020 at 10:06:04AM +0100, Maxime Ripard wrote:
 > the same controller than the one supported by the brcmstb driver, and
 > the AUTO_I2C doesn't really bring any immediate benefit.
 >=20
-> We can model it in the DT as a single device with two register range,
-> which will allow us to use or or the other in the driver without
-> changing anything in the DT.
+> Let's use the BSC then, but let's also tie the AUTO_I2C registers with a
+> separate compatible so that we can enable AUTO_I2C if needed in the
+> future.
 >=20
-> Cc: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Signed-off-by: Maxime Ripard <maxime-R63rPqgGiG5yDzI6CaY1VQ@public.gmane.org>
+> The AUTO_I2C is enabled by default at boot though, so we first need to
+> release the BSC from the AUTO_I2C control.
+>=20
+> Cc: Kamal Dasu <kdasu.kdev@gmail.com>
+> Cc: Florian Fainelli <f.fainelli@gmail.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: bcm-kernel-feedback-list@broadcom.com
+> Cc: linux-i2c@vger.kernel.org
+> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 
-Applied to for-next, thanks!
+Fixed the acked-by and applied to for-next, thanks!
+
+FYI, cppcheck rightfully warned about this in the driver:
+
+drivers/i2c/busses/i2c-brcmstb.c:319:7: warning: Condition 'CMD_RD' is alwa=
+ys true [knownConditionTrueFalse]
+ if ((CMD_RD || CMD_WR) &&
+      ^
+drivers/i2c/busses/i2c-brcmstb.c:319:17: warning: Condition 'CMD_WR' is alw=
+ays false [knownConditionTrueFalse]
+ if ((CMD_RD || CMD_WR) &&
+                ^
+drivers/i2c/busses/i2c-brcmstb.c:464:0: warning: Variable 'len' is assigned=
+ a value that is never used. [unreadVariable]
+ int len =3D 0;
+
+Not related to this patch, but maybe one of you is interested...
 
 
---Mit9XoPEfICDqq/V
+--bPrm2PuLP7ysUh6c
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5nZtUACgkQFA3kzBSg
-KbaKNw/8CYeVSOJ+gtDDCflvUs0zsoYsuDzRuEZd7seZDfEDAjPRZea/tz9M16OB
-rK81LXAyz3ngWvzob+kcqlJ8NIpW37yu5r/R5mkxemffvAy2Df4Dlx90Cuvnug1/
-/D3QDqE7sgAbxdWEWI0/lF66XV2V0RRTIcNqN4e0Rp7Q48CZMA3itmrqLtv3B1M/
-6EkTH6G77n4KAyCbN6PuCJJwNUgwsm2jUac2WRpCcaXuavYdMakDWyR0EdWcV08u
-ukqFn8lFyh7BHdbFGfuBDKrqU9aca3HjImu1tNTGJZQsZMpohEM5N3Qc53ajWnFX
-YWE3UigXavv68FTOElY+Eso4C5uZNJvtGH1bWsGG6DjX2x39vAlGVzAvKfRDQ1Fn
-EJeEJ8yDdORfkQQRdu/79DXQ5UAdZkuxDz/2PBgXtE9o14NCZgr8ENDqR2MIWzfa
-jpWaeOG272go1xg1z+/gUZRpxEFuVO4aZHyYEnbMB50VxMz+8RxsvldIOG/qfAAj
-qLFryHVYg1dRVk2Fv0+Nw1RQ2tIdu/UdQbuatEgJ75PI7ucsL09jLXJvGndJ2ABS
-EEzahmZ7hjGLbgarfYUHI9MMZMlofMliRzd8afzMg9PakdGzaayhHqhNcm8ID/GV
-vTyMwl4s+XAYs8gLuOZub0lN6ZUBYAo1jLYHH/IKz/nDoBRHeU4=
-=M9RT
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5naAkACgkQFA3kzBSg
+Kba2JQ/9HdPkWxyj7kgAVp3iCcUbIkAtwDpmrhGYLSr9AUHb+mlfe6sB92mog9+X
+P3ETy/m7Gs6cwIBqlhmQuR4E0S89dDTnC1zFk+sAyQvOp1deyoTW+P3xteUyiR9W
+9Y72Z2nhdTS1LouythkJled4kCfJ1PF3lst9/o1umYF5Q68akoWIGRq20MMBz80K
+eEXbI5+ZfvbIfzsuD220A3v3IH+KNI9rGx8Yj7ze+B/iwmTVQd7NnEkRQdD2eAxW
+yfQK9TTn+fhJWUOEJ5PvYmkYd2zfEjQQdOIdqi93nqE4w9dZ43P1YcrlPQBGqv0c
+TRXyls9o1HK2iw7ISd0tZgQBAytHuaxzST+RFHjCI8tvhU48AzplJLcc1BcXixI8
+9tAcRvbud+1WeOLk43q6jA+mIuV19/E88iJt2oqGMoUWOxnalSgg9vvkYS5MumZY
+XenAGha5oYmvszOd9tU/cDkktv+RdMNVzpOBa2gG8uiOyaEZfGLp1vaCBra7TJLw
+BZg8EzpWi6iea304u43d8P9NLfuIlNmZFTcZ7sO7UPpy9fuwaeHXRPwmIj8DmGrW
+o/TNxAnkSIOhRE/f/JnhOHHJ+BM9kuSydjAr0NHi0nnBUNTQw5J9YsPWGUSUEKHP
+IatOEa4v1/N5hUB+jP9YLWGUiBYU3bpuHEF70XNtg6jQVYyCj6c=
+=Dx35
 -----END PGP SIGNATURE-----
 
---Mit9XoPEfICDqq/V--
+--bPrm2PuLP7ysUh6c--
