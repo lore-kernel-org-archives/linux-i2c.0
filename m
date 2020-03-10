@@ -1,88 +1,64 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c:i2c-core-of:remove redundant dev_err message
-Date: Tue, 10 Mar 2020 11:52:24 +0100
-Message-ID: <20200310105224.GO1987@ninjato>
-References: <20200226103901.21520-1-tangbin@cmss.chinamobile.com>
- <0757d83b-203c-fe40-a8ac-665953d7d336@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH] macintosh: windfarm: fix MODINFO regression
+Date: Tue, 10 Mar 2020 22:04:25 +1100
+Message-ID: <87zhcoii86.fsf@mpe.ellerman.id.au>
+References: <20200303125046.5157-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7gLe/sNPhR777EPF"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:47354 "EHLO pokefinder.org"
+Received: from ozlabs.org ([203.11.71.1]:48981 "EHLO ozlabs.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726170AbgCJKw0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 10 Mar 2020 06:52:26 -0400
-Content-Disposition: inline
-In-Reply-To: <0757d83b-203c-fe40-a8ac-665953d7d336@gmail.com>
+        id S1726202AbgCJLEl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 10 Mar 2020 07:04:41 -0400
+In-Reply-To: <20200303125046.5157-1-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Francesco Lavra <francescolavra.fl@gmail.com>
-Cc: tangbin <tangbin@cmss.chinamobile.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linuxppc-dev@lists.ozlabs.org
+Cc: linux-i2c@vger.kernel.org, debian-powerpc@lists.debian.org, Mathieu Malaterre <malat@debian.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Wolfram Sang <wsa@the-dreams.de>, Erhard Furtner <erhard_f@mailbox.org>
 
+Wolfram Sang <wsa@the-dreams.de> writes:
 
---7gLe/sNPhR777EPF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Commit af503716ac14 made sure OF devices get an OF style modalias with
+> I2C events. It assumed all in-tree users were converted, yet it missed
+> some Macintosh drivers.
+>
+> Add an OF module device table for all windfarm drivers to make them
+> automatically load again.
+>
+> Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices registered via OF")
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=199471
+> Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+> Tested-by: Erhard Furtner <erhard_f@mailbox.org>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>
+> This should also help with this: https://lists.debian.org/debian-powerpc/2020/01/msg00062.html
+> Some more testing would be appreciated because lm75 also has some code
+> changes I can't test myself obviusly.
+>
+> By grepping, I found some more potential candidates (using a "MAC,"
+> prefix but not defining a OF MODULE DEVICE TABLE). Does someone know
+> about bugreports filed for those? I don't want to change them for no
+> reason:
+>
+> drivers/macintosh/ams/ams-i2c.c
+> drivers/macintosh/therm_adt746x.c
+> sound/aoa/codecs/onyx.c
+> sound/aoa/codecs/tas.c
+> sound/ppc/keywest.c
+>
+> Happy hacking,
+>
+>    Wolfram
+>
+>  drivers/macintosh/windfarm_ad7417_sensor.c  |  7 +++++++
+>  drivers/macintosh/windfarm_fcu_controls.c   |  7 +++++++
+>  drivers/macintosh/windfarm_lm75_sensor.c    | 16 +++++++++++++++-
+>  drivers/macintosh/windfarm_lm87_sensor.c    |  7 +++++++
+>  drivers/macintosh/windfarm_max6690_sensor.c |  7 +++++++
+>  drivers/macintosh/windfarm_smu_sat.c        |  7 +++++++
+>  6 files changed, 50 insertions(+), 1 deletion(-)
 
-On Wed, Feb 26, 2020 at 11:58:41AM +0100, Francesco Lavra wrote:
-> On 2/26/20 11:39 AM, tangbin wrote:
-> > of_i2c_register_device already contains error message, so remove
-> > the redundant dev_err message
-> >=20
-> > Signed-off-by: tangbin <tangbin@cmss.chinamobile.com>
-> > ---
-> >   drivers/i2c/i2c-core-of.c | 6 +-----
-> >   1 file changed, 1 insertion(+), 5 deletions(-)
-> >=20
-> > diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-> > index 6787c1f71..7b0a786d3 100644
-> > --- a/drivers/i2c/i2c-core-of.c
-> > +++ b/drivers/i2c/i2c-core-of.c
-> > @@ -103,9 +103,7 @@ void of_i2c_register_devices(struct i2c_adapter *ad=
-ap)
-> >   		client =3D of_i2c_register_device(adap, node);
-> >   		if (IS_ERR(client)) {
-> > -			dev_err(&adap->dev,
-> > -				 "Failed to create I2C device for %pOF\n",
-> > -				 node);
-> > +			return PTR_ERR(client);
->=20
-> This looks like an unrelated (and wrong) change. Why would you alter the
-> semantics of of_i2c_register_devices()? Besides, this function doesn't ha=
-ve
-> a return value.
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-Right. This is not correct.
-
-In general, tangbin has a point, the error reporting is doubled. Lower
-layers already report, so both(!) callers of of_i2c_register_device do
-not need to. Since I am refactoring all this anyhow in "[RFC PATCH 5/7]
-i2c: of: error message unification", I think I will just drop error
-reporting in the callers there when resending the series (giving tanbin
-credits for the removal).
-
-Is this okay with everyone?
-
-
---7gLe/sNPhR777EPF
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5ncWQACgkQFA3kzBSg
-KbZpcA//S4jnQJB+biCG8KuwbviA/gQmWDm7X4Y6lR9SOVNmv6fT2RlljBaTXFtN
-E1s4Cxc23bkUomFNEnfH7tGJcFGnTXJdPtxmuYG7v9h6caK0bWTOUVrH0PDB0eSD
-cy+okiDoySmdMBoxGnqHOPeZnbB6IQlEb91HiXS/VvMdluCbcHqRUQ45yNtYys0L
-RpmNwcOxL1E/NHG2GetQ5NyZLSC0IONaATOvEUkSpfthWar6u0EcMcUgCr4RruQS
-/9Wm34MxU3G42tCDlxHjcf4JB7G535wwZh5hoFPkiUK/UWmPeTF60XqhsJvE9HHP
-k4kbWurWFcDh+EOtj8wT3RH4gmBmEt0PhMTDeH0t4thlVhajjjEhPfuFs+1U0VRR
-6vn1yBBQs0wyNuKeJQDUCoJ6pIxF1Iwl1nxABuY5u9bF2+1BCpOKZpRRvmcbbhTS
-xk3IO/9rU8/7DDuPMOEFXKAg3YSgmYnfEcrSkQew7ZWSuf07wGT4FgvssSFlVnhd
-XHwwGzSC/ni6ngjrdc+woRI8EebLww9wvtvbeocnV/cdddSyvCBKYX1MSsMVEBLX
-QXorfLdiUFdojkxCZFyQNEqgodI/LRZi9QKGrw/5BQcWRrUVnrzgBtcnfIjvTOGX
-fXmgYy+4/2j3+LazmApRzWp9JPOGe2FP440iHlcHYQGgsPS1RBQ=
-=OV/r
------END PGP SIGNATURE-----
-
---7gLe/sNPhR777EPF--
+cheers
