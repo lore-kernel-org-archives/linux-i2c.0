@@ -1,59 +1,40 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: smbus: remove outdated references to irq
- level triggers
-Date: Tue, 10 Mar 2020 12:21:02 +0100
-Message-ID: <20200310112102.GT1987@ninjato>
-References: <20200228171221.5412-1-wsa+renesas@sang-engineering.com>
- <20200228171221.5412-3-wsa+renesas@sang-engineering.com>
+From: ''Michael weirsky'' <ronald.pena@11d01.mspz7.gob.ec>
+Subject: =?utf-8?q?Wohlt=C3=A4tigkeitsspende_von_2=2E000=2E000_Millionen_Euro?=
+Date: Tue, 10 Mar 2020 10:13:46 +0200
+Message-ID: <20200310074419.4AD0C2F6B755@mail.11d01.mspz7.gob.ec>
+Reply-To: mikeweirskyspende@gmail.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0WGqsT62A4RTsSXf"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:47594 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725937AbgCJLVE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 10 Mar 2020 07:21:04 -0400
-Content-Disposition: inline
-In-Reply-To: <20200228171221.5412-3-wsa+renesas@sang-engineering.com>
+Received: from mail.11d01.mspz7.gob.ec ([190.152.145.91]:37728 "EHLO
+        mail.11d01.mspz7.gob.ec" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725937AbgCJLV0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Mar 2020 07:21:26 -0400
+Content-Description: Mail message body
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Phil Reid <preid@electromag.com.au>, Robert Richter <rrichter@marvell.com>
+To: Recipients <ronald.pena@11d01.mspz7.gob.ec>
+
+Lieber Freund,
+
+Ich bin Herr Mike Weirsky, New Jersey, Vereinigte Staaten von Amerika, der =
+Mega-Gewinner von $ 273million In Mega Millions Jackpot, spende ich an 5 zu=
+f=C3=A4llige Personen, wenn Sie diese E-Mail erhalten, dann wurde Ihre E-Ma=
+il nach einem Spinball ausgew=C3=A4hlt.Ich habe den gr=C3=B6=C3=9Ften Teil =
+meines Verm=C3=B6gens auf eine Reihe von Wohlt=C3=A4tigkeitsorganisationen =
+und Organisationen verteilt.Ich habe mich freiwillig dazu entschieden, die =
+Summe von =E2=82=AC 2.000.000,00 an Sie als eine der ausgew=C3=A4hlten 5 zu=
+ spenden, um meine Gewinne zu =C3=BCberpr=C3=BCfen.
+Das ist dein Spendencode: [MW530342019]
+www.youtube.com/watch?v=3Dun8yRTmrYMY
+
+Antworten Sie mit dem SPENDE-CODE an diese =
 
 
---0WGqsT62A4RTsSXf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+E-Mail:mikeweirskyspende@gmail.com
 
-On Fri, Feb 28, 2020 at 06:12:21PM +0100, Wolfram Sang wrote:
-> IRQ levels are now handled within the IRQ core. Remove the forgotten
-> references from the documentation.
->=20
-> Fixes: 9b9f2b8bc2ac ("i2c: i2c-smbus: Use threaded irq for smbalert")
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Ich hoffe, Sie und Ihre Familie gl=C3=BCcklich zu machen.
 
-Applied to for-next, thanks!
-
-
---0WGqsT62A4RTsSXf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5neB4ACgkQFA3kzBSg
-KbZ3sg//UswuXtm0IzOHfr4WjG4xKliwJWNQ8fHDCxUtzscsorCZN3QrWRhA39vp
-oNLxM2xEqJwtnuOcyJ29cjCJLIEB7E+IHAVh0TuLc7VNpiLoNEoVXtJUDK1C6N2/
-+yC9BtS6GbarYDpx/qMabHGY3YNmBFXs8YJN0p/odea5QLsNUFSqJq/7y8dszYYZ
-TxCMNICtPLx57jWY/6MbvtCH3+jgFH7iAE3fK7HjnlXlXJnUI7z5RSr35N1q+u4Q
-4JB1mrqxUoAbUBn0JM4mAYysemIJ/CWLQfnoPxV5gsAI1DwxJCKiFxfY1UKqxtpT
-q0MxVdu+kAELYAx2M7ETMkbAnZlclCDu7FMCE2uYXTJYx+ClrG9wBU8BiIvQBi9T
-QeUiYHJwABI5bYaxoesH1QQcAr2w4NpaKRcUzhqLRAxn7pW5Ls3mwIiFXCtg9Ite
-x66PlEHnz43Y4JsrVkWLhMNOqZLmHp9j9TDmCARLNSF+ricuL8MUKFIg1BvZ410U
-RDcuNrwJoaWaHS8DS22B7h1sDwtU0v3FlA3aNGKhk9QpHl+644js2kI2SDNy1e9j
-MRb/l357GiKeId30wwdnGmRPSlW5D53DCafT4yo+pzQvFUlaNn72EioaiKwjrEjn
-A8yPaQZt8MPCi6Cn4uUngWkCdDRVIiWeipJ+vwOLEkmfmRQEgdY=
-=0Yhl
------END PGP SIGNATURE-----
-
---0WGqsT62A4RTsSXf--
+Gr=C3=BC=C3=9Fe
+Herr Mike Weirsky
