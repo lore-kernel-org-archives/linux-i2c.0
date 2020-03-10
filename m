@@ -1,66 +1,69 @@
-From: Loic Poulain <loic.poulain@linaro.org>
-Subject: [PATCH v6 3/3] arm64: dts: msm8916: Add CCI node
-Date: Tue, 10 Mar 2020 09:47:01 +0100
-Message-ID: <1583830021-30141-3-git-send-email-loic.poulain@linaro.org>
-References: <1583830021-30141-1-git-send-email-loic.poulain@linaro.org>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1583830021-30141-1-git-send-email-loic.poulain@linaro.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: vkoul@kernel.org, robert.foss@linaro.org, bjorn.andersson@linaro.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] macintosh: windfarm: fix MODINFO regression
+Date: Tue, 10 Mar 2020 10:11:55 +0100
+Message-ID: <20200310091155.GA1987@ninjato>
+References: <20200303125046.5157-1-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:46284 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726195AbgCJJMA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 10 Mar 2020 05:12:00 -0400
+Content-Disposition: inline
+In-Reply-To: <20200303125046.5157-1-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linuxppc-dev@lists.ozlabs.org
+Cc: linux-i2c@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, debian-powerpc@lists.debian.org, Mathieu Malaterre <malat@debian.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Erhard Furtner <erhard_f@mailbox.org>
 
-The msm8916 CCI controller provides one CCI/I2C bus.
 
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
----
- v2: add this patch in the series
- v3: add only cci node for now
- v4: no change
- v5: add cci label
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+On Tue, Mar 03, 2020 at 01:50:46PM +0100, Wolfram Sang wrote:
+> Commit af503716ac14 made sure OF devices get an OF style modalias with
+> I2C events. It assumed all in-tree users were converted, yet it missed
+> some Macintosh drivers.
+>=20
+> Add an OF module device table for all windfarm drivers to make them
+> automatically load again.
+>=20
+> Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices=
+ registered via OF")
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D199471
+> Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+> Tested-by: Erhard Furtner <erhard_f@mailbox.org>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 8686e10..3c6f746 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -1451,6 +1451,33 @@
- 			};
- 		};
- 
-+		cci: cci@1b0c000 {
-+			compatible = "qcom,msm8916-cci";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <0x1b0c000 0x1000>;
-+			interrupts = <GIC_SPI 50 IRQ_TYPE_EDGE_RISING>;
-+			clocks = <&gcc GCC_CAMSS_TOP_AHB_CLK>,
-+				<&gcc GCC_CAMSS_CCI_AHB_CLK>,
-+				<&gcc GCC_CAMSS_CCI_CLK>,
-+				<&gcc GCC_CAMSS_AHB_CLK>;
-+			clock-names = "camss_top_ahb", "cci_ahb",
-+				      "cci", "camss_ahb";
-+			assigned-clocks = <&gcc GCC_CAMSS_CCI_AHB_CLK>,
-+					  <&gcc GCC_CAMSS_CCI_CLK>;
-+			assigned-clock-rates = <80000000>, <19200000>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&cci0_default>;
-+			status = "disabled";
-+
-+			i2c-bus@0 {
-+				reg = <0>;
-+				clock-frequency = <400000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+			};
-+		};
-+
- 		camss: camss@1b00000 {
- 			compatible = "qcom,msm8916-camss";
- 			reg = <0x1b0ac00 0x200>,
--- 
-2.7.4
+Michael, I can take this via I2C again, if you ack it.
+
+Thanks,
+
+   Wolfram
+
+
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5nWdcACgkQFA3kzBSg
+KbbDexAAoT6EkAdzdK+5cS24d9RczslflX/i4KO3FuBZhFXWgQPB++xI9bsVnx1K
+lDnpYLkhuIhXBvpb0Mx34aXQmFHnlosUxF9Pgt/cPertcgLlgA2Fx9U6e6AZH7VI
+xIzwCmTnaFEQC+3U+x34Ytad+4/v/YT94Mw/7Q4WlQ+f2IZpXZHLaegVwTaULv45
+4+cuAY8YCAW0dPRjbUiX0W405w3kAWY/J5l1rOAbYfoS+at/c+L5qvDrUuOLdiUe
+Jlh74Wrq428xd9xmRFfkp3WoOed4AD/tYghY+lzUof5OOp/iNb8nSqZbc40bjK2R
+KrwK5yrQUb8kAL2DDGPKNMUkCpbQtUdRCKATf4cXMhF8M59mVme1rIzsrzF4uAsT
+mVgeLE+KBLcIvf9APQlZb/SUuWYw3vxaCocgA1Dzr6yxXKxgDJhRR7Ys43aB5USo
+cgiMbrKaiTtfsRwXUONpZZi4QFRkz0hv7QL1DUXPM84E0G4rsBa5eGCxYByz+Lm1
+gjflQ8znE6LsF9SbnJJPEe7jfyPkOvLrf4EwlkfG77UWM1tMemfO+gUCCKIzDZSk
+VIIc4kZgfRFntRoPYVNoVpK/4Cx4ghsXj/+bNod2mAxd+dLS10v3QWyO1dQyGJ1U
+GUNVoye0M7ntf7TvmMnCfIc0oDBDSxfVVPmsajLs6/jhCPUZ5qk=
+=/cbP
+-----END PGP SIGNATURE-----
+
+--qMm9M+Fa2AknHoGS--
