@@ -1,54 +1,46 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH -next 010/491] ARM/SAMSUNG EXYNOS ARM ARCHITECTURES: Use fallthrough;
-Date: Tue, 10 Mar 2020 21:51:24 -0700
-Message-ID: <1d569e023b6cb7b8d0da8d1bcccd92e97fe436c8.1583896348.git.joe@perches.com>
-References: <cover.1583896344.git.joe@perches.com>
+From: Amit Kucheria <amit.kucheria@verdurent.com>
+Subject: Re: [PATCH v2 3/3] i2c: qcom-geni: Drop of_platform.h include
+Date: Wed, 11 Mar 2020 13:00:00 +0530
+Message-ID: <CAHLCerM8XT_SwpqDAHrRJTy8T_74ASM6cedo_4gwLxvBOo32rQ@mail.gmail.com>
+References: <20200310154358.39367-1-swboyd@chromium.org> <20200310154358.39367-4-swboyd@chromium.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1583896344.git.joe@perches.com>
+In-Reply-To: <20200310154358.39367-4-swboyd@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>
-Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Stephen Boyd <swboyd@chromium.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, LKML <linux-kernel@vger.kernel.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-i2c@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Alok Chauhan <alokc@codeaurora.org>, Douglas Anderson <dianders@chromium.org>, Brendan Higgins <brendanhiggins@google.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Convert the various uses of fallthrough comments to fallthrough;
+On Tue, Mar 10, 2020 at 9:14 PM Stephen Boyd <swboyd@chromium.org> wrote:
+>
+> This driver doesn't call any DT platform functions like of_platform_*().
+> Remove the include as it isn't used.
+>
 
-Done via script
-Link: https://lore.kernel.org/lkml/b56602fcf79f849e733e7b521bb0e17895d390fa.1582230379.git.joe.com/
+Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/clk/samsung/clk-s3c2443.c | 2 +-
- drivers/i2c/busses/i2c-s3c2410.c  | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/samsung/clk-s3c2443.c b/drivers/clk/samsung/clk-s3c2443.c
-index 5f30fe7..c7aba1e 100644
---- a/drivers/clk/samsung/clk-s3c2443.c
-+++ b/drivers/clk/samsung/clk-s3c2443.c
-@@ -387,7 +387,7 @@ void __init s3c2443_common_clk_init(struct device_node *np, unsigned long xti_f,
- 				ARRAY_SIZE(s3c2450_gates));
- 		samsung_clk_register_alias(ctx, s3c2450_aliases,
- 				ARRAY_SIZE(s3c2450_aliases));
--		/* fall through - as s3c2450 extends the s3c2416 clocks */
-+		fallthrough;	/* as s3c2450 extends the s3c2416 clocks */
- 	case S3C2416:
- 		samsung_clk_register_div(ctx, s3c2416_dividers,
- 				ARRAY_SIZE(s3c2416_dividers));
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index c98ef4c..dd1264 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -435,8 +435,7 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
- 		 * fall through to the write state, as we will need to
- 		 * send a byte as well
- 		 */
--		/* Fall through */
--
-+		fallthrough;
- 	case STATE_WRITE:
- 		/*
- 		 * we are writing data to the device... check for the
--- 
-2.24.0
+> Cc: Alok Chauhan <alokc@codeaurora.org>
+> Reviewed-by: Douglas Anderson <dianders@chromium.org>
+> Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+> ---
+>  drivers/i2c/busses/i2c-qcom-geni.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> index 2f5fb2e83f95..18d1e4fd4cf3 100644
+> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> @@ -10,7 +10,6 @@
+>  #include <linux/io.h>
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+> -#include <linux/of_platform.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pm_runtime.h>
+>  #include <linux/qcom-geni-se.h>
+> --
+> Sent by a computer, using git, on the internet
+>
