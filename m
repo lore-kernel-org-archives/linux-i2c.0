@@ -1,67 +1,116 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PATCH] misc: eeprom: at24: fix regulator underflow
-Date: Wed, 11 Mar 2020 09:26:54 +0100
-Message-ID: <CAMpxmJXBN_qTwHpcD-anHVB-uhatuN-PZDUUe6boD0GoFiMVXw@mail.gmail.com>
-References: <20200310205841.123084-1-michael.auchter@ni.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+Subject: Re: [PATCH v4 5/6] at24: Support probing while off
+Date: Wed, 11 Mar 2020 10:55:55 +0200
+Message-ID: <20200311085555.GH5379@paasikivi.fi.intel.com>
+References: <20200121134157.20396-1-sakari.ailus@linux.intel.com>
+ <20200121134157.20396-6-sakari.ailus@linux.intel.com>
+ <CAMpxmJU5dG49N2FA0oSQsOfKrCr3KQ1BisON4c+nUJJmZQG=bQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk1-f195.google.com ([209.85.222.195]:33356 "EHLO
-        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726362AbgCKI1H (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Mar 2020 04:27:07 -0400
-Received: by mail-qk1-f195.google.com with SMTP id p62so1290048qkb.0
-        for <linux-i2c@vger.kernel.org>; Wed, 11 Mar 2020 01:27:06 -0700 (PDT)
-In-Reply-To: <20200310205841.123084-1-michael.auchter@ni.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMpxmJU5dG49N2FA0oSQsOfKrCr3KQ1BisON4c+nUJJmZQG=bQ@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>, linux-media <linux-media@vger.kernel.org>, Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>, Hyungwoo Yang <hyungwoo.yang@intel.com>, Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Michael Auchter <michael.auchter@ni.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-wt., 10 mar 2020 o 21:59 Michael Auchter <michael.auchter@ni.com> napisa=C5=
-=82(a):
->
-> The at24 driver attempts to read a byte from the device to validate that
-> it's actually present, and if not, disables the vcc regulator and
-> returns -ENODEV. However, between the read and the error handling path,
-> pm_runtime_idle() is called and invokes the driver's suspend callback,
-> which also disables the vcc regulator. This leads to an underflow of the
-> regulator enable count if the EEPROM is not present.
->
-> Move the pm_runtime_suspend() call to be after the error handling path
-> to resolve this.
->
-> Signed-off-by: Michael Auchter <michael.auchter@ni.com>
-> ---
->  drivers/misc/eeprom/at24.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 031eb64549af..282c9ef68ed2 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -712,13 +712,14 @@ static int at24_probe(struct i2c_client *client)
->          * chip is functional.
->          */
->         err =3D at24_read(at24, 0, &test_byte, 1);
-> -       pm_runtime_idle(dev);
->         if (err) {
->                 pm_runtime_disable(dev);
->                 regulator_disable(at24->vcc_reg);
->                 return -ENODEV;
->         }
->
-> +       pm_runtime_idle(dev);
-> +
->         if (writable)
->                 dev_info(dev, "%u byte %s EEPROM, writable, %u bytes/writ=
-e\n",
->                          byte_len, client->name, at24->write_max);
-> --
-> 2.24.1
->
+Hi Bartosz,
 
-Patch applied for fixes.
+Thanks for the reply.
 
-Bartosz
+On Wed, Jan 29, 2020 at 02:36:17PM +0100, Bartosz Golaszewski wrote:
+> wt., 21 sty 2020 o 14:41 Sakari Ailus <sakari.ailus@linux.intel.com> napisał(a):
+> >
+> > In certain use cases (where the chip is part of a camera module, and the
+> > camera module is wired together with a camera privacy LED), powering on
+> > the device during probe is undesirable. Add support for the at24 to
+> > execute probe while being powered off. For this to happen, a hint in form
+> > of a device property is required from the firmware.
+> >
+> > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> > ---
+> >  drivers/misc/eeprom/at24.c | 31 +++++++++++++++++++++----------
+> >  1 file changed, 21 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> > index 0681d5fdd538a..5fc1162b67618 100644
+> > --- a/drivers/misc/eeprom/at24.c
+> > +++ b/drivers/misc/eeprom/at24.c
+> > @@ -564,6 +564,7 @@ static int at24_probe(struct i2c_client *client)
+> >         bool i2c_fn_i2c, i2c_fn_block;
+> >         unsigned int i, num_addresses;
+> >         struct at24_data *at24;
+> > +       bool low_power;
+> >         struct regmap *regmap;
+> >         bool writable;
+> >         u8 test_byte;
+> > @@ -701,19 +702,24 @@ static int at24_probe(struct i2c_client *client)
+> >
+> >         i2c_set_clientdata(client, at24);
+> >
+> > -       /* enable runtime pm */
+> > -       pm_runtime_set_active(dev);
+> > +       low_power = acpi_dev_state_low_power(&client->dev);
+> > +       if (!low_power)
+> > +               pm_runtime_set_active(dev);
+> > +
+> >         pm_runtime_enable(dev);
+> >
+> >         /*
+> > -        * Perform a one-byte test read to verify that the
+> > -        * chip is functional.
+> > +        * Perform a one-byte test read to verify that the chip is functional,
+> > +        * unless powering on the device is to be avoided during probe (i.e.
+> > +        * it's powered off right now).
+> >          */
+> > -       err = at24_read(at24, 0, &test_byte, 1);
+> > -       pm_runtime_idle(dev);
+> > -       if (err) {
+> > -               pm_runtime_disable(dev);
+> > -               return -ENODEV;
+> > +       if (!low_power) {
+> > +               err = at24_read(at24, 0, &test_byte, 1);
+> > +               pm_runtime_idle(dev);
+> > +               if (err) {
+> > +                       pm_runtime_disable(dev);
+> > +                       return -ENODEV;
+> > +               }
+> >         }
+> >
+> >         if (writable)
+> > @@ -728,8 +734,12 @@ static int at24_probe(struct i2c_client *client)
+> >
+> >  static int at24_remove(struct i2c_client *client)
+> >  {
+> > +       bool low_power;
+> > +
+> >         pm_runtime_disable(&client->dev);
+> > -       pm_runtime_set_suspended(&client->dev);
+> > +       low_power = acpi_dev_state_low_power(&client->dev);
+> 
+> This is inconsistent. You define the low_power field in the context
+> structure (BTW the name low_power is a bit vague here - without
+> looking at its assignment it would make me think it's about something
+> battery-related, how about 'off_at_probe'?) and instead of reusing
+
+The field was called probe_powered_off in v1, but I changed it to
+probe_low_power (and renamed related functions etc.) based on review
+comments --- for the device may not be powered off actually.
+
+> this field here, you call acpi_dev_state_low_power() again. Either
+> don't store the context for the life-time of the device if not
+> necessary or don't call acpi_dev_state_low_power() at remove, although
+> the commit message doesn't describe whether the latter is done on
+> purpose.
+
+Right. probe-low-power property has the same effect on remove for
+consistency, i.e. the device can remain in low power state during remove.
+This is documented in probe_low_power field documentation in the first
+patch.
+
+-- 
+Regards,
+
+Sakari Ailus
