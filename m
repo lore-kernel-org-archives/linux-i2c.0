@@ -1,37 +1,40 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH 5/6] i2c: designware: Discard i2c_dw_read_comp_param()
- function
-Date: Thu, 12 Mar 2020 16:50:14 +0200
-Message-ID: <59545398-5320-5414-7e66-64cca94bf54d@linux.intel.com>
-References: <20200306131955.12806-1-Sergey.Semin@baikalelectronics.ru>
- <20200306132326.74A92803078F@mail.baikalelectronics.ru>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [RFC PATCH] i2c: acpi: put device when verifying client fails
+Date: Thu, 12 Mar 2020 16:51:41 +0200
+Message-ID: <20200312145141.GY1922688@smile.fi.intel.com>
+References: <20200312133244.9564-1-wsa@the-dreams.de>
+ <20200312144739.GW1922688@smile.fi.intel.com>
+ <20200312144908.GX1922688@smile.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200306132326.74A92803078F@mail.baikalelectronics.ru>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sergey.Semin@baikalelectronics.ru, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Serge Semin <fancer.lancer@gmail.com>, Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Paul Burton <paulburton@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200312144908.GX1922688@smile.fi.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
-On 3/6/20 3:19 PM, Sergey.Semin@baikalelectronics.ru wrote:
-> From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+On Thu, Mar 12, 2020 at 04:49:08PM +0200, Andy Shevchenko wrote:
+> On Thu, Mar 12, 2020 at 04:47:39PM +0200, Andy Shevchenko wrote:
+> > On Thu, Mar 12, 2020 at 02:32:44PM +0100, Wolfram Sang wrote:
+> > > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> > > 
+> > > i2c_verify_client() can fail, so we need to put the device when that
+> > > happens.
+> > 
+> > NAK, this will do double put and messing up with reference counters.
+> > Besides the fact, that device may disappear after looking up which leads us to
+> > even more problems.
+> > 
+> > See how i2c_acpi_find_client_by_adev() is used in callers.
 > 
-> There is no code left in the kernel which would be using the function.
-> So just remove it.
-> 
-> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-> Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: Paul Burton <paulburton@kernel.org>
-> Cc: Ralf Baechle <ralf@linux-mips.org>
-> Cc: linux-i2c@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> ---
->   drivers/i2c/busses/i2c-designware-common.c | 6 ------
->   drivers/i2c/busses/i2c-designware-core.h   | 1 -
->   2 files changed, 7 deletions(-)
-> 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Perhaps proper "fix" is to add the explanation to a comment in the code to
+> prevent false positive reports in the future?
+
+Ah, sorry, I need to read it more carefully...
+
+
+-- 
+With Best Regards,
+Andy Shevchenko
