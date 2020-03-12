@@ -1,87 +1,54 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PATCH v4 5/6] at24: Support probing while off
-Date: Thu, 12 Mar 2020 14:10:32 +0100
-Message-ID: <CAMpxmJVPTKW+sYSJ3dnfF8nLAOKEa4Ob7bpxG0KD3Tkdm+rtYw@mail.gmail.com>
-References: <20200121134157.20396-1-sakari.ailus@linux.intel.com>
- <20200121134157.20396-6-sakari.ailus@linux.intel.com> <CAMpxmJU5dG49N2FA0oSQsOfKrCr3KQ1BisON4c+nUJJmZQG=bQ@mail.gmail.com>
- <20200311085555.GH5379@paasikivi.fi.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [RFC PATCH] i2c: acpi: put device when verifying client fails
+Date: Thu, 12 Mar 2020 14:32:44 +0100
+Message-ID: <20200312133244.9564-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20200311085555.GH5379@paasikivi.fi.intel.com>
 Sender: linux-acpi-owner@vger.kernel.org
-To: Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>, linux-media <linux-media@vger.kernel.org>, Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>, Hyungwoo Yang <hyungwoo.yang@intel.com>, Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rajmohan Mani <rajmohan.mani@intel.com>, Tomasz Figa <tfiga@chromium.org>
+To: linux-i2c@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
-=C5=9Br., 11 mar 2020 o 09:56 Sakari Ailus <sakari.ailus@linux.intel.com> n=
-apisa=C5=82(a):
->
-> Hi Bartosz,
->
-> Thanks for the reply.
->
-> On Wed, Jan 29, 2020 at 02:36:17PM +0100, Bartosz Golaszewski wrote:
-> > wt., 21 sty 2020 o 14:41 Sakari Ailus <sakari.ailus@linux.intel.com> na=
-pisa=C5=82(a):
-> > >
-> > > In certain use cases (where the chip is part of a camera module, and =
-the
-> > > camera module is wired together with a camera privacy LED), powering =
-on
-> > > the device during probe is undesirable. Add support for the at24 to
-> > > execute probe while being powered off. For this to happen, a hint in =
-form
-> > > of a device property is required from the firmware.
-> > >
-> > > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> > > ---
-> > >  drivers/misc/eeprom/at24.c | 31 +++++++++++++++++++++----------
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[snip!]
+i2c_verify_client() can fail, so we need to put the device when that
+happens.
 
-> > >
-> > >  static int at24_remove(struct i2c_client *client)
-> > >  {
-> > > +       bool low_power;
-> > > +
-> > >         pm_runtime_disable(&client->dev);
-> > > -       pm_runtime_set_suspended(&client->dev);
-> > > +       low_power =3D acpi_dev_state_low_power(&client->dev);
-> >
-> > This is inconsistent. You define the low_power field in the context
-> > structure (BTW the name low_power is a bit vague here - without
-> > looking at its assignment it would make me think it's about something
-> > battery-related, how about 'off_at_probe'?) and instead of reusing
->
-> The field was called probe_powered_off in v1, but I changed it to
-> probe_low_power (and renamed related functions etc.) based on review
-> comments --- for the device may not be powered off actually.
->
+Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-But is it actually ever low-power? What are the possible logical
-states of the device? If I understood correctly: it's either off or on
-at probe - not actually low-power. Am I missing something? In your
-cover letter you're writing: "These patches enable calling (and
-finishing) a driver's probe function without powering on the
-respective device on busses where the practice is to power on the
-device for probe." To me there's no mention of a low-power state,
-which makes the name 'probe_low_power' seem completely unrelated.
+RFC because I don't know if it can be that the returned dev is not an
+i2c_client. Yet, since it can happen theoretically, I think we should
+have the checks.
 
-> > this field here, you call acpi_dev_state_low_power() again. Either
-> > don't store the context for the life-time of the device if not
-> > necessary or don't call acpi_dev_state_low_power() at remove, although
-> > the commit message doesn't describe whether the latter is done on
-> > purpose.
->
-> Right. probe-low-power property has the same effect on remove for
-> consistency, i.e. the device can remain in low power state during remove.
-> This is documented in probe_low_power field documentation in the first
-> patch.
->
+ drivers/i2c/i2c-core-acpi.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-Just please don't store any state if you're not using it outside of
-the probe() function.
-
-Bartosz
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 8f3dbc97a057..8b0ff780919b 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -394,9 +394,17 @@ EXPORT_SYMBOL_GPL(i2c_acpi_find_adapter_by_handle);
+ static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
+ {
+ 	struct device *dev;
++	struct i2c_client *client;
+ 
+ 	dev = bus_find_device_by_acpi_dev(&i2c_bus_type, adev);
+-	return dev ? i2c_verify_client(dev) : NULL;
++	if (!dev)
++		return NULL;
++
++	client = i2c_verify_client(dev);
++	if (!client)
++		put_device(dev);
++
++	return client;
+ }
+ 
+ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
+-- 
+2.20.1
