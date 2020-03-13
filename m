@@ -1,120 +1,169 @@
-From: Matthias Kaehlcke <mka@chromium.org>
-Subject: Re: [PATCH V2 3/8] soc: qcom-geni-se: Add interconnect support to
- fix earlycon crash
-Date: Fri, 13 Mar 2020 13:44:41 -0700
-Message-ID: <20200313204441.GJ144492@google.com>
-References: <1584105134-13583-1-git-send-email-akashast@codeaurora.org>
- <1584105134-13583-4-git-send-email-akashast@codeaurora.org>
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
+Subject: Re: [PATCH] i2c: mv64xxx: Implement I2C_M_RECV_LEN and I2C_FUNC_SMBUS_READ_BLOCK_DATA
+Date: Fri, 13 Mar 2020 21:48:06 +0100
+Message-ID: <87k13ox9q1.fsf@FE-laptop>
+References: <20200118115820.9080-1-fuga@studiofuga.com> <20200222124805.GJ1716@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1584105134-13583-4-git-send-email-akashast@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Akash Asthana <akashast@codeaurora.org>
-Cc: gregkh@linuxfoundation.org, agross@kernel.org, bjorn.andersson@linaro.org, wsa@the-dreams.de, broonie@kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, swboyd@chromium.org, mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org, dianders@chromium.org, evgreen@chromium.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200222124805.GJ1716@kunai>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Federico Fuga <fuga@studiofuga.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Akash,
+Hello Wolfram,
 
-On Fri, Mar 13, 2020 at 06:42:09PM +0530, Akash Asthana wrote:
-> V1 patch@https://patchwork.kernel.org/patch/11386469/ caused SC7180 system
-> to reset at boot time.
+> On Sat, Jan 18, 2020 at 12:58:20PM +0100, Federico Fuga wrote:
+>> The i2c_mv64xxx driver doesn't implement the I2C_M_REC_LEN function
+>> essential to allow blocks with variable length to be read from an i2c
+>>  slave.
+>> This is needed to implement the SMBus Read Block Data function.
+>> 
+>> This patch implements the function by changing the bytes_left and
+>> msg len on the fly if the flag is specified.
+>> 
+>> It has been successfully tested on Allwinner A33 with a special
+>> i2c chip that returns variable length blocks on reading.
+>> 
+>> Signed-off-by: Federico Fuga <fuga@studiofuga.com>
+>> ---
+>
+> Gregory, any comment? I can't say much about the implementation. In
+> general, this is a nice feature to have...
 
-The v1 patch isn't relevant in the commit message, please just describe the
-problem. Also the crash only occurs when earlycon is used.
+I thought I was already sent a reviewed by, as I reviewed this patch
+before Frederico actually sent it.
 
-> As QUP core clock is shared among all the SE drivers present on particular
-> QUP wrapper, the reset seen is due to earlycon usage after QUP core clock
-> is put to 0 from other SE drivers before real console comes up.
-> 
-> As earlycon can't vote for it's QUP core need, to fix this add ICC
-> support to common/QUP wrapper driver and put vote for QUP core from
-> probe on behalf of earlycon and remove vote during sys suspend.
+So you can even add a
 
-Only removing the vote on suspend isn't ideal, the system might never get
-suspended. That said I don't have a really good alternative suggestion.
+Acked-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-One thing you could possibly do is to launch a delayed work, check
-console_device() every second or so and remove the vote when it returns
-non-NULL. Not claiming this would be a great solution ...
+Thanks,
 
-The cleanest solution might be a notifier when the early console is
-unregistered, it seems somewhat over-engineered though ... Then again
-other (future) uart drivers with interconnect support might run into
-the same problem.
+Gregory
 
-> Signed-off-by: Akash Asthana <akashast@codeaurora.org>
-> Reported-by: Matthias Kaehlcke <mka@chromium.org>
-> ---
->  drivers/soc/qcom/qcom-geni-se.c | 41 +++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 41 insertions(+)
-> 
-> diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
-> index 7d622ea..d244dfc 100644
-> --- a/drivers/soc/qcom/qcom-geni-se.c
-> +++ b/drivers/soc/qcom/qcom-geni-se.c
-> @@ -90,6 +90,7 @@ struct geni_wrapper {
->  	struct device *dev;
->  	void __iomem *base;
->  	struct clk_bulk_data ahb_clks[NUM_AHB_CLKS];
-> +	struct icc_path *icc_path_geni_to_core;
->  };
->  
->  #define QUP_HW_VER_REG			0x4
-> @@ -747,11 +748,50 @@ static int geni_se_probe(struct platform_device *pdev)
->  		}
->  	}
->  
-> +#ifdef CONFIG_SERIAL_EARLYCON
-> +	wrapper->icc_path_geni_to_core = devm_of_icc_get(dev, "qup-core");
-> +	if (IS_ERR(wrapper->icc_path_geni_to_core))
-> +		return PTR_ERR(wrapper->icc_path_geni_to_core);
-> +	/*
-> +	 * Put minmal BW request on core clocks on behalf of early console.
-> +	 * The vote will be removed in suspend call.
-> +	 */
-> +	ret = icc_set_bw(wrapper->icc_path_geni_to_core, Bps_to_icc(1000),
-> +			Bps_to_icc(1000));
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "%s: ICC BW voting failed for core\n",
-> +			__func__);
-> +		return ret;
-> +	}
 
-What is ugly about this is that it's done for every QUP, not only the one
-with the early console. Again, I don't have a good solution for it, maybe
-it's a limitation we have to live with :(
+>
+>>  drivers/i2c/busses/i2c-mv64xxx.c | 67 +++++++++++++++++++++++++-------
+>>  1 file changed, 53 insertions(+), 14 deletions(-)
+>> 
+>> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+>> index a5a95ea5b81a..cff9cb20bcc9 100644
+>> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+>> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+>> @@ -128,6 +128,7 @@ struct mv64xxx_i2c_data {
+>>  	u32			addr1;
+>>  	u32			addr2;
+>>  	u32			bytes_left;
+>> +	u32         effective_length;
+>>  	u32			byte_posn;
+>>  	u32			send_stop;
+>>  	u32			block;
+>> @@ -333,7 +334,18 @@ static void mv64xxx_i2c_send_start(struct mv64xxx_i2c_data *drv_data)
+>>  {
+>>  	drv_data->msg = drv_data->msgs;
+>>  	drv_data->byte_posn = 0;
+>> -	drv_data->bytes_left = drv_data->msg->len;
+>> +
+>> +    /* If we should retrieve the length from the buffer, make sure */
+>> +	/* to read enough bytes to avoid sending the */
+>> +	/* STOP bit after the read if the first byte */
+>> +	if (drv_data->msg->flags & I2C_M_RECV_LEN) {
+>> +		drv_data->effective_length = -1;
+>> +		drv_data->bytes_left = 3;
+>> +	} else {
+>> +		drv_data->effective_length = drv_data->msg->len;
+>> +		drv_data->bytes_left = drv_data->msg->len;
+>> +	}
+>> +
+>>  	drv_data->aborting = 0;
+>>  	drv_data->rc = 0;
+>>  
+>> @@ -342,6 +354,42 @@ static void mv64xxx_i2c_send_start(struct mv64xxx_i2c_data *drv_data)
+>>  	       drv_data->reg_base + drv_data->reg_offsets.control);
+>>  }
+>>  
+>> +static void
+>> +mv64xxx_i2c_do_send_stop(struct mv64xxx_i2c_data *drv_data)
+>> +{
+>> +	drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
+>> +	writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
+>> +		drv_data->reg_base + drv_data->reg_offsets.control);
+>> +	drv_data->block = 0;
+>> +	if (drv_data->errata_delay)
+>> +		udelay(5);
+>> +
+>> +	wake_up(&drv_data->waitq);
+>> +}
+>> +
+>> +static void
+>> +mv64xxx_i2c_do_read_data(struct mv64xxx_i2c_data *drv_data)
+>> +{
+>> +	u8 data;
+>> +
+>> +	data = readl(drv_data->reg_base + drv_data->reg_offsets.data);
+>> +	drv_data->msg->buf[drv_data->byte_posn++] = data;
+>> +
+>> +	if (drv_data->effective_length == -1) {
+>> +		/* length=0 should not be allowed, but is indeed possible.
+>> +		 * To avoid locking the chip, we keep reading at least 2 bytes
+>> +		 */
+>> +		if (data < 1)
+>> +			data = 1;
+>> +		drv_data->effective_length = data+1;
+>> +		drv_data->bytes_left = data+1;
+>> +		drv_data->msg->len = data+1;
+>> +	}
+>> +
+>> +	writel(drv_data->cntl_bits,
+>> +		drv_data->reg_base + drv_data->reg_offsets.control);
+>> +}
+>> +
+>>  static void
+>>  mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+>>  {
+>> @@ -392,23 +440,13 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+>>  		break;
+>>  
+>>  	case MV64XXX_I2C_ACTION_RCV_DATA:
+>> -		drv_data->msg->buf[drv_data->byte_posn++] =
+>> -			readl(drv_data->reg_base + drv_data->reg_offsets.data);
+>> -		writel(drv_data->cntl_bits,
+>> -			drv_data->reg_base + drv_data->reg_offsets.control);
+>> +	    mv64xxx_i2c_do_read_data(drv_data);
+>>  		break;
+>>  
+>>  	case MV64XXX_I2C_ACTION_RCV_DATA_STOP:
+>>  		drv_data->msg->buf[drv_data->byte_posn++] =
+>>  			readl(drv_data->reg_base + drv_data->reg_offsets.data);
+>> -		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
+>> -		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
+>> -			drv_data->reg_base + drv_data->reg_offsets.control);
+>> -		drv_data->block = 0;
+>> -		if (drv_data->errata_delay)
+>> -			udelay(5);
+>> -
+>> -		wake_up(&drv_data->waitq);
+>> +	    mv64xxx_i2c_do_send_stop(drv_data);
+>>  		break;
+>>  
+>>  	case MV64XXX_I2C_ACTION_INVALID:
+>> @@ -706,7 +744,8 @@ mv64xxx_i2c_can_offload(struct mv64xxx_i2c_data *drv_data)
+>>  static u32
+>>  mv64xxx_i2c_functionality(struct i2c_adapter *adap)
+>>  {
+>> -	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR | I2C_FUNC_SMBUS_EMUL;
+>> +	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR |
+>> +		I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_SMBUS_EMUL;
+>>  }
+>>  
+>>  static int
+>> -- 
+>> 2.17.1
+>> 
 
-> +#endif
-> +
->  	dev_set_drvdata(dev, wrapper);
->  	dev_dbg(dev, "GENI SE Driver probed\n");
->  	return devm_of_platform_populate(dev);
->  }
->  
-> +static int __maybe_unused geni_se_sys_suspend(struct device *dev)
-> +{
-> +	struct geni_wrapper *wrapper = dev_get_drvdata(dev);
-> +	int ret;
-> +
-> +#ifdef CONFIG_SERIAL_EARLYCON
-> +	ret = icc_set_bw(wrapper->icc_path_geni_to_core, 0, 0);
-
-I think you only want to do this on the first suspend.
-
-Do we need to handle the case where no 'real' console is configured?
-In this case the early console would be active forever and setting
-the bandwidths to 0 might cause a similar crash than the one you are
-trying to fix. Not sure if that's a real world use case, but wanted to
-mention it. Maybe this is an argument of the notifier approach?
-
-> +	if (ret) {
-> +		dev_err(dev, "%s: ICC BW remove failed for core\n",
-> +			__func__);
-> +		return ret;
-
-Aborting suspend seems too harsh since the QUP should still be fully
-functional unless there is a general problem with the interconnects.
-
-I would suggest to change the log to dev_warn() and return 0.
+-- 
+Gregory Clement, Bootlin
+Embedded Linux and Kernel engineering
+http://bootlin.com
