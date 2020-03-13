@@ -1,46 +1,71 @@
-From: Alexandre Torgue <alexandre.torgue@st.com>
-Subject: Re: [PATCH] ARM: dts: stm32: set i2c4 bus freq to 400KHz on stm32mp15
- DK boards
-Date: Fri, 13 Mar 2020 13:50:10 +0100
-Message-ID: <7f8a5f6d-4d62-3649-efda-3d02f89a4d07@st.com>
-References: <1581355056-13884-1-git-send-email-alain.volmat@st.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1581355056-13884-1-git-send-email-alain.volmat@st.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alain Volmat <alain.volmat@st.com>, wsa@the-dreams.de, robh+dt@kernel.org
-Cc: mark.rutland@arm.com, pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
+From: Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: [PATCH V2 0/8] Add interconnect support to QSPI and QUP drivers
+Date: Fri, 13 Mar 2020 18:42:06 +0530
+Message-ID: <1584105134-13583-1-git-send-email-akashast@codeaurora.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swboyd-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, mgautam-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mka-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, evgreen-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Alain
+dt-binding patch for QUP drivers.
+ - https://patchwork.kernel.org/patch/11436621/ [Convert QUP bindings
+	to YAML and add ICC, pin swap doc]
 
-On 2/10/20 6:17 PM, Alain Volmat wrote:
-> On DK boards, all I2C4 bus slaves supports I2C Fast Mode hence setting
-> the bus frequency to 400 KHz.
-> 
-> Signed-off-by: Alain Volmat <alain.volmat@st.com>
-> ---
->   arch/arm/boot/dts/stm32mp15xx-dkx.dtsi | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi b/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi
-> index 7f5fcb2c5b03..2521f428ae67 100644
-> --- a/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi
-> +++ b/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi
-> @@ -221,6 +221,7 @@
->   	pinctrl-1 = <&i2c4_pins_sleep_a>;
->   	i2c-scl-rising-time-ns = <185>;
->   	i2c-scl-falling-time-ns = <20>;
-> +	clock-frequency = <400000>;
->   	status = "okay";
->   	/* spare dmas for other usage */
->   	/delete-property/dmas;
-> 
+dt-binding patch for QSPI.
+ - https://patchwork.kernel.org/patch/11436719/ [Convert QSPI binding
+	to YAML and add interconnect doc]
 
-Applied on stm32-next.
+High level design:
+ - QUP wrapper/common driver.
+   Vote for QUP core on behalf of earlycon from probe.
+   Remove BW vote during sys suspend call
 
-Thanks.
-Alex
+ - SERIAL driver.
+   Vote only for CPU/CORE path because driver is in FIFO mode only
+   Vote/unvote from qcom_geni_serial_pm func.
+   Bump up the CPU vote from set_termios call based on real time need
+
+ - I2C driver.
+   Vote for CORE/CPU/DDR path
+   Vote/unvote from runtime resume/suspend callback
+   As bus speed for I2C is fixed from probe itself no need for bump up.
+
+ - SPI QUP driver.
+   Vote only for CPU/CORE path because driver is in FIFO mode only
+   Vote/unvote from runtime resume/suspend callback
+   Bump up CPU vote based on real time need per transfer.
+
+ - QSPI driver.
+   Vote only for CPU path
+   Vote/unvote from runtime resume/suspend callback
+   Bump up CPU vote based on real time need per transfer.
+
+
+Changes in V2:
+ - Add devm_of_icc_get() API interconnect core.
+ - Add ICC support to common driver to fix earlyconsole crash.
+
+Akash Asthana (8):
+  interconnect: Add devm_of_icc_get() as exported API for users
+  soc: qcom: geni: Support for ICC voting
+  soc: qcom-geni-se: Add interconnect support to fix earlycon crash
+  tty: serial: qcom_geni_serial: Add interconnect support
+  i2c: i2c-qcom-geni: Add interconnect support
+  spi: spi-geni-qcom: Add interconnect support
+  spi: spi-qcom-qspi: Add interconnect support
+  arm64: dts: sc7180: Add interconnect for QUP and QSPI
+
+ arch/arm64/boot/dts/qcom/sc7180.dtsi  | 127 ++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-qcom-geni.c    | 110 +++++++++++++++++++++++++++++
+ drivers/interconnect/core.c           |  25 +++++++
+ drivers/soc/qcom/qcom-geni-se.c       |  41 +++++++++++
+ drivers/spi/spi-geni-qcom.c           |  74 +++++++++++++++++++-
+ drivers/spi/spi-qcom-qspi.c           |  46 +++++++++++-
+ drivers/tty/serial/qcom_geni_serial.c |  69 ++++++++++++++++--
+ include/linux/interconnect.h          |   7 ++
+ include/linux/qcom-geni-se.h          |  28 ++++++++
+ 9 files changed, 521 insertions(+), 6 deletions(-)
+
+-- 
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
