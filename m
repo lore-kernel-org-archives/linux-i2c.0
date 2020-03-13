@@ -1,57 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH -next 010/491] ARM/SAMSUNG EXYNOS ARM ARCHITECTURES: Use
- fallthrough;
-Date: Fri, 13 Mar 2020 15:26:27 +0100
-Message-ID: <20200313142627.GF1852@ninjato>
-References: <cover.1583896344.git.joe@perches.com>
- <1d569e023b6cb7b8d0da8d1bcccd92e97fe436c8.1583896348.git.joe@perches.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [GIT PULL] at24: fix for v5.6-rc6
+Date: Fri, 13 Mar 2020 16:12:46 +0100
+Message-ID: <20200313151246.12356-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="NQTVMVnDVuULnIzU"
-Return-path: <linux-clk-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1d569e023b6cb7b8d0da8d1bcccd92e97fe436c8.1583896348.git.joe@perches.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:43963 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726446AbgCMPMw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 13 Mar 2020 11:12:52 -0400
+Received: by mail-wr1-f67.google.com with SMTP id b2so6315123wrj.10
+        for <linux-i2c@vger.kernel.org>; Fri, 13 Mar 2020 08:12:49 -0700 (PDT)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
---NQTVMVnDVuULnIzU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Wolfram,
 
-On Tue, Mar 10, 2020 at 09:51:24PM -0700, Joe Perches wrote:
-> Convert the various uses of fallthrough comments to fallthrough;
->=20
-> Done via script
-> Link: https://lore.kernel.org/lkml/b56602fcf79f849e733e7b521bb0e17895d390=
-fa.1582230379.git.joe.com/
->=20
-> Signed-off-by: Joe Perches <joe@perches.com>
+please pull the following fix for a bug introduced during the last merge
+window.
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de> # for the I2C part
+Thanks,
+Bartosz
 
+The following changes since commit 2c523b344dfa65a3738e7039832044aa133c75fb:
 
---NQTVMVnDVuULnIzU
-Content-Type: application/pgp-signature; name="signature.asc"
+  Linux 5.6-rc5 (2020-03-08 17:44:44 -0700)
 
------BEGIN PGP SIGNATURE-----
+are available in the Git repository at:
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5rmBMACgkQFA3kzBSg
-Kba47w/+Lo0vuKn419fTKoi1bZI+iu4cVPczancfBFTyBaGwu2WxMvlfsZPZaWSQ
-ZA0DwyJV/q7C5PiEXjkNhIAK9txlsUpVTcXrmki5X4Z3hG0k5D4HjP0i+6GtqsvX
-yNpn8ebcK94e7HGKwN4Qg16jrh1hy22dd+Bcs7P2wb0zOpv2+VrL8n4ORXZVdSr9
-RjSySKHXxDTTfBpQ+Fe9IHH3ObWFNH4ydniXhiDy5hAZUwYmkm4Lrv0ul5OCglwF
-08LgjIkidixle3PEylgSVE2896WnDF3EgmDrO72uPXunarBbgFz+KaYeEnTTndvO
-s2+fDykbBZye6kNZy89svJ+ljjbqLr5lIgGc/MiAIviJJ7qlq9MS7kWVCvjSROSL
-G/9S5vjw4bxJhobzBmlZbW339Ki3UJDnMYJmGC5zv2eROAKHa3Hw/JXocUvsbE+v
-LbXKVUm4cAMcL6ld0MXYBlDQasGcErb5HSk4huMr0Ye9/pyqycDrg788A2cW29/A
-GovnQqR9rjJ6ebqHAOrFqPf2PnWvfqHqz01/zMyjOW1hYVEdfkH9EjFnuPjI0Ue7
-PLlXv2NS+iSe01qRJaDCR+afknfWHEnCcEJCdua5/cvTFy6Q4MP/jGrod4ZCe7fV
-yd/yi39OamvOtixkid1R84VFKuSrufZ30TYpeoaUTL6IcAdKl0g=
-=3+s9
------END PGP SIGNATURE-----
+  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git at24-fixes-for-v5.6-rc6
 
---NQTVMVnDVuULnIzU--
+for you to fetch changes up to 58d6fee50e67bb1c69977f1a534ccb17bf58b0f1:
+
+  misc: eeprom: at24: fix regulator underflow (2020-03-12 09:02:34 +0100)
+
+----------------------------------------------------------------
+at24 fixes for v5.6-rc6
+
+- fix regulator underflow bug introduced during the v5.6 merge window
+
+----------------------------------------------------------------
+Michael Auchter (1):
+      misc: eeprom: at24: fix regulator underflow
+
+ drivers/misc/eeprom/at24.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
