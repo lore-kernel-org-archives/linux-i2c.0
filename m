@@ -1,37 +1,29 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/3] i2c: qcom-geni: Grow a dev pointer to simplify
- code
-Date: Fri, 13 Mar 2020 15:21:16 +0100
-Message-ID: <20200313142116.GD1852@ninjato>
+Subject: Re: [PATCH v2 3/3] i2c: qcom-geni: Drop of_platform.h include
+Date: Fri, 13 Mar 2020 15:21:19 +0100
+Message-ID: <20200313142119.GE1852@ninjato>
 References: <20200310154358.39367-1-swboyd@chromium.org>
- <20200310154358.39367-3-swboyd@chromium.org>
+ <20200310154358.39367-4-swboyd@chromium.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="at6+YcpfzWZg/htY"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:52356 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726632AbgCMOVS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 13 Mar 2020 10:21:18 -0400
+        protocol="application/pgp-signature"; boundary="pY3vCvL1qV+PayAL"
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200310154358.39367-3-swboyd@chromium.org>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <20200310154358.39367-4-swboyd@chromium.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: Stephen Boyd <swboyd@chromium.org>
 Cc: linux-kernel@vger.kernel.org, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Alok Chauhan <alokc@codeaurora.org>, Douglas Anderson <dianders@chromium.org>, Brendan Higgins <brendanhiggins@google.com>
+List-Id: linux-i2c@vger.kernel.org
 
 
---at6+YcpfzWZg/htY
+--pY3vCvL1qV+PayAL
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 10, 2020 at 08:43:57AM -0700, Stephen Boyd wrote:
-> Some lines are long here. Use a struct dev pointer to shorten lines and
-> simplify code. The clk_get() call can fail because of EPROBE_DEFER
-> problems too, so just remove the error print message because it isn't
-> useful. Finally, platform_get_irq() already prints an error so just
-> remove that error message.
+On Tue, Mar 10, 2020 at 08:43:58AM -0700, Stephen Boyd wrote:
+> This driver doesn't call any DT platform functions like of_platform_*().
+> Remove the include as it isn't used.
 >=20
 > Cc: Alok Chauhan <alokc@codeaurora.org>
 > Reviewed-by: Douglas Anderson <dianders@chromium.org>
@@ -41,24 +33,24 @@ On Tue, Mar 10, 2020 at 08:43:57AM -0700, Stephen Boyd wrote:
 Applied to for-next, thanks!
 
 
---at6+YcpfzWZg/htY
+--pY3vCvL1qV+PayAL
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5rltwACgkQFA3kzBSg
-KbY4AQ/8CVKrLJXk7rkvQCfZwrhJdGlrnOIxGDAbK5yrYFM0xTzIq/AL1sXfb85o
-y0W34Xzv+l4lDibQCQHE+3zMQfN/tytDYVUg9jeYDpO3KaamIH9qPVZsPcKEdQjo
-mtKaT+E/0CVfcTVj5l8tVdyl17+CGPK3EnkcuA6+eKDsgZ+AnAXzs7gxiI67jFvO
-r5Bg+aHiElw5r3/ASu5NW2F55svWdOnyKdR6ip8S0bkfmG+ZW83FhV5huewblQMC
-6rwh1Rsm8AT9J7yE6CcX1n+DUiQ+sxdq+DJwDRVMFsBLLODK0MXftQYgB9sDSfZv
-TxFIWlFiRNvW6pk0BOv/akg1jlpkQF73vN6wNt8Mvpgd4UEURL6p1H6MZGwzl0m4
-ig37T88L5ZnM9Wst6m6zB5v+f10/Jh+B0xYAKVYW/p35WkH4zEuakyR56HIu73cA
-azeh0TiUKaFNJ8NvVvSPUSLozRhff8jDSwwP28NsgCg/E18fGHaQu4hme9OQpMHI
-iCCH9Q9spzOV0q6mY1qktJj8O6dRfad6jFn9M0KFfM5ixI4DJ/DQSTAr32FG/1SY
-TQKy9+/qjJCeykfS3mBOFdi2hTYAg29mX6S6hBknNFbxwfOFp+4bR6F8kBrYlPoZ
-jE37K3KzSns6kL8wOsqlB0T7J3NVWX4pmaEvVKybduTCsf7eK+E=
-=2oSq
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5rlt8ACgkQFA3kzBSg
+KbanARAArDA45z3r/p8RS4cS0YA9pzniWuqLZLnmKi3N3iWwXK2Eqq6vqpb6cZRk
+/IPO6RvMUv97Pep+LORSITnG8PS346N4xzRj8d05rbCzMqeHxIWdGtXrxa91LoGl
+txQKifSEjo1ijf2oZc9JX69djQ1WJjZtGhuh97S2wE7ydDbG5gBdRvlzJfwS2gNA
+5VB1jZQ1avaI1H7X6GXUWg8H3w/2cznu6iDqyco4choBuDJeM47z7L1m9s6Dqk6p
+TzMWzjA0Y7hFCOCNM9oTbZn9L49FvA48gdRrxogbdkxtcU87jlzBuKESP19J+a4a
+p3GY8WylzWEsSNgKHSq9IBfXdpBBrBMGOFb8vGocyvAy0FsrVX0+ZpoGA8qt9XTE
+xQxR4vaZsUFj41W/VuN1hZOH7rireBN+UQpVDu/E5uIGdZ2tZS54UVUtUDNtm8jV
+krGSOq7CDsUs+7b5z2cv74B4pFrPrYqNiHT+T9ON0NJIorDc9VyqpjLHtlNanMLp
+X+PcFd0nrXrIUMCpBnPw+7mC/8sgMHaeVV4hzKp/27AeLvlL3+B+jYf44M0ZoH8+
+h1koF4NiroDnh40n2tpIBBBmdhRkeoU8MjI4o8zQBkcdFiIxdcpf9hbDnKep/Iwz
+ndz5voFMXJ18g7wQlJG6zudhBA12jjdbqmEWCLpeYd1WYSK7xoo=
+=zhuG
 -----END PGP SIGNATURE-----
 
---at6+YcpfzWZg/htY--
+--pY3vCvL1qV+PayAL--
