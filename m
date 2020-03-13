@@ -1,34 +1,33 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 3/6] dt-bindings: i2c: dw: Add Baikal-T1 SoC I2C
- controller
-Date: Thu, 12 Mar 2020 16:43:40 -0500
-Message-ID: <20200312214340.GA30360@bogus>
-References: <20200306131955.12806-1-Sergey.Semin@baikalelectronics.ru>
- <20200306132018.C268A8030792@mail.baikalelectronics.ru>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [RFC PATCH] i2c: acpi: put device when verifying client fails
+Date: Fri, 13 Mar 2020 13:29:32 +0200
+Message-ID: <20200313112932.GA2540@lahna.fi.intel.com>
+References: <20200312133244.9564-1-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200306132018.C268A8030792@mail.baikalelectronics.ru>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, Serge Semin <Sergey.Semin@baikalelectronics.ru>, Serge Semin <fancer.lancer@gmail.com>, Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Paul Burton <paulburton@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20200312133244.9564-1-wsa@the-dreams.de>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 6 Mar 2020 16:19:52 +0300, <Sergey.Semin@baikalelectronics.ru> wrote:
-> From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+On Thu, Mar 12, 2020 at 02:32:44PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > 
-> Just add the "be,bt1-i2c" compatible string to the bindings. The rest of
-> the DW APB I2C properties can be freely used to describe the Baikal-T1
-> I2C controller dts-node.
+> i2c_verify_client() can fail, so we need to put the device when that
+> happens.
 > 
-> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-> Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: Paul Burton <paulburton@kernel.org>
-> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
+> Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > ---
->  Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml | 2 ++
->  1 file changed, 2 insertions(+)
 > 
+> RFC because I don't know if it can be that the returned dev is not an
+> i2c_client. Yet, since it can happen theoretically, I think we should
+> have the checks.
 
-Acked-by: Rob Herring <robh@kernel.org>
+I agree,
+
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
