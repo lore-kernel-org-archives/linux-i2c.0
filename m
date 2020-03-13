@@ -1,57 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH] i2c: acpi: put device when verifying client fails
-Date: Fri, 13 Mar 2020 15:16:13 +0100
-Message-ID: <20200313141612.GA1852@ninjato>
-References: <20200312133244.9564-1-wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: stm32f7: do not backup read-only PECR register
+Date: Fri, 13 Mar 2020 15:18:18 +0100
+Message-ID: <20200313141818.GB1852@ninjato>
+References: <1583841521-27897-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
-Return-path: <linux-acpi-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="DKU6Jbt7q3WqK7+M"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:52296 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726643AbgCMOSU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 13 Mar 2020 10:18:20 -0400
 Content-Disposition: inline
-In-Reply-To: <20200312133244.9564-1-wsa@the-dreams.de>
-Sender: linux-acpi-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>
+In-Reply-To: <1583841521-27897-1-git-send-email-alain.volmat@st.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Alain Volmat <alain.volmat@st.com>
+Cc: pierre-yves.mordret@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
+--DKU6Jbt7q3WqK7+M
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 12, 2020 at 02:32:44PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Tue, Mar 10, 2020 at 12:58:41PM +0100, Alain Volmat wrote:
+> The PECR register provides received packet computed PEC value.=C2=A0
+> It makes no sense restoring its value after a reset, and anyway,
+> as read-only register it cannot be restored.
 >=20
-> i2c_verify_client() can fail, so we need to put the device when that
-> happens.
->=20
-> Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifi=
-cations")
-> Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Fixes: ea6dd25deeb5 ("i2c: stm32f7: add PM_SLEEP suspend/resume support")
+> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+> Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---Nq2Wo0NMKNjxTN9z
+--DKU6Jbt7q3WqK7+M
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5rlakACgkQFA3kzBSg
-KbZbaxAArEAsA1yKwsk92jQHfsNR+Xq/KPoHgCn2ebTVnEMuqsT4HdyysiJut86o
-NE6IxWaxYXrkrunYpsKNfWBDiONDKMhCkBIYrvemUtN6vvdQfdTOcIZmgzq9o1EP
-DexXySXd05+kq2DLDl3A887MA4upkSAA7AGa7ZVKnb5xVEpZue5ANAWObbuqkU6U
-Pz71g3wLD+XO5msbHkn8+6C1bUwTUcq/yZHqDYFu1tcrwpVYldoZ68OR9IMgD+JP
-/vGq1iFBV91QeoSRvXqJcOgMOhai1Z/u8u9XPs33v66MlzbYjiH+r7ZCabO1ZVt0
-lD4Q5lvkvxUE+cE1yEQLrVzNihUIy4XD2K8LvBxeDx6r0WdCKsCM8f82AnXSQ6FW
-sZpmx+2ISEfpptgCOSFzXc9whps7zOiHlCIpKq2T4yGiH//HQu+oNA02QcS/opKd
-eMxkY9TLqTVVhnVsmyvyo5IZsAU0Qg2ns10UE8+JvFgcFss6i3UUwP3p+w/WAXNO
-ZyqsPzrkWytmIQ+wTFpqDp2nXMqaNWr66RjlTFUkIzUYht6d6gWaPItr+BAhAIbc
-LpbKe5RziAUX22QnYLcuYcXKIPwg8orNmhwlJ2uOhQCpYkTGM8ls3hAtc1JUNnFx
-OC511G9TUqAiVuRLhQQPqw3JUxivQJfaECrL9vZZoFWRd6jhFhI=
-=7Mho
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5rlioACgkQFA3kzBSg
+KbYrNg/+Ky++rxg6iPtXKX60q2EcDj4GouQCSEoXN0o6ROumzKEVs5unYfRuWk4Y
+P2x4bw3MJxRNySfua/yY3ikdhrxbuRn3wIdsAFDQoWIP/bndenYB4sw524bGhz+y
+7W3R8MvCV5LIaI2Cf11X1R6MXf6eFR62HMFT/7VI/b5yq5N26+gfyhSBEgoBNiDI
+AI6av7tmDawPTDaN3U7x6RBycEy2LDTsUGE3Ys2p+F8QyRvvlBuwKt2CJIRBskH5
+xeASbGRbySf4PM7Q/SKq9YtfHRVZqbF6r0OCZ85sM9npGSNIc5juakehBwlcj5Qa
+a/hhL6mK46uKCEFG1/vvanzDB897rxjYYpIOnyqb5dRu7zjocm+AwGH6rxnWXVBW
+hofMRS6I0u68oYjngddT0dtfZT1DtAoFM0/wFZbheRR+8XzOO3hciFTo/7L31ZFL
+YidMKqk4FK7wAL6dnbYGImudUv5/Q+Nko/KIx9enLA9ojcsiPrbFgn1czR3/BxCU
+3EdrYw6h1qQHAk1nh9urkcjroURMpHYcI3CEurM3MaRVXMIKlHLl/Gy+Z6EigVAr
+EfcPavGIwNvO71TvoiOcZAkDz89JYUBf8qBjGtjpS+RYYFlUX8gQfCAHKuuJiOs7
+q+FNCibSo7yMqO2bU70LzIbL9BdAZXeogMMpWpJxCNGIjz4U3rI=
+=DECc
 -----END PGP SIGNATURE-----
 
---Nq2Wo0NMKNjxTN9z--
+--DKU6Jbt7q3WqK7+M--
