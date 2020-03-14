@@ -1,31 +1,51 @@
-From: Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH -next 010/491] ARM/SAMSUNG EXYNOS ARM ARCHITECTURES: Use fallthrough;
-Date: Fri, 13 Mar 2020 18:17:30 -0700
-Message-ID: <158414865091.164562.17682025008359421835@swboyd.mtv.corp.google.com>
-References: <cover.1583896344.git.joe@perches.com> <1d569e023b6cb7b8d0da8d1bcccd92e97fe436c8.1583896348.git.joe@perches.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: i2c-tools - at24 vs eeprom - decode-dimms fails with the at24
+ module
+Date: Sat, 14 Mar 2020 21:41:13 +0100
+Message-ID: <20200314214113.54e48d00@endymion>
+References: <dc5201ea-de3f-f26c-c95e-fca392b521aa@nurealm.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-clk-owner@vger.kernel.org>
-In-Reply-To: <1d569e023b6cb7b8d0da8d1bcccd92e97fe436c8.1583896348.git.joe@perches.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: Chanwoo Choi <cw00.choi@samsung.com>, Joe Perches <joe@perches.com>, Krzysztof Kozlowski <krzk@kernel.org>, Kukjin Kim <kgene@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>
-Cc: Michael Turquette <mturquette@baylibre.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:55974 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726771AbgCOBxt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 14 Mar 2020 21:53:49 -0400
+In-Reply-To: <dc5201ea-de3f-f26c-c95e-fca392b521aa@nurealm.net>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: James Feeney <james@nurealm.net>
+Cc: linux-i2c@vger.kernel.org
 
-Quoting Joe Perches (2020-03-10 21:51:24)
-> Convert the various uses of fallthrough comments to fallthrough;
->=20
-> Done via script
-> Link: https://lore.kernel.org/lkml/b56602fcf79f849e733e7b521bb0e17895d390=
-fa.1582230379.git.joe.com/
->=20
+Hi James,
 
-This link doesn't work for me. It leads to a redirect for=20
+On Sat, 14 Mar 2020 09:22:57 -0600, James Feeney wrote:
+> The log says "kernel: eeprom 3-0050: eeprom driver is deprecated, please use at24 instead", but decode-dimms will only work with the deprecated eeprom driver.  With the at24 module, "Number of SDRAM DIMMs detected and decoded: 0".  With the eeprom module, "Number of SDRAM DIMMs detected and decoded: 6". This is on Arch Linux, with linux 5.5.9.arch1-2, on an old Asus P6T DELUXE V2 with a Core i7.
 
-https://lore.kernel.org/lkml/b56602fcf79f849e733e7b521bb0e17895d390fa.15822=
-30379.git.joe@perches.com/
+While the legacy eeprom driver (poorly) auto-detected SPD EEPROMs, the
+at24 driver requires SPD EEPOMs to be explicitly enumerated. There is
+work in progress [1] to automate this in some cases (namely x86 systems
+using the i2c-i801 SMBus controller driver) but for now you'll have to
+do it yourself from user-space. How to do that is explained in section 4
+of:
 
->  drivers/clk/samsung/clk-s3c2443.c | 2 +-
+https://www.kernel.org/doc/Documentation/i2c/instantiating-devices
 
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+TL;DR: Something like:
+
+# echo spd 0x50 > /sys/bus/i2c/devices/i2c-3/new_device
+
+should do the trick, if i2c-3 is your SMBus and you have 1 memory
+module in the first slot. If you have more memory modules, use
+"modprobe i2c-dev ; i2cdetect 0" to find out the proper addresses in
+the 0x50-0x57 range and repeat the command.
+
+I guess I should resubmit this patch set to make it transparent to the
+users.
+
+[1] https://lore.kernel.org/lkml/20191014113950.1f989ba6@endymion/
+
+-- 
+Jean Delvare
+SUSE L3 Support
