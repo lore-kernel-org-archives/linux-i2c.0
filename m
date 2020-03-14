@@ -1,24 +1,30 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [PULL REQUEST] i2c for v5.6
-Date: Sun, 15 Mar 2020 02:00:06 +0000
-Message-ID: <158423760614.26381.11563014789632295912.pr-tracker-bot@kernel.org>
-References: <20200314210830.GA1730@ninjato>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200314210830.GA1730@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+From: Omar Ousman <omarousman25@gmail.com>
+Subject: You received my last mail,,,,
+Date: Sat, 14 Mar 2020 18:23:36 +0100
+Message-ID: <CAOdk3H=BWVFSbBHnPp89pkv5eyhE_YLWx_uztwjom2+untGdDQ__10482.9842735612$1584238736$gmane$org@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:42914 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727520AbgCOCSv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 14 Mar 2020 22:18:51 -0400
+Received: by mail-qk1-f193.google.com with SMTP id e11so19985394qkg.9
+        for <linux-i2c@vger.kernel.org>; Sat, 14 Mar 2020 19:18:50 -0700 (PDT)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The pull request you sent on Sat, 14 Mar 2020 22:08:49 +0100:
+I am Mr.Omar Ousman, a regional managing director (CORIS BANK
+INTERNATIONAL) Ouagadougou Burkina Faso, in my department we have
+US$9,500.0000 million united state dollars, to transfer into your
+account as a dormant fund.If you are interested to use this fund to
+help the orphans around the world contact and send me your personal
+information for more details to my email omarousman25@gmail.com
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+Your full names..........
+Your country of origin..........
+Your occupation..........
+Your Age..........
+Your Mobile Number..........
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/d3dca69085e94e52a1d61a34b8e5f73a9f3d7eed
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+Best Regards,
