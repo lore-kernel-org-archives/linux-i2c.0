@@ -1,146 +1,109 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 4/6] =?UTF-8?q?i2c:=20stm32f7:=20switch=20to=20I=C2=B2C?= =?UTF-8?q?=20generic=20property=20parsing?=
-Date: Mon, 16 Mar 2020 17:49:27 +0200
-Message-ID: <20200316154929.20886-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 2/6] i2c: core: Allow override timing properties with 0
+Date: Mon, 16 Mar 2020 17:49:25 +0200
+Message-ID: <20200316154929.20886-2-andriy.shevchenko@linux.intel.com>
 References: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:13429 "EHLO mga06.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:50166 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731920AbgCPPtd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 16 Mar 2020 11:49:33 -0400
+        id S1731848AbgCPPtc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 16 Mar 2020 11:49:32 -0400
 In-Reply-To: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Switch to the new generic functions: i2c_parse_fw_timings().
+Some drivers may allow to override properties with 0 value when defaults
+are not in use, thus, replace memset() with corresponding per property
+update.
 
-While here, replace hard coded values with standard bus frequency definitions.
-
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-v3: new patch instead of simple frequency conversion
- drivers/i2c/busses/i2c-stm32f7.c | 57 +++++++++++++++-----------------
- 1 file changed, 26 insertions(+), 31 deletions(-)
+v3: new patch
+ drivers/i2c/busses/i2c-rcar.c |  2 +-
+ drivers/i2c/i2c-core-base.c   | 30 +++++++++++++++++-------------
+ 2 files changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 6418f5982894..18f231f631f5 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -344,9 +344,9 @@ struct stm32f7_i2c_dev {
-  */
- static struct stm32f7_i2c_spec i2c_specs[] = {
- 	[STM32_I2C_SPEED_STANDARD] = {
--		.rate = 100000,
--		.rate_min = 80000,
--		.rate_max = 100000,
-+		.rate = I2C_MAX_STANDARD_MODE_FREQ,
-+		.rate_min = I2C_MAX_STANDARD_MODE_FREQ * 8 / 10,	/* 80% */
-+		.rate_max = I2C_MAX_STANDARD_MODE_FREQ,
- 		.fall_max = 300,
- 		.rise_max = 1000,
- 		.hddat_min = 0,
-@@ -356,9 +356,9 @@ static struct stm32f7_i2c_spec i2c_specs[] = {
- 		.h_min = 4000,
- 	},
- 	[STM32_I2C_SPEED_FAST] = {
--		.rate = 400000,
--		.rate_min = 320000,
--		.rate_max = 400000,
-+		.rate = I2C_MAX_FAST_MODE_FREQ,
-+		.rate_min = I2C_MAX_FAST_MODE_FREQ * 8 / 10,		/* 80% */
-+		.rate_max = I2C_MAX_FAST_MODE_FREQ,
- 		.fall_max = 300,
- 		.rise_max = 300,
- 		.hddat_min = 0,
-@@ -368,9 +368,9 @@ static struct stm32f7_i2c_spec i2c_specs[] = {
- 		.h_min = 600,
- 	},
- 	[STM32_I2C_SPEED_FAST_PLUS] = {
--		.rate = 1000000,
--		.rate_min = 800000,
--		.rate_max = 1000000,
-+		.rate = I2C_MAX_FAST_MODE_PLUS_FREQ,
-+		.rate_min = I2C_MAX_FAST_MODE_PLUS_FREQ * 8 / 10,	/* 80% */
-+		.rate_max = I2C_MAX_FAST_MODE_PLUS_FREQ,
- 		.fall_max = 100,
- 		.rise_max = 120,
- 		.hddat_min = 0,
-@@ -610,8 +610,25 @@ static int stm32f7_i2c_compute_timing(struct stm32f7_i2c_dev *i2c_dev,
- static int stm32f7_i2c_setup_timing(struct stm32f7_i2c_dev *i2c_dev,
- 				    struct stm32f7_i2c_setup *setup)
- {
-+	struct i2c_timings timings, *t = &timings;
- 	int ret = 0;
- 
-+	t->bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
-+	t->scl_rise_ns = i2c_dev->setup.rise_time;
-+	t->scl_fall_ns = i2c_dev->setup.fall_time;
-+
-+	i2c_parse_fw_timings(&pdev->dev, t, false);
-+
-+	if (t->bus_freq_hz >= I2C_MAX_FAST_MODE_PLUS_FREQ)
-+		i2c_dev->speed = STM32_I2C_SPEED_FAST_PLUS;
-+	else if (t->bus_freq_hz >= I2C_MAX_FAST_MODE_FREQ)
-+		i2c_dev->speed = STM32_I2C_SPEED_FAST;
-+	else
-+		i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
-+
-+	i2c_dev->setup.rise_time = t->scl_rise_ns;
-+	i2c_dev->setup.fall_time = t->scl_fall_ns;
-+
- 	setup->speed = i2c_dev->speed;
- 	setup->speed_freq = i2c_specs[setup->speed].rate;
- 	setup->clock_src = clk_get_rate(i2c_dev->clk);
-@@ -1914,7 +1931,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	struct stm32f7_i2c_dev *i2c_dev;
- 	const struct stm32f7_i2c_setup *setup;
- 	struct resource *res;
--	u32 clk_rate, rise_time, fall_time;
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 879f0e61a496..f1f915bfdb9d 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -920,7 +920,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	struct rcar_i2c_priv *priv;
  	struct i2c_adapter *adap;
- 	struct reset_control *rst;
- 	dma_addr_t phy_addr;
-@@ -1961,17 +1977,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 		return ret;
+ 	struct device *dev = &pdev->dev;
+-	struct i2c_timings i2c_t;
++	struct i2c_timings i2c_t = {0};
+ 	int ret;
+ 
+ 	/* Otherwise logic will break because some bytes must always use PIO */
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 9b2972c7faa2..5cc0b0ec5570 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1593,23 +1593,21 @@ EXPORT_SYMBOL(i2c_del_adapter);
+  * @dev: The device to scan for I2C timing properties
+  * @t: the i2c_timings struct to be filled with values
+  * @use_defaults: bool to use sane defaults derived from the I2C specification
+- *		  when properties are not found, otherwise use 0
++ *		  when properties are not found, otherwise don't update
+  *
+  * Scan the device for the generic I2C properties describing timing parameters
+  * for the signal and fill the given struct with the results. If a property was
+  * not found and use_defaults was true, then maximum timings are assumed which
+  * are derived from the I2C specification. If use_defaults is not used, the
+- * results will be 0, so drivers can apply their own defaults later. The latter
+- * is mainly intended for avoiding regressions of existing drivers which want
+- * to switch to this function. New drivers almost always should use the defaults.
++ * results will be as before, so drivers can apply their own defaults before
++ * calling this helper. The latter is mainly intended for avoiding regressions
++ * of existing drivers which want to switch to this function. New drivers
++ * almost always should use the defaults.
+  */
+-
+ void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_defaults)
+ {
+ 	int ret;
+ 
+-	memset(t, 0, sizeof(*t));
+-
+ 	ret = device_property_read_u32(dev, "clock-frequency", &t->bus_freq_hz);
+ 	if (ret && use_defaults)
+ 		t->bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
+@@ -1632,19 +1630,25 @@ void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_de
+ 			t->scl_fall_ns = 120;
  	}
  
--	i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
--	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
--				       &clk_rate);
--	if (!ret && clk_rate >= 1000000) {
--		i2c_dev->speed = STM32_I2C_SPEED_FAST_PLUS;
--	} else if (!ret && clk_rate >= 400000) {
--		i2c_dev->speed = STM32_I2C_SPEED_FAST;
--	} else if (!ret && clk_rate >= 100000) {
--		i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
--	}
--
- 	rst = devm_reset_control_get(&pdev->dev, NULL);
- 	if (IS_ERR(rst)) {
- 		dev_err(&pdev->dev, "Error: Missing controller reset\n");
-@@ -2011,16 +2016,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	}
- 	i2c_dev->setup = *setup;
+-	device_property_read_u32(dev, "i2c-scl-internal-delay-ns", &t->scl_int_delay_ns);
++	ret = device_property_read_u32(dev, "i2c-scl-internal-delay-ns", &t->scl_int_delay_ns);
++	if (ret && use_defaults)
++		t->scl_int_delay_ns = 0;
  
--	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-rising-time-ns",
--				       &rise_time);
--	if (!ret)
--		i2c_dev->setup.rise_time = rise_time;
--
--	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-falling-time-ns",
--				       &fall_time);
--	if (!ret)
--		i2c_dev->setup.fall_time = fall_time;
--
- 	ret = stm32f7_i2c_setup_timing(i2c_dev, &i2c_dev->setup);
- 	if (ret)
- 		goto clk_free;
+ 	ret = device_property_read_u32(dev, "i2c-sda-falling-time-ns", &t->sda_fall_ns);
+ 	if (ret && use_defaults)
+ 		t->sda_fall_ns = t->scl_fall_ns;
+ 
+-	device_property_read_u32(dev, "i2c-sda-hold-time-ns", &t->sda_hold_ns);
++	ret = device_property_read_u32(dev, "i2c-sda-hold-time-ns", &t->sda_hold_ns);
++	if (ret && use_defaults)
++		t->sda_hold_ns = 0;
+ 
+-	device_property_read_u32(dev, "i2c-digital-filter-width-ns",
+-				 &t->digital_filter_width_ns);
++	ret = device_property_read_u32(dev, "i2c-digital-filter-width-ns", &t->digital_filter_width_ns);
++	if (ret && use_defaults)
++		t->digital_filter_width_ns = 0;
+ 
+-	device_property_read_u32(dev, "i2c-analog-filter-cutoff-frequency",
+-				 &t->analog_filter_cutoff_freq_hz);
++	ret = device_property_read_u32(dev, "i2c-analog-filter-cutoff-frequency", &t->analog_filter_cutoff_freq_hz);
++	if (ret && use_defaults)
++		t->analog_filter_cutoff_freq_hz = 0;
+ }
+ EXPORT_SYMBOL_GPL(i2c_parse_fw_timings);
+ 
 -- 
 2.25.1
