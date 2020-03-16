@@ -1,63 +1,56 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 1/4] i2c: mux: pca954x: Refactor pca954x_irq_handler()
-Date: Mon, 16 Mar 2020 18:07:21 +0200
-Message-ID: <20200316160724.37596-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 3/4] i2c: mux: pca954x: Move device_remove_file() out of pca954x_cleanup()
+Date: Mon, 16 Mar 2020 18:07:23 +0200
+Message-ID: <20200316160724.37596-3-andriy.shevchenko@linux.intel.com>
+References: <20200316160724.37596-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:15052 "EHLO mga06.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:23813 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
         id S1731687AbgCPQH2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Mon, 16 Mar 2020 12:07:28 -0400
+In-Reply-To: <20200316160724.37596-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Refactor pca954x_irq_handler() to:
-  - use for_each_set_bit() macro
-  - use IRQ_RETVAL() macro
-
-Above change makes code easy to read and understand.
+device_create_file() is called the last in ->probe() but pca954x_cleanup(),
+which is called earlier in error path, tries to remove never created file.
+Move device_remove_file() call outside of pca954x_cleanup() to make it
+slightly closer to what pca954x_init() is doing.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-v2: masked pending to prevent handling of spurious IRQs (Peter)
- drivers/i2c/muxes/i2c-mux-pca954x.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+v2: no change
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index a0d926ae3f86..b764c7c746e9 100644
+index 928c6f5ceac7..0908a0655cb7 100644
 --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
 +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -327,21 +327,18 @@ static DEVICE_ATTR_RW(idle_state);
- static irqreturn_t pca954x_irq_handler(int irq, void *dev_id)
+@@ -383,11 +383,8 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
+ static void pca954x_cleanup(struct i2c_mux_core *muxc)
  {
- 	struct pca954x *data = dev_id;
--	unsigned int child_irq;
--	int ret, i, handled = 0;
-+	unsigned long pending;
-+	int ret, i;
+ 	struct pca954x *data = i2c_mux_priv(muxc);
+-	struct i2c_client *client = data->client;
+ 	int c, irq;
  
- 	ret = i2c_smbus_read_byte(data->client);
- 	if (ret < 0)
- 		return IRQ_NONE;
+-	device_remove_file(&client->dev, &dev_attr_idle_state);
+-
+ 	if (data->irq) {
+ 		for (c = 0; c < data->chip->nchans; c++) {
+ 			irq = irq_find_mapping(data->irq, c);
+@@ -531,6 +528,8 @@ static int pca954x_remove(struct i2c_client *client)
+ {
+ 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
  
--	for (i = 0; i < data->chip->nchans; i++) {
--		if (ret & BIT(PCA954X_IRQ_OFFSET + i)) {
--			child_irq = irq_linear_revmap(data->irq, i);
--			handle_nested_irq(child_irq);
--			handled++;
--		}
--	}
--	return handled ? IRQ_HANDLED : IRQ_NONE;
-+	pending = (ret >> PCA954X_IRQ_OFFSET) & (BIT(data->chip->nchans) - 1);
-+	for_each_set_bit(i, &pending, data->chip->nchans)
-+		handle_nested_irq(irq_linear_revmap(data->irq, i));
++	device_remove_file(&client->dev, &dev_attr_idle_state);
 +
-+	return IRQ_RETVAL(pending);
+ 	pca954x_cleanup(muxc);
+ 	return 0;
  }
- 
- static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
 -- 
 2.25.1
