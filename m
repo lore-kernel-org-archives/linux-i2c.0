@@ -1,62 +1,87 @@
-From: =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
-Subject: Re: [PATCH] i2c: at91: support atomic write xfer
-Date: Mon, 16 Mar 2020 15:42:21 +0100
-Message-ID: <20200316144221.GC19141@qmqm.qmqm.pl>
-References: <c05f76f74cd6a7ec2735c96861f9d5933631c112.1584296795.git.mirq-linux@rere.qmqm.pl>
- <9924dd54-dd8b-d130-9607-2bbbc65675d5@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 3/6] i2c: rcar: Consolidate timings calls in rcar_i2c_clock_calculate()
+Date: Mon, 16 Mar 2020 17:49:26 +0200
+Message-ID: <20200316154929.20886-3-andriy.shevchenko@linux.intel.com>
+References: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <9924dd54-dd8b-d130-9607-2bbbc65675d5@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>, Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga18.intel.com ([134.134.136.126]:42989 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731838AbgCPPtc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 16 Mar 2020 11:49:32 -0400
+In-Reply-To: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Sun, Mar 15, 2020 at 11:46:33PM +0300, Dmitry Osipenko wrote:
-> 15.03.2020 21:27, Michał Mirosław пишет:
-> > Implement basic support for atomic write - enough to get a simple
-> > write to PMIC on shutdown. Only for chips having ALT_CMD register,
-> > eg. SAMA5D2.
-> > 
-> > Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-> > ---
-> 
-> Hello Michał,
-> 
-> ...
-> > +	ret = pm_runtime_get_sync(dev->dev);
-> > +	if (ret < 0)
-> > +		goto out;
-> 
-> Runtime PM can't be used while interrupts are disabled, unless
-> pm_runtime_irq_safe() is used and driver's RPM callback is IRQ-safe.
+Move i2c_parse_fw_timings() to rcar_i2c_clock_calculate() to consolidate
+timings calls in one place.
 
-I didn't get any warnings from lockdep and friends, but I'll double
-check if this is by luck.
+While here, replace hard coded values with standard bus frequency definitions.
 
-> ...
-> > +	timeout = jiffies + (2 + msg->len) * HZ/1000;
-> > +	for (;;) {
-> > +		stat = at91_twi_read(dev, AT91_TWI_SR);
-> > +		if (stat & AT91_TWI_TXCOMP)
-> > +			break;
-> > +		if (time_after(jiffies, timeout)) {
-> > +			ret = -ETIMEDOUT;
-> > +			goto out;
-> > +		}
-> > +		udelay(100);
-> > +	}
-> 
-> Jiffies can't be used with the disabled interrupts because jiffies are
-> updated by timer's interrupt.
-> 
-> Either ktime() API or iterator-based loop should be used.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+v3: new patch
+ drivers/i2c/busses/i2c-rcar.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-Thanks for the pointers. In my use-case power is cut from the CPU at this
-point so it didn't matter that the loop was infinite.
-
-Best Regards
-Michał Mirosław
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index f1f915bfdb9d..a8a136e490fa 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -235,17 +235,20 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ 	return i2c_recover_bus(&priv->adap);
+ }
+ 
+-static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timings *t)
++static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv)
+ {
+ 	u32 scgd, cdf, round, ick, sum, scl, cdf_width;
+ 	unsigned long rate;
+ 	struct device *dev = rcar_i2c_priv_to_dev(priv);
++	struct i2c_timings i2c_t, *t = &i2c_t;
+ 
+ 	/* Fall back to previously used values if not supplied */
+-	t->bus_freq_hz = t->bus_freq_hz ?: 100000;
+-	t->scl_fall_ns = t->scl_fall_ns ?: 35;
+-	t->scl_rise_ns = t->scl_rise_ns ?: 200;
+-	t->scl_int_delay_ns = t->scl_int_delay_ns ?: 50;
++	t->bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
++	t->scl_fall_ns = 35;
++	t->scl_rise_ns = 200;
++	t->scl_int_delay_ns = 50;
++
++	i2c_parse_fw_timings(dev, &i2c_t, false);
+ 
+ 	switch (priv->devtype) {
+ 	case I2C_RCAR_GEN1:
+@@ -920,7 +923,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	struct rcar_i2c_priv *priv;
+ 	struct i2c_adapter *adap;
+ 	struct device *dev = &pdev->dev;
+-	struct i2c_timings i2c_t = {0};
+ 	int ret;
+ 
+ 	/* Otherwise logic will break because some bytes must always use PIO */
+@@ -957,8 +959,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(adap, priv);
+ 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
+ 
+-	i2c_parse_fw_timings(dev, &i2c_t, false);
+-
+ 	/* Init DMA */
+ 	sg_init_table(&priv->sg, 1);
+ 	priv->dma_direction = DMA_NONE;
+@@ -967,7 +967,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	/* Activate device for clock calculation */
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_get_sync(dev);
+-	ret = rcar_i2c_clock_calculate(priv, &i2c_t);
++	ret = rcar_i2c_clock_calculate(priv);
+ 	if (ret < 0)
+ 		goto out_pm_put;
+ 
+-- 
+2.25.1
