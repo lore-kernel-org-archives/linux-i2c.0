@@ -1,58 +1,32 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 4/4] i2c: mux: pca954x: Convert license to SPDX identifier
-Date: Mon, 16 Mar 2020 18:07:24 +0200
-Message-ID: <20200316160724.37596-4-andriy.shevchenko@linux.intel.com>
-References: <20200316160724.37596-1-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 1/5] i2c: mux: pca954x: Refactor pca954x_irq_handler()
+Date: Mon, 16 Mar 2020 18:08:04 +0200
+Message-ID: <20200316160804.GU1922688@smile.fi.intel.com>
+References: <20200305155352.39095-1-andriy.shevchenko@linux.intel.com>
+ <31d8a07f-a841-d58b-ebc8-3cba39d00a95@axentia.se>
+ <20200306100215.GS1224808@smile.fi.intel.com>
+ <102340b1-b742-82cb-8a31-147a8e338662@axentia.se>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga18.intel.com ([134.134.136.126]:44771 "EHLO mga18.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:2182 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731704AbgCPQH2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 16 Mar 2020 12:07:28 -0400
-In-Reply-To: <20200316160724.37596-1-andriy.shevchenko@linux.intel.com>
+        id S1731704AbgCPQID (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 16 Mar 2020 12:08:03 -0400
+Content-Disposition: inline
+In-Reply-To: <102340b1-b742-82cb-8a31-147a8e338662@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
 
-Use a shorter SPDX identifier instead of pasting the whole license.
+On Fri, Mar 06, 2020 at 11:58:47AM +0100, Peter Rosin wrote:
+> On 2020-03-06 11:02, Andy Shevchenko wrote:
 
-While here, replace duplicating PCA954x with PCA984x.
+> Yep, that's safer. Thanks!
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
-v2: no change
- drivers/i2c/muxes/i2c-mux-pca954x.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+Thank you for review, I just sent v2.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 0908a0655cb7..4ad665757dd8 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -1,10 +1,11 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-  * I2C multiplexer
-  *
-  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
-  * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
-  *
-- * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
-+ * This module supports the PCA954x and PCA984x series of I2C multiplexer/switch
-  * chips made by NXP Semiconductors.
-  * This includes the:
-  *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
-@@ -29,10 +30,6 @@
-  *	i2c-virtual_cb.c from Brian Kuschak <bkuschak@yahoo.com>
-  * and
-  *	pca9540.c from Jean Delvare <jdelvare@suse.de>.
-- *
-- * This file is licensed under the terms of the GNU General Public
-- * License version 2. This program is licensed "as is" without any
-- * warranty of any kind, whether express or implied.
-  */
- 
- #include <linux/device.h>
 -- 
-2.25.1
+With Best Regards,
+Andy Shevchenko
