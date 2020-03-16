@@ -1,32 +1,81 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 1/5] i2c: mux: pca954x: Refactor pca954x_irq_handler()
-Date: Mon, 16 Mar 2020 18:08:04 +0200
-Message-ID: <20200316160804.GU1922688@smile.fi.intel.com>
-References: <20200305155352.39095-1-andriy.shevchenko@linux.intel.com>
- <31d8a07f-a841-d58b-ebc8-3cba39d00a95@axentia.se>
- <20200306100215.GS1224808@smile.fi.intel.com>
- <102340b1-b742-82cb-8a31-147a8e338662@axentia.se>
+From: Stefan Lengfeld <contact@stefanchrist.eu>
+Subject: Re: [PATCH] i2c: at91: support atomic write xfer
+Date: Mon, 16 Mar 2020 18:20:03 +0100
+Message-ID: <20200316172003.lguso2fczz5imh6g@porty>
+References: <c05f76f74cd6a7ec2735c96861f9d5933631c112.1584296795.git.mirq-linux@rere.qmqm.pl>
+ <9924dd54-dd8b-d130-9607-2bbbc65675d5@gmail.com>
+ <20200316144221.GC19141@qmqm.qmqm.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:2182 "EHLO mga03.intel.com"
+Received: from stcim.de ([78.46.90.227]:58902 "EHLO stcim.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731704AbgCPQID (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 16 Mar 2020 12:08:03 -0400
+        id S1730437AbgCPRor (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 16 Mar 2020 13:44:47 -0400
 Content-Disposition: inline
-In-Reply-To: <102340b1-b742-82cb-8a31-147a8e338662@axentia.se>
+In-Reply-To: <20200316144221.GC19141@qmqm.qmqm.pl>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+To: =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
+Cc: Dmitry Osipenko <digetx@gmail.com>, Ludovic Desroches <ludovic.desroches@microchip.com>, Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>
 
-On Fri, Mar 06, 2020 at 11:58:47AM +0100, Peter Rosin wrote:
-> On 2020-03-06 11:02, Andy Shevchenko wrote:
+Hi Michał,
 
-> Yep, that's safer. Thanks!
+On Mon, Mar 16, 2020 at 03:42:21PM +0100, Michał Mirosław wrote:
+> On Sun, Mar 15, 2020 at 11:46:33PM +0300, Dmitry Osipenko wrote:
+> > 15.03.2020 21:27, Michał Mirosław пишет:
+> > > Implement basic support for atomic write - enough to get a simple
+> > > write to PMIC on shutdown. Only for chips having ALT_CMD register,
+> > > eg. SAMA5D2.
+> > > 
+> > > Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> > > ---
+> > 
+> > Hello Michał,
+> > 
+> > ...
+> > > +	ret = pm_runtime_get_sync(dev->dev);
+> > > +	if (ret < 0)
+> > > +		goto out;
+> > 
+> > Runtime PM can't be used while interrupts are disabled, unless
+> > pm_runtime_irq_safe() is used and driver's RPM callback is IRQ-safe.
+> 
+> I didn't get any warnings from lockdep and friends, but I'll double
+> check if this is by luck.
 
-Thank you for review, I just sent v2.
+You can have a look at the I2C atomic patch for the imx-driver. See
 
--- 
-With Best Regards,
-Andy Shevchenko
+   https://patchwork.ozlabs.org/patch/1225802/
+
+In that patch Marco Felsch is using clk_enable() and clk_disable() calls.
+
+> 
+> > ...
+> > > +	timeout = jiffies + (2 + msg->len) * HZ/1000;
+> > > +	for (;;) {
+> > > +		stat = at91_twi_read(dev, AT91_TWI_SR);
+> > > +		if (stat & AT91_TWI_TXCOMP)
+> > > +			break;
+> > > +		if (time_after(jiffies, timeout)) {
+> > > +			ret = -ETIMEDOUT;
+> > > +			goto out;
+> > > +		}
+> > > +		udelay(100);
+> > > +	}
+> > 
+> > Jiffies can't be used with the disabled interrupts because jiffies are
+> > updated by timer's interrupt.
+> > 
+> > Either ktime() API or iterator-based loop should be used.
+> 
+> Thanks for the pointers. In my use-case power is cut from the CPU at this
+> point so it didn't matter that the loop was infinite.
+
+Here again you can have a look at Marco Felsch's patch. He used the
+function readb_poll_timeout_atomic(). So the loop can potentially
+replaced by a single line.
+
+Kind regards,
+Stefan
