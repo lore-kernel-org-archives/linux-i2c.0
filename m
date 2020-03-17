@@ -1,77 +1,71 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: VAIO EEPROM support in at24
-Date: Tue, 17 Mar 2020 15:32:56 +0100
-Message-ID: <CAMRc=Mdoh5Sk3iS_CO4+++SG2jJOy1qrG4q2zOzbeYYMdJR0VA@mail.gmail.com>
-References: <20200317151409.7940926c@endymion>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 00/17] Address several documentation build warnings
+Date: Tue, 17 Mar 2020 15:54:09 +0100
+Message-ID: <cover.1584456635.git.mchehab+huawei@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200317151409.7940926c@endymion>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
+To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Wolfram Sang <wsa@the-dreams.de>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-ide@vger.kernel.org, linux-i2c@vger.kernel.org, Joel Fernandes <joel@joelfernandes.org>, linux1394-devel@lists.sourceforge.net, Will Deacon <will@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, Florian Fainelli <f.fainelli@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Russell King <linux@armlinux.org.uk>, Chanwoo Choi <cw00.choi@samsung.com>, Doug Ledford <dledford@redhat.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, linux-pci@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>, Paul E. McKe
 List-Id: linux-i2c@vger.kernel.org
 
-wt., 17 mar 2020 o 15:14 Jean Delvare <jdelvare@suse.de> napisa=C5=82(a):
->
-> Hi all,
->
-> As the legacy eeprom driver is being phased out, I am reviewing all its
-> use cases to ensure that the at24 driver will be a suitable replacement.
->
-> One issue I have found is the handling of specific EEPROMs found on the
-> SMBus of some Sony VAIO laptops. The legacy eeprom driver would expose
-> them to user-space, read-only for all users. It would also recognize
-> them as VAIO EEPROMs and would hide some bytes from non-root users
-> because these bytes contain the BIOS password in a lightly encoded form.
->
-> In order to keep the same level of functionality, we would have to offer
-> the same with the at24 driver. At this time, the user has to
-> instantiate a "24c02" device manually from user-space. By default this
-> device has permissions 600, which is insufficient for users, and
-> dangerous for root, so a quick chmod 444 is needed.
->
-> Without the password issue, I would just document the procedure and
-> live with it. However in order to protect the password from being read
-> by random users, the driver itself needs to know that it is dealing
-> with a specific type of EEPROM. It seems that we need to introduce a
-> new device flavor to the at24 driver for this purpose.
->
-> I see that we already have a number of specific flags (AT24_FLAG_SERIAL
-> and AT24_FLAG_MAC) so I suppose we could add something similar for
-> these VAIO EEPROMs. Something like:
->
-> /* Some Sony VAIO laptops have a 24c02 at 0x57 with product info */
-> AT24_CHIP_DATA(at24_data_sony_vaio, 2048 / 8,
->         AT24_FLAG_READONLY | AT24_FLAG_IRUGO | AT24_FLAG_SONY_VAIO);
->
-> Then I suppose it's only a matter of conditionally zeroing a selected
-> range in at24_read() before it returns, to hide the password from
-> non-root users.
->
-> Before I start implementing the idea above, I would like to know if
-> anyone objects to it, or has a better idea?
->
+This patch series is against next-20200317. It addresses several warnings on
+random places.
 
-Sounds good to me in general but isn't it something we could
-generalize a bit more?
+It is worth noticing patch 07/17: It changes kernel-doc parser to accept a
+very common pattern on kernel-doc markups. This reduces a lot of
+warnings all over the tree.
 
-For instance we could make at24_chip_data struct look something like this:
+The remaining patches are just random fixes with the hope to address most
+warnings that are shown in red when building the documentation.
 
-struct at24_chip_data {
-    u32 byte_len;
-    u8 flags;
-    struct resource masked;
-};
+Mauro Carvalho Chehab (17):
+  docs: amu: supress some Sphinx warnings
+  docs: arm64: booting.rst: get rid of some warnings
+  docs: pci: boot-interrupts.rst: improve html output
+  kernel: futex.c: get rid of a docs build warning
+  devfreq: devfreq.h: get rid of some doc warnings
+  firewire: firewire-cdev.hL get rid of a docs warning
+  scripts: kernel-doc: proper handle @foo->bar()
+  lib: bitmap.c: get rid of some doc warnings
+  rcu: update.c: get rid of some doc warnings
+  net: phy: sfp-bus.c: get rid of docs warnings
+  net: core: dev.c: fix a documentation warning
+  gpio: gpiolib.c: fix a doc warning
+  i2c: include/linux/i2c.h: fix a doc warning
+  infiniband: pa_vnic_encap.h: get rid of a warning
+  ata: libata-core: fix a doc warning
+  fs: inode.c: get rid of docs warnings
+  regulator: driver.h: fix regulator_map_* function names
 
-And we could introduce a new macro called AT24_CHIP_DATA_MASKED that
-would automacially set the AT24_FLAG_MASKED_RANGE flag and take
-another argument that would contain the address and size of the masked
-register range (we'd put it into the "masked" resource)?
+ Documentation/PCI/boot-interrupts.rst         | 34 ++++++++++--------
+ Documentation/arm64/amu.rst                   |  5 +++
+ Documentation/arm64/booting.rst               | 36 +++++++++++--------
+ drivers/ata/libata-core.c                     |  2 +-
+ drivers/gpio/gpiolib.c                        |  2 +-
+ .../infiniband/ulp/opa_vnic/opa_vnic_encap.h  |  2 +-
+ drivers/net/phy/sfp-bus.c                     | 32 +++++++++--------
+ fs/inode.c                                    |  6 ++--
+ include/linux/devfreq.h                       |  6 ++--
+ include/linux/i2c.h                           |  4 +--
+ include/linux/regulator/driver.h              |  4 +--
+ include/uapi/linux/firewire-cdev.h            |  2 +-
+ kernel/futex.c                                |  3 +-
+ kernel/rcu/update.c                           |  8 ++---
+ lib/bitmap.c                                  | 27 +++++++-------
+ net/core/dev.c                                |  2 +-
+ scripts/kernel-doc                            |  2 ++
+ 17 files changed, 101 insertions(+), 76 deletions(-)
 
-Other ideas are welcome too. I just think that making it
-SONY_VAIO-specific may be a bit limiting in the future.
-
-Best regards,
-Bartosz Golaszewski
+-- 
+2.24.1
