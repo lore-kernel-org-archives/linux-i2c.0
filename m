@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH v2 6/6] i2c: core: hand over reserved devices when requesting ancillary addresses
-Date: Wed, 18 Mar 2020 16:00:59 +0100
-Message-ID: <20200318150059.21714-7-wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH v2 2/6] i2c: allow DT nodes without 'compatible'
+Date: Wed, 18 Mar 2020 16:00:55 +0100
+Message-ID: <20200318150059.21714-3-wsa+renesas@sang-engineering.com>
 References: <20200318150059.21714-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,60 +9,110 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200318150059.21714-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, linux-i3c@lists.infradead.org, Kieran Bingham <kieran@ksquared.org.uk>, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Luca Ceresoli <luca@lucaceresoli.net>, Jacopo Mondi <jacopo@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org, linux-i3c@lists.infradead.org, Kieran Bingham <kieran@ksquared.org.uk>, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Luca Ceresoli <luca@lucaceresoli.net>, Jacopo Mondi <jacopo@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Rob Herring <robh@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-With i2c_new_ancillary_address, we can check if the intended driver is
-requesting a reserved address. Update the function to do these checks.
-If the check passes, the "reserved" device will become a regular "dummy"
-device.
+Sometimes, we have unknown devices in a system and still want to block
+their address. For that, we allow DT nodes with only a 'reg' property.
+These devices will be bound to the "dummy" driver but with the name
+"reserved". That way, we can distinguish them and even hand them over to
+the "dummy" driver later when they are really requested using
+i2c_new_ancillary_device().
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 2 --
+ Documentation/devicetree/bindings/i2c/i2c.txt        | 4 +++-
+ drivers/i2c/i2c-core-base.c                          | 1 +
+ drivers/i2c/i2c-core-of.c                            | 8 +++-----
+ drivers/i2c/i2c-core.h                               | 1 +
+ 5 files changed, 8 insertions(+), 8 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+index 6b25a80ae8d3..fc8ea27934b3 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+@@ -50,7 +50,6 @@ Examples:
+ 		reg-io-width = <1>;	/* 8 bit read/write */
+ 
+ 		dummy@60 {
+-			compatible = "dummy";
+ 			reg = <0x60>;
+ 		};
+ 	};
+@@ -68,7 +67,6 @@ or
+ 		reg-io-width = <1>;	/* 8 bit read/write */
+ 
+ 		dummy@60 {
+-			compatible = "dummy";
+ 			reg = <0x60>;
+ 		};
+ 	};
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+index 9a53df4243c6..989b315e09dc 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -21,7 +21,9 @@ flags can be attached to the address. I2C_TEN_BIT_ADDRESS is used to mark a 10
+ bit address. It is needed to avoid the ambiguity between e.g. a 7 bit address
+ of 0x50 and a 10 bit address of 0x050 which, in theory, can be on the same bus.
+ Another flag is I2C_OWN_SLAVE_ADDRESS to mark addresses on which we listen to
+-be devices ourselves.
++be devices ourselves. The 'reg' property of a child is required. The
++'compatible' property is not. Empty 'compatible' child entries can be used to
++describe unknown devices or addresses which shall be blocked for other reasons.
+ 
+ Optional properties
+ -------------------
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 84464e439df5..81fb320de28d 100644
+index 3d7b8a00a7d9..84464e439df5 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -974,7 +974,9 @@ struct i2c_client *i2c_new_ancillary_device(struct i2c_client *client,
- 						const char *name,
- 						u16 default_addr)
- {
--	struct device_node *np = client->dev.of_node;
-+	struct device_node *reserved_np, *np = client->dev.of_node;
-+	struct device *reserved_dev, *adapter_dev = &client->adapter->dev;
-+	struct i2c_client *reserved_client = NULL;
- 	u32 addr = default_addr;
- 	int i;
+@@ -854,6 +854,7 @@ EXPORT_SYMBOL_GPL(i2c_unregister_device);
  
-@@ -984,7 +986,25 @@ struct i2c_client *i2c_new_ancillary_device(struct i2c_client *client,
- 			of_property_read_u32_index(np, "reg", i, &addr);
+ static const struct i2c_device_id dummy_id[] = {
+ 	{ I2C_DUMMY_DRV_NAME, 0 },
++	{ I2C_RESERVED_DRV_NAME, 0 },
+ 	{ },
+ };
+ 
+diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+index 6787c1f71483..d8d111ad6c85 100644
+--- a/drivers/i2c/i2c-core-of.c
++++ b/drivers/i2c/i2c-core-of.c
+@@ -27,17 +27,15 @@ int of_i2c_get_board_info(struct device *dev, struct device_node *node,
+ 
+ 	memset(info, 0, sizeof(*info));
+ 
+-	if (of_modalias_node(node, info->type, sizeof(info->type)) < 0) {
+-		dev_err(dev, "of_i2c: modalias failure on %pOF\n", node);
+-		return -EINVAL;
+-	}
+-
+ 	ret = of_property_read_u32(node, "reg", &addr);
+ 	if (ret) {
+ 		dev_err(dev, "of_i2c: invalid reg on %pOF\n", node);
+ 		return ret;
  	}
  
--	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
-+	dev_info(adapter_dev, "Address for %s : 0x%x\n", name, addr);
++	if (of_modalias_node(node, info->type, sizeof(info->type)) < 0)
++		strlcpy(info->type, I2C_RESERVED_DRV_NAME, sizeof(I2C_RESERVED_DRV_NAME));
 +
-+	/* No need to scan muxes, siblings must sit on the same adapter */
-+	reserved_dev = device_find_child(adapter_dev, &addr, __i2c_check_addr_busy);
-+	if (reserved_dev) {
-+		reserved_np = reserved_dev->of_node;
-+		reserved_client = i2c_verify_client(reserved_dev);
-+		put_device(reserved_dev);
-+	}
-+
-+	if (reserved_client) {
-+		if (reserved_np != np ||
-+		    strcmp(reserved_client->name, I2C_RESERVED_DRV_NAME) != 0)
-+			return ERR_PTR(-EBUSY);
-+
-+		strlcpy(reserved_client->name, I2C_DUMMY_DRV_NAME, sizeof(client->name));
-+		return reserved_client;
-+	}
-+
- 	return i2c_new_dummy_device(client->adapter, addr);
- }
- EXPORT_SYMBOL_GPL(i2c_new_ancillary_device);
+ 	if (addr & I2C_TEN_BIT_ADDRESS) {
+ 		addr &= ~I2C_TEN_BIT_ADDRESS;
+ 		info->flags |= I2C_CLIENT_TEN;
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index fb89fabf84d3..77b3a925ed95 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -23,6 +23,7 @@ int i2c_dev_irq_from_resources(const struct resource *resources,
+ 			       unsigned int num_resources);
+ 
+ #define I2C_DUMMY_DRV_NAME "dummy"
++#define I2C_RESERVED_DRV_NAME "reserved"
+ 
+ /*
+  * We only allow atomic transfers for very late communication, e.g. to send
 -- 
 2.20.1
