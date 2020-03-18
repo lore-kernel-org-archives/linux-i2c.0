@@ -1,86 +1,103 @@
-From: Evan Green <evgreen-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH V2 7/8] spi: spi-qcom-qspi: Add interconnect support
-Date: Wed, 18 Mar 2020 09:30:31 -0700
-Message-ID: <CAE=gft4xL9+GN2NrM9ewyPg0Fog3pnf_sLGjWRNOg7KynNh-Dg@mail.gmail.com>
-References: <1584105134-13583-1-git-send-email-akashast@codeaurora.org>
- <1584105134-13583-8-git-send-email-akashast@codeaurora.org>
- <20200314005817.GN144492@google.com> <3aeb3083-2a31-b269-510d-eb608ff14ce5@codeaurora.org>
- <CAE=gft58QsgTCUHMHKJhcM9ZxAeMiY16CrbNv2HaTCRqwtmt7A@mail.gmail.com> <e2ee1a60-a379-5c78-355a-64aad451a944@codeaurora.org>
+From: Laine Jaakko EXT <ext-jaakko.laine@vaisala.com>
+Subject: RE: [PATCH] i2c: xiic: Support disabling multi-master in DT
+Date: Wed, 18 Mar 2020 16:49:19 +0000
+Message-ID: <AM0PR06MB5185E501349E06428093B62FD4F70@AM0PR06MB5185.eurprd06.prod.outlook.com>
+References: <20200218135627.24739-1-ext-jaakko.laine@vaisala.com>
+ <CAKfKVtFf+VpinkOGsBFZ2-_PKvx-C1L7G7_uhY2RCvV5dy6L_w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <e2ee1a60-a379-5c78-355a-64aad451a944-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: Matthias Kaehlcke <mka-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen Boyd <swboyd-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Manu Gautam <mgautam-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-arm-msm <linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Georgi Djakov <georgi.djakov-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-am6eur05on2049.outbound.protection.outlook.com ([40.107.22.49]:27352
+        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726473AbgCRQtY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 18 Mar 2020 12:49:24 -0400
+In-Reply-To: <CAKfKVtFf+VpinkOGsBFZ2-_PKvx-C1L7G7_uhY2RCvV5dy6L_w@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "michal.simek@xilinx.com" <michal.simek@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-On Wed, Mar 18, 2020 at 6:48 AM Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org> wrote:
->
-> Hi Evan,
->
-> On 3/18/2020 12:38 AM, Evan Green wrote:
-> > On Tue, Mar 17, 2020 at 5:13 AM Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org> wrote:
-> >> Hi Matthias,
-> >>
-> >> On 3/14/2020 6:28 AM, Matthias Kaehlcke wrote:
-> >>> Hi,
-> >>>
-> >>> On Fri, Mar 13, 2020 at 06:42:13PM +0530, Akash Asthana wrote:
-> >>>> Get the interconnect paths for QSPI device and vote according to the
-> >>>> current bus speed of the driver.
-> >>>>
-> >>>> Signed-off-by: Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> >>>> ---
-> >>>>    - As per Bjorn's comment, introduced and using devm_of_icc_get API for getting
-> >>>>      path handle
-> >>>>    - As per Matthias comment, added error handling for icc_set_bw call
-> >>>>
-> >>>>    drivers/spi/spi-qcom-qspi.c | 46 ++++++++++++++++++++++++++++++++++++++++++++-
-> >>>>    1 file changed, 45 insertions(+), 1 deletion(-)
-> >>>>
-> >>>> diff --git a/drivers/spi/spi-qcom-qspi.c b/drivers/spi/spi-qcom-qspi.c
-> >>>> index 3c4f83b..ad48f43 100644
-> >>>> --- a/drivers/spi/spi-qcom-qspi.c
-> >>>> +++ b/drivers/spi/spi-qcom-qspi.c
-> >>>> @@ -2,6 +2,7 @@
-> >>>>    // Copyright (c) 2017-2018, The Linux foundation. All rights reserved.
-> >>>>
-> >>>>    #include <linux/clk.h>
-> >>>> +#include <linux/interconnect.h>
-> >>>>    #include <linux/interrupt.h>
-> >>>>    #include <linux/io.h>
-> >>>>    #include <linux/module.h>
-> >>>> @@ -139,7 +140,10 @@ struct qcom_qspi {
-> >>>>       struct device *dev;
-> >>>>       struct clk_bulk_data *clks;
-> >>>>       struct qspi_xfer xfer;
-> >>>> -    /* Lock to protect xfer and IRQ accessed registers */
-> >>>> +    struct icc_path *icc_path_cpu_to_qspi;
-> >>>> +    unsigned int avg_bw_cpu;
-> >>>> +    unsigned int peak_bw_cpu;
-> >>> This triplet is a recurring pattern, and is probably not limited to geni SE/QSPI.
-> >>> On https://patchwork.kernel.org/patch/11436889/#23221925 I suggested the creation
-> >>> of a geni SE specific struct, however adding a generic convenience struct to
-> >>> 'linux/interconnect.h' might be the better solution:
-> >>>
-> >>> struct icc_client {
-> >>>        struct icc_path *path;
-> >>>        unsigned int avg_bw;
-> >>>        unsigned int peak_bw;
-> >>> };
-> >>>
-> >>> I'm sure there are better names for it, but this would be the idea.
-> >> Yeah, I think introducing this to ICC header would be better solution.
-> > +Georgi
-> >
-> > I'm not as convinced this structure is generally useful and belongs in
-> > the interconnect core. The thing that strikes me as weird with putting
-> > it in the core is now we're saving these values both inside and
-> > outside the interconnect core.
-> IIUC, you meant to say struct icc_req(inside icc_path) will be saving
-> avg_bw and peak_bw so no need to save it outside icc_path?
-
-Correct, it seems silly to store the same set of values twice in the
-framework, but with different semantics about who's watching it.
--Evan
+SGVsbG8sDQoNCj4+IEBAIC01MjEsMTkgKzUyMywyNiBAQCBzdGF0aWMgaW50IHhpaWNfYnVzX2J1
+c3koc3RydWN0IHhpaWNfaTJjICppMmMpDQo+PiAgc3RhdGljIGludCB4aWljX2J1c3koc3RydWN0
+IHhpaWNfaTJjICppMmMpDQo+PiAgew0KPj4gICAgICAgICBpbnQgdHJpZXMgPSAzOw0KPj4gLSAg
+ICAgICBpbnQgZXJyOw0KPj4gKyAgICAgICBpbnQgZXJyID0gMDsNCj4+DQo+PiAgICAgICAgIGlm
+IChpMmMtPnR4X21zZykNCj4+ICAgICAgICAgICAgICAgICByZXR1cm4gLUVCVVNZOw0KPj4NCj4+
+IC0gICAgICAgLyogZm9yIGluc3RhbmNlIGlmIHByZXZpb3VzIHRyYW5zZmVyIHdhcyB0ZXJtaW5h
+dGVkIGR1ZSB0byBUWCBlcnJvcg0KPj4gLSAgICAgICAgKiBpdCBtaWdodCBiZSB0aGF0IHRoZSBi
+dXMgaXMgb24gaXQncyB3YXkgdG8gYmVjb21lIGF2YWlsYWJsZQ0KPj4gLSAgICAgICAgKiBnaXZl
+IGl0IGF0IG1vc3QgMyBtcyB0byB3YWtlDQo+PiArICAgICAgIC8qIEluIHNpbmdsZSBtYXN0ZXIg
+bW9kZSBidXMgY2FuIG9ubHkgYmUgYnVzeSwgd2hlbiBpbiB1c2UgYnkgdGhpcw0KPj4gKyAgICAg
+ICAgKiBkcml2ZXIuIElmIHRoZSByZWdpc3RlciBpbmRpY2F0ZXMgYnVzIGJlaW5nIGJ1c3kgZm9y
+IHNvbWUgcmVhc29uIHdlDQo+PiArICAgICAgICAqIHNob3VsZCBpZ25vcmUgaXQsIHNpbmNlIGJ1
+cyB3aWxsIG5ldmVyIGJlIHJlbGVhc2VkIGFuZCBpMmMgd2lsbCBiZQ0KPj4gKyAgICAgICAgKiBz
+dHVjayBmb3JldmVyLg0KPj4gICAgICAgICAgKi8NCj4NCj50aGUgb3RoZXIgdGhpbmcgaSB3YXMg
+dGhpbmtpbmcgaG93IHdpbGwgbXVsdGl0aHJlYWRpbmcgLg0KPlNob3VsZCB3ZSBoYXZlIGEgbG9j
+ayBoZXJlLg0KPg0KPj4gLSAgICAgICBlcnIgPSB4aWljX2J1c19idXN5KGkyYyk7DQo+PiAtICAg
+ICAgIHdoaWxlIChlcnIgJiYgdHJpZXMtLSkgew0KPj4gLSAgICAgICAgICAgICAgIG1zbGVlcCgx
+KTsNCj4+ICsgICAgICAgaWYgKGkyYy0+bXVsdGltYXN0ZXIpIHsNCj4+ICsgICAgICAgICAgICAg
+ICAvKiBmb3IgaW5zdGFuY2UgaWYgcHJldmlvdXMgdHJhbnNmZXIgd2FzIHRlcm1pbmF0ZWQgZHVl
+IHRvIFRYDQo+PiArICAgICAgICAgICAgICAgICogZXJyb3IgaXQgbWlnaHQgYmUgdGhhdCB0aGUg
+YnVzIGlzIG9uIGl0J3Mgd2F5IHRvIGJlY29tZQ0KPj4gKyAgICAgICAgICAgICAgICAqIGF2YWls
+YWJsZSBnaXZlIGl0IGF0IG1vc3QgMyBtcyB0byB3YWtlDQo+PiArICAgICAgICAgICAgICAgICov
+DQo+PiAgICAgICAgICAgICAgICAgZXJyID0geGlpY19idXNfYnVzeShpMmMpOw0KPj4gKyAgICAg
+ICAgICAgICAgIHdoaWxlIChlcnIgJiYgdHJpZXMtLSkgew0KPj4gKyAgICAgICAgICAgICAgICAg
+ICAgICAgbXNsZWVwKDEpOw0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAgZXJyID0geGlpY19i
+dXNfYnVzeShpMmMpOw0KPj4gKyAgICAgICAgICAgICAgIH0NCj4+ICAgICAgICAgfQ0KPj4NCj4+
+ICAgICAgICAgcmV0dXJuIGVycjsNCg0KV2hpY2ggcmVzb3VyY2Ugc3BlY2lmaWNhbGx5IGFyZSB5
+b3Ugd29ycmllZCBhYm91dCBuZWVkaW5nIGxvY2tpbmcgaGVyZT8NCg0KSSBkb24ndCB0aGluayB0
+aGlzIHBhdGNoIGludHJvZHVjZXMgYW55IG5ldyBuZWVkIGZvciBsb2NraW5nLiBPbmx5IG5ldyBw
+YXJhbWV0ZXIsIHdoaWNoIHdhc24ndCBhY2Nlc3NlZCBhbHJlYWR5IGlzIGkyYy0+bXVsdGltYXN0
+ZXIsIHdoaWNoIGlzIGEgY29uc3RhbnQgdGhhdCBpcyBuZXZlciBjaGFuZ2VkIGFmdGVyIGRyaXZl
+ciBpcyBsb2FkZWQuDQpJZiBpMmMtPm11bHRpbWFzdGVyLCBuZWVkZWQgbG9ja2luZyBpMmMtPnR4
+X21zZyB3b3VsZCBoYXZlIG5lZWRlZCBpdCBhbHJlYWR5IGJlZm9yZSwgc2luY2UgaXQgaXMgYSBw
+YXJhbWV0ZXIgaW4gdGhlIHNhbWUgc3RydWN0IGFuZCBjYW4gYWN0dWFsbHkgZ2V0IGNoYW5nZWQg
+Ynkgc29tZSBvdGhlciB0aHJlYWQuDQpJbiB0aGlzIHNlY3Rpb24gdGhlIG9ubHkgdmFyaWFibGVz
+IHdyaXR0ZW4gdG8gYXJlIGxvY2FsIHRvIHRoZSBmdW5jdGlvbi4gU2hhcmVkIHZhcmlhYmxlcyBh
+cmUgb25seSByZWFkIGZyb20sIHdoaWNoIHNlZW1zIHByZXR0eSBzYWZlIHRvIG1lIGlmIGNvbnNp
+ZGVyaW5nIHRoaXMgZnVuY3Rpb24gYWxvbmUuDQoNCkhvd2V2ZXIsIG5vdyB0aGF0IHlvdSBtZW50
+aW9uIGl0IG11bHRpcGxlIHRocmVhZHMgY291bGQgYmUgY2hlY2tpbmcgaTJjLT50eF9tc2cgYXQg
+dGhlIHNhbWUgdGltZSBpbnNpZGUgdGhpcyBmdW5jdGlvbiBvciB3YWl0aW5nIGZvciB4aWljX2J1
+c19idXN5KGkyYykgdG8gbm90IGJlIGJ1c3kgYW55bW9yZS4NClNpbmNlIGluICJzdGF0aWMgaW50
+IHhpaWNfeGZlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsIHN0cnVjdCBpMmNfbXNnICptc2dz
+LCBpbnQgbnVtKSIgaTJjLT50eF9tc2cgaXMgd3JpdHRlbiB3aXRoIGRhdGEgYmVmb3JlIGFueSBs
+b2NraW5nLCBtdWx0aXBsZSB0aHJlYWRzIGNvdWxkIGV4aXQgInhpaWNfYnVzeShzdHJ1Y3QgeGlp
+Y19pMmMgKmkyYykiIGFuZCB3cml0ZSB0aGVpciBzdHVmZiB0byBpMmMtPnR4X21zZywgc2luY2Ug
+YnVmZmVyIGJlaW5nIGVtcHR5IHdhcyBjaGVja2VkIGJlZm9yZSBhbnlvbmUgaGFkIGEgY2hhbmNl
+IHRvIHdyaXRlIHRvIGl0LiBJZiB0aGlzIGhhcHBlbnMsIHNvbWUgZGF0YSB0byBiZSB0cmFuc21p
+dHRlZCBjb3VsZCBiZSBsb3N0IHdoZW4gaTJjLT50eF9tc2cgZ2V0cyBvdmVyd3JpdHRlbiBtdWx0
+aXBsZSB0aW1lcyBiZWZvcmUgZGF0YSBnZXRzIHRyYW5zbWl0dGVkLiBUaGlzIGlzc3VlIGRpZCBh
+bHJlYWR5IGV4aXN0IGJlZm9yZSwgYnV0IGl0IGxvb2tzIGxpa2UgaXQgc2hvdWxkIGJlIGZpeGVk
+IHRvIG1lLg0KDQpGaXhpbmcgd291bGQgbmVlZCBsb2NraW5nIGhlcmUsIGJ1dCB0aGUgcG9zc2li
+bGUgbXNsZWVwKDEpIC1jYWxscyBpbnNpZGUgeGlpY19idXN5IHNlZW0gbGlrZSBhbiBpc3N1ZSwg
+c28gc29tZSBtb3JlIGNoYW5nZXMgbmVlZGVkOg0KLy8gbG9jayBoZXJlDQplcnIgPSB4aWljX2J1
+c3koaTJjKTsNCmlmIChlcnIpDQogICAgICAgICAgICAgIC8vIHVubG9jayBoZXJlDQoJZ290byBv
+dXQ7DQppMmMtPnR4X21zZyA9IG1zZ3M7DQppMmMtPm5tc2dzID0gbnVtOw0KLy8gdW5sb2NrIGhl
+cmUNCg0KPj4gKyAgICAgICBpMmMtPm11bHRpbWFzdGVyID0NCj4+ICsgICAgICAgICAgICAgICBv
+Zl9wcm9wZXJ0eV9yZWFkX2Jvb2wocGRldi0+ZGV2Lm9mX25vZGUsICJtdWx0aS1tYXN0ZXIiKTsN
+Cj4+ICsNCj5DdXJyZW50IHdpbGwgZGVmYXVsdCB0byBtdXN0aW1hc3RlciBpcyAwLg0KPk1heSBi
+ZSB0aGUgZGVmYXVsdCBzaG91bGQgYmUgMSBpZiBub3Qgc3BlY2lmaWVkLg0KDQpUaGUgbXVsdGkt
+bWFzdGVyIC1iaW5kaW5nIGlzIGRvY3VtZW50ZWQgaGVyZSBhcyBib29sZWFuIGFuZCBlbmNvZGVz
+IGEgQm9vbGVhbiBieSBlaXRoZXIgZXhpc3Rpbmcgb3Igbm90IGV4aXN0aW5nIGluIGRldmljZSB0
+cmVlLg0KSXQgaXMgYWxzbyB1c2VkIGluIG90aGVyIGRyaXZlcnMgc28gSSBjb3VsZG4ndCBkbyBt
+dWNoIGFib3V0IGl0IG1pc3NpbmcgbWVhbmluZyBGYWxzZS4NCmh0dHBzOi8vZ2l0aHViLmNvbS90
+b3J2YWxkcy9saW51eC9ibG9iL21hc3Rlci9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
+Z3MvaTJjL2kyYy50eHQNCkkgb3JpZ2luYWxseSBoYWQgYSBjdXN0b20gZGV2aWNlIHRyZWUgZW50
+cnkgd2hlcmUgdGhlIGRlZmF1bHQgd2FzIGZvciBtdWx0aS1tYXN0ZXIgdG8gYmUgZW5hYmxlZCBi
+ZWZvcmUgSSBub3RpY2VkIHRoZSBwcmUtZXhpc3RpbmcgYmluZGluZy4NCg0KTWF5YmUgaWYgdGhl
+IG11bHRpLW1hc3RlciBiaW5kaW5nIHdhcyBjaGFuZ2VkIGZyb20gQm9vbGVhbiB0byBmb3IgZXhh
+bXBsZSBhIHN0cmluZyBwcm9wZXJ0eSAobXVsdGktbWFzdGVyID0gIk9OIiAvIG11bHRpLW1hc3Rl
+ciA9ICJPRkYiKSwgY29kZSBjb3VsZCBzdGlsbCBqdXN0IGNoZWNrIHRoZSBleGlzdGVuY2Ugd2l0
+aCAib2ZfcHJvcGVydHlfcmVhZF9ib29sKCkiIGZpcnN0LCB3aGVyZSBwcm9wZXJ0eSBtaXNzaW5n
+IG1lYW5zICJPRkYiIGFuZCBwcm9wZXJ0eSBleGlzdGluZyBtZWFucyAiT04iKGxpa2UgYmVmb3Jl
+KSBpZiB0aGVyZSBpcyBubyB0ZXh0IGFzc29jaWF0ZWQuIFhpaWMgZHJpdmVyIHdvdWxkIHRoZW4g
+b25seSBkaXNhYmxlIG11bHRpbWFzdGVyLCBpZiBkZXZpY2UgdHJlZSBleHBsaWNpdGx5IGNvbnRh
+aW5zIG11bHRpLW1hc3RlciA9ICJPRkYiLg0KDQpUaGlzIHNob3VsZCBiZSBhYmxlIHRvIG1haW50
+YWluIGRyaXZlciBiYWNrd2FyZHMgY29tcGF0aWJpbGl0eSB3aXRoIG9sZCBkZXZpY2UgdHJlZXMs
+IGJ1dCByZXF1aXJlcyBiaW5kaW5nIGRvY3VtZW50YXRpb24gY2hhbmdlIGFuZCBhbGwgZHJpdmVy
+cyBzaG91bGQgbGlrZWx5IGJlIHVwZGF0ZWQgdG8gYWxzbyBhY2NlcHQgdGhlIG5ldyBzdHlsZSBv
+ZiBtdWx0aS1tYXN0ZXIgcHJvcGVydHkgdG8gYmUgY29uc2lzdGVudC4gVGhpcyBpcyBhbHNvIG5v
+dCBhcyBjbGVhbiBhcyB0aGUgb2xkIEJvb2xlYW4gcHJvcGVydHkgaW4gbXkgb3Bpbmlvbi4NCg0K
+VGhhbmsgeW91IGZvciBjb21tZW50cywNCkphYWtrbw0K
