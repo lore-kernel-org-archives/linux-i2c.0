@@ -1,16 +1,20 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 29/37] i2c: gpio: suppress error on probe defer
-Date: Wed, 18 Mar 2020 16:55:01 -0400
-Message-ID: <20200318205509.17053-29-sashal@kernel.org>
-References: <20200318205509.17053-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 52/73] i2c: gpio: suppress error on probe defer
+Date: Wed, 18 Mar 2020 16:53:16 -0400
+Message-ID: <20200318205337.16279-52-sashal@kernel.org>
+References: <20200318205337.16279-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200318205509.17053-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:54474 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727960AbgCRUyn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 18 Mar 2020 16:54:43 -0400
+In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Hamish Martin <hamish.martin@alliedtelesis.co.nz>, Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
 
 From: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
 
@@ -32,10 +36,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index c008d209f0b83..87014d144ccdc 100644
+index 3a9e840a35466..a4a6825c87583 100644
 --- a/drivers/i2c/busses/i2c-gpio.c
 +++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -248,7 +248,7 @@ static struct gpio_desc *i2c_gpio_get_desc(struct device *dev,
+@@ -348,7 +348,7 @@ static struct gpio_desc *i2c_gpio_get_desc(struct device *dev,
  	if (ret == -ENOENT)
  		retdesc = ERR_PTR(-EPROBE_DEFER);
  
