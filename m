@@ -1,101 +1,83 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH 6/7] i2c: of: mark a whole array of regs as reserved
-Date: Wed, 18 Mar 2020 15:33:21 +0100
-Message-ID: <20200318143321.GB8300@ninjato>
-References: <20200220172403.26062-1-wsa+renesas@sang-engineering.com>
- <20200220172403.26062-7-wsa+renesas@sang-engineering.com>
- <CAMuHMdUvADDozCX6Bd0dDVejpTY-k42naEnB7Q5Z6w7Yg94_Vw@mail.gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH v2 1/6] i2c: use DEFINE for the dummy driver name
+Date: Wed, 18 Mar 2020 16:00:54 +0100
+Message-ID: <20200318150059.21714-2-wsa+renesas@sang-engineering.com>
+References: <20200318150059.21714-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdUvADDozCX6Bd0dDVejpTY-k42naEnB7Q5Z6w7Yg94_Vw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, linux-i3c@lists.infradead.org, Kieran Bingham <kieran@ksquared.org.uk>, Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Luca Ceresoli <luca@lucaceresoli.net>, Jacopo Mondi <jacopo@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:48416 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726926AbgCRPBH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 18 Mar 2020 11:01:07 -0400
+In-Reply-To: <20200318150059.21714-1-wsa+renesas@sang-engineering.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, linux-i3c@lists.infradead.org, Kieran Bingham <kieran@ksquared.org.uk>, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Luca Ceresoli <luca@lucaceresoli.net>, Jacopo Mondi <jacopo@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>
 
+We use it in multiple places, so make sure it is consistent whenever we
+need to change it.
 
---aVD9QWMuhilNxW9f
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ drivers/i2c/i2c-core-base.c | 8 ++++----
+ drivers/i2c/i2c-core.h      | 2 ++
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-
-> > +int of_i2c_get_board_info(struct device_node *node, struct i2c_board_i=
-nfo *info)
-> > +{
-> > +       u32 addr;
-> > +       int ret;
-> > +
-> > +       ret =3D of_property_read_u32(node, "reg", &addr);
->=20
-> Perhaps the time is ripe to start considering #address-cells, instead
-> of assuming 1, here ...
-
-I think here it is okay because we really want the first entry of the
-first tuple.
-
-> > +       of_property_for_each_u32(node, "reg", prop, cur, reg) {
->=20
-> ... and especially here, if this code can ever be reused for i3c, which u=
-ses 3.
-
-But here I agree. I reimplemented the code to handle it, and it worked
-with '#address-cells =3D <2>;' as expected. Here is the diff to this
-patch:
-
-@@ -16,6 +16,7 @@
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/of_address.h>
- #include <linux/of_device.h>
- #include <linux/sysfs.h>
-=20
-@@ -75,13 +76,14 @@ static struct i2c_client *of_i2c_register_device(struct=
- i2c_adapter *adap,
- 	struct i2c_client *client, *first_client =3D ERR_PTR(-ENOENT);
- 	struct i2c_board_info info;
- 	bool first_reg =3D true;
--	struct property *prop;
--	const __be32 *cur;
--	u32 reg;
-+	unsigned int i =3D 0;
-+	const __be32 *prop;
-+	u16 reg;
-=20
- 	pr_debug("register %pOF\n", node);
-=20
--	of_property_for_each_u32(node, "reg", prop, cur, reg) {
-+	while ((prop =3D of_get_address(node, i++, NULL, NULL))) {
-+		reg =3D of_read_number(prop, 1);
- 		of_i2c_decode_board_info(node, reg, first_reg, &info);
-=20
- 		client =3D i2c_new_client_device(adap, &info);
-
-Thanks, Geert! I will send out the new version in a few minutes.
-
-
---aVD9QWMuhilNxW9f
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5yMS0ACgkQFA3kzBSg
-KbYtfRAAil0f+6TG3T06kRnSNoNLPpEoqabj0ip7Vz7+gSloBvl8lszjT7CP//7R
-9gnjhLFvr6hPVbC64dzimreCL1JGYUtFOhKDl/pPSA+TrEFEARbOCxIbdhgieFC0
-DrSN2Ed+jK7ZRTPdTuT2y6DNf6bbDHo3ihnzd57I2wy6cEsTMdyIJSAnsxfn5QVf
-6EKTCLAeBI9hPd3jDB38ICvQ0Vf9/F9lHRZNOQo1hQwSkUbnyyqf26k8kt/VAnm9
-Ipcvlz8krmqY2FWnC/FlzhKV5lSc9i7VSZJTQOjtO39RHxRAsOytbzc6erlTp9Pz
-V1+Uw8HGIVMbQe1+kpaaJvomxTApQ2HqjTOPTQc/2h9qXUdCdeWFi56oaJzCl7hp
-WHCgqmUCfs4a1V75vuHk2Fj3mPMQsvmjiWrvW5Sz5nvto2GTjKsg2m/v6bdabTxk
-iMFjwBfQVun1ziMQOad0zycEFF+sBtQafAg4zmS/FAyrhGAVI9YQ57Z93dlk7D1L
-YLFvxifo+L5a6/ny1uEL0xrjMoYfiUCTXlySSuywl5dD5jsqBoUWduFXeHo0DezA
-Pe/Vht7ChN7WlI3kDt3X+zCVGmf5WnObEJPrzm39gUNjod7UpW39zgoKQWuF4Rpp
-JCKxZe174onb36K3lz83DRTkg5v5NU1AdVgwqrKM6RjakOs1aXM=
-=Ku4u
------END PGP SIGNATURE-----
-
---aVD9QWMuhilNxW9f--
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index cefad0881942..3d7b8a00a7d9 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -853,7 +853,7 @@ EXPORT_SYMBOL_GPL(i2c_unregister_device);
+ 
+ 
+ static const struct i2c_device_id dummy_id[] = {
+-	{ "dummy", 0 },
++	{ I2C_DUMMY_DRV_NAME, 0 },
+ 	{ },
+ };
+ 
+@@ -869,7 +869,7 @@ static int dummy_remove(struct i2c_client *client)
+ }
+ 
+ static struct i2c_driver dummy_driver = {
+-	.driver.name	= "dummy",
++	.driver.name	= I2C_DUMMY_DRV_NAME,
+ 	.probe		= dummy_probe,
+ 	.remove		= dummy_remove,
+ 	.id_table	= dummy_id,
+@@ -896,7 +896,7 @@ static struct i2c_driver dummy_driver = {
+ struct i2c_client *i2c_new_dummy_device(struct i2c_adapter *adapter, u16 address)
+ {
+ 	struct i2c_board_info info = {
+-		I2C_BOARD_INFO("dummy", address),
++		I2C_BOARD_INFO(I2C_DUMMY_DRV_NAME, address),
+ 	};
+ 
+ 	return i2c_new_client_device(adapter, &info);
+@@ -1487,7 +1487,7 @@ static void i2c_do_del_adapter(struct i2c_driver *driver,
+ static int __unregister_client(struct device *dev, void *dummy)
+ {
+ 	struct i2c_client *client = i2c_verify_client(dev);
+-	if (client && strcmp(client->name, "dummy"))
++	if (client && strcmp(client->name, I2C_DUMMY_DRV_NAME))
+ 		i2c_unregister_device(client);
+ 	return 0;
+ }
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index 517d98be68d2..fb89fabf84d3 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -22,6 +22,8 @@ int i2c_check_7bit_addr_validity_strict(unsigned short addr);
+ int i2c_dev_irq_from_resources(const struct resource *resources,
+ 			       unsigned int num_resources);
+ 
++#define I2C_DUMMY_DRV_NAME "dummy"
++
+ /*
+  * We only allow atomic transfers for very late communication, e.g. to send
+  * the powerdown command to a PMIC. Atomic transfers are a corner case and not
+-- 
+2.20.1
