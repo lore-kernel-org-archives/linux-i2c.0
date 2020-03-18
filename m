@@ -1,103 +1,58 @@
-From: Laine Jaakko EXT <ext-jaakko.laine@vaisala.com>
-Subject: RE: [PATCH] i2c: xiic: Support disabling multi-master in DT
-Date: Wed, 18 Mar 2020 16:49:19 +0000
-Message-ID: <AM0PR06MB5185E501349E06428093B62FD4F70@AM0PR06MB5185.eurprd06.prod.outlook.com>
-References: <20200218135627.24739-1-ext-jaakko.laine@vaisala.com>
- <CAKfKVtFf+VpinkOGsBFZ2-_PKvx-C1L7G7_uhY2RCvV5dy6L_w@mail.gmail.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 69/73] i2c: acpi: put device when verifying client fails
+Date: Wed, 18 Mar 2020 16:53:33 -0400
+Message-ID: <20200318205337.16279-69-sashal@kernel.org>
+References: <20200318205337.16279-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-am6eur05on2049.outbound.protection.outlook.com ([40.107.22.49]:27352
-        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726473AbgCRQtY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 18 Mar 2020 12:49:24 -0400
-In-Reply-To: <CAKfKVtFf+VpinkOGsBFZ2-_PKvx-C1L7G7_uhY2RCvV5dy6L_w@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "michal.simek@xilinx.com" <michal.simek@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-SGVsbG8sDQoNCj4+IEBAIC01MjEsMTkgKzUyMywyNiBAQCBzdGF0aWMgaW50IHhpaWNfYnVzX2J1
-c3koc3RydWN0IHhpaWNfaTJjICppMmMpDQo+PiAgc3RhdGljIGludCB4aWljX2J1c3koc3RydWN0
-IHhpaWNfaTJjICppMmMpDQo+PiAgew0KPj4gICAgICAgICBpbnQgdHJpZXMgPSAzOw0KPj4gLSAg
-ICAgICBpbnQgZXJyOw0KPj4gKyAgICAgICBpbnQgZXJyID0gMDsNCj4+DQo+PiAgICAgICAgIGlm
-IChpMmMtPnR4X21zZykNCj4+ICAgICAgICAgICAgICAgICByZXR1cm4gLUVCVVNZOw0KPj4NCj4+
-IC0gICAgICAgLyogZm9yIGluc3RhbmNlIGlmIHByZXZpb3VzIHRyYW5zZmVyIHdhcyB0ZXJtaW5h
-dGVkIGR1ZSB0byBUWCBlcnJvcg0KPj4gLSAgICAgICAgKiBpdCBtaWdodCBiZSB0aGF0IHRoZSBi
-dXMgaXMgb24gaXQncyB3YXkgdG8gYmVjb21lIGF2YWlsYWJsZQ0KPj4gLSAgICAgICAgKiBnaXZl
-IGl0IGF0IG1vc3QgMyBtcyB0byB3YWtlDQo+PiArICAgICAgIC8qIEluIHNpbmdsZSBtYXN0ZXIg
-bW9kZSBidXMgY2FuIG9ubHkgYmUgYnVzeSwgd2hlbiBpbiB1c2UgYnkgdGhpcw0KPj4gKyAgICAg
-ICAgKiBkcml2ZXIuIElmIHRoZSByZWdpc3RlciBpbmRpY2F0ZXMgYnVzIGJlaW5nIGJ1c3kgZm9y
-IHNvbWUgcmVhc29uIHdlDQo+PiArICAgICAgICAqIHNob3VsZCBpZ25vcmUgaXQsIHNpbmNlIGJ1
-cyB3aWxsIG5ldmVyIGJlIHJlbGVhc2VkIGFuZCBpMmMgd2lsbCBiZQ0KPj4gKyAgICAgICAgKiBz
-dHVjayBmb3JldmVyLg0KPj4gICAgICAgICAgKi8NCj4NCj50aGUgb3RoZXIgdGhpbmcgaSB3YXMg
-dGhpbmtpbmcgaG93IHdpbGwgbXVsdGl0aHJlYWRpbmcgLg0KPlNob3VsZCB3ZSBoYXZlIGEgbG9j
-ayBoZXJlLg0KPg0KPj4gLSAgICAgICBlcnIgPSB4aWljX2J1c19idXN5KGkyYyk7DQo+PiAtICAg
-ICAgIHdoaWxlIChlcnIgJiYgdHJpZXMtLSkgew0KPj4gLSAgICAgICAgICAgICAgIG1zbGVlcCgx
-KTsNCj4+ICsgICAgICAgaWYgKGkyYy0+bXVsdGltYXN0ZXIpIHsNCj4+ICsgICAgICAgICAgICAg
-ICAvKiBmb3IgaW5zdGFuY2UgaWYgcHJldmlvdXMgdHJhbnNmZXIgd2FzIHRlcm1pbmF0ZWQgZHVl
-IHRvIFRYDQo+PiArICAgICAgICAgICAgICAgICogZXJyb3IgaXQgbWlnaHQgYmUgdGhhdCB0aGUg
-YnVzIGlzIG9uIGl0J3Mgd2F5IHRvIGJlY29tZQ0KPj4gKyAgICAgICAgICAgICAgICAqIGF2YWls
-YWJsZSBnaXZlIGl0IGF0IG1vc3QgMyBtcyB0byB3YWtlDQo+PiArICAgICAgICAgICAgICAgICov
-DQo+PiAgICAgICAgICAgICAgICAgZXJyID0geGlpY19idXNfYnVzeShpMmMpOw0KPj4gKyAgICAg
-ICAgICAgICAgIHdoaWxlIChlcnIgJiYgdHJpZXMtLSkgew0KPj4gKyAgICAgICAgICAgICAgICAg
-ICAgICAgbXNsZWVwKDEpOw0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAgZXJyID0geGlpY19i
-dXNfYnVzeShpMmMpOw0KPj4gKyAgICAgICAgICAgICAgIH0NCj4+ICAgICAgICAgfQ0KPj4NCj4+
-ICAgICAgICAgcmV0dXJuIGVycjsNCg0KV2hpY2ggcmVzb3VyY2Ugc3BlY2lmaWNhbGx5IGFyZSB5
-b3Ugd29ycmllZCBhYm91dCBuZWVkaW5nIGxvY2tpbmcgaGVyZT8NCg0KSSBkb24ndCB0aGluayB0
-aGlzIHBhdGNoIGludHJvZHVjZXMgYW55IG5ldyBuZWVkIGZvciBsb2NraW5nLiBPbmx5IG5ldyBw
-YXJhbWV0ZXIsIHdoaWNoIHdhc24ndCBhY2Nlc3NlZCBhbHJlYWR5IGlzIGkyYy0+bXVsdGltYXN0
-ZXIsIHdoaWNoIGlzIGEgY29uc3RhbnQgdGhhdCBpcyBuZXZlciBjaGFuZ2VkIGFmdGVyIGRyaXZl
-ciBpcyBsb2FkZWQuDQpJZiBpMmMtPm11bHRpbWFzdGVyLCBuZWVkZWQgbG9ja2luZyBpMmMtPnR4
-X21zZyB3b3VsZCBoYXZlIG5lZWRlZCBpdCBhbHJlYWR5IGJlZm9yZSwgc2luY2UgaXQgaXMgYSBw
-YXJhbWV0ZXIgaW4gdGhlIHNhbWUgc3RydWN0IGFuZCBjYW4gYWN0dWFsbHkgZ2V0IGNoYW5nZWQg
-Ynkgc29tZSBvdGhlciB0aHJlYWQuDQpJbiB0aGlzIHNlY3Rpb24gdGhlIG9ubHkgdmFyaWFibGVz
-IHdyaXR0ZW4gdG8gYXJlIGxvY2FsIHRvIHRoZSBmdW5jdGlvbi4gU2hhcmVkIHZhcmlhYmxlcyBh
-cmUgb25seSByZWFkIGZyb20sIHdoaWNoIHNlZW1zIHByZXR0eSBzYWZlIHRvIG1lIGlmIGNvbnNp
-ZGVyaW5nIHRoaXMgZnVuY3Rpb24gYWxvbmUuDQoNCkhvd2V2ZXIsIG5vdyB0aGF0IHlvdSBtZW50
-aW9uIGl0IG11bHRpcGxlIHRocmVhZHMgY291bGQgYmUgY2hlY2tpbmcgaTJjLT50eF9tc2cgYXQg
-dGhlIHNhbWUgdGltZSBpbnNpZGUgdGhpcyBmdW5jdGlvbiBvciB3YWl0aW5nIGZvciB4aWljX2J1
-c19idXN5KGkyYykgdG8gbm90IGJlIGJ1c3kgYW55bW9yZS4NClNpbmNlIGluICJzdGF0aWMgaW50
-IHhpaWNfeGZlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsIHN0cnVjdCBpMmNfbXNnICptc2dz
-LCBpbnQgbnVtKSIgaTJjLT50eF9tc2cgaXMgd3JpdHRlbiB3aXRoIGRhdGEgYmVmb3JlIGFueSBs
-b2NraW5nLCBtdWx0aXBsZSB0aHJlYWRzIGNvdWxkIGV4aXQgInhpaWNfYnVzeShzdHJ1Y3QgeGlp
-Y19pMmMgKmkyYykiIGFuZCB3cml0ZSB0aGVpciBzdHVmZiB0byBpMmMtPnR4X21zZywgc2luY2Ug
-YnVmZmVyIGJlaW5nIGVtcHR5IHdhcyBjaGVja2VkIGJlZm9yZSBhbnlvbmUgaGFkIGEgY2hhbmNl
-IHRvIHdyaXRlIHRvIGl0LiBJZiB0aGlzIGhhcHBlbnMsIHNvbWUgZGF0YSB0byBiZSB0cmFuc21p
-dHRlZCBjb3VsZCBiZSBsb3N0IHdoZW4gaTJjLT50eF9tc2cgZ2V0cyBvdmVyd3JpdHRlbiBtdWx0
-aXBsZSB0aW1lcyBiZWZvcmUgZGF0YSBnZXRzIHRyYW5zbWl0dGVkLiBUaGlzIGlzc3VlIGRpZCBh
-bHJlYWR5IGV4aXN0IGJlZm9yZSwgYnV0IGl0IGxvb2tzIGxpa2UgaXQgc2hvdWxkIGJlIGZpeGVk
-IHRvIG1lLg0KDQpGaXhpbmcgd291bGQgbmVlZCBsb2NraW5nIGhlcmUsIGJ1dCB0aGUgcG9zc2li
-bGUgbXNsZWVwKDEpIC1jYWxscyBpbnNpZGUgeGlpY19idXN5IHNlZW0gbGlrZSBhbiBpc3N1ZSwg
-c28gc29tZSBtb3JlIGNoYW5nZXMgbmVlZGVkOg0KLy8gbG9jayBoZXJlDQplcnIgPSB4aWljX2J1
-c3koaTJjKTsNCmlmIChlcnIpDQogICAgICAgICAgICAgIC8vIHVubG9jayBoZXJlDQoJZ290byBv
-dXQ7DQppMmMtPnR4X21zZyA9IG1zZ3M7DQppMmMtPm5tc2dzID0gbnVtOw0KLy8gdW5sb2NrIGhl
-cmUNCg0KPj4gKyAgICAgICBpMmMtPm11bHRpbWFzdGVyID0NCj4+ICsgICAgICAgICAgICAgICBv
-Zl9wcm9wZXJ0eV9yZWFkX2Jvb2wocGRldi0+ZGV2Lm9mX25vZGUsICJtdWx0aS1tYXN0ZXIiKTsN
-Cj4+ICsNCj5DdXJyZW50IHdpbGwgZGVmYXVsdCB0byBtdXN0aW1hc3RlciBpcyAwLg0KPk1heSBi
-ZSB0aGUgZGVmYXVsdCBzaG91bGQgYmUgMSBpZiBub3Qgc3BlY2lmaWVkLg0KDQpUaGUgbXVsdGkt
-bWFzdGVyIC1iaW5kaW5nIGlzIGRvY3VtZW50ZWQgaGVyZSBhcyBib29sZWFuIGFuZCBlbmNvZGVz
-IGEgQm9vbGVhbiBieSBlaXRoZXIgZXhpc3Rpbmcgb3Igbm90IGV4aXN0aW5nIGluIGRldmljZSB0
-cmVlLg0KSXQgaXMgYWxzbyB1c2VkIGluIG90aGVyIGRyaXZlcnMgc28gSSBjb3VsZG4ndCBkbyBt
-dWNoIGFib3V0IGl0IG1pc3NpbmcgbWVhbmluZyBGYWxzZS4NCmh0dHBzOi8vZ2l0aHViLmNvbS90
-b3J2YWxkcy9saW51eC9ibG9iL21hc3Rlci9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
-Z3MvaTJjL2kyYy50eHQNCkkgb3JpZ2luYWxseSBoYWQgYSBjdXN0b20gZGV2aWNlIHRyZWUgZW50
-cnkgd2hlcmUgdGhlIGRlZmF1bHQgd2FzIGZvciBtdWx0aS1tYXN0ZXIgdG8gYmUgZW5hYmxlZCBi
-ZWZvcmUgSSBub3RpY2VkIHRoZSBwcmUtZXhpc3RpbmcgYmluZGluZy4NCg0KTWF5YmUgaWYgdGhl
-IG11bHRpLW1hc3RlciBiaW5kaW5nIHdhcyBjaGFuZ2VkIGZyb20gQm9vbGVhbiB0byBmb3IgZXhh
-bXBsZSBhIHN0cmluZyBwcm9wZXJ0eSAobXVsdGktbWFzdGVyID0gIk9OIiAvIG11bHRpLW1hc3Rl
-ciA9ICJPRkYiKSwgY29kZSBjb3VsZCBzdGlsbCBqdXN0IGNoZWNrIHRoZSBleGlzdGVuY2Ugd2l0
-aCAib2ZfcHJvcGVydHlfcmVhZF9ib29sKCkiIGZpcnN0LCB3aGVyZSBwcm9wZXJ0eSBtaXNzaW5n
-IG1lYW5zICJPRkYiIGFuZCBwcm9wZXJ0eSBleGlzdGluZyBtZWFucyAiT04iKGxpa2UgYmVmb3Jl
-KSBpZiB0aGVyZSBpcyBubyB0ZXh0IGFzc29jaWF0ZWQuIFhpaWMgZHJpdmVyIHdvdWxkIHRoZW4g
-b25seSBkaXNhYmxlIG11bHRpbWFzdGVyLCBpZiBkZXZpY2UgdHJlZSBleHBsaWNpdGx5IGNvbnRh
-aW5zIG11bHRpLW1hc3RlciA9ICJPRkYiLg0KDQpUaGlzIHNob3VsZCBiZSBhYmxlIHRvIG1haW50
-YWluIGRyaXZlciBiYWNrd2FyZHMgY29tcGF0aWJpbGl0eSB3aXRoIG9sZCBkZXZpY2UgdHJlZXMs
-IGJ1dCByZXF1aXJlcyBiaW5kaW5nIGRvY3VtZW50YXRpb24gY2hhbmdlIGFuZCBhbGwgZHJpdmVy
-cyBzaG91bGQgbGlrZWx5IGJlIHVwZGF0ZWQgdG8gYWxzbyBhY2NlcHQgdGhlIG5ldyBzdHlsZSBv
-ZiBtdWx0aS1tYXN0ZXIgcHJvcGVydHkgdG8gYmUgY29uc2lzdGVudC4gVGhpcyBpcyBhbHNvIG5v
-dCBhcyBjbGVhbiBhcyB0aGUgb2xkIEJvb2xlYW4gcHJvcGVydHkgaW4gbXkgb3Bpbmlvbi4NCg0K
-VGhhbmsgeW91IGZvciBjb21tZW50cywNCkphYWtrbw0K
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+[ Upstream commit 8daee952b4389729358665fb91949460641659d4 ]
+
+i2c_verify_client() can fail, so we need to put the device when that
+happens.
+
+Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/i2c/i2c-core-acpi.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 62a1c92ab803d..ce70b5288472c 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -394,9 +394,17 @@ EXPORT_SYMBOL_GPL(i2c_acpi_find_adapter_by_handle);
+ static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
+ {
+ 	struct device *dev;
++	struct i2c_client *client;
+ 
+ 	dev = bus_find_device_by_acpi_dev(&i2c_bus_type, adev);
+-	return dev ? i2c_verify_client(dev) : NULL;
++	if (!dev)
++		return NULL;
++
++	client = i2c_verify_client(dev);
++	if (!client)
++		put_device(dev);
++
++	return client;
+ }
+ 
+ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
+-- 
+2.20.1
