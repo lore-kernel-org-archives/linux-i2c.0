@@ -1,118 +1,42 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v3 1/6] i2c: core: Provide generic definitions for bus
- frequencies
-Date: Thu, 19 Mar 2020 19:19:13 +0200
-Message-ID: <20200319171913.GM1922688@smile.fi.intel.com>
-References: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
+From: Alain Volmat <alain.volmat@st.com>
+Subject: [PATCH] i2c: i2c-stm32f7: improve nack debug message
+Date: Thu, 19 Mar 2020 19:21:55 +0100
+Message-ID: <1584642115-15378-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:43979 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727112AbgCSRTN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 19 Mar 2020 13:19:13 -0400
-Content-Disposition: inline
-In-Reply-To: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:43060 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726663AbgCSSWJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Mar 2020 14:22:09 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: wsa@the-dreams.de, pierre-yves.mordret@st.com
+Cc: alain.volmat@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 
-On Mon, Mar 16, 2020 at 05:49:24PM +0200, Andy Shevchenko wrote:
-> There are few maximum bus frequencies being used in the I²C core code.
-> Provide generic definitions for bus frequencies and use them in the core.
-> 
-> The drivers may use predefined constants where it is appropriate.
-> Some of them are already using these under slightly different names.
-> We will convert them later to use newly introduced defines.
-> 
-> Note, the name of modes are chosen to follow well established naming
-> scheme [1].
-> 
-> These definitions will also help to avoid typos in the numbers that
-> may lead to subtle errors.
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-Wolfram, is any chance to get applied at least 1, 5 and 6 from this series?
+Add information on slave addr in the nack debug message.
 
-> 
-> [1]: https://en.wikipedia.org/wiki/I%C2%B2C#Differences_between_modes
-> 
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
-> v3: added link to Wiki to point the mode naming scheme out
->  drivers/i2c/i2c-core-acpi.c | 2 +-
->  drivers/i2c/i2c-core-base.c | 8 ++++----
->  include/linux/i2c.h         | 8 ++++++++
->  3 files changed, 13 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-> index 8b0ff780919b..c8f42f2037cb 100644
-> --- a/drivers/i2c/i2c-core-acpi.c
-> +++ b/drivers/i2c/i2c-core-acpi.c
-> @@ -318,7 +318,7 @@ static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
->  		lookup->min_speed = lookup->speed;
->  
->  	if (acpi_match_device_ids(adev, i2c_acpi_force_400khz_device_ids) == 0)
-> -		lookup->force_speed = 400000;
-> +		lookup->force_speed = I2C_MAX_FAST_MODE_FREQ;
->  
->  	return AE_OK;
->  }
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index cefad0881942..9b2972c7faa2 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -1612,13 +1612,13 @@ void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_de
->  
->  	ret = device_property_read_u32(dev, "clock-frequency", &t->bus_freq_hz);
->  	if (ret && use_defaults)
-> -		t->bus_freq_hz = 100000;
-> +		t->bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
->  
->  	ret = device_property_read_u32(dev, "i2c-scl-rising-time-ns", &t->scl_rise_ns);
->  	if (ret && use_defaults) {
-> -		if (t->bus_freq_hz <= 100000)
-> +		if (t->bus_freq_hz <= I2C_MAX_STANDARD_MODE_FREQ)
->  			t->scl_rise_ns = 1000;
-> -		else if (t->bus_freq_hz <= 400000)
-> +		else if (t->bus_freq_hz <= I2C_MAX_FAST_MODE_FREQ)
->  			t->scl_rise_ns = 300;
->  		else
->  			t->scl_rise_ns = 120;
-> @@ -1626,7 +1626,7 @@ void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_de
->  
->  	ret = device_property_read_u32(dev, "i2c-scl-falling-time-ns", &t->scl_fall_ns);
->  	if (ret && use_defaults) {
-> -		if (t->bus_freq_hz <= 400000)
-> +		if (t->bus_freq_hz <= I2C_MAX_FAST_MODE_FREQ)
->  			t->scl_fall_ns = 300;
->  		else
->  			t->scl_fall_ns = 120;
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index f834687989f7..72e759328cee 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -39,6 +39,14 @@ enum i2c_slave_event;
->  typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
->  			      enum i2c_slave_event event, u8 *val);
->  
-> +/* I2C Frequency Modes */
-> +#define I2C_MAX_STANDARD_MODE_FREQ	100000
-> +#define I2C_MAX_FAST_MODE_FREQ		400000
-> +#define I2C_MAX_FAST_MODE_PLUS_FREQ	1000000
-> +#define I2C_MAX_TURBO_MODE_FREQ		1400000
-> +#define I2C_MAX_HIGH_SPEED_MODE_FREQ	3400000
-> +#define I2C_MAX_ULTRA_FAST_MODE_FREQ	5000000
-> +
->  struct module;
->  struct property_entry;
->  
-> -- 
-> 2.25.1
-> 
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 378956ac6d1d..78d40a4cc282 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1431,7 +1431,8 @@ static irqreturn_t stm32f7_i2c_isr_event(int irq, void *data)
+ 
+ 	/* NACK received */
+ 	if (status & STM32F7_I2C_ISR_NACKF) {
+-		dev_dbg(i2c_dev->dev, "<%s>: Receive NACK\n", __func__);
++		dev_dbg(i2c_dev->dev, "<%s>: Receive NACK (addr %x)\n",
++			__func__, f7_msg->addr);
+ 		writel_relaxed(STM32F7_I2C_ICR_NACKCF, base + STM32F7_I2C_ICR);
+ 		f7_msg->result = -ENXIO;
+ 	}
 -- 
-With Best Regards,
-Andy Shevchenko
+2.7.4
