@@ -1,76 +1,68 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: Re: [PATCH] i2c: xiic: Support disabling multi-master in DT
-Date: Thu, 19 Mar 2020 15:04:09 +0530
-Message-ID: <CAKfKVtGSq5rJ0EvZgyg1Rw3=d5Q4ReJUYM7hTSTPP4sXaJyJTw@mail.gmail.com>
+From: Laine Jaakko EXT <ext-jaakko.laine@vaisala.com>
+Subject: RE: [PATCH] i2c: xiic: Support disabling multi-master in DT
+Date: Thu, 19 Mar 2020 10:26:00 +0000
+Message-ID: <AM0PR06MB51854C1BD04607231214750ED4F40@AM0PR06MB5185.eurprd06.prod.outlook.com>
 References: <20200218135627.24739-1-ext-jaakko.laine@vaisala.com>
- <CAKfKVtFf+VpinkOGsBFZ2-_PKvx-C1L7G7_uhY2RCvV5dy6L_w@mail.gmail.com> <AM0PR06MB5185E501349E06428093B62FD4F70@AM0PR06MB5185.eurprd06.prod.outlook.com>
+ <CAKfKVtFf+VpinkOGsBFZ2-_PKvx-C1L7G7_uhY2RCvV5dy6L_w@mail.gmail.com>
+ <AM0PR06MB5185E501349E06428093B62FD4F70@AM0PR06MB5185.eurprd06.prod.outlook.com>
+ <CAKfKVtGSq5rJ0EvZgyg1Rw3=d5Q4ReJUYM7hTSTPP4sXaJyJTw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io1-f67.google.com ([209.85.166.67]:44152 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726714AbgCSJeX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Mar 2020 05:34:23 -0400
-Received: by mail-io1-f67.google.com with SMTP id v3so1481154iot.11
-        for <linux-i2c@vger.kernel.org>; Thu, 19 Mar 2020 02:34:22 -0700 (PDT)
-In-Reply-To: <AM0PR06MB5185E501349E06428093B62FD4F70@AM0PR06MB5185.eurprd06.prod.outlook.com>
+Received: from mail-eopbgr40054.outbound.protection.outlook.com ([40.107.4.54]:42305
+        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726802AbgCSK0E (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 19 Mar 2020 06:26:04 -0400
+In-Reply-To: <CAKfKVtGSq5rJ0EvZgyg1Rw3=d5Q4ReJUYM7hTSTPP4sXaJyJTw@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Laine Jaakko EXT <ext-jaakko.laine@vaisala.com>
+To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
 Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "michal.simek@xilinx.com" <michal.simek@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-Hi Jakko,
-
-On Wed, Mar 18, 2020 at 10:19 PM Laine Jaakko EXT
-<ext-jaakko.laine@vaisala.com> wrote:
->
-> Hello,
->
-> >> @@ -521,19 +523,26 @@ static int xiic_bus_busy(struct xiic_i2c *i2c)
-> >>  static int xiic_busy(struct xiic_i2c *i2c)
-> >>  {
-> >>         int tries = 3;
-> >> -       int err;
-> >> +       int err = 0;
-> >>
-> >>         if (i2c->tx_msg)
-> >>                 return -EBUSY;
-> >>
-> >> -       /* for instance if previous transfer was terminated due to TX error
-> >> -        * it might be that the bus is on it's way to become available
-> >> -        * give it at most 3 ms to wake
-> >> +       /* In single master mode bus can only be busy, when in use by this
-> >> +        * driver. If the register indicates bus being busy for some reason we
-> >> +        * should ignore it, since bus will never be released and i2c will be
-> >> +        * stuck forever.
-> >>          */
-> >
-> >the other thing i was thinking how will multithreading .
-> >Should we have a lock here.
-> >
-> >> -       err = xiic_bus_busy(i2c);
-> >> -       while (err && tries--) {
-> >> -               msleep(1);
-> >> +       if (i2c->multimaster) {
-> >> +               /* for instance if previous transfer was terminated due to TX
-> >> +                * error it might be that the bus is on it's way to become
-> >> +                * available give it at most 3 ms to wake
-> >> +                */
-> >>                 err = xiic_bus_busy(i2c);
-> >> +               while (err && tries--) {
-> >> +                       msleep(1);
-> >> +                       err = xiic_bus_busy(i2c);
-> >> +               }
-> >>         }
-> >>
-> >>         return err;
->
-> Which resource specifically are you worried about needing locking here?
->
-Earlier multiple threads on the same processor will wait for bus busy.
-
-Now my concern was
-
-thread1 -> makes a transaction
-
-thread2  -> this will not wait for bus busy and access.
+PiA+ID4NCj4gPiA+dGhlIG90aGVyIHRoaW5nIGkgd2FzIHRoaW5raW5nIGhvdyB3aWxsIG11bHRp
+dGhyZWFkaW5nIC4NCj4gPiA+U2hvdWxkIHdlIGhhdmUgYSBsb2NrIGhlcmUuDQo+ID4gPg0KPiA+
+ID4+IC0gICAgICAgZXJyID0geGlpY19idXNfYnVzeShpMmMpOw0KPiA+ID4+IC0gICAgICAgd2hp
+bGUgKGVyciAmJiB0cmllcy0tKSB7DQo+ID4gPj4gLSAgICAgICAgICAgICAgIG1zbGVlcCgxKTsN
+Cj4gPiA+PiArICAgICAgIGlmIChpMmMtPm11bHRpbWFzdGVyKSB7DQo+ID4gPj4gKyAgICAgICAg
+ICAgICAgIC8qIGZvciBpbnN0YW5jZSBpZiBwcmV2aW91cyB0cmFuc2ZlciB3YXMgdGVybWluYXRl
+ZCBkdWUgdG8gVFgNCj4gPiA+PiArICAgICAgICAgICAgICAgICogZXJyb3IgaXQgbWlnaHQgYmUg
+dGhhdCB0aGUgYnVzIGlzIG9uIGl0J3Mgd2F5IHRvIGJlY29tZQ0KPiA+ID4+ICsgICAgICAgICAg
+ICAgICAgKiBhdmFpbGFibGUgZ2l2ZSBpdCBhdCBtb3N0IDMgbXMgdG8gd2FrZQ0KPiA+ID4+ICsg
+ICAgICAgICAgICAgICAgKi8NCj4gPiA+PiAgICAgICAgICAgICAgICAgZXJyID0geGlpY19idXNf
+YnVzeShpMmMpOw0KPiA+ID4+ICsgICAgICAgICAgICAgICB3aGlsZSAoZXJyICYmIHRyaWVzLS0p
+IHsNCj4gPiA+PiArICAgICAgICAgICAgICAgICAgICAgICBtc2xlZXAoMSk7DQo+ID4gPj4gKyAg
+ICAgICAgICAgICAgICAgICAgICAgZXJyID0geGlpY19idXNfYnVzeShpMmMpOw0KPiA+ID4+ICsg
+ICAgICAgICAgICAgICB9DQo+ID4gPj4gICAgICAgICB9DQo+ID4gPj4NCj4gPiA+PiAgICAgICAg
+IHJldHVybiBlcnI7DQo+ID4NCj4gPiBXaGljaCByZXNvdXJjZSBzcGVjaWZpY2FsbHkgYXJlIHlv
+dSB3b3JyaWVkIGFib3V0IG5lZWRpbmcgbG9ja2luZyBoZXJlPw0KPiA+DQo+IEVhcmxpZXIgbXVs
+dGlwbGUgdGhyZWFkcyBvbiB0aGUgc2FtZSBwcm9jZXNzb3Igd2lsbCB3YWl0IGZvciBidXMgYnVz
+eS4NCj4NCj4gTm93IG15IGNvbmNlcm4gd2FzDQo+DQo+IHRocmVhZDEgLT4gbWFrZXMgYSB0cmFu
+c2FjdGlvbg0KPg0KPiB0aHJlYWQyICAtPiB0aGlzIHdpbGwgbm90IHdhaXQgZm9yIGJ1cyBidXN5
+IGFuZCBhY2Nlc3MuDQoNClNpbmNlIGkyYy0+dHhfbXNnIGlzIHNldCBiZWZvcmUgYW55dGhpbmcg
+aXMgc2VudCB0byBGUEdBIGFuZCBvbmx5IHJldHVybmVkIHRvIE5VTEwgYWZ0ZXIgdHJhbnNhY3Rp
+b24gaGFzIGZpbmlzaGVkLA0KSSB0aGluayB0aHJlYWQyIHdvdWxkIGFscmVhZHkgZXhpdCB3aXRo
+IC1FQlVTWSBiZWZvcmUgeGlpY19idXNfYnVzeShpMmMpIGlzIGNhbGxlZCBiZWNhdXNlIG9mZjoN
+CmlmIChpMmMtPnR4X21zZykNCglyZXR1cm4gLUVCVVNZOw0KaW4gc2FtZSBmdW5jdGlvbi4NCg0K
+VGhpcyBpcyB3aHkgbXkgdW5kZXJzdGFuZGluZyBpcyB0aGF0IHhpaWNfYnVzX2J1c3koaTJjKSBv
+bmx5IHByYWN0aWNhbGx5IGd1YXJkcyBhZ2FpbnN0IG90aGVyIG1hc3RlcnMgb3BlcmF0aW5nIG9u
+IGJ1cy4NCkluIG15IHVuZGVyc3RhbmRpbmcgeGlpY19idXNfYnVzeShpMmMpIHJlYWRzIHRoZSBy
+ZWdpc3RlciBvbiBGUEdBLCB3aGljaCBjYW4ndCBjaGFuZ2Ugc3RhdGUgYmVmb3JlIHRocmVhZDEg
+aXMgYWxyZWFkeSBzbyBmYXIgaW50byB0cmFuc21pdHRpbmcgaXRzIGRhdGEgdGhhdCBGUEdBIGhh
+cyByZWNlaXZlZCBzb21ldGhpbmcgdG8gc2VuZCBhbmQgaGFzIHJlc2VydmVkIHRoZSBidXMuIFRo
+aXMgd291bGQgbGVhdmUgYW4gaW50ZXJ2YWwgb2YgdGltZSBiZXR3ZWVuIGNoZWNraW5nIHhpaWNf
+YnVzX2J1c3kgYW5kIGl0cyByZWdpc3RlciB2YWx1ZSBjaGFuZ2luZyBkdXJpbmcgd2hpY2ggdGhy
+ZWFkMiBjb3VsZCBhbHNvIGNoZWNrIHhpaWNfYnVzX2J1c3kgYW5kIHByb2NlZWQgdG8gdHJhbnNt
+aXQgYXQgdGhlIHNhbWUgdGltZSB3aXRoIHRocmVhZDEuIChVbnRpbCBoaXR0aW5nIGEgdHJhbnNh
+Y3Rpb24gbG9jayBsYXRlciwgYnV0IG9ubHkgYWZ0ZXIgaXQgaGFzIGFscmVhZHkgb3ZlcndyaXR0
+ZW4gdGhlIHBvaW50ZXIgdG8gdHJhbnNtaXQgYnVmZmVyIGkyYy0+dHhfbXNnLCBhbmQgcG9zc2li
+bHkgbWVzc2VkIHVwIHRoZSB0cmFuc21pc3Npb25zIGZvciB0aHJlYWQxKS4NCg0KTm93IGl0IHNl
+ZW1zIHRvIG1lIHRoYXQgZXZlbiB3aXRoIGkyYy0+dHhfbXNnIGJlaW5nIGNoZWNrZWQsIHRocmVh
+ZDIgY291bGQgZ2V0IHBhc3QgaXQgYmVmb3JlIHRocmVhZDEgaGFzIHNldCBpdCB0byBub3QgTlVM
+TCwgc2luY2UgdGhyZWFkIHBlcmZvcm1zIG5vIGxvY2tpbmcgYmV0d2VlbiBjaGVja2luZyBpdCBh
+bmQgc2V0dGluZyBpdCwgbGlrZSBJIG1lbnRpb25lZCBpbiBwcmV2aW91cyByZXBseS4gVGhpcyBp
+c3N1ZSBoYXMgYXBwYXJlbnRseSBhbHJlYWR5IGV4aXN0ZWQgZm9yIHNvbWUgdGltZSB0aG91Z2gg
+YW5kIGlzIHByb2JhYmx5IHF1aXRlIHVubGlrZWx5LCBzaW5jZSBpdCBoYXMgYmVlbiB0aGVyZSBm
+b3Igc29tZSB0aW1lLg0KDQotSmFha2tvDQo=
