@@ -1,105 +1,115 @@
-From: Boris Brezillon <boris.brezillon@collabora.com>
-Subject: Re: [RFC PATCH v2 3/6] i2c: of: remove superfluous parameter from
- exported function
-Date: Thu, 19 Mar 2020 13:41:31 +0100
-Message-ID: <20200319134131.72715b0f@collabora.com>
-References: <20200318150059.21714-1-wsa+renesas@sang-engineering.com>
-        <20200318150059.21714-4-wsa+renesas@sang-engineering.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1] i2c: designware: Fix spelling typos in the comments
+Date: Thu, 19 Mar 2020 17:30:12 +0200
+Message-ID: <20200319153012.36136-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20200318150059.21714-4-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Jacopo Mondi <jacopo@jmondi.org>, Niklas =?UTF-8?B?U8O2ZGVybHVuZA==?= <niklas.soderlund@ragnatech.se>, Geert Uytterhoeven <geert+renesas@glider.be>, linux-kernel@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>, linux-renesas-soc@vger.kernel.org, Kieran Bingham <kieran@ksquared.org.uk>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Luca Ceresoli <luca@lucaceresoli.net>, linux-i3c@lists.infradead.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:12687 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727064AbgCSPab (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 19 Mar 2020 11:30:31 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Wed, 18 Mar 2020 16:00:56 +0100
-Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
+Fix spelling typos in the comments with help of `codespell`.
 
-> 'dev' is only used for printing an error message. However, that
-> information is not needed because '%pOF' fully describes the location of
-> the error. Drop the 'dev' and remove the superfluous parameter.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-baytrail.c | 2 +-
+ drivers/i2c/busses/i2c-designware-common.c   | 8 ++++----
+ drivers/i2c/busses/i2c-designware-master.c   | 2 +-
+ drivers/i2c/busses/i2c-designware-pcidrv.c   | 2 +-
+ drivers/i2c/busses/i2c-designware-slave.c    | 2 +-
+ 5 files changed, 8 insertions(+), 8 deletions(-)
 
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-
-> ---
->  drivers/i2c/i2c-core-of.c | 7 +++----
->  drivers/i3c/master.c      | 2 +-
->  include/linux/i2c.h       | 6 ++----
->  3 files changed, 6 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-> index d8d111ad6c85..710704cd583e 100644
-> --- a/drivers/i2c/i2c-core-of.c
-> +++ b/drivers/i2c/i2c-core-of.c
-> @@ -19,8 +19,7 @@
->  
->  #include "i2c-core.h"
->  
-> -int of_i2c_get_board_info(struct device *dev, struct device_node *node,
-> -			  struct i2c_board_info *info)
-> +int of_i2c_get_board_info(struct device_node *node, struct i2c_board_info *info)
->  {
->  	u32 addr;
->  	int ret;
-> @@ -29,7 +28,7 @@ int of_i2c_get_board_info(struct device *dev, struct device_node *node,
->  
->  	ret = of_property_read_u32(node, "reg", &addr);
->  	if (ret) {
-> -		dev_err(dev, "of_i2c: invalid reg on %pOF\n", node);
-> +		pr_err("of_i2c: invalid reg on %pOF\n", node);
->  		return ret;
->  	}
->  
-> @@ -69,7 +68,7 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
->  
->  	dev_dbg(&adap->dev, "of_i2c: register %pOF\n", node);
->  
-> -	ret = of_i2c_get_board_info(&adap->dev, node, &info);
-> +	ret = of_i2c_get_board_info(node, &info);
->  	if (ret)
->  		return ERR_PTR(ret);
->  
-> diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
-> index 7f8f896fa0c3..cc0549a9fc64 100644
-> --- a/drivers/i3c/master.c
-> +++ b/drivers/i3c/master.c
-> @@ -1943,7 +1943,7 @@ of_i3c_master_add_i2c_boardinfo(struct i3c_master_controller *master,
->  	if (!boardinfo)
->  		return -ENOMEM;
->  
-> -	ret = of_i2c_get_board_info(dev, node, &boardinfo->base);
-> +	ret = of_i2c_get_board_info(node, &boardinfo->base);
->  	if (ret)
->  		return ret;
->  
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index f834687989f7..d84aaf0d83d5 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -942,8 +942,7 @@ const struct of_device_id
->  *i2c_of_match_device(const struct of_device_id *matches,
->  		     struct i2c_client *client);
->  
-> -int of_i2c_get_board_info(struct device *dev, struct device_node *node,
-> -			  struct i2c_board_info *info);
-> +int of_i2c_get_board_info(struct device_node *node, struct i2c_board_info *info);
->  
->  #else
->  
-> @@ -969,8 +968,7 @@ static inline const struct of_device_id
->  	return NULL;
->  }
->  
-> -static inline int of_i2c_get_board_info(struct device *dev,
-> -					struct device_node *node,
-> +static inline int of_i2c_get_board_info(struct device_node *node,
->  					struct i2c_board_info *info)
->  {
->  	return -ENOTSUPP;
+diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
+index 33da07d64494..c6a7a00e1d52 100644
+--- a/drivers/i2c/busses/i2c-designware-baytrail.c
++++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+- * Intel BayTrail PMIC I2C bus semaphore implementaion
++ * Intel BayTrail PMIC I2C bus semaphore implementation
+  * Copyright (c) 2014, Intel Corporation.
+  */
+ #include <linux/device.h>
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 2de7452fcd6d..a6265ffab556 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -102,7 +102,7 @@ int i2c_dw_set_reg_access(struct dw_i2c_dev *dev)
+ 	i2c_dw_release_lock(dev);
+ 
+ 	if (reg == swab32(DW_IC_COMP_TYPE_VALUE)) {
+-		/* Configure register endianess access */
++		/* Configure register endianness access */
+ 		dev->flags |= ACCESS_SWAP;
+ 	} else if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
+ 		/* Configure register access mode 16bit */
+@@ -190,10 +190,10 @@ int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev)
+ 
+ 		/*
+ 		 * Workaround for avoiding TX arbitration lost in case I2C
+-		 * slave pulls SDA down "too quickly" after falling egde of
++		 * slave pulls SDA down "too quickly" after falling edge of
+ 		 * SCL by enabling non-zero SDA RX hold. Specification says it
+ 		 * extends incoming SDA low to high transition while SCL is
+-		 * high but it apprears to help also above issue.
++		 * high but it appears to help also above issue.
+ 		 */
+ 		if (!(dev->sda_hold_time & DW_IC_SDA_HOLD_RX_MASK))
+ 			dev->sda_hold_time |= 1 << DW_IC_SDA_HOLD_RX_SHIFT;
+@@ -356,7 +356,7 @@ void i2c_dw_disable(struct dw_i2c_dev *dev)
+ 	/* Disable controller */
+ 	__i2c_dw_disable(dev);
+ 
+-	/* Disable all interupts */
++	/* Disable all interrupts */
+ 	dw_writel(dev, 0, DW_IC_INTR_MASK);
+ 	dw_readl(dev, DW_IC_CLR_INTR);
+ }
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index e8b328242256..529f54249609 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -521,7 +521,7 @@ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+ 
+ 	/*
+ 	 * The IC_INTR_STAT register just indicates "enabled" interrupts.
+-	 * Ths unmasked raw version of interrupt status bits are available
++	 * The unmasked raw version of interrupt status bits is available
+ 	 * in the IC_RAW_INTR_STAT register.
+ 	 *
+ 	 * That is,
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 60d9ed7543a6..6a66e7e5abff 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -110,7 +110,7 @@ static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
+ static int mrfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
+ {
+ 	/*
+-	 * On Intel Merrifield the user visible i2c busses are enumerated
++	 * On Intel Merrifield the user visible i2c buses are enumerated
+ 	 * [1..7]. So, we add 1 to shift the default range. Besides that the
+ 	 * first PCI slot provides 4 functions, that's why we have to add 0 to
+ 	 * the first slot and 4 to the next one.
+diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+index f5f001738df5..f00079e4569d 100644
+--- a/drivers/i2c/busses/i2c-designware-slave.c
++++ b/drivers/i2c/busses/i2c-designware-slave.c
+@@ -107,7 +107,7 @@ static u32 i2c_dw_read_clear_intrbits_slave(struct dw_i2c_dev *dev)
+ 
+ 	/*
+ 	 * The IC_INTR_STAT register just indicates "enabled" interrupts.
+-	 * Ths unmasked raw version of interrupt status bits are available
++	 * The unmasked raw version of interrupt status bits is available
+ 	 * in the IC_RAW_INTR_STAT register.
+ 	 *
+ 	 * That is,
+-- 
+2.25.1
