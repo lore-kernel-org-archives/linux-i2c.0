@@ -1,88 +1,32 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i801: Fix memory corruption in i801_isr_byte_done()
-Date: Fri, 20 Mar 2020 15:57:48 +0100
-Message-ID: <20200320145748.GD1282@ninjato>
-References: <0000000000009586b2059c13c7e1@google.com>
- <20200114073406.qaq3hbrhtx76fkes@kili.mountain>
- <20200222124523.GI1716@kunai>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v3 2/6] i2c: core: Allow override timing properties with 0
+Date: Fri, 20 Mar 2020 18:23:26 +0200
+Message-ID: <20200320162326.GD1922688@smile.fi.intel.com>
+References: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
+ <20200316154929.20886-2-andriy.shevchenko@linux.intel.com>
+ <20200320144357.GA1282@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0/kgSOzhNoDC5T3a"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200222124523.GI1716@kunai>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>, Jean Delvare <jdelvare@suse.de>, Daniel Kurtz <djkurtz@chromium.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, syzbot <syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
-List-Id: linux-i2c@vger.kernel.org
-
-
---0/kgSOzhNoDC5T3a
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga07.intel.com ([134.134.136.100]:4028 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727151AbgCTQX0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 20 Mar 2020 12:23:26 -0400
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200320144357.GA1282@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-On Sat, Feb 22, 2020 at 01:45:23PM +0100, Wolfram Sang wrote:
-> On Tue, Jan 14, 2020 at 10:34:06AM +0300, Dan Carpenter wrote:
-> > Assigning "priv->data[-1] =3D priv->len;" obviously doesn't make sense.
-> > What it does is it ends up corrupting the last byte of priv->len so
-> > priv->len becomes a very high number.
-> >=20
-> > Reported-by: syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com
-> > Fixes: d3ff6ce40031 ("i2c-i801: Enable IRQ for byte_by_byte transaction=
-s")
-> > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> > ---
->=20
-> Daniel, Jean: what do you think?
-> Also, adding Jarkko to CC who works a lot with this driver...
+On Fri, Mar 20, 2020 at 03:43:57PM +0100, Wolfram Sang wrote:
+> 
+> > +	struct i2c_timings i2c_t = {0};
+> 
+> Simply '... = { }'?
 
-Ping. Adding more people...
+I prefer C standard over GCC extension.
 
->=20
-> > Untested.
-> >=20
-> >  drivers/i2c/busses/i2c-i801.c | 1 -
-> >  1 file changed, 1 deletion(-)
-> >=20
-> > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i80=
-1.c
-> > index f5e69fe56532..420d8025901e 100644
-> > --- a/drivers/i2c/busses/i2c-i801.c
-> > +++ b/drivers/i2c/busses/i2c-i801.c
-> > @@ -584,7 +584,6 @@ static void i801_isr_byte_done(struct i801_priv *pr=
-iv)
-> >  					"SMBus block read size is %d\n",
-> >  					priv->len);
-> >  			}
-> > -			priv->data[-1] =3D priv->len;
-> >  		}
-> > =20
-> >  		/* Read next byte */
-> > --=20
-> > 2.11.0
-> >=20
-
-
-
---0/kgSOzhNoDC5T3a
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl502ewACgkQFA3kzBSg
-KbaoARAAtfTyKYW9Ul8/37lfwTcF8GkKRTKd3Iasdo5yXbIx2HvPVPkl/fhoNQzO
-Vm6pbplxg27UWwBfqLgxRBS4AHx48ANi4X0BQIqeYKPl3hetOhHvwOzwWrfMwK0F
-AsMBtJsmSqqt9uHkuteOLnYHXxfoF+8ye0Q6QO3vStWP5FBfHlw1VrwiU0uZ3w+E
-90ui9TPeSLp5WTXi4idgEc51blujdoXVceMDUwaSvJ+ZSl3SJIDuiPXOt5I7H4e5
-q0vDW8mCj8l761YTOWExa8wygw+D/qDEblQC9vnj8ooCgL0BWFC8wH62PLCxgHjb
-4tKAy+bWtzr3VzgfEnj0EnlLMMFxZ2oOYm6243SUwSOa+vbZQ4uSt5BDaLJmuaOO
-TZtWS+iNBytaHQNfFcBOfFlx3c9Z852iiSRrV4WLMknTszHOAuBvRJi4MRFoVi6F
-oUeJWi46KeNrpC1D2QwP1TcxlDWJ29DMsOVV3ix/fILvsHwIkcGLP74xjw7ZELxR
-tBbLBHWi3v71Ejs3VV75L5MlcsJgOUDJ/HLuz5E7lOZ69uBSKXCSJqs8e3xKF86S
-qbRGnZ/Tkfu+6PRn1PtN6ULQXa4NBIXPF3bhvdeq2YtF9+xsocjSMWdono83Wp/e
-WWZT2TZmAL+4Wvo5Nt9f2JKWRSmF2afUurkOjiRqmK3PrCKiFF4=
-=sTjl
------END PGP SIGNATURE-----
-
---0/kgSOzhNoDC5T3a--
+-- 
+With Best Regards,
+Andy Shevchenko
