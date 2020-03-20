@@ -1,41 +1,64 @@
-From: ECOWAS COMMITEE <ecowasmonitoringcommitteeabj@gmail.com>
-Subject: HAPPY SURVIVAL OF CORONAVIRUS
-Date: Fri, 20 Mar 2020 11:21:57 +0000
-Message-ID: <CAHHubrYVO=2YdPqKZhJ+2V5OGE9v-76hg5HAnvmVr7enpkq_MA__23899.1021223896$1584703326$gmane$org@mail.gmail.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+Subject: Re: [PATCH] drivers/i2c/busses/i2c-imx.c:remove duplicate print
+ after platform_get_irq()
+Date: Fri, 20 Mar 2020 13:34:26 +0100
+Message-ID: <20200320123425.blnqxh3qpfzfl6ph@pengutronix.de>
+References: <20200318100748.17540-1-tangbin@cmss.chinamobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:37046 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726956AbgCTLWA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Mar 2020 07:22:00 -0400
-Received: by mail-oi1-f196.google.com with SMTP id w13so6092545oih.4
-        for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2020 04:21:58 -0700 (PDT)
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:34317 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726814AbgCTMer (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Mar 2020 08:34:47 -0400
+Content-Disposition: inline
+In-Reply-To: <20200318100748.17540-1-tangbin@cmss.chinamobile.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Tang Bin <tangbin@cmss.chinamobile.com>
+Cc: linux@rempel-privat.de, s.hauer@pengutronix.de, shawnguo@kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-Dear Sir/Madam
+On Wed, Mar 18, 2020 at 06:07:48PM +0800, Tang Bin wrote:
+> We don't need dev_err() message because when something goes wrong,
+> platform_get_irq() has print an error message itself, so we should
+> remove duplicate dev_err().
+> 
+> Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
 
-HAPPY SURVIVAL OF CORONAVIRUS
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
 
-We the West African Monitoring Committee of the West African Economic
-Community(ECOWAS)are contacting you for a business transaction which
-we feel will be of great interest to you.
+Thank you.
 
-Our duty is to see to the coming in and out of funds into this sub
-region.There is a fund which we confiscated worth of $12.5 million
-dollars.We will like you to receive this fund on your name in your
-account and as well helping us in the investment.
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index a3b61336f..01fd46682 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -1066,10 +1066,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  	dev_dbg(&pdev->dev, "<%s>\n", __func__);
+>  
+>  	irq = platform_get_irq(pdev, 0);
+> -	if (irq < 0) {
+> -		dev_err(&pdev->dev, "can't get irq number\n");
+> +	if (irq < 0)
+>  		return irq;
+> -	}
+>  
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	base = devm_ioremap_resource(&pdev->dev, res);
+> -- 
+> 2.20.1.windows.1
+> 
+> 
+> 
+> 
 
-You are advised to contact us as soon as you get this message for
-details of the transaction if you find it interesting.
-
-Best Regards,
-
-Mr John Aka
-
-Chairman
-ECOWAS
-West African Monitoring Committee
-Tel 00225 6716 6756
-Abidjan Cote D'Ivoire
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
