@@ -1,64 +1,49 @@
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: Re: [PATCH] drivers/i2c/busses/i2c-imx.c:remove duplicate print
- after platform_get_irq()
-Date: Fri, 20 Mar 2020 13:34:26 +0100
-Message-ID: <20200320123425.blnqxh3qpfzfl6ph@pengutronix.de>
-References: <20200318100748.17540-1-tangbin@cmss.chinamobile.com>
+From: Akash Asthana <akashast@codeaurora.org>
+Subject: Re: [PATCH V2 6/8] spi: spi-geni-qcom: Add interconnect support
+Date: Fri, 20 Mar 2020 19:22:17 +0530
+Message-ID: <58116473-1d9e-d08a-8839-a39dd0ee32bf@codeaurora.org>
+References: <1584105134-13583-1-git-send-email-akashast@codeaurora.org>
+ <1584105134-13583-7-git-send-email-akashast@codeaurora.org>
+ <20200313131603.GG5528@sirena.org.uk>
+ <aa197568-3bac-6962-d39d-3261f68c0514@codeaurora.org>
+ <20200317130616.GE3971@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:34317 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726814AbgCTMer (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Mar 2020 08:34:47 -0400
-Content-Disposition: inline
-In-Reply-To: <20200318100748.17540-1-tangbin@cmss.chinamobile.com>
+Received: from mail27.static.mailgun.info ([104.130.122.27]:54828 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726851AbgCTNw2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Mar 2020 09:52:28 -0400
+In-Reply-To: <20200317130616.GE3971@sirena.org.uk>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Tang Bin <tangbin@cmss.chinamobile.com>
-Cc: linux@rempel-privat.de, s.hauer@pengutronix.de, shawnguo@kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: gregkh@linuxfoundation.org, agross@kernel.org, bjorn.andersson@linaro.org, wsa@the-dreams.de, mark.rutland@arm.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, swboyd@chromium.org, mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org, mka@chromium.org, dianders@chromium.org, evgreen@chromium.org
 
-On Wed, Mar 18, 2020 at 06:07:48PM +0800, Tang Bin wrote:
-> We don't need dev_err() message because when something goes wrong,
-> platform_get_irq() has print an error message itself, so we should
-> remove duplicate dev_err().
-> 
-> Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Hi Mark,
 
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+On 3/17/2020 6:36 PM, Mark Brown wrote:
+> On Tue, Mar 17, 2020 at 03:05:21PM +0530, Akash Asthana wrote:
+>
+>> We are taking care of actual throughput requirement in avg_bw vote and the
+>> intention of putting peak as twice of avg is to ensure that if high speed
+>> peripherals(ex:USB) removes their votes, we shouldn't see any latency issue
+>> because of other ICC client who don't vote for their BW requirement or
+>> *actual* BW requirement. Factor of 2 is chosen randomly. Please
+>> correct/improve me if this is not okay.
+>> If this is okay, I will centralize this design for SPI QUP, I2C and UART
+>> driver.
+> That seems reasonable to me, it was just the fact that every driver
+> seemed to be doing the same thing that I was noticing - what was being
+> done seemed OK.
 
-Thank you.
+Okay, thanks for confirming I will keep as is.
 
-> ---
->  drivers/i2c/busses/i2c-imx.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index a3b61336f..01fd46682 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1066,10 +1066,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
->  	dev_dbg(&pdev->dev, "<%s>\n", __func__);
->  
->  	irq = platform_get_irq(pdev, 0);
-> -	if (irq < 0) {
-> -		dev_err(&pdev->dev, "can't get irq number\n");
-> +	if (irq < 0)
->  		return irq;
-> -	}
->  
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	base = devm_ioremap_resource(&pdev->dev, res);
-> -- 
-> 2.20.1.windows.1
-> 
-> 
-> 
-> 
+Regards,
+
+Akash
 
 -- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
