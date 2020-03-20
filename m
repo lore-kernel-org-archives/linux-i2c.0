@@ -1,70 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: dev: Fix the race between the release of i2c_dev
- and cdev
-Date: Fri, 20 Mar 2020 19:01:50 +0100
-Message-ID: <20200320180150.GF1282@ninjato>
-References: <20191011150014.28177-1-haokexin@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 5/6] i2c: algo: Use generic definitions for bus frequencies
+Date: Fri, 20 Mar 2020 21:12:48 +0200
+Message-ID: <20200320191249.28835-5-andriy.shevchenko@linux.intel.com>
+References: <20200320191249.28835-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ni93GHxFvA+th69W"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:50864 "EHLO pokefinder.org"
+Received: from mga11.intel.com ([192.55.52.93]:24520 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727129AbgCTSB5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 20 Mar 2020 14:01:57 -0400
-Content-Disposition: inline
-In-Reply-To: <20191011150014.28177-1-haokexin@gmail.com>
+        id S1726814AbgCTTMw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 20 Mar 2020 15:12:52 -0400
+In-Reply-To: <20200320191249.28835-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kevin Hao <haokexin@gmail.com>
-Cc: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
+Since we have generic definitions for bus frequencies, let's use them.
 
---ni93GHxFvA+th69W
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+v4: no changes
+ drivers/i2c/algos/i2c-algo-pca.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Hi Kevin,
-
-I am very sorry for not making it for 5.6. I work on it now to make it
-go into v5.7.
-
-> entirely released. We can easily get the following call trace with
-> CONFIG_DEBUG_KOBJECT_RELEASE and CONFIG_DEBUG_OBJECTS_TIMERS enabled.
-
-I didn't get this trace on my ARM32 board (Renesas Lager). Anything more
-I need to do besides activating those options and using i2c-dev?
-
-> +#include <linux/cdev.h>
-
-This line is not needed. We include this already.
-
-Other than that, the patch looks good. Although I trust you, I like to
-verify the test results.
-
-Kind regards,
-
-   Wolfram
-
-
---ni93GHxFvA+th69W
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl51BQoACgkQFA3kzBSg
-KbZkJg/9FxZThbUyX0dWhpWH06gnu7rRa+vamxAdH3GE6c9RfdSzy5mJFx2RusMo
-dIPcHtf0enptZp4e2jJs7HU21P/U9HoiNepkP/Wi03M4aYU/u9VU08UVngHLNHeI
-L6k6A7XCrylQb76Xu5YqvOB4I+pZSxwaxWh/j+YoP4UorBUjuEsgALlFoPr211jr
-9bOTX57IbOsuIPZ05C0+L7rb0AETJ8KX/4lE3PwmX7j9L5KCT02cH0WA/qr2frvx
-7AcKzdTCwqV4wlPDoD8cL7Jy35fFjamhjDnRo6gWl0mkKOXiUdABV37UKlxcZqd/
-pvxxzkHF6OTcTbg89UbW04WdoDgCRi/NZB5+Pzmh/5fHDyMw7ReB7nhBJjUXmEll
-+vg0Q+ZCfxmY6c9oVhxWlC/b2ASMVwWtXFtvIH+DklCK1nreV6iYlHnClRBgy2tK
-iSDHM6ls01WDMOM97MvjK4R+9xAbTESucC5EfoEYGDGQrgQtuCxUs14kssSqoPCt
-qlnCS8crnB40CEaqjhDraIkZKfhB3b/nYoLeIlFyMmDheM2Qr/4z6kbiwmp/W9zC
-/nd31b28UVgP5kfhLxKMcRSLIHaKSaDS3m+Wxg2XghUwC1pigh4p3wy9zffD9Gu2
-5fa6xAS1vroju6yev0gl/sEID7mx+tdkDW5mhn+XsZEjWzojcNY=
-=GJpq
------END PGP SIGNATURE-----
-
---ni93GHxFvA+th69W--
+diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
+index 5ac93f41bfec..dff4e178c732 100644
+--- a/drivers/i2c/algos/i2c-algo-pca.c
++++ b/drivers/i2c/algos/i2c-algo-pca.c
+@@ -459,17 +459,17 @@ static int pca_init(struct i2c_adapter *adap)
+ 		/* To avoid integer overflow, use clock/100 for calculations */
+ 		clock = pca_clock(pca_data) / 100;
+ 
+-		if (pca_data->i2c_clock > 1000000) {
++		if (pca_data->i2c_clock > I2C_MAX_FAST_MODE_PLUS_FREQ) {
+ 			mode = I2C_PCA_MODE_TURBO;
+ 			min_tlow = 14;
+ 			min_thi  = 5;
+ 			raise_fall_time = 22; /* Raise 11e-8s, Fall 11e-8s */
+-		} else if (pca_data->i2c_clock > 400000) {
++		} else if (pca_data->i2c_clock > I2C_MAX_FAST_MODE_FREQ) {
+ 			mode = I2C_PCA_MODE_FASTP;
+ 			min_tlow = 17;
+ 			min_thi  = 9;
+ 			raise_fall_time = 22; /* Raise 11e-8s, Fall 11e-8s */
+-		} else if (pca_data->i2c_clock > 100000) {
++		} else if (pca_data->i2c_clock > I2C_MAX_STANDARD_MODE_FREQ) {
+ 			mode = I2C_PCA_MODE_FAST;
+ 			min_tlow = 44;
+ 			min_thi  = 20;
+-- 
+2.25.1
