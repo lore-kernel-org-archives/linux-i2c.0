@@ -1,58 +1,70 @@
-From: Evan Green <evgreen@chromium.org>
-Subject: Re: [PATCH V2 2/8] soc: qcom: geni: Support for ICC voting
-Date: Fri, 20 Mar 2020 09:45:34 -0700
-Message-ID: <CAE=gft5Uucr83DoQqaE7_8_H=ExnkPBQvRiUK_+LxOMeadam_g@mail.gmail.com>
-References: <1584105134-13583-1-git-send-email-akashast@codeaurora.org>
- <1584105134-13583-3-git-send-email-akashast@codeaurora.org>
- <CAE=gft4_Su4+SXWAW_HWy5BF1mH7QaDHCiwAAhrNaekTeU57rA@mail.gmail.com> <74851dda-296d-cdc5-2449-b9ec59bbc057@codeaurora.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: dev: Fix the race between the release of i2c_dev
+ and cdev
+Date: Fri, 20 Mar 2020 19:01:50 +0100
+Message-ID: <20200320180150.GF1282@ninjato>
+References: <20191011150014.28177-1-haokexin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <74851dda-296d-cdc5-2449-b9ec59bbc057@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Akash Asthana <akashast@codeaurora.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, wsa@the-dreams.de, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Stephen Boyd <swboyd@chromium.org>, Manu Gautam <mgautam@codeaurora.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, linux-serial@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>, Doug Anderson <dianders@chromium.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ni93GHxFvA+th69W"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:50864 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727129AbgCTSB5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 20 Mar 2020 14:01:57 -0400
+Content-Disposition: inline
+In-Reply-To: <20191011150014.28177-1-haokexin@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Kevin Hao <haokexin@gmail.com>
+Cc: linux-i2c@vger.kernel.org
 
-On Fri, Mar 20, 2020 at 4:03 AM Akash Asthana <akashast@codeaurora.org> wrote:
->
-> Hi Evan,
->
-> +/* Core 2X clock frequency to BCM threshold mapping */
-> +#define CORE_2X_19_2_MHZ               960
-> +#define CORE_2X_50_MHZ                 2500
-> +#define CORE_2X_100_MHZ                        5000
-> +#define CORE_2X_150_MHZ                        7500
-> +#define CORE_2X_200_MHZ                        10000
-> +#define CORE_2X_236_MHZ                        16383
->
-> These are all just 50 * clock_rate. Can you instead specify that one
-> define of CLK_TO_BW_RATIO 50, and then use clk_get_rate() to get the
-> input clock frequency. That way, if these end up getting clocked at a
-> different rate, the bandwidth also scales appropriately. Also, can you
-> enumerate why 50 is an appropriate ratio?
-> -Evan
->
-> -Evan
->
-> Clock rate for Core 2X is controlled by BW voting only, we don't set clock rate for core 2X clock either by DFS or calling clk_set_rate API like we do for SE clocks from individual driver.
->
-> In DT node it's not mentioned as clock.
->
-> As discussed in patch@ https://patchwork.kernel.org/patch/11436897/  We are not scaling Core 2X clock based on dynamic need of driver instead we are putting recommended value from HW team for each driver.
 
-Oh I get it. This is pretty opaque, since this table is saying "here
-are the bandwidth values that happen to work out to a Core2X clock
-rate of N". But it's not obvious why setting the Core2X clock rate to
-N is desirable or appropriate. The answer seems to be hardware guys
-told us these thresholds work well in practice. And if I'm reading
-into it more, probably they're saying these bandwidths are too low to
-be worth dynamically managing beyond on/off.
+--ni93GHxFvA+th69W
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-At the very least we should explain some of this in the comment above
-these defines. Something like:
-/* Define bandwidth thresholds that cause the underlying Core 2X
-interconnect clock to run at the named frequency. These baseline
-values are recommended by the hardware team, and are not dynamically
-scaled with GENI bandwidth beyond basic on/off. */
--Evan
+Hi Kevin,
+
+I am very sorry for not making it for 5.6. I work on it now to make it
+go into v5.7.
+
+> entirely released. We can easily get the following call trace with
+> CONFIG_DEBUG_KOBJECT_RELEASE and CONFIG_DEBUG_OBJECTS_TIMERS enabled.
+
+I didn't get this trace on my ARM32 board (Renesas Lager). Anything more
+I need to do besides activating those options and using i2c-dev?
+
+> +#include <linux/cdev.h>
+
+This line is not needed. We include this already.
+
+Other than that, the patch looks good. Although I trust you, I like to
+verify the test results.
+
+Kind regards,
+
+   Wolfram
+
+
+--ni93GHxFvA+th69W
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl51BQoACgkQFA3kzBSg
+KbZkJg/9FxZThbUyX0dWhpWH06gnu7rRa+vamxAdH3GE6c9RfdSzy5mJFx2RusMo
+dIPcHtf0enptZp4e2jJs7HU21P/U9HoiNepkP/Wi03M4aYU/u9VU08UVngHLNHeI
+L6k6A7XCrylQb76Xu5YqvOB4I+pZSxwaxWh/j+YoP4UorBUjuEsgALlFoPr211jr
+9bOTX57IbOsuIPZ05C0+L7rb0AETJ8KX/4lE3PwmX7j9L5KCT02cH0WA/qr2frvx
+7AcKzdTCwqV4wlPDoD8cL7Jy35fFjamhjDnRo6gWl0mkKOXiUdABV37UKlxcZqd/
+pvxxzkHF6OTcTbg89UbW04WdoDgCRi/NZB5+Pzmh/5fHDyMw7ReB7nhBJjUXmEll
++vg0Q+ZCfxmY6c9oVhxWlC/b2ASMVwWtXFtvIH+DklCK1nreV6iYlHnClRBgy2tK
+iSDHM6ls01WDMOM97MvjK4R+9xAbTESucC5EfoEYGDGQrgQtuCxUs14kssSqoPCt
+qlnCS8crnB40CEaqjhDraIkZKfhB3b/nYoLeIlFyMmDheM2Qr/4z6kbiwmp/W9zC
+/nd31b28UVgP5kfhLxKMcRSLIHaKSaDS3m+Wxg2XghUwC1pigh4p3wy9zffD9Gu2
+5fa6xAS1vroju6yev0gl/sEID7mx+tdkDW5mhn+XsZEjWzojcNY=
+=GJpq
+-----END PGP SIGNATURE-----
+
+--ni93GHxFvA+th69W--
