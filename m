@@ -1,49 +1,42 @@
-From: Akash Asthana <akashast@codeaurora.org>
-Subject: Re: [PATCH V2 6/8] spi: spi-geni-qcom: Add interconnect support
-Date: Fri, 20 Mar 2020 19:22:17 +0530
-Message-ID: <58116473-1d9e-d08a-8839-a39dd0ee32bf@codeaurora.org>
-References: <1584105134-13583-1-git-send-email-akashast@codeaurora.org>
- <1584105134-13583-7-git-send-email-akashast@codeaurora.org>
- <20200313131603.GG5528@sirena.org.uk>
- <aa197568-3bac-6962-d39d-3261f68c0514@codeaurora.org>
- <20200317130616.GE3971@sirena.org.uk>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH v3 6/6] i2c: drivers: Use generic definitions for bus
+ frequencies
+Date: Fri, 20 Mar 2020 17:23:25 +0300
+Message-ID: <44e50f6f-9674-60e6-9217-aeba96ef011d@gmail.com>
+References: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
+ <20200316154929.20886-6-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail27.static.mailgun.info ([104.130.122.27]:54828 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726851AbgCTNw2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Mar 2020 09:52:28 -0400
-In-Reply-To: <20200317130616.GE3971@sirena.org.uk>
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:33581 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727096AbgCTOX2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Mar 2020 10:23:28 -0400
+In-Reply-To: <20200316154929.20886-6-andriy.shevchenko@linux.intel.com>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: gregkh@linuxfoundation.org, agross@kernel.org, bjorn.andersson@linaro.org, wsa@the-dreams.de, mark.rutland@arm.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, swboyd@chromium.org, mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org, mka@chromium.org, dianders@chromium.org, evgreen@chromium.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, Jon Hunter <jonathanh@nvidia.com>
 
-Hi Mark,
+16.03.2020 18:49, Andy Shevchenko пишет:
+> Since we have generic definitions for bus frequencies, let's use them.
 
-On 3/17/2020 6:36 PM, Mark Brown wrote:
-> On Tue, Mar 17, 2020 at 03:05:21PM +0530, Akash Asthana wrote:
->
->> We are taking care of actual throughput requirement in avg_bw vote and the
->> intention of putting peak as twice of avg is to ensure that if high speed
->> peripherals(ex:USB) removes their votes, we shouldn't see any latency issue
->> because of other ICC client who don't vote for their BW requirement or
->> *actual* BW requirement. Factor of 2 is chosen randomly. Please
->> correct/improve me if this is not okay.
->> If this is okay, I will centralize this design for SPI QUP, I2C and UART
->> driver.
-> That seems reasonable to me, it was just the fact that every driver
-> seemed to be doing the same thing that I was noticing - what was being
-> done seemed OK.
+...
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index cbc2ad49043e..4c4d17ddc96b 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -123,10 +123,6 @@
+>  #define I2C_THIGH_SHIFT				8
+>  #define I2C_INTERFACE_TIMING_1			0x98
+>  
+> -#define I2C_STANDARD_MODE			100000
+> -#define I2C_FAST_MODE				400000
+> -#define I2C_FAST_PLUS_MODE			1000000
+...
 
-Okay, thanks for confirming I will keep as is.
+For NVIDIA Tegra I2C:
 
-Regards,
-
-Akash
-
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
