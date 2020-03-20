@@ -1,155 +1,43 @@
-From: Alain Volmat <alain.volmat@st.com>
-Subject: Re: [PATCH v3 4/6] i2c: =?iso-8859-1?Q?stm?=
- =?iso-8859-1?Q?32f7=3A_switch_to_I=B2C?= generic property parsing
-Date: Fri, 20 Mar 2020 09:23:42 +0100
-Message-ID: <20200320082342.GA30425@gnbcxd0016.gnb.st.com>
-References: <20200316154929.20886-4-andriy.shevchenko@linux.intel.com>
+From: Lubomir Rintel <lkundrak@v3.sk>
+Subject: Re: [PATCH 13/28] dt-bindings: serial: move Marvell compatible
+ string to 8250 binding doc
+Date: Fri, 20 Mar 2020 10:24:52 +0100
+Message-ID: <20200320092452.GA24507@furthur.local>
+References: <20200317093922.20785-1-lkundrak@v3.sk>
+ <20200317093922.20785-14-lkundrak@v3.sk>
+ <CAL_Jsq+wG+DTZ8Vxcw=NR2isABGrkoDiBt-uG9+NF6qdWuU62Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:3328 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726527AbgCTIX5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Mar 2020 04:23:57 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200316154929.20886-4-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <CAL_Jsq+wG+DTZ8Vxcw=NR2isABGrkoDiBt-uG9+NF6qdWuU62Q@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Rob Herring <robh+dt@kernel.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <maz@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, devicetree@vger.kerne
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>
 
-On Mon, Mar 16, 2020 at 05:49:27PM +0200, Andy Shevchenko wrote:
-> Switch to the new generic functions: i2c_parse_fw_timings().
+On Thu, Mar 19, 2020 at 10:11:02AM -0600, Rob Herring wrote:
+> On Tue, Mar 17, 2020 at 3:40 AM Lubomir Rintel <lkundrak@v3.sk> wrote:
+> >
+> > These ports are compatible with NS8250 and handled by the same driver.
+> > Get rid of the extra document that fails to document the properties that
+> > are actually supported.
+> >
+> > Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+> > ---
+> >  Documentation/devicetree/bindings/serial/8250.txt        | 2 ++
+> >  Documentation/devicetree/bindings/serial/mrvl-serial.txt | 4 ----
+> >  2 files changed, 2 insertions(+), 4 deletions(-)
+> >  delete mode 100644 Documentation/devicetree/bindings/serial/mrvl-serial.txt
 > 
-> While here, replace hard coded values with standard bus frequency definitions.
+> Reviewed-by: Rob Herring <robh@kernel.org>
 > 
-> Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-> Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-> Cc: Alexandre Torgue <alexandre.torgue@st.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
-> v3: new patch instead of simple frequency conversion
->  drivers/i2c/busses/i2c-stm32f7.c | 57 +++++++++++++++-----------------
->  1 file changed, 26 insertions(+), 31 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-> index 6418f5982894..18f231f631f5 100644
-> --- a/drivers/i2c/busses/i2c-stm32f7.c
-> +++ b/drivers/i2c/busses/i2c-stm32f7.c
-> @@ -344,9 +344,9 @@ struct stm32f7_i2c_dev {
->   */
->  static struct stm32f7_i2c_spec i2c_specs[] = {
->  	[STM32_I2C_SPEED_STANDARD] = {
-> -		.rate = 100000,
-> -		.rate_min = 80000,
-> -		.rate_max = 100000,
-> +		.rate = I2C_MAX_STANDARD_MODE_FREQ,
-> +		.rate_min = I2C_MAX_STANDARD_MODE_FREQ * 8 / 10,	/* 80% */
-> +		.rate_max = I2C_MAX_STANDARD_MODE_FREQ,
->  		.fall_max = 300,
->  		.rise_max = 1000,
->  		.hddat_min = 0,
-> @@ -356,9 +356,9 @@ static struct stm32f7_i2c_spec i2c_specs[] = {
->  		.h_min = 4000,
->  	},
->  	[STM32_I2C_SPEED_FAST] = {
-> -		.rate = 400000,
-> -		.rate_min = 320000,
-> -		.rate_max = 400000,
-> +		.rate = I2C_MAX_FAST_MODE_FREQ,
-> +		.rate_min = I2C_MAX_FAST_MODE_FREQ * 8 / 10,		/* 80% */
-> +		.rate_max = I2C_MAX_FAST_MODE_FREQ,
->  		.fall_max = 300,
->  		.rise_max = 300,
->  		.hddat_min = 0,
-> @@ -368,9 +368,9 @@ static struct stm32f7_i2c_spec i2c_specs[] = {
->  		.h_min = 600,
->  	},
->  	[STM32_I2C_SPEED_FAST_PLUS] = {
-> -		.rate = 1000000,
-> -		.rate_min = 800000,
-> -		.rate_max = 1000000,
-> +		.rate = I2C_MAX_FAST_MODE_PLUS_FREQ,
-> +		.rate_min = I2C_MAX_FAST_MODE_PLUS_FREQ * 8 / 10,	/* 80% */
-> +		.rate_max = I2C_MAX_FAST_MODE_PLUS_FREQ,
->  		.fall_max = 100,
->  		.rise_max = 120,
->  		.hddat_min = 0,
-> @@ -610,8 +610,25 @@ static int stm32f7_i2c_compute_timing(struct stm32f7_i2c_dev *i2c_dev,
->  static int stm32f7_i2c_setup_timing(struct stm32f7_i2c_dev *i2c_dev,
->  				    struct stm32f7_i2c_setup *setup)
->  {
-> +	struct i2c_timings timings, *t = &timings;
->  	int ret = 0;
->  
-> +	t->bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
-> +	t->scl_rise_ns = i2c_dev->setup.rise_time;
-> +	t->scl_fall_ns = i2c_dev->setup.fall_time;
-> +
-> +	i2c_parse_fw_timings(&pdev->dev, t, false);
+> I'd really like to see 8250.txt converted to schema.
 
-Andy, thanks for the patch.
-Looks fine overall, apart from the above line which should be
+I'll follow up just with that.
 
-        i2c_parse_fw_timings(i2c_dev->dev, t, false);
+Thanks quarantine.
 
-> +
-> +	if (t->bus_freq_hz >= I2C_MAX_FAST_MODE_PLUS_FREQ)
-> +		i2c_dev->speed = STM32_I2C_SPEED_FAST_PLUS;
-> +	else if (t->bus_freq_hz >= I2C_MAX_FAST_MODE_FREQ)
-> +		i2c_dev->speed = STM32_I2C_SPEED_FAST;
-> +	else
-> +		i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
-> +
-> +	i2c_dev->setup.rise_time = t->scl_rise_ns;
-> +	i2c_dev->setup.fall_time = t->scl_fall_ns;
-> +
->  	setup->speed = i2c_dev->speed;
->  	setup->speed_freq = i2c_specs[setup->speed].rate;
->  	setup->clock_src = clk_get_rate(i2c_dev->clk);
-> @@ -1914,7 +1931,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
->  	struct stm32f7_i2c_dev *i2c_dev;
->  	const struct stm32f7_i2c_setup *setup;
->  	struct resource *res;
-> -	u32 clk_rate, rise_time, fall_time;
->  	struct i2c_adapter *adap;
->  	struct reset_control *rst;
->  	dma_addr_t phy_addr;
-> @@ -1961,17 +1977,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
->  		return ret;
->  	}
->  
-> -	i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
-> -	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
-> -				       &clk_rate);
-> -	if (!ret && clk_rate >= 1000000) {
-> -		i2c_dev->speed = STM32_I2C_SPEED_FAST_PLUS;
-> -	} else if (!ret && clk_rate >= 400000) {
-> -		i2c_dev->speed = STM32_I2C_SPEED_FAST;
-> -	} else if (!ret && clk_rate >= 100000) {
-> -		i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
-> -	}
-> -
->  	rst = devm_reset_control_get(&pdev->dev, NULL);
->  	if (IS_ERR(rst)) {
->  		dev_err(&pdev->dev, "Error: Missing controller reset\n");
-> @@ -2011,16 +2016,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
->  	}
->  	i2c_dev->setup = *setup;
->  
-> -	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-rising-time-ns",
-> -				       &rise_time);
-> -	if (!ret)
-> -		i2c_dev->setup.rise_time = rise_time;
-> -
-> -	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-falling-time-ns",
-> -				       &fall_time);
-> -	if (!ret)
-> -		i2c_dev->setup.fall_time = fall_time;
-> -
->  	ret = stm32f7_i2c_setup_timing(i2c_dev, &i2c_dev->setup);
->  	if (ret)
->  		goto clk_free;
-> -- 
-> 2.25.1
-> 
+> Rob
+
+Lubo
