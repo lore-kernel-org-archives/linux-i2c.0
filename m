@@ -1,147 +1,105 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v4 4/6] =?UTF-8?q?i2c:=20stm32f7:=20switch=20to=20I=C2=B2C?= =?UTF-8?q?=20generic=20property=20parsing?=
-Date: Fri, 20 Mar 2020 21:12:47 +0200
-Message-ID: <20200320191249.28835-4-andriy.shevchenko@linux.intel.com>
-References: <20200320191249.28835-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 1/6] i2c: core: Provide generic definitions for bus frequencies
+Date: Fri, 20 Mar 2020 21:12:44 +0200
+Message-ID: <20200320191249.28835-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:24520 "EHLO mga11.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:28090 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726814AbgCTTMw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 20 Mar 2020 15:12:52 -0400
-In-Reply-To: <20200320191249.28835-1-andriy.shevchenko@linux.intel.com>
+        id S1726814AbgCTTMx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 20 Mar 2020 15:12:53 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Alain Volmat <alain.volmat@st.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Switch to the new generic functions: i2c_parse_fw_timings().
+There are few maximum bus frequencies being used in the I²C core code.
+Provide generic definitions for bus frequencies and use them in the core.
 
-While here, replace hard coded values with standard bus frequency definitions.
+The drivers may use predefined constants where it is appropriate.
+Some of them are already using these under slightly different names.
+We will convert them later to use newly introduced defines.
 
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Alain Volmat <alain.volmat@st.com>
+Note, the name of modes are chosen to follow well established naming
+scheme [1].
+
+These definitions will also help to avoid typos in the numbers that
+may lead to subtle errors.
+
+[1]: https://en.wikipedia.org/wiki/I%C2%B2C#Differences_between_modes
+
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-v4: fixed typo in parameter (Alain)
- drivers/i2c/busses/i2c-stm32f7.c | 57 +++++++++++++++-----------------
- 1 file changed, 26 insertions(+), 31 deletions(-)
+v4: no changes
+ drivers/i2c/i2c-core-acpi.c | 2 +-
+ drivers/i2c/i2c-core-base.c | 8 ++++----
+ include/linux/i2c.h         | 8 ++++++++
+ 3 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 6418f5982894..330ffed011e0 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -344,9 +344,9 @@ struct stm32f7_i2c_dev {
-  */
- static struct stm32f7_i2c_spec i2c_specs[] = {
- 	[STM32_I2C_SPEED_STANDARD] = {
--		.rate = 100000,
--		.rate_min = 80000,
--		.rate_max = 100000,
-+		.rate = I2C_MAX_STANDARD_MODE_FREQ,
-+		.rate_min = I2C_MAX_STANDARD_MODE_FREQ * 8 / 10,	/* 80% */
-+		.rate_max = I2C_MAX_STANDARD_MODE_FREQ,
- 		.fall_max = 300,
- 		.rise_max = 1000,
- 		.hddat_min = 0,
-@@ -356,9 +356,9 @@ static struct stm32f7_i2c_spec i2c_specs[] = {
- 		.h_min = 4000,
- 	},
- 	[STM32_I2C_SPEED_FAST] = {
--		.rate = 400000,
--		.rate_min = 320000,
--		.rate_max = 400000,
-+		.rate = I2C_MAX_FAST_MODE_FREQ,
-+		.rate_min = I2C_MAX_FAST_MODE_FREQ * 8 / 10,		/* 80% */
-+		.rate_max = I2C_MAX_FAST_MODE_FREQ,
- 		.fall_max = 300,
- 		.rise_max = 300,
- 		.hddat_min = 0,
-@@ -368,9 +368,9 @@ static struct stm32f7_i2c_spec i2c_specs[] = {
- 		.h_min = 600,
- 	},
- 	[STM32_I2C_SPEED_FAST_PLUS] = {
--		.rate = 1000000,
--		.rate_min = 800000,
--		.rate_max = 1000000,
-+		.rate = I2C_MAX_FAST_MODE_PLUS_FREQ,
-+		.rate_min = I2C_MAX_FAST_MODE_PLUS_FREQ * 8 / 10,	/* 80% */
-+		.rate_max = I2C_MAX_FAST_MODE_PLUS_FREQ,
- 		.fall_max = 100,
- 		.rise_max = 120,
- 		.hddat_min = 0,
-@@ -610,8 +610,25 @@ static int stm32f7_i2c_compute_timing(struct stm32f7_i2c_dev *i2c_dev,
- static int stm32f7_i2c_setup_timing(struct stm32f7_i2c_dev *i2c_dev,
- 				    struct stm32f7_i2c_setup *setup)
- {
-+	struct i2c_timings timings, *t = &timings;
- 	int ret = 0;
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 8b0ff780919b..c8f42f2037cb 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -318,7 +318,7 @@ static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
+ 		lookup->min_speed = lookup->speed;
  
-+	t->bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
-+	t->scl_rise_ns = i2c_dev->setup.rise_time;
-+	t->scl_fall_ns = i2c_dev->setup.fall_time;
-+
-+	i2c_parse_fw_timings(i2c_dev->dev, t, false);
-+
-+	if (t->bus_freq_hz >= I2C_MAX_FAST_MODE_PLUS_FREQ)
-+		i2c_dev->speed = STM32_I2C_SPEED_FAST_PLUS;
-+	else if (t->bus_freq_hz >= I2C_MAX_FAST_MODE_FREQ)
-+		i2c_dev->speed = STM32_I2C_SPEED_FAST;
-+	else
-+		i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
-+
-+	i2c_dev->setup.rise_time = t->scl_rise_ns;
-+	i2c_dev->setup.fall_time = t->scl_fall_ns;
-+
- 	setup->speed = i2c_dev->speed;
- 	setup->speed_freq = i2c_specs[setup->speed].rate;
- 	setup->clock_src = clk_get_rate(i2c_dev->clk);
-@@ -1914,7 +1931,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	struct stm32f7_i2c_dev *i2c_dev;
- 	const struct stm32f7_i2c_setup *setup;
- 	struct resource *res;
--	u32 clk_rate, rise_time, fall_time;
- 	struct i2c_adapter *adap;
- 	struct reset_control *rst;
- 	dma_addr_t phy_addr;
-@@ -1961,17 +1977,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+ 	if (acpi_match_device_ids(adev, i2c_acpi_force_400khz_device_ids) == 0)
+-		lookup->force_speed = 400000;
++		lookup->force_speed = I2C_MAX_FAST_MODE_FREQ;
  
--	i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
--	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
--				       &clk_rate);
--	if (!ret && clk_rate >= 1000000) {
--		i2c_dev->speed = STM32_I2C_SPEED_FAST_PLUS;
--	} else if (!ret && clk_rate >= 400000) {
--		i2c_dev->speed = STM32_I2C_SPEED_FAST;
--	} else if (!ret && clk_rate >= 100000) {
--		i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
--	}
--
- 	rst = devm_reset_control_get(&pdev->dev, NULL);
- 	if (IS_ERR(rst)) {
- 		dev_err(&pdev->dev, "Error: Missing controller reset\n");
-@@ -2011,16 +2016,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	}
- 	i2c_dev->setup = *setup;
+ 	return AE_OK;
+ }
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index cefad0881942..9b2972c7faa2 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1612,13 +1612,13 @@ void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_de
  
--	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-rising-time-ns",
--				       &rise_time);
--	if (!ret)
--		i2c_dev->setup.rise_time = rise_time;
--
--	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-falling-time-ns",
--				       &fall_time);
--	if (!ret)
--		i2c_dev->setup.fall_time = fall_time;
--
- 	ret = stm32f7_i2c_setup_timing(i2c_dev, &i2c_dev->setup);
- 	if (ret)
- 		goto clk_free;
+ 	ret = device_property_read_u32(dev, "clock-frequency", &t->bus_freq_hz);
+ 	if (ret && use_defaults)
+-		t->bus_freq_hz = 100000;
++		t->bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
+ 
+ 	ret = device_property_read_u32(dev, "i2c-scl-rising-time-ns", &t->scl_rise_ns);
+ 	if (ret && use_defaults) {
+-		if (t->bus_freq_hz <= 100000)
++		if (t->bus_freq_hz <= I2C_MAX_STANDARD_MODE_FREQ)
+ 			t->scl_rise_ns = 1000;
+-		else if (t->bus_freq_hz <= 400000)
++		else if (t->bus_freq_hz <= I2C_MAX_FAST_MODE_FREQ)
+ 			t->scl_rise_ns = 300;
+ 		else
+ 			t->scl_rise_ns = 120;
+@@ -1626,7 +1626,7 @@ void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_de
+ 
+ 	ret = device_property_read_u32(dev, "i2c-scl-falling-time-ns", &t->scl_fall_ns);
+ 	if (ret && use_defaults) {
+-		if (t->bus_freq_hz <= 400000)
++		if (t->bus_freq_hz <= I2C_MAX_FAST_MODE_FREQ)
+ 			t->scl_fall_ns = 300;
+ 		else
+ 			t->scl_fall_ns = 120;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index f834687989f7..72e759328cee 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -39,6 +39,14 @@ enum i2c_slave_event;
+ typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
+ 			      enum i2c_slave_event event, u8 *val);
+ 
++/* I2C Frequency Modes */
++#define I2C_MAX_STANDARD_MODE_FREQ	100000
++#define I2C_MAX_FAST_MODE_FREQ		400000
++#define I2C_MAX_FAST_MODE_PLUS_FREQ	1000000
++#define I2C_MAX_TURBO_MODE_FREQ		1400000
++#define I2C_MAX_HIGH_SPEED_MODE_FREQ	3400000
++#define I2C_MAX_ULTRA_FAST_MODE_FREQ	5000000
++
+ struct module;
+ struct property_entry;
+ 
 -- 
 2.25.1
