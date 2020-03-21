@@ -1,66 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 6/6] i2c: designware: Add Baikal-T1 SoC I2C controller
- support
-Date: Sat, 21 Mar 2020 19:33:49 +0100
-Message-ID: <20200321183349.GC5632@ninjato>
-References: <20200306131955.12806-1-Sergey.Semin@baikalelectronics.ru>
- <20200306132348.71E638030793@mail.baikalelectronics.ru>
+Subject: Re: [PATCH v1] i2c: designware: Fix spelling typos in the comments
+Date: Sat, 21 Mar 2020 19:54:23 +0100
+Message-ID: <20200321185423.GD5632@ninjato>
+References: <20200319153012.36136-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7qSK/uQB79J36Y4o"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="6Nae48J/T25AfBN4"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:38372 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727015AbgCUSyZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 21 Mar 2020 14:54:25 -0400
 Content-Disposition: inline
-In-Reply-To: <20200306132348.71E638030793@mail.baikalelectronics.ru>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sergey.Semin@baikalelectronics.ru
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Serge Semin <fancer.lancer@gmail.com>, Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Paul Burton <paulburton@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20200319153012.36136-1-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---7qSK/uQB79J36Y4o
+--6Nae48J/T25AfBN4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 06, 2020 at 04:19:58PM +0300, Sergey.Semin@baikalelectronics.ru=
- wrote:
-> From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+On Thu, Mar 19, 2020 at 05:30:12PM +0200, Andy Shevchenko wrote:
+> Fix spelling typos in the comments with help of `codespell`.
 >=20
-> A third I2C controller embedded into the Baikal-T1 SoC is also fully
-> based on the DW APB I2C core, but its registers are indirectly
-> accessible via "command/data in/data out" trio. There is no difference
-> other than that. So in order to have that controller supported by the
-> common DW APB I2C driver we only need to introduce a new flag
-> ACCESS_INDIRECT and use the access-registers to reach the I2C controller
-> normal registers space in the dw_readl/dw_writel methods. Currently this
-> flag is only enabled for the controllers with "be,bt1-i2c" compatible
-> string.
->=20
-> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-> Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Patches 2,3, and 6 have comments which should be addressed. Patches 4+5
-can be dropped when sending next version.
+Applied to for-next, thanks!
 
 
---7qSK/uQB79J36Y4o
+--6Nae48J/T25AfBN4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl52Xg0ACgkQFA3kzBSg
-KbYNoQ/+IqAHiu0yu6E7vmrFh163UulAWJmyVeL2xt5Umm6AqdBs1yTL6Oy4JB6w
-9fMelMGKk4uybuL32UvtviBiNBlqdxPrmkNLfqJ3TkFvg/kSev+HR8QIRPS3WNme
-UuHz5MCoYPfZK8Pbx8oJsaopI0Ad7/d0uB9MOmatEERHz6jrvQulhm42psN2/icM
-wufLIsBr803+Ld1VxotTU/15lKfOXsYKhDj3LmiP6iUUtc7K0yQdRcD5KI+3+KZ2
-FehsEcizI4YuexDTQrup4Ri6PFj7Tcc8ZXEFXjMYQIuVyYZP50Fs8USKSQcja0e6
-Q0er8yM3BRqla5ZoCYQsbXqHYDZh70RxYnj6kOPsYFsjyzR54An0NUG9WERTjCaE
-DVt0qoOfG6uQnQGX9fgJhzQA5TDlr1xcwxU3A4WS+VNgRuBiG1PI0pFkux9/oesG
-jFSb0SHLxH9sHE6iH9nhb04hlLxPqiI0esFMtAc8PPW2zaH/ksxa70pc5T3QNJUc
-poJGFzVxhyI9i0mgnWRYjcITPA5rQqIHAPNxzwNOHvkryDyv1L8dzMey2toJzvUB
-0NF0i2II9y5nPt2AWm0ctjdRfmsaikLotwAWLHjNBp+mx+dKpOLtF74D/g/knOKo
-sU0TkXTi56MjIz05pP6/nvbD+fjeVOUtj4MEyYNH5OIhrQQoibE=
-=KXuX
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl52Yt8ACgkQFA3kzBSg
+KbYIShAAtQJFS85CixznA5bJkh06lEQFZaoR8JeZ5d9op49ShG1jtwIH+fw/cdGK
+Kwu52gTWopTAVKRoGvo6keEmFGMLb2Ms6Bh26zCp/bXsU0HZV+g4JgezEI426blF
+AZeR0KLJH9Ncl+YeOEcoH1teOJBFrbhySlFr+mnCysqCqbCz1OxK9XRB3L5GaxBC
+USUH3zOZFQ2EZfjlZtDxThjl14TbW0+aWFsHk3+9PEquWQciImf8jFNNUcBiaTOe
+WvCOiCSlj+4LfqMgs4jNrv/FzH0yg/fk+8hS4WIOOEkFx8s0s35hMAJTUrZlwa/0
+pg7KWK4XYUIm3QIFRdi7tc51lmLytdmp9CIltbR1ZsZ+cnaRp2jRf5tqf4Sko/3y
+OSjGyv7mnSUswoML7WNDToliqfrh8y/AkhKpkxZKNDvi/vRHQNW35gsGozvstQUY
+04KFzbf+hr6gy9HG/ZgS73cZpw9QF4vfetZRxfT46cPHm3aqN9a3Q6Z4YSspYy13
+G7o815bB7JA/+gNdMYnToZgJN/i5Q4TcVD3PGlx8Qm15TnjzbEaty2SEeCiuDci/
+0i5F1Kqz3g3As2EQaDFjlm5ebSycIKTXdhtdFN13mVNQQ/qWbtJ70yLtgD4vSFtB
+h53qHkLHfB2whdSBiXpb6wsDfjp3Sk1wvYSBl4QdhzbFtS4xU0w=
+=Rgo/
 -----END PGP SIGNATURE-----
 
---7qSK/uQB79J36Y4o--
+--6Nae48J/T25AfBN4--
