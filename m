@@ -1,66 +1,32 @@
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Subject: [PATCH v1 1/1] i2c: iproc: add support for SMBUS quick cmd
-Date: Sun, 22 Mar 2020 23:53:22 +0530
-Message-ID: <20200322182322.32743-1-rayagonda.kokatanur@broadcom.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] i2c: i801: Fix memory corruption in i801_isr_byte_done()
+Date: Sun, 22 Mar 2020 23:10:43 +0200
+Message-ID: <CAHp75Ve-_KwH51pjnuZQAkaRsZVGuimBM-03MPW6j_nxgadx2g@mail.gmail.com>
+References: <0000000000009586b2059c13c7e1@google.com> <20200114073406.qaq3hbrhtx76fkes@kili.mountain>
+ <20200222124523.GI1716@kunai> <20200320145748.GD1282@ninjato> <20200322190813.39b92de2@endymion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:33005 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725997AbgCVSXg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 Mar 2020 14:23:36 -0400
-Received: by mail-wr1-f68.google.com with SMTP id a25so14027549wrd.0
-        for <linux-i2c@vger.kernel.org>; Sun, 22 Mar 2020 11:23:35 -0700 (PDT)
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:37235 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726741AbgCVVK4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 Mar 2020 17:10:56 -0400
+In-Reply-To: <20200322190813.39b92de2@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Wolfram Sang <wsa@the-dreams.de>, Lori Hikichi <lori.hikichi@broadcom.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Nishka Dasgupta <nishkadg.linux@gmail.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dan Carpenter <dan.carpenter@oracle.com>, Daniel Kurtz <djkurtz@chromium.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, syzbot <syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Add support for SMBUS quick command.
+On Sun, Mar 22, 2020 at 8:11 PM Jean Delvare <jdelvare@suse.de> wrote:
+>
+> Hi Wolfram,
+>
+> Can you please bounce the previous messages in this thread to me? I was
+> apparently not Cc'd so I'm missing the context.
 
-SMBUS quick command passes single bit of information to the
-slave (target) device. Can be used to turn slave device on or off.
+You can always take it from patchwork
+http://patchwork.ozlabs.org/patch/1222542/
 
-By default i2c_detect tool uses the smbus quick cmd to try and
-detect devices. Without this support it will not detect some slaves.
-
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
----
- drivers/i2c/busses/i2c-bcm-iproc.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index 30efb7913b2e..6a461e06e6dd 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -79,6 +79,7 @@
- #define M_CMD_STATUS_RX_FIFO_FULL    0x6
- #define M_CMD_PROTOCOL_SHIFT         9
- #define M_CMD_PROTOCOL_MASK          0xf
-+#define M_CMD_PROTOCOL_QUICK         0x0
- #define M_CMD_PROTOCOL_BLK_WR        0x7
- #define M_CMD_PROTOCOL_BLK_RD        0x8
- #define M_CMD_PROTOCOL_PROCESS       0xa
-@@ -765,7 +766,11 @@ static int bcm_iproc_i2c_xfer_internal(struct bcm_iproc_i2c_dev *iproc_i2c,
- 	 * number of bytes to read
- 	 */
- 	val = BIT(M_CMD_START_BUSY_SHIFT);
--	if (msg->flags & I2C_M_RD) {
-+
-+	if (msg->len == 0) {
-+		/* SMBUS QUICK Command (Read/Write) */
-+		val |= (M_CMD_PROTOCOL_QUICK << M_CMD_PROTOCOL_SHIFT);
-+	} else if (msg->flags & I2C_M_RD) {
- 		u32 protocol;
- 
- 		iproc_i2c->rx_bytes = 0;
-@@ -827,8 +832,7 @@ static uint32_t bcm_iproc_i2c_functionality(struct i2c_adapter *adap)
- {
- 	u32 val;
- 
--	/* We do not support the SMBUS Quick command */
--	val = I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
-+	val = I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
- 
- 	if (adap->algo->reg_slave)
- 		val |= I2C_FUNC_SLAVE;
 -- 
-2.17.1
+With Best Regards,
+Andy Shevchenko
