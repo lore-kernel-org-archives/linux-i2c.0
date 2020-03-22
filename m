@@ -1,69 +1,38 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: i801: Fix memory corruption in
- i801_isr_byte_done()
-Date: Sun, 22 Mar 2020 19:08:13 +0100
-Message-ID: <20200322190813.39b92de2@endymion>
-References: <0000000000009586b2059c13c7e1@google.com>
-        <20200114073406.qaq3hbrhtx76fkes@kili.mountain>
-        <20200222124523.GI1716@kunai>
-        <20200320145748.GD1282@ninjato>
+From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Subject: [PATCH v1 1/1] i2c: iproc: generate stop event for slave writes
+Date: Sun, 22 Mar 2020 23:50:19 +0530
+Message-ID: <20200322182019.32493-1-rayagonda.kokatanur@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:41510 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725785AbgCVSIR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 22 Mar 2020 14:08:17 -0400
-In-Reply-To: <20200320145748.GD1282@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Wolfram Sang <wsa@the-dreams.de>, Lori Hikichi <lori.hikichi@broadcom.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Nishka Dasgupta <nishkadg.linux@gmail.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, Daniel Kurtz <djkurtz@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, syzbot <syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Hi Wolfram,
+When slave status is I2C_SLAVE_RX_END, generate I2C_SLAVE_STOP
+event to i2c_client.
 
-Can you please bounce the previous messages in this thread to me? I was
-apparently not Cc'd so I'm missing the context.
+Fixes: c245d94ed106 ("i2c: iproc: Add multi byte read-write support for slave mode")
+Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+---
+ drivers/i2c/busses/i2c-bcm-iproc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Thanks,
-Jean
-
-On Fri, 20 Mar 2020 15:57:48 +0100, Wolfram Sang wrote:
-> On Sat, Feb 22, 2020 at 01:45:23PM +0100, Wolfram Sang wrote:
-> > On Tue, Jan 14, 2020 at 10:34:06AM +0300, Dan Carpenter wrote:  
-> > > Assigning "priv->data[-1] = priv->len;" obviously doesn't make sense.
-> > > What it does is it ends up corrupting the last byte of priv->len so
-> > > priv->len becomes a very high number.
-> > > 
-> > > Reported-by: syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com
-> > > Fixes: d3ff6ce40031 ("i2c-i801: Enable IRQ for byte_by_byte transactions")
-> > > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> > > ---  
-> > 
-> > Daniel, Jean: what do you think?
-> > Also, adding Jarkko to CC who works a lot with this driver...  
-> 
-> Ping. Adding more people...
-> 
-> >   
-> > > Untested.
-> > > 
-> > >  drivers/i2c/busses/i2c-i801.c | 1 -
-> > >  1 file changed, 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> > > index f5e69fe56532..420d8025901e 100644
-> > > --- a/drivers/i2c/busses/i2c-i801.c
-> > > +++ b/drivers/i2c/busses/i2c-i801.c
-> > > @@ -584,7 +584,6 @@ static void i801_isr_byte_done(struct i801_priv *priv)
-> > >  					"SMBus block read size is %d\n",
-> > >  					priv->len);
-> > >  			}
-> > > -			priv->data[-1] = priv->len;
-> > >  		}
-> > >  
-> > >  		/* Read next byte */
-> > > -- 
-> > > 2.11.0
-> > >   
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index 30efb7913b2e..b58224b7ba79 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -360,6 +360,9 @@ static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
+ 			i2c_slave_event(iproc_i2c->slave,
+ 					I2C_SLAVE_WRITE_RECEIVED, &value);
++			if (rx_status == I2C_SLAVE_RX_END)
++				i2c_slave_event(iproc_i2c->slave,
++						I2C_SLAVE_STOP, &value);
+ 		}
+ 	} else if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
+ 		/* Master read other than start */
+-- 
+2.17.1
