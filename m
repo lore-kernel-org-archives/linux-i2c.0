@@ -1,107 +1,73 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: Re: [PATCH] i2c: nvidia-gpu: Handle timeout correctly in
- gpu_i2c_check_status()
-Date: Tue, 24 Mar 2020 01:20:31 +0800
-Message-ID: <E6C41EAE-C56D-4FAB-969F-0842F4FF5C18@canonical.com>
-References: <20200311165806.12365-1-kai.heng.feng@canonical.com>
- <DA56E103-CAA7-4C28-9528-9EAFF2C717CD@canonical.com>
- <BYAPR12MB2727B1862E56594E4B6A3E0ADCF00@BYAPR12MB2727.namprd12.prod.outlook.com>
-Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3608.60.0.2.5\))
-Content-Type: text/plain;
-        charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: i801: Fix memory corruption in
+ i801_isr_byte_done()
+Date: Mon, 23 Mar 2020 18:51:20 +0100
+Message-ID: <20200323185120.1a5cd734@endymion>
+References: <0000000000009586b2059c13c7e1@google.com>
+        <20200114073406.qaq3hbrhtx76fkes@kili.mountain>
+        <20200322231106.3d431ced@endymion>
+        <20200323093733.GA26299@kadam>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:34693 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727194AbgCWRUk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Mar 2020 13:20:40 -0400
-Received: from mail-pl1-f197.google.com ([209.85.214.197])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <kai.heng.feng@canonical.com>)
-        id 1jGQkg-0003Un-Bx
-        for linux-i2c@vger.kernel.org; Mon, 23 Mar 2020 17:20:38 +0000
-Received: by mail-pl1-f197.google.com with SMTP id t12so9956775plo.4
-        for <linux-i2c@vger.kernel.org>; Mon, 23 Mar 2020 10:20:38 -0700 (PDT)
-In-Reply-To: <BYAPR12MB2727B1862E56594E4B6A3E0ADCF00@BYAPR12MB2727.namprd12.prod.outlook.com>
+Received: from mx2.suse.de ([195.135.220.15]:44468 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727160AbgCWRvX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 23 Mar 2020 13:51:23 -0400
+In-Reply-To: <20200323093733.GA26299@kadam>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ajay Gupta <ajayg@nvidia.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "open list:I2C CONTROLLER DRIVER FOR NVIDIA GPU" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, syzbot <syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com>
 
-Hi Ajay,
-
-> On Mar 24, 2020, at 00:47, Ajay Gupta <ajayg@nvidia.com> wrote:
+On Mon, 23 Mar 2020 12:37:33 +0300, Dan Carpenter wrote:
+> On Sun, Mar 22, 2020 at 11:11:06PM +0100, Jean Delvare wrote:
+> > Definitely not correct. The first byte of the block data array MUST be
+> > the size of the block read. Even if the code above does not do the
+> > right thing, removing the line will not help.
+> >   
 > 
-> Kai-Heng
+> Yeah.  I misread the code.
 > 
->> -----Original Message-----
->> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
->> Sent: Sunday, March 22, 2020 10:38 PM
->> To: Ajay Gupta <ajayg@nvidia.com>
->> Cc: Wolfram Sang <wsa@the-dreams.de>; Andy Shevchenko
->> <andriy.shevchenko@linux.intel.com>; open list:I2C CONTROLLER DRIVER FOR
->> NVIDIA GPU <linux-i2c@vger.kernel.org>; open list <linux-
->> kernel@vger.kernel.org>
->> Subject: Re: [PATCH] i2c: nvidia-gpu: Handle timeout correctly in
->> gpu_i2c_check_status()
->> 
->> External email: Use caution opening links or attachments
->> 
->> 
->>> On Mar 12, 2020, at 00:58, Kai-Heng Feng <kai.heng.feng@canonical.com>
->> wrote:
->>> 
->>> Nvidia card may come with a "phantom" UCSI device, and its driver gets
->>> stuck in probe routine, prevents any system PM operations like suspend.
->>> 
->>> Let's handle the unaccounted case that the target time equals to
->>> jiffies in gpu_i2c_check_status(), so the UCSI driver can let the
->>> probe fail as it should.
-> If status is not seen in 999.5 ms then I don't see any reason why it will come
-> exactly at 1000ms. In fact,  we expect status to be seen within 160ms as per
-> I2C_MST_I2C0_TIMING_TIMEOUT_CLK_CNT (16 cycle) and 
-> I2C_MST_I2C0_TIMING_SCL_PERIOD_100KHZ (10ms/cycle) programmed in 
-> I2C_MST_I2C0_TIMING Register. We already have enough extra time to look
-> For response.
-
-This is to handle when there's no response.
-
-When the while loop terminates because of "time_is_after_jiffies(target)" (i.e. target <= jiffies), we also need to to handle "target == jiffies" case in the following if clause to properly timeout.
-
-I don't think I2C timings here can affect jiffies.
-
-Kai-Heng
-
+> > Is it possible that kasan got this wrong due to the convoluted logic?
+> > It's late and I'll check again tomorrow morning but the code looks OK
+> > to me.  
 > 
-> Thanks
->> nvpublic
->>> 
->>> Fixes: c71bcdcb42a7 ("i2c: add i2c bus driver for NVIDIA GPU")
->>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
->> 
->> A gentle ping...
->> 
->>> ---
->>> drivers/i2c/busses/i2c-nvidia-gpu.c | 2 +-
->>> 1 file changed, 1 insertion(+), 1 deletion(-)
->>> 
->>> diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c
->>> b/drivers/i2c/busses/i2c-nvidia-gpu.c
->>> index 62e18b4db0ed..1988e93c7925 100644
->>> --- a/drivers/i2c/busses/i2c-nvidia-gpu.c
->>> +++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
->>> @@ -88,7 +88,7 @@ static int gpu_i2c_check_status(struct gpu_i2c_dev
->> *i2cd)
->>>              usleep_range(500, 600);
->>>      } while (time_is_after_jiffies(target));
->>> 
->>> -     if (time_is_before_jiffies(target)) {
->>> +     if (time_is_before_eq_jiffies(target)) {
->>>              dev_err(i2cd->dev, "i2c timeout error %x\n", val);
->>>              return -ETIMEDOUT;
->>>      }
->>> --
->>> 2.17.1
->>> 
+> KASan doesn't work like that.  It works at runtime and doesn't care
+> about the logic.
 > 
+> https://syzkaller.appspot.com/bug?id=426fc8b1c1b63fb0af524d839dfcf452f2d858e2
+> 
+> At the bottom of the report it shows that we're in a field of f9
+> poisoned data so it's not priv->len which is wrong.  (My patch was way
+> off).
+> 
+> mm/kasan/kasan.h:#define KASAN_VMALLOC_INVALID   0xF9  /* unallocated space in vmapped page */
+> 
+> The logic looks okay to me too.  So possibly this was a race condition
+> or even memory corruption in an unrelated part of the kernel.
+
+I checked out the exact kernel version this report was generated for,
+and the faulty line is:
+
+  592:			priv->data[priv->count++] = inb(SMBBLKDAT(priv));
+
+This would suggest the problem is with priv->count growing beyond the
+end of the array, however the fact that we land in a memory spot full
+of 0xF9 kind of excludes this possibility (the data before the spot
+would contain different data if it was the case).
+
+The other option is that priv->count wasn't initialized at the time
+it is used. However I can't see how this could happen, given that the
+priv structure is kzalloc'd.
+
+So, to be honest I can't really see how priv->count can get wrong. So
+I would be tempted to lend towards the theory that the i2c-i801 driver
+was a collateral victim of a memory corruption happening somewhere else
+in the kernel. Wouldn't Kasan catch this too? Is it possible to access
+the other Kasan reports from the same test run?
+
+-- 
+Jean Delvare
+SUSE L3 Support
