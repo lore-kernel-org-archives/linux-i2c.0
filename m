@@ -1,106 +1,86 @@
-From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v9 3/3] i2c: npcm7xx: Add support for slave mode for
- Nuvoton
-Date: Mon, 23 Mar 2020 18:01:58 +0200
-Message-ID: <20200323160158.GR1922688@smile.fi.intel.com>
-References: <20200323134437.259210-1-tali.perry1@gmail.com>
- <20200323134437.259210-4-tali.perry1@gmail.com>
+From: Ajay Gupta <ajayg@nvidia.com>
+Subject: RE: [PATCH] i2c: nvidia-gpu: Handle timeout correctly in
+ gpu_i2c_check_status()
+Date: Mon, 23 Mar 2020 16:47:17 +0000
+Message-ID: <BYAPR12MB2727B1862E56594E4B6A3E0ADCF00@BYAPR12MB2727.namprd12.prod.outlook.com>
+References: <20200311165806.12365-1-kai.heng.feng@canonical.com>
+ <DA56E103-CAA7-4C28-9528-9EAFF2C717CD@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20200323134437.259210-4-tali.perry1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tali Perry <tali.perry1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, avifishman70-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, tmaimon77-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kfting-KrzQf0k3Iz9BDgjK7y7TUQ@public.gmane.org, venture-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, yuenn-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, benjaminfair-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:9728 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727402AbgCWQrV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Mar 2020 12:47:21 -0400
+In-Reply-To: <DA56E103-CAA7-4C28-9528-9EAFF2C717CD@canonical.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "open list:I2C CONTROLLER DRIVER FOR NVIDIA GPU" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 
-On Mon, Mar 23, 2020 at 03:44:37PM +0200, Tali Perry wrote:
-> Add support for slave mode for Nuvoton
-> NPCM BMC I2C controller driver.
+Kai-Heng
 
-Same comments apply as per previous patch.
+> -----Original Message-----
+> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Sent: Sunday, March 22, 2020 10:38 PM
+> To: Ajay Gupta <ajayg@nvidia.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>; Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com>; open list:I2C CONTROLLER DRIVER FOR
+> NVIDIA GPU <linux-i2c@vger.kernel.org>; open list <linux-
+> kernel@vger.kernel.org>
+> Subject: Re: [PATCH] i2c: nvidia-gpu: Handle timeout correctly in
+> gpu_i2c_check_status()
+>=20
+> External email: Use caution opening links or attachments
+>=20
+>=20
+> > On Mar 12, 2020, at 00:58, Kai-Heng Feng <kai.heng.feng@canonical.com>
+> wrote:
+> >
+> > Nvidia card may come with a "phantom" UCSI device, and its driver gets
+> > stuck in probe routine, prevents any system PM operations like suspend.
+> >
+> > Let's handle the unaccounted case that the target time equals to
+> > jiffies in gpu_i2c_check_status(), so the UCSI driver can let the
+> > probe fail as it should.
+If status is not seen in 999.5 ms then I don't see any reason why it will c=
+ome
+exactly at 1000ms. In fact,  we expect status to be seen within 160ms as pe=
+r
+I2C_MST_I2C0_TIMING_TIMEOUT_CLK_CNT (16 cycle) and=20
+I2C_MST_I2C0_TIMING_SCL_PERIOD_100KHZ (10ms/cycle) programmed in=20
+I2C_MST_I2C0_TIMING Register. We already have enough extra time to look
+For response.
 
-...
-
-> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
-
-Perhaps create a separate module and compile it when user selects?
-See I²C DesignWare split.
-
-...
-
-> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
-> +	if (bus->slave) {
-> +		npcm_i2c_slave_enable_l(bus, I2C_SLAVE_ADDR1, bus->slave->addr,
-> +					true);
-> +	}
-
-Put it on one line and drop {} -- it will be much better to read.
-
-> +#endif
-
-...
-
-> +static void npcm_i2c_write_to_fifo_slave(struct npcm_i2c *bus,
-> +					 u16 max_bytes_to_send)
-> +{
-> +	// Fill the FIFO, while the FIFO is not full and there are more bytes to
-> +	// write
-> +	npcm_i2c_clear_fifo_int(bus);
-> +	npcm_i2c_clear_tx_fifo(bus);
-> +	iowrite8(0, bus->reg + NPCM_I2CTXF_CTL);
-> +
-> +	while ((max_bytes_to_send--) && (I2C_HW_FIFO_SIZE -
-> +					 npcm_i2c_get_fifo_fullness(bus))) {
-> +		if (bus->slv_wr_size > 0) {
-> +			npcm_i2c_wr_byte(bus,
-> +					 bus->slv_wr_buf[bus->slv_wr_ind %
-> +					 I2C_HW_FIFO_SIZE]);
-> +			bus->slv_wr_ind = (bus->slv_wr_ind + 1) %
-> +					   I2C_HW_FIFO_SIZE;
-> +			bus->slv_wr_size--; // size indicates the # of bytes in
-> +					    // the SW FIFO, not HW.
-> +		} else {
-> +			break;
-> +		}
-
-This looks ugly. Can you redo the style.
-
-> +	}
-> +}
-
-...
-
-> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
-> +			if (bus->slave) {
-> +				bus->slv_rd_buf[bus->slv_rd_ind %
-> +						I2C_HW_FIFO_SIZE] = data;
-> +				bus->slv_rd_ind++;
-> +				if (bus->slv_rd_ind == 1 && bus->read_block_use)
-> +					// 1st byte is length in block protocol
-> +					bus->slv_rd_size = data +
-> +							   (u8)bus->PEC_use +
-> +							(u8)bus->read_block_use;
-> +			}
-> +#endif
-
-Ditto.
-
-...
-
->  		   I2C_FUNC_SMBUS_EMUL |
->  		   I2C_FUNC_SMBUS_BLOCK_DATA |
->  		   I2C_FUNC_SMBUS_PEC
-> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
-> +		   | I2C_FUNC_SLAVE
-> +#endif
-
-Completely inconsistent style.
-
->  		   ;
-
--- 
-With Best Regards,
-Andy Shevchenko
+Thanks
+> nvpublic
+> >
+> > Fixes: c71bcdcb42a7 ("i2c: add i2c bus driver for NVIDIA GPU")
+> > Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>=20
+> A gentle ping...
+>=20
+> > ---
+> > drivers/i2c/busses/i2c-nvidia-gpu.c | 2 +-
+> > 1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c
+> > b/drivers/i2c/busses/i2c-nvidia-gpu.c
+> > index 62e18b4db0ed..1988e93c7925 100644
+> > --- a/drivers/i2c/busses/i2c-nvidia-gpu.c
+> > +++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
+> > @@ -88,7 +88,7 @@ static int gpu_i2c_check_status(struct gpu_i2c_dev
+> *i2cd)
+> >               usleep_range(500, 600);
+> >       } while (time_is_after_jiffies(target));
+> >
+> > -     if (time_is_before_jiffies(target)) {
+> > +     if (time_is_before_eq_jiffies(target)) {
+> >               dev_err(i2cd->dev, "i2c timeout error %x\n", val);
+> >               return -ETIMEDOUT;
+> >       }
+> > --
+> > 2.17.1
+> >
