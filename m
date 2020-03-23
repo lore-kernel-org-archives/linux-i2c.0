@@ -1,123 +1,72 @@
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
-Subject: Re: [PATCH v4 1/6] i2c: Allow driver to manage the device's power
- state during probe
-Date: Mon, 23 Mar 2020 23:36:03 +0200
-Message-ID: <20200323213602.GC21174@kekkonen.localdomain>
-References: <20200121134157.20396-1-sakari.ailus@linux.intel.com>
- <20200121134157.20396-2-sakari.ailus@linux.intel.com>
- <CAMpxmJX8gF3TujMMeEgERAFM4YbpgnNjOmuV+U7uWCndqsyGeA@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 3/6] i2c: rcar: Consolidate timings calls in
+ rcar_i2c_clock_calculate()
+Date: Mon, 23 Mar 2020 22:54:21 +0100
+Message-ID: <20200323215420.GA10635@ninjato>
+References: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
+ <20200316154929.20886-3-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:17076 "EHLO mga06.intel.com"
+Received: from sauhun.de ([88.99.104.3]:40088 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726203AbgCWVgL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 23 Mar 2020 17:36:11 -0400
+        id S1725897AbgCWVy1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 23 Mar 2020 17:54:27 -0400
 Content-Disposition: inline
-In-Reply-To: <CAMpxmJX8gF3TujMMeEgERAFM4YbpgnNjOmuV+U7uWCndqsyGeA@mail.gmail.com>
+In-Reply-To: <20200316154929.20886-3-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>, linux-media <linux-media@vger.kernel.org>, Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>, Hyungwoo Yang <hyungwoo.yang@intel.com>, Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org
 
-Hi Bartosz,
 
-On Wed, Jan 29, 2020 at 02:54:20PM +0100, Bartosz Golaszewski wrote:
-> wt., 21 sty 2020 o 14:41 Sakari Ailus <sakari.ailus@linux.intel.com> napisał(a):
-> >
-> > Enable drivers to tell ACPI that there's no need to power on a device for
-> > probe. Drivers should still perform this by themselves if there's a need
-> > to. In some cases powering on the device during probe is undesirable, and
-> > this change enables a driver to choose what fits best for it.
-> >
-> > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> > ---
-> >  drivers/i2c/i2c-core-base.c | 15 ++++++++++++---
-> >  include/linux/i2c.h         |  3 +++
-> >  2 files changed, 15 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> > index 9f8dcd3f83850..7bf1699c9044d 100644
-> > --- a/drivers/i2c/i2c-core-base.c
-> > +++ b/drivers/i2c/i2c-core-base.c
-> > @@ -303,6 +303,14 @@ static int i2c_smbus_host_notify_to_irq(const struct i2c_client *client)
-> >         return irq > 0 ? irq : -ENXIO;
-> >  }
-> >
-> > +static bool probe_low_power(struct device *dev)
-> > +{
-> > +       struct i2c_driver *driver = to_i2c_driver(dev->driver);
-> > +
-> > +       return driver->probe_low_power &&
-> > +               device_property_present(dev, "probe-low-power");
-> > +}
-> > +
-> >  static int i2c_device_probe(struct device *dev)
-> >  {
-> >         struct i2c_client       *client = i2c_verify_client(dev);
-> > @@ -375,7 +383,8 @@ static int i2c_device_probe(struct device *dev)
-> >         if (status < 0)
-> >                 goto err_clear_wakeup_irq;
-> >
-> > -       status = dev_pm_domain_attach(&client->dev, true);
-> > +       status = dev_pm_domain_attach(&client->dev,
-> > +                                     !probe_low_power(&client->dev));
-> >         if (status)
-> >                 goto err_clear_wakeup_irq;
-> >
-> > @@ -397,7 +406,7 @@ static int i2c_device_probe(struct device *dev)
-> >         return 0;
-> >
-> >  err_detach_pm_domain:
-> > -       dev_pm_domain_detach(&client->dev, true);
-> > +       dev_pm_domain_detach(&client->dev, !probe_low_power(&client->dev));
-> >  err_clear_wakeup_irq:
-> >         dev_pm_clear_wake_irq(&client->dev);
-> >         device_init_wakeup(&client->dev, false);
-> > @@ -419,7 +428,7 @@ static int i2c_device_remove(struct device *dev)
-> >                 status = driver->remove(client);
-> >         }
-> >
-> > -       dev_pm_domain_detach(&client->dev, true);
-> > +       dev_pm_domain_detach(&client->dev, !probe_low_power(&client->dev));
-> >
-> >         dev_pm_clear_wake_irq(&client->dev);
-> >         device_init_wakeup(&client->dev, false);
-> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > index 582ef05ec07ed..6d0d6af393c56 100644
-> > --- a/include/linux/i2c.h
-> > +++ b/include/linux/i2c.h
-> > @@ -229,6 +229,8 @@ enum i2c_alert_protocol {
-> >   * @address_list: The I2C addresses to probe (for detect)
-> >   * @clients: List of detected clients we created (for i2c-core use only)
-> >   * @disable_i2c_core_irq_mapping: Tell the i2c-core to not do irq-mapping
-> > + * @probe_low_power: Let the driver manage the device's power state
-> > + *                  during probe and remove.
-> >   *
-> >   * The driver.owner field should be set to the module owner of this driver.
-> >   * The driver.name field should be set to the name of this driver.
-> > @@ -289,6 +291,7 @@ struct i2c_driver {
-> >         struct list_head clients;
-> >
-> >         bool disable_i2c_core_irq_mapping;
-> > +       bool probe_low_power;
-> 
-> I don't see any users of disable_i2c_core_irq_mapping in current
-> mainline. Maybe instead of adding another 1-byte boolean for every
-> such property, let's just use the fact that this struct will have at
-> least an alignment of 32-bits anyway and merge the two into an int
-> field called 'flags' so that we can extend it in the future if needed?
-> 
-> The name 'probe_low_power' is misleading to me too. It makes me think
-> it's the default state for some reason. It should be something like
-> 'allow_low_power_probe'.
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ah, got around reading this one after sending the previous mail.
 
-Sounds reasonable. I'll address both in v5.
+> +	struct i2c_timings i2c_t, *t =3D &i2c_t;
+> =20
+>  	/* Fall back to previously used values if not supplied */
+> -	t->bus_freq_hz =3D t->bus_freq_hz ?: 100000;
+> -	t->scl_fall_ns =3D t->scl_fall_ns ?: 35;
+> -	t->scl_rise_ns =3D t->scl_rise_ns ?: 200;
+> -	t->scl_int_delay_ns =3D t->scl_int_delay_ns ?: 50;
+> +	t->bus_freq_hz =3D I2C_MAX_STANDARD_MODE_FREQ;
+> +	t->scl_fall_ns =3D 35;
+> +	t->scl_rise_ns =3D 200;
+> +	t->scl_int_delay_ns =3D 50;
 
--- 
-Kind regards,
+Here, the initialization to 0 is missing, so some values are broken.
 
-Sakari Ailus
+Why don't we just drop the pointer and init the array directly?
+
+	struct i2c_timings t =3D {
+		.bus_freq_hz =3D ...
+		...
+	}
+
+
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl55MAgACgkQFA3kzBSg
+KbaIARAAiz6QqfUPaFd50Y2yAk7Hq+xmmPKYC/cEVbRbHIQv55wuBZdDNw1GcQ+a
+4LbGFp31XKeBdMVSRBm1nvzmNBECz7RUNDAOf1sycTD53ppyCHSusW6W/Si1orJy
+caLcsH5wVz/U1Atks/7LdgKHok/0zKxuAAdMROy6OgVyeKvXIfF6/+bszeN5+7RM
+loFjWjA51FjfinyeadZmvADXD101sQpLiYcvTEtQ21A4f7DrkO2MxpMo5w5uke1G
+eDeEkDDkDqVX5cgD4KGeVoOMHMcYOwqhO4++BO7rtDaY0D7BKeZMNji/ucBr8cC2
+epz18kSVFnxi2QxTZjSDeSGjl+gpuGReQlx+DTB8KFrOGlZ60j36acHpobIGTrtM
+8I8XbRfkrUxaAi/xgs+diAAgDlcKziiCXyz6nDhX0ijulig2LT52Z/JfFyi3FZDN
+x0quglrSHnqCB5bq7T2kSVEUoQoFEobgwDq15uRT2x95+8SUCzzyQGoHucvc3hVI
+crQfOV1Hn6Das5ts4Jywyozwhdsqqsfe8xxnH9FeI4wX3VNciO6VxpsxkOwiKBmC
+7/jHy4zuR5i5WY1St7b5YdZrdoX74rH66KSfj9JB3FR0WqK9LJ5PjF/7NbYvE+yJ
+bAvgajR2+aw4b0Y4jY7V8rWKHxDKhMMCHgFw9xzovOCOYhnHrLA=
+=QVYb
+-----END PGP SIGNATURE-----
+
+--UugvWAfsgieZRqgk--
