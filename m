@@ -1,60 +1,170 @@
-From: Tomasz Figa <tfiga@chromium.org>
-Subject: Re: [PATCH v12 1/2] dt-binding: i2c: add bus-supply property
-Date: Mon, 23 Mar 2020 13:18:22 +0100
-Message-ID: <CAAFQd5ANJcReHD_n0LorS+bjE8Cn_W-kY5LNgGG+L+jMmywYfA@mail.gmail.com>
-References: <20200306034946.11223-1-bibby.hsieh@mediatek.com>
- <20200306034946.11223-2-bibby.hsieh@mediatek.com> <20200322130710.GA1091@ninjato>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 1/2] i2c: designware: Make master module optional
+Date: Mon, 23 Mar 2020 14:26:02 +0200
+Message-ID: <20200323122602.GK1922688@smile.fi.intel.com>
+References: <20200323100451.28808-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:33152 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727381AbgCWMSj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Mar 2020 08:18:39 -0400
-Received: by mail-ed1-f67.google.com with SMTP id z65so15973241ede.0
-        for <linux-i2c@vger.kernel.org>; Mon, 23 Mar 2020 05:18:37 -0700 (PDT)
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com. [209.85.128.44])
-        by smtp.gmail.com with ESMTPSA id b15sm1018335edn.69.2020.03.23.05.18.35
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Mar 2020 05:18:35 -0700 (PDT)
-Received: by mail-wm1-f44.google.com with SMTP id c81so3982142wmd.4
-        for <linux-i2c@vger.kernel.org>; Mon, 23 Mar 2020 05:18:35 -0700 (PDT)
-In-Reply-To: <20200322130710.GA1091@ninjato>
+Received: from mga04.intel.com ([192.55.52.120]:15783 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727108AbgCWM0B (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 23 Mar 2020 08:26:01 -0400
+Content-Disposition: inline
+In-Reply-To: <20200323100451.28808-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Bibby Hsieh <bibby.hsieh@mediatek.com>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-i2c <linux-i2c@vger.kernel.org>, Nicolas Boichat <drinkcat@chromium.org>, srv_heupstream <srv_heupstream@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-devicetree <devicetree@vger.kernel.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On Sun, Mar 22, 2020 at 2:07 PM Wolfram Sang <wsa@the-dreams.de> wrote:
->
-> Hi,
->
-> thanks for the patches!
->
-> I have a high level question about them, first.
->
-> > +- bus-supply
-> > +     phandle to the regulator that provides power to i2c.
->
-> I think this is not clear enough. I assume it means the regulator for
-> driving SCL/SDA? In the coverletter you mention also an EEPROM. In your
-> case, this is driven by the same regulator? I am skeptical we can
-> abstract it like this because I2C devices could be driven by various
-> regulators in the system, so there couldn't be one "bus regulator". The
-> regulator for the EEPROM should be described in the EEPROM node. So,
-> this "bus supply" is only for driving SCL/SDA?
+On Mon, Mar 23, 2020 at 12:04:50PM +0200, Andy Shevchenko wrote:
+> In some cases we know that the controller will be always used in slave mode and
+> master is just a bulk. In order to drop that, introduce a separate configuration
+> parameter for master mode. Default it to core to avoid regressions.
+> 
 
-In our case the bus-supply regulator drives the voltage rail to which
-SCL/SDA are pulled up and there is an EEPROM on the bus, powered by
-yet another rail. There is also another slave on the bus which uses
-the same regulator as the bus-supply for its own power.
+This series depends to [1] "Provide generic definitions for bus frequencies".
 
-In other words, bus-supply only ensures that SCL and SDA are in a
-usable state. Other consumers need to refer to the regulator in their
-own supplies if they need it for their own power.
+[1]: http://patchwork.ozlabs.org/patch/1259203/
 
-Does this answer your questions?
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/i2c/busses/Kconfig                  | 10 ++++++++++
+>  drivers/i2c/busses/Makefile                 |  5 ++++-
+>  drivers/i2c/busses/i2c-designware-core.h    | 19 ++++++++++++++++++-
+>  drivers/i2c/busses/i2c-designware-master.c  |  4 ++--
+>  drivers/i2c/busses/i2c-designware-pcidrv.c  |  2 +-
+>  drivers/i2c/busses/i2c-designware-platdrv.c |  6 +-----
+>  6 files changed, 36 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 2ddca08f8a76..1df238ff8dd0 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -527,6 +527,16 @@ config I2C_DAVINCI
+>  config I2C_DESIGNWARE_CORE
+>  	tristate
+>  
+> +config I2C_DESIGNWARE_MASTER
+> +	bool "Synopsys DesignWare Master"
+> +	default I2C_DESIGNWARE_CORE
+> +	help
+> +	  If you say yes to this option, support will be included for the
+> +	  Synopsys DesignWare I2C master adapter.
+> +
+> +	  This is not a standalone module, this module compiles together with
+> +	  i2c-designware-core.
+> +
+>  config I2C_DESIGNWARE_PLATFORM
+>  	tristate "Synopsys DesignWare Platform"
+>  	select I2C_DESIGNWARE_CORE
+> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> index 25d60889713c..829731d4a1f9 100644
+> --- a/drivers/i2c/busses/Makefile
+> +++ b/drivers/i2c/busses/Makefile
+> @@ -49,7 +49,10 @@ obj-$(CONFIG_I2C_CBUS_GPIO)	+= i2c-cbus-gpio.o
+>  obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
+>  obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
+>  obj-$(CONFIG_I2C_DESIGNWARE_CORE)	+= i2c-designware-core.o
+> -i2c-designware-core-objs := i2c-designware-common.o i2c-designware-master.o
+> +i2c-designware-core-objs := i2c-designware-common.o
+> +ifeq ($(CONFIG_I2C_DESIGNWARE_MASTER),y)
+> +i2c-designware-core-objs += i2c-designware-master.o
+> +endif
+>  ifeq ($(CONFIG_I2C_DESIGNWARE_SLAVE),y)
+>  i2c-designware-core-objs += i2c-designware-slave.o
+>  endif
+> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+> index b220ad64c38d..2d34c15dca75 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.h
+> +++ b/drivers/i2c/busses/i2c-designware-core.h
+> @@ -314,13 +314,30 @@ static inline void __i2c_dw_disable_nowait(struct dw_i2c_dev *dev)
+>  
+>  void __i2c_dw_disable(struct dw_i2c_dev *dev);
+>  
+> -extern int i2c_dw_probe(struct dw_i2c_dev *dev);
+> +#if IS_ENABLED(CONFIG_I2C_DESIGNWARE_MASTER)
+> +extern int i2c_dw_probe_master(struct dw_i2c_dev *dev);
+> +#else
+> +static inline int i2c_dw_probe_master(struct dw_i2c_dev *dev) { return -EINVAL; }
+> +#endif
+>  #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_SLAVE)
+>  extern int i2c_dw_probe_slave(struct dw_i2c_dev *dev);
+>  #else
+>  static inline int i2c_dw_probe_slave(struct dw_i2c_dev *dev) { return -EINVAL; }
+>  #endif
+>  
+> +static inline int i2c_dw_probe(struct dw_i2c_dev *dev)
+> +{
+> +	switch (dev->mode) {
+> +	case DW_IC_SLAVE:
+> +		return i2c_dw_probe_slave(dev);
+> +	case DW_IC_MASTER:
+> +		return i2c_dw_probe_master(dev);
+> +	default:
+> +		dev_err(dev->dev, "Wrong operation mode: %d\n", dev->mode);
+> +		return -EINVAL;
+> +	}
+> +}
+> +
+>  #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
+>  extern int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev);
+>  #else
+> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+> index 3a58eef20936..9d2af87f45f1 100644
+> --- a/drivers/i2c/busses/i2c-designware-master.c
+> +++ b/drivers/i2c/busses/i2c-designware-master.c
+> @@ -678,7 +678,7 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
+>  	return 0;
+>  }
+>  
+> -int i2c_dw_probe(struct dw_i2c_dev *dev)
+> +int i2c_dw_probe_master(struct dw_i2c_dev *dev)
+>  {
+>  	struct i2c_adapter *adap = &dev->adapter;
+>  	unsigned long irq_flags;
+> @@ -745,7 +745,7 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+>  
+>  	return ret;
+>  }
+> -EXPORT_SYMBOL_GPL(i2c_dw_probe);
+> +EXPORT_SYMBOL_GPL(i2c_dw_probe_master);
+>  
+>  MODULE_DESCRIPTION("Synopsys DesignWare I2C bus master adapter");
+>  MODULE_LICENSE("GPL");
+> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> index 7a0b65b5b5b5..cbab5346e311 100644
+> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> @@ -290,7 +290,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+>  	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
+>  	adap->nr = controller->bus_num;
+>  
+> -	r = i2c_dw_probe(dev);
+> +	r = i2c_dw_probe_master(dev);
+>  	if (r) {
+>  		pci_free_irq_vectors(pdev);
+>  		return r;
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index c98befe2a92e..0edcebe2168f 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -371,11 +371,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>  
+>  	pm_runtime_enable(&pdev->dev);
+>  
+> -	if (dev->mode == DW_IC_SLAVE)
+> -		ret = i2c_dw_probe_slave(dev);
+> -	else
+> -		ret = i2c_dw_probe(dev);
+> -
+> +	ret = i2c_dw_probe(dev);
+>  	if (ret)
+>  		goto exit_probe;
+>  
+> -- 
+> 2.25.1
+> 
 
-Best regards,
-Tomasz
+-- 
+With Best Regards,
+Andy Shevchenko
