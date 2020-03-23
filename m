@@ -1,72 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Subject: Re: [PATCH v3 3/6] i2c: rcar: Consolidate timings calls in
  rcar_i2c_clock_calculate()
-Date: Mon, 23 Mar 2020 22:54:21 +0100
-Message-ID: <20200323215420.GA10635@ninjato>
+Date: Tue, 24 Mar 2020 00:03:53 +0200
+Message-ID: <20200323220353.GZ1922688@smile.fi.intel.com>
 References: <20200316154929.20886-1-andriy.shevchenko@linux.intel.com>
  <20200316154929.20886-3-andriy.shevchenko@linux.intel.com>
+ <20200323215420.GA10635@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40088 "EHLO pokefinder.org"
+Received: from mga17.intel.com ([192.55.52.151]:19436 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725897AbgCWVy1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 23 Mar 2020 17:54:27 -0400
+        id S1725897AbgCWWDw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 23 Mar 2020 18:03:52 -0400
 Content-Disposition: inline
-In-Reply-To: <20200316154929.20886-3-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20200323215420.GA10635@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org
 
+On Mon, Mar 23, 2020 at 10:54:21PM +0100, Wolfram Sang wrote:
+> 
+> > +	struct i2c_timings i2c_t, *t = &i2c_t;
+> >  
+> >  	/* Fall back to previously used values if not supplied */
+> > -	t->bus_freq_hz = t->bus_freq_hz ?: 100000;
+> > -	t->scl_fall_ns = t->scl_fall_ns ?: 35;
+> > -	t->scl_rise_ns = t->scl_rise_ns ?: 200;
+> > -	t->scl_int_delay_ns = t->scl_int_delay_ns ?: 50;
+> > +	t->bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
+> > +	t->scl_fall_ns = 35;
+> > +	t->scl_rise_ns = 200;
+> > +	t->scl_int_delay_ns = 50;
+> 
+> Here, the initialization to 0 is missing, so some values are broken.
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, and this is fine. They are not being used. So, the idea is, whenever we
+pass "false" as a parameter to the function we must take care of all fields we
+are using.
 
+> Why don't we just drop the pointer and init the array directly?
+> 
+> 	struct i2c_timings t = {
+> 		.bus_freq_hz = ...
+> 		...
+> 	}
 
-> +	struct i2c_timings i2c_t, *t =3D &i2c_t;
-> =20
->  	/* Fall back to previously used values if not supplied */
-> -	t->bus_freq_hz =3D t->bus_freq_hz ?: 100000;
-> -	t->scl_fall_ns =3D t->scl_fall_ns ?: 35;
-> -	t->scl_rise_ns =3D t->scl_rise_ns ?: 200;
-> -	t->scl_int_delay_ns =3D t->scl_int_delay_ns ?: 50;
-> +	t->bus_freq_hz =3D I2C_MAX_STANDARD_MODE_FREQ;
-> +	t->scl_fall_ns =3D 35;
-> +	t->scl_rise_ns =3D 200;
-> +	t->scl_int_delay_ns =3D 50;
+I can do it if you think it's better. I have no strong opinion here.
+>From code prospective I guess it will be something similar anyway.
 
-Here, the initialization to 0 is missing, so some values are broken.
-
-Why don't we just drop the pointer and init the array directly?
-
-	struct i2c_timings t =3D {
-		.bus_freq_hz =3D ...
-		...
-	}
-
-
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl55MAgACgkQFA3kzBSg
-KbaIARAAiz6QqfUPaFd50Y2yAk7Hq+xmmPKYC/cEVbRbHIQv55wuBZdDNw1GcQ+a
-4LbGFp31XKeBdMVSRBm1nvzmNBECz7RUNDAOf1sycTD53ppyCHSusW6W/Si1orJy
-caLcsH5wVz/U1Atks/7LdgKHok/0zKxuAAdMROy6OgVyeKvXIfF6/+bszeN5+7RM
-loFjWjA51FjfinyeadZmvADXD101sQpLiYcvTEtQ21A4f7DrkO2MxpMo5w5uke1G
-eDeEkDDkDqVX5cgD4KGeVoOMHMcYOwqhO4++BO7rtDaY0D7BKeZMNji/ucBr8cC2
-epz18kSVFnxi2QxTZjSDeSGjl+gpuGReQlx+DTB8KFrOGlZ60j36acHpobIGTrtM
-8I8XbRfkrUxaAi/xgs+diAAgDlcKziiCXyz6nDhX0ijulig2LT52Z/JfFyi3FZDN
-x0quglrSHnqCB5bq7T2kSVEUoQoFEobgwDq15uRT2x95+8SUCzzyQGoHucvc3hVI
-crQfOV1Hn6Das5ts4Jywyozwhdsqqsfe8xxnH9FeI4wX3VNciO6VxpsxkOwiKBmC
-7/jHy4zuR5i5WY1St7b5YdZrdoX74rH66KSfj9JB3FR0WqK9LJ5PjF/7NbYvE+yJ
-bAvgajR2+aw4b0Y4jY7V8rWKHxDKhMMCHgFw9xzovOCOYhnHrLA=
-=QVYb
------END PGP SIGNATURE-----
-
---UugvWAfsgieZRqgk--
+-- 
+With Best Regards,
+Andy Shevchenko
