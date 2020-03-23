@@ -1,73 +1,105 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: i801: Fix memory corruption in
- i801_isr_byte_done()
-Date: Mon, 23 Mar 2020 18:51:20 +0100
-Message-ID: <20200323185120.1a5cd734@endymion>
-References: <0000000000009586b2059c13c7e1@google.com>
-        <20200114073406.qaq3hbrhtx76fkes@kili.mountain>
-        <20200322231106.3d431ced@endymion>
-        <20200323093733.GA26299@kadam>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+Subject: Re: [PATCH v4 5/6] at24: Support probing while off
+Date: Mon, 23 Mar 2020 23:31:01 +0200
+Message-ID: <20200323213101.GB21174@kekkonen.localdomain>
+References: <20200121134157.20396-1-sakari.ailus@linux.intel.com>
+ <20200121134157.20396-6-sakari.ailus@linux.intel.com>
+ <CAMpxmJU5dG49N2FA0oSQsOfKrCr3KQ1BisON4c+nUJJmZQG=bQ@mail.gmail.com>
+ <20200311085555.GH5379@paasikivi.fi.intel.com>
+ <CAMpxmJVPTKW+sYSJ3dnfF8nLAOKEa4Ob7bpxG0KD3Tkdm+rtYw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:44468 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727160AbgCWRvX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 23 Mar 2020 13:51:23 -0400
-In-Reply-To: <20200323093733.GA26299@kadam>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMpxmJVPTKW+sYSJ3dnfF8nLAOKEa4Ob7bpxG0KD3Tkdm+rtYw@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>, linux-media <linux-media@vger.kernel.org>, Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>, Hyungwoo Yang <hyungwoo.yang@intel.com>, Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rajmohan Mani <rajmohan.mani@intel.com>, Tomasz Figa <tfiga@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, syzbot <syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com>
 
-On Mon, 23 Mar 2020 12:37:33 +0300, Dan Carpenter wrote:
-> On Sun, Mar 22, 2020 at 11:11:06PM +0100, Jean Delvare wrote:
-> > Definitely not correct. The first byte of the block data array MUST be
-> > the size of the block read. Even if the code above does not do the
-> > right thing, removing the line will not help.
-> >   
-> 
-> Yeah.  I misread the code.
-> 
-> > Is it possible that kasan got this wrong due to the convoluted logic?
-> > It's late and I'll check again tomorrow morning but the code looks OK
-> > to me.  
-> 
-> KASan doesn't work like that.  It works at runtime and doesn't care
-> about the logic.
-> 
-> https://syzkaller.appspot.com/bug?id=426fc8b1c1b63fb0af524d839dfcf452f2d858e2
-> 
-> At the bottom of the report it shows that we're in a field of f9
-> poisoned data so it's not priv->len which is wrong.  (My patch was way
-> off).
-> 
-> mm/kasan/kasan.h:#define KASAN_VMALLOC_INVALID   0xF9  /* unallocated space in vmapped page */
-> 
-> The logic looks okay to me too.  So possibly this was a race condition
-> or even memory corruption in an unrelated part of the kernel.
+Bartosz,
 
-I checked out the exact kernel version this report was generated for,
-and the faulty line is:
+On Thu, Mar 12, 2020 at 02:10:32PM +0100, Bartosz Golaszewski wrote:
+> śr., 11 mar 2020 o 09:56 Sakari Ailus <sakari.ailus@linux.intel.com> napisał(a):
+> >
+> > Hi Bartosz,
+> >
+> > Thanks for the reply.
+> >
+> > On Wed, Jan 29, 2020 at 02:36:17PM +0100, Bartosz Golaszewski wrote:
+> > > wt., 21 sty 2020 o 14:41 Sakari Ailus <sakari.ailus@linux.intel.com> napisał(a):
+> > > >
+> > > > In certain use cases (where the chip is part of a camera module, and the
+> > > > camera module is wired together with a camera privacy LED), powering on
+> > > > the device during probe is undesirable. Add support for the at24 to
+> > > > execute probe while being powered off. For this to happen, a hint in form
+> > > > of a device property is required from the firmware.
+> > > >
+> > > > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> > > > ---
+> > > >  drivers/misc/eeprom/at24.c | 31 +++++++++++++++++++++----------
+> 
+> [snip!]
+> 
+> > > >
+> > > >  static int at24_remove(struct i2c_client *client)
+> > > >  {
+> > > > +       bool low_power;
+> > > > +
+> > > >         pm_runtime_disable(&client->dev);
+> > > > -       pm_runtime_set_suspended(&client->dev);
+> > > > +       low_power = acpi_dev_state_low_power(&client->dev);
+> > >
+> > > This is inconsistent. You define the low_power field in the context
+> > > structure (BTW the name low_power is a bit vague here - without
+> > > looking at its assignment it would make me think it's about something
+> > > battery-related, how about 'off_at_probe'?) and instead of reusing
+> >
+> > The field was called probe_powered_off in v1, but I changed it to
+> > probe_low_power (and renamed related functions etc.) based on review
+> > comments --- for the device may not be powered off actually.
+> >
+> 
+> But is it actually ever low-power? What are the possible logical
+> states of the device? If I understood correctly: it's either off or on
+> at probe - not actually low-power. Am I missing something? In your
+> cover letter you're writing: "These patches enable calling (and
+> finishing) a driver's probe function without powering on the
+> respective device on busses where the practice is to power on the
+> device for probe." To me there's no mention of a low-power state,
+> which makes the name 'probe_low_power' seem completely unrelated.
 
-  592:			priv->data[priv->count++] = inb(SMBBLKDAT(priv));
+See <URL:https://patchwork.kernel.org/patch/10938483/>
 
-This would suggest the problem is with priv->count growing beyond the
-end of the array, however the fact that we land in a memory spot full
-of 0xF9 kind of excludes this possibility (the data before the spot
-would contain different data if it was the case).
+I've updated the patches according to the comments but did not update the
+cover page accordingly.
 
-The other option is that priv->count wasn't initialized at the time
-it is used. However I can't see how this could happen, given that the
-priv structure is kzalloc'd.
+Generally drivers are interested whether a device is powered on so it can
+be accessed, but the actual power state of the device isn't known to the
+driver when it is, well, not in an operational state. A device may be
+powered from a regulator that is always enabled, for instance.
 
-So, to be honest I can't really see how priv->count can get wrong. So
-I would be tempted to lend towards the theory that the i2c-i801 driver
-was a collateral victim of a memory corruption happening somewhere else
-in the kernel. Wouldn't Kasan catch this too? Is it possible to access
-the other Kasan reports from the same test run?
+> 
+> > > this field here, you call acpi_dev_state_low_power() again. Either
+> > > don't store the context for the life-time of the device if not
+> > > necessary or don't call acpi_dev_state_low_power() at remove, although
+> > > the commit message doesn't describe whether the latter is done on
+> > > purpose.
+> >
+> > Right. probe-low-power property has the same effect on remove for
+> > consistency, i.e. the device can remain in low power state during remove.
+> > This is documented in probe_low_power field documentation in the first
+> > patch.
+> >
+> 
+> Just please don't store any state if you're not using it outside of
+> the probe() function.
+
+What exactly are you referring to? The patch adds a local variable to the
+driver's probe and remove functions.
 
 -- 
-Jean Delvare
-SUSE L3 Support
+Kind regards,
+
+Sakari Ailus
