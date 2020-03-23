@@ -1,170 +1,70 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 1/2] i2c: designware: Make master module optional
-Date: Mon, 23 Mar 2020 14:26:02 +0200
-Message-ID: <20200323122602.GK1922688@smile.fi.intel.com>
-References: <20200323100451.28808-1-andriy.shevchenko@linux.intel.com>
+From: Tali Perry <tali.perry1@gmail.com>
+Subject: [PATCH v9 1/3] dt-bindings: i2c: npcm7xx: add NPCM I2C controller
+Date: Mon, 23 Mar 2020 15:44:35 +0200
+Message-ID: <20200323134437.259210-2-tali.perry1@gmail.com>
+References: <20200323134437.259210-1-tali.perry1@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:15783 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727108AbgCWM0B (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 23 Mar 2020 08:26:01 -0400
-Content-Disposition: inline
-In-Reply-To: <20200323100451.28808-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
+In-Reply-To: <20200323134437.259210-1-tali.perry1@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
+To: brendanhiggins@google.com, avifishman70@gmail.com, tmaimon77@gmail.com, kfting@nuvoton.com, venture@google.com, yuenn@google.com, benjaminfair@google.com, robh+dt@kernel.org, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com
+Cc: devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>, openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On Mon, Mar 23, 2020 at 12:04:50PM +0200, Andy Shevchenko wrote:
-> In some cases we know that the controller will be always used in slave mode and
-> master is just a bulk. In order to drop that, introduce a separate configuration
-> parameter for master mode. Default it to core to avoid regressions.
-> 
+Added device tree binding documentation for Nuvoton BMC
+NPCM I2C controller.
 
-This series depends to [1] "Provide generic definitions for bus frequencies".
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+ .../devicetree/bindings/i2c/i2c-npcm7xx.txt   | 29 +++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
 
-[1]: http://patchwork.ozlabs.org/patch/1259203/
-
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  drivers/i2c/busses/Kconfig                  | 10 ++++++++++
->  drivers/i2c/busses/Makefile                 |  5 ++++-
->  drivers/i2c/busses/i2c-designware-core.h    | 19 ++++++++++++++++++-
->  drivers/i2c/busses/i2c-designware-master.c  |  4 ++--
->  drivers/i2c/busses/i2c-designware-pcidrv.c  |  2 +-
->  drivers/i2c/busses/i2c-designware-platdrv.c |  6 +-----
->  6 files changed, 36 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 2ddca08f8a76..1df238ff8dd0 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -527,6 +527,16 @@ config I2C_DAVINCI
->  config I2C_DESIGNWARE_CORE
->  	tristate
->  
-> +config I2C_DESIGNWARE_MASTER
-> +	bool "Synopsys DesignWare Master"
-> +	default I2C_DESIGNWARE_CORE
-> +	help
-> +	  If you say yes to this option, support will be included for the
-> +	  Synopsys DesignWare I2C master adapter.
-> +
-> +	  This is not a standalone module, this module compiles together with
-> +	  i2c-designware-core.
-> +
->  config I2C_DESIGNWARE_PLATFORM
->  	tristate "Synopsys DesignWare Platform"
->  	select I2C_DESIGNWARE_CORE
-> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index 25d60889713c..829731d4a1f9 100644
-> --- a/drivers/i2c/busses/Makefile
-> +++ b/drivers/i2c/busses/Makefile
-> @@ -49,7 +49,10 @@ obj-$(CONFIG_I2C_CBUS_GPIO)	+= i2c-cbus-gpio.o
->  obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
->  obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
->  obj-$(CONFIG_I2C_DESIGNWARE_CORE)	+= i2c-designware-core.o
-> -i2c-designware-core-objs := i2c-designware-common.o i2c-designware-master.o
-> +i2c-designware-core-objs := i2c-designware-common.o
-> +ifeq ($(CONFIG_I2C_DESIGNWARE_MASTER),y)
-> +i2c-designware-core-objs += i2c-designware-master.o
-> +endif
->  ifeq ($(CONFIG_I2C_DESIGNWARE_SLAVE),y)
->  i2c-designware-core-objs += i2c-designware-slave.o
->  endif
-> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-> index b220ad64c38d..2d34c15dca75 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.h
-> +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -314,13 +314,30 @@ static inline void __i2c_dw_disable_nowait(struct dw_i2c_dev *dev)
->  
->  void __i2c_dw_disable(struct dw_i2c_dev *dev);
->  
-> -extern int i2c_dw_probe(struct dw_i2c_dev *dev);
-> +#if IS_ENABLED(CONFIG_I2C_DESIGNWARE_MASTER)
-> +extern int i2c_dw_probe_master(struct dw_i2c_dev *dev);
-> +#else
-> +static inline int i2c_dw_probe_master(struct dw_i2c_dev *dev) { return -EINVAL; }
-> +#endif
->  #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_SLAVE)
->  extern int i2c_dw_probe_slave(struct dw_i2c_dev *dev);
->  #else
->  static inline int i2c_dw_probe_slave(struct dw_i2c_dev *dev) { return -EINVAL; }
->  #endif
->  
-> +static inline int i2c_dw_probe(struct dw_i2c_dev *dev)
-> +{
-> +	switch (dev->mode) {
-> +	case DW_IC_SLAVE:
-> +		return i2c_dw_probe_slave(dev);
-> +	case DW_IC_MASTER:
-> +		return i2c_dw_probe_master(dev);
-> +	default:
-> +		dev_err(dev->dev, "Wrong operation mode: %d\n", dev->mode);
-> +		return -EINVAL;
-> +	}
-> +}
-> +
->  #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
->  extern int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev);
->  #else
-> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-> index 3a58eef20936..9d2af87f45f1 100644
-> --- a/drivers/i2c/busses/i2c-designware-master.c
-> +++ b/drivers/i2c/busses/i2c-designware-master.c
-> @@ -678,7 +678,7 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
->  	return 0;
->  }
->  
-> -int i2c_dw_probe(struct dw_i2c_dev *dev)
-> +int i2c_dw_probe_master(struct dw_i2c_dev *dev)
->  {
->  	struct i2c_adapter *adap = &dev->adapter;
->  	unsigned long irq_flags;
-> @@ -745,7 +745,7 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
->  
->  	return ret;
->  }
-> -EXPORT_SYMBOL_GPL(i2c_dw_probe);
-> +EXPORT_SYMBOL_GPL(i2c_dw_probe_master);
->  
->  MODULE_DESCRIPTION("Synopsys DesignWare I2C bus master adapter");
->  MODULE_LICENSE("GPL");
-> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> index 7a0b65b5b5b5..cbab5346e311 100644
-> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> @@ -290,7 +290,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
->  	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
->  	adap->nr = controller->bus_num;
->  
-> -	r = i2c_dw_probe(dev);
-> +	r = i2c_dw_probe_master(dev);
->  	if (r) {
->  		pci_free_irq_vectors(pdev);
->  		return r;
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index c98befe2a92e..0edcebe2168f 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -371,11 +371,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
->  
->  	pm_runtime_enable(&pdev->dev);
->  
-> -	if (dev->mode == DW_IC_SLAVE)
-> -		ret = i2c_dw_probe_slave(dev);
-> -	else
-> -		ret = i2c_dw_probe(dev);
-> -
-> +	ret = i2c_dw_probe(dev);
->  	if (ret)
->  		goto exit_probe;
->  
-> -- 
-> 2.25.1
-> 
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+new file mode 100644
+index 000000000000..d36cc20742fd
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+@@ -0,0 +1,29 @@
++Nuvoton NPCM7XX I2C bus
++
++The NPCM750x includes sixteen I2C bus controllers. All Controllers support
++both master and slave mode. Each controller has two 16 byte HW FIFO for TX and
++RX.
++
++Required properties:
++- compatible      : must be "nuvoton,npcm750-i2c"
++- reg             : Offset and length of the register set for the device.
++- interrupts      : Contain the I2C interrupt with flags for falling edge.
++- clocks          : phandle of I2C reference clock.
++
++Optional:
++- bus-frequency   : Contain the I2C bus frequency,
++			the default I2C bus frequency is 100000.
++- pinctrl-0       : for example <&smbX_pins>, X is module number
++			(on NPCM7XX it's 0 to 15)
++- pinctrl-names   : should be set to "default"
++Example:
++
++	i2c0: i2c@80000 {
++		compatible = "nuvoton,npcm750-i2c";
++		reg = <0x80000 0x1000>;
++		clocks = <&clk NPCM7XX_CLK_APB2>;
++		bus-frequency = <100000>;
++		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&smb0_pins>;
++	};
 -- 
-With Best Regards,
-Andy Shevchenko
+2.22.0
