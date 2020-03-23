@@ -1,38 +1,60 @@
-From: Loic Poulain <loic.poulain@linaro.org>
-Subject: Re: [PATCH v5 1/3] i2c: Add Qualcomm CCI I2C driver
-Date: Mon, 23 Mar 2020 13:08:49 +0100
-Message-ID: <CAMZdPi9U5Ls7dRQfxWsaZJtYpKGXUsPEpCvWbDz_LQUSKPDp1Q@mail.gmail.com>
-References: <1583770998-25449-1-git-send-email-loic.poulain@linaro.org>
+From: Tomasz Figa <tfiga@chromium.org>
+Subject: Re: [PATCH v12 1/2] dt-binding: i2c: add bus-supply property
+Date: Mon, 23 Mar 2020 13:18:22 +0100
+Message-ID: <CAAFQd5ANJcReHD_n0LorS+bjE8Cn_W-kY5LNgGG+L+jMmywYfA@mail.gmail.com>
+References: <20200306034946.11223-1-bibby.hsieh@mediatek.com>
+ <20200306034946.11223-2-bibby.hsieh@mediatek.com> <20200322130710.GA1091@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1583770998-25449-1-git-send-email-loic.poulain@linaro.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: Vinod Koul <vkoul@kernel.org>, Robert Foss <robert.foss@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-i2c@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Todor Tomov <todor.tomov@linaro.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:33152 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727381AbgCWMSj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Mar 2020 08:18:39 -0400
+Received: by mail-ed1-f67.google.com with SMTP id z65so15973241ede.0
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Mar 2020 05:18:37 -0700 (PDT)
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com. [209.85.128.44])
+        by smtp.gmail.com with ESMTPSA id b15sm1018335edn.69.2020.03.23.05.18.35
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 Mar 2020 05:18:35 -0700 (PDT)
+Received: by mail-wm1-f44.google.com with SMTP id c81so3982142wmd.4
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Mar 2020 05:18:35 -0700 (PDT)
+In-Reply-To: <20200322130710.GA1091@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Bibby Hsieh <bibby.hsieh@mediatek.com>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-i2c <linux-i2c@vger.kernel.org>, Nicolas Boichat <drinkcat@chromium.org>, srv_heupstream <srv_heupstream@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-devicetree <devicetree@vger.kernel.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
 
-Hi Wolfram,
+On Sun, Mar 22, 2020 at 2:07 PM Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+> Hi,
+>
+> thanks for the patches!
+>
+> I have a high level question about them, first.
+>
+> > +- bus-supply
+> > +     phandle to the regulator that provides power to i2c.
+>
+> I think this is not clear enough. I assume it means the regulator for
+> driving SCL/SDA? In the coverletter you mention also an EEPROM. In your
+> case, this is driven by the same regulator? I am skeptical we can
+> abstract it like this because I2C devices could be driven by various
+> regulators in the system, so there couldn't be one "bus regulator". The
+> regulator for the EEPROM should be described in the EEPROM node. So,
+> this "bus supply" is only for driving SCL/SDA?
 
-On Mon, 9 Mar 2020 at 17:19, Loic Poulain <loic.poulain@linaro.org> wrote:
->
-> This commit adds I2C bus support for the Camera Control Interface
-> (CCI) I2C controller found on the Qualcomm SoC processors. This I2C
-> controller supports two masters and they are registered to the core.
->
-> CCI versions supported in the driver are msm8916, msm8996 and sdm845.
->
-> This is a rework of the patch posted by Vinod:
-> https://patchwork.kernel.org/patch/10569961/
->
-> With additional fixes + most of the comments addressed.
->
-> Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
-> Signed-off-by: Vinod Koul <vkoul@kernel.org>
-> Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-> Tested-by: Robert Foss <robert.foss@linaro.org>
+In our case the bus-supply regulator drives the voltage rail to which
+SCL/SDA are pulled up and there is an EEPROM on the bus, powered by
+yet another rail. There is also another slave on the bus which uses
+the same regulator as the bus-supply for its own power.
 
-Is there anything more I can do on my side to help you review this?
+In other words, bus-supply only ensures that SCL and SDA are in a
+usable state. Other consumers need to refer to the regulator in their
+own supplies if they need it for their own power.
 
-Regards,
-Loic
+Does this answer your questions?
+
+Best regards,
+Tomasz
