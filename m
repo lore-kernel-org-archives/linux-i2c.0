@@ -1,73 +1,87 @@
-From: Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: Re: A bit confused on i2c communication between modules
-Date: Tue, 24 Mar 2020 12:30:33 +0100
-Message-ID: <20200324123033.5538c38d@coco.lan>
-References: <55204992-9060-6008-31c7-c2855f712e70@gmail.com>
-        <20200324082236.2c4d2ae4@coco.lan>
-        <bc91be3d-802c-a58c-bd27-740e15516180@ideasonboard.com>
-        <20200324095810.GC1134@ninjato>
-        <63742e62-d0b6-9d7a-b491-d7969f8ea7e2@ideasonboard.com>
-        <20200324102704.GD1134@ninjato>
-        <7d82a76f-5165-5e7c-bcde-552f527da0d2@ideasonboard.com>
-        <20200324110122.GG1134@ninjato>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 3/6] i2c: rcar: Consolidate timings calls in rcar_i2c_clock_calculate()
+Date: Tue, 24 Mar 2020 14:32:13 +0200
+Message-ID: <20200324123216.78113-3-andriy.shevchenko@linux.intel.com>
+References: <20200324123216.78113-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20200324110122.GG1134@ninjato>
-Sender: linux-media-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Kieran Bingham <kieran.bingham@ideasonboard.com>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, sean@mess.org, Shuah Khan <skhan@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-media@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:5754 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727480AbgCXMcU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 24 Mar 2020 08:32:20 -0400
+In-Reply-To: <20200324123216.78113-1-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Em Tue, 24 Mar 2020 12:01:22 +0100
-Wolfram Sang <wsa@the-dreams.de> escreveu:
+Move i2c_parse_fw_timings() to rcar_i2c_clock_calculate() to consolidate
+timings calls in one place.
 
-> On Tue, Mar 24, 2020 at 10:49:55AM +0000, Kieran Bingham wrote:
-> > +cc: linux-i2c@vger.kernel.org
-> > Moving /this/ to the linux-i2c list ;-)
-> > 
-> > Thanks Wolfram,
-> > 
-> > On 24/03/2020 10:27, Wolfram Sang wrote:  
-> > >   
-> > >> Maybe we should have a whole virtual I2C bus for virtual devices :-)
-> > >>
-> > >> (Hrm, that started out as a joke, and now I'm not sure if it's a real
-> > >> option or not...)  
-> > > 
-> > > Just one final thought: I think this is actually the best option. Zero
-> > > chance of address collisions (which could happen if you have a not
-> > > perfectly-described real HW bus). No RPM mangling of real and virtual
-> > > devices. A clear seperation what is real and what is virtual. Plus, you
-> > > can implement it right away, no need to wait for the dynamic address
-> > > assignment.  
-> > 
-> > Agreed - even better all round! But I presume we don't yet have a
-> > 'virtual' i2c bus? So it's a patch-set to do first? Or is it already
-> > feasible?  
-> 
-> From what I understand, you won't need an API for that. What I
-> understand:
-> 
-> There will be a master device (a DVB or something). This will register
-> its own i2c_adapter with a dummy .xfer callback. The sub-devices will be
-> i2c_clients, then. 
+While here, replace hard coded values with standard bus frequency definitions.
 
-Yes. That's what the current drivers that have integrated hardware
-at the same silicon (like rtl28xx) do: their .xfer callback splits the
-I2C addresses reserved for "internal" devices, and use a different set
-of registers to handle those, instead of the normal ones used to
-communicate with a real I2C hardware.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+v5: switched to timings definition on stack (Wolfram)
+ drivers/i2c/busses/i2c-rcar.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-The cx231xx uses a different strategy: it has multiple I2C buses, being
-one of them reserved for its own integrated I2C like bus.
-
-> I don't know how you want communication between
-> those. Maybe the .xfer callback will need to do some message parsing?
-> 
-
-
-
-Thanks,
-Mauro
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index c8b57ded0e7b..25013641a85d 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -235,17 +235,20 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ 	return i2c_recover_bus(&priv->adap);
+ }
+ 
+-static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timings *t)
++static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv)
+ {
+ 	u32 scgd, cdf, round, ick, sum, scl, cdf_width;
+ 	unsigned long rate;
+ 	struct device *dev = rcar_i2c_priv_to_dev(priv);
++	struct i2c_timings i2c_t = {
++		.bus_freq_hz		= I2C_MAX_STANDARD_MODE_FREQ,
++		.scl_fall_ns		= 35,
++		.scl_rise_ns		= 200,
++		.scl_int_delay_ns	= 50,
++	}, *t = &i2c_t;
+ 
+ 	/* Fall back to previously used values if not supplied */
+-	t->bus_freq_hz = t->bus_freq_hz ?: 100000;
+-	t->scl_fall_ns = t->scl_fall_ns ?: 35;
+-	t->scl_rise_ns = t->scl_rise_ns ?: 200;
+-	t->scl_int_delay_ns = t->scl_int_delay_ns ?: 50;
++	i2c_parse_fw_timings(dev, &i2c_t, false);
+ 
+ 	switch (priv->devtype) {
+ 	case I2C_RCAR_GEN1:
+@@ -920,7 +923,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	struct rcar_i2c_priv *priv;
+ 	struct i2c_adapter *adap;
+ 	struct device *dev = &pdev->dev;
+-	struct i2c_timings i2c_t = { 0 };
+ 	int ret;
+ 
+ 	/* Otherwise logic will break because some bytes must always use PIO */
+@@ -957,8 +959,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(adap, priv);
+ 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
+ 
+-	i2c_parse_fw_timings(dev, &i2c_t, false);
+-
+ 	/* Init DMA */
+ 	sg_init_table(&priv->sg, 1);
+ 	priv->dma_direction = DMA_NONE;
+@@ -967,7 +967,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	/* Activate device for clock calculation */
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_get_sync(dev);
+-	ret = rcar_i2c_clock_calculate(priv, &i2c_t);
++	ret = rcar_i2c_clock_calculate(priv);
+ 	if (ret < 0)
+ 		goto out_pm_put;
+ 
+-- 
+2.25.1
