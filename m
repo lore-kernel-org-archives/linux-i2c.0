@@ -1,86 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: A bit confused on i2c communication between modules
-Date: Tue, 24 Mar 2020 12:01:22 +0100
-Message-ID: <20200324110122.GG1134@ninjato>
-References: <55204992-9060-6008-31c7-c2855f712e70@gmail.com>
- <20200324082236.2c4d2ae4@coco.lan>
- <bc91be3d-802c-a58c-bd27-740e15516180@ideasonboard.com>
- <20200324095810.GC1134@ninjato>
- <63742e62-d0b6-9d7a-b491-d7969f8ea7e2@ideasonboard.com>
- <20200324102704.GD1134@ninjato>
- <7d82a76f-5165-5e7c-bcde-552f527da0d2@ideasonboard.com>
+Subject: Re: [PATCH] i2c: nvidia-gpu: Handle timeout correctly in
+ gpu_i2c_check_status()
+Date: Tue, 24 Mar 2020 12:09:30 +0100
+Message-ID: <20200324110930.GH1134@ninjato>
+References: <20200311165806.12365-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="w2JjAQZceEVGylhD"
+        protocol="application/pgp-signature"; boundary="y0Ed1hDcWxc3B7cn"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:49164 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:49250 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727455AbgCXLBY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 24 Mar 2020 07:01:24 -0400
+        id S1726524AbgCXLJd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 24 Mar 2020 07:09:33 -0400
 Content-Disposition: inline
-In-Reply-To: <7d82a76f-5165-5e7c-bcde-552f527da0d2@ideasonboard.com>
+In-Reply-To: <20200311165806.12365-1-kai.heng.feng@canonical.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, sean@mess.org, Shuah Khan <skhan@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: ajayg@nvidia.com, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "open list:I2C CONTROLLER DRIVER FOR NVIDIA GPU" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 
 
---w2JjAQZceEVGylhD
+--y0Ed1hDcWxc3B7cn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 24, 2020 at 10:49:55AM +0000, Kieran Bingham wrote:
-> +cc: linux-i2c@vger.kernel.org
-> Moving /this/ to the linux-i2c list ;-)
->=20
-> Thanks Wolfram,
->=20
-> On 24/03/2020 10:27, Wolfram Sang wrote:
-> >=20
-> >> Maybe we should have a whole virtual I2C bus for virtual devices :-)
-> >>
-> >> (Hrm, that started out as a joke, and now I'm not sure if it's a real
-> >> option or not...)
-> >=20
-> > Just one final thought: I think this is actually the best option. Zero
-> > chance of address collisions (which could happen if you have a not
-> > perfectly-described real HW bus). No RPM mangling of real and virtual
-> > devices. A clear seperation what is real and what is virtual. Plus, you
-> > can implement it right away, no need to wait for the dynamic address
-> > assignment.
->=20
-> Agreed - even better all round! But I presume we don't yet have a
-> 'virtual' i2c bus? So it's a patch-set to do first? Or is it already
-> feasible?
 
-=46rom what I understand, you won't need an API for that. What I
-understand:
+>  	} while (time_is_after_jiffies(target));
+> =20
+> -	if (time_is_before_jiffies(target)) {
+> +	if (time_is_before_eq_jiffies(target)) {
 
-There will be a master device (a DVB or something). This will register
-its own i2c_adapter with a dummy .xfer callback. The sub-devices will be
-i2c_clients, then. I don't know how you want communication between
-those. Maybe the .xfer callback will need to do some message parsing?
+While unlikely, there is a tiny race between the time_is_* calls,
+jiffies could update inbetween them.
+
+So, for the sake of good programming practice, I'd recommend to set a
+flag in the do_while-loop and the have the logic above solely based on
+the flag.
 
 
---w2JjAQZceEVGylhD
+--y0Ed1hDcWxc3B7cn
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl556IIACgkQFA3kzBSg
-Kbbh4g/+KPuDQYNNYUVKgy7H5CEvmsbci2DhZjh6rAOv9AHlVxiU25wo7PYeb1aL
-CO3b2IUVGkz1N4Z1V57lTxwfkL54Jq35mTt5DITQwB8u71cKmmTLZKsez3TIR61x
-70sHXcgdYKzvMX6WI0QdoDbqjPLVHLZfMD0Igj3Gx6DXx03PlUlcq5XLbiMY5yPe
-ssKqGhONe8DDUbcNU1O7Av22EmlTCZdw9IOX8EdygRuttFXLxlYfcN61HvknrJWQ
-/e4UQjh6FDd7v03ShiVaEg5uENLvlUd3ewPnALWaE99at6BazX16vfACws43nLHi
-NO+B5MTbEY2vcsktxi3LNzJRQRVjfJcNTHN4ZP+M2YjcqMl41zpsVs0CGq+vToQm
-ShA78aio7gmRXiDQlSRf6bC3xCHq4A1Oxw0s3mlDa0rnenVi/plEexwSex+YgSit
-3dtNb/UJKSuUgwMfhMDweXm6wP27Vp1zA5c7Ruuhir60RhlrdAsT3h72J8Zbo03Y
-0AWBGgXonThOtrNqPLVSfR64ZnjjFBcDRtvk+yY747qKpziRjy+AqsWSJzGX/fuv
-izw9KniEsdcjMrNDgaJz3qCoij/U8Foeo1BuwBtcdqsexgthBkAbh8AqNsTEaAgt
-VoZWBxWH02VbaZs8rjcOF69YKexkDsXZlztOl7osPhstX4tqWGo=
-=hEhi
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl556l4ACgkQFA3kzBSg
+KbY/wBAAscToS9q+QNPmVqqgKttmfAF0VSLyRHwM1Tkhfh80JIsC7Q/KEgmY4Qce
+tRTx+oTMfoUx10VGuwKqGOGUbdoAnDJa0JjNYFW0BXUBV4buVTgnvPZ3LWJFBFv7
+cstLgkuwIINFUTLPMDr/07M4TMHLYHbUxwToMsCRtNKWij2u6fQBIhBpFB8nOJ1d
+vh457vsQLX8ZyR6fbGRVduSDvjmtnE0Z9sw4npphx1gl+Wij4IJmNUmSKOXGEM7a
+2Y37hy86NXJN3pveDTmu41XmOFNdEYVjn3TlEAfIZnCIrjC7h3x5FdUP79jomd/h
+5PzJXSDRohg/lfH8yVw4xsXO0SchC6atNOB8awXy1JDYiWe3mil8BhvT6BwcI4kB
+QyBH5pmDDDaTDOd0CGegSWY7SWClCn3sdHGVq7oCunS9UECsCxXX0tD82ACE4alR
+PQt2vlzy+OsP7sfVD6ZTptOxEt5qwRNbEJwim8BtnwiomjP6KSvS7GNwonSZRMDu
+NRrRtn5BoHlJG4X45DZwxySSBRwidIn5NdCVURN6rx2yes4yakBP4I/GYpRlFzAF
+SqEcDqlJBVrftSuS+Xu0qyO5MB8bOKCpAjVBZ1fDte/IYD7KQZ9Mc77alF7anuC1
+McYwgeYKFHRwNgOeSixaIg4dIGdHQnQkXimk1sXhIbholsUcJ2Y=
+=1uKn
 -----END PGP SIGNATURE-----
 
---w2JjAQZceEVGylhD--
+--y0Ed1hDcWxc3B7cn--
