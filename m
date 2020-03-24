@@ -1,7 +1,7 @@
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Mauro Carvalho Chehab <mchehab@kernel.org>
 Subject: Re: A bit confused on i2c communication between modules
-Date: Tue, 24 Mar 2020 12:22:17 +0100
-Message-ID: <20200324122217.4ff330b1@coco.lan>
+Date: Tue, 24 Mar 2020 12:30:33 +0100
+Message-ID: <20200324123033.5538c38d@coco.lan>
 References: <55204992-9060-6008-31c7-c2855f712e70@gmail.com>
         <20200324082236.2c4d2ae4@coco.lan>
         <bc91be3d-802c-a58c-bd27-740e15516180@ideasonboard.com>
@@ -9,97 +9,65 @@ References: <55204992-9060-6008-31c7-c2855f712e70@gmail.com>
         <63742e62-d0b6-9d7a-b491-d7969f8ea7e2@ideasonboard.com>
         <20200324102704.GD1134@ninjato>
         <7d82a76f-5165-5e7c-bcde-552f527da0d2@ideasonboard.com>
+        <20200324110122.GG1134@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:40344 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727112AbgCXLWW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 24 Mar 2020 07:22:22 -0400
-In-Reply-To: <7d82a76f-5165-5e7c-bcde-552f527da0d2@ideasonboard.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20200324110122.GG1134@ninjato>
+Sender: linux-media-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Kieran Bingham <kieran.bingham@ideasonboard.com>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, sean@mess.org, Shuah Khan <skhan@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, sean@mess.org, Shuah Khan <skhan@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-media@vger.kernel.org
 
-Em Tue, 24 Mar 2020 10:49:55 +0000
-Kieran Bingham <kieran.bingham@ideasonboard.com> escreveu:
+Em Tue, 24 Mar 2020 12:01:22 +0100
+Wolfram Sang <wsa@the-dreams.de> escreveu:
 
-> +cc: linux-i2c@vger.kernel.org
-> Moving /this/ to the linux-i2c list ;-)
-
-+cc: linux-media@vger.kernel.org
-
-The discussion of having a virtual i2C bus can be interesting at
-linux-media as well, as other virtual drivers could eventually need
-it.
-
-Just placing some context here, we're developing a DVB virtual driver,
-in order to allow testing Digital TV applications without requiring
-a real hardware.
-
-The DVB driver model is that there's a main driver ("bridge" driver)
-with creates a digital TV adapter and (at least) two other drivers,
-responsible for tuning into a channel and decoding the digital TV
-protocols. The output of a DVB driver is a MPEG-TS stream.
-
-A typical TV board looks like this:
-
-	https://linuxtv.org/downloads/v4l-dvb-apis-new/_images/typical_media_device.svg
-
-Those drivers are:
-
-- a tuner driver, usually at address 0x61 (7-bit notation)
-- a demodulator driver, usually at address 0x0e (although there are
-  other addresses also used by different drivers).
-
-As shown at the picture, the vast majority of devices use I2C. There are
-even some chips with have an internal I2C like bus with some internal 
-devices, like cx231xx.
-
-As one of the goals of a virtual driver is to serve as a basis for new
-developments, we'd like to keep the virtual DVB drivers as close as
-possible of real drivers.
-
-> 
-> Thanks Wolfram,
-> 
-> On 24/03/2020 10:27, Wolfram Sang wrote:
-> >   
-> >> Maybe we should have a whole virtual I2C bus for virtual devices :-)
-> >>
-> >> (Hrm, that started out as a joke, and now I'm not sure if it's a real
-> >> option or not...)  
+> On Tue, Mar 24, 2020 at 10:49:55AM +0000, Kieran Bingham wrote:
+> > +cc: linux-i2c@vger.kernel.org
+> > Moving /this/ to the linux-i2c list ;-)
 > > 
-> > Just one final thought: I think this is actually the best option. Zero
-> > chance of address collisions (which could happen if you have a not
-> > perfectly-described real HW bus). No RPM mangling of real and virtual
-> > devices. A clear seperation what is real and what is virtual. Plus, you
-> > can implement it right away, no need to wait for the dynamic address
-> > assignment.  
-
-We don't need dynamic address assignment here. At least for now,
-all digital TV drivers we have use fixed I2C assignments.
-
-> Agreed - even better all round! But I presume we don't yet have a
-> 'virtual' i2c bus? So it's a patch-set to do first? Or is it already
-> feasible?
+> > Thanks Wolfram,
+> > 
+> > On 24/03/2020 10:27, Wolfram Sang wrote:  
+> > >   
+> > >> Maybe we should have a whole virtual I2C bus for virtual devices :-)
+> > >>
+> > >> (Hrm, that started out as a joke, and now I'm not sure if it's a real
+> > >> option or not...)  
+> > > 
+> > > Just one final thought: I think this is actually the best option. Zero
+> > > chance of address collisions (which could happen if you have a not
+> > > perfectly-described real HW bus). No RPM mangling of real and virtual
+> > > devices. A clear seperation what is real and what is virtual. Plus, you
+> > > can implement it right away, no need to wait for the dynamic address
+> > > assignment.  
+> > 
+> > Agreed - even better all round! But I presume we don't yet have a
+> > 'virtual' i2c bus? So it's a patch-set to do first? Or is it already
+> > feasible?  
 > 
-> I see references to 'i2c-virtual.c' and 'i2c-virt.c', but I can't find
-> those files or any config options themselves...
+> From what I understand, you won't need an API for that. What I
+> understand:
+> 
+> There will be a master device (a DVB or something). This will register
+> its own i2c_adapter with a dummy .xfer callback. The sub-devices will be
+> i2c_clients, then. 
 
-FYI, there are some drivers that have the demodulated device for some
-TV standards integrated with the bridge one. that's the case, for
-example, of rtl28xx. It may either use its internal demodulator or
-an external one (via I2C). Right now, the driver handles its 
-internal demodulator using I2C support (as this makes easier for it
-to also support external demods, by just changing the I2C address).
+Yes. That's what the current drivers that have integrated hardware
+at the same silicon (like rtl28xx) do: their .xfer callback splits the
+I2C addresses reserved for "internal" devices, and use a different set
+of registers to handle those, instead of the normal ones used to
+communicate with a real I2C hardware.
 
-So, right now we actually mix "virtual" and "real hardware" support,
-at least on some drivers.
+The cx231xx uses a different strategy: it has multiple I2C buses, being
+one of them reserved for its own integrated I2C like bus.
 
-So, I'm not so sure if we need any new feature at I2C side.
+> I don't know how you want communication between
+> those. Maybe the .xfer callback will need to do some message parsing?
+> 
+
+
 
 Thanks,
 Mauro
