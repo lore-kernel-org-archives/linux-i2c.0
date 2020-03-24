@@ -1,85 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [GIT PULL] at24: updates for v5.7
-Date: Tue, 24 Mar 2020 11:39:27 +0100
-Message-ID: <20200324103926.GF1134@ninjato>
-References: <20200324081253.881-1-brgl@bgdev.pl>
+From: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Subject: Re: A bit confused on i2c communication between modules
+Date: Tue, 24 Mar 2020 10:49:55 +0000
+Message-ID: <7d82a76f-5165-5e7c-bcde-552f527da0d2@ideasonboard.com>
+References: <55204992-9060-6008-31c7-c2855f712e70@gmail.com>
+ <20200324082236.2c4d2ae4@coco.lan>
+ <bc91be3d-802c-a58c-bd27-740e15516180@ideasonboard.com>
+ <20200324095810.GC1134@ninjato>
+ <63742e62-d0b6-9d7a-b491-d7969f8ea7e2@ideasonboard.com>
+ <20200324102704.GD1134@ninjato>
+Reply-To: kieran.bingham@ideasonboard.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="wtjvnLv0o8UUzur2"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:48972 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727066AbgCXKj2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 24 Mar 2020 06:39:28 -0400
-Content-Disposition: inline
-In-Reply-To: <20200324081253.881-1-brgl@bgdev.pl>
+Received: from perceval.ideasonboard.com ([213.167.242.64]:42438 "EHLO
+        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727095AbgCXKuB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 Mar 2020 06:50:01 -0400
+In-Reply-To: <20200324102704.GD1134@ninjato>
+Content-Language: en-GB
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, sean@mess.org, Shuah Khan <skhan@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
++cc: linux-i2c@vger.kernel.org
+Moving /this/ to the linux-i2c list ;-)
 
---wtjvnLv0o8UUzur2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks Wolfram,
 
-On Tue, Mar 24, 2020 at 09:12:53AM +0100, Bartosz Golaszewski wrote:
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->=20
-> Wolfram,
->=20
-> please pull the following change in at24 for v5.7. This time it's just
-> a single new ACPI ID.
->=20
-> The following changes since commit bb6d3fb354c5ee8d6bde2d576eb7220ea09862=
-b9:
->=20
->   Linux 5.6-rc1 (2020-02-09 16:08:48 -0800)
->=20
-> are available in the Git repository at:
->=20
->   git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-=
-updates-for-v5.7
->=20
-> for you to fetch changes up to 4837621cd61e6b81a182098889143c6c9a06b0f3:
->=20
->   eeprom: at24: add TPF0001 ACPI ID for 24c1024 device (2020-02-10 11:03:=
-39 +0100)
->=20
-> ----------------------------------------------------------------
-> at24 updates for v5.7
->=20
-> - add a new ACPI ID for 24c1024
->=20
-> ----------------------------------------------------------------
-> Markus Pietrek (1):
->       eeprom: at24: add TPF0001 ACPI ID for 24c1024 device
->=20
->  drivers/misc/eeprom/at24.c | 1 +
->  1 file changed, 1 insertion(+)
+On 24/03/2020 10:27, Wolfram Sang wrote:
+> 
+>> Maybe we should have a whole virtual I2C bus for virtual devices :-)
+>>
+>> (Hrm, that started out as a joke, and now I'm not sure if it's a real
+>> option or not...)
+> 
+> Just one final thought: I think this is actually the best option. Zero
+> chance of address collisions (which could happen if you have a not
+> perfectly-described real HW bus). No RPM mangling of real and virtual
+> devices. A clear seperation what is real and what is virtual. Plus, you
+> can implement it right away, no need to wait for the dynamic address
+> assignment.
 
-Thanks, pulled!
+Agreed - even better all round! But I presume we don't yet have a
+'virtual' i2c bus? So it's a patch-set to do first? Or is it already
+feasible?
 
+I see references to 'i2c-virtual.c' and 'i2c-virt.c', but I can't find
+those files or any config options themselves...
 
---wtjvnLv0o8UUzur2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl55414ACgkQFA3kzBSg
-Kbb9qQ/+Kaj5u/l97n8Lg7nQLjzaHFAwcJvo6o8++sYzYFLuulKsO2uqvEncpS3i
-106lqR7/G8KlARyol4DadP/t/9ezV7dGBgU8CQa/ymQe8ha1KCFk+8u5BHYPib+b
-DRnYw6jmdR/uoDR/UsUBB+gcBQKbQzs+BUVAzz+0+O1asfaC/alg3eEF9Xp56GGA
-k4tYgb0okfpES1wVg0Oh0DkvIZe/qe+q3Mls/zAOuD4k2jqSy6y3TXugFY4jZ4Pq
-2ttEMm1kwtFLQHTyWvRYVJB8TIrLgoX8YKMNj5YEIJdpLrt+nE9CFGWYNMV7WTN1
-89LQvHpO1tfktJBvYw6P/8Kp33QYD6iGNrYH+cDGvcZJJNA/w0QE73UPPGwMX2Uq
-IqbOiHusp0z/CI4L5arVqPUhIZikWBU3TTHvXS98xd8qA++Q2lDJ/ypB1dAV7rcE
-nTSFh6zXr2N7EaoT1KaPKx1puK9HEbvKuPdzPJkPHngp8qft96ewAJhC72R8npEi
-v6W1fvzi/HAPj3D+rKSxVuqL7iYkOmh0C81yA7m1J50hz2moiITwEqSAhRlWGdEU
-uQuuWmnfxxb4XwQqQgEQI0hdonC6e2Th2NQWKxHUhdqGtih5jI257J0yaStpz4JY
-prn/ME5GaEPPAQuVdVU+9mXNhQD1Mi08x4bdYaQ6WY8aDs+QeJY=
-=1e6Y
------END PGP SIGNATURE-----
-
---wtjvnLv0o8UUzur2--
+-- 
+Regards
