@@ -1,47 +1,48 @@
-From: Sergey Semin <Sergey.Semin@baikalelectronics.ru>
-Subject: Re: [PATCH 6/6] i2c: designware: Add Baikal-T1 SoC I2C controller
- support
-Date: Wed, 25 Mar 2020 21:21:01 +0300
-Message-ID: <20200325182101.k47u4cjnbv6knsag@ubsrv2.baikal.int>
-References: <20200306131955.12806-1-Sergey.Semin@baikalelectronics.ru>
- <20200306132348.71E638030793@mail.baikalelectronics.ru>
- <20200321183349.GC5632@ninjato>
+From: Alain Volmat <alain.volmat@st.com>
+Subject: [PATCH 1/2] dt-bindings: i2c: i2c-stm32f7: allow clock-frequency range
+Date: Wed, 25 Mar 2020 19:36:00 +0100
+Message-ID: <1585161361-3408-2-git-send-email-alain.volmat@st.com>
+References: <1585161361-3408-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.baikalelectronics.com ([87.245.175.226]:47894 "EHLO
-        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727006AbgCYSVS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Mar 2020 14:21:18 -0400
-Content-Disposition: inline
-In-Reply-To: <20200321183349.GC5632@ninjato>
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:56300 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727027AbgCYSg0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Mar 2020 14:36:26 -0400
+In-Reply-To: <1585161361-3408-1-git-send-email-alain.volmat@st.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Paul Burton <paulburton@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org
+Cc: mark.rutland@arm.com, pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com, alain.volmat@st.com
 
-On Sat, Mar 21, 2020 at 07:33:49PM +0100, Wolfram Sang wrote:
-> On Fri, Mar 06, 2020 at 04:19:58PM +0300, Sergey.Semin@baikalelectronics.ru wrote:
-> > From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-> > 
-> > A third I2C controller embedded into the Baikal-T1 SoC is also fully
-> > based on the DW APB I2C core, but its registers are indirectly
-> > accessible via "command/data in/data out" trio. There is no difference
-> > other than that. So in order to have that controller supported by the
-> > common DW APB I2C driver we only need to introduce a new flag
-> > ACCESS_INDIRECT and use the access-registers to reach the I2C controller
-> > normal registers space in the dw_readl/dw_writel methods. Currently this
-> > flag is only enabled for the controllers with "be,bt1-i2c" compatible
-> > string.
-> > 
-> > Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-> > Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-> 
-> Patches 2,3, and 6 have comments which should be addressed. Patches 4+5
-> can be dropped when sending next version.
-> 
+For STM32F7, STM32H7 and STM32MP1 SoCs, if timing parameters
+match, the bus clock frequency can be from 1Hz to 1MHz.
 
-Great! Thanks. I'll have respond on the requests very soon.
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+---
+ Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Regards,
--Sergey
+diff --git a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+index 900ec1ab6a47..b50a2f420b36 100644
+--- a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+@@ -80,11 +80,11 @@ properties:
+   clock-frequency:
+     description: Desired I2C bus clock frequency in Hz. If not specified,
+                  the default 100 kHz frequency will be used.
+-                 For STM32F7, STM32H7 and STM32MP1 SoCs, Standard-mode,
+-                 Fast-mode and Fast-mode Plus are supported, possible
+-                 values are 100000, 400000 and 1000000.
++                 For STM32F7, STM32H7 and STM32MP1 SoCs, if timing parameters
++                 match, the bus clock frequency can be from 1Hz to 1MHz.
+     default: 100000
+-    enum: [100000, 400000, 1000000]
++    minimum: 1
++    maximum: 1000000
+ 
+ required:
+   - compatible
+-- 
+2.17.1
