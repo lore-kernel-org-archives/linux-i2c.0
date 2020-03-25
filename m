@@ -1,63 +1,48 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v6 2/8] i2c: i801: Use GPIO_LOOKUP() helper macro
-Date: Wed, 25 Mar 2020 10:14:57 +0100
-Message-ID: <20200325101457.0fff5bb9@endymion>
-References: <20200324135328.5796-1-geert+renesas@glider.be>
-        <20200324135653.6676-1-geert+renesas@glider.be>
-        <20200324135653.6676-2-geert+renesas@glider.be>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 1/2] i2c: designware: Make master module optional
+Date: Wed, 25 Mar 2020 13:45:29 +0200
+Message-ID: <20200325114529.GU1922688@smile.fi.intel.com>
+References: <20200323100451.28808-1-andriy.shevchenko@linux.intel.com>
+ <c3d2d5ff-605a-bdb7-275b-872fdfd10ccd@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20200324135653.6676-2-geert+renesas@glider.be>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Jonathan Corbet <corbet@lwn.net>, Harish Jenny K N <harish_kandiga@mentor.com>, Eugeniu Rosca <erosca@de.adit-jv.com>, Alexander Graf <graf@amazon.com>, Peter Maydell <peter.maydell@linaro.org>, Paolo Bonzini <pbonzini@redhat.com>, Phil Reid <preid@electromag.com.au>, Marc Zyngier <marc.zyngier@arm.com>, Christoffer Dall <christoffer.dall@arm.com>, Magnus Damm <magnus.damm@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-gpio@vger.kernel.org, linux-doc@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga17.intel.com ([192.55.52.151]:52302 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726313AbgCYLp2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 25 Mar 2020 07:45:28 -0400
+Content-Disposition: inline
+In-Reply-To: <c3d2d5ff-605a-bdb7-275b-872fdfd10ccd@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On Tue, 24 Mar 2020 14:56:47 +0100, Geert Uytterhoeven wrote:
-> i801_add_mux() fills in the GPIO lookup table by manually populating an
-> array of gpiod_lookup structures.  Use the existing GPIO_LOOKUP() helper
-> macro instead, to relax a dependency on the gpiod_lookup structure's
-> member names.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Cc: Jean Delvare <jdelvare@suse.com>
-> Cc: linux-i2c@vger.kernel.org
-> ---
-> While this patch is a dependency for "[PATCH v6 4/8] gpiolib: Add
-> support for GPIO lookup by line name", it can be applied independently.
-> But an Acked-by would be nice, too.
-> 
-> Cover letter and full series at
-> https://lore.kernel.org/r/20200324135328.5796-1-geert+renesas@glider.be/
-> 
-> v6:
->   - New.
-> ---
->  drivers/i2c/busses/i2c-i801.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index ca4f096fef749302..8e64a71bea684cc7 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -1444,9 +1444,9 @@ static int i801_add_mux(struct i801_priv *priv)
->  		return -ENOMEM;
->  	lookup->dev_id = "i2c-mux-gpio";
->  	for (i = 0; i < mux_config->n_gpios; i++) {
-> -		lookup->table[i].chip_label = mux_config->gpio_chip;
-> -		lookup->table[i].chip_hwnum = mux_config->gpios[i];
-> -		lookup->table[i].con_id = "mux";
-> +		lookup->table[i] = (struct gpiod_lookup)
-> +			GPIO_LOOKUP(mux_config->gpio_chip,
-> +				    mux_config->gpios[i], "mux", 0);
->  	}
->  	gpiod_add_lookup_table(lookup);
->  	priv->lookup = lookup;
+On Wed, Mar 25, 2020 at 09:47:47AM +0200, Jarkko Nikula wrote:
+> On 3/23/20 12:04 PM, Andy Shevchenko wrote:
+> > In some cases we know that the controller will be always used in slave mode and
+> > master is just a bulk. In order to drop that, introduce a separate configuration
+> > parameter for master mode. Default it to core to avoid regressions.
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> I think we should go to a opposite direction - reduce the number of
+> I2C_DESIGNWARE_ config options rather than add new ones. We already have 5
+> config options for it.
+> 
+> Size of i2c-designware-core.ko is around 12 kB with all master, slave and
+> Baytrail semaphore code built in so I don't think it justifies the added
+> config complexity. I think distributions will have anyway all of those
+> options set.
+
+I would rather go with conditional based on I²C generic options, like I2C_SLAVE.
+Do we have something similar for master?
+
+> Having those code in separate modules and load only when needed might make
+> sense as that would save a few kB of RAM.
+
+...which makes sense for embedded systems where exactly the device represents
+I²C slave.
 
 -- 
-Jean Delvare
-SUSE L3 Support
+With Best Regards,
+Andy Shevchenko
