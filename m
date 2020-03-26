@@ -1,53 +1,54 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH v2] macintosh: convert to i2c_new_scanned_device
-Date: Thu, 26 Mar 2020 12:38:19 +0100
-Message-ID: <20200326113819.7761-1-wsa+renesas@sang-engineering.com>
+From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: i2c-stm32f7: allows for any bus frequency
+Date: Thu, 26 Mar 2020 13:38:38 +0200
+Message-ID: <CAHp75Vc896RpnrX6+yb0LfXVroLJO5XX6Gt5V4BJZjdFYOXYnQ@mail.gmail.com>
+References: <1585161361-3408-1-git-send-email-alain.volmat@st.com>
+ <1585161361-3408-3-git-send-email-alain.volmat@st.com> <CAHp75VdPCWdpGo=2n9g0ivti-g2m4jZ=cG4BKHBLk8BVDzaCyg@mail.gmail.com>
+ <20200326101219.GA21190@gnbcxd0016.gnb.st.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:49318 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727560AbgCZLi3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 26 Mar 2020 07:38:29 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200326101219.GA21190-KtquC145j2edsQPTSGfZHNvLeJWuRmrY@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pierre Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre TORGUE <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org" <linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org>, linux-arm Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Fabrice GASNIER <fabrice.gasnier-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Michael Ellerman <mpe@ellerman.id.au>
 
-Move from the deprecated i2c_new_probed_device() to the new
-i2c_new_scanned_device(). No functional change for this driver because
-it doesn't check the return code anyhow.
+On Thu, Mar 26, 2020 at 12:12 PM Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org> wrote:
+> On Wed, Mar 25, 2020 at 06:53:45PM +0000, Andy Shevchenko wrote:
+> > On Wed, Mar 25, 2020 at 8:38 PM Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org> wrote:
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
----
+...
 
-Change since v1: rebased on top of v5.6-rc7
+> > > +       int i;
+> > > +
+> > > +       for (i = ARRAY_SIZE(i2c_specs) - 1; i >= 0; i--)
+> >
+> >
+> > Perhaps
+> >
+> >        int i = ARRAY_SIZE(i2c_specs);
+> >
+> >        while(i--)
+> >
+> > ?
+>
+> I propose the following code to make it a bit easier to read/understand:
+>
+> static u32 get_lower_rate(u32 rate)
+> {
+>         int i = ARRAY_SIZE(i2c_specs);
+>
+>         while (i--)
+>                 if (i2c_specs[i].rate < rate)
+>                         break;
+>
+>         return i2c_specs[i].rate;
+> }
+>
+> If you agree with that I'll push a v2.
 
- drivers/macintosh/therm_windtunnel.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+No objections.
 
-diff --git a/drivers/macintosh/therm_windtunnel.c b/drivers/macintosh/therm_windtunnel.c
-index a0d87ed9da69..f55f6adf5e5f 100644
---- a/drivers/macintosh/therm_windtunnel.c
-+++ b/drivers/macintosh/therm_windtunnel.c
-@@ -323,7 +323,7 @@ static void do_attach(struct i2c_adapter *adapter)
- 		of_node_put(np);
- 	} else {
- 		strlcpy(info.type, "MAC,ds1775", I2C_NAME_SIZE);
--		i2c_new_probed_device(adapter, &info, scan_ds1775, NULL);
-+		i2c_new_scanned_device(adapter, &info, scan_ds1775, NULL);
- 	}
- 
- 	np = of_find_compatible_node(adapter->dev.of_node, NULL, "MAC,adm1030");
-@@ -331,7 +331,7 @@ static void do_attach(struct i2c_adapter *adapter)
- 		of_node_put(np);
- 	} else {
- 		strlcpy(info.type, "MAC,adm1030", I2C_NAME_SIZE);
--		i2c_new_probed_device(adapter, &info, scan_adm1030, NULL);
-+		i2c_new_scanned_device(adapter, &info, scan_adm1030, NULL);
- 	}
- }
- 
 -- 
-2.20.1
+With Best Regards,
+Andy Shevchenko
