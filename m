@@ -1,35 +1,36 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/6] gpu: convert to use new I2C API
-Date: Thu, 26 Mar 2020 22:09:58 +0100
-Message-ID: <20200326211005.13301-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/1] power: supply: bq24190_charger: convert to use i2c_new_client_device()
+Date: Thu, 26 Mar 2020 22:09:54 +0100
+Message-ID: <20200326210954.12931-2-wsa+renesas@sang-engineering.com>
+References: <20200326210954.12931-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200326210954.12931-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, nouveau@lists.freedesktop.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-We are deprecating calls which return NULL in favor of new variants which
-return an ERR_PTR. Only build tested.
+Move away from the deprecated API in this comment.
 
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/power/supply/bq24190_charger.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Wolfram Sang (6):
-  drm/amdgpu: convert to use i2c_new_client_device()
-  drm/gma500: convert to use i2c_new_client_device()
-  drm/i2c/sil164: convert to use i2c_new_client_device()
-  drm/i2c/tda998x: convert to use i2c_new_client_device()
-  drm/nouveau/therm: convert to use i2c_new_client_device()
-  drm/radeon: convert to use i2c_new_client_device()
-
- drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.c        | 2 +-
- drivers/gpu/drm/gma500/tc35876x-dsi-lvds.c     | 8 ++++----
- drivers/gpu/drm/i2c/sil164_drv.c               | 7 +++++--
- drivers/gpu/drm/i2c/tda998x_drv.c              | 6 +++---
- drivers/gpu/drm/nouveau/nvkm/subdev/therm/ic.c | 4 ++--
- drivers/gpu/drm/radeon/radeon_atombios.c       | 4 ++--
- drivers/gpu/drm/radeon/radeon_combios.c        | 4 ++--
- 7 files changed, 19 insertions(+), 16 deletions(-)
-
+diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
+index 453d6332d43a..4540e913057f 100644
+--- a/drivers/power/supply/bq24190_charger.c
++++ b/drivers/power/supply/bq24190_charger.c
+@@ -673,7 +673,7 @@ static int bq24190_register_reset(struct bq24190_dev_info *bdi)
+ 	 *   { .type = "bq24190", .addr = 0x6b, .properties = pe, .irq = irq };
+ 	 * struct i2c_adapter ad = { ... };
+ 	 * i2c_add_adapter(&ad);
+-	 * i2c_new_device(&ad, &bi);
++	 * i2c_new_client_device(&ad, &bi);
+ 	 */
+ 	if (device_property_read_bool(bdi->dev, "disable-reset"))
+ 		return 0;
 -- 
 2.20.1
