@@ -1,32 +1,39 @@
-From: Alain Volmat <avolmat@me.com>
-Subject: [PATCH] i2c: i2c-st: fix missing struct parameter description
-Date: Thu, 26 Mar 2020 22:22:43 +0100
-Message-ID: <20200326212243.17363-1-avolmat@me.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH] i2c: pca-platform: Use platform_irq_get_optional
+Date: Fri, 27 Mar 2020 11:44:22 +1300
+Message-ID: <20200326224422.31063-1-chris.packham@alliedtelesis.co.nz>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Patrice Chotard <patrice.chotard@st.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: avolmat@me.com
+To: wsa@the-dreams.de, allison@lohutok.net, info@metux.net, linus.walleij@linaro.org, tglx@linutronix.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
 List-Id: linux-i2c@vger.kernel.org
 
-Fix a missing struct parameter description to allow
-warning free W=1 compilation.
+The interrupt is not required so use platform_irq_get_optional() to
+avoid error messages like
 
-Signed-off-by: Alain Volmat <avolmat@me.com>
+  i2c-pca-platform 22080000.i2c: IRQ index 0 not found
+
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 ---
- drivers/i2c/busses/i2c-st.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-pca-platform.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-index 54e1fc8a495e..f7f7b5b64720 100644
---- a/drivers/i2c/busses/i2c-st.c
-+++ b/drivers/i2c/busses/i2c-st.c
-@@ -434,6 +434,7 @@ static void st_i2c_wr_fill_tx_fifo(struct st_i2c_dev *i2c_dev)
- /**
-  * st_i2c_rd_fill_tx_fifo() - Fill the Tx FIFO in read mode
-  * @i2c_dev: Controller's private data
-+ * @max: Maximum amount of data to fill into the Tx FIFO
-  *
-  * This functions fills the Tx FIFO with fixed pattern when
-  * in read mode to trigger clock.
--- 
-2.17.1
+diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i=
+2c-pca-platform.c
+index a7a81846d5b1..635dd697ac0b 100644
+--- a/drivers/i2c/busses/i2c-pca-platform.c
++++ b/drivers/i2c/busses/i2c-pca-platform.c
+@@ -140,7 +140,7 @@ static int i2c_pca_pf_probe(struct platform_device *p=
+dev)
+ 	int ret =3D 0;
+ 	int irq;
+=20
+-	irq =3D platform_get_irq(pdev, 0);
++	irq =3D platform_get_irq_optional(pdev, 0);
+ 	/* If irq is 0, we do polling. */
+ 	if (irq < 0)
+ 		irq =3D 0;
+--=20
+2.25.1
