@@ -1,25 +1,46 @@
-From: Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org>
-Subject: [PATCH v2 0/2] i2c: i2c-stm32f7: allow range of I2C bus frequency
-Date: Thu, 26 Mar 2020 13:44:19 +0100
-Message-ID: <1585226661-26262-1-git-send-email-alain.volmat@st.com>
+From: Alain Volmat <alain.volmat@st.com>
+Subject: [PATCH v2 1/2] dt-bindings: i2c: i2c-stm32f7: allow clock-frequency range
+Date: Thu, 26 Mar 2020 13:44:20 +0100
+Message-ID: <1585226661-26262-2-git-send-email-alain.volmat@st.com>
+References: <1585226661-26262-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, pierre-yves.mordret-qxv4g6HH51o@public.gmane.org, mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexandre.torgue-qxv4g6HH51o@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, fabrice.gasnier-qxv4g6HH51o@public.gmane.org, alain.volmat-qxv4g6HH51o@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1585226661-26262-1-git-send-email-alain.volmat@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org
+Cc: mark.rutland@arm.com, pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com, alain.volmat@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-This serie introduces the possibility to set bus frequency other
-than 100KHz, 400KHz and 1MHz.
+For STM32F7, STM32H7 and STM32MP1 SoCs, if timing parameters
+match, the bus clock frequency can be from 1Hz to 1MHz.
 
-Changelog:
-v2: fix i2c: i2c-stm32f7: allows for any bus frequency patch
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+---
+v2: identical to v1
 
-Alain Volmat (2):
-  dt-bindings: i2c: i2c-stm32f7: allow clock-frequency range
-  i2c: i2c-stm32f7: allows for any bus frequency
+ Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
- .../devicetree/bindings/i2c/st,stm32-i2c.yaml |   8 +-
- drivers/i2c/busses/i2c-stm32f7.c              | 116 +++++++++---------
- 2 files changed, 65 insertions(+), 59 deletions(-)
+diff --git a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+index 900ec1ab6a47..b50a2f420b36 100644
+--- a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+@@ -80,11 +80,11 @@ properties:
+   clock-frequency:
+     description: Desired I2C bus clock frequency in Hz. If not specified,
+                  the default 100 kHz frequency will be used.
+-                 For STM32F7, STM32H7 and STM32MP1 SoCs, Standard-mode,
+-                 Fast-mode and Fast-mode Plus are supported, possible
+-                 values are 100000, 400000 and 1000000.
++                 For STM32F7, STM32H7 and STM32MP1 SoCs, if timing parameters
++                 match, the bus clock frequency can be from 1Hz to 1MHz.
+     default: 100000
+-    enum: [100000, 400000, 1000000]
++    minimum: 1
++    maximum: 1000000
+ 
+ required:
+   - compatible
+-- 
+2.17.1
