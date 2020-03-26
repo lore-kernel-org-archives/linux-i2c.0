@@ -1,30 +1,72 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/2] net: convert to use new I2C API
-Date: Thu, 26 Mar 2020 22:09:58 +0100
-Message-ID: <20200326211001.13171-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 6/6] drm/radeon: convert to use i2c_new_client_device()
+Date: Thu, 26 Mar 2020 22:10:04 +0100
+Message-ID: <20200326211005.13301-7-wsa+renesas@sang-engineering.com>
+References: <20200326211005.13301-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54366 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:54466 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727856AbgCZVKC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 26 Mar 2020 17:10:02 -0400
+        id S1727928AbgCZVKK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 26 Mar 2020 17:10:10 -0400
+In-Reply-To: <20200326211005.13301-1-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, intel-wired-lan@lists.osuosl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, "David (ChunMing) Zhou" <David1.Zhou@amd.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
 
-We are deprecating calls which return NULL in favor of new variants which
-return an ERR_PTR. Only build tested.
+Move away from the deprecated API.
 
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/gpu/drm/radeon/radeon_atombios.c | 4 ++--
+ drivers/gpu/drm/radeon/radeon_combios.c  | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-Wolfram Sang (2):
-  igb: convert to use i2c_new_client_device()
-  sfc: falcon: convert to use i2c_new_client_device()
-
- drivers/net/ethernet/intel/igb/igb_hwmon.c      | 6 +++---
- drivers/net/ethernet/sfc/falcon/falcon_boards.c | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
+diff --git a/drivers/gpu/drm/radeon/radeon_atombios.c b/drivers/gpu/drm/radeon/radeon_atombios.c
+index 848ef68d9086..5d2591725189 100644
+--- a/drivers/gpu/drm/radeon/radeon_atombios.c
++++ b/drivers/gpu/drm/radeon/radeon_atombios.c
+@@ -2111,7 +2111,7 @@ static int radeon_atombios_parse_power_table_1_3(struct radeon_device *rdev)
+ 								    ucOverdriveThermalController];
+ 			info.addr = power_info->info.ucOverdriveControllerAddress >> 1;
+ 			strlcpy(info.type, name, sizeof(info.type));
+-			i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
++			i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
+ 		}
+ 	}
+ 	num_modes = power_info->info.ucNumOfPowerModeEntries;
+@@ -2351,7 +2351,7 @@ static void radeon_atombios_add_pplib_thermal_controller(struct radeon_device *r
+ 				const char *name = pp_lib_thermal_controller_names[controller->ucType];
+ 				info.addr = controller->ucI2cAddress >> 1;
+ 				strlcpy(info.type, name, sizeof(info.type));
+-				i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
++				i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
+ 			}
+ 		} else {
+ 			DRM_INFO("Unknown thermal controller type %d at 0x%02x %s fan control\n",
+diff --git a/drivers/gpu/drm/radeon/radeon_combios.c b/drivers/gpu/drm/radeon/radeon_combios.c
+index c3e49c973812..d3c04df7e75d 100644
+--- a/drivers/gpu/drm/radeon/radeon_combios.c
++++ b/drivers/gpu/drm/radeon/radeon_combios.c
+@@ -2704,7 +2704,7 @@ void radeon_combios_get_power_modes(struct radeon_device *rdev)
+ 				const char *name = thermal_controller_names[thermal_controller];
+ 				info.addr = i2c_addr >> 1;
+ 				strlcpy(info.type, name, sizeof(info.type));
+-				i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
++				i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
+ 			}
+ 		}
+ 	} else {
+@@ -2721,7 +2721,7 @@ void radeon_combios_get_power_modes(struct radeon_device *rdev)
+ 				const char *name = "f75375";
+ 				info.addr = 0x28;
+ 				strlcpy(info.type, name, sizeof(info.type));
+-				i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
++				i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
+ 				DRM_INFO("Possible %s thermal controller at 0x%02x\n",
+ 					 name, info.addr);
+ 			}
 -- 
 2.20.1
