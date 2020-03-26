@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 4/6] drm/i2c/tda998x: convert to use i2c_new_client_device()
-Date: Thu, 26 Mar 2020 22:10:02 +0100
-Message-ID: <20200326211005.13301-5-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/6] drm/amdgpu: convert to use i2c_new_client_device()
+Date: Thu, 26 Mar 2020 22:09:59 +0100
+Message-ID: <20200326211005.13301-2-wsa+renesas@sang-engineering.com>
 References: <20200326211005.13301-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,33 +9,28 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200326211005.13301-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Russell King <linux@armlinux.org.uk>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, "David (ChunMing) Zhou" <David1.Zhou@amd.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move away from the deprecated API and return the shiny new ERRPTR where
-useful.
+Move away from the deprecated API.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/gpu/drm/i2c/tda998x_drv.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i2c/tda998x_drv.c b/drivers/gpu/drm/i2c/tda998x_drv.c
-index c3332209f27a..d9a548d0273c 100644
---- a/drivers/gpu/drm/i2c/tda998x_drv.c
-+++ b/drivers/gpu/drm/i2c/tda998x_drv.c
-@@ -1949,9 +1949,9 @@ static int tda998x_create(struct device *dev)
- 	cec_info.platform_data = &priv->cec_glue;
- 	cec_info.irq = client->irq;
- 
--	priv->cec = i2c_new_device(client->adapter, &cec_info);
--	if (!priv->cec) {
--		ret = -ENODEV;
-+	priv->cec = i2c_new_client_device(client->adapter, &cec_info);
-+	if (IS_ERR(priv->cec)) {
-+		ret = PTR_ERR(priv->cec);
- 		goto fail;
- 	}
- 
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.c
+index ba1bb95a3cf9..0e8018c9aa8e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.c
+@@ -856,7 +856,7 @@ void amdgpu_add_thermal_controller(struct amdgpu_device *adev)
+ 				const char *name = pp_lib_thermal_controller_names[controller->ucType];
+ 				info.addr = controller->ucI2cAddress >> 1;
+ 				strlcpy(info.type, name, sizeof(info.type));
+-				i2c_new_device(&adev->pm.i2c_bus->adapter, &info);
++				i2c_new_client_device(&adev->pm.i2c_bus->adapter, &info);
+ 			}
+ 		} else {
+ 			DRM_INFO("Unknown thermal controller type %d at 0x%02x %s fan control\n",
 -- 
 2.20.1
