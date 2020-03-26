@@ -1,46 +1,37 @@
-From: Ricardo =?ISO-8859-1?Q?Ca=F1uelo?= <ricardo.canuelo@collabora.com>
-Subject: About enabling async suspend/resume on i2c devices
-Date: Thu, 26 Mar 2020 16:36:10 +0100
-Message-ID: <e766f6cc821cfc57246f4b18eac03a29d46641ac.camel@collabora.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 0/6] media: convert to use new I2C API
+Date: Thu, 26 Mar 2020 22:09:40 +0100
+Message-ID: <20200326210947.12747-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:50102 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726296AbgCZPgT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 26 Mar 2020 11:36:19 -0400
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: hdegoede@redhat.com
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+We are deprecating calls which return NULL in favor of new variants which
+return an ERR_PTR. Only build tested.
 
-I came across this patch: https://marc.info/?l=linux-i2c&m=153270824822381&w=2
-and I'm evaluating if it's a good candidate for upstreaming:
 
-----------------------------------------------------------------------
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 1ba40bb2b966..3382bb7e1dcc 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -749,6 +749,7 @@  i2c_new_device(struct i2c_adapter *adap, struct
-i2c_board_info const *info)
- 	client->dev.of_node = info->of_node;
- 	client->dev.fwnode = info->fwnode;
- 
-+	device_enable_async_suspend(&client->dev);
- 	i2c_dev_set_name(adap, client, info);
- 
- 	if (info->properties) {
-----------------------------------------------------------------------
+Wolfram Sang (6):
+  media: pci: cx88: convert to use i2c_new_client_device()
+  media: pci: saa7134: convert to use i2c_new_client_device()
+  media: marvell-ccic: convert to use i2c_new_client_device()
+  media: usb: cx231xx: convert to use i2c_new_client_device()
+  media: usb: hdpvr: convert to use i2c_new_client_device()
+  media: usb: pvrusb2: convert to use i2c_new_client_device()
 
-Was this ever tested on something other than a Chromebook? Reading the thread I
-got the impression that the patch was intended for Chromebooks only. Wouldn't
-adding that line to i2c_new_device affect all i2c clients in every platform?
+ drivers/media/pci/cx88/cx88-core.c                | 3 +--
+ drivers/media/pci/cx88/cx88-input.c               | 2 +-
+ drivers/media/pci/cx88/cx88-video.c               | 2 +-
+ drivers/media/pci/saa7134/saa7134-input.c         | 2 +-
+ drivers/media/platform/marvell-ccic/cafe-driver.c | 2 +-
+ drivers/media/usb/cx231xx/cx231xx-input.c         | 5 ++---
+ drivers/media/usb/hdpvr/hdpvr-core.c              | 4 ++--
+ drivers/media/usb/hdpvr/hdpvr-i2c.c               | 2 +-
+ drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c      | 4 ++--
+ 9 files changed, 12 insertions(+), 14 deletions(-)
 
-Thanks!
-
-Best,
-Ricardo
+-- 
+2.20.1
