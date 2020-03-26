@@ -1,24 +1,28 @@
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-Subject: [PATCH 0/1] iio: convert to use new I2C API
-Date: Thu, 26 Mar 2020 22:09:54 +0100
-Message-ID: <20200326210955.12991-1-wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 0/1] video: convert to use new I2C API
+Date: Thu, 26 Mar 2020 22:09:58 +0100
+Message-ID: <20200326210959.13111-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:54372 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727843AbgCZVKA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 26 Mar 2020 17:10:00 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
 We are deprecating calls which return NULL in favor of new variants which
-return an ERR_PTR.
+return an ERR_PTR. Only build tested.
 
 
 Wolfram Sang (1):
-  iio: imu: inv_mpu6050: convert to use i2c_new_client_device()
+  video: backlight: tosa_lcd: convert to use i2c_new_client_device()
 
- drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/video/backlight/tosa_lcd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 -- 
 2.20.1
