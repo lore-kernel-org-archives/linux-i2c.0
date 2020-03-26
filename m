@@ -1,112 +1,132 @@
-From: Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: i2c-stm32f7: allows for any bus frequency
-Date: Thu, 26 Mar 2020 11:12:19 +0100
-Message-ID: <20200326101219.GA21190@gnbcxd0016.gnb.st.com>
-References: <1585161361-3408-1-git-send-email-alain.volmat@st.com>
- <1585161361-3408-3-git-send-email-alain.volmat@st.com>
- <CAHp75VdPCWdpGo=2n9g0ivti-g2m4jZ=cG4BKHBLk8BVDzaCyg@mail.gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH] i2c: refactor parsing of timings
+Date: Thu, 26 Mar 2020 11:16:47 +0100
+Message-ID: <20200326101647.1756-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAHp75VdPCWdpGo=2n9g0ivti-g2m4jZ=cG4BKHBLk8BVDzaCyg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pierre Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre TORGUE <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org" <linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org>, linux-arm Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Fabrice GASNIER <fabrice.gasnier-qxv4g6HH51o@public.gmane.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:48566 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726292AbgCZKQ5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 26 Mar 2020 06:16:57 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Hi Andy,
+When I wanted to print the chosen values to debug output, I concluded
+that a helper function to parse one timing would be helpful.
 
-Thanks for the review.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-On Wed, Mar 25, 2020 at 06:53:45PM +0000, Andy Shevchenko wrote:
-> On Wed, Mar 25, 2020 at 8:38 PM Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org> wrote:
-> >
-> > Do not limitate to the 3 (100KHz, 400KHz, 1MHz) bus frequency but
-> > instead allows any frequency (if it matches timing requirements).
-> > Depending on the requested frequency, use the spec data from either
-> > Standard, Fast or Fast Plus mode.
-> >
-> > Hardcoding of min/max bus frequencies is removed and is instead computed.
-> >
-> > The driver do not use anymore speed identifier but instead handle
-> > directly the frequency and figure out the spec data (necessary
-> > for the computation of the timing register) based on the frequency.
-> 
-> ...
-> 
-> > +static struct stm32f7_i2c_spec *get_specs(u32 rate)
-> > +{
-> > +       int i;
-> > +
-> > +       for (i = 0; i < ARRAY_SIZE(i2c_specs); i++)
-> > +               if (rate <= i2c_specs[i].rate)
-> > +                       return &i2c_specs[i];
-> > +
-> 
-> > +       /* NOT REACHED */
-> > +       return ERR_PTR(-EINVAL);
-> 
-> WARN_ONCE() ?
+I am not entirely happy because 'dev' and 'u' is the same for each call.
+Then again, we can't use a for-loop over an array of parameters, because
+some default values depend on previously obtained timings.
 
-The comment should actually be removed. get_specs return value is
-properly checked in stm32f7_i2c_compute_timing and an error message
-is displayed in case of an error.
+Looking for opinions here...
 
-> 
-> > +}
-> 
-> ...
-> 
-> > -                       if ((tscl_l < i2c_specs[setup->speed].l_min) ||
-> > +                       if ((tscl_l < specs->l_min) ||
-> 
-> >                             (i2cclk >=
-> >                              ((tscl_l - af_delay_min - dnf_delay) / 4))) {
-> 
-> Perhaps squash above two to one line at the same time?
+ drivers/i2c/i2c-core-base.c | 78 ++++++++++++++++++-------------------
+ 1 file changed, 38 insertions(+), 40 deletions(-)
 
-I agree that this is not very pretty to read now but that would lead to
-a line exceeding 80 characters. To fix that it'd be better to rework the code
-but in such case that should be done at a separate time to keep this commit
-as small / simpler to understand as possible. So I'd prefer leave this code
-for the time being.
-
-> 
-> ...
-> 
-> > +       int i;
-> > +
-> > +       for (i = ARRAY_SIZE(i2c_specs) - 1; i >= 0; i--)
-> 
-> 
-> Perhaps
-> 
->        int i = ARRAY_SIZE(i2c_specs);
-> 
->        while(i--)
-> 
-> ?
-
-I propose the following code to make it a bit easier to read/understand:
-
-static u32 get_lower_rate(u32 rate)
-{
-        int i = ARRAY_SIZE(i2c_specs);
-
-        while (i--)
-                if (i2c_specs[i].rate < rate)
-                        break;
-
-        return i2c_specs[i].rate;
-}
-
-If you agree with that I'll push a v2.
-
-> 
-> > +               if (i2c_specs[i].rate < rate)
-> > +                       return i2c_specs[i].rate;
-> 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 474baaf8c9e7..60b0aa246af2 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1609,6 +1609,18 @@ void i2c_del_adapter(struct i2c_adapter *adap)
+ }
+ EXPORT_SYMBOL(i2c_del_adapter);
+ 
++static void i2c_parse_timing(struct device *dev, char *prop_name, u32 *cur_val_p,
++			    u32 def_val, bool use_def)
++{
++	int ret;
++
++	ret = device_property_read_u32(dev, prop_name, cur_val_p);
++	if (ret && use_def)
++		*cur_val_p = def_val;
++
++	dev_dbg(dev, "%s: %u\n", prop_name, *cur_val_p);
++}
++
+ /**
+  * i2c_parse_fw_timings - get I2C related timing parameters from firmware
+  * @dev: The device to scan for I2C timing properties
+@@ -1627,49 +1639,35 @@ EXPORT_SYMBOL(i2c_del_adapter);
+  */
+ void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_defaults)
+ {
+-	int ret;
+-
+-	ret = device_property_read_u32(dev, "clock-frequency", &t->bus_freq_hz);
+-	if (ret && use_defaults)
+-		t->bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
+-
+-	ret = device_property_read_u32(dev, "i2c-scl-rising-time-ns", &t->scl_rise_ns);
+-	if (ret && use_defaults) {
+-		if (t->bus_freq_hz <= I2C_MAX_STANDARD_MODE_FREQ)
+-			t->scl_rise_ns = 1000;
+-		else if (t->bus_freq_hz <= I2C_MAX_FAST_MODE_FREQ)
+-			t->scl_rise_ns = 300;
+-		else
+-			t->scl_rise_ns = 120;
+-	}
+-
+-	ret = device_property_read_u32(dev, "i2c-scl-falling-time-ns", &t->scl_fall_ns);
+-	if (ret && use_defaults) {
+-		if (t->bus_freq_hz <= I2C_MAX_FAST_MODE_FREQ)
+-			t->scl_fall_ns = 300;
+-		else
+-			t->scl_fall_ns = 120;
+-	}
++	bool u = use_defaults;
++	u32 d;
+ 
+-	ret = device_property_read_u32(dev, "i2c-scl-internal-delay-ns", &t->scl_int_delay_ns);
+-	if (ret && use_defaults)
+-		t->scl_int_delay_ns = 0;
++	i2c_parse_timing(dev, "clock-frequency", &t->bus_freq_hz,
++			 I2C_MAX_STANDARD_MODE_FREQ, u);
+ 
+-	ret = device_property_read_u32(dev, "i2c-sda-falling-time-ns", &t->sda_fall_ns);
+-	if (ret && use_defaults)
+-		t->sda_fall_ns = t->scl_fall_ns;
+-
+-	ret = device_property_read_u32(dev, "i2c-sda-hold-time-ns", &t->sda_hold_ns);
+-	if (ret && use_defaults)
+-		t->sda_hold_ns = 0;
+-
+-	ret = device_property_read_u32(dev, "i2c-digital-filter-width-ns", &t->digital_filter_width_ns);
+-	if (ret && use_defaults)
+-		t->digital_filter_width_ns = 0;
++	if (t->bus_freq_hz <= I2C_MAX_STANDARD_MODE_FREQ)
++		d = 1000;
++	else if (t->bus_freq_hz <= I2C_MAX_FAST_MODE_FREQ)
++		d = 300;
++	else
++		d = 120;
++	i2c_parse_timing(dev, "i2c-scl-rising-time-ns", &t->scl_rise_ns, d, u);
+ 
+-	ret = device_property_read_u32(dev, "i2c-analog-filter-cutoff-frequency", &t->analog_filter_cutoff_freq_hz);
+-	if (ret && use_defaults)
+-		t->analog_filter_cutoff_freq_hz = 0;
++	if (t->bus_freq_hz <= I2C_MAX_FAST_MODE_FREQ)
++		d = 300;
++	else
++		d = 120;
++	i2c_parse_timing(dev, "i2c-scl-falling-time-ns", &t->scl_fall_ns, d, u);
++
++	i2c_parse_timing(dev, "i2c-scl-internal-delay-ns",
++			 &t->scl_int_delay_ns, 0, u);
++	i2c_parse_timing(dev, "i2c-sda-falling-time-ns", &t->sda_fall_ns,
++			 t->scl_fall_ns, u);
++	i2c_parse_timing(dev, "i2c-sda-hold-time-ns", &t->sda_hold_ns, 0, u);
++	i2c_parse_timing(dev, "i2c-digital-filter-width-ns",
++			 &t->digital_filter_width_ns, 0, u);
++	i2c_parse_timing(dev, "i2c-analog-filter-cutoff-frequency",
++			 &t->analog_filter_cutoff_freq_hz, 0, u);
+ }
+ EXPORT_SYMBOL_GPL(i2c_parse_fw_timings);
+ 
+-- 
+2.20.1
