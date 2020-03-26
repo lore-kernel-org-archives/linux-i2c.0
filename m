@@ -1,70 +1,32 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 1/6] media: pci: cx88: convert to use i2c_new_client_device()
-Date: Thu, 26 Mar 2020 22:09:41 +0100
-Message-ID: <20200326210947.12747-2-wsa+renesas@sang-engineering.com>
-References: <20200326210947.12747-1-wsa+renesas@sang-engineering.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54276 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726330AbgCZVJv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 26 Mar 2020 17:09:51 -0400
-In-Reply-To: <20200326210947.12747-1-wsa+renesas@sang-engineering.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Alain Volmat <avolmat@me.com>
+Subject: [PATCH] i2c: i2c-st: fix missing struct parameter description
+Date: Thu, 26 Mar 2020 22:22:43 +0100
+Message-ID: <20200326212243.17363-1-avolmat@me.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Patrice Chotard <patrice.chotard@st.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: avolmat@me.com
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Move away from the deprecated API and make use of the fact that
-unregistering devices is NULL- and ERR_PTR-safe.
+Fix a missing struct parameter description to allow
+warning free W=1 compilation.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Alain Volmat <avolmat@me.com>
 ---
- drivers/media/pci/cx88/cx88-core.c  | 3 +--
- drivers/media/pci/cx88/cx88-input.c | 2 +-
- drivers/media/pci/cx88/cx88-video.c | 2 +-
- 3 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-st.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/pci/cx88/cx88-core.c b/drivers/media/pci/cx88/cx88-core.c
-index dcadf78657d6..48c8a3429542 100644
---- a/drivers/media/pci/cx88/cx88-core.c
-+++ b/drivers/media/pci/cx88/cx88-core.c
-@@ -1070,8 +1070,7 @@ void cx88_core_put(struct cx88_core *core, struct pci_dev *pci)
- 	mutex_lock(&devlist);
- 	cx88_ir_fini(core);
- 	if (core->i2c_rc == 0) {
--		if (core->i2c_rtc)
--			i2c_unregister_device(core->i2c_rtc);
-+		i2c_unregister_device(core->i2c_rtc);
- 		i2c_del_adapter(&core->i2c_adap);
- 	}
- 	list_del(&core->devlist);
-diff --git a/drivers/media/pci/cx88/cx88-input.c b/drivers/media/pci/cx88/cx88-input.c
-index c7c2acd55266..7e0fed9cd200 100644
---- a/drivers/media/pci/cx88/cx88-input.c
-+++ b/drivers/media/pci/cx88/cx88-input.c
-@@ -638,7 +638,7 @@ void cx88_i2c_init_ir(struct cx88_core *core)
- 				   I2C_SMBUS_READ, 0,
- 				   I2C_SMBUS_QUICK, NULL) >= 0) {
- 			info.addr = *addrp;
--			i2c_new_device(&core->i2c_adap, &info);
-+			i2c_new_client_device(&core->i2c_adap, &info);
- 			break;
- 		}
- 	}
-diff --git a/drivers/media/pci/cx88/cx88-video.c b/drivers/media/pci/cx88/cx88-video.c
-index 6aabc45aa93c..ba0e9660a047 100644
---- a/drivers/media/pci/cx88/cx88-video.c
-+++ b/drivers/media/pci/cx88/cx88-video.c
-@@ -1385,7 +1385,7 @@ static int cx8800_initdev(struct pci_dev *pci_dev,
- 		};
- 
- 		request_module("rtc-isl1208");
--		core->i2c_rtc = i2c_new_device(&core->i2c_adap, &rtc_info);
-+		core->i2c_rtc = i2c_new_client_device(&core->i2c_adap, &rtc_info);
- 	}
- 		/* fall-through */
- 	case CX88_BOARD_DVICO_FUSIONHDTV_5_PCI_NANO:
+diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
+index 54e1fc8a495e..f7f7b5b64720 100644
+--- a/drivers/i2c/busses/i2c-st.c
++++ b/drivers/i2c/busses/i2c-st.c
+@@ -434,6 +434,7 @@ static void st_i2c_wr_fill_tx_fifo(struct st_i2c_dev *i2c_dev)
+ /**
+  * st_i2c_rd_fill_tx_fifo() - Fill the Tx FIFO in read mode
+  * @i2c_dev: Controller's private data
++ * @max: Maximum amount of data to fill into the Tx FIFO
+  *
+  * This functions fills the Tx FIFO with fixed pattern when
+  * in read mode to trigger clock.
 -- 
-2.20.1
+2.17.1
