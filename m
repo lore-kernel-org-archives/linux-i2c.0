@@ -1,46 +1,46 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 1/1] ASoC: pxa: magician: convert to use i2c_new_client_device()
-Date: Thu, 26 Mar 2020 22:10:10 +0100
-Message-ID: <20200326211010.13471-2-wsa+renesas@sang-engineering.com>
-References: <20200326211010.13471-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/1] video: backlight: tosa_lcd: convert to use i2c_new_client_device()
+Date: Thu, 26 Mar 2020 22:09:59 +0100
+Message-ID: <20200326210959.13111-2-wsa+renesas@sang-engineering.com>
+References: <20200326210959.13111-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54534 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727955AbgCZVKO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 26 Mar 2020 17:10:14 -0400
-In-Reply-To: <20200326211010.13471-1-wsa+renesas@sang-engineering.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200326210959.13111-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, linux-arm-kernel@lists.infradead.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Lee Jones <lee.jones@linaro.org>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 Move away from the deprecated API and return the shiny new ERRPTR where
 useful.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- sound/soc/pxa/magician.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/video/backlight/tosa_lcd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/pxa/magician.c b/sound/soc/pxa/magician.c
-index 6483cff5b73d..3bafd86bfb93 100644
---- a/sound/soc/pxa/magician.c
-+++ b/sound/soc/pxa/magician.c
-@@ -358,10 +358,10 @@ static int __init magician_init(void)
- 	adapter = i2c_get_adapter(0);
- 	if (!adapter)
- 		return -ENODEV;
--	client = i2c_new_device(adapter, i2c_board_info);
-+	client = i2c_new_client_device(adapter, i2c_board_info);
- 	i2c_put_adapter(adapter);
--	if (!client)
--		return -ENODEV;
-+	if (IS_ERR(client))
-+		return PTR_ERR(client);
+diff --git a/drivers/video/backlight/tosa_lcd.c b/drivers/video/backlight/tosa_lcd.c
+index e8ab583e5098..113116d3585c 100644
+--- a/drivers/video/backlight/tosa_lcd.c
++++ b/drivers/video/backlight/tosa_lcd.c
+@@ -107,7 +107,7 @@ static void tosa_lcd_tg_on(struct tosa_lcd_data *data)
+ 	/* TG LCD GVSS */
+ 	tosa_tg_send(spi, TG_PINICTL, 0x0);
  
- 	ret = gpio_request(EGPIO_MAGICIAN_SPK_POWER, "SPK_POWER");
- 	if (ret)
+-	if (!data->i2c) {
++	if (IS_ERR_OR_NULL(data->i2c)) {
+ 		/*
+ 		 * after the pannel is powered up the first time,
+ 		 * we can access the i2c bus so probe for the DAC
+@@ -119,7 +119,7 @@ static void tosa_lcd_tg_on(struct tosa_lcd_data *data)
+ 			.addr	= DAC_BASE,
+ 			.platform_data = data->spi,
+ 		};
+-		data->i2c = i2c_new_device(adap, &info);
++		data->i2c = i2c_new_client_device(adap, &info);
+ 	}
+ }
+ 
 -- 
 2.20.1
