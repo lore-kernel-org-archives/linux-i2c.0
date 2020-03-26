@@ -1,47 +1,46 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 18/28] dt-bindings: mmc: Fix node name in an example
-Date: Thu, 26 Mar 2020 15:28:17 +0100
-Message-ID: <CAPDyKFrcrgMrd9Nv425XuzssBhd+GvSUu29hXoVShwS0GNyjtQ@mail.gmail.com>
-References: <20200317093922.20785-1-lkundrak@v3.sk> <20200317093922.20785-19-lkundrak@v3.sk>
+From: Ricardo =?ISO-8859-1?Q?Ca=F1uelo?= <ricardo.canuelo@collabora.com>
+Subject: About enabling async suspend/resume on i2c devices
+Date: Thu, 26 Mar 2020 16:36:10 +0100
+Message-ID: <e766f6cc821cfc57246f4b18eac03a29d46641ac.camel@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-serial-owner@vger.kernel.org>
-In-Reply-To: <20200317093922.20785-19-lkundrak@v3.sk>
-Sender: linux-serial-owner@vger.kernel.org
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: Rob Herring <robh+dt@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <maz@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, DTML <devicetree@vger.ker>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:50102 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726296AbgCZPgT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 26 Mar 2020 11:36:19 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: hdegoede@redhat.com
 
-On Tue, 17 Mar 2020 at 10:40, Lubomir Rintel <lkundrak@v3.sk> wrote:
->
-> The $nodename allows only "mmc@*" whereas the example node is named
-> "sdhci".
->
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Hi all,
 
-Applied for next, thanks!
+I came across this patch: https://marc.info/?l=linux-i2c&m=153270824822381&w=2
+and I'm evaluating if it's a good candidate for upstreaming:
 
-Kind regards
-Uffe
+----------------------------------------------------------------------
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 1ba40bb2b966..3382bb7e1dcc 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -749,6 +749,7 @@  i2c_new_device(struct i2c_adapter *adap, struct
+i2c_board_info const *info)
+ 	client->dev.of_node = info->of_node;
+ 	client->dev.fwnode = info->fwnode;
+ 
++	device_enable_async_suspend(&client->dev);
+ 	i2c_dev_set_name(adap, client, info);
+ 
+ 	if (info->properties) {
+----------------------------------------------------------------------
 
+Was this ever tested on something other than a Chromebook? Reading the thread I
+got the impression that the patch was intended for Chromebooks only. Wouldn't
+adding that line to i2c_new_device affect all i2c clients in every platform?
 
-> ---
->  Documentation/devicetree/bindings/mmc/mmc-controller.yaml | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
-> index c9384ed685b8f..c03fe268c29a0 100644
-> --- a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
-> +++ b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
-> @@ -351,7 +351,7 @@ dependencies:
->
->  examples:
->    - |
-> -    sdhci@ab000000 {
-> +    mmc@ab000000 {
->          compatible = "sdhci";
->          reg = <0xab000000 0x200>;
->          interrupts = <23>;
-> --
-> 2.25.1
->
+Thanks!
+
+Best,
+Ricardo
