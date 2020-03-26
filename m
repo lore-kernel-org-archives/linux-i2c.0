@@ -1,46 +1,95 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [RFC PATCH] i2c: refactor parsing of timings
-Date: Thu, 26 Mar 2020 12:50:12 +0200
-Message-ID: <20200326105012.GN1922688@smile.fi.intel.com>
+Date: Thu, 26 Mar 2020 11:52:41 +0100
+Message-ID: <20200326105241.GA1538@ninjato>
 References: <20200326101647.1756-1-wsa+renesas@sang-engineering.com>
  <CAMuHMdXVy1acwXxD9C==gGve-Xb-oPbF7BOpu1BaT=1gvUTdQQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <CAMuHMdXVy1acwXxD9C==gGve-Xb-oPbF7BOpu1BaT=1gvUTdQQ@mail.gmail.com>
 Sender: linux-renesas-soc-owner@vger.kernel.org
 To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 26, 2020 at 11:36:44AM +0100, Geert Uytterhoeven wrote:
-> On Thu, Mar 26, 2020 at 11:17 AM Wolfram Sang
-> <wsa+renesas@sang-engineering.com> wrote:
-> > When I wanted to print the chosen values to debug output, I concluded
-> > that a helper function to parse one timing would be helpful.
 
-...
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > +static void i2c_parse_timing(struct device *dev, char *prop_name, u32 *cur_val_p,
-> > +                           u32 def_val, bool use_def)
+Hi Geert,
+
 > > +{
 > > +       int ret;
 > > +
-> > +       ret = device_property_read_u32(dev, prop_name, cur_val_p);
+> > +       ret =3D device_property_read_u32(dev, prop_name, cur_val_p);
 > > +       if (ret && use_def)
-> > +               *cur_val_p = def_val;
-> 
-> Alternatively, you could just preinitialize the value with the default value
+> > +               *cur_val_p =3D def_val;
+>=20
+> Alternatively, you could just preinitialize the value with the default va=
+lue
 > before calling this function, and ignoring ret.
 > That would remove the need for both the def_val and use_def parameters.
 
-Some drivers are using false to use_defaults. How they will survive this change?
-(See rcar case, for instance)
+I can't do that because if !use_def and ret, then the value must not be
+changed.
 
-> > +       dev_dbg(dev, "%s: %u\n", prop_name, *cur_val_p);
-> > +}
+> > +       if (t->bus_freq_hz <=3D I2C_MAX_STANDARD_MODE_FREQ)
+> > +               d =3D 1000;
+> > +       else if (t->bus_freq_hz <=3D I2C_MAX_FAST_MODE_FREQ)
+> > +               d =3D 300;
+> > +       else
+> > +               d =3D 120;
+> > +       i2c_parse_timing(dev, "i2c-scl-rising-time-ns", &t->scl_rise_ns=
+, d, u);
+> >
+> > -       ret =3D device_property_read_u32(dev, "i2c-analog-filter-cutoff=
+-frequency", &t->analog_filter_cutoff_freq_hz);
+> > -       if (ret && use_defaults)
+> > -               t->analog_filter_cutoff_freq_hz =3D 0;
+> > +       if (t->bus_freq_hz <=3D I2C_MAX_FAST_MODE_FREQ)
+> > +               d =3D 300;
+> > +       else
+> > +               d =3D 120;
+>=20
+> Is the difference with above intentional, or an oversight?
 
--- 
-With Best Regards,
-Andy Shevchenko
+If this is an oversight, then it is also in the I2C specs ;)
+
+> if the former, I like the dreaded ternary operator (only) for cases like =
+this:
+>=20
+>     d =3D t->bus_freq_hz <=3D I2C_MAX_FAST_MODE_FREQ ? 300 : 120
+
+Yup, that would be an improvement!
+
+Thanks,
+
+   Wolfram
+
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl58iXUACgkQFA3kzBSg
+KbbIzBAAhhw+Kfs/Md54VSm2PEe4Z/RzaoAUY0Wyq+zy6iW5LVQQQqdkko72vvr7
+3hFmjk02TmDRdMPWmMaAv4mlTRv3TnNgs4zHxyAnEYODMHh0eswEji6BK4QTQq7k
+qQ9cz3rAhgKSfHhSzLzahFED+3K3fPLGwKuRcNksXaZpZcKWoMa2Bv7NbYOINAnt
+GFRqBaMSMz9VxOb9jjN/pqPMD8/lt2i30+zKiFbCgt2MaNe9UHWiEPp6eXpvJ215
+DBjOL9vT3VLc1c0x8K8cJI1RfeJ+U61aGJVeifsaZRTnqAo17xF1ceqItcL5x9FN
+ta4jAmfE9TCx2Beq5IE254Oet7eJP7mqpD+XMctFgRoHbUvh+X5scfC755O2Yvx8
+acCtsZo+P3/d26QPJ+V8z5gyiDtlzjUnxiYfc/maIp2aenIOUOw3vKEQoYGnaosJ
+uU/2FDolkkwU3N/MEDijgNv39yvF6nilcbHi8O5PwwjvRMOt75zj+L+7G036eM8T
+0odXxgyYl8hmmC30MUUmVaZm4koi51J3tGkNOpaZpIdrZWj48gGCzKI3NXncfFZq
+tZFIRJP6+EBnTuI5Y+JZiylvtHWb7x9fH9+EGv+Jqy+g+hcSektbD+VAc6l9xfXy
+tLGkxKI4qkxXvlyEBe+9fG2MWs5MbHBkSf5wrL7+yOrEhe6mP+Y=
+=9+b4
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--
