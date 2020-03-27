@@ -1,51 +1,40 @@
-From: Patrice CHOTARD <patrice.chotard@st.com>
-Subject: Re: [PATCH] i2c: i2c-st: fix missing struct parameter description
-Date: Fri, 27 Mar 2020 08:47:01 +0000
-Message-ID: <0b432170-8ae0-d5c3-7557-fe6d606782f7@st.com>
-References: <20200326212243.17363-1-avolmat@me.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 21/28] dt-bindings: gpio: Convert mrvl-gpio to json-schema
+Date: Fri, 27 Mar 2020 11:04:00 +0100
+Message-ID: <CACRpkdaEnODObC7emg2M7Ayn_JkeLuc3HpV4VhJcwaZ+=sDLcg@mail.gmail.com>
+References: <20200317093922.20785-1-lkundrak@v3.sk> <20200317093922.20785-22-lkundrak@v3.sk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
-In-Reply-To: <20200326212243.17363-1-avolmat@me.com>
-Content-Language: en-US
-Content-ID: <679754E3029C214598936C34C70CF6F2@st.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
-To: Alain Volmat <avolmat@me.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20200317093922.20785-22-lkundrak@v3.sk>
+Sender: linux-media-owner@vger.kernel.org
+To: Lubomir Rintel <lkundrak@v3.sk>, Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: Rob Herring <robh+dt@kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <maz@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicet>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Alain
+Hi Lubomir!
 
-On 3/26/20 10:22 PM, Alain Volmat wrote:
-> Fix a missing struct parameter description to allow
-> warning free W=1 compilation.
->
-> Signed-off-by: Alain Volmat <avolmat@me.com>
-> ---
->  drivers/i2c/busses/i2c-st.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-> index 54e1fc8a495e..f7f7b5b64720 100644
-> --- a/drivers/i2c/busses/i2c-st.c
-> +++ b/drivers/i2c/busses/i2c-st.c
-> @@ -434,6 +434,7 @@ static void st_i2c_wr_fill_tx_fifo(struct st_i2c_dev *i2c_dev)
->  /**
->   * st_i2c_rd_fill_tx_fifo() - Fill the Tx FIFO in read mode
->   * @i2c_dev: Controller's private data
-> + * @max: Maximum amount of data to fill into the Tx FIFO
->   *
->   * This functions fills the Tx FIFO with fixed pattern when
->   * in read mode to trigger clock.
+Excellent work! Just nitpicks:
 
-Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+On Tue, Mar 17, 2020 at 10:40 AM Lubomir Rintel <lkundrak@v3.sk> wrote:
 
-Thanks
+> +++ b/Documentation/devicetree/bindings/gpio/mrvl-gpio.yaml
+> @@ -0,0 +1,173 @@
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/gpio/mrvl-gpio.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Marvell PXA GPIO controller
+
+This binding is lacking a license. Please use the dual GPL+BSD license
+tag.
+
+> +maintainers:
+> +  - devicetree@vger.kernel.org
+
+I don't know if Robert Jarzmik is in on maintaining this, would you accept
+it Robert?
+
+Yours,
+Linus Walleij
