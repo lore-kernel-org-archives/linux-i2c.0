@@ -1,83 +1,61 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 25/28] dt-bindings: rtc: Convert sa1100-rtc to json-schema
-Date: Fri, 27 Mar 2020 13:49:02 -0600
-Message-ID: <20200327194902.GA24914@bogus>
+Subject: Re: [PATCH 26/28] dt-bindings: spi: Convert spi-pxa2xx to json-schema
+Date: Fri, 27 Mar 2020 13:52:39 -0600
+Message-ID: <20200327195239.GA28087@bogus>
 References: <20200317093922.20785-1-lkundrak@v3.sk>
- <20200317093922.20785-26-lkundrak@v3.sk>
+ <20200317093922.20785-27-lkundrak@v3.sk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200317093922.20785-26-lkundrak@v3.sk>
-Sender: linux-gpio-owner@vger.kernel.org
+In-Reply-To: <20200317093922.20785-27-lkundrak@v3.sk>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Lubomir Rintel <lkundrak@v3.sk>
 Cc: Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <maz@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, devicetree@vger.kerne
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 17, 2020 at 10:39:19AM +0100, Lubomir Rintel wrote:
-> Convert the sa1100-rtc binding to DT schema format using json-schema.
+On Tue, Mar 17, 2020 at 10:39:20AM +0100, Lubomir Rintel wrote:
+> A straightforward conversion of the the spi-pxa2xx binding to DT schema
+> format using json-schema.
 > 
 > Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 > ---
->  .../devicetree/bindings/rtc/sa1100-rtc.txt    | 17 ------
->  .../devicetree/bindings/rtc/sa1100-rtc.yaml   | 55 +++++++++++++++++++
->  2 files changed, 55 insertions(+), 17 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/rtc/sa1100-rtc.txt
->  create mode 100644 Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml
+>  .../bindings/spi/marvell,mmp2-ssp.yaml        | 58 +++++++++++++++++++
+>  .../devicetree/bindings/spi/spi-pxa2xx.txt    | 27 ---------
+>  2 files changed, 58 insertions(+), 27 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/spi/marvell,mmp2-ssp.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/spi/spi-pxa2xx.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/sa1100-rtc.txt b/Documentation/devicetree/bindings/rtc/sa1100-rtc.txt
-> deleted file mode 100644
-> index 968ac820254bb..0000000000000
-> --- a/Documentation/devicetree/bindings/rtc/sa1100-rtc.txt
-> +++ /dev/null
-> @@ -1,17 +0,0 @@
-> -* Marvell Real Time Clock controller
-> -
-> -Required properties:
-> -- compatible: should be "mrvl,sa1100-rtc"
-> -- reg: physical base address of the controller and length of memory mapped
-> -  region.
-> -- interrupts: Should be two. The first interrupt number is the rtc alarm
-> -  interrupt and the second interrupt number is the rtc hz interrupt.
-> -- interrupt-names: Assign name of irq resource.
-> -
-> -Example:
-> -	rtc: rtc@d4010000 {
-> -		compatible = "mrvl,mmp-rtc";
-> -		reg = <0xd4010000 0x1000>;
-> -		interrupts = <5>, <6>;
-> -		interrupt-names = "rtc 1Hz", "rtc alarm";
-> -	};
-> diff --git a/Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml b/Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml
+> diff --git a/Documentation/devicetree/bindings/spi/marvell,mmp2-ssp.yaml b/Documentation/devicetree/bindings/spi/marvell,mmp2-ssp.yaml
 > new file mode 100644
-> index 0000000000000..53a8b72df9f34
+> index 0000000000000..de6b6a53b70d8
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml
-> @@ -0,0 +1,55 @@
+> +++ b/Documentation/devicetree/bindings/spi/marvell,mmp2-ssp.yaml
+> @@ -0,0 +1,58 @@
+> +# SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause)
 
-License
+Same issue on license...
 
+> +# Copyright 2019,2020 Lubomir Rintel <lkundrak@v3.sk>
 > +%YAML 1.2
 > +---
-> +$id: http://devicetree.org/schemas/rtc/sa1100-rtc.yaml#
+> +$id: http://devicetree.org/schemas/spi/marvell,mmp2-ssp.yaml#
 > +$schema: http://devicetree.org/meta-schemas/core.yaml#
 > +
-> +title: Marvell Real Time Clock controller bindings
-> +
-> +allOf:
-> +  - $ref: rtc.yaml#
+> +title: PXA2xx SSP SPI Controller bindings
 > +
 > +maintainers:
-> +  - devicetree@vger.kernel.org
-
-Real person
-
+> +  - Lubomir Rintel <lkundrak@v3.sk>
+> +
+> +allOf:
+> +  - $ref: spi-controller.yaml#
 > +
 > +properties:
 > +  compatible:
-> +    enum:
-> +      - mrvl,sa1100-rtc
-> +      - mrvl,mmp-rtc
+> +    const: marvell,mmp2-ssp
+> +
+> +  interrupts:
+> +    maxItems: 1
 > +
 > +  reg:
 > +    maxItems: 1
@@ -85,43 +63,74 @@ Real person
 > +  clocks:
 > +    maxItems: 1
 > +
-> +  resets:
+> +  ready-gpios:
+> +    description: |
+> +      GPIO used to signal a SPI master that the FIFO is filled and we're
+> +      ready to service a transfer. Only useful in slave mode.
 > +    maxItems: 1
-
-clocks and resets weren't documented before. Fine to add here, but add 
-that to the commit msg.
-
-> +
-> +  interrupts:
-> +    minItems: 2
-> +    maxItems: 2
-
-Drop minItems.
-
-> +
-> +  interrupt-names:
-> +    items:
-> +      - const: 'rtc 1Hz'
-> +      - const: 'rtc alarm'
 > +
 > +required:
 > +  - compatible
 > +  - reg
 > +  - interrupts
-> +  - interrupt-names
+> +  - clocks
+
+> +  - '#address-cells'
+> +  - '#size-cells'
+
+spi-controller.yaml handles these being required and also that they 
+aren't for slave mode.
+
 > +
-> +additionalProperties: false
+> +dependencies:
+> +  ready-gpios: [ spi-slave ]
 > +
 > +examples:
 > +  - |
-> +    rtc: rtc@d4010000 {
-> +        compatible = "mrvl,mmp-rtc";
-> +        reg = <0xd4010000 0x1000>;
-> +        interrupts = <5>, <6>;
-> +        interrupt-names = "rtc 1Hz", "rtc alarm";
+> +    #include <dt-bindings/clock/marvell,mmp2.h>
+> +    spi@d4035000 {
+> +        compatible = "marvell,mmp2-ssp";
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +        reg = <0xd4035000 0x1000>;
+> +        clocks = <&soc_clocks MMP2_CLK_SSP0>;
+> +        interrupts = <0>;
 > +    };
 > +
 > +...
+> diff --git a/Documentation/devicetree/bindings/spi/spi-pxa2xx.txt b/Documentation/devicetree/bindings/spi/spi-pxa2xx.txt
+> deleted file mode 100644
+> index e30e0c2a4bce1..0000000000000
+> --- a/Documentation/devicetree/bindings/spi/spi-pxa2xx.txt
+> +++ /dev/null
+> @@ -1,27 +0,0 @@
+> -PXA2xx SSP SPI Controller
+> -
+> -Required properties:
+> -- compatible: Must be "marvell,mmp2-ssp".
+> -- reg: Offset and length of the device's register set.
+> -- interrupts: Should be the interrupt number.
+> -- clocks: Should contain a single entry describing the clock input.
+> -- #address-cells:  Number of cells required to define a chip select address.
+> -- #size-cells: Should be zero.
+> -
+> -Optional properties:
+> -- cs-gpios: list of GPIO chip selects. See the SPI bus bindings,
+> -  Documentation/devicetree/bindings/spi/spi-bus.txt
+> -- spi-slave: Empty property indicating the SPI controller is used in slave mode.
+> -- ready-gpios: GPIO used to signal a SPI master that the FIFO is filled
+> -  and we're ready to service a transfer. Only useful in slave mode.
+> -
+> -Child nodes represent devices on the SPI bus
+> -  See ../spi/spi-bus.txt
+> -
+> -Example:
+> -	ssp1: spi@d4035000 {
+> -		compatible = "marvell,mmp2-ssp";
+> -		reg = <0xd4035000 0x1000>;
+> -		clocks = <&soc_clocks MMP2_CLK_SSP0>;
+> -		interrupts = <0>;
+> -	};
 > -- 
 > 2.25.1
 > 
