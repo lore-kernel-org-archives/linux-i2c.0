@@ -1,48 +1,280 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 21/28] dt-bindings: gpio: Convert mrvl-gpio to json-schema
-Date: Fri, 27 Mar 2020 13:29:59 -0600
-Message-ID: <20200327192959.GB8577@bogus>
+Subject: Re: [PATCH 23/28] dt-bindings: interrupt-controller: Convert
+ mrvl,intc to json-schema
+Date: Fri, 27 Mar 2020 13:42:07 -0600
+Message-ID: <20200327194207.GA1996@bogus>
 References: <20200317093922.20785-1-lkundrak@v3.sk>
- <20200317093922.20785-22-lkundrak@v3.sk>
- <CACRpkdaEnODObC7emg2M7Ayn_JkeLuc3HpV4VhJcwaZ+=sDLcg@mail.gmail.com>
+ <20200317093922.20785-24-lkundrak@v3.sk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdaEnODObC7emg2M7Ayn_JkeLuc3HpV4VhJcwaZ+=sDLcg@mail.gmail.com>
+In-Reply-To: <20200317093922.20785-24-lkundrak@v3.sk>
 Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Lubomir Rintel <lkundrak@v3.sk>, Robert Jarzmik <robert.jarzmik@free.fr>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <maz@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, open list:OPEN FIRMWARE AND F
+To: Lubomir Rintel <lkundrak@v3.sk>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <maz@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, devicetree@vger.kerne
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 27, 2020 at 11:04:00AM +0100, Linus Walleij wrote:
-> Hi Lubomir!
+On Tue, Mar 17, 2020 at 10:39:17AM +0100, Lubomir Rintel wrote:
+> Convert the mrvl,intc binding to DT schema format using json-schema.
 > 
-> Excellent work! Just nitpicks:
+> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+> ---
+>  .../interrupt-controller/mrvl,intc.txt        |  64 --------
+>  .../interrupt-controller/mrvl,intc.yaml       | 144 ++++++++++++++++++
+>  2 files changed, 144 insertions(+), 64 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt
+>  create mode 100644 Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml
 > 
-> On Tue, Mar 17, 2020 at 10:40 AM Lubomir Rintel <lkundrak@v3.sk> wrote:
-> 
-> > +++ b/Documentation/devicetree/bindings/gpio/mrvl-gpio.yaml
-> > @@ -0,0 +1,173 @@
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/gpio/mrvl-gpio.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Marvell PXA GPIO controller
-> 
-> This binding is lacking a license. Please use the dual GPL+BSD license
-> tag.
+> diff --git a/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt b/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt
+> deleted file mode 100644
+> index a0ed02725a9d7..0000000000000
+> --- a/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt
+> +++ /dev/null
+> @@ -1,64 +0,0 @@
+> -* Marvell MMP Interrupt controller
+> -
+> -Required properties:
+> -- compatible : Should be
+> -               "mrvl,mmp-intc" on Marvel MMP,
+> -               "mrvl,mmp2-intc" along with "mrvl,mmp2-mux-intc" on MMP2 or
+> -               "marvell,mmp3-intc" with "mrvl,mmp2-mux-intc" on MMP3
+> -- reg : Address and length of the register set of the interrupt controller.
+> -  If the interrupt controller is intc, address and length means the range
+> -  of the whole interrupt controller. The "marvell,mmp3-intc" controller
+> -  also has a secondary range for the second CPU core.  If the interrupt
+> -  controller is mux-intc, address and length means one register. Since
+> -  address of mux-intc is in the range of intc. mux-intc is secondary
+> -  interrupt controller.
+> -- reg-names : Name of the register set of the interrupt controller. It's
+> -  only required in mux-intc interrupt controller.
+> -- interrupts : Should be the port interrupt shared by mux interrupts. It's
+> -  only required in mux-intc interrupt controller.
+> -- interrupt-controller : Identifies the node as an interrupt controller.
+> -- #interrupt-cells : Specifies the number of cells needed to encode an
+> -  interrupt source.
+> -- mrvl,intc-nr-irqs : Specifies the number of interrupts in the interrupt
+> -  controller.
+> -- mrvl,clr-mfp-irq : Specifies the interrupt that needs to clear MFP edge
+> -  detection first.
+> -
+> -Example:
+> -	intc: interrupt-controller@d4282000 {
+> -		compatible = "mrvl,mmp2-intc";
+> -		interrupt-controller;
+> -		#interrupt-cells = <1>;
+> -		reg = <0xd4282000 0x1000>;
+> -		mrvl,intc-nr-irqs = <64>;
+> -	};
+> -
+> -	intcmux4@d4282150 {
+> -		compatible = "mrvl,mmp2-mux-intc";
+> -		interrupts = <4>;
+> -		interrupt-controller;
+> -		#interrupt-cells = <1>;
+> -		reg = <0x150 0x4>, <0x168 0x4>;
+> -		reg-names = "mux status", "mux mask";
+> -		mrvl,intc-nr-irqs = <2>;
+> -	};
+> -
+> -* Marvell Orion Interrupt controller
+> -
+> -Required properties
+> -- compatible :  Should be "marvell,orion-intc".
+> -- #interrupt-cells: Specifies the number of cells needed to encode an
+> -  interrupt source. Supported value is <1>.
+> -- interrupt-controller : Declare this node to be an interrupt controller.
+> -- reg : Interrupt mask address. A list of 4 byte ranges, one per controller.
+> -        One entry in the list represents 32 interrupts.
+> -
+> -Example:
+> -
+> -	intc: interrupt-controller {
+> -        	compatible = "marvell,orion-intc", "marvell,intc";
+> -		interrupt-controller;
+> -		#interrupt-cells = <1>;
+> -                reg = <0xfed20204 0x04>,
+> -		      <0xfed20214 0x04>;
+> -        };
+> diff --git a/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml b/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml
+> new file mode 100644
+> index 0000000000000..f0644f7d7e1d2
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml
+> @@ -0,0 +1,144 @@
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/interrupt-controller/mrvl,intc.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Marvell MMP/Orion Interrupt controller bindings
+> +
+> +maintainers:
+> +  - devicetree@vger.kernel.org
+> +
+> +allOf:
+> +  - $ref: /schemas/interrupt-controller.yaml#
 
-That is preferred, but should only be dual if you have rights on the old 
-binding file or get relicensing permissions.
+Drop this. It is already applied based on matching on the node name.
 
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          not:
+> +            contains:
+> +              const: marvell,orion-intc
+> +    then:
+> +      required:
+> +        - mrvl,intc-nr-irqs
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            enum:
+> +              - mrvl,mmp-intc
+> +              - mrvl,mmp2-intc
+> +    then:
+> +      properties:
+> +        reg:
+> +          minItems: 1
+> +          maxItems: 1
+
+Drop minItems, as just 'maxItems: 1' is enough.
+
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            enum:
+> +              - marvell,mmp3-intc
+> +              - mrvl,mmp2-mux-intc
+> +    then:
+> +      properties:
+> +        reg:
+> +          minItems: 2
+> +          maxItems: 2
+
+Just 'minItems: 2'.
+
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            const: marvell,orion-intc
+> +    then:
+> +      properties:
+> +        reg:
+> +          minItems: 1
+> +          maxItems: 2
+
+Normally, for a compatible this would not vary...
+
+In any case, move this to the main section and drop this if.
+
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            const: mrvl,mmp2-mux-intc
+> +    then:
+> +      properties:
+> +        interrupts:
+> +          minItems: 1
+> +          maxItems: 1
+
+Just 'maxItems'
+
+> +        reg-names:
+> +          minItems: 2
+> +          maxItems: 2
+
+These are redundant as 'items' size implies this.
+
+> +          items:
+> +            - const: 'mux status'
+> +            - const: 'mux mask'
+
+Move this to the main section.
+
+> +      required:
+> +        - interrupts
+> +    else:
+> +      properties:
+> +        interrupts: false
+> +
+> +properties:
+> +  '#interrupt-cells':
+> +    const: 1
+> +
+> +  compatible:
+> +    enum:
+> +      - mrvl,mmp-intc
+> +      - mrvl,mmp2-intc
+> +      - marvell,mmp3-intc
+> +      - marvell,orion-intc
+> +      - mrvl,mmp2-mux-intc
+> +
+> +  reg: true
+> +
+> +  reg-names: true
+> +
+> +  interrupts: true
+> +
+> +  interrupt-controller: true
+> +
+> +  mrvl,intc-nr-irqs:
+> +    description: |
+> +      Specifies the number of interrupts in the interrupt controller.
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+
+Is there a max number?
+
+> +
+> +  mrvl,clr-mfp-irq:
+> +    description: |
+> +      Specifies the interrupt that needs to clear MFP edge detection first.
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+
+Constraints?
+
+> +
+> +required:
+> +  - '#interrupt-cells'
+> +  - compatible
+> +  - reg
+> +  - interrupt-controller
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    interrupt-controller@d4282000 {
+> +        compatible = "mrvl,mmp2-intc";
+> +        interrupt-controller;
+> +        #interrupt-cells = <1>;
+> +        reg = <0xd4282000 0x1000>;
+> +        mrvl,intc-nr-irqs = <64>;
+> +    };
+> +
+> +    interrupt-controller@d4282150 {
+> +        compatible = "mrvl,mmp2-mux-intc";
+> +        interrupts = <4>;
+> +        interrupt-controller;
+> +        #interrupt-cells = <1>;
+> +        reg = <0x150 0x4>, <0x168 0x4>;
+> +        reg-names = "mux status", "mux mask";
+> +        mrvl,intc-nr-irqs = <2>;
+> +    };
+> +  - |
+> +    interrupt-controller@fed20204 {
+> +        compatible = "marvell,orion-intc";
+> +        interrupt-controller;
+> +        #interrupt-cells = <1>;
+> +        reg = <0xfed20204 0x04>,
+> +              <0xfed20214 0x04>;
+> +    };
+> +
+> +...
+> -- 
+> 2.25.1
 > 
-> > +maintainers:
-> > +  - devicetree@vger.kernel.org
-> 
-> I don't know if Robert Jarzmik is in on maintaining this, would you accept
-> it Robert?
-> 
-> Yours,
-> Linus Walleij
