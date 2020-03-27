@@ -1,104 +1,78 @@
-From: Alex Deucher <alexdeucher@gmail.com>
-Subject: Re: [PATCH 6/6] drm/radeon: convert to use i2c_new_client_device()
-Date: Fri, 27 Mar 2020 11:27:35 -0400
-Message-ID: <CADnq5_O-pXK1FeT1NfGBdXYZbqF6jmyXJNPgJt5qLaYMLiZy_Q@mail.gmail.com>
-References: <20200326211005.13301-1-wsa+renesas@sang-engineering.com>
- <20200326211005.13301-7-wsa+renesas@sang-engineering.com> <CADnq5_P07b-A-VawLTgiTMSdifxMbWS5kgQV_+0Bw2x_DQHATQ@mail.gmail.com>
- <20200327152535.GA2191@ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Mark Brown <broonie@kernel.org>
+Subject: Applied "ASoC: pxa: magician: convert to use i2c_new_client_device()" to the asoc tree
+Date: Fri, 27 Mar 2020 15:33:29 +0000
+Message-ID: <applied-20200326211010.13471-2-wsa+renesas@sang-engineering.com>
+References: <20200326211010.13471-2-wsa+renesas@sang-engineering.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:38999 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727115AbgC0P1r (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 27 Mar 2020 11:27:47 -0400
-In-Reply-To: <20200327152535.GA2191@ravnborg.org>
+Received: from foss.arm.com ([217.140.110.172]:46882 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726515AbgC0Pdc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 27 Mar 2020 11:33:32 -0400
+In-Reply-To: <20200326211010.13471-2-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, amd-gfx list <amd-gfx@lists.freedesktop.org>, David Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, Maling list - DRI developers <dri-devel@lists.freedesktop.org>, Linux I2C <linux-i2c@vger.kernel.org>, Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: alsa-devel@alsa-project.org, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Takashi Iwai <tiwai@suse.com>
 
-On Fri, Mar 27, 2020 at 11:25 AM Sam Ravnborg <sam@ravnborg.org> wrote:
->
-> On Fri, Mar 27, 2020 at 10:25:16AM -0400, Alex Deucher wrote:
-> > On Thu, Mar 26, 2020 at 5:35 PM Wolfram Sang
-> > <wsa+renesas@sang-engineering.com> wrote:
-> > >
-> > > Move away from the deprecated API.
-> > >
-> > > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> >
-> > patches 1,6, are:
-> > Acked-by: Alex Deucher <alexander.deucher@amd.com>
-> Should we commit all to drm-misc-next?
+The patch
 
-I'm fine to see it go through whatever tree makes sense.
+   ASoC: pxa: magician: convert to use i2c_new_client_device()
 
-Alex
+has been applied to the asoc tree at
 
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git 
 
->
->         Sam
->
->
-> >
-> > > ---
-> > >  drivers/gpu/drm/radeon/radeon_atombios.c | 4 ++--
-> > >  drivers/gpu/drm/radeon/radeon_combios.c  | 4 ++--
-> > >  2 files changed, 4 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/drivers/gpu/drm/radeon/radeon_atombios.c b/drivers/gpu/drm/radeon/radeon_atombios.c
-> > > index 848ef68d9086..5d2591725189 100644
-> > > --- a/drivers/gpu/drm/radeon/radeon_atombios.c
-> > > +++ b/drivers/gpu/drm/radeon/radeon_atombios.c
-> > > @@ -2111,7 +2111,7 @@ static int radeon_atombios_parse_power_table_1_3(struct radeon_device *rdev)
-> > >                                                                     ucOverdriveThermalController];
-> > >                         info.addr = power_info->info.ucOverdriveControllerAddress >> 1;
-> > >                         strlcpy(info.type, name, sizeof(info.type));
-> > > -                       i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
-> > > +                       i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
-> > >                 }
-> > >         }
-> > >         num_modes = power_info->info.ucNumOfPowerModeEntries;
-> > > @@ -2351,7 +2351,7 @@ static void radeon_atombios_add_pplib_thermal_controller(struct radeon_device *r
-> > >                                 const char *name = pp_lib_thermal_controller_names[controller->ucType];
-> > >                                 info.addr = controller->ucI2cAddress >> 1;
-> > >                                 strlcpy(info.type, name, sizeof(info.type));
-> > > -                               i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
-> > > +                               i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
-> > >                         }
-> > >                 } else {
-> > >                         DRM_INFO("Unknown thermal controller type %d at 0x%02x %s fan control\n",
-> > > diff --git a/drivers/gpu/drm/radeon/radeon_combios.c b/drivers/gpu/drm/radeon/radeon_combios.c
-> > > index c3e49c973812..d3c04df7e75d 100644
-> > > --- a/drivers/gpu/drm/radeon/radeon_combios.c
-> > > +++ b/drivers/gpu/drm/radeon/radeon_combios.c
-> > > @@ -2704,7 +2704,7 @@ void radeon_combios_get_power_modes(struct radeon_device *rdev)
-> > >                                 const char *name = thermal_controller_names[thermal_controller];
-> > >                                 info.addr = i2c_addr >> 1;
-> > >                                 strlcpy(info.type, name, sizeof(info.type));
-> > > -                               i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
-> > > +                               i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
-> > >                         }
-> > >                 }
-> > >         } else {
-> > > @@ -2721,7 +2721,7 @@ void radeon_combios_get_power_modes(struct radeon_device *rdev)
-> > >                                 const char *name = "f75375";
-> > >                                 info.addr = 0x28;
-> > >                                 strlcpy(info.type, name, sizeof(info.type));
-> > > -                               i2c_new_device(&rdev->pm.i2c_bus->adapter, &info);
-> > > +                               i2c_new_client_device(&rdev->pm.i2c_bus->adapter, &info);
-> > >                                 DRM_INFO("Possible %s thermal controller at 0x%02x\n",
-> > >                                          name, info.addr);
-> > >                         }
-> > > --
-> > > 2.20.1
-> > >
-> > > _______________________________________________
-> > > dri-devel mailing list
-> > > dri-devel@lists.freedesktop.org
-> > > https://lists.freedesktop.org/mailman/listinfo/dri-devel
-> > _______________________________________________
-> > dri-devel mailing list
-> > dri-devel@lists.freedesktop.org
-> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
+>From 17fb5433150e8b0b4000a77a21055359a2eab534 Mon Sep 17 00:00:00 2001
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Date: Thu, 26 Mar 2020 22:10:10 +0100
+Subject: [PATCH] ASoC: pxa: magician: convert to use i2c_new_client_device()
+
+Move away from the deprecated API and return the shiny new ERRPTR where
+useful.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/20200326211010.13471-2-wsa+renesas@sang-engineering.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ sound/soc/pxa/magician.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/sound/soc/pxa/magician.c b/sound/soc/pxa/magician.c
+index 6483cff5b73d..3bafd86bfb93 100644
+--- a/sound/soc/pxa/magician.c
++++ b/sound/soc/pxa/magician.c
+@@ -358,10 +358,10 @@ static int __init magician_init(void)
+ 	adapter = i2c_get_adapter(0);
+ 	if (!adapter)
+ 		return -ENODEV;
+-	client = i2c_new_device(adapter, i2c_board_info);
++	client = i2c_new_client_device(adapter, i2c_board_info);
+ 	i2c_put_adapter(adapter);
+-	if (!client)
+-		return -ENODEV;
++	if (IS_ERR(client))
++		return PTR_ERR(client);
+ 
+ 	ret = gpio_request(EGPIO_MAGICIAN_SPK_POWER, "SPK_POWER");
+ 	if (ret)
+-- 
+2.20.1
