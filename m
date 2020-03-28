@@ -1,160 +1,54 @@
-From: Jonathan Cameron <jic23@kernel.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH 1/1] iio: imu: inv_mpu6050: convert to use
  i2c_new_client_device()
-Date: Sat, 28 Mar 2020 15:13:10 +0000
-Message-ID: <20200328151310.1dfd04a3@archlinux>
+Date: Sat, 28 Mar 2020 20:35:02 +0100
+Message-ID: <20200328193502.GA1330@kunai>
 References: <20200326210955.12991-1-wsa+renesas@sang-engineering.com>
-        <20200326210955.12991-2-wsa+renesas@sang-engineering.com>
-        <MN2PR12MB44228DEA7CE19B853292FE38C4CC0@MN2PR12MB4422.namprd12.prod.outlook.com>
+ <20200326210955.12991-2-wsa+renesas@sang-engineering.com>
+ <MN2PR12MB44228DEA7CE19B853292FE38C4CC0@MN2PR12MB4422.namprd12.prod.outlook.com>
+ <20200328151310.1dfd04a3@archlinux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <MN2PR12MB44228DEA7CE19B853292FE38C4CC0@MN2PR12MB4422.namprd12.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20200328151310.1dfd04a3@archlinux>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Jean-Baptiste Maneyrol <JManeyrol-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 27 Mar 2020 10:52:02 +0000
-Jean-Baptiste Maneyrol <JManeyrol@invensense.com> wrote:
 
-> Hello,
->=20
-> thanks for the patch.
-> Looks good for me.
->=20
-> Acked-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+--+HP7ph2BbKc20aGI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Applied to the togreg branch of iio.git and pushed out as testing.
 
-Note this has missed the coming merge window.  Hope that doesn't matter for=
- your
-deprecation plans.
+> Note this has missed the coming merge window.  Hope that doesn't matter for your
+> deprecation plans.
 
-Thanks,
+No worries. If I can remove it in the cycle after the next, I am happy.
 
-Jonathan
+Thanks!
 
->=20
-> Best regards,
-> JB
->=20
->=20
-> From: linux-iio-owner@vger.kernel.org <linux-iio-owner@vger.kernel.org> o=
-n behalf of Wolfram Sang <wsa+renesas@sang-engineering.com>
->=20
-> Sent: Thursday, March 26, 2020 22:09
->=20
-> To: linux-i2c@vger.kernel.org <linux-i2c@vger.kernel.org>
->=20
-> Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>; Jonathan Cameron <ji=
-c23@kernel.org>; Hartmut Knaack <knaack.h@gmx.de>; Lars-Peter Clausen <lars=
-@metafoo.de>; Peter Meerwald-Stadler <pmeerw@pmeerw.net>; linux-iio@vger.ke=
-rnel.org <linux-iio@vger.kernel.org>;
->  linux-kernel@vger.kernel.org <linux-kernel@vger.kernel.org>
->=20
-> Subject: [PATCH 1/1] iio: imu: inv_mpu6050: convert to use i2c_new_client=
-_device()
->=20
-> =C2=A0
->=20
->=20
-> =C2=A0CAUTION: This email originated from outside of the organization. Pl=
-ease make sure the sender is who they say they are and do not click links o=
-r open attachments unless you recognize the sender and know the content is =
-safe.
->=20
->=20
->=20
-> Move away from the deprecated API and return the shiny new ERRPTR where
->=20
-> useful.
->=20
->=20
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
->=20
-> ---
->=20
-> =C2=A0drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 8 +++++---
->=20
-> =C2=A01 file changed, 5 insertions(+), 3 deletions(-)
->=20
->=20
->=20
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu=
-/inv_mpu6050/inv_mpu_acpi.c
->=20
-> index 2f8560ba4572..c27d06035c8b 100644
->=20
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
->=20
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
->=20
-> @@ -135,6 +135,7 @@ int inv_mpu_acpi_create_mux_client(struct i2c_client =
-*client)
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 st->mux_client =3D NULL;
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (ACPI_HANDLE(&client-=
->dev)) {
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0 struct i2c_board_info info;
->=20
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 struct i2c_client *mux_client;
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0 struct acpi_device *adev;
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0 int ret =3D -1;
->=20
-> =C2=A0
->=20
-> @@ -172,9 +173,10 @@ int inv_mpu_acpi_create_mux_client(struct i2c_client=
- *client)
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 } =
-else
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return 0; /* no secondary add=
-r, which is OK */
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0 }
->=20
-> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 st->mux_client =3D i2c_new_device(st->muxc->adapter[0], &info);
->=20
-> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 if (!st->mux_client)
->=20
-> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENODEV;
->=20
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 mux_client =3D i2c_new_client_device(st->muxc->adapter[0], &in=
-fo);
->=20
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 if (IS_ERR(mux_client))
->=20
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return PTR_ERR=
-(mux_client);
->=20
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 st->mux_client =3D mux_client;
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->=20
-> =C2=A0
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return 0;
->=20
+--+HP7ph2BbKc20aGI
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5/puIACgkQFA3kzBSg
+KbaoHBAAs7uYfJzW2W62SRkJ7BLmqjeMfJlBq/LjXgzG7B2qZ2ndY1ObemD2Qflp
+fGqIgt5FRXIFxuNN52Md0W4iRQ8qoYlluELMnAe4mXlYqROKTOm26PuvS0OB9rWq
+/kVd1LoLj6DqWHVEl8IVjSGm9byltpO+LwT32bQVetRP6Kj6Gai+e9c6Ri15ZN4E
+4ljVMCQij7QLiuwrG4cnOMURbJFlrfEiQlUt4ufQhN/Yixe0xjvv8mEbzZCcwWUd
+5JY1Dj+R7RojHRH1Xpu3bCCtLQ8MfJXj0lae85MGamOqWpHa48kxieDSIigR+2BH
+kaqapRu9voZO3WCK/gABhcPekcRNnIJx/c2FruC3ABpKWsw4izxUbVar2oSHAt0F
+ah9k3ZfzUJQA43Y7WGkzswnikHCde3b4DMOILO6JWs7C/OKEgFIzPY4srSK9YBOi
+2tcC/NG9jfYqSOZGUV6X8UJc0wLZA+85EwJbtfSV9Q5YJt351wLCB9Fa1+ky6nqS
+J5lt6TVvM1+JoO1np7K4uwJFrRA+1xVokxGpOz8Em5EF/10UXn0xCXUCxkhgw8+C
+ifT0aMOW6ZLbU+qlDWaJreh6YHb/l2KO2UWE4325PuakNw8sv7+J6dSBpTPHcGu3
+d6nE4ONH+0UDsVu9fGyZps45AR6HyjD2Ou5XuICHKHrUsl45LEY=
+=bgvz
+-----END PGP SIGNATURE-----
+
+--+HP7ph2BbKc20aGI--
