@@ -1,55 +1,61 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH 0/6] gpu: convert to use new I2C API
-Date: Sat, 28 Mar 2020 22:49:37 +0100
-Message-ID: <20200328214937.GA9505@ravnborg.org>
-References: <20200326211005.13301-1-wsa+renesas@sang-engineering.com>
+From: Mike Isely <isely@isely.net>
+Subject: Re: [PATCH 6/6] media: usb: pvrusb2: convert to use
+ i2c_new_client_device()
+Date: Sat, 28 Mar 2020 22:14:09 -0500 (CDT)
+Message-ID: <alpine.DEB.2.21.2003282213550.11595@sheridan.isely.net>
+References: <20200326210947.12747-1-wsa+renesas@sang-engineering.com> <20200326210947.12747-7-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from asavdk4.altibox.net ([109.247.116.15]:51214 "EHLO
-        asavdk4.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726604AbgC1Vtl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 28 Mar 2020 17:49:41 -0400
-Content-Disposition: inline
-In-Reply-To: <20200326211005.13301-1-wsa+renesas@sang-engineering.com>
+Received: from cnc.isely.net ([75.149.91.89]:54423 "EHLO cnc.isely.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726315AbgC2DTP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 28 Mar 2020 23:19:15 -0400
+In-Reply-To: <20200326210947.12747-7-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, nouveau@lists.freedesktop.org, dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org
-
-On Thu, Mar 26, 2020 at 10:09:58PM +0100, Wolfram Sang wrote:
-> We are deprecating calls which return NULL in favor of new variants which
-> return an ERR_PTR. Only build tested.
-> 
-> 
-> Wolfram Sang (6):
->   drm/amdgpu: convert to use i2c_new_client_device()
->   drm/gma500: convert to use i2c_new_client_device()
->   drm/i2c/sil164: convert to use i2c_new_client_device()
->   drm/i2c/tda998x: convert to use i2c_new_client_device()
->   drm/nouveau/therm: convert to use i2c_new_client_device()
->   drm/radeon: convert to use i2c_new_client_device()
-
-With the ack from Alex I went ahead and applied the patches to
-drm-misc-next.
-
-	Sam
+Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mike Isely <isely@isely.net>
 
 
+Acked-by: Mike Isely <isely@pobox.com>
+
+On Thu, 26 Mar 2020, Wolfram Sang wrote:
+
+> Move away from the deprecated API.
 > 
->  drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.c        | 2 +-
->  drivers/gpu/drm/gma500/tc35876x-dsi-lvds.c     | 8 ++++----
->  drivers/gpu/drm/i2c/sil164_drv.c               | 7 +++++--
->  drivers/gpu/drm/i2c/tda998x_drv.c              | 6 +++---
->  drivers/gpu/drm/nouveau/nvkm/subdev/therm/ic.c | 4 ++--
->  drivers/gpu/drm/radeon/radeon_atombios.c       | 4 ++--
->  drivers/gpu/drm/radeon/radeon_combios.c        | 4 ++--
->  7 files changed, 19 insertions(+), 16 deletions(-)
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> -- 
-> 2.20.1
+> diff --git a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
+> index 275394bafe7d..63db04fe12d3 100644
+> --- a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
+> +++ b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
+> @@ -564,7 +564,7 @@ static void pvr2_i2c_register_ir(struct pvr2_hdw *hdw)
+>  		strscpy(info.type, "ir_video", I2C_NAME_SIZE);
+>  		pvr2_trace(PVR2_TRACE_INFO, "Binding %s to i2c address 0x%02x.",
+>  			   info.type, info.addr);
+> -		i2c_new_device(&hdw->i2c_adap, &info);
+> +		i2c_new_client_device(&hdw->i2c_adap, &info);
+>  		break;
+>  	case PVR2_IR_SCHEME_ZILOG:     /* HVR-1950 style */
+>  	case PVR2_IR_SCHEME_24XXX_MCE: /* 24xxx MCE device */
+> @@ -579,7 +579,7 @@ static void pvr2_i2c_register_ir(struct pvr2_hdw *hdw)
+>  		strscpy(info.type, "ir_z8f0811_haup", I2C_NAME_SIZE);
+>  		pvr2_trace(PVR2_TRACE_INFO, "Binding %s to i2c address 0x%02x.",
+>  			   info.type, info.addr);
+> -		i2c_new_device(&hdw->i2c_adap, &info);
+> +		i2c_new_client_device(&hdw->i2c_adap, &info);
+>  		break;
+>  	default:
+>  		/* The device either doesn't support I2C-based IR or we
 > 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+-- 
+
+Mike Isely
+isely @ isely (dot) net
+PGP: 03 54 43 4D 75 E5 CC 92 71 16 01 E2 B5 F5 C1 E8
