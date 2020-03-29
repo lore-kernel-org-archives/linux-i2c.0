@@ -1,61 +1,35 @@
-From: Mike Isely <isely@isely.net>
-Subject: Re: [PATCH 6/6] media: usb: pvrusb2: convert to use
- i2c_new_client_device()
-Date: Sat, 28 Mar 2020 22:14:09 -0500 (CDT)
-Message-ID: <alpine.DEB.2.21.2003282213550.11595@sheridan.isely.net>
-References: <20200326210947.12747-1-wsa+renesas@sang-engineering.com> <20200326210947.12747-7-wsa+renesas@sang-engineering.com>
+From: Ricardo =?ISO-8859-1?Q?Ca=F1uelo?= <ricardo.canuelo@collabora.com>
+Subject: Re: [PATCH] i2c: enable async suspend/resume on i2c devices
+Date: Sun, 29 Mar 2020 12:24:05 +0200
+Message-ID: <e69c39e6d86fb4e9fe560a20485158e7aa7d80cf.camel@collabora.com>
+References: <20200327151951.18111-1-ricardo.canuelo@collabora.com>
+         <20200327154345.GA3971@ninjato>
+         <CAGAzgsqJznZi83ijxCgQg463Q4AnwiNX-a0Q9+Og9MW5OJ4Vew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from cnc.isely.net ([75.149.91.89]:54423 "EHLO cnc.isely.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726315AbgC2DTP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 28 Mar 2020 23:19:15 -0400
-In-Reply-To: <20200326210947.12747-7-wsa+renesas@sang-engineering.com>
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:48772 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726087AbgC2KYK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 29 Mar 2020 06:24:10 -0400
+In-Reply-To: <CAGAzgsqJznZi83ijxCgQg463Q4AnwiNX-a0Q9+Og9MW5OJ4Vew@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mike Isely <isely@isely.net>
+To: "dbasehore ." <dbasehore@chromium.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Guenter Roeck <groeck@chromium.org>, Linux-pm mailing list <linux-pm@vger.kernel.org>
 
-
-Acked-by: Mike Isely <isely@pobox.com>
-
-On Thu, 26 Mar 2020, Wolfram Sang wrote:
-
-> Move away from the deprecated API.
+On Fri, 2020-03-27 at 13:26 -0700, dbasehore . wrote:
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-> index 275394bafe7d..63db04fe12d3 100644
-> --- a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-> +++ b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-> @@ -564,7 +564,7 @@ static void pvr2_i2c_register_ir(struct pvr2_hdw *hdw)
->  		strscpy(info.type, "ir_video", I2C_NAME_SIZE);
->  		pvr2_trace(PVR2_TRACE_INFO, "Binding %s to i2c address 0x%02x.",
->  			   info.type, info.addr);
-> -		i2c_new_device(&hdw->i2c_adap, &info);
-> +		i2c_new_client_device(&hdw->i2c_adap, &info);
->  		break;
->  	case PVR2_IR_SCHEME_ZILOG:     /* HVR-1950 style */
->  	case PVR2_IR_SCHEME_24XXX_MCE: /* 24xxx MCE device */
-> @@ -579,7 +579,7 @@ static void pvr2_i2c_register_ir(struct pvr2_hdw *hdw)
->  		strscpy(info.type, "ir_z8f0811_haup", I2C_NAME_SIZE);
->  		pvr2_trace(PVR2_TRACE_INFO, "Binding %s to i2c address 0x%02x.",
->  			   info.type, info.addr);
-> -		i2c_new_device(&hdw->i2c_adap, &info);
-> +		i2c_new_client_device(&hdw->i2c_adap, &info);
->  		break;
->  	default:
->  		/* The device either doesn't support I2C-based IR or we
-> 
+> Enabling async is a confirmation that all dependencies to other
+> devices are properly tracked, whether through the parent/child
+> relationship or otherwise.
 
--- 
+Thanks for the info, Derek.
 
-Mike Isely
-isely @ isely (dot) net
-PGP: 03 54 43 4D 75 E5 CC 92 71 16 01 E2 B5 F5 C1 E8
+Wouldn't it be risky then to enable async for all i2c client devices
+indiscriminately? Or is it safe to assume that all i2c devices will be
+idependent from each other?
+
+Cheers,
+Ricardo
