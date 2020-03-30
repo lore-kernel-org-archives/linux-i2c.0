@@ -1,53 +1,70 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: Re: [PATCH 1/2] platform/chrome: chromeos_laptop: make I2C API
- conversion complete
-Date: Mon, 30 Mar 2020 16:11:06 +0200
-Message-ID: <2d4269eb-0f17-47c8-d393-a3887a72526e@collabora.com>
-References: <20200326210952.12857-1-wsa+renesas@sang-engineering.com>
- <20200326210952.12857-2-wsa+renesas@sang-engineering.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: Detect secondary SMBus controller on AMD AM4
+ chipsets
+Date: Mon, 30 Mar 2020 18:31:08 +0200
+Message-ID: <20200330183108.58c63736@endymion>
+References: <20200329174440.19342-1-calcprogrammer1@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:60904 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725268AbgC3OLL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Mar 2020 10:11:11 -0400
-In-Reply-To: <20200326210952.12857-2-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
+Received: from mx2.suse.de ([195.135.220.15]:59078 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730042AbgC3QbL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 30 Mar 2020 12:31:11 -0400
+In-Reply-To: <20200329174440.19342-1-calcprogrammer1@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: Benson Leung <bleung@chromium.org>, linux-kernel@vger.kernel.org
+To: Adam Honse <calcprogrammer1@gmail.com>
+Cc: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi Adam,
 
-On 26/3/20 22:09, Wolfram Sang wrote:
-> When converting to i2c_new_scanned_device(), it was overlooked that a
-> conversion to i2c_new_client_device() was also needed. Fix it.
+On Sun, 29 Mar 2020 12:44:40 -0500, Adam Honse wrote:
+> The AMD X370 and other AM4 chipsets (A/B/X 3/4/5 parts) and Threadripper equivalents have a secondary SMBus controller at I/O port address 0x0B20.  This bus is used by several manufacturers to control motherboard RGB lighting via embedded controllers.  I have been using this bus in my OpenRGB project to control the Aura RGB on many motherboards and ASRock also uses this bus for their Polychrome RGB controller.
 > 
-> Fixes: c82ebf1bf738 ("platform/chrome: chromeos_laptop: Convert to i2c_new_scanned_device")
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> See this kernel bug report: https://bugzilla.kernel.org/show_bug.cgi?id=202587
+> 
+> Thanks,
+> 
+> Adam Honse (calcprogrammer1@gmail.com)
+
+In order for this patch to be acceptable, this would need to be turned
+into a proper Signed-off-by statement. Please see:
+
+https://www.kernel.org/doc/html/v5.5/process/submitting-patches.html#sign-your-work-the-developer-s-certificate-of-origin
+
+> 
 > ---
->  drivers/platform/chrome/chromeos_laptop.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/i2c/busses/i2c-piix4.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
-> diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
-> index 4f3651fcd9fe..472a03daa869 100644
-> --- a/drivers/platform/chrome/chromeos_laptop.c
-> +++ b/drivers/platform/chrome/chromeos_laptop.c
-> @@ -103,7 +103,7 @@ chromes_laptop_instantiate_i2c_device(struct i2c_adapter *adapter,
->  			pr_debug("%d-%02x is probed at %02x\n",
->  				 adapter->nr, info->addr, dummy->addr);
->  			i2c_unregister_device(dummy);
-> -			client = i2c_new_device(adapter, info);
-> +			client = i2c_new_client_device(adapter, info);
->  		}
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> index 30ded6422e7b..6068364b84f6 100644
+> --- a/drivers/i2c/busses/i2c-piix4.c
+> +++ b/drivers/i2c/busses/i2c-piix4.c
+> @@ -981,6 +981,11 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  		retval = piix4_setup_sb800(dev, id, 1);
 >  	}
 >  
-> 
+> +	if (dev->vendor == PCI_VENDOR_ID_AMD &&
+> +	    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
+> +		retval = piix4_setup_sb800(dev, id, 1);
+> +	}
+> +
+>  	if (retval > 0) {
+>  		/* Try to add the aux adapter if it exists,
+>  		 * piix4_add_adapter will clean up if this fails */
 
-Queued for 5.7.
+I'm a bit worried about this change. Sure it works on the systems which
+do have the second SMBus channel, but what about the systems which
+don't? If there no device revision that needs to be checked to ensure
+that the second channel is present?
 
-Thanks.
-Enric
+This patch needs to be tested on tested on systems with CZ-compatible
+CPUs which do not have the second SMBus channel. Or do you believe they
+all do have it?
+
+-- 
+Jean Delvare
+SUSE L3 Support
