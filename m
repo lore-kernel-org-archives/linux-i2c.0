@@ -1,126 +1,123 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH] i2c: regroup documentation of bindings
-Date: Mon, 30 Mar 2020 02:22:20 +0200
-Message-ID: <20200330002220.3575-1-wsa+renesas@sang-engineering.com>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH] i2c: stm32: don't print an error on probe deferral
+Date: Mon, 30 Mar 2020 10:40:59 +0200
+Message-ID: <9f51c667-cb26-a087-b2a3-2cf2ddf09a87@st.com>
+References: <1584642136-15418-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
+In-Reply-To: <1584642136-15418-1-git-send-email-alain.volmat@st.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
+To: Alain Volmat <alain.volmat@st.com>, wsa@the-dreams.de
+Cc: alexandre.torgue@st.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, fabrice.gasnier@st.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Some bindings are for the bus master, some are for the slaves.
-Regroup them and give them seperate headings to make it clear.
+Hello !
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- Documentation/devicetree/bindings/i2c/i2c.txt | 63 +++++++++++--------
- 1 file changed, 38 insertions(+), 25 deletions(-)
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-index 9a53df4243c6..aa74dd0e63e3 100644
---- a/Documentation/devicetree/bindings/i2c/i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-@@ -2,10 +2,10 @@ Generic device tree bindings for I2C busses
- ===========================================
- 
- This document describes generic bindings which can be used to describe I2C
--busses in a device tree.
-+busses and their child devices in a device tree.
- 
--Required properties
---------------------
-+Required properties (per bus)
-+-----------------------------
- 
- - #address-cells  - should be <1>. Read more about addresses below.
- - #size-cells     - should be <0>.
-@@ -16,18 +16,13 @@ For other required properties e.g. to describe register sets,
- clocks, etc. check the binding documentation of the specific driver.
- 
- The cells properties above define that an address of children of an I2C bus
--are described by a single value. This is usually a 7 bit address. However,
--flags can be attached to the address. I2C_TEN_BIT_ADDRESS is used to mark a 10
--bit address. It is needed to avoid the ambiguity between e.g. a 7 bit address
--of 0x50 and a 10 bit address of 0x050 which, in theory, can be on the same bus.
--Another flag is I2C_OWN_SLAVE_ADDRESS to mark addresses on which we listen to
--be devices ourselves.
-+are described by a single value.
- 
--Optional properties
---------------------
-+Optional properties (per bus)
-+-----------------------------
- 
- These properties may not be supported by all drivers. However, if a driver
--wants to support one of the below features, it should adapt the bindings below.
-+wants to support one of the below features, it should adapt these bindings.
- 
- - clock-frequency
- 	frequency of bus clock in Hz.
-@@ -73,31 +68,49 @@ wants to support one of the below features, it should adapt the bindings below.
- 	i2c bus clock frequency (clock-frequency).
- 	Specified in Hz.
- 
--- interrupts
--	interrupts used by the device.
--
--- interrupt-names
--	"irq", "wakeup" and "smbus_alert" names are recognized by I2C core,
--	other names are	left to individual drivers.
--
--- host-notify
--	device uses SMBus host notify protocol instead of interrupt line.
--
- - multi-master
- 	states that there is another master active on this bus. The OS can use
- 	this information to adapt power management to keep the arbitration awake
- 	all the time, for example.
- 
--- wakeup-source
--	device can be used as a wakeup source.
-+Required properties (per child device)
-+--------------------------------------
-+
-+- compatible
-+	name of I2C slave device following generic names recommended practice.
- 
- - reg
--	I2C slave addresses
-+	One or many I2C slave addresses. These are usually a 7 bit addresses.
-+	However, flags can be attached to an address. I2C_TEN_BIT_ADDRESS is
-+	used to mark a 10 bit address. It is needed to avoid the ambiguity
-+	between e.g. a 7 bit address of 0x50 and a 10 bit address of 0x050
-+	which, in theory, can be on the same bus.
-+	Another flag is I2C_OWN_SLAVE_ADDRESS to mark addresses on which we
-+	listen to be devices ourselves.
-+
-+Optional properties (per child device)
-+--------------------------------------
-+
-+These properties may not be supported by all drivers. However, if a driver
-+wants to support one of the below features, it should adapt these bindings.
-+
-+- host-notify
-+	device uses SMBus host notify protocol instead of interrupt line.
-+
-+- interrupts
-+	interrupts used by the device.
-+
-+- interrupt-names
-+	"irq", "wakeup" and "smbus_alert" names are recognized by I2C core,
-+	other names are	left to individual drivers.
- 
- - reg-names
- 	Names of map programmable addresses.
- 	It can contain any map needing another address than default one.
- 
-+- wakeup-source
-+	device can be used as a wakeup source.
-+
- Binding may contain optional "interrupts" property, describing interrupts
- used by the device. I2C core will assign "irq" interrupt (or the very first
- interrupt if not using interrupt names) as primary interrupt for the slave.
--- 
-2.20.1
+Thanks
+
+On 3/19/20 7:22 PM, Alain Volmat wrote:
+> From: Etienne Carriere <etienne.carriere@st.com>
+> 
+> Do not print an error trace when deferring probe for some resource.
+> 
+> Signed-off-by: Etienne Carriere <etienne.carriere@st.com>
+> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+> ---
+>  drivers/i2c/busses/i2c-stm32.c   | 10 +++++++---
+>  drivers/i2c/busses/i2c-stm32f4.c |  4 +++-
+>  drivers/i2c/busses/i2c-stm32f7.c |  7 +++++--
+>  3 files changed, 15 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stm32.c b/drivers/i2c/busses/i2c-stm32.c
+> index 1da347e6a358..7be559858402 100644
+> --- a/drivers/i2c/busses/i2c-stm32.c
+> +++ b/drivers/i2c/busses/i2c-stm32.c
+> @@ -25,8 +25,9 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
+>  	/* Request and configure I2C TX dma channel */
+>  	dma->chan_tx = dma_request_chan(dev, "tx");
+>  	if (IS_ERR(dma->chan_tx)) {
+> -		dev_dbg(dev, "can't request DMA tx channel\n");
+>  		ret = PTR_ERR(dma->chan_tx);
+> +		if (ret != -EPROBE_DEFER)
+> +			dev_dbg(dev, "can't request DMA tx channel\n");
+>  		goto fail_al;
+>  	}
+>  
+> @@ -44,8 +45,10 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
+>  	/* Request and configure I2C RX dma channel */
+>  	dma->chan_rx = dma_request_chan(dev, "rx");
+>  	if (IS_ERR(dma->chan_rx)) {
+> -		dev_err(dev, "can't request DMA rx channel\n");
+>  		ret = PTR_ERR(dma->chan_rx);
+> +		if (ret != -EPROBE_DEFER)
+> +			dev_err(dev, "can't request DMA rx channel\n");
+> +
+>  		goto fail_tx;
+>  	}
+>  
+> @@ -73,7 +76,8 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
+>  	dma_release_channel(dma->chan_tx);
+>  fail_al:
+>  	devm_kfree(dev, dma);
+> -	dev_info(dev, "can't use DMA\n");
+> +	if (ret != -EPROBE_DEFER)
+> +		dev_info(dev, "can't use DMA\n");
+>  
+>  	return ERR_PTR(ret);
+>  }
+> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
+> index ba600d77a3f8..1b8cad506ad7 100644
+> --- a/drivers/i2c/busses/i2c-stm32f4.c
+> +++ b/drivers/i2c/busses/i2c-stm32f4.c
+> @@ -797,8 +797,10 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
+>  
+>  	rst = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+>  	if (IS_ERR(rst)) {
+> -		dev_err(&pdev->dev, "Error: Missing controller reset\n");
+>  		ret = PTR_ERR(rst);
+> +		if (ret != -EPROBE_DEFER)
+> +			dev_err(&pdev->dev, "Error: Missing reset ctrl\n");
+> +
+>  		goto clk_free;
+>  	}
+>  	reset_control_assert(rst);
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+> index 78d40a4cc282..ab95ed52a7dc 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -1915,7 +1915,8 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+>  
+>  	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
+>  	if (IS_ERR(i2c_dev->clk)) {
+> -		dev_err(&pdev->dev, "Error: Missing controller clock\n");
+> +		if (PTR_ERR(i2c_dev->clk) != -EPROBE_DEFER)
+> +			dev_err(&pdev->dev, "Failed to get controller clock\n");
+>  		return PTR_ERR(i2c_dev->clk);
+>  	}
+>  
+> @@ -1941,8 +1942,10 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+>  
+>  	rst = devm_reset_control_get(&pdev->dev, NULL);
+>  	if (IS_ERR(rst)) {
+> -		dev_err(&pdev->dev, "Error: Missing controller reset\n");
+>  		ret = PTR_ERR(rst);
+> +		if (ret != -EPROBE_DEFER)
+> +			dev_err(&pdev->dev, "Error: Missing reset ctrl\n");
+> +
+>  		goto clk_free;
+>  	}
+>  	reset_control_assert(rst);
+> 
