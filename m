@@ -1,26 +1,126 @@
-From: elisa.jacome@hgona.gob.ec
-Subject: SPENDE SPENDE
-Date: Sun, 29 Mar 2020 15:50:47 -0700
-Message-ID: <20200329225104.5A1331803334EB@mail.hgona.gob.ec>
-Reply-To: ugbumamamam@gmail.com
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: regroup documentation of bindings
+Date: Mon, 30 Mar 2020 02:22:20 +0200
+Message-ID: <20200330002220.3575-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.hgona.gob.ec ([190.11.20.226]:48144 "HELO
-        mail.hgona.gob.ec" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1728493AbgC2XBd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 29 Mar 2020 19:01:33 -0400
-Content-Description: Mail message body
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Recipients <elisa.jacome@hgona.gob.ec>
 
-Mein Name ist CHARLES JACKSON JNR.Ich habe eine Lotterie in H=F6he von 344 =
-Millionen Dollar gewonnen und seitdem hat sich mein Leben positiv ver=E4nde=
-rt. Ich bin derzeit an Krebs erkrankt und so krank. Deshalb habe ich beschl=
-ossen, 7 Millionen Euro an 14 Menschen auszugeben, um den Menschen zu helfe=
-n arm UND diejenigen, die wie die Welt an Corona-Virus erkrankt sind, brauc=
-hen Hilfe. Da ich so krank bin, um eine freundliche Antwort =FCber diese An=
-twort zu erhalten:
-(ugbumamamam@gmail.com)
+Some bindings are for the bus master, some are for the slaves.
+Regroup them and give them seperate headings to make it clear.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c.txt | 63 +++++++++++--------
+ 1 file changed, 38 insertions(+), 25 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+index 9a53df4243c6..aa74dd0e63e3 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -2,10 +2,10 @@ Generic device tree bindings for I2C busses
+ ===========================================
+ 
+ This document describes generic bindings which can be used to describe I2C
+-busses in a device tree.
++busses and their child devices in a device tree.
+ 
+-Required properties
+--------------------
++Required properties (per bus)
++-----------------------------
+ 
+ - #address-cells  - should be <1>. Read more about addresses below.
+ - #size-cells     - should be <0>.
+@@ -16,18 +16,13 @@ For other required properties e.g. to describe register sets,
+ clocks, etc. check the binding documentation of the specific driver.
+ 
+ The cells properties above define that an address of children of an I2C bus
+-are described by a single value. This is usually a 7 bit address. However,
+-flags can be attached to the address. I2C_TEN_BIT_ADDRESS is used to mark a 10
+-bit address. It is needed to avoid the ambiguity between e.g. a 7 bit address
+-of 0x50 and a 10 bit address of 0x050 which, in theory, can be on the same bus.
+-Another flag is I2C_OWN_SLAVE_ADDRESS to mark addresses on which we listen to
+-be devices ourselves.
++are described by a single value.
+ 
+-Optional properties
+--------------------
++Optional properties (per bus)
++-----------------------------
+ 
+ These properties may not be supported by all drivers. However, if a driver
+-wants to support one of the below features, it should adapt the bindings below.
++wants to support one of the below features, it should adapt these bindings.
+ 
+ - clock-frequency
+ 	frequency of bus clock in Hz.
+@@ -73,31 +68,49 @@ wants to support one of the below features, it should adapt the bindings below.
+ 	i2c bus clock frequency (clock-frequency).
+ 	Specified in Hz.
+ 
+-- interrupts
+-	interrupts used by the device.
+-
+-- interrupt-names
+-	"irq", "wakeup" and "smbus_alert" names are recognized by I2C core,
+-	other names are	left to individual drivers.
+-
+-- host-notify
+-	device uses SMBus host notify protocol instead of interrupt line.
+-
+ - multi-master
+ 	states that there is another master active on this bus. The OS can use
+ 	this information to adapt power management to keep the arbitration awake
+ 	all the time, for example.
+ 
+-- wakeup-source
+-	device can be used as a wakeup source.
++Required properties (per child device)
++--------------------------------------
++
++- compatible
++	name of I2C slave device following generic names recommended practice.
+ 
+ - reg
+-	I2C slave addresses
++	One or many I2C slave addresses. These are usually a 7 bit addresses.
++	However, flags can be attached to an address. I2C_TEN_BIT_ADDRESS is
++	used to mark a 10 bit address. It is needed to avoid the ambiguity
++	between e.g. a 7 bit address of 0x50 and a 10 bit address of 0x050
++	which, in theory, can be on the same bus.
++	Another flag is I2C_OWN_SLAVE_ADDRESS to mark addresses on which we
++	listen to be devices ourselves.
++
++Optional properties (per child device)
++--------------------------------------
++
++These properties may not be supported by all drivers. However, if a driver
++wants to support one of the below features, it should adapt these bindings.
++
++- host-notify
++	device uses SMBus host notify protocol instead of interrupt line.
++
++- interrupts
++	interrupts used by the device.
++
++- interrupt-names
++	"irq", "wakeup" and "smbus_alert" names are recognized by I2C core,
++	other names are	left to individual drivers.
+ 
+ - reg-names
+ 	Names of map programmable addresses.
+ 	It can contain any map needing another address than default one.
+ 
++- wakeup-source
++	device can be used as a wakeup source.
++
+ Binding may contain optional "interrupts" property, describing interrupts
+ used by the device. I2C core will assign "irq" interrupt (or the very first
+ interrupt if not using interrupt names) as primary interrupt for the slave.
+-- 
+2.20.1
