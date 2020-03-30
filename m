@@ -1,54 +1,53 @@
-From: Biwen Li <biwen.li@oss.nxp.com>
-Subject: [PATCH] i2c: imx: add shutdown interface
-Date: Mon, 30 Mar 2020 20:15:46 +0800
-Message-ID: <20200330121546.23872-1-biwen.li@oss.nxp.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: Re: [PATCH 1/2] platform/chrome: chromeos_laptop: make I2C API
+ conversion complete
+Date: Mon, 30 Mar 2020 16:11:06 +0200
+Message-ID: <2d4269eb-0f17-47c8-d393-a3887a72526e@collabora.com>
+References: <20200326210952.12857-1-wsa+renesas@sang-engineering.com>
+ <20200326210952.12857-2-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from inva021.nxp.com ([92.121.34.21]:58472 "EHLO inva021.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729705AbgC3MTZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 30 Mar 2020 08:19:25 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:60904 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725268AbgC3OLL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Mar 2020 10:11:11 -0400
+In-Reply-To: <20200326210952.12857-2-wsa+renesas@sang-engineering.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: leoyang.li@nxp.com, linux@rempel-privat.de, kernel@pengutronix.de, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiafei.pan@nxp.com, Biwen Li <biwen.li@nxp.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
+Cc: Benson Leung <bleung@chromium.org>, linux-kernel@vger.kernel.org
 
-From: Biwen Li <biwen.li@nxp.com>
+Hi Wolfram,
 
-Add shutdown interface
+On 26/3/20 22:09, Wolfram Sang wrote:
+> When converting to i2c_new_scanned_device(), it was overlooked that a
+> conversion to i2c_new_client_device() was also needed. Fix it.
+> 
+> Fixes: c82ebf1bf738 ("platform/chrome: chromeos_laptop: Convert to i2c_new_scanned_device")
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/platform/chrome/chromeos_laptop.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
+> index 4f3651fcd9fe..472a03daa869 100644
+> --- a/drivers/platform/chrome/chromeos_laptop.c
+> +++ b/drivers/platform/chrome/chromeos_laptop.c
+> @@ -103,7 +103,7 @@ chromes_laptop_instantiate_i2c_device(struct i2c_adapter *adapter,
+>  			pr_debug("%d-%02x is probed at %02x\n",
+>  				 adapter->nr, info->addr, dummy->addr);
+>  			i2c_unregister_device(dummy);
+> -			client = i2c_new_device(adapter, info);
+> +			client = i2c_new_client_device(adapter, info);
+>  		}
+>  	}
+>  
+> 
 
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
----
- drivers/i2c/busses/i2c-imx.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+Queued for 5.7.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 0ab5381aa012..07da42cb0be4 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1281,6 +1281,16 @@ static int i2c_imx_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static void i2c_imx_shutdown(struct platform_device *pdev)
-+{
-+	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
-+
-+	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
-+	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
-+			i2c_imx, IMX_I2C_I2CR);
-+	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
-+}
-+
- static int __maybe_unused i2c_imx_runtime_suspend(struct device *dev)
- {
- 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
-@@ -1310,6 +1320,7 @@ static const struct dev_pm_ops i2c_imx_pm_ops = {
- static struct platform_driver i2c_imx_driver = {
- 	.probe = i2c_imx_probe,
- 	.remove = i2c_imx_remove,
-+	.shutdown = i2c_imx_shutdown,
- 	.driver = {
- 		.name = DRIVER_NAME,
- 		.pm = &i2c_imx_pm_ops,
--- 
-2.17.1
+Thanks.
+Enric
