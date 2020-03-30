@@ -1,54 +1,23 @@
-From: Biwen Li <biwen.li@nxp.com>
-Subject: RE: [PATCH] i2c: slave: support I2C_SLAVE_STOP event for the read
- transactions
-Date: Mon, 30 Mar 2020 10:56:28 +0000
-Message-ID: <DB6PR0401MB24389E2570C242FB9036EC968FCB0@DB6PR0401MB2438.eurprd04.prod.outlook.com>
-References: <20200330105038.22546-1-biwen.li@oss.nxp.com>
+From: "Manuel Franco" <luis.sanchez@11d01.mspz7.gob.ec>
+Subject: spende von 2.000.000,00 Euro
+Date: Mon, 30 Mar 2020 11:47:34 +0200
+Message-ID: <20200330091621.1E6052F6F5A1__44102.3270644777$1585566098$gmane$org@mail.11d01.mspz7.gob.ec>
+Reply-To: manuelfrancospende11@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr30042.outbound.protection.outlook.com ([40.107.3.42]:4161
-        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729313AbgC3K4b (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 30 Mar 2020 06:56:31 -0400
-In-Reply-To: <20200330105038.22546-1-biwen.li@oss.nxp.com>
-Content-Language: en-US
+Received: from mail.11d01.mspz7.gob.ec ([190.152.145.91]:53516 "EHLO
+        mail.11d01.mspz7.gob.ec" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729381AbgC3LBL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Mar 2020 07:01:11 -0400
+Content-Description: Mail message body
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Biwen Li (OSS)" <biwen.li@oss.nxp.com>, Leo Li <leoyang.li@nxp.com>, "linux@rempel-privat.de" <linux@rempel-privat.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "wsa@the-dreams.de" <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiafei Pan <jiafei.pan@nxp.com>
+To: Recipients <luis.sanchez@11d01.mspz7.gob.ec>
 
-Hi All,
+Ich bin Manuel Franco, ich spende Ihnen 2.000.000,00 Euro. Kontaktieren Sie=
+ mich jetzt, damit wir fortfahren k=F6nnen.
 
-The patch based on https://patchwork.ozlabs.org/patch/1203640/
-and it is not accepted, so it(https://patchwork.ozlabs.org/patch/1203640/) =
-is needed before apply the new patch.=20
-
-Best Regards,
-Biwen Li
-> Support I2C_SLAVE_STOP event for the read transactions(master read from
-> slave)
->=20
-> Signed-off-by: Biwen Li <biwen.li@nxp.com>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c =
-index
-> 62517a41b32d..1fd0d87885d5 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1464,6 +1464,7 @@ static irqreturn_t i2c_imx_slave_isr(struct
-> imx_i2c_struct *i2c_imx)
->  		ctl &=3D ~I2CR_MTX;
->  		imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
->  		imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-> +		i2c_slave_event(i2c_imx->slave, I2C_SLAVE_STOP, &value);
->  	}
->  	return IRQ_HANDLED;
->  }
-> --
-> 2.17.1
+I am Manuel Franco, I donate to you 2,000,000.00 euros. Contact me now so w=
+e can proceed.
