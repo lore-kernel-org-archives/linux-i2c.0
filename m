@@ -1,70 +1,106 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: Detect secondary SMBus controller on AMD AM4
- chipsets
-Date: Mon, 30 Mar 2020 18:31:08 +0200
-Message-ID: <20200330183108.58c63736@endymion>
-References: <20200329174440.19342-1-calcprogrammer1@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Khalil Blaiech <kblaiech@mellanox.com>
+Subject: [PATCH v9 2/2] dt-bindings: i2c: I2C binding for Mellanox BlueField SoC
+Date: Mon, 30 Mar 2020 19:02:12 -0400
+Message-ID: <69848f2f7209553725ef7c092eaf6aa9dfe7620b.1585608633.git.kblaiech@mellanox.com>
+References: <cover.1585608633.git.kblaiech@mellanox.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59078 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730042AbgC3QbL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 30 Mar 2020 12:31:11 -0400
-In-Reply-To: <20200329174440.19342-1-calcprogrammer1@gmail.com>
+Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:47206 "EHLO
+        mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729060AbgC3XCY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Mar 2020 19:02:24 -0400
+In-Reply-To: <cover.1585608633.git.kblaiech@mellanox.com>
+In-Reply-To: <cover.1585608633.git.kblaiech@mellanox.com>
+References: <cover.1585608633.git.kblaiech@mellanox.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Adam Honse <calcprogrammer1@gmail.com>
-Cc: linux-i2c@vger.kernel.org
+To: Rob Herring <robh@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Khalil Blaiech <kblaiech@mellanox.com>, Vadim Pasternak <vadimp@mellanox.com>
 
-Hi Adam,
+Add device tree bindings documentation for Mellanox BlueField
+I2C SMBus controller.
 
-On Sun, 29 Mar 2020 12:44:40 -0500, Adam Honse wrote:
-> The AMD X370 and other AM4 chipsets (A/B/X 3/4/5 parts) and Threadripper equivalents have a secondary SMBus controller at I/O port address 0x0B20.  This bus is used by several manufacturers to control motherboard RGB lighting via embedded controllers.  I have been using this bus in my OpenRGB project to control the Aura RGB on many motherboards and ASRock also uses this bus for their Polychrome RGB controller.
-> 
-> See this kernel bug report: https://bugzilla.kernel.org/show_bug.cgi?id=202587
-> 
-> Thanks,
-> 
-> Adam Honse (calcprogrammer1@gmail.com)
+Signed-off-by: Khalil Blaiech <kblaiech@mellanox.com>
+---
+v5->v6:
+	- Adding description of an extra resource to be
+	consistent with new BlueField-2 SoCs.
+	- Adding an additional example of device instance.
+v3->v4:
+	- Re-ordering of the property descriptions.
+	- Removing useless register addresses from the
+	resource description.
+	- Definition of default clock-frequency value.
+	- Fixing format issues; removing spaces.
+	- Removing "aliases" from Example section.
+	- Renaming device instance node in Example section.
+v2->v3:
+	- Removing shared resources from the controller
+	instance.
+	- Updating the 'compatible' property and support the
+	second generation of the Mellanox BlueField SoC.
+	- Fixing file format; replacing spaces with tabs.
+v1->v2:
+	- Enumeration of the device resources.
+	- Updating the 'compatible' property to make it less
+	generic.
+	- Removing the 'bus' index property and replace it with
+	standard approach to read the bus identifier.
+	- Getting rid of the 'profile' property.
+	- Using 'clock-frequency' property instead of 'bus-freq'.
+	- Convertion of the clock frequency from KHz to Hz.
+	- Removing useless examples.
+---
+ .../devicetree/bindings/i2c/mellanox,i2c-mlxbf.txt | 42 ++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.txt
 
-In order for this patch to be acceptable, this would need to be turned
-into a proper Signed-off-by statement. Please see:
-
-https://www.kernel.org/doc/html/v5.5/process/submitting-patches.html#sign-your-work-the-developer-s-certificate-of-origin
-
-> 
-> ---
->  drivers/i2c/busses/i2c-piix4.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 30ded6422e7b..6068364b84f6 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -981,6 +981,11 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  		retval = piix4_setup_sb800(dev, id, 1);
->  	}
->  
-> +	if (dev->vendor == PCI_VENDOR_ID_AMD &&
-> +	    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
-> +		retval = piix4_setup_sb800(dev, id, 1);
-> +	}
-> +
->  	if (retval > 0) {
->  		/* Try to add the aux adapter if it exists,
->  		 * piix4_add_adapter will clean up if this fails */
-
-I'm a bit worried about this change. Sure it works on the systems which
-do have the second SMBus channel, but what about the systems which
-don't? If there no device revision that needs to be checked to ensure
-that the second channel is present?
-
-This patch needs to be tested on tested on systems with CZ-compatible
-CPUs which do not have the second SMBus channel. Or do you believe they
-all do have it?
-
+diff --git a/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.txt b/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.txt
+new file mode 100644
+index 0000000..566ea86
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.txt
+@@ -0,0 +1,42 @@
++Device tree configuration for the Mellanox I2C SMBus on BlueField SoCs
++
++Required Properties:
++
++- compatible : should be "mellanox,i2c-mlxbf1" or "mellanox,i2c-mlxbf2".
++
++- reg : address offset and length of the device registers. The
++	registers consist of the following set of resources:
++		1) Smbus block registers.
++		2) Cause master registers.
++		3) Cause slave registers.
++		4) Cause coalesce registers (if compatible isn't set
++		   to "mellanox,i2c-mlxbf1").
++
++- interrupts : interrupt number.
++
++Optional Properties:
++
++- clock-frequency : bus frequency used to configure timing registers;
++			allowed values are 100000, 400000 and 1000000;
++			those are expressed in Hz. Default is 100000.
++
++Example:
++
++i2c@2804000 {
++	compatible = "mellanox,i2c-mlxbf1";
++	reg =	<0x02804000 0x800>,
++		<0x02801200 0x020>,
++		<0x02801260 0x020>;
++	interrupts = <57>;
++	clock-frequency = <100000>;
++};
++
++i2c@2808800 {
++	compatible = "mellanox,i2c-mlxbf2";
++	reg =	<0x02808800 0x600>,
++	        <0x02808e00 0x020>,
++		<0x02808e20 0x020>,
++		<0x02808e40 0x010>;
++	interrupts = <57>;
++	clock-frequency = <400000>;
++};
 -- 
-Jean Delvare
-SUSE L3 Support
+2.1.2
