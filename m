@@ -1,99 +1,88 @@
-From: Akash Asthana <akashast@codeaurora.org>
-Subject: [PATCH V3 5/8] spi: spi-geni-qcom: Add interconnect support
-Date: Tue, 31 Mar 2020 16:39:33 +0530
-Message-ID: <1585652976-17481-6-git-send-email-akashast@codeaurora.org>
+From: Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: [PATCH V3 6/8] tty: serial: qcom_geni_serial: Add interconnect support
+Date: Tue, 31 Mar 2020 16:39:34 +0530
+Message-ID: <1585652976-17481-7-git-send-email-akashast@codeaurora.org>
 References: <1585652976-17481-1-git-send-email-akashast@codeaurora.org>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail27.static.mailgun.info ([104.130.122.27]:40823 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730683AbgCaLM1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Mar 2020 07:12:27 -0400
-In-Reply-To: <1585652976-17481-1-git-send-email-akashast@codeaurora.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1585652976-17481-1-git-send-email-akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, georgi.djakov-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swboyd-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, mgautam-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mka-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, evgreen-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: gregkh@linuxfoundation.org, agross@kernel.org, bjorn.andersson@linaro.org, wsa@the-dreams.de, broonie@kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, georgi.djakov@linaro.org
-Cc: linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, devicetree@vger.kernel.org, swboyd@chromium.org, mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org, mka@chromium.org, dianders@chromium.org, evgreen@chromium.org, Akash Asthana <akashast@codeaurora.org>
 
-Get the interconnect paths for SPI based Serial Engine device
-and vote according to the current bus speed of the driver.
+Get the interconnect paths for Uart based Serial Engine device
+and vote according to the baud rate requirement of the driver.
 
-Signed-off-by: Akash Asthana <akashast@codeaurora.org>
+Signed-off-by: Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 ---
 Changes in V2:
- - As per Bjorn's comment, removed se == NULL check from geni_spi_icc_get
+ - As per Bjorn's comment, removed se == NULL check from geni_serial_icc_get
  - As per Bjorn's comment, removed code to set se->icc_path* to NULL in failure
  - As per Bjorn's comment, introduced and using devm_of_icc_get API for getting
    path handle
  - As per Matthias comment, added error handling for icc_set_bw call
 
 Changes in V3:
- - As per Matthias's comment, use helper ICC function from geni-se driver.
+ - As per Matthias comment, use common library APIs defined in geni-se
+   driver for ICC functionality.
 
- drivers/spi/spi-geni-qcom.c | 31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
+ drivers/tty/serial/qcom_geni_serial.c | 28 +++++++++++++++++++++++++---
+ 1 file changed, 25 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-geni-qcom.c b/drivers/spi/spi-geni-qcom.c
-index c397242..f1dae2d 100644
---- a/drivers/spi/spi-geni-qcom.c
-+++ b/drivers/spi/spi-geni-qcom.c
-@@ -234,6 +234,16 @@ static int setup_fifo_params(struct spi_device *spi_slv,
- 		return ret;
- 	}
+diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
+index 8c5d97c..2befe72 100644
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -965,6 +965,14 @@ static void qcom_geni_serial_set_termios(struct uart_port *uport,
+ 	ser_clk_cfg = SER_CLK_EN;
+ 	ser_clk_cfg |= clk_div << CLK_DIV_SHFT;
  
 +	/*
-+	 * Set BW quota for CPU as driver supports FIFO mode only.
-+	 * Assume peak bw as twice of avg bw.
++	 * Bump up BW vote on CPU path as driver supports FIFO mode only.
++	 * Assume peak_bw as twice of avg_bw.
 +	 */
-+	se->from_cpu.avg_bw = Bps_to_icc(mas->cur_speed_hz);
-+	se->from_cpu.peak_bw = Bps_to_icc(2 * mas->cur_speed_hz);
-+	ret = geni_icc_vote_on(se);
-+	if (ret)
-+		return ret;
++	port->se.from_cpu.avg_bw = Bps_to_icc(baud);
++	port->se.from_cpu.peak_bw = Bps_to_icc(2 * baud);
++	geni_icc_vote_on(&port->se);
 +
- 	clk_sel = idx & CLK_SEL_MSK;
- 	m_clk_cfg = (div << CLK_DIV_SHFT) | SER_CLK_EN;
- 	spi_setup_word_len(mas, spi_slv->mode, spi_slv->bits_per_word);
-@@ -578,6 +588,15 @@ static int spi_geni_probe(struct platform_device *pdev)
- 	spin_lock_init(&mas->lock);
- 	pm_runtime_enable(dev);
+ 	/* parity */
+ 	tx_trans_cfg = readl(uport->membase + SE_UART_TX_TRANS_CFG);
+ 	tx_parity_cfg = readl(uport->membase + SE_UART_TX_PARITY_CFG);
+@@ -1202,11 +1210,14 @@ static void qcom_geni_serial_pm(struct uart_port *uport,
+ 	if (old_state == UART_PM_STATE_UNDEFINED)
+ 		old_state = UART_PM_STATE_OFF;
  
-+	ret = geni_icc_get(&mas->se, "qup-core", "qup-config", NULL);
-+	if (ret)
-+		goto spi_geni_probe_runtime_disable;
-+	/* Set the bus quota to a reasonable value for register access */
-+	mas->se.to_core.avg_bw = Bps_to_icc(CORE_2X_50_MHZ);
-+	mas->se.to_core.peak_bw = Bps_to_icc(CORE_2X_100_MHZ);
-+	mas->se.from_cpu.avg_bw = GENI_DEFAULT_BW;
-+	mas->se.from_cpu.peak_bw = GENI_DEFAULT_BW;
-+
- 	ret = spi_geni_init(mas);
- 	if (ret)
- 		goto spi_geni_probe_runtime_disable;
-@@ -616,14 +635,24 @@ static int __maybe_unused spi_geni_runtime_suspend(struct device *dev)
- {
- 	struct spi_master *spi = dev_get_drvdata(dev);
- 	struct spi_geni_master *mas = spi_master_get_devdata(spi);
-+	int ret;
-+
-+	ret = geni_se_resources_off(&mas->se);
-+	if (ret)
-+		return ret;
- 
--	return geni_se_resources_off(&mas->se);
-+	return geni_icc_vote_off(&mas->se);
+-	if (new_state == UART_PM_STATE_ON && old_state == UART_PM_STATE_OFF)
++	if (new_state == UART_PM_STATE_ON && old_state == UART_PM_STATE_OFF) {
++		geni_icc_vote_on(&port->se);
+ 		geni_se_resources_on(&port->se);
+-	else if (new_state == UART_PM_STATE_OFF &&
+-			old_state == UART_PM_STATE_ON)
++	} else if (new_state == UART_PM_STATE_OFF &&
++			old_state == UART_PM_STATE_ON) {
+ 		geni_se_resources_off(&port->se);
++		geni_icc_vote_off(&port->se);
++	}
  }
  
- static int __maybe_unused spi_geni_runtime_resume(struct device *dev)
- {
- 	struct spi_master *spi = dev_get_drvdata(dev);
- 	struct spi_geni_master *mas = spi_master_get_devdata(spi);
-+	int ret;
-+
-+	ret = geni_icc_vote_on(&mas->se);
+ static const struct uart_ops qcom_geni_console_pops = {
+@@ -1304,6 +1315,17 @@ static int qcom_geni_serial_probe(struct platform_device *pdev)
+ 			return -ENOMEM;
+ 	}
+ 
++	ret = geni_icc_get(&port->se, "qup-core", "qup-config", NULL);
 +	if (ret)
 +		return ret;
- 
- 	return geni_se_resources_on(&mas->se);
- }
++	/* Set the bus quota to a reasonable value */
++	port->se.to_core.avg_bw = console ? GENI_DEFAULT_BW :
++		Bps_to_icc(CORE_2X_50_MHZ);
++	port->se.to_core.peak_bw = console ? GENI_DEFAULT_BW :
++		Bps_to_icc(CORE_2X_100_MHZ);
++	port->se.from_cpu.avg_bw = GENI_DEFAULT_BW;
++	port->se.from_cpu.peak_bw = GENI_DEFAULT_BW;
++
+ 	port->name = devm_kasprintf(uport->dev, GFP_KERNEL,
+ 			"qcom_geni_serial_%s%d",
+ 			uart_console(uport) ? "console" : "uart", uport->line);
 -- 
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
