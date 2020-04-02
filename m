@@ -1,33 +1,142 @@
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: Re: [BUG] i2c_nvidia_gpu takes long time and makes system suspend &
- resume failed with NVIDIA cards
-Date: Thu, 2 Apr 2020 13:36:57 +0300
-Message-ID: <20200402103657.GE1886416@kuha.fi.intel.com>
-References: <CAPpJ_edj++oy7_EDN95tM+BPdYFOztpCrRh-cfzFrY6unJb1Rw@mail.gmail.com>
- <20200402103447.GD1886416@kuha.fi.intel.com>
+From: Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: Re: [PATCH V3 2/8] soc: qcom: geni: Support for ICC voting
+Date: Thu, 2 Apr 2020 19:16:29 +0530
+Message-ID: <759e50d2-7938-75b6-ee0b-a9ea3722ea54@codeaurora.org>
+References: <1585652976-17481-1-git-send-email-akashast@codeaurora.org>
+ <1585652976-17481-3-git-send-email-akashast@codeaurora.org>
+ <20200331175207.GG199755@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:53369 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728612AbgDBKhA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 2 Apr 2020 06:37:00 -0400
-Content-Disposition: inline
-In-Reply-To: <20200402103447.GD1886416@kuha.fi.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200331175207.GG199755-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Content-Language: en-US
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matthias Kaehlcke <mka-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, georgi.djakov-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swboyd-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, mgautam-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, evgreen-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jian-Hong Pan <jian-hong@endlessm.com>, Ajay Gupta <ajayg@nvidia.com>
-Cc: linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org, Linux Upstreaming Team <linux@endlessm.com>
 
-On Thu, Apr 02, 2020 at 01:34:51PM +0300, Heikki Krogerus wrote:
-> You are using an outdated kernel, 5.4.0. Please make sure that you can
-> reproduce the issue with mainline, or at least with the longterm
-> 5.4.x.
+Hi Matthias,
 
-I meant the latest 5.4.x, which today is 5.4.29.
+On 3/31/2020 11:22 PM, Matthias Kaehlcke wrote:
+> Hi Akash,
+>
+> On Tue, Mar 31, 2020 at 04:39:30PM +0530, Akash Asthana wrote:
+>> Add necessary macros and structure variables to support ICC BW
+>> voting from individual SE drivers.
+>>
+>> Signed-off-by: Akash Asthana <akashast-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+>> ---
+>> Changes in V2:
+>>   - As per Bjorn's comment dropped enums for ICC paths, given the three
+>>     paths individual members
+>>
+>> Changes in V3:
+>>   - Add geni_icc_get, geni_icc_vote_on and geni_icc_vote_off as helper API.
+>>   - Add geni_icc_path structure in common header
+>>
+>>   drivers/soc/qcom/qcom-geni-se.c | 98 +++++++++++++++++++++++++++++++++++++++++
+>>   include/linux/qcom-geni-se.h    | 36 +++++++++++++++
+>>   2 files changed, 134 insertions(+)
+>>
+>> diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
+>> index 7d622ea..9344c14 100644
+>> --- a/drivers/soc/qcom/qcom-geni-se.c
+>> +++ b/drivers/soc/qcom/qcom-geni-se.c
+>> @@ -720,6 +720,104 @@ void geni_se_rx_dma_unprep(struct geni_se *se, dma_addr_t iova, size_t len)
+>>   }
+>>   EXPORT_SYMBOL(geni_se_rx_dma_unprep);
+>>   
+>> +int geni_icc_get(struct geni_se *se, const char *icc_core, const char *icc_cpu,
+>> +		const char *icc_ddr)
+>> +{
+>> +	if (icc_core) {
+>> +		se->to_core.path = devm_of_icc_get(se->dev, "qup-core");
+>> +		if (IS_ERR(se->to_core.path))
+>> +			return PTR_ERR(se->to_core.path);
+>> +	}
+>> +
+>> +	if (icc_cpu) {
+>> +		se->from_cpu.path = devm_of_icc_get(se->dev, "qup-config");
+>> +		if (IS_ERR(se->from_cpu.path))
+>> +			return PTR_ERR(se->from_cpu.path);
+>> +	}
+>> +
+>> +	if (icc_ddr) {
+>> +		se->to_ddr.path = devm_of_icc_get(se->dev, "qup-memory");
+>> +		if (IS_ERR(se->to_ddr.path))
+>> +			return PTR_ERR(se->to_ddr.path);
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +EXPORT_SYMBOL(geni_icc_get);
+>> +
+>> +int geni_icc_vote_on(struct geni_se *se)
+>> +{
+>> +	int ret;
+>> +
+>> +	if (se->to_core.path) {
+>> +		ret = icc_set_bw(se->to_core.path, se->to_core.avg_bw,
+>> +			se->to_core.peak_bw);
+>> +		if (ret) {
+>> +			dev_err_ratelimited(se->dev, "%s: ICC BW voting failed for core\n",
+>> +						__func__);
+>> +			return ret;
+>> +		}
+>> +	}
+>> +
+>> +	if (se->from_cpu.path) {
+>> +		ret = icc_set_bw(se->from_cpu.path, se->from_cpu.avg_bw,
+>> +			se->from_cpu.peak_bw);
+>> +		if (ret) {
+>> +			dev_err_ratelimited(se->dev, "%s: ICC BW voting failed for cpu\n",
+>> +						__func__);
+>> +			return ret;
+>> +		}
+>> +	}
+>> +
+>> +	if (se->to_ddr.path) {
+>> +		ret = icc_set_bw(se->to_ddr.path, se->to_ddr.avg_bw,
+>> +			se->to_ddr.peak_bw);
+>> +		if (ret) {
+>> +			dev_err_ratelimited(se->dev, "%s: ICC BW voting failed for ddr\n",
+>> +						__func__);
+>> +			return ret;
+>> +		}
+>> +	}
+>
+> With an array of 'struct geni_icc_path' pointers the above could be
+> reduced to:
+>
+> 	for (i = 0; i < ARRAY_SIZE(se->icc_paths); i++) {
+> 		if (!se->icc_paths[i])
+> 			continue;
+>
+> 		ret = icc_set_bw(se->icc_paths[i]->path, se->icc_paths[i]->avg_bw,
+> 			se->icc_paths[i]->peak_bw);
+> 		if (ret) {
+> 			dev_err_ratelimited(se->dev, "%s: ICC BW voting failed\n",
+> 						__func__);
+> 			return ret;
+> 		}
+> 	}
+>
+> similar for geni_icc_vote_off()
+>
+> It's just a suggestion, looks also good to me as is.
 
+I thought giving individual path name will increase readability. But 
+that doesn't seems to be adding much value on cost of repeated code.
 
-thanks,
+So, I will make the suggested change in next version.
+
+Thanks,
+
+Akash
+
+>
+> Reviewed-by: Matthias Kaehlcke <mka-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 
 -- 
-heikki
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
