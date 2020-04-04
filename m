@@ -1,28 +1,29 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [PULL REQUEST] i2c for v5.7
-Date: Fri, 03 Apr 2020 00:40:19 +0000
-Message-ID: <158587441905.31624.16830080488714978048.pr-tracker-bot@kernel.org>
-References: <20200402095948.GA2414@ninjato>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:39068 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390431AbgDCAkT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 2 Apr 2020 20:40:19 -0400
-In-Reply-To: <20200402095948.GA2414@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: i2c-stm32f7: allow
+ clock-frequency range
+Date: Sat, 4 Apr 2020 11:18:20 -0600
+Message-ID: <20200404171820.GA24040@bogus>
+References: <1585226661-26262-1-git-send-email-alain.volmat@st.com>
+ <1585226661-26262-2-git-send-email-alain.volmat@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1585226661-26262-2-git-send-email-alain.volmat-qxv4g6HH51o@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, pierre-yves.mordret-qxv4g6HH51o@public.gmane.org, mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexandre.torgue-qxv4g6HH51o@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, fabrice.gasnier-qxv4g6HH51o@public.gmane.org, alain.volmat-qxv4g6HH51o@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 
-The pull request you sent on Thu, 2 Apr 2020 11:59:53 +0200:
+On Thu, 26 Mar 2020 13:44:20 +0100, Alain Volmat wrote:
+> For STM32F7, STM32H7 and STM32MP1 SoCs, if timing parameters
+> match, the bus clock frequency can be from 1Hz to 1MHz.
+> 
+> Signed-off-by: Alain Volmat <alain.volmat-qxv4g6HH51o@public.gmane.org>
+> ---
+> v2: identical to v1
+> 
+>  Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-5.7
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/5c8db3eb381745c010ba746373a279e92502bdc8
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
