@@ -1,107 +1,95 @@
-Return-Path: <SRS0=Y+8u=5V=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=j5Sx=5W=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 344F9C2BA15
-	for <linux-i2c@archiver.kernel.org>; Sun,  5 Apr 2020 18:05:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FF5AC2BA19
+	for <linux-i2c@archiver.kernel.org>; Mon,  6 Apr 2020 12:25:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0DE71206C3
-	for <linux-i2c@archiver.kernel.org>; Sun,  5 Apr 2020 18:05:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B0D521835
+	for <linux-i2c@archiver.kernel.org>; Mon,  6 Apr 2020 12:25:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726776AbgDESFN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 5 Apr 2020 14:05:13 -0400
-Received: from sauhun.de ([88.99.104.3]:38412 "EHLO pokefinder.org"
+        id S1727652AbgDFMZm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 6 Apr 2020 08:25:42 -0400
+Received: from sauhun.de ([88.99.104.3]:39032 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726771AbgDESFN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 5 Apr 2020 14:05:13 -0400
-Received: from localhost (p5486CC0D.dip0.t-ipconnect.de [84.134.204.13])
-        by pokefinder.org (Postfix) with ESMTPSA id BDEAA2C1FCA;
-        Sun,  5 Apr 2020 20:05:10 +0200 (CEST)
-Date:   Sun, 5 Apr 2020 20:05:10 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     Stefan Schaeckeler <schaecsn@gmx.net>, linux-i2c@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/1] i2c: imc: Add support for Intel iMC SMBus host
- controller.
-Message-ID: <20200405180510.GD6313@kunai>
-References: <1582498270-50674-1-git-send-email-schaecsn@gmx.net>
- <CALCETrXcFrR9V_yjPRh9eJ1=1efo_DCCwGTeusmo2CQXpFFdrw@mail.gmail.com>
+        id S1727522AbgDFMZm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 6 Apr 2020 08:25:42 -0400
+Received: from localhost (p54B335C6.dip0.t-ipconnect.de [84.179.53.198])
+        by pokefinder.org (Postfix) with ESMTPSA id E3AA52C0961;
+        Mon,  6 Apr 2020 14:25:40 +0200 (CEST)
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: remove i2c_new_probed_device API
+Date:   Mon,  6 Apr 2020 14:25:31 +0200
+Message-Id: <20200406122531.3763-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="osDK9TLjxFScVI/L"
-Content-Disposition: inline
-In-Reply-To: <CALCETrXcFrR9V_yjPRh9eJ1=1efo_DCCwGTeusmo2CQXpFFdrw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
-Message-ID: <20200405180510.d0vuLuxWkbBnMkFATHm6j2khSo5tCylUs2dD9S_mq1Y@z>
 
+All in-tree users have been converted to the new i2c_new_scanned_device
+function, so remove this deprecated one.
 
---osDK9TLjxFScVI/L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-On Tue, Feb 25, 2020 at 01:49:34PM -0800, Andy Lutomirski wrote:
-> On Sun, Feb 23, 2020 at 2:52 PM Stefan Schaeckeler <schaecsn@gmx.net> wro=
-te:
-> >
-> > This patch is based on Andy Lutomirski's iMC SMBus driver patch-set
-> > https://lkml.org/lkml/2016/4/28/926. It never made it into the kernel. =
-I hope
-> > this rewrite will:
-> >
-> >
-> > Overview
-> >
-> > Modern Intel memory controllers host an SMBus controller and connection=
- to
-> > DIMMs and their thermal sensors. The memory controller firmware has thr=
-ee modes
-> > of operation: Closed Loop Thermal Throttling (CLTT), Open Loop Thermal
-> > Throttling (OLTT) and none.
-> >
-> > - CLTT: The memory controller firmware is periodically accessing the DI=
-MM
-> >   temperature sensor over the SMBus.
-> >
->=20
->=20
-> I think this is great!  One question, though: what happens if the
-> system is in CLTT mode but you disable CLTT and claim the bus for too
-> long?  For example, if there's an infinite loop or other lockup which
-> you have the tsod polling interval set to 0?  Does the system catch
-> fire or does the system do something intelligent like temporarily
-> switching to open loop?
+I will send this one out around rc1 release.
 
-Any news on this question?
+Another step done. Only a few i2c_new_device conversions left...
 
+ drivers/i2c/i2c-core-base.c | 13 -------------
+ include/linux/i2c.h         |  6 ------
+ 2 files changed, 19 deletions(-)
 
---osDK9TLjxFScVI/L
-Content-Type: application/pgp-signature; name="signature.asc"
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 5cc0b0ec5570..a66912782064 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -2273,19 +2273,6 @@ i2c_new_scanned_device(struct i2c_adapter *adap,
+ }
+ EXPORT_SYMBOL_GPL(i2c_new_scanned_device);
+ 
+-struct i2c_client *
+-i2c_new_probed_device(struct i2c_adapter *adap,
+-		      struct i2c_board_info *info,
+-		      unsigned short const *addr_list,
+-		      int (*probe)(struct i2c_adapter *adap, unsigned short addr))
+-{
+-	struct i2c_client *client;
+-
+-	client = i2c_new_scanned_device(adap, info, addr_list, probe);
+-	return IS_ERR(client) ? NULL : client;
+-}
+-EXPORT_SYMBOL_GPL(i2c_new_probed_device);
+-
+ struct i2c_adapter *i2c_get_adapter(int nr)
+ {
+ 	struct i2c_adapter *adapter;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 456fc17ecb1c..45d36ba4826b 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -461,12 +461,6 @@ i2c_new_scanned_device(struct i2c_adapter *adap,
+ 		       unsigned short const *addr_list,
+ 		       int (*probe)(struct i2c_adapter *adap, unsigned short addr));
+ 
+-struct i2c_client *
+-i2c_new_probed_device(struct i2c_adapter *adap,
+-		       struct i2c_board_info *info,
+-		       unsigned short const *addr_list,
+-		       int (*probe)(struct i2c_adapter *adap, unsigned short addr));
+-
+ /* Common custom probe functions */
+ int i2c_probe_func_quick_read(struct i2c_adapter *adap, unsigned short addr);
+ 
+-- 
+2.20.1
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6KHdYACgkQFA3kzBSg
-KbbHcA//dmYTyau5m8uZUNnYgJ+AsL4/jprivL0wMkLtFlXO29EHjt0AgQnkYz9L
-OrxVH8ZMR0e/wXpICbP6mjf3kdPIQaE5uAs6FPS3Qb+jFpWElQlaDFpQqLHTJEuJ
-q4Vve6nnYnLMa3RQLpZgvhn2tYmPRSee3oir54wxovm7NOV8hB726azr61UwNvl7
-W0GAJNI1V+jBZxeauTx4j3yBO1nGDaDqeQklLcfusVxre4UO2KJvJvrQ5W1nU90k
-yMtV+AIV4tD0io0KdvMoguu/3VsUDXHfPc9XHihHot+SnoUgAisqOdfPIUUIHEwI
-jV+zc+c9Z3nXy8Az6/MW5fMYLZulDgTdAnjNUTp4HYgcrPDUrhQLAULI6NIlxF/V
-CB26nDNFg6Zri+DXqjSRMKKvLC7+c11X0YJ3TI7zGDnastv3YNE1ZqIuALlb+oxM
-iN1bjYwRvkL25fmzl4vKsVA/BM1YPReacT3OIVwd+5pLtglDnLDG3lZujX6nFzcp
-+bxDqpLonNPOcjk+E783yW4LzWEhqajDODeDaDULPLeui8Z3oBSLvZvPG/hinWtn
-+8nBSHtyfzEEptd1oqP94FECiDu6/Fra18Gy80xn790nlSSwKCqy1xU9opB/1iPx
-WhRaTw/6aIQA0Is2TWh2c0/Jk4c9FKNBFCn9XkixPcNUA1mAJpU=
-=XoV1
------END PGP SIGNATURE-----
-
---osDK9TLjxFScVI/L--
