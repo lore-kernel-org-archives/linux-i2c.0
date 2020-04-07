@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-10.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3671C2BB1D
-	for <linux-i2c@archiver.kernel.org>; Tue,  7 Apr 2020 00:03:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2463DC2BB1D
+	for <linux-i2c@archiver.kernel.org>; Tue,  7 Apr 2020 00:04:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ACC0820768
-	for <linux-i2c@archiver.kernel.org>; Tue,  7 Apr 2020 00:03:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E188C2078A
+	for <linux-i2c@archiver.kernel.org>; Tue,  7 Apr 2020 00:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1586217807;
-	bh=1Lqk+doDrlT/SrI8d8AftpDemtX1pC+rrvgWeYNetTI=;
+	s=default; t=1586217875;
+	bh=fSNbiy2el5P90GKHtiHlis5ld66ekToXznPAUl6Zzjg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=IlcYrPCux9whiYxbS7aXMKn1CFppxZnV+98OC1n8o8s58s2ZQtIJKkzGUVBnt/f69
-	 MgF0wf2n/wkJKWxQ15t1txjoqFxxlAdDkw0IhHu8PtzGmoq6ApZXCFR23PmX0t0xfg
-	 PA3o5q9ju29fuNeUh5YmLb/93nu+8UszSlHeEsmw=
+	b=tmyBVgVV85idMOJDZpAPhfD16cL9xIcKUAUR98rM/ksHIfQRSYW4K0tTJIjB3yNPk
+	 Et6vPP0mflSzIfV+jTI695P0ulbQA1pVrYNxRO7aU0BFev5DjJ6tYMH+ULHjmxju+a
+	 ff7x9XCNUWE+kBJ2rZKD0FqvJVR17uhGV5LtrAE4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728401AbgDGADX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 6 Apr 2020 20:03:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38682 "EHLO mail.kernel.org"
+        id S1726769AbgDGACx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 6 Apr 2020 20:02:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726339AbgDGADS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 6 Apr 2020 20:03:18 -0400
+        id S1728269AbgDGACv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 6 Apr 2020 20:02:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84C0B2080C;
-        Tue,  7 Apr 2020 00:03:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF9B221473;
+        Tue,  7 Apr 2020 00:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586217798;
-        bh=1Lqk+doDrlT/SrI8d8AftpDemtX1pC+rrvgWeYNetTI=;
+        s=default; t=1586217770;
+        bh=fSNbiy2el5P90GKHtiHlis5ld66ekToXznPAUl6Zzjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9f/Zkbr7Kgu6gnRTNs3OKHc39jlGjWPUTV1TJ24Eww3EHmN1mvOUKPjCIzEEKuUw
-         mQv4z10/9RYFEfyMDmCB9au5Y+KHBsiwwSv/D35qnKwZQ0H9a4yrZgtMUFPyA4lctI
-         /dE2JZHZ6rT8gbAAwJFX1bcW3WNdMoJKQ0wTGWOk=
+        b=tmVQ5yMrgHiGbgZb5CPo/cskMavTClUUGEgk/YErQNA5oOi2a3vx7kSnNjThzSuai
+         jTrBYHct9GPcAx8c+TP3FIOB24I8rwopjwU+wsv5CyW/G+TQp3SoXJJ1IRRcAAUC4v
+         YpviVRK5U0bErTAnrgGpPcPik0C73YqIHoT2zQVI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alain Volmat <avolmat@me.com>,
@@ -45,12 +45,12 @@ Cc:     Alain Volmat <avolmat@me.com>,
         Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 4/4] i2c: st: fix missing struct parameter description
-Date:   Mon,  6 Apr 2020 20:03:12 -0400
-Message-Id: <20200407000312.17447-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 13/13] i2c: st: fix missing struct parameter description
+Date:   Mon,  6 Apr 2020 20:02:34 -0400
+Message-Id: <20200407000234.17088-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200407000312.17447-1-sashal@kernel.org>
-References: <20200407000312.17447-1-sashal@kernel.org>
+In-Reply-To: <20200407000234.17088-1-sashal@kernel.org>
+References: <20200407000234.17088-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -76,10 +76,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-index 25020ec777c97..ee0a7d3dd0c65 100644
+index 9e62f893958aa..81158ae8bfe36 100644
 --- a/drivers/i2c/busses/i2c-st.c
 +++ b/drivers/i2c/busses/i2c-st.c
-@@ -399,6 +399,7 @@ static void st_i2c_wr_fill_tx_fifo(struct st_i2c_dev *i2c_dev)
+@@ -437,6 +437,7 @@ static void st_i2c_wr_fill_tx_fifo(struct st_i2c_dev *i2c_dev)
  /**
   * st_i2c_rd_fill_tx_fifo() - Fill the Tx FIFO in read mode
   * @i2c_dev: Controller's private data
