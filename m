@@ -7,48 +7,50 @@ X-Spam-Status: No, score=-10.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C085C2BA80
-	for <linux-i2c@archiver.kernel.org>; Tue,  7 Apr 2020 00:02:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86A9FC2BB55
+	for <linux-i2c@archiver.kernel.org>; Tue,  7 Apr 2020 00:03:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6705F20768
-	for <linux-i2c@archiver.kernel.org>; Tue,  7 Apr 2020 00:02:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 523492080C
+	for <linux-i2c@archiver.kernel.org>; Tue,  7 Apr 2020 00:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1586217757;
-	bh=Cu0bIJ+vz5khx9IVzUJPi8H2/VKCJ3eiUPqW2uMzAk8=;
+	s=default; t=1586217788;
+	bh=fSNbiy2el5P90GKHtiHlis5ld66ekToXznPAUl6Zzjg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=XP5VX6GcW/BiJnokHbOFnotoqbhzfFO1UdlYycxMZy9bI/zd2dTjhPSSOLRigCC1j
-	 yf7hQNUL/bgTcA3hPB2Tp/jzbsqTLI7haNwCkwcXG8M4oEPnBiMRpi7U2bZY0xb+S0
-	 Gx4+nxVQ9PG6CyhCLdJTmPN6uUO5sH3q1715PsWg=
+	b=KYWlI9sloPFXgy23K+ernAFya03uBYon7gnEhUjCsw9u06Z7OZx7EEHRwwPh/1ydI
+	 8R/MgG5VuGkvJmNX2R6fIKo/AY724ySjUuAJZfDZU/mAA5kSi4vgFi20jG1PpZCXFS
+	 axT+/NfrqaArPzaCT6cQ52GZiiwVBdtvNWMLIPxg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728122AbgDGACc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 6 Apr 2020 20:02:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37190 "EHLO mail.kernel.org"
+        id S1726453AbgDGADH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 6 Apr 2020 20:03:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728118AbgDGACc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 6 Apr 2020 20:02:32 -0400
+        id S1728336AbgDGADE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 6 Apr 2020 20:03:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4CAB21582;
-        Tue,  7 Apr 2020 00:02:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B58D72080C;
+        Tue,  7 Apr 2020 00:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586217751;
-        bh=Cu0bIJ+vz5khx9IVzUJPi8H2/VKCJ3eiUPqW2uMzAk8=;
+        s=default; t=1586217783;
+        bh=fSNbiy2el5P90GKHtiHlis5ld66ekToXznPAUl6Zzjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CvW2hTRLxlm4e9zIwvWTnvzRwp3ErCRWGuhSTua0dqYxvcQpDs1sEyaSyoSr/Im3K
-         VT4NUvksT1PgGqlUUE93PYrbOmCVMsv6HaGYumP9MZ77nacaHbRclxcYC3sPg0D5Dn
-         6n/MN5OoAxA8/cXMRpnYZgfJadnGHBro1lwREypY=
+        b=KxwOLrR3SKWOtYuQgoGWV8hGSSEeN+/WXYUZRCENgqQWnJZvvN3YawZ9JG1je6SGS
+         n0+NszCXG8u+QSd89iXd6+kGG8Q+FTGZbD5J0Ji96n6Qsb4HS19YSqKAekF3PyST43
+         pPlXM2eXQRRiHSgIVQZG7AJaozok6E0b04VK/RDE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>,
+Cc:     Alain Volmat <avolmat@me.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
         Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 32/32] i2c: pca-platform: Use platform_irq_get_optional
-Date:   Mon,  6 Apr 2020 20:01:50 -0400
-Message-Id: <20200407000151.16768-32-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 9/9] i2c: st: fix missing struct parameter description
+Date:   Mon,  6 Apr 2020 20:02:52 -0400
+Message-Id: <20200407000252.17241-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200407000151.16768-1-sashal@kernel.org>
-References: <20200407000151.16768-1-sashal@kernel.org>
+In-Reply-To: <20200407000252.17241-1-sashal@kernel.org>
+References: <20200407000252.17241-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,35 +60,33 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Alain Volmat <avolmat@me.com>
 
-[ Upstream commit 14c1fe699cad9cb0acda4559c584f136d18fea50 ]
+[ Upstream commit f491c6687332920e296d0209e366fe2ca7eab1c6 ]
 
-The interrupt is not required so use platform_irq_get_optional() to
-avoid error messages like
+Fix a missing struct parameter description to allow
+warning free W=1 compilation.
 
-  i2c-pca-platform 22080000.i2c: IRQ index 0 not found
-
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Signed-off-by: Alain Volmat <avolmat@me.com>
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-pca-platform.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-st.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index a7a81846d5b1d..635dd697ac0bb 100644
---- a/drivers/i2c/busses/i2c-pca-platform.c
-+++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -140,7 +140,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 	int ret = 0;
- 	int irq;
- 
--	irq = platform_get_irq(pdev, 0);
-+	irq = platform_get_irq_optional(pdev, 0);
- 	/* If irq is 0, we do polling. */
- 	if (irq < 0)
- 		irq = 0;
+diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
+index 9e62f893958aa..81158ae8bfe36 100644
+--- a/drivers/i2c/busses/i2c-st.c
++++ b/drivers/i2c/busses/i2c-st.c
+@@ -437,6 +437,7 @@ static void st_i2c_wr_fill_tx_fifo(struct st_i2c_dev *i2c_dev)
+ /**
+  * st_i2c_rd_fill_tx_fifo() - Fill the Tx FIFO in read mode
+  * @i2c_dev: Controller's private data
++ * @max: Maximum amount of data to fill into the Tx FIFO
+  *
+  * This functions fills the Tx FIFO with fixed pattern when
+  * in read mode to trigger clock.
 -- 
 2.20.1
 
