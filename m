@@ -8,53 +8,53 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 452ABC2BA1A
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Apr 2020 18:24:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49656C2D0F4
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Apr 2020 18:24:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1C0E520753
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Apr 2020 18:24:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E56820771
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Apr 2020 18:24:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SXF1UnWz"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XJMeMnAM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729788AbgDHSX4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 8 Apr 2020 14:23:56 -0400
-Received: from mail-pj1-f67.google.com ([209.85.216.67]:55055 "EHLO
-        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729702AbgDHSXz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Apr 2020 14:23:55 -0400
-Received: by mail-pj1-f67.google.com with SMTP id np9so164052pjb.4;
-        Wed, 08 Apr 2020 11:23:53 -0700 (PDT)
+        id S1729627AbgDHSYC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 8 Apr 2020 14:24:02 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:38444 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729702AbgDHSYB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Apr 2020 14:24:01 -0400
+Received: by mail-pl1-f196.google.com with SMTP id w3so2815690plz.5;
+        Wed, 08 Apr 2020 11:24:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=EteoUTTw30/QRdz23KBioXnJipLwry6OSZdt5fk/wwk=;
-        b=SXF1UnWz6sDx9UQ7FlAECbOeWwokEBWAQQc3Sf4TbT4CEXUtppSExJp4eKtzGZaBKo
-         x/XlN4CcwdjIltJxLe81C4PUuY05JoLcrtXclFrBd9lNuh6UBkbbPTDkWZxVo1Q/tcaD
-         Tqm5pFUM9LllneXTTs22LyXTeV8m4RJFxrZ4in4umLKCy7FlUN6xio1xjjWEVP9+OTAE
-         276GFJFi44FCZTP/HTB1g1YXlmKGEvI9r4lzLuG4aVBRQaD5Ah2mAh43t6LjSKfVM/XN
-         opMqkXqCNFLtWbmr6ZkQ8SMbvFTojG5gH6JCKXleqbalE4x+XiWwwcgqr0zKcmamEq6G
-         ySEA==
+        bh=lkpS6QNa7cbHMSUzBvyu57zDrxRlz++kSAez7ECVngE=;
+        b=XJMeMnAM0rP0yUuHh4yNg322Hgp5TLUrtDCeOFJtIpWw+/7uyuAc9ntowzbLAm9ns6
+         n81EWaXngzghXNeQnM3wGHT+0Q1rXSrhjVwTaHiIt02QZjzIu07VhqS0gIC/Nxf0V8yO
+         7ix5/1/0DLcGvmQrpF6wTX3pGTQGbSoBc/yXrYWY0UTNn6zlCP/zd6mATn7P0LNsIAPR
+         REg4Tnle/zrz4SIIi46Uu7CBmVtI045e64Yl1STTRKXnMuN/wf+ThdMZlLt0/f9MCKdr
+         bIv+IGDwk5RUwmjDt5SvVlr5T+7hmfyuTvQX/Nj/ev9PEx473uiathS8ENE1jdf73kSa
+         t9ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=EteoUTTw30/QRdz23KBioXnJipLwry6OSZdt5fk/wwk=;
-        b=Y94GC/nUjbUF9hjbVB43+U1/s7ISTJwIXKA1oCLmU3jpzHcHjEstushj8aL82IidUo
-         CmSSe4tBN6POYIplqQK/Mw1eJMVbNrwY+YIhtQymSKDsorTzZ785p4x+peqsCV3PlMu+
-         qb5dwTX3qTX7jFn2lE4kGaSc66VCfpupjH2NBWI+ZHv9ete8qFwf3+sCyOyZ6wvNWjJ1
-         Xe8V7RTwzgsxGReQL2F7M4gmNQOy79IojqgFgFpCAFr9kBtWTaGQbuIyZz14ASkeoghB
-         7zvfJb02IdqQOuzJQLnwRn/DZ3dRRzfrluA29SBVaUGOGd3I8cECu5G+D1tynMknXdh4
-         7cFw==
-X-Gm-Message-State: AGi0PuadIwHAGTyhMLUHJh2OTCf0JhttFC1Wm1QdAR0zqY2ZYIAex0SO
-        VOFjCVwIjGlEfL7eI9NoaGw=
-X-Google-Smtp-Source: APiQypJR2GzyrP1pYsrYDI200gizcUY3xQ+5DiZJfgHeCZFKxZQwaIagHaYrR6U4ibny0FeeHsk3Lw==
-X-Received: by 2002:a17:902:59c1:: with SMTP id d1mr8584280plj.215.1586370232819;
-        Wed, 08 Apr 2020 11:23:52 -0700 (PDT)
+        bh=lkpS6QNa7cbHMSUzBvyu57zDrxRlz++kSAez7ECVngE=;
+        b=d0LYyeGTmbCtSFuIceLujzEpZpa2ZIzYblCpA75ThbUwppJ0w7h2b/a5TWipBRHyD/
+         dOcl5lCxZQBU4UdAcgnvIh7HZCbkILfu8VQ2qw3D1zxXqtQFd5es0aK4vIxqLpkdT22F
+         KvSS1Mzijt1pJmDsVUVIkPtSf8X6BYODMUAw6hTt1Ndv7MylFytPyD5Vqm2UWUjed0ho
+         5ty0BJgrqIhpxuToKbb7qqm5PsxqTOl3oa0NupF9el2dXRJ1yGpvYZCzbZehBIPyroMD
+         S/I0hajK4GA0JjuhsqYEiTCylEw6MfBZsUkSk+q9yMjxUAf9eziUutLG2NLe43e8SJG9
+         CRog==
+X-Gm-Message-State: AGi0PubUbY2dwPOR/9831RWauh1RPhl+AlLqXwFXeDeDkzhOHash72Xl
+        QwmiTABxQHYpi4ok2NKHn9s=
+X-Google-Smtp-Source: APiQypIeb5Li1Za27ifDFVosm3DJ81DLUvhgnhPJUDkQk0EHngILm3m5aFnOmP+SQIsfLYQhZvdmbA==
+X-Received: by 2002:a17:90a:898d:: with SMTP id v13mr7271426pjn.12.1586370240654;
+        Wed, 08 Apr 2020 11:24:00 -0700 (PDT)
 Received: from localhost (89.208.244.140.16clouds.com. [89.208.244.140])
-        by smtp.gmail.com with ESMTPSA id z6sm16006422pgg.39.2020.04.08.11.23.51
+        by smtp.gmail.com with ESMTPSA id x75sm17374134pfc.161.2020.04.08.11.23.59
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 08 Apr 2020 11:23:52 -0700 (PDT)
+        Wed, 08 Apr 2020 11:24:00 -0700 (PDT)
 From:   Dejin Zheng <zhengdejin5@gmail.com>
 To:     thor.thayer@linux.intel.com, krzysztof.adamski@nokia.com,
         f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
@@ -72,9 +72,9 @@ To:     thor.thayer@linux.intel.com, krzysztof.adamski@nokia.com,
         martin.blumenstingl@googlemail.com
 Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
         Dejin Zheng <zhengdejin5@gmail.com>
-Subject: [PATCH v2 07/24] i2c: synquacer: convert to devm_platform_ioremap_resource
-Date:   Thu,  9 Apr 2020 02:22:54 +0800
-Message-Id: <20200408182311.26869-8-zhengdejin5@gmail.com>
+Subject: [PATCH v2 09/24] i2c: qup: convert to devm_platform_ioremap_resource
+Date:   Thu,  9 Apr 2020 02:22:56 +0800
+Message-Id: <20200408182311.26869-10-zhengdejin5@gmail.com>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200408182311.26869-1-zhengdejin5@gmail.com>
 References: <20200408182311.26869-1-zhengdejin5@gmail.com>
@@ -93,30 +93,30 @@ Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
 v1 -> v2:
 	- no changed
 
- drivers/i2c/busses/i2c-synquacer.c | 4 +---
+ drivers/i2c/busses/i2c-qup.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
-index 86026798b4f7..be389e95b57a 100644
---- a/drivers/i2c/busses/i2c-synquacer.c
-+++ b/drivers/i2c/busses/i2c-synquacer.c
-@@ -536,7 +536,6 @@ static const struct i2c_adapter synquacer_i2c_ops = {
- static int synquacer_i2c_probe(struct platform_device *pdev)
- {
- 	struct synquacer_i2c *i2c;
--	struct resource *r;
- 	u32 bus_speed;
- 	int ret;
- 
-@@ -574,8 +573,7 @@ static int synquacer_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 2d7dabe12723..940e9fcca8ec 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -1665,7 +1665,6 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 	static const int blk_sizes[] = {4, 16, 32};
+ 	struct qup_i2c_dev *qup;
+ 	unsigned long one_bit_t;
+-	struct resource *res;
+ 	u32 io_mode, hw_ver, size;
+ 	int ret, fs_div, hs_div;
+ 	u32 src_clk_freq = DEFAULT_SRC_CLK;
+@@ -1762,8 +1761,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
  		return -EINVAL;
  	}
  
--	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	i2c->base = devm_ioremap_resource(&pdev->dev, r);
-+	i2c->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(i2c->base))
- 		return PTR_ERR(i2c->base);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	qup->base = devm_ioremap_resource(qup->dev, res);
++	qup->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(qup->base))
+ 		return PTR_ERR(qup->base);
  
 -- 
 2.25.0
