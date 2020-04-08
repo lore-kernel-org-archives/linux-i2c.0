@@ -2,134 +2,106 @@ Return-Path: <SRS0=R2pe=5Y=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 089BCC2D0EA
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Apr 2020 14:16:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F02EC2D0EA
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Apr 2020 15:47:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D74BF206F5
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Apr 2020 14:16:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E9232076D
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Apr 2020 15:47:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1586360828;
+	bh=i3VqmDuLd/n3AsiTO35YTokWcu5+ERCRSqkQNYVNlZI=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=dUkmqWoTicbzy1aTohBvGxmWb3YaHZrE9boAHyBIiB718xFFZdmaQLhbtNy1X63oO
+	 gGe5ssnGVF07uCYfe3V8A/Sk87iN7AF7WEhlwTmEWu43Vw8JIEZ8TlyEQmooecg+wA
+	 amVi/z7aTxdeg5VOmWl8N/5AgG8ORtETCAlBviPk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728251AbgDHOQs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 8 Apr 2020 10:16:48 -0400
-Received: from sauhun.de ([88.99.104.3]:43946 "EHLO pokefinder.org"
+        id S1729799AbgDHPrH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 8 Apr 2020 11:47:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728096AbgDHOQs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 8 Apr 2020 10:16:48 -0400
-Received: from localhost (p54B334FE.dip0.t-ipconnect.de [84.179.52.254])
-        by pokefinder.org (Postfix) with ESMTPSA id 126DE2C1F39;
-        Wed,  8 Apr 2020 16:16:45 +0200 (CEST)
-Date:   Wed, 8 Apr 2020 16:16:44 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Dejin Zheng <zhengdejin5@gmail.com>
-Cc:     thor.thayer@linux.intel.com, krzysztof.adamski@nokia.com,
-        rjui@broadcom.com, sbranden@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, f.fainelli@gmail.com,
-        nsekhar@ti.com, bgolaszewski@baylibre.com,
-        jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        mika.westerberg@linux.intel.com, baruch@tkos.co.il,
-        wsa+renesas@sang-engineering.com, kgene@kernel.org,
-        krzk@kernel.org, paul@crapouillou.net, vz@mleia.com,
-        khilman@baylibre.com, matthias.bgg@gmail.com,
-        gregory.clement@bootlin.com, rrichter@marvell.com,
-        afaerber@suse.de, manivannan.sadhasivam@linaro.org,
-        agross@kernel.org, bjorn.andersson@linaro.org, heiko@sntech.de,
-        baohua@kernel.org, linus.walleij@linaro.org, mripard@kernel.org,
-        wens@csie.org, ardb@kernel.org, michal.simek@xilinx.com,
-        gcherian@marvell.com, jun.nie@linaro.org, shawnguo@kernel.org,
-        rayagonda.kokatanur@broadcom.com, lori.hikichi@broadcom.com,
-        nishkadg.linux@gmail.com, kstewart@linuxfoundation.org,
-        allison@lohutok.net, gregkh@linuxfoundation.org,
-        tglx@linutronix.de, bigeasy@linutronix.de, info@metux.net,
-        hslester96@gmail.com, narmstrong@baylibre.com,
-        martin.blumenstingl@googlemail.com, qii.wang@mediatek.com,
-        drinkcat@chromium.org, hsinyi@chromium.org, fparent@baylibre.com,
-        opensource@jilayne.com, swinslow@gmail.com,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v1 00/28] convert to devm_platform_ioremap_resource
-Message-ID: <20200408141644.GA21666@ninjato>
-References: <20200407163741.17615-1-zhengdejin5@gmail.com>
+        id S1729703AbgDHPqd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 8 Apr 2020 11:46:33 -0400
+Received: from mail.kernel.org (ip5f5ad4d8.dynamic.kabel-deutschland.de [95.90.212.216])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11229221F9;
+        Wed,  8 Apr 2020 15:46:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586360792;
+        bh=i3VqmDuLd/n3AsiTO35YTokWcu5+ERCRSqkQNYVNlZI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=s54V+P4U6AAJxn0p6r1WqQYfUIE1T58epdBzP5oK9nRBv/+MAyHmm8dIJ69bxmJin
+         vthRrKVqPsOUGhuVaOriG7p9hYmdOaeAZS7NbxJqbayuN4MYDU/p1dXIwLueHuZoXc
+         dLudP9OXO5v3WeTrka8UJdbAdgxLP0zA9PxWinCM=
+Received: from mchehab by mail.kernel.org with local (Exim 4.92.3)
+        (envelope-from <mchehab@kernel.org>)
+        id 1jMCuM-000cCt-9g; Wed, 08 Apr 2020 17:46:30 +0200
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To:     Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Subject: [PATCH 33/35] docs: i2c: rename i2c.svg to i2c_bus.svg
+Date:   Wed,  8 Apr 2020 17:46:25 +0200
+Message-Id: <bb72db28b4b7d867555b345a49703fdca484957e.1586359676.git.mchehab+huawei@kernel.org>
+X-Mailer: git-send-email 2.25.2
+In-Reply-To: <cover.1586359676.git.mchehab+huawei@kernel.org>
+References: <cover.1586359676.git.mchehab+huawei@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
-Content-Disposition: inline
-In-Reply-To: <20200407163741.17615-1-zhengdejin5@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+When generating the PDF output, the Documentation/i2c dir
+will generate an i2c.pdf. The same happens with i2c.svg:
+it will also produce a file with the same name, at the same dir.
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This causes errors when building the PDF output. So, rename the
+image to i2c_bus.svg.
 
-On Wed, Apr 08, 2020 at 12:37:13AM +0800, Dejin Zheng wrote:
-> this patch sets use devm_platform_ioremap_resource() to simplify code,
-> which contains platform_get_resource() and devm_ioremap_resource(). so
-> use it to replace the platform_get_resource() and
-> devm_ioremap_resource().
->
-> Dejin Zheng (28):
->   i2c: img-scb: convert to devm_platform_ioremap_resource
->   i2c: mv64xxx: convert to devm_platform_ioremap_resource
->   i2c: owl: convert to devm_platform_ioremap_resource
->   i2c: exynos5: convert to devm_platform_ioremap_resource
->   i2c: mt65xx: convert to devm_platform_ioremap_resource
->   i2c: designware: convert to devm_platform_ioremap_resource
->   i2c: zx2967: convert to devm_platform_ioremap_resource
->   i2c: xlp9xx: convert to devm_platform_ioremap_resource
->   i2c: xiic: convert to devm_platform_ioremap_resource
->   i2c: synquacer: convert to devm_platform_ioremap_resource
->   i2c: rk3x: convert to devm_platform_ioremap_resource
->   i2c: qup: convert to devm_platform_ioremap_resource
->   i2c: meson: convert to devm_platform_ioremap_resource
->   i2c: hix5hd2: convert to devm_platform_ioremap_resource
->   i2c: emev2: convert to devm_platform_ioremap_resource
->   i2c: jz4780: convert to devm_platform_ioremap_resource
->   i2c: altera: convert to devm_platform_ioremap_resource
->   i2c: axxia: convert to devm_platform_ioremap_resource
->   i2c: bcm-iproc: convert to devm_platform_ioremap_resource
->   i2c: davinci: convert to devm_platform_ioremap_resource
->   i2c: digicolor: convert to devm_platform_ioremap_resource
->   i2c: lpc2k: convert to devm_platform_ioremap_resource
->   i2c: sirf: convert to devm_platform_ioremap_resource
->   i2c: stu300: convert to devm_platform_ioremap_resource
->   i2c: sun6i-p2wi: convert to devm_platform_ioremap_resource
->   i2c: xlr: convert to devm_platform_ioremap_resource
->   i2c: bcm-kona: convert to devm_platform_ioremap_resource
->   i2c: octeon-platdrv: convert to devm_platform_ioremap_resource
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+---
+ Documentation/i2c/{i2c.svg => i2c_bus.svg} | 2 +-
+ Documentation/i2c/summary.rst              | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+ rename Documentation/i2c/{i2c.svg => i2c_bus.svg} (99%)
 
-Thanks!
+diff --git a/Documentation/i2c/i2c.svg b/Documentation/i2c/i2c_bus.svg
+similarity index 99%
+rename from Documentation/i2c/i2c.svg
+rename to Documentation/i2c/i2c_bus.svg
+index 5979405ad1c3..3170de976373 100644
+--- a/Documentation/i2c/i2c.svg
++++ b/Documentation/i2c/i2c_bus.svg
+@@ -9,7 +9,7 @@
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+-   sodipodi:docname="i2c.svg"
++   sodipodi:docname="i2c_bus.svg"
+    inkscape:version="0.92.3 (2405546, 2018-03-11)"
+    version="1.1"
+    id="svg2"
+diff --git a/Documentation/i2c/summary.rst b/Documentation/i2c/summary.rst
+index ce7230025b33..136c4e333be7 100644
+--- a/Documentation/i2c/summary.rst
++++ b/Documentation/i2c/summary.rst
+@@ -34,7 +34,7 @@ Terminology
+ Using the terminology from the official documentation, the I2C bus connects
+ one or more *master* chips and one or more *slave* chips.
+ 
+-.. kernel-figure::  i2c.svg
++.. kernel-figure::  i2c_bus.svg
+    :alt:    Simple I2C bus with one master and 3 slaves
+ 
+    Simple I2C bus
+-- 
+2.25.2
 
-If you want / need to resend, please squash all the patches into one. If
-this series is considered fine, I will do it when applying!
-
-Kind regards.
-
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6N3MgACgkQFA3kzBSg
-KbZBuQ//Txk13XhQ5R2IiDCFyN0ugptKQx8tZldsvcWtucQAK0nl7UXal/9Z2wWk
-AaBi9q4AEHF3y1R8wi60aqhHU8HkvI34WJb9AYqpowokgMtIWMcjlt0JHWtHkJdr
-zq1b8b2tFThJ79I0/fml+aKztA2QTxqp11zTAI8petz2XvhcO3xdBEWN7xIcBAZy
-bsfWhP58rDInJ6n/bDOB2G9PV83yrQ4rFosVh0GINPW7E/mafk2o2kmEOGMnC96/
-p4Y9fFx+IrKFUJ5ZK9WL5IIaAATou0SQMEm+l/W3PERD8fU9esYunpsfmvnBrS4p
-T5GVkYa0xWo+twx36SgMsRwWvB/zs+bJuFkfM3rLzSL62gmiqTOIZJM52TrXPkvd
-bfir+IMYynU8DXhoQbmFeLKQdcHeJCAOScrRChvTGjQU0t78CY4Ee5H8RKjFXnIX
-Ex4iYDBOyXVcbh1u3O/D29YuOON5ququpD/aFPteo1cuNHgb4Ax2QR46uSjZLcJ/
-NFnrMqFxCnKDIzBfoQhRNL0IxPt7UVjPu78yT+d+v643i3sWvlw2Z9EmFCdSWLA1
-Jfq5NiRGDJNzrx4a4V/ruk4IXvZxaxiYca/tADtPxTPeeHkdHboox6SEoPlTH6Kw
-AsvL+/bze80d17q5pSh2fEgUaXg6tg0oeH7RJHMHwn0XGtRC1N0=
-=AQK8
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--
