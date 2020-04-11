@@ -4,50 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB66FC2BA19
-	for <linux-i2c@archiver.kernel.org>; Sat, 11 Apr 2020 23:19:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0E20C2BBFD
+	for <linux-i2c@archiver.kernel.org>; Sat, 11 Apr 2020 23:28:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 87E2020757
-	for <linux-i2c@archiver.kernel.org>; Sat, 11 Apr 2020 23:19:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ACC372166E
+	for <linux-i2c@archiver.kernel.org>; Sat, 11 Apr 2020 23:28:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1586647150;
-	bh=zg7yQ0tIo0mkHFpJNcf+g6QkEEgEZDL9PefIGJlKWrk=;
+	s=default; t=1586647729;
+	bh=Z7dgUuRJ5r5MEhPXnn9GB8HCCPn69NV8rnhdFrkPRt8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=0dcjf7CMWm7YT3ruyz36XXEK+FjHf0T10uGQF3ZAs2sUKc0fylrcfYANOwOx9Ex75
-	 BBvMaCvTl/bKZzo1t0goyG+3Z8RVvHc3Nvf2YJZStefabMKTc9yrG7EIj7ALG1ilEH
-	 FcOM9aj+RGHeWF/terbUI+xXHSuauqpogfRK4B7k=
+	b=jFt40ZZqZDJ/swtSZrkuzdEUlsVXv+KBK4KE9NJsURDqb4RZGb6bxKZGW1CvR8nKo
+	 7OrTjawy1uL4XkY4Qe1lHORWbHveVk1mYMXDtOn5I/JkqRNJ+1RUrLkVRgRcZATQQ1
+	 52XcbS0exAdQG2Y+EPGCuuE/9bLXaMcvmI8Ab7SI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730643AbgDKXTD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 11 Apr 2020 19:19:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55456 "EHLO mail.kernel.org"
+        id S1728821AbgDKX2n (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 11 Apr 2020 19:28:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730636AbgDKXOB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:14:01 -0400
+        id S1729067AbgDKXLS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:11:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E191621841;
-        Sat, 11 Apr 2020 23:13:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 355A721744;
+        Sat, 11 Apr 2020 23:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646840;
-        bh=zg7yQ0tIo0mkHFpJNcf+g6QkEEgEZDL9PefIGJlKWrk=;
+        s=default; t=1586646677;
+        bh=Z7dgUuRJ5r5MEhPXnn9GB8HCCPn69NV8rnhdFrkPRt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cC627y5cTCOkNhs+sZmsldbWjILKtoyEAaGcGGqtTUzC90dTAW/oh32jjOFqoHUdD
-         ExPT95TthUTzmLRB36upXAdJNZ4pTWf7OoBgm9cd/9Y6svDAQ9/0ffPxQPPHXHczzd
-         MiswpivlFXENzxSobV6Re7xuWeDP33smtwMlim0U=
+        b=UPyG1T8cGnKDpv9aZj0AKLGfOZPFJl5w3VFKS4i1dv6HUCrU4Kt4W1xj4TxS6LYBG
+         yHl5+Lzl1devB08vD9mbhw/K8BdE7f3TNmlyaub2rlmHWo95/W+6EUXR+X4KIQ5z63
+         mMB2FWD0dn9idyTJDBdPBVKfZhay7Pj0C3Kf4ua8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Kevin Hao <haokexin@gmail.com>, Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 28/37] i2c: dev: Fix the race between the release of i2c_dev and cdev
-Date:   Sat, 11 Apr 2020 19:13:17 -0400
-Message-Id: <20200411231327.26550-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 075/108] i2c: dev: Fix the race between the release of i2c_dev and cdev
+Date:   Sat, 11 Apr 2020 19:09:10 -0400
+Message-Id: <20200411230943.24951-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200411231327.26550-1-sashal@kernel.org>
-References: <20200411231327.26550-1-sashal@kernel.org>
+In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
+References: <20200411230943.24951-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -141,10 +141,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 26 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index eaa312bc3a3ce..c4066276eb7b9 100644
+index 2ea4585d18c5e..94beacc41302f 100644
 --- a/drivers/i2c/i2c-dev.c
 +++ b/drivers/i2c/i2c-dev.c
-@@ -47,7 +47,7 @@
+@@ -40,7 +40,7 @@
  struct i2c_dev {
  	struct list_head list;
  	struct i2c_adapter *adap;
@@ -153,7 +153,7 @@ index eaa312bc3a3ce..c4066276eb7b9 100644
  	struct cdev cdev;
  };
  
-@@ -91,12 +91,14 @@ static struct i2c_dev *get_free_i2c_dev(struct i2c_adapter *adap)
+@@ -84,12 +84,14 @@ static struct i2c_dev *get_free_i2c_dev(struct i2c_adapter *adap)
  	return i2c_dev;
  }
  
@@ -170,7 +170,7 @@ index eaa312bc3a3ce..c4066276eb7b9 100644
  }
  
  static ssize_t name_show(struct device *dev,
-@@ -542,6 +544,14 @@ static const struct file_operations i2cdev_fops = {
+@@ -628,6 +630,14 @@ static const struct file_operations i2cdev_fops = {
  
  static struct class *i2c_dev_class;
  
@@ -185,7 +185,7 @@ index eaa312bc3a3ce..c4066276eb7b9 100644
  static int i2cdev_attach_adapter(struct device *dev, void *dummy)
  {
  	struct i2c_adapter *adap;
-@@ -558,27 +568,23 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
+@@ -644,27 +654,23 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
  
  	cdev_init(&i2c_dev->cdev, &i2cdev_fops);
  	i2c_dev->cdev.owner = THIS_MODULE;
@@ -225,7 +225,7 @@ index eaa312bc3a3ce..c4066276eb7b9 100644
  }
  
  static int i2cdev_detach_adapter(struct device *dev, void *dummy)
-@@ -594,9 +600,7 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
+@@ -680,9 +686,7 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
  	if (!i2c_dev) /* attach_adapter must have failed */
  		return 0;
  
