@@ -2,84 +2,104 @@ Return-Path: <SRS0=EBOO=55=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62BEFC2BA19
-	for <linux-i2c@archiver.kernel.org>; Mon, 13 Apr 2020 10:29:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D317C2BA19
+	for <linux-i2c@archiver.kernel.org>; Mon, 13 Apr 2020 15:06:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 29A8A2054F
-	for <linux-i2c@archiver.kernel.org>; Mon, 13 Apr 2020 10:29:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1586773760;
-	bh=FWeVRIyWkL/JshvXdy8LFNdpW91Hb8C+xVdufAOd0tE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=c+XbPE104Fc3s8lCSCSZTJwz06/bzkJ4JY+v03MfRyHSSUdvG8rKtBf05fFBKUBeN
-	 UaNZFC/6mQ6xZKEhQG2sUs00otO+nlE2JPLo7p0F8MxYUCKK0C+9dQjFVl9RiTZAk/
-	 6wRbYBmbQLwwnUfrLskCTNqLnt3FQPPgNl90p9m0=
+	by mail.kernel.org (Postfix) with ESMTP id 008072072D
+	for <linux-i2c@archiver.kernel.org>; Mon, 13 Apr 2020 15:06:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728110AbgDMK3T (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 13 Apr 2020 06:29:19 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:35321 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727833AbgDMK3S (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 13 Apr 2020 06:29:18 -0400
-Received: by mail-ed1-f66.google.com with SMTP id c7so11401332edl.2;
-        Mon, 13 Apr 2020 03:29:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=BbWHjSsUQrh2BcH16tvNHQAGyd0qaneJDULzKls8PTI=;
-        b=EACqoFiZ7YXHLwEmyEKf/nPegskQGdQBOonHclZldN6+NXmkU0B9/0omQdswXEroeh
-         ZSIBZ9wCtq5xpvymxh3Yod3KAvGMepCyOsRLkiHzwEprXSSwX+NdLCVCuGflwpQs/j5F
-         /NaFz5c7uCdeec6CIAOeKErmCPaMT26o6/7KE9Walu/q9ZhDXYy4bE38L0kgEWZPViEk
-         FvMRMnCzIepQJIXTCe6BJIwKOUgpNWf6wDHD9zB7+c+pK7QFVf4agdSLks2qFHupaW7j
-         0mZ7zEHVVB22kUfrQnfI9c/yxjov7Tnm8gdUJ2PtUMwse61u9kE6fqqXUsiJAqSPVxds
-         pywA==
-X-Gm-Message-State: AGi0PuaUrW1S8Nz0KPCdOU23OLRtd4AwLvnqoTwKagbq3doSR6SPQuTX
-        aqyW9a5RPAm7yoZ8iJucJYY=
-X-Google-Smtp-Source: APiQypIedXmcxclTCvgH+IO52NsgOdHSPUM9V+iK7b0YTTiONfFblt3zVHInsMkfzBnfKdib4MGamw==
-X-Received: by 2002:a05:6402:16d5:: with SMTP id r21mr5822530edx.150.1586773757041;
-        Mon, 13 Apr 2020 03:29:17 -0700 (PDT)
-Received: from kozik-lap ([194.230.155.125])
-        by smtp.googlemail.com with ESMTPSA id w3sm1557471ejf.21.2020.04.13.03.29.15
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 13 Apr 2020 03:29:16 -0700 (PDT)
-Date:   Mon, 13 Apr 2020 12:29:14 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     linux-i2c@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        patches@opensource.cirrus.com,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] ARM: mach-s3c64xx: convert to use
- i2c_new_client_device()
-Message-ID: <20200413102914.GA14922@kozik-lap>
-References: <20200326211014.13591-1-wsa+renesas@sang-engineering.com>
- <20200326211014.13591-2-wsa+renesas@sang-engineering.com>
+        id S1728621AbgDMPGr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 13 Apr 2020 11:06:47 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:59934 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728593AbgDMPGr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 13 Apr 2020 11:06:47 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: sre)
+        with ESMTPSA id 31F6A2A1296
+Received: by jupiter.universe (Postfix, from userid 1000)
+        id 948F64800F7; Mon, 13 Apr 2020 17:06:42 +0200 (CEST)
+From:   Sebastian Reichel <sebastian.reichel@collabora.com>
+To:     Jean Delvare <jdelvare@suse.com>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Adam Honse <calcprogrammer1@gmail.com>
+Subject: [PATCH] i2c: piix4: Add second SMBus for X370/X470/X570
+Date:   Mon, 13 Apr 2020 17:06:34 +0200
+Message-Id: <20200413150634.474842-1-sebastian.reichel@collabora.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200326211014.13591-2-wsa+renesas@sang-engineering.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Mar 26, 2020 at 10:10:14PM +0100, Wolfram Sang wrote:
-> Move away from the deprecated API and remove printing a stale 'ret'
-> value.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  arch/arm/mach-s3c64xx/mach-crag6410-module.c | 7 +++----
+The second interface can be found on X370, X470 and X570 according
+to the bugzilla entry. I only tested with X570 on an ASRock X570
+Taichi:
 
-Thanks, applied.
+$ lspci -nnv -d 1022:790b
+00:14.0 SMBus [0c05]: Advanced Micro Devices, Inc. [AMD] FCH SMBus Controller [1022:790b] (rev 61)
+	Subsystem: ASRock Incorporation FCH SMBus Controller [1849:ffff]
+	Flags: 66MHz, medium devsel
+	Kernel driver in use: piix4_smbus
+	Kernel modules: i2c_piix4, sp5100_tco
 
-Best regards,
-Krzysztof
+Before the patch:
+
+$ i2cdetect -l | grep PIIX4
+i2c-1	unknown   	SMBus PIIX4 adapter port 2 at 0b00	N/A
+i2c-0	unknown   	SMBus PIIX4 adapter port 0 at 0b00	N/A
+
+After the patch:
+
+$ i2cdetect -l | grep PIIX4
+i2c-1	unknown   	SMBus PIIX4 adapter port 2 at 0b00	N/A
+i2c-2	unknown   	SMBus PIIX4 adapter port 1 at 0b20	N/A
+i2c-0	unknown   	SMBus PIIX4 adapter port 0 at 0b00	N/A
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202587
+Reported-by: Adam Honse <calcprogrammer1@gmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+---
+Hi,
+
+The Bugzilla entry contains a second change, which reduces the timeouts
+for quicker operation. I did not include that change, since I do not know
+if this is a good idea for all devices supported by this driver. In any
+case it should be a separate patch. Let's get the interface working for
+now.
+
+-- Sebastian
+---
+ drivers/i2c/busses/i2c-piix4.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 30ded6422e7b..3e89143a0ecf 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -976,9 +976,11 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		}
+ 	}
+ 
+-	if (dev->vendor == PCI_VENDOR_ID_AMD &&
+-	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
+-		retval = piix4_setup_sb800(dev, id, 1);
++	if (dev->vendor == PCI_VENDOR_ID_AMD) {
++		if (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
++		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
++			retval = piix4_setup_sb800(dev, id, 1);
++		}
+ 	}
+ 
+ 	if (retval > 0) {
+-- 
+2.25.1
 
