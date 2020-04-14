@@ -2,84 +2,107 @@ Return-Path: <SRS0=NIKx=56=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB1E9C2BA19
-	for <linux-i2c@archiver.kernel.org>; Tue, 14 Apr 2020 16:47:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F4B7C2BA19
+	for <linux-i2c@archiver.kernel.org>; Tue, 14 Apr 2020 16:53:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9164820656
-	for <linux-i2c@archiver.kernel.org>; Tue, 14 Apr 2020 16:47:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 71D2520678
+	for <linux-i2c@archiver.kernel.org>; Tue, 14 Apr 2020 16:53:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1586883235;
+	bh=v18zGgJXDcniarmFK/fb0SPUGXtE0+ENUUwwpi/DtwU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=YRECz6RFCz3PfA4XEefnwzgoAQ/YRR5eGdX1Sw7HuYVWEX5K/bbMc/44HG6SE9U2C
+	 kbEPQTDyD4PNqkyTmcO2cAYdf6BwNL8Ukkm94HREaRVh5x8viWd8k5YsRu13Z+ZYbe
+	 78flexXnmc1ANpK8yOiThNRP4R6t8AG0PdxGYlrs=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437673AbgDNQrD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 14 Apr 2020 12:47:03 -0400
-Received: from mga03.intel.com ([134.134.136.65]:34386 "EHLO mga03.intel.com"
+        id S2440372AbgDNQxw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 14 Apr 2020 12:53:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729756AbgDNQrB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 14 Apr 2020 12:47:01 -0400
-IronPort-SDR: DG7mhedzGxxS/0g9HpWwVLDFBWeYmncoBoXZ5XdwCmWtIkHN9vZdhABxOmbZs8XO5HNhcpQwrW
- oZWDHBIVzIkQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2020 09:46:59 -0700
-IronPort-SDR: xSkRtuz/0mAMknRyz7BDeZHuZ49UisjFxpOarV2QgJQv0kTeb0oMNliNUhhLRjoWQdo5qezf/0
- wNnf5RREVEJg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,383,1580803200"; 
-   d="scan'208";a="245461385"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga008.fm.intel.com with ESMTP; 14 Apr 2020 09:46:57 -0700
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1jOOiB-000ZUr-PC; Tue, 14 Apr 2020 19:46:59 +0300
-Date:   Tue, 14 Apr 2020 19:46:59 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     Dejin Zheng <zhengdejin5@gmail.com>, linus.walleij@linaro.org,
-        patrice.chotard@st.com, info@metux.net, allison@lohutok.net,
-        nehal-bakulchandra.shah@amd.com, tglx@linutronix.de,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] i2c: img-scb: remove duplicate dev_err()
-Message-ID: <20200414164659.GY34613@smile.fi.intel.com>
-References: <20200414142650.29359-1-zhengdejin5@gmail.com>
- <20200414143837.GV34613@smile.fi.intel.com>
- <20200414155047.GA10848@nuc8i5>
- <20200414162002.GX34613@smile.fi.intel.com>
- <20200414164259.GA3708@kunai>
+        id S2440322AbgDNQtP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 14 Apr 2020 12:49:15 -0400
+Received: from mail.kernel.org (ip5f5ad4d8.dynamic.kabel-deutschland.de [95.90.212.216])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26E0121D90;
+        Tue, 14 Apr 2020 16:49:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586882943;
+        bh=v18zGgJXDcniarmFK/fb0SPUGXtE0+ENUUwwpi/DtwU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZlPZp3Hb89eeuvHOHc9kIUvGyJJFisVziUspxeE/DApQC0TMpnBh7uKbWKuh55dro
+         TA6Q5dQWLmccf0srgF1M5KkVJX6cTdwgiyc5z9HpQG6AX6E2TiRff1E8TwRnI9gFqE
+         zdZ9Xb2XU7HmLvedWLnT5m7IyQYjPR8b73BsHuTU=
+Received: from mchehab by mail.kernel.org with local (Exim 4.92.3)
+        (envelope-from <mchehab@kernel.org>)
+        id 1jOOk9-0068mx-D0; Tue, 14 Apr 2020 18:49:01 +0200
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To:     Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Subject: [PATCH v2 26/33] docs: i2c: rename i2c.svg to i2c_bus.svg
+Date:   Tue, 14 Apr 2020 18:48:52 +0200
+Message-Id: <ecf3d51909ce46b3e84a1df4b36f07d76989e5da.1586881715.git.mchehab+huawei@kernel.org>
+X-Mailer: git-send-email 2.25.2
+In-Reply-To: <cover.1586881715.git.mchehab+huawei@kernel.org>
+References: <cover.1586881715.git.mchehab+huawei@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200414164259.GA3708@kunai>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 06:42:59PM +0200, Wolfram Sang wrote:
-> 
-> > > scripts/get_maintainer.pl --git --git-min-percent=67 v1-0001-i2c-img-scb-remove-duplicate-dev_err.patch
-> > > linux-i2c@vger.kernel.org (open list:I2C SUBSYSTEM HOST DRIVERS)
-> > > linux-kernel@vger.kernel.org (open list)
-> > 
-> > Nice, you found a bug in MAINTAINERS database.
-> 
-> No, all fine. We don't have a maintainer for that driver.
+When generating the PDF output, the Documentation/i2c dir
+will generate an i2c.pdf. The same happens with i2c.svg:
+it will also produce a file with the same name, at the same dir.
 
-I realized that there are many drivers like that in the tree...
+This causes errors when building the PDF output. So, rename the
+image to i2c_bus.svg.
 
-> > I recommend to resend a new version with those mailings lists followed by
-> > Wolfram included in the Cc list. Don't forget to add my tag in the commit
-> > message and bump the version.
-> 
-> The patch is already in patchwork, so no need to resend from my side.
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ Documentation/i2c/{i2c.svg => i2c_bus.svg} | 2 +-
+ Documentation/i2c/summary.rst              | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+ rename Documentation/i2c/{i2c.svg => i2c_bus.svg} (99%)
 
-Good to know how you handle the (orphaned?) ones.
-
+diff --git a/Documentation/i2c/i2c.svg b/Documentation/i2c/i2c_bus.svg
+similarity index 99%
+rename from Documentation/i2c/i2c.svg
+rename to Documentation/i2c/i2c_bus.svg
+index 5979405ad1c3..3170de976373 100644
+--- a/Documentation/i2c/i2c.svg
++++ b/Documentation/i2c/i2c_bus.svg
+@@ -9,7 +9,7 @@
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+-   sodipodi:docname="i2c.svg"
++   sodipodi:docname="i2c_bus.svg"
+    inkscape:version="0.92.3 (2405546, 2018-03-11)"
+    version="1.1"
+    id="svg2"
+diff --git a/Documentation/i2c/summary.rst b/Documentation/i2c/summary.rst
+index ce7230025b33..136c4e333be7 100644
+--- a/Documentation/i2c/summary.rst
++++ b/Documentation/i2c/summary.rst
+@@ -34,7 +34,7 @@ Terminology
+ Using the terminology from the official documentation, the I2C bus connects
+ one or more *master* chips and one or more *slave* chips.
+ 
+-.. kernel-figure::  i2c.svg
++.. kernel-figure::  i2c_bus.svg
+    :alt:    Simple I2C bus with one master and 3 slaves
+ 
+    Simple I2C bus
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.25.2
 
