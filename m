@@ -2,100 +2,101 @@ Return-Path: <SRS0=LINw=57=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBC04C2BA19
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 08:27:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42D86C2BA19
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 08:35:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A290B206E9
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 08:27:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D62C2078A
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 08:35:16 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="h0LSZW1g"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2894485AbgDOI1T (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 15 Apr 2020 04:27:19 -0400
-Received: from sauhun.de ([88.99.104.3]:49304 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2894461AbgDOI1O (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 15 Apr 2020 04:27:14 -0400
-Received: from localhost (p54B33507.dip0.t-ipconnect.de [84.179.53.7])
-        by pokefinder.org (Postfix) with ESMTPSA id 956F72C1F58;
-        Wed, 15 Apr 2020 10:27:12 +0200 (CEST)
-Date:   Wed, 15 Apr 2020 10:27:12 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+        id S2404929AbgDOIfO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 15 Apr 2020 04:35:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40134 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725859AbgDOIfN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Apr 2020 04:35:13 -0400
+X-Greylist: delayed 1631 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 15 Apr 2020 01:35:13 PDT
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C1CDC061A0C;
+        Wed, 15 Apr 2020 01:35:13 -0700 (PDT)
+Received: from [192.168.0.20] (cpc89242-aztw30-2-0-cust488.18-1.cable.virginm.net [86.31.129.233])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 757872D1;
+        Wed, 15 Apr 2020 10:35:11 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1586939712;
+        bh=rbh9fDJeGinm28yTtw/ldq3r46Kaxtu02L5LD4eqf0w=;
+        h=Subject:To:Cc:References:Reply-To:From:Date:In-Reply-To:From;
+        b=h0LSZW1gDFztRj1QogbWoO595f3fNGjGMf//QtE7Nbz7MLRlB0uCSbGZlAiZy14jd
+         qa09cc7B/nW+lixcv8OniFCgJJp7P95d+KSl4RLFT55X8DmH3C1m8H0IrQ5Bjp/q0z
+         nqFu5AmQ24MVN7dfhmeg7fzLHsSzLImptFrcFbaA=
+Subject: Re: [RFC PATCH v2 0/6] i2c: of: reserve unknown and ancillary
+ addresses
+To:     Wolfram Sang <wsa@the-dreams.de>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc:     linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
         linux-i3c@lists.infradead.org,
-        Kieran Bingham <kieran@ksquared.org.uk>,
-        Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
+        =?UTF-8?Q?Niklas_S=c3=b6derlund?= <niklas.soderlund@ragnatech.se>,
         Luca Ceresoli <luca@lucaceresoli.net>,
         Jacopo Mondi <jacopo@jmondi.org>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH v2 0/6] i2c: of: reserve unknown and ancillary
- addresses
-Message-ID: <20200415082712.GD1141@ninjato>
 References: <20200318150059.21714-1-wsa+renesas@sang-engineering.com>
+ <20200415082712.GD1141@ninjato>
+Reply-To: kieran.bingham+renesas@ideasonboard.com
+From:   Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Organization: Ideas on Board
+Message-ID: <f214be03-4617-40ed-40f2-019e4fd24cd4@ideasonboard.com>
+Date:   Wed, 15 Apr 2020 09:35:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="DiL7RhKs8rK9YGuF"
-Content-Disposition: inline
-In-Reply-To: <20200318150059.21714-1-wsa+renesas@sang-engineering.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200415082712.GD1141@ninjato>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On 15/04/2020 09:27, Wolfram Sang wrote:
+> 
+> Status update on this series:
+> 
+>> TODO: make sure there are no concurrency issues in patch 6 when handling
+>> the struct i2c_client.
+> 
+> This turns out to be annoying. How to make sure that we don't modify the
+> i2c_client while the adapter it is sitting on just gets removed. AFAICS
+> we need a new locking scheme just for that and I am not convinced this
+> is the way forward.
+> 
+> Also, there is still this small room for regressing when there are DTs
+> having multiple addresses specified in the DT and the drivers use
+> i2c_new_dummy_client on these addresses. I have verified that no in-tree
+> users of i2c_new_dummy (and friends) do work on extra addresses but
+> still I'd like to completely avoid this potential regression.
+> 
+> One solution to both problems would be to unregister the reserved device
+> when its address is requested. I am working on this prototype currently.
+> However, I am not sure yet if one issue might make this approach messy:
+> re-registering the reserved device when the probe of the requested
+> address fails.
 
---DiL7RhKs8rK9YGuF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+If we 'unregister' the existing device, could we then register a new
+'well named' device more appropriate to the driver, so it doesn't
+continue to show up as 'reserved' in the system, but rather a more
+appropriate name to the driver that registered it?
 
+> We will see...
+> 
 
-Status update on this series:
+Looking forward to it :-)
 
-> TODO: make sure there are no concurrency issues in patch 6 when handling
-> the struct i2c_client.
-
-This turns out to be annoying. How to make sure that we don't modify the
-i2c_client while the adapter it is sitting on just gets removed. AFAICS
-we need a new locking scheme just for that and I am not convinced this
-is the way forward.
-
-Also, there is still this small room for regressing when there are DTs
-having multiple addresses specified in the DT and the drivers use
-i2c_new_dummy_client on these addresses. I have verified that no in-tree
-users of i2c_new_dummy (and friends) do work on extra addresses but
-still I'd like to completely avoid this potential regression.
-
-One solution to both problems would be to unregister the reserved device
-when its address is requested. I am working on this prototype currently.
-However, I am not sure yet if one issue might make this approach messy:
-re-registering the reserved device when the probe of the requested
-address fails.
-
-We will see...
-
-
---DiL7RhKs8rK9YGuF
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6WxWAACgkQFA3kzBSg
-Kbae9w//RJrz6RPLZSRlLMCbftnMujapFw1Mb4d6vzU283/gdeAkzuz/C38XWPA8
-xcUJsFWpHCDYOhaXdav0Jf7UL5KssTT2XdrdWneLKmn/QN/8NdeOkiROzTq2pavX
-lcQhC9V9tjGe09MfRlpyg6mZDti/09vxJ6QZbOVpHyJg5chqht1NgwjYtAVCwsby
-Fd3ucuyN5r1rPwyRXuVVnXQ0D/itOsacyLzpAfA3BQNlLPWe71fsytlCrlPX31Ys
-+yh7z+0BAprWcPNNXLVrOG87+Agi7p426lpV94D5BsoEbSbdMC97vLShzooOVFBS
-BXhziJ66I1btW/yaXBYO9RWcm0bPH/yN0NTFE9X3H7OqTcVh9TFin33oGR/PEZF0
-gkvDnFLOfCUWLO/697U8x+Km0bN/rsOcdapGkjZaeSxZF/QQ3vWGo4S3AibS9GPA
-scR//jSVYL+iphxlOa08YRqSfPd2L32vDirk4iTsKTt45850jzGcilFkrEKx4uUm
-UTp5VmQkIoVj0CO+E7ByjkM+5yG2o9CTNZHY5X5kLsaiETjGCD0yH4SNrADpiY4o
-F13eHJvBFVGtjR969TuiT4tpAzRh+xKAuJNfC3Z8yRyT/uKSS+RAajfc2SCKoWxC
-6iSF2T57Tclts7MFdaBCeYN5f16uSvyQR5UTSFezGHb1qd642wI=
-=blKZ
------END PGP SIGNATURE-----
-
---DiL7RhKs8rK9YGuF--
+--
+Kieran
