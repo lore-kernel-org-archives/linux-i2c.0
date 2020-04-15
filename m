@@ -2,95 +2,89 @@ Return-Path: <SRS0=LINw=57=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 449D8C2BA19
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 13:10:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0F95C2BA19
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 13:19:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E929220737
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 13:10:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95C9420775
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 13:19:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="1a6J3nyn"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IfPy7LVH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506064AbgDONKw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 15 Apr 2020 09:10:52 -0400
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:20516 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2897063AbgDOLfj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Apr 2020 07:35:39 -0400
-Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03FBW8SN016220;
-        Wed, 15 Apr 2020 13:35:24 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=STMicroelectronics;
- bh=xwnv8U88f9gKci+4R9gluFy4x+fECpay1QPWcflQP9g=;
- b=1a6J3nynIHUs1ZBzTWuJaxYH4jNMp3BBhK17usGCKTozaL9ffKuxXU3NnHI3yV4ftL92
- mUQ3c0K60Y/1B5c5Aw+jOsV3cYnjNz2jekg253yeaXkRAquScKAT8NaCw/KJEnaJfBH8
- 7Mhaon5u4CZ1iu7zjqwVUHVNVKonEp7bsvRsWwJdOo9HV5E4ioVxswrMG4/w3VaYeWJx
- mTUQbXbcrBLEVNBSXsVzmrj2asfCnrgh21Do4WePhZYLMkhH3arPyJsulQzX3JKur0wl
- AzjJIVogGD6M6WOBUGCHzyIXhFee9d5c/8D3qvZORE8OFsTb9ZMi6paQUpZvbnB/+FxL lg== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 30dn94bh6t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Apr 2020 13:35:24 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id B759110002A;
-        Wed, 15 Apr 2020 13:35:23 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag3node2.st.com [10.75.127.8])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id A9F772B0FA8;
-        Wed, 15 Apr 2020 13:35:23 +0200 (CEST)
-Received: from gnbcxd0016.gnb.st.com (10.75.127.48) by SFHDAG3NODE2.st.com
- (10.75.127.8) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Wed, 15 Apr
- 2020 13:35:23 +0200
-Date:   Wed, 15 Apr 2020 13:35:22 +0200
-From:   Alain Volmat <alain.volmat@st.com>
-To:     Wolfram Sang <wsa@the-dreams.de>
-CC:     <pierre-yves.mordret@st.com>, <alexandre.torgue@st.com>,
-        <linux-i2c@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@st.com>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: improve nack debug message
-Message-ID: <20200415113522.GB16949@gnbcxd0016.gnb.st.com>
-Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
-        pierre-yves.mordret@st.com, alexandre.torgue@st.com,
-        linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        fabrice.gasnier@st.com
-References: <1584642115-15378-1-git-send-email-alain.volmat@st.com>
- <20200415110101.GM1141@ninjato>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20200415110101.GM1141@ninjato>
-X-Disclaimer: ce message est personnel / this message is private
-X-Originating-IP: [10.75.127.48]
-X-ClientProxiedBy: SFHDAG5NODE2.st.com (10.75.127.14) To SFHDAG3NODE2.st.com
- (10.75.127.8)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-04-15_03:2020-04-14,2020-04-15 signatures=0
+        id S2506252AbgDONTk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 15 Apr 2020 09:19:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56178 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2506249AbgDONTg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Apr 2020 09:19:36 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63626C061A0C;
+        Wed, 15 Apr 2020 06:19:36 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id t11so1475059pgg.2;
+        Wed, 15 Apr 2020 06:19:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=mGivcgEJ6E876yj00y3QoKcNXlu3JKn22U740NPN6wE=;
+        b=IfPy7LVHeMGkWmqorJ6OgR3uVTalPLTzftap1Wuz4dA3PVwCzEi0GBWkixQcOITQ/U
+         /mx6tx5mAtFfpJr5K8A+uCNfaUXZKsPVrGiGnk+amCKDOLSRySJOPXRK+PdWkN6vnuI7
+         XmQsg5tBqG12SCEdkuYUkvSZz+1etZmwx6pqXbcIZlHOPZS4p3D/fTI2wtCl+Gpl9+X/
+         AYNFYNeduNCOdLZVzkcJZWRm6poyG/b2bKyQny9VrktjnvNY2LMtsSUn75VwvVcn6OV1
+         GD7c6FG8Yobax+jXnwLWKMHtvitBw0bxk9pLzmh20zRreyYASNDTT78JGpADNvwrgkJn
+         JVpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=mGivcgEJ6E876yj00y3QoKcNXlu3JKn22U740NPN6wE=;
+        b=DALeLHHyR1nc+dGeA+pKYmIj74Qsne5lce6O+SFs0DnLUonsXsf4kC5zqmOFxVmJS6
+         LY6jBR5yN7QTYszSZq7uVXvONJ0iWzBfEZq3jpEhHf/15Ph7okIRbC58Z5dJLHBAs4si
+         +Jjdeiq3Zl5oNsYfU2LjQ84NZB18Pa1MM4IpsDrgmGEEHO7hLrASqNGHyU0mWUE7AJtB
+         g3HjTswY1EmLDTdk2UEViqucf46RbyvCD2hrw5K3sFaC+iEkeoFsaEqhEHA4Y5kEaMVG
+         5flaEes0RUMRFTxoVX7Vt0bHMASvyTdHQeshGlSlEdtMzVUTyRpFXTpzUOFVdQwAnjlR
+         yKhQ==
+X-Gm-Message-State: AGi0PuZ0FoKabSNNUl9C/f3ksu98pYvGi74UR2kwsN67TtqcF2cWX4zf
+        nZgLETlYkB6/58FeNN8LPQRb9ESfJZ1oTw==
+X-Google-Smtp-Source: APiQypIBDKrme0mTxDjPnkAwvY8r34Ay4utm2CzhTMzkVCkR+WUfXWBN0Ic/WlLbhdK4/6ew0sMONg==
+X-Received: by 2002:a63:1a16:: with SMTP id a22mr20756378pga.264.1586956775700;
+        Wed, 15 Apr 2020 06:19:35 -0700 (PDT)
+Received: from localhost.localdomain ([2409:4072:6e1c:dc2f:f465:67ce:fbea:c439])
+        by smtp.gmail.com with ESMTPSA id r9sm13403346pfg.2.2020.04.15.06.19.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Apr 2020 06:19:34 -0700 (PDT)
+From:   Aishwarya R <aishwaryarj100@gmail.com>
+To:     wsa@the-dreams.de
+Cc:     aishwaryarj100@gmail.com, Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Richard Fontana <rfontana@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: powermac: Simplify reading the "reg" and "i2c-address" property
+Date:   Wed, 15 Apr 2020 18:49:14 +0530
+Message-Id: <20200415131916.23555-1-aishwaryarj100@gmail.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200408100354.17782-1-aishwaryarj100@gmail.com>
+References: <20200408100354.17782-1-aishwaryarj100@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 01:01:01PM +0200, Wolfram Sang wrote:
-> On Thu, Mar 19, 2020 at 07:21:55PM +0100, Alain Volmat wrote:
-> > From: Fabrice Gasnier <fabrice.gasnier@st.com>
-> > 
-> > Add information on slave addr in the nack debug message.
-> > 
-> > Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-> > Signed-off-by: Alain Volmat <alain.volmat@st.com>
-> 
-> Applied to for-next, thanks! (I'd drop the __func__, though; doesn't
-> add information, does it?)
+>> Use of_property_read_u32 to read the "reg" and "i2c-address" property
+>> instead of using of_get_property to check the return values.
+>>
+>> Signed-off-by: Aishwarya R <aishwaryarj100@gmail.com>
 
-In fact similar message is displayed in 2 places. One in case of master mode
-isr and the other one in case of slave isr. This message is adding slave
-address to the master mode isr. It only makes it more clear on first sight
-but indeed displaying the slave address obviously means this is master mode.
+> This is quite a fragile driver. Have you tested it on HW?
+
+This change is not tested with the Hardware.
+But of_property_read_u32 is better here than generic of_get_property.
+This make sure that value read properly independent of system endianess.
