@@ -6,38 +6,37 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A3D0C2BA19
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 11:40:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AB40C3815B
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 11:45:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5BF2120737
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 11:40:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B56920768
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 11:45:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897232AbgDOLht (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 15 Apr 2020 07:37:49 -0400
-Received: from sauhun.de ([88.99.104.3]:53190 "EHLO pokefinder.org"
+        id S2409203AbgDOLpl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 15 Apr 2020 07:45:41 -0400
+Received: from sauhun.de ([88.99.104.3]:53290 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408902AbgDOLh2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:37:28 -0400
+        id S2409185AbgDOLpi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:45:38 -0400
 Received: from localhost (p54B33507.dip0.t-ipconnect.de [84.179.53.7])
-        by pokefinder.org (Postfix) with ESMTPSA id 359CC2C1FF1;
-        Wed, 15 Apr 2020 13:37:26 +0200 (CEST)
-Date:   Wed, 15 Apr 2020 13:37:20 +0200
+        by pokefinder.org (Postfix) with ESMTPSA id AFE072C1FF1;
+        Wed, 15 Apr 2020 13:45:36 +0200 (CEST)
+Date:   Wed, 15 Apr 2020 13:45:36 +0200
 From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        linux-i2c@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: Re: [PATCH v1 1/2] i2c: designware: Make master module optional
-Message-ID: <20200415113720.GA910@ninjato>
-References: <20200323100451.28808-1-andriy.shevchenko@linux.intel.com>
- <c3d2d5ff-605a-bdb7-275b-872fdfd10ccd@linux.intel.com>
- <20200325114529.GU1922688@smile.fi.intel.com>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/2] NVIDIA Tegra I2C synchronization correction
+Message-ID: <20200415114536.GB910@ninjato>
+References: <20200324191217.1829-1-digetx@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
+        protocol="application/pgp-signature"; boundary="Fba/0zbH8Xs+Fj9o"
 Content-Disposition: inline
-In-Reply-To: <20200325114529.GU1922688@smile.fi.intel.com>
+In-Reply-To: <20200324191217.1829-1-digetx@gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
@@ -45,62 +44,54 @@ List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---wac7ysb48OaltWcw
-Content-Type: text/plain; charset=utf-8
+--Fba/0zbH8Xs+Fj9o
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > Size of i2c-designware-core.ko is around 12 kB with all master, slave a=
-nd
-> > Baytrail semaphore code built in so I don't think it justifies the added
-> > config complexity. I think distributions will have anyway all of those
-> > options set.
+On Tue, Mar 24, 2020 at 10:12:15PM +0300, Dmitry Osipenko wrote:
+> Hello,
 >=20
-> I would rather go with conditional based on I=C2=B2C generic options, lik=
-e I2C_SLAVE.
-> Do we have something similar for master?
-
-No, we don't have that.
-
+> Recently I found a way to reliably reproduce I2C timeouts that happen due
+> to improper synchronizations made by the I2C driver. It's quite easy to
+> reproduce the problem when memory is running on a lower freq + there is
+> some memory activity + CPU could get busy for a significant time. This
+> is the case when KASAN is enabled and CPU is busy while accessing FS via
+> NFS. This small series addresses the found problems.
 >=20
-> > Having those code in separate modules and load only when needed might m=
-ake
-> > sense as that would save a few kB of RAM.
+> Changelog:
 >=20
-> ...which makes sense for embedded systems where exactly the device repres=
-ents
-> I=C2=B2C slave.
+> v2: - The "Better handle case where CPU0 is busy for a long time" patch
+>       now preserves the old behavior where completion is checked after
+>       disabling the interrupt, preventing potential race-condition of
+>       the completion awaiting vs interrupt syncing.
+>=20
+> Dmitry Osipenko (2):
+>   i2c: tegra: Better handle case where CPU0 is busy for a long time
+>   i2c: tegra: Synchronize DMA before termination
 
-Frankly: an I2C-slave-only embedded system which runs a modern Linux and
-cannot afford those few KB on a core feature it needs? If so, maybe it
-should have an out-of-tree patch to achieve this. I don't think it is
-worth the added complexity for the upstream version.
-
-Sidenote: There is a lot more overhead in the i2c-core. I think the
-complexity to move out stuff there is even more messy.
-
-Disclaimer: you may prove me wrong, of course :)
+Patches look good to me. I tend to apply them to for-current instead of
+for-next because they are fixing issues. Even a stable tag?
 
 
---wac7ysb48OaltWcw
+--Fba/0zbH8Xs+Fj9o
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6W8esACgkQFA3kzBSg
-KbaOUw//cjIqDtuGiRPzYHe34bdn9BV1oBc03dQLLodHqCyj3OqfawGRBcq42rii
-vpKdxCxzXcDNkcyBpr6yTj8UfSZRSEUQTDOmyw2DIqVGggHfq+C1UWQX5wp/vUW/
-rbMPYp0xRghEzOm323at2tzxpAx9KR1VgSNmw6eu62lYhwvfmutdjjI2eKsbBmaO
-lOgwZEXMz4izACEEvGyXf0MNNm0UwnYQ8Pr6SxLiau/T7rdPZvPfhOepPiZg/fHX
-Rrfed5wJien7Etvf9kx8zWclp15BEAX/CdkG2rK70Cq1TBiSiwcFFC5Wb7E35bbb
-JqZm4Pq5r50Zk+Ovh27ptDpt6K5F4b3hldt2lBhYgfsg6d85z5YX5L/O6shWPdD6
-Ngk3az9n0mAy7y9zLMqYaECBHAmwcS/gLrmAJTrF3YP21auqgu56Z7OoUGANqvTT
-/O7klRz0Q8/BN7kvQNdDcPBaYRw1K1UEIcenT2Ic2QJAiCyrzYifdwwztrogksym
-g2KV9I3C+fSQjqwhMWlzmQWhJ6lAsIvnOIJbbpEGXeUV9mJ+vZOilIVFuP0dKHX3
-jslalQciBE/cjyYQe2U3BKMbD25wKf5/I89ETOayXRz+r7vW9L+ieVJc9TEuh8tz
-N/+LCD2lHC48X4V32zsX5RBqNdaPOVS2CCpYbK0GSEADe6dfrz0=
-=X3FL
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6W8+AACgkQFA3kzBSg
+KbbVLBAApD7mx+QXfeiebrOtz1sVemHBiPDyiGMu++48UzBSAWD9V6/01TcHK6wm
+ovJ5euQmL554Drn2nONQReDLuNLvrIG+5zqkGBFHEzpO/o+fad1bTc9daw6WJLja
+Pa97wqs5lYZMR9bZxDS5Dm437+7hzHmBEQWJkSRfsHh87l48jzG2ymuN8pJ1bMWB
++n2aXocb8P7LeD1GT3M1rn/2NOFtCwE194RCBsF8Z/fN0FuesRcDmRcZt6Dmd/cZ
+3x1Ppuv3v5T4cFrRAXb6ySV9Lbr1EC3yCWtmnXGYs98OiaJ6p8qKL3w+gwNIFKWF
+K4lEh/7bMBWeq/CSMX+a4PJBSXsdNHtxClHZOrrAXzxVGVytVKmt/aKbyAV5jHyL
++PKZqbC9LJ1DfAc/CFBNxMfJyj34nYwHbX7tROQK7/3RlO/8nNhBYiabf1ja9f7A
+SBrsxuh3wWoVnj1GylB23IrErugxi7ef1szTNGJaGbsTU6xLwmz8eBtOP6lRU/B2
+G441mFDbymv+cEBKn+BcB9ejMELSma/vJq97zcMSln/z5CuflX7UazIGKygyyu/d
+muJWz3QlakJMwoVlNCgVd9ieAxdC1wudbo0tMj1K2qS/9nYLQmgfPEZe7c00bYb0
+UxYu/e6vrHC7LZ80HliOQZ9N1RI9BL0qbIUEXW5cpCVjxIWfZfk=
+=ah7+
 -----END PGP SIGNATURE-----
 
---wac7ysb48OaltWcw--
+--Fba/0zbH8Xs+Fj9o--
