@@ -2,114 +2,81 @@ Return-Path: <SRS0=LINw=57=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 147F5C2BA19
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 11:14:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53AD6C2BA19
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 11:15:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8297206D5
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 11:14:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27C422074F
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Apr 2020 11:15:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896822AbgDOLOQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 15 Apr 2020 07:14:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:38830 "EHLO mx2.suse.de"
+        id S2896828AbgDOLPO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 15 Apr 2020 07:15:14 -0400
+Received: from sauhun.de ([88.99.104.3]:52880 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896818AbgDOLN5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:13:57 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 19A44AD0E;
-        Wed, 15 Apr 2020 10:59:00 +0000 (UTC)
-Date:   Wed, 15 Apr 2020 12:58:59 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>
-Cc:     <linux-kernel@lists.codethink.co.uk>, <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH] i2c-amd756: share definition of amd756_smbus
-Message-ID: <20200415125859.5d6297b2@endymion>
-In-Reply-To: <20191220105954.382490-1-ben.dooks@codethink.co.uk>
-References: <20191220105954.382490-1-ben.dooks@codethink.co.uk>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S2896818AbgDOLOc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:14:32 -0400
+Received: from localhost (p54B33507.dip0.t-ipconnect.de [84.179.53.7])
+        by pokefinder.org (Postfix) with ESMTPSA id 1A1452C1FF2;
+        Wed, 15 Apr 2020 13:14:31 +0200 (CEST)
+Date:   Wed, 15 Apr 2020 13:14:30 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Wan Ahmad Zainie <wan.ahmad.zainie.wan.mohamad@intel.com>
+Cc:     jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH 1/2] i2c: designware: Calculate SCL timing parameter for
+ Fast Mode Plus
+Message-ID: <20200415111430.GQ1141@ninjato>
+References: <20200407133439.23422-1-wan.ahmad.zainie.wan.mohamad@intel.com>
+ <20200407133439.23422-2-wan.ahmad.zainie.wan.mohamad@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="hIO1AjEoFJ7b3ahE"
+Content-Disposition: inline
+In-Reply-To: <20200407133439.23422-2-wan.ahmad.zainie.wan.mohamad@intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Ben,
 
-On Fri, 20 Dec 2019 10:59:54 +0000, Ben Dooks (Codethink) wrote:
-> Add a shared header to declare amd756_smbus that is used
-> by two files, to remove the following sparse warning:
-> 
-> drivers/i2c/busses/i2c-amd756.c:286:20: warning: symbol 'amd756_smbus' was not declared. Should it be static?
+--hIO1AjEoFJ7b3ahE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I can't see this warning, not even with W=1. What did you do to see it?
+On Tue, Apr 07, 2020 at 09:34:38PM +0800, Wan Ahmad Zainie wrote:
+> Custom parameters for HCNT/LCNT are not available for OF based system.
+> Thus, we will use existing SCL timing parameter calculation functions
+> for Fast Mode Plus.
+>=20
+> Signed-off-by: Wan Ahmad Zainie <wan.ahmad.zainie.wan.mohamad@intel.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-> 
-> Signed-off-by: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
-> ---
-> 
-> Cc: Jean Delvare <jdelvare@suse.com>
-> Cc: linux-i2c@vger.kernel.org
-> ---
->  drivers/i2c/busses/i2c-amd756-s4882.c | 2 +-
->  drivers/i2c/busses/i2c-amd756.c       | 2 ++
->  drivers/i2c/busses/i2c-amd756.h       | 4 ++++
->  3 files changed, 7 insertions(+), 1 deletion(-)
->  create mode 100644 drivers/i2c/busses/i2c-amd756.h
-> 
-> diff --git a/drivers/i2c/busses/i2c-amd756-s4882.c b/drivers/i2c/busses/i2c-amd756-s4882.c
-> index 063274388a75..741b9309d8b6 100644
-> --- a/drivers/i2c/busses/i2c-amd756-s4882.c
-> +++ b/drivers/i2c/busses/i2c-amd756-s4882.c
-> @@ -27,7 +27,7 @@
->  #include <linux/i2c.h>
->  #include <linux/mutex.h>
->  
-> -extern struct i2c_adapter amd756_smbus;
-> +#include "i2c-amd756.h"
->  
->  static struct i2c_adapter *s4882_adapter;
->  static struct i2c_algorithm *s4882_algo;
-> diff --git a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
-> index ef1307a258e9..86ee8d102d69 100644
-> --- a/drivers/i2c/busses/i2c-amd756.c
-> +++ b/drivers/i2c/busses/i2c-amd756.c
-> @@ -32,6 +32,8 @@
->  #include <linux/acpi.h>
->  #include <linux/io.h>
->  
-> +#include "i2c-amd756.h"
-> +
->  /* AMD756 SMBus address offsets */
->  #define SMB_ADDR_OFFSET		0xE0
->  #define SMB_IOSIZE		16
-> diff --git a/drivers/i2c/busses/i2c-amd756.h b/drivers/i2c/busses/i2c-amd756.h
-> new file mode 100644
-> index 000000000000..f3db35939b5c
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-amd756.h
-> @@ -0,0 +1,4 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/* Copyright (c) 2019 Ben Dooks <ben.dooks@codetrhink.co.uk> */
-> +
-> +extern struct i2c_adapter amd756_smbus;
+Applied to for-next, thanks!
 
-Please add this new file to MAINTAINERS in section "I2C/SMBUS
-CONTROLLER DRIVERS FOR PC".
 
-If this driver needs this then i2c-nforce2 needs the same as it exposes
-nforce2_smbus to i2c-nforce2-s4985 in the very same way.
+--hIO1AjEoFJ7b3ahE
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Ideally both drivers would be reworked to use the standard I2C
-multiplexing framework, then we could get rid of the extra
-pseudo-drivers.
+-----BEGIN PGP SIGNATURE-----
 
--- 
-Jean Delvare
-SUSE L3 Support
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6W7JYACgkQFA3kzBSg
+KbYj0BAAs2DL1mY9IBjQaMe+jhN7wXlsvjtYz7lvy8yUYnckK8gWFs8gtrHnNEfG
+2TVwbjk/9S2ejIkR486Ii/0Pdw1aEHgLA04lqzuZakOX0JcayLRsj7mvX8qF9ftv
+zTWreKwgVDdw5Ki4bFwEMzdR8F44Hu/NH2vGYmatW0q/MIRn5GgXbeiVfZ2dXM0D
+oGSaRSB/eX8682Pj6a61LPRrYXjIr0DhgOiNVHKLqY8NLRsJMrTg2OvKle5eBNdN
+R/uv/rlgdKob5JDw3oExmBL0BldfRzDTZ2i0gIafPjBSXSEbZq3h0W1EAhwrGaQu
+8LSqC6rPEzo4Y6F1iku8v5xHrELT6WQP59BWOH8uPL2JjgKBhrGwfpzT6yVel1ZJ
+U4TOP4ad37+0MOw3Nw0iDF+wUfA+pgRLRAbPc/NqK8HCpH3KHZamPMbT22zbg4zJ
+gg66nJ8QVlAAMecUix4nyDOZouBAgFYB4S+UNTbhjOjdhX/7oHjsyYpL1eakqE3/
+BR5akFohqVNwD57lf5asRPbKIqCMKG7TEu/jaEBlGF2OnCU5ijKg9pVzw9EWDulF
+SNEbuCXDy8XM6IEAMkeb5hL0HSeIEISOf6p1uczL/pflcf+Owra92YshcQhdrYg3
+Fc3XoB5+WZbDVyUUlrrIdTlag2zS8F6hh9xMdBOrcyq/4fR9AqI=
+=pNwt
+-----END PGP SIGNATURE-----
+
+--hIO1AjEoFJ7b3ahE--
