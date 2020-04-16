@@ -2,89 +2,74 @@ Return-Path: <SRS0=iWmm=6A=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68A07C352BE
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Apr 2020 14:54:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99CA0C2BB85
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Apr 2020 15:07:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 47E3F2051A
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Apr 2020 14:54:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 805BA20774
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Apr 2020 15:07:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405004AbgDPOyF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Apr 2020 10:54:05 -0400
-Received: from hostingweb31-40.netsons.net ([89.40.174.40]:54697 "EHLO
-        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2394837AbgDPOxV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Apr 2020 10:53:21 -0400
-Received: from [88.147.80.45] (port=36640 helo=[192.168.77.62])
-        by hostingweb31.netsons.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <luca@lucaceresoli.net>)
-        id 1jP5t7-00283A-Tv; Thu, 16 Apr 2020 16:53:10 +0200
-Subject: Re: [RFC PATCH v2 2/6] i2c: allow DT nodes without 'compatible'
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-i3c@lists.infradead.org,
-        Kieran Bingham <kieran@ksquared.org.uk>,
-        =?UTF-8?Q?Niklas_S=c3=b6derlund?= <niklas.soderlund@ragnatech.se>,
-        Jacopo Mondi <jacopo@jmondi.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        linux-kernel@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rob Herring <robh@kernel.org>
-References: <20200318150059.21714-1-wsa+renesas@sang-engineering.com>
- <20200318150059.21714-3-wsa+renesas@sang-engineering.com>
- <11ca7487-ac07-f714-8573-20d1a0040212@lucaceresoli.net>
- <20200415075911.GA1141@ninjato>
-From:   Luca Ceresoli <luca@lucaceresoli.net>
-Message-ID: <e1791500-d7ca-f6d0-44ff-8d830de4bf58@lucaceresoli.net>
-Date:   Thu, 16 Apr 2020 16:53:07 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1730484AbgDPPHO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Apr 2020 11:07:14 -0400
+Received: from cmccmta2.chinamobile.com ([221.176.66.80]:47501 "EHLO
+        cmccmta2.chinamobile.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392425AbgDPNvu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Apr 2020 09:51:50 -0400
+Received: from spf.mail.chinamobile.com (unknown[172.16.121.15]) by rmmx-syy-dmz-app06-12006 (RichMail) with SMTP id 2ee65e9862d6afc-86b80; Thu, 16 Apr 2020 21:51:21 +0800 (CST)
+X-RM-TRANSID: 2ee65e9862d6afc-86b80
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM-FLAG: 00000000
+Received: from localhost.localdomain (unknown[112.1.173.7])
+        by rmsmtp-syy-appsvr08-12008 (RichMail) with SMTP id 2ee85e9862d5013-68f46;
+        Thu, 16 Apr 2020 21:51:20 +0800 (CST)
+X-RM-TRANSID: 2ee85e9862d5013-68f46
+From:   Tang Bin <tangbin@cmss.chinamobile.com>
+To:     wsa@the-dreams.de, manivannan.sadhasivam@linaro.org,
+        thor.thayer@linux.intel.com, rrichter@marvell.com,
+        bjorn.andersson@linaro.org
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Tang Bin <tangbin@cmss.chinamobile.com>
+Subject: [PATCH] i2c: busses: Omit superfluous error message in img_i2c_probe()
+Date:   Thu, 16 Apr 2020 21:53:02 +0800
+Message-Id: <20200416135302.13740-1-tangbin@cmss.chinamobile.com>
+X-Mailer: git-send-email 2.20.1.windows.1
 MIME-Version: 1.0
-In-Reply-To: <20200415075911.GA1141@ninjato>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - lucaceresoli.net
-X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca@lucaceresoli.net
-X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+In the function img_i2c_probe(), when get irq failed, the function
+platform_get_irq() logs an error message, so remove redundant message
+here.
 
-On 15/04/20 09:59, Wolfram Sang wrote:
-> 
->> As I said in the reply to v1, I think we should reserve addresses also
->> when there is a compatible string but no matching driver, but this is
->> another story and can be handled separately.
-> 
-> Unless I misunderstand you, I think they do already. Note that
-> only 'i2cdetect' shows a device as busy *IFF* there is a driver bound to
-> it. The internal 'i2c_check_addr_busy' does not care about a driver
-> being bound. You can check this by trying to use
-> i2c_new_ancillary_device() with an address which is already described in
-> DT but which driver is disabled.
-> 
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+---
+ drivers/i2c/busses/i2c-img-scb.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Ah, yes! I was assuming the opposite but I double checked and you're
-right of course.
-
-Sorry for the noise.
-
+diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
+index c937ea7..98a8930 100644
+--- a/drivers/i2c/busses/i2c-img-scb.c
++++ b/drivers/i2c/busses/i2c-img-scb.c
+@@ -1342,10 +1342,8 @@ static int img_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(i2c->base);
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0) {
+-		dev_err(&pdev->dev, "can't get irq number\n");
++	if (irq < 0)
+ 		return irq;
+-	}
+ 
+ 	i2c->sys_clk = devm_clk_get(&pdev->dev, "sys");
+ 	if (IS_ERR(i2c->sys_clk)) {
 -- 
-Luca
+2.7.4
+
+
+
