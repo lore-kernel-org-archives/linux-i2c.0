@@ -2,68 +2,80 @@ Return-Path: <SRS0=qpiz=6C=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C30F3C352BE
-	for <linux-i2c@archiver.kernel.org>; Sat, 18 Apr 2020 19:30:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71E82C2BA19
+	for <linux-i2c@archiver.kernel.org>; Sat, 18 Apr 2020 21:36:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9EFD12223F
-	for <linux-i2c@archiver.kernel.org>; Sat, 18 Apr 2020 19:30:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1587238221;
-	bh=9sBG0TBFSt6I5+ZCmPPrYZfYsMw3sbn0EymneScj19s=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=ct1JCTTjXKcj0INYqhrrMwcysVtjtTqrsSi0pD+GZsO005MxnZZJQgyXjrlHBfXSt
-	 x3NZBC7SffihFxn8ovX/kp6Jnn+QjB61DdGoLkI5uOLWDR8XOG2i8/gTrj/HuRX6qu
-	 bNgpaVQdSYlREab6DwN4BppfxKVKXgqhMftSM53M=
+	by mail.kernel.org (Postfix) with ESMTP id 4E6EB20776
+	for <linux-i2c@archiver.kernel.org>; Sat, 18 Apr 2020 21:36:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728134AbgDRTaV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 18 Apr 2020 15:30:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44478 "EHLO mail.kernel.org"
+        id S1726734AbgDRVgT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 18 Apr 2020 17:36:19 -0400
+Received: from sauhun.de ([88.99.104.3]:50606 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727907AbgDRTaV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 18 Apr 2020 15:30:21 -0400
-Subject: Re: [PULL REQUEST] i2c for v5.7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587238220;
-        bh=9sBG0TBFSt6I5+ZCmPPrYZfYsMw3sbn0EymneScj19s=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=Ius+WVANyqFs6YnvStffK5RBy0XnuAUpvCX80tMmWFYbt59tp9q3ChsotvvR/4LG3
-         rGFbsNWhvo4o1RbCIkMt+6AsRuAQCS2JFnF5+M9nGM9tPkrB3vbeWtH6KUdzV0F+LO
-         PeAcbWVUTeLHhsYkqUGOvgmUlVkxgYrmIOqHHEys=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20200418065344.GA1880@kunai>
-References: <20200418065344.GA1880@kunai>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20200418065344.GA1880@kunai>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-X-PR-Tracked-Commit-Id: 8814044fe0fa182abc9ff818d3da562de98bc9a7
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: b484f3c3c6f1d56cd976351d6e1bb1a4944d7447
-Message-Id: <158723822068.11589.10465455330200174636.pr-tracker-bot@kernel.org>
-Date:   Sat, 18 Apr 2020 19:30:20 +0000
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Rosin <peda@axentia.se>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
+        id S1726459AbgDRVgT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 18 Apr 2020 17:36:19 -0400
+Received: from localhost (p5486CFBC.dip0.t-ipconnect.de [84.134.207.188])
+        by pokefinder.org (Postfix) with ESMTPSA id 8C6832C1FB0;
+        Sat, 18 Apr 2020 23:36:17 +0200 (CEST)
+Date:   Sat, 18 Apr 2020 23:36:14 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Radu Pirea <radu_nicolae.pirea@upb.ro>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, michal.simek@xilinx.com,
+        shubhrajyoti.datta@gmail.com,
+        Chirag Parekh <chirag.parekh@xilinx.com>
+Subject: Re: [PATCH v2] i2c: cadence: Added slave support
+Message-ID: <20200418213614.GA1293@ninjato>
+References: <20200106104336.101987-1-radu_nicolae.pirea@upb.ro>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
+Content-Disposition: inline
+In-Reply-To: <20200106104336.101987-1-radu_nicolae.pirea@upb.ro>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The pull request you sent on Sat, 18 Apr 2020 08:53:48 +0200:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/b484f3c3c6f1d56cd976351d6e1bb1a4944d7447
+On Mon, Jan 06, 2020 at 12:43:36PM +0200, Radu Pirea wrote:
+> Added support for I2C slave functionality
+>=20
+> Signed-off-by: Chirag Parekh <chirag.parekh@xilinx.com>
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> Signed-off-by: Radu Pirea <radu_nicolae.pirea@upb.ro>
 
-Thank you!
+Applied to for-next, thanks!
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6bcsoACgkQFA3kzBSg
+KbbR8hAAtaGcFgQXAQIHqfZDfIoYRabM6fCfgLBRpm2udJBALyUMSmMVZvmam86o
+WUTF1Qg029CXr9deJnGqQPTkCoeAVNn8WtkBqNi8RY/dWH+WTfDetQraQCKr9vRK
+k4BU5EYT8i8o64q2lSnVwqsSTipf3sNozqmcAUr31gqlC/R0rFzQM+LsFFUIcPiP
+pT4ucQGOgvlWTkCeTcHolM2agk+rNLi8b3bz4LIkAfgYxzcL7tRp5CN78XWiwsmB
+9ZxiCacwYOHbLYhnFLzir7Lbuz6QXEJ6tdVRHGxWO6VjZ2tM6GUT75b1/zURsSvJ
+Dbpr+XA3jfgVhyCoKd2P1tVpq8tuBHQv6aDAcuX2NxaddYBSVRIW/HGaPPAeUHrs
+k/FmXmsuM/uv0fjOtmJpdeYqHWcAqplcljouEBTTFDhVNjL9y9tjknyAM8jnDWNW
++edQn3VJo5edWkC9QniP/HMJq4BNhrNaYjX1j3IkOqTdk6IzsS3eCs5et7TqnZLA
+UEOOIqjXS0XzM9yApkImbv7eLuzXTEbS1nQCfUxlMqZuNY8nmbz+upf1f3wNFRiX
+iwEjO23gYRC7EV5epnwyxOM5MqCqgMDXVy9IpKi0PdpNDvaFUh3rsMo584lrcOA1
+5Ci1OGKNQckkU9fCo8+ZvJn5JNjgQwm0nSxGz3KsKw4MfPcsHWc=
+=t45a
+-----END PGP SIGNATURE-----
+
+--a8Wt8u1KmwUX3Y2C--
