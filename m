@@ -6,130 +6,121 @@ X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F60DC54FD0
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Apr 2020 15:33:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF182C54FD0
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Apr 2020 15:36:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 30B4E20767
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Apr 2020 15:33:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 875332087E
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Apr 2020 15:36:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=stwcx.xyz header.i=@stwcx.xyz header.b="I81Vv1U9";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="144WcH05"
+	dkim=pass (2048-bit key) header.d=stwcx.xyz header.i=@stwcx.xyz header.b="m/rhcTuP";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="KDEewEuV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726987AbgDXPdB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 24 Apr 2020 11:33:01 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:37579 "EHLO
+        id S1728504AbgDXPgR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 24 Apr 2020 11:36:17 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:40727 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726806AbgDXPdB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Apr 2020 11:33:01 -0400
+        by vger.kernel.org with ESMTP id S1728482AbgDXPgO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Apr 2020 11:36:14 -0400
 Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
-        by mailout.west.internal (Postfix) with ESMTP id EED00144C;
-        Fri, 24 Apr 2020 11:32:59 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute7.internal (MEProxy); Fri, 24 Apr 2020 11:33:00 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 900C0144F;
+        Fri, 24 Apr 2020 11:36:13 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute7.internal (MEProxy); Fri, 24 Apr 2020 11:36:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=stwcx.xyz; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=E3sMeHbCAsorKLNRBwtJuvMxe4s
-        X7oNFJA6uh6/V09o=; b=I81Vv1U9rffqzG+MziHsg01V2e+Ds8NzFDwTn3/cenD
-        S2WJV5ETTu67visXHThN51YGYN/Ta/m5LgtjaFHC3VIOOQcvfz7C9IKyo2Vr/7VZ
-        1PrdFpEBaX4po9f+TTGjICYwkNcjTG+o2XMCAhFLhpz77o8gH80mSkOouShoUuDi
-        Bq9F+6AW1KlMnquUi7nwrHK//v+TzRUFdC7rVrvUwKKElNS/4UNsTn3XfbTi+M2+
-        Di/A9kkLx8IZ2anydYuLcu7o7q52pSi0g0PFBlqzaMqEbRDHkgpdyhYCvkoIhvVZ
-        AiJ0xS438mYG30IQYO6LR37jWl+kYq/fiSRucXGlxFQ==
+        :content-type:in-reply-to; s=fm1; bh=6AAlop7+XbnlGAq8sTAvjExYq4G
+        7z0bSUfLU7dnZmCI=; b=m/rhcTuP5+5z9laJf6pkwLG7oXf/bW253s0J/touRXN
+        Tk6ZpYaTLGzwjRh2qGj4IhlCN1fDhXe9xxVNmV46gIGebWJ70paPZDF5VsoUpNsb
+        ReBE51MGUR430xuz3MOXH7wq8K2FUPp5QR7pG0kk3aBm7x9AAwIvKaCCStWeqCYS
+        QRwjFtRBQuRRhM0HSanR9SlrBjvFp6GJ5fp6xaVk4pqoEy1uoLF2Uqc57uQEoTK8
+        6nkVqiy0CBrOdOgUpXwkfVMvYWuIhgee3bdwqWvuY4mvd19FEbvsYHFKqsbIfjn3
+        5WmJ4i1jIqcOLMb37Z0l/1eNAPSW7bsTybV0d7HxCKw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=E3sMeH
-        bCAsorKLNRBwtJuvMxe4sX7oNFJA6uh6/V09o=; b=144WcH05O2wtvJjQu9Gukd
-        pOq9fUoluzmpIiET82PYcq6jqyOLVaDnqlpkepnBcuSSIro58kVF2lwL1gmv9pxy
-        +tcF1Fl3LaH1XKaSCD+Yy7BQMketUSUmwg1cq6PNfm/dp4cKqISgWGc0oLN8BnsY
-        aZ1VeN9yH5JF2TjV2k7kbqswtnO0GD3PEUH9jCiD0nFE5zM3NB10PZ2+egoGPioV
-        8FnHSbZQrqGP0Zf7A1TsqC0HnMVSzk4s0JGdO34fWcPdoAnx00uOMeo5gKdjCqPF
-        tEwwhlXe5wj6znxOEoApx+R1CjlgxjjUfmHaaW442rg7dGMu7y30Gnfq1Q5rTkCg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6AAlop
+        7+XbnlGAq8sTAvjExYq4G7z0bSUfLU7dnZmCI=; b=KDEewEuVc/v76Gb+sf9/TB
+        OavFDSPmjjJeKz1amzbbjUxRjZnCBlXFMu1WeuQrWlCxjg316e6iiAAcpl8Y3oDe
+        GjU+vloCVjHoWZCAcBmXdi6YAlVb0aYdt0fLHTM/WqB64Hs1jRErQZp3pkC9DQ9i
+        gwA9JwqFFzOD5iNe3Ua2P+QUqEGbWCoFOA5K0qG9ceX4ceF5hbjLteCu+oLIgRbZ
+        CfzmVQ/RdWIRaJimUQYN3YRQ41Fbf4YrGcdl5DZnjYx6B0+mkmG8QF9qNLqM/lkU
+        y5Qjsl3jGFXjGaZYMFpyHh62leSzO84yKoVLP36bs8maYvupvABD4fqJ7PK9/CSA
         ==
-X-ME-Sender: <xms:qgajXic365sAgtb2Qaaqpb9EHZ1IVctpppO7Zm6VIjiy7qPIqWKvIQ>
+X-ME-Sender: <xms:bQejXrPFU5ZZAOf7iHJMB_cRQEeuaGg2QPtp0dpIncJg0H9fD_lQaA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrhedugdekiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenfg
     hrlhcuvffnffculdefhedmnecujfgurhepfffhvffukfhfgggtuggjsehgtderredttddu
     necuhfhrohhmpefrrghtrhhitghkucghihhllhhirghmshcuoehprghtrhhitghksehsth
     iftgigrdighiiiqeenucfkphepudeiiedrudejiedruddvuddruddvfeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehprghtrhhitghksehsth
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehprghtrhhitghksehsth
     iftgigrdighiii
-X-ME-Proxy: <xmx:qgajXvSGHJHDkQ9PVC6ziiJCVjzPUvYFVvfQpFeHcx_HXnmNH8_OGg>
-    <xmx:qgajXuKFcsfMEW1c1eZE6azbWbNp5w6XZ_40oHJQtS5_9P89lF1kPA>
-    <xmx:qgajXsKEZhE52YGGzsRVsSDnPTRCyhkAWTfsi5NXNKmCZzf23q_vQQ>
-    <xmx:qwajXgKrr-xmtJGDHvuhc5VuevbiRR7PGv_rktmhVCv-_lrERdudcA>
+X-ME-Proxy: <xmx:bQejXstPEUOaDgXNOf4qczVNs8p3o7wO_ZmnGVO5Bc-TXkSXnT59Fg>
+    <xmx:bQejXsA75-dbwVl_O2OnUDfEARIzfWSkebuFYWLim7ikIlsGZsWXGA>
+    <xmx:bQejXrbFQJkzUVNmGHzz1ZFDzqQMdsOsvEZXgxsBZOPWgZ2WL_ROrQ>
+    <xmx:bQejXvLoo6-e4fcFAj7c2Caa8YMhRbsEW6mjfe2ZxcI50klP9vYjXg>
 Received: from localhost (mobile-166-176-121-123.mycingular.net [166.176.121.123])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 896013280060;
-        Fri, 24 Apr 2020 11:32:58 -0400 (EDT)
-Date:   Fri, 24 Apr 2020 10:32:57 -0500
+        by mail.messagingengine.com (Postfix) with ESMTPA id BD2AF3065D9A;
+        Fri, 24 Apr 2020 11:36:12 -0400 (EDT)
+Date:   Fri, 24 Apr 2020 10:36:12 -0500
 From:   Patrick Williams <patrick@stwcx.xyz>
-To:     Bjorn Ardo <bjorn.ardo@axis.com>
-Cc:     Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org,
+To:     =?iso-8859-1?Q?Bj=F6rn_Ard=F6?= <bjorn.ardo@axis.com>
+Cc:     wsa@the-dreams.de, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org, kernel@axis.com
-Subject: Re: [PATCHv2] i2c: slave-eeprom: Make it possible to pre-load eeprom
+Subject: Re: [PATCHv3] i2c: slave-eeprom: Make it possible to pre-load eeprom
  data
-Message-ID: <20200424153257.GA3163924@heinlein.lan.stwcx.xyz>
-References: <20200424090443.26316-1-bjorn.ardo@axis.com>
- <20200424100307.GB1959@kunai>
- <5180b657-33ff-c182-8a16-82a35a61f647@axis.com>
+Message-ID: <20200424153612.GB3163924@heinlein.lan.stwcx.xyz>
+References: <20200424113036.15109-1-bjorn.ardo@axis.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
 Content-Disposition: inline
-In-Reply-To: <5180b657-33ff-c182-8a16-82a35a61f647@axis.com>
+In-Reply-To: <20200424113036.15109-1-bjorn.ardo@axis.com>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---mP3DRpeJDSE+ciuQ
+--cvVnyQ+4j833TQvp
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 24, 2020 at 12:06:44PM +0200, Bjorn Ardo wrote:
+On Fri, Apr 24, 2020 at 01:30:36PM +0200, Bj=F6rn Ard=F6 wrote:
+> If the slave eeprom has a "firmware-name" in devicetree, then
+> pre-load the data in the eeprom with this file. Otherwise we
+> init the eeprom with 0xFF.
 >=20
-> On 4/24/20 12:03 PM, Wolfram Sang wrote:
-> > On Fri, Apr 24, 2020 at 11:04:43AM +0200, Bj=F6rn Ard=F6 wrote:
-> >> If the slave eeprom has a "firmware-name" in devicetree, then
-> >> pre-load the data in the eeprom with this file. Otherwise we
-> >> init the eeprom with 0xFF.
-> >>
-> >> Signed-off-by: Bj=F6rn Ard=F6 <bjorn.ardo@axis.com>
-> > I like it a lot, thanks! Maybe we could add a SoB from Patrick for his
-> > 0xff-suggestion (but keeping you as the patch author).
-> >
-> > Is this okay for everyone?
->=20
->=20
-> OK for me!
->=20
+> Signed-off-by: Bj=F6rn Ard=F6 <bjorn.ardo@axis.com>
+> ---
+>  drivers/i2c/i2c-slave-eeprom.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 
-Fine by me, also.
+Signed-off-by: Patrick Williams <patrick@stwcx.xyz>
+Reviewed-by: Patrick Williams <patrick@stwcx.xyz>
 
 --=20
 Patrick Williams
 
---mP3DRpeJDSE+ciuQ
+--cvVnyQ+4j833TQvp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEBGD9ii4LE9cNbqJBqwNHzC0AwRkFAl6jBqcACgkQqwNHzC0A
-wRkQGBAAhOJXizdAa1+dcsc7Ala89T+gaL6McSbjh9Prb51VZcO96nQN7EN1njR0
-nmzUBPLhejXf7HDjOeFqJXn/RyobhamrPxkCJWiKtH4fag+IKcoNOP2s41QblOMG
-LVFn1Hpag5AvyGrYjXcTB/4ofrzX8PFrejAhqbaL68XyNow+2LPlJQY5lGCE2Vtf
-Pbmu/HDGe2kGXIzq0pG2BNE2wHm+0rbG/BjOkDJPueDCdqV7WdKnaiOggYo85aFd
-4h73DH+s1pmdc1X23T5LMfNhsG2CuGywGwzL6Xq+NtRuR+gLRKyXTkmidCNg2bc1
-E5i7ofRZBukJWYDYz4A+0csfuVuVqso/4v3xnxJitwvG8l59Cwv4PYO2t2OP2OkM
-lpC43Vx7PQyHMAHRPNMGvlB+2lFP+dEUiADagGPSgse3F3Fz2bwkGoPflACJ3vDc
-5lVWZvWmQMEDITt3xlbYOIdayl47orbuHuAdWlOeEipGACt2AzbpSkiVkwSNWZrV
-VZG/me3pILyo+4/Nk21W98PX4uN63vbdKN0FxDzqutIEJR/4N5f/SY1D60mwlVW8
-Mw+QEcUwkwPLQ8BdgCEXup/dnc6rHJhma9yAJ/gktQ+x2XSwS+2Y9rzW6otnzLBw
-doJt464t73p7J9upoFqGpP6j2u6IpOGQMGJD2PpeXH898a0ndNs=
-=Xkmb
+iQIzBAABCAAdFiEEBGD9ii4LE9cNbqJBqwNHzC0AwRkFAl6jB2sACgkQqwNHzC0A
+wRk3aA/+IkPleDbT17gsPCRIb3yMjTe8NI6LRNljsxO0S29zj8Tl30uNZ7JmnAoE
+WbxAyTlqS/2XXg6mxRaXdFbt+zghDGnElWi93VlLlUICvAx/or9f5xLP4cHRh8ey
+hgOC9VAkw9id8YOaBGoOqIJiqwzxjN1GlTXGOTuTKQQiT+KBTFzoy2Ei+7HPpyGP
+UOK/OwXwqjywkQ9stbM+hOVmm7v+YlkBshuiqYQEj9eXSQKxxyRP8yTGMLYiDLGS
+729I0btjqf0/sTseCeKRu5LJVjQrRJ/3n98QmGU+w+ri6mmiL2APY9cQ1YtkqreF
+HIXuGoBU4BAhN3way8UJFJp/mWhj/JCZ/r1LuCxw79K52BPhQMN8f796VOnfFivv
+TBAkoIZrfJTZL29nW0qxtVYS2T2GtIq2+ue3g2PB4r9FYGDMDIrQp8CY9G4kHiNU
+VjQQLiXlzGIMWgmmd56xN6LoyeAxxcNcBiAM7jp59ZHn7TOjo0Scolc95+fYGUqo
+lRiuD+6U0ku/BlxzoVBkETF2+5i0YKwVuEILyohmAOKkxtEB+nH0mknWbmomouIK
+chh7KMyKxafTIT1GcKEu3iLrJkwIDkbcdXYeev56UdCPn4Ju2QpCxI/GgJPjPvO0
+1s0iYweZcKnc+YyLAd/2lYTYAnIJjcXxSOnMUaK/l1hAW+J40as=
+=DIec
 -----END PGP SIGNATURE-----
 
---mP3DRpeJDSE+ciuQ--
+--cvVnyQ+4j833TQvp--
