@@ -6,41 +6,43 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50569C55186
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EB70C55191
 	for <linux-i2c@archiver.kernel.org>; Sat, 25 Apr 2020 11:51:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 325DC206A2
+	by mail.kernel.org (Postfix) with ESMTP id 4E30B206EC
 	for <linux-i2c@archiver.kernel.org>; Sat, 25 Apr 2020 11:51:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726166AbgDYLv4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1726090AbgDYLv4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Sat, 25 Apr 2020 07:51:56 -0400
-Received: from mga18.intel.com ([134.134.136.126]:8095 "EHLO mga18.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:26250 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726050AbgDYLv4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1726165AbgDYLv4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Sat, 25 Apr 2020 07:51:56 -0400
-IronPort-SDR: Wn/8H+QhMOEj1wEW9EfijKmWRUe8uKbgvHe/Ava17r1OGVRTAMP+NA31Fb63hJ5A/v4FKa1niv
- Mus87Jr77apw==
+IronPort-SDR: Ho3GaYcMIprpzuMsW5VWqSDoF3mAOfnh2vqjTrZssa8+U+3OmVdnaKvYhWon5MjanNWOSeNAZe
+ MH2esxEUrP/w==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2020 04:51:55 -0700
-IronPort-SDR: lZJ6sYHDNkB2Uw3BJcMmSdN/fFI8nZuUvXdOESJV4Pe37KRuZjAeQQL6wtF5HUYxg66ihe9H6L
- XMIAz/qluZ0A==
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2020 04:51:56 -0700
+IronPort-SDR: 5T2ScETdmqAKhD7161DmJ7OzUfqqUwtzT0Ckes6w0cus4qTqOVKxoXtU75b9xiZZJk9h8YNf14
+ 1Ua5ltMp567w==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.73,316,1583222400"; 
-   d="scan'208";a="256701744"
+   d="scan'208";a="246897474"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga003.jf.intel.com with ESMTP; 25 Apr 2020 04:51:54 -0700
+  by fmsmga007.fm.intel.com with ESMTP; 25 Apr 2020 04:51:54 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id BE398190; Sat, 25 Apr 2020 14:51:53 +0300 (EEST)
+        id D57F82F4; Sat, 25 Apr 2020 14:51:53 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org,
         Wolfram Sang <wsa@the-dreams.de>
 Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 1/4] i2c: mux: pca954x: Refactor pca954x_irq_handler()
-Date:   Sat, 25 Apr 2020 14:51:49 +0300
-Message-Id: <20200425115152.29475-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 3/4] i2c: mux: pca954x: Move device_remove_file() out of pca954x_cleanup()
+Date:   Sat, 25 Apr 2020 14:51:51 +0300
+Message-Id: <20200425115152.29475-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200425115152.29475-1-andriy.shevchenko@linux.intel.com>
+References: <20200425115152.29475-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
@@ -48,51 +50,43 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Refactor pca954x_irq_handler() to:
-  - use for_each_set_bit() macro
-  - use IRQ_RETVAL() macro
-
-Above change makes code easy to read and understand.
+device_create_file() is called the last in ->probe() but pca954x_cleanup(),
+which is called earlier in error path, tries to remove never created file.
+Move device_remove_file() call outside of pca954x_cleanup() to make it
+slightly closer to what pca954x_init() is doing.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
 v3: rebase on top of latest rc
- drivers/i2c/muxes/i2c-mux-pca954x.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index a0d926ae3f864..b764c7c746e96 100644
+index 928c6f5ceac70..0908a0655cb79 100644
 --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
 +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -327,21 +327,18 @@ static DEVICE_ATTR_RW(idle_state);
- static irqreturn_t pca954x_irq_handler(int irq, void *dev_id)
+@@ -383,11 +383,8 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
+ static void pca954x_cleanup(struct i2c_mux_core *muxc)
  {
- 	struct pca954x *data = dev_id;
--	unsigned int child_irq;
--	int ret, i, handled = 0;
-+	unsigned long pending;
-+	int ret, i;
+ 	struct pca954x *data = i2c_mux_priv(muxc);
+-	struct i2c_client *client = data->client;
+ 	int c, irq;
  
- 	ret = i2c_smbus_read_byte(data->client);
- 	if (ret < 0)
- 		return IRQ_NONE;
+-	device_remove_file(&client->dev, &dev_attr_idle_state);
+-
+ 	if (data->irq) {
+ 		for (c = 0; c < data->chip->nchans; c++) {
+ 			irq = irq_find_mapping(data->irq, c);
+@@ -531,6 +528,8 @@ static int pca954x_remove(struct i2c_client *client)
+ {
+ 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
  
--	for (i = 0; i < data->chip->nchans; i++) {
--		if (ret & BIT(PCA954X_IRQ_OFFSET + i)) {
--			child_irq = irq_linear_revmap(data->irq, i);
--			handle_nested_irq(child_irq);
--			handled++;
--		}
--	}
--	return handled ? IRQ_HANDLED : IRQ_NONE;
-+	pending = (ret >> PCA954X_IRQ_OFFSET) & (BIT(data->chip->nchans) - 1);
-+	for_each_set_bit(i, &pending, data->chip->nchans)
-+		handle_nested_irq(irq_linear_revmap(data->irq, i));
++	device_remove_file(&client->dev, &dev_attr_idle_state);
 +
-+	return IRQ_RETVAL(pending);
+ 	pca954x_cleanup(muxc);
+ 	return 0;
  }
- 
- static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
 -- 
 2.26.2
 
