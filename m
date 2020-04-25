@@ -2,44 +2,45 @@ Return-Path: <SRS0=h67p=6J=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EB70C55191
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D0E2C55185
 	for <linux-i2c@archiver.kernel.org>; Sat, 25 Apr 2020 11:51:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E30B206EC
+	by mail.kernel.org (Postfix) with ESMTP id 7714F206EC
 	for <linux-i2c@archiver.kernel.org>; Sat, 25 Apr 2020 11:51:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726090AbgDYLv4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 25 Apr 2020 07:51:56 -0400
-Received: from mga03.intel.com ([134.134.136.65]:26250 "EHLO mga03.intel.com"
+        id S1726165AbgDYLv5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 25 Apr 2020 07:51:57 -0400
+Received: from mga09.intel.com ([134.134.136.24]:4824 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726165AbgDYLv4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1726159AbgDYLv4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Sat, 25 Apr 2020 07:51:56 -0400
-IronPort-SDR: Ho3GaYcMIprpzuMsW5VWqSDoF3mAOfnh2vqjTrZssa8+U+3OmVdnaKvYhWon5MjanNWOSeNAZe
- MH2esxEUrP/w==
+IronPort-SDR: FhiYTYEPRWwImhLdGULL4Ahs7QfB3rcrYedZHcbF6qWrzbhvk6meli5qDGW0Lxxs9aMbOsuGxp
+ jT9mYIXvep3A==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2020 04:51:56 -0700
-IronPort-SDR: 5T2ScETdmqAKhD7161DmJ7OzUfqqUwtzT0Ckes6w0cus4qTqOVKxoXtU75b9xiZZJk9h8YNf14
- 1Ua5ltMp567w==
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2020 04:51:55 -0700
+IronPort-SDR: uskw4RkIFXAHQ6snvBDVp7rIjFDyCkXXOagy6dHo4+7XdlvWlCvW2+W/J5FNtVNKTr56rgOWU7
+ tjpGN9Oc4CIA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.73,316,1583222400"; 
-   d="scan'208";a="246897474"
+   d="scan'208";a="281149298"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 25 Apr 2020 04:51:54 -0700
+  by fmsmga004.fm.intel.com with ESMTP; 25 Apr 2020 04:51:54 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id D57F82F4; Sat, 25 Apr 2020 14:51:53 +0300 (EEST)
+        id CDF4172; Sat, 25 Apr 2020 14:51:53 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org,
         Wolfram Sang <wsa@the-dreams.de>
 Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 3/4] i2c: mux: pca954x: Move device_remove_file() out of pca954x_cleanup()
-Date:   Sat, 25 Apr 2020 14:51:51 +0300
-Message-Id: <20200425115152.29475-3-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 2/4] i2c: mux: pca954x: Make use of device properties
+Date:   Sat, 25 Apr 2020 14:51:50 +0300
+Message-Id: <20200425115152.29475-2-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200425115152.29475-1-andriy.shevchenko@linux.intel.com>
 References: <20200425115152.29475-1-andriy.shevchenko@linux.intel.com>
@@ -50,43 +51,85 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-device_create_file() is called the last in ->probe() but pca954x_cleanup(),
-which is called earlier in error path, tries to remove never created file.
-Move device_remove_file() call outside of pca954x_cleanup() to make it
-slightly closer to what pca954x_init() is doing.
+Device property API allows to gather device resources from different sources,
+such as ACPI. Convert the drivers to unleash the power of device property API.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
 v3: rebase on top of latest rc
 
- drivers/i2c/muxes/i2c-mux-pca954x.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 928c6f5ceac70..0908a0655cb79 100644
+index b764c7c746e96..928c6f5ceac70 100644
 --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
 +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -383,11 +383,8 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
- static void pca954x_cleanup(struct i2c_mux_core *muxc)
- {
- 	struct pca954x *data = i2c_mux_priv(muxc);
--	struct i2c_client *client = data->client;
- 	int c, irq;
+@@ -43,10 +43,8 @@
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+ #include <linux/module.h>
+-#include <linux/of.h>
+-#include <linux/of_device.h>
+-#include <linux/of_irq.h>
+ #include <linux/pm.h>
++#include <linux/property.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <dt-bindings/mux/mux.h>
+@@ -198,7 +196,6 @@ static const struct i2c_device_id pca954x_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, pca954x_id);
  
--	device_remove_file(&client->dev, &dev_attr_idle_state);
--
- 	if (data->irq) {
- 		for (c = 0; c < data->chip->nchans; c++) {
- 			irq = irq_find_mapping(data->irq, c);
-@@ -531,6 +528,8 @@ static int pca954x_remove(struct i2c_client *client)
- {
- 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+-#ifdef CONFIG_OF
+ static const struct of_device_id pca954x_of_match[] = {
+ 	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
+ 	{ .compatible = "nxp,pca9542", .data = &chips[pca_9542] },
+@@ -215,7 +212,6 @@ static const struct of_device_id pca954x_of_match[] = {
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, pca954x_of_match);
+-#endif
  
-+	device_remove_file(&client->dev, &dev_attr_idle_state);
-+
- 	pca954x_cleanup(muxc);
- 	return 0;
- }
+ /* Write to mux register. Don't use i2c_transfer()/i2c_smbus_xfer()
+    for this as they will try to lock adapter a second time */
+@@ -426,7 +422,6 @@ static int pca954x_probe(struct i2c_client *client,
+ {
+ 	struct i2c_adapter *adap = client->adapter;
+ 	struct device *dev = &client->dev;
+-	struct device_node *np = dev->of_node;
+ 	struct gpio_desc *gpio;
+ 	struct i2c_mux_core *muxc;
+ 	struct pca954x *data;
+@@ -456,7 +451,7 @@ static int pca954x_probe(struct i2c_client *client,
+ 		udelay(1);
+ 	}
+ 
+-	data->chip = of_device_get_match_data(dev);
++	data->chip = device_get_match_data(dev);
+ 	if (!data->chip)
+ 		data->chip = &chips[id->driver_data];
+ 
+@@ -478,8 +473,8 @@ static int pca954x_probe(struct i2c_client *client,
+ 	}
+ 
+ 	data->idle_state = MUX_IDLE_AS_IS;
+-	if (of_property_read_u32(np, "idle-state", &data->idle_state)) {
+-		if (np && of_property_read_bool(np, "i2c-mux-idle-disconnect"))
++	if (device_property_read_u32(dev, "idle-state", &data->idle_state)) {
++		if (device_property_read_bool(dev, "i2c-mux-idle-disconnect"))
+ 			data->idle_state = MUX_IDLE_DISCONNECT;
+ 	}
+ 
+@@ -562,7 +557,7 @@ static struct i2c_driver pca954x_driver = {
+ 	.driver		= {
+ 		.name	= "pca954x",
+ 		.pm	= &pca954x_pm,
+-		.of_match_table = of_match_ptr(pca954x_of_match),
++		.of_match_table = pca954x_of_match,
+ 	},
+ 	.probe		= pca954x_probe,
+ 	.remove		= pca954x_remove,
 -- 
 2.26.2
 
