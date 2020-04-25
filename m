@@ -2,197 +2,91 @@ Return-Path: <SRS0=h67p=6J=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5874FC54FCB
-	for <linux-i2c@archiver.kernel.org>; Sat, 25 Apr 2020 13:45:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8278C54FCB
+	for <linux-i2c@archiver.kernel.org>; Sat, 25 Apr 2020 20:54:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3241920704
-	for <linux-i2c@archiver.kernel.org>; Sat, 25 Apr 2020 13:45:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C40B32071C
+	for <linux-i2c@archiver.kernel.org>; Sat, 25 Apr 2020 20:54:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726140AbgDYNpI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 25 Apr 2020 09:45:08 -0400
-Received: from mga09.intel.com ([134.134.136.24]:10240 "EHLO mga09.intel.com"
+        id S1726230AbgDYUyL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 25 Apr 2020 16:54:11 -0400
+Received: from sauhun.de ([88.99.104.3]:37932 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726092AbgDYNpI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 25 Apr 2020 09:45:08 -0400
-IronPort-SDR: +toter3y4oQhCs113hX8QPWqEqdgsA6pZAnyiURP5da6MyMl/MmXT0M9iLz9Qptv1v/iscuWcl
- wpfI/LXxBNJA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2020 06:45:08 -0700
-IronPort-SDR: k5QMvBYNgz82CU+x88xVW4G8+2/eIvVbCF/lx7RchfvplhMwOH46IDFuKZIEsKCoLs2vXWoLKe
- 1slQ3kq5xm6w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,316,1583222400"; 
-   d="scan'208";a="260165412"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga006.jf.intel.com with ESMTP; 25 Apr 2020 06:44:50 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id E666A2A0; Sat, 25 Apr 2020 16:44:49 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        linux-i2c@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 3/5] i2c: designware: Switch PCI driver to use i2c_dw_configure_master()
-Date:   Sat, 25 Apr 2020 16:44:46 +0300
-Message-Id: <20200425134448.28514-3-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200425134448.28514-1-andriy.shevchenko@linux.intel.com>
-References: <20200425134448.28514-1-andriy.shevchenko@linux.intel.com>
+        id S1726201AbgDYUyL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 25 Apr 2020 16:54:11 -0400
+Received: from localhost (p5486CACD.dip0.t-ipconnect.de [84.134.202.205])
+        by pokefinder.org (Postfix) with ESMTPSA id 5C7382C1FEE;
+        Sat, 25 Apr 2020 22:54:08 +0200 (CEST)
+Date:   Sat, 25 Apr 2020 22:54:08 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Vadim Pasternak <vadimp@mellanox.com>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] platform/mellanox: mlxreg-hotplug: convert to use
+ i2c_new_client_device()
+Message-ID: <20200425205407.GA6774@kunai>
+References: <20200326210952.12857-1-wsa+renesas@sang-engineering.com>
+ <20200326210952.12857-3-wsa+renesas@sang-engineering.com>
+ <CAHp75Vfw4_0ttE2F-WxdULf7hRGsQvqzCLdCNVy7RBaFdEsCGA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
+In-Reply-To: <CAHp75Vfw4_0ttE2F-WxdULf7hRGsQvqzCLdCNVy7RBaFdEsCGA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Since we have available helper to configure master mode, let's use it
-in the PCI driver instead of spread open-coded variant.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
-v2: new patch
- drivers/i2c/busses/i2c-designware-pcidrv.c | 33 +++++-----------------
- 1 file changed, 7 insertions(+), 26 deletions(-)
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 7a0b65b5b5b59..d5e5abc03683f 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -46,20 +46,14 @@ struct dw_scl_sda_cfg {
- 
- struct dw_pci_controller {
- 	u32 bus_num;
--	u32 bus_cfg;
- 	u32 tx_fifo_depth;
- 	u32 rx_fifo_depth;
- 	u32 clk_khz;
--	u32 functionality;
- 	u32 flags;
- 	struct dw_scl_sda_cfg *scl_sda_cfg;
- 	int (*setup)(struct pci_dev *pdev, struct dw_pci_controller *c);
- };
- 
--#define INTEL_MID_STD_CFG  (DW_IC_CON_MASTER |			\
--				DW_IC_CON_SLAVE_DISABLE |	\
--				DW_IC_CON_RESTART_EN)
--
- /* Merrifield HCNT/LCNT/SDA hold time */
- static struct dw_scl_sda_cfg mrfld_config = {
- 	.ss_hcnt = 0x2f8,
-@@ -88,10 +82,11 @@ static struct dw_scl_sda_cfg hsw_config = {
- 
- static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
- {
-+	struct dw_i2c_dev *dev = dev_get_drvdata(&pdev->dev);
-+
- 	switch (pdev->device) {
- 	case 0x0817:
--		c->bus_cfg &= ~DW_IC_CON_SPEED_MASK;
--		c->bus_cfg |= DW_IC_CON_SPEED_STD;
-+		dev->timings.bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
- 		/* fall through */
- 	case 0x0818:
- 	case 0x0819:
-@@ -128,53 +123,41 @@ static int mrfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
- static struct dw_pci_controller dw_pci_controllers[] = {
- 	[medfield] = {
- 		.bus_num = -1,
--		.bus_cfg   = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
- 		.tx_fifo_depth = 32,
- 		.rx_fifo_depth = 32,
--		.functionality = I2C_FUNC_10BIT_ADDR,
- 		.clk_khz      = 25000,
- 		.setup = mfld_setup,
- 	},
- 	[merrifield] = {
- 		.bus_num = -1,
--		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
- 		.tx_fifo_depth = 64,
- 		.rx_fifo_depth = 64,
--		.functionality = I2C_FUNC_10BIT_ADDR,
- 		.scl_sda_cfg = &mrfld_config,
- 		.setup = mrfld_setup,
- 	},
- 	[baytrail] = {
- 		.bus_num = -1,
--		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
- 		.tx_fifo_depth = 32,
- 		.rx_fifo_depth = 32,
--		.functionality = I2C_FUNC_10BIT_ADDR,
- 		.scl_sda_cfg = &byt_config,
- 	},
- 	[haswell] = {
- 		.bus_num = -1,
--		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
- 		.tx_fifo_depth = 32,
- 		.rx_fifo_depth = 32,
--		.functionality = I2C_FUNC_10BIT_ADDR,
- 		.scl_sda_cfg = &hsw_config,
- 	},
- 	[cherrytrail] = {
- 		.bus_num = -1,
--		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
- 		.tx_fifo_depth = 32,
- 		.rx_fifo_depth = 32,
--		.functionality = I2C_FUNC_10BIT_ADDR,
- 		.flags = MODEL_CHERRYTRAIL,
- 		.scl_sda_cfg = &byt_config,
- 	},
- 	[elkhartlake] = {
- 		.bus_num = -1,
--		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
- 		.tx_fifo_depth = 32,
- 		.rx_fifo_depth = 32,
--		.functionality = I2C_FUNC_10BIT_ADDR,
- 		.clk_khz = 100000,
- 	},
- };
-@@ -250,14 +233,16 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	if (r < 0)
- 		return r;
- 
--	dev->clk = NULL;
- 	dev->controller = controller;
- 	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
-+	dev->timings.bus_freq_hz = I2C_MAX_FAST_MODE_FREQ;
- 	dev->base = pcim_iomap_table(pdev)[0];
- 	dev->dev = &pdev->dev;
- 	dev->irq = pci_irq_vector(pdev, 0);
- 	dev->flags |= controller->flags;
- 
-+	pci_set_drvdata(pdev, dev);
-+
- 	if (controller->setup) {
- 		r = controller->setup(pdev, controller);
- 		if (r) {
-@@ -266,10 +251,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 		}
- 	}
- 
--	dev->functionality = controller->functionality |
--				DW_IC_DEFAULT_FUNCTIONALITY;
-+	i2c_dw_configure_master(dev);
- 
--	dev->master_cfg = controller->bus_cfg;
- 	if (controller->scl_sda_cfg) {
- 		cfg = controller->scl_sda_cfg;
- 		dev->ss_hcnt = cfg->ss_hcnt;
-@@ -279,8 +262,6 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 		dev->sda_hold_time = cfg->sda_hold;
- 	}
- 
--	pci_set_drvdata(pdev, dev);
--
- 	dev->tx_fifo_depth = controller->tx_fifo_depth;
- 	dev->rx_fifo_depth = controller->rx_fifo_depth;
- 
--- 
-2.26.2
+On Fri, Mar 27, 2020 at 09:38:21AM +0200, Andy Shevchenko wrote:
+> On Thu, Mar 26, 2020 at 11:10 PM Wolfram Sang
+> <wsa+renesas@sang-engineering.com> wrote:
+> >
+> > Move away from the deprecated API and return the shiny new ERRPTR where
+> > useful.
+> >
+>=20
+> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
+Thanks, Andy! Is there a platform-x86-tree where this can go in? Or
+shall I take it via the I2C tree? Same question for the similar patch
+for x86/platform/intel-mid?
+
+
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6ko2sACgkQFA3kzBSg
+KbZL+BAAivHnLwlKT5ihGFOpYc2ysvV5Pe4TXJS4vuBDj2n+ETxpkYbEzhWiary6
+3yIsBzNbq/aDLYk91y5N+si7jj4oN/6hK754BNzHKplZahAaYxzZWn1FbqVejkcl
+/zawMYGz3KEpFsyYqxEVR/AbYz0bINF3xx9cKewdJoeA05ev15LicTgiOdK1aXg9
+6g4xvhRWYgLFdqCWcmiIKfUTEvrBWQxNxfQRTMjGTP6bMfq38JOdf+6hWMOQqHbG
+AG/vdQzUCoqh6dbmRC0Rmn9Yi27BWaOLpJwc7TGID9B0gzJIj8Z6VeXgN//d7BBb
+gc+uk7ZBlZlxsHElWoY6xInz8sipuTv+O5K30Tq7zVHQ6E/3IBCEDBYrWwyz5LxU
+cWN7F1wLUMXSywGVBWhtf8zwYt4u4OJygq+aEcj3DRr4ZziXtj77zLAZMjRQD+aA
+dtq/Ifu0rPI8zY4JbcxlXjuByJCULiUxmW9g21LlzKXtNKe+oj7d3TDmMw3+h65V
+Dvn2LWVWOQMNHmTtHN+qwXwkT2RnR2+mZq7c2Ucnn/W2gyML4sx+3DWc80uuDK/H
+xOfY5rdotVi/oo9NcLcPI8M8SN4O7pimyk1pmg61gdngHP+sLVes8E6kL8Ossgh9
+JCWBIW6Dky1Fi7reFbKGSVz3LUuoAU/oRjeXDwR/RatcfkkmrDM=
+=OCNg
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--
