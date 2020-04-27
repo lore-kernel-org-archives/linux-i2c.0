@@ -1,238 +1,142 @@
-Return-Path: <SRS0=FkHd=6K=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=410x=6L=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E4F6C5519C
-	for <linux-i2c@archiver.kernel.org>; Sun, 26 Apr 2020 19:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B3AFC5519B
+	for <linux-i2c@archiver.kernel.org>; Mon, 27 Apr 2020 07:22:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 60FE72071C
-	for <linux-i2c@archiver.kernel.org>; Sun, 26 Apr 2020 19:00:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 468A22072D
+	for <linux-i2c@archiver.kernel.org>; Mon, 27 Apr 2020 07:22:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="vSPLGrsl"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pHe59qy5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726496AbgDZTAI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 26 Apr 2020 15:00:08 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:59100 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726296AbgDZTAH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 26 Apr 2020 15:00:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1587927554; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=lozQm5cUkRzX/D1RhqthQ7AWiCa273YjHW3E+nR6jsg=;
-        b=vSPLGrslCbSH7fxxJOBgw8RSrDw5vKfyWZZT1Kmj2ygGh2g0ssvW60J8xqVN5HdVI31Uqd
-        HEw0PZ0VI2xNa8hOnYoljwGsrPfXVdDqqxq6NAVGayyep9litDT7N3YSWrhSbQULBktX6p
-        Y8t+pvrKjD7VKryZ5eF3cY5DY93rmIU=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Rob Herring <robh+dt@kernel.org>
-Cc:     od@zcrc.me,
-        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0?= <zhouyanjie@wanyeetech.com>,
-        linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-mips@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 8/8] dt-bindings: display: Convert ingenic,lcd.txt to YAML
-Date:   Sun, 26 Apr 2020 20:58:56 +0200
-Message-Id: <20200426185856.38826-8-paul@crapouillou.net>
-In-Reply-To: <20200426185856.38826-1-paul@crapouillou.net>
-References: <20200426185856.38826-1-paul@crapouillou.net>
+        id S1726604AbgD0HWi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 27 Apr 2020 03:22:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52106 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726496AbgD0HWi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Apr 2020 03:22:38 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE972C061A0F;
+        Mon, 27 Apr 2020 00:22:37 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id 188so18324098wmc.2;
+        Mon, 27 Apr 2020 00:22:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=dDUA58woNMYWtq/WZ0FMwKygFL3GgcsV4f9N5IHf/Kc=;
+        b=pHe59qy5ojU6cXub8km6XzQVj3gmdsbjcUTPw9PASyzhnUSdUb052LDVBpgrNWUs0i
+         zISLDBmMwFLKQgRz+gKkOu1liH2Zuxcfefyh4OilISy+xE+s+PNhofIuFIaWIXl8LSeS
+         XeLoLFJ7PmUfky+fAYZddD77jknp+sivABw+B1iqG+LuGWVMamYbsSJlQv2cuC1Af6v7
+         9Cl1GpCFitSOuXoG/GD+NRiotp0sYnvm0NJFaodXyW3TJ5hflQcu1nZbwaZmyO/l1sqs
+         0CLK3Ado448yW4b+r2Tf20VswTWfH1L8vEGFyejJylOa7INrpxmu+z9kl44wVLmSjHnm
+         GeVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=dDUA58woNMYWtq/WZ0FMwKygFL3GgcsV4f9N5IHf/Kc=;
+        b=gJnbtWkBeJoDPimPOJDDVTkRN1yJwyq1WXh2JC7Ep7kjjpy7Nrcqp3DOvQuU+9+Zo9
+         e56ycgXwGm7SibeDR13AG4AYFZXlRNmT7nndqWB0Vr8vS6qCSc3CJXIlS2UnhuTkX68G
+         cXLlhq6Twpl+dn7Q9AEx7nVL/gq0FAM5wbpg2CSkLp+4PdHyfF8/6Gy8/zgHP3cvzCCp
+         rvIk1Qt6S5EC7UkoocTBI2dzFB2DL+kGgNimIcc4Wt3hIu60ksbZdWkrLT26tIH7kYvf
+         +bZ2HZ67GO5K9+2pv1FmVxT52IPoOdaJpoNI/7jCW1bkfLKezmgSPXvd88Gs9RyrlgZo
+         UgBg==
+X-Gm-Message-State: AGi0PubzeTSDL4mfjovZjtlo5G3IQy2TZwMBpAMZu8LnklNVyT74IOY5
+        FibwwofO5U0NUz/MCYF9AqI=
+X-Google-Smtp-Source: APiQypLeNiAFTrmjOqdYRGfgbEQ1703B0wGhHNZ1ghOBSl+jWG953+jr7f60BIokHkPrqhnPf4esqg==
+X-Received: by 2002:a1c:49:: with SMTP id 70mr23417501wma.184.1587972156630;
+        Mon, 27 Apr 2020 00:22:36 -0700 (PDT)
+Received: from localhost (p2E5BEDBA.dip0.t-ipconnect.de. [46.91.237.186])
+        by smtp.gmail.com with ESMTPSA id i74sm2222631wri.49.2020.04.27.00.22.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Apr 2020 00:22:35 -0700 (PDT)
+Date:   Mon, 27 Apr 2020 09:22:33 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Jon Hunter <jonathanh@nvidia.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.6 30/38] i2c: tegra: Better handle case where
+ CPU0 is busy for a long time
+Message-ID: <20200427072233.GB3451400@ulmo>
+References: <20200424122237.9831-1-sashal@kernel.org>
+ <20200424122237.9831-30-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
+Content-Disposition: inline
+In-Reply-To: <20200424122237.9831-30-sashal@kernel.org>
+User-Agent: Mutt/1.13.1 (2019-12-14)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Convert the ingenic,lcd.txt to a new ingenic,lcd.yaml file.
 
-In the process, the new ingenic,jz4780-lcd compatible string has been
-added.
+--A6N2fC+uXW/VQSAv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
----
- .../bindings/display/ingenic,lcd.txt          |  45 -------
- .../bindings/display/ingenic,lcd.yaml         | 113 ++++++++++++++++++
- 2 files changed, 113 insertions(+), 45 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/display/ingenic,lcd.txt
- create mode 100644 Documentation/devicetree/bindings/display/ingenic,lcd.yaml
+On Fri, Apr 24, 2020 at 08:22:28AM -0400, Sasha Levin wrote:
+> From: Dmitry Osipenko <digetx@gmail.com>
+>=20
+> [ Upstream commit a900aeac253729411cf33c6cb598c152e9e4137f ]
+>=20
+> Boot CPU0 always handle I2C interrupt and under some rare circumstances
+> (like running KASAN + NFS root) it may stuck in uninterruptible state for
+> a significant time. In this case we will get timeout if I2C transfer is
+> running on a sibling CPU, despite of IRQ being raised. In order to handle
+> this rare condition, the IRQ status needs to be checked after completion
+> timeout.
+>=20
+> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 27 +++++++++++++++------------
+>  1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/display/ingenic,lcd.txt b/Documentation/devicetree/bindings/display/ingenic,lcd.txt
-deleted file mode 100644
-index 01e3261defb6..000000000000
---- a/Documentation/devicetree/bindings/display/ingenic,lcd.txt
-+++ /dev/null
-@@ -1,45 +0,0 @@
--Ingenic JZ47xx LCD driver
--
--Required properties:
--- compatible: one of:
--  * ingenic,jz4740-lcd
--  * ingenic,jz4725b-lcd
--  * ingenic,jz4770-lcd
--- reg: LCD registers location and length
--- clocks: LCD pixclock and device clock specifiers.
--	   The device clock is only required on the JZ4740.
--- clock-names: "lcd_pclk" and "lcd"
--- interrupts: Specifies the interrupt line the LCD controller is connected to.
--
--Example:
--
--panel {
--	compatible = "sharp,ls020b1dd01d";
--
--	backlight = <&backlight>;
--	power-supply = <&vcc>;
--
--	port {
--		panel_input: endpoint {
--			remote-endpoint = <&panel_output>;
--		};
--	};
--};
--
--
--lcd: lcd-controller@13050000 {
--	compatible = "ingenic,jz4725b-lcd";
--	reg = <0x13050000 0x1000>;
--
--	interrupt-parent = <&intc>;
--	interrupts = <31>;
--
--	clocks = <&cgu JZ4725B_CLK_LCD>;
--	clock-names = "lcd";
--
--	port {
--		panel_output: endpoint {
--			remote-endpoint = <&panel_input>;
--		};
--	};
--};
-diff --git a/Documentation/devicetree/bindings/display/ingenic,lcd.yaml b/Documentation/devicetree/bindings/display/ingenic,lcd.yaml
-new file mode 100644
-index 000000000000..8e9c851dc7c5
---- /dev/null
-+++ b/Documentation/devicetree/bindings/display/ingenic,lcd.yaml
-@@ -0,0 +1,113 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/display/ingenic,lcd.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Ingenic SoCs LCD controller devicetree bindings
-+
-+maintainers:
-+  - Paul Cercueil <paul@crapouillou.net>
-+
-+properties:
-+  $nodename:
-+    pattern: "^lcd-controller@[0-9a-f]+$"
-+
-+  compatible:
-+    enum:
-+      - ingenic,jz4740-lcd
-+      - ingenic,jz4725b-lcd
-+      - ingenic,jz4770-lcd
-+      - ingenic,jz4780-lcd
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    items:
-+      - description: Module clock
-+      - description: Pixel clock
-+    minItems: 1
-+
-+  clock-names:
-+    items:
-+      - const: lcd
-+      - const: lcd_pclk
-+    minItems: 1
-+
-+  port:
-+    type: object
-+    description:
-+      A port node with endpoint definitions as defined in
-+      Documentation/devicetree/bindings/media/video-interfaces.txt
-+
-+required:
-+    - compatible
-+    - reg
-+    - interrupts
-+    - clocks
-+    - clock-names
-+
-+if:
-+  properties:
-+    compatible:
-+      contains:
-+        enum:
-+          - ingenic,jz4740-lcd
-+          - ingenic,jz4780-lcd
-+then:
-+  properties:
-+    clocks:
-+      minItems: 2
-+    clock-names:
-+      minItems: 2
-+else:
-+  properties:
-+    clocks:
-+      maxItems: 1
-+    clock-names:
-+      maxItems: 1
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/clock/jz4740-cgu.h>
-+    lcd-controller@13050000 {
-+      compatible = "ingenic,jz4740-lcd";
-+      reg = <0x13050000 0x1000>;
-+
-+      interrupt-parent = <&intc>;
-+      interrupts = <30>;
-+
-+      clocks = <&cgu JZ4740_CLK_LCD>, <&cgu JZ4740_CLK_LCD_PCLK>;
-+      clock-names = "lcd", "lcd_pclk";
-+
-+      port {
-+        endpoint {
-+          remote-endpoint = <&panel_input>;
-+        };
-+      };
-+    };
-+
-+  - |
-+    #include <dt-bindings/clock/jz4725b-cgu.h>
-+    lcd-controller@13050000 {
-+      compatible = "ingenic,jz4725b-lcd";
-+      reg = <0x13050000 0x1000>;
-+
-+      interrupt-parent = <&intc>;
-+      interrupts = <31>;
-+
-+      clocks = <&cgu JZ4725B_CLK_LCD>;
-+      clock-names = "lcd";
-+
-+      port {
-+        endpoint {
-+          remote-endpoint = <&panel_input>;
-+        };
-+      };
-+    };
--- 
-2.26.2
+Hi Sasha,
 
+can you drop this from the v5.6 stable queue please? Jon discovered that
+this patch introduces a regression in v5.7, and since we don't have a
+good understanding of why this is breaking things I think it'd be best
+if we reverted it for v5.7 until we come up with a good fix.
+
+I think the same applies for the other i2c/tegra patch that's 31/38 of
+this series.
+
+Thanks,
+Thierry
+
+--A6N2fC+uXW/VQSAv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl6miDkACgkQ3SOs138+
+s6HFbhAAkw4kw0wOkZzY/9qlB+gSAit5MKAPOvPoPQ+f4LjUlhNdKDu3XysVK0dS
+sKAk/f2CHLCm7SMgEATxuVw5agM5I33ufzlr8Jc5zUPpmlIuoOKkV3R433s9O9lC
+9sUMHWDn34zJagJKLZ9KIMMpwf4cWD4wp29u/TrZgqhfC2JQSIi72uyk3CzKJxtI
+3y0383+ju7JYQ+1iyaJPSsZ5F/Dbmk2cViZC+X2oxe9LozVIM2PAP9GkSx6HXgU7
+WJhn92GDamvh1AuOD+K7XRHY+7QqVaK2vAPjPAof3DH0Tn3MH3kStt1P9AuO+IyO
+5kdFaJXrbrspmmViYpC/QHdW6IxRlpYnjYDOJJ0ZCrqSDgUH2UfI4zCX0bkBilpZ
+qVGqXnnPWhtOAK2hpMxJnZ2T7DCcyldLQKhgaQs+sYRrgS0pDXWsQyiInCUMEgsh
+W9dM9rHcWkVNaEJyYlpXb5SAvv5tA0ctcidaCr/LXBfBiwWbDjSxHMBbUxLnfGmD
+5EZNx49+q7M4y6E8YO3+iUY83aHx60zUivwElPx2kg7Y8nAeUWVy7QRUGaH1Uk6o
+e96D8cHiswWsUV1C2xDakAMdFCLw3w/XXRDuVsZGpq/Y2XYOpQG/2NiBtLJMFqCb
+ywW3eBGTPuKlnB7CF9yF/0+3UuyEA69wkUfMvFPSv2A9furafpc=
+=W6uU
+-----END PGP SIGNATURE-----
+
+--A6N2fC+uXW/VQSAv--
