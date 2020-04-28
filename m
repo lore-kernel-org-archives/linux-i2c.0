@@ -2,132 +2,90 @@ Return-Path: <SRS0=lZNS=6M=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2610CC83008
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Apr 2020 14:10:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05424C83008
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Apr 2020 15:02:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 06B39206D9
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Apr 2020 14:10:27 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="vOy6cik5"
+	by mail.kernel.org (Postfix) with ESMTP id D04562075E
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Apr 2020 15:02:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1588086171;
+	bh=sg1uOWZFMrWzGD0mMUahQwkZ0PXI2hQ0hkjygQDNK5s=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=eL3RZ3h3xSGcVmVy3xvJuUmMtAZ8DWGtzbtbGKxV7UE6pA+7TYJ0RtJ7+ZnReFnqP
+	 7B9weL+QW5q5m4loiRRPkhCWq2zKnVFBBBpa/743toqJERHMhEynzYC2isX++zAh5W
+	 2ElqZMpAq16qf/kAvJW2yajmg5s/aIdKQ90VO8Zk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727945AbgD1OKX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 28 Apr 2020 10:10:23 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:38506 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727837AbgD1OKW (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Apr 2020 10:10:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1588083017; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2+w+KwDzaOwV/ww7pNfZrsFBOSdK2uRoIyYyszXC2jE=;
-        b=vOy6cik5Ke533LRPLshMJ+qzIX64H6Cij9kixdoYn7wlFWU7BcpUORTgGjl00q+cPNyTHh
-        BbFCg7mLoK1rJVPcplaMCp9tjrNaBELaA/yLJ5L01LwPb6aiWQha9Riei2/T2hz8Wp0kvk
-        mMmfgtX5WwOdDWnDWKeSk5Jfz8HZyCs=
-Date:   Tue, 28 Apr 2020 16:10:05 +0200
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH 2/8] dt-bindings: intc: Convert ingenic,intc.txt to YAML
-To:     Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc:     Rob Herring <robh+dt@kernel.org>, od@zcrc.me,
-        =?UTF-8?b?5ZGo55Cw5p2w?= <zhouyanjie@wanyeetech.com>,
-        linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-mips@vger.kernel.org
-Message-Id: <TO4I9Q.UQRWC3A2ABT52@crapouillou.net>
-In-Reply-To: <f865b39a-3e8d-a367-45b2-aa5e7412e81a@cogentembedded.com>
-References: <20200426185856.38826-1-paul@crapouillou.net>
-        <20200426185856.38826-2-paul@crapouillou.net>
-        <f865b39a-3e8d-a367-45b2-aa5e7412e81a@cogentembedded.com>
+        id S1727865AbgD1PCv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 28 Apr 2020 11:02:51 -0400
+Received: from mail-oo1-f66.google.com ([209.85.161.66]:40001 "EHLO
+        mail-oo1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727108AbgD1PCv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Apr 2020 11:02:51 -0400
+Received: by mail-oo1-f66.google.com with SMTP id r1so4736788oog.7;
+        Tue, 28 Apr 2020 08:02:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=cagbOAxFCCrUsMPh8ZyjipuoHC6QvYSHfoN2T04bZkE=;
+        b=rMBFxQGoVM6N6Iao2Fb1R6wfkrik/70GGGxrd3ksldzUeM1e1kV9JIB3bOHoWDRj3z
+         +Phi3GUd6Yy5g/8eDXFdYeLpJ0qM2LQ2lG4FJ8M1hfRohxkgvhHPQXsJiyqIxVsX47lj
+         4rctQMMkcob+HRUOmGDogefOOeqxTVKamg6zzH6znwCD2767MiFJKLbGT/9zFKUyjdPA
+         GnWYHckN4pge/WXloGFmfXYspPcpedubr+HZD/NtDZ7vFaecrgFxyOwiPC0udXBZWUpp
+         Ibelu3ECoHionTtDthcSHWvPn2am+XUv6ZOnvRCPVdfQdVwg06BTMaA9cR1tysT2ehmC
+         kgOA==
+X-Gm-Message-State: AGi0Pub4LCGTClWphQ0M79/xk2sVQK191MObCpQsHg793QojOBWp6k8A
+        m6MdAAhrryljlX6rb95/Iw==
+X-Google-Smtp-Source: APiQypLFbUsEitU1zALK/1KF3a4D3Vi53WvuTSDo6YOFLWA1xNoxfsYtho5rrWk1suw6STl+w95wHQ==
+X-Received: by 2002:a4a:ba0b:: with SMTP id b11mr23625812oop.44.1588086168402;
+        Tue, 28 Apr 2020 08:02:48 -0700 (PDT)
+Received: from rob-hp-laptop (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id q20sm4653078ota.65.2020.04.28.08.02.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Apr 2020 08:02:46 -0700 (PDT)
+Received: (nullmailer pid 20921 invoked by uid 1000);
+        Tue, 28 Apr 2020 15:02:46 -0000
+Date:   Tue, 28 Apr 2020 10:02:46 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Bibby Hsieh <bibby.hsieh@mediatek.com>
+Cc:     Wolfram Sang <wsa@the-dreams.de>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        linux-i2c@vger.kernel.org, tfiga@chromium.org,
+        drinkcat@chromium.org, srv_heupstream@mediatek.com,
+        robh+dt@kernel.org, mark.rutland@arm.com,
+        devicetree@vger.kernel.org,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Bibby Hsieh <bibby.hsieh@mediatek.com>
+Subject: Re: [PATCH v14 1/2] dt-binding: i2c: add bus-supply property
+Message-ID: <20200428150246.GA20429@bogus>
+References: <20200428061813.27072-1-bibby.hsieh@mediatek.com>
+ <20200428061813.27072-2-bibby.hsieh@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200428061813.27072-2-bibby.hsieh@mediatek.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Sergei,
+On Tue, 28 Apr 2020 14:18:12 +0800, Bibby Hsieh wrote:
+> In some platforms, they disable the power-supply of i2c due
+> to power consumption reduction. This patch add bus-supply property.
+> 
+> Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c.txt | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
 
-Le lun. 27 avril 2020 =E0 12:11, Sergei Shtylyov=20
-<sergei.shtylyov@cogentembedded.com> a =E9crit :
-> Hello!
->=20
-> On 26.04.2020 21:58, Paul Cercueil wrote:
->=20
->> Convert the ingenic,intc.txt doc file to ingenic,intc.yaml.
->>=20
->> Some compatible strings now require a fallback, as the controller
->> generally works the same across the SoCs families.
->>=20
->> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> [...]
->> diff --git=20
->> a/Documentation/devicetree/bindings/interrupt-controller/ingenic,intc.ya=
-ml=20
->> b/Documentation/devicetree/bindings/interrupt-controller/ingenic,intc.ya=
-ml
->> new file mode 100644
->> index 000000000000..28b27e1a6e9d
->> --- /dev/null
->> +++=20
->> b/Documentation/devicetree/bindings/interrupt-controller/ingenic,intc.ya=
-ml
->> @@ -0,0 +1,63 @@
->> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
->> +%YAML 1.2
->> +---
->> +$id:=20
->> http://devicetree.org/schemas/interrupt-controller/ingenic,intc.yaml#
->> +$schema: http://devicetree.org/meta-schemas/core.yaml#
->> +
->> +title: Ingenic SoCs interrupt controller devicetree bindings
->> +
->> +maintainers:
->> +  - Paul Cercueil <paul@crapouillou.net>
->> +
->> +properties:
->> +  $nodename:
->> +    pattern: "^interrupt-controller@[0-9a-f]+$"
->> +
->> +  compatible:
->> +    oneOf:
->> +      - enum:
->> +        - ingenic,jz4740-intc
->> +        - ingenic,jz4760-intc
->> +        - ingenic,jz4780-intc
->> +      - items:
->> +        - enum:
->> +          - ingenic,jz4775-intc
->> +          - ingenic,jz4770-intc
->> +        - const: ingenic,jz4760-intc
->> +      - items:
->> +        - const: ingenic,x1000-intc
->> +        - const: ingenic,jz4780-intc
->> +      - items:
->> +        - const: ingenic,jz4725b-intc
->> +        - const: ingenic,jz4740-intc
->> +
->> +  "#interrupt-cells":
->> +    const: 1
->=20
->    Do double quotes work the same as the single ones?
+Please add Acked-by/Reviewed-by tags when posting new versions. However,
+there's no need to repost patches *only* to add the tags. The upstream
+maintainer will do that for acks received on the version they apply.
 
-Yes. The only difference is that you can escape characters in double=20
-quotes.
-
--Paul
-
->=20
-> [...]
->=20
-> MBR, Sergei
-
-
+If a tag was not added on purpose, please state why and what changed.
