@@ -1,70 +1,136 @@
-Return-Path: <SRS0=AkpW=6P=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=ZZQM=6Q=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27623C47253
-	for <linux-i2c@archiver.kernel.org>; Fri,  1 May 2020 18:35:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DA60C3A5A9
+	for <linux-i2c@archiver.kernel.org>; Sat,  2 May 2020 12:18:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ED11F21924
-	for <linux-i2c@archiver.kernel.org>; Fri,  1 May 2020 18:35:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 468CC2064C
+	for <linux-i2c@archiver.kernel.org>; Sat,  2 May 2020 12:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1588358115;
-	bh=2WT6aiHZPuq2kVjyUjT09gDN6JPwEFNG4Npx11qayos=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=UQwUbrmyX80QEngjX1RdVOPSeP26iHtswOYlCSSg5tYd7AZ1MkS8IqZ/0kw/0+Cp3
-	 55TwtuUW6/NIbfI7YRiGClVqCRlcA12w0DpchMvDPutUqRIj7eWmu/c74FcrM93Gqv
-	 T+YqEutR7o4NiD9RrUakHfeYDt5mW/S2LU73ufbU=
+	s=default; t=1588421934;
+	bh=iIMxmKSfhwt9Y6WBsiFbb6OU8iD5jqB42Z04kdSzJG0=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=iZbqlz1dDuFLFPMC23yeyJghMucydZvAzUpp052CA7h38aXB+SCsqRZeTpKgo6O/l
+	 1PcUlnTP+O4FBA66TGa4vmbb5eY091Vm3ee65n3v0a9hAJdCymGrduEs3Fr/QG4Nq6
+	 wMcT1+HDL1qbvuPYGCKwj0BWZbdUOMyo6v0zbXGs=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730285AbgEASfN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 1 May 2020 14:35:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47742 "EHLO mail.kernel.org"
+        id S1727072AbgEBMSx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 2 May 2020 08:18:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730189AbgEASfM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 1 May 2020 14:35:12 -0400
-Subject: Re: [PULL REQUEST] i2c for v5.7
+        id S1726896AbgEBMSx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 2 May 2020 08:18:53 -0400
+Received: from localhost (p5486C608.dip0.t-ipconnect.de [84.134.198.8])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EE2C2064C;
+        Sat,  2 May 2020 12:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588358112;
-        bh=2WT6aiHZPuq2kVjyUjT09gDN6JPwEFNG4Npx11qayos=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=mfa9OwJn4J8fmDWRwxqqB8DMAgF7rxMBwwDT8OsDEHjdW+bqrWJtmsdXckMGAYedy
-         3aF24rA8yRIbpYkLwteciHiPnemGzCKqvSb0J4Yk5WAOpbpnD3Nf/pzf3qUnDV+qBT
-         1MiO0vohmQPcKWlJUP/zMDlUYnToSZXmNrm/GZ1A=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20200501145014.GA24395@ninjato>
-References: <20200501145014.GA24395@ninjato>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20200501145014.GA24395@ninjato>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
- i2c/for-current-fixed
-X-PR-Tracked-Commit-Id: c926c87b8e36dcc0ea5c2a0a0227ed4f32d0516a
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: ab386c46e44eae70e2c23f27fea70014758cbbac
-Message-Id: <158835811239.18489.9681586703398147281.pr-tracker-bot@kernel.org>
-Date:   Fri, 01 May 2020 18:35:12 +0000
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Rosin <peda@axentia.se>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
+        s=default; t=1588421932;
+        bh=iIMxmKSfhwt9Y6WBsiFbb6OU8iD5jqB42Z04kdSzJG0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Jf5QJEKFAF9qRkTYpsdkEocVaUAt1PasLUrUUArEVzlSONdl31rDeP5hrDwOFJNA/
+         /xns3DCnNoOBuM2otzCp8X4r6BBCQoKAdOEktzEVbdDHEDIlgRcxKdQeC+OWfeqNM2
+         Ix4zcoC+7JiBN4P/23YxeUg3m1f09VwyRzQcHzhc=
+From:   Wolfram Sang <wsa@kernel.org>
+To:     linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: use my kernel.org address from now on
+Date:   Sat,  2 May 2020 14:18:35 +0200
+Message-Id: <20200502121840.9544-1-wsa@kernel.org>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The pull request you sent on Fri, 1 May 2020 16:50:18 +0200:
+The old email is still active, but for easier handling, I am going to
+use my kernel.org address from now on. Also, add a mailmap for the now
+defunct Pengutronix address.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+---
+ .mailmap                    | 2 ++
+ MAINTAINERS                 | 2 +-
+ drivers/i2c/i2c-core-base.c | 2 +-
+ drivers/i2c/i2c-core-of.c   | 2 +-
+ include/linux/i2c.h         | 2 +-
+ 5 files changed, 6 insertions(+), 4 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/ab386c46e44eae70e2c23f27fea70014758cbbac
-
-Thank you!
-
+diff --git a/.mailmap b/.mailmap
+index db3754a41018..4f906b4e9785 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -288,6 +288,8 @@ Vladimir Davydov <vdavydov.dev@gmail.com> <vdavydov@virtuozzo.com>
+ Vladimir Davydov <vdavydov.dev@gmail.com> <vdavydov@parallels.com>
+ Takashi YOSHII <takashi.yoshii.zj@renesas.com>
+ Will Deacon <will@kernel.org> <will.deacon@arm.com>
++Wolfram Sang <wsa@kernel.org> <wsa@the-dreams.de>
++Wolfram Sang <wsa@kernel.org> <w.sang@pengutronix.de>
+ Yakir Yang <kuankuan.y@gmail.com> <ykk@rock-chips.com>
+ Yusuke Goda <goda.yusuke@renesas.com>
+ Gustavo Padovan <gustavo@las.ic.unicamp.br>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 26f281d9f32a..46049787d27e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7949,7 +7949,7 @@ F:	Documentation/i2c/busses/i2c-parport.rst
+ F:	drivers/i2c/busses/i2c-parport.c
+ 
+ I2C SUBSYSTEM
+-M:	Wolfram Sang <wsa@the-dreams.de>
++M:	Wolfram Sang <wsa@kernel.org>
+ L:	linux-i2c@vger.kernel.org
+ S:	Maintained
+ W:	https://i2c.wiki.kernel.org/
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index a66912782064..ee013313b727 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -7,7 +7,7 @@
+  *   Mux support by Rodolfo Giometti <giometti@enneenne.com> and
+  *   Michael Lawnick <michael.lawnick.ext@nsn.com>
+  *
+- * Copyright (C) 2013-2017 Wolfram Sang <wsa@the-dreams.de>
++ * Copyright (C) 2013-2017 Wolfram Sang <wsa@kernel.org>
+  */
+ 
+ #define pr_fmt(fmt) "i2c-core: " fmt
+diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+index 6787c1f71483..3ed74aa4b44b 100644
+--- a/drivers/i2c/i2c-core-of.c
++++ b/drivers/i2c/i2c-core-of.c
+@@ -5,7 +5,7 @@
+  * Copyright (C) 2008 Jochen Friedrich <jochen@scram.de>
+  * based on a previous patch from Jon Smirl <jonsmirl@gmail.com>
+  *
+- * Copyright (C) 2013, 2018 Wolfram Sang <wsa@the-dreams.de>
++ * Copyright (C) 2013, 2018 Wolfram Sang <wsa@kernel.org>
+  */
+ 
+ #include <dt-bindings/i2c/i2c.h>
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 45d36ba4826b..49d29054e657 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -2,7 +2,7 @@
+ /*
+  * i2c.h - definitions for the Linux i2c bus interface
+  * Copyright (C) 1995-2000 Simon G. Vogl
+- * Copyright (C) 2013-2019 Wolfram Sang <wsa@the-dreams.de>
++ * Copyright (C) 2013-2019 Wolfram Sang <wsa@kernel.org>
+  *
+  * With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi> and
+  * Frodo Looijaard <frodol@dds.nl>
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.20.1
+
