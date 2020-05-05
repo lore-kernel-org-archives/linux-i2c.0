@@ -2,84 +2,147 @@ Return-Path: <SRS0=OLWM=6T=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BA0CC3A5A9
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 May 2020 01:52:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9C42C47247
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 May 2020 05:52:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 709F2206C0
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 May 2020 01:52:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B23E6206E6
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 May 2020 05:52:36 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="CI9ezify"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726516AbgEEBwF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 4 May 2020 21:52:05 -0400
-Received: from twspam01.aspeedtech.com ([211.20.114.71]:36395 "EHLO
-        twspam01.aspeedtech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726482AbgEEBwF (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 4 May 2020 21:52:05 -0400
-Received: from mail.aspeedtech.com (twmbx02.aspeed.com [192.168.0.24])
-        by twspam01.aspeedtech.com with ESMTP id 0451fnFT030573;
-        Tue, 5 May 2020 09:41:49 +0800 (GMT-8)
-        (envelope-from ryan_chen@aspeedtech.com)
-Received: from TWMBX01.aspeed.com (192.168.0.23) by TWMBX02.aspeed.com
- (192.168.0.24) with Microsoft SMTP Server (TLS) id 15.0.620.29; Tue, 5 May
- 2020 09:52:04 +0800
-Received: from TWMBX02.aspeed.com (192.168.0.24) by TWMBX01.aspeed.com
- (192.168.0.23) with Microsoft SMTP Server (TLS) id 15.0.620.29; Tue, 5 May
- 2020 09:52:02 +0800
-Received: from TWMBX02.aspeed.com ([fe80::997d:c0a7:f01f:e1a7]) by
- TWMBX02.aspeed.com ([fe80::997d:c0a7:f01f:e1a7%12]) with mapi id
- 15.00.0620.020; Tue, 5 May 2020 09:52:02 +0800
-From:   Ryan Chen <ryan_chen@aspeedtech.com>
-To:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Wolfram Sang <wsa@the-dreams.de>
-CC:     Brendan Higgins <brendanhiggins@google.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>,
-        "linux-arm-kernel@lists.infradead.org" 
+        id S1727849AbgEEFwg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 May 2020 01:52:36 -0400
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:53708 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726635AbgEEFwf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 May 2020 01:52:35 -0400
+Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0455l5X6027087;
+        Tue, 5 May 2020 07:52:21 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=STMicroelectronics;
+ bh=Tkcg9s1uDu/OOadkPkeZF9B5T6AZFP5XkTZX0ihRw8k=;
+ b=CI9ezifyJBfwqbQsaqh8o4ZvjtLehvt6i+UNxWZruakeg+8UXPU8iIljCfAl2KVQJ1/I
+ b7KdHpzD+ozDtarb4Ou6q1PF0xZwyYg6pZ44B4FGtb7Y+FcvtXgHsTeBYkpWqCO9xvwn
+ uhqvf3cOHrc9JjHnOvbrbUocT261I/IjtHTNis2kjzCbjRCyS0A41bAUs2Fl5w72Q7zD
+ 4bbzJ+We2jRW6vq99a977sOBtW2x4rrvzBlioYSo68LpaATZ9ifQW3M0whIjxxOpGbGn
+ aUksql+sktcTaYKQYzYFh62CrDq/eb1PzSCT3OK74teuej2K11aEqZdIxA5dVrwuftU2 yQ== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 30rxb1wy0p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 May 2020 07:52:21 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id D1E57100039;
+        Tue,  5 May 2020 07:52:20 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag3node2.st.com [10.75.127.8])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id C3EA721CA81;
+        Tue,  5 May 2020 07:52:20 +0200 (CEST)
+Received: from localhost (10.75.127.48) by SFHDAG3NODE2.st.com (10.75.127.8)
+ with Microsoft SMTP Server (TLS) id 15.0.1347.2; Tue, 5 May 2020 07:52:20
+ +0200
+From:   Alain Volmat <alain.volmat@st.com>
+To:     <wsa@kernel.org>, <robh+dt@kernel.org>
+CC:     <mark.rutland@arm.com>, <pierre-yves.mordret@st.com>,
+        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@st.com>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
         <linux-arm-kernel@lists.infradead.org>,
-        "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH v0 linux master] i2c/busses: Avoid i2c interrupt status
- clear race condition.
-Thread-Topic: [PATCH v0 linux master] i2c/busses: Avoid i2c interrupt status
- clear race condition.
-Thread-Index: AQHWHdeQ1mqTBOPAdE+n+yVhmYVsFKiPNOCAgACLErD//4h6gIABsZgAgAfJrwA=
-Date:   Tue, 5 May 2020 01:52:01 +0000
-Message-ID: <fc8bc729af844e658fd1ac1f86480f00@TWMBX02.aspeed.com>
-References: <20200429033737.2781-1-ryan_chen@aspeedtech.com>
-         <20200429075357.GA1957@kunai>
-         <56add9c6e6b5410986325a1360466e4b@TWMBX02.aspeed.com>
-         <20200429090355.GA2891@kunai>
- <232b9fac588beb4d024ab496b118c51af2b0ecba.camel@kernel.crashing.org>
-In-Reply-To: <232b9fac588beb4d024ab496b118c51af2b0ecba.camel@kernel.crashing.org>
-Accept-Language: zh-TW, en-US
-Content-Language: zh-TW
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [192.168.2.87]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@st.com>,
+        <alain.volmat@st.com>
+Subject: [PATCH 2/4] i2c: addition of client reg/unreg callbacks
+Date:   Tue, 5 May 2020 07:51:09 +0200
+Message-ID: <1588657871-14747-3-git-send-email-alain.volmat@st.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1588657871-14747-1-git-send-email-alain.volmat@st.com>
+References: <1588657871-14747-1-git-send-email-alain.volmat@st.com>
 MIME-Version: 1.0
-X-DNSRBL: 
-X-MAIL: twspam01.aspeedtech.com 0451fnFT030573
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.48]
+X-ClientProxiedBy: SFHDAG6NODE3.st.com (10.75.127.18) To SFHDAG3NODE2.st.com
+ (10.75.127.8)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-05-05_02:2020-05-04,2020-05-05 signatures=0
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-PiA+IEFuZCBpcyB0aGVyZSBtYXliZSBhIEZpeGVzOiB0YWcgZm9yIGl0Pw0KPiA+IFtSeWFuIENo
-ZW5dIFllcyBpdCBpcyBhIGZpeCBwYXRjaC4NCj4gDQo+IEkgbWVhbnQgdGhpcyAoZnJvbSBzdWJt
-aXR0aW5nLXBhdGNoZXMucnN0KToNCg0KPkl0IGZpeGVzIHRoZSBvcmlnaW5hbCBpbXBsZW1lbnRh
-dGlvbiBvZiB0aGUgZHJpdmVyIGJhc2ljYWxseS4gSXQncyBqdXN0IGEgY2xhc3NpYyBwb3N0ZWQt
-d3JpdGUgZml4LiBUaGUgd3JpdGUgdG8gY2xlYXIgdGhlIHBlbmRpbmcgaW50ZXJydXB0IGlzIGFz
-eW5jaHJvbm91cywgc28geW91IGNhbiBnZXQgc3B1cnJpb3VzIG9uZXMgaWYgeW91IHJldHVybiBm
-cm9tIHRoZSBoYW5kbGVyIGJlZm9yZSBpdCBoYXMgcGVyY29sYXRlZCB0byB0aGUgSFcuDQoNCj5J
-IGFzc3VtZSBpdCdzIGp1c3QgbW9yZSB2aXNpYmxlIG9uIHRoZSAyNjAwIGJlY2F1c2Ugb2YgdGhl
-IGNvcmVzIGFyZSBzaWduaWZpY2FudGx5IGZhc3RlciBidXQgdGhlIElPIGJ1cyBpcyBzdGlsbCBh
-cyBkdW1iLg0KDQo+UnlhbjogWW91IGNvdWxkIGFsd2F5cyBhZGQgYSBGaXhlZC1ieTogdGFnIHRo
-YXQgc3BlY2lmaWVzIHRoZSBjb21taXQgdGhhdCBhZGRlZCB0aGUgaW5pdGlhbCBkcml2ZXIuLi4N
-CltSeWFuIENoZW5dIFRoYW5rcyBCZW4uDQoNCg==
+Addition of two callbacks reg_client and unreg_client that can be
+implemented by adapter drivers in order to take action whenever a
+client is being registered to it.
+
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+---
+ drivers/i2c/i2c-core-base.c | 11 +++++++++++
+ include/linux/i2c.h         |  6 ++++++
+ 2 files changed, 17 insertions(+)
+
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 2e4560671183..4c84c6264314 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -319,6 +319,12 @@ static int i2c_device_probe(struct device *dev)
+ 	if (!client)
+ 		return 0;
+ 
++	if (client->adapter->algo->reg_client) {
++		status = client->adapter->algo->reg_client(client);
++		if (status)
++			return status;
++	}
++
+ 	driver = to_i2c_driver(dev->driver);
+ 
+ 	client->irq = client->init_irq;
+@@ -417,6 +423,8 @@ static int i2c_device_probe(struct device *dev)
+ put_sync_adapter:
+ 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
+ 		pm_runtime_put_sync(&client->adapter->dev);
++	if (client->adapter->algo->reg_client)
++		client->adapter->algo->unreg_client(client);
+ 
+ 	return status;
+ }
+@@ -445,6 +453,9 @@ static int i2c_device_remove(struct device *dev)
+ 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
+ 		pm_runtime_put(&client->adapter->dev);
+ 
++	if (client->adapter->algo->unreg_client)
++		client->adapter->algo->unreg_client(client);
++
+ 	return status;
+ }
+ 
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 45d36ba4826b..61b838caf454 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -509,6 +509,8 @@ i2c_register_board_info(int busnum, struct i2c_board_info const *info,
+  *   so e.g. PMICs can be accessed very late before shutdown. Optional.
+  * @functionality: Return the flags that this algorithm/adapter pair supports
+  *   from the ``I2C_FUNC_*`` flags.
++ * @reg_client: Callback informing that a new client is being registered
++ * @unreg_client: Callback informing that a client is being removed
+  * @reg_slave: Register given client to I2C slave mode of this adapter
+  * @unreg_slave: Unregister given client from I2C slave mode of this adapter
+  *
+@@ -545,6 +547,10 @@ struct i2c_algorithm {
+ 	/* To determine what the adapter supports */
+ 	u32 (*functionality)(struct i2c_adapter *adap);
+ 
++	/* To inform the adapter of the probe/remove of a client */
++	int (*reg_client)(struct i2c_client *client);
++	void (*unreg_client)(struct i2c_client *client);
++
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
+ 	int (*reg_slave)(struct i2c_client *client);
+ 	int (*unreg_slave)(struct i2c_client *client);
+-- 
+2.17.1
+
