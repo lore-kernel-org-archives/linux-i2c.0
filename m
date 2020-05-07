@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9008C38A24
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 May 2020 14:34:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 531CBC47247
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 May 2020 14:37:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 79B622073A
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 May 2020 14:34:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2952B20659
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 May 2020 14:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1588862090;
-	bh=Bq4eHZWtEpaN3euD1FZIVBHPQAYGNnABrym1Qp0jRmI=;
+	s=default; t=1588862229;
+	bh=JpMqNa6KjjZACMc14JpRz2Qlsk+u9kAyVz8DlBvFEG0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=LF9ItlRV1b8ihWXWz57NyGKp+6gMtBJWQ0KUKFvGuwGxd3NrDDylhEQps7vHLnVuV
-	 j16xNbyB2oK1DJNEuDXds5CbkzUnALBEPsuegDl3F3nVNvbKekS6cRX0APKH6vC7RB
-	 1kahtffUSmRoZ6vpQw+K1o+s/kJslXVz2sjjC/g8=
+	b=ZzdVA1Gvx46yFlWXoCI+7nKnC1nvKb+qfUDRRuO+s7FW8fGlWNNpLQBAvB1b2OuOc
+	 FcAjV9Xcoo9VS44HX6aqHnTpIahHqMeVP231g1hI9r0g71y+rtLo7lrGrTMkwKy8z+
+	 vwnoSb9hFacTYR2i1HxXwDuUGkUCpgiId61ic5VU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728370AbgEGO3A (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 7 May 2020 10:29:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
+        id S1727944AbgEGO2E (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 7 May 2020 10:28:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728361AbgEGO27 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 May 2020 10:28:59 -0400
+        id S1727933AbgEGO2D (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 7 May 2020 10:28:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01D0020936;
-        Thu,  7 May 2020 14:28:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DAAD2084D;
+        Thu,  7 May 2020 14:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861738;
-        bh=Bq4eHZWtEpaN3euD1FZIVBHPQAYGNnABrym1Qp0jRmI=;
+        s=default; t=1588861683;
+        bh=JpMqNa6KjjZACMc14JpRz2Qlsk+u9kAyVz8DlBvFEG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCGruXGNvVCibc0Kkzv6KgAZWS8HrGG6DJ+ZafePEp5TYQWcVIjpD0ptjPe1oGkMe
-         +u3Ed62e3+pZ5whsWSVrzvzZh4PQZByFV2I+7kVwc8VTdXqKFyxPXohEICdE671MZx
-         dZF+nmV1lYWmUbWGGtrsbAh3cGF5z/0wr6ttYW4I=
+        b=B//tsRXIep6Gf8/h90s+PRqDFmRSBnsVLvHOXzzIJ6LNnzxPAH+dCX4bAMif71Z1Y
+         fhEs6zcG0t3TyW0Dk4T3R5F6t6BGPAISnT7pW1RGYRsGnxqSNcHqeAa5i8H/LV3NzO
+         skYpq4VxIzqkf3fWF3RuiYeHK6u5iajtjwF+lVTY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
         Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 22/35] i2c: iproc: generate stop event for slave writes
-Date:   Thu,  7 May 2020 10:28:16 -0400
-Message-Id: <20200507142830.26239-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 29/50] i2c: iproc: generate stop event for slave writes
+Date:   Thu,  7 May 2020 10:27:05 -0400
+Message-Id: <20200507142726.25751-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200507142830.26239-1-sashal@kernel.org>
-References: <20200507142830.26239-1-sashal@kernel.org>
+In-Reply-To: <20200507142726.25751-1-sashal@kernel.org>
+References: <20200507142726.25751-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -75,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index 9ffdffaf6141e..03475f1799730 100644
+index 30efb7913b2e1..b58224b7ba791 100644
 --- a/drivers/i2c/busses/i2c-bcm-iproc.c
 +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -359,6 +359,9 @@ static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
+@@ -360,6 +360,9 @@ static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
  			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
  			i2c_slave_event(iproc_i2c->slave,
  					I2C_SLAVE_WRITE_RECEIVED, &value);
