@@ -2,141 +2,86 @@ Return-Path: <SRS0=2dSU=6V=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69571C4724C
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 May 2020 12:20:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 096FCC38A24
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 May 2020 13:51:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4825B208E4
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 May 2020 12:20:41 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="DncWvkk/"
+	by mail.kernel.org (Postfix) with ESMTP id D9B232082E
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 May 2020 13:51:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726320AbgEGMUk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 7 May 2020 08:20:40 -0400
-Received: from rere.qmqm.pl ([91.227.64.183]:30060 "EHLO rere.qmqm.pl"
+        id S1726350AbgEGNvp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 7 May 2020 09:51:45 -0400
+Received: from mga14.intel.com ([192.55.52.115]:8846 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725949AbgEGMUk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 May 2020 08:20:40 -0400
-Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 49HsxK3Pjsz5w;
-        Thu,  7 May 2020 14:20:37 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1588854037; bh=6tewwqfLzrtjeC61d+9JygytIL+HVfjbhQ3OBGJvseo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DncWvkk/oEPh6aaiHJgxgUER84xvIL9SLcydXSP802b7cj01x+o5qrU0JokRAgZxY
-         LUW2WdnKYopvrtlUraPFx1Llz03xZnSMiwLrmFR8VagujyXd0elPYYOXBbzpVoEzrF
-         KPMZzFBqcHvBtXiMAz/wQWGDXd9tO56xB8Y3cxtmAmiRbHAY3sqZwudiErAwqlw3yp
-         uKRBS9kfeQvNElXnnSHbJYLZnhe+vSWHUnlNWw075w9SCnqulwgKAC0lhaIN+XlMrY
-         m26qRuuW+8hnglMCiZXJ4cmd5c9G0eKrC8kZgEdNDXdnYn8O2OLI/UmRMCrVNPd/gI
-         nmQk58JDsRITQ==
-X-Virus-Status: Clean
-X-Virus-Scanned: clamav-milter 0.102.2 at mail
-Date:   Thu, 7 May 2020 14:20:35 +0200
-From:   =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
-To:     Thierry Reding <thierry.reding@gmail.com>
-Cc:     Wolfram Sang <wsa@the-dreams.de>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Jon Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 2/5] i2c: tegra: Restore pinmux on system resume
-Message-ID: <20200507122035.GA5408@qmqm.qmqm.pl>
-References: <20200506193358.2807244-1-thierry.reding@gmail.com>
- <20200506193358.2807244-3-thierry.reding@gmail.com>
- <20200506224336.GA23423@qmqm.qmqm.pl>
- <20200507100315.GA2890327@ulmo>
+        id S1726367AbgEGNvp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 7 May 2020 09:51:45 -0400
+IronPort-SDR: UFvx2kn7AItt/86FBbx+X/0tKRPLMfIGVl2590ptNLMApaNNdSr0lNSq0iK1lTXk7TLm4q3TFi
+ X94CIwubdj3w==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2020 06:51:44 -0700
+IronPort-SDR: lknXsqJVH5VK0JWRcE4z/XJBLM8mSB8bkNI6WOC69U9maQbiF/4O37ipN3GGMG7ao5EX+h0P8G
+ 4SRXQFgBUJrg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,363,1583222400"; 
+   d="scan'208";a="278604305"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga002.jf.intel.com with ESMTP; 07 May 2020 06:51:43 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 3456A234; Thu,  7 May 2020 16:51:42 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 4/4] i2c: designware: Read counters from ACPI for PCI driver
+Date:   Thu,  7 May 2020 16:51:40 +0300
+Message-Id: <20200507135140.14635-4-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200507135140.14635-1-andriy.shevchenko@linux.intel.com>
+References: <20200507135140.14635-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200507100315.GA2890327@ulmo>
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, May 07, 2020 at 12:03:15PM +0200, Thierry Reding wrote:
-> On Thu, May 07, 2020 at 12:43:36AM +0200, mirq-test@rere.qmqm.pl wrote:
-> > On Wed, May 06, 2020 at 09:33:55PM +0200, Thierry Reding wrote:
-> > [...]
-> > > --- a/drivers/i2c/busses/i2c-tegra.c
-> > > +++ b/drivers/i2c/busses/i2c-tegra.c
-> > > @@ -1769,10 +1769,14 @@ static int tegra_i2c_remove(struct platform_device *pdev)
-> > >  static int __maybe_unused tegra_i2c_suspend(struct device *dev)
-> > >  {
-> > >  	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-> > > +	int err = 0;
-> > >  
-> > >  	i2c_mark_adapter_suspended(&i2c_dev->adapter);
-> > >  
-> > > -	return 0;
-> > > +	if (!pm_runtime_status_suspended(dev))
-> > > +		err = tegra_i2c_runtime_suspend(dev);
-> > > +
-> > > +	return err;
-> > >  }
-> > >  
-> > >  static int __maybe_unused tegra_i2c_resume(struct device *dev)
-> > > @@ -1788,9 +1792,11 @@ static int __maybe_unused tegra_i2c_resume(struct device *dev)
-> > >  	if (err)
-> > >  		return err;
-> > >  
-> > > -	err = tegra_i2c_runtime_suspend(dev);
-> > > -	if (err)
-> > > -		return err;
-> > > +	if (pm_runtime_status_suspended(dev)) {
-> > [...]
-> > Shouldn't this be negated as in suspend? I would assume that inbetween
-> > suspend and resume nothing changes the stored state.
-> 
-> I know this is confusing because I have now twice had the same doubts
-> after looking at the patch after I sent it out and thought I had sent
-> out a wrong version.
-> 
-> However, I think it starts to make more sense when you look at the
-> resulting code, which I'll reproduce below:
-> 
-> 	static int __maybe_unused tegra_i2c_resume(struct device *dev)
-> 	{
-> 		struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-> 		int err;
-> 
-> 		err = tegra_i2c_runtime_resume(dev);
-> 		if (err)
-> 			return err;
-> 
-> 		err = tegra_i2c_init(i2c_dev, false);
-> 		if (err)
-> 			return err;
-> 
-> 		if (pm_runtime_status_suspended(dev)) {
-> 			err = tegra_i2c_runtime_suspend(dev);
-> 			if (err)
-> 				return err;
-> 		}
-> 
-> 		i2c_mark_adapter_resumed(&i2c_dev->adapter);
-> 
-> 		return 0;
-> 	}
-> 
-> So the purpose here is to runtime resume the I2C controller temporarily
-> so that the register context can be reprogrammed because it was lost
-> during suspend. Now, if the controller was runtime suspended prior to
-> system suspend, we want to put it back into suspend after the context
-> was loaded again. Conversely, if it was not runtime suspended, then we
-> want to keep it on.
-> 
-> If it helps I can sprinkle some comments throughout this function to try
-> and explain why exactly this is being done.
+PCI devices may have been backed with ACPI handle which supplies
+an additional information to the drivers, such as counters.
 
-Now it makes sense. Thanks!
+Call for ACPI configuration from PCI driver in order to utilize counters
+provided by ACPI.
 
-The full function is the missing context. What you wrote here 
-put in commit message should also do the job.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Best Regards,
-Micha³ Miros³aw
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index c762e5a11e44e..96191925f71ec 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -251,6 +251,15 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 		}
+ 	}
+ 
++	if (has_acpi_companion(&pdev->dev))
++		i2c_dw_acpi_configure(&pdev->dev);
++
++	r = i2c_dw_validate_speed(dev);
++	if (r) {
++		pci_free_irq_vectors(pdev);
++		return r;
++	}
++
+ 	i2c_dw_configure(dev);
+ 
+ 	if (controller->scl_sda_cfg) {
+-- 
+2.26.2
+
