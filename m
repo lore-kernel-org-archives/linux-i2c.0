@@ -2,121 +2,97 @@ Return-Path: <SRS0=lwx9=6Y=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03018C54E49
-	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 10:29:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 202BDC54E8A
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 19:58:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E1DD5208E4
-	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 10:29:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F12F120A8B
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 19:58:30 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AUzjo9sL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727771AbgEJK27 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 10 May 2020 06:28:59 -0400
-Received: from 212.199.177.27.static.012.net.il ([212.199.177.27]:48400 "EHLO
-        herzl.nuvoton.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726913AbgEJK27 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 May 2020 06:28:59 -0400
-Received: from taln60.nuvoton.co.il (ntil-fw [212.199.177.25])
-        by herzl.nuvoton.co.il (8.13.8/8.13.8) with ESMTP id 04AANrFe015175;
-        Sun, 10 May 2020 13:23:53 +0300
-Received: by taln60.nuvoton.co.il (Postfix, from userid 20088)
-        id 94DF6639C0; Sun, 10 May 2020 13:23:53 +0300 (IDT)
-From:   Tali Perry <tali.perry1@gmail.com>
-To:     ofery@google.com, brendanhiggins@google.com,
-        avifishman70@gmail.com, tmaimon77@gmail.com, kfting@nuvoton.com,
-        venture@google.com, yuenn@google.com, benjaminfair@google.com,
-        robh+dt@kernel.org, wsa@the-dreams.de,
-        andriy.shevchenko@linux.intel.com
-Cc:     linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-        openbmc@lists.ozlabs.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>,
-        kbuild test robot <lkp@intel.com>
-Subject: [PATCH v10 0/3] i2c: npcm7xx: add NPCM i2c controller driver
-Date:   Sun, 10 May 2020 13:23:27 +0300
-Message-Id: <20200510102330.66715-1-tali.perry1@gmail.com>
-X-Mailer: git-send-email 2.22.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1728468AbgEJT6a (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 10 May 2020 15:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36742 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728071AbgEJT6a (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 May 2020 15:58:30 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 056A1C061A0C;
+        Sun, 10 May 2020 12:58:29 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id f23so2862959pgj.4;
+        Sun, 10 May 2020 12:58:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=uZKTxfpf4WQr90XnNhuD3ishpnxGhqgOmhIo+H3Laqk=;
+        b=AUzjo9sLPuAvRnXdzPT3Kc8NUOsQm0jfrAF2blkwHrYFPsROHcqXpscXzY8hV4qEMz
+         LpLZXkSZeY/9Owsl0ForKL4OFUhfLlR76RI6fXK1tFpU9j4F6nkvqZ13XRPmNAIEf2my
+         dKhvYfa43cJZQHGmKS5f5n65SwkGFJWgxqA1LKrRFhWGdFDz8zcOVGa0M0/9ZguD8YvL
+         kW6bPJtRgvIyxTzKJD+Xv0H89DXWsPw/HHxrLedaD2VIgmBIME5gIjEsK4pZeSYv0OTK
+         iE38BK0zmG0sZpOym6T4S5W+K+s5lKPmmPf1IWkkjO/AQXUWTaHjAvl9DSd8MCDWbacH
+         sLxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=uZKTxfpf4WQr90XnNhuD3ishpnxGhqgOmhIo+H3Laqk=;
+        b=Y0xFsx4ZmuXyQNhA+n7DT/73hWWpGMMmYY2KYcGr2z9BJDY/y+5a+TRJCidjhWFsQi
+         exinOYgNRM93IlevkAbFBgxGzxg5JI0A2wFbbHhIPNjyQm6Eedo3xjxSWOSm4HfAvpCh
+         OwSg/+YbSeG7zXvYM5394zm+ku7mIvprmDRW8CyQhLqtJ6WYyB5yxB25a2vIsa6wJxzq
+         LuuUGZoZHJzjwZ5W/QURIiuQ1346YuvRRYEeLfES5dYXksEWhg1zv/0sM6f0cZMmXE2q
+         i6W96TEoxjKfsnCUezBRtfKIYhIfCyuE4Us+9gOmhNasKlLQtOfGjzfQzfX7QYIPd07S
+         48UQ==
+X-Gm-Message-State: AOAM532LQXDbv+3eJtXpvcGcmbu7uA7R+IGSO/eBgtd0NopdrCy3cHAy
+        KDfhFGgvYKx2Ae1iqta87XI=
+X-Google-Smtp-Source: ABdhPJw467vS/5Fwn2AHn/9SElCumBSYBKYSMDLeemhy0DbS1zmRMM9peKvlD8YgUaRsNutWVKj56Q==
+X-Received: by 2002:a63:3342:: with SMTP id z63mr1479172pgz.49.1589140709345;
+        Sun, 10 May 2020 12:58:29 -0700 (PDT)
+Received: from pr0gr4m-ubuntu.localdomain ([1.240.193.107])
+        by smtp.googlemail.com with ESMTPSA id u9sm7320289pfn.197.2020.05.10.12.58.26
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 10 May 2020 12:58:28 -0700 (PDT)
+From:   l4stpr0gr4m@gmail.com
+To:     trivial@kernel.org
+Cc:     nsaenzjulienne@suse.de, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Kangmin Park <l4stpr0gr4m@gmail.com>
+Subject: [PATCH] docs/devicetree/i2c: brcm,bcm2835: fix node id in example
+Date:   Mon, 11 May 2020 04:58:21 +0900
+Message-Id: <1589140701-7516-1-git-send-email-l4stpr0gr4m@gmail.com>
+X-Mailer: git-send-email 2.7.4
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This patch set adds i2c controller support 
-for the Nuvoton NPCM Baseboard Management Controller (BMC).
+From: Kangmin Park <l4stpr0gr4m@gmail.com>
 
-NPCM7xx includes 16 I2C controllers. This driver operates the controller.
-This module also includes a slave mode.
+This is a trivial patch to fix node id to match the reg in example.
 
+Signed-off-by: Kangmin Park <l4stpr0gr4m@gmail.com>
 ---
-v10 -> v9:
-	- Fix according to maintainer comments.
-	- binding file changed to yaml format.
-	- Shorten recovery flow.
-	- Add support for health monitoring counters.
+ Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-v9 -> v8:
-	- Fix according to maintainer comments.
-	- Split lines of iowrite..(ioread..) to separate lines.
-	- Use readx_poll_timeout_atomic
-	- resolve various style issues.
-	 
-v8 -> v7:
-	- Split to two commits, one for master, one for slave.
-	- Rename smb to i2c.
-	- Remove global vars.
-
-v7 -> v6:
-	- Rebased on Linux 5.4-rc8  (was Linux 5.4-rc7).
-	- Fix issue found by kbuild test robot (redundant include).
-	- Note: left a warning related to fall through. This fall through is
-	  intentional.
-	
-v6 -> v5:
-	- Update documentation
-
-v5 -> v4:
-	- support recovery
-	- master-slave switch support needed for IPMB
-
-v4 -> v3:
-	- typo on cover letter.
-
-v3 -> v2:
-	- fix dt binding: compatible name: omit "bus"
-
-v2 -> v1:
-	- run check patch in strict mode.
-	- use linux crc.
-	- define regs in constant offset without base.
-	- remove debug prints.
-	- no declarations for local functions.
-	
-v1: initial version
-
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-
----
-Tali Perry (3):
-  dt-bindings: i2c: npcm7xx: add NPCM I2C controller documentation
-  i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver
-  i2c: npcm7xx: Add support for slave mode for Nuvoton NPCM BMC I2C
-    controller driver.
-
- .../bindings/i2c/nuvoton,npcm7xx-i2c.yaml     |   62 +
- drivers/i2c/busses/Kconfig                    |    9 +
- drivers/i2c/busses/Makefile                   |    1 +
- drivers/i2c/busses/i2c-npcm7xx.c              | 2467 +++++++++++++++++
- 4 files changed, 2539 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
- create mode 100644 drivers/i2c/busses/i2c-npcm7xx.c
-
-
-base-commit: 262f7a6b8317a06e7d51befb690f0bca06a473ea
+diff --git a/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+index c9a6587..a8a35df 100644
+--- a/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+@@ -13,7 +13,7 @@ Recommended properties:
+ 
+ Example:
+ 
+-i2c@20205000 {
++i2c@7e205000 {
+ 	compatible = "brcm,bcm2835-i2c";
+ 	reg = <0x7e205000 0x1000>;
+ 	interrupts = <2 21>;
 -- 
-2.22.0
+2.7.4
 
