@@ -6,46 +6,45 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E54EC54E8D
-	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91BB6C54E92
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 12A6D20735
-	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7715420735
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727114AbgEJJ7q (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 10 May 2020 05:59:46 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:46314 "EHLO
+        id S1728713AbgEJJ7r (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 10 May 2020 05:59:47 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:46308 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728621AbgEJJ7o (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 May 2020 05:59:44 -0400
+        with ESMTP id S1728681AbgEJJ7q (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 May 2020 05:59:46 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 905AB8000B82;
-        Sun, 10 May 2020 09:51:09 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id CE7A18030875;
+        Sun, 10 May 2020 09:50:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id q51xkqzNECF2; Sun, 10 May 2020 12:51:09 +0300 (MSK)
+        with ESMTP id OfwJvFjXcLcw; Sun, 10 May 2020 12:50:24 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>
 CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Serge Semin <fancer.lancer@gmail.com>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Paul Burton <paulburton@kernel.org>,
         Ralf Baechle <ralf@linux-mips.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        <linux-mips@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Hanjun Guo <guohanjun@huawei.com>, <linux-i2c@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2 11/12] i2c: designware: Use provided regmap instead of reg resource
-Date:   Sun, 10 May 2020 12:50:17 +0300
-Message-ID: <20200510095019.20981-12-Sergey.Semin@baikalelectronics.ru>
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>, <linux-mips@vger.kernel.org>,
+        <linux-i2c@vger.kernel.org>, Rob Herring <robh@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Richard Fontana <rfontana@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH v2 01/12] scripts/dtc: check: Add 10bit/slave i2c reg flags support
+Date:   Sun, 10 May 2020 12:50:07 +0300
+Message-ID: <20200510095019.20981-2-Sergey.Semin@baikalelectronics.ru>
 In-Reply-To: <20200510095019.20981-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200306132001.1B875803087C@mail.baikalelectronics.ru>
  <20200510095019.20981-1-Sergey.Semin@baikalelectronics.ru>
@@ -58,70 +57,82 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This is a preparation patch before adding a glue platform driver for the
-Baikal-T1 I2C controller. Since the i2c controller registers are indirectly
-accessed by means of the Baikal-T1 System Controller registers we need to
-have a way to disable the default registers mapping setup procedure and
-make the DW I2C core/platform code to use a provided by a glue driver
-regmap.
+Recently the I2C-controllers slave interface support was added to the
+kernel I2C subsystem. In this case Linux can be used as, for example,
+a I2C EEPROM machine. See [1] for details. Other than instantiating
+the EEPROM-slave device from user-space there is a way to declare the
+device in dts. In this case firstly the I2C bus controller must support
+the slave interface. Secondly I2C-slave sub-node of that controller
+must have "reg"-property with flag I2C_OWN_SLAVE_ADDRESS set (flag is
+declared in [2]). That flag is declared as (1 << 30), which when set
+makes dtc unhappy about too big address set for a I2C-slave:
+
+Warning (i2c_bus_reg): /example-2/i2c@1120000/eeprom@64: I2C bus unit address format error, expected "40000064"
+Warning (i2c_bus_reg): /example-2/i2c@1120000/eeprom@64:reg: I2C address must be less than 10-bits, got "0x40000064"
+
+Similar problem would have happened if we had set the 10-bit address
+flag I2C_TEN_BIT_ADDRESS in the "reg"-property.
+
+In order to fix the problem we suggest to alter the I2C-bus reg-check
+algorithm, so one would be aware of the upper bits set. Normally if no
+flag specified, the 7-bit address is expected in the "reg"-property.
+If I2C_TEN_BIT_ADDRESS is set, then the 10-bit address check will be
+performed. The I2C_OWN_SLAVE_ADDRESS flag will be just ignored.
+
+[1] Documentation/i2c/slave-interface.rst
+[2] include/dt-bindings/i2c/i2c.h
 
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: Paul Burton <paulburton@kernel.org>
 Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-mips@vger.kernel.org
-Cc: devicetree@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
 ---
- drivers/i2c/busses/i2c-designware-common.c  |  7 +++++++
- drivers/i2c/busses/i2c-designware-platdrv.c | 14 ++++++++++----
- 2 files changed, 17 insertions(+), 4 deletions(-)
+ scripts/dtc/checks.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 35c5ad7e274e..141ea0651a8f 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -133,6 +133,13 @@ int i2c_dw_init_regmap(struct dw_i2c_dev *dev)
- 	u32 reg;
- 	int ret;
+diff --git a/scripts/dtc/checks.c b/scripts/dtc/checks.c
+index 4b3c486f1399..6321fc5b7404 100644
+--- a/scripts/dtc/checks.c
++++ b/scripts/dtc/checks.c
+@@ -1028,6 +1028,7 @@ static void check_i2c_bus_reg(struct check *c, struct dt_info *dti, struct node
+ 	const char *unitname = get_unitname(node);
+ 	char unit_addr[17];
+ 	uint32_t reg = 0;
++	uint32_t addr;
+ 	int len;
+ 	cell_t *cells = NULL;
  
-+	/*
-+	 * Skip detecting the registers map configuration if the regmap has
-+	 * already been provided by a higher code.
-+	 */
-+	if (dev->map)
-+		return 0;
-+
- 	ret = i2c_dw_acquire_lock(dev);
- 	if (ret)
- 		return ret;
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index f577e2a92a4f..9d131a64ea81 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -212,10 +212,16 @@ int i2c_dw_plat_setup(struct dw_i2c_dev *dev)
- 	if (dev->irq < 0)
- 		return dev->irq;
+@@ -1044,17 +1045,21 @@ static void check_i2c_bus_reg(struct check *c, struct dt_info *dti, struct node
+ 	}
  
--	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	dev->base = devm_ioremap_resource(&pdev->dev, mem);
--	if (IS_ERR(dev->base))
--		return PTR_ERR(dev->base);
-+	/*
-+	 * Don't try to get the controller registers MMIO space if regmap has
-+	 * been provided by a higher level code.
-+	 */
-+	if (!dev->map) {
-+		mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+		dev->base = devm_ioremap_resource(&pdev->dev, mem);
-+		if (IS_ERR(dev->base))
-+			return PTR_ERR(dev->base);
-+	}
+ 	reg = fdt32_to_cpu(*cells);
+-	snprintf(unit_addr, sizeof(unit_addr), "%x", reg);
++	addr = reg & 0x3FFFFFFFU;
++	snprintf(unit_addr, sizeof(unit_addr), "%x", addr);
+ 	if (!streq(unitname, unit_addr))
+ 		FAIL(c, dti, node, "I2C bus unit address format error, expected \"%s\"",
+ 		     unit_addr);
  
- 	dev->rst = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
- 	if (IS_ERR(dev->rst))
+ 	for (len = prop->val.len; len > 0; len -= 4) {
+ 		reg = fdt32_to_cpu(*(cells++));
+-		if (reg > 0x3ff)
++		addr = reg & 0x3FFFFFFFU;
++		if ((reg & (1 << 31)) && addr > 0x3ff)
+ 			FAIL_PROP(c, dti, node, prop, "I2C address must be less than 10-bits, got \"0x%x\"",
+-				  reg);
+-
++				  addr);
++		else if (!(reg & (1 << 31)) && addr > 0x7f)
++			FAIL_PROP(c, dti, node, prop, "I2C address must be less than 7-bits, got \"0x%x\"",
++				  addr);
+ 	}
+ }
+ WARNING(i2c_bus_reg, check_i2c_bus_reg, NULL, &reg_format, &i2c_bus_bridge);
 -- 
 2.25.1
 
