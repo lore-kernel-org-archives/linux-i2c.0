@@ -1,97 +1,126 @@
-Return-Path: <SRS0=omKb=6X=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=lwx9=6Y=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07718C28CBC
-	for <linux-i2c@archiver.kernel.org>; Sat,  9 May 2020 15:35:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC683C54E49
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CCAD8208E4
-	for <linux-i2c@archiver.kernel.org>; Sat,  9 May 2020 15:35:46 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VqdHUCGZ"
+	by mail.kernel.org (Postfix) with ESMTP id B2394208E4
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727926AbgEIPfq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 9 May 2020 11:35:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56152 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727092AbgEIPfq (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 9 May 2020 11:35:46 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E07DC061A0C;
-        Sat,  9 May 2020 08:35:45 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id 8so1104035lfp.4;
-        Sat, 09 May 2020 08:35:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=lzmiW4ai34vL1R52asRHKaWqLBaR1/46ZdQ//XVaBiQ=;
-        b=VqdHUCGZsIebL8bw1pIVn+zo+eNFdKYKpDqaMfvZtRPCLY6zF/JtJNpg/ydkWTR/mb
-         vYkBue/7O8hmxBgTroM9jLAMNYkIXx5vBGzQFJBTHacydrtPrwAeSRg4n4BSOFOxy+EE
-         yViPwmHgaSZDKayEODEwjYADS13KgyEBznymCA19Rx4pHzN1d8NTmUIS2JfE2MddiVUl
-         s0E2+fWtCLod0SM4KTjRhAeqyI80KSFv0/HM6TIy6DE8RtCvWVb5+98RI0IqgdE1hy/K
-         vzup/gve2a25M8J7P5j1MXdO7/jCCFy8m/joix8bcGS6g2NycPz42bF/np3iRXK+8kNn
-         CTQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=lzmiW4ai34vL1R52asRHKaWqLBaR1/46ZdQ//XVaBiQ=;
-        b=i2uwruyqxf9ggGYl7SzNYD3pdrkLbwJAm7gfA7ZRvdAA3h4vVOTSpfEyRZVdJ3SEdN
-         lROE8d/QE80nmx2tgsQjlcznbUmP2TpMKpxLa/bvB5XuDaacszCF1S8AwnXLZX1Sri6J
-         hgVFU7EOf0IJs9KMyb0SzFnBXM3zS26NeHtjPCmmAAitdOr1mWT+g2Qdrz977GVW37KR
-         3+eknn/GjlB3KqBZ/nql7wARxX8r24RLaHYw/kXTt2uPvnnu9AmHBDARMD1a/YeHxS+S
-         FNgXIuCgh0hV8/9rzIsg7/bnuqj2H8Ap962VguUK0SKZOF1CdM/hljY4lwHY2gAjpXoT
-         8hmA==
-X-Gm-Message-State: AOAM531kxrJyYrSDGbUROyOn5Uud7J9dKTb243M15A89V6IQB7rsjpIw
-        rBYyS6+O2OcCUD1GN1Rrip4lLn68
-X-Google-Smtp-Source: ABdhPJzqnGcdRMt8ENMu1Kr1eb19BxMnsHbXQzJjvIAADh7/d9ypSfKL0A0JjNBkHuPUrTRD9U7vgA==
-X-Received: by 2002:ac2:46c1:: with SMTP id p1mr5065181lfo.25.1589038543742;
-        Sat, 09 May 2020 08:35:43 -0700 (PDT)
-Received: from [192.168.2.145] (ppp91-78-208-152.pppoe.mtu-net.ru. [91.78.208.152])
-        by smtp.googlemail.com with ESMTPSA id a25sm4244794lfb.87.2020.05.09.08.35.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 09 May 2020 08:35:42 -0700 (PDT)
-Subject: Re: [PATCH 2/5] i2c: tegra: Restore pinmux on system resume
-From:   Dmitry Osipenko <digetx@gmail.com>
-To:     Thierry Reding <thierry.reding@gmail.com>
-Cc:     Wolfram Sang <wsa@the-dreams.de>,
-        Jon Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-References: <20200506193358.2807244-1-thierry.reding@gmail.com>
- <20200506193358.2807244-3-thierry.reding@gmail.com>
- <2a0404ac-73bf-2f27-9147-8bef28ae995f@gmail.com>
- <20200508103130.GB3030605@ulmo>
- <f149bb64-e93b-364e-47bc-c851e9638a35@gmail.com>
-Message-ID: <86fee5a3-fe2f-05ab-bc05-1c441d2845e9@gmail.com>
-Date:   Sat, 9 May 2020 18:35:41 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1727784AbgEJJ7m (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 10 May 2020 05:59:42 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:46264 "EHLO
+        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726906AbgEJJ7l (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 May 2020 05:59:41 -0400
+Received: from localhost (unknown [127.0.0.1])
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id 0EF0B803078D;
+        Sun, 10 May 2020 09:50:35 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at baikalelectronics.ru
+Received: from mail.baikalelectronics.ru ([127.0.0.1])
+        by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id gyDqogqbM8Ej; Sun, 10 May 2020 12:50:34 +0300 (MSK)
+From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Rob Herring <robh+dt@kernel.org>
+CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Frank Rowand <frowand.list@gmail.com>,
+        <linux-mips@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH v2 03/12] dt-bindings: i2c: dw: Add Baikal-T1 SoC I2C controller
+Date:   Sun, 10 May 2020 12:50:09 +0300
+Message-ID: <20200510095019.20981-4-Sergey.Semin@baikalelectronics.ru>
+In-Reply-To: <20200510095019.20981-1-Sergey.Semin@baikalelectronics.ru>
+References: <20200306132001.1B875803087C@mail.baikalelectronics.ru>
+ <20200510095019.20981-1-Sergey.Semin@baikalelectronics.ru>
 MIME-Version: 1.0
-In-Reply-To: <f149bb64-e93b-364e-47bc-c851e9638a35@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-> 2. Could you please explain why I2C driver has to care about restoring
-> the pinmux state? Why pinctrl driver isn't doing that for I2C and
-> everything else?
+Add the "baikal,bt1-sys-i2c" compatible string to the DW I2C binding and
+make sure the reg property isn't required in this case because the
+controller is embedded into the Baikal-T1 System Controller. The rest of
+the DW APB I2C properties are compatible and can be freely used to describe
+the Baikal-T1 I2C controller dts-node.
 
-Although, now I see what you meant in the commit's message.
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: linux-mips@vger.kernel.org
 
-Perhaps the "their I2C controllers may have lost the pinmux state in
-hardware" paragraph should be removed from the commit's message because
-it's irrelevant to this patch. The pinctrl state is changed once
-tegra_i2c_runtime_resume() is invoked and it is not about the change
-made by this patch.
+---
+
+Rob, I had to remove your acked-by tag because of the changes introduced
+in v2 of the patch.
+
+Changelog v2:
+- Make the reg property being optional if it's Baikal-T1 System I2C DT
+  node.
+---
+ .../devicetree/bindings/i2c/snps,designware-i2c.yaml | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+index 8d4e5fccbd1c..579964098eb9 100644
+--- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+@@ -21,6 +21,15 @@ allOf:
+       properties:
+         reg:
+           maxItems: 1
++  - if:
++      properties:
++        compatible:
++          not:
++            contains:
++              const: baikal,bt1-sys-i2c
++    then:
++      required:
++        - reg
+ 
+ properties:
+   compatible:
+@@ -31,6 +40,8 @@ properties:
+         items:
+           - const: mscc,ocelot-i2c
+           - const: snps,designware-i2c
++      - description: Baikal-T1 SoC System I2C controller
++        const: baikal,bt1-sys-i2c
+ 
+   reg:
+     minItems: 1
+@@ -98,7 +109,6 @@ unevaluatedProperties: false
+ 
+ required:
+   - compatible
+-  - reg
+   - "#address-cells"
+   - "#size-cells"
+   - interrupts
+-- 
+2.25.1
 
