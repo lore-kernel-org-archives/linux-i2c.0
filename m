@@ -2,54 +2,53 @@ Return-Path: <SRS0=lwx9=6Y=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FBC0C54E49
-	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F91CC54E8A
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 351A020A8B
-	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73F1720735
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728737AbgEJJ7p (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 10 May 2020 05:59:45 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:46256 "EHLO
+        id S1728681AbgEJJ7s (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 10 May 2020 05:59:48 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:46314 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726687AbgEJJ7o (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 May 2020 05:59:44 -0400
+        with ESMTP id S1728464AbgEJJ7s (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 May 2020 05:59:48 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 77A0E80307CB;
-        Sun, 10 May 2020 09:50:24 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id D37BB8000AFA;
+        Sun, 10 May 2020 09:50:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id fTddCm_mLQ0g; Sun, 10 May 2020 12:50:23 +0300 (MSK)
+        with ESMTP id g2auXzFxYgSj; Sun, 10 May 2020 12:50:51 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
 CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Serge Semin <fancer.lancer@gmail.com>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Maxim Kaurkin <Maxim.Kaurkin@baikalelectronics.ru>,
-        Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>,
-        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
-        Ekaterina Skachko <Ekaterina.Skachko@baikalelectronics.ru>,
-        Vadim Vlasov <V.Vlasov@baikalelectronics.ru>,
-        Alexey Kolotnikov <Alexey.Kolotnikov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Paul Burton <paulburton@kernel.org>,
         Ralf Baechle <ralf@linux-mips.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Wolfram Sang <wsa@the-dreams.de>, <linux-mips@vger.kernel.org>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2 00/12] i2c: designeware: Add Baikal-T1 System I2C support
-Date:   Sun, 10 May 2020 12:50:06 +0300
-Message-ID: <20200510095019.20981-1-Sergey.Semin@baikalelectronics.ru>
-In-Reply-To: <20200306132001.1B875803087C@mail.baikalelectronics.ru>
+        Frank Rowand <frowand.list@gmail.com>,
+        <linux-mips@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
+Subject: [PATCH v2 08/12] i2c: designware: Introduce platform drivers glue layer interface
+Date:   Sun, 10 May 2020 12:50:14 +0300
+Message-ID: <20200510095019.20981-9-Sergey.Semin@baikalelectronics.ru>
+In-Reply-To: <20200510095019.20981-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200306132001.1B875803087C@mail.baikalelectronics.ru>
+ <20200510095019.20981-1-Sergey.Semin@baikalelectronics.ru>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -59,162 +58,281 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Initially this has been a small patchset which embedded the Baikal-T1
-System I2C support into the DW APB I2C driver as is by using a simplest
-way. After a short discussion with Andy we decided to implement what he
-suggested (introduce regmap-based accessors and create a glue driver) and
-even more than that to provide some cleanups of the code. So here is what
-this patchset consists of.
+Seeing the DW I2C platform driver is getting overcomplicated with a lot of
+vendor-specific configs let's introduce a glue-layer interface so new
+platforms which equipped with Synopsys Designware APB I2C IP-core would
+be able to handle their peculiarities in the dedicated objects.
 
-First of all we've found out that current implementation of scripts/dtc
-didn't support i2c dt nodes with 10bit and slave flags set in the
-reg property. You'll see an error if you try to dt_binding_check it.
-So the very first patch fixes the problem by adding these flags support
-into the check_i2c_bus_reg() method.
+The generic platform setups and cleanups can now be performed by means of
+two new functions exported from the Dw I2C platform driver:
 
-Traditionally we converted the plain text-based DT binding to the DT schema
-and added Baikal-T1 System I2C device support there. This required to mark
-the reg property redundant for Baikal-T1 I2C since its reg-space is
-indirectly accessed by means of the System Controller cmd/read/write
-registers.
+int i2c_dw_plat_setup(struct dw_i2c_dev *dev);
+int i2c_dw_plat_clear(struct dw_i2c_dev *dev);
 
-Then as Andy suggested we replaced the Synopsys DW APB I2C common driver
-registers IO accessors into the regmap API methods. This doesn't change
-the code logic much, though in two places we managed to replace some bulky
-peaces of code with a ready-to-use regmap methods.
+They also install and remove the I2C controller respectively. In addition
+if device supports the PM interface a glue driver can use the generic
+platform PM callbacks collected into the PM dev ops structure:
 
-Additionally before adding the glue layer API we initiated a set of cleanups:
-- Define components of the multi-object drivers (like i2c-designware-core.o
-  and i2c-designware-paltform.o) with using `-y` suffixed makefile
-  variables instead of `-objs` suffixed one. This is encouraged by
-  Documentation/kbuild/makefiles.rst text since `-objs` is supposed to be used
-  to build host programs.
-- Make DW I2C slave driver depended on the DW I2C core code instead of the
-  platform one, which it really is.
-- Move Intel Baytrail semaphore feature to the platform if-clause of the
-  kernel config.
+const struct dev_pm_ops i2c_dw_plat_dev_pm_ops;
 
-After this we finally can introduce the glue layer API for the DW APB I2C
-platform driver. So there are three methods exported from the driver:
-i2c_dw_plat_setup(), i2c_dw_plat_clear(), &i2c_dw_plat_dev_pm_ops to
-setup, cleanup and add PM operations to the glue driven I2C device. Before
-setting the platform DW I2C device up the glue probe code is supposed to
-create an instance of DW I2C device generic object and pre-initialize
+Before setting the platform DW I2C device up the glue probe code is
+supposed to create an instance of `struct dw_i2c_dev` and pre-initialize
 its `struct device` pointer together with optional platform-specific
-flags. In addition to that we converted the MSCC Ocelot SoC I2C specific
-code into the glue layer seeing it's really too specific and, which is more
-important, isn't that complicated so we could unpin it without much of
-worrying to break something.
+flags. Currently the ACCESS_NO_IRQ_SUSPEND and ACCESS_INTR_MASK flags are
+supported.
 
-Meanwhile we discovered that MODEL_CHERRYTRAIL and MODEL_MASK actually
-were no longer used in the code. MODEL_MSCC flag has been discarded since
-the MSCC Ocelot I2C code conversion to the glue driver. So now we can get
-rid of all the MODEL-specific flags.
+Note we moved the platform driver private data setup to the generic
+platform probe method. By doing so the driver data pointer will be free
+to be used by the glue-layer driver.
 
-Finally we introduced a glue driver with Baikal-T1 System I2C device
-support. The driver probe tries to find a syscon regmap, creates the DW
-APB I2C regmap based on it and passes it further to the DW I2C device
-descriptor. Then it does normal DW APB I2C platform setup by calling a
-generic setup method. Cleanup is straightforward. It's just calling a
-generic DW APB I2C clean method.
-
-This patchset is rebased and tested on the mainline Linux kernel 5.6-rc4:
-base-commit: 0e698dfa2822 ("Linux 5.7-rc4")
-tag: v5.7-rc4
-
-Note new vendor prefix for Baikal-T1 System I2C device will be added in
-the framework of the next patchset:
-https://lkml.org/lkml/2020/5/6/1047
-
+Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Maxim Kaurkin <Maxim.Kaurkin@baikalelectronics.ru>
-Cc: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
-Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
-Cc: Ekaterina Skachko <Ekaterina.Skachko@baikalelectronics.ru>
-Cc: Vadim Vlasov <V.Vlasov@baikalelectronics.ru>
-Cc: Alexey Kolotnikov <Alexey.Kolotnikov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: Paul Burton <paulburton@kernel.org>
 Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Frank Rowand <frowand.list@gmail.com>
 Cc: linux-mips@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
 Cc: devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-
 ---
-
-Changelog v2:
-- Fix the SoB tags.
-- Use a shorter summary describing the bindings convertion patch.
-- Patch "i2c: designware: Detect the FIFO size in the common code" has
-  been acked by Jarkko and applied by Wolfram to for-next so drop it from
-  the set.
-- Patch "i2c: designware: Discard i2c_dw_read_comp_param() function" has
-  been acked by Jarkko and applied by Wolfram to for-next so drop it from
-  the set.
-- Make sure that "mscc,ocelot-i2c" compatible node may have up to two
-  registers space defined in the DT node, while normal DW I2C controller
-  will have only one registers space.
-- Add "mscc,ocelot-i2c" DT schema example to test the previous fix.
-- Declare "unevaluatedProperties" property instead of
-  "additionalProperties" one in the DT schema.
-- Due to the previous fix we can now discard the dummy boolean properties
-  declaration, since the proper type evaluation will be performed by the
-  generic i2c-controller.yaml schema.
-- Refactor the DW I2C APB driver related series to address the Andies
-  notes.
-- Convert DW APB I2C driver to using regmap instead of handwritten
-  accessors.
-- Use `-y` to build multi-object DW APB drivers.
-- Fix DW APB I2C slave code dependency. It should depend on
-  I2C_DESIGNWARE_CORE instead I2C_DESIGNWARE_PLATFORM.
-- Move Baytrail semaphore config to the platform if-clause.
-- Introduce a glue-layer platform driver API.
-- Unpin Microsemi Ocelot I2C code into a glue driver.
-- Remove MODEL_CHERRYTRAIL and MODEL_MASK as no longer needed.
-- Add support for custom regmap passed from glue driver.
-- Add Baikal-T1 System I2C support in a dedicated glue layer driver.
-
-Serge Semin (12):
-  scripts/dtc: check: Add 10bit/slave i2c reg flags support
-  dt-bindings: i2c: Convert DW I2C binding to DT schema
-  dt-bindings: i2c: dw: Add Baikal-T1 SoC I2C controller
-  i2c: designware: Convert driver to using regmap API
-  i2c: designware: Use `-y` to build multi-object modules
-  i2c: designware: slave: Set DW I2C core module dependency
-  i2c: designware: Move Baytrail sem config to the platform if-clause
-  i2c: designware: Introduce platform drivers glue layer interface
-  i2c: designware: Unpin Microsemi Ocelot I2C into a glue driver
-  i2c: designware: Discard Cherry Trail model flag
-  i2c: designware: Use provided regmap instead of reg resource
-  i2c: designware: Add Baikal-T1 System I2C glue driver
-
- .../bindings/i2c/i2c-designware.txt           |  73 -------
- .../bindings/i2c/snps,designware-i2c.yaml     | 164 ++++++++++++++++
- drivers/i2c/busses/Kconfig                    |  56 ++++--
- drivers/i2c/busses/Makefile                   |  19 +-
- drivers/i2c/busses/i2c-designware-bt1.c       | 129 +++++++++++++
- drivers/i2c/busses/i2c-designware-common.c    | 178 +++++++++++++-----
- drivers/i2c/busses/i2c-designware-core.h      |  26 ++-
- drivers/i2c/busses/i2c-designware-master.c    | 125 ++++++------
- drivers/i2c/busses/i2c-designware-mscc.c      |  83 ++++++++
- drivers/i2c/busses/i2c-designware-pcidrv.c    |   1 -
- drivers/i2c/busses/i2c-designware-platdrv.c   | 132 ++++++-------
- drivers/i2c/busses/i2c-designware-platdrv.h   |  16 ++
- drivers/i2c/busses/i2c-designware-slave.c     |  77 ++++----
- scripts/dtc/checks.c                          |  13 +-
- 14 files changed, 759 insertions(+), 333 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-designware.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
- create mode 100644 drivers/i2c/busses/i2c-designware-bt1.c
- create mode 100644 drivers/i2c/busses/i2c-designware-mscc.c
+ drivers/i2c/busses/i2c-designware-core.h    |  4 +
+ drivers/i2c/busses/i2c-designware-platdrv.c | 84 +++++++++++++--------
+ drivers/i2c/busses/i2c-designware-platdrv.h | 16 ++++
+ 3 files changed, 71 insertions(+), 33 deletions(-)
  create mode 100644 drivers/i2c/busses/i2c-designware-platdrv.h
 
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index b5b981c1bb0d..10606266b30c 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -8,6 +8,8 @@
+  * Copyright (C) 2007 MontaVista Software Inc.
+  * Copyright (C) 2009 Provigent Ltd.
+  */
++#ifndef __I2C_DESIGNWARE_CORE_H__
++#define __I2C_DESIGNWARE_CORE_H__
+ 
+ #include <linux/i2c.h>
+ #include <linux/regmap.h>
+@@ -324,3 +326,5 @@ extern int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev);
+ #else
+ static inline int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev) { return 0; }
+ #endif
++
++#endif /* __I2C_DESIGNWARE_CORE_H__ */
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 5536673060cc..274953155569 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -32,6 +32,7 @@
+ #include <linux/suspend.h>
+ 
+ #include "i2c-designware-core.h"
++#include "i2c-designware-platdrv.h"
+ 
+ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ {
+@@ -80,9 +81,9 @@ static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
+ 	kfree(buf.pointer);
+ }
+ 
+-static int dw_i2c_acpi_configure(struct platform_device *pdev)
++static int dw_i2c_acpi_configure(struct dw_i2c_dev *dev)
+ {
+-	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
++	struct platform_device *pdev = to_platform_device(dev->dev);
+ 	struct i2c_timings *t = &dev->timings;
+ 	u32 ss_ht = 0, fp_ht = 0, hs_ht = 0, fs_ht = 0;
+ 
+@@ -135,7 +136,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ };
+ MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
+ #else
+-static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
++static inline int dw_i2c_acpi_configure(struct dw_i2c_dev *dev)
+ {
+ 	return -ENODEV;
+ }
+@@ -154,9 +155,9 @@ static int mscc_twi_set_sda_hold_time(struct dw_i2c_dev *dev)
+ 	return 0;
+ }
+ 
+-static int dw_i2c_of_configure(struct platform_device *pdev)
++static int dw_i2c_of_configure(struct dw_i2c_dev *dev)
+ {
+-	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
++	struct platform_device *pdev = to_platform_device(dev->dev);
+ 	struct resource *mem;
+ 
+ 	switch (dev->flags & MODEL_MASK) {
+@@ -180,7 +181,7 @@ static const struct of_device_id dw_i2c_of_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+ #else
+-static inline int dw_i2c_of_configure(struct platform_device *pdev)
++static inline int dw_i2c_of_configure(struct dw_i2c_dev *dev)
+ {
+ 	return -ENODEV;
+ }
+@@ -234,33 +235,25 @@ static const u32 supported_speeds[] = {
+ 	I2C_MAX_STANDARD_MODE_FREQ,
+ };
+ 
+-static int dw_i2c_plat_probe(struct platform_device *pdev)
++int i2c_dw_plat_setup(struct dw_i2c_dev *dev)
+ {
++	struct platform_device *pdev = to_platform_device(dev->dev);
+ 	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct i2c_adapter *adap;
+-	struct dw_i2c_dev *dev;
+ 	struct i2c_timings *t;
+ 	u32 acpi_speed;
+ 	struct resource *mem;
+-	int i, irq, ret;
++	int i, ret;
+ 
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
+-		return irq;
+-
+-	dev = devm_kzalloc(&pdev->dev, sizeof(struct dw_i2c_dev), GFP_KERNEL);
+-	if (!dev)
+-		return -ENOMEM;
++	dev->irq = platform_get_irq(pdev, 0);
++	if (dev->irq < 0)
++		return dev->irq;
+ 
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+ 	if (IS_ERR(dev->base))
+ 		return PTR_ERR(dev->base);
+ 
+-	dev->dev = &pdev->dev;
+-	dev->irq = irq;
+-	platform_set_drvdata(pdev, dev);
+-
+ 	dev->rst = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
+ 	if (IS_ERR(dev->rst))
+ 		return PTR_ERR(dev->rst);
+@@ -295,13 +288,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	else
+ 		t->bus_freq_hz = I2C_MAX_FAST_MODE_FREQ;
+ 
+-	dev->flags |= (uintptr_t)device_get_match_data(&pdev->dev);
+-
+ 	if (pdev->dev.of_node)
+-		dw_i2c_of_configure(pdev);
++		dw_i2c_of_configure(dev);
+ 
+ 	if (has_acpi_companion(&pdev->dev))
+-		dw_i2c_acpi_configure(pdev);
++		dw_i2c_acpi_configure(dev);
+ 
+ 	/*
+ 	 * Only standard mode at 100kHz, fast mode at 400kHz,
+@@ -393,10 +384,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	reset_control_assert(dev->rst);
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(i2c_dw_plat_setup);
+ 
+-static int dw_i2c_plat_remove(struct platform_device *pdev)
++int i2c_dw_plat_clear(struct dw_i2c_dev *dev)
+ {
+-	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
++	struct platform_device *pdev = to_platform_device(dev->dev);
+ 
+ 	pm_runtime_get_sync(&pdev->dev);
+ 
+@@ -412,6 +404,29 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(i2c_dw_plat_clear);
++
++static int dw_i2c_plat_probe(struct platform_device *pdev)
++{
++	struct dw_i2c_dev *dev;
++
++	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
++
++	dev->dev = &pdev->dev;
++	dev->flags |= (uintptr_t)device_get_match_data(dev->dev);
++	platform_set_drvdata(pdev, dev);
++
++	return i2c_dw_plat_setup(dev);
++}
++
++static int dw_i2c_plat_remove(struct platform_device *pdev)
++{
++	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
++
++	return i2c_dw_plat_clear(dev);
++}
+ 
+ #ifdef CONFIG_PM_SLEEP
+ static int dw_i2c_plat_prepare(struct device *dev)
+@@ -470,17 +485,20 @@ static int dw_i2c_plat_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
++#else
++
++#define dw_i2c_plat_prepare	NULL
++#define dw_i2c_plat_complete	NULL
++
++#endif
++
++const struct dev_pm_ops i2c_dw_plat_dev_pm_ops = {
+ 	.prepare = dw_i2c_plat_prepare,
+ 	.complete = dw_i2c_plat_complete,
+ 	SET_LATE_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+ 	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
+ };
+-
+-#define DW_I2C_DEV_PMOPS (&dw_i2c_dev_pm_ops)
+-#else
+-#define DW_I2C_DEV_PMOPS NULL
+-#endif
++EXPORT_SYMBOL_GPL(i2c_dw_plat_dev_pm_ops);
+ 
+ /* Work with hotplug and coldplug */
+ MODULE_ALIAS("platform:i2c_designware");
+@@ -492,7 +510,7 @@ static struct platform_driver dw_i2c_driver = {
+ 		.name	= "i2c_designware",
+ 		.of_match_table = of_match_ptr(dw_i2c_of_match),
+ 		.acpi_match_table = ACPI_PTR(dw_i2c_acpi_match),
+-		.pm	= DW_I2C_DEV_PMOPS,
++		.pm	= &i2c_dw_plat_dev_pm_ops,
+ 	},
+ };
+ 
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.h b/drivers/i2c/busses/i2c-designware-platdrv.h
+new file mode 100644
+index 000000000000..8916c4f61d7f
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-designware-platdrv.h
+@@ -0,0 +1,16 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Synopsys DesignWare I2C adapter driver.
++ */
++#ifndef __I2C_DESIGNWARE_PLATDRV_H__
++#define __I2C_DESIGNWARE_PLATDRV_H__
++
++#include <linux/pm.h>
++
++#include "i2c-designware-core.h"
++
++extern int i2c_dw_plat_setup(struct dw_i2c_dev *dev);
++extern int i2c_dw_plat_clear(struct dw_i2c_dev *dev);
++extern const struct dev_pm_ops i2c_dw_plat_dev_pm_ops;
++
++#endif /* __I2C_DESIGNWARE_PLATDRV_H__ */
 -- 
 2.25.1
 
