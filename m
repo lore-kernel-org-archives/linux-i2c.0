@@ -6,43 +6,49 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC683C54E49
-	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5CEDC54E8A
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2394208E4
-	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CFD9F20A8B
+	for <linux-i2c@archiver.kernel.org>; Sun, 10 May 2020 09:59:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727784AbgEJJ7m (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1728154AbgEJJ7m (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Sun, 10 May 2020 05:59:42 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:46264 "EHLO
+Received: from mail.baikalelectronics.com ([87.245.175.226]:46248 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726906AbgEJJ7l (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 May 2020 05:59:41 -0400
+        with ESMTP id S1726551AbgEJJ7m (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 May 2020 05:59:42 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 0EF0B803078D;
-        Sun, 10 May 2020 09:50:35 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id 362448000B81;
+        Sun, 10 May 2020 09:51:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id gyDqogqbM8Ej; Sun, 10 May 2020 12:50:34 +0300 (MSK)
+        with ESMTP id RTYjy1LzhIKT; Sun, 10 May 2020 12:51:05 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Rob Herring <robh+dt@kernel.org>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
 CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Serge Semin <fancer.lancer@gmail.com>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Paul Burton <paulburton@kernel.org>,
         Ralf Baechle <ralf@linux-mips.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        Rob Herring <robh+dt@kernel.org>,
         Frank Rowand <frowand.list@gmail.com>,
-        <linux-mips@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2 03/12] dt-bindings: i2c: dw: Add Baikal-T1 SoC I2C controller
-Date:   Sun, 10 May 2020 12:50:09 +0300
-Message-ID: <20200510095019.20981-4-Sergey.Semin@baikalelectronics.ru>
+        <linux-mips@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Jean Delvare <jdelvare@suse.de>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Chuhong Yuan <hslester96@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH v2 10/12] i2c: designware: Discard Cherry Trail model flag
+Date:   Sun, 10 May 2020 12:50:16 +0300
+Message-ID: <20200510095019.20981-11-Sergey.Semin@baikalelectronics.ru>
 In-Reply-To: <20200510095019.20981-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200306132001.1B875803087C@mail.baikalelectronics.ru>
  <20200510095019.20981-1-Sergey.Semin@baikalelectronics.ru>
@@ -55,72 +61,68 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add the "baikal,bt1-sys-i2c" compatible string to the DW I2C binding and
-make sure the reg property isn't required in this case because the
-controller is embedded into the Baikal-T1 System Controller. The rest of
-the DW APB I2C properties are compatible and can be freely used to describe
-the Baikal-T1 I2C controller dts-node.
+A PM workaround activated by the flag MODEL_CHERRYTRAIL has been removed
+since commit 9cbeeca05049 ("i2c: designware: Remove Cherry Trail PMIC I2C
+bus pm_disabled workaround"), but the flag most likely by mistake has been
+left in the Dw I2C drivers. Lets remove it.
+
+By doing so we get rid from the last DW APB I2C IP-core model flag, so we
+can remove the MODEL_MASK macro too.
 
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: Paul Burton <paulburton@kernel.org>
 Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Rob Herring <robh+dt@kernel.org>
 Cc: Frank Rowand <frowand.list@gmail.com>
 Cc: linux-mips@vger.kernel.org
-
+Cc: devicetree@vger.kernel.org
 ---
+ drivers/i2c/busses/i2c-designware-core.h    | 3 ---
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 1 -
+ drivers/i2c/busses/i2c-designware-platdrv.c | 2 +-
+ 3 files changed, 1 insertion(+), 5 deletions(-)
 
-Rob, I had to remove your acked-by tag because of the changes introduced
-in v2 of the patch.
-
-Changelog v2:
-- Make the reg property being optional if it's Baikal-T1 System I2C DT
-  node.
----
- .../devicetree/bindings/i2c/snps,designware-i2c.yaml | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-index 8d4e5fccbd1c..579964098eb9 100644
---- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-@@ -21,6 +21,15 @@ allOf:
-       properties:
-         reg:
-           maxItems: 1
-+  - if:
-+      properties:
-+        compatible:
-+          not:
-+            contains:
-+              const: baikal,bt1-sys-i2c
-+    then:
-+      required:
-+        - reg
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 64544777a1fa..5a1f6b623a9a 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -281,9 +281,6 @@ struct dw_i2c_dev {
+ #define ACCESS_INTR_MASK	0x00000004
+ #define ACCESS_NO_IRQ_SUSPEND	0x00000008
  
- properties:
-   compatible:
-@@ -31,6 +40,8 @@ properties:
-         items:
-           - const: mscc,ocelot-i2c
-           - const: snps,designware-i2c
-+      - description: Baikal-T1 SoC System I2C controller
-+        const: baikal,bt1-sys-i2c
- 
-   reg:
-     minItems: 1
-@@ -98,7 +109,6 @@ unevaluatedProperties: false
- 
- required:
-   - compatible
--  - reg
-   - "#address-cells"
-   - "#size-cells"
-   - interrupts
+-#define MODEL_CHERRYTRAIL	0x00000100
+-#define MODEL_MASK		0x00000f00
+-
+ int i2c_dw_init_regmap(struct dw_i2c_dev *dev);
+ u32 i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset);
+ u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset);
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 7a0b65b5b5b5..76357b575aa5 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -166,7 +166,6 @@ static struct dw_pci_controller dw_pci_controllers[] = {
+ 		.tx_fifo_depth = 32,
+ 		.rx_fifo_depth = 32,
+ 		.functionality = I2C_FUNC_10BIT_ADDR,
+-		.flags = MODEL_CHERRYTRAIL,
+ 		.scl_sda_cfg = &byt_config,
+ 	},
+ 	[elkhartlake] = {
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 1f56865bb6ca..f577e2a92a4f 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -124,7 +124,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "INT3432", 0 },
+ 	{ "INT3433", 0 },
+ 	{ "80860F41", ACCESS_NO_IRQ_SUSPEND },
+-	{ "808622C1", ACCESS_NO_IRQ_SUSPEND | MODEL_CHERRYTRAIL },
++	{ "808622C1", ACCESS_NO_IRQ_SUSPEND },
+ 	{ "AMD0010", ACCESS_INTR_MASK },
+ 	{ "AMDI0010", ACCESS_INTR_MASK },
+ 	{ "AMDI0510", 0 },
 -- 
 2.25.1
 
