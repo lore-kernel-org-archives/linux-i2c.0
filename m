@@ -2,73 +2,97 @@ Return-Path: <SRS0=mo/p=62=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5655FC54E8B
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 May 2020 12:29:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81CD5C54E4A
+	for <linux-i2c@archiver.kernel.org>; Tue, 12 May 2020 12:56:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3612520746
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 May 2020 12:29:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57A11207DD
+	for <linux-i2c@archiver.kernel.org>; Tue, 12 May 2020 12:56:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1589288205;
+	bh=cPsBmJJP+6Qh3Vr+QAI5Nhxpl2klgoaErTdBEfzdb3A=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=dCrh14nLjDPzkTOWJP9HZyUyrPIIIU5pPwvNhW36Prk4moQK/yysB3WJrcmB51h74
+	 nOD7NmPqYBfUnxSgGYSLlKMQw5uT3Kx0gx4cNd5Lz25pNIli/mBNvhJRZGu7THhbaO
+	 zjFL+P5RO+j1I7VVegqrsy0720T7kTm1E597Wb6M=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729336AbgELM3x (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 12 May 2020 08:29:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47724 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727859AbgELM3x (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 12 May 2020 08:29:53 -0400
-X-Greylist: delayed 301 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 12 May 2020 05:29:53 PDT
-Received: from albert.telenet-ops.be (albert.telenet-ops.be [IPv6:2a02:1800:110:4::f00:1a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36877C061A0C
-        for <linux-i2c@vger.kernel.org>; Tue, 12 May 2020 05:29:53 -0700 (PDT)
-Received: from ramsan ([IPv6:2a02:1810:ac12:ed60:81a0:190c:7969:2334])
-        by albert.telenet-ops.be with bizsmtp
-        id doQr220065045R206oQrsU; Tue, 12 May 2020 14:24:51 +0200
-Received: from rox.of.borg ([192.168.97.57])
-        by ramsan with esmtp (Exim 4.90_1)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1jYTxr-0005yf-4w; Tue, 12 May 2020 14:24:51 +0200
-Received: from geert by rox.of.borg with local (Exim 4.90_1)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1jYTxr-0005Gh-1o; Tue, 12 May 2020 14:24:51 +0200
-From:   Geert Uytterhoeven <geert+renesas@glider.be>
-To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH] dt-bindings: eeprom: at24: Fix list of page sizes for writing
-Date:   Tue, 12 May 2020 14:24:47 +0200
-Message-Id: <20200512122450.20205-1-geert+renesas@glider.be>
-X-Mailer: git-send-email 2.17.1
+        id S1729408AbgELM4o (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 12 May 2020 08:56:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35490 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728085AbgELM4o (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 12 May 2020 08:56:44 -0400
+Received: from localhost (p54B332DE.dip0.t-ipconnect.de [84.179.50.222])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 850FC206D3;
+        Tue, 12 May 2020 12:56:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589288204;
+        bh=cPsBmJJP+6Qh3Vr+QAI5Nhxpl2klgoaErTdBEfzdb3A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ibwhBXiYDwV9QFOHLmZFFBH+jOyNvDQbE8vRWjcP+eN8gp8AOyC1qSCKJpB9zTxGx
+         DRc3mHF0NjU/ZBpacfA5XfGyN4eKkhAOeZJd5eqw2s2EmcpMAInkBdj+57TdXoB/GZ
+         EoTOiondY6Zr0rtu0nfGAPKtskQaTFYXKkH/kgYw=
+Date:   Tue, 12 May 2020 14:56:41 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: eeprom: at24: Fix list of page sizes for
+ writing
+Message-ID: <20200512125641.GA13516@ninjato>
+References: <20200512122450.20205-1-geert+renesas@glider.be>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
+Content-Disposition: inline
+In-Reply-To: <20200512122450.20205-1-geert+renesas@glider.be>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-"258" is an odd power-of-two ;-)
-Obviously this is a typo, and the intended value is "256".
 
-Fixes: 7f3bf4203774013b ("dt-bindings: at24: convert the binding document to yaml")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- Documentation/devicetree/bindings/eeprom/at24.yaml | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.yaml b/Documentation/devicetree/bindings/eeprom/at24.yaml
-index d77bc475fd148d99..4cee72d5331877a8 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.yaml
-+++ b/Documentation/devicetree/bindings/eeprom/at24.yaml
-@@ -124,7 +124,7 @@ properties:
-       may result in data loss! If not specified, a safety value of
-       '1' is used which will be very slow.
-     $ref: /schemas/types.yaml#/definitions/uint32
--    enum: [1, 8, 16, 32, 64, 128, 258]
-+    enum: [1, 8, 16, 32, 64, 128, 256]
-     default: 1
- 
-   read-only:
--- 
-2.17.1
+On Tue, May 12, 2020 at 02:24:47PM +0200, Geert Uytterhoeven wrote:
+> "258" is an odd power-of-two ;-)
 
+Geez, you got two additional for free, Geert ;)
+
+> Obviously this is a typo, and the intended value is "256".
+
+Obviously.
+
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl66nQUACgkQFA3kzBSg
+KbYQ9BAAsuHP4dwKs2aleW0gb7U53oIvcbFwy0rSjBmVkldgihRfBx5Tu2hI9Lfb
+Whxarj5wOBXk/WPiT1ReJ0NW22S5QcXuHp8oWeqDAWHoe0s1Yx5X2qa88/xA1PzL
+w9DL3TdufvugzDjYgnEqyM+LuEklkma1HGOU8QVYD2s/ol2KtKM4k0v9y10TnLPr
+nw9vJFEd3CMC3Dnw+dh121r+LjQ0mv8+HpwRyLoTB8IRs/2vhryb0795VeFCZgYs
+WxuakNEDDoraOwehY8cQ9m7nkQFRMD3h6LpbQbiWBih+lflcsl9ZcOarGroo0gRz
+G3Wr3pdXR5+ZaGLzAysKfGTHtUGMMqhmaL4KpXJhI1EjHCmr1jm960Dc027fvc4l
+itYNzKdJYIuaxUU/sQmKowP0kd68iGl2M5IBy9snHEfjDqkyTT3aiJZ8vsjGKMuT
+hfwNHlU7FBTeJVo0zVgm7zeFxMLnOsC1pWrswyaVKBSpBtluRATKXEXExp7RJyC3
+E/xQgpmK/AiPLT/5BYMDdfb0b3AzBS3GRN2nk4pNMvxinXVQZYyce9AqWmTi4+UC
++74RI0yqaFWdDNwdi5uPOEGcmQu+xJpxgM49xzXkSum2v0RbGFbH5wQVbjwAHMi/
+KdLM8OMTz6oibAytH3W3TBeSbp7HSmw3hICNNcoYECpP/8zhMIA=
+=Tjw4
+-----END PGP SIGNATURE-----
+
+--ZGiS0Q5IWpPtfppv--
