@@ -2,104 +2,126 @@ Return-Path: <SRS0=yjSc=63=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E42F2C433F4
-	for <linux-i2c@archiver.kernel.org>; Wed, 13 May 2020 15:00:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ADF0C433DF
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 May 2020 15:24:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B441F207FB
-	for <linux-i2c@archiver.kernel.org>; Wed, 13 May 2020 14:42:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1589380978;
-	bh=zHZKVOQrw4iw1BYZotmmbCpHSm3rHNSI8b2j1BlvFYA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=U18dgFm8Pgy5icel6dgMS+nYJUIndckLQqAF2aeHQdCs3mhRAJMxHGD9KJAdvRM4L
-	 9qeqqugpGeY5IBZ5WtmE4UgqTTmDgSNdpUP2aQg+fXmMAiHtyWOliNUcCMLKnz0lB5
-	 +nBX/Z/7VOCMOT/8erI+W24lKw2RFv5QnZfSBhBA=
+	by mail.kernel.org (Postfix) with ESMTP id 2BB0C20814
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 May 2020 15:24:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388857AbgEMOm5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 13 May 2020 10:42:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
+        id S1731586AbgEMPYS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 13 May 2020 11:24:18 -0400
+Received: from mga02.intel.com ([134.134.136.20]:63313 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388777AbgEMOm5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 13 May 2020 10:42:57 -0400
-Received: from localhost (p5486CF35.dip0.t-ipconnect.de [84.134.207.53])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D094A207D5;
-        Wed, 13 May 2020 14:42:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589380977;
-        bh=zHZKVOQrw4iw1BYZotmmbCpHSm3rHNSI8b2j1BlvFYA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mvXJRT2oJSavng4jGGwzEFhHegydiclz8aPDt0QP1O1szj+96SM3Yk7nkkc8UZfYj
-         XXLax2E1kLirXPhiZwHSP8AQ1KkAhN0sygzJqxmioG4IGUY7q2t/sKRd37eAtrRVcW
-         HrdeG5laMpYZK9LOfM+nI0xX5K/T0d8jO+TIj6wE=
-Date:   Wed, 13 May 2020 16:42:54 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Andrew Lunn <andrew@lunn.ch>
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        Gregory Clement <gregory.clement@bootlin.com>,
-        Jason Cooper <jason@lakedaemon.net>,
-        linux-arm-kernel@lists.infradead.org,
+        id S1729153AbgEMPYQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 13 May 2020 11:24:16 -0400
+IronPort-SDR: ihX3aOfMkDRyoSI3BXeQDwlHzLsfm4qh59ktvA7M5GXsYGPFaezzB8OsiqZVJvnynpYmFxFOP5
+ jqhfsr+xUh1w==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2020 08:24:15 -0700
+IronPort-SDR: LEYmL0D8h4/MJPzQww7+nG6ZMTyIUMdrpW620uivs8d1RMOvGn0hsKExHGUYjZoUgEhe4Gmdup
+ YKNkAXzriOTw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,388,1583222400"; 
+   d="scan'208";a="251288456"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga007.jf.intel.com with ESMTP; 13 May 2020 08:24:10 -0700
+Received: from andy by smile with local (Exim 4.93)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1jYtEz-006Rr3-Pi; Wed, 13 May 2020 18:24:13 +0300
+Date:   Wed, 13 May 2020 18:24:13 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Tali Perry <tali.perry1@gmail.com>
+Cc:     ofery@google.com, Brendan Higgins <brendanhiggins@google.com>,
+        avifishman70@gmail.com, Tomer Maimon <tmaimon77@gmail.com>,
+        kfting@nuvoton.com, Patrick Venture <venture@google.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Benjamin Fair <benjaminfair@google.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Vladimir Vid <vladimir.vid@sartura.hr>
-Subject: Re: [PATCH] i2c: pxa: implement generic i2c bus recovery
-Message-ID: <20200513144254.GA7446@ninjato>
-References: <E1jYnlI-0002Nw-83@rmk-PC.armlinux.org.uk>
- <20200513131843.GB499265@lunn.ch>
+        Wolfram Sang <wsa@the-dreams.de>,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v10 2/3] i2c: npcm7xx: Add Nuvoton NPCM I2C controller
+ driver
+Message-ID: <20200513152413.GQ185537@smile.fi.intel.com>
+References: <20200510102330.66715-1-tali.perry1@gmail.com>
+ <20200510102330.66715-3-tali.perry1@gmail.com>
+ <20200511091759.GE185537@smile.fi.intel.com>
+ <CAHb3i=tERsM+gwmQN1+vjnML9o5NxRK=uBokEUsd-Ljyje4s3A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200513131843.GB499265@lunn.ch>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <CAHb3i=tERsM+gwmQN1+vjnML9o5NxRK=uBokEUsd-Ljyje4s3A@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Mon, May 11, 2020 at 02:28:50PM +0300, Tali Perry wrote:
+> On Mon, May 11, 2020 at 12:18 PM Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+> > On Sun, May 10, 2020 at 01:23:29PM +0300, Tali Perry wrote:
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+...
 
-On Wed, May 13, 2020 at 03:18:43PM +0200, Andrew Lunn wrote:
-> On Wed, May 13, 2020 at 10:33:12AM +0100, Russell King wrote:
-> > Implement generic GPIO-based I2C bus recovery for the PXA I2C driver.
->=20
-> Hi Russell
->=20
-> I assume this is going to be merged via i2c? So Wolfram Sang?  He is
-> not on To: or Cc:
+> > > +#if IS_ENABLED(CONFIG_DEBUG_FS)
+> >
+> > Why?
+> 
+> We wanted to add an optional feature to track i2c slave status.
+> the NPCM has 16 channels handling multiple devices each. Some of the devices
+> are polled periodically, and might power down.
+> The user wanted to implement a health monitoring option
+> to occasionally check the status of the buses (how many timeouts, recovery etc.)
+> This feature is optional and depends on CONFIG_DEBUG_FS The counters are exposed
+> to user through the file system.
 
-But I read the i2c list :) I know some maintainers request CC, but I am
-fine as long as it is on the list.
+What I meant is why do you need an #ifdef?
 
 
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature; name="signature.asc"
+...
 
------BEGIN PGP SIGNATURE-----
+> > > +#define I2C_NUM_OF_ADDR 10
+> >
+> > Is it 10-bit address support or what?
+> >
+> 
+> No, the NPCM has an option to respond to multiple slave addresses
+> (10 own slave addresses)
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl68B2oACgkQFA3kzBSg
-KbYAhg/+KOJpSs2n9SV0i9OsvjhuoQNKYIuQKFbNAyoFkDrIOxv473cx4JA89DeF
-FdwdSA5p0K3hqzXyb2Mp+NFTHW6BdHrkEROUbJnR5GkAdWW/lT7qjfrfRDaMvO71
-BGMn7mRwVb1eU0bzIsxZjMEQ7rDxREMn9FLmwfvlvE9CJ3tZkp0PU5vYQ7oR6481
-+Syn6EusLFjH4Jb3HJdNI+6HVSe9wPSCul8E8vWgj9n9dXr78WMtAnKzpm+x1RZy
-gfaNVDQtMtWCX3wcdQCGegBumZ9H2CUJ56CIERdn3p4BmCUJX1sm5M+ZprhfLdeI
-9JHZIYi5rxLnbe737mntlHQ/BcJgkTRQgldPre9IE91a98QV/UL5v+4YXSGTa9TK
-+BDs0oQFin7ZrOkq5330SsdPzs5CVDoYsjD2VYmy8k7DTLU2ArYmkusBTiRKwBnB
-SKFas7O+LVNEQyX+qJ+rmf2nqZGDBXKui02t7BQm+UoGq59Qw2PSVh9C2jinaRh3
-1auy5B1LN2pUXpiQnliwllO63bE+yVBBey3vPx/AkXh+Fu+a25h+N7F2lItIeWMo
-94/PHne8JInu29fkK/lKYDo71T8XpDIVEEqLG9iNAbTzInbXMB3CCDvoqj3IjhFa
-Uki43KWsNZ0RkqhCWGG0XZf1r6rhtbyXJIET6VwIXDeFYE1fjJU=
-=SnWv
------END PGP SIGNATURE-----
+Perhaps more descriptive name then?
 
---FCuugMFkClbJLl1L--
+...
+
+> > > +     // Repeat the following sequence until SDA is released
+> > > +     do {
+> > > +             // Issue a single SCL toggle
+> > > +             iowrite8(NPCM_I2CCST_TGSCL, bus->reg + NPCM_I2CCST);
+> > > +             udelay(20);
+> > > +             // If SDA line is inactive (high), stop
+> > > +             if (npcm_i2c_get_SDA(_adap)) {
+> > > +                     done = true;
+> > > +                     status = 0;
+> > > +             }
+> > > +     } while (!done && iter--);
+> >
+> > readx_poll_timeout() ?
+> 
+> Not exactly, readx_poll_timeout includes only a read operation, here there is a
+> write in the middle. (iowrite8)
+
+Ah, indeed. Perhaps time to add writex_poll_timeout() ?
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
