@@ -7,25 +7,25 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 789EFC433E1
-	for <linux-i2c@archiver.kernel.org>; Fri, 15 May 2020 15:09:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44938C433E0
+	for <linux-i2c@archiver.kernel.org>; Fri, 15 May 2020 15:10:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 59ACA2076A
-	for <linux-i2c@archiver.kernel.org>; Fri, 15 May 2020 15:09:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 270D0207C3
+	for <linux-i2c@archiver.kernel.org>; Fri, 15 May 2020 15:10:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727109AbgEOPJi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 15 May 2020 11:09:38 -0400
-Received: from relmlor1.renesas.com ([210.160.252.171]:61236 "EHLO
+        id S1728296AbgEOPKq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 15 May 2020 11:10:46 -0400
+Received: from relmlor1.renesas.com ([210.160.252.171]:7888 "EHLO
         relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726216AbgEOPJh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 May 2020 11:09:37 -0400
+        by vger.kernel.org with ESMTP id S1728273AbgEOPKj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 May 2020 11:10:39 -0400
 X-IronPort-AV: E=Sophos;i="5.73,395,1583161200"; 
-   d="scan'208";a="47188344"
+   d="scan'208";a="47188452"
 Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 16 May 2020 00:09:35 +0900
+  by relmlie5.idc.renesas.com with ESMTP; 16 May 2020 00:10:38 +0900
 Received: from localhost.localdomain (unknown [10.226.36.204])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 01A7040065C1;
-        Sat, 16 May 2020 00:09:31 +0900 (JST)
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 399CE400D4CD;
+        Sat, 16 May 2020 00:10:34 +0900 (JST)
 From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
@@ -41,9 +41,9 @@ Cc:     linux-ide@vger.kernel.org, devicetree@vger.kernel.org,
         linux-renesas-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Prabhakar <prabhakar.csengg@gmail.com>,
         Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH 01/17] dt-bindings: i2c: renesas,i2c: Document r8a7742 support
-Date:   Fri, 15 May 2020 16:08:41 +0100
-Message-Id: <1589555337-5498-2-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH 15/17] ARM: dts: r8a7742: Add APMU nodes
+Date:   Fri, 15 May 2020 16:08:55 +0100
+Message-Id: <1589555337-5498-16-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <1589555337-5498-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
@@ -52,27 +52,46 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Document i2c controller for RZ/G1H (R8A7742) SoC, which is compatible
-with R-Car Gen2 SoC family.
+Add DT nodes for the Advanced Power Management Units (APMU), and use the
+enable-method to point out that the APMU should be used for SMP support.
 
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
 ---
- Documentation/devicetree/bindings/i2c/renesas,i2c.txt | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/r8a7742.dtsi | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/renesas,i2c.txt b/Documentation/devicetree/bindings/i2c/renesas,i2c.txt
-index c359965..a03f9f5 100644
---- a/Documentation/devicetree/bindings/i2c/renesas,i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/renesas,i2c.txt
-@@ -2,6 +2,7 @@ I2C for R-Car platforms
+diff --git a/arch/arm/boot/dts/r8a7742.dtsi b/arch/arm/boot/dts/r8a7742.dtsi
+index 1fe65f7..da75767 100644
+--- a/arch/arm/boot/dts/r8a7742.dtsi
++++ b/arch/arm/boot/dts/r8a7742.dtsi
+@@ -18,6 +18,7 @@
+ 	cpus {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
++		enable-method = "renesas,apmu";
  
- Required properties:
- - compatible:
-+	"renesas,i2c-r8a7742" if the device is a part of a R8A7742 SoC.
- 	"renesas,i2c-r8a7743" if the device is a part of a R8A7743 SoC.
- 	"renesas,i2c-r8a7744" if the device is a part of a R8A7744 SoC.
- 	"renesas,i2c-r8a7745" if the device is a part of a R8A7745 SoC.
+ 		cpu0: cpu@0 {
+ 			device_type = "cpu";
+@@ -305,6 +306,18 @@
+ 			#reset-cells = <1>;
+ 		};
+ 
++		apmu@e6151000 {
++			compatible = "renesas,r8a7742-apmu", "renesas,apmu";
++			reg = <0 0xe6151000 0 0x188>;
++			cpus = <&cpu4 &cpu5 &cpu6 &cpu7>;
++		};
++
++		apmu@e6152000 {
++			compatible = "renesas,r8a7742-apmu", "renesas,apmu";
++			reg = <0 0xe6152000 0 0x188>;
++			cpus = <&cpu0 &cpu1 &cpu2 &cpu3>;
++		};
++
+ 		rst: reset-controller@e6160000 {
+ 			compatible = "renesas,r8a7742-rst";
+ 			reg = <0 0xe6160000 0 0x0100>;
 -- 
 2.7.4
 
