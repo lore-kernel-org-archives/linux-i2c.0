@@ -2,84 +2,91 @@ Return-Path: <SRS0=M+6Y=7B=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36363C433DF
-	for <linux-i2c@archiver.kernel.org>; Tue, 19 May 2020 12:33:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EB26C433DF
+	for <linux-i2c@archiver.kernel.org>; Tue, 19 May 2020 12:50:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0DACD20835
-	for <linux-i2c@archiver.kernel.org>; Tue, 19 May 2020 12:33:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 498C620709
+	for <linux-i2c@archiver.kernel.org>; Tue, 19 May 2020 12:50:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728891AbgESMdU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 19 May 2020 08:33:20 -0400
-Received: from mga18.intel.com ([134.134.136.126]:37869 "EHLO mga18.intel.com"
+        id S1728728AbgESMuw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 19 May 2020 08:50:52 -0400
+Received: from mga03.intel.com ([134.134.136.65]:26797 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728745AbgESMdU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 19 May 2020 08:33:20 -0400
-IronPort-SDR: KaM0j8B/HFZOK60q/7lkhQMGOv2+p6xdb8lGldWd8khnCkEm5x4EAMbkQdLbeGCP+BKh6DKaaj
- 47rGKdWN5BGA==
+        id S1728699AbgESMuu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 19 May 2020 08:50:50 -0400
+IronPort-SDR: Jg8u6h6SRbSXO73zQKaFviiR7D3q6Tq7Hjtrl5gQkXfjINw+HvY/AS+ewlemY5osCQgkLmEaCq
+ tdasBRfT8aig==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2020 05:33:20 -0700
-IronPort-SDR: 5eNgeKC12GC0hLiGgCAdOBiqQIW9Neg0WrIhdeA8o9nkZyhMKYy1/tWCoQiUPpKt1QsQ47ZpyS
- f6XrSYYx1NEg==
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2020 05:50:50 -0700
+IronPort-SDR: XgHVE+DLbR5bw9hGydpNy1nQlCmq2BEyxbnNO3u/tvaEJJAAqZqLcb4AGSHbmmVYAD8iibepVB
+ o6horZ3y2YJA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.73,410,1583222400"; 
-   d="scan'208";a="300090419"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga008.jf.intel.com with ESMTP; 19 May 2020 05:33:18 -0700
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1jb1Qw-007dPq-4i; Tue, 19 May 2020 15:33:22 +0300
-Date:   Tue, 19 May 2020 15:33:22 +0300
+   d="scan'208";a="373716844"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 19 May 2020 05:50:48 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id CC041BD; Tue, 19 May 2020 15:50:47 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1 1/4] i2c: designware: Split out
- i2c_dw_validate_speed() helper
-Message-ID: <20200519123322.GG1634618@smile.fi.intel.com>
-References: <20200507135140.14635-1-andriy.shevchenko@linux.intel.com>
- <228e9c62-60b9-e5b8-ea5e-e012df83479b@linux.intel.com>
- <20200511134238.GI185537@smile.fi.intel.com>
- <c13ddaf2-5aef-e3fc-20ac-b1e0a9182fb0@linux.intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 2/7] i2c: designware: Include proper headers in i2c-desingware-core.h
+Date:   Tue, 19 May 2020 15:50:38 +0300
+Message-Id: <20200519125043.6069-2-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200519125043.6069-1-andriy.shevchenko@linux.intel.com>
+References: <20200519125043.6069-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c13ddaf2-5aef-e3fc-20ac-b1e0a9182fb0@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, May 12, 2020 at 06:12:32PM +0300, Jarkko Nikula wrote:
-> On 5/11/20 4:42 PM, Andy Shevchenko wrote:
-> > On Mon, May 11, 2020 at 04:11:57PM +0300, Jarkko Nikula wrote:
-> > > On 5/7/20 4:51 PM, Andy Shevchenko wrote:
-> > > > In order to export array supported speed for wider use,
-> > > > split out them along with i2c_dw_validate_speed() helper.
+This header is a user of some generic ones, include them respectively.
 
-...
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+v2: new patch
+ drivers/i2c/busses/i2c-designware-core.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-> > > This header is included by every i2c-designware-*.c file and this inline
-> > > function is not tiny. Would it be better to have this in
-> > > i2c-designware-common.c instead?
-> > 
-> > Yes, but then we will need to export i2c_dw_supported_speeds as well as its
-> > array size.
-> > 
-> Would that not be needed if you move ACPI parts also into
-> i2c-designware-common.c?
-
-Yes, in the intermediate patch. I'm about to send v2, where you may see how it
-looks like.
-
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 6202f9ee953d..94d9ad15133a 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -9,7 +9,13 @@
+  * Copyright (C) 2009 Provigent Ltd.
+  */
+ 
++#include <linux/bits.h>
++#include <linux/compiler_types.h>
++#include <linux/completion.h>
++#include <linux/dev_printk.h>
++#include <linux/errno.h>
+ #include <linux/i2c.h>
++#include <linux/types.h>
+ 
+ #define DW_IC_DEFAULT_FUNCTIONALITY (I2C_FUNC_I2C |			\
+ 					I2C_FUNC_SMBUS_BYTE |		\
+@@ -170,6 +176,9 @@
+ 					 DW_IC_TX_ABRT_TXDATA_NOACK | \
+ 					 DW_IC_TX_ABRT_GCALL_NOACK)
+ 
++struct clk;
++struct device;
++struct reset_control;
+ 
+ /**
+  * struct dw_i2c_dev - private i2c-designware data
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.26.2
 
