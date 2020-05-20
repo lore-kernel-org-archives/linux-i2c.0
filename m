@@ -2,68 +2,88 @@ Return-Path: <SRS0=jERN=7C=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96528C433DF
-	for <linux-i2c@archiver.kernel.org>; Wed, 20 May 2020 13:55:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB20AC433DF
+	for <linux-i2c@archiver.kernel.org>; Wed, 20 May 2020 14:07:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7E4C6206C3
-	for <linux-i2c@archiver.kernel.org>; Wed, 20 May 2020 13:55:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81473207D4
+	for <linux-i2c@archiver.kernel.org>; Wed, 20 May 2020 14:07:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726789AbgETNzm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 20 May 2020 09:55:42 -0400
-Received: from mga14.intel.com ([192.55.52.115]:21470 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726452AbgETNzl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 20 May 2020 09:55:41 -0400
-IronPort-SDR: wAuArhf6c/FQIcUE2QF9M06hE5W8XnpL78IM9gyCW9dlUi3BHhQdp0sC0g+cPBcc9bwZFjHXPh
- 6Two8GmuZeNQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 May 2020 06:55:41 -0700
-IronPort-SDR: YjiR1VlDuQZb0WK3isDxPndTZw/SwouYUlN340tMnZr5BO3RyVzsW5sIuKV+1KGjPZXwQDZwcz
- f+czMe7x8d7Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,414,1583222400"; 
-   d="scan'208";a="289357972"
-Received: from mylly.fi.intel.com (HELO [10.237.72.161]) ([10.237.72.161])
-  by fmsmga004.fm.intel.com with ESMTP; 20 May 2020 06:55:40 -0700
-Subject: Re: [PATCH v2 1/7] i2c: designware: Get rid of PCI driver specifics
- in common code
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-References: <20200519125043.6069-1-andriy.shevchenko@linux.intel.com>
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Message-ID: <46e45caf-7ce4-d3b2-cea6-747424b44a4a@linux.intel.com>
-Date:   Wed, 20 May 2020 16:55:39 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
-MIME-Version: 1.0
-In-Reply-To: <20200519125043.6069-1-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1726443AbgETOHt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 20 May 2020 10:07:49 -0400
+Received: from aliyun-cloud.icoremail.net ([47.90.88.95]:37542 "HELO
+        aliyun-sdnproxy-1.icoremail.net" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with SMTP id S1726436AbgETOHs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 20 May 2020 10:07:48 -0400
+X-Greylist: delayed 727 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 May 2020 10:07:46 EDT
+Received: from localhost.localdomain (unknown [222.205.77.158])
+        by mail-app4 (Coremail) with SMTP id cS_KCgBnvwmyNMVeCDDbAQ--.31176S4;
+        Wed, 20 May 2020 21:46:30 +0800 (CST)
+From:   Dinghao Liu <dinghao.liu@zju.edu.cn>
+To:     dinghao.liu@zju.edu.cn, kjlu@umn.edu
+Cc:     Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: imx-lpi2c: fix runtime pm imbalance on error
+Date:   Wed, 20 May 2020 21:46:25 +0800
+Message-Id: <20200520134625.22045-1-dinghao.liu@zju.edu.cn>
+X-Mailer: git-send-email 2.17.1
+X-CM-TRANSID: cS_KCgBnvwmyNMVeCDDbAQ--.31176S4
+X-Coremail-Antispam: 1UD129KBjvdXoWrKrWrZF15CFyUGr4xXF1UKFg_yoWftFc_WF
+        1kWwn7Grs8Ka95Xr1UJFy3XryF9rW5u3W8uw10y3ySk34UZ347WFWUZ3sxArsrWr4jvrnY
+        gw4DKFyxAr9rCjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUbTxFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3wAFIxvE14AK
+        wVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjxv20x
+        vE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1l84ACjcxK6I8E
+        87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+        8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+        JrylYx0Ex4A2jsIE14v26F4j6r4UJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+        vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxan2IY04v7MxkIecxE
+        wVAFwVW5GwCF04k20xvY0x0EwIxGrwCF04k20xvE74AGY7Cv6cx26r4fKr1UJr1l4I8I3I
+        0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWU
+        GVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI
+        0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0
+        rVWrJr0_WFyUJwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E14v26r
+        4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7VUb_gA7UUUUU==
+X-CM-SenderInfo: qrrzjiaqtzq6lmxovvfxof0/
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 5/19/20 3:50 PM, Andy Shevchenko wrote:
-> Do not spread PCI specifics over common code. It seems to be a layering
-> violation which can be easily avoided. Refactor PCI driver and drop
-> PCI specifics from common code.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
-> v2: new patch
->   drivers/i2c/busses/i2c-designware-core.h   |  1 -
->   drivers/i2c/busses/i2c-designware-pcidrv.c | 24 +++++++++++++---------
->   2 files changed, 14 insertions(+), 11 deletions(-)
-> 
-For all patches 1-7/7:
+pm_runtime_get_sync() increments the runtime PM usage counter even
+the call returns an error code. Thus a pairing decrement is needed
+on the error handling path to keep the counter balanced.
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+---
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index 94743ba581fe..89908c24c8b3 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -260,8 +260,10 @@ static int lpi2c_imx_master_enable(struct lpi2c_imx_struct *lpi2c_imx)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(lpi2c_imx->adapter.dev.parent);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_autosuspend(lpi2c_imx->adapter.dev.parent);
+ 		return ret;
++	}
+ 
+ 	temp = MCR_RST;
+ 	writel(temp, lpi2c_imx->base + LPI2C_MCR);
+-- 
+2.17.1
+
