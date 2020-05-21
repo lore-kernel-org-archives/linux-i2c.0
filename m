@@ -2,103 +2,127 @@ Return-Path: <SRS0=HOnt=7D=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 300EDC433E2
-	for <linux-i2c@archiver.kernel.org>; Thu, 21 May 2020 08:40:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E02A0C433E1
+	for <linux-i2c@archiver.kernel.org>; Thu, 21 May 2020 11:10:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04BBE20829
-	for <linux-i2c@archiver.kernel.org>; Thu, 21 May 2020 08:40:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1590050402;
-	bh=zk5OdGcGOSwlO1xBOqMZeDZ1i6Bi0Kg8cXiAy5qbVSQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=EV1oByECaGbwJYo/a767kah22NiNwYTB76EWrgbqd3G8GibVdqUqqbPrh3S0tAY5X
-	 1NP9cZqybMot4p9xsAOt5okOU8Y6vRuGgzRq+0xHzfYWIhiZxH+QSIdot3f9zbRAiN
-	 xVHI8S0YfNTrcDutVvHENpPEf/QWaqp5Lx68CASg=
+	by mail.kernel.org (Postfix) with ESMTP id B912220885
+	for <linux-i2c@archiver.kernel.org>; Thu, 21 May 2020 11:10:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728680AbgEUIkB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 21 May 2020 04:40:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41510 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728374AbgEUIkA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 21 May 2020 04:40:00 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C40E920721;
-        Thu, 21 May 2020 08:39:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590050400;
-        bh=zk5OdGcGOSwlO1xBOqMZeDZ1i6Bi0Kg8cXiAy5qbVSQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZFIn5xGzV0MFkFcNMpXZ5CpTl0GFLnU6FLCyPhqtTNYH7nnoe4DPgvtUlmgw8xvTE
-         YggEuXz7qtmf2IwrtipWFW1ZfKJItLHFgIwDnyAoI5esYTzfr+Afmp4WtpN290AKBh
-         MG/ilOEHbYgXkuNpBKjrXMuUpLDq5zCCPNlKfdcs=
-Date:   Thu, 21 May 2020 10:39:58 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Akash Asthana <akashast@codeaurora.org>
-Cc:     agross@kernel.org, bjorn.andersson@linaro.org, wsa@the-dreams.de,
-        broonie@kernel.org, mark.rutland@arm.com, robh+dt@kernel.org,
-        linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org,
-        devicetree@vger.kernel.org, swboyd@chromium.org,
-        mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org, mka@chromium.org,
-        dianders@chromium.org, msavaliy@codeaurora.org,
-        evgreen@chromium.org
-Subject: Re: [PATCH V6 5/7] tty: serial: qcom_geni_serial: Add interconnect
- support
-Message-ID: <20200521083958.GA2689021@kroah.com>
-References: <1590049764-20912-1-git-send-email-akashast@codeaurora.org>
- <1590049764-20912-6-git-send-email-akashast@codeaurora.org>
+        id S1729186AbgEULKa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 21 May 2020 07:10:30 -0400
+Received: from 212.199.177.27.static.012.net.il ([212.199.177.27]:49306 "EHLO
+        herzl.nuvoton.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729174AbgEULK2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 May 2020 07:10:28 -0400
+Received: from taln60.nuvoton.co.il (ntil-fw [212.199.177.25])
+        by herzl.nuvoton.co.il (8.13.8/8.13.8) with ESMTP id 04LB9Xbb018633;
+        Thu, 21 May 2020 14:09:34 +0300
+Received: by taln60.nuvoton.co.il (Postfix, from userid 20088)
+        id DCCE26032E; Thu, 21 May 2020 14:09:33 +0300 (IDT)
+From:   Tali Perry <tali.perry1@gmail.com>
+To:     ofery@google.com, brendanhiggins@google.com,
+        avifishman70@gmail.com, tmaimon77@gmail.com, kfting@nuvoton.com,
+        venture@google.com, yuenn@google.com, benjaminfair@google.com,
+        robh+dt@kernel.org, wsa@the-dreams.de,
+        andriy.shevchenko@linux.intel.com
+Cc:     linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+        openbmc@lists.ozlabs.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>
+Subject: [PATCH v12 1/3] dt-bindings: i2c: npcm7xx: add NPCM I2C controller
+Date:   Thu, 21 May 2020 14:09:08 +0300
+Message-Id: <20200521110910.45518-2-tali.perry1@gmail.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20200521110910.45518-1-tali.perry1@gmail.com>
+References: <20200521110910.45518-1-tali.perry1@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1590049764-20912-6-git-send-email-akashast@codeaurora.org>
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, May 21, 2020 at 01:59:22PM +0530, Akash Asthana wrote:
-> Get the interconnect paths for Uart based Serial Engine device
-> and vote according to the baud rate requirement of the driver.
-> 
-> Signed-off-by: Akash Asthana <akashast@codeaurora.org>
-> Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-> ---
-> Changes in V2:
->  - As per Bjorn's comment, removed se == NULL check from geni_serial_icc_get
->  - As per Bjorn's comment, removed code to set se->icc_path* to NULL in failure
->  - As per Bjorn's comment, introduced and using devm_of_icc_get API for getting
->    path handle
->  - As per Matthias comment, added error handling for icc_set_bw call
-> 
-> Changes in V3:
->  - As per Matthias comment, use common library APIs defined in geni-se
->    driver for ICC functionality.
-> 
-> Changes in V4:
->  - As per Mark's comment move peak_bw guess as twice of avg_bw if
->    nothing mentioned explicitly to ICC core.
->  - As per Matthias's comment select core clock BW based on baud rate.
->    If it's less than 115200 go for GENI_DEFAULT_BW else CORE_2X_50_MHZ
-> 
-> Changes in V5:
->  - Add icc_enable/disable to power on/off call.
->  - Save some non-zero avg/peak value to ICC core by calling geni_icc_set_bw
->    from probe so that when resume/icc_enable is called NOC are running at
->    some non-zero value. No need to call icc_disable after BW vote because
->    console devices are expected to be in active state from the probe itself
->    and qcom_geni_serial_pm(STATE_OFF) will be called for non-console ones.
-> 
-> Changes in V6:
->  - No change
-> 
->  drivers/tty/serial/qcom_geni_serial.c | 31 ++++++++++++++++++++++++++++---
->  1 file changed, 28 insertions(+), 3 deletions(-)
+Added device tree binding documentation for Nuvoton BMC
+NPCM I2C controller.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+---
+ .../bindings/i2c/nuvoton,npcm7xx-i2c.yaml     | 62 +++++++++++++++++++
+ 1 file changed, 62 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
+
+diff --git a/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml b/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
+new file mode 100644
+index 000000000000..fb4293f11461
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
+@@ -0,0 +1,62 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/nuvoton,npcm7xx-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: nuvoton NPCM7XX I2C Controller Device Tree Bindings
++
++description: |
++  The NPCM750x includes sixteen I2C bus controllers. All Controllers support
++  both master and slave mode. Each controller can switch between master and slave
++  at run time (i.e. IPMB mode). Each controller has two 16 byte HW FIFO for TX and
++  RX.
++
++maintainers:
++  - Tali Perry <tali.perry1@gmail.com>
++
++properties:
++  compatible:
++    enum:
++      - nuvoton,npcm7xx-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++    description: Reference clock for the I2C bus
++
++  bus-frequency:
++    description: Desired I2C bus clock frequency in Hz. If not specified,
++                 the default 100 kHz frequency will be used.
++                 possible values are 100000, 400000 and 1000000.
++    default: 100000
++    enum: [100000, 400000, 1000000]
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c0: i2c@80000 {
++        compatible = "nuvoton,npcm750-i2c";
++        reg = <0x80000 0x1000>;
++        clocks = <&clk NPCM7XX_CLK_APB2>;
++        bus-frequency = <100000>;
++        interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
++        pinctrl-names = "default";
++        pinctrl-0 = <&smb0_pins>;
++    };
++
++...
+-- 
+2.22.0
+
