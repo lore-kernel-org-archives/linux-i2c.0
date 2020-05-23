@@ -2,103 +2,116 @@ Return-Path: <SRS0=Rem8=7F=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8767C433E0
-	for <linux-i2c@archiver.kernel.org>; Sat, 23 May 2020 13:36:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 723F8C433E0
+	for <linux-i2c@archiver.kernel.org>; Sat, 23 May 2020 14:52:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D2992071C
-	for <linux-i2c@archiver.kernel.org>; Sat, 23 May 2020 13:36:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 42D4320723
+	for <linux-i2c@archiver.kernel.org>; Sat, 23 May 2020 14:52:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RN8BwmiM"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RkyXTXac"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387763AbgEWNgc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 23 May 2020 09:36:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42802 "EHLO
+        id S2387849AbgEWOwL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 23 May 2020 10:52:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387529AbgEWNgb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 23 May 2020 09:36:31 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F157C061A0E;
-        Sat, 23 May 2020 06:36:31 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id a5so6213265pjh.2;
-        Sat, 23 May 2020 06:36:31 -0700 (PDT)
+        with ESMTP id S2387815AbgEWOwL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 23 May 2020 10:52:11 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B9DC061A0E;
+        Sat, 23 May 2020 07:52:06 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id x11so4598311plv.9;
+        Sat, 23 May 2020 07:52:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=Ii2tfPDbICPIbAX80VgxFGRLNNHttHydSq8bO/SDJ2E=;
-        b=RN8BwmiM+CA/4AX37RLN5GteJNCnpNgrL01C+K8PE69yAMuNAhvz+WsGDngrBMWf7n
-         a0KUe3ZYNmOM4phj2wNcNgINr14+O/YFXeVIzRg0Yk1zNYgLNCC5IpbAdkqC5Wwi/1a6
-         Xkc5HB00AaUAKd8PNiO3lcusJooyE21wsHGxGyi8moE+95LV7F4iydfyyfsaNxPQDIT1
-         5EzSlOVyWEq+OszTWVHETj0DEjUvKIzu41z3B84gZWnY23bXnQXJJnQ591YN4OtW+tkL
-         VT/w4cW0tzIRrxlxDTNoWo4AYG8yWrJANJCseXV0BUV+35JafLx05yl5fYq+iUGg0Dg2
-         bIqg==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=tOdjC4O+e+YMtAYdD4ccanDEzEZV+sYHcio00hA4VM0=;
+        b=RkyXTXacfmVzZYcyiMbivo36j8sZS9aULFyS9WltDnKPsMw1SsMvB8NYnpW6A0kLoo
+         /QgLbe19RRqghc/bXyN6sUlSJCTzwyUtUqwY0WQ4k7pABc6vSdAQ0cCqQpdSlvSyVAWr
+         EILDzeYjozrfE1SRANYQsWE2WAYoYDF4xMLf1BAwchpId5wmcxWCSmxG3nUkSlqnpOBb
+         HfcO1LoS1b0QRFK81hFyoSsfeqUbVIsXeMfghxRkpciWNKCJSQUapHQ0inH1YRPNEM+v
+         P+nM1RJCth6FL7l9o2zu18W3A+K1NwNl8JpT6aEvftz2dBem45n+x6IlKfy2Y6yNpR41
+         OCyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Ii2tfPDbICPIbAX80VgxFGRLNNHttHydSq8bO/SDJ2E=;
-        b=uY11WUmOPsZ1ZTFtwMY6vmGLZgYSFA8H+boQ2KmGurkxSDelICABN833d8rNOQQA68
-         HQ6sjghjm4+YZ9XjtXOsMV2QNuFrvOYgveuAbtfha4Kzm8tRyNp/XDrGK0fUTnIJdbuj
-         yiSaX2J4hGEqeiGuIKEjA3LxWQMNMZFH27zhZWAdzKDnn9Yh+51zDKRDQv09w9+bxefL
-         uniYb4G1GJfI9i1l1oDTW3a7ZGQhLYY9ZEz1xPjuOJFW49zBBizs3XrZAWSYVWz1IDzp
-         wNR3ZSue8q7GLRPkV+bl9J5jKRBK+DcVkYkX5O2t05vYUjRrAeEUFj3lTqkwAazXjdDD
-         ltCA==
-X-Gm-Message-State: AOAM532RNARucmQVxKeP8BypZCOsb3y6Cup2rUBTgkJHm1Zi0HpuHF8F
-        KQmRle1QpGkDrsnXWjXFAnBDxqmB
-X-Google-Smtp-Source: ABdhPJy8p7lJlKxI4aRRHJ86l83k3hGC2L5VR6CX/tbZiOOHrNeqEKtEyPIFn8F6d9rhiyuLDLGPnQ==
-X-Received: by 2002:a17:902:9882:: with SMTP id s2mr19415096plp.184.1590240990972;
-        Sat, 23 May 2020 06:36:30 -0700 (PDT)
-Received: from localhost (176.122.159.134.16clouds.com. [176.122.159.134])
-        by smtp.gmail.com with ESMTPSA id gd1sm9112654pjb.14.2020.05.23.06.36.29
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=tOdjC4O+e+YMtAYdD4ccanDEzEZV+sYHcio00hA4VM0=;
+        b=UYMgFWf0nCeICYssW9rO8fs9OBUNjpjPifZiCq2W9sgs/bnz18H5d17E1jb6ysQ/OT
+         qNqaDmZUS+0VqbkGOqltD4FmxmMZG8hIp74ap9xwSS6khbtXedzU9MMd035jLXDS16yq
+         c2VU86uPVgkJ9aPLsPeBHqg/U6h18rDfBXsomrSqmFoTjXUKZP48BXMoQAosv0uyLgIp
+         RlkW1uvY8Zs+D/M4BlpJpSzaJUw0NKidaj+9qJZU5Zn82uOSjzzOHHhgKTiundkfimwP
+         tWEUIkyHSR6NsgbCqbf6WC+KRoSnc4gUdHRkrCAMkdHsJkztb6EpWxcFQHyhVn/q+SDO
+         lqPQ==
+X-Gm-Message-State: AOAM5315KDGQcs1iHup6ejCAl8IjfZQ8mZlxrX7jKc0N8m8TkzOvLdMl
+        D5pzBEPTUU0CFF1WDo6eBQU=
+X-Google-Smtp-Source: ABdhPJx+4hTx5Du/ULdrOnievYSXhAgRaap0qdrLvSwKmKugInc+/KjXr5s/l8b4PQzVR1dPAUkM0w==
+X-Received: by 2002:a17:902:442:: with SMTP id 60mr20278528ple.103.1590245525602;
+        Sat, 23 May 2020 07:52:05 -0700 (PDT)
+Received: from localhost ([176.122.159.134])
+        by smtp.gmail.com with ESMTPSA id s15sm8228858pgv.5.2020.05.23.07.52.04
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sat, 23 May 2020 06:36:30 -0700 (PDT)
-Date:   Sat, 23 May 2020 21:36:26 +0800
+        Sat, 23 May 2020 07:52:04 -0700 (PDT)
 From:   Dejin Zheng <zhengdejin5@gmail.com>
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     Michal Simek <michal.simek@xilinx.com>, harinik@xilinx.com,
-        soren.brinkmann@xilinx.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: cadence: Add an error handling for
- platform_get_irq()
-Message-ID: <20200523133626.GA27369@nuc8i5>
-References: <20200520144821.8069-1-zhengdejin5@gmail.com>
- <2d99f043-f854-8975-86ee-2f0ba1382275@xilinx.com>
- <20200522151459.GK5670@ninjato>
- <7763d79e-3a44-2dbe-a4d3-45d40a3a1e02@xilinx.com>
- <20200522201956.GB21376@ninjato>
+To:     gregkh@linuxfoundation.org, rafael@kernel.org,
+        f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
+        michal.simek@xilinx.com, baruch@tkos.co.il, paul@crapouillou.net,
+        khilman@baylibre.com, shawnguo@kernel.org, festevam@gmail.com,
+        vz@mleia.com, heiko@sntech.de, linus.walleij@linaro.org,
+        baohua@kernel.org, ardb@kernel.org, linux-i2c@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, Dejin Zheng <zhengdejin5@gmail.com>
+Subject: [PATCH v2 0/2] drivers: provide devm_platform_request_irq()
+Date:   Sat, 23 May 2020 22:51:55 +0800
+Message-Id: <20200523145157.16257-1-zhengdejin5@gmail.com>
+X-Mailer: git-send-email 2.25.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200522201956.GB21376@ninjato>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, May 22, 2020 at 10:19:56PM +0200, Wolfram Sang wrote:
-> 
-> > You know about
-> > devm_platform_get_and_ioremap_resource()
-> > usage.
-> >  Maybe that's the way to go. Because as of today there is no way to pass
-> > position of irq resource.
-> > 
-> > But I expect it will come in near future.
-> 
-> Has been tried, has been nacked:
-> 
-> http://patchwork.ozlabs.org/project/linux-i2c/patch/20200518155304.28639-3-zhengdejin5@gmail.com/
-> 
-Wolfram and Michal, Thanks very much for your comments, I will resend
-devm_platform_request_irq() again. 
+It will call devm_request_irq() after platform_get_irq() function
+in many drivers, sometimes, it is not right for the error handling
+of these two functions in some drivers. so provide this function
+to simplify the driver.
 
-BR,
-Dejin
+the first patch will provide devm_platform_request_irq(), and the
+other patch will convert to devm_platform_request_irq() in some
+i2c bus dirver.
 
+v1 -> v2:
+	- I give up this series of patches in v1 version. I resend this
+	  patches v2 by that discussion:
+	  https://patchwork.ozlabs.org/project/linux-i2c/patch/20200520144821.8069-1-zhengdejin5@gmail.com/
+	  The patch content has not changed.
+
+Dejin Zheng (2):
+  drivers: provide devm_platform_request_irq()
+  i2c: busses: convert to devm_platform_request_irq()
+
+ drivers/base/platform.c            | 33 ++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-bcm-kona.c  | 16 +++------------
+ drivers/i2c/busses/i2c-cadence.c   | 10 +++------
+ drivers/i2c/busses/i2c-digicolor.c | 10 +++------
+ drivers/i2c/busses/i2c-emev2.c     |  5 ++---
+ drivers/i2c/busses/i2c-jz4780.c    |  5 ++---
+ drivers/i2c/busses/i2c-meson.c     | 13 ++++--------
+ drivers/i2c/busses/i2c-mxs.c       |  9 +++-----
+ drivers/i2c/busses/i2c-pnx.c       |  9 ++------
+ drivers/i2c/busses/i2c-rcar.c      |  9 +++-----
+ drivers/i2c/busses/i2c-rk3x.c      | 14 +++----------
+ drivers/i2c/busses/i2c-sirf.c      | 10 ++-------
+ drivers/i2c/busses/i2c-stu300.c    |  4 ++--
+ drivers/i2c/busses/i2c-synquacer.c | 12 +++--------
+ include/linux/platform_device.h    |  4 ++++
+ 15 files changed, 72 insertions(+), 91 deletions(-)
+
+-- 
+2.25.0
 
