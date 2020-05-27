@@ -6,40 +6,41 @@ X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99C5FC433E3
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 15:31:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E408C433E8
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 15:31:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 85AA020C09
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 15:31:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 58985208E4
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 15:31:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389691AbgE0PbS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 27 May 2020 11:31:18 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:36752 "EHLO
+        id S2389708AbgE0Pa5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 27 May 2020 11:30:57 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:36666 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389705AbgE0Pa7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 May 2020 11:30:59 -0400
+        with ESMTP id S2389606AbgE0Pa4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 May 2020 11:30:56 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 306F9803083F;
-        Wed, 27 May 2020 15:30:57 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id 195DC8030833;
+        Wed, 27 May 2020 15:30:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id r_D3vmAu-Nmx; Wed, 27 May 2020 18:30:56 +0300 (MSK)
+        with ESMTP id zMCyqSR_WSQL; Wed, 27 May 2020 18:30:48 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         Wolfram Sang <wsa@the-dreams.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
+        Rob Herring <robh+dt@kernel.org>
 CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Serge Semin <fancer.lancer@gmail.com>,
+        Rob Herring <robh@kernel.org>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Rob Herring <robh+dt@kernel.org>, <linux-mips@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v5 11/11] i2c: designware: Add Baikal-T1 System I2C support
-Date:   Wed, 27 May 2020 18:30:46 +0300
-Message-ID: <20200527153046.6172-12-Sergey.Semin@baikalelectronics.ru>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        <linux-mips@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH v5 01/11] dt-bindings: i2c: Convert DW I2C binding to DT schema
+Date:   Wed, 27 May 2020 18:30:36 +0300
+Message-ID: <20200527153046.6172-2-Sergey.Semin@baikalelectronics.ru>
 In-Reply-To: <20200527153046.6172-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200527153046.6172-1-Sergey.Semin@baikalelectronics.ru>
 MIME-Version: 1.0
@@ -51,204 +52,286 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Baikal-T1 System Controller is equipped with a dedicated I2C Controller
-which functionality is based on the DW APB I2C IP-core, the only
-difference in a way it' registers are accessed. There are three access
-register provided in the System Controller registers map, which indirectly
-address the normal DW APB I2C registers space. So in order to have the
-Baikal-T1 System I2C Controller supported by the common DW APB I2C driver
-we created a dedicated Dw I2C controller model quirk, which retrieves the
-syscon regmap from the parental dt node and creates a new regmap based on
-it.
+Modern device tree bindings are supposed to be created as YAML-files
+in accordance with dt-schema. This commit replaces Synopsys DW I2C
+legacy bare text bindings with YAML file. As before the bindings file
+states that the corresponding dts node is supposed to be compatible
+either with generic DW I2C controller or with Microsemi Ocelot SoC I2C
+one, to have registers, interrupts and clocks properties. In addition
+the node may have clock-frequency, i2c-sda-hold-time-ns,
+i2c-scl-falling-time-ns and i2c-sda-falling-time-ns optional properties.
 
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: linux-mips@vger.kernel.org
-Cc: devicetree@vger.kernel.org
 
 ---
+
+Changelog v2:
+- Make sure that "mscc,ocelot-i2c" compatible node may have up to two
+  registers space defined, while normal DW I2C controller will have only
+  one registers space.
+- Add "mscc,ocelot-i2c" example to test the previous fix.
+- Declare "unevaluatedProperties" property instead of
+  "additionalProperties" one.
+- Due to the previous fix we can now discard the dummy boolean properties
+  definitions, since the proper type evaluation will be performed by the
+  generic i2c-controller.yaml schema.
 
 Changelog v3:
-- This is a new patch, which has been created due to declining the
-  glue-layer approach.
-
-Changelog v4:
-- Use PTR_ERR_OR_ZERO() helper in the bt1_i2c_request_regs() method.
+- Discard $ref from the "-ns" suffixed properties since they've got the
+  uint32-array type by default applied in the common schema. Set "maxItems: 1"
+  there instead to make sure the property will have a single value specified.
 ---
- drivers/i2c/busses/Kconfig                  |  3 +-
- drivers/i2c/busses/i2c-designware-core.h    |  3 +
- drivers/i2c/busses/i2c-designware-platdrv.c | 78 ++++++++++++++++++++-
- 3 files changed, 81 insertions(+), 3 deletions(-)
+ .../bindings/i2c/i2c-designware.txt           |  73 ---------
+ .../bindings/i2c/snps,designware-i2c.yaml     | 154 ++++++++++++++++++
+ 2 files changed, 154 insertions(+), 73 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-designware.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 259e2325712a..0cf7aea30138 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -541,8 +541,9 @@ config I2C_DESIGNWARE_SLAVE
- 
- config I2C_DESIGNWARE_PLATFORM
- 	tristate "Synopsys DesignWare Platform"
--	select I2C_DESIGNWARE_CORE
- 	depends on (ACPI && COMMON_CLK) || !ACPI
-+	select I2C_DESIGNWARE_CORE
-+	select MFD_SYSCON if MIPS_BAIKAL_T1
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  Synopsys DesignWare I2C adapter.
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index f5bbe3d6bcf8..556673a1f61b 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -183,6 +183,7 @@ struct reset_control;
-  * struct dw_i2c_dev - private i2c-designware data
-  * @dev: driver model device node
-  * @map: IO registers map
-+ * @sysmap: System controller registers map
-  * @base: IO registers pointer
-  * @ext: Extended IO registers pointer
-  * @cmd_complete: tx completion indicator
-@@ -235,6 +236,7 @@ struct reset_control;
- struct dw_i2c_dev {
- 	struct device		*dev;
- 	struct regmap		*map;
-+	struct regmap		*sysmap;
- 	void __iomem		*base;
- 	void __iomem		*ext;
- 	struct completion	cmd_complete;
-@@ -290,6 +292,7 @@ struct dw_i2c_dev {
- #define ACCESS_NO_IRQ_SUSPEND	0x00000002
- 
- #define MODEL_MSCC_OCELOT	0x00000100
-+#define MODEL_BAIKAL_BT1	0x00000200
- #define MODEL_MASK		0x00000f00
- 
- int i2c_dw_init_regmap(struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 9d467fa0e163..240348ea9ff9 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -18,6 +18,7 @@
- #include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
-+#include <linux/mfd/syscon.h>
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_data/i2c-designware.h>
-@@ -25,6 +26,7 @@
- #include <linux/pm.h>
- #include <linux/pm_runtime.h>
- #include <linux/property.h>
-+#include <linux/regmap.h>
- #include <linux/reset.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
-@@ -58,6 +60,63 @@ MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
- #endif
- 
- #ifdef CONFIG_OF
-+#define BT1_I2C_CTL			0x100
-+#define BT1_I2C_CTL_ADDR_MASK		GENMASK(7, 0)
-+#define BT1_I2C_CTL_WR			BIT(8)
-+#define BT1_I2C_CTL_GO			BIT(31)
-+#define BT1_I2C_DI			0x104
-+#define BT1_I2C_DO			0x108
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+deleted file mode 100644
+index 08be4d3846e5..000000000000
+--- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
++++ /dev/null
+@@ -1,73 +0,0 @@
+-* Synopsys DesignWare I2C
+-
+-Required properties :
+-
+- - compatible : should be "snps,designware-i2c"
+-                or "mscc,ocelot-i2c" with "snps,designware-i2c" for fallback
+- - reg : Offset and length of the register set for the device
+- - interrupts : <IRQ> where IRQ is the interrupt number.
+- - clocks : phandles for the clocks, see the description of clock-names below.
+-   The phandle for the "ic_clk" clock is required. The phandle for the "pclk"
+-   clock is optional. If a single clock is specified but no clock-name, it is
+-   the "ic_clk" clock. If both clocks are listed, the "ic_clk" must be first.
+-
+-Recommended properties :
+-
+- - clock-frequency : desired I2C bus clock frequency in Hz.
+-
+-Optional properties :
+-
+- - clock-names : Contains the names of the clocks:
+-    "ic_clk", for the core clock used to generate the external I2C clock.
+-    "pclk", the interface clock, required for register access.
+-
+- - reg : for "mscc,ocelot-i2c", a second register set to configure the SDA hold
+-   time, named ICPU_CFG:TWI_DELAY in the datasheet.
+-
+- - i2c-sda-hold-time-ns : should contain the SDA hold time in nanoseconds.
+-   This option is only supported in hardware blocks version 1.11a or newer and
+-   on Microsemi SoCs ("mscc,ocelot-i2c" compatible).
+-
+- - i2c-scl-falling-time-ns : should contain the SCL falling time in nanoseconds.
+-   This value which is by default 300ns is used to compute the tLOW period.
+-
+- - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
+-   This value which is by default 300ns is used to compute the tHIGH period.
+-
+-Examples :
+-
+-	i2c@f0000 {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-		compatible = "snps,designware-i2c";
+-		reg = <0xf0000 0x1000>;
+-		interrupts = <11>;
+-		clock-frequency = <400000>;
+-	};
+-
+-	i2c@1120000 {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-		compatible = "snps,designware-i2c";
+-		reg = <0x1120000 0x1000>;
+-		interrupt-parent = <&ictl>;
+-		interrupts = <12 1>;
+-		clock-frequency = <400000>;
+-		i2c-sda-hold-time-ns = <300>;
+-		i2c-sda-falling-time-ns = <300>;
+-		i2c-scl-falling-time-ns = <300>;
+-	};
+-
+-	i2c@1120000 {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-		reg = <0x2000 0x100>;
+-		clock-frequency = <400000>;
+-		clocks = <&i2cclk>;
+-		interrupts = <0>;
+-
+-		eeprom@64 {
+-			compatible = "linux,slave-24c02";
+-			reg = <0x40000064>;
+-		};
+-	};
+diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+new file mode 100644
+index 000000000000..4bd430b2b41d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+@@ -0,0 +1,154 @@
++# SPDX-License-Identifier: GPL-2.0-only
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/snps,designware-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+static int bt1_i2c_read(void *context, unsigned int reg, unsigned int *val)
-+{
-+	struct dw_i2c_dev *dev = context;
-+	int ret;
++title: Synopsys DesignWare APB I2C Controller
 +
-+	/*
-+	 * Note these methods shouldn't ever fail because the system controller
-+	 * registers are memory mapped. We check the return value just in case.
-+	 */
-+	ret = regmap_write(dev->sysmap, BT1_I2C_CTL,
-+			   BT1_I2C_CTL_GO | (reg & BT1_I2C_CTL_ADDR_MASK));
-+	if (ret)
-+		return ret;
++maintainers:
++  - Jarkko Nikula <jarkko.nikula@linux.intel.com>
 +
-+	return regmap_read(dev->sysmap, BT1_I2C_DO, val);
-+}
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++  - if:
++      properties:
++        compatible:
++          not:
++            contains:
++              const: mscc,ocelot-i2c
++    then:
++      properties:
++        reg:
++          maxItems: 1
 +
-+static int bt1_i2c_write(void *context, unsigned int reg, unsigned int val)
-+{
-+	struct dw_i2c_dev *dev = context;
-+	int ret;
++properties:
++  compatible:
++    oneOf:
++      - description: Generic Synopsys DesignWare I2C controller
++        const: snps,designware-i2c
++      - description: Microsemi Ocelot SoCs I2C controller
++        items:
++          - const: mscc,ocelot-i2c
++          - const: snps,designware-i2c
 +
-+	ret = regmap_write(dev->sysmap, BT1_I2C_DI, val);
-+	if (ret)
-+		return ret;
++  reg:
++    minItems: 1
++    items:
++      - description: DW APB I2C controller memory mapped registers
++      - description: |
++          ICPU_CFG:TWI_DELAY registers to setup the SDA hold time.
++          This registers are specific to the Ocelot I2C-controller.
 +
-+	return regmap_write(dev->sysmap, BT1_I2C_CTL,
-+		BT1_I2C_CTL_GO | BT1_I2C_CTL_WR | (reg & BT1_I2C_CTL_ADDR_MASK));
-+}
++  interrupts:
++    maxItems: 1
 +
-+static struct regmap_config bt1_i2c_cfg = {
-+	.reg_bits = 32,
-+	.val_bits = 32,
-+	.reg_stride = 4,
-+	.fast_io = true,
-+	.reg_read = bt1_i2c_read,
-+	.reg_write = bt1_i2c_write,
-+	.max_register = DW_IC_COMP_TYPE
-+};
++  clocks:
++    minItems: 1
++    items:
++      - description: I2C controller reference clock source
++      - description: APB interface clock source
 +
-+static int bt1_i2c_request_regs(struct dw_i2c_dev *dev)
-+{
-+	dev->sysmap = syscon_node_to_regmap(dev->dev->of_node->parent);
-+	if (IS_ERR(dev->sysmap))
-+		return PTR_ERR(dev->sysmap);
++  clock-names:
++    minItems: 1
++    items:
++      - const: ref
++      - const: pclk
 +
-+	dev->map = devm_regmap_init(dev->dev, NULL, dev, &bt1_i2c_cfg);
-+	return PTR_ERR_OR_ZERO(dev->map);
-+}
++  resets:
++    maxItems: 1
 +
- #define MSCC_ICPU_CFG_TWI_DELAY		0x0
- #define MSCC_ICPU_CFG_TWI_DELAY_ENABLE	BIT(0)
- #define MSCC_ICPU_CFG_TWI_SPIKE_FILTER	0x4
-@@ -90,10 +149,16 @@ static int dw_i2c_of_configure(struct platform_device *pdev)
- static const struct of_device_id dw_i2c_of_match[] = {
- 	{ .compatible = "snps,designware-i2c", },
- 	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
-+	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
- #else
-+static int bt1_i2c_request_regs(struct dw_i2c_dev *dev)
-+{
-+	return -ENODEV;
-+}
++  clock-frequency:
++    description: Desired I2C bus clock frequency in Hz
++    enum: [100000, 400000, 1000000, 3400000]
++    default: 400000
 +
- static inline int dw_i2c_of_configure(struct platform_device *pdev)
- {
- 	return -ENODEV;
-@@ -111,10 +176,19 @@ static void dw_i2c_plat_pm_cleanup(struct dw_i2c_dev *dev)
- static int dw_i2c_plat_request_regs(struct dw_i2c_dev *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev->dev);
-+	int ret;
- 
--	dev->base = devm_platform_ioremap_resource(pdev, 0);
-+	switch (dev->flags & MODEL_MASK) {
-+	case MODEL_BAIKAL_BT1:
-+		ret = bt1_i2c_request_regs(dev);
-+		break;
-+	default:
-+		dev->base = devm_platform_ioremap_resource(pdev, 0);
-+		ret = PTR_ERR_OR_ZERO(dev->base);
-+		break;
-+	}
- 
--	return PTR_ERR_OR_ZERO(dev->base);
-+	return ret;
- }
- 
- static int dw_i2c_plat_probe(struct platform_device *pdev)
++  i2c-sda-hold-time-ns:
++    maxItems: 1
++    description: |
++      The property should contain the SDA hold time in nanoseconds. This option
++      is only supported in hardware blocks version 1.11a or newer or on
++      Microsemi SoCs.
++
++  i2c-scl-falling-time-ns:
++    maxItems: 1
++    description: |
++      The property should contain the SCL falling time in nanoseconds.
++      This value is used to compute the tLOW period.
++    default: 300
++
++  i2c-sda-falling-time-ns:
++    maxItems: 1
++    description: |
++      The property should contain the SDA falling time in nanoseconds.
++      This value is used to compute the tHIGH period.
++    default: 300
++
++  dmas:
++    items:
++      - description: TX DMA Channel
++      - description: RX DMA Channel
++
++  dma-names:
++    items:
++      - const: tx
++      - const: rx
++
++unevaluatedProperties: false
++
++required:
++  - compatible
++  - reg
++  - "#address-cells"
++  - "#size-cells"
++  - interrupts
++
++examples:
++  - |
++    i2c@f0000 {
++      compatible = "snps,designware-i2c";
++      reg = <0xf0000 0x1000>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++      interrupts = <11>;
++      clock-frequency = <400000>;
++    };
++  - |
++    i2c@1120000 {
++      compatible = "snps,designware-i2c";
++      reg = <0x1120000 0x1000>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++      interrupts = <12 1>;
++      clock-frequency = <400000>;
++      i2c-sda-hold-time-ns = <300>;
++      i2c-sda-falling-time-ns = <300>;
++      i2c-scl-falling-time-ns = <300>;
++    };
++  - |
++    i2c@2000 {
++      compatible = "snps,designware-i2c";
++      reg = <0x2000 0x100>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++      clock-frequency = <400000>;
++      clocks = <&i2cclk>;
++      interrupts = <0>;
++
++      eeprom@64 {
++        compatible = "linux,slave-24c02";
++        reg = <0x40000064>;
++      };
++    };
++  - |
++    i2c@100400 {
++      compatible = "mscc,ocelot-i2c", "snps,designware-i2c";
++      reg = <0x100400 0x100>, <0x198 0x8>;
++      pinctrl-0 = <&i2c_pins>;
++      pinctrl-names = "default";
++      #address-cells = <1>;
++      #size-cells = <0>;
++      interrupts = <8>;
++      clocks = <&ahb_clk>;
++    };
++...
 -- 
 2.26.2
 
