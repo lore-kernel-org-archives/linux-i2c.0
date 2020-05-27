@@ -2,44 +2,44 @@ Return-Path: <SRS0=0Bbp=7J=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00847C433E1
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 12:07:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2B42C433E0
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 12:07:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CDB3E20657
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 12:07:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D0409208DB
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 12:07:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728482AbgE0MH3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 27 May 2020 08:07:29 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:34894 "EHLO
+        id S1728783AbgE0MHb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 27 May 2020 08:07:31 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:34952 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728402AbgE0MH2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 May 2020 08:07:28 -0400
+        with ESMTP id S1728451AbgE0MHa (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 May 2020 08:07:30 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 93FFB8030837;
-        Wed, 27 May 2020 12:07:24 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id 81D8A803083A;
+        Wed, 27 May 2020 12:07:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id cJHk2x_EkrsV; Wed, 27 May 2020 15:07:24 +0300 (MSK)
+        with ESMTP id YH35A2SXBWtV; Wed, 27 May 2020 15:07:26 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Rob Herring <robh+dt@kernel.org>
+        Wolfram Sang <wsa@the-dreams.de>
 CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Serge Semin <fancer.lancer@gmail.com>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
-        <linux-mips@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH v4 02/11] dt-bindings: i2c: Discard i2c-slave flag from the DW I2C example
-Date:   Wed, 27 May 2020 15:01:02 +0300
-Message-ID: <20200527120111.5781-3-Sergey.Semin@baikalelectronics.ru>
+        Rob Herring <robh+dt@kernel.org>, <linux-mips@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH v4 05/11] i2c: designware: slave: Set DW I2C core module dependency
+Date:   Wed, 27 May 2020 15:01:05 +0300
+Message-ID: <20200527120111.5781-6-Sergey.Semin@baikalelectronics.ru>
 In-Reply-To: <20200527120111.5781-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200527120111.5781-1-Sergey.Semin@baikalelectronics.ru>
 MIME-Version: 1.0
@@ -51,45 +51,40 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-dtc currently doesn't support I2C_OWN_SLAVE_ADDRESS flag set in the
-i2c "reg" property. If it is the compiler will print a warning:
-
-Warning (i2c_bus_reg): /example-2/i2c@1120000/eeprom@64: I2C bus unit address format error, expected "40000064"
-Warning (i2c_bus_reg): /example-2/i2c@1120000/eeprom@64:reg: I2C address must be less than 10-bits, got "0x40000064"
-
-In order to silence dtc up let's discard the flag from the DW I2C DT
-binding example for now. Just revert this commit when dtc is fixed.
+DW APB I2C slave code in fact depends on the DW I2C driver core, but not
+on the platform code as it used to be before commit 90bc1ee6de9f ("i2c:
+designware: Allow slave mode for PCI enumerated devices"). Yes, the I2C
+slave interface is currently supported by both the platform and PCI
+versions of the IP core, but it still depends on the DW I2C core
+functionality and must be available only if the last one is enabled.
+So make sure the DW APB I2C slave config is only available if the
+I2C_DESIGNWARE_CORE config is enabled.
 
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Rob Herring <robh+dt@kernel.org>
 Cc: linux-mips@vger.kernel.org
-
+Cc: devicetree@vger.kernel.org
 ---
+ drivers/i2c/busses/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-Changelog v3:
-- This is a new patch created as a result of the Rob request to remove
-  the EEPROM-slave bit setting in the DT binndings example until the dtc
-  is fixed.
----
- Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-index 4bd430b2b41d..101d78e8f19d 100644
---- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-@@ -137,7 +137,7 @@ examples:
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 1d940810e47e..7f92f6a96042 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -529,6 +529,7 @@ config I2C_DESIGNWARE_CORE
  
-       eeprom@64 {
-         compatible = "linux,slave-24c02";
--        reg = <0x40000064>;
-+        reg = <0x64>;
-       };
-     };
-   - |
+ config I2C_DESIGNWARE_SLAVE
+ 	bool "Synopsys DesignWare Slave"
++	depends on I2C_DESIGNWARE_CORE
+ 	select I2C_SLAVE
+ 	help
+ 	  If you say yes to this option, support will be included for the
 -- 
 2.26.2
 
