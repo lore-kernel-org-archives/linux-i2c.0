@@ -2,101 +2,100 @@ Return-Path: <SRS0=0Bbp=7J=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE9F5C433E0
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 10:09:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1477C433DF
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 10:18:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A710B208E4
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 10:09:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1590574153;
-	bh=yHPxx5r9WV3zA/SmpY1Eg7WTbX8X43s++csgc5GvexY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=vrtczYkvFS0hsUd5yaiRJrxLY3tOHBm1UUS2cVeK2DT7zWeufSqGwAgCTjK7S1P3A
-	 tYzncCOkQzWm9vXM5kMAmfZR6fS4XOoOSF7j9m9Bi9rGEi/L5B5sIy5t9IEXOgqJkY
-	 s6h3xlP1HMkKQFXDUcJw2jjx2Ch98M7osw/+bshU=
+	by mail.kernel.org (Postfix) with ESMTP id C15622088E
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 10:18:39 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SIzpvkEu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729690AbgE0KJN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 27 May 2020 06:09:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55516 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729758AbgE0KJM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 27 May 2020 06:09:12 -0400
-Received: from localhost (p54b33011.dip0.t-ipconnect.de [84.179.48.17])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D963820890;
-        Wed, 27 May 2020 10:09:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590574152;
-        bh=yHPxx5r9WV3zA/SmpY1Eg7WTbX8X43s++csgc5GvexY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QJ5e/s/B4XUN5LSz4MlcKt499k4rM5l5FOI9Ke3mIEMyDFBS4YWpN1XfOLC5LLhTO
-         VFzRvdnHzWKp0rWsKXIphYwsRV/RCE1T2VLBn/Qh+FCIXbih4wGjoWOUNCw8MiRxNy
-         /9UdcGijtqyFCYtwF1F4IKz1sNcBSsq7tcC6VlHo=
-Date:   Wed, 27 May 2020 12:09:09 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Samuel Zou <zou_wei@huawei.com>
-Cc:     ajayg@nvidia.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -next] i2c: nvidia-gpu: Use PTR_ERR_OR_ZERO() to simplify
- code
-Message-ID: <20200527100909.GD1161@ninjato>
-References: <1588755670-38476-1-git-send-email-zou_wei@huawei.com>
+        id S1726926AbgE0KSj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 27 May 2020 06:18:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33716 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725294AbgE0KSi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 May 2020 06:18:38 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8EE9C061A0F;
+        Wed, 27 May 2020 03:18:38 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id c75so11581804pga.3;
+        Wed, 27 May 2020 03:18:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EhwhFw1tES4LZGvoxz/NosIDfmflP0OU91r5bFTkb98=;
+        b=SIzpvkEuQFsOG8bNh7PbCXcg58+f7d7hDswJsuYf1mwFQoAVPLwpPBYwLB5Kld98aL
+         zk4hubJqwcCvwoo2mDJ8ugJ3EZwPABifi80PkNZbhxG29ap6Lv4Zc2PMfqnLqT5JuwBH
+         uceu/KM2j/2mOACBpCFROhRD5Za2JFPFLzgcem3EU/CsY0GOEKH/6yKIegmaVCsdlA8b
+         ELvAfKdkbO+Pyapj0EXPZdV1ByF7FFqzT+G1SBcGj0bXhV2rghRgnSO6m33MBvG1wPRj
+         e4SnFHR3jGzUqRJp9E4PsaYI7eLMNoy8KnNDCF0zFlITkp5AMZTA28g179rYNQFVHZvy
+         WG3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EhwhFw1tES4LZGvoxz/NosIDfmflP0OU91r5bFTkb98=;
+        b=pE0ASEHLHNIMy96p44mHXl7/zyvkvWSnu4xIusIrESLmZsD87HLDkFKwnxhTAYqK7N
+         SleSS4wEN2qz8jZ++RI5zQC3BU29iTazFbX7MT0avBtdnlmhJoWBctIbobqD1zKkio5u
+         f8mIn/I9AS9xXi5MPHYo9TeKP+jgsE3jaLjiIQvjVVkmwqXGQpYeiwK0CL7SpmqNQtdq
+         FFk/3CkeFsD2VL1xtalcB6RdRi9nnKqoCteSZaI60CCFs+FGSv1RJBNMyuPhGohwGSlq
+         tTRwIcZkhzpM4b8/+ELGdyFjXspOFGQpwkUA6jhlEAydd/PJChQ34RMSx992NwAKhHlG
+         r1CA==
+X-Gm-Message-State: AOAM530zmaFJuMjpkNluKLa4GawwUnNLUWyigFSornJrquPDp9jrbSVY
+        FGMgx3imrw1d4ePC+lW6slmsHiXg8MRX8dskiPk=
+X-Google-Smtp-Source: ABdhPJyCHpozKeoHK85XTSqAWyu+N2lpBygYqk3zDE/5YtgW+awwVfP/5OgHvoazlKjrN+diVc6lN3DBQ6FUKqoKPc0=
+X-Received: by 2002:a63:545a:: with SMTP id e26mr1830343pgm.4.1590574718152;
+ Wed, 27 May 2020 03:18:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="LKTjZJSUETSlgu2t"
-Content-Disposition: inline
-In-Reply-To: <1588755670-38476-1-git-send-email-zou_wei@huawei.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20200526215528.16417-1-Sergey.Semin@baikalelectronics.ru>
+ <20200526215528.16417-12-Sergey.Semin@baikalelectronics.ru>
+ <CAHp75Veygd2y8Tp28p+ZX8Hm_u975QdqatKbsNOG9tNz6HOCAg@mail.gmail.com> <20200527095034.xd52qv45nzcnkbnz@mobilestation>
+In-Reply-To: <20200527095034.xd52qv45nzcnkbnz@mobilestation>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Wed, 27 May 2020 13:18:26 +0300
+Message-ID: <CAHp75Vdv10g5Fsxp+P49SR79yzePss-2=ACTdbAD-3BGHeHAmg@mail.gmail.com>
+Subject: Re: [PATCH v3 11/12] i2c: designware: Move reg-space remapping into a
+ dedicated function
+To:     Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc:     Serge Semin <fancer.lancer@gmail.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        devicetree <devicetree@vger.kernel.org>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Wed, May 27, 2020 at 12:50 PM Serge Semin
+<Sergey.Semin@baikalelectronics.ru> wrote:
+> On Wed, May 27, 2020 at 12:26:09PM +0300, Andy Shevchenko wrote:
+> > On Wed, May 27, 2020 at 4:03 AM Serge Semin
+> > <Sergey.Semin@baikalelectronics.ru> wrote:
 
---LKTjZJSUETSlgu2t
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+...
 
-On Wed, May 06, 2020 at 05:01:10PM +0800, Samuel Zou wrote:
-> Fixes coccicheck warning:
->=20
-> drivers/i2c/busses/i2c-nvidia-gpu.c:280:1-3: WARNING: PTR_ERR_OR_ZERO can=
- be used
->=20
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Signed-off-by: Samuel Zou <zou_wei@huawei.com>
+> > Wolfram, did my last series make your tree? I think there was a patch
+> > that touched this part...
+>
+> Right. It is there. I'll rebase the series on top of the i2c/for-next branch.
 
-Thanks, but has been fixed already with
+Ah, my memory did a trick. Thank you!
 
-http://patchwork.ozlabs.org/project/linux-i2c/patch/20200505145230.17251-1-=
-aishwaryarj100@gmail.com/
-
-
---LKTjZJSUETSlgu2t
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl7OPEUACgkQFA3kzBSg
-KbY4Uw//bqrBvtas5lI1W3btxS5KD7yTOENLR7QT2TTN8C7zeVgUwFifV2FNeMl3
-JmzN8r6XJ9ptwnHCFx4R+oufVdPFr4IIFRyJU1NDnOaRAisYdNy5YDiTGIsu5iil
-jI9wpVsnCZt5Fev9D7IaBMe/pPxewqogzwPP00qnSYvJmFzcMoFItBMA8WomjvoG
-tFqqbYfO3z7j4y7SbdM+GUytAjoymi/fgsvl3+1M/AKvCq75b0RtcIawClLvm1dN
-W3tshRGMPgtxi9jsivLcpzhPzYib1bGMC5fyW9iPKgIyyEeJtbQvAiybRbqYRL3O
-pMZnCpvFKF87dHZRU/iuaeVOCewXCfi63w0KDGSOseVlckViGsIq4eRXkcRBxKaE
-NZmcuObiKMwW768hPuVudz1yqSre7oF+E177JiohBiauV+ShHNYnI+cl5FVABcWo
-trUBjEYR8rQCq+SQft6ih9q81t2Jws6iOUYOg60mLIt1tO5tCDl9AkCsOW3gWDQW
-0BYEE9B6CMDqCzljmOiVlU1YaZPNNqG1vWe/mYj7umvb4q9eZ26aJ1D7eLLJVTZH
-mfOh/vGbpedUV3/z2b+QtsezCi/8wtOsrl1GtLQJOHyU23JUGXtzn8bkwi10Nvjo
-P4esZq37OJeud5l63vJJ3MaxuuWZToTzOxzqGh3itv5DPaFyQDk=
-=bBbu
------END PGP SIGNATURE-----
-
---LKTjZJSUETSlgu2t--
+-- 
+With Best Regards,
+Andy Shevchenko
