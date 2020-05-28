@@ -1,1837 +1,474 @@
-Return-Path: <SRS0=0Bbp=7J=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=TnuL=7K=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F198C433E2
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 20:12:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0358C433DF
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 07:10:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 14B782073B
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 May 2020 20:12:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BA3F7206DF
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 07:10:18 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=xilinx.onmicrosoft.com header.i=@xilinx.onmicrosoft.com header.b="HWhXyj6T"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728152AbgE0UMQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 27 May 2020 16:12:16 -0400
-Received: from 212.199.177.27.static.012.net.il ([212.199.177.27]:49768 "EHLO
-        herzl.nuvoton.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728395AbgE0UMQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 May 2020 16:12:16 -0400
-Received: from taln60.nuvoton.co.il (ntil-fw [212.199.177.25])
-        by herzl.nuvoton.co.il (8.13.8/8.13.8) with ESMTP id 04RK91ij011492;
-        Wed, 27 May 2020 23:09:01 +0300
-Received: by taln60.nuvoton.co.il (Postfix, from userid 20088)
-        id C1982639B0; Wed, 27 May 2020 23:09:01 +0300 (IDT)
-From:   Tali Perry <tali.perry1@gmail.com>
-To:     ofery@google.com, brendanhiggins@google.com,
-        avifishman70@gmail.com, tmaimon77@gmail.com, kfting@nuvoton.com,
-        venture@google.com, yuenn@google.com, benjaminfair@google.com,
-        robh+dt@kernel.org, wsa@the-dreams.de,
-        andriy.shevchenko@linux.intel.com
-Cc:     linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-        openbmc@lists.ozlabs.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>
-Subject: [PATCH v14 2/3] i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver
-Date:   Wed, 27 May 2020 23:08:19 +0300
-Message-Id: <20200527200820.47359-3-tali.perry1@gmail.com>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20200527200820.47359-1-tali.perry1@gmail.com>
-References: <20200527200820.47359-1-tali.perry1@gmail.com>
+        id S1725859AbgE1HKS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 28 May 2020 03:10:18 -0400
+Received: from mail-eopbgr760077.outbound.protection.outlook.com ([40.107.76.77]:6177
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725601AbgE1HKR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 28 May 2020 03:10:17 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=PYw1DR7zqhfxWO9sNqnNmu1aJwotM4+pmFhUUBVBgLLL3BoSi9RC5OJG43RVKZsPB2cL8gDUFJdOgPguwvmqBK0SqdcNLoUKYHYqLhuXSSf6c/y7oW9ApBSIputgrwseW39P8jjLgEOGmE21X7m3jpHy8AhB1Q19yK2Vo0bm4o8X8DjP2r0o9m/9zmG7BZ/dtk4NZSm1fXt8P1aPIwl1OjPk8XkIURiL5HSIYIZL5RMDsXO7YRzqavhXJcSy+/kO9HCFHhN+2rvMNdyJKJknQB69KMnZY8AHQctp44AIF+gUOTx2ZYFAif3j8u4dZKLRn8FKaViSVcVrzUW1oSeIGg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yo5XIVYbcZd3zY2YMVHAGmh9TmM4n0N969d0a7nzNU4=;
+ b=eTqmRFSe3jP/DKytbXINrUnVaxj3M8WAWUNlhcYf56vf9rPBkdWeRcKvUzvRd0zxmOWF7nu6nJh4Ilt/XL9FDE9u/+iTOQDaHHO1EYq+eIvup+RDa7POKsaiKUzsE0Z7/Fru66vpX5unxrw7T4eqr+fX4M/9jzvzHKykgdlMNY+d8vhM22eep8tc02Vsjge50p81+rgRvkhW5OMN9/X+7h4/VF/s0qHxA6rMNV7A9CwIXfBTR6Vkd3T+Nw72+dX60PXywHleWC7yaz3lwWBQZi9Z7l6xVuAOUz+ZZ/N6skIhI56fccHnI1SLyk8x5sKXk4npxgOB7nTNrTllkUUgCA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 149.199.60.83) smtp.rcpttodomain=the-dreams.de smtp.mailfrom=xilinx.com;
+ dmarc=bestguesspass action=none header.from=xilinx.com; dkim=none (message
+ not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yo5XIVYbcZd3zY2YMVHAGmh9TmM4n0N969d0a7nzNU4=;
+ b=HWhXyj6TxsXEhT/vq3TTVjZGDz78HNGZ1KiWq42klfuMJBkgOcitv0vS/Yk7VyRmslSqghz0+Kk8i5D90GlnAgB1qkqQBphjy+PTD1/mHPVqPpVUDQuT8eczyzdyVI7R1j4Z3usYMMUsSItq5cCp1fdeEYMRXhmWFbTIXaD8VxM=
+Received: from SN1PR12CA0104.namprd12.prod.outlook.com (2603:10b6:802:21::39)
+ by DM5PR02MB2524.namprd02.prod.outlook.com (2603:10b6:3:3a::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3045.17; Thu, 28 May
+ 2020 07:10:13 +0000
+Received: from SN1NAM02FT005.eop-nam02.prod.protection.outlook.com
+ (2603:10b6:802:21:cafe::76) by SN1PR12CA0104.outlook.office365.com
+ (2603:10b6:802:21::39) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3045.19 via Frontend
+ Transport; Thu, 28 May 2020 07:10:13 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 149.199.60.83)
+ smtp.mailfrom=xilinx.com; the-dreams.de; dkim=none (message not signed)
+ header.d=none;the-dreams.de; dmarc=bestguesspass action=none
+ header.from=xilinx.com;
+Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
+ 149.199.60.83 as permitted sender) receiver=protection.outlook.com;
+ client-ip=149.199.60.83; helo=xsj-pvapsmtpgw01;
+Received: from xsj-pvapsmtpgw01 (149.199.60.83) by
+ SN1NAM02FT005.mail.protection.outlook.com (10.152.72.117) with Microsoft SMTP
+ Server id 15.20.3045.17 via Frontend Transport; Thu, 28 May 2020 07:10:13
+ +0000
+Received: from [149.199.38.66] (port=56687 helo=xsj-pvapsmtp01)
+        by xsj-pvapsmtpgw01 with esmtp (Exim 4.90)
+        (envelope-from <michal.simek@xilinx.com>)
+        id 1jeCfX-0007hj-D5; Thu, 28 May 2020 00:09:35 -0700
+Received: from [127.0.0.1] (helo=localhost)
+        by xsj-pvapsmtp01 with smtp (Exim 4.63)
+        (envelope-from <michal.simek@xilinx.com>)
+        id 1jeCg8-0002qZ-Mt; Thu, 28 May 2020 00:10:12 -0700
+Received: from [172.30.17.109]
+        by xsj-pvapsmtp01 with esmtp (Exim 4.63)
+        (envelope-from <michals@xilinx.com>)
+        id 1jeCg4-0002br-IR; Thu, 28 May 2020 00:10:08 -0700
+Subject: Re: [PATCH v3 2/2] i2c: busses: convert to
+ devm_platform_request_irq()
+To:     Dejin Zheng <zhengdejin5@gmail.com>, corbet@lwn.net,
+        gregkh@linuxfoundation.org, michal.simek@xilinx.com,
+        wsa+renesas@sang-engineering.com, linus.walleij@linaro.org,
+        linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Wolfram Sang <wsa@the-dreams.de>
+References: <20200527142611.9006-1-zhengdejin5@gmail.com>
+ <20200527142611.9006-2-zhengdejin5@gmail.com>
+From:   Michal Simek <michal.simek@xilinx.com>
+Message-ID: <ff4d3984-f004-f52a-f75b-9bc6c2a467e3@xilinx.com>
+Date:   Thu, 28 May 2020 09:10:05 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200527142611.9006-2-zhengdejin5@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-Product-Ver: IMSS-7.1.0.1224-8.2.0.1013-23620.005
+X-TM-AS-User-Approved-Sender: Yes;Yes
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-HT: Tenant
+X-Forefront-Antispam-Report: CIP:149.199.60.83;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapsmtpgw01;PTR:unknown-60-83.xilinx.com;CAT:NONE;SFTY:;SFS:(376002)(136003)(396003)(346002)(39860400002)(46966005)(47076004)(2906002)(82740400003)(30864003)(9786002)(478600001)(316002)(31686004)(5660300002)(8936002)(4326008)(336012)(8676002)(426003)(26005)(70586007)(44832011)(82310400002)(81166007)(36756003)(356005)(70206006)(2616005)(83380400001)(31696002)(186003)(6666004)(966005)(43740500002);DIR:OUT;SFP:1101;
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: fa43a343-3772-4663-7689-08d802d62a69
+X-MS-TrafficTypeDiagnostic: DM5PR02MB2524:
+X-Microsoft-Antispam-PRVS: <DM5PR02MB25249B60A2A5717261B17238C68E0@DM5PR02MB2524.namprd02.prod.outlook.com>
+X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
+X-MS-Oob-TLC-OOBClassifiers: OLM:655;
+X-Forefront-PRVS: 0417A3FFD2
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YgqIqH+LAsz6PLpZlXo9iw3mC5+CmMpPB45oiXHhhrYoBOHtC566QNPduEyfQqsZjTO5smId11pQd65RIKOtS7dByc2GkLp/wTUKjiSa32qecU0cWZrdHmsvT9arT5uz4U+l3Jjz6j9IYiAwz6g8RDGP0d7pWcclFBsAT8Msqj+CgCLQfErB5bjumtdFf3jWoAAVm9e3oZAnV5k9NG+D1eU63Ra7GGNSNxkJPp98B8XRe4jcsRNRZ24INomo1S2RZiZNWdcM3WvRt5NfQSf9EPr8uR+qu+/FpFP19tltg5JBWm3J9661KtTNe1KDGZDAvPq9WVH+mJkXC9ptmy4379sbV4HSHgFXeHvZYqgVHZHZlwyjhw+O4rG1Dcw7u0BZPWxmF1xdcYphuxdfN6F3JjdeTtzjrNyOExTpWMMMw0G8ANlhAp3wmkFhkCkWPzJbnyvsq15EgS6fUI+U8B9bQE3aHyac2z3do+UkC7Qr+HsFSDbG2SMJGhlMKXVlFjf8
+X-OriginatorOrg: xilinx.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 May 2020 07:10:13.0596
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: fa43a343-3772-4663-7689-08d802d62a69
+X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.60.83];Helo=[xsj-pvapsmtpgw01]
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR02MB2524
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add Nuvoton NPCM BMC I2C controller driver.
+On 27. 05. 20 16:26, Dejin Zheng wrote:
+> Use devm_platform_request_irq() to simplify code, and it contains
+> platform_get_irq() and devm_request_irq().
+> 
+> Cc: Michal Simek <michal.simek@xilinx.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> v2 -> v3:
+> 	- no changed and Thanks linus's review.
+> v1 -> v2:
+> 	- The patch content has not changed. just resend it by this discussion:
+> 	  https://patchwork.ozlabs.org/project/linux-i2c/patch/20200520144821.8069-1-zhengdejin5@gmail.com/
+> 
+>  drivers/i2c/busses/i2c-bcm-kona.c  | 16 +++-------------
+>  drivers/i2c/busses/i2c-cadence.c   | 10 +++-------
+>  drivers/i2c/busses/i2c-digicolor.c | 10 +++-------
+>  drivers/i2c/busses/i2c-emev2.c     |  5 ++---
+>  drivers/i2c/busses/i2c-jz4780.c    |  5 ++---
+>  drivers/i2c/busses/i2c-meson.c     | 13 ++++---------
+>  drivers/i2c/busses/i2c-mxs.c       |  9 +++------
+>  drivers/i2c/busses/i2c-pnx.c       |  9 ++-------
+>  drivers/i2c/busses/i2c-rcar.c      |  9 +++------
+>  drivers/i2c/busses/i2c-rk3x.c      | 14 +++-----------
+>  drivers/i2c/busses/i2c-sirf.c      | 10 ++--------
+>  drivers/i2c/busses/i2c-stu300.c    |  4 ++--
+>  drivers/i2c/busses/i2c-synquacer.c | 12 +++---------
+>  13 files changed, 35 insertions(+), 91 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c-bcm-kona.c
+> index ed5e1275ae46..f45acb47552a 100644
+> --- a/drivers/i2c/busses/i2c-bcm-kona.c
+> +++ b/drivers/i2c/busses/i2c-bcm-kona.c
+> @@ -818,20 +818,10 @@ static int bcm_kona_i2c_probe(struct platform_device *pdev)
+>  	       ISR_NOACK_MASK,
+>  	       dev->base + ISR_OFFSET);
+>  
+> -	/* Get the interrupt number */
+> -	dev->irq = platform_get_irq(pdev, 0);
+> -	if (dev->irq < 0) {
+> -		rc = dev->irq;
+> -		goto probe_disable_clk;
+> -	}
+> -
+> -	/* register the ISR handler */
+> -	rc = devm_request_irq(&pdev->dev, dev->irq, bcm_kona_i2c_isr,
+> -			      IRQF_SHARED, pdev->name, dev);
+> -	if (rc) {
+> -		dev_err(dev->device, "failed to request irq %i\n", dev->irq);
+> +	rc = devm_platform_request_irq(pdev, 0, &dev->irq, bcm_kona_i2c_isr,
+> +					IRQF_SHARED, pdev->name, dev);
+> +	if (rc)
+>  		goto probe_disable_clk;
+> -	}
+>  
+>  	/* Enable the controller but leave it idle */
+>  	bcm_kona_i2c_send_cmd_to_ctrl(dev, BCM_CMD_NOACTION);
+> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+> index 4b72398af505..9ffae4d231dc 100644
+> --- a/drivers/i2c/busses/i2c-cadence.c
+> +++ b/drivers/i2c/busses/i2c-cadence.c
+> @@ -1204,8 +1204,6 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+>  	if (IS_ERR(id->membase))
+>  		return PTR_ERR(id->membase);
+>  
+> -	id->irq = platform_get_irq(pdev, 0);
+> -
+>  	id->adap.owner = THIS_MODULE;
+>  	id->adap.dev.of_node = pdev->dev.of_node;
+>  	id->adap.algo = &cdns_i2c_algo;
+> @@ -1256,12 +1254,10 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+>  		goto err_clk_dis;
+>  	}
+>  
+> -	ret = devm_request_irq(&pdev->dev, id->irq, cdns_i2c_isr, 0,
+> -				 DRIVER_NAME, id);
+> -	if (ret) {
+> -		dev_err(&pdev->dev, "cannot get irq %d\n", id->irq);
+> +	ret = devm_platform_request_irq(pdev, 0, &id->irq, cdns_i2c_isr, 0,
+> +					DRIVER_NAME, id);
+> +	if (ret)
+>  		goto err_clk_dis;
+> -	}
+>  
+>  	/*
+>  	 * Cadence I2C controller has a bug wherein it generates
+> diff --git a/drivers/i2c/busses/i2c-digicolor.c b/drivers/i2c/busses/i2c-digicolor.c
+> index 332f00437479..9ea965f41396 100644
+> --- a/drivers/i2c/busses/i2c-digicolor.c
+> +++ b/drivers/i2c/busses/i2c-digicolor.c
+> @@ -290,7 +290,7 @@ static int dc_i2c_probe(struct platform_device *pdev)
+>  {
+>  	struct device_node *np = pdev->dev.of_node;
+>  	struct dc_i2c *i2c;
+> -	int ret = 0, irq;
+> +	int ret = 0;
+>  
+>  	i2c = devm_kzalloc(&pdev->dev, sizeof(struct dc_i2c), GFP_KERNEL);
+>  	if (!i2c)
+> @@ -314,12 +314,8 @@ static int dc_i2c_probe(struct platform_device *pdev)
+>  	if (IS_ERR(i2c->regs))
+>  		return PTR_ERR(i2c->regs);
+>  
+> -	irq = platform_get_irq(pdev, 0);
+> -	if (irq < 0)
+> -		return irq;
+> -
+> -	ret = devm_request_irq(&pdev->dev, irq, dc_i2c_irq, 0,
+> -			       dev_name(&pdev->dev), i2c);
+> +	ret = devm_platform_request_irq(pdev, 0, NULL, dc_i2c_irq, 0,
+> +					dev_name(&pdev->dev), i2c);
+>  	if (ret < 0)
+>  		return ret;
+>  
+> diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
+> index 1a319352e51b..cae00a9ec86f 100644
+> --- a/drivers/i2c/busses/i2c-emev2.c
+> +++ b/drivers/i2c/busses/i2c-emev2.c
+> @@ -395,9 +395,8 @@ static int em_i2c_probe(struct platform_device *pdev)
+>  
+>  	em_i2c_reset(&priv->adap);
+>  
+> -	priv->irq = platform_get_irq(pdev, 0);
+> -	ret = devm_request_irq(&pdev->dev, priv->irq, em_i2c_irq_handler, 0,
+> -				"em_i2c", priv);
+> +	ret = devm_platform_request_irq(pdev, 0, &priv->irq,
+> +			em_i2c_irq_handler, 0, "em_i2c", priv);
+>  	if (ret)
+>  		goto err_clk;
+>  
+> diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
+> index ba831df6661e..27de0309f211 100644
+> --- a/drivers/i2c/busses/i2c-jz4780.c
+> +++ b/drivers/i2c/busses/i2c-jz4780.c
+> @@ -825,9 +825,8 @@ static int jz4780_i2c_probe(struct platform_device *pdev)
+>  
+>  	jz4780_i2c_writew(i2c, JZ4780_I2C_INTM, 0x0);
+>  
+> -	i2c->irq = platform_get_irq(pdev, 0);
+> -	ret = devm_request_irq(&pdev->dev, i2c->irq, jz4780_i2c_irq, 0,
+> -			       dev_name(&pdev->dev), i2c);
+> +	ret = devm_platform_request_irq(pdev, 0, &i2c->irq, jz4780_i2c_irq, 0,
+> +					dev_name(&pdev->dev), i2c);
+>  	if (ret)
+>  		goto err;
+>  
+> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+> index c5dec572fc48..2e5a855ff20a 100644
+> --- a/drivers/i2c/busses/i2c-meson.c
+> +++ b/drivers/i2c/busses/i2c-meson.c
+> @@ -398,7 +398,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
+>  	struct device_node *np = pdev->dev.of_node;
+>  	struct meson_i2c *i2c;
+>  	struct i2c_timings timings;
+> -	int irq, ret = 0;
+> +	int ret = 0;
+>  
+>  	i2c = devm_kzalloc(&pdev->dev, sizeof(struct meson_i2c), GFP_KERNEL);
+>  	if (!i2c)
+> @@ -425,15 +425,10 @@ static int meson_i2c_probe(struct platform_device *pdev)
+>  	if (IS_ERR(i2c->regs))
+>  		return PTR_ERR(i2c->regs);
+>  
+> -	irq = platform_get_irq(pdev, 0);
+> -	if (irq < 0)
+> -		return irq;
+> -
+> -	ret = devm_request_irq(&pdev->dev, irq, meson_i2c_irq, 0, NULL, i2c);
+> -	if (ret < 0) {
+> -		dev_err(&pdev->dev, "can't request IRQ\n");
+> +	ret = devm_platform_request_irq(pdev, 0, NULL, meson_i2c_irq,
+> +					0, NULL, i2c);
+> +	if (ret < 0)
+>  		return ret;
+> -	}
+>  
+>  	ret = clk_prepare(i2c->clk);
+>  	if (ret < 0) {
+> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+> index 9587347447f0..cff82af3208a 100644
+> --- a/drivers/i2c/busses/i2c-mxs.c
+> +++ b/drivers/i2c/busses/i2c-mxs.c
+> @@ -802,7 +802,7 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+>  	struct device *dev = &pdev->dev;
+>  	struct mxs_i2c_dev *i2c;
+>  	struct i2c_adapter *adap;
+> -	int err, irq;
+> +	int err;
+>  
+>  	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
+>  	if (!i2c)
+> @@ -817,11 +817,8 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+>  	if (IS_ERR(i2c->regs))
+>  		return PTR_ERR(i2c->regs);
+>  
+> -	irq = platform_get_irq(pdev, 0);
+> -	if (irq < 0)
+> -		return irq;
+> -
+> -	err = devm_request_irq(dev, irq, mxs_i2c_isr, 0, dev_name(dev), i2c);
+> +	err = devm_platform_request_irq(pdev, 0, NULL, mxs_i2c_isr, 0,
+> +					dev_name(dev), i2c);
+>  	if (err)
+>  		return err;
+>  
+> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+> index 5d7207c10f1d..3e249373375f 100644
+> --- a/drivers/i2c/busses/i2c-pnx.c
+> +++ b/drivers/i2c/busses/i2c-pnx.c
+> @@ -718,13 +718,8 @@ static int i2c_pnx_probe(struct platform_device *pdev)
+>  	}
+>  	init_completion(&alg_data->mif.complete);
+>  
+> -	alg_data->irq = platform_get_irq(pdev, 0);
+> -	if (alg_data->irq < 0) {
+> -		ret = alg_data->irq;
+> -		goto out_clock;
+> -	}
+> -	ret = devm_request_irq(&pdev->dev, alg_data->irq, i2c_pnx_interrupt,
+> -			       0, pdev->name, alg_data);
+> +	ret = devm_platform_request_irq(pdev, 0, &alg_data->irq,
+> +				i2c_pnx_interrupt, 0, pdev->name, alg_data);
+>  	if (ret)
+>  		goto out_clock;
+>  
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> index a45c4bf1ec01..bd59a13de707 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -984,13 +984,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+>  	else
+>  		pm_runtime_put(dev);
+>  
+> -
+> -	priv->irq = platform_get_irq(pdev, 0);
+> -	ret = devm_request_irq(dev, priv->irq, rcar_i2c_irq, 0, dev_name(dev), priv);
+> -	if (ret < 0) {
+> -		dev_err(dev, "cannot get irq %d\n", priv->irq);
+> +	ret = devm_platform_request_irq(pdev, 0, &priv->irq, rcar_i2c_irq, 0,
+> +					dev_name(dev), priv);
+> +	if (ret < 0)
+>  		goto out_pm_disable;
+> -	}
+>  
+>  	platform_set_drvdata(pdev, priv);
+>  
+> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+> index bc698240c4aa..a8d47689de0a 100644
+> --- a/drivers/i2c/busses/i2c-rk3x.c
+> +++ b/drivers/i2c/busses/i2c-rk3x.c
+> @@ -1196,7 +1196,6 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
+>  	int ret = 0;
+>  	int bus_nr;
+>  	u32 value;
+> -	int irq;
+>  	unsigned long clk_rate;
+>  
+>  	i2c = devm_kzalloc(&pdev->dev, sizeof(struct rk3x_i2c), GFP_KERNEL);
+> @@ -1258,17 +1257,10 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
+>  		}
+>  	}
+>  
+> -	/* IRQ setup */
+> -	irq = platform_get_irq(pdev, 0);
+> -	if (irq < 0)
+> -		return irq;
+> -
+> -	ret = devm_request_irq(&pdev->dev, irq, rk3x_i2c_irq,
+> -			       0, dev_name(&pdev->dev), i2c);
+> -	if (ret < 0) {
+> -		dev_err(&pdev->dev, "cannot request IRQ\n");
+> +	ret = devm_platform_request_irq(pdev, 0, NULL, rk3x_i2c_irq,
+> +					0, dev_name(&pdev->dev), i2c);
+> +	if (ret < 0)
+>  		return ret;
+> -	}
+>  
+>  	platform_set_drvdata(pdev, i2c);
+>  
+> diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
+> index d7f72ec331e8..a593c15bfbf5 100644
+> --- a/drivers/i2c/busses/i2c-sirf.c
+> +++ b/drivers/i2c/busses/i2c-sirf.c
+> @@ -274,7 +274,6 @@ static int i2c_sirfsoc_probe(struct platform_device *pdev)
+>  	struct clk *clk;
+>  	int bitrate;
+>  	int ctrl_speed;
+> -	int irq;
+>  
+>  	int err;
+>  	u32 regval;
+> @@ -314,13 +313,8 @@ static int i2c_sirfsoc_probe(struct platform_device *pdev)
+>  		goto out;
+>  	}
+>  
+> -	irq = platform_get_irq(pdev, 0);
+> -	if (irq < 0) {
+> -		err = irq;
+> -		goto out;
+> -	}
+> -	err = devm_request_irq(&pdev->dev, irq, i2c_sirfsoc_irq, 0,
+> -		dev_name(&pdev->dev), siic);
+> +	err = devm_platform_request_irq(pdev, 0, NULL, i2c_sirfsoc_irq, 0,
+> +					dev_name(&pdev->dev), siic);
+>  	if (err)
+>  		goto out;
+>  
+> diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
+> index 64d739baf480..7893c532b8f2 100644
+> --- a/drivers/i2c/busses/i2c-stu300.c
+> +++ b/drivers/i2c/busses/i2c-stu300.c
+> @@ -881,8 +881,8 @@ static int stu300_probe(struct platform_device *pdev)
+>  	if (IS_ERR(dev->virtbase))
+>  		return PTR_ERR(dev->virtbase);
+>  
+> -	dev->irq = platform_get_irq(pdev, 0);
+> -	ret = devm_request_irq(&pdev->dev, dev->irq, stu300_irh, 0, NAME, dev);
+> +	ret = devm_platform_request_irq(pdev, 0, &dev->irq, stu300_irh,
+> +					0, NAME, dev);
+>  	if (ret < 0)
+>  		return ret;
+>  
+> diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
+> index c9a3dba6a75d..d9143373e688 100644
+> --- a/drivers/i2c/busses/i2c-synquacer.c
+> +++ b/drivers/i2c/busses/i2c-synquacer.c
+> @@ -577,16 +577,10 @@ static int synquacer_i2c_probe(struct platform_device *pdev)
+>  	if (IS_ERR(i2c->base))
+>  		return PTR_ERR(i2c->base);
+>  
+> -	i2c->irq = platform_get_irq(pdev, 0);
+> -	if (i2c->irq < 0)
+> -		return -ENODEV;
+> -
+> -	ret = devm_request_irq(&pdev->dev, i2c->irq, synquacer_i2c_isr,
+> -			       0, dev_name(&pdev->dev), i2c);
+> -	if (ret < 0) {
+> -		dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
+> +	ret = devm_platform_request_irq(pdev, 0, &i2c->irq, synquacer_i2c_isr,
+> +					0, dev_name(&pdev->dev), i2c);
+> +	if (ret < 0)
+>  		return ret;
+> -	}
+>  
+>  	i2c->state = STATE_IDLE;
+>  	i2c->dev = &pdev->dev;
+> 
 
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/Kconfig       |    9 +
- drivers/i2c/busses/Makefile      |    1 +
- drivers/i2c/busses/i2c-npcm7xx.c | 1736 ++++++++++++++++++++++++++++++
- 3 files changed, 1746 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-npcm7xx.c
+Acked-by: Michal Simek <michal.simek@xilinx.com>
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 2ddca08f8a76..a2cfc555c284 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -791,6 +791,15 @@ config I2C_NOMADIK
- 	  I2C interface from ST-Ericsson's Nomadik and Ux500 architectures,
- 	  as well as the STA2X11 PCIe I/O HUB.
- 
-+config I2C_NPCM7XX
-+	tristate "Nuvoton I2C Controller"
-+	depends on ARCH_NPCM7XX || COMPILE_TEST
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  Nuvoton I2C controller, which is available on the NPCM7xx BMC
-+	  controller.
-+	  Driver can also support slave mode (select I2C_SLAVE).
-+
- config I2C_OCORES
- 	tristate "OpenCores I2C Controller"
- 	help
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 25d60889713c..8f3dfd376bec 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -81,6 +81,7 @@ obj-$(CONFIG_I2C_MT7621)	+= i2c-mt7621.o
- obj-$(CONFIG_I2C_MV64XXX)	+= i2c-mv64xxx.o
- obj-$(CONFIG_I2C_MXS)		+= i2c-mxs.o
- obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
-+obj-$(CONFIG_I2C_NPCM7XX)	+= i2c-npcm7xx.o
- obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
- obj-$(CONFIG_I2C_OMAP)		+= i2c-omap.o
- obj-$(CONFIG_I2C_OWL)		+= i2c-owl.o
-diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-new file mode 100644
-index 000000000000..018abf8dda7e
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -0,0 +1,1736 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Nuvoton NPCM7xx I2C Controller driver
-+ *
-+ * Copyright (C) 2020 Nuvoton Technologies tali.perry@nuvoton.com
-+ */
-+#include <linux/bitfield.h>
-+#include <linux/clk.h>
-+#include <linux/debugfs.h>
-+#include <linux/errno.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/iopoll.h>
-+#include <linux/irq.h>
-+#include <linux/jiffies.h>
-+#include <linux/kernel.h>
-+#include <linux/mfd/syscon.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+
-+enum i2c_mode {
-+	I2C_MASTER,
-+	I2C_SLAVE,
-+};
-+
-+/*
-+ * External I2C Interface driver xfer indication values, which indicate status
-+ * of the bus.
-+ */
-+enum i2c_state_ind {
-+	I2C_NO_STATUS_IND = 0,
-+	I2C_SLAVE_RCV_IND,
-+	I2C_SLAVE_XMIT_IND,
-+	I2C_SLAVE_XMIT_MISSING_DATA_IND,
-+	I2C_SLAVE_RESTART_IND,
-+	I2C_SLAVE_DONE_IND,
-+	I2C_MASTER_DONE_IND,
-+	I2C_NACK_IND,
-+	I2C_BUS_ERR_IND,
-+	I2C_WAKE_UP_IND,
-+	I2C_BLOCK_BYTES_ERR_IND,
-+	I2C_SLAVE_RCV_MISSING_DATA_IND,
-+};
-+
-+/*
-+ * Operation type values (used to define the operation currently running)
-+ * module is interrupt driven, on each interrupt the current operation is
-+ * checked to see if the module is currently reading or writing.
-+ */
-+enum i2c_oper {
-+	I2C_NO_OPER = 0,
-+	I2C_WRITE_OPER,
-+	I2C_READ_OPER,
-+};
-+
-+/* I2C Bank (module had 2 banks of registers) */
-+enum i2c_bank {
-+	I2C_BANK_0 = 0,
-+	I2C_BANK_1,
-+};
-+
-+/* Internal I2C states values (for the I2C module state machine). */
-+enum i2c_state {
-+	I2C_DISABLE = 0,
-+	I2C_IDLE,
-+	I2C_MASTER_START,
-+	I2C_SLAVE_MATCH,
-+	I2C_OPER_STARTED,
-+	I2C_STOP_PENDING,
-+};
-+
-+/* init register and default value required to enable module */
-+#define NPCM_I2CSEGCTL			0xE4
-+#define NPCM_I2CSEGCTL_INIT_VAL		0x0333F000
-+
-+/* Common regs */
-+#define NPCM_I2CSDA			0x00
-+#define NPCM_I2CST			0x02
-+#define NPCM_I2CCST			0x04
-+#define NPCM_I2CCTL1			0x06
-+#define NPCM_I2CADDR1			0x08
-+#define NPCM_I2CCTL2			0x0A
-+#define NPCM_I2CADDR2			0x0C
-+#define NPCM_I2CCTL3			0x0E
-+#define NPCM_I2CCST2			0x18
-+#define NPCM_I2CCST3			0x19
-+#define I2C_VER				0x1F
-+
-+/*BANK0 regs*/
-+#define NPCM_I2CADDR3			0x10
-+#define NPCM_I2CADDR7			0x11
-+#define NPCM_I2CADDR4			0x12
-+#define NPCM_I2CADDR8			0x13
-+#define NPCM_I2CADDR5			0x14
-+#define NPCM_I2CADDR9			0x15
-+#define NPCM_I2CADDR6			0x16
-+#define NPCM_I2CADDR10			0x17
-+
-+#define NPCM_I2CCTL4			0x1A
-+#define NPCM_I2CCTL5			0x1B
-+#define NPCM_I2CSCLLT			0x1C /* SCL Low Time */
-+#define NPCM_I2CFIF_CTL			0x1D /* FIFO Control */
-+#define NPCM_I2CSCLHT			0x1E /* SCL High Time */
-+
-+/* BANK 1 regs */
-+#define NPCM_I2CFIF_CTS			0x10 /* Both FIFOs Control and Status */
-+#define NPCM_I2CTXF_CTL			0x12 /* Tx-FIFO Control */
-+#define NPCM_I2CT_OUT			0x14 /* Bus T.O. */
-+#define NPCM_I2CPEC			0x16 /* PEC Data */
-+#define NPCM_I2CTXF_STS			0x1A /* Tx-FIFO Status */
-+#define NPCM_I2CRXF_STS			0x1C /* Rx-FIFO Status */
-+#define NPCM_I2CRXF_CTL			0x1E /* Rx-FIFO Control */
-+
-+/* NPCM_I2CST reg fields */
-+#define NPCM_I2CST_XMIT			BIT(0)
-+#define NPCM_I2CST_MASTER		BIT(1)
-+#define NPCM_I2CST_NMATCH		BIT(2)
-+#define NPCM_I2CST_STASTR		BIT(3)
-+#define NPCM_I2CST_NEGACK		BIT(4)
-+#define NPCM_I2CST_BER			BIT(5)
-+#define NPCM_I2CST_SDAST		BIT(6)
-+#define NPCM_I2CST_SLVSTP		BIT(7)
-+
-+/* NPCM_I2CCST reg fields */
-+#define NPCM_I2CCST_BUSY		BIT(0)
-+#define NPCM_I2CCST_BB			BIT(1)
-+#define NPCM_I2CCST_MATCH		BIT(2)
-+#define NPCM_I2CCST_GCMATCH		BIT(3)
-+#define NPCM_I2CCST_TSDA		BIT(4)
-+#define NPCM_I2CCST_TGSCL		BIT(5)
-+#define NPCM_I2CCST_MATCHAF		BIT(6)
-+#define NPCM_I2CCST_ARPMATCH		BIT(7)
-+
-+/* NPCM_I2CCTL1 reg fields */
-+#define NPCM_I2CCTL1_START		BIT(0)
-+#define NPCM_I2CCTL1_STOP		BIT(1)
-+#define NPCM_I2CCTL1_INTEN		BIT(2)
-+#define NPCM_I2CCTL1_EOBINTE		BIT(3)
-+#define NPCM_I2CCTL1_ACK		BIT(4)
-+#define NPCM_I2CCTL1_GCMEN		BIT(5)
-+#define NPCM_I2CCTL1_NMINTE		BIT(6)
-+#define NPCM_I2CCTL1_STASTRE		BIT(7)
-+
-+/* RW1S fields (inside a RW reg): */
-+#define NPCM_I2CCTL1_RWS   \
-+	(NPCM_I2CCTL1_START | NPCM_I2CCTL1_STOP | NPCM_I2CCTL1_ACK)
-+
-+/* npcm_i2caddr reg fields */
-+#define NPCM_I2CADDR_A			GENMASK(6, 0)
-+#define NPCM_I2CADDR_SAEN		BIT(7)
-+
-+/* NPCM_I2CCTL2 reg fields */
-+#define I2CCTL2_ENABLE			BIT(0)
-+#define I2CCTL2_SCLFRQ6_0		GENMASK(7, 1)
-+
-+/* NPCM_I2CCTL3 reg fields */
-+#define I2CCTL3_SCLFRQ8_7		GENMASK(1, 0)
-+#define I2CCTL3_ARPMEN			BIT(2)
-+#define I2CCTL3_IDL_START		BIT(3)
-+#define I2CCTL3_400K_MODE		BIT(4)
-+#define I2CCTL3_BNK_SEL			BIT(5)
-+#define I2CCTL3_SDA_LVL			BIT(6)
-+#define I2CCTL3_SCL_LVL			BIT(7)
-+
-+/* NPCM_I2CCST2 reg fields */
-+#define NPCM_I2CCST2_MATCHA1F		BIT(0)
-+#define NPCM_I2CCST2_MATCHA2F		BIT(1)
-+#define NPCM_I2CCST2_MATCHA3F		BIT(2)
-+#define NPCM_I2CCST2_MATCHA4F		BIT(3)
-+#define NPCM_I2CCST2_MATCHA5F		BIT(4)
-+#define NPCM_I2CCST2_MATCHA6F		BIT(5)
-+#define NPCM_I2CCST2_MATCHA7F		BIT(5)
-+#define NPCM_I2CCST2_INTSTS		BIT(7)
-+
-+/* NPCM_I2CCST3 reg fields */
-+#define NPCM_I2CCST3_MATCHA8F		BIT(0)
-+#define NPCM_I2CCST3_MATCHA9F		BIT(1)
-+#define NPCM_I2CCST3_MATCHA10F		BIT(2)
-+#define NPCM_I2CCST3_EO_BUSY		BIT(7)
-+
-+/* NPCM_I2CCTL4 reg fields */
-+#define I2CCTL4_HLDT			GENMASK(5, 0)
-+#define I2CCTL4_LVL_WE			BIT(7)
-+
-+/* NPCM_I2CCTL5 reg fields */
-+#define I2CCTL5_DBNCT			GENMASK(3, 0)
-+
-+/* NPCM_I2CFIF_CTS reg fields */
-+#define NPCM_I2CFIF_CTS_RXF_TXE		BIT(1)
-+#define NPCM_I2CFIF_CTS_RFTE_IE		BIT(3)
-+#define NPCM_I2CFIF_CTS_CLR_FIFO	BIT(6)
-+#define NPCM_I2CFIF_CTS_SLVRSTR		BIT(7)
-+
-+/* NPCM_I2CTXF_CTL reg fields */
-+#define NPCM_I2CTXF_CTL_TX_THR		GENMASK(4, 0)
-+#define NPCM_I2CTXF_CTL_THR_TXIE	BIT(6)
-+
-+/* NPCM_I2CT_OUT reg fields */
-+#define NPCM_I2CT_OUT_TO_CKDIV		GENMASK(5, 0)
-+#define NPCM_I2CT_OUT_T_OUTIE		BIT(6)
-+#define NPCM_I2CT_OUT_T_OUTST		BIT(7)
-+
-+/* NPCM_I2CTXF_STS reg fields */
-+#define NPCM_I2CTXF_STS_TX_BYTES	GENMASK(4, 0)
-+#define NPCM_I2CTXF_STS_TX_THST		BIT(6)
-+
-+/* NPCM_I2CRXF_STS reg fields */
-+#define NPCM_I2CRXF_STS_RX_BYTES	GENMASK(4, 0)
-+#define NPCM_I2CRXF_STS_RX_THST		BIT(6)
-+
-+/* NPCM_I2CFIF_CTL reg fields */
-+#define NPCM_I2CFIF_CTL_FIFO_EN		BIT(4)
-+
-+/* NPCM_I2CRXF_CTL reg fields */
-+#define NPCM_I2CRXF_CTL_RX_THR		GENMASK(4, 0)
-+#define NPCM_I2CRXF_CTL_LAST_PEC	BIT(5)
-+#define NPCM_I2CRXF_CTL_THR_RXIE	BIT(6)
-+
-+#define I2C_HW_FIFO_SIZE		16
-+
-+/* I2C_VER reg fields */
-+#define I2C_VER_VERSION			GENMASK(6, 0)
-+#define I2C_VER_FIFO_EN			BIT(7)
-+
-+/* stall/stuck timeout in us */
-+#define DEFAULT_STALL_COUNT		25
-+
-+/* SCLFRQ field position */
-+#define SCLFRQ_0_TO_6			GENMASK(6, 0)
-+#define SCLFRQ_7_TO_8			GENMASK(8, 7)
-+
-+/* supported clk settings. values in Hz. */
-+#define I2C_FREQ_MIN_HZ			10000
-+#define I2C_FREQ_MAX_HZ			I2C_MAX_FAST_MODE_PLUS_FREQ
-+
-+/* Status of one I2C module */
-+struct npcm_i2c {
-+	struct i2c_adapter adap;
-+	struct device *dev;
-+	unsigned char __iomem *reg;
-+	spinlock_t lock;   /* IRQ synchronization */
-+	struct completion cmd_complete;
-+	int cmd_err;
-+	struct i2c_msg *msgs;
-+	int msgs_num;
-+	int num;
-+	u32 apb_clk;
-+	struct i2c_bus_recovery_info rinfo;
-+	enum i2c_state state;
-+	enum i2c_oper operation;
-+	enum i2c_mode master_or_slave;
-+	enum i2c_state_ind stop_ind;
-+	u8 dest_addr;
-+	u8 *rd_buf;
-+	u16 rd_size;
-+	u16 rd_ind;
-+	u8 *wr_buf;
-+	u16 wr_size;
-+	u16 wr_ind;
-+	bool fifo_use;
-+	u16 PEC_mask; /* PEC bit mask per slave address */
-+	bool PEC_use;
-+	bool read_block_use;
-+	unsigned long int_time_stamp;
-+	unsigned long bus_freq; /* in Hz */
-+	struct dentry *debugfs; /* debugfs device directory */
-+	u64 ber_cnt;
-+	u64 rec_succ_cnt;
-+	u64 rec_fail_cnt;
-+	u64 nack_cnt;
-+	u64 timeout_cnt;
-+};
-+
-+static inline void npcm_i2c_select_bank(struct npcm_i2c *bus,
-+					enum i2c_bank bank)
-+{
-+	u8 i2cctl3 = ioread8(bus->reg + NPCM_I2CCTL3);
-+
-+	if (bank == I2C_BANK_0)
-+		i2cctl3 = i2cctl3 & ~I2CCTL3_BNK_SEL;
-+	else
-+		i2cctl3 = i2cctl3 | I2CCTL3_BNK_SEL;
-+	iowrite8(i2cctl3, bus->reg + NPCM_I2CCTL3);
-+}
-+
-+static void npcm_i2c_init_params(struct npcm_i2c *bus)
-+{
-+	bus->stop_ind = I2C_NO_STATUS_IND;
-+	bus->rd_size = 0;
-+	bus->wr_size = 0;
-+	bus->rd_ind = 0;
-+	bus->wr_ind = 0;
-+	bus->read_block_use = false;
-+	bus->int_time_stamp = 0;
-+	bus->PEC_use = false;
-+	bus->PEC_mask = 0;
-+}
-+
-+static inline void npcm_i2c_wr_byte(struct npcm_i2c *bus, u8 data)
-+{
-+	iowrite8(data, bus->reg + NPCM_I2CSDA);
-+}
-+
-+static inline u8 npcm_i2c_rd_byte(struct npcm_i2c *bus)
-+{
-+	return ioread8(bus->reg + NPCM_I2CSDA);
-+}
-+
-+static int npcm_i2c_get_SCL(struct i2c_adapter *_adap)
-+{
-+	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
-+
-+	return !!(I2CCTL3_SCL_LVL & ioread32(bus->reg + NPCM_I2CCTL3));
-+}
-+
-+static int npcm_i2c_get_SDA(struct i2c_adapter *_adap)
-+{
-+	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
-+
-+	return !!(I2CCTL3_SDA_LVL & ioread32(bus->reg + NPCM_I2CCTL3));
-+}
-+
-+static inline u16 npcm_i2c_get_index(struct npcm_i2c *bus)
-+{
-+	if (bus->operation == I2C_READ_OPER)
-+		return bus->rd_ind;
-+	if (bus->operation == I2C_WRITE_OPER)
-+		return bus->wr_ind;
-+	return 0;
-+}
-+
-+/* quick protocol (just address) */
-+static inline bool npcm_i2c_is_quick(struct npcm_i2c *bus)
-+{
-+	return bus->wr_size == 0 && bus->rd_size == 0;
-+}
-+
-+static void npcm_i2c_disable(struct npcm_i2c *bus)
-+{
-+	u8 i2cctl2;
-+
-+	/* Disable module */
-+	i2cctl2 = ioread8(bus->reg + NPCM_I2CCTL2);
-+	i2cctl2 = i2cctl2 & ~I2CCTL2_ENABLE;
-+	iowrite8(i2cctl2, bus->reg + NPCM_I2CCTL2);
-+
-+	bus->state = I2C_DISABLE;
-+}
-+
-+static void npcm_i2c_enable(struct npcm_i2c *bus)
-+{
-+	u8 i2cctl2 = ioread8(bus->reg + NPCM_I2CCTL2);
-+
-+	i2cctl2 = i2cctl2 | I2CCTL2_ENABLE;
-+	iowrite8(i2cctl2, bus->reg + NPCM_I2CCTL2);
-+	bus->state = I2C_IDLE;
-+}
-+
-+/* enable\disable end of busy (EOB) interrupts */
-+static inline void npcm_i2c_eob_int(struct npcm_i2c *bus, bool enable)
-+{
-+	u8 val;
-+
-+	/* Clear EO_BUSY pending bit: */
-+	val = ioread8(bus->reg + NPCM_I2CCST3);
-+	val = val | NPCM_I2CCST3_EO_BUSY;
-+	iowrite8(val, bus->reg + NPCM_I2CCST3);
-+
-+	val = ioread8(bus->reg + NPCM_I2CCTL1);
-+	val &= ~NPCM_I2CCTL1_RWS;
-+	if (enable)
-+		val |= NPCM_I2CCTL1_EOBINTE;
-+	else
-+		val &= ~NPCM_I2CCTL1_EOBINTE;
-+	iowrite8(val, bus->reg + NPCM_I2CCTL1);
-+}
-+
-+static inline bool npcm_i2c_tx_fifo_empty(struct npcm_i2c *bus)
-+{
-+	u8 tx_fifo_sts;
-+
-+	tx_fifo_sts = ioread8(bus->reg + NPCM_I2CTXF_STS);
-+	/* check if TX FIFO is not empty */
-+	if ((tx_fifo_sts & NPCM_I2CTXF_STS_TX_BYTES) == 0)
-+		return false;
-+
-+	/* check if TX FIFO status bit is set: */
-+	return !!FIELD_GET(NPCM_I2CTXF_STS_TX_THST, tx_fifo_sts);
-+}
-+
-+static inline bool npcm_i2c_rx_fifo_full(struct npcm_i2c *bus)
-+{
-+	u8 rx_fifo_sts;
-+
-+	rx_fifo_sts = ioread8(bus->reg + NPCM_I2CRXF_STS);
-+	/* check if RX FIFO is not empty: */
-+	if ((rx_fifo_sts & NPCM_I2CRXF_STS_RX_BYTES) == 0)
-+		return false;
-+
-+	/* check if rx fifo full status is set: */
-+	return !!FIELD_GET(NPCM_I2CRXF_STS_RX_THST, rx_fifo_sts);
-+}
-+
-+static inline void npcm_i2c_clear_fifo_int(struct npcm_i2c *bus)
-+{
-+	u8 val;
-+
-+	val = ioread8(bus->reg + NPCM_I2CFIF_CTS);
-+	val = (val & NPCM_I2CFIF_CTS_SLVRSTR) | NPCM_I2CFIF_CTS_RXF_TXE;
-+	iowrite8(val, bus->reg + NPCM_I2CFIF_CTS);
-+}
-+
-+static inline void npcm_i2c_clear_tx_fifo(struct npcm_i2c *bus)
-+{
-+	u8 val;
-+
-+	val = ioread8(bus->reg + NPCM_I2CTXF_STS);
-+	val = val | NPCM_I2CTXF_STS_TX_THST;
-+	iowrite8(val, bus->reg + NPCM_I2CTXF_STS);
-+}
-+
-+static inline void npcm_i2c_clear_rx_fifo(struct npcm_i2c *bus)
-+{
-+	u8 val;
-+
-+	val = ioread8(bus->reg + NPCM_I2CRXF_STS);
-+	val = val | NPCM_I2CRXF_STS_RX_THST;
-+	iowrite8(val, bus->reg + NPCM_I2CRXF_STS);
-+}
-+
-+static void npcm_i2c_int_enable(struct npcm_i2c *bus, bool enable)
-+{
-+	u8 val;
-+
-+	val = ioread8(bus->reg + NPCM_I2CCTL1);
-+	val &= ~NPCM_I2CCTL1_RWS;
-+	if (enable)
-+		val |= NPCM_I2CCTL1_INTEN;
-+	else
-+		val &= ~NPCM_I2CCTL1_INTEN;
-+	iowrite8(val, bus->reg + NPCM_I2CCTL1);
-+}
-+
-+static inline void npcm_i2c_master_start(struct npcm_i2c *bus)
-+{
-+	u8 val;
-+
-+	val = ioread8(bus->reg + NPCM_I2CCTL1);
-+	val &= ~(NPCM_I2CCTL1_STOP | NPCM_I2CCTL1_ACK);
-+	val |= NPCM_I2CCTL1_START;
-+	iowrite8(val, bus->reg + NPCM_I2CCTL1);
-+}
-+
-+static inline void npcm_i2c_master_stop(struct npcm_i2c *bus)
-+{
-+	u8 val;
-+
-+	/*
-+	 * override HW issue: I2C may fail to supply stop condition in Master
-+	 * Write operation.
-+	 * Need to delay at least 5 us from the last int, before issueing a stop
-+	 */
-+	udelay(10); /* function called from interrupt, can't sleep */
-+	val = ioread8(bus->reg + NPCM_I2CCTL1);
-+	val &= ~(NPCM_I2CCTL1_START | NPCM_I2CCTL1_ACK);
-+	val |= NPCM_I2CCTL1_STOP;
-+	iowrite8(val, bus->reg + NPCM_I2CCTL1);
-+
-+	if (!bus->fifo_use)
-+		return;
-+
-+	npcm_i2c_select_bank(bus, I2C_BANK_1);
-+
-+	if (bus->operation == I2C_READ_OPER)
-+		npcm_i2c_clear_rx_fifo(bus);
-+	else
-+		npcm_i2c_clear_tx_fifo(bus);
-+	npcm_i2c_clear_fifo_int(bus);
-+	iowrite8(0, bus->reg + NPCM_I2CTXF_CTL);
-+}
-+
-+static inline void npcm_i2c_stall_after_start(struct npcm_i2c *bus, bool stall)
-+{
-+	u8 val;
-+
-+	val = ioread8(bus->reg + NPCM_I2CCTL1);
-+	val &= ~NPCM_I2CCTL1_RWS;
-+	if (stall)
-+		val |= NPCM_I2CCTL1_STASTRE;
-+	else
-+		val &= ~NPCM_I2CCTL1_STASTRE;
-+	iowrite8(val, bus->reg + NPCM_I2CCTL1);
-+}
-+
-+static inline void npcm_i2c_nack(struct npcm_i2c *bus)
-+{
-+	u8 val;
-+
-+	val = ioread8(bus->reg + NPCM_I2CCTL1);
-+	val &= ~(NPCM_I2CCTL1_STOP | NPCM_I2CCTL1_START);
-+	val |= NPCM_I2CCTL1_ACK;
-+	iowrite8(val, bus->reg + NPCM_I2CCTL1);
-+}
-+
-+static void npcm_i2c_reset(struct npcm_i2c *bus)
-+{
-+	/*
-+	 * Save I2CCTL1 relevant bits. It is being cleared when the module
-+	 *  is disabled.
-+	 */
-+	u8 i2cctl1;
-+
-+	i2cctl1 = ioread8(bus->reg + NPCM_I2CCTL1);
-+
-+	npcm_i2c_disable(bus);
-+	npcm_i2c_enable(bus);
-+
-+	/* Restore NPCM_I2CCTL1 Status */
-+	i2cctl1 &= ~NPCM_I2CCTL1_RWS;
-+	iowrite8(i2cctl1, bus->reg + NPCM_I2CCTL1);
-+
-+	/* Clear BB (BUS BUSY) bit */
-+	iowrite8(NPCM_I2CCST_BB, bus->reg + NPCM_I2CCST);
-+	iowrite8(0xFF, bus->reg + NPCM_I2CST);
-+
-+	/* Clear EOB bit */
-+	iowrite8(NPCM_I2CCST3_EO_BUSY, bus->reg + NPCM_I2CCST3);
-+
-+	/* Clear all fifo bits: */
-+	iowrite8(NPCM_I2CFIF_CTS_CLR_FIFO, bus->reg + NPCM_I2CFIF_CTS);
-+
-+	bus->state = I2C_IDLE;
-+}
-+
-+static inline bool npcm_i2c_is_master(struct npcm_i2c *bus)
-+{
-+	return !!FIELD_GET(NPCM_I2CST_MASTER, ioread8(bus->reg + NPCM_I2CST));
-+}
-+
-+static void npcm_i2c_callback(struct npcm_i2c *bus,
-+			      enum i2c_state_ind op_status, u16 info)
-+{
-+	struct i2c_msg *msgs;
-+	int msgs_num;
-+
-+	msgs = bus->msgs;
-+	msgs_num = bus->msgs_num;
-+	/*
-+	 * check that transaction was not timed-out, and msgs still
-+	 * holds a valid value.
-+	 */
-+	if (!msgs)
-+		return;
-+
-+	if (completion_done(&bus->cmd_complete))
-+		return;
-+
-+	switch (op_status) {
-+	case I2C_MASTER_DONE_IND:
-+		bus->cmd_err = bus->msgs_num;
-+		fallthrough;
-+	case I2C_BLOCK_BYTES_ERR_IND:
-+		/* Master tx finished and all transmit bytes were sent */
-+		if (bus->msgs) {
-+			if (msgs[0].flags & I2C_M_RD)
-+				msgs[0].len = info;
-+			else if (msgs_num == 2 &&
-+				 msgs[1].flags & I2C_M_RD)
-+				msgs[1].len = info;
-+		}
-+		if (completion_done(&bus->cmd_complete) == false)
-+			complete(&bus->cmd_complete);
-+	break;
-+
-+	case I2C_NACK_IND:
-+		/* MASTER transmit got a NACK before tx all bytes */
-+		bus->cmd_err = -ENXIO;
-+		if (bus->master_or_slave == I2C_MASTER)
-+			complete(&bus->cmd_complete);
-+
-+		break;
-+	case I2C_BUS_ERR_IND:
-+		/* Bus error */
-+		bus->cmd_err = -EAGAIN;
-+		if (bus->master_or_slave == I2C_MASTER)
-+			complete(&bus->cmd_complete);
-+
-+		break;
-+	case I2C_WAKE_UP_IND:
-+		/* I2C wake up */
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	bus->operation = I2C_NO_OPER;
-+}
-+
-+static u8 npcm_i2c_fifo_usage(struct npcm_i2c *bus)
-+{
-+	if (bus->operation == I2C_WRITE_OPER)
-+		return FIELD_GET(NPCM_I2CTXF_STS_TX_BYTES,
-+				 ioread8(bus->reg + NPCM_I2CTXF_STS));
-+	if (bus->operation == I2C_READ_OPER)
-+		return FIELD_GET(NPCM_I2CRXF_STS_RX_BYTES,
-+				 ioread8(bus->reg + NPCM_I2CRXF_STS));
-+	return 0;
-+}
-+
-+static void npcm_i2c_write_to_fifo_master(struct npcm_i2c *bus, u16 max_bytes)
-+{
-+	u8 size_free_fifo;
-+
-+	/*
-+	 * Fill the FIFO, while the FIFO is not full and there are more bytes
-+	 * to write
-+	 */
-+	size_free_fifo = I2C_HW_FIFO_SIZE - npcm_i2c_fifo_usage(bus);
-+	while (max_bytes-- && size_free_fifo) {
-+		if (bus->wr_ind < bus->wr_size)
-+			npcm_i2c_wr_byte(bus, bus->wr_buf[bus->wr_ind++]);
-+		else
-+			npcm_i2c_wr_byte(bus, 0xFF);
-+		size_free_fifo = I2C_HW_FIFO_SIZE - npcm_i2c_fifo_usage(bus);
-+	}
-+}
-+
-+/*
-+ * npcm_i2c_set_fifo:
-+ * configure the FIFO before using it. If nread is -1 RX FIFO will not be
-+ * configured. same for nwrite
-+ */
-+static void npcm_i2c_set_fifo(struct npcm_i2c *bus, int nread, int nwrite)
-+{
-+	u8 rxf_ctl = 0;
-+
-+	if (!bus->fifo_use)
-+		return;
-+	npcm_i2c_select_bank(bus, I2C_BANK_1);
-+	npcm_i2c_clear_tx_fifo(bus);
-+	npcm_i2c_clear_rx_fifo(bus);
-+
-+	/* configure RX FIFO */
-+	if (nread > 0) {
-+		rxf_ctl = min_t(int, nread, I2C_HW_FIFO_SIZE);
-+
-+		/* set LAST bit. if LAST is set next FIFO packet is nacked */
-+		if (nread <= I2C_HW_FIFO_SIZE)
-+			rxf_ctl |= NPCM_I2CRXF_CTL_LAST_PEC;
-+
-+		/*
-+		 * if we are about to read the first byte in blk rd mode,
-+		 * don't NACK it. If slave returns zero size HW can't NACK
-+		 * it immidiattly, it will read extra byte and then NACK.
-+		 */
-+		if (bus->rd_ind == 0 && bus->read_block_use) {
-+			/* set fifo to read one byte, no last: */
-+			rxf_ctl = 1;
-+		}
-+
-+		/* set fifo size: */
-+		iowrite8(rxf_ctl, bus->reg + NPCM_I2CRXF_CTL);
-+	}
-+
-+	/* configure TX FIFO */
-+	if (nwrite > 0) {
-+		if (nwrite > I2C_HW_FIFO_SIZE)
-+			/* data to send is more then FIFO size. */
-+			iowrite8(I2C_HW_FIFO_SIZE, bus->reg + NPCM_I2CTXF_CTL);
-+		else
-+			iowrite8(nwrite, bus->reg + NPCM_I2CTXF_CTL);
-+
-+		npcm_i2c_clear_tx_fifo(bus);
-+	}
-+}
-+
-+static void npcm_i2c_read_fifo(struct npcm_i2c *bus, u8 bytes_in_fifo)
-+{
-+	u8 data;
-+
-+	while (bytes_in_fifo--) {
-+		data = npcm_i2c_rd_byte(bus);
-+		if (bus->rd_ind < bus->rd_size)
-+			bus->rd_buf[bus->rd_ind++] = data;
-+	}
-+}
-+
-+static inline void npcm_i2c_clear_master_status(struct npcm_i2c *bus)
-+{
-+	u8 val;
-+
-+	/* Clear NEGACK, STASTR and BER bits */
-+	val = NPCM_I2CST_BER | NPCM_I2CST_NEGACK | NPCM_I2CST_STASTR;
-+	iowrite8(val, bus->reg + NPCM_I2CST);
-+}
-+
-+static void npcm_i2c_master_abort(struct npcm_i2c *bus)
-+{
-+	/* Only current master is allowed to issue a stop condition */
-+	if (!npcm_i2c_is_master(bus))
-+		return;
-+
-+	npcm_i2c_eob_int(bus, true);
-+	npcm_i2c_master_stop(bus);
-+	npcm_i2c_clear_master_status(bus);
-+}
-+
-+static void npcm_i2c_master_fifo_read(struct npcm_i2c *bus)
-+{
-+	int rcount;
-+	int fifo_bytes;
-+	enum i2c_state_ind ind = I2C_MASTER_DONE_IND;
-+
-+	fifo_bytes = npcm_i2c_fifo_usage(bus);
-+	rcount = bus->rd_size - bus->rd_ind;
-+
-+	/*
-+	 * In order not to change the RX_TRH during transaction (we found that
-+	 * this might be problematic if it takes too much time to read the FIFO)
-+	 * we read the data in the following way. If the number of bytes to
-+	 * read == FIFO Size + C (where C < FIFO Size)then first read C bytes
-+	 * and in the next int we read rest of the data.
-+	 */
-+	if (rcount < (2 * I2C_HW_FIFO_SIZE) && rcount > I2C_HW_FIFO_SIZE)
-+		fifo_bytes = rcount - I2C_HW_FIFO_SIZE;
-+
-+	if (rcount <= fifo_bytes) {
-+		/* last bytes are about to be read - end of tx */
-+		bus->state = I2C_STOP_PENDING;
-+		bus->stop_ind = ind;
-+		npcm_i2c_eob_int(bus, true);
-+		/* Stop should be set before reading last byte. */
-+		npcm_i2c_master_stop(bus);
-+		npcm_i2c_read_fifo(bus, fifo_bytes);
-+	} else {
-+		npcm_i2c_read_fifo(bus, fifo_bytes);
-+		rcount = bus->rd_size - bus->rd_ind;
-+		npcm_i2c_set_fifo(bus, rcount, -1);
-+	}
-+}
-+
-+static void npcm_i2c_irq_master_handler_write(struct npcm_i2c *bus)
-+{
-+	u16 wcount;
-+
-+	if (bus->fifo_use)
-+		npcm_i2c_clear_tx_fifo(bus); /* clear the TX fifo status bit */
-+
-+	/* Master write operation - last byte handling */
-+	if (bus->wr_ind == bus->wr_size) {
-+		if (bus->fifo_use && npcm_i2c_fifo_usage(bus) > 0)
-+			/*
-+			 * No more bytes to send (to add to the FIFO),
-+			 * however the FIFO is not empty yet. It is
-+			 * still in the middle of tx. Currently there's nothing
-+			 * to do except for waiting to the end of the tx
-+			 * We will get an int when the FIFO will get empty.
-+			 */
-+			return;
-+
-+		if (bus->rd_size == 0) {
-+			/* all bytes have been written, in wr only operation */
-+			npcm_i2c_eob_int(bus, true);
-+			bus->state = I2C_STOP_PENDING;
-+			bus->stop_ind = I2C_MASTER_DONE_IND;
-+			npcm_i2c_master_stop(bus);
-+			/* Clear SDA Status bit (by writing dummy byte) */
-+			npcm_i2c_wr_byte(bus, 0xFF);
-+
-+		} else {
-+			/* last write-byte written on previous int - restart */
-+			npcm_i2c_set_fifo(bus, bus->rd_size, -1);
-+			/* Generate repeated start upon next write to SDA */
-+			npcm_i2c_master_start(bus);
-+
-+			/*
-+			 * Receiving one byte only - stall after successful
-+			 * completion of send address byte. If we NACK here, and
-+			 * slave doesn't ACK the address, we might
-+			 * unintentionally NACK the next multi-byte read.
-+			 */
-+			if (bus->rd_size == 1)
-+				npcm_i2c_stall_after_start(bus, true);
-+
-+			/* Next int will occur on read */
-+			bus->operation = I2C_READ_OPER;
-+			/* send the slave address in read direction */
-+			npcm_i2c_wr_byte(bus, bus->dest_addr | 0x1);
-+		}
-+	} else {
-+		/* write next byte not last byte and not slave address */
-+		if (!bus->fifo_use || bus->wr_size == 1) {
-+			npcm_i2c_wr_byte(bus, bus->wr_buf[bus->wr_ind++]);
-+		} else {
-+			wcount = bus->wr_size - bus->wr_ind;
-+			npcm_i2c_set_fifo(bus, -1, wcount);
-+			if (wcount)
-+				npcm_i2c_write_to_fifo_master(bus, wcount);
-+		}
-+	}
-+}
-+
-+static void npcm_i2c_irq_master_handler_read(struct npcm_i2c *bus)
-+{
-+	u16 block_extra_bytes_size;
-+	u8 data;
-+
-+	/* added bytes to the packet: */
-+	block_extra_bytes_size = bus->read_block_use + bus->PEC_use;
-+
-+	/*
-+	 * Perform master read, distinguishing between last byte and the rest of
-+	 * the bytes. The last byte should be read when the clock is stopped
-+	 */
-+	if (bus->rd_ind == 0) { /* first byte handling: */
-+		if (bus->read_block_use) {
-+			/* first byte in block protocol is the size: */
-+			data = npcm_i2c_rd_byte(bus);
-+			data = clamp_val(data, 1, I2C_SMBUS_BLOCK_MAX);
-+			bus->rd_size = data + block_extra_bytes_size;
-+			bus->rd_buf[bus->rd_ind++] = data;
-+
-+			/* clear RX FIFO interrupt status: */
-+			if (bus->fifo_use) {
-+				data = ioread8(bus->reg + NPCM_I2CFIF_CTS);
-+				data = data | NPCM_I2CFIF_CTS_RXF_TXE;
-+				iowrite8(data, bus->reg + NPCM_I2CFIF_CTS);
-+			}
-+
-+			npcm_i2c_set_fifo(bus, bus->rd_size - 1, -1);
-+			npcm_i2c_stall_after_start(bus, false);
-+		} else {
-+			npcm_i2c_clear_tx_fifo(bus);
-+			npcm_i2c_master_fifo_read(bus);
-+		}
-+	} else {
-+		if (bus->rd_size == block_extra_bytes_size &&
-+		    bus->read_block_use) {
-+			bus->state = I2C_STOP_PENDING;
-+			bus->stop_ind = I2C_BLOCK_BYTES_ERR_IND;
-+			bus->cmd_err = -EIO;
-+			npcm_i2c_eob_int(bus, true);
-+			npcm_i2c_master_stop(bus);
-+			npcm_i2c_read_fifo(bus, npcm_i2c_fifo_usage(bus));
-+		} else {
-+			npcm_i2c_master_fifo_read(bus);
-+		}
-+	}
-+}
-+
-+static void npcm_i2c_irq_handle_nmatch(struct npcm_i2c *bus)
-+{
-+	iowrite8(NPCM_I2CST_NMATCH, bus->reg + NPCM_I2CST);
-+	npcm_i2c_nack(bus);
-+	bus->stop_ind = I2C_BUS_ERR_IND;
-+	npcm_i2c_callback(bus, bus->stop_ind, npcm_i2c_get_index(bus));
-+}
-+
-+/* A NACK has occurred */
-+static void npcm_i2c_irq_handle_nack(struct npcm_i2c *bus)
-+{
-+	u8 val;
-+
-+	if (bus->nack_cnt < ULLONG_MAX)
-+		bus->nack_cnt++;
-+
-+	if (bus->fifo_use) {
-+		/*
-+		 * if there are still untransmitted bytes in TX FIFO
-+		 * reduce them from wr_ind
-+		 */
-+		if (bus->operation == I2C_WRITE_OPER)
-+			bus->wr_ind -= npcm_i2c_fifo_usage(bus);
-+
-+		/* clear the FIFO */
-+		iowrite8(NPCM_I2CFIF_CTS_CLR_FIFO, bus->reg + NPCM_I2CFIF_CTS);
-+	}
-+
-+	/* In master write operation, got unexpected NACK */
-+	bus->stop_ind = I2C_NACK_IND;
-+	/* Only current master is allowed to issue Stop Condition */
-+	if (npcm_i2c_is_master(bus)) {
-+		/* stopping in the middle */
-+		npcm_i2c_eob_int(bus, false);
-+		npcm_i2c_master_stop(bus);
-+
-+		/*
-+		 * The bus is released from stall only after the SW clears
-+		 * NEGACK bit. Then a Stop condition is sent.
-+		 */
-+		npcm_i2c_clear_master_status(bus);
-+		readx_poll_timeout_atomic(ioread8, bus->reg + NPCM_I2CCST, val,
-+					  !(val & NPCM_I2CCST_BUSY), 10, 200);
-+	}
-+	bus->state = I2C_IDLE;
-+
-+	/*
-+	 * In Master mode, NACK should be cleared only after STOP.
-+	 * In such case, the bus is released from stall only after the
-+	 * software clears NACK bit. Then a Stop condition is sent.
-+	 */
-+	npcm_i2c_callback(bus, bus->stop_ind, bus->wr_ind);
-+}
-+
-+	/* Master mode: a Bus Error has been identified */
-+static void npcm_i2c_irq_handle_ber(struct npcm_i2c *bus)
-+{
-+	if (bus->ber_cnt < ULLONG_MAX)
-+		bus->ber_cnt++;
-+	bus->stop_ind = I2C_BUS_ERR_IND;
-+	if (npcm_i2c_is_master(bus)) {
-+		npcm_i2c_master_abort(bus);
-+	} else {
-+		npcm_i2c_clear_master_status(bus);
-+
-+		/* Clear BB (BUS BUSY) bit */
-+		iowrite8(NPCM_I2CCST_BB, bus->reg + NPCM_I2CCST);
-+
-+		bus->cmd_err = -EAGAIN;
-+		npcm_i2c_callback(bus, bus->stop_ind, npcm_i2c_get_index(bus));
-+	}
-+	bus->state = I2C_IDLE;
-+}
-+
-+	/* EOB: a master End Of Busy (meaning STOP completed) */
-+static void npcm_i2c_irq_handle_eob(struct npcm_i2c *bus)
-+{
-+	npcm_i2c_eob_int(bus, false);
-+	bus->state = I2C_IDLE;
-+	npcm_i2c_callback(bus, bus->stop_ind, bus->rd_ind);
-+}
-+
-+/* Address sent and requested stall occurred (Master mode) */
-+static void npcm_i2c_irq_handle_stall_after_start(struct npcm_i2c *bus)
-+{
-+	if (npcm_i2c_is_quick(bus)) {
-+		bus->state = I2C_STOP_PENDING;
-+		bus->stop_ind = I2C_MASTER_DONE_IND;
-+		npcm_i2c_eob_int(bus, true);
-+		npcm_i2c_master_stop(bus);
-+	} else if ((bus->rd_size == 1) && !bus->read_block_use) {
-+		/*
-+		 * Receiving one byte only - set NACK after ensuring
-+		 * slave ACKed the address byte.
-+		 */
-+		npcm_i2c_nack(bus);
-+	}
-+
-+	/* Reset stall-after-address-byte */
-+	npcm_i2c_stall_after_start(bus, false);
-+
-+	/* Clear stall only after setting STOP */
-+	iowrite8(NPCM_I2CST_STASTR, bus->reg + NPCM_I2CST);
-+}
-+
-+/* SDA status is set - TX or RX, master */
-+static void npcm_i2c_irq_handle_sda(struct npcm_i2c *bus, u8 i2cst)
-+{
-+	u8 fif_cts;
-+
-+	if (!npcm_i2c_is_master(bus))
-+		return;
-+
-+	if (bus->state == I2C_IDLE) {
-+		bus->stop_ind = I2C_WAKE_UP_IND;
-+
-+		if (npcm_i2c_is_quick(bus) || bus->read_block_use)
-+			/*
-+			 * Need to stall after successful
-+			 * completion of sending address byte
-+			 */
-+			npcm_i2c_stall_after_start(bus, true);
-+		else
-+			npcm_i2c_stall_after_start(bus, false);
-+
-+		/*
-+		 * Receiving one byte only - stall after successful completion
-+		 * of sending address byte If we NACK here, and slave doesn't
-+		 * ACK the address, we might unintentionally NACK the next
-+		 * multi-byte read
-+		 */
-+		if (bus->wr_size == 0 && bus->rd_size == 1)
-+			npcm_i2c_stall_after_start(bus, true);
-+
-+		/* Initiate I2C master tx */
-+
-+		/* select bank 1 for FIFO regs */
-+		npcm_i2c_select_bank(bus, I2C_BANK_1);
-+
-+		fif_cts = ioread8(bus->reg + NPCM_I2CFIF_CTS);
-+		fif_cts = fif_cts & ~NPCM_I2CFIF_CTS_SLVRSTR;
-+
-+		/* clear FIFO and relevant status bits. */
-+		fif_cts = fif_cts | NPCM_I2CFIF_CTS_CLR_FIFO;
-+		iowrite8(fif_cts, bus->reg + NPCM_I2CFIF_CTS);
-+
-+		/* re-enable */
-+		fif_cts = fif_cts | NPCM_I2CFIF_CTS_RXF_TXE;
-+		iowrite8(fif_cts, bus->reg + NPCM_I2CFIF_CTS);
-+
-+		/*
-+		 * Configure the FIFO threshold:
-+		 * according to the needed # of bytes to read.
-+		 * Note: due to HW limitation can't config the rx fifo before it
-+		 * got and ACK on the restart. LAST bit will not be reset unless
-+		 * RX completed. It will stay set on the next tx.
-+		 */
-+		if (bus->wr_size)
-+			npcm_i2c_set_fifo(bus, -1, bus->wr_size);
-+		else
-+			npcm_i2c_set_fifo(bus, bus->rd_size, -1);
-+
-+		bus->state = I2C_OPER_STARTED;
-+
-+		if (npcm_i2c_is_quick(bus) || bus->wr_size)
-+			npcm_i2c_wr_byte(bus, bus->dest_addr);
-+		else
-+			npcm_i2c_wr_byte(bus, bus->dest_addr | BIT(0));
-+	/* SDA interrupt, after start\restart */
-+	} else {
-+		if (NPCM_I2CST_XMIT & i2cst) {
-+			bus->operation = I2C_WRITE_OPER;
-+			npcm_i2c_irq_master_handler_write(bus);
-+		} else {
-+			bus->operation = I2C_READ_OPER;
-+			npcm_i2c_irq_master_handler_read(bus);
-+		}
-+	}
-+}
-+
-+static int npcm_i2c_int_master_handler(struct npcm_i2c *bus)
-+{
-+	u8 i2cst;
-+	int ret = -EIO;
-+
-+	i2cst = ioread8(bus->reg + NPCM_I2CST);
-+
-+	if (FIELD_GET(NPCM_I2CST_NMATCH, i2cst)) {
-+		npcm_i2c_irq_handle_nmatch(bus);
-+		return 0;
-+	}
-+	/* A NACK has occurred */
-+	if (FIELD_GET(NPCM_I2CST_NEGACK, i2cst)) {
-+		npcm_i2c_irq_handle_nack(bus);
-+		return 0;
-+	}
-+
-+	/* Master mode: a Bus Error has been identified */
-+	if (FIELD_GET(NPCM_I2CST_BER, i2cst)) {
-+		npcm_i2c_irq_handle_ber(bus);
-+		return 0;
-+	}
-+
-+	/* EOB: a master End Of Busy (meaning STOP completed) */
-+	if ((FIELD_GET(NPCM_I2CCTL1_EOBINTE,
-+		       ioread8(bus->reg + NPCM_I2CCTL1)) == 1) &&
-+	    (FIELD_GET(NPCM_I2CCST3_EO_BUSY,
-+		       ioread8(bus->reg + NPCM_I2CCST3)))) {
-+		npcm_i2c_irq_handle_eob(bus);
-+		return 0;
-+	}
-+
-+	/* Address sent and requested stall occurred (Master mode) */
-+	if (FIELD_GET(NPCM_I2CST_STASTR, i2cst)) {
-+		npcm_i2c_irq_handle_stall_after_start(bus);
-+		ret = 0;
-+	}
-+
-+	/* SDA status is set - TX or RX, master */
-+	if (FIELD_GET(NPCM_I2CST_SDAST, i2cst) ||
-+	    (bus->fifo_use &&
-+	    (npcm_i2c_tx_fifo_empty(bus) || npcm_i2c_rx_fifo_full(bus)))) {
-+		npcm_i2c_irq_handle_sda(bus, i2cst);
-+		ret = 0;
-+	}
-+
-+	return ret;
-+}
-+
-+/* recovery using TGCLK functionality of the module */
-+static int npcm_i2c_recovery_tgclk(struct i2c_adapter *_adap)
-+{
-+	u8               val;
-+	u8               fif_cts;
-+	bool             done = false;
-+	int              status = -ENOTRECOVERABLE;
-+	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
-+	/* Allow 3 bytes (27 toggles) to be read from the slave: */
-+	int              iter = 27;
-+
-+	if ((npcm_i2c_get_SDA(_adap) == 1) && (npcm_i2c_get_SCL(_adap) == 1)) {
-+		dev_dbg(bus->dev, "bus%d recovery skipped, bus not stuck",
-+			bus->num);
-+		npcm_i2c_reset(bus);
-+		return status;
-+	}
-+
-+	npcm_i2c_int_enable(bus, false);
-+	npcm_i2c_disable(bus);
-+	npcm_i2c_enable(bus);
-+	iowrite8(NPCM_I2CCST_BB, bus->reg + NPCM_I2CCST);
-+	npcm_i2c_clear_tx_fifo(bus);
-+	npcm_i2c_clear_rx_fifo(bus);
-+	iowrite8(0, bus->reg + NPCM_I2CRXF_CTL);
-+	iowrite8(0, bus->reg + NPCM_I2CTXF_CTL);
-+	npcm_i2c_stall_after_start(bus, false);
-+
-+	/* select bank 1 for FIFO regs */
-+	npcm_i2c_select_bank(bus, I2C_BANK_1);
-+
-+	/* clear FIFO and relevant status bits. */
-+	fif_cts = ioread8(bus->reg + NPCM_I2CFIF_CTS);
-+	fif_cts &= ~NPCM_I2CFIF_CTS_SLVRSTR;
-+	fif_cts |= NPCM_I2CFIF_CTS_CLR_FIFO;
-+	iowrite8(fif_cts, bus->reg + NPCM_I2CFIF_CTS);
-+	npcm_i2c_set_fifo(bus, -1, 0);
-+
-+	/* Repeat the following sequence until SDA is released */
-+	do {
-+		/* Issue a single SCL toggle */
-+		iowrite8(NPCM_I2CCST_TGSCL, bus->reg + NPCM_I2CCST);
-+		usleep_range(20, 30);
-+		/* If SDA line is inactive (high), stop */
-+		if (npcm_i2c_get_SDA(_adap)) {
-+			done = true;
-+			status = 0;
-+		}
-+	} while (!done && iter--);
-+
-+	/* If SDA line is released: send start-addr-stop, to re-sync. */
-+	if (npcm_i2c_get_SDA(_adap)) {
-+		/* Send an address byte in write direction: */
-+		npcm_i2c_wr_byte(bus, bus->dest_addr);
-+		npcm_i2c_master_start(bus);
-+		/* Wait until START condition is sent */
-+		status = readx_poll_timeout(npcm_i2c_get_SCL, _adap, val, !val,
-+					    20, 200);
-+		/* If START condition was sent */
-+		if (npcm_i2c_is_master(bus) > 0) {
-+			usleep_range(20, 30);
-+			npcm_i2c_master_stop(bus);
-+			usleep_range(200, 500);
-+		}
-+	}
-+	npcm_i2c_reset(bus);
-+	npcm_i2c_int_enable(bus, true);
-+
-+	if ((npcm_i2c_get_SDA(_adap) == 1) && (npcm_i2c_get_SCL(_adap) == 1))
-+		status = 0;
-+	else
-+		status = -ENOTRECOVERABLE;
-+	if (status) {
-+		if (bus->rec_fail_cnt < ULLONG_MAX)
-+			bus->rec_fail_cnt++;
-+	} else {
-+		if (bus->rec_succ_cnt < ULLONG_MAX)
-+			bus->rec_succ_cnt++;
-+	}
-+	return status;
-+}
-+
-+/* recovery using bit banging functionality of the module */
-+static void npcm_i2c_recovery_init(struct i2c_adapter *_adap)
-+{
-+	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
-+	struct i2c_bus_recovery_info *rinfo = &bus->rinfo;
-+
-+	rinfo->recover_bus = npcm_i2c_recovery_tgclk;
-+
-+	/*
-+	 * npcm i2c HW allows direct reading of SCL and SDA.
-+	 * However, it does not support setting SCL and SDA directly.
-+	 * The recovery function can togle SCL when SDA is low (but not set)
-+	 * Getter functions used internally, and can be used externaly.
-+	 */
-+	rinfo->get_scl = npcm_i2c_get_SCL;
-+	rinfo->get_sda = npcm_i2c_get_SDA;
-+	_adap->bus_recovery_info = rinfo;
-+}
-+
-+/* SCLFRQ min/max field values */
-+#define SCLFRQ_MIN  10
-+#define SCLFRQ_MAX  511
-+#define clk_coef(freq, mul)	DIV_ROUND_UP((freq) * (mul), 1000000)
-+
-+/*
-+ * npcm_i2c_init_clk: init HW timing parameters.
-+ * NPCM7XX i2c module timing parameters are depenent on module core clk (APB)
-+ * and bus frequency.
-+ * 100kHz bus requires tSCL = 4 * SCLFRQ * tCLK. LT and HT are simetric.
-+ * 400kHz bus requires assymetric HT and LT. A different equation is recomended
-+ * by the HW designer, given core clock range (equations in comments below).
-+ *
-+ */
-+static int npcm_i2c_init_clk(struct npcm_i2c *bus, u32 bus_freq_hz)
-+{
-+	u32  k1 = 0;
-+	u32  k2 = 0;
-+	u8   dbnct = 0;
-+	u32  sclfrq = 0;
-+	u8   hldt = 7;
-+	u8   fast_mode = 0;
-+	u32  src_clk_khz;
-+	u32  bus_freq_khz;
-+
-+	src_clk_khz = bus->apb_clk / 1000;
-+	bus_freq_khz = bus_freq_hz / 1000;
-+	bus->bus_freq = bus_freq_hz;
-+
-+	/* 100KHz and below: */
-+	if (bus_freq_hz <= I2C_MAX_STANDARD_MODE_FREQ) {
-+		sclfrq = src_clk_khz / (bus_freq_khz * 4);
-+
-+		if (sclfrq < SCLFRQ_MIN || sclfrq > SCLFRQ_MAX)
-+			return -EDOM;
-+
-+		if (src_clk_khz >= 40000)
-+			hldt = 17;
-+		else if (src_clk_khz >= 12500)
-+			hldt = 15;
-+		else
-+			hldt = 7;
-+	}
-+
-+	/* 400KHz: */
-+	else if (bus_freq_hz <= I2C_MAX_FAST_MODE_FREQ) {
-+		sclfrq = 0;
-+		fast_mode = I2CCTL3_400K_MODE;
-+
-+		if (src_clk_khz < 7500)
-+			/* 400KHZ cannot be supported for core clock < 7.5MHz */
-+			return -EDOM;
-+
-+		else if (src_clk_khz >= 50000) {
-+			k1 = 80;
-+			k2 = 48;
-+			hldt = 12;
-+			dbnct = 7;
-+		}
-+
-+		/* Master or Slave with frequency > 25MHz */
-+		else if (src_clk_khz > 25000) {
-+			hldt = clk_coef(src_clk_khz, 300) + 7;
-+			k1 = clk_coef(src_clk_khz, 1600);
-+			k2 = clk_coef(src_clk_khz, 900);
-+		}
-+	}
-+
-+	/* 1MHz: */
-+	else if (bus_freq_hz <= I2C_MAX_FAST_MODE_PLUS_FREQ) {
-+		sclfrq = 0;
-+		fast_mode = I2CCTL3_400K_MODE;
-+
-+		/* 1MHZ cannot be supported for core clock < 24 MHz */
-+		if (src_clk_khz < 24000)
-+			return -EDOM;
-+
-+		k1 = clk_coef(src_clk_khz, 620);
-+		k2 = clk_coef(src_clk_khz, 380);
-+
-+		/* Core clk > 40 MHz */
-+		if (src_clk_khz > 40000) {
-+			/*
-+			 * Set HLDT:
-+			 * SDA hold time:  (HLDT-7) * T(CLK) >= 120
-+			 * HLDT = 120/T(CLK) + 7 = 120 * FREQ(CLK) + 7
-+			 */
-+			hldt = clk_coef(src_clk_khz, 120) + 7;
-+		} else {
-+			hldt = 7;
-+			dbnct = 2;
-+		}
-+	}
-+
-+	/* Frequency larger than 1 MHz is not supported */
-+	else
-+		return -EINVAL;
-+
-+	if (bus_freq_hz >= I2C_MAX_FAST_MODE_FREQ) {
-+		k1 = round_up(k1, 2);
-+		k2 = round_up(k2 + 1, 2);
-+		if (k1 < SCLFRQ_MIN || k1 > SCLFRQ_MAX ||
-+		    k2 < SCLFRQ_MIN || k2 > SCLFRQ_MAX)
-+			return -EDOM;
-+	}
-+
-+	/* write sclfrq value. bits [6:0] are in I2CCTL2 reg */
-+	iowrite8(FIELD_PREP(I2CCTL2_SCLFRQ6_0, sclfrq & 0x7F),
-+		 bus->reg + NPCM_I2CCTL2);
-+
-+	/* bits [8:7] are in I2CCTL3 reg */
-+	iowrite8(fast_mode | FIELD_PREP(I2CCTL3_SCLFRQ8_7, (sclfrq >> 7) & 0x3),
-+		 bus->reg + NPCM_I2CCTL3);
-+
-+	/* Select Bank 0 to access NPCM_I2CCTL4/NPCM_I2CCTL5 */
-+	npcm_i2c_select_bank(bus, I2C_BANK_0);
-+
-+	if (bus_freq_hz >= I2C_MAX_FAST_MODE_FREQ) {
-+		/*
-+		 * Set SCL Low/High Time:
-+		 * k1 = 2 * SCLLT7-0 -> Low Time  = k1 / 2
-+		 * k2 = 2 * SCLLT7-0 -> High Time = k2 / 2
-+		 */
-+		iowrite8(k1 / 2, bus->reg + NPCM_I2CSCLLT);
-+		iowrite8(k2 / 2, bus->reg + NPCM_I2CSCLHT);
-+
-+		iowrite8(dbnct, bus->reg + NPCM_I2CCTL5);
-+	}
-+
-+	iowrite8(hldt, bus->reg + NPCM_I2CCTL4);
-+
-+	/* Return to Bank 1, and stay there by default: */
-+	npcm_i2c_select_bank(bus, I2C_BANK_1);
-+
-+	return 0;
-+}
-+
-+static int npcm_i2c_init_module(struct npcm_i2c *bus, enum i2c_mode mode,
-+				u32 bus_freq_hz)
-+{
-+	u8 val;
-+	int ret;
-+
-+	/* Check whether module already enabled or frequency is out of bounds */
-+	if ((bus->state != I2C_DISABLE && bus->state != I2C_IDLE) ||
-+	    bus_freq_hz < I2C_FREQ_MIN_HZ || bus_freq_hz > I2C_FREQ_MAX_HZ)
-+		return -EINVAL;
-+
-+	npcm_i2c_disable(bus);
-+
-+	/* Configure FIFO mode : */
-+	if (FIELD_GET(I2C_VER_FIFO_EN, ioread8(bus->reg + I2C_VER))) {
-+		bus->fifo_use = true;
-+		npcm_i2c_select_bank(bus, I2C_BANK_0);
-+		val = ioread8(bus->reg + NPCM_I2CFIF_CTL);
-+		val |= NPCM_I2CFIF_CTL_FIFO_EN;
-+		iowrite8(val, bus->reg + NPCM_I2CFIF_CTL);
-+		npcm_i2c_select_bank(bus, I2C_BANK_1);
-+	} else {
-+		bus->fifo_use = false;
-+	}
-+
-+	/* Configure I2C module clock frequency */
-+	ret = npcm_i2c_init_clk(bus, bus_freq_hz);
-+	if (ret) {
-+		dev_err(bus->dev, "npcm_i2c_init_clk failed\n");
-+		return ret;
-+	}
-+
-+	/* Enable module (before configuring CTL1) */
-+	npcm_i2c_enable(bus);
-+	bus->state = I2C_IDLE;
-+	val = ioread8(bus->reg + NPCM_I2CCTL1);
-+	val = (val | NPCM_I2CCTL1_NMINTE) & ~NPCM_I2CCTL1_RWS;
-+	iowrite8(val, bus->reg + NPCM_I2CCTL1);
-+
-+	npcm_i2c_int_enable(bus, true);
-+
-+	npcm_i2c_reset(bus);
-+
-+	return 0;
-+}
-+
-+static int __npcm_i2c_init(struct npcm_i2c *bus, struct platform_device *pdev)
-+{
-+	u32 clk_freq_hz;
-+	int ret;
-+
-+	/* Initialize the internal data structures */
-+	bus->state = I2C_DISABLE;
-+	bus->master_or_slave = I2C_SLAVE;
-+	bus->int_time_stamp = 0;
-+
-+	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
-+				       &clk_freq_hz);
-+	if (ret) {
-+		dev_info(&pdev->dev, "Could not read clock-frequency property");
-+		clk_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
-+	}
-+
-+	ret = npcm_i2c_init_module(bus, I2C_MASTER, clk_freq_hz);
-+	if (ret) {
-+		dev_err(&pdev->dev, "npcm_i2c_init_module failed\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static irqreturn_t npcm_i2c_bus_irq(int irq, void *dev_id)
-+{
-+	struct npcm_i2c *bus = dev_id;
-+
-+	if (npcm_i2c_is_master(bus))
-+		bus->master_or_slave = I2C_MASTER;
-+
-+	if (bus->master_or_slave == I2C_MASTER) {
-+		bus->int_time_stamp = jiffies;
-+		if (!npcm_i2c_int_master_handler(bus))
-+			return IRQ_HANDLED;
-+	}
-+	return IRQ_NONE;
-+}
-+
-+static bool npcm_i2c_master_start_xmit(struct npcm_i2c *bus,
-+				       u8 slave_addr, u16 nwrite, u16 nread,
-+				       u8 *write_data, u8 *read_data,
-+				       bool use_PEC, bool use_read_block)
-+{
-+	if (bus->state != I2C_IDLE) {
-+		bus->cmd_err = -EBUSY;
-+		return false;
-+	}
-+	bus->dest_addr = slave_addr << 1;
-+	bus->wr_buf = write_data;
-+	bus->wr_size = nwrite;
-+	bus->wr_ind = 0;
-+	bus->rd_buf = read_data;
-+	bus->rd_size = nread;
-+	bus->rd_ind = 0;
-+	bus->PEC_use = 0;
-+
-+	/* for tx PEC is appended to buffer from i2c IF. PEC flag is ignored */
-+	if (nread)
-+		bus->PEC_use = use_PEC;
-+
-+	bus->read_block_use = use_read_block;
-+	if (nread && !nwrite)
-+		bus->operation = I2C_READ_OPER;
-+	else
-+		bus->operation = I2C_WRITE_OPER;
-+	if (bus->fifo_use) {
-+		u8 i2cfif_cts;
-+
-+		npcm_i2c_select_bank(bus, I2C_BANK_1);
-+		/* clear FIFO and relevant status bits. */
-+		i2cfif_cts = ioread8(bus->reg + NPCM_I2CFIF_CTS);
-+		i2cfif_cts &= ~NPCM_I2CFIF_CTS_SLVRSTR;
-+		i2cfif_cts |= NPCM_I2CFIF_CTS_CLR_FIFO;
-+		iowrite8(i2cfif_cts, bus->reg + NPCM_I2CFIF_CTS);
-+	}
-+
-+	bus->state = I2C_IDLE;
-+	npcm_i2c_stall_after_start(bus, true);
-+	npcm_i2c_master_start(bus);
-+	return true;
-+}
-+
-+static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+				int num)
-+{
-+	struct npcm_i2c *bus = container_of(adap, struct npcm_i2c, adap);
-+	struct i2c_msg *msg0, *msg1;
-+	unsigned long time_left, flags;
-+	u16 nwrite, nread;
-+	u8 *write_data, *read_data;
-+	u8 slave_addr;
-+	int timeout;
-+	int ret = 0;
-+	bool read_block = false;
-+	bool read_PEC = false;
-+	u8 bus_busy;
-+	unsigned long timeout_usec;
-+
-+	if (bus->state == I2C_DISABLE) {
-+		dev_err(bus->dev, "I2C%d module is disabled", bus->num);
-+		return -EINVAL;
-+	}
-+
-+	msg0 = &msgs[0];
-+	slave_addr = msg0->addr;
-+	if (msg0->flags & I2C_M_RD) { /* read */
-+		nwrite = 0;
-+		write_data = NULL;
-+		read_data = msg0->buf;
-+		if (msg0->flags & I2C_M_RECV_LEN) {
-+			nread = 1;
-+			read_block = true;
-+			if (msg0->flags & I2C_CLIENT_PEC)
-+				read_PEC = true;
-+		} else {
-+			nread = msg0->len;
-+		}
-+	} else { /* write */
-+		nwrite = msg0->len;
-+		write_data = msg0->buf;
-+		nread = 0;
-+		read_data = NULL;
-+		if (num == 2) {
-+			msg1 = &msgs[1];
-+			read_data = msg1->buf;
-+			if (msg1->flags & I2C_M_RECV_LEN) {
-+				nread = 1;
-+				read_block = true;
-+				if (msg1->flags & I2C_CLIENT_PEC)
-+					read_PEC = true;
-+			} else {
-+				nread = msg1->len;
-+				read_block = false;
-+			}
-+		}
-+	}
-+
-+	/* Adaptive TimeOut: astimated time in usec + 100% margin */
-+	timeout_usec = (2 * 10000 / bus->bus_freq) * (2 + nread + nwrite);
-+	timeout = max(msecs_to_jiffies(35), usecs_to_jiffies(timeout_usec));
-+	if (nwrite >= 32 * 1024 || nread >= 32 * 1024) {
-+		dev_err(bus->dev, "i2c%d buffer too big\n", bus->num);
-+		return -EINVAL;
-+	}
-+
-+	time_left = jiffies + msecs_to_jiffies(DEFAULT_STALL_COUNT) + 1;
-+	do {
-+		/*
-+		 * we must clear slave address immediately when the bus is not
-+		 * busy, so we spinlock it, but we don't keep the lock for the
-+		 * entire while since it is too long.
-+		 */
-+		spin_lock_irqsave(&bus->lock, flags);
-+		bus_busy = ioread8(bus->reg + NPCM_I2CCST) & NPCM_I2CCST_BB;
-+		spin_unlock_irqrestore(&bus->lock, flags);
-+
-+	} while (time_is_after_jiffies(time_left) && bus_busy);
-+
-+	if (bus_busy) {
-+		iowrite8(NPCM_I2CCST_BB, bus->reg + NPCM_I2CCST);
-+		npcm_i2c_reset(bus);
-+		i2c_recover_bus(adap);
-+		return -EAGAIN;
-+	}
-+
-+	npcm_i2c_init_params(bus);
-+	bus->dest_addr = slave_addr;
-+	bus->msgs = msgs;
-+	bus->msgs_num = num;
-+	bus->cmd_err = 0;
-+	bus->read_block_use = read_block;
-+
-+	reinit_completion(&bus->cmd_complete);
-+	if (!npcm_i2c_master_start_xmit(bus, slave_addr, nwrite, nread,
-+					write_data, read_data, read_PEC,
-+					read_block))
-+		ret = -EBUSY;
-+
-+	if (ret != -EBUSY) {
-+		time_left = wait_for_completion_timeout(&bus->cmd_complete,
-+							timeout);
-+
-+		if (time_left == 0) {
-+			if (bus->timeout_cnt < ULLONG_MAX)
-+				bus->timeout_cnt++;
-+			if (bus->master_or_slave == I2C_MASTER) {
-+				i2c_recover_bus(adap);
-+				bus->cmd_err = -EIO;
-+				bus->state = I2C_IDLE;
-+			}
-+		}
-+	}
-+	ret = bus->cmd_err;
-+
-+	/* if there was BER, check if need to recover the bus: */
-+	if (bus->cmd_err == -EAGAIN)
-+		ret = i2c_recover_bus(adap);
-+
-+	return bus->cmd_err;
-+}
-+
-+static u32 npcm_i2c_functionality(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C |
-+	       I2C_FUNC_SMBUS_EMUL |
-+	       I2C_FUNC_SMBUS_BLOCK_DATA |
-+	       I2C_FUNC_SMBUS_PEC;
-+}
-+
-+static const struct i2c_adapter_quirks npcm_i2c_quirks = {
-+	.max_read_len = 32768,
-+	.max_write_len = 32768,
-+	.flags = I2C_AQ_COMB_WRITE_THEN_READ,
-+};
-+
-+static const struct i2c_algorithm npcm_i2c_algo = {
-+	.master_xfer = npcm_i2c_master_xfer,
-+	.functionality = npcm_i2c_functionality,
-+};
-+
-+/* i2c debugfs directory: used to keep health monitor of i2c devices */
-+static struct dentry *npcm_i2c_debugfs_dir;
-+
-+static void npcm_i2c_init_debugfs(struct platform_device *pdev,
-+				  struct npcm_i2c *bus)
-+{
-+	struct dentry *d;
-+
-+	if (!npcm_i2c_debugfs_dir)
-+		return;
-+	d = debugfs_create_dir(dev_name(&pdev->dev), npcm_i2c_debugfs_dir);
-+	if (IS_ERR_OR_NULL(d))
-+		return;
-+	debugfs_create_u64("ber_cnt", 0444, d, &bus->ber_cnt);
-+	debugfs_create_u64("nack_cnt", 0444, d, &bus->nack_cnt);
-+	debugfs_create_u64("rec_succ_cnt", 0444, d, &bus->rec_succ_cnt);
-+	debugfs_create_u64("rec_fail_cnt", 0444, d, &bus->rec_fail_cnt);
-+	debugfs_create_u64("timeout_cnt", 0444, d, &bus->timeout_cnt);
-+
-+	bus->debugfs = d;
-+}
-+
-+static int npcm_i2c_probe_bus(struct platform_device *pdev)
-+{
-+	struct npcm_i2c *bus;
-+	struct i2c_adapter *adap;
-+	struct clk *i2c_clk;
-+	static struct regmap *gcr_regmap;
-+	static struct regmap *clk_regmap;
-+	int irq;
-+	int ret;
-+
-+	bus = devm_kzalloc(&pdev->dev, sizeof(*bus), GFP_KERNEL);
-+	if (!bus)
-+		return -ENOMEM;
-+
-+	bus->dev = &pdev->dev;
-+
-+	bus->num = of_alias_get_id(pdev->dev.of_node, "i2c");
-+	/* core clk must be acquired to calculate module timing settings */
-+	i2c_clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(i2c_clk))
-+		return PTR_ERR(i2c_clk);
-+	bus->apb_clk = clk_get_rate(i2c_clk);
-+
-+	gcr_regmap = syscon_regmap_lookup_by_compatible("nuvoton,npcm750-gcr");
-+	if (IS_ERR(gcr_regmap))
-+		return IS_ERR(gcr_regmap);
-+	regmap_write(gcr_regmap, NPCM_I2CSEGCTL, NPCM_I2CSEGCTL_INIT_VAL);
-+
-+	clk_regmap = syscon_regmap_lookup_by_compatible("nuvoton,npcm750-clk");
-+	if (IS_ERR(clk_regmap))
-+		return IS_ERR(clk_regmap);
-+
-+	bus->reg = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(bus->reg))
-+		return PTR_ERR((bus)->reg);
-+
-+	spin_lock_init(&bus->lock);
-+	init_completion(&bus->cmd_complete);
-+
-+	adap = &bus->adap;
-+	adap->owner = THIS_MODULE;
-+	adap->retries = 3;
-+	adap->timeout = HZ;
-+	adap->algo = &npcm_i2c_algo;
-+	adap->quirks = &npcm_i2c_quirks;
-+	adap->algo_data = bus;
-+	adap->dev.parent = &pdev->dev;
-+	adap->dev.of_node = pdev->dev.of_node;
-+	adap->nr = pdev->id;
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
-+
-+	ret = devm_request_irq(bus->dev, irq, npcm_i2c_bus_irq, 0,
-+			       dev_name(bus->dev), bus);
-+	if (ret)
-+		return ret;
-+
-+	ret = __npcm_i2c_init(bus, pdev);
-+	if (ret)
-+		return ret;
-+
-+	npcm_i2c_recovery_init(adap);
-+
-+	i2c_set_adapdata(adap, bus);
-+
-+	snprintf(bus->adap.name, sizeof(bus->adap.name), "npcm_i2c_%d",
-+		 bus->num);
-+	ret = i2c_add_numbered_adapter(&bus->adap);
-+	if (ret)
-+		return ret;
-+
-+	platform_set_drvdata(pdev, bus);
-+	npcm_i2c_init_debugfs(pdev, bus);
-+	return 0;
-+}
-+
-+static int npcm_i2c_remove_bus(struct platform_device *pdev)
-+{
-+	unsigned long lock_flags;
-+	struct npcm_i2c *bus = platform_get_drvdata(pdev);
-+
-+	debugfs_remove_recursive(bus->debugfs);
-+	spin_lock_irqsave(&bus->lock, lock_flags);
-+	npcm_i2c_disable(bus);
-+	spin_unlock_irqrestore(&bus->lock, lock_flags);
-+	i2c_del_adapter(&bus->adap);
-+	return 0;
-+}
-+
-+static const struct of_device_id npcm_i2c_bus_of_table[] = {
-+	{ .compatible = "nuvoton,npcm750-i2c", },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, npcm_i2c_bus_of_table);
-+
-+static struct platform_driver npcm_i2c_bus_driver = {
-+	.probe = npcm_i2c_probe_bus,
-+	.remove = npcm_i2c_remove_bus,
-+	.driver = {
-+		.name = "nuvoton-i2c",
-+		.of_match_table = npcm_i2c_bus_of_table,
-+	}
-+};
-+
-+static int __init npcm_i2c_init(void)
-+{
-+	npcm_i2c_debugfs_dir = debugfs_create_dir("npcm_i2c", NULL);
-+	platform_driver_register(&npcm_i2c_bus_driver);
-+	return 0;
-+}
-+module_init(npcm_i2c_init);
-+
-+static void __exit npcm_i2c_exit(void)
-+{
-+	platform_driver_unregister(&npcm_i2c_bus_driver);
-+	debugfs_remove_recursive(npcm_i2c_debugfs_dir);
-+}
-+module_exit(npcm_i2c_exit);
-+
-+MODULE_AUTHOR("Avi Fishman <avi.fishman@gmail.com>");
-+MODULE_AUTHOR("Tali Perry <tali.perry@nuvoton.com>");
-+MODULE_AUTHOR("Tyrone Ting <kfting@nuvoton.com>");
-+MODULE_DESCRIPTION("Nuvoton I2C Bus Driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.22.0
-
+Thanks,
+Michal
