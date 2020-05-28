@@ -2,148 +2,84 @@ Return-Path: <SRS0=TnuL=7K=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D91F6C433DF
-	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 12:10:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEB10C433DF
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 14:19:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB302215A4
-	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 12:10:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1590667858;
-	bh=5EMxD/AfSpLyjuXNqb5ixny+nHiT+Kx9uhypSmTttzI=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=XqWzlVY0bOPBwssrl//d4rpl2peyKNsfKvIgwkdxQJrUGUIJ7F4jAX3jstfaro/jI
-	 ZBxZhqpNTIsQby1QUJwG+vF+yKTGX2j2UpDUFNXih9kkkeL1bLaURVMxgoKJz1nh8r
-	 mnisK9CD6FLJd5ggtPrMbETuAd33moDoIXmkpiJQ=
+	by mail.kernel.org (Postfix) with ESMTP id 98FF6208DB
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 14:19:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388655AbgE1L4Q (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 28 May 2020 07:56:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48130 "EHLO mail.kernel.org"
+        id S2390962AbgE1OTC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 28 May 2020 10:19:02 -0400
+Received: from mga07.intel.com ([134.134.136.100]:64022 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388647AbgE1L4M (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 28 May 2020 07:56:12 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC37E21531;
-        Thu, 28 May 2020 11:56:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590666971;
-        bh=5EMxD/AfSpLyjuXNqb5ixny+nHiT+Kx9uhypSmTttzI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eoXXFhoyH60ylIhe285pCSmxnHsUiCzb3InJOF0+bK6niT8A7gDnAycxEAV7g78H8
-         d7yQSaJ7JxwU89zvyavV+ktULkJ7zHdsgVc5aPzqr90sx+AnALUtv+Qo4L04trRCzR
-         5fBWfp1HBFwsjO+iU1KPiNj78HYeQ3STLXlzU1BM=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Atsushi Nemoto <atsushi.nemoto@sord.co.jp>,
-        Thor Thayer <thor.thayer@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 09/47] i2c: altera: Fix race between xfer_msg and isr thread
-Date:   Thu, 28 May 2020 07:55:22 -0400
-Message-Id: <20200528115600.1405808-9-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200528115600.1405808-1-sashal@kernel.org>
-References: <20200528115600.1405808-1-sashal@kernel.org>
+        id S2390880AbgE1OTC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 28 May 2020 10:19:02 -0400
+IronPort-SDR: F1YHOZxgWvisaKeYo5wHIBZ374lphDxlEIcNt59IjLcQt9W2ZGil7ghF/McbwN/biuzrlmyr6W
+ N16Qc21O3QbA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2020 07:19:01 -0700
+IronPort-SDR: Msf4DbFpLFycq+neVAka0xHfjZGWVNji1fJ2hAdesFwsSSWEgS/9kaV5V+D6+AQDVbFNQpKkcm
+ MQ/DyYaAkK5Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,444,1583222400"; 
+   d="scan'208";a="442964121"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga005.jf.intel.com with ESMTP; 28 May 2020 07:18:59 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id D2A10230; Thu, 28 May 2020 17:18:58 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
+        linux-acpi@vger.kernel.org
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1] i2c: acpi: Drop double check for ACPI companion device
+Date:   Thu, 28 May 2020 17:18:58 +0300
+Message-Id: <20200528141858.82648-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
+acpi_dev_get_resources() does perform the NULL pointer check against
+ACPI companion device which is given as function parameter. Thus,
+there is no need to duplicate this check in the caller.
 
-[ Upstream commit 5d4c7977499a736f3f80826bdc9744344ad55589 ]
-
-Use a mutex to protect access to idev->msg_len, idev->buf, etc. which
-are modified by both altr_i2c_xfer_msg() and altr_i2c_isr().
-
-This is the minimal fix for easy backporting. A cleanup to remove the
-spinlock will be added later.
-
-Signed-off-by: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
-Acked-by: Thor Thayer <thor.thayer@linux.intel.com>
-[wsa: updated commit message]
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-altera.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core-acpi.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-altera.c b/drivers/i2c/busses/i2c-altera.c
-index 92d2c706c2a7..a60042431370 100644
---- a/drivers/i2c/busses/i2c-altera.c
-+++ b/drivers/i2c/busses/i2c-altera.c
-@@ -70,6 +70,7 @@
-  * @isr_mask: cached copy of local ISR enables.
-  * @isr_status: cached copy of local ISR status.
-  * @lock: spinlock for IRQ synchronization.
-+ * @isr_mutex: mutex for IRQ thread.
-  */
- struct altr_i2c_dev {
- 	void __iomem *base;
-@@ -86,6 +87,7 @@ struct altr_i2c_dev {
- 	u32 isr_mask;
- 	u32 isr_status;
- 	spinlock_t lock;	/* IRQ synchronization */
-+	struct mutex isr_mutex;
- };
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index c8f42f2037cb..2ade99b105b9 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -468,16 +468,12 @@ struct notifier_block i2c_acpi_notifier = {
+ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+ 				       struct i2c_board_info *info)
+ {
++	struct acpi_device *adev = ACPI_COMPANION(dev);
+ 	struct i2c_acpi_lookup lookup;
+ 	struct i2c_adapter *adapter;
+-	struct acpi_device *adev;
+ 	LIST_HEAD(resource_list);
+ 	int ret;
  
- static void
-@@ -245,10 +247,11 @@ static irqreturn_t altr_i2c_isr(int irq, void *_dev)
- 	struct altr_i2c_dev *idev = _dev;
- 	u32 status = idev->isr_status;
- 
-+	mutex_lock(&idev->isr_mutex);
- 	if (!idev->msg) {
- 		dev_warn(idev->dev, "unexpected interrupt\n");
- 		altr_i2c_int_clear(idev, ALTR_I2C_ALL_IRQ);
--		return IRQ_HANDLED;
-+		goto out;
- 	}
- 	read = (idev->msg->flags & I2C_M_RD) != 0;
- 
-@@ -301,6 +304,8 @@ static irqreturn_t altr_i2c_isr(int irq, void *_dev)
- 		complete(&idev->msg_complete);
- 		dev_dbg(idev->dev, "Message Complete\n");
- 	}
-+out:
-+	mutex_unlock(&idev->isr_mutex);
- 
- 	return IRQ_HANDLED;
- }
-@@ -312,6 +317,7 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
- 	u32 value;
- 	u8 addr = i2c_8bit_addr_from_msg(msg);
- 
-+	mutex_lock(&idev->isr_mutex);
- 	idev->msg = msg;
- 	idev->msg_len = msg->len;
- 	idev->buf = msg->buf;
-@@ -336,6 +342,7 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
- 		altr_i2c_int_enable(idev, imask, true);
- 		altr_i2c_fill_tx_fifo(idev);
- 	}
-+	mutex_unlock(&idev->isr_mutex);
- 
- 	time_left = wait_for_completion_timeout(&idev->msg_complete,
- 						ALTR_I2C_XFER_TIMEOUT);
-@@ -409,6 +416,7 @@ static int altr_i2c_probe(struct platform_device *pdev)
- 	idev->dev = &pdev->dev;
- 	init_completion(&idev->msg_complete);
- 	spin_lock_init(&idev->lock);
-+	mutex_init(&idev->isr_mutex);
- 
- 	ret = device_property_read_u32(idev->dev, "fifo-size",
- 				       &idev->fifo_size);
+-	adev = ACPI_COMPANION(dev);
+-	if (!adev)
+-		return ERR_PTR(-EINVAL);
+-
+ 	memset(&lookup, 0, sizeof(lookup));
+ 	lookup.info = info;
+ 	lookup.device_handle = acpi_device_handle(adev);
 -- 
-2.25.1
+2.26.2
 
