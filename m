@@ -6,40 +6,40 @@ X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D964C433E3
-	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 09:34:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AC99C433DF
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 09:34:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 36E9320776
-	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 09:34:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 55EB120776
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 May 2020 09:34:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387438AbgE1Jdf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 28 May 2020 05:33:35 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:40542 "EHLO
+        id S2387555AbgE1JeJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 28 May 2020 05:34:09 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:40578 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728350AbgE1Jde (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 28 May 2020 05:33:34 -0400
+        with ESMTP id S2387414AbgE1Jdf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 28 May 2020 05:33:35 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id C113380307C1;
-        Thu, 28 May 2020 09:33:30 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id C30958030776;
+        Thu, 28 May 2020 09:33:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id k1lLjkKIFLVO; Thu, 28 May 2020 12:33:30 +0300 (MSK)
+        with ESMTP id 7sMrcUKHbCUU; Thu, 28 May 2020 12:33:32 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Wolfram Sang <wsa@the-dreams.de>
+        Wolfram Sang <wsa@the-dreams.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
 CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Serge Semin <fancer.lancer@gmail.com>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Rob Herring <robh+dt@kernel.org>, <linux-mips@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>
-Subject: [PATCH v6 04/11] i2c: designware: Use `-y` to build multi-object modules
-Date:   Thu, 28 May 2020 12:33:14 +0300
-Message-ID: <20200528093322.23553-5-Sergey.Semin@baikalelectronics.ru>
+Subject: [PATCH v6 07/11] i2c: designware: Discard Cherry Trail model flag
+Date:   Thu, 28 May 2020 12:33:17 +0300
+Message-ID: <20200528093322.23553-8-Sergey.Semin@baikalelectronics.ru>
 In-Reply-To: <20200528093322.23553-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200528093322.23553-1-Sergey.Semin@baikalelectronics.ru>
 MIME-Version: 1.0
@@ -51,56 +51,72 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Since commit 4f8272802739 ("Documentation: update kbuild loadable modules
-goals & examples") `-objs` is fitted for building host programs, lets
-change DW I2C core, platform and PCI driver kbuild directives to using
-`-y`, which more straightforward for device drivers. By doing so we can
-discard the ifeq construction in favor to the more natural and less bulky
-`<module>-$(CONFIG_X) += x.o`
+A PM workaround activated by the flag MODEL_CHERRYTRAIL has been removed
+since commit 9cbeeca05049 ("i2c: designware: Remove Cherry Trail PMIC I2C
+bus pm_disabled workaround"), but the flag most likely by mistake has been
+left in the Dw I2C drivers. Let's remove it. Since MODEL_MSCC_OCELOT is
+the only model-flag left, redefine it to be 0x100 so setting a very first
+bit in the MODEL_MASK bits range.
 
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: Rob Herring <robh+dt@kernel.org>
 Cc: linux-mips@vger.kernel.org
 Cc: devicetree@vger.kernel.org
----
- drivers/i2c/busses/Makefile | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index a33aa107a05d..c6813d7b2780 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -48,17 +48,15 @@ obj-$(CONFIG_I2C_CADENCE)	+= i2c-cadence.o
- obj-$(CONFIG_I2C_CBUS_GPIO)	+= i2c-cbus-gpio.o
- obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
- obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
--obj-$(CONFIG_I2C_DESIGNWARE_CORE)	+= i2c-designware-core.o
--i2c-designware-core-objs := i2c-designware-common.o
--i2c-designware-core-objs += i2c-designware-master.o
--ifeq ($(CONFIG_I2C_DESIGNWARE_SLAVE),y)
--i2c-designware-core-objs += i2c-designware-slave.o
--endif
--obj-$(CONFIG_I2C_DESIGNWARE_PLATFORM)	+= i2c-designware-platform.o
--i2c-designware-platform-objs := i2c-designware-platdrv.o
-+obj-$(CONFIG_I2C_DESIGNWARE_CORE)			+= i2c-designware-core.o
-+i2c-designware-core-y					:= i2c-designware-common.o
-+i2c-designware-core-y					+= i2c-designware-master.o
-+i2c-designware-core-$(CONFIG_I2C_DESIGNWARE_SLAVE) 	+= i2c-designware-slave.o
-+obj-$(CONFIG_I2C_DESIGNWARE_PLATFORM)			+= i2c-designware-platform.o
-+i2c-designware-platform-y 				:= i2c-designware-platdrv.o
- i2c-designware-platform-$(CONFIG_I2C_DESIGNWARE_BAYTRAIL) += i2c-designware-baytrail.o
--obj-$(CONFIG_I2C_DESIGNWARE_PCI)	+= i2c-designware-pci.o
--i2c-designware-pci-objs := i2c-designware-pcidrv.o
-+obj-$(CONFIG_I2C_DESIGNWARE_PCI)			+= i2c-designware-pci.o
-+i2c-designware-pci-y					:= i2c-designware-pcidrv.o
- obj-$(CONFIG_I2C_DIGICOLOR)	+= i2c-digicolor.o
- obj-$(CONFIG_I2C_EFM32)		+= i2c-efm32.o
- obj-$(CONFIG_I2C_EG20T)		+= i2c-eg20t.o
+---
+
+Changelog v3:
+- Since MSCC and Baikal-T1 will be a part of the platform driver code, we
+  have to preserve the MODEL_MASK macro to use it to filter the model
+  flags during the IP-specific quirks activation.
+---
+ drivers/i2c/busses/i2c-designware-core.h    | 3 +--
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 1 -
+ drivers/i2c/busses/i2c-designware-platdrv.c | 2 +-
+ 3 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 150de5e5c31b..b9ef9b0deef0 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -289,8 +289,7 @@ struct dw_i2c_dev {
+ #define ACCESS_INTR_MASK	0x00000004
+ #define ACCESS_NO_IRQ_SUSPEND	0x00000008
+ 
+-#define MODEL_CHERRYTRAIL	0x00000100
+-#define MODEL_MSCC_OCELOT	0x00000200
++#define MODEL_MSCC_OCELOT	0x00000100
+ #define MODEL_MASK		0x00000f00
+ 
+ u32 dw_readl(struct dw_i2c_dev *dev, int offset);
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 11a5e4751eab..947c096f86e3 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -149,7 +149,6 @@ static struct dw_pci_controller dw_pci_controllers[] = {
+ 	},
+ 	[cherrytrail] = {
+ 		.bus_num = -1,
+-		.flags = MODEL_CHERRYTRAIL,
+ 		.scl_sda_cfg = &byt_config,
+ 	},
+ 	[elkhartlake] = {
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index f6d2c96e35ce..ca057aa9eac4 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -44,7 +44,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "INT3432", 0 },
+ 	{ "INT3433", 0 },
+ 	{ "80860F41", ACCESS_NO_IRQ_SUSPEND },
+-	{ "808622C1", ACCESS_NO_IRQ_SUSPEND | MODEL_CHERRYTRAIL },
++	{ "808622C1", ACCESS_NO_IRQ_SUSPEND },
+ 	{ "AMD0010", ACCESS_INTR_MASK },
+ 	{ "AMDI0010", ACCESS_INTR_MASK },
+ 	{ "AMDI0510", 0 },
 -- 
 2.26.2
 
