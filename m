@@ -2,143 +2,112 @@ Return-Path: <SRS0=ONaD=7R=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EDC2C433E4
-	for <linux-i2c@archiver.kernel.org>; Thu,  4 Jun 2020 02:00:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 732D9C433DF
+	for <linux-i2c@archiver.kernel.org>; Thu,  4 Jun 2020 08:32:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1487120772
-	for <linux-i2c@archiver.kernel.org>; Thu,  4 Jun 2020 02:00:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 549012074B
+	for <linux-i2c@archiver.kernel.org>; Thu,  4 Jun 2020 08:32:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=jms.id.au header.i=@jms.id.au header.b="fGkqeUca"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726373AbgFDB7y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 3 Jun 2020 21:59:54 -0400
-Received: from inva020.nxp.com ([92.121.34.13]:45312 "EHLO inva020.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726011AbgFDB7y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 3 Jun 2020 21:59:54 -0400
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 3723F1A10CF;
-        Thu,  4 Jun 2020 03:59:52 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id EFA041A0192;
-        Thu,  4 Jun 2020 03:59:46 +0200 (CEST)
-Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 3D881402B3;
-        Thu,  4 Jun 2020 09:59:40 +0800 (SGT)
-From:   Anson Huang <Anson.Huang@nxp.com>
-To:     aisheng.dong@nxp.com, robh+dt@kernel.org, shawnguo@kernel.org,
-        s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
-        linux@rempel-privat.de, wolfram@the-dreams.de,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     Linux-imx@nxp.com
-Subject: [PATCH V2 1/3] dt-bindings: i2c: Convert imx lpi2c to json-schema
-Date:   Thu,  4 Jun 2020 09:49:16 +0800
-Message-Id: <1591235358-15516-2-git-send-email-Anson.Huang@nxp.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1591235358-15516-1-git-send-email-Anson.Huang@nxp.com>
-References: <1591235358-15516-1-git-send-email-Anson.Huang@nxp.com>
-X-Virus-Scanned: ClamAV using ClamSMTP
+        id S1726907AbgFDIcg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 4 Jun 2020 04:32:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54576 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726802AbgFDIcg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jun 2020 04:32:36 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4763C05BD1E;
+        Thu,  4 Jun 2020 01:32:35 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id mb16so5142102ejb.4;
+        Thu, 04 Jun 2020 01:32:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=jms.id.au; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1AuRE0AuSz1Dcafc63dQERov0niyM7+8vmaBb8F6Fzc=;
+        b=fGkqeUca0o35s+UryeUeoBdAohiaNg3kfMd+bxQWJyNHWhpzLy1Cr1ZcAjKHF8+WnL
+         QA+DS5hlfW9VNepBJ+oGxqr+ac8FDcs1OIPBlQl52vV/mW34uykJiE5ZJT3mW7lhSYZL
+         N4vom68WUkZGhqUpfeFd2DUOEWyFbBMFDByyY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1AuRE0AuSz1Dcafc63dQERov0niyM7+8vmaBb8F6Fzc=;
+        b=mvbqjNy8mfgcqtalAaC1wRCH3MLbEgpIp84sGm3Je0T30bDRDgVPh12wvlYcS+NR0j
+         2PJhs2dMNupSX64R8vJ2z5CrsBP2EE3CbWNhTeuFOc1z8rKRA+EpGkD6RbB3yiEXRSm0
+         CXlKOAU6phLt7gtFuPuUCkfvUdmBhlfrRslDMnHjsQSFDAuzRL+5bwm4If+HCqLceoB0
+         sNSKz12unPFB+GTf6P/P/4PapGAZpl1BjcpcdzEtZP/DRzeZNUrX5BhA+aiS3OkXHUpO
+         spB4WhKbaxB4b5sarhIgZWE75pEj61Y+GfcrR4wsmccdgsVdGK+U+vgjv381WKb02oO7
+         8vDA==
+X-Gm-Message-State: AOAM530uTY4ylxG64MbcG0MPHMfb9B74kqtibWCO5+6csS7vT+0r4A0s
+        S0+mi1XjswQS6jYVSng1FKnxgPZW21mml+xY9ao=
+X-Google-Smtp-Source: ABdhPJy5ctc5383qKNluaPDwm98VmrQIOXT9qbgA+PmD3daSJjnvtPCKWdZ3etbzj/j/2E6sMLG804CjxluMDKg+46Q=
+X-Received: by 2002:a17:906:3603:: with SMTP id q3mr2981318ejb.477.1591259554440;
+ Thu, 04 Jun 2020 01:32:34 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200527200820.47359-1-tali.perry1@gmail.com> <20200603202553.GB7684@kunai>
+In-Reply-To: <20200603202553.GB7684@kunai>
+From:   Joel Stanley <joel@jms.id.au>
+Date:   Thu, 4 Jun 2020 08:32:22 +0000
+Message-ID: <CACPK8Xe=66y+MkfogP4Gh6A9X7UDhOyAdUDwp=iqe7zitdxA8g@mail.gmail.com>
+Subject: Re: [PATCH v14 0/3] i2c: npcm7xx: add NPCM i2c controller driver
+To:     Wolfram Sang <wsa@the-dreams.de>
+Cc:     Tali Perry <tali.perry1@gmail.com>,
+        devicetree <devicetree@vger.kernel.org>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Avi Fishman <avifishman70@gmail.com>,
+        Patrick Venture <venture@google.com>,
+        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
+        Brendan Higgins <brendanhiggins@google.com>, ofery@google.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        kfting@nuvoton.com, Rob Herring <robh+dt@kernel.org>,
+        linux-i2c@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        andriy.shevchenko@linux.intel.com,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Benjamin Fair <benjaminfair@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Convert the i.MX LPI2C binding to DT schema format using json-schema
+On Wed, 3 Jun 2020 at 20:26, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+> On Wed, May 27, 2020 at 11:08:17PM +0300, Tali Perry wrote:
+> > This patch set adds i2c controller support
+> > for the Nuvoton NPCM Baseboard Management Controller (BMC).
+> >
+> > NPCM7xx includes 16 I2C controllers. This driver operates the controller.
+> > This module also includes a slave mode.
+> >
+> > ---
+> > v14 -> v13:
+> >       - Fix yaml example: add missing include.
+> >       - Replace all udelay to usleep_range, except one which is called from
+> >         irq.
+> >       - Fix compilation error (module_platfrom_init conflict).
+> >       - debugfs counters always updated. Counting till max value,
+> >         then stop counting.
+> >       - Rename bus-frequency to clock-frequency.
+> >       - Remove unused variables.
+>
+> I don't have time for a deeper review, but from what I can tell this
+> driver is good to go and we can fix things incrementally from now on.
+>
+> Applied to for-next (will go into 5.8), thanks!
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
-Changes since V1:
-	- add "additionalProperties: false".
----
- .../devicetree/bindings/i2c/i2c-imx-lpi2c.txt      | 20 ---------
- .../devicetree/bindings/i2c/i2c-imx-lpi2c.yaml     | 47 ++++++++++++++++++++++
- 2 files changed, 47 insertions(+), 20 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
+Thanks Wolfram. I encourage this approach to working with patches, and
+especially for our vendors who are trying to do the correct thing in
+mainlining their code.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
-deleted file mode 100644
-index f0c072f..0000000
---- a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
-+++ /dev/null
-@@ -1,20 +0,0 @@
--* Freescale Low Power Inter IC (LPI2C) for i.MX
--
--Required properties:
--- compatible :
--  - "fsl,imx7ulp-lpi2c" for LPI2C compatible with the one integrated on i.MX7ULP soc
--  - "fsl,imx8qxp-lpi2c" for LPI2C compatible with the one integrated on i.MX8QXP soc
--  - "fsl,imx8qm-lpi2c" for LPI2C compatible with the one integrated on i.MX8QM soc
--- reg : address and length of the lpi2c master registers
--- interrupts : lpi2c interrupt
--- clocks : lpi2c clock specifier
--
--Examples:
--
--lpi2c7: lpi2c7@40a50000 {
--	compatible = "fsl,imx7ulp-lpi2c";
--	reg = <0x40A50000 0x10000>;
--	interrupt-parent = <&intc>;
--	interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
--	clocks = <&clks IMX7ULP_CLK_LPI2C7>;
--};
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-new file mode 100644
-index 0000000..ac0bc5d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-@@ -0,0 +1,47 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/i2c-imx-lpi2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Freescale Low Power Inter IC (LPI2C) for i.MX
-+
-+maintainers:
-+  - Anson Huang <Anson.Huang@nxp.com>
-+
-+properties:
-+  compatible:
-+    enum:
-+      - fsl,imx7ulp-lpi2c
-+      - fsl,imx8qxp-lpi2c
-+      - fsl,imx8qm-lpi2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/clock/imx7ulp-clock.h>
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+
-+    lpi2c7@40a50000 {
-+        compatible = "fsl,imx7ulp-lpi2c";
-+        reg = <0x40A50000 0x10000>;
-+        interrupt-parent = <&intc>;
-+        interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
-+        clocks = <&clks IMX7ULP_CLK_LPI2C7>;
-+    };
--- 
-2.7.4
+Congrats Tali on getting the driver in the tree. This has a been a long journey!
 
+Cheers,
+
+Joel
