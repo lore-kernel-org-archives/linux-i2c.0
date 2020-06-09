@@ -2,107 +2,102 @@ Return-Path: <SRS0=fqt/=7W=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F334C433E0
-	for <linux-i2c@archiver.kernel.org>; Tue,  9 Jun 2020 20:17:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 306EAC433DF
+	for <linux-i2c@archiver.kernel.org>; Tue,  9 Jun 2020 22:01:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 03A9520737
-	for <linux-i2c@archiver.kernel.org>; Tue,  9 Jun 2020 20:17:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F356E206D5
+	for <linux-i2c@archiver.kernel.org>; Tue,  9 Jun 2020 22:01:15 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gc+jIrTQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728238AbgFIURE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 9 Jun 2020 16:17:04 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17478 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726184AbgFIURC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 9 Jun 2020 16:17:02 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 059K36SE077027;
-        Tue, 9 Jun 2020 16:17:00 -0400
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31jgshgtt5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Jun 2020 16:17:00 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 059K32Dd076741;
-        Tue, 9 Jun 2020 16:17:00 -0400
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31jgshgtsw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Jun 2020 16:17:00 -0400
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 059KF0sM015724;
-        Tue, 9 Jun 2020 20:16:59 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma01dal.us.ibm.com with ESMTP id 31hygy4q1b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Jun 2020 20:16:59 +0000
-Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 059KFwqH52298132
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 9 Jun 2020 20:15:58 GMT
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A3E5EAE05C;
-        Tue,  9 Jun 2020 20:15:58 +0000 (GMT)
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D3578AE05F;
-        Tue,  9 Jun 2020 20:15:57 +0000 (GMT)
-Received: from ghost4.ibm.com (unknown [9.211.141.69])
-        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue,  9 Jun 2020 20:15:57 +0000 (GMT)
-From:   Eddie James <eajames@linux.ibm.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, andy.shevchenko@gmail.com,
-        wsa@kernel.org, joel@jms.id.au, eajames@linux.ibm.com
-Subject: [PATCH v2 2/2] i2c: fsi: Prevent adding adapters for ports without dts nodes
-Date:   Tue,  9 Jun 2020 15:15:55 -0500
-Message-Id: <20200609201555.11401-3-eajames@linux.ibm.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20200609201555.11401-1-eajames@linux.ibm.com>
-References: <20200609201555.11401-1-eajames@linux.ibm.com>
+        id S1728147AbgFIWBP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 9 Jun 2020 18:01:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52100 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726992AbgFIWBO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 9 Jun 2020 18:01:14 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F228C05BD1E;
+        Tue,  9 Jun 2020 15:01:13 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id h185so170718pfg.2;
+        Tue, 09 Jun 2020 15:01:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MRXZKngqhLb+ar4aO9Lsmg4caWqUFoMOzojN3p3S434=;
+        b=gc+jIrTQiLDyd2W9Lb98OOfoARYG5umI69HXDYVWWt1Cpw+gdNZGG/2D7DgU2ja7sQ
+         yMxGxEMiojoTc5V7TPAu2+OoP3kX99L4ORobn8zcgI1Bw20NDwLuHrKogWsgjJyccha5
+         39sSMtWfiFX4ipSRj7o0FeIKza4ArnEOxQ0kF03JOj7iymPLyptfV/J7oBzrkA0lnz4Z
+         B6EYz717JNdNwF3yieCICMKVPLspgN1QfQ7F0UuOMW++lROHoCHBYpIM9Kfq35YmWRa2
+         fkCl5q4PPq4R9HLGRZ1nZ1FNvEwbyBNF21HmIGRgYA8PpsJz0+0nR+us74skl3kEs8OK
+         KtuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MRXZKngqhLb+ar4aO9Lsmg4caWqUFoMOzojN3p3S434=;
+        b=aLIXb4BKcXOFCnumjXLWrKgwa7csJqG+jo05+bvauyazOQmi0tJZVSR96FjFAvoVJh
+         3LLD+i4vH53+ty2MQW08A8m/axV6r/VJnRRszxQleyIKYUoCqzjHnBvMBvy9B4Eeo0iM
+         fv9QINVc7XzT6iAWgIFQ0WDt3f9Z5rnysAvzFfRpbKQRshH8rRPm4W934LTRROVNwIle
+         uAhu1cuIZ2FVDORztHXgI4/hPgQxNmkBCBERKTOij/PUjghEON9CrDSZas4qvkAz0vpu
+         K1AOGwEn1V3FALYv9rLDM+ybkgHtl1ZKb1Hm2ECMWynME1NrBCrgDxwJCKLB6znOB51f
+         xE5Q==
+X-Gm-Message-State: AOAM531ooUcWNZL3NIj+TpTuTpyMVLKbKwSzDJNi/egJhA4DOHPXr7/1
+        P+GDEBGoYX4ayYgyZPVQRZe970QCc3XU5S8c4Ls=
+X-Google-Smtp-Source: ABdhPJwAcywTeq5QYPmU1nL+2RNn3CEo1ceXk+l+ZyG4B1GFi8+1suYBPRU8EFXECKAdXGpd+6CzZGz8eo0rnbZ4Iqw=
+X-Received: by 2002:a63:ff52:: with SMTP id s18mr62377pgk.203.1591740072651;
+ Tue, 09 Jun 2020 15:01:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
- definitions=2020-06-09_13:2020-06-09,2020-06-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 mlxscore=0 mlxlogscore=999 bulkscore=0 lowpriorityscore=0
- phishscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=1
- clxscore=1015 cotscore=-2147483648 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2004280000 definitions=main-2006090148
+References: <20200609201555.11401-1-eajames@linux.ibm.com>
+In-Reply-To: <20200609201555.11401-1-eajames@linux.ibm.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Wed, 10 Jun 2020 01:00:55 +0300
+Message-ID: <CAHp75Vd32ivnOgenr1q9gd5kJRAQseAhZoiRb80Xv5O7qeBaJw@mail.gmail.com>
+Subject: Re: [PATCH v2 0/2] i2c: fsi: Fixes for systems with more ports
+To:     Eddie James <eajames@linux.ibm.com>
+Cc:     linux-i2c <linux-i2c@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        wsa@kernel.org, Joel Stanley <joel@jms.id.au>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Ports should be defined in the devicetree if they are to be enabled on
-the system.
+On Tue, Jun 9, 2020 at 11:15 PM Eddie James <eajames@linux.ibm.com> wrote:
+>
+> This series fixes a register definition for the FSI-attached I2C master to
+> allow all the available ports. In addition, the code to add an adapter for
+> each port is modified to require a device-tree entry for the bus. This is so
+> that systems with lots of busses that have no devices on them don't add lots
+> of unecessary devices.
+>
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
----
-Changes since v1:
- - Remove the check for null device node since that is checked in
-   of_device_is_available
+FWIW,
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
- drivers/i2c/busses/i2c-fsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Changes since v1:
+>  - Remove the check for null device node since that is checked in
+>    of_device_is_available
+>
+> Eddie James (2):
+>   i2c: fsi: Fix the port number field in status register
+>   i2c: fsi: Prevent adding adapters for ports without dts nodes
+>
+>  drivers/i2c/busses/i2c-fsi.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> --
+> 2.24.0
+>
 
-diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 977d6f524649..10332693edf0 100644
---- a/drivers/i2c/busses/i2c-fsi.c
-+++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -703,7 +703,7 @@ static int fsi_i2c_probe(struct device *dev)
- 
- 	for (port_no = 0; port_no < ports; port_no++) {
- 		np = fsi_i2c_find_port_of_node(dev->of_node, port_no);
--		if (np && !of_device_is_available(np))
-+		if (!of_device_is_available(np))
- 			continue;
- 
- 		port = kzalloc(sizeof(*port), GFP_KERNEL);
+
 -- 
-2.24.0
-
+With Best Regards,
+Andy Shevchenko
