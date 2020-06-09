@@ -2,151 +2,107 @@ Return-Path: <SRS0=fqt/=7W=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F992C433DF
-	for <linux-i2c@archiver.kernel.org>; Tue,  9 Jun 2020 13:27:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 039C7C433E1
+	for <linux-i2c@archiver.kernel.org>; Tue,  9 Jun 2020 13:41:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3ABC120774
-	for <linux-i2c@archiver.kernel.org>; Tue,  9 Jun 2020 13:27:21 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sgGbqRUk"
+	by mail.kernel.org (Postfix) with ESMTP id C63A52081A
+	for <linux-i2c@archiver.kernel.org>; Tue,  9 Jun 2020 13:41:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1591710076;
+	bh=LLqWJbXt6QtzWVgvOd2712wAhSrRI95wAZyysVj9bK4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=Ftn71FJPR5Z4RvRTkJZ4yP3yCXFlcZ2SuM+LpLIJjWyo/cgFZKYe98j14g6Rbmg6I
+	 fvhh+DUGxB/yPic5syOQ+FisHy/EJJTEhovAHDQ6fl2m1fkIMBU4Uky9qsMFL/H7i/
+	 WM+mCHRmMD4j38U0KyJM0IASUj/mRAijTxD5hLYk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729621AbgFIN1T (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 9 Jun 2020 09:27:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57170 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729559AbgFIN1A (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 9 Jun 2020 09:27:00 -0400
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB79C05BD1E;
-        Tue,  9 Jun 2020 06:26:59 -0700 (PDT)
-Received: by mail-pf1-x443.google.com with SMTP id 10so4203007pfx.8;
-        Tue, 09 Jun 2020 06:26:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=aYMF8YUhot7LiLw3oFS3/mzi/UrWf4Gg+68yZs/PTjs=;
-        b=sgGbqRUkyDWUtzzQdzNZIOrKXN8s30ddQ1jDBSWTsBSz8ST1UW2xY9er013Keh0tkb
-         bbVb0EAZmz2FcjOg0tY1AtsIZtW6tCFJhZMb40jRIq7cTqJyhRgeg1/rIt13DaBrDOKd
-         0PEEey68luuZLlZB/zCUTuNcmeAm0R/8loPKH+3lOODVmw2CAmdfA/uM2yNnfhQwAe5o
-         anOSKZzUJ5moWHDDQ7UxW5LdFo9iz2Q3Ksg90oBDa0q565HCN57RA1oo+Jc6SlZNAnv6
-         HMi59cFDI7fajeJCX6zy9/VDju2JIaa5Fzyx+FrW+BGjsRTkk7o8yov5/DHzX+SF2h7m
-         ZZIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=aYMF8YUhot7LiLw3oFS3/mzi/UrWf4Gg+68yZs/PTjs=;
-        b=IPKzOmgiPFrcFeKaPSOr27A370mPVCjZN3BM1ogLI6mAqCggC/Ij59xtIJo25sshoG
-         +a/NEilmYL3P72y9LnDDZ6RHxtUauV1xdG+Glcn29VI+L6HZsL+ameBenw2MHOsSVvZD
-         gEXm8bAh4sTJQy5qmmFMrpMGyy7qXTN+NPun0+UKsgbB7u4pjnavpYI9LINE/aFc0/CS
-         LlalN1Qfq69PUgAxzu8AcHi+pKuxeu4XccBRznXmR3J06CLtUGjZsb/SZnTxw4MNGdAa
-         geY0s2PQfvX7KPbpzE9dEc5ZWIx7A5vLo3KLuB99wQya3B/7LEB9pt6aI30mZcFrqw8j
-         VynA==
-X-Gm-Message-State: AOAM533iS03Abjx4vANUQQJw7rP3XqDPu+DA4vseTrWZDd6mbfZ6yI5o
-        ACAh/s9b/5RvHYTPdc1faJEMRQh2eaw=
-X-Google-Smtp-Source: ABdhPJw7afLAjpJsItQsnX3qt0rEIAvvOvZk+nKKPPFz9OcVyn+axZGQ/zVVsYCjoQRpV5oByTFdOg==
-X-Received: by 2002:a65:46cc:: with SMTP id n12mr24887487pgr.80.1591709219129;
-        Tue, 09 Jun 2020 06:26:59 -0700 (PDT)
-Received: from fmin-OptiPlex-7060.nreal.work ([103.206.191.42])
-        by smtp.gmail.com with ESMTPSA id b5sm2624348pjz.34.2020.06.09.06.26.56
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Jun 2020 06:26:58 -0700 (PDT)
-From:   dillon.minfei@gmail.com
-To:     robh+dt@kernel.org, mcoquelin.stm32@gmail.com,
-        alexandre.torgue@st.com, p.zabel@pengutronix.de,
-        pierre-yves.mordret@st.com, philippe.schenker@toradex.com
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        dillon min <dillon.minfei@gmail.com>
-Subject: [PATCH v4 3/4] ARM: dts: stm32: enable stmpe811 on stm32429-disco board
-Date:   Tue,  9 Jun 2020 21:26:42 +0800
-Message-Id: <1591709203-12106-4-git-send-email-dillon.minfei@gmail.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1591709203-12106-1-git-send-email-dillon.minfei@gmail.com>
-References: <1591709203-12106-1-git-send-email-dillon.minfei@gmail.com>
+        id S1729790AbgFINlP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 9 Jun 2020 09:41:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57504 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728480AbgFINlP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 9 Jun 2020 09:41:15 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13DE420760;
+        Tue,  9 Jun 2020 13:41:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591710074;
+        bh=LLqWJbXt6QtzWVgvOd2712wAhSrRI95wAZyysVj9bK4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=o0ERjX/mDx7TVjKhU7cpUaCWtG5ShegLg/BnxvPntVhuW0ElPicFk1+9q7ch6b5R3
+         dehBiBs10JOSIRtVaUKyFlLqhmZhVhLyq1p9RMlF2JiXSAdwpn/CcnJSvh1twlm8QA
+         xytLUX9t6pq+8Ko8rsT4Y3P87TVIAGf/OarQOayA=
+Date:   Tue, 9 Jun 2020 14:41:12 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Akash Asthana <akashast@codeaurora.org>
+Cc:     gregkh@linuxfoundation.org, agross@kernel.org,
+        bjorn.andersson@linaro.org, wsa@the-dreams.de,
+        mark.rutland@arm.com, robh+dt@kernel.org,
+        linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org,
+        devicetree@vger.kernel.org, swboyd@chromium.org,
+        mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org,
+        linux-serial@vger.kernel.org, mka@chromium.org,
+        dianders@chromium.org, evgreen@chromium.org,
+        msavaliy@codeaurora.org
+Subject: Re: [PATCH V7 RESEND 4/7] spi: spi-geni-qcom: Add interconnect
+ support
+Message-ID: <20200609134112.GI4583@sirena.org.uk>
+References: <1591682194-32388-1-git-send-email-akashast@codeaurora.org>
+ <1591682194-32388-5-git-send-email-akashast@codeaurora.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="qVyHzDF4yf4A8jkR"
+Content-Disposition: inline
+In-Reply-To: <1591682194-32388-5-git-send-email-akashast@codeaurora.org>
+X-Cookie: Be careful!  Is it classified?
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: dillon min <dillon.minfei@gmail.com>
 
-Enable the stmpe811 touch screen on stm32429-disco board.
+--qVyHzDF4yf4A8jkR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: dillon min <dillon.minfei@gmail.com>
----
- arch/arm/boot/dts/stm32f429-disco.dts | 47 +++++++++++++++++++++++++++++++++++
- 1 file changed, 47 insertions(+)
+On Tue, Jun 09, 2020 at 11:26:31AM +0530, Akash Asthana wrote:
+> Get the interconnect paths for SPI based Serial Engine device
+> and vote according to the current bus speed of the driver.
+>=20
+> Signed-off-by: Akash Asthana <akashast@codeaurora.org>
+> Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+> ---
 
-diff --git a/arch/arm/boot/dts/stm32f429-disco.dts b/arch/arm/boot/dts/stm32f429-disco.dts
-index 30c0f6717871..fad1ec10efb6 100644
---- a/arch/arm/boot/dts/stm32f429-disco.dts
-+++ b/arch/arm/boot/dts/stm32f429-disco.dts
-@@ -49,6 +49,8 @@
- #include "stm32f429.dtsi"
- #include "stm32f429-pinctrl.dtsi"
- #include <dt-bindings/input/input.h>
-+#include <dt-bindings/interrupt-controller/irq.h>
-+#include <dt-bindings/gpio/gpio.h>
- 
- / {
- 	model = "STMicroelectronics STM32F429i-DISCO board";
-@@ -127,3 +129,48 @@
- 	pinctrl-names = "default";
- 	status = "okay";
- };
-+
-+&i2c3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c3_pins>;
-+	clock-frequency = <100000>;
-+	status = "okay";
-+
-+	stmpe811@41 {
-+		compatible = "st,stmpe811";
-+		reg = <0x41>;
-+		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
-+		interrupt-parent = <&gpioa>;
-+		/* 3.25 MHz ADC clock speed */
-+		st,adc-freq = <1>;
-+		/* 12-bit ADC */
-+		st,mod-12b = <1>;
-+		/* internal ADC reference */
-+		st,ref-sel = <0>;
-+		/* ADC converstion time: 80 clocks */
-+		st,sample-time = <4>;
-+
-+		stmpe_touchscreen {
-+			compatible = "st,stmpe-ts";
-+			/* 8 sample average control */
-+			st,ave-ctrl = <3>;
-+			/* 7 length fractional part in z */
-+			st,fraction-z = <7>;
-+			/*
-+			 * 50 mA typical 80 mA max touchscreen drivers
-+			 * current limit value
-+			 */
-+			st,i-drive = <1>;
-+			/* 1 ms panel driver settling time */
-+			st,settling = <3>;
-+			/* 5 ms touch detect interrupt delay */
-+			st,touch-det-delay = <5>;
-+		};
-+
-+		stmpe_adc {
-+			compatible = "st,stmpe-adc";
-+			/* forbid to use ADC channels 3-0 (touch) */
-+			st,norequest-mask = <0x0F>;
-+		};
-+	};
-+};
--- 
-2.7.4
+I've repeatedly acked this patch but my ack never seems to get carried
+forward :(
 
+> +	/* Set the bus quota to a reasonable value for register access */
+> +	mas->se.icc_paths[GENI_TO_CORE].avg_bw =3D Bps_to_icc(CORE_2X_50_MHZ);
+> +	mas->se.icc_paths[CPU_TO_GENI].avg_bw =3D GENI_DEFAULT_BW;
+
+Why are these asymmetric?
+
+--qVyHzDF4yf4A8jkR
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl7fkXcACgkQJNaLcl1U
+h9AvBQf/dcXzKa7k8e4LYRPmPnHQosxG01GttTB72c7Y1FpruIDtZ9/AQ1bKF824
+68ww6ms6E7s6Yjbv5MCZRorMSzgtX5c6HzltyLfPfNLKUfnji6xOlutircZXZFJc
+nRL6s/fhsxuYBHRgj/ridrEzhgmj0x9jx/z1EDUAWSOvvy+ekC2hjJsX86w09S1v
+CH0UKzWi8VcdZIAkuTXdwBUvohiMFz+1VcJo2qn8WCIB53JeZvwCyiwmwJTlSEf7
+5eq0UhK44xQm4rCZN6HtddJ6HmJAgUNJDwKu6zmDtHFYHEiMRJiElQU2qhJWQlbf
+ZdNrJ0S70lYcOAQaIVfRMTaABp872w==
+=qbNa
+-----END PGP SIGNATURE-----
+
+--qVyHzDF4yf4A8jkR--
