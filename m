@@ -7,35 +7,35 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61B86C433E1
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Jun 2020 06:03:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACDA0C433E0
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Jun 2020 06:03:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3D40A2081A
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Jun 2020 06:03:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8466920801
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Jun 2020 06:03:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="ei59UQXi"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="BQwzfSLd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726305AbgFJGC7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 10 Jun 2020 02:02:59 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:11231 "EHLO
+        id S1726293AbgFJGC6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 10 Jun 2020 02:02:58 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:11223 "EHLO
         hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726268AbgFJGCu (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 Jun 2020 02:02:50 -0400
+        with ESMTP id S1726261AbgFJGCt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 Jun 2020 02:02:49 -0400
 Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5ee0772e0000>; Tue, 09 Jun 2020 23:01:18 -0700
+        id <B5ee0772d0000>; Tue, 09 Jun 2020 23:01:17 -0700
 Received: from hqmail.nvidia.com ([172.20.161.6])
   by hqpgpgate101.nvidia.com (PGP Universal service);
-  Tue, 09 Jun 2020 23:02:50 -0700
+  Tue, 09 Jun 2020 23:02:48 -0700
 X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Tue, 09 Jun 2020 23:02:50 -0700
-Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 10 Jun
- 2020 06:02:49 +0000
+        by hqpgpgate101.nvidia.com on Tue, 09 Jun 2020 23:02:48 -0700
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL109.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 10 Jun
+ 2020 06:02:48 +0000
 Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL105.nvidia.com
  (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 10 Jun 2020 06:02:49 +0000
+ Transport; Wed, 10 Jun 2020 06:02:48 +0000
 Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.167.70]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5ee077890000>; Tue, 09 Jun 2020 23:02:49 -0700
+        id <B5ee077870001>; Tue, 09 Jun 2020 23:02:48 -0700
 From:   Sowjanya Komatineni <skomatineni@nvidia.com>
 To:     <skomatineni@nvidia.com>, <thierry.reding@gmail.com>,
         <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
@@ -45,9 +45,9 @@ CC:     <digetx@gmail.com>, <sboyd@kernel.org>,
         <gregkh@linuxfoundation.org>, <linux-media@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
-Subject: [RFC PATCH v1 10/18] dt-bindings: tegra: Document VI and CSI port nodes
-Date:   Tue, 9 Jun 2020 23:02:32 -0700
-Message-ID: <1591768960-31648-11-git-send-email-skomatineni@nvidia.com>
+Subject: [RFC PATCH v1 08/18] media: tegra-video: Enable TPG based on kernel config
+Date:   Tue, 9 Jun 2020 23:02:30 -0700
+Message-ID: <1591768960-31648-9-git-send-email-skomatineni@nvidia.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1591768960-31648-1-git-send-email-skomatineni@nvidia.com>
 References: <1591768960-31648-1-git-send-email-skomatineni@nvidia.com>
@@ -55,140 +55,253 @@ X-NVConfidentiality: public
 MIME-Version: 1.0
 Content-Type: text/plain
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1591768878; bh=wPUjcK5pjatayPbHQg+cG5OdMe7PMrZuDRJsqwl5MoU=;
+        t=1591768877; bh=ds7oxXGxAuyDw53E4hJLEBinWlNAsgh9dJ6sWX9tefI=;
         h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
          In-Reply-To:References:X-NVConfidentiality:MIME-Version:
          Content-Type;
-        b=ei59UQXi7yEOg3WW32Mp1G+liqrIbq6KgKYXkk5nfw4KS4XF6G1yTXTM4NS+8WpFB
-         74gYnQSUQz5zn6ViJqqtSIM4vz2NRmAYhgfO+U1QT4Uk2IcGrVB8/ajaCkbm8C3iVj
-         bUWH2UR0uUDnV3vvyjurqDumaWcl6tCQ5uAxKeH4EvESVuDWISRSDc3Ysn8xgh+ha4
-         nVGS/9bnwsxhQ3HLVmgoGyjACSF6pWPzN7tnqR23rr3pAzKVpxylFeR78yZnHwFq4w
-         OhV1OyaWPXqNHwyFlikaNPLlwrGQNcAUgbP0Y5uRp1HVP4HK5iw9RcpgksXCpW//UT
-         AJJlQOjq0R06g==
+        b=BQwzfSLdjUIEyaGbiz3poyADg1J8F4kojYa1qL/xE03oyGbWI0SttUQP4HsX9t6oX
+         9ofh8sMDvMr0Fw9qPo9SpmlgfzA2eLSeexSbRO1oXeU4o+ClO/OM0MA2FYqhxA19mq
+         /5Nuikm+kRkny95KrYL9B4uk8d1XwqRxgWFacBtqLt1Uq0iHuLAFl4lWmqA7nPUMX+
+         X8oOT0sTDBabFE88yJGpuhqZpXVxjc2UZlb2fZICIdUfSLMbmfKtGnyXVEjYlvOEKr
+         i47k2uXRTqmfOxBlA1jFQB8pnf491x0K+ysH26yk1/iYhGDfa/HzfsfLiR1Qva5bwd
+         Pe8TdIpiipHig==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This patch documents Tegra VI and CSI port and endpoint nodes along
-with the other required properties.
+Tegra internal TPG mode is only for Tegra vi and csi testing
+without a real sensor and driver should default support real
+sensor.
+
+So, This patch adds CONFIG_VIDEO_TEGRA_TPG and enables Tegra
+internal TPG mode only when this config is selected.
 
 Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 ---
- .../display/tegra/nvidia,tegra20-host1x.txt        | 87 ++++++++++++++++++++++
- 1 file changed, 87 insertions(+)
+ drivers/staging/media/tegra-video/Kconfig    |  6 +++++
+ drivers/staging/media/tegra-video/csi.c      | 38 +++++++++++++++++++++++-----
+ drivers/staging/media/tegra-video/tegra210.c |  6 +++++
+ drivers/staging/media/tegra-video/vi.c       | 13 +++++++---
+ drivers/staging/media/tegra-video/video.c    | 23 +++++++++--------
+ 5 files changed, 65 insertions(+), 21 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt
-index 4731921..f70a838 100644
---- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt
-+++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt
-@@ -65,6 +65,48 @@ of the following host1x client modules:
-       - power-domains: Must include sor powergate node as csicil is in
-         SOR partition.
+diff --git a/drivers/staging/media/tegra-video/Kconfig b/drivers/staging/media/tegra-video/Kconfig
+index f6c61ec..566da62 100644
+--- a/drivers/staging/media/tegra-video/Kconfig
++++ b/drivers/staging/media/tegra-video/Kconfig
+@@ -10,3 +10,9 @@ config VIDEO_TEGRA
  
-+      Optional properties for csi node:
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called tegra-video.
 +
-+      - channel nodes: Max upto 6 channels/streams are supported with each CSI
-+	brick can as either x4 or x2 based on hw connectivity to sensor.
++config VIDEO_TEGRA_TPG
++	bool "NVIDIA Tegra VI driver TPG mode"
++	depends on VIDEO_TEGRA
++	help
++	  Say yes here to enable Tegra internal TPG mode
+diff --git a/drivers/staging/media/tegra-video/csi.c b/drivers/staging/media/tegra-video/csi.c
+index 40ea195..fb667df 100644
+--- a/drivers/staging/media/tegra-video/csi.c
++++ b/drivers/staging/media/tegra-video/csi.c
+@@ -62,6 +62,9 @@ static int csi_enum_bus_code(struct v4l2_subdev *subdev,
+ 			     struct v4l2_subdev_pad_config *cfg,
+ 			     struct v4l2_subdev_mbus_code_enum *code)
+ {
++	if (!IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
++		return -ENOIOCTLCMD;
 +
-+	Required properties:
-+	- reg: channel/stream index
-+	- nvidia,mipi-calibrate: Should contain a phandle and a specifier
-+	  specifying which pads are used by this CSI port and need to be
-+	  calibrated. See also ../display/tegra/nvidia,tegra114-mipi.txt.
-+
-+	- port: CSI port node and its endpoint nodes as per device graph
-+          bindings defined in Documentation/devicetree/bindings/graph.txt.
-+	  Required properties:
-+	  - reg: csi port index based on hw csi lanes connectivity to the
-+	    sensor.
-+	  - bus-width: number of lanes used by this port. Supported lanes
-+	    are 1/2/4.
-+	  - endpoint@0: sink node
-+	    Required properties:
-+	    - reg: endpoint id. This is used to retrieve pad for creating
-+	      media link
-+	    - remote-endpoint: phandle to sensor endpoint
-+	  - endpoint@1: source node
-+	    - reg: endpoint id. This is used to retrieve pad for creating
-+	      media link
-+	    - remote-endpoint: phandle to vi port endpoint
-+
-+  Optional properties for vi node:
-+  - ports: Video port nodes and endpoint nodes as per device graph bindings
-+    defined in Documentation/devicetree/bindings/graph.txt
-+    Max 6 ports are supported and each port should have one endpoint node.
-+
-+    Required properties:
-+    - port: VI port node and its sink endpoint node
-+      Required properties:
-+    - reg: should match port index
-+    - endpoint@0: sink node
-+      Required properties:
-+      - reg: endpoint id must be 0
-+      - remote-endpoint: phandle to CSI endpoint node.
-+
- - epp: encoder pre-processor
+ 	if (code->index >= ARRAY_SIZE(tegra_csi_tpg_fmts))
+ 		return -EINVAL;
  
-   Required properties:
-@@ -340,6 +382,22 @@ Example:
+@@ -76,6 +79,9 @@ static int csi_get_format(struct v4l2_subdev *subdev,
+ {
+ 	struct tegra_csi_channel *csi_chan = to_csi_chan(subdev);
  
- 			ranges = <0x0 0x0 0x54080000 0x2000>;
++	if (!IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
++		return -ENOIOCTLCMD;
++
+ 	fmt->format = csi_chan->format;
  
-+			ports {
-+				#address-cells = <1>;
-+				#size-cells = <0>;
+ 	return 0;
+@@ -121,6 +127,9 @@ static int csi_enum_framesizes(struct v4l2_subdev *subdev,
+ {
+ 	unsigned int i;
+ 
++	if (!IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
++		return -ENOIOCTLCMD;
 +
-+				port@0 {
-+					reg = <0>;
-+					#address-cells = <1>;
-+					#size-cells = <0>;
+ 	if (fse->index >= ARRAY_SIZE(tegra_csi_tpg_sizes))
+ 		return -EINVAL;
+ 
+@@ -148,6 +157,9 @@ static int csi_enum_frameintervals(struct v4l2_subdev *subdev,
+ 	const struct tpg_framerate *frmrate = csi->soc->tpg_frmrate_table;
+ 	int index;
+ 
++	if (!IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
++		return -ENOIOCTLCMD;
 +
-+					imx219_vi_in0: endpoint@0 {
-+						reg = <0>;
-+						remote-endpoint = <&imx219_csi_out0>;
-+					};
-+				};
-+			};
+ 	/* one framerate per format and resolution */
+ 	if (fie->index > 0)
+ 		return -EINVAL;
+@@ -172,6 +184,9 @@ static int csi_set_format(struct v4l2_subdev *subdev,
+ 	const struct v4l2_frmsize_discrete *sizes;
+ 	unsigned int i;
+ 
++	if (!IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
++		return -ENOIOCTLCMD;
 +
- 			csi@838 {
- 				compatible = "nvidia,tegra210-csi";
- 				reg = <0x838 0x1300>;
-@@ -362,6 +420,35 @@ Example:
- 					 <&tegra_car TEGRA210_CLK_CSI_TPG>;
- 				clock-names = "csi", "cilab", "cilcd", "cile", "csi_tpg";
- 				power-domains = <&pd_sor>;
+ 	sizes = v4l2_find_nearest_size(tegra_csi_tpg_sizes,
+ 				       ARRAY_SIZE(tegra_csi_tpg_sizes),
+ 				       width, height,
+@@ -208,6 +223,9 @@ static int tegra_csi_g_frame_interval(struct v4l2_subdev *subdev,
+ {
+ 	struct tegra_csi_channel *csi_chan = to_csi_chan(subdev);
+ 
++	if (!IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
++		return -ENOIOCTLCMD;
 +
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				channel@0 {
-+					reg = <0>;
-+					nvidia,mipi-calibrate = <&mipi 0x001>;
-+
-+					#address-cells = <1>;
-+					#size-cells = <0>;
-+
-+					port@0 {
-+						reg = <0>;
-+						bus-width = <2>;
-+
-+						#address-cells = <1>;
-+						#size-cells = <0>;
-+
-+						imx219_csi_in0: endpoint@0 {
-+							reg = <0>;
-+							remote-endpoint = <&imx219_out0>;
-+						};
-+
-+						imx219_csi_out0: endpoint@1 {
-+							reg = <1>;
-+							remote-endpoint = <&imx219_vi_in0>;
-+						};
-+					};
-+				};
- 			};
- 		};
+ 	vfi->interval.numerator = 1;
+ 	vfi->interval.denominator = csi_chan->framerate;
+ 
+@@ -311,8 +329,12 @@ static int tegra_csi_channel_init(struct tegra_csi_channel *chan)
+ 	subdev = &chan->subdev;
+ 	v4l2_subdev_init(subdev, &tegra_csi_ops);
+ 	subdev->dev = csi->dev;
+-	snprintf(subdev->name, V4L2_SUBDEV_NAME_SIZE, "%s-%d", "tpg",
+-		 chan->csi_port_num);
++	if (IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
++		snprintf(subdev->name, V4L2_SUBDEV_NAME_SIZE, "%s-%d", "tpg",
++			 chan->csi_port_num);
++	else
++		snprintf(subdev->name, V4L2_SUBDEV_NAME_SIZE, "%s",
++			 kbasename(chan->of_node->full_name));
+ 
+ 	v4l2_set_subdevdata(subdev, chan);
+ 	subdev->fwnode = of_fwnode_handle(chan->of_node);
+@@ -405,11 +427,13 @@ static int tegra_csi_init(struct host1x_client *client)
+ 
+ 	INIT_LIST_HEAD(&csi->csi_chans);
+ 
+-	ret = tegra_csi_tpg_channels_alloc(csi);
+-	if (ret < 0) {
+-		dev_err(csi->dev,
+-			"failed to allocate tpg channels: %d\n", ret);
+-		goto cleanup;
++	if (IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG)) {
++		ret = tegra_csi_tpg_channels_alloc(csi);
++		if (ret < 0) {
++			dev_err(csi->dev,
++				"failed to allocate tpg channels: %d\n", ret);
++			goto cleanup;
++		}
+ 	}
+ 
+ 	ret = tegra_csi_channels_init(csi);
+diff --git a/drivers/staging/media/tegra-video/tegra210.c b/drivers/staging/media/tegra-video/tegra210.c
+index 3baa4e3..3492a8a 100644
+--- a/drivers/staging/media/tegra-video/tegra210.c
++++ b/drivers/staging/media/tegra-video/tegra210.c
+@@ -631,7 +631,11 @@ const struct tegra_vi_soc tegra210_vi_soc = {
+ 	.ops = &tegra210_vi_ops,
+ 	.hw_revision = 3,
+ 	.vi_max_channels = 6,
++#if IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG)
+ 	.vi_max_clk_hz = 499200000,
++#else
++	.vi_max_clk_hz = 998400000,
++#endif
+ };
+ 
+ /* Tegra210 CSI PHY registers accessors */
+@@ -957,7 +961,9 @@ static const char * const tegra210_csi_cil_clks[] = {
+ 	"cilab",
+ 	"cilcd",
+ 	"cile",
++#if IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG)
+ 	"csi_tpg",
++#endif
+ };
+ 
+ /* Tegra210 CSI operations */
+diff --git a/drivers/staging/media/tegra-video/vi.c b/drivers/staging/media/tegra-video/vi.c
+index d621ebc..0197f4e 100644
+--- a/drivers/staging/media/tegra-video/vi.c
++++ b/drivers/staging/media/tegra-video/vi.c
+@@ -565,6 +565,7 @@ static int tegra_channel_setup_ctrl_handler(struct tegra_vi_channel *chan)
+ {
+ 	int ret;
+ 
++#if IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG)
+ 	/* add test pattern control handler to v4l2 device */
+ 	v4l2_ctrl_new_std_menu_items(&chan->ctrl_handler, &vi_ctrl_ops,
+ 				     V4L2_CID_TEST_PATTERN,
+@@ -576,6 +577,7 @@ static int tegra_channel_setup_ctrl_handler(struct tegra_vi_channel *chan)
+ 		v4l2_ctrl_handler_free(&chan->ctrl_handler);
+ 		return chan->ctrl_handler.error;
+ 	}
++#endif
+ 
+ 	/* setup the controls */
+ 	ret = v4l2_ctrl_handler_setup(&chan->ctrl_handler);
+@@ -918,10 +920,13 @@ static int tegra_vi_init(struct host1x_client *client)
+ 
+ 	INIT_LIST_HEAD(&vi->vi_chans);
+ 
+-	ret = tegra_vi_tpg_channels_alloc(vi);
+-	if (ret < 0) {
+-		dev_err(vi->dev, "failed to allocate tpg channels: %d\n", ret);
+-		goto free_chans;
++	if (IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG)) {
++		ret = tegra_vi_tpg_channels_alloc(vi);
++		if (ret < 0) {
++			dev_err(vi->dev,
++				"failed to allocate tpg channels: %d\n", ret);
++			goto free_chans;
++		}
+ 	}
+ 
+ 	ret = tegra_vi_channels_init(vi);
+diff --git a/drivers/staging/media/tegra-video/video.c b/drivers/staging/media/tegra-video/video.c
+index 30816aa..e50bd70 100644
+--- a/drivers/staging/media/tegra-video/video.c
++++ b/drivers/staging/media/tegra-video/video.c
+@@ -60,15 +60,17 @@ static int host1x_video_probe(struct host1x_device *dev)
+ 	if (ret < 0)
+ 		goto unregister_v4l2;
+ 
+-	/*
+-	 * Both vi and csi channels are available now.
+-	 * Register v4l2 nodes and create media links for TPG.
+-	 */
+-	ret = tegra_v4l2_nodes_setup_tpg(vid);
+-	if (ret < 0) {
+-		dev_err(&dev->dev,
+-			"failed to setup tpg graph: %d\n", ret);
+-		goto device_exit;
++	if (IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG)) {
++		/*
++		 * Both vi and csi channels are available now.
++		 * Register v4l2 nodes and create media links for TPG.
++		 */
++		ret = tegra_v4l2_nodes_setup_tpg(vid);
++		if (ret < 0) {
++			dev_err(&dev->dev,
++				"failed to setup tpg graph: %d\n", ret);
++			goto device_exit;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -91,7 +93,8 @@ static int host1x_video_remove(struct host1x_device *dev)
+ {
+ 	struct tegra_video_device *vid = dev_get_drvdata(&dev->dev);
+ 
+-	tegra_v4l2_nodes_cleanup_tpg(vid);
++	if (IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
++		tegra_v4l2_nodes_cleanup_tpg(vid);
+ 
+ 	host1x_device_exit(dev);
  
 -- 
 2.7.4
