@@ -6,43 +6,43 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47A47C433DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEFA8C433E0
 	for <linux-i2c@archiver.kernel.org>; Sat, 13 Jun 2020 15:08:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E72F20792
+	by mail.kernel.org (Postfix) with ESMTP id B934120792
 	for <linux-i2c@archiver.kernel.org>; Sat, 13 Jun 2020 15:08:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726323AbgFMPIL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1726403AbgFMPIL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Sat, 13 Jun 2020 11:08:11 -0400
-Received: from mail-out.m-online.net ([212.18.0.10]:41347 "EHLO
+Received: from mail-out.m-online.net ([212.18.0.9]:50978 "EHLO
         mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726403AbgFMPIG (ORCPT
+        with ESMTP id S1726452AbgFMPIG (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Sat, 13 Jun 2020 11:08:06 -0400
 Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
-        by mail-out.m-online.net (Postfix) with ESMTP id 49kgvQ2pyyz1rqrb;
-        Sat, 13 Jun 2020 17:08:02 +0200 (CEST)
+        by mail-out.m-online.net (Postfix) with ESMTP id 49kgvS5y4cz1qrML;
+        Sat, 13 Jun 2020 17:08:04 +0200 (CEST)
 Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
-        by mail.m-online.net (Postfix) with ESMTP id 49kgvQ2KpMz1qql0;
-        Sat, 13 Jun 2020 17:08:02 +0200 (CEST)
+        by mail.m-online.net (Postfix) with ESMTP id 49kgvS5Bk3z1qql0;
+        Sat, 13 Jun 2020 17:08:04 +0200 (CEST)
 X-Virus-Scanned: amavisd-new at mnet-online.de
 Received: from mail.mnet-online.de ([192.168.8.182])
         by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
-        with ESMTP id Ay6FCyeGH_w0; Sat, 13 Jun 2020 17:08:01 +0200 (CEST)
-X-Auth-Info: xuwNCW829crHxpwnCKgiTehed7XIE72r3VSOmCma6/E=
+        with ESMTP id dv66w5MZP4FQ; Sat, 13 Jun 2020 17:08:03 +0200 (CEST)
+X-Auth-Info: R2OM82t5qXRRWGO1bX4Ahdms9Qj2AlLK0AYZRHtlrJw=
 Received: from desktop.lan (ip-86-49-35-8.net.upcbroadband.cz [86.49.35.8])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
         by mail.mnet-online.de (Postfix) with ESMTPSA;
-        Sat, 13 Jun 2020 17:08:01 +0200 (CEST)
+        Sat, 13 Jun 2020 17:08:03 +0200 (CEST)
 From:   Marek Vasut <marex@denx.de>
 To:     linux-i2c@vger.kernel.org
 Cc:     Marek Vasut <marex@denx.de>,
         Michal Simek <michal.simek@xilinx.com>,
         Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
         Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 2/5] i2c: xiic: Drop broken interrupt handler
-Date:   Sat, 13 Jun 2020 17:07:48 +0200
-Message-Id: <20200613150751.114595-2-marex@denx.de>
+Subject: [PATCH 4/5] i2c: xiic: Switch from waitqueue to completion
+Date:   Sat, 13 Jun 2020 17:07:50 +0200
+Message-Id: <20200613150751.114595-4-marex@denx.de>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200613150751.114595-1-marex@denx.de>
 References: <20200613150751.114595-1-marex@denx.de>
@@ -53,84 +53,110 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The interrupt handler is missing locking when reading out registers
-and is racing with other threads which might access the driver. Drop
-it altogether, so that the threaded interrupt is always executed, as
-that one is already serialized by the driver mutex. This also allows
-dropping local_irq_save()/local_irq_restore() in xiic_start_recv().
+There will never be threads queueing up in the xiic_xmit(), use
+completion synchronization primitive to wait for the interrupt
+handler thread to complete instead as it is much better fit and
+there is no need to overload it for this purpose.
 
 Signed-off-by: Marek Vasut <marex@denx.de>
 Cc: Michal Simek <michal.simek@xilinx.com>
 Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 Cc: Wolfram Sang <wsa@kernel.org>
 ---
- drivers/i2c/busses/i2c-xiic.c | 25 +------------------------
- 1 file changed, 1 insertion(+), 24 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 0777e577720db..6db71c0fb6583 100644
+index 87eca9d46afd9..e4c3427b2f3f5 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -543,7 +543,6 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
- {
- 	u8 rx_watermark;
- 	struct i2c_msg *msg = i2c->rx_msg = i2c->tx_msg;
--	unsigned long flags;
- 
- 	/* Clear and enable Rx full interrupt. */
- 	xiic_irq_clr_en(i2c, XIIC_INTR_RX_FULL_MASK | XIIC_INTR_TX_ERROR_MASK);
-@@ -559,7 +558,6 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
- 		rx_watermark = IIC_RX_FIFO_DEPTH;
- 	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rx_watermark - 1);
- 
--	local_irq_save(flags);
- 	if (!(msg->flags & I2C_M_NOSTART))
- 		/* write the address */
- 		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
-@@ -569,7 +567,6 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
- 
- 	xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
- 		msg->len | ((i2c->nmsgs == 1) ? XIIC_TX_DYN_STOP_MASK : 0));
--	local_irq_restore(flags);
- 
- 	if (i2c->nmsgs == 1)
- 		/* very last, enable bus not busy as well */
-@@ -609,26 +606,6 @@ static void xiic_start_send(struct xiic_i2c *i2c)
- 		XIIC_INTR_BNB_MASK);
+@@ -23,7 +23,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+-#include <linux/wait.h>
++#include <linux/completion.h>
+ #include <linux/platform_data/i2c-xiic.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
+@@ -48,7 +48,7 @@ enum xiic_endian {
+  * struct xiic_i2c - Internal representation of the XIIC I2C bus
+  * @dev:	Pointer to device structure
+  * @base:	Memory base of the HW registers
+- * @wait:	Wait queue for callers
++ * @completion:	Completion for callers
+  * @adap:	Kernel adapter representation
+  * @tx_msg:	Messages from above to be sent
+  * @lock:	Mutual exclusion
+@@ -63,7 +63,7 @@ enum xiic_endian {
+ struct xiic_i2c {
+ 	struct device		*dev;
+ 	void __iomem		*base;
+-	wait_queue_head_t	wait;
++	struct completion	completion;
+ 	struct i2c_adapter	adap;
+ 	struct i2c_msg		*tx_msg;
+ 	struct mutex		lock;
+@@ -365,7 +365,7 @@ static void xiic_wakeup(struct xiic_i2c *i2c, int code)
+ 	i2c->rx_msg = NULL;
+ 	i2c->nmsgs = 0;
+ 	i2c->state = code;
+-	wake_up(&i2c->wait);
++	complete(&i2c->completion);
  }
  
--static irqreturn_t xiic_isr(int irq, void *dev_id)
--{
--	struct xiic_i2c *i2c = dev_id;
--	u32 pend, isr, ier;
--	irqreturn_t ret = IRQ_NONE;
--	/* Do not processes a devices interrupts if the device has no
--	 * interrupts pending
--	 */
--
--	dev_dbg(i2c->adap.dev.parent, "%s entry\n", __func__);
--
--	isr = xiic_getreg32(i2c, XIIC_IISR_OFFSET);
--	ier = xiic_getreg32(i2c, XIIC_IIER_OFFSET);
--	pend = isr & ier;
--	if (pend)
--		ret = IRQ_WAKE_THREAD;
--
--	return ret;
--}
--
- static void __xiic_start_xfer(struct xiic_i2c *i2c)
- {
- 	int first = 1;
-@@ -807,7 +784,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	pm_runtime_use_autosuspend(i2c->dev);
- 	pm_runtime_set_active(i2c->dev);
- 	pm_runtime_enable(i2c->dev);
--	ret = devm_request_threaded_irq(&pdev->dev, irq, xiic_isr,
-+	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
- 					xiic_process, IRQF_ONESHOT,
- 					pdev->name, i2c);
+ static irqreturn_t xiic_process(int irq, void *dev_id)
+@@ -677,6 +677,7 @@ static int xiic_start_xfer(struct xiic_i2c *i2c, struct i2c_msg *msgs, int num)
  
+ 	i2c->tx_msg = msgs;
+ 	i2c->nmsgs = num;
++	init_completion(&i2c->completion);
+ 
+ 	ret = xiic_reinit(i2c);
+ 	if (!ret)
+@@ -703,23 +704,24 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	err = xiic_start_xfer(i2c, msgs, num);
+ 	if (err < 0) {
+ 		dev_err(adap->dev.parent, "Error xiic_start_xfer\n");
+-		goto out;
++		return err;
+ 	}
+ 
+-	if (wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
+-		(i2c->state == STATE_DONE), HZ)) {
+-		mutex_lock(&i2c->lock);
+-		err = (i2c->state == STATE_DONE) ? num : -EIO;
+-		goto out;
+-	} else {
+-		mutex_lock(&i2c->lock);
++	err = wait_for_completion_interruptible_timeout(&i2c->completion,
++							XIIC_I2C_TIMEOUT);
++	mutex_lock(&i2c->lock);
++	if (err == 0) {	/* Timeout */
+ 		i2c->tx_msg = NULL;
+ 		i2c->rx_msg = NULL;
+ 		i2c->nmsgs = 0;
+ 		err = -ETIMEDOUT;
+-		goto out;
++	} else if (err < 0) {	/* Completion error */
++		i2c->tx_msg = NULL;
++		i2c->rx_msg = NULL;
++		i2c->nmsgs = 0;
++	} else {
++		err = (i2c->state == STATE_DONE) ? num : -EIO;
+ 	}
+-out:
+ 	mutex_unlock(&i2c->lock);
+ 	pm_runtime_mark_last_busy(i2c->dev);
+ 	pm_runtime_put_autosuspend(i2c->dev);
+@@ -781,7 +783,6 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
+ 
+ 	mutex_init(&i2c->lock);
+-	init_waitqueue_head(&i2c->wait);
+ 
+ 	i2c->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(i2c->clk)) {
 -- 
 2.26.2
 
