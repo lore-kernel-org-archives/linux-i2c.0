@@ -2,107 +2,68 @@ Return-Path: <SRS0=/Kci=72=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAF60C433DF
-	for <linux-i2c@archiver.kernel.org>; Sat, 13 Jun 2020 19:42:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59504C433DF
+	for <linux-i2c@archiver.kernel.org>; Sat, 13 Jun 2020 20:25:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A7A73207BC
-	for <linux-i2c@archiver.kernel.org>; Sat, 13 Jun 2020 19:42:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F1E4207FF
+	for <linux-i2c@archiver.kernel.org>; Sat, 13 Jun 2020 20:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592077344;
-	bh=Y0nUZKpO6R9m396gocd+Bl0IwU3ugpNYW0MEt0NBJgA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=YVKz0OCiElSh/GzICWuMCKJIuDmCu1weIMHn8zV7ST5FyDV2pTzCFwaEX9U3u7hbI
-	 8i3cfZgroaGFK5Yuhe8BfICvfGktYeOFU1STpsaldB7hK+jPn52Qvh985aUgjcCzzM
-	 xWESYAc4IAOdqSqddDsZHkrkhUAN1ac3sUSzz1OE=
+	s=default; t=1592079954;
+	bh=BeKjUx8FDHHmJP6uCGCIthRnl0HyKI9nbGe0GQeMLB4=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
+	b=S31BeeWda57Wo7l5uzKEys/EISAbpBJ/JdCUt41/2xQlau7DwBKyuLbW8AUa44S6U
+	 ayYFw77Rx/REA/xKpEVtMzmLa1gDHDcsFb8W7uVGZjXNJq5lpoFULygaY7+XNVYXaC
+	 eBpduPS8mUA0HkR5J/s80nxyi2rmLX8MRyF/3fQM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726466AbgFMTmY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 13 Jun 2020 15:42:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55736 "EHLO mail.kernel.org"
+        id S1726952AbgFMUZt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 13 Jun 2020 16:25:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726102AbgFMTmX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 13 Jun 2020 15:42:23 -0400
-Received: from localhost (p5486c936.dip0.t-ipconnect.de [84.134.201.54])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66A4D20789;
-        Sat, 13 Jun 2020 19:42:22 +0000 (UTC)
+        id S1726905AbgFMUZa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 13 Jun 2020 16:25:30 -0400
+Subject: Re: [PULL REQUEST] i2c for 5.8
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592077342;
-        bh=Y0nUZKpO6R9m396gocd+Bl0IwU3ugpNYW0MEt0NBJgA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K0bANh5nYHZOHOO5jAZFdiGlRz8ygTWSjZqDr9vQXXfqE1OAyqcPOwJjTgiMRi1ZX
-         M2CAX92kQzXnL/tTIz5j6DFsLTqckxz9pLAf2Lagaxu/JbZcByYN23H6ozJPvbR4cd
-         4zBwGykUyXqzELpMAPC+Km3b7VD7pzVS6DmyCfUk=
-Date:   Sat, 13 Jun 2020 21:42:20 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Marek Vasut <marex@denx.de>
-Cc:     linux-i2c@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
-        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Subject: Re: [PATCH 5/5] i2c: xiic: Only ever transfer single message
-Message-ID: <20200613194220.GB6289@kunai>
-References: <20200613150751.114595-1-marex@denx.de>
- <20200613150751.114595-5-marex@denx.de>
- <20200613193333.GA6289@kunai>
- <b79cdce5-9eff-411b-e2aa-30365a6bbc3d@denx.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
-Content-Disposition: inline
-In-Reply-To: <b79cdce5-9eff-411b-e2aa-30365a6bbc3d@denx.de>
+        s=default; t=1592079930;
+        bh=BeKjUx8FDHHmJP6uCGCIthRnl0HyKI9nbGe0GQeMLB4=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=ZJ4eYieVsDLx7PyBtMWK9A5Kp8LgLbUCwGEzckum6m96BvNtwDTVbn0tapGt+efRi
+         5XEoeNv1Pl5/5wEubhsQdKqjc19y19AjJ2fsPisP0b9FXiWqvIa1oA0Jbmiwj1m9XO
+         am5e7ybBxQrnVftbUV90NaSqQnkcycM6J+Fxyw9Q=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20200613113328.GA5400@kunai>
+References: <20200613113328.GA5400@kunai>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20200613113328.GA5400@kunai>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-5.8
+X-PR-Tracked-Commit-Id: d790eeb3db6aefac39ffa06e598eb31b7352ca4f
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 91fa58840ae22cbf6d7c505ce6564c4c48f29af3
+Message-Id: <159207993040.31508.10932145461914178452.pr-tracker-bot@kernel.org>
+Date:   Sat, 13 Jun 2020 20:25:30 +0000
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Peter Rosin <peda@axentia.se>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+The pull request you sent on Sat, 13 Jun 2020 13:33:28 +0200:
 
---6sX45UoQRIJXqkqR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-5.8
 
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/91fa58840ae22cbf6d7c505ce6564c4c48f29af3
 
-> >> Transferring multiple messages via XIIC suffers from strange interacti=
-on
-> >> between the interrupt status/enable register flags. These flags are be=
-ing
-> >> reused in the hardware to indicate different things for read and write
-> >> transfer, and doing multiple transactions becomes horribly complex. Ju=
-st
-> >> send a single transaction and reload the controller with another messa=
-ge
-> >> once the transaction is done in the interrupt handler thread.
-> >=20
-> > Do we still get a repeated start between messages of a transfer? Or will
-> > it be a STOP/START combination?
->=20
-> Repeated start.
+Thank you!
 
-Good. That was my high level question. I'll leave the rest of the review
-then for Michal.
-
-
---6sX45UoQRIJXqkqR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl7lLBwACgkQFA3kzBSg
-KbbuyA//Vm1vw4CrIxpgZ1y/ZwkkYGQa367go3qRY06uadE3MigcwIADs0EDL7RA
-kAzhtf5SbvraSDiqlkDGaPrvy7pO8K/lEAZN+lBqjQy8iqV3tDW+7ANeW9fsSu3P
-fJ5Dcluuwx+TBYd5rdkb+8rYPRvekVNDY3nC6iSbNRe43yvh1K2Yfbhwq7/KRhSO
-RMt38zW0ny0g0RSZMMqMvwbSHPwckPHK9RukmkqwOLuLivg69Ft1tFO9LcX4qSgQ
-bnk7qoXZdRaXvjx5TSdLyhphOHIeAYDwtwGTrUyj2+A6++U5yPVlTMwcETSdQ7u8
-wWM0Wrmlh7qyvBXNlWR96MUL+noh+Z2t01NOs9ErArnTXeP2ubbSA3ebldnsXeUL
-IIJhmFeiP1a+R7g8ujSa+/MZP9MjfFWzB4nBpsCtTvHNCeqMiTJgi0qzqIMemUgP
-bbjlU+5+EOYInTRLCTNvOfMUGPZsKrlDSgRdYIQCDpJXjdzwOC2JJcg3vcyqjt34
-wmd+LB1vxHA6yI5aT6u73B5PoS6rQWc+6LfUxpI2xaTXxt/m3SChwhIiB83bYnkO
-m8KmVAX6YpsGNTOzRi3DN37EM6PCbTLZWkt+hnG0w4LxjtPQpLG68Vi1f/whNbQf
-3bV4w2C7x34PRoFk6T3KQFxEnNu6BB4stp88wO92JrFfRCnI2GU=
-=sWZI
------END PGP SIGNATURE-----
-
---6sX45UoQRIJXqkqR--
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
