@@ -7,38 +7,45 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DFD0C433DF
-	for <linux-i2c@archiver.kernel.org>; Mon, 15 Jun 2020 07:58:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47FA7C433DF
+	for <linux-i2c@archiver.kernel.org>; Mon, 15 Jun 2020 07:59:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F29D20707
-	for <linux-i2c@archiver.kernel.org>; Mon, 15 Jun 2020 07:58:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 256F6206D7
+	for <linux-i2c@archiver.kernel.org>; Mon, 15 Jun 2020 07:59:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Q484isnR"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="X/pORW/d"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728845AbgFOH66 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 15 Jun 2020 03:58:58 -0400
-Received: from www.zeus03.de ([194.117.254.33]:49240 "EHLO mail.zeus03.de"
+        id S1728837AbgFOH6d (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 15 Jun 2020 03:58:33 -0400
+Received: from www.zeus03.de ([194.117.254.33]:49120 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728866AbgFOH6f (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 15 Jun 2020 03:58:35 -0400
+        id S1728795AbgFOH6b (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 15 Jun 2020 03:58:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
         from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=k1; bh=rWVLXBN8H0735K
-        mANx0Xi7PjlmfkXYgp3cj8uiqX6e0=; b=Q484isnRFsf1QvsOnLntY0nHvF/Dn6
-        NNf1MRLnIQEm05cv87oO/tm43cwdU6j8sLWBMvS62RmTT9hMzdLB2RZWK0btlmyj
-        NX+Y+vKw9HQlV8sTKN1kVV8UxkXLsOBYlphj5UzYqwk/QvkVJZ9DahgR3EbDmw8R
-        HKf83NDWD8C7U=
-Received: (qmail 989280 invoked from network); 15 Jun 2020 09:58:30 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 15 Jun 2020 09:58:30 +0200
-X-UD-Smtp-Session: l3s3148p1@i23jyhqoELYgAwDPXwRdAFnN6pRlEuNX
+        :mime-version:content-transfer-encoding; s=k1; bh=I0WHFYAv4nxQs6
+        tkAm55ITf+hr7ghVSe5IeMsWR0Ebw=; b=X/pORW/dgUb3m2RPbwaCx5wMOMh+cF
+        RkM8TtjpetEVkBK0GW6zrJzTuKlK0WNT+5bU6OaabLgGlj/N1412Hjzb5BKrl+Lo
+        IKfFHN5BnqFiIFTqzBtflEBW9916RdijN4mBrii+MIAWWhXwd5dxvzBJpE9yTKlu
+        kI2aiSI4JMGT4=
+Received: (qmail 989136 invoked from network); 15 Jun 2020 09:58:27 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 15 Jun 2020 09:58:27 +0200
+X-UD-Smtp-Session: l3s3148p1@p029yhqoCLYgAwDPXwRdAFnN6pRlEuNX
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 5/6] Documentation: media: convert to use i2c_new_client_device()
-Date:   Mon, 15 Jun 2020 09:58:14 +0200
-Message-Id: <20200615075816.2848-6-wsa+renesas@sang-engineering.com>
+        Emil Velikov <emil.l.velikov@gmail.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Francisco Jerez <currojerez@riseup.net>,
+        Dave Airlie <airlied@redhat.com>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/6] drm: encoder_slave: fix refcouting error for modules
+Date:   Mon, 15 Jun 2020 09:58:10 +0200
+Message-Id: <20200615075816.2848-2-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200615075816.2848-1-wsa+renesas@sang-engineering.com>
 References: <20200615075816.2848-1-wsa+renesas@sang-engineering.com>
@@ -49,44 +56,44 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Move away from the deprecated API and advertise the new one.
+module_put() balances try_module_get(), not request_module(). Fix the
+error path to match that.
 
+Fixes: 2066facca4c7 ("drm/kms: slave encoder interface.")
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reviewed-by: Emil Velikov <emil.l.velikov@gmail.com>
 ---
 
 I'd like to push it via I2C for 5.8-rc2.
 
- Documentation/driver-api/media/v4l2-subdev.rst    | 2 +-
- Documentation/userspace-api/media/conf_nitpick.py | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_encoder_slave.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/driver-api/media/v4l2-subdev.rst b/Documentation/driver-api/media/v4l2-subdev.rst
-index 6e71f67455bb..bc7e1fc40a9d 100644
---- a/Documentation/driver-api/media/v4l2-subdev.rst
-+++ b/Documentation/driver-api/media/v4l2-subdev.rst
-@@ -451,7 +451,7 @@ The bridge driver also has some helper functions it can use:
- 					"module_foo", "chipid", 0x36, NULL);
+diff --git a/drivers/gpu/drm/drm_encoder_slave.c b/drivers/gpu/drm/drm_encoder_slave.c
+index cf804389f5ec..d50a7884e69e 100644
+--- a/drivers/gpu/drm/drm_encoder_slave.c
++++ b/drivers/gpu/drm/drm_encoder_slave.c
+@@ -84,7 +84,7 @@ int drm_i2c_encoder_init(struct drm_device *dev,
  
- This loads the given module (can be ``NULL`` if no module needs to be loaded)
--and calls :c:func:`i2c_new_device` with the given ``i2c_adapter`` and
-+and calls :c:func:`i2c_new_client_device` with the given ``i2c_adapter`` and
- chip/address arguments. If all goes well, then it registers the subdev with
- the v4l2_device.
+ 	err = encoder_drv->encoder_init(client, dev, encoder);
+ 	if (err)
+-		goto fail_unregister;
++		goto fail_module_put;
  
-diff --git a/Documentation/userspace-api/media/conf_nitpick.py b/Documentation/userspace-api/media/conf_nitpick.py
-index d0c50d75f518..0a8e236d07ab 100644
---- a/Documentation/userspace-api/media/conf_nitpick.py
-+++ b/Documentation/userspace-api/media/conf_nitpick.py
-@@ -27,7 +27,7 @@ nitpick_ignore = [
-     ("c:func", "copy_to_user"),
-     ("c:func", "determine_valid_ioctls"),
-     ("c:func", "ERR_PTR"),
--    ("c:func", "i2c_new_device"),
-+    ("c:func", "i2c_new_client_device"),
-     ("c:func", "ioctl"),
-     ("c:func", "IS_ERR"),
-     ("c:func", "KERNEL_VERSION"),
+ 	if (info->platform_data)
+ 		encoder->slave_funcs->set_config(&encoder->base,
+@@ -92,9 +92,10 @@ int drm_i2c_encoder_init(struct drm_device *dev,
+ 
+ 	return 0;
+ 
++fail_module_put:
++	module_put(module);
+ fail_unregister:
+ 	i2c_unregister_device(client);
+-	module_put(module);
+ fail:
+ 	return err;
+ }
 -- 
 2.27.0
 
