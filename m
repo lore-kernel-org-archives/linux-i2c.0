@@ -7,45 +7,43 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47FA7C433DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6321C433E2
 	for <linux-i2c@archiver.kernel.org>; Mon, 15 Jun 2020 07:59:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 256F6206D7
+	by mail.kernel.org (Postfix) with ESMTP id 9604A20707
 	for <linux-i2c@archiver.kernel.org>; Mon, 15 Jun 2020 07:59:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="X/pORW/d"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="DyV8XvSE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728837AbgFOH6d (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1728834AbgFOH6d (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 15 Jun 2020 03:58:33 -0400
-Received: from www.zeus03.de ([194.117.254.33]:49120 "EHLO mail.zeus03.de"
+Received: from www.zeus03.de ([194.117.254.33]:49176 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728795AbgFOH6b (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 15 Jun 2020 03:58:31 -0400
+        id S1728815AbgFOH6c (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 15 Jun 2020 03:58:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
         from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=k1; bh=I0WHFYAv4nxQs6
-        tkAm55ITf+hr7ghVSe5IeMsWR0Ebw=; b=X/pORW/dgUb3m2RPbwaCx5wMOMh+cF
-        RkM8TtjpetEVkBK0GW6zrJzTuKlK0WNT+5bU6OaabLgGlj/N1412Hjzb5BKrl+Lo
-        IKfFHN5BnqFiIFTqzBtflEBW9916RdijN4mBrii+MIAWWhXwd5dxvzBJpE9yTKlu
-        kI2aiSI4JMGT4=
-Received: (qmail 989136 invoked from network); 15 Jun 2020 09:58:27 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 15 Jun 2020 09:58:27 +0200
-X-UD-Smtp-Session: l3s3148p1@p029yhqoCLYgAwDPXwRdAFnN6pRlEuNX
+        :mime-version:content-transfer-encoding; s=k1; bh=yWGeIQMB5D8pAO
+        0LP5T88hiOoA5j2pcFLVejSajzQPc=; b=DyV8XvSEKw9fiteLuo6hRnnAfgG9gD
+        vLWIh2CXAeSXS1UmpnaYV11Hh2oukO7EbnVllnIKgy2AlfX91BcMQpFWDjj6V1MM
+        R7NqDxdrYnaP/JQ+3Akz3wwpE+4uc43prWQcr69MzjJ2+8cuUvVajuP4eXmjaGVs
+        hn7Vw4zjXXkr8=
+Received: (qmail 989221 invoked from network); 15 Jun 2020 09:58:28 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 15 Jun 2020 09:58:28 +0200
+X-UD-Smtp-Session: l3s3148p1@4KfPyhqoDLYgAwDPXwRdAFnN6pRlEuNX
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Emil Velikov <emil.l.velikov@gmail.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Francisco Jerez <currojerez@riseup.net>,
-        Dave Airlie <airlied@redhat.com>,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/6] drm: encoder_slave: fix refcouting error for modules
-Date:   Mon, 15 Jun 2020 09:58:10 +0200
-Message-Id: <20200615075816.2848-2-wsa+renesas@sang-engineering.com>
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 3/6] x86/platform/intel-mid: convert to use i2c_new_client_device()
+Date:   Mon, 15 Jun 2020 09:58:12 +0200
+Message-Id: <20200615075816.2848-4-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200615075816.2848-1-wsa+renesas@sang-engineering.com>
 References: <20200615075816.2848-1-wsa+renesas@sang-engineering.com>
@@ -56,44 +54,33 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-module_put() balances try_module_get(), not request_module(). Fix the
-error path to match that.
+Move away from the deprecated API and return the shiny new ERRPTR where
+useful.
 
-Fixes: 2066facca4c7 ("drm/kms: slave encoder interface.")
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Emil Velikov <emil.l.velikov@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
 
 I'd like to push it via I2C for 5.8-rc2.
 
- drivers/gpu/drm/drm_encoder_slave.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/platform/intel-mid/sfi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_encoder_slave.c b/drivers/gpu/drm/drm_encoder_slave.c
-index cf804389f5ec..d50a7884e69e 100644
---- a/drivers/gpu/drm/drm_encoder_slave.c
-+++ b/drivers/gpu/drm/drm_encoder_slave.c
-@@ -84,7 +84,7 @@ int drm_i2c_encoder_init(struct drm_device *dev,
+diff --git a/arch/x86/platform/intel-mid/sfi.c b/arch/x86/platform/intel-mid/sfi.c
+index b8f7f193f383..30bd5714a3d4 100644
+--- a/arch/x86/platform/intel-mid/sfi.c
++++ b/arch/x86/platform/intel-mid/sfi.c
+@@ -287,8 +287,8 @@ void intel_scu_devices_create(void)
  
- 	err = encoder_drv->encoder_init(client, dev, encoder);
- 	if (err)
--		goto fail_unregister;
-+		goto fail_module_put;
- 
- 	if (info->platform_data)
- 		encoder->slave_funcs->set_config(&encoder->base,
-@@ -92,9 +92,10 @@ int drm_i2c_encoder_init(struct drm_device *dev,
- 
- 	return 0;
- 
-+fail_module_put:
-+	module_put(module);
- fail_unregister:
- 	i2c_unregister_device(client);
--	module_put(module);
- fail:
- 	return err;
- }
+ 		adapter = i2c_get_adapter(i2c_bus[i]);
+ 		if (adapter) {
+-			client = i2c_new_device(adapter, i2c_devs[i]);
+-			if (!client)
++			client = i2c_new_client_device(adapter, i2c_devs[i]);
++			if (IS_ERR(client))
+ 				pr_err("can't create i2c device %s\n",
+ 					i2c_devs[i]->type);
+ 		} else
 -- 
 2.27.0
 
