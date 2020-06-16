@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9988C433E2
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D825C433E2
+	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE8BC20B80
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 307B120B80
+	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726599AbgFPWej (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 Jun 2020 18:34:39 -0400
-Received: from v6.sk ([167.172.42.174]:48642 "EHLO v6.sk"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726557AbgFPWei (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1726593AbgFPWei (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Tue, 16 Jun 2020 18:34:38 -0400
+Received: from v6.sk ([167.172.42.174]:48640 "EHLO v6.sk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726556AbgFPWeg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 16 Jun 2020 18:34:36 -0400
 Received: from localhost (v6.sk [IPv6:::1])
-        by v6.sk (Postfix) with ESMTP id 1E58561638;
-        Tue, 16 Jun 2020 22:34:06 +0000 (UTC)
+        by v6.sk (Postfix) with ESMTP id 03A0161637;
+        Tue, 16 Jun 2020 22:34:04 +0000 (UTC)
 From:   Lubomir Rintel <lkundrak@v3.sk>
 To:     Rob Herring <robh+dt@kernel.org>
 Cc:     Linus Walleij <linus.walleij@linaro.org>,
@@ -35,9 +35,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH v3 4/5] dt-bindings: rtc: Convert sa1100-rtc to json-schema
-Date:   Wed, 17 Jun 2020 00:33:52 +0200
-Message-Id: <20200616223353.993567-5-lkundrak@v3.sk>
+Subject: [PATCH v3 3/5] dt-bindings: interrupt-controller: Convert mrvl,intc to json-schema
+Date:   Wed, 17 Jun 2020 00:33:51 +0200
+Message-Id: <20200616223353.993567-4-lkundrak@v3.sk>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200616223353.993567-1-lkundrak@v3.sk>
 References: <20200616223353.993567-1-lkundrak@v3.sk>
@@ -48,107 +48,231 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Convert the sa1100-rtc binding to DT schema format using json-schema.
-While add that, add clocks and resets that are actually used.
+Convert the mrvl,intc binding to DT schema format using json-schema.
 
 Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 
 ---
 Changes since v1:
-- Remove interrupts/maxItems
-- Mention clocks and resets in the patch description
+- Move minItems/maxItems to main reg property definition from the
+  conditional one
+- Drop the condition for marvell,orion-intc
 - Add default GPL-2.0-only license tag
 - Fill in maintainers from MAINTAINERS file
 
- .../devicetree/bindings/rtc/sa1100-rtc.txt    | 17 ------
- .../devicetree/bindings/rtc/sa1100-rtc.yaml   | 57 +++++++++++++++++++
- 2 files changed, 57 insertions(+), 17 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/rtc/sa1100-rtc.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml
+ .../interrupt-controller/mrvl,intc.txt        |  64 ---------
+ .../interrupt-controller/mrvl,intc.yaml       | 134 ++++++++++++++++++
+ 2 files changed, 134 insertions(+), 64 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt
+ create mode 100644 Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml
 
-diff --git a/Documentation/devicetree/bindings/rtc/sa1100-rtc.txt b/Documentation/devicetree/bindings/rtc/sa1100-rtc.txt
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt b/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt
 deleted file mode 100644
-index 968ac820254bb..0000000000000
---- a/Documentation/devicetree/bindings/rtc/sa1100-rtc.txt
+index a0ed02725a9d7..0000000000000
+--- a/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt
 +++ /dev/null
-@@ -1,17 +0,0 @@
--* Marvell Real Time Clock controller
+@@ -1,64 +0,0 @@
+-* Marvell MMP Interrupt controller
 -
 -Required properties:
--- compatible: should be "mrvl,sa1100-rtc"
--- reg: physical base address of the controller and length of memory mapped
--  region.
--- interrupts: Should be two. The first interrupt number is the rtc alarm
--  interrupt and the second interrupt number is the rtc hz interrupt.
--- interrupt-names: Assign name of irq resource.
+-- compatible : Should be
+-               "mrvl,mmp-intc" on Marvel MMP,
+-               "mrvl,mmp2-intc" along with "mrvl,mmp2-mux-intc" on MMP2 or
+-               "marvell,mmp3-intc" with "mrvl,mmp2-mux-intc" on MMP3
+-- reg : Address and length of the register set of the interrupt controller.
+-  If the interrupt controller is intc, address and length means the range
+-  of the whole interrupt controller. The "marvell,mmp3-intc" controller
+-  also has a secondary range for the second CPU core.  If the interrupt
+-  controller is mux-intc, address and length means one register. Since
+-  address of mux-intc is in the range of intc. mux-intc is secondary
+-  interrupt controller.
+-- reg-names : Name of the register set of the interrupt controller. It's
+-  only required in mux-intc interrupt controller.
+-- interrupts : Should be the port interrupt shared by mux interrupts. It's
+-  only required in mux-intc interrupt controller.
+-- interrupt-controller : Identifies the node as an interrupt controller.
+-- #interrupt-cells : Specifies the number of cells needed to encode an
+-  interrupt source.
+-- mrvl,intc-nr-irqs : Specifies the number of interrupts in the interrupt
+-  controller.
+-- mrvl,clr-mfp-irq : Specifies the interrupt that needs to clear MFP edge
+-  detection first.
 -
 -Example:
--	rtc: rtc@d4010000 {
--		compatible = "mrvl,mmp-rtc";
--		reg = <0xd4010000 0x1000>;
--		interrupts = <5>, <6>;
--		interrupt-names = "rtc 1Hz", "rtc alarm";
+-	intc: interrupt-controller@d4282000 {
+-		compatible = "mrvl,mmp2-intc";
+-		interrupt-controller;
+-		#interrupt-cells = <1>;
+-		reg = <0xd4282000 0x1000>;
+-		mrvl,intc-nr-irqs = <64>;
 -	};
-diff --git a/Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml b/Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml
+-
+-	intcmux4@d4282150 {
+-		compatible = "mrvl,mmp2-mux-intc";
+-		interrupts = <4>;
+-		interrupt-controller;
+-		#interrupt-cells = <1>;
+-		reg = <0x150 0x4>, <0x168 0x4>;
+-		reg-names = "mux status", "mux mask";
+-		mrvl,intc-nr-irqs = <2>;
+-	};
+-
+-* Marvell Orion Interrupt controller
+-
+-Required properties
+-- compatible :  Should be "marvell,orion-intc".
+-- #interrupt-cells: Specifies the number of cells needed to encode an
+-  interrupt source. Supported value is <1>.
+-- interrupt-controller : Declare this node to be an interrupt controller.
+-- reg : Interrupt mask address. A list of 4 byte ranges, one per controller.
+-        One entry in the list represents 32 interrupts.
+-
+-Example:
+-
+-	intc: interrupt-controller {
+-        	compatible = "marvell,orion-intc", "marvell,intc";
+-		interrupt-controller;
+-		#interrupt-cells = <1>;
+-                reg = <0xfed20204 0x04>,
+-		      <0xfed20214 0x04>;
+-        };
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml b/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml
 new file mode 100644
-index 0000000000000..482e5af215b3d
+index 0000000000000..372ccbfae7716
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml
-@@ -0,0 +1,57 @@
++++ b/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml
+@@ -0,0 +1,134 @@
 +# SPDX-License-Identifier: GPL-2.0-only
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/rtc/sa1100-rtc.yaml#
++$id: http://devicetree.org/schemas/interrupt-controller/mrvl,intc.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Marvell Real Time Clock controller bindings
-+
-+allOf:
-+  - $ref: rtc.yaml#
++title: Marvell MMP/Orion Interrupt controller bindings
 +
 +maintainers:
-+  - Alessandro Zummo <a.zummo@towertech.it>
-+  - Alexandre Belloni <alexandre.belloni@bootlin.com>
++  - Thomas Gleixner <tglx@linutronix.de>
++  - Jason Cooper <jason@lakedaemon.net>
++  - Marc Zyngier <maz@kernel.org>
 +  - Rob Herring <robh+dt@kernel.org>
 +
++allOf:
++  - if:
++      properties:
++        compatible:
++          not:
++            contains:
++              const: marvell,orion-intc
++    then:
++      required:
++        - mrvl,intc-nr-irqs
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - mrvl,mmp-intc
++              - mrvl,mmp2-intc
++    then:
++      properties:
++        reg:
++          maxItems: 1
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - marvell,mmp3-intc
++              - mrvl,mmp2-mux-intc
++    then:
++      properties:
++        reg:
++          minItems: 2
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: mrvl,mmp2-mux-intc
++    then:
++      properties:
++        interrupts:
++          maxItems: 1
++        reg-names:
++          items:
++            - const: 'mux status'
++            - const: 'mux mask'
++      required:
++        - interrupts
++    else:
++      properties:
++        interrupts: false
++
 +properties:
++  '#interrupt-cells':
++    const: 1
++
 +  compatible:
 +    enum:
-+      - mrvl,sa1100-rtc
-+      - mrvl,mmp-rtc
++      - mrvl,mmp-intc
++      - mrvl,mmp2-intc
++      - marvell,mmp3-intc
++      - marvell,orion-intc
++      - mrvl,mmp2-mux-intc
 +
 +  reg:
-+    maxItems: 1
++    minItems: 1
++    maxItems: 2
 +
-+  clocks:
-+    maxItems: 1
++  reg-names: true
 +
-+  resets:
-+    maxItems: 1
++  interrupts: true
 +
-+  interrupts:
-+    minItems: 2
++  interrupt-controller: true
 +
-+  interrupt-names:
-+    items:
-+      - const: 'rtc 1Hz'
-+      - const: 'rtc alarm'
++  mrvl,intc-nr-irqs:
++    description: |
++      Specifies the number of interrupts in the interrupt controller.
++    $ref: /schemas/types.yaml#/definitions/uint32
++
++  mrvl,clr-mfp-irq:
++    description: |
++      Specifies the interrupt that needs to clear MFP edge detection first.
++    $ref: /schemas/types.yaml#/definitions/uint32
 +
 +required:
++  - '#interrupt-cells'
 +  - compatible
 +  - reg
-+  - interrupts
-+  - interrupt-names
++  - interrupt-controller
 +
 +additionalProperties: false
 +
 +examples:
 +  - |
-+    rtc: rtc@d4010000 {
-+        compatible = "mrvl,mmp-rtc";
-+        reg = <0xd4010000 0x1000>;
-+        interrupts = <5>, <6>;
-+        interrupt-names = "rtc 1Hz", "rtc alarm";
++    interrupt-controller@d4282000 {
++        compatible = "mrvl,mmp2-intc";
++        interrupt-controller;
++        #interrupt-cells = <1>;
++        reg = <0xd4282000 0x1000>;
++        mrvl,intc-nr-irqs = <64>;
++    };
++
++    interrupt-controller@d4282150 {
++        compatible = "mrvl,mmp2-mux-intc";
++        interrupts = <4>;
++        interrupt-controller;
++        #interrupt-cells = <1>;
++        reg = <0x150 0x4>, <0x168 0x4>;
++        reg-names = "mux status", "mux mask";
++        mrvl,intc-nr-irqs = <2>;
++    };
++  - |
++    interrupt-controller@fed20204 {
++        compatible = "marvell,orion-intc";
++        interrupt-controller;
++        #interrupt-cells = <1>;
++        reg = <0xfed20204 0x04>,
++              <0xfed20214 0x04>;
 +    };
 +
 +...
