@@ -4,24 +4,23 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF438C433E1
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54804C433DF
+	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A809F207D3
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E162207E8
+	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726564AbgFPWee (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 Jun 2020 18:34:34 -0400
-Received: from v6.sk ([167.172.42.174]:48638 "EHLO v6.sk"
+        id S1726557AbgFPWem (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 16 Jun 2020 18:34:42 -0400
+Received: from v6.sk ([167.172.42.174]:48650 "EHLO v6.sk"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726557AbgFPWed (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 16 Jun 2020 18:34:33 -0400
+        id S1726594AbgFPWek (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 16 Jun 2020 18:34:40 -0400
 Received: from localhost (v6.sk [IPv6:::1])
-        by v6.sk (Postfix) with ESMTP id 5ABA561635;
-        Tue, 16 Jun 2020 22:33:59 +0000 (UTC)
+        by v6.sk (Postfix) with ESMTP id 1D83D61639;
+        Tue, 16 Jun 2020 22:34:08 +0000 (UTC)
 From:   Lubomir Rintel <lkundrak@v3.sk>
 To:     Rob Herring <robh+dt@kernel.org>
 Cc:     Linus Walleij <linus.walleij@linaro.org>,
@@ -35,9 +34,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH v3 1/5] dt-bindings: gpio: Convert mrvl-gpio to json-schema
-Date:   Wed, 17 Jun 2020 00:33:49 +0200
-Message-Id: <20200616223353.993567-2-lkundrak@v3.sk>
+Subject: [PATCH v3 5/5] dt-bindings: timer: Convert mrvl,mmp-timer to json-schema
+Date:   Wed, 17 Jun 2020 00:33:53 +0200
+Message-Id: <20200616223353.993567-6-lkundrak@v3.sk>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200616223353.993567-1-lkundrak@v3.sk>
 References: <20200616223353.993567-1-lkundrak@v3.sk>
@@ -48,271 +47,95 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This converts the mrvl-gpio binding to DT schema format using json-schema.
-
-Various fixes were done during the conversion, such as adding more
-properties that are in fact mandatory or extending the examples to
-include child nodes with extra GPIO blocks.
-
-The compatible strings are a mess. It is not clear why so many of them
-are needed; the driver doesn't really seem to differentiate between the
-models. Some of them, like marvell,pxa93x-gpio and marvell,pxa1928-gpio
-are not used at all, so it's not known how many interrupts they utilize.
-On the other hand, mrvl,pxa-gpio has been seen in the tree, but it
-doesn't end up in any actual DTB file.
-
-In any case -- the schema merely copies whatever was in the original
-binding document, so it's hopefully no more wrong that the original.
+A straightforward conversion of the mrvl,mmp-timer binding to DT schema
+format using json-schema.
 
 Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 
 ---
-Changes since v2:
-- Don't make ranges property mandatory
-
 Changes since v1:
-- Drop marvell,pxa1928-gpio
-- Drop ranges from example with no gcb child nodes
 - Add default GPL-2.0-only license tag
 - Fill in maintainers from MAINTAINERS file
 
- .../devicetree/bindings/gpio/mrvl-gpio.txt    |  48 -----
- .../devicetree/bindings/gpio/mrvl-gpio.yaml   | 173 ++++++++++++++++++
- 2 files changed, 173 insertions(+), 48 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/gpio/mrvl-gpio.txt
- create mode 100644 Documentation/devicetree/bindings/gpio/mrvl-gpio.yaml
+ .../bindings/timer/mrvl,mmp-timer.txt         | 17 -------
+ .../bindings/timer/mrvl,mmp-timer.yaml        | 46 +++++++++++++++++++
+ 2 files changed, 46 insertions(+), 17 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/timer/mrvl,mmp-timer.txt
+ create mode 100644 Documentation/devicetree/bindings/timer/mrvl,mmp-timer.yaml
 
-diff --git a/Documentation/devicetree/bindings/gpio/mrvl-gpio.txt b/Documentation/devicetree/bindings/gpio/mrvl-gpio.txt
+diff --git a/Documentation/devicetree/bindings/timer/mrvl,mmp-timer.txt b/Documentation/devicetree/bindings/timer/mrvl,mmp-timer.txt
 deleted file mode 100644
-index 30fd2201b3d4c..0000000000000
---- a/Documentation/devicetree/bindings/gpio/mrvl-gpio.txt
+index b8f02c6635219..0000000000000
+--- a/Documentation/devicetree/bindings/timer/mrvl,mmp-timer.txt
 +++ /dev/null
-@@ -1,48 +0,0 @@
--* Marvell PXA GPIO controller
+@@ -1,17 +0,0 @@
+-* Marvell MMP Timer controller
 -
 -Required properties:
--- compatible : Should be "intel,pxa25x-gpio", "intel,pxa26x-gpio",
--		"intel,pxa27x-gpio", "intel,pxa3xx-gpio",
--		"marvell,pxa93x-gpio", "marvell,mmp-gpio",
--		"marvell,mmp2-gpio" or marvell,pxa1928-gpio.
--- reg : Address and length of the register set for the device
--- interrupts : Should be the port interrupt shared by all gpio pins.
--  There're three gpio interrupts in arch-pxa, and they're gpio0,
--  gpio1 and gpio_mux. There're only one gpio interrupt in arch-mmp,
--  gpio_mux.
--- interrupt-names : Should be the names of irq resources. Each interrupt
--  uses its own interrupt name, so there should be as many interrupt names
--  as referenced interrupts.
--- interrupt-controller : Identifies the node as an interrupt controller.
--- #interrupt-cells: Specifies the number of cells needed to encode an
--  interrupt source.
--- gpio-controller : Marks the device node as a gpio controller.
--- #gpio-cells : Should be two.  The first cell is the pin number and
--  the second cell is used to specify flags. See gpio.txt for possible
--  values.
+-- compatible : Should be "mrvl,mmp-timer".
+-- reg : Address and length of the register set of timer controller.
+-- interrupts : Should be the interrupt number.
 -
--Example for a MMP platform:
+-Optional properties:
+-- clocks : Should contain a single entry describing the clock input.
 -
--	gpio: gpio@d4019000 {
--		compatible = "marvell,mmp-gpio";
--		reg = <0xd4019000 0x1000>;
--		interrupts = <49>;
--		interrupt-names = "gpio_mux";
--		gpio-controller;
--		#gpio-cells = <2>;
--		interrupt-controller;
--		#interrupt-cells = <1>;
--      };
--
--Example for a PXA3xx platform:
--
--	gpio: gpio@40e00000 {
--		compatible = "intel,pxa3xx-gpio";
--		reg = <0x40e00000 0x10000>;
--		interrupt-names = "gpio0", "gpio1", "gpio_mux";
--		interrupts = <8 9 10>;
--		gpio-controller;
--		#gpio-cells = <0x2>;
--		interrupt-controller;
--		#interrupt-cells = <0x2>;
+-Example:
+-	timer0: timer@d4014000 {
+-		compatible = "mrvl,mmp-timer";
+-		reg = <0xd4014000 0x100>;
+-		interrupts = <13>;
+-		clocks = <&coreclk 2>;
 -	};
-diff --git a/Documentation/devicetree/bindings/gpio/mrvl-gpio.yaml b/Documentation/devicetree/bindings/gpio/mrvl-gpio.yaml
+diff --git a/Documentation/devicetree/bindings/timer/mrvl,mmp-timer.yaml b/Documentation/devicetree/bindings/timer/mrvl,mmp-timer.yaml
 new file mode 100644
-index 0000000000000..4db3b8a3332c2
+index 0000000000000..1fbc260a0cbdf
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/mrvl-gpio.yaml
-@@ -0,0 +1,173 @@
++++ b/Documentation/devicetree/bindings/timer/mrvl,mmp-timer.yaml
+@@ -0,0 +1,46 @@
 +# SPDX-License-Identifier: GPL-2.0-only
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/gpio/mrvl-gpio.yaml#
++$id: http://devicetree.org/schemas/timer/mrvl,mmp-timer.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Marvell PXA GPIO controller
++title: Marvell MMP Timer bindings
 +
 +maintainers:
-+  - Linus Walleij <linus.walleij@linaro.org>
-+  - Bartosz Golaszewski <bgolaszewski@baylibre.com>
++  - Daniel Lezcano <daniel.lezcano@linaro.org>
++  - Thomas Gleixner <tglx@linutronix.de>
 +  - Rob Herring <robh+dt@kernel.org>
-+
-+allOf:
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - intel,pxa25x-gpio
-+              - intel,pxa26x-gpio
-+              - intel,pxa27x-gpio
-+              - intel,pxa3xx-gpio
-+    then:
-+      properties:
-+        interrupts:
-+          minItems: 3
-+          maxItems: 3
-+        interrupt-names:
-+          items:
-+            - const: gpio0
-+            - const: gpio1
-+            - const: gpio_mux
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - marvell,mmp-gpio
-+              - marvell,mmp2-gpio
-+    then:
-+      properties:
-+        interrupts:
-+          maxItems: 1
-+        interrupt-names:
-+          items:
-+            - const: gpio_mux
 +
 +properties:
 +  $nodename:
-+    pattern: '^gpio@[0-9a-f]+$'
++    pattern: '^timer@[a-f0-9]+$'
 +
 +  compatible:
-+    enum:
-+      - intel,pxa25x-gpio
-+      - intel,pxa26x-gpio
-+      - intel,pxa27x-gpio
-+      - intel,pxa3xx-gpio
-+      - marvell,mmp-gpio
-+      - marvell,mmp2-gpio
-+      - marvell,pxa93x-gpio
++    const: mrvl,mmp-timer
 +
 +  reg:
++    maxItems: 1
++
++  interrupts:
 +    maxItems: 1
 +
 +  clocks:
 +    maxItems: 1
 +
-+  resets:
-+    maxItems: 1
-+
-+  ranges: true
-+
-+  '#address-cells':
-+    const: 1
-+
-+  '#size-cells':
-+    const: 1
-+
-+  gpio-controller: true
-+
-+  '#gpio-cells':
-+    const: 2
-+
-+  gpio-ranges:
-+    maxItems: 1
-+
-+  interrupts: true
-+
-+  interrupt-names: true
-+
-+  interrupt-controller: true
-+
-+  '#interrupt-cells':
-+    const: 2
-+
-+patternProperties:
-+  '^gpio@[0-9a-f]*$':
-+    type: object
-+    properties:
-+      reg:
-+        maxItems: 1
-+
-+    required:
-+      - reg
-+
-+    additionalProperties: false
-+
 +required:
 +  - compatible
-+  - '#address-cells'
-+  - '#size-cells'
 +  - reg
-+  - gpio-controller
-+  - '#gpio-cells'
 +  - interrupts
-+  - interrupt-names
-+  - interrupt-controller
-+  - '#interrupt-cells'
 +
 +additionalProperties: false
 +
 +examples:
 +  - |
-+    #include <dt-bindings/clock/pxa-clock.h>
-+    gpio@40e00000 {
-+        compatible = "intel,pxa3xx-gpio";
-+        #address-cells = <1>;
-+        #size-cells = <1>;
-+        reg = <0x40e00000 0x10000>;
-+        gpio-controller;
-+        #gpio-cells = <2>;
-+        interrupts = <8>, <9>, <10>;
-+        interrupt-names = "gpio0", "gpio1", "gpio_mux";
-+        clocks = <&clks CLK_GPIO>;
-+        interrupt-controller;
-+        #interrupt-cells = <2>;
++    timer@d4014000 {
++        compatible = "mrvl,mmp-timer";
++        reg = <0xd4014000 0x100>;
++        interrupts = <13>;
++        clocks = <&coreclk 2>;
 +    };
-+  - |
-+    #include <dt-bindings/clock/marvell,pxa910.h>
-+    gpio@d4019000 {
-+        compatible = "marvell,mmp-gpio";
-+        #address-cells = <1>;
-+        #size-cells = <1>;
-+        reg = <0xd4019000 0x1000>;
-+        gpio-controller;
-+        #gpio-cells = <2>;
-+        interrupts = <49>;
-+        interrupt-names = "gpio_mux";
-+        clocks = <&soc_clocks PXA910_CLK_GPIO>;
-+        resets = <&soc_clocks PXA910_CLK_GPIO>;
-+        interrupt-controller;
-+        #interrupt-cells = <2>;
-+        ranges;
-+
-+        gpio@d4019000 {
-+            reg = <0xd4019000 0x4>;
-+        };
-+
-+        gpio@d4019004 {
-+            reg = <0xd4019004 0x4>;
-+        };
-+
-+        gpio@d4019008 {
-+            reg = <0xd4019008 0x4>;
-+        };
-+
-+        gpio@d4019100 {
-+            reg = <0xd4019100 0x4>;
-+        };
-+     };
 +
 +...
 -- 
