@@ -1,281 +1,82 @@
-Return-Path: <SRS0=4yd6=75=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=XkJB=76=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D825C433E2
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22A2EC433E0
+	for <linux-i2c@archiver.kernel.org>; Wed, 17 Jun 2020 00:00:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 307B120B80
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 Jun 2020 22:34:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A374020810
+	for <linux-i2c@archiver.kernel.org>; Wed, 17 Jun 2020 00:00:49 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=icurse.nl header.i=@icurse.nl header.b="w2O9B+Si"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726593AbgFPWei (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 Jun 2020 18:34:38 -0400
-Received: from v6.sk ([167.172.42.174]:48640 "EHLO v6.sk"
+        id S1726595AbgFQAAt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 16 Jun 2020 20:00:49 -0400
+Received: from mail.ruun.network ([176.9.184.6]:48057 "EHLO mail.ruun.network"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726556AbgFPWeg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 16 Jun 2020 18:34:36 -0400
-Received: from localhost (v6.sk [IPv6:::1])
-        by v6.sk (Postfix) with ESMTP id 03A0161637;
-        Tue, 16 Jun 2020 22:34:04 +0000 (UTC)
-From:   Lubomir Rintel <lkundrak@v3.sk>
-To:     Rob Herring <robh+dt@kernel.org>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH v3 3/5] dt-bindings: interrupt-controller: Convert mrvl,intc to json-schema
-Date:   Wed, 17 Jun 2020 00:33:51 +0200
-Message-Id: <20200616223353.993567-4-lkundrak@v3.sk>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200616223353.993567-1-lkundrak@v3.sk>
-References: <20200616223353.993567-1-lkundrak@v3.sk>
+        id S1726581AbgFQAAs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 16 Jun 2020 20:00:48 -0400
+X-Greylist: delayed 1114 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jun 2020 20:00:48 EDT
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=icurse.nl;
+         s=x; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:Cc:To:
+        From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
+        References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:
+        List-Owner:List-Archive; bh=Evq8MmLfT0oR9H/XsA7WCQZbhdKyJhd3Ipik9wf89lk=; b=w
+        2O9B+Siw+aBLgVTR3Hh7VRKzNIaRyu6HLCxeaaUxQwfyDErT+63FjlmjqWKYTppgyBmnQttvYqHl7
+        c91bho9kj5M+wkM7ldipu7ilQyPd4RAgQ+k0Jjimgy4AJXkeVOnf0b6judpkzrTZpbLH1ZmmtHFiv
+        pcvLqX5+lLQFf+LuTf0ASKgDAhT9jk4Z24uPK1ZJQBrp3lm+4xUY7+gOBbYrLXWqLBR3yxbAH3XG5
+        6jLaXXheEGD1GXoARGlMUcddFVi5dbSBJkNIyOGGjc6CzWt9z45oiCry9VkDOcEbUpSwkw3sgqmBN
+        a6M4jxQkzg3rAQeXrxuNpZw+4uhOPV3Mw==;
+Received: from [23.129.64.201] (helo=localhost.localdomain)
+        by birchibald.ruun.network with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93.0.4)
+        (envelope-from <jeffrey@icurse.nl>)
+        id 1jlLDo-00087A-PA; Wed, 17 Jun 2020 01:42:29 +0200
+From:   Jeffrey Lin <jeffrey@icurse.nl>
+To:     jdelvare@suse.com
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jeffrey Lin <jeffrey@icurse.nl>
+Subject: [PATCH] i2c: i801: Register lis3lv02d I2C device on Dell Latitude 5480
+Date:   Tue, 16 Jun 2020 19:41:30 -0400
+Message-Id: <20200616234130.814499-1-jeffrey@icurse.nl>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Authenticated-Id: jeffrey@icurse.nl
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Convert the mrvl,intc binding to DT schema format using json-schema.
+Value of /sys/devices/platform/lis3lv02d/position when
+    Horizontal:     (36,-108,-1152)
+    Left elevated:  (-432,-126,-1062)
+    Front elevated: (36,594,-936)
+    Upside down:    (-126,-252,1098)
 
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-
+Signed-off-by: Jeffrey Lin <jeffrey@icurse.nl>
 ---
-Changes since v1:
-- Move minItems/maxItems to main reg property definition from the
-  conditional one
-- Drop the condition for marvell,orion-intc
-- Add default GPL-2.0-only license tag
-- Fill in maintainers from MAINTAINERS file
+ drivers/i2c/busses/i2c-i801.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- .../interrupt-controller/mrvl,intc.txt        |  64 ---------
- .../interrupt-controller/mrvl,intc.yaml       | 134 ++++++++++++++++++
- 2 files changed, 134 insertions(+), 64 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt
- create mode 100644 Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml
-
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt b/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt
-deleted file mode 100644
-index a0ed02725a9d7..0000000000000
---- a/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.txt
-+++ /dev/null
-@@ -1,64 +0,0 @@
--* Marvell MMP Interrupt controller
--
--Required properties:
--- compatible : Should be
--               "mrvl,mmp-intc" on Marvel MMP,
--               "mrvl,mmp2-intc" along with "mrvl,mmp2-mux-intc" on MMP2 or
--               "marvell,mmp3-intc" with "mrvl,mmp2-mux-intc" on MMP3
--- reg : Address and length of the register set of the interrupt controller.
--  If the interrupt controller is intc, address and length means the range
--  of the whole interrupt controller. The "marvell,mmp3-intc" controller
--  also has a secondary range for the second CPU core.  If the interrupt
--  controller is mux-intc, address and length means one register. Since
--  address of mux-intc is in the range of intc. mux-intc is secondary
--  interrupt controller.
--- reg-names : Name of the register set of the interrupt controller. It's
--  only required in mux-intc interrupt controller.
--- interrupts : Should be the port interrupt shared by mux interrupts. It's
--  only required in mux-intc interrupt controller.
--- interrupt-controller : Identifies the node as an interrupt controller.
--- #interrupt-cells : Specifies the number of cells needed to encode an
--  interrupt source.
--- mrvl,intc-nr-irqs : Specifies the number of interrupts in the interrupt
--  controller.
--- mrvl,clr-mfp-irq : Specifies the interrupt that needs to clear MFP edge
--  detection first.
--
--Example:
--	intc: interrupt-controller@d4282000 {
--		compatible = "mrvl,mmp2-intc";
--		interrupt-controller;
--		#interrupt-cells = <1>;
--		reg = <0xd4282000 0x1000>;
--		mrvl,intc-nr-irqs = <64>;
--	};
--
--	intcmux4@d4282150 {
--		compatible = "mrvl,mmp2-mux-intc";
--		interrupts = <4>;
--		interrupt-controller;
--		#interrupt-cells = <1>;
--		reg = <0x150 0x4>, <0x168 0x4>;
--		reg-names = "mux status", "mux mask";
--		mrvl,intc-nr-irqs = <2>;
--	};
--
--* Marvell Orion Interrupt controller
--
--Required properties
--- compatible :  Should be "marvell,orion-intc".
--- #interrupt-cells: Specifies the number of cells needed to encode an
--  interrupt source. Supported value is <1>.
--- interrupt-controller : Declare this node to be an interrupt controller.
--- reg : Interrupt mask address. A list of 4 byte ranges, one per controller.
--        One entry in the list represents 32 interrupts.
--
--Example:
--
--	intc: interrupt-controller {
--        	compatible = "marvell,orion-intc", "marvell,intc";
--		interrupt-controller;
--		#interrupt-cells = <1>;
--                reg = <0xfed20204 0x04>,
--		      <0xfed20214 0x04>;
--        };
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml b/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml
-new file mode 100644
-index 0000000000000..372ccbfae7716
---- /dev/null
-+++ b/Documentation/devicetree/bindings/interrupt-controller/mrvl,intc.yaml
-@@ -0,0 +1,134 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/interrupt-controller/mrvl,intc.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Marvell MMP/Orion Interrupt controller bindings
-+
-+maintainers:
-+  - Thomas Gleixner <tglx@linutronix.de>
-+  - Jason Cooper <jason@lakedaemon.net>
-+  - Marc Zyngier <maz@kernel.org>
-+  - Rob Herring <robh+dt@kernel.org>
-+
-+allOf:
-+  - if:
-+      properties:
-+        compatible:
-+          not:
-+            contains:
-+              const: marvell,orion-intc
-+    then:
-+      required:
-+        - mrvl,intc-nr-irqs
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - mrvl,mmp-intc
-+              - mrvl,mmp2-intc
-+    then:
-+      properties:
-+        reg:
-+          maxItems: 1
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - marvell,mmp3-intc
-+              - mrvl,mmp2-mux-intc
-+    then:
-+      properties:
-+        reg:
-+          minItems: 2
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: mrvl,mmp2-mux-intc
-+    then:
-+      properties:
-+        interrupts:
-+          maxItems: 1
-+        reg-names:
-+          items:
-+            - const: 'mux status'
-+            - const: 'mux mask'
-+      required:
-+        - interrupts
-+    else:
-+      properties:
-+        interrupts: false
-+
-+properties:
-+  '#interrupt-cells':
-+    const: 1
-+
-+  compatible:
-+    enum:
-+      - mrvl,mmp-intc
-+      - mrvl,mmp2-intc
-+      - marvell,mmp3-intc
-+      - marvell,orion-intc
-+      - mrvl,mmp2-mux-intc
-+
-+  reg:
-+    minItems: 1
-+    maxItems: 2
-+
-+  reg-names: true
-+
-+  interrupts: true
-+
-+  interrupt-controller: true
-+
-+  mrvl,intc-nr-irqs:
-+    description: |
-+      Specifies the number of interrupts in the interrupt controller.
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+
-+  mrvl,clr-mfp-irq:
-+    description: |
-+      Specifies the interrupt that needs to clear MFP edge detection first.
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+
-+required:
-+  - '#interrupt-cells'
-+  - compatible
-+  - reg
-+  - interrupt-controller
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    interrupt-controller@d4282000 {
-+        compatible = "mrvl,mmp2-intc";
-+        interrupt-controller;
-+        #interrupt-cells = <1>;
-+        reg = <0xd4282000 0x1000>;
-+        mrvl,intc-nr-irqs = <64>;
-+    };
-+
-+    interrupt-controller@d4282150 {
-+        compatible = "mrvl,mmp2-mux-intc";
-+        interrupts = <4>;
-+        interrupt-controller;
-+        #interrupt-cells = <1>;
-+        reg = <0x150 0x4>, <0x168 0x4>;
-+        reg-names = "mux status", "mux mask";
-+        mrvl,intc-nr-irqs = <2>;
-+    };
-+  - |
-+    interrupt-controller@fed20204 {
-+        compatible = "marvell,orion-intc";
-+        interrupt-controller;
-+        #interrupt-cells = <1>;
-+        reg = <0xfed20204 0x04>,
-+              <0xfed20214 0x04>;
-+    };
-+
-+...
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index fea644921a76..d7c802e20ae6 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1268,6 +1268,7 @@ static const struct {
+ 	/*
+ 	 * Additional individual entries were added after verification.
+ 	 */
++	{ "Latitude 5480",      0x29 },
+ 	{ "Vostro V131",        0x1d },
+ };
+ 
 -- 
-2.26.2
+2.27.0
 
