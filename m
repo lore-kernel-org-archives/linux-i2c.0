@@ -7,35 +7,35 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C54F5C433E0
-	for <linux-i2c@archiver.kernel.org>; Wed, 17 Jun 2020 01:40:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1D96C433E1
+	for <linux-i2c@archiver.kernel.org>; Wed, 17 Jun 2020 01:40:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4E0C20679
-	for <linux-i2c@archiver.kernel.org>; Wed, 17 Jun 2020 01:40:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CBC1120679
+	for <linux-i2c@archiver.kernel.org>; Wed, 17 Jun 2020 01:40:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="B78BNEdE"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="EphXYlUe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726853AbgFQBkK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 Jun 2020 21:40:10 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:13831 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726795AbgFQBjs (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Jun 2020 21:39:48 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5ee974570000>; Tue, 16 Jun 2020 18:39:35 -0700
+        id S1726785AbgFQBjq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 16 Jun 2020 21:39:46 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:19583 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726777AbgFQBjp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Jun 2020 21:39:45 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5ee973fe0000>; Tue, 16 Jun 2020 18:38:06 -0700
 Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Tue, 16 Jun 2020 18:39:48 -0700
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Tue, 16 Jun 2020 18:39:45 -0700
 X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Tue, 16 Jun 2020 18:39:48 -0700
-Received: from HQMAIL109.nvidia.com (172.20.187.15) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 17 Jun
- 2020 01:39:48 +0000
-Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL109.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 17 Jun 2020 01:39:47 +0000
+        by hqpgpgate101.nvidia.com on Tue, 16 Jun 2020 18:39:45 -0700
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 17 Jun
+ 2020 01:39:44 +0000
+Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 17 Jun 2020 01:39:44 +0000
 Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.171.186]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5ee974620000>; Tue, 16 Jun 2020 18:39:47 -0700
+        id <B5ee9745f0000>; Tue, 16 Jun 2020 18:39:43 -0700
 From:   Sowjanya Komatineni <skomatineni@nvidia.com>
 To:     <skomatineni@nvidia.com>, <thierry.reding@gmail.com>,
         <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
@@ -45,9 +45,9 @@ CC:     <digetx@gmail.com>, <sboyd@kernel.org>,
         <gregkh@linuxfoundation.org>, <linux-media@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
-Subject: [RFC PATCH v2 17/18] arm64: tegra: jetson-tx1: Add camera supplies
-Date:   Tue, 16 Jun 2020 18:41:33 -0700
-Message-ID: <1592358094-23459-18-git-send-email-skomatineni@nvidia.com>
+Subject: [RFC PATCH v2 14/18] gpu: host1x: mipi: Split tegra_mipi_calibrate and tegra_mipi_wait
+Date:   Tue, 16 Jun 2020 18:41:30 -0700
+Message-ID: <1592358094-23459-15-git-send-email-skomatineni@nvidia.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1592358094-23459-1-git-send-email-skomatineni@nvidia.com>
 References: <1592358094-23459-1-git-send-email-skomatineni@nvidia.com>
@@ -55,99 +55,138 @@ X-NVConfidentiality: public
 MIME-Version: 1.0
 Content-Type: text/plain
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1592357975; bh=znV249BjYdNn7v2dlbamoh4NYD4Ln2Jw53yQHV98OCI=;
+        t=1592357886; bh=O5AZ1YsJyVgIvzzx4UikQW0HGSpF8jhWcrl9iX7G1sw=;
         h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
          In-Reply-To:References:X-NVConfidentiality:MIME-Version:
          Content-Type;
-        b=B78BNEdEhma+JJIXI1olkcFc5mO1WRnqG7fcCWN2YbJCxK+Q7zDYnaWlDFW0PqSjb
-         iqZvTdk3PkZMeP1lLGMvulzbYeYZMxw/zk0bKY94tJ9tcJkADhJglxxHIlMvH2f+Mr
-         GQcWR+Ujrl04AvF+wFew4Fzbl2KQkQvBZHDfzevhcCGNp+L4LC3p7Zgc2vWgDKs/bR
-         1oTm5oOmpBV4Qr84uXvlumaIvt39P2E/kxS32JaMM7e86g90FR51KmduzLP+62XrU0
-         6TvLs/cbB7bZfDndjDDSqg2lGcc5jCpfdz8Ur50xw+96XVhTCPCSqAW8KkocdsrEIU
-         2SYrOpkw9b+IA==
+        b=EphXYlUesGN2f54pb5yFegg+T9OllayVCcfPcs+x0iosgUxgLUw5ssotw4EvOD7mJ
+         4O0ylnb7tDe5aKBxSBwrL7WeET3wNQLQp2m3Y5EnFhUsEl8TapJVNd7Gh/MZKbnF7T
+         Vo21X0IFvcrqbn2kESBkTwfg9sK+4AjkAhZV1JLHI+yuz6K5FI5caZSxP/+aen1LMx
+         jar6UX32EME8otgaGMiiOKn8onleNT4cp6EapRD3MIYvK22/Nh/buUfy44AuAlhsNM
+         7Z1ZOOzuuI0dBUZT5qYWlFgDrONMn4Eet5lh0Zw7rsexgfKfDz8toHXXfYvI+jodnr
+         jDan0Cpr4pawg==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Jetson TX1 development board has a camera expansion connector which
-has 2V8, 1V8 and 1V2 supplies to power up the camera sensor on the
-supported camera modules.
+SW can trigger MIPI pads calibration any time after power on
+but calibration results will be latched and applied to the pads
+by MIPI CAL unit only when the link is in LP-11 state and then
+status register will be updated.
 
-Camera module designed as per Jetson TX1 camera expansion connector
-may use these supplies for camera sensor avdd 2V8, digital core 1V8,
-and digital interface 1V2 voltages.
+For CSI, trigger of pads calibration happen during CSI stream
+enable where CSI receiver is kept ready prior to sensor or CSI
+transmitter stream start.
 
-These supplies are from fixed regulators on TX1 carrier board with
-enable control signals from I2C GPIO expanders.
+So, pads may not be in LP-11 at this time and waiting for the
+calibration to be done immediate after calibration start will
+result in timeout.
 
-This patch adds these camera supplies to Jetson TX1 device tree to
-allow using these when a camera module is used.
+This patch splits tegra_mipi_calibrate() and tegra_mipi_wait()
+so triggering for calibration and waiting for it to complete can
+happen at different stages.
 
 Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 ---
- arch/arm64/boot/dts/nvidia/tegra210-p2597.dtsi | 41 ++++++++++++++++++++++++++
- 1 file changed, 41 insertions(+)
+ drivers/gpu/drm/tegra/dsi.c |  7 ++++++-
+ drivers/gpu/host1x/mipi.c   | 23 +++++++++++++++++------
+ include/linux/host1x.h      |  1 +
+ 3 files changed, 24 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra210-p2597.dtsi b/arch/arm64/boot/dts/nvidia/tegra210-p2597.dtsi
-index b57d837..5e24d7a 100644
---- a/arch/arm64/boot/dts/nvidia/tegra210-p2597.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra210-p2597.dtsi
-@@ -1323,6 +1323,14 @@
- 			#gpio-cells = <2>;
- 			gpio-controller;
- 		};
-+
-+		exp2: gpio@77 {
-+			compatible = "ti,tca9539";
-+			reg = <0x77>;
-+
-+			#gpio-cells = <2>;
-+			gpio-controller;
-+		};
- 	};
+diff --git a/drivers/gpu/drm/tegra/dsi.c b/drivers/gpu/drm/tegra/dsi.c
+index 0443589..93e9d85 100644
+--- a/drivers/gpu/drm/tegra/dsi.c
++++ b/drivers/gpu/drm/tegra/dsi.c
+@@ -670,6 +670,7 @@ static int tegra_dsi_pad_enable(struct tegra_dsi *dsi)
+ static int tegra_dsi_pad_calibrate(struct tegra_dsi *dsi)
+ {
+ 	u32 value;
++	int ret;
  
- 	/* HDMI DDC */
-@@ -1667,6 +1675,39 @@
- 			enable-active-high;
- 			vin-supply = <&vdd_5v0_sys>;
- 		};
-+
-+		vdd_cam_1v2: regulator@12 {
-+			compatible = "regulator-fixed";
-+			reg = <12>;
-+			regulator-name = "vdd-cam-1v2";
-+			regulator-min-microvolt = <1200000>;
-+			regulator-max-microvolt = <1200000>;
-+			gpio = <&exp2 10 GPIO_ACTIVE_HIGH>;
-+			enable-active-high;
-+			vin-supply = <&vdd_3v3_sys>;
-+		};
-+
-+		vdd_cam_2v8: regulator@13 {
-+			compatible = "regulator-fixed";
-+			reg = <13>;
-+			regulator-name = "vdd-cam-2v8";
-+			regulator-min-microvolt = <2800000>;
-+			regulator-max-microvolt = <2800000>;
-+			gpio = <&exp1 13 GPIO_ACTIVE_HIGH>;
-+			enable-active-high;
-+			vin-supply = <&vdd_3v3_sys>;
-+		};
-+
-+		vdd_cam_1v8: regulator@14 {
-+			compatible = "regulator-fixed";
-+			reg = <14>;
-+			regulator-name = "vdd-cam-1v8";
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <1800000>;
-+			gpio = <&exp2 9 GPIO_ACTIVE_HIGH>;
-+			enable-active-high;
-+			vin-supply = <&vdd_3v3_sys>;
-+		};
- 	};
+ 	/*
+ 	 * XXX Is this still needed? The module reset is deasserted right
+@@ -693,7 +694,11 @@ static int tegra_dsi_pad_calibrate(struct tegra_dsi *dsi)
+ 		DSI_PAD_PREEMP_PD(0x03) | DSI_PAD_PREEMP_PU(0x3);
+ 	tegra_dsi_writel(dsi, value, DSI_PAD_CONTROL_3);
  
- 	gpio-keys {
+-	return tegra_mipi_calibrate(dsi->mipi);
++	ret = tegra_mipi_calibrate(dsi->mipi);
++	if (ret < 0)
++		return ret;
++
++	return tegra_mipi_wait(dsi->mipi);
+ }
+ 
+ static void tegra_dsi_set_timeout(struct tegra_dsi *dsi, unsigned long bclk,
+diff --git a/drivers/gpu/host1x/mipi.c b/drivers/gpu/host1x/mipi.c
+index 93b354b..99ea36f 100644
+--- a/drivers/gpu/host1x/mipi.c
++++ b/drivers/gpu/host1x/mipi.c
+@@ -296,22 +296,35 @@ int tegra_mipi_disable(struct tegra_mipi_device *dev)
+ }
+ EXPORT_SYMBOL(tegra_mipi_disable);
+ 
+-static int tegra_mipi_wait(struct tegra_mipi *mipi)
++int tegra_mipi_wait(struct tegra_mipi_device *device)
+ {
++	struct tegra_mipi *mipi = device->mipi;
+ 	unsigned long timeout = jiffies + msecs_to_jiffies(250);
+ 	u32 value;
++	int err;
++
++	err = clk_enable(device->mipi->clk);
++	if (err < 0)
++		return err;
++
++	mutex_lock(&device->mipi->lock);
+ 
+ 	while (time_before(jiffies, timeout)) {
+ 		value = tegra_mipi_readl(mipi, MIPI_CAL_STATUS);
+ 		if ((value & MIPI_CAL_STATUS_ACTIVE) == 0 &&
+ 		    (value & MIPI_CAL_STATUS_DONE) != 0)
+-			return 0;
++			goto done;
+ 
+ 		usleep_range(10, 50);
+ 	}
+ 
+-	return -ETIMEDOUT;
++	err = -ETIMEDOUT;
++done:
++	mutex_unlock(&device->mipi->lock);
++	clk_disable(device->mipi->clk);
++	return err;
+ }
++EXPORT_SYMBOL(tegra_mipi_wait);
+ 
+ int tegra_mipi_calibrate(struct tegra_mipi_device *device)
+ {
+@@ -377,12 +390,10 @@ int tegra_mipi_calibrate(struct tegra_mipi_device *device)
+ 	value |= MIPI_CAL_CTRL_START;
+ 	tegra_mipi_writel(device->mipi, value, MIPI_CAL_CTRL);
+ 
+-	err = tegra_mipi_wait(device->mipi);
+-
+ 	mutex_unlock(&device->mipi->lock);
+ 	clk_disable(device->mipi->clk);
+ 
+-	return err;
++	return 0;
+ }
+ EXPORT_SYMBOL(tegra_mipi_calibrate);
+ 
+diff --git a/include/linux/host1x.h b/include/linux/host1x.h
+index 61dc577..cf45ec2 100644
+--- a/include/linux/host1x.h
++++ b/include/linux/host1x.h
+@@ -331,5 +331,6 @@ void tegra_mipi_free(struct tegra_mipi_device *device);
+ int tegra_mipi_enable(struct tegra_mipi_device *device);
+ int tegra_mipi_disable(struct tegra_mipi_device *device);
+ int tegra_mipi_calibrate(struct tegra_mipi_device *device);
++int tegra_mipi_wait(struct tegra_mipi_device *device);
+ 
+ #endif
 -- 
 2.7.4
 
