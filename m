@@ -4,53 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EBAAC433E0
-	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 02:27:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30B9EC433E0
+	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 02:30:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E91BF2192A
-	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 02:27:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 05DAC207DD
+	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 02:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592447263;
-	bh=oRtI3EK4vwV1BYLrXFSQDXPl5jMD+2koWknO8vkCueY=;
+	s=default; t=1592447441;
+	bh=yAGnv5NF9mvvxUNTEYI6rE58f1spSCkxNZHtPu3k9a0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=xzw3AvxxUiaKv/5SJdp6m0TAPrbdXiAzTzSki0Uo/cIJ63I70uHC6uYscLfFtNu+d
-	 s9uZuwS4rzD/z9pX6V3qRHtAqY7YYZaHs0G1XE2jcybbyvD7bOF8fGf4e59RseGtRh
-	 1lfUKOl9Jj+88AmdF4vi4ZTjzRflZy3cgPnc/iXA=
+	b=b4oD/PFv7jrRDVFaTbhP+fvdmgqQ5CC9HKCqBZBS+lFx3I4hqcsjAVWBQyhMwK1lA
+	 BW+mfzgp/9w5fOBwoa44kMTUDzqHsD6HgodF1novjGTCBrkRC8gdMZ5Xcaukutr8i8
+	 pXP8MBYggcq4ExsENwKQN25HMubHT8mNKntTq6uk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728836AbgFRBQj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 17 Jun 2020 21:16:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47452 "EHLO mail.kernel.org"
+        id S1732648AbgFRCak (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 17 Jun 2020 22:30:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729607AbgFRBQh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:16:37 -0400
+        id S1728640AbgFRBPp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:15:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63058221ED;
-        Thu, 18 Jun 2020 01:16:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E69721D7D;
+        Thu, 18 Jun 2020 01:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442997;
-        bh=oRtI3EK4vwV1BYLrXFSQDXPl5jMD+2koWknO8vkCueY=;
+        s=default; t=1592442945;
+        bh=yAGnv5NF9mvvxUNTEYI6rE58f1spSCkxNZHtPu3k9a0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2d3tiaimSQoXmVd9KKs/9SZJOleBsGMELi/s5dGJ0DyVqxZs7MPdBbexWH8ktBBub
-         mJAnLqJRuB8KUfGwIIBkVUz4UWNeYDQzc27Y/3/YmH/jSenpsM/sSOTjEF/yLPAkj5
-         eowAv5n+HNN97EPl3k9oOW9M6MhZHtN5zzJ44rHc=
+        b=Cu0zPtxq+H+gtMjvoCdlrlqjMBXHAKl9DrAoFXKYrGf4GxThLxMCkBkHbwAildDEm
+         dzkoYRvb5H2uEGTjBpCvzvr0+btAQeSkgE4b99wqO1btWVok9kwXCXi7PxXtLFf+kf
+         pU9hJkZsNI4KAmG0K5HP1zJT/thpwTP95fJJ9PuE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adam Honse <calcprogrammer1@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 004/266] i2c: piix4: Detect secondary SMBus controller on AMD AM4 chipsets
-Date:   Wed, 17 Jun 2020 21:12:09 -0400
-Message-Id: <20200618011631.604574-4-sashal@kernel.org>
+Cc:     Max Staudt <max@enpas.org>, kernel test robot <lkp@intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 355/388] i2c: icy: Fix build with CONFIG_AMIGA_PCMCIA=n
+Date:   Wed, 17 Jun 2020 21:07:32 -0400
+Message-Id: <20200618010805.600873-355-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
-References: <20200618011631.604574-1-sashal@kernel.org>
+In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
+References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,48 +58,36 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Adam Honse <calcprogrammer1@gmail.com>
+From: Max Staudt <max@enpas.org>
 
-[ Upstream commit f27237c174fd9653033330e4e532cd9d153ce824 ]
+[ Upstream commit cdb555397f438592bab00599037c347b700cf397 ]
 
-The AMD X370 and other AM4 chipsets (A/B/X 3/4/5 parts) and Threadripper
-equivalents have a secondary SMBus controller at I/O port address
-0x0B20.  This bus is used by several manufacturers to control
-motherboard RGB lighting via embedded controllers.  I have been using
-this bus in my OpenRGB project to control the Aura RGB on many
-motherboards and ASRock also uses this bus for their Polychrome RGB
-controller.
+This has been found by the Kernel Test Robot:
+http://lkml.iu.edu/hypermail/linux/kernel/2006.0/06862.html
 
-I am not aware of any CZ-compatible platforms which do not have the
-second SMBus channel.  All of AMD's AM4- and Threadripper- series
-chipsets that OpenRGB users have tested appear to have this secondary
-bus.  I also noticed this secondary bus is present on older AMD
-platforms including my FM1 home server.
+With CONFIG_AMIGA_PCMCIA=n, io_mm.h does not pull in amigahw.h and
+ZTWO_VADDR is undefined. Add forgotten include to i2c-icy.c
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202587
-Signed-off-by: Adam Honse <calcprogrammer1@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Fixes: 4768e90ecaec ("i2c: Add i2c-icy for I2C on m68k/Amiga")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Max Staudt <max@enpas.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-piix4.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-icy.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 30ded6422e7b..69740a4ff1db 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -977,7 +977,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	}
+diff --git a/drivers/i2c/busses/i2c-icy.c b/drivers/i2c/busses/i2c-icy.c
+index 271470f4d8a9..66c9923fc766 100644
+--- a/drivers/i2c/busses/i2c-icy.c
++++ b/drivers/i2c/busses/i2c-icy.c
+@@ -43,6 +43,7 @@
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-pcf.h>
  
- 	if (dev->vendor == PCI_VENDOR_ID_AMD &&
--	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
-+	    (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
-+	     dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)) {
- 		retval = piix4_setup_sb800(dev, id, 1);
- 	}
++#include <asm/amigahw.h>
+ #include <asm/amigaints.h>
+ #include <linux/zorro.h>
  
 -- 
 2.25.1
