@@ -2,107 +2,103 @@ Return-Path: <SRS0=nYWz=77=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E02AC433E1
-	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 02:53:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1130C433E2
+	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 08:43:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E304E20776
-	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 02:53:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592448804;
-	bh=oRtI3EK4vwV1BYLrXFSQDXPl5jMD+2koWknO8vkCueY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=QjnI5BrjV5V4+ITEPCqMxYPKjbtqDl+cQOo6ujwdBZS7kBvysBfJrswFSYzwbdeCN
-	 Uc7TAhi/CFRmxovHEnspJm6lIB1F1NyZS/61w4yvWaTZaT4f/VJslPhBqQtNJMylkN
-	 PrFXmruFGCFr6GU+eEyyqBRRS+DDyWswognowNDE=
+	by mail.kernel.org (Postfix) with ESMTP id 81D002089D
+	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 08:43:32 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="um1VtIz1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728035AbgFRCxR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 17 Jun 2020 22:53:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33754 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727097AbgFRBIO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:08:14 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 022BA21D7E;
-        Thu, 18 Jun 2020 01:08:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442493;
-        bh=oRtI3EK4vwV1BYLrXFSQDXPl5jMD+2koWknO8vkCueY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXdRReb0B0GUDnHe+lOwP3g12ADCBF/jDSsnWQ6vYhh6x8RwbNb7inM4DstyVzCpJ
-         71OvCy+WTiAbHievzG+AHbBLWsErXM0GFgpjOQJMKCSj338so1S7EuKSZWsFUVyPV2
-         TUtpSu4g6qFLXdg5g70H0aWPlM+lrd8/RfVLusYo=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adam Honse <calcprogrammer1@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 006/388] i2c: piix4: Detect secondary SMBus controller on AMD AM4 chipsets
-Date:   Wed, 17 Jun 2020 21:01:43 -0400
-Message-Id: <20200618010805.600873-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
-References: <20200618010805.600873-1-sashal@kernel.org>
+        id S1728585AbgFRInb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 18 Jun 2020 04:43:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728706AbgFRIn2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 18 Jun 2020 04:43:28 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F946C06174E
+        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2020 01:43:26 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id r7so5154895wro.1
+        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2020 01:43:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=brvq047GWmZAo17C69Xj/1QyaxG1QhV4W0ODi9tBfK0=;
+        b=um1VtIz1ojnFmyHyfDbAw2jjevGBCC8F6ig4HMD39gp1CU8SuAqgkEg2NNJrCMIlYg
+         bTAKUY8zbGgzauDwHSuE8FMLJXz9oHLaky+S7ULuR8DSp7FoHTWLzDQPK5n8NZIbN4HD
+         U8JaZFLsXXpirT5E6C+ILXnjHBr9vo2TrmvSuEMBXLRQAxUWwhbk4oqfcLy1zYEFtmNm
+         sCyz2jbHn0MVC4fgCQVF2/opm4xl0QIW4ZNfAaHTMk3abaiS0AMtJBqyMu6O8SCZonvR
+         LBC2yHgo9CMo2FitN56vSOJN12whYQmlZkS5w29LFRQdvc4D5SoIAou4DHoUI8kRUArn
+         FTww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=brvq047GWmZAo17C69Xj/1QyaxG1QhV4W0ODi9tBfK0=;
+        b=tzQ7eZKakBBHMEIfgNS9RZSWh87hoaLNMjBo53x3R/roTolr+cz2mCneeQmXQzuik3
+         nbEWbvMCV00zlXGabm/gavAOuKddkxsUACOad05zwgqrnd1WXDj+0nX/8+MH3qOZnBMe
+         cTs+Sq4u1qjUIiJuh4eenpa+6wJFDz3Zt1pL1YZ8TyPgg0lzPUysVFNnFXnwkHlWcvMk
+         6JAocktKdFhxsIk8xdaTsKebLEZmNz7Mu2QBXvFQ9tG8IUfdZWhTuZDTkiFD2i3bpocd
+         gagVyPZ+JV3VBxS4lHWLyw17004z0sTiCZkBGyfOuw5Eocr4SsEKHLjtpLqEAfbC0FV7
+         kH4g==
+X-Gm-Message-State: AOAM532mMlb4mCh9zGZjeKIsGuUBN1sdrpyQaF8ZyNc930nnDrEKFSQK
+        8XjZZ4KIZNPa6eDtnX6IbY0MLQ==
+X-Google-Smtp-Source: ABdhPJzmV6kItaKJaH4rcxOjvDp5gt/F5ZQIJ2li/nrZlhjEurHChGdTsVGmEdRqHfl2f10IQgFFOQ==
+X-Received: by 2002:a5d:5084:: with SMTP id a4mr3499044wrt.416.1592469805280;
+        Thu, 18 Jun 2020 01:43:25 -0700 (PDT)
+Received: from dell ([95.149.164.118])
+        by smtp.gmail.com with ESMTPSA id e12sm2656213wro.52.2020.06.18.01.43.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Jun 2020 01:43:24 -0700 (PDT)
+Date:   Thu, 18 Jun 2020 09:43:23 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc:     linux-i2c@vger.kernel.org,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Jingoo Han <jingoohan1@gmail.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/6] video: backlight: tosa_lcd: convert to use
+ i2c_new_client_device()
+Message-ID: <20200618084323.GB954398@dell>
+References: <20200615075816.2848-1-wsa+renesas@sang-engineering.com>
+ <20200615075816.2848-5-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200615075816.2848-5-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Adam Honse <calcprogrammer1@gmail.com>
+On Mon, 15 Jun 2020, Wolfram Sang wrote:
 
-[ Upstream commit f27237c174fd9653033330e4e532cd9d153ce824 ]
+> Move away from the deprecated API and return the shiny new ERRPTR where
+> useful.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+> ---
+> 
+> I'd like to push it via I2C for 5.8-rc2.
 
-The AMD X370 and other AM4 chipsets (A/B/X 3/4/5 parts) and Threadripper
-equivalents have a secondary SMBus controller at I/O port address
-0x0B20.  This bus is used by several manufacturers to control
-motherboard RGB lighting via embedded controllers.  I have been using
-this bus in my OpenRGB project to control the Aura RGB on many
-motherboards and ASRock also uses this bus for their Polychrome RGB
-controller.
+Go for it:
 
-I am not aware of any CZ-compatible platforms which do not have the
-second SMBus channel.  All of AMD's AM4- and Threadripper- series
-chipsets that OpenRGB users have tested appear to have this secondary
-bus.  I also noticed this secondary bus is present on older AMD
-platforms including my FM1 home server.
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202587
-Signed-off-by: Adam Honse <calcprogrammer1@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-piix4.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 30ded6422e7b..69740a4ff1db 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -977,7 +977,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	}
- 
- 	if (dev->vendor == PCI_VENDOR_ID_AMD &&
--	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
-+	    (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
-+	     dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)) {
- 		retval = piix4_setup_sb800(dev, id, 1);
- 	}
- 
 -- 
-2.25.1
-
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
