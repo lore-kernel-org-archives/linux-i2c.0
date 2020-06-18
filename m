@@ -4,48 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E34EBC433E1
-	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 01:51:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADBCBC433E1
+	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 01:53:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B7DE622208
-	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 01:51:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7F70E22206
+	for <linux-i2c@archiver.kernel.org>; Thu, 18 Jun 2020 01:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592445090;
-	bh=lvqK+OEl2mVBWoRcfXzFrNQSTJaOjX4d3F1R6xzTIUk=;
+	s=default; t=1592445190;
+	bh=KKm3hGt7yskpwSdh59W0SWjnZ+/KPXUQvAQqdtmF8lg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=J5TrXNdglY7FrAMA9tRKXK/X8iNW9e3PUmxhPL7TatooXkBGE4BNrGkyL5lWl0V4G
-	 m3SkWUDZzLLCTDPncqD9GjtNLsaI9gNArYpryWd7AsAD7x+JVQ/2UVPxNcOZ+RUnr/
-	 as4W9VKeidhNNDdNVyC73OZzsSudkbYXbiUHOsvQ=
+	b=d7Rn2GkWqzmc0w3d6MDDXOcej2sWebKj+BceDmBee58JwdE3CfIjLT/hednUY8Yfo
+	 E0VUqq9sBDCwNegyjK0+9PO1QLv7d5fvehzqrgA/UxUVyhfrukKbua0lvOh6pTZ+PH
+	 UWcxYs0hHLxA2T7UTJ4VeNxHHXjWw74Y64aPhuPE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731167AbgFRB1B (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 17 Jun 2020 21:27:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
+        id S1731213AbgFRBxJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 17 Jun 2020 21:53:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731013AbgFRB1A (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:27:00 -0400
+        id S1731653AbgFRB0W (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8690D21D7A;
-        Thu, 18 Jun 2020 01:26:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65DE2221EE;
+        Thu, 18 Jun 2020 01:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443620;
-        bh=lvqK+OEl2mVBWoRcfXzFrNQSTJaOjX4d3F1R6xzTIUk=;
+        s=default; t=1592443582;
+        bh=KKm3hGt7yskpwSdh59W0SWjnZ+/KPXUQvAQqdtmF8lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jxY4LHm+0zh22icMEFfu38SVD1apaIshW1EOE8WOXWwnDgWHBGEV9N7pqwzOvEuSx
-         C+X5AS39kcHZ8IPFo4BirFRX0MuhYoAtm3dctZNMvbq62C3knYDvYa/AK34XRQqTNJ
-         u7vwmxK7YbbfEoq2gGV9+FWMeNRSbaFvQoF9YjoA=
+        b=y/BCPZk/evngm6y7ryPxg/tNGqIJTX0WQWVZkE4nJCTlPuneM2Xw6PsvfgX9a12Yi
+         T1mEqx0hF3f5cdtdhVRkLJulloW8xp+sG5vSRRcsbS/CVwFKKOAqQy2Wx7WGCodNvI
+         bw36w6j1mt9UxAM7lTclSW1BcKMu9+HNW6Gf5FNc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 046/108] i2c: pxa: fix i2c_pxa_scream_blue_murder() debug output
-Date:   Wed, 17 Jun 2020 21:24:58 -0400
-Message-Id: <20200618012600.608744-46-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 017/108] i2c: pxa: clear all master action bits in i2c_pxa_stop_message()
+Date:   Wed, 17 Jun 2020 21:24:29 -0400
+Message-Id: <20200618012600.608744-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -60,50 +60,41 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 88b73ee7ca4c90baf136ed5a8377fc5a9b73ac08 ]
+[ Upstream commit e81c979f4e071d516aa27cf5a0c3939da00dc1ca ]
 
-The IRQ log output is supposed to appear on a single line.  However,
-commit 3a2dc1677b60 ("i2c: pxa: Update debug function to dump more info
-on error") resulted in it being printed one-entry-per-line, which is
-excessively long.
+If we timeout during a message transfer, the control register may
+contain bits that cause an action to be set. Read-modify-writing the
+register leaving these bits set may trigger the hardware to attempt
+one of these actions unintentionally.
 
-Fixing this is not a trivial matter; using pr_cont() doesn't work as
-the previous dev_dbg() may not have been compiled in, or may be
-dynamic.
-
-Since the rest of this function output is at error level, and is also
-debug output, promote this to error level as well to avoid this
-problem.
-
-Reduce the number of always zero prefix digits to save screen real-
-estate.
+Always clear these bits when cleaning up after a message or after
+a timeout.
 
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-pxa.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index ecc84aea5131..e300f9530f19 100644
+index 600d264e080c..ecc84aea5131 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -315,11 +315,10 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
- 	dev_err(dev, "IBMR: %08x IDBR: %08x ICR: %08x ISR: %08x\n",
- 		readl(_IBMR(i2c)), readl(_IDBR(i2c)), readl(_ICR(i2c)),
- 		readl(_ISR(i2c)));
--	dev_dbg(dev, "log: ");
-+	dev_err(dev, "log:");
- 	for (i = 0; i < i2c->irqlogidx; i++)
--		pr_debug("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
--
--	pr_debug("\n");
-+		pr_cont(" [%03x:%05x]", i2c->isrlog[i], i2c->icrlog[i]);
-+	pr_cont("\n");
+@@ -709,11 +709,9 @@ static inline void i2c_pxa_stop_message(struct pxa_i2c *i2c)
+ {
+ 	u32 icr;
+ 
+-	/*
+-	 * Clear the STOP and ACK flags
+-	 */
++	/* Clear the START, STOP, ACK, TB and MA flags */
+ 	icr = readl(_ICR(i2c));
+-	icr &= ~(ICR_STOP | ICR_ACKNAK);
++	icr &= ~(ICR_START | ICR_STOP | ICR_ACKNAK | ICR_TB | ICR_MA);
+ 	writel(icr, _ICR(i2c));
  }
  
- #else /* ifdef DEBUG */
 -- 
 2.25.1
 
