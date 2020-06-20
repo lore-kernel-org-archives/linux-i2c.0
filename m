@@ -2,81 +2,155 @@ Return-Path: <SRS0=jemj=AB=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_SANE_2 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5703C433E0
-	for <linux-i2c@archiver.kernel.org>; Sat, 20 Jun 2020 07:46:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F671C433DF
+	for <linux-i2c@archiver.kernel.org>; Sat, 20 Jun 2020 17:16:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8A336214D8
-	for <linux-i2c@archiver.kernel.org>; Sat, 20 Jun 2020 07:46:01 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="NcR1VWYd"
+	by mail.kernel.org (Postfix) with ESMTP id 02D7C22DA9
+	for <linux-i2c@archiver.kernel.org>; Sat, 20 Jun 2020 17:16:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1592673391;
+	bh=zbplmaCf3az+f6f2Jeh+YVePiNjF3AjtIdUa5LQ1o9Q=;
+	h=Date:From:To:Cc:Subject:List-ID:From;
+	b=iABAUOwO0jYEWx81Wv1NFZ8NM8ORfAAMFvXDOQD8E/UUL5CzRZ4cBsadTwoPhUxi7
+	 RfQ1Jg0BagFLK8lM9gYiYl7cvyRfJPfQy3xCqEx7gOH3H2oCDincDRlhrKvBZlPfOA
+	 lBD4fRHXmo7VTfzWFV+wN7xfCe4QceEluVI0LLQc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727070AbgFTHqA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 20 Jun 2020 03:46:00 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:24322 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725835AbgFTHqA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 20 Jun 2020 03:46:00 -0400
-X-UUID: 19be2c4aac3e441d903f9b1fd88945be-20200620
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=W396ifFNhTXMU6Ao6v2NVBlA5nufvq++IW1xtDsWqvQ=;
-        b=NcR1VWYdt4U4MAXZYbeRRoWiLb4MntYhpBpLtk4Yg6n6wzwMy2mwK0Au/1dKZ3E8FwpTipD4NKbGJLFP9msIeQK8ensWbybephjRq3XUhlrT6EEQXrwfRFx41nrjBSqPl0MyXaTjRXcpBuZGujVzH3sm+cGsEFN1PPvtAQ6MB4Y=;
-X-UUID: 19be2c4aac3e441d903f9b1fd88945be-20200620
-Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
-        (envelope-from <yingjoe.chen@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1283702885; Sat, 20 Jun 2020 15:45:55 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Sat, 20 Jun 2020 15:45:53 +0800
-Received: from [172.21.77.4] (172.21.77.4) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Sat, 20 Jun 2020 15:45:52 +0800
-Message-ID: <1592639154.5529.3.camel@mtksdaap41>
-Subject: Re: [PATCH v2 2/2] i2c: mediatek: Add i2c ac-timing adjust support
-From:   Yingjoe Chen <yingjoe.chen@mediatek.com>
-To:     Qii Wang <qii.wang@mediatek.com>
-CC:     <wsa@the-dreams.de>, <devicetree@vger.kernel.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>
-Date:   Sat, 20 Jun 2020 15:45:54 +0800
-In-Reply-To: <1589461844-15614-3-git-send-email-qii.wang@mediatek.com>
-References: <1589461844-15614-1-git-send-email-qii.wang@mediatek.com>
-         <1589461844-15614-3-git-send-email-qii.wang@mediatek.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.10.4-0ubuntu2 
+        id S1727808AbgFTRQa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 20 Jun 2020 13:16:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46150 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726838AbgFTRQa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 20 Jun 2020 13:16:30 -0400
+Received: from localhost (router.4pisysteme.de [80.79.225.122])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF04222B2B;
+        Sat, 20 Jun 2020 17:16:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592673389;
+        bh=zbplmaCf3az+f6f2Jeh+YVePiNjF3AjtIdUa5LQ1o9Q=;
+        h=Date:From:To:Cc:Subject:From;
+        b=BSkLiv8IKNwx4NWopyCN0hYF0VFJhyRHUMaOP5TpJRquYNvPyUVpzUMfyv4fIlUgj
+         7ROjWQzY9edJujwXbkl7hH6KRf5uqqxqoYLVYxM7e22XZHqgT5tkF5aHKH0g7tkmLW
+         FH8+ijHHtzwplN/agdOSjUGQC369GROP70HZNsaI=
+Date:   Sat, 20 Jun 2020 19:16:24 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Peter Rosin <peda@axentia.se>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PULL REQUEST] i2c for 5.8
+Message-ID: <20200620171624.GA9805@kunai>
 MIME-Version: 1.0
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+Content-Disposition: inline
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-DQpTb3JyeSBmb3IgbGF0ZSByZXZpZXcuDQoNCg0KT24gVGh1LCAyMDIwLTA1LTE0IGF0IDIxOjA5
-ICswODAwLCBRaWkgV2FuZyB3cm90ZToNCj4gVGhpcyBwYXRjaCBhZGRzIGEgYWxnb3JpdGhtIHRv
-IGNhbGN1bGF0ZSBzb21lIGFjLXRpbWluZyBwYXJhbWV0ZXJzDQo+IHdoaWNoIGNhbiBmdWxseSBt
-ZWV0IEkyQyBTcGVjLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogUWlpIFdhbmcgPHFpaS53YW5nQG1l
-ZGlhdGVrLmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4eC5jIHwg
-MzI4ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0NCj4gIDEgZmlsZSBj
-aGFuZ2VkLCAyNzcgaW5zZXJ0aW9ucygrKSwgNTEgZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1tdDY1eHguYyBiL2RyaXZlcnMvaTJjL2J1c3Nl
-cy9pMmMtbXQ2NXh4LmMNCj4gaW5kZXggMGNhNmMzOGEuLjcwMjA2MTggMTAwNjQ0DQo+IC0tLSBh
-L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXQ2NXh4LmMNCj4gKysrIGIvZHJpdmVycy9pMmMvYnVz
-c2VzL2kyYy1tdDY1eHguYw0KDQo8Li4uPg0KDQo+IEBAIC05NDgsOSArMTE3Nyw2IEBAIHN0YXRp
-YyBpbnQgbXRrX2kyY19wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPiAgCWlm
-IChyZXQpDQo+ICAJCXJldHVybiAtRUlOVkFMOw0KPiAgDQo+IC0JaWYgKGkyYy0+ZGV2X2NvbXAt
-PnRpbWluZ19hZGp1c3QpDQo+IC0JCWkyYy0+Y2xrX3NyY19kaXYgKj0gSTJDX0RFRkFVTFRfQ0xL
-X0RJVjsNCj4gLQ0KDQpBZnRlciB0aGlzIHBhdGNoLCB0aGUgJ2Nsb2NrLWRpdicgcHJvcGVydHkg
-aW4gZGV2aWNlIHRyZWUgaXMgbm8gbG9uZ2VyDQp1c2VkIGZvciBwbGF0Zm9ybSB3aXRoIHRpbWlu
-Z19hZGp1c3QgYWJpbGl0eS4NClBsZWFzZSBjaGFuZ2UgdGhlIGJpbmRpbmcsIHNvIHdlIGRvbid0
-IG5lZWQgdG8gcHJvdmlkZSAnY2xvY2stZGl2JyBmb3INCnRoZXNlIHBsYXRmb3JtLg0KDQpKb2Uu
-Qw0KDQo+ICAJaWYgKGkyYy0+aGF2ZV9wbWljICYmICFpMmMtPmRldl9jb21wLT5wbWljX2kyYykN
-Cj4gIAkJcmV0dXJuIC1FSU5WQUw7DQo+ICANCg0K
 
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Linus,
+
+I2C has for rc2:
+
+- a small collection of remaining API conversion patches (all acked)
+  which allow to finally remove the deprecated API
+- some documentation fixes and a MAINTAINERS addition
+
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit b3a9e3b9622ae10064826dccb4f7a52bd88c7407:
+
+  Linux 5.8-rc1 (2020-06-14 12:45:04 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 28f9f8fb4f405ade488058f817b6cbd108e45e4e:
+
+  MAINTAINERS: Add robert and myself as qcom i2c cci maintainers (2020-06-19 15:07:00 +0200)
+
+----------------------------------------------------------------
+Daniel Schaefer (1):
+      Documentation/i2c: SMBus start signal is S not A
+
+Keyur Patel (1):
+      i2c: smbus: Fix spelling mistake in the comments
+
+Loic Poulain (1):
+      MAINTAINERS: Add robert and myself as qcom i2c cci maintainers
+
+Wolfram Sang (6):
+      drm: encoder_slave: fix refcouting error for modules
+      drm: encoder_slave: use new I2C API
+      x86/platform/intel-mid: convert to use i2c_new_client_device()
+      video: backlight: tosa_lcd: convert to use i2c_new_client_device()
+      Documentation: media: convert to use i2c_new_client_device()
+      i2c: remove deprecated i2c_new_device API
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Andy Shevchenko (1):
+      (Rev.) x86/platform/intel-mid: convert to use i2c_new_client_device()
+
+Daniel Thompson (1):
+      (Rev.) video: backlight: tosa_lcd: convert to use i2c_new_client_device()
+
+Emil Velikov (2):
+      (Rev.) drm: encoder_slave: use new I2C API
+      (Rev.) drm: encoder_slave: fix refcouting error for modules
+
+Mauro Carvalho Chehab (1):
+      (Rev.) Documentation: media: convert to use i2c_new_client_device()
+
+ Documentation/driver-api/media/v4l2-subdev.rst    |  2 +-
+ Documentation/i2c/smbus-protocol.rst              |  2 +-
+ Documentation/userspace-api/media/conf_nitpick.py |  2 +-
+ MAINTAINERS                                       |  9 ++++++++
+ arch/x86/platform/intel-mid/sfi.c                 |  4 ++--
+ drivers/gpu/drm/drm_encoder_slave.c               | 15 +++++---------
+ drivers/i2c/i2c-core-base.c                       | 25 -----------------------
+ drivers/i2c/i2c-core-smbus.c                      |  2 +-
+ drivers/video/backlight/tosa_lcd.c                |  4 ++--
+ include/linux/i2c.h                               |  8 +++-----
+ 10 files changed, 25 insertions(+), 48 deletions(-)
+
+--y0ulUmNC+osPPQO6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl7uRGQACgkQFA3kzBSg
+Kba/sw/+KICcKVcOKJauUJqE1f8yccdPhyTOyEeVWDqq+bhOMrNcn51B45flcDNm
+jBkGe+SHGYxIExBAZq4kT5EEfkAaxEoUCxdyHLhu1F6oOudfP2o3c01q115rCqWy
+TiienA6mO4f/MdP4i+RPNZKLUpQJieoJ6hxfZtxT5RiiqVJcdGp0QAfbVhw97RFJ
+6UlVHrQzEMm+W4UXIaUpiiC0TBf7ih0mH7UeGvCMAG0mwHB8XV+W9SeJ3k6ke+kh
+yD5BALbTSsi0st3kHzrrhvk/Wr2uAlHQsyetWz32EUUNNqu8nxpAnPHyvHbisj7G
+QaI3v/rGSwKqw24XUDwVg0GEHyqIoMEZInDZSMOI16jZndFRS9n2Po6dpbNPSPey
+VoJ7olh2jMMx5B+4benEzN2YHd7vcHz3utaeIJgcOkDE2qSVVQjGwr0vZotdkf1x
+81qM4LubmOu/2O/QezpS9lviH5r2g+K4Fl9pZV7PHv3eleiYdNnrkCH6RSz9jjk6
+ooB4aji7CldwGFJ9cfsKgapCGjMu5loWg7n8OjnXLXuHnsIPu1ZsAe97ZSeB6V4A
+hF/eq/CWESVTgrWg5veySZMYUW//ZzLXiCJpwowGAGzK0H4aK1rwZhjMLz5gXpAM
+ESnI0KStQpKfdU60YwVHoBBz1ozdDKfj9OzwHyoGhuoR2xR6ebQ=
+=pbA3
+-----END PGP SIGNATURE-----
+
+--y0ulUmNC+osPPQO6--
