@@ -2,103 +2,137 @@ Return-Path: <SRS0=9SSs=AD=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25A66C433E0
-	for <linux-i2c@archiver.kernel.org>; Mon, 22 Jun 2020 02:06:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A05FCC433DF
+	for <linux-i2c@archiver.kernel.org>; Mon, 22 Jun 2020 18:15:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C888207F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 22 Jun 2020 02:06:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7CA8520732
+	for <linux-i2c@archiver.kernel.org>; Mon, 22 Jun 2020 18:15:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=web.de header.i=@web.de header.b="WWPjMETm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731025AbgFVCGA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 21 Jun 2020 22:06:00 -0400
-Received: from mail.zju.edu.cn ([61.164.42.155]:9664 "EHLO zju.edu.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1731026AbgFVCF7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 21 Jun 2020 22:05:59 -0400
-Received: from localhost.localdomain (unknown [210.32.144.65])
-        by mail-app3 (Coremail) with SMTP id cC_KCgDnEnjhEfBeyJcJAQ--.40864S4;
-        Mon, 22 Jun 2020 10:05:25 +0800 (CST)
-From:   Dinghao Liu <dinghao.liu@zju.edu.cn>
-To:     dinghao.liu@zju.edu.cn, kjlu@umn.edu
-Cc:     Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
+        id S1730099AbgFVSPk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 22 Jun 2020 14:15:40 -0400
+Received: from mout.web.de ([212.227.15.3]:38985 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729873AbgFVSPk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 22 Jun 2020 14:15:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1592849717;
+        bh=hUD5B0OXQqFhcHukPwK74TlGNcrPDU2XpmqaEPVtFXw=;
+        h=X-UI-Sender-Class:Cc:Subject:To:From:Date;
+        b=WWPjMETmfzcnfnDcoI+7cXZ8WT+XDlup9EllYccxCtb3BhYwmbILp6iNn7hQ9816j
+         q12AVUARcGRZA32aKT2oWws0PCcnuSi6jRWbyVYMdtJtbhdphqgDFIeShscBC8L+kb
+         vtrdCiSpA3hglzaIqCBDdW8g1qXGFWF0AtyHJj2c=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from [192.168.1.2] ([78.49.69.81]) by smtp.web.de (mrweb004
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 0MapFS-1jYWkw3fa6-00KTQV; Mon, 22
+ Jun 2020 20:15:17 +0200
+Cc:     Aditya Pakki <pakki001@umn.edu>,
+        Navid Emamdoost <emamd001@umn.edu>, Kangjie Lu <kjlu@umn.edu>,
+        Qiushi Wu <wu000273@umn.edu>, linux-kernel@vger.kernel.org,
         Wolfram Sang <wsa@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Dejin Zheng <zhengdejin5@gmail.com>,
         Scott Branden <scott.branden@broadcom.com>,
-        Dejin Zheng <zhengdejin5@gmail.com>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: sprd: Fix runtime PM imbalance on error
-Date:   Mon, 22 Jun 2020 10:05:18 +0800
-Message-Id: <20200622020520.5334-1-dinghao.liu@zju.edu.cn>
-X-Mailer: git-send-email 2.17.1
-X-CM-TRANSID: cC_KCgDnEnjhEfBeyJcJAQ--.40864S4
-X-Coremail-Antispam: 1UD129KBjvJXoWrKrWrZF17ur48GF48JF1xGrg_yoW8JrWrpr
-        W0gF90kFW7XrZagF4DArsxXFy5W3yft3y5JFWjk3WfZFs8X3Wktr45JF1FqF48JrWkJF4f
-        Jw4qya9xCFy0yF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUU9v1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
-        w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
-        IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJr0_GcWl84ACjcxK6I8E
-        87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
-        8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
-        Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
-        xGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc2xSY4AK
-        67AK6r4UMxAIw28IcxkI7VAKI48JMxAIw28IcVCjz48v1sIEY20_GFWkJr1UJwCFx2IqxV
-        CFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r10
-        6r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxV
-        WUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG
-        6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JV
-        W8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUbpwZ7UUUUU==
-X-CM-SenderInfo: qrrzjiaqtzq6lmxovvfxof0/1tbiAgcQBlZdtOvMDgAIsN
+        Patrice Chotard <patrice.chotard@st.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: sprd: Fix runtime PM imbalance on error
+To:     Dinghao Liu <dinghao.liu@zju.edu.cn>, linux-i2c@vger.kernel.org
+From:   Markus Elfring <Markus.Elfring@web.de>
+Autocrypt: addr=Markus.Elfring@web.de; prefer-encrypt=mutual; keydata=
+ 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 FEE=
+Message-ID: <92122fb7-8362-4835-0860-41d423665e19@web.de>
+Date:   Mon, 22 Jun 2020 20:15:11 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:SaN+nnZRu87UIcyA6hDAf87YGrjZQNxpgf0ecU0IgHZ+coat02e
+ /n4yGN8Cux/66wy1NCzoKUToBxbrS59Loq+NDWDjHlGgXSWbsGiC4nRdK6dbi0iYIVxVz8d
+ VTwhEa+y+4h3mz9c2W0wM5yJGAPhfU04GzMwjmp+9ioCOPCRC3632axsb1Dazs9wU1JsPpI
+ vGE3f6Wv8peCrKRbPUm9A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:bXNQlLzINcc=:FCHMH9z2gBrHz8tzv3TS3m
+ Wx+PJj2k5oaoOocPV+ZuZgNjkhrP0n4vFKoaTtjp4SNzKZBnbX89Nq5q1rVIPu/7EoeDODGyI
+ MZbdc3gEgcCNlGAYUrlQEqefJyaF4c6doRswY1jSj5yZKNURFW2pz3mAQw1WyG8GRSnEmnoKC
+ T5WEjB0fH+LHqUs/MN9hQ7Jpj0jiCHJs+GI5awGC2MfWDIla92wAr5hhrZe66zndmAYMdHhmt
+ MABIYKjQs7yraraLwuZBtIIMzlLed1+7VbLsjJ1XBdfzIKPbLKnuXghyEq3H/dKn88iBWoFrH
+ YdNQiKCf0k25eA//2ucG9Km+Cpsv2fySNRVE2goOWzoTggJeWwHEHdCsKFgx3VQydJZ8gB6o5
+ VsAnome95KXhBbk9cr/HT73H2i8C4+J/O5cVvuTyKkWXLi0jGp8L8HuQCL/unTqTcfVtCUlKm
+ j0QpL1IIEF/xzbZKVZMhWBdj2BYq6r7LX/4zLpQ3f29m+oc/vi/uzLK0vxCoUgznLWBMtAzm7
+ ROFbIwn2kVewcX6VurReDXLp/KBXQ7Di2ZCBarLXcMeLBVTy2x/RyNmGws9PNrPdxjrj0g4b7
+ 6GZGt7vJFuJUGU7eSdhjf9/1xM+INvuxv6XB5ooY2UDLXNs6kW6RzRkU/7kUukOTPUUD7o2Cc
+ ToqjfY/w8GPEI3QFjmR0/BLNwo6KRBm0DXRV739d3u4WhR/5QL+sBAEs+MMZw8sP/dLxqt3IK
+ B3rbPwNKFs5k/LWUguuAZ3kLqhbbF+z02dTuwVRmRqkQCnauU1zCuLd0GN5ac/BviP9JRfr2G
+ wvnPCPBz4xOmXn/cgay8cjlqxGiqPSDGTRbznUOhJbwk8e3FsqaxLYGhqwtU9Ts4D/KZHGa9a
+ t1W51xBoXXY/sqbtHhN6DLNSHHXV2sezxPlng7NQP10bk19AXYXD1y8yiRgDuqBgcKtfW70Qr
+ MjW3Xv3GyQvYUFC/L9NSpRWlIhrgwvXqs794wjWkAI0VEZLVPBWNUaB5MpK4GMrfp0UtPw1+Q
+ lMmbg5GMyVb8RRtk++5T/uboWsa2YbnKmgqNaOl9u05jUOn+M7ARugrF4sL8EgcgKS6xRW3W/
+ mqjrImGOx67Gdvx5LxjcfI2+5bg7FzTw+GDn2qsAyWeaTP9NKwEoLDOUdt8PBCacLAfLSapko
+ 9kuxawb2UjWbNQb0iTshFbBd0LmlfpN8mSNmXpVcGOfmAD2BFrE23tlZlCHcRi4d5H5c5fMjW
+ h1VF3koUq3QH4R4OG
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-the call returns an error code. Thus a corresponding decrement is
-needed on the error handling path to keep the counter balanced.
+> Fix this by =E2=80=A6
 
-Fix this by adding the missed function call.
+Please replace the beginning of this sentence with the tag =E2=80=9CFixes=
+=E2=80=9D.
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
+cumentation/process/submitting-patches.rst?id=3D625d3449788f85569096780592=
+549d0340e9c0c7#n183
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
----
- drivers/i2c/busses/i2c-sprd.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-index 19cda6742423..675f72a3fd60 100644
---- a/drivers/i2c/busses/i2c-sprd.c
-+++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -285,8 +285,10 @@ static int sprd_i2c_master_xfer(struct i2c_adapter *i2c_adap,
- 	int im, ret;
- 
- 	ret = pm_runtime_get_sync(i2c_dev->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(i2c_dev->dev);
- 		return ret;
-+	}
- 
- 	for (im = 0; im < num - 1; im++) {
- 		ret = sprd_i2c_handle_msg(i2c_adap, &msgs[im], 0);
-@@ -571,8 +573,10 @@ static int sprd_i2c_remove(struct platform_device *pdev)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(i2c_dev->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(i2c_dev->dev);
- 		return ret;
-+	}
- 
- 	i2c_del_adapter(&i2c_dev->adap);
- 	clk_disable_unprepare(i2c_dev->clk);
--- 
-2.17.1
-
+Regards,
+Markus
