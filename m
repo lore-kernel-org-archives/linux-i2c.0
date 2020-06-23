@@ -2,147 +2,99 @@ Return-Path: <SRS0=I+Qh=AE=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1EC9C433E0
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Jun 2020 12:30:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00EA9C433DF
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Jun 2020 17:35:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C8A9E20724
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Jun 2020 12:30:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB0F020774
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Jun 2020 17:35:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=metanate.com header.i=@metanate.com header.b="BUqM9YTd"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="tQLVwQqn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732393AbgFWMac (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 23 Jun 2020 08:30:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36174 "EHLO
+        id S1733127AbgFWRfS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 23 Jun 2020 13:35:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729611AbgFWMab (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Jun 2020 08:30:31 -0400
-X-Greylist: delayed 1407 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 23 Jun 2020 05:30:31 PDT
-Received: from metanate.com (unknown [IPv6:2001:8b0:1628:5005::111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 868EFC061573
-        for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2020 05:30:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=metanate.com; s=stronger; h=Content-Transfer-Encoding:Message-Id:Date:
-        Subject:Cc:To:From:Content-Type:Reply-To:Content-ID:Content-Description:
-        In-Reply-To:References; bh=+9P0veH3bRYGxJ7OmCEI28itKeJb+ud/P1u+38Hw3vw=; b=BU
-        qM9YTd4A6jMTR+fYWxjEio83Td52s3AwjFA+pgwOG4cbbKMN3WOe5Ts6elr2p+bzBsSBJ1cc/cSMb
-        qCqmX4ygHfBT1EWIMLogJWxQprw8eTOOisrR2y43eX+29Qr6S39vxjU4hWqFFWQ/nElcYXbCBp0/d
-        B3veK2LWXZxFSRji4tLFOyFVZRCGmyK0du+w9DxLo2NvRiGnbYNMP0XTLmLyRrHotvy+mAzc810GS
-        dIKjUjOyby0NBkM/U77qqHp0OFBoi0xsGk6bT+APxSQ7knvtH3Fm9uNgoHX3LxEaMi0p15RxdRVje
-        XJhAxXGe/32W9A5yZITYFmCDTgqER+nw==;
-Received: from [81.174.171.191] (helo=donbot.metanate.com)
-        by email.metanate.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <john@metanate.com>)
-        id 1jnhhc-0005dX-06; Tue, 23 Jun 2020 13:07:00 +0100
-From:   John Keeping <john@metanate.com>
-To:     Heiko Stuebner <heiko@sntech.de>
-Cc:     John Keeping <john@metanate.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: rk3x: support master_xfer_atomic
-Date:   Tue, 23 Jun 2020 13:06:46 +0100
-Message-Id: <20200623120646.2175569-1-john@metanate.com>
-X-Mailer: git-send-email 2.27.0
+        with ESMTP id S1733078AbgFWRfR (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Jun 2020 13:35:17 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A277C061573
+        for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2020 10:35:17 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id e5so17433238ote.11
+        for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2020 10:35:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8ZI+FsQ+T9XTOAQXfY1vb8oeMac0yFiRWy8EYUCQ8ak=;
+        b=tQLVwQqn53945StArQedcIw1lLetSwzyVAw4kSEeAYsyP8vWV3O/VpzXefRnpzI8uv
+         V+52OY3hlZ4GYZpoqy7mo7LI/ehFv2bcP4T5BCPALwe8olCBa0pTK9q5hb9pN66vLZ5H
+         gN5Dgq03w8ZQMz2y/46gzd/o+ePQjo0h1hHTyhHzmRfRGImIhdtz1QJCUc3x8dT11RON
+         pWrUJQ6Lat9l4S2o3R8eBOQWA17eZ7FAJg5Q5vNj8j7PU8yTCqEXFmFjp1GkmnInHLk3
+         /FQ+KTINkgjxsvHUL4wN0vhEouiXm0/RcukH+W0WVV0QtB1sKPecG6kKBEBJ4M5SLoc3
+         RL3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8ZI+FsQ+T9XTOAQXfY1vb8oeMac0yFiRWy8EYUCQ8ak=;
+        b=dmWAAWvqZvV3VhJs3nzw6kj+fkDfHqpjjpHxn6INoVk0aD9n2ROpU1hbcOynNS8vVj
+         2vncsPIaSr35u1ZjmOwUZGWKwWKWqibeDFJNnxiVdADGj4HZKlzyELXCYxq5fS/PNjXb
+         HG7sdU0fYYWf27h+8pgAk5e/96F3r4oqdQoTjvxY1u1Q+HbGhKOtovcTCet1TCOs+f1m
+         1+SWImIiBbttbf1eWLdBR+kKq1/NsRzZYsZXisczHa2kBkrumchDgGpuerILWlkd7Xf5
+         k6PBLEqlBIx97aSjzQU5jEDEHFwaqVPTEQ638EBzI4wN6wMqKxX/K43zsq2AxJs51LXt
+         FNcw==
+X-Gm-Message-State: AOAM532oudVxpjZBPQymV4qimLAC/Q8JKg1kxV+4VrhON/nEJ0REqS0B
+        nnCgq/JGjdiw5jo53BWpEjYGsnPzJ2i+b1ABB0M+Yg==
+X-Google-Smtp-Source: ABdhPJxhaSKlaqDctIqXMMFF1FWvlE4xL19gASPKUIDUzwEdrLbm9bBP/Gae5VL5HJNnhCxSl1Vbq2SUOrZLeIoiQ0Q=
+X-Received: by 2002:a9d:67d6:: with SMTP id c22mr18461806otn.221.1592933716517;
+ Tue, 23 Jun 2020 10:35:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Authenticated: YES
+References: <20200623091501.50070-1-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20200623091501.50070-1-andriy.shevchenko@linux.intel.com>
+From:   John Stultz <john.stultz@linaro.org>
+Date:   Tue, 23 Jun 2020 10:35:05 -0700
+Message-ID: <CALAqxLX_d3UencbsLZYw==FeZZjT5krf2NtwX7QxQKAt2aYS+Q@mail.gmail.com>
+Subject: Re: [PATCH v1] i2c: designware: Adjust bus speed independently of ACPI
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Enable i2c transactions in irq disabled contexts like poweroff where the
-PMIC is connected via i2c.
+On Tue, Jun 23, 2020 at 2:15 AM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+>
+> John Stultz reported that commit f9288fcc5c615 ("i2c: designware: Move
+> ACPI parts into common module") caused a regression on the HiKey board
+> where adv7511 HDMI bridge driver wasn't probing anymore due the I2C bus
+> failed to start.
+>
+> It seems the change caused the bus speed being zero when CONFIG_ACPI
+> not set and neither speed based on "clock-frequency" device property
+> or default fast mode is set.
+>
+> Fix this by splitting i2c_dw_acpi_adjust_bus_speed() to
+> i2c_dw_acpi_round_bus_speed() and i2c_dw_adjust_bus_speed(), where
+> the latter one has the code that runs independently of ACPI.
+>
+> Fixes: f9288fcc5c615 ("i2c: designware: Move ACPI parts into common module")
+> Reported-by: John Stultz <john.stultz@linaro.org>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
 
-Signed-off-by: John Keeping <john@metanate.com>
----
- drivers/i2c/busses/i2c-rk3x.c | 39 +++++++++++++++++++++++++++++++----
- 1 file changed, 35 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 15324bfbc6cb..8e3cc85d1921 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -10,6 +10,7 @@
- #include <linux/module.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
-+#include <linux/iopoll.h>
- #include <linux/errno.h>
- #include <linux/err.h>
- #include <linux/platform_device.h>
-@@ -1040,8 +1041,21 @@ static int rk3x_i2c_setup(struct rk3x_i2c *i2c, struct i2c_msg *msgs, int num)
- 	return ret;
- }
- 
--static int rk3x_i2c_xfer(struct i2c_adapter *adap,
--			 struct i2c_msg *msgs, int num)
-+static int rk3x_i2c_wait_xfer_poll(struct rk3x_i2c *i2c)
-+{
-+	ktime_t timeout = ktime_add_ms(ktime_get(), WAIT_TIMEOUT);
-+
-+	while (READ_ONCE(i2c->busy) &&
-+	       ktime_compare(ktime_get(), timeout) < 0) {
-+		udelay(5);
-+		rk3x_i2c_irq(0, i2c);
-+	}
-+
-+	return !i2c->busy;
-+}
-+
-+static int rk3x_i2c_xfer_common(struct i2c_adapter *adap,
-+				struct i2c_msg *msgs, int num, bool polling)
- {
- 	struct rk3x_i2c *i2c = (struct rk3x_i2c *)adap->algo_data;
- 	unsigned long timeout, flags;
-@@ -1075,8 +1089,12 @@ static int rk3x_i2c_xfer(struct i2c_adapter *adap,
- 
- 		rk3x_i2c_start(i2c);
- 
--		timeout = wait_event_timeout(i2c->wait, !i2c->busy,
--					     msecs_to_jiffies(WAIT_TIMEOUT));
-+		if (!polling) {
-+			timeout = wait_event_timeout(i2c->wait, !i2c->busy,
-+						     msecs_to_jiffies(WAIT_TIMEOUT));
-+		} else {
-+			timeout = rk3x_i2c_wait_xfer_poll(i2c);
-+		}
- 
- 		spin_lock_irqsave(&i2c->lock, flags);
- 
-@@ -1110,6 +1128,18 @@ static int rk3x_i2c_xfer(struct i2c_adapter *adap,
- 	return ret < 0 ? ret : num;
- }
- 
-+static int rk3x_i2c_xfer(struct i2c_adapter *adap,
-+			 struct i2c_msg *msgs, int num)
-+{
-+	return rk3x_i2c_xfer_common(adap, msgs, num, false);
-+}
-+
-+static int rk3x_i2c_xfer_polling(struct i2c_adapter *adap,
-+				 struct i2c_msg *msgs, int num)
-+{
-+	return rk3x_i2c_xfer_common(adap, msgs, num, true);
-+}
-+
- static __maybe_unused int rk3x_i2c_resume(struct device *dev)
- {
- 	struct rk3x_i2c *i2c = dev_get_drvdata(dev);
-@@ -1126,6 +1156,7 @@ static u32 rk3x_i2c_func(struct i2c_adapter *adap)
- 
- static const struct i2c_algorithm rk3x_i2c_algorithm = {
- 	.master_xfer		= rk3x_i2c_xfer,
-+	.master_xfer_atomic	= rk3x_i2c_xfer_polling,
- 	.functionality		= rk3x_i2c_func,
- };
- 
--- 
-2.27.0
+This works fine for me as well! Thanks so much!
 
+Tested-by: John Stultz <john.stultz@linaro.org>
+
+thanks
+-john
