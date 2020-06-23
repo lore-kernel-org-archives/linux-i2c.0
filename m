@@ -2,92 +2,84 @@ Return-Path: <SRS0=I+Qh=AE=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 871BEC433DF
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Jun 2020 10:57:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D255C433E0
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Jun 2020 11:21:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 67D8520738
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Jun 2020 10:57:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592909874;
-	bh=6wt/+Vt+bq7XfKbTd2BTFYU+/jxu6ucOpuI8JSZHgmE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=LjtHLy/+HjIGw2Icb3c0HiniHyjovOIyh5zznKRG6upxVnobDOSt9amS6qPLCh3nq
-	 OIMbP7YebsI5hNf4FbzrEpxk/SPI+0zB9yqexPcwYMPv37FkVLhTMuw/xA7YvaSwtd
-	 NC+9nQZzGSabJn5vWzxz1OV26R9xfZZSGogaImvM=
+	by mail.kernel.org (Postfix) with ESMTP id 7821B20724
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Jun 2020 11:21:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732352AbgFWK5u (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 23 Jun 2020 06:57:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43148 "EHLO mail.kernel.org"
+        id S1732314AbgFWLVX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 23 Jun 2020 07:21:23 -0400
+Received: from mga18.intel.com ([134.134.136.126]:48991 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732205AbgFWK5t (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 23 Jun 2020 06:57:49 -0400
-Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0558420738;
-        Tue, 23 Jun 2020 10:57:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592909869;
-        bh=6wt/+Vt+bq7XfKbTd2BTFYU+/jxu6ucOpuI8JSZHgmE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iPJKGkyZRdUTcwnRxFqIPzNnKGmakA8amVTzv2YzYI+0cdqtCkq+sWQzXv5pJyz5e
-         3aXUygT40lmQYPuK87BGULcA1lR4AezxCBhfRdk6cR4OUT3ACRg2eXL0wIzsDJQBo1
-         /1LAUlkUYfrTkUIS02eTtz+j7aMoALiQxXCJLfyI=
-Date:   Tue, 23 Jun 2020 11:57:47 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Akash Asthana <akashast@codeaurora.org>
-Cc:     gregkh@linuxfoundation.org, agross@kernel.org,
-        bjorn.andersson@linaro.org, wsa@the-dreams.de,
-        linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org,
-        devicetree@vger.kernel.org, swboyd@chromium.org,
-        mgautam@codeaurora.org, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org, mka@chromium.org,
-        dianders@chromium.org, evgreen@codeaurora.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH V8 7/8] spi: spi-qcom-qspi: Add interconnect support
-Message-ID: <20200623105747.GD5582@sirena.org.uk>
-References: <1592908737-7068-1-git-send-email-akashast@codeaurora.org>
- <1592908737-7068-8-git-send-email-akashast@codeaurora.org>
+        id S1732191AbgFWLVW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 23 Jun 2020 07:21:22 -0400
+IronPort-SDR: c6Shx7XJVWrUIz7YhEG7ToLjeLKEu6FdPTNnzYDe+wM9tJXFhsdhZM/JOCv0KS3VJm+ig/r7Ej
+ NHPRPdXjhiFQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9660"; a="131441458"
+X-IronPort-AV: E=Sophos;i="5.75,271,1589266800"; 
+   d="scan'208";a="131441458"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2020 04:21:22 -0700
+IronPort-SDR: Em2JAu6SbcjGNL4zkn6zZlh9r39nJxrLrSrQ+vAKgffk8c7GSfEFY0oMEZb+C3y9oxSdnl5eU6
+ Z1h+PDUQmddg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,271,1589266800"; 
+   d="scan'208";a="301219385"
+Received: from mylly.fi.intel.com (HELO [10.237.72.87]) ([10.237.72.87])
+  by fmsmga004.fm.intel.com with ESMTP; 23 Jun 2020 04:21:19 -0700
+Subject: Re: [PATCH v1] i2c: designware: Adjust bus speed independently of
+ ACPI
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc:     John Stultz <john.stultz@linaro.org>
+References: <20200623091501.50070-1-andriy.shevchenko@linux.intel.com>
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Message-ID: <89518c6c-f687-c45a-0315-a188d85d333a@linux.intel.com>
+Date:   Tue, 23 Jun 2020 14:21:18 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="P+33d92oIH25kiaB"
-Content-Disposition: inline
-In-Reply-To: <1592908737-7068-8-git-send-email-akashast@codeaurora.org>
-X-Cookie: No motorized vehicles allowed.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200623091501.50070-1-andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On 6/23/20 12:15 PM, Andy Shevchenko wrote:
+> John Stultz reported that commit f9288fcc5c615 ("i2c: designware: Move
+> ACPI parts into common module") caused a regression on the HiKey board
+> where adv7511 HDMI bridge driver wasn't probing anymore due the I2C bus
+> failed to start.
+> 
+> It seems the change caused the bus speed being zero when CONFIG_ACPI
+> not set and neither speed based on "clock-frequency" device property
+> or default fast mode is set.
+> 
+> Fix this by splitting i2c_dw_acpi_adjust_bus_speed() to
+> i2c_dw_acpi_round_bus_speed() and i2c_dw_adjust_bus_speed(), where
+> the latter one has the code that runs independently of ACPI.
+> 
+> Fixes: f9288fcc5c615 ("i2c: designware: Move ACPI parts into common module")
+> Reported-by: John Stultz <john.stultz@linaro.org>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>   drivers/i2c/busses/i2c-designware-common.c  | 25 ++++++++++++++-------
+>   drivers/i2c/busses/i2c-designware-core.h    |  3 +--
+>   drivers/i2c/busses/i2c-designware-pcidrv.c  |  2 +-
+>   drivers/i2c/busses/i2c-designware-platdrv.c |  2 +-
+>   4 files changed, 20 insertions(+), 12 deletions(-)
+> 
+Looks good to me. Let's wait for John's test result.
 
---P+33d92oIH25kiaB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Jun 23, 2020 at 04:08:56PM +0530, Akash Asthana wrote:
-> Get the interconnect paths for QSPI device and vote according to the
-> current bus speed of the driver.
-
-Acked-by: Mark Brown <broonie@kernel.org>
-
---P+33d92oIH25kiaB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl7x4CoACgkQJNaLcl1U
-h9BOYwf/bhyPfFwvPg7mlAQzfs2h7yx4AVfOS0MsvuMWE+wu2/XtlV+oMuw4neAs
-i2HCMN/QFY/WmNGWV8e6wGdYEmZBw5c1o9nTPSaIawVYM1OsSz6o7YzZA1wrmS0M
-xG4TS82lvy0klZ4agrcQ6Q8gzgaUsXH4+5ftOMP3oqGFauHUjuxCRu8RYbVo7qew
-MvlDGqbxm/2cCq+bjEWfDiuMBMzp1KsclKCqmEUig6RXbgAZyw0l1Nw9yhtb92zM
-HRasGq2QGfT3/94VqT1xqXrkPAuSanyj42AOeWiHSFMA2sCAQmvToqwvH1hWJMtY
-z8es5Xaec/KswpLs/beZ85itrAvFXg==
-=OgFJ
------END PGP SIGNATURE-----
-
---P+33d92oIH25kiaB--
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
