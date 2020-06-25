@@ -2,133 +2,113 @@ Return-Path: <SRS0=Rnj8=AG=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0D62C433E0
-	for <linux-i2c@archiver.kernel.org>; Thu, 25 Jun 2020 07:06:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA2B9C433E0
+	for <linux-i2c@archiver.kernel.org>; Thu, 25 Jun 2020 07:40:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B772820706
-	for <linux-i2c@archiver.kernel.org>; Thu, 25 Jun 2020 07:06:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C153620789
+	for <linux-i2c@archiver.kernel.org>; Thu, 25 Jun 2020 07:40:04 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="Me4crCBz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390107AbgFYHGn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 25 Jun 2020 03:06:43 -0400
-Received: from sauhun.de ([88.99.104.3]:42254 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390096AbgFYHGn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 25 Jun 2020 03:06:43 -0400
-Received: from localhost (p54b332a0.dip0.t-ipconnect.de [84.179.50.160])
-        by pokefinder.org (Postfix) with ESMTPSA id 08C792C207C;
-        Thu, 25 Jun 2020 09:06:41 +0200 (CEST)
-Date:   Thu, 25 Jun 2020 09:06:37 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Ulrich Hecht <uli+renesas@fpond.eu>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH v2] i2c: sh_mobile: implement atomic transfers
-Message-ID: <20200625070636.GB970@ninjato>
-References: <20200618150532.2923-1-uli+renesas@fpond.eu>
- <CAMuHMdUE4v+8Dz+eowX5RNJuRGmXcFuYQCe7JQxrFXEQV3xKJA@mail.gmail.com>
+        id S2390250AbgFYHkD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 25 Jun 2020 03:40:03 -0400
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:4832 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2390040AbgFYHkD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 25 Jun 2020 03:40:03 -0400
+Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 05P7DBBl014444;
+        Thu, 25 Jun 2020 09:39:52 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=STMicroelectronics;
+ bh=7JM2qGnxotTxax9jX2KQ7mcDsm1caKdUQ1iktY4N3iI=;
+ b=Me4crCBzFaejDePZS53lAku5TqEP5V9xIAt44H1UblROSjfe4RoKeCCEs6Be2HcddRt8
+ +IcvGTf2NAZGKLBoz6LWXgluiBq435L8QBOFwtdcQpyS5T+aM5AVuR5B0RhPvPloESuJ
+ KZ5kbVhY6kcGi1qTfID2ekjQclVxEHIEejNDajVZQs7TCfGKnKLGqnUxBOtqoRzh/UpP
+ 63ch688VvYf3LpqE1sXTu7cycv61/v0be9I7+nE+nvPY6wyFl2Nk/KQq+glRUFZ/RiPH
+ Tzxyjn2XyYVxLfNTVFilDaBjcDhsjPSMz/cyfEAuiybasbfGui2IE+iLJ5OP6T3+3i5z NQ== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 31uuv9ghnp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Jun 2020 09:39:52 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 9006D100039;
+        Thu, 25 Jun 2020 09:39:51 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag3node2.st.com [10.75.127.8])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 847BC2A82E2;
+        Thu, 25 Jun 2020 09:39:51 +0200 (CEST)
+Received: from localhost (10.75.127.51) by SFHDAG3NODE2.st.com (10.75.127.8)
+ with Microsoft SMTP Server (TLS) id 15.0.1347.2; Thu, 25 Jun 2020 09:39:50
+ +0200
+From:   Alain Volmat <alain.volmat@st.com>
+To:     <wsa@kernel.org>, <robh+dt@kernel.org>
+CC:     <mark.rutland@arm.com>, <pierre-yves.mordret@st.com>,
+        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@st.com>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@st.com>,
+        <alain.volmat@st.com>
+Subject: [PATCH v2 3/4] dt-bindings: i2c-stm32: add SMBus Alert bindings
+Date:   Thu, 25 Jun 2020 09:39:28 +0200
+Message-ID: <1593070769-9106-4-git-send-email-alain.volmat@st.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1593070769-9106-1-git-send-email-alain.volmat@st.com>
+References: <1593070769-9106-1-git-send-email-alain.volmat@st.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdUE4v+8Dz+eowX5RNJuRGmXcFuYQCe7JQxrFXEQV3xKJA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.51]
+X-ClientProxiedBy: SFHDAG4NODE1.st.com (10.75.127.10) To SFHDAG3NODE2.st.com
+ (10.75.127.8)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
+ definitions=2020-06-25_02:2020-06-25,2020-06-25 signatures=0
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Add a new binding of the i2c-stm32f7 driver to enable the handling
+of the SMBUS-Alert.
 
---mxv5cy4qt+RJ9ypb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The I2C/SMBUS framework already provides a mechanism to enable SMBus-Alert
+by naming an IRQ line "smbus_alert". However, on stm32, the SMBus-Alert is
+part of the i2c IRQ. Using the smbus_alert naming here would lead to having
+2 handlers (the handler of the driver and the smbus_alert handler
+from I2C/SMBUS framework) on the unique i2c IRQ of the stm32. Meaning that
+the smbus_alert handler would get called for all IRQ generated by the stm32
+I2C controller.
 
-Hi Geert,
+For that reason, the smbus_alert IRQ naming cannot be used and a dedicated
+binding is introduced.
 
-thanks for the review!
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+---
+v2: Clarify commit message
 
-> > @@ -581,12 +585,14 @@ static void start_ch(struct sh_mobile_i2c_data *p=
-d, struct i2c_msg *usr_msg,
-> >         pd->pos =3D -1;
-> >         pd->sr =3D 0;
-> >
->=20
->     if (pd->atomic_xfer)
->             return;
->=20
-> and be done with it?
+ Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-I like Uli's version a tad better in case we ever add something for both
-cases after the following if-block. But I don't care much, we could
-change it later.
+diff --git a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+index f2fcbb361180..6fde046fae5e 100644
+--- a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+@@ -36,6 +36,10 @@ allOf:
+             minItems: 3
+             maxItems: 3
+ 
++        st,smbus-alert:
++          description: Enable the SMBus Alert feature
++          $ref: /schemas/types.yaml#/definitions/flag
++
+   - if:
+       properties:
+         compatible:
+-- 
+2.7.4
 
-> > -       pd->dma_buf =3D i2c_get_dma_safe_msg_buf(pd->msg, 8);
-> > -       if (pd->dma_buf)
-> > -               sh_mobile_i2c_xfer_dma(pd);
-> > -
-> > -       /* Enable all interrupts to begin with */
-> > -       iic_wr(pd, ICIC, ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE=
-);
-> > +       if (!pd->atomic_xfer) {
-> > +               pd->dma_buf =3D i2c_get_dma_safe_msg_buf(pd->msg, 8);
-> > +               if (pd->dma_buf)
-> > +                       sh_mobile_i2c_xfer_dma(pd);
-> > +               /* Enable all interrupts to begin with */
-> > +               iic_wr(pd, ICIC,
-> > +                      ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
-> > +       }
-
-=2E..
-
-> After removing that check, it starts complaining:
->=20
->     BUG: sleeping function called from invalid context at
-> kernel/locking/mutex.c:281
->     in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 1, name:
-> systemd-shutdow
->=20
-> In general, pm_runtime_get_sync() is not safe to call from atomic
-> context.
-> For Renesas SoCs, I think both the power and clock domains are safe, as
-> the respective drivers don't sleep.  The PM core might, though.
-
-Still, that sounds to me like we should protect these calls as in V1?
-
-> > +                       time_left =3D time_before_eq(jiffies, j);
-> > +                       while (time_left &&
->=20
-> Who's updating time_left?
-
-Good question :)
-
-Kind regards,
-
-   Wolfram
-
-
---mxv5cy4qt+RJ9ypb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl70TPwACgkQFA3kzBSg
-Kbb80w//ZxFdMxDD0p0GACwqvy1Xd3buYp3cKGFFk6K0pJWbtZZtLkhgGsn9GgKf
-D4s29pS1nleSD/zkNqhaPYowh11wF0FlE5qCMp+FawqK+9ShfiiI884kocdsHc8d
-0g1V+mUVIN3J8SZfUQFDqgOxIMRxFeQqhhbeHLF/cB0NX5PJvQwEthRapJABj9dQ
-UGIZbj5/DMwX0SjPPXWFOPyq5Sc2bEgU9qSIwghn3PDey56irAZ4vEqnKS2mKgi3
-p3X5Inukuqi1Moll2W+6AFYxtvMu86ueTemg5D+5HwvRfLDlXZl7kK9hjLoP6cwK
-ItGmRBwG84BOjzg58bRhxYoyRZUT870sra06SLzVk+/xFc/q5lrahEtsZEzCHnIl
-l02ioOf0j31kTjhhfLMkayvjxdB5Z0qsVD321NKwX4z1czjtlsyomvWfTFIHeZqS
-7ZLnJdNCXyBcK/CNXjuDEFytO+HWJf9StW5zzRwaV+Z6t4G5CL7eg263ZEdvFMbH
-KwsEoGIpLp427BLUwqFUgpykFJZq62Ma+yVoNx2RLIaKc1RJ3t3QTU/TMv9rLFHP
-T5ni5dq3MAci5bbWfoYDJeFmfIklKziOr+/OwuoXrBYR6MoMfEaSscq+SyVYws0o
-f3qkF75bztgLidgGuwn73icnbJylXKgT/Z2w06qOtQ4q4zf+cOQ=
-=pqD/
------END PGP SIGNATURE-----
-
---mxv5cy4qt+RJ9ypb--
