@@ -2,91 +2,89 @@ Return-Path: <SRS0=Rnj8=AG=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1ECCC433E1
-	for <linux-i2c@archiver.kernel.org>; Thu, 25 Jun 2020 07:40:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E9BFC433E0
+	for <linux-i2c@archiver.kernel.org>; Thu, 25 Jun 2020 08:18:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9C38B20789
-	for <linux-i2c@archiver.kernel.org>; Thu, 25 Jun 2020 07:40:25 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="tAnuXlL/"
+	by mail.kernel.org (Postfix) with ESMTP id 06A4720FC3
+	for <linux-i2c@archiver.kernel.org>; Thu, 25 Jun 2020 08:18:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390295AbgFYHkG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 25 Jun 2020 03:40:06 -0400
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:16490 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390126AbgFYHkE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 25 Jun 2020 03:40:04 -0400
-Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 05P7RNI6002372;
-        Thu, 25 Jun 2020 09:39:54 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type; s=STMicroelectronics;
- bh=bHP02EBAOn+1XnI2EebWLmYBWJN6Wh587rzZXl9nQ8U=;
- b=tAnuXlL/Gzq4t7/ql/hJeEeUcZaqRnsyneb3xOB54hX60IJgqLVXbB2H1qj1TTDRLCtR
- hYdu0/cMLV9/SXZnKnvAoaDJLSjff1RJD1XyEq76cWYuP9yJV14HqZZWtmmZyPVdTKK4
- XtkOvU4Nj/HaPZBHbteN9U1MXagpgaBXZ2cdedxGI5mFbcw8U8UH9pHgyerYr09Aun0C
- vIH14NxV2oUv+Rbed+bT8Cb22/3W+B5HHB6mbv7ZrJmP5KSIfJA+S89pNDRCTSEkMblp
- gbhBl84qqcsQbD4bn58bAPt0IhG0Yx6v2qaCTPLLqVAayNnwItItsOWQGtk8Gd3XMqm6 cA== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 31uuucgkpd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Jun 2020 09:39:54 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 82BEF10002A;
-        Thu, 25 Jun 2020 09:39:50 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag3node2.st.com [10.75.127.8])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 525CE2A82E2;
-        Thu, 25 Jun 2020 09:39:50 +0200 (CEST)
-Received: from localhost (10.75.127.50) by SFHDAG3NODE2.st.com (10.75.127.8)
- with Microsoft SMTP Server (TLS) id 15.0.1347.2; Thu, 25 Jun 2020 09:39:49
- +0200
-From:   Alain Volmat <alain.volmat@st.com>
-To:     <wsa@kernel.org>, <robh+dt@kernel.org>
-CC:     <mark.rutland@arm.com>, <pierre-yves.mordret@st.com>,
-        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@st.com>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@st.com>,
-        <alain.volmat@st.com>
-Subject: [PATCH v2 0/4] stm32-f7: Addition of SMBus Alert / Host-notify features
-Date:   Thu, 25 Jun 2020 09:39:25 +0200
-Message-ID: <1593070769-9106-1-git-send-email-alain.volmat@st.com>
-X-Mailer: git-send-email 2.7.4
+        id S2390496AbgFYISv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 25 Jun 2020 04:18:51 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:32940 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390456AbgFYISv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 25 Jun 2020 04:18:51 -0400
+Received: by mail-ot1-f65.google.com with SMTP id n6so4516848otl.0;
+        Thu, 25 Jun 2020 01:18:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=V1WCINvW1NV+KNDRJY46u6W7ForVUuEnLGYaMRoBhEY=;
+        b=dzDTwe6UzYCC5h5uYTUnTm0Av62B4gbRzsrzBULdDFmOoYloAQgz+ELF1NPa8Ef2ha
+         ldCvul+WB8q+yaTmiv9Q11uso9kINQ9DclY9FnjaUrgk0ktizkfSFGdQRX/F1jA4fyq+
+         oXJ2b/A7VaB79XSK6CI0UV4YCJNSJxDaMGVtoUxfYWYthGLX2Fj/wACyxptZjwXohRRt
+         CYRpLg3d8NHoX/ABVEd5y5hA6uXoUaalRZc66XbUfglzckVihKG9HuNBgRqU5xdltXLF
+         GRkF6JiaO9LKr6nNUDXvNKhaJuAcpE4bJb8KE1hz0BgT5PerLepfnzM7Hsj992mRb9QI
+         5LsQ==
+X-Gm-Message-State: AOAM530jngCZrGcg0eQM8VbnHDTWKf3FoIanENeOROimw0FImhZBg6Hc
+        7aqkzplMhlIeBTRi2CtOxDkND7cQJIS1Ox9mZ/fL8Q==
+X-Google-Smtp-Source: ABdhPJyQAflwoRb37MrkQ1wYsa35EXG0LA/GhS+ko6skQzxkAkOL+vYYYMLbw36w9TOfc/0+qsh2eZERxiieQkyDxs8=
+X-Received: by 2002:a9d:2646:: with SMTP id a64mr721287otb.107.1593073130107;
+ Thu, 25 Jun 2020 01:18:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.75.127.50]
-X-ClientProxiedBy: SFHDAG6NODE1.st.com (10.75.127.16) To SFHDAG3NODE2.st.com
- (10.75.127.8)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
- definitions=2020-06-25_03:2020-06-25,2020-06-25 signatures=0
+References: <20200618150532.2923-1-uli+renesas@fpond.eu> <CAMuHMdUE4v+8Dz+eowX5RNJuRGmXcFuYQCe7JQxrFXEQV3xKJA@mail.gmail.com>
+ <20200625070636.GB970@ninjato>
+In-Reply-To: <20200625070636.GB970@ninjato>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Thu, 25 Jun 2020 10:18:38 +0200
+Message-ID: <CAMuHMdWM3VUNUY-r_4cJw8FNFHcfpjY=s=sj2CiC67FRmNkALA@mail.gmail.com>
+Subject: Re: [PATCH v2] i2c: sh_mobile: implement atomic transfers
+To:     Wolfram Sang <wsa@the-dreams.de>
+Cc:     Ulrich Hecht <uli+renesas@fpond.eu>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This serie adds SMBus Alert and SMBus Host-Notify features for the i2c-stm32f7.
+Hi Wolfram,
 
-This serie v2 rework comments from the 1st serie and replace the very generic
-reg_client / unreg_client callback with HOST_NOTIFY only reg_hnotify_cli
-and unreg_hnotify_cli callbacks.
+On Thu, Jun 25, 2020 at 9:06 AM Wolfram Sang <wsa@the-dreams.de> wrote:
+> ...
+>
+> > After removing that check, it starts complaining:
+> >
+> >     BUG: sleeping function called from invalid context at
+> > kernel/locking/mutex.c:281
+> >     in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 1, name:
+> > systemd-shutdow
+> >
+> > In general, pm_runtime_get_sync() is not safe to call from atomic
+> > context.
+> > For Renesas SoCs, I think both the power and clock domains are safe, as
+> > the respective drivers don't sleep.  The PM core might, though.
+>
+> Still, that sounds to me like we should protect these calls as in V1?
 
-Alain Volmat (4):
-  i2c: smbus: add core function handling SMBus host-notify
-  i2c: addition of client hnotify reg/unreg callbacks
-  dt-bindings: i2c-stm32: add SMBus Alert bindings
-  i2c: stm32f7: Add SMBus-specific protocols support
+And talk to the i2c controller while it is disabled?
+That does seem to work on R-Car Gen2 (similar to SMP bringup accessing
+registers of a disabled WDT?), though.
+Needs testing on R-Mobile A1....
 
- .../devicetree/bindings/i2c/st,stm32-i2c.yaml      |   4 +
- drivers/i2c/busses/Kconfig                         |   1 +
- drivers/i2c/busses/i2c-stm32f7.c                   | 194 +++++++++++++++++++--
- drivers/i2c/i2c-core-base.c                        |  18 +-
- drivers/i2c/i2c-core-smbus.c                       | 110 ++++++++++++
- include/linux/i2c-smbus.h                          |   2 +
- include/linux/i2c.h                                |   8 +
- 7 files changed, 325 insertions(+), 12 deletions(-)
+Gr{oetje,eeting}s,
 
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
