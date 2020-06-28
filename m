@@ -1,69 +1,66 @@
-Return-Path: <SRS0=wYKa=AI=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=SNVD=AJ=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19D2FC433E0
-	for <linux-i2c@archiver.kernel.org>; Sat, 27 Jun 2020 22:45:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81AAFC433E0
+	for <linux-i2c@archiver.kernel.org>; Sun, 28 Jun 2020 11:52:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DC984207E8
-	for <linux-i2c@archiver.kernel.org>; Sat, 27 Jun 2020 22:45:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1593297914;
-	bh=ViFmLMs9O+kdtRW4Dmq4NpDIt1mT/Qc9N9/aABRBQIs=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=BqPG22ri2mnC5JLiO+kYYgw9T0+J1Z0w2ASpYkJ7/MJYyM0aaqAUxV/9U0owVj5dX
-	 Z4F9GZF+ond+H8oGEfVb51v0Sd1LWe/5N7o8RBgUPHKhJFYZzNAxmOfPBQYTuVZteR
-	 Kt6F6h6sqFcQBmCoLj6HmER+sCaiIHx621B8VJGo=
+	by mail.kernel.org (Postfix) with ESMTP id 156392081A
+	for <linux-i2c@archiver.kernel.org>; Sun, 28 Jun 2020 11:52:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="y6ehqLHw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726796AbgF0WpN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 27 Jun 2020 18:45:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43156 "EHLO mail.kernel.org"
+        id S1726364AbgF1Lwy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 28 Jun 2020 07:52:54 -0400
+Received: from www.zeus03.de ([194.117.254.33]:42004 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726750AbgF0WpN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 27 Jun 2020 18:45:13 -0400
-Subject: Re: [PULL REQUEST] i2c for 5.8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593297913;
-        bh=ViFmLMs9O+kdtRW4Dmq4NpDIt1mT/Qc9N9/aABRBQIs=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=CYfNNHpNxppmBGgqWrdmvDonN/QdgN1Xe82P0SAzgGV2TeARH4mKJR08N42hnKkkm
-         3xifYinWcB0DaEg5+qDYrTpINuJ5CLoMR9AuPUb+3yIuqP92eJl81DeGJ5q6CbXDV2
-         zFF5vH61D4lliZPffzRjPBAg+mVYR3oXMRW3YZQs=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20200627182057.GA4356@kunai>
-References: <20200627182057.GA4356@kunai>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20200627182057.GA4356@kunai>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-X-PR-Tracked-Commit-Id: 40e05200593af06633f64ab0effff052eee6f076
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 8bf9865187f6c3130b5c748a3212d591c9d563de
-Message-Id: <159329791311.3578.13019801677364668328.pr-tracker-bot@kernel.org>
-Date:   Sat, 27 Jun 2020 22:45:13 +0000
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Rosin <peda@axentia.se>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
+        id S1726337AbgF1Lwy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 28 Jun 2020 07:52:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=k1; bh=n5hj1Lv2JEhpllD+hIE9/Kp9E7T
+        O5CNDhsNkcJIrI5Q=; b=y6ehqLHwzhYEkhBdEBNU1OvY6p/I11OUcb1pa33GYFL
+        NGxsRJrCjQ5aOIxIOkXHfTpEve4QUU0Aq6MLSO9JPCpuQBDUca05nAjmSs9cXdo6
+        bkPAAHKJdHLjantwHCGtr13MlgettTHVG/PRimOl6CAby8ultlmyvMgBPy7op6DU
+        =
+Received: (qmail 1708523 invoked from network); 28 Jun 2020 13:52:51 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 28 Jun 2020 13:52:51 +0200
+X-UD-Smtp-Session: l3s3148p1@vyHxlCOp6MogAwDPXykLAJ34nb66bSnN
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        David Daney <david.daney@cavium.com>,
+        Jan Glauber <jan.glauber@gmail.com>,
+        linux-kernel@vger.kernel.org,
+        Michael Shych <michaelsh@mellanox.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [RFC PATCH 0/2] i2c: check correct size of maximum RECV_LEN packet
+Date:   Sun, 28 Jun 2020 13:52:43 +0200
+Message-Id: <20200628115245.9638-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The pull request you sent on Sat, 27 Jun 2020 20:20:57 +0200:
+I am preparing to add RECV_LEN support to Renesas I2C drivers. On my
+way, I found these two peculiarities. Let's discuss them.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+Wolfram Sang (2):
+  i2c: mlxcpld: check correct size of maximum RECV_LEN packet
+  i2c: octeon: check correct size of maximum RECV_LEN packet
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/8bf9865187f6c3130b5c748a3212d591c9d563de
-
-Thank you!
+ drivers/i2c/busses/i2c-mlxcpld.c     | 4 ++--
+ drivers/i2c/busses/i2c-octeon-core.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.20.1
+
