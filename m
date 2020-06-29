@@ -2,134 +2,310 @@ Return-Path: <SRS0=pZ/X=AK=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A50BCC433E0
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Jun 2020 19:38:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8266C433E2
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Jun 2020 19:53:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 841BC20809
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Jun 2020 19:38:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 87791206F1
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Jun 2020 19:53:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=xilinx.onmicrosoft.com header.i=@xilinx.onmicrosoft.com header.b="DUdirrlx"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="ysZs96y3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387445AbgF2Tip (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Jun 2020 15:38:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47592 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387443AbgF2Tho (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Jun 2020 15:37:44 -0400
-Received: from NAM02-CY1-obe.outbound.protection.outlook.com (mail-cys01nam02on0608.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe45::608])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B922C02A548
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2020 05:52:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=XQKofBUxeSTi3yN52VU1iejOYI4Rdw+u5eNKepwBxgoBzZs+j6bsZXlcCmuERGXFyfQPq/eabO+TM8H2JrzylmOgkiBNAHC1Z30vaYk1Du90ggdK9Mxu3QkIEPKPt0B6+1Bybdb19I31fQ8csappUvJS/YMW7zmCJuT5JNs/H9u+Q5NBziBSw4QrvCGozxd3h/ws7b/olIvO5GLDM3QqExZXlaUzIi+wlT41lugQizn89hmEEDLNxHFdMLZQ3hib8I6oVAMoR0CpA01elsIB0ts0VM/8bZBy0KuBTAWNbDH8WyhfakLQqImZjkJ5jVrh/cc6nwoX1Vy0YOki7IKQfQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4McnrIsgOb+snJUUp4IUuz65BbUGlOT6cxwQSwY6VJ0=;
- b=MIH4Epbh2p5z0bM1Iocee3HjhR+JjiMDNbrwYbUkN5UyVMh5/ClnY0YVxljRTdNkTzVCVXkTVqFS8jdnOLVtN+IgsRe/EphbRKD8ADOqA8UfglotrWBCXYVdfER5nHZz8wCdvG92CVePwlnpHqx4FQXuIvKU8SogHjkrjKCvjCVRW7cdM0OlaRA2U4DR+dWxga0uMyMjE75dybi+6Mz7OsI6nb9g7PSrVk4tVFLph6pzIzFDoTHrXy8pYwibH5KeBragCBIPt9gLnk6YyazwoZgG2qOcP4MVS4PfPWDxUpVMc63WgFg3Al/f/WXyE1shWv8wt+SGwb1puaDcwtA2DA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=xilinx.com; dmarc=pass action=none header.from=xilinx.com;
- dkim=pass header.d=xilinx.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4McnrIsgOb+snJUUp4IUuz65BbUGlOT6cxwQSwY6VJ0=;
- b=DUdirrlxSbvOnkrDwsxmp5qCV9Hr+3D9zXGOnjqP2LIXu56w2hxR9h4i3YZQfB5IFhMXjsa6y7uMqUVQtJdck39M8arSAWutc6l3cU9vdSUFxD64alFAprKN6PnK6GYpw4CCk0a+t5N58etu+96+yeZM/OSf6u7Jbo4PyY8c71I=
-Received: from SN4PR0201MB3486.namprd02.prod.outlook.com
- (2603:10b6:803:51::12) by SN6PR02MB4205.namprd02.prod.outlook.com
- (2603:10b6:805:35::17) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3131.25; Mon, 29 Jun
- 2020 12:52:29 +0000
-Received: from SN4PR0201MB3486.namprd02.prod.outlook.com
- ([fe80::c1d:375a:a8ad:f142]) by SN4PR0201MB3486.namprd02.prod.outlook.com
- ([fe80::c1d:375a:a8ad:f142%6]) with mapi id 15.20.3131.026; Mon, 29 Jun 2020
- 12:52:29 +0000
-From:   Raviteja Narayanam <rna@xilinx.com>
-To:     Marek Vasut <marex@denx.de>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-CC:     Michal Simek <michals@xilinx.com>,
-        Shubhrajyoti Datta <shubhraj@xilinx.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: RE: [PATCH 1/5] i2c: xiic: Fix broken locking on tx_msg
-Thread-Topic: [PATCH 1/5] i2c: xiic: Fix broken locking on tx_msg
-Thread-Index: AQHWQZR16ESRHITuAECl/9tfqloeHqjpJiIAgAWbm4CAAN/ssA==
-Date:   Mon, 29 Jun 2020 12:52:29 +0000
-Message-ID: <SN4PR0201MB3486DFA2BC59C76906CE48B0CA6E0@SN4PR0201MB3486.namprd02.prod.outlook.com>
-References: <20200613150751.114595-1-marex@denx.de>
- <MWHPR0201MB348439A109964704D30EF0B4CA930@MWHPR0201MB3484.namprd02.prod.outlook.com>
- <fee2d0a5-138d-fc31-ed46-348706bc0491@denx.de>
-In-Reply-To: <fee2d0a5-138d-fc31-ed46-348706bc0491@denx.de>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
-X-MS-TNEF-Correlator: 
-authentication-results: denx.de; dkim=none (message not signed)
- header.d=none;denx.de; dmarc=none action=none header.from=xilinx.com;
-x-originating-ip: [149.199.50.128]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: aad423c1-e384-4a23-20b9-08d81c2b4838
-x-ms-traffictypediagnostic: SN6PR02MB4205:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <SN6PR02MB420598B2254E26E236130F6DCA6E0@SN6PR02MB4205.namprd02.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:6790;
-x-forefront-prvs: 044968D9E1
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: iT1YF7cRhXNZeJ0Xmfsbv87zEbTjnvSY/6/JBww5ORShHeMpdY4903twV2RCTGpXVp+5RmE8p+Uxi3AoPoxFGbVxKyaJCAtdnyKGVUIEC2x0V1BjKe5qkdE3q4PQ+wEEmy7LFMxtVwHyQr2HPCdqyiwZSJ8wgKTAUhDkGkpZalQ12wzOyt8RmfEQ/TPpgyzkWF9CrDAKRHV3AZ4tv1C8HHzF2KxsfZB3+kh36R3KFiGUQwbWvYWP8w2UOeks1CobU4Jl7iVvHkND9b1IX/AWu92F7vukWG5kugbAFVAD24fSkulOOslM4oyLz12q54mu
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0201MB3486.namprd02.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(346002)(376002)(396003)(39860400002)(366004)(136003)(33656002)(4326008)(55016002)(83380400001)(8676002)(52536014)(478600001)(5660300002)(9686003)(2906002)(26005)(54906003)(186003)(66446008)(7696005)(66476007)(66556008)(64756008)(6506007)(53546011)(76116006)(316002)(110136005)(86362001)(71200400001)(8936002)(66946007);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: aQaZnkSBkeMMBd1FRjVoX3ZIpU1jqGm9SmA7nmvtRUHSunJ92j+rpXCl//AeReak3joK7Syozri8mZcclboETlEYboCNAVeEEBwQUhv/UBsupDdx/bLagzLWnHs1yI+yuRaw1oJSCRXPXCkxPY8NCM1M7EBzElW42yUWX2r4MPlD7J1b1HRtZOB7ihy1LkhKC/CeZpUnf8R5mdVp0yVzQ2nJH7B42J7d6X4HYf5hhbJTTKgmu6qrKEIMeGEJK5TdbcnV/Hl8O01zDDv0kkEzkEJhBz+jkNYxuTXpyIOvoBeHAFLtmSp/fJa7rRq2mZoWZsPF01xGElgsoPaeGJPdkZ8GLbt4nHKJvaBFetzzFbwCPCrRg9jgd0J8gtz7URCGOJeZIc6x99ylAryCcJZgpkcAmBKE7pi7u4KvpbPpgAv7z9L8bJtxStL0Rci7WmGBoMohohzcOM4f2S3v+nWj9SQqfie2tmOCVuZbV+qg8e8sL3sDu2L6SXIt37A6rcRO
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1733017AbgF2Txc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Jun 2020 15:53:32 -0400
+Received: from www.zeus03.de ([194.117.254.33]:43736 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731030AbgF2Tx2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:53:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=k1; bh=lqZUmstMNT4gD0
+        Zj6S7k7KsrZLOZpCrTBlqmktbSzV8=; b=ysZs96y3hbmYSbSQ5UjhZisV0auIGX
+        vJl8aQN1qhW/MXJzjyaNrzvIL/QuGaOXphq7OYzVWVq1kuh2wyBv91Op0aMr+34v
+        nxA+pUZnt9GYBHekOD5oaec/4iIY7LOgQkEJy0BGHEEI1e9J+cGnIOTXNOnTqgvb
+        L34iZ5Jfkr5QA=
+Received: (qmail 2142431 invoked from network); 29 Jun 2020 20:53:25 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Jun 2020 20:53:25 +0200
+X-UD-Smtp-Session: l3s3148p1@sBDUkj2pYrQgAwDPXwOPAD5GWjq5uCZs
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Alain Volmat <alain.volmat@st.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH RFC 1/1] i2c: add slave testunit driver
+Date:   Mon, 29 Jun 2020 20:53:18 +0200
+Message-Id: <20200629185318.23381-2-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200629185318.23381-1-wsa+renesas@sang-engineering.com>
+References: <20200629185318.23381-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-X-OriginatorOrg: xilinx.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN4PR0201MB3486.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: aad423c1-e384-4a23-20b9-08d81c2b4838
-X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Jun 2020 12:52:29.2225
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 657af505-d5df-48d0-8300-c31994686c5c
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: CPp78K35RAjSWs8uqy+qAf2YPEr7sjjQr550TNMeA+9AnOKEleOq6cTJKhANy5We
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR02MB4205
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTWFyZWsgVmFzdXQgPG1h
-cmV4QGRlbnguZGU+DQo+IFNlbnQ6IE1vbmRheSwgSnVuZSAyOSwgMjAyMCA0OjQ5IEFNDQo+IFRv
-OiBSYXZpdGVqYSBOYXJheWFuYW0gPHJuYUB4aWxpbnguY29tPjsgbGludXgtaTJjQHZnZXIua2Vy
-bmVsLm9yZw0KPiBDYzogTWljaGFsIFNpbWVrIDxtaWNoYWxzQHhpbGlueC5jb20+OyBTaHViaHJh
-anlvdGkgRGF0dGENCj4gPHNodWJocmFqQHhpbGlueC5jb20+OyBXb2xmcmFtIFNhbmcgPHdzYUBr
-ZXJuZWwub3JnPg0KPiBTdWJqZWN0OiBSZTogW1BBVENIIDEvNV0gaTJjOiB4aWljOiBGaXggYnJv
-a2VuIGxvY2tpbmcgb24gdHhfbXNnDQo+IA0KPiBPbiA2LzI2LzIwIDI6MTEgUE0sIFJhdml0ZWph
-IE5hcmF5YW5hbSB3cm90ZToNCj4gDQo+IEhpLA0KPiANCj4gWy4uLl0NCj4gDQo+ID4+IEBAIC02
-OTksMTQgKzcwOCw3IEBAIHN0YXRpYyBpbnQgeGlpY194ZmVyKHN0cnVjdCBpMmNfYWRhcHRlciAq
-YWRhcCwNCj4gPj4gc3RydWN0IGkyY19tc2cgKm1zZ3MsIGludCBudW0pDQo+ID4+ICAJaWYgKGVy
-ciA8IDApDQo+ID4+ICAJCXJldHVybiBlcnI7DQo+ID4+DQo+ID4+IC0JZXJyID0geGlpY19idXN5
-KGkyYyk7DQo+ID4+IC0JaWYgKGVycikNCj4gPj4gLQkJZ290byBvdXQ7DQo+ID4+IC0NCj4gPj4g
-LQlpMmMtPnR4X21zZyA9IG1zZ3M7DQo+ID4+IC0JaTJjLT5ubXNncyA9IG51bTsNCj4gPg0KPiA+
-IE9uIGFuIFNNUCBzeXN0ZW0gd2l0aCBtdWx0aXBsZSBpMmMtdHJhbnNmZXIgY29tbWFuZCBzY3Jp
-cHRzIHJ1bm5pbmcsIHRoZQ0KPiBhYm92ZSBjcml0aWNhbCBzZWN0aW9uIGlzIGV4cGVjdGVkIHRv
-IGNhdXNlIHNlcmlvdXMgdHJvdWJsZSBvdmVyd3JpdGluZyB0aGUNCj4gcHJldmlvdXMgbXNnIHBv
-aW50ZXJzLg0KPiA+IEJ1dCB0aGF0J3Mgbm90IGhhcHBlbmluZyBhcyB0aGUgaTJjLWNvcmUgaXMg
-aGF2aW5nIGEgbG9jayBhdCBhZGFwdGVyIGxldmVsDQo+IGluc2lkZSBpMmMtY29yZS1iYXNlLmMg
-KHJ0X211dGV4X2xvY2tfbmVzdGVkKS4NCj4gPiBTbywgdGhlIHJhY2UgY29uZGl0aW9uIGJldHdl
-ZW4gZGlmZmVyZW50IHRocmVhZHMgaXMgbm90IHBvc3NpYmxlLiBUaGV5IGFyZSBhbGwNCj4gc2Vy
-aWFsaXplZCBieSB0aGUgbG9ja2luZyBpbiBpMmMtY29yZS4NCj4gPg0KPiA+IEFsdGhvdWdoIG5v
-IGlzc3VlcyBhcmUgc2VlbiBpbiB0aGUgdGVzdHMsIHRoZSBjb250ZW50aW9uIHdpdGhpbiB0aGUg
-ZHJpdmVyIGlzDQo+IHN0aWxsIHBvc3NpYmxlIChpc3IgdnMgeGlpY194ZmVyKSwgaWYgdGhlcmUg
-aXMgYSBzcHVyaW91cyBpbnRlcnJ1cHQuIEFuZCB0aGlzIHBhdGNoIGlzDQo+IG5lZWRlZCBpbiB0
-aGF0IGNhc2UuDQo+IFRoZSBjb250ZW50aW9uIGhhcHBlbnMgYmV0d2VlbiB0aGUgdGhyZWFkZWQg
-aW50ZXJydXB0IGhhbmRsZXINCj4geGlpY19wcm9jZXNzKCkgYW5kIHRoaXMgeGlpY194ZmVyKCkg
-ZnVuY3Rpb24uIFdoaWxlIHlvdSBjYW4gbm90IGhhdmUNCj4geGlpY194ZmVyKCkgcnVubmluZyBv
-biB0d28gQ1BVIGNvcmVzIGF0IHRoZSBzYW1lIHRpbWUsIHlvdSBjYW4gaGF2ZQ0KPiB4aWljX3hm
-ZXIoKSBydW5uaW5nIG9uIG9uZSBDUFUgY29yZSBhbmQgeGlpY19wcm9jZXNzKCkgb24gYW5vdGhl
-ciBDUFUgY29yZSwNCj4gYW5kIHRoYXQgd2lsbCBsZWFkIHRvIHByb2JsZW1zLg0KDQpZZXMsIHRo
-aXMgcGF0Y2ggaXMgbmVlZGVkIGZvciB0aGF0IGNhc2UuDQoNCj4gDQo+IFsuLi5dDQo=
+Here is a I2C slave backend driver which allows to test some uncommon
+functionalities of the I2C and SMBus world. Usually, you need specific
+devices to test e.g. SMBus Host Notify and such. With this driver you
+just need the slave interface of your host controller.
+
+This initial version has testcases for multi-master and SMBus Host
+Notify. Already planned but not yet implemented are SMBus Alert and
+messages with I2C_M_RECV_LEN.
+
+Please read the documentation for further details.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ Documentation/i2c/slave-testunit-backend.rst |  48 ++++++
+ drivers/i2c/Kconfig                          |   8 +
+ drivers/i2c/Makefile                         |   1 +
+ drivers/i2c/i2c-slave-testunit.c             | 146 +++++++++++++++++++
+ 4 files changed, 203 insertions(+)
+ create mode 100644 Documentation/i2c/slave-testunit-backend.rst
+ create mode 100644 drivers/i2c/i2c-slave-testunit.c
+
+diff --git a/Documentation/i2c/slave-testunit-backend.rst b/Documentation/i2c/slave-testunit-backend.rst
+new file mode 100644
+index 000000000000..f4f79db0917a
+--- /dev/null
++++ b/Documentation/i2c/slave-testunit-backend.rst
+@@ -0,0 +1,48 @@
++================================
++Linux I2C slave testunit backend
++================================
++
++by Wolfram Sang <wsa@sang-engineering.com> in 2020
++
++This backend can be used to trigger test cases for I2C bus masters which
++require a remote device with certain capabilities (and which are usually not so
++easy to obtain). Examples include multi-master testing, and SMBus Host Notify
++testing. For tests marked with '*', your I2C controller must be able to switch
++between master and slave mode because it needs to send data.
++
++Instantiating the device is regular. Example for bus 0, address 0x30:
++
++# echo "slave-testunit 0x1030" > /sys/bus/i2c/devices/i2c-0/new_device
++
++After that, you will have a write-only device listening. Reads will only return
++0xff. The device consists of 4 8-bit registers and all must be written to start
++a testcase, i.e. you must always write 4 bytes to the device. The registers are:
++
++0x00 CMD   - which test to trigger
++0x01 DATAL - configuration byte 1 for the test
++0x02 DATAH - configuration byte 2 for the test
++0x03 DELAY - delay in n * 100ms until test is started
++
++Commands
++--------
++
++0x00 READ_BYTES*
++   DATAL - address to read data from
++   DATAH - number of bytes to read
++
++This is useful to test if your bus master driver is handling multi-master
++correctly. You can trigger the testunit to read bytes from another device on
++the bus. If the bus master under test also wants to access the bus, it will be
++busy. Example to read 128 bytes from device 0x50 after 500ms of delay:
++
++# i2cset -y 1 0x30 0x00 0x50 0x80 0x05 i
++
++0x01 SMBUS_HOST_NOTIFY*
++   DATAL - low byte of the status word to send
++   DATAH - high byte of the status word to send
++
++This test will send an SMBUS_HOST_NOTIFY message to the host. Note that the
++status word is currently ignored in the Linux Kernel. Example to send a
++notification after 100ms:
++
++# i2cset -y 1 0x30 0x01 0x42 0x42 0x01 i
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index bae1dc08ec9a..2b550b5168e5 100644
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -126,6 +126,14 @@ config I2C_SLAVE_EEPROM
+ 	  This backend makes Linux behave like an I2C EEPROM. Please read
+ 	  Documentation/i2c/slave-eeprom-backend.rst for further details.
+ 
++config I2C_SLAVE_TESTUNIT
++	tristate "I2C eeprom testunit driver"
++	help
++	  This backend can be used to trigger test cases for I2C bus masters
++	  which require a remote device with certain capabilities, e.g.
++	  multi-master, SMBus Host Notify, etc. Please read
++	  Documentation/i2c/slave-testunit-backend.rst for further details.
++
+ endif
+ 
+ config I2C_DEBUG_CORE
+diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+index bed6ba63c983..c1d493dc9bac 100644
+--- a/drivers/i2c/Makefile
++++ b/drivers/i2c/Makefile
+@@ -16,5 +16,6 @@ obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
+ obj-y				+= algos/ busses/ muxes/
+ obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
+ obj-$(CONFIG_I2C_SLAVE_EEPROM)	+= i2c-slave-eeprom.o
++obj-$(CONFIG_I2C_SLAVE_TESTUNIT)	+= i2c-slave-testunit.o
+ 
+ ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
+diff --git a/drivers/i2c/i2c-slave-testunit.c b/drivers/i2c/i2c-slave-testunit.c
+new file mode 100644
+index 000000000000..ba82712eac5f
+--- /dev/null
++++ b/drivers/i2c/i2c-slave-testunit.c
+@@ -0,0 +1,146 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * I2C slave mode testunit
++ *
++ * Copyright (C) 2020 by Wolfram Sang, Sang Engineering <wsa@sang-engineering.com>
++ * Copyright (C) 2020 by Renesas Electronics Corporation
++ */
++
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/slab.h>
++#include <linux/workqueue.h> // FIXME: own workqueue?
++
++enum testunit_cmds {
++	TU_CMD_READ_BYTES,
++	TU_CMD_HOST_NOTIFY,
++};
++
++enum testunit_regs {
++	TU_REG_CMD,
++	TU_REG_DATAL,
++	TU_REG_DATAH,
++	TU_REG_DELAY,
++	TU_NUM_REGS
++};
++
++struct testunit_data {
++	u8 regs[TU_NUM_REGS];	//FIXME: add locking
++	u8 reg_idx;
++	struct i2c_client *client;
++	struct delayed_work worker;
++	struct i2c_msg msg;
++	u8 msgbuf[256];
++};
++
++static void i2c_slave_testunit_work(struct work_struct *work)
++{
++	struct testunit_data *tu = container_of(work, struct testunit_data, worker.work);
++	int ret;
++
++	switch (tu->regs[TU_REG_CMD]) {
++
++	case TU_CMD_READ_BYTES:
++		tu->msg.addr = tu->regs[TU_REG_DATAL];
++		tu->msg.flags = I2C_M_RD;
++		tu->msg.len = tu->regs[TU_REG_DATAH];
++		break;
++
++	case TU_CMD_HOST_NOTIFY:
++		tu->msg.addr = 0x08;
++		tu->msg.flags = 0;
++		tu->msg.len = 3;
++		tu->msgbuf[0] = tu->client->addr;
++		tu->msgbuf[1] = tu->regs[TU_REG_DATAL];
++		tu->msgbuf[2] = tu->regs[TU_REG_DATAH];
++		break;
++	}
++
++	ret = i2c_transfer(tu->client->adapter, &tu->msg, 1);
++	if (ret != 1)
++		dev_err(&tu->client->dev, "CMD%02X failed (%d)\n", tu->regs[TU_REG_CMD], ret);
++}
++
++static int i2c_slave_testunit_slave_cb(struct i2c_client *client,
++				     enum i2c_slave_event event, u8 *val)
++{
++	struct testunit_data *tu = i2c_get_clientdata(client);
++	int ret = 0;
++
++	switch (event) {
++	case I2C_SLAVE_WRITE_REQUESTED:
++		break;
++
++	case I2C_SLAVE_WRITE_RECEIVED:
++		if (tu->reg_idx < TU_NUM_REGS)
++			tu->regs[tu->reg_idx] = *val;
++		else
++			ret = -EMSGSIZE;
++
++		if (tu->reg_idx <= TU_NUM_REGS)
++			tu->reg_idx++;
++
++		break;
++
++	case I2C_SLAVE_STOP:
++		if (tu->reg_idx == TU_NUM_REGS)
++			queue_delayed_work(system_long_wq, &tu->worker,
++					   msecs_to_jiffies(100 * tu->regs[TU_REG_DELAY]));
++		tu->reg_idx = 0;
++		break;
++
++	case I2C_SLAVE_READ_REQUESTED:
++	case I2C_SLAVE_READ_PROCESSED:
++		*val = 0xff;
++		break;
++	}
++
++	return ret;
++}
++
++static int i2c_slave_testunit_probe(struct i2c_client *client)
++{
++	struct testunit_data *tu;
++
++	tu = devm_kzalloc(&client->dev, sizeof(struct testunit_data), GFP_KERNEL);
++	if (!tu)
++		return -ENOMEM;
++
++	tu->msg.buf = tu->msgbuf;
++	tu->client = client;
++	i2c_set_clientdata(client, tu);
++	INIT_DELAYED_WORK(&tu->worker, i2c_slave_testunit_work);
++
++	return i2c_slave_register(client, i2c_slave_testunit_slave_cb);
++};
++
++static int i2c_slave_testunit_remove(struct i2c_client *client)
++{
++	struct testunit_data *tu = i2c_get_clientdata(client);
++
++	cancel_delayed_work_sync(&tu->worker);
++	i2c_slave_unregister(client);
++	return 0;
++}
++
++static const struct i2c_device_id i2c_slave_testunit_id[] = {
++	{ "slave-testunit", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, i2c_slave_testunit_id);
++
++static struct i2c_driver i2c_slave_testunit_driver = {
++	.driver = {
++		.name = "i2c-slave-testunit",
++	},
++	.probe_new = i2c_slave_testunit_probe,
++	.remove = i2c_slave_testunit_remove,
++	.id_table = i2c_slave_testunit_id,
++};
++module_i2c_driver(i2c_slave_testunit_driver);
++
++MODULE_AUTHOR("Wolfram Sang <wsa@sang-engineering.com>");
++MODULE_DESCRIPTION("I2C slave mode test unit");
++MODULE_LICENSE("GPL v2");
+-- 
+2.20.1
+
