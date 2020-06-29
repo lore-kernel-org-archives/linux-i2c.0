@@ -2,103 +2,89 @@ Return-Path: <SRS0=pZ/X=AK=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6628C433DF
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Jun 2020 20:38:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A08FC433E0
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Jun 2020 20:40:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A46AB20672
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Jun 2020 20:38:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 072E920672
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Jun 2020 20:40:21 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="nQ1EUsah"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730382AbgF2UiV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Jun 2020 16:38:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43350 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731761AbgF2TOU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Jun 2020 15:14:20 -0400
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9CADC0076FD;
-        Mon, 29 Jun 2020 04:28:28 -0700 (PDT)
-Received: by mail-ot1-x344.google.com with SMTP id k15so15087679otp.8;
-        Mon, 29 Jun 2020 04:28:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=aUOFgBAon7H8BmxSht9yRn787q41Dfxrba2uWvIKf7I=;
-        b=MgY4TeM2oqnGohr5MJ5PTJrL55M+EPq4g50K7MF1dlzWzUNfVGXbm5A0PPNhYJSTI5
-         tLrVHP7kf39x0KjSFXEgE3GU2voDMasc4C01HfHbw70RW1cylfHTdaXKweQ6KE2mNfqe
-         lUn2f0PjUiGr4hHWvzPXElKzjOo7E+eXs/BUvLYhuu0IdhLaofUg0X2yF4H/vXRpgPQw
-         O+oZ+GZGzi3JTxyu2GbVw1aRECUQ1jqqAYuF7jWgdxQSqJ2kIUjgiaAu554qYW+eUc2+
-         NJblX8QL3rRgFIaOT34k18MiRfYFId2mLxl4hBdzsxc/PgTISVnpS0eAnFIELpoEi7DE
-         /TAg==
-X-Gm-Message-State: AOAM533vGMIu03KnsmwbrM51MnGdMpkNhrSF1v2x2dRPuVHvD1q0TxTv
-        /w494MiDzjY6V6SUYEqeW4iYzHsVmIORP3NiXDP4xtq+
-X-Google-Smtp-Source: ABdhPJw3YbqisB0rK2AsRQEp7Js/wTXayWafaNgtmPHh6jn6+bGHRcepv+OetrHOKKSuy2xQds4VqBIN958wXwmsnB8=
-X-Received: by 2002:a9d:2646:: with SMTP id a64mr12059234otb.107.1593430107969;
- Mon, 29 Jun 2020 04:28:27 -0700 (PDT)
+        id S1733035AbgF2UkO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Jun 2020 16:40:14 -0400
+Received: from www.zeus03.de ([194.117.254.33]:52750 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731720AbgF2UkH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 29 Jun 2020 16:40:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=k1; bh=FpyLO74xYjwKVoBrUpqtoejScYA
+        bwTvzYbQXG0AzIBU=; b=nQ1EUsahMFmEkwYyu5L8gzzK0xSmXQHQpDVLCkDqXoO
+        v4t/EgmTCxUIckP1tzbNOvdWoLmZznuQMu95FjgmVhplDTnP3JFypGn0hzCODzfR
+        c9INa5KqnlKywhP4lfOt2gtgpaYnsQxoCeoKdnuOdv65OwtYHSU3mCqB2zUpeh/M
+        =
+Received: (qmail 2142400 invoked from network); 29 Jun 2020 20:53:24 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Jun 2020 20:53:24 +0200
+X-UD-Smtp-Session: l3s3148p1@sQ7Okj2pYLQgAwDPXwOPAD5GWjq5uCZs
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Alain Volmat <alain.volmat@st.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH RFC 0/1] i2c: add slave testunit driver
+Date:   Mon, 29 Jun 2020 20:53:17 +0200
+Message-Id: <20200629185318.23381-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-References: <20200628185522.5902-1-wsa+renesas@sang-engineering.com>
- <CAMuHMdXFgR__hnUO-o+2ukxOYc_6U63wjP1PJyip3KGg277gDA@mail.gmail.com> <20200629112119.GA1932@ninjato>
-In-Reply-To: <20200629112119.GA1932@ninjato>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 29 Jun 2020 13:28:16 +0200
-Message-ID: <CAMuHMdXaXxDJ_bgR=wLnyCjmfH0kC-SuVBPRZv96qzKbvbWsHQ@mail.gmail.com>
-Subject: Re: [PATCH] i2c: add Kconfig help text for slave mode
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Motivated by a series by Alain Volmat which implements SMBus Host Notify
+support as a slave backend[1], I wondered how I could actually test it.
+Then, I picked up my old idea of a "custom remote device" and
+implemented it as another slave backend. This is the first draft and it
+works quite well on my Renesas Lager board where I connected two I2C
+busses where both I2C controllers are master and slave. One slave is the
+testunit, one slave is the HostNotify listener.
 
-On Mon, Jun 29, 2020 at 1:21 PM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> > >  config I2C_SLAVE
-> > >         bool "I2C slave support"
-> > >
-> >
-> > Why the blank line here ^^^?
->
-> Sure, I can fix before applying.
->
-> >
-> > > +       help
-> > > +         This enables Linux to act as an I2C slave device. Note that your I2C
-> > > +         bus master driver also needs to support this functionality. Please
-> > > +         read Documentation/i2c/slave-interface.rst for further details.
-> > > +
-> > >  if I2C_SLAVE
-> > >
-> > >  config I2C_SLAVE_EEPROM
-> >
-> > The rest looks fine to me.
->
-> Thanks, Geert!
->
-> > As you don't like conditional R-b's, I'll add mine on v2 ;-)
->
-> I don't? I can't recall that :) Maybe there was a corner case once...
+While I really like Alain's approach, there is still some more testing
+needed. So, I already release my testing environment, maybe other people
+are interested, too. This patch depends on a documentation update. Also,
+for Renesas R-Car SoCs, some fixes are needed. I suggest you simply pull
+this branch here:
 
-Lore does not forgive, and does not forget ;-)
-https://lore.kernel.org/r/20190802133656.GA23542@kunai
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/slave-testunit
 
-Hence with the above fixed:
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+As mentioned elsewhere, support for SMBus Alert and I2C_M_RECV_LEN are
+already planned. But I guess you can do much more.
 
-Gr{oetje,eeting}s,
+Ideas and comments welcome!
 
-                        Geert
+Happy hacking,
+
+   Wolfram
+
+[1] http://patchwork.ozlabs.org/project/linux-i2c/list/?series=185718&state=*
+
+Wolfram Sang (1):
+  i2c: add slave testunit driver
+
+ Documentation/i2c/slave-testunit-backend.rst |  48 ++++++
+ drivers/i2c/Kconfig                          |   8 +
+ drivers/i2c/Makefile                         |   1 +
+ drivers/i2c/i2c-slave-testunit.c             | 146 +++++++++++++++++++
+ 4 files changed, 203 insertions(+)
+ create mode 100644 Documentation/i2c/slave-testunit-backend.rst
+ create mode 100644 drivers/i2c/i2c-slave-testunit.c
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.20.1
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
