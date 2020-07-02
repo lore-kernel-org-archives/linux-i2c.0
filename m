@@ -2,78 +2,243 @@ Return-Path: <SRS0=gxu9=AN=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8152AC433E7
-	for <linux-i2c@archiver.kernel.org>; Thu,  2 Jul 2020 12:58:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5605C433E0
+	for <linux-i2c@archiver.kernel.org>; Thu,  2 Jul 2020 13:54:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6181620772
-	for <linux-i2c@archiver.kernel.org>; Thu,  2 Jul 2020 12:58:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8993E20772
+	for <linux-i2c@archiver.kernel.org>; Thu,  2 Jul 2020 13:54:58 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="nwUoKSLU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729290AbgGBM6N (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 2 Jul 2020 08:58:13 -0400
-Received: from mga09.intel.com ([134.134.136.24]:21477 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729263AbgGBM6D (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 2 Jul 2020 08:58:03 -0400
-IronPort-SDR: vu3ur1m5ptCO/E4kYYILEubSPR6zaGsKm2DED+KV+22uMYhHMq928PKXT4e77zZqmBOK5pVyB2
- QANxhweP7UqA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9669"; a="148434056"
-X-IronPort-AV: E=Sophos;i="5.75,304,1589266800"; 
-   d="scan'208";a="148434056"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2020 05:58:02 -0700
-IronPort-SDR: h6S8D0BrFhZ2+OkSlaPjIi6B2dK12oE9vTzO5dd5z6srbcFfrKLOoncxIDZ0Bv/IlaCHSTxqZS
- Jt3uxpG88uyg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,304,1589266800"; 
-   d="scan'208";a="295885937"
-Received: from mylly.fi.intel.com (HELO [10.237.72.153]) ([10.237.72.153])
-  by orsmga002.jf.intel.com with ESMTP; 02 Jul 2020 05:58:01 -0700
-Subject: Re: [PATCH v6] i2c: designware: platdrv: Set class based on DMI
-To:     Ricardo Ribalda <ribalda@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Wolfram Sang <wsa@kernel.org>
-References: <20200702103321.2092254-1-ribalda@kernel.org>
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Message-ID: <c70553f1-527c-2e91-3fd1-d0f6072f96b8@linux.intel.com>
-Date:   Thu, 2 Jul 2020 15:56:21 +0300
+        id S1729522AbgGBNyx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 2 Jul 2020 09:54:53 -0400
+Received: from lb1-smtp-cloud9.xs4all.net ([194.109.24.22]:33129 "EHLO
+        lb1-smtp-cloud9.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729210AbgGBNyw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Jul 2020 09:54:52 -0400
+Received: from cust-b5b5937f ([IPv6:fc0c:c16d:66b8:757f:c639:739b:9d66:799d])
+        by smtp-cloud9.xs4all.net with ESMTPA
+        id qzfpjmz6o40yDqzfsjenTt; Thu, 02 Jul 2020 15:54:49 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s1;
+        t=1593698089; bh=JXy9S9EFKh754KQxF9C4q8ICFD46pAeOzhR4AkdLf7o=;
+        h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type:From:
+         Subject;
+        b=nwUoKSLUlNVqWjIvTY2WwOsi8/95XfDmCp7uCu1YsNQMvIXunqZwtbyr+4ODyUO6r
+         gOxxgw3rLP5VnAOSNRdhdChlaRPq2uW+oFAvLiIavPbOL152SS2breZtyagqSULQV+
+         ttO1Kclc7ivJYILY/XVmRpjeUHE2XRjGCcHBdWzdUortP0lf80JB47u93GRNbraIst
+         b/9yOeoSBZyKheS/vfXT8GYLcUuKEpxYop+3sTAm/5fZPdTdQfAh8h00oSmVSUBnrT
+         svGZc9Y76lh3qkXy8Tm8B6ogA2Dw8bzTP4dExaZZ9i+mMs25IejAHUjNAb+0JnqjDo
+         3TYw8eP9n3YKw==
+Subject: Re: [RFC PATCH v2 12/18] media: tegra-video: Add support for
+ selection ioctl ops
+To:     Sowjanya Komatineni <skomatineni@nvidia.com>,
+        thierry.reding@gmail.com, jonathanh@nvidia.com, frankc@nvidia.com,
+        sakari.ailus@iki.fi, robh+dt@kernel.org, helen.koike@collabora.com
+Cc:     digetx@gmail.com, sboyd@kernel.org, gregkh@linuxfoundation.org,
+        linux-media@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+References: <1592358094-23459-1-git-send-email-skomatineni@nvidia.com>
+ <1592358094-23459-13-git-send-email-skomatineni@nvidia.com>
+From:   Hans Verkuil <hverkuil@xs4all.nl>
+Message-ID: <efc84cff-76d5-78a2-e84e-0342459d3756@xs4all.nl>
+Date:   Thu, 2 Jul 2020 15:54:45 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.9.0
 MIME-Version: 1.0
-In-Reply-To: <20200702103321.2092254-1-ribalda@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <1592358094-23459-13-git-send-email-skomatineni@nvidia.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: MS4wfPaR373dt6+A25Gd0pjQvnETJQ+BwEOViqqw20Lb16D1ffk7XoBWsLKAD6EthvNL8cp3aRBpVMzPdniOULqs5GG9Utp0ca5K3eTlcZhD3ezgt1LWVy3b
+ Hg2X1pD2FROPXPI+0/GvEqillcMQkOv6bMT0TAHpODXYFHOoGmmxJUj/cTnnS8h3zdsuJOhSyzjd6UvAvhhvnuh83FE9WWV/eYRdVBgdsPUYDwJDgQ3+ejMG
+ FVWzfSxsvbExj9Ojjb+eY3Qzt+R3qYLndSH9/Smo9wyU7KqAGCbitrjD4a9TuwTh1XKmQg0Ja+kfAoHFW4H8sLfJaJRfIDjIgAghOTt6UOoGDmCHWsrLeW5V
+ UFc2u1BOZDn20rNipxT8Z2etP5Oh209YZx0gTH/2KPT8x6UAFQaGVB/FFJVHP/vfA9d/OHSYzJE0bPq0s0iP64cDrCzFus0UMlvubj2fnou3VCKZtOgtYBSO
+ Clsz2Bu+GfmfV0VBVkF2+1QcI1UAjzHMfkU8OUl3gPzdmt7iPqKNH9LOVSz43nOBFxDnXvLAMXEni6CxeAqg0y7I7to22Pp7J/H821lnKNE29YsmDKaZpfTP
+ rALXObO6fGopNeAhQvDHYnHXM9Wx3OTCVN4W4hsHT5AHhTLiGlSvQx0yYhcTStD6FiQ2PFp97JfVEh6D1m3lDAiZ
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 7/2/20 1:33 PM, Ricardo Ribalda wrote:
-> Current AMD's zen-based APUs use this core for some of its i2c-buses.
+On 17/06/2020 03:41, Sowjanya Komatineni wrote:
+> This patch adds selection v4l2 ioctl operations to allow configuring
+> a selection rectangle in the sensor through the Tegra video device
+> node.
 > 
-> With this patch we re-enable autodetection of hwmon-alike devices, so
-> lm-sensors will be able to work automatically.
+> Some sensor drivers supporting crop uses try_crop rectangle from
+> v4l2_subdev_pad_config during try format for computing binning.
 > 
-> It does not affect the boot-time of embedded devices, as the class is
-> set based on the DMI information.
+> So with selection ops support, this patch also updates try format
+> to use try crop rectangle either from subdev frame size enumeration
+> or from subdev crop boundary.
 > 
-> DMI is probed only on Qtechnology QT5222 Industrial Camera Platform.
-> 
-> DocLink: https://qtec.com/camera-technology-camera-platforms/
-> Fixes: 3eddad96c439 ("i2c: designware: reverts "i2c: designware: Add support for AMD I2C controller"")
-> Signed-off-by: Ricardo Ribalda <ribalda@kernel.org>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 > ---
-> v6: Removed extra line, sorry for the invalid v5
->   drivers/i2c/busses/i2c-designware-platdrv.c | 15 ++++++++++++++-
->   1 file changed, 14 insertions(+), 1 deletion(-)
+>  drivers/staging/media/tegra-video/vi.c | 106 +++++++++++++++++++++++++++++++++
+>  1 file changed, 106 insertions(+)
 > 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> diff --git a/drivers/staging/media/tegra-video/vi.c b/drivers/staging/media/tegra-video/vi.c
+> index 506c263..f9eb96b 100644
+> --- a/drivers/staging/media/tegra-video/vi.c
+> +++ b/drivers/staging/media/tegra-video/vi.c
+> @@ -427,6 +427,13 @@ static int __tegra_channel_try_format(struct tegra_vi_channel *chan,
+>  	struct v4l2_subdev *subdev;
+>  	struct v4l2_subdev_format fmt;
+>  	struct v4l2_subdev_pad_config *pad_cfg;
+> +	struct v4l2_subdev_frame_size_enum fse = {
+> +		.which = V4L2_SUBDEV_FORMAT_TRY,
+> +	};
+> +	struct v4l2_subdev_selection sdsel = {
+> +		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+> +		.target = V4L2_SEL_TGT_CROP_BOUNDS,
+> +	};
+>  	int ret;
+>  
+>  	subdev = tegra_channel_get_remote_subdev(chan, true);
+> @@ -449,6 +456,24 @@ static int __tegra_channel_try_format(struct tegra_vi_channel *chan,
+>  	fmt.which = V4L2_SUBDEV_FORMAT_TRY;
+>  	fmt.pad = 0;
+>  	v4l2_fill_mbus_format(&fmt.format, pix, fmtinfo->code);
+> +
+> +	/*
+> +	 * Attempt to obtain the format size from subdev.
+> +	 * If not available, try to get crop boundary from subdev.
+> +	 */
+> +	fse.code = fmtinfo->code;
+> +	ret = v4l2_subdev_call(subdev, pad, enum_frame_size, pad_cfg, &fse);
+> +	if (ret) {
+> +		ret = v4l2_subdev_call(subdev, pad, get_selection, NULL, &sdsel);
+> +		if (ret)
+> +			return -EINVAL;
+> +		pad_cfg->try_crop.width = sdsel.r.width;
+> +		pad_cfg->try_crop.height = sdsel.r.height;
+> +	} else {
+> +		pad_cfg->try_crop.width = fse.max_width;
+> +		pad_cfg->try_crop.height = fse.max_height;
+> +	}
+> +
+>  	ret = v4l2_subdev_call(subdev, pad, set_fmt, pad_cfg, &fmt);
+>  	if (ret < 0)
+>  		return ret;
+> @@ -540,6 +565,85 @@ static int tegra_channel_set_subdev_active_fmt(struct tegra_vi_channel *chan)
+>  	return 0;
+>  }
+>  
+> +static int tegra_channel_g_selection(struct file *file, void *priv,
+> +				     struct v4l2_selection *sel)
+> +{
+> +	struct tegra_vi_channel *chan = video_drvdata(file);
+> +	struct v4l2_subdev *subdev;
+> +	struct v4l2_subdev_format fmt = {
+> +		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+> +	};
+> +	struct v4l2_subdev_selection sdsel = {
+> +		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+> +		.target = sel->target,
+> +	};
+> +	int ret;
+> +
+> +	if (IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
+> +		return -ENOTTY;
+> +
+> +	if (sel->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+> +		return -EINVAL;
+> +	/*
+> +	 * Try the get selection operation and fallback to get format if not
+> +	 * implemented.
+> +	 */
+> +	subdev = tegra_channel_get_remote_subdev(chan, true);
+> +	ret = v4l2_subdev_call(subdev, pad, get_selection, NULL, &sdsel);
+> +	if (!ret)
+> +		sel->r = sdsel.r;
+> +	if (ret != -ENOIOCTLCMD)
+> +		return ret;
+> +
+> +	ret = v4l2_subdev_call(subdev, pad, get_fmt, NULL, &fmt);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	sel->r.left = 0;
+> +	sel->r.top = 0;
+> +	sel->r.width = fmt.format.width;
+> +	sel->r.height = fmt.format.height;
+> +
+> +	return 0;
+> +}
+> +
+> +static int tegra_channel_s_selection(struct file *file, void *fh,
+> +				     struct v4l2_selection *sel)
+> +{
+> +	struct tegra_vi_channel *chan = video_drvdata(file);
+> +	struct v4l2_subdev *subdev;
+> +	int ret;
+> +	struct v4l2_subdev_selection sdsel = {
+> +		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+> +		.target = sel->target,
+> +		.flags = sel->flags,
+> +		.r = sel->r,
+> +	};
+> +
+
+This function doesn't check if the subdev actually supports set_selection.
+The imx219 is one such driver: it supports get_selection, but not set_selection.
+
+So this code should add these lines to fix the v4l2-compliance fail:
+
+       subdev = tegra_channel_get_remote_subdev(chan, true);
+
+       if (!v4l2_subdev_has_op(subdev, pad, set_selection))
+               return -ENOTTY;
+
+
+> +	if (IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
+> +		return -ENOTTY;
+> +
+> +	if (sel->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+> +		return -EINVAL;
+> +
+> +	if (vb2_is_busy(&chan->queue))
+> +		return -EBUSY;
+> +
+> +	subdev = tegra_channel_get_remote_subdev(chan, true);
+
+And this line can be dropped.
+
+Regards,
+
+	Hans
+
+> +	ret = v4l2_subdev_call(subdev, pad, set_selection, NULL, &sdsel);
+> +	if (!ret) {
+> +		sel->r = sdsel.r;
+> +		/*
+> +		 * Subdev active format resolution may have changed during
+> +		 * set selection operation. So, update channel format to
+> +		 * the sub-device active format.
+> +		 */
+> +		return tegra_channel_set_subdev_active_fmt(chan);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+>  static int tegra_channel_enum_input(struct file *file, void *fh,
+>  				    struct v4l2_input *inp)
+>  {
+> @@ -597,6 +701,8 @@ static const struct v4l2_ioctl_ops tegra_channel_ioctl_ops = {
+>  	.vidioc_streamoff		= vb2_ioctl_streamoff,
+>  	.vidioc_subscribe_event		= v4l2_ctrl_subscribe_event,
+>  	.vidioc_unsubscribe_event	= v4l2_event_unsubscribe,
+> +	.vidioc_g_selection		= tegra_channel_g_selection,
+> +	.vidioc_s_selection		= tegra_channel_s_selection,
+>  };
+>  
+>  /*
+> 
+
