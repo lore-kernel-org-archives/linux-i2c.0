@@ -2,87 +2,85 @@ Return-Path: <SRS0=gxu9=AN=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A656C433E1
-	for <linux-i2c@archiver.kernel.org>; Thu,  2 Jul 2020 14:48:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2E62C433E3
+	for <linux-i2c@archiver.kernel.org>; Thu,  2 Jul 2020 17:12:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E97AB2067D
-	for <linux-i2c@archiver.kernel.org>; Thu,  2 Jul 2020 14:48:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E43321534
+	for <linux-i2c@archiver.kernel.org>; Thu,  2 Jul 2020 17:12:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="O7pej85U"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Kfthxle0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730211AbgGBOr6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 2 Jul 2020 10:47:58 -0400
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:2568 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730063AbgGBOrx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Jul 2020 10:47:53 -0400
-Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 062EhC3O028153;
-        Thu, 2 Jul 2020 16:47:40 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type; s=STMicroelectronics;
- bh=WcS8twTIG5eRGz7Og3l5v3D19BLaLWfcJ+xCR6Mo4yE=;
- b=O7pej85UNCDZlwiv5nXnUmn4lKrz1yFPgwZlzPPtmOskPPw8jIaPcPt8IEz1wfw9agxH
- nnLYhQfTEjMGFaAtYY5Cs0BlBcRrgSN2MkSVGV3GqRgZRWUyDlmESP+l5YhZpnz+b2Rj
- HiKqCIv5JY6wY3WDuWtsTQRgfpJirGvfYXEbCGtF3eews9lZRa2mWzgpLuJ0YdmPVFTt
- hG5HymVbP5HCVpfMtGttl19tswvv6QRm92U3+QW9cOGKOLJeXQMitHo2JjZj51XNR9ZN
- bZWNWtI7vmf6e2smitlMgYkdtbDainju/iJN+cJ0to6CaaosnwREYrjEwzziGwRSV1XS 3Q== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 31wuvwgs7t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Jul 2020 16:47:40 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id A9703100038;
-        Thu,  2 Jul 2020 16:47:39 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag3node2.st.com [10.75.127.8])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 324C72BC7BE;
-        Thu,  2 Jul 2020 16:47:39 +0200 (CEST)
-Received: from localhost (10.75.127.49) by SFHDAG3NODE2.st.com (10.75.127.8)
- with Microsoft SMTP Server (TLS) id 15.0.1347.2; Thu, 2 Jul 2020 16:47:38
- +0200
-From:   Alain Volmat <alain.volmat@st.com>
-To:     <wsa@kernel.org>, <pierre-yves.mordret@st.com>
-CC:     <alexandre.torgue@st.com>, <linux-i2c@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@st.com>,
-        <alain.volmat@st.com>
-Subject: [PATCH 0/2] i2c: stm32: add host-notify support via i2c slave
-Date:   Thu, 2 Jul 2020 16:47:03 +0200
-Message-ID: <1593701225-13451-1-git-send-email-alain.volmat@st.com>
-X-Mailer: git-send-email 2.7.4
+        id S1727920AbgGBRMQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 2 Jul 2020 13:12:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44634 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727915AbgGBRMP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Jul 2020 13:12:15 -0400
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 608BDC08C5C1
+        for <linux-i2c@vger.kernel.org>; Thu,  2 Jul 2020 10:12:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
+        MIME-Version:Date:Message-ID:Subject:From:To:Sender:Reply-To:Cc:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=hur0N5VpFMmM468rLQSCnKTmOlrtSai0qkItfn7CRWk=; b=Kfthxle0FEk7pd724y1qHveQfR
+        sdJpKjuapDo5PSA172fvIzxsRAt6Bd+2KaFFmiXG6rHn08cuGyizbIwpkf7d5cTdH8ABqZc7v9X0x
+        hoOAfY5S0065hvgTmsMliIzNzxXxU6pkpS7r6kV52x1VUVsfVn0OgvuSDoujxyr2MaSHklloY7uFh
+        Yo/WA4vsUvPGK/lDlzyeCoRoMo3vkSG1ghbxB84yFE07X2x0zovViBCPF02WCqXWmgZ3mMpfZ6zSa
+        +ZgsBHb8E8K8O9ANHdWU0VRAiHnfHOCNxQ3/V63Vd+DrDbi7y80hYVwA3isHDASZIbm0ay6lrliHG
+        9VTtNWhA==;
+Received: from [2601:1c0:6280:3f0::19c2]
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jr2kt-00086U-SZ; Thu, 02 Jul 2020 17:12:12 +0000
+To:     Linux MM <linux-mm@kvack.org>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Subject: Documentation (mm & i2c) questions (doubled words)
+Message-ID: <187c35da-041e-dcf3-d14e-7046f57d0606@infradead.org>
+Date:   Thu, 2 Jul 2020 10:12:06 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.75.127.49]
-X-ClientProxiedBy: SFHDAG4NODE3.st.com (10.75.127.12) To SFHDAG3NODE2.st.com
- (10.75.127.8)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-07-02_09:2020-07-02,2020-07-02 signatures=0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This serie replaces the previous 'stm32-f7: Addition of SMBus Alert /
-Host-notify features' serie to only focus on the SMBus Host-Notify feature.
-It should be applied with "[PATCH] i2c: add binding to mark a bus as SMBus"
-from Wolfram which defines the newly introduced "smbus" binding.
 
-Alain Volmat (2):
-  i2c: smbus: add core function handling SMBus host-notify
-  i2c: stm32f7: Add SMBus Host-Notify protocol support
+for MM:
 
- drivers/i2c/busses/Kconfig       |   1 +
- drivers/i2c/busses/i2c-stm32f7.c | 110 +++++++++++++++++++++++++++++++------
- drivers/i2c/i2c-core-smbus.c     | 114 +++++++++++++++++++++++++++++++++++++++
- include/linux/i2c-smbus.h        |  12 +++++
- 4 files changed, 222 insertions(+), 15 deletions(-)
+in Documentation/admin-guide/mm/numaperf.rst:
+line 132-133:
+
+  If that directory is not present, the system either does not not provide
+  a memory-side cache, or that information is not accessible to the kernel.
+
+Is the double negative done on purpose or is it a typo/mistake?
+
+
+for I2C:
+
+in Documentation/i2c/upgrading-clients.rst:
+line 10-11:
+
+  This guide outlines how to alter existing Linux 2.6 client drivers from
+  the old to the new new binding methods.
+                 ^^^^^^^
+
+Is this like "really new" or newer than new?  or just a simple mistake?
+
+
+thanks.
 
 -- 
-2.7.4
-
+~Randy
 
