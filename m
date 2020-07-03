@@ -2,243 +2,214 @@ Return-Path: <SRS0=P7sW=AO=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA079C433DF
-	for <linux-i2c@archiver.kernel.org>; Fri,  3 Jul 2020 11:36:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6081DC433DF
+	for <linux-i2c@archiver.kernel.org>; Fri,  3 Jul 2020 12:46:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 854AA2084C
-	for <linux-i2c@archiver.kernel.org>; Fri,  3 Jul 2020 11:36:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3B39920782
+	for <linux-i2c@archiver.kernel.org>; Fri,  3 Jul 2020 12:46:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="dxpAm0t5"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QvNBA9Rm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726311AbgGCLgj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 3 Jul 2020 07:36:39 -0400
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:22372 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726022AbgGCLgj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Jul 2020 07:36:39 -0400
-Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 063BXNEr020096;
-        Fri, 3 Jul 2020 13:36:27 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-type; s=STMicroelectronics;
- bh=wiVlmgo0Tb74d3HUpAS/XiyBrtMN3zkK8doatuW4pxM=;
- b=dxpAm0t5uaBu9xBQIRgSJqeS1FEkVGKm4mQ2HD9uaeWum7rToo7Y8TI+j6xDWWpy2eIA
- ypMs7b0Rpq//rFewbXl1NDQ08Nz3jJdQxbE6nvGUyGobJKYEzNzWn4dxF8w4GlvHlqBz
- PDj49WNKOoyR6srbwRaGme12h24gLTdupaJGHlM+GskNy4f3N/uaRBv7uzmLkBlTZP98
- XXcpo9HDx43dBmryjkzqI1ipSg4p2rXzgAqlcwLp3cy0301//y58XbOH1YV8mroHDa4A
- nWYftR2/SXs1t6TPspPAcFW9N7VHpolrxr+xIihSO5vSmzsluOFf8ij4w0WyhttOmjXC WA== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 31wu8a6vju-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Jul 2020 13:36:27 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 28FCE100034;
-        Fri,  3 Jul 2020 13:36:27 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag3node2.st.com [10.75.127.8])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 1ACF32C750E;
-        Fri,  3 Jul 2020 13:36:27 +0200 (CEST)
-Received: from localhost (10.75.127.45) by SFHDAG3NODE2.st.com (10.75.127.8)
- with Microsoft SMTP Server (TLS) id 15.0.1347.2; Fri, 3 Jul 2020 13:36:26
- +0200
-From:   Alain Volmat <alain.volmat@st.com>
-To:     <wsa@kernel.org>, <pierre-yves.mordret@st.com>
-CC:     <alexandre.torgue@st.com>, <linux-i2c@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@st.com>,
-        <alain.volmat@st.com>
-Subject: [PATCH v2 1/2] i2c: smbus: add core function handling SMBus host-notify
-Date:   Fri, 3 Jul 2020 13:36:07 +0200
-Message-ID: <1593776168-17867-2-git-send-email-alain.volmat@st.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1593776168-17867-1-git-send-email-alain.volmat@st.com>
-References: <1593776168-17867-1-git-send-email-alain.volmat@st.com>
+        id S1726147AbgGCMp7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 3 Jul 2020 08:45:59 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:58593 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726022AbgGCMp7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Jul 2020 08:45:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1593780357;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5/yv8JdwOXfx/EmSiiGE/aUUOirGrGg2k/qCRYQBzF8=;
+        b=QvNBA9RmDkIAV62RW/kzXOmEeM5CUAsWNmIL4qvHYyill0ZdWBf5FbPxxlQwCGbv2ayF/3
+        YntUZin0xsTVecjiC8L36lzjrYuuqsjZMFvycYjE2itV5mkXrV6MAVTi0jSjEvzEr0RWdK
+        1W59clvrl0aM2oTyADSqAo2GkEOhHRw=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-246-cNrQYVyIOpG_hDAhft5iaA-1; Fri, 03 Jul 2020 08:45:54 -0400
+X-MC-Unique: cNrQYVyIOpG_hDAhft5iaA-1
+Received: by mail-wr1-f72.google.com with SMTP id i14so31271746wru.17
+        for <linux-i2c@vger.kernel.org>; Fri, 03 Jul 2020 05:45:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=5/yv8JdwOXfx/EmSiiGE/aUUOirGrGg2k/qCRYQBzF8=;
+        b=TOyrzHMEY8qJ6KiNAU3N7J9rRqgs2KBt5BJdegpreSD5nKT1qNnCPtPIQCiVv9G0Hz
+         Aklovm8QX4GKMdf5XaPNyfZx2F6wqW9pdV6jJcaESaTp9BIsl9PmzaXpzgw5VLz7okcM
+         tTXKeJiWQx7uHwszm0GaYtnReex9x+B3Hs+mjmuSI9xHy6ZOndQKIvvuJMD8iFifSs7C
+         /4tfn/7flAxtHTT5XlDc2q4hh7FRfKLOIyAmhMstOo1e5G+O8kfc22AuGvUaOHJ0YGTo
+         1fFcHtJ/AKU4Kzx4jybgsPzZVXu9f49jvhM58E/ibBnRoQ2oCDmzGREh8VpoO39xFsT+
+         4iqQ==
+X-Gm-Message-State: AOAM533ZKPsCx4kuFtTLsQ3fpYuA/m6I+X3rnf7mkOCaZrxx8q1yISvU
+        CO8GnaYoYut/51g8ZQs2Fa5VRRxyWCBt50GpApD1UdLoU5hYJS+osxvZMktXknHYjLpgk9ah1Lg
+        vss+XeWWszRGfKasF5Wng
+X-Received: by 2002:a7b:c8c8:: with SMTP id f8mr37797237wml.142.1593780353420;
+        Fri, 03 Jul 2020 05:45:53 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyUAeWyQoevVuHUUjE7rBTyy7y98LCx6lHWDz5QKXVohIEzg5CHOhqDFiVF1zhhD/GyVY6vsQ==
+X-Received: by 2002:a7b:c8c8:: with SMTP id f8mr37797212wml.142.1593780353163;
+        Fri, 03 Jul 2020 05:45:53 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id k14sm13802779wrn.76.2020.07.03.05.45.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 03 Jul 2020 05:45:52 -0700 (PDT)
+Subject: Re: [PATCH] i2c: revert "i2c: core: Allow drivers to disable i2c-core
+ irq mapping"
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-i2c@vger.kernel.org
+References: <20200630162440.8453-1-wsa+renesas@sang-engineering.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <02adeb3f-761a-32e8-6596-81ccb7cafa6e@redhat.com>
+Date:   Fri, 3 Jul 2020 14:45:52 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.75.127.45]
-X-ClientProxiedBy: SFHDAG1NODE1.st.com (10.75.127.1) To SFHDAG3NODE2.st.com
- (10.75.127.8)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-07-03_06:2020-07-02,2020-07-03 signatures=0
+In-Reply-To: <20200630162440.8453-1-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-SMBus Host-Notify protocol, from the adapter point of view
-consist of receiving a message from a client, including the
-client address and some other data.
+Hi,
 
-It can be simply handled by creating a new slave device
-and registering a callback performing the parsing of the
-message received from the client.
+On 6/30/20 6:24 PM, Wolfram Sang wrote:
+> This manually reverts commit d1d84bb95364ed604015c2b788caaf3dbca0262f.
+> The only user has gone two years ago with commit 589edb56b424 ("ACPI /
+> scan: Create platform device for INT33FE ACPI nodes") and no new user
+> has showed up. Remove and hope we will never need it again.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+> 
+> Build tested only. Looking for Hans' opinion here.
 
-This commit introduces two new core functions
-  * i2c_new_slave_host_notify_device
-  * i2c_free_slave_host_notify_device
-that take care of registration of the new slave device and
-callback and will call i2c_handle_smbus_host_notify once a
-Host-Notify event is received.
+I'm fine with removing this.
 
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
----
- v2: identical to v1
+Semi off-topic:
 
- drivers/i2c/i2c-core-smbus.c | 114 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c-smbus.h    |  12 +++++
- 2 files changed, 126 insertions(+)
+Recently I did have another special case, see:
 
-diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index f5c9787992e9..23ab9dc5ac85 100644
---- a/drivers/i2c/i2c-core-smbus.c
-+++ b/drivers/i2c/i2c-core-smbus.c
-@@ -715,3 +715,117 @@ int of_i2c_setup_smbus_alert(struct i2c_adapter *adapter)
- }
- EXPORT_SYMBOL_GPL(of_i2c_setup_smbus_alert);
- #endif
-+
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
-+#define SMBUS_HOST_NOTIFY_LEN	3
-+struct i2c_slave_host_notify_status {
-+	u8 index;
-+	u8 addr;
-+};
-+
-+static int i2c_slave_host_notify_cb(struct i2c_client *client,
-+				    enum i2c_slave_event event, u8 *val)
-+{
-+	struct i2c_slave_host_notify_status *status = client->dev.platform_data;
-+	int ret;
-+
-+	switch (event) {
-+	case I2C_SLAVE_WRITE_REQUESTED:
-+		status->index = 0;
-+		break;
-+	case I2C_SLAVE_WRITE_RECEIVED:
-+		/* We only retrieve the first byte received (addr)
-+		 * since there is currently no support to retrieve the data
-+		 * parameter from the client.
-+		 */
-+		if (status->index == 0)
-+			status->addr = *val;
-+		if (status->index < U8_MAX)
-+			status->index++;
-+		break;
-+	case I2C_SLAVE_STOP:
-+		/* Handle host-notify if whole message received only */
-+		if (status->index != SMBUS_HOST_NOTIFY_LEN) {
-+			status->index = U8_MAX;
-+			break;
-+		}
-+
-+		ret = i2c_handle_smbus_host_notify(client->adapter,
-+						   status->addr);
-+		if (ret < 0)
-+			return ret;
-+		status->index = U8_MAX;
-+		break;
-+	case I2C_SLAVE_READ_REQUESTED:
-+	case I2C_SLAVE_READ_PROCESSED:
-+		*val = 0xff;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * i2c_new_slave_host_notify_device - get a client for SMBus host-notify support
-+ * @adapter: the target adapter
-+ * Context: can sleep
-+ *
-+ * Setup handling of the SMBus host-notify protocol on a given I2C bus segment.
-+ *
-+ * Handling is done by creating a device and its callback and handling data
-+ * received via the SMBus host-notify address (0x8)
-+ *
-+ * This returns the client, which should be ultimately freed using
-+ * i2c_free_slave_host_notify_device(); or an ERRPTR to indicate an error.
-+ */
-+struct i2c_client *i2c_new_slave_host_notify_device(struct i2c_adapter *adapter)
-+{
-+	struct i2c_board_info host_notify_board_info = {
-+		I2C_BOARD_INFO("smbus_host_notify", 0x08),
-+		.flags  = I2C_CLIENT_SLAVE,
-+	};
-+	struct i2c_slave_host_notify_status *status;
-+	struct i2c_client *client;
-+	int ret;
-+
-+	status = kzalloc(sizeof(struct i2c_slave_host_notify_status),
-+			 GFP_KERNEL);
-+	if (!status)
-+		return ERR_PTR(-ENOMEM);
-+	status->index = U8_MAX;
-+
-+	host_notify_board_info.platform_data = status;
-+
-+	client = i2c_new_client_device(adapter, &host_notify_board_info);
-+	if (IS_ERR(client)) {
-+		kfree(status);
-+		return client;
-+	}
-+
-+	ret = i2c_slave_register(client, i2c_slave_host_notify_cb);
-+	if (ret) {
-+		i2c_unregister_device(client);
-+		kfree(status);
-+		return ERR_PTR(ret);
-+	}
-+
-+	return client;
-+}
-+EXPORT_SYMBOL_GPL(i2c_new_slave_host_notify_device);
-+
-+/**
-+ * i2c_free_slave_host_notify_device - free the client for SMBus host-notify
-+ * support
-+ * @client: the client to free
-+ * Context: can sleep
-+ *
-+ * Free the i2c_client allocated via i2c_new_slave_host_notify_device
-+ */
-+void i2c_free_slave_host_notify_device(struct i2c_client *client)
-+{
-+	i2c_slave_unregister(client);
-+	kfree(client->dev.platform_data);
-+	i2c_unregister_device(client);
-+}
-+EXPORT_SYMBOL_GPL(i2c_free_slave_host_notify_device);
-+#endif
-diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
-index 1e4e0de4ef8b..52e62f398f1c 100644
---- a/include/linux/i2c-smbus.h
-+++ b/include/linux/i2c-smbus.h
-@@ -38,6 +38,18 @@ static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
- 	return 0;
- }
- #endif
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
-+struct i2c_client *i2c_new_slave_host_notify_device(struct i2c_adapter *adapter);
-+void i2c_free_slave_host_notify_device(struct i2c_client *client);
-+#else
-+static inline struct i2c_client *i2c_new_slave_host_notify_device(struct i2c_adapter *adapter)
-+{
-+	return NULL;
-+}
-+static inline void i2c_free_slave_host_notify_device(struct i2c_client *client)
-+{
-+}
-+#endif
- 
- #if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_DMI)
- void i2c_register_spd(struct i2c_adapter *adap);
--- 
-2.7.4
+https://fedoraproject.org/wiki/Changes/RemoveDeviceMapperMultipathFromWorkstationLiveCD
+
+During one of the iterations trying to deal with this
+it would have been useful if the code instantiating
+the client (rather then the driver for it) could have disabled
+the i2c-core code for searching for an irq, without actually
+specifying one. This would allow passing through the ACPI fwnode
+as fwnode in the board_info, without triggering the ACPI IRQ
+lookup code in the core.
+
+So basically allow board_info to say:
+
+"There is no IRQ and do not try to find one"
+
+This could be as simple as having the instantiating code do:
+
+	board_info.irq = -ENOENT;
+
+Combined with the a tiny i2c-core change,
+to deal with drivers checking for:
+
+	if (i2c_client->irq)
+
+Rather then for:
+
+	if (i2c_client->irq > 0)
+
+This tiny i2c-core change would look like this:
+
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 26f03a14a478..a7b05ef31f5f 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -343,11 +343,10 @@ static int i2c_device_probe(struct device *dev)
+  			goto put_sync_adapter;
+  		}
+
+-		if (irq < 0)
+-			irq = 0;
+-
+  		client->irq = irq;
+  	}
++	if (client->irq < 0)
++		client->irq = 0;
+
+  	/*
+  	 * An I2C ID table is not mandatory, if and only if, a suitable OF
+
+ATM I do not have a use-case for this, still I think this would be
+useful to have. Would you be willing to take a patch with the above
+change for this?
+
+Regards,
+
+Hans
+
+
+
+
+> 
+>   drivers/i2c/i2c-core-base.c | 6 +++---
+>   include/linux/i2c.h         | 3 ---
+>   2 files changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 26f03a14a478..dc43242a85ba 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -319,11 +319,9 @@ static int i2c_device_probe(struct device *dev)
+>   	if (!client)
+>   		return 0;
+>   
+> -	driver = to_i2c_driver(dev->driver);
+> -
+>   	client->irq = client->init_irq;
+>   
+> -	if (!client->irq && !driver->disable_i2c_core_irq_mapping) {
+> +	if (!client->irq) {
+>   		int irq = -ENOENT;
+>   
+>   		if (client->flags & I2C_CLIENT_HOST_NOTIFY) {
+> @@ -349,6 +347,8 @@ static int i2c_device_probe(struct device *dev)
+>   		client->irq = irq;
+>   	}
+>   
+> +	driver = to_i2c_driver(dev->driver);
+> +
+>   	/*
+>   	 * An I2C ID table is not mandatory, if and only if, a suitable OF
+>   	 * or ACPI ID table is supplied for the probing device.
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index b8b8963f8bb9..098405df431f 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -231,7 +231,6 @@ enum i2c_alert_protocol {
+>    * @detect: Callback for device detection
+>    * @address_list: The I2C addresses to probe (for detect)
+>    * @clients: List of detected clients we created (for i2c-core use only)
+> - * @disable_i2c_core_irq_mapping: Tell the i2c-core to not do irq-mapping
+>    *
+>    * The driver.owner field should be set to the module owner of this driver.
+>    * The driver.name field should be set to the name of this driver.
+> @@ -290,8 +289,6 @@ struct i2c_driver {
+>   	int (*detect)(struct i2c_client *client, struct i2c_board_info *info);
+>   	const unsigned short *address_list;
+>   	struct list_head clients;
+> -
+> -	bool disable_i2c_core_irq_mapping;
+>   };
+>   #define to_i2c_driver(d) container_of(d, struct i2c_driver, driver)
+>   
+> 
 
