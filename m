@@ -7,22 +7,22 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F12C3C433E1
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6842BC433E0
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D5EDB206E2
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46C0320760
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730278AbgGHHUB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 8 Jul 2020 03:20:01 -0400
-Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:48860 "EHLO
+        id S1730335AbgGHHUO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 8 Jul 2020 03:20:14 -0400
+Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:55331 "EHLO
         smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730244AbgGHHUA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jul 2020 03:20:00 -0400
-X-Alimail-AntiSpam: AC=SUSPECT;BC=0.6548809|-1;BR=01201311R181b1;CH=blue;DM=|SUSPECT|false|;DS=CONTINUE|ham_system_inform|0.0515633-0.00127515-0.947162;FP=0|0|0|0|0|-1|-1|-1;HT=e01l07381;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=33;RT=33;SR=0;TI=SMTPD_---.I-8lwqE_1594192774;
+        by vger.kernel.org with ESMTP id S1730316AbgGHHUN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jul 2020 03:20:13 -0400
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.1470665|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.0450046-0.000476486-0.954519;FP=0|0|0|0|0|-1|-1|-1;HT=e01l07447;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=33;RT=33;SR=0;TI=SMTPD_---.I-8lwqE_1594192774;
 Received: from allwinnertech.com(mailfrom:frank@allwinnertech.com fp:SMTPD_---.I-8lwqE_1594192774)
           by smtp.aliyun-inc.com(10.147.40.26);
-          Wed, 08 Jul 2020 15:19:51 +0800
+          Wed, 08 Jul 2020 15:20:04 +0800
 From:   Frank Lee <frank@allwinnertech.com>
 To:     robh+dt@kernel.org, mripard@kernel.org, wens@csie.org,
         mturquette@baylibre.com, sboyd@kernel.org,
@@ -39,9 +39,9 @@ Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-pm@vger.kernel.org, huangshuosheng@allwinnertech.com,
         liyong@allwinnertech.com, Frank Lee <frank@allwinnertech.com>
-Subject: [PATCH v3 03/16] dt-bindings: pinctrl: sunxi: Add A100 pinctrl bindings
-Date:   Wed,  8 Jul 2020 15:19:29 +0800
-Message-Id: <20200708071942.22595-4-frank@allwinnertech.com>
+Subject: [PATCH v3 08/16] thermal: sun8i: add TEMP_CALIB_MASK for calibration data in sun50i_h6_ths_calibrate
+Date:   Wed,  8 Jul 2020 15:19:34 +0800
+Message-Id: <20200708071942.22595-9-frank@allwinnertech.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20200708071942.22595-1-frank@allwinnertech.com>
 References: <20200708071942.22595-1-frank@allwinnertech.com>
@@ -52,152 +52,29 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add device tree binding Documentation details for A100 pinctrl driver,
-whic has an r pin controller and a pin controller with more irq lines.
+For sun50i_h6_ths_calibrate(), the data read from nvmem needs a round of
+calculation. On the other hand, the newer SOC may store other data in
+the space other than 12bit sensor data. Add mask operation to read data
+to avoid conversion error.
 
 Signed-off-by: Frank Lee <frank@allwinnertech.com>
+Reviewed-by: Yangtao Li <tiny.windzz@gmail.com>
 ---
- .../pinctrl/allwinner,sun4i-a10-pinctrl.yaml       | 74 +++++++++++++---------
- 1 file changed, 44 insertions(+), 30 deletions(-)
+ drivers/thermal/sun8i_thermal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/pinctrl/allwinner,sun4i-a10-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/allwinner,sun4i-a10-pinctrl.yaml
-index bfefd09..226aba0 100644
---- a/Documentation/devicetree/bindings/pinctrl/allwinner,sun4i-a10-pinctrl.yaml
-+++ b/Documentation/devicetree/bindings/pinctrl/allwinner,sun4i-a10-pinctrl.yaml
-@@ -48,6 +48,8 @@ properties:
-       - allwinner,sun9i-a80-r-pinctrl
-       - allwinner,sun50i-a64-pinctrl
-       - allwinner,sun50i-a64-r-pinctrl
-+      - allwinner,sun50i-a100-pinctrl
-+      - allwinner,sun50i-a100-r-pinctrl
-       - allwinner,sun50i-h5-pinctrl
-       - allwinner,sun50i-h6-pinctrl
-       - allwinner,sun50i-h6-r-pinctrl
-@@ -59,7 +61,7 @@ properties:
+diff --git a/drivers/thermal/sun8i_thermal.c b/drivers/thermal/sun8i_thermal.c
+index 74d73be..f423d44 100644
+--- a/drivers/thermal/sun8i_thermal.c
++++ b/drivers/thermal/sun8i_thermal.c
+@@ -244,7 +244,7 @@ static int sun50i_h6_ths_calibrate(struct ths_device *tmdev,
+ 	ft_temp = (caldata[0] & FT_TEMP_MASK) * 100;
  
-   interrupts:
-     minItems: 1
--    maxItems: 5
-+    maxItems: 7
-     description:
-       One interrupt per external interrupt bank supported on the
-       controller, sorted by bank number ascending order.
-@@ -144,75 +146,87 @@ allOf:
-   # FIXME: We should have the pin bank supplies here, but not a lot of
-   # boards are defining it at the moment so it would generate a lot of
-   # warnings.
--
-   - if:
-       properties:
-         compatible:
-           enum:
--            - allwinner,sun9i-a80-pinctrl
-+            - allwinner,sun50i-a100-pinctrl
- 
-     then:
-       properties:
-         interrupts:
--          minItems: 5
--          maxItems: 5
-+          minItems: 7
-+          maxItems: 7
- 
-     else:
-       if:
-         properties:
-           compatible:
-             enum:
--              - allwinner,sun6i-a31-pinctrl
--              - allwinner,sun6i-a31s-pinctrl
--              - allwinner,sun50i-h6-pinctrl
-+              - allwinner,sun9i-a80-pinctrl
- 
-       then:
-         properties:
-           interrupts:
--            minItems: 4
--            maxItems: 4
-+            minItems: 5
-+            maxItems: 5
- 
-       else:
-         if:
-           properties:
-             compatible:
-               enum:
--                - allwinner,sun8i-a23-pinctrl
--                - allwinner,sun8i-a83t-pinctrl
--                - allwinner,sun50i-a64-pinctrl
--                - allwinner,sun50i-h5-pinctrl
--                - allwinner,suniv-f1c100s-pinctrl
-+                - allwinner,sun6i-a31-pinctrl
-+                - allwinner,sun6i-a31s-pinctrl
-+                - allwinner,sun50i-h6-pinctrl
- 
-         then:
-           properties:
-             interrupts:
--              minItems: 3
--              maxItems: 3
-+              minItems: 4
-+              maxItems: 4
- 
-         else:
-           if:
-             properties:
-               compatible:
-                 enum:
--                  - allwinner,sun6i-a31-r-pinctrl
--                  - allwinner,sun8i-a33-pinctrl
--                  - allwinner,sun8i-h3-pinctrl
--                  - allwinner,sun8i-v3-pinctrl
--                  - allwinner,sun8i-v3s-pinctrl
--                  - allwinner,sun9i-a80-r-pinctrl
--                  - allwinner,sun50i-h6-r-pinctrl
-+                  - allwinner,sun8i-a23-pinctrl
-+                  - allwinner,sun8i-a83t-pinctrl
-+                  - allwinner,sun50i-a64-pinctrl
-+                  - allwinner,sun50i-h5-pinctrl
-+                  - allwinner,suniv-f1c100s-pinctrl
- 
-           then:
-             properties:
-               interrupts:
--                minItems: 2
--                maxItems: 2
-+                minItems: 3
-+                maxItems: 3
- 
-           else:
--            properties:
--              interrupts:
--                minItems: 1
--                maxItems: 1
-+            if:
-+              properties:
-+                compatible:
-+                  enum:
-+                    - allwinner,sun6i-a31-r-pinctrl
-+                    - allwinner,sun8i-a33-pinctrl
-+                    - allwinner,sun8i-h3-pinctrl
-+                    - allwinner,sun8i-v3-pinctrl
-+                    - allwinner,sun8i-v3s-pinctrl
-+                    - allwinner,sun9i-a80-r-pinctrl
-+                    - allwinner,sun50i-h6-r-pinctrl
-+
-+            then:
-+              properties:
-+                interrupts:
-+                  minItems: 2
-+                  maxItems: 2
-+
-+            else:
-+              properties:
-+                interrupts:
-+                  minItems: 1
-+                  maxItems: 1
- 
- additionalProperties: false
+ 	for (i = 0; i < tmdev->chip->sensor_num; i++) {
+-		int sensor_reg = caldata[i + 1];
++		int sensor_reg = caldata[i + 1] & TEMP_CALIB_MASK;
+ 		int cdata, offset;
+ 		int sensor_temp = tmdev->chip->calc_temp(tmdev, i, sensor_reg);
  
 -- 
 1.9.1
