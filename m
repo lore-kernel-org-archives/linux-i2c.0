@@ -2,98 +2,145 @@ Return-Path: <SRS0=MHRG=AT=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90C4DC433E0
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:46:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6A8AC433E0
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 15:23:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D95320760
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:46:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C048220786
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 15:23:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c8zH5rhP"
+	dkim=pass (1024-bit key) header.d=xilinx.onmicrosoft.com header.i=@xilinx.onmicrosoft.com header.b="aT74IoJ5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726945AbgGHHpw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 8 Jul 2020 03:45:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43660 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726936AbgGHHpv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jul 2020 03:45:51 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3203FC08C5DC;
-        Wed,  8 Jul 2020 00:45:51 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id q15so1857423wmj.2;
-        Wed, 08 Jul 2020 00:45:51 -0700 (PDT)
+        id S1729915AbgGHPXM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 8 Jul 2020 11:23:12 -0400
+Received: from mail-mw2nam12on2050.outbound.protection.outlook.com ([40.107.244.50]:6142
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729206AbgGHPXL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 8 Jul 2020 11:23:11 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dflnwiYqYSitufVFxHSn/BTrPCa+eItsKiaMNyAX4pT9lkHafyYHvSal7as66E0DRNawZO5uzgusWSPCmp8hHauOgtjrtdug4HRJSwWLkd0kLWOMysbLDYxPdkNpaIppQz4m3tpCa31I1ugpai0rxOJTvHfO9D5B7SJoLJvT99kfLRA8Uzw4F8Xx3iJ9mvZcmSc+G+OCAr9NYkpAJf6aWkOb35/HaTNVkmCvaJ7F38+WAijFlGDqqvTXK+MNiQBgOoiAninSmbL07XHkFmB+cLXit21VPwyQiuwj75YxiZA7EotXkHtcx9jFOmgUskKLXWrgcNqv3CUs3am0yE0MTg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6Vlug1Xi6QhoBegEB+sa5v0QAixWQYKMloCq/gOMTpE=;
+ b=KDO1XHphgZW7Ap50B3UuI8RdF0ZYvTuuC3J6sOhpEtzLqvgeT08EIM132b51GVuznVFG2lZDbqmp+TFvCMr0sMpbef5ltbr7EwIAkQ6+XiGq/xrVhmXRbFK/Y5bY0qJWFi9ZW9/hxXRPx8t+xpat2DyaIWkmSRJUrKUlPqv73QEKAqiLXu2VmZeA2CUFbGPdGJRCGaxnVZvoNDClsiATGG5j9bFkRnGbZrEaGKJKdoan6Okqa7c63119pg0ZSNsyWAhMKTBfT/Jc+U4RM6VJVfbQx8mVH7aqToYvlCAtmFDrWHmuNSemTvMIvsfjHyVhOGoy9NnQ/2o65qGaUuZ8sA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=xilinx.com; dmarc=pass action=none header.from=xilinx.com;
+ dkim=pass header.d=xilinx.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=yvlYiPks6mhJ8cxYaoK6/i2US4+IgEbdzDKr7+cJ8uU=;
-        b=c8zH5rhPF+phZfOSXO2gDlN1DVl+v/Cx3tp71GVcxczbkc9prklYE502HeCl0glvy6
-         Z09D+iEq9UGcfSb1a+Mf5hdFW2kSYRq5dFk3pMDdgASp3i31c8uUpF2gg1s3hlAvH+JR
-         UeHsGHrHrBE9C3c8ngoZ2Sc51llOQhaNDHXJkEM/60yS52jr1OJuqKH4ujGoY5Fnxl7u
-         zJE1L7f98lSbSh0wJSbFRdGexe0fXqxTc3uScLviud8SaxkjPBP6jfRrR0P3n6lfLIYo
-         bMXKLmGeXt/PYevPZZYiYsE61OdxNMFgYvN0X9WtE1addVd/85HbCIuEl7p82T+E/g0e
-         4vBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=yvlYiPks6mhJ8cxYaoK6/i2US4+IgEbdzDKr7+cJ8uU=;
-        b=kNqbzBNMrbd148eY2ayj8oOvhv6iUoanWYk8hsFBSdPqWDJjiey7QiKfrCyJRFfL29
-         X4sFRNyisGz6LyNmKQ9VwJ732ESuZk81roe3SYT5pyLBKlXcSKZKVsQUMAiqoLis3fiH
-         xDmC699gVZozV2GU/u840fe4YV/hS1wSBAH/ocmraS3aB2lSvueR8opqGUjN5nfV0sip
-         FLmN7Larqtw9UHDJrndIOTcoksXNYDYzQvspgJZ/e7I7nZscRkkEsaIs450ffimy4emm
-         U35iBSvCu72lkQiyPvIyKzKNlyftp2OQxQdveZB8bab85C095GUuMDJX3gjs5XUn2/bZ
-         lJSg==
-X-Gm-Message-State: AOAM530fm/F5Md6ZfH1CybysJWkXIdfXDjjAke66EFw1AmbZ3DT8Q7xh
-        CREu5KS4doGftS0CQgYNQBs=
-X-Google-Smtp-Source: ABdhPJyfCRKV9aKG3yjwH2QZVnVF+A1H/3zVPGdu0ei4zSGkOGEIMvWFCSdjaZrYu71+eOEVdiEAug==
-X-Received: by 2002:a05:600c:2249:: with SMTP id a9mr7625316wmm.163.1594194349997;
-        Wed, 08 Jul 2020 00:45:49 -0700 (PDT)
-Received: from Red ([2a01:cb1d:3d5:a100:2e56:dcff:fed2:c6d6])
-        by smtp.googlemail.com with ESMTPSA id 65sm5495212wre.6.2020.07.08.00.45.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jul 2020 00:45:49 -0700 (PDT)
-Date:   Wed, 8 Jul 2020 09:45:47 +0200
-From:   Corentin Labbe <clabbe.montjoie@gmail.com>
-To:     Frank Lee <frank@allwinnertech.com>
-Cc:     robh+dt@kernel.org, mripard@kernel.org, wens@csie.org,
-        mturquette@baylibre.com, sboyd@kernel.org,
-        gregory.clement@bootlin.com, tglx@linutronix.de,
-        jason@lakedaemon.net, maz@kernel.org,
-        srinivas.kandagatla@linaro.org, linus.walleij@linaro.org,
-        anarsoul@gmail.com, tiny.windzz@gmail.com, rui.zhang@intel.com,
-        daniel.lezcano@linaro.org, amit.kucheria@verdurent.com,
-        lee.jones@linaro.org, p.zabel@pengutronix.de, clabbe@baylibre.com,
-        icenowy@aosc.io, megous@megous.com, stefan@olimex.com,
-        bage@linutronix.de, devicetree@vger.kernel.org,
-        linux-pm@vger.kernel.org, liyong@allwinnertech.com,
-        linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-        huangshuosheng@allwinnertech.com, linux-i2c@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v3 00/16] Allwinner A100 Initial support
-Message-ID: <20200708074547.GA19609@Red>
-References: <20200708071942.22595-1-frank@allwinnertech.com>
+ d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6Vlug1Xi6QhoBegEB+sa5v0QAixWQYKMloCq/gOMTpE=;
+ b=aT74IoJ5Bxe2p7vlxwqfFFA7nWdCughi4GOOq/N4h06GPZRpmmzwpnpXzmqw/dERWDpbiA2O91SRYFUycLRAPh+vlGhjSshh464U9PORRbx5F5hUUXtyMNPE5/0B9vj4yIa3G2UAusWWbvekdCTk/8x2qBZxI4KaJkigyhNLMyQ=
+Received: from SN4PR0201MB3486.namprd02.prod.outlook.com
+ (2603:10b6:803:51::12) by SN1PR02MB3838.namprd02.prod.outlook.com
+ (2603:10b6:802:2d::19) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3153.27; Wed, 8 Jul
+ 2020 15:23:08 +0000
+Received: from SN4PR0201MB3486.namprd02.prod.outlook.com
+ ([fe80::c1d:375a:a8ad:f142]) by SN4PR0201MB3486.namprd02.prod.outlook.com
+ ([fe80::c1d:375a:a8ad:f142%6]) with mapi id 15.20.3174.021; Wed, 8 Jul 2020
+ 15:23:08 +0000
+From:   Raviteja Narayanam <rna@xilinx.com>
+To:     Raviteja Narayanam <rna@xilinx.com>, Marek Vasut <marex@denx.de>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+CC:     Michal Simek <michals@xilinx.com>,
+        Shubhrajyoti Datta <shubhraj@xilinx.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: RE: [PATCH 1/5] i2c: xiic: Fix broken locking on tx_msg
+Thread-Topic: [PATCH 1/5] i2c: xiic: Fix broken locking on tx_msg
+Thread-Index: AQHWQZR16ESRHITuAECl/9tfqloeHqjpJiIAgAWbm4CAAN/ssIAOPjyw
+Date:   Wed, 8 Jul 2020 15:23:08 +0000
+Message-ID: <SN4PR0201MB34865F9B86384AB180324FE9CA670@SN4PR0201MB3486.namprd02.prod.outlook.com>
+References: <20200613150751.114595-1-marex@denx.de>
+ <MWHPR0201MB348439A109964704D30EF0B4CA930@MWHPR0201MB3484.namprd02.prod.outlook.com>
+ <fee2d0a5-138d-fc31-ed46-348706bc0491@denx.de>
+ <SN4PR0201MB3486DFA2BC59C76906CE48B0CA6E0@SN4PR0201MB3486.namprd02.prod.outlook.com>
+In-Reply-To: <SN4PR0201MB3486DFA2BC59C76906CE48B0CA6E0@SN4PR0201MB3486.namprd02.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
+X-MS-TNEF-Correlator: 
+authentication-results: xilinx.com; dkim=none (message not signed)
+ header.d=none;xilinx.com; dmarc=none action=none header.from=xilinx.com;
+x-originating-ip: [149.199.50.129]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: e293cae8-cbb0-4972-82b6-08d82352d1a5
+x-ms-traffictypediagnostic: SN1PR02MB3838:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <SN1PR02MB3838DF6A434C9237266E52D6CA670@SN1PR02MB3838.namprd02.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:7691;
+x-forefront-prvs: 04583CED1A
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ISyWiqpxZpOKBM9CjE5DD9fHevH5veK9SPEUkoY4gQ7kNY0477y3zP3oK8Qnce1RygbfcdcwXvwWFolK6cpBczZG5IvaQOaFaJoQ6c+P1l/KBu1d4lkcpvLk3giNqFY5viPivXBsJ54mh1jjjoH/iJr/er58gSxZuxkkEGePQXp0UrRTZmMkNmveSZQ1apncUWn1VM8W1nV1Qmx9UWe6gxnUCuIl6CPW7LweFSZ9M75WXsRJvDpldE/8ntTyAFWyn+nGqEgDwKrnU6frYsX9zWJp16KcUwYAvmAOqR3gyBM2KocDA19vzeP+IkfIZV9H
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0201MB3486.namprd02.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(376002)(346002)(39860400002)(366004)(396003)(136003)(83380400001)(478600001)(86362001)(8676002)(6506007)(2906002)(53546011)(9686003)(54906003)(5660300002)(110136005)(55016002)(8936002)(71200400001)(316002)(52536014)(76116006)(33656002)(4326008)(186003)(66476007)(64756008)(66556008)(66946007)(66446008)(26005)(7696005);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: hROj6M6TUBC0vhe8RTcA/OmtiJf2goXpuTtwp8i0p/VLR7AJ3llcpfbBS7lwHdqFeamZW3iPwuMVm7uKL9t2wVK7jGmmLDVXSRMeDd16C7qV9Fo6UF+Rveg8varM8/DLDaFcXWc5c7WfZ3VgYubgpQa2scg6ggQs52yOPOHA3NNcUFYnGybLFcqn/rdS/AOh/fPAnjb5BOoFE0nMN9l3rfVGz6VRGTU8h/Np4G/sAApTaVWD0Pq08GxDsc7RlSW1X3pefxBwleP8nfovOaL1pMXeDi+oYkTE4HSwLDt5tU62dTWzE7No18MXq9kCIEqCfr+Vgz9gY+yp3RdbjPpiK7IJA0HeMNsER4Yk5JevYlgMPI5N26xQaJdRcCI3SVBuPcjDETArb1byeUj4dsoW/Tihynk+cmn2wSQe26g/FjkI161cVOWQrtuk3cDy4CFCLYwVbo7w0HxUTFNY6T6isPMOVVCTPpkUTJLqOcddJON8HKcI6kKJVVz4xMhwfAQc
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200708071942.22595-1-frank@allwinnertech.com>
+X-OriginatorOrg: xilinx.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN4PR0201MB3486.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e293cae8-cbb0-4972-82b6-08d82352d1a5
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Jul 2020 15:23:08.1982
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 657af505-d5df-48d0-8300-c31994686c5c
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: YjvLSfd+r5/6BhtWKAjwMfRqEgLY+KnN5v3dK+4FgAQdPYH+80vPCZ5K3pklCFD2
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN1PR02MB3838
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Jul 08, 2020 at 03:19:26PM +0800, Frank Lee wrote:
-> This patch set adds initial support for allwinner a100 soc,
-> which is a 64-bit tablet chip.
-> 
-
-Hello
-
-Does a product already exists with it ? I couldnt found any.
-Does a datasheet is availlable ?
-
-Regards
+VGVzdGVkLWJ5OiBSYXZpdGVqYSBOYXJheWFuYW0gPHJhdml0ZWphLm5hcmF5YW5hbUB4aWxpbngu
+Y29tPg0KDQpUaGFua3MNClJhdml0ZWphIE4NCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0t
+LQ0KPiBGcm9tOiBsaW51eC1pMmMtb3duZXJAdmdlci5rZXJuZWwub3JnIDxsaW51eC1pMmMtb3du
+ZXJAdmdlci5rZXJuZWwub3JnPiBPbg0KPiBCZWhhbGYgT2YgUmF2aXRlamEgTmFyYXlhbmFtDQo+
+IFNlbnQ6IE1vbmRheSwgSnVuZSAyOSwgMjAyMCA2OjIyIFBNDQo+IFRvOiBNYXJlayBWYXN1dCA8
+bWFyZXhAZGVueC5kZT47IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmcNCj4gQ2M6IE1pY2hhbCBT
+aW1layA8bWljaGFsc0B4aWxpbnguY29tPjsgU2h1YmhyYWp5b3RpIERhdHRhDQo+IDxzaHViaHJh
+akB4aWxpbnguY29tPjsgV29sZnJhbSBTYW5nIDx3c2FAa2VybmVsLm9yZz4NCj4gU3ViamVjdDog
+UkU6IFtQQVRDSCAxLzVdIGkyYzogeGlpYzogRml4IGJyb2tlbiBsb2NraW5nIG9uIHR4X21zZw0K
+PiANCj4gDQo+IA0KPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4gRnJvbTogTWFy
+ZWsgVmFzdXQgPG1hcmV4QGRlbnguZGU+DQo+ID4gU2VudDogTW9uZGF5LCBKdW5lIDI5LCAyMDIw
+IDQ6NDkgQU0NCj4gPiBUbzogUmF2aXRlamEgTmFyYXlhbmFtIDxybmFAeGlsaW54LmNvbT47IGxp
+bnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmcNCj4gPiBDYzogTWljaGFsIFNpbWVrIDxtaWNoYWxzQHhp
+bGlueC5jb20+OyBTaHViaHJhanlvdGkgRGF0dGENCj4gPiA8c2h1YmhyYWpAeGlsaW54LmNvbT47
+IFdvbGZyYW0gU2FuZyA8d3NhQGtlcm5lbC5vcmc+DQo+ID4gU3ViamVjdDogUmU6IFtQQVRDSCAx
+LzVdIGkyYzogeGlpYzogRml4IGJyb2tlbiBsb2NraW5nIG9uIHR4X21zZw0KPiA+DQo+ID4gT24g
+Ni8yNi8yMCAyOjExIFBNLCBSYXZpdGVqYSBOYXJheWFuYW0gd3JvdGU6DQo+ID4NCj4gPiBIaSwN
+Cj4gPg0KPiA+IFsuLi5dDQo+ID4NCj4gPiA+PiBAQCAtNjk5LDE0ICs3MDgsNyBAQCBzdGF0aWMg
+aW50IHhpaWNfeGZlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsDQo+ID4gPj4gc3RydWN0IGky
+Y19tc2cgKm1zZ3MsIGludCBudW0pDQo+ID4gPj4gIAlpZiAoZXJyIDwgMCkNCj4gPiA+PiAgCQly
+ZXR1cm4gZXJyOw0KPiA+ID4+DQo+ID4gPj4gLQllcnIgPSB4aWljX2J1c3koaTJjKTsNCj4gPiA+
+PiAtCWlmIChlcnIpDQo+ID4gPj4gLQkJZ290byBvdXQ7DQo+ID4gPj4gLQ0KPiA+ID4+IC0JaTJj
+LT50eF9tc2cgPSBtc2dzOw0KPiA+ID4+IC0JaTJjLT5ubXNncyA9IG51bTsNCj4gPiA+DQo+ID4g
+PiBPbiBhbiBTTVAgc3lzdGVtIHdpdGggbXVsdGlwbGUgaTJjLXRyYW5zZmVyIGNvbW1hbmQgc2Ny
+aXB0cyBydW5uaW5nLA0KPiA+ID4gdGhlDQo+ID4gYWJvdmUgY3JpdGljYWwgc2VjdGlvbiBpcyBl
+eHBlY3RlZCB0byBjYXVzZSBzZXJpb3VzIHRyb3VibGUNCj4gPiBvdmVyd3JpdGluZyB0aGUgcHJl
+dmlvdXMgbXNnIHBvaW50ZXJzLg0KPiA+ID4gQnV0IHRoYXQncyBub3QgaGFwcGVuaW5nIGFzIHRo
+ZSBpMmMtY29yZSBpcyBoYXZpbmcgYSBsb2NrIGF0IGFkYXB0ZXINCj4gPiA+IGxldmVsDQo+ID4g
+aW5zaWRlIGkyYy1jb3JlLWJhc2UuYyAocnRfbXV0ZXhfbG9ja19uZXN0ZWQpLg0KPiA+ID4gU28s
+IHRoZSByYWNlIGNvbmRpdGlvbiBiZXR3ZWVuIGRpZmZlcmVudCB0aHJlYWRzIGlzIG5vdCBwb3Nz
+aWJsZS4NCj4gPiA+IFRoZXkgYXJlIGFsbA0KPiA+IHNlcmlhbGl6ZWQgYnkgdGhlIGxvY2tpbmcg
+aW4gaTJjLWNvcmUuDQo+ID4gPg0KPiA+ID4gQWx0aG91Z2ggbm8gaXNzdWVzIGFyZSBzZWVuIGlu
+IHRoZSB0ZXN0cywgdGhlIGNvbnRlbnRpb24gd2l0aGluIHRoZQ0KPiA+ID4gZHJpdmVyIGlzDQo+
+ID4gc3RpbGwgcG9zc2libGUgKGlzciB2cyB4aWljX3hmZXIpLCBpZiB0aGVyZSBpcyBhIHNwdXJp
+b3VzIGludGVycnVwdC4NCj4gPiBBbmQgdGhpcyBwYXRjaCBpcyBuZWVkZWQgaW4gdGhhdCBjYXNl
+Lg0KPiA+IFRoZSBjb250ZW50aW9uIGhhcHBlbnMgYmV0d2VlbiB0aGUgdGhyZWFkZWQgaW50ZXJy
+dXB0IGhhbmRsZXINCj4gPiB4aWljX3Byb2Nlc3MoKSBhbmQgdGhpcyB4aWljX3hmZXIoKSBmdW5j
+dGlvbi4gV2hpbGUgeW91IGNhbiBub3QgaGF2ZQ0KPiA+IHhpaWNfeGZlcigpIHJ1bm5pbmcgb24g
+dHdvIENQVSBjb3JlcyBhdCB0aGUgc2FtZSB0aW1lLCB5b3UgY2FuIGhhdmUNCj4gPiB4aWljX3hm
+ZXIoKSBydW5uaW5nIG9uIG9uZSBDUFUgY29yZSBhbmQgeGlpY19wcm9jZXNzKCkgb24gYW5vdGhl
+ciBDUFUNCj4gPiBjb3JlLCBhbmQgdGhhdCB3aWxsIGxlYWQgdG8gcHJvYmxlbXMuDQo+IA0KPiBZ
+ZXMsIHRoaXMgcGF0Y2ggaXMgbmVlZGVkIGZvciB0aGF0IGNhc2UuDQo+IA0KPiA+DQo+ID4gWy4u
+Ll0NCg==
