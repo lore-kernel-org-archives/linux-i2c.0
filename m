@@ -2,95 +2,109 @@ Return-Path: <SRS0=MHRG=AT=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1CC7C43458
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEEBEC433DF
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:45:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D372720708
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD7862078A
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:45:25 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="sM01lxxY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730260AbgGHHT6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 8 Jul 2020 03:19:58 -0400
-Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:38475 "EHLO
-        smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730242AbgGHHT5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jul 2020 03:19:57 -0400
-X-Alimail-AntiSpam: AC=CONTINUE;BC=0.768724|0.5862131;CH=green;DM=|SPAM|false|;DS=CONTINUE|ham_regular_dialog|0.0643047-0.000806366-0.934889;FP=0|0|0|0|0|-1|-1|-1;HT=e02c03297;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=33;RT=33;SR=0;TI=SMTPD_---.I-8lwqE_1594192774;
-Received: from allwinnertech.com(mailfrom:frank@allwinnertech.com fp:SMTPD_---.I-8lwqE_1594192774)
-          by smtp.aliyun-inc.com(10.147.40.26);
-          Wed, 08 Jul 2020 15:19:46 +0800
-From:   Frank Lee <frank@allwinnertech.com>
-To:     robh+dt@kernel.org, mripard@kernel.org, wens@csie.org,
+        id S1726327AbgGHHpZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 8 Jul 2020 03:45:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43576 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726081AbgGHHpY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jul 2020 03:45:24 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58304C08C5DC
+        for <linux-i2c@vger.kernel.org>; Wed,  8 Jul 2020 00:45:24 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id l2so1896072wmf.0
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Jul 2020 00:45:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=dvqxIY5/h+Hi08QqzkQR4GxWo2uSuz4DSd8Ijo5xAAw=;
+        b=sM01lxxYQ4EfApgBtPAY1tlREhF6Q5nbZBYrqNsF5UEIT5lxaBcV65i8uLFHPMXHw2
+         qBBbTvwQm/uLh+pR1RyhDDIbT9acEqGVIPgjWmTHAHYY27RNK0klDk5+1hd49k60iwoo
+         OQTKcgBMQMTYP6o/jNt5edF10/yPCEb83Wc+S0178PPiSq5CQCuRHwxt63Da4T4v0vZ0
+         OiIqGvRWkt8S1hXD/Lm3uOj+7rNdaiQereDtYK+NxGCm2H8CRtd8tDETWtu76IR67xUq
+         X3FanwL88C0lIQOC9u2uU4XvpNtT0H2S23GeuQe+VQVqFkv/IqYFLsGmuGcBI8/GxgUY
+         UhFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=dvqxIY5/h+Hi08QqzkQR4GxWo2uSuz4DSd8Ijo5xAAw=;
+        b=VdeRhM9flaVilfCefiWq5osqoD2NNhylqOFSSYUPAGINhWzsAviAfhjRA6oG8acwEH
+         3A02Wos6eua/rwhiWdUl3n3c1jJYY7ga0g4yztY6Sz1e1iAyOwnR/jr1FiFT2ib3RNTR
+         Xn33CS89LOMrOz9IC5J5ey2SWr0fN7Cn+aG4PBU0+m9T0+qaK28OyZLUbsjK2GYoCL8y
+         fCCQQU7PLwk6PxVrmxXh65+1kRQD8zB8RrATwpvMSygSi7JxzZM/2knzdF4qA6rx7r4E
+         PMyyBtStbDQ96S6KgfZJ5euBFHwod+F2zRBfaW7VFxp1ZPgDYODY9Cd6xGywACGX1EWL
+         2ZBg==
+X-Gm-Message-State: AOAM530qS0Rr9dq867i6T0K++8CcUeTKqOKQjzd22VO1ElTOgSojKXsq
+        BK440UHi52ab3UenF6rSJuGzHg==
+X-Google-Smtp-Source: ABdhPJyrs9JjcAa1EVpT3YYg0xeBhj7Vs2aNSuxcfo+IdXW371pwsk+hDd+L5UUI6ck9FLQzlHDvzA==
+X-Received: by 2002:a1c:e18a:: with SMTP id y132mr7831817wmg.27.1594194323097;
+        Wed, 08 Jul 2020 00:45:23 -0700 (PDT)
+Received: from dell ([2.27.35.206])
+        by smtp.gmail.com with ESMTPSA id k18sm4434969wrx.34.2020.07.08.00.45.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Jul 2020 00:45:22 -0700 (PDT)
+Date:   Wed, 8 Jul 2020 08:45:20 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Frank Lee <frank@allwinnertech.com>
+Cc:     robh+dt@kernel.org, mripard@kernel.org, wens@csie.org,
         mturquette@baylibre.com, sboyd@kernel.org,
         gregory.clement@bootlin.com, tglx@linutronix.de,
         jason@lakedaemon.net, maz@kernel.org,
         srinivas.kandagatla@linaro.org, linus.walleij@linaro.org,
         anarsoul@gmail.com, tiny.windzz@gmail.com, rui.zhang@intel.com,
         daniel.lezcano@linaro.org, amit.kucheria@verdurent.com,
-        lee.jones@linaro.org, p.zabel@pengutronix.de, clabbe@baylibre.com,
-        icenowy@aosc.io, megous@megous.com, stefan@olimex.com,
-        bage@linutronix.de
-Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        p.zabel@pengutronix.de, clabbe@baylibre.com, icenowy@aosc.io,
+        megous@megous.com, stefan@olimex.com, bage@linutronix.de,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
         linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-pm@vger.kernel.org, huangshuosheng@allwinnertech.com,
-        liyong@allwinnertech.com, Frank Lee <frank@allwinnertech.com>
-Subject: [PATCH v3 01/16] dt-bindings: clk: sunxi-ccu: add compatible string for A100 CCU and R-CCU
-Date:   Wed,  8 Jul 2020 15:19:27 +0800
-Message-Id: <20200708071942.22595-2-frank@allwinnertech.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20200708071942.22595-1-frank@allwinnertech.com>
-References: <20200708071942.22595-1-frank@allwinnertech.com>
+        liyong@allwinnertech.com
+Subject: Re: [PATCH v3 12/16] dt-bindings: irq: sun7i-nmi: Add binding for
+ A100's NMI controller
+Message-ID: <20200708074520.GQ3500@dell>
+References: <20200708072331.19700-1-frank@allwinnertech.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200708072331.19700-1-frank@allwinnertech.com>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This patch adds binding to a100's ccu clock and r-ccu clock.
+On Wed, 08 Jul 2020, Frank Lee wrote:
 
-Signed-off-by: Frank Lee <frank@allwinnertech.com>
----
- .../devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml         | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+> Add a binding for A100's nmi controller.
+> 
+> Signed-off-by: Frank Lee <frank@allwinnertech.com>
+> ---
+>  .../bindings/interrupt-controller/allwinner,sun7i-a20-sc-nmi.yaml      | 3 +++
+>  1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml b/Documentation/devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml
-index 4d38212..3b45344 100644
---- a/Documentation/devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml
-+++ b/Documentation/devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml
-@@ -36,6 +36,8 @@ properties:
-       - allwinner,sun9i-a80-ccu
-       - allwinner,sun50i-a64-ccu
-       - allwinner,sun50i-a64-r-ccu
-+      - allwinner,sun50i-a100-ccu
-+      - allwinner,sun50i-a100-r-ccu
-       - allwinner,sun50i-h5-ccu
-       - allwinner,sun50i-h6-ccu
-       - allwinner,sun50i-h6-r-ccu
-@@ -78,6 +80,7 @@ if:
-         - allwinner,sun8i-a83t-r-ccu
-         - allwinner,sun8i-h3-r-ccu
-         - allwinner,sun50i-a64-r-ccu
-+        - allwinner,sun50i-a100-r-ccu
-         - allwinner,sun50i-h6-r-ccu
- 
- then:
-@@ -94,7 +97,9 @@ else:
-   if:
-     properties:
-       compatible:
--        const: allwinner,sun50i-h6-ccu
-+        enum:
-+          - allwinner,sun50i-a100-ccu
-+          - allwinner,sun50i-h6-ccu
- 
-   then:
-     properties:
+I'm sure 3/4 of the people in your recipients list have little
+interest in this change.  May of us already have overflowing inboxes.
+
+Please be more restrictive/considerate when posting patches in the
+future.
+
 -- 
-1.9.1
-
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
