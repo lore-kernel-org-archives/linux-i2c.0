@@ -7,22 +7,22 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4A02C433E3
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1CC7C43458
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9DC7820760
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D372720708
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 07:20:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730273AbgGHHUB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 8 Jul 2020 03:20:01 -0400
-Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:41468 "EHLO
+        id S1730260AbgGHHT6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 8 Jul 2020 03:19:58 -0400
+Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:38475 "EHLO
         smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730246AbgGHHUA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jul 2020 03:20:00 -0400
-X-Alimail-AntiSpam: AC=SUSPECT;BC=0.5995029|-1;BR=01201311R181b1;CH=blue;DM=|SUSPECT|false|;DS=CONTINUE|ham_system_inform|0.199862-0.00729462-0.792843;FP=0|0|0|0|0|-1|-1|-1;HT=e02c03306;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=33;RT=33;SR=0;TI=SMTPD_---.I-8lwqE_1594192774;
+        by vger.kernel.org with ESMTP id S1730242AbgGHHT5 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jul 2020 03:19:57 -0400
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.768724|0.5862131;CH=green;DM=|SPAM|false|;DS=CONTINUE|ham_regular_dialog|0.0643047-0.000806366-0.934889;FP=0|0|0|0|0|-1|-1|-1;HT=e02c03297;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=33;RT=33;SR=0;TI=SMTPD_---.I-8lwqE_1594192774;
 Received: from allwinnertech.com(mailfrom:frank@allwinnertech.com fp:SMTPD_---.I-8lwqE_1594192774)
           by smtp.aliyun-inc.com(10.147.40.26);
-          Wed, 08 Jul 2020 15:19:53 +0800
+          Wed, 08 Jul 2020 15:19:46 +0800
 From:   Frank Lee <frank@allwinnertech.com>
 To:     robh+dt@kernel.org, mripard@kernel.org, wens@csie.org,
         mturquette@baylibre.com, sboyd@kernel.org,
@@ -39,9 +39,9 @@ Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-pm@vger.kernel.org, huangshuosheng@allwinnertech.com,
         liyong@allwinnertech.com, Frank Lee <frank@allwinnertech.com>
-Subject: [PATCH v3 04/16] dt-bindings: pinctrl: sunxi: make gpio banks supplies required
-Date:   Wed,  8 Jul 2020 15:19:30 +0800
-Message-Id: <20200708071942.22595-5-frank@allwinnertech.com>
+Subject: [PATCH v3 01/16] dt-bindings: clk: sunxi-ccu: add compatible string for A100 CCU and R-CCU
+Date:   Wed,  8 Jul 2020 15:19:27 +0800
+Message-Id: <20200708071942.22595-2-frank@allwinnertech.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20200708071942.22595-1-frank@allwinnertech.com>
 References: <20200708071942.22595-1-frank@allwinnertech.com>
@@ -52,26 +52,45 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Since we don't really have to care about the existing DT for boards,
-it would be great to make the gpio banks supplies required.
+This patch adds binding to a100's ccu clock and r-ccu clock.
 
 Signed-off-by: Frank Lee <frank@allwinnertech.com>
 ---
- .../devicetree/bindings/pinctrl/allwinner,sun4i-a10-pinctrl.yaml         | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml         | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/pinctrl/allwinner,sun4i-a10-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/allwinner,sun4i-a10-pinctrl.yaml
-index 226aba0..c30a7b7 100644
---- a/Documentation/devicetree/bindings/pinctrl/allwinner,sun4i-a10-pinctrl.yaml
-+++ b/Documentation/devicetree/bindings/pinctrl/allwinner,sun4i-a10-pinctrl.yaml
-@@ -134,6 +134,7 @@ patternProperties:
- required:
-   - "#gpio-cells"
-   - "#interrupt-cells"
-+  - "^vcc-p[a-hlm]-supply$"
-   - compatible
-   - reg
-   - interrupts
+diff --git a/Documentation/devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml b/Documentation/devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml
+index 4d38212..3b45344 100644
+--- a/Documentation/devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml
++++ b/Documentation/devicetree/bindings/clock/allwinner,sun4i-a10-ccu.yaml
+@@ -36,6 +36,8 @@ properties:
+       - allwinner,sun9i-a80-ccu
+       - allwinner,sun50i-a64-ccu
+       - allwinner,sun50i-a64-r-ccu
++      - allwinner,sun50i-a100-ccu
++      - allwinner,sun50i-a100-r-ccu
+       - allwinner,sun50i-h5-ccu
+       - allwinner,sun50i-h6-ccu
+       - allwinner,sun50i-h6-r-ccu
+@@ -78,6 +80,7 @@ if:
+         - allwinner,sun8i-a83t-r-ccu
+         - allwinner,sun8i-h3-r-ccu
+         - allwinner,sun50i-a64-r-ccu
++        - allwinner,sun50i-a100-r-ccu
+         - allwinner,sun50i-h6-r-ccu
+ 
+ then:
+@@ -94,7 +97,9 @@ else:
+   if:
+     properties:
+       compatible:
+-        const: allwinner,sun50i-h6-ccu
++        enum:
++          - allwinner,sun50i-a100-ccu
++          - allwinner,sun50i-h6-ccu
+ 
+   then:
+     properties:
 -- 
 1.9.1
 
