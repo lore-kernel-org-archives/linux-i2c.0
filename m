@@ -1,90 +1,94 @@
-Return-Path: <SRS0=MHRG=AT=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=1rjG=AU=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7958CC433E4
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 15:43:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9FB4C433DF
+	for <linux-i2c@archiver.kernel.org>; Thu,  9 Jul 2020 08:52:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E5D3206DF
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jul 2020 15:43:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1594222990;
-	bh=faaFtAwdn5ulgFqYuEGAZuBize4Fl3s5R+QYmSR16Ts=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=cunERef4fckLhEFe9UBNWGCbFOC7KjnGoeTmlRDloNRpwerBbKqO9VizN1wYsAqTR
-	 O6cMN00qwLdyYS96zjyt1v+le94gqH5AHEugYQ4gwH7x8BKmeWWbqyfK9Z56x5FH+t
-	 jgwLt8t1AfacsSpDGBR/kSvVvh5xd/D6sRK0jSvk=
+	by mail.kernel.org (Postfix) with ESMTP id A83162067D
+	for <linux-i2c@archiver.kernel.org>; Thu,  9 Jul 2020 08:52:15 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="FW7rG5Er"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730577AbgGHPl6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 8 Jul 2020 11:41:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49078 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730598AbgGHPl4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 8 Jul 2020 11:41:56 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54668207D0;
-        Wed,  8 Jul 2020 15:41:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594222916;
-        bh=faaFtAwdn5ulgFqYuEGAZuBize4Fl3s5R+QYmSR16Ts=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDPLvlEtKGqqQy/cf2jwCwSh7Vl7HzeTf4wSNvoetKoAQe5SzMfdPPZzDTOyYhkj5
-         8Bkh3kCBWCKf24/6Im8CMn4NVSAGqI/a8xYpqZ2gE96/Wes+OEb4ylYpXJfypidR48
-         Pc0gB/npn+5RtusGc7gEO2dY38moaMxYsjeFa4d4=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/16] i2c: eg20t: Load module automatically if ID matches
-Date:   Wed,  8 Jul 2020 11:41:35 -0400
-Message-Id: <20200708154135.3199907-16-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200708154135.3199907-1-sashal@kernel.org>
-References: <20200708154135.3199907-1-sashal@kernel.org>
+        id S1726247AbgGIIwP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 9 Jul 2020 04:52:15 -0400
+Received: from esa4.microchip.iphmx.com ([68.232.154.123]:35730 "EHLO
+        esa4.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726211AbgGIIwO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Jul 2020 04:52:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1594284733; x=1625820733;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=SJeJaZ/1hoYVY2IVgf0Jv+RKqEie4ZugrTQ9Fqsezow=;
+  b=FW7rG5Erdi6FdkCol3t6mqd6ITpWqf6gTYuRNk80xXOKPST8L7/OebRw
+   kuKag3jPkLBXWCZ1quREuCH2KrMSb13qT+kgXaqUTWbWoEO8XurpD5+c6
+   s92l7UatL2BXKobPUFMUvnK2d1iI1ww79rlEpLa3Mj4lExz1gwO5uRQEI
+   Gsjuo0wDTRvyYOnALE12aZsY0FACDWZe45GLyKsd3qMmTfBuFDptwq1DQ
+   w+QZmsETuc9GFPgp9FBfOOpreapyfz2zja7jpW5X2jmG2yGt3Yxd4ci18
+   sSzncShWYWap9XFeqRYCLHJ7gWn65BA7xtmEh9trxkQHawz9YzYT5IYvY
+   w==;
+IronPort-SDR: RHPkbw/1JmymwQQj8yfCxzHEggi94rqU/PNjvIsN3NHlSJkj3wHBorXuDl7Vqq56py8Ae2y/Tr
+ wjgsFqsuBUNrIxcKq6HvBQKe0f/y8CpSgbTDIqWifHGg82yS/DcFTdoDOjJNlPiS9KuF6EWaxg
+ pl3kr/47keoobPwaehr7UVxwhhmbAIeraI6CgTt0kgTX7fAtrJiNDN6PYSdh/ebxPqb2QThW31
+ Ce0+MvY9nIIxHgFBDz0+ZiQC0t+323NkXX3Jac22toorbi8qysL/2MEUitJocMGDxuHlS8ZpNq
+ RGY=
+X-IronPort-AV: E=Sophos;i="5.75,331,1589266800"; 
+   d="scan'208";a="79254569"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 09 Jul 2020 01:52:13 -0700
+Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1979.3; Thu, 9 Jul 2020 01:52:13 -0700
+Received: from ibiza.mchp-main.com (10.10.115.15) by chn-vm-ex02.mchp-main.com
+ (10.10.85.144) with Microsoft SMTP Server id 15.1.1979.3 via Frontend
+ Transport; Thu, 9 Jul 2020 01:51:44 -0700
+From:   Ludovic Desroches <ludovic.desroches@microchip.com>
+To:     <codrin.ciubotariu@microchip.com>
+CC:     <linux-arm-kernel@lists.infradead.org>,
+        <linux-i2c@vger.kernel.org>, <nicolas.ferre@microchip.com>,
+        <alexandre.belloni@bootlin.com>,
+        "Ludovic Desroches" <ludovic.desroches@microchip.com>
+Subject: [PATCH] MAINTAINERS: i2c: at91: handover maintenance to Codrin Ciubotariu
+Date:   Thu, 9 Jul 2020 10:42:33 +0200
+Message-ID: <20200709084233.7846-1-ludovic.desroches@microchip.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+My colleague Codrin Ciubotariu, now, maintains this driver internally.
+Then I handover the mainline maintenance to him.
 
-[ Upstream commit 5f90786b31fb7d1e199a8999d46c4e3aea672e11 ]
-
-The driver can't be loaded automatically because it misses
-module alias to be provided. Add corresponding MODULE_DEVICE_TABLE()
-call to the driver.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 ---
- drivers/i2c/busses/i2c-eg20t.c | 1 +
- 1 file changed, 1 insertion(+)
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index bb810dee8fb5e..73f139690e4e5 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -180,6 +180,7 @@ static const struct pci_device_id pch_pcidev_id[] = {
- 	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7831_I2C), 1, },
- 	{0,}
- };
-+MODULE_DEVICE_TABLE(pci, pch_pcidev_id);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c87b94e6b2f6..995d2261e022 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11277,7 +11277,7 @@ S:	Maintained
+ F:	drivers/crypto/atmel-ecc.*
  
- static irqreturn_t pch_i2c_handler(int irq, void *pData);
- 
+ MICROCHIP I2C DRIVER
+-M:	Ludovic Desroches <ludovic.desroches@microchip.com>
++M:	Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+ L:	linux-i2c@vger.kernel.org
+ S:	Supported
+ F:	drivers/i2c/busses/i2c-at91-*.c
 -- 
-2.25.1
+2.24.0
 
