@@ -1,72 +1,99 @@
-Return-Path: <SRS0=UToK=AZ=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=YAb2=A2=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15954C433E0
-	for <linux-i2c@archiver.kernel.org>; Tue, 14 Jul 2020 07:19:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76018C433ED
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 04:19:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ED2D22220F
-	for <linux-i2c@archiver.kernel.org>; Tue, 14 Jul 2020 07:19:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C6A92067D
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 04:19:34 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="Hc4EcN1U"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725925AbgGNHTA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 14 Jul 2020 03:19:00 -0400
-Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:47182 "EHLO
-        smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725306AbgGNHTA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Jul 2020 03:19:00 -0400
-X-Alimail-AntiSpam: AC=CONTINUE;BC=0.3883162|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.00789351-0.00130981-0.990797;FP=0|0|0|0|0|-1|-1|-1;HT=e02c03273;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=10;RT=10;SR=0;TI=SMTPD_---.I1Ta.lL_1594711131;
-Received: from allwinnertech.com(mailfrom:frank@allwinnertech.com fp:SMTPD_---.I1Ta.lL_1594711131)
-          by smtp.aliyun-inc.com(10.147.41.120);
-          Tue, 14 Jul 2020 15:18:56 +0800
-From:   Frank Lee <frank@allwinnertech.com>
-To:     gregory.clement@bootlin.com, robh+dt@kernel.org
-Cc:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, tiny.windzz@gmail.com,
-        huangshuosheng@allwinnertech.com, liyong@allwinnertech.com,
-        Yangtao Li <frank@allwinnertech.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v4 13/16] dt-bindings: i2c: mv64xxx: Add compatible for the A100 i2c node.
-Date:   Tue, 14 Jul 2020 15:18:39 +0800
-Message-Id: <2315816045fa84057968ec6b679d0df611a3b1d3.1594708864.git.frank@allwinnertech.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1594708863.git.frank@allwinnertech.com>
-References: <cover.1594708863.git.frank@allwinnertech.com>
+        id S1728264AbgGOETd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 15 Jul 2020 00:19:33 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:11978 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728232AbgGOETb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Jul 2020 00:19:31 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f0e83980000>; Tue, 14 Jul 2020 21:18:32 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Tue, 14 Jul 2020 21:19:30 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Tue, 14 Jul 2020 21:19:30 -0700
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 15 Jul
+ 2020 04:19:30 +0000
+Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 15 Jul 2020 04:19:29 +0000
+Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.160.169]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5f0e83d00002>; Tue, 14 Jul 2020 21:19:29 -0700
+From:   Sowjanya Komatineni <skomatineni@nvidia.com>
+To:     <skomatineni@nvidia.com>, <thierry.reding@gmail.com>,
+        <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
+        <sakari.ailus@iki.fi>, <robh+dt@kernel.org>,
+        <helen.koike@collabora.com>
+CC:     <digetx@gmail.com>, <sboyd@kernel.org>,
+        <gregkh@linuxfoundation.org>, <linux-media@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
+Subject: [RFC PATCH v3 07/18] i2c: tegra: Avoid tegra_i2c_init_dma() for Tegra210 vi i2c
+Date:   Tue, 14 Jul 2020 21:20:44 -0700
+Message-ID: <1594786855-26506-8-git-send-email-skomatineni@nvidia.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1594786855-26506-1-git-send-email-skomatineni@nvidia.com>
+References: <1594786855-26506-1-git-send-email-skomatineni@nvidia.com>
+X-NVConfidentiality: public
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1594786712; bh=bx39F/3n9Q/pzD3y/Hu3Hjt/owO0zkylWWejNtiAobk=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         In-Reply-To:References:X-NVConfidentiality:MIME-Version:
+         Content-Type;
+        b=Hc4EcN1U4PoSZ7CTF+0Ivlw7U3QxXpFbGOlGEUEJOZT+WzWzFTVXX/GI7IAoWYwdD
+         iSIeSpVlVntd7fqqw0SaHkLbZCmPEgSP1PQCYpdXlWn9ULWtuULoPkjQe/lY42wLD2
+         eTniooK6SuhGwED2DlZg+FBH1Jm0la53jmkgSEv1V1RR5JUWcdfSxnPEgFgsx+dmU0
+         5TFLwrY8xWKy+E0Cyw1aw5+i6xxs64MvX43NAg2SYhUKZdHZNLB5Wi3ExovvdNNhI2
+         PZljrrUfdkCIO1tPqX0l49TdQ8a4NVQYlhT75DCTtePbqEoBtAekCseyUR5HH75rYV
+         Go1u8whx/1SBA==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Yangtao Li <frank@allwinnertech.com>
+VI I2C is on host1x bus so APB DMA can't be used for Tegra210 VI
+I2C and there are no tx and rx dma channels for VI I2C.
 
-Allwinner A100 have a mv64xxx i2c interface available to be used.
+So, avoid attempt of requesting DMA channels.
 
-Signed-off-by: Yangtao Li <frank@allwinnertech.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 ---
- Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i2c/busses/i2c-tegra.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-index 2ceb05ba2df5..5b5ae402f97a 100644
---- a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-@@ -26,6 +26,9 @@ properties:
-       - items:
-           - const: allwinner,sun50i-a64-i2c
-           - const: allwinner,sun6i-a31-i2c
-+      - items:
-+          - const: allwinner,sun50i-a100-i2c
-+          - const: allwinner,sun6i-a31-i2c
-       - items:
-           - const: allwinner,sun50i-h6-i2c
-           - const: allwinner,sun6i-a31-i2c
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 1bf3666..00d3e4d 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -421,7 +421,7 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
+ 	dma_addr_t dma_phys;
+ 	int err;
+ 
+-	if (!i2c_dev->hw->has_apb_dma)
++	if (!i2c_dev->hw->has_apb_dma || i2c_dev->is_vi)
+ 		return 0;
+ 
+ 	if (!IS_ENABLED(CONFIG_TEGRA20_APB_DMA)) {
 -- 
-2.24.0
+2.7.4
 
