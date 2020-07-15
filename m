@@ -2,215 +2,83 @@ Return-Path: <SRS0=YAb2=A2=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CC4CC4332E
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 11:12:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58E1CC433E2
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 19:21:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4764020658
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 11:12:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2FF3120771
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 19:21:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1594840912;
+	bh=lamr3/6BF467YBJH7UwzhDNsOlzdaUJg3sdsVPi+8dw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=1/7y21+Zh+vk9YXjbbVhtxrj79V7c2YA2i7PqICKvbbYHdBPugq++43TJot9BzjpU
+	 oCe8pRikX6Cags0Uv91rvKZ9W0ZmSQIRnqzudyv2K7U0ZaJFWHJ1JzOcPbEF6pqGz9
+	 ADPGCC+Wd7OCVjmPJrybYqNJlFvy3QW29oLBh8V8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731430AbgGOLJ0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 15 Jul 2020 07:09:26 -0400
-Received: from relmlor1.renesas.com ([210.160.252.171]:37974 "EHLO
-        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728871AbgGOLJY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Jul 2020 07:09:24 -0400
-X-IronPort-AV: E=Sophos;i="5.75,355,1589209200"; 
-   d="scan'208";a="52194042"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 15 Jul 2020 20:09:22 +0900
-Received: from localhost.localdomain (unknown [10.226.36.204])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 6473A4006DF5;
-        Wed, 15 Jul 2020 20:09:17 +0900 (JST)
-From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-To:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Niklas <niklas.soderlund@ragnatech.se>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Magnus Damm <magnus.damm@gmail.com>
-Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amit.kucheria@verdurent.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH 01/20] arm64: dts: renesas: r8a774e1: Add operating points
-Date:   Wed, 15 Jul 2020 12:08:51 +0100
-Message-Id: <1594811350-14066-2-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+        id S1726670AbgGOTVv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 15 Jul 2020 15:21:51 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:35545 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726472AbgGOTVv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Jul 2020 15:21:51 -0400
+Received: by mail-io1-f68.google.com with SMTP id v8so3495109iox.2;
+        Wed, 15 Jul 2020 12:21:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=XpO2PmYmWFeYwVE+k7Xx8wRkBjcoL7yVQGNUR1MHgJU=;
+        b=rkVsyUrOiFKQTZPfC3qY0Slb6btxKYkxTkyU3SuU2+1fKn8/dqsgji+xhKbXGKBoiE
+         2X9N3O45rLldVec4orE4oAFPKuvKRgs68cH6d4y+eBgnWqjwSm6LqsFr6eA1yObBHkF7
+         0BdkrLJVwjwBCkHdkfCLksjXyDoltm3ax0QxREuebwJX6OiGVwjXlTruhrWnzEIDcxP4
+         5LyK1avioby7YNLam1AbMrDgLuuBpaAiKKnRhMPMyja95Rh+78XWjuKbkQl1TxDXWIFg
+         ccMkT3vebV6SK4TcMitFDQh5wEMh6oc5Z/a2RxlRjx+dEZyd4rrdxHNR7GxPbIbmn8dU
+         8Q2Q==
+X-Gm-Message-State: AOAM532d6YVxeYVi7FeeCVzmkCVkSeStaRNTJzSIkvAwmRvGAizZCDvw
+        tQ0IrYxmqkxohOantFq91JfPbf/4JA==
+X-Google-Smtp-Source: ABdhPJynn0MDDy8fnolqF32P3LzcbAvnAj/VAANNkoeMF6+dMrtRFB2N5E81MG9VXkm5KqIzuoogWQ==
+X-Received: by 2002:a05:6602:21c3:: with SMTP id c3mr773323ioc.93.1594840910191;
+        Wed, 15 Jul 2020 12:21:50 -0700 (PDT)
+Received: from xps15 ([64.188.179.252])
+        by smtp.gmail.com with ESMTPSA id j17sm1478157ilq.7.2020.07.15.12.21.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jul 2020 12:21:49 -0700 (PDT)
+Received: (nullmailer pid 674969 invoked by uid 1000);
+        Wed, 15 Jul 2020 19:21:48 -0000
+Date:   Wed, 15 Jul 2020 13:21:48 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Cc:     linux-arm-kernel@lists.infradead.org,
+        alexandre.belloni@bootlin.com, linux@armlinux.org.uk,
+        ludovic.desroches@microchip.com, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kamel.bouhara@bootlin.com,
+        wsa@kernel.org, linux-i2c@vger.kernel.org, robh+dt@kernel.org
+Subject: Re: [RFC PATCH 1/4] dt-binding: i2c: add generic properties for GPIO
+ bus recovery
+Message-ID: <20200715192148.GA674938@bogus>
+References: <20200619141904.910889-1-codrin.ciubotariu@microchip.com>
+ <20200619141904.910889-2-codrin.ciubotariu@microchip.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200619141904.910889-2-codrin.ciubotariu@microchip.com>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
+On Fri, 19 Jun 2020 17:19:01 +0300, Codrin Ciubotariu wrote:
+> The I2C GPIO bus recovery properties consist of two GPIOS and one extra
+> pinctrl state ("gpio" or "recovery"). Not all are mandatory for recovery.
+> 
+> Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c.txt | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
 
-The RZ/G2H (r8a774e1) comes with two clusters of processors, similarly to
-the r8a774a1. The first cluster is made of A57s, the second cluster is made
-of A53s.
-
-The operating points for the cluster with the A57s are:
-
-Frequency | Voltage
-----------|---------
-500 MHz   | 0.82V
-1.0 GHz   | 0.82V
-1.5 GHz   | 0.82V
-
-The operating points for the cluster with the A53s are:
-
-Frequency | Voltage
-----------|---------
-800 MHz   | 0.82V
-1.0 GHz   | 0.82V
-1.2 GHz   | 0.82V
-
-This patch adds the definitions for the operating points to the SoC
-specific DT.
-
-Signed-off-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
----
- arch/arm64/boot/dts/renesas/r8a774e1.dtsi | 51 +++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/renesas/r8a774e1.dtsi b/arch/arm64/boot/dts/renesas/r8a774e1.dtsi
-index caca319aafcf..588de69734ef 100644
---- a/arch/arm64/boot/dts/renesas/r8a774e1.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a774e1.dtsi
-@@ -34,6 +34,49 @@
- 		clock-frequency = <0>;
- 	};
- 
-+	cluster0_opp: opp_table0 {
-+		compatible = "operating-points-v2";
-+		opp-shared;
-+
-+		opp-500000000 {
-+			opp-hz = /bits/ 64 <500000000>;
-+			opp-microvolt = <820000>;
-+			clock-latency-ns = <300000>;
-+		};
-+		opp-1000000000 {
-+			opp-hz = /bits/ 64 <1000000000>;
-+			opp-microvolt = <820000>;
-+			clock-latency-ns = <300000>;
-+		};
-+		opp-1500000000 {
-+			opp-hz = /bits/ 64 <1500000000>;
-+			opp-microvolt = <820000>;
-+			clock-latency-ns = <300000>;
-+			opp-suspend;
-+		};
-+	};
-+
-+	cluster1_opp: opp_table1 {
-+		compatible = "operating-points-v2";
-+		opp-shared;
-+
-+		opp-800000000 {
-+			opp-hz = /bits/ 64 <800000000>;
-+			opp-microvolt = <820000>;
-+			clock-latency-ns = <300000>;
-+		};
-+		opp-1000000000 {
-+			opp-hz = /bits/ 64 <1000000000>;
-+			opp-microvolt = <820000>;
-+			clock-latency-ns = <300000>;
-+		};
-+		opp-1200000000 {
-+			opp-hz = /bits/ 64 <1200000000>;
-+			opp-microvolt = <820000>;
-+			clock-latency-ns = <300000>;
-+		};
-+	};
-+
- 	cpus {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
-@@ -79,6 +122,7 @@
- 			enable-method = "psci";
- 			dynamic-power-coefficient = <854>;
- 			clocks = <&cpg CPG_CORE R8A774E1_CLK_Z>;
-+			operating-points-v2 = <&cluster0_opp>;
- 			capacity-dmips-mhz = <1024>;
- 			#cooling-cells = <2>;
- 		};
-@@ -91,6 +135,7 @@
- 			next-level-cache = <&L2_CA57>;
- 			enable-method = "psci";
- 			clocks = <&cpg CPG_CORE R8A774E1_CLK_Z>;
-+			operating-points-v2 = <&cluster0_opp>;
- 			capacity-dmips-mhz = <1024>;
- 			#cooling-cells = <2>;
- 		};
-@@ -103,6 +148,7 @@
- 			next-level-cache = <&L2_CA57>;
- 			enable-method = "psci";
- 			clocks = <&cpg CPG_CORE R8A774E1_CLK_Z>;
-+			operating-points-v2 = <&cluster0_opp>;
- 			capacity-dmips-mhz = <1024>;
- 			#cooling-cells = <2>;
- 		};
-@@ -115,6 +161,7 @@
- 			next-level-cache = <&L2_CA57>;
- 			enable-method = "psci";
- 			clocks = <&cpg CPG_CORE R8A774E1_CLK_Z>;
-+			operating-points-v2 = <&cluster0_opp>;
- 			capacity-dmips-mhz = <1024>;
- 			#cooling-cells = <2>;
- 		};
-@@ -129,6 +176,7 @@
- 			#cooling-cells = <2>;
- 			dynamic-power-coefficient = <277>;
- 			clocks = <&cpg CPG_CORE R8A774E1_CLK_Z2>;
-+			operating-points-v2 = <&cluster1_opp>;
- 			capacity-dmips-mhz = <535>;
- 		};
- 
-@@ -140,6 +188,7 @@
- 			next-level-cache = <&L2_CA53>;
- 			enable-method = "psci";
- 			clocks = <&cpg CPG_CORE R8A774E1_CLK_Z2>;
-+			operating-points-v2 = <&cluster1_opp>;
- 			capacity-dmips-mhz = <535>;
- 		};
- 
-@@ -151,6 +200,7 @@
- 			next-level-cache = <&L2_CA53>;
- 			enable-method = "psci";
- 			clocks = <&cpg CPG_CORE R8A774E1_CLK_Z2>;
-+			operating-points-v2 = <&cluster1_opp>;
- 			capacity-dmips-mhz = <535>;
- 		};
- 
-@@ -162,6 +212,7 @@
- 			next-level-cache = <&L2_CA53>;
- 			enable-method = "psci";
- 			clocks = <&cpg CPG_CORE R8A774E1_CLK_Z2>;
-+			operating-points-v2 = <&cluster1_opp>;
- 			capacity-dmips-mhz = <535>;
- 		};
- 
--- 
-2.17.1
-
+Reviewed-by: Rob Herring <robh@kernel.org>
