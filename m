@@ -2,124 +2,116 @@ Return-Path: <SRS0=YAb2=A2=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6078AC43618
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 04:20:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F34D3C433E1
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 11:09:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3EA7B2067D
-	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 04:20:59 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="Q4sNDhf7"
+	by mail.kernel.org (Postfix) with ESMTP id D97CE2072E
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Jul 2020 11:09:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728043AbgGOETY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 15 Jul 2020 00:19:24 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:4596 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725824AbgGOETX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Jul 2020 00:19:23 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f0e83be0000>; Tue, 14 Jul 2020 21:19:10 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Tue, 14 Jul 2020 21:19:23 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Tue, 14 Jul 2020 21:19:23 -0700
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 15 Jul
- 2020 04:19:22 +0000
-Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 15 Jul 2020 04:19:22 +0000
-Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.160.169]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f0e83c90003>; Tue, 14 Jul 2020 21:19:22 -0700
-From:   Sowjanya Komatineni <skomatineni@nvidia.com>
-To:     <skomatineni@nvidia.com>, <thierry.reding@gmail.com>,
-        <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
-        <sakari.ailus@iki.fi>, <robh+dt@kernel.org>,
-        <helen.koike@collabora.com>
-CC:     <digetx@gmail.com>, <sboyd@kernel.org>,
-        <gregkh@linuxfoundation.org>, <linux-media@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
-Subject: [RFC PATCH v3 01/18] dt-bindings: i2c: tegra: Document Tegra210 VI I2C clocks and power-domains
-Date:   Tue, 14 Jul 2020 21:20:38 -0700
-Message-ID: <1594786855-26506-2-git-send-email-skomatineni@nvidia.com>
+        id S1729502AbgGOLJT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 15 Jul 2020 07:09:19 -0400
+Received: from relmlor1.renesas.com ([210.160.252.171]:37974 "EHLO
+        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729356AbgGOLJT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Jul 2020 07:09:19 -0400
+X-IronPort-AV: E=Sophos;i="5.75,355,1589209200"; 
+   d="scan'208";a="52194034"
+Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
+  by relmlie5.idc.renesas.com with ESMTP; 15 Jul 2020 20:09:16 +0900
+Received: from localhost.localdomain (unknown [10.226.36.204])
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 8A99F4006CDA;
+        Wed, 15 Jul 2020 20:09:11 +0900 (JST)
+From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Wolfgang Grandegger <wg@grandegger.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Niklas <niklas.soderlund@ragnatech.se>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Magnus Damm <magnus.damm@gmail.com>
+Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amit.kucheria@verdurent.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Prabhakar <prabhakar.csengg@gmail.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH 00/20] Add support for [H]SCIF/TMU/CMT/THS/SDHI/MSIOF/CAN[FD]/I2C/IIC/RWDT on R8A774E1
+Date:   Wed, 15 Jul 2020 12:08:50 +0100
+Message-Id: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1594786855-26506-1-git-send-email-skomatineni@nvidia.com>
-References: <1594786855-26506-1-git-send-email-skomatineni@nvidia.com>
-X-NVConfidentiality: public
-MIME-Version: 1.0
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1594786750; bh=M4O0xvH9jkOkIfyCWsWjZaEplFLrJZlC+QemXhCNkTI=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:X-NVConfidentiality:MIME-Version:
-         Content-Type;
-        b=Q4sNDhf7qMcqUTgPnN0JSwr1ga81wkG28Btq//uewCuxbpPCfCTpeZ0ylf4jHgazr
-         F4uaS1/2O1Sda8TS/+HpVw+SnYsth8tsPUwe+f/bcWJvYnGPHcitFhHCb9ggAuWrDL
-         aUsVbO5kH6zqAO9CS36SLldto9VpyOuGFRFBQiosdunr65Bo1nTllPjpGytFrRmaeX
-         7lfbmz32Xe5+QYVs2WFAYWNBdHPzm5Pt07aF0LY9Fx+yr8aUUX6LNq9KvGd04/RhJg
-         AUfUKLgBiLFYp93sBRU3nde3fAvNYgwiiobctzmI5rZqwxHJ7ZqYk4jhHWI6txGH/b
-         4U5b2duBBKfhA==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This patch documents missing clocks and power-domains of Tegra210 VI I2C.
+Hi All,
 
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- .../devicetree/bindings/i2c/nvidia,tegra20-i2c.txt    | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+This patch series enables support for following on RZ/G2H SoC,
+* CPU OPP
+* THS
+* CMT/TMU
+* I2C/IIC
+* MSIOF
+* RWDT
+* SDHI
+* SCIF/HSCIF
+* CAN/CANFD
 
-diff --git a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt
-index 18c0de3..3f2f990 100644
---- a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt
-@@ -35,12 +35,12 @@ Required properties:
- 	Due to above changes, Tegra114 I2C driver makes incompatible with
- 	previous hardware driver. Hence, tegra114 I2C controller is compatible
- 	with "nvidia,tegra114-i2c".
--  nvidia,tegra210-i2c-vi: Tegra210 has one I2C controller that is part of the
--	host1x domain and typically used for camera use-cases. This VI I2C
--	controller is mostly compatible with the programming model of the
--	regular I2C controllers with a few exceptions. The I2C registers start
--	at an offset of 0xc00 (instead of 0), registers are 16 bytes apart
--	(rather than 4) and the controller does not support slave mode.
-+  nvidia,tegra210-i2c-vi: Tegra210 has one I2C controller that is on host1x bus
-+	and is part of VE power domain and typically used for camera use-cases.
-+	This VI I2C controller is mostly compatible with the programming model
-+	of the regular I2C controllers with a few exceptions. The I2C registers
-+	start at an offset of 0xc00 (instead of 0), registers are 16 bytes
-+	apart (rather than 4) and the controller does not support slave mode.
- - reg: Should contain I2C controller registers physical address and length.
- - interrupts: Should contain I2C controller interrupts.
- - address-cells: Address cells for I2C device address.
-@@ -53,10 +53,17 @@ Required properties:
-   - fast-clk
-   Tegra114:
-   - div-clk
-+  Tegra210:
-+  - div-clk
-+  - slow (only for nvidia,tegra210-i2c-vi compatible node)
- - resets: Must contain an entry for each entry in reset-names.
-   See ../reset/reset.txt for details.
- - reset-names: Must include the following entries:
-   - i2c
-+- power-domains: Only for nvidia,tegra210-i2c-vi compatible node and must
-+  include venc powergate node as vi i2c is part of VE power domain.
-+  tegra210-i2c-vi:
-+  - pd_venc
- - dmas: Must contain an entry for each entry in clock-names.
-   See ../dma/dma.txt for details.
- - dma-names: Must include the following entries:
+Cheers,
+Prabhakar
+
+Lad Prabhakar (14):
+  dt-bindings: thermal: rcar-gen3-thermal: Add r8a774e1 support
+  dt-bindings: timer: renesas,cmt: Document r8a774e1 CMT support
+  arm64: dts: renesas: r8a774e1: Add SCIF and HSCIF nodes
+  arm64: dts: renesas: r8a774e1: Add SDHI nodes
+  dt-bindings: i2c: renesas,i2c: Document r8a774e1 support
+  dt-bindings: i2c: renesas,iic: Document r8a774e1 support
+  arm64: dts: renesas: r8a774e1: Add I2C and IIC-DVFS support
+  dt-bindings: spi: renesas,sh-msiof: Add r8a774e1 support
+  arm64: dts: renesas: r8a774e1: Add MSIOF nodes
+  dt-bindings: watchdog: renesas,wdt: Document r8a774e1 support
+  arm64: dts: renesas: r8a774e1: Add RWDT node
+  dt-bindings: can: rcar_can: Document r8a774e1 support
+  dt-bindings: can: rcar_canfd: Document r8a774e1 support
+  arm64: dts: renesas: r8a774e1: Add CAN[FD] support
+
+Marian-Cristian Rotariu (6):
+  arm64: dts: renesas: r8a774e1: Add operating points
+  thermal: rcar_gen3_thermal: Add r8a774e1 support
+  arm64: dts: renesas: r8a774e1: Add RZ/G2H thermal support
+  arm64: dts: renesas: r8a774e1: Add CMT device nodes
+  dt-bindings: timer: renesas,tmu: Document r8a774e1 bindings
+  arm64: dts: renesas: r8a774e1: Add TMU device nodes
+
+ .../devicetree/bindings/i2c/renesas,i2c.txt   |   1 +
+ .../devicetree/bindings/i2c/renesas,iic.txt   |   1 +
+ .../devicetree/bindings/net/can/rcar_can.txt  |   1 +
+ .../bindings/net/can/rcar_canfd.txt           |   1 +
+ .../bindings/spi/renesas,sh-msiof.yaml        |   1 +
+ .../bindings/thermal/rcar-gen3-thermal.yaml   |   1 +
+ .../bindings/timer/renesas,cmt.yaml           |   2 +
+ .../devicetree/bindings/timer/renesas,tmu.txt |   1 +
+ .../bindings/watchdog/renesas,wdt.yaml        |   1 +
+ arch/arm64/boot/dts/renesas/r8a774e1.dtsi     | 713 +++++++++++++++++-
+ drivers/thermal/rcar_gen3_thermal.c           |   4 +
+ 11 files changed, 715 insertions(+), 12 deletions(-)
+
 -- 
-2.7.4
+2.17.1
 
