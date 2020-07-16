@@ -2,85 +2,106 @@ Return-Path: <SRS0=Aphg=A3=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB093C43457
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 17:20:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0760EC433E0
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 18:26:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B827020656
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 17:20:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CF7182074B
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 18:26:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729775AbgGPRUW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Jul 2020 13:20:22 -0400
-Received: from relmlor2.renesas.com ([210.160.252.172]:28434 "EHLO
-        relmlie6.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729722AbgGPRUV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 13:20:21 -0400
-X-IronPort-AV: E=Sophos;i="5.75,360,1589209200"; 
-   d="scan'208";a="52107442"
-Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie6.idc.renesas.com with ESMTP; 17 Jul 2020 02:20:19 +0900
-Received: from localhost.localdomain (unknown [10.226.36.204])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 7311240B5998;
-        Fri, 17 Jul 2020 02:20:14 +0900 (JST)
-From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-To:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Niklas <niklas.soderlund@ragnatech.se>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Magnus Damm <magnus.damm@gmail.com>, devicetree@vger.kernel.org
-Cc:     linux-ide@vger.kernel.org, dmaengine@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-renesas-soc@vger.kernel.org,
-        linux-usb@vger.kernel.org, Prabhakar <prabhakar.csengg@gmail.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH 18/20] media: rcar-csi2: Enable support for R8A774E1
-Date:   Thu, 16 Jul 2020 18:18:33 +0100
-Message-Id: <1594919915-5225-19-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1594919915-5225-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-References: <1594919915-5225-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+        id S1728257AbgGPS03 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Jul 2020 14:26:29 -0400
+Received: from mga11.intel.com ([192.55.52.93]:18196 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726986AbgGPS03 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 16 Jul 2020 14:26:29 -0400
+IronPort-SDR: qGvNqRlJQCls0Rg38nwEwwzu2z3yh+E6zvWHGaKQvJ0q5Z32KSBoJZTXjQazdcX5AMvNXTIIkM
+ JpIJnIIOr42g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9684"; a="147461501"
+X-IronPort-AV: E=Sophos;i="5.75,360,1589266800"; 
+   d="scan'208";a="147461501"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2020 11:26:27 -0700
+IronPort-SDR: sNRhZZDdubKD2nsinea1jGjgLKdT7PBFxrDpzy+PP6d03Qh4m/FY1Nwk7Bje2doLA36MTzxcdz
+ iN8ZJTJhzuNQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,360,1589266800"; 
+   d="scan'208";a="361119837"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga001.jf.intel.com with ESMTP; 16 Jul 2020 11:26:24 -0700
+Received: from andy by smile with local (Exim 4.94)
+        (envelope-from <andy.shevchenko@gmail.com>)
+        id 1jw8aO-002CtJ-Lv; Thu, 16 Jul 2020 21:26:24 +0300
+Date:   Thu, 16 Jul 2020 21:26:24 +0300
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+To:     Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Cc:     Wolfram Sang <wsa@kernel.org>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>,
+        Lori Hikichi <lori.hikichi@broadcom.com>,
+        Robert Richter <rrichter@marvell.com>,
+        Nishka Dasgupta <nishkadg.linux@gmail.com>,
+        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH V1 2/2] i2c: iproc: add slave pec support
+Message-ID: <20200716182624.GT3703480@smile.fi.intel.com>
+References: <20200716080836.2279-1-rayagonda.kokatanur@broadcom.com>
+ <20200716080836.2279-3-rayagonda.kokatanur@broadcom.com>
+ <CAHp75VeXBCqEhfna2mQaHv7bZKOrj+A6KkbCrMAfM=X9+boDjA@mail.gmail.com>
+ <CAHO=5PEMou=a7Kqc=_ZJ8V9FQ=dHA0cJkkojdq91NBsO1Dp3TQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHO=5PEMou=a7Kqc=_ZJ8V9FQ=dHA0cJkkojdq91NBsO1Dp3TQ@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add the MIPI CSI-2 driver support for RZ/G2H (R8A774E1) SoC.
-The CSI-2 module of RZ/G2H is similar to R-Car H3.
+On Thu, Jul 16, 2020 at 10:49:14PM +0530, Rayagonda Kokatanur wrote:
+> On Thu, Jul 16, 2020 at 3:44 PM Andy Shevchenko
+> <andy.shevchenko@gmail.com> wrote:
+> > On Thu, Jul 16, 2020 at 11:14 AM Rayagonda Kokatanur
+> > <rayagonda.kokatanur@broadcom.com> wrote:
 
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
----
- drivers/media/platform/rcar-vin/rcar-csi2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+...
+> > > -#define S_RX_PEC_ERR_SHIFT           29
+> > > +#define S_RX_PEC_ERR_SHIFT           28
 
-diff --git a/drivers/media/platform/rcar-vin/rcar-csi2.c b/drivers/media/platform/rcar-vin/rcar-csi2.c
-index c6cc4f473a07..2325e3b103e4 100644
---- a/drivers/media/platform/rcar-vin/rcar-csi2.c
-+++ b/drivers/media/platform/rcar-vin/rcar-csi2.c
-@@ -1090,6 +1090,10 @@ static const struct of_device_id rcar_csi2_of_table[] = {
- 		.compatible = "renesas,r8a774c0-csi2",
- 		.data = &rcar_csi2_info_r8a77990,
- 	},
-+	{
-+		.compatible = "renesas,r8a774e1-csi2",
-+		.data = &rcar_csi2_info_r8a7795,
-+	},
- 	{
- 		.compatible = "renesas,r8a7795-csi2",
- 		.data = &rcar_csi2_info_r8a7795,
+> > This needs to be explained in the commit message, in particular why
+> > this change makes no regression.
+> 
+> I didn't get what do you mean by "no regression", please elaborate.
+
+The definition above has been changed. The point is you have to point out in
+the commit message why it's okay and makes no regression.
+For example, "..._SHIFT is changed to ... according to documentation. Since
+there was no user of it no regression will be made." Provide proper text, b/c
+I have no idea what is exactly the reason of the change and if it's indeed used
+to have no users.
+
+...
+
+> > > +                               ret = bcm_iproc_smbus_check_slave_pec(iproc_i2c,
+> > > +                                                                     val);
+> >
+> > One line looks better.
+> 
+> Yes, but to have 80 char per line, I have to do this.
+
+We have more, but even if you stick with 80 the above is harder to get than if it is one line.
+
 -- 
-2.17.1
+With Best Regards,
+Andy Shevchenko
+
 
