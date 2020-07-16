@@ -3,102 +3,110 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02794C43460
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 15:40:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B35C2C433DF
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 17:18:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DEF7920842
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 15:40:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 944DA2070E
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 17:18:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729270AbgGPPjC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Jul 2020 11:39:02 -0400
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:46969 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728967AbgGPPjA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 11:39:00 -0400
-Received: by mail-oi1-f195.google.com with SMTP id l63so5391650oih.13;
-        Thu, 16 Jul 2020 08:38:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=55jfOQrsK0L1I5YXuMIdr4caeEX2QkxMqO7QLDfDfTE=;
-        b=OJNb/3CZdDYdzXBR/FZKOEH1E8x79ukV4KlNK0I9Zvjqcqi8GBZ5P5/mE/v+JZd5y8
-         7YGhcalW3migO5YLoZaShePGFX5HXO70CZx1ETbjY6bnN9Dw/rQNXrN1KstprIMB816z
-         MeTHoQtCjomtjtYza/aPBsYwUu1v81D44wHqHG0PNxCEAbsrbsm2XKr0l2QwSky7O/UZ
-         6YWEu5ock0X31HkwIPBNx0PaLsDo1QwBDokzZjptSOVvocCyOqcC97Wu1IhzAgoZwhl9
-         eb+j4W9YRxSfPzF4kRmC5N5VnOC4E0TiAadRJnxcT5RAZQGVXoNNuFtQXbYXHFlWzGuY
-         BgHQ==
-X-Gm-Message-State: AOAM530c0ORPjHgy3yWtYRoUSRQGvXpJ99Z/Ct60n0oosGCuQgtDXAfO
-        Q1OCL7fVxXxbxlawi9KKm5eGOYkZpkrGmyjsISk=
-X-Google-Smtp-Source: ABdhPJxlQJRAKwt8VHHL6j/C+ElgfmWMk9g6riN/0HgdloQA+L26Uh68R5kB11G1HZGjTIU8odcycK0XWy9zO26BCZA=
-X-Received: by 2002:aca:5c41:: with SMTP id q62mr4141682oib.148.1594913939213;
- Thu, 16 Jul 2020 08:38:59 -0700 (PDT)
-MIME-Version: 1.0
-References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <1594811350-14066-5-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-In-Reply-To: <1594811350-14066-5-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Thu, 16 Jul 2020 17:38:48 +0200
-Message-ID: <CAMuHMdXRHOqtFWgExiksemXXQzxbokbT_nZDp4o4UzOD_gB5yQ@mail.gmail.com>
-Subject: Re: [PATCH 04/20] arm64: dts: renesas: r8a774e1: Add RZ/G2H thermal support
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
+        id S1728515AbgGPRSo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Jul 2020 13:18:44 -0400
+Received: from relmlor2.renesas.com ([210.160.252.172]:52329 "EHLO
+        relmlie6.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728182AbgGPRSn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 13:18:43 -0400
+X-IronPort-AV: E=Sophos;i="5.75,360,1589209200"; 
+   d="scan'208";a="52107158"
+Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
+  by relmlie6.idc.renesas.com with ESMTP; 17 Jul 2020 02:18:41 +0900
+Received: from localhost.localdomain (unknown [10.226.36.204])
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 75C8B40B5142;
+        Fri, 17 Jul 2020 02:18:36 +0900 (JST)
+From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Marek Vasut <marek.vasut+renesas@gmail.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
         Mark Brown <broonie@kernel.org>,
         Niklas <niklas.soderlund@ragnatech.se>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amit.kucheria@verdurent.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, linux-can@vger.kernel.org,
-        netdev <netdev@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Prabhakar <prabhakar.csengg@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Magnus Damm <magnus.damm@gmail.com>, devicetree@vger.kernel.org
+Cc:     linux-ide@vger.kernel.org, dmaengine@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-renesas-soc@vger.kernel.org,
+        linux-usb@vger.kernel.org, Prabhakar <prabhakar.csengg@gmail.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH 00/20] Add support for SATA/PCIe/USB2[3]/VIN/CSI on R8A774E1
+Date:   Thu, 16 Jul 2020 18:18:15 +0100
+Message-Id: <1594919915-5225-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+X-Mailer: git-send-email 2.7.4
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Jul 15, 2020 at 1:09 PM Lad Prabhakar
-<prabhakar.mahadev-lad.rj@bp.renesas.com> wrote:
-> From: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
->
-> Add thermal support for R8A774E1 (RZ/G2H) SoC.
->
-> Based on the work done for r8a774a1 SoC.
->
-> Signed-off-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Hi All,
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-i.e. will queue in renesas-devel for v5.9.
+This patch series adds support for the following peripherals on RZ/G2H SoC
+ * PCIe
+ * SATA
+ * USB2
+ * USB3
+ * Audio
+ * VIN
+ * CSI
 
-Gr{oetje,eeting}s,
+Cheers,
+Prabhakar
 
-                        Geert
+Lad Prabhakar (20):
+  dt-bindings: pci: rcar-pci: Add device tree support for r8a774e1
+  arm64: dts: renesas: r8a774e1: Add PCIe device nodes
+  dt-bindings: ata: renesas,rcar-sata: Add r8a774e1 support
+  arm64: dts: renesas: r8a774e1: Add SATA controller node
+  dt-bindings: phy: renesas,usb2-phy: Add r8a774e1 support
+  arm64: dts: renesas: r8a774e1: Add USB2.0 phy and host (EHCI/OHCI)
+    device nodes
+  dt-bindings: usb: renesas,usb3-peri: Document r8a774e1 support
+  dt-bindings: usb: usb-xhci: Document r8a774e1 support
+  dt-bindings: phy: renesas,usb3-phy: Add r8a774e1 support
+  arm64: dts: renesas: r8a774e1: Add USB3.0 device nodes
+  dt-bindings: usb: renesas,usbhs: Add r8a774e1 support
+  dt-bindings: dma: renesas,usb-dmac: Add binding for r8a774e1
+  arm64: dts: renesas: r8a774e1: Add USB-DMAC and HSUSB device nodes
+  dt-bindings: sound: renesas,rsnd: Document r8a774e1 bindings
+  arm64: dts: renesas: r8a774e1: Add audio support
+  dt-bindings: media: renesas,csi2: Add R8A774E1 support
+  dt-bindings: media: renesas,vin: Add R8A774E1 support
+  media: rcar-csi2: Enable support for R8A774E1
+  media: rcar-vin: Enable support for R8A774E1
+  arm64: dts: renesas: r8a774e1: Add VIN and CSI-2 nodes
 
+ .../bindings/ata/renesas,rcar-sata.yaml       |   1 +
+ .../bindings/dma/renesas,usb-dmac.yaml        |   1 +
+ .../bindings/media/renesas,csi2.yaml          |   1 +
+ .../bindings/media/renesas,vin.yaml           |   1 +
+ .../devicetree/bindings/pci/rcar-pci.txt      |   1 +
+ .../bindings/phy/renesas,usb2-phy.yaml        |   1 +
+ .../bindings/phy/renesas,usb3-phy.yaml        |   1 +
+ .../bindings/sound/renesas,rsnd.txt           |   1 +
+ .../bindings/usb/renesas,usb3-peri.yaml       |   1 +
+ .../bindings/usb/renesas,usbhs.yaml           |   1 +
+ .../devicetree/bindings/usb/usb-xhci.txt      |   1 +
+ arch/arm64/boot/dts/renesas/r8a774e1.dtsi     | 989 +++++++++++++++++-
+ drivers/media/platform/rcar-vin/rcar-core.c   |  40 +
+ drivers/media/platform/rcar-vin/rcar-csi2.c   |   4 +
+ 14 files changed, 1022 insertions(+), 22 deletions(-)
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+-- 
+2.17.1
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
