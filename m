@@ -2,107 +2,135 @@ Return-Path: <SRS0=Aphg=A3=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98A33C433F7
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 23:09:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B8C1C433E7
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 23:32:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 67295212CC
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 23:09:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D91CF2076D
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 23:32:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E56txzaf"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="nFMORG0K"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727829AbgGPXI7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Jul 2020 19:08:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43338 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727815AbgGPXI6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 19:08:58 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F4EAC08C5FB;
-        Thu, 16 Jul 2020 16:01:32 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id b30so2602072lfj.12;
-        Thu, 16 Jul 2020 16:01:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=vRmrcXdGKYCulhx5JF7bmSsDjAzR+R6023P6GBnsjfQ=;
-        b=E56txzafzppMuffM1Gu5Z9yBTjbmyAv5+/F6FiMiUIVnnW2zq6c88cHxzrhnkrr6ow
-         gFVX2XlNz6/TNOI0paMw6OLATpLw48J/F2WQDK1u+lH+xK43cuSZeOiSLTc066vdBHUz
-         OR6NLSsip/EVOU+KKyVbfJlO1ObKA/e0PFM+hDzTYp7ibJ2r+L2dxpCeXcF+Fb0oGhV0
-         PQGskd1r2k/w9LTpmAy7RhVwrgx7IRoosJQuDzaQWfHwj+Ggw0OxvtXC8Q6DNuBPTTWU
-         37z0yMiIoUrbD4OM5k9f//XXEbpc3NFfsWMaxH6ejpdxx3WSoyEX0YvoM8Pw5agBQx2B
-         tLOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=vRmrcXdGKYCulhx5JF7bmSsDjAzR+R6023P6GBnsjfQ=;
-        b=WTbuXDY4BY/Yf5GsU2tbCHAc2o0EzB5ohTgGHKqBKlhgaIo36Ohu2rVuoYpOclNuH1
-         UEewVMXll+EASduvUfCTsMjq4KH9jfAhW3epq/z7+bD5nYCWzAs5I6LMEGSX6WoTsEV1
-         j8E4B8KMeYBhI19tFAsxc/LO/ua7VxQyGLuX/gF3bW95w/6cVDq7F/p4ggCgX7qFv6Ro
-         0zkzCDUiyS4tShe68eDvtzk1gJMA9p4gdYTKLzjbOXYDqQJNMi4xBFWIdTYIUI5wvyBG
-         +UheD2MKu2CH3mn/5qo9g27zYiT9ZKwUdhYPd3SrFDxGAor6FHR0bqUBRHVJBtNe4dWT
-         xdFA==
-X-Gm-Message-State: AOAM531l+NewWf9wFg1zmseHU6KTZrdx3CKDtSEtj1NM2jGzTMAWyy71
-        7/7CxuI25a1tHTAJEd6jPzTgQMNr
-X-Google-Smtp-Source: ABdhPJxdHQgI4Iks82B0kVrmWJ74aaaj+x50J9DUOutD6acHfl6haGzwy4wP4QYnc1V6e6cfZgIn3w==
-X-Received: by 2002:a05:6512:250:: with SMTP id b16mr3118639lfo.67.1594940490262;
-        Thu, 16 Jul 2020 16:01:30 -0700 (PDT)
-Received: from [192.168.2.145] (ppp91-76-4-184.pppoe.mtu-net.ru. [91.76.4.184])
-        by smtp.googlemail.com with ESMTPSA id w4sm1315624ljw.16.2020.07.16.16.01.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Jul 2020 16:01:29 -0700 (PDT)
+        id S1727851AbgGPXcu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Jul 2020 19:32:50 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:8511 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726528AbgGPXcn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 19:32:43 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f10d8990000>; Thu, 16 Jul 2020 15:45:45 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Thu, 16 Jul 2020 15:46:44 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Thu, 16 Jul 2020 15:46:44 -0700
+Received: from [10.2.163.115] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 16 Jul
+ 2020 22:46:43 +0000
 Subject: Re: [RFC PATCH v3 16/18] gpu: host1x: mipi: Split
  tegra_mipi_calibrate and tegra_mipi_wait
-To:     Sowjanya Komatineni <skomatineni@nvidia.com>,
-        thierry.reding@gmail.com, jonathanh@nvidia.com, frankc@nvidia.com,
-        hverkuil@xs4all.nl, sakari.ailus@iki.fi, robh+dt@kernel.org,
-        helen.koike@collabora.com
-Cc:     sboyd@kernel.org, gregkh@linuxfoundation.org,
-        linux-media@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org
+To:     Dmitry Osipenko <digetx@gmail.com>, <thierry.reding@gmail.com>,
+        <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
+        <sakari.ailus@iki.fi>, <robh+dt@kernel.org>,
+        <helen.koike@collabora.com>
+CC:     <sboyd@kernel.org>, <gregkh@linuxfoundation.org>,
+        <linux-media@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-i2c@vger.kernel.org>
 References: <1594786855-26506-1-git-send-email-skomatineni@nvidia.com>
  <1594786855-26506-17-git-send-email-skomatineni@nvidia.com>
  <a06dec8f-7042-767b-545b-048685a7683d@gmail.com>
  <20d63eca-4b2b-584e-a391-a4fb64a16b40@nvidia.com>
  <c4945c77-5de1-e9b1-9f4f-cdd78bca18c7@gmail.com>
- <ce0c5ffb-f859-0eab-1ea5-044623dff221@nvidia.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <a2b8169c-c4a3-4862-cd27-8c1a51ddc558@gmail.com>
-Date:   Fri, 17 Jul 2020 02:01:28 +0300
+From:   Sowjanya Komatineni <skomatineni@nvidia.com>
+Message-ID: <ce0c5ffb-f859-0eab-1ea5-044623dff221@nvidia.com>
+Date:   Thu, 16 Jul 2020 15:49:35 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <ce0c5ffb-f859-0eab-1ea5-044623dff221@nvidia.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <c4945c77-5de1-e9b1-9f4f-cdd78bca18c7@gmail.com>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1594939545; bh=DBU7rkpSwcdm/T9Ofc9hoI63/nUNEGD1koFVXFhF+U4=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Transfer-Encoding:
+         Content-Language;
+        b=nFMORG0KBm13wQActfeNEGrE1zTfVIyfLJ//f9isZ71e/0m8pSHRFZfxn4Vch+PrK
+         m467l/dCABGM7cypucxeKSO7ihOtmWx2RYRe7ASI+CVwCl89tYZv523OzYt7r+a/Gj
+         QEQJ9pQrzdrWWDsMo1MpeBY8uEOrwGKZcACUvLn7z02tudMGWgEtwLcbDFGcxOxron
+         CFiXdEhydMgbm3yuCd+qzK66L+0iuMRtQ6UtJWoqiN62PuoBS+T3mnls2EKz39D1Qk
+         pXAhGvVOx+t5lirI3vJWIgYvdkLb16b8GqcnX8Mu2SazjFJC+gFicbqDU7WC+jQG0r
+         SGZbpO91WJQdA==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-17.07.2020 01:49, Sowjanya Komatineni пишет:
->> What keeps MIPI clock enabled after completion of the
->> tegra_mipi_calibrate() invocation?
-> 
-> MIPI clock is disabled at end of tegra_mipi_calibrate and is re-enabled
-> during tegra_mipi_wait.
-> 
-> I think I should fix this to keep the clock enabled till calibration
-> results are latched.
-> 
-> All consumers of tegra_mipi_calibrate() will call tegra_mipi_wait().
-> 
-> So will remove clk_disable mipi clk at end of tegra_mipi_calibrate() and
-> clk_enable mipi_clk at beginning of tegra_mipi_wait()
 
-Isn't it possible to perform the calibration after enabling CSI and
-before of starting the sensor streaming?
+On 7/16/20 2:18 PM, Dmitry Osipenko wrote:
+> 17.07.2020 00:09, Sowjanya Komatineni =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>> On 7/16/20 1:38 PM, Dmitry Osipenko wrote:
+>>> 15.07.2020 07:20, Sowjanya Komatineni =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>>>> SW can trigger MIPI pads calibration any time after power on
+>>>> but calibration results will be latched and applied to the pads
+>>>> by MIPI CAL unit only when the link is in LP-11 state and then
+>>>> status register will be updated.
+>>>>
+>>>> For CSI, trigger of pads calibration happen during CSI stream
+>>>> enable where CSI receiver is kept ready prior to sensor or CSI
+>>>> transmitter stream start.
+>>>>
+>>>> So, pads may not be in LP-11 at this time and waiting for the
+>>>> calibration to be done immediate after calibration start will
+>>>> result in timeout.
+>>>>
+>>>> This patch splits tegra_mipi_calibrate() and tegra_mipi_wait()
+>>>> so triggering for calibration and waiting for it to complete can
+>>>> happen at different stages.
+>>>>
+>>>> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+>>>> ---
+>>> ...
+>>>>  =C2=A0 int tegra_mipi_calibrate(struct tegra_mipi_device *device)
+>>>>  =C2=A0 {
+>>>> @@ -370,12 +381,10 @@ int tegra_mipi_calibrate(struct
+>>>> tegra_mipi_device *device)
+>>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 value |=3D MIPI_CAL_CTRL_START;
+>>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 tegra_mipi_writel(device->mipi, value,=
+ MIPI_CAL_CTRL);
+>>>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 err =3D tegra_mipi_wait(device->mipi);
+>>> Doesn't MIPI clock need to be enabled during of the calibration process=
+?
+>> MIPI clock is already enabled in tegra_mipi_calibrate
+>>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mutex_unlock(&device->mipi->lock);
+>>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 clk_disable(device->mipi->clk);
+> What keeps MIPI clock enabled after completion of the
+> tegra_mipi_calibrate() invocation?
+
+MIPI clock is disabled at end of tegra_mipi_calibrate and is re-enabled=20
+during tegra_mipi_wait.
+
+I think I should fix this to keep the clock enabled till calibration=20
+results are latched.
+
+All consumers of tegra_mipi_calibrate() will call tegra_mipi_wait().
+
+So will remove clk_disable mipi clk at end of tegra_mipi_calibrate() and=20
+clk_enable mipi_clk at beginning of tegra_mipi_wait()
+
+>
+>>>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 return err;
+>>>> +=C2=A0=C2=A0=C2=A0 return 0;
+>>>>  =C2=A0 }
+>>>>  =C2=A0 EXPORT_SYMBOL(tegra_mipi_calibrate);
