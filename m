@@ -2,29 +2,30 @@ Return-Path: <SRS0=Aphg=A3=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B35C2C433DF
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 17:18:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BAD5C43445
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 17:19:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 944DA2070E
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 17:18:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A22820787
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 17:19:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728515AbgGPRSo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Jul 2020 13:18:44 -0400
-Received: from relmlor2.renesas.com ([210.160.252.172]:52329 "EHLO
-        relmlie6.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728182AbgGPRSn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 13:18:43 -0400
+        id S1729412AbgGPRTC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Jul 2020 13:19:02 -0400
+Received: from relmlor1.renesas.com ([210.160.252.171]:25037 "EHLO
+        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729364AbgGPRTB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 13:19:01 -0400
 X-IronPort-AV: E=Sophos;i="5.75,360,1589209200"; 
-   d="scan'208";a="52107158"
+   d="scan'208";a="52318898"
 Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie6.idc.renesas.com with ESMTP; 17 Jul 2020 02:18:41 +0900
+  by relmlie5.idc.renesas.com with ESMTP; 17 Jul 2020 02:18:57 +0900
 Received: from localhost.localdomain (unknown [10.226.36.204])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 75C8B40B5142;
-        Fri, 17 Jul 2020 02:18:36 +0900 (JST)
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id C6A0A40B55DE;
+        Fri, 17 Jul 2020 02:18:52 +0900 (JST)
 From:   Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
@@ -45,68 +46,37 @@ Cc:     linux-ide@vger.kernel.org, dmaengine@vger.kernel.org,
         alsa-devel@alsa-project.org, linux-renesas-soc@vger.kernel.org,
         linux-usb@vger.kernel.org, Prabhakar <prabhakar.csengg@gmail.com>,
         Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH 00/20] Add support for SATA/PCIe/USB2[3]/VIN/CSI on R8A774E1
-Date:   Thu, 16 Jul 2020 18:18:15 +0100
-Message-Id: <1594919915-5225-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH 03/20] dt-bindings: ata: renesas,rcar-sata: Add r8a774e1 support
+Date:   Thu, 16 Jul 2020 18:18:18 +0100
+Message-Id: <1594919915-5225-4-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1594919915-5225-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <1594919915-5225-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi All,
+Document SATA support for the RZ/G2H, no driver change required.
 
-This patch series adds support for the following peripherals on RZ/G2H SoC
- * PCIe
- * SATA
- * USB2
- * USB3
- * Audio
- * VIN
- * CSI
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
+---
+ Documentation/devicetree/bindings/ata/renesas,rcar-sata.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-Cheers,
-Prabhakar
-
-Lad Prabhakar (20):
-  dt-bindings: pci: rcar-pci: Add device tree support for r8a774e1
-  arm64: dts: renesas: r8a774e1: Add PCIe device nodes
-  dt-bindings: ata: renesas,rcar-sata: Add r8a774e1 support
-  arm64: dts: renesas: r8a774e1: Add SATA controller node
-  dt-bindings: phy: renesas,usb2-phy: Add r8a774e1 support
-  arm64: dts: renesas: r8a774e1: Add USB2.0 phy and host (EHCI/OHCI)
-    device nodes
-  dt-bindings: usb: renesas,usb3-peri: Document r8a774e1 support
-  dt-bindings: usb: usb-xhci: Document r8a774e1 support
-  dt-bindings: phy: renesas,usb3-phy: Add r8a774e1 support
-  arm64: dts: renesas: r8a774e1: Add USB3.0 device nodes
-  dt-bindings: usb: renesas,usbhs: Add r8a774e1 support
-  dt-bindings: dma: renesas,usb-dmac: Add binding for r8a774e1
-  arm64: dts: renesas: r8a774e1: Add USB-DMAC and HSUSB device nodes
-  dt-bindings: sound: renesas,rsnd: Document r8a774e1 bindings
-  arm64: dts: renesas: r8a774e1: Add audio support
-  dt-bindings: media: renesas,csi2: Add R8A774E1 support
-  dt-bindings: media: renesas,vin: Add R8A774E1 support
-  media: rcar-csi2: Enable support for R8A774E1
-  media: rcar-vin: Enable support for R8A774E1
-  arm64: dts: renesas: r8a774e1: Add VIN and CSI-2 nodes
-
- .../bindings/ata/renesas,rcar-sata.yaml       |   1 +
- .../bindings/dma/renesas,usb-dmac.yaml        |   1 +
- .../bindings/media/renesas,csi2.yaml          |   1 +
- .../bindings/media/renesas,vin.yaml           |   1 +
- .../devicetree/bindings/pci/rcar-pci.txt      |   1 +
- .../bindings/phy/renesas,usb2-phy.yaml        |   1 +
- .../bindings/phy/renesas,usb3-phy.yaml        |   1 +
- .../bindings/sound/renesas,rsnd.txt           |   1 +
- .../bindings/usb/renesas,usb3-peri.yaml       |   1 +
- .../bindings/usb/renesas,usbhs.yaml           |   1 +
- .../devicetree/bindings/usb/usb-xhci.txt      |   1 +
- arch/arm64/boot/dts/renesas/r8a774e1.dtsi     | 989 +++++++++++++++++-
- drivers/media/platform/rcar-vin/rcar-core.c   |  40 +
- drivers/media/platform/rcar-vin/rcar-csi2.c   |   4 +
- 14 files changed, 1022 insertions(+), 22 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/ata/renesas,rcar-sata.yaml b/Documentation/devicetree/bindings/ata/renesas,rcar-sata.yaml
+index d06096a7ba4b..2ad2444f1042 100644
+--- a/Documentation/devicetree/bindings/ata/renesas,rcar-sata.yaml
++++ b/Documentation/devicetree/bindings/ata/renesas,rcar-sata.yaml
+@@ -26,6 +26,7 @@ properties:
+       - items:
+           - enum:
+               - renesas,sata-r8a774b1     # RZ/G2N
++              - renesas,sata-r8a774e1     # RZ/G2H
+               - renesas,sata-r8a7795      # R-Car H3
+               - renesas,sata-r8a77965     # R-Car M3-N
+           - const: renesas,rcar-gen3-sata # generic R-Car Gen3 or RZ/G2
 -- 
 2.17.1
 
