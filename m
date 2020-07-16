@@ -2,100 +2,87 @@ Return-Path: <SRS0=Aphg=A3=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2758C433E7
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 23:08:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F6CCC433FC
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 23:09:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7ACFB214D8
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 23:08:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35A1F212CC
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 23:09:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="V4frLrDL"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="eHu1cIr7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726954AbgGPXIh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Jul 2020 19:08:37 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:14622 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726851AbgGPXIg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 19:08:36 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f10dc520001>; Thu, 16 Jul 2020 16:01:38 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Thu, 16 Jul 2020 16:03:34 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Thu, 16 Jul 2020 16:03:34 -0700
-Received: from [10.2.163.115] (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 16 Jul
- 2020 23:03:33 +0000
-Subject: Re: [RFC PATCH v3 16/18] gpu: host1x: mipi: Split
- tegra_mipi_calibrate and tegra_mipi_wait
-To:     Dmitry Osipenko <digetx@gmail.com>, <thierry.reding@gmail.com>,
-        <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
-        <sakari.ailus@iki.fi>, <robh+dt@kernel.org>,
-        <helen.koike@collabora.com>
-CC:     <sboyd@kernel.org>, <gregkh@linuxfoundation.org>,
-        <linux-media@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-i2c@vger.kernel.org>
-References: <1594786855-26506-1-git-send-email-skomatineni@nvidia.com>
- <1594786855-26506-17-git-send-email-skomatineni@nvidia.com>
- <a06dec8f-7042-767b-545b-048685a7683d@gmail.com>
- <20d63eca-4b2b-584e-a391-a4fb64a16b40@nvidia.com>
- <c4945c77-5de1-e9b1-9f4f-cdd78bca18c7@gmail.com>
- <ce0c5ffb-f859-0eab-1ea5-044623dff221@nvidia.com>
- <a2b8169c-c4a3-4862-cd27-8c1a51ddc558@gmail.com>
-From:   Sowjanya Komatineni <skomatineni@nvidia.com>
-Message-ID: <4690e682-8495-2327-87c7-c2f06a7a479d@nvidia.com>
-Date:   Thu, 16 Jul 2020 16:06:25 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1727975AbgGPXJU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Jul 2020 19:09:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43398 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727915AbgGPXJS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 19:09:18 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A99AC08C5CE
+        for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2020 15:16:41 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id t15so5358448pjq.5
+        for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2020 15:16:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=uyJjNcCyaCd1x5/819IrrY1FHu5p7NCmrwELbf92SAw=;
+        b=eHu1cIr74RawyPqX0Cqg3kfkYi/drr3HXHWhaWKTivMGMKCMf3e0XRoQ2En4jdjC4o
+         l0QXBXm6ndcTw0e1BnIhRnI9fmTiAZsUsu0D17CFOrD4RGcofnUAKaBCktK0WZ3HIVfj
+         xabBG2ZxSqmkP5rHOF+BNiSMHYS5PaLoIfFLIMpffgQpnHBG0JhA3lwQzxqpQJRN1Igr
+         Ol5E/Gp0zFDAv77oilMTq1A6jnLxF8MKYnrfILiWK6THw1VBn9dDuu8Xz+SeXubQM64h
+         RRBKDl3Y3FuU2gfHgGMY94DzYfV9XveiQNE1WNtju12Jzz60Joi1KZzd8kS0V40voa54
+         cnGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uyJjNcCyaCd1x5/819IrrY1FHu5p7NCmrwELbf92SAw=;
+        b=fWuPSov4eA0J3kyPooVQuSFXHpSKTKmudhTY0gQAghPHAAov67vvdSqdfE2JewfG0+
+         /gQQe5pbDyXdXa7tKiO05f9cFr890DwDzJN/nvAggxpuw2Hz6+rQrnYvYN86pWL+2TYQ
+         nxdCnhIYfX4XmxgKUhWgoaZPp/7dzZ53Xn8kRmo1FUCt9ZKoFu2YGzimDLZ5cZD0c4zq
+         vm6YYYNX9hBGrk1aayLrksznbLGSyxystgVEfsgfHdklVHvKMslxsuJw3hxQr3LREuvk
+         Pbh8pvhQMqbOOKjOA7lgim3c9W1VBYGxkjZDpZuRnxilAzwzR7dcbKQQ84JIo67dJ65w
+         GhWQ==
+X-Gm-Message-State: AOAM532UhZ+7PrY7ASKQji/JzX/DUyNJ1RpY1p9W7Oz+dM29qZ7Cnivx
+        q9GOxy7w0pPN5qZ8qUS7WyQOkXwOrd5maSe5oYm1pywWQYo=
+X-Google-Smtp-Source: ABdhPJzd3SJxIS4HsCUds4zwHzaxq83M1tXUciur4bETKG0e7fh8+z+LpQ32CtOhhi4oDDmKD7oe/79nInT7mEGSln8=
+X-Received: by 2002:a17:90a:cc03:: with SMTP id b3mr6368860pju.80.1594937800591;
+ Thu, 16 Jul 2020 15:16:40 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <a2b8169c-c4a3-4862-cd27-8c1a51ddc558@gmail.com>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1594940498; bh=IQ4O2kXu/48GGMSWcmenLqn3VSY97/qSJdItJz4Xank=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Transfer-Encoding:
-         Content-Language;
-        b=V4frLrDLf7wzr0GcMAG5OoC/zyA5bktipRy0lGWuXWWDftChPohKciCAmm+JjbAoU
-         pWjJmGcoJmpj6ldw7hsRba1+g472cWg97oF+ii67zUYi16RiqCRY9fRucdY+h0Wi8t
-         fnSd/puBb2s02xeKlHXYNkCPWoCnMDg4VFL5Gs1++AfWgAlQGvxqmrMS+48dBbOEmF
-         Q4E588yA44lTB776Z466paiOsjdg2Wh0qjSEtR3k0hsUnIMCGInCshsyOn+noXdF5f
-         sJl3iEhJRGCPLut0Vyf/lh+t7UxCijNTSp3xOQkNlULfwoQcV3jZhiJiYAUtsMfbxH
-         azPzNs2i2p4+g==
+References: <20200716215242.GA19193@embeddedor>
+In-Reply-To: <20200716215242.GA19193@embeddedor>
+From:   Brendan Higgins <brendanhiggins@google.com>
+Date:   Thu, 16 Jul 2020 15:16:29 -0700
+Message-ID: <CAFd5g44yqds4xUp=xVbXTpFZydLobfpyLrVdwZOjrRa4=TOj5Q@mail.gmail.com>
+Subject: Re: [PATCH][next] i2c: aspeed: Use fallthrough pseudo-keyword
+To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org,
+        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-aspeed <linux-aspeed@lists.ozlabs.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Thu, Jul 16, 2020 at 2:47 PM Gustavo A. R. Silva
+<gustavoars@kernel.org> wrote:
+>
+> Replace the existing /* fall through */ comments and its variants with
+> the new pseudo-keyword macro fallthrough[1].
+>
+> [1] https://www.kernel.org/doc/html/latest/process/deprecated.html?highlight=fallthrough#implicit-switch-case-fall-through
+>
+> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-On 7/16/20 4:01 PM, Dmitry Osipenko wrote:
-> 17.07.2020 01:49, Sowjanya Komatineni =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->>> What keeps MIPI clock enabled after completion of the
->>> tegra_mipi_calibrate() invocation?
->> MIPI clock is disabled at end of tegra_mipi_calibrate and is re-enabled
->> during tegra_mipi_wait.
->>
->> I think I should fix this to keep the clock enabled till calibration
->> results are latched.
->>
->> All consumers of tegra_mipi_calibrate() will call tegra_mipi_wait().
->>
->> So will remove clk_disable mipi clk at end of tegra_mipi_calibrate() and
->> clk_enable mipi_clk at beginning of tegra_mipi_wait()
-> Isn't it possible to perform the calibration after enabling CSI and
-> before of starting the sensor streaming?
-Currently this is what I am doing. Triggering calibration start during=20
-CSI receiver being ready and then sensor streaming will happen where=20
-internal MIPI CAL detects for LP -> HS transition and applies results to=20
-pads. So checking for calibration results after sensor stream is enabled
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
