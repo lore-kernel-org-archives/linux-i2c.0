@@ -6,44 +6,44 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4036C433F1
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 15:38:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02AAEC433E6
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 15:39:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B9CB02076A
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 15:38:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE7982076D
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jul 2020 15:39:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728725AbgGPPi5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Jul 2020 11:38:57 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:45742 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728967AbgGPPi4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 11:38:56 -0400
-Received: by mail-ot1-f65.google.com with SMTP id h1so4524111otq.12;
-        Thu, 16 Jul 2020 08:38:55 -0700 (PDT)
+        id S1729301AbgGPPjI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Jul 2020 11:39:08 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:39240 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728967AbgGPPjH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jul 2020 11:39:07 -0400
+Received: by mail-oi1-f195.google.com with SMTP id w17so5422731oie.6;
+        Thu, 16 Jul 2020 08:39:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=U90hHEc54jdrWNma8Ae66aUnovbTk060PhIZQuQR+QY=;
-        b=Byt9bKj4gM5ybZPk/tMcE2C+FKnbynrlDnBkbpp8R1bgpyMEkhAptqZutYQ2IrV1oX
-         V1NwkwizhYquGkzMpAv1dgDr4pguOftRFEU1V2QAs6QeZFpwk+bSgQUgEZaLUeiQ0axc
-         zSnBxbwct4Dr6c2lA9K7fN6Xe2kRCbPzrNCJioVEixDMPvB0N3zfBoW5hk5zEJMpXglY
-         J3rZQX+e0KO3MuMxHr5Tpi16xyrGlpxIXH7fLQDQux01lZzPfUt7FezhWnY+2e3TaIT9
-         H9YN8X0iMCr9T6t66f2F83c31V6djPGtkpJq377twI+uxy0LT0uC2DlbmGQsLLU1tzwL
-         o/mQ==
-X-Gm-Message-State: AOAM533lbWJfcbW8dyfxqWJRCwbclNkPqkaXs5wUvyc9OEVSiBoQLXpQ
-        nLfH0g2C3ZOK/d0df2h1V+pJRntyddOx5q6SiqQ=
-X-Google-Smtp-Source: ABdhPJwZ5OQQ9EGRyQ3xUMXe0z77A9hIeMmqlCkxDKaqcv1Z/fgnXN/N+/X37FauDrLUuxCrtlxdJJObhqTJMAWoTSQ=
-X-Received: by 2002:a05:6830:1451:: with SMTP id w17mr5037827otp.250.1594913935397;
- Thu, 16 Jul 2020 08:38:55 -0700 (PDT)
+        bh=Yu8AcriWX3+yo8BiZDGLRtunrtLKttc1XLs4wvDEUps=;
+        b=YIrvU9p1o0ANLrdbVqR7qfAi9LJhRI/aw+RWrQdO9tLlSrFIQ2XElpRJwmd6WDL3Da
+         xiSreaDXn4GL5nG08pELq9QLwWSJ8uQWQn9M2iUZ8+NRvDrKY6d22W3Iu+P9pfsFGuxb
+         FowQ+SLnbl0Mv7f+IZGO+YgbNr5B/261pZLHqKUngKvcF/g+XB81UJS63T4yTHpMeuN0
+         grHKEwkMfo7XhaK7hz010apIgBhG5nXIpnNqIwKlG4t+PPT7aDi1Stj0Y7QU/lvIl2cp
+         aMf6zF5EFKJML7LFVC55nTuppT/W28Ot5AePA/8i2p7EEC9+En+TAPTB0yTeKbSsr36P
+         i0sw==
+X-Gm-Message-State: AOAM533xSUtJDkcIFi3M/VCM6CMSNBESE2g4iFWAXju+GlE4yn20DvKH
+        aS4aSOSDHsY6KnCr3KHSVA9gIh0EplTTXLmXFrQ=
+X-Google-Smtp-Source: ABdhPJz7Nwn+4sTFc6lpaCuTWPVIIEYyDkHi7RbGunkkr/cHBSPm62tq9ZP31mM88tUGaMPM+XdhO5cSQk5iRCsLngU=
+X-Received: by 2002:a05:6808:64a:: with SMTP id z10mr4320772oih.54.1594913945890;
+ Thu, 16 Jul 2020 08:39:05 -0700 (PDT)
 MIME-Version: 1.0
 References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <1594811350-14066-2-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-In-Reply-To: <1594811350-14066-2-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <1594811350-14066-9-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <1594811350-14066-9-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
 From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Thu, 16 Jul 2020 17:38:44 +0200
-Message-ID: <CAMuHMdWH2y6p3J4S3qeZNFN6v=_Rnz_zg0etG7DzcQ+NhS9RHA@mail.gmail.com>
-Subject: Re: [PATCH 01/20] arm64: dts: renesas: r8a774e1: Add operating points
+Date:   Thu, 16 Jul 2020 17:38:54 +0200
+Message-ID: <CAMuHMdVpkkVu61gvgNJGfeGpz+c3dWswg6R1rXqeKv+bx-2SSg@mail.gmail.com>
+Subject: Re: [PATCH 08/20] arm64: dts: renesas: r8a774e1: Add TMU device nodes
 To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -77,37 +77,12 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Prabhakar,
-
-On Wed, Jul 15, 2020 at 1:09 PM Lad Prabhakar
+On Wed, Jul 15, 2020 at 1:10 PM Lad Prabhakar
 <prabhakar.mahadev-lad.rj@bp.renesas.com> wrote:
 > From: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
 >
-> The RZ/G2H (r8a774e1) comes with two clusters of processors, similarly to
-> the r8a774a1. The first cluster is made of A57s, the second cluster is made
-> of A53s.
->
-> The operating points for the cluster with the A57s are:
->
-> Frequency | Voltage
-> ----------|---------
-> 500 MHz   | 0.82V
-> 1.0 GHz   | 0.82V
-> 1.5 GHz   | 0.82V
->
-> The operating points for the cluster with the A53s are:
->
-> Frequency | Voltage
-> ----------|---------
-> 800 MHz   | 0.82V
-> 1.0 GHz   | 0.82V
-> 1.2 GHz   | 0.82V
-
-I trust you on the actual values...
-
->
-> This patch adds the definitions for the operating points to the SoC
-> specific DT.
+> This patch adds TMU[01234] device tree nodes to the r8a774e1
+> SoC specific DT.
 >
 > Signed-off-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
 > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
