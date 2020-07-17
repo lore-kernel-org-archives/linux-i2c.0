@@ -2,118 +2,103 @@ Return-Path: <SRS0=/45J=A4=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A53EAC433E6
-	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jul 2020 04:44:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB65BC433E3
+	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jul 2020 06:44:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8096F20734
-	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jul 2020 04:44:43 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="YBTRlAxQ"
+	by mail.kernel.org (Postfix) with ESMTP id 90DF12071A
+	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jul 2020 06:44:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726512AbgGQEoj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 17 Jul 2020 00:44:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38686 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726491AbgGQEoe (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Jul 2020 00:44:34 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E3DEC08C5DD
-        for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2020 21:44:34 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id c80so13105574wme.0
-        for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2020 21:44:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=S9S68y6b2mPbKuzgaCo1jN4A32wueiis4gs7MPkym/M=;
-        b=YBTRlAxQNCrp0VWtdAoz7HX1TcMxgP8c+pztXkm9DckROsrCs8s1wiHI5Ty0T6SgrK
-         x1LT/2APXM2vMzv8oPhbWLw0GHTyp4WhkivO6gKr6Fyodd1U8eGi9prToTvyCdvhjwuu
-         D/2FUpr4dbooLhpYGT4dm3UwB8hQ0iuvNDR5WtKOUPmAO1XOPM9iqBTmOIE3rIhpejZD
-         UuV0PnY40TbCaLn4R1LYeLSHKHkJ1uEJRN1YQ2eDSc8zlbJWvqUCqi2RbB/AK2Bmot/z
-         bai/MmFwyt17VnEi9eZU4lF9z9MMd+wSlLUM9q4lUfSN/7KO5Q5X5N7DH8omfftLoyew
-         HClw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=S9S68y6b2mPbKuzgaCo1jN4A32wueiis4gs7MPkym/M=;
-        b=aXbBpntnIvzrPg0fMUVYiCCQUHY/G34R5jmQt8uM94MUQ2kYXAfhl/Bwgw3SQY02Pp
-         atoIEroGIYrQ77J/CrLgiYpFGlxKu5xwrJdhTtXtGMXrFDkAL20e/4CigEPxzmDH+k/3
-         VMTGFOPheoEm9Ql1Phx6kQKvbzrrXh7Ft3xKgnQJ033ZxGUfFMj0uQdado4X2Hz9Oakv
-         r6UrskF72CX68fyJYw5M43Q1b6JkXdAcctFRhH2YqzTBE4VWbSFW0wx7JKcAjsGXrLZ/
-         aBL/MVl95qZAEdPhHMCkM1+xzzcXV7MET5TozV4iN+Dg/1fB/ldQUmlydbHQYTMItPTx
-         hDlw==
-X-Gm-Message-State: AOAM530A/KnBOc2CsE4L98Csz9Gqb1AI4y486q/fgXc0pDcqobSNOdsK
-        2vEaaQoP3r06XviWSIwcbYJ3ng==
-X-Google-Smtp-Source: ABdhPJyEBG67fJXokeAElVWPCoMwiGiAI/9HSCWG+w7OI40KZczqAmqnOUUNQcrS+TOsyYDFflbNaQ==
-X-Received: by 2002:a7b:ce83:: with SMTP id q3mr7184668wmj.5.1594961072462;
-        Thu, 16 Jul 2020 21:44:32 -0700 (PDT)
-Received: from ?IPv6:2a01:e34:ed2f:f020:9880:a643:3e69:6393? ([2a01:e34:ed2f:f020:9880:a643:3e69:6393])
-        by smtp.googlemail.com with ESMTPSA id o21sm11356388wmh.18.2020.07.16.21.44.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Jul 2020 21:44:31 -0700 (PDT)
-Subject: Re: [PATCH 03/20] thermal: rcar_gen3_thermal: Add r8a774e1 support
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Niklas <niklas.soderlund@ragnatech.se>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Magnus Damm <magnus.damm@gmail.com>
-Cc:     Amit Kucheria <amit.kucheria@verdurent.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>
-References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <1594811350-14066-4-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-From:   Daniel Lezcano <daniel.lezcano@linaro.org>
-Message-ID: <bcda3aae-a276-173f-71e2-381736481ab2@linaro.org>
-Date:   Fri, 17 Jul 2020 06:44:30 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726180AbgGQGoN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 17 Jul 2020 02:44:13 -0400
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:35157 "EHLO
+        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726141AbgGQGoM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Jul 2020 02:44:12 -0400
+X-Originating-IP: 91.175.115.186
+Received: from localhost (91-175-115-186.subs.proxad.net [91.175.115.186])
+        (Authenticated sender: gregory.clement@bootlin.com)
+        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id AAB4D1C0008;
+        Fri, 17 Jul 2020 06:44:10 +0000 (UTC)
+From:   Gregory CLEMENT <gregory.clement@bootlin.com>
+To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: Re: [PATCH][next] i2c: mv64xxx: Use fallthrough pseudo-keyword
+In-Reply-To: <20200716215431.GA19300@embeddedor>
+References: <20200716215431.GA19300@embeddedor>
+Date:   Fri, 17 Jul 2020 08:44:10 +0200
+Message-ID: <878sfi4p51.fsf@FE-laptop>
 MIME-Version: 1.0
-In-Reply-To: <1594811350-14066-4-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 15/07/2020 13:08, Lad Prabhakar wrote:
-> From: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
-> 
-> Add r8a774e1 specific compatible string.
-> 
-> Signed-off-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com> ---
+"Gustavo A. R. Silva" <gustavoars@kernel.org> writes:
 
-Applied, thanks
+> Replace the existing /* fall through */ comments and its variants with
+> the new pseudo-keyword macro fallthrough[1].
+>
+> [1] https://www.kernel.org/doc/html/latest/process/deprecated.html?highlight=fallthrough#implicit-switch-case-fall-through
+>
+> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 
+Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 
+> ---
+>  drivers/i2c/busses/i2c-mv64xxx.c | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> index 829b8c98ae51..8d9d4ffdcd24 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -251,7 +251,7 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
+>  				MV64XXX_I2C_STATE_WAITING_FOR_ADDR_2_ACK;
+>  			break;
+>  		}
+> -		/* FALLTHRU */
+> +		fallthrough;
+>  	case MV64XXX_I2C_STATUS_MAST_WR_ADDR_2_ACK: /* 0xd0 */
+>  	case MV64XXX_I2C_STATUS_MAST_WR_ACK: /* 0x28 */
+>  		if ((drv_data->bytes_left == 0)
+> @@ -282,14 +282,14 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
+>  				MV64XXX_I2C_STATE_WAITING_FOR_ADDR_2_ACK;
+>  			break;
+>  		}
+> -		/* FALLTHRU */
+> +		fallthrough;
+>  	case MV64XXX_I2C_STATUS_MAST_RD_ADDR_2_ACK: /* 0xe0 */
+>  		if (drv_data->bytes_left == 0) {
+>  			drv_data->action = MV64XXX_I2C_ACTION_SEND_STOP;
+>  			drv_data->state = MV64XXX_I2C_STATE_IDLE;
+>  			break;
+>  		}
+> -		/* FALLTHRU */
+> +		fallthrough;
+>  	case MV64XXX_I2C_STATUS_MAST_RD_DATA_ACK: /* 0x50 */
+>  		if (status != MV64XXX_I2C_STATUS_MAST_RD_DATA_ACK)
+>  			drv_data->action = MV64XXX_I2C_ACTION_CONTINUE;
+> @@ -417,8 +417,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+>  			"mv64xxx_i2c_do_action: Invalid action: %d\n",
+>  			drv_data->action);
+>  		drv_data->rc = -EIO;
+> -
+> -		/* FALLTHRU */
+> +		fallthrough;
+>  	case MV64XXX_I2C_ACTION_SEND_STOP:
+>  		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
+>  		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
+> -- 
+> 2.27.0
+>
 
 -- 
-<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
-
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
+Gregory Clement, Bootlin
+Embedded Linux and Kernel engineering
+http://bootlin.com
