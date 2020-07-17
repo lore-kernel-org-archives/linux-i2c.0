@@ -2,108 +2,106 @@ Return-Path: <SRS0=/45J=A4=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44196C433EC
-	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jul 2020 15:40:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 777EDC433E1
+	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jul 2020 16:04:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 231B220775
-	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jul 2020 15:40:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4003F2074B
+	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jul 2020 16:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595000409;
-	bh=oUWXy3XEEdACj4VXB3S0A8gloCT8UAGtaaANZlTOhcY=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject:List-ID:From;
-	b=tk0Llrlh2AZ8WgcWcIEU0KA3NY252SUPIj2I0gEJly1CKK7HoxOq3SdCiNV5EviCu
-	 Osn8QA+DjVHwIfwhjMoC51a54uGXfa/T4DKfz91XWUplSkSzSZKcabNTf9e4z9Iyhh
-	 na5hA9fQEOWnXYUBjmRT1ChBkExntnRzn5Btih7g=
+	s=default; t=1595001853;
+	bh=UPUms99b9tSA+hwObJdfb2NKdZ+BQWwMB1XMerDuwoY=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=GrDfb/N/6K1pVwcvPTY2mXhhB5BlCDKJKy0seLZ0IWjhpJkzkMQDiDDxL7gtidVLm
+	 auRNMlhrECUuCH93WWdKKe6e5Jg+wYd1bhnOH/RfYwhGphLOpnY60LiWU4Z9jZEXiQ
+	 pnB5vXePUPrpEHwx7PeP9xzfZLcN45JIyo3jY0tQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727919AbgGQPkC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 17 Jul 2020 11:40:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58844 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726256AbgGQPkC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 17 Jul 2020 11:40:02 -0400
-Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D94742076A;
-        Fri, 17 Jul 2020 15:40:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595000401;
-        bh=oUWXy3XEEdACj4VXB3S0A8gloCT8UAGtaaANZlTOhcY=;
-        h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
-        b=egmxPzhCJaO5Pklo2wFUgCisrdBaL7j2ncVrgoys66Ov9LXhgVzxXGFqIlODz/BYm
-         SBeDYsmknwq4gkwP74D2/j5goaQrPlJbtdJY2ErVv8nPqEDRjP6D+aAJZpnM8njnoZ
-         FRAkq9i/JLIztXRgN6hLt6p5JYwLKxyZ+Mt0PWp4=
-Date:   Fri, 17 Jul 2020 16:39:50 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Niklas <niklas.soderlund@ragnatech.se>,
-        devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Magnus Damm <magnus.damm@gmail.com>
-Cc:     linux-usb@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>,
-        dmaengine@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-pci@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <1594919915-5225-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-References: <1594919915-5225-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: Re: [PATCH 00/20] Add support for SATA/PCIe/USB2[3]/VIN/CSI on R8A774E1
-Message-Id: <159500037996.27597.9512992990495217445.b4-ty@kernel.org>
+        id S1726351AbgGQQEM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 17 Jul 2020 12:04:12 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:35571 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726233AbgGQQEM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Jul 2020 12:04:12 -0400
+Received: by mail-io1-f68.google.com with SMTP id v8so10966652iox.2;
+        Fri, 17 Jul 2020 09:04:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ZZMONCL19UYadzPu6uG68r61s8RwI/fmFOE3TtThbcg=;
+        b=pEu+gzPAAzWrKN2BSJTuIUXO1McQqvZl6VZETKQsNqA/91Rl9p5yA21p/xff9OILzE
+         1OjnaX9NmTzJvXUCA0/Uxr2rE9celR+6tWh/UDOU7UJFcnig9yynNwBwVgYlJV7WpJ7N
+         I2LVlP5TikP0aJ3JWREU0jPxO4vDACVQr/VRcFLkMyzcMsf2jVoEZDui6tHg79Ke4oaU
+         bf+6oNA7qVsoN3H5/Vfn5zwnoxOiS28BNS1xCK3LqqZc1/KvG0Q/1AP8KUu6kmk1EwLu
+         EoGtzv9fg5phfq+ogCD3UkewC8uz4lKWi4xUgol5EJYvnb3f7T6uD5VP3fnBhK3PGoFk
+         vSnQ==
+X-Gm-Message-State: AOAM533Y+GIx0ZQVx0UnxkRBL9N+g2JHMvWq+7Gk5B6vr7YLxv5WUCUI
+        mdbfBNvIsFOVlSYPe2InSg8fEDcE8g==
+X-Google-Smtp-Source: ABdhPJzGbW4bYcU9wLZQ3cvTOdjIX6H0PPdVQMlHCWfeqAt+eh60L5Fdbpj72QS1+tYlVJ7SYFFexQ==
+X-Received: by 2002:a05:6638:69d:: with SMTP id i29mr11734802jab.47.1595001850880;
+        Fri, 17 Jul 2020 09:04:10 -0700 (PDT)
+Received: from xps15.herring.priv ([64.188.179.252])
+        by smtp.googlemail.com with ESMTPSA id e21sm4623586ioe.11.2020.07.17.09.04.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jul 2020 09:04:10 -0700 (PDT)
+From:   Rob Herring <robh@kernel.org>
+To:     devicetree@vger.kernel.org
+Cc:     Wolfram Sang <wolfram@the-dreams.de>, linux-i2c@vger.kernel.org
+Subject: [PATCH] dt-bindings: i2c-gpio: Use 'deprecated' keyword on deprecated properties
+Date:   Fri, 17 Jul 2020 10:04:07 -0600
+Message-Id: <20200717160407.378140-1-robh@kernel.org>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, 16 Jul 2020 18:18:15 +0100, Lad Prabhakar wrote:
-> This patch series adds support for the following peripherals on RZ/G2H SoC
->  * PCIe
->  * SATA
->  * USB2
->  * USB3
->  * Audio
->  * VIN
->  * CSI
-> 
-> [...]
+The i2c-gpio binding is the only case of 'not: true' being used for a
+deprecated property. Update it to use the json-schema 2019.09
+'deprecated' keyword instead. Define the type too in order to keep the
+meta-schema happy.
 
-Applied to
+This will disable warnings for these properties until the dtschema tools
+are updated to handle 'deprecated', but they are only used in a few at91
+dts files.
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-next
+Cc: Wolfram Sang <wolfram@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-gpio.yaml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Thanks!
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml b/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml
+index da6129090a8e..78ffcab2428c 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml
++++ b/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml
+@@ -52,15 +52,15 @@ properties:
+     description: sda and scl gpio, alternative for {sda,scl}-gpios
+ 
+   i2c-gpio,sda-open-drain:
+-    # Generate a warning if present
+-    not: true
++    type: boolean
++    deprecated: true
+     description: this means that something outside of our control has put
+       the GPIO line used for SDA into open drain mode, and that something is
+       not the GPIO chip. It is essentially an inconsistency flag.
+ 
+   i2c-gpio,scl-open-drain:
+-    # Generate a warning if present
+-    not: true
++    type: boolean
++    deprecated: true
+     description: this means that something outside of our control has put the
+       GPIO line used for SCL into open drain mode, and that something is not
+       the GPIO chip. It is essentially an inconsistency flag.
+-- 
+2.25.1
 
-[1/1] dt-bindings: sound: renesas, rsnd: Document r8a774e1 bindings
-      commit: 92e37407811b98a7eb54eb6a6b3d65847a46e0e6
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
