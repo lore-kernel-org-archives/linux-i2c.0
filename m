@@ -2,62 +2,113 @@ Return-Path: <SRS0=og3V=A7=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B76D0C433E2
-	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jul 2020 10:24:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2D99C433E2
+	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jul 2020 11:12:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9808020773
-	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jul 2020 10:24:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 750E822B4E
+	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jul 2020 11:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595240662;
-	bh=W9TTx5jyCQo5ak9o/jP6CEx/Sr341WG69OjAm34Eqek=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=rWVegxxIMdpDQyrLekoWXOgvnSPg7LAjLdxFE/JcPLkmUau41aVubJcy7Dc/8Vd6C
-	 f+LoRx0Nj3jtTEosrv48PQBO919Zn00aGL9YBK2zu36gJ+XtsKy9+3a4Q1qfBZ1FdR
-	 LUoKbnhfkEvTjPXixeXT+PuP4u7g5F73uPDY+Ktk=
+	s=default; t=1595243534;
+	bh=9Yy+1VjcfL5aQqBqsh+BDfHhT28teG125L+0sNy5ehc=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject:List-ID:From;
+	b=tONoiDNWeHqeo0wSGOBAVIzD+yF5MEjXrvgGzzLsZr+JsMn9GseQi04kYfSpggO0w
+	 LThFUtc/ZX6Eu/K7JRgc6yBo9FmL0sg2XUb9vW5rMDtF2BseYJIVNgcfLQNoodO/IM
+	 btQsJmguLV5PgN4c4RyUI3KUWtA/8wYp9VWwoXuo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728187AbgGTKYT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 20 Jul 2020 06:24:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60804 "EHLO mail.kernel.org"
+        id S1727853AbgGTLMO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 20 Jul 2020 07:12:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728001AbgGTKYS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 20 Jul 2020 06:24:18 -0400
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
+        id S1727094AbgGTLMN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 20 Jul 2020 07:12:13 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 533EE20773;
-        Mon, 20 Jul 2020 10:24:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 689E92073A;
+        Mon, 20 Jul 2020 11:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595240658;
-        bh=W9TTx5jyCQo5ak9o/jP6CEx/Sr341WG69OjAm34Eqek=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=T4tSNOm0gskCRWVggXCfex1g0XU6SADjFV849ioJKi9OoLSDtZHkdljU5S3rFfdJt
-         2h7jnhcXhQEuBT1vJUcdFV5HBphLs0LUZr6JqWGQP/R6IoyDMOGl5iMJbbCp5ZNkOf
-         ZBoUFpYtFkqrcXdxdq0fXrkDKDG20qXO686m1Khs=
-Date:   Mon, 20 Jul 2020 12:24:15 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     "Alexander A. Klimov" <grandmaster@al2klimov.de>
-cc:     gupt21@gmail.com, benjamin.tissoires@redhat.com,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: mcp2221: Replace HTTP links with HTTPS ones
-In-Reply-To: <20200713082135.32350-1-grandmaster@al2klimov.de>
-Message-ID: <nycvar.YFH.7.76.2007201224030.23768@cbobk.fhfr.pm>
-References: <20200713082135.32350-1-grandmaster@al2klimov.de>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        s=default; t=1595243533;
+        bh=9Yy+1VjcfL5aQqBqsh+BDfHhT28teG125L+0sNy5ehc=;
+        h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
+        b=hAnDisAU5CkKAmHpE/TlDXaSa61cF0JA6RYkNQwVsbS2KHEPnHbsA064m/XFR1u/T
+         z//PW9qlfb6Lwl2oAr78zQ6ONpyQ79rnqVCxfhGpQ0WbjKfNRt5Zp9J68zrYhDPdF8
+         wriqqXI+iRwPMIMpW2FBryFhRaNOpStEuiSEMfmY=
+Date:   Mon, 20 Jul 2020 12:12:00 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Jakub Kicinski <kuba@kernel.org>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Wolfgang Grandegger <wg@grandegger.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Niklas <niklas.soderlund@ragnatech.se>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     devicetree@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-spi@vger.kernel.org, Prabhakar <prabhakar.csengg@gmail.com>,
+        netdev@vger.kernel.org, linux-can@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Amit Kucheria <amit.kucheria@verdurent.com>
+In-Reply-To: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: Re: [PATCH 00/20] Add support for [H]SCIF/TMU/CMT/THS/SDHI/MSIOF/CAN[FD]/I2C/IIC/RWDT on R8A774E1
+Message-Id: <159524352070.8289.9628744508547399473.b4-ty@kernel.org>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Applied, thanks Alexander.
+On Wed, 15 Jul 2020 12:08:50 +0100, Lad Prabhakar wrote:
+> This patch series enables support for following on RZ/G2H SoC,
+> * CPU OPP
+> * THS
+> * CMT/TMU
+> * I2C/IIC
+> * MSIOF
+> * RWDT
+> * SDHI
+> * SCIF/HSCIF
+> * CAN/CANFD
+> 
+> [...]
 
--- 
-Jiri Kosina
-SUSE Labs
+Applied to
 
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-next
+
+Thanks!
+
+[1/1] spi: renesas,sh-msiof: Add r8a774e1 support
+      commit: b4f7f5f5470588e45e5d004f1dc4887af20f18c0
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
