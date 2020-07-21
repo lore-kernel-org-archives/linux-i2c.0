@@ -2,50 +2,50 @@ Return-Path: <SRS0=p1Da=BA=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.6 required=3.0 tests=BAYES_00,
+	BODY_QUOTE_MALF_MSGID,DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 359A8C433E0
-	for <linux-i2c@archiver.kernel.org>; Tue, 21 Jul 2020 22:59:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F941C433E1
+	for <linux-i2c@archiver.kernel.org>; Tue, 21 Jul 2020 23:14:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B99D2077D
-	for <linux-i2c@archiver.kernel.org>; Tue, 21 Jul 2020 22:59:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79F7A2077D
+	for <linux-i2c@archiver.kernel.org>; Tue, 21 Jul 2020 23:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595372375;
-	bh=OgO9aenT3Jhr5/9ApzMmBuefPOdAkNaeDlRsjFkF6eQ=;
+	s=default; t=1595373250;
+	bh=C7wzDzmy7tK7XLkxQA5wmAAt93j25OvbzqbVQTXvaCU=;
 	h=Date:From:To:Cc:Subject:List-ID:From;
-	b=Y8NHV5ESM9quBAZmBBPO0abynyi3WD2LNUBg7JuSkm/2BeYqhzrclyyJamIelhLc0
-	 +ZcZkUZkC/3CflQ+Od5hjGMM/2qPNFlO/RmO0CfhiFcsgUxD6ojxnKlPPH7Dr4JWXU
-	 iBDgYX1vOsOww+Eim5/M6BDKeB3Q44lJ7lq9T4c8=
+	b=2gCQyDp+A/CMZs49Se5Q3OMiOOUa5OLCYJXuG+9oaSRqpKsJyhVCXksnwWRHzppRd
+	 abuNMRi6i9TeqfNFnUipY0cvKInIBXXAUU5HxD21Q7jTXNGUn0Eqki/yBlhovAG4tl
+	 Us9DWjs2WFHB885dVh/mqnOLHGfYZOHo+Raxnh7Y=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728022AbgGUW7e (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 21 Jul 2020 18:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47626 "EHLO mail.kernel.org"
+        id S1728092AbgGUXOJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 21 Jul 2020 19:14:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726555AbgGUW7e (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 21 Jul 2020 18:59:34 -0400
+        id S1726148AbgGUXOJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 21 Jul 2020 19:14:09 -0400
 Received: from embeddedor (unknown [201.162.241.127])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E9F920720;
-        Tue, 21 Jul 2020 22:59:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D318620709;
+        Tue, 21 Jul 2020 23:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595372374;
-        bh=OgO9aenT3Jhr5/9ApzMmBuefPOdAkNaeDlRsjFkF6eQ=;
+        s=default; t=1595373249;
+        bh=C7wzDzmy7tK7XLkxQA5wmAAt93j25OvbzqbVQTXvaCU=;
         h=Date:From:To:Cc:Subject:From;
-        b=ZMZQQ6QeycSQsck3Zn0opnaKhBkhQtdsygL/DFlvTv9oFFkNhH5R32Ajx1GRqwlz/
-         RGUDygrVOkSySfsd0/cYXs5+ZPA9brHXAQI5o1r9KrKiMfZBwAO3JppaXTq2EMTJST
-         ObS9/iTtVL4LhqqMpxAtRbe/+GYy28bVzQoo6pNU=
-Date:   Tue, 21 Jul 2020 18:05:10 -0500
+        b=1hm/A+1EB2Q6ed0WBkxvJe0fG/v6fWwqzQFbmCew3uy+GAfGHA90IVtVwCKs3G+zs
+         q1DrWExNlJ0oTN/bOFK+km0f0sKShEh2sO5QsxkarI1Z8wWyROQUXSTz+HQ1vT29Xh
+         thZQpY19kvU8hsxKkrK4XLz4mnxr6DWGQ9cax7c4=
+Date:   Tue, 21 Jul 2020 18:19:46 -0500
 From:   "Gustavo A. R. Silva" <gustavoars@kernel.org>
-To:     Baruch Siach <baruch@tkos.co.il>
-Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Subject: [PATCH v2][next] i2c: digicolor: Use fallthrough pseudo-keyword
-Message-ID: <20200721230510.GA684@embeddedor>
+To:     Jean Delvare <jdelvare@suse.com>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH v2][next] i2c: busses: Use fallthrough pseudo-keyword
+Message-ID: <20200721231946.GA1705@embeddedor>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -60,28 +60,72 @@ the new pseudo-keyword macro fallthrough[1].
 
 [1] https://www.kernel.org/doc/html/v5.7/process/deprecated.html?highlight=fallthrough#implicit-switch-case-fall-through
 
-Acked-by: Baruch Siach <baruch@tkos.co.il>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 ---
 Changes in v2:
  - Update URL. Use proper URL to Linux v5.7 documentation.
+ - Add Jean's Reviewed-by tag.
 
- drivers/i2c/busses/i2c-digicolor.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-amd8111.c | 2 +-
+ drivers/i2c/busses/i2c-i801.c    | 8 ++++----
+ drivers/i2c/busses/i2c-viapro.c  | 2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-digicolor.c b/drivers/i2c/busses/i2c-digicolor.c
-index 332f00437479..f67639dc74b7 100644
---- a/drivers/i2c/busses/i2c-digicolor.c
-+++ b/drivers/i2c/busses/i2c-digicolor.c
-@@ -187,7 +187,7 @@ static irqreturn_t dc_i2c_irq(int irq, void *dev_id)
- 			break;
- 		}
- 		i2c->state = STATE_WRITE;
+diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+index 2b14fef5bf26..34862ad3423e 100644
+--- a/drivers/i2c/busses/i2c-amd8111.c
++++ b/drivers/i2c/busses/i2c-amd8111.c
+@@ -381,7 +381,7 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
+ 			if (status)
+ 				return status;
+ 			len = min_t(u8, len, I2C_SMBUS_BLOCK_MAX);
+-			/* fall through */
++			fallthrough;
+ 		case I2C_SMBUS_I2C_BLOCK_DATA:
+ 			for (i = 0; i < len; i++) {
+ 				status = amd_ec_read(smbus, AMD_SMB_DATA + i,
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 1fc7ae77753d..638e7f7c66cc 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1765,19 +1765,19 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	case PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS1:
+ 	case PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2:
+ 		priv->features |= FEATURE_IDF;
 -		/* fall through */
 +		fallthrough;
- 	case STATE_WRITE:
- 		if (i2c->msgbuf_ptr < i2c->msg->len)
- 			dc_i2c_write_buf(i2c);
+ 	default:
+ 		priv->features |= FEATURE_BLOCK_PROC;
+ 		priv->features |= FEATURE_I2C_BLOCK_READ;
+ 		priv->features |= FEATURE_IRQ;
+-		/* fall through */
++		fallthrough;
+ 	case PCI_DEVICE_ID_INTEL_82801DB_3:
+ 		priv->features |= FEATURE_SMBUS_PEC;
+ 		priv->features |= FEATURE_BLOCK_BUFFER;
+-		/* fall through */
++		fallthrough;
+ 	case PCI_DEVICE_ID_INTEL_82801CA_3:
+ 		priv->features |= FEATURE_HOST_NOTIFY;
+-		/* fall through */
++		fallthrough;
+ 	case PCI_DEVICE_ID_INTEL_82801BA_2:
+ 	case PCI_DEVICE_ID_INTEL_82801AB_3:
+ 	case PCI_DEVICE_ID_INTEL_82801AA_3:
+diff --git a/drivers/i2c/busses/i2c-viapro.c b/drivers/i2c/busses/i2c-viapro.c
+index 05aa92a3fbe0..970ccdcbb889 100644
+--- a/drivers/i2c/busses/i2c-viapro.c
++++ b/drivers/i2c/busses/i2c-viapro.c
+@@ -228,7 +228,7 @@ static s32 vt596_access(struct i2c_adapter *adap, u16 addr,
+ 			goto exit_unsupported;
+ 		if (read_write == I2C_SMBUS_READ)
+ 			outb_p(data->block[0], SMBHSTDAT0);
+-		/* Fall through */
++		fallthrough;
+ 	case I2C_SMBUS_BLOCK_DATA:
+ 		outb_p(command, SMBHSTCMD);
+ 		if (read_write == I2C_SMBUS_WRITE) {
 -- 
 2.27.0
 
