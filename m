@@ -2,90 +2,88 @@ Return-Path: <SRS0=nZDW=BB=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72FB9C433DF
-	for <linux-i2c@archiver.kernel.org>; Wed, 22 Jul 2020 11:10:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B7E2C433E7
+	for <linux-i2c@archiver.kernel.org>; Wed, 22 Jul 2020 12:33:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 46AAA20714
-	for <linux-i2c@archiver.kernel.org>; Wed, 22 Jul 2020 11:10:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 498F320729
+	for <linux-i2c@archiver.kernel.org>; Wed, 22 Jul 2020 12:33:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Oiq4W2YK"
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="AH0CXyL1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726503AbgGVLK3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 22 Jul 2020 07:10:29 -0400
-Received: from www.zeus03.de ([194.117.254.33]:43852 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726462AbgGVLK2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 22 Jul 2020 07:10:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=VV8jO+VNCBBi+L6IQSZtM6f1FOVa
-        N+zw7Qwl6ob4vaE=; b=Oiq4W2YKFgeq4iRdqdVGwOlBa6vLlak4gKvLhOFCZbxt
-        0kAYrQBaEMrxRhlS7WeL6/0Y/FVW/14nG8JwmIvQsbRlbVWqolhVrYbmI/+OKpiV
-        d7Leb/jays3ScSQ2WsdaP/rliwn3b3xXU+k3X10gSzrQbzuYOcCPuOPwyL8gLV0=
-Received: (qmail 3017535 invoked from network); 22 Jul 2020 13:10:26 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Jul 2020 13:10:26 +0200
-X-UD-Smtp-Session: l3s3148p1@WJd4yQWrXtggAwDPXwY8AL9PxqFiRnVq
-Date:   Wed, 22 Jul 2020 13:10:26 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: Re: [PATCH] i2c: rcar: always clear ICSAR to avoid side effects
-Message-ID: <20200722111026.GR1030@ninjato>
-References: <20200704133829.7015-1-wsa+renesas@sang-engineering.com>
+        id S1732290AbgGVMdE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 22 Jul 2020 08:33:04 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:38416 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1732273AbgGVMdD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Jul 2020 08:33:03 -0400
+X-UUID: 54e7afc4a054468a9eace13d3faedb77-20200722
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=aGkYfrj1ymY1oTj9o1StOhudKqvPOEHF8zRKMQWiYh4=;
+        b=AH0CXyL1Ft52UeNcnWNRy5uEy85ZqIK5yQK64PUS3RBa74bumEZaOyjJBhZQTWGjFuQo0olatjc1cDzGdjJEff/Xzker47z2hn0w8S1aMgGsnlYcvQeoeqFMue5RdmbEdWRKjCZRmMqP4A9/0fAbm08ufwpK5s8gabBalFwrPiM=;
+X-UUID: 54e7afc4a054468a9eace13d3faedb77-20200722
+Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw01.mediatek.com
+        (envelope-from <qii.wang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 651403332; Wed, 22 Jul 2020 20:33:00 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 22 Jul 2020 20:32:57 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Wed, 22 Jul 2020 20:32:56 +0800
+From:   Qii Wang <qii.wang@mediatek.com>
+To:     <wsa@the-dreams.de>
+CC:     <robh+dt@kernel.org>, <linux-i2c@vger.kernel.org>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
+        <qii.wang@mediatek.com>, <qiangming.xia@mediatek.com>
+Subject: [PATCH 4/4] i2c: mediatek: Add i2c compatible for MediaTek MT8192
+Date:   Wed, 22 Jul 2020 20:31:46 +0800
+Message-ID: <1595421106-10017-5-git-send-email-qii.wang@mediatek.com>
+X-Mailer: git-send-email 1.9.1
+In-Reply-To: <1595421106-10017-1-git-send-email-qii.wang@mediatek.com>
+References: <1595421106-10017-1-git-send-email-qii.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="/Isdj7O9hWi8F9Bn"
-Content-Disposition: inline
-In-Reply-To: <20200704133829.7015-1-wsa+renesas@sang-engineering.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+QWRkIGkyYyBjb21wYXRpYmxlIGZvciBNVDgxOTIuIENvbXBhcmUgdG8gTVQ4MTgzIGkyYyBjb250
+cm9sbGVyLA0KTVQ4MTkyIHN1cHBvcnQgbW9yZSB0aGVuIDhHQiBETUEgbW9kZS4NCg0KU2lnbmVk
+LW9mZi1ieTogUWlpIFdhbmcgPHFpaS53YW5nQG1lZGlhdGVrLmNvbT4NCi0tLQ0KIGRyaXZlcnMv
+aTJjL2J1c3Nlcy9pMmMtbXQ2NXh4LmMgfCAxNSArKysrKysrKysrKysrKysNCiAxIGZpbGUgY2hh
+bmdlZCwgMTUgaW5zZXJ0aW9ucygrKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2Vz
+L2kyYy1tdDY1eHguYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXQ2NXh4LmMNCmluZGV4IGU0
+NzU4NzcuLjQ3ZjNlZWYgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4
+eC5jDQorKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4eC5jDQpAQCAtMzg4LDYgKzM4
+OCwyMCBAQCBzdHJ1Y3QgaTJjX3NwZWNfdmFsdWVzIHsNCiAJLm1heF9kbWFfc3VwcG9ydCA9IDMz
+LA0KIH07DQogDQorc3RhdGljIGNvbnN0IHN0cnVjdCBtdGtfaTJjX2NvbXBhdGlibGUgbXQ4MTky
+X2NvbXBhdCA9IHsNCisJLnF1aXJrcyA9ICZtdDgxODNfaTJjX3F1aXJrcywNCisJLnJlZ3MgPSBt
+dF9pMmNfcmVnc192MiwNCisJLnBtaWNfaTJjID0gMCwNCisJLmRjbSA9IDAsDQorCS5hdXRvX3Jl
+c3RhcnQgPSAxLA0KKwkuYXV4X2xlbl9yZWcgPSAxLA0KKwkudGltaW5nX2FkanVzdCA9IDEsDQor
+CS5kbWFfc3luYyA9IDEsDQorCS5sdGltaW5nX2FkanVzdCA9IDEsDQorCS5hcGRtYV9zeW5jID0g
+MSwNCisJLm1heF9kbWFfc3VwcG9ydCA9IDM2LA0KK307DQorDQogc3RhdGljIGNvbnN0IHN0cnVj
+dCBvZl9kZXZpY2VfaWQgbXRrX2kyY19vZl9tYXRjaFtdID0gew0KIAl7IC5jb21wYXRpYmxlID0g
+Im1lZGlhdGVrLG10MjcxMi1pMmMiLCAuZGF0YSA9ICZtdDI3MTJfY29tcGF0IH0sDQogCXsgLmNv
+bXBhdGlibGUgPSAibWVkaWF0ZWssbXQ2NTc3LWkyYyIsIC5kYXRhID0gJm10NjU3N19jb21wYXQg
+fSwNCkBAIC0zOTUsNiArNDA5LDcgQEAgc3RydWN0IGkyY19zcGVjX3ZhbHVlcyB7DQogCXsgLmNv
+bXBhdGlibGUgPSAibWVkaWF0ZWssbXQ3NjIyLWkyYyIsIC5kYXRhID0gJm10NzYyMl9jb21wYXQg
+fSwNCiAJeyAuY29tcGF0aWJsZSA9ICJtZWRpYXRlayxtdDgxNzMtaTJjIiwgLmRhdGEgPSAmbXQ4
+MTczX2NvbXBhdCB9LA0KIAl7IC5jb21wYXRpYmxlID0gIm1lZGlhdGVrLG10ODE4My1pMmMiLCAu
+ZGF0YSA9ICZtdDgxODNfY29tcGF0IH0sDQorCXsgLmNvbXBhdGlibGUgPSAibWVkaWF0ZWssbXQ4
+MTkyLWkyYyIsIC5kYXRhID0gJm10ODE5Ml9jb21wYXQgfSwNCiAJe30NCiB9Ow0KIE1PRFVMRV9E
+RVZJQ0VfVEFCTEUob2YsIG10a19pMmNfb2ZfbWF0Y2gpOw0KLS0gDQoxLjkuMQ0K
 
---/Isdj7O9hWi8F9Bn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, Jul 04, 2020 at 03:38:29PM +0200, Wolfram Sang wrote:
-> On R-Car Gen2, we get a timeout when reading from the address set in
-> ICSAR, even though the slave interface is disabled. Clearing it fixes
-> this situation. Note that Gen3 is not affected.
->=20
-> To reproduce: bind and undbind an I2C slave on some bus, run
-> 'i2cdetect' on that bus.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Applied to for-current, thanks!
-
-
---/Isdj7O9hWi8F9Bn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8YHqIACgkQFA3kzBSg
-KbZXoQ//XxBed0oLBECNJmSuQ1pCqP0kL2g+Wqcn0OQzdiridBPAJacHxuy9wOSy
-fwMgWhw8MF5HQLfqzdxgRKeEel3Hsxm+tEDXCaSr7i23226n9M3sguujJH6mMsxg
-UfJp6x5mzOOTygFYe6c68cfUYfDFt+l3futa6KJw5vVPr6C5gpupQcj79/JhjhYZ
-ytQSFqqp+VbWp1DGd1IVFK4plXfzQ2qCSfdvffiILGiHkayiJASYzMHqq02+8N7n
-9jF4137jvhNS1Xm6ayJgxg8Oox+V7BmDWarMtuGH9K8O4vL8lI1tp1ci4A/kPEDL
-sc9SzKq8it0hkLEuOhu7diwTq08kBj7pwAh5l/yD9XJB8ZwcnfKQTvb85Zt8EjT+
-k16Fy/yoLgn+k49leU8fs7g1pGheQyxiq5ouqF00+aDmjFK2/r9DaeoPiq6qw2Ab
-Z/EKckM0KqYdvMCIktZxWGao+rljZVuE+kntmzLySRYCG5SdJLKAe2aDD7j+UUme
-pnj26dgDmGdQuKOpf7MLBn1YA6SLk/6NMSnfCf4p1bPAwrT40q2NnXZ50pyNOPba
-jYIYs+RJDh/gxwdGaJXulce5rYc/xwVU4FTwqW1vqv9ZMmb0wh72CnBAKgvM2Tzu
-6HfjmYMdqEFnPHzNWs8Q88GwvTu3lA1BX3h0IfHtc+AWFBfTr/I=
-=E0/E
------END PGP SIGNATURE-----
-
---/Isdj7O9hWi8F9Bn--
