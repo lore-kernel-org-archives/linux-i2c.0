@@ -2,70 +2,107 @@ Return-Path: <SRS0=nZDW=BB=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 946E8C433ED
-	for <linux-i2c@archiver.kernel.org>; Wed, 22 Jul 2020 12:33:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC8ADC433DF
+	for <linux-i2c@archiver.kernel.org>; Wed, 22 Jul 2020 13:44:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69D632080D
-	for <linux-i2c@archiver.kernel.org>; Wed, 22 Jul 2020 12:33:19 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="JAxcXppL"
+	by mail.kernel.org (Postfix) with ESMTP id 837E320717
+	for <linux-i2c@archiver.kernel.org>; Wed, 22 Jul 2020 13:44:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732154AbgGVMdB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 22 Jul 2020 08:33:01 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:2726 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728171AbgGVMdB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Jul 2020 08:33:01 -0400
-X-UUID: c3d79c3ac96645f2b34415978695cefb-20200722
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=Y0cZt+gBSz7nBT4q4aJcK/JUpj5K4kPkSTxyRBuk+84=;
-        b=JAxcXppL3ceJmbacPTlcw8bcjFWX9PUJjxdZxJpOrk4P0Zhp9wro4DZyE819vt4ulIyqzJLJMOELiscXyMMJn6ihbn9s79LdK7f+6Hbp34sjb5O3ESXk2WrAa+olLOi7klgv7DceNBb1lIzUbNzh9oiuqsqeqoqhHtwEXmUnhgo=;
-X-UUID: c3d79c3ac96645f2b34415978695cefb-20200722
-Received: from mtkcas08.mediatek.inc [(172.21.101.126)] by mailgw01.mediatek.com
-        (envelope-from <qii.wang@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 2084351255; Wed, 22 Jul 2020 20:32:57 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 22 Jul 2020 20:32:53 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 22 Jul 2020 20:32:53 +0800
-From:   Qii Wang <qii.wang@mediatek.com>
-To:     <wsa@the-dreams.de>
-CC:     <robh+dt@kernel.org>, <linux-i2c@vger.kernel.org>,
-        <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
-        <qii.wang@mediatek.com>, <qiangming.xia@mediatek.com>
-Subject: [PATCH 0/4] add i2c support for mt8192
-Date:   Wed, 22 Jul 2020 20:31:42 +0800
-Message-ID: <1595421106-10017-1-git-send-email-qii.wang@mediatek.com>
-X-Mailer: git-send-email 1.9.1
+        id S1726973AbgGVNoA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 22 Jul 2020 09:44:00 -0400
+Received: from mga07.intel.com ([134.134.136.100]:56105 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726425AbgGVNn7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 22 Jul 2020 09:43:59 -0400
+IronPort-SDR: RwflVpw05nNiboD8eQOZSUT8XIxNBJwd5lFSNrkVUIZEApPs8jHSeKAU9iAQatxu1r7m8ilr4y
+ CWEeBmmXZw3g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9689"; a="214963304"
+X-IronPort-AV: E=Sophos;i="5.75,383,1589266800"; 
+   d="scan'208";a="214963304"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jul 2020 06:43:58 -0700
+IronPort-SDR: yzz5A+Crm8oTSGoEgGvn7J9QFCvjcG9FMFvdvkp4Zct+O5iPBVO368djz65Mjr2RL+UmWHEqqS
+ mCLSpzjDEN8w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,383,1589266800"; 
+   d="scan'208";a="328214904"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga007.jf.intel.com with ESMTP; 22 Jul 2020 06:43:57 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 5081817E; Wed, 22 Jul 2020 16:43:56 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Seth Heasley <seth.heasley@intel.com>,
+        Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org,
+        Wolfram Sang <wsa@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1] i2c: ismt: Describe parameters in kernel doc
+Date:   Wed, 22 Jul 2020 16:43:55 +0300
+Message-Id: <20200722134355.46098-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-VGhpcyBzZXJpZXMgYXJlIGJhc2VkIG9uIDUuOC1yYzEgYW5kIHdlIHByb3ZpZGUgZm91ciBpMmMg
-cGF0Y2hlcw0KdG8gc3VwcG9ydCBtdDgxOTIgU29DLg0KDQpRaWkgV2FuZyAoNCk6DQogIGkyYzog
-bWVkaWF0ZWs6IEFkZCBhcGRtYSBzeW5jIGluIGkyYyBkcml2ZXINCiAgaTJjOiBtZWRpYXRlazog
-U3VwcG9ydCBETUEgbWFzayByYW5nZSBvdmVyIDMzLWJpdHMNCiAgZHQtYmluZGluZ3M6IGkyYzog
-dXBkYXRlIGJpbmRpbmdzIGZvciBNVDgxOTIgU29DDQogIGkyYzogbWVkaWF0ZWs6IEFkZCBpMmMg
-Y29tcGF0aWJsZSBmb3IgTWVkaWFUZWsgTVQ4MTkyDQoNCiAuLi4vZGV2aWNldHJlZS9iaW5kaW5n
-cy9pMmMvaTJjLW10NjV4eC50eHQgICAgICAgICB8ICAxICsNCiBkcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLW10NjV4eC5jICAgICAgICAgICAgICAgICAgICB8IDc1ICsrKysrKysrKysrKysrKy0tLS0t
-LS0NCiAyIGZpbGVzIGNoYW5nZWQsIDUzIGluc2VydGlvbnMoKyksIDIzIGRlbGV0aW9ucygtKQ0K
-DQotLQ0KMS45LjENCg0K
+Kernel doc validation script complains:
+
+  CHECK   .../drivers/i2c/busses/i2c-ismt.c
+.../i2c-ismt.c:182: warning: cannot understand function prototype: 'const struct pci_device_id ismt_ids[] = '
+.../i2c-ismt.c:202: warning: Function parameter or member 'dev' not described in '__ismt_desc_dump'
+.../i2c-ismt.c:202: warning: Function parameter or member 'desc' not described in '__ismt_desc_dump'
+.../i2c-ismt.c:649: warning: cannot understand function prototype: 'const struct i2c_algorithm smbus_algorithm = '
+
+Fix corresponding descriptions to make reader and kernel doc validator happy.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-ismt.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index 6ba91d4a4ce4..078e01799c83 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -176,9 +176,6 @@ struct ismt_priv {
+ 	u8 buffer[I2C_SMBUS_BLOCK_MAX + 16];	/* temp R/W data buffer */
+ };
+ 
+-/**
+- * ismt_ids - PCI device IDs supported by this driver
+- */
+ static const struct pci_device_id ismt_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT0) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT1) },
+@@ -197,6 +194,8 @@ MODULE_PARM_DESC(bus_speed, "Bus Speed in kHz (0 = BIOS default)");
+ 
+ /**
+  * __ismt_desc_dump() - dump the contents of a specific descriptor
++ * @dev: the iSMT device
++ * @desc: the iSMT hardware descriptor
+  */
+ static void __ismt_desc_dump(struct device *dev, const struct ismt_desc *desc)
+ {
+@@ -642,11 +641,6 @@ static u32 ismt_func(struct i2c_adapter *adap)
+ 	       I2C_FUNC_SMBUS_PEC;
+ }
+ 
+-/**
+- * smbus_algorithm - the adapter algorithm and supported functionality
+- * @smbus_xfer: the adapter algorithm
+- * @functionality: functionality supported by the adapter
+- */
+ static const struct i2c_algorithm smbus_algorithm = {
+ 	.smbus_xfer	= ismt_access,
+ 	.functionality	= ismt_func,
+-- 
+2.27.0
 
