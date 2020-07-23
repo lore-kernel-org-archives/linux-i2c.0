@@ -2,41 +2,41 @@ Return-Path: <SRS0=EsTJ=BC=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF4FDC433E4
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 12:19:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F8E9C433F4
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 12:19:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D7F620825
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 12:19:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E40420825
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 12:19:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="i5H4s+qv"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="c5DauvVD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728560AbgGWMTL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 23 Jul 2020 08:19:11 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:19162 "EHLO
+        id S1728841AbgGWMT1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 23 Jul 2020 08:19:27 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:19183 "EHLO
         hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726109AbgGWMTK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 08:19:10 -0400
+        with ESMTP id S1728806AbgGWMT1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 08:19:27 -0400
 Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f197fc40000>; Thu, 23 Jul 2020 05:17:08 -0700
+        id <B5f197fd40000>; Thu, 23 Jul 2020 05:17:24 -0700
 Received: from hqmail.nvidia.com ([172.20.161.6])
   by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 23 Jul 2020 05:19:10 -0700
+  Thu, 23 Jul 2020 05:19:26 -0700
 X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 23 Jul 2020 05:19:10 -0700
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 23 Jul
- 2020 12:19:09 +0000
+        by hqpgpgate101.nvidia.com on Thu, 23 Jul 2020 05:19:26 -0700
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 23 Jul
+ 2020 12:19:26 +0000
 Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Thu, 23 Jul 2020 12:19:09 +0000
+ Transport; Thu, 23 Jul 2020 12:19:26 +0000
 Received: from kyarlagadda-linux.nvidia.com (Not Verified[10.19.64.169]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f19803a0003>; Thu, 23 Jul 2020 05:19:09 -0700
+        id <B5f19804b0001>; Thu, 23 Jul 2020 05:19:25 -0700
 From:   Krishna Yarlagadda <kyarlagadda@nvidia.com>
 To:     <digetx@gmail.com>, <linux-i2c@vger.kernel.org>,
         <thierry.reding@gmail.com>
@@ -44,69 +44,102 @@ CC:     <jonathanh@nvidia.com>, <linux-tegra@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <ldewangan@nvidia.com>,
         <smohammed@nvidia.com>, <rgumasta@nvidia.com>,
         Krishna Yarlagadda <kyarlagadda@nvidia.com>
-Subject: [PATCH 2/7] i2c: tegra: Fix setting of controller ID
-Date:   Thu, 23 Jul 2020 17:48:48 +0530
-Message-ID: <1595506733-10307-2-git-send-email-kyarlagadda@nvidia.com>
+Subject: [PATCH 7/7] i2c: tegra: dump I2C registers on timeout
+Date:   Thu, 23 Jul 2020 17:48:53 +0530
+Message-ID: <1595506733-10307-7-git-send-email-kyarlagadda@nvidia.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1595506733-10307-1-git-send-email-kyarlagadda@nvidia.com>
 References: <1595506733-10307-1-git-send-email-kyarlagadda@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1595506628; bh=dsjnuZOTtQt5TvQcOndJuqUXWxDoWmm74K7vWSQWQx0=;
+        t=1595506644; bh=R11Ga9WFE2Eiv4ttDZrrlRWyR6LeF2U8LlGpsShfusY=;
         h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
          In-Reply-To:References:MIME-Version:Content-Type;
-        b=i5H4s+qvPEYh8/QWROqjl8QOSLkP6Gqz7k8JpCZ8E6DziSbMGY3pHC4cSlmanpk3E
-         RdHQ7reA2vv02xY7N6k9t/HjnOHB7qrKgB5wtR0hYHO1tmGjUX68oYGl98fWELGtCt
-         w7ROlpaiOotZYcSEr6UzMdSswK9NIp1c3JKlkwnlCa03IrDqmxJpHzOnQ/0krY/MlQ
-         K1Uxfn2rqtCjXwSLsS+fun7XK0HceIEr1eamXaT61L4O1807tTg94Teiauz6PfbBXn
-         0xYUtgX24wtLl/CMJ84Nv9k1MgaC8Kw4CV8SaazUukCgtPyI6yA1Y1DkvqxIIf1jhI
-         PvscGed9V1XDg==
+        b=c5DauvVDYBkxNG6Rd4TruvpOuOmBI8mIup3ch/VzXJrwnYN42hMmTlkhxAAAVI14r
+         H4rj/QBSFxt1N8zSYsr5Z6MiMam+697tDp4rC5I2fIO+y7ZEU8m4ZTDqw3nhRuKFU3
+         RBRNeAb/DUbSvpMrLRTRwRVRKgmnhgocj9h4kM3zmQN92mOvtKyOpdk0rme32WqM0i
+         um0MCis4U5obZd9e5NP2xBle1rZ7qFheseow3ljjDvAntcATOEjtbZyT+gqm8VtDcb
+         bLLM0azOwzw1PeYq9LE6RrpaRSkMWu1Qzc41sjPfl9tqOu9B3hucLMUSrVnzn3DfA9
+         uvUQ1qyWjP+oA==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Shardar Shariff Md <smohammed@nvidia.com>
+From: Rajesh Gumasta <rgumasta@nvidia.com>
 
-Assign controller id with adapter number as it (cont_id) is passed
-through DT(through alias). Mask with controller id mask to avoid
-overflow other fields when single device is present and id is -1.
+Dump I2C regsiters for debug when transfer timeout occurs.
 
-Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+Signed-off-by: Rajesh Gumasta <rgumasta@nvidia.com>
 Signed-off-by: Krishna Yarlagadda <kyarlagadda@nvidia.com>
 ---
- drivers/i2c/busses/i2c-tegra.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-tegra.c | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index c6c870c..a841d6c 100644
+index 77198fc..cdc8664 100644
 --- a/drivers/i2c/busses/i2c-tegra.c
 +++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -83,6 +83,7 @@
- #define PACKET_HEADER0_CONT_ID			GENMASK(15, 12)
- #define PACKET_HEADER0_PROTOCOL			GENMASK(7, 4)
- #define PACKET_HEADER0_PROTOCOL_I2C		1
-+#define PACKET_HEADER0_CONT_ID_MASK		0xF
+@@ -126,6 +126,8 @@
+ #define  I2C_HS_INTERFACE_TIMING_THD_STA	GENMASK(13, 8)
+ #define  I2C_HS_INTERFACE_TIMING_TSU_STA	GENMASK(5, 0)
  
- #define I2C_HEADER_CONT_ON_NAK			BIT(21)
- #define I2C_HEADER_READ				BIT(19)
-@@ -1669,7 +1670,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->adapter.retries = 1;
- 	i2c_dev->adapter.timeout = 6 * HZ;
- 	i2c_dev->irq = irq;
--	i2c_dev->cont_id = pdev->id;
- 	i2c_dev->dev = &pdev->dev;
++#define I2C_MST_PACKET_TRANSFER_CNT_STATUS	0x0b0
++
+ #define I2C_MST_FIFO_CONTROL			0x0b4
+ #define I2C_MST_FIFO_CONTROL_RX_FLUSH		BIT(0)
+ #define I2C_MST_FIFO_CONTROL_TX_FLUSH		BIT(1)
+@@ -1178,6 +1180,33 @@ static int tegra_i2c_issue_bus_clear(struct i2c_adapter *adap)
+ 	return -EAGAIN;
+ }
  
- 	i2c_dev->rst = devm_reset_control_get_exclusive(&pdev->dev, "i2c");
-@@ -1807,6 +1807,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto release_dma;
++static void tegra_i2c_reg_dump(struct tegra_i2c_dev *i2c_dev)
++{
++	dev_dbg(i2c_dev->dev, "--- register dump for debugging ----\n");
++	dev_dbg(i2c_dev->dev, "I2C_CNFG - 0x%x\n",
++		i2c_readl(i2c_dev, I2C_CNFG));
++	dev_dbg(i2c_dev->dev, "I2C_PACKET_TRANSFER_STATUS - 0x%x\n",
++		i2c_readl(i2c_dev, I2C_PACKET_TRANSFER_STATUS));
++	dev_dbg(i2c_dev->dev, "I2C_FIFO_CONTROL - 0x%x\n",
++		i2c_readl(i2c_dev, I2C_FIFO_CONTROL));
++	dev_dbg(i2c_dev->dev, "I2C_FIFO_STATUS - 0x%x\n",
++		i2c_readl(i2c_dev, I2C_FIFO_STATUS));
++
++	if (i2c_dev->hw->has_mst_fifo) {
++		dev_dbg(i2c_dev->dev, "I2C_MST_FIFO_CONTROL - 0x%x\n",
++			i2c_readl(i2c_dev, I2C_MST_FIFO_CONTROL));
++		dev_dbg(i2c_dev->dev, "I2C_MST_FIFO_STATUS - 0x%x\n",
++			i2c_readl(i2c_dev, I2C_MST_FIFO_STATUS));
++		dev_dbg(i2c_dev->dev, "I2C_MST_PACKET_TRANSFER_CNT - 0x%x\n",
++			i2c_readl(i2c_dev,
++				  I2C_MST_PACKET_TRANSFER_CNT_STATUS));
++	}
++	dev_dbg(i2c_dev->dev, "I2C_INT_MASK - 0x%x\n",
++		i2c_readl(i2c_dev, I2C_INT_MASK));
++	dev_dbg(i2c_dev->dev, "I2C_INT_STATUS - 0x%x\n",
++		i2c_readl(i2c_dev, I2C_INT_STATUS));
++}
++
+ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 			      struct i2c_msg *msg,
+ 			      enum msg_end_type end_state)
+@@ -1331,6 +1360,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
  
-+	i2c_dev->cont_id = i2c_dev->adapter.nr & PACKET_HEADER0_CONT_ID_MASK;
- 	pm_runtime_put(&pdev->dev);
+ 		if (!time_left && !completion_done(&i2c_dev->dma_complete)) {
+ 			dev_err(i2c_dev->dev, "DMA transfer timeout\n");
++			tegra_i2c_reg_dump(i2c_dev);
+ 			tegra_i2c_init(i2c_dev, true);
+ 			return -ETIMEDOUT;
+ 		}
+@@ -1352,6 +1382,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
  
- 	return 0;
+ 	if (time_left == 0) {
+ 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
++		tegra_i2c_reg_dump(i2c_dev);
+ 		tegra_i2c_init(i2c_dev, true);
+ 		return -ETIMEDOUT;
+ 	}
 -- 
 2.7.4
 
