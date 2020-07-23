@@ -8,35 +8,35 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D737C43457
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4415C43459
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6C6DB207C4
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 93D0A207C4
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="pSQ8GFpq"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="pw6rfqtK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728194AbgGWXsm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 23 Jul 2020 19:48:42 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:18029 "EHLO
+        id S1728441AbgGWXsZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 23 Jul 2020 19:48:25 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:18021 "EHLO
         hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728443AbgGWXs0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 19:48:26 -0400
+        with ESMTP id S1728422AbgGWXsY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 19:48:24 -0400
 Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f1a218a0000>; Thu, 23 Jul 2020 16:47:22 -0700
+        id <B5f1a21880001>; Thu, 23 Jul 2020 16:47:20 -0700
 Received: from hqmail.nvidia.com ([172.20.161.6])
   by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 23 Jul 2020 16:48:25 -0700
+  Thu, 23 Jul 2020 16:48:23 -0700
 X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 23 Jul 2020 16:48:25 -0700
-Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL111.nvidia.com
+        by hqpgpgate101.nvidia.com on Thu, 23 Jul 2020 16:48:23 -0700
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL111.nvidia.com
  (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 23 Jul
- 2020 23:48:25 +0000
-Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Thu, 23 Jul 2020 23:48:25 +0000
+ 2020 23:48:23 +0000
+Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Thu, 23 Jul 2020 23:48:23 +0000
 Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.168.236]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f1a21c80003>; Thu, 23 Jul 2020 16:48:25 -0700
+        id <B5f1a21c60002>; Thu, 23 Jul 2020 16:48:23 -0700
 From:   Sowjanya Komatineni <skomatineni@nvidia.com>
 To:     <skomatineni@nvidia.com>, <thierry.reding@gmail.com>,
         <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
@@ -46,9 +46,9 @@ CC:     <digetx@gmail.com>, <sboyd@kernel.org>,
         <gregkh@linuxfoundation.org>, <linux-media@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
-Subject: [RFC PATCH v4 14/14] media: tegra-video: Compute settle times based on the clock rate
-Date:   Thu, 23 Jul 2020 16:51:12 -0700
-Message-ID: <1595548272-9809-15-git-send-email-skomatineni@nvidia.com>
+Subject: [RFC PATCH v4 11/14] media: tegra-video: Add support for selection ioctl ops
+Date:   Thu, 23 Jul 2020 16:51:09 -0700
+Message-ID: <1595548272-9809-12-git-send-email-skomatineni@nvidia.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
 References: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
@@ -56,202 +56,175 @@ X-NVConfidentiality: public
 MIME-Version: 1.0
 Content-Type: text/plain
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1595548042; bh=O7OwfDPtrwAESPcnfY4hKzGwmLiXVBIun9uDnAHRy8A=;
+        t=1595548040; bh=Ox1xqzUlosOFJz7AkHpjytVJAyKTPw61x1/P1FNIrJo=;
         h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
          In-Reply-To:References:X-NVConfidentiality:MIME-Version:
          Content-Type;
-        b=pSQ8GFpqxEWtPJ/mDxNYWfdMYH/vSWcyh5Ie07qLwLaZsj5+1puw4d2MV+LrANtsX
-         q8Z9NTMvScBgEWw9BZUzTkSlyKiIEsNJroa6vMwqv7keDF/TbkfeknIqajSRevG8ag
-         e0DbXQfEy9Z/AqyySFpbQ9Um2z6BrCrdaR4G2P9Z8gjD3KcZz0bazpFCOTd2XEHAYz
-         hId73TVKorux1hM2FQk09TeyL4cHT/0+4wcNOGah4/J1I9NBjN9jDbJ1G58z1qBe0p
-         XWCCoWUq7Z7vsMT2iyhmgVruDL1epc8qSC55CL+vu6dnUmqmeBhGjXuGqDmT/66dz0
-         k7+/ck+XKIRfA==
+        b=pw6rfqtK5pEnnLHACqIhUYArv09+zA2lD0RPzm44jbkhijbIcx0+0G2BkdD+/8IEX
+         pL3lYZTC4mZOQiSVHFhGkozzFRlAgBaCNIGPZYgKCYW2kBZ/RP8hxd+oYDUSsvsTlJ
+         kvqQr6ZaJEOJF52TU/qwuR3lV4czL9f+4z9WJseOUSr6brheBwYXXwm/MmtZQvMA/k
+         esD3KoWsM8C1qKLEM7L863VbyOueORjJImNeWL5/58++0JI++VLUX6Rtnf5baA1Y9r
+         6TG0GEsup6THTN7Oit/jf8g9xxRuYiSkSde2SUTeOBJArfSwNZkctiOlcCqeNLny7N
+         JrYaQQBTqo1bw==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Settle time determines the number of cil clock cyles to wait after
-LP00 when moving from LP to HS.
+This patch adds selection v4l2 ioctl operations to allow configuring
+a selection rectangle in the sensor through the Tegra video device
+node.
 
-This patch computes T-CLK-SETTLE and T-HS-SETTLE times based on cil
-clock rate and pixel rate from the sensor and programs them during
-streaming.
+Some sensor drivers supporting crop uses try_crop rectangle from
+v4l2_subdev_pad_config during try format for computing binning.
 
-T-CLK-SETTLE time is the interval during which receiver will ignore
-any HS transitions on clock lane starting from the beginning of
-T-CLK-PREPARE.
-
-T-HS-SETTLE time is the interval during which recevier will ignore
-any HS transitions on data lane starting from the beginning of
-T-HS-PREPARE.
+So with selection ops support, this patch also updates try format
+to use try crop rectangle either from subdev frame size enumeration
+or from subdev crop boundary.
 
 Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 ---
- drivers/staging/media/tegra-video/csi.c      | 55 ++++++++++++++++++++++++++++
- drivers/staging/media/tegra-video/csi.h      |  5 +++
- drivers/staging/media/tegra-video/tegra210.c | 17 ++++++++-
- 3 files changed, 75 insertions(+), 2 deletions(-)
+ drivers/staging/media/tegra-video/vi.c | 106 +++++++++++++++++++++++++++++++++
+ 1 file changed, 106 insertions(+)
 
-diff --git a/drivers/staging/media/tegra-video/csi.c b/drivers/staging/media/tegra-video/csi.c
-index bdaf4b6..4d38e0e 100644
---- a/drivers/staging/media/tegra-video/csi.c
-+++ b/drivers/staging/media/tegra-video/csi.c
-@@ -19,6 +19,8 @@
- #include "csi.h"
- #include "video.h"
+diff --git a/drivers/staging/media/tegra-video/vi.c b/drivers/staging/media/tegra-video/vi.c
+index f7dbea2..fc43629 100644
+--- a/drivers/staging/media/tegra-video/vi.c
++++ b/drivers/staging/media/tegra-video/vi.c
+@@ -437,6 +437,13 @@ static int __tegra_channel_try_format(struct tegra_vi_channel *chan,
+ 	struct v4l2_subdev *subdev;
+ 	struct v4l2_subdev_format fmt;
+ 	struct v4l2_subdev_pad_config *pad_cfg;
++	struct v4l2_subdev_frame_size_enum fse = {
++		.which = V4L2_SUBDEV_FORMAT_TRY,
++	};
++	struct v4l2_subdev_selection sdsel = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++		.target = V4L2_SEL_TGT_CROP_BOUNDS,
++	};
+ 	int ret;
  
-+#define MHZ			1000000
+ 	subdev = tegra_channel_get_remote_source_subdev(chan);
+@@ -462,6 +469,24 @@ static int __tegra_channel_try_format(struct tegra_vi_channel *chan,
+ 	fmt.which = V4L2_SUBDEV_FORMAT_TRY;
+ 	fmt.pad = 0;
+ 	v4l2_fill_mbus_format(&fmt.format, pix, fmtinfo->code);
 +
- static inline struct tegra_csi *
- host1x_client_to_csi(struct host1x_client *client)
- {
-@@ -235,6 +237,59 @@ static int tegra_csi_g_frame_interval(struct v4l2_subdev *subdev,
++	/*
++	 * Attempt to obtain the format size from subdev.
++	 * If not available, try to get crop boundary from subdev.
++	 */
++	fse.code = fmtinfo->code;
++	ret = v4l2_subdev_call(subdev, pad, enum_frame_size, pad_cfg, &fse);
++	if (ret) {
++		ret = v4l2_subdev_call(subdev, pad, get_selection, NULL, &sdsel);
++		if (ret)
++			return -EINVAL;
++		pad_cfg->try_crop.width = sdsel.r.width;
++		pad_cfg->try_crop.height = sdsel.r.height;
++	} else {
++		pad_cfg->try_crop.width = fse.max_width;
++		pad_cfg->try_crop.height = fse.max_height;
++	}
++
+ 	ret = v4l2_subdev_call(subdev, pad, set_fmt, pad_cfg, &fmt);
+ 	if (ret < 0)
+ 		return ret;
+@@ -551,6 +576,85 @@ static int tegra_channel_set_subdev_active_fmt(struct tegra_vi_channel *chan)
  	return 0;
  }
  
-+static unsigned int csi_get_pixel_rate(struct tegra_csi_channel *csi_chan)
++static int tegra_channel_g_selection(struct file *file, void *priv,
++				     struct v4l2_selection *sel)
 +{
-+	struct tegra_vi_channel *chan;
-+	struct v4l2_subdev *src_subdev;
-+	struct v4l2_ctrl *ctrl;
++	struct tegra_vi_channel *chan = video_drvdata(file);
++	struct v4l2_subdev *subdev;
++	struct v4l2_subdev_format fmt = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++	};
++	struct v4l2_subdev_selection sdsel = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++		.target = sel->target,
++	};
++	int ret;
 +
-+	chan = v4l2_get_subdev_hostdata(&csi_chan->subdev);
-+	src_subdev = tegra_channel_get_remote_source_subdev(chan);
-+	ctrl = v4l2_ctrl_find(src_subdev->ctrl_handler, V4L2_CID_PIXEL_RATE);
-+	if (ctrl)
-+		return v4l2_ctrl_g_ctrl_int64(ctrl);
++	subdev = tegra_channel_get_remote_source_subdev(chan);
++	if (!v4l2_subdev_has_op(subdev, pad, get_selection))
++		return -ENOTTY;
++
++	if (sel->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
++		return -EINVAL;
++	/*
++	 * Try the get selection operation and fallback to get format if not
++	 * implemented.
++	 */
++	ret = v4l2_subdev_call(subdev, pad, get_selection, NULL, &sdsel);
++	if (!ret)
++		sel->r = sdsel.r;
++	if (ret != -ENOIOCTLCMD)
++		return ret;
++
++	ret = v4l2_subdev_call(subdev, pad, get_fmt, NULL, &fmt);
++	if (ret < 0)
++		return ret;
++
++	sel->r.left = 0;
++	sel->r.top = 0;
++	sel->r.width = fmt.format.width;
++	sel->r.height = fmt.format.height;
 +
 +	return 0;
 +}
 +
-+void tegra_csi_calc_settle_time(struct tegra_csi_channel *csi_chan,
-+				u8 *clk_settle_time,
-+				u8 *ths_settle_time)
++static int tegra_channel_s_selection(struct file *file, void *fh,
++				     struct v4l2_selection *sel)
 +{
-+	struct tegra_csi *csi = csi_chan->csi;
-+	unsigned int cil_clk_mhz;
-+	unsigned int pix_clk_mhz;
-+	int clk_idx = (csi_chan->csi_port_num >> 1) + 1;
++	struct tegra_vi_channel *chan = video_drvdata(file);
++	struct v4l2_subdev *subdev;
++	int ret;
++	struct v4l2_subdev_selection sdsel = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++		.target = sel->target,
++		.flags = sel->flags,
++		.r = sel->r,
++	};
 +
-+	cil_clk_mhz = clk_get_rate(csi->clks[clk_idx].clk) / MHZ;
-+	pix_clk_mhz = csi_get_pixel_rate(csi_chan) / MHZ;
++	subdev = tegra_channel_get_remote_source_subdev(chan);
++	if (!v4l2_subdev_has_op(subdev, pad, set_selection))
++		return -ENOTTY;
 +
-+	/*
-+	 * CLK Settle time is the interval during which HS receiver should
-+	 * ignore any clock lane HS transitions, starting from the beginning
-+	 * of T-CLK-PREPARE.
-+	 * Per DPHY specification, T-CLK-SETTLE should be between 95ns ~ 300ns
-+	 *
-+	 * 95ns < (clk-settle-programmed + 7) * lp clk period < 300ns
-+	 * midpoint = 197.5 ns
-+	 */
-+	*clk_settle_time = ((95 + 300) * cil_clk_mhz - 14000) / 2000;
++	if (sel->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
++		return -EINVAL;
 +
-+	/*
-+	 * THS Settle time is the interval during which HS receiver should
-+	 * ignore any data lane HS transitions, starting from the beginning
-+	 * of THS-PREPARE.
-+	 *
-+	 * Per DPHY specification, T-HS-SETTLE should be between 85ns + 6UI
-+	 * and 145ns+10UI.
-+	 * 85ns + 6UI < (Ths-settle-prog + 5) * lp_clk_period < 145ns + 10UI
-+	 * midpoint = 115ns + 8UI
-+	 */
-+	if (pix_clk_mhz)
-+		*ths_settle_time = (115 * cil_clk_mhz + 8000 * cil_clk_mhz
-+				   / (2 * pix_clk_mhz) - 5000) / 1000;
++	if (vb2_is_busy(&chan->queue))
++		return -EBUSY;
++
++	ret = v4l2_subdev_call(subdev, pad, set_selection, NULL, &sdsel);
++	if (!ret) {
++		sel->r = sdsel.r;
++		/*
++		 * Subdev active format resolution may have changed during
++		 * set selection operation. So, update channel format to
++		 * the sub-device active format.
++		 */
++		return tegra_channel_set_subdev_active_fmt(chan);
++	}
++
++	return ret;
 +}
 +
- static int tegra_csi_s_stream(struct v4l2_subdev *subdev, int enable)
+ static int tegra_channel_enum_input(struct file *file, void *fh,
+ 				    struct v4l2_input *inp)
  {
- 	struct tegra_vi_channel *chan = v4l2_get_subdev_hostdata(subdev);
-diff --git a/drivers/staging/media/tegra-video/csi.h b/drivers/staging/media/tegra-video/csi.h
-index 0d50fc3..c65ff73 100644
---- a/drivers/staging/media/tegra-video/csi.h
-+++ b/drivers/staging/media/tegra-video/csi.h
-@@ -51,6 +51,7 @@ struct tegra_csi;
-  * @h_blank: horizontal blanking for TPG active format
-  * @v_blank: vertical blanking for TPG active format
-  * @mipi: mipi device for corresponding csi channel pads
-+ * @pixel_rate: active pixel rate from the sensor on this channel
-  */
- struct tegra_csi_channel {
- 	struct list_head list;
-@@ -67,6 +68,7 @@ struct tegra_csi_channel {
- 	unsigned int h_blank;
- 	unsigned int v_blank;
- 	struct tegra_mipi_device *mipi;
-+	unsigned int pixel_rate;
+@@ -608,6 +712,8 @@ static const struct v4l2_ioctl_ops tegra_channel_ioctl_ops = {
+ 	.vidioc_streamoff		= vb2_ioctl_streamoff,
+ 	.vidioc_subscribe_event		= v4l2_ctrl_subscribe_event,
+ 	.vidioc_unsubscribe_event	= v4l2_event_unsubscribe,
++	.vidioc_g_selection		= tegra_channel_g_selection,
++	.vidioc_s_selection		= tegra_channel_s_selection,
  };
  
- /**
-@@ -147,4 +149,7 @@ extern const struct tegra_csi_soc tegra210_csi_soc;
- #endif
- 
- void tegra_csi_error_recover(struct v4l2_subdev *subdev);
-+void tegra_csi_calc_settle_time(struct tegra_csi_channel *csi_chan,
-+				u8 *clk_settle_time,
-+				u8 *ths_settle_time);
- #endif
-diff --git a/drivers/staging/media/tegra-video/tegra210.c b/drivers/staging/media/tegra-video/tegra210.c
-index 253bf33..ac066c0 100644
---- a/drivers/staging/media/tegra-video/tegra210.c
-+++ b/drivers/staging/media/tegra-video/tegra210.c
-@@ -7,6 +7,7 @@
-  * This source file contains Tegra210 supported video formats,
-  * VI and CSI SoC specific data, operations and registers accessors.
-  */
-+#include <linux/bitfield.h>
- #include <linux/clk.h>
- #include <linux/clk/tegra.h>
- #include <linux/delay.h>
-@@ -98,6 +99,8 @@
- #define   BRICK_CLOCK_B_4X				(0x2 << 16)
- #define TEGRA_CSI_CIL_PAD_CONFIG1                       0x004
- #define TEGRA_CSI_CIL_PHY_CONTROL                       0x008
-+#define   CLK_SETTLE_MASK				GENMASK(13, 8)
-+#define   THS_SETTLE_MASK				GENMASK(5, 0)
- #define TEGRA_CSI_CIL_INTERRUPT_MASK                    0x00c
- #define TEGRA_CSI_CIL_STATUS                            0x010
- #define TEGRA_CSI_CILX_STATUS                           0x014
-@@ -770,8 +773,14 @@ static int tegra210_csi_start_streaming(struct tegra_csi_channel *csi_chan)
- {
- 	struct tegra_csi *csi = csi_chan->csi;
- 	unsigned int portno = csi_chan->csi_port_num;
-+	u8 clk_settle_time = 0;
-+	u8 ths_settle_time = 10;
- 	u32 val;
- 
-+	if (!csi_chan->pg_mode)
-+		tegra_csi_calc_settle_time(csi_chan, &clk_settle_time,
-+					   &ths_settle_time);
-+
- 	csi_write(csi, portno, TEGRA_CSI_CLKEN_OVERRIDE, 0);
- 
- 	/* clean up status */
-@@ -782,7 +791,9 @@ static int tegra210_csi_start_streaming(struct tegra_csi_channel *csi_chan)
- 
- 	/* CIL PHY registers setup */
- 	cil_write(csi, portno, TEGRA_CSI_CIL_PAD_CONFIG0, 0x0);
--	cil_write(csi, portno, TEGRA_CSI_CIL_PHY_CONTROL, 0xa);
-+	cil_write(csi, portno, TEGRA_CSI_CIL_PHY_CONTROL,
-+		  FIELD_PREP(CLK_SETTLE_MASK, clk_settle_time) |
-+		  FIELD_PREP(THS_SETTLE_MASK, ths_settle_time));
- 
- 	/*
- 	 * The CSI unit provides for connection of up to six cameras in
-@@ -801,7 +812,9 @@ static int tegra210_csi_start_streaming(struct tegra_csi_channel *csi_chan)
- 			  BRICK_CLOCK_A_4X);
- 		cil_write(csi, portno + 1, TEGRA_CSI_CIL_PAD_CONFIG0, 0x0);
- 		cil_write(csi, portno + 1, TEGRA_CSI_CIL_INTERRUPT_MASK, 0x0);
--		cil_write(csi, portno + 1, TEGRA_CSI_CIL_PHY_CONTROL, 0xa);
-+		cil_write(csi, portno + 1, TEGRA_CSI_CIL_PHY_CONTROL,
-+			  FIELD_PREP(CLK_SETTLE_MASK, clk_settle_time) |
-+			  FIELD_PREP(THS_SETTLE_MASK, ths_settle_time));
- 		csi_write(csi, portno, TEGRA_CSI_PHY_CIL_COMMAND,
- 			  CSI_A_PHY_CIL_ENABLE | CSI_B_PHY_CIL_ENABLE);
- 	} else {
+ /*
 -- 
 2.7.4
 
