@@ -5,37 +5,38 @@ X-Spam-Level:
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10B84C433E3
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4DA4C43446
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D8DAE2080D
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2B42207C4
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="ENPrKbk3"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="lPY06tsV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728379AbgGWXsU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 23 Jul 2020 19:48:20 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:7650 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728194AbgGWXsT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 19:48:19 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f1a21b50001>; Thu, 23 Jul 2020 16:48:05 -0700
+        id S1728450AbgGWXs0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 23 Jul 2020 19:48:26 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:17670 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728194AbgGWXsY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 19:48:24 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f1a214d0000>; Thu, 23 Jul 2020 16:46:21 -0700
 Received: from hqmail.nvidia.com ([172.20.161.6])
   by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 23 Jul 2020 16:48:18 -0700
+  Thu, 23 Jul 2020 16:48:24 -0700
 X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 23 Jul 2020 16:48:18 -0700
-Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL105.nvidia.com
+        by hqpgpgate101.nvidia.com on Thu, 23 Jul 2020 16:48:24 -0700
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL105.nvidia.com
  (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 23 Jul
- 2020 23:48:17 +0000
-Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Thu, 23 Jul 2020 23:48:17 +0000
+ 2020 23:48:23 +0000
+Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Thu, 23 Jul 2020 23:48:24 +0000
 Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.168.236]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f1a21c10001>; Thu, 23 Jul 2020 16:48:17 -0700
+        id <B5f1a21c70000>; Thu, 23 Jul 2020 16:48:23 -0700
 From:   Sowjanya Komatineni <skomatineni@nvidia.com>
 To:     <skomatineni@nvidia.com>, <thierry.reding@gmail.com>,
         <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
@@ -45,9 +46,9 @@ CC:     <digetx@gmail.com>, <sboyd@kernel.org>,
         <gregkh@linuxfoundation.org>, <linux-media@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
-Subject: [RFC PATCH v4 02/14] i2c: tegra: Remove NULL pointer check before clk_enable/disable/prepare/unprepare
-Date:   Thu, 23 Jul 2020 16:51:00 -0700
-Message-ID: <1595548272-9809-3-git-send-email-skomatineni@nvidia.com>
+Subject: [RFC PATCH v4 12/14] gpu: host1x: mipi: Keep MIPI clock enabled till calibration is done
+Date:   Thu, 23 Jul 2020 16:51:10 -0700
+Message-ID: <1595548272-9809-13-git-send-email-skomatineni@nvidia.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
 References: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
@@ -55,143 +56,132 @@ X-NVConfidentiality: public
 MIME-Version: 1.0
 Content-Type: text/plain
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1595548085; bh=jD0igf8U1bTJzOqQcNuwvqEC25xsAMW3RMlh+sdfw58=;
+        t=1595547982; bh=7YV/RNdP1EunzTF6v813MxrmrehBVahzPQ0dOJiVOQI=;
         h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
          In-Reply-To:References:X-NVConfidentiality:MIME-Version:
          Content-Type;
-        b=ENPrKbk31hDdtOdLpNXjzsNn+ZpaqkAbsmKyMQNFeyBEMePQLr53Fyi5MJzlLm2NK
-         lTq7IZtJTAepkSsqXcTApOvJJBQEJv9zG/LdzmKh15/xQa5j9Tz5wurZWqzb3BhpXP
-         qXY9xLxdmpT3xfr+B4r5pplHVlcvs9ygjRg7Yb2kJFxKdyI6LBsxV0OHvTuty+h2Z1
-         R6dEVhfW8FdGBKDtfmyHMnwgbdRjtZCisZghA/nAx0IwAmJjvCiUbGm2fQ7iPJ2op8
-         pRwyAIGVAQpOpmv0uFy8FzxxnFs40x+FCmSSH4EO6dVmcZ6wXk/bMg40qB0F66R4FD
-         3SITAuf3L120A==
+        b=lPY06tsV1yznzgcV1NJv5wMTVHuEMKfbRCpAOlQspYzyhVryp+DpUGyqYg2py+vjr
+         UqTglK/3ktfcUczi6uZDEcNZi22hvOizSde3PMJXGePW9QMeZYkl1kQfrCoD/s6iqt
+         zP4qpSPKeQajje477NN/a6PF5uuDBcDmHRgZuy555kKq2ziOcMvAu3HEWNN5eZ7LAv
+         l0Eo06HH2GmP5W+rNCEi0FDgR+ZjandOkY0z2x/f/CAavhs+ntejWT9MNn1ltCWjdW
+         1MnNxsH5zkY1qkg4iL+ro+7CB8Xm3sjdkoTX2+y6pywaXCPLly8cJPQTgm52SIuycJ
+         fj+xUKW4bODxw==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-clk_enable, clk_disable, clk_prepare, and clk_unprepare APIs have
-implementation for checking clk pointer not NULL and clock consumers
-can safely call these APIs without NULL pointer check.
+With the split of MIPI calibration into tegra_mipi_calibrate() and
+tegra_mipi_wait(), MIPI clock is not kept enabled till the calibration
+is done.
 
-So, this patch cleans up Tegra i2c driver to remove explicit checks
-before these APIs.
+So, this patch skips disabling MIPI clock after triggering start of
+calibration and disables it only after waiting for done status from
+the calibration logic.
 
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+This patch renames tegra_mipi_calibrate() as tegra_mipi_start_calibration()
+and tegra_mipi_wait() as tegra_mipi_finish_calibration() to be inline
+with their usage.
+
+As MIPI clock is left enabled and in case of any failures with CSI input
+streaming tegra_mipi_finish_calibration() will not get invoked.
+So added new API tegra_mipi_cancel_calibrate() which disables MIPI clock
+and consumer drivers can call this in such cases.
+
 Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 ---
- drivers/i2c/busses/i2c-tegra.c | 64 +++++++++++++++---------------------------
- 1 file changed, 23 insertions(+), 41 deletions(-)
+ drivers/gpu/drm/tegra/dsi.c |  4 ++--
+ drivers/gpu/host1x/mipi.c   | 19 ++++++++++---------
+ include/linux/host1x.h      |  5 +++--
+ 3 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 3be1018..c91307b9 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -655,21 +655,17 @@ static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/gpu/drm/tegra/dsi.c b/drivers/gpu/drm/tegra/dsi.c
+index 3820e8d..4d54c13 100644
+--- a/drivers/gpu/drm/tegra/dsi.c
++++ b/drivers/gpu/drm/tegra/dsi.c
+@@ -694,11 +694,11 @@ static int tegra_dsi_pad_calibrate(struct tegra_dsi *dsi)
+ 		DSI_PAD_PREEMP_PD(0x03) | DSI_PAD_PREEMP_PU(0x3);
+ 	tegra_dsi_writel(dsi, value, DSI_PAD_CONTROL_3);
  
--	if (!i2c_dev->hw->has_single_clk_source) {
--		ret = clk_enable(i2c_dev->fast_clk);
--		if (ret < 0) {
--			dev_err(i2c_dev->dev,
--				"Enabling fast clk failed, err %d\n", ret);
--			return ret;
--		}
-+	ret = clk_enable(i2c_dev->fast_clk);
-+	if (ret < 0) {
-+		dev_err(i2c_dev->dev,
-+			"Enabling fast clk failed, err %d\n", ret);
-+		return ret;
- 	}
+-	err = tegra_mipi_calibrate(dsi->mipi);
++	err = tegra_mipi_start_calibrate(dsi->mipi);
+ 	if (err < 0)
+ 		return err;
  
--	if (i2c_dev->slow_clk) {
--		ret = clk_enable(i2c_dev->slow_clk);
--		if (ret < 0) {
--			dev_err(dev, "failed to enable slow clock: %d\n", ret);
--			return ret;
--		}
-+	ret = clk_enable(i2c_dev->slow_clk);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to enable slow clock: %d\n", ret);
-+		return ret;
- 	}
- 
- 	ret = clk_enable(i2c_dev->div_clk);
-@@ -688,12 +684,8 @@ static int __maybe_unused tegra_i2c_runtime_suspend(struct device *dev)
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 
- 	clk_disable(i2c_dev->div_clk);
--
--	if (i2c_dev->slow_clk)
--		clk_disable(i2c_dev->slow_clk);
--
--	if (!i2c_dev->hw->has_single_clk_source)
--		clk_disable(i2c_dev->fast_clk);
-+	clk_disable(i2c_dev->slow_clk);
-+	clk_disable(i2c_dev->fast_clk);
- 
- 	return pinctrl_pm_select_idle_state(i2c_dev->dev);
+-	return tegra_mipi_wait(dsi->mipi);
++	return tegra_mipi_finish_calibrate(dsi->mipi);
  }
-@@ -1716,20 +1708,16 @@ static int tegra_i2c_probe(struct platform_device *pdev)
  
- 	platform_set_drvdata(pdev, i2c_dev);
- 
--	if (!i2c_dev->hw->has_single_clk_source) {
--		ret = clk_prepare(i2c_dev->fast_clk);
--		if (ret < 0) {
--			dev_err(i2c_dev->dev, "Clock prepare failed %d\n", ret);
--			return ret;
--		}
-+	ret = clk_prepare(i2c_dev->fast_clk);
-+	if (ret < 0) {
-+		dev_err(i2c_dev->dev, "Clock prepare failed %d\n", ret);
-+		return ret;
- 	}
- 
--	if (i2c_dev->slow_clk) {
--		ret = clk_prepare(i2c_dev->slow_clk);
--		if (ret < 0) {
--			dev_err(dev, "failed to prepare slow clock: %d\n", ret);
--			goto unprepare_fast_clk;
--		}
-+	ret = clk_prepare(i2c_dev->slow_clk);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to prepare slow clock: %d\n", ret);
-+		goto unprepare_fast_clk;
- 	}
- 
- 	if (i2c_dev->bus_clk_rate > I2C_MAX_FAST_MODE_FREQ &&
-@@ -1843,12 +1831,10 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	clk_unprepare(i2c_dev->div_clk);
- 
- unprepare_slow_clk:
--	if (i2c_dev->is_vi)
--		clk_unprepare(i2c_dev->slow_clk);
-+	clk_unprepare(i2c_dev->slow_clk);
- 
- unprepare_fast_clk:
--	if (!i2c_dev->hw->has_single_clk_source)
--		clk_unprepare(i2c_dev->fast_clk);
-+	clk_unprepare(i2c_dev->fast_clk);
- 
- 	return ret;
+ static void tegra_dsi_set_timeout(struct tegra_dsi *dsi, unsigned long bclk,
+diff --git a/drivers/gpu/host1x/mipi.c b/drivers/gpu/host1x/mipi.c
+index e606464..f06c5cd 100644
+--- a/drivers/gpu/host1x/mipi.c
++++ b/drivers/gpu/host1x/mipi.c
+@@ -293,17 +293,19 @@ int tegra_mipi_disable(struct tegra_mipi_device *dev)
  }
-@@ -1867,12 +1853,8 @@ static int tegra_i2c_remove(struct platform_device *pdev)
- 		tegra_i2c_runtime_suspend(&pdev->dev);
+ EXPORT_SYMBOL(tegra_mipi_disable);
  
- 	clk_unprepare(i2c_dev->div_clk);
--
--	if (i2c_dev->slow_clk)
--		clk_unprepare(i2c_dev->slow_clk);
--
--	if (!i2c_dev->hw->has_single_clk_source)
--		clk_unprepare(i2c_dev->fast_clk);
-+	clk_unprepare(i2c_dev->slow_clk);
-+	clk_unprepare(i2c_dev->fast_clk);
+-int tegra_mipi_wait(struct tegra_mipi_device *device)
++void tegra_mipi_cancel_calibrate(struct tegra_mipi_device *device)
++{
++	clk_disable(device->mipi->clk);
++}
++EXPORT_SYMBOL(tegra_mipi_cancel_calibrate);
++
++int tegra_mipi_finish_calibrate(struct tegra_mipi_device *device)
+ {
+ 	struct tegra_mipi *mipi = device->mipi;
+ 	void __iomem *status_reg = mipi->regs + (MIPI_CAL_STATUS << 2);
+ 	u32 value;
+ 	int err;
  
- 	tegra_i2c_release_dma(i2c_dev);
+-	err = clk_enable(device->mipi->clk);
+-	if (err < 0)
+-		return err;
+-
+ 	mutex_lock(&device->mipi->lock);
+ 
+ 	err = readl_relaxed_poll_timeout(status_reg, value,
+@@ -315,9 +317,9 @@ int tegra_mipi_wait(struct tegra_mipi_device *device)
+ 
+ 	return err;
+ }
+-EXPORT_SYMBOL(tegra_mipi_wait);
++EXPORT_SYMBOL(tegra_mipi_finish_calibrate);
+ 
+-int tegra_mipi_calibrate(struct tegra_mipi_device *device)
++int tegra_mipi_start_calibrate(struct tegra_mipi_device *device)
+ {
+ 	const struct tegra_mipi_soc *soc = device->mipi->soc;
+ 	unsigned int i;
+@@ -382,11 +384,10 @@ int tegra_mipi_calibrate(struct tegra_mipi_device *device)
+ 	tegra_mipi_writel(device->mipi, value, MIPI_CAL_CTRL);
+ 
+ 	mutex_unlock(&device->mipi->lock);
+-	clk_disable(device->mipi->clk);
+ 
  	return 0;
+ }
+-EXPORT_SYMBOL(tegra_mipi_calibrate);
++EXPORT_SYMBOL(tegra_mipi_start_calibrate);
+ 
+ static const struct tegra_mipi_pad tegra114_mipi_pads[] = {
+ 	{ .data = MIPI_CAL_CONFIG_CSIA },
+diff --git a/include/linux/host1x.h b/include/linux/host1x.h
+index 20c885d..0065763 100644
+--- a/include/linux/host1x.h
++++ b/include/linux/host1x.h
+@@ -333,7 +333,8 @@ struct tegra_mipi_device *tegra_mipi_request(struct device *device,
+ void tegra_mipi_free(struct tegra_mipi_device *device);
+ int tegra_mipi_enable(struct tegra_mipi_device *device);
+ int tegra_mipi_disable(struct tegra_mipi_device *device);
+-int tegra_mipi_calibrate(struct tegra_mipi_device *device);
+-int tegra_mipi_wait(struct tegra_mipi_device *device);
++int tegra_mipi_start_calibrate(struct tegra_mipi_device *device);
++int tegra_mipi_finish_calibrate(struct tegra_mipi_device *device);
++void tegra_mipi_cancel_calibrate(struct tegra_mipi_device *device);
+ 
+ #endif
 -- 
 2.7.4
 
