@@ -8,35 +8,35 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4415C43459
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9B33C4345C
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93D0A207C4
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B3C952080D
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:48:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="pw6rfqtK"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="C8Jwmp2O"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728441AbgGWXsZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 23 Jul 2020 19:48:25 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:18021 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728422AbgGWXsY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 19:48:24 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f1a21880001>; Thu, 23 Jul 2020 16:47:20 -0700
+        id S1728187AbgGWXss (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 23 Jul 2020 19:48:48 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:17677 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728436AbgGWXsZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 19:48:25 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f1a214e0000>; Thu, 23 Jul 2020 16:46:22 -0700
 Received: from hqmail.nvidia.com ([172.20.161.6])
   by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 23 Jul 2020 16:48:23 -0700
+  Thu, 23 Jul 2020 16:48:25 -0700
 X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 23 Jul 2020 16:48:23 -0700
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL111.nvidia.com
+        by hqpgpgate101.nvidia.com on Thu, 23 Jul 2020 16:48:25 -0700
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL111.nvidia.com
  (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 23 Jul
- 2020 23:48:23 +0000
-Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Thu, 23 Jul 2020 23:48:23 +0000
+ 2020 23:48:24 +0000
+Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Thu, 23 Jul 2020 23:48:24 +0000
 Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.168.236]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f1a21c60002>; Thu, 23 Jul 2020 16:48:23 -0700
+        id <B5f1a21c80000>; Thu, 23 Jul 2020 16:48:24 -0700
 From:   Sowjanya Komatineni <skomatineni@nvidia.com>
 To:     <skomatineni@nvidia.com>, <thierry.reding@gmail.com>,
         <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
@@ -46,9 +46,9 @@ CC:     <digetx@gmail.com>, <sboyd@kernel.org>,
         <gregkh@linuxfoundation.org>, <linux-media@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
-Subject: [RFC PATCH v4 11/14] media: tegra-video: Add support for selection ioctl ops
-Date:   Thu, 23 Jul 2020 16:51:09 -0700
-Message-ID: <1595548272-9809-12-git-send-email-skomatineni@nvidia.com>
+Subject: [RFC PATCH v4 13/14] media: tegra-video: Add CSI MIPI pads calibration
+Date:   Thu, 23 Jul 2020 16:51:11 -0700
+Message-ID: <1595548272-9809-14-git-send-email-skomatineni@nvidia.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
 References: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
@@ -56,175 +56,211 @@ X-NVConfidentiality: public
 MIME-Version: 1.0
 Content-Type: text/plain
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1595548040; bh=Ox1xqzUlosOFJz7AkHpjytVJAyKTPw61x1/P1FNIrJo=;
+        t=1595547982; bh=g/Xy/d2Bic8K6LHFyDmy9eFDrmnaUyUj6fM56xzP/94=;
         h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
          In-Reply-To:References:X-NVConfidentiality:MIME-Version:
          Content-Type;
-        b=pw6rfqtK5pEnnLHACqIhUYArv09+zA2lD0RPzm44jbkhijbIcx0+0G2BkdD+/8IEX
-         pL3lYZTC4mZOQiSVHFhGkozzFRlAgBaCNIGPZYgKCYW2kBZ/RP8hxd+oYDUSsvsTlJ
-         kvqQr6ZaJEOJF52TU/qwuR3lV4czL9f+4z9WJseOUSr6brheBwYXXwm/MmtZQvMA/k
-         esD3KoWsM8C1qKLEM7L863VbyOueORjJImNeWL5/58++0JI++VLUX6Rtnf5baA1Y9r
-         6TG0GEsup6THTN7Oit/jf8g9xxRuYiSkSde2SUTeOBJArfSwNZkctiOlcCqeNLny7N
-         JrYaQQBTqo1bw==
+        b=C8Jwmp2OJKie2fYU50Er2dsmF4o9TScDvaQ1cKwbC1h4SbAey8f23belzzX8KYbkP
+         lwq0k5AFbsY9B0MXzXkvh3tjnbN13CeqBYG82gAsk7HgZc2AZ+7ylAU0MZC3mLMB5V
+         3WBFwLJ+jNJi3xPpBVH2Y/FBzCgG2IcY7ZmAEqGSOdM5vkOkgYIbNJGh5SykmXjiMU
+         QsMp4IL1amGK63NiXpPtLkcrFmBToEbtA7s1budxxZpoSroAwMCQ1Y6nlNIUi3/FNc
+         jFku+X7AVxPm4FqTA4IwCggwalTaFbUd3yKv+OpzP+qh4kkU4Xwm46yuSMqrRy1z7E
+         aTB85LtY705bw==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This patch adds selection v4l2 ioctl operations to allow configuring
-a selection rectangle in the sensor through the Tegra video device
-node.
+CSI MIPI pads need to be enabled and calibrated for capturing from
+the external sensor or transmitter.
 
-Some sensor drivers supporting crop uses try_crop rectangle from
-v4l2_subdev_pad_config during try format for computing binning.
+MIPI CAL unit calibrates MIPI pads pull-up, pull-down and termination
+impedances. Calibration is done by co-work of MIPI BIAS pad and MIPI
+CAL control unit.
 
-So with selection ops support, this patch also updates try format
-to use try crop rectangle either from subdev frame size enumeration
-or from subdev crop boundary.
+Triggering calibration start can happen any time after MIPI pads are
+enabled but calibration results will be latched and applied to MIPI
+pads by MIPI CAL unit only when the link is in LP11 state and then
+calibration status register gets updated.
+
+This patch enables CSI MIPI pads and calibrates them during streaming.
+
+Tegra CSI receiver is able to catch the very first clock transition.
+So, CSI receiver is always enabled prior to sensor streaming and
+trigger of calibration start is done during CSI subdev streaming and
+status of calibration is verified after sensor stream on.
 
 Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 ---
- drivers/staging/media/tegra-video/vi.c | 106 +++++++++++++++++++++++++++++++++
- 1 file changed, 106 insertions(+)
+ drivers/staging/media/tegra-video/csi.c | 55 +++++++++++++++++++++++++++++++--
+ drivers/staging/media/tegra-video/csi.h |  2 ++
+ drivers/staging/media/tegra-video/vi.c  | 25 ++++++++++++++-
+ 3 files changed, 78 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/media/tegra-video/vi.c b/drivers/staging/media/tegra-video/vi.c
-index f7dbea2..fc43629 100644
---- a/drivers/staging/media/tegra-video/vi.c
-+++ b/drivers/staging/media/tegra-video/vi.c
-@@ -437,6 +437,13 @@ static int __tegra_channel_try_format(struct tegra_vi_channel *chan,
- 	struct v4l2_subdev *subdev;
- 	struct v4l2_subdev_format fmt;
- 	struct v4l2_subdev_pad_config *pad_cfg;
-+	struct v4l2_subdev_frame_size_enum fse = {
-+		.which = V4L2_SUBDEV_FORMAT_TRY,
-+	};
-+	struct v4l2_subdev_selection sdsel = {
-+		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
-+		.target = V4L2_SEL_TGT_CROP_BOUNDS,
-+	};
- 	int ret;
+diff --git a/drivers/staging/media/tegra-video/csi.c b/drivers/staging/media/tegra-video/csi.c
+index c21dd09..bdaf4b6 100644
+--- a/drivers/staging/media/tegra-video/csi.c
++++ b/drivers/staging/media/tegra-video/csi.c
+@@ -252,15 +252,51 @@ static int tegra_csi_s_stream(struct v4l2_subdev *subdev, int enable)
+ 			return ret;
+ 		}
  
- 	subdev = tegra_channel_get_remote_source_subdev(chan);
-@@ -462,6 +469,24 @@ static int __tegra_channel_try_format(struct tegra_vi_channel *chan,
- 	fmt.which = V4L2_SUBDEV_FORMAT_TRY;
- 	fmt.pad = 0;
- 	v4l2_fill_mbus_format(&fmt.format, pix, fmtinfo->code);
++		if (csi_chan->mipi) {
++			ret = tegra_mipi_enable(csi_chan->mipi);
++			if (ret < 0) {
++				dev_err(csi->dev,
++					"failed to enable MIPI pads: %d\n",
++					ret);
++				goto rpm_put;
++			}
 +
-+	/*
-+	 * Attempt to obtain the format size from subdev.
-+	 * If not available, try to get crop boundary from subdev.
-+	 */
-+	fse.code = fmtinfo->code;
-+	ret = v4l2_subdev_call(subdev, pad, enum_frame_size, pad_cfg, &fse);
-+	if (ret) {
-+		ret = v4l2_subdev_call(subdev, pad, get_selection, NULL, &sdsel);
-+		if (ret)
-+			return -EINVAL;
-+		pad_cfg->try_crop.width = sdsel.r.width;
-+		pad_cfg->try_crop.height = sdsel.r.height;
-+	} else {
-+		pad_cfg->try_crop.width = fse.max_width;
-+		pad_cfg->try_crop.height = fse.max_height;
++			/*
++			 * CSI MIPI pads PULLUP, PULLDN and TERM impedances
++			 * need to be calibrated after power on.
++			 * So, trigger the calibration start here and results
++			 * will be latched and applied to the pads when link is
++			 * in LP11 state during start of sensor streaming.
++			 */
++			ret = tegra_mipi_start_calibrate(csi_chan->mipi);
++			if (ret < 0) {
++				dev_err(csi->dev,
++					"failed to start MIPI calibrate: %d\n",
++					ret);
++				goto disable_mipi;
++			}
++		}
++
+ 		ret = csi->ops->csi_start_streaming(csi_chan);
+-		if (ret < 0)
+-			goto rpm_put;
++		if (ret < 0) {
++			if (csi_chan->mipi)
++				tegra_mipi_cancel_calibrate(csi_chan->mipi);
++			goto disable_mipi;
++		}
+ 
+ 		return 0;
+ 	}
+ 
+ 	csi->ops->csi_stop_streaming(csi_chan);
+ 
++disable_mipi:
++	if (csi_chan->mipi) {
++		ret = tegra_mipi_disable(csi_chan->mipi);
++		if (ret < 0)
++			dev_err(csi->dev,
++				"failed to disable MIPI pads: %d\n", ret);
 +	}
 +
- 	ret = v4l2_subdev_call(subdev, pad, set_fmt, pad_cfg, &fmt);
- 	if (ret < 0)
- 		return ret;
-@@ -551,6 +576,85 @@ static int tegra_channel_set_subdev_active_fmt(struct tegra_vi_channel *chan)
- 	return 0;
- }
+ rpm_put:
+ 	pm_runtime_put(csi->dev);
+ 	return ret;
+@@ -294,6 +330,7 @@ static int tegra_csi_channel_alloc(struct tegra_csi *csi,
+ 				   unsigned int num_pads)
+ {
+ 	struct tegra_csi_channel *chan;
++	int ret = 0;
  
-+static int tegra_channel_g_selection(struct file *file, void *priv,
-+				     struct v4l2_selection *sel)
-+{
-+	struct tegra_vi_channel *chan = video_drvdata(file);
-+	struct v4l2_subdev *subdev;
-+	struct v4l2_subdev_format fmt = {
-+		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
-+	};
-+	struct v4l2_subdev_selection sdsel = {
-+		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
-+		.target = sel->target,
-+	};
-+	int ret;
+ 	chan = kzalloc(sizeof(*chan), GFP_KERNEL);
+ 	if (!chan)
+@@ -312,7 +349,16 @@ static int tegra_csi_channel_alloc(struct tegra_csi *csi,
+ 		chan->pads[0].flags = MEDIA_PAD_FL_SOURCE;
+ 	}
+ 
+-	return 0;
++	if (IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
++		return 0;
 +
-+	subdev = tegra_channel_get_remote_source_subdev(chan);
-+	if (!v4l2_subdev_has_op(subdev, pad, get_selection))
-+		return -ENOTTY;
-+
-+	if (sel->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-+		return -EINVAL;
-+	/*
-+	 * Try the get selection operation and fallback to get format if not
-+	 * implemented.
-+	 */
-+	ret = v4l2_subdev_call(subdev, pad, get_selection, NULL, &sdsel);
-+	if (!ret)
-+		sel->r = sdsel.r;
-+	if (ret != -ENOIOCTLCMD)
-+		return ret;
-+
-+	ret = v4l2_subdev_call(subdev, pad, get_fmt, NULL, &fmt);
-+	if (ret < 0)
-+		return ret;
-+
-+	sel->r.left = 0;
-+	sel->r.top = 0;
-+	sel->r.width = fmt.format.width;
-+	sel->r.height = fmt.format.height;
-+
-+	return 0;
-+}
-+
-+static int tegra_channel_s_selection(struct file *file, void *fh,
-+				     struct v4l2_selection *sel)
-+{
-+	struct tegra_vi_channel *chan = video_drvdata(file);
-+	struct v4l2_subdev *subdev;
-+	int ret;
-+	struct v4l2_subdev_selection sdsel = {
-+		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
-+		.target = sel->target,
-+		.flags = sel->flags,
-+		.r = sel->r,
-+	};
-+
-+	subdev = tegra_channel_get_remote_source_subdev(chan);
-+	if (!v4l2_subdev_has_op(subdev, pad, set_selection))
-+		return -ENOTTY;
-+
-+	if (sel->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
-+		return -EINVAL;
-+
-+	if (vb2_is_busy(&chan->queue))
-+		return -EBUSY;
-+
-+	ret = v4l2_subdev_call(subdev, pad, set_selection, NULL, &sdsel);
-+	if (!ret) {
-+		sel->r = sdsel.r;
-+		/*
-+		 * Subdev active format resolution may have changed during
-+		 * set selection operation. So, update channel format to
-+		 * the sub-device active format.
-+		 */
-+		return tegra_channel_set_subdev_active_fmt(chan);
++	chan->mipi = tegra_mipi_request(csi->dev, node);
++	if (IS_ERR(chan->mipi)) {
++		ret = PTR_ERR(chan->mipi);
++		dev_err(csi->dev, "failed to get mipi device: %d\n", ret);
 +	}
 +
 +	return ret;
-+}
+ }
+ 
+ static int tegra_csi_tpg_channels_alloc(struct tegra_csi *csi)
+@@ -475,6 +521,9 @@ static void tegra_csi_channels_cleanup(struct tegra_csi *csi)
+ 	struct tegra_csi_channel *chan, *tmp;
+ 
+ 	list_for_each_entry_safe(chan, tmp, &csi->csi_chans, list) {
++		if (chan->mipi)
++			tegra_mipi_free(chan->mipi);
 +
- static int tegra_channel_enum_input(struct file *file, void *fh,
- 				    struct v4l2_input *inp)
- {
-@@ -608,6 +712,8 @@ static const struct v4l2_ioctl_ops tegra_channel_ioctl_ops = {
- 	.vidioc_streamoff		= vb2_ioctl_streamoff,
- 	.vidioc_subscribe_event		= v4l2_ctrl_subscribe_event,
- 	.vidioc_unsubscribe_event	= v4l2_event_unsubscribe,
-+	.vidioc_g_selection		= tegra_channel_g_selection,
-+	.vidioc_s_selection		= tegra_channel_s_selection,
+ 		subdev = &chan->subdev;
+ 		if (subdev->dev) {
+ 			if (!IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
+diff --git a/drivers/staging/media/tegra-video/csi.h b/drivers/staging/media/tegra-video/csi.h
+index 78a5110..0d50fc3 100644
+--- a/drivers/staging/media/tegra-video/csi.h
++++ b/drivers/staging/media/tegra-video/csi.h
+@@ -50,6 +50,7 @@ struct tegra_csi;
+  * @framerate: active framerate for TPG
+  * @h_blank: horizontal blanking for TPG active format
+  * @v_blank: vertical blanking for TPG active format
++ * @mipi: mipi device for corresponding csi channel pads
+  */
+ struct tegra_csi_channel {
+ 	struct list_head list;
+@@ -65,6 +66,7 @@ struct tegra_csi_channel {
+ 	unsigned int framerate;
+ 	unsigned int h_blank;
+ 	unsigned int v_blank;
++	struct tegra_mipi_device *mipi;
  };
  
- /*
+ /**
+diff --git a/drivers/staging/media/tegra-video/vi.c b/drivers/staging/media/tegra-video/vi.c
+index fc43629..129790c 100644
+--- a/drivers/staging/media/tegra-video/vi.c
++++ b/drivers/staging/media/tegra-video/vi.c
+@@ -191,10 +191,12 @@ tegra_channel_get_remote_source_subdev(struct tegra_vi_channel *chan)
+ int tegra_channel_set_stream(struct tegra_vi_channel *chan, bool on)
+ {
+ 	struct v4l2_subdev *subdev, *csi_subdev, *src_subdev;
++	struct tegra_csi_channel *csi_chan;
+ 	int ret;
+ 
+ 	csi_subdev = tegra_channel_get_remote_csi_subdev(chan);
+ 	src_subdev = tegra_channel_get_remote_source_subdev(chan);
++	csi_chan = v4l2_get_subdevdata(csi_subdev);
+ 	/*
+ 	 * Tegra CSI receiver can detect the first LP to HS transition.
+ 	 * So, start the CSI stream-on prior to sensor stream-on and
+@@ -208,10 +210,31 @@ int tegra_channel_set_stream(struct tegra_vi_channel *chan, bool on)
+ 	if (IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
+ 		return 0;
+ 
++	/*
++	 * TRM has incorrectly documented to wait for done status from
++	 * calibration logic after CSI interface power on.
++	 * As per the design, calibration results are latched and applied
++	 * to the pads only when the link is in LP11 state which will happen
++	 * during the sensor stream-on.
++	 * CSI subdev stream-on triggers start of MIPI pads calibration.
++	 * Wait for calibration to finish here after sensor subdev stream-on
++	 * and in case of sensor stream-on failure, cancel the calibration.
++	 */
+ 	subdev = on ? src_subdev : csi_subdev;
+ 	ret = v4l2_subdev_call(subdev, video, s_stream, on);
+-	if (ret < 0 && ret != -ENOIOCTLCMD)
++	if (ret < 0 && ret != -ENOIOCTLCMD) {
++		if (on && csi_chan->mipi)
++			tegra_mipi_cancel_calibrate(csi_chan->mipi);
+ 		return ret;
++	}
++
++	if (on && csi_chan->mipi) {
++		ret = tegra_mipi_finish_calibrate(csi_chan->mipi);
++		if (ret < 0)
++			dev_err(csi_chan->csi->dev,
++				"MIPI calibration failed: %d\n", ret);
++		return ret;
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.7.4
 
