@@ -2,216 +2,96 @@ Return-Path: <SRS0=EsTJ=BC=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F0C4C433F8
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 12:19:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 044D7C433EB
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 13:17:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B37720825
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 12:19:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8D672086A
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 13:17:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="eseKmqrl"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="umpSVN09"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728787AbgGWMTW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 23 Jul 2020 08:19:22 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:10728 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728780AbgGWMTV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 08:19:21 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f19803b0001>; Thu, 23 Jul 2020 05:19:07 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Thu, 23 Jul 2020 05:19:20 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Thu, 23 Jul 2020 05:19:20 -0700
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 23 Jul
- 2020 12:19:19 +0000
-Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Thu, 23 Jul 2020 12:19:19 +0000
-Received: from kyarlagadda-linux.nvidia.com (Not Verified[10.19.64.169]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f1980440001>; Thu, 23 Jul 2020 05:19:18 -0700
-From:   Krishna Yarlagadda <kyarlagadda@nvidia.com>
-To:     <digetx@gmail.com>, <linux-i2c@vger.kernel.org>,
-        <thierry.reding@gmail.com>
-CC:     <jonathanh@nvidia.com>, <linux-tegra@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <ldewangan@nvidia.com>,
-        <smohammed@nvidia.com>, <rgumasta@nvidia.com>,
-        Krishna Yarlagadda <kyarlagadda@nvidia.com>
-Subject: [PATCH 5/7] i2c: tegra: enable second level clock gating
-Date:   Thu, 23 Jul 2020 17:48:51 +0530
-Message-ID: <1595506733-10307-5-git-send-email-kyarlagadda@nvidia.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1595506733-10307-1-git-send-email-kyarlagadda@nvidia.com>
+        id S1729094AbgGWNQ5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 23 Jul 2020 09:16:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38050 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728995AbgGWNQ5 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 09:16:57 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C6E3C0619DC;
+        Thu, 23 Jul 2020 06:16:57 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id k13so3265331lfo.0;
+        Thu, 23 Jul 2020 06:16:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=GmCMT34g8ctOCOCVfFM1nrNLazMMxhc+MB6jd0U3TGo=;
+        b=umpSVN09bzTJrl03wDhE2YgP69AnhrgQBqU8w9n95xuU/mhp2jW1dqD3zGl5UXgSL3
+         A9wR5tNA1p2IGvh14M7R3qNCUqH9dSiHPexXp+dDJnhxeaI4f5pF1AT+Go1OYjAn+ddH
+         vXWRW9TO/zGrnysXkXIK5QWlB3IjU8mci91DLWCj1YMgesOyeFt03CedbS1Lbwzwi5OW
+         dECzEewa/BNzmD+zKVityDakq04OGvaRNA1dKopkBo4naWd+tWJSSuGeObJPsbSfajKQ
+         yljj7Xctvtfyv6TUyk25ZTkhSxrZQqK5pqPZHvv0YH1N6jvVioEq1zFJpxZzN0Q4wf8U
+         hKUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=GmCMT34g8ctOCOCVfFM1nrNLazMMxhc+MB6jd0U3TGo=;
+        b=NzaJzmQcw9zBaUZtuAgFID2vOurJfeODdhDyIATQbFa8DYuBDSgwKl5GEsTN50BSbt
+         6Khw2ZJBjHh2VpX2y5DrKeBfxzV++gL+iL8hN7EvFjfc6wNboiGAlzYJT2QMG7EWXK70
+         xwCx2xO6jn9Wc25JnadYUF3r0TVvcCZs4d/i9LeoD+0y1+m9hFT/S/x2BG6M+lAhMrXA
+         VZAt962IpsValP82QN2BE+r7ACiv4UmoY8iykQeiw18rn7ZDsshID5E14pOEOc8o6xIK
+         MAFdqcyurqnfS9Xj1MjaA3Vhy2as2Ino7jwoETK4UZOy9HEDXmbyKRX2Tv1F3IveDfF5
+         K/jg==
+X-Gm-Message-State: AOAM533sZShVu+DAsBKQpU3hzRbMnHvIA5cIYaZzluPqxrNken2/dpFi
+        M75NVVgt9em/K/vHmMUZEqs=
+X-Google-Smtp-Source: ABdhPJw+qE88m/u4eqT5nEXl9rJpjx85vTvdr8Lim7ln0KVNM1LpmNjHhXwKKKk9bXKH8NayUnNbDQ==
+X-Received: by 2002:a19:7111:: with SMTP id m17mr2315025lfc.156.1595510215559;
+        Thu, 23 Jul 2020 06:16:55 -0700 (PDT)
+Received: from [192.168.2.145] (ppp91-76-12-16.pppoe.mtu-net.ru. [91.76.12.16])
+        by smtp.googlemail.com with ESMTPSA id j2sm2740719lji.115.2020.07.23.06.16.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Jul 2020 06:16:54 -0700 (PDT)
+Subject: Re: [PATCH 6/7] i2c: tegra: DMA support for t186 and t194
+To:     Krishna Yarlagadda <kyarlagadda@nvidia.com>,
+        linux-i2c@vger.kernel.org, thierry.reding@gmail.com
+Cc:     jonathanh@nvidia.com, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ldewangan@nvidia.com,
+        smohammed@nvidia.com, rgumasta@nvidia.com
 References: <1595506733-10307-1-git-send-email-kyarlagadda@nvidia.com>
+ <1595506733-10307-6-git-send-email-kyarlagadda@nvidia.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <b71ae942-6d9e-f609-f4f6-87d0ce117175@gmail.com>
+Date:   Thu, 23 Jul 2020 16:16:52 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1595506747; bh=YtW5ONuxQcaNg5+GvR7yBueoYCGlYcr9525vggzlM5Q=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:MIME-Version:Content-Type;
-        b=eseKmqrlY/enO0KSXaanUL2AKHEuZ1u3zDUrTCD7w5U4VmCNMXxDLdKnKHC7BRqz0
-         SMCn1OldRpl4TsmNXASWOcwS5rxsb4MBEv4BhcqtJaGgxr6JgAOjShVHA4tfxtwQAe
-         fsarR6S2zMoMchKoubouT5QaoKc92ld4Rfb32xTK+5jx44M/eanIdrBF7uHeZTFWcB
-         Pxsf0eaU7P5KMT2wPUQzr5UxMnIbY8rfBi1vIVbfZiNH2mf0wCdXs0LYu+aypESjGu
-         qNMJWVcl7dR9hoRnO67OxcFxk+d+9pp7j+0t+wSdD2Yk+KbC87g6cQj/wFdoeYQLm6
-         XAd2YBbRnuXXA==
+In-Reply-To: <1595506733-10307-6-git-send-email-kyarlagadda@nvidia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Enable Second Level Clock Gating feature for supported chips.
-With SLCG enabled, software need not control clocks anymore
-and leave clocks enabled always on.
+Hello Krishna,
 
-Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-Signed-off-by: Krishna Yarlagadda <kyarlagadda@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 32 ++++++++++++++++++++++++++++----
- 1 file changed, 28 insertions(+), 4 deletions(-)
+23.07.2020 15:18, Krishna Yarlagadda пишет:
+...
+>  static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
+> @@ -1606,6 +1618,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
+>  	.setup_hold_time_fast_fast_plus_mode = 0,
+>  	.setup_hold_time_hs_mode = 0,
+>  	.has_interface_timing_reg = true,
+> +	.has_gpc_dma = true,
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 2f654ed..8ab968e 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -235,6 +235,7 @@ struct tegra_i2c_hw_feature {
- 	u32 setup_hold_time_fast_fast_plus_mode;
- 	u32 setup_hold_time_hs_mode;
- 	bool has_interface_timing_reg;
-+	bool has_slcg_support;
- };
- 
- /**
-@@ -299,6 +300,7 @@ struct tegra_i2c_dev {
- 	struct completion dma_complete;
- 	bool is_curr_atomic_xfer;
- 	int clk_divisor_hs_mode;
-+	bool is_clkon_always;
- };
- 
- static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
-@@ -1478,6 +1480,7 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.supports_bus_clear = false,
- 	.has_reg_write_buffering = true,
- 	.has_hs_mode_support = false,
-+	.has_slcg_support = false,
- 	.has_apb_dma = true,
- 	.tlow_std_mode = 0x4,
- 	.thigh_std_mode = 0x2,
-@@ -1506,6 +1509,7 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
- 	.supports_bus_clear = false,
- 	.has_reg_write_buffering = true,
- 	.has_hs_mode_support = false,
-+	.has_slcg_support = false,
- 	.has_apb_dma = true,
- 	.tlow_std_mode = 0x4,
- 	.thigh_std_mode = 0x2,
-@@ -1534,6 +1538,7 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
- 	.supports_bus_clear = true,
- 	.has_reg_write_buffering = true,
- 	.has_hs_mode_support = false,
-+	.has_slcg_support = false,
- 	.has_apb_dma = true,
- 	.tlow_std_mode = 0x4,
- 	.thigh_std_mode = 0x2,
-@@ -1562,6 +1567,7 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
- 	.supports_bus_clear = true,
- 	.has_reg_write_buffering = true,
- 	.has_hs_mode_support = false,
-+	.has_slcg_support = false,
- 	.has_apb_dma = true,
- 	.tlow_std_mode = 0x4,
- 	.thigh_std_mode = 0x2,
-@@ -1590,6 +1596,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
- 	.supports_bus_clear = true,
- 	.has_reg_write_buffering = true,
- 	.has_hs_mode_support = false,
-+	.has_slcg_support = false,
- 	.has_apb_dma = true,
- 	.tlow_std_mode = 0x4,
- 	.thigh_std_mode = 0x2,
-@@ -1618,6 +1625,7 @@ static const struct tegra_i2c_hw_feature tegra186_i2c_hw = {
- 	.supports_bus_clear = true,
- 	.has_reg_write_buffering = false,
- 	.has_hs_mode_support = false,
-+	.has_slcg_support = true,
- 	.has_apb_dma = false,
- 	.tlow_std_mode = 0x4,
- 	.thigh_std_mode = 0x3,
-@@ -1646,6 +1654,7 @@ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
- 	.supports_bus_clear = true,
- 	.has_reg_write_buffering = false,
- 	.has_hs_mode_support = true,
-+	.has_slcg_support = true,
- 	.has_apb_dma = false,
- 	.tlow_std_mode = 0x8,
- 	.thigh_std_mode = 0x7,
-@@ -1822,7 +1831,12 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		}
- 	}
- 
--	if (i2c_dev->is_multimaster_mode) {
-+	if (i2c_dev->is_multimaster_mode || i2c_dev->hw->has_slcg_support)
-+		i2c_dev->is_clkon_always = true;
-+	else
-+		i2c_dev->is_clkon_always = false;
-+
-+	if (i2c_dev->is_clkon_always) {
- 		ret = clk_enable(i2c_dev->div_clk);
- 		if (ret < 0) {
- 			dev_err(i2c_dev->dev, "div_clk enable failed %d\n",
-@@ -1875,7 +1889,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	tegra_i2c_release_dma(i2c_dev);
- 
- disable_div_clk:
--	if (i2c_dev->is_multimaster_mode)
-+	if (i2c_dev->is_clkon_always)
- 		clk_disable(i2c_dev->div_clk);
- 
- put_rpm:
-@@ -1908,7 +1922,7 @@ static int tegra_i2c_remove(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&i2c_dev->adapter);
- 
--	if (i2c_dev->is_multimaster_mode)
-+	if (i2c_dev->is_clkon_always)
- 		clk_disable(i2c_dev->div_clk);
- 
- 	pm_runtime_disable(&pdev->dev);
-@@ -1932,7 +1946,8 @@ static int __maybe_unused tegra_i2c_suspend(struct device *dev)
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 	int err = 0;
- 
--	i2c_mark_adapter_suspended(&i2c_dev->adapter);
-+	if (i2c_dev->is_clkon_always)
-+		clk_disable(i2c_dev->div_clk);
- 
- 	if (!pm_runtime_status_suspended(dev))
- 		err = tegra_i2c_runtime_suspend(dev);
-@@ -1968,6 +1983,15 @@ static int __maybe_unused tegra_i2c_resume(struct device *dev)
- 			return err;
- 	}
- 
-+	if (i2c_dev->is_clkon_always) {
-+		err = clk_enable(i2c_dev->div_clk);
-+		if (err < 0) {
-+			dev_err(i2c_dev->dev, "clock enable failed %d\n",
-+				err);
-+			return err;
-+		}
-+	}
-+
- 	i2c_mark_adapter_resumed(&i2c_dev->adapter);
- 
- 	return 0;
--- 
-2.7.4
+false
 
+>  };
