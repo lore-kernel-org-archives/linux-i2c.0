@@ -2,191 +2,100 @@ Return-Path: <SRS0=4ZZ9=BD=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74584C433E4
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 09:43:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC46BC433E1
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 19:17:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 505BB206EB
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 09:43:44 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="flyB4CY6"
+	by mail.kernel.org (Postfix) with ESMTP id 9470F206F0
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 19:17:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1595618229;
+	bh=1Jq8jNeuEsHc+9ZAVYpD7ZWZg9rx9073ZC4wxzAB224=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=RZaUmBPp80ndYTPYf75uGw2OgNUEf3eLrY5SlU0+8wx3ahXDSNhWmsNxJ2srplAEG
+	 NLolnbmtA0ZCgSuRXKovTx7KSCp8QV3/DjIkhFX1Zjl2DRaweNiFNIO1vFN5UQJu8L
+	 XD3sbwWzQHrYRFSbsTUMllDiYdPM5LtzhQkacIuo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726692AbgGXJnj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 24 Jul 2020 05:43:39 -0400
-Received: from lb1-smtp-cloud7.xs4all.net ([194.109.24.24]:47307 "EHLO
-        lb1-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726114AbgGXJnj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Jul 2020 05:43:39 -0400
-Received: from cust-b5b5937f ([IPv6:fc0c:c16d:66b8:757f:c639:739b:9d66:799d])
-        by smtp-cloud7.xs4all.net with ESMTPA
-        id yuEojKP2FywL5yuEpjSoaW; Fri, 24 Jul 2020 11:43:36 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s1;
-        t=1595583816; bh=X/ey0vlyUrrkiB6fZ9SxASsWxncNKA0zs37XFPKq49A=;
-        h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type:From:
-         Subject;
-        b=flyB4CY6QOHBAHH0IRDamDkAtGR2gZi9J9WE3NlW8BbgihYnOMSSYAIbskZlznGqo
-         aJxKjPq1LOpgIevK9MCNnncq42dH2Hrvabn3feXSCVAr+ytLwlp0+d4PLR5SiKzZlI
-         wAp5BshiPXa1hpHrmBb9eZI6nu24BQBemm1bgaTqts0DImHQgReBu/FXSZABXLg9ES
-         2/yMIHdtOJdE0YWrsZpOg8hFbt5n1vHlFRwB7tbFQjTQSAHQOen20cx2zIuGd6UZ3o
-         NEHQ8vo3A+8jUqBsmoCxrWey9RkyTpULvYCESRabtYiJuB2o3HqG/yPx6hbys4Ts+l
-         k4t8ShT00IgCQ==
-Subject: Re: [RFC PATCH v4 00/14] Support for Tegra video capture from
- external sensor
-To:     Sowjanya Komatineni <skomatineni@nvidia.com>,
+        id S1726539AbgGXTRF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 24 Jul 2020 15:17:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48552 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726381AbgGXTRF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 24 Jul 2020 15:17:05 -0400
+Received: from localhost (p54b3305c.dip0.t-ipconnect.de [84.179.48.92])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F8A7206F0;
+        Fri, 24 Jul 2020 19:17:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595618224;
+        bh=1Jq8jNeuEsHc+9ZAVYpD7ZWZg9rx9073ZC4wxzAB224=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UeOx/uowcd9aNoRjyHJQMB9q9YsrBnUBIEVkjOifuQpzolBXY0eKwDzWDuSb3XSc2
+         qEbc8ShfHWjbic9ICW80v38dIpl2qLsZZrlay7lJX3hse3Ug6bDK0GaSEq5L6pbXAX
+         hqAAJJmiL1E3YzlJWfc84AAkhEI4aoEjpa+dj4r0=
+Date:   Fri, 24 Jul 2020 21:16:55 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Hans Verkuil <hverkuil@xs4all.nl>
+Cc:     Sowjanya Komatineni <skomatineni@nvidia.com>,
         thierry.reding@gmail.com, jonathanh@nvidia.com, frankc@nvidia.com,
-        sakari.ailus@iki.fi, robh+dt@kernel.org, helen.koike@collabora.com
-Cc:     digetx@gmail.com, sboyd@kernel.org, gregkh@linuxfoundation.org,
+        sakari.ailus@iki.fi, robh+dt@kernel.org, helen.koike@collabora.com,
+        digetx@gmail.com, sboyd@kernel.org, gregkh@linuxfoundation.org,
         linux-media@vger.kernel.org, devicetree@vger.kernel.org,
         linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-i2c@vger.kernel.org
+Subject: Re: [RFC PATCH v4 00/14] Support for Tegra video capture from
+ external sensor
+Message-ID: <20200724191654.GA1227@ninjato>
 References: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
-From:   Hans Verkuil <hverkuil@xs4all.nl>
-Message-ID: <cb080da3-5ae5-bb83-8f5c-65d1fe17cb67@xs4all.nl>
-Date:   Fri, 24 Jul 2020 11:43:34 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ <cb080da3-5ae5-bb83-8f5c-65d1fe17cb67@xs4all.nl>
 MIME-Version: 1.0
-In-Reply-To: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-CMAE-Envelope: MS4wfEMMYYD6g+CSrxjATIbU9TbOSrXG7nUV0lk+4TmcECLEqZfNcuERiA4QsKgnUV9l/bvWF3A234GJlHJ0G/nWQ0m5NTzlgam9RS0rby+x0EP7WgIhdPC6
- Q31aCTIPiiOu8uXuXpqtkB8u3j71xcEbUlimy2syIgXILQdTM16PVGN5ADfSC9+X/cRxd9Fz474AJlmC3hOkR7x0vRS5D8FWzPS5E69IE/TLrbkuotxRNwFl
- 07jZSalUTSJ+1v/vOtDtVlaWorHeEuvYy8fCZI2JDmITFjyuWtIY3gR4cTNYvDGVXW/HU/hfRtLwB0OUbhxP2yc6xItq1enCj8pBFmsQ6q3Y9rVGcZynqtoO
- 2AXqjJMB5P0gmMM9SMhT7zCw76ONc+dXP5HIlCiqTX3HEaJv2SLjO/HHPXupSmU3lGMG2tesBjp2tbC5ipCArb11h6+kRuhyOqq12DP54YWEcEygMTxV4VJu
- 0t/PwqzWH48wxifSpdsGIHgx1CW/wrNCLO84AqzddvhYmcZMPiY/9bslfTVjaGT9kVHvFUDDhZilTvwFmGpBA8WvWU2aw6RcyC1sObIQUYOnpqZO87+KTTwg
- 14XiAWDxQNCR4fNGt31po35j/uqKFIbFFTdvwp/SZklqoyi8ainibTZlLOyxw+yCKaZ6tJx9GZlo8dpX4646BIKCVpLMIknh0CLo5YxlLDgQQhmQYul6X4aF
- Y/ICDoOPCFrAEf391QbwNyds/TEeBDsgXFO2N2N/fAeUCfbOqXtWww==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+Content-Disposition: inline
+In-Reply-To: <cb080da3-5ae5-bb83-8f5c-65d1fe17cb67@xs4all.nl>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Thierry, Dmitry,
 
-I'm happy with this series from a media perspective. However, patches 1-5 fix
-various i2c-tegra.c issues and patch 12 changes mipi calibration functions in
-drivers/gpu that patch 13 relies on.
-
-I think the i2c-tegra.c patches can be merged independently into the i2c
-subsystem, but patch 12 needs to be merged with the media patches. So for patch
-12 I need an Acked-by from Thierry.
-
-I can also take the i2c-tegra patches if preferred, but there too I need Acks.
-Dmitry, can you either take these i2c patches, or reply with Acks if you want
-me to take it?
-
-Regards,
-
-	Hans
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
-On 24/07/2020 01:50, Sowjanya Komatineni wrote:
-> This series adds support for video capture from external camera sensor to
-> Tegra video driver.
-> 
-> Jetson TX1 has camera expansion connector and supports custom camera module
-> designed as per TX1 design specification.
-> 
-> This series also enables camera capture support for Jetson Nano which has
-> Raspberry PI camera header.
-> 
-> This series is tested with IMX219 camera sensor.
-> 
-> This series include,
-> 
-> VI I2C related fixes
-> - Camera sensor programming happens through VI I2C which is on host1x bus.
-> - These patches includes device tree and I2C driver fixes for VI I2C.
-> 
-> Tegra video driver updates
-> - TPG Vs Non-TPG based on Kconfig
-> - Support for external sensor video capture based on device graph from DT.
-> - Support for selection ioctl operations
-> - Tegra MIPI CSI pads calibration
-> - CSI T-CLK and T-HS settle time computation based on clock rates.
-> 
-> Host1x driver updates
-> - Adds API to allow creating mipi device for specific device node.
-> - Splits MIPI pads calibrate start and waiting for calibration to be done.
-> 
-> Device tree updates
-> - Adds camera connector 2V8, 1V8, 1V2 regulator supplies to Jetson TX1 DT.
-> - Enabled VI and CSI support in Jetson Nano DT.
-> 
-> 
-> Delta between patch versions:
-> [v4]:	Includes below fix based on v3 feedback
-> 	- Patches are based on latest linux-next.
-> 	- With split of tegra_mipi_calibrate() and tegra_mipi_wait(), mipi
-> 	  clock is not left enabled till calibration done. This series adds
-> 	  a patch to fix this by keeping clock enabled till calibration is
-> 	  done.
-> 
-> 	Note:
-> 	Patch-0010 has compilation dependency on
-> 	https://patchwork.kernel.org/patch/11659521/
-> 
-> [v3]:	Includes v2 feedback
-> 	- Uses separate helper function for retrieving remote csi subdevice
-> 	  and source subdevice.
-> 	- Added check for presence of subdevice ops set/get_selection
-> 	- dropped vb2_queue_release from driver and using
-> 	  vb2_video_unregister_device instead of video_unregister_device.
-> 	- video device register should happen in the last after all video
-> 	  device related setup is done in the driver. This is being addressed
-> 	  in below RFC patch. Once proper implementation of this is available
-> 	  will update Tegra video driver to use split APIs and do all setup
-> 	  prior to device register. Added this as TODO in the driver.
-> 	  https://www.spinics.net/lists/linux-media/msg172761.html
-> 
-> 	Note:
-> 	Patch-0012 has compilation dependency on
-> 	https://patchwork.kernel.org/patch/11659521/
-> 
-> 
-> [v2]:	Includes below changes based on v1 feedback
-> 	- dt-binding document and the driver update for device graph to use
-> 	  separate ports for sink endpoint and source endpoint for csi.
-> 	- Use data-lanes endpoint property for csi.
-> 	- Update tegra_mipi_request() to take device node pointer argument
-> 	  rather than adding extra API.
-> 	- Remove checking for clk pointer before clk_disable.
-> 
-> 
-> Sowjanya Komatineni (14):
->   i2c: tegra: Don't mark VI I2C as IRQ safe runtime PM
->   i2c: tegra: Remove NULL pointer check before
->     clk_enable/disable/prepare/unprepare
->   i2c: tegra: Fix the error path in tegra_i2c_runtime_resume
->   i2c: tegra: Fix runtime resume to re-init VI I2C
->   i2c: tegra: Avoid tegra_i2c_init_dma() for Tegra210 vi i2c
->   media: tegra-video: Fix channel format alignment
->   media: tegra-video: Enable TPG based on kernel config
->   media: tegra-video: Update format lookup to offset based
->   dt-bindings: tegra: Update VI and CSI bindings with port info
->   media: tegra-video: Add support for external sensor capture
->   media: tegra-video: Add support for selection ioctl ops
->   gpu: host1x: mipi: Keep MIPI clock enabled till calibration is done
->   media: tegra-video: Add CSI MIPI pads calibration
->   media: tegra-video: Compute settle times based on the clock rate
-> 
->  .../display/tegra/nvidia,tegra20-host1x.txt        |  92 ++-
->  drivers/gpu/drm/tegra/dsi.c                        |   4 +-
->  drivers/gpu/host1x/mipi.c                          |  19 +-
->  drivers/i2c/busses/i2c-tegra.c                     | 101 +--
->  drivers/staging/media/tegra-video/Kconfig          |   7 +
->  drivers/staging/media/tegra-video/csi.c            | 258 ++++++-
->  drivers/staging/media/tegra-video/csi.h            |   8 +
->  drivers/staging/media/tegra-video/tegra210.c       |  25 +-
->  drivers/staging/media/tegra-video/vi.c             | 800 +++++++++++++++++++--
->  drivers/staging/media/tegra-video/vi.h             |  25 +-
->  drivers/staging/media/tegra-video/video.c          |  23 +-
->  include/linux/host1x.h                             |   5 +-
->  12 files changed, 1224 insertions(+), 143 deletions(-)
-> 
+> I can also take the i2c-tegra patches if preferred, but there too I need Acks.
+> Dmitry, can you either take these i2c patches, or reply with Acks if you want
+> me to take it?
 
+There are some more patches for i2c-tegra pending, so I'd rather pick
+them into my I2C tree once the Tegra maintainers acked them. I can
+provide a immutable branch, though, if there is interest.
+
+
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8bM6IACgkQFA3kzBSg
+KbYTCxAAotZrtFWCm4x17AWbkHShGvcc2z5M10agF+meIHjiSj9loeN4X928M+Hi
+bjAdLaRtKsDtpOQMvx+LUrooR8yO1+IP609BYETjzocL+jStyg4kfspuo+FSeRb2
+4MGI9FYsNLnbMz4ZEvyXvNRIK9MuM+tpRjVn0IQD+AEYOVaX86Yg37tU3pCJH+xH
+PhodfARWlVc3nQ6W/xd0/wotbDT2ZxoAB4Oaz0XVdnHbWb92imEt14IVLEtYPpz8
+dDc/K8AfqhgGHl2G74Qyg38AeDiomiRrSAEYUMurmq4sMXyQzmEBP5TPVrA5ApUL
+e9RLLRslny8bBru71qafKiWeZm8ZG2C594rtrxbmdkSwXROIekweIM/sm1/B1A30
+AxeNIaNr0JRa6f6gOAaBwOrl8p6vmfd+LzMWj/unZuF8nvucW5xoRJw6thlyy7K9
+ZfsMm3KNUXK4L2AsqgPnCMC8HDgL38i9ZguRmsmJQkhblwTTK1GQCrgP1czu2pBX
+L2P34eKIFzuPqGmnNO6KlEu+SbUwx3ihHwZxrcC8zD9WuaNT09PGWMxLYCzA7t7J
+UKcB6Prr0gToQ7aS0J8q66inAqRlQOHLzHx4uY3iJI3y17Wx39pHLIlXfbyKNp09
+42tnbRlT/ZoRdxXVfJjHhBCopnX2VnFsYJmdWvHJohTXtcZCdqs=
+=ykZo
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--
