@@ -2,51 +2,47 @@ Return-Path: <SRS0=4ZZ9=BD=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0AC2C433E1
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 19:45:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7058EC433E0
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 19:52:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7DF852070B
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 19:45:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 42963206F0
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 19:52:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="GvZcyUa0"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="jeX0+76B"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726763AbgGXTpU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 24 Jul 2020 15:45:20 -0400
-Received: from www.zeus03.de ([194.117.254.33]:57796 "EHLO mail.zeus03.de"
+        id S1726686AbgGXTwI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 24 Jul 2020 15:52:08 -0400
+Received: from www.zeus03.de ([194.117.254.33]:59092 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726411AbgGXTpU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 24 Jul 2020 15:45:20 -0400
+        id S1726085AbgGXTwI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 24 Jul 2020 15:52:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=Eh8C7lhYPilo0pJK1tao0ffKb4ge
-        4wHU1nxtEKHZroI=; b=GvZcyUa0wyKnzpx2a18ZeF1sAqeISBF2gGtUK/re1ydW
-        /a0301/C/639LFzH7bYxkX/pcWGLyBoDZ5xkJeWN6XPJ/7GuQnVnm842vEYbWqA0
-        +klm2epLwU73oxpMsITBkVYEcQd1KUPJuneBdoiYr6Sg+L0Dscg0ugckZKrEaTo=
-Received: (qmail 3785575 invoked from network); 24 Jul 2020 21:45:18 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 24 Jul 2020 21:45:18 +0200
-X-UD-Smtp-Session: l3s3148p1@ecx0NjWrEJ8gAwDPXwcRAJKYSnl1dekZ
-Date:   Fri, 24 Jul 2020 21:45:18 +0200
+        :content-type:in-reply-to; s=k1; bh=bNIby+nW8sgH3vCDAzYUuWgOjA6n
+        Xrq3osKrKwO71K0=; b=jeX0+76Bb7h3xRtZuCfSqPxKqC9zqlFMoIozyTDgx8wS
+        vDmLh3VOUd1nz9bsf+1iT7YsEXaMuw6MqOtwbXybW9ZhfWK+m2p2Yi6/KaeIHNTr
+        Put6MVsIuTPAkiS9ZHvRxIsjiflxMhCU9zog/WBCsrhLKdQheySKKn/VFmhOZdw=
+Received: (qmail 3786999 invoked from network); 24 Jul 2020 21:52:06 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 24 Jul 2020 21:52:06 +0200
+X-UD-Smtp-Session: l3s3148p1@7M7GTjWrKp8gAwDPXwcRAJKYSnl1dekZ
+Date:   Fri, 24 Jul 2020 21:52:06 +0200
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org, Robert Richter <rrichter@marvell.com>
-Cc:     linux-renesas-soc@vger.kernel.org,
-        David Daney <david.daney@cavium.com>,
-        Jan Glauber <jan.glauber@gmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 2/2] i2c: octeon: check correct size of maximum
- RECV_LEN packet
-Message-ID: <20200724194518.GE1227@ninjato>
-References: <20200628115245.9638-1-wsa+renesas@sang-engineering.com>
- <20200628115245.9638-3-wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] i2c: revert "i2c: core: Allow drivers to disable
+ i2c-core irq mapping"
+Message-ID: <20200724195206.GG1227@ninjato>
+References: <20200630162440.8453-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="xJK8B5Wah2CMJs8h"
+        protocol="application/pgp-signature"; boundary="0qt3EE9wi45a2ZFX"
 Content-Disposition: inline
-In-Reply-To: <20200628115245.9638-3-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20200630162440.8453-1-wsa+renesas@sang-engineering.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
@@ -54,65 +50,40 @@ List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---xJK8B5Wah2CMJs8h
+--0qt3EE9wi45a2ZFX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jun 28, 2020 at 01:52:45PM +0200, Wolfram Sang wrote:
-> I2C_SMBUS_BLOCK_MAX defines already the maximum number as defined in the
-> SMBus 2.0 specs. I don't see a reason to add 1 here.
+On Tue, Jun 30, 2020 at 06:24:40PM +0200, Wolfram Sang wrote:
+> This manually reverts commit d1d84bb95364ed604015c2b788caaf3dbca0262f.
+> The only user has gone two years ago with commit 589edb56b424 ("ACPI /
+> scan: Create platform device for INT33FE ACPI nodes") and no new user
+> has showed up. Remove and hope we will never need it again.
 >=20
-> Fixes: 886f6f8337dd ("i2c: octeon: Support I2C_M_RECV_LEN")
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
 
-Robert, is this correct?
+Applied to for-next, thanks!
 
->=20
-> Only build tested, I don't have the HW. Please let me know if I
-> overlooked something, but to the best of my knowledge, this +1 is wrong.
->=20
->  drivers/i2c/busses/i2c-octeon-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2=
-c-octeon-core.c
-> index d9607905dc2f..845eda70b8ca 100644
-> --- a/drivers/i2c/busses/i2c-octeon-core.c
-> +++ b/drivers/i2c/busses/i2c-octeon-core.c
-> @@ -347,7 +347,7 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, in=
-t target,
->  		if (result)
->  			return result;
->  		if (recv_len && i =3D=3D 0) {
-> -			if (data[i] > I2C_SMBUS_BLOCK_MAX + 1)
-> +			if (data[i] > I2C_SMBUS_BLOCK_MAX)
->  				return -EPROTO;
->  			length +=3D data[i];
->  		}
-> --=20
-> 2.20.1
->=20
 
---xJK8B5Wah2CMJs8h
+--0qt3EE9wi45a2ZFX
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8bOk4ACgkQFA3kzBSg
-KbZ7Og/9HlQQB0vH7HZ75JzWgb891fo1M+KGscuFvi2OhZlBX4bTvQq1ZvdXBRVB
-FjkKmOLhuuC5xveSCxZKMbl0VE8HsteM5GkbNSazuNnlNbnel1GqzCnYXDQSL67J
-+B/20Q+LNnreOHeX9LtqDjiA6f2UsIxEqbfzIPyGjGCSXh+/TpH0ftMunKL2Xzci
-svPjHneGv59b5kIgdIkB7Etq9oP+pvMtIJt7zMMaSFtLFY+qNtlnSgIixuOYuuSg
-JLu1qV1GGoMKGI1/61z+65FbKsFeaCKJOmLrmewcp5nqelY0NZCImebAWPBTfXUM
-D+/wCp1izdRe+4kaigrxe8klRU81n1twBIBerO/saSAgGjGV56fVYWjRAq4ZbvTx
-kh5IPSKN3uzbbipDzul+kOm1AV/AYYIr9Xu+aQuIZnWfjGztAqLmRLe5wh+K3mog
-fxtrlxHU6q/anv4cjL+KnzIxqwri+l1Jj7wqb9YYWVLLRGSNIT4vKCaO7cbZjIDu
-J1rJjR4QS1ZJpzsuCxH0Zkos97Gj/TKRTFZA5VB1UL5GqSvWDj+E30eOKuIVs9kn
-SWosT+f8P9t9eBKEZ93RBH9DCFknjIgYQ/+9oJuQYvoegu/1Xp0G2YfVFP0AMi3T
-P1BagBiYIHo3vyyk3tEhjeUsie2k8f/v592VODK+kynt+bqYOv8=
-=CkOK
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8bO+YACgkQFA3kzBSg
+KbZJjA/+JhWi+T1nIol01d96qMqdogmBhi9MwgrnetkXMJ+aCYU/UBsIzCWbxoxn
+a+awZ85n+Qds2YS9c/J/NcNWi1X1/8iiNx2Hn0Sq7yh/cHjiy3Z1FJoXnHt7CAWy
+KZiiTRA6MR3qCH0CGd3Ems6a0DuuLwNMzhvLJZ2YrZqLyiX/UCTdMt40tuoFlPJF
+GHjX/SWp8Fjj3C+Dk6uXlce4qTVpGxWZ3Er3+eLLljhHzeGw18X1C2lXdZPeq4C6
+3SZVSoYHbhKnm9f0IKQkK/6LXn2elVZ940eV6Ju5UIPJdG2OAN31aO/wG6E5XGsa
+UXVYmdjnDhBw6MqltFO5HYsdeGJN6OAUc1iqze4oLXajWFfADrJ3NqNN06bNrFHp
+mPVJ7K8P6iBD1diJv1/130pLRhieOYjh5INACkLpsilj25KS25ulW0LsWdeQARli
+9NgDSw/QeBFrcB7crjbFduWINo45v+sLYYuFfFWyqvuRGuPkpY6LgBu6RVuN4RLJ
+d/uq6zSxQ4NuRSNn6nXXDOWzxfcXy6i+DG+tEDugpYWH96GpZ3L/WLiVrMd4BDPW
+YbGY3d2Kjbx2nyMDqPOUpb3DPD28lOoQj/yXtXRCahXdXlo0ix4vIKFU8x4VBTfA
+uhKqFqcT2Bhu/xWEmObXL18ipHtNDjO13Ih0PVZ6fC4PwP81wF4=
+=3Wys
 -----END PGP SIGNATURE-----
 
---xJK8B5Wah2CMJs8h--
+--0qt3EE9wi45a2ZFX--
