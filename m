@@ -1,114 +1,141 @@
-Return-Path: <SRS0=EsTJ=BC=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=4ZZ9=BD=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93A61C4346E
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:49:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7F38C433E1
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 06:53:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6BB1420792
-	for <linux-i2c@archiver.kernel.org>; Thu, 23 Jul 2020 23:49:29 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="Fl8tqvly"
+	by mail.kernel.org (Postfix) with ESMTP id C078720714
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Jul 2020 06:53:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728593AbgGWXtY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 23 Jul 2020 19:49:24 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:17987 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728196AbgGWXsR (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jul 2020 19:48:17 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f1a21820001>; Thu, 23 Jul 2020 16:47:14 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 23 Jul 2020 16:48:17 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 23 Jul 2020 16:48:17 -0700
-Received: from HQMAIL109.nvidia.com (172.20.187.15) by HQMAIL109.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 23 Jul
- 2020 23:48:17 +0000
-Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL109.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Thu, 23 Jul 2020 23:48:17 +0000
-Received: from skomatineni-linux.nvidia.com (Not Verified[10.2.168.236]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f1a21c00002>; Thu, 23 Jul 2020 16:48:17 -0700
-From:   Sowjanya Komatineni <skomatineni@nvidia.com>
-To:     <skomatineni@nvidia.com>, <thierry.reding@gmail.com>,
-        <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
-        <sakari.ailus@iki.fi>, <robh+dt@kernel.org>,
-        <helen.koike@collabora.com>
-CC:     <digetx@gmail.com>, <sboyd@kernel.org>,
-        <gregkh@linuxfoundation.org>, <linux-media@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
-Subject: [RFC PATCH v4 01/14] i2c: tegra: Don't mark VI I2C as IRQ safe runtime PM
-Date:   Thu, 23 Jul 2020 16:50:59 -0700
-Message-ID: <1595548272-9809-2-git-send-email-skomatineni@nvidia.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
-References: <1595548272-9809-1-git-send-email-skomatineni@nvidia.com>
-X-NVConfidentiality: public
+        id S1726381AbgGXGxi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 24 Jul 2020 02:53:38 -0400
+Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:56329 "EHLO
+        smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725942AbgGXGxh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Jul 2020 02:53:37 -0400
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.07569175|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.0543245-0.000519771-0.945156;FP=0|0|0|0|0|-1|-1|-1;HT=e01l07447;MF=frank@allwinnertech.com;NM=1;PH=DS;RN=30;RT=30;SR=0;TI=SMTPD_---.I6pnpzV_1595573604;
+Received: from allwinnertech.com(mailfrom:frank@allwinnertech.com fp:SMTPD_---.I6pnpzV_1595573604)
+          by smtp.aliyun-inc.com(10.147.44.145);
+          Fri, 24 Jul 2020 14:53:30 +0800
+From:   Frank Lee <frank@allwinnertech.com>
+To:     robh+dt@kernel.org, mripard@kernel.org, wens@csie.org,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        gregory.clement@bootlin.com, tglx@linutronix.de,
+        jason@lakedaemon.net, maz@kernel.org,
+        srinivas.kandagatla@linaro.org, linus.walleij@linaro.org,
+        anarsoul@gmail.com, tiny.windzz@gmail.com, rui.zhang@intel.com,
+        daniel.lezcano@linaro.org, amit.kucheria@verdurent.com,
+        lee.jones@linaro.org, p.zabel@pengutronix.de, icenowy@aosc.io,
+        megous@megous.com, clabbe@baylibre.com, bage@linutronix.de,
+        devicetree@vger.kernel.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        Frank Lee <frank@allwinnertech.com>
+Subject: [PATCH v5 00/16] Allwinner A100 Initial support
+Date:   Fri, 24 Jul 2020 14:52:47 +0800
+Message-Id: <cover.1595572867.git.frank@allwinnertech.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1595548034; bh=zxB65TqmmcKmPfWkLJU50AtZToCBrCGEYlb/JsyjY+U=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:X-NVConfidentiality:MIME-Version:
-         Content-Type;
-        b=Fl8tqvlySxeFQDQY+54PsTN9/Ap3KRcNINo11fVdby3IDSAfwpkG/gnQHKKq0aUdJ
-         z6/23I17/nIZNyD47iGPQM2JX2PaOUtGzNfJwDdHn1+QuQhAfthEeKt2cMqbzZnbQy
-         yAp4FZCOpjj8XQiNb4AJOWXCUefYA2o0KVdgK1X3CkSQVO8lV8HO/0ynCtMV11Rjvg
-         v5ad1aLajISWQCt8Hm8tLz5bgc4tuNSCIGbU4y5bcxtjcQPh4NCrq6MPDjC9tO4lVD
-         7Md3yFMMszQxoqAUB6JLrzGdUY4qKl8GRTvTwEZ2xSQC3GynxDEDAhn5r/03udxjTW
-         vrvkdslNLO0Ag==
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Tegra VI I2C is part of VE power domain and typically used for
-camera usecases.
+This patch set adds initial support for allwinner a100 soc,
+which is a 64-bit tablet chip.
 
-VE power domain is not always on and is non-IRQ safe. So, IRQ safe
-device cannot be attached to a non-IRQ safe domain as it prevents
-powering off the PM domain and generic power domain driver will warn.
+v5:
+-Drop redundant SOB for thermal series patch
+-Trival a100 dtsi fix
 
-Current driver marks all I2C devices as IRQ safe and VI I2C device
-does not require IRQ safe as it will not be used for atomic transfers.
+v4:
+-Drop "dt-bindings: pinctrl: sunxi: make gpio banks supplies required"
+-Fix dcdc1 regulator name
+-Get rid of underscore in dts node name
+-Some trivial things in yaml files
 
-This patch has fix to make VI I2C as non-IRQ safe.
+v3:
+-Add pmu and nmi support
+-Add read data mask for calibration
+-Code style
+-Some trivial things in yaml files
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+v2:
+-Some naming consistency
+-Repair email address
+-Fix mmc clock
+-Don't export system clock
+-Fix checkpatch warning
+-Drop unneeded pin function, convert to jtag_gpu and i2s_x
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 1577296..3be1018 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -1750,7 +1750,15 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		goto unprepare_slow_clk;
- 	}
- 
--	pm_runtime_irq_safe(&pdev->dev);
-+	/*
-+	 * VI I2C is in VE power domain which is not always on and not
-+	 * an IRQ safe. So, IRQ safe device can't be attached to a non-IRQ
-+	 * safe domain as it prevents powering off the PM domain.
-+	 * Also, VI I2C device don't need to use runtime IRQ safe as it will
-+	 * not be used for atomic transfers.
-+	 */
-+	if (!i2c_dev->is_vi)
-+		pm_runtime_irq_safe(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
- 	if (!pm_runtime_enabled(&pdev->dev)) {
- 		ret = tegra_i2c_runtime_resume(&pdev->dev);
+Yangtao Li (16):
+  dt-bindings: clk: sunxi-ccu: add compatible string for A100 CCU and
+    R-CCU
+  clk: sunxi-ng: add support for the Allwinner A100 CCU
+  dt-bindings: pinctrl: sunxi: Get rid of continual nesting
+  dt-bindings: pinctrl: sunxi: Add A100 pinctrl bindings
+  pinctrl: sunxi: add support for the Allwinner A100 pin controller
+  dt-bindings: nvmem: SID: add binding for A100's SID controller
+  dt-bindings: thermal: sun8i: Add binding for A100's THS controller
+  thermal: sun8i: add TEMP_CALIB_MASK for calibration data in
+    sun50i_h6_ths_calibrate
+  thermal: sun8i: Add A100's THS controller support
+  mfd: axp20x: Allow the AXP803 to be probed by I2C
+  dt-bindings: irq: sun7i-nmi: fix dt-binding for a80 nmi
+  dt-bindings: irq: sun7i-nmi: Add binding for A100's NMI controller
+  dt-bindings: i2c: mv64xxx: Add compatible for the A100 i2c node.
+  arm64: allwinner: A100: add the basical Allwinner A100 DTSI file
+  dt-bindings: arm: sunxi: Add Allwinner A100 Perf1 Board bindings
+  arm64: allwinner: A100: add support for Allwinner Perf1 board
+
+ .../devicetree/bindings/arm/sunxi.yaml        |    5 +
+ .../clock/allwinner,sun4i-a10-ccu.yaml        |    7 +-
+ .../bindings/i2c/marvell,mv64xxx-i2c.yaml     |    3 +
+ .../allwinner,sun7i-a20-sc-nmi.yaml           |    5 +-
+ .../nvmem/allwinner,sun4i-a10-sid.yaml        |   19 +-
+ .../pinctrl/allwinner,sun4i-a10-pinctrl.yaml  |  139 +-
+ .../thermal/allwinner,sun8i-a83t-ths.yaml     |    6 +-
+ arch/arm64/boot/dts/allwinner/Makefile        |    1 +
+ .../allwinner/sun50i-a100-allwinner-perf1.dts |  180 +++
+ .../arm64/boot/dts/allwinner/sun50i-a100.dtsi |  364 +++++
+ drivers/clk/sunxi-ng/Kconfig                  |   10 +
+ drivers/clk/sunxi-ng/Makefile                 |    2 +
+ drivers/clk/sunxi-ng/ccu-sun50i-a100-r.c      |  214 +++
+ drivers/clk/sunxi-ng/ccu-sun50i-a100-r.h      |   21 +
+ drivers/clk/sunxi-ng/ccu-sun50i-a100.c        | 1276 +++++++++++++++++
+ drivers/clk/sunxi-ng/ccu-sun50i-a100.h        |   56 +
+ drivers/mfd/axp20x-i2c.c                      |    2 +
+ drivers/pinctrl/sunxi/Kconfig                 |   10 +
+ drivers/pinctrl/sunxi/Makefile                |    2 +
+ drivers/pinctrl/sunxi/pinctrl-sun50i-a100-r.c |  105 ++
+ drivers/pinctrl/sunxi/pinctrl-sun50i-a100.c   |  708 +++++++++
+ drivers/thermal/sun8i_thermal.c               |   16 +-
+ include/dt-bindings/clock/sun50i-a100-ccu.h   |  116 ++
+ include/dt-bindings/clock/sun50i-a100-r-ccu.h |   23 +
+ include/dt-bindings/reset/sun50i-a100-ccu.h   |   68 +
+ include/dt-bindings/reset/sun50i-a100-r-ccu.h |   18 +
+ 26 files changed, 3308 insertions(+), 68 deletions(-)
+ create mode 100644 arch/arm64/boot/dts/allwinner/sun50i-a100-allwinner-perf1.dts
+ create mode 100644 arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
+ create mode 100644 drivers/clk/sunxi-ng/ccu-sun50i-a100-r.c
+ create mode 100644 drivers/clk/sunxi-ng/ccu-sun50i-a100-r.h
+ create mode 100644 drivers/clk/sunxi-ng/ccu-sun50i-a100.c
+ create mode 100644 drivers/clk/sunxi-ng/ccu-sun50i-a100.h
+ create mode 100644 drivers/pinctrl/sunxi/pinctrl-sun50i-a100-r.c
+ create mode 100644 drivers/pinctrl/sunxi/pinctrl-sun50i-a100.c
+ create mode 100644 include/dt-bindings/clock/sun50i-a100-ccu.h
+ create mode 100644 include/dt-bindings/clock/sun50i-a100-r-ccu.h
+ create mode 100644 include/dt-bindings/reset/sun50i-a100-ccu.h
+ create mode 100644 include/dt-bindings/reset/sun50i-a100-r-ccu.h
+
 -- 
-2.7.4
+2.24.0
 
