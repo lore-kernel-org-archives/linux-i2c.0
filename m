@@ -2,42 +2,45 @@ Return-Path: <SRS0=Xjnw=BE=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80E21C433E4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAC86C433E8
 	for <linux-i2c@archiver.kernel.org>; Sat, 25 Jul 2020 19:51:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BE47A20758
-	for <linux-i2c@archiver.kernel.org>; Sat, 25 Jul 2020 19:51:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 98972206D7
+	for <linux-i2c@archiver.kernel.org>; Sat, 25 Jul 2020 19:51:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="s8w/uu9D"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="jxFt2naX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728000AbgGYTvG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 25 Jul 2020 15:51:06 -0400
-Received: from www.zeus03.de ([194.117.254.33]:34750 "EHLO mail.zeus03.de"
+        id S1727034AbgGYTvH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 25 Jul 2020 15:51:07 -0400
+Received: from www.zeus03.de ([194.117.254.33]:34774 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726681AbgGYTvG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1727997AbgGYTvG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Sat, 25 Jul 2020 15:51:06 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=k1; bh=naxFnvuFwK4Qx7Jgob06kfiGfld
-        V3nViNdWujbEJOE0=; b=s8w/uu9DCCQ9zS/n2Vh4CWQzMLwAR9yj2H+uND+umaV
-        te/ihcc+DYGRQV1aZk46XLvpWfwWh0Hl/zMoMZPsPYZUE7czn8OJ+MjNOknQqGYn
-        bZDOr4z3NE+NFzUEkSUg/NbMDG8NAsg46b5BCKQ11VcBZY6tKyRZxQcjX1qjqn8g
-        =
-Received: (qmail 4064601 invoked from network); 25 Jul 2020 21:51:03 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 25 Jul 2020 21:51:03 +0200
-X-UD-Smtp-Session: l3s3148p1@jHXbaEmrzJQgAwDPXyGYAKSbnEfVwReQ
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=k1; bh=HxJCPjolVU7R0I
+        uWsThmJoJrJCBnRD7U7CaWs2fvrRY=; b=jxFt2naXCjU0CspMMmaJKXHdGWkwCP
+        BPG34yEBrnOMcsFziTieEVpLIFD423zJNYpkZCnUkXxxo1X2qPCf0JkZDhzyjot6
+        si/6kV1Z7biwtaIMw/G0gMANv7iLqFpnXjRMZloYcV9W37/a7ihCvS2O9ax5ftDf
+        ZkhTHl663th1Q=
+Received: (qmail 4064655 invoked from network); 25 Jul 2020 21:51:04 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 25 Jul 2020 21:51:04 +0200
+X-UD-Smtp-Session: l3s3148p1@VVztaEmr0JQgAwDPXyGYAKSbnEfVwReQ
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     Alain Volmat <alain.volmat@st.com>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/2] i2c: slave: improve sanity checks when un-/registering
-Date:   Sat, 25 Jul 2020 21:50:51 +0200
-Message-Id: <20200725195053.14334-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 2/2] i2c: slave: add sanity check when unregistering
+Date:   Sat, 25 Jul 2020 21:50:53 +0200
+Message-Id: <20200725195053.14334-3-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200725195053.14334-1-wsa+renesas@sang-engineering.com>
+References: <20200725195053.14334-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
@@ -45,16 +48,25 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Unregistering was completly missing the check, registering was missing
-ERR_PTR conditions. Fix both.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/i2c-core-slave.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Wolfram Sang (2):
-  i2c: slave: improve sanity check when registering
-  i2c: slave: add sanity check when unregistering driver
-
- drivers/i2c/i2c-core-slave.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
+index 549751347e6c..1589179d5eb9 100644
+--- a/drivers/i2c/i2c-core-slave.c
++++ b/drivers/i2c/i2c-core-slave.c
+@@ -58,6 +58,9 @@ int i2c_slave_unregister(struct i2c_client *client)
+ {
+ 	int ret;
+ 
++	if (IS_ERR_OR_NULL(client))
++		return -EINVAL;
++
+ 	if (!client->adapter->algo->unreg_slave) {
+ 		dev_err(&client->dev, "%s: not supported by adapter\n", __func__);
+ 		return -EOPNOTSUPP;
 -- 
 2.20.1
 
