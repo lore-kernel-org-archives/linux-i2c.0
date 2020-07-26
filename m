@@ -2,69 +2,50 @@ Return-Path: <SRS0=rmLI=BF=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55F68C433F8
-	for <linux-i2c@archiver.kernel.org>; Sun, 26 Jul 2020 12:35:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19D27C433E3
+	for <linux-i2c@archiver.kernel.org>; Sun, 26 Jul 2020 12:47:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 34C002065E
-	for <linux-i2c@archiver.kernel.org>; Sun, 26 Jul 2020 12:35:41 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="xOPdX7zI"
+	by mail.kernel.org (Postfix) with ESMTP id 041D22076A
+	for <linux-i2c@archiver.kernel.org>; Sun, 26 Jul 2020 12:47:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726824AbgGZMfW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 26 Jul 2020 08:35:22 -0400
-Received: from www.zeus03.de ([194.117.254.33]:39912 "EHLO mail.zeus03.de"
+        id S1727114AbgGZMrw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 26 Jul 2020 08:47:52 -0400
+Received: from sauhun.de ([88.99.104.3]:53314 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725848AbgGZMfW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 26 Jul 2020 08:35:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=onAeRnhffhF8ckRwRk4DsGKcuZ5Z
-        A3FW02cG3cQyVvk=; b=xOPdX7zIGdV+hLDlDtvJQrla1xgvXVqgjudDwZNJcY/y
-        UxH6Uxc3rBrfVuJ6qwDWL6hBSBtWw2GhDWVjKC9p7CtD5q6fULK7WI9rNWEzztj8
-        c6QmeBMw5XkrgpSXrqPG+G4nlMniocnv8rbnHt5MagEQJ3i3L88k/ge12XmPocY=
-Received: (qmail 40298 invoked from network); 26 Jul 2020 14:35:19 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 Jul 2020 14:35:19 +0200
-X-UD-Smtp-Session: l3s3148p1@D31ocFer/I8gAwDPXy27AOM4pzPBFrIA
-Date:   Sun, 26 Jul 2020 14:35:19 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Niklas <niklas.soderlund@ragnatech.se>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amit.kucheria@verdurent.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Prabhakar <prabhakar.csengg@gmail.com>
-Subject: Re: [PATCH 11/20] dt-bindings: i2c: renesas,i2c: Document r8a774e1
- support
-Message-ID: <20200726123519.GC2484@ninjato>
-References: <1594811350-14066-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <1594811350-14066-12-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+        id S1726042AbgGZMrw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 26 Jul 2020 08:47:52 -0400
+Received: from localhost (p5486c93f.dip0.t-ipconnect.de [84.134.201.63])
+        by pokefinder.org (Postfix) with ESMTPSA id 417252C0610;
+        Sun, 26 Jul 2020 14:47:49 +0200 (CEST)
+Date:   Sun, 26 Jul 2020 14:47:48 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Douglas Anderson <dianders@chromium.org>
+Cc:     swboyd@chromium.org, msavaliy@codeaurora.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Akash Asthana <akashast@codeaurora.org>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        Alok Chauhan <alokc@codeaurora.org>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Girish Mahadevan <girishm@codeaurora.org>,
+        Karthikeyan Ramasubramanian <kramasub@codeaurora.org>,
+        Sagar Dharia <sdharia@codeaurora.org>,
+        linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: i2c-qcom-geni: Fix DMA transfer race
+Message-ID: <20200726124747.GA16169@ninjato>
+References: <20200722145948.v2.1.I7efdf6efaa6edadbb690196cd4fbe3392a582c89@changeid>
+ <20200723195634.GA908@ninjato>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ZwgA9U+XZDXt4+m+"
+        protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
 Content-Disposition: inline
-In-Reply-To: <1594811350-14066-12-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20200723195634.GA908@ninjato>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
@@ -72,40 +53,78 @@ List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---ZwgA9U+XZDXt4+m+
+--1yeeQ81UyVL57Vl7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 15, 2020 at 12:09:01PM +0100, Lad Prabhakar wrote:
-> Document i2c controller for RZ/G2H (R8A774E1) SoC, which is compatible
-> with R-Car Gen3 SoC family.
+On Thu, Jul 23, 2020 at 09:56:34PM +0200, Wolfram Sang wrote:
+> On Wed, Jul 22, 2020 at 03:00:21PM -0700, Douglas Anderson wrote:
+> > When I have KASAN enabled on my kernel and I start stressing the
+> > touchscreen my system tends to hang.  The touchscreen is one of the
+> > only things that does a lot of big i2c transfers and ends up hitting
+> > the DMA paths in the geni i2c driver.  It appears that KASAN adds
+> > enough delay in my system to tickle a race condition in the DMA setup
+> > code.
+> >=20
+> > When the system hangs, I found that it was running the geni_i2c_irq()
+> > over and over again.  It had these:
+> >=20
+> > m_stat   =3D 0x04000080
+> > rx_st    =3D 0x30000011
+> > dm_tx_st =3D 0x00000000
+> > dm_rx_st =3D 0x00000000
+> > dma      =3D 0x00000001
+> >=20
+> > Notably we're in DMA mode but are getting M_RX_IRQ_EN and
+> > M_RX_FIFO_WATERMARK_EN over and over again.
+> >=20
+> > Putting some traces in geni_i2c_rx_one_msg() showed that when we
+> > failed we were getting to the start of geni_i2c_rx_one_msg() but were
+> > never executing geni_se_rx_dma_prep().
+> >=20
+> > I believe that the problem here is that we are starting the geni
+> > command before we run geni_se_rx_dma_prep().  If a transfer makes it
+> > far enough before we do that then we get into the state I have
+> > observed.  Let's change the order, which seems to work fine.
+> >=20
+> > Although problems were seen on the RX path, code inspection suggests
+> > that the TX should be changed too.  Change it as well.
+> >=20
+> > Fixes: 37692de5d523 ("i2c: i2c-qcom-geni: Add bus driver for the Qualco=
+mm GENI I2C controller")
+> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
+> > Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+> > Reviewed-by: Akash Asthana <akashast@codeaurora.org>
 >=20
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renes=
-as.com>
+> Applied to for-current, thanks!
 
-Applied to for-next, thanks!
+Glad we got this sorted. I just wondered that Alok wasn't part of the
+discussion. Is he still interested in maintaining the driver? Also
+because there is an unprocessed patch left for this driver:
+
+http://patchwork.ozlabs.org/project/linux-i2c/patch/20191103212204.13606-1-=
+colin.king@canonical.com/
 
 
---ZwgA9U+XZDXt4+m+
+--1yeeQ81UyVL57Vl7
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8deIcACgkQFA3kzBSg
-KbZbZA//W705bUta/I2fFJX9THCgPXeyts2P3gy1nQcBJvGROOzL6jZJne4W6nHR
-fJdAUnOfyZMTkCvfgnGGrnCa2QRrIgIYmnx1ZpF+dONaPYJPkZOOXoven13LjohY
-0lswiHVVEsKsESNlA8agcPm9Gniuvb8jpzUfpaTOZd2VQr6vV7YSoq53HXOKka+s
-mXwwe5J31Mc/DnJ7Yu0bZYo9jyFdKg4xSXrTwAz5FK+OqdYEyY9Qnu3ne0JZ4k99
-xPaCx5h0DQcoR4rOqIi21dedGiJ7iRuao1sDBgq5X1BxHIzJ5q+1HW1xiwMTdj/d
-6xA2PN1HxqaZ3Ff6p0tamC5AgmjgMQrFJj2cFI+fF/1VWp62V3O8oNZ/5b3f7bP4
-4f5ZwCfNYTcGB9tJnDxqTsAHAXAhnxlNc56kCWEZhTzKDzE7gW+H6+90OZEtzeA5
-Akq7504HPVrlgmL52JBbNcunDvs1eTc9ROjPVYJPGu5BKrcB+m2a0HCwhi2nJRBT
-XE//0zGPvPpiq+wYvUiyxmrBWTE/qKJekKoyLUmEIYlaDy9IdDEes5m9yJFlmsAy
-tvXt/lsCak31bfhyHa6HQQ3O8tjC5h+DTpJ4G1zp4u3d1yqBJcobgbySqibzKalP
-BdwAoJP8ng3+Q1MBRngxSYyKZvv7J3uderjW7yq8BN8+KwjU+uE=
-=FNmn
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8de3MACgkQFA3kzBSg
+KbZfFQ/+IQE8vj6FVFw8UOFQ8gO4XGR5oyKcFYaqngN7SVrbpklAsniO6NCvVdLA
+/BrWDRdvmfsUvQdA1BdnVzpG9T6N5hf5K41ijoHhZU9u8QKwtlTJ4iJVQ7LceArW
+a/iYn1zdN2B3fkfKyUqJIPgS2qdgTcwupi5prnuYYMD0wXwldb56QGzAkfERk14S
+2PNwaSTAJS5OmVzDU4e+4p56V+BG8d4UAz9kI+zGSs9lJ9GggtxN6I8hYJ4/pxv6
+scPz8czhh2gcn94tMxumGlLVZqURrAa8RUgKnPCZgD0xiDxZfkRFJpgtQRUmw7My
+cHsAts7z/ihNiosL41tNkyP9iCbkKUswRexi96+IjchHX/g/bdkccg37ZweXTSyH
+PgRk5Oqc9uD6P471xzLSEowI11kGPhlu06u52kvg77UIGMU8vL0b8NWe2SVaKSPg
+L3WvdgVBNWvCQ5kxjc3w0rva0V73427seGAmQSzIFrYH2IOEj5hD36tEQ6beDGJ3
+q8g3H8saNMec8oVeHmzMZNsokuVbWhX0fGKkdx8d54d/Z9Q7WFQgD7TbeTaatVgp
+XXvUToWCD9XwX7mBYLYoblscVtF8sMExUbO3Y0Jo+hc5tRGw19Jjycwh8zZNID2C
+4RwagbzeBFpiP8lQSoVOC+HQAWWwWdFdlaW8eJg2U+Vw1Y6Gv44=
+=pw9M
 -----END PGP SIGNATURE-----
 
---ZwgA9U+XZDXt4+m+--
+--1yeeQ81UyVL57Vl7--
