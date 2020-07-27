@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B2F4C4347E
-	for <linux-i2c@archiver.kernel.org>; Mon, 27 Jul 2020 23:25:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3758BC4361A
+	for <linux-i2c@archiver.kernel.org>; Mon, 27 Jul 2020 23:26:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE23D2177B
-	for <linux-i2c@archiver.kernel.org>; Mon, 27 Jul 2020 23:25:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 14EE421744
+	for <linux-i2c@archiver.kernel.org>; Mon, 27 Jul 2020 23:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595892347;
-	bh=TWDigoraORtdaOlDXyjVv4Toh+tONPBihEAKNcMZ6/o=;
+	s=default; t=1595892407;
+	bh=jgApG1A37oBtiR5CjwiKak+vQK6WNvNl+JWHPVFcpb4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=F5p1XtblmLzjoEisU2iWZ7giAU+2jl1j9rwTBRkkSvFGT0m/djNFMkmpCz6O/Au5n
-	 hDUayWMMFxf9atxXbQmqGFXIeZw0MwKL2Yhcrccwd4vzZZ555orwuYMU+R1wqstQr0
-	 lQoSJInQJBJ1s1FoZSo9E2Y08LHmWPln6Xa97OK4=
+	b=ZubRxGlcWGy/5jtWt/47L7PtCKkqNqY6X/S3RoPnU9iB8mVfPQV6UiHYGk+O1zfNZ
+	 cgp0CYMpLOeNrYcnuZCyEYQJauHkcqZrI+fMyQgv8ANouryBq55yx5kvOd/MVC2CB5
+	 kAjDME7UoVZntzj2bjUkdSdkbrsXlt49LtDR9iog=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728646AbgG0XZb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 27 Jul 2020 19:25:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36884 "EHLO mail.kernel.org"
+        id S1728524AbgG0XZL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 27 Jul 2020 19:25:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728642AbgG0XZa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 27 Jul 2020 19:25:30 -0400
+        id S1728508AbgG0XZK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 27 Jul 2020 19:25:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60A1D2173E;
-        Mon, 27 Jul 2020 23:25:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4233D21744;
+        Mon, 27 Jul 2020 23:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595892330;
-        bh=TWDigoraORtdaOlDXyjVv4Toh+tONPBihEAKNcMZ6/o=;
+        s=default; t=1595892309;
+        bh=jgApG1A37oBtiR5CjwiKak+vQK6WNvNl+JWHPVFcpb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUz/1Wzt8H3aiE1ckmBvcd55Nf8ydS7h7akq4epvKJMgF6cpLkDzX8lvfI3nR6kIC
-         4rEskOwPoFxgl+LUuZ13rp6SiAtueXfK4gdECD16jdcCsTNvlQw17lBaE3GEoR1sUr
-         4t3DLsuC8lPHV0FliiF2FxRCrOzY5Nw8JcQyQqM4=
+        b=ePwog14thwFyKs1pib5l4Ee451K1cpoCpJfhX3aUAXlBM8dojjM/1lJxj8MzDANs+
+         X2nTL5dhJV/8wDu7x2PYphq0aPrEJG853OyMNXgM0YP8WCYOdt7FSRsSfY1O79d4tP
+         8rbjXyyWgOR8R+9LUlHYXHBm5cNxOSAJrujsD89Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
         Michal Simek <michal.simek@xilinx.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 3/4] Revert "i2c: cadence: Fix the hold bit setting"
-Date:   Mon, 27 Jul 2020 19:25:24 -0400
-Message-Id: <20200727232525.718372-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 07/10] Revert "i2c: cadence: Fix the hold bit setting"
+Date:   Mon, 27 Jul 2020 19:24:55 -0400
+Message-Id: <20200727232458.718131-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200727232525.718372-1-sashal@kernel.org>
-References: <20200727232525.718372-1-sashal@kernel.org>
+In-Reply-To: <20200727232458.718131-1-sashal@kernel.org>
+References: <20200727232458.718131-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -97,10 +97,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 6d32e6da3110d..84deed6571bdf 100644
+index d917cefc5a19c..b136057182916 100644
 --- a/drivers/i2c/busses/i2c-cadence.c
 +++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -378,10 +378,8 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+@@ -382,10 +382,8 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
  	 * Check for the message size against FIFO depth and set the
  	 * 'hold bus' bit if it is greater than FIFO depth.
  	 */
@@ -112,7 +112,7 @@ index 6d32e6da3110d..84deed6571bdf 100644
  
  	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
  
-@@ -438,11 +436,8 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
+@@ -442,11 +440,8 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
  	 * Check for the message size against FIFO depth and set the
  	 * 'hold bus' bit if it is greater than FIFO depth.
  	 */
