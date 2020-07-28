@@ -2,106 +2,72 @@ Return-Path: <SRS0=HPKt=BH=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1A45C433E1
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 12:23:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB640C433ED
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 12:31:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BCFC2206D4
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 12:23:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 907E22070B
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 12:31:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="f3QJPYjk"
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="Cbl/aAYF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728750AbgG1MXN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 28 Jul 2020 08:23:13 -0400
-Received: from mx07-00178001.pphosted.com ([185.132.182.106]:59184 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728300AbgG1MXM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Jul 2020 08:23:12 -0400
-X-Greylist: delayed 1319 seconds by postgrey-1.27 at vger.kernel.org; Tue, 28 Jul 2020 08:23:11 EDT
-Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 06SBrfuE015212;
-        Tue, 28 Jul 2020 14:01:08 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=STMicroelectronics;
- bh=ZCiJHVYVXiTSIdmCIW/9EKYmYWc/Ke7o2/a0f5AvhEk=;
- b=f3QJPYjkGMUcxopqOwGOQ4lNmvKAXISEknC7rYYU3IbXDvBMVOWCv00ax53l9/cREFkA
- vjMWwpcEKfRSVU9B+QuL8Bp8PsUo6j0umGAw7lBCihQLgJTFC4d9mOduSumhLYXadW6N
- xwX3ltYbXQbsxBLGmRZpRF4agecmUSax+J7Oo3v8vFhDnZUcijn2DI53lA1woXmpGJHc
- WiqEvTaZ4ezBHUNOfQGNqlFsZsted3RhaQ+yhKAPJZSeYCGg326Ry+XU0JCN+OjUU2xR
- VaTLibLCKIw+pGEZgnw3nzceaKWW/1AWMDdk70S+EQlGHH3k6iO1GSieITMilF7W5+sp Jg== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 32gagv61y7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Jul 2020 14:01:08 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 6158410002A;
-        Tue, 28 Jul 2020 14:01:07 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag3node2.st.com [10.75.127.8])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 4A6FE2BF9CC;
-        Tue, 28 Jul 2020 14:01:07 +0200 (CEST)
-Received: from gnbcxd0016.gnb.st.com (10.75.127.46) by SFHDAG3NODE2.st.com
- (10.75.127.8) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 28 Jul
- 2020 14:01:07 +0200
-Date:   Tue, 28 Jul 2020 14:01:01 +0200
-From:   Alain Volmat <alain.volmat@st.com>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
-CC:     <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH 1/2] i2c: slave: improve sanity check when registering
-Message-ID: <20200728120101.GA8715@gnbcxd0016.gnb.st.com>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-i2c@vger.kernel.org
-References: <20200725195053.14334-1-wsa+renesas@sang-engineering.com>
- <20200725195053.14334-2-wsa+renesas@sang-engineering.com>
+        id S1729568AbgG1Mbi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 28 Jul 2020 08:31:38 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:39840 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729127AbgG1Mbi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Jul 2020 08:31:38 -0400
+X-UUID: a754563cde9e41c58621b9e3abc2762c-20200728
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=C7A3F2v9RvGGeFoQJVRcNNIIOU6ncFE8s3J+i2oyGqU=;
+        b=Cbl/aAYFjmJ4r+H/DKxJbyA0KLwmWYOEgJOolsClHST4Q2wChzApnAWL+xd6NuzM+kf4Q8hrzmrpTSoZhBomIp3M9N3uIsArfz6pNGA7xKYiA+QgYQiG9gZyournN9Q8Dgk7pnclX6XcmXcJhk5VlBemV4rylx5zZhgNDKpAzyI=;
+X-UUID: a754563cde9e41c58621b9e3abc2762c-20200728
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
+        (envelope-from <qii.wang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 1528350127; Tue, 28 Jul 2020 20:31:32 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 28 Jul 2020 20:31:29 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 28 Jul 2020 20:31:28 +0800
+From:   Qii Wang <qii.wang@mediatek.com>
+To:     <wsa@the-dreams.de>
+CC:     <robh+dt@kernel.org>, <linux-i2c@vger.kernel.org>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
+        <qii.wang@mediatek.com>, <qiangming.xia@mediatek.com>
+Subject: [PATCH v2 0/4] add i2c support for mt8192
+Date:   Tue, 28 Jul 2020 20:30:42 +0800
+Message-ID: <1595939446-5484-1-git-send-email-qii.wang@mediatek.com>
+X-Mailer: git-send-email 1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20200725195053.14334-2-wsa+renesas@sang-engineering.com>
-X-Disclaimer: ce message est personnel / this message is private
-X-Originating-IP: [10.75.127.46]
-X-ClientProxiedBy: SFHDAG6NODE2.st.com (10.75.127.17) To SFHDAG3NODE2.st.com
- (10.75.127.8)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-07-28_07:2020-07-28,2020-07-28 signatures=0
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+VGhpcyBzZXJpZXMgYXJlIGJhc2VkIG9uIDUuOC1yYzEgYW5kIHdlIHByb3ZpZGUgZm91ciBpMmMg
+cGF0Y2hlcw0KdG8gc3VwcG9ydCBtdDgxOTIgU29DLg0KDQpNYWluIGNoYW5nZXMgY29tcGFyZWQg
+dG8gdjE6DQotLW1vZGlmeSB0aGUgY29tbWl0IHdpdGggYWNjZXNzIG1vcmUgdGhhbiA4R0IgZHJh
+bQ0KLS1hZGQgUmV2aWV3ZWQtYnkgYW5kIEFja2VkLWJ5IGZyb20gWWluZ2pvZSwgTWF0dGhpYXMg
+YW5kIFJvYg0KDQpRaWkgV2FuZyAoNCk6DQogIGkyYzogbWVkaWF0ZWs6IEFkZCBhcGRtYSBzeW5j
+IGluIGkyYyBkcml2ZXINCiAgaTJjOiBtZWRpYXRlazogQWRkIGFjY2VzcyB0byBtb3JlIHRoYW4g
+OEdCIGRyYW0gaW4gaTJjIGRyaXZlcg0KICBkdC1iaW5kaW5nczogaTJjOiB1cGRhdGUgYmluZGlu
+Z3MgZm9yIE1UODE5MiBTb0MNCiAgaTJjOiBtZWRpYXRlazogQWRkIGkyYyBjb21wYXRpYmxlIGZv
+ciBNZWRpYVRlayBNVDgxOTINCg0KIC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXQ2
+NXh4LnR4dCAgICAgICAgIHwgIDEgKw0KIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXQ2NXh4LmMg
+ICAgICAgICAgICAgICAgICAgIHwgNzYgKysrKysrKysrKysrKysrLS0tLS0tLQ0KIDIgZmlsZXMg
+Y2hhbmdlZCwgNTMgaW5zZXJ0aW9ucygrKSwgMjQgZGVsZXRpb25zKC0pDQoNCi0tIA0KMS45LjE=
 
-Reviewed-by: Alain Volmat <alain.volmat@st.com>
-
-Alain
-
-On Sat, Jul 25, 2020 at 09:50:52PM +0200, Wolfram Sang wrote:
-> Add check for ERR_PTR and simplify code while here.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  drivers/i2c/i2c-core-slave.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
-> index 5427f047faf0..549751347e6c 100644
-> --- a/drivers/i2c/i2c-core-slave.c
-> +++ b/drivers/i2c/i2c-core-slave.c
-> @@ -18,10 +18,8 @@ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
->  {
->  	int ret;
->  
-> -	if (!client || !slave_cb) {
-> -		WARN(1, "insufficient data\n");
-> +	if (WARN(IS_ERR_OR_NULL(client) || !slave_cb, "insufficient data\n"))
->  		return -EINVAL;
-> -	}
->  
->  	if (!(client->flags & I2C_CLIENT_SLAVE))
->  		dev_warn(&client->dev, "%s: client slave flag not set. You might see address collisions\n",
-> -- 
-> 2.20.1
-> 
