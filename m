@@ -2,64 +2,47 @@ Return-Path: <SRS0=HPKt=BH=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24739C433E0
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 16:36:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8760DC433DF
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 16:40:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F413D207F5
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 16:36:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595954197;
-	bh=R+lWAAOOcTMEDROa6z+bH02XXKHWfd7l285szcMZyhU=;
-	h=Date:From:To:Subject:References:In-Reply-To:List-ID:From;
-	b=kDgcQ9e5SjaoRJN70b/XCfVVBEO3tgb0bQlbLu1E2kdKLKCRJOUd/xKC4vU+tOKGh
-	 /b15ommEWdbOWk7y2xuB2yCEwb6qBlKcYVKgvtTjmGVhRcDQ+XlZp8Tc5NYOooeimj
-	 WSsWK7xpsxvvMYfqv2Uth6M0enIJVkLG2Y5eOlvY=
+	by mail.kernel.org (Postfix) with ESMTP id B9CFB2053B
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 16:40:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="yMuH0wsM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731459AbgG1Qgg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 28 Jul 2020 12:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51722 "EHLO mail.kernel.org"
+        id S1731273AbgG1QkI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 28 Jul 2020 12:40:08 -0400
+Received: from www.zeus03.de ([194.117.254.33]:33224 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731429AbgG1Qge (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 28 Jul 2020 12:36:34 -0400
-Received: from localhost (p54b330d0.dip0.t-ipconnect.de [84.179.48.208])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E2C12053B;
-        Tue, 28 Jul 2020 16:36:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595954194;
-        bh=R+lWAAOOcTMEDROa6z+bH02XXKHWfd7l285szcMZyhU=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=2HMYvmDafPDfD8NURQaaLGvzGhofBfjY1aQ8Tpq1DFR2ol8IEPSYiJUmgLrhOoea0
-         knzeBEJ7FpR7fHD9MNLMZkPcchEFeAABCpvWi+ijmIAKkgWIhs6iJmf/YZntEzixw+
-         quyAR8rxU560a5lXGwiscGuLh3tHuREB3NdCc4O0=
-Date:   Tue, 28 Jul 2020 18:36:31 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Pierre Yves MORDRET <pierre-yves.mordret@st.com>,
-        Alexandre TORGUE <alexandre.torgue@st.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-stm32@st-md-mailman.stormreply.com" 
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Fabrice GASNIER <fabrice.gasnier@st.com>
-Subject: Re: [PATCH v2 1/2] i2c: smbus: add core function handling SMBus
- host-notify
-Message-ID: <20200728163631.GF3736@ninjato>
-References: <1593776168-17867-1-git-send-email-alain.volmat@st.com>
- <1593776168-17867-2-git-send-email-alain.volmat@st.com>
- <20200725202733.GA946@kunai>
- <20200728121050.GC8715@gnbcxd0016.gnb.st.com>
+        id S1731191AbgG1QkI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 28 Jul 2020 12:40:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=k1; bh=e561RFp7+8SRZnbmqsZkNVZv8k3b
+        g2ORekkv9tPH/38=; b=yMuH0wsMV48LLgDFI/GLRzHotxBRsncjDyK0X2R9Pmd/
+        VoOQSFSF2JZr+ImZowQ+BL7qqsuybqzI1X6YdyEPUr9vU5bM7mcQjO4mFqDnOhyV
+        PRojcn4260Qj6zTmIu3hyl9WRdGzDd58j92HfZY1nLy/k2f+TiMweCDr+putPm4=
+Received: (qmail 708249 invoked from network); 28 Jul 2020 18:40:06 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 28 Jul 2020 18:40:06 +0200
+X-UD-Smtp-Session: l3s3148p1@GjB1F4OrtqggAwDPXw7pAIxt9EGuW/0q
+Date:   Tue, 28 Jul 2020 18:40:05 +0200
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Alain Volmat <alain.volmat@st.com>
+Subject: Re: [PATCH 1/2] i2c: slave: improve sanity check when registering
+Message-ID: <20200728164005.GG3736@ninjato>
+References: <20200725195053.14334-1-wsa+renesas@sang-engineering.com>
+ <20200725195053.14334-2-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Il7n/DHsA0sMLmDu"
+        protocol="application/pgp-signature"; boundary="IuhbYIxU28t+Kd57"
 Content-Disposition: inline
-In-Reply-To: <20200728121050.GC8715@gnbcxd0016.gnb.st.com>
+In-Reply-To: <20200725195053.14334-2-wsa+renesas@sang-engineering.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
@@ -67,45 +50,37 @@ List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---Il7n/DHsA0sMLmDu
+--IuhbYIxU28t+Kd57
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Alain,
+On Sat, Jul 25, 2020 at 09:50:52PM +0200, Wolfram Sang wrote:
+> Add check for ERR_PTR and simplify code while here.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-> I've taken your comments and prepared a new serie including them.
-> I'll wait for the conclusion regarding the bindings before pushing it.
-
-Thanks! I hope we can finish the discussion this week because Linus
-hasn't made a clear statement if there will be an rc8. But I still think
-we can do HostNotify for v5.9.
-
-> I also have an additional patch ready in order to add again the SMBus Alert
-> support within the stm32f7 driver since it has been removed from the
-> current serie. Hopefully I can push it once binding is acked so that it
-> can get merged also in this cycle.
-
-If it is super straight-forward, then yes.
+Applied to for-current, thanks!
 
 
---Il7n/DHsA0sMLmDu
+--IuhbYIxU28t+Kd57
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8gVA8ACgkQFA3kzBSg
-KbajSQ//dtaGNmyVGvsfuixW64jisjDGJgBUd+WZi4edEMhsqQuB1WrNXRYMJ96W
-vq11wHJRWoYDXGGaUeGMsRe88yjr6eMamChYLb7OXqQjMaBFr2oq/wgqH0EVPdI4
-M1rg1keqTkTuvnYnKXW6bq5U0DaygeXmi3NOuvX2CCWGcfrDJm69NTDLo1xtKyia
-ZNdlyCdWBETFEC95Wli1PpdLPHD0NctsA0BtEGQLAutI0T0TrSVTj2oH55S2ZNOm
-cEIAjHhb2S8S5R/H9+JPLF9DMRn6QRTg2jYaEDy7vd6XxkHn7SWPSyMT41xEq/0T
-PQ9OkRkpyY2vJ8r/XaaD16okW1bPEmxW/1RxOcVmuFwtsST9Xu5ovMqesQO8+XsG
-DHSfAIO97GKaZ5sYTHd/pW5UZ2GW5okSDXzPBIoDSA8AFWEMSrhZ6Gh9kMwvUY4H
-Szj095Q82lbV4A2uZHlp8Or9x8roiHKTX9opJy/gmh4X1wcZ/iFkLjInwC8bf9SJ
-ldK/4k/7LGPB0Zc60v/mCjkG3QCZXW05JvwkI1dnMyNzZzwhMSnWIsiIaC9I4w+V
-Bjta6GG92S/nx2SmfAEG7SILinq2mVU3iielHg2E+YlqptIWSwz9XGGqLMYHNL4O
-J0Xef9hK4m/VmjA+QyRHyqfFXJ2LxCnL22d/cgLex1WEi/M8hjg=
-=A1LF
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8gVOUACgkQFA3kzBSg
+Kbappw/+Ia9Wy9N+Z1LS/DOT/0ETCAhqAHLka5FQUJU1pu7v6tiOuky67jP7iDkJ
+cU04i450hQkn7P7Th3/szW18JSZZILOwOgDkrYHfTjCdkLmR+rrl4sOHpWHvcJtw
+Vs9Tdoy2OmU/fHZCgp3WjxSJA2o9uZxd8sZ37OnWY1adh1GVycOQOSDbnDRfuNJB
+BuKc7shGjLG9Tc6bPgk8PK5/T0RXSAURTHWvhDIBPruUIDFBtyKg0Po69Psk8Zp1
+QybhaV1q/xDLlsorPoRsvCScqC276jkzu41MT/vK3fhHRuajsBLhHcIPE4E5PIU/
+BFanIkv6a8DYANSK59J0Ae/zcucg6JXiLpKlZpeAryL/7WUJ60j6y4OFlmgaOQM4
+TWMnmo/hNYKYdv9lQcLJ3EczoInAmTGs+oss2+vjPNefSSa4t7poOifHuJNuloyb
+ZBJqQyrYwX1VMyBcRLOAttZ67uneit5t/3j5BQCvNXjWIReZjDrqnp6epsI6Gs6K
+xRJdwEEavjPRx17OhGVbtrX0TvRxy2bqtDZwvktSuQ1nqmWt6j7jrHJtIkwiqYyi
+nDW8fJM+0Siu9eeP4rC6wYRzI2vKLcmxh7mYVm3uhxwmdx4XtqdkVMb6MkpKima+
+bFPz/TANOPFDzay6PwNhw0Po7NXRMmjXCIXEUYOLHhy1JWbnCvU=
+=xfbn
 -----END PGP SIGNATURE-----
 
---Il7n/DHsA0sMLmDu--
+--IuhbYIxU28t+Kd57--
