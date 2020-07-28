@@ -2,162 +2,101 @@ Return-Path: <SRS0=HPKt=BH=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4186EC433EA
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 11:40:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F5F6C433EB
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 12:01:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1AA8E206D4
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 11:40:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A827206D7
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 12:01:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UFG9n7da"
+	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="qpjOrsP2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729167AbgG1LkY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 28 Jul 2020 07:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37768 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729144AbgG1LkY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Jul 2020 07:40:24 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A242C061794
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2020 04:40:24 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id o13so11757753pgf.0
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2020 04:40:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=kBby+eefhQBg3P3osgBqYF0piscRaYFKo6/sKyA7cuM=;
-        b=UFG9n7daaeYhLy3/FKS+7iUtniLN4/PSTcxaO5osXTkZIvl5hO1lLnKiVVlZQr3K/i
-         paqlrIRxKQJzHrTAcOYPW1MjxyYm2P1YDUGozno2YBuurqMLEWJfRBEed3tvTxsEkuxx
-         EeyOVg8vW4H0/YN7dYqsSSR4IiydsZO2eKnOnxxjy5aHBsuy1WTGwXMpxVapEcW4YCGq
-         siPQUcXX694HHu4zF1PEXi8tgbo0flGAi9ThFFjzgFeGgU0Xfl6xsyIi0Eh0QewUdBCK
-         ai8QdUZ6gOl0JhfwEwUL3ySGELqUlwZjlezUQbSC6iZt60BdkRhkzrsumjnx22t6ewM9
-         dEKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=kBby+eefhQBg3P3osgBqYF0piscRaYFKo6/sKyA7cuM=;
-        b=JntHBPytXK7+fwjzw35PBNTwV5pE4tb3gCTn6hhS2DzdOCuQKs7jOWt9VCfRyGfw1j
-         6ydfY8Ee1K5JaA2uADjvboIEtCI/Po19Xtbt9F6ddATwB+1Sq6MBMrvWVn+oxGr9pxg5
-         +IcAgduHWlcCnnqoj85ZyD1D0gZnYLSSYXMz00I/+zqGv280b+HFNQfdjjtlAPfzz9fP
-         2QbWCtZjpyrcbiGX6EPrRxa8WEeVap9fmWuFe6EFJLM8WqqI0EzHbO0SZjLRtvLrzIa7
-         vG3m8P5wdHdAvcvApJsGMJ5FXRI+x4VmVoUjazm4l0KBR2IiIMU0AqcuqrNKe8scF75o
-         HdpA==
-X-Gm-Message-State: AOAM531Tlq56XkPjirss5ZMVDYH88+vIWA9M//deH2Vdnr5DkFifDbAB
-        X0Vh2CQQFUaWodKjWbNBwfc=
-X-Google-Smtp-Source: ABdhPJyP9u1raRY6M7YQ1O/AmsfSefyQ4JALP7Uh9p0hmidftOszVGZ6Byh3ckcGKRv+0d+mVlLYhg==
-X-Received: by 2002:a63:f50b:: with SMTP id w11mr23781856pgh.157.1595936423860;
-        Tue, 28 Jul 2020 04:40:23 -0700 (PDT)
-Received: from [192.168.173.154] (76-10-188-40.dsl.teksavvy.com. [76.10.188.40])
-        by smtp.gmail.com with ESMTPSA id y19sm7136054pfn.77.2020.07.28.04.40.23
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 Jul 2020 04:40:23 -0700 (PDT)
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.1\))
-Subject: Re: [RFC PATCH] i2c: Support Smbus 3.0 block sizes up to 255 bytes.
-From:   Daniel Stodden <daniel.stodden@gmail.com>
-In-Reply-To: <20200728111602.GC980@ninjato>
-Date:   Tue, 28 Jul 2020 04:40:22 -0700
-Cc:     linux-i2c@vger.kernel.org, jdelvare@suse.de
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <14454F49-740B-4423-A2F9-4B00B18A9A74@gmail.com>
-References: <20200728004708.4430-1-daniel.stodden@gmail.com>
- <20200728111602.GC980@ninjato>
-To:     Wolfram Sang <wsa@kernel.org>
-X-Mailer: Apple Mail (2.3608.120.23.2.1)
+        id S1729434AbgG1MBn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 28 Jul 2020 08:01:43 -0400
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:40902 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729422AbgG1MBl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Jul 2020 08:01:41 -0400
+Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 06SBq3p2030328;
+        Tue, 28 Jul 2020 14:01:36 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=STMicroelectronics;
+ bh=45wPQfTuonuAouSiTUHv2fh5yzAchacs/wyy9C6PqAc=;
+ b=qpjOrsP2CyiKBcpxAvVx9WhLezuK98Y6GAAGqQ6yOaIwnusaNXmNe0e/uYWF5D59b+/+
+ W3R4l+bE2+VyHdwGW/gaZkpHOrQS2xQ/VKDh364FpamACKQwg3R9C3Hs4CSNvODnAbJZ
+ h09UQQEY2pBLpfU0YSxGlGH5ILrT9iZupu4ZccmJDmQqqbJed7pyzDZ2wcJ53RCr+piR
+ sn4f+LgfofdWUQgDgAFhS4rzf/ByTt6UJcgXsf8ND2/gJyrh7VynExD8dx884ikdIVuU
+ zWcw+6KGPfDZu0Ww7deo0Wqe/Lr4vSXoa8e5DoHG4KjnHAtEFTHTfib4nKAC+iVv9rXX qw== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 32gbmg5y9m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Jul 2020 14:01:36 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id F39A710002A;
+        Tue, 28 Jul 2020 14:01:34 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag3node2.st.com [10.75.127.8])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id EBB5A2BF9C9;
+        Tue, 28 Jul 2020 14:01:34 +0200 (CEST)
+Received: from gnbcxd0016.gnb.st.com (10.75.127.45) by SFHDAG3NODE2.st.com
+ (10.75.127.8) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 28 Jul
+ 2020 14:01:34 +0200
+Date:   Tue, 28 Jul 2020 14:01:33 +0200
+From:   Alain Volmat <alain.volmat@st.com>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+CC:     <linux-i2c@vger.kernel.org>
+Subject: Re: [PATCH 2/2] i2c: slave: add sanity check when unregistering
+Message-ID: <20200728120133.GB8715@gnbcxd0016.gnb.st.com>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-i2c@vger.kernel.org
+References: <20200725195053.14334-1-wsa+renesas@sang-engineering.com>
+ <20200725195053.14334-3-wsa+renesas@sang-engineering.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20200725195053.14334-3-wsa+renesas@sang-engineering.com>
+X-Disclaimer: ce message est personnel / this message is private
+X-Originating-IP: [10.75.127.45]
+X-ClientProxiedBy: SFHDAG7NODE3.st.com (10.75.127.21) To SFHDAG3NODE2.st.com
+ (10.75.127.8)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-07-28_07:2020-07-28,2020-07-28 signatures=0
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
+Reviewed-by: Alain Volmat <alain.volmat@st.com>
 
-> On Jul 28, 2020, at 4:16 AM, Wolfram Sang <wsa@kernel.org> wrote:
->=20
->=20
->> * Allocated bit 4 (I2C_SMBUS3_BLOCK=3D0x10), to simplify Smbus2
->>   compatibility: I2C_SMBUS_*BLOCK* =3D (<old type>|0x10)
->=20
-> I think the code becomes easier to understand, if we use new transfer
-> types a bit more explicitly. Also, I am not sure of the extra bit
-> because it is not clearly visible that types >=3D 16 and <=3D 31 will =
-have a
-> special meaning. We could do like this if we sacrifice one number for
-> an unused BROKEN with 255 byte:
->=20
-> -#define I2C_SMBUS_BLOCK_DATA	    5
-> +#define I2C_SMBUS2_BLOCK_DATA	    5 /* 32 byte only, =
-deprecated */
-> -#define I2C_SMBUS_I2C_BLOCK_BROKEN  6
-> +#define I2C_SMBUS2_I2C_BLOCK_BROKEN  6 /* 32 byte only, deprecated */
-> -#define I2C_SMBUS_BLOCK_PROC_CALL   7		/* SMBus 2.0 */
-> +#define I2C_SMBUS2_BLOCK_PROC_CALL   7		/* SMBus 2.0, 32 =
-byte only, deprecated */
-> -#define I2C_SMBUS_I2C_BLOCK_DATA    8
-> +#define I2C_SMBUS2_I2C_BLOCK_DATA    8 /* 32 byte only, deprecated */
->=20
-> +#define I2C_SMBUS_BLOCK_DATA		9
-> +#define I2C_SMBUS_I2C_BLOCK_BROKEN	10 /* FIXME: probably say "don't =
-use" here
-> +#define I2C_SMBUS_BLOCK_PROC_CALL	11 /* SMBus >=3D 2.0 */
-> +#define I2C_SMBUS_I2C_BLOCK_DATA	12
->>=20
->=20
->> +	user_len =3D kmalloc_array(nmsgs, sizeof(*user_len), =
-GFP_KERNEL);
->> +	if (!user_len) {
->> +		res =3D -ENOMEM;
->> +		goto out;
->> +	}
->=20
-> Maybe on stack? I2C_RDWR_IOCTL_MAX_MSGS will ensure this will stay at =
-a
-> sane value.
->=20
->> @@ -313,7 +357,19 @@ static noinline int i2cdev_ioctl_smbus(struct =
-i2c_client *client,
->> 		union i2c_smbus_data __user *data)
->> {
->> 	union i2c_smbus_data temp =3D {};
->> -	int datasize, res;
->> +	int block_max, datasize, res;
->> +
->=20
-> 'size' is really a misleading name :(
+Alain
 
-Yep. :/
-
-> +	if (size <=3D I2C_SMBUS2_I2C_BLOCK_DATA) {
-> +		if (size >=3D I2C_SMBUS2_BLOCK_DATA)
-> +			size +=3D I2C_SMBUS_BLOCK_DATA - =
-I2C_SMBUS2_BLOCK_DATA;
-> +		block_max =3D I2C_SMBUS_BLOCK_MAX;
-> +	} else {
-> +		block_max =3D I2C_SMBUS3_BLOCK_MAX;
-> +	}
->=20
-> Would this work, too?
-
-=E2=80=9C3=E2=80=9D ;)
-
-But I get what you mean.
-
-I=E2=80=99m not too passionate about the bit flip. Adding relative =
-offsets would work for me too.
-
-In fact, if we just want to keep a full switch (size) {} and map {9, 10, =
-11} to {5, 7, 8},
-(i.e. no dummy-broken), my world wouldn=E2=80=99t collapse yet.
-
-Daniel
-
-
-
-
-
+On Sat, Jul 25, 2020 at 09:50:53PM +0200, Wolfram Sang wrote:
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/i2c/i2c-core-slave.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
+> index 549751347e6c..1589179d5eb9 100644
+> --- a/drivers/i2c/i2c-core-slave.c
+> +++ b/drivers/i2c/i2c-core-slave.c
+> @@ -58,6 +58,9 @@ int i2c_slave_unregister(struct i2c_client *client)
+>  {
+>  	int ret;
+>  
+> +	if (IS_ERR_OR_NULL(client))
+> +		return -EINVAL;
+> +
+>  	if (!client->adapter->algo->unreg_slave) {
+>  		dev_err(&client->dev, "%s: not supported by adapter\n", __func__);
+>  		return -EOPNOTSUPP;
+> -- 
+> 2.20.1
+> 
