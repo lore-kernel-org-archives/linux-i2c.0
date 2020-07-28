@@ -2,61 +2,64 @@ Return-Path: <SRS0=HPKt=BH=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D637C43445
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 16:34:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24739C433E0
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 16:36:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 63E692083B
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 16:34:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F413D207F5
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jul 2020 16:36:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595954050;
-	bh=uXUumP2+sNTXnE6EHRt6PUDgwtUeHTn5j+dNJH7KOVE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=lvI/zXT1J5ATZOGCxcV/dL9jrRkCaNa0E9+q7+wkXiGnY+kkv6tHLM2iyHf1onUli
-	 HZDGYasvZbWRxyHvBdLg526tscDfhyNQ6JicAdCjfgVMw+9HSYa6622IMyfeK2aHpP
-	 pyshs29duG69hqd44bbpknE+gdkMywd4qAoOcAIE=
+	s=default; t=1595954197;
+	bh=R+lWAAOOcTMEDROa6z+bH02XXKHWfd7l285szcMZyhU=;
+	h=Date:From:To:Subject:References:In-Reply-To:List-ID:From;
+	b=kDgcQ9e5SjaoRJN70b/XCfVVBEO3tgb0bQlbLu1E2kdKLKCRJOUd/xKC4vU+tOKGh
+	 /b15ommEWdbOWk7y2xuB2yCEwb6qBlKcYVKgvtTjmGVhRcDQ+XlZp8Tc5NYOooeimj
+	 WSsWK7xpsxvvMYfqv2Uth6M0enIJVkLG2Y5eOlvY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731552AbgG1QeJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 28 Jul 2020 12:34:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49110 "EHLO mail.kernel.org"
+        id S1731459AbgG1Qgg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 28 Jul 2020 12:36:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731422AbgG1QeJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 28 Jul 2020 12:34:09 -0400
+        id S1731429AbgG1Qge (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 28 Jul 2020 12:36:34 -0400
 Received: from localhost (p54b330d0.dip0.t-ipconnect.de [84.179.48.208])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A79D20792;
-        Tue, 28 Jul 2020 16:34:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E2C12053B;
+        Tue, 28 Jul 2020 16:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595954048;
-        bh=uXUumP2+sNTXnE6EHRt6PUDgwtUeHTn5j+dNJH7KOVE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cgrVwCnMxj91VP8xHGJ7740Jinf4MxWMNJ3NEkmqJ/yCMP4Dv2nlppxBjd3sCU4v6
-         CYFGKgh/oAIlXBgvSjuyyHcTn5tEK3k1OtiztCbtU2pcqzMDgv3CofEG+R75TuusMP
-         qvBF2E1miBiyOvrRv3rZ8yIwTrVjnBIfw5MNasxs=
-Date:   Tue, 28 Jul 2020 18:34:05 +0200
+        s=default; t=1595954194;
+        bh=R+lWAAOOcTMEDROa6z+bH02XXKHWfd7l285szcMZyhU=;
+        h=Date:From:To:Subject:References:In-Reply-To:From;
+        b=2HMYvmDafPDfD8NURQaaLGvzGhofBfjY1aQ8Tpq1DFR2ol8IEPSYiJUmgLrhOoea0
+         knzeBEJ7FpR7fHD9MNLMZkPcchEFeAABCpvWi+ijmIAKkgWIhs6iJmf/YZntEzixw+
+         quyAR8rxU560a5lXGwiscGuLh3tHuREB3NdCc4O0=
+Date:   Tue, 28 Jul 2020 18:36:31 +0200
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc:     thierry.reding@gmail.com, jonathanh@nvidia.com, frankc@nvidia.com,
-        hverkuil@xs4all.nl, sakari.ailus@iki.fi, robh+dt@kernel.org,
-        helen.koike@collabora.com, digetx@gmail.com, sboyd@kernel.org,
-        gregkh@linuxfoundation.org, linux-media@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [RFC PATCH v5 05/14] i2c: tegra: Avoid tegra_i2c_init_dma() for
- Tegra210 vi i2c
-Message-ID: <20200728163405.GE3736@ninjato>
-References: <1595883452-17343-1-git-send-email-skomatineni@nvidia.com>
- <1595883452-17343-6-git-send-email-skomatineni@nvidia.com>
+To:     Pierre Yves MORDRET <pierre-yves.mordret@st.com>,
+        Alexandre TORGUE <alexandre.torgue@st.com>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-stm32@st-md-mailman.stormreply.com" 
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Fabrice GASNIER <fabrice.gasnier@st.com>
+Subject: Re: [PATCH v2 1/2] i2c: smbus: add core function handling SMBus
+ host-notify
+Message-ID: <20200728163631.GF3736@ninjato>
+References: <1593776168-17867-1-git-send-email-alain.volmat@st.com>
+ <1593776168-17867-2-git-send-email-alain.volmat@st.com>
+ <20200725202733.GA946@kunai>
+ <20200728121050.GC8715@gnbcxd0016.gnb.st.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="FN+gV9K+162wdwwF"
+        protocol="application/pgp-signature"; boundary="Il7n/DHsA0sMLmDu"
 Content-Disposition: inline
-In-Reply-To: <1595883452-17343-6-git-send-email-skomatineni@nvidia.com>
+In-Reply-To: <20200728121050.GC8715@gnbcxd0016.gnb.st.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
@@ -64,41 +67,45 @@ List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---FN+gV9K+162wdwwF
+--Il7n/DHsA0sMLmDu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 27, 2020 at 01:57:23PM -0700, Sowjanya Komatineni wrote:
-> VI I2C is on host1x bus so APB DMA can't be used for Tegra210 VI
-> I2C and there are no tx and rx dma channels for VI I2C.
->=20
-> So, avoid attempt of requesting DMA channels.
->=20
-> Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Hi Alain,
 
-Applied to for-next, thanks!
+> I've taken your comments and prepared a new serie including them.
+> I'll wait for the conclusion regarding the bindings before pushing it.
+
+Thanks! I hope we can finish the discussion this week because Linus
+hasn't made a clear statement if there will be an rc8. But I still think
+we can do HostNotify for v5.9.
+
+> I also have an additional patch ready in order to add again the SMBus Alert
+> support within the stm32f7 driver since it has been removed from the
+> current serie. Hopefully I can push it once binding is acked so that it
+> can get merged also in this cycle.
+
+If it is super straight-forward, then yes.
 
 
---FN+gV9K+162wdwwF
+--Il7n/DHsA0sMLmDu
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8gU30ACgkQFA3kzBSg
-KbbAPg//ehPzd9wKNGR8liN8/pgm4FABYGaxyQIuEG4paVvdgwUOoQ0ZW+itZsTJ
-svnQjlamrbF65Yq1whqDLBiPMwfowGK6DUb9S2s9tyo4X2qsNJY9c2QTDZCnHqA2
-DOM52p7v1lN1wTb8bSFCgxA59TEkKuWpkJSvjN0fAXQ7mpq1ioH4su7+SQ6aqNVQ
-eg6XZPhsmg9uoneHBpaAT4irs7fR1X+GWppEwn2vMAGxcLEf5HaI/yhY2aalIpxu
-lAHfXBJK5Jreqn497B7WXT5WMJ97a/IXPbvW51S7Y0OAKpsrBgG/w4ga2Wqltj0C
-QfMY8aCukQhGRhlmUeC+kULlrcY1bhVAI20cIjNxLhaFCnymGAjCKU14MO75tfwl
-PdsyVnd/OvKhAKW/7lLXZyWNJK41xQ0sRgOT3C3Mg1+KdfWFJB9c8hqynjBnvuZb
-J0bdYJ1mNRVOEFn3QXOOb3BnYFdUhl03LYJYax+NEzZxbiZYyn7NjoPW+J1eBsjL
-cxOtzP12AbIXDj+EWVBGn2B0HrTIQhQMovsdgaDS7tW7ahUGnESO3EdpH0yF6Jk2
-+LnVRpFB1aHxze/dFahBmjBPtODTJQrsmHz5b93Nw5bjHWm10c+ro+IQF19V3/qW
-47na6KqnvslbLzHUiWW4WX5GMKYQYHbWY+dSwB8X7MEjAU/aysw=
-=cUam
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8gVA8ACgkQFA3kzBSg
+KbajSQ//dtaGNmyVGvsfuixW64jisjDGJgBUd+WZi4edEMhsqQuB1WrNXRYMJ96W
+vq11wHJRWoYDXGGaUeGMsRe88yjr6eMamChYLb7OXqQjMaBFr2oq/wgqH0EVPdI4
+M1rg1keqTkTuvnYnKXW6bq5U0DaygeXmi3NOuvX2CCWGcfrDJm69NTDLo1xtKyia
+ZNdlyCdWBETFEC95Wli1PpdLPHD0NctsA0BtEGQLAutI0T0TrSVTj2oH55S2ZNOm
+cEIAjHhb2S8S5R/H9+JPLF9DMRn6QRTg2jYaEDy7vd6XxkHn7SWPSyMT41xEq/0T
+PQ9OkRkpyY2vJ8r/XaaD16okW1bPEmxW/1RxOcVmuFwtsST9Xu5ovMqesQO8+XsG
+DHSfAIO97GKaZ5sYTHd/pW5UZ2GW5okSDXzPBIoDSA8AFWEMSrhZ6Gh9kMwvUY4H
+Szj095Q82lbV4A2uZHlp8Or9x8roiHKTX9opJy/gmh4X1wcZ/iFkLjInwC8bf9SJ
+ldK/4k/7LGPB0Zc60v/mCjkG3QCZXW05JvwkI1dnMyNzZzwhMSnWIsiIaC9I4w+V
+Bjta6GG92S/nx2SmfAEG7SILinq2mVU3iielHg2E+YlqptIWSwz9XGGqLMYHNL4O
+J0Xef9hK4m/VmjA+QyRHyqfFXJ2LxCnL22d/cgLex1WEi/M8hjg=
+=A1LF
 -----END PGP SIGNATURE-----
 
---FN+gV9K+162wdwwF--
+--Il7n/DHsA0sMLmDu--
