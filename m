@@ -2,141 +2,130 @@ Return-Path: <SRS0=cYxT=BK=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22C9DC433E0
-	for <linux-i2c@archiver.kernel.org>; Fri, 31 Jul 2020 16:29:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1FF9C433E0
+	for <linux-i2c@archiver.kernel.org>; Fri, 31 Jul 2020 19:16:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F23F92177B
-	for <linux-i2c@archiver.kernel.org>; Fri, 31 Jul 2020 16:29:03 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="olRW+DlN"
+	by mail.kernel.org (Postfix) with ESMTP id 7CA0522B3F
+	for <linux-i2c@archiver.kernel.org>; Fri, 31 Jul 2020 19:16:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1596223018;
+	bh=uZBsxMjv/LVf76C1qg/aXbjVQV+re7IP0Tfx88ohJqc=;
+	h=Date:From:To:Cc:Subject:List-ID:From;
+	b=DPy87H6NjxylqouPxV4qvZmXyOVYR3MH+yGtVcnQ/xHTULTRPFernTZWLSg1zIrII
+	 0gUYiWYUCBLm+8d4ifkH/992/c5poXo3NSDLL1er4rER/Hv/+ORFrDPZL6uM+xN6Qu
+	 hPpniW/mNEgrZmqW7slD4LxRcP2HBWS9RRQ2nuX4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732395AbgGaQ3D (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 31 Jul 2020 12:29:03 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:6851 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726502AbgGaQ3D (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 31 Jul 2020 12:29:03 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f2446c10003>; Fri, 31 Jul 2020 09:28:49 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Fri, 31 Jul 2020 09:29:03 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Fri, 31 Jul 2020 09:29:03 -0700
-Received: from [10.2.167.221] (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 31 Jul
- 2020 16:29:01 +0000
-Subject: Re: [RFC PATCH v6 09/10] media: tegra-video: Add CSI MIPI pads
- calibration
-To:     Dmitry Osipenko <digetx@gmail.com>, <thierry.reding@gmail.com>,
-        <jonathanh@nvidia.com>, <frankc@nvidia.com>, <hverkuil@xs4all.nl>,
-        <sakari.ailus@iki.fi>, <robh+dt@kernel.org>,
-        <helen.koike@collabora.com>
-CC:     <sboyd@kernel.org>, <gregkh@linuxfoundation.org>,
-        <linux-media@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-i2c@vger.kernel.org>
-References: <1596186169-18729-1-git-send-email-skomatineni@nvidia.com>
- <1596186169-18729-10-git-send-email-skomatineni@nvidia.com>
- <3ac158c4-7df7-e3c1-f0e1-33e7ef017762@gmail.com>
- <f483329d-b5fe-fda5-e235-b8edb5fce440@nvidia.com>
- <a08af0e8-80d8-0bd0-87a3-adfc8e70a92a@gmail.com>
-From:   Sowjanya Komatineni <skomatineni@nvidia.com>
-Message-ID: <ace047fe-8a1a-666a-b91b-9d63b1d68567@nvidia.com>
-Date:   Fri, 31 Jul 2020 09:29:00 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1730850AbgGaTQ6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 31 Jul 2020 15:16:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36274 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730177AbgGaTQ5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 31 Jul 2020 15:16:57 -0400
+Received: from localhost (router.4pisysteme.de [80.79.225.122])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A897D21744;
+        Fri, 31 Jul 2020 19:16:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1596223017;
+        bh=uZBsxMjv/LVf76C1qg/aXbjVQV+re7IP0Tfx88ohJqc=;
+        h=Date:From:To:Cc:Subject:From;
+        b=mp/3D3suDlIb1qj51uKmnlQPrBM0qHOQMvJ/qZvVS8K0sS+QhKee3/gMfS4EZMIlC
+         mQ9hjU+9Tl9uEw+Gp6mN3xOq6Aye8NOcvFJWVCQR/C8UvNz2bBNyYyDXy3ZStocoGM
+         UBUSe3jqszS5TzIg4PUqxiwoD3V1bcbcffP3lZtM=
+Date:   Fri, 31 Jul 2020 21:16:54 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Peter Rosin <peda@axentia.se>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PULL REQUEST] i2c for 5.8
+Message-ID: <20200731191654.GA14800@kunai>
 MIME-Version: 1.0
-In-Reply-To: <a08af0e8-80d8-0bd0-87a3-adfc8e70a92a@gmail.com>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1596212929; bh=wiDX5nyN9UriQ2/ElU4lhyUh5w9DvvpArAoLEITpFZA=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Transfer-Encoding:
-         Content-Language;
-        b=olRW+DlN71dB+r0ZNOxtRhP7eVN9oe0PQG99E0Tx3krlqvqifprFhHGovWplhQ6Za
-         ZtLXRDCrT+oX9InUyqXSsnmSJ1juaEt6NcZ1KaeVuvdXUJzePjGgntwVppYeVtAlVD
-         UtxaCG2z7ctP6VB/pw8bBoOICNuWi2he91T+snzeTjwkcj7aLkti5WLDW2k9xpPb5j
-         X/I+vbrhuaMPjWQavXJwymx/jBRgSz91UI9VTP/X7r20ThmphbM9434TfRXlhPBpdA
-         qF6AZCnnzvrYuy5hsp6d44DNzfvfArhqCrdRQ7N0cQmHBJbAxrXcSKFQ3UE7YL2hS3
-         M3sC78Kzai0OQ==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
+Content-Disposition: inline
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
-On 7/31/20 9:14 AM, Dmitry Osipenko wrote:
-> 31.07.2020 18:46, Sowjanya Komatineni =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->> On 7/31/20 4:39 AM, Dmitry Osipenko wrote:
->>> 31.07.2020 12:02, Sowjanya Komatineni =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->>> ...
->>>> @@ -249,13 +249,47 @@ static int tegra_csi_enable_stream(struct
->>>> v4l2_subdev *subdev)
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return ret;
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->>>>  =C2=A0 +=C2=A0=C2=A0=C2=A0 if (csi_chan->mipi) {
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D tegra_mipi_enable(=
-csi_chan->mipi);
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (ret < 0) {
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 de=
-v_err(csi->dev,
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 "failed to enable MIPI pads: %d\n", ret);
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 go=
-to rpm_put;
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->>>> +
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /*
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * CSI MIPI pads PULL=
-UP, PULLDN and TERM impedances need to
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * be calibrated afte=
-r power on.
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * So, trigger the ca=
-libration start here and results will
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * be latched and app=
-lied to the pads when link is in LP11
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * state during start=
- of sensor streaming.
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D tegra_mipi_start_c=
-alibration(csi_chan->mipi);
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (ret < 0) {
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 de=
-v_err(csi->dev,
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 "failed to start MIPI calibration: %d\n", ret);
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 go=
-to disable_mipi;
->>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->>> What would happen if CSI stream is enabled and then immediately disable=
-d
->>> without enabling camera sensor?
->> Nothing will happen as during stream enable csi receiver is kept ready.
->>
->> But actual capture will not happen during that point.
-> Could you please show how the full call chain looks like? It's not clear
-> to me what keeps CSI stream "ready".
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-VI is the main video input (video device) and on streaming it starts=20
-stream of CSI subdev prior to stream of Sensor.
+Linus,
 
-HW path, sensor stream (CSI TX) -> CSI stream (RX)
+here are some I2C core improvements to prevent NULL pointer usage and a
+MAINTAINERS update.
 
-During CSI stream on, CSI PHY receiver is enabled to start receiving the=20
-data but internally capture assembled to active state will happen only=20
-when Tegra VI single shot is issues where VI thru pixel parser gets=20
-captures data into the memory
+Please pull.
+
+Thanks,
+
+   Wolfram
 
 
+The following changes since commit 92ed301919932f777713b9172e525674157e983d:
+
+  Linux 5.8-rc7 (2020-07-26 14:14:06 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 8808981baf96e1b3dea1f08461e4d958aa0dbde1:
+
+  i2c: slave: add sanity check when unregistering (2020-07-28 18:37:17 +0200)
+
+----------------------------------------------------------------
+Akash Asthana (1):
+      MAINTAINERS: Update GENI I2C maintainers list
+
+Wolfram Sang (3):
+      i2c: also convert placeholder function to return errno
+      i2c: slave: improve sanity check when registering
+      i2c: slave: add sanity check when unregistering
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Alain Volmat (2):
+      (Rev.) i2c: slave: add sanity check when unregistering
+      (Rev.) i2c: slave: improve sanity check when registering
+
+Andy Shevchenko (1):
+      (Rev.) i2c: also convert placeholder function to return errno
+
+ MAINTAINERS                  | 3 ++-
+ drivers/i2c/i2c-core-slave.c | 7 ++++---
+ include/linux/i2c.h          | 2 +-
+ 3 files changed, 7 insertions(+), 5 deletions(-)
+
+--liOOAslEiF7prFVr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8kbiIACgkQFA3kzBSg
+KbYt6RAAnqY3bxaqD7na5mS6hbXF4BpPnElXijeL8bdoglwCTFzTmVAVPUdEHq1J
+xXm3jCXVUkgwKmdQngWktQQu0ivaeGFwBitFSccydjRUYAWm/PkQs8OPjw1MLhxa
+WxTiAufcKvPqJ4tereUMWY7Xld2AEa2UfRwJ4O17jDmQKW2fhRw3/hSVzZIveSN7
+4PGpbd5O5P2RjbjDit7lkyuE6A6OI7jqFNn8pszmfIYdDrke4TKvXop7MK4UdDVJ
+c2j9WdHvd/I1hR1QQWtbMhFXxbHTIbwIC3TO+E86dBqqQLS7yWC16jgWeSX3qXWP
++0mhWYG/0jGb1LQKB4g5ESpb6vMDPw4lTJwDgEj3SG+vH8uOl3NWiNp6LTMuBBb4
+ZleP3WyLrXbISfm+BYki1B4+tUNFPm4xMeXMieIc2i37vEPLzQqA4GSutB19aPVF
+e74vjgJDbqDuxi1okwd8Qih3BusShRX+m16lpnjq6nE7QWLBp/1AwQCROlbLPpmi
+0AMHd5WgszBgv4wam9a3/+6PD1Di00BDeELsIo9bTbmbo1DwzCrtlgqnFlFgB8AL
+5ypQTmKnxsEMIf9euStR/9uG13Q8MJKJqU2XCch6K4EAFwLdkQY1Gy9Y7gTWjLQ1
+0orvlgjcQFSZ0Y3xBO3QmUlYvqe0YLZYhDwYsXJ2Qc/zR74aLQI=
+=/pKd
+-----END PGP SIGNATURE-----
+
+--liOOAslEiF7prFVr--
