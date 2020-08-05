@@ -2,87 +2,113 @@ Return-Path: <SRS0=nbAm=BP=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA6F5C433E0
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 20:16:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02425C433E0
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 21:42:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B870D22B42
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 20:16:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="EtnKorVp"
+	by mail.kernel.org (Postfix) with ESMTP id DD2DD2250E
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 21:42:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729602AbgHEUQH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 5 Aug 2020 16:16:07 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:30906 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726305AbgHEQUC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Aug 2020 12:20:02 -0400
-X-UUID: 95c1d7cd1f6f4b74820c363d0bba8f1a-20200805
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=OtQD/PJMlF3G2CJYqMrtaw2Ep2S+WhvIaUE5rI/Zd4g=;
-        b=EtnKorVp0b9nIT8NOQTAL1ojafuQtpdCZAD+N5fnSpE4HT6FqVc2QpMWe7+IoOxlAaBJphxp0sHVd78haT4c2TWzBLXTya7JNlXJFSGEZxzqOS3AsKzX1myxJhBFV9DXrE3VTdcz8v/1rDSMVFOucWTskUjCS3NMDvJktNMHAk0=;
-X-UUID: 95c1d7cd1f6f4b74820c363d0bba8f1a-20200805
-Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw02.mediatek.com
-        (envelope-from <qii.wang@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 182264108; Wed, 05 Aug 2020 18:53:22 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 5 Aug 2020 18:53:19 +0800
-Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 5 Aug 2020 18:53:20 +0800
-From:   Qii Wang <qii.wang@mediatek.com>
-To:     <wsa@the-dreams.de>
-CC:     <robh+dt@kernel.org>, <linux-i2c@vger.kernel.org>,
+        id S1725996AbgHEVmv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 5 Aug 2020 17:42:51 -0400
+Received: from sauhun.de ([88.99.104.3]:47296 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725920AbgHEVmv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 5 Aug 2020 17:42:51 -0400
+Received: from localhost (router.4pisysteme.de [80.79.225.122])
+        by pokefinder.org (Postfix) with ESMTPSA id BF3252C0829;
+        Wed,  5 Aug 2020 23:42:47 +0200 (CEST)
+Date:   Wed, 5 Aug 2020 23:42:42 +0200
+From:   <wsa@the-dreams.de>
+To:     Qii Wang <qii.wang@mediatek.com>
+Cc:     <robh+dt@kernel.org>, <linux-i2c@vger.kernel.org>,
         <devicetree@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <qii.wang@mediatek.com>
-Subject: [PATCH v3 4/4] i2c: mediatek: Add i2c compatible for MediaTek MT8192
-Date:   Wed, 5 Aug 2020 18:52:22 +0800
-Message-ID: <1596624742-14727-5-git-send-email-qii.wang@mediatek.com>
-X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1596624742-14727-1-git-send-email-qii.wang@mediatek.com>
+        <linux-mediatek@lists.infradead.org>, <srv_heupstream@mediatek.com>
+Subject: Re: [PATCH v3 0/4] add i2c support for mt8192
+Message-ID: <20200805214242.GA2182@kunai>
+Mail-Followup-To: <wsa@the-dreams.de>, Qii Wang <qii.wang@mediatek.com>,
+        <robh+dt@kernel.org>, <linux-i2c@vger.kernel.org>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>, <srv_heupstream@mediatek.com>
 References: <1596624742-14727-1-git-send-email-qii.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+In-Reply-To: <1596624742-14727-1-git-send-email-qii.wang@mediatek.com>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-QWRkIGkyYyBjb21wYXRpYmxlIGZvciBNVDgxOTIuIENvbXBhcmUgdG8gTVQ4MTgzIGkyYyBjb250
-cm9sbGVyLA0KTVQ4MTkyIHN1cHBvcnQgbW9yZSB0aGVuIDhHQiBETUEgbW9kZS4NCg0KU2lnbmVk
-LW9mZi1ieTogUWlpIFdhbmcgPHFpaS53YW5nQG1lZGlhdGVrLmNvbT4NCi0tLQ0KIGRyaXZlcnMv
-aTJjL2J1c3Nlcy9pMmMtbXQ2NXh4LmMgfCAxNSArKysrKysrKysrKysrKysNCiAxIGZpbGUgY2hh
-bmdlZCwgMTUgaW5zZXJ0aW9ucygrKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2Vz
-L2kyYy1tdDY1eHguYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXQ2NXh4LmMNCmluZGV4IDQ2
-Mzg2MGUuLmU4ODlmNzQgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4
-eC5jDQorKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4eC5jDQpAQCAtMzg2LDYgKzM4
-NiwyMCBAQCBzdHJ1Y3QgaTJjX3NwZWNfdmFsdWVzIHsNCiAJLm1heF9kbWFfc3VwcG9ydCA9IDMz
-LA0KIH07DQogDQorc3RhdGljIGNvbnN0IHN0cnVjdCBtdGtfaTJjX2NvbXBhdGlibGUgbXQ4MTky
-X2NvbXBhdCA9IHsNCisJLnF1aXJrcyA9ICZtdDgxODNfaTJjX3F1aXJrcywNCisJLnJlZ3MgPSBt
-dF9pMmNfcmVnc192MiwNCisJLnBtaWNfaTJjID0gMCwNCisJLmRjbSA9IDAsDQorCS5hdXRvX3Jl
-c3RhcnQgPSAxLA0KKwkuYXV4X2xlbl9yZWcgPSAxLA0KKwkudGltaW5nX2FkanVzdCA9IDEsDQor
-CS5kbWFfc3luYyA9IDEsDQorCS5sdGltaW5nX2FkanVzdCA9IDEsDQorCS5hcGRtYV9zeW5jID0g
-MSwNCisJLm1heF9kbWFfc3VwcG9ydCA9IDM2LA0KK307DQorDQogc3RhdGljIGNvbnN0IHN0cnVj
-dCBvZl9kZXZpY2VfaWQgbXRrX2kyY19vZl9tYXRjaFtdID0gew0KIAl7IC5jb21wYXRpYmxlID0g
-Im1lZGlhdGVrLG10MjcxMi1pMmMiLCAuZGF0YSA9ICZtdDI3MTJfY29tcGF0IH0sDQogCXsgLmNv
-bXBhdGlibGUgPSAibWVkaWF0ZWssbXQ2NTc3LWkyYyIsIC5kYXRhID0gJm10NjU3N19jb21wYXQg
-fSwNCkBAIC0zOTMsNiArNDA3LDcgQEAgc3RydWN0IGkyY19zcGVjX3ZhbHVlcyB7DQogCXsgLmNv
-bXBhdGlibGUgPSAibWVkaWF0ZWssbXQ3NjIyLWkyYyIsIC5kYXRhID0gJm10NzYyMl9jb21wYXQg
-fSwNCiAJeyAuY29tcGF0aWJsZSA9ICJtZWRpYXRlayxtdDgxNzMtaTJjIiwgLmRhdGEgPSAmbXQ4
-MTczX2NvbXBhdCB9LA0KIAl7IC5jb21wYXRpYmxlID0gIm1lZGlhdGVrLG10ODE4My1pMmMiLCAu
-ZGF0YSA9ICZtdDgxODNfY29tcGF0IH0sDQorCXsgLmNvbXBhdGlibGUgPSAibWVkaWF0ZWssbXQ4
-MTkyLWkyYyIsIC5kYXRhID0gJm10ODE5Ml9jb21wYXQgfSwNCiAJe30NCiB9Ow0KIE1PRFVMRV9E
-RVZJQ0VfVEFCTEUob2YsIG10a19pMmNfb2ZfbWF0Y2gpOw0KLS0gDQoxLjkuMQ0K
 
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Aug 05, 2020 at 06:52:18PM +0800, Qii Wang wrote:
+> This series are based on 5.8-rc1 and we provide four i2c patches
+> to support mt8192 SoC.
+>=20
+> Main changes compared to v2:
+> --delete unused I2C_DMA_4G_MODE
+>=20
+> Main changes compared to v1:
+> --modify the commit with access more than 8GB dram
+> --add Reviewed-by and Acked-by from Yingjoe, Matthias and Rob
+>=20
+> Qii Wang (4):
+>   i2c: mediatek: Add apdma sync in i2c driver
+>   i2c: mediatek: Add access to more than 8GB dram in i2c driver
+>   dt-bindings: i2c: update bindings for MT8192 SoC
+>   i2c: mediatek: Add i2c compatible for MediaTek MT8192
+>=20
+>  .../devicetree/bindings/i2c/i2c-mt65xx.txt         |  1 +
+
+Applied to for-next, thanks!
+
+Sidenote: I get these warnings when compiling the driver:
+
+drivers/i2c/busses/i2c-mt65xx.c:267: warning: Function parameter or member =
+'min_low_ns' not described in 'i2c_spec_values'
+drivers/i2c/busses/i2c-mt65xx.c:267: warning: Function parameter or member =
+'min_high_ns' not described in 'i2c_spec_values'
+drivers/i2c/busses/i2c-mt65xx.c:267: warning: Function parameter or member =
+'min_su_sta_ns' not described in 'i2c_spec_values'
+drivers/i2c/busses/i2c-mt65xx.c:267: warning: Function parameter or member =
+'max_hd_dat_ns' not described in 'i2c_spec_values'
+drivers/i2c/busses/i2c-mt65xx.c:267: warning: Function parameter or member =
+'min_su_dat_ns' not described in 'i2c_spec_values'
+
+Is someone interested to fix these?
+
+
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8rJ84ACgkQFA3kzBSg
+KbaEHA/+KvbFEMpITq+MxiNEPFj85gdA4wGXCkfrVZ0ucfvHnQU7S+zzRFIOIRui
+TJYm+r6YkaNts1hpKSV2h6mP2W9KjtwfywdFXdQiGYR+n5UD60xt86xISYDAsjja
+rOjncjqqIqL2mDgWSUc7lZ8GV/XxJBRgRn6uPcsGuejwHWtJEWn9r0sd4YqveK8B
+jwvxACdtCONziOz/YOETM7mcCB3aKvFA9gmF+Kq5UI2k6U4HzZmHRnEIC+nwmlex
+kQoLGct58EzbksSOwqyf0wQLDAKdvbRR+0OHfnXB1c+hf7SSRScdtU1UD5KqZrFo
+sZea8kaMC9BGAUhimBp3SBkSdWm+w1vlK5L/iLdUaKH4GMZbvMcjn4INEOlvcPvt
+ylpjhlmsHebQ1sbMnrS4PtRbswT7bRIQh0af+Ei8W3YMwG/K0BoMs7VDbAzGDe5k
+VWZXSAG+F+3Zi58x7gCiYShLm0tdxdIm9oUuRc0ottyXFHXoZQTLESxpQkMgcShE
+n1+HbCzOzvUTgHuzOOxpxcKx6FM+Og+b6vGQIt9nyUQJZ/HaMAmFXBsGemvuXmhh
+k7rTAxmflWpS/iG7i70rZhiek0vEYpMHzF2o4tFHVO0/c2zslDX+eK7ks8/HEZPv
+LbTGwQerJ/ZPksOcAaYjB/kQjB7NPJUQ6VbHUxAluYC/mTRD0aM=
+=1eF5
+-----END PGP SIGNATURE-----
+
+--4Ckj6UjgE2iN1+kY--
