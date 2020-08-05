@@ -2,215 +2,123 @@ Return-Path: <SRS0=nbAm=BP=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED7D1C433DF
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 19:26:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E95BC433DF
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 19:45:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B69E0206F6
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 19:26:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4976A2084D
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 19:45:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BBOMnrtN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726807AbgHET0r convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 5 Aug 2020 15:26:47 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46798 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728512AbgHERNs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 5 Aug 2020 13:13:48 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id A1A44B626;
-        Wed,  5 Aug 2020 14:37:13 +0000 (UTC)
-Date:   Wed, 5 Aug 2020 16:36:55 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: VAIO EEPROM support in at24
-Message-ID: <20200805163655.6cfa6e17@endymion>
-In-Reply-To: <CAMRc=Mdoh5Sk3iS_CO4+++SG2jJOy1qrG4q2zOzbeYYMdJR0VA@mail.gmail.com>
-References: <20200317151409.7940926c@endymion>
-        <CAMRc=Mdoh5Sk3iS_CO4+++SG2jJOy1qrG4q2zOzbeYYMdJR0VA@mail.gmail.com>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S1727024AbgHETpK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 5 Aug 2020 15:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46422 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728982AbgHETpG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Aug 2020 15:45:06 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C651CC06179F;
+        Wed,  5 Aug 2020 12:38:50 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id f9so4995530pju.4;
+        Wed, 05 Aug 2020 12:38:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=q8aaXnFcZ4AT3389+t0qxS8pbT28OEw3qAsjmqDR3UE=;
+        b=BBOMnrtNFHReBjXDeCiLjMl9olE1dPUW9Qju+IcKdTK3+9GmtDNFNKlHOTHl1uT1iX
+         12vARS7LIHCPWquRGW42vrmScp10LsjoaOh9dHQ0Pkwx6nGWmfupqAO5cqk3TQjtZmCA
+         3oS96NPE7nvwK/tdJK7yxY+05tEuNJleTWQCgSqMAwuIj5P/Qk9yOFwq3zOF5SwGGSLs
+         O0lGc7m4Bo+I0Tr3PxKczoeIxuQx9Hh+UnUpM11dJDvm2RCMSS/ybQ/vscp7poo+tUki
+         0tZuc7tMl6Dyxb7+Vld7soicjuNyNE4iZb5B4jKe5m+yXmNDZGm6KyeWicaoco0Y7lYQ
+         splQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=q8aaXnFcZ4AT3389+t0qxS8pbT28OEw3qAsjmqDR3UE=;
+        b=PY0dVr8T9InAQJqs9He8WY+Cq7lm8vNrRxFFEWQzB4fEMZGqw8ZxmmiM7iFC0tXa/2
+         9MmKU9jyCvsUYVu8Dk1beGo2C4fs++Cn8fVvdSwqDiLShE0MB3x50DPMUWtyqGYN20gD
+         yCAoiAIOM5WwBBrLbm1kj7/SFVjTKGdE66LpNV4hQHA6ZeVx+kZXLTf2tmsQNl5A34x4
+         j0Bc06pSX/0Q9QzNRq3gD7Pz+FhcmP+kWJxeZGpqlHxqg+ahvKjYevV4f88Zbm/rlXjq
+         nPNZ36/C0C1fcK1co2BmpL6q3hStuVSq7fAKrrv0hK1lmC8eJnb0ZRrYCCx2OJ7eAIkv
+         H3dA==
+X-Gm-Message-State: AOAM530/VixFErxqBzIJZaCqznO72jJrzUGOZuAKTaS8oqnybZzxxpBz
+        aIcvb1ZIUJ+DKzy6zlcXbgI=
+X-Google-Smtp-Source: ABdhPJzn7Bj7lt8lc5KhEfI4kSkNrIrHdD2blN71urAzi5cr8ZEUcmTH30mCT37gF5bvmXT1w9iMYA==
+X-Received: by 2002:a17:902:6bca:: with SMTP id m10mr4508470plt.210.1596656330165;
+        Wed, 05 Aug 2020 12:38:50 -0700 (PDT)
+Received: from varodek.iballbatonwifi.com ([103.105.152.86])
+        by smtp.gmail.com with ESMTPSA id f20sm4901764pfk.36.2020.08.05.12.38.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Aug 2020 12:38:49 -0700 (PDT)
+From:   Vaibhav Gupta <vaibhavgupta40@gmail.com>
+To:     Bjorn Helgaas <helgaas@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Vaibhav Gupta <vaibhav.varodek@gmail.com>,
+        Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>,
+        Tomoya MORINAGA <tomoya.rohm@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ben Dooks <ben.dooks@codethink.co.uk>
+Cc:     Vaibhav Gupta <vaibhavgupta40@gmail.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kernel-mentees@lists.linuxfoundation.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH v2 1/2] i2c: eg20t: Drop PCI wakeup calls from .suspend/.resume
+Date:   Thu,  6 Aug 2020 01:06:15 +0530
+Message-Id: <20200805193616.384313-2-vaibhavgupta40@gmail.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200805193616.384313-1-vaibhavgupta40@gmail.com>
+References: <20200805165611.GA516242@bjorn-Precision-5520>
+ <20200805193616.384313-1-vaibhavgupta40@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Bartosz,
+The driver calls pci_enable_wake(...., false) in pch_i2c_suspend() as well
+as pch_i2c_resume(). Either it should enable-wake the device in .suspend()
+or should not invoke pci_enable_wake() at all.
 
-On Tue, 17 Mar 2020 15:32:56 +0100, Bartosz Golaszewski wrote:
-> wt., 17 mar 2020 o 15:14 Jean Delvare <jdelvare@suse.de> napisał(a):
-> > Before I start implementing the idea above, I would like to know if
-> > anyone objects to it, or has a better idea?
-> 
-> Sounds good to me in general but isn't it something we could
-> generalize a bit more?
-> 
-> For instance we could make at24_chip_data struct look something like this:
-> 
-> struct at24_chip_data {
->     u32 byte_len;
->     u8 flags;
->     struct resource masked;
-> };
-> 
-> And we could introduce a new macro called AT24_CHIP_DATA_MASKED that
-> would automacially set the AT24_FLAG_MASKED_RANGE flag and take
-> another argument that would contain the address and size of the masked
-> register range (we'd put it into the "masked" resource)?
-> 
-> Other ideas are welcome too. I just think that making it
-> SONY_VAIO-specific may be a bit limiting in the future.
+Concluding that this driver doesn't support enable-wake and PCI core calls
+pci_enable_wake(pci_dev, PCI_D0, false) during resume, drop it from
+.suspend() and .resume().
 
-I finally found the time to give it a try. Here's what my (tested)
-prototype looks like:
+Reported-by: Bjorn Helgaas <helgaas@kernel.org>
+Signed-off-by: Vaibhav Gupta <vaibhavgupta40@gmail.com>
+---
+ drivers/i2c/busses/i2c-eg20t.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -8,9 +8,11 @@
- 
- #include <linux/acpi.h>
- #include <linux/bitops.h>
-+#include <linux/capability.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
- #include <linux/init.h>
-+#include <linux/ioport.h>
- #include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/mod_devicetable.h>
-@@ -38,6 +40,8 @@
- #define AT24_FLAG_MAC		BIT(2)
- /* Does not auto-rollover reads to the next slave address. */
- #define AT24_FLAG_NO_RDROL	BIT(1)
-+/* Contains an area that should not be exposed to non-root users */
-+#define AT24_FLAG_MASKED_RANGE	BIT(0)
- 
- /*
-  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
-@@ -87,6 +91,7 @@ struct at24_data {
- 	u16 page_size;
- 	u8 flags;
- 
-+	struct resource masked;
- 	struct nvmem_device *nvmem;
- 	struct regulator *vcc_reg;
- 
-@@ -121,6 +126,7 @@ MODULE_PARM_DESC(at24_write_timeout, "Ti
- struct at24_chip_data {
- 	u32 byte_len;
- 	u8 flags;
-+	struct resource masked;
- };
- 
- #define AT24_CHIP_DATA(_name, _len, _flags)				\
-@@ -128,6 +134,16 @@ struct at24_chip_data {
- 		.byte_len = _len, .flags = _flags,			\
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index 73f139690e4e..eb41de22d461 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -879,7 +879,6 @@ static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
+ 		return ret;
  	}
  
-+#define AT24_CHIP_DATA_MASKED(_name, _len, _flags, _mstart, _mlen)	\
-+	static const struct at24_chip_data _name = {			\
-+		.byte_len = _len,					\
-+		.flags = _flags | AT24_FLAG_MASKED_RANGE,		\
-+		.masked = {						\
-+			.start = _mstart,				\
-+			.end = _mstart + _mlen - 1,			\
-+		},							\
-+	}
-+
- /* needs 8 addresses as A0-A2 are ignored */
- AT24_CHIP_DATA(at24_data_24c00, 128 / 8, AT24_FLAG_TAKE8ADDR);
- /* old variants can't be handled with this generic entry! */
-@@ -144,6 +160,9 @@ AT24_CHIP_DATA(at24_data_24mac602, 64 /
- /* spd is a 24c02 in memory DIMMs */
- AT24_CHIP_DATA(at24_data_spd, 2048 / 8,
- 	AT24_FLAG_READONLY | AT24_FLAG_IRUGO);
-+/* vaio is a 24c02 on some Sony laptops */
-+AT24_CHIP_DATA_MASKED(at24_data_vaio, 2048 / 8,
-+	AT24_FLAG_READONLY | AT24_FLAG_IRUGO, 0x00, 14);
- AT24_CHIP_DATA(at24_data_24c04, 4096 / 8, 0);
- AT24_CHIP_DATA(at24_data_24cs04, 16,
- 	AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
-@@ -177,6 +196,7 @@ static const struct i2c_device_id at24_i
- 	{ "24mac402",	(kernel_ulong_t)&at24_data_24mac402 },
- 	{ "24mac602",	(kernel_ulong_t)&at24_data_24mac602 },
- 	{ "spd",	(kernel_ulong_t)&at24_data_spd },
-+	{ "eeprom-vaio",(kernel_ulong_t)&at24_data_vaio },
- 	{ "24c04",	(kernel_ulong_t)&at24_data_24c04 },
- 	{ "24cs04",	(kernel_ulong_t)&at24_data_24cs04 },
- 	{ "24c08",	(kernel_ulong_t)&at24_data_24c08 },
-@@ -389,6 +409,9 @@ static int at24_read(void *priv, unsigne
- 	struct device *dev;
- 	char *buf = val;
- 	int ret;
-+	unsigned int orig_off = off;
-+	char *orig_buf = buf;
-+	size_t orig_count = count;
+-	pci_enable_wake(pdev, PCI_D3hot, 0);
+ 	pci_disable_device(pdev);
+ 	pci_set_power_state(pdev, pci_choose_state(pdev, state));
  
- 	at24 = priv;
- 	dev = at24_base_client_dev(at24);
-@@ -427,6 +450,15 @@ static int at24_read(void *priv, unsigne
+@@ -899,8 +898,6 @@ static int pch_i2c_resume(struct pci_dev *pdev)
+ 		return -EIO;
+ 	}
  
- 	pm_runtime_put(dev);
+-	pci_enable_wake(pdev, PCI_D3hot, 0);
+-
+ 	for (i = 0; i < adap_info->ch_num; i++)
+ 		pch_i2c_init(&adap_info->pch_data[i]);
  
-+	if ((at24->flags & AT24_FLAG_MASKED_RANGE) && !capable(CAP_SYS_ADMIN)) {
-+		int i;
-+
-+		for (i = orig_off; i < orig_off + orig_count; i++) {
-+			if (i >= at24->masked.start && i <= at24->masked.end)
-+				orig_buf[i] = 0x00;
-+		}
-+	}
-+
- 	return 0;
- }
- 
-@@ -654,6 +686,7 @@ static int at24_probe(struct i2c_client
- 	at24->byte_len = byte_len;
- 	at24->page_size = page_size;
- 	at24->flags = flags;
-+	at24->masked = cdata->masked;
- 	at24->num_addresses = num_addresses;
- 	at24->offset_adj = at24_get_offset_adj(flags, byte_len);
- 	at24->client[0].client = client;
-
-Comments welcome. I already have my own comments/questions:
-
-1* Do we actually need to use a struct resource? With the current
-   requirements, that looks overkill to me. We really only need the
-   start and end offsets of the masked area (or start and length). Or
-   do you plan to ever support multiple masked ranges, and
-   resource.child would be used to daisy-chain these ranges? Personally
-   I would wait until the need exists.
-
-   Note that if we would just store mstart and mlen in struct
-   at24_chip_data then we could even get rid of AT24_FLAG_MASKED_RANGE,
-   as mlen > 0 would imply a masked range.
-
-2* I chose the name "eeprom-vaio" because "vaio" would be too generic.
-   I'm open to suggestions if you don't like that name.
-
-3* at24_read() was pretty elegant before my changes, but with the need
-   to remember the original value of many parameters, it no longer is.
-   I'm considering rewriting it in a way that does not modify the
-   parameters needed to process the masked range, either as part of
-   this patch or as a subsequent clean-up patch. That would hopefully
-   make the code elegant again.
-
-4* I made the masking active only for non-root users as this is what
-   the legacy eeprom driver was doing. I hope that's OK with you.
-
-Thanks,
 -- 
-Jean Delvare
-SUSE L3 Support
+2.27.0
+
