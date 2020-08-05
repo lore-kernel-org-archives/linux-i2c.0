@@ -2,62 +2,61 @@ Return-Path: <SRS0=nbAm=BP=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DC64C433DF
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 19:45:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE7D1C433E0
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 19:45:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F8D122CE3
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 19:45:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE47921D95
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 19:45:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BikImbzK"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H0ISPGpL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729656AbgHETpg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 5 Aug 2020 15:45:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46426 "EHLO
+        id S1728808AbgHETp7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 5 Aug 2020 15:45:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729045AbgHETpG (ORCPT
+        with ESMTP id S1729019AbgHETpG (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Aug 2020 15:45:06 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7DFBC0617A0;
-        Wed,  5 Aug 2020 12:38:58 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id d188so17362619pfd.2;
-        Wed, 05 Aug 2020 12:38:58 -0700 (PDT)
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9DDEC06179E;
+        Wed,  5 Aug 2020 12:38:28 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id bh1so12893554plb.12;
+        Wed, 05 Aug 2020 12:38:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=dBMgOJj+hD0qde6PizICeeruU0EhS183W5s3SUBAwf4=;
-        b=BikImbzKWtXH4hWkL6UbutgkjuCU5o+a4HGlxXS/Eln4FqKtJYUgtDLL6YIHyGSCP8
-         CBxLixsGpoTPYMz8Cf0XrtLRu6+Rti11TQrJqZgpiaDsCXwpj9MbpPYhYVAgiB8/QkVf
-         DgP19nZF+fOvIDznv++8Xl99J8bYUKHo7N3maZr2NZCnhAlYkpBEiIHaVBCaTr/ZGEQa
-         /PRc6prnGBWZ5Z9yJ2ZWDsbUTzud+kzUWqtFPXn5UCcE9iIKmaAOZDPlsP9hiT0UlwWO
-         yue8KChKcJa0oHV2iHf01F95VU1hdKwjiPl+mM19h4Pfh/IsJRjEbP4Rcq5XJjIgQYBl
-         La/w==
+        bh=5TXcgEgAs4Nu34HXfjY3jbM5apQONV+NnIX864cNQWg=;
+        b=H0ISPGpLRV3y9tQ4W937aoZMWeGxz3wG5Byk04+BMcfetPTwhgVMR7//+YNlxmBPGR
+         Chyn7D6Hd51R/+LTW5MElsg4IUtIBfT7dNVom/CTGrj9xocK0ZmtEpCj4wANYO/Rjqwr
+         k1KMM/MM5xBsFiLKcPsctFreRvhT+efxV80jXwk3o/mcogbdnN5yqe9RQHghMcGsMIO5
+         YZ88bzfzzIeKWCTaGZ/NJJmttlOGkIzHhF8jVVUgNv6U0icjx+Rs61YQ1xGsKX87m+0c
+         hL7YiEJgmsudK2dy/zLWc6lcH+3eKJkIzuTC5tjKvhx/qKkRyflkKumSws07RuWwtRXZ
+         mOcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=dBMgOJj+hD0qde6PizICeeruU0EhS183W5s3SUBAwf4=;
-        b=AjS7uiD+yX2s/voksWSj+K2iIvDQJlC+iszbqRAMYVx1DBhbMMSOkfiysylXVEfJf8
-         vhK/dxVRJbmOTMGkLkchx48xgHYu66yoE19ggZiBcQ7T3EWhJeJISazdVeh/AQtvt+si
-         yoeOZl5jonBRvZYdxzScvl+c7OL/6ZK5iI4FTzmGT/IAg/1h7F+aDwztEBn2vcBJOwQ6
-         V1NjykpPgR/cqcgrvQbPugVTKi6AbMG7hHJp6WHu65Cks4fWD1R5/+obxyP30LOr7dfN
-         TAPTmnnKLjX1bhZUhAnfGzUiyxbx0gaKCkIAd7yvPNGuU04Fwhi4x7Pi61FFbmgJH1en
-         ntGQ==
-X-Gm-Message-State: AOAM530u1eRCBHttRk6+aIaNCQPYJn6mJrbT6a9e3TYMdhiCd680ufoo
-        asHYA/COmikj+DlmMZZaYmE=
-X-Google-Smtp-Source: ABdhPJwFtNAeKIW4wjHsuCKjx78tIa6bbsqpyKdJl7Wd91LaOdgUTgAq66b+bFaz44muXZNU/9fsXg==
-X-Received: by 2002:a63:5b55:: with SMTP id l21mr4506542pgm.348.1596656338172;
-        Wed, 05 Aug 2020 12:38:58 -0700 (PDT)
+        bh=5TXcgEgAs4Nu34HXfjY3jbM5apQONV+NnIX864cNQWg=;
+        b=PKxwphHtgF/QSPPykjIsvaE9+Fv4qe9w+FjmC+fvElivSO4w1+t0R3XrwkTeVZoDuS
+         UipHIKMYYstZK9QPGxDfGwKjLgVs/Cx2KhRg2Bjn5OCDL59Qpe6vbCSr/Qiyp3E6LWW/
+         1t/iDDaqWrfnB1K5k2kEa2M6RyTw7JUUBBBYmZF8HvziLI8Ycjud5oC1Ju5hYZpnVFs5
+         La42vhESB4ye7YJqlZDE2xKCtw/FYetLGQJkPC0mQMJlTbNUyCanBjZc8q1kKMm+wvOD
+         SsGYnFdF8xqmoYjd881TWM6XC+OzqddRKpuZAwEq3VUm4HZhCXnBBZQjcilExAUVUNgF
+         i1xQ==
+X-Gm-Message-State: AOAM530yvyo0uDtnZqrO4Fr3uwaiFmPogGPaYiveY+ioRHo/kidRa9Tk
+        f0FmV4hMpMUzkpcFEMMEWh8lPRNB3WT9mA==
+X-Google-Smtp-Source: ABdhPJxpsNBrfC/tIWMSvSdeG5I8GbtN42x6d7YwWee5C39MithTk79rmmNir6Zz8cbOfIUAOW+IOw==
+X-Received: by 2002:a17:90a:3268:: with SMTP id k95mr4854944pjb.153.1596656306933;
+        Wed, 05 Aug 2020 12:38:26 -0700 (PDT)
 Received: from varodek.iballbatonwifi.com ([103.105.152.86])
-        by smtp.gmail.com with ESMTPSA id f20sm4901764pfk.36.2020.08.05.12.38.53
+        by smtp.gmail.com with ESMTPSA id f20sm4901764pfk.36.2020.08.05.12.38.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2020 12:38:57 -0700 (PDT)
+        Wed, 05 Aug 2020 12:38:26 -0700 (PDT)
 From:   Vaibhav Gupta <vaibhavgupta40@gmail.com>
 To:     Bjorn Helgaas <helgaas@kernel.org>,
         Bjorn Helgaas <bhelgaas@google.com>,
@@ -70,13 +69,12 @@ Cc:     Vaibhav Gupta <vaibhavgupta40@gmail.com>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-kernel-mentees@lists.linuxfoundation.org,
         Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH v2 2/2] i2c: eg20t: use generic power management
-Date:   Thu,  6 Aug 2020 01:06:16 +0530
-Message-Id: <20200805193616.384313-3-vaibhavgupta40@gmail.com>
+Subject: [PATCH v2 0/2] i2c: eg20t: Power management upgrade and clean-ups
+Date:   Thu,  6 Aug 2020 01:06:14 +0530
+Message-Id: <20200805193616.384313-1-vaibhavgupta40@gmail.com>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200805193616.384313-1-vaibhavgupta40@gmail.com>
+In-Reply-To: <20200805165611.GA516242@bjorn-Precision-5520>
 References: <20200805165611.GA516242@bjorn-Precision-5520>
- <20200805193616.384313-1-vaibhavgupta40@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
@@ -84,96 +82,34 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Drivers using legacy power management .suspen()/.resume() callbacks
-have to manage PCI states and device's PM states themselves. They also
-need to take care of standard configuration registers.
+Linux Kernel Mentee: Remove Legacy Power Management.
 
-Switch to generic power management framework using a single
-"struct dev_pm_ops" variable to take the unnecessary load from the driver.
-This also avoids the need for the driver to directly call most of the PCI
-helper functions and device power state control functions, as through
-the generic framework PCI Core takes care of the necessary operations,
-and drivers are required to do only device-specific jobs.
+The purpose of this patch series is to upgrade power management in i2c-eg20t
+driver. This has been done by upgrading .suspend() and .resume() callbacks.
 
-Signed-off-by: Vaibhav Gupta <vaibhavgupta40@gmail.com>
----
- drivers/i2c/busses/i2c-eg20t.c | 36 +++++++---------------------------
- 1 file changed, 7 insertions(+), 29 deletions(-)
+The upgrade makes sure that the involvement of PCI Core does not change the
+order of operations executed in a driver. Thus, does not change its behavior.
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index eb41de22d461..843b31a0f752 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -846,11 +846,10 @@ static void pch_i2c_remove(struct pci_dev *pdev)
- 	kfree(adap_info);
- }
- 
--#ifdef CONFIG_PM
--static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
-+static int __maybe_unused pch_i2c_suspend(struct device *dev)
- {
--	int ret;
- 	int i;
-+	struct pci_dev *pdev = to_pci_dev(dev);
- 	struct adapter_info *adap_info = pci_get_drvdata(pdev);
- 	void __iomem *p = adap_info->pch_data[0].pch_base_address;
- 
-@@ -872,31 +871,13 @@ static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
- 		ioread32(p + PCH_I2CSR), ioread32(p + PCH_I2CBUFSTA),
- 		ioread32(p + PCH_I2CESRSTA));
- 
--	ret = pci_save_state(pdev);
--
--	if (ret) {
--		pch_pci_err(pdev, "pci_save_state\n");
--		return ret;
--	}
--
--	pci_disable_device(pdev);
--	pci_set_power_state(pdev, pci_choose_state(pdev, state));
--
- 	return 0;
- }
- 
--static int pch_i2c_resume(struct pci_dev *pdev)
-+static int __maybe_unused pch_i2c_resume(struct device *dev)
- {
- 	int i;
--	struct adapter_info *adap_info = pci_get_drvdata(pdev);
--
--	pci_set_power_state(pdev, PCI_D0);
--	pci_restore_state(pdev);
--
--	if (pci_enable_device(pdev) < 0) {
--		pch_pci_err(pdev, "pch_i2c_resume:pci_enable_device FAILED\n");
--		return -EIO;
--	}
-+	struct adapter_info *adap_info = dev_get_drvdata(dev);
- 
- 	for (i = 0; i < adap_info->ch_num; i++)
- 		pch_i2c_init(&adap_info->pch_data[i]);
-@@ -905,18 +886,15 @@ static int pch_i2c_resume(struct pci_dev *pdev)
- 
- 	return 0;
- }
--#else
--#define pch_i2c_suspend NULL
--#define pch_i2c_resume NULL
--#endif
-+
-+static SIMPLE_DEV_PM_OPS(pch_i2c_pm_ops, pch_i2c_suspend, pch_i2c_resume);
- 
- static struct pci_driver pch_pcidriver = {
- 	.name = KBUILD_MODNAME,
- 	.id_table = pch_pcidev_id,
- 	.probe = pch_i2c_probe,
- 	.remove = pch_i2c_remove,
--	.suspend = pch_i2c_suspend,
--	.resume = pch_i2c_resume
-+	.driver.pm = &pch_i2c_pm_ops,
- };
- 
- module_pci_driver(pch_pcidriver);
+Also, before upgrading PM, some cleanup is required. Both .suspend() and
+.resume() invoke pci_enable_wake() just to disable wakeup. This is not
+required as if .suspend() does not want to enable-wake the device, PCI core
+takes care of the required operations.
+
+v2 : An additional patch had to be added in v1 to drop PCI wakeup calls.
+
+All patches are compile-tested only.
+
+Test tools:
+    - Compiler: gcc (GCC) 10.1.0
+    - allmodconfig build: make -j$(nproc) W=1 all
+
+Vaibhav Gupta (2):
+  i2c: eg20t: Drop PCI wakeup calls from .suspend/.resume
+  i2c: eg20t: use generic power management
+
+ drivers/i2c/busses/i2c-eg20t.c | 39 ++++++----------------------------
+ 1 file changed, 7 insertions(+), 32 deletions(-)
+
 -- 
 2.27.0
 
