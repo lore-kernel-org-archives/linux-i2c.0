@@ -2,119 +2,95 @@ Return-Path: <SRS0=nbAm=BP=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03BF2C433DF
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 09:33:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23002C433E0
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 09:37:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D607F2075A
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 09:33:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ED8392067C
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 09:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1596620038;
-	bh=+PVMkHow/1cTDpTZAm0fNUZhkXhy8Y97366o6wkD/AE=;
+	s=default; t=1596620273;
+	bh=RYjfRuQ+zoktB3q8pEwiPSeB5u4sea/SWqiPKs+NKcE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=yBClNR820zKL+ortZsJ+61lCoaFvXQZ74Mec1ycTbqPXcI0VYjkxQFall4wO8RcNl
-	 jAs2cI+Qm1MjL5bHNIt3rH1TZliNdjHJzjapOnTlvomG84h1tOmYxMeOlbUrDx50YF
-	 fOIKeLWR19VnpOqmRq55JLChKPsfr8oIkzw/bQtw=
+	b=puDUHg/Z5uDpHv2Qc5R75y6nmmgt/xTCXi8Nr9qqndtBylGWDSHwS9FSgdBHAlvN7
+	 USWqZXAGTWSkkzXLpinBsayvGhzZ5KtPgDB+Nlnjm24hLEzFjb97ooYyuZsmRRzoB5
+	 82GHTAsPA1jpEk3cCHdhoROTo+AVTBLDS78GIBz0=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726524AbgHEJdy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 5 Aug 2020 05:33:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60410 "EHLO mail.kernel.org"
+        id S1725963AbgHEJhs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 5 Aug 2020 05:37:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725868AbgHEJdu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 5 Aug 2020 05:33:50 -0400
+        id S1728134AbgHEJhE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 5 Aug 2020 05:37:04 -0400
 Received: from localhost (router.4pisysteme.de [80.79.225.122])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DE4D2075A;
-        Wed,  5 Aug 2020 09:33:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE66B2067C;
+        Wed,  5 Aug 2020 09:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596620029;
-        bh=+PVMkHow/1cTDpTZAm0fNUZhkXhy8Y97366o6wkD/AE=;
+        s=default; t=1596620224;
+        bh=RYjfRuQ+zoktB3q8pEwiPSeB5u4sea/SWqiPKs+NKcE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uld5+n9kR22gnZeVca/pluvROt16z6AmOtya7TVb6MjC7DU5KxrpqMT5M1WEYnFsq
-         ERVt39kL2w74Cdn32KGV8TUM57jhsOk3IHnmM0RoSWp0WfXUIS66PpmdYFQKf1YV4g
-         HQHBSj12KVFETrEIr67Rsha8OcMn0h5yb365wLbg=
-Date:   Wed, 5 Aug 2020 11:33:47 +0200
-From:   wsa@kernel.org
-To:     Jeffrey Lin <jeffrey@icurse.nl>
-Cc:     jdelvare@suse.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: i801: Register lis3lv02d I2C device on Dell
- Latitude 5480
-Message-ID: <20200805093347.GM1229@kunai>
-Mail-Followup-To: wsa@kernel.org, Jeffrey Lin <jeffrey@icurse.nl>,
-        jdelvare@suse.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20200616234130.814499-1-jeffrey@icurse.nl>
+        b=HCle8FAt2Ia6fV7AVy9ad4/9jNY8fO6CEbLzIpVc64cbSKsHeKf2y9E33RH1LY1Zc
+         Uoj4npveU1PgdlnS7GPlsUfUTzsiRMMHU5pNzr6pPz9P0mty3mnqUWURAu8DgMOzce
+         n1XfXgiBDK27oGqbD7p4LEqKWBJLVmPubKduBj8w=
+Date:   Wed, 5 Aug 2020 11:37:02 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc:     linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>
+Subject: Re: [PATCH 2/2] i2c: i801: Add support for Intel Tiger Lake PCH-H
+Message-ID: <20200805093702.GO1229@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>
+References: <20200618134240.4091271-1-jarkko.nikula@linux.intel.com>
+ <20200618134240.4091271-2-jarkko.nikula@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="37nyS7qXrnu4wN2o"
+        protocol="application/pgp-signature"; boundary="XMHqbYJb993HXwLR"
 Content-Disposition: inline
-In-Reply-To: <20200616234130.814499-1-jeffrey@icurse.nl>
+In-Reply-To: <20200618134240.4091271-2-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---37nyS7qXrnu4wN2o
+--XMHqbYJb993HXwLR
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 16, 2020 at 07:41:30PM -0400, Jeffrey Lin wrote:
-> Value of /sys/devices/platform/lis3lv02d/position when
->     Horizontal:     (36,-108,-1152)
->     Left elevated:  (-432,-126,-1062)
->     Front elevated: (36,594,-936)
->     Upside down:    (-126,-252,1098)
+On Thu, Jun 18, 2020 at 04:42:40PM +0300, Jarkko Nikula wrote:
+> Add SMBus PCI ID on Intel Tiger Lake PCH-H.
 >=20
-> Signed-off-by: Jeffrey Lin <jeffrey@icurse.nl>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Jean?
+Applied to for-next, thanks!
 
-> ---
->  drivers/i2c/busses/i2c-i801.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index fea644921a76..d7c802e20ae6 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -1268,6 +1268,7 @@ static const struct {
->  	/*
->  	 * Additional individual entries were added after verification.
->  	 */
-> +	{ "Latitude 5480",      0x29 },
->  	{ "Vostro V131",        0x1d },
->  };
-> =20
-> --=20
-> 2.27.0
->=20
 
---37nyS7qXrnu4wN2o
+--XMHqbYJb993HXwLR
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8qfPsACgkQFA3kzBSg
-KbYSkw//eQnM9kVffTP2sjG4jmvlxf+5TFmy//rhpCAaIOa/hBbOh2WmAsQvkcYq
-fvIDnl+RnCVuydZX1IKfIZWGaALJ2s/jNsXv8GwQMzsrEjD2HC9I2vN/ivn3le8K
-IpAcJUHylKUNV+1XeQZi+VtXUVkfGqLC88YV5Vz+Z9+peDvVFT9Vi8anDGOsnKUK
-gwvXAQndn0RHTyF6WdzZKIc4RhPX61EKZep66xScB1FXrxLgEchwkwStg9ZG5+Te
-80WmFMaEKzTPEaNiEWYsaIxHvEbF4Nkw8xHEu7I/nhP7+pzGHjAcBTlEOh4piowB
-e5xZZBVD8XpIMc3WJ5eoCNIxQSzDryQg4araqH/iWktW1lSJF2FnzHNTNDPTKjrs
-uCATpzPjDU9qODctW5EBCopH0aM00YWZGQOoWAT+SsvuRTcNNls3DkO5vNXe1okN
-s59hrS/atRFc1FVOs7ySPWAA1Kr8FApRcApE/Sjq6odkll5N9skVnNf7LOHbs907
-0hpr/4L6AQkF55oKRX/e5hJ7mIcsVbbKHRGO+1r1+KUW9UYxWI++dEfHsjbTz34w
-Rle+tp+Hw6T0S2zLuvhKYfAr+ypGb2NEwDNMnrgn0kIzRWGULQT5vhmMNvZUI8LF
-hYG0qCTuTCrewcIRAcq/FoYOUq9ybvPaIWIYAQSU9L0d6cA9yMQ=
-=ckP+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8qfb4ACgkQFA3kzBSg
+KbaB9Q/+KGxJbN4zGOxE5psDW85EXQ8p1+UP9XBIMGi77rVDW8dEESOsvsiVKoGF
+uQ0q4VDr1qbpjPkVuhWzmYS+Tkb45NtfM0o8GcAXc0cPk2fP408LRUDhMuoXRLXm
+aTVP5nWP0ewkveGK2XTxumZVa74rTJ9cwl96K7EpcBm8BsArWL8l/b3eSpFSBref
+5sfRBZ0CQdfHIreId5GH5cw/Edm+pmjO9aRLS7Qz8r0xk4xpmQ1tQMrqCdnOUirS
+sIrLC2GvJhC2A/ORDzMim2KKBgpNdr9tOvSID8UewfS1hTk08AhuNsYNUTvNdoIC
+YT4G26tB5vLN6Ro0yMbMMEA7QoHML7d7y0WAu2GO59f4f8U4+6g9Yy0NzsD7hnor
+BVh0Wn0RxnZonU/xlTpZstQ5BgJo4x47yNLyinKp8oHSOD6nz1u0DjLLQHnCun/p
+qUupBQII2wm9uPhXokAnjQOwzmRqGXvr5zbD0A+RRbfFU5S4Opn86FtrXaC3Y/vy
+8ID7wRG2x6qntB1pdfAwptI2gIk4otLfp4QJFH3ZbytZBPbUg5tFPA62WXHTuUG0
+ztWQJeV+6aOUq7xh8XpY3956ZwCqchD/Kwyx3UJoxx2QMCzwlIDM/koED/3A43xA
+FXc6qAcTQPaWEO4Ysiq6GZ393beGlYl4DnvuZEhTDpuyQK21S0c=
+=TiNo
 -----END PGP SIGNATURE-----
 
---37nyS7qXrnu4wN2o--
+--XMHqbYJb993HXwLR--
