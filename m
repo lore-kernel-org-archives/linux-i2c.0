@@ -2,226 +2,152 @@ Return-Path: <SRS0=nbAm=BP=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B017C433E0
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 20:13:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66CF1C433E1
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 20:13:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1573A22CA1
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 20:13:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 252B122B42
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 20:13:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hkzPp96S"
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="mLoon+iK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728114AbgHEUN0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 5 Aug 2020 16:13:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42728 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726571AbgHEQXc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Aug 2020 12:23:32 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD9D5C0086A2;
-        Wed,  5 Aug 2020 09:23:31 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id t11so5687650plr.5;
-        Wed, 05 Aug 2020 09:23:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=IeRsxVSY253Dl1UryHxPoWgaYMLY3iT3hncn20nrsEQ=;
-        b=hkzPp96SNBY8LoUvt2W1bUig34IOWher6jbEXQfq1b3RD7ZlI6Afo4fuG2q8yyhEiK
-         tJmO/TFFHzTHeIr6pay/PgJgm4kKweKK3hgCMyGkIOjXCpZ9ddn0R9zMcxQBvWzbIL0V
-         /Op54Ocm3KxoSgX4+eHZX8LB8hXxw4EnTHE3G7r6W2YfiydL/KnnFsdjwfhNI7E9JI5Q
-         xe1t419Qw44UAfDEaf1VuBBG7pOR1mOOD2JXVnatY6smyrREhdRUM9M/9WdaPtatYqEa
-         WZL1wQ00vlqeMLmVneqr0P+USzxG9l3Ie4oTWVHPUbePCQnnqCndQhx7E8VwvmDGfKKG
-         tvmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=IeRsxVSY253Dl1UryHxPoWgaYMLY3iT3hncn20nrsEQ=;
-        b=VrKkoSe7LCAX8pDh+HwGlXgCxWOKWqa8wPKtSLGt925kCo2rMRD+g6dI2tAR3Eog7m
-         PFS/b4H2Qn3gJU1KvunmZkJP9hIBnwW8lwmhHHmv4xVVoQNT0MDWIZtMDQaQVPzJ2EyB
-         No4+EAX0kuF7TApooByr2VINGboFK2acTqKO5bM6+gqr504IOhsIfOyC128LYsA6/B54
-         ZgRXxNaFpqW+d6Rk1Vqjm6vnA0hHATX8BQyP9sgA3ZQ36csXq7idVzxjk5Vuu1cgKLwe
-         SqK6TPS3WysaEOPJ+3mFE9sgbGpBYEi9yCN9EyPoYtfhJ420XNfIU86/KNWuGizfmwrL
-         XaHg==
-X-Gm-Message-State: AOAM533OFfqRWgj299ULU6b+DXUyq6cvDTpalKwNXjOWfcgb2LaCLGqT
-        BpM/uWBjiGcQyHCPVwjSZ9A=
-X-Google-Smtp-Source: ABdhPJyF+fa9fDEaevgKFX7Ga5Bf/Qae+ENKw81F0F1ZsY+x6a9bOPt4CcgeVGvHuq4hmBnfyiZQdw==
-X-Received: by 2002:a17:90a:f290:: with SMTP id fs16mr4032872pjb.35.1596644609948;
-        Wed, 05 Aug 2020 09:23:29 -0700 (PDT)
-Received: from gmail.com ([103.105.152.86])
-        by smtp.gmail.com with ESMTPSA id y196sm4244977pfc.202.2020.08.05.09.23.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2020 09:23:29 -0700 (PDT)
-Date:   Wed, 5 Aug 2020 21:51:54 +0530
-From:   Vaibhav Gupta <vaibhavgupta40@gmail.com>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Helgaas <bjorn@helgaas.com>,
-        Vaibhav Gupta <vaibhav.varodek@gmail.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>,
-        Tomoya MORINAGA <tomoya.rohm@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: Re: [PATCH v1] i2c: eg20t: use generic power management
-Message-ID: <20200805162154.GA3179@gmail.com>
-References: <20200805152331.GA510793@bjorn-Precision-5520>
- <20200805152832.GA511823@bjorn-Precision-5520>
+        id S1726233AbgHEUNq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 5 Aug 2020 16:13:46 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:7990 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726776AbgHEQX1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Aug 2020 12:23:27 -0400
+X-UUID: 6e8e03a222d84d94b4a41ae4b8735427-20200805
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=tWETgV80oKa12y7OJg8hJVWC3udr9qgCf1OmDSZNG+A=;
+        b=mLoon+iKJYOusow8i9mVk1uE6o8v6dFKOMBJGQjvP+D4Uw6UwG0pY0nKHax0pOdRdRoR0u0qPjYzxYrOq8b9WWaOUlyPQsdEs+a34g1GIXvvepB6/kvhAiCUTW6X9jEPeqnZmWlwjfTu0ho7uAJGfspt1jtu4xFunyvikQaPmL8=;
+X-UUID: 6e8e03a222d84d94b4a41ae4b8735427-20200805
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
+        (envelope-from <qii.wang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 1964303194; Wed, 05 Aug 2020 18:53:21 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 5 Aug 2020 18:53:17 +0800
+Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Wed, 5 Aug 2020 18:53:18 +0800
+From:   Qii Wang <qii.wang@mediatek.com>
+To:     <wsa@the-dreams.de>
+CC:     <robh+dt@kernel.org>, <linux-i2c@vger.kernel.org>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>, <qii.wang@mediatek.com>
+Subject: [PATCH v3 2/4] i2c: mediatek: Add access to more than 8GB dram in i2c driver
+Date:   Wed, 5 Aug 2020 18:52:20 +0800
+Message-ID: <1596624742-14727-3-git-send-email-qii.wang@mediatek.com>
+X-Mailer: git-send-email 1.9.1
+In-Reply-To: <1596624742-14727-1-git-send-email-qii.wang@mediatek.com>
+References: <1596624742-14727-1-git-send-email-qii.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200805152832.GA511823@bjorn-Precision-5520>
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Aug 05, 2020 at 10:28:32AM -0500, Bjorn Helgaas wrote:
-> [update Linus's address, drop Qi's (bounced)]
-> 
-> On Wed, Aug 05, 2020 at 10:23:31AM -0500, Bjorn Helgaas wrote:
-> > [+cc Tomoya, Linus, Qi, Ben from e9bc8fa5df1c]
-> > 
-> > On Mon, Jul 20, 2020 at 07:30:32PM +0530, Vaibhav Gupta wrote:
-> > > Drivers using legacy PM have to manage PCI states and device's PM states
-> > > themselves. They also need to take care of configuration registers.
-> > > 
-> > > With improved and powerful support of generic PM, PCI Core takes care of
-> > > above mentioned, device-independent, jobs.
-> > > 
-> > > This driver makes use of PCI helper functions like
-> > > pci_save/restore_state(), pci_enable/disable_device(),
-> > > pci_enable_wake() and pci_set_power_state() to do required operations. In
-> > > generic mode, they are no longer needed.
-> > > 
-> > > Change function parameter in both .suspend() and .resume() to
-> > > "struct device*" type. Use to_pci_dev() and dev_get_drvdata() to get
-> > > "struct pci_dev*" variable and drv data.
-> > > 
-> > > Compile-tested only.
-> > > 
-> > > Signed-off-by: Vaibhav Gupta <vaibhavgupta40@gmail.com>
-> > > ---
-> > >  drivers/i2c/busses/i2c-eg20t.c | 39 ++++++++--------------------------
-> > >  1 file changed, 9 insertions(+), 30 deletions(-)
-> > > 
-> > > diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-> > > index 73f139690e4e..c0ddc4cc2ce7 100644
-> > > --- a/drivers/i2c/busses/i2c-eg20t.c
-> > > +++ b/drivers/i2c/busses/i2c-eg20t.c
-> > > @@ -846,11 +846,10 @@ static void pch_i2c_remove(struct pci_dev *pdev)
-> > >  	kfree(adap_info);
-> > >  }
-> > >  
-> > > -#ifdef CONFIG_PM
-> > > -static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
-> > > +static int __maybe_unused pch_i2c_suspend(struct device *dev)
-> > >  {
-> > > -	int ret;
-> > >  	int i;
-> > > +	struct pci_dev *pdev = to_pci_dev(dev);
-> > >  	struct adapter_info *adap_info = pci_get_drvdata(pdev);
-> > 
-> > Why don't you use "adap_info = dev_get_drvdata(dev)" as you did below,
-> > so you don't need to_pci_dev()?
-> >
-Actually, line 870, pch_pci_dbg() again needs "struct pci_dev*" type pointer.
-Either way I had to use to_pci_dev(), so defined "pdev" which made less number
-of required changes in the code.
-> > >  	void __iomem *p = adap_info->pch_data[0].pch_base_address;
-> > >  
-> > > @@ -872,34 +871,17 @@ static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
-> > >  		ioread32(p + PCH_I2CSR), ioread32(p + PCH_I2CBUFSTA),
-> > >  		ioread32(p + PCH_I2CESRSTA));
-> > >  
-> > > -	ret = pci_save_state(pdev);
-> > > -
-> > > -	if (ret) {
-> > > -		pch_pci_err(pdev, "pci_save_state\n");
-> > > -		return ret;
-> > > -	}
-> > > -
-> > > -	pci_enable_wake(pdev, PCI_D3hot, 0);
-> > > -	pci_disable_device(pdev);
-> > > -	pci_set_power_state(pdev, pci_choose_state(pdev, state));
-> > > +	device_wakeup_disable(dev);
-> > >  
-> > >  	return 0;
-> > >  }
-> > >  
-> > > -static int pch_i2c_resume(struct pci_dev *pdev)
-> > > +static int __maybe_unused pch_i2c_resume(struct device *dev)
-> > >  {
-> > >  	int i;
-> > > -	struct adapter_info *adap_info = pci_get_drvdata(pdev);
-> > > -
-> > > -	pci_set_power_state(pdev, PCI_D0);
-> > > -	pci_restore_state(pdev);
-> > > +	struct adapter_info *adap_info = dev_get_drvdata(dev);
-> > >  
-> > > -	if (pci_enable_device(pdev) < 0) {
-> > > -		pch_pci_err(pdev, "pch_i2c_resume:pci_enable_device FAILED\n");
-> > > -		return -EIO;
-> > > -	}
-> > > -
-> > > -	pci_enable_wake(pdev, PCI_D3hot, 0);
-> > > +	device_wakeup_disable(dev);
-> > 
-> > It *looks* wrong to disable wakeup in both suspend and resume.  I
-> > think the usual pattern is to enable wakeup in suspend and disable it
-> > in resume.
-> > 
-> > But it looks like it's been that way since the driver was added by
-> > e9bc8fa5df1c ("i2c-eg20t: add driver for Intel EG20T").
-> > 
-> > If the device doesn't support wakeup, I would not expect the driver to
-> > mention wakeup at all.
-> > 
-> > In any case, I think it's the right thing for *this* patch to preserve
-> > the previous wakeup behavior.  Maybe we want a follow-up patch to just
-> > remove both device_wakeup_disable() calls?
-> > 
-We have seen this issue earlier in other drivers too. I remember you even
-identified and listed them.
-The PCI core calls, pci_enable_wake(pci_dev, PCI_D0, false). And if the driver
-does not want to enable-wake on suspend, we discussed and concluded that the
-calls should be dropped.
-I am sending v2, to include dropping wakeup call.
+TmV3ZXIgTVRLIGNoaXAgc3VwcG9ydCBtb3JlIHRoYW4gOEdCIG9mIGRyYW0uIFJlcGxhY2Ugc3Vw
+cG9ydF8zM2JpdHMNCndpdGggbW9yZSBnZW5lcmFsIGRtYV9tYXhfc3VwcG9ydCBhbmQgcmVtb3Zl
+IG10a19pMmNfc2V0XzRnX21vZGUuDQoNClJldmlld2VkLWJ5OiBZaW5nam9lIENoZW4gPHlpbmdq
+b2UuY2hlbkBtZWRpYXRlay5jb20+DQpTaWduZWQtb2ZmLWJ5OiBRaWkgV2FuZyA8cWlpLndhbmdA
+bWVkaWF0ZWsuY29tPg0KLS0tDQogZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1tdDY1eHguYyB8IDM5
+ICsrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KIDEgZmlsZSBjaGFuZ2Vk
+LCAxNyBpbnNlcnRpb25zKCspLCAyMiBkZWxldGlvbnMoLSkNCg0KZGlmZiAtLWdpdCBhL2RyaXZl
+cnMvaTJjL2J1c3Nlcy9pMmMtbXQ2NXh4LmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4
+eC5jDQppbmRleCBlNmI5ODRhLi40NjM4NjBlIDEwMDY0NA0KLS0tIGEvZHJpdmVycy9pMmMvYnVz
+c2VzL2kyYy1tdDY1eHguYw0KKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1tdDY1eHguYw0K
+QEAgLTU1LDcgKzU1LDYgQEANCiAjZGVmaW5lIEkyQ19ETUFfSU5UX0ZMQUdfTk9ORQkJMHgwMDAw
+DQogI2RlZmluZSBJMkNfRE1BX0NMUl9GTEFHCQkweDAwMDANCiAjZGVmaW5lIEkyQ19ETUFfSEFS
+RF9SU1QJCTB4MDAwMg0KLSNkZWZpbmUgSTJDX0RNQV80R19NT0RFCQkJMHgwMDAxDQogDQogI2Rl
+ZmluZSBNQVhfU0FNUExFX0NOVF9ESVYJCTgNCiAjZGVmaW5lIE1BWF9TVEVQX0NOVF9ESVYJCTY0
+DQpAQCAtMjA0LDExICsyMDMsMTEgQEAgc3RydWN0IG10a19pMmNfY29tcGF0aWJsZSB7DQogCXVu
+c2lnbmVkIGNoYXIgZGNtOiAxOw0KIAl1bnNpZ25lZCBjaGFyIGF1dG9fcmVzdGFydDogMTsNCiAJ
+dW5zaWduZWQgY2hhciBhdXhfbGVuX3JlZzogMTsNCi0JdW5zaWduZWQgY2hhciBzdXBwb3J0XzMz
+Yml0czogMTsNCiAJdW5zaWduZWQgY2hhciB0aW1pbmdfYWRqdXN0OiAxOw0KIAl1bnNpZ25lZCBj
+aGFyIGRtYV9zeW5jOiAxOw0KIAl1bnNpZ25lZCBjaGFyIGx0aW1pbmdfYWRqdXN0OiAxOw0KIAl1
+bnNpZ25lZCBjaGFyIGFwZG1hX3N5bmM6IDE7DQorCXVuc2lnbmVkIGNoYXIgbWF4X2RtYV9zdXBw
+b3J0Ow0KIH07DQogDQogc3RydWN0IG10a19pMmNfYWNfdGltaW5nIHsNCkBAIC0zMTEsMTEgKzMx
+MCwxMSBAQCBzdHJ1Y3QgaTJjX3NwZWNfdmFsdWVzIHsNCiAJLmRjbSA9IDEsDQogCS5hdXRvX3Jl
+c3RhcnQgPSAxLA0KIAkuYXV4X2xlbl9yZWcgPSAxLA0KLQkuc3VwcG9ydF8zM2JpdHMgPSAxLA0K
+IAkudGltaW5nX2FkanVzdCA9IDEsDQogCS5kbWFfc3luYyA9IDAsDQogCS5sdGltaW5nX2FkanVz
+dCA9IDAsDQogCS5hcGRtYV9zeW5jID0gMCwNCisJLm1heF9kbWFfc3VwcG9ydCA9IDMzLA0KIH07
+DQogDQogc3RhdGljIGNvbnN0IHN0cnVjdCBtdGtfaTJjX2NvbXBhdGlibGUgbXQ2NTc3X2NvbXBh
+dCA9IHsNCkBAIC0zMjUsMTEgKzMyNCwxMSBAQCBzdHJ1Y3QgaTJjX3NwZWNfdmFsdWVzIHsNCiAJ
+LmRjbSA9IDEsDQogCS5hdXRvX3Jlc3RhcnQgPSAwLA0KIAkuYXV4X2xlbl9yZWcgPSAwLA0KLQku
+c3VwcG9ydF8zM2JpdHMgPSAwLA0KIAkudGltaW5nX2FkanVzdCA9IDAsDQogCS5kbWFfc3luYyA9
+IDAsDQogCS5sdGltaW5nX2FkanVzdCA9IDAsDQogCS5hcGRtYV9zeW5jID0gMCwNCisJLm1heF9k
+bWFfc3VwcG9ydCA9IDMyLA0KIH07DQogDQogc3RhdGljIGNvbnN0IHN0cnVjdCBtdGtfaTJjX2Nv
+bXBhdGlibGUgbXQ2NTg5X2NvbXBhdCA9IHsNCkBAIC0zMzksMTEgKzMzOCwxMSBAQCBzdHJ1Y3Qg
+aTJjX3NwZWNfdmFsdWVzIHsNCiAJLmRjbSA9IDAsDQogCS5hdXRvX3Jlc3RhcnQgPSAwLA0KIAku
+YXV4X2xlbl9yZWcgPSAwLA0KLQkuc3VwcG9ydF8zM2JpdHMgPSAwLA0KIAkudGltaW5nX2FkanVz
+dCA9IDAsDQogCS5kbWFfc3luYyA9IDAsDQogCS5sdGltaW5nX2FkanVzdCA9IDAsDQogCS5hcGRt
+YV9zeW5jID0gMCwNCisJLm1heF9kbWFfc3VwcG9ydCA9IDMyLA0KIH07DQogDQogc3RhdGljIGNv
+bnN0IHN0cnVjdCBtdGtfaTJjX2NvbXBhdGlibGUgbXQ3NjIyX2NvbXBhdCA9IHsNCkBAIC0zNTMs
+MTEgKzM1MiwxMSBAQCBzdHJ1Y3QgaTJjX3NwZWNfdmFsdWVzIHsNCiAJLmRjbSA9IDEsDQogCS5h
+dXRvX3Jlc3RhcnQgPSAxLA0KIAkuYXV4X2xlbl9yZWcgPSAxLA0KLQkuc3VwcG9ydF8zM2JpdHMg
+PSAwLA0KIAkudGltaW5nX2FkanVzdCA9IDAsDQogCS5kbWFfc3luYyA9IDAsDQogCS5sdGltaW5n
+X2FkanVzdCA9IDAsDQogCS5hcGRtYV9zeW5jID0gMCwNCisJLm1heF9kbWFfc3VwcG9ydCA9IDMy
+LA0KIH07DQogDQogc3RhdGljIGNvbnN0IHN0cnVjdCBtdGtfaTJjX2NvbXBhdGlibGUgbXQ4MTcz
+X2NvbXBhdCA9IHsNCkBAIC0zNjYsMTEgKzM2NSwxMSBAQCBzdHJ1Y3QgaTJjX3NwZWNfdmFsdWVz
+IHsNCiAJLmRjbSA9IDEsDQogCS5hdXRvX3Jlc3RhcnQgPSAxLA0KIAkuYXV4X2xlbl9yZWcgPSAx
+LA0KLQkuc3VwcG9ydF8zM2JpdHMgPSAxLA0KIAkudGltaW5nX2FkanVzdCA9IDAsDQogCS5kbWFf
+c3luYyA9IDAsDQogCS5sdGltaW5nX2FkanVzdCA9IDAsDQogCS5hcGRtYV9zeW5jID0gMCwNCisJ
+Lm1heF9kbWFfc3VwcG9ydCA9IDMzLA0KIH07DQogDQogc3RhdGljIGNvbnN0IHN0cnVjdCBtdGtf
+aTJjX2NvbXBhdGlibGUgbXQ4MTgzX2NvbXBhdCA9IHsNCkBAIC0zODAsMTEgKzM3OSwxMSBAQCBz
+dHJ1Y3QgaTJjX3NwZWNfdmFsdWVzIHsNCiAJLmRjbSA9IDAsDQogCS5hdXRvX3Jlc3RhcnQgPSAx
+LA0KIAkuYXV4X2xlbl9yZWcgPSAxLA0KLQkuc3VwcG9ydF8zM2JpdHMgPSAxLA0KIAkudGltaW5n
+X2FkanVzdCA9IDEsDQogCS5kbWFfc3luYyA9IDEsDQogCS5sdGltaW5nX2FkanVzdCA9IDEsDQog
+CS5hcGRtYV9zeW5jID0gMCwNCisJLm1heF9kbWFfc3VwcG9ydCA9IDMzLA0KIH07DQogDQogc3Rh
+dGljIGNvbnN0IHN0cnVjdCBvZl9kZXZpY2VfaWQgbXRrX2kyY19vZl9tYXRjaFtdID0gew0KQEAg
+LTc5NiwxMSArNzk1LDYgQEAgc3RhdGljIGludCBtdGtfaTJjX3NldF9zcGVlZChzdHJ1Y3QgbXRr
+X2kyYyAqaTJjLCB1bnNpZ25lZCBpbnQgcGFyZW50X2NsaykNCiAJcmV0dXJuIDA7DQogfQ0KIA0K
+LXN0YXRpYyBpbmxpbmUgdTMyIG10a19pMmNfc2V0XzRnX21vZGUoZG1hX2FkZHJfdCBhZGRyKQ0K
+LXsNCi0JcmV0dXJuIChhZGRyICYgQklUX1VMTCgzMikpID8gSTJDX0RNQV80R19NT0RFIDogSTJD
+X0RNQV9DTFJfRkxBRzsNCi19DQotDQogc3RhdGljIGludCBtdGtfaTJjX2RvX3RyYW5zZmVyKHN0
+cnVjdCBtdGtfaTJjICppMmMsIHN0cnVjdCBpMmNfbXNnICptc2dzLA0KIAkJCSAgICAgICBpbnQg
+bnVtLCBpbnQgbGVmdF9udW0pDQogew0KQEAgLTg4NSw4ICs4NzksOCBAQCBzdGF0aWMgaW50IG10
+a19pMmNfZG9fdHJhbnNmZXIoc3RydWN0IG10a19pMmMgKmkyYywgc3RydWN0IGkyY19tc2cgKm1z
+Z3MsDQogCQkJcmV0dXJuIC1FTk9NRU07DQogCQl9DQogDQotCQlpZiAoaTJjLT5kZXZfY29tcC0+
+c3VwcG9ydF8zM2JpdHMpIHsNCi0JCQlyZWdfNGdfbW9kZSA9IG10a19pMmNfc2V0XzRnX21vZGUo
+cnBhZGRyKTsNCisJCWlmIChpMmMtPmRldl9jb21wLT5tYXhfZG1hX3N1cHBvcnQgPiAzMikgew0K
+KwkJCXJlZ180Z19tb2RlID0gdXBwZXJfMzJfYml0cyhycGFkZHIpOw0KIAkJCXdyaXRlbChyZWdf
+NGdfbW9kZSwgaTJjLT5wZG1hYmFzZSArIE9GRlNFVF9SWF80R19NT0RFKTsNCiAJCX0NCiANCkBA
+IC05MDgsOCArOTAyLDggQEAgc3RhdGljIGludCBtdGtfaTJjX2RvX3RyYW5zZmVyKHN0cnVjdCBt
+dGtfaTJjICppMmMsIHN0cnVjdCBpMmNfbXNnICptc2dzLA0KIAkJCXJldHVybiAtRU5PTUVNOw0K
+IAkJfQ0KIA0KLQkJaWYgKGkyYy0+ZGV2X2NvbXAtPnN1cHBvcnRfMzNiaXRzKSB7DQotCQkJcmVn
+XzRnX21vZGUgPSBtdGtfaTJjX3NldF80Z19tb2RlKHdwYWRkcik7DQorCQlpZiAoaTJjLT5kZXZf
+Y29tcC0+bWF4X2RtYV9zdXBwb3J0ID4gMzIpIHsNCisJCQlyZWdfNGdfbW9kZSA9IHVwcGVyXzMy
+X2JpdHMod3BhZGRyKTsNCiAJCQl3cml0ZWwocmVnXzRnX21vZGUsIGkyYy0+cGRtYWJhc2UgKyBP
+RkZTRVRfVFhfNEdfTU9ERSk7DQogCQl9DQogDQpAQCAtOTU0LDExICs5NDgsMTEgQEAgc3RhdGlj
+IGludCBtdGtfaTJjX2RvX3RyYW5zZmVyKHN0cnVjdCBtdGtfaTJjICppMmMsIHN0cnVjdCBpMmNf
+bXNnICptc2dzLA0KIAkJCXJldHVybiAtRU5PTUVNOw0KIAkJfQ0KIA0KLQkJaWYgKGkyYy0+ZGV2
+X2NvbXAtPnN1cHBvcnRfMzNiaXRzKSB7DQotCQkJcmVnXzRnX21vZGUgPSBtdGtfaTJjX3NldF80
+Z19tb2RlKHdwYWRkcik7DQorCQlpZiAoaTJjLT5kZXZfY29tcC0+bWF4X2RtYV9zdXBwb3J0ID4g
+MzIpIHsNCisJCQlyZWdfNGdfbW9kZSA9IHVwcGVyXzMyX2JpdHMod3BhZGRyKTsNCiAJCQl3cml0
+ZWwocmVnXzRnX21vZGUsIGkyYy0+cGRtYWJhc2UgKyBPRkZTRVRfVFhfNEdfTU9ERSk7DQogDQot
+CQkJcmVnXzRnX21vZGUgPSBtdGtfaTJjX3NldF80Z19tb2RlKHJwYWRkcik7DQorCQkJcmVnXzRn
+X21vZGUgPSB1cHBlcl8zMl9iaXRzKHJwYWRkcik7DQogCQkJd3JpdGVsKHJlZ180Z19tb2RlLCBp
+MmMtPnBkbWFiYXNlICsgT0ZGU0VUX1JYXzRHX01PREUpOw0KIAkJfQ0KIA0KQEAgLTEyMzIsOCAr
+MTIyNiw5IEBAIHN0YXRpYyBpbnQgbXRrX2kyY19wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNl
+ICpwZGV2KQ0KIAkJcmV0dXJuIC1FSU5WQUw7DQogCX0NCiANCi0JaWYgKGkyYy0+ZGV2X2NvbXAt
+PnN1cHBvcnRfMzNiaXRzKSB7DQotCQlyZXQgPSBkbWFfc2V0X21hc2soJnBkZXYtPmRldiwgRE1B
+X0JJVF9NQVNLKDMzKSk7DQorCWlmIChpMmMtPmRldl9jb21wLT5tYXhfZG1hX3N1cHBvcnQgPiAz
+Mikgew0KKwkJcmV0ID0gZG1hX3NldF9tYXNrKCZwZGV2LT5kZXYsDQorCQkJCURNQV9CSVRfTUFT
+SyhpMmMtPmRldl9jb21wLT5tYXhfZG1hX3N1cHBvcnQpKTsNCiAJCWlmIChyZXQpIHsNCiAJCQlk
+ZXZfZXJyKCZwZGV2LT5kZXYsICJkbWFfc2V0X21hc2sgcmV0dXJuIGVycm9yLlxuIik7DQogCQkJ
+cmV0dXJuIHJldDsNCi0tIA0KMS45LjENCg==
 
-Thanks
-Vaibhav Gupta
-> > >  	for (i = 0; i < adap_info->ch_num; i++)
-> > >  		pch_i2c_init(&adap_info->pch_data[i]);
-> > > @@ -908,18 +890,15 @@ static int pch_i2c_resume(struct pci_dev *pdev)
-> > >  
-> > >  	return 0;
-> > >  }
-> > > -#else
-> > > -#define pch_i2c_suspend NULL
-> > > -#define pch_i2c_resume NULL
-> > > -#endif
-> > > +
-> > > +static SIMPLE_DEV_PM_OPS(pch_i2c_pm_ops, pch_i2c_suspend, pch_i2c_resume);
-> > >  
-> > >  static struct pci_driver pch_pcidriver = {
-> > >  	.name = KBUILD_MODNAME,
-> > >  	.id_table = pch_pcidev_id,
-> > >  	.probe = pch_i2c_probe,
-> > >  	.remove = pch_i2c_remove,
-> > > -	.suspend = pch_i2c_suspend,
-> > > -	.resume = pch_i2c_resume
-> > > +	.driver.pm = &pch_i2c_pm_ops,
-> > >  };
-> > >  
-> > >  module_pci_driver(pch_pcidriver);
-> > > -- 
-> > > 2.27.0
-> > > 
