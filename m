@@ -2,164 +2,242 @@ Return-Path: <SRS0=nbAm=BP=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72CE1C433E0
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 16:33:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 819CBC433E0
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 17:22:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 34CBC22E02
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 16:33:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A0582177B
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Aug 2020 17:22:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="znVaG7fL";
-	dkim=pass (1024-bit key) header.d=microchiptechnology.onmicrosoft.com header.i=@microchiptechnology.onmicrosoft.com header.b="TylKdN+6"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="psVRPR/s"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726078AbgHEQdC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 5 Aug 2020 12:33:02 -0400
-Received: from esa3.microchip.iphmx.com ([68.232.153.233]:17497 "EHLO
-        esa3.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726910AbgHEQcO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Aug 2020 12:32:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1596645133; x=1628181133;
-  h=from:to:subject:date:message-id:references:in-reply-to:
-   content-id:content-transfer-encoding:mime-version;
-  bh=wnL2TrXyKzABJPiqqAF74hddmf2SrrqhPTQIopmI9Gw=;
-  b=znVaG7fL31BZPS+RigNChqBntMqkFfsHN8caN2Kl2D1JxTzUrbOClDKK
-   6ofvK81eTPcnipJOMABZGL5zwVmTntB55mfDqjyWwJFiWAW6lVbTK+ebt
-   Q7cr9HgoVL08ppJj6kENzukZhUUWLzc+P5zo5Y2VkhmNQLkjr8W6/jM/P
-   pgF8x2BuvLUSie/WkU6o6LdQlqClqn1t0KY8BemrgcOOHjWL2TZt4ClRA
-   21vxGj7JkrRQh9J/crb77dXsXstmJQ3xZrnYhUH1WbKu9fvbNUVf6Wlck
-   jKeZd2AZtCRxxb0Ku+wUnCzckOwq95IN7BYoXePsiKFJRWO/Hff1AOa2f
-   Q==;
-IronPort-SDR: S2jPRPjkaGat99MllwYkFt7sFf41MSmYzl10Q4lZV/x1ichSxuWJH7Jacsp8ngXhaKloS/OPQB
- Vr3FQYbChgm61iHqgqpkH5Oao48Nlbo6rJlcPl9brcQDAVx0EkmgGLjJz5KvzJxP0T8E6UFG+r
- WZ6AHrv/R/pr08sMNFQawstqn8tjj74VK1IbD/tK/s0VN4kIQGjw6wPbYVbAHjfUjPc9txKHmz
- 8Oy4T02SRWHb+HB4SUpRrfJqnG9y/68TqgHnHGNmammD8ZHlCqJB/qrfRLeu90+ux8Q83CjRiO
- Iwc=
-X-IronPort-AV: E=Sophos;i="5.75,436,1589266800"; 
-   d="scan'208";a="86765665"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 05 Aug 2020 03:29:31 -0700
-Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1979.3; Wed, 5 Aug 2020 03:29:30 -0700
-Received: from NAM04-BN3-obe.outbound.protection.outlook.com (10.10.215.89) by
- email.microchip.com (10.10.87.72) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1979.3 via Frontend
- Transport; Wed, 5 Aug 2020 03:29:31 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=g6hY1v890qHKscqQhfeCuap6htwi8LDeKSufF39qk6LuP4fvreE2vSCCmsmZz5Xgg89PbMipkyLfKV6ObjnBVzORDfscbdIV2Zg4ElxTDP+OkKRu6miTbVHdlkA147FvXOuDZqpBt4AhnkcqG0kPuFeLdRhJ+/O3C1XcfB7yvcPK1Pr+EFJcYYQAd2ZUBtVa86itggomcweYLc9b6TjTnZ/zv9i4INSnEUVXCMe0aCzGYttu8KfMkyTa7t63yaTsXwTX8RkkuuIv5jcDJcpxqQbRJztxDgxcvCANvkDWNqHuywyYpdV6xj6MFJJ6CZ+VVPej9v1t+5GkaoZsPREJ7A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BOYTlFlry6VT0tU+WtmrdYuSroLKfMCXp1qZl3fXPpE=;
- b=nMO6n4MsrurKGb8NGc6/h2OyI8KvuazaXjwhPnW2UPGbDEYAsT3+NyX7NQAAAsaslswJssgYHg4KD3veYgIX5d7vSVInO38ClwMsZq7RGF2/VKpiuBeT1ABkQkVLSiGm+hgk3si+Olegx2hubUOpUsTOPZDE36+ppGxUNuUiYBRkWGHXpqlH09cn17fMwuLBE80P5cx5xa3mIXohnIkHL+8hFXYy3r3HYYndNSArhj8Q3LBnPJH6gh5gTMCGjgv4KIxjzP2ozrESCUGdHk/GW0OCIBuILLUVRhYzghqDahL9IbjNMjh72Awe8JLWchso9CJXlwb+jrwNy3bHoUhzCQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microchip.com; dmarc=pass action=none
- header.from=microchip.com; dkim=pass header.d=microchip.com; arc=none
+        id S1728428AbgHERWy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 5 Aug 2020 13:22:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52246 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728114AbgHERVa (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Aug 2020 13:21:30 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C497FC06179E;
+        Wed,  5 Aug 2020 10:21:21 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id 2so4877693pjx.5;
+        Wed, 05 Aug 2020 10:21:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=microchiptechnology.onmicrosoft.com;
- s=selector2-microchiptechnology-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BOYTlFlry6VT0tU+WtmrdYuSroLKfMCXp1qZl3fXPpE=;
- b=TylKdN+66x7ukhHvuRax4KU9urqY4k3Z2AtmuRCeUKb5n8/6Vn2mVuI8Tcaz51g0hAym9RDVlR8zGxX3Ctqe2pKOZzSZioUV0tA7PtdGzi+Q0cLBfkj2+M7QXrP7rWLDO4mCzEb3QcmZhSlm6I04nm7BuaelSVP5Xoztx2HoAmM=
-Received: from SN6PR11MB3504.namprd11.prod.outlook.com (2603:10b6:805:d0::17)
- by SN6PR11MB2654.namprd11.prod.outlook.com (2603:10b6:805:54::31) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3239.18; Wed, 5 Aug
- 2020 10:29:28 +0000
-Received: from SN6PR11MB3504.namprd11.prod.outlook.com
- ([fe80::c83b:2062:4e59:8ebf]) by SN6PR11MB3504.namprd11.prod.outlook.com
- ([fe80::c83b:2062:4e59:8ebf%7]) with mapi id 15.20.3261.018; Wed, 5 Aug 2020
- 10:29:27 +0000
-From:   <Codrin.Ciubotariu@microchip.com>
-To:     <wsa@kernel.org>, <linux-i2c@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <robh+dt@kernel.org>,
-        <Ludovic.Desroches@microchip.com>, <Nicolas.Ferre@microchip.com>,
-        <alexandre.belloni@bootlin.com>, <linux@armlinux.org.uk>,
-        <kamel.bouhara@bootlin.com>
-Subject: Re: Re: [PATCH 0/4] i2c: core: add generic GPIO bus recovery
-Thread-Topic: Re: [PATCH 0/4] i2c: core: add generic GPIO bus recovery
-Thread-Index: AQHWakYA0GSN6ngj20ixEwnhfAzHRakpNvsAgAAa/gA=
-Date:   Wed, 5 Aug 2020 10:29:27 +0000
-Message-ID: <a776a0b1-dcf7-0e99-7076-0fb791258058@microchip.com>
-References: <20200804095926.205643-1-codrin.ciubotariu@microchip.com>
- <20200805085236.GE1229@kunai>
-In-Reply-To: <20200805085236.GE1229@kunai>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-authentication-results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=microchip.com;
-x-originating-ip: [84.232.220.208]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 8083837e-20f2-4f82-63d0-08d8392a6e92
-x-ms-traffictypediagnostic: SN6PR11MB2654:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <SN6PR11MB26549C481F6B82529AD48BFEE74B0@SN6PR11MB2654.namprd11.prod.outlook.com>
-x-bypassexternaltag: True
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: DZqypMzNIe5/iM8zhTPSNAat2vFgBtHKPXkegtQnqUePAInVOBxaMNK2o8Lr/ADCY3m/GpvfC4jnLfPyH6VmV7YoQWZCqyAanzib5yLvmr6FFsnW0yFk0Wr7t6AQTmqF6f49+H9ThZTvQp1C25QqFdoHMEZQC0T4WVaTdwqMcj+AnaV6EmeBk6yEaWox67Kfo3NbJY2tNpI5TeJ0ARj9prWQ+0V1lXIL31bnke/uqRaFAaQDKAO6vrTLEC2/XhCvAWmf/Nk/wSb8kQDrwKAK0qaOezCXNBJtoWLE4YMIU2ay1MT1PpPeEF0hqcNBk7xJ9D4+/Ts20sDkyt/w/enA00BXg96YpjspsmIVmBf2kIqsh0J9Sze1AeczmG7AqxUVmRLxLnpUnjI4KSbd4S/Z/tfRlcASs9S5AfKvaF6e32I=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR11MB3504.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(376002)(39860400002)(346002)(136003)(396003)(366004)(36756003)(71200400001)(5660300002)(186003)(26005)(6486002)(83380400001)(53546011)(66946007)(6512007)(86362001)(6506007)(31696002)(110136005)(8936002)(66476007)(2616005)(2906002)(478600001)(316002)(8676002)(66556008)(66446008)(64756008)(91956017)(76116006)(31686004)(41533002)(921003)(43740500002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: K3NmTdZqyb1l4/5NBe6rgGJi3ZqagSIMrLCva2pq1U6CK4CvnI1BMDSTto1qcOWcUjxKmL5vr2O7kWVc97m90OQJwIMk9xCfIbpv0QXbnKyTFM44Z42Xnu79eMmWakvjD6CcOjjiNQQOwY2mUskTMkqItgvh8014IrMixPw6X02e6Z2aM7JSAcR8j5Q/PfbYQ44pq0uyVcxnVmunpwzHWFFSRGT+/moZrnz0GnBGzmZPt4QKjSNeW3nTaNL709vYfj/NGPLMG7xH+/iSMt0QXLdSg1R3ljXolkPd8b8oh00GQpyfcn8x03jUMFhTcR/NT/dVkWsIVKZ2dYo+fqkAM2gbpf/4wIV0bFnPrDTz1BxwDgbegh0xdBJUcjKmiqk8R/TxC0KFr75egd1RZXVAbWf9hv6cY5XZhe8IjDnET2SUQJ59jimHiY61hHR58qXjWQ3pkRBJBvL4P/tXo3xJuLCeE8KYHsAja/9bTtRm87hDdmg7e2q3IY0PAH/av6ZYwzoZWYe/QVA+B0SkWLwqsygaWSbq7iTqFuRpZkaX3GF2I/TaQ9fmkS48ds8KgXx0cpUVy8Du1ZfQpEaLC5RvpEsxGAW9buE1bUj726cvTDAQw/4O2axOgKHBQxF1qG+sFQ515JfF0Errif7VXQoluQ==
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <1270B91B2DCB434ABDBB25BDBA8AD4CE@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ClBxmhMDW8/EvqLNuXj7OToao++oyiDhHUE3TT7mBds=;
+        b=psVRPR/sQ1D/EHzTjCqfMm49Kjs6jS5auCQQBuWbaa1ukcEDyAan+MKT7yZoc3sepE
+         EoqGblTTU4cr4TCQeCPp/im62vToSQLewk0u5eMCamxeSnJNHMpiCoReUYZSxzRPngu1
+         1PUQ+MMFRGpA4CUuOiUzBNwZaxXTTuUauYeD2V3wKoQZwQ7bwQ8+2biTqpaPDNAgq8Rz
+         5+au1GfTD1+3fTUoK7IALQA/eUtFt+9W3E4iMiikKnnsD0Xhfw9N22U86G3kYHDISlAt
+         o20tsTlfuuPQMKS2NMPO7rIyuXCOUHGemsNKMwJoCsjOrAoekgzG9GyjBezv50GGVbjT
+         sX7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ClBxmhMDW8/EvqLNuXj7OToao++oyiDhHUE3TT7mBds=;
+        b=eBSff30Fgum2ByIJIpAIwRA1yDLjWVFuwpIm309ALtnqwi9p6p0zLngy9SuGAitH3z
+         PFxH4/IqjO+/v2QjDJRnwev68H0M045uG73NVAVgGNuDbP9JIlo3n2pM8goKbQX4ejjE
+         1+P2uMMLYAklYg+keU96X/k2UFIWTF4fFxqiFmmDDLq0Y/GY5kgreRk32XY36bAvTUVn
+         XrVdjgzW1WWu6qZ+QfQ8dYnZ0p9AYdqZfST11cLbA+PU7bPsnhlA4xC4asPreWr0yBym
+         py2oGSrQUKx5z6qjqQIdrCg015kSXKTg4mW5Bd0LNKXFCXMkQEP77A2fbRKhPxkPkFWl
+         FMxA==
+X-Gm-Message-State: AOAM533Iaqj1Ri62BfxZqEE73xoz+Tz2bDPszB9sUFZMvAAuuvNrIyjs
+        qPyF7Fg3Kgfk9hqkI6mApec=
+X-Google-Smtp-Source: ABdhPJxzb/HUa4PssPf3WyZJk2/9fO9KwC5LbUHExxDSZz5HT6M3KGkwkKCGNwW8SVIKjQvLhzHLAw==
+X-Received: by 2002:a17:902:8495:: with SMTP id c21mr4240892plo.82.1596648081145;
+        Wed, 05 Aug 2020 10:21:21 -0700 (PDT)
+Received: from gmail.com ([103.105.152.86])
+        by smtp.gmail.com with ESMTPSA id d24sm4850758pfq.72.2020.08.05.10.21.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Aug 2020 10:21:20 -0700 (PDT)
+Date:   Wed, 5 Aug 2020 22:49:37 +0530
+From:   Vaibhav Gupta <vaibhavgupta40@gmail.com>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Helgaas <bjorn@helgaas.com>,
+        Vaibhav Gupta <vaibhav.varodek@gmail.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kernel-mentees@lists.linuxfoundation.org,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>,
+        Tomoya MORINAGA <tomoya.rohm@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: Re: [PATCH v1] i2c: eg20t: use generic power management
+Message-ID: <20200805171937.GA85392@gmail.com>
+References: <20200805162154.GA3179@gmail.com>
+ <20200805165611.GA516242@bjorn-Precision-5520>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR11MB3504.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8083837e-20f2-4f82-63d0-08d8392a6e92
-X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Aug 2020 10:29:27.7391
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3f4057f3-b418-4d4e-ba84-d55b4e897d88
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 8sbB6fnv8Gg18dP5ziQ0uz8HAh8swMvdTk9qQoW6yWCuxp7DJpCL0sOwxz9zRgTTXopeJqa+jVYbbwwzUt56/iC8kHbxbL2Is/G5VP73jcw=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR11MB2654
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200805165611.GA516242@bjorn-Precision-5520>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 05.08.2020 11:52, wsa@kernel.org wrote:
-> Codrin, everyone
->=20
->> This patch series was previously sent as a RFC. Significant changes
->> since RFC:
->> - "recovery" pinctrl state marked as deprecared in bindings;
->> - move to "gpio" pinctrl state done after the call to prepare_recovery()
->>    callback;
->> - glitch protection when SDA gpio is taken at initialization;
->=20
-> Thanks for the fast update, now all merged for inclusion into 5.9. I
-> think it is really good, but to verify and double check, I think two
-> things would be even better..
+On Wed, Aug 05, 2020 at 11:56:11AM -0500, Bjorn Helgaas wrote:
+> On Wed, Aug 05, 2020 at 09:51:54PM +0530, Vaibhav Gupta wrote:
+> > On Wed, Aug 05, 2020 at 10:28:32AM -0500, Bjorn Helgaas wrote:
+> > > On Wed, Aug 05, 2020 at 10:23:31AM -0500, Bjorn Helgaas wrote:
+> > > > On Mon, Jul 20, 2020 at 07:30:32PM +0530, Vaibhav Gupta wrote:
+> > > > > Drivers using legacy PM have to manage PCI states and device's PM states
+> > > > > themselves. They also need to take care of configuration registers.
+> > > > > 
+> > > > > With improved and powerful support of generic PM, PCI Core takes care of
+> > > > > above mentioned, device-independent, jobs.
+> > > > > 
+> > > > > This driver makes use of PCI helper functions like
+> > > > > pci_save/restore_state(), pci_enable/disable_device(),
+> > > > > pci_enable_wake() and pci_set_power_state() to do required operations. In
+> > > > > generic mode, they are no longer needed.
+> > > > > 
+> > > > > Change function parameter in both .suspend() and .resume() to
+> > > > > "struct device*" type. Use to_pci_dev() and dev_get_drvdata() to get
+> > > > > "struct pci_dev*" variable and drv data.
+> > > > > 
+> > > > > Compile-tested only.
+> > > > > 
+> > > > > Signed-off-by: Vaibhav Gupta <vaibhavgupta40@gmail.com>
+> > > > > ---
+> > > > >  drivers/i2c/busses/i2c-eg20t.c | 39 ++++++++--------------------------
+> > > > >  1 file changed, 9 insertions(+), 30 deletions(-)
+> > > > > 
+> > > > > diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+> > > > > index 73f139690e4e..c0ddc4cc2ce7 100644
+> > > > > --- a/drivers/i2c/busses/i2c-eg20t.c
+> > > > > +++ b/drivers/i2c/busses/i2c-eg20t.c
+> > > > > @@ -846,11 +846,10 @@ static void pch_i2c_remove(struct pci_dev *pdev)
+> > > > >  	kfree(adap_info);
+> > > > >  }
+> > > > >  
+> > > > > -#ifdef CONFIG_PM
+> > > > > -static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
+> > > > > +static int __maybe_unused pch_i2c_suspend(struct device *dev)
+> > > > >  {
+> > > > > -	int ret;
+> > > > >  	int i;
+> > > > > +	struct pci_dev *pdev = to_pci_dev(dev);
+> > > > >  	struct adapter_info *adap_info = pci_get_drvdata(pdev);
+> > > > 
+> > > > Why don't you use "adap_info = dev_get_drvdata(dev)" as you did below,
+> > > > so you don't need to_pci_dev()?
+> > > >
+> > Actually, line 870, pch_pci_dbg() again needs "struct pci_dev*" type
+> > pointer.  Either way I had to use to_pci_dev(), so defined "pdev"
+> > which made less number of required changes in the code.
+> 
+> OK.  pch_pci_dbg() only needs the pdev in order to *get* the struct
+> device *, so it's all sort of in circles.  But it's fine to do as you
+> did here.
+> 
+> > > > >  	void __iomem *p = adap_info->pch_data[0].pch_base_address;
+> > > > >  
+> > > > > @@ -872,34 +871,17 @@ static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
+> > > > >  		ioread32(p + PCH_I2CSR), ioread32(p + PCH_I2CBUFSTA),
+> > > > >  		ioread32(p + PCH_I2CESRSTA));
+> > > > >  
+> > > > > -	ret = pci_save_state(pdev);
+> > > > > -
+> > > > > -	if (ret) {
+> > > > > -		pch_pci_err(pdev, "pci_save_state\n");
+> > > > > -		return ret;
+> > > > > -	}
+> > > > > -
+> > > > > -	pci_enable_wake(pdev, PCI_D3hot, 0);
+> > > > > -	pci_disable_device(pdev);
+> > > > > -	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+> > > > > +	device_wakeup_disable(dev);
+> > > > >  
+> > > > >  	return 0;
+> > > > >  }
+> > > > >  
+> > > > > -static int pch_i2c_resume(struct pci_dev *pdev)
+> > > > > +static int __maybe_unused pch_i2c_resume(struct device *dev)
+> > > > >  {
+> > > > >  	int i;
+> > > > > -	struct adapter_info *adap_info = pci_get_drvdata(pdev);
+> > > > > -
+> > > > > -	pci_set_power_state(pdev, PCI_D0);
+> > > > > -	pci_restore_state(pdev);
+> > > > > +	struct adapter_info *adap_info = dev_get_drvdata(dev);
+> > > > >  
+> > > > > -	if (pci_enable_device(pdev) < 0) {
+> > > > > -		pch_pci_err(pdev, "pch_i2c_resume:pci_enable_device FAILED\n");
+> > > > > -		return -EIO;
+> > > > > -	}
+> > > > > -
+> > > > > -	pci_enable_wake(pdev, PCI_D3hot, 0);
+> > > > > +	device_wakeup_disable(dev);
+> > > > 
+> > > > It *looks* wrong to disable wakeup in both suspend and resume.  I
+> > > > think the usual pattern is to enable wakeup in suspend and disable it
+> > > > in resume.
+> > > > 
+> > > > But it looks like it's been that way since the driver was added by
+> > > > e9bc8fa5df1c ("i2c-eg20t: add driver for Intel EG20T").
+> > > > 
+> > > > If the device doesn't support wakeup, I would not expect the driver to
+> > > > mention wakeup at all.
+> > > > 
+> > > > In any case, I think it's the right thing for *this* patch to preserve
+> > > > the previous wakeup behavior.  Maybe we want a follow-up patch to just
+> > > > remove both device_wakeup_disable() calls?
+> > > > 
+> > We have seen this issue earlier in other drivers too. I remember you even
+> > identified and listed them.
+> > The PCI core calls, pci_enable_wake(pci_dev, PCI_D0, false). And if the driver
+> > does not want to enable-wake on suspend, we discussed and concluded that the
+> > calls should be dropped.
+> > I am sending v2, to include dropping wakeup call.
+> 
+> Personally, I think I would do this in two patches, and in the reverse
+> order than what I first suggested:
+> 
+>   1) Drop pci_enable_wake() calls
+>   2) Convert to generic PM
+> 
+> Doing them in that order means patch 2 will be slightly simpler, and
+> if there's any issue with removing the wakeup stuff, we can debug it
+> in the context of the original PCI PM code we've been using for years
+> without muddying the water with the additional generic PM changes.
+> 
+Yeah, this seems more reasonable.
 
-Happy to help.
-
->=20
-> One thing, I'll definately be doing is to add this feature to
-> i2c-sh_mobile.c and scope the results.
->=20
-> The other thing would be to convert the PXA driver and see if our
-> generic support can help their advanced use case or if we are missing
-> something. Codrin, do you have maybe time and interest to do that? That
-> would be awesome!
-
-Naturally, these would be the next steps. I can do this, sure, but I=20
-don't have the HW. I'll look for some development kits. If you have any=20
-recommendations, please let me know.
-
-Best regards,
-Codrin
+Thanks
+Vaibhav Gupta
+> > > > >  	for (i = 0; i < adap_info->ch_num; i++)
+> > > > >  		pch_i2c_init(&adap_info->pch_data[i]);
+> > > > > @@ -908,18 +890,15 @@ static int pch_i2c_resume(struct pci_dev *pdev)
+> > > > >  
+> > > > >  	return 0;
+> > > > >  }
+> > > > > -#else
+> > > > > -#define pch_i2c_suspend NULL
+> > > > > -#define pch_i2c_resume NULL
+> > > > > -#endif
+> > > > > +
+> > > > > +static SIMPLE_DEV_PM_OPS(pch_i2c_pm_ops, pch_i2c_suspend, pch_i2c_resume);
+> > > > >  
+> > > > >  static struct pci_driver pch_pcidriver = {
+> > > > >  	.name = KBUILD_MODNAME,
+> > > > >  	.id_table = pch_pcidev_id,
+> > > > >  	.probe = pch_i2c_probe,
+> > > > >  	.remove = pch_i2c_remove,
+> > > > > -	.suspend = pch_i2c_suspend,
+> > > > > -	.resume = pch_i2c_resume
+> > > > > +	.driver.pm = &pch_i2c_pm_ops,
+> > > > >  };
+> > > > >  
+> > > > >  module_pci_driver(pch_pcidriver);
+> > > > > -- 
+> > > > > 2.27.0
+> > > > > 
