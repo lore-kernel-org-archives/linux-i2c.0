@@ -2,368 +2,183 @@ Return-Path: <SRS0=MyPu=BQ=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F244C433DF
-	for <linux-i2c@archiver.kernel.org>; Thu,  6 Aug 2020 16:54:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DDECC433E0
+	for <linux-i2c@archiver.kernel.org>; Thu,  6 Aug 2020 17:22:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 02BC22086A
-	for <linux-i2c@archiver.kernel.org>; Thu,  6 Aug 2020 16:54:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5389E2311A
+	for <linux-i2c@archiver.kernel.org>; Thu,  6 Aug 2020 17:22:35 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="yH9DSscv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729621AbgHFQyU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 6 Aug 2020 12:54:20 -0400
-Received: from 7.mo68.mail-out.ovh.net ([46.105.63.230]:57287 "EHLO
-        7.mo68.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729532AbgHFQyP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 6 Aug 2020 12:54:15 -0400
-X-Greylist: delayed 2209 seconds by postgrey-1.27 at vger.kernel.org; Thu, 06 Aug 2020 12:54:13 EDT
-Received: from player791.ha.ovh.net (unknown [10.110.171.50])
-        by mo68.mail-out.ovh.net (Postfix) with ESMTP id 76259172FD4
-        for <linux-i2c@vger.kernel.org>; Thu,  6 Aug 2020 18:15:19 +0200 (CEST)
-Received: from sk2.org (82-65-25-201.subs.proxad.net [82.65.25.201])
-        (Authenticated sender: steve@sk2.org)
-        by player791.ha.ovh.net (Postfix) with ESMTPSA id 9F80915002624;
-        Thu,  6 Aug 2020 16:15:13 +0000 (UTC)
-Authentication-Results: garm.ovh; auth=pass (GARM-104R0059bfe411c-1641-46b4-891b-cf95eaa2adb0,
-                    9D5F4B8471F7AF6BEF45141B8B52B4DEEC6DEFE4) smtp.auth=steve@sk2.org
-From:   Stephen Kitt <steve@sk2.org>
-To:     Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Cc:     Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Stephen Kitt <steve@sk2.org>
-Subject: [PATCH v2] docs: remove the 2.6 "Upgrading I2C Drivers" guide
-Date:   Thu,  6 Aug 2020 18:14:56 +0200
-Message-Id: <20200806161456.8680-1-steve@sk2.org>
-X-Mailer: git-send-email 2.20.1
+        id S1728724AbgHFRWe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 6 Aug 2020 13:22:34 -0400
+Received: from www.zeus03.de ([194.117.254.33]:59448 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730400AbgHFRV6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 6 Aug 2020 13:21:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=k1; bh=RmIIiEsjof6RecDUXQvDxCUtUgZ
+        kIvmo3hbuvZuq9/w=; b=yH9DSscvUhF1cfFq0Ul+mdure037qA7bIWM/+HYSPKR
+        L3K3uIawPgO5Y/tj4upfZw8bHkUVYwJphafVqkOH/JChiHXHB7UNXPt751YcYeFx
+        tV9PbDV2K0dldhvM6S9Fohn0ZY2bVyPNifIeSCvLDEby6yZt4IETblGALtH4Sxtc
+        =
+Received: (qmail 3392327 invoked from network); 6 Aug 2020 16:54:34 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 6 Aug 2020 16:54:34 +0200
+X-UD-Smtp-Session: l3s3148p1@vAWgqjas92Yut2cI
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Jean Delvare <jdelvare@suse.de>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH i2c-tools] add BUGS section to manpages
+Date:   Thu,  6 Aug 2020 16:54:21 +0200
+Message-Id: <20200806145421.1389-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 3213036861844639109
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduiedrkedtgddutdduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefuthgvphhhvghnucfmihhtthcuoehsthgvvhgvsehskhdvrdhorhhgqeenucggtffrrghtthgvrhhnpeetgedugfelkeeikeetgeegteevfeeufeetuefgudeiiedthfehtdeffeekvdeffeenucfkpheptddrtddrtddrtddpkedvrdeihedrvdehrddvtddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmohguvgepshhmthhpqdhouhhtpdhhvghlohepphhlrgihvghrjeeluddrhhgrrdhovhhhrdhnvghtpdhinhgvtheptddrtddrtddrtddpmhgrihhlfhhrohhmpehsthgvvhgvsehskhdvrdhorhhgpdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-All the drivers have long since been upgraded, and all the important
-information here is also included in the "Implementing I2C device
-drivers" guide.
+For all manpages installed on my Debian system, add a BUGS section, so
+people can easily find whom to contact.
 
-Signed-off-by: Stephen Kitt <steve@sk2.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- Documentation/i2c/index.rst             |   1 -
- Documentation/i2c/upgrading-clients.rst | 285 ------------------------
- 2 files changed, 286 deletions(-)
- delete mode 100644 Documentation/i2c/upgrading-clients.rst
+ eeprom/decode-dimms.1     | 3 +++
+ eeprom/decode-vaio.1      | 3 +++
+ stub/i2c-stub-from-dump.8 | 4 ++++
+ tools/i2cdetect.8         | 4 ++++
+ tools/i2cdump.8           | 4 ++++
+ tools/i2cget.8            | 4 ++++
+ tools/i2cset.8            | 4 ++++
+ tools/i2ctransfer.8       | 4 ++++
+ 8 files changed, 30 insertions(+)
 
-diff --git a/Documentation/i2c/index.rst b/Documentation/i2c/index.rst
-index fee4744475df..8a2ad3845191 100644
---- a/Documentation/i2c/index.rst
-+++ b/Documentation/i2c/index.rst
-@@ -62,7 +62,6 @@ Legacy documentation
- .. toctree::
-    :maxdepth: 1
+diff --git a/eeprom/decode-dimms.1 b/eeprom/decode-dimms.1
+index 710d6bf..c684500 100644
+--- a/eeprom/decode-dimms.1
++++ b/eeprom/decode-dimms.1
+@@ -62,6 +62,9 @@ Same as -x except treat multibyte hex data as little endian
+ .TP
+ .B \-h, --help
+ Display the usage summary
++.SH BUGS
++To report bugs or send fixes, please write to the Linux I2C mailing list
++<linux-i2c@vger.kernel.org>.
+ .SH SEE ALSO
+ .BR decode-vaio (1)
+ .SH AUTHORS
+diff --git a/eeprom/decode-vaio.1 b/eeprom/decode-vaio.1
+index 125d597..9bdcacf 100644
+--- a/eeprom/decode-vaio.1
++++ b/eeprom/decode-vaio.1
+@@ -29,6 +29,9 @@ The purpose of the
+ tool is to decode the information found in the Sony Vaio laptop
+ identification EEPROMs.
+ The tool requires the eeprom kernel module to be loaded.
++.SH BUGS
++To report bugs or send fixes, please write to the Linux I2C mailing list
++<linux-i2c@vger.kernel.org>.
+ .SH SEE ALSO
+ .BR decode-dimms (1)
+ .SH AUTHOR
+diff --git a/stub/i2c-stub-from-dump.8 b/stub/i2c-stub-from-dump.8
+index b1550ed..3d55ac9 100644
+--- a/stub/i2c-stub-from-dump.8
++++ b/stub/i2c-stub-from-dump.8
+@@ -45,6 +45,10 @@ There are some limitations to the kind of devices that can be handled:
+ .IP \(bu
+ Device must not have banks (as most Winbond devices do).
  
--   upgrading-clients
-    old-module-parameters
++.SH BUGS
++To report bugs or send fixes, please write to the Linux I2C mailing list
++<linux-i2c@vger.kernel.org>.
++
+ .SH SEE ALSO
+ i2cdump(8), i2cdetect(8), i2cset(8)
  
- .. only::  subproject and html
-diff --git a/Documentation/i2c/upgrading-clients.rst b/Documentation/i2c/upgrading-clients.rst
-deleted file mode 100644
-index 1708090d7b8f..000000000000
---- a/Documentation/i2c/upgrading-clients.rst
-+++ /dev/null
-@@ -1,285 +0,0 @@
--=================================================
--Upgrading I2C Drivers to the new 2.6 Driver Model
--=================================================
--
--Ben Dooks <ben-linux@fluff.org>
--
--Introduction
--------------
--
--This guide outlines how to alter existing Linux 2.6 client drivers from
--the old to the new binding methods.
--
--
--Example old-style driver
--------------------------
--
--::
--
--  struct example_state {
--	struct i2c_client	client;
--	....
--  };
--
--  static struct i2c_driver example_driver;
--
--  static unsigned short ignore[] = { I2C_CLIENT_END };
--  static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
--
--  I2C_CLIENT_INSMOD;
--
--  static int example_attach(struct i2c_adapter *adap, int addr, int kind)
--  {
--	struct example_state *state;
--	struct device *dev = &adap->dev;  /* to use for dev_ reports */
--	int ret;
--
--	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
--	if (state == NULL) {
--		dev_err(dev, "failed to create our state\n");
--		return -ENOMEM;
--	}
--
--	example->client.addr    = addr;
--	example->client.flags   = 0;
--	example->client.adapter = adap;
--
--	i2c_set_clientdata(&state->i2c_client, state);
--	strscpy(client->i2c_client.name, "example", sizeof(client->i2c_client.name));
--
--	ret = i2c_attach_client(&state->i2c_client);
--	if (ret < 0) {
--		dev_err(dev, "failed to attach client\n");
--		kfree(state);
--		return ret;
--	}
--
--	dev = &state->i2c_client.dev;
--
--	/* rest of the initialisation goes here. */
--
--	dev_info(dev, "example client created\n");
--
--	return 0;
--  }
--
--  static int example_detach(struct i2c_client *client)
--  {
--	struct example_state *state = i2c_get_clientdata(client);
--
--	i2c_detach_client(client);
--	kfree(state);
--	return 0;
--  }
--
--  static int example_attach_adapter(struct i2c_adapter *adap)
--  {
--	return i2c_probe(adap, &addr_data, example_attach);
--  }
--
--  static struct i2c_driver example_driver = {
--	.driver		= {
--		.owner		= THIS_MODULE,
--		.name		= "example",
--		.pm		= &example_pm_ops,
--	},
--	.attach_adapter = example_attach_adapter,
--	.detach_client	= example_detach,
--  };
--
--
--Updating the client
---------------------
--
--The new style binding model will check against a list of supported
--devices and their associated address supplied by the code registering
--the busses. This means that the driver .attach_adapter and
--.detach_client methods can be removed, along with the addr_data,
--as follows::
--
--  - static struct i2c_driver example_driver;
--
--  - static unsigned short ignore[] = { I2C_CLIENT_END };
--  - static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
--
--  - I2C_CLIENT_INSMOD;
--
--  - static int example_attach_adapter(struct i2c_adapter *adap)
--  - {
--  - 	return i2c_probe(adap, &addr_data, example_attach);
--  - }
--
--    static struct i2c_driver example_driver = {
--  -	.attach_adapter = example_attach_adapter,
--  -	.detach_client	= example_detach,
--    }
--
--Add the probe and remove methods to the i2c_driver, as so::
--
--   static struct i2c_driver example_driver = {
--  +	.probe		= example_probe,
--  +	.remove		= example_remove,
--   }
--
--Change the example_attach method to accept the new parameters
--which include the i2c_client that it will be working with::
--
--  - static int example_attach(struct i2c_adapter *adap, int addr, int kind)
--  + static int example_probe(struct i2c_client *client,
--  +			   const struct i2c_device_id *id)
--
--Change the name of example_attach to example_probe to align it with the
--i2c_driver entry names. The rest of the probe routine will now need to be
--changed as the i2c_client has already been setup for use.
--
--The necessary client fields have already been setup before
--the probe function is called, so the following client setup
--can be removed::
--
--  -	example->client.addr    = addr;
--  -	example->client.flags   = 0;
--  -	example->client.adapter = adap;
--  -
--  -	strscpy(client->i2c_client.name, "example", sizeof(client->i2c_client.name));
--
--The i2c_set_clientdata is now::
--
--  -	i2c_set_clientdata(&state->client, state);
--  +	i2c_set_clientdata(client, state);
--
--The call to i2c_attach_client is no longer needed, if the probe
--routine exits successfully, then the driver will be automatically
--attached by the core. Change the probe routine as so::
--
--  -	ret = i2c_attach_client(&state->i2c_client);
--  -	if (ret < 0) {
--  -		dev_err(dev, "failed to attach client\n");
--  -		kfree(state);
--  -		return ret;
--  -	}
--
--
--Remove the storage of 'struct i2c_client' from the 'struct example_state'
--as we are provided with the i2c_client in our example_probe. Instead we
--store a pointer to it for when it is needed.
--
--::
--
--  struct example_state {
--  -	struct i2c_client	client;
--  +	struct i2c_client	*client;
--
--the new i2c client as so::
--
--  -	struct device *dev = &adap->dev;  /* to use for dev_ reports */
--  + 	struct device *dev = &i2c_client->dev;  /* to use for dev_ reports */
--
--And remove the change after our client is attached, as the driver no
--longer needs to register a new client structure with the core::
--
--  -	dev = &state->i2c_client.dev;
--
--In the probe routine, ensure that the new state has the client stored
--in it::
--
--  static int example_probe(struct i2c_client *i2c_client,
--			 const struct i2c_device_id *id)
--  {
--	struct example_state *state;
--	struct device *dev = &i2c_client->dev;
--	int ret;
--
--	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
--	if (state == NULL) {
--		dev_err(dev, "failed to create our state\n");
--		return -ENOMEM;
--	}
--
--  +	state->client = i2c_client;
--
--Update the detach method, by changing the name to _remove and
--to delete the i2c_detach_client call. It is possible that you
--can also remove the ret variable as it is not needed for any
--of the core functions.
--
--::
--
--  - static int example_detach(struct i2c_client *client)
--  + static int example_remove(struct i2c_client *client)
--  {
--	struct example_state *state = i2c_get_clientdata(client);
--
--  -	i2c_detach_client(client);
--
--And finally ensure that we have the correct ID table for the i2c-core
--and other utilities::
--
--  + struct i2c_device_id example_idtable[] = {
--  +       { "example", 0 },
--  +       { }
--  +};
--  +
--  +MODULE_DEVICE_TABLE(i2c, example_idtable);
--
--  static struct i2c_driver example_driver = {
--	.driver		= {
--		.owner		= THIS_MODULE,
--		.name		= "example",
--	},
--  +	.id_table	= example_ids,
--
--
--Our driver should now look like this::
--
--  struct example_state {
--	struct i2c_client	*client;
--	....
--  };
--
--  static int example_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
--  {
--	struct example_state *state;
--	struct device *dev = &client->dev;
--
--	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
--	if (state == NULL) {
--		dev_err(dev, "failed to create our state\n");
--		return -ENOMEM;
--	}
--
--	state->client = client;
--	i2c_set_clientdata(client, state);
--
--	/* rest of the initialisation goes here. */
--
--	dev_info(dev, "example client created\n");
--
--	return 0;
--  }
--
--  static int example_remove(struct i2c_client *client)
--  {
--	struct example_state *state = i2c_get_clientdata(client);
--
--	kfree(state);
--	return 0;
--  }
--
--  static struct i2c_device_id example_idtable[] = {
--	{ "example", 0 },
--	{ }
--  };
--
--  MODULE_DEVICE_TABLE(i2c, example_idtable);
--
--  static struct i2c_driver example_driver = {
--	.driver		= {
--		.owner		= THIS_MODULE,
--		.name		= "example",
--		.pm		= &example_pm_ops,
--	},
--	.id_table	= example_idtable,
--	.probe		= example_probe,
--	.remove		= example_remove,
--  };
-
-base-commit: 2324d50d051ec0f14a548e78554fb02513d6dcef
+diff --git a/tools/i2cdetect.8 b/tools/i2cdetect.8
+index 14c1f18..9e9f7cc 100644
+--- a/tools/i2cdetect.8
++++ b/tools/i2cdetect.8
+@@ -113,6 +113,10 @@ using the "receive byte" method, after user confirmation:
+ .RE
+ .fi
+ 
++.SH BUGS
++To report bugs or send fixes, please write to the Linux I2C mailing list
++<linux-i2c@vger.kernel.org>.
++
+ .SH SEE ALSO
+ i2cdump(8), i2cget(8), i2cset(8), i2ctransfer(8), sensors-detect(8)
+ 
+diff --git a/tools/i2cdump.8 b/tools/i2cdump.8
+index 18bf600..6acfcc2 100644
+--- a/tools/i2cdump.8
++++ b/tools/i2cdump.8
+@@ -116,6 +116,10 @@ user confirmation:
+ .RE
+ .fi
+ 
++.SH BUGS
++To report bugs or send fixes, please write to the Linux I2C mailing list
++<linux-i2c@vger.kernel.org>.
++
+ .SH SEE ALSO
+ i2cdetect(8), i2cget(8), i2cset(8), i2ctransfer(8), isadump(8)
+ 
+diff --git a/tools/i2cget.8 b/tools/i2cget.8
+index 680279f..ac4024a 100644
+--- a/tools/i2cget.8
++++ b/tools/i2cget.8
+@@ -113,6 +113,10 @@ equivalent, so this is the only way to read data from a large EEPROM if your
+ master isn't fully I2C capable. With a fully I2C capable master, you would
+ use \fIi2ctransfer\fR to achieve the same in a safe and faster way.
+ 
++.SH BUGS
++To report bugs or send fixes, please write to the Linux I2C mailing list
++<linux-i2c@vger.kernel.org>.
++
+ .SH SEE ALSO
+ i2cdetect(8), i2cdump(8), i2cset(8), i2ctransfer(8)
+ 
+diff --git a/tools/i2cset.8 b/tools/i2cset.8
+index 8c73c60..138f545 100644
+--- a/tools/i2cset.8
++++ b/tools/i2cset.8
+@@ -125,6 +125,10 @@ address 0x48 on bus 1 (i2c-1), after user confirmation:
+ Also see i2cget(8) for examples of combined usage of \fIi2cset\fR and
+ \fIi2cget\fR.
+ 
++.SH BUGS
++To report bugs or send fixes, please write to the Linux I2C mailing list
++<linux-i2c@vger.kernel.org>.
++
+ .SH SEE ALSO
+ i2cdetect(8), i2cdump(8), i2cget(8), i2ctransfer(8), isaset(8)
+ 
+diff --git a/tools/i2ctransfer.8 b/tools/i2ctransfer.8
+index 152d20d..3b14375 100644
+--- a/tools/i2ctransfer.8
++++ b/tools/i2ctransfer.8
+@@ -152,6 +152,10 @@ It can confuse your I2C bus, cause data loss, or have more serious side effects.
+ Writing to a serial EEPROM on a memory DIMM (chip addresses between 0x50 and 0x57) may DESTROY your memory, leaving your system unbootable!
+ Be extremely careful using this program.
+ 
++.SH BUGS
++To report bugs or send fixes, please write to the Linux I2C mailing list
++<linux-i2c@vger.kernel.org>.
++
+ .SH AUTHORS
+ Wolfram Sang, based on
+ .B i2cget
 -- 
-2.20.1
+2.27.0
 
