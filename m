@@ -2,37 +2,37 @@ Return-Path: <SRS0=Z3tm=BR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A327C433DF
-	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 14:19:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90C29C433E0
+	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 14:55:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 338BE20866
-	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 14:19:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 76F90221E2
+	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 14:55:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726167AbgHGOTL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 7 Aug 2020 10:19:11 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59002 "EHLO mx2.suse.de"
+        id S1726131AbgHGOzh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 7 Aug 2020 10:55:37 -0400
+Received: from mx2.suse.de ([195.135.220.15]:50464 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725815AbgHGOTI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 7 Aug 2020 10:19:08 -0400
+        id S1726061AbgHGOzh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 7 Aug 2020 10:55:37 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 3979FB11F;
-        Fri,  7 Aug 2020 14:19:25 +0000 (UTC)
-Date:   Fri, 7 Aug 2020 16:19:06 +0200
+        by mx2.suse.de (Postfix) with ESMTP id 936B9AB7D;
+        Fri,  7 Aug 2020 14:55:54 +0000 (UTC)
+Date:   Fri, 7 Aug 2020 16:55:35 +0200
 From:   Jean Delvare <jdelvare@suse.de>
-To:     Linux I2C <linux-i2c@vger.kernel.org>
-Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 2/2 RFC] eeprom: at24: Tidy at24_read()
-Message-ID: <20200807161906.6d119d2e@endymion>
-In-Reply-To: <20200807150005.48c8c89b@endymion>
-References: <20200807150005.48c8c89b@endymion>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org
+Subject: Re: [PATCH i2c-tools] tools: allow to preset TOOLS_CFLAGS and
+ TOOLS_LDFLAGS
+Message-ID: <20200807165535.3baca95d@endymion>
+In-Reply-To: <20200807094247.GB1178@kunai>
+References: <20200805220555.9050-1-wsa@kernel.org>
+        <20200807114051.099ee040@endymion>
+        <20200807094247.GB1178@kunai>
 Organization: SUSE Linux
 X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
@@ -43,65 +43,18 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The elegant code in at24_read() has the drawback that we now need
-to make a copy of all parameters to pass them to the post-processing
-callback function if there is one. Rewrite the loop in such a way that
-the parameters are not modified, so saving them is no longer needed.
+On Fri, 7 Aug 2020 11:42:47 +0200, Wolfram Sang wrote:
+> > > Sometimes I need to add some flags (like -static for the linker), so
+> > > allow this.  
+> > 
+> > Does USE_STATIC_LIB=1 not work for you?  
+> 
+> For some embedded devices, I need full static because they use a libc I
+> don't have at hand.
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
-This has the drawback of creating an asymetry with at24_write(), so
-I'm not 100% if we want to apply this. If anyone has a better idea,
-please let me know.
-
- drivers/misc/eeprom/at24.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
-
---- linux-5.7.orig/drivers/misc/eeprom/at24.c	2020-08-07 14:23:39.882191500 +0200
-+++ linux-5.7/drivers/misc/eeprom/at24.c	2020-08-07 14:28:39.039360687 +0200
-@@ -423,10 +423,7 @@ static int at24_read(void *priv, unsigne
- 	struct at24_data *at24;
- 	struct device *dev;
- 	char *buf = val;
--	int ret;
--	unsigned int orig_off = off;
--	char *orig_buf = buf;
--	size_t orig_count = count;
-+	int i, ret;
- 
- 	at24 = priv;
- 	dev = at24_base_client_dev(at24);
-@@ -449,15 +446,15 @@ static int at24_read(void *priv, unsigne
- 	 */
- 	mutex_lock(&at24->lock);
- 
-+	i = 0;
- 	while (count) {
--		ret = at24_regmap_read(at24, buf, off, count);
-+		ret = at24_regmap_read(at24, buf + i, off + i, count);
- 		if (ret < 0) {
- 			mutex_unlock(&at24->lock);
- 			pm_runtime_put(dev);
- 			return ret;
- 		}
--		buf += ret;
--		off += ret;
-+		i += ret;
- 		count -= ret;
- 	}
- 
-@@ -466,7 +463,7 @@ static int at24_read(void *priv, unsigne
- 	pm_runtime_put(dev);
- 
- 	if (unlikely(at24->read_post))
--		at24->read_post(orig_off, orig_buf, orig_count);
-+		at24->read_post(off, buf, i);
- 
- 	return 0;
- }
+OK, if you think there are more people interested, feel free to
+introduce another Makefile variable (STATIC_BUILD=1 for example) and
+use that. Whatever makes your life easier really.
 
 -- 
 Jean Delvare
