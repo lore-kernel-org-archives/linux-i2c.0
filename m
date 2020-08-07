@@ -2,158 +2,121 @@ Return-Path: <SRS0=Z3tm=BR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 389DFC433E0
-	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 15:48:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81B9FC433E0
+	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 16:23:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F7C92075D
-	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 15:48:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 565D522CAE
+	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 16:23:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725934AbgHGPsM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 7 Aug 2020 11:48:12 -0400
-Received: from 16.mo6.mail-out.ovh.net ([87.98.139.208]:58341 "EHLO
-        16.mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725893AbgHGPsL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 7 Aug 2020 11:48:11 -0400
-X-Greylist: delayed 1013 seconds by postgrey-1.27 at vger.kernel.org; Fri, 07 Aug 2020 11:48:11 EDT
-Received: from player737.ha.ovh.net (unknown [10.110.115.215])
-        by mo6.mail-out.ovh.net (Postfix) with ESMTP id 36E9E2215B9
-        for <linux-i2c@vger.kernel.org>; Fri,  7 Aug 2020 17:31:17 +0200 (CEST)
+        id S1726130AbgHGQXg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 7 Aug 2020 12:23:36 -0400
+Received: from 6.mo179.mail-out.ovh.net ([46.105.56.76]:54179 "EHLO
+        6.mo179.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727891AbgHGQX2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 7 Aug 2020 12:23:28 -0400
+X-Greylist: delayed 2719 seconds by postgrey-1.27 at vger.kernel.org; Fri, 07 Aug 2020 12:23:26 EDT
+Received: from player779.ha.ovh.net (unknown [10.110.103.211])
+        by mo179.mail-out.ovh.net (Postfix) with ESMTP id 839B7174A57
+        for <linux-i2c@vger.kernel.org>; Fri,  7 Aug 2020 18:23:19 +0200 (CEST)
 Received: from sk2.org (82-65-25-201.subs.proxad.net [82.65.25.201])
         (Authenticated sender: steve@sk2.org)
-        by player737.ha.ovh.net (Postfix) with ESMTPSA id 95BE7BA0F3BD;
-        Fri,  7 Aug 2020 15:31:07 +0000 (UTC)
-Authentication-Results: garm.ovh; auth=pass (GARM-96R001be37b43d-2adb-404c-9edc-3b4ec5cae877,
+        by player779.ha.ovh.net (Postfix) with ESMTPSA id 947061510A712;
+        Fri,  7 Aug 2020 16:23:13 +0000 (UTC)
+Authentication-Results: garm.ovh; auth=pass (GARM-106R006055f1bad-f0c4-4727-ae3b-7a63240df21a,
                     B1FDDFD4E508142116FDFB9194C63E8FBE397CFD) smtp.auth=steve@sk2.org
+Date:   Fri, 7 Aug 2020 18:23:06 +0200
 From:   Stephen Kitt <steve@sk2.org>
-To:     Sekhar Nori <nsekhar@ti.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Kukjin Kim <kgene@kernel.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Stephen Kitt <steve@sk2.org>
-Subject: [PATCH] arch/arm: use simple i2c probe function
-Date:   Fri,  7 Aug 2020 17:31:00 +0200
-Message-Id: <20200807153100.384845-1-steve@sk2.org>
-X-Mailer: git-send-email 2.25.4
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] hwmon/pmbus: use simple i2c probe function
+Message-ID: <20200807182306.032376e5@heffalump.sk2.org>
+In-Reply-To: <caf1963d-860f-1b46-49e5-ad3acc8d7877@roeck-us.net>
+References: <20200807074526.14334-1-steve@sk2.org>
+        <caf1963d-860f-1b46-49e5-ad3acc8d7877@roeck-us.net>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 8342073888835653110
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ boundary="Sig_/bOUMBB6UC/Ekh34A4LpQ756"; protocol="application/pgp-signature"
+X-Ovh-Tracer-Id: 9220838763908451598
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduiedrkedvgdekiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepufhtvghphhgvnhcumfhithhtuceoshhtvghvvgesshhkvddrohhrgheqnecuggftrfgrthhtvghrnhepteegudfgleekieekteeggeetveefueefteeugfduieeitdfhhedtfeefkedvfeefnecukfhppedtrddtrddtrddtpdekvddrieehrddvhedrvddtudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejfeejrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepshhtvghvvgesshhkvddrohhrghdprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduiedrkedvgdeliecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeffhffvuffkjghfofggtgesghdtreerredtjeenucfhrhhomhepufhtvghphhgvnhcumfhithhtuceoshhtvghvvgesshhkvddrohhrgheqnecuggftrfgrthhtvghrnhepveelvdeufedvieevffdtueegkeevteehffdtffetleehjeekjeejudffieduteeknecukfhppedtrddtrddtrddtpdekvddrieehrddvhedrvddtudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejjeelrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepshhtvghvvgesshhkvddrohhrghdprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The i2c probe functions here don't use the id information provided in
-their second argument, so the single-parameter i2c probe function
-("probe_new") can be used instead.
+--Sig_/bOUMBB6UC/Ekh34A4LpQ756
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-This avoids scanning the identifier tables during probes.
+On Fri, 7 Aug 2020 08:23:29 -0700, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 8/7/20 12:45 AM, Stephen Kitt wrote:
+> > pmbus_do_probe doesn't use the id information provided in its second
+> > argument, so this can be removed, which then allows using the
+> > single-parameter i2c probe function ("probe_new") for probes.
+> >=20
+> > This avoids scanning the identifier tables during probes.
+> >=20
+> > Drivers which didn't use the id are converted as-is; drivers which did
+> > are modified as follows:
+> >=20
+> > * if the information in i2c_client is sufficient, that's used instead
+> >   (client->name);
+> > * configured v. probed comparisons are performed by comparing the
+> >   configured name to the detected name, instead of the ids; this
+> >   involves strcmp but is still cheaper than comparing all the device
+> >   names when scanning the tables;
+> > * anything else is handled by calling i2c_match_id() with the same
+> >   level of error-handling (if any) as before.
+> >=20
+> > Signed-off-by: Stephen Kitt <steve@sk2.org> =20
+>=20
+> Please also update the documentation.
+>=20
+> Documentation/hwmon/pmbus-core.rst:  int pmbus_do_probe(struct i2c_client
+> *client, const struct i2c_device_id *id, Documentation/hwmon/pmbus.rst:
+> return pmbus_do_probe(client, id, &ds1200_info);
 
-Signed-off-by: Stephen Kitt <steve@sk2.org>
----
- arch/arm/mach-davinci/board-dm644x-evm.c     |  5 ++---
- arch/arm/mach-davinci/board-dm646x-evm.c     | 10 ++++------
- arch/arm/mach-s3c64xx/mach-crag6410-module.c |  5 ++---
- 3 files changed, 8 insertions(+), 12 deletions(-)
+Aargh, I usually *start* from the documentation, but I didn=E2=80=99t think=
+ to check
+in this case.
 
-diff --git a/arch/arm/mach-davinci/board-dm644x-evm.c b/arch/arm/mach-davinci/board-dm644x-evm.c
-index a5d3708fedf6..d0dcf69cc76d 100644
---- a/arch/arm/mach-davinci/board-dm644x-evm.c
-+++ b/arch/arm/mach-davinci/board-dm644x-evm.c
-@@ -548,8 +548,7 @@ static const struct property_entry eeprom_properties[] = {
-  */
- static struct i2c_client *dm6446evm_msp;
- 
--static int dm6446evm_msp_probe(struct i2c_client *client,
--		const struct i2c_device_id *id)
-+static int dm6446evm_msp_probe(struct i2c_client *client)
- {
- 	dm6446evm_msp = client;
- 	return 0;
-@@ -569,7 +568,7 @@ static const struct i2c_device_id dm6446evm_msp_ids[] = {
- static struct i2c_driver dm6446evm_msp_driver = {
- 	.driver.name	= "dm6446evm_msp",
- 	.id_table	= dm6446evm_msp_ids,
--	.probe		= dm6446evm_msp_probe,
-+	.probe_new	= dm6446evm_msp_probe,
- 	.remove		= dm6446evm_msp_remove,
- };
- 
-diff --git a/arch/arm/mach-davinci/board-dm646x-evm.c b/arch/arm/mach-davinci/board-dm646x-evm.c
-index 4600b617f9b4..2dce16fff77e 100644
---- a/arch/arm/mach-davinci/board-dm646x-evm.c
-+++ b/arch/arm/mach-davinci/board-dm646x-evm.c
-@@ -160,8 +160,7 @@ static struct platform_device davinci_aemif_device = {
- #define DM646X_EVM_ATA_PWD		BIT(1)
- 
- /* CPLD Register 0 Client: used for I/O Control */
--static int cpld_reg0_probe(struct i2c_client *client,
--			   const struct i2c_device_id *id)
-+static int cpld_reg0_probe(struct i2c_client *client)
- {
- 	if (HAS_ATA) {
- 		u8 data;
-@@ -197,7 +196,7 @@ static const struct i2c_device_id cpld_reg_ids[] = {
- static struct i2c_driver dm6467evm_cpld_driver = {
- 	.driver.name	= "cpld_reg0",
- 	.id_table	= cpld_reg_ids,
--	.probe		= cpld_reg0_probe,
-+	.probe_new	= cpld_reg0_probe,
- };
- 
- /* LEDS */
-@@ -402,8 +401,7 @@ static struct snd_platform_data dm646x_evm_snd_data[] = {
- #ifdef CONFIG_I2C
- static struct i2c_client *cpld_client;
- 
--static int cpld_video_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int cpld_video_probe(struct i2c_client *client)
- {
- 	cpld_client = client;
- 	return 0;
-@@ -424,7 +422,7 @@ static struct i2c_driver cpld_video_driver = {
- 	.driver = {
- 		.name	= "cpld_video",
- 	},
--	.probe		= cpld_video_probe,
-+	.probe_new	= cpld_video_probe,
- 	.remove		= cpld_video_remove,
- 	.id_table	= cpld_video_id,
- };
-diff --git a/arch/arm/mach-s3c64xx/mach-crag6410-module.c b/arch/arm/mach-s3c64xx/mach-crag6410-module.c
-index 34f1baa10c54..43b587e79d21 100644
---- a/arch/arm/mach-s3c64xx/mach-crag6410-module.c
-+++ b/arch/arm/mach-s3c64xx/mach-crag6410-module.c
-@@ -378,8 +378,7 @@ static const struct {
- 	  .i2c_devs = wm2200_i2c, .num_i2c_devs = ARRAY_SIZE(wm2200_i2c) },
- };
- 
--static int wlf_gf_module_probe(struct i2c_client *i2c,
--			       const struct i2c_device_id *i2c_id)
-+static int wlf_gf_module_probe(struct i2c_client *i2c)
- {
- 	int ret, i, j, id, rev;
- 
-@@ -432,7 +431,7 @@ static struct i2c_driver wlf_gf_module_driver = {
- 	.driver = {
- 		.name = "wlf-gf-module"
- 	},
--	.probe = wlf_gf_module_probe,
-+	.probe_new = wlf_gf_module_probe,
- 	.id_table = wlf_gf_module_id,
- };
- 
--- 
-2.25.4
+> Also, please fix the checkpatch issue reported by Wolfram.
 
+Will do, v3 on its way.
+
+Thanks for the reviews!
+
+Regards,
+
+Stephen
+
+--Sig_/bOUMBB6UC/Ekh34A4LpQ756
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEnPVX/hPLkMoq7x0ggNMC9Yhtg5wFAl8tf+oACgkQgNMC9Yht
+g5xYKQ/+Jfm5rek1kCBwaXNseELt3KJsdhqQZTFwAS6yIwlikt+fdTma1O8/67uU
+epQtf5/PU6wt3Uu+W1u/ttGW8EPNB7zvJQqLrl4borySSbjgjTUOl/9fQ1MNyj8C
+YDjTa3RUqr9+QGo2Am2A5j2AzSDq2SqtiqyZWCJX95ROr8i8DEoJTu9hBx8yPO5O
+I3u0Kn6UPT9+wy9dGcAYsgggZco3KFkYNGNUL6dVJMzn8gCAJmz2cEdh3sHTFm32
+MMXBRdp9zRYGYBZxqbykQGdUlCQEX9GlX2p4HgRSMTqTadEFQu2V008uyy7wOuWE
+kF8ukuR5dzMVX2PlUdQCitgJ4AcrrzSmA2hem0mZvZvTdhLPDM79PHoTqlQzG4xw
+AZ78MRr88C0NBsSjGemEvcproNl5eospqIMizXoEzL5s3Pu0rlXbu1lb2T0SfhIc
+qEQD79cBltKP43fzCAzYKW3fKxcPAPYyKgcVEXeUUekEJ6QqgOYuBM9x7Sj4AS6D
+wgmn0SL5pjPutDO6VqOZEMPpNtxjFtUUtBjwvJTHlV5r6n+0VRjVfY6Q6fQprU0q
+QJYsYcU+aYjrh+x56/7PG0nFTrD23kaW/Z975f1BanKp31s8ZN5ClCT1+ZJQkTSZ
+/OMfu+/qQCOadXrNTxscuWnvpd0R6OYvupIbr3gafjDxIoj4xjc=
+=kmhA
+-----END PGP SIGNATURE-----
+
+--Sig_/bOUMBB6UC/Ekh34A4LpQ756--
