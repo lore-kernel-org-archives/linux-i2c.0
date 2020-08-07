@@ -2,40 +2,35 @@ Return-Path: <SRS0=Z3tm=BR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A7D5C433E1
-	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 09:31:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 347F9C433DF
+	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 09:36:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 83D2E206B5
-	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 09:31:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16BCC206B5
+	for <linux-i2c@archiver.kernel.org>; Fri,  7 Aug 2020 09:36:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726915AbgHGJbt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 7 Aug 2020 05:31:49 -0400
-Received: from mx2.suse.de ([195.135.220.15]:34548 "EHLO mx2.suse.de"
+        id S1726932AbgHGJgc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 7 Aug 2020 05:36:32 -0400
+Received: from mx2.suse.de ([195.135.220.15]:36350 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726511AbgHGJbt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 7 Aug 2020 05:31:49 -0400
+        id S1726382AbgHGJgc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 7 Aug 2020 05:36:32 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 992C1AC55;
-        Fri,  7 Aug 2020 09:32:05 +0000 (UTC)
-Date:   Fri, 7 Aug 2020 11:31:46 +0200
+        by mx2.suse.de (Postfix) with ESMTP id F1D22AF77;
+        Fri,  7 Aug 2020 09:36:48 +0000 (UTC)
+Date:   Fri, 7 Aug 2020 11:36:30 +0200
 From:   Jean Delvare <jdelvare@suse.de>
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: VAIO EEPROM support in at24
-Message-ID: <20200807113146.7557c18b@endymion>
-In-Reply-To: <20200805163655.6cfa6e17@endymion>
-References: <20200317151409.7940926c@endymion>
-        <CAMRc=Mdoh5Sk3iS_CO4+++SG2jJOy1qrG4q2zOzbeYYMdJR0VA@mail.gmail.com>
-        <20200805163655.6cfa6e17@endymion>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc:     linux-i2c@vger.kernel.org
+Subject: Re: [PATCH i2c-tools] add BUGS section to manpages
+Message-ID: <20200807113630.045b0208@endymion>
+In-Reply-To: <20200806145421.1389-1-wsa+renesas@sang-engineering.com>
+References: <20200806145421.1389-1-wsa+renesas@sang-engineering.com>
 Organization: SUSE Linux
 X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
@@ -46,22 +41,26 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, 5 Aug 2020 16:36:55 +0200, Jean Delvare wrote:
-> 1* Do we actually need to use a struct resource? With the current
->    requirements, that looks overkill to me. We really only need the
->    start and end offsets of the masked area (or start and length). Or
->    do you plan to ever support multiple masked ranges, and
->    resource.child would be used to daisy-chain these ranges? Personally
->    I would wait until the need exists.
+On Thu,  6 Aug 2020 16:54:21 +0200, Wolfram Sang wrote:
+> For all manpages installed on my Debian system, add a BUGS section, so
+> people can easily find whom to contact.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  eeprom/decode-dimms.1     | 3 +++
+>  eeprom/decode-vaio.1      | 3 +++
+>  stub/i2c-stub-from-dump.8 | 4 ++++
+>  tools/i2cdetect.8         | 4 ++++
+>  tools/i2cdump.8           | 4 ++++
+>  tools/i2cget.8            | 4 ++++
+>  tools/i2cset.8            | 4 ++++
+>  tools/i2ctransfer.8       | 4 ++++
+>  8 files changed, 30 insertions(+)
+> (...)
 
-Dang, turns out that the need already exists. I just found that the
-eeprom driver masks *2* areas of the Sony VAIO EEPROMs. I should know
-because I'm the one who made that change but that was 13 years ago and
-my memory doesn't go that far back.
+Sure, can't hurt.
 
-I'll think of a way to support that. Still not a big fan of
-daisy-chained resource structs though. Maybe a generic post-processing
-callback function would do... I'll give that a try.
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
 -- 
 Jean Delvare
