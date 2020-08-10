@@ -2,122 +2,144 @@ Return-Path: <SRS0=ym5Q=BU=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23EBFC433E0
-	for <linux-i2c@archiver.kernel.org>; Mon, 10 Aug 2020 14:01:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5A8AC433E1
+	for <linux-i2c@archiver.kernel.org>; Mon, 10 Aug 2020 14:24:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 01CCD207FB
-	for <linux-i2c@archiver.kernel.org>; Mon, 10 Aug 2020 14:01:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1597068115;
-	bh=WCDaCy20DVEAybtQj2JAipVIVLVeA+07NPBI/qUjUgI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=P1g9Uy9iMLnvY3YMaGAAFG2KpLFKVdsztL7rbr0tEH4mxNqbsto0t949BcfMpld6a
-	 Ard3K5OdVSwOVKvtVWXixK1fZgLOe2JIIV5PhfZwKTxmQPTsynyan1MYPiQjICUkWd
-	 o/bl1zfm2PXdUebApZgmflhxn97JN5oV61FbjCFc=
+	by mail.kernel.org (Postfix) with ESMTP id 860282070B
+	for <linux-i2c@archiver.kernel.org>; Mon, 10 Aug 2020 14:24:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726962AbgHJOBx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 10 Aug 2020 10:01:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56216 "EHLO mail.kernel.org"
+        id S1726971AbgHJOYs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 10 Aug 2020 10:24:48 -0400
+Received: from mga05.intel.com ([192.55.52.43]:5304 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726771AbgHJOBp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 10 Aug 2020 10:01:45 -0400
-Received: from localhost (p54b3345b.dip0.t-ipconnect.de [84.179.52.91])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05930207CD;
-        Mon, 10 Aug 2020 14:01:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597068104;
-        bh=WCDaCy20DVEAybtQj2JAipVIVLVeA+07NPBI/qUjUgI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qCsWRc2A5LjW0oRcULhT1PZ4XJw6hwAXAKjDaJSlgB8IrtLO1Q0Ar1TtuINrybn/E
-         rjd2Xay6KM2mgu0KtB/POyWOUWT0SXzwiZvVa/IMRQy1hxuPwdmerig41Lun8Dbpu6
-         HspKw/k5dGapFv+7awzEguoNDTu9JpGBpCMWttz4=
-Date:   Mon, 10 Aug 2020 16:01:42 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Vaibhav Gupta <vaibhavgupta40@gmail.com>
-Cc:     Bjorn Helgaas <helgaas@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vaibhav Gupta <vaibhav.varodek@gmail.com>,
-        Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>,
-        Tomoya MORINAGA <tomoya.rohm@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: Re: [PATCH v2 2/2] i2c: eg20t: use generic power management
-Message-ID: <20200810140142.GB3923@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Vaibhav Gupta <vaibhavgupta40@gmail.com>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vaibhav Gupta <vaibhav.varodek@gmail.com>,
-        Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>,
-        Tomoya MORINAGA <tomoya.rohm@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ben Dooks <ben.dooks@codethink.co.uk>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20200805165611.GA516242@bjorn-Precision-5520>
- <20200805193616.384313-1-vaibhavgupta40@gmail.com>
- <20200805193616.384313-3-vaibhavgupta40@gmail.com>
+        id S1726897AbgHJOYs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 10 Aug 2020 10:24:48 -0400
+IronPort-SDR: W6DyI0fS2XxlYkJaglwXzF7uqVXGVze2ajKL6b8rklgjoaAlORi+dxr6jEgAkpZVSAK5gcdMNk
+ UYl6+JFqcQcw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9708"; a="238371926"
+X-IronPort-AV: E=Sophos;i="5.75,457,1589266800"; 
+   d="scan'208";a="238371926"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2020 07:24:46 -0700
+IronPort-SDR: 52m5sVXupHSldNjkls906YBK8xA0kbrQeZ5AX59IHpMo+rS4hYsYQRa2rKzREw1s9Lushq1iYD
+ pAD0Y7os7POQ==
+X-IronPort-AV: E=Sophos;i="5.75,457,1589266800"; 
+   d="scan'208";a="277292106"
+Received: from paasikivi.fi.intel.com ([10.237.72.42])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2020 07:24:43 -0700
+Received: from punajuuri.localdomain (punajuuri.localdomain [192.168.240.130])
+        by paasikivi.fi.intel.com (Postfix) with ESMTP id B48DF20AC3;
+        Mon, 10 Aug 2020 17:24:41 +0300 (EEST)
+Received: from sailus by punajuuri.localdomain with local (Exim 4.92)
+        (envelope-from <sakari.ailus@linux.intel.com>)
+        id 1k58mC-0003F0-9I; Mon, 10 Aug 2020 17:27:48 +0300
+From:   Sakari Ailus <sakari.ailus@linux.intel.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa@the-dreams.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-acpi@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>,
+        linux-media@vger.kernel.org,
+        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
+        Hyungwoo Yang <hyungwoo.yang@intel.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
+        "Qiu, Tian Shu" <tian.shu.qiu@intel.com>
+Subject: [PATCH v5 4/6] media: i2c: imx319: Support probe while the device is off
+Date:   Mon, 10 Aug 2020 17:27:45 +0300
+Message-Id: <20200810142747.12400-5-sakari.ailus@linux.intel.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200810142747.12400-1-sakari.ailus@linux.intel.com>
+References: <20200810142747.12400-1-sakari.ailus@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
-Content-Disposition: inline
-In-Reply-To: <20200805193616.384313-3-vaibhavgupta40@gmail.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+From: Rajmohan Mani <rajmohan.mani@intel.com>
 
---QTprm0S8XgL7H0Dt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Tell ACPI device PM code that the driver supports the device being powered
+off when the driver's probe function is entered.
 
-On Thu, Aug 06, 2020 at 01:06:16AM +0530, Vaibhav Gupta wrote:
-> Drivers using legacy power management .suspen()/.resume() callbacks
-> have to manage PCI states and device's PM states themselves. They also
-> need to take care of standard configuration registers.
->=20
-> Switch to generic power management framework using a single
-> "struct dev_pm_ops" variable to take the unnecessary load from the driver.
-> This also avoids the need for the driver to directly call most of the PCI
-> helper functions and device power state control functions, as through
-> the generic framework PCI Core takes care of the necessary operations,
-> and drivers are required to do only device-specific jobs.
->=20
-> Signed-off-by: Vaibhav Gupta <vaibhavgupta40@gmail.com>
+Signed-off-by: Rajmohan Mani <rajmohan.mani@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+---
+ drivers/media/i2c/imx319.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-Applied to for-next, thanks!
+diff --git a/drivers/media/i2c/imx319.c b/drivers/media/i2c/imx319.c
+index 17c2e4b41221e..dc5ebff6a85a3 100644
+--- a/drivers/media/i2c/imx319.c
++++ b/drivers/media/i2c/imx319.c
+@@ -2424,6 +2424,7 @@ static struct imx319_hwcfg *imx319_get_hwcfg(struct device *dev)
+ static int imx319_probe(struct i2c_client *client)
+ {
+ 	struct imx319 *imx319;
++	bool low_power;
+ 	int ret;
+ 	u32 i;
+ 
+@@ -2436,11 +2437,14 @@ static int imx319_probe(struct i2c_client *client)
+ 	/* Initialize subdev */
+ 	v4l2_i2c_subdev_init(&imx319->sd, client, &imx319_subdev_ops);
+ 
+-	/* Check module identity */
+-	ret = imx319_identify_module(imx319);
+-	if (ret) {
+-		dev_err(&client->dev, "failed to find sensor: %d", ret);
+-		goto error_probe;
++	low_power = acpi_dev_state_low_power(&client->dev);
++	if (!low_power) {
++		/* Check module identity */
++		ret = imx319_identify_module(imx319);
++		if (ret) {
++			dev_err(&client->dev, "failed to find sensor: %d", ret);
++			goto error_probe;
++		}
+ 	}
+ 
+ 	imx319->hwcfg = imx319_get_hwcfg(&client->dev);
+@@ -2493,10 +2497,10 @@ static int imx319_probe(struct i2c_client *client)
+ 		goto error_media_entity;
+ 
+ 	/*
+-	 * Device is already turned on by i2c-core with ACPI domain PM.
+-	 * Enable runtime PM and turn off the device.
++	 * Don't set the device's state to active if it's in a low power state.
+ 	 */
+-	pm_runtime_set_active(&client->dev);
++	if (!low_power)
++		pm_runtime_set_active(&client->dev);
+ 	pm_runtime_enable(&client->dev);
+ 	pm_runtime_idle(&client->dev);
+ 
+@@ -2536,7 +2540,7 @@ static const struct dev_pm_ops imx319_pm_ops = {
+ };
+ 
+ static const struct acpi_device_id imx319_acpi_ids[] = {
+-	{ "SONY319A" },
++	{ "SONY319A", },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(acpi, imx319_acpi_ids);
+@@ -2549,6 +2553,7 @@ static struct i2c_driver imx319_i2c_driver = {
+ 	},
+ 	.probe_new = imx319_probe,
+ 	.remove = imx319_remove,
++	.flags = I2C_DRV_FL_ALLOW_LOW_POWER_PROBE,
+ };
+ module_i2c_driver(imx319_i2c_driver);
+ 
+-- 
+2.20.1
 
-
---QTprm0S8XgL7H0Dt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8xU0YACgkQFA3kzBSg
-KbYAdA/+J9rwtS0UF/2vN+uVvGd+HnTm8hJ5KEylc++CpWBrk/Jlme0JgKxB3Kzu
-R5jKfSY9LIMHOwvjmoSfQb0vG78PeiV67/ro3lmxj264Vr2v+alnkiLLH6pyJLg7
-5h07jNAHYi5zjr6ojn8SKDkyQRB2OENewTL0zSkozIkxaK3oOO6SFiRil9g143w7
-JUwoW3SgzoFTlfU3MuywLO5YGVDerGBPR5BJcDVOotuvpLdbFuCaeTK8hAc3N9PP
-u0JpclUO9WiApOcpfhia0wxudXOXeEM5meftdYxNIrJ6fbN8/ftWtB0pblKGLu/V
-w36n0bezcfE+1pAhWsm4/XIKjuH+S7wQUq4kT9u33gEjYSD7bI95mLHGAfYuIVf5
-Z0PFKmebLIil5GblIYeEWH+PnZPgGvd79FiRotZU4NvecRjW17wj4n4xC4bjLcTB
-eITKZWdTrtphPCmiSVdV0r1CNyEXz5eRaDvabz8cQwYlN6yjRwL+oCHV9bAwV26s
-IrvUkihTeOQN4EV4HAfAQLbqj0pvUgsfg9ZojwEwB3P+XKUyESTiPjvOCIZ4M9Dp
-wnzqba7Y4c6Z0qb7VWQxNHi3beTbdUwCk2JB7aELlEYdoJGCia4sgmc6v6+2+Eob
-LKgGLsOBpcZ1Q8n37RZ+E96vYoCAu3jcniMfFm8WgkgW2MDcLsM=
-=wlnp
------END PGP SIGNATURE-----
-
---QTprm0S8XgL7H0Dt--
