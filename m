@@ -2,145 +2,87 @@ Return-Path: <SRS0=A2+6=B7=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 425B2C433DF
-	for <linux-i2c@archiver.kernel.org>; Fri, 21 Aug 2020 11:45:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA790C433E1
+	for <linux-i2c@archiver.kernel.org>; Fri, 21 Aug 2020 17:03:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0FE2B20732
-	for <linux-i2c@archiver.kernel.org>; Fri, 21 Aug 2020 11:45:10 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="XNOghQuV"
+	by mail.kernel.org (Postfix) with ESMTP id 87B7A20702
+	for <linux-i2c@archiver.kernel.org>; Fri, 21 Aug 2020 17:03:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728407AbgHULpE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 21 Aug 2020 07:45:04 -0400
-Received: from www.zeus03.de ([194.117.254.33]:42282 "EHLO mail.zeus03.de"
+        id S1726767AbgHURDq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 21 Aug 2020 13:03:46 -0400
+Received: from mga04.intel.com ([192.55.52.120]:26212 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727859AbgHULoC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 21 Aug 2020 07:44:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=YtcCCrjutEn/fojfaD2DDf8l3Ezf
-        v6ANNQPCcLUJZv0=; b=XNOghQuVguxNvxcleajQiwkCcHIZLlx3ZL4F9zOEHRvL
-        KnGVZbiB7W2V6bP9wlNL169qwh91gsokcIOZFVCPuPU2C57SCVaimt2HLS2NhgGK
-        76Cd851vTJ8shizvwjWfRW+K9/8gqY4VClb9pFUUGBr6oQ756ktsPNllRMbL6tk=
-Received: (qmail 880608 invoked from network); 21 Aug 2020 13:43:58 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Aug 2020 13:43:58 +0200
-X-UD-Smtp-Session: l3s3148p1@J5uewGGt8q0gAwDPXweWAG48P/WlTOIM
-Date:   Fri, 21 Aug 2020 13:43:58 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Rob Herring <robh@kernel.org>
-Cc:     linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        devicetree@vger.kernel.org, Alain Volmat <alain.volmat@st.com>
-Subject: Re: [PATCH] i2c: add binding to mark a bus as SMBus
-Message-ID: <20200821114357.GA29628@ninjato>
-References: <20200701214830.3174-1-wsa+renesas@sang-engineering.com>
- <20200715203843.GA776042@bogus>
- <20200724193635.GC1227@ninjato>
- <20200725120700.GA1734@kunai>
+        id S1728752AbgHURDi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 21 Aug 2020 13:03:38 -0400
+IronPort-SDR: qjspIAUN+RjUqsLB+933GLRFm8vCOUOdtGWtCRYe3UyxnXGaLedBwgJ60ZeDIhPWi5Jg7wI+Wt
+ s2kKuoCcXc7g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9720"; a="152997098"
+X-IronPort-AV: E=Sophos;i="5.76,337,1592895600"; 
+   d="scan'208";a="152997098"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Aug 2020 10:03:37 -0700
+IronPort-SDR: gT4eKFERZhAbbCt3E1i+7wPq5zRhNRH1RNKZlxg/MSffAJqd1PPefWyHsZ3zn6R24emE5f07Il
+ Jk3uj6ohH43w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,337,1592895600"; 
+   d="scan'208";a="321323667"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga004.fm.intel.com with ESMTP; 21 Aug 2020 10:03:36 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 372321FD; Fri, 21 Aug 2020 20:03:35 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-acpi@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
+        linux-i2c@vger.kernel.org
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/2] i2c: core: Don't fail PRP0001 enumeration when no ID table exist
+Date:   Fri, 21 Aug 2020 20:03:33 +0300
+Message-Id: <20200821170334.43555-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
-Content-Disposition: inline
-In-Reply-To: <20200725120700.GA1734@kunai>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+When commit c64ffff7a9d1 ("i2c: core: Allow empty id_table in ACPI case
+as well") fixed the enumeration of I²C devices on ACPI enabled platforms
+when driver has no ID table, it missed the PRP0001 support.
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+i2c_device_match() and i2c_acpi_match_device() differently match
+driver against given device. Use acpi_driver_match_device(), that is used
+in the former, in i2c_device_probe() and don't fail PRP0001 enumeration
+when no ID table exist.
 
-On Sat, Jul 25, 2020 at 02:07:00PM +0200, Wolfram Sang wrote:
-> On Fri, Jul 24, 2020 at 09:36:35PM +0200, Wolfram Sang wrote:
-> > Hi Rob,
-> >=20
-> > > > SMBus is largely compatible with I2C but there are some specifics. =
-In
-> > > > case we need them on a bus, we can now use this new binding.
-> > > >=20
-> > > > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> > > > ---
-> > > >  Documentation/devicetree/bindings/i2c/i2c.txt | 5 +++++
-> > > >  1 file changed, 5 insertions(+)
-> > > >=20
-> > > > diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Docume=
-ntation/devicetree/bindings/i2c/i2c.txt
-> > > > index 438ae123107e..d1f8cf3bd236 100644
-> > > > --- a/Documentation/devicetree/bindings/i2c/i2c.txt
-> > > > +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-> > > > @@ -77,6 +77,11 @@ wants to support one of the below features, it s=
-hould adapt these bindings.
-> > > >  	this information to detect a stalled bus more reliably, for examp=
-le.
-> > > >  	Can not be combined with 'multi-master'.
-> > > > =20
-> > > > +- smbus
-> > >=20
-> > > This is a boolean?
-> >=20
-> > Yes.
-> >=20
-> > >=20
-> > > > +	states that additional SMBus restrictions and features apply to t=
-his bus.
-> > > > +	Examples of features are SMBusHostNotify and SMBusAlert. Examples=
- of
-> > >=20
-> > > Do features need to be enumerated separately?
-> >=20
-> > They could be, do you think this is of advantage? For now, we would then
-> > need "host-notify" and "smbus-alert". Maybe later things like "timeout"
-> > could show up.
->=20
-> I also recall now that I thought that "smbus" fits better the
-> "describing hardware" aspect, i.e. "this bus is an SMBus and not I2C".
-> Enumerating features felt more like configuration to me.
+Fixes: c64ffff7a9d1 ("i2c: core: Allow empty id_table in ACPI case as well")
+BugLink: https://stackoverflow.com/q/63519678/2511795
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/i2c-core-base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Rob, if you have some time, I'd really appreciate an ack here. I think
-it is a proper binding but I'd like to have it stress-tested with your
-experience :)
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 34a9609f256d..5ec082e2039d 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -480,7 +480,7 @@ static int i2c_device_probe(struct device *dev)
+ 	 * or ACPI ID table is supplied for the probing device.
+ 	 */
+ 	if (!driver->id_table &&
+-	    !i2c_acpi_match_device(dev->driver->acpi_match_table, client) &&
++	    !acpi_driver_match_device(dev, dev->driver) &&
+ 	    !i2c_of_match_device(dev->driver->of_match_table, client)) {
+ 		status = -ENODEV;
+ 		goto put_sync_adapter;
+-- 
+2.28.0
 
->=20
-> >=20
-> > >=20
-> > > > +	restrictions are more reserved addresses and timeout definitions.
-> > > > +
-> >=20
-> > All the best,
-> >=20
-> >    Wolfram
-> >=20
->=20
->=20
-
-
-
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl8/s3oACgkQFA3kzBSg
-Kba9vhAAiwO/kHpYgRW5zz/G6w85eq1WPezyG1bTYXgMPTOUbfvOp21cF02ZKIs9
-DbcYX/J2wVMwb23Qy5bpQhUzER9qeT/L9fJDySvbblQdp+Rf0ffCaYS4CaIifAbN
-sfp9LimlM7osvktvehOhjvNhwVTyBJbcBWOZztQPDa//ukMz6kJHflvOeuQS+J8m
-6j1jM06El7wpQF8aMavViWh0BcPhlPhrzXFKn/9K9cfFdVVYfLfGN0YBRsoDZfkf
-etxyAHir/twItbPf0R8WFRvZmgpDuuaJ8UtaokkUXgi1ixJRbjvKc4mnxWmfexIZ
-a5sCbB7aA62kGr2OqxizrEOOUJ7hiEcaIcxkLBJYJxAnNgGM0ZJRTVDWq0NLKAuz
-cpfWSXnqUz7gn9wjiesC/K3uDaRp1osJf0t99tnxEllKcKJYaktlolmHnAJFH9e4
-JIwqfnCdNH2zFYsZyJ1dAtDvB4xv7Q3bBprIHV/eWX1naMertqEIXIJZm+hDnBuP
-337IwnUAV5WfZNBm/zs4hWxupq2VlISw+4+t7lilFdyCJGh5UG9EEgKZAxGv+69g
-dir4VfEei9Te3CtI3srfg8qMhTlTPNrrzP9u5If+XmvxuqgqlEWYtNo5iX+41HcH
-/ZP0zZUMXcUqzBMvqbOC2ZY1bSleTOO5dQVf3w2TcUVD49On/xI=
-=FS44
------END PGP SIGNATURE-----
-
---/9DWx/yDrRhgMJTb--
