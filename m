@@ -1,163 +1,108 @@
-Return-Path: <SRS0=GIpW=CC=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=uA9E=CD=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0CD1C433E1
-	for <linux-i2c@archiver.kernel.org>; Mon, 24 Aug 2020 22:53:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D8B1C433DF
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 Aug 2020 06:38:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CB3922072D
-	for <linux-i2c@archiver.kernel.org>; Mon, 24 Aug 2020 22:53:08 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="jPuYqFPo"
+	by mail.kernel.org (Postfix) with ESMTP id 5BC0E2076C
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 Aug 2020 06:38:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727862AbgHXWxI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 24 Aug 2020 18:53:08 -0400
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:57218 "EHLO
-        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726664AbgHXWxI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Aug 2020 18:53:08 -0400
-Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id D23B38011F;
-        Tue, 25 Aug 2020 10:53:04 +1200 (NZST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-        s=mail181024; t=1598309584;
-        bh=/gGPixE+zN9sxlkK3LfyjPst9BmKbiY9VyruYUE28dM=;
-        h=From:To:Cc:Subject:Date;
-        b=jPuYqFPoQ83D1hAB6CTyM6ijNsY8dgPPerdKb2jCueR1CFd1Noi8NrQisDFg/SGjz
-         BLYxf0wCmucnz08DsKtKLj26oxv8wRuTDKem+jSMgFbVhbyvAHxldcu/kF7/V6tcfx
-         5VhUUEGe7dYF6ksUJyyzX0LlnOYYSRaQOnYYSiJn11nskShAJ3YyUIo4NtiohlV7y4
-         M0OeTKdw20GaAnGw6D/rFDs2JtbiNR0Iu0Ye2TYKIfkctOQTkmz8Vfs6Yd6eCsisFo
-         5mvujyd4fnS5bVgn+bamp4kejevaRoN/W0q4eL+tJ8rOVxVWmWjVpdWjTcvC8FD54Y
-         jfdl8XI0s6S5A==
-Received: from smtp (Not Verified[10.32.16.33]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
-        id <B5f4444d00000>; Tue, 25 Aug 2020 10:53:04 +1200
-Received: from markto-dl.ws.atlnz.lc (markto-dl.ws.atlnz.lc [10.33.23.25])
-        by smtp (Postfix) with ESMTP id CE5E813ED33;
-        Tue, 25 Aug 2020 10:53:03 +1200 (NZST)
-Received: by markto-dl.ws.atlnz.lc (Postfix, from userid 1155)
-        id 760A03410D0; Tue, 25 Aug 2020 10:53:04 +1200 (NZST)
-From:   Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-To:     wsa@kernel.org, gregory.clement@bootlin.com
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Subject: [PATCH v2] i2c: mv64xxx: Add bus error recovery
-Date:   Tue, 25 Aug 2020 10:52:54 +1200
-Message-Id: <20200824225254.1114-1-mark.tomlinson@alliedtelesis.co.nz>
-X-Mailer: git-send-email 2.28.0
+        id S1729074AbgHYGiY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 25 Aug 2020 02:38:24 -0400
+Received: from mx2.suse.de ([195.135.220.15]:45118 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729068AbgHYGiW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Aug 2020 02:38:22 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 7E359AD2F;
+        Tue, 25 Aug 2020 06:38:51 +0000 (UTC)
+Date:   Tue, 25 Aug 2020 08:38:19 +0200
+From:   Jean Delvare <jdelvare@suse.de>
+To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc:     Linux I2C <linux-i2c@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 2/2 RFC] eeprom: at24: Tidy at24_read()
+Message-ID: <20200825083819.7478f26e@endymion>
+In-Reply-To: <CAMpxmJUiOjP5oGijw+QQOFj3uQG0fRGPCAFtcUv_=PxTmy4+4Q@mail.gmail.com>
+References: <20200807150005.48c8c89b@endymion>
+        <20200807161906.6d119d2e@endymion>
+        <CAMpxmJUiOjP5oGijw+QQOFj3uQG0fRGPCAFtcUv_=PxTmy4+4Q@mail.gmail.com>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-x-atlnz-ls: pat
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This adds i2c bus recovery to the mv64xxx driver.
+Hi Bartosz,
 
-Implement bus recovery to recover from SCL/SDA stuck low.
+On Tue, 18 Aug 2020 15:46:36 +0200, Bartosz Golaszewski wrote:
+> On Fri, Aug 7, 2020 at 4:19 PM Jean Delvare <jdelvare@suse.de> wrote:
+> > The elegant code in at24_read() has the drawback that we now need
+> > to make a copy of all parameters to pass them to the post-processing
+> > callback function if there is one. Rewrite the loop in such a way that
+> > the parameters are not modified, so saving them is no longer needed.
+> >
+> > Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> > Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> > Cc: Arnd Bergmann <arnd@arndb.de>
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > ---
+> > This has the drawback of creating an asymetry with at24_write(), so
+> > I'm not 100% if we want to apply this. If anyone has a better idea,
+> > please let me know.
+> >
+> >  drivers/misc/eeprom/at24.c |   13 +++++--------
+> >  1 file changed, 5 insertions(+), 8 deletions(-)
+> >
+> > --- linux-5.7.orig/drivers/misc/eeprom/at24.c   2020-08-07 14:23:39.882191500 +0200
+> > +++ linux-5.7/drivers/misc/eeprom/at24.c        2020-08-07 14:28:39.039360687 +0200
+> > (...)
+> > @@ -449,15 +446,15 @@ static int at24_read(void *priv, unsigne
+> >          */
+> >         mutex_lock(&at24->lock);
+> >
+> > +       i = 0;  
+> 
+> Hi Jean,
+> 
+> I think doing:
+> 
+>     for (i = 0; count; i += ret, count -= ret)
+> 
+> would be even more elegant, don't you think?
 
-This uses the generic recovery function, setting the clock/data lines as
-GPIO pins, and sending 9 clocks to try and recover the bus.
+Definitely. I'll change the code that way and send v2 of the patch,
+thank you for the suggestion.
 
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
----
-Changes in v2:
- - use generic GPIO recovery function.
+> Bartosz
+> 
+> >         while (count) {
+> > -               ret = at24_regmap_read(at24, buf, off, count);
+> > +               ret = at24_regmap_read(at24, buf + i, off + i, count);
+> >                 if (ret < 0) {
+> >                         mutex_unlock(&at24->lock);
+> >                         pm_runtime_put(dev);
+> >                         return ret;
+> >                 }
+> > -               buf += ret;
+> > -               off += ret;
+> > +               i += ret;
+> >                 count -= ret;
+> >         }
+> >
 
- drivers/i2c/busses/i2c-mv64xxx.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv=
-64xxx.c
-index 8d9d4ffdcd24..e0f0c76c0d3b 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -17,6 +17,7 @@
- #include <linux/interrupt.h>
- #include <linux/mv643xx_i2c.h>
- #include <linux/platform_device.h>
-+#include <linux/pinctrl/consumer.h>
- #include <linux/reset.h>
- #include <linux/io.h>
- #include <linux/of.h>
-@@ -147,6 +148,7 @@ struct mv64xxx_i2c_data {
- 	bool			irq_clear_inverted;
- 	/* Clk div is 2 to the power n, not 2 to the power n + 1 */
- 	bool			clk_n_base_0;
-+	struct i2c_bus_recovery_info	rinfo;
- };
-=20
- static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx =3D {
-@@ -325,7 +327,8 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u3=
-2 status)
- 			 drv_data->msg->flags);
- 		drv_data->action =3D MV64XXX_I2C_ACTION_SEND_STOP;
- 		mv64xxx_i2c_hw_init(drv_data);
--		drv_data->rc =3D -EIO;
-+		i2c_recover_bus(&drv_data->adapter);
-+		drv_data->rc =3D -EAGAIN;
- 	}
- }
-=20
-@@ -562,6 +565,7 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_da=
-ta *drv_data)
- 				"time_left: %d\n", drv_data->block,
- 				(int)time_left);
- 			mv64xxx_i2c_hw_init(drv_data);
-+			i2c_recover_bus(&drv_data->adapter);
- 		}
- 	} else
- 		spin_unlock_irqrestore(&drv_data->lock, flags);
-@@ -871,6 +875,22 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- }
- #endif /* CONFIG_OF */
-=20
-+static int mv64xxx_i2c_init_recovery_info(struct mv64xxx_i2c_data *drv_d=
-ata,
-+					  struct device *dev)
-+{
-+	struct i2c_bus_recovery_info *rinfo =3D &drv_data->rinfo;
-+
-+	rinfo->pinctrl =3D devm_pinctrl_get(dev);
-+	if (IS_ERR(rinfo->pinctrl)) {
-+		if (PTR_ERR(rinfo->pinctrl) =3D=3D -EPROBE_DEFER)
-+			return -EPROBE_DEFER;
-+		dev_err(dev, "can't get pinctrl, bus recovery not supported\n");
-+		return PTR_ERR(rinfo->pinctrl);
-+	}
-+	drv_data->adapter.bus_recovery_info =3D rinfo;
-+	return 0;
-+}
-+
- static int
- mv64xxx_i2c_probe(struct platform_device *pd)
- {
-@@ -927,6 +947,10 @@ mv64xxx_i2c_probe(struct platform_device *pd)
- 		goto exit_reset;
- 	}
-=20
-+	rc =3D mv64xxx_i2c_init_recovery_info(drv_data, &pd->dev);
-+	if (rc =3D=3D -EPROBE_DEFER)
-+		goto exit_reset;
-+
- 	drv_data->adapter.dev.parent =3D &pd->dev;
- 	drv_data->adapter.algo =3D &mv64xxx_i2c_algo;
- 	drv_data->adapter.owner =3D THIS_MODULE;
-@@ -950,6 +974,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
- 			"mv64xxx: Can't add i2c adapter, rc: %d\n", -rc);
- 		goto exit_free_irq;
- 	}
-+	i2c_recover_bus(&drv_data->adapter);
-=20
- 	return 0;
-=20
---=20
-2.28.0
-
+-- 
+Jean Delvare
+SUSE L3 Support
