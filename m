@@ -2,98 +2,85 @@ Return-Path: <SRS0=uA9E=CD=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-8.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2694BC433E1
-	for <linux-i2c@archiver.kernel.org>; Tue, 25 Aug 2020 06:38:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8C0FC433E1
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 Aug 2020 07:08:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB0E72075F
-	for <linux-i2c@archiver.kernel.org>; Tue, 25 Aug 2020 06:38:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D286207FB
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 Aug 2020 07:08:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=jms.id.au header.i=@jms.id.au header.b="d318I0JD"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Zp0/ohTK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729116AbgHYGiZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 25 Aug 2020 02:38:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43700 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729068AbgHYGiY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Aug 2020 02:38:24 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A11D4C061574;
-        Mon, 24 Aug 2020 23:38:24 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id o18so15023714eje.7;
-        Mon, 24 Aug 2020 23:38:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jms.id.au; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=1Q9k3xF6hWPOQM3uFwSy2qlWDQ5BGn+QdqRbPCM8EhM=;
-        b=d318I0JDAY3KO2OfweXvemxDvpcgVxD/poXqH0o44y89iIIdQ2tKqg8axqlHdT8Acl
-         ZwraWTH8Be+wNIdnhcriuFkqqu+TMMH0QJZ/TUNOpruZNRxE9CT0VlMX/CzWe+IZ+AKh
-         1i6LQwYPsKVqW8t3f2z5GeVPSUXLalcko0o7M=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=1Q9k3xF6hWPOQM3uFwSy2qlWDQ5BGn+QdqRbPCM8EhM=;
-        b=AuRsY8/wXh5c6AUTfKei83ZPPLzod9pc+bVP4uAjLRjKsa9+A2UYrbbWStFClXP2nB
-         Rnat2K6phw+OBLcRqDObIKQ9eE/tLRSmitQJyIN2WHOT+9CTzr7CNNp55rMsegDv7c/M
-         FUKrh5x34dkUWmf/PPhJ7xgsCE8YjyYczkSWwPIEcog+qQoQrCGLWZvktTzaq26pgtSY
-         tk4QzY9ghDtUJ2NzuE6KxNBy39Xx9Q/aEPL8ixXeSyLc3ZHmjL9oSbbOfosd0WeIav80
-         a0YLBsRKze74hckUkkUYAP88RbIwJ1U1PXKUAGLe0VnoW00A0tsCEUr3bZJnT9Op6Pjr
-         Ls4g==
-X-Gm-Message-State: AOAM533W/91YS/kuRs22kAMSivCsyTmUBV4YCNTze+xnwjDuby7ydhHR
-        rfiXYe3kxDM6PsyDo4jV36RnxHtpUrtMpTjMC6KFnVVk4Ro=
-X-Google-Smtp-Source: ABdhPJweMgK6I5TgV9Ly2uJzqR7Tgq7Qn1uQsVbMr86HbZ6rf4REgHoJ8D+2tbHNLahHnsDFOhsp3YQTaEez+w4QafM=
-X-Received: by 2002:a17:906:4ec3:: with SMTP id i3mr8802552ejv.215.1598337503276;
- Mon, 24 Aug 2020 23:38:23 -0700 (PDT)
+        id S1729217AbgHYHIO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 25 Aug 2020 03:08:14 -0400
+Received: from www.zeus03.de ([194.117.254.33]:56236 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729197AbgHYHIN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Aug 2020 03:08:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=k1; bh=YJS/xz0ThCVdJGHDNqkSlS5uIiYb
+        WAnoZvAO1EDmnOc=; b=Zp0/ohTKcx8wZYdqDcQEunU/KqRKJFCCI7Xmnnbz/xmj
+        5dF+6IkUtDZtKLpQNM8exP/aI6v67865LMdUequ9HiKLhVdSPYv9lsPbMLShlq6k
+        qQQs7EOMKTQw0nsNazm16jbuh1y1/Sf6zLyLNFUxi4v8RbtYTDWfnGc5ZdGS6HI=
+Received: (qmail 120444 invoked from network); 25 Aug 2020 09:08:09 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 25 Aug 2020 09:08:09 +0200
+X-UD-Smtp-Session: l3s3148p1@zv+WXa6tfLsgAwDPXwyVALCfLslKKFLZ
+Date:   Tue, 25 Aug 2020 09:08:06 +0200
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc:     linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: Remove 'default n' from busses/Kconfig
+Message-ID: <20200825070806.GA1861@ninjato>
+References: <20200820080525.2767120-1-jarkko.nikula@linux.intel.com>
 MIME-Version: 1.0
-References: <20200820161152.22751-1-eajames@linux.ibm.com> <20200820161152.22751-4-eajames@linux.ibm.com>
-In-Reply-To: <20200820161152.22751-4-eajames@linux.ibm.com>
-From:   Joel Stanley <joel@jms.id.au>
-Date:   Tue, 25 Aug 2020 06:38:10 +0000
-Message-ID: <CACPK8XdG1+3eQPQ71fZYZdHwcn8WNLQKF=5iKrOvGhLwispSQA@mail.gmail.com>
-Subject: Re: [PATCH 3/5] i2c: aspeed: Mask IRQ status to relevant bits
-To:     Eddie James <eajames@linux.ibm.com>
-Cc:     linux-input@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-aspeed <linux-aspeed@lists.ozlabs.org>,
-        linux-i2c@vger.kernel.org, Andrew Jeffery <andrew@aj.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        dmitry.torokhov@gmail.com, Rob Herring <robh+dt@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Disposition: inline
+In-Reply-To: <20200820080525.2767120-1-jarkko.nikula@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, 20 Aug 2020 at 16:12, Eddie James <eajames@linux.ibm.com> wrote:
->
-> Mask the IRQ status to only the bits that the driver checks. This
-> prevents excessive driver warnings when operating in slave mode
-> when additional bits are set that the driver doesn't handle.
->
-> Signed-off-by: Eddie James <eajames@linux.ibm.com>
-> ---
->  drivers/i2c/busses/i2c-aspeed.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index 31268074c422..abf40f2af8b4 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -604,6 +604,7 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
->         writel(irq_received & ~ASPEED_I2CD_INTR_RX_DONE,
->                bus->base + ASPEED_I2C_INTR_STS_REG);
->         readl(bus->base + ASPEED_I2C_INTR_STS_REG);
-> +       irq_received &= 0xf000ffff;
->         irq_remaining = irq_received;
 
-This would defeat the check for irq_remaining. I don't think we want to do this.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Can you explain why these bits are being set in slave mode?
+On Thu, Aug 20, 2020 at 11:05:25AM +0300, Jarkko Nikula wrote:
+> The default value for a config option defaults to 'n' so it doesn't need
+> to be set here.
+>=20
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+
+Applied to for-next, thanks!
+
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9EuNIACgkQFA3kzBSg
+KbZtJQ//c1VybnI76X8uh4I+4o6dA9FwzvDJEvPoB3wsID8vp+8/kNS5Bq6Ybo2V
+YQ0l1vuouICQCUufI5NRXzeYA/OSGkZDScZVuymuTFcPzK3yMbN5FNVncCPMutei
+NVGiLQABB6QN3MtHHzAEjPD7GoccdFjkoaMTcP4ckRXCN+29MwPjH2oBEgqvI0Pa
+g1P32OhoBNtYOBi371MpjDrWEJZYRpufx1J8S+8IBVnYNWZfUNZLq5j2p+RBoU1A
+/o2sDmSAxdFD3LwilMFeB/voC4+mrUfVWmy0XPuwhQytOOaKVtJCBpFGuSEX7H+6
+mcpoz6o4zkUM+nkcV1Vy8JmBj5YGZrRVVsv9jcPjK77vDvrdeLqA/1BcKloGL/bC
+0keXreNSJZaaDHz84FAk051FsWyitDCtcewxVLWTlPYIv7dbKCNXoo/Namqn+h1L
+5UCo+nX5QTvnpJgnErSH0iFej5nJoDB3RMVcciTNUDZR2hXgzyjVzWgnuVZqiJxW
+YYD+sOCsV9l1yDOpA6rREG+/UqN+l7q9U+Px106WvzPIvYuD8ZqPKnSIGBmvPrx/
+Aem/kFSELXngAfp+PcjL0dLLAistKDXep0FSywvakFkj6A4UyZJOdM9PDHdJ6yTn
+j+KcvRHu94U0B51AxK7fvso7Mzr3LuPIPpEFUMVK0jbD3DvR85o=
+=WDlW
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--
