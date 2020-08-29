@@ -2,68 +2,104 @@ Return-Path: <SRS0=5ehF=CH=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB166C433E6
-	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 20:17:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2F34C43461
+	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 20:38:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9F3BF20BED
-	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 20:17:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598732258;
-	bh=3gX8PbABC9XMJuWAdbhiN+L6Y0zXbO5AdREcxcGHaaM=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=FLCrR7obWCv3L52MNsaCiU5XSrjdX7aozXPzHaGIBjWx4B1geHe0lLfZjgS/QjuFT
-	 MHl1i6roI9y2aD7AEpI/Wp6zRTflmcXb0/Pzh5YzT0VksGqz0cticxiyBPycG5OEly
-	 ugz9VxmJPT802lF2xI9EZ6bohNR3h2fwBjGCFzPM=
+	by mail.kernel.org (Postfix) with ESMTP id 7E1A420CC7
+	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 20:38:24 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="WNmfcLuA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728544AbgH2URc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 29 Aug 2020 16:17:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47602 "EHLO mail.kernel.org"
+        id S1728474AbgH2UiW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 29 Aug 2020 16:38:22 -0400
+Received: from www.zeus03.de ([194.117.254.33]:58342 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728499AbgH2UR2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 29 Aug 2020 16:17:28 -0400
-Subject: Re: [PULL REQUEST] i2c for v5.9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598732247;
-        bh=3gX8PbABC9XMJuWAdbhiN+L6Y0zXbO5AdREcxcGHaaM=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=rKZedwBMw5i9TXu9mpIJ+7boe4ojf8cSBKF6DWyQji0XGfvXfB2KCWKBA9fMdDoGp
-         EE0ELo5/Bkm1lHcGbvWWsu1FDwX4c8IG8Hb5tjxD2QKLk2m3/qqbXypNDS9DGb1kjQ
-         glAdw75k1h28zCyWN/Lfppa/kHt8M+skv9IsFhS8=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20200829155302.GA1147@ninjato>
-References: <20200829155302.GA1147@ninjato>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20200829155302.GA1147@ninjato>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-X-PR-Tracked-Commit-Id: 0204081128d582965e9e39ca83ee6e4f7d27142b
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: e77aee1326f7691763aa968eee2f57db37840b9d
-Message-Id: <159873224764.9079.15649305978201724021.pr-tracker-bot@kernel.org>
-Date:   Sat, 29 Aug 2020 20:17:27 +0000
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Rosin <peda@axentia.se>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
+        id S1728464AbgH2UiV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 29 Aug 2020 16:38:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=k1; bh=ZISBw5X6h972iR
+        hYfVGYqIqdP+soo9pkzAcTYJMtSyk=; b=WNmfcLuA+jEZ26kv53NqD/PLKC0OHA
+        raHokiVMB3/o9E52gAW9rM+0bQIRx8KCGu7aTMTAVg1SI532ESbPyaH8ov1dQP5w
+        PZSJyGDjdjlGoRmiLktjpW4YKfwAvieVUrr6JLCfw1QP17WYagRS8IDAqES99ZTt
+        xJyXeHtAi1QwI=
+Received: (qmail 1629950 invoked from network); 29 Aug 2020 22:38:20 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Aug 2020 22:38:20 +0200
+X-UD-Smtp-Session: l3s3148p1@O4dbJgqu/NAgAwDPXyCvAAFyN1rCWI+G
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/2] i2c: rcar: improve bus busy detection
+Date:   Sat, 29 Aug 2020 22:38:09 +0200
+Message-Id: <20200829203810.1467-2-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200829203810.1467-1-wsa+renesas@sang-engineering.com>
+References: <20200829203810.1467-1-wsa+renesas@sang-engineering.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The pull request you sent on Sat, 29 Aug 2020 17:53:07 +0200:
+I2C doesn't define a timeout for bus busy, so an arbitrary value like
+LOOP_TIMEOUT is not a good idea. Let's use the timeout value in struct
+adapter which is meant for such cases and is user-configurable (via
+IOCTL). To reduce the load, wait 10us instead of 1us which is good
+enough for the slow frequencies used by I2C. Finally, use the
+poll_timeout helper instead of open coding it.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/e77aee1326f7691763aa968eee2f57db37840b9d
-
-Thank you!
-
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 0f73f0681a6e..ef10514f6215 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -19,6 +19,7 @@
+ #include <linux/err.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-smbus.h>
+ #include <linux/kernel.h>
+@@ -225,18 +226,18 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ 
+ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ {
+-	int i;
++	int ret;
++	u32 val;
+ 
+-	for (i = 0; i < LOOP_TIMEOUT; i++) {
+-		/* make sure that bus is not busy */
+-		if (!(rcar_i2c_read(priv, ICMCR) & FSDA))
+-			return 0;
+-		udelay(1);
++	ret = readl_poll_timeout(priv->io + ICMCR, val, !(val & FSDA), 10,
++				 priv->adap.timeout);
++	if (ret) {
++		/* Waiting did not help, try to recover */
++		priv->recovery_icmcr = MDBS | OBPC | FSDA | FSCL;
++		ret = i2c_recover_bus(&priv->adap);
+ 	}
+ 
+-	/* Waiting did not help, try to recover */
+-	priv->recovery_icmcr = MDBS | OBPC | FSDA | FSCL;
+-	return i2c_recover_bus(&priv->adap);
++	return ret;
+ }
+ 
+ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv)
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.20.1
+
