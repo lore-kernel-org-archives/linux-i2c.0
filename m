@@ -4,40 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A45A3C433E6
-	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 11:33:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 992D2C433E2
+	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 11:48:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 748142074A
-	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 11:33:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73CEF207BB
+	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 11:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598700793;
-	bh=Q0ph4oqiKCEwsDqeFSh6njs6C5uJMGOmkzo8miXAWwQ=;
+	s=default; t=1598701685;
+	bh=XbS00cGM7FWW3OaLpUHfAbAx2qWn7eq/QxFzyvyD3oE=;
 	h=From:To:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=QHGDhokLlRrv2/oTKlwVjVI1aTg4ufPoMMxIN08SB3l48YrDJstT8vaAazRXmWnYH
-	 PCuN6nnlyo5L3NpC7vU1rJZHVPK5eQlhERAQMk8LobLhTxDpZoMELgETu0KITA29Kf
-	 2RkdyhBbnFJ5aw7rD5+x/wMJeeluyUNmBpltW3JU=
+	b=rK63sXzp4xluYjq1gAlWzod+332vWWxNLPqimp/R3MiBSAAIzfU43FInO6nZ32r0B
+	 e+te6yvwg2GYLLf+9lBZA8uPmfO3TDW1lvLPOvd2cVGiD1Yvdtb41vUm5/RIFpA2df
+	 vjI9QKGteXB/NyRSn9JM4zZwk9JbZnE193ogEhYI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728064AbgH2LcE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 29 Aug 2020 07:32:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47900 "EHLO mail.kernel.org"
+        id S1728067AbgH2LbD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 29 Aug 2020 07:31:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727940AbgH2La1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1728089AbgH2La1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Sat, 29 Aug 2020 07:30:27 -0400
 Received: from localhost.localdomain (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 939A1208CA;
-        Sat, 29 Aug 2020 11:18:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF91F20E65;
+        Sat, 29 Aug 2020 11:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598699900;
-        bh=Q0ph4oqiKCEwsDqeFSh6njs6C5uJMGOmkzo8miXAWwQ=;
+        s=default; t=1598699892;
+        bh=XbS00cGM7FWW3OaLpUHfAbAx2qWn7eq/QxFzyvyD3oE=;
         h=From:To:Subject:Date:In-Reply-To:References:From;
-        b=crTnDE87Kf/Au4dcCmJE2TKFsCI676nlC82aTqM/gtMdAKwFB0npRPhSZylhj6BPb
-         dtv7BxG7hZ6cu/mV1IzDBOxdf9fXvmaTeU2v+KLNHgsip3uuacfkUUEiwBT//fJX1U
-         cqzF33UGsCyzpwG9CkoLKYstVBQboZt0pKgakHA8=
+        b=YKqbY9CKJYBZRazouF05mCPzF5D4bmOANdigV1PvouyabuS3dxZy4VR1NbBLxjunf
+         wpUJg42+kEh1NO8bPevSRlsZRnLvyZLDPZKpwx/KseQ+nqaq1LoIbnMuIlRyuKHG+d
+         EqALPxHH/2IRs6nV6Y1dth7WwF3OWmr3/p6ygSjc=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Michael Turquette <mturquette@baylibre.com>,
         Stephen Boyd <sboyd@kernel.org>,
@@ -53,9 +53,9 @@ To:     Michael Turquette <mturquette@baylibre.com>,
         Dong Aisheng <aisheng.dong@nxp.com>, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: [PATCH 4/7] dt-bindings: i2c: imx-lpi2c: Use unevaluatedProperties
-Date:   Sat, 29 Aug 2020 13:17:57 +0200
-Message-Id: <20200829111800.2786-4-krzk@kernel.org>
+Subject: [PATCH 2/7] dt-bindings: mailbox: fsl,mu: Fix i.MX 8QXP compatible matching
+Date:   Sat, 29 Aug 2020 13:17:55 +0200
+Message-Id: <20200829111800.2786-2-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200829111800.2786-1-krzk@kernel.org>
 References: <20200829111800.2786-1-krzk@kernel.org>
@@ -64,30 +64,37 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Additional properties actually might appear (e.g. power-domains) so use
-unevaluatedProperties to fix dtbs_check warnings like:
+The Mailbox on i.MX 8QXP (fsl,imx8qxp-mu) can also be compatible with
+fsl,imx8-mu-scu (for fast IPC) so adjust the compatibles to fix
+dtbs_check warnings like:
 
-  arch/arm64/boot/dts/freescale/imx8qxp-ai_ml.dt.yaml: i2c@5a800000:
-    'assigned-clock-rates', 'assigned-clocks', 'clock-names', 'power-domains' do not match any of the regexes: 'pinctrl-[0-9]+'
+  arch/arm64/boot/dts/freescale/imx8qxp-mek.dt.yaml: mailbox@5d1f0000:
+    compatible: ['fsl,imx8-mu-scu', 'fsl,imx8qxp-mu', 'fsl,imx6sx-mu']
+    is not valid under any of the given schemas (Possible causes of the failure):
+
+  arch/arm64/boot/dts/freescale/imx8qxp-mek.dt.yaml: mailbox@5d1f0000:
+    compatible: ['fsl,imx8-mu-scu', 'fsl,imx8qxp-mu', 'fsl,imx6sx-mu'] is too long
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/mailbox/fsl,mu.yaml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-index ac0bc5dd64d6..594e174e2cde 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-@@ -31,7 +31,7 @@ required:
-   - interrupts
-   - clocks
+diff --git a/Documentation/devicetree/bindings/mailbox/fsl,mu.yaml b/Documentation/devicetree/bindings/mailbox/fsl,mu.yaml
+index 8a3470b64d06..7ed096360be2 100644
+--- a/Documentation/devicetree/bindings/mailbox/fsl,mu.yaml
++++ b/Documentation/devicetree/bindings/mailbox/fsl,mu.yaml
+@@ -38,8 +38,9 @@ properties:
+           - const: fsl,imx6sx-mu
+       - description: To communicate with i.MX8 SCU with fast IPC
+         items:
+-          - const: fsl,imx8qxp-mu
+           - const: fsl,imx8-mu-scu
++          - const: fsl,imx8qxp-mu
++          - const: fsl,imx6sx-mu
  
--additionalProperties: false
-+unevaluatedProperties: false
- 
- examples:
-   - |
+   reg:
+     maxItems: 1
 -- 
 2.17.1
 
