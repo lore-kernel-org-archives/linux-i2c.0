@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBA70C433E6
-	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 11:32:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A45A3C433E6
+	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 11:33:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B36A2074A
-	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 11:32:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 748142074A
+	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 11:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598700748;
-	bh=rDXBcV3XN5qq1pJVMo/u6Jp3rVX4suUWfxh/aiZVSVc=;
+	s=default; t=1598700793;
+	bh=Q0ph4oqiKCEwsDqeFSh6njs6C5uJMGOmkzo8miXAWwQ=;
 	h=From:To:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=0tAdSkrJK/5iUFaw3RN8duhT60DOsCG2oHIots6WRTVKaW5YKKVWdXfmdzVzUvfth
-	 xnk0rvkrHdXamSTwTc+Ije2CV0kclwwKWpoDhxDVRPBlP7ItZjpiVQTFu1vxe7K/9h
-	 pbMbiFhScwp5Zq3c30K+0hOODNBokfv8JCkARMDo=
+	b=QHGDhokLlRrv2/oTKlwVjVI1aTg4ufPoMMxIN08SB3l48YrDJstT8vaAazRXmWnYH
+	 PCuN6nnlyo5L3NpC7vU1rJZHVPK5eQlhERAQMk8LobLhTxDpZoMELgETu0KITA29Kf
+	 2RkdyhBbnFJ5aw7rD5+x/wMJeeluyUNmBpltW3JU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727932AbgH2Lb6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 29 Aug 2020 07:31:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47906 "EHLO mail.kernel.org"
+        id S1728064AbgH2LcE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 29 Aug 2020 07:32:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728087AbgH2La1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1727940AbgH2La1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Sat, 29 Aug 2020 07:30:27 -0400
 Received: from localhost.localdomain (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D519E212CC;
-        Sat, 29 Aug 2020 11:18:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 939A1208CA;
+        Sat, 29 Aug 2020 11:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598699904;
-        bh=rDXBcV3XN5qq1pJVMo/u6Jp3rVX4suUWfxh/aiZVSVc=;
+        s=default; t=1598699900;
+        bh=Q0ph4oqiKCEwsDqeFSh6njs6C5uJMGOmkzo8miXAWwQ=;
         h=From:To:Subject:Date:In-Reply-To:References:From;
-        b=EgI+NKrxdWQD93vyhOdGOCT6BeKcx7yOgSRZkezVVndRl4x41g1yV6TMPGTFBYkvy
-         vG9VHEtgFU+u66NNxDxQrwiUh1IgAhXVdDHcr8DhAubc7QoqAvo7pzS2SzOezjFv2U
-         dUmDMHNbbsgNiAfU5hIdGxGzXkZSF9hJh5Bb4GIE=
+        b=crTnDE87Kf/Au4dcCmJE2TKFsCI676nlC82aTqM/gtMdAKwFB0npRPhSZylhj6BPb
+         dtv7BxG7hZ6cu/mV1IzDBOxdf9fXvmaTeU2v+KLNHgsip3uuacfkUUEiwBT//fJX1U
+         cqzF33UGsCyzpwG9CkoLKYstVBQboZt0pKgakHA8=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Michael Turquette <mturquette@baylibre.com>,
         Stephen Boyd <sboyd@kernel.org>,
@@ -53,9 +53,9 @@ To:     Michael Turquette <mturquette@baylibre.com>,
         Dong Aisheng <aisheng.dong@nxp.com>, linux-clk@vger.kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: [PATCH 5/7] dt-bindings: i2c: imx-lpi2c: Fix i.MX 8QXP compatible matching
-Date:   Sat, 29 Aug 2020 13:17:58 +0200
-Message-Id: <20200829111800.2786-5-krzk@kernel.org>
+Subject: [PATCH 4/7] dt-bindings: i2c: imx-lpi2c: Use unevaluatedProperties
+Date:   Sat, 29 Aug 2020 13:17:57 +0200
+Message-Id: <20200829111800.2786-4-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200829111800.2786-1-krzk@kernel.org>
 References: <20200829111800.2786-1-krzk@kernel.org>
@@ -64,39 +64,30 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The i.MX 8QXP DTSes use two compatibles so update the binding to fix
-dtbs_check warnings like:
+Additional properties actually might appear (e.g. power-domains) so use
+unevaluatedProperties to fix dtbs_check warnings like:
 
-  arch/arm64/boot/dts/freescale/imx8qxp-mek.dt.yaml: i2c@5a820000:
-    compatible: ['fsl,imx8qxp-lpi2c', 'fsl,imx7ulp-lpi2c'] is too long
+  arch/arm64/boot/dts/freescale/imx8qxp-ai_ml.dt.yaml: i2c@5a800000:
+    'assigned-clock-rates', 'assigned-clocks', 'clock-names', 'power-domains' do not match any of the regexes: 'pinctrl-[0-9]+'
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- .../devicetree/bindings/i2c/i2c-imx-lpi2c.yaml        | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-index 594e174e2cde..319147b780cb 100644
+index ac0bc5dd64d6..594e174e2cde 100644
 --- a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
 +++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-@@ -11,10 +11,13 @@ maintainers:
+@@ -31,7 +31,7 @@ required:
+   - interrupts
+   - clocks
  
- properties:
-   compatible:
--    enum:
--      - fsl,imx7ulp-lpi2c
--      - fsl,imx8qxp-lpi2c
--      - fsl,imx8qm-lpi2c
-+    oneOf:
-+      - enum:
-+          - fsl,imx7ulp-lpi2c
-+          - fsl,imx8qm-lpi2c
-+      - items:
-+          - const: fsl,imx8qxp-lpi2c
-+          - const: fsl,imx7ulp-lpi2c
+-additionalProperties: false
++unevaluatedProperties: false
  
-   reg:
-     maxItems: 1
+ examples:
+   - |
 -- 
 2.17.1
 
