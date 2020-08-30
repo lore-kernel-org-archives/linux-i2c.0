@@ -1,46 +1,41 @@
-Return-Path: <SRS0=5ehF=CH=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=rniy=CI=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAB83C28E83
-	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 20:38:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BE62C433E2
+	for <linux-i2c@archiver.kernel.org>; Sun, 30 Aug 2020 08:09:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BFBE020CC7
-	for <linux-i2c@archiver.kernel.org>; Sat, 29 Aug 2020 20:38:24 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="gD9BnwzA"
+	by mail.kernel.org (Postfix) with ESMTP id 0FAC120714
+	for <linux-i2c@archiver.kernel.org>; Sun, 30 Aug 2020 08:09:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728417AbgH2UiX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 29 Aug 2020 16:38:23 -0400
-Received: from www.zeus03.de ([194.117.254.33]:58354 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728491AbgH2UiW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 29 Aug 2020 16:38:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=k1; bh=f5gjPSE4jbm4N/
-        jLLF41Zghd+zThCN6fEw+rdAJVkOs=; b=gD9BnwzAU+jcynIvj9Xsmo2SGDMMg+
-        SfOF7lJPfdTmiZUz3gJ/JuMJisFiO6Gzeb2jQOyi01Dd82JQWQn503Ar/DxvQku4
-        ElMk2PwnUKGWo3dWr5ziSU5ZuK1Xa1AmaN1nWclJrXlCkPSYLc0dpBbA6jk2ctcM
-        Bctmx1xIfrl1Q=
-Received: (qmail 1629979 invoked from network); 29 Aug 2020 22:38:20 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Aug 2020 22:38:20 +0200
-X-UD-Smtp-Session: l3s3148p1@6bRgJgqu/tAgAwDPXyCvAAFyN1rCWI+G
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 2/2] i2c: rcar: refactor and shorten timeout when resetting
-Date:   Sat, 29 Aug 2020 22:38:10 +0200
-Message-Id: <20200829203810.1467-3-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200829203810.1467-1-wsa+renesas@sang-engineering.com>
-References: <20200829203810.1467-1-wsa+renesas@sang-engineering.com>
+        id S1726013AbgH3IIv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 30 Aug 2020 04:08:51 -0400
+Received: from 212.199.177.27.static.012.net.il ([212.199.177.27]:53676 "EHLO
+        herzl.nuvoton.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725934AbgH3IIn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 30 Aug 2020 04:08:43 -0400
+X-Greylist: delayed 1104 seconds by postgrey-1.27 at vger.kernel.org; Sun, 30 Aug 2020 04:08:36 EDT
+Received: from taln60.nuvoton.co.il (ntil-fw [212.199.177.25])
+        by herzl.nuvoton.co.il (8.13.8/8.13.8) with ESMTP id 07U7nJ6X027387;
+        Sun, 30 Aug 2020 10:49:19 +0300
+Received: by taln60.nuvoton.co.il (Postfix, from userid 20088)
+        id 9127C639D3; Sun, 30 Aug 2020 10:49:19 +0300 (IDT)
+From:   Tali Perry <tali.perry1@gmail.com>
+To:     kunyi@google.com, xqiu@google.com, benjaminfair@google.com,
+        avifishman70@gmail.com, joel@jms.id.au, tmaimon77@gmail.com,
+        wsa@the-dreams.de
+Cc:     linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>
+Subject: [PATCH v1] i2c: npcm7xx: bug fix timeout (usec instead of msec)
+Date:   Sun, 30 Aug 2020 10:49:03 +0300
+Message-Id: <20200830074903.176871-1-tali.perry1@gmail.com>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
@@ -48,55 +43,28 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-LOOP_TIMEOUT was only used back then because we didn't want to introduce
-another constant. The timeout value can easily be a magnitude shorter
-because the typical range is 3us - 8us. Refactor the code to use the
-poll_timeout helper, use a specific timeout value and get rid of the
-ugly LOOP_TIMEOUT constant.
+i2c: npcm7xx: bug fix timeout (usec instead of msec)
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+ drivers/i2c/busses/i2c-npcm7xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index ef10514f6215..217def2d7cb4 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -150,9 +150,6 @@ struct rcar_i2c_priv {
- #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
- #define rcar_i2c_is_recv(p)		((p)->msg->flags & I2C_M_RD)
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index 75f07138a6fa..c118f93a2610 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -2094,7 +2094,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	}
  
--#define LOOP_TIMEOUT	1024
--
--
- static void rcar_i2c_write(struct rcar_i2c_priv *priv, int reg, u32 val)
- {
- 	writel(val, priv->io + reg);
-@@ -765,20 +762,14 @@ static void rcar_i2c_release_dma(struct rcar_i2c_priv *priv)
- /* I2C is a special case, we need to poll the status of a reset */
- static int rcar_i2c_do_reset(struct rcar_i2c_priv *priv)
- {
--	int i, ret;
-+	int ret;
- 
- 	ret = reset_control_reset(priv->rstc);
- 	if (ret)
- 		return ret;
- 
--	for (i = 0; i < LOOP_TIMEOUT; i++) {
--		ret = reset_control_status(priv->rstc);
--		if (ret == 0)
--			return 0;
--		udelay(1);
--	}
--
--	return -ETIMEDOUT;
-+	return read_poll_timeout_atomic(reset_control_status, ret, ret == 0, 1,
-+					100, false, priv->rstc);
- }
- 
- static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 	/* Adaptive TimeOut: astimated time in usec + 100% margin */
+-	timeout_usec = (2 * 10000 / bus->bus_freq) * (2 + nread + nwrite);
++	timeout_usec = (2 * 10000000 / bus->bus_freq) * (2 + nread + nwrite);
+ 	timeout = max(msecs_to_jiffies(35), usecs_to_jiffies(timeout_usec));
+ 	if (nwrite >= 32 * 1024 || nread >= 32 * 1024) {
+ 		dev_err(bus->dev, "i2c%d buffer too big\n", bus->num);
+
+base-commit: d012a7190fc1fd72ed48911e77ca97ba4521bccd
 -- 
-2.20.1
+2.22.0
 
