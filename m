@@ -2,62 +2,75 @@ Return-Path: <SRS0=/6/K=CK=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4B42C433E7
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Sep 2020 21:04:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CBE6C433E6
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Sep 2020 21:11:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BCECC208DB
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Sep 2020 21:04:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 375C6206FA
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Sep 2020 21:11:32 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ajfxj2cM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729183AbgIAVEP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 1 Sep 2020 17:04:15 -0400
-Received: from mga01.intel.com ([192.55.52.88]:43615 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727927AbgIAVDd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 1 Sep 2020 17:03:33 -0400
-IronPort-SDR: 4VybYq7qwrbGHLHrQxy9tIVWCpGrKnzHvHe2dYUWK/LLF6hIEpQU6YkOEB414bR+I7IhT2PMyx
- ZFwTxqX83xlQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9731"; a="175317803"
-X-IronPort-AV: E=Sophos;i="5.76,380,1592895600"; 
-   d="scan'208";a="175317803"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2020 14:03:32 -0700
-IronPort-SDR: ELaLDu3ELT71dl+CWOO/vukOarvEKPuJIVxFjlx1xbJCXoRPjrtUc1Mp8hfJsDarRHodJGWFLo
- La7mrwkGnEeg==
-X-IronPort-AV: E=Sophos;i="5.76,380,1592895600"; 
-   d="scan'208";a="501886792"
-Received: from paasikivi.fi.intel.com ([10.237.72.42])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Sep 2020 14:03:27 -0700
-Received: from punajuuri.localdomain (punajuuri.localdomain [192.168.240.130])
-        by paasikivi.fi.intel.com (Postfix) with ESMTP id 85C97226B7;
-        Wed,  2 Sep 2020 00:03:24 +0300 (EEST)
-Received: from sailus by punajuuri.localdomain with local (Exim 4.92)
-        (envelope-from <sakari.ailus@linux.intel.com>)
-        id 1kDDRF-0002DR-DA; Wed, 02 Sep 2020 00:03:33 +0300
-From:   Sakari Ailus <sakari.ailus@linux.intel.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     Wolfram Sang <wsa@the-dreams.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
-        Hyungwoo Yang <hyungwoo.yang@intel.com>,
-        linux-media@vger.kernel.org
-Subject: [PATCH v7 3/6] ov5670: Support probe whilst the device is in a low power state
-Date:   Wed,  2 Sep 2020 00:03:30 +0300
-Message-Id: <20200901210333.8462-4-sakari.ailus@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200901210333.8462-1-sakari.ailus@linux.intel.com>
-References: <20200901210333.8462-1-sakari.ailus@linux.intel.com>
+        id S1728388AbgIAVLa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 1 Sep 2020 17:11:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50534 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728071AbgIAVL1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Sep 2020 17:11:27 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D32C061245;
+        Tue,  1 Sep 2020 14:11:26 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id z17so1579804lfi.12;
+        Tue, 01 Sep 2020 14:11:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=o54z0KyncSkTIRCR00YgxkSeoepil1oHLoUd4CNcJV8=;
+        b=ajfxj2cMmDaByiJ0CMSkH/zTefpoGuyh6MVVkqRMaH4iVjRyETx2FikF5O7mZy6c1f
+         4V3i2jE8e82hwXODQMJlwkn2XsoQ83ka2Wq/LDmevKQb4RrOzvJS+cRWUtL0KeFnC/+X
+         VMeSmLTEwChkerB1RtwcwxBgZi0/UtUy86Npkwe3/ZOOju+6Kafy4imDIDWRiNhtjdvl
+         wtdbGh1RXSoHErVztbU3rG8J2Yc13VVdkPjFNMskvaDQ6UAC4WGnQq1ecsbGHqar3WGp
+         xXv4PCru/Kdy6eamzfKhAZtUNZfgJhHAdOY5dho0Hux+9rODQjw8lrKE+pEhsD375EkG
+         sjng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=o54z0KyncSkTIRCR00YgxkSeoepil1oHLoUd4CNcJV8=;
+        b=MA56jpFVNdGqZ2iN6NcwyJWMlq5LA4WZdACx2yqhUOVCGZq0ZB0BWavtWGW88TIQ8c
+         kGvMlsPWjGQ9ECe/mweGMfIMf41eIwLAn38ghtnSEVxBYXeTUfKLT5F7BH8Qg36rjuLA
+         /Ah4FF+M72JSNXCxl2NEwzdXw02+mnKehvZ0WG7Kq6wY8oFxvdmes/4gkMYEQdUSR7xz
+         Sgc4ap/hIJe5aTKG+q0eZpT4hrNTinybfNPp+nz07I3bTMZwnBO7K+FVnmFkGCZrQhn6
+         AIUoViBb1gwhpsXsb7xq4O1Zg2tk0acdpgbm6SJRVfT0SGGTW86BAe0LsvZPWfHP9Spe
+         d5Fw==
+X-Gm-Message-State: AOAM533izA3mM99Nc0lzgZgM52c7t3QCbG2QZYG9r1UNHtWh4MlQqTF/
+        MubTDI+pctdanE6Q2cscfg8=
+X-Google-Smtp-Source: ABdhPJxOG9uDCeA0STJGGmNQ1ApSBS3SWqIJR52OdEaETxFJKg73yMn9/ZNsGA8cZQFUPJfa1z3DOw==
+X-Received: by 2002:ac2:5599:: with SMTP id v25mr1592391lfg.129.1598994684550;
+        Tue, 01 Sep 2020 14:11:24 -0700 (PDT)
+Received: from localhost.localdomain (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
+        by smtp.gmail.com with ESMTPSA id g19sm502656ljk.125.2020.09.01.14.11.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Sep 2020 14:11:24 -0700 (PDT)
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 01/17] i2c: tegra: Make tegra_i2c_flush_fifos() usable in atomic transfer
+Date:   Wed,  2 Sep 2020 00:10:46 +0300
+Message-Id: <20200901211102.11072-2-digetx@gmail.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200901211102.11072-1-digetx@gmail.com>
+References: <20200901211102.11072-1-digetx@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
@@ -65,161 +78,59 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Tell ACPI device PM code that the driver supports the device being in a
-low power state when the driver's probe function is entered.
+The tegra_i2c_flush_fifos() shouldn't sleep in atomic transfer and jiffies
+are not updating if interrupts are disabled. Hence let's use proper delay
+functions and use ktime API in order not to hang atomic transfer. Note
+that this patch doesn't fix any known problem because normally FIFO is
+flushed at the time of starting a new transfer.
 
-Also do identification on the first access of the device, whether in probe
-or when starting streaming.
-
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 ---
- drivers/media/i2c/ov5670.c | 76 +++++++++++++++++++++++---------------
- 1 file changed, 46 insertions(+), 30 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5670.c b/drivers/media/i2c/ov5670.c
-index f26252e35e08d..74b0325c22565 100644
---- a/drivers/media/i2c/ov5670.c
-+++ b/drivers/media/i2c/ov5670.c
-@@ -1832,6 +1832,8 @@ struct ov5670 {
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 00d3e4d7a01e..aab58395fb71 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -470,7 +470,8 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
  
- 	/* Streaming on/off */
- 	bool streaming;
-+	/* True if the device has been identified */
-+	bool identified;
- };
- 
- #define to_ov5670(_sd)	container_of(_sd, struct ov5670, sd)
-@@ -2270,6 +2272,32 @@ static int ov5670_get_skip_frames(struct v4l2_subdev *sd, u32 *frames)
- 	return 0;
- }
- 
-+/* Verify chip ID */
-+static int ov5670_identify_module(struct ov5670 *ov5670)
-+{
-+	struct i2c_client *client = v4l2_get_subdevdata(&ov5670->sd);
-+	int ret;
-+	u32 val;
-+
-+	if (ov5670->identified)
-+		return 0;
-+
-+	ret = ov5670_read_reg(ov5670, OV5670_REG_CHIP_ID,
-+			      OV5670_REG_VALUE_24BIT, &val);
-+	if (ret)
-+		return ret;
-+
-+	if (val != OV5670_CHIP_ID) {
-+		dev_err(&client->dev, "chip id mismatch: %x!=%x\n",
-+			OV5670_CHIP_ID, val);
-+		return -ENXIO;
-+	}
-+
-+	ov5670->identified = true;
-+
-+	return 0;
-+}
-+
- /* Prepare streaming by writing default values and customized values */
- static int ov5670_start_streaming(struct ov5670 *ov5670)
+ static int tegra_i2c_flush_fifos(struct tegra_i2c_dev *i2c_dev)
  {
-@@ -2278,6 +2306,10 @@ static int ov5670_start_streaming(struct ov5670 *ov5670)
- 	int link_freq_index;
- 	int ret;
+-	unsigned long timeout = jiffies + HZ;
++	ktime_t ktime = ktime_get();
++	ktime_t ktimeout = ktime_add_ms(ktime, 1000);
+ 	unsigned int offset;
+ 	u32 mask, val;
  
-+	ret = ov5670_identify_module(ov5670);
-+	if (ret)
-+		return ret;
+@@ -489,13 +490,22 @@ static int tegra_i2c_flush_fifos(struct tegra_i2c_dev *i2c_dev)
+ 	i2c_writel(i2c_dev, val, offset);
+ 
+ 	while (i2c_readl(i2c_dev, offset) & mask) {
+-		if (time_after(jiffies, timeout)) {
+-			dev_warn(i2c_dev->dev, "timeout waiting for fifo flush\n");
+-			return -ETIMEDOUT;
+-		}
+-		usleep_range(1000, 2000);
++		if (ktime_after(ktime, ktimeout))
++			goto err_timeout;
 +
- 	/* Get out of from software reset */
- 	ret = ov5670_write_reg(ov5670, OV5670_REG_SOFTWARE_RST,
- 			       OV5670_REG_VALUE_08BIT, OV5670_SOFTWARE_RST);
-@@ -2401,27 +2433,6 @@ static int __maybe_unused ov5670_resume(struct device *dev)
++		if (i2c_dev->is_curr_atomic_xfer)
++			mdelay(1);
++		else
++			fsleep(1000);
++
++		ktime = ktime_get();
+ 	}
  	return 0;
++
++err_timeout:
++	dev_err(i2c_dev->dev, "fifo flush timed out\n");
++
++	return -ETIMEDOUT;
  }
  
--/* Verify chip ID */
--static int ov5670_identify_module(struct ov5670 *ov5670)
--{
--	struct i2c_client *client = v4l2_get_subdevdata(&ov5670->sd);
--	int ret;
--	u32 val;
--
--	ret = ov5670_read_reg(ov5670, OV5670_REG_CHIP_ID,
--			      OV5670_REG_VALUE_24BIT, &val);
--	if (ret)
--		return ret;
--
--	if (val != OV5670_CHIP_ID) {
--		dev_err(&client->dev, "chip id mismatch: %x!=%x\n",
--			OV5670_CHIP_ID, val);
--		return -ENXIO;
--	}
--
--	return 0;
--}
--
- static const struct v4l2_subdev_video_ops ov5670_video_ops = {
- 	.s_stream = ov5670_set_stream,
- };
-@@ -2456,6 +2467,7 @@ static int ov5670_probe(struct i2c_client *client)
- 	struct ov5670 *ov5670;
- 	const char *err_msg;
- 	u32 input_clk = 0;
-+	bool low_power;
- 	int ret;
- 
- 	device_property_read_u32(&client->dev, "clock-frequency", &input_clk);
-@@ -2472,11 +2484,14 @@ static int ov5670_probe(struct i2c_client *client)
- 	/* Initialize subdev */
- 	v4l2_i2c_subdev_init(&ov5670->sd, client, &ov5670_subdev_ops);
- 
--	/* Check module identity */
--	ret = ov5670_identify_module(ov5670);
--	if (ret) {
--		err_msg = "ov5670_identify_module() error";
--		goto error_print;
-+	low_power = acpi_dev_state_low_power(&client->dev);
-+	if (!low_power) {
-+		/* Check module identity */
-+		ret = ov5670_identify_module(ov5670);
-+		if (ret) {
-+			err_msg = "ov5670_identify_module() error";
-+			goto error_print;
-+		}
- 	}
- 
- 	mutex_init(&ov5670->mutex);
-@@ -2513,10 +2528,10 @@ static int ov5670_probe(struct i2c_client *client)
- 	ov5670->streaming = false;
- 
- 	/*
--	 * Device is already turned on by i2c-core with ACPI domain PM.
--	 * Enable runtime PM and turn off the device.
-+	 * Don't set the device's state to active if it's in a low power state.
- 	 */
--	pm_runtime_set_active(&client->dev);
-+	if (!low_power)
-+		pm_runtime_set_active(&client->dev);
- 	pm_runtime_enable(&client->dev);
- 	pm_runtime_idle(&client->dev);
- 
-@@ -2558,7 +2573,7 @@ static const struct dev_pm_ops ov5670_pm_ops = {
- 
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id ov5670_acpi_ids[] = {
--	{"INT3479"},
-+	{ "INT3479" },
- 	{ /* sentinel */ }
- };
- 
-@@ -2573,6 +2588,7 @@ static struct i2c_driver ov5670_i2c_driver = {
- 	},
- 	.probe_new = ov5670_probe,
- 	.remove = ov5670_remove,
-+	.flags = I2C_DRV_FL_ALLOW_LOW_POWER_PROBE,
- };
- 
- module_i2c_driver(ov5670_i2c_driver);
+ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
 -- 
-2.20.1
+2.27.0
 
