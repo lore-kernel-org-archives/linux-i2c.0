@@ -2,62 +2,61 @@ Return-Path: <SRS0=/6/K=CK=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EFC5C433E2
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Sep 2020 21:13:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AE1CC43461
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Sep 2020 21:13:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A33C206FA
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Sep 2020 21:13:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7A491207D3
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Sep 2020 21:13:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gz9DrNWU"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jZO9hYcy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728730AbgIAVN3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 1 Sep 2020 17:13:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50544 "EHLO
+        id S1728204AbgIAVL3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 1 Sep 2020 17:11:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728153AbgIAVL3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Sep 2020 17:11:29 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A52FC061247;
-        Tue,  1 Sep 2020 14:11:29 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id t23so3301470ljc.3;
-        Tue, 01 Sep 2020 14:11:29 -0700 (PDT)
+        with ESMTP id S1727927AbgIAVL1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Sep 2020 17:11:27 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C105C061244;
+        Tue,  1 Sep 2020 14:11:26 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id b12so465793lfp.9;
+        Tue, 01 Sep 2020 14:11:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=MBP4sN9HKmwSlR7KiVXj6bhhwLMA1Oz7lpKmbb1yCMk=;
-        b=Gz9DrNWUYSnn1smrUSkcoI6oUlZ8+zXQ8kd2hNBoKHf7N15ZJLqk5pGSKkSK7eqEey
-         XAUcRnYe9ijuIVJLlgjsVM/cokzVRzb4JNL4MkdICHTsZtsUlYLRlinEKgiu+6DWfzNA
-         kbToctAXceEx0yswV+hCyLvDwfD5GRxMPkiUGyvzGkhdyd70CiQcdPjzM6I1x5HywA6q
-         olWFdSyAh21jXPd/dwwXuEGg2a5HBBSlj33+27bhuf4mQgB41Gv9XAfWLF3ju2leOaXB
-         UhRppzYBVtiBb2lTE1aKp3QZcTkayHyaujryEaaq/747JQWr8+c+kBrKINHLbodJGGr2
-         k6WA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=84MPreMuR2/T3yIOiZ/2P9Fj1HLxAFnVjtsguhtVnHk=;
+        b=jZO9hYcymOzuenDVMRBEJxSwecPQAP9LrYB5scHsZVAR+SqLC1rNtGtRXEBwH1f/Cp
+         UW5PQJdA3aA+6OxbegLO6K7YaW+wFxycI9/jDwz/M4B8MVG2pEml41g1J5ZcUw11mLCt
+         EBxrGpmNDJBLKCbcXnE+2ZkKrJKh1obCgNipXb4mwglYjyL/kdmW9EJwdQv9uqUZ1YRT
+         jp8MRuXR6+wHi6hkMDlosCM1R4TAinP7ZHgb8Nhx/53XAx39ukkBCv8n9u7n0tcCkhMX
+         /BteBL8BhbgJYZDIfKZDf76Bx3bvQJ7zivpOweYXFDVBviE5grHoRBXztc/0RQyyzLqg
+         TK8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=MBP4sN9HKmwSlR7KiVXj6bhhwLMA1Oz7lpKmbb1yCMk=;
-        b=FlpRZ2eGxd/OIFnpNGWHhkqoALmZdWO+GxkMJcow20AxmImtSgJ93owmvZ77h6us6z
-         gzRrfmLE5tCMouNyMmKNU1LpSyD3f98IxvNAb7xOz/4AH1OOeU5zVWa6mz+OiGvmSozu
-         E0tGcQX+vj/odnadiQesBwIKNspqPOMWyTt/Vjo0kuzbzFhjcGhdSzWS6Z1TjNwoyaGg
-         yzqrZFtB80Wjibx+bRzL9msr0GHgg6NuSKeWXixtVDrmDx7YXsNqLiZFf3N4pu4tS2iV
-         nBP8Oke0Fjl8s4pDtm8ZdDmECQ6Gml5EFLwoX79Yy3TxelspHUGQWFAy3HuY5kuaIzGb
-         pyew==
-X-Gm-Message-State: AOAM5313ceQ0G/3/uOs1XDx111n2a3C97Mj2pGZoPuyFY3iOuhU/mORW
-        BrubFD2ViHg3aPmkyJbl0m4=
-X-Google-Smtp-Source: ABdhPJzND/nTU7CATHNAZEFzs3Axo0s+UjGcgs1ZEizboMhvWloaGbjni6hxydQiBgxZNdrMhyJx6w==
-X-Received: by 2002:a2e:9b59:: with SMTP id o25mr1672157ljj.264.1598994687560;
-        Tue, 01 Sep 2020 14:11:27 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=84MPreMuR2/T3yIOiZ/2P9Fj1HLxAFnVjtsguhtVnHk=;
+        b=PbkMAIiyCxPedV4VOvBDGmaG2ubR6uMPWiW+hpGIQs+Mi3SZETXZjrZgpRzQuzdq6b
+         +JidjcaBOycHiAEO4+AWtKtihTC6YGCX20POqoVNFz1G9uh0xcE7tUZXU6Vvps1jKzyr
+         MfheGQzaXMmGkXAyPPINJ9+z8SKkoGfPA6zolEVPz2Ix5rSBt76vEJLK7PUmb6hqyEsB
+         Gby0PChBah1PtSR+UZTPFwJ1AGWC7SzKh+i7HrMON5WLTksHoG0Nu4WCrp/tNSG26a2I
+         7z+zrkKO518QMTaXefK/yoU+Dud5F0RdPKW0XJRxCnFHRo7OrJX3BByXp5byh/IACOar
+         RNhQ==
+X-Gm-Message-State: AOAM533OQe3+Tin9a1m1SjCOUWC4fYI2GmjjtEUYGPYgxfA7RRz0ZvFo
+        rF9jK2fyIsf09EBVW9fZGjs=
+X-Google-Smtp-Source: ABdhPJx6UYt5kPQ7boJpEv3lj8V4IiEwS52R1CZ2imLoJEADp0rp1OMFFh89lPObOv8y0TbZftqmwg==
+X-Received: by 2002:a19:f245:: with SMTP id d5mr1545418lfk.97.1598994683653;
+        Tue, 01 Sep 2020 14:11:23 -0700 (PDT)
 Received: from localhost.localdomain (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
-        by smtp.gmail.com with ESMTPSA id g19sm502656ljk.125.2020.09.01.14.11.26
+        by smtp.gmail.com with ESMTPSA id g19sm502656ljk.125.2020.09.01.14.11.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2020 14:11:26 -0700 (PDT)
+        Tue, 01 Sep 2020 14:11:22 -0700 (PDT)
 From:   Dmitry Osipenko <digetx@gmail.com>
 To:     Thierry Reding <thierry.reding@gmail.com>,
         Jonathan Hunter <jonathanh@nvidia.com>,
@@ -65,12 +64,10 @@ To:     Thierry Reding <thierry.reding@gmail.com>,
         Wolfram Sang <wsa@the-dreams.de>
 Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 04/17] i2c: tegra: Don't ignore tegra_i2c_flush_fifos() error
-Date:   Wed,  2 Sep 2020 00:10:49 +0300
-Message-Id: <20200901211102.11072-5-digetx@gmail.com>
+Subject: [PATCH v2 00/17] Improvements for Tegra I2C driver
+Date:   Wed,  2 Sep 2020 00:10:45 +0300
+Message-Id: <20200901211102.11072-1-digetx@gmail.com>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200901211102.11072-1-digetx@gmail.com>
-References: <20200901211102.11072-1-digetx@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
@@ -78,29 +75,47 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The tegra_i2c_flush_fifos() may fail and transfer should be aborted in
-this case.
+Hello!
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
----
- drivers/i2c/busses/i2c-tegra.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+This series performs a small refactoring of the Tegra I2C driver code and
+hardens the atomic-transfer mode.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 0d358bc12973..2da45ff32621 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -1179,7 +1179,9 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	bool dma;
- 	u16 xfer_time = 100;
- 
--	tegra_i2c_flush_fifos(i2c_dev);
-+	err = tegra_i2c_flush_fifos(i2c_dev);
-+	if (err)
-+		return err;
- 
- 	i2c_dev->msg_buf = msg->buf;
- 	i2c_dev->msg_buf_remaining = msg->len;
+Changelog:
+
+v2: - Cleaned more messages in the "Clean up messages in the code" patch.
+
+    - The error code of reset_control_reset() is checked now.
+
+    - Added these new patches to clean up couple more things:
+
+        i2c: tegra: Check errors for both positive and negative values
+        i2c: tegra: Improve coding style of tegra_i2c_wait_for_config_load()
+        i2c: tegra: Remove unnecessary whitespaces and newlines
+        i2c: tegra: Rename variable in tegra_i2c_issue_bus_clear()
+        i2c: tegra: Improve driver module description
+
+Dmitry Osipenko (17):
+  i2c: tegra: Make tegra_i2c_flush_fifos() usable in atomic transfer
+  i2c: tegra: Add missing newline before returns
+  i2c: tegra: Clean up messages in the code
+  i2c: tegra: Don't ignore tegra_i2c_flush_fifos() error
+  i2c: tegra: Use reset_control_reset()
+  i2c: tegra: Improve formatting of function variables
+  i2c: tegra: Use dev_err_probe()
+  i2c: tegra: Runtime PM always available on Tegra
+  i2c: tegra: Clean up probe function
+  i2c: tegra: Drop '_timeout' from wait/poll function names
+  i2c: tegra: Remove likely/unlikely from the code
+  i2c: tegra: Factor out error recovery from tegra_i2c_xfer_msg()
+  i2c: tegra: Check errors for both positive and negative values
+  i2c: tegra: Improve coding style of tegra_i2c_wait_for_config_load()
+  i2c: tegra: Remove unnecessary whitespaces and newlines
+  i2c: tegra: Rename variable in tegra_i2c_issue_bus_clear()
+  i2c: tegra: Improve driver module description
+
+ drivers/i2c/busses/i2c-tegra.c | 686 ++++++++++++++++++---------------
+ 1 file changed, 379 insertions(+), 307 deletions(-)
+
 -- 
 2.27.0
 
