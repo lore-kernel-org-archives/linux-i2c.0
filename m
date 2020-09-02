@@ -2,81 +2,106 @@ Return-Path: <SRS0=FbNh=CL=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 468DCC433E6
-	for <linux-i2c@archiver.kernel.org>; Wed,  2 Sep 2020 08:58:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43E96C433E7
+	for <linux-i2c@archiver.kernel.org>; Wed,  2 Sep 2020 15:07:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1FD7520829
-	for <linux-i2c@archiver.kernel.org>; Wed,  2 Sep 2020 08:58:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 199B9208DB
+	for <linux-i2c@archiver.kernel.org>; Wed,  2 Sep 2020 15:07:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1599059243;
+	bh=cSQFmywcXooFcP8VNV2UCrqNvF5ouq7dUikOFo9zEuE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=MdRXUcDskbTrdeTt4el8ua83AuXtchYLwNp2jcwh/gMtwdayL7hSL6pY5hVB+XMfK
+	 VN0SNiqnqnRbDvag215KsC1Ks1rUDx4XsGgJCnSkMsK4r8SLxTCc8SxYUZRsizHiqV
+	 /jmdOyRfMjat5SYb7hZBcpI3sh9+Q0w/ju/TDx6I=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726247AbgIBI6v (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 2 Sep 2020 04:58:51 -0400
-Received: from mga18.intel.com ([134.134.136.126]:28395 "EHLO mga18.intel.com"
+        id S1728216AbgIBPHT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 2 Sep 2020 11:07:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726167AbgIBI6v (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 2 Sep 2020 04:58:51 -0400
-IronPort-SDR: cOLo8EOE4vTVNq9EjbZul+UXQyilz/e4KhF7nEa+OFRiHviiVWUidgi86tTeN0BwW/hDCUBvVv
- gm61WFbsajeg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9731"; a="145039202"
-X-IronPort-AV: E=Sophos;i="5.76,381,1592895600"; 
-   d="scan'208";a="145039202"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Sep 2020 01:58:47 -0700
-IronPort-SDR: 2CJGKaIlw/C2SVozeZwg1xN512nRjfKZQ7PytBv7Jg4gKlgIhwwX/EcPX2K5ZdHnnB0eUe0I2s
- 7GQXpBiZKF9A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,381,1592895600"; 
-   d="scan'208";a="331361247"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga008.jf.intel.com with ESMTP; 02 Sep 2020 01:58:45 -0700
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1kDOOg-00DfSo-2Y; Wed, 02 Sep 2020 11:45:38 +0300
-Date:   Wed, 2 Sep 2020 11:45:38 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
-Cc:     wsa@kernel.org, jarkko.nikula@linux.intel.com, jdelvare@suse.de,
-        chris.packham@alliedtelesis.co.nz, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/1] i2c: algo-pca: Reapply i2c bus settings after
- reset
-Message-ID: <20200902084538.GY1891694@smile.fi.intel.com>
-References: <20200901211747.20649-1-evan.nimmo@alliedtelesis.co.nz>
- <20200902084356.GX1891694@smile.fi.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200902084356.GX1891694@smile.fi.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+        id S1727897AbgIBPHO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 2 Sep 2020 11:07:14 -0400
+Received: from kozik-lap.mshome.net (unknown [194.230.155.106])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63A872098B;
+        Wed,  2 Sep 2020 15:07:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599059232;
+        bh=cSQFmywcXooFcP8VNV2UCrqNvF5ouq7dUikOFo9zEuE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HbkL8XGjlZRIsnFjTWTb8qGh7g6TA7XNjmlnpLsW6jen2ejlREFL339vj7TAxnvIE
+         Wm0UUO3He96/92GV1im9eWcxkprkOuAb+PHY8CHUpgOq1DEhLH0ya0vRS/Q632PTR+
+         3K+ywjp4pqrqiWIsSqKLLtjF27yD5l/9OL2ccxik=
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sekhar Nori <nsekhar@ti.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Oleksij Rempel <linux@rempel-privat.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@kernel.org>,
+        linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rockchip@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4/9] i2c: cadence: Simplify with dev_err_probe()
+Date:   Wed,  2 Sep 2020 17:06:38 +0200
+Message-Id: <20200902150643.14839-4-krzk@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200902150643.14839-1-krzk@kernel.org>
+References: <20200902150643.14839-1-krzk@kernel.org>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Sep 02, 2020 at 11:43:56AM +0300, Andy Shevchenko wrote:
-> On Wed, Sep 02, 2020 at 09:17:47AM +1200, Evan Nimmo wrote:
-> > If something goes wrong (such as the SCL being stuck low) then we need
-> > to reset the PCA chip. The issue with this is that on reset we lose all
-> > config settings and the chip ends up in a disabled state which results
-> > in a lock up/high cpu usage. We need to re-apply any configuration that
-> 
-> cpu -> CPU (I guess Wolfram can decide with this when applying)
-> 
-> > had previously been set and re-enable the chip.
-> 
-> FWIW,
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Common pattern of handling deferred probe can be simplified with
+dev_err_probe().  Less code and the error value gets printed.
 
-And actually you forgot Chris' tag... But I dunno if the moving struct
-definition is something that Chris might not like.
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ drivers/i2c/busses/i2c-cadence.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index e4b7f2a951ad..eefde554c50c 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -1214,11 +1214,10 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+ 		 "Cadence I2C at %08lx", (unsigned long)r_mem->start);
+ 
+ 	id->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(id->clk)) {
+-		if (PTR_ERR(id->clk) != -EPROBE_DEFER)
+-			dev_err(&pdev->dev, "input clock not found.\n");
+-		return PTR_ERR(id->clk);
+-	}
++	if (IS_ERR(id->clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(id->clk),
++				     "input clock not found.\n");
++
+ 	ret = clk_prepare_enable(id->clk);
+ 	if (ret)
+ 		dev_err(&pdev->dev, "Unable to enable clock.\n");
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.17.1
 
