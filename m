@@ -2,112 +2,181 @@ Return-Path: <SRS0=xTOo=CM=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.9 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A500AC433E2
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 07:19:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10C05C2BB84
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 08:15:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 75FE3207EA
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 07:19:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE2862145D
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 08:15:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727965AbgICHTI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Sep 2020 03:19:08 -0400
-Received: from mga11.intel.com ([192.55.52.93]:50360 "EHLO mga11.intel.com"
+        id S1728670AbgICIPy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Sep 2020 04:15:54 -0400
+Received: from mga11.intel.com ([192.55.52.93]:55058 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727955AbgICHTI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 3 Sep 2020 03:19:08 -0400
-IronPort-SDR: s2FJnA7GE+DTIZ46pVz/DiuU7I9DZEA+pi/5aHrUrX96hSPYrS+W5zTYvg08OJqE0uf53yzsTv
- 0vv8aEQVZF+A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9732"; a="155036824"
+        id S1728787AbgICIPo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 3 Sep 2020 04:15:44 -0400
+IronPort-SDR: GpqKeUXx+aNbmjFEIOgb+NiALJ9sSxXkLG6S60atlHx+cOXZPwy6ZwQ8ADnanTo2+OVeQhRo9k
+ yQT/IIpaJPhg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9732"; a="155042681"
 X-IronPort-AV: E=Sophos;i="5.76,385,1592895600"; 
-   d="scan'208";a="155036824"
+   d="scan'208";a="155042681"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2020 00:19:08 -0700
-IronPort-SDR: fTo99JnhqCgFkBUut2syhSAtgp8nnudAzDtvy9C5FvzNlHqF0dG9gg8yaORwLKYvna9eRwj6/8
- Pp5RHPpGzBCg==
-X-ExtLoop1: 1
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2020 01:15:43 -0700
+IronPort-SDR: PzgkixOpBw/2MXRipbTtMdExKciOY0phgh2vceFz0ReqOW5caqWzC+8sLL+QlmNnvuyF1vzeP/
+ 7zpoXoC9MnnQ==
 X-IronPort-AV: E=Sophos;i="5.76,385,1592895600"; 
-   d="scan'208";a="297946856"
-Received: from unknown (HELO [10.239.154.46]) ([10.239.154.46])
-  by orsmga003.jf.intel.com with ESMTP; 03 Sep 2020 00:19:03 -0700
-Subject: Re: [PATCH] i2c: virtio: add a virtio i2c frontend driver
-To:     Jason Wang <jasowang@redhat.com>, linux-i2c@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org
-Cc:     mst@redhat.com, wsa+renesas@sang-engineering.com, wsa@kernel.org,
-        andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com,
-        jdelvare@suse.de, Sergey.Semin@baikalelectronics.ru,
-        krzk@kernel.org, rppt@kernel.org, loic.poulain@linaro.org,
-        tali.perry1@gmail.com, bjorn.andersson@linaro.org,
-        shuo.a.liu@intel.com, conghui.chen@intel.com, yu1.wang@intel.com
-References: <0efc2605c8c06b4b1bf68cbad5536c4a900dc019.1599110284.git.jie.deng@intel.com>
- <f3ab5d7d-cce5-b34c-5931-dd5d74f065e7@redhat.com>
-From:   Jie Deng <jie.deng@intel.com>
-Message-ID: <6517879c-15d4-6265-761c-626cba9c95d6@intel.com>
-Date:   Thu, 3 Sep 2020 15:19:02 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.0.1
+   d="scan'208";a="405416207"
+Received: from paasikivi.fi.intel.com ([10.237.72.42])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2020 01:15:40 -0700
+Received: from punajuuri.localdomain (punajuuri.localdomain [192.168.240.130])
+        by paasikivi.fi.intel.com (Postfix) with ESMTP id 6FB2F203ED;
+        Thu,  3 Sep 2020 11:15:38 +0300 (EEST)
+Received: from sailus by punajuuri.localdomain with local (Exim 4.92)
+        (envelope-from <sakari.ailus@linux.intel.com>)
+        id 1kDkPO-0001c9-Hc; Thu, 03 Sep 2020 11:15:50 +0300
+From:   Sakari Ailus <sakari.ailus@linux.intel.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa@the-dreams.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
+        Hyungwoo Yang <hyungwoo.yang@intel.com>,
+        linux-media@vger.kernel.org
+Subject: [PATCH v8 1/6] i2c: Allow an ACPI driver to manage the device's power state during probe
+Date:   Thu,  3 Sep 2020 11:15:45 +0300
+Message-Id: <20200903081550.6012-2-sakari.ailus@linux.intel.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
+References: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <f3ab5d7d-cce5-b34c-5931-dd5d74f065e7@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Enable drivers to tell ACPI that there's no need to power on a device for
+probe. Drivers should still perform this by themselves if there's a need
+to. In some cases powering on the device during probe is undesirable, and
+this change enables a driver to choose what fits best for it.
 
-On 2020/9/3 14:12, Jason Wang wrote:
->
-> On 2020/9/3 下午1:34, Jie Deng wrote:
->> Add an I2C bus driver for virtio para-virtualization.
->>
->> The controller can be emulated by the backend driver in
->> any device model software by following the virtio protocol.
->>
->> This driver communicates with the backend driver through a
->> virtio I2C message structure which includes following parts:
->>
->> - Header: i2c_msg addr, flags, len.
->> - Data buffer: the pointer to the i2c msg data.
->> - Status: the processing result from the backend.
->>
->> People may implement different backend drivers to emulate
->> different controllers according to their needs. A backend
->> example can be found in the device model of the open source
->> project ACRN. For more information, please refer to
->> https://projectacrn.org.
->
->
-> May I know the reason why don't you use i2c or virtio directly?
->
-We don't want to add virtio drivers for every I2C devices in the guests.
-This bus driver is designed to provide a way to flexibly expose the 
-physical
-I2C slave devices to the guest without adding or changing the drivers of 
-the
-I2C slave devices in the guest OS.
+Add a field called "flags" into struct i2c_driver for driver flags, and a
+flag I2C_DRV_FL_ALLOW_LOW_POWER_PROBE to tell a driver supports probe in
+low power state.
 
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+---
+ drivers/i2c/i2c-core-base.c | 19 ++++++++++++++++---
+ include/linux/i2c.h         | 14 ++++++++++++++
+ 2 files changed, 30 insertions(+), 3 deletions(-)
 
->
->>
->> The virtio device ID 34 is used for this I2C adpter since IDs
->> before 34 have been reserved by other virtio devices.
->
->
-> Is there a link to the spec patch?
->
-> Thanks
->
-I haven't submitted the patch to reserve the ID in spec yet.
-I write the ID here because I want to see your opinions first.
-
-Thanks
-
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 5ec082e2039d9..cfb1e777c6196 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -436,6 +436,16 @@ static int i2c_smbus_host_notify_to_irq(const struct i2c_client *client)
+ 	return irq > 0 ? irq : -ENXIO;
+ }
+ 
++static bool allow_low_power_probe(struct device *dev)
++{
++	struct i2c_driver *driver = to_i2c_driver(dev->driver);
++
++	return driver->flags & I2C_DRV_FL_ALLOW_LOW_POWER_PROBE &&
++		!acpi_dev_get_property(ACPI_COMPANION(dev),
++				       "i2c-allow-low-power-probe",
++				       ACPI_TYPE_ANY, NULL);
++}
++
+ static int i2c_device_probe(struct device *dev)
+ {
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+@@ -514,7 +524,8 @@ static int i2c_device_probe(struct device *dev)
+ 	if (status < 0)
+ 		goto err_clear_wakeup_irq;
+ 
+-	status = dev_pm_domain_attach(&client->dev, true);
++	status = dev_pm_domain_attach(&client->dev,
++				      !allow_low_power_probe(&client->dev));
+ 	if (status)
+ 		goto err_clear_wakeup_irq;
+ 
+@@ -536,7 +547,8 @@ static int i2c_device_probe(struct device *dev)
+ 	return 0;
+ 
+ err_detach_pm_domain:
+-	dev_pm_domain_detach(&client->dev, true);
++	dev_pm_domain_detach(&client->dev,
++			     !allow_low_power_probe(&client->dev));
+ err_clear_wakeup_irq:
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
+@@ -562,7 +574,8 @@ static int i2c_device_remove(struct device *dev)
+ 		status = driver->remove(client);
+ 	}
+ 
+-	dev_pm_domain_detach(&client->dev, true);
++	dev_pm_domain_detach(&client->dev,
++			     !allow_low_power_probe(&client->dev));
+ 
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index fc55ea41d3237..f8c3257a8bb25 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -11,6 +11,7 @@
+ #define _LINUX_I2C_H
+ 
+ #include <linux/acpi.h>		/* for acpi_handle */
++#include <linux/bits.h>
+ #include <linux/mod_devicetable.h>
+ #include <linux/device.h>	/* for struct device */
+ #include <linux/sched.h>	/* for completion */
+@@ -217,6 +218,16 @@ enum i2c_alert_protocol {
+ 	I2C_PROTOCOL_SMBUS_HOST_NOTIFY,
+ };
+ 
++/**
++ * enum i2c_driver_flags - Flags for an I2C device driver
++ *
++ * @I2C_DRV_FL_ALLOW_LOW_POWER_PROBE: Let the ACPI driver manage the device's
++ *				      power state during probe and remove
++ */
++enum i2c_driver_flags {
++	I2C_DRV_FL_ALLOW_LOW_POWER_PROBE = BIT(0),
++};
++
+ /**
+  * struct i2c_driver - represent an I2C device driver
+  * @class: What kind of i2c device we instantiate (for detect)
+@@ -231,6 +242,7 @@ enum i2c_alert_protocol {
+  * @detect: Callback for device detection
+  * @address_list: The I2C addresses to probe (for detect)
+  * @clients: List of detected clients we created (for i2c-core use only)
++ * @flags: A bitmask of flags defined in &enum i2c_driver_flags
+  *
+  * The driver.owner field should be set to the module owner of this driver.
+  * The driver.name field should be set to the name of this driver.
+@@ -289,6 +301,8 @@ struct i2c_driver {
+ 	int (*detect)(struct i2c_client *client, struct i2c_board_info *info);
+ 	const unsigned short *address_list;
+ 	struct list_head clients;
++
++	u32 flags;
+ };
+ #define to_i2c_driver(d) container_of(d, struct i2c_driver, driver)
+ 
+-- 
+2.20.1
 
