@@ -2,89 +2,107 @@ Return-Path: <SRS0=xTOo=CM=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9AF9C433E9
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 15:07:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0081CC433E9
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 15:09:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E98AD20716
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 15:07:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CBFD020758
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 15:09:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="bUiRNf0j"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L8mP/a6I"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728387AbgICPHV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Sep 2020 11:07:21 -0400
-Received: from www.zeus03.de ([194.117.254.33]:39886 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729104AbgICPG1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 3 Sep 2020 11:06:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=H4fD0Ad9Kc1LxgRH/ncS+dBbAokU
-        qUtXtvWfSCK6PZw=; b=bUiRNf0jRI+TrEOZQGvP6xsSwNdgi4hFUjUbEHIPM2C8
-        3qQST5WWNgYMtrRs+8cqi9s7Fw29YhE7xPt+nRe2RtwNq36+n3tfLLodKuHEZrPr
-        pBmp6aPI9mozcqUrny5QRbsuoawdilNZSlAYWrQTazQ8XlG5DtCQAunSGzyg988=
-Received: (qmail 3278700 invoked from network); 3 Sep 2020 17:06:19 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 3 Sep 2020 17:06:19 +0200
-X-UD-Smtp-Session: l3s3148p1@gQk1GGqu1t4gAwDPXw9AAMxnKm8HDZ7K
-Date:   Thu, 3 Sep 2020 17:06:16 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Jean Delvare <jdelvare@suse.de>
-Cc:     linux-i2c@vger.kernel.org
-Subject: Re: [PATCH i2c-tools] add BUGS section to manpages
-Message-ID: <20200903150616.GA3382@ninjato>
-References: <20200806145421.1389-1-wsa+renesas@sang-engineering.com>
- <20200903153423.0cf6d9c6@endymion>
+        id S1729355AbgICPJe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Sep 2020 11:09:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59172 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728999AbgICN6P (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Sep 2020 09:58:15 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB295C061A1D;
+        Thu,  3 Sep 2020 06:47:13 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id t7so3069865ljo.13;
+        Thu, 03 Sep 2020 06:47:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=k3qzuThp72U/KRxwqVBmH8skw7M3iKBLI2uUGRnjLys=;
+        b=L8mP/a6IrjsOnBUJNLH9gtRvDP+4OMbHI+ZwhcrchPmprm1bWwSXCF3qdpZNSLZitr
+         5vxo1+pmmZE4aqpsEmb9R44gchROZJsr06CkDcuqrYl2QZJuhGs2QZpQ3dhuJkfnkkyp
+         drHo4YDPArnj1+J49nUababBHTtwnFLT0B5m//G0fxwxB/gKJHtQtLIKtgs4CbdZfkge
+         SO1qNNzSOsZLrGVzu2UB6UkuJ/emvvSSx0zcPF5cLIJjv9LQlc5q34Erkx5cL3E46lZU
+         i+hpfnP8g/Nm4s66rEd5vhzeG+kMEWSztvvit157Lw7hGQBHSK7WWoyKqlgwaSSEWCDf
+         fqhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=k3qzuThp72U/KRxwqVBmH8skw7M3iKBLI2uUGRnjLys=;
+        b=jwBk7gYLNiMAxzl0VacAbMtAjdcKiNqnbStDTWbvhkxd10FwezL1DXN0WTecIW/9hO
+         b+18eKz1c0EvzTrr6b1xhqVM7+bBm1LnDlLirseu48WS4nMVRPI5Ei2cHRXLt0Y41q9m
+         VnkGFnCvkG1JMHWgiavaNVCBWT6ofLZeSrfG4kewL7pKmlBECtLy5XfI8I0Ww6r8Ol3J
+         XWoVROlFrTg0+iY2yNLfnbCqYCO04kVe+ZQ04kuMqZ7IdyA0okUdljaPBiaQx6eYc07B
+         LrnxwjNhHOht5xGxBFMTLHjbKzhozeMYry3vBAi1SrTrJ4t1d6Fu4F5HYpUgFF48Ww9Z
+         mh2g==
+X-Gm-Message-State: AOAM532tFxt1LQufFJk+tHhE0suHQBsciM15Lw/2Vce1VNrvirhAIw7T
+        VCrYWC50LHKiTR531Wri0Mg=
+X-Google-Smtp-Source: ABdhPJy8eL2bmmPblOvXEyLk1+3kYW10KFUyH34uTWW02OusL+7ojvhtmrJ/zedSljYSdLAXGPWwGg==
+X-Received: by 2002:a2e:574c:: with SMTP id r12mr1398000ljd.302.1599140832286;
+        Thu, 03 Sep 2020 06:47:12 -0700 (PDT)
+Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
+        by smtp.googlemail.com with ESMTPSA id k12sm614296ljh.95.2020.09.03.06.47.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 03 Sep 2020 06:47:11 -0700 (PDT)
+Subject: Re: [PATCH v3 05/22] i2c: tegra: Use reset_control_reset()
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        linux-tegra@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Peter De Schrijver <pdeschrijver@nvidia.com>
+References: <20200903005300.7894-1-digetx@gmail.com>
+ <20200903005300.7894-6-digetx@gmail.com>
+ <CAHp75VefJMxAoGxN8muTxLUJ=bwcMyjzX4uEGvYdckE6xYJvjw@mail.gmail.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <07e418bb-77c1-a3bc-bb8b-b930b8c723df@gmail.com>
+Date:   Thu, 3 Sep 2020 16:47:10 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
-Content-Disposition: inline
-In-Reply-To: <20200903153423.0cf6d9c6@endymion>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <CAHp75VefJMxAoGxN8muTxLUJ=bwcMyjzX4uEGvYdckE6xYJvjw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+03.09.2020 14:11, Andy Shevchenko пишет:
+> On Thu, Sep 3, 2020 at 3:53 AM Dmitry Osipenko <digetx@gmail.com> wrote:
+>>
+>> Use a single reset_control_reset() instead of assert/deasset couple in
+>> order to make code cleaner a tad.
+> 
+>> Note that the reset_control_reset()
+>> uses 1 microsecond delay instead of 2 that was used previously, but this
+>> shouldn't matter.
+> 
+> What datasheet says about this delay?
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The public datasheet doesn't say anything specific about the I2C
+controller reset time. IIUC, controller logic runs at 200/400 MHz, so
+1us should be enough for the reset.
 
-
-> 2* Add my address to the BUGS section of the manual pages, together
-> with the list's address. That should work for the time being, but I
-> don't feel too comfortable with my name being put forward that way,
-> plus this will require updating all files whenever the maintainer
-> changes (don't panic, I have no plan to leave, but no one can tell what
-> the future holds).
-
-I think let's go this way. For consistency, and because it is less work
-for me and you. I don't have an issue with the maintainer being more
-visible, and the changes (when they come) are just more work for sed,
-not for us :)
-
-
---vkogqOf2sHV7VnPd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9RBmQACgkQFA3kzBSg
-KbYYNBAAhp6nZKKLxHYM143ad1mZF+ONWe20mEx88FkWglD0twnZaibJxwP3qDXk
-Ia3qFy5DUFDxcomrAAt8WLX76XILVgtfENmviN/4L9QXomIhP4agjGm8MKzYDrJU
-BeVO/yZ8dlW/IeVVUH14TKJ0eKro+B2hSFkrjw1lybsllvfANj5bVYdSdVBEo3Rj
-Kip4tKSdkvCuk7cRoYrgq68lWp68LZwPPT+ufIiwZ/KCe0TvbHVCzpyL7CJsT3ue
-C7o6BpO589fKTyyWv2uW58XqzZBgFvXPLtVgDoBcMwpDzeAhTbbPEVOd3PRewUhP
-CzC2DthbfnXUtSQlRZdtDiCGpwMzWDlKtfT2NC9oAK9m5EeBivvZddxAQp/4Zgvi
-bw5hzOIK58BfkGjKx5lGOtGiETFItKNYPK9PDNukdzooxUNBjxli9Nr0SpeynmP3
-CqBcx5iNrRnDwygDLx588P4Z6frGyo/1/WcX77qUbY7iQX+95GOXjbziwXENouoo
-+gRiUAntQgABwQUl09j4vDP9jpH2kI+bzM/XlS2o5PV4NsnZP9f/i3P9P61dD0td
-hS85sJC+RvPqRq8CV4R56cmVQiWQNI3/0AN/XmH/pzIoX3VgOcwLOY3SRu2miPDY
-omB+k6A4NsNu5tU5ZAosD4hpQXxpiM6YauhLaJ66hAZWglrBcSI=
-=7x7e
------END PGP SIGNATURE-----
-
---vkogqOf2sHV7VnPd--
+I'm sure that somebody from NVIDIA should know the exact answer and will
+correct me if I'm wrong. I CC'd Peter De Schrijver who is a maintainer
+of the Tegra's clock-and-reset driver.
