@@ -7,39 +7,39 @@ X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26879C43461
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 802E5C433E2
 	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 08:16:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 05D0221532
+	by mail.kernel.org (Postfix) with ESMTP id 62B3521582
 	for <linux-i2c@archiver.kernel.org>; Thu,  3 Sep 2020 08:16:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728561AbgICIQ2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Sep 2020 04:16:28 -0400
-Received: from mga05.intel.com ([192.55.52.43]:36319 "EHLO mga05.intel.com"
+        id S1728430AbgICIPx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Sep 2020 04:15:53 -0400
+Received: from mga04.intel.com ([192.55.52.120]:11134 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726406AbgICIPy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 3 Sep 2020 04:15:54 -0400
-IronPort-SDR: iExr8iL3ij/AeKUZ2FLD6hlL5TGhmTj7mnWW9+I8mVBagD4mrrPpt0TOGryPwdyKaG+mcxEfKE
- khaVxhpiimMQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9732"; a="242355730"
+        id S1728807AbgICIPo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 3 Sep 2020 04:15:44 -0400
+IronPort-SDR: 8aasJwJ8OdVhdK3q6ewGNN2YoXr/Dii7kTgbnPljM2Elw8Im+GYEWN/wYb9bzN2n+CkO6Vx2+Y
+ FsGTc2yhYnDA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9732"; a="154939220"
 X-IronPort-AV: E=Sophos;i="5.76,385,1592895600"; 
-   d="scan'208";a="242355730"
+   d="scan'208";a="154939220"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2020 01:15:43 -0700
-IronPort-SDR: 2Hr+CC48SAbma50Ari2hEVaP12Mk3zhmMNzmtLkUrvEiH/OiSSeZfz0+ePQ/5ehqMYmY3KB97S
- usX84P68zZDg==
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2020 01:15:43 -0700
+IronPort-SDR: EAXJbZnsEs/BQyZ5dVBgJOC2gV6IhKzVeGK0MVe2vovYcr93xjn8kWkFFVu84U62kXLFXI5bgB
+ J+Edj+OLZDhw==
 X-IronPort-AV: E=Sophos;i="5.76,385,1592895600"; 
-   d="scan'208";a="375804997"
+   d="scan'208";a="331719609"
 Received: from paasikivi.fi.intel.com ([10.237.72.42])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2020 01:15:40 -0700
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2020 01:15:40 -0700
 Received: from punajuuri.localdomain (punajuuri.localdomain [192.168.240.130])
-        by paasikivi.fi.intel.com (Postfix) with ESMTP id 914C22114B;
+        by paasikivi.fi.intel.com (Postfix) with ESMTP id 78D092098B;
         Thu,  3 Sep 2020 11:15:38 +0300 (EEST)
 Received: from sailus by punajuuri.localdomain with local (Exim 4.92)
         (envelope-from <sakari.ailus@linux.intel.com>)
-        id 1kDkPO-0001cJ-MM; Thu, 03 Sep 2020 11:15:50 +0300
+        id 1kDkPO-0001cC-J5; Thu, 03 Sep 2020 11:15:50 +0300
 From:   Sakari Ailus <sakari.ailus@linux.intel.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     Wolfram Sang <wsa@the-dreams.de>,
@@ -52,174 +52,108 @@ Cc:     Wolfram Sang <wsa@the-dreams.de>,
         Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
         Hyungwoo Yang <hyungwoo.yang@intel.com>,
         linux-media@vger.kernel.org
-Subject: [PATCH v8 4/6] ov5670: Support probe whilst the device is in a low power state
-Date:   Thu,  3 Sep 2020 11:15:48 +0300
-Message-Id: <20200903081550.6012-5-sakari.ailus@linux.intel.com>
+Subject: [PATCH v8 2/6] Documentation: ACPI: Document i2c-allow-low-power-probe _DSD property
+Date:   Thu,  3 Sep 2020 11:15:46 +0300
+Message-Id: <20200903081550.6012-3-sakari.ailus@linux.intel.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
 References: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Tell ACPI device PM code that the driver supports the device being in a
-low power state when the driver's probe function is entered.
-
-Also do identification on the first access of the device, whether in probe
-or when starting streaming.
+Document the probe-low-power _DSD property and how it is used with I²C
+drivers.
 
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 ---
- drivers/media/i2c/ov5670.c | 76 +++++++++++++++++++++++---------------
- 1 file changed, 46 insertions(+), 30 deletions(-)
+ .../acpi/dsd/i2c-allow-low-power-probe.rst    | 60 +++++++++++++++++++
+ Documentation/firmware-guide/acpi/index.rst   |  1 +
+ 2 files changed, 61 insertions(+)
+ create mode 100644 Documentation/firmware-guide/acpi/dsd/i2c-allow-low-power-probe.rst
 
-diff --git a/drivers/media/i2c/ov5670.c b/drivers/media/i2c/ov5670.c
-index f26252e35e08d..74b0325c22565 100644
---- a/drivers/media/i2c/ov5670.c
-+++ b/drivers/media/i2c/ov5670.c
-@@ -1832,6 +1832,8 @@ struct ov5670 {
- 
- 	/* Streaming on/off */
- 	bool streaming;
-+	/* True if the device has been identified */
-+	bool identified;
- };
- 
- #define to_ov5670(_sd)	container_of(_sd, struct ov5670, sd)
-@@ -2270,6 +2272,32 @@ static int ov5670_get_skip_frames(struct v4l2_subdev *sd, u32 *frames)
- 	return 0;
- }
- 
-+/* Verify chip ID */
-+static int ov5670_identify_module(struct ov5670 *ov5670)
-+{
-+	struct i2c_client *client = v4l2_get_subdevdata(&ov5670->sd);
-+	int ret;
-+	u32 val;
+diff --git a/Documentation/firmware-guide/acpi/dsd/i2c-allow-low-power-probe.rst b/Documentation/firmware-guide/acpi/dsd/i2c-allow-low-power-probe.rst
+new file mode 100644
+index 0000000000000..7e7ed3ad3ac69
+--- /dev/null
++++ b/Documentation/firmware-guide/acpi/dsd/i2c-allow-low-power-probe.rst
+@@ -0,0 +1,60 @@
++.. SPDX-License-Identifier: GPL-2.0
 +
-+	if (ov5670->identified)
-+		return 0;
++======================================
++Probing I²C devices in low power state
++======================================
 +
-+	ret = ov5670_read_reg(ov5670, OV5670_REG_CHIP_ID,
-+			      OV5670_REG_VALUE_24BIT, &val);
-+	if (ret)
-+		return ret;
++Introduction
++============
 +
-+	if (val != OV5670_CHIP_ID) {
-+		dev_err(&client->dev, "chip id mismatch: %x!=%x\n",
-+			OV5670_CHIP_ID, val);
-+		return -ENXIO;
++In some cases it may be preferred to leave certain devices powered off for the
++entire system bootup if powering on these devices has adverse side effects,
++beyond just powering on the said device. Linux recognizes the _DSD property [1]
++"i2c-allow-low-power-probe" that can be used for this purpose.
++
++How it works
++============
++
++The boolean device property "i2c-allow-low-power-probe" may be used to tell
++Linux that the I²C framework should instruct the kernel ACPI framework to leave
++the device in the low power state. If the driver indicates its support for this
++by setting the I2C_DRV_FL_ALLOW_LOW_POWER_PROBE flag in struct i2c_driver.flags
++field and the "i2c-allow-low-power-probe" property is present, the device will
++not be powered on for probe.
++
++The downside is that as the device is not powered on, even if there's a problem
++with the device, the driver likely probes just fine but the first user will
++find out the device doesn't work, instead of a failure at probe time. This
++feature should thus be used sparingly.
++
++Example
++=======
++
++An ASL example describing an ACPI device using this property looks like
++this. Some objects not relevant from the example point of view have been
++omitted.
++
++	Device (CAM0)
++        {
++		Name (_HID, "SONY319A")
++		Name (_UID, Zero)
++		Name (_CRS, ResourceTemplate ()
++		{
++			I2cSerialBus(0x0020, ControllerInitiated, 0x00061A80,
++				     AddressingMode7Bit, "\\_SB.PCI0.I2C0",
++				     0x00, ResourceConsumer)
++		})
++		Name (PRT4, Package() {
++			ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
++			Package () {
++				Package () { "i2c-allow-low-power-probe", 1 },
++			}
++                })
 +	}
 +
-+	ov5670->identified = true;
++References
++==========
 +
-+	return 0;
-+}
-+
- /* Prepare streaming by writing default values and customized values */
- static int ov5670_start_streaming(struct ov5670 *ov5670)
- {
-@@ -2278,6 +2306,10 @@ static int ov5670_start_streaming(struct ov5670 *ov5670)
- 	int link_freq_index;
- 	int ret;
- 
-+	ret = ov5670_identify_module(ov5670);
-+	if (ret)
-+		return ret;
-+
- 	/* Get out of from software reset */
- 	ret = ov5670_write_reg(ov5670, OV5670_REG_SOFTWARE_RST,
- 			       OV5670_REG_VALUE_08BIT, OV5670_SOFTWARE_RST);
-@@ -2401,27 +2433,6 @@ static int __maybe_unused ov5670_resume(struct device *dev)
- 	return 0;
- }
- 
--/* Verify chip ID */
--static int ov5670_identify_module(struct ov5670 *ov5670)
--{
--	struct i2c_client *client = v4l2_get_subdevdata(&ov5670->sd);
--	int ret;
--	u32 val;
--
--	ret = ov5670_read_reg(ov5670, OV5670_REG_CHIP_ID,
--			      OV5670_REG_VALUE_24BIT, &val);
--	if (ret)
--		return ret;
--
--	if (val != OV5670_CHIP_ID) {
--		dev_err(&client->dev, "chip id mismatch: %x!=%x\n",
--			OV5670_CHIP_ID, val);
--		return -ENXIO;
--	}
--
--	return 0;
--}
--
- static const struct v4l2_subdev_video_ops ov5670_video_ops = {
- 	.s_stream = ov5670_set_stream,
- };
-@@ -2456,6 +2467,7 @@ static int ov5670_probe(struct i2c_client *client)
- 	struct ov5670 *ov5670;
- 	const char *err_msg;
- 	u32 input_clk = 0;
-+	bool low_power;
- 	int ret;
- 
- 	device_property_read_u32(&client->dev, "clock-frequency", &input_clk);
-@@ -2472,11 +2484,14 @@ static int ov5670_probe(struct i2c_client *client)
- 	/* Initialize subdev */
- 	v4l2_i2c_subdev_init(&ov5670->sd, client, &ov5670_subdev_ops);
- 
--	/* Check module identity */
--	ret = ov5670_identify_module(ov5670);
--	if (ret) {
--		err_msg = "ov5670_identify_module() error";
--		goto error_print;
-+	low_power = acpi_dev_state_low_power(&client->dev);
-+	if (!low_power) {
-+		/* Check module identity */
-+		ret = ov5670_identify_module(ov5670);
-+		if (ret) {
-+			err_msg = "ov5670_identify_module() error";
-+			goto error_print;
-+		}
- 	}
- 
- 	mutex_init(&ov5670->mutex);
-@@ -2513,10 +2528,10 @@ static int ov5670_probe(struct i2c_client *client)
- 	ov5670->streaming = false;
- 
- 	/*
--	 * Device is already turned on by i2c-core with ACPI domain PM.
--	 * Enable runtime PM and turn off the device.
-+	 * Don't set the device's state to active if it's in a low power state.
- 	 */
--	pm_runtime_set_active(&client->dev);
-+	if (!low_power)
-+		pm_runtime_set_active(&client->dev);
- 	pm_runtime_enable(&client->dev);
- 	pm_runtime_idle(&client->dev);
- 
-@@ -2558,7 +2573,7 @@ static const struct dev_pm_ops ov5670_pm_ops = {
- 
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id ov5670_acpi_ids[] = {
--	{"INT3479"},
-+	{ "INT3479" },
- 	{ /* sentinel */ }
- };
- 
-@@ -2573,6 +2588,7 @@ static struct i2c_driver ov5670_i2c_driver = {
- 	},
- 	.probe_new = ov5670_probe,
- 	.remove = ov5670_remove,
-+	.flags = I2C_DRV_FL_ALLOW_LOW_POWER_PROBE,
- };
- 
- module_i2c_driver(ov5670_i2c_driver);
++[1] Device Properties UUID For _DSD.
++    https://www.uefi.org/sites/default/files/resources/_DSD-device-properties-UUID.pdf,
++    referenced 2020-09-02.
+diff --git a/Documentation/firmware-guide/acpi/index.rst b/Documentation/firmware-guide/acpi/index.rst
+index ad3b5afdae77e..1f87b7072d1e6 100644
+--- a/Documentation/firmware-guide/acpi/index.rst
++++ b/Documentation/firmware-guide/acpi/index.rst
+@@ -11,6 +11,7 @@ ACPI Support
+    dsd/graph
+    dsd/data-node-references
+    dsd/leds
++   dsd/i2c-allow-low-power-probe
+    enumeration
+    osi
+    method-customizing
 -- 
 2.20.1
 
