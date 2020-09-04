@@ -2,147 +2,170 @@ Return-Path: <SRS0=YXQZ=CN=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6466AC28E83
-	for <linux-i2c@archiver.kernel.org>; Fri,  4 Sep 2020 11:04:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 044FFC43461
+	for <linux-i2c@archiver.kernel.org>; Fri,  4 Sep 2020 11:30:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3CD972087C
-	for <linux-i2c@archiver.kernel.org>; Fri,  4 Sep 2020 11:04:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A60BC2098B
+	for <linux-i2c@archiver.kernel.org>; Fri,  4 Sep 2020 11:30:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="JZd50ylc"
+	dkim=pass (1024-bit key) header.d=plvision.eu header.i=@plvision.eu header.b="pUd8m9mU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729992AbgIDLEg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 4 Sep 2020 07:04:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56468 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730076AbgIDLCp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 4 Sep 2020 07:02:45 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C14C061245
-        for <linux-i2c@vger.kernel.org>; Fri,  4 Sep 2020 04:02:43 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id s13so5662442wmh.4
-        for <linux-i2c@vger.kernel.org>; Fri, 04 Sep 2020 04:02:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=NfwkNFk09ZusBLOpLBTzQZi+H+vFvkYJED/TT3XgJYw=;
-        b=JZd50ylcdwr2PHwgwiiaZbZPtEwrGD9obMYXTwpZhmQPv/Lx0wB5KCsEfKIKGKv7ni
-         S0TL0ck/MMQKYiuWElIRT0D4FGT8AJ6zDeu2mMpdm1mzf3FKDmAceMkHYdmQSn8OZkVU
-         WYCL/bNmxjKSpU0YjiDiqFJzwHDIW/8oA5YwGb35qTuWFWL3pnnL8DMK/lfPXFqmR8VS
-         Ge1jpfi/BDhBGpau/jZqgYHFBjpUo9RWBh3BL2x+X46DPjOzmrYEWUWRK0GxHH6Ms5W7
-         XFO5XIpa4Y+4vtV2ytbTIiJKpkEbXF5SWJIeHjMpt7rIXEPmKV+g5tU55WRpK3AT+OZV
-         cDPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=NfwkNFk09ZusBLOpLBTzQZi+H+vFvkYJED/TT3XgJYw=;
-        b=sDsotwng79Qozrk+LDSEAnKrrIoCECfsz9ajDmkNPuGNPHlsD4vE2qNHJ55HSQ8SFc
-         sFCEEprR2GkjvbNAhTp2pn1VJS7xVLyI4jKI4v6X5E3AwSCAl2Ue4xxi1Rofzq1uQfEq
-         1NDRpRw2CN5w9GKQhvPfMZbzjjlWfmKHuriniw9vMJ8fd88Dqa+WC1L0yZgZ2Qq6lNrj
-         GGTXERapuqf6C4uHYM6vC/UukzNLvjaizJ4tDfQNNm+7yukw8KQcAOe+07rKsInQDK6O
-         ySapD8IpeAbiaopC16Ws2tl5Rka5DkSHrGlQuohWtu+jADxgpssmqqFsrsE43eMfI3/S
-         gtNQ==
-X-Gm-Message-State: AOAM533xkDt4VW6j6mW1GfVXrtuAQ5+1HQmOT9yuv4dc0qfvr8e6KKug
-        iKH3/O8128tutda5lhw/Yo30mA==
-X-Google-Smtp-Source: ABdhPJyDXc07W9KvlQK9EHpFRFv+t6KZPHfDW0yXqRKut/IryH4+skf+lxaDkSbM+QVtkaGdqqxNog==
-X-Received: by 2002:a1c:b4c1:: with SMTP id d184mr7475012wmf.26.1599217362207;
-        Fri, 04 Sep 2020 04:02:42 -0700 (PDT)
-Received: from [192.168.86.34] (cpc86377-aztw32-2-0-cust226.18-1.cable.virginm.net. [92.233.226.227])
-        by smtp.googlemail.com with ESMTPSA id a127sm10514447wmh.34.2020.09.04.04.02.41
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 04 Sep 2020 04:02:41 -0700 (PDT)
-Subject: Re: [PATCH v3 1/3] nvmem: core: allow to register cells during nvmem
- registration
-To:     Vadym Kochan <vadym.kochan@plvision.eu>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        id S1730168AbgIDLav (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 4 Sep 2020 07:30:51 -0400
+Received: from mail-eopbgr00102.outbound.protection.outlook.com ([40.107.0.102]:13283
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730069AbgIDLYG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 4 Sep 2020 07:24:06 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XW4E13skJ0etb8G+3RJzHY0Jc0MQ8OOBg8Hntg/uvbzsKMjWw1mbC0jixYO2z0lcFeykmKdtQrp0zRA8tXezKgWyFg7NquJdTly0puMF0B1wG0zteCH8pRNvrFCj9Wfg+GuCjvF4TF1FCbDRIfV5nXZVoqzqdIDFD/iOEBaP9AdOAPYsI7UivM+mHGc6gCX0TCnxoldcfZuNz07Onxd1DKAdXlhtm/I7lueC24vsATLYL5KtNNEYaDZfr88A9KKpyTnowa66PCyfAGM52kEKqb9xPNSek74wd8sueJFZ2TJcMDc2FaENVZ+BBw9PspuhE6i1Q8RvHIDaXV+Gc8pN0g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dKZ7p81PcyPdAihQDAkR2rjbSCflKL4sE3bsr2fcqwg=;
+ b=lsBO30R1aKzefszACpdobkPeA0tlNtQU/wkMrcphAMXvoSd6kRTp/T+XFwR6aARoJ0ux/k5ReB5+gZkR+YWs9Pa9buU3kW15UezoJpspJJUGUITQGvqSl8HSKcAhaTFHZcEOD7XAfgr5LzOCNt7NhaHFSOb0izCWcKcLCaL9kGMGjpyy7pyfi7bzIcFNoaEU6sm6PrKdAikqTwqOvLz3n+7cvpJVJHke/9jlmQzrk/LDYsoUju76Jtpwo+JOQ/qE6ZmOyJ1jps0m6rrDnRwwRG0cR64TrIrUUJ157bqoAvPG1+LqAVeD5Fw6BbIrVbbujkAVTOn8mlHw9hE6OHfCVg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=plvision.eu; dmarc=pass action=none header.from=plvision.eu;
+ dkim=pass header.d=plvision.eu; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plvision.eu;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dKZ7p81PcyPdAihQDAkR2rjbSCflKL4sE3bsr2fcqwg=;
+ b=pUd8m9mUmG33xGjWN9ZkouhKZ3IIGI1HNvUztRJ9WfMxpFYaX3h4taJSkcw6EDBA3Cg40JUMqCjNaezQL49NmrBTjc8lVe872ZBh/msgB8jdC80ryCSzajxIS9jvNpoMvOTDmEWRi6EYX5OJ7zWCSocvCwotlbbqQZuDh4Ckcu0=
+Authentication-Results: linaro.org; dkim=none (message not signed)
+ header.d=none;linaro.org; dmarc=none action=none header.from=plvision.eu;
+Received: from DB6P190MB0535.EURP190.PROD.OUTLOOK.COM (2603:10a6:6:3e::26) by
+ DB6P190MB0008.EURP190.PROD.OUTLOOK.COM (2603:10a6:4:88::15) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3348.16; Fri, 4 Sep 2020 11:23:13 +0000
+Received: from DB6P190MB0535.EURP190.PROD.OUTLOOK.COM
+ ([fe80::9cbe:fafc:3c8a:3765]) by DB6P190MB0535.EURP190.PROD.OUTLOOK.COM
+ ([fe80::9cbe:fafc:3c8a:3765%4]) with mapi id 15.20.3348.016; Fri, 4 Sep 2020
+ 11:23:13 +0000
+Date:   Fri, 4 Sep 2020 14:23:10 +0300
+From:   Vadym Kochan <vadym.kochan@plvision.eu>
+To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Arnd Bergmann <arnd@arndb.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Maxime Ripard <maxime.ripard@free-electrons.com>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/3] nvmem: core: allow to register cells during nvmem
+ registration
+Message-ID: <20200904112310.GD10654@plvision.eu>
 References: <20200831015539.26811-1-vadym.kochan@plvision.eu>
  <20200831015539.26811-2-vadym.kochan@plvision.eu>
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Message-ID: <6ab47f55-af66-f035-d8d9-82d0c831b5b8@linaro.org>
-Date:   Fri, 4 Sep 2020 12:02:40 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+ <6ab47f55-af66-f035-d8d9-82d0c831b5b8@linaro.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6ab47f55-af66-f035-d8d9-82d0c831b5b8@linaro.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-ClientProxiedBy: AM5PR1001CA0009.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:206:2::22) To DB6P190MB0535.EURP190.PROD.OUTLOOK.COM
+ (2603:10a6:6:3e::26)
 MIME-Version: 1.0
-In-Reply-To: <20200831015539.26811-2-vadym.kochan@plvision.eu>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from plvision.eu (217.20.186.93) by AM5PR1001CA0009.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:206:2::22) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3348.15 via Frontend Transport; Fri, 4 Sep 2020 11:23:12 +0000
+X-Originating-IP: [217.20.186.93]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1c366b2f-0605-44a1-c86c-08d850c4e949
+X-MS-TrafficTypeDiagnostic: DB6P190MB0008:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DB6P190MB00088AD3AF780BDA22FDED4B952D0@DB6P190MB0008.EURP190.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ojFFkTOMeqQj+3TwgIjs0n/vM83hepoKwYbBvhq915GDTBTWVBBkC4CDq3uRPt1ukNuJ966FjNbzwrwyp5eYaD1KkcXuRYLgMBniKMUF0JiYQH+Rf/egvYv+kRXtEPo4BfmzhhkfqrdtBy+kKmkizucv97suRZl97U93EcxatoxfXLzfkrCxPQn62WIsQSxVUAXNxJ6vDj+bEO+5kWDvno3/ktNF7DdqgAffzMQ9minlZVtEzbM+PguPeYsMxjWCjZ5w4OgCSk2cS+v9ZWHfWc7u4Y3FwMFaE7/qSb6rWHg48rnPWRM9kjqJXJBXWzUbUeC8RhNtAVSe3OoyNkgXLA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB6P190MB0535.EURP190.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(136003)(376002)(346002)(396003)(366004)(39830400003)(6916009)(16526019)(66476007)(2906002)(2616005)(8676002)(956004)(1076003)(478600001)(66556008)(186003)(44832011)(86362001)(55016002)(8936002)(66946007)(8886007)(33656002)(26005)(36756003)(4326008)(83380400001)(5660300002)(52116002)(54906003)(53546011)(316002)(7696005);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: DWOfA/QMH5mxtRn+bCU+NDdpyJq9m5hcz97c+wCzZrtJnkpETrczVUCTQkarwpkrZ4JC9N8ZwL29lPfJiVMMfT8GXjOghvMaYnXMrrubn/CViK81W6MaDBwh5DD/Qb8jrvEukpUMq27/d/ckwyUueKl09oMMe/ry3KqXRb1UPW1hNUeG40owSMnhlPjixXK4Vc0IDg8+qWEXex3TW5buuGo67VmfiII2Hlcu1VE27e07c99hnUsvPb6+fl9Jj/gyO6aj4yCzy+QM/iUl19x4a5Ts17Hj+lmlXkV1nkGO5DpphCeFGkibe1EV1Ct/J3lZM4X9aK6BwL6A6VM8ZWfSRbO4dNnKBuocC2550QT+Y2ZyMQYu1ylVQtY/SYiJ0IMV6NursfPQY8T1iV9BxreLsCjF8tXOdf0BTmJRW2WJ1BIRKlW06rzc9ThkBZPeeD11NGBBh2au2bp42/5vNwmi7QCvJgFvYv+6s3w+smIRtWpKiyCuk3hwh9VqNJBeYMOtA0Gew+/udlkzdcWvfyBiLRnX9ph5ZhQsnYSclJCa8q6S6Fby8WpTaG7SykX1eH5eYLC88appR2vwR+gg/zAZgTe9hLuIFymJoNa8GbbOdTL1Q1KnVJox3qUXRNnp6OtVyH6c8VNhGr2Z3ol+lgXAJQ==
+X-OriginatorOrg: plvision.eu
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1c366b2f-0605-44a1-c86c-08d850c4e949
+X-MS-Exchange-CrossTenant-AuthSource: DB6P190MB0535.EURP190.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Sep 2020 11:23:13.4002
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 03707b74-30f3-46b6-a0e0-ff0a7438c9c4
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: z2aOpAqW3dWILirDsermHohEFWVMFUk85B/11sWq6ywr6BNMaQt4B+CYRLNwMQ8xEGgy1itq0wq8Y714siVlYxey07SUiPPPKEU9P3vrTzA=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB6P190MB0008
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Vadym,
+Hi Srinivas,
 
-Thanks for the patch,
-On 31/08/2020 02:55, Vadym Kochan wrote:
-> Add NVMEM_PRE_ADD notification step which is called before any cells
-> binding - from lookup table or config, this allows to register cells
-> in some specific layout (tlv) which should be parsed first and then
-> registered. So there might be a cell parser driver which can register
-> lookup table during this notification step.
+On Fri, Sep 04, 2020 at 12:02:40PM +0100, Srinivas Kandagatla wrote:
+> Hi Vadym,
 > 
-This is going in right direction but totally not correct way to do it.
-
-1> this is not scalable as any consumer that will register for this even 
-will have no idea of which what kind of parsing that provider needs.
-It can work in your case but not really useful.
-
-2> this is a consumer API, not the provider api.
-
-How about adding a "parse_cells" callback in struct nvmem_config along 
-with encoding type.
-
-
-thanks,
-srini
-
-> Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
-> ---
-> v3:
->      1) Update core.c changes by extending notification mechanism
->         by adding new NVMEM_PRE_ADD event id which is called before lookup
->         table cells binding, this allows for notification handler to
->         register cells which require nvmem parsing.
+> Thanks for the patch,
+> On 31/08/2020 02:55, Vadym Kochan wrote:
+> > Add NVMEM_PRE_ADD notification step which is called before any cells
+> > binding - from lookup table or config, this allows to register cells
+> > in some specific layout (tlv) which should be parsed first and then
+> > registered. So there might be a cell parser driver which can register
+> > lookup table during this notification step.
+> > 
+> This is going in right direction but totally not correct way to do it.
 > 
->   drivers/nvmem/core.c           | 2 ++
->   include/linux/nvmem-consumer.h | 1 +
->   2 files changed, 3 insertions(+)
+> 1> this is not scalable as any consumer that will register for this even
+> will have no idea of which what kind of parsing that provider needs.
+> It can work in your case but not really useful.
 > 
-> diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-> index 6cd3edb2eaf6..c48a69e0ebbe 100644
-> --- a/drivers/nvmem/core.c
-> +++ b/drivers/nvmem/core.c
-> @@ -668,6 +668,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
->   			goto err_device_del;
->   	}
->   
-> +	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_PRE_ADD, nvmem);
-> +
->   	if (config->cells) {
->   		rval = nvmem_add_cells(nvmem, config->cells, config->ncells);
->   		if (rval)
-> diff --git a/include/linux/nvmem-consumer.h b/include/linux/nvmem-consumer.h
-> index 052293f4cbdb..0f7107276756 100644
-> --- a/include/linux/nvmem-consumer.h
-> +++ b/include/linux/nvmem-consumer.h
-> @@ -50,6 +50,7 @@ enum {
->   	NVMEM_REMOVE,
->   	NVMEM_CELL_ADD,
->   	NVMEM_CELL_REMOVE,
-> +	NVMEM_PRE_ADD,
->   };
->   
->   #if IS_ENABLED(CONFIG_NVMEM)
+> 2> this is a consumer API, not the provider api.
 > 
+> How about adding a "parse_cells" callback in struct nvmem_config along with
+> encoding type.
+> 
+> 
+> thanks,
+> srini
+> 
+
+Looks like I missed main point here that this cells parser should be
+registered as nvmem provider. I will think on it.
+
+Thanks,
+
+> > Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
+> > ---
+> > v3:
+> >      1) Update core.c changes by extending notification mechanism
+> >         by adding new NVMEM_PRE_ADD event id which is called before lookup
+> >         table cells binding, this allows for notification handler to
+> >         register cells which require nvmem parsing.
+> > 
+> >   drivers/nvmem/core.c           | 2 ++
+> >   include/linux/nvmem-consumer.h | 1 +
+> >   2 files changed, 3 insertions(+)
+> > 
+> > diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+> > index 6cd3edb2eaf6..c48a69e0ebbe 100644
+> > --- a/drivers/nvmem/core.c
+> > +++ b/drivers/nvmem/core.c
+> > @@ -668,6 +668,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+> >   			goto err_device_del;
+> >   	}
+> > +	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_PRE_ADD, nvmem);
+> > +
+> >   	if (config->cells) {
+> >   		rval = nvmem_add_cells(nvmem, config->cells, config->ncells);
+> >   		if (rval)
+> > diff --git a/include/linux/nvmem-consumer.h b/include/linux/nvmem-consumer.h
+> > index 052293f4cbdb..0f7107276756 100644
+> > --- a/include/linux/nvmem-consumer.h
+> > +++ b/include/linux/nvmem-consumer.h
+> > @@ -50,6 +50,7 @@ enum {
+> >   	NVMEM_REMOVE,
+> >   	NVMEM_CELL_ADD,
+> >   	NVMEM_CELL_REMOVE,
+> > +	NVMEM_PRE_ADD,
+> >   };
+> >   #if IS_ENABLED(CONFIG_NVMEM)
+> > 
