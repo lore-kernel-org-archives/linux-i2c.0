@@ -2,96 +2,106 @@ Return-Path: <SRS0=6ai4=CP=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88025C43461
-	for <linux-i2c@archiver.kernel.org>; Sun,  6 Sep 2020 13:01:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9777EC43461
+	for <linux-i2c@archiver.kernel.org>; Sun,  6 Sep 2020 18:52:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CDAE120796
-	for <linux-i2c@archiver.kernel.org>; Sun,  6 Sep 2020 13:01:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 53B1A2080A
+	for <linux-i2c@archiver.kernel.org>; Sun,  6 Sep 2020 18:52:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mail.ee header.i=@mail.ee header.b="rEt0pDLP"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tF3dtYTP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726931AbgIFNBp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 6 Sep 2020 09:01:45 -0400
-Received: from eu-shark2.inbox.eu ([195.216.236.82]:55004 "EHLO
-        eu-shark2.inbox.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725803AbgIFNA7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Sep 2020 09:00:59 -0400
-Received: from eu-shark2.inbox.eu (localhost [127.0.0.1])
-        by eu-shark2-out.inbox.eu (Postfix) with ESMTP id AF5E1334677;
-        Sun,  6 Sep 2020 16:00:53 +0300 (EEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mail.ee; s=20150108;
-        t=1599397253; bh=id2FYQ/su5IaCZ4nBxBdcSkTcyKP5zQWzkB81aFhy+U=;
-        h=Date:From:To:Cc:Subject;
-        b=rEt0pDLP6b6KEHL0AE4YJ7JZ+NWGGs3NKKPVAUaqXZAXCgSKJHzbw8mkdF6tCByxg
-         DhH7FrKuUS+Q0xE10BrLMSQhwrASfxQhNBVLJpwWFQt+cMWCxxNMRLoQF3yAAysbGB
-         MwcCSIXz3PjjyPXunC+WytZ6AgskzRzEgV6pbZ5w=
-Received: from mail.inbox.eu (eu-pop1 [127.0.0.1])
-        by eu-shark2-in.inbox.eu (Postfix) with ESMTP id 92DE4334675;
-        Sun,  6 Sep 2020 16:00:53 +0300 (EEST)
-Received: from hp15 (unknown [185.176.221.195])
-        (Authenticated sender: arzamas-16@mail.ee)
-        by mail.inbox.eu (Postfix) with ESMTPA id 006C21BE072A;
-        Sun,  6 Sep 2020 16:00:52 +0300 (EEST)
-Date:   Sun, 6 Sep 2020 16:00:47 +0300
-From:   Boris Lysov <arzamas-16@mail.ee>
-To:     linux-i2c@vger.kernel.org
-Cc:     qii.wang@mediatek.com, matthias.bgg@gmail.com
-Subject: [RFC] i2c: i2c-mt65xx and DMA on MT6577 (compatibility issue)
-Message-ID: <20200906160047.7c5fb42f@hp15>
+        id S1729185AbgIFSvz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 6 Sep 2020 14:51:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60476 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729118AbgIFSvp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Sep 2020 14:51:45 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEE04C061755;
+        Sun,  6 Sep 2020 11:51:44 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id a15so13643492ljk.2;
+        Sun, 06 Sep 2020 11:51:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=OBUXvlICXAt4XhkXTBZEgHZISfsH0kwsfBBqReQcTB0=;
+        b=tF3dtYTP1OUDdU6viCKHRFrYuoQMQMMHCW93Y/HzQVuQDyfPhNSCdUkdgaNaRqvYy/
+         KeXviAV8gXfVtwefzL6LMzPFeoZDd/nbQGvLNUivrI1bCDCKd+jhrFlVnhLzZAwV68Ni
+         fB/L+8nQh0JwRyFY3sRvNpVWRwtAASvevGC3lIjoQ1WngUWq1svHymP6R31GNLTz3g2T
+         HKg20CLMYHwEP4sT1lgcPTenKfOkFVu+iIF+XHiaTALiNHoHm8ZsZVjX8J51Se3kEpAe
+         Oqys5kmKt3UVg9iMcQ5zUZrj168UuU9bGhPwqp7mWZKelFJubfWuszCVfUqqw+5RZmZd
+         w+JQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=OBUXvlICXAt4XhkXTBZEgHZISfsH0kwsfBBqReQcTB0=;
+        b=OyJbKhZWLjKFlfQufq2td2b26QyhKwRSXEWjNznfwci5M6IZCOO6eQR/htYY0Uc82N
+         k/AVU6oYRAwuL427QUC2njTheQmvrOBPtq6tLBlCfl9snGzwGczB3Klv3vNu59hA1zUA
+         ume7z/43wdjZuHw2GW5GTeWo0WP9bYRP0CtJZ8rg0M9p1TUKJN2vuUXsmezg+Iw42Jso
+         wua231Rx64SZqBCsLWfT0BNvv2fTo97ELaXbs4W463BK5V8aLjdcKGAkpQXPYdChJ57o
+         0tcChfG76F0SQjItudf6GtKZznnxwAwHz04MfFXU1yLTVOi+CYI0a0M0ZXuS8G3YEXNJ
+         DBHg==
+X-Gm-Message-State: AOAM532zvcQGX1vfozC8T6zBj8gYZPQ1WRunxfcIp+RjeQCownawRraf
+        A01a8d41xHPhalswXIl96NjYZapCzrs=
+X-Google-Smtp-Source: ABdhPJxGdwvw8sgsF6rAG5pZKaW9VOoQEBNSYyDn+n1FfUYH6PBvipwMmgS5hgwW70dgaf3RVux6JA==
+X-Received: by 2002:a2e:980f:: with SMTP id a15mr756737ljj.153.1599418301977;
+        Sun, 06 Sep 2020 11:51:41 -0700 (PDT)
+Received: from localhost.localdomain (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
+        by smtp.gmail.com with ESMTPSA id s3sm4883407ljd.44.2020.09.06.11.51.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Sep 2020 11:51:41 -0700 (PDT)
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v5 03/36] i2c: tegra: Mask interrupt in tegra_i2c_issue_bus_clear()
+Date:   Sun,  6 Sep 2020 21:50:06 +0300
+Message-Id: <20200906185039.22700-4-digetx@gmail.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200906185039.22700-1-digetx@gmail.com>
+References: <20200906185039.22700-1-digetx@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-X-Virus-Scanned: OK
-X-ESPOL: 885mlYJLBD+jjECjQXrABA8ys1k6UZGD55TE3V0G3GeYQiOHYg==
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hello,
+The tegra_i2c_issue_bus_clear() may fail and in this case BUS_CLR_DONE
+stays unmasked. Hence let's mask it for consistency. This patch doesn't
+fix any known problems.
 
-I ran into the issue with using i2c-mt65xx driver on MT6577 hardware.
-Device tree documentation for the driver says "reg" property requires 2 add=
-resses:
-> reg: physical base address of the controller and dma base
-Physical base address for MT6577 is 0xC1012000, but AFAIK MT6577 does not h=
-ave
-a DMA base dedicated especially to I2C.
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-What value has to be used as DMA base on MT6577?
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 307df6f97ed0..d01697995224 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -1149,6 +1149,8 @@ static int tegra_i2c_issue_bus_clear(struct i2c_adapter *adap)
+ 
+ 	time_left = tegra_i2c_wait_completion_timeout(
+ 			i2c_dev, &i2c_dev->msg_complete, 50);
++	tegra_i2c_mask_irq(i2c_dev, I2C_INT_BUS_CLR_DONE);
++
+ 	if (time_left == 0) {
+ 		dev_err(i2c_dev->dev, "timed out for bus clear\n");
+ 		return -ETIMEDOUT;
+-- 
+2.27.0
 
-For the sake of example, I did my own research and checked other SoC listed=
- as
-compatible in dt-binding doc. I compared the source code of Linux kernels f=
-or
-devices based on MT6589 and MT6577. See example below.
-
-MT6589, Lenovo A820: https://github.com/jawad6233/Lenovo_A820_Kernel
-There are IRQ IDs defined for I2C DMA:
-mediatek/platform/mt6589/kernel/core/include/mach/mt_irq.h (line 47)
-> #define MT_DMA_I2C1_ID                      (GIC_PRIVATE_SIGNALS + 62)
-> #define MT_DMA_I2C2_ID                      (GIC_PRIVATE_SIGNALS + 63)
-> #define MT_DMA_I2C3_ID                      (GIC_PRIVATE_SIGNALS + 64)
-> #define MT_DMA_I2C4_ID                      (GIC_PRIVATE_SIGNALS + 65)
-> #define MT_DMA_I2C5_ID                      (GIC_PRIVATE_SIGNALS + 66)
-> #define MT_DMA_I2C6_ID                      (GIC_PRIVATE_SIGNALS + 67)
-> #define MT_DMA_I2C7_ID                      (GIC_PRIVATE_SIGNALS + 68)
-There are DMA address calculations for various I2C busses:
-mediatek/platform/mt6589/kernel/drivers/i2c/i2c.c (line 1135)
-> i2c->pdmabase =3D AP_DMA_BASE + 0x300 + (0x80*(i2c->id));
-
-MT6577, ZTE v970: https://github.com/dragonpt/Kernel_3.4.67_KK_ZTE_v970
-There are no IRQ IDs defined for I2C DMA:
-mediatek/platform/mt6577/kernel/core/include/mach/mt_irq.h
-=46rom line 80 down to line 92 there are DMA addresses for various subsystems=
- except I2C.
-And there are no DMA address calculaltions either:
-mediatek/platform/mt6577/kernel/drivers/i2c/i2c.c
-
-Please point me to DMA base I should use on MT6577.
-Thanks.
