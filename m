@@ -2,136 +2,99 @@ Return-Path: <SRS0=j4Wp=CQ=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7107C433E2
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Sep 2020 16:29:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03875C2BB84
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Sep 2020 21:26:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DC992080A
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Sep 2020 16:29:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599496190;
-	bh=RNbfAwKg808EmwHCSsYfFUQo6wpnABBo6mgSy7XA3/I=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=lyd1dD4BfbGzRm4rJOV1JHSUb/FKoHAGAb7RL9kAFJIL/P2g4jzOyAoh6KEbEyQwH
-	 s14ceUUTtp2giLUKMymb81oxLNFhGay3iUJl9ENxTu09i5b5lJl/wRvvsgQ8TVLgq0
-	 IdLfsZdsa7YfX2YCe+TJ1q53ex0Jc54j+Jbkh3H0=
+	by mail.kernel.org (Postfix) with ESMTP id B38B921924
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Sep 2020 21:26:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=fpond.eu header.i=@fpond.eu header.b="ZTeGjhiU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729885AbgIGO3a (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Sep 2020 10:29:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51658 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729759AbgIGO2t (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 7 Sep 2020 10:28:49 -0400
-Received: from localhost (p54b331dd.dip0.t-ipconnect.de [84.179.49.221])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D6662064B;
-        Mon,  7 Sep 2020 14:28:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599488928;
-        bh=RNbfAwKg808EmwHCSsYfFUQo6wpnABBo6mgSy7XA3/I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SP3rwR+E0gxpKOpgZb3C1djsmkGs9uGPktSrF5RNVaapzUEwkhEKqAQ0+TpgJY8Gg
-         viWpog1od5YDV0xoTD6OCoGMFCxrlueSyEytvm0LJzCV6NNfv/LceAnm1+V9AArfo+
-         +SVG4u+j/mkHlRvYQEAk/n4/LKUeEyBM5DG6xFGg=
-Date:   Mon, 7 Sep 2020 16:28:41 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     trix@redhat.com
-Cc:     syniurge@gmail.com, nehal-bakulchandra.shah@amd.com,
-        shyam-sundar.s-k@amd.com, natechancellor@gmail.com,
-        ndesaulniers@google.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: Re: [PATCH] i2c: amd_mp2: handle num is 0 input for i2c_amd_xfer
-Message-ID: <20200907142841.GA3931@ninjato>
-References: <20200904180647.21080-1-trix@redhat.com>
+        id S1727801AbgIGV0H (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Sep 2020 17:26:07 -0400
+Received: from mo4-p00-ob.smtp.rzone.de ([85.215.255.21]:23387 "EHLO
+        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726929AbgIGV0F (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Sep 2020 17:26:05 -0400
+X-Greylist: delayed 362 seconds by postgrey-1.27 at vger.kernel.org; Mon, 07 Sep 2020 17:26:04 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1599513963;
+        s=strato-dkim-0002; d=fpond.eu;
+        h=Subject:References:In-Reply-To:Message-ID:Cc:To:From:Date:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=MEfJczHxjUwwNdro3JsOxqEL/t/8Utf3ZeUeoMIgX/E=;
+        b=ZTeGjhiUKDxQupH9J7fC3nGdZ07bdHTfkA7B6lfiFVggja9EYyoDauOeLh9OcqOX1i
+        pgmHEVSwFE6/72zgV183w7T1sN9H3H/f1XOwq5tJrDWwdjGZ7uoEEmJfKbnncbftXR4o
+        VAPE+oKxEvFNqNrZXUb/bRMXn7c4sIMnaMCXUB2i87aW2/0jvitCaEGUjerk+jdpgYzL
+        Pb7PBHNDb4f51S0IixArSi1rgKDb1D/w/HlJDmXKyG4JfzgyOi+jtND93eSRQXSHsQ30
+        mt0YLlEo5okWkU6oHn/U0husO6k1YWeVP6w1PBifGxko2NvdUllte8L9ZfDxiNSbtE77
+        WGPg==
+X-RZG-AUTH: ":OWANVUa4dPFUgKR/3dpvnYP0Np73amq+g13rqGzvv3qxio1R8fCv/x28jVM="
+X-RZG-CLASS-ID: mo00
+Received: from oxapp06-01.back.ox.d0m.de
+        by smtp-ox.front (RZmta 46.10.7 AUTH)
+        with ESMTPSA id e0624aw87LJxMv7
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
+        (Client did not present a certificate);
+        Mon, 7 Sep 2020 23:19:59 +0200 (CEST)
+Date:   Mon, 7 Sep 2020 23:19:59 +0200 (CEST)
+From:   Ulrich Hecht <uli@fpond.eu>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        linux-renesas-soc@vger.kernel.org
+Cc:     wsa@the-dreams.de, geert@linux-m68k.org, linux-i2c@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Message-ID: <919936154.542022.1599513599331@webmail.strato.com>
+In-Reply-To: <a89b6ee3-4b69-422c-4a48-d105ff8807ed@roeck-us.net>
+References: <20200901161756.28100-1-uli+renesas@fpond.eu>
+ <a89b6ee3-4b69-422c-4a48-d105ff8807ed@roeck-us.net>
+Subject: Re: [PATCH] watchdog: da9063: wake up parent ahead of reboot
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
-Content-Disposition: inline
-In-Reply-To: <20200904180647.21080-1-trix@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+Importance: Normal
+X-Mailer: Open-Xchange Mailer v7.10.3-Rev21
+X-Originating-Client: open-xchange-appsuite
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On 09/01/2020 6:48 PM Guenter Roeck <linux@roeck-us.net> wrote:
+> 
+>  
+> On 9/1/20 9:17 AM, Ulrich Hecht wrote:
+> > This patch ensures our parent is awake before a reboot takes place. This
+> > prevents situations in which the I2C host has been suspended and cannot
+> > be safely woken up anymore when it needs to talk to us.
+> > 
+> 
+> Why not call pm_runtime_get_sync() in da9063_wdt_restart() ?
 
-On Fri, Sep 04, 2020 at 11:06:47AM -0700, trix@redhat.com wrote:
-> From: Tom Rix <trix@redhat.com>
->=20
-> clang static analyzer reports this problem
->=20
-> i2c-amd-mp2-plat.c:174:9: warning: Branch condition evaluates
->   to a garbage value
->         return err ? err : num;
->                ^~~
->=20
-> err is not initialized, it depends on the being set in the
-> transfer loop which will not happen if num is 0.  Surveying
-> other master_xfer() implementations show all handle a 0 num.
->=20
-> Because returning 0 is expected, initialize err to 0.
+It's no longer safe to do so at that point because the restart handler runs in atomic context. The unpleasant details can be found at https://www.spinics.net/lists/linux-i2c/msg46367.html
 
-Well, it is not expected. The core does:
+> What
+> guarantees that the local notifier is called before the watchdog core's
+> restart notifier ?
 
-2019         if (WARN_ON(!msgs || num < 1))
-2020                 return -EINVAL;
+It would seem to me that a reboot notifier that triggers after the restart notifier (which, if successfully handled, does not return) would be rather pointless.
 
-Dunno if we should apply the patch nonetheless or add a comment that num
-is guaranteed to be at least 1.
+> And what is the point of using the watchdog core's
+> reboot handler if it is bypassed anyway ?
 
->=20
-> Signed-off-by: Tom Rix <trix@redhat.com>
-> ---
->  drivers/i2c/busses/i2c-amd-mp2-plat.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-amd-mp2-plat.c b/drivers/i2c/busses/i=
-2c-amd-mp2-plat.c
-> index 17df9e8845b6..506433bc0ff2 100644
-> --- a/drivers/i2c/busses/i2c-amd-mp2-plat.c
-> +++ b/drivers/i2c/busses/i2c-amd-mp2-plat.c
-> @@ -155,7 +155,7 @@ static int i2c_amd_xfer(struct i2c_adapter *adap, str=
-uct i2c_msg *msgs, int num)
->  	struct amd_i2c_dev *i2c_dev =3D i2c_get_adapdata(adap);
->  	int i;
->  	struct i2c_msg *pmsg;
-> -	int err;
-> +	int err =3D 0;
-> =20
->  	/* the adapter might have been deleted while waiting for the bus lock */
->  	if (unlikely(!i2c_dev->common.mp2_dev))
-> --=20
-> 2.18.1
->=20
+I don't think it's bypassed, it should be possible to register several reboot notifiers per device.
 
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
+It would also be possible to do this stuff in the core's reboot handler, but I have chosen not to do so because the core seems to avoid dealing with PM, which I assume is a design decision. Also, it would affect all other drivers with a restart handler, with (to me) unforeseeable effects. What do you think?
 
------BEGIN PGP SIGNATURE-----
+> Also, why is it not necessary to call pm functions when the watchdog is
+> started, when it is stopped, and during suspend/resume ?
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9WQ5UACgkQFA3kzBSg
-Kbb4lRAAqR+qYYGfBuYJNz9IlZD4fINTsBtP7KTjVgiMDIn11bUyT1xVHbld0Ut7
-Mj0juR4/0NVyWKL59HW/zU5qxcRs5q0VYK3VBfYlTYRaGMTrDkRjr6dK1s3TksFp
-3BF0nmwIL6H+UaBdWuh4nPuIJC8KOM6CpxfpukWoGlQlrgbDiDrnevA6QaA2i+br
-D+UynwNQ4naOYJ2JDzWeAZZ/ca5OTbezVhKWb5MqSIFzs188pSopFJlHAAjJsWhz
-2BBWibXh2syLzuTsFXgGaL0S5Bbs/reBG2Uit6H2kOSNp+EUZGWkE6ewAgV8Tm5d
-e4Jfww+NmrzWm28rPW4asVz6xI9BZm3kgWZS/BqZiahVu0cTFvgUtQntxRRNxg2U
-n3Xcxru2iMQn5/tE08Z6iKk8vsefAiC1MyoeRS4VqytAg8i/7Xjn61m/lC+X5XU0
-VkV/im6BfMFZ1s+N5R8gZ+nPcxkbvzw8ZA5hNJImbyu2F1rKwiipjtLtd/nMw12+
-C95ZqawbVsCKtYDPJFWYhyMeR0LpZd2gMskWzBHI6i5Um7Ba0lON4R9YbpAfc8X7
-8TYHB/xVnsIe+c1Sd857ZOOAm0otamj/i9FilxGQbgYVqRs83Z8dvRCc4+ikiQJR
-+7MGAu1AJkKaxm2xNW6BW/3iS06vBFTreKuSkDxV+JRedsq8Gjc=
-=r3dn
------END PGP SIGNATURE-----
+These cases are handled automatically, AFAIK.
 
---mP3DRpeJDSE+ciuQ--
+CU
+Uli
