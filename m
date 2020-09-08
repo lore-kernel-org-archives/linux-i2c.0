@@ -2,109 +2,103 @@ Return-Path: <SRS0=YEzH=CR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A64BC433E2
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 16:43:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB24FC43461
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 18:27:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3ED120759
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 16:43:03 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GiZ9PzKV"
+	by mail.kernel.org (Postfix) with ESMTP id 6D2E92087C
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 18:27:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1599589665;
+	bh=DSdQRvlhEZrNyoTYUyeP2IfmitZ97N0qX3yY6O/rg4w=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=subpiXpxVUlleaMdtiLT2X9cxlLBxlfcZqqZGkWKXdmnv/XhyRWSLOxsA3ErbGZ4U
+	 Hj0hiYVNA3uKhKYNYwmt8AvCCXqqTdqVG8i8dMgXPEQRhhMls2IDB2IDJ4N1xjCu5w
+	 rtfB6utgDZ7Xtb1YgY3K8deiTtKtEAAY+GSUqkns=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731985AbgIHQmq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 8 Sep 2020 12:42:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33136 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731977AbgIHQmO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Sep 2020 12:42:14 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D92DC06121A;
-        Tue,  8 Sep 2020 06:26:12 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id w3so20009263ljo.5;
-        Tue, 08 Sep 2020 06:26:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=wicnMiUF8IEAES1mOlASJ6pW21feYULj1hQyoGrNJ8o=;
-        b=GiZ9PzKVv0xGowTjcuBelk0nGAZ8CNmZN/XNDian8GYz4cI/nhyIrzfg5djb3hrXdz
-         7PHWVVB+jqmk8PCgYa6B6KraG2PWOYMx/cMRuj/EUQ+4uFfEwUZ9PK1wGRFN7+Ef6xr+
-         4p3doArdXHjHfRfs9E4UM1Xjxi4qDH31CQL4BOrB+YFyQ4ueEmgWLOsEHscdiwkhOs/h
-         8aGKHHtueftJ3VdvIFmKxKUGbF3bn2fb7yh3aPQPYePP/7G2cpB+ESP0vziXunwo9rZH
-         mwhp+aCvv10iIFtnuXcBozQr6E/wiRKekyR20WtaKBx9PeJ/be57LpV0L9kDeYT3l0XV
-         7hlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=wicnMiUF8IEAES1mOlASJ6pW21feYULj1hQyoGrNJ8o=;
-        b=ALlzctXCaLClZETmR0rHrbqeAw1lMwg6hmsuSQyXBCTLbT8k9wB2jO5QXjZSra9IkU
-         WqRJ37SK/iMgDhuyF2CRkOuFU1PYeklbQSMW9L6d+PWnozAq+tzAqgNb7bKxjJF9mZ9r
-         1o1T6fXQRt5dCgKGcCFkrF6o57xXsTDliCcka3a5hGBf4hLUUz6uoQyiVrLNqI4H7xnh
-         pTdK5qG5Cx+77P9Vy4YqdGJvGlYbUPdd6iRjh17YPTFTy0pmrC2kh/MMpAuOuMdn+OfX
-         W0F+Zcgto1Qp+/6AxXOsYA5GoV3q1rE0X18pGGghcZzx99167NqOBnUs4YD9LETy3HKn
-         NdSA==
-X-Gm-Message-State: AOAM530pkyRkhOLTqfP3v2jmD3EJCD5v1cuooO3g4brOUE4Lzln2nHww
-        alZjhOCDVkGMbYAR1QNYgq+RTVHNdeo=
-X-Google-Smtp-Source: ABdhPJwjRn28tbrlSjSLqpSujxV7U3nOFGzuTsHVr0VCdjEwgObVmN3TH0rgRnEnaZVM9uFZ/tb30A==
-X-Received: by 2002:a05:651c:1253:: with SMTP id h19mr9789853ljh.55.1599571570543;
-        Tue, 08 Sep 2020 06:26:10 -0700 (PDT)
-Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
-        by smtp.googlemail.com with ESMTPSA id l15sm10196755lje.16.2020.09.08.06.26.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Sep 2020 06:26:09 -0700 (PDT)
-Subject: Re: [PATCH v6 24/35] i2c: tegra: Rename wait/poll functions
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        linux-tegra@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20200908021021.9123-1-digetx@gmail.com>
- <20200908021021.9123-25-digetx@gmail.com>
- <CAHp75VeVckiwqDpu8Qt+7Zh+YGiD2q4C6RrANTf5uF4gE99hPA@mail.gmail.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <29a288f6-3a78-8006-b457-a6ce766d1358@gmail.com>
-Date:   Tue, 8 Sep 2020 16:26:09 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728442AbgIHS1l (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 8 Sep 2020 14:27:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731427AbgIHQK3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:10:29 -0400
+Received: from localhost (p5486cc72.dip0.t-ipconnect.de [84.134.204.114])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CC5024706;
+        Tue,  8 Sep 2020 15:40:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599579633;
+        bh=DSdQRvlhEZrNyoTYUyeP2IfmitZ97N0qX3yY6O/rg4w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fKAdTkWgVlZHBsQeqhWbFVwcx3PI4peN3HBqdwkkUnz48Me5pjxQ0ePJaGWz8/+Mm
+         1zMxJFjckU9+zpHcEu0ZmNVOzLCHbMvD8NHyVMx4qeJmkUPClT6RhrCKSxPx9YJxYa
+         2hazPty35yb5b5W8z7mx6H14wm0CHNUA4hej7xec=
+Date:   Tue, 8 Sep 2020 17:40:29 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Jean Delvare <jdelvare@suse.de>
+Cc:     Linux I2C <linux-i2c@vger.kernel.org>,
+        David Jedynak <sileasresearch@gmail.com>
+Subject: Re: [PATCH] i2cset: Fix short writes with mask
+Message-ID: <20200908154029.GA1772@ninjato>
+References: <20200903110054.52a3a69f@endymion>
+ <20200908065111.GA5936@ninjato>
+ <20200908171908.65690731@endymion>
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VeVckiwqDpu8Qt+7Zh+YGiD2q4C6RrANTf5uF4gE99hPA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Disposition: inline
+In-Reply-To: <20200908171908.65690731@endymion>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-08.09.2020 11:45, Andy Shevchenko пишет:
-> On Tue, Sep 8, 2020 at 5:11 AM Dmitry Osipenko <digetx@gmail.com> wrote:
->>
->> Drop '_timeout' postfix from the wait/poll completion function names in
->> order to make the names shorter, making code cleaner a tad.
-> 
-> ...
-> 
->> +       time_left = tegra_i2c_wait_completion(i2c_dev, &i2c_dev->msg_complete,
->> +                                             50);
-> 
-> Why not one line?
-> 
 
-It goes over 80 chars, which is still a preferred max-length, although
-it's not a mandatory limit anymore. For example I have a code editor
-setup that is tuned for 80 chars, allowing to have multiple files viewed
-and edited simultaneously.
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-But I think in the case of this particular hunk of the code, the
-indentation improvement would indeed overweight the code-length. I'll
-change it in v6, thanks!
+Hi Jean,
+
+> Funny story, while I only posted this last week, I wrote the fix
+> several months ago, so last week I actually got to review my own code
+> with fresh eyes, and when I stumbled upon that specific change, first
+> thing that came to my mind was "this is a useless change, why did I do
+> that ?" Then I scrolled up, checked the other changes in that function,
+> noticed the removed "else" and said OK, I'm not that stupid after all
+> ;-)
+
+:) Now that there are two of us, maybe this justifies a short comment
+explaining it?
+
+Happy hacking,
+
+   Wolfram
+
+
+--jRHKVT23PllUwdXP
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9XpekACgkQFA3kzBSg
+Kbb13w/+I79RKRNfUFz6NzHyFi60uIUZdhCj3imqELsXQ7nYPYWnQAQCEBqSuyTY
+Ae3gjUoEDWhjyyZCCgyTY1ikAv78awTmZpj93QnwmQVfyAm773YyGn/M5IztE8cK
+GKZaj0vX6JZVK9T//JUcSWXq0SIMlfddZcDxPZAH07Win84r2Qe0KSgk2sdkmljh
+ip7rguxgZLf6qItuGLDvyQ73pdsMYw5WsQd3BMpOBVFRQJtzlf0NRBCLTiEBDhMj
+7udm8rSjaHx8OYiPVI77kUosiLRIrPJStRQCJ1INw5VHC94KhLZfhhClYY+O7T8b
+C2nV1ywZ6SNN94jN/or7zcEU45J3etbcsML3eEcX2lCBMKMe1GmUdnZSDAnvQXYv
+F4sZ4NoJVEjdsUaiqe9HDPqF8h1B5t0zYmSL0F7MCpTlp6JAjuB2S8UkMrRbKk0R
+M6KM1uuX+3vX1zqop9sre8GtuH7C+HWs44JHebNv6TMY5yM5aLS5I3sfJ7Hp795S
+GJIUeweQ5jBggtD44JweHqMrC5v3VgHh8o18m7yE3FqzgZHzRAZb+ubzjC6oBk8z
+CyHAY1R2VKyl8OSe4mE0UipzLImSBveHjTmzmMgsxVInf5XAb4BbaVFpJMK0ys28
+TH3tE0B89r4dNIjrVkZE1yqe8vfAiteZdM6QPtB66r9w91R8c0o=
+=E4xv
+-----END PGP SIGNATURE-----
+
+--jRHKVT23PllUwdXP--
