@@ -1,100 +1,112 @@
-Return-Path: <SRS0=j4Wp=CQ=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=YEzH=CR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03875C2BB84
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Sep 2020 21:26:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30F08C43461
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 02:12:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B38B921924
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Sep 2020 21:26:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F153A21D1A
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 02:12:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=fpond.eu header.i=@fpond.eu header.b="ZTeGjhiU"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="u/kGAeoO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727801AbgIGV0H (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Sep 2020 17:26:07 -0400
-Received: from mo4-p00-ob.smtp.rzone.de ([85.215.255.21]:23387 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726929AbgIGV0F (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Sep 2020 17:26:05 -0400
-X-Greylist: delayed 362 seconds by postgrey-1.27 at vger.kernel.org; Mon, 07 Sep 2020 17:26:04 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1599513963;
-        s=strato-dkim-0002; d=fpond.eu;
-        h=Subject:References:In-Reply-To:Message-ID:Cc:To:From:Date:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=MEfJczHxjUwwNdro3JsOxqEL/t/8Utf3ZeUeoMIgX/E=;
-        b=ZTeGjhiUKDxQupH9J7fC3nGdZ07bdHTfkA7B6lfiFVggja9EYyoDauOeLh9OcqOX1i
-        pgmHEVSwFE6/72zgV183w7T1sN9H3H/f1XOwq5tJrDWwdjGZ7uoEEmJfKbnncbftXR4o
-        VAPE+oKxEvFNqNrZXUb/bRMXn7c4sIMnaMCXUB2i87aW2/0jvitCaEGUjerk+jdpgYzL
-        Pb7PBHNDb4f51S0IixArSi1rgKDb1D/w/HlJDmXKyG4JfzgyOi+jtND93eSRQXSHsQ30
-        mt0YLlEo5okWkU6oHn/U0husO6k1YWeVP6w1PBifGxko2NvdUllte8L9ZfDxiNSbtE77
-        WGPg==
-X-RZG-AUTH: ":OWANVUa4dPFUgKR/3dpvnYP0Np73amq+g13rqGzvv3qxio1R8fCv/x28jVM="
-X-RZG-CLASS-ID: mo00
-Received: from oxapp06-01.back.ox.d0m.de
-        by smtp-ox.front (RZmta 46.10.7 AUTH)
-        with ESMTPSA id e0624aw87LJxMv7
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
-        (Client did not present a certificate);
-        Mon, 7 Sep 2020 23:19:59 +0200 (CEST)
-Date:   Mon, 7 Sep 2020 23:19:59 +0200 (CEST)
-From:   Ulrich Hecht <uli@fpond.eu>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Ulrich Hecht <uli+renesas@fpond.eu>,
-        linux-renesas-soc@vger.kernel.org
-Cc:     wsa@the-dreams.de, geert@linux-m68k.org, linux-i2c@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Message-ID: <919936154.542022.1599513599331@webmail.strato.com>
-In-Reply-To: <a89b6ee3-4b69-422c-4a48-d105ff8807ed@roeck-us.net>
-References: <20200901161756.28100-1-uli+renesas@fpond.eu>
- <a89b6ee3-4b69-422c-4a48-d105ff8807ed@roeck-us.net>
-Subject: Re: [PATCH] watchdog: da9063: wake up parent ahead of reboot
+        id S1728352AbgIHCME (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Sep 2020 22:12:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40026 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728254AbgIHCLl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Sep 2020 22:11:41 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B53C061756;
+        Mon,  7 Sep 2020 19:11:39 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id a22so11625411ljp.13;
+        Mon, 07 Sep 2020 19:11:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=8EoeQfm2V7iEFCAPBa5UMm2YWlodiF1UtVHJ3u58T+Y=;
+        b=u/kGAeoOT8mhEp6dIdJveTArpuHIhO/yjU8QlPRVm4p9dIBm9+fme2Zd0e7OCAhmaY
+         fq1XXPRpIv1Mfi3wo+APVP33i0rg7nDfaqUMqekhGMjrmJLMgPxN5HQbx4HaC3DBlXLG
+         oot6Q1FSQDVJ0tTOVp/BZ+VwPOzUvz7ld69fzCxgtnxsTI0Cp4/nzI9Ba82MoweXzVtB
+         PF2fCSHQC8C1TfUxOl8OwwkoSvJoN+JrRtb6MttVT18wxArGjqmbVmOS1fGbWW/vQiMo
+         MhEzk/ahyFMFqt7hK65UNkF0rstBJPlZgDbRwy8fpl9U8kQ3bNXnWjMdGl4p5g/SXkd9
+         fUGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=8EoeQfm2V7iEFCAPBa5UMm2YWlodiF1UtVHJ3u58T+Y=;
+        b=ZlDhf53Py9B2zm6oWHzlcU2DpcYegXQaj5jCDRd7253WEu6ip3BPIWD/04qi3ZXZ8U
+         KrWUfAWxEV4DCQNYcCYu1zLZLKvjxAbZysJ3EFtNCKBk2mzdzPK104CMBPmmA/IW4rhM
+         tXIUZXnz0vwnrUJNx+WlLMWvGG8T5N77audIFTo8EICIB+ezCkwvDcKwL+JDixPYvkO0
+         biVx/Heaz3uF+s9lmXEMb2B7t/VGlhxxj1yRYxyz3ZdwL9vd3h5QVYBfmCN0O+oPxZtW
+         0QP2MxvoLuCgnxgQbPIExCszi5lmJUKVPGulWncQ1+z2/Nv7N/hZFgIZCSftOGh7p/BH
+         Jb5Q==
+X-Gm-Message-State: AOAM533H7Vz4iaTy4wLsoas0RIPd+5s7zFC2LKDB9fOZ/A1QDkv3HqnC
+        yjDhIl1IHxbUm97ISrueoMk=
+X-Google-Smtp-Source: ABdhPJzFbAeVVVVno6VkUk61rrvmXxH6eJGhPCRlFZ0KCNe6prQAsmvBFYKphwQ/ypmiFzt+PDkHVg==
+X-Received: by 2002:a2e:9d83:: with SMTP id c3mr6405416ljj.385.1599531098389;
+        Mon, 07 Sep 2020 19:11:38 -0700 (PDT)
+Received: from localhost.localdomain (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
+        by smtp.gmail.com with ESMTPSA id j12sm9070085lfj.5.2020.09.07.19.11.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Sep 2020 19:11:37 -0700 (PDT)
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v6 03/35] i2c: tegra: Handle potential error of tegra_i2c_flush_fifos()
+Date:   Tue,  8 Sep 2020 05:09:49 +0300
+Message-Id: <20200908021021.9123-4-digetx@gmail.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200908021021.9123-1-digetx@gmail.com>
+References: <20200908021021.9123-1-digetx@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-Importance: Normal
-X-Mailer: Open-Xchange Mailer v7.10.3-Rev21
-X-Originating-Client: open-xchange-appsuite
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Technically the tegra_i2c_flush_fifos() may fail and transfer should be
+aborted in this case, but this shouldn't ever happen in practice unless
+there is a bug somewhere in the driver. Let's add the error check just
+for completeness.
 
-> On 09/01/2020 6:48 PM Guenter Roeck <linux@roeck-us.net> wrote:
-> 
->  
-> On 9/1/20 9:17 AM, Ulrich Hecht wrote:
-> > This patch ensures our parent is awake before a reboot takes place. This
-> > prevents situations in which the I2C host has been suspended and cannot
-> > be safely woken up anymore when it needs to talk to us.
-> > 
-> 
-> Why not call pm_runtime_get_sync() in da9063_wdt_restart() ?
+Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-It's no longer safe to do so at that point because the restart handler runs in atomic context. The unpleasant details can be found at https://www.spinics.net/lists/linux-i2c/msg46367.html
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 4e7d0eec0dd3..88d6e7bb14a2 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -1177,7 +1177,9 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	bool dma;
+ 	u16 xfer_time = 100;
+ 
+-	tegra_i2c_flush_fifos(i2c_dev);
++	err = tegra_i2c_flush_fifos(i2c_dev);
++	if (err)
++		return err;
+ 
+ 	i2c_dev->msg_buf = msg->buf;
+ 	i2c_dev->msg_buf_remaining = msg->len;
+-- 
+2.27.0
 
-> What
-> guarantees that the local notifier is called before the watchdog core's
-> restart notifier ?
-
-It would seem to me that a reboot notifier that triggers after the restart notifier (which, if successfully handled, does not return) would be rather pointless.
-
-> And what is the point of using the watchdog core's
-> reboot handler if it is bypassed anyway ?
-
-I don't think it's bypassed, it should be possible to register several reboot notifiers per device.
-
-It would also be possible to do this stuff in the core's reboot handler, but I have chosen not to do so because the core seems to avoid dealing with PM, which I assume is a design decision. Also, it would affect all other drivers with a restart handler, with (to me) unforeseeable effects. What do you think?
-
-> Also, why is it not necessary to call pm functions when the watchdog is
-> started, when it is stopped, and during suspend/resume ?
-
-These cases are handled automatically, AFAIK.
-
-CU
-Uli
