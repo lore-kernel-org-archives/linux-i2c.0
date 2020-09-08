@@ -2,111 +2,80 @@ Return-Path: <SRS0=YEzH=CR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AD84C2D0E0
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 02:16:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD056C433E2
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 06:26:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D907E21D24
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 02:16:47 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OOCvpUWj"
+	by mail.kernel.org (Postfix) with ESMTP id 876F321897
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 06:26:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728893AbgIHCQS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Sep 2020 22:16:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40050 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728273AbgIHCLo (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Sep 2020 22:11:44 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C76CC061786;
-        Mon,  7 Sep 2020 19:11:44 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id v23so18076422ljd.1;
-        Mon, 07 Sep 2020 19:11:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=4LurUv+YpHFsrZm3AgTKy4azZ/BxWvLTGRcrIRYEkzE=;
-        b=OOCvpUWjIT421nqNEXwbXTwgIeA5X4h2Wx0v7XLajJgW5QWSmAH6jc4Rk7kquOf0fK
-         qa/HCYvo46YsN7PQkyEQh/yyFBGrtnxf2hwTObXadXIgtSnbVlXPHNxhFC0KLXnCEM7G
-         OjK1xfbo5I8qWZe6VGgeM+vcTpGjaOfaG2vlJaaH3dY8ie9hyBf4Eel6BxE+quVo5Zbj
-         3QKzEkGELZtSzZck36qiRLi/d6BFASJzb6ZWnzmne2D4GD+9DJsEC4cwHKnCr840/GNq
-         b8y+f6ImVZ+Unle2TYoTDa2+h9ljKGXndr2MM7e2NWLOkuIf2ifKV9zjZiKRyQ2oW0DO
-         D/OQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=4LurUv+YpHFsrZm3AgTKy4azZ/BxWvLTGRcrIRYEkzE=;
-        b=V5MuD6op9cZeNKpJAYKjUw1JnnTgW0Cj8ELZ2BNXl/IRe22ey3wV87MTftztc9mLiU
-         /WI351gWYB8NIEUxwOWaDX7QGdViSHobyM1xi/+lueSvyNQD2IQtwaDf9st2rG0UCBAQ
-         At/EUTcFrAPv/afGtWftjy7xSEbnPc6MSI6UVtvdgRMcB+1KHXnehIBm7/c/goMMZ5Bw
-         nTYOEyyzGySk3iDtA+kTfeKCL7vctdHWjcwCBIXB9UFNfRBMe2vio/XTiP8WgBy4K9V8
-         hJy3oymP4CZeu+tgwQ5TIF+URNTlpXcNEIDascrH0//mDkgnFGNMRFWYm2Krf6NTHZNb
-         LfXw==
-X-Gm-Message-State: AOAM531hMlTRv123n/NLQq7D8l6WtUX9AdB7f4hh0YkbjoXYwI0e0s0z
-        O0obel9vaOb7ahTbtLMEguPnHr3+y0M=
-X-Google-Smtp-Source: ABdhPJxWSVvqEv0wjHt404BOiIUvdySwHMpgG546eO7wUznuf605L76/nnA8b3Jc2dGes2Gau/5TAQ==
-X-Received: by 2002:a2e:9212:: with SMTP id k18mr6725550ljg.241.1599531102790;
-        Mon, 07 Sep 2020 19:11:42 -0700 (PDT)
-Received: from localhost.localdomain (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
-        by smtp.gmail.com with ESMTPSA id j12sm9070085lfj.5.2020.09.07.19.11.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Sep 2020 19:11:42 -0700 (PDT)
-From:   Dmitry Osipenko <digetx@gmail.com>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        id S1728922AbgIHG04 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 8 Sep 2020 02:26:56 -0400
+Received: from sauhun.de ([88.99.104.3]:33256 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728917AbgIHG04 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 8 Sep 2020 02:26:56 -0400
+Received: from localhost (p5486cc72.dip0.t-ipconnect.de [84.134.204.114])
+        by pokefinder.org (Postfix) with ESMTPSA id 2D4CF2C0356;
+        Tue,  8 Sep 2020 08:26:54 +0200 (CEST)
+Date:   Tue, 8 Sep 2020 08:26:51 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Tali Perry <tali.perry1@gmail.com>
+Cc:     kunyi@google.com, xqiu@google.com, benjaminfair@google.com,
+        avifishman70@gmail.com, joel@jms.id.au, tmaimon77@gmail.com,
+        linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v6 08/35] i2c: tegra: Remove error message used for devm_request_irq() failure
-Date:   Tue,  8 Sep 2020 05:09:54 +0300
-Message-Id: <20200908021021.9123-9-digetx@gmail.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200908021021.9123-1-digetx@gmail.com>
-References: <20200908021021.9123-1-digetx@gmail.com>
+Subject: Re: [PATCH v3] i2c: npcm7xx: Fix timeout calculation
+Message-ID: <20200908062651.GA1019@ninjato>
+References: <20200830213121.239533-1-tali.perry1@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Content-Disposition: inline
+In-Reply-To: <20200830213121.239533-1-tali.perry1@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The error message prints number of vIRQ, which isn't a useful information.
-In practice devm_request_irq() never fails, hence let's remove the bogus
-message in order to make code cleaner.
 
-Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
----
- drivers/i2c/busses/i2c-tegra.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index a52c72135390..b813c0976c10 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -1807,10 +1807,8 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 
- 	ret = devm_request_irq(&pdev->dev, i2c_dev->irq, tegra_i2c_isr,
- 			       IRQF_NO_SUSPEND, dev_name(&pdev->dev), i2c_dev);
--	if (ret) {
--		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
-+	if (ret)
- 		goto release_dma;
--	}
- 
- 	i2c_set_adapdata(&i2c_dev->adapter, i2c_dev);
- 	i2c_dev->adapter.owner = THIS_MODULE;
--- 
-2.27.0
+On Mon, Aug 31, 2020 at 12:31:21AM +0300, Tali Perry wrote:
+> timeout_usec value calculation was wrong, the calculated value
+> was in msec instead of usec.
+>=20
+> Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+> Reviewed-by: Avi Fishman <avifishman70@gmail.com>
 
+Applied to for-current, thanks! And thanks for the Fixes-tag, Joel.
+
+
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9XJCcACgkQFA3kzBSg
+KbZzcg//RR/qIunHGIrcDr5aZXfWTjr8u0f3ccyaBELUPk6kSzUqBufOcKoeRk19
+dN74rzsCQr5egfumVCZCl1JP+269Hjtf7ISd4jBU5pJ5R/QovlN6zofK0EZsZJDs
+6RA/wNM4KdzvqDi7IS9FhSL50pQ3M0Bl0o/R42m54qDc75JDXDO3qIRaABAU25Xd
+V6nX2eUK6WLSsz63cM1ndM0VHxrupzj6w90EFTfSNqwx4ft1+tTDG7Z3kdGMcFd4
+F5S0VtPCHMT1Uh+9HR/sk3wUKJHcv6VeU7f/bzus5pGksvX7sRzRq/nXsIVeCZuA
+iAzHBOGSdlv/6UR6WKjPzOW8IDOqxctR7MqjiqzuFXUYo8RHK0WXMs+g4bAXZph1
+i29CJm+il2t+KnUMje9w/S7bPDTPpU949vvYA5tPbTLYjrEhfLL+oAr7szDDbPvT
+tsepc8J5K+rP8GkBGRCfvj4angCuJ6RSihQofwBRHgNh93MVZjQVH9o32Kzn8X9+
+nwYl3DNvmC1Nzhnf01Bfa7dyWzeeLlU8ZBYXLx/yqGIRd7W/61KDVDN7Zcz+yGQ6
+EkBy1Uxabx7JSDsbCC7lqR4JhPyEbaCwWiUs1amEubZc8VDibrtp1EN2QeHSopbz
+BD3pfGjkLmr8rFKfea/ea+wmmI/gW8fQGfcVZfl4kpZReRRsYDE=
+=ahmh
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--
