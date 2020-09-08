@@ -2,172 +2,105 @@ Return-Path: <SRS0=YEzH=CR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37406C2D0A7
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 20:02:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C306EC43461
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 20:02:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EA4B5207DE
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 20:02:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 88E4D20768
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 20:02:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SirpuTCr"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="Co9y2brF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732554AbgIHUB6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 8 Sep 2020 16:01:58 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15072 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729988AbgIHUBY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Sep 2020 16:01:24 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 088JXZto010145;
-        Tue, 8 Sep 2020 16:01:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=MHEf0n9vUOLrK3bD/Vy6e2g7Yf/X+egArwXFxhmjvqY=;
- b=SirpuTCrrbCGkTBQ72J64TLB1rsFu4w5qb7FapGpmyOZcxq3KIXMZD3nHiAubxfLACIr
- qqlV2rUFutxYqOdJGk8L3XsNtfF/bid8qZyJ6Grn+HT7K41imaRppRMVT4Hxe2PcqD/B
- A3IA7RI8fGIYG6bj9nDOWHO8Jk4DOAOB/NSjeL6fRfoS8ei/6H5iTmagOTSFh56TCa6m
- Cc31VUF3LcX8TMNlvHk6xhLv1AGKpgmmR6qYm7fi5T8ofp6Z0QSv5xAAfkvoGhFlNSrI
- KDTc7CBikez6xPutStZBs4HwToPLT9gboy4WDgv09Y6ryQjHbuaxnoS2IxC3bMQhf37m eg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33eg3frswr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Sep 2020 16:01:06 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 088JeCN5052731;
-        Tue, 8 Sep 2020 16:01:06 -0400
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33eg3frsw6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Sep 2020 16:01:06 -0400
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 088JwGog025156;
-        Tue, 8 Sep 2020 20:01:05 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma03dal.us.ibm.com with ESMTP id 33c2a90cpm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Sep 2020 20:01:05 +0000
-Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 088K10Hm66191720
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Sep 2020 20:01:00 GMT
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D70426A057;
-        Tue,  8 Sep 2020 20:01:03 +0000 (GMT)
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2D3806A047;
-        Tue,  8 Sep 2020 20:01:03 +0000 (GMT)
-Received: from SHADE6A.ibmuc.com (unknown [9.163.24.203])
-        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue,  8 Sep 2020 20:01:03 +0000 (GMT)
-From:   Eddie James <eajames@linux.ibm.com>
-To:     linux-input@vger.kernel.org
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-aspeed@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-        joel@jms.id.au, andrew@aj.id.au, benh@kernel.crashing.org,
-        brendanhiggins@google.com, dmitry.torokhov@gmail.com,
-        robh+dt@kernel.org, wsa@kernel.org, rentao.bupt@gmail.com,
-        ryan_chen@aspeedtech.com
-Subject: [PATCH v2 1/5] dt-bindings: input: Add documentation for IBM Operation Panel
-Date:   Tue,  8 Sep 2020 15:00:57 -0500
-Message-Id: <20200908200101.64974-2-eajames@linux.ibm.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200908200101.64974-1-eajames@linux.ibm.com>
-References: <20200908200101.64974-1-eajames@linux.ibm.com>
+        id S1732644AbgIHUC0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 8 Sep 2020 16:02:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49814 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729876AbgIHPek (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Sep 2020 11:34:40 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A87DC06136E
+        for <linux-i2c@vger.kernel.org>; Tue,  8 Sep 2020 05:41:22 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id s13so17125627wmh.4
+        for <linux-i2c@vger.kernel.org>; Tue, 08 Sep 2020 05:41:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=GdfTT/sPzIY3qicOx8lLIxfdGZ/0byaMnXpkWKpo1X8=;
+        b=Co9y2brFYGxX9l30TP10KW2iIHuTeusqsuWjzTzDAWLQcdc0K22TY8gdq2wUsSc1h3
+         NjkOmtVjNEVO9WxjhGfH17N8H7lQvlggXeU7nRL4Vve4lRXYrBMOuax/VhCXwyzllZbf
+         E4WHp6weDg/EAP097Ks0wEzzOqL0exqsFQiWtYuyk543T7X1DDrndnWMULa8GBWqZ4kU
+         zAmMhcTz3Fub5pf9TBYrcwBsHaJqDvTPOb/KNcyuAKlfjrtYuC35R2Ekd1wkCP+FXOwb
+         k5SrMbZhUCmj9Dmru8eN1j0tBKPRR2rFWdrvCYUy/keEA/zwJJTArXqEGDucm8Fa6HuF
+         SIRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=GdfTT/sPzIY3qicOx8lLIxfdGZ/0byaMnXpkWKpo1X8=;
+        b=sqElxIhL+nzhf8ySDcTMlkBf9D4gfBDUu5CCoH8Xabg2IZLh16uY0/M7C30fqU4K7z
+         71Zux/6kCWSWdHqKdbTk3v3E18jL4h7CaJlcKpPxssFuBD8zd7LCUBMVNpSbAjS8+SP4
+         m+BDYSHK6Qsh1loj9cQPiFzHXuRT1S880MKafWpuAUAt9O7cZDaGGOfj10KjtRd5YIBZ
+         nOcoiclBVzsmBF/3rp97jZrJDK17yWhKVHB1b1Zm8Y78SuZ5FQ2BQtE7FWS38LAshrH2
+         ZPj0LnBirvRTPn3D8K1qxbx+B2IbTy9W2aJwn5qiXHxeOAxnWQPR+zX3MvuK4KP/hzgh
+         zejg==
+X-Gm-Message-State: AOAM5300w0PZtpVf8CbQyU5xnnQ5mcatc8ZdvR0ThnjcHtY43oPtA+JJ
+        5leHdcHNgFmkQ84Ij+iIdiJUMNg3oujT5w==
+X-Google-Smtp-Source: ABdhPJxgS1AoO0i0ziCax2GEUITHLfNHe7rJcXrGGe1y6zXXZZjXrFLX2w605SVBshwGG9dxpzU8nA==
+X-Received: by 2002:a1c:7c1a:: with SMTP id x26mr4466714wmc.112.1599568880922;
+        Tue, 08 Sep 2020 05:41:20 -0700 (PDT)
+Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
+        by smtp.gmail.com with ESMTPSA id g2sm33001248wmg.32.2020.09.08.05.41.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Sep 2020 05:41:20 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Wolfram Sang <wsa@the-dreams.de>
+Cc:     linux-i2c@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [GIT PULL] at24: fixes for v5.9-rc5
+Date:   Tue,  8 Sep 2020 14:41:16 +0200
+Message-Id: <20200908124116.6163-1-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.26.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-08_09:2020-09-08,2020-09-08 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- adultscore=0 mlxscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0
- impostorscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 suspectscore=1
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2009080179
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Document the bindings for the IBM Operation Panel, which provides
-a simple interface to control a server. It has a display and three
-buttons.
-Also update MAINTAINERS for the new file.
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Acked-by: Joel Stanley <joel@jms.id.au>
----
- .../bindings/input/ibm,op-panel.yaml          | 39 +++++++++++++++++++
- MAINTAINERS                                   |  6 +++
- 2 files changed, 45 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/ibm,op-panel.yaml
+Hi Wolfram,
 
-diff --git a/Documentation/devicetree/bindings/input/ibm,op-panel.yaml b/Documentation/devicetree/bindings/input/ibm,op-panel.yaml
-new file mode 100644
-index 000000000000..5f068fce93ad
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/ibm,op-panel.yaml
-@@ -0,0 +1,39 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/ibm,op-panel.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: IBM Operation Panel
-+
-+maintainers:
-+  - Eddie James <eajames@linux.ibm.com>
-+
-+description: |
-+  The IBM Operation Panel provides a simple interface to control the connected
-+  server. It has a display and three buttons: two directional arrows and one
-+  'Enter' button.
-+
-+properties:
-+  compatible:
-+    const: ibm,op-panel
-+
-+  reg:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+
-+examples:
-+  - |
-+    #include <dt-bindings/i2c/i2c.h>
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        ibm-op-panel@62 {
-+            compatible = "ibm,op-panel";
-+            reg = <(0x62 | I2C_OWN_SLAVE_ADDRESS)>;
-+        };
-+    };
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 4a5d6797a206..0d83eada50e4 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8345,6 +8345,12 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux.git
- F:	Documentation/ia64/
- F:	arch/ia64/
- 
-+IBM Operation Panel Input Driver
-+M:	Eddie James <eajames@linux.ibm.com>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/input/ibm,op-panel.yaml
-+
- IBM Power 842 compression accelerator
- M:	Haren Myneni <haren@us.ibm.com>
- S:	Supported
--- 
-2.26.2
+Please pull the following fix for at24.
 
+Thanks,
+Bartosz
+
+The following changes since commit 9123e3a74ec7b934a4a099e98af6a61c2f80bbf5:
+
+  Linux 5.9-rc1 (2020-08-16 13:04:57 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-fixes-for-v5.9-rc5
+
+for you to fetch changes up to 45df80d7605c25055a85fbc5a8446c81c6c0ca24:
+
+  misc: eeprom: at24: register nvmem only after eeprom is ready to use (2020-09-01 09:49:55 +0200)
+
+----------------------------------------------------------------
+at24 fixes for v5.9-rc5
+
+- delay registration of the nvmem provider until after power is enabled
+
+----------------------------------------------------------------
+Vadym Kochan (1):
+      misc: eeprom: at24: register nvmem only after eeprom is ready to use
+
+ drivers/misc/eeprom/at24.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
