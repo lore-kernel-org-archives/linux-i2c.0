@@ -2,128 +2,132 @@ Return-Path: <SRS0=YEzH=CR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C548EC2D0E1
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 19:58:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AF70C43461
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 20:01:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8BAED20658
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 19:58:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B6EF20658
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Sep 2020 20:01:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ohS68j1Q"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RDbjjPhL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732545AbgIHT57 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 8 Sep 2020 15:57:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50098 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730223AbgIHPfq (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Sep 2020 11:35:46 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8372C0612EF;
-        Tue,  8 Sep 2020 05:55:34 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id u21so9639277ljl.6;
-        Tue, 08 Sep 2020 05:55:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2ehLwXNK3WBwCU+2CN9jFbvN8+npPBE1XX1ZSoVrUTA=;
-        b=ohS68j1Qosw8sk+DbiaADlMklzrZcqzn+IrJkLUf5OKRiKa6DdhU0QJxMHJV2Xu4d1
-         3YEV8DE5gN07uNXvfX+YuIigPks3hFtW5ZFFVB8w0ZpiIQqHxI3Q8xbbXrorA8zVp58m
-         XpDpv9QTXT3XEeyLDikG1rG4DzZ9sJHbR+zzkfiehV1WRjfuDu3/UypVIMIpK3+OrPAO
-         jNqQPdRbatlNKaUvClzx5+aSFofLgubH8Bidc0fAVZJpQ4K8PmU2n2vh16AFKW9uXSbB
-         Qvnk79kTMAmkNbl6jdABjNXLGdmZleuoS11k5CoE7bXVxO0fhxGISkiNnw1PBHRRjs20
-         3Wmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2ehLwXNK3WBwCU+2CN9jFbvN8+npPBE1XX1ZSoVrUTA=;
-        b=Wh4Pq1TZvJY1QWZih8YDpO4q+cHdex90CVkXO5wjlpYo3wG81O2sofGcFCdSYB4ZYj
-         1rKYzqLB2sa8lAN4OH7CM1ssjlje4Qeejs7jMLK1pKVgArdqF4VRXp82LEstertX+fLL
-         jQjBPNsBE/P1MRW8m0jstX5Gtto+MswutXkiJ8p1eOzdT02EiFaV/EGrhDihLURQMlaF
-         XMk3JhzvE713nIl6IVo/N2sJio0bPIg95rgvD4wAkffBR6DUX4lyjM2wlEobJp11B0Ko
-         MKk5MMfi4TZwItilFoN4lyMQa25ZGwRjJI6bs2i+/pRKCIkr3mxxnj4PFq9FUVkkR5f5
-         g0CA==
-X-Gm-Message-State: AOAM531ECdHdIRIR/aEXpCkDWMtJmNcnMxa23lPzS2J1PSvThz1R1Aib
-        nFpLcqOaErKHxl1uwh5VyuopN7y4g9w=
-X-Google-Smtp-Source: ABdhPJy25Zmvv8ZSp1nEAFAtHswk2JSRcw6OzDPS5ICaqEVMzyPELa9Qi30aAs4QWFaZHKS3aReLxw==
-X-Received: by 2002:a2e:4e09:: with SMTP id c9mr13415557ljb.283.1599569732057;
-        Tue, 08 Sep 2020 05:55:32 -0700 (PDT)
-Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
-        by smtp.googlemail.com with ESMTPSA id n20sm10553687lfh.1.2020.09.08.05.55.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Sep 2020 05:55:31 -0700 (PDT)
-Subject: Re: [PATCH v6 16/35] i2c: tegra: Reorder location of functions in the
- code
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        linux-tegra@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20200908021021.9123-1-digetx@gmail.com>
- <20200908021021.9123-17-digetx@gmail.com>
- <CAHp75VefU+iXpngPnzQRBfrg3OgLUBqhOCJpPo8natfCBr6Q5w@mail.gmail.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <3fce58d0-eac6-bbea-74e3-098cb079e9b5@gmail.com>
-Date:   Tue, 8 Sep 2020 15:55:30 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1732612AbgIHUB1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 8 Sep 2020 16:01:27 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17362 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730980AbgIHUBZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Sep 2020 16:01:25 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 088JXY5t009959;
+        Tue, 8 Sep 2020 16:01:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=SqjvAXXx1fPCQt7yw5ZJIgr9oRhHRTjfK5p05tTBMP0=;
+ b=RDbjjPhLLwC9eXoCvyux9nX+BnsYQ1DxjByN8czXaf9ck02yegvR25NvPiFyypg+Em5e
+ ldzlu5qu3cqslOCoKePiuc0U/2GoUgMPrqQkH6g35J4iuicqrCFLRLdD15f5IlEqFqJv
+ e7AeLauecjKYCJMGy8POd2DH0lHYhOn7yYivtdssA9m/fYf5veEc8R/Y6u1RSW3ODuN/
+ ED7mKLDGXfhK7w/yZskgjJjoY6gm/sbjfuEY/IsTii/ynIP7jGyWmdKNiuV5/VHELKqy
+ arOZQkWID/W5ZAq0Jx6kAvQvDoR/ZIw+zUJdHbXdr3HY24Hvuhphzs+kHKI89MWlvZJK cg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33eg3frsya-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Sep 2020 16:01:09 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 088JsYoY150161;
+        Tue, 8 Sep 2020 16:01:08 -0400
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33eg3frsxn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Sep 2020 16:01:08 -0400
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 088Jw70h029289;
+        Tue, 8 Sep 2020 20:01:07 GMT
+Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
+        by ppma04dal.us.ibm.com with ESMTP id 33c2a989am-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Sep 2020 20:01:07 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 088K12fr30933464
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 8 Sep 2020 20:01:02 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 346DF6A05F;
+        Tue,  8 Sep 2020 20:01:06 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7D86F6A047;
+        Tue,  8 Sep 2020 20:01:05 +0000 (GMT)
+Received: from SHADE6A.ibmuc.com (unknown [9.163.24.203])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue,  8 Sep 2020 20:01:05 +0000 (GMT)
+From:   Eddie James <eajames@linux.ibm.com>
+To:     linux-input@vger.kernel.org
+Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-aspeed@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+        joel@jms.id.au, andrew@aj.id.au, benh@kernel.crashing.org,
+        brendanhiggins@google.com, dmitry.torokhov@gmail.com,
+        robh+dt@kernel.org, wsa@kernel.org, rentao.bupt@gmail.com,
+        ryan_chen@aspeedtech.com
+Subject: [PATCH v2 4/5] ARM: dts: Aspeed: Tacoma: Add IBM Operation Panel I2C device
+Date:   Tue,  8 Sep 2020 15:01:00 -0500
+Message-Id: <20200908200101.64974-5-eajames@linux.ibm.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200908200101.64974-1-eajames@linux.ibm.com>
+References: <20200908200101.64974-1-eajames@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VefU+iXpngPnzQRBfrg3OgLUBqhOCJpPo8natfCBr6Q5w@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-08_09:2020-09-08,2020-09-08 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
+ adultscore=0 mlxscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0
+ impostorscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 suspectscore=1
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2009080179
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-08.09.2020 11:43, Andy Shevchenko пишет:
-> On Tue, Sep 8, 2020 at 5:11 AM Dmitry Osipenko <digetx@gmail.com> wrote:
->>
->> Reorder location of functions in the code in order to have definition
->> of functions closer to the place of the invocation. This change makes
->> easier to navigate around the code and removes the need to have a
->> prototype for tegra_i2c_init().
-> 
-> Still seems to have ordering issues (it moves pieces you actually
-> change in the next patches).
+Set I2C bus 0 to multi-master mode and add the panel device that will
+register as a slave.
 
-It's unavoidable that this patch either touches previous or next
-changes. You actually had an opposite complaint to v5.
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+---
+ arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-This diver has a long overdue for the refactoring. I think it's a good
-time to do it right now because driver works stable and it's quite
-unlikely that there will ever be fixes for the older code. Hence it
-should be good to have the code reordered now, so that we could have a
-nicer code base for the future changes.
+diff --git a/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts b/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
+index 5f4ee67ac787..4d070d6ba09f 100644
+--- a/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
+@@ -4,6 +4,7 @@
+ 
+ #include "aspeed-g6.dtsi"
+ #include <dt-bindings/gpio/aspeed-gpio.h>
++#include <dt-bindings/i2c/i2c.h>
+ #include <dt-bindings/leds/leds-pca955x.h>
+ 
+ / {
+@@ -438,7 +439,13 @@ aliases {
+ };
+ 
+ &i2c0 {
++	multi-master;
+ 	status = "okay";
++
++	ibm-panel@62 {
++		compatible = "ibm,op-panel";
++		reg = <(0x62 | I2C_OWN_SLAVE_ADDRESS)>;
++	};
+ };
+ 
+ &i2c1 {
+-- 
+2.26.2
 
-> Have you considered which one looks neat this variant or if you move
-> it closer to the end of the series?
-> 
-
-This variant should be more logical because changes have this order:
-
-1. fixes
-2. features
-3. code reorder
-4. more important cleanups
-5. less important cleanups
-
-The 3 merely shuffles code around without any changes to the code, hence
-it's a safe change.
-
-The 4 has a potential danger since there are cleanups of the outdated
-features and some changes may change semantic in a case of a bug. Hence,
-if in the future we'll happen to find a problem in one of the 4 patches,
-then there is a better chance that the problem could be fixed with a
-simple revert. If 3 is placed after 4, then the chance is completely gone.
