@@ -2,301 +2,111 @@ Return-Path: <SRS0=cz3S=CS=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DA36C433E2
-	for <linux-i2c@archiver.kernel.org>; Wed,  9 Sep 2020 17:14:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FD68C43461
+	for <linux-i2c@archiver.kernel.org>; Wed,  9 Sep 2020 17:39:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4882D2166E
-	for <linux-i2c@archiver.kernel.org>; Wed,  9 Sep 2020 17:14:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E484F20757
+	for <linux-i2c@archiver.kernel.org>; Wed,  9 Sep 2020 17:39:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="HE090ecS"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Cr6m9MJH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730400AbgIIROJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 9 Sep 2020 13:14:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47192 "EHLO
+        id S1727010AbgIIRjY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 9 Sep 2020 13:39:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730252AbgIIPa1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Sep 2020 11:30:27 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 139E5C0619C6
-        for <linux-i2c@vger.kernel.org>; Wed,  9 Sep 2020 08:17:59 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id q4so1483915pjh.5
-        for <linux-i2c@vger.kernel.org>; Wed, 09 Sep 2020 08:17:58 -0700 (PDT)
+        with ESMTP id S1726534AbgIIRjX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Sep 2020 13:39:23 -0400
+Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE963C061573;
+        Wed,  9 Sep 2020 10:39:22 -0700 (PDT)
+Received: by mail-lf1-x143.google.com with SMTP id q8so2049537lfb.6;
+        Wed, 09 Sep 2020 10:39:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=lxomaUFyGRKilrUFZcIY7/bWZldlI+e6WC4qMP3FId4=;
-        b=HE090ecSFk0jzOjOcs6/fwBeViGwXTCfW0N5H7NrQqD2XUh03p5pyhh8OP85BT68cs
-         FPUrRQlw3bOkeSbD8JAo7ZBL+pdRnv+qAQlhTliaouwO8x4zfMrsr4KSDBqUsbtCduyu
-         PKrVmvqSeA1ygJQDKRU8Aqf/K/N51oePA2KAD2TzY6SqxPrzuvmvydydwLaCtIKBJRYl
-         9ocpspgIxNoU/O2wnvxmbWIZWglG1C2EWJXrmQseljkVb84nCbUdx6i9sprXsuXAbbwD
-         pDtvc/QDeFwSkq7hMYgoVOUgD229P5+2xdR0SO+c6UyNNKhfaVifhRC0zmpUbEvLSrIO
-         n/Iw==
+        d=gmail.com; s=20161025;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=wJ7AD2/0apSNq4BNZ5BqSlm+lNAtw2qPg5r1WqAx3mk=;
+        b=Cr6m9MJHxCltV3nifhUbaQFHRLf2OhP4i4BF/IW38Ny14u6U7hSVDvih7OGEK9I3kY
+         1c2eKx1YcHZUbp2ZIeeiZ5qSC0o98V0GiaRNuVMpu7zlhXsOqOX1nbNbK6ufePUqyP/+
+         jIzcaIukw7OwuC5CzgB5HO4kx3Ws5/8A03/z2kqYRMl1aJqu3P9yuVDN90ZhhDoIg9vj
+         wtJpK36NrFJkOzFWR8niGIzIOTkbjmabQeRKcI3ki+knsoC73+lGHPNbsbspr42Q3mim
+         Cl3VhnjxiVWUX0Dc1hIcGV1wyr2GEnMyFkbnDDfCa5C4u63IAIAonviOfVjtUgqxhSoe
+         Sg3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=lxomaUFyGRKilrUFZcIY7/bWZldlI+e6WC4qMP3FId4=;
-        b=PY4k1VGa9zwL7UREhCHTpv27Cj1FdiJi/omI36iHHGHi1fobnCC54pGkw89y5Lx6/S
-         kd8j0q16gQPM0tgJAMiH1i/x6nN5wwYbxw/vP6yYXit76yXEEKqx8mNojmcQGnm67aBK
-         dTGeQua7cRHJCWjpH5oYqFozEskOx8EXMk+lgx135UD65TZF9sjmQ6uR3inonjYG3rP/
-         yKuR1XqkCa2Cy8RxiM/9tuq1kmDrdoUbAxKdPDesHIG3G1FskemiI1YAfbVb4/7u73c2
-         yTY+b2nmsknDVhiqXxnoNAiBOcHbJ+Pio0IfAo0tm76qtMORJb2UU3AA33MOXbIIrfIY
-         P+zw==
-X-Gm-Message-State: AOAM531ApUBU8m9k6tsY8ni8buS2S/WOSPmOXA/x0Rr7C/IIjiiWYIKb
-        lr4QkjZ8s68JCfYFwGsSKZQ0
-X-Google-Smtp-Source: ABdhPJz5l8ASUIYFWoL+Bh+kYA7MFXJLFKpN2/ESElpCSb9/x5e2GdY86jK3ovB1ujjsBKK4/36nkA==
-X-Received: by 2002:a17:90b:1211:: with SMTP id gl17mr1256048pjb.87.1599664676371;
-        Wed, 09 Sep 2020 08:17:56 -0700 (PDT)
-Received: from mani ([103.59.133.81])
-        by smtp.gmail.com with ESMTPSA id s20sm3144816pfu.112.2020.09.09.08.17.53
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 09 Sep 2020 08:17:55 -0700 (PDT)
-Date:   Wed, 9 Sep 2020 20:47:48 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Cc:     Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-actions@lists.infradead.org
-Subject: Re: [PATCH v2 1/1] i2c: busses: Add support for atomic transfers in
- Actions Semi Owl driver
-Message-ID: <20200909151748.GA11397@mani>
-References: <b6c56858854805b0f03e29b7dde40b20796d5c93.1599561278.git.cristian.ciocaltea@gmail.com>
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=wJ7AD2/0apSNq4BNZ5BqSlm+lNAtw2qPg5r1WqAx3mk=;
+        b=sbf78EH+hqA48vJSViOoBMj969ImhlJirTvgFDffvGGKx1xxDAZ1eO17rHE0QVrMYW
+         VQLA7bujxT48VnB55mnYW5512FazSKmKY04CLcRB0aGvCRUZvj18SApW7b8H9qiRMePK
+         qHoFQ8w0e6wZ5BCcpYXLQbgnqWZhRG5+7RWKgPRidIannxQSw4rpCUrvf8WZXuIZY0Ih
+         DTDZm4d4PaHBW6VgpPh/NapBRAv7695lmmZAQFYnRTXckggzBw2LSDBBF/oHaAdQmYmg
+         bc2NPJq6t9ZFxl3fFDn+GbVjw50AdVlGuww1JqFvPZWnuxdL+oyMoe8y06BWGMNqiIIv
+         +sFg==
+X-Gm-Message-State: AOAM5308AWLyB1C53l5XueTCtyORAMGfuFvbgZzgy8MsJyIzd1IIpgZl
+        hVhqka+KnICaLVVSQMDE6uW32ibcPQ4=
+X-Google-Smtp-Source: ABdhPJyiotiHC1n0q0b4xrsMxdqsFRVd0JTajIfEkfdX7fgRjdauDJ8heFaU7/xysBBfxxYePKy+vg==
+X-Received: by 2002:a19:4402:: with SMTP id r2mr2324395lfa.111.1599673160958;
+        Wed, 09 Sep 2020 10:39:20 -0700 (PDT)
+Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
+        by smtp.googlemail.com with ESMTPSA id j127sm718232lfd.6.2020.09.09.10.39.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Sep 2020 10:39:20 -0700 (PDT)
+Subject: Re: [PATCH v7 00/34] Improvements for Tegra I2C driver
+To:     Wolfram Sang <wsa@the-dreams.de>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        linux-tegra@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20200908224006.25636-1-digetx@gmail.com>
+ <CAHp75Vdh6bErqeO-ki2xsS9jEeoy4mKF1h0Jw_HM6UpukqH_BQ@mail.gmail.com>
+ <854a0ed8-35dd-0b25-6c53-4915be0e33e9@gmail.com> <20200909154902.GA916@kunai>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <0f912266-1727-c18a-69e6-e978af2a18c9@gmail.com>
+Date:   Wed, 9 Sep 2020 20:39:19 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b6c56858854805b0f03e29b7dde40b20796d5c93.1599561278.git.cristian.ciocaltea@gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200909154902.GA916@kunai>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Cristi,
-
-On 0908, Cristian Ciocaltea wrote:
-> Atomic transfers are required to properly power off a machine through
-> an I2C controlled PMIC, such as the Actions Semi ATC260x series.
+09.09.2020 18:49, Wolfram Sang пишет:
+> On Wed, Sep 09, 2020 at 06:36:50PM +0300, Dmitry Osipenko wrote:
+>> 09.09.2020 12:11, Andy Shevchenko пишет:
+>>> On Wed, Sep 9, 2020 at 1:40 AM Dmitry Osipenko <digetx@gmail.com> wrote:
+>>>>
+>>>> Hello!
+>>>>
+>>>> This series performs refactoring of the Tegra I2C driver code and hardens
+>>>> the atomic-transfer mode.
+>>>
+>>> I think there is still room for improvement, but let not block it, FWIW,
+>>> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+>>
+>> Thank you and Michał for helping with the review! Very appreciate this!
 > 
-> System shutdown may happen with interrupts being disabled and, as a
-> consequence, the kernel may hang if the driver does not support atomic
-> transfers.
+> Yes, thanks everyone so far!
 > 
-> This functionality is essentially implemented by polling the FIFO
-> Status register until either Command Execute Completed or NACK Error
-> bits are set.
+> Is there some internal testfarm where this should be regression tested?
+> Otherwise, I'd trust Dmitry, Andy, and Michał here and would apply it
+> this week after some generic high-level review.
 > 
 
-Thanks for the patch! I just have couple of minor comments and other
-than that it looks good to me.
-
-> Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-> ---
-> Changes in v2:
->  - Dropped unused return codes from owl_i2c_xfer_data(), per Mani's review
->  - Rebased patch on v5.9-rc4
-> 
->  drivers/i2c/busses/i2c-owl.c | 78 ++++++++++++++++++++++++++----------
->  1 file changed, 57 insertions(+), 21 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-owl.c b/drivers/i2c/busses/i2c-owl.c
-> index 672f1f239bd6..29605257831f 100644
-> --- a/drivers/i2c/busses/i2c-owl.c
-> +++ b/drivers/i2c/busses/i2c-owl.c
-> @@ -14,6 +14,7 @@
->  #include <linux/i2c.h>
->  #include <linux/interrupt.h>
->  #include <linux/io.h>
-> +#include <linux/iopoll.h>
->  #include <linux/module.h>
->  #include <linux/of_device.h>
->  
-> @@ -76,6 +77,7 @@
->  #define OWL_I2C_FIFOCTL_TFR	BIT(2)
->  
->  /* I2Cc_FIFOSTAT Bit Mask */
-> +#define OWL_I2C_FIFOSTAT_CECB	BIT(0)
->  #define OWL_I2C_FIFOSTAT_RNB	BIT(1)
->  #define OWL_I2C_FIFOSTAT_RFE	BIT(2)
->  #define OWL_I2C_FIFOSTAT_TFF	BIT(5)
-> @@ -83,7 +85,8 @@
->  #define OWL_I2C_FIFOSTAT_RFD	GENMASK(15, 8)
->  
->  /* I2C bus timeout */
-> -#define OWL_I2C_TIMEOUT		msecs_to_jiffies(4 * 1000)
-> +#define OWL_I2C_TIMEOUT_MS	(4 * 1000)
-> +#define OWL_I2C_TIMEOUT		msecs_to_jiffies(OWL_I2C_TIMEOUT_MS)
->  
->  #define OWL_I2C_MAX_RETRIES	50
->  
-> @@ -161,29 +164,25 @@ static void owl_i2c_set_freq(struct owl_i2c_dev *i2c_dev)
->  	writel(OWL_I2C_DIV_FACTOR(val), i2c_dev->base + OWL_I2C_REG_CLKDIV);
->  }
->  
-> -static irqreturn_t owl_i2c_interrupt(int irq, void *_dev)
-> +static void owl_i2c_xfer_data(struct owl_i2c_dev *i2c_dev)
->  {
-> -	struct owl_i2c_dev *i2c_dev = _dev;
->  	struct i2c_msg *msg = i2c_dev->msg;
-> -	unsigned long flags;
->  	unsigned int stat, fifostat;
->  
-> -	spin_lock_irqsave(&i2c_dev->lock, flags);
-> -
->  	i2c_dev->err = 0;
->  
->  	/* Handle NACK from slave */
->  	fifostat = readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT);
->  	if (fifostat & OWL_I2C_FIFOSTAT_RNB) {
->  		i2c_dev->err = -ENXIO;
-> -		goto stop;
-> +		return;
->  	}
->  
->  	/* Handle bus error */
->  	stat = readl(i2c_dev->base + OWL_I2C_REG_STAT);
->  	if (stat & OWL_I2C_STAT_BEB) {
->  		i2c_dev->err = -EIO;
-> -		goto stop;
-> +		return;
->  	}
->  
->  	/* Handle FIFO read */
-> @@ -196,18 +195,28 @@ static irqreturn_t owl_i2c_interrupt(int irq, void *_dev)
->  	} else {
->  		/* Handle the remaining bytes which were not sent */
->  		while (!(readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT) &
-> -			 OWL_I2C_FIFOSTAT_TFF) && i2c_dev->msg_ptr < msg->len) {
-> +			OWL_I2C_FIFOSTAT_TFF) && i2c_dev->msg_ptr < msg->len) {
-
-Spurious change?
-
->  			writel(msg->buf[i2c_dev->msg_ptr++],
->  			       i2c_dev->base + OWL_I2C_REG_TXDAT);
->  		}
->  	}
-> +}
-> +
-> +static irqreturn_t owl_i2c_interrupt(int irq, void *_dev)
-> +{
-> +	struct owl_i2c_dev *i2c_dev = _dev;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&i2c_dev->lock, flags);
-> +
-> +	owl_i2c_xfer_data(i2c_dev);
->  
-> -stop:
->  	/* Clear pending interrupts */
->  	owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_STAT,
->  			   OWL_I2C_STAT_IRQP, true);
->  
->  	complete_all(&i2c_dev->msg_complete);
-> +
->  	spin_unlock_irqrestore(&i2c_dev->lock, flags);
->  
->  	return IRQ_HANDLED;
-> @@ -235,8 +244,8 @@ static int owl_i2c_check_bus_busy(struct i2c_adapter *adap)
->  	return 0;
->  }
->  
-> -static int owl_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-> -			       int num)
-> +static int owl_i2c_xfer_common(struct i2c_adapter *adap, struct i2c_msg *msgs,
-> +			       int num, bool atomic)
->  {
->  	struct owl_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
->  	struct i2c_msg *msg;
-> @@ -280,11 +289,12 @@ static int owl_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  		goto err_exit;
->  	}
->  
-> -	reinit_completion(&i2c_dev->msg_complete);
-> +	if (!atomic)
-> +		reinit_completion(&i2c_dev->msg_complete);
->  
-> -	/* Enable I2C controller interrupt */
-> +	/* Enable/disable I2C controller interrupt */
->  	owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_CTL,
-> -			   OWL_I2C_CTL_IRQE, true);
-> +			   OWL_I2C_CTL_IRQE, !atomic);
->  
->  	/*
->  	 * Select: FIFO enable, Master mode, Stop enable, Data count enable,
-> @@ -352,20 +362,33 @@ static int owl_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  
->  	spin_unlock_irqrestore(&i2c_dev->lock, flags);
->  
-> -	time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
-> -						adap->timeout);
-> +	if (atomic) {
-> +		/* Wait for Command Execute Completed or NACK Error bits */
-> +		ret = readl_poll_timeout_atomic(i2c_dev->base + OWL_I2C_REG_FIFOSTAT,
-> +						val, val & (OWL_I2C_FIFOSTAT_CECB |
-> +							    OWL_I2C_FIFOSTAT_RNB),
-> +						10, OWL_I2C_TIMEOUT_MS * 1000);
-> +	} else {
-> +		time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
-> +							adap->timeout);
-> +		if (!time_left)
-> +			ret = -ETIMEDOUT;
-> +	}
->  
->  	spin_lock_irqsave(&i2c_dev->lock, flags);
-> -	if (time_left == 0) {
-> +
-> +	if (ret) {
->  		dev_err(&adap->dev, "Transaction timed out\n");
->  		/* Send stop condition and release the bus */
->  		owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_CTL,
->  				   OWL_I2C_CTL_GBCC_STOP | OWL_I2C_CTL_RB,
->  				   true);
-> -		ret = -ETIMEDOUT;
->  		goto err_exit;
->  	}
->  
-> +	if (atomic)
-> +		owl_i2c_xfer_data(i2c_dev);
-
-You are not clearing the pending interrupts here.
-
-Thanks,
-Mani
-
-> +
->  	ret = i2c_dev->err < 0 ? i2c_dev->err : num;
->  
->  err_exit:
-> @@ -379,9 +402,22 @@ static int owl_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  	return ret;
->  }
->  
-> +static int owl_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-> +			int num)
-> +{
-> +	return owl_i2c_xfer_common(adap, msgs, num, false);
-> +}
-> +
-> +static int owl_i2c_xfer_atomic(struct i2c_adapter *adap,
-> +			       struct i2c_msg *msgs, int num)
-> +{
-> +	return owl_i2c_xfer_common(adap, msgs, num, true);
-> +}
-> +
->  static const struct i2c_algorithm owl_i2c_algorithm = {
-> -	.master_xfer    = owl_i2c_master_xfer,
-> -	.functionality  = owl_i2c_func,
-> +	.master_xfer	     = owl_i2c_xfer,
-> +	.master_xfer_atomic  = owl_i2c_xfer_atomic,
-> +	.functionality	     = owl_i2c_func,
->  };
->  
->  static const struct i2c_adapter_quirks owl_i2c_quirks = {
-> -- 
-> 2.28.0
-> 
+Thierry and Jon, would be awesome if you could give this series a test
+on T210+. Thanks in advance!
