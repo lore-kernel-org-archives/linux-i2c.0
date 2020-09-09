@@ -4,28 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A4B4C43461
-	for <linux-i2c@archiver.kernel.org>; Wed,  9 Sep 2020 11:42:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43CBEC43461
+	for <linux-i2c@archiver.kernel.org>; Wed,  9 Sep 2020 15:04:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CCFB121D7B
-	for <linux-i2c@archiver.kernel.org>; Wed,  9 Sep 2020 11:42:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 06BD622269
+	for <linux-i2c@archiver.kernel.org>; Wed,  9 Sep 2020 15:04:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729773AbgIILm0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 9 Sep 2020 07:42:26 -0400
-Received: from sauhun.de ([88.99.104.3]:48374 "EHLO pokefinder.org"
+        id S1729940AbgIIPEC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 9 Sep 2020 11:04:02 -0400
+Received: from mga06.intel.com ([134.134.136.31]:2359 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726883AbgIILmO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 9 Sep 2020 07:42:14 -0400
-Received: from localhost (p54b33098.dip0.t-ipconnect.de [84.179.48.152])
-        by pokefinder.org (Postfix) with ESMTPSA id 1B8B82C082B;
-        Wed,  9 Sep 2020 13:11:22 +0200 (CEST)
-Date:   Wed, 9 Sep 2020 13:11:21 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
+        id S1726399AbgIIMSo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 9 Sep 2020 08:18:44 -0400
+IronPort-SDR: Uo3eCdVbOKruVKp2lql8FH0+TBQqekgxkSi24YXUWnTEZLGtZbfSWTbBKmlyU+K447Fqc/snu5
+ sBA8ZZK6BrLg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9738"; a="219874839"
+X-IronPort-AV: E=Sophos;i="5.76,409,1592895600"; 
+   d="scan'208";a="219874839"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2020 05:16:42 -0700
+IronPort-SDR: 700qIIIuvykqXE2gqCdKoiRkvZqgnZfWaFbrA1VXnX36kZp141OQRBjFeTaSAw3mJgI6JTqBQd
+ qwfNlpoo2qpg==
+X-IronPort-AV: E=Sophos;i="5.76,409,1592895600"; 
+   d="scan'208";a="480442307"
+Received: from paasikivi.fi.intel.com ([10.237.72.42])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2020 05:16:39 -0700
+Received: by paasikivi.fi.intel.com (Postfix, from userid 1000)
+        id AAA5C20765; Wed,  9 Sep 2020 15:16:07 +0300 (EEST)
+Date:   Wed, 9 Sep 2020 15:16:07 +0300
+From:   Sakari Ailus <sakari.ailus@linux.intel.com>
 To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
+Cc:     linux-i2c <linux-i2c@vger.kernel.org>,
         "Rafael J. Wysocki" <rafael@kernel.org>,
         ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>,
@@ -35,53 +48,43 @@ Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
         Bingbu Cao <bingbu.cao@intel.com>,
         Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
         Hyungwoo Yang <hyungwoo.yang@intel.com>,
-        linux-media <linux-media@vger.kernel.org>
+        linux-media <linux-media@vger.kernel.org>,
+        Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v8 6/6] at24: Support probing while off
-Message-ID: <20200909111121.GJ2272@ninjato>
+Message-ID: <20200909121607.GD6566@paasikivi.fi.intel.com>
 References: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
  <20200903081550.6012-7-sakari.ailus@linux.intel.com>
  <CAMpxmJX40=iYYxL9Uvs1Pjj9c3NvZBGJ9Mh9-87T0c==FKEXRw@mail.gmail.com>
+ <20200909111121.GJ2272@ninjato>
+ <CAMpxmJXDrL92QH_Vb+P4LoQ-WGBMM42GvzXjquW2Lzotm5wggA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="9Q2l3mYpK16UQ/iv"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAMpxmJX40=iYYxL9Uvs1Pjj9c3NvZBGJ9Mh9-87T0c==FKEXRw@mail.gmail.com>
+In-Reply-To: <CAMpxmJXDrL92QH_Vb+P4LoQ-WGBMM42GvzXjquW2Lzotm5wggA@mail.gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Wed, Sep 09, 2020 at 01:56:34PM +0200, Bartosz Golaszewski wrote:
+> On Wed, Sep 9, 2020 at 1:11 PM Wolfram Sang <wsa@the-dreams.de> wrote:
+> >
+> >
+> > > This currently conflicts with the fix I queued for at24 for v5.9.
+> > > Which tree is going to take this series?
+> >
+> > I recall we agreed on I2C.
+> >
+> 
+> Sakari,
+> 
+> can you rebase the at24 driver patch on top of Wolfram's tree as soon
+> as he merges my PR with at24 fixes?
 
---9Q2l3mYpK16UQ/iv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sure! This would be of course better than postponing this patch.
 
+-- 
+Regards,
 
-> This currently conflicts with the fix I queued for at24 for v5.9.
-> Which tree is going to take this series?
-
-I recall we agreed on I2C.
-
-
---9Q2l3mYpK16UQ/iv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9YuFUACgkQFA3kzBSg
-KbbPiA//bLpenFByrgOHGcnTs15I5XOFV265XepqY1gAEtxBftW1cz1Z9VXYs3tR
-p9RCBb+Lf6FcNah3nA4Nwksdl8SH/zWPJhWRTAcxgMx+s5PmfY4giXQyHblTNMtv
-xYNxJFpmFN01TE/Vi0KXqelssyNBwj2cvbfoMKJiINbn9sE8V9s08AxLxBAsJmlK
-qtKkuNzctQhbewUyVW5Z+S8MLuxYRSKibfGPEXFm9h6+NKhg50TCTRrhkVYPEzLe
-kt2ZFU2TjxVnY4yxL8igM4vktC/Cgy359PlWCe2mFoY3Iz70fEDoXMrIq4V1cTeD
-EyCqvjSRWeV8YTK0lPwJRQJQUbfYXrAiA9S+41Tch/NWVOpymBaMxeML9hbb33P4
-rxTKygGQVwKZan61IKw3paOou8CA5RSiask/4okabdVz6UJ1qGDEpBiuEeRxL7u0
-shdEHZBcT84zRHRQIpFc3z/LsgeXwxi2z0kwN2EBVt6NniuHCsvAzlEx1ZYMM2nY
-ykM/uta6gLbzfbI8agotN8TDRME7Eipv/+//oDFyoRETxzAqnph1R8LpjNOhOGoS
-8T/PHM4uB30sIA3JAE79S25txIPfNHvPUJeRIzud0Ec81R/m2WyOyyFUMAu5oVuz
-2Dzx7FtHclH3HFkqz2bFTd+gw0eY1ZL1FuEPJXkfxBwe7HN/3lA=
-=rCmE
------END PGP SIGNATURE-----
-
---9Q2l3mYpK16UQ/iv--
+Sakari Ailus
