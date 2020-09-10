@@ -2,119 +2,105 @@ Return-Path: <SRS0=08/0=CT=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2B86C43461
-	for <linux-i2c@archiver.kernel.org>; Thu, 10 Sep 2020 21:25:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A7C4C433E2
+	for <linux-i2c@archiver.kernel.org>; Thu, 10 Sep 2020 21:31:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 82E75221E2
-	for <linux-i2c@archiver.kernel.org>; Thu, 10 Sep 2020 21:25:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D3C62221E2
+	for <linux-i2c@archiver.kernel.org>; Thu, 10 Sep 2020 21:31:04 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="pjNYe+6C"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727857AbgIJVYg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 10 Sep 2020 17:24:36 -0400
-Received: from foss.arm.com ([217.140.110.172]:37282 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731004AbgIJOXM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 10 Sep 2020 10:23:12 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E3BEB11B3;
-        Thu, 10 Sep 2020 07:21:17 -0700 (PDT)
-Received: from [10.57.40.122] (unknown [10.57.40.122])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1B4783F66E;
-        Thu, 10 Sep 2020 07:21:08 -0700 (PDT)
-Subject: Re: [trivial PATCH] treewide: Convert switch/case fallthrough; to
- break;
-To:     Joe Perches <joe@perches.com>, LKML <linux-kernel@vger.kernel.org>,
-        Jiri Kosina <trivial@kernel.org>
-Cc:     linux-wireless@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        oss-drivers@netronome.com, nouveau@lists.freedesktop.org,
-        alsa-devel <alsa-devel@alsa-project.org>,
-        dri-devel@lists.freedesktop.org, linux-ide@vger.kernel.org,
-        dm-devel@redhat.com, linux-mtd@lists.infradead.org,
-        linux-i2c@vger.kernel.org, sparclinux@vger.kernel.org,
-        kvmarm@lists.cs.columbia.edu, linux-rtc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        dccp@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-atm-general@lists.sourceforge.net,
-        linux-afs@lists.infradead.org, coreteam@netfilter.org,
-        intel-wired-lan@lists.osuosl.org, linux-serial@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
-        Kees Cook <kees.cook@canonical.com>,
-        linux-media@vger.kernel.org, linux-pm@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org, linux-sctp@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-nvme@lists.infradead.org,
-        storagedev@microchip.com, ceph-devel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-nfs@vger.kernel.org,
-        linux-parisc@vger.kernel.org, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-mips@vger.kernel.org, iommu@lists.linux-foundation.org,
-        netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        bpf@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Will Deacon <will@kernel.org>
-References: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <9372456a-8dcf-2735-57a4-e126aa5df3a6@arm.com>
-Date:   Thu, 10 Sep 2020 15:21:05 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S1727080AbgIJVbC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 10 Sep 2020 17:31:02 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:2176 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730986AbgIJNwE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Sep 2020 09:52:04 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f5a2d3c0000>; Thu, 10 Sep 2020 06:42:20 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Thu, 10 Sep 2020 06:43:04 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Thu, 10 Sep 2020 06:43:04 -0700
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 10 Sep
+ 2020 13:43:04 +0000
+Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Thu, 10 Sep 2020 13:43:04 +0000
+Received: from moonraker.nvidia.com (Not Verified[10.26.73.219]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5f5a2d660001>; Thu, 10 Sep 2020 06:43:03 -0700
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>
+CC:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH 3/5] misc: eeprom: at24: Support custom device names for AT24 EEPROMs
+Date:   Thu, 10 Sep 2020 14:42:37 +0100
+Message-ID: <20200910134239.192030-4-jonathanh@nvidia.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200910134239.192030-1-jonathanh@nvidia.com>
+References: <20200910134239.192030-1-jonathanh@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+X-NVConfidentiality: public
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1599745340; bh=ZGkEXEwpXqpjoIf4jocKKQvXhnOPyZdgty/NwZOE9tk=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
+         Content-Transfer-Encoding:Content-Type;
+        b=pjNYe+6C9EeJTax/G0VbAx8Lyvsger6Gou4+6jpUnfsKE8WwKapop42uNARSwqdjQ
+         LvuqvcYUBrQEIeP1qZipOf1uiolOMzxu8b4g69Qfeyww7feSIjMzKJtoPmvn9MwrWu
+         W+MXzpDyrHBKm3tlMdbLkln45wGQ1WrAk3djL/tAi64NddMuT0NfW5WHUS4QIFhWds
+         2SrphB4SD2UHAm9blDz7XGOltpdEmci20/NodAHDL3r5YqnxKe8wtyXcBAVYiygHIl
+         Srk4/LSB98LhlSHhmxJhwTORKF/lEKc8XltGwhfcXDmr3cUtvjtDB7c+bYkxQTk6qQ
+         q2PM0g99/xJTQ==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 2020-09-09 21:06, Joe Perches wrote:
-> fallthrough to a separate case/default label break; isn't very readable.
-> 
-> Convert pseudo-keyword fallthrough; statements to a simple break; when
-> the next label is case or default and the only statement in the next
-> label block is break;
-> 
-> Found using:
-> 
-> $ grep-2.5.4 -rP --include=*.[ch] -n "fallthrough;(\s*(case\s+\w+|default)\s*:\s*){1,7}break;" *
-> 
-> Miscellanea:
-> 
-> o Move or coalesce a couple label blocks above a default: block.
-> 
-> Signed-off-by: Joe Perches <joe@perches.com>
-> ---
-> 
-> Compiled allyesconfig x86-64 only.
-> A few files for other arches were not compiled.
-> 
+By using the label property, a more descriptive name can be populated
+for AT24 EEPROMs NVMEM device. Update the AT24 driver to check to see
+if the label property is present and if so, use this as the name for
+NVMEM device.
 
-[...]
-> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> index c192544e874b..743db1abec40 100644
-> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> @@ -3777,7 +3777,7 @@ static int arm_smmu_device_hw_probe(struct arm_smmu_device *smmu)
->   	switch (FIELD_GET(IDR0_TTF, reg)) {
->   	case IDR0_TTF_AARCH32_64:
->   		smmu->ias = 40;
-> -		fallthrough;
-> +		break;
->   	case IDR0_TTF_AARCH64:
->   		break;
->   	default:
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+---
+ drivers/misc/eeprom/at24.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-I have to say I don't really agree with the readability argument for 
-this one - a fallthrough is semantically correct here, since the first 
-case is a superset of the second. It just happens that anything we would 
-do for the common subset is implicitly assumed (there are other 
-potential cases we simply haven't added support for at the moment), thus 
-the second case is currently empty.
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 3f7a3bb6a36c..058be08a9a40 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -713,7 +713,15 @@ static int at24_probe(struct i2c_client *client)
+ 			return err;
+ 	}
+=20
+-	nvmem_config.name =3D dev_name(dev);
++	if (device_property_present(dev, "label")) {
++		err =3D device_property_read_string(dev, "label",
++						  &nvmem_config.name);
++		if (err)
++			return err;
++	} else {
++		nvmem_config.name =3D dev_name(dev);
++	}
++
+ 	nvmem_config.dev =3D dev;
+ 	nvmem_config.id =3D NVMEM_DEVID_NONE;
+ 	nvmem_config.read_only =3D !writable;
+--=20
+2.25.1
 
-This change actively obfuscates that distinction.
-
-Robin.
