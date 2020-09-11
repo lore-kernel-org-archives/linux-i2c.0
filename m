@@ -2,175 +2,145 @@ Return-Path: <SRS0=qDtE=CU=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93F7AC433E2
-	for <linux-i2c@archiver.kernel.org>; Fri, 11 Sep 2020 16:59:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10D75C43461
+	for <linux-i2c@archiver.kernel.org>; Fri, 11 Sep 2020 17:06:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 516B8221EB
-	for <linux-i2c@archiver.kernel.org>; Fri, 11 Sep 2020 16:59:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 90AC7214F1
+	for <linux-i2c@archiver.kernel.org>; Fri, 11 Sep 2020 17:06:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=plvision.eu header.i=@plvision.eu header.b="wrW7kPu0"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tq-group.com header.i=@tq-group.com header.b="S7RNZ5vC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725875AbgIKQ70 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 11 Sep 2020 12:59:26 -0400
-Received: from mail-eopbgr30101.outbound.protection.outlook.com ([40.107.3.101]:7528
-        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726229AbgIKQ7N (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 11 Sep 2020 12:59:13 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BhAk+Ve//ZxLn0cdP+rbHaO9M8zleQFQxsNAP2Kbvpr5fTk28BJbyb7W1WbGm+fuRnJgFaCVYQJhuRHOtbihv4u1v1tsYdIKljnAxgLhv6u1jglyhneOL4zDKIJMQF04yKXhxy4LL5MFLPOWvVgzQcF4rYR1MeUta+aTCn3HrMK0rvPgskpBj2mthAwWjBv0d6FeUjxWTD06s/tNT+Hc2U3SPoN/HB14f8Y1SfygdaCwWFz8IS0R6/NTaQ9jfw07DGUIpLv7blyTupOeFtoRpouXuHUw7xxsFgfmfH6LW/g/WY3hFR1XZxEeDXXTelJBhO61n20vcikKOHPLuk0UOg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8VsHC+PH2kSasOk8sQehSXQzPMbjsA+SVap6jXAWOwY=;
- b=SMPi1bq5AVkENrvuZGa/84Yrg3odDsAZUWxvNXhplFd/vt7IcYBZY5nISrbypXV5/lVvYlWxuMFZouRZGMmVl+Uw3VMyrygh6K2jkS8LJsSwwd4LDyRf673Z/z38uqUDrT31Gw8cs3fgXo3Mi3UritwXEJDY/neJM7p4y0vvOxautISLoHgNtwQxHWNzW5j284smTDk3OjGpbD1U3uRCxOyLeM9snj9xh/Njf39S0CKu6B70b8im8V3swA10LeUyrqlO1F5Jy1WE34xsEXloBgkpjjH7iCuHJLHUcpaqmd6D/TEAtNpL3jWilWDfa4fxPv1CsnV7AfMEDShUP7epUA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=plvision.eu; dmarc=pass action=none header.from=plvision.eu;
- dkim=pass header.d=plvision.eu; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plvision.eu;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8VsHC+PH2kSasOk8sQehSXQzPMbjsA+SVap6jXAWOwY=;
- b=wrW7kPu0GrQ+qCTx8I+ofAOX7rCyRDUvnIc8UvThL6yksgeYrpDwUj97k1kNuhmMWet7r0k0BTumL2O/j0nlsHxaL78RzA0VK9sQSB88a4HlBtb663SFJWW4KiIkq6h9TEMcuUCz5FoeS9inRgfq++0iYYet5KXAMeMkWlS4UOs=
-Authentication-Results: linaro.org; dkim=none (message not signed)
- header.d=none;linaro.org; dmarc=none action=none header.from=plvision.eu;
-Received: from HE1P190MB0539.EURP190.PROD.OUTLOOK.COM (2603:10a6:7:56::28) by
- HE1P190MB0089.EURP190.PROD.OUTLOOK.COM (2603:10a6:3:c0::22) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3370.17; Fri, 11 Sep 2020 16:59:10 +0000
-Received: from HE1P190MB0539.EURP190.PROD.OUTLOOK.COM
- ([fe80::c1ab:71de:6bc2:89fe]) by HE1P190MB0539.EURP190.PROD.OUTLOOK.COM
- ([fe80::c1ab:71de:6bc2:89fe%6]) with mapi id 15.20.3370.017; Fri, 11 Sep 2020
- 16:59:09 +0000
-Date:   Fri, 11 Sep 2020 19:59:02 +0300
-From:   Vadym Kochan <vadym.kochan@plvision.eu>
-To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/3] nvmem: core: allow to register cells during nvmem
- registration
-Message-ID: <20200911165902.GA20711@plvision.eu>
-References: <20200831015539.26811-1-vadym.kochan@plvision.eu>
- <20200831015539.26811-2-vadym.kochan@plvision.eu>
- <6ab47f55-af66-f035-d8d9-82d0c831b5b8@linaro.org>
- <20200904112310.GD10654@plvision.eu>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200904112310.GD10654@plvision.eu>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-ClientProxiedBy: AM6PR01CA0070.eurprd01.prod.exchangelabs.com
- (2603:10a6:20b:e0::47) To HE1P190MB0539.EURP190.PROD.OUTLOOK.COM
- (2603:10a6:7:56::28)
-MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from plvision.eu (217.20.186.93) by AM6PR01CA0070.eurprd01.prod.exchangelabs.com (2603:10a6:20b:e0::47) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3370.16 via Frontend Transport; Fri, 11 Sep 2020 16:59:08 +0000
-X-Originating-IP: [217.20.186.93]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 96176d5f-f897-4e5d-976d-08d856740034
-X-MS-TrafficTypeDiagnostic: HE1P190MB0089:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <HE1P190MB0089484D9C0B557EBF7700FF95240@HE1P190MB0089.EURP190.PROD.OUTLOOK.COM>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: qZdiQGYpULdk+Kaqw+h/HQ3DfulWfxmuHLtE+Fq2EQGz3IcaCqms8ffBQZGGHRzVeVx9D0NAyzfxRXsVb/BnSpKYwmkHOsmna/iig0gBBy7aoOyvZTwgSO6bFypYCLiq/TGkvRguaJdj1Qb70cSJe/GtkoOFhiZZIHMOnf0Jgd7aXPS29sGQnLPm17LYRzFcQkQByJPOeAyCtKvt4EcE2p2QJRj+Uoltf1Ib7UTJxKoSMThSyk33op2rR0MtqZBpEBGYexLT5GATgk5asQorKR8eR6mRAgOhN8wwfLrZqucMJpHr1VprZbrQiQEVr5wLJHRBqWQu1lDaPLUOZLcKMQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:HE1P190MB0539.EURP190.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(396003)(376002)(346002)(366004)(39830400003)(136003)(8936002)(54906003)(478600001)(316002)(956004)(55016002)(2616005)(2906002)(44832011)(8886007)(8676002)(83380400001)(5660300002)(6666004)(26005)(86362001)(4326008)(186003)(7696005)(52116002)(66946007)(6916009)(66476007)(66556008)(1076003)(36756003)(33656002)(16526019)(53546011);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData: DTJnaWvHqFkjnRm/7fuLuWzN2JUBFcaX4CkgEV/oWN1+zGJRBhglShLpWn0iiOnpTCgF+/wRshmnXmIq4+F0BodLhSjpcmRCeGcXR1KvJIryWFeeFclYx8DI7Xr2tNK54ATqQ005ye6bVK8WTcqgI5VACg+TiGv7s4LPchH3pr6riYSOkYmVDIaGLxcD36S6Ovb2AOU6TuXhvYeucTvdBWXZ0jt6FXRS8Ace+qx2lsarQ3MyQgxAVfSmcgmdG6xqJGnrVNaXKZ0sNr55TUKPYcVN1B0fC7r5cdCrendvtd+Iw/yy1Jqff3rY5HCE8V4ImdNBigPs+oX4DNzo1P1AUMOpqYJoFQAFt4CGyhj6kNMKbPAQlk+ZkNUjrKGixMwhQWparxq2MifvsC39qGF2qmdqj9ijCNnO9Dg68zjoamZx2lD7MtYzsu9q//msnrwrk/zUYns+Xj2t08Fdb9uvnNIx3jk1TO0OE5zVxEDlnHSo8Ri/Fl9AfqjGRfKE8MK9+Z3t5nPFF0+IPbqtOW52RP3nffo0oWINZ0xalapz9kDAUHKrdQXNlfjor3kK+IiJfBm22cD/9mOJi0N7GM7Bk/WpqhWHykP3V0fo0wmxY3t2mogErY91tEnMgfjFFg+6vEIA/fQy62TNrg+jHMc7gg==
-X-OriginatorOrg: plvision.eu
-X-MS-Exchange-CrossTenant-Network-Message-Id: 96176d5f-f897-4e5d-976d-08d856740034
-X-MS-Exchange-CrossTenant-AuthSource: HE1P190MB0539.EURP190.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Sep 2020 16:59:09.5665
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 03707b74-30f3-46b6-a0e0-ff0a7438c9c4
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: uuxS0qe/NoHtdDzRrYC7XHCRdyDa75M+RiNPfxBqWb70TfNXPra4YI/PvpXXygAGPiO3kySe4lM0h7PJF591th8KucxcamzWrnc2QxrZcvk=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1P190MB0089
+        id S1725901AbgIKRE3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 11 Sep 2020 13:04:29 -0400
+Received: from mx1.tq-group.com ([62.157.118.193]:10397 "EHLO mx1.tq-group.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725955AbgIKPCg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:02:36 -0400
+IronPort-SDR: xAo6en6rEUfu6F1AMIgNOA39SC5hKt1QbgHPE1wbvLbovX07L8xr9rkv0QLAngULZRJVcl7gn3
+ joeuHL6LpSPU3RBcFPUDBkEH4Rr5dstqYIPcgRQnKDj7k7AyrciYEQaX6dBMtr+O8mfPjnSJRt
+ LzoN5bQ9wAnofYQEpjlt2AWrx0Qh7ZeIGZ8HwNms964WmhMKd+6BsfPqf6OChsM1buaU4nXvLv
+ kB9HGpGP5qjB0xpQZ8kgARiD9iIAKw891T45xINMSjLwOl7p8ZdSw8lZIS5vCzZU/RgoKDFaQm
+ bg0=
+X-IronPort-AV: E=Sophos;i="5.76,415,1592863200"; 
+   d="scan'208";a="13831338"
+Received: from unknown (HELO tq-pgp-pr1.tq-net.de) ([192.168.6.15])
+  by mx1-pgp.tq-group.com with ESMTP; 11 Sep 2020 17:01:49 +0200
+Received: from mx1.tq-group.com ([192.168.6.7])
+  by tq-pgp-pr1.tq-net.de (PGP Universal service);
+  Fri, 11 Sep 2020 17:01:49 +0200
+X-PGP-Universal: processed;
+        by tq-pgp-pr1.tq-net.de on Fri, 11 Sep 2020 17:01:49 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1599836509; x=1631372509;
+  h=from:to:cc:subject:date:message-id;
+  bh=rGnbFBeV98YZ6Jj0PFhBZ+Pm9hlOkM3MIOQgmK98Tx8=;
+  b=S7RNZ5vCOf6ybbKaiTe+UBeKM+64f2hKOTGlGlFHHgAWyfZ8HOT4atbi
+   ERMhgSm6Ou7mHsWrfDkkgVfjRa5zL6b/2J5VCUs2U4jAvyn75RDjJOSxo
+   K/Zwew2ZPZia4+dcHLC4Jj879HETcevXYMbhPF5Ltqmf6PL9wdvhxcCAR
+   s/2LJcuHDo38k+6CL6P6VL3hPZgKngRVKo99529URnupq2bl30ueGJZNi
+   /rljbQhQhuByBulmejlAMyWpslzRcOaoCgMKDBVKZ9QYRGoxlVCPb0pRw
+   bmFTEhc4FysZBLs37JQZt/yOs5C7cBm7WqRuh3i12lm2+4N0vqNhlfT+U
+   Q==;
+IronPort-SDR: Z2Qh7HYOE9HEncPGGLxSJmyY6VUNxlaZXWQOlMXLamvJHIJcJB1oWm8TZ2YLNFdwtyyc/j7/qs
+ Vl58Or6OOHMRuFISr9rrnI2uxVmWjd8glrNfbg4uuYAzV+OpZTLVnrToEAmrWCNycyfHSjdese
+ RmACkYqLTsefdqB+zW6dDpYivyg+zUfiHB5wXKydOkiU6TWrEImH7ajRd8G8koOJ9Vn5UAY1Cs
+ 3+17mAQHA45LU51cO882Ft9BnY7OESr749kX42eBAHfRFR31UzeTMhfJJdBGLmU2NMZHGIT7vQ
+ Tq4=
+X-IronPort-AV: E=Sophos;i="5.76,415,1592863200"; 
+   d="scan'208";a="13831337"
+Received: from vtuxmail01.tq-net.de ([10.115.0.20])
+  by mx1.tq-group.com with ESMTP; 11 Sep 2020 17:01:49 +0200
+Received: from schifferm-ubuntu4.tq-net.de (schifferm-ubuntu4.tq-net.de [10.117.49.134])
+        by vtuxmail01.tq-net.de (Postfix) with ESMTPA id D138D280070;
+        Fri, 11 Sep 2020 17:01:48 +0200 (CEST)
+From:   Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+To:     Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>
+Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Subject: [PATCH] i2c: mxs: use MXS_DMA_CTRL_WAIT4END instead of DMA_CTRL_ACK
+Date:   Fri, 11 Sep 2020 17:01:39 +0200
+Message-Id: <20200911150139.13690-1-matthias.schiffer@ew.tq-group.com>
+X-Mailer: git-send-email 2.17.1
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Srinivas,
+The driver-specific usage of the DMA_CTRL_ACK flag was replaced with a
+custom flag in commit ceeeb99cd821 ("dmaengine: mxs: rename custom flag"),
+but i2c-mxs was not updated to use the new flag, completely breaking I2C
+transactions using DMA.
 
-On Fri, Sep 04, 2020 at 02:23:10PM +0300, Vadym Kochan wrote:
-> Hi Srinivas,
-> 
-> On Fri, Sep 04, 2020 at 12:02:40PM +0100, Srinivas Kandagatla wrote:
-> > Hi Vadym,
-> > 
-> > Thanks for the patch,
-> > On 31/08/2020 02:55, Vadym Kochan wrote:
-> > > Add NVMEM_PRE_ADD notification step which is called before any cells
-> > > binding - from lookup table or config, this allows to register cells
-> > > in some specific layout (tlv) which should be parsed first and then
-> > > registered. So there might be a cell parser driver which can register
-> > > lookup table during this notification step.
-> > > 
-> > This is going in right direction but totally not correct way to do it.
-> > 
-> > 1> this is not scalable as any consumer that will register for this even
-> > will have no idea of which what kind of parsing that provider needs.
-> > It can work in your case but not really useful.
-> > 
-> > 2> this is a consumer API, not the provider api.
-> > 
-> > How about adding a "parse_cells" callback in struct nvmem_config along with
-> > encoding type.
-> > 
-> > 
-> > thanks,
-> > srini
-> > 
-> 
-> Looks like I missed main point here that this cells parser should be
-> registered as nvmem provider. I will think on it.
-> 
-> Thanks,
-> 
+Fixes: ceeeb99cd821 ("dmaengine: mxs: rename custom flag")
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+---
 
-I am trying to re-work this approach, but still I need to clarify
-something.
+I'm a bit out of my depth here - I have no idea what these flags are
+supposed to do. Looking at ceeeb99cd821, this is what I came up with,
+and it fixes I2C communication with multiple devices (an EEPROM and a
+PCF85063TP RTC) on one of our i.MX28 boards.
 
-It looks strange that this cells parser should be a nvmem provider (or I
-missed something) but I remember that you suggested about introducing
-something like nvmem parser. And adding nvmem parser looks more clear
-for me, because what it should do is just access the nvmem device during
-its registration and provide list of cells, that's all:
+I run-tested this on a 5.4.y kernel; given how little is happening in
+these drivers nowadays, I assume that the fix is still valid on newer
+kernels...
 
-struct nvmem_device *nvmem_register(const struct nvmem_config *config)
-{
-    struct nvmem_cell_table table = { };
-...
-    parser = find_nvmem_parser();
-    /* I think that cell lookups may be added on the parser's probe
-       statically */
-    parser->parse_cells(parser->priv, nvmem, &table);
-...
-}
 
-/* here I used struct nvmem_config, not sure it is a right way to
-   mix nvmem's and parser's struct fields, so may be something like
-   struct nvmem_parser_config might be introduced or fill the struct
-   nvmem_parser directly by the driver and pass it to the registration func */
-struct nvmem_parser *nvmem_parser_register(const struct nvmem_config *config)
-{
-...
-}
+ drivers/i2c/busses/i2c-mxs.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-void nvmem_parser_unregister(struct nvmem_parser *parser)
-{
-...
-}
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 9587347447f0..c4b08a924461 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -25,6 +25,7 @@
+ #include <linux/of_device.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/dmaengine.h>
++#include <linux/dma/mxs-dma.h>
+ 
+ #define DRIVER_NAME "mxs-i2c"
+ 
+@@ -200,7 +201,8 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 		dma_map_sg(i2c->dev, &i2c->sg_io[0], 1, DMA_TO_DEVICE);
+ 		desc = dmaengine_prep_slave_sg(i2c->dmach, &i2c->sg_io[0], 1,
+ 					DMA_MEM_TO_DEV,
+-					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
++					DMA_PREP_INTERRUPT |
++					MXS_DMA_CTRL_WAIT4END);
+ 		if (!desc) {
+ 			dev_err(i2c->dev,
+ 				"Failed to get DMA data write descriptor.\n");
+@@ -228,7 +230,8 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 		dma_map_sg(i2c->dev, &i2c->sg_io[1], 1, DMA_FROM_DEVICE);
+ 		desc = dmaengine_prep_slave_sg(i2c->dmach, &i2c->sg_io[1], 1,
+ 					DMA_DEV_TO_MEM,
+-					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
++					DMA_PREP_INTERRUPT |
++					MXS_DMA_CTRL_WAIT4END);
+ 		if (!desc) {
+ 			dev_err(i2c->dev,
+ 				"Failed to get DMA data write descriptor.\n");
+@@ -260,7 +263,8 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 		dma_map_sg(i2c->dev, i2c->sg_io, 2, DMA_TO_DEVICE);
+ 		desc = dmaengine_prep_slave_sg(i2c->dmach, i2c->sg_io, 2,
+ 					DMA_MEM_TO_DEV,
+-					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
++					DMA_PREP_INTERRUPT |
++					MXS_DMA_CTRL_WAIT4END);
+ 		if (!desc) {
+ 			dev_err(i2c->dev,
+ 				"Failed to get DMA data write descriptor.\n");
+-- 
+2.17.1
 
-Regards,
-Vadym Kochan
