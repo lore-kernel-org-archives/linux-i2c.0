@@ -2,97 +2,86 @@ Return-Path: <SRS0=ekoI=CX=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-8.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 317C7C433E2
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 22:12:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0593C433E2
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 22:13:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DC45421741
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 22:12:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9694B21974
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 22:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600121556;
-	bh=gxdLkHgoKh8Te0Jh46bvxEwL6e44fWvfnZb5Vha4LJ4=;
+	s=default; t=1600121592;
+	bh=oX879RcpTfkAgLpX5PAgyhXnJsy1qNcRfpBmEx6zApc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=ZkGvHqZptHbEtOFRBdcqv/f0TCwnXaXgH7/kIrmpoku66F9+nOHelgglxd/qYykht
-	 MDFWfv8xUxWDR0jTCeqCKEZ12J9+UuvmY6lxa5syNSlaQpwHNH6E+LJav0PePiZi9M
-	 P3YvTN6F5P47eliaKPLnRmi4bMSMu92njVk/LJOo=
+	b=1/9Cb7gtiSP0P/qNYKWy4gvLG/on3GVKx6GSSY9LYkPg6KHvZlr3V2+VWNzuH43gk
+	 apXMJM5yAeIduIQzk/jBCM58GRxFruE+hjU98uFaM5ouV6RulWQP39fzeC/OTnST07
+	 m+jkGfVArbEO8CAPrXjVAHO2JchAD+stdStwHJR8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725961AbgINWMe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Sep 2020 18:12:34 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:44882 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725926AbgINWMd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Sep 2020 18:12:33 -0400
-Received: by mail-io1-f67.google.com with SMTP id g128so1822832iof.11;
-        Mon, 14 Sep 2020 15:12:32 -0700 (PDT)
+        id S1725986AbgINWNM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Sep 2020 18:13:12 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:45112 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725926AbgINWNL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Sep 2020 18:13:11 -0400
+Received: by mail-io1-f68.google.com with SMTP id y74so1814372iof.12;
+        Mon, 14 Sep 2020 15:13:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=Z+qSwNUkHNOo72Qbw1JME5fFnhiiheFUy8wUUZB0Lrw=;
-        b=qufn+EOHGi3WAhfPFtJKjeAkA3hcObpRARsmJTs54heAfVGvB7njIEdu+NNQmUmiAs
-         rPqlM9CTO4/RLycxA32I1a1DgjY2jbBvwVo59fEGMgoC5TXlEOUBgG74qILKCRrRANGT
-         +hjbjdiU3Ma2N8Pr1RuKIO39m2eWvvDU/ILcLCfX9+j/zVvvpa7LDwHGeLgHEkutV474
-         2eaJUzc9FQ5CWRiXFpLEn53NRJeJmYN0SG1TgF4H1wexMKwJakJZa8lygK4NX9qaMB9a
-         uFesZX/W/lTkqYTMlCdHV5+U1FvFLhZAK5k+FQge6wkD+nPDW83k0hvoC0fMm5VaGKvU
-         XEKg==
-X-Gm-Message-State: AOAM5307VJ64qw72S96bajySFKMQcfgLNiTOpnu/yk1G2XehDPw6A3sr
-        mIeBdyiYy2veZmMfqamDlG5qEA2UDKAC
-X-Google-Smtp-Source: ABdhPJysHKNt8T7c2v44FhcVvreRsv3LO9EBSDoouJkZ5T5GLGQGPYrN+p7J2mwdjP1SyIgIZC3s5Q==
-X-Received: by 2002:a05:6638:2a6:: with SMTP id d6mr15486944jaq.132.1600121552368;
-        Mon, 14 Sep 2020 15:12:32 -0700 (PDT)
+        bh=TYlsIRyu6onv8GGXU68dmCDB/GP6O0GQ68yS/zfWtiw=;
+        b=Tye7183PF8m7WReRNyfdCrP9R2fA9R77GP8hOENIWZRN5fj+aIU3rSkTrENihWGzpK
+         /pYysu13u56EcbtE5+2k6gRUV2cuuIYAHhaEHjnsZWF51XWuWVkDdT7C6TQVvwDO51Ht
+         A0xyykyZ4KQXs36PiTxaguy99gNcBztwF3bjFgXtaKy1PkR/U6l1hXnDu2Yw1kfkIjfC
+         phr0YM6TOSKx/E80aHD6IGnY5YWwUvradkEC+HyMC3eHKDEZxjFvSbDjoXrFbGzDf+jc
+         8EK1oiVPY2ydVEZS/pZIIq0bL+mhM0UoUUxdHcybUjkL1VA6P/yEh7HKhVwMQAUi2But
+         8zKw==
+X-Gm-Message-State: AOAM532FLu4b71S7iNnsGvV/DWkiBG8nvKg90skzUZnIrHhnUdjem33+
+        CYQvAa0gmxKeBCZykygDBA==
+X-Google-Smtp-Source: ABdhPJzJS7APmTrdWR5VOV1+nzN1qm8abKy++8XWdAWk2PNGf0aEqcwADORcKsiBx5fQQBCUkJR4mQ==
+X-Received: by 2002:a02:b70c:: with SMTP id g12mr14816237jam.62.1600121590320;
+        Mon, 14 Sep 2020 15:13:10 -0700 (PDT)
 Received: from xps15 ([64.188.179.253])
-        by smtp.gmail.com with ESMTPSA id z18sm7919814ill.1.2020.09.14.15.12.31
+        by smtp.gmail.com with ESMTPSA id o4sm3753228ilg.56.2020.09.14.15.13.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2020 15:12:31 -0700 (PDT)
-Received: (nullmailer pid 353325 invoked by uid 1000);
-        Mon, 14 Sep 2020 22:12:30 -0000
-Date:   Mon, 14 Sep 2020 16:12:30 -0600
+        Mon, 14 Sep 2020 15:13:09 -0700 (PDT)
+Received: (nullmailer pid 354360 invoked by uid 1000);
+        Mon, 14 Sep 2020 22:13:07 -0000
+Date:   Mon, 14 Sep 2020 16:13:07 -0600
 From:   Rob Herring <robh@kernel.org>
 To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     od@zcrc.me, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] i2c: jz4780: Remove of_match_ptr()
-Message-ID: <20200914221230.GA349829@bogus>
+Cc:     linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        od@zcrc.me
+Subject: Re: [PATCH 1/3] dt-bindings: i2c: ingenic: Add compatible string for
+ the JZ4770
+Message-ID: <20200914221307.GA354306@bogus>
 References: <20200904131152.17390-1-paul@crapouillou.net>
- <20200904131152.17390-3-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200904131152.17390-3-paul@crapouillou.net>
+In-Reply-To: <20200904131152.17390-1-paul@crapouillou.net>
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, Sep 04, 2020 at 03:11:52PM +0200, Paul Cercueil wrote:
-> CONFIG_OF is selected by CONFIG_MACH_INGENIC, therefore we don't need to
-> handle the case where Device Tree is not supported.
-
-What about COMPILE_TEST? If not supported, why not?
-
+On Fri, 04 Sep 2020 15:11:50 +0200, Paul Cercueil wrote:
+> The I2C controller in the JZ4770 SoC seems to work the exact same as in
+> the JZ4780 SoC.
+> 
+> We could use "ingenic,jz4780-i2c" as a fallback string in the Device
+> Tree, but that would be awkward, since the JZ4780 is newer. Instead,
+> add a "ingenic,jz4770-i2c" string and use it as fallback for the
+> "ingenic,jz4780-i2c" string.
 > 
 > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
->  drivers/i2c/busses/i2c-jz4780.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  .../devicetree/bindings/i2c/ingenic,i2c.yaml         | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
-> index ed2ec86f6f1a..cb4a25ebb890 100644
-> --- a/drivers/i2c/busses/i2c-jz4780.c
-> +++ b/drivers/i2c/busses/i2c-jz4780.c
-> @@ -857,7 +857,7 @@ static struct platform_driver jz4780_i2c_driver = {
->  	.remove		= jz4780_i2c_remove,
->  	.driver		= {
->  		.name	= "jz4780-i2c",
-> -		.of_match_table = of_match_ptr(jz4780_i2c_of_matches),
-> +		.of_match_table = jz4780_i2c_of_matches,
->  	},
->  };
->  
-> -- 
-> 2.28.0
-> 
+
+Reviewed-by: Rob Herring <robh@kernel.org>
