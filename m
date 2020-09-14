@@ -2,97 +2,131 @@ Return-Path: <SRS0=ekoI=CX=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=no
-	autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00E8AC433E2
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 10:42:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20D0EC433E2
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 10:45:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AECC220829
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 10:42:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C0C3C207BB
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 10:45:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="r7kBF8tw"
+	dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b="PlHbxoBH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726496AbgINKlx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Sep 2020 06:41:53 -0400
-Received: from mx07-00178001.pphosted.com ([185.132.182.106]:58465 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726484AbgINKlZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Sep 2020 06:41:25 -0400
-Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08EAbPc3022532;
-        Mon, 14 Sep 2020 12:40:56 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type; s=STMicroelectronics;
- bh=RNnrii00xxDfy5WSC9QOrCt+UuQkxyoFKEqKcUhEXMo=;
- b=r7kBF8twwK8B4KodrM+9KMrXviMEyE9WvUl1bXEuXdMBe0Raslk5oZf7Swm0BNWm/xIN
- okknJS6Fm7BUfTSnCKo81w/DxB0F1E1Z6n+7yBGKRODuS8l7Fk47oYRN+OIQ58BDurtJ
- 97wc6iMQ3kW3klJl+fjaa3TGZcMmzd8PZXUBAvgU6Fi5WFisqUCvWBpc6ht2NHbK6u9X
- 05b/dB0KKDJbIlLgLSm2EfsPozpI7sAt5jpURWFpPIMY/fI7F2OERx67bFRQF/eKk9Eh
- z5Is652Ud1cs8LaJEa3frs5aRqexI8sazuLckE3Zlfzc44K7NFwF4bcin6EeE1Os70iL 1A== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 33gkt09ppe-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Sep 2020 12:40:56 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id A925B10002A;
-        Mon, 14 Sep 2020 12:40:54 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag3node2.st.com [10.75.127.8])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 928E82ADA02;
-        Mon, 14 Sep 2020 12:40:54 +0200 (CEST)
-Received: from localhost (10.75.127.46) by SFHDAG3NODE2.st.com (10.75.127.8)
- with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 14 Sep 2020 12:40:54
- +0200
-From:   Alain Volmat <alain.volmat@st.com>
-To:     <wsa@kernel.org>, <pierre-yves.mordret@st.com>
-CC:     <alexandre.torgue@st.com>, <linux-i2c@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@st.com>,
-        <krzk@kernel.org>, <h.assmann@pengutronix.de>,
-        <alain.volmat@st.com>
-Subject: [PATCH 0/2] Avoid meaningless DMA error print & use dev_err_probe
-Date:   Mon, 14 Sep 2020 12:40:32 +0200
-Message-ID: <1600080034-2050-1-git-send-email-alain.volmat@st.com>
-X-Mailer: git-send-email 2.7.4
+        id S1726503AbgINKmv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Sep 2020 06:42:51 -0400
+Received: from bilbo.ozlabs.org ([203.11.71.1]:37999 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726466AbgINKmk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Sep 2020 06:42:40 -0400
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4Bqjc052t6z9sTS;
+        Mon, 14 Sep 2020 20:42:24 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=canb.auug.org.au;
+        s=201702; t=1600080146;
+        bh=jqSJTAAE2viP+VO1tceykIVX3foZjPzbA2zwdIB6bEI=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=PlHbxoBHG5ylBadCb1uIKkkEA099PgfyJFldyi+NHbZfDaCtkzM6SFCtuBcHki+XO
+         j88VvgTfUiAqoPvu2P6c1kM2+TEK4VXYjvgp0GQqtQdHa4O5+YjBFlQlDRSxEN9xbU
+         9MN7LRZnZva62eVRmLnVdp0WEWJqvUgb3F6Gkv8h3AJi9j2DsB6N+SZnMFhLm4FnoV
+         bmsxyC3MOSX3s42hADtlc6M9hxlYioX2EYSt+hAuuZkq/MC/+KUVyjjkYa4ZUKsJSK
+         CyoLooZWXlxbqM8TUtfgjwoaVbztAj3vs9OZW5J9sa3n2uEYommZMPVSt8q3fVUDRt
+         yfcAj785z1T3g==
+Date:   Mon, 14 Sep 2020 20:42:23 +1000
+From:   Stephen Rothwell <sfr@canb.auug.org.au>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Chris Packham <Chris.Packham@alliedtelesis.co.nz>,
+        Wolfram Sang <wsa@kernel.org>,
+        Evan Nimmo <Evan.Nimmo@alliedtelesis.co.nz>,
+        "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>,
+        "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>,
+        "jdelvare@suse.de" <jdelvare@suse.de>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v4 1/1] i2c: algo-pca: Reapply i2c bus settings after
+ reset
+Message-ID: <20200914204223.5a96f84d@canb.auug.org.au>
+In-Reply-To: <CAHp75Vf-1vqHjqNixXtnziCd6squwwj0sEArZ8C1YiDwafhk7Q@mail.gmail.com>
+References: <20200908203247.14374-1-evan.nimmo@alliedtelesis.co.nz>
+        <20200909082338.GC2272@ninjato>
+        <5410e288-e369-0310-1b8e-061c95e46164@alliedtelesis.co.nz>
+        <20200911194526.GB909@ninjato>
+        <61c139a0-26fc-8cd1-0b54-b7cb9d9c0648@alliedtelesis.co.nz>
+        <CAHp75VdtE_UBsNrSxbVPprmp7=-iVCrXv9x6Tu82b4q2ODfKQg@mail.gmail.com>
+        <CAHp75Vf-1vqHjqNixXtnziCd6squwwj0sEArZ8C1YiDwafhk7Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.75.127.46]
-X-ClientProxiedBy: SFHDAG6NODE2.st.com (10.75.127.17) To SFHDAG3NODE2.st.com
- (10.75.127.8)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-14_02:2020-09-10,2020-09-14 signatures=0
+Content-Type: multipart/signed; boundary="Sig_/cHmrJ/D4znt7MYG1cUv/aML";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This serie replaces the patch from Holger Assmann [i2c: stm32: remove
-unnecessary DMA kernel error log] (1) and the first version of [i2c: stm32:
-do not display error when DMA is not requested] from myself (2).
+--Sig_/cHmrJ/D4znt7MYG1cUv/aML
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-A first patch is fixing useless error print when not being able to get
-DMA channel (DMA is only optional) and also avoid printing twice an error
-when a real DMA error is happening.
+Hi Andy,
 
-On top of that, dev_err_probe from Krzysztof has been rebased.
+On Mon, 14 Sep 2020 11:51:04 +0300 Andy Shevchenko <andy.shevchenko@gmail.c=
+om> wrote:
+>
+> On Mon, Sep 14, 2020 at 11:50 AM Andy Shevchenko
+> <andy.shevchenko@gmail.com> wrote:
+> >
+> > On Mon, Sep 14, 2020 at 12:27 AM Chris Packham
+> > <Chris.Packham@alliedtelesis.co.nz> wrote: =20
+> > > On 12/09/20 7:45 am, Wolfram Sang wrote: =20
+> > =20
+> > > I'm happy to route it to stable@ if you think it's worth it but I don=
+'t
+> > > think there's a specific Fixes: reference that can be used. The curre=
+nt
+> > > behavior appears to have been that way since before git (looks like we
+> > > noticed in 2014 but it's taken me 6 years to nag people into sending
+> > > their fixes upstream). =20
+> >
+> > JFYI: there is a history.git repository from History Group on
+> > kernel.org. You may dig till the very beginning of the kernel (yes,
+> > it's not properly formed Git history, but it will give you a hash
+> > commit as a reference. =20
+>=20
+> Stephen, btw, does your scripts that validate Fixes, take into
+> consideration references to history.git?
 
-[1] https://marc.info/?l=linux-i2c&m=159741480608578&w=2
-[2] https://marc.info/?l=linux-i2c&m=159973040314193&w=2
+I assuming you are referring to
+https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
 
-Alain Volmat (1):
-  i2c: stm32: fix error message on upon dma_request_chan & defer
-    handling
+I have found a few by hand in the past (I also missed a few), but I
+guess I could expend the checks.
 
-Krzysztof Kozlowski (1):
-  i2c: stm32: Simplify with dev_err_probe()
+Maybe that tree could be put somewhere that appears more permanent if
+we are going to permanently refer to it? (Or has that happened already?)
+--=20
+Cheers,
+Stephen Rothwell
 
- drivers/i2c/busses/i2c-stm32.c   | 12 ++++++------
- drivers/i2c/busses/i2c-stm32f4.c |  6 ++----
- drivers/i2c/busses/i2c-stm32f7.c | 27 +++++++++++----------------
- 3 files changed, 19 insertions(+), 26 deletions(-)
+--Sig_/cHmrJ/D4znt7MYG1cUv/aML
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
--- 
-2.7.4
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl9fSQ8ACgkQAVBC80lX
+0Gy2Sgf/Uk1aL4NRj/kH6KJ6MvTqkkqOH4OcuMvhjgPGgwjvDpRFWXw3K9c4XxbU
+DN3dshR27b4lOn3g4pB5Fy6Xr41f5fX7L3z5Qw0fzmsxmdNHyh/V+7UUvGhOTQo9
+0ON2Z2at3wKyEuUIweOrWV52twydCRMwr9cDE3io+76ro2b4UOX/M4jlnSSE4HT1
+o6WTsuYAgpdYf+cWeejOs5AMEOukYxsmN9Zmr4rEeCaOCZdFOTTuBCvedI+989qK
+8Capogbs3ZzBufYKm7i1v4LVzb0Dc0pqA4cfvKN6MoAs3K+PxusctkzZQfvAIaPq
+Y5K1lkYJ9Mq/VQqkhsR4sM8BWIxfjg==
+=wEB6
+-----END PGP SIGNATURE-----
+
+--Sig_/cHmrJ/D4znt7MYG1cUv/aML--
