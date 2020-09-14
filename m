@@ -2,164 +2,97 @@ Return-Path: <SRS0=ekoI=CX=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6765EC43461
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 07:58:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E9CBC43461
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 08:37:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 230CA20829
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 07:58:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3085522206
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 08:37:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="WMiq6lY8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726122AbgINH6c convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Sep 2020 03:58:32 -0400
-Received: from hostingweb31-40.netsons.net ([89.40.174.40]:52653 "EHLO
-        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726068AbgINH6a (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Sep 2020 03:58:30 -0400
-Received: from [78.134.51.148] (port=41494 helo=[192.168.77.62])
-        by hostingweb31.netsons.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <luca@lucaceresoli.net>)
-        id 1kHjNZ-000BOy-9w; Mon, 14 Sep 2020 09:58:25 +0200
-Subject: Re: [PATCH v8 0/6] Support running driver's probe for a device
- powered off
-To:     Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
-        Hyungwoo Yang <hyungwoo.yang@intel.com>,
-        linux-media@vger.kernel.org
-References: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
- <f4b82baa-66b7-464e-fd39-66d2243a05ef@lucaceresoli.net>
- <20200911130104.GF26842@paasikivi.fi.intel.com>
-From:   Luca Ceresoli <luca@lucaceresoli.net>
-Message-ID: <6dea1206-cfaa-bfc5-d57e-4dcddadc03c7@lucaceresoli.net>
-Date:   Mon, 14 Sep 2020 09:58:24 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726273AbgINIhG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Sep 2020 04:37:06 -0400
+Received: from www.zeus03.de ([194.117.254.33]:49678 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726260AbgINIhA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Sep 2020 04:37:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=k1; bh=qAXJ2q2zrUjiF1S7odbZUQnIo/0V
+        jFXOWDG4EsWruKc=; b=WMiq6lY8tQajxSs9r1KK6UvdtU0k9MJujis42m+F3HOF
+        12LBFbfYEXC7H/ZbSUusRlgBMUpen2F+LdAI8fpvBK25hSgQABYkBDRZLAWqo8f7
+        vKiEamdov+Se+PBlTABGeGLsF34Ydz76OeB208TF7WnfEa1uqPw9Ww7pV8tn6jE=
+Received: (qmail 1792916 invoked from network); 14 Sep 2020 10:36:57 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 14 Sep 2020 10:36:57 +0200
+X-UD-Smtp-Session: l3s3148p1@htn370GvhuEgAwDPXwXYAPlEQEA0NVnc
+Date:   Mon, 14 Sep 2020 10:36:57 +0200
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Alain Volmat <alain.volmat@st.com>
+Subject: Re: [PATCH v2 1/1] i2c: add slave testunit driver
+Message-ID: <20200914083657.GA8570@ninjato>
+References: <20200914071737.6354-1-wsa+renesas@sang-engineering.com>
+ <20200914071737.6354-2-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-In-Reply-To: <20200911130104.GF26842@paasikivi.fi.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8BIT
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - lucaceresoli.net
-X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca@lucaceresoli.net
-X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+Content-Disposition: inline
+In-Reply-To: <20200914071737.6354-2-wsa+renesas@sang-engineering.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Sakari,
 
-On 11/09/20 15:01, Sakari Ailus wrote:
-> Hi Luca,
-> 
-> On Fri, Sep 11, 2020 at 02:49:26PM +0200, Luca Ceresoli wrote:
->> Hi Sakari,
->>
->> On 03/09/20 10:15, Sakari Ailus wrote:
->>>
->>> Hi all,
->>>
->>> These patches enable calling (and finishing) a driver's probe function
->>> without powering on the respective device on busses where the practice is
->>> to power on the device for probe. While it generally is a driver's job to
->>> check the that the device is there, there are cases where it might be
->>> undesirable. (In this case it stems from a combination of hardware design
->>> and user expectations; see below.) The downside with this change is that
->>> if there is something wrong with the device, it will only be found at the
->>> time the device is used. In this case (the camera sensors + EEPROM in a
->>> sensor) I don't see any tangible harm from that though.
->>>
->>> An indication both from the driver and the firmware is required to allow
->>> the device's power state to remain off during probe (see the first patch).
->>>
->>>
->>> The use case is such that there is a privacy LED next to an integrated
->>> user-facing laptop camera, and this LED is there to signal the user that
->>> the camera is recording a video or capturing images. That LED also happens
->>> to be wired to one of the power supplies of the camera, so whenever you
->>> power on the camera, the LED will be lit, whether images are captured from
->>> the camera --- or not. There's no way to implement this differently
->>> without additional software control (allowing of which is itself a
->>> hardware design decision) on most CSI-2-connected camera sensors as they
->>> simply have no pin to signal the camera streaming state.
->>>
->>> This is also what happens during driver probe: the camera will be powered
->>> on by the I²C subsystem calling dev_pm_domain_attach() and the device is
->>> already powered on when the driver's own probe function is called. To the
->>> user this visible during the boot process as a blink of the privacy LED,
->>> suggesting that the camera is recording without the user having used an
->>> application to do that. From the end user's point of view the behaviour is
->>> not expected and for someone unfamiliar with internal workings of a
->>> computer surely seems quite suspicious --- even if images are not being
->>> actually captured.
->>>
->>> I've tested these on linux-next master. They also apply to Wolfram's
->>> i2c/for-next branch, there's a patch that affects the I²C core changes
->>> here (see below). The patches apart from that apply to Bartosz's
->>> at24/for-next as well as Mauro's linux-media master branch.
->>
->> Apologies for having joined this discussion this late.
-> 
-> No worries. But thanks for the comments.
-> 
->>
->> This patchset seems a good base to cover a different use case, where I
->> also cannot access the physical device at probe time.
->>
->> I'm going to try these patches, but in my case there are a few
->> differences that need a better understanding.
->>
->> First, I'm using device tree, not ACPI. In addition to adding OF support
->> similar to the work you've done for ACPI, I think instead of
->> acpi_dev_state_low_power() we should have a function that works for both
->> ACPI and DT.
-> 
-> acpi_dev_state_low_power() is really ACPI specific: it does tell the ACPI
-> power state of the device during probe or remove. It is not needed on DT
-> since the power state of the device is controlled directly by the driver.
-> On I²C ACPI devices, it's the framework that powers them on for probe.
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I see, thanks for clarifying. I'm not used to ACPI so I didn't get that.
+On Mon, Sep 14, 2020 at 09:17:37AM +0200, Wolfram Sang wrote:
+> Here is an I2C slave backend driver which allows to test some uncommon
+> functionalities of the I2C and SMBus world. Usually, you need specific
+> devices to test e.g. SMBus Host Notify and such. With this driver you
+> just need the slave interface of another I2C controller.
+>=20
+> This initial version has testcases for multi-master and SMBus Host
+> Notify. Already planned but not yet implemented are SMBus Alert and
+> messages with I2C_M_RECV_LEN.
+>=20
+> Please read the documentation for further details.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-> You could have a helper function on DT to tell a driver what to do in
-> probe, but the functionality in that case is unrelated.
+I forgot a tag. Because changes were small, this is still:
 
-So in case of DT we might think of a function that just tells whether
-the device is marked to allow low-power probe, but it's just an info
-from DT:
+Tested-by: Alain Volmat <alain.volmat@st.com>
 
-int mydriver_probe(struct i2c_client *client)
-{
-	...
-	low_power = of_dev_state_low_power(&client->dev);
-	if (!low_power) {
-		mydriver_initialize(); /* power+clocks, write regs */
- 	}
-	...
-}
 
-...and, if (low_power), call mydriver_initialize() at first usage.
+--6TrnltStXW4iwmi0
+Content-Type: application/pgp-signature; name="signature.asc"
 
-I'm wondering whether this might make sense in mainline.
+-----BEGIN PGP SIGNATURE-----
 
--- 
-Luca
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9fK6UACgkQFA3kzBSg
+Kbb7RRAAoXo/8zbsGlCxxYukNtz9AgnhDWy0qS7WksmZc8wfU3KVx6Y/bI2DBTM5
+O2ly6PCb1Wn+h9oDzlqg7fi5KZ3fdH3SA4u3TXH1XS/3Tez1Hn6nGWlwME4/xq51
+Luh8mX0m8VqGBVyIZneGxe09L1SIGM5EdjcwEHBgSVyedDMOtv1Jn0cvxZdF9roq
+4V8zjoAWw9R4UJ5CipuJ/aLMDzJH9kKU6vjTItPvveazAYC2VmEIxx3hYUvv6GK6
+LxN27fDzs3Gg5EbPkbR+0WOD0rS0oGtsS+9SNzUpNo4kOJMATrHw1v0BgDsr6A9P
+pDlm9CTLdQEh6XHVNXMMrIMOVt/4pr8bKr2HWR835HbOktpKdLGMoouVIsRaYwWH
+xqrARE2OwiibK+xYqhwcDKhNvaejSwR+GKaVX+1WCAllNhU4mzfCxBujP90icMnl
+g2Gh48MAmFwizZ+bg8jAPiu6+dAb/p6yOzUjFpYV99aXBUm460by0ojIUyjbWYiM
+tZqGl6ZL7ebPQ0lHfMUGU+IjtkD/0GI4qTOSe/tDuq5+wausFnQ5FuWIYdOeqqjD
+HoZLomYJykepfI9I3pH37KbEU3ooxKq29zGPO8ZQb2JCcX8Orzq4Td1XGZPMNdIM
+Hoyt+BsdVUE+kEDx7vpaQ4k5mhKVnRm95b0LxIlDboWpHlgOwpY=
+=TZZ9
+-----END PGP SIGNATURE-----
 
+--6TrnltStXW4iwmi0--
