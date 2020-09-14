@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-14.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E12EC433E2
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 14:21:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94C9DC433E2
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 14:42:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C719420EDD
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 14:21:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DCBE207EA
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Sep 2020 14:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600093271;
-	bh=a8FIL44GDurr+687Ha2e2Ma98fqZA7yHRGY+R4Ty8Ac=;
+	s=default; t=1600094575;
+	bh=GYa6XMWH0m3BmSORSFOyn8Fx7QG02se/DpY9Stws0qY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=w0mTuwk8DMji7oPOXru1LkJ6Rl4VcL3VphjwdNEz6j3vda0l+cWGopbO0/0wGW5c1
-	 FtUGM+KWTFuJqbn2Ee/5nqYBqeFQkcefRGpuA961KXPmF8Sussmx6FkYIqASsAmeQr
-	 M8aPIgvP4vnK8BkPzGFOtOZ4HJv0ITi91CDZfsYM=
+	b=QLeWw1pBcq/TOoElKPmMB8jKapZokRFfCokAngTbq2KfnzM7HSrOH8c3EG5+6sbRG
+	 nutGtkIrba8HAyOy3/XqlygrZkK5+dY9X9tMvxQQxlRZGAnmAx2YIvjWXjASsD55rY
+	 aZwaoYIzhuhPEMrqPHnZx7IhdgcXEtli8zHaYMhI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726816AbgINOUr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Sep 2020 10:20:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60804 "EHLO mail.kernel.org"
+        id S1726660AbgINOmj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Sep 2020 10:42:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726691AbgINNGw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 14 Sep 2020 09:06:52 -0400
+        id S1726641AbgINNFm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Sep 2020 09:05:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A62E22288;
-        Mon, 14 Sep 2020 13:05:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4366422246;
+        Mon, 14 Sep 2020 13:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088741;
-        bh=a8FIL44GDurr+687Ha2e2Ma98fqZA7yHRGY+R4Ty8Ac=;
+        s=default; t=1600088698;
+        bh=GYa6XMWH0m3BmSORSFOyn8Fx7QG02se/DpY9Stws0qY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0a9AKPzGmsqvep35/y3hMXG9mEADH9aNneEGQm9Eyn+Nzz1/D5JKDa6+sfUkx7Wkk
-         kxPTFzE15DjfeHSt/oF+1s2LuuRcCGVebfh12dJy34y9yaTp6vXbwIlM4H6TljCI+K
-         9uKUomOdiNqAKMpKeEpaC+TSM3JDHSrBfrBwa/WI=
+        b=qV41ZoAQr9yXHyO3wYGaaaJQ1PbJJi2YvpntLrybRmYzbFkDWQGWRgIjk1us/UEYr
+         HxZNhC480YMIP8BUON66yhmd4KiKREHv4jHVXmBU8BQCvy9f7FmuqSKxi4toQf18Gd
+         TZHd9Ybd+My2/5AMmXjqqKzj7lxtozcjlHotUoQc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
@@ -45,12 +45,12 @@ Cc:     Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 12/15] i2c: algo: pca: Reapply i2c bus settings after reset
-Date:   Mon, 14 Sep 2020 09:05:23 -0400
-Message-Id: <20200914130526.1804913-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 19/22] i2c: algo: pca: Reapply i2c bus settings after reset
+Date:   Mon, 14 Sep 2020 09:04:31 -0400
+Message-Id: <20200914130434.1804478-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200914130526.1804913-1-sashal@kernel.org>
-References: <20200914130526.1804913-1-sashal@kernel.org>
+In-Reply-To: <20200914130434.1804478-1-sashal@kernel.org>
+References: <20200914130434.1804478-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -81,10 +81,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 38 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
-index 3a9db4626cb60..1886588b9ea3e 100644
+index 8ea850eed18f7..1d3691a049b16 100644
 --- a/drivers/i2c/algos/i2c-algo-pca.c
 +++ b/drivers/i2c/algos/i2c-algo-pca.c
-@@ -50,8 +50,22 @@ static void pca_reset(struct i2c_algo_pca_data *adap)
+@@ -41,8 +41,22 @@ static void pca_reset(struct i2c_algo_pca_data *adap)
  		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IPRESET);
  		pca_outw(adap, I2C_PCA_IND, 0xA5);
  		pca_outw(adap, I2C_PCA_IND, 0x5A);
@@ -107,7 +107,7 @@ index 3a9db4626cb60..1886588b9ea3e 100644
  	}
  }
  
-@@ -435,13 +449,14 @@ static int pca_init(struct i2c_adapter *adap)
+@@ -423,13 +437,14 @@ static int pca_init(struct i2c_adapter *adap)
  				" Use the nominal frequency.\n", adap->name);
  		}
  
@@ -125,7 +125,7 @@ index 3a9db4626cb60..1886588b9ea3e 100644
  	} else {
  		int clock;
  		int mode;
-@@ -508,19 +523,15 @@ static int pca_init(struct i2c_adapter *adap)
+@@ -496,19 +511,15 @@ static int pca_init(struct i2c_adapter *adap)
  			thi = tlow * min_thi / min_tlow;
  		}
  
