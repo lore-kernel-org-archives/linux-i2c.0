@@ -2,105 +2,150 @@ Return-Path: <SRS0=qUuh=CZ=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEDB9C43461
-	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 09:51:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70AB0C433E2
+	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 15:33:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1C942074B
-	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 09:51:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2117322450
+	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 15:33:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="D5BSMD99"
+	dkim=pass (1024-bit key) header.d=plvision.eu header.i=@plvision.eu header.b="ApPYcJJ7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726675AbgIPJuP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 16 Sep 2020 05:50:15 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:12388 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726438AbgIPJuN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Sep 2020 05:50:13 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f61df470000>; Wed, 16 Sep 2020 02:47:51 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 16 Sep 2020 02:50:13 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 16 Sep 2020 02:50:13 -0700
-Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 16 Sep
- 2020 09:50:12 +0000
-Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 16 Sep 2020 09:50:12 +0000
-Received: from moonraker.nvidia.com (Not Verified[10.26.74.242]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f61dfd20002>; Wed, 16 Sep 2020 02:50:12 -0700
-From:   Jon Hunter <jonathanh@nvidia.com>
+        id S1726381AbgIPPc7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 16 Sep 2020 11:32:59 -0400
+Received: from mail-am6eur05on2093.outbound.protection.outlook.com ([40.107.22.93]:50305
+        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726342AbgIPPb3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 16 Sep 2020 11:31:29 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Nyk0g/1Mpg2UAupE3vf7Vk6h2Xv1800TUfky7lu/ouOCBIY/Bwo6pI9kmn/Hb3lXao3q+PL8x8ddlFzGgC+I0DP8ETwG0/y7YnVstmzBN8oAVjASURRvdCHEdRHhI/0OPCiyR5OqyvOh9zi1h43cSewo4u1EkjDB50WbLAeP6WRG2zVL6nc/uyn2WEuaJfWXnxQkW5FP5VzmzwB85Gnkz2cxO1utjzqLBwPKMGVYslKTjI0ambpz3125rwzDAQLfL0qc0PrTN8WBD5cQ7/wTwyf2HRDLcgloG5xqNvwuqIpA65ps2MQ7t7PgpFdOc44JaqKho9bHpQFrJwoUlHzQXw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=s3sNqmu7CSIdff4Ln2LY2CUdz7g+akqc/mU1xeN+q9A=;
+ b=br4UAusIbJ1rOwd23I2OQDbv1KpMmp5twCaX+9xHqYNupLTEsDU4MKLYE7B+McpxOULNR/44HNRqUxh+r0z25KHQ5Qh5kewf4jztlxWxjg0letedy9IG9YQQ6QAWmEHByhF3zWv63fuR/Ckl4X191Ap81a9RoC2Zh/iYm1UOX0Q8963b+wXQXahNUvg04pxasD+4PTByRbtNHKqEkjXA6DioFeLVOw9Lq+Bo/HOt0qJV1K3kIVWMItUV2Z8UZt/iU/dUZBM2pZcAcEDZ4EnhcO10BPem8ZjyF+n3m7AOS6K1hERar4fxEdqzpSlnYx9bS/MCoxz9hXPQIfGkVrcdYQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=plvision.eu; dmarc=pass action=none header.from=plvision.eu;
+ dkim=pass header.d=plvision.eu; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plvision.eu;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=s3sNqmu7CSIdff4Ln2LY2CUdz7g+akqc/mU1xeN+q9A=;
+ b=ApPYcJJ7i8O22WT3dQBzINW2pekcS4gRDDMvyi8DbPFTaycheBUw/JymaIIwlBWD2EU1R8Vx4rlCbsF05u6ewI9AwyeVSec0a5KWR13z/HHAN6Hc9sXUEw2rhoxlmgvW+8lpN9lMdEQc6nUTyhKC57yS1eyh1xxa28t2BIMFdrw=
+Authentication-Results: baylibre.com; dkim=none (message not signed)
+ header.d=none;baylibre.com; dmarc=none action=none header.from=plvision.eu;
+Received: from HE1P190MB0539.EURP190.PROD.OUTLOOK.COM (2603:10a6:7:56::28) by
+ HE1P190MB0266.EURP190.PROD.OUTLOOK.COM (2603:10a6:7:5c::15) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3391.13; Wed, 16 Sep 2020 15:29:39 +0000
+Received: from HE1P190MB0539.EURP190.PROD.OUTLOOK.COM
+ ([fe80::c1ab:71de:6bc2:89fe]) by HE1P190MB0539.EURP190.PROD.OUTLOOK.COM
+ ([fe80::c1ab:71de:6bc2:89fe%6]) with mapi id 15.20.3370.019; Wed, 16 Sep 2020
+ 15:29:38 +0000
+From:   Vadym Kochan <vadym.kochan@plvision.eu>
 To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>
-CC:     <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        Jon Hunter <jonathanh@nvidia.com>
-Subject: [PATCH V2 1/5] misc: eeprom: at24: Initialise AT24 NVMEM ID field
-Date:   Wed, 16 Sep 2020 10:49:48 +0100
-Message-ID: <20200916094952.458003-2-jonathanh@nvidia.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200916094952.458003-1-jonathanh@nvidia.com>
-References: <20200916094952.458003-1-jonathanh@nvidia.com>
-MIME-Version: 1.0
-X-NVConfidentiality: public
-Content-Transfer-Encoding: quoted-printable
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Vadym Kochan <vadym.kochan@plvision.eu>
+Subject: [PATCH] misc: eeprom: set type id as EEPROM for nvmem devices
+Date:   Wed, 16 Sep 2020 18:29:09 +0300
+Message-Id: <20200916152909.6812-1-vadym.kochan@plvision.eu>
+X-Mailer: git-send-email 2.17.1
 Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1600249671; bh=jmvtm55itr9eJOTSnEX+409Pt+fxKdfCDE/ObG7O/GE=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
-         Content-Transfer-Encoding:Content-Type;
-        b=D5BSMD999NSmW/YfFUWVQw0Sh1JKISbvb6+atTZAj17ffE67K1oFTolREyiwEnGmp
-         /4VFtDnO4SpQoXnnELXjxf0/ne8dcddYurw9Sg0kcn6cT3XC22fNAQAlvvIde1fL6k
-         7xWJxjUYZ9E24Mz1402wcCXqS6Ndg05aA6QULdafwsVnpIOSEbPg5ZK1NTADe4WiD9
-         JOplbHXCukvwVpxUXuYb39aDAyAl9TWfzDcpGycVBD2n9A9YAzTraLWLv/fP0FvCHF
-         bI9h0d2uhFbaaxDEJeOr4Xy7WzKe57U6g3AFGhtaV0ltUnkRKYuDiLg6jNXzkrT5kf
-         k4q362vvJoR5g==
+X-ClientProxiedBy: AM6P193CA0104.EURP193.PROD.OUTLOOK.COM
+ (2603:10a6:209:88::45) To HE1P190MB0539.EURP190.PROD.OUTLOOK.COM
+ (2603:10a6:7:56::28)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from pc60716vkochan.x.ow.s (217.20.186.93) by AM6P193CA0104.EURP193.PROD.OUTLOOK.COM (2603:10a6:209:88::45) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3391.14 via Frontend Transport; Wed, 16 Sep 2020 15:29:37 +0000
+X-Mailer: git-send-email 2.17.1
+X-Originating-IP: [217.20.186.93]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 6d5a75e3-b503-4b49-134e-08d85a5552fe
+X-MS-TrafficTypeDiagnostic: HE1P190MB0266:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <HE1P190MB0266B5CDE9BEE160955E311995210@HE1P190MB0266.EURP190.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:489;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 7SA8/i8dOiHiQP/czQKGhBSM+AmIe5nL+ngiuvBRkuDYcoNOqaKWzoh+smEgZSELYvL99TGun7FiRq0hIUQvYOFQ99Rvurbq7Iv8W4g1TRoELmBYe0nFjOtVHyvYfpZzeYP4Ga5GojiE4ugeHcF/uQmUathJQDdkblTIN6nBraOPDU0v4uxtV69ToP7AGa0Jt5Ll8udhnHlTE8Dc355ecc4e0dfYIUpAzDpcfinPdWQGzA0/XqIiRw/3DTxjwaOL1MKKL8byMcOcV9K61JrO/4si2jH0XOXu76VN2Bw/5SizF6OBj2NEVS8/G0787v7GFpdrmlPbCJ9mJ1LketyP/Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:HE1P190MB0539.EURP190.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(39830400003)(396003)(376002)(366004)(136003)(346002)(44832011)(66556008)(66476007)(66946007)(107886003)(110136005)(6506007)(5660300002)(8936002)(2906002)(6486002)(2616005)(956004)(6666004)(1076003)(8676002)(186003)(52116002)(4326008)(316002)(26005)(478600001)(86362001)(36756003)(16526019)(6512007);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: WhufNuXSx5J7wfzi7ebAiAun2GW/DuhffcxVzo+bESfScMtghRkpqK+XU+S9TqOY8uz15QeUcnscAQ4Z1eYkKyk/PKSVJAVmXlx03AIluP0DbsnsaTVyzNFKBRxUfOMPs3+LXjxGgOvrQBmuruQki990Go368gxUa16Wm7drrSbrJ3lp1ybSuBoCi789YxT95Y65PWe672+ynpPKit/nwozxQ8fdVQdYo0ueLuVEG9Dy5PKecnVNfMIESGa4t5+1DMtrk2OCS4kcTvn6ptd7Reaxh6ulLUB72J+kGJ7lX78p/qfmwGQ+SzpJLsSxiAcG2TSHiA9F1tlDR/Q37rCR7IobYvHMsRejx17Th/KLKqhTaOSFYAlze0yY00DTNXjhW6phFMQYb3rlXSqZ5b1ds9BzuvgBQiF3Z9eLhza7iN1xWpbPHOb6XzQyxvOT4CKIhMLxxncLHs3O26Dr2BDgdAaDUxT/z9e95WqbVxL8dKF8L1HqHR05v5NXPyuNbqewAaeP/1KftXmd9+LX4Wf1olfZi+5mYk0avMkvP0j8fxHBms/AVVLjMne/Ikj7q6v8jWpUNb/MFph0gb8v69jHJ7mxvAV429X50NanlFIjiXgouLXae0GCI5KvBh87orUhsccnHroQ88+YZF/zIXja2Q==
+X-OriginatorOrg: plvision.eu
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6d5a75e3-b503-4b49-134e-08d85a5552fe
+X-MS-Exchange-CrossTenant-AuthSource: HE1P190MB0539.EURP190.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Sep 2020 15:29:38.7795
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 03707b74-30f3-46b6-a0e0-ff0a7438c9c4
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: TmMQTbWjsaA9NMwmowc9xSh/xEmPfUCijYXg8xylN/fH6oQZjUeB5yzVFBlAQX99AFNJhhDD5YRpQ+FbccqWuQLlxn95AdvFTCiSUPqPJXw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1P190MB0266
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The AT24 EEPROM driver does not initialise the 'id' field of the
-nvmem_config structure and because the entire structure is not
-initialised, it ends up with a random value. This causes the NVMEM
-driver to append the device 'devid' value to name of the NVMEM
-device. Ideally for I2C devices such as the AT24 that already have a
-unique name, we would not bother to append the 'devid'. However, given
-that this has always been done for AT24 devices, we cannot remove the
-'devid' as this will change the name of the userspace sysfs node for
-the NVMEM device. Nonetheless we should ensure that the 'id' field of
-the nvmem_config structure is initialised so that there is no chance of
-a random value causes problems in the future. Therefore, set the NVMEM
-config.id to NVMEM_DEVID_AUTO for AT24 EEPROMs so that the 'devid' is
-always appended.
+Set type as NVMEM_TYPE_EEPROM to expose this info via
+sysfs:
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+$ cat /sys/bus/nvmem/devices/0-00560/type
+EEPROM
+
+Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
 ---
- drivers/misc/eeprom/at24.c | 1 +
- 1 file changed, 1 insertion(+)
+Checked only with at24.
+
+ drivers/misc/eeprom/at24.c          | 1 +
+ drivers/misc/eeprom/at25.c          | 1 +
+ drivers/misc/eeprom/eeprom_93xx46.c | 1 +
+ 3 files changed, 3 insertions(+)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index e9df1ca251df..f76624b5c033 100644
+index 2591c21b2b5d..800300296c74 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -715,6 +715,7 @@ static int at24_probe(struct i2c_client *client)
-=20
- 	nvmem_config.name =3D dev_name(dev);
- 	nvmem_config.dev =3D dev;
-+	nvmem_config.id =3D NVMEM_DEVID_AUTO;
- 	nvmem_config.read_only =3D !writable;
- 	nvmem_config.root_only =3D !(flags & AT24_FLAG_IRUGO);
- 	nvmem_config.owner =3D THIS_MODULE;
---=20
-2.25.1
+@@ -678,6 +678,7 @@ static int at24_probe(struct i2c_client *client)
+ 			return err;
+ 	}
+ 
++	nvmem_config.type = NVMEM_TYPE_EEPROM;
+ 	nvmem_config.name = dev_name(dev);
+ 	nvmem_config.dev = dev;
+ 	nvmem_config.read_only = !writable;
+diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
+index ed8d38b09925..3a586a7c4b1a 100644
+--- a/drivers/misc/eeprom/at25.c
++++ b/drivers/misc/eeprom/at25.c
+@@ -348,6 +348,7 @@ static int at25_probe(struct spi_device *spi)
+ 	spi_set_drvdata(spi, at25);
+ 	at25->addrlen = addrlen;
+ 
++	at25->nvmem_config.type = NVMEM_TYPE_EEPROM;
+ 	at25->nvmem_config.name = dev_name(&spi->dev);
+ 	at25->nvmem_config.dev = &spi->dev;
+ 	at25->nvmem_config.read_only = chip.flags & EE_READONLY;
+diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
+index 94cfb675fe4e..7c45f82b4302 100644
+--- a/drivers/misc/eeprom/eeprom_93xx46.c
++++ b/drivers/misc/eeprom/eeprom_93xx46.c
+@@ -455,6 +455,7 @@ static int eeprom_93xx46_probe(struct spi_device *spi)
+ 	edev->pdata = pd;
+ 
+ 	edev->size = 128;
++	edev->nvmem_config.type = NVMEM_TYPE_EEPROM;
+ 	edev->nvmem_config.name = dev_name(&spi->dev);
+ 	edev->nvmem_config.dev = &spi->dev;
+ 	edev->nvmem_config.read_only = pd->flags & EE_READONLY;
+-- 
+2.17.1
 
