@@ -2,40 +2,41 @@ Return-Path: <SRS0=qUuh=CZ=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D1A0C433E2
-	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 09:50:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E02AEC2BB84
+	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 09:50:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DBFDF22225
-	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 09:50:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A44FC2080C
+	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 09:50:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="IdqtLpI/"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="ifJYXSqO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726425AbgIPJuM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 16 Sep 2020 05:50:12 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:16325 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726243AbgIPJuL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Sep 2020 05:50:11 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f61dfa30000>; Wed, 16 Sep 2020 02:49:23 -0700
+        id S1726758AbgIPJu3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 16 Sep 2020 05:50:29 -0400
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:13210 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726739AbgIPJuX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Sep 2020 05:50:23 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f61dfd20000>; Wed, 16 Sep 2020 02:50:10 -0700
 Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 16 Sep 2020 02:50:11 -0700
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Wed, 16 Sep 2020 02:50:23 -0700
 X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 16 Sep 2020 02:50:11 -0700
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 16 Sep
- 2020 09:50:10 +0000
-Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Wed, 16 Sep 2020 09:50:10 +0000
+        by hqpgpgate102.nvidia.com on Wed, 16 Sep 2020 02:50:23 -0700
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 16 Sep
+ 2020 09:50:22 +0000
+Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 16 Sep 2020 09:50:22 +0000
 Received: from moonraker.nvidia.com (Not Verified[10.26.74.242]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5f61dfd00001>; Wed, 16 Sep 2020 02:50:10 -0700
+        id <B5f61dfdc0000>; Wed, 16 Sep 2020 02:50:22 -0700
 From:   Jon Hunter <jonathanh@nvidia.com>
 To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -43,63 +44,95 @@ To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
 CC:     <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
         Jon Hunter <jonathanh@nvidia.com>
-Subject: [PATCH V2 0/5] Add support for custom names for AT24 EEPROMs
-Date:   Wed, 16 Sep 2020 10:49:47 +0100
-Message-ID: <20200916094952.458003-1-jonathanh@nvidia.com>
+Subject: [PATCH V2 5/5] arm64: tegra: Populate EEPROMs for Jetson Xavier NX
+Date:   Wed, 16 Sep 2020 10:49:52 +0100
+Message-ID: <20200916094952.458003-6-jonathanh@nvidia.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200916094952.458003-1-jonathanh@nvidia.com>
+References: <20200916094952.458003-1-jonathanh@nvidia.com>
 MIME-Version: 1.0
 X-NVConfidentiality: public
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1600249763; bh=fpG3sd1DvT30i+2ybF/+tA2abwvT7GdPWvcHCi71tMo=;
+        t=1600249810; bh=yUbtCK0PckeSjkBV0tkSuiBjwH6LDZxGlJ3jgLQJf/4=;
         h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         MIME-Version:X-NVConfidentiality:Content-Transfer-Encoding:
-         Content-Type;
-        b=IdqtLpI/gjYGSjKBV9LLeGW6gtfn1YsGDj5D9v+1njmHP6GE7dDXSKT6Oe1nqj3M0
-         TInE6NU0N6w+oVwjsS7yfMUAlyApGFENxiqUEXma2NGjrpw8AH3O+vclJJe0dNmxft
-         g9NvTF/BXGx83/hP8nUScm4sxUCIHffconXDMLTjOSFbihoNYuRlPYZyYP7tKvZUVs
-         uswMUUktjAd33fcbhiWE/HrsGo7TteElsOVbtzwguA+YEk84erIepzPq/8vNSeuwy0
-         CMKs7VYWxIiU1Lg29A2/+izUVSnMlWIh3xdrD83NW/rK8S8mXsHDEvEthX/bb+Ef4e
-         rXertc9+pSf5A==
+         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
+         Content-Transfer-Encoding:Content-Type;
+        b=ifJYXSqOFu/vd0NYGRn7reC4OS/5vHtLcOqNPdaj/3uTGR6PvEHEmLvVcvH50WAae
+         191urDggHofrNN1IJHAeZuILwY869lQv1an/P2Ksj8eHcxIiPWYO2FCc/iU7j7H/Ij
+         ZNSDb/R2yoMlEnp6C0EfxJWTy/+O16Zqu9W/uo0tz+SKbSgG/aC5rOH+JxWZrgRseJ
+         fC99Fd1pv9Th36heHiF8Ot5VraOSQTuABdd0KEcUuTttH5d0Vzfg6IcrNB7fmyy0mh
+         nG99qj8dnCyjJLCZ0V96+nEfcibyxH/uw5YcRY9uwfWiXbJEWGUsUGxGK7pLM6YLbe
+         oRYh3pMDQeMSQ==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-For platforms that have multiple boards and hence have multiple EEPROMs
-for identifying the different boards, it is useful to label the EEPROMs
-in device-tree so that they can be easily identified. For example, MAC
-address information is stored in the EEPROM on the processor module for
-some Jetson platforms which is not only required by the kernel but the
-bootloader as well. So having a simple way to identify the EEPROM is
-needed.
+Populate the EEPROMs that are present on the Jetson Xavier NX developer
+platform.
 
-Changes since V1:
-- By default initialise the nvmem_config.id as NVMEM_DEVID_AUTO and not
-  NVMEM_DEVID_NONE
-- Dropped the 'maxItems' from the dt-binding doc.
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+---
+ .../nvidia/tegra194-p3509-0000+p3668-0000.dts    | 14 ++++++++++++++
+ .../boot/dts/nvidia/tegra194-p3668-0000.dtsi     | 16 ++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
-Jon Hunter (5):
-  misc: eeprom: at24: Initialise AT24 NVMEM ID field
-  dt-bindings: eeprom: at24: Add label property for AT24
-  misc: eeprom: at24: Support custom device names for AT24 EEPROMs
-  arm64: tegra: Add label properties for EEPROMs
-  arm64: tegra: Populate EEPROMs for Jetson Xavier NX
-
- .../devicetree/bindings/eeprom/at24.yaml      |  3 +++
- .../boot/dts/nvidia/tegra186-p2771-0000.dts   |  1 +
- .../arm64/boot/dts/nvidia/tegra186-p3310.dtsi |  1 +
- .../arm64/boot/dts/nvidia/tegra194-p2888.dtsi |  1 +
- .../boot/dts/nvidia/tegra194-p2972-0000.dts   |  1 +
- .../nvidia/tegra194-p3509-0000+p3668-0000.dts | 14 ++++++++++++
- .../boot/dts/nvidia/tegra194-p3668-0000.dtsi  | 16 ++++++++++++++
- .../arm64/boot/dts/nvidia/tegra210-p2180.dtsi |  1 +
- .../boot/dts/nvidia/tegra210-p2371-2180.dts   |  1 +
- .../boot/dts/nvidia/tegra210-p3450-0000.dts   |  2 ++
- drivers/misc/eeprom/at24.c                    | 22 ++++++++++++++++++-
- 11 files changed, 62 insertions(+), 1 deletion(-)
-
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p3509-0000+p3668-0000.dts =
+b/arch/arm64/boot/dts/nvidia/tegra194-p3509-0000+p3668-0000.dts
+index c1c589805d6b..7f97b34216a0 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194-p3509-0000+p3668-0000.dts
++++ b/arch/arm64/boot/dts/nvidia/tegra194-p3509-0000+p3668-0000.dts
+@@ -27,6 +27,20 @@ ddc: i2c@3190000 {
+ 			status =3D "okay";
+ 		};
+=20
++		i2c@3160000 {
++			eeprom@57 {
++				compatible =3D "atmel,24c02";
++				reg =3D <0x57>;
++
++				label =3D "system";
++				vcc-supply =3D <&vdd_1v8>;
++				address-width =3D <8>;
++				pagesize =3D <8>;
++				size =3D <256>;
++				read-only;
++			};
++		};
++
+ 		hda@3510000 {
+ 			nvidia,model =3D "jetson-xavier-nx-hda";
+ 			status =3D "okay";
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p3668-0000.dtsi b/arch/arm=
+64/boot/dts/nvidia/tegra194-p3668-0000.dtsi
+index 10cb836aea7e..a2893be80507 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194-p3668-0000.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194-p3668-0000.dtsi
+@@ -58,6 +58,22 @@ serial@c280000 {
+ 			status =3D "okay";
+ 		};
+=20
++		i2c@3160000 {
++			status =3D "okay";
++
++			eeprom@50 {
++				compatible =3D "atmel,24c02";
++				reg =3D <0x50>;
++
++				label =3D "module";
++				vcc-supply =3D <&vdd_1v8ls>;
++				address-width =3D <8>;
++				pagesize =3D <8>;
++				size =3D <256>;
++				read-only;
++			};
++		};
++
+ 		/* SDMMC1 (SD/MMC) */
+ 		mmc@3400000 {
+ 			status =3D "okay";
 --=20
 2.25.1
 
