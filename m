@@ -2,180 +2,104 @@ Return-Path: <SRS0=qUuh=CZ=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 819A7C433E2
-	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 05:36:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D1A0C433E2
+	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 09:50:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 30D972076B
-	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 05:36:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DBFDF22225
+	for <linux-i2c@archiver.kernel.org>; Wed, 16 Sep 2020 09:50:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=aj.id.au header.i=@aj.id.au header.b="Sy2bgy4D";
-	dkim=temperror (0-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="T5lPpf4r"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="IdqtLpI/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726193AbgIPFfx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 16 Sep 2020 01:35:53 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:53881 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726149AbgIPFft (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Sep 2020 01:35:49 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 4413E793;
-        Wed, 16 Sep 2020 01:35:48 -0400 (EDT)
-Received: from imap2 ([10.202.2.52])
-  by compute3.internal (MEProxy); Wed, 16 Sep 2020 01:35:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aj.id.au; h=
-        mime-version:message-id:in-reply-to:references:date:from:to:cc
-        :subject:content-type; s=fm3; bh=dAhartNk4zeRElK+/OxgbX2nG4Mmm0a
-        i/4Y5aHhHOB8=; b=Sy2bgy4D3+z46ym6wc5/81/reL2KybtjK1GQF0fS26GYDhQ
-        doNXtsSJxpl8ptiOFTl61Nj+fGmOVDL/lS6T3eaIkrvX4IMbPnWH+biAcP9qe7WN
-        Nw4s5vDmQ43p+W5McPVKi38AcOmU2gYi93dOYB0s9fMmBwQHbagGZhi9pYih6aPx
-        Uqa/YS3gLgF8TnoTkItssPRjJnJu+ZlVbHgnM3q4lxsx97TjqMBcXMqgxzfJCR4C
-        hrVaSS7p78Y34/N+QdSZHBU+KCh7jqTRj1RXrCfmmpY1n38RoUEWgTsMkDnHA3bO
-        t+SJQ3kreMfDce1OKEEdi0qsc+0vl60Lv31PBYA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=dAhart
-        Nk4zeRElK+/OxgbX2nG4Mmm0ai/4Y5aHhHOB8=; b=T5lPpf4r/fBtEwXYwwUYo8
-        x0qQp3FaISzTWxNBsM+v1JMm9nOi2Yb/GlquoImHHRFqah4qqtC/yR5UxZLscOor
-        NBC5MSNqyqAWO6bGL3GDvzbys2lPKogI1ZYi0kDOjlM1zy+UvaRWy1OjkkRx+PxS
-        XWaH49kUrRx6dYrzfPWxtMo/SPQg+wuGPS2WPN7ObHGSrBXcq3MucunXLq/tGQX/
-        JQZtTWRLh2ns1a5ztZLiTXMzjvkWD24vje1/bMF0Plb0REXHpW4tP0Tuw/qQ2FBy
-        oqflXISol0yGoER2qwgXft2d5M4GuTqHH9/zkk8SZjszLG+ds3ydykiD3r2MJBZA
-        ==
-X-ME-Sender: <xms:M6RhX-q68f0-eJs3ZaQj0wtGVBFdi8_fSo4T4VHRrTM3wopc4t0a_A>
-    <xme:M6RhX8rtiNHhElk08mdJ4bHJH2Bpr8Xpf7-zisFJecJxgVJ1Fz8OklCa1PJhQ57g3
-    SO4D1BYpcm05d9WmQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrtddugdeltdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvufgtsehttdertderredtnecuhfhrohhmpedftehnughr
-    vgifucflvghffhgvrhihfdcuoegrnhgurhgvfiesrghjrdhiugdrrghuqeenucggtffrrg
-    htthgvrhhnpeehhfefkefgkeduveehffehieehudejfeejveejfedugfefuedtuedvhefh
-    veeuffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    grnhgurhgvfiesrghjrdhiugdrrghu
-X-ME-Proxy: <xmx:M6RhXzMTiZbPmvs_lRyOb6fZXO066GuVc4x4UjFLHG-tX_Ei5US9_A>
-    <xmx:M6RhX95qhHGp4KawewxfHNOYYyZEj_y73bzVr7uXv_PGcl6X4cGOuw>
-    <xmx:M6RhX964UJIsg8qKsak8gFD5-bfzRQG8RvtzmSdCUrTia10xi8Y0eQ>
-    <xmx:M6RhXw2MAGMvD8gSiiLb1aKzH8Jy7C83IJWIJI7rtFikVUTcNhoZYw>
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 6AE16E00C8; Wed, 16 Sep 2020 01:35:46 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.3.0-259-g88fbbfa-fm-20200903.003-g88fbbfa3
-Mime-Version: 1.0
-Message-Id: <120342ec-f44a-4550-8c54-45b97db41024@www.fastmail.com>
-In-Reply-To: <e7a64983-fe1d-1ba2-b0c3-ae4a791f7a75@roeck-us.net>
-References: <20200914122811.3295678-1-andrew@aj.id.au>
- <e7a64983-fe1d-1ba2-b0c3-ae4a791f7a75@roeck-us.net>
-Date:   Wed, 16 Sep 2020 15:05:25 +0930
-From:   "Andrew Jeffery" <andrew@aj.id.au>
-To:     "Guenter Roeck" <linux@roeck-us.net>, linux-hwmon@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Cc:     "Jean Delvare" <jdelvare@suse.com>, wsa@kernel.org,
-        "Joel Stanley" <joel@jms.id.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 0/2] Throttle I2C transfers to UCD9000 devices
+        id S1726425AbgIPJuM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 16 Sep 2020 05:50:12 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:16325 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726243AbgIPJuL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Sep 2020 05:50:11 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f61dfa30000>; Wed, 16 Sep 2020 02:49:23 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 16 Sep 2020 02:50:11 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 16 Sep 2020 02:50:11 -0700
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 16 Sep
+ 2020 09:50:10 +0000
+Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 16 Sep 2020 09:50:10 +0000
+Received: from moonraker.nvidia.com (Not Verified[10.26.74.242]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5f61dfd00001>; Wed, 16 Sep 2020 02:50:10 -0700
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>
+CC:     <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH V2 0/5] Add support for custom names for AT24 EEPROMs
+Date:   Wed, 16 Sep 2020 10:49:47 +0100
+Message-ID: <20200916094952.458003-1-jonathanh@nvidia.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+X-NVConfidentiality: public
+Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1600249763; bh=fpG3sd1DvT30i+2ybF/+tA2abwvT7GdPWvcHCi71tMo=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         MIME-Version:X-NVConfidentiality:Content-Transfer-Encoding:
+         Content-Type;
+        b=IdqtLpI/gjYGSjKBV9LLeGW6gtfn1YsGDj5D9v+1njmHP6GE7dDXSKT6Oe1nqj3M0
+         TInE6NU0N6w+oVwjsS7yfMUAlyApGFENxiqUEXma2NGjrpw8AH3O+vclJJe0dNmxft
+         g9NvTF/BXGx83/hP8nUScm4sxUCIHffconXDMLTjOSFbihoNYuRlPYZyYP7tKvZUVs
+         uswMUUktjAd33fcbhiWE/HrsGo7TteElsOVbtzwguA+YEk84erIepzPq/8vNSeuwy0
+         CMKs7VYWxIiU1Lg29A2/+izUVSnMlWIh3xdrD83NW/rK8S8mXsHDEvEthX/bb+Ef4e
+         rXertc9+pSf5A==
 Sender: linux-i2c-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+For platforms that have multiple boards and hence have multiple EEPROMs
+for identifying the different boards, it is useful to label the EEPROMs
+in device-tree so that they can be easily identified. For example, MAC
+address information is stored in the EEPROM on the processor module for
+some Jetson platforms which is not only required by the kernel but the
+bootloader as well. So having a simple way to identify the EEPROM is
+needed.
 
+Changes since V1:
+- By default initialise the nvmem_config.id as NVMEM_DEVID_AUTO and not
+  NVMEM_DEVID_NONE
+- Dropped the 'maxItems' from the dt-binding doc.
 
-On Tue, 15 Sep 2020, at 02:13, Guenter Roeck wrote:
-> On 9/14/20 5:28 AM, Andrew Jeffery wrote:
-> > Hello,
-> > 
-> > While working with system designs making use of TI's UCD90320 Power
-> > Sequencer we've found that communication with the device isn't terribly
-> > reliable.
-> > 
-> > It appears that back-to-back transfers where commands addressed to the
-> > device are put onto the bus with intervals between STOP and START in the
-> > neighbourhood of 250us or less can cause bad behaviour. This primarily
-> > happens during driver probe while scanning the device to determine its
-> > capabilities.
-> > 
-> > We have observed the device causing excessive clock stretches and bus
-> > lockups, and also corruption of the device's volatile state (requiring it
-> > to be reset).  The latter is particularly disruptive in that the controlled
-> > rails are brought down either by:
-> > 
-> > 1. The corruption causing a fault condition, or
-> > 2. Asserting the device's reset line to recover
-> > 
-> > A further observation is that pacing transfers to the device appears to
-> > mitigate the bad behaviour. We're in discussion with TI to better
-> > understand the limitations and at least get the behaviour documented.
-> > 
-> > This short series implements the mitigation in terms of a throttle in the
-> > i2c_client associated with the device's driver. Before the first
-> > communication with the device in the probe() of ucd9000 we configure the
-> > i2c_client to throttle transfers with a minimum of a 1ms delay (with the
-> > delay exposed as a module parameter).
-> > 
-> > The series is RFC for several reasons:
-> > 
-> > The first is to sus out feelings on the general direction. The problem is
-> > pretty unfortunate - are there better ways to implement the mitigation?
-> > 
-> > If there aren't, then:
-> > 
-> > I'd like thoughts on whether we want to account for i2c-dev clients.
-> > Implementing throttling in i2c_client feels like a solution-by-proxy as the
-> > throttling is really a property of the targeted device, but we don't have a
-> > coherent representation between platform devices and devices associated
-> > with i2c-dev clients. At the moment we'd have to resort to address-based
-> > lookups for platform data stashed in the transfer functions.
-> > 
-> > Next is that I've only implemented throttling for SMBus devices. I don't
-> > yet have a use-case for throttling non-SMBus devices so I'm not sure it's
-> > worth poking at it, but would appreciate thoughts there.
-> > 
-> > Further, I've had a bit of a stab at dealing with atomic transfers that's
-> > not been tested. Hopefully it makes sense.
-> > 
-> > Finally I'm also interested in feedback on exposing the control in a little
-> > more general manner than having to implement a module parameter in all
-> > drivers that want to take advantage of throttling. This isn't a big problem
-> > at the moment, but if anyone has thoughts there then I'm happy to poke at
-> > those too.
-> > 
-> 
-> As mentioned in patch 2/2, I don't think a module parameter is a good idea.
-> I think this should be implemented on driver level, similar to zl6100.c,
-> it should be limited to affected devices and not be user controllable.
-> 
-> In respect to implementation in the i2c core vs in drivers: So far we
-> encountered this problem for some Zilker labs devices and for some LTC
-> devices. While the solution needed here looks similar to the solution
-> implemented for Zilker labs devices, the solution for LTC devices is
-> different. I am not sure if an implementation in the i2c core is
-> desirable. It looks quite invasive to me, and it won't solve the problem
-> for all devices since it isn't always a simple "wait <n> microseconds
-> between accesses". For example, some devices may require a wait after
-> a write but not after a read, or a wait only after certain commands (such
-> as commands writing to an EEPROM). Other devices may require a mechanism
-> different to "wait a certain period of time". It seems all but impossible
-> to implement a generic mechanism on i2c level.
+Jon Hunter (5):
+  misc: eeprom: at24: Initialise AT24 NVMEM ID field
+  dt-bindings: eeprom: at24: Add label property for AT24
+  misc: eeprom: at24: Support custom device names for AT24 EEPROMs
+  arm64: tegra: Add label properties for EEPROMs
+  arm64: tegra: Populate EEPROMs for Jetson Xavier NX
 
-So I think it could be handled with an optional i2c client callback: e.g.
+ .../devicetree/bindings/eeprom/at24.yaml      |  3 +++
+ .../boot/dts/nvidia/tegra186-p2771-0000.dts   |  1 +
+ .../arm64/boot/dts/nvidia/tegra186-p3310.dtsi |  1 +
+ .../arm64/boot/dts/nvidia/tegra194-p2888.dtsi |  1 +
+ .../boot/dts/nvidia/tegra194-p2972-0000.dts   |  1 +
+ .../nvidia/tegra194-p3509-0000+p3668-0000.dts | 14 ++++++++++++
+ .../boot/dts/nvidia/tegra194-p3668-0000.dtsi  | 16 ++++++++++++++
+ .../arm64/boot/dts/nvidia/tegra210-p2180.dtsi |  1 +
+ .../boot/dts/nvidia/tegra210-p2371-2180.dts   |  1 +
+ .../boot/dts/nvidia/tegra210-p3450-0000.dts   |  2 ++
+ drivers/misc/eeprom/at24.c                    | 22 ++++++++++++++++++-
+ 11 files changed, 62 insertions(+), 1 deletion(-)
 
-struct i2c_client {
-...
-bool (*prepare_device)(const struct i2c_client *client);
-}
+--=20
+2.25.1
 
-This way the logic to delay is kept inside the driver, catering to both the 
-Zilker and the LTC devices. If the problem exists only after specific 
-operations then we can stash some state in the client in the same way I've done 
-in patch 1, test that state in the callback and only do the "preparation" if 
-it's necessary.
-
-I can knock that up and post another RFC, just so we can get a feel for how 
-that solution looks.
-
-Andrew
