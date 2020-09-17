@@ -2,119 +2,105 @@ Return-Path: <SRS0=DpqV=C2=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5F0BC35263
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BC36C433E2
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 08:10:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 872032137B
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4288A221E7
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 08:10:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jfykg3GQ"
+	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="fykaRfQx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726247AbgIQFXn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 17 Sep 2020 01:23:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58708 "EHLO
+        id S1726217AbgIQIKV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 17 Sep 2020 04:10:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726169AbgIQFXD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 01:23:03 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19171C06174A;
-        Wed, 16 Sep 2020 22:23:02 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id l71so680247pge.4;
-        Wed, 16 Sep 2020 22:23:02 -0700 (PDT)
+        with ESMTP id S1726347AbgIQIGf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 04:06:35 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B614C06178A
+        for <linux-i2c@vger.kernel.org>; Thu, 17 Sep 2020 01:06:19 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id z22so1972430ejl.7
+        for <linux-i2c@vger.kernel.org>; Thu, 17 Sep 2020 01:06:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=H9VSuNM4l/40vayIg5SAmxrV3Ky0F4a/ev4/YbXR38I=;
-        b=jfykg3GQwbbnkRd4mHs2T0pRUdzz6Qg04xQDWonYE+62vUyPxk2CSLjNyOuwQCK0wQ
-         kUaQ8/9tGinqIg9HVGsDRNH6jabj28nmPIwstqFlvS6NsEZ/loOvs/JlEfSnQrlt0TUv
-         riOpGWHsnRPnO1Dht3mtFK6Ge7oJALV93RpiDKnage3a9TapArQxpoR9EkToOJwoZGmg
-         kkEAiBqlnuCdonIX3vCrWzrli6uuZdrpxpmBW/pxRXWNcnMB6YpNk/E5lVt/7rO+TqRm
-         uLSMc4LtD9P2wavTLkjV+i3S0Nd3eQnJDFKgmPEc0HHyoCP+C1lS8QSTHxhlgomcEzNj
-         oXUw==
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=y5BAoQ8Ga3wPT4OqKnKaprIGJrT/HusINmypTex/K/Y=;
+        b=fykaRfQxvrMFJBznzJC/4DXMvQdeEBXRCs0ipScrz7+TPQLj/PDg3NN+YFiRbyaU7B
+         VJO+L2D9In6sycTN85X+zrnOPiWVZ33kF9HGFGbrlfbnwBg0dIdBOWuC8cNxDwuihD+J
+         P4nRreyyL/zIRM0SJn02HVctVDiqEtYYyR9aenjUWScNfPljCalUFsOnwBCrcCH5quHp
+         avU/HWv8vqjAsxTfDotKNqdqFIskXaAuxTC27+MdJAUeOCqeE5k1UsIomEze3gkAj2b5
+         JGnjXp1o5yfQLIp4yFsLPzI+JNF8wTuvjEWgyYgf0V53kg0zkpIL/tM6lSUzO6kwWews
+         MoMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=H9VSuNM4l/40vayIg5SAmxrV3Ky0F4a/ev4/YbXR38I=;
-        b=FXoiZMlyebz0KIAfDUWB3Qgcy/xKvQwMRYdSn+NEEuQUhPCJXr74M8XQsI3+9ElhpT
-         NIhXECTpQuz+aJY/xRyPquq5/m5UJOEs1mGIEaJmGKdvwgjiGYCEKJIKoiqm8PAHRu7Q
-         4Z86Tcqu1Y49EI4jV9kz51XXlG4Z+ItSF84Feut9fPvMJ6sHLBBnCQyO5FvrKm62/YgT
-         b6c6xsUGtVGN4vQjEc1zCmiikHMsYQwVJZ/lqAa5bj+IAhKg11yUlJGLoOMJwZ7QtY+U
-         m2z5l54//8O0Z2q1sxIZMojCcB/+LZZL2YyYZJHv0kaLJYDNZOO2TCbTj9Z0WFzrCLn8
-         1Dgw==
-X-Gm-Message-State: AOAM5323ifwaT3cRS6jfMKodiDbWoCv2/roSNP+pe27a8cZ4Uh98fKJQ
-        clVzq516dvPCnBlWYRtsIlmsvKO5dDxTVQ==
-X-Google-Smtp-Source: ABdhPJyQj2W93OVJdgG0z4BQfii7Jc+Bx08sqfPo7FS4qcFN/sVD4CD3GQSjhe2kx8kuKnZazAVFgg==
-X-Received: by 2002:a62:fb1a:0:b029:142:2501:39f9 with SMTP id x26-20020a62fb1a0000b0290142250139f9mr9134883pfm.72.1600320181402;
-        Wed, 16 Sep 2020 22:23:01 -0700 (PDT)
-Received: from sultan-book.localdomain ([104.200.129.212])
-        by smtp.gmail.com with ESMTPSA id i62sm18705619pfe.140.2020.09.16.22.23.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 22:23:00 -0700 (PDT)
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-X-Google-Original-From: Sultan Alsawaf
-To:     linux-i2c@vger.kernel.org
-Cc:     jikos@kernel.org, aaron.ma@canonical.com, admin@kryma.net,
-        andriy.shevchenko@linux.intel.com, benjamin.tissoires@redhat.com,
-        hdegoede@redhat.com, hn.chen@weidahitech.com,
-        jarkko.nikula@linux.intel.com, kai.heng.feng@canonical.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mika.westerberg@linux.intel.com, vicamo.yang@canonical.com,
-        wsa@kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>
-Subject: [PATCH v2 2/4] i2c: designware: Ensure tx_buf_len is nonzero for SMBus block reads
-Date:   Wed, 16 Sep 2020 22:22:54 -0700
-Message-Id: <20200917052256.5770-3-sultan@kerneltoast.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200917052256.5770-1-sultan@kerneltoast.com>
-References: <20200917052256.5770-1-sultan@kerneltoast.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=y5BAoQ8Ga3wPT4OqKnKaprIGJrT/HusINmypTex/K/Y=;
+        b=dBVAfdrEf30Adx3kS+zqm+iXkR+U/qfk2+ypgRsTbQLN05442gn1hW2Sw2GHKvb62A
+         ngrPgcFZ+IlvNUEyc85natj/MXbYf0TyDOJuhmtfnVMJh8xm2NlYh7OPNvbwHo8u48LJ
+         rs0ftSKocjxqpnwallIuMqDUJaClhpkCWhfE9ZaSMfQiv8ESIcGueq/VNzGgH74W69ol
+         bHhDEjdQh3N/faST1QBu/SP+zBsnvD4XGUkkz9nMgCr+YvK6I+a9FR9hWaSN5eQ6j9w4
+         3paUUI04Do1kbSohY7hBIEDL6SgdSLonkwROEQrAlVplHypUo8MG0qA27XhbiUQ9hJRb
+         cZlA==
+X-Gm-Message-State: AOAM533aeoLVgwxmj34cTLo/JtM6oMsNVmCJtm7qK/eRrdkvZtS0iXUh
+        s/MToyPhTD8OieKav6dgbfQpt0HjPXs+r8wvHPdtdw==
+X-Google-Smtp-Source: ABdhPJyVrvKr9O4Mdmci3LL1u8dOErH3YZeH/3QVImK3nZcr6/ha1wPAfWTKAntu/g6l2IcYVH8rCrQQSXatqi0ubnM=
+X-Received: by 2002:a17:906:7489:: with SMTP id e9mr28986969ejl.154.1600329978090;
+ Thu, 17 Sep 2020 01:06:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200916170933.20302-1-vadym.kochan@plvision.eu> <20200916170933.20302-2-vadym.kochan@plvision.eu>
+In-Reply-To: <20200916170933.20302-2-vadym.kochan@plvision.eu>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Thu, 17 Sep 2020 10:06:07 +0200
+Message-ID: <CAMpxmJXehV1R7FdgefxWL3aG9dZvtO1SQJdhL4MjDDbuGtuMhA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] eeprom: at24: set type id as EEPROM
+To:     Vadym Kochan <vadym.kochan@plvision.eu>
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Sultan Alsawaf <sultan@kerneltoast.com>
+On Wed, Sep 16, 2020 at 7:10 PM Vadym Kochan <vadym.kochan@plvision.eu> wrote:
+>
+> Set type as NVMEM_TYPE_EEPROM to expose this info via
+> sysfs:
+>
+> $ cat /sys/bus/nvmem/devices/{DEVICE}/type
+> EEPROM
+>
+> Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
+> ---
+>  drivers/misc/eeprom/at24.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 2591c21b2b5d..800300296c74 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -678,6 +678,7 @@ static int at24_probe(struct i2c_client *client)
+>                         return err;
+>         }
+>
+> +       nvmem_config.type = NVMEM_TYPE_EEPROM;
+>         nvmem_config.name = dev_name(dev);
+>         nvmem_config.dev = dev;
+>         nvmem_config.read_only = !writable;
+> --
+> 2.17.1
+>
 
-The point of adding a byte to len in i2c_dw_recv_len() is to make sure
-that tx_buf_len is nonzero, so that i2c_dw_xfer_msg() can let the i2c
-controller know that the i2c transaction can end. Otherwise, the i2c
-controller will think that the transaction can never end for block
-reads, which results in the stop-detection bit never being set and thus
-the transaction timing out.
+Queued for v5.10, thanks!
 
-Adding a byte to len is not a reliable way to do this though; sometimes
-it lets tx_buf_len become zero, which results in the scenario described
-above. Therefore, just directly ensure tx_buf_len cannot be zero to fix
-the issue.
-
-Fixes: c3ae106050b9 ("i2c: designware: Implement support for SMBus block read and write")
-Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
----
- drivers/i2c/busses/i2c-designware-master.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index d78f48ca4886..22f28516bca7 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -395,8 +395,9 @@ i2c_dw_recv_len(struct dw_i2c_dev *dev, u8 len)
- 	 * Adjust the buffer length and mask the flag
- 	 * after receiving the first byte.
- 	 */
--	len += (flags & I2C_CLIENT_PEC) ? 2 : 1;
--	dev->tx_buf_len = len - min_t(u8, len, dev->rx_outstanding);
-+	if (flags & I2C_CLIENT_PEC)
-+		len++;
-+	dev->tx_buf_len = len - min_t(u8, len - 1, dev->rx_outstanding);
- 	msgs[dev->msg_read_idx].len = len;
- 	msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
- 
--- 
-2.28.0
-
+Bartosz
