@@ -2,134 +2,65 @@ Return-Path: <SRS0=DpqV=C2=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8FC2C35256
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:10:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29BF0C433E2
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:11:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D6FB2087D
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:10:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA68B208DB
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:11:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N8FKReFV"
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="CevI0gAx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726698AbgIQMK2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 17 Sep 2020 08:10:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37142 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726991AbgIQMKB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:10:01 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566F2C06174A;
-        Thu, 17 Sep 2020 05:10:00 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id m6so1821403wrn.0;
-        Thu, 17 Sep 2020 05:10:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=9s22AstJ7BJNTOCg0VPhZtgNsf+um2RTDRRHeVplWZw=;
-        b=N8FKReFVUPdlFgTQSKJ5NEJd0A9ijuwh0Ed0ekh2W1IJv7ZVI0XyHo6b9/KQMxd48t
-         wli7M9O//WiP2309Mfq6xDTx+HwUlCX9FsFtrbwAWLnc2GpruMWNngq/4/DqQqCgApGA
-         MiCQcbMFL/BR/7MdGaySN/UTPyMo+xnXK9YShld3338vjSYJtUEEMa82O1uBbNwgJXaU
-         Uj4llsB7GbvzOaqnCQJcMJzh94Sn5oha8rNOUDVup/pHOojlHQXOmLUx0RLBm85SB3Ch
-         9mDIAxGZ50DGvwGvmxkcD46L1KXe4Lf0eQPJ9tKKCMcs0uY5p4H3VF5VgTU+8gfApqqO
-         DZ4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=9s22AstJ7BJNTOCg0VPhZtgNsf+um2RTDRRHeVplWZw=;
-        b=MnCMaQPd46p47HAzcQ2Iz5rueOdgqiLZOaK1p87CkXEsIk1TPf4+BNbU83VtUmeHsR
-         tZOkpess7IoQHig+mYj4vg2YHiZEB6fCKsNr1P/pRX2WUCTGJPDozM5XhWi5A2S6GOwU
-         F7t9DHt0sUy2yUjswarCOhhooM6G4gf+wMRhQGVXzOa05vi7bofkAiLG6uv+riq0O3yd
-         EauYvq7WSaHEX8/ctd63zyABDrFZ5ITmzkqiHLYeqN0KLo6gRhJVgp1MqNFu54f68+dM
-         G7u7B0rgUmjS7Zbwzu6PPIauDl7yd28wAFmBHjxc3Pw6/6MY6Enznypt+IZPy9uEGUyp
-         CHig==
-X-Gm-Message-State: AOAM533JqUV+eqAUnt3NAxcw6gm4zMhctgg7P2BukY6QaBgOf4Z0AJhD
-        /ESk72we88m5x48UEEhXAME=
-X-Google-Smtp-Source: ABdhPJyi/6a13R0v/0Uqk/vGoZW2tr97dkdC8eqJp0jV3Z3Z2M9f8J/8JXgu3M5CMnmqexzSnI8gAg==
-X-Received: by 2002:adf:e391:: with SMTP id e17mr30770039wrm.289.1600344598851;
-        Thu, 17 Sep 2020 05:09:58 -0700 (PDT)
-Received: from localhost ([217.111.27.204])
-        by smtp.gmail.com with ESMTPSA id h186sm11056297wmf.24.2020.09.17.05.09.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2020 05:09:57 -0700 (PDT)
-Date:   Thu, 17 Sep 2020 14:09:55 +0200
-From:   Thierry Reding <thierry.reding@gmail.com>
-To:     Dmitry Osipenko <digetx@gmail.com>
-Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 27/34] i2c: tegra: Check errors for both positive and
- negative values
-Message-ID: <20200917120955.GF3515672@ulmo>
-References: <20200908224006.25636-1-digetx@gmail.com>
- <20200908224006.25636-28-digetx@gmail.com>
+        id S1726863AbgIQMFC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 17 Sep 2020 08:05:02 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:61005 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726773AbgIQMEs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:04:48 -0400
+X-UUID: 71a43a36754643aa88dbddd9eb1235fa-20200917
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=6RsFN3FgI09QCmEIV64IUurK2wRwXLViWE4DI22IWEY=;
+        b=CevI0gAxzwQWnyHIN7cLsYBuCJ4gsX+/9Ypq1hApsLwTuKwpCdLm7AbvEKtcEQIZqmT4fs2ZwKx7qe3LKFygV8nRO2KmKEcXofj5NYBpVBQMOtJQD5e01JB9AvKKyUah16Ao0E+1oLm8UFn79auPIBHUQyM8PpvWo6m06VNITeE=;
+X-UUID: 71a43a36754643aa88dbddd9eb1235fa-20200917
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
+        (envelope-from <qii.wang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1923396637; Thu, 17 Sep 2020 19:58:02 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Thu, 17 Sep 2020 19:57:59 +0800
+Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 17 Sep 2020 19:57:59 +0800
+From:   Qii Wang <qii.wang@mediatek.com>
+To:     <wsa@the-dreams.de>
+CC:     <matthias.bgg@gmail.com>, <linux-i2c@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
+        <qii.wang@mediatek.com>
+Subject: [PATCH 0/2] Fix some definitions for bus frequency
+Date:   Thu, 17 Sep 2020 19:55:40 +0800
+Message-ID: <1600343742-9731-1-git-send-email-qii.wang@mediatek.com>
+X-Mailer: git-send-email 1.9.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7cXxibKNEnJOqEg4"
-Content-Disposition: inline
-In-Reply-To: <20200908224006.25636-28-digetx@gmail.com>
-User-Agent: Mutt/1.14.6 (2020-07-11)
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+VGhpcyBzZXJpZXMgYXJlIGJhc2VkIG9uIDUuOS1yYzEgYW5kIHdlIHByb3ZpZGUgdHdvIGkyYyBw
+YXRjaGVzDQp0byBmaXggc29tZSBkZWZpbml0aW9ucyBmb3IgYnVzIGZyZXF1ZW5jeS4NCg0KUWlp
+IFdhbmcgKDIpOg0KICBpMmM6IG1lZGlhdGVrOiBGaXggZ2VuZXJpYyBkZWZpbml0aW9ucyBmb3Ig
+YnVzIGZyZXF1ZW5jeQ0KICBpMmM6IG1lZGlhdGVrOiBTZW5kIGkyYyBtYXN0ZXIgY29kZSBhdCBt
+b3JlIHRoYW4gMU1Ieg0KDQogZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1tdDY1eHguYyB8IDYgKysr
+LS0tDQogMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkNCg0K
+LS0gDQoxLjkuMQ0KDQo=
 
---7cXxibKNEnJOqEg4
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Sep 09, 2020 at 01:39:59AM +0300, Dmitry Osipenko wrote:
-> The driver's code is inconsistent in regards to the error values checking.
-> The correct way should be to check both positive and negative values.
-> This patch cleans up the error-checks in the code. Note that the
-> pm_runtime_get_sync() could return positive value on success, hence only
-> relevant parts of the code are changed by this patch.
->=20
-> Reviewed-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
-> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-
-Why? All of these functions "return 0 on success or a negative error
-code on failure", don't they?
-
-I would actually argue that all of the other checks are wrong. As you
-mention yourself, some functions may decide to return positive values on
-success to convey some extra information, so making this just check for
-non-zero carries a risk of its own.
-
-Thierry
-
---7cXxibKNEnJOqEg4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl9jUhEACgkQ3SOs138+
-s6FoyQ//el+v4DlNBwE4rVBy7+LlFoHacHj1SffuSYl1l9sMcMCXXgupnlarJ2IR
-JGDCtKtduxxm6MY5SORv95PTtRjNjOk2q7IaKn7uftDIH+GMVtH6y/7AIlSI3zle
-YctRopASVvzNrf//KLqo6L1PqvyoAqW/Wcy30fihMT56n3ira/GxhJaBzJxcT4ss
-aVDiiqqqKF3YwKiiiTvFkrLLWVzqe75KuRPJTTsvWI0OedPG60pWwJmfVWFTnsPU
-gPQalW22mSd8ephR9CKxUgthkt+qLIcxlgJJmYYfp823NDdBPh56w54wJpyzUP5P
-buuz4ngg2Wyxi77Rdhb1FIJOzcobtuRYqyDhrMX7J6OqgupP7gds34F99JHXw1Zs
-bp/e5JJU5+80BqRVtQOMK0/+Bygdzd+5RUraYDHHu1F1cAUd3bN6DrchmsHI2XMt
-DT4zxsukBteiTk9cCAf85U0Hi41urs4XOfA4bhiowtowjvtyRi2iGmseQdlt322g
-nXdTQDQFSmPEBpamhFjU7h7C/N+N0vg8dsQngJY3dW28JpF1KM3QMzghN/OzqVTw
-IIlyPgdMueoHET8FwPnm7zqcAb59iiVla0m6FOpRTCwFpwUE96MHNw/LRBFqDwx/
-iCV2/MgCEG2iNytK96PFaA4HFOSakQYq/XF/XhtfExURwA2S8Ss=
-=MhMV
------END PGP SIGNATURE-----
-
---7cXxibKNEnJOqEg4--
