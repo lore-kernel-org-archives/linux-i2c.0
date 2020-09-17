@@ -2,85 +2,72 @@ Return-Path: <SRS0=DpqV=C2=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0A86C43461
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:56:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12F36C433E2
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:57:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4EB721D7F
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:56:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF16B2083B
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:57:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727185AbgIQM4U (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 17 Sep 2020 08:56:20 -0400
-Received: from mga03.intel.com ([134.134.136.65]:6354 "EHLO mga03.intel.com"
+        id S1727116AbgIQM5i (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 17 Sep 2020 08:57:38 -0400
+Received: from mailout11.rmx.de ([94.199.88.76]:34391 "EHLO mailout11.rmx.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727179AbgIQM4T (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 17 Sep 2020 08:56:19 -0400
-X-Greylist: delayed 517 seconds by postgrey-1.27 at vger.kernel.org; Thu, 17 Sep 2020 08:56:18 EDT
-IronPort-SDR: ENU+rvd2fj0D+le23FdZuw9xJFhRzvQBYAxdC6ep4G3FKKvboan0mpd1kFCzziBYCNHKH5Rkfp
- 22jgyhB+3ARQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9746"; a="159738927"
-X-IronPort-AV: E=Sophos;i="5.76,436,1592895600"; 
-   d="scan'208";a="159738927"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Sep 2020 05:47:37 -0700
-IronPort-SDR: UZvmrhAvKT85vhrcQe42e72CtXVDWzwCMm5Z5JIyJnyyTwPdR87fq+D/dfl+/fD/a//Nli247W
- rvFMUbUJ+OnA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,436,1592895600"; 
-   d="scan'208";a="336400715"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga008.jf.intel.com with ESMTP; 17 Sep 2020 05:47:34 -0700
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1kItJy-00HKDV-It; Thu, 17 Sep 2020 15:47:30 +0300
-Date:   Thu, 17 Sep 2020 15:47:30 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Sultan Alsawaf <sultan@kerneltoast.com>
-Cc:     linux-i2c@vger.kernel.org, jikos@kernel.org,
-        aaron.ma@canonical.com, admin@kryma.net,
-        benjamin.tissoires@redhat.com, hdegoede@redhat.com,
-        hn.chen@weidahitech.com, jarkko.nikula@linux.intel.com,
-        kai.heng.feng@canonical.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com,
-        vicamo.yang@canonical.com, wsa@kernel.org
-Subject: Re: [PATCH v2 2/4] i2c: designware: Ensure tx_buf_len is nonzero for
- SMBus block reads
-Message-ID: <20200917124730.GL3956970@smile.fi.intel.com>
-References: <20200917052256.5770-1-sultan@kerneltoast.com>
- <20200917052256.5770-3-sultan@kerneltoast.com>
+        id S1727121AbgIQM5c (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 17 Sep 2020 08:57:32 -0400
+Received: from kdin02.retarus.com (kdin02.dmz1.retloc [172.19.17.49])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mailout11.rmx.de (Postfix) with ESMTPS id 4Bsbfd4kKVz41xp;
+        Thu, 17 Sep 2020 14:21:13 +0200 (CEST)
+Received: from mta.arri.de (unknown [217.111.95.66])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by kdin02.retarus.com (Postfix) with ESMTPS id 4BsbfP0DJ3z2TTMr;
+        Thu, 17 Sep 2020 14:21:01 +0200 (CEST)
+Received: from N95HX1G2.wgnetz.xx (192.168.54.80) by mta.arri.de
+ (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Thu, 17 Sep
+ 2020 14:20:39 +0200
+From:   Christian Eggers <ceggers@arri.de>
+To:     Oleksij Rempel <linux@rempel-privat.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>
+CC:     Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        <linux-i2c@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 0/3] i2c: imx: Fix handling of arbitration loss
+Date:   Thu, 17 Sep 2020 14:20:26 +0200
+Message-ID: <20200917122029.11121-1-ceggers@arri.de>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200917052256.5770-3-sultan@kerneltoast.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [192.168.54.80]
+X-RMX-ID: 20200917-142101-4BsbfP0DJ3z2TTMr-0@kdin02
+X-RMX-SOURCE: 217.111.95.66
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Sep 16, 2020 at 10:22:54PM -0700, Sultan Alsawaf wrote:
-> From: Sultan Alsawaf <sultan@kerneltoast.com>
-> 
-> The point of adding a byte to len in i2c_dw_recv_len() is to make sure
-> that tx_buf_len is nonzero, so that i2c_dw_xfer_msg() can let the i2c
-> controller know that the i2c transaction can end. Otherwise, the i2c
-> controller will think that the transaction can never end for block
-> reads, which results in the stop-detection bit never being set and thus
-> the transaction timing out.
-> 
-> Adding a byte to len is not a reliable way to do this though; sometimes
-> it lets tx_buf_len become zero, which results in the scenario described
-> above. Therefore, just directly ensure tx_buf_len cannot be zero to fix
-> the issue.
+On my (noisy) system, I2C arbitration losses happen quite often. In it's
+current implementation, the IAL flag is partly handled, but has a
+number of shortcomings:
 
-I got only patch 2/4, where the other 3 along with cover letter?
+1. The driver runs unnecessarily in a timeout when waiting for an
+interrupt.
 
--- 
-With Best Regards,
-Andy Shevchenko
+2. The driver performs 500 ms busy-waiting without any value.
+
+3. Arbitration loss errors may be reported one transfer later than they
+occured.
+
+Best regards
+Christian
 
 
