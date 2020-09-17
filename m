@@ -2,63 +2,63 @@ Return-Path: <SRS0=DpqV=C2=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB841C43461
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:39:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 944FCC433E2
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:41:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8455F2087D
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:39:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F9172087D
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:41:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PAg8PwVf"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oiHEEW9K"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727028AbgIQMjf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 17 Sep 2020 08:39:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41612 "EHLO
+        id S1726864AbgIQMlp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 17 Sep 2020 08:41:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727016AbgIQMjJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:39:09 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 746E3C06174A;
-        Thu, 17 Sep 2020 05:38:43 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id x23so1810716wmi.3;
-        Thu, 17 Sep 2020 05:38:43 -0700 (PDT)
+        with ESMTP id S1726766AbgIQMl3 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:41:29 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA58DC06174A;
+        Thu, 17 Sep 2020 05:41:24 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id t10so1922130wrv.1;
+        Thu, 17 Sep 2020 05:41:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=FGjR+d+JXWgy8/GPd/QulX+q0ICOMnYHyNA3qxfsAgE=;
-        b=PAg8PwVfRywiYUjB1HLM0FGkbVI/EYy5tT19m/aDoOInLlAHR1cePQWz/iFGZ4WuFU
-         FXGmvhOgiVuOn7MsZPv/0EbWdTA70EAjeWA3lbOjVmNW5O7hratbPyZTsp93OqtkgQSO
-         ffRwmpfF55uS+9nokEz1iq9xrrfmvk8onFFpCnRskYWOy88OT12r4i+jP+uBiSOxO1NG
-         wcH4NuUM/WVN2r6MqbAaRN97veKinJEybzyM5CqaNdQwI4KiJxfaipPuNsoz0IYilBRn
-         jLAgeA5NS1tw8eDSws+G4IO139nCDoS5MWNMhUIYKKiA6kjoELpjhXl3Av8lliWmmmWZ
-         8xAg==
+        bh=NBHR/fgIoFwmMy9FagkEI3Hp1HWTM/rAeZswTOULEWM=;
+        b=oiHEEW9KiIBL2DtNhJzo1QxpIOhm/e+pIPpsmvTwBi0d839K5GCBj6IRZCNCfUcYun
+         l34MEY63AWgKua4s3sM6I+oOsH5k4SKzzqlpFro95p8kdcxVZxNfEdqwHCEBcNZE2p4G
+         OBvUvyD0P8qxXd+7y3EYGeM54tztI43PaLRlvQQ3o1MdDmNSQ8YaS8w50MHUyNQr9ToJ
+         ntCzZQlH+YfVIGc16KRfHP6lft+7ZzVlyXMgbu6NkTHiln9SqwU7v6TBr4Qw16ROBisn
+         U7NgYoop96e/xVbsV0d/jAViqsAOr54TNE0z5pj908JLONEpFdApr22LpyurOjikRp5g
+         9bkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=FGjR+d+JXWgy8/GPd/QulX+q0ICOMnYHyNA3qxfsAgE=;
-        b=gEAL3l8p4McKbm72T4mgxejJEzQL/V/vlsfJ6Vdbrl7NeldS/1gloz4vB82erEbCL3
-         PiCwqjzfAaymZXu2uCTBFJQlcmPBoOMIcZ3FTqvvxiR1E1Y7B7b7d3gBVAQxVOJjimoK
-         jVx1un/KI3U1S8QqfINKkk0WVrboZWNT6bJgg5LU4Y9saEzcFpm9lWeoGz+mqeMydaGY
-         BYjj8d3HLx4ELkyCwWIEVEIsj7/kwk0N0HsSYRi8YpkFUdU1qLZ5iC8C4ixEf0arLuMR
-         G8+IaiPwMhusaEtLGx1icAoNb5+ghGqjffdWV2BreGcLxZivaHxov78Esf6x3Yrp5M+l
-         DRlA==
-X-Gm-Message-State: AOAM531YgfnQ0Zh1CB6kHLumpCeBaA7ha2b5dIsNbyV6GkZ8lS9H/BRZ
-        /P3LbwhmySyL8qaleBwCSgA=
-X-Google-Smtp-Source: ABdhPJwCWJ4lzAgCqQUZDD+gpVhPaqmbrn1bGTCOl455gjPiXzN26QwpwfIifwGui9GnO1JlvTUabQ==
-X-Received: by 2002:a7b:c359:: with SMTP id l25mr9571261wmj.187.1600346322154;
-        Thu, 17 Sep 2020 05:38:42 -0700 (PDT)
+        bh=NBHR/fgIoFwmMy9FagkEI3Hp1HWTM/rAeZswTOULEWM=;
+        b=Kn4JzFhU7aI2LSHxPIzPjtFCdnmmjlCOWiv2Hr7u2xV3o1xLawqVghh7OGfXdyfpfQ
+         CODp5XuTHpGYto07ozbiDZCwr5lfHF52akmQVBXzgC3oNcOJmP6IGL2s6RvSLeWKBN1M
+         4eTvklSrL5oEHC+k6dXX2t4vCgyidWMojAjVbfjftIth8x6yydJ67NHBefvLKsyEOcUG
+         PyX5ap7Wj2XCHjFtOXc7vRD52Dns3W9u44iy3vkteTWoWySRn6QnL9vtNxxlmZcW4vUU
+         m3XFgX9+vJOCYMGpIbXsPqQYk1IuaZFsgsdVH1v/1yUK/p3/3if2Qyd0+OjVALLohiWh
+         00aQ==
+X-Gm-Message-State: AOAM532Et2h5ub/K+Kn6DKNE93evZYxvvTDBLs0nDQh5FVr/DNLY/7F8
+        J2KlyIDboIYbdO7X72fnbq0=
+X-Google-Smtp-Source: ABdhPJyN19L+ZxIYbdbk9hfFceuN6mCl4fWAlDvGP7X8RBovx12aRuredCaarWMW85c5lu/4CIwAvA==
+X-Received: by 2002:a5d:660f:: with SMTP id n15mr34461459wru.103.1600346483526;
+        Thu, 17 Sep 2020 05:41:23 -0700 (PDT)
 Received: from localhost ([217.111.27.204])
-        by smtp.gmail.com with ESMTPSA id y1sm10589324wma.36.2020.09.17.05.38.40
+        by smtp.gmail.com with ESMTPSA id o15sm10476800wmh.29.2020.09.17.05.41.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2020 05:38:40 -0700 (PDT)
-Date:   Thu, 17 Sep 2020 14:38:39 +0200
+        Thu, 17 Sep 2020 05:41:21 -0700 (PDT)
+Date:   Thu, 17 Sep 2020 14:41:20 +0200
 From:   Thierry Reding <thierry.reding@gmail.com>
 To:     Dmitry Osipenko <digetx@gmail.com>
 Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
@@ -68,59 +68,78 @@ Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 15/34] i2c: tegra: Reorder location of functions in
- the code
-Message-ID: <20200917123839.GP3515672@ulmo>
+Subject: Re: [PATCH v7 18/34] i2c: tegra: Remove likely/unlikely from the code
+Message-ID: <20200917124120.GS3515672@ulmo>
 References: <20200908224006.25636-1-digetx@gmail.com>
- <20200908224006.25636-16-digetx@gmail.com>
+ <20200908224006.25636-19-digetx@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ZgsfP6ejcHXtpYqZ"
+        protocol="application/pgp-signature"; boundary="3xvobRwI6W2FSfVC"
 Content-Disposition: inline
-In-Reply-To: <20200908224006.25636-16-digetx@gmail.com>
+In-Reply-To: <20200908224006.25636-19-digetx@gmail.com>
 User-Agent: Mutt/1.14.6 (2020-07-11)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---ZgsfP6ejcHXtpYqZ
+--3xvobRwI6W2FSfVC
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 09, 2020 at 01:39:47AM +0300, Dmitry Osipenko wrote:
-> Reorder location of functions in the code in order to have definition
-> of functions closer to the place of the invocation. This change makes
-> easier to navigate around the code and removes the need to have a
-> prototype for tegra_i2c_init().
+On Wed, Sep 09, 2020 at 01:39:50AM +0300, Dmitry Osipenko wrote:
+> The likely/unlikely annotations should be used only in a hot paths of
+> performance-critical code. The I2C driver doesn't have such paths, and
+> thus, there is no justification for usage of likely/unlikely annotations
+> in the code. Hence remove them.
 >=20
 > Reviewed-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
 > Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 > ---
->  drivers/i2c/busses/i2c-tegra.c | 486 ++++++++++++++++-----------------
->  1 file changed, 242 insertions(+), 244 deletions(-)
+>  drivers/i2c/busses/i2c-tegra.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegr=
+a.c
+> index ab83d1de6c94..fd0d51ec447f 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -852,7 +852,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_i=
+d)
+>  		goto err;
+>  	}
+> =20
+> -	if (unlikely(status & status_err)) {
+> +	if (status & status_err) {
+>  		tegra_i2c_disable_packet_mode(i2c_dev);
+>  		if (status & I2C_INT_NO_ACK)
+>  			i2c_dev->msg_err |=3D I2C_ERR_NO_ACK;
+
+At least this one is an interrupt handler, so it's kind of performance
+critical. That said, it probably doesn't make a huge difference, so I
+don't have any objection:
 
 Acked-by: Thierry Reding <treding@nvidia.com>
 
---ZgsfP6ejcHXtpYqZ
+--3xvobRwI6W2FSfVC
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl9jWM8ACgkQ3SOs138+
-s6GnXg//XT5ks0Kikj1dVSBpnuRI+I2D72GCq0MdKa7mDu5vSFyIB1xIEn8+Yt1+
-SK+oTXOgq5Gzi2Fbu0wkPzptDoR+VzohHWVEcrLn4YYtJwEiwSjIsEC0++UeCSUi
-2Y1j1kFdBM4FUROKEwdZyAdKKm/kc6hb8WszGPojYZcLK8cdJd7OiN0+wpEGQzoc
-frezaUI+yMhaRNXf6oYq89lFApoeFc1WlGaYfaGdw8paIuOTFdjej5EgxW9NU9So
-L8nmQyGO/o3vM2ePu3BtkQfP5zgbNkX5wlKrlJAYSeD0VW4tlguY4Tdlq+LEaN/O
-n+a3iL+FGyTIG3Fy8uNHHb8OOiSdGMioNUfX87OocT+ScTf4duYMiObwqcU5AZov
-CsyNNVE7i0mAHBqYn7p8tTefzbudusDiWE0YOVUk7SwSYe0+brHwwzpxVXQZRKKa
-WLSut3uLfoq1hE9LSVJbLtBIMSf3l+yFD8VtDGg1chmYm0ZNFGTAHWbQfGOxha3z
-02ylX46rqJvwg+DSSO7NOLqxBI7iNZAhyiiJ0rqbzgiE89eBcoQP+w0/5ewdSzSI
-jZpCWKeBaGj/lEhKkGzQEVn+ohye6O59kzqgBYPjdfdBW1LUh3R+/d42WXv9LUEj
-KccdZUh+G9ZWWOxEzZP6FAxPgSBwy/0HZ9D8Nf0Y5gCi5gvuxLs=
-=1YhH
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl9jWXAACgkQ3SOs138+
+s6EN1BAAl+GC/O0i3TYCRAwVs2JSksmmfZw7tOyIS66DyRolVplzWcmmaYc3SFFY
+emR7t+vbcueRN89jX0kR05LXAupTtdIcanFTdr6bvMnDwccLfnK1bXFF9dW/AwOl
+IbUdZrgZaYHBWHB9VvesJX3SONsrP9RjQ4ftJ+FIkd7c20VKkNnTsLbPpr/Qed6L
++gsyVuJPOtcWeBn/jcXCuSXVKkXSq+RMAiJlxmwXxVcMm50KtlEnJixWpCAke2kl
+3zT3YPn17IOZYY3zxrnH1lVHVvgFXKDN6ild9qGpqRlvISp+KtKppa52yaNbJMam
+FpUst5MtqP+qWl8D2MmmmIk51KzmGelZghvQS0KMvi4Pa0WrUtlFaRoXh57oKdBH
+Xal3cUunpNMJzIT879UH9r+X13ahz8wbhYxMI7Rg5vbZd8lOdN1a8oPXJLexctLu
+YjmmCjCGAN5dCN0NEVNfGCwph+smKN+Y21OTPIcCkfp549EgMBP0doc6dCHTmUBc
+02hd5EasRwtf2ik3/sNUWTkDzoZeWyRqNDwn1Yg7jEfC4Civ12f/2JahjQRwrMPi
+HZRa0vgy7FDzr97L+4tRL+Qp9nZZlAUkgQeTNt+OcJ4R5g+MDjxvW8DWNHF62UOT
+HDCaFbwOchkrWRSExwvETNXoaLFRbUF4TS/ZSk1CNIKrLCK1nR8=
+=jcaP
 -----END PGP SIGNATURE-----
 
---ZgsfP6ejcHXtpYqZ--
+--3xvobRwI6W2FSfVC--
