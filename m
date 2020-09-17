@@ -5,60 +5,60 @@ X-Spam-Level:
 X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08515C433E2
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:22:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5FA9C433E2
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:33:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B00E72087D
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:22:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C42321D92
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:33:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DZr9ss0f"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g/jYibsk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726758AbgIQMWx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 17 Sep 2020 08:22:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38888 "EHLO
+        id S1726657AbgIQMcz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 17 Sep 2020 08:32:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726756AbgIQMVL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:21:11 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F034C06174A;
-        Thu, 17 Sep 2020 05:21:11 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id c18so1826407wrm.9;
-        Thu, 17 Sep 2020 05:21:10 -0700 (PDT)
+        with ESMTP id S1726902AbgIQMcM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:32:12 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75684C06178A;
+        Thu, 17 Sep 2020 05:32:12 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id a9so1873140wmm.2;
+        Thu, 17 Sep 2020 05:32:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=CYQqreqmPY+DdlI4/LMZT7n9HFySUCBTaZzOmy+nr3g=;
-        b=DZr9ss0fgb2wj2gUXhmJok1/Q/Q4uiYxlTW3iX6Inp9/ElTtZBw5O7hulX/W5L69Bs
-         MIBfn49IkSjttHs4u8HiC068gprnMI5YJ2UB24eFGNckWq/F3KkCX1eooK1asqjyBrnP
-         bigRyNbt4HXEFSyQVrquOKYPnF7GOyaYgjIdu+U8moAlA+k22hhtLfV+ivIRezj8hV3C
-         CsWx8nmRiJ58HTrjHSKTmCSQgzsGb2xaky0Z6xg4RvV/2xeyL5kwgcp+b8Ara2pVpwkQ
-         R3bdUazVy10T++cD0TLJ/zWJ45w72Ddc1zfRg6QpINTNYGB7JW8D89ClBJIj5iAohLcw
-         tokQ==
+        bh=FIH3VcDXq4V94tL9If4fuwbw/qKNh6i3j/t2acHJLj4=;
+        b=g/jYibskeo4VoYVh+3EUft1RyKUeeqTQqdPSVFPr/fJsiIBVPbKpYEqvtNjXaBg4Lj
+         Bxe/1YZiLA4oM4shK0ZJmQkNEqc3KCgzZuxj695pc9lhoxVCZmiJOeY6OmYame/6LbWw
+         1q7aH3FDvA58XBO3wJe0BcGD4qnOj1Lj/rXi2W5drd+niQA5Q2itzXZV6nrPFz4ms81X
+         Q1o0PFnF6oojAKwcWNmZIoXwMVkt35RohYZE5AGuLL5ibp5jit4sIJ18h3IhfgIx92YF
+         JGbf1sLbB2CpqS4+EOI2ZoYH3d9fe3xGcqyERl2PlkZmStAg+E+/ISLxvD/7qKhPDt3p
+         /m6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=CYQqreqmPY+DdlI4/LMZT7n9HFySUCBTaZzOmy+nr3g=;
-        b=NzajggZwb180xJtJ+ueR4gzYK9EmSz+vTUExHhs/V8lhCpTnoEo0W2hUNOss4k9G0p
-         Bzb4i0chi9WfnLkDHLxWTeaqxI0eEcTqF8St3eoM8+lugV4+BRpi2Ot2WR6nkqwfV1E7
-         tXt7BsatCEuxv5G9LLH/XWscWHkdkLtrWGUrl04nPquV0sakrcJIlrHnwfFny8qZKRO1
-         mexgGyXXM5XH7bRgmjnFTnRuWrQU75qYz3oIy/l5214EN/bUUTlUV4UUQWfRqO9BAqK3
-         7ELqdnTlfbxVdd2X3dlsps/Jo/OBe8mbJvl1qlnd+t5L+srY2PCLnPSY1Z8rXlQTtQd4
-         PrZw==
-X-Gm-Message-State: AOAM531JSssUA2UJo4GKA8FBQoCAfxGSqHIYYFHtWE1JoigNXbwvB8Ld
-        esYA7eUZOGzh7QrQFIDtYV8=
-X-Google-Smtp-Source: ABdhPJwqLArPanxVYGT0wrN9q+h5qbgQQV95mKlf8JZyrm5TDMv9t3ePg13PltUi9ZLLsL25B/fK5g==
-X-Received: by 2002:a5d:4e0f:: with SMTP id p15mr32223970wrt.155.1600345269703;
-        Thu, 17 Sep 2020 05:21:09 -0700 (PDT)
+        bh=FIH3VcDXq4V94tL9If4fuwbw/qKNh6i3j/t2acHJLj4=;
+        b=Mme62xIa0tRPb56nxsbQTtYwlwaR8f4QovJpQmXj7+B7JgLEnVDn6l1TsfFLZp4pvS
+         E1rGIcwH9U5GJj4MVHKTD/Fdo4D2TUY+Et0q/9NuEdfRBXlO/d+3QoXjaQEjzu2W5ZPU
+         AVwGOgtPUaB8tVA2vS3BnkO6iuZbjaEW/FLZye2Y4GxKkhqm/UXKE3kZJ1DbwYNyjHPU
+         Gt7VKKTlb5b1gKwYghnx3G5M3/vBfGkgm5XRo1KpnIi1Ghj/8A8efouDBO5bDTRYh0JB
+         PGqy4hTM6r5czIHYK1Awi0RTc1VLI2Oxizjtf9BOvJNu1QWlE2RyWQ17932C7aLU0H+1
+         TNAw==
+X-Gm-Message-State: AOAM530fDXyvVLaW/+mhUxd0P6jJ9NwpahXv20EVhQyGhK7XJCySz32T
+        65BQ+5UYPmkGRnAcHKvT6ew38hs65n2IWg==
+X-Google-Smtp-Source: ABdhPJzDlvLlyHEgL4czsFCLnRuyxE3eJpFgb8lsCQaulTUKv/3HC2So8XF3jPuQpbikaT91EsEG1g==
+X-Received: by 2002:a7b:c14d:: with SMTP id z13mr9525832wmi.19.1600345931071;
+        Thu, 17 Sep 2020 05:32:11 -0700 (PDT)
 Received: from localhost ([217.111.27.204])
-        by smtp.gmail.com with ESMTPSA id m23sm10978706wmi.19.2020.09.17.05.21.07
+        by smtp.gmail.com with ESMTPSA id q186sm10986022wma.45.2020.09.17.05.32.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2020 05:21:08 -0700 (PDT)
-Date:   Thu, 17 Sep 2020 14:21:05 +0200
+        Thu, 17 Sep 2020 05:32:09 -0700 (PDT)
+Date:   Thu, 17 Sep 2020 14:32:08 +0200
 From:   Thierry Reding <thierry.reding@gmail.com>
 To:     Dmitry Osipenko <digetx@gmail.com>
 Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
@@ -68,100 +68,146 @@ Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 30/34] i2c: tegra: Clean up variable names
-Message-ID: <20200917122105.GI3515672@ulmo>
+Subject: Re: [PATCH v7 32/34] i2c: tegra: Clean up and improve comments
+Message-ID: <20200917123208.GK3515672@ulmo>
 References: <20200908224006.25636-1-digetx@gmail.com>
- <20200908224006.25636-31-digetx@gmail.com>
+ <20200908224006.25636-33-digetx@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="XLWMkxR+mZNQ4WTO"
+        protocol="application/pgp-signature"; boundary="YaSFhaLO3hpMipqe"
 Content-Disposition: inline
-In-Reply-To: <20200908224006.25636-31-digetx@gmail.com>
+In-Reply-To: <20200908224006.25636-33-digetx@gmail.com>
 User-Agent: Mutt/1.14.6 (2020-07-11)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---XLWMkxR+mZNQ4WTO
+--YaSFhaLO3hpMipqe
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 09, 2020 at 01:40:02AM +0300, Dmitry Osipenko wrote:
-> Rename "ret" variables to "err" in order to make code a bit more
-> expressive, emphasizing that the returned value is an error code.
-> Same vice versa, where appropriate.
->=20
-> Rename variable "reg" to "val" in order to better reflect the actual
-> usage of the variable in the code and to make naming consistent with
-> the rest of the code.
->=20
-> Use briefer names for a few members of the tegra_i2c_dev structure in
-> order to improve readability of the code.
->=20
-> All dev/&pdev->dev are replaced with i2c_dev->dev in order to have uniform
-> code style across the driver.
+On Wed, Sep 09, 2020 at 01:40:04AM +0300, Dmitry Osipenko wrote:
+> Make all comments to be consistent in regards to capitalization and
+> punctuation, correct spelling and grammar errors, improve wording.
 >=20
 > Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 > ---
->  drivers/i2c/busses/i2c-tegra.c | 173 ++++++++++++++++-----------------
->  1 file changed, 86 insertions(+), 87 deletions(-)
-
-That's indeed a nice improvement. One thing did spring out at me,
-though.
-
+>  drivers/i2c/busses/i2c-tegra.c | 88 ++++++++++++++++++----------------
+>  1 file changed, 47 insertions(+), 41 deletions(-)
+>=20
 > diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegr=
 a.c
-[...]
-> @@ -1831,20 +1830,20 @@ static int __maybe_unused tegra_i2c_runtime_suspe=
-nd(struct device *dev)
+> index 558b1f2934a0..31fbc6181dd5 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -136,7 +136,7 @@
+>  /* configuration load timeout in microseconds */
+>  #define I2C_CONFIG_LOAD_TIMEOUT			1000000
 > =20
->  	clk_bulk_disable(i2c_dev->nclocks, i2c_dev->clocks);
+> -/* Packet header size in bytes */
+> +/* packet header size in bytes */
+>  #define I2C_PACKET_HEADER_SIZE			12
 > =20
-> -	return pinctrl_pm_select_idle_state(i2c_dev->dev);
-> +	return pinctrl_pm_select_idle_state(dev);
->  }
+>  /*
+> @@ -148,11 +148,10 @@
+>  #define I2C_PIO_MODE_PREFERRED_LEN		32
 > =20
->  static int __maybe_unused tegra_i2c_suspend(struct device *dev)
->  {
->  	struct tegra_i2c_dev *i2c_dev =3D dev_get_drvdata(dev);
-> -	int err =3D 0;
-> +	int ret =3D 0;
+>  /*
+> - * msg_end_type: The bus control which need to be send at end of transfe=
+r.
+> - * @MSG_END_STOP: Send stop pulse at end of transfer.
+> - * @MSG_END_REPEAT_START: Send repeat start at end of transfer.
+> - * @MSG_END_CONTINUE: The following on message is coming and so do not s=
+end
+> - *		stop or repeat start.
+> + * msg_end_type: The bus control which needs to be sent at end of transf=
+er.
+> + * @MSG_END_STOP: Send stop pulse.
+> + * @MSG_END_REPEAT_START: Send repeat-start.
+> + * @MSG_END_CONTINUE: Don't send stop or repeat-start.
+>   */
+>  enum msg_end_type {
+>  	MSG_END_STOP,
+> @@ -161,10 +160,10 @@ enum msg_end_type {
+>  };
 > =20
->  	i2c_mark_adapter_suspended(&i2c_dev->adapter);
-> =20
->  	if (!pm_runtime_status_suspended(dev))
-> -		err =3D tegra_i2c_runtime_suspend(dev);
-> +		ret =3D tegra_i2c_runtime_suspend(dev);
-> =20
-> -	return err;
-> +	return ret;
->  }
+>  /**
+> - * struct tegra_i2c_hw_feature : Different HW support on Tegra
+> - * @has_continue_xfer_support: Continue transfer supports.
+> + * struct tegra_i2c_hw_feature : per hardware generation features
 
-Isn't this exactly the opposite of what the commit message says (and the
-rest of the patch does)?
+I think that space before ':' can go away. Although that's preexisting,
+so could also be a separate patch, I guess.
+
+> + * @has_continue_xfer_support: Continue-transfer supported.
+
+This isn't a proper sentence, so I don't think it should have a
+full-stop. And it shouldn't start with an uppercase letter, either.
+
+>   * @has_per_pkt_xfer_complete_irq: Has enable/disable capability for tra=
+nsfer
+> - *		complete interrupt per packet basis.
+> + *		completion interrupt on per packet basis.
+>   * @has_config_load_reg: Has the config load register to load the new
+>   *		configuration.
+>   * @clk_divisor_hs_mode: Clock divisor in HS mode.
+> @@ -184,7 +183,7 @@ enum msg_end_type {
+>   * @has_mst_fifo: The I2C controller contains the new MST FIFO interface=
+ that
+>   *		provides additional features and allows for longer messages to
+>   *		be transferred in one go.
+> - * @quirks: i2c adapter quirks for limiting write/read transfer size and=
+ not
+> + * @quirks: I2C adapter quirks for limiting write/read transfer size and=
+ not
+>   *		allowing 0 length transfers.
+>   * @supports_bus_clear: Bus Clear support to recover from bus hang during
+>   *		SDA stuck low from device for some unknown reasons.
+> @@ -245,7 +244,7 @@ struct tegra_i2c_hw_feature {
+>   * @msg_err: error code for completed message
+>   * @msg_buf: pointer to current message data
+>   * @msg_buf_remaining: size of unsent data in the message buffer
+> - * @msg_read: identifies read transfers
+> + * @msg_read: indicates read direction of a transfer
+
+Hm... "read" is the "direction". Perhaps "indicates the direction of a
+transfer"? Or perhaps "indicates that the transfer is a read access"?
+
+[...]
+> @@ -1797,9 +1804,8 @@ static int __maybe_unused tegra_i2c_runtime_resume(=
+struct device *dev)
+> =20
+>  	/*
+>  	 * VI I2C device is attached to VE power domain which goes through
+> -	 * power ON/OFF during PM runtime resume/suspend. So, controller
+> -	 * should go through reset and need to re-initialize after power
+> -	 * domain ON.
+> +	 * power ON/OFF during of runtime PM resume/suspend, meaning that
+
+s/during of runtime PM/during runtime PM/
 
 Thierry
 
---XLWMkxR+mZNQ4WTO
+--YaSFhaLO3hpMipqe
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl9jVLEACgkQ3SOs138+
-s6GC6w/+IyW7glSDNb080etzU2+oeqx/jVPyinPTxjE6/IcKuvVd5LWJNFLOaJ4W
-FeumA7waD71+2k+On9pJOyGUJNzIBJZkxE/ZkeWEE2ZnVMT4/OMEYce25dY7pYO7
-ZS28oqIIJxkM1B9m8uxaMEVaaoOGNtowVK/gQSvfdfm4tk5P11RaKb0D3HjXa6cL
-2oITcSdciVhHVTP+qeSLYNIZ3mNinplUn4hmIgkhr9d+SyLRf33riqFOGerKsCEW
-u96fPqydLev4TQWyMs0TuMAzgC8Xer40i/Cn5OS6WLj2x3/WBISWL4WpMolykf4r
-iMhmTStys/yN4EVJD6qUJ0XGqTtlTNAvPPSon2hUOIbjKzhi6Zxt6VleYLbPhOFE
-Cs2r8ouMApBBvU4TBgG7+H29SChKHGHOtpjb9CmETdu/DHwVvUz3ShHAR8ae3RDm
-YKj1NlFqAMgshb7GtFa1p0lVXOhxNNZKYx2dbX7bCeM6m4N4OW0S0Wo8beODDPZF
-Wfzrx6P9+1xMiZjw+gNZoa4TgHVNWePUgfNN1jBO1BXgi52ciIvMErble5RuRClG
-5nQ2M1glVLMlC5O/LakR2Tb9usscH2d9vu2kSLWst+u7IYXY5ympuAFvXrHCc608
-bSX8SZnvB4SIA99lozNyzRhnXl5l5/1ytKEoi9Qd/2Qua4urTUQ=
-=dMIY
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl9jV0cACgkQ3SOs138+
+s6EtOw/+MERtG5U90+lebtyZO7QUSwH36CTFzt1LWUXuOk9tpU25qgv/9cVIv50z
+yF3ygzamdA8JqEEAic6DBsOd5cCMicw/wVBGXnzE+/UtFA5QW3JuH/l18RBDqNRZ
+wffHsV/qihWkeyvsG4pSM7Out3dzltwPhzv/D+zyE4jGs47TM1e4c5T1D+8KGnVa
+ZYICqUcm+UeomkaZlpDNdB6J1QGUwc4Sc8izbjIFmTou1aPFsNW3BJYtTLzIni95
+2/ZoAIFR0Nsn0l1ZostUABZUTVR6vPRyRT1c+0qJ75u1/ZaSvA0KfqBJwrfaCgag
+NBav0ILwy9EJkuKvYqkYm4Wq5s8ttSSArSqGAz8eiDBlFGFiGSKqiTr5ntqimmbH
+n8zHxCRmTaBYghyAZT3biB2gTlxSa7SuD5DR/yDDcD/2fYzOFxNWFdQ7rLygo5yP
+bYzlHy4x4p4UYfcVp6WjlTQlMghazm1mpZJYIYs0Lz77Defn9LA8ZQ9WKaxIeavR
+X7fs3Xu4LYbd61QRt1/j3hGLaShKzudJZiEHsdRCzYYIMo2u3ZgntKyatNbhmSiP
+y8nULwKZSoPpejRisrt7YWa/cYeVVLyYZzaX7S/cRnQcv/nAJPyhKC2cOJWJZUgH
+XO6QB4OxJRkdyaJtwudPVNm7hWfSB1i29PL5EjF15VedOhej+90=
+=IAbk
 -----END PGP SIGNATURE-----
 
---XLWMkxR+mZNQ4WTO--
+--YaSFhaLO3hpMipqe--
