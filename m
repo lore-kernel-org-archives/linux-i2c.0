@@ -2,78 +2,127 @@ Return-Path: <SRS0=DpqV=C2=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-8.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7E87C433E2
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:05:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0A1EC2BBD1
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:06:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 661C221974
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:05:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D4C7221EC
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:06:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="g8U6mJG2"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J6bZqsPW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726627AbgIQMFH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 17 Sep 2020 08:05:07 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:4956 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726774AbgIQMEv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:04:51 -0400
-X-UUID: cc90780fa2ac404f85d9b5d58092ae3f-20200917
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=rQ7X5ZN1ihMFTytakUDsBP4WZCCDHdxE3OsuojPLzkQ=;
-        b=g8U6mJG2Prbq+P9NVP++MJN9xXYwiqepvdx1CESu5iNI/aRNegWhyk0JKi+ySikEVCdl5R0YxtX7AQKxbkfg44+VFS+Zh3DH7qR8FH+2s9TWprGTB9U5k476AHKAwsewgw3KV61aOKtCSKmMD1/QbopUSoIPq60pcGCQ8PmCe3E=;
-X-UUID: cc90780fa2ac404f85d9b5d58092ae3f-20200917
-Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
-        (envelope-from <qii.wang@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 365866490; Thu, 17 Sep 2020 19:58:04 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 17 Sep 2020 19:58:01 +0800
-Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 17 Sep 2020 19:58:01 +0800
-From:   Qii Wang <qii.wang@mediatek.com>
-To:     <wsa@the-dreams.de>
-CC:     <matthias.bgg@gmail.com>, <linux-i2c@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
-        <qii.wang@mediatek.com>
-Subject: [PATCH 2/2] i2c: mediatek: Send i2c master code at more than 1MHz
-Date:   Thu, 17 Sep 2020 19:55:42 +0800
-Message-ID: <1600343742-9731-3-git-send-email-qii.wang@mediatek.com>
-X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1600343742-9731-1-git-send-email-qii.wang@mediatek.com>
-References: <1600343742-9731-1-git-send-email-qii.wang@mediatek.com>
+        id S1726778AbgIQMGo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 17 Sep 2020 08:06:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36584 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726868AbgIQMGk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:06:40 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A74C06174A;
+        Thu, 17 Sep 2020 05:06:18 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id l9so1784350wme.3;
+        Thu, 17 Sep 2020 05:06:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=tE9yLGNH1EMsfGO/TyvFBeLycfQZd8KEkVYBUcpK+V4=;
+        b=J6bZqsPWsLpDwG7bmnR7GKqPSvmtPDV9Jb0lO1LO5qwAvotOxtvCLn21cRP0BzWt+V
+         uR9MAInTJAD7UgdD0/Oj4nYwhpeR+hr1MlGj+fUmSLzazWD14HDDjYoksBVkjAy6JQpl
+         zAXP9lCyeT1lT+eXeREUzCesaGBbJiBGFHpwsJOrfhQPrhZVrkLLUZTmUMOADJZvAHD/
+         LiuS9rQnTeF5hh4CNpYhfUXPgqzYs1MV+/ueFTdg0T1ETmD2ZH4/r226ENkFs1/NRv6q
+         HG+S+adX7nSi0wtrys00tkws9iRJH8HGn+F2B4VivNkDfwEDw0UzDs9TapH0mcN1zKjF
+         AVzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=tE9yLGNH1EMsfGO/TyvFBeLycfQZd8KEkVYBUcpK+V4=;
+        b=pROvloJt5Jkxp6+gRCj7jI0yd4q4tsnq9FM0HUrwsxWRgofSj94SxACus8Jb+PmZxk
+         rxhnUOk3faGwFdiix6PsNQjgyOsDDE/zdGCmhB3S3tUcFdT9W0Y2HQF/2D2G5WtCuRwf
+         mxv28iLF/VN5A95MHwUIcD9Itb2dbsdvOmH76GUpcBqmrjYTo0Nvga6qYybToHTFUIt0
+         p7GmgZJ5tE8oqqciPw0/QPY2g5dJiYKDeEVQDefh/93800RzaSO/2Um2tWIukxYmPNcJ
+         9HALRLUnMO8moB5j8xLym+i7vEEBRS0yv4GbTxet7cjKRZstlRfpEGzurb20yRePvc0H
+         DO7Q==
+X-Gm-Message-State: AOAM532kjFnH1Xsml/djx4G0Q84mePEpQFk5JHtaDChafQ43lgVeLnSr
+        +I42dG5JDkuTui8LJCtlHyM=
+X-Google-Smtp-Source: ABdhPJzmbtGSgc/sCPHjT+k5AfHdUa4dj7lYQlTy1Z+U37azmH8kS8esDLh8hX0vP2eldd03r2AWrg==
+X-Received: by 2002:a05:600c:210c:: with SMTP id u12mr10437557wml.185.1600344377136;
+        Thu, 17 Sep 2020 05:06:17 -0700 (PDT)
+Received: from localhost ([217.111.27.204])
+        by smtp.gmail.com with ESMTPSA id d83sm11075751wmf.23.2020.09.17.05.06.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Sep 2020 05:06:15 -0700 (PDT)
+Date:   Thu, 17 Sep 2020 14:06:14 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 26/34] i2c: tegra: Factor out hardware initialization
+ into separate function
+Message-ID: <20200917120614.GE3515672@ulmo>
+References: <20200908224006.25636-1-digetx@gmail.com>
+ <20200908224006.25636-27-digetx@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="kUmo4NyTJbuJZ752"
+Content-Disposition: inline
+In-Reply-To: <20200908224006.25636-27-digetx@gmail.com>
+User-Agent: Mutt/1.14.6 (2020-07-11)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-VGhlIG1hc3RlciBjb2RlIG5lZWRzIHRvIGJlaW5nIHNlbnQgd2hlbiB0aGUgc3BlZWQgaXMgbW9y
-ZSB0aGFuDQpJMkNfTUFYX0ZBU1RfTU9ERV9QTFVTX0ZSRVEsIG5vdCBJMkNfTUFYX0ZBU1RfTU9E
-RV9GUkVRIGluIHRoZQ0KbGF0ZXN0IEkyQy1idXMgc3BlY2lmaWNhdGlvbiBhbmQgdXNlciBtYW51
-YWwuDQoNClNpZ25lZC1vZmYtYnk6IFFpaSBXYW5nIDxxaWkud2FuZ0BtZWRpYXRlay5jb20+DQot
-LS0NCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4eC5jIHwgMiArLQ0KIDEgZmlsZSBjaGFu
-Z2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9pMmMvYnVzc2VzL2kyYy1tdDY1eHguYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXQ2NXh4
-LmMNCmluZGV4IGExOTc4ZWIuLjBjYmRmYmUgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLW10NjV4eC5jDQorKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4eC5jDQpA
-QCAtNzU5LDcgKzc1OSw3IEBAIHN0YXRpYyBpbnQgbXRrX2kyY19zZXRfc3BlZWQoc3RydWN0IG10
-a19pMmMgKmkyYywgdW5zaWduZWQgaW50IHBhcmVudF9jbGspDQogCWZvciAoY2xrX2RpdiA9IDE7
-IGNsa19kaXYgPD0gbWF4X2Nsa19kaXY7IGNsa19kaXYrKykgew0KIAkJY2xrX3NyYyA9IHBhcmVu
-dF9jbGsgLyBjbGtfZGl2Ow0KIA0KLQkJaWYgKHRhcmdldF9zcGVlZCA+IEkyQ19NQVhfRkFTVF9N
-T0RFX0ZSRVEpIHsNCisJCWlmICh0YXJnZXRfc3BlZWQgPiBJMkNfTUFYX0ZBU1RfTU9ERV9QTFVT
-X0ZSRVEpIHsNCiAJCQkvKiBTZXQgbWFzdGVyIGNvZGUgc3BlZWQgcmVnaXN0ZXIgKi8NCiAJCQly
-ZXQgPSBtdGtfaTJjX2NhbGN1bGF0ZV9zcGVlZChpMmMsIGNsa19zcmMsDQogCQkJCQkJICAgICAg
-STJDX01BWF9GQVNUX01PREVfRlJFUSwNCi0tIA0KMS45LjENCg==
 
+--kUmo4NyTJbuJZ752
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Sep 09, 2020 at 01:39:58AM +0300, Dmitry Osipenko wrote:
+> Factor out hardware initialization into a separate function from the probe
+> function. The only place where runtime PM needs to be resumed during probe
+> is the place of hardware initialization, hence it makes sense to factor
+> out it in order to have a bit cleaner error handling in tegra_i2c_probe().
+>=20
+> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 32 +++++++++++++++++++-------------
+>  1 file changed, 19 insertions(+), 13 deletions(-)
+
+Not really sure this is worth it, but since I don't feel strongly, I'll
+leave this up to Wolfram to decide:
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+--kUmo4NyTJbuJZ752
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl9jUTUACgkQ3SOs138+
+s6HD+BAArcmDQvZJ43BnrWJSDzM2F4Nc1yHsjUZkBEwlFdVehB88ksYQMGJRWs3/
+fkKLrBksvlGvGVReLfL0SxFmJXifR/qxYbnkZv+G2yleGdXa7w7VTfYUBI/CG8Dn
+Y78esXfSlqIr0sYIrXlSaIyiUqjzP6hB4x/G5awdKREiWyqGmgZ17AFd01QZyMG0
++wTVSvfR4/IGhMJnqqdgXRUCbY+NTGEMzT3pkTuZ629fmKBxDVac3Pg0wEOaK4T0
+IzIOc58zbQ1g1IwAfXxXf0MaQ1YtG6rDfU7xWUZxEWfV9Mjeg0RaX2ooXVfF5Y43
+rIKKdxS5v+hJhvZKoPAyjAjFaj8Nt83Wf5Tm/ZjyMVJCBPbws0DI5ZYAHo9ABEXp
+mWMTnFIcMQaSQTY/JIu32KCQxjoTC/ZI0U3SNtyY23C9RL85mnd4uDPzS/uv7auT
+EXvbL6htIs5dPzSJemQUpW93UKa5SbBsRj4u3k4ZFbqGVkO92L+gWBSUPcCU3Of0
+d3yru6TAaQoQbT3XGa5PaDHauscLeTWgcsPJM1VFD8T6IJeN6oqfM0zY4YSjkBLh
+Cw3mcAXX7uMiIxNdwfoNxJhm+eOCeDd4UEJWPW0IOumOy9JkgfdROEq7/4eFPpGP
+lcnaBN31gf/4jrZDNaeORhScYXUCPwP0dk+DLm3I0WcP7MknVjI=
+=pBH+
+-----END PGP SIGNATURE-----
+
+--kUmo4NyTJbuJZ752--
