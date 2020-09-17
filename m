@@ -2,252 +2,192 @@ Return-Path: <SRS0=DpqV=C2=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 175FAC2BBD1
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:14:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D49CC433E2
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:17:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CCC3F208DB
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:14:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 526692087D
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Sep 2020 12:17:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="kVVXpVvB"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZRgediSC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726982AbgIQMNi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 17 Sep 2020 08:13:38 -0400
-Received: from mail29.static.mailgun.info ([104.130.122.29]:60312 "EHLO
-        mail29.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726773AbgIQMN1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:13:27 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1600344792; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=4UtZeQmJZCTmN33hwmN7PDkDrzAhWXay1mgYEYiQhVU=;
- b=kVVXpVvB7sNPFhDLMALRfCmRnGaVR1VvEW/7zKyOS5pszlmIvrMVaxLaMGNgK12PAfoIddO3
- nMcsuogcPn0dgmFx+dINrXD9+Ui/OMZ9VGqF2iX9myUNcDto23tZxAK4sl3OQJG4ivOB5hw4
- GNNpNDNw6uXtWO+jxQ45xP13pyQ=
-X-Mailgun-Sending-Ip: 104.130.122.29
-X-Mailgun-Sid: WyI5ZGU3NiIsICJsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n02.prod.us-west-2.postgun.com with SMTP id
- 5f635093c4180d293b3feab7 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 17 Sep 2020 12:03:31
- GMT
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 8DA0DC433C8; Thu, 17 Sep 2020 12:03:31 +0000 (UTC)
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: rojay)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 79557C433CA;
-        Thu, 17 Sep 2020 12:03:30 +0000 (UTC)
+        id S1726788AbgIQMRs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 17 Sep 2020 08:17:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38204 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726646AbgIQMRl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Sep 2020 08:17:41 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE5CEC06174A;
+        Thu, 17 Sep 2020 05:16:43 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id e16so1835623wrm.2;
+        Thu, 17 Sep 2020 05:16:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=i0cO/atr56p3A85zV6WQmzIk6b31734E5bUWMJSETmI=;
+        b=ZRgediSCZsMc7TZgHN+vSTSW6RZ8SIXUE29LEPGpX3c4lVmEIcqG6okSQbnVd0jfdX
+         Ab8hy+KEIWVtafsRY3ergewJ5mGJf/NJiS9vFWO7q/jn0wHYnX0KZQXjP6hTz8jDGCLD
+         gHgWIyiR6O8LxjyF8XVbGZ4yGSfxoStt3BoVQtFrueep4s88uS7Oy8pk6+iak2aqOE+x
+         au2PWnkNb95D+L5Khb2YVwa4LJXgaUnh6yiAbc9HMhu4cPiZnuKirWMoBPlBvYF5XK8c
+         8ks0Js87SE7BWOV/KYkHBSkk0s7Eh4BLMHBRfQfrNW4LuMXkDT6SlsZy9S4TR7fxyx5r
+         nRQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=i0cO/atr56p3A85zV6WQmzIk6b31734E5bUWMJSETmI=;
+        b=V32CXhaS1wij/z5SZ7SySulp4N244IfrAv3Y6Suzv40Tem7uIWL0qwQYjuRqY9dWqR
+         PrdRU45JcAq6NOcZOeT/8J6VOq+pPdZBL8xadjOJyZ9GlM06CUxn+0bmpfGkLPt1C3y0
+         78ufJV8bkBpkiPnW01RHnuyKoiDLxgOyLpb66/b0DANzWKufx3pdfgJJrZ6ly0054ByD
+         cD6knPta7uwNLLjKtz0wXWNiocBG3uoBn3qSCNLtMlskbyLCnL12UUAJYUyuV0koEWyp
+         r/zJx3LmrHxPjr3hglnqeOxuveOCyy8LKX+CsqGfoahOX0wkgVet1DnEmgihegBOZMLk
+         a2bA==
+X-Gm-Message-State: AOAM530ay3fe3Q8Q9N4FZBsNj8ca11hbPqNJ0I6sLLvng+eThtMqcUFZ
+        NLyOn6bbmyArZlEOSo1NK3s=
+X-Google-Smtp-Source: ABdhPJxD+xcAn3G77ka20hWynIDxK1jKG8Ny8fh0ELbkF6od/YdA84uD8WZCLOMYfVhCtAn2sBvIAw==
+X-Received: by 2002:adf:e488:: with SMTP id i8mr33941004wrm.116.1600345002630;
+        Thu, 17 Sep 2020 05:16:42 -0700 (PDT)
+Received: from localhost ([217.111.27.204])
+        by smtp.gmail.com with ESMTPSA id i11sm39047492wre.32.2020.09.17.05.16.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Sep 2020 05:16:41 -0700 (PDT)
+Date:   Thu, 17 Sep 2020 14:16:40 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 29/34] i2c: tegra: Improve formatting of variables
+Message-ID: <20200917121640.GH3515672@ulmo>
+References: <20200908224006.25636-1-digetx@gmail.com>
+ <20200908224006.25636-30-digetx@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Thu, 17 Sep 2020 17:33:30 +0530
-From:   rojay@codeaurora.org
-To:     Stephen Boyd <swboyd@chromium.org>
-Cc:     wsa@kernel.org, dianders@chromium.org,
-        saiprakash.ranjan@codeaurora.org, gregkh@linuxfoundation.org,
-        mka@chromium.org, akashast@codeaurora.org,
-        msavaliy@qti.qualcomm.com, skakit@codeaurora.org,
-        rnayak@codeaurora.org, agross@kernel.org,
-        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sumit.semwal@linaro.org, linux-media@vger.kernel.org
-Subject: Re: [PATCH V3] i2c: i2c-qcom-geni: Add shutdown callback for i2c
-In-Reply-To: <159959341894.454335.3250696075143737399@swboyd.mtv.corp.google.com>
-References: <20200907130731.2607-1-rojay@codeaurora.org>
- <159959341894.454335.3250696075143737399@swboyd.mtv.corp.google.com>
-Message-ID: <fdd2919bc0705b4bd54b8be92fbc9fe5@codeaurora.org>
-X-Sender: rojay@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="+E165xXSMiO4rFaE"
+Content-Disposition: inline
+In-Reply-To: <20200908224006.25636-30-digetx@gmail.com>
+User-Agent: Mutt/1.14.6 (2020-07-11)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Stephen,
 
-On 2020-09-09 01:00, Stephen Boyd wrote:
-> Why is dri-devel on here? And linaro-mm-sig?
-> 
+--+E165xXSMiO4rFaE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ok, I will remove these lists.
+On Wed, Sep 09, 2020 at 01:40:01AM +0300, Dmitry Osipenko wrote:
+> Reorder definition of variables in the code to have them sorted by length
+> and grouped logically, also replace "unsigned long" with "u32". Do this in
+> order to make code easier to read.
+>=20
+> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 97 ++++++++++++++++------------------
+>  1 file changed, 45 insertions(+), 52 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegr=
+a.c
+> index ac40c87f1c21..2376f502d299 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -259,42 +259,48 @@ struct tegra_i2c_hw_feature {
+>   */
+>  struct tegra_i2c_dev {
+>  	struct device *dev;
+> -	const struct tegra_i2c_hw_feature *hw;
+>  	struct i2c_adapter adapter;
+> -	struct clk *div_clk;
+> -	struct clk_bulk_data *clocks;
+> -	unsigned int nclocks;
+> +
+> +	const struct tegra_i2c_hw_feature *hw;
+>  	struct reset_control *rst;
+> -	void __iomem *base;
+> -	phys_addr_t base_phys;
+>  	unsigned int cont_id;
+>  	unsigned int irq;
+> -	bool is_dvc;
+> -	bool is_vi;
+> +
+> +	phys_addr_t base_phys;
+> +	void __iomem *base;
+> +
+> +	struct clk_bulk_data *clocks;
+> +	unsigned int nclocks;
+> +
+> +	struct clk *div_clk;
+> +	u32 bus_clk_rate;
+> +
+>  	struct completion msg_complete;
+> +	size_t msg_buf_remaining;
+>  	int msg_err;
+>  	u8 *msg_buf;
+> -	size_t msg_buf_remaining;
+> -	bool msg_read;
+> -	u32 bus_clk_rate;
+> -	bool is_multimaster_mode;
+> +
+> +	struct completion dma_complete;
+>  	struct dma_chan *tx_dma_chan;
+>  	struct dma_chan *rx_dma_chan;
+> +	unsigned int dma_buf_size;
+>  	dma_addr_t dma_phys;
+>  	u32 *dma_buf;
+> -	unsigned int dma_buf_size;
+> -	bool is_curr_dma_xfer;
+> -	struct completion dma_complete;
+> +
+> +	bool is_multimaster_mode;
+>  	bool is_curr_atomic_xfer;
+> +	bool is_curr_dma_xfer;
+> +	bool msg_read;
+> +	bool is_dvc;
+> +	bool is_vi;
+>  };
+> =20
+> -static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
+> -		       unsigned long reg)
+> +static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, u32 reg)
 
-> Quoting Roja Rani Yarubandi (2020-09-07 06:07:31)
->> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c 
->> b/drivers/i2c/busses/i2c-qcom-geni.c
->> index dead5db3315a..b3609760909f 100644
->> --- a/drivers/i2c/busses/i2c-qcom-geni.c
->> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
->>  struct geni_i2c_err_log {
->> @@ -384,7 +387,8 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev 
->> *gi2c, struct i2c_msg *msg,
->>         if (dma_buf) {
->>                 if (gi2c->err)
->>                         geni_i2c_rx_fsm_rst(gi2c);
->> -               geni_se_rx_dma_unprep(se, rx_dma, len);
->> +               geni_se_rx_dma_unprep(se, gi2c->rx_dma, len);
->> +               gi2c->rx_dma = (dma_addr_t)NULL;
->>                 i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
->>         }
->> 
->> @@ -394,12 +398,12 @@ static int geni_i2c_rx_one_msg(struct 
->> geni_i2c_dev *gi2c, struct i2c_msg *msg,
->>  static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct 
->> i2c_msg *msg,
->>                                 u32 m_param)
->>  {
->> -       dma_addr_t tx_dma;
->>         unsigned long time_left;
->>         void *dma_buf = NULL;
->>         struct geni_se *se = &gi2c->se;
->>         size_t len = msg->len;
->> 
->> +       gi2c->xfer_len = len;
->>         if (!of_machine_is_compatible("lenovo,yoga-c630"))
->>                 dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
->> 
->> @@ -410,7 +414,7 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev 
->> *gi2c, struct i2c_msg *msg,
->> 
->>         writel_relaxed(len, se->base + SE_I2C_TX_TRANS_LEN);
->> 
->> -       if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, &tx_dma)) 
->> {
->> +       if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, 
->> &gi2c->tx_dma)) {
->>                 geni_se_select_mode(se, GENI_SE_FIFO);
->>                 i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
->>                 dma_buf = NULL;
->> @@ -429,7 +433,8 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev 
->> *gi2c, struct i2c_msg *msg,
->>         if (dma_buf) {
->>                 if (gi2c->err)
->>                         geni_i2c_tx_fsm_rst(gi2c);
->> -               geni_se_tx_dma_unprep(se, tx_dma, len);
->> +               geni_se_tx_dma_unprep(se, gi2c->tx_dma, len);
->> +               gi2c->tx_dma = (dma_addr_t)NULL;
->>                 i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
->>         }
->> 
->> @@ -479,6 +484,51 @@ static int geni_i2c_xfer(struct i2c_adapter 
->> *adap,
->>         return ret;
->>  }
->> 
->> +static void geni_i2c_stop_xfer(struct geni_i2c_dev *gi2c)
->> +{
->> +       int ret;
->> +       u32 dma;
->> +       u32 val;
->> +       u32 geni_status;
->> +       struct geni_se *se = &gi2c->se;
->> +
->> +       ret = pm_runtime_get_sync(gi2c->se.dev);
->> +       if (ret < 0) {
->> +               dev_err(gi2c->se.dev, "Failed to resume device: %d\n", 
->> ret);
-> 
-> Is this print really necessary? Doesn't PM core already print this sort
-> of information?
-> 
+I actually prefer unsigned long/int over u32 for offsets because it
+makes it clearer that this is not in fact a 32-bit value that we're
+writing into a register. This is especially true for these register
+accessors where the "offset" is called "reg" and may be easily
+mistaken for a register value.
 
-PM core will not print any such information.
-Here we wanted to know our driver's pm runtime resume is successful.
+Thierry
 
->> +               return;
->> +       }
->> +
->> +       geni_status = readl_relaxed(gi2c->se.base + SE_GENI_STATUS);
->> +       if (geni_status & M_GENI_CMD_ACTIVE) {
-> 
-> Please try to de-indent all this.
-> 
+--+E165xXSMiO4rFaE
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Okay.
+-----BEGIN PGP SIGNATURE-----
 
-> 	if (!(geni_status & M_GENI_CMD_ACTIVE))
-> 		goto out;
-> 
->> +               geni_i2c_abort_xfer(gi2c);
->> +               dma = readl_relaxed(se->base + SE_GENI_DMA_MODE_EN);
->> +               if (dma) {
-> 
-> 	if (!dma)
-> 		goto out;
-> 
->> +                       val = readl_relaxed(gi2c->se.base + 
->> SE_DMA_DEBUG_REG0);
->> +                       if (val & DMA_TX_ACTIVE) {
->> +                               gi2c->cur_wr = 0;
->> +                               if (gi2c->err)
->> +                                       geni_i2c_tx_fsm_rst(gi2c);
->> +                               if (gi2c->tx_dma) {
->> +                                       geni_se_tx_dma_unprep(se,
->> +                                                gi2c->tx_dma, 
->> gi2c->xfer_len);
->> +                                       gi2c->tx_dma = 
->> (dma_addr_t)NULL;
-> 
-> Almost nobody does this. In fact, grep shows me one hit in the kernel.
-> If nobody else is doing it something is probably wrong. When would dma
-> mode be active and tx_dma not be set to something that should be
-> stopped? If it really is necessary I suppose we should assign this to
-> DMA_MAPPING_ERROR instead of casting NULL. Then the check above for
-> tx_dma being valid can be dropped because geni_se_tx_dma_unprep()
-> already checks for a valid mapping before doing anything. But really, 
-> we
-> should probably be tracking the dma buffer mapped to the CPU as well as
-> the dma address that was used for the mapping. Not storing both is a
-> problem, see below.
-> 
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl9jU6gACgkQ3SOs138+
+s6Gt4w//eQTYuWVJf9AGLpSfI2NEwi8LwUZVYc3MP1NkbsWWs5+feDeRyWJ52ucy
+Cf/2aoF8erQDZflPM/JXe3hdPEw5xkIVwg6KrLiYqZyU2W2exwuamxmuwIvo9P+G
+7QHpfWvxMvMgADqNvVrHrTXFbxP1jTXSTLccmKa+8dYyw1rRNPaI3pF/6/rwEMbm
+T6JI/Y/e3L21y9O4L8UuWfFcZk50sXYdcKh2ya2cdjcsI0UW45YiN6VdKclUvTcM
+jvI0in5lgTPhHO555UQ+1rvkp/+lmu8+sTmkdnuyXBqIT44SYp7kYWdb5ZXbgklz
+SxUxtFrlAJjlfWJunxbG7Lm48H/09NqVg2mwphCg7ixUL/DAm1qszmCj5DWOR2XU
+HjDd2ENyXlgefuXLB5InIAVGTCdGhOjo+1IiYPFgE4mUjxaT0901797Au5+OMBg3
+0i6I8p17gUkLeDm1fHusAf53KN/vcWHrWRyklv5Ki8S57c5Xjbu4eYD1iBy8qcGn
+Iqp/BMjwgx8m3xR2OJSBZYCWi/GAN5kFb5qJVNHkkSUUSr2ThWVphw64Jqm+ERSB
+J/EyBtrMd40oyepjfV52FCqY3sa4gxS9L6TtI8y35+D4YhIfkxGvuhGixoLrYlZV
+IfIzQbPwvZ2E6+Yqq3o7fSQMlJt9VSNA1rwq1KpblT3D85jf6h8=
+=2HC5
+-----END PGP SIGNATURE-----
 
-You are correct, setting gi2c->tx_dma to NULL and check for tx_dma is
-not required. Will correct this.
-
->> +                               }
->> +                       } else if (val & DMA_RX_ACTIVE) {
->> +                               gi2c->cur_rd = 0;
->> +                               if (gi2c->err)
->> +                                       geni_i2c_rx_fsm_rst(gi2c);
->> +                               if (gi2c->rx_dma) {
->> +                                       geni_se_rx_dma_unprep(se,
->> +                                               gi2c->rx_dma, 
->> gi2c->xfer_len);
-> 
-> Looking closely it seems that the geni dma wrappers shouldn't even be
-> checking for an iova being non-zero. Instead they should make sure that
-> it just isn't invalid with !dma_mapping_error().
-> 
-
-Yes. I will remove iova check in geni_se_rx_dma_unprep() function(also 
-in tx_dma_unprep)
-
->> +                                       gi2c->rx_dma = 
->> (dma_addr_t)NULL;
-> 
-> If we're stopping some dma transaction doesn't that mean the
-> 
->                  i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
-> 
-> code needs to run also? I fail to see where we free the buffer that has
-> been mapped for DMA.
-> 
-
-Yes, this is required. I will do this cleanup.
-
->> +                               }
->> +                       }
->> +               }
->> +       }
->> +
-> 
-> out:
-> 
->> +       pm_runtime_put_sync_suspend(gi2c->se.dev);
->> +}
->> +
+--+E165xXSMiO4rFaE--
