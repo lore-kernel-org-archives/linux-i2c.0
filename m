@@ -2,90 +2,105 @@ Return-Path: <SRS0=ODjb=C3=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68255C43463
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 20:52:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EAF4C43463
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 21:05:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 284BB2311A
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 20:52:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 343F523119
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 21:05:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1600463114;
+	bh=dpb08hE09jBPRdkn15IWRt/QrmOknQ1HRkHqyf20KXc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=CZmCprqf1VM6CJelWh5/yU/ESWee3/B36fId9fkfRksiej4A6obFFz9bG81Eoj8fa
+	 y9zVXZRJIf7kmHrqGcivnMT+YMuzS59kHXozt2lH1g/jFfJanKgX+wC+cJVFEjdViq
+	 g5arUH2qJ8/6IUcjlYhOOpz1nZ7az25wtFz9Lins=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726511AbgIRUwj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Sep 2020 16:52:39 -0400
-Received: from sauhun.de ([88.99.104.3]:48598 "EHLO pokefinder.org"
+        id S1726157AbgIRVFN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Sep 2020 17:05:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726503AbgIRUwg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 18 Sep 2020 16:52:36 -0400
+        id S1726118AbgIRVFN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 18 Sep 2020 17:05:13 -0400
 Received: from localhost (router.4pisysteme.de [80.79.225.122])
-        by pokefinder.org (Postfix) with ESMTPSA id C43342C079A;
-        Fri, 18 Sep 2020 22:52:33 +0200 (CEST)
-Date:   Fri, 18 Sep 2020 22:52:33 +0200
-From:   <wsa@the-dreams.de>
-To:     Qii Wang <qii.wang@mediatek.com>
-Cc:     <matthias.bgg@gmail.com>, <linux-i2c@vger.kernel.org>,
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B07A0221EC;
+        Fri, 18 Sep 2020 21:05:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600463112;
+        bh=dpb08hE09jBPRdkn15IWRt/QrmOknQ1HRkHqyf20KXc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tDDXBpQzyl6dhlcVGfrJs5FtPIpaGC8OyLjEOW2PkjH5gKJxC4KVxLaLYYsMpjf7p
+         lxAbg05GWJHOQTB9yN7p0U4y/Mmz9X9l7g6DitcQUwxLbw3ulynsoi12c3Shjd42jQ
+         +YyXrj6BE7Tjpu/CUD/AOdFSRra2k1641bk7olxU=
+Date:   Fri, 18 Sep 2020 23:05:09 +0200
+From:   <wsa@kernel.org>
+To:     Alain Volmat <alain.volmat@st.com>
+Cc:     <pierre-yves.mordret@st.com>, <alexandre.torgue@st.com>,
+        <linux-i2c@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>
-Subject: Re: [PATCH 1/2] i2c: mediatek: Fix generic definitions for bus
- frequency
-Message-ID: <20200918205233.GB52206@kunai>
-Mail-Followup-To: <wsa@the-dreams.de>, Qii Wang <qii.wang@mediatek.com>,
-        <matthias.bgg@gmail.com>, <linux-i2c@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@st.com>
+Subject: Re: [PATCH 1/2] i2c: stm32: fix slot id after introduction of
+ host-notify support
+Message-ID: <20200918210509.GD52206@kunai>
+Mail-Followup-To: <wsa@kernel.org>, Alain Volmat <alain.volmat@st.com>,
+        <pierre-yves.mordret@st.com>, <alexandre.torgue@st.com>,
+        <linux-i2c@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <srv_heupstream@mediatek.com>,
-        <leilk.liu@mediatek.com>
-References: <1600343742-9731-1-git-send-email-qii.wang@mediatek.com>
- <1600343742-9731-2-git-send-email-qii.wang@mediatek.com>
+        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@st.com>
+References: <1600161090-9899-1-git-send-email-alain.volmat@st.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
+        protocol="application/pgp-signature"; boundary="SFyWQ0h3ruR435lw"
 Content-Disposition: inline
-In-Reply-To: <1600343742-9731-2-git-send-email-qii.wang@mediatek.com>
+In-Reply-To: <1600161090-9899-1-git-send-email-alain.volmat@st.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---7iMSBzlTiPOCCT2k
+--SFyWQ0h3ruR435lw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 17, 2020 at 07:55:41PM +0800, Qii Wang wrote:
-> The max frequency of mediatek i2c controller driver is
-> I2C_MAX_HIGH_SPEED_MODE_FREQ, not I2C_MAX_FAST_MODE_PLUS_FREQ.
-> Fix it.
+On Tue, Sep 15, 2020 at 11:11:30AM +0200, Alain Volmat wrote:
+> Commit 68302245720a ("i2c: stm32f7: Add SMBus Host-Notify protocol suppor=
+t")
+> added a new slot specific for handling host-notify however failed
+> to update the previous slot ID leading to having the 7bit address
+> only slot with the wrong number.
 >=20
-> Fixes: 90224e6468e1 ("i2c: drivers: Use generic definitions
-> for bus frequencies")
-> Reviewed-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
-> Signed-off-by: Qii Wang <qii.wang@mediatek.com>
+> Signed-off-by: Alain Volmat <alain.volmat@st.com>
 
-Applied to for-current, thanks!
+Folded this into 68302245720a in for-next, thanks!
 
 
---7iMSBzlTiPOCCT2k
+--SFyWQ0h3ruR435lw
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9lHhEACgkQFA3kzBSg
-Kbbjow//QIfxC7xv1/DAD8qHFZKWr2xqf18Z6s90nhgp+f/9icrHa688DcC0D9gg
-4pgQlECnkgumniGAothwbe6PejMhlcJu8JnuGlCP5Wtm1i7vk70yvPkl7M2RG3hx
-SE39FJF5Np1ztQ+qkk/ETtU70s7IIGmNz0YLBhvqvaeQTy1T/AdVMTR/Hxq4hEB5
-SHQkcviltacPNaXwPS+OSoOtxrXYM1PHCnEamcigPbGQwpo7h5PNj4tEOP3elzya
-xwzRCxdq4A4F+bd+i2ZMhvriANIVcVxXk6Sxc0vLEAexG/aWIltXgFNGrBwXro0o
-1Ol0jp1FNcaWM9kOhs0sv8PTKZY1vd+ktHH2mUCGkT6tTCyHmXZSixFDDIjQ4d2H
-y1MPP2RUkjTpfSHXv9v+r76M3o5XdNjpZctvgnqGR9J8DIdW3D76YfjPNN/ML6/P
-BeX8BBLD1H1dLMeI9DjnVmidzESvm2xzhf6ftCJEfQTBlDNW9om8UvDTsR2rEQC6
-yyjvbZMPnOUi24N5qXxVRc14QUitSJ5nMT/JrgaoqU8ICEZzLhQgSs53HLVFjjY5
-V9Xvt2AMo19+f2No0MiU9oSzELCYC3VbOzTRQ/X/MoaPOBy2WMQPCLWvJ4c3Xku9
-CeWL5b9x2rSL6KvZLufp6PTnb7cnOGLJKo50vlGrcvPCg4fSUyk=
-=gn6K
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9lIQUACgkQFA3kzBSg
+KbafphAAoa0nTp4b2b7E1ufAY1N8ww4hjlo/M2D4JzKGWVW3NXIs9vaEX0/+b4IU
+Bo5jLOVMRFsQZEU/HyHmlWRmEQpDNPsYR4JVJbnpUV0WOVwbVA0zXjt5XYCM8Lin
+EVJeBWsPLJhALmwpo0AUAc8UKE+wczTUMq8YLPBLZtBTVQN/9tHoslzYXNUZvTpZ
+9O5v3yn2MRvz2Aynl7djlY23DyGbzEOL8a5DYWGxYRoIlMVc2jfZYT1A5fZVEcrE
+KI/R6ZDrzhecvz/wu6HNvVp0DZpA7PPLujYkIPFiMimnpe77UyP8QNMnsYhwyiBH
+z5NG1+vl37wxHL6u3uQEKB9Tzmf617l5M1YOO49EeJjsHMz9fIiM4je7Zx7g+M+n
+FmhKq4S/LiKsLKJ0z3ZCExx7k+rNIDS4hyR3NUiOdVyWCMU2s44Sa/moZzB49N66
+I8S4JPiIcDZQM25Wyueg5VRwdrVxrebck4y+3vhwaMAVER0sUYWpwjEltttAzlnh
+Wp/hujBOD7Btbabk52yPQ05h+7sQwKpPv6Zx8hIBUXbfukzj9bxMoK3/W2KLvaZx
+lA6HJdFRh96mMWiIbcyqoHI+WSvQAAjNBevcP6dj3sxhg0t61Ic2VTwcw77Rn2HZ
+76Eq/sPkRQFXNKGXncSPqjEYorjj2StZQEIFlGsYPXne+B87GhA=
+=XHoh
 -----END PGP SIGNATURE-----
 
---7iMSBzlTiPOCCT2k--
+--SFyWQ0h3ruR435lw--
