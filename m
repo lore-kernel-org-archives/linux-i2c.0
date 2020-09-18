@@ -2,94 +2,109 @@ Return-Path: <SRS0=ODjb=C3=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C4E6C43465
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 21:09:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A215EC43464
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 21:13:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 54E3623119
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 21:09:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5BC33221EC
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 21:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600463355;
-	bh=n+UT4elTACp2IyAPY5k4F56sxpMOmMeqNATaIpgcUiU=;
+	s=default; t=1600463625;
+	bh=lJEoJiKb+a1XP0tPhq92KH2rBuS5HXXEbZAD3e1rGrI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=Ta5aPSRGoxT+1XZ+HmIifX2WHWMK4Q2tQu/S0MqjXXRKSVuWtW17+n74C54UAMpQI
-	 8hi2ycyMw7OY6dUJ3973ZyJ48HGbxMu5t/8Ril7+2froqrPBmdSWr36tFA2Sk7PNFw
-	 zPy2YjNCRc0T6NunXj3pxco9fwrSW54QKI21jNTk=
+	b=b2tklOX+XUqBqcjiv0EHfoWzXn0/rulf90OP5z1B0QdIxIWX0s0gnF/jhKnQIBYoh
+	 csP5QnAzUjCEcYTIVy3dPNXcbydne0mRn4dP8uJsB3v1BsVDf+Il6wlRouX27U/W6n
+	 U4lLjOu+v0W0gcXm75onVPbSWxtUfy2tY/3t2HPw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726185AbgIRVJO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Sep 2020 17:09:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59548 "EHLO mail.kernel.org"
+        id S1726252AbgIRVNo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Sep 2020 17:13:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726118AbgIRVJO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 18 Sep 2020 17:09:14 -0400
+        id S1726118AbgIRVNo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 18 Sep 2020 17:13:44 -0400
 Received: from localhost (router.4pisysteme.de [80.79.225.122])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAFB5221EC;
-        Fri, 18 Sep 2020 21:09:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8197620773;
+        Fri, 18 Sep 2020 21:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600463354;
-        bh=n+UT4elTACp2IyAPY5k4F56sxpMOmMeqNATaIpgcUiU=;
+        s=default; t=1600463624;
+        bh=lJEoJiKb+a1XP0tPhq92KH2rBuS5HXXEbZAD3e1rGrI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ip9ZYawjZiW5uoDp8jXiLb7vGAyYziChgrnjK2lVFim9AferHupYdO6NEwqaXYDN4
-         C+FC/Aya22BvO7MJ/sgSJJbVRRMsx1S18An9wup2tgf1iwfxTsJYpRBQHSCO6i/4PN
-         yjEEE/m7xb6ZN8W8jtNqJFKDiF6P8L/XD6DY6V/c=
-Date:   Fri, 18 Sep 2020 23:09:11 +0200
-From:   <wsa@kernel.org>
-To:     Tian Tao <tiantao6@hisilicon.com>
-Cc:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linuxarm@huawei.com>
-Subject: Re: [PATCH] i2c: Switch to using the new API kobj_to_dev()
-Message-ID: <20200918210911.GF52206@kunai>
-Mail-Followup-To: <wsa@kernel.org>, Tian Tao <tiantao6@hisilicon.com>,
-        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linuxarm@huawei.com>
-References: <1600133898-35883-1-git-send-email-tiantao6@hisilicon.com>
+        b=U072NaANahVKQEmGwebUdmaSqBZ66YNMyMwq0vnaLZGbXhpy0lIc+Tvbp6bj7FNeo
+         TJ12N8UxYDAuk3tRHbAmaskkrTuClo87fMSO7X49qE7I2Pk5OBvMlYfU2dZqUv5hqs
+         rjexnOp75lufY2HWWNvosEZheQA//jtjmxKPQXfE=
+Date:   Fri, 18 Sep 2020 23:13:40 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Cc:     Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: mxs: use MXS_DMA_CTRL_WAIT4END instead of
+ DMA_CTRL_ACK
+Message-ID: <20200918211340.GG52206@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>, linux-i2c@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+References: <20200911150139.13690-1-matthias.schiffer@ew.tq-group.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="FoLtEtfbNGMjfgrs"
+        protocol="application/pgp-signature"; boundary="lQSB8Tqijvu1+4Ba"
 Content-Disposition: inline
-In-Reply-To: <1600133898-35883-1-git-send-email-tiantao6@hisilicon.com>
+In-Reply-To: <20200911150139.13690-1-matthias.schiffer@ew.tq-group.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---FoLtEtfbNGMjfgrs
+--lQSB8Tqijvu1+4Ba
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Sep 11, 2020 at 05:01:39PM +0200, Matthias Schiffer wrote:
+> The driver-specific usage of the DMA_CTRL_ACK flag was replaced with a
+> custom flag in commit ceeeb99cd821 ("dmaengine: mxs: rename custom flag"),
+> but i2c-mxs was not updated to use the new flag, completely breaking I2C
+> transactions using DMA.
+>=20
+> Fixes: ceeeb99cd821 ("dmaengine: mxs: rename custom flag")
+> Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+
+Applied to for-current, thanks!
 
 
->  static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
->  {
-> -	struct device * const dev = container_of(kobj, struct device, kobj);
-> +	struct device * const dev = kobj_to_dev(kobj);
->  	return to_i2c_client(dev);
-
-Can't we make this a oneliner then merging the last two lines?
-
-
---FoLtEtfbNGMjfgrs
+--lQSB8Tqijvu1+4Ba
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9lIfcACgkQFA3kzBSg
-KbaX6xAAr7U/NRpiINPvIny3+Pb11V70zfEwH9bMfj4/zLrgmI/+JS+GMAeJOajs
-SxksyEPhbYTZFwSv7NOH7GhcIaB3DPHazF8JlTiBaBeqPOTdxVzbDJdR5tipEROD
-Lp2a+AuPGqMUPwlRBW3z/JKYz9oLHiXTUEHxW+M+l8HrUTidtt2lQnvAoZ1OVrz4
-fn1fL+o/fcCcHo/8WEW9kgnQlm1KiIoh9eM/pWGZcgLaQthusAvyeeCsbNqgtiMp
-wjp206qmF314VABAJNBZqqPUAiyfJJptmfXVUyszSRSAFtA+iVBNz7mpW2++ZvZg
-u6TZcCSfHpKouU8y6NKBnUFfWqGPjdy8DhyROhmz9JgnAMlZAsys1AlBaivsHH0x
-bDK0wNFdK4VLxHiKlRqy6so855X+ry2dzo5BgMVNIidqxKz/zHvneyring4jTHZ+
-YTVSMJhFatfChMtFqbz6PsWglrvro+oUs0S2Ksy8DUQoOaJOBu4J4Vf4oizgRQQy
-Gxqdn/tD2iOjE/TDv2WUFwc6tt+aRaEDKp1YfyXS2jyw8pEcI4DPlYsLun6yUnzN
-e9ZJaig7RKasRWJ8nK6EeYw8vYDpVmsaByiy3D3PzksbLmPnhTC34g2pflWGYNhu
-jNI8XutVMTjOHdPrhu2hZBbSKqFC0gfEbP39uKLkWcEDPFaqLaA=
-=VJ2C
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9lIwQACgkQFA3kzBSg
+KbZ7Hg/5AceyOo2aZs4KCc0X7bKW0jsp/FCiQso+pUUdZqsFlfFftc2VXDxJ6jl6
+BoGfvzvEWO0RkOwspm0hi27rpYOhjMwyl4DVM/uJvmS6kUfE1U1pALuiUJ5KVvb+
+Ho8Xq7AV6Tbc/Ujtc3QdxQk0nCNIfbDHMaN4SbC39Mr54YiZsfeTa8jLws6ggFSI
+Kez+DBYnwrVvEwE7VrJMmetCZdPKXyi61rvtwgpVU4gEzlGYkdciZRR+3mP7PlWm
+KRUD5w1R/Lb55hrXf5jVoTB38yY6u2vDsRTkTkrOXuoOKdlHJF85dVmqfOiXtoDt
+X90A+ntSP72161iHn9ImkAV/a0OObuDVLqrAoRt+sYsDcQcNgqi3I1BvOGWtYVlq
+At/D/6qPf2/1wBovpJ5Zp5uQPm4+4VyOLxrYeByKJw3sQwlojg90r6Ck+Whr9IRp
+GWcfQ+al9p2JrqQQMHspwNIJjVSTRovqNi2XIfJM0DvBdre0IsG6WJOCgIthjfKu
+z0b41DQqRtM2eL/STnJt24z6VgWYR/HI1huUUhRroV6eZiFGRZegbGfmBPo1zf8M
+EugbckJqQ/Ywn8253KlH5EW3d1lPqgoi5ZYGdrLrpHjqA9tZ4XOMYvJ6z2IfrULa
+z6JnL4SMIic0E6i1o3La1Z4i4t8Pc92fDb2psrUEziQaWsiy3H8=
+=uKjB
 -----END PGP SIGNATURE-----
 
---FoLtEtfbNGMjfgrs--
+--lQSB8Tqijvu1+4Ba--
