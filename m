@@ -2,94 +2,86 @@ Return-Path: <SRS0=ODjb=C3=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2309C43465
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 20:45:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5B53C43464
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 20:52:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8882320DD4
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 20:45:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5FE152311A
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Sep 2020 20:52:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726249AbgIRUpk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Sep 2020 16:45:40 -0400
-Received: from sauhun.de ([88.99.104.3]:48526 "EHLO pokefinder.org"
+        id S1726551AbgIRUwk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Sep 2020 16:52:40 -0400
+Received: from sauhun.de ([88.99.104.3]:48610 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726174AbgIRUpi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 18 Sep 2020 16:45:38 -0400
+        id S1726154AbgIRUwk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 18 Sep 2020 16:52:40 -0400
 Received: from localhost (router.4pisysteme.de [80.79.225.122])
-        by pokefinder.org (Postfix) with ESMTPSA id 73B1B2C079A;
-        Fri, 18 Sep 2020 22:45:35 +0200 (CEST)
-Date:   Fri, 18 Sep 2020 22:45:35 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     qii.wang@mediatek.com, linux-i2c <linux-i2c@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
+        by pokefinder.org (Postfix) with ESMTPSA id 470352C1730;
+        Fri, 18 Sep 2020 22:52:38 +0200 (CEST)
+Date:   Fri, 18 Sep 2020 22:52:38 +0200
+From:   <wsa@the-dreams.de>
+To:     Qii Wang <qii.wang@mediatek.com>
+Cc:     <matthias.bgg@gmail.com>, <linux-i2c@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
         <linux-mediatek@lists.infradead.org>,
-        srv_heupstream <srv_heupstream@mediatek.com>,
-        Leilk Liu <leilk.liu@mediatek.com>
-Subject: Re: [PATCH] i2c: mediatek: Fix generic definitions for bus
- frequencies
-Message-ID: <20200918204535.GA52206@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>, qii.wang@mediatek.com,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>,
-        srv_heupstream <srv_heupstream@mediatek.com>,
-        Leilk Liu <leilk.liu@mediatek.com>
-References: <1599890246-21191-1-git-send-email-qii.wang@mediatek.com>
- <CAHp75VeBuR4fkVk0z=+d7EonHz0h=4=eRj3Wfe8R_8T=eyHaeA@mail.gmail.com>
+        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>
+Subject: Re: [PATCH 2/2] i2c: mediatek: Send i2c master code at more than 1MHz
+Message-ID: <20200918205238.GC52206@kunai>
+Mail-Followup-To: <wsa@the-dreams.de>, Qii Wang <qii.wang@mediatek.com>,
+        <matthias.bgg@gmail.com>, <linux-i2c@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>, <srv_heupstream@mediatek.com>,
+        <leilk.liu@mediatek.com>
+References: <1600343742-9731-1-git-send-email-qii.wang@mediatek.com>
+ <1600343742-9731-3-git-send-email-qii.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+        protocol="application/pgp-signature"; boundary="TiqCXmo5T1hvSQQg"
 Content-Disposition: inline
-In-Reply-To: <CAHp75VeBuR4fkVk0z=+d7EonHz0h=4=eRj3Wfe8R_8T=eyHaeA@mail.gmail.com>
+In-Reply-To: <1600343742-9731-3-git-send-email-qii.wang@mediatek.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---FCuugMFkClbJLl1L
+--TiqCXmo5T1hvSQQg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > -       if (target_speed > I2C_MAX_FAST_MODE_PLUS_FREQ)
-> > -               target_speed =3D I2C_MAX_FAST_MODE_PLUS_FREQ;
-> > +       if (target_speed > I2C_MAX_HIGH_SPEED_MODE_FREQ)
-> > +               target_speed =3D I2C_MAX_HIGH_SPEED_MODE_FREQ;
+On Thu, Sep 17, 2020 at 07:55:42PM +0800, Qii Wang wrote:
+> The master code needs to being sent when the speed is more than
+> I2C_MAX_FAST_MODE_PLUS_FREQ, not I2C_MAX_FAST_MODE_FREQ in the
+> latest I2C-bus specification and user manual.
 >=20
-> Thanks for fixing this. Indeed, somehow I messed these up.
+> Signed-off-by: Qii Wang <qii.wang@mediatek.com>
 
-I read this as Rev-by for v2. Thanks!
+Applied to for-current, thanks!
 
 
---FCuugMFkClbJLl1L
+--TiqCXmo5T1hvSQQg
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9lHGsACgkQFA3kzBSg
-Kbb8+Q//d12J/hP68UWUVx1wF2vUsU24vGA8FJZMSyvSlrcOD6QZRalGsA6LR8k1
-w6G70LEDSRlDVe1Q/9NuYJT6enGqXhGKs2up0qnGHAB14N6S5WS7hMQJXSFvc6Mm
-xXnNV4gFGcXfcqZMRgl3er6mDeMKJh+Sa5mnmaDhViT11VegGYkAr+VjFOyg5qLh
-EzR4ZO8NoMCi/hvTkiIu3MQNyKPQy33Xq4SdQqGC/x1ew7DWAwopPmQsooL7zQv2
-dqYd7X4FN6qcd/oF0K6tMyY6bbUVf/XiCfruyJjRf7hSESw/fc8HkFjF4oN8oIKR
-x/sVPceOiMjHpu186UGBK8ieupBQduP5PgewXmFM6Xgsj2hOBV/lwIFF2JoV7wO4
-ETFZJVJUNbLb8XjavbTVRbfaVSHTEa4pR1dGjOARj5sUdpEV6jOGY1ziRGntUh0u
-7DTZK0uZym8qms+6SB2dmHakkkXISGeAi/RNjx7vrmhShh1C4auluXWO8/SbIkGU
-Nm6lrKP4hmEXTAdvAcivMwnLHHZ+MgaWGaAZtSJv3EfqoYpnZRSNTCkFTLiRyAh/
-nkZn0naZnd5tO7jMr7U/43ZSHi7sTDBcPNnmx+e/qE+EZakkDBTXO107YHnks69E
-CQRE6DyZ3jdjeTjG301Y65dMW3n+gJq7ZlpE+pUJZVQUyW9zyz0=
-=/Aw9
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9lHhYACgkQFA3kzBSg
+KbaJbxAAo4wNNMezn5vLQeKn0+GodAJ4sALS9nvYJO8arUk+0fSCI6MB/+5BOV6O
+HwcsUHUhfqdg3XnJ1m8RcrS8sI2emNrJPrijm8PYs8xNt4CbXtuc44EZO0qKiQMO
+9/fBln1+jfPwymPForcFycETkBAVdBbv7+pYYLcl6qYASyLzeMq64d6TS5V9V9Oz
+USWK4dbr7Ynewi8M6aWL9p4c0wEB3I8bTpf2ZDOOQvWdyGfS547etpDOEy71K1+Q
+9AVDHap40DjgNoysvKow/DyE0iTyI4zzBqqrcZARSguYVYXX/bmlRnmCCXSYKllK
+86ikJeKM6/Tn4GOTo3LJhDT/LD39PdYxmfe+AjUvyjFUwDQ8E771DH0RaiNbLNrU
+hIdeNB45ZD1zqRr+E6ihBrgDO+4e3GYFOtyD+ZaJuhaSaAHF8XUCY8+6m/eP86ix
+wPlnSNvzm6rhCLJWIwQhC0NSlwlWIyOxosMjCfb7C/gx8dMJnn8IEUFnI0Lph8g0
++bS690O/1V48iT6FSIfGfAebQvdiddulj2T0WMNZxyfuTZoCBlETnE7J8tLNcxAu
+/zEupaGjGgR23I2PpiifPOfLxUZRTn9HdTxPSaN7OiYswNsxtp/7Hcfl+a6NBfdd
+xBfjNHfIkct66H6kzQpyfQyYnMHNzecGxi5bdvtXbfC+b+ztlM4=
+=Fedd
 -----END PGP SIGNATURE-----
 
---FCuugMFkClbJLl1L--
+--TiqCXmo5T1hvSQQg--
