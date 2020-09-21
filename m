@@ -2,83 +2,83 @@ Return-Path: <SRS0=xDOk=C6=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDAC1C43464
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 10:06:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A17D4C43464
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 10:18:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1410320EDD
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 10:06:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 60FDB20BED
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 10:18:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="nluKbynN"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="FqysjnrW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726444AbgIUKGG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Sep 2020 06:06:06 -0400
-Received: from www.zeus03.de ([194.117.254.33]:52712 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726341AbgIUKGG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Sep 2020 06:06:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=nlLXi3uGep08cOkABv02p7Zv/TXD
-        UgXxBqHFSOAE9WY=; b=nluKbynNpr4rbu8BxAb13WjNpgQMqjJeN174O3r+4pGJ
-        93TEfxYpRQ97X5AOwiCv2fWIGH0CEQNeR17geNWTkppSLW+BxrzBwSKjy1qzn9ql
-        45IKCEAYUycFYZnBuP1fu9VL7UcummwHmNx+KWMMCG+2jJIEjRexRlWzeRXAp3Y=
-Received: (qmail 89727 invoked from network); 21 Sep 2020 12:06:01 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Sep 2020 12:06:01 +0200
-X-UD-Smtp-Session: l3s3148p1@Cy9p/8+v9LQgAwDPXwWzANnLaz0lJiia
-Date:   Mon, 21 Sep 2020 12:06:01 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Ajay Gupta <ajayg@nvidia.com>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v1] i2c: nvidia-gpu: Use put_unaligned_be24()
-Message-ID: <20200921100601.GS1840@ninjato>
-References: <20200716145319.53773-1-andriy.shevchenko@linux.intel.com>
+        id S1726355AbgIUKSe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 21 Sep 2020 06:18:34 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:18351 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726326AbgIUKSe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Sep 2020 06:18:34 -0400
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5f687d9d0004>; Mon, 21 Sep 2020 03:17:01 -0700
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 21 Sep
+ 2020 10:18:34 +0000
+Received: from [192.168.22.23] (10.124.1.5) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Mon, 21 Sep 2020 10:18:31 +0000
+From:   Thierry Reding <treding@nvidia.com>
+To:     Dmitry Osipenko <digetx@gmail.com>
+CC:     Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        =?utf-8?q?Micha=C5=82_Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        <linux-i2c@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v7 01/34] i2c: tegra: Make tegra_i2c_flush_fifos() usable
+ in atomic transfer
+In-Reply-To: <20200908224006.25636-2-digetx@gmail.com>
+References: <20200908224006.25636-2-digetx@gmail.com>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="xe2geHXJg22At20M"
-Content-Disposition: inline
-In-Reply-To: <20200716145319.53773-1-andriy.shevchenko@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Message-ID: <962981f15b0c46b98ee97a75116a68ad@HQMAIL111.nvidia.com>
+Date:   Mon, 21 Sep 2020 10:18:31 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1600683421; bh=71b9OPsGwFjxNUIJyhuwHE6AC7ShbTfyiZBTFJAh67w=;
+        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
+         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
+         Date;
+        b=FqysjnrWVyMFe+xrbIOdgjN86t7L3K40irAfzP3z3qEsUY5ssLRnzyP7vopu0zG9k
+         DHWDvKW6l9yAQPJkMTHUN2KzrhyROtvnM+7fusVho8Vx01fF6I/SbS0L78VJN2zMFi
+         RB+U62YiTqpD3YSq3PrvOTuY+v2Ueprsw0lvupUYARRPyYETj7BsSvt6m6lUrLp2Qm
+         wokFoVBFWRPqOim5YyT97JGEKaTm84xri7tT7s0BdQxD2V250SCwWIqmNynE26+Rwg
+         uTeCsy5rN5q8ChBhNcq8o1iytUmf0cgS9bZh/KTkm/mPCaSZ6PMLeRz44ih0GeBPaa
+         3LSPKQIlnueFw==
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-
---xe2geHXJg22At20M
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Jul 16, 2020 at 05:53:19PM +0300, Andy Shevchenko wrote:
-> This makes the driver code slightly easier to read.
+On Wed, 09 Sep 2020 01:39:33 +0300, Dmitry Osipenko wrote:
+> The tegra_i2c_flush_fifos() shouldn't sleep in atomic transfer and jiffie=
+s
+> are not updating if interrupts are disabled. Let's switch to use iopoll
+> API helpers for register-polling. The iopoll API provides helpers for bot=
+h
+> atomic and non-atomic cases.
 >=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Note that this patch doesn't fix any known problem because normally FIFO
+> is flushed at the time of starting a new transfer.
+>=20
+> Reviewed-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 25 ++++++++++++++++---------
+>  1 file changed, 16 insertions(+), 9 deletions(-)
 
-Applied to for-next, thanks!
-
-
---xe2geHXJg22At20M
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9oewkACgkQFA3kzBSg
-KbbVCg/+LNZYGtOloEJ20ofBgcMzOuopavLDNGhxhOaUFJvJJFt+9V9NS8DEe7PC
-Xk9AIigiW65HHPEP80gVkosHZMgJEDmIrauWi577VVnfh/fKFCjAd4tK9PfWg1tw
-G/cN9ufSWgVLbLzbhpDs0S2EVouGCnOnqVFch2TKE0NXbbH82ZYWwvKnqwmWPSTA
-5Fe2ffWK2x4w3v9uLFn9EG6DSCo4xEzIVlhNYjCpCY55J8Xo+uPSFAytQm9SvEtu
-1uexBN4DZFef7uLCO3uUqUmYsYillum09/iFGCPFzG0iDDz0Bw/b5pRKsbDgN6JJ
-A9aWkHlOgaBzounBXYofEbGj8PY76U1AM6LWs3Qa/fcAxevwDZO5+PrdJr3mbrx3
-y765fYSIN218lun+GL1PlLyvAk+oTuEg3u+bLQfRpa7PHlmYoDkfGkE5Vgp3lPVj
-rHb8W8tNkhz59Z93qI6aA2ii+UU/i6OQ8v35o+aW7r1ccCkqGbSMFghjpknS3ZwS
-sGsktls6DR+5+JMRIC/g+MCYQ0ofzXEiquVo3pwOtXsngO9tbsrMpZ3DAO4nn/MQ
-fS/nvGpsTjCO2OyYr5rOvn4UP4W0KoDgOiy8A5cHacBaQsL0YfpxLLAPHOEaEnIv
-xa2DqNUhhOD+UavzfdZ9jmcbc29tc/49ErYt/saMOF74PDSn280=
-=GtmZ
------END PGP SIGNATURE-----
-
---xe2geHXJg22At20M--
+Tested-by: Thierry Reding <treding@nvidia.com>
