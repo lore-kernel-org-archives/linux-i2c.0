@@ -2,282 +2,211 @@ Return-Path: <SRS0=xDOk=C6=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB1FAC43463
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 11:26:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3E21C43463
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 11:28:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AF3AF20758
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 11:26:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9777C20874
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 11:28:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="TwkyC8FW"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QxBJLW9b"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726522AbgIUL0M (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Sep 2020 07:26:12 -0400
-Received: from z5.mailgun.us ([104.130.96.5]:64868 "EHLO z5.mailgun.us"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726384AbgIUL0L (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Sep 2020 07:26:11 -0400
-X-Greylist: delayed 301 seconds by postgrey-1.27 at vger.kernel.org; Mon, 21 Sep 2020 07:26:09 EDT
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1600687569; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=PVIsUxy0Uf9L3hCn1GrabY9F83kqfBklo/5mHcDueKE=;
- b=TwkyC8FWCW7Gz0yfuvBkWZO/90dKQs/SWsAEdSX6igebeLTbJViYlo1HKnwUsWPOqKmPYkDr
- cxINjbX3JPePlIz1WgkRh2VMnH84TCdJ+5Sj3DCBF59aNvFjN5qUKJGJuvrUPr4+b2fpzLDd
- 3PKieK1PBbk1ScNXQhYx025h5/E=
-X-Mailgun-Sending-Ip: 104.130.96.5
-X-Mailgun-Sid: WyI5ZGU3NiIsICJsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n05.prod.us-west-2.postgun.com with SMTP id
- 5f688ca14a8a578ddcf1104d (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 21 Sep 2020 11:21:05
- GMT
-Sender: rojay=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 85625C433C8; Mon, 21 Sep 2020 11:21:05 +0000 (UTC)
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: rojay)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id BA465C433CB;
-        Mon, 21 Sep 2020 11:21:04 +0000 (UTC)
+        id S1726578AbgIUL24 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 21 Sep 2020 07:28:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41522 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726826AbgIUL2v (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Sep 2020 07:28:51 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72879C061755;
+        Mon, 21 Sep 2020 04:28:50 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id a9so12267083wmm.2;
+        Mon, 21 Sep 2020 04:28:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=1gQr8qCWiTOEbqu4on8bklkWOaFxA9UObiO0rKRcnUo=;
+        b=QxBJLW9bWVv2UHFwW9INAzhhhyf8MV0DrjLAL5rNuySd76RlnfLxln95mKjmL5i+EQ
+         THlLVudxJyUYR6pM4gEPCMAfEyTTUXNET/gZz3BKF+kjj7J+aBEXg/WJGunxqWTqxG7q
+         P2YLf9XFP4qBiRfMENni6qLqgU4ZTz5NjmLbg8VRMfjymnbE3iiZAz5utzGkn1aJXoqo
+         sayr3XtZLi0U38FOD3oeGzT3nwTobPXv3xguVppbDg35altqe8needfw2jnk8kIt+coM
+         cPpGl8daPjcF7BfmaFp/sk8y3MaOQM5B6N23SyC2Kc7VZLRisY1U2wGDpILFucgi7QsN
+         eOfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=1gQr8qCWiTOEbqu4on8bklkWOaFxA9UObiO0rKRcnUo=;
+        b=nWYxv7gtvrQfVwELTS+b1NtEJeRTIktpdUm+h3COAen0wj8wJgqF/WGPHR26AsC7Dl
+         yQHlrCCzBj/IO6K9MhoOgTmx0LqQFZxMYgpcBetV1KwnpDtZy9ZkVie2u2aKvYIURuO+
+         hEkVGTwdR52xYHIfL2JoRA9qzyuxKHUm1WWSto9AYPomSN7CxsRTCyNFvXP15WaX5Aii
+         /f0ehJCq3NAtE3N7zdGsE6NxgHmMu7F3aEDvo6yDwLpnICIHL1bW1G/GM+hDX84WTPkk
+         DvkgKa3xd3QcTpxJNcROhiurkC6h7+rxWcsv04SzRUlWDg4QRD4i56AzJU9bGztmiWrW
+         YPzg==
+X-Gm-Message-State: AOAM532ns/eWqzEeNZ1SSBy1cTSBAQA+/x8hTXvk1rwDvZOHzZHHHC7I
+        LQEkXiwLrD8CJMdwAM1zFmetKDGiXZ4=
+X-Google-Smtp-Source: ABdhPJxmTz8Hctv84ZKesHR6nqDGdbfXUBBV2p23UHETaQd3ZD202VavW2StJu6Yll+/n9MlEoHCtw==
+X-Received: by 2002:a1c:4187:: with SMTP id o129mr29029256wma.113.1600687729139;
+        Mon, 21 Sep 2020 04:28:49 -0700 (PDT)
+Received: from localhost ([217.111.27.204])
+        by smtp.gmail.com with ESMTPSA id q20sm18612043wmj.5.2020.09.21.04.28.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2020 04:28:48 -0700 (PDT)
+Date:   Mon, 21 Sep 2020 13:28:46 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 29/34] i2c: tegra: Improve formatting of variables
+Message-ID: <20200921112846.GL3950626@ulmo>
+References: <20200908224006.25636-1-digetx@gmail.com>
+ <20200908224006.25636-30-digetx@gmail.com>
+ <20200917121640.GH3515672@ulmo>
+ <6957eafb-8be2-3323-9c55-bb6eee6ab6bf@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Mon, 21 Sep 2020 16:51:04 +0530
-From:   rojay@codeaurora.org
-To:     Stephen Boyd <swboyd@chromium.org>
-Cc:     wsa@kernel.org, dianders@chromium.org,
-        saiprakash.ranjan@codeaurora.org, gregkh@linuxfoundation.org,
-        mka@chromium.org, akashast@codeaurora.org,
-        msavaliy@qti.qualcomm.com, skakit@codeaurora.org,
-        vkaur@codeaurora.org, pyarlaga@codeaurora.org,
-        rnayak@codeaurora.org, agross@kernel.org,
-        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sumit.semwal@linaro.org, linux-media@vger.kernel.org
-Subject: Re: [PATCH V4] i2c: i2c-qcom-geni: Add shutdown callback for i2c
-In-Reply-To: <160037421089.4188128.9425314091585708436@swboyd.mtv.corp.google.com>
-References: <20200917122558.23110-1-rojay@codeaurora.org>
- <160037421089.4188128.9425314091585708436@swboyd.mtv.corp.google.com>
-Message-ID: <f6cb2d7bc02dab409030ec42bf1d17c9@codeaurora.org>
-X-Sender: rojay@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="Mit9XoPEfICDqq/V"
+Content-Disposition: inline
+In-Reply-To: <6957eafb-8be2-3323-9c55-bb6eee6ab6bf@gmail.com>
+User-Agent: Mutt/1.14.6 (2020-07-11)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Stephen,
 
-On 2020-09-18 01:53, Stephen Boyd wrote:
-> Quoting Roja Rani Yarubandi (2020-09-17 05:25:58)
->> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c 
->> b/drivers/i2c/busses/i2c-qcom-geni.c
->> index dead5db3315a..b0d8043c8cb2 100644
->> --- a/drivers/i2c/busses/i2c-qcom-geni.c
->> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
->> @@ -86,6 +86,10 @@ struct geni_i2c_dev {
->>         u32 clk_freq_out;
->>         const struct geni_i2c_clk_fld *clk_fld;
->>         int suspended;
->> +       void *dma_buf;
->> +       size_t xfer_len;
->> +       dma_addr_t tx_dma;
->> +       dma_addr_t rx_dma;
-> 
-> Do we need both tx_dma and rx_dma? Seems that we use cur->flags to
-> figure out if the transfer is tx or rx so we could have juat dma_buf 
-> and
-> dma_addr here?
-> 
+--Mit9XoPEfICDqq/V
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Okay.
+On Thu, Sep 17, 2020 at 06:13:36PM +0300, Dmitry Osipenko wrote:
+> 17.09.2020 15:16, Thierry Reding =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> > On Wed, Sep 09, 2020 at 01:40:01AM +0300, Dmitry Osipenko wrote:
+> >> Reorder definition of variables in the code to have them sorted by len=
+gth
+> >> and grouped logically, also replace "unsigned long" with "u32". Do thi=
+s in
+> >> order to make code easier to read.
+> >>
+> >> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+> >> ---
+> >>  drivers/i2c/busses/i2c-tegra.c | 97 ++++++++++++++++------------------
+> >>  1 file changed, 45 insertions(+), 52 deletions(-)
+> >>
+> >> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-t=
+egra.c
+> >> index ac40c87f1c21..2376f502d299 100644
+> >> --- a/drivers/i2c/busses/i2c-tegra.c
+> >> +++ b/drivers/i2c/busses/i2c-tegra.c
+> >> @@ -259,42 +259,48 @@ struct tegra_i2c_hw_feature {
+> >>   */
+> >>  struct tegra_i2c_dev {
+> >>  	struct device *dev;
+> >> -	const struct tegra_i2c_hw_feature *hw;
+> >>  	struct i2c_adapter adapter;
+> >> -	struct clk *div_clk;
+> >> -	struct clk_bulk_data *clocks;
+> >> -	unsigned int nclocks;
+> >> +
+> >> +	const struct tegra_i2c_hw_feature *hw;
+> >>  	struct reset_control *rst;
+> >> -	void __iomem *base;
+> >> -	phys_addr_t base_phys;
+> >>  	unsigned int cont_id;
+> >>  	unsigned int irq;
+> >> -	bool is_dvc;
+> >> -	bool is_vi;
+> >> +
+> >> +	phys_addr_t base_phys;
+> >> +	void __iomem *base;
+> >> +
+> >> +	struct clk_bulk_data *clocks;
+> >> +	unsigned int nclocks;
+> >> +
+> >> +	struct clk *div_clk;
+> >> +	u32 bus_clk_rate;
+> >> +
+> >>  	struct completion msg_complete;
+> >> +	size_t msg_buf_remaining;
+> >>  	int msg_err;
+> >>  	u8 *msg_buf;
+> >> -	size_t msg_buf_remaining;
+> >> -	bool msg_read;
+> >> -	u32 bus_clk_rate;
+> >> -	bool is_multimaster_mode;
+> >> +
+> >> +	struct completion dma_complete;
+> >>  	struct dma_chan *tx_dma_chan;
+> >>  	struct dma_chan *rx_dma_chan;
+> >> +	unsigned int dma_buf_size;
+> >>  	dma_addr_t dma_phys;
+> >>  	u32 *dma_buf;
+> >> -	unsigned int dma_buf_size;
+> >> -	bool is_curr_dma_xfer;
+> >> -	struct completion dma_complete;
+> >> +
+> >> +	bool is_multimaster_mode;
+> >>  	bool is_curr_atomic_xfer;
+> >> +	bool is_curr_dma_xfer;
+> >> +	bool msg_read;
+> >> +	bool is_dvc;
+> >> +	bool is_vi;
+> >>  };
+> >> =20
+> >> -static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
+> >> -		       unsigned long reg)
+> >> +static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, u32 re=
+g)
+> >=20
+> > I actually prefer unsigned long/int over u32 for offsets because it
+> > makes it clearer that this is not in fact a 32-bit value that we're
+> > writing into a register. This is especially true for these register
+> > accessors where the "offset" is called "reg" and may be easily
+> > mistaken for a register value.
+>=20
+> That is a bit questionable, at least it definitely won't save me from a
+> mistake :)
 
->>  };
->> 
->>  struct geni_i2c_err_log {
->> @@ -307,7 +311,6 @@ static void geni_i2c_abort_xfer(struct 
->> geni_i2c_dev *gi2c)
->> 
->>         spin_lock_irqsave(&gi2c->lock, flags);
->>         geni_i2c_err(gi2c, GENI_TIMEOUT);
->> -       gi2c->cur = NULL;
-> 
-> This looks concerning. We're moving this out from under the spinlock.
-> The irq handler in this driver seems to hold the spinlock all the time
-> while processing and this function grabs it here to keep cur consistent
-> when aborting the transfer due to a timeout. Otherwise it looks like 
-> the
-> irqhandler can race with this and try to complete the transfer while
-> it's being torn down here.
-> 
->>         geni_se_abort_m_cmd(&gi2c->se);
->>         spin_unlock_irqrestore(&gi2c->lock, flags);
->>         do {
->> @@ -349,10 +352,62 @@ static void geni_i2c_tx_fsm_rst(struct 
->> geni_i2c_dev *gi2c)
->>                 dev_err(gi2c->se.dev, "Timeout resetting TX_FSM\n");
->>  }
->> 
->> +static void geni_i2c_rx_msg_cleanup(struct geni_i2c_dev *gi2c)
-> 
-> So maybe pass cur to this function?
-> 
+There's obviously no way of guaranteeing that nobody makes a mistake.
+But especially with accessors the value and offset parameters are
+inconsistently ordered, so any help we can provide at the API level
+may help avoid mistakes. If you only look at the prototype, having two
+u32 parameters doesn't give you *any* clue about what they are. But a
+32-bit accessor that takes a u32 and an unsigned int is pretty obviously
+expecting the 32-bit value in the u32 parameter and then the unsigned
+int must obviously be the offset.
 
-Sorry, i did not understand why to pass cur to this function?
+Thierry
 
->> +{
->> +       struct geni_se *se = &gi2c->se;
->> +
->> +       gi2c->cur_rd = 0;
->> +       if (gi2c->dma_buf) {
->> +               if (gi2c->err)
->> +                       geni_i2c_rx_fsm_rst(gi2c);
->> +               geni_se_rx_dma_unprep(se, gi2c->rx_dma, 
->> gi2c->xfer_len);
->> +               i2c_put_dma_safe_msg_buf(gi2c->dma_buf, gi2c->cur, 
->> !gi2c->err);
->> +       }
->> +}
->> +
->> +static void geni_i2c_tx_msg_cleanup(struct geni_i2c_dev *gi2c)
-> 
-> And this one?
-> 
->> +{
->> +       struct geni_se *se = &gi2c->se;
->> +
->> +       gi2c->cur_wr = 0;
->> +       if (gi2c->dma_buf) {
->> +               if (gi2c->err)
->> +                       geni_i2c_tx_fsm_rst(gi2c);
->> +               geni_se_tx_dma_unprep(se, gi2c->tx_dma, 
->> gi2c->xfer_len);
->> +               i2c_put_dma_safe_msg_buf(gi2c->dma_buf, gi2c->cur, 
->> !gi2c->err);
->> +       }
->> +}
->> +
->> +static void geni_i2c_stop_xfer(struct geni_i2c_dev *gi2c)
->> +{
->> +       int ret;
->> +       u32 geni_status;
->> +
->> +       /* Resume device, as runtime suspend can happen anytime during 
->> transfer */
->> +       ret = pm_runtime_get_sync(gi2c->se.dev);
->> +       if (ret < 0) {
->> +               dev_err(gi2c->se.dev, "Failed to resume device: %d\n", 
->> ret);
->> +               return;
->> +       }
->> +
->> +       geni_status = readl_relaxed(gi2c->se.base + SE_GENI_STATUS);
-> 
-> And this probably needs to hold the lock?
-> 
->> +       if (!(geni_status & M_GENI_CMD_ACTIVE))
->> +               goto out;
->> +
->> +       geni_i2c_abort_xfer(gi2c);
->> +       if (gi2c->cur->flags & I2C_M_RD)
->> +               geni_i2c_rx_msg_cleanup(gi2c);
->> +       else
->> +               geni_i2c_tx_msg_cleanup(gi2c);
->> +       gi2c->cur = NULL;
-> 
-> until here?
-> 
+--Mit9XoPEfICDqq/V
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Okay.
+-----BEGIN PGP SIGNATURE-----
 
->> +out:
->> +       pm_runtime_put_sync_suspend(gi2c->se.dev);
->> +}
->> +
->>  static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct 
->> i2c_msg *msg,
->>                                 u32 m_param)
->>  {
->> -       dma_addr_t rx_dma;
->> +       dma_addr_t rx_dma = 0;
->>         unsigned long time_left;
->>         void *dma_buf = NULL;
->>         struct geni_se *se = &gi2c->se;
->> @@ -372,6 +427,10 @@ static int geni_i2c_rx_one_msg(struct 
->> geni_i2c_dev *gi2c, struct i2c_msg *msg,
->>                 geni_se_select_mode(se, GENI_SE_FIFO);
->>                 i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
->>                 dma_buf = NULL;
->> +       } else {
->> +               gi2c->xfer_len = len;
->> +               gi2c->rx_dma = rx_dma;
->> +               gi2c->dma_buf = dma_buf;
->>         }
->> 
->>         geni_se_setup_m_cmd(se, I2C_READ, m_param);
->> @@ -380,13 +439,7 @@ static int geni_i2c_rx_one_msg(struct 
->> geni_i2c_dev *gi2c, struct i2c_msg *msg,
->>         if (!time_left)
->>                 geni_i2c_abort_xfer(gi2c);
->> 
->> -       gi2c->cur_rd = 0;
->> -       if (dma_buf) {
->> -               if (gi2c->err)
->> -                       geni_i2c_rx_fsm_rst(gi2c);
->> -               geni_se_rx_dma_unprep(se, rx_dma, len);
->> -               i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
->> -       }
->> +       geni_i2c_rx_msg_cleanup(gi2c);
->> 
->>         return gi2c->err;
->>  }
-> 
-> It may make sense to extract the cleanup stuff into another patch. Then
-> have a patch after that which does the shutdown hook. So three patches
-> total.
-> 
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl9ojm4ACgkQ3SOs138+
+s6H8FQ/9G8bF9ZlXZUk0yJk4m+kBswXUobZ0A4kDoaFJxsk7/huKkkbmd/XmVBlY
+NpIUaabdFg6GBUDJ4thaSP5N1iTrIpplljnpdB2NPZH2Gn7FzW+e7RtikNpXhXVO
+U4ap0YmHEujg+Z/7Z55U2dOPi3iECS+E8V4691a6aUI7RD4uMR/DKIpthjR1WjyG
+XRDIwhTnkNiQTcBdS183BsbM2VKuIdTPCuq7+bP6lpVOyJ9ijdtCzSiwbhFpLYzS
+BoD1RjYwPmIXDkuxBMt8PoxhcICa70+0GqBAqlOpm4dHFwexwvyDS0Sb7gS1xma7
+RAQmb7StbrvqWXuU0QMgftd2hsd5F7sxJhdqpdCLNtUrzuWbzswqEMPi9HnpAKWX
+78EOZ+uxYpCNfUHqLyfzisKWuOEKPDW0rJaMDSUs3qvg0Rui4v6/oyvxFoloh2+w
+KCLVXYnkGF/Zk/XQVC4Rw0SQp8ECSobxVLs9+cUF3mv4lkvEZdg9tC+6kmW2RgBu
+GBWFONZgJkLrj7tbulc5UM3HpPMuygwHsxCdQR+lO7Nj4UtPzsKnH3jfI3mRc0zW
+OxdclgUwjOCQzW/1TbDW/A6ZkmzbTjZUUEoEVQu1cbSGGbEfwRy9aG9u+wZBzBw0
+kfLLaJaVZouBuu7VUnYCLPArZpk6L/DYbgeKQnRDJ62KWdQXiEo=
+=PEve
+-----END PGP SIGNATURE-----
 
-Okay, I will make separate patches, one for cleanup and another for 
-shutdown hook.
-
->> diff --git a/drivers/soc/qcom/qcom-geni-se.c 
->> b/drivers/soc/qcom/qcom-geni-se.c
->> index d0e4f520cff8..0216b38c1e9a 100644
->> --- a/drivers/soc/qcom/qcom-geni-se.c
->> +++ b/drivers/soc/qcom/qcom-geni-se.c
->> @@ -705,7 +705,7 @@ void geni_se_tx_dma_unprep(struct geni_se *se, 
->> dma_addr_t iova, size_t len)
->>  {
->>         struct geni_wrapper *wrapper = se->wrapper;
->> 
->> -       if (iova && !dma_mapping_error(wrapper->dev, iova))
->> +       if (!dma_mapping_error(wrapper->dev, iova))
->>                 dma_unmap_single(wrapper->dev, iova, len, 
->> DMA_TO_DEVICE);
->>  }
->>  EXPORT_SYMBOL(geni_se_tx_dma_unprep);
->> @@ -722,7 +722,7 @@ void geni_se_rx_dma_unprep(struct geni_se *se, 
->> dma_addr_t iova, size_t len)
->>  {
->>         struct geni_wrapper *wrapper = se->wrapper;
->> 
->> -       if (iova && !dma_mapping_error(wrapper->dev, iova))
->> +       if (!dma_mapping_error(wrapper->dev, iova))
->>                 dma_unmap_single(wrapper->dev, iova, len, 
->> DMA_FROM_DEVICE);
->>  }
->>  EXPORT_SYMBOL(geni_se_rx_dma_unprep);
-> 
-> I'd make this a different patch. Nothing depends on this change, right?
-
-Yes this is independent patch. I will make this as separate patch which 
-will be the third one.
-
-Thanks,
-Roja
+--Mit9XoPEfICDqq/V--
