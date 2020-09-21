@@ -4,49 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43680C43466
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:43:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDD20C4346A
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:43:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 086D82311D
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:43:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B4014235F8
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600699404;
-	bh=E0ekg5aWtYtk64cRZDogsmPhWOTt7xCyRrKTdmYg2Vk=;
+	s=default; t=1600699428;
+	bh=oQsBq+CnHlR+V9v4/Bx2lGJ9uMC9L2bhMPGikWBh58U=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=NxGDLQoRlekN5zL/E7lhuWlqBz7DcngcYTXF6iHZmSSxFvEwOqFO2JcI2l/oCJBjG
-	 nC7ZslN2H9pbCrYbfM4cPrtfCl8vZkA1nVVjppFhmUUuHut/x9pd7K1rNimCHrBeUm
-	 Ff8EUGckpIV0KutKcEBdbvSq8QtYfgeEBWD0/yrA=
+	b=UctaH+qyY54PhRY1C66vwIuBsCJZJVgiN1atSJGz9405kKaRGsHlaKjveQRHrcNRw
+	 QSiTf0mrhUf2lYPUmpl+ZrVAQPGTmuadJSpw4pslkNbd0Q3ZrvHMPBepxLtfZx/ZnK
+	 0tTCSlAOih76jmv6ZW9gZNC6iWmZeP4SDeCcHiSs=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728219AbgIUOnL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Sep 2020 10:43:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49560 "EHLO mail.kernel.org"
+        id S1727846AbgIUOkj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 21 Sep 2020 10:40:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727899AbgIUOku (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:40:50 -0400
+        id S1727837AbgIUOki (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:40:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0841223447;
-        Mon, 21 Sep 2020 14:40:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69BFD235FC;
+        Mon, 21 Sep 2020 14:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699249;
-        bh=E0ekg5aWtYtk64cRZDogsmPhWOTt7xCyRrKTdmYg2Vk=;
+        s=default; t=1600699238;
+        bh=oQsBq+CnHlR+V9v4/Bx2lGJ9uMC9L2bhMPGikWBh58U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSu8lmECLBsVICvMBwyxmylO6v2mI9Ok1CiHtLMebKAD2Zs3YwEUX1tfbgEabjaef
-         fPl3ryjvZkjDR0MIWY2OsqVT9pvk+RyJBxJejDPOBclyxZZ1+Bw3xXyIAt2FPgrSb1
-         6rlz41m82wMamCQFOvJqI3AmXiKkzCp15QT58YAk=
+        b=NdN31+VDNl/JsvEB93oQt1XSORxCfgFNl5r6duyQ4CYZwgK0WRR6BK84LqniNjWmn
+         DBqwYrwezij1LQDmXrbYP8sgl9jueGb/JGLNHtdbh5Gux/Lq9pXhxxVh0gPnpBdCS+
+         9wU5prxTl8ohVDEIpIqd4kXBrGxIk1AVbOLhMGkc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 17/20] i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
-Date:   Mon, 21 Sep 2020 10:40:24 -0400
-Message-Id: <20200921144027.2135390-17-sashal@kernel.org>
+Cc:     Eddie James <eajames@linux.ibm.com>,
+        Tao Ren <rentao.bupt@gmail.com>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org,
+        openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.8 08/20] i2c: aspeed: Mask IRQ status to relevant bits
+Date:   Mon, 21 Sep 2020 10:40:15 -0400
+Message-Id: <20200921144027.2135390-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200921144027.2135390-1-sashal@kernel.org>
 References: <20200921144027.2135390-1-sashal@kernel.org>
@@ -58,42 +59,42 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit 21653a4181ff292480599dad996a2b759ccf050f ]
+[ Upstream commit 1a1d6db23ddacde0b15ea589e9103373e05af8de ]
 
-Some ACPI i2c-devices _STA method (which is used to detect if the device
-is present) use autodetection code which probes which device is present
-over i2c. This requires the I2C ACPI OpRegion handler to be registered
-before we enumerate i2c-clients under the i2c-adapter.
+Mask the IRQ status to only the bits that the driver checks. This
+prevents excessive driver warnings when operating in slave mode
+when additional bits are set that the driver doesn't handle.
 
-This fixes the i2c touchpad on the Lenovo ThinkBook 14-IIL and
-ThinkBook 15 IIL not getting an i2c-client instantiated and thus not
-working.
-
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1842039
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Tao Ren <rentao.bupt@gmail.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-aspeed.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 4f09d4c318287..7031393c74806 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1336,8 +1336,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+index f51702d86a90e..1ad74efcab372 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -69,6 +69,7 @@
+  * These share bit definitions, so use the same values for the enable &
+  * status bits.
+  */
++#define ASPEED_I2CD_INTR_RECV_MASK			0xf000ffff
+ #define ASPEED_I2CD_INTR_SDA_DL_TIMEOUT			BIT(14)
+ #define ASPEED_I2CD_INTR_BUS_RECOVER_DONE		BIT(13)
+ #define ASPEED_I2CD_INTR_SLAVE_MATCH			BIT(7)
+@@ -604,6 +605,7 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
+ 	writel(irq_received & ~ASPEED_I2CD_INTR_RX_DONE,
+ 	       bus->base + ASPEED_I2C_INTR_STS_REG);
+ 	readl(bus->base + ASPEED_I2C_INTR_STS_REG);
++	irq_received &= ASPEED_I2CD_INTR_RECV_MASK;
+ 	irq_remaining = irq_received;
  
- 	/* create pre-declared device nodes */
- 	of_i2c_register_devices(adap);
--	i2c_acpi_register_devices(adap);
- 	i2c_acpi_install_space_handler(adap);
-+	i2c_acpi_register_devices(adap);
- 
- 	if (adap->nr < __i2c_first_dynamic_bus_num)
- 		i2c_scan_static_board_info(adap);
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
 -- 
 2.25.1
 
