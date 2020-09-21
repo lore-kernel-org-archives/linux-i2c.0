@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2E49C43468
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:41:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D497CC43469
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:42:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A8B3E2311D
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:41:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0BBB221EC
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600699306;
-	bh=hGw+1Ze6k5/Mdm/F3sQRnWvTlvJENxIxqcdnzezofeY=;
+	s=default; t=1600699324;
+	bh=2J1U52HG8jrWz3udJJtL9XCRofpGjS9y2Yu9OK3s4UE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=rwfEvgO7FVU2ROlvJ0o0rOeWc/fuN2Kn2wrgvlqVOwt5yhPFzdRoLWls76DN8YFjM
-	 r2Nso48lBiMsfd9tX6zPTjGnOzzX6HbvvvcEWBOxM/6t1DoW1bEQE5YaABT4eK7RK2
-	 vsViVxouVFb9bF4fq9d53ukgVXpkFsHovRl5Jpvc=
+	b=V7KA4GGloVwtdepfE6W3PAjqaGqrKeeSvtMqFXFusBX6GEACgjXzWtaFnnpI4kuXY
+	 WlVf8bx0u9u+iH7doXg7Xx+ViGt6HA4c/x4/1qZAnR3/BOZlg3WiB1728FZ6RsoX0T
+	 j4J2hVzZ/AXeczyRMtswslN1IrrypxK/1Mcq7Xoc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728095AbgIUOlm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Sep 2020 10:41:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51020 "EHLO mail.kernel.org"
+        id S1728057AbgIUOlb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 21 Sep 2020 10:41:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728078AbgIUOlf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:35 -0400
+        id S1728054AbgIUOla (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D236235F8;
-        Mon, 21 Sep 2020 14:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9535023718;
+        Mon, 21 Sep 2020 14:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699295;
-        bh=hGw+1Ze6k5/Mdm/F3sQRnWvTlvJENxIxqcdnzezofeY=;
+        s=default; t=1600699290;
+        bh=2J1U52HG8jrWz3udJJtL9XCRofpGjS9y2Yu9OK3s4UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IEB/aEM9zfzz8S6KRpEZ+jG6h/Sd/sdND+WR4qAm26+sFumFbwWfPxr2VRTwCd68m
-         fIIm8eFWKkiFeYaXcEi098OREoWBkrukyw18peW+BQVN+xUhaWenwXr4R67ozVEglJ
-         eB7o6lq41QCSc1d9Q8YP7JFhLLssmv3JhxQkGv3Q=
+        b=dsS/vIEH9Whsbi0OAVuFT0vI13i95njjHV3D60BW71AP4chWEPcdOaVdAKknUtivw
+         8hG0FSJzt9QrGQvblS8gNAYcIVO3fiqsBjBmyYVHZQx3z925VxzRPkFmEjDZHWC4Sx
+         lTbelL/9M/lSXT7dvyljyHsB5Ibc90k/4e7XgpCk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 2/3] i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
-Date:   Mon, 21 Sep 2020 10:41:30 -0400
-Message-Id: <20200921144132.2135971-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 2/3] i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
+Date:   Mon, 21 Sep 2020 10:41:26 -0400
+Message-Id: <20200921144127.2135896-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200921144132.2135971-1-sashal@kernel.org>
-References: <20200921144132.2135971-1-sashal@kernel.org>
+In-Reply-To: <20200921144127.2135896-1-sashal@kernel.org>
+References: <20200921144127.2135896-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -77,14 +77,14 @@ Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core.c | 2 +-
+ drivers/i2c/i2c-core-base.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 80d82c6792d8d..4fd7bfda2f9de 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1858,8 +1858,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 7b961c9c62eff..9f2aa45560e62 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1280,8 +1280,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
  
  	/* create pre-declared device nodes */
  	of_i2c_register_devices(adap);
