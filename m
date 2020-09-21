@@ -2,99 +2,100 @@ Return-Path: <SRS0=xDOk=C6=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDD20C4346A
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:43:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE05EC43468
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:44:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B4014235F8
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:43:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600699428;
-	bh=oQsBq+CnHlR+V9v4/Bx2lGJ9uMC9L2bhMPGikWBh58U=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=UctaH+qyY54PhRY1C66vwIuBsCJZJVgiN1atSJGz9405kKaRGsHlaKjveQRHrcNRw
-	 QSiTf0mrhUf2lYPUmpl+ZrVAQPGTmuadJSpw4pslkNbd0Q3ZrvHMPBepxLtfZx/ZnK
-	 0tTCSlAOih76jmv6ZW9gZNC6iWmZeP4SDeCcHiSs=
+	by mail.kernel.org (Postfix) with ESMTP id 816E22311D
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:44:45 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BFVZcoCX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727846AbgIUOkj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Sep 2020 10:40:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49250 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727837AbgIUOki (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:40:38 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69BFD235FC;
-        Mon, 21 Sep 2020 14:40:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699238;
-        bh=oQsBq+CnHlR+V9v4/Bx2lGJ9uMC9L2bhMPGikWBh58U=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NdN31+VDNl/JsvEB93oQt1XSORxCfgFNl5r6duyQ4CYZwgK0WRR6BK84LqniNjWmn
-         DBqwYrwezij1LQDmXrbYP8sgl9jueGb/JGLNHtdbh5Gux/Lq9pXhxxVh0gPnpBdCS+
-         9wU5prxTl8ohVDEIpIqd4kXBrGxIk1AVbOLhMGkc=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eddie James <eajames@linux.ibm.com>,
-        Tao Ren <rentao.bupt@gmail.com>, Wolfram Sang <wsa@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org,
-        openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org,
-        linux-aspeed@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.8 08/20] i2c: aspeed: Mask IRQ status to relevant bits
-Date:   Mon, 21 Sep 2020 10:40:15 -0400
-Message-Id: <20200921144027.2135390-8-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200921144027.2135390-1-sashal@kernel.org>
-References: <20200921144027.2135390-1-sashal@kernel.org>
+        id S1728049AbgIUOoo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 21 Sep 2020 10:44:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43800 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727965AbgIUOom (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Sep 2020 10:44:42 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E225BC061755;
+        Mon, 21 Sep 2020 07:44:41 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id 77so6996365lfj.0;
+        Mon, 21 Sep 2020 07:44:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=VBmGKsH4HXBysaC98/3xCnOtRsPHJTpyWV8wSKmKAjM=;
+        b=BFVZcoCXkbqbquKK2sSGrqLtZKU9hzgIVQ2eHQpno/78sfx38zmfBEIhAH1oOuaatm
+         lX7GOmadwj/QomMTDwgUyLyExg3FoHj9ReuFspSZ8IyUmt4YBN3NEMi+mScNFnEg8gtK
+         4i5re2ZtmX2gYb2MANPMa3upP1zoLp3CFzZI6PTnBuhH6DNKdeLs2f6e8/buiPyfMA/P
+         0Wof0+d7k2Gs33gLKi16XEihTtQa8nhfqQ5p3WBJjmYa9MwZeeqEsQyMhLuLvY8MHbHI
+         V+EK2A+4HlnMfzeu7lygDLb7KCjca8QCFnR//FPG56cetY8StplXI7REZUHw3JQ2VlyD
+         u4Sg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=VBmGKsH4HXBysaC98/3xCnOtRsPHJTpyWV8wSKmKAjM=;
+        b=dBd0idAccgsOt+tbUfbgWH3RekJ+ZDJ8/ERJQcFzwmCzmcudISwzjaZFSPS0UImJHO
+         4YPEeabfmDwezU607MGVXOTbdKetYen+yusw9+C8XT/L38VMHxqKisPJg+Wm9x9qGS0i
+         xEpgaaY3O0FyvUMmUiOAVClHO/EHb9XdBXPZeWdwJ6JHyKbBrfNvu5awxclSczPceHuT
+         PQ112Zmamqoa0lOBJauQTHeaHaYxFMMdZ+WiglFIrjfhGDyISrr5PNFQc+524g3osoZ7
+         sanqceddodN3nvIbDcNhodhmISp1zrXdf4/M6nA+dDQTf3gHaY5K702ZaGPoBIf7XUsh
+         yK1Q==
+X-Gm-Message-State: AOAM532rGqWEWilRcEh7cdDx+UPU0Tz2trKrnfIQLOPpj/Q6zC7eYqph
+        tyqMZg/dvQ0n1lqX5jFsfNXCqTa7H4A=
+X-Google-Smtp-Source: ABdhPJz5SLAxXZRgZVYvNQwvj6rRLaz1d+7HanqGVKxv0Y8w2q0awvZO/dcXQiZTg5zyIAQogBIZTg==
+X-Received: by 2002:ac2:593b:: with SMTP id v27mr116180lfi.338.1600699480014;
+        Mon, 21 Sep 2020 07:44:40 -0700 (PDT)
+Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
+        by smtp.googlemail.com with ESMTPSA id x5sm2765162ljh.127.2020.09.21.07.44.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Sep 2020 07:44:39 -0700 (PDT)
+Subject: Re: [PATCH v7 12/34] i2c: tegra: Use clk-bulk helpers
+To:     Thierry Reding <thierry.reding@gmail.com>
+Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20200908224006.25636-1-digetx@gmail.com>
+ <20200908224006.25636-13-digetx@gmail.com> <20200917113846.GX3515672@ulmo>
+ <175e7f54-36f0-32c6-35a3-14c5b5e89e95@gmail.com>
+ <20200921111257.GF3950626@ulmo>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <7b3b9e21-f8c8-eebb-85bb-af62fc204f10@gmail.com>
+Date:   Mon, 21 Sep 2020 17:44:38 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+In-Reply-To: <20200921111257.GF3950626@ulmo>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+21.09.2020 14:12, Thierry Reding пишет:
+> On Thu, Sep 17, 2020 at 06:01:56PM +0300, Dmitry Osipenko wrote:
+> [...]
+>> It's still possible to add the clk-num checking, but it should be
+>> unpractical. We could always add it later on if there will be a real
+>> incident. Do you agree?
+> 
+> There's also clk_bulk_get(), which allows you to specify the number of
+> clocks and their consumer IDs that you want to request. That seems like
+> it would allow us to both avoid the repetitive calls to clk APIs and at
+> the same time allows us to specify exactly which clocks we need. Would
+> that not work as a compromise?
 
-[ Upstream commit 1a1d6db23ddacde0b15ea589e9103373e05af8de ]
-
-Mask the IRQ status to only the bits that the driver checks. This
-prevents excessive driver warnings when operating in slave mode
-when additional bits are set that the driver doesn't handle.
-
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Tao Ren <rentao.bupt@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-aspeed.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index f51702d86a90e..1ad74efcab372 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -69,6 +69,7 @@
-  * These share bit definitions, so use the same values for the enable &
-  * status bits.
-  */
-+#define ASPEED_I2CD_INTR_RECV_MASK			0xf000ffff
- #define ASPEED_I2CD_INTR_SDA_DL_TIMEOUT			BIT(14)
- #define ASPEED_I2CD_INTR_BUS_RECOVER_DONE		BIT(13)
- #define ASPEED_I2CD_INTR_SLAVE_MATCH			BIT(7)
-@@ -604,6 +605,7 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
- 	writel(irq_received & ~ASPEED_I2CD_INTR_RX_DONE,
- 	       bus->base + ASPEED_I2C_INTR_STS_REG);
- 	readl(bus->base + ASPEED_I2C_INTR_STS_REG);
-+	irq_received &= ASPEED_I2CD_INTR_RECV_MASK;
- 	irq_remaining = irq_received;
- 
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
--- 
-2.25.1
-
+I'll change to use clk_bulk_get(), thanks.
