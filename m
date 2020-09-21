@@ -5,52 +5,51 @@ X-Spam-Level:
 X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F6B6C43466
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:40:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2E49C43468
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:41:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC01E238D7
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:40:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A8B3E2311D
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 14:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600699259;
-	bh=epOgRHJDgXsxln8kuvcmrBtLdvOqe96oF8UpA61L8X0=;
+	s=default; t=1600699306;
+	bh=hGw+1Ze6k5/Mdm/F3sQRnWvTlvJENxIxqcdnzezofeY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=E3tTNTxYwiFifXw8YICxXrCk2XCxmqbu7co15BwiNe91/MgbPsxpg2PtQkjfa8rEc
-	 c4PX319RY4AeCJChCTdAZ5Gc+rfmsl5ScdFq6/quuEdVBnpzVI41KLqeNNyKVDCzDE
-	 vGr1qk0AKBM+leUDrIeozIUWNN0Hs3TYrBzfA46Q=
+	b=rwfEvgO7FVU2ROlvJ0o0rOeWc/fuN2Kn2wrgvlqVOwt5yhPFzdRoLWls76DN8YFjM
+	 r2Nso48lBiMsfd9tX6zPTjGnOzzX6HbvvvcEWBOxM/6t1DoW1bEQE5YaABT4eK7RK2
+	 vsViVxouVFb9bF4fq9d53ukgVXpkFsHovRl5Jpvc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727954AbgIUOk5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Sep 2020 10:40:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49796 "EHLO mail.kernel.org"
+        id S1728095AbgIUOlm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 21 Sep 2020 10:41:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727928AbgIUOk5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:40:57 -0400
+        id S1728078AbgIUOlf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B7DD2371F;
-        Mon, 21 Sep 2020 14:40:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D236235F8;
+        Mon, 21 Sep 2020 14:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699252;
-        bh=epOgRHJDgXsxln8kuvcmrBtLdvOqe96oF8UpA61L8X0=;
+        s=default; t=1600699295;
+        bh=hGw+1Ze6k5/Mdm/F3sQRnWvTlvJENxIxqcdnzezofeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S8dOr7n3XFo3w/dITei4kEhijo8bA7pfeJjTGLdIoTAzNQHX+9LDRzwxg07Rah27X
-         T+lOxryJphhl3GV7UN0LaoBe2vBRH6o9TuF/YXhL7HrJFo3CXn32+5NoA9nFyUlNro
-         otRQ1V8+p2AiS1RVz5r22jCdDLLWLnGmrsFfeCgU=
+        b=IEB/aEM9zfzz8S6KRpEZ+jG6h/Sd/sdND+WR4qAm26+sFumFbwWfPxr2VRTwCd68m
+         fIIm8eFWKkiFeYaXcEi098OREoWBkrukyw18peW+BQVN+xUhaWenwXr4R67ozVEglJ
+         eB7o6lq41QCSc1d9Q8YP7JFhLLssmv3JhxQkGv3Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qii Wang <qii.wang@mediatek.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 19/20] i2c: mediatek: Send i2c master code at more than 1MHz
-Date:   Mon, 21 Sep 2020 10:40:26 -0400
-Message-Id: <20200921144027.2135390-19-sashal@kernel.org>
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 2/3] i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
+Date:   Mon, 21 Sep 2020 10:41:30 -0400
+Message-Id: <20200921144132.2135971-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200921144027.2135390-1-sashal@kernel.org>
-References: <20200921144027.2135390-1-sashal@kernel.org>
+In-Reply-To: <20200921144132.2135971-1-sashal@kernel.org>
+References: <20200921144132.2135971-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,35 +58,42 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Qii Wang <qii.wang@mediatek.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit b44658e755b5a733e9df04449facbc738df09170 ]
+[ Upstream commit 21653a4181ff292480599dad996a2b759ccf050f ]
 
-The master code needs to being sent when the speed is more than
-I2C_MAX_FAST_MODE_PLUS_FREQ, not I2C_MAX_FAST_MODE_FREQ in the
-latest I2C-bus specification and user manual.
+Some ACPI i2c-devices _STA method (which is used to detect if the device
+is present) use autodetection code which probes which device is present
+over i2c. This requires the I2C ACPI OpRegion handler to be registered
+before we enumerate i2c-clients under the i2c-adapter.
 
-Signed-off-by: Qii Wang <qii.wang@mediatek.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+This fixes the i2c touchpad on the Lenovo ThinkBook 14-IIL and
+ThinkBook 15 IIL not getting an i2c-client instantiated and thus not
+working.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1842039
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 2 +-
+ drivers/i2c/i2c-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index deef69e569062..440b12eba1e3c 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -736,7 +736,7 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
- 	for (clk_div = 1; clk_div <= max_clk_div; clk_div++) {
- 		clk_src = parent_clk / clk_div;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 80d82c6792d8d..4fd7bfda2f9de 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1858,8 +1858,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
  
--		if (target_speed > I2C_MAX_FAST_MODE_FREQ) {
-+		if (target_speed > I2C_MAX_FAST_MODE_PLUS_FREQ) {
- 			/* Set master code speed register */
- 			ret = mtk_i2c_calculate_speed(i2c, clk_src,
- 						      I2C_MAX_FAST_MODE_FREQ,
+ 	/* create pre-declared device nodes */
+ 	of_i2c_register_devices(adap);
+-	i2c_acpi_register_devices(adap);
+ 	i2c_acpi_install_space_handler(adap);
++	i2c_acpi_register_devices(adap);
+ 
+ 	if (adap->nr < __i2c_first_dynamic_bus_num)
+ 		i2c_scan_static_board_info(adap);
 -- 
 2.25.1
 
