@@ -5,59 +5,59 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68FE9C2D0E2
-	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 22:52:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1248C4727D
+	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 22:53:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F24C221EB
-	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 22:52:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6473A221EB
+	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 22:53:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sSo008fw"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Iyd/esoG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726960AbgIVWwo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 22 Sep 2020 18:52:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58698 "EHLO
+        id S1727051AbgIVWxB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 22 Sep 2020 18:53:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726958AbgIVWwn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Sep 2020 18:52:43 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0575CC061755;
-        Tue, 22 Sep 2020 15:52:43 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id y11so19861547lfl.5;
-        Tue, 22 Sep 2020 15:52:42 -0700 (PDT)
+        with ESMTP id S1727032AbgIVWxA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Sep 2020 18:53:00 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A330DC0613DB;
+        Tue, 22 Sep 2020 15:52:58 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id y11so19862033lfl.5;
+        Tue, 22 Sep 2020 15:52:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=sF7wxaJIFf2PK7deVlk7KqRh+rUKXRCZEkFx1dpH0ZA=;
-        b=sSo008fwqLbzm1+MxwIs00q7uaUB8QmUKrRZ7WJekZ1J0jRQFP3oCAEOy7Di2zFyjU
-         MQhEPzQfOCO+QKHngYGTO7xkCI2nUub1m4Xib38YbHzpNm4NE9hwfQRAyr4r/Zr53wU/
-         n7V9ICWLNuiP7YDUIu8455YMCkIOGdxHjY4KLXNuNPHg01CcCNde9Lhfozy9ggRjUjVk
-         s8M/fNWl35ibKmwt9eMC684OCO0lzqNKxG/rnVN0uDKtTLFEYgGK5+hj/8NPJ0sXcIFk
-         wlTz5hSDHwhdhby+xRcg4LBcMqouMMxgn+0gsFAccGZX6GoUE5UWvirfwr/hP1bXj7aZ
-         oIxA==
+        bh=wn8HdNQi7UE9fu0MmkEy/KHsHhAETyF8j8cnP/nRH70=;
+        b=Iyd/esoGuV0QLfX/DAcZ/3uepev1ZmjNPdI8bhClu8WARsSdAaudsAn7lQrMrIplUA
+         yP7dYHOfrsDfKPtm0f6tsR0OMMRTyB6Y60Jrb7aUBRJkSFMPRWeE4Av7Uvnd8dYiDtIi
+         i+ZAsxZct3oXD90UIjkgy9cvLFKYLFkeZM4XeHlJPiDPa6xhvCpVVfNbAF4sZ+FybEfE
+         x2mpIvrqhu9aZ+2pB2jMknAXSzmmwzxJ6yGrncQAtSK/wfgDZsGwTHwajEHRvoh2oWuh
+         Ejgqgxe7ToWTIo7RI34PjIAJb/vOOLkbOUWGcVCxsQcH3fOOE0tu7CcFFxPj/V6dt8aD
+         5MzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=sF7wxaJIFf2PK7deVlk7KqRh+rUKXRCZEkFx1dpH0ZA=;
-        b=TJCRGGsN8hlc09A0xtlYq+OPMNC3sRGrx8XhuZHe2qopCx+MKm7O/EoSSlQy+SjA1H
-         jDUnYfKRpzC/PCtkhk0Uxy74pIENzU+gI2D7eZ25pM7z4qSGFARgniMD66HkT+33ePZv
-         sPG4sj/wCmRTMvu16vmydG/ah9CsYMmCo4owDz9YNtstIWxVv4DubD/H8YrSV3oNJhNW
-         aSf0P+RgLtF382ki6tJX9ZQ1DZaHJoK+7cNU/FflBKIy2C0ppLUCGSxfVCLLQKlS27gU
-         zpmWdLBDM6A3FFAih+yhCNu0wshHIkZ23v8ez1DPUtvUVeqmgNuFeS9o/sy/BWqG1I5B
-         Elug==
-X-Gm-Message-State: AOAM531+2D52nw04OegeZQSNjuInTpzvNrCFuuvZL55vAzJQhAAkWNHJ
-        VsZ41E/xr2RpDaVwv6Qdwzg=
-X-Google-Smtp-Source: ABdhPJwKot4ETp2PRqS6CEd/CGkUX3zTiBL4wxnrcLtvNX6i8P3P/Z2tWpaqMFrg/QJsasHsfs2bMQ==
-X-Received: by 2002:a19:5f5d:: with SMTP id a29mr2565477lfj.259.1600815161386;
-        Tue, 22 Sep 2020 15:52:41 -0700 (PDT)
+        bh=wn8HdNQi7UE9fu0MmkEy/KHsHhAETyF8j8cnP/nRH70=;
+        b=GJGkinJTSH/M44W4t/1GE7og6dVNiDi0iKdYWvlA/jxQSIQKHYWg8opaABqfbAM49w
+         X2sagGuv4yE0MTAo8EFgTltPAryPXLsskTVf1mYkMMy87fz142fZNZ1u2l3E9qffx7ou
+         RRsj8c8UGE9VPBnTNP/UOgnjlV0ZRfrknfHvTSTMQ9ItRS91gzqdGFQH3w/5PDkSHqFl
+         NuEcOMUDAY5mNziKpGJW2ouXRO0HZluS0YMCbQ1TkQAxdf8CWnvZHPE1bB2Mntk+ai8H
+         uCI5qGvwQTeyRhpNwipBnesDkM+EJ2GXJHhXeOanDBY02o0kvX7WlHfHcAtLarAmwdhk
+         0YFg==
+X-Gm-Message-State: AOAM530WuIPRekyi8UAsrwkMjV0ZoRrOcd0XNAtffdFxHDS18zh7o3qs
+        WPQUAZAP25hRajwIWeizLNrS/jn9ZXA=
+X-Google-Smtp-Source: ABdhPJxyY8D6v1rWfqdOdqCfUqvWA+k+YQzXXzipDCJo0gjwYbMrLhO8fgEBiEPHetG1L7AgcK2M7A==
+X-Received: by 2002:ac2:46d5:: with SMTP id p21mr2568422lfo.558.1600815176986;
+        Tue, 22 Sep 2020 15:52:56 -0700 (PDT)
 Received: from localhost.localdomain (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
-        by smtp.gmail.com with ESMTPSA id l15sm3977588lfk.71.2020.09.22.15.52.40
+        by smtp.gmail.com with ESMTPSA id l15sm3977588lfk.71.2020.09.22.15.52.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2020 15:52:40 -0700 (PDT)
+        Tue, 22 Sep 2020 15:52:56 -0700 (PDT)
 From:   Dmitry Osipenko <digetx@gmail.com>
 To:     Thierry Reding <thierry.reding@gmail.com>,
         Jonathan Hunter <jonathanh@nvidia.com>,
@@ -67,9 +67,9 @@ To:     Thierry Reding <thierry.reding@gmail.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v8 12/32] i2c: tegra: Use clk-bulk helpers
-Date:   Wed, 23 Sep 2020 01:51:35 +0300
-Message-Id: <20200922225155.10798-13-digetx@gmail.com>
+Subject: [PATCH v8 28/32] i2c: tegra: Clean up variable names
+Date:   Wed, 23 Sep 2020 01:51:51 +0300
+Message-Id: <20200922225155.10798-29-digetx@gmail.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200922225155.10798-1-digetx@gmail.com>
 References: <20200922225155.10798-1-digetx@gmail.com>
@@ -79,396 +79,525 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Use clk-bulk helpers and factor out clocks initialization into separate
-function in order to make code cleaner.
+Rename "ret" variables to "err" in order to make code a bit more
+expressive, emphasizing that the returned value is an error code.
+Same vice versa, where appropriate.
 
-The clocks initialization now performed after reset-control initialization
-in order to avoid a noisy -PROBE_DEFER errors on T186+ from the clk-bulk
-helper which doesn't silence this error code. Hence reset_control_get()
-now may return -EPROBE_DEFER on newer Tegra SoCs because they use BPMP
-driver that provides reset controls and BPMP doesn't come up early during
-boot. Previously rst was protected by the clocks retrieval and now this
-patch makes dev_err_probe() to be used for the rst error handling.
+Rename variable "reg" to "val" in order to better reflect the actual
+usage of the variable in the code and to make naming consistent with
+the rest of the code.
 
-Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Use briefer names for a few members of the tegra_i2c_dev structure in
+order to improve readability of the code.
+
+All dev/&pdev->dev are replaced with i2c_dev->dev in order to have uniform
+code style across the driver.
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+Tested-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 ---
- drivers/i2c/busses/i2c-tegra.c | 188 ++++++++++++---------------------
- 1 file changed, 68 insertions(+), 120 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c | 177 +++++++++++++++++----------------
+ 1 file changed, 90 insertions(+), 87 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 505b5d37077d..b389cd0ce23a 100644
+index e7c69ef44170..24a17784b3fb 100644
 --- a/drivers/i2c/busses/i2c-tegra.c
 +++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -165,9 +165,6 @@ enum msg_end_type {
-  * @has_continue_xfer_support: Continue transfer supports.
-  * @has_per_pkt_xfer_complete_irq: Has enable/disable capability for transfer
-  *		complete interrupt per packet basis.
-- * @has_single_clk_source: The I2C controller has single clock source. Tegra30
-- *		and earlier SoCs have two clock sources i.e. div-clk and
-- *		fast-clk.
-  * @has_config_load_reg: Has the config load register to load the new
-  *		configuration.
-  * @clk_divisor_hs_mode: Clock divisor in HS mode.
-@@ -208,7 +205,6 @@ enum msg_end_type {
- struct tegra_i2c_hw_feature {
- 	bool has_continue_xfer_support;
- 	bool has_per_pkt_xfer_complete_irq;
--	bool has_single_clk_source;
- 	bool has_config_load_reg;
- 	int clk_divisor_hs_mode;
- 	int clk_divisor_std_mode;
-@@ -236,7 +232,8 @@ struct tegra_i2c_hw_feature {
-  * @hw: Tegra I2C HW feature
-  * @adapter: core I2C layer adapter information
-  * @div_clk: clock reference for div clock of I2C controller
-- * @fast_clk: clock reference for fast clock of I2C controller
-+ * @clocks: array of I2C controller clocks
-+ * @nclocks: number of clocks in the array
-  * @rst: reset control for the I2C controller
-  * @base: ioremapped registers cookie
-  * @base_phys: physical base address of the I2C controller
-@@ -265,8 +262,8 @@ struct tegra_i2c_dev {
- 	const struct tegra_i2c_hw_feature *hw;
- 	struct i2c_adapter adapter;
- 	struct clk *div_clk;
--	struct clk *fast_clk;
--	struct clk *slow_clk;
-+	struct clk_bulk_data clocks[2];
-+	unsigned int nclocks;
- 	struct reset_control *rst;
- 	void __iomem *base;
- 	phys_addr_t base_phys;
-@@ -662,25 +659,9 @@ static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
- 	if (ret)
- 		return ret;
+@@ -247,15 +247,15 @@ struct tegra_i2c_hw_feature {
+  * @msg_buf_remaining: size of unsent data in the message buffer
+  * @msg_read: identifies read transfers
+  * @bus_clk_rate: current I2C bus clock rate
+- * @is_multimaster_mode: track if I2C controller is in multi-master mode
++ * @multimaster_mode: indicates that I2C controller is in multi-master mode
+  * @tx_dma_chan: DMA transmit channel
+  * @rx_dma_chan: DMA receive channel
+  * @dma_phys: handle to DMA resources
+  * @dma_buf: pointer to allocated DMA buffer
+  * @dma_buf_size: DMA buffer size
+- * @is_curr_dma_xfer: indicates active DMA transfer
++ * @dma_mode: indicates active DMA transfer
+  * @dma_complete: DMA completion notifier
+- * @is_curr_atomic_xfer: indicates active atomic transfer
++ * @atomic_mode: indicates active atomic transfer
+  */
+ struct tegra_i2c_dev {
+ 	struct device *dev;
+@@ -287,9 +287,9 @@ struct tegra_i2c_dev {
+ 	dma_addr_t dma_phys;
+ 	u32 *dma_buf;
  
--	ret = clk_enable(i2c_dev->fast_clk);
--	if (ret < 0) {
--		dev_err(i2c_dev->dev,
--			"Enabling fast clk failed, err %d\n", ret);
-+	ret = clk_bulk_enable(i2c_dev->nclocks, i2c_dev->clocks);
-+	if (ret)
- 		return ret;
--	}
--
--	ret = clk_enable(i2c_dev->slow_clk);
--	if (ret < 0) {
--		dev_err(dev, "failed to enable slow clock: %d\n", ret);
--		goto disable_fast_clk;
--	}
--
--	ret = clk_enable(i2c_dev->div_clk);
--	if (ret < 0) {
--		dev_err(i2c_dev->dev,
--			"Enabling div clk failed, err %d\n", ret);
--		goto disable_slow_clk;
--	}
+-	bool is_multimaster_mode;
+-	bool is_curr_atomic_xfer;
+-	bool is_curr_dma_xfer;
++	bool multimaster_mode;
++	bool atomic_mode;
++	bool dma_mode;
+ 	bool msg_read;
+ 	bool is_dvc;
+ 	bool is_vi;
+@@ -526,7 +526,7 @@ static int tegra_i2c_poll_register(struct tegra_i2c_dev *i2c_dev,
+ 	void __iomem *addr = i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg);
+ 	u32 val;
  
- 	/*
- 	 * VI I2C device is attached to VE power domain which goes through
-@@ -691,17 +672,14 @@ static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
- 	if (i2c_dev->is_vi) {
- 		ret = tegra_i2c_init(i2c_dev);
- 		if (ret)
--			goto disable_div_clk;
-+			goto disable_clocks;
+-	if (!i2c_dev->is_curr_atomic_xfer)
++	if (!i2c_dev->atomic_mode)
+ 		return readl_relaxed_poll_timeout(addr, val, !(val & mask),
+ 						  delay_us, timeout_us);
+ 
+@@ -674,7 +674,7 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ 	if (err)
+ 		return err;
+ 
+-	if (i2c_dev->is_multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
++	if (i2c_dev->multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
+ 		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
+ 
+ 	err = tegra_i2c_wait_for_config_load(i2c_dev);
+@@ -860,7 +860,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	if (i2c_dev->hw->supports_bus_clear && (status & I2C_INT_BUS_CLR_DONE))
+ 		goto err;
+ 
+-	if (!i2c_dev->is_curr_dma_xfer) {
++	if (!i2c_dev->dma_mode) {
+ 		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
+ 			if (tegra_i2c_empty_rx_fifo(i2c_dev)) {
+ 				/*
+@@ -894,7 +894,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	 * so forcing msg_buf_remaining to 0 in DMA mode.
+ 	 */
+ 	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
+-		if (i2c_dev->is_curr_dma_xfer)
++		if (i2c_dev->dma_mode)
+ 			i2c_dev->msg_buf_remaining = 0;
+ 		/*
+ 		 * Underflow error condition: XFER_COMPLETE before message
+@@ -918,7 +918,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	if (i2c_dev->is_dvc)
+ 		dvc_writel(i2c_dev, DVC_STATUS_I2C_DONE_INTR, DVC_STATUS);
+ 
+-	if (i2c_dev->is_curr_dma_xfer) {
++	if (i2c_dev->dma_mode) {
+ 		if (i2c_dev->msg_read)
+ 			dmaengine_terminate_async(i2c_dev->rx_dma_chan);
+ 		else
+@@ -938,14 +938,14 @@ static void tegra_i2c_config_fifo_trig(struct tegra_i2c_dev *i2c_dev,
+ 	struct dma_slave_config slv_config = {0};
+ 	u32 val, reg, dma_burst, reg_offset;
+ 	struct dma_chan *chan;
+-	int ret;
++	int err;
+ 
+ 	if (i2c_dev->hw->has_mst_fifo)
+ 		reg = I2C_MST_FIFO_CONTROL;
+ 	else
+ 		reg = I2C_FIFO_CONTROL;
+ 
+-	if (i2c_dev->is_curr_dma_xfer) {
++	if (i2c_dev->dma_mode) {
+ 		if (len & 0xF)
+ 			dma_burst = 1;
+ 		else if (len & 0x10)
+@@ -978,13 +978,13 @@ static void tegra_i2c_config_fifo_trig(struct tegra_i2c_dev *i2c_dev,
+ 		}
+ 
+ 		slv_config.device_fc = true;
+-		ret = dmaengine_slave_config(chan, &slv_config);
+-		if (ret) {
++		err = dmaengine_slave_config(chan, &slv_config);
++		if (err) {
+ 			dev_err(i2c_dev->dev, "DMA slave config failed: %d\n",
+-				ret);
++				err);
+ 			dev_err(i2c_dev->dev, "falling back to PIO\n");
+ 			tegra_i2c_release_dma(i2c_dev);
+-			i2c_dev->is_curr_dma_xfer = false;
++			i2c_dev->dma_mode = false;
+ 		} else {
+ 			goto out;
+ 		}
+@@ -1032,7 +1032,7 @@ static unsigned long tegra_i2c_wait_completion(struct tegra_i2c_dev *i2c_dev,
+ {
+ 	unsigned long ret;
+ 
+-	if (i2c_dev->is_curr_atomic_xfer) {
++	if (i2c_dev->atomic_mode) {
+ 		ret = tegra_i2c_poll_completion(i2c_dev, complete, timeout_ms);
+ 	} else {
+ 		enable_irq(i2c_dev->irq);
+@@ -1060,20 +1060,20 @@ static unsigned long tegra_i2c_wait_completion(struct tegra_i2c_dev *i2c_dev,
+ static int tegra_i2c_issue_bus_clear(struct i2c_adapter *adap)
+ {
+ 	struct tegra_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+-	u32 reg, time_left;
++	u32 val, time_left;
+ 	int err;
+ 
+ 	reinit_completion(&i2c_dev->msg_complete);
+-	reg = FIELD_PREP(I2C_BC_SCLK_THRESHOLD, 9) | I2C_BC_STOP_COND |
++	val = FIELD_PREP(I2C_BC_SCLK_THRESHOLD, 9) | I2C_BC_STOP_COND |
+ 	      I2C_BC_TERMINATE;
+-	i2c_writel(i2c_dev, reg, I2C_BUS_CLEAR_CNFG);
++	i2c_writel(i2c_dev, val, I2C_BUS_CLEAR_CNFG);
+ 
+ 	err = tegra_i2c_wait_for_config_load(i2c_dev);
+ 	if (err)
+ 		return err;
+ 
+-	reg |= I2C_BC_ENABLE;
+-	i2c_writel(i2c_dev, reg, I2C_BUS_CLEAR_CNFG);
++	val |= I2C_BC_ENABLE;
++	i2c_writel(i2c_dev, val, I2C_BUS_CLEAR_CNFG);
+ 	tegra_i2c_unmask_irq(i2c_dev, I2C_INT_BUS_CLR_DONE);
+ 
+ 	time_left = tegra_i2c_wait_completion(i2c_dev, &i2c_dev->msg_complete, 50);
+@@ -1084,8 +1084,8 @@ static int tegra_i2c_issue_bus_clear(struct i2c_adapter *adap)
+ 		return -ETIMEDOUT;
  	}
  
- 	return 0;
+-	reg = i2c_readl(i2c_dev, I2C_BUS_CLEAR_STATUS);
+-	if (!(reg & I2C_BC_STATUS)) {
++	val = i2c_readl(i2c_dev, I2C_BUS_CLEAR_STATUS);
++	if (!(val & I2C_BC_STATUS)) {
+ 		dev_err(i2c_dev->dev,
+ 			"un-recovered arbitration lost\n");
+ 		return -EIO;
+@@ -1107,14 +1107,14 @@ static void tegra_i2c_push_packet_header(struct tegra_i2c_dev *i2c_dev,
+ 			FIELD_PREP(PACKET_HEADER0_CONT_ID, i2c_dev->cont_id) |
+ 			FIELD_PREP(PACKET_HEADER0_PACKET_ID, 1);
  
--disable_div_clk:
--	clk_disable(i2c_dev->div_clk);
--disable_slow_clk:
--	clk_disable(i2c_dev->slow_clk);
--disable_fast_clk:
--	clk_disable(i2c_dev->fast_clk);
-+disable_clocks:
-+	clk_bulk_disable(i2c_dev->nclocks, i2c_dev->clocks);
+-	if (i2c_dev->is_curr_dma_xfer && !i2c_dev->msg_read)
++	if (i2c_dev->dma_mode && !i2c_dev->msg_read)
+ 		*dma_buf++ = packet_header;
+ 	else
+ 		i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
+ 
+ 	packet_header = msg->len - 1;
+ 
+-	if (i2c_dev->is_curr_dma_xfer && !i2c_dev->msg_read)
++	if (i2c_dev->dma_mode && !i2c_dev->msg_read)
+ 		*dma_buf++ = packet_header;
+ 	else
+ 		i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
+@@ -1139,7 +1139,7 @@ static void tegra_i2c_push_packet_header(struct tegra_i2c_dev *i2c_dev,
+ 	if (msg->flags & I2C_M_RD)
+ 		packet_header |= I2C_HEADER_READ;
+ 
+-	if (i2c_dev->is_curr_dma_xfer && !i2c_dev->msg_read)
++	if (i2c_dev->dma_mode && !i2c_dev->msg_read)
+ 		*dma_buf++ = packet_header;
+ 	else
+ 		i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
+@@ -1155,7 +1155,7 @@ static int tegra_i2c_error_recover(struct tegra_i2c_dev *i2c_dev,
+ 
+ 	/* start recovery upon arbitration loss in single master mode */
+ 	if (i2c_dev->msg_err == I2C_ERR_ARBITRATION_LOST) {
+-		if (!i2c_dev->is_multimaster_mode)
++		if (!i2c_dev->multimaster_mode)
+ 			return i2c_recover_bus(&i2c_dev->adapter);
+ 
+ 		return -EAGAIN;
+@@ -1196,9 +1196,9 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		xfer_size = msg->len + I2C_PACKET_HEADER_SIZE;
+ 
+ 	xfer_size = ALIGN(xfer_size, BYTES_PER_FIFO_WORD);
+-	i2c_dev->is_curr_dma_xfer = (xfer_size > I2C_PIO_MODE_PREFERRED_LEN) &&
+-				    i2c_dev->dma_buf &&
+-				    !i2c_dev->is_curr_atomic_xfer;
++	i2c_dev->dma_mode = (xfer_size > I2C_PIO_MODE_PREFERRED_LEN) &&
++			    i2c_dev->dma_buf && !i2c_dev->atomic_mode;
 +
+ 	tegra_i2c_config_fifo_trig(i2c_dev, xfer_size);
+ 
+ 	/*
+@@ -1210,7 +1210,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 
+ 	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
+ 	tegra_i2c_unmask_irq(i2c_dev, int_mask);
+-	if (i2c_dev->is_curr_dma_xfer) {
++	if (i2c_dev->dma_mode) {
+ 		if (i2c_dev->msg_read) {
+ 			dma_sync_single_for_device(i2c_dev->dev,
+ 						   i2c_dev->dma_phys,
+@@ -1235,7 +1235,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	tegra_i2c_push_packet_header(i2c_dev, msg, end_state);
+ 
+ 	if (!i2c_dev->msg_read) {
+-		if (i2c_dev->is_curr_dma_xfer) {
++		if (i2c_dev->dma_mode) {
+ 			memcpy(i2c_dev->dma_buf, msg->buf, msg->len);
+ 			dma_sync_single_for_device(i2c_dev->dev,
+ 						   i2c_dev->dma_phys,
+@@ -1255,7 +1255,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 
+ 	if (i2c_dev->hw->has_per_pkt_xfer_complete_irq)
+ 		int_mask |= I2C_INT_PACKET_XFER_COMPLETE;
+-	if (!i2c_dev->is_curr_dma_xfer) {
++	if (!i2c_dev->dma_mode) {
+ 		if (msg->flags & I2C_M_RD)
+ 			int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
+ 		else if (i2c_dev->msg_buf_remaining)
+@@ -1266,7 +1266,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	dev_dbg(i2c_dev->dev, "unmasked irq: %02x\n",
+ 		i2c_readl(i2c_dev, I2C_INT_MASK));
+ 
+-	if (i2c_dev->is_curr_dma_xfer) {
++	if (i2c_dev->dma_mode) {
+ 		time_left = tegra_i2c_wait_completion(i2c_dev,
+ 						      &i2c_dev->dma_complete,
+ 						      xfer_time);
+@@ -1315,7 +1315,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		time_left, completion_done(&i2c_dev->msg_complete),
+ 		i2c_dev->msg_err);
+ 
+-	i2c_dev->is_curr_dma_xfer = false;
++	i2c_dev->dma_mode = false;
+ 
+ 	err = tegra_i2c_error_recover(i2c_dev, msg);
+ 	if (err)
+@@ -1362,9 +1362,9 @@ static int tegra_i2c_xfer_atomic(struct i2c_adapter *adap,
+ 	struct tegra_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+ 	int ret;
+ 
+-	i2c_dev->is_curr_atomic_xfer = true;
++	i2c_dev->atomic_mode = true;
+ 	ret = tegra_i2c_xfer(adap, msgs, num);
+-	i2c_dev->is_curr_atomic_xfer = false;
++	i2c_dev->atomic_mode = false;
+ 
  	return ret;
  }
- 
-@@ -709,9 +687,7 @@ static int __maybe_unused tegra_i2c_runtime_suspend(struct device *dev)
+@@ -1589,15 +1589,15 @@ static void tegra_i2c_parse_dt(struct tegra_i2c_dev *i2c_dev)
  {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 
--	clk_disable(i2c_dev->div_clk);
--	clk_disable(i2c_dev->slow_clk);
--	clk_disable(i2c_dev->fast_clk);
-+	clk_bulk_disable(i2c_dev->nclocks, i2c_dev->clocks);
- 
- 	return pinctrl_pm_select_idle_state(i2c_dev->dev);
- }
-@@ -1479,7 +1455,6 @@ static struct i2c_bus_recovery_info tegra_i2c_recovery_info = {
- static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.has_continue_xfer_support = false,
- 	.has_per_pkt_xfer_complete_irq = false,
--	.has_single_clk_source = false,
- 	.clk_divisor_hs_mode = 3,
- 	.clk_divisor_std_mode = 0,
- 	.clk_divisor_fast_mode = 0,
-@@ -1504,7 +1479,6 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
- 	.has_continue_xfer_support = true,
- 	.has_per_pkt_xfer_complete_irq = false,
--	.has_single_clk_source = false,
- 	.clk_divisor_hs_mode = 3,
- 	.clk_divisor_std_mode = 0,
- 	.clk_divisor_fast_mode = 0,
-@@ -1529,7 +1503,6 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
- static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
- 	.has_continue_xfer_support = true,
- 	.has_per_pkt_xfer_complete_irq = true,
--	.has_single_clk_source = true,
- 	.clk_divisor_hs_mode = 1,
- 	.clk_divisor_std_mode = 0x19,
- 	.clk_divisor_fast_mode = 0x19,
-@@ -1554,7 +1527,6 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
- static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
- 	.has_continue_xfer_support = true,
- 	.has_per_pkt_xfer_complete_irq = true,
--	.has_single_clk_source = true,
- 	.clk_divisor_hs_mode = 1,
- 	.clk_divisor_std_mode = 0x19,
- 	.clk_divisor_fast_mode = 0x19,
-@@ -1579,7 +1551,6 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
- static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
- 	.has_continue_xfer_support = true,
- 	.has_per_pkt_xfer_complete_irq = true,
--	.has_single_clk_source = true,
- 	.clk_divisor_hs_mode = 1,
- 	.clk_divisor_std_mode = 0x19,
- 	.clk_divisor_fast_mode = 0x19,
-@@ -1604,7 +1575,6 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
- static const struct tegra_i2c_hw_feature tegra186_i2c_hw = {
- 	.has_continue_xfer_support = true,
- 	.has_per_pkt_xfer_complete_irq = true,
--	.has_single_clk_source = true,
- 	.clk_divisor_hs_mode = 1,
- 	.clk_divisor_std_mode = 0x16,
- 	.clk_divisor_fast_mode = 0x19,
-@@ -1629,7 +1599,6 @@ static const struct tegra_i2c_hw_feature tegra186_i2c_hw = {
- static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
- 	.has_continue_xfer_support = true,
- 	.has_per_pkt_xfer_complete_irq = true,
--	.has_single_clk_source = true,
- 	.clk_divisor_hs_mode = 1,
- 	.clk_divisor_std_mode = 0x4f,
- 	.clk_divisor_fast_mode = 0x3c,
-@@ -1666,13 +1635,59 @@ static const struct of_device_id tegra_i2c_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
- 
-+static int tegra_i2c_init_clocks(struct tegra_i2c_dev *i2c_dev)
-+{
+ 	struct device_node *np = i2c_dev->dev->of_node;
+ 	bool multi_mode;
+-	int ret;
 +	int err;
-+
-+	i2c_dev->clocks[i2c_dev->nclocks++].id = "div-clk";
-+
-+	if (i2c_dev->hw == &tegra20_i2c_hw || i2c_dev->hw == &tegra30_i2c_hw)
-+		i2c_dev->clocks[i2c_dev->nclocks++].id = "fast-clk";
-+
-+	if (i2c_dev->is_vi)
-+		i2c_dev->clocks[i2c_dev->nclocks++].id = "slow";
-+
-+	err = devm_clk_bulk_get(i2c_dev->dev, i2c_dev->nclocks,
-+				i2c_dev->clocks);
+ 
+-	ret = of_property_read_u32(np, "clock-frequency",
++	err = of_property_read_u32(np, "clock-frequency",
+ 				   &i2c_dev->bus_clk_rate);
+-	if (ret)
 +	if (err)
-+		return err;
-+
-+	err = clk_bulk_prepare(i2c_dev->nclocks, i2c_dev->clocks);
-+	if (err)
-+		return err;
-+
-+	i2c_dev->div_clk = i2c_dev->clocks[0].clk;
-+
-+	if (!i2c_dev->is_multimaster_mode)
-+		return 0;
-+
-+	err = clk_enable(i2c_dev->div_clk);
-+	if (err) {
-+		dev_err(i2c_dev->dev, "failed to enable div-clk: %d\n", err);
-+		goto unprepare_clocks;
-+	}
-+
-+	return 0;
-+
-+unprepare_clocks:
-+	clk_bulk_unprepare(i2c_dev->nclocks, i2c_dev->clocks);
-+
-+	return err;
-+}
-+
-+static void tegra_i2c_release_clocks(struct tegra_i2c_dev *i2c_dev)
-+{
-+	if (i2c_dev->is_multimaster_mode)
-+		clk_disable(i2c_dev->div_clk);
-+
-+	clk_bulk_unprepare(i2c_dev->nclocks, i2c_dev->clocks);
-+}
-+
- static int tegra_i2c_probe(struct platform_device *pdev)
+ 		i2c_dev->bus_clk_rate = I2C_MAX_STANDARD_MODE_FREQ; /* default clock rate */
+ 
+ 	multi_mode = of_property_read_bool(np, "multi-master");
+-	i2c_dev->is_multimaster_mode = multi_mode;
++	i2c_dev->multimaster_mode = multi_mode;
+ 
+ 	if (of_device_is_compatible(np, "nvidia,tegra20-i2c-dvc"))
+ 		i2c_dev->is_dvc = true;
+@@ -1629,7 +1629,7 @@ static int tegra_i2c_init_clocks(struct tegra_i2c_dev *i2c_dev)
+ 
+ 	i2c_dev->div_clk = i2c_dev->clocks[0].clk;
+ 
+-	if (!i2c_dev->is_multimaster_mode)
++	if (!i2c_dev->multimaster_mode)
+ 		return 0;
+ 
+ 	err = clk_enable(i2c_dev->div_clk);
+@@ -1648,7 +1648,7 @@ static int tegra_i2c_init_clocks(struct tegra_i2c_dev *i2c_dev)
+ 
+ static void tegra_i2c_release_clocks(struct tegra_i2c_dev *i2c_dev)
  {
- 	struct device *dev = &pdev->dev;
+-	if (i2c_dev->is_multimaster_mode)
++	if (i2c_dev->multimaster_mode)
+ 		clk_disable(i2c_dev->div_clk);
+ 
+ 	clk_bulk_unprepare(i2c_dev->nclocks, i2c_dev->clocks);
+@@ -1673,7 +1673,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ {
  	struct tegra_i2c_dev *i2c_dev;
  	struct resource *res;
--	struct clk *div_clk;
--	struct clk *fast_clk;
- 	void __iomem *base;
- 	phys_addr_t base_phys;
- 	int irq;
-@@ -1688,21 +1703,12 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	if (irq < 0)
- 		return irq;
+-	int ret;
++	int err;
  
--	div_clk = devm_clk_get(&pdev->dev, "div-clk");
--	if (IS_ERR(div_clk)) {
--		if (PTR_ERR(div_clk) != -EPROBE_DEFER)
--			dev_err(&pdev->dev, "missing controller clock\n");
--
--		return PTR_ERR(div_clk);
--	}
--
  	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
  	if (!i2c_dev)
- 		return -ENOMEM;
+@@ -1694,36 +1694,36 @@ static int tegra_i2c_probe(struct platform_device *pdev)
  
- 	i2c_dev->base = base;
- 	i2c_dev->base_phys = base_phys;
--	i2c_dev->div_clk = div_clk;
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
- 	i2c_dev->adapter.retries = 1;
- 	i2c_dev->adapter.timeout = 6 * HZ;
-@@ -1712,12 +1718,17 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->base_phys = res->start;
  
- 	i2c_dev->rst = devm_reset_control_get_exclusive(&pdev->dev, "i2c");
+-	ret = platform_get_irq(pdev, 0);
+-	if (ret < 0)
+-		return ret;
++	err = platform_get_irq(pdev, 0);
++	if (err < 0)
++		return err;
+ 
+-	i2c_dev->irq = ret;
++	i2c_dev->irq = err;
+ 
+ 	/* interrupt will be enabled during of transfer time */
+ 	irq_set_status_flags(i2c_dev->irq, IRQ_NOAUTOEN);
+ 
+-	ret = devm_request_irq(&pdev->dev, i2c_dev->irq, tegra_i2c_isr,
+-			       IRQF_NO_SUSPEND, dev_name(&pdev->dev),
++	err = devm_request_irq(i2c_dev->dev, i2c_dev->irq, tegra_i2c_isr,
++			       IRQF_NO_SUSPEND, dev_name(i2c_dev->dev),
+ 			       i2c_dev);
+-	if (ret)
+-		return ret;
++	if (err)
++		return err;
+ 
+-	i2c_dev->rst = devm_reset_control_get_exclusive(&pdev->dev, "i2c");
++	i2c_dev->rst = devm_reset_control_get_exclusive(i2c_dev->dev, "i2c");
  	if (IS_ERR(i2c_dev->rst)) {
--		dev_err(&pdev->dev, "missing controller reset\n");
-+		dev_err_probe(&pdev->dev, PTR_ERR(i2c_dev->rst),
-+			      "failed to get reset control\n");
+-		dev_err_probe(&pdev->dev, PTR_ERR(i2c_dev->rst),
++		dev_err_probe(i2c_dev->dev, PTR_ERR(i2c_dev->rst),
+ 			      "failed to get reset control\n");
  		return PTR_ERR(i2c_dev->rst);
  	}
  
  	tegra_i2c_parse_dt(i2c_dev);
  
-+	ret = tegra_i2c_init_clocks(i2c_dev);
-+	if (ret)
-+		return ret;
-+
- 	i2c_dev->hw = of_device_get_match_data(&pdev->dev);
- 	i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
- 						  "nvidia,tegra20-i2c-dvc");
-@@ -1729,46 +1740,8 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	init_completion(&i2c_dev->msg_complete);
- 	init_completion(&i2c_dev->dma_complete);
- 
--	if (!i2c_dev->hw->has_single_clk_source) {
--		fast_clk = devm_clk_get(&pdev->dev, "fast-clk");
--		if (IS_ERR(fast_clk)) {
--			dev_err(&pdev->dev, "missing fast clock\n");
--			return PTR_ERR(fast_clk);
--		}
--		i2c_dev->fast_clk = fast_clk;
--	}
--
--	if (i2c_dev->is_vi) {
--		i2c_dev->slow_clk = devm_clk_get(dev, "slow");
--		if (IS_ERR(i2c_dev->slow_clk)) {
--			if (PTR_ERR(i2c_dev->slow_clk) != -EPROBE_DEFER)
--				dev_err(dev, "failed to get slow clock: %ld\n",
--					PTR_ERR(i2c_dev->slow_clk));
--
--			return PTR_ERR(i2c_dev->slow_clk);
--		}
--	}
--
- 	platform_set_drvdata(pdev, i2c_dev);
- 
--	ret = clk_prepare(i2c_dev->fast_clk);
--	if (ret < 0) {
--		dev_err(i2c_dev->dev, "Clock prepare failed %d\n", ret);
+-	ret = tegra_i2c_init_clocks(i2c_dev);
+-	if (ret)
 -		return ret;
--	}
--
--	ret = clk_prepare(i2c_dev->slow_clk);
--	if (ret < 0) {
--		dev_err(dev, "failed to prepare slow clock: %d\n", ret);
--		goto unprepare_fast_clk;
--	}
--
--	ret = clk_prepare(i2c_dev->div_clk);
--	if (ret < 0) {
--		dev_err(i2c_dev->dev, "Clock prepare failed %d\n", ret);
--		goto unprepare_slow_clk;
--	}
--
- 	/*
- 	 * VI I2C is in VE power domain which is not always on and not
- 	 * an IRQ safe. So, IRQ safe device can't be attached to a non-IRQ
-@@ -1785,21 +1758,12 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		goto put_rpm;
- 	}
++	err = tegra_i2c_init_clocks(i2c_dev);
++	if (err)
++		return err;
  
--	if (i2c_dev->is_multimaster_mode) {
--		ret = clk_enable(i2c_dev->div_clk);
--		if (ret < 0) {
--			dev_err(i2c_dev->dev, "div_clk enable failed %d\n",
--				ret);
--			goto put_rpm;
--		}
--	}
--
+-	ret = tegra_i2c_init_dma(i2c_dev);
+-	if (ret)
++	err = tegra_i2c_init_dma(i2c_dev);
++	if (err)
+ 		goto release_clocks;
+ 
+ 	/*
+@@ -1734,16 +1734,16 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	 * not be used for atomic transfers.
+ 	 */
+ 	if (!i2c_dev->is_vi)
+-		pm_runtime_irq_safe(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
++		pm_runtime_irq_safe(i2c_dev->dev);
++	pm_runtime_enable(i2c_dev->dev);
+ 
+-	ret = tegra_i2c_init_hardware(i2c_dev);
+-	if (ret)
++	err = tegra_i2c_init_hardware(i2c_dev);
++	if (err)
+ 		goto release_rpm;
+ 
+ 	i2c_set_adapdata(&i2c_dev->adapter, i2c_dev);
+-	i2c_dev->adapter.dev.of_node = pdev->dev.of_node;
+-	i2c_dev->adapter.dev.parent = &pdev->dev;
++	i2c_dev->adapter.dev.of_node = i2c_dev->dev->of_node;
++	i2c_dev->adapter.dev.parent = i2c_dev->dev;
+ 	i2c_dev->adapter.retries = 1;
+ 	i2c_dev->adapter.timeout = 6 * HZ;
+ 	i2c_dev->adapter.quirks = i2c_dev->hw->quirks;
+@@ -1755,23 +1755,23 @@ static int tegra_i2c_probe(struct platform_device *pdev)
  	if (i2c_dev->hw->supports_bus_clear)
  		i2c_dev->adapter.bus_recovery_info = &tegra_i2c_recovery_info;
  
- 	ret = tegra_i2c_init_dma(i2c_dev);
- 	if (ret < 0)
--		goto disable_div_clk;
-+		goto put_rpm;
+-	strlcpy(i2c_dev->adapter.name, dev_name(&pdev->dev),
++	strlcpy(i2c_dev->adapter.name, dev_name(i2c_dev->dev),
+ 		sizeof(i2c_dev->adapter.name));
  
- 	ret = tegra_i2c_init(i2c_dev);
- 	if (ret) {
-@@ -1834,20 +1798,10 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- release_dma:
+-	ret = i2c_add_numbered_adapter(&i2c_dev->adapter);
+-	if (ret)
++	err = i2c_add_numbered_adapter(&i2c_dev->adapter);
++	if (err)
+ 		goto release_rpm;
+ 
+ 	return 0;
+ 
+ release_rpm:
+-	pm_runtime_disable(&pdev->dev);
++	pm_runtime_disable(i2c_dev->dev);
+ 
  	tegra_i2c_release_dma(i2c_dev);
+ release_clocks:
+ 	tegra_i2c_release_clocks(i2c_dev);
  
--disable_div_clk:
--	if (i2c_dev->is_multimaster_mode)
--		clk_disable(i2c_dev->div_clk);
--
- put_rpm:
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
--	clk_unprepare(i2c_dev->div_clk);
--
--unprepare_slow_clk:
--	clk_unprepare(i2c_dev->slow_clk);
--
--unprepare_fast_clk:
--	clk_unprepare(i2c_dev->fast_clk);
-+	tegra_i2c_release_clocks(i2c_dev);
- 
- 	return ret;
+-	return ret;
++	return err;
  }
-@@ -1858,16 +1812,10 @@ static int tegra_i2c_remove(struct platform_device *pdev)
+ 
+ static int tegra_i2c_remove(struct platform_device *pdev)
+@@ -1780,7 +1780,7 @@ static int tegra_i2c_remove(struct platform_device *pdev)
  
  	i2c_del_adapter(&i2c_dev->adapter);
  
--	if (i2c_dev->is_multimaster_mode)
--		clk_disable(i2c_dev->div_clk);
--
- 	pm_runtime_disable(&pdev->dev);
+-	pm_runtime_disable(&pdev->dev);
++	pm_runtime_disable(i2c_dev->dev);
  
--	clk_unprepare(i2c_dev->div_clk);
--	clk_unprepare(i2c_dev->slow_clk);
--	clk_unprepare(i2c_dev->fast_clk);
--
  	tegra_i2c_release_dma(i2c_dev);
-+	tegra_i2c_release_clocks(i2c_dev);
- 	return 0;
+ 	tegra_i2c_release_clocks(i2c_dev);
+@@ -1790,15 +1790,15 @@ static int tegra_i2c_remove(struct platform_device *pdev)
+ static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
+ {
+ 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+-	int ret;
++	int err;
+ 
+-	ret = pinctrl_pm_select_default_state(i2c_dev->dev);
+-	if (ret)
+-		return ret;
++	err = pinctrl_pm_select_default_state(dev);
++	if (err)
++		return err;
+ 
+-	ret = clk_bulk_enable(i2c_dev->nclocks, i2c_dev->clocks);
+-	if (ret)
+-		return ret;
++	err = clk_bulk_enable(i2c_dev->nclocks, i2c_dev->clocks);
++	if (err)
++		return err;
+ 
+ 	/*
+ 	 * VI I2C device is attached to VE power domain which goes through
+@@ -1807,8 +1807,8 @@ static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
+ 	 * domain ON.
+ 	 */
+ 	if (i2c_dev->is_vi) {
+-		ret = tegra_i2c_init(i2c_dev);
+-		if (ret)
++		err = tegra_i2c_init(i2c_dev);
++		if (err)
+ 			goto disable_clocks;
+ 	}
+ 
+@@ -1817,7 +1817,7 @@ static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
+ disable_clocks:
+ 	clk_bulk_disable(i2c_dev->nclocks, i2c_dev->clocks);
+ 
+-	return ret;
++	return err;
  }
  
+ static int __maybe_unused tegra_i2c_runtime_suspend(struct device *dev)
+@@ -1826,20 +1826,23 @@ static int __maybe_unused tegra_i2c_runtime_suspend(struct device *dev)
+ 
+ 	clk_bulk_disable(i2c_dev->nclocks, i2c_dev->clocks);
+ 
+-	return pinctrl_pm_select_idle_state(i2c_dev->dev);
++	return pinctrl_pm_select_idle_state(dev);
+ }
+ 
+ static int __maybe_unused tegra_i2c_suspend(struct device *dev)
+ {
+ 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+-	int err = 0;
++	int err;
+ 
+ 	i2c_mark_adapter_suspended(&i2c_dev->adapter);
+ 
+-	if (!pm_runtime_status_suspended(dev))
++	if (!pm_runtime_status_suspended(dev)) {
+ 		err = tegra_i2c_runtime_suspend(dev);
++		if (err)
++			return err;
++	}
+ 
+-	return err;
++	return 0;
+ }
+ 
+ static int __maybe_unused tegra_i2c_resume(struct device *dev)
 -- 
 2.27.0
 
