@@ -1,129 +1,108 @@
-Return-Path: <SRS0=xDOk=C6=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=cqaj=C7=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7559C41604
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 20:13:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40BC8C4727E
+	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 08:38:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 666DD21789
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Sep 2020 20:13:02 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="hVYFLWCh"
+	by mail.kernel.org (Postfix) with ESMTP id EA51323A34
+	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 08:38:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1600763936;
+	bh=Mm0cw1XMHiTcGFvYZ5YAxmxvfxAfdbEoZVA80me39JE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=Y/OocOybj+XJnaT1XN64243nOvSe+qaAf0J9IWDwZ3ig5tkyoIIO2PUiTVCE8bR3L
+	 U9+jPKwcQroJ3o8v51CN+AXu/97FYBB3NhF0CnBTuLlBGkE6AGqstot4s73YTNxBAX
+	 JxWWnxFiWTuUYiljaAz7HNwwEFA5D9sUJ06oRBg8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726467AbgIUUNA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Sep 2020 16:13:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38158 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726441AbgIUUM7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Sep 2020 16:12:59 -0400
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68280C0613D1
-        for <linux-i2c@vger.kernel.org>; Mon, 21 Sep 2020 13:12:59 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id a9so355440pjg.1
-        for <linux-i2c@vger.kernel.org>; Mon, 21 Sep 2020 13:12:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:content-transfer-encoding:in-reply-to:references
-         :subject:from:cc:to:date:message-id:user-agent;
-        bh=W/Kxd3ZsTJKzJEkeZeLlo7BrMx4l7UcmMdHw88y51RQ=;
-        b=hVYFLWChiCBjVwypKK0nyxvfd37bkITGsEBYxWBdD10OR6NdYz0pzW1BJbHzXslJo0
-         xtK3VvUkMzKZbsQ7aCfvV6ZlkuAvQfTmGBV7ZSh1zyrAUTEkGDeSJAXhqEtbyVOTczYF
-         jER8++ADxIio0/I76KHHvyQQhit8ZCWm8qIE0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:content-transfer-encoding
-         :in-reply-to:references:subject:from:cc:to:date:message-id
-         :user-agent;
-        bh=W/Kxd3ZsTJKzJEkeZeLlo7BrMx4l7UcmMdHw88y51RQ=;
-        b=ERjvYwuz+WBextHFKaSGmBU8j19nDxk9IB+W0bu9gVgPvPpV8K/HxJB3z+xfFbCSnJ
-         nFXitYiML7p/DWM9DyFGzuVYGMCw03+WosvXUEK4S+G2DO0XcbL4odVRSHxJS9myam6b
-         ugsARHUbmv1p5QBZiCWCx5gYxXM7em1nC1ehco3EXinHusfF/5oWfr103HmubTDBc6Fy
-         63py6G6ZhpF0wPRJbtjovtDTWGLeYu+qaWCRFNuTldFCE+PcMuu/pUJTljNcaXP6TZXn
-         Pck3XR3uxx4dNFN3ALeuE0uC6Sa3uwxHUhhgCRrE+YeI8aNrA4bne28WruQs4V2vJhVn
-         Hj4w==
-X-Gm-Message-State: AOAM533r05B2WGODD1lC1uyaU2MblAcubE4XB9MpPrqbDHAdvSJVF4xD
-        fCyEOssNg1TSlx8imjJLK6737Q==
-X-Google-Smtp-Source: ABdhPJyehtYtEUeW5/Zkf7avMtNZ6qZZdA9mko0zR33iKWVQ2TSolZX0a+lsDR+hlvIgP+9qaZ5HRg==
-X-Received: by 2002:a17:90b:3cb:: with SMTP id go11mr802317pjb.152.1600719178625;
-        Mon, 21 Sep 2020 13:12:58 -0700 (PDT)
-Received: from chromium.org ([2620:15c:202:1:3e52:82ff:fe6c:83ab])
-        by smtp.gmail.com with ESMTPSA id l188sm12643094pfl.200.2020.09.21.13.12.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2020 13:12:57 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726422AbgIVIiu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 22 Sep 2020 04:38:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39278 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726343AbgIVIiu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 22 Sep 2020 04:38:50 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F3DA23A1E;
+        Tue, 22 Sep 2020 08:38:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600763929;
+        bh=Mm0cw1XMHiTcGFvYZ5YAxmxvfxAfdbEoZVA80me39JE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lJGS3A93Lgq85UkTDgJdes21K55ht2plPLTIViCrhCUCIC3GbnIc5h/FFIvwdAN7y
+         GZhrRI/BtSs3f5OiCBv4YSrBUeSmOmarfFBLok5wtLaSTM8T+VppMPRyZogheOejZ9
+         PC9RJDxQ+/0Q63ijmDGf4+v/jSPWVgbPUXU+FO1g=
+Date:   Tue, 22 Sep 2020 10:39:09 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Jens Axboe <axboe@kernel.dk>, Rob Herring <robh+dt@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Marek Vasut <marek.vasut+renesas@gmail.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Niklas <niklas.soderlund@ragnatech.se>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, linux-ide@vger.kernel.org,
+        dmaengine <dmaengine@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-media <linux-media@vger.kernel.org>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        alsa-devel <alsa-devel@alsa-project.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        USB list <linux-usb@vger.kernel.org>
+Subject: Re: [PATCH 07/20] dt-bindings: usb: renesas,usb3-peri: Document
+ r8a774e1 support
+Message-ID: <20200922083909.GA2092905@kroah.com>
+References: <1594919915-5225-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <1594919915-5225-8-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <CA+V-a8vJ2n3KEL8P+XmVob2zjoWaX+s4a6c1TV_WoPFkwdkZmA@mail.gmail.com>
+ <20200920140824.GA2915460@kroah.com>
+ <CAMuHMdUyXMfZcVKkqaZHJ8tJf-3Kotqg+S2NHMZT0VFO0ZJJww@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <f6cb2d7bc02dab409030ec42bf1d17c9@codeaurora.org>
-References: <20200917122558.23110-1-rojay@codeaurora.org> <160037421089.4188128.9425314091585708436@swboyd.mtv.corp.google.com> <f6cb2d7bc02dab409030ec42bf1d17c9@codeaurora.org>
-Subject: Re: [PATCH V4] i2c: i2c-qcom-geni: Add shutdown callback for i2c
-From:   Stephen Boyd <swboyd@chromium.org>
-Cc:     wsa@kernel.org, dianders@chromium.org,
-        saiprakash.ranjan@codeaurora.org, gregkh@linuxfoundation.org,
-        mka@chromium.org, akashast@codeaurora.org,
-        msavaliy@qti.qualcomm.com, skakit@codeaurora.org,
-        vkaur@codeaurora.org, pyarlaga@codeaurora.org,
-        rnayak@codeaurora.org, agross@kernel.org,
-        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sumit.semwal@linaro.org, linux-media@vger.kernel.org
-To:     rojay@codeaurora.org
-Date:   Mon, 21 Sep 2020 13:12:56 -0700
-Message-ID: <160071917655.4188128.4175000228517858211@swboyd.mtv.corp.google.com>
-User-Agent: alot/0.9.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdUyXMfZcVKkqaZHJ8tJf-3Kotqg+S2NHMZT0VFO0ZJJww@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Quoting rojay@codeaurora.org (2020-09-21 04:21:04)
-> Hi Stephen,
->=20
-> On 2020-09-18 01:53, Stephen Boyd wrote:
-> > Quoting Roja Rani Yarubandi (2020-09-17 05:25:58)
-> >> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c=20
-> >> b/drivers/i2c/busses/i2c-qcom-geni.c
-> >> index dead5db3315a..b0d8043c8cb2 100644
-> >> --- a/drivers/i2c/busses/i2c-qcom-geni.c
-> >> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-> >>  };
-> >>=20
-> >>  struct geni_i2c_err_log {
-> >> @@ -307,7 +311,6 @@ static void geni_i2c_abort_xfer(struct=20
-> >> geni_i2c_dev *gi2c)
-> >>=20
-> >>         spin_lock_irqsave(&gi2c->lock, flags);
-> >>         geni_i2c_err(gi2c, GENI_TIMEOUT);
-> >> -       gi2c->cur =3D NULL;
-> >=20
-> > This looks concerning. We're moving this out from under the spinlock.
-> > The irq handler in this driver seems to hold the spinlock all the time
-> > while processing and this function grabs it here to keep cur consistent
-> > when aborting the transfer due to a timeout. Otherwise it looks like=20
-> > the
-> > irqhandler can race with this and try to complete the transfer while
-> > it's being torn down here.
-> >=20
-> >>         geni_se_abort_m_cmd(&gi2c->se);
-> >>         spin_unlock_irqrestore(&gi2c->lock, flags);
-> >>         do {
-> >> @@ -349,10 +352,62 @@ static void geni_i2c_tx_fsm_rst(struct=20
-> >> geni_i2c_dev *gi2c)
-> >>                 dev_err(gi2c->se.dev, "Timeout resetting TX_FSM\n");
-> >>  }
-> >>=20
-> >> +static void geni_i2c_rx_msg_cleanup(struct geni_i2c_dev *gi2c)
-> >=20
-> > So maybe pass cur to this function?
-> >=20
->=20
-> Sorry, i did not understand why to pass cur to this function?
+On Mon, Sep 21, 2020 at 09:30:39AM +0200, Geert Uytterhoeven wrote:
+> Hi Greg,
+> 
+> On Sun, Sep 20, 2020 at 4:08 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> > On Sat, Sep 19, 2020 at 11:50:07AM +0100, Lad, Prabhakar wrote:
+> > > On Thu, Jul 16, 2020 at 6:19 PM Lad Prabhakar
+> > > <prabhakar.mahadev-lad.rj@bp.renesas.com> wrote:
+> > > >
+> > > > Document RZ/G2H (R8A774E1) SoC bindings.
+> > > >
+> > > > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> > > > Reviewed-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
+> > > > ---
+> > > >  Documentation/devicetree/bindings/usb/renesas,usb3-peri.yaml | 1 +
+> > > >  1 file changed, 1 insertion(+)
+> > > >
+> > > Could you please pick this patch.
+> >
+> > Don't DT patches have to be acked by a DT maintainer first?
+> 
+> https://lore.kernel.org/r/20200721033508.GA3504365@bogus
 
-I'm suggesting to copy the cur data out of the gi2c pointer and then
-pass it to these functions so that it can't race with another transfer.
-Something like an atomic exchange may work. I haven't thought about it
-deeply, but we need to make sure the irq handler can't race with the
-cleanup functions.
+Ah, missed that, sorry.  This, and patch 11/20, now queued up.
+
+greg k-h
