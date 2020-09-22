@@ -2,198 +2,226 @@ Return-Path: <SRS0=cqaj=C7=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8B31C2D0E2
-	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 22:54:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75386C2D0E2
+	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 22:54:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4737221EB
-	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 22:54:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 23E43239A1
+	for <linux-i2c@archiver.kernel.org>; Tue, 22 Sep 2020 22:54:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nZrO69IM"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="ADhUXjBI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726917AbgIVWwk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1727253AbgIVWyi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 22 Sep 2020 18:54:38 -0400
+Received: from nat-hk.nvidia.com ([203.18.50.4]:35129 "EHLO nat-hk.nvidia.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726893AbgIVWwk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Tue, 22 Sep 2020 18:52:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58668 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726640AbgIVWwg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Sep 2020 18:52:36 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520B8C0613D2;
-        Tue, 22 Sep 2020 15:52:36 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id q8so19847554lfb.6;
-        Tue, 22 Sep 2020 15:52:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=a5dxppkFR4cLRraVyzLxFbOIgODkh/XNghrFuLLS/uk=;
-        b=nZrO69IMgBXkb8qVJXeeAA5S0fJj7OH0hXBLeb0WPfWeQ2D+mycLh1lJ2O8Z0v3DYt
-         CO6EbgkXwEUXMiSzlliBJixyzDU7iU7WNHXvdbH+MHELeMumXNUlaxZdLzJn6SUyZc+D
-         +lamsP5n/MlPpj5dEr/ILtcZHr9YSh/zKQBXsISHyA9E+8peAnwi/tuM0gUkP4rFGlXi
-         3CQg931MNbo0hAQW0v1qWfCSJHBUROg1JeyWPRHajCVt3VVAie/YzIrglGwmZdh/1n17
-         QZX1kA+kz3sviJ603bfjedXT+2Tj6OuTOHS6N1HEwbAFkgvP2S16pTC6fLAr3Gx1TBCg
-         w+hw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=a5dxppkFR4cLRraVyzLxFbOIgODkh/XNghrFuLLS/uk=;
-        b=bP1u2+791qUnDmIDKkr7OPLpv0vkveIScPndFF5gJwufp9WNRrImo1/WyZ8SDZPLan
-         0iD+0pUfruEOhJ4KBFioBG5TzOJhLsoXQdbbMEF2cBOGi4EssBqnNwfY8J3QYfKA+EoZ
-         d8MOlebEjsPvcl6hTIvW6LmMBiaKvGQzKyVSN/uQuqK3khrQh4ecg/2ACOsp7BXI80Su
-         wiJhFqbahA5bN/k0ck+azP8ysZVkQo8CX/oLXUEtSrFISgDe+oWm7Q8TiNPgbRefX81b
-         6sQ8i0EHRECEYf4YB+14HvUtWnmYGvh2Y80SWG1NN0UhY1k3c0hCQ1kpFyxwgvOQFlMZ
-         PlUw==
-X-Gm-Message-State: AOAM530bTHSriHLR319BXuegazfWCpYlXFSUOFxzzj2yAIBQSzTKdnJQ
-        xYmJOwJgqMZg0hfRsvN9HSE=
-X-Google-Smtp-Source: ABdhPJwO41Zsnx9zXU7c1n+nyvW8Jwh/B/WzEIJaqZKjqagPiJU1JM6aVRUemghob+x92PNLd70Usw==
-X-Received: by 2002:a05:6512:70f:: with SMTP id b15mr2402001lfs.39.1600815154758;
-        Tue, 22 Sep 2020 15:52:34 -0700 (PDT)
-Received: from localhost.localdomain (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
-        by smtp.gmail.com with ESMTPSA id l15sm3977588lfk.71.2020.09.22.15.52.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2020 15:52:34 -0700 (PDT)
-From:   Dmitry Osipenko <digetx@gmail.com>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v8 05/32] i2c: tegra: Initialize div-clk rate unconditionally
-Date:   Wed, 23 Sep 2020 01:51:28 +0300
-Message-Id: <20200922225155.10798-6-digetx@gmail.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200922225155.10798-1-digetx@gmail.com>
-References: <20200922225155.10798-1-digetx@gmail.com>
+Received: from HKMAIL101.nvidia.com (Not Verified[10.18.92.77]) by nat-hk.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5f6a80350000>; Wed, 23 Sep 2020 06:52:37 +0800
+Received: from HKMAIL103.nvidia.com (10.18.16.12) by HKMAIL101.nvidia.com
+ (10.18.16.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 22 Sep
+ 2020 22:52:33 +0000
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (104.47.59.175)
+ by HKMAIL103.nvidia.com (10.18.16.12) with Microsoft SMTP Server (TLS) id
+ 15.0.1473.3 via Frontend Transport; Tue, 22 Sep 2020 22:52:33 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=bsAWuMjd1ae7/GME57qiQcym3klyo1WI8B57iLSYjbh+/RyP4d+LH7qqLwtsj7BJ4ToWcEKw4HuhPGTYB3Kq1wIJ0YCgkDDJs0s8YSnnzTa6V6OKYF8LArBNvGGh/ac02fBxIGX9ld+bMLzmAPRnyfv8/y7l0PjDmSLs3UidoCqkh851iWzInJytOlRB/1nDelccipd//pwiseOfG1iWqUj/0g3qzbQdTQcIEsgAtXiI/DUvdlt+4KNGmiDcOzsWzcTLJQtddPIGIP2v9tTpgbX0YAwvTdrA/Ugx/SzH59dEFBpyUMjlWd58v9EEuV0vWe7Dlm/m6K1PhYzHjljtyA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=o1mwsV8TvKoLST0mBPJ/RyT2BjkjgQVRDA19zDPffpI=;
+ b=XqEIlpMII1nwp2JuIUDAWT5BvBNV0PrTZyimxAqKhfy3HUIUWXKMkVCOGN06Ijrdx9+TWrrx7F0a31gkJw7N6g9FPVNGMyip4HUY2gmt3By+i2PmmGw7e5EbLyFEEP/wrUAfmBzZpWNE58/zRyHpOqxvQNbMihWzvIO8ic9LTzJf0p8TnDPFLqK4v4pGZQfJBJiM9Yu4cREzMi0VhwvYkp39+He2T5f5pdj30TH3CCTUSkKmGALXIxU+cLVVIhSVHYK98EV3kEjrklECj2akbFoqXWG6wY90+oD/4ftBHSfa+lFp+0OJr9uBhcfZK28210HNcXHlIya8CXit3hlT+A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+Received: from MN2PR12MB3616.namprd12.prod.outlook.com (2603:10b6:208:cc::25)
+ by MN2PR12MB2927.namprd12.prod.outlook.com (2603:10b6:208:103::26) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3391.19; Tue, 22 Sep
+ 2020 22:52:31 +0000
+Received: from MN2PR12MB3616.namprd12.prod.outlook.com
+ ([fe80::f8db:1abf:2e05:4c3e]) by MN2PR12MB3616.namprd12.prod.outlook.com
+ ([fe80::f8db:1abf:2e05:4c3e%7]) with mapi id 15.20.3391.024; Tue, 22 Sep 2020
+ 22:52:31 +0000
+From:   Khalil Blaiech <kblaiech@nvidia.com>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+CC:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        Khalil Blaiech <kblaiech@mellanox.com>,
+        Vadim Pasternak <vadimp@mellanox.com>
+Subject: RE: [PATCH v10 1/2] i2c: i2c-mlxbf: I2C SMBus driver for Mellanox
+ BlueField SoC
+Thread-Topic: [PATCH v10 1/2] i2c: i2c-mlxbf: I2C SMBus driver for Mellanox
+ BlueField SoC
+Thread-Index: AQHWkC8mGjujC4hvBEGXB35fFxw15qlze/AAgAHJHvA=
+Date:   Tue, 22 Sep 2020 22:52:30 +0000
+Message-ID: <MN2PR12MB3616BC8F998B550A8AE7DE6FAB3B0@MN2PR12MB3616.namprd12.prod.outlook.com>
+References: <cover.1600702555.git.kblaiech@mellanox.com>
+ <1f31d4c4ef0c65f75b6077c77fd24c2c404f2a98.1600702555.git.kblaiech@mellanox.com>
+ <20200921193400.GB18032@ninjato>
+In-Reply-To: <20200921193400.GB18032@ninjato>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: sang-engineering.com; dkim=none (message not signed)
+ header.d=none;sang-engineering.com; dmarc=none action=none
+ header.from=nvidia.com;
+x-originating-ip: [173.48.75.27]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 8d651299-814b-4806-cc3c-08d85f4a2fff
+x-ms-traffictypediagnostic: MN2PR12MB2927:
+x-microsoft-antispam-prvs: <MN2PR12MB2927CF7599E4A539284F4FF3AB3B0@MN2PR12MB2927.namprd12.prod.outlook.com>
+x-ms-exchange-transport-forked: True
+x-ms-oob-tlc-oobclassifiers: OLM:262;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: fJ69b+cSbV8rIo5L1NNrouTbmkyd8Fuw9kjEofE4dANLUSlQ6K4+eTP7dMLr2SaWujOFd5Wj7e7ce8tFAX9pke/6vv0UWz1OYBh5u69Cq/P2b7vEUypJdPwsFkga3/H5t+sm1sqr9rwweNeDj0ghzdzbmxopZObaiLfPr9sSxhJiJVp8fZcGnqu4fZrKoZbn4HK+PEvEkf4d1VMWbRvC61hEL0AnqMo11WQzoD1L09Ja5xXXZC1aqT7RGoLk2n11PmKEy/c/VBTSMQ/KfJAEURPzOzOpYuuQSVAUh3bljxaGGwr3UhqongsKSP6i8kE3iFwnnteaSyH38YB9R6gNfQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB3616.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(346002)(376002)(39850400004)(136003)(396003)(55016002)(76116006)(66946007)(66476007)(52536014)(9686003)(8676002)(64756008)(71200400001)(83380400001)(66556008)(5660300002)(478600001)(66446008)(2906002)(86362001)(26005)(4326008)(316002)(33656002)(53546011)(7696005)(6506007)(8936002)(107886003)(186003)(54906003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: HefBFkS5Nldls0dyGFl13F9QYL1MPduA38N9yKAY22TEkQFs8P/p/CcjSfFy71iIZNwPMPyYnneTmaWScfa6+MfmZBw5PF2kR5eBdA/Jfq68JuEjpswpxByWGvtoyEPiypEcJJOdRAnCRdgN1VKnfkHJkVEttsOyvPuUbhn+O/rT1jsQzSqOsiGxrBQfOR1vnnSpHSNgLAIAx2K+BappCRMVgFdktr3VwIqVbrJhf/e2x6cezRQhHe5A4NW6bkvWZF4gdWtA9E2Q921Sxr3ylRQJw9gYCuZGQbw+Y1s3SCuPwK60Ir0oTPkJVe9mjovkbHQjdZgZl45TK3kpjquQJWuHGV+AXisGh1RkyfLMHKh2DJZ/B3TP2o3xNFG1+kEkkVjEBt/JtTYbwkYBdrAhSFzui/N4oqaGu1tpOgdYR0+aHgd0v+QMYOClRj/8I+om6aQp4dd4cv2eCz1mRf+0pn0+Gm8+jD8QqhYf2mHscCcYFSDNG+vka32vse5PPvGwK51RgAfwIfu53YierHXpEmm8CHZqif45vvkKXikndVsqb6oTihZU+sJOPAyl+a/4DLe8VPYn6xCFxlhijqMCy48OCAkCP9qWePLnK7l5QDo20SuDjTF0VqAggjKZu3vaQhAhPCp2PXhbFIUM2gkaJA==
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3616.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8d651299-814b-4806-cc3c-08d85f4a2fff
+X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Sep 2020 22:52:30.9257
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: TYsBGS6bpixz3E6wcaBH+vxxCyNHgPVMRAoXg3W9NbrsC9dV0DM5ebebhK5JoThe2zWQBcySW0m7P41o57ac3w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB2927
+X-OriginatorOrg: Nvidia.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1600815157; bh=o1mwsV8TvKoLST0mBPJ/RyT2BjkjgQVRDA19zDPffpI=;
+        h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
+         CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
+         In-Reply-To:Accept-Language:Content-Language:X-MS-Has-Attach:
+         X-MS-TNEF-Correlator:authentication-results:x-originating-ip:
+         x-ms-publictraffictype:x-ms-office365-filtering-correlation-id:
+         x-ms-traffictypediagnostic:x-microsoft-antispam-prvs:
+         x-ms-exchange-transport-forked:x-ms-oob-tlc-oobclassifiers:
+         x-ms-exchange-senderadcheck:x-microsoft-antispam:
+         x-microsoft-antispam-message-info:x-forefront-antispam-report:
+         x-ms-exchange-antispam-messagedata:Content-Type:
+         Content-Transfer-Encoding:MIME-Version:
+         X-MS-Exchange-CrossTenant-AuthAs:
+         X-MS-Exchange-CrossTenant-AuthSource:
+         X-MS-Exchange-CrossTenant-Network-Message-Id:
+         X-MS-Exchange-CrossTenant-originalarrivaltime:
+         X-MS-Exchange-CrossTenant-fromentityheader:
+         X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
+         X-MS-Exchange-CrossTenant-userprincipalname:
+         X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+        b=ADhUXjBIJT2luoaquUsjlTM3EEyfV5zzXYMS+2fI8HLCPiz8IeyWuBngdnHayavMi
+         Ld6gFcEFftJmdxliJfxL91j0bgs/LHf+nbr/gh3sSrC+K6dqWz2u487FXvCZ8KxV9i
+         pZHEugn9yYV+e+32qhz02XNQZ2QvopW8ejBZq3q2XY0yGBLh0cz/OTgB7+b0zcQ3qW
+         E0vGgJ141AT1jZEms5cfNgHilEFZdscq7lEV5u9pv0u77cUtN9YEjdMfefw0s8wjSP
+         FS+zISFKOaLLiaEdtx52ZJdVDrNmckJCHt2ccVjAwE+o7RAFNFudT2PKuXK9OPeciZ
+         kaCdsQTS3rjFA==
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-It doesn't make sense to conditionalize the div-clk rate changes because
-rate is fixed and it won't ever change once it's set at the driver's probe
-time. All further changes are NO-OPs because CCF caches rate and skips
-rate-change if rate is unchanged.
+Wolfram,
 
-Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Tested-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
----
- drivers/i2c/busses/i2c-tegra.c | 34 ++++++++++++++++------------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+Thank you for your comments.
+Please note that I posted a v11.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 1d1ce266255a..720a75439e91 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -293,7 +293,7 @@ struct tegra_i2c_dev {
- 	bool is_curr_atomic_xfer;
- };
- 
--static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev, bool clk_reinit);
-+static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev);
- 
- static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
- 		       unsigned long reg)
-@@ -691,7 +691,7 @@ static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
- 	 * domain ON.
- 	 */
- 	if (i2c_dev->is_vi) {
--		ret = tegra_i2c_init(i2c_dev, true);
-+		ret = tegra_i2c_init(i2c_dev);
- 		if (ret)
- 			goto disable_div_clk;
- 	}
-@@ -778,7 +778,7 @@ static void tegra_i2c_vi_init(struct tegra_i2c_dev *i2c_dev)
- 	i2c_writel(i2c_dev, 0x0, I2C_TLOW_SEXT);
- }
- 
--static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev, bool clk_reinit)
-+static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- {
- 	u32 val;
- 	int err;
-@@ -836,16 +836,14 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev, bool clk_reinit)
- 	if (i2c_dev->hw->has_interface_timing_reg && tsu_thd)
- 		i2c_writel(i2c_dev, tsu_thd, I2C_INTERFACE_TIMING_1);
- 
--	if (!clk_reinit) {
--		clk_multiplier = (tlow + thigh + 2);
--		clk_multiplier *= (i2c_dev->clk_divisor_non_hs_mode + 1);
--		err = clk_set_rate(i2c_dev->div_clk,
--				   i2c_dev->bus_clk_rate * clk_multiplier);
--		if (err) {
--			dev_err(i2c_dev->dev,
--				"failed changing clock rate: %d\n", err);
--			return err;
--		}
-+	clk_multiplier  = tlow + thigh + 2;
-+	clk_multiplier *= i2c_dev->clk_divisor_non_hs_mode + 1;
-+
-+	err = clk_set_rate(i2c_dev->div_clk,
-+			   i2c_dev->bus_clk_rate * clk_multiplier);
-+	if (err) {
-+		dev_err(i2c_dev->dev, "failed to set div-clk rate: %d\n", err);
-+		return err;
- 	}
- 
- 	if (!i2c_dev->is_dvc && !i2c_dev->is_vi) {
-@@ -1319,7 +1317,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 
- 		if (!time_left && !completion_done(&i2c_dev->dma_complete)) {
- 			dev_err(i2c_dev->dev, "DMA transfer timeout\n");
--			tegra_i2c_init(i2c_dev, true);
-+			tegra_i2c_init(i2c_dev);
- 			return -ETIMEDOUT;
- 		}
- 
-@@ -1340,7 +1338,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 
- 	if (time_left == 0) {
- 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
--		tegra_i2c_init(i2c_dev, true);
-+		tegra_i2c_init(i2c_dev);
- 		return -ETIMEDOUT;
- 	}
- 
-@@ -1352,7 +1350,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
- 		return 0;
- 
--	tegra_i2c_init(i2c_dev, true);
-+	tegra_i2c_init(i2c_dev);
- 	/* start recovery upon arbitration loss in single master mode */
- 	if (i2c_dev->msg_err == I2C_ERR_ARBITRATION_LOST) {
- 		if (!i2c_dev->is_multimaster_mode)
-@@ -1811,7 +1809,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto disable_div_clk;
- 
--	ret = tegra_i2c_init(i2c_dev, false);
-+	ret = tegra_i2c_init(i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to initialize i2c controller\n");
- 		goto release_dma;
-@@ -1918,7 +1916,7 @@ static int __maybe_unused tegra_i2c_resume(struct device *dev)
- 	if (err)
- 		return err;
- 
--	err = tegra_i2c_init(i2c_dev, false);
-+	err = tegra_i2c_init(i2c_dev);
- 	if (err)
- 		return err;
- 
--- 
-2.27.0
+> -----Original Message-----
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Sent: Monday, September 21, 2020 3:34 PM
+> To: Khalil Blaiech <kblaiech@nvidia.com>
+> Cc: linux-i2c@vger.kernel.org; Khalil Blaiech <kblaiech@mellanox.com>;
+> Vadim Pasternak <vadimp@mellanox.com>
+> Subject: Re: [PATCH v10 1/2] i2c: i2c-mlxbf: I2C SMBus driver for Mellano=
+x
+> BlueField SoC
+>=20
+> On Mon, Sep 21, 2020 at 11:50:14AM -0400, Khalil Blaiech wrote:
+> > From: Khalil Blaiech <kblaiech@mellanox.com>
+> >
+> > Add BlueField I2C driver to offer master and slave support for
+> > Mellanox BlueField SoCs. The driver implements an SMBus adapter
+> > and interfaces to multiple busses that can be probed using both
+> > ACPI and Device Tree infrastructures.
+> >
+> > The driver supports several SMBus operations to transfer data
+> > back and forth from/to various I2C devices. It is mainly intended
+> > to be consumed by userspace tools and utilities, such as i2c-tools
+> > and decode-dimms to collect memory module information.
+> >
+> > On the other hand, the driver has a slave function to support,
+> > among others, an IPMB interface that requires both master and
+> > slave functions to handle transfers between the BlueField SoC
+> > and a board management controllers (e.g., BMC).
+> >
+> > Signed-off-by: Khalil Blaiech <kblaiech@mellanox.com>
+> > Reviewed-by: Vadim Pasternak <vadimp@mellanox.com>
+>=20
+> It still seems nobody has time for even a high level review of this huge
+> driver. From a visual glimpse, the driver looks mostly OK to me. It
+> probably makes sense to fix issues incrementally from here on.
+>=20
+> So, let's just fix these static analyzer warnings and I'll apply it for
+> v5.10.
+
+Sounds good :)
+
+>=20
+>     CHECKPATCH
+> CHECK: struct mutex definition without comment
+> #462: FILE: drivers/i2c/busses/i2c-mlxbf.c:372:
+> +	struct mutex *lock;
+
+Done.
+
+>=20
+> WARNING: Prefer 'fallthrough;' over fallthrough comment
+> #1330: FILE: drivers/i2c/busses/i2c-mlxbf.c:1240:
+> +		/* Fall-through. */
+>=20
+
+Done.
+
+> WARNING: Prefer 'fallthrough;' over fallthrough comment
+> #2000: FILE: drivers/i2c/busses/i2c-mlxbf.c:1910:
+> +			/* Fall-through. */
+>=20
+
+Done.
+
+>=20
+>     SPARSE
+> drivers/i2c/busses/i2c-mlxbf.c:513:16: warning: cast to restricted __be32
+> drivers/i2c/busses/i2c-mlxbf.c:513:16: warning: cast to restricted __be32
+> drivers/i2c/busses/i2c-mlxbf.c:513:16: warning: cast to restricted __be32
+> drivers/i2c/busses/i2c-mlxbf.c:513:16: warning: cast to restricted __be32
+> drivers/i2c/busses/i2c-mlxbf.c:513:16: warning: cast to restricted __be32
+> drivers/i2c/busses/i2c-mlxbf.c:513:16: warning: cast to restricted __be32
+
+Done.
+
+> drivers/i2c/busses/i2c-mlxbf.c:527:34: warning: incorrect type in argumen=
+t 3
+> (different base types)
+> drivers/i2c/busses/i2c-mlxbf.c:527:34:    expected unsigned int [usertype=
+] val
+> drivers/i2c/busses/i2c-mlxbf.c:527:34:    got restricted __be32 [usertype=
+]
+
+Done.
+
+>=20
+> Thanks for your patience!
+>=20
+>    Wolfram
+
+Thanks,
+-Khalil
 
