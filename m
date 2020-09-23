@@ -2,228 +2,109 @@ Return-Path: <SRS0=ieTw=DA=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17671C4727E
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 16:29:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A89ACC2D0A8
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 18:28:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DD9BC20708
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 16:29:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A7B12220D
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 18:28:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726466AbgIWQ3u (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 23 Sep 2020 12:29:50 -0400
-Received: from hostingweb31-40.netsons.net ([89.40.174.40]:56347 "EHLO
-        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726130AbgIWQ3u (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Sep 2020 12:29:50 -0400
-X-Greylist: delayed 3112 seconds by postgrey-1.27 at vger.kernel.org; Wed, 23 Sep 2020 12:29:48 EDT
-Received: from [185.56.157.72] (port=49708 helo=[192.168.101.73])
-        by hostingweb31.netsons.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <luca@lucaceresoli.net>)
-        id 1kL6qA-000GgA-Ab; Wed, 23 Sep 2020 17:37:54 +0200
-Subject: Re: [PATCH v8 0/6] Support running driver's probe for a device
- powered off
-To:     Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
-        Hyungwoo Yang <hyungwoo.yang@intel.com>,
-        linux-media@vger.kernel.org
-References: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
- <f4b82baa-66b7-464e-fd39-66d2243a05ef@lucaceresoli.net>
- <20200911130104.GF26842@paasikivi.fi.intel.com>
- <6dea1206-cfaa-bfc5-d57e-4dcddadc03c7@lucaceresoli.net>
- <20200914094727.GM26842@paasikivi.fi.intel.com>
- <de017bfd-8908-f5ba-afa7-469a0059a5a7@lucaceresoli.net>
- <20200923110856.GP26842@paasikivi.fi.intel.com>
-From:   Luca Ceresoli <luca@lucaceresoli.net>
-Message-ID: <f08e9ea3-27d6-019c-6571-58f1a3b76045@lucaceresoli.net>
-Date:   Wed, 23 Sep 2020 17:37:53 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726620AbgIWS2B (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 23 Sep 2020 14:28:01 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:34948 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726228AbgIWS2A (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 23 Sep 2020 14:28:00 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4BxRW257DJz9ty1f;
+        Wed, 23 Sep 2020 20:27:58 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id A6iDkr2G_cIq; Wed, 23 Sep 2020 20:27:58 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4BxRW22zhmz9ty1d;
+        Wed, 23 Sep 2020 20:27:58 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 49A398B803;
+        Wed, 23 Sep 2020 20:27:58 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id Rtm7DRNNz8YX; Wed, 23 Sep 2020 20:27:58 +0200 (CEST)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id E0FC18B76B;
+        Wed, 23 Sep 2020 20:27:57 +0200 (CEST)
+Subject: Re: [PATCH v2] i2c: cpm: Fix i2c_ram structure
+To:     Wolfram Sang <wsa@kernel.org>, nicolas.vincent@vossloh.com
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org
+References: <20200923140840.8700-1-nicolas.vincent@vossloh.com>
+ <20200923160829.GB6697@ninjato>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <96cbd909-818e-c10b-9e10-68a39ea269e9@csgroup.eu>
+Date:   Wed, 23 Sep 2020 20:27:50 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-In-Reply-To: <20200923110856.GP26842@paasikivi.fi.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+In-Reply-To: <20200923160829.GB6697@ninjato>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: fr
 Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - lucaceresoli.net
-X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca+lucaceresoli.net/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Sakari,
 
-On 23/09/20 13:08, Sakari Ailus wrote:
-> Hi Luca,
+
+Le 23/09/2020 � 18:08, Wolfram Sang a �crit�:
+> On Wed, Sep 23, 2020 at 04:08:40PM +0200, nico.vince@gmail.com wrote:
+>> From: Nicolas VINCENT <nicolas.vincent@vossloh.com>
+>>
+>> the i2c_ram structure is missing the sdmatmp field mentionned in
+>> datasheet for MPC8272 at paragraph 36.5. With this field missing, the
+>> hardware would write past the allocated memory done through
+>> cpm_muram_alloc for the i2c_ram structure and land in memory allocated
+>> for the buffers descriptors corrupting the cbd_bufaddr field. Since this
+>> field is only set during setup(), the first i2c transaction would work
+>> and the following would send data read from an arbitrary memory
+>> location.
+>>
+>> Signed-off-by: Nicolas VINCENT <nicolas.vincent@vossloh.com>
 > 
-> On Mon, Sep 14, 2020 at 06:49:29PM +0200, Luca Ceresoli wrote:
->> Hi Sakari,
->>
->> On 14/09/20 11:47, Sakari Ailus wrote:
->>> Hi Luca,
->>>
->>> On Mon, Sep 14, 2020 at 09:58:24AM +0200, Luca Ceresoli wrote:
->>>> Hi Sakari,
->>>>
->>>> On 11/09/20 15:01, Sakari Ailus wrote:
->>>>> Hi Luca,
->>>>>
->>>>> On Fri, Sep 11, 2020 at 02:49:26PM +0200, Luca Ceresoli wrote:
->>>>>> Hi Sakari,
->>>>>>
->>>>>> On 03/09/20 10:15, Sakari Ailus wrote:
->>>>>>>
->>>>>>> Hi all,
->>>>>>>
->>>>>>> These patches enable calling (and finishing) a driver's probe function
->>>>>>> without powering on the respective device on busses where the practice is
->>>>>>> to power on the device for probe. While it generally is a driver's job to
->>>>>>> check the that the device is there, there are cases where it might be
->>>>>>> undesirable. (In this case it stems from a combination of hardware design
->>>>>>> and user expectations; see below.) The downside with this change is that
->>>>>>> if there is something wrong with the device, it will only be found at the
->>>>>>> time the device is used. In this case (the camera sensors + EEPROM in a
->>>>>>> sensor) I don't see any tangible harm from that though.
->>>>>>>
->>>>>>> An indication both from the driver and the firmware is required to allow
->>>>>>> the device's power state to remain off during probe (see the first patch).
->>>>>>>
->>>>>>>
->>>>>>> The use case is such that there is a privacy LED next to an integrated
->>>>>>> user-facing laptop camera, and this LED is there to signal the user that
->>>>>>> the camera is recording a video or capturing images. That LED also happens
->>>>>>> to be wired to one of the power supplies of the camera, so whenever you
->>>>>>> power on the camera, the LED will be lit, whether images are captured from
->>>>>>> the camera --- or not. There's no way to implement this differently
->>>>>>> without additional software control (allowing of which is itself a
->>>>>>> hardware design decision) on most CSI-2-connected camera sensors as they
->>>>>>> simply have no pin to signal the camera streaming state.
->>>>>>>
->>>>>>> This is also what happens during driver probe: the camera will be powered
->>>>>>> on by the I²C subsystem calling dev_pm_domain_attach() and the device is
->>>>>>> already powered on when the driver's own probe function is called. To the
->>>>>>> user this visible during the boot process as a blink of the privacy LED,
->>>>>>> suggesting that the camera is recording without the user having used an
->>>>>>> application to do that. From the end user's point of view the behaviour is
->>>>>>> not expected and for someone unfamiliar with internal workings of a
->>>>>>> computer surely seems quite suspicious --- even if images are not being
->>>>>>> actually captured.
->>>>>>>
->>>>>>> I've tested these on linux-next master. They also apply to Wolfram's
->>>>>>> i2c/for-next branch, there's a patch that affects the I²C core changes
->>>>>>> here (see below). The patches apart from that apply to Bartosz's
->>>>>>> at24/for-next as well as Mauro's linux-media master branch.
->>>>>>
->>>>>> Apologies for having joined this discussion this late.
->>>>>
->>>>> No worries. But thanks for the comments.
->>>>>
->>>>>>
->>>>>> This patchset seems a good base to cover a different use case, where I
->>>>>> also cannot access the physical device at probe time.
->>>>>>
->>>>>> I'm going to try these patches, but in my case there are a few
->>>>>> differences that need a better understanding.
->>>>>>
->>>>>> First, I'm using device tree, not ACPI. In addition to adding OF support
->>>>>> similar to the work you've done for ACPI, I think instead of
->>>>>> acpi_dev_state_low_power() we should have a function that works for both
->>>>>> ACPI and DT.
->>>>>
->>>>> acpi_dev_state_low_power() is really ACPI specific: it does tell the ACPI
->>>>> power state of the device during probe or remove. It is not needed on DT
->>>>> since the power state of the device is controlled directly by the driver.
->>>>> On I²C ACPI devices, it's the framework that powers them on for probe.
->>>>
->>>> I see, thanks for clarifying. I'm not used to ACPI so I didn't get that.
->>>>
->>>>> You could have a helper function on DT to tell a driver what to do in
->>>>> probe, but the functionality in that case is unrelated.
->>>>
->>>> So in case of DT we might think of a function that just tells whether
->>>> the device is marked to allow low-power probe, but it's just an info
->>>> from DT:
->>>>
->>>> int mydriver_probe(struct i2c_client *client)
->>>> {
->>>> 	...
->>>> 	low_power = of_dev_state_low_power(&client->dev);
->>>> 	if (!low_power) {
->>>> 		mydriver_initialize(); /* power+clocks, write regs */
->>>>  	}
->>>> 	...
->>>> }
->>>>
->>>> ...and, if (low_power), call mydriver_initialize() at first usage.
->>>>
->>>> I'm wondering whether this might make sense in mainline.
->>>
->>> Quite possibly, if there are drivers that would need it.
->>>
->>> The function should probably be called differently though as what it does
->>> is quite different after all.
->>>
->>> Unless... we did the following:
->>>
->>> - Redefine the I²C driver flag added by this patchset into what tells the
->>>   I²C framework whether the driver does its own power management
->>>   independently of the I²C framework. It could be called e.g.
->>>   I2C_DRV_FL_FULL_PM, to indicate the driver is responsible for all power
->>>   management of the device, and the I²C framework would not power on the
->>>   device for probe or remove.
->>>
->>> - Add a firmware function to tell whether the device identification should
->>>   take place during probe or not. For this is what we're really doing here
->>>   from driver's point of view: lazy device probing.
->>
->> Indeed my needs have nothing to do with power management. What I need is
->> lazy device probing as the I2C bus may need time before it can be used.
->> From the driver code point of view it looks similar (there's an if()
->> around initializations in probe() and init is done later if needed), but
->> the usage is different.
->>
->> Another approach would be to add a new I2C driver operation [say
->> init_hw()], then move code for lazy init out of probe() into init_hw().
->> probe() would still allocate resources. init_hw() would be called by the
->> framework (or the controller driver?) when it knows eveything is ready.
->> Just wild thoughts while I'm trying to focus the problem...
+> Thanks!
 > 
-> What makes the controller driver not ready to operate the controller when
-> the client devices are probed?
+> Is someone able to identify a Fixes: tag I could add?
 
-I'm working with a camera module connected via a serializer/deserializer
-chip pair, and the link can go away and get back at any moment for
-various reasons: mechanical, electromagnetic, cable not connected etc.
-This scenario is not well handled with current kernel structures, so I'm
-handling it partially with some local hacks but I'm always curious about
-any possible kernel improvement that can improve the situation.
+I'd suggest
 
-See these links for some info about my troubles:
-https://lucaceresoli.net/plumbers-i2c-bof/
-https://elinux.org/images/f/fc/Ceresoli-elce2019-video-serdes-linux.pdf
-https://youtu.be/7hLv6fYAW-E?list=PLbzoR-pLrL6pamOj4UifcMJf560Ph6mJp
+Fixes: 61045dbe9d8d ("i2c: Add support for I2C bus on Freescale 
+CPM1/CPM2 controllers")
 
-Your patchset looks very similar to something I need: not communicating
-with the device during probe. Another piece would be to trigger a device
-configuration "in some way" when the link is known to be back.
+Christophe
 
--- 
-Luca
+> 
+>> ---
+>>   drivers/i2c/busses/i2c-cpm.c | 3 +++
+>>   1 file changed, 3 insertions(+)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
+>> index 1213e1932ccb..24d584a1c9a7 100644
+>> --- a/drivers/i2c/busses/i2c-cpm.c
+>> +++ b/drivers/i2c/busses/i2c-cpm.c
+>> @@ -65,6 +65,9 @@ struct i2c_ram {
+>>   	char    res1[4];	/* Reserved */
+>>   	ushort  rpbase;		/* Relocation pointer */
+>>   	char    res2[2];	/* Reserved */
+>> +	/* The following elements are only for CPM2 */
+>> +	char    res3[4];	/* Reserved */
+>> +	uint    sdmatmp;	/* Internal */
+>>   };
+>>   
+>>   #define I2COM_START	0x80
+>> -- 
+>> 2.17.1
+>>
