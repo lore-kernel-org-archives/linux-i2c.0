@@ -2,98 +2,228 @@ Return-Path: <SRS0=ieTw=DA=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BE30C4727E
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 16:10:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17671C4727E
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 16:29:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BDA75221EF
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 16:10:28 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m3vfhPsS"
+	by mail.kernel.org (Postfix) with ESMTP id DD9BC20708
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 16:29:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726749AbgIWQK2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 23 Sep 2020 12:10:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48976 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726460AbgIWQK2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Sep 2020 12:10:28 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4169C0613CE;
-        Wed, 23 Sep 2020 09:10:27 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id z17so453365lfi.12;
-        Wed, 23 Sep 2020 09:10:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=bI8sGUd07yekmtXhn87aJi5sdTf29Cu/7Shv0YfuyII=;
-        b=m3vfhPsSyV3/KgTN2dm7vrQBpASGQu+AB9gZuwlUKkm7rZMNHFgAdxDIpy4JXU5b8d
-         3Fuy1VVdl4XvjNyhGvPy5eHIjFJXEsJuu1+wj/BF/l19b/OcuH8Z++lDMepDI1lCzOM/
-         wbBz3DJVFnvelkwBe4NJE3g4AQV9nn0i+JAMeMrdAkonWnX8acQQLEK5RP5oHuEuXK/1
-         cbnVgZC1vmwdP5TwY4uslfdQx4DKpUIeFWFuOSRli2pS3WaEKk6ec69fjf663o6vGBbb
-         1ZKZq482qGPodZCUsPBBDHSIpCp+wGjdaVSS7InlUloJCr/nSzovNyUcfpuqOxj3raUo
-         Y6gA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=bI8sGUd07yekmtXhn87aJi5sdTf29Cu/7Shv0YfuyII=;
-        b=FLBhmvlF/yzJSjBQWyNiBy+RnUz3ic96XX/uGeVZJWWiTRWH6SGBRIiAOepj96mxog
-         JaLQeK6KVkw77elD7Gk6RUYw9innnpezhRLS4kcdY2Syd41wUo5bAXeYr0Kb0qcknd8K
-         A2rXa2Egs7P/UJUDekmjbtss5wCpWAky4LxpDUBx55L/F0ywKCN1hzTElWp6X07Plf5h
-         c+5kUTyB1o7N41MStBl++edg93M/X5MVbUIECMwBAoQl0seBxjno+XfCOFmxqVH0AHsk
-         o3El68Rb+l+evEbH4yznGB3fys0kyDqyIcEDB8FFEfaXyiOlBUm50H2f4/mZQCjvZ9QG
-         6FyQ==
-X-Gm-Message-State: AOAM532VUhc6deAmn8nP1qtp5u2JkogHrwJ1hsllPgl/2MlqiloNtts/
-        Km6Pg0KaEbfRWXZiuWesPwE=
-X-Google-Smtp-Source: ABdhPJwg+J1tPxl0Bf6fEDA6KrKkJNIiYE7X62FO60cGPAwkjM1R83c/QjysWqqlNuWN/+gfnwa3YQ==
-X-Received: by 2002:ac2:522e:: with SMTP id i14mr212371lfl.82.1600877426148;
-        Wed, 23 Sep 2020 09:10:26 -0700 (PDT)
-Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
-        by smtp.googlemail.com with ESMTPSA id 10sm148379lfq.64.2020.09.23.09.10.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Sep 2020 09:10:25 -0700 (PDT)
-Subject: Re: [PATCH v8 29/32] i2c: tegra: Clean up printk messages
-To:     Markus Elfring <Markus.Elfring@web.de>,
-        =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-        Thierry Reding <treding@nvidia.com>, linux-i2c@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-References: <550a2820-e3bd-7752-f86e-74598def8c62@web.de>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <5e5d4592-7ff4-2de2-eff1-ad5e006861b0@gmail.com>
-Date:   Wed, 23 Sep 2020 19:10:24 +0300
+        id S1726466AbgIWQ3u (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 23 Sep 2020 12:29:50 -0400
+Received: from hostingweb31-40.netsons.net ([89.40.174.40]:56347 "EHLO
+        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726130AbgIWQ3u (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Sep 2020 12:29:50 -0400
+X-Greylist: delayed 3112 seconds by postgrey-1.27 at vger.kernel.org; Wed, 23 Sep 2020 12:29:48 EDT
+Received: from [185.56.157.72] (port=49708 helo=[192.168.101.73])
+        by hostingweb31.netsons.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <luca@lucaceresoli.net>)
+        id 1kL6qA-000GgA-Ab; Wed, 23 Sep 2020 17:37:54 +0200
+Subject: Re: [PATCH v8 0/6] Support running driver's probe for a device
+ powered off
+To:     Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
+        Hyungwoo Yang <hyungwoo.yang@intel.com>,
+        linux-media@vger.kernel.org
+References: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
+ <f4b82baa-66b7-464e-fd39-66d2243a05ef@lucaceresoli.net>
+ <20200911130104.GF26842@paasikivi.fi.intel.com>
+ <6dea1206-cfaa-bfc5-d57e-4dcddadc03c7@lucaceresoli.net>
+ <20200914094727.GM26842@paasikivi.fi.intel.com>
+ <de017bfd-8908-f5ba-afa7-469a0059a5a7@lucaceresoli.net>
+ <20200923110856.GP26842@paasikivi.fi.intel.com>
+From:   Luca Ceresoli <luca@lucaceresoli.net>
+Message-ID: <f08e9ea3-27d6-019c-6571-58f1a3b76045@lucaceresoli.net>
+Date:   Wed, 23 Sep 2020 17:37:53 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <550a2820-e3bd-7752-f86e-74598def8c62@web.de>
+In-Reply-To: <20200923110856.GP26842@paasikivi.fi.intel.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - lucaceresoli.net
+X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca+lucaceresoli.net/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-23.09.2020 14:43, Markus Elfring пишет:
->> This patch unifies style of all messages in the driver by starting them
->> with a lowercase letter and using consistent capitalization and wording
->> for all messages.
+Hi Sakari,
+
+On 23/09/20 13:08, Sakari Ailus wrote:
+> Hi Luca,
 > 
-> * Does this change description express a contradiction?
+> On Mon, Sep 14, 2020 at 06:49:29PM +0200, Luca Ceresoli wrote:
+>> Hi Sakari,
+>>
+>> On 14/09/20 11:47, Sakari Ailus wrote:
+>>> Hi Luca,
+>>>
+>>> On Mon, Sep 14, 2020 at 09:58:24AM +0200, Luca Ceresoli wrote:
+>>>> Hi Sakari,
+>>>>
+>>>> On 11/09/20 15:01, Sakari Ailus wrote:
+>>>>> Hi Luca,
+>>>>>
+>>>>> On Fri, Sep 11, 2020 at 02:49:26PM +0200, Luca Ceresoli wrote:
+>>>>>> Hi Sakari,
+>>>>>>
+>>>>>> On 03/09/20 10:15, Sakari Ailus wrote:
+>>>>>>>
+>>>>>>> Hi all,
+>>>>>>>
+>>>>>>> These patches enable calling (and finishing) a driver's probe function
+>>>>>>> without powering on the respective device on busses where the practice is
+>>>>>>> to power on the device for probe. While it generally is a driver's job to
+>>>>>>> check the that the device is there, there are cases where it might be
+>>>>>>> undesirable. (In this case it stems from a combination of hardware design
+>>>>>>> and user expectations; see below.) The downside with this change is that
+>>>>>>> if there is something wrong with the device, it will only be found at the
+>>>>>>> time the device is used. In this case (the camera sensors + EEPROM in a
+>>>>>>> sensor) I don't see any tangible harm from that though.
+>>>>>>>
+>>>>>>> An indication both from the driver and the firmware is required to allow
+>>>>>>> the device's power state to remain off during probe (see the first patch).
+>>>>>>>
+>>>>>>>
+>>>>>>> The use case is such that there is a privacy LED next to an integrated
+>>>>>>> user-facing laptop camera, and this LED is there to signal the user that
+>>>>>>> the camera is recording a video or capturing images. That LED also happens
+>>>>>>> to be wired to one of the power supplies of the camera, so whenever you
+>>>>>>> power on the camera, the LED will be lit, whether images are captured from
+>>>>>>> the camera --- or not. There's no way to implement this differently
+>>>>>>> without additional software control (allowing of which is itself a
+>>>>>>> hardware design decision) on most CSI-2-connected camera sensors as they
+>>>>>>> simply have no pin to signal the camera streaming state.
+>>>>>>>
+>>>>>>> This is also what happens during driver probe: the camera will be powered
+>>>>>>> on by the I²C subsystem calling dev_pm_domain_attach() and the device is
+>>>>>>> already powered on when the driver's own probe function is called. To the
+>>>>>>> user this visible during the boot process as a blink of the privacy LED,
+>>>>>>> suggesting that the camera is recording without the user having used an
+>>>>>>> application to do that. From the end user's point of view the behaviour is
+>>>>>>> not expected and for someone unfamiliar with internal workings of a
+>>>>>>> computer surely seems quite suspicious --- even if images are not being
+>>>>>>> actually captured.
+>>>>>>>
+>>>>>>> I've tested these on linux-next master. They also apply to Wolfram's
+>>>>>>> i2c/for-next branch, there's a patch that affects the I²C core changes
+>>>>>>> here (see below). The patches apart from that apply to Bartosz's
+>>>>>>> at24/for-next as well as Mauro's linux-media master branch.
+>>>>>>
+>>>>>> Apologies for having joined this discussion this late.
+>>>>>
+>>>>> No worries. But thanks for the comments.
+>>>>>
+>>>>>>
+>>>>>> This patchset seems a good base to cover a different use case, where I
+>>>>>> also cannot access the physical device at probe time.
+>>>>>>
+>>>>>> I'm going to try these patches, but in my case there are a few
+>>>>>> differences that need a better understanding.
+>>>>>>
+>>>>>> First, I'm using device tree, not ACPI. In addition to adding OF support
+>>>>>> similar to the work you've done for ACPI, I think instead of
+>>>>>> acpi_dev_state_low_power() we should have a function that works for both
+>>>>>> ACPI and DT.
+>>>>>
+>>>>> acpi_dev_state_low_power() is really ACPI specific: it does tell the ACPI
+>>>>> power state of the device during probe or remove. It is not needed on DT
+>>>>> since the power state of the device is controlled directly by the driver.
+>>>>> On I²C ACPI devices, it's the framework that powers them on for probe.
+>>>>
+>>>> I see, thanks for clarifying. I'm not used to ACPI so I didn't get that.
+>>>>
+>>>>> You could have a helper function on DT to tell a driver what to do in
+>>>>> probe, but the functionality in that case is unrelated.
+>>>>
+>>>> So in case of DT we might think of a function that just tells whether
+>>>> the device is marked to allow low-power probe, but it's just an info
+>>>> from DT:
+>>>>
+>>>> int mydriver_probe(struct i2c_client *client)
+>>>> {
+>>>> 	...
+>>>> 	low_power = of_dev_state_low_power(&client->dev);
+>>>> 	if (!low_power) {
+>>>> 		mydriver_initialize(); /* power+clocks, write regs */
+>>>>  	}
+>>>> 	...
+>>>> }
+>>>>
+>>>> ...and, if (low_power), call mydriver_initialize() at first usage.
+>>>>
+>>>> I'm wondering whether this might make sense in mainline.
+>>>
+>>> Quite possibly, if there are drivers that would need it.
+>>>
+>>> The function should probably be called differently though as what it does
+>>> is quite different after all.
+>>>
+>>> Unless... we did the following:
+>>>
+>>> - Redefine the I²C driver flag added by this patchset into what tells the
+>>>   I²C framework whether the driver does its own power management
+>>>   independently of the I²C framework. It could be called e.g.
+>>>   I2C_DRV_FL_FULL_PM, to indicate the driver is responsible for all power
+>>>   management of the device, and the I²C framework would not power on the
+>>>   device for probe or remove.
+>>>
+>>> - Add a firmware function to tell whether the device identification should
+>>>   take place during probe or not. For this is what we're really doing here
+>>>   from driver's point of view: lazy device probing.
+>>
+>> Indeed my needs have nothing to do with power management. What I need is
+>> lazy device probing as the I2C bus may need time before it can be used.
+>> From the driver code point of view it looks similar (there's an if()
+>> around initializations in probe() and init is done later if needed), but
+>> the usage is different.
+>>
+>> Another approach would be to add a new I2C driver operation [say
+>> init_hw()], then move code for lazy init out of probe() into init_hw().
+>> probe() would still allocate resources. init_hw() would be called by the
+>> framework (or the controller driver?) when it knows eveything is ready.
+>> Just wild thoughts while I'm trying to focus the problem...
+> 
+> What makes the controller driver not ready to operate the controller when
+> the client devices are probed?
 
-no
+I'm working with a camera module connected via a serializer/deserializer
+chip pair, and the link can go away and get back at any moment for
+various reasons: mechanical, electromagnetic, cable not connected etc.
+This scenario is not well handled with current kernel structures, so I'm
+handling it partially with some local hacks but I'm always curious about
+any possible kernel improvement that can improve the situation.
 
-> * How does the proposed deletion of two error messages fit to such information?
+See these links for some info about my troubles:
+https://lucaceresoli.net/plumbers-i2c-bof/
+https://elinux.org/images/f/fc/Ceresoli-elce2019-video-serdes-linux.pdf
+https://youtu.be/7hLv6fYAW-E?list=PLbzoR-pLrL6pamOj4UifcMJf560Ph6mJp
 
-If you'll read the code carefully, then you may notice that they are not
-removed, but squashed and moved out to tegra_i2c_dma_submit().
+Your patchset looks very similar to something I need: not communicating
+with the device during probe. Another piece would be to trigger a device
+configuration "in some way" when the link is known to be back.
+
+-- 
+Luca
