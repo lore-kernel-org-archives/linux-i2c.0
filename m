@@ -2,85 +2,81 @@ Return-Path: <SRS0=ieTw=DA=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51769C4741F
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 15:32:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C78BDC2D0A8
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 16:06:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0578F221E7
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 15:32:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600875172;
-	bh=+uY3ZzVl6MPK3qKSJVmF+6sL3/uGj+I10+R8KEhIIgo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=ukm77y2riYP4CtWbmUZ6YnH4gj4PGCs8KJJuW69YCDAjlt/U/JTVwASwwuWRo0HlN
-	 D0avlQXLqRHjgwSvwZseBN4sNr14F9kRzWJCU4jEQM+ytSooghg6xb8T+Pc6rj/jix
-	 fQ4zWuYB7lc56ZbnVl0Loupw0Xv4zwPawe8zzlbA=
+	by mail.kernel.org (Postfix) with ESMTP id 7D0E7206A5
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Sep 2020 16:06:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726718AbgIWPcv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 23 Sep 2020 11:32:51 -0400
-Received: from mail-il1-f193.google.com ([209.85.166.193]:38078 "EHLO
-        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726265AbgIWPcv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Sep 2020 11:32:51 -0400
-Received: by mail-il1-f193.google.com with SMTP id t18so2445ilp.5;
-        Wed, 23 Sep 2020 08:32:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=DtoDYlIgkJM6C+Ai6LhWBQbNLvk60GPVee6qi+q1BVA=;
-        b=WKy8TeQmAneDalsPGyG8D0I+sOlPitd7OiCYqdNMheiC1x4MEyXbRLnmaWmiESAhGN
-         o72HVNYCkyRnL+g1j+KoEeGa8zQPPkrRjxY8QVQllYlwxomocPunPbFZlANqhVzQkjwK
-         XfQ6ORjMLlu7tSH00kVNk8C1KHRYYHpD7sbz+4NynqVdJk/wEK3nE2Lo4xe53IIyx+Bw
-         JW+2EcAo+43znMi5ExygBxhkz35rMe4a99n+XTPDMGc4tzMYZnhR9a4VCBMfUY+nov0b
-         FJKzPDeyxw8Xk5jJ86Y52PTm7KvVwEPGWqP0jfDKLivzPOBHqr9S1PsLjGj8ah7f77Mi
-         aFbQ==
-X-Gm-Message-State: AOAM531CxpLYMBsE0Xm9BigRK/Hrod08G/DGCLR672JsdLHKUZsCCguV
-        4zyC359CLo/O/SyiLwLjZ4MkFPYdteMvgTA=
-X-Google-Smtp-Source: ABdhPJzoWPKxdJIWJBysTOwFw0i31FN6iTt9hOPtV7z+rEba3hOi6SYuHEcViMiAy4vfbjm5FYdeEQ==
-X-Received: by 2002:a92:b602:: with SMTP id s2mr266105ili.299.1600875169920;
-        Wed, 23 Sep 2020 08:32:49 -0700 (PDT)
-Received: from xps15 ([64.188.179.253])
-        by smtp.gmail.com with ESMTPSA id l6sm8046160ilo.21.2020.09.23.08.32.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Sep 2020 08:32:49 -0700 (PDT)
-Received: (nullmailer pid 787283 invoked by uid 1000);
-        Wed, 23 Sep 2020 15:32:48 -0000
-Date:   Wed, 23 Sep 2020 09:32:48 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     devicetree@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        linux-i2c@vger.kernel.org,
-        Thierry Reding <thierry.reding@gmail.com>,
-        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        linux-tegra@vger.kernel.org
-Subject: Re: [PATCH V2 2/5] dt-bindings: eeprom: at24: Add label property for
- AT24
-Message-ID: <20200923153248.GA787205@bogus>
-References: <20200916094952.458003-1-jonathanh@nvidia.com>
- <20200916094952.458003-3-jonathanh@nvidia.com>
+        id S1726498AbgIWQGe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 23 Sep 2020 12:06:34 -0400
+Received: from sauhun.de ([88.99.104.3]:49986 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726156AbgIWQGe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 23 Sep 2020 12:06:34 -0400
+Received: from localhost (p54b330c5.dip0.t-ipconnect.de [84.179.48.197])
+        by pokefinder.org (Postfix) with ESMTPSA id D2AC02C0905;
+        Wed, 23 Sep 2020 18:06:31 +0200 (CEST)
+Date:   Wed, 23 Sep 2020 18:06:27 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Ulrich Hecht <uli+renesas@fpond.eu>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>
+Subject: Re: [PATCH v3] i2c: sh_mobile: implement atomic transfers
+Message-ID: <20200923160627.GA6697@ninjato>
+References: <20200922154943.29574-1-uli+renesas@fpond.eu>
+ <CAMuHMdXF7kX0u_awH3w8sCAvAQUN7dzZix6anSrrafwTjpLBUg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
 Content-Disposition: inline
-In-Reply-To: <20200916094952.458003-3-jonathanh@nvidia.com>
+In-Reply-To: <CAMuHMdXF7kX0u_awH3w8sCAvAQUN7dzZix6anSrrafwTjpLBUg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, 16 Sep 2020 10:49:49 +0100, Jon Hunter wrote:
-> Add a label property for the AT24 EEPROM to allow a custom name to be
-> used for identifying the EEPROM on a board. This is useful when there
-> is more than one EEPROM present.
-> 
-> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-> ---
->  Documentation/devicetree/bindings/eeprom/at24.yaml | 3 +++
->  1 file changed, 3 insertions(+)
-> 
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> To make sure external conditions are satisfied, and we never deadlock:
+>=20
+>     if (pd->dev->power.is_suspended)
+>             return -EPERM;  /* any other suitable error code? */
+>=20
+> Perhaps this can even be done in the i2c core instead?
+
+Good question! My gut feeling says "i2c core", but that would need more
+research. I'd say we tackle this in a seperate patch but also for the
+next merge window. Sounds good?
+
+
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9rcn8ACgkQFA3kzBSg
+KbbBZA//X0ghNsv3tq4yJ+fXFHxwlhX9mfiJlgqUYhO3+sq6FWdRhN7uKwkpW4ir
+3G1KMP9AU6ZG3UTPuj68f1fyDqbSwux4YKzqiJTlKYXx0iW5qdQt7TVdng5Pj7KO
+xa8Js8P1uzo1P5MUyaKccrI65QUcjZ0ZxzIf85VVX+PHieycz1xj0Abx7Z+SlwmA
+WuJ2cxKmy5iL6x9vHFzLBxSOppQJo2eWsZ8bwH5e7XAoFRy/R5+6uMrfcfEgCyhv
+wgWS577uuXWs2uQTS1zDtWAsQWnspYwl76pBGTwm/rW64wZtAwrm9Sr4cd8iiKk5
+sivtHVMBOlHJv48Nozjqa5xEzkezrzsuz6LlfnLZ/oRmCvdgdkGIugOU0lIDtLp2
+IXXj57qIZrGz7rX0B1CtX5Jvn+IIZUSAOcN8uMnjQ6aR7bA2CoznU3BpefI6Avze
+GnHhZUXxwpr2lmf4A9KiyAYuZQE9b9IZL+O+82d45km0D8Sv5Di0jFGO9k2oZeXz
+oan0ys1m7eipEE2/CqscufAUQXAVxxBwqv1LSQ/z28FlpB2h4CIzSdP6DxgxqnW0
+CEm8fDq7X3KncdxdGG14wa2aDF/XdevJ/9UWOanAUDQ39cDaqouCwXlUD1oeFQmn
+wU5wLBrU65QdN/Iu6uhDDgMcaVz0b9AcfJWrJNXsZIEhNDWjLkY=
+=JDeM
+-----END PGP SIGNATURE-----
+
+--4Ckj6UjgE2iN1+kY--
