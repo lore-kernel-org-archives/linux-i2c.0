@@ -2,152 +2,118 @@ Return-Path: <SRS0=1reg=DC=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBA1AC4363D
-	for <linux-i2c@archiver.kernel.org>; Fri, 25 Sep 2020 08:11:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14699C4363D
+	for <linux-i2c@archiver.kernel.org>; Fri, 25 Sep 2020 13:36:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9A5972085B
-	for <linux-i2c@archiver.kernel.org>; Fri, 25 Sep 2020 08:11:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C2DAB2083B
+	for <linux-i2c@archiver.kernel.org>; Fri, 25 Sep 2020 13:36:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="IznL4IsR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727256AbgIYILP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 25 Sep 2020 04:11:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51820 "EHLO
+        id S1728333AbgIYNgl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 25 Sep 2020 09:36:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727452AbgIYILN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Sep 2020 04:11:13 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0967C0613D3
-        for <linux-i2c@vger.kernel.org>; Fri, 25 Sep 2020 01:11:12 -0700 (PDT)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kLioo-0007Qy-PY; Fri, 25 Sep 2020 10:11:02 +0200
-Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kLion-0008H6-SP; Fri, 25 Sep 2020 10:11:01 +0200
-Date:   Fri, 25 Sep 2020 10:11:01 +0200
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Christian Eggers <ceggers@arri.de>
-Cc:     Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 1/3] i2c: imx: Fix reset of I2SR_IAL flag
-Message-ID: <20200925081101.dthsj4hokqz2vsgp@pengutronix.de>
-References: <20200917122029.11121-1-ceggers@arri.de>
- <20200917122029.11121-2-ceggers@arri.de>
- <20200917140235.igfq2hq63f4qqhrr@pengutronix.de>
- <16013235.tl8pWZfNaG@n95hx1g2>
+        with ESMTP id S1728306AbgIYNgl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Sep 2020 09:36:41 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD429C0613CE
+        for <linux-i2c@vger.kernel.org>; Fri, 25 Sep 2020 06:36:40 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id k10so521483wru.6
+        for <linux-i2c@vger.kernel.org>; Fri, 25 Sep 2020 06:36:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NpVyy7Iuy1WwWIqgiqN+fCkSXBrOrSE87a6j1YcrG3A=;
+        b=IznL4IsRsVYBMdoR8Avh1/WNni8tU4f9zBghlPZ/u9Ap5sI3XkEdTbHKwa/GWjBZY0
+         wpgbxSWcEdREvPMCk/vNpCjR3VTXAu3Q+yUH6RMKE8M+A8S1YS6Je/boCcZu/AzUOLcf
+         jNLoxkNDKdMOP7uNB+MJRZGLyF/QfP7XHbNZfPaG8DVAccj4gu3Mt8nSSy1FwXrYzJY5
+         lbDm6dQNKBYMtzOCAg7qqABsiFwb4Pxj9SRTcBh7r7g2OK0ZTt2JwQmFmx8y7lBKKDUJ
+         NCr3Zh0DgaZeIpt25+vCfq1kHcKLO1eCqWLHNsXNamOsfJR8OtBDqcF5m489Epk/dCnW
+         MPxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NpVyy7Iuy1WwWIqgiqN+fCkSXBrOrSE87a6j1YcrG3A=;
+        b=OQHfqFDQPBJiqm7+5OlkGgCPE6LZLzzKK+LBgRVUTOyvfMo78J3TImns2Aexhtla69
+         hPlKGAOugsQlAfrZewuJ+qdOF6sQRPBeMCN8u0vKh0FwHszh4FgX+TMxlSyht9QCBOr1
+         V6XT8N3+ciu1nK+Hc3xFIH1pEtrUUIzJVYlJWsXyjfOmgY/yrTvZ1s2NYN1KMNbtPMtK
+         7Qf3aod3tK1OqGx7VovWE/wIsWNEa9YGZLXk7M5h3mbQG/519vRL90Q1U4wqsbZAPqIn
+         TxLoRz6UpmDEuwnzADyv8suBjtSYQqw8l9Mzo3rRc4kZvCecy5KGzqcg0XMAAi1GxVlO
+         6ZZw==
+X-Gm-Message-State: AOAM532nVmWnmvCTTkOyQHAcYKOd5YFCaClhE+VLguzgAn2/ARPMCAWA
+        vUYi4N702XpXxFUhN1Yl5XgWsCIN1tV9fA==
+X-Google-Smtp-Source: ABdhPJxpOAnoyWDO/S27GxWVQd01Ud81CoxkTfcUMI7wpQtZwMDwax/HyVH6cWW7wOtYred5Czt98w==
+X-Received: by 2002:a05:6000:1282:: with SMTP id f2mr4858312wrx.251.1601040999425;
+        Fri, 25 Sep 2020 06:36:39 -0700 (PDT)
+Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
+        by smtp.gmail.com with ESMTPSA id c4sm3078324wrp.85.2020.09.25.06.36.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Sep 2020 06:36:38 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Wolfram Sang <wsa@the-dreams.de>
+Cc:     linux-i2c@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [GIT PULL] at24: updates for v5.10
+Date:   Fri, 25 Sep 2020 15:36:36 +0200
+Message-Id: <20200925133636.10950-1-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.26.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="rpqafbpfmp6buotd"
-Content-Disposition: inline
-In-Reply-To: <16013235.tl8pWZfNaG@n95hx1g2>
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
---rpqafbpfmp6buotd
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Wolfram,
 
-On Thu, Sep 17, 2020 at 04:13:50PM +0200, Christian Eggers wrote:
-> Hello Uwe,
->=20
-> On Thursday, 17 September 2020, 16:02:35 CEST, Uwe Kleine-K=F6nig wrote:
-> > Hello,
-> >
-> > On Thu, Sep 17, 2020 at 02:20:27PM +0200, Christian Eggers wrote:
-> > ...
-> > >             /* check for arbitration lost */
-> > >             if (temp & I2SR_IAL) {
-> > >                     temp &=3D ~I2SR_IAL;
-> > > +                   temp |=3D (i2c_imx->hwdata->i2sr_clr_opcode & I2S=
-R_IAL);
-> > >                     imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
-> > >                     return -EAGAIN;
-> > ...
->=20
-> > This looks strange. First the flag is cleared and then it is (in some
-> > cases) set again.
-> i.MX controllers require writing a 0 to clear these bits. Vybrid controll=
-ers
-> need writing a 1 for the same.
+This release's PR is surprisingly big for at24. We have some new features and
+some minor tweaks - details are in the signed tag.
 
-Yes, I understood that.
+Please pull.
 
-> > If I2SR_IIF is set in temp you ack this irq without handling it. (Which
-> > might happen if atomic is set and irqs are off?!)
-> This patch is only about using the correct processor specific value for
-> acknowledging an IRQ... But I think that returning EAGAIN (which aborts t=
-he
-> transfer) should be handling enough. At the next transfer, the controller=
- will
-> be set back to master mode.
+The following changes since commit 9123e3a74ec7b934a4a099e98af6a61c2f80bbf5:
 
-Either you didn't understand what I meant, or I don't understand why you
-consider your patch right anyhow. So I try to explain in other and more
-words.
+  Linux 5.9-rc1 (2020-08-16 13:04:57 -0700)
 
-IMHO the intention here (and also what happens on i.MX) is that exactly
-the AL interrupt pending bit should be cleared and the IF irq is
-supposed to be untouched.
+are available in the Git repository at:
 
-Given there are only two irq flags in the I2SR register (which is called
-IBSR on Vybrid) the status quo (i.e. without your patch) is:
+  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-updates-for-v5.10
 
-  On i.MX IAL is cleared
-  On Vybrid IIF (which is called IBIF there) is cleared.
+for you to fetch changes up to 61f764c307f6b2079b7af0d4fb7951402b824967:
 
-With your patch we get:
+  eeprom: at24: Support custom device names for AT24 EEPROMs (2020-09-25 15:33:04 +0200)
 
-  On i.MX IAL is cleared
-  On Vybrid both IIF (aka IBIF) and IAL (aka IBAL) are cleared.
+----------------------------------------------------------------
+at24 updates for v5.10
 
-To get it right for both SoC types you have to do (e.g.):
+- add support for masking sensitive data in VAIO EEPROMs
+- set the nvmem TYPE to NVMEM_TYPE_EEPROM
+- add support for the new 'label' property
+- set the nvmem ID to NVMEM_DEVID_AUTO by default (for backward
+  compatibility) or to NVMEM_DEVID_NONE if label is defined
 
-	temp =3D ~i2c_imx->hwdata->i2sr_clr_opcode ^ I2SR_IAL;
+----------------------------------------------------------------
+Jean Delvare (2):
+      eeprom: at24: Add support for the Sony VAIO EEPROMs
+      eeprom: at24: Tidy at24_read()
 
-(and in i2c_imx_isr() the same using I2SR_IIF instead of I2SR_IAL
-because there currently IAL might be cleared by mistake on Vybrid).
+Jon Hunter (3):
+      eeprom: at24: Initialise AT24 NVMEM ID field
+      dt-bindings: eeprom: at24: Add label property for AT24
+      eeprom: at24: Support custom device names for AT24 EEPROMs
 
-I considered creating a patch, but as I don't have a Vybrid on my desk
-and on i.MX there is no change, I let you do this.
+Vadym Kochan (1):
+      eeprom: at24: set type id as EEPROM
 
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---rpqafbpfmp6buotd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAl9tphIACgkQwfwUeK3K
-7AneRwf+JcnV53qWQCh7RldBTTEDQwDlmjS9dhIIry/Q+bGBQK+1cCSKTnEsXPAD
-eK9uKw9avB1/AjErj47M0zg+jvq7Sj8t7xVmLFhXmN4WfHQ84tVPgqedTExMgLWz
-VD2Kz66Grhic1FS8/NPI/GtTHjuFVw5TsSmmzCVDZHPeDMXgnmamWpU7pvwyz8uS
-ytQIIFouibq4TY/otlP9xaib6kxQr4qJYJ/uz+TpMdBMatDl/L2PQ8po2p5VylvD
-8bAzJ7+uhqISfh6ERiTEga0GJCzg/3Px4ZQqIDSxPuPH3c7PUBvd50jPpFzZKAyA
-dLIkPtWTYyAY52l4kjK/PwOHpAmgXg==
-=hldl
------END PGP SIGNATURE-----
-
---rpqafbpfmp6buotd--
+ Documentation/devicetree/bindings/eeprom/at24.yaml |  3 +
+ drivers/misc/eeprom/at24.c                         | 71 +++++++++++++++++++---
+ 2 files changed, 67 insertions(+), 7 deletions(-)
