@@ -2,131 +2,145 @@ Return-Path: <SRS0=hTrT=DO=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61E42C4363C
-	for <linux-i2c@archiver.kernel.org>; Wed,  7 Oct 2020 08:50:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1868C4363C
+	for <linux-i2c@archiver.kernel.org>; Wed,  7 Oct 2020 11:40:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 188CF21D90
-	for <linux-i2c@archiver.kernel.org>; Wed,  7 Oct 2020 08:50:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52A1020782
+	for <linux-i2c@archiver.kernel.org>; Wed,  7 Oct 2020 11:40:33 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lL6tR969"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727861AbgJGIuI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 7 Oct 2020 04:50:08 -0400
-Received: from mailout04.rmx.de ([94.199.90.94]:45029 "EHLO mailout04.rmx.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727369AbgJGIuI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 7 Oct 2020 04:50:08 -0400
-Received: from kdin02.retarus.com (kdin02.dmz1.retloc [172.19.17.49])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mailout04.rmx.de (Postfix) with ESMTPS id 4C5p1l2LB5z3qxQ3;
-        Wed,  7 Oct 2020 10:50:03 +0200 (CEST)
-Received: from mta.arri.de (unknown [217.111.95.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by kdin02.retarus.com (Postfix) with ESMTPS id 4C5p0k3gQCz2TTL4;
-        Wed,  7 Oct 2020 10:49:10 +0200 (CEST)
-Received: from N95HX1G2.wgnetz.xx (192.168.54.119) by mta.arri.de
- (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Wed, 7 Oct
- 2020 10:47:26 +0200
-From:   Christian Eggers <ceggers@arri.de>
-To:     Oleksij Rempel <linux@rempel-privat.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        "David Laight" <David.Laight@ACULAB.COM>
-CC:     Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        <linux-i2c@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Christian Eggers <ceggers@arri.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>, <stable@vger.kernel.org>
-Subject: [PATCH v5 3/3] i2c: imx: Don't generate STOP condition if arbitration has been lost
-Date:   Wed, 7 Oct 2020 10:45:24 +0200
-Message-ID: <20201007084524.10835-4-ceggers@arri.de>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201007084524.10835-1-ceggers@arri.de>
-References: <20201007084524.10835-1-ceggers@arri.de>
+        id S1727558AbgJGLkc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 7 Oct 2020 07:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33684 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726096AbgJGLkb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 7 Oct 2020 07:40:31 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5B9FC061755;
+        Wed,  7 Oct 2020 04:40:29 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id t21so1799365eds.6;
+        Wed, 07 Oct 2020 04:40:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:references:date:in-reply-to:message-id
+         :user-agent:mime-version;
+        bh=k0aeJ1aYDeTbfQgHa1bFP6cUwbAIO3u/WkE2x9DvX8Y=;
+        b=lL6tR969hOKqmM8s5zNN//ayAtdv7Ochna4uq6PZS54QF5l4MU+t4smAXv2EhtFOqi
+         0nBsyOoRstNSS4yzZ0OpGMCmjhoDIJprstf5+YlImipSM6XjE3oqFGtuX/iLdMrQ/heO
+         zAm7Vec+A9T6Dl9ep+/AgFwyns8sTn5gRSSp62jRC/It1TbFyx+Mm+gkpEK0kMY3k1hX
+         acrMmRVLwp7XiIzJ8ADtFKlnpsGI1Lkqv8/5bm5xPO6d5h7uosjpQcP/5RLaC7pMcQMC
+         uzBZofb6QC1JUw3n/1DJJ90EGnn2ZXzGMfR6Yxzk9H9S0EPphVCovR8pf9hEisWrqtIV
+         PxbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:references:date
+         :in-reply-to:message-id:user-agent:mime-version;
+        bh=k0aeJ1aYDeTbfQgHa1bFP6cUwbAIO3u/WkE2x9DvX8Y=;
+        b=fjB8B/clBY5Qt7Fw6Rd9AGKdSP/tpIgDMX6HUYD6ClIEifjeiuqwhDL8ybgiGBVQgO
+         PspXnkjVaxUXJZScNfRd6O2eVBEEonPrWKj/TXQ8GSjqnr780ILpcTm4u695z3ZElO8I
+         dQDX8cO9jya/GMxLLc0VY4khyUCd76ivBSJDjP5OTVhEvCK/EHd+d/61yS4csbZ0WKXf
+         TDMCo3i4JL5US+WBI98EnIY1dLzGI7PTeuKu46fni+u6V4BPYMganje8Bt6YZw5NHl+s
+         ZwFuMA70VXCLomFSgcv+xy7TtgeqSKM9cdjcgKkN+2c93fHuLi7Cw39ZV/BDQP54vzhw
+         Cigg==
+X-Gm-Message-State: AOAM530vV8jOvREi+vo9nXLvg9/DMH767RnOlXRGnyhYDTjf6v3P9wLZ
+        4KATQVsDO/EM172BcqBvzzA=
+X-Google-Smtp-Source: ABdhPJwJ9X8Pq8LdGx1IPQXF6Ck6Bt3s9OPFOqe1bc1uSKlyPS0JUsrgQKWA19ob02V6jsPNKYXNvg==
+X-Received: by 2002:aa7:dbc5:: with SMTP id v5mr3195373edt.54.1602070828096;
+        Wed, 07 Oct 2020 04:40:28 -0700 (PDT)
+Received: from dell.be.48ers.dk (d51A5BC31.access.telenet.be. [81.165.188.49])
+        by smtp.gmail.com with ESMTPSA id r21sm1319295eda.3.2020.10.07.04.40.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Oct 2020 04:40:26 -0700 (PDT)
+Sender: Peter Korsgaard <jacmet@gmail.com>
+Received: from peko by dell.be.48ers.dk with local (Exim 4.92)
+        (envelope-from <peter@korsgaard.com>)
+        id 1kQ7o2-0002tm-0t; Wed, 07 Oct 2020 13:40:26 +0200
+From:   Peter Korsgaard <peter@korsgaard.com>
+To:     Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Cc:     linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-i2c@vger.kernel.org, andrew@lunn.ch,
+        paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu
+Subject: Re: [PATCH 1/1] i2c: ocores: fix polling mode workaround on FU540-C000 SoC
+References: <1602006796-273724-1-git-send-email-sagar.kadam@sifive.com>
+        <1602006796-273724-2-git-send-email-sagar.kadam@sifive.com>
+Date:   Wed, 07 Oct 2020 13:40:26 +0200
+In-Reply-To: <1602006796-273724-2-git-send-email-sagar.kadam@sifive.com>
+        (Sagar Shrikant Kadam's message of "Tue, 6 Oct 2020 10:53:16 -0700")
+Message-ID: <87imbm4639.fsf@dell.be.48ers.dk>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [192.168.54.119]
-X-RMX-ID: 20201007-104916-4C5p0k3gQCz2TTL4-0@kdin02
-X-RMX-SOURCE: 217.111.95.66
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-If arbitration is lost, the master automatically changes to slave mode.
-I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
-by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
+>>>>> "Sagar" == Sagar Shrikant Kadam <sagar.kadam@sifive.com> writes:
 
-So calling i2c_imx_bus_busy() is not required and would busy-wait until
-timeout.
+ > The FU540-C000 has a broken IRQ and support was added earlier
+ > so that it will operate in polling mode, but seems to work only
+ > in case interrupts property is missing from the i2c0 dt-node.
+ > This should not be the case and the driver should handle polling
+ > mode with the interrupt property present in i2c0 node of the
+ > device tree.
+ > So check if it's the FU540-C000 soc and enable polling mode master
+ > xfers, as the IRQ for this chip is broken.
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Tested (not extensively) on Vybrid VF500 (Toradex VF50):
-Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
-                           # the 3rd argument from the calls to
-                           # i2c_imx_bus_busy().
----
- drivers/i2c/busses/i2c-imx.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ > Fixes commit c45d4ba86731 ("i2c: ocores: add polling mode workaround
+ > for Sifive FU540-C000 SoC")
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 63575af41c09..5d8a79319b2b 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -615,6 +615,8 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx, bool atomic)
- 		/* Stop I2C transaction */
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		if (i2c_imx->dma)
- 			temp &= ~I2CR_DMAEN;
-@@ -778,9 +780,12 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
- 		 */
- 		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--		i2c_imx_bus_busy(i2c_imx, 0, false);
-+		if (!i2c_imx->stopped)
-+			i2c_imx_bus_busy(i2c_imx, 0, false);
- 	} else {
- 		/*
- 		 * For i2c master receiver repeat restart operation like:
-@@ -905,9 +910,12 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 				dev_dbg(&i2c_imx->adapter.dev,
- 					"<%s> clear MSTA\n", __func__);
- 				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+				if (!(temp & I2CR_MSTA))
-+					i2c_imx->stopped =  1;
- 				temp &= ~(I2CR_MSTA | I2CR_MTX);
- 				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--				i2c_imx_bus_busy(i2c_imx, 0, atomic);
-+				if (!i2c_imx->stopped)
-+					i2c_imx_bus_busy(i2c_imx, 0, atomic);
- 			} else {
- 				/*
- 				 * For i2c master receiver repeat restart operation like:
+ > Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+ > ---
+ >  drivers/i2c/busses/i2c-ocores.c | 22 +++++++++++++---------
+ >  1 file changed, 13 insertions(+), 9 deletions(-)
+
+ > diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+ > index f5fc75b..4405244 100644
+ > --- a/drivers/i2c/busses/i2c-ocores.c
+ > +++ b/drivers/i2c/busses/i2c-ocores.c
+ > @@ -686,17 +686,21 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ 
+ >  	init_waitqueue_head(&i2c->wait);
+ 
+ > +	/*
+ > +	 * Set OCORES_FLAG_BROKEN_IRQ to enable workaround for
+ > +	 * FU540-C000 SoC in polling mode.
+ > +	 * Since the SoC does have interrupt it's dt has the interrupt
+ > +	 * defined but it should be bypassed in driver as this SoC has
+ > +	 * a broken IRQ, hence update the master_xfer to use polling
+ > +	 * transfers.
+ > +	 */
+ > +	match = of_match_node(ocores_i2c_match, pdev->dev.of_node);
+ > +	if (match && (long)match->data == TYPE_SIFIVE_REV0)
+ > +		i2c->flags |= OCORES_FLAG_BROKEN_IRQ;
+ > +
+ >  	irq = platform_get_irq(pdev, 0);
+ > -	if (irq == -ENXIO) {
+ > +	if (i2c->flags == OCORES_FLAG_BROKEN_IRQ || irq == -ENXIO) {
+
+NIT: flags is a bitmask, so i2c->flags & OCORES_FLAG_BROKEN_IRQ would be
+better, even if there currently doesn't exist any other flags.
+
+TYPE_SIFIVE_REV0 is also set for two compatibles:
+
+        {
+                .compatible = "sifive,fu540-c000-i2c",
+                .data = (void *)TYPE_SIFIVE_REV0,
+        },
+        {
+                .compatible = "sifive,i2c0",
+                .data = (void *)TYPE_SIFIVE_REV0,
+        },
+
+Are both affected by this issue? if not, we will need to extend the code
+to handle them differently.
+
+Other than that, it looks OK to me.
+
 -- 
-Christian Eggers
-Embedded software developer
-
-Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
-Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
-Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
-Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
-Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
-
+Bye, Peter Korsgaard
