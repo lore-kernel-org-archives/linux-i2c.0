@@ -2,150 +2,99 @@ Return-Path: <SRS0=hTrT=DO=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58B62C4363D
-	for <linux-i2c@archiver.kernel.org>; Wed,  7 Oct 2020 13:08:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66DFEC41604
+	for <linux-i2c@archiver.kernel.org>; Wed,  7 Oct 2020 17:21:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAFB1206F4
-	for <linux-i2c@archiver.kernel.org>; Wed,  7 Oct 2020 13:08:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 010362176B
+	for <linux-i2c@archiver.kernel.org>; Wed,  7 Oct 2020 17:20:59 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=connolly.tech header.i=@connolly.tech header.b="V2BIlimC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728362AbgJGNIK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 7 Oct 2020 09:08:10 -0400
-Received: from mga17.intel.com ([192.55.52.151]:46484 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728360AbgJGNIJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 7 Oct 2020 09:08:09 -0400
-IronPort-SDR: gLhSnojKRRCFd8v2/aQgqZwO/wOw2FwDPn11CTGgb4G+VUtr8D42WwQqm+Hl/LAGB/tcrv060M
- 4FcSTnX2RIWA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9766"; a="144848066"
-X-IronPort-AV: E=Sophos;i="5.77,346,1596524400"; 
-   d="scan'208";a="144848066"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2020 06:08:08 -0700
-IronPort-SDR: hlosZPgWJYyzIlRRCsTCeqlwPZaQ10RDs5XScimiBjcpHkZRS/xzIY665gWJ+uyZBG2j5WAX7Z
- RGwDoEqKYN7w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,346,1596524400"; 
-   d="scan'208";a="354890493"
-Received: from unknown (HELO [10.237.72.56]) ([10.237.72.56])
-  by orsmga007.jf.intel.com with ESMTP; 07 Oct 2020 06:08:05 -0700
-Subject: Re: Designeware I2C slave confusing IC_INTR_STOP_DET handle
-To:     Michael.Wu@vatics.com, andriy.shevchenko@linux.intel.com,
-        mika.westerberg@linux.intel.com
-Cc:     linux-i2c@vger.kernel.org, morgan.chang@vatics.com,
-        dean.hsiao@vatics.com, paul.chen@vatics.com
-References: <5DB475451BAA174CB158B5E897FC1525B1293AB2@MBS07.vivotek.tw>
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Message-ID: <655eb758-c94b-d319-1866-6f1db413d337@linux.intel.com>
-Date:   Wed, 7 Oct 2020 16:08:05 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S1727970AbgJGRU7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 7 Oct 2020 13:20:59 -0400
+Received: from mail-41104.protonmail.ch ([185.70.41.104]:11242 "EHLO
+        mail-41104.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727891AbgJGRU7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 7 Oct 2020 13:20:59 -0400
+Received: from mail-03.mail-europe.com (mail-03.mail-europe.com [91.134.188.129])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (No client certificate requested)
+        by mail-41104.protonmail.ch (Postfix) with ESMTPS id E5DA420035C1;
+        Wed,  7 Oct 2020 17:20:56 +0000 (UTC)
+Authentication-Results: mail-41104.protonmail.ch;
+        dkim=pass (1024-bit key) header.d=connolly.tech header.i=@connolly.tech header.b="V2BIlimC"
+Date:   Wed, 07 Oct 2020 17:20:46 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=connolly.tech;
+        s=protonmail; t=1602091253;
+        bh=UHVeS8mhguivBrMvSGJLXZGFXdxxnZc9zuVyS2Pzp9c=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=V2BIlimCjeDjKFKCRlR4nwVZwK4a/wJwL5PzhTUiKr0vG0V8VpBtvfRGxTmbs/lWw
+         NuLPb0dx7zykJWJhaW4k4HpeYLvF268FgLvZ7LWdOWo4SUOlj9sfwCjhTwqF0kG6VG
+         b5QBD2n3vG3wOMrfE3LvGAMrpdXe+1vhrrN0kYUk=
+To:     Akash Asthana <akashast@codeaurora.org>,
+        Mukesh Savaliya <msavaliy@codeaurora.org>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+From:   Caleb Connolly <caleb@connolly.tech>
+Cc:     ~postmarketos/upstreaming@lists.sr.ht,
+        Caleb Connolly <caleb@connolly.tech>,
+        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Reply-To: Caleb Connolly <caleb@connolly.tech>
+Subject: [PATCH 5/5] i2c: geni: sdm845: dont perform DMA for the oneplus6
+Message-ID: <20201007171807.285298-6-caleb@connolly.tech>
+In-Reply-To: <20201007171807.285298-1-caleb@connolly.tech>
+References: <20201007171807.285298-1-caleb@connolly.tech>
 MIME-Version: 1.0
-In-Reply-To: <5DB475451BAA174CB158B5E897FC1525B1293AB2@MBS07.vivotek.tw>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi
+The OnePlus 6/T has the same issues as the c630 causing a crash when DMA
+is used for i2c, so disable it.
 
-On 10/7/20 8:10 AM, Michael.Wu@vatics.com wrote:
-> These above scenarios appears when OS is busy or too late to handle I2C
-> interrupts. Current i2c_dw_irq_handler_slave() seems that last
-> IC_INTR_RX_FULL will be handled before IC_INTR_STOP_DET rising, or
-> IC_INTR_STOP_DET will not be cleared before last IC_INTR_RX_FULL handled.
-> I think it can't be guaranteed.
-> 
-Indeed i2c_dw_irq_handler_slave() handling looks doubtful when I look at 
-it after your report. Especially many of those 
-i2c_dw_read_clear_intrbits_slave() calls. I think there are good changes 
-to miss some interrupts.
+https://patchwork.kernel.org/patch/11133827/
+Signed-off-by: Caleb Connolly <caleb@connolly.tech>
+---
+ drivers/i2c/busses/i2c-qcom-geni.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Unfortunately I don't have right now a setup to try myself but could you 
-try these ideas to read and clear interrupt status in one place only and 
-move I2C_SLAVE_WRITE_REQUESTED reporting after I2C_SLAVE_WRITE_RECEIVED 
-like in a patch below?
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qc=
+om-geni.c
+index dead5db3315a..50a0674a6553 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -358,7 +358,8 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2=
+c, struct i2c_msg *msg,
+ =09struct geni_se *se =3D &gi2c->se;
+ =09size_t len =3D msg->len;
+=20
+-=09if (!of_machine_is_compatible("lenovo,yoga-c630"))
++=09if (!of_machine_is_compatible("lenovo,yoga-c630") &&
++=09    !of_machine_is_compatible("oneplus,oneplus6"))
+ =09=09dma_buf =3D i2c_get_dma_safe_msg_buf(msg, 32);
+=20
+ =09if (dma_buf)
+@@ -400,7 +401,8 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2=
+c, struct i2c_msg *msg,
+ =09struct geni_se *se =3D &gi2c->se;
+ =09size_t len =3D msg->len;
+=20
+-=09if (!of_machine_is_compatible("lenovo,yoga-c630"))
++=09if (!of_machine_is_compatible("lenovo,yoga-c630") &&
++=09    !of_machine_is_compatible("oneplus,oneplus6"))
+ =09=09dma_buf =3D i2c_get_dma_safe_msg_buf(msg, 32);
+=20
+ =09if (dma_buf)
+--=20
+2.28.0
 
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c 
-b/drivers/i2c/busses/i2c-designware-slave.c
-index 44974b53a626..97131e888e24 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -159,7 +159,6 @@ static int i2c_dw_irq_handler_slave(struct 
-dw_i2c_dev *dev)
-  	u32 raw_stat, stat, enabled, tmp;
-  	u8 val = 0, slave_activity;
 
--	regmap_read(dev->map, DW_IC_INTR_STAT, &stat);
-  	regmap_read(dev->map, DW_IC_ENABLE, &enabled);
-  	regmap_read(dev->map, DW_IC_RAW_INTR_STAT, &raw_stat);
-  	regmap_read(dev->map, DW_IC_STATUS, &tmp);
-@@ -168,13 +167,11 @@ static int i2c_dw_irq_handler_slave(struct 
-dw_i2c_dev *dev)
-  	if (!enabled || !(raw_stat & ~DW_IC_INTR_ACTIVITY) || !dev->slave)
-  		return 0;
-
-+	stat = i2c_dw_read_clear_intrbits_slave(dev);
-  	dev_dbg(dev->dev,
-  		"%#x STATUS SLAVE_ACTIVITY=%#x : RAW_INTR_STAT=%#x : INTR_STAT=%#x\n",
-  		enabled, slave_activity, raw_stat, stat);
-
--	if ((stat & DW_IC_INTR_RX_FULL) && (stat & DW_IC_INTR_STOP_DET))
--		i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_REQUESTED, &val);
--
-  	if (stat & DW_IC_INTR_RD_REQ) {
-  		if (slave_activity) {
-  			if (stat & DW_IC_INTR_RX_FULL) {
-@@ -188,11 +185,9 @@ static int i2c_dw_irq_handler_slave(struct 
-dw_i2c_dev *dev)
-  						 val);
-  				}
-  				regmap_read(dev->map, DW_IC_CLR_RD_REQ, &tmp);
--				stat = i2c_dw_read_clear_intrbits_slave(dev);
-  			} else {
-  				regmap_read(dev->map, DW_IC_CLR_RD_REQ, &tmp);
-  				regmap_read(dev->map, DW_IC_CLR_RX_UNDER, &tmp);
--				stat = i2c_dw_read_clear_intrbits_slave(dev);
-  			}
-  			if (!i2c_slave_event(dev->slave,
-  					     I2C_SLAVE_READ_REQUESTED,
-@@ -207,7 +202,6 @@ static int i2c_dw_irq_handler_slave(struct 
-dw_i2c_dev *dev)
-  			regmap_read(dev->map, DW_IC_CLR_RX_DONE, &tmp);
-
-  		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
--		stat = i2c_dw_read_clear_intrbits_slave(dev);
-  		return 1;
-  	}
-
-@@ -219,9 +213,11 @@ static int i2c_dw_irq_handler_slave(struct 
-dw_i2c_dev *dev)
-  			dev_vdbg(dev->dev, "Byte %X acked!", val);
-  	} else {
-  		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
--		stat = i2c_dw_read_clear_intrbits_slave(dev);
-  	}
-
-+	if ((stat & DW_IC_INTR_RX_FULL) && (stat & DW_IC_INTR_STOP_DET))
-+		i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_REQUESTED, &val);
-+
-  	return 1;
-  }
-
-@@ -230,7 +226,6 @@ static irqreturn_t i2c_dw_isr_slave(int this_irq, 
-void *dev_id)
-  	struct dw_i2c_dev *dev = dev_id;
-  	int ret;
-
--	i2c_dw_read_clear_intrbits_slave(dev);
-  	ret = i2c_dw_irq_handler_slave(dev);
-  	if (ret > 0)
-  		complete(&dev->cmd_complete);
