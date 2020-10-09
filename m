@@ -2,35 +2,36 @@ Return-Path: <SRS0=M59A=DQ=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C343C433DF
-	for <linux-i2c@archiver.kernel.org>; Fri,  9 Oct 2020 11:04:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A8DFC433E7
+	for <linux-i2c@archiver.kernel.org>; Fri,  9 Oct 2020 11:05:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 235B42087D
-	for <linux-i2c@archiver.kernel.org>; Fri,  9 Oct 2020 11:04:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BC07A22284
+	for <linux-i2c@archiver.kernel.org>; Fri,  9 Oct 2020 11:05:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387908AbgJILE0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 9 Oct 2020 07:04:26 -0400
-Received: from mailout08.rmx.de ([94.199.90.85]:33509 "EHLO mailout08.rmx.de"
+        id S1732838AbgJILFa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 9 Oct 2020 07:05:30 -0400
+Received: from mailout07.rmx.de ([94.199.90.95]:60653 "EHLO mailout07.rmx.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731963AbgJILE0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 9 Oct 2020 07:04:26 -0400
+        id S1731963AbgJILFa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 9 Oct 2020 07:05:30 -0400
 Received: from kdin02.retarus.com (kdin02.dmz1.retloc [172.19.17.49])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mailout08.rmx.de (Postfix) with ESMTPS id 4C74vq4tYbzMrW1;
-        Fri,  9 Oct 2020 13:04:23 +0200 (CEST)
+        by mailout07.rmx.de (Postfix) with ESMTPS id 4C74x03Nb3zBvPR;
+        Fri,  9 Oct 2020 13:05:24 +0200 (CEST)
 Received: from mta.arri.de (unknown [217.111.95.66])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
         (No client certificate requested)
-        by kdin02.retarus.com (Postfix) with ESMTPS id 4C74vW0Ljbz2TRlZ;
-        Fri,  9 Oct 2020 13:04:07 +0200 (CEST)
+        by kdin02.retarus.com (Postfix) with ESMTPS id 4C74vq4nwXz2TRt0;
+        Fri,  9 Oct 2020 13:04:23 +0200 (CEST)
 Received: from N95HX1G2.wgnetz.xx (192.168.54.145) by mta.arri.de
  (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Fri, 9 Oct
- 2020 13:03:28 +0200
+ 2020 13:04:00 +0200
 From:   Christian Eggers <ceggers@arri.de>
 To:     Oleksij Rempel <linux@rempel-privat.de>,
         Oleksij Rempel <o.rempel@pengutronix.de>,
@@ -45,36 +46,98 @@ CC:     Pengutronix Kernel Team <kernel@pengutronix.de>,
         <linux-i2c@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, Christian Eggers <ceggers@arri.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v6 0/3] i2c: imx: Fix handling of arbitration loss
-Date:   Fri, 9 Oct 2020 13:03:17 +0200
-Message-ID: <20201009110320.20832-1-ceggers@arri.de>
+        Krzysztof Kozlowski <krzk@kernel.org>, <stable@vger.kernel.org>
+Subject: [PATCH v6 1/3] i2c: imx: Fix reset of I2SR_IAL flag
+Date:   Fri, 9 Oct 2020 13:03:18 +0200
+Message-ID: <20201009110320.20832-2-ceggers@arri.de>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201009110320.20832-1-ceggers@arri.de>
+References: <20201009110320.20832-1-ceggers@arri.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 X-Originating-IP: [192.168.54.145]
-X-RMX-ID: 20201009-130413-4C74vW0Ljbz2TRlZ-0@kdin02
+X-RMX-ID: 20201009-130425-4C74vq4nwXz2TRt0-0@kdin02
 X-RMX-SOURCE: 217.111.95.66
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Changes in v5:
----------------
-- Added missing "Tested-By" tags.
+According to the "VFxxx Controller Reference Manual" (and the comment
+block starting at line 97), Vybrid requires writing a one for clearing
+an interrupt flag. Syncing the method for clearing I2SR_IIF in
+i2c_imx_isr().
 
-Changes in v4:
----------------
-- Extend comment (W1C vs. W0C)
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Fixes: 4b775022f6fd ("i2c: imx: add struct to hold more configurable quirks")
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: stable@vger.kernel.org
+---
+ drivers/i2c/busses/i2c-imx.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-Changes in v3:
----------------
-- dedicated function for clearing an irq
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 0ab5381aa012..028f8a626410 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -412,6 +412,19 @@ static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
+ 	dma->chan_using = NULL;
+ }
+ 
++static void i2c_imx_clear_irq(struct imx_i2c_struct *i2c_imx, unsigned int bits)
++{
++	unsigned int temp;
++
++	/*
++	 * i2sr_clr_opcode is the value to clear all interrupts. Here we want to
++	 * clear only <bits>, so we write ~i2sr_clr_opcode with just <bits>
++	 * toggled. This is required because i.MX needs W0C and Vybrid uses W1C.
++	 */
++	temp = ~i2c_imx->hwdata->i2sr_clr_opcode ^ bits;
++	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++}
++
+ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+ {
+ 	unsigned long orig_jiffies = jiffies;
+@@ -424,8 +437,7 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool a
+ 
+ 		/* check for arbitration lost */
+ 		if (temp & I2SR_IAL) {
+-			temp &= ~I2SR_IAL;
+-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+ 			return -EAGAIN;
+ 		}
+ 
+@@ -469,7 +481,7 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 		 */
+ 		readb_poll_timeout_atomic(addr, regval, regval & I2SR_IIF, 5, 1000 + 100);
+ 		i2c_imx->i2csr = regval;
+-		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IIF | I2SR_IAL);
+ 	} else {
+ 		wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+ 	}
+@@ -623,9 +635,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+ 	if (temp & I2SR_IIF) {
+ 		/* save status register */
+ 		i2c_imx->i2csr = temp;
+-		temp &= ~I2SR_IIF;
+-		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+-		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IIF);
+ 		wake_up(&i2c_imx->queue);
+ 		return IRQ_HANDLED;
+ 	}
+-- 
+Christian Eggers
+Embedded software developer
 
-Changes in v2:
----------------
-- Don't accidently clear additional status flags on Vybrid
-(reported by Uwe Kleine-Koenig)
-
+Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
+Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
+Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
+Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
+Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
 
