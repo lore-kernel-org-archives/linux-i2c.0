@@ -2,92 +2,115 @@ Return-Path: <SRS0=gnxG=DR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13271C433E7
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F5D0C43467
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C9E492067C
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:36 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Nfh6TEXG"
+	by mail.kernel.org (Postfix) with ESMTP id 6024520735
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1602371259;
+	bh=uQHAiDa6UwVzkeCNcXIht55Jnp6noC/hcJNuIPqmHCI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=izvnmSw52UapYglWejrJJdUwYWpfZA37LlnH0BPWeRtcguH5uPZdEnNX+6FQ8Uua4
+	 SaGjXSzdviXbP3xD5HwztC9gpf5ZsxtDq0XCwYCW6mt9459K0VCAwlIIZZQPt2Is9Y
+	 h4qpbC8IIZL9joxQuaoQPbP/un20LiFopNumsy50=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390487AbgJJW5Z (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 10 Oct 2020 18:57:25 -0400
-Received: from www.zeus03.de ([194.117.254.33]:55730 "EHLO mail.zeus03.de"
+        id S2390476AbgJJW5Y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 10 Oct 2020 18:57:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387539AbgJJUTt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 10 Oct 2020 16:19:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=rl/Orf6woo+IrVZiQ1yWI4hhM3LF
-        YMVEjdM+w6uFuI0=; b=Nfh6TEXGaIMk6ZFPmGSyK24bBTJEIkpztQUTvHknpw2H
-        tTKmhjaz4QmNhTe+IDKwNtgNhStwHo+7HoE+8dkw6pqAUuYiGET1esm64SaX3y94
-        RIE3/7tDeA5RbxYgGfiRjgz/delVSCyyEQJBe+fP+sU2eSvPcyJQcBnwVx7T1lA=
-Received: (qmail 3961098 invoked from network); 10 Oct 2020 13:19:43 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 Oct 2020 13:19:43 +0200
-X-UD-Smtp-Session: l3s3148p1@dTXtPU+xkLQgAwDPXyGpAKJteNp0JwbZ
-Date:   Sat, 10 Oct 2020 13:19:42 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Geert Uytterhoeven <geert+renesas@glider.be>
-Cc:     Khalil Blaiech <kblaiech@mellanox.com>,
-        Vadim Pasternak <vadimp@mellanox.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: mlxbf: I2C_MLXBF should depend on MELLANOX_PLATFORM
-Message-ID: <20201010111942.GF4669@ninjato>
-References: <20201005124949.26810-1-geert+renesas@glider.be>
+        id S1732646AbgJJTyp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 10 Oct 2020 15:54:45 -0400
+Received: from localhost (p5486c996.dip0.t-ipconnect.de [84.134.201.150])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FAFF221FC;
+        Sat, 10 Oct 2020 11:09:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1602328185;
+        bh=uQHAiDa6UwVzkeCNcXIht55Jnp6noC/hcJNuIPqmHCI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0z0W8fNw4fEhhciSCnPL+grc2lVTijBpwyFLBjDvdKH1g6Hsfviwtw9WzcLRa8erQ
+         iz5uYhPXdUa49k98N/TQOkCKLoULKVqwnSWpSLfxlJLrkTynwPe1yrBx+nC9AYyhWL
+         80JkjDpLcPpXIy8QCbKnQl0xJqEPFoxyRL0Pj0lM=
+Date:   Sat, 10 Oct 2020 13:09:37 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Christian Eggers <ceggers@arri.de>
+Cc:     Oleksij Rempel <linux@rempel-privat.de>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        David Laight <David.Laight@aculab.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH v6 3/3] i2c: imx: Don't generate STOP condition if
+ arbitration has been lost
+Message-ID: <20201010110937.GD4669@ninjato>
+References: <20201009110320.20832-1-ceggers@arri.de>
+ <20201009110320.20832-4-ceggers@arri.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="8JPrznbw0YAQ/KXy"
+        protocol="application/pgp-signature"; boundary="Km1U/tdNT/EmXiR1"
 Content-Disposition: inline
-In-Reply-To: <20201005124949.26810-1-geert+renesas@glider.be>
+In-Reply-To: <20201009110320.20832-4-ceggers@arri.de>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---8JPrznbw0YAQ/KXy
+--Km1U/tdNT/EmXiR1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 05, 2020 at 02:49:49PM +0200, Geert Uytterhoeven wrote:
-> The Mellanox BlueField I2C controller is only present on Mellanox
-> BlueField SoCs.  Hence add a dependency on MELLANOX_PLATFORM, to prevent
-> asking the user about this driver when configuring a kernel without
-> Mellanox platform support.
+On Fri, Oct 09, 2020 at 01:03:20PM +0200, Christian Eggers wrote:
+> If arbitration is lost, the master automatically changes to slave mode.
+> I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
+> by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
 >=20
-> Fixes: b5b5b32081cd206b ("i2c: mlxbf: I2C SMBus driver for Mellanox BlueF=
-ield SoC")
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-Usually, I wait for maintainer acks before I apply driver patches. I
-make an exception here to have it sorted out before the merge window.
+> So calling i2c_imx_bus_busy() is not required and would busy-wait until
+> timeout.
+>=20
+> Signed-off-by: Christian Eggers <ceggers@arri.de>
+> Tested (not extensively) on Vybrid VF500 (Toradex VF50):
+> Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
+> Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+> Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
+>                            # the 3rd argument from the calls to
+>                            # i2c_imx_bus_busy().
 
 Applied to for-next, thanks!
 
 
---8JPrznbw0YAQ/KXy
+--Km1U/tdNT/EmXiR1
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl+BmM4ACgkQFA3kzBSg
-KbbkcRAAqH0geSsBQ+tIA+JZN6yAuFcVfj/XU57Yb5K50jdQK0RPQXtcCAeWeHHk
-22j4iTefaeeIhWWEtK167bn4mJzU+NgUjGypgFB5H3qIVISHD1347Ot57bUpZzAX
-FDjLPF5qjEjE2C3RZHnsIxXrlWJa0y+cGZ3UqYfYLulsU2rhL5NubPLJzt9GlIfR
-WfjpqiKxrtmokFeL42wRzrlMpa0D/oKIS+okje+fzJ8iKaQuXajjtdiQXlC6bB5H
-oKSJ4z02SDr21q2oUWhkZdRliftQMkyYn5GVnQL7wtL//ToaZRusv3b5hJY6kkU/
-81X1OvyJUvMejB8h+bepKueKF5zF8tcVTx1PDD+kaBSniVGi3ND0rPc2r7T4Pbs7
-86jbE5Re8RIAxgfSWYxlS5DNsfZbe6LP8UCmMeNUWUUe/7EAksCTzm6lFupETzPL
-oCKaTMl9i57pPdIX0reBN+MOoF+AXwG6/hai6tOSaIxC6CpwbGaGVBlxilNl0Huv
-plAye9ancBlXDBoY+NvlQ7Kis0hvbmhLYQLw7aG8i+E24ztd8ya9yvVervSz1Jpt
-P98LKqBsuOG4HBfqKomCF3ISxQ0AbWkQidCqG7cDg3UWE42qi8kXEONzhqhTyz2J
-t3uQ/LIxYUtAYRmqMv31KhBPlY9fBKgA/ekStXrGCddv+NewVhE=
-=jn4R
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl+BlnEACgkQFA3kzBSg
+KbZqtw//b4hEFkfLFb1etf0/EeQm4uXhVbUaXFusSVs5rfpiSQo73CrMk4DoL2uv
+K3QyXs4hXYVx9n976MRbAHGF3Epo74HnVyij6RxIgdQYLzmYHdy5XnDRJCvFFZIm
+nQzSPaQ67CNOgxn4+r7tpFeX9Ap094ewIpms/OjJbv0JKDuBWuoBf52e+UAuqtpw
+FnfKMJtA6zsC/cbWW1O7kwJylxVdExChZ2x+yByeDV+p4y+M4xL6dUGkz13uVorX
+OTxnCfQgsgouhwrxC+cWvb7y37hbu4zGwmTjTsKHYSR/IhQ/NRCDq6x94nXauYT6
+CpaqqikT+aqeq6reO5wCd/ci3IiZOlAwAXBQdsaJav0N9dsvzxOetggM/uXAvkIH
+C+HDyMiZJib2pFGkdmmF4P+mdgmqCuXwWdvnOO2mqnk17VHva8js/FhJPgW84bA+
+O4bMbofkVJNeOLTnXvnikVwXNVz02C/XUiAPq4PEhMPWNGLgaoHuBngDwghxQR2K
+8GaGrQ968GAkimnTsMl8wIsimxUkFiwGTxHKm6p1cs4Ekmr14aeiVmXOmFzRKmLa
+aJQ/uy/U+mo+YMoBobROlomjAZP/GfplxgWtCIu79apQg6fZZ5ivnG8XEG/CD3zX
+KS9MkYPdTSd7fXqBMUkIoIUa+sllE87Yr6prvHiRaxrAPVf2tKg=
+=+4FV
 -----END PGP SIGNATURE-----
 
---8JPrznbw0YAQ/KXy--
+--Km1U/tdNT/EmXiR1--
