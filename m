@@ -2,43 +2,42 @@ Return-Path: <SRS0=gnxG=DR=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA98AC433E7
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE469C43457
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 863D420735
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9489220735
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1602371263;
-	bh=t7al5w5BieFitDjitckP3mPrbG7YcyWWXG1nP1aMJ40=;
+	s=default; t=1602371264;
+	bh=OhiXebBRx8Rwbg2KldieQ1pJi0vUNsaPUawJWNFRIrE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=z4LPMmGx1LuZyEC04ROavh8ngA//yldP/bY1e4lLtisKw4HgPd9DJhTjM2VqA0dTp
-	 X135N5o7t6nD77u6DNpa3SSpIbiB/Q1VuJWtveAHx6INH0kcnG+04PlK0hlEQqp3dB
-	 9fz1CiyCCwi1EIZ3QaAwsb7qR5FMUVIpXLZmFlpU=
+	b=wSeppDmAPsOV3M3DpUt7wvDX8ksNzjSMqZtLsOqkRfmSGFoJC1GMh/LhNa1DEIOG7
+	 ZzThszuDGME7Hn1CHf7RQgUciMcMCGnL0UH3F6Ua043i38Ujgdz9tV1LsqBnFbkEER
+	 I92TIMRlN4WLu4P6xVWtwBDlRXcCofi75XsTFAUc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731415AbgJJW5W (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S2390470AbgJJW5W (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Sat, 10 Oct 2020 18:57:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57002 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731608AbgJJTyP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1732268AbgJJTyP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Sat, 10 Oct 2020 15:54:15 -0400
 Received: from localhost (p5486c996.dip0.t-ipconnect.de [84.134.201.150])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD28A21D46;
-        Sat, 10 Oct 2020 11:09:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30DD4206E9;
+        Sat, 10 Oct 2020 11:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602328170;
-        bh=t7al5w5BieFitDjitckP3mPrbG7YcyWWXG1nP1aMJ40=;
+        s=default; t=1602328025;
+        bh=OhiXebBRx8Rwbg2KldieQ1pJi0vUNsaPUawJWNFRIrE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Heocty798Mk4lRLO1z6/g9IhhRKNrGZUZkjDVmkmwV/Gn2bKF9P85KfaMaFLi1QSy
-         fsWqU0m+y7F8G+dic/PmXFwe3M9OLH7dluuKRNfRgbE5BaItQw+GvkzdlV+X3FzJnb
-         DYqWiZZ7H0dUDhvy4QIp7OgD6LsqwOTA5u0JYA0E=
-Date:   Sat, 10 Oct 2020 13:09:27 +0200
+        b=dbdOdhsqfqvFpcp7uWLq89PmR60s0gXqn3TtPMkzBgHhb4noKNOROcOr2nTuQG+WM
+         EO3wOcn9pdnRovQPAVvbmnk3iHvEo7sjngIJBwcSSTw/P6DGa/sozIbNE0cb9/n3oq
+         ZzdJ3SmqkdgpVGqzcdrZtnohwsRSrxjivK3tvG44=
+Date:   Sat, 10 Oct 2020 13:06:58 +0200
 From:   Wolfram Sang <wsa@kernel.org>
 To:     Christian Eggers <ceggers@arri.de>
 Cc:     Oleksij Rempel <linux@rempel-privat.de>,
@@ -52,61 +51,51 @@ Cc:     Oleksij Rempel <linux@rempel-privat.de>,
         Pengutronix Kernel Team <kernel@pengutronix.de>,
         NXP Linux Team <linux-imx@nxp.com>,
         linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v6 2/3] i2c: imx: Check for I2SR_IAL after every byte
-Message-ID: <20201010110927.GC4669@ninjato>
+        linux-kernel@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH v6 0/3] i2c: imx: Fix handling of arbitration loss
+Message-ID: <20201010110658.GA4669@ninjato>
 References: <20201009110320.20832-1-ceggers@arri.de>
- <20201009110320.20832-3-ceggers@arri.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="qjNfmADvan18RZcF"
+        protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
 Content-Disposition: inline
-In-Reply-To: <20201009110320.20832-3-ceggers@arri.de>
+In-Reply-To: <20201009110320.20832-1-ceggers@arri.de>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---qjNfmADvan18RZcF
+--dDRMvlgZJXvWKvBx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 09, 2020 at 01:03:19PM +0200, Christian Eggers wrote:
-> Arbitration Lost (IAL) can happen after every single byte transfer. If
-> arbitration is lost, the I2C hardware will autonomously switch from
-> master mode to slave. If a transfer is not aborted in this state,
-> consecutive transfers will not be executed by the hardware and will
-> timeout.
->=20
-> Signed-off-by: Christian Eggers <ceggers@arri.de>
-> Tested (not extensively) on Vybrid VF500 (Toradex VF50):
-> Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
-> Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-> Cc: stable@vger.kernel.org
 
-Applied to for-next, thanks!
+> Changes in v5:
+
+Changes in v6 were missing... Because patch 1 was updated, I reverted it
+=66rom for-current and will apply this series to for-next instead to give
+it some more time for testing.
 
 
---qjNfmADvan18RZcF
+--dDRMvlgZJXvWKvBx
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl+BlmcACgkQFA3kzBSg
-KbafYQ/+M+tg4UJCR0bClfylxiM2x+NgKiJFR1xhe3/Eba3W7Je0rdC1gvGT+hQz
-SkcdXhP7p2D5UjbD3CPL72PjDDr1pLBH3b7nNhnl/QNxMERLBD6j7nGDRrA/3b+J
-DRkz3dYBxSs99gvQtqFu/sqAk1en98WiKOAHcGXXnC1xQ19Q6TUd5oEGQYSC0MQQ
-WSxnchFXcCo/s4MusxS0NowQAmcSSPgQf4oxt9SDIyH+CIYMFLblgFysSaGCJYMt
-LlR/6NIE125XLOL61oNj1qNdn5kuu7sxoL9yukeh/2Yc+KqzBYjbM+wWepMrdAta
-GM20nit0RWOrU0bqApYvfa4/7Wam+3TmhRGSS7vM5Hm1boxHpLmFnkcarFSsrken
-aAZ/tIkliEuaMHjv+RAfFuQg2Q4vsAWz3XTfDJBPJhzlDhiC74/54yYg4whLDX7g
-I1La5oe7l8p/3zIB6MtzQUmbbreyQ4d+wroQKOeL4qETZfDjm7i9XtXWgeQkb79p
-9MQt8I7iGzK3/R0Bvn7gqdQ7oNlitjl1vuQnoFgLDRrcUGVuoAIK0E0kYoFaI7el
-hGxYDBeo+NpdVg2dQAltEcXD4HDsr4hk5DgDoNxw+VmUS6pUrDDQZEhmJpMuyhjX
-fWwnTVSBJUFT3q5g34e9u3mW5uYgNESHPBbeMVUdzX9xr7UD+UI=
-=I8DM
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl+Blc4ACgkQFA3kzBSg
+KbaokA/+OH8pJeBlEf2ZMBAFVh+s8Dd1uVh5pyrEHmJ6zX6p8sJeSBnicetzeLdu
+r4GtmZiOIChX885ANS+zAWsvfZpxoW2ltN7OCk7ZPugYSD1TOICrHwwyKAw2hr/2
+MEs3OEeCYpR9kPAf9l7RBQvTAZEGezhIUkiKHNZ70QVZeE0ASd+ozlGD9Sx3s0aa
+3ayPcsis8aYIFrioZfZIqT51mxv3Sz4c8KKpt6hs98End++5HoP3k5YNgEJslwuX
+HHmG+Mh3YPSMxbAJEAeJPCFOw4a5LwH3A+y8OL4/WmUY0qwckZiAxFDYNNjKmUdV
+11gRXC7k80IlfDoG2/tymleKMj49pL4OYKtZrb+vuOBnf2riwd3jI/SBcpxqGsre
+wKSAAeM1xMy/62UVRIU1OnWkMWDkzTlKgrbPwwYT6r+fsVH2xRJ8Ug6OXeu12pKl
+1G6LNa2y3pI82gubBWoChwATnAoPFqKcElDnoQYl5RlTcUFolJEXRwRcOSEvR1Sh
+qJ52U4jVy1Wd5/CF0mnfduo7aDd/XQLCNVW7xHcxO9yLJz13TqFAaJE+dVuc9FqE
+LrLEbULC7D9/RE75LQdn02Xv+e14z4O2aZnsq8zvWfYd5PdnjPVf5NP2HYCe4x07
+1U/237cIyy2jSrJtKEi5+K+J8p9uBPyWZqZA0N6j13EZBpuKmTc=
+=PkoP
 -----END PGP SIGNATURE-----
 
---qjNfmADvan18RZcF--
+--dDRMvlgZJXvWKvBx--
