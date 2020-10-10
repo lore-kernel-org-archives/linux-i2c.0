@@ -7,106 +7,97 @@ X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FA37C43457
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23F4EC433DF
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D849320735
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EAEE62067C
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Oct 2020 23:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1602371257;
-	bh=guPsHCw4PMTVOWJTZw4CsPJSCk9MAFXYM2VZvw2WA4k=;
+	s=default; t=1602371262;
+	bh=U4cdh7dwjwdM5zAxioLEF4oJApkgULJqjXDXDatugW8=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=vsNteuPtXCj9o/cel2Qw1j8KzDqKldz08EUuAL4RiOMtQZV2ByqT6BVnOIbOFhBYv
-	 /CkXYZ8k1QIoPpggQnW5X6IEvkgPkkUviE+m15cxMvnqKQwTfbOg4K0fhD/ezHjgqe
-	 Bh/oTYLePt9BN6JXhBviLLDfG8rA7vAn5ZQQbu88=
+	b=HD9HqydBN1JtTtXew1GI4f4SFu1miT6dL+jRfpy8v2hrOk9iML5kVpEpalu2VM+Wu
+	 ziGSZjT9GvXbQbJn9G1PGv6xgwXa6BbeBjvOOd/Ne6wHc02mr72K+eOlIhy11/Fhp7
+	 BSZLJFGccTZFHrllZEL0XO6Js9bNh8I1U45wGn40=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390482AbgJJW5Y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 10 Oct 2020 18:57:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57030 "EHLO mail.kernel.org"
+        id S2390475AbgJJW5X (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 10 Oct 2020 18:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732658AbgJJTys (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 10 Oct 2020 15:54:48 -0400
+        id S1732642AbgJJTyo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 10 Oct 2020 15:54:44 -0400
 Received: from localhost (p5486c996.dip0.t-ipconnect.de [84.134.201.150])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4E2F215A4;
-        Sat, 10 Oct 2020 11:09:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CDE422246;
+        Sat, 10 Oct 2020 11:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602328163;
-        bh=guPsHCw4PMTVOWJTZw4CsPJSCk9MAFXYM2VZvw2WA4k=;
+        s=default; t=1602328583;
+        bh=U4cdh7dwjwdM5zAxioLEF4oJApkgULJqjXDXDatugW8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=i7phJFa3z6bYqbhOf7Xa2rFx5F++Iu6q9just5v7UZvPg7FGxS5F54wuZDo1mf6Lf
-         RIeW3V0yHIf/Lfm91VCCBlSglcBUp2Th3orwmRh/X7e8wRAj0pmlZUrYJIk+Xy/RQ7
-         BoBo6L9ZFSiZQ7TD6Rqlc/3KSv94746GghhlYKLk=
-Date:   Sat, 10 Oct 2020 13:09:20 +0200
+        b=LMe66DGgw+AqgbPu7cJ9KPCe/BW44Ezb7p7Iyg1sl5E2kAEDk0gGPe9w9jRz8byjg
+         i1zSLEk/7iq/2XlRas98CKR45FmOxe8aHwtp6Rfj6XFQ6LQy/Xeni0reCzopDIizSt
+         yTt9zFScfs7Tuq20LkrO5384f+8xlxC8z4M9O0pI=
+Date:   Sat, 10 Oct 2020 13:16:19 +0200
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Christian Eggers <ceggers@arri.de>
-Cc:     Oleksij Rempel <linux@rempel-privat.de>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        David Laight <David.Laight@aculab.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v6 1/3] i2c: imx: Fix reset of I2SR_IAL flag
-Message-ID: <20201010110920.GB4669@ninjato>
-References: <20201009110320.20832-1-ceggers@arri.de>
- <20201009110320.20832-2-ceggers@arri.de>
+To:     Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Andreas =?utf-8?Q?F=C3=A4rber?= <afaerber@suse.de>,
+        Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-actions@lists.infradead.org
+Subject: Re: [PATCH 1/3] i2c: owl: Clear NACK and BUS error bits
+Message-ID: <20201010111619.GE4669@ninjato>
+References: <cover.1602190168.git.cristian.ciocaltea@gmail.com>
+ <6ee573f2904c001ab07e30b386815257c05f6308.1602190168.git.cristian.ciocaltea@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
+        protocol="application/pgp-signature"; boundary="5xSkJheCpeK0RUEJ"
 Content-Disposition: inline
-In-Reply-To: <20201009110320.20832-2-ceggers@arri.de>
+In-Reply-To: <6ee573f2904c001ab07e30b386815257c05f6308.1602190168.git.cristian.ciocaltea@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---yEPQxsgoJgBvi8ip
-Content-Type: text/plain; charset=utf-8
+--5xSkJheCpeK0RUEJ
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 09, 2020 at 01:03:18PM +0200, Christian Eggers wrote:
-> According to the "VFxxx Controller Reference Manual" (and the comment
-> block starting at line 97), Vybrid requires writing a one for clearing
-> an interrupt flag. Syncing the method for clearing I2SR_IIF in
-> i2c_imx_isr().
+On Fri, Oct 09, 2020 at 12:44:39AM +0300, Cristian Ciocaltea wrote:
+> When the NACK and BUS error bits are set by the hardware, the driver is
+> responsible for clearing them by writing "1" into the corresponding
+> status registers.
 >=20
-> Signed-off-by: Christian Eggers <ceggers@arri.de>
-> Fixes: 4b775022f6fd ("i2c: imx: add struct to hold more configurable quir=
-ks")
-> Reviewed-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
-> Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-> Cc: stable@vger.kernel.org
+> Hence perform the necessary operations in owl_i2c_interrupt().
+>=20
+> Fixes: d211e62af466 ("i2c: Add Actions Semiconductor Owl family S900 I2C =
+driver")
+> Reported-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-Applied to for-next, thanks!
+Applied to for-current, thanks!
 
 
---yEPQxsgoJgBvi8ip
+--5xSkJheCpeK0RUEJ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl+BlmAACgkQFA3kzBSg
-KbbC/g/+J3lmdYmZN+MyWSAAetqyLefppTqeUIVJCkpDWPxL9EX+w95GwIRhRXeT
-ssG6heAi9Jfd6JZh3I6JL8b64KtpDFfHGbtbAVlHNerlxPTN8G3uJPJ3fCN/pLWl
-toaYPfNaaILFJADg5qIuyeRPWBQEzvDEAmto/ZxrqIKw4bmxgGahxcNSHqufPSm6
-HOtjvkexaNaGU3b6bCn9+PfaFJPmlzQt0q8wDJtLFG0Mt5WTA2Hij//7jSYEf4Pr
-m2tK61bE3NhkhP27oF9lrELFiU0Jcwf8hge8t1dKOkOvRwioC1i83aJtj7Qk9coA
-M6t9ug1TnDuDm84iGDwXL0wpIgFmiJ8hrlaBVawlI127D8drgCIpSmApVoSzPhD7
-h/XDPQU0fCXDc7IU2P92k+JQIK/V9t6pSyJzJEwCBErsgeTSX/F/zkV6SJSwhabf
-p868NtBjIkoFLOQJ1x6LzF3Qkp7mWN9mRNav99fyLERJ+8g2DmLYbs42hM1PsxUc
-wYmksyqt53UegAQNy1/WgPtnTQQGvmtr8qaA9OEL51O9Nekkco3pbJfKMyKlM+az
-T8YvUbprSVXRctP2lYhDEIDMGgLnScByUXqjTTs3wG0TDeD6d5gGUeHGJZ7X0z2t
-o95VgwchByOAS00njE6YX7FX3JUM5CDl492pegyTSqoukR7xQk0=
-=Dbak
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl+BmAMACgkQFA3kzBSg
+Kbb+Ng//Whds9uRZ4LlhO3Up0kDYIsrl2tVh7o5moP5k+/3YmDlqNdyfaq2ZcDgZ
+zAdpwobUhUPbBQ8pM5ePoBrCoiQQ5sJCMih/WQwqE/nuYsYkPism1Y5IuRwWXnsQ
+Z8jbn87E86mQQ7rZXg/fcpBdaVxKdFWlpBJAbJGE4C2BgD3u/yLdBc1aI/TfNMB1
+u5QdzKoxZ++2ahPa0s3fRJ4QNg4mWewJTjeTqDxI5MuB5KTF3cZXnv7L/rITsaGw
+yAzKKvIQlt9Y+m2GGLbVUf/22Bj2YUDOyR5sHR/ehFGs65+uK+jafFND+xSCwOyH
+ikDJL+lUbYGaB/Y2fIE/8AfW9FGTMwyAYX4S6etZGi+NOT4iPEo3mWqz6Ol8+1st
+DERrviXTQbMavY5dIiQVJkMqsvVQH6Xjhhmc64j1dRNipQr0bplNLx3CQBwD9Zfn
+GicX9eJ9xWEiAHR25Kuyh+m/kpm1LeLUnqAYBeUe3xabMvH+U31WJafYvuMfozvo
+d65OakiKrAhZLVE28Ty07/OOyXNB+0Y+g4z+uhrQ+TTwKJqRZrjv5MJYi1ReV637
+bCEP6jybHXFZu2jzXitPB4NFNJW81Rf4wEO4o+lmCw3XKQjKktyQNko6LW7beHwF
+sAG6B/V2vXUmgWt+RBp0+Mg3s9ocI9xfLLfs2CXs12wTaKT/+wE=
+=DCB7
 -----END PGP SIGNATURE-----
 
---yEPQxsgoJgBvi8ip--
+--5xSkJheCpeK0RUEJ--
