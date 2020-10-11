@@ -8,52 +8,52 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SPF_HELO_NONE,SPF_PASS,T_TVD_MIME_NO_HEADERS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5D1DC43457
-	for <linux-i2c@archiver.kernel.org>; Sun, 11 Oct 2020 18:24:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10D09C43457
+	for <linux-i2c@archiver.kernel.org>; Sun, 11 Oct 2020 18:24:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 754962222A
-	for <linux-i2c@archiver.kernel.org>; Sun, 11 Oct 2020 18:24:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC2D72222C
+	for <linux-i2c@archiver.kernel.org>; Sun, 11 Oct 2020 18:24:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="aPkpklKt"
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="LriUnQOL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728542AbgJKSX7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 11 Oct 2020 14:23:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50802 "EHLO
+        id S1728741AbgJKSYL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 11 Oct 2020 14:24:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728464AbgJKSX6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Oct 2020 14:23:58 -0400
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CBFAC0613CE
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2020 11:23:58 -0700 (PDT)
-Received: by mail-pf1-x443.google.com with SMTP id e10so11356169pfj.1
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2020 11:23:58 -0700 (PDT)
+        with ESMTP id S1728654AbgJKSYK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Oct 2020 14:24:10 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49801C0613CE
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2020 11:24:10 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id e7so2324248pfn.12
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2020 11:24:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=broadcom.com; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=Ffic9cjBVd53stj/GKBHzkQsPwbSNBr60t/cZU/O6hg=;
-        b=aPkpklKtQAH+4gqZ7UijzuboAaX61x1UblDiHNv7rxJ9hNzVYDrGnG1FyMboGaJq+k
-         tIt82UGIuay3v62BtfZDWYGN0/mwrjg63poxfKeC812oLFujhxNkX5zTNw2dZ9GmMnDy
-         8ZZmk0s4UDws2x96STb/niQahBMR9/KG3DuwU=
+        bh=RhRTVGLwMlh2VV6dvWs6BmoKc1nFs8ftRSOLRr9Wvtw=;
+        b=LriUnQOLsxVK6KHg6Hj/y1wyCwU6XUOuo05JfquCoAE/zIDtOKxMH8N+U8tU8wUl3d
+         U46Vxs9YfLgmLe0VZDTQsr8qPohrtLIHI4TTzyJy+wBLVuCICLsMk6mVWRRXfz2NTE/Z
+         AsnGSIqeLjEEw74f9dxL52IqQUFgptLUHdnh0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=Ffic9cjBVd53stj/GKBHzkQsPwbSNBr60t/cZU/O6hg=;
-        b=enHplJrIjK3jnJXT8B/YHAWudQFaugQUl1FkOCw43qkZ1+lom6Fwq4T6NCUlOnAjwH
-         SIMNY0DqRxRivGdJpDuX6EFZPHWC1BCR3r5fOeHsgksFzHsaUuL0BLf+ypyJdHcO/v5c
-         fGuVUVIoQ+U5DOtB0aHm7miR9AlR8CeoSabnKTtVBY2qMOs89BBC2CF5G/ytiit6i9ZM
-         +hVulTC4Oh3EKHnTt33eR89Ypjii7rZ1tsp9hU65YufYRVgjkKTaki3ixHmwxNqxhMc5
-         haEDAhA9yXtYY95ima1J7yyXlLIOywP6UdKBNQEJPjixWzU5MfkuXZAuSj//xIiHF15M
-         ndhg==
-X-Gm-Message-State: AOAM531mUAOLs9ZF0UwVve7My9XkqqBRVE43icBafxs1+8hmG28N1t80
-        GT+GfjDEecU9A1Oe+iyvxOixuuN5zSVkiw==
-X-Google-Smtp-Source: ABdhPJxmqj6Lh3dwIQFbEVlXnmf1iPdHyrrcYGDf+sIaC00Zc3j0W7X7WVegYGN4foRe7zNHxf5EdQ==
-X-Received: by 2002:a17:90a:8a04:: with SMTP id w4mr14367991pjn.201.1602440637809;
-        Sun, 11 Oct 2020 11:23:57 -0700 (PDT)
+        bh=RhRTVGLwMlh2VV6dvWs6BmoKc1nFs8ftRSOLRr9Wvtw=;
+        b=A6eHUUgc19VUsafi5q8nPJyupuNND2ieoonOP47Uh+vnDAAoy7i3so9wIXC7uSdYoj
+         W44lOIIAtWqUHf3tuv+pqk4YdkY0IDHROS2LOXmAirkYiD6lNkrSDOA83wzI4He67J+r
+         vL9nOUxSLk5yWLq5rHO62wbAc6t+pn4An2xehQpnEU5YmmaGGJehEZ90Cg3qfC/4p0bO
+         jY2z7nibn2ogiq8EbDRGwT9b+onAyUvoDeAECYJ8rRsx/w9zxrZ48CSwv2JtiSul/yGg
+         XUz4bnzsYBo7bIm4LUWm0qX4B4U/RUgIXjKAotKJvfo9u8b1Tg69+ONcl+OsgrdCLQ8Y
+         g6YA==
+X-Gm-Message-State: AOAM5311AZlLR0iQg71ZIdgLKFLTQ0dFp7lGo73i/T4pMYcOIAsd/t0p
+        vxw1TLQLtUwGfE0Xq8Izaq1Oiw==
+X-Google-Smtp-Source: ABdhPJxjqJEt4ZIII9dcTR8qfMSvBlv8jI3OBCkW4g45W0sHiVbrznvCOoz2STsZgpv2Xswh4QPaGw==
+X-Received: by 2002:a17:90a:d80e:: with SMTP id a14mr15875676pjv.168.1602440649673;
+        Sun, 11 Oct 2020 11:24:09 -0700 (PDT)
 Received: from rayagonda.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id g1sm21977807pjj.3.2020.10.11.11.23.53
+        by smtp.gmail.com with ESMTPSA id g1sm21977807pjj.3.2020.10.11.11.24.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2020 11:23:57 -0700 (PDT)
+        Sun, 11 Oct 2020 11:24:09 -0700 (PDT)
 From:   Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 To:     Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
         bcm-kernel-feedback-list@broadcom.com,
@@ -66,46 +66,86 @@ To:     Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
         linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-kernel@vger.kernel.org
 Cc:     Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Subject: [PATCH v1 4/6] i2c: iproc: fix typo in slave_isr function
-Date:   Sun, 11 Oct 2020 23:52:52 +0530
-Message-Id: <20201011182254.17776-5-rayagonda.kokatanur@broadcom.com>
+Subject: [PATCH v1 6/6] i2c: iproc: handle rx fifo full interrupt
+Date:   Sun, 11 Oct 2020 23:52:54 +0530
+Message-Id: <20201011182254.17776-7-rayagonda.kokatanur@broadcom.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20201011182254.17776-1-rayagonda.kokatanur@broadcom.com>
 References: <20201011182254.17776-1-rayagonda.kokatanur@broadcom.com>
 Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-        boundary="000000000000032e6705b1694928"
+        boundary="000000000000b8f85505b169496d"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
---000000000000032e6705b1694928
+--000000000000b8f85505b169496d
 
-Fix typo in bcm_iproc_i2c_slave_isr().
+Add code to handle IS_S_RX_FIFO_FULL_SHIFT interrupt to support
+master write request with >= 64 bytes.
 
-Fixes: c245d94ed106 ("i2c: iproc: Add multi byte read-write support for slave mode")
+Iproc has a slave rx fifo size of 64 bytes.
+Rx fifo full interrupt (IS_S_RX_FIFO_FULL_SHIFT) will be generated
+when RX fifo becomes full. This can happen if master issues write
+request of more than 64 bytes.
+
 Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 ---
- drivers/i2c/busses/i2c-bcm-iproc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-bcm-iproc.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index cd687696bf0b..7a235f9f5884 100644
+index 22e04055b447..cceaf69279a9 100644
 --- a/drivers/i2c/busses/i2c-bcm-iproc.c
 +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -382,7 +382,7 @@ static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
- 	if (status & BIT(IS_S_START_BUSY_SHIFT)) {
- 		i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP, &value);
- 		/*
--		 * Enable interrupt for TX FIFO becomes empty and
-+		 * Disable interrupt for TX FIFO becomes empty and
- 		 * less than PKT_LENGTH bytes were output on the SMBUS
- 		 */
+@@ -313,6 +313,8 @@ static void bcm_iproc_i2c_slave_init(
+ 
+ 	/* Enable interrupt register to indicate a valid byte in receive fifo */
+ 	val = BIT(IE_S_RX_EVENT_SHIFT);
++	/* Enable interrupt register to indicate Slave Rx FIFO Full */
++	val |= BIT(IE_S_RX_FIFO_FULL_SHIFT);
+ 	/* Enable interrupt register to indicate a Master read transaction */
+ 	val |= BIT(IE_S_RD_EVENT_SHIFT);
+ 	/* Enable interrupt register for the Slave BUSY command */
+@@ -434,9 +436,15 @@ static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 	 *                    events
+ 	 * Master-read      : both IS_S_RX_EVENT_SHIFT and IS_S_RD_EVENT_SHIFT
+ 	 *                    events or only IS_S_RD_EVENT_SHIFT
++	 *
++	 * iproc has a slave rx fifo size of 64 bytes. Rx fifo full interrupt
++	 * (IS_S_RX_FIFO_FULL_SHIFT) will be generated when RX fifo becomes
++	 * full. This can happen if Master issues write requests of more than
++	 * 64 bytes.
+ 	 */
+ 	if (status & BIT(IS_S_RX_EVENT_SHIFT) ||
+-	    status & BIT(IS_S_RD_EVENT_SHIFT)) {
++	    status & BIT(IS_S_RD_EVENT_SHIFT) ||
++	    status & BIT(IS_S_RX_FIFO_FULL_SHIFT)) {
+ 		/* disable slave interrupts */
  		val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
+ 		val &= ~iproc_i2c->slave_int_mask;
+@@ -452,9 +460,14 @@ static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 		/* schedule tasklet to read data later */
+ 		tasklet_schedule(&iproc_i2c->slave_rx_tasklet);
+ 
+-		/* clear only IS_S_RX_EVENT_SHIFT interrupt */
+-		iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET,
+-				 BIT(IS_S_RX_EVENT_SHIFT));
++		/*
++		 * clear only IS_S_RX_EVENT_SHIFT and
++		 * IS_S_RX_FIFO_FULL_SHIFT interrupt.
++		 */
++		val = BIT(IS_S_RX_EVENT_SHIFT);
++		if (status & BIT(IS_S_RX_FIFO_FULL_SHIFT))
++			val |= BIT(IS_S_RX_FIFO_FULL_SHIFT);
++		iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, val);
+ 	}
+ 
+ 	if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
 -- 
 2.17.1
 
 
---000000000000032e6705b1694928
+--000000000000b8f85505b169496d
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -176,13 +216,13 @@ FtqJWw6DATg5ePiAAn+S0JoIL1xqKsZi2ioNqm02QMFb7RbB3yEGb/7ZLAGcPW666o5GSLsUnPPq
 YOfL/3X6tVfGeoi3IgfI+z76/lXk8vOQzQQxggJvMIICawIBATBtMF0xCzAJBgNVBAYTAkJFMRkw
 FwYDVQQKExBHbG9iYWxTaWduIG52LXNhMTMwMQYDVQQDEypHbG9iYWxTaWduIFBlcnNvbmFsU2ln
 biAyIENBIC0gU0hBMjU2IC0gRzMCDDw+ri+StHzo6PJZ/DANBglghkgBZQMEAgEFAKCB1DAvBgkq
-hkiG9w0BCQQxIgQgYcwLzjguLhtJOcB9/FU8vJ1MFkBVBE+hNIIE41B354swGAYJKoZIhvcNAQkD
-MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjAxMDExMTgyMzU4WjBpBgkqhkiG9w0BCQ8x
+hkiG9w0BCQQxIgQgFiMur+zwKb/6fpY9boABFD4P1ooiw3v1fCTlmA5RIaQwGAYJKoZIhvcNAQkD
+MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjAxMDExMTgyNDEwWjBpBgkqhkiG9w0BCQ8x
 XDBaMAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCwYJYIZIAWUDBAECMAoGCCqGSIb3DQMHMAsG
-CSqGSIb3DQEBCjALBgkqhkiG9w0BAQcwCwYJYIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAJO9
-y6emVGiebMHCWps+NKX8WQ3/8qPyP5if4qYcgMoFwEWrft5rp9OubHimXTQdgNrxApbjb1dZ7pzQ
-3f5luXk0pU979T18jFzkoUF9K4gPXv42K/MH9huq3RGdvhy050ig977ZFS5W24X6sB+M0V//60W+
-CJzChT2Z2KK1tVgvIL7RbgNLjQvo2SzAjO/rEJZQaVdSXOkRfOcNzb7e88XiEIOGIrqaC8g5GLbe
-fXJrd32har9dZ5dS5zg5b4UkWbeEQb6jVyepYm+f+BuNdie4J8Ud9y2k6ZpU5khf4phDqfolmvQl
-E9nBQndRZ833a5KNGmLNAtOQDUXh+sqkt5E=
---000000000000032e6705b1694928--
+CSqGSIb3DQEBCjALBgkqhkiG9w0BAQcwCwYJYIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAIdF
+Mq/UDdyqGwxT3L1c7qUjgLOinGJClOrKlJQ9Ma7O9b/Xc0leUbv4CEfB3oyjf1QDUTAZDPQH1BoR
+Hsy3xgeFjqIJ5RDki/BU6VRXTruXQPtSbU5et3+bNfGEWPPyhwHLh8QU4PsIbe8Sa2NPQWjauPBe
+fT4XZygzVZ+/JglN8YTMd9GOf0YwbI01s/fv9CyqQAo3Ev+4ZDWF7/3p95dq8jTraDqXCs2t6nWR
+MzX1iMJuowPYLdoYz1XgXzFiuM+F+AHwDnxdj4yyoZIraK46eSawPBvfuNHwobvBUv9x2ZpcItzm
+tsMQAEqDB8tbyyt3ZCGxpTc6/kJTAHdFkZw=
+--000000000000b8f85505b169496d--
