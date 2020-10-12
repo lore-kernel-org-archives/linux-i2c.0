@@ -2,94 +2,97 @@ Return-Path: <SRS0=99jd=DT=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97D7FC433DF
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 08:12:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99870C433E7
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 09:05:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 35C89208FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 08:12:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 386E2208D5
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 09:05:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="UfnwsxaD"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WU8hue0u"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728982AbgJLIMw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 12 Oct 2020 04:12:52 -0400
-Received: from z5.mailgun.us ([104.130.96.5]:43852 "EHLO z5.mailgun.us"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728980AbgJLIMv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 12 Oct 2020 04:12:51 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1602490371; h=Content-Transfer-Encoding: Content-Type:
- In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
- Subject: Sender; bh=ZdYt0V+ek+lUsTG/U7btUuWQIE4tVBcsgYxjl1/Sw9w=; b=UfnwsxaDwKtr7yPoYgVRXpT0sDeKqmJ5HrWNxCvebLzHxU1Kv1E/YeuoPq3ZvT95n13k7ZoJ
- zwoVj1q7wziLciG8eFGN1EqyeOezda0NCP1VQyfxFrf1YbXYVy7BPzDA8YM+mR5z5nF67WAB
- QJPqvP4KVcpBe9YopdyOz/vaTCE=
-X-Mailgun-Sending-Ip: 104.130.96.5
-X-Mailgun-Sid: WyI5ZGU3NiIsICJsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n05.prod.us-east-1.postgun.com with SMTP id
- 5f841002e9e942744c470bb0 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 12 Oct 2020 08:12:50
- GMT
-Sender: akashast=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 4AD9CC43382; Mon, 12 Oct 2020 08:12:50 +0000 (UTC)
-Received: from [192.168.43.98] (unknown [47.9.68.210])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: akashast)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 3CC6BC433F1;
-        Mon, 12 Oct 2020 08:12:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 3CC6BC433F1
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=akashast@codeaurora.org
-Subject: Re: [PATCH 2/3] Revert "i2c: i2c-qcom-geni: Fix DMA transfer race"
-To:     Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>
-Cc:     linux-arm-msm@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        linux-i2c@vger.kernel.org, Andy Gross <agross@kernel.org>,
-        Mukesh Savaliya <msavaliy@codeaurora.org>,
-        linux-kernel@vger.kernel.org
-References: <20201008225235.2035820-1-dianders@chromium.org>
- <20201008155154.2.I7b22281453b8a18ab16ef2bfd4c641fb1cc6a92c@changeid>
-From:   Akash Asthana <akashast@codeaurora.org>
-Message-ID: <9bd20b68-1466-ea3d-2ba3-1b35d9b324ab@codeaurora.org>
-Date:   Mon, 12 Oct 2020 13:42:43 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.1
+        id S1728821AbgJLJFg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 12 Oct 2020 05:05:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45030 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726428AbgJLJFg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Oct 2020 05:05:36 -0400
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F61C0613CE;
+        Mon, 12 Oct 2020 02:05:34 -0700 (PDT)
+Received: by mail-ed1-x543.google.com with SMTP id x1so16128357eds.1;
+        Mon, 12 Oct 2020 02:05:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Hme+fToG2cXXlZmnBQnxZVF0mqx2Of7GXHaR+KYhTvg=;
+        b=WU8hue0uLq7LqQo0y7Ri3N1OhCXYLhxlsaoWehDM2yKLl5I8FQAPs9rfDVry8fAxz8
+         KHRTs2zd7esNmZp3tTGR6uV3dXVrrB1P9bVjrqnwcZ2ImLshsy35zmEXAI6KHtBu0pHs
+         IhOnO+AG2ZOWQAQxHC4mrbdM2d6xfKvYBa4bTd+0TSFrCsR4NYG0/+IWqgGs4FcKOUqF
+         NQ9J2MPgVuG+/NYq6Ew4IWI9+41GleEEKZz71BDH5kPF9qkGxvIkCjYr71IkWm98DD7l
+         8BWiuVQpIbyI2w4KnVLd0oOmR8gbi7yi1rotfLG5p7XJjWTkOc8YGdYQ18zovo8GCp9P
+         b6xQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Hme+fToG2cXXlZmnBQnxZVF0mqx2Of7GXHaR+KYhTvg=;
+        b=WPFLdr2/O0hBSo62JUS3ntHsHLHbi9FcfrwSPtIpwL9v5S9UKSN+ZXCSspi7Pl2djJ
+         B3GVw2EJcDEbrvBUEAP91XW5OIXbLzo+s+Wo1+HGWb5utqyiM8aAyQF3cat1VZEvILuS
+         6nAqC+GSquXUDrhDaUKU6q9zDq0IYEdxK0Agdk44zp98GZ3S4noyB9jl+Q3qGXTnvIyr
+         vSkxKIKNkMFDDlikJX58OxgDSsSXeNus2bIPRTG8eWOB0qJrP4jJaHOAWa7SOmDuiYZY
+         6rFVP7qe6xHK4AFKTzpRdBThIeSfLm2NyWHVyxM2zwREO1YBNzmRUQ6ceHk37b9MR/yu
+         LPVQ==
+X-Gm-Message-State: AOAM5322xbH+3HLearI1XUuVC0AI+9P7Px7A6eMUIs9v/jMorDi839iS
+        6uz+33mQPi0R6l1kQhmDB9Q=
+X-Google-Smtp-Source: ABdhPJzPgXJBPzs+oUUGzLOXxkrWTZb2kA2A2Y8m/iRmz0mg3/3WOxA6nh/DWntgPE1sryKv0j+Sdg==
+X-Received: by 2002:a50:ba83:: with SMTP id x3mr6410615ede.238.1602493533330;
+        Mon, 12 Oct 2020 02:05:33 -0700 (PDT)
+Received: from ubuntu2004 ([188.24.159.61])
+        by smtp.gmail.com with ESMTPSA id o11sm10219552ejd.60.2020.10.12.02.05.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Oct 2020 02:05:32 -0700 (PDT)
+Date:   Mon, 12 Oct 2020 12:05:35 +0300
+From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
+        Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-actions@lists.infradead.org
+Subject: Re: [PATCH 1/3] i2c: owl: Clear NACK and BUS error bits
+Message-ID: <20201012090535.GA73734@ubuntu2004>
+References: <cover.1602190168.git.cristian.ciocaltea@gmail.com>
+ <6ee573f2904c001ab07e30b386815257c05f6308.1602190168.git.cristian.ciocaltea@gmail.com>
+ <20201011140948.GC4971@Mani-XPS-13-9360>
 MIME-Version: 1.0
-In-Reply-To: <20201008155154.2.I7b22281453b8a18ab16ef2bfd4c641fb1cc6a92c@changeid>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201011140948.GC4971@Mani-XPS-13-9360>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Sun, Oct 11, 2020 at 07:39:48PM +0530, Manivannan Sadhasivam wrote:
+> On Fri, Oct 09, 2020 at 12:44:39AM +0300, Cristian Ciocaltea wrote:
+> > When the NACK and BUS error bits are set by the hardware, the driver is
+> > responsible for clearing them by writing "1" into the corresponding
+> > status registers.
+> > 
+> > Hence perform the necessary operations in owl_i2c_interrupt().
+> > 
+> > Fixes: d211e62af466 ("i2c: Add Actions Semiconductor Owl family S900 I2C driver")
+> > Reported-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+> 
+> Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> 
+> Thanks,
+> Mani
 
-On 10/9/2020 4:22 AM, Douglas Anderson wrote:
-> This reverts commit 02b9aec59243c6240fc42884acc958602146ddf6.
->
-> As talked about in the patch ("soc: qcom: geni: More properly switch
-> to DMA mode"), swapping the order of geni_se_setup_m_cmd() and
-> geni_se_xx_dma_prep() can sometimes cause corrupted transfers.  Thus
-> we traded one problem for another.  Now that we've debugged the
-> problem further and fixed the geni helper functions to more disable
-> FIFO interrupts when we move to DMA mode we can revert it and end up
-> with (hopefully) zero problems!
->
-> To be explicit, the patch ("soc: qcom: geni: More properly switch
-> to DMA mode") is a prerequisite for this one.
->
-> Fixes: 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA transfer race")
-> Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Akash Asthana <akashast@codeaurora.org>
-
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
-
+Thanks for the review,
+Cristi
