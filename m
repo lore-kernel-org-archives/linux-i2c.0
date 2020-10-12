@@ -1,473 +1,459 @@
-Return-Path: <SRS0=aBCO=DS=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=99jd=DT=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MIME_HEADER_CTYPE_ONLY,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,T_TVD_MIME_NO_HEADERS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8424C43457
-	for <linux-i2c@archiver.kernel.org>; Sun, 11 Oct 2020 18:24:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B18C433DF
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 01:56:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B60D2222A
-	for <linux-i2c@archiver.kernel.org>; Sun, 11 Oct 2020 18:24:19 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="UUs2Sqd6"
+	by mail.kernel.org (Postfix) with ESMTP id 187C020782
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 01:56:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728582AbgJKSYQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 11 Oct 2020 14:24:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50824 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728586AbgJKSYE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Oct 2020 14:24:04 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E60AC0613D0
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2020 11:24:04 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id o8so7225553pll.4
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2020 11:24:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=niAoVWZ2NjO+m9h1SYqH+1ZPkNvEoLpJX/xo05T8wjQ=;
-        b=UUs2Sqd6zOXEga1E8hZ8MGOZstIgbM4FM/t85p2t3NdCzrLt5YYYwiW69/j+OZXLL5
-         HOLZHW0YdxHAUK69pTLyVDkGz+jfRhqSNuGdEaEyFDRnbkmem3hBu3CMaU+m5IRgZCuv
-         63h6UMSEJBqosiiaCcOH3+ZrFmL9ZtdU+YQ5U=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=niAoVWZ2NjO+m9h1SYqH+1ZPkNvEoLpJX/xo05T8wjQ=;
-        b=WJBTGk7yzJ51nlGTkUqziwLrypXliJK/La8+jBnRpHumXxNKYp1ubBIuGMR5FCf1kw
-         Xl177RMmk1kdt5DqHlkMUpD48034R18jt3aC8bCI90FO5FV0EAEak8nVRXkr2ZrMYksz
-         DkuVnZi7+QTYcOXtrnWqgjTMCEkZ5g3DDN+z37l+/qZNSZLnhJ4IMZopXnWIECsgT7z5
-         SDRDXft8sB5i6wKZZnDG+3Z//wGQrotL/hksmKgNCRhO7uzwHC0kj2lFzq5r6ELoG8KR
-         xuWfsegrO64iv0iHjn8uZFEFjfz0BZYGJe/8+VOLE06h2bKv5cHciIMR+pvgnnmAj0dQ
-         9sNg==
-X-Gm-Message-State: AOAM533SMNbSaOD5fViCcQI14QlSBTrhR0xsRDhRvvOfvUwN3fkTwcMW
-        /NTGmxK+JxrMQxuQntl1ttaKIA==
-X-Google-Smtp-Source: ABdhPJwyo/hKyPuNCfkaKvxvG0rZwMse06skUz+e3uwdAeWPuOf0XDraNK6ClSR8f3TIbmjn2gm3XA==
-X-Received: by 2002:a17:902:b611:b029:d3:89e2:7957 with SMTP id b17-20020a170902b611b02900d389e27957mr20464022pls.19.1602440643649;
-        Sun, 11 Oct 2020 11:24:03 -0700 (PDT)
-Received: from rayagonda.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id g1sm21977807pjj.3.2020.10.11.11.23.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2020 11:24:02 -0700 (PDT)
-From:   Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-To:     Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Wolfram Sang <wsa@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lori Hikichi <lori.hikichi@broadcom.com>,
-        Dhananjay Phadke <dphadke@linux.microsoft.com>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        id S1725972AbgJLB4u (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 11 Oct 2020 21:56:50 -0400
+Received: from mga06.intel.com ([134.134.136.31]:44326 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725925AbgJLB4u (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 11 Oct 2020 21:56:50 -0400
+IronPort-SDR: 5Z4F9EQlkMBoeSHMa7zgjRDpgy4JzUJ+qkSs6wgGWW4D9TJIg53uFzVJNykqZGis0TROB0gbw8
+ uda4aTrHQWqA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9771"; a="227325397"
+X-IronPort-AV: E=Sophos;i="5.77,365,1596524400"; 
+   d="scan'208";a="227325397"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Oct 2020 18:56:47 -0700
+IronPort-SDR: 2BQ7+kDHQiGW+fDPbFsjN+IcBl+SRrqqSlaHgoDoCc3qRZbud3QbN3PigJFQ6JqkDvChdZX/b+
+ vy0mI8Fau+jg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.77,365,1596524400"; 
+   d="scan'208";a="350578074"
+Received: from jiedeng-optiplex-7050.sh.intel.com ([10.239.154.138])
+  by fmsmga002.fm.intel.com with ESMTP; 11 Oct 2020 18:56:41 -0700
+From:   Jie Deng <jie.deng@intel.com>
+To:     linux-i2c@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
         linux-kernel@vger.kernel.org
-Cc:     Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Subject: [PATCH v1 5/6] i2c: iproc: handle master read request
-Date:   Sun, 11 Oct 2020 23:52:53 +0530
-Message-Id: <20201011182254.17776-6-rayagonda.kokatanur@broadcom.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201011182254.17776-1-rayagonda.kokatanur@broadcom.com>
-References: <20201011182254.17776-1-rayagonda.kokatanur@broadcom.com>
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-        boundary="0000000000005e91cd05b16949ac"
+Cc:     mst@redhat.com, jasowang@redhat.com,
+        wsa+renesas@sang-engineering.com, wsa@kernel.org,
+        andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com,
+        jdelvare@suse.de, Sergey.Semin@baikalelectronics.ru,
+        krzk@kernel.org, rppt@kernel.org, jie.deng@intel.com,
+        loic.poulain@linaro.org, tali.perry1@gmail.com,
+        bjorn.andersson@linaro.org, shuo.a.liu@intel.com,
+        conghui.chen@intel.com, yu1.wang@intel.com
+Subject: [PATCH v4] i2c: virtio: add a virtio i2c frontend driver
+Date:   Mon, 12 Oct 2020 09:55:55 +0800
+Message-Id: <7c5e44c534b3fd07b855af22d8d4b78bc44cd7a4.1602465440.git.jie.deng@intel.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
---0000000000005e91cd05b16949ac
+Add an I2C bus driver for virtio para-virtualization.
 
-Handle single or multi byte master read request with or without
-repeated start.
+The controller can be emulated by the backend driver in
+any device model software by following the virtio protocol.
 
-Fixes: c245d94ed106 ("i2c: iproc: Add multi byte read-write support for slave mode")
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+This driver communicates with the backend driver through a
+virtio I2C message structure which includes following parts:
+
+- Header: i2c_msg addr, flags, len.
+- Data buffer: the pointer to the I2C msg data.
+- Status: the processing result from the backend.
+
+People may implement different backend drivers to emulate
+different controllers according to their needs. A backend
+example can be found in the device model of the open source
+project ACRN. For more information, please refer to
+https://projectacrn.org.
+
+The virtio device ID 34 is used for this I2C adpter since IDs
+before 34 have been reserved by other virtio devices.
+
+Co-developed-by: Conghui Chen <conghui.chen@intel.com>
+Signed-off-by: Conghui Chen <conghui.chen@intel.com>
+Signed-off-by: Jie Deng <jie.deng@intel.com>
+Reviewed-by: Shuo Liu <shuo.a.liu@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-bcm-iproc.c | 215 +++++++++++++++++++++++------
- 1 file changed, 170 insertions(+), 45 deletions(-)
+The device ID request:
+        https://github.com/oasis-tcs/virtio-spec/issues/85
 
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index 7a235f9f5884..22e04055b447 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -160,6 +160,11 @@
+The specification:
+	https://lists.oasis-open.org/archives/virtio-comment/202009/msg00021.html
+
+Changes in v4:
+	- Use (!(vmsg && vmsg == &vi->vmsg)) instead of ((!vmsg) || (vmsg != &vi->vmsg))
+
+Changes in v3:
+        - Move the interface into uAPI according to Jason.
+        - Fix issues reported by Dan Carpenter.
+	- Fix typo reported by Randy.
+
+Changes in v2:
+        - Addressed comments received from Michael, Andy and Jason.
+
+ drivers/i2c/busses/Kconfig      |  11 ++
+ drivers/i2c/busses/Makefile     |   3 +
+ drivers/i2c/busses/i2c-virtio.c | 256 ++++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/virtio_i2c.h |  31 +++++
+ include/uapi/linux/virtio_ids.h |   1 +
+ 5 files changed, 302 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-virtio.c
+ create mode 100644 include/uapi/linux/virtio_i2c.h
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 293e7a0..f2f6543 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -21,6 +21,17 @@ config I2C_ALI1535
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-ali1535.
  
- #define IE_S_ALL_INTERRUPT_SHIFT     21
- #define IE_S_ALL_INTERRUPT_MASK      0x3f
++config I2C_VIRTIO
++	tristate "Virtio I2C Adapter"
++	depends on VIRTIO
++	help
++	  If you say yes to this option, support will be included for the virtio
++	  I2C adapter driver. The hardware can be emulated by any device model
++	  software according to the virtio protocol.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called i2c-virtio.
++
+ config I2C_ALI1563
+ 	tristate "ALI 1563"
+ 	depends on PCI
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 19aff0e..821acfa 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -6,6 +6,9 @@
+ # ACPI drivers
+ obj-$(CONFIG_I2C_SCMI)		+= i2c-scmi.o
+ 
++# VIRTIO I2C host controller driver
++obj-$(CONFIG_I2C_VIRTIO)	+= i2c-virtio.o
++
+ # PC SMBus host controller drivers
+ obj-$(CONFIG_I2C_ALI1535)	+= i2c-ali1535.o
+ obj-$(CONFIG_I2C_ALI1563)	+= i2c-ali1563.o
+diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+new file mode 100644
+index 0000000..36d8c68
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-virtio.c
+@@ -0,0 +1,256 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
-+ * It takes ~18us to reading 10bytes of data, hence to keep tasklet
-+ * running for less time, max slave read per tasklet is set to 10 bytes.
++ * Virtio I2C Bus Driver
++ *
++ * Copyright (c) 2020 Intel Corporation. All rights reserved.
 + */
-+#define MAX_SLAVE_RX_PER_INT         10
- 
- enum i2c_slave_read_status {
- 	I2C_SLAVE_RX_FIFO_EMPTY = 0,
-@@ -206,8 +211,18 @@ struct bcm_iproc_i2c_dev {
- 	/* bytes that have been read */
- 	unsigned int rx_bytes;
- 	unsigned int thld_bytes;
 +
-+	bool slave_rx_only;
-+	bool rx_start_rcvd;
-+	bool slave_read_complete;
-+	u32 tx_underrun;
-+	u32 slave_int_mask;
-+	struct tasklet_struct slave_rx_tasklet;
- };
- 
-+/* tasklet to process slave rx data */
-+static void slave_rx_tasklet_fn(unsigned long);
++#include <linux/acpi.h>
++#include <linux/completion.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/wait.h>
 +
- /*
-  * Can be expanded in the future if more interrupt status bits are utilized
-  */
-@@ -261,6 +276,7 @@ static void bcm_iproc_i2c_slave_init(
- {
- 	u32 val;
- 
-+	iproc_i2c->tx_underrun = 0;
- 	if (need_reset) {
- 		/* put controller in reset */
- 		val = iproc_i2c_rd_reg(iproc_i2c, CFG_OFFSET);
-@@ -297,8 +313,11 @@ static void bcm_iproc_i2c_slave_init(
- 
- 	/* Enable interrupt register to indicate a valid byte in receive fifo */
- 	val = BIT(IE_S_RX_EVENT_SHIFT);
-+	/* Enable interrupt register to indicate a Master read transaction */
-+	val |= BIT(IE_S_RD_EVENT_SHIFT);
- 	/* Enable interrupt register for the Slave BUSY command */
- 	val |= BIT(IE_S_START_BUSY_SHIFT);
-+	iproc_i2c->slave_int_mask = val;
- 	iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
- }
- 
-@@ -324,76 +343,176 @@ static void bcm_iproc_i2c_check_slave_status(
- 	}
- }
- 
--static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
--				    u32 status)
-+static void bcm_iproc_i2c_slave_read(struct bcm_iproc_i2c_dev *iproc_i2c)
- {
-+	u8 rx_data, rx_status;
-+	u32 rx_bytes = 0;
- 	u32 val;
--	u8 value, rx_status;
- 
--	/* Slave RX byte receive */
--	if (status & BIT(IS_S_RX_EVENT_SHIFT)) {
-+	while (rx_bytes < MAX_SLAVE_RX_PER_INT) {
- 		val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
- 		rx_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
--		if (rx_status == I2C_SLAVE_RX_START) {
--			/* Start of SMBUS for Master write */
--			i2c_slave_event(iproc_i2c->slave,
--					I2C_SLAVE_WRITE_REQUESTED, &value);
-+		rx_data = ((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
- 
--			val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
--			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
-+		if (rx_status == I2C_SLAVE_RX_START) {
-+			/* Start of SMBUS Master write */
- 			i2c_slave_event(iproc_i2c->slave,
--					I2C_SLAVE_WRITE_RECEIVED, &value);
--		} else if (status & BIT(IS_S_RD_EVENT_SHIFT)) {
--			/* Start of SMBUS for Master Read */
-+					I2C_SLAVE_WRITE_REQUESTED, &rx_data);
-+			iproc_i2c->rx_start_rcvd = true;
-+			iproc_i2c->slave_read_complete = false;
-+		} else if (rx_status == I2C_SLAVE_RX_DATA &&
-+			   iproc_i2c->rx_start_rcvd) {
-+			/* Middle of SMBUS Master write */
- 			i2c_slave_event(iproc_i2c->slave,
--					I2C_SLAVE_READ_REQUESTED, &value);
--			iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
-+					I2C_SLAVE_WRITE_RECEIVED, &rx_data);
-+		} else if (rx_status == I2C_SLAVE_RX_END &&
-+			   iproc_i2c->rx_start_rcvd) {
-+			/* End of SMBUS Master write */
-+			if (iproc_i2c->slave_rx_only)
-+				i2c_slave_event(iproc_i2c->slave,
-+						I2C_SLAVE_WRITE_RECEIVED,
-+						&rx_data);
++#include <linux/virtio.h>
++#include <linux/virtio_i2c.h>
 +
-+			i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP,
-+					&rx_data);
-+		} else if (rx_status == I2C_SLAVE_RX_FIFO_EMPTY) {
-+			iproc_i2c->rx_start_rcvd = false;
-+			iproc_i2c->slave_read_complete = true;
++/**
++ * struct virtio_i2c_msg - the virtio I2C message structure
++ * @hdr: the virtio I2C message header
++ * @buf: virtio I2C message data buffer
++ * @status: the processing result from the backend
++ */
++struct virtio_i2c_msg {
++	struct virtio_i2c_hdr hdr;
++	u8 *buf;
++	u8 status;
++};
++
++/**
++ * struct virtio_i2c - virtio I2C data
++ * @vdev: virtio device for this controller
++ * @completion: completion of virtio I2C message
++ * @vmsg: the virtio I2C message for communication
++ * @adap: I2C adapter for this controller
++ * @i2c_lock: lock for virtqueue processing
++ * @vq: the virtio virtqueue for communication
++ */
++struct virtio_i2c {
++	struct virtio_device *vdev;
++	struct completion completion;
++	struct virtio_i2c_msg vmsg;
++	struct i2c_adapter adap;
++	struct mutex i2c_lock;
++	struct virtqueue *vq;
++};
++
++static void virtio_i2c_msg_done(struct virtqueue *vq)
++{
++	struct virtio_i2c *vi = vq->vdev->priv;
++
++	complete(&vi->completion);
++}
++
++static int virtio_i2c_add_msg(struct virtqueue *vq,
++			      struct virtio_i2c_msg *vmsg,
++			      struct i2c_msg *msg)
++{
++	struct scatterlist *sgs[3], hdr, bout, bin, status;
++	int outcnt = 0, incnt = 0;
++
++	if (!msg->len)
++		return -EINVAL;
++
++	vmsg->hdr.addr = cpu_to_le16(msg->addr);
++	vmsg->hdr.flags = cpu_to_le16(msg->flags);
++	vmsg->hdr.len = cpu_to_le16(msg->len);
++
++	vmsg->buf = kzalloc(msg->len, GFP_KERNEL);
++	if (!vmsg->buf)
++		return -ENOMEM;
++
++	sg_init_one(&hdr, &vmsg->hdr, sizeof(struct virtio_i2c_hdr));
++	sgs[outcnt++] = &hdr;
++	if (msg->flags & I2C_M_RD) {
++		sg_init_one(&bin, vmsg->buf, msg->len);
++		sgs[outcnt + incnt++] = &bin;
++	} else {
++		memcpy(vmsg->buf, msg->buf, msg->len);
++		sg_init_one(&bout, vmsg->buf, msg->len);
++		sgs[outcnt++] = &bout;
++	}
++	sg_init_one(&status, &vmsg->status, sizeof(vmsg->status));
++	sgs[outcnt + incnt++] = &status;
++
++	return virtqueue_add_sgs(vq, sgs, outcnt, incnt, vmsg, GFP_KERNEL);
++}
++
++static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
++{
++	struct virtio_i2c *vi = i2c_get_adapdata(adap);
++	struct virtqueue *vq = vi->vq;
++	struct virtio_i2c_msg *vmsg;
++	unsigned long time_left;
++	int len, i, ret = 0;
++
++	mutex_lock(&vi->i2c_lock);
++	vmsg = &vi->vmsg;
++	vmsg->buf = NULL;
++
++	for (i = 0; i < num; i++) {
++		ret = virtio_i2c_add_msg(vq, vmsg, &msgs[i]);
++		if (ret) {
++			dev_err(&adap->dev, "failed to add msg[%d] to virtqueue.\n", i);
 +			break;
 +		}
- 
--			val = BIT(S_CMD_START_BUSY_SHIFT);
--			iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
-+		rx_bytes++;
-+	}
-+}
- 
--			/*
--			 * Enable interrupt for TX FIFO becomes empty and
--			 * less than PKT_LENGTH bytes were output on the SMBUS
--			 */
--			val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
--			val |= BIT(IE_S_TX_UNDERRUN_SHIFT);
--			iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
--		} else {
--			/* Master write other than start */
--			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
-+static void slave_rx_tasklet_fn(unsigned long data)
-+{
-+	struct bcm_iproc_i2c_dev *iproc_i2c = (struct bcm_iproc_i2c_dev *)data;
-+	u32 int_clr;
 +
-+	bcm_iproc_i2c_slave_read(iproc_i2c);
++		virtqueue_kick(vq);
 +
-+	/* clear pending IS_S_RX_EVENT_SHIFT interrupt */
-+	int_clr = BIT(IS_S_RX_EVENT_SHIFT);
++		time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
++		if (!time_left) {
++			dev_err(&adap->dev, "msg[%d]: addr=0x%x timeout.\n", i, msgs[i].addr);
++			break;
++		}
 +
-+	if (!iproc_i2c->slave_rx_only && iproc_i2c->slave_read_complete) {
-+		/*
-+		 * In case of single byte master-read request,
-+		 * IS_S_TX_UNDERRUN_SHIFT event is generated before
-+		 * IS_S_START_BUSY_SHIFT event. Hence start slave data send
-+		 * from first IS_S_TX_UNDERRUN_SHIFT event.
-+		 *
-+		 * This means don't send any data from slave when
-+		 * IS_S_RD_EVENT_SHIFT event is generated else it will increment
-+		 * eeprom or other backend slave driver read pointer twice.
-+		 */
-+		iproc_i2c->tx_underrun = 0;
-+		iproc_i2c->slave_int_mask |= BIT(IE_S_TX_UNDERRUN_SHIFT);
++		vmsg = (struct virtio_i2c_msg *)virtqueue_get_buf(vq, &len);
++		/* vmsg should point to the same address with &vi->vmsg */
++		if (!(vmsg && vmsg == &vi->vmsg)) {
++			dev_err(&adap->dev, "msg[%d]: addr=0x%x virtqueue error.\n",
++				i, msgs[i].addr);
++			break;
++		}
 +
-+		/* clear IS_S_RD_EVENT_SHIFT interrupt */
-+		int_clr |= BIT(IS_S_RD_EVENT_SHIFT);
++		if (vmsg->status != VIRTIO_I2C_MSG_OK) {
++			dev_err(&adap->dev, "msg[%d]: addr=0x%x error=%d.\n",
++				i, msgs[i].addr, vmsg->status);
++			break;
++		}
++
++		if ((msgs[i].flags & I2C_M_RD) && msgs[i].len)
++			memcpy(msgs[i].buf, vmsg->buf, msgs[i].len);
++
++		kfree(vmsg->buf);
++		vmsg->buf = NULL;
++
++		reinit_completion(&vi->completion);
 +	}
 +
-+	/* clear slave interrupt */
-+	iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, int_clr);
-+	/* enable slave interrupts */
-+	iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, iproc_i2c->slave_int_mask);
++	mutex_unlock(&vi->i2c_lock);
++	kfree(vi->vmsg.buf);
++	vi->vmsg.buf = NULL;
++	return ((ret < 0) ? ret : i);
 +}
 +
-+static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
-+				    u32 status)
++static void virtio_i2c_del_vqs(struct virtio_device *vdev)
 +{
-+	u32 val;
-+	u8 value;
++	vdev->config->reset(vdev);
++	vdev->config->del_vqs(vdev);
++}
 +
-+	/*
-+	 * Slave events in case of master-write, master-write-read and,
-+	 * master-read
-+	 *
-+	 * Master-write     : only IS_S_RX_EVENT_SHIFT event
-+	 * Master-write-read: both IS_S_RX_EVENT_SHIFT and IS_S_RD_EVENT_SHIFT
-+	 *                    events
-+	 * Master-read      : both IS_S_RX_EVENT_SHIFT and IS_S_RD_EVENT_SHIFT
-+	 *                    events or only IS_S_RD_EVENT_SHIFT
-+	 */
-+	if (status & BIT(IS_S_RX_EVENT_SHIFT) ||
-+	    status & BIT(IS_S_RD_EVENT_SHIFT)) {
-+		/* disable slave interrupts */
-+		val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
-+		val &= ~iproc_i2c->slave_int_mask;
-+		iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
++static int virtio_i2c_setup_vqs(struct virtio_i2c *vi)
++{
++	struct virtio_device *vdev = vi->vdev;
 +
-+		if (status & BIT(IS_S_RD_EVENT_SHIFT))
-+			/* Master-write-read request */
-+			iproc_i2c->slave_rx_only = false;
-+		else
-+			/* Master-write request only */
-+			iproc_i2c->slave_rx_only = true;
++	vi->vq = virtio_find_single_vq(vdev, virtio_i2c_msg_done, "msg");
++	return PTR_ERR_OR_ZERO(vi->vq);
++}
 +
-+		/* schedule tasklet to read data later */
-+		tasklet_schedule(&iproc_i2c->slave_rx_tasklet);
++static u32 virtio_i2c_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
 +
-+		/* clear only IS_S_RX_EVENT_SHIFT interrupt */
-+		iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET,
-+				 BIT(IS_S_RX_EVENT_SHIFT));
++static struct i2c_algorithm virtio_algorithm = {
++	.master_xfer = virtio_i2c_xfer,
++	.functionality = virtio_i2c_func,
++};
++
++static struct i2c_adapter virtio_adapter = {
++	.owner = THIS_MODULE,
++	.name = "Virtio I2C Adapter",
++	.class = I2C_CLASS_DEPRECATED,
++	.algo = &virtio_algorithm,
++};
++
++static int virtio_i2c_probe(struct virtio_device *vdev)
++{
++	struct device *pdev = vdev->dev.parent;
++	struct virtio_i2c *vi;
++	int ret;
++
++	vi = devm_kzalloc(&vdev->dev, sizeof(*vi), GFP_KERNEL);
++	if (!vi)
++		return -ENOMEM;
++
++	vdev->priv = vi;
++	vi->vdev = vdev;
++
++	mutex_init(&vi->i2c_lock);
++	init_completion(&vi->completion);
++
++	ret = virtio_i2c_setup_vqs(vi);
++	if (ret)
++		return ret;
++
++	vi->adap = virtio_adapter;
++	i2c_set_adapdata(&vi->adap, vi);
++	vi->adap.dev.parent = &vdev->dev;
++	/* Setup ACPI node for slave devices which will be probed through ACPI */
++	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(pdev));
++	vi->adap.timeout = HZ / 10;
++
++	ret = i2c_add_adapter(&vi->adap);
++	if (ret) {
++		virtio_i2c_del_vqs(vdev);
++		dev_err(&vdev->dev, "failed to add virtio-i2c adapter.\n");
 +	}
 +
-+	if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
-+		iproc_i2c->tx_underrun++;
-+		if (iproc_i2c->tx_underrun == 1)
-+			/* Start of SMBUS for Master Read */
- 			i2c_slave_event(iproc_i2c->slave,
--					I2C_SLAVE_WRITE_RECEIVED, &value);
--			if (rx_status == I2C_SLAVE_RX_END)
--				i2c_slave_event(iproc_i2c->slave,
--						I2C_SLAVE_STOP, &value);
--		}
--	} else if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
--		/* Master read other than start */
--		i2c_slave_event(iproc_i2c->slave,
--				I2C_SLAVE_READ_PROCESSED, &value);
-+					I2C_SLAVE_READ_REQUESTED,
-+					&value);
-+		else
-+			/* Master read other than start */
-+			i2c_slave_event(iproc_i2c->slave,
-+					I2C_SLAVE_READ_PROCESSED,
-+					&value);
++	return ret;
++}
++
++static void virtio_i2c_remove(struct virtio_device *vdev)
++{
++	struct virtio_i2c *vi = vdev->priv;
++
++	i2c_del_adapter(&vi->adap);
++	virtio_i2c_del_vqs(vdev);
++}
++
++static struct virtio_device_id id_table[] = {
++	{ VIRTIO_ID_I2C_ADPTER, VIRTIO_DEV_ANY_ID },
++	{}
++};
++MODULE_DEVICE_TABLE(virtio, id_table);
++
++static int __maybe_unused virtio_i2c_freeze(struct virtio_device *vdev)
++{
++	virtio_i2c_del_vqs(vdev);
++	return 0;
++}
++
++static int __maybe_unused virtio_i2c_restore(struct virtio_device *vdev)
++{
++	return virtio_i2c_setup_vqs(vdev->priv);
++}
++
++static struct virtio_driver virtio_i2c_driver = {
++	.id_table	= id_table,
++	.probe		= virtio_i2c_probe,
++	.remove		= virtio_i2c_remove,
++	.driver	= {
++		.name	= "i2c_virtio",
++	},
++#ifdef CONFIG_PM_SLEEP
++	.freeze = virtio_i2c_freeze,
++	.restore = virtio_i2c_restore,
++#endif
++};
++module_virtio_driver(virtio_i2c_driver);
++
++MODULE_DESCRIPTION("Virtio i2c bus driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/uapi/linux/virtio_i2c.h b/include/uapi/linux/virtio_i2c.h
+new file mode 100644
+index 0000000..7413e45
+--- /dev/null
++++ b/include/uapi/linux/virtio_i2c.h
+@@ -0,0 +1,31 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause */
++/*
++ * Definitions for virtio I2C Adpter
++ *
++ * Copyright (c) 2020 Intel Corporation. All rights reserved.
++ */
++
++#ifndef _UAPI_LINUX_VIRTIO_I2C_H
++#define _UAPI_LINUX_VIRTIO_I2C_H
++
++#include <linux/types.h>
++#include <linux/virtio_ids.h>
++#include <linux/virtio_config.h>
++
++/**
++ * struct virtio_i2c_hdr - the virtio I2C message header structure
++ * @addr: i2c_msg addr, the slave address
++ * @flags: i2c_msg flags
++ * @len: i2c_msg len
++ */
++struct virtio_i2c_hdr {
++	__le16 addr;
++	__le16 flags;
++	__le16 len;
++};
++
++/* The final status written by the device */
++#define VIRTIO_I2C_MSG_OK	0
++#define VIRTIO_I2C_MSG_ERR	1
++
++#endif /* _UAPI_LINUX_VIRTIO_I2C_H */
+diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
+index b052355..398ef2d 100644
+--- a/include/uapi/linux/virtio_ids.h
++++ b/include/uapi/linux/virtio_ids.h
+@@ -48,5 +48,6 @@
+ #define VIRTIO_ID_FS           26 /* virtio filesystem */
+ #define VIRTIO_ID_PMEM         27 /* virtio pmem */
+ #define VIRTIO_ID_MAC80211_HWSIM 29 /* virtio mac80211-hwsim */
++#define VIRTIO_ID_I2C_ADPTER   34 /* virtio i2c adpter */
  
- 		iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
-+		/* start transfer */
- 		val = BIT(S_CMD_START_BUSY_SHIFT);
- 		iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
-+
-+		/* clear interrupt */
-+		iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET,
-+				 BIT(IS_S_TX_UNDERRUN_SHIFT));
- 	}
- 
--	/* Stop */
-+	/* Stop received from master in case of master read transaction */
- 	if (status & BIT(IS_S_START_BUSY_SHIFT)) {
--		i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP, &value);
- 		/*
- 		 * Disable interrupt for TX FIFO becomes empty and
- 		 * less than PKT_LENGTH bytes were output on the SMBUS
- 		 */
--		val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
--		val &= ~BIT(IE_S_TX_UNDERRUN_SHIFT);
--		iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
-+		iproc_i2c->slave_int_mask &= ~BIT(IE_S_TX_UNDERRUN_SHIFT);
-+		iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET,
-+				 iproc_i2c->slave_int_mask);
-+
-+		/* End of SMBUS for Master Read */
-+		val = BIT(S_TX_WR_STATUS_SHIFT);
-+		iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, val);
-+
-+		val = BIT(S_CMD_START_BUSY_SHIFT);
-+		iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
-+
-+		/* flush TX FIFOs */
-+		val = iproc_i2c_rd_reg(iproc_i2c, S_FIFO_CTRL_OFFSET);
-+		val |= (BIT(S_FIFO_TX_FLUSH_SHIFT));
-+		iproc_i2c_wr_reg(iproc_i2c, S_FIFO_CTRL_OFFSET, val);
-+
-+		i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP, &value);
-+
-+		/* clear interrupt */
-+		iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET,
-+				 BIT(IS_S_START_BUSY_SHIFT));
- 	}
- 
--	/* clear interrupt status */
--	iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, status);
-+	/* check slave transmit status only if slave is transmitting */
-+	if (!iproc_i2c->slave_rx_only)
-+		bcm_iproc_i2c_check_slave_status(iproc_i2c);
- 
--	bcm_iproc_i2c_check_slave_status(iproc_i2c);
- 	return true;
- }
- 
-@@ -1074,6 +1193,10 @@ static int bcm_iproc_i2c_reg_slave(struct i2c_client *slave)
- 		return -EAFNOSUPPORT;
- 
- 	iproc_i2c->slave = slave;
-+
-+	tasklet_init(&iproc_i2c->slave_rx_tasklet, slave_rx_tasklet_fn,
-+		     (unsigned long)iproc_i2c);
-+
- 	bcm_iproc_i2c_slave_init(iproc_i2c, false);
- 	return 0;
- }
-@@ -1094,6 +1217,8 @@ static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave)
- 			IE_S_ALL_INTERRUPT_SHIFT);
- 	iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, tmp);
- 
-+	tasklet_kill(&iproc_i2c->slave_rx_tasklet);
-+
- 	/* Erase the slave address programmed */
- 	tmp = iproc_i2c_rd_reg(iproc_i2c, S_CFG_SMBUS_ADDR_OFFSET);
- 	tmp &= ~BIT(S_CFG_EN_NIC_SMB_ADDR3_SHIFT);
+ #endif /* _LINUX_VIRTIO_IDS_H */
 -- 
-2.17.1
+2.7.4
 
-
---0000000000005e91cd05b16949ac
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-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
-xVUYGnc0GLrYeHC2X4wJbUsgi+UFM/rVW0RKe5Sg4xmLXWc/rBhXDBVPeFVdN2dYsk5MyDRM/fXj
-cAA+xTX+SQGoND8CAwEAAaOCAdcwggHTMA4GA1UdDwEB/wQEAwIFoDCBngYIKwYBBQUHAQEEgZEw
-gY4wTQYIKwYBBQUHMAKGQWh0dHA6Ly9zZWN1cmUuZ2xvYmFsc2lnbi5jb20vY2FjZXJ0L2dzcGVy
-c29uYWxzaWduMnNoYTJnM29jc3AuY3J0MD0GCCsGAQUFBzABhjFodHRwOi8vb2NzcDIuZ2xvYmFs
-c2lnbi5jb20vZ3NwZXJzb25hbHNpZ24yc2hhMmczME0GA1UdIARGMEQwQgYKKwYBBAGgMgEoCjA0
-MDIGCCsGAQUFBwIBFiZodHRwczovL3d3dy5nbG9iYWxzaWduLmNvbS9yZXBvc2l0b3J5LzAJBgNV
-HRMEAjAAMEQGA1UdHwQ9MDswOaA3oDWGM2h0dHA6Ly9jcmwuZ2xvYmFsc2lnbi5jb20vZ3NwZXJz
-b25hbHNpZ24yc2hhMmczLmNybDArBgNVHREEJDAigSByYXlhZ29uZGEua29rYXRhbnVyQGJyb2Fk
-Y29tLmNvbTATBgNVHSUEDDAKBggrBgEFBQcDBDAfBgNVHSMEGDAWgBRpcoJiMWeVRIV3kYDEBDZJ
-nXsLYTAdBgNVHQ4EFgQU1rE7oQJ7FiSTADFOqokePoGwIq4wDQYJKoZIhvcNAQELBQADggEBAD8I
-VcITGu1E61LQLR1zygqFw8ByKPgiiprMuQB74Viskl7pAZigzYJB8H3Mpd2ljve+GRo8yvbBC76r
-Gi5WdS06XI5vuImDJ2g6QUt754rj7xEYftM5Gy9ZMslKNvSiPPh1/ACx5w7ecD1ZK0YLMKGATeBD
-XybduRFIEPZBAjgJ5LOYT2ax3ZesfAkan1XJ97yLA93edgTTO2cbUAADTIMFWm4lI/e14wdGmK0I
-FtqJWw6DATg5ePiAAn+S0JoIL1xqKsZi2ioNqm02QMFb7RbB3yEGb/7ZLAGcPW666o5GSLsUnPPq
-YOfL/3X6tVfGeoi3IgfI+z76/lXk8vOQzQQxggJvMIICawIBATBtMF0xCzAJBgNVBAYTAkJFMRkw
-FwYDVQQKExBHbG9iYWxTaWduIG52LXNhMTMwMQYDVQQDEypHbG9iYWxTaWduIFBlcnNvbmFsU2ln
-biAyIENBIC0gU0hBMjU2IC0gRzMCDDw+ri+StHzo6PJZ/DANBglghkgBZQMEAgEFAKCB1DAvBgkq
-hkiG9w0BCQQxIgQgpZ3jR9eWoi9QZBdWA2kIBoSCYZBNsorqh2AOUP/3UBswGAYJKoZIhvcNAQkD
-MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjAxMDExMTgyNDA0WjBpBgkqhkiG9w0BCQ8x
-XDBaMAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCwYJYIZIAWUDBAECMAoGCCqGSIb3DQMHMAsG
-CSqGSIb3DQEBCjALBgkqhkiG9w0BAQcwCwYJYIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAGjK
-oQFUIQwNPBECnMJPj3Ua6vI4GAuODNBgSfYqAqcIK8y1qVp2garXsdlE+yQYXeoTFE0iPieaihFf
-2M2eXvvrEOLAW893+3QC2KknPAXvkZGJVQHDrrSkUHlWZI6NytHBfXi6zqU4CCXRwrrxs3rI6Ssm
-MFyPqgPXoxqRducHviVLjhWGj9IbIsdtzwlvXb5r6at34H0uKfa+7JAtIG6UqH5wRrnrTduCvDph
-dA37p6RiDMBv6lqoQNKBhN4O8B3k+1yMvVJNF7zTQSNH2/OpdufOeEXQagTXTSZ3G6GAXR08rO6r
-ZVQSiNdqRgCpmfGVihefukOkMpxTBDMNmF0=
---0000000000005e91cd05b16949ac--
