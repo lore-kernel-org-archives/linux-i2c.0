@@ -2,131 +2,96 @@ Return-Path: <SRS0=99jd=DT=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9382BC433DF
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 09:08:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 968A7C433E7
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 09:08:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2F68A208D5
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 09:08:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3C7562076D
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Oct 2020 09:08:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="GQhPOWnK"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FoMzh+hN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726428AbgJLJH7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 12 Oct 2020 05:07:59 -0400
-Received: from z5.mailgun.us ([104.130.96.5]:11734 "EHLO z5.mailgun.us"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729143AbgJLJH7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 12 Oct 2020 05:07:59 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1602493679; h=Content-Transfer-Encoding: Content-Type:
- In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
- Subject: Sender; bh=HXcfH8bow9YsdJB21VFaGzkbIhBQ3UPg17GtDKnIiwg=; b=GQhPOWnK0KRsEPwOWGLNKaG/gRpWVUPHFFW9g1tGnzksIh+8vvtlRK5FrE+1IrUeQXor+Zah
- o4IX6y/Lm1uU/mYdc+d4xLGoG82Vl8+QU14jLvsUrsvOYWyz0r8DR9so+9gVtuYmgcfFtEJ3
- C9I6z4qBr+3QYIbtxxsJB0dyY7w=
-X-Mailgun-Sending-Ip: 104.130.96.5
-X-Mailgun-Sid: WyI5ZGU3NiIsICJsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n07.prod.us-east-1.postgun.com with SMTP id
- 5f841c5cd63768e57b36dde3 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 12 Oct 2020 09:05:32
- GMT
-Sender: akashast=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 61857C433CB; Mon, 12 Oct 2020 09:05:31 +0000 (UTC)
-Received: from [192.168.43.98] (unknown [47.9.68.210])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: akashast)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id AF35AC433C9;
-        Mon, 12 Oct 2020 09:05:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org AF35AC433C9
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=akashast@codeaurora.org
-Subject: Re: [PATCH 1/3] soc: qcom: geni: More properly switch to DMA mode
-To:     Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Wolfram Sang <wsa@kernel.org>
-Cc:     linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Andy Gross <agross@kernel.org>,
-        Girish Mahadevan <girishm@codeaurora.org>,
-        Karthikeyan Ramasubramanian <kramasub@codeaurora.org>,
-        Mukesh Kumar Savaliya <msavaliy@codeaurora.org>,
-        linux-kernel@vger.kernel.org
-References: <20201008225235.2035820-1-dianders@chromium.org>
- <20201008155154.1.Ifdb1b69fa3367b81118e16e9e4e63299980ca798@changeid>
- <160229038385.310579.7502548054994849649@swboyd.mtv.corp.google.com>
-From:   Akash Asthana <akashast@codeaurora.org>
-Message-ID: <2ccc26a0-5d54-e06c-5a73-7eb353c393d2@codeaurora.org>
-Date:   Mon, 12 Oct 2020 14:35:23 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.1
+        id S1728945AbgJLJIv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 12 Oct 2020 05:08:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45524 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728834AbgJLJIv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Oct 2020 05:08:51 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01FFCC0613CE;
+        Mon, 12 Oct 2020 02:08:51 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id u8so22201814ejg.1;
+        Mon, 12 Oct 2020 02:08:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=wqiQJ3we1Ola+AjnEDNyt+aRzblqZ6hdUORf0Fcttl8=;
+        b=FoMzh+hNQtMfe2dRjl6bHBnSaX09jW3hp3/tKZeE1nsYFnLnE1DwtDM3h+bGtDqgtW
+         6RIfsbqSY0U1sxe1KmjCaLBzMHJOvJ3GhiOFLDn+muHEq+8nqPqbfGzO4AjTrZkgcpw0
+         xIr5Oe7mgI2P6oStrj5NJYerSnj/jRZs9IM4Wm98qPEAE/q7cGUCWLjCGmZsVUeQzpIM
+         z+HXcLd9v08YVJUHIFUZzEM2QQ/gCtV5gqvz3uvjVjjwobEd0gjj8E48q1Pc+H6+doJw
+         QXv1V3WMvAOUVZcG52SaB3dnvkw9MAMqWkhqE7TPOuf0Dx2rJHO4TfqYIJLcU/Vu0obB
+         5YSQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=wqiQJ3we1Ola+AjnEDNyt+aRzblqZ6hdUORf0Fcttl8=;
+        b=mUFyp8UmA4CmFpCRWli6Y8oOVXpKpdmeplCqnAK0rSyEQp3+KEYqbvB4vnrBw7HVQ8
+         8hvJRM80FpCR4OvpumGo+IaD3LJbu41VokR4xDgigAeWBxBejwT9IZKFyzSUiTlpfdAe
+         AnF8cbn2qb0Bz5k8g8JgF3IkLm4+5o4PiKwgUxqLW+MsVEHPtdXIXvrnF2RmE5CYG2G/
+         brRtLqT7dS1E1exTp0QbDdPLYudtqGv9NAoWx/8YFkj2Uw1noQ46JjZhWLsfXWgU5rGd
+         ZSxVr1ZGDzdOl+GoMMTwSraaAaOnkuTwmlloNwUutKxMBhhMPsrvb+ShqDRN4R5lE83k
+         NMJg==
+X-Gm-Message-State: AOAM531Z2Bgkrygp4dEiKyLBZEHFt3r+sezK5ne2Rr0t7Ts6cfBYrDhH
+        8UaUIAag9m7x6AcexL0jfWo=
+X-Google-Smtp-Source: ABdhPJyoimAq8VNtDy17siyKrLkDM9RH3OqbD1sMDlCaybG5WeM0twFcDA2pe5Q9Uo7X4IpdwbAVJA==
+X-Received: by 2002:a17:906:3a1a:: with SMTP id z26mr25947572eje.519.1602493729627;
+        Mon, 12 Oct 2020 02:08:49 -0700 (PDT)
+Received: from ubuntu2004 ([188.24.159.61])
+        by smtp.gmail.com with ESMTPSA id z20sm10127717edq.90.2020.10.12.02.08.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Oct 2020 02:08:49 -0700 (PDT)
+Date:   Mon, 12 Oct 2020 12:08:52 +0300
+From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
+        Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-actions@lists.infradead.org
+Subject: Re: [PATCH 3/3] i2c: owl: Enable asynchronous probing
+Message-ID: <20201012090852.GC73734@ubuntu2004>
+References: <cover.1602190168.git.cristian.ciocaltea@gmail.com>
+ <f343802a4b1a8ab6fc78e5db6d24a350b2319495.1602190168.git.cristian.ciocaltea@gmail.com>
+ <20201011140645.GA4971@Mani-XPS-13-9360>
 MIME-Version: 1.0
-In-Reply-To: <160229038385.310579.7502548054994849649@swboyd.mtv.corp.google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201011140645.GA4971@Mani-XPS-13-9360>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Stephen,
+On Sun, Oct 11, 2020 at 07:36:45PM +0530, Manivannan Sadhasivam wrote:
+> On Fri, Oct 09, 2020 at 12:44:41AM +0300, Cristian Ciocaltea wrote:
+> > Speed up the boot process by using the asynchronous probing feature
+> > supported by the recent kernels.
+> > 
+> > For SBCs based on the Actions Semi S500 SoC, the overall boot time is
+> > expected to be reduced by 200-300 ms.
+> > 
+> > Suggested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+> 
+> Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> 
+> Thanks,
+> Mani
 
-
->>   
->>   static void geni_se_select_dma_mode(struct geni_se *se)
->>   {
->> +       u32 proto = geni_se_read_proto(se);
->>          u32 val;
->>   
->>          geni_se_irq_clear(se);
->>   
->> +       val = readl_relaxed(se->base + SE_GENI_M_IRQ_EN);
->> +       if (proto != GENI_SE_UART) {
-> Not a problem with this patch but it would be great if there was a
-> comment here (and probably in geni_se_select_fifo_mode() too) indicating
-> why GENI_SE_UART is special. Is it because GENI_SE_UART doesn't use the
-> main sequencer? I think that is the reason, but I forgot and reading
-> this code doesn't tell me that.
->
-> Splitting the driver in this way where the logic is in the geni wrapper
-> and in the engine driver leads to this confusion.
-
-GENI_SE_UART uses main sequencer for TX and secondary for RX transfers 
-because it is asynchronous in nature.
-
-That's why  RX related bits (M_RX_FIFO_WATERMARK_EN | 
-M_RX_FIFO_LAST_EN)  are not enable in main sequencer for UART.
-
-(M_CMD_DONE_EN | M_TX_FIFO_WATERMARK_EN) bits are controlled from UART 
-driver, it's gets enabled and disabled multiple times from start_tx 
-,stop_tx respectively.
-
-
-Regards,
-
-Akash
-
->
->> +               val &= ~(M_CMD_DONE_EN | M_TX_FIFO_WATERMARK_EN);
->> +               val &= ~(M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
->> +       }
->> +       writel_relaxed(val, se->base + SE_GENI_M_IRQ_EN);
->> +
->> +       val = readl_relaxed(se->base + SE_GENI_S_IRQ_EN);
->> +       if (proto != GENI_SE_UART)
->> +               val &= ~S_CMD_DONE_EN;
->> +       writel_relaxed(val, se->base + SE_GENI_S_IRQ_EN);
->> +
->>          val = readl_relaxed(se->base + SE_GENI_DMA_MODE_EN);
->>          val |= GENI_DMA_MODE_EN;
->>          writel_relaxed(val, se->base + SE_GENI_DMA_MODE_EN);
-
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
-
+Thanks for reviewing,
+Cristi
