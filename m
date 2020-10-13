@@ -2,59 +2,58 @@ Return-Path: <SRS0=ZJhJ=DV=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88386C433E7
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:25:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7DEEC4363A
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:30:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B7B420709
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:25:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7CE56206F4
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:30:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="T3Cnn4d1"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="EQTxzxUu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730545AbgJNJZI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 14 Oct 2020 05:25:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39962 "EHLO
+        id S1727449AbgJNJaa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 14 Oct 2020 05:30:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730508AbgJNJTm (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 05:19:42 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA70C0613E1
-        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:26:27 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id d23so584821pll.7
-        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:26:27 -0700 (PDT)
+        with ESMTP id S1729685AbgJNJTi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 05:19:38 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9EBC0613D7
+        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:26:22 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id x16so532334pgj.3
+        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:26:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=hTZ0TY6V/O5G/81ybrQ47uBho41Y6v3NILTItnTrKis=;
-        b=T3Cnn4d1Ny8T3yEUuaeG/1+IH1vROXxkaEaD4oCx3/SUz2fANe41fdb43L3Sz5SUEW
-         gdCLROFz1PhQAIbYAKSolN7hxHW6M8WDHDyKuaBqV4m1dZMJXX9XaUPn20YEkdRwd2Sp
-         PBSasWiplYjvEMc2K/r04sCKdsaBmpDkTtWnM=
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=OoAVR9AHVrF5AmfQOiW6xvU4LK/5cY35UObNq6NT9XE=;
+        b=EQTxzxUuIKTcB+XY70IZK53ZA9IwEFA63ysUwVxyS6E2XHi8jvNKV1KDaWxPQOMZwa
+         DpWi781oIYquJ8RoAVv9BkQ8pmtZdjPU+u2OYk/cOqkvKpFXOplZdLqRCARtqWwa6WM8
+         M7r+0Nwo0XKiYriJXGI2rMUfGAmFqR3fW0Wl0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=hTZ0TY6V/O5G/81ybrQ47uBho41Y6v3NILTItnTrKis=;
-        b=hilYUetr3xPI9VMQAHaAJfdf2h88Rsx9HW4XJfBsEtQ0IDAFYN4+x695Vb37une1ml
-         7mETzB24o1QR+Pzkgo4rO1l1lIgxIEs8/W+JtiqCDiHYS0CWyPPcPso7WyyMAyM89RQ0
-         u6AjufClOUyCXz/jeWvEYMOQX4EU7dWP8WUC3APxzB4MH7vrJWM7AYaZk121IY/rafdz
-         6ev+/rRefodKZZZ9EE3KXTftr0JcOLedPi7QZGEmD6qV/61b97rlopwJPGFSJu8hTCJZ
-         I25eMmPoBYuVekCkQHgQe62k9n0yGu+GoDRy8YJ22kCq330xeuu+keJNpZizm7SxFnBU
-         S9iA==
-X-Gm-Message-State: AOAM533HzZ538ozTJiHuqe+xNHdEVs6vviEicONik4JWmA5qhkyJh768
-        3iwcQFGlHzaPjnXP2sQajKuDeA==
-X-Google-Smtp-Source: ABdhPJw5ERljxRf+ppIaCppwP2hYl/Q2fTvmgZmRjyD1gtAuM5lCQGnkocPD2bHIa1j0bXRARwbObw==
-X-Received: by 2002:a17:90b:19c9:: with SMTP id nm9mr319550pjb.6.1602624386670;
-        Tue, 13 Oct 2020 14:26:26 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=OoAVR9AHVrF5AmfQOiW6xvU4LK/5cY35UObNq6NT9XE=;
+        b=oxbVV2rSL+IfTziIm2BvyEfzP1IF6WG4OhzLbd9T8rat1s+LzvPoiPG/Yy903ACoRf
+         ltb/5y449dxi289842j1Z2x/NEGHR2a5mAZK4cbbhWjRtId9YdCr49Dt2W2Fs2Twq6qX
+         YLpuZTBsFwaOmlyS6+ULgDI1C2E2DpsYqyfbi27vNAdvnLSakS6FQjFB2xFtIJr49RYr
+         ZwmPkbZgyj7qazM9CjlHljnshinzdPo2AH0Cu6FFjjsqitBUC2TGW65iAFSQoP01W9cZ
+         X/P4c8zk5ekmsx+vz95BJr5+Iz6T8CAsoPLEeNJmTyijLNx74c1lxTXqXgbV2A+HZSQg
+         lMNg==
+X-Gm-Message-State: AOAM530GXjcLkTAlXYV31rrsKgXHV2FJmc7v/N+X3Mvk7ebYTA17Wk4C
+        VkFgrS/trwkAKHsOrqLhtM3gqg==
+X-Google-Smtp-Source: ABdhPJxjpE+t6tSF6IoGOjD0t+fTHO4qbXOhNCwIJqg8rHVYSn4dWpiqWHiGitjlRTuGvKhaxa/vBA==
+X-Received: by 2002:a63:fe49:: with SMTP id x9mr1177056pgj.192.1602624381982;
+        Tue, 13 Oct 2020 14:26:21 -0700 (PDT)
 Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
-        by smtp.gmail.com with ESMTPSA id b15sm167713pju.16.2020.10.13.14.26.25
+        by smtp.gmail.com with ESMTPSA id b15sm167713pju.16.2020.10.13.14.26.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2020 14:26:26 -0700 (PDT)
+        Tue, 13 Oct 2020 14:26:21 -0700 (PDT)
 From:   Douglas Anderson <dianders@chromium.org>
 To:     Bjorn Andersson <bjorn.andersson@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
@@ -65,137 +64,56 @@ Cc:     linux-i2c@vger.kernel.org,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         linux-arm-msm@vger.kernel.org,
         Douglas Anderson <dianders@chromium.org>,
-        Andy Gross <agross@kernel.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/3] soc: qcom: geni: Optimize/comment select fifo/dma mode
-Date:   Tue, 13 Oct 2020 14:25:30 -0700
-Message-Id: <20201013142448.v2.3.I646736d3969dc47de8daceb379c6ba85993de9f4@changeid>
+        Andy Gross <agross@kernel.org>,
+        Girish Mahadevan <girishm@codeaurora.org>,
+        Karthikeyan Ramasubramanian <kramasub@codeaurora.org>,
+        Mukesh Kumar Savaliya <msavaliy@codeaurora.org>,
+        Sagar Dharia <sdharia@codeaurora.org>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/3] i2c: i2c-qcom-geni: More properly fix the DMA race
+Date:   Tue, 13 Oct 2020 14:25:27 -0700
+Message-Id: <20201013212531.428538-1-dianders@chromium.org>
 X-Mailer: git-send-email 2.28.0.1011.ga647a8990f-goog
-In-Reply-To: <20201013212531.428538-1-dianders@chromium.org>
-References: <20201013212531.428538-1-dianders@chromium.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The functions geni_se_select_fifo_mode() and
-geni_se_select_fifo_mode() are a little funny.  They read/write a
-bunch of memory mapped registers even if they don't change or aren't
-relevant for the current protocol.  Let's make them a little more
-sane.  We'll also add a comment explaining why we don't do some of the
-operations for UART.
+Previously I landed commit 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA
+transfer race") to fix a race we were seeing.  While that most
+definitely fixed the race we were seeing, it looks like it causes
+problems in the TX path, which we didn't stress test until we started
+trying to update firmware on devices.
 
-NOTE: there is no evidence at all that this makes any performance
-difference and it fixes no bugs.  However, it seems (to me) like it
-makes the functions a little easier to understand.  Decreasing the
-amount of times we read/write memory mapped registers is also nice,
-even if we are using "relaxed" variants.
+Let's revert that patch and try another way: fix the original problem
+by disabling the interrupts that aren't relevant to DMA transfers.
+Now we can stress both TX and RX cases and see no problems.  I also
+can't find any place to put an msleep() that causes problems anymore.
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
----
-Note that I didn't add Dmitry Baryshkov's Tested-by tag to the 3rd
-patch since it changed subtly.  Also note that when adding comments
-about why the UART is special it seems clear to me that we really
-shouldn't be managing these interrupt enables in the common code.  It
-seems like drivers should manage / enable the interrupts that they
-care about.  That seems like a bigger change, though, and I didn't
-want to muddy the waters and potentially delay the important fix from
-patch #1 and #2.  Hopefully someone from Qualcomm can take on cleaning
-this stuff up after these fixes land.
+Since this problem only affects i2c, I'm hoping for an Ack from Bjorn
+and then all these patches can go through the i2c tree.  However, if
+maintainers want to work a different way out to land that's OK too.
+
+NOTE: the 3rd patch in the series could certianly be squashed with
+patch #1 or I could re-order / rejigger.  To me it seemed like a good
+idea to first fix the probelm (and make the two functions as much of
+an inverse as possible) and later try to clean things up.  Yell if you
+want something different.
 
 Changes in v2:
 - Consistently use "val_old" to keep track of old value.
 - Add comments about why UART is special.
 
- drivers/soc/qcom/qcom-geni-se.c | 50 +++++++++++++++++++++------------
- 1 file changed, 32 insertions(+), 18 deletions(-)
+Douglas Anderson (3):
+  soc: qcom: geni: More properly switch to DMA mode
+  Revert "i2c: i2c-qcom-geni: Fix DMA transfer race"
+  soc: qcom: geni: Optimize/comment select fifo/dma mode
 
-diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
-index 751a49f6534f..7649b2057b9a 100644
---- a/drivers/soc/qcom/qcom-geni-se.c
-+++ b/drivers/soc/qcom/qcom-geni-se.c
-@@ -266,49 +266,63 @@ EXPORT_SYMBOL(geni_se_init);
- static void geni_se_select_fifo_mode(struct geni_se *se)
- {
- 	u32 proto = geni_se_read_proto(se);
--	u32 val;
-+	u32 val, val_old;
- 
- 	geni_se_irq_clear(se);
- 
--	val = readl_relaxed(se->base + SE_GENI_M_IRQ_EN);
-+	/*
-+	 * The RX path for the UART is asynchronous and so needs more
-+	 * complex logic for enabling / disabling its interrupts.
-+	 *
-+	 * Specific notes:
-+	 * - The done and TX-related interrupts are managed manually.
-+	 * - We don't RX from the main sequencer (we use the secondary) so
-+	 *   we don't need the RX-related interrupts enabled in the main
-+	 *   sequencer for UART.
-+	 */
- 	if (proto != GENI_SE_UART) {
-+		val_old = val = readl_relaxed(se->base + SE_GENI_M_IRQ_EN);
- 		val |= M_CMD_DONE_EN | M_TX_FIFO_WATERMARK_EN;
- 		val |= M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN;
--	}
--	writel_relaxed(val, se->base + SE_GENI_M_IRQ_EN);
-+		if (val != val_old)
-+			writel_relaxed(val, se->base + SE_GENI_M_IRQ_EN);
- 
--	val = readl_relaxed(se->base + SE_GENI_S_IRQ_EN);
--	if (proto != GENI_SE_UART)
-+		val_old = val = readl_relaxed(se->base + SE_GENI_S_IRQ_EN);
- 		val |= S_CMD_DONE_EN;
--	writel_relaxed(val, se->base + SE_GENI_S_IRQ_EN);
-+		if (val != val_old)
-+			writel_relaxed(val, se->base + SE_GENI_S_IRQ_EN);
-+	}
- 
--	val = readl_relaxed(se->base + SE_GENI_DMA_MODE_EN);
-+	val_old = val = readl_relaxed(se->base + SE_GENI_DMA_MODE_EN);
- 	val &= ~GENI_DMA_MODE_EN;
--	writel_relaxed(val, se->base + SE_GENI_DMA_MODE_EN);
-+	if (val != val_old)
-+		writel_relaxed(val, se->base + SE_GENI_DMA_MODE_EN);
- }
- 
- static void geni_se_select_dma_mode(struct geni_se *se)
- {
- 	u32 proto = geni_se_read_proto(se);
--	u32 val;
-+	u32 val, val_old;
- 
- 	geni_se_irq_clear(se);
- 
--	val = readl_relaxed(se->base + SE_GENI_M_IRQ_EN);
- 	if (proto != GENI_SE_UART) {
-+		val_old = val = readl_relaxed(se->base + SE_GENI_M_IRQ_EN);
- 		val &= ~(M_CMD_DONE_EN | M_TX_FIFO_WATERMARK_EN);
- 		val &= ~(M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
--	}
--	writel_relaxed(val, se->base + SE_GENI_M_IRQ_EN);
-+		if (val != val_old)
-+			writel_relaxed(val, se->base + SE_GENI_M_IRQ_EN);
- 
--	val = readl_relaxed(se->base + SE_GENI_S_IRQ_EN);
--	if (proto != GENI_SE_UART)
-+		val_old = val = readl_relaxed(se->base + SE_GENI_S_IRQ_EN);
- 		val &= ~S_CMD_DONE_EN;
--	writel_relaxed(val, se->base + SE_GENI_S_IRQ_EN);
-+		if (val != val_old)
-+			writel_relaxed(val, se->base + SE_GENI_S_IRQ_EN);
-+	}
- 
--	val = readl_relaxed(se->base + SE_GENI_DMA_MODE_EN);
-+	val_old = val = readl_relaxed(se->base + SE_GENI_DMA_MODE_EN);
- 	val |= GENI_DMA_MODE_EN;
--	writel_relaxed(val, se->base + SE_GENI_DMA_MODE_EN);
-+	if (val != val_old)
-+		writel_relaxed(val, se->base + SE_GENI_DMA_MODE_EN);
- }
- 
- /**
+ drivers/i2c/busses/i2c-qcom-geni.c |  6 ++--
+ drivers/soc/qcom/qcom-geni-se.c    | 55 ++++++++++++++++++++++--------
+ 2 files changed, 43 insertions(+), 18 deletions(-)
+
 -- 
 2.28.0.1011.ga647a8990f-goog
 
