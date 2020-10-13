@@ -2,181 +2,181 @@ Return-Path: <SRS0=ZJhJ=DV=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4263C433DF
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:21:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67D97C43457
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:23:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D09820B1F
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:21:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E5CB206DD
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:23:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nY30yW+W"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="NK1OdlR3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387781AbgJNJVE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 14 Oct 2020 05:21:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39966 "EHLO
+        id S1726365AbgJNJXN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 14 Oct 2020 05:23:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731095AbgJNJUn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 05:20:43 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D6E3C0613E2
-        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:29:23 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id m13so1461913otl.9
-        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:29:23 -0700 (PDT)
+        with ESMTP id S1731040AbgJNJWw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 05:22:52 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1575DC0613DB
+        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:26:24 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id n14so618812pff.6
+        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:26:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BQVUP6sy3PX6Q3C2BLkQ+7wHeBtTeqDYnlZeUE9CcjA=;
-        b=nY30yW+WJ9MyaUbcO1v/mKwFDXq94hxYfbWo/1L56jEnYbDaOUoYy9nIdcUT28q/3c
-         Uq9y09kxs8N4qWd/Ff1kdavb8TyIc6oBlU3oviAsPjgw5zqHaKMjWs85k6EGx1lxqE03
-         VQTguqayk1ztH//dzkEuTPpRd/rbKtMe5TYkZHhAmRaVfWU6khywIlm/eXZEB8R3YU/t
-         RvblJocOk1w4YKITaedGGSW+l4IlsJxZKuoRhJl4WWr78Rm5iE0CXNAtN8R0QHvYHTcS
-         E2nLmPwqNzyIxnEb9m2N39CFYlvmttezElfEknCVV0scF33M9yCSq3OfXIi84EC3hOJ5
-         U74Q==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=8emszWUEydnaDuASluTEaLP6IQxhJiyG+Sdg8L/FF9A=;
+        b=NK1OdlR3WP11CVF2y113zjl7VJMJe3PpbX5vvN2tkTzBZDQ9Js9EotP6+HM9DR86Y6
+         KWEy+KX2WfMP7WQy83igiJ6GLL/BZspv3He3hTxhy963KZ4+EUSxMeorxgEhT5irtZYf
+         xAgNPajbLPpjLycPnIG6tAENSjIXj0X164grw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BQVUP6sy3PX6Q3C2BLkQ+7wHeBtTeqDYnlZeUE9CcjA=;
-        b=g1tvUFFmFQN4XnFkQkPTMSpcygomvIlASWvohH91xSG455G5S7UBLBLE1V4mbwhcuc
-         KnF58sjho00ooalWoTHSl4UW1XuhsRn5UuWWn5j4yY1b7CeOiTuMyh6aXpx9lIXeozfi
-         T7r7XlwjsDP9aBT08X9PuOX3kbdcila/hvmlC1oN/83UP+cxrCcKn0iGN+9ger6kouED
-         vPSFY3Rvt9aDsX/Gsy+ylTi6VrHPfRUXZJ1/glzvGdidZL5fHhw1UJYc7YfISNInOkOW
-         8VINZVBo84JuRtUNt2AknbZ9UxuBJj6D8C3p4xM5zQUfZ4c9kg8jMG4zijXPlbqwItNZ
-         Gn8Q==
-X-Gm-Message-State: AOAM531dwMCNDGEQIfvnhSUpnVTj9INxEugp/4g6aWXtHmTd5tzhFPd0
-        v5pLAZ/jKo0YR9diluJdHLxBcaYsHV6AHln/9RPYZw==
-X-Google-Smtp-Source: ABdhPJyWjnabEyver0ZLJs3j3vpJ6dQJC3dFlcNQoNysjkLGxpSekou/SW+1ozZsc27Ff8tuKWkk2Jcm4I0Yp/Rrics=
-X-Received: by 2002:a9d:7b59:: with SMTP id f25mr1167062oto.306.1602624562402;
- Tue, 13 Oct 2020 14:29:22 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=8emszWUEydnaDuASluTEaLP6IQxhJiyG+Sdg8L/FF9A=;
+        b=I5g767BMfxwAsLL0JHY0y+lcz1F4AkGl1AKqvhDDtfmV1gwSAufVkrgqBTo5L3TJzS
+         a09e4cDRxdL+VE3d9W2E65WftqLeX1gO9u9WWVBZnJqLFwCREuiS7qlo3DbCLFWVBO1A
+         Y4aUj8K/PJ0f/h1yKroHiEPoyRklXt4hk2rzCu+oZdAt7epr2hSpbjjao58ZbVMTyqcB
+         vsbvTw5a7xJfXpUCZ4ABU9PZLWWv1VMHQJ47lv/5wP1yUFvl1I9ysXcPLYaunjStvIxH
+         4XiCrA4/TJeO1MGmiKypJAy5m7IQaFt/hQ8EJGax87N3njxdzbtpoX9IVt0W8trgMqJV
+         bo5A==
+X-Gm-Message-State: AOAM530SE65vsiXWOfz0qni7nkH5vtwcsGYLRpJomR88pICam4d/JH69
+        RP8qjobNeComJeivPXDsXXOm2g==
+X-Google-Smtp-Source: ABdhPJwt1IzKXrttcWDZhkMbn21U9Tie+bRQG4Zddvl3JpkIMxKMTivZJV2Ph0NiPyaJ7SjvwhTrFw==
+X-Received: by 2002:a63:511d:: with SMTP id f29mr1218104pgb.11.1602624383571;
+        Tue, 13 Oct 2020 14:26:23 -0700 (PDT)
+Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
+        by smtp.gmail.com with ESMTPSA id b15sm167713pju.16.2020.10.13.14.26.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Oct 2020 14:26:23 -0700 (PDT)
+From:   Douglas Anderson <dianders@chromium.org>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Akash Asthana <akashast@codeaurora.org>
+Cc:     linux-i2c@vger.kernel.org,
+        Roja Rani Yarubandi <rojay@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        linux-arm-msm@vger.kernel.org,
+        Douglas Anderson <dianders@chromium.org>,
+        Andy Gross <agross@kernel.org>,
+        Girish Mahadevan <girishm@codeaurora.org>,
+        Karthikeyan Ramasubramanian <kramasub@codeaurora.org>,
+        Mukesh Kumar Savaliya <msavaliy@codeaurora.org>,
+        Sagar Dharia <sdharia@codeaurora.org>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 1/3] soc: qcom: geni: More properly switch to DMA mode
+Date:   Tue, 13 Oct 2020 14:25:28 -0700
+Message-Id: <20201013142448.v2.1.Ifdb1b69fa3367b81118e16e9e4e63299980ca798@changeid>
+X-Mailer: git-send-email 2.28.0.1011.ga647a8990f-goog
+In-Reply-To: <20201013212531.428538-1-dianders@chromium.org>
+References: <20201013212531.428538-1-dianders@chromium.org>
 MIME-Version: 1.0
-References: <20201013100314.216154-1-tali.perry1@gmail.com> <20201013115023.GL4077@smile.fi.intel.com>
-In-Reply-To: <20201013115023.GL4077@smile.fi.intel.com>
-From:   Alex Qiu <xqiu@google.com>
-Date:   Tue, 13 Oct 2020 14:29:11 -0700
-Message-ID: <CAA_a9xKSYjjX47AT_XduA7WyrM5nCNu4vJLUsjwBEAyy7jn0BQ@mail.gmail.com>
-Subject: Re: [PATCH v2] i2c: npcm7xx: Support changing bus speed using debugfs.
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Tali Perry <tali.perry1@gmail.com>, Wolfram Sang <wsa@kernel.org>,
-        Kun Yi <kunyi@google.com>,
-        Benjamin Fair <benjaminfair@google.com>,
-        Avi Fishman <avifishman70@gmail.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Tested again, and the updated patch is still working.
+On geni-i2c transfers using DMA, it was seen that if you program the
+command (I2C_READ) before calling geni_se_rx_dma_prep() that it could
+cause interrupts to fire.  If we get unlucky, these interrupts can
+just keep firing (and not be handled) blocking further progress and
+hanging the system.
 
-On Tue, Oct 13, 2020 at 4:49 AM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
->
-> On Tue, Oct 13, 2020 at 01:03:14PM +0300, Tali Perry wrote:
-> > Systems that can dynamically add and remove slave devices
-> > often need to change the bus speed in runtime.
-> > This patch expose the bus frequency to the user.
-> > This feature can also be used for test automation.
->
-> > --
-> > v2 -> v1:
-> >       - Fix typos.
-> >       - Remove casting to u64.
-> >
-> > v1: initial version
->
-> Above block should go after cutter '---' (see below) line...
->
-> > Fixes: 56a1485b102e (i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver)
-> > Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-Reviewed-by: Alex Qiu <xqiu@google.com>
-Tested-by: Alex Qiu <xqiu@google.com>
+In commit 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA transfer race")
+we avoided that by making sure we didn't program the command until
+after geni_se_rx_dma_prep() was called.  While that avoided the
+problems, it also turns out to be invalid.  At least in the TX case we
+started seeing sporadic corrupted transfers.  This is easily seen by
+adding an msleep() between the DMA prep and the writing of the
+command, which makes the problem worse.  That means we need to revert
+that commit and find another way to fix the bogus IRQs.
 
-> > ---
->
-> ...here.
->
-> >  drivers/i2c/busses/i2c-npcm7xx.c | 35 ++++++++++++++++++++++++++++++++
-> >  1 file changed, 35 insertions(+)
->
-> As we discussed previously I'm not a fan of the functionality this gives and a
-> way it's done, but this is debugfs and not anyhow an ABI. Also it's localized
-> inside one driver. In the future we may come up with better approach.
->
-> That said, no objections from me.
->
-> > diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-> > index 2ad166355ec9..633ac67153e2 100644
-> > --- a/drivers/i2c/busses/i2c-npcm7xx.c
-> > +++ b/drivers/i2c/busses/i2c-npcm7xx.c
-> > @@ -2208,6 +2208,40 @@ static const struct i2c_algorithm npcm_i2c_algo = {
-> >  /* i2c debugfs directory: used to keep health monitor of i2c devices */
-> >  static struct dentry *npcm_i2c_debugfs_dir;
-> >
-> > +static int i2c_speed_get(void *data, u64 *val)
-> > +{
-> > +     struct npcm_i2c *bus = data;
-> > +
-> > +     *val = bus->bus_freq;
-> > +     return 0;
-> > +}
-> > +
-> > +static int i2c_speed_set(void *data, u64 val)
-> > +{
-> > +     struct npcm_i2c *bus = data;
-> > +     int ret;
-> > +
-> > +     if (val < I2C_FREQ_MIN_HZ || val > I2C_FREQ_MAX_HZ)
-> > +             return -EINVAL;
-> > +
-> > +     if (val == bus->bus_freq)
-> > +             return 0;
-> > +
-> > +     i2c_lock_bus(&bus->adap, I2C_LOCK_ROOT_ADAPTER);
-> > +
-> > +     npcm_i2c_int_enable(bus, false);
-> > +
-> > +     ret = npcm_i2c_init_module(bus, I2C_MASTER, (u32)val);
-> > +
-> > +     i2c_unlock_bus(&bus->adap, I2C_LOCK_ROOT_ADAPTER);
-> > +
-> > +     if (ret)
-> > +             return -EAGAIN;
-> > +
-> > +     return 0;
-> > +}
-> > +DEFINE_DEBUGFS_ATTRIBUTE(i2c_clock_ops, i2c_speed_get, i2c_speed_set, "%llu\n");
-> > +
-> >  static void npcm_i2c_init_debugfs(struct platform_device *pdev,
-> >                                 struct npcm_i2c *bus)
-> >  {
-> > @@ -2223,6 +2257,7 @@ static void npcm_i2c_init_debugfs(struct platform_device *pdev,
-> >       debugfs_create_u64("rec_succ_cnt", 0444, d, &bus->rec_succ_cnt);
-> >       debugfs_create_u64("rec_fail_cnt", 0444, d, &bus->rec_fail_cnt);
-> >       debugfs_create_u64("timeout_cnt", 0444, d, &bus->timeout_cnt);
-> > +     debugfs_create_file("i2c_speed", 0644, d, bus, &i2c_clock_ops);
-> >
-> >       bus->debugfs = d;
-> >  }
-> >
-> > base-commit: 865c50e1d279671728c2936cb7680eb89355eeea
-> > --
-> > 2.22.0
-> >
->
-> --
-> With Best Regards,
-> Andy Shevchenko
->
->
+Specifically, after reverting commit 02b9aec59243 ("i2c:
+i2c-qcom-geni: Fix DMA transfer race"), I put some traces in.  I found
+that the when the interrupts were firing like crazy:
+- "m_stat" had bits for M_RX_IRQ_EN, M_RX_FIFO_WATERMARK_EN set.
+- "dma" was set.
 
-- Alex Qiu
+Further debugging showed that I could make the problem happen more
+reliably by adding an "msleep(1)" any time after geni_se_setup_m_cmd()
+ran up until geni_se_rx_dma_prep() programmed the length.
+
+A rather simple fix is to change geni_se_select_dma_mode() so it's a
+true inverse of geni_se_select_fifo_mode() and disables all the FIFO
+related interrupts.  Now the problematic interrupts can't fire and we
+can program things in the correct order without worrying.
+
+As part of this, let's also change the writel_relaxed() in the prepare
+function to a writel() so that our DMA is guaranteed to be prepared
+now that we can't rely on geni_se_setup_m_cmd()'s writel().
+
+NOTE: the only current user of GENI_SE_DMA in mainline is i2c.
+
+Fixes: 37692de5d523 ("i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller")
+Fixes: 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA transfer race")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Akash Asthana <akashast@codeaurora.org>
+Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+---
+
+(no changes since v1)
+
+ drivers/soc/qcom/qcom-geni-se.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
+index d0e4f520cff8..751a49f6534f 100644
+--- a/drivers/soc/qcom/qcom-geni-se.c
++++ b/drivers/soc/qcom/qcom-geni-se.c
+@@ -289,10 +289,23 @@ static void geni_se_select_fifo_mode(struct geni_se *se)
+ 
+ static void geni_se_select_dma_mode(struct geni_se *se)
+ {
++	u32 proto = geni_se_read_proto(se);
+ 	u32 val;
+ 
+ 	geni_se_irq_clear(se);
+ 
++	val = readl_relaxed(se->base + SE_GENI_M_IRQ_EN);
++	if (proto != GENI_SE_UART) {
++		val &= ~(M_CMD_DONE_EN | M_TX_FIFO_WATERMARK_EN);
++		val &= ~(M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
++	}
++	writel_relaxed(val, se->base + SE_GENI_M_IRQ_EN);
++
++	val = readl_relaxed(se->base + SE_GENI_S_IRQ_EN);
++	if (proto != GENI_SE_UART)
++		val &= ~S_CMD_DONE_EN;
++	writel_relaxed(val, se->base + SE_GENI_S_IRQ_EN);
++
+ 	val = readl_relaxed(se->base + SE_GENI_DMA_MODE_EN);
+ 	val |= GENI_DMA_MODE_EN;
+ 	writel_relaxed(val, se->base + SE_GENI_DMA_MODE_EN);
+@@ -651,7 +664,7 @@ int geni_se_tx_dma_prep(struct geni_se *se, void *buf, size_t len,
+ 	writel_relaxed(lower_32_bits(*iova), se->base + SE_DMA_TX_PTR_L);
+ 	writel_relaxed(upper_32_bits(*iova), se->base + SE_DMA_TX_PTR_H);
+ 	writel_relaxed(GENI_SE_DMA_EOT_BUF, se->base + SE_DMA_TX_ATTR);
+-	writel_relaxed(len, se->base + SE_DMA_TX_LEN);
++	writel(len, se->base + SE_DMA_TX_LEN);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(geni_se_tx_dma_prep);
+@@ -688,7 +701,7 @@ int geni_se_rx_dma_prep(struct geni_se *se, void *buf, size_t len,
+ 	writel_relaxed(upper_32_bits(*iova), se->base + SE_DMA_RX_PTR_H);
+ 	/* RX does not have EOT buffer type bit. So just reset RX_ATTR */
+ 	writel_relaxed(0, se->base + SE_DMA_RX_ATTR);
+-	writel_relaxed(len, se->base + SE_DMA_RX_LEN);
++	writel(len, se->base + SE_DMA_RX_LEN);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(geni_se_rx_dma_prep);
+-- 
+2.28.0.1011.ga647a8990f-goog
+
