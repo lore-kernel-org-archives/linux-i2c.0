@@ -2,95 +2,125 @@ Return-Path: <SRS0=ZJhJ=DV=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 038D5C433E7
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:17:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C015BC4363A
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:20:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 84E7522243
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:17:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6197820B1F
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:20:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="wbgLxeft"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="lmrB2YzC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729112AbgJNJRL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 14 Oct 2020 05:17:11 -0400
-Received: from m42-4.mailgun.net ([69.72.42.4]:30557 "EHLO m42-4.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728184AbgJNJRL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 14 Oct 2020 05:17:11 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1602667030; h=Content-Transfer-Encoding: Content-Type:
- In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
- Subject: Sender; bh=wlKCgSDPNjIWu6V9NAf13pQ5o5l1qmNNLLlSVijYfUI=; b=wbgLxeftnQx7O/mA4Z3sbMifmrxeDfn6ZVjJ+Q4llViDCBk+pLWk8wrwpPbGwKjqONA1Su3E
- cYb9Ws1GPMOsaTDb4EVM3prlBk7PSQlOAZirsrDrK54TE+DLYUZkdSh5u7Tz6y58QKUkbVho
- f4mq3tjpu2aw7FiI/dlGWGDfxEo=
-X-Mailgun-Sending-Ip: 69.72.42.4
-X-Mailgun-Sid: WyI5ZGU3NiIsICJsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n05.prod.us-west-2.postgun.com with SMTP id
- 5f86c216319d4e9cb57a93b0 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 14 Oct 2020 09:17:10
- GMT
-Sender: akashast=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id E2C00C433C9; Wed, 14 Oct 2020 09:17:09 +0000 (UTC)
-Received: from [192.168.1.100] (unknown [47.8.241.85])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: akashast)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 663C1C433C9;
-        Wed, 14 Oct 2020 09:17:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 663C1C433C9
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=akashast@codeaurora.org
-Subject: Re: [PATCH v2 3/3] soc: qcom: geni: Optimize/comment select fifo/dma
- mode
-To:     Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>
-Cc:     linux-i2c@vger.kernel.org,
-        Roja Rani Yarubandi <rojay@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        linux-arm-msm@vger.kernel.org, Andy Gross <agross@kernel.org>,
-        linux-kernel@vger.kernel.org
-References: <20201013212531.428538-1-dianders@chromium.org>
- <20201013142448.v2.3.I646736d3969dc47de8daceb379c6ba85993de9f4@changeid>
-From:   Akash Asthana <akashast@codeaurora.org>
-Message-ID: <4aa43d91-b470-afae-bb1c-3955136fb969@codeaurora.org>
-Date:   Wed, 14 Oct 2020 14:47:02 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.1
+        id S1730456AbgJNJTk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 14 Oct 2020 05:19:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39960 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727748AbgJNJTi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 05:19:38 -0400
+Received: from mail-ua1-x943.google.com (mail-ua1-x943.google.com [IPv6:2607:f8b0:4864:20::943])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D385C0613AA
+        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:38:29 -0700 (PDT)
+Received: by mail-ua1-x943.google.com with SMTP id t15so455380ual.6
+        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:38:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=iaXaNW2aV97D5ctXO138LriNxFwgSSTpbL/SoLhTQI0=;
+        b=lmrB2YzCp8StLVkt9dtcv9/wpvpxiyXtb0Iz9iRWltXMcOEpwym2EHbwSvmAaX5CXS
+         D2Qm+WjJU2LmSziIQxPeS7HFHoDRRwE5FZhOHuV5qPOQ1mcuxxjhHosaXwqXkdjlDKs/
+         W5cZvBus9lgLJgunyaPlGy4gGK6mZnxF6VBeE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iaXaNW2aV97D5ctXO138LriNxFwgSSTpbL/SoLhTQI0=;
+        b=sso5CNfEUlAR0v7HV2tDwzfbKNrj4Ig5PJN9ZKH1nk28c9vB9e5+W80X+bN3/9JqbF
+         pDPd454lT2gUPvHmdDP3o5wr09DiX77Qpx4KifOiobpa6hiZvgOAg8Z5pQxHKbExHORj
+         3K9UHJ7HZzgAcO/kDR32pqLman1GUxDAJceFHD1mlG5vlnIfJrredCcfnT44qZ6Pk/wU
+         HeYxfoD8IdUuDbwF2PhsDM44KjUJGz1S6FoDXUfpnGteKsXAmAuQ3iOA3uLdlsCWOWP+
+         SuzEwCJOFXusPOTdSEKFHQiOLlQHfrOCt1Ij8GoLZd2YK6VisfwZQ+EO/tBbqx3XdGC8
+         o5Eg==
+X-Gm-Message-State: AOAM530VbO2qRiSI7j2dI/pomsupEpgQJeKw4kfQkT6VQMS2VjTCZK0w
+        hx2Wr04pp/odc1gu6TqpXC4Uy2r46sFTxQ==
+X-Google-Smtp-Source: ABdhPJweWJwQS+AjtAaTsN581DtjPLi0gvWyTPepGIge87qIqZyMt8TjIDVN/AxdJBCFH+ZoZ2qQUA==
+X-Received: by 2002:ab0:5e95:: with SMTP id y21mr1480644uag.21.1602625108451;
+        Tue, 13 Oct 2020 14:38:28 -0700 (PDT)
+Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com. [209.85.222.46])
+        by smtp.gmail.com with ESMTPSA id m205sm175061vke.36.2020.10.13.14.38.27
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Oct 2020 14:38:27 -0700 (PDT)
+Received: by mail-ua1-f46.google.com with SMTP id c1so462072uap.3
+        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:38:27 -0700 (PDT)
+X-Received: by 2002:a9f:31ce:: with SMTP id w14mr1686577uad.104.1602625107073;
+ Tue, 13 Oct 2020 14:38:27 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20201013142448.v2.3.I646736d3969dc47de8daceb379c6ba85993de9f4@changeid>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+References: <20201008225235.2035820-1-dianders@chromium.org>
+ <20201008155154.3.I646736d3969dc47de8daceb379c6ba85993de9f4@changeid> <160228992470.310579.7455188858203154687@swboyd.mtv.corp.google.com>
+In-Reply-To: <160228992470.310579.7455188858203154687@swboyd.mtv.corp.google.com>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Tue, 13 Oct 2020 14:38:15 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=U9Jr0AKy1ovhQeUbc0O8SMK5k7XJomdRowGUMZ5X0Oxg@mail.gmail.com>
+Message-ID: <CAD=FV=U9Jr0AKy1ovhQeUbc0O8SMK5k7XJomdRowGUMZ5X0Oxg@mail.gmail.com>
+Subject: Re: [PATCH 3/3] soc: qcom: geni: Optimize select fifo/dma mode
+To:     Stephen Boyd <swboyd@chromium.org>
+Cc:     Akash Asthana <akashast@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        linux-i2c@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi,
 
-On 10/14/2020 2:55 AM, Douglas Anderson wrote:
-> The functions geni_se_select_fifo_mode() and
-> geni_se_select_fifo_mode() are a little funny.  They read/write a
-> bunch of memory mapped registers even if they don't change or aren't
-> relevant for the current protocol.  Let's make them a little more
-> sane.  We'll also add a comment explaining why we don't do some of the
-> operations for UART.
+On Fri, Oct 9, 2020 at 5:32 PM Stephen Boyd <swboyd@chromium.org> wrote:
 >
-> NOTE: there is no evidence at all that this makes any performance
-> difference and it fixes no bugs.  However, it seems (to me) like it
-> makes the functions a little easier to understand.  Decreasing the
-> amount of times we read/write memory mapped registers is also nice,
-> even if we are using "relaxed" variants.
+> Quoting Douglas Anderson (2020-10-08 15:52:35)
+> > diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
+> > index 751a49f6534f..746854745b15 100644
+> > --- a/drivers/soc/qcom/qcom-geni-se.c
+> > +++ b/drivers/soc/qcom/qcom-geni-se.c
+> > @@ -266,49 +266,53 @@ EXPORT_SYMBOL(geni_se_init);
+> >  static void geni_se_select_fifo_mode(struct geni_se *se)
+> >  {
+> >         u32 proto = geni_se_read_proto(se);
+> > -       u32 val;
+> > +       u32 val, val_old;
+> >
+> >         geni_se_irq_clear(se);
+> >
+> > -       val = readl_relaxed(se->base + SE_GENI_M_IRQ_EN);
+> >         if (proto != GENI_SE_UART) {
+> > +               val_old = val = readl_relaxed(se->base + SE_GENI_M_IRQ_EN);
+> >                 val |= M_CMD_DONE_EN | M_TX_FIFO_WATERMARK_EN;
+> >                 val |= M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN;
+> > -       }
+> > -       writel_relaxed(val, se->base + SE_GENI_M_IRQ_EN);
+> > +               if (val != val_old)
+> > +                       writel_relaxed(val, se->base + SE_GENI_M_IRQ_EN);
+> >
+> > -       val = readl_relaxed(se->base + SE_GENI_S_IRQ_EN);
+> > -       if (proto != GENI_SE_UART)
+> > -               val |= S_CMD_DONE_EN;
+> > -       writel_relaxed(val, se->base + SE_GENI_S_IRQ_EN);
+> > +               val = readl_relaxed(se->base + SE_GENI_S_IRQ_EN);
 >
-> Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Akash Asthana <akashast@codeaurora.org>
+> Can we use the val_old trick here too?
+>
+> > +               if (!(val & S_CMD_DONE_EN))
+> > +                       writel_relaxed(val | S_CMD_DONE_EN,
+>
+> Because this val | S_CMD_DONE_EN thing is just hard to read :/
 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
+This is done in v2.  Thanks for your review!
 
+-Doug
