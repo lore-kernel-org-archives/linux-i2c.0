@@ -1,106 +1,139 @@
-Return-Path: <SRS0=VWDi=DU=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=ZJhJ=DV=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F3E6C433E7
-	for <linux-i2c@archiver.kernel.org>; Tue, 13 Oct 2020 15:54:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88760C433E7
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 03:20:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3BED325216
-	for <linux-i2c@archiver.kernel.org>; Tue, 13 Oct 2020 15:54:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1602604453;
-	bh=trQOVCfY7quismV6EFJLZYCRoqbFMFBZuwroBsLlQXk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=umlvOamNv/7H+bugpKiAtFHqujFUjIpAXwCdiVMTME8KrVYt/8cjpCK+egOs3p1ej
-	 gxgDc5GeBcXAHoY28YLQ29u2hvt7rD4+KJbVnQuu2JoqplKeVnbRSGIUQHkMwivoBF
-	 0UzZDxJ1q/4WLpWsH7zBM5Nc6Ies3mhdSxlf+Vnw=
+	by mail.kernel.org (Postfix) with ESMTP id 3478321D81
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 03:20:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Ao+6bwGG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729372AbgJMPyJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 13 Oct 2020 11:54:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727016AbgJMPyJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 13 Oct 2020 11:54:09 -0400
-Received: from localhost (dyndsl-091-249-035-207.ewe-ip-backbone.de [91.249.35.207])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CA1E25215;
-        Tue, 13 Oct 2020 15:54:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602604448;
-        bh=trQOVCfY7quismV6EFJLZYCRoqbFMFBZuwroBsLlQXk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0kx25ZycPbfKI57m16/MizCeX6undrJikhtC1/6PMcHbuvDoojeIJt33jcVj7dyqY
-         8Tds4rJ9V8md2TQ6uyj2LwgSqtm+ub8CrArNHHGEQhfG0RDMMnYv82rPhVu46gxqJV
-         AbY0Ni7oe6OYo3jTrGI3Mz18cc03qwzcAtL+W4Ag=
-Date:   Tue, 13 Oct 2020 17:53:58 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc:     Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Balbir Singh <sblbir@amazon.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 13/24] docs: i2c: index.rst: add
- slave-testunit-backend.rst
-Message-ID: <20201013155358.GA1465@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>, Balbir Singh <sblbir@amazon.com>,
-        Thomas Gleixner <tglx@linutronix.de>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <cover.1602590106.git.mchehab+huawei@kernel.org>
- <8b46f6d001962e7b562c3542eb4449bd905f448a.1602590106.git.mchehab+huawei@kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
-Content-Disposition: inline
-In-Reply-To: <8b46f6d001962e7b562c3542eb4449bd905f448a.1602590106.git.mchehab+huawei@kernel.org>
+        id S1729491AbgJNDUk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 13 Oct 2020 23:20:40 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:45918 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726049AbgJNDUk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Oct 2020 23:20:40 -0400
+Received: by linux.microsoft.com (Postfix, from userid 1046)
+        id 627A720B4905; Tue, 13 Oct 2020 20:20:39 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 627A720B4905
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1602645639;
+        bh=X/lgLtvI5yARcXsG3L0YJTffUHRbyGIv/Y8Hr0+JSIA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Ao+6bwGGbRULNWSKAUgXNrKQGd9nAQ/4vvhMvX6HxUKpTxBkC5k7JTpUe+lWKoCa3
+         uwwGqxydii9FaZ210rGklGI0k1FO4CfdVCDR9Xm90sdg2hJ7wkDyuPOwH2h51pcbuj
+         0gkNN7JXrAm3mEPr6HHr1vhg072GE9bbtv+IrgCA=
+From:   Dhananjay Phadke <dphadke@linux.microsoft.com>
+To:     rayagonda.kokatanur@broadcom.com
+Cc:     andriy.shevchenko@linux.intel.com,
+        bcm-kernel-feedback-list@broadcom.com, brendanhiggins@google.com,
+        dphadke@linux.microsoft.com, f.fainelli@gmail.com,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, lori.hikichi@broadcom.com,
+        rjui@broadcom.com, sbranden@broadcom.com, wsa@kernel.org
+Subject: [PATCH v1 5/6] i2c: iproc: handle master read request
+Date:   Tue, 13 Oct 2020 20:20:39 -0700
+Message-Id: <1602645639-12854-1-git-send-email-dphadke@linux.microsoft.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <20201011182254.17776-6-rayagonda.kokatanur@broadcom.com>
+References: <20201011182254.17776-6-rayagonda.kokatanur@broadcom.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Sun, 11 Oct 2020 23:52:53 +0530, Rayagonda Kokatanur wrote:
+> --- a/drivers/i2c/busses/i2c-bcm-iproc.c
+> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+> 
+> -		} else if (status & BIT(IS_S_RD_EVENT_SHIFT)) {
+> -			/* Start of SMBUS for Master Read */
+> +					I2C_SLAVE_WRITE_REQUESTED, &rx_data);
+> +			iproc_i2c->rx_start_rcvd = true;
+> +			iproc_i2c->slave_read_complete = false;
+> +		} else if (rx_status == I2C_SLAVE_RX_DATA &&
+> +			   iproc_i2c->rx_start_rcvd) {
+> +			/* Middle of SMBUS Master write */
+>  			i2c_slave_event(iproc_i2c->slave,
+> -					I2C_SLAVE_READ_REQUESTED, &value);
+> -			iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
+> +					I2C_SLAVE_WRITE_RECEIVED, &rx_data);
+> +		} else if (rx_status == I2C_SLAVE_RX_END &&
+> +			   iproc_i2c->rx_start_rcvd) {
+> +			/* End of SMBUS Master write */
+> +			if (iproc_i2c->slave_rx_only)
+> +				i2c_slave_event(iproc_i2c->slave,
+> +						I2C_SLAVE_WRITE_RECEIVED,
+> +						&rx_data);
+> +
+> +			i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP,
+> +					&rx_data);
+> +		} else if (rx_status == I2C_SLAVE_RX_FIFO_EMPTY) {
+> +			iproc_i2c->rx_start_rcvd = false;
+> +			iproc_i2c->slave_read_complete = true;
+> +			break;
+> +		}
+>  
+> -			val = BIT(S_CMD_START_BUSY_SHIFT);
+> -			iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
+> +		rx_bytes++;
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+rx_bytes should be incremented only along with I2C_SLAVE_WRITE_RECEIVED event?
+
+> 
+> +static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
+> +				    u32 status)
+> +{
+> +	u32 val;
+> +	u8 value;
+> +
+> +	/*
+> +	 * Slave events in case of master-write, master-write-read and,
+> +	 * master-read
+> +	 *
+> +	 * Master-write     : only IS_S_RX_EVENT_SHIFT event
+> +	 * Master-write-read: both IS_S_RX_EVENT_SHIFT and IS_S_RD_EVENT_SHIFT
+> +	 *                    events
+> +	 * Master-read      : both IS_S_RX_EVENT_SHIFT and IS_S_RD_EVENT_SHIFT
+> +	 *                    events or only IS_S_RD_EVENT_SHIFT
+> +	 */
+> +	if (status & BIT(IS_S_RX_EVENT_SHIFT) ||
+> +	    status & BIT(IS_S_RD_EVENT_SHIFT)) {
+> +		/* disable slave interrupts */
+> +		val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
+> +		val &= ~iproc_i2c->slave_int_mask;
+> +		iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
+> +
+> +		if (status & BIT(IS_S_RD_EVENT_SHIFT))
+> +			/* Master-write-read request */
+> +			iproc_i2c->slave_rx_only = false;
+> +		else
+> +			/* Master-write request only */
+> +			iproc_i2c->slave_rx_only = true;
+> +
+> +		/* schedule tasklet to read data later */
+> +		tasklet_schedule(&iproc_i2c->slave_rx_tasklet);
+> +
+> +		/* clear only IS_S_RX_EVENT_SHIFT interrupt */
+> +		iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET,
+> +				 BIT(IS_S_RX_EVENT_SHIFT));
+> 
+
+Both tasklet and isr are writing to status (IS_OFFSET) reg.
+
+The tasklet seems to be batching up rx fifo reads because of time-sensitive
+Master-write-read transaction? Linux I2C framework is byte interface anyway.
+Can the need to batch reads be avoided by setting slave rx threshold for
+interrupt (S_FIFO_RX_THLD) to 1-byte? 
+
+Also, wouldn't tasklets be susceptible to other interrupts? If fifo reads
+have to be batched up, can it be changed to threaded irq?
 
 
-> Fixes: a8335c64c5f0 ("i2c: add slave testunit driver")
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
-As discussed with v1, I already fixed it (correctly). Patch is in
-linux-next:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git/commit/?h=i2c/for-next&id=40daf09a30a0c86a038bcce606604333f32e03f8
-
-Thanks!
-
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl+FzY0ACgkQFA3kzBSg
-KbaaXw/9GVxvuUSDOgJD2XFZbvdWzUHyr58OcfG6bnfRZrlD8RJPLSmGUTA8xsLr
-5AbQG5y18J84KIiUqQpfFXR8Tie0NmTb7cCzCz5S/uTTzuCNNt/WU04OCDdTrbFV
-ZkfxZV3chY+oo7yDRCsGzSNDj3Wn0MQlp5MKnSXjRoQAihxId0ePRSQ9F+r/vWlt
-wqpCN6kDFZrjKZESDlY6CReVpvt4VHzQfW8O2NzlSUgkP3c08xBa0ILRNZGC2wUs
-Cw4mngubxrXvFCt5i/p+a797GbB5rsamwu0inmnoDYD92+BDJpJicf5GsxeO1Z/B
-RpETW9U6lQZZ1AqolS0hLwt4BULgU5QQSUx9to7O6mcvI/0jLApRi60X5baf5rny
-w3W/spX6FzPBzrrwucQxg5/RpJIirTa8RANtXChGwcVFxucvX0nXEWS/URiejy8t
-nVL9wnCinWtBAR3/sYeOSy0jpUuNJ0EusOKdwiPZbZxz50zs4Da5l+ER3ZuTjtlB
-AXU1fzYl4OH041qioAyJOuXf6GV5YZJm+P3xPbc55gnTqLTC3tqmm5Uk8lq0X1aT
-VPvR1Xq3c55uUG8rBfR2HMh07jETerLuTd71plQz6yV0IpiwzSSd6fBVrI1K6fRX
-c2a4HsBmTaZ9fkQMxQ9Lby+ktflUXf0GX/E7k0TErp2gC08yg4Q=
-=0/8Q
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
