@@ -2,150 +2,129 @@ Return-Path: <SRS0=ZJhJ=DV=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60424C433E7
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 13:46:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DCA2C43467
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 14:42:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8E5B22242
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 13:46:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 62FE822203
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 14:42:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UJrwxGIO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FkHHq+IJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731157AbgJNNqR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 14 Oct 2020 09:46:17 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:26947 "EHLO
+        id S1726269AbgJNOmK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 14 Oct 2020 10:42:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52917 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729165AbgJNNqQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 09:46:16 -0400
+        by vger.kernel.org with ESMTP id S1729032AbgJNOmK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 10:42:10 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602683175;
+        s=mimecast20190719; t=1602686529;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Wz5wOwKo0yVq73Er/y/1PB95j1y0IW2kymLlsiYsZYA=;
-        b=UJrwxGIOmhCOV+Vmt9r8aUUH7rG+fSm+Cuy1z/0gzEvmltJcg+rUbBlJ3ykIRBnhUIB/Yo
-        SajsqmgLL2iUQJWd3a8y3BHxdQxuUwMpiPYFiX9TBGtDsFOIuTl7OT6U8TY+hENXZHp9gN
-        PHk5L+drhNrg3rlxf5rngTuD9MOkuWg=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-210-nRzj95LNOiSHutJT25iKXw-1; Wed, 14 Oct 2020 09:46:11 -0400
-X-MC-Unique: nRzj95LNOiSHutJT25iKXw-1
-Received: by mail-ej1-f72.google.com with SMTP id x22so1192599ejs.17
-        for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2020 06:46:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Wz5wOwKo0yVq73Er/y/1PB95j1y0IW2kymLlsiYsZYA=;
-        b=gEmteSKst/EYmKOqrREGfje2SOOeZysbS6cPCfNLmgmVkBbR3lMZDna/PPn+VzBmQ+
-         ee2DFvfDRuDiEsPgaO3DZuYH3YSJuGZs2R5xFoVRFFcttVrzq6BMW3lhf9ixLxTeuqmY
-         1Y7a+xiTr7FgyQRA456qFWIbE7LuEHPSsw/qvRKTNFgF7pFTb1Wq24lGBqj9vWPFRD9k
-         Y3nXdZEhRCay0yFQG5OQQ74OR/TMO5czpNlYGSgyCNR6Puw6PPMGxaKvEQ/dLMF/3+Kd
-         rMTg7nmAkwudYH2jaxoTDbxQYylwzT0jbavfasaTaFE88YpxOYxCrF7GhxkIyzuC7mzS
-         loGw==
-X-Gm-Message-State: AOAM530VA93jQ2XsnxBgf6WwL8Vf5qRhkg6HfUMcf4YSUO38aPfQymnG
-        KABqyWkgVW9zx7H+6q2y1F/FnmalYXqH2TqtCDboY91ic3EQDN3BrsNkvyPqZ8Xgob9BqeuJ9fo
-        bCFgc/sM7zaRh3R19YDGb
-X-Received: by 2002:a17:906:a0cb:: with SMTP id bh11mr5532303ejb.314.1602683170479;
-        Wed, 14 Oct 2020 06:46:10 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwb1nM/ZqfaRSOoR+zmuMc2x55E7Mkc/9Q5kPU90Nyx6UJvLiTtXmO9Wmhqbb2jybKDvwDJ7Q==
-X-Received: by 2002:a17:906:a0cb:: with SMTP id bh11mr5532280ejb.314.1602683170246;
-        Wed, 14 Oct 2020 06:46:10 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id k26sm1766239eji.22.2020.10.14.06.46.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Oct 2020 06:46:09 -0700 (PDT)
-Subject: Re: [PATCH AUTOSEL 5.8 17/20] i2c: core: Call
- i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
+        bh=PlJoLtIpkVOz1qyb1zjr6+0JD61+zNOgWz6cLK2byzI=;
+        b=FkHHq+IJRWS8lvsJPmqlOyWWJDWZAaJHkKq9kGWCFEgTWRNHjCEamnrxyAkrWeLDUjrn/Y
+        6hXtWsevq5kxu8fuD3I+22+R2N6UmicnelM37/XM40p+g6Md/cJinValoI5TM6vus1Emb8
+        s/CC15KbS5/QHtmDft+YNyQuVzBKv3s=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-1-X78Fyf9RO3q9XwTFpdIA2w-1; Wed, 14 Oct 2020 10:42:06 -0400
+X-MC-Unique: X78Fyf9RO3q9XwTFpdIA2w-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6F5421021213;
+        Wed, 14 Oct 2020 14:42:04 +0000 (UTC)
+Received: from x1.localdomain (ovpn-112-126.ams2.redhat.com [10.36.112.126])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 90CFC6EF7B;
+        Wed, 14 Oct 2020 14:42:02 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
-To:     kieran.bingham@ideasonboard.com, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org
-References: <20200921144027.2135390-1-sashal@kernel.org>
- <20200921144027.2135390-17-sashal@kernel.org>
- <1977b57b-fae6-d9d4-e6bf-3d4013619537@ideasonboard.com>
- <bbeb7cae-d856-bb25-4602-8dd3bae62773@redhat.com>
-Message-ID: <d1318f56-e610-b095-6d8c-37f94444882e@redhat.com>
-Date:   Wed, 14 Oct 2020 15:46:08 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+To:     Wolfram Sang <wsa@the-dreams.de>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        stable@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH 5.8+ regression fix] i2c: core: Restore acpi_walk_dep_device_list() getting called after registering the ACPI i2c devs
+Date:   Wed, 14 Oct 2020 16:41:58 +0200
+Message-Id: <20201014144158.18036-2-hdegoede@redhat.com>
+In-Reply-To: <20201014144158.18036-1-hdegoede@redhat.com>
+References: <20201014144158.18036-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <bbeb7cae-d856-bb25-4602-8dd3bae62773@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi all,
+Commit 21653a4181ff ("i2c: core: Call i2c_acpi_install_space_handler()
+before i2c_acpi_register_devices()")'s intention was to only move the
+acpi_install_address_space_handler() call to the point before where
+the ACPI declared i2c-children of the adapter where instantiated by
+i2c_acpi_register_devices().
 
-On 10/14/20 1:23 PM, Hans de Goede wrote:
-> Hi,
-> 
-> On 10/14/20 1:09 PM, Kieran Bingham wrote:
->> Hi Hans, Sasha,
->>
->> As mentioned on https://github.com/linux-surface/kernel/issues/63, I'm
->> afraid I've bisected a boot time issue on the Microsoft Surface Go 2 to
->> this commit on the stable 5.8 tree.
->>
->> The effect as reported there is that the boot process stalls just after
->> loading the usbhid module.
->>
->> Typing, or interacting with the Keyboard (Type Cover) at that point
->> appears to cause usb bus resets, but I don't know if that's a related
->> symptom or just an effect of some underlying root cause.
->>
->> I have been running a linux-media kernel on this device without issue.
->>
->> Is this commit in 5.9? I'll build a vanilla v5.9 kernel and see if it
->> occurs there too.
-> 
-> Yes the commit is in 5.9 too. Still would be interesting to see if 5.9 hits
-> this issue too. I guess it will, but as I mentioned in:
-> 
-> https://github.com/linux-surface/kernel/issues/63
-> 
-> I do not understand why this commit is causing this issue.
-> 
-> So I just checked and the whole acpidump is not using I2C
-> opregion stuff at all:
-> 
-> [hans@x1 microsoft-surface-go2]$ ack GenericSerialBus *.dsl
-> [hans@x1 microsoft-surface-go2]$
-> 
-> And there is only 1 _REG handler which is for the
-> embedded-controller.
-> 
-> So this patch should not make a difference at all on the GO2,
-> other then maybe a subtle timing difference somewhere ... ?
+But i2c_acpi_install_space_handler() had a call to
+acpi_walk_dep_device_list() hidden (that is I missed it) at the end
+of it, so as an unwanted side-effect now acpi_walk_dep_device_list()
+was also being called before i2c_acpi_register_devices().
 
-Thanks to Maximilian Luz sharp eyes this is explained now,
-despite the name of the i2c_acpi_install_space_handler()
-it also had a acpi_walk_dep_device_list() call hidden in
-there, so the "i2c: core: Call i2c_acpi_install_space_handler()
-before i2c_acpi_register_devices()" also moved that
-acpi_walk_dep_device_list() earlier.
+Move the acpi_walk_dep_device_list() call to the end of
+i2c_acpi_register_devices(), so that it is once again called *after*
+the i2c_client-s hanging of the adapter have been created.
 
-I've given Kieran a patch to test which in essence reverts
-the part where the acpi_walk_dep_device_list() call is also
-moved earlier and that fixes the Surface Go 2 not booting.
+This fixes the Microsoft Surface Go 2 hanging at boot.
 
-I will submit this fix upstream right away and I'll also
-send a separate mail to Greg / stable@vger to see if Greg
-is willing to make an exception and at this to the stable
-series before it hits Linus' tree.
+Fixes: 21653a4181ff ("i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()")
+Suggested-by: Maximilian Luz <luzmaximilian@gmail.com>
+Reported-and-tested-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/i2c/i2c-core-acpi.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-Regards,
-
-Hans
-
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index e627d7b2790f..37c510d9347a 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -264,6 +264,7 @@ static acpi_status i2c_acpi_add_device(acpi_handle handle, u32 level,
+ void i2c_acpi_register_devices(struct i2c_adapter *adap)
+ {
+ 	acpi_status status;
++	acpi_handle handle;
+ 
+ 	if (!has_acpi_companion(&adap->dev))
+ 		return;
+@@ -274,6 +275,15 @@ void i2c_acpi_register_devices(struct i2c_adapter *adap)
+ 				     adap, NULL);
+ 	if (ACPI_FAILURE(status))
+ 		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
++
++	if (!adap->dev.parent)
++		return;
++
++	handle = ACPI_HANDLE(adap->dev.parent);
++	if (!handle)
++		return;
++
++	acpi_walk_dep_device_list(handle);
+ }
+ 
+ static const struct acpi_device_id i2c_acpi_force_400khz_device_ids[] = {
+@@ -719,7 +729,6 @@ int i2c_acpi_install_space_handler(struct i2c_adapter *adapter)
+ 		return -ENOMEM;
+ 	}
+ 
+-	acpi_walk_dep_device_list(handle);
+ 	return 0;
+ }
+ 
+-- 
+2.28.0
 
