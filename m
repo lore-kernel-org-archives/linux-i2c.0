@@ -2,118 +2,91 @@ Return-Path: <SRS0=ZJhJ=DV=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7DEEC4363A
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:30:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BCD7C433DF
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:59:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7CE56206F4
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:30:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F0FA320757
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 09:59:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="EQTxzxUu"
+	dkim=pass (1024-bit key) header.d=vivotek.com header.i=@vivotek.com header.b="CsPTuZZ4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727449AbgJNJaa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 14 Oct 2020 05:30:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729685AbgJNJTi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 05:19:38 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9EBC0613D7
-        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:26:22 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id x16so532334pgj.3
-        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2020 14:26:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OoAVR9AHVrF5AmfQOiW6xvU4LK/5cY35UObNq6NT9XE=;
-        b=EQTxzxUuIKTcB+XY70IZK53ZA9IwEFA63ysUwVxyS6E2XHi8jvNKV1KDaWxPQOMZwa
-         DpWi781oIYquJ8RoAVv9BkQ8pmtZdjPU+u2OYk/cOqkvKpFXOplZdLqRCARtqWwa6WM8
-         M7r+0Nwo0XKiYriJXGI2rMUfGAmFqR3fW0Wl0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OoAVR9AHVrF5AmfQOiW6xvU4LK/5cY35UObNq6NT9XE=;
-        b=oxbVV2rSL+IfTziIm2BvyEfzP1IF6WG4OhzLbd9T8rat1s+LzvPoiPG/Yy903ACoRf
-         ltb/5y449dxi289842j1Z2x/NEGHR2a5mAZK4cbbhWjRtId9YdCr49Dt2W2Fs2Twq6qX
-         YLpuZTBsFwaOmlyS6+ULgDI1C2E2DpsYqyfbi27vNAdvnLSakS6FQjFB2xFtIJr49RYr
-         ZwmPkbZgyj7qazM9CjlHljnshinzdPo2AH0Cu6FFjjsqitBUC2TGW65iAFSQoP01W9cZ
-         X/P4c8zk5ekmsx+vz95BJr5+Iz6T8CAsoPLEeNJmTyijLNx74c1lxTXqXgbV2A+HZSQg
-         lMNg==
-X-Gm-Message-State: AOAM530GXjcLkTAlXYV31rrsKgXHV2FJmc7v/N+X3Mvk7ebYTA17Wk4C
-        VkFgrS/trwkAKHsOrqLhtM3gqg==
-X-Google-Smtp-Source: ABdhPJxjpE+t6tSF6IoGOjD0t+fTHO4qbXOhNCwIJqg8rHVYSn4dWpiqWHiGitjlRTuGvKhaxa/vBA==
-X-Received: by 2002:a63:fe49:: with SMTP id x9mr1177056pgj.192.1602624381982;
-        Tue, 13 Oct 2020 14:26:21 -0700 (PDT)
-Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
-        by smtp.gmail.com with ESMTPSA id b15sm167713pju.16.2020.10.13.14.26.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2020 14:26:21 -0700 (PDT)
-From:   Douglas Anderson <dianders@chromium.org>
-To:     Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Akash Asthana <akashast@codeaurora.org>
-Cc:     linux-i2c@vger.kernel.org,
-        Roja Rani Yarubandi <rojay@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        linux-arm-msm@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Andy Gross <agross@kernel.org>,
-        Girish Mahadevan <girishm@codeaurora.org>,
-        Karthikeyan Ramasubramanian <kramasub@codeaurora.org>,
-        Mukesh Kumar Savaliya <msavaliy@codeaurora.org>,
-        Sagar Dharia <sdharia@codeaurora.org>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/3] i2c: i2c-qcom-geni: More properly fix the DMA race
-Date:   Tue, 13 Oct 2020 14:25:27 -0700
-Message-Id: <20201013212531.428538-1-dianders@chromium.org>
-X-Mailer: git-send-email 2.28.0.1011.ga647a8990f-goog
+        id S1728732AbgJNJ71 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 14 Oct 2020 05:59:27 -0400
+Received: from mail.vivotek.com ([60.248.39.150]:58824 "EHLO mail.vivotek.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726819AbgJNJ7R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 14 Oct 2020 05:59:17 -0400
+Received: from pps.filterd (vivotekpps.vivotek.com [127.0.0.1])
+        by vivotekpps.vivotek.com (8.16.0.42/8.16.0.42) with SMTP id 09E9uik1021664;
+        Wed, 14 Oct 2020 17:58:56 +0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivotek.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=dkim;
+ bh=6t584Djr53EQcXcU6K+QSE638Sh/1JOwCPQkAczbV50=;
+ b=CsPTuZZ4P12UB8sOdxtDgpGoxlfp+FQYMOxNz8Dj2nCceh0DolRlnR4xlRyL9U82ZEIZ
+ KSLAms1U14RiMQkeDTsoRhnFY+kE4pAc/HTqMUexgjppbRA6Bp2vNLAMZGelFjizk/kD
+ dGt2Pzx+AowMXanXetgxirpE/FaU8oF7iuI= 
+Received: from cas02.vivotek.tw ([192.168.0.59])
+        by vivotekpps.vivotek.com with ESMTP id 342yd1auhn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Wed, 14 Oct 2020 17:58:56 +0800
+Received: from MBS07.vivotek.tw ([fe80::2027:4d67:6c01:78d8]) by
+ CAS02.vivotek.tw ([fe80::157e:3677:ef5b:27a2%11]) with mapi id
+ 14.03.0487.000; Wed, 14 Oct 2020 17:58:55 +0800
+From:   <Michael.Wu@vatics.com>
+To:     <andriy.shevchenko@linux.intel.com>, <lkp@intel.com>
+CC:     <jarkko.nikula@linux.intel.com>, <mika.westerberg@linux.intel.com>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <kbuild-all@lists.01.org>, <clang-built-linux@googlegroups.com>,
+        <morgan.chang@vatics.com>, <dean.hsiao@vatics.com>,
+        <paul.chen@vatics.com>
+Subject: RE: [PATCH] i2c: designware: fix slave omitted IC_INTR_STOP_DET
+Thread-Topic: [PATCH] i2c: designware: fix slave omitted IC_INTR_STOP_DET
+Thread-Index: AQHWoeqZ3WHFhjPhe0qk+0HSIl1FPamWMHSAgAAUZoCAAJcqsA==
+Date:   Wed, 14 Oct 2020 09:58:54 +0000
+Message-ID: <5DB475451BAA174CB158B5E897FC1525B1294238@MBS07.vivotek.tw>
+References: <20201014052532.3298-1-michael.wu@vatics.com>
+ <202010141551.Y4x2qiN1-lkp@intel.com>
+ <20201014085251.GS4077@smile.fi.intel.com>
+In-Reply-To: <20201014085251.GS4077@smile.fi.intel.com>
+Accept-Language: zh-TW, en-US
+Content-Language: zh-TW
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [192.168.17.134]
+Content-Type: text/plain; charset="big5"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-10-14_06:2020-10-14,2020-10-14 signatures=0
+X-Proofpoint-Spam-Reason: safe
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Previously I landed commit 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA
-transfer race") to fix a race we were seeing.  While that most
-definitely fixed the race we were seeing, it looks like it causes
-problems in the TX path, which we didn't stress test until we started
-trying to update firmware on devices.
-
-Let's revert that patch and try another way: fix the original problem
-by disabling the interrupts that aren't relevant to DMA transfers.
-Now we can stress both TX and RX cases and see no problems.  I also
-can't find any place to put an msleep() that causes problems anymore.
-
-Since this problem only affects i2c, I'm hoping for an Ack from Bjorn
-and then all these patches can go through the i2c tree.  However, if
-maintainers want to work a different way out to land that's OK too.
-
-NOTE: the 3rd patch in the series could certianly be squashed with
-patch #1 or I could re-order / rejigger.  To me it seemed like a good
-idea to first fix the probelm (and make the two functions as much of
-an inverse as possible) and later try to clean things up.  Yell if you
-want something different.
-
-Changes in v2:
-- Consistently use "val_old" to keep track of old value.
-- Add comments about why UART is special.
-
-Douglas Anderson (3):
-  soc: qcom: geni: More properly switch to DMA mode
-  Revert "i2c: i2c-qcom-geni: Fix DMA transfer race"
-  soc: qcom: geni: Optimize/comment select fifo/dma mode
-
- drivers/i2c/busses/i2c-qcom-geni.c |  6 ++--
- drivers/soc/qcom/qcom-geni-se.c    | 55 ++++++++++++++++++++++--------
- 2 files changed, 43 insertions(+), 18 deletions(-)
-
--- 
-2.28.0.1011.ga647a8990f-goog
-
+T24gMTAvMTQvMjAgNDo1MyBQTSwgYW5kcml5LnNoZXZjaGVua29AbGludXguaW50ZWwuY29tIHdy
+b3RlOg0KPiANCj4gV29uZGVyaW5nIGlmIHlvdSBjb21waWxlIHRoaXMgYXQgYWxsLi4uDQoNCg0K
+SSdtIHZlcnkgc29ycnkgdGhhdCBJIGRpZCBub3QgY29tcGlsZSBpdCBiZWNhdXNlIEkgb25seSBo
+YXZlIEFSTSBTb0Mgd2l0aCBteQ0KbGludXggNC45LjE3MCwgYnV0IEkndmUgdmVyaWZpZWQgdGhl
+IGxvZ2ljIG9mIHRoaXMgcGF0Y2ggaW4gbXkgbGludXguDQoNCkknbGwgY29ycmVjdCB0aGVzZSB0
+d28gc3ludGF4IGVycm9ycyBpbiBuZXh0IHZlcnNpb24uIFRoZSByZXBvcnRlZA0Kd2FybmluZ3Mg
+b2NjdXJzIGZyb20gZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXNsYXZlLmM6MTMg
+c2VlbXMNCm5vdCBtYWRlIGJ5IHRoaXMgbW9kaWZpY2F0aW9uLiBQbGVhc2UgY29ycmVjdCBtZSBp
+ZiBJJ20gd3JvbmcuLi4uDQoNCj4gPiAgICBpbmNsdWRlL2FzbS1nZW5lcmljL2lvLmg6MTAxNzo1
+NTogd2FybmluZzogcGVyZm9ybWluZyBwb2ludGVyDQo+IGFyaXRobWV0aWMgb24gYSBudWxsIHBv
+aW50ZXIgaGFzIHVuZGVmaW5lZCBiZWhhdmlvcg0KPiBbLVdudWxsLXBvaW50ZXItYXJpdGhtZXRp
+Y10NCj4gPiAgICAgICAgICAgIHJldHVybiAocG9ydCA+IE1NSU9fVVBQRVJfTElNSVQpID8gTlVM
+TCA6IFBDSV9JT0JBU0UgKw0KPiBwb3J0Ow0KPiA+DQo+IH5+fn5+fn5+fn4gXg0KPiA+ID4+IGRy
+aXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1zbGF2ZS5jOjE4MTo0MjogZXJyb3I6IGV4
+cGVjdGVkICc7JyBhZnRlcg0KPiBleHByZXNzaW9uDQo+ID4gICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgZGV2LT5zdGF0dXMgPQ0KPiBTVEFUVVNfV1JJVEVfSU5fUFJPR1JFU1MNCj4gPg0KPiBe
+DQo+ID4NCj4gICAgOw0KPiA+ID4+IGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1z
+bGF2ZS5jOjE5NToyMjogZXJyb3I6IHVzZSBvZg0KPiB1bmRlY2xhcmVkIGlkZW50aWZpZXIgJ1NU
+QVRVU19JREVMJw0KPiA+ICAgICAgICAgICAgICAgICAgICBpZiAoZGV2LT5zdGF0dXMgIT0gU1RB
+VFVTX0lERUwpIHsNCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF4N
+Cj4gPiAgICA3IHdhcm5pbmdzIGFuZCAyIGVycm9ycyBnZW5lcmF0ZWQuDQo+IA0KPiANCj4gDQoN
+Cg==
