@@ -2,158 +2,78 @@ Return-Path: <SRS0=ZJhJ=DV=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69280C4363A
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 14:42:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51336C43457
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 15:13:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1B2F4212CC
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 14:42:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CSwKIiqb"
+	by mail.kernel.org (Postfix) with ESMTP id EB80E2222E
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 15:13:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1602688389;
+	bh=3i5dhUIVAy4nbl1V3WKqV1+5PF4u0kkQVmgry44PdW4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=ymtK60XkQXhYaEL0vYGinlBkoVizE3qR43fa6IeP1KbZgfzi5aL1rRSrP+FLvtXyT
+	 wUq2hr/mrxGxylY06QR/u4NpgmmR8U7iWTaScKp5uRa5xW1GOk+EEm6Z3xhTZnho26
+	 XYYYxJGIUP3BSXhWq1kUk2VO0d40TWpXrY0U5Ueo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729322AbgJNOmN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 14 Oct 2020 10:42:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28017 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729179AbgJNOmK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 10:42:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602686529;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=AyWfiZ87mZMggRfQO4NsuqE5LIObC7zu63xuUqiKqPA=;
-        b=CSwKIiqb/uPdCHKipnfEEBy4QzjSPAlpykvOITvDIDsKUhadiXSdqI2TzgAzsDISkHUwGw
-        HayDlGyrDcV9pVQNgOvpxaBEiV3Aq3R84adpUURwDpZrTHA4bkHV4ilnc95/uCOlIIfIeD
-        811qYUNBbXrr4pbYq7PilrHJUu+mEsU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-441-G-VBpyUcP4iS7GWHal35ww-1; Wed, 14 Oct 2020 10:42:04 -0400
-X-MC-Unique: G-VBpyUcP4iS7GWHal35ww-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1730133AbgJNPNI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 14 Oct 2020 11:13:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38870 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726006AbgJNPNI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 14 Oct 2020 11:13:08 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3A4158030AE;
-        Wed, 14 Oct 2020 14:42:02 +0000 (UTC)
-Received: from x1.localdomain (ovpn-112-126.ams2.redhat.com [10.36.112.126])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 219D77BE43;
-        Wed, 14 Oct 2020 14:41:59 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Wolfram Sang <wsa@the-dreams.de>,
+        by mail.kernel.org (Postfix) with ESMTPSA id B963920714;
+        Wed, 14 Oct 2020 15:13:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1602688387;
+        bh=3i5dhUIVAy4nbl1V3WKqV1+5PF4u0kkQVmgry44PdW4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gzuO+r6W7qZ91N2av8n7cDiJfqvdzzX0Uxet1DjP0Yb+jG2gMQ7tIkr4vBi1TDDxs
+         uDrbp8rf55Q547yyfMenJUUEZH1KtXXuJ6rOOUar/kY35JoRXL7H2Nlb58n289xUyV
+         kC8PuMo4SVtLa6g6oqYHuVvILNHMMRZcWwneEOI4=
+Date:   Wed, 14 Oct 2020 17:13:41 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Wolfram Sang <wsa@the-dreams.de>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
         Kieran Bingham <kieran.bingham@ideasonboard.com>,
         Maximilian Luz <luzmaximilian@gmail.com>,
         stable@vger.kernel.org, linux-i2c@vger.kernel.org,
         linux-acpi@vger.kernel.org
-Subject: [PATCH 5.8+ regression fix 0/1] i2c: core: Restore acpi_walk_dep_device_list() getting called after registering the ACPI i2c devs
-Date:   Wed, 14 Oct 2020 16:41:57 +0200
-Message-Id: <20201014144158.18036-1-hdegoede@redhat.com>
+Subject: Re: [PATCH 5.8+ regression fix 0/1] i2c: core: Restore
+ acpi_walk_dep_device_list() getting called after registering the ACPI i2c
+ devs
+Message-ID: <20201014151341.GB3761660@kroah.com>
+References: <20201014144158.18036-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201014144158.18036-1-hdegoede@redhat.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi All,
+On Wed, Oct 14, 2020 at 04:41:57PM +0200, Hans de Goede wrote:
+> Hi All,
+> 
+> I am afraid that commit 21653a4181ff ("i2c: core: Call
+> i2c_acpi_install_space_handler() before i2c_acpi_register_devices()")
+> which is in 5.9 and was also added to 5.8.13 (and possible other
+> stable series releases) causes a regression on some devices including
+> on the Microsoft Surface Go 2 (and possibly also the Go 1) where the
+> system no longer boots.
 
-I am afraid that commit 21653a4181ff ("i2c: core: Call
-i2c_acpi_install_space_handler() before i2c_acpi_register_devices()")
-which is in 5.9 and was also added to 5.8.13 (and possible other
-stable series releases) causes a regression on some devices including
-on the Microsoft Surface Go 2 (and possibly also the Go 1) where the
-system no longer boots.
+That commit is also in the following stable releases:
+	4.9.238 4.14.200 4.19.149 5.4.69 5.8.13
 
-Before the troublesome commit the ACPI related i2c core code looked
-like this:
+so it would need to fixed in all of those places :)
 
-        /* create pre-declared device nodes */
-        of_i2c_register_devices(adap);
-        i2c_acpi_register_devices(adap);
-        i2c_acpi_install_space_handler(adap);
+thanks,
 
-	if (...
-
-The trouble some commit changed this to:
-
-        /* create pre-declared device nodes */
-        of_i2c_register_devices(adap);
-        i2c_acpi_install_space_handler(adap);
-        i2c_acpi_register_devices(adap);
-
-	if (...
-
-The goal here was to only move the acpi_install_address_space_handler()
-which is wrapped by i2c_acpi_install_space_handler() which should be
-pretty safe. But as Maximilian Luz' sharp eyes pointed out while
-debugging the regression, i2c_acpi_install_space_handler() does more,
-it also contains a call to acpi_walk_dep_device_list() at the end.
-Which I missed and which is causing the trouble we are seeing now.
-
-The original code flow looked like this:
-
-1.  i2c_acpi_register_devices()
-1.1  Create ACPI declared i2c_clients for adap
-2.  i2c_acpi_install_space_handler(adap);
-2.1  acpi_install_address_space_handler()
-2.2  acpi_walk_dep_device_list()
-
-And after the troublesome commit it now looks like this:
-
-1.  i2c_acpi_install_space_handler(adap);
-1.1  acpi_install_address_space_handler()
-1.2  acpi_walk_dep_device_list()
-2.  i2c_acpi_register_devices()
-2.1  Create ACPI declared i2c_clients for adap
-
-Notice that the acpi_walk_dep_device_list() now happens before
-the i2c_clients below this adapter are created.
-
-The patch in this 1 patch series fixes this by moving the
-acpi_walk_dep_device_list() call to the end of
-i2c_acpi_register_devices(), partly restoring the original
-order, so that we now get:
-
-1.  i2c_acpi_install_space_handler(adap);
-1.1  acpi_install_address_space_handler()
-2.  i2c_acpi_register_devices()
-2.1  Create ACPI declared i2c_clients for adap
-2.2  acpi_walk_dep_device_list()
-
-So we end up calling acpi_walk_dep_device_list() last
-again, as before.
-
-Sorry for missing this the first time around.
-
-Wolfram, can we get this queued up to go to Linus
-soonish ?
-
-Greg, in essence this is a partial revert of the trouble
-some commit. With the 2 combined acpi_walk_dep_device_list()
-is called last again, while still doing the
-acpi_install_address_space_handler() call earlier.
-
-Since this is a somewhat nasty regression and since the poor
-timing wrt the merge-window, I was hoping that you would be
-willing to make an exception and pick up this fix before
-it hits Linus' tree?
-
-The alternative would be to revert this now and then pick
-up both again later, when the fix has landed in Linus'
-tree. The problem with that is that reverting the original
-troublesome commit will regress all these bugs:
-
-https://bugzilla.redhat.com/show_bug.cgi?id=1842039
-https://bugzilla.redhat.com/show_bug.cgi?id=1871793
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1861610
-
-Regards,
-
-Hans
-
+greg k-h
