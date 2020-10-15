@@ -1,145 +1,246 @@
-Return-Path: <SRS0=ZJhJ=DV=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=pK4q=DW=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B102C433DF
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 22:35:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95D2FC43457
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Oct 2020 01:20:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0347C22242
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Oct 2020 22:35:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F87D22254
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Oct 2020 01:20:07 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="E6eOmSNX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726395AbgJNWfH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 14 Oct 2020 18:35:07 -0400
-Received: from ms-10.1blu.de ([178.254.4.101]:53270 "EHLO ms-10.1blu.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727387AbgJNWfH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 14 Oct 2020 18:35:07 -0400
-Received: from [37.201.5.97] (helo=[192.168.1.61])
-        by ms-10.1blu.de with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.90_1)
-        (envelope-from <rainer@finke.cc>)
-        id 1kSpML-00078D-Ih; Thu, 15 Oct 2020 00:35:01 +0200
-From:   Rainer Finke <rainer@finke.cc>
-Subject: Re: [Bug 209627] Touchscreen doesn't work anymore since commit
- 21653a4181ff292480599dad996a2b759ccf050f (regression)
-To:     Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org
-Cc:     mika.westerberg@linux.intel.com, wsa@kernel.org, sashal@kernel.org
-References: <ab71ef62-64c8-ff31-c5aa-43ad454d1143@finke.cc>
- <cb544a8b-98e8-2f43-4984-bc0422a05703@redhat.com>
- <4dd2d096-a3dd-c151-01ff-346fd776351d@redhat.com>
-Message-ID: <7ddaf5ab-bca9-e634-d829-8965fb3be0ba@finke.cc>
-Date:   Thu, 15 Oct 2020 00:35:00 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:82.0) Gecko/20100101
- Thunderbird/82.0
+        id S2387865AbgJOBUG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 14 Oct 2020 21:20:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47408 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388063AbgJOBTi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2020 21:19:38 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5D60C0F26F2
+        for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2020 18:02:31 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id gv6so831028pjb.4
+        for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2020 18:02:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=cN8iWVwIWlPjYidVuxp+wz9oABo5owVEFQAK0K6BKUM=;
+        b=E6eOmSNXtAINHXWwPQsrJYWzhKEHOl89Gai9Nl4U9K2LH6/VBV9ard/8xd0yol4x4v
+         QT7qxrBRAFleDyiFUJUWlCNmUtRUYdxOVAMXEkZeTXI+nWETl7yyw41yVxM7jCgOlimL
+         mIC9+GlbPZEF31Z+LJGrJkjBY2+PWz+WPWpvU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=cN8iWVwIWlPjYidVuxp+wz9oABo5owVEFQAK0K6BKUM=;
+        b=bEOjiWC6+JX0LX2k4snYRGUcAwELLYj8zyO0gf8f6/Z/kGIrZt5LAMhXwwb9lDOLRq
+         6powQymElrOHh5U7GfoVUJovtneAWSCN415VD3bZyiOxUcJ+vaF+CNc1FDkCFl5wCrlL
+         RWulcfex8g1z0UqdB5cKLadKNBEPWk1csa2O+RGPne+5SPaimbpXrPePYyARkUHJMuqa
+         essOIGLTweIcVBkVYRQ07eEbST+BMBxYZGEPncA7mJ9Ig+krrpp6SSezrE3lOQyhY9to
+         tbZCdvWpSsAF/pOjZEIKxM/xd8NKsQxYb2dMeSeuP7xnxgPzmEz0bCLC2sSH1XS1wy5k
+         rpKg==
+X-Gm-Message-State: AOAM532//ItibhfNQjc7eCSnVHwIViEz/tXTpLYTuYgUg4/N2+8zfpwe
+        7vxF81XvqLihu6dOw+sV3s4rAg==
+X-Google-Smtp-Source: ABdhPJwE5YayqkqKkC9J5klOSEW+82YFUqxanT7y9N0m/WSX3llQw9jqkril6M7RV77Imt5iUhIoQg==
+X-Received: by 2002:a17:90b:3103:: with SMTP id gc3mr1827983pjb.158.1602723751210;
+        Wed, 14 Oct 2020 18:02:31 -0700 (PDT)
+Received: from evgreen-glaptop.cheshire.ch ([2601:646:c780:1404:a2ce:c8ff:fec4:54a3])
+        by smtp.gmail.com with ESMTPSA id n12sm826855pjt.16.2020.10.14.18.02.29
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 14 Oct 2020 18:02:30 -0700 (PDT)
+From:   Evan Green <evgreen@chromium.org>
+To:     Peter Rosin <peda@axentia.se>
+Cc:     Wolfram Sang <wsa@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Evan Green <evgreen@chromium.org>,
+        Peter Korsgaard <peter.korsgaard@barco.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] i2c: i2c-mux-gpio: Enable this driver in ACPI land
+Date:   Wed, 14 Oct 2020 18:02:23 -0700
+Message-Id: <20201014180137.v2.1.Idef164c23d326f5e5edecfc5d3eb2a68fcf18be1@changeid>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-In-Reply-To: <4dd2d096-a3dd-c151-01ff-346fd776351d@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Con-Id: 198604
-X-Con-U: 0-mail
-X-Originating-IP: 37.201.5.97
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+Enable i2c-mux-gpio devices to be defined via ACPI. The idle-state
+property translates directly to a fwnode_property_*() call. The child
+reg property translates naturally into _ADR in ACPI.
 
-On 14.10.20 17:13, Hans de Goede wrote:
-> Hi,
->
-> On 10/13/20 5:45 PM, Hans de Goede wrote:
->> Hi,
->>
->> On 10/12/20 9:52 PM, Rainer Finke wrote:
->>> After upgrading from Linux 5.4.68 to Linux 5.4.69, the touchscreen 
->>> of my Huawei Matebook 12 doesn't work anymore. The same issue 
->>> happens with Linux >= 5.8.13.
->>>
->>> I've compiled Linux from git to verify if it was fixed, but it 
->>> doesn't help. But when reverting the commit 
->>> 21653a4181ff292480599dad996a2b759ccf050f the touchscreen works fine 
->>> again.
->>>
->>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=v5.8.13&id=953fc770d069b167266d9d9ccfef0455fcfdc070 
->>>
->>>
->>> For reference my bug reports:
->>>
->>> https://bugzilla.kernel.org/show_bug.cgi?id=209627
->>>
->>> https://bugs.archlinux.org/task/68178#comment193400
->>>
->>>
->>> Hardware:
->>>
->>> - CPU Intel Core m3-6Y30
->>>
->>> - GPU Intel Graphics 515
->>
->> Thank you for your bug report and I'm sorry to hear about this problem.
->>
->> The commit in question fixes the touchpad not working on several
->> recent Lenovo models. What it does it makes the method (opregion) to
->> access the i2c bus from ACPI code available to the ACPI code before
->> calling the status method of ACPI devices on that i2c-bus.
->> This status method tells us if the device is actually present or not
->> and on those Thinkpads the status method did an i2c check, so we
->> needed to register the i2c opregion before checking for new devices.
->>
->> Registering the i2c opregion earlier seemed like an obvious
->> solution, but I was already afraid we would hit an issue on some
->> device because of this, because of ACPI being ACPI.
->>
->> It seems that the ACPI status method for your device probably
->> also does something with the i2c bus when the i2c opregion
->> is available, but for some reason that is not working...
->>
->> The next step in debugging this would be to take a look at
->> the ACPI tables for your device, can you please run:
->>
->> sudo acpidump -o acpidump.Huawei-Matebook-12
->>
->> And then send out an email with the generated
->> acpidump.Huawei-Matebook-12 file attached?
->>
->> Note please drop the list from the Cc when sending the
->> email with the attachment.
->>
->> What would also be useful (for a possible workaround) would
->> be the output of:
->>
->> grep . /sys/class/dmi/id/* 2> /dev/null
->>
->> Please run this as a normal user (*) and copy and paste
->> the output into your next email.
->
-> In the mean time another issue triggered by the same
-> commit has shown up on Microsoft Surface Go models.
->
-> With te help fo the reporters of that issue I have found
-> on issue with that commit.
->
-> Can you please try a kernel with the troublesome commit
-> *included* with the attached patch added on top and see
-> if that fixes things?
->
-> Regards,
->
-> Hans
+The i2c-parent binding is a relic from the days when all direct children
+of an i2c controller in Linux had to be i2c devices. These days that
+implementation detail has been worked out, so the i2c-mux can sit
+as a direct child of its parent controller, which is where it makes the
+most sense from a hardware description perspective. For the ACPI
+implementation we'll assume that's always how the i2c-mux-gpio is
+instantiated.
 
+Signed-off-by: Evan Green <evgreen@chromium.org>
+---
 
-I've compiled linux-git with the provided patch and it worked :-)
+Changes in v2:
+ - Make it compile properly when !CONFIG_ACPI (Randy)
+ - Update commit message regarding i2c-parent (Peter)
 
+ drivers/i2c/muxes/i2c-mux-gpio.c | 103 ++++++++++++++++++++++---------
+ 1 file changed, 75 insertions(+), 28 deletions(-)
 
-Thank you very much for the great support!
-
-Regards,
-
-Rainer Finke
+diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+index 4effe563e9e8d..8e4008f4a9b5d 100644
+--- a/drivers/i2c/muxes/i2c-mux-gpio.c
++++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+@@ -49,34 +49,80 @@ static int i2c_mux_gpio_deselect(struct i2c_mux_core *muxc, u32 chan)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_OF
+-static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
+-					struct platform_device *pdev)
++#ifdef CONFIG_ACPI
++
++static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
++				     struct fwnode_handle *fwdev,
++				     unsigned int *adr)
++
++{
++	unsigned long long adr64;
++	acpi_status status;
++
++	status = acpi_evaluate_integer(ACPI_HANDLE_FWNODE(fwdev),
++				       METHOD_NAME__ADR,
++				       NULL, &adr64);
++
++	if (!ACPI_SUCCESS(status)) {
++		dev_err(dev, "Cannot get address");
++		return -EINVAL;
++	}
++
++	*adr = adr64;
++	return 0;
++}
++
++#else
++
++static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
++				     struct fwnode_handle *fwdev,
++				     unsigned int *adr)
++{
++	return -EINVAL;
++}
++
++#endif
++
++static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
++				 struct platform_device *pdev)
+ {
+-	struct device_node *np = pdev->dev.of_node;
+-	struct device_node *adapter_np, *child;
+-	struct i2c_adapter *adapter;
++	struct device *dev = &pdev->dev;
++	struct device_node *np = dev->of_node;
++	acpi_handle dev_handle;
++	struct device_node *adapter_np;
++	struct i2c_adapter *adapter = NULL;
++	struct fwnode_handle *child = NULL;
+ 	unsigned *values;
+-	int i = 0;
++	int rc, i = 0;
+ 
+-	if (!np)
+-		return -ENODEV;
++	if (is_of_node(dev->fwnode)) {
++		if (!np)
++			return -ENODEV;
+ 
+-	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
+-	if (!adapter_np) {
+-		dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
+-		return -ENODEV;
++		adapter_np = of_parse_phandle(np, "i2c-parent", 0);
++		if (!adapter_np) {
++			dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
++			return -ENODEV;
++		}
++		adapter = of_find_i2c_adapter_by_node(adapter_np);
++		of_node_put(adapter_np);
++
++	} else if (is_acpi_node(dev->fwnode)) {
++		/*
++		 * In ACPI land the mux should be a direct child of the i2c
++		 * bus it muxes.
++		 */
++		dev_handle = ACPI_HANDLE(dev->parent);
++		adapter = i2c_acpi_find_adapter_by_handle(dev_handle);
+ 	}
+-	adapter = of_find_i2c_adapter_by_node(adapter_np);
+-	of_node_put(adapter_np);
++
+ 	if (!adapter)
+ 		return -EPROBE_DEFER;
+ 
+ 	mux->data.parent = i2c_adapter_id(adapter);
+ 	put_device(&adapter->dev);
+ 
+-	mux->data.n_values = of_get_child_count(np);
+-
++	mux->data.n_values = device_get_child_node_count(dev);
+ 	values = devm_kcalloc(&pdev->dev,
+ 			      mux->data.n_values, sizeof(*mux->data.values),
+ 			      GFP_KERNEL);
+@@ -85,24 +131,25 @@ static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
+ 		return -ENOMEM;
+ 	}
+ 
+-	for_each_child_of_node(np, child) {
+-		of_property_read_u32(child, "reg", values + i);
++	device_for_each_child_node(dev, child) {
++		if (is_of_node(child)) {
++			fwnode_property_read_u32(child, "reg", values + i);
++
++		} else if (is_acpi_node(child)) {
++			rc = i2c_mux_gpio_get_acpi_adr(dev, child, values + i);
++			if (rc)
++				return rc;
++		}
++
+ 		i++;
+ 	}
+ 	mux->data.values = values;
+ 
+-	if (of_property_read_u32(np, "idle-state", &mux->data.idle))
++	if (fwnode_property_read_u32(dev->fwnode, "idle-state", &mux->data.idle))
+ 		mux->data.idle = I2C_MUX_GPIO_NO_IDLE;
+ 
+ 	return 0;
+ }
+-#else
+-static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
+-					struct platform_device *pdev)
+-{
+-	return 0;
+-}
+-#endif
+ 
+ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ {
+@@ -118,7 +165,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	if (!dev_get_platdata(&pdev->dev)) {
+-		ret = i2c_mux_gpio_probe_dt(mux, pdev);
++		ret = i2c_mux_gpio_probe_fw(mux, pdev);
+ 		if (ret < 0)
+ 			return ret;
+ 	} else {
+-- 
+2.26.2
 
