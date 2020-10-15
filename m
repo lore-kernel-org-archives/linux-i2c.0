@@ -2,323 +2,165 @@ Return-Path: <SRS0=pK4q=DW=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F491C433DF
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Oct 2020 10:23:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A837C433DF
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Oct 2020 14:08:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 631A522249
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Oct 2020 10:23:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B4E222248
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Oct 2020 14:08:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=axentia.se header.i=@axentia.se header.b="FR067iYr"
+	dkim=pass (1024-bit key) header.d=sifive.com header.i=@sifive.com header.b="Y2qUD1xu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731114AbgJOKXr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 15 Oct 2020 06:23:47 -0400
-Received: from mail-eopbgr150110.outbound.protection.outlook.com ([40.107.15.110]:8233
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        id S1730820AbgJOOIo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 15 Oct 2020 10:08:44 -0400
+Received: from mail-co1nam11on2076.outbound.protection.outlook.com ([40.107.220.76]:36868
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726358AbgJOKXr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 15 Oct 2020 06:23:47 -0400
+        id S1727988AbgJOOIl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 15 Oct 2020 10:08:41 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SBWGo9Thf6satLLvLHJGrcAHjrhMPDWzltiFlZJLGXWVL9q+1gxZO5dfTaUD3u3wkiGWM3rb0Khg15Q7g6L7G9XYsYiRJgZ1UL0wGtQwhiAWIAbCaCeg+ERRB/zHNyrui40jgoDjMtucwq4wfkYx/SqmV1wx4aUl9VhdqY7BO9lzo3o2GlEoxhj8roBuUKkFyptrcVgPmbwfQFqTvms4RCsuy5iso4nK1XRYuMLCKsNwFSBmR8c5hRl0DPV7ufe1ioCLYejL9LcMINb+CHTngY4H5hOFgqxVQ3kJjM7BujqyhwkWvyCs5Zx5BFkrIuWRSWKEsvIez9NCa09V+0gAEw==
+ b=g8n/eeV6cqKZe3BnAmlRgKFMzF6axi666brggYG+xtCL6vz4wzPuo2vI1L0IeygLQJgR6rnPz+v+mguU5Mb+6nueAX0A1g2yBdilLWR5E/O4cQ6MlOYisCmGYWwujCcG66TlI1G2tP9juaeNUAhMW7L9pboE69U2dQfEOwZrABDnvwZINiurY3jDbS3LeouqVdQx1lD7FjPhsojtiLK94P6tCrz2gWNeH5eeoIeURQbiUxNrq0+kiHiTLlz8L5W/qOzABhCOJMN7SjM9N3tytP47qMJRrw5opAo7hmQJka7DJMyXN+YqqXU41HoDLBzlDzIjxQyrfB/sbQBIrrx2xw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=I899ycCOudjr1kdzmlERuq15qGXmmTTyIbz2AXqrbkg=;
- b=IAO++a1SKnywkx+FkIdkBzAoarVlmgXnCtgCmlIcYiPnCfuD0AT/grROQ2JQul5wxtCyqamhQsJn9UlFHEDAF1boTIW9jH2RXpdkfmK3rzpLd3w2lfo1lMNrejmiRLse5mpleuSU7xszK4svkIP0WTrer6nb5S778pR1DcPzAj4hVy61da/n+Q6v/xKAhtn2sWt2j1pcJTuyg7zlH3+ECOnlj8f80mb6juFxl5BbDCC7DR/Lpd2z0QX+MRZrnxL8bEWj0sDh6Yg4nlRmH34tSiz660jWeWKe4SIQQ1RJYjOYMnMcSk0ec1TpzwApkVaLVHNVX2vGOotJ6uGqNVXDTQ==
+ bh=AZkZ9pVM5omCs7E57OYSvcdKYXxYCWf8YlFN3nyLCF8=;
+ b=ZkD/NBkte6QuFo7EOVFWIgFA8PDwU4qDNuMUjTREYvAg0FuFDNoT1tzI3lK3mT5LVY9BDDI/mFT/nmgd9KiVovvVR4NVb7sfRa1TOYK+s9N7SFaOw1YZ82EdUEL2F8F+cgVb+wBkyarTWmPSccqcoiGwOH793RJmKqh380rYxdS0Pmb5hNtZr/Q6RHogaKx32brKtrF2YoQF3RclIzpFgo+JEGfdvgA+2Z5L0JSB7ikhZQHvGvDG8E1o2/rY0hSdtaAMHgwvPNBI5MoJsSRxhrAwNK89+wFRM5hwf2VEKhqA0bfSGFy5JpNvI2Snv2goq6HhxiByMt5BvratQQC82g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=axentia.se; dmarc=pass action=none header.from=axentia.se;
- dkim=pass header.d=axentia.se; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axentia.se;
- s=selector2;
+ smtp.mailfrom=openfive.com; dmarc=pass action=none header.from=sifive.com;
+ dkim=pass header.d=sifive.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sifive.com;
+ s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=I899ycCOudjr1kdzmlERuq15qGXmmTTyIbz2AXqrbkg=;
- b=FR067iYrqUWITpk81dfDULRs7CTTOFA9RJyUW3rcuGIG0KCLT09DjeK43AnwcfBhbZHQSi6A0LaJn527uLkObsHVLIVmaNvj3HDz4mkeFWzLt+KoSsAHouUdeBceKsXKPo/ydrVcBaSLhQAUBBD16BYhZR4XUf1qIFRHcRPlubI=
+ bh=AZkZ9pVM5omCs7E57OYSvcdKYXxYCWf8YlFN3nyLCF8=;
+ b=Y2qUD1xuVnHRlE5IdqapQ24jFsyZ9VwMoV7uWzEHwHllr1cyL9hA8rvI82eyDR17KhRPgk0UsIInuHSgOP8LukrHvCU5Ot+EkkPuyo7s+qVo+EDNXtA4uoPPGFNdHnnVEGSAfaSHGF99Io/5pvece9qpCYay4LAUHgpwmw25QjA=
 Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=axentia.se;
-Received: from DB8PR02MB5482.eurprd02.prod.outlook.com (2603:10a6:10:eb::29)
- by DB8PR02MB5963.eurprd02.prod.outlook.com (2603:10a6:10:fa::20) with
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=sifive.com;
+Received: from DM6PR13MB3451.namprd13.prod.outlook.com (2603:10b6:5:1c3::10)
+ by DM6PR13MB4067.namprd13.prod.outlook.com (2603:10b6:5:2a6::8) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3455.27; Thu, 15 Oct
- 2020 10:23:41 +0000
-Received: from DB8PR02MB5482.eurprd02.prod.outlook.com
- ([fe80::9178:a26c:c1e1:636b]) by DB8PR02MB5482.eurprd02.prod.outlook.com
- ([fe80::9178:a26c:c1e1:636b%4]) with mapi id 15.20.3477.020; Thu, 15 Oct 2020
- 10:23:41 +0000
-Subject: Re: [PATCH v2] i2c: i2c-mux-gpio: Enable this driver in ACPI land
-To:     Evan Green <evgreen@chromium.org>
-Cc:     Wolfram Sang <wsa@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Peter Korsgaard <peter.korsgaard@barco.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20201014180137.v2.1.Idef164c23d326f5e5edecfc5d3eb2a68fcf18be1@changeid>
-From:   Peter Rosin <peda@axentia.se>
-Organization: Axentia Technologies AB
-Message-ID: <6ac96561-0415-0ac6-8771-99c8bdee0881@axentia.se>
-Date:   Thu, 15 Oct 2020 12:23:30 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.1
-In-Reply-To: <20201014180137.v2.1.Idef164c23d326f5e5edecfc5d3eb2a68fcf18be1@changeid>
-Content-Type: text/plain; charset=utf-8
-Content-Language: sv-SE
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [85.229.94.207]
-X-ClientProxiedBy: HE1PR0402CA0018.eurprd04.prod.outlook.com
- (2603:10a6:3:d0::28) To DB8PR02MB5482.eurprd02.prod.outlook.com
- (2603:10a6:10:eb::29)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3477.11; Thu, 15 Oct
+ 2020 14:08:38 +0000
+Received: from DM6PR13MB3451.namprd13.prod.outlook.com
+ ([fe80::f49f:d6d6:4c97:e5d5]) by DM6PR13MB3451.namprd13.prod.outlook.com
+ ([fe80::f49f:d6d6:4c97:e5d5%7]) with mapi id 15.20.3477.019; Thu, 15 Oct 2020
+ 14:08:37 +0000
+From:   Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-riscv@lists.infradead.org, linux-i2c@vger.kernel.org,
+        peter@korsgaard.com, andrew@lunn.ch, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu,
+        Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Subject: [PATCH v3 0/1] fix i2c polling mode workaround for FU540-C000 SoC
+Date:   Thu, 15 Oct 2020 07:08:26 -0700
+Message-Id: <1602770907-61852-1-git-send-email-sagar.kadam@sifive.com>
+X-Mailer: git-send-email 2.7.4
+Content-Type: text/plain
+X-Originating-IP: [64.62.193.194]
+X-ClientProxiedBy: BYAPR05CA0069.namprd05.prod.outlook.com
+ (2603:10b6:a03:74::46) To DM6PR13MB3451.namprd13.prod.outlook.com
+ (2603:10b6:5:1c3::10)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.13.3] (85.229.94.207) by HE1PR0402CA0018.eurprd04.prod.outlook.com (2603:10a6:3:d0::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3477.22 via Frontend Transport; Thu, 15 Oct 2020 10:23:41 +0000
+Received: from gamma15.internal.sifive.com (64.62.193.194) by BYAPR05CA0069.namprd05.prod.outlook.com (2603:10b6:a03:74::46) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.20.3477.13 via Frontend Transport; Thu, 15 Oct 2020 14:08:37 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 605107cd-33fe-46f6-3508-08d870f46381
-X-MS-TrafficTypeDiagnostic: DB8PR02MB5963:
-X-Microsoft-Antispam-PRVS: <DB8PR02MB5963D5C50950322AE01B6BAEBC020@DB8PR02MB5963.eurprd02.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:324;
+X-MS-Office365-Filtering-Correlation-Id: 7779916d-b86b-497b-bb51-08d87113cfb2
+X-MS-TrafficTypeDiagnostic: DM6PR13MB4067:
+X-LD-Processed: 22f88e9d-ae0d-4ed9-b984-cdc9be1529f1,ExtAddr
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM6PR13MB40673B20E6293FEE3C63759B97020@DM6PR13MB4067.namprd13.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 75tjpJs7dnFVPGYmOVuBXhmzFgsYTLi9CH7Y7y/bYEf0RI3VHoiBva7Zglp5TclLoPd2CcF+um8u9P+OpPKsORLfnWMJvBFvVrUBmUyPnKR1QbWvi7c3XptNthu5bbthlxx3c71TDJa0tOotKrNCg4J23HRse4xMlQtbeRlh8Ypc6Ylq07EE6E3ZPOEZHPsOwgbnawBCNGWatyXMCFPVCD9t8BYyJE2C98S2r5rEAsMvDlhclVzBOCluVBhikZFSQTCD8wXX0BrZsGw3myhn8g6z82hiooZ/hhWE06meZwMMZLUpIilVHXOJu4fSFjLaEbyo75434kOMpdf27XNr1iAEfuSTv6MgfeVGssFISS8Myi1gpBSF+/AGkgDbdyvv
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB8PR02MB5482.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(39830400003)(366004)(376002)(136003)(396003)(346002)(31686004)(2616005)(8676002)(54906003)(8936002)(36756003)(6486002)(83380400001)(316002)(36916002)(5660300002)(4326008)(52116002)(66946007)(16576012)(6916009)(956004)(66476007)(66556008)(53546011)(2906002)(478600001)(16526019)(186003)(6666004)(4001150100001)(26005)(86362001)(31696002)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData: 98zBnN8kQEDi4ITZoYJjaiRN+cvGSAIcEgPgjRK7kfdqoBWRMAQapRDQVLG02HqOvnuxLbSRlRkCt3qnVIh2HI0QngyvO4FNie0MKTuBD1kuVEPX+zrYGZAPJ38c6q9JOv4PZ9zCWRaGrVjUMztKfRVT7T0vMQO51RJCvRXIl1Q49CFRd/gEk2pb3jce8P+ZsFY+LvyjU1zTQZta4Z6dAMiO/bMc6jYPSBlaiOEq3p+U0XuzoC6Es6inaawGfWCI5BwNdVgKXb7A3zt3i8I/thnF9XX+PMzVpVcuHx3cGxdDc0kbOYlhMFYHcMIRCe6wdfZtyqualCNeNbAR1O2pgyRIbBCrkOZxX6t18p4JxIBk7K4wXZJCH7KT0woKwnxZbg7L8PmglG/FpId9AKSk3TOITVfZabuwOOrjS+hPX21Ao5lPV7eQ2wgCtiuET7SUutAUrxlcX79T6WEnXVZhkyQGc9kE5SZq75bAW/H5Ljz4w7runQ7P5L3BagpEbeW01In7rG8Hn0j7WpsOhlgpbXCjyfDwiBH4WpjmHdIuRmoFLG9mDtQZxuMPmGL37B4StjeMNt5WQ4g+CP4a85vgzxyD04owzOYaCtM1YFS2BTtkgfFSH34qJy3Jlm4+gIDmCTzbdulKTVyJ4TnKq5RnFA==
-X-OriginatorOrg: axentia.se
-X-MS-Exchange-CrossTenant-Network-Message-Id: 605107cd-33fe-46f6-3508-08d870f46381
-X-MS-Exchange-CrossTenant-AuthSource: DB8PR02MB5482.eurprd02.prod.outlook.com
+X-Microsoft-Antispam-Message-Info: p9mciStoqO45mT1wFa6jbPhVr6wt2uPVlGarxm6VhH6Su0GoD763plcLT9xJe6DvBs3YlD8PZTVeXY3BVDu8NevKwI66RkZjyeIDPSmhLGvz+b3eTU+VD86/ecfrgIJrC2Th6en+7M4t23g1KvJl9PLliYgQPnN6GdSKYVnKwOIReJ6+w1m3Oz8jLx+qrtnDw7WrOagNjFZ0zqzX4/WxzxV+FYuczk8PThFn0tsml1y9OHc6GrdaIQtSpKo/0pxeEqdzs0PWw8/CIvSLDSlhq1nyCWwQ79nyGMpFuCTgJUcw7HeQdcFc2GMmBseAdkPKlSpyrwopH0Da4tgRRHgT/42S/z7u5jc+QTVFS5HgLNv6OYvUB/fh6XrxnsPa2m/ouWlkM8UCXK4s/x71UA4BFQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR13MB3451.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(39850400004)(366004)(396003)(346002)(376002)(136003)(36756003)(16526019)(5660300002)(83380400001)(83170400001)(2906002)(316002)(6486002)(107886003)(26005)(186003)(966005)(52116002)(8676002)(7696005)(956004)(66946007)(2616005)(66476007)(66556008)(6666004)(8936002)(83080400001)(6916009)(4326008)(478600001)(42882007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: j0Ak/bQw5IqihowzkN2E2l2yvuQvh+CDX1zUkAGENG9VCo5Bm6Jn5huO3FzFPLDJhq1UcCFImf+ndTX25+zFlyVrod+t8LjfBvlqO5GlkYP8BYQZsSAfFd+Kd1+nqdu+FbJs2gLpnY119EXyYMlzYpUhfCZsxpss6Ef/419UHWRFycCXsD3tcCSNxJRHbOQ08odI0bT6AeuiyTGbrLD3OOYpzPiqyLKxSftzMNb04yRUxoh3DqPIfGv1It+vPf4vZIpA0+OU9Y+GyK+26InzSP878LMHgDCbUFoDMiO3HJM1jg9wrK9dSMpaP9uGcCfX9sNK3/m5QDxbn9QNAxaFV/4OZ473XtDKr3fnvb9KoOdECyYnQErUTXvOkgMI1fVcMZvINKVb8OmlecKKEjY4loytbepwaAhlOkHetRpih5kAJ8jBq9PtDYSoQvyp80NqqllKbSfFEhn6TbIP0sV3cT1VyTyFuZLZZqdreXFPBxWEt8+fo3xkRM93fefLNFf2RuO/73f9Tt6Mzueg6te5pGD2kbpZhcIetdMY+eIekdT3GcXiLR85KblLUKLWDTdXWvASC6L1DKTPnyinep6lxWqJRvKiiCOFrCZYOcgfEXuB90ph1UYEOYy/jgD95uTI5C27Ct/4y/6+aJeq/qv0EA==
+X-OriginatorOrg: sifive.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7779916d-b86b-497b-bb51-08d87113cfb2
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR13MB3451.namprd13.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Oct 2020 10:23:41.7887
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Oct 2020 14:08:37.7408
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4ee68585-03e1-4785-942a-df9c1871a234
+X-MS-Exchange-CrossTenant-Id: 22f88e9d-ae0d-4ed9-b984-cdc9be1529f1
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: fR9DslfXHW3ob9+d2D94OKvs/CJUPJzXAyBB7xyzBtUAnDBq56jwgbFw8ATzW8Nk
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR02MB5963
+X-MS-Exchange-CrossTenant-UserPrincipalName: e21w3I1ktgWXonpq7lRYgc3jOj5SY9mTZnTL4BYPgtxaqJ422PWPBuUIcpRriGl3zVnOAk5+GCMR93qS/8zOgw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR13MB4067
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi!
+The polling mode workaround for the FU540-C000 on HiFive Unleashed A00
+board was added earlier. The logic for this seems to work only in case
+the interrupt property was missing/not added into the i2c0 device node.
 
-On 2020-10-15 03:02, Evan Green wrote:
-> Enable i2c-mux-gpio devices to be defined via ACPI. The idle-state
-> property translates directly to a fwnode_property_*() call. The child
-> reg property translates naturally into _ADR in ACPI.
-> 
-> The i2c-parent binding is a relic from the days when all direct children
-> of an i2c controller in Linux had to be i2c devices. These days that
+Here we address this issue by identifying the SOC based on compatibility
+string and set the master xfer's to polling mode if it's the FU540-C000
+SoC.
 
-I2C controller. I2C devices.
+The fix has been tested on Linux 5.9.0-rc8 with a PMOD based RTCC sensor
+connected to I2C pins J1 header of the board. Log for reference
 
-I fail to see why this "relic" has to be explicitly blamed on Linux? In the
-beginning, the bindings for all I2C controllers (sometimes implicitely,
-sometimes explicitely) specified that all child nodes had to be I2C devices.
-The *bindings* were simply not as flexible before the i2c-bus subnode was
-invented only a few years ago. So, there are arguments that the "problem"
-was in DT-land and that Linux just followed suit.
+# uname -a
+Linux buildroot 5.9.0-rc8-00001-g9da7791 #1 SMP Fri Oct 9 07:56:13 PDT 2020 riscv64 GNU/Linux
+# i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- 57 -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 6f
+70: -- -- -- -- -- -- -- --
+# i2cget 0 0x57 0 b -y
+0xa5
+# i2cset 0 0x57 0 0x9f b -y
+# i2cget 0 0x57 0 b -y
+0x9f
+# i2cget 0 0x57 1 b -y
+0xff
+# i2cset 0 0x57 1 0xa9 b -y
+# i2cget 0 0x57 1 b -y
+0xa9
+# i2cget 0 0x6f 0x20 b -y
+0x98
+# i2cset 0 0x6f 0x20 0xa5 b -y
+# i2cget 0 0x6f 0x20 b -y
+0xa5
+# i2cget 0 0x6f 0x5f b -y
+0x55
+# i2cset 0 0x6f 0x5f 0x5a b -y
+# i2cget 0 0x6f 0x5f b -y
+0x5a
+#
 
-> implementation detail has been worked out, so the i2c-mux can sit
-> as a direct child of its parent controller, which is where it makes the
-> most sense from a hardware description perspective. For the ACPI
-> implementation we'll assume that's always how the i2c-mux-gpio is
-> instantiated.
+Without the fix here, it's observed that "i2cdetect -y 0"
+turns the system unresponsive, with CPU stall messages.
 
-There is potential to match this and make i2c-parent optional for the
-DT case and require it to be a child of its parent in such cases, if
-someone has the time/energy...
+Patch History:
+===============================
+V3:
+-Rectified typo as suggested here:
+ https://lkml.org/lkml/2020/10/9/902
 
-> 
-> Signed-off-by: Evan Green <evgreen@chromium.org>
-> ---
-> 
-> Changes in v2:
->  - Make it compile properly when !CONFIG_ACPI (Randy)
->  - Update commit message regarding i2c-parent (Peter)
-> 
->  drivers/i2c/muxes/i2c-mux-gpio.c | 103 ++++++++++++++++++++++---------
->  1 file changed, 75 insertions(+), 28 deletions(-)
-> 
-> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-> index 4effe563e9e8d..8e4008f4a9b5d 100644
-> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
-> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-> @@ -49,34 +49,80 @@ static int i2c_mux_gpio_deselect(struct i2c_mux_core *muxc, u32 chan)
->  	return 0;
->  }
->  
-> -#ifdef CONFIG_OF
-> -static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
-> -					struct platform_device *pdev)
-> +#ifdef CONFIG_ACPI
-> +
-> +static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
-> +				     struct fwnode_handle *fwdev,
-> +				     unsigned int *adr)
-> +
-> +{
-> +	unsigned long long adr64;
-> +	acpi_status status;
-> +
-> +	status = acpi_evaluate_integer(ACPI_HANDLE_FWNODE(fwdev),
-> +				       METHOD_NAME__ADR,
-> +				       NULL, &adr64);
-> +
-> +	if (!ACPI_SUCCESS(status)) {
-> +		dev_err(dev, "Cannot get address");
+V2: 
+-Incorporated changes as suggested by Peter Kosgaard
+ https://lkml.org/lkml/2020/10/8/663
 
-Missing trailing \n
+V1: Base version
 
-> +		return -EINVAL;
-> +	}
-> +
-> +	*adr = adr64;
 
-Maybe this is too pedantic? Optional, ignore if I'm just being insane...
 
-	if (*adr != adr64) {
-		dev_err(dev, "Address out of range\n");
-		return -EINVAL;
-	}
+Sagar Shrikant Kadam (1):
+  i2c: ocores: fix polling mode workaround on FU540-C000 SoC
 
-> +	return 0;
-> +}
-> +
-> +#else
-> +
-> +static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
-> +				     struct fwnode_handle *fwdev,
-> +				     unsigned int *adr)
-> +{
-> +	return -EINVAL;
-> +}
-> +
-> +#endif
-> +
-> +static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
-> +				 struct platform_device *pdev)
->  {
-> -	struct device_node *np = pdev->dev.of_node;
-> -	struct device_node *adapter_np, *child;
-> -	struct i2c_adapter *adapter;
-> +	struct device *dev = &pdev->dev;
-> +	struct device_node *np = dev->of_node;
-> +	acpi_handle dev_handle;
+ drivers/i2c/busses/i2c-ocores.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-Remove the dev_handle declaration here...(push)...
+-- 
+2.7.4
 
-> +	struct device_node *adapter_np;
-> +	struct i2c_adapter *adapter = NULL;
-> +	struct fwnode_handle *child = NULL;
-
-Why do you need these two " = NULL" here? I can't believe compilers are
-that stupid? If they are, fine. But otherwise, why single out these two
-pointers and add NULL only there and not everywhere? But NULL everywhere
-would be ugly...
-
->  	unsigned *values;
-> -	int i = 0;
-> +	int rc, i = 0;
->  
-> -	if (!np)
-> -		return -ENODEV;
-> +	if (is_of_node(dev->fwnode)) {
-> +		if (!np)
-> +			return -ENODEV;
->  
-> -	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
-> -	if (!adapter_np) {
-> -		dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
-> -		return -ENODEV;
-> +		adapter_np = of_parse_phandle(np, "i2c-parent", 0);
-> +		if (!adapter_np) {
-> +			dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
-
-You should do "&pdev->dev" -> "dev" here, because I hate having
-the dev variable and then not use it. But that should perhaps be
-a preparatory patch, because I see more instances and this is an
-orthogonal change.
-
-> +			return -ENODEV;
-> +		}
-> +		adapter = of_find_i2c_adapter_by_node(adapter_np);
-> +		of_node_put(adapter_np);
-> +
-> +	} else if (is_acpi_node(dev->fwnode)) {
-> +		/*
-> +		 * In ACPI land the mux should be a direct child of the i2c
-> +		 * bus it muxes.
-> +		 */
-> +		dev_handle = ACPI_HANDLE(dev->parent);
-
-...(pop)...and perhaps say
-
-		acpi_handle dev_handle = ACPI_HANDLE(dev->parent);
-
-here?
-
-Cheers,
-Peter
-
-> +		adapter = i2c_acpi_find_adapter_by_handle(dev_handle);
->  	}
-> -	adapter = of_find_i2c_adapter_by_node(adapter_np);
-> -	of_node_put(adapter_np);
-> +
->  	if (!adapter)
->  		return -EPROBE_DEFER;
->  
->  	mux->data.parent = i2c_adapter_id(adapter);
->  	put_device(&adapter->dev);
->  
-> -	mux->data.n_values = of_get_child_count(np);
-> -
-> +	mux->data.n_values = device_get_child_node_count(dev);
->  	values = devm_kcalloc(&pdev->dev,
->  			      mux->data.n_values, sizeof(*mux->data.values),
->  			      GFP_KERNEL);
-> @@ -85,24 +131,25 @@ static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
->  		return -ENOMEM;
->  	}
->  
-> -	for_each_child_of_node(np, child) {
-> -		of_property_read_u32(child, "reg", values + i);
-> +	device_for_each_child_node(dev, child) {
-> +		if (is_of_node(child)) {
-> +			fwnode_property_read_u32(child, "reg", values + i);
-> +
-> +		} else if (is_acpi_node(child)) {
-> +			rc = i2c_mux_gpio_get_acpi_adr(dev, child, values + i);
-> +			if (rc)
-> +				return rc;
-> +		}
-> +
->  		i++;
->  	}
->  	mux->data.values = values;
->  
-> -	if (of_property_read_u32(np, "idle-state", &mux->data.idle))
-> +	if (fwnode_property_read_u32(dev->fwnode, "idle-state", &mux->data.idle))
->  		mux->data.idle = I2C_MUX_GPIO_NO_IDLE;
->  
->  	return 0;
->  }
-> -#else
-> -static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
-> -					struct platform_device *pdev)
-> -{
-> -	return 0;
-> -}
-> -#endif
->  
->  static int i2c_mux_gpio_probe(struct platform_device *pdev)
->  {
-> @@ -118,7 +165,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
->  		return -ENOMEM;
->  
->  	if (!dev_get_platdata(&pdev->dev)) {
-> -		ret = i2c_mux_gpio_probe_dt(mux, pdev);
-> +		ret = i2c_mux_gpio_probe_fw(mux, pdev);
->  		if (ret < 0)
->  			return ret;
->  	} else {
-> 
