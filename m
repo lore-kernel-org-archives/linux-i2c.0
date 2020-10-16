@@ -2,238 +2,155 @@ Return-Path: <SRS0=zlZI=DX=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBC57C43457
-	for <linux-i2c@archiver.kernel.org>; Fri, 16 Oct 2020 06:44:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CAE9C433DF
+	for <linux-i2c@archiver.kernel.org>; Fri, 16 Oct 2020 07:26:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 85AF1207C4
-	for <linux-i2c@archiver.kernel.org>; Fri, 16 Oct 2020 06:44:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ADD142073A
+	for <linux-i2c@archiver.kernel.org>; Fri, 16 Oct 2020 07:26:48 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=vivotek.com header.i=@vivotek.com header.b="JdBPYFZa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394358AbgJPGoT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 16 Oct 2020 02:44:19 -0400
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:41251 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394351AbgJPGoS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Oct 2020 02:44:18 -0400
-Received: by mail-oi1-f193.google.com with SMTP id q136so1284109oic.8;
-        Thu, 15 Oct 2020 23:44:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RkFduFMrGwyaSeoS6TqSKCjkY3T0GJL3SQt6o1KyRoE=;
-        b=dXHEb+q+EvG7W0fU05kZTbUgqPHKeZSxX4x8QE3wQGF/2gPp2mud2fRz4Fan1h2AkK
-         gWlZo+Bx6v8AGoN2sm0S5rLSvmx+vUraJp+bADHA/9UlJrfCRG3l8epchiHU5oAnav37
-         O7Ye17H7hh7fl7V726nYQIz3hFkkqP4d29RyaVl1IsXlO+/BtdCsI8OAcV5VxK4e9zTK
-         9yUSOFn+bT7Y0BUwhJTkLw7nGdhcOmC93jYd8L27dXlsZXdFlE9L7Pv2f8g5U2xrvIoi
-         gD0u1uvgWE2bJWk4n6F4C50vEik5pghGpFDWB9m6qSi5x98Uy372R8JQYTLllHH6ZcGa
-         623w==
-X-Gm-Message-State: AOAM530bksy1CkrYbk0XBaFwXhSAeSCajdD+FgMPOoLBtIMpckJDwFkv
-        /lHrjkPL/WzqZ6u6Nak95/ZRZZ9Bzg/ySDvH2vU=
-X-Google-Smtp-Source: ABdhPJxrCQuMJsP6AUBMeH7WwGTe4EQg2hvyPohuV6TMhb/s79sy1WnwFsYbiJZjZQAInFKiaTIXNJICdYRa+W2cKYg=
-X-Received: by 2002:aca:f203:: with SMTP id q3mr1406344oih.148.1602830657213;
- Thu, 15 Oct 2020 23:44:17 -0700 (PDT)
+        id S2404509AbgJPH0s (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 16 Oct 2020 03:26:48 -0400
+Received: from mail.vivotek.com ([60.248.39.150]:45508 "EHLO mail.vivotek.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404501AbgJPH0r (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 16 Oct 2020 03:26:47 -0400
+Received: from pps.filterd (vivotekpps.vivotek.com [127.0.0.1])
+        by vivotekpps.vivotek.com (8.16.0.42/8.16.0.42) with SMTP id 09G7JUoF005316;
+        Fri, 16 Oct 2020 15:26:41 +0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivotek.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=dkim;
+ bh=LHCS1rPFeE0anPYP0wkEIlmhDgZaxcTvteWJ4iaVG18=;
+ b=JdBPYFZafx4frqD6dnj05bpGNJHbeNSzJOXz5YuLnelgmMDM/ShwlaDrpgK0R7zwNK4H
+ IBHRfrHQoLAiKbwYANOo5W/0NAdXmLZxVvO7BJLDs3n0v4Vl+60et6gvunDmtw34asJc
+ UWNMJczPA6PCs2H/4j7muceRURAx7iylyno= 
+Received: from cas02.vivotek.tw ([192.168.0.59])
+        by vivotekpps.vivotek.com with ESMTP id 342yd1cef2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Fri, 16 Oct 2020 15:26:41 +0800
+Received: from MBS07.vivotek.tw ([fe80::2027:4d67:6c01:78d8]) by
+ CAS02.vivotek.tw ([fe80::157e:3677:ef5b:27a2%11]) with mapi id
+ 14.03.0487.000; Fri, 16 Oct 2020 15:26:40 +0800
+From:   <Michael.Wu@vatics.com>
+To:     <jarkko.nikula@linux.intel.com>
+CC:     <andriy.shevchenko@linux.intel.com>,
+        <mika.westerberg@linux.intel.com>, <linux-i2c@vger.kernel.org>,
+        <morgan.chang@vatics.com>, <dean.hsiao@vatics.com>,
+        <paul.chen@vatics.com>
+Subject: RE: Designeware I2C slave confusing IC_INTR_STOP_DET handle
+Thread-Topic: Designeware I2C slave confusing IC_INTR_STOP_DET handle
+Thread-Index: AdacaCEF1S068DPwQGOIeCihPcVtGv///2uA//G4NVA=
+Date:   Fri, 16 Oct 2020 07:26:39 +0000
+Message-ID: <5DB475451BAA174CB158B5E897FC1525B12944EA@MBS07.vivotek.tw>
+References: <5DB475451BAA174CB158B5E897FC1525B1293AB2@MBS07.vivotek.tw>
+ <655eb758-c94b-d319-1866-6f1db413d337@linux.intel.com>
+In-Reply-To: <655eb758-c94b-d319-1866-6f1db413d337@linux.intel.com>
+Accept-Language: zh-TW, en-US
+Content-Language: zh-TW
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [192.168.17.134]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <24ff92dd1b0ee1b802b45698520f2937418f8094.1598260050.git.viresh.kumar@linaro.org>
- <f75c61f193f396608d592ae2a9938264d582c038.1598260050.git.viresh.kumar@linaro.org>
- <CAMuHMdXLQKN5n58NvOp43vhc3ryLXWurBSsmcW9Q=oW502PYOQ@mail.gmail.com>
- <20201013095613.mbgmjwzojg5wxmau@vireshk-i7> <CAMuHMdVAJdHVMtK3Sc4sJiJGAwz1J4dKODBFcNzgstaktyKkOw@mail.gmail.com>
- <20201016050347.ers54itzmxgijzsy@vireshk-i7>
-In-Reply-To: <20201016050347.ers54itzmxgijzsy@vireshk-i7>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Fri, 16 Oct 2020 08:44:05 +0200
-Message-ID: <CAMuHMdUUzoFxbJts3gVC7i5A5daa_TYzKdrGEHho=3a1eeC_ww@mail.gmail.com>
-Subject: Re: [PATCH V2 2/2] cpufreq: dt: Refactor initialization to handle
- probe deferral properly
-To:     Viresh Kumar <viresh.kumar@linaro.org>
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>, Nishanth Menon <nm@ti.com>,
-        nks@flawful.org, Georgi Djakov <georgi.djakov@linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-10-16_02:2020-10-16,2020-10-16 signatures=0
+X-Proofpoint-Spam-Reason: safe
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Viresh,
-
-On Fri, Oct 16, 2020 at 7:03 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> On 14-10-20, 18:40, Geert Uytterhoeven wrote:
-> > On this platform (r8a7791-koelsch.dts), there is no opp table in DT.
-
-I think you missed the clue above: this DTS does not have an opp-table
-with operating-points-v2, but cpu0 does have the operating-points (v1)
-property (note the latter is something I missed before).
-
-> >
-> >   Before:
->
-> I assume this means before this patchset came in..
-
-Indeed.
-
-> >     boot:
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:362
-> >       cpu cpu0: resources_available:95
-> >       cpu cpu0: resources_available:102: clk_get() returned z
-> >       cpu cpu0: resources_available:120:
-> > dev_pm_opp_of_find_icc_paths() returned 0
-> >       cpu cpu0: resources_available:125: find_supply_name() returned cpu0
-> >       cpu cpu0: resources_available:132: regulator_get_optional()
-> > returned -EPROBE_DEFER
-> >       cpu cpu0: cpu0 regulator not ready, retry
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:371:
-> > resources_available() returned -517
->
-> we deferred probe once.
->
-> >       ...
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:362
-> >       cpu cpu0: resources_available:95
-> >       cpu cpu0: resources_available:102: clk_get() returned z
-> >       cpu cpu0: resources_available:120:
-> > dev_pm_opp_of_find_icc_paths() returned 0
-> >       cpu cpu0: resources_available:125: find_supply_name() returned cpu0
-> >       cpu cpu0: resources_available:132: regulator_get_optional()
-> > returned (ptrval)
->
-> found regulator next time.
->
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:371:
-> > resources_available() returned 0
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:375
-> >       cpufreq_dt: cpufreq_init:162
-> >       cpu cpu0: cpufreq_init:170: clk_get() returned z
-> >       cpu cpu0: cpufreq_init:179: dev_pm_opp_of_get_sharing_cpus() returned -2
-> >       cpu cpu0: cpufreq_init:198: find_supply_name() returned cpu0
-> >       <i2c comm>
-> >       cpu cpu0: cpufreq_init:201: dev_pm_opp_set_regulators() returned (ptrval)
-> >       <i2c comm>
-> >       cpu cpu0: cpufreq_init:230: dev_pm_opp_of_cpumask_add_table() returned 0
-> >       cpu cpu0: cpufreq_init:239: dev_pm_opp_get_opp_count() returned 0
-> >       cpu cpu0: OPP table is not ready, deferring probe
->
-> This failed, as we couldn't have deferred probe from cpufreq_init.
-> Which means that cpufreq didn't work here.
-
-No opp-table in DT.
-Shouldn't it use operating-points v1 instead?
-
-> >       cpufreq_dt: cpufreq_init:162
-> >       cpu cpu1: cpufreq_init:170: clk_get() returned z
-> >       cpu cpu1: cpufreq_init:179: dev_pm_opp_of_get_sharing_cpus() returned -2
-> >       cpu cpu1: no regulator for cpu1
-> >       cpu cpu1: cpufreq_init:198: find_supply_name() returned (null)
-> >       cpu cpu1: cpufreq_init:230: dev_pm_opp_of_cpumask_add_table() returned 0
-> >       cpu cpu1: cpufreq_init:239: dev_pm_opp_get_opp_count() returned 0
-> >       cpu cpu1: OPP table is not ready, deferring probe
->
-> Same for CPU1.
-
-Note that only CPU0 has operating-points v1.
-
->
-> >
-> >     s2ram:
-> >       cpufreq_dt: cpufreq_init:162
-> >       cpu cpu1: cpufreq_init:170: clk_get() returned z
-> >       cpu cpu1: cpufreq_init:179: dev_pm_opp_of_get_sharing_cpus() returned -2
-> >       cpu cpu1: no regulator for cpu1
-> >       cpu cpu1: cpufreq_init:198: find_supply_name() returned (null)
-> >       cpu cpu1: cpufreq_init:230: dev_pm_opp_of_cpumask_add_table() returned 0
-> >       cpu cpu1: cpufreq_init:239: dev_pm_opp_get_opp_count() returned 0
-> >       cpu cpu1: OPP table is not ready, deferring probe
->
-> And same here.
->
-> >       CPU1 is up
-> >
-> >   After:
-> >     boot:
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:356
-> >       cpufreq_dt: dt_cpufreq_early_init:251
-> >       cpu cpu0: dt_cpufreq_early_init:256
-> >       cpu cpu0: dt_cpufreq_early_init:271: dev_pm_opp_get_opp_table()
-> > returned (ptrval)
-> >       cpu cpu0: dt_cpufreq_early_init:284: find_supply_name() returned cpu0
-> >       cpu cpu0: dt_cpufreq_early_init:288: dev_pm_opp_set_regulators()
-> > returned -EPROBE_DEFER
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:360:
-> > dt_cpufreq_early_init() returned -517
-> >       ...
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:356
-> >       cpufreq_dt: dt_cpufreq_early_init:251
-> >       cpu cpu0: dt_cpufreq_early_init:256
-> >       cpu cpu0: dt_cpufreq_early_init:271: dev_pm_opp_get_opp_table()
-> > returned (ptrval)
-> >       cpu cpu0: dt_cpufreq_early_init:284: find_supply_name() returned cpu0
-> >       cpu cpu0: dt_cpufreq_early_init:288: dev_pm_opp_set_regulators()
-> > returned (ptrval)
-> >       cpu cpu0: dt_cpufreq_early_init:301:
-> > dev_pm_opp_of_get_sharing_cpus() returned -2
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:360:
-> > dt_cpufreq_early_init() returned 0
-> >       cpufreq_dt: dt_cpufreq_early_init:251
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:360:
-> > dt_cpufreq_early_init() returned 0
-> >       cpufreq-dt cpufreq-dt: dt_cpufreq_probe:365
-> >       cpufreq_dt: cpufreq_init:114
-> >       cpu cpu0: cpufreq_init:124: clk_get() returned z
-> >       cpu cpu0: cpufreq_init:142: dev_pm_opp_of_cpumask_add_table() returned 0
-> >       cpu cpu0: cpufreq_init:151: dev_pm_opp_get_opp_count() returned 0
-> >       cpu cpu0: OPP table can't be empty
->
-> Same issue here.
->
-> >       cpufreq_dt: cpufreq_init:114
-> >       cpu cpu0: cpufreq_init:124: clk_get() returned z
-> >       <i2c comm>
-> >       cpu cpu0: cpufreq_init:142: dev_pm_opp_of_cpumask_add_table() returned 0
-> >       cpu cpu0: cpufreq_init:151: dev_pm_opp_get_opp_count() returned 0
-> >
-> >     s2ram:
-> >
-> >       cpufreq_dt: cpufreq_init:114
-> >       cpu cpu0: cpufreq_init:124: clk_get() returned z
-> >       WARNING: CPU: 1 PID: 14 at drivers/i2c/i2c-core.h:54
-> > __i2c_transfer+0x2d8/0x310
-> >       i2c i2c-6: Transfer while suspended
-> >       cpu cpu0: cpufreq_init:142: dev_pm_opp_of_cpumask_add_table() returned 0
-> >       cpu cpu0: cpufreq_init:151: dev_pm_opp_get_opp_count() returned 0
-> >       cpu cpu0: OPP table can't be empty
-> >       CPU1 is up
-> >
-> > I hope this helps.
->
-> Unfortunately it raised more questions than what it answered :(
-
-Before, it bailed out before talking to the regulator during s2ram,
-After, it talks to the regulator before bailing out, triggering the WARN().
-
-1. Why is it bailing out without an opp-table, as operating-points (v1)
-   is present?
-2. Even in the presence of an opp-table, the code would talk to the
-   PMIC while the I2C controller is suspended.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+SGkgSmFya2tvLA0KDQpPbiAxMC83LzIwIDk6MDggUE0sIGphcmtrby5uaWt1bGFAbGludXguaW50
+ZWwuY29tIHdyb3RlOg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNp
+Z253YXJlLXNsYXZlLmMNCj4gYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtc2xh
+dmUuYw0KPiBpbmRleCA0NDk3NGI1M2E2MjYuLjk3MTMxZTg4OGUyNCAxMDA2NDQNCj4gLS0tIGEv
+ZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXNsYXZlLmMNCj4gKysrIGIvZHJpdmVy
+cy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXNsYXZlLmMNCj4gQEAgLTE1OSw3ICsxNTksNiBA
+QCBzdGF0aWMgaW50IGkyY19kd19pcnFfaGFuZGxlcl9zbGF2ZShzdHJ1Y3QNCj4gZHdfaTJjX2Rl
+diAqZGV2KQ0KPiAgIAl1MzIgcmF3X3N0YXQsIHN0YXQsIGVuYWJsZWQsIHRtcDsNCj4gICAJdTgg
+dmFsID0gMCwgc2xhdmVfYWN0aXZpdHk7DQo+IA0KPiAtCXJlZ21hcF9yZWFkKGRldi0+bWFwLCBE
+V19JQ19JTlRSX1NUQVQsICZzdGF0KTsNCj4gICAJcmVnbWFwX3JlYWQoZGV2LT5tYXAsIERXX0lD
+X0VOQUJMRSwgJmVuYWJsZWQpOw0KPiAgIAlyZWdtYXBfcmVhZChkZXYtPm1hcCwgRFdfSUNfUkFX
+X0lOVFJfU1RBVCwgJnJhd19zdGF0KTsNCj4gICAJcmVnbWFwX3JlYWQoZGV2LT5tYXAsIERXX0lD
+X1NUQVRVUywgJnRtcCk7DQo+IEBAIC0xNjgsMTMgKzE2NywxMSBAQCBzdGF0aWMgaW50IGkyY19k
+d19pcnFfaGFuZGxlcl9zbGF2ZShzdHJ1Y3QNCj4gZHdfaTJjX2RldiAqZGV2KQ0KPiAgIAlpZiAo
+IWVuYWJsZWQgfHwgIShyYXdfc3RhdCAmIH5EV19JQ19JTlRSX0FDVElWSVRZKSB8fCAhZGV2LT5z
+bGF2ZSkNCj4gICAJCXJldHVybiAwOw0KPiANCj4gKwlzdGF0ID0gaTJjX2R3X3JlYWRfY2xlYXJf
+aW50cmJpdHNfc2xhdmUoZGV2KTsNCj4gICAJZGV2X2RiZyhkZXYtPmRldiwNCj4gICAJCSIlI3gg
+U1RBVFVTIFNMQVZFX0FDVElWSVRZPSUjeCA6IFJBV19JTlRSX1NUQVQ9JSN4IDoNCj4gSU5UUl9T
+VEFUPSUjeFxuIiwNCj4gICAJCWVuYWJsZWQsIHNsYXZlX2FjdGl2aXR5LCByYXdfc3RhdCwgc3Rh
+dCk7DQo+IA0KPiAtCWlmICgoc3RhdCAmIERXX0lDX0lOVFJfUlhfRlVMTCkgJiYgKHN0YXQgJiBE
+V19JQ19JTlRSX1NUT1BfREVUKSkNCj4gLQkJaTJjX3NsYXZlX2V2ZW50KGRldi0+c2xhdmUsIEky
+Q19TTEFWRV9XUklURV9SRVFVRVNURUQsICZ2YWwpOw0KPiAtDQo+ICAgCWlmIChzdGF0ICYgRFdf
+SUNfSU5UUl9SRF9SRVEpIHsNCj4gICAJCWlmIChzbGF2ZV9hY3Rpdml0eSkgew0KPiAgIAkJCWlm
+IChzdGF0ICYgRFdfSUNfSU5UUl9SWF9GVUxMKSB7DQo+IEBAIC0xODgsMTEgKzE4NSw5IEBAIHN0
+YXRpYyBpbnQgaTJjX2R3X2lycV9oYW5kbGVyX3NsYXZlKHN0cnVjdA0KPiBkd19pMmNfZGV2ICpk
+ZXYpDQo+ICAgCQkJCQkJIHZhbCk7DQo+ICAgCQkJCX0NCj4gICAJCQkJcmVnbWFwX3JlYWQoZGV2
+LT5tYXAsIERXX0lDX0NMUl9SRF9SRVEsICZ0bXApOw0KPiAtCQkJCXN0YXQgPSBpMmNfZHdfcmVh
+ZF9jbGVhcl9pbnRyYml0c19zbGF2ZShkZXYpOw0KPiAgIAkJCX0gZWxzZSB7DQo+ICAgCQkJCXJl
+Z21hcF9yZWFkKGRldi0+bWFwLCBEV19JQ19DTFJfUkRfUkVRLCAmdG1wKTsNCj4gICAJCQkJcmVn
+bWFwX3JlYWQoZGV2LT5tYXAsIERXX0lDX0NMUl9SWF9VTkRFUiwgJnRtcCk7DQo+IC0JCQkJc3Rh
+dCA9IGkyY19kd19yZWFkX2NsZWFyX2ludHJiaXRzX3NsYXZlKGRldik7DQo+ICAgCQkJfQ0KPiAg
+IAkJCWlmICghaTJjX3NsYXZlX2V2ZW50KGRldi0+c2xhdmUsDQo+ICAgCQkJCQkgICAgIEkyQ19T
+TEFWRV9SRUFEX1JFUVVFU1RFRCwNCj4gQEAgLTIwNyw3ICsyMDIsNiBAQCBzdGF0aWMgaW50IGky
+Y19kd19pcnFfaGFuZGxlcl9zbGF2ZShzdHJ1Y3QNCj4gZHdfaTJjX2RldiAqZGV2KQ0KPiAgIAkJ
+CXJlZ21hcF9yZWFkKGRldi0+bWFwLCBEV19JQ19DTFJfUlhfRE9ORSwgJnRtcCk7DQo+IA0KPiAg
+IAkJaTJjX3NsYXZlX2V2ZW50KGRldi0+c2xhdmUsIEkyQ19TTEFWRV9TVE9QLCAmdmFsKTsNCj4g
+LQkJc3RhdCA9IGkyY19kd19yZWFkX2NsZWFyX2ludHJiaXRzX3NsYXZlKGRldik7DQo+ICAgCQly
+ZXR1cm4gMTsNCj4gICAJfQ0KPiANCj4gQEAgLTIxOSw5ICsyMTMsMTEgQEAgc3RhdGljIGludCBp
+MmNfZHdfaXJxX2hhbmRsZXJfc2xhdmUoc3RydWN0DQo+IGR3X2kyY19kZXYgKmRldikNCj4gICAJ
+CQlkZXZfdmRiZyhkZXYtPmRldiwgIkJ5dGUgJVggYWNrZWQhIiwgdmFsKTsNCj4gICAJfSBlbHNl
+IHsNCj4gICAJCWkyY19zbGF2ZV9ldmVudChkZXYtPnNsYXZlLCBJMkNfU0xBVkVfU1RPUCwgJnZh
+bCk7DQo+IC0JCXN0YXQgPSBpMmNfZHdfcmVhZF9jbGVhcl9pbnRyYml0c19zbGF2ZShkZXYpOw0K
+PiAgIAl9DQo+IA0KPiArCWlmICgoc3RhdCAmIERXX0lDX0lOVFJfUlhfRlVMTCkgJiYgKHN0YXQg
+JiBEV19JQ19JTlRSX1NUT1BfREVUKSkNCj4gKwkJaTJjX3NsYXZlX2V2ZW50KGRldi0+c2xhdmUs
+IEkyQ19TTEFWRV9XUklURV9SRVFVRVNURUQsICZ2YWwpOw0KPiArDQo+ICAgCXJldHVybiAxOw0K
+PiAgIH0NCj4gDQo+IEBAIC0yMzAsNyArMjI2LDYgQEAgc3RhdGljIGlycXJldHVybl90IGkyY19k
+d19pc3Jfc2xhdmUoaW50IHRoaXNfaXJxLA0KPiB2b2lkICpkZXZfaWQpDQo+ICAgCXN0cnVjdCBk
+d19pMmNfZGV2ICpkZXYgPSBkZXZfaWQ7DQo+ICAgCWludCByZXQ7DQo+IA0KPiAtCWkyY19kd19y
+ZWFkX2NsZWFyX2ludHJiaXRzX3NsYXZlKGRldik7DQo+ICAgCXJldCA9IGkyY19kd19pcnFfaGFu
+ZGxlcl9zbGF2ZShkZXYpOw0KPiAgIAlpZiAocmV0ID4gMCkNCj4gICAJCWNvbXBsZXRlKCZkZXYt
+PmNtZF9jb21wbGV0ZSk7DQoNCkkgd291bGQgbGlrZSB0byBzdWJtaXQgeW91ciBwYXRjaCBpbiBv
+cmRlciB0byBkbyBteSBtb2RpZmljYXRpb24gYmFzZWQgb24gdGhpcyBpZGVhLg0KWW91J3JlIHRo
+ZSBhdXRob3IgYnV0IHlvdSBkaWRuJ3QgbGVhdmUgY29tbWl0IGRlc2NyaXB0aW9uLg0KDQpJIHBy
+ZXBhcmVkIG9uZSBmb3IgdGhpcyBwYXRjaC4NCg0KICAgIGkyYzogZGVzaWdud2FyZTogY2FsbCBp
+MmNfZHdfcmVhZF9jbGVhcl9pbnRyYml0c19zbGF2ZSgpIG9uY2UNCg0KICAgIGkyY19kd19yZWFk
+X2NsZWFyX2ludHJiaXRzX3NsYXZlKCkgd2FzIGNhbGxlZCBwZXIgZWFjaCBpbnRlcnJ1cHQgaGFu
+ZGxlLg0KICAgIEl0IGNhdXNlZCBzb21lIGludGVycnVwdCBiaXRzIHdoaWNoIGhhdmVuJ3QgYmVl
+biBoYW5kbGVkIHlldCB3ZXJlIGNsZWFyZWQsDQogICAgdGhlIGNvcnJlc3BvbmRpbmcgaGFuZGxl
+cnMgd291bGQgZG8gbm90aGluZyBkdWUgdG8gaW50ZXJydXB0IGJpdHMgYmVlbg0KICAgIGRpc2Nh
+cmRlZC4gRm9yIGV4YW1wbGUsDQoNCiAgICAkIGkyY3NldCAtZiAteSAyIDB4NDIgMHgwMCAweDQx
+OyBkbWVzZyAtYw0KICAgIFswXVtjbGVhcl9pbnRyYml0c10weDEgU1RBVFVTIFNMQVZFX0FDVElW
+SVRZPTB4MSA6IFJBV19JTlRSX1NUQVQ9MHg1MTQgOiBJTlRSX1NUQVQ9MHg0DQogICAgWzFdW2ly
+cV9oYW5kbGVyICAgXTB4MSBTVEFUVVMgU0xBVkVfQUNUSVZJVFk9MHgxIDogUkFXX0lOVFJfU1RB
+VD0weDUxNCA6IElOVFJfU1RBVD0weDQNCiAgICBXUklURV9SRUNFSVZFRA0KICAgIFswXVtjbGVh
+cl9pbnRyYml0c10weDEgU1RBVFVTIFNMQVZFX0FDVElWSVRZPTB4MCA6IFJBV19JTlRSX1NUQVQ9
+MHg3MTQgOiBJTlRSX1NUQVQ9MHgyMDQNCiAgICBbMV1baXJxX2hhbmRsZXIgICBdMHgxIFNUQVRV
+UyBTTEFWRV9BQ1RJVklUWT0weDAgOiBSQVdfSU5UUl9TVEFUPTB4NTE0IDogSU5UUl9TVEFUPTB4
+NA0KICAgIFdSSVRFX1JFQ0VJVkVEDQoNCiAgICAgIHQxOiBJU1Igd2l0aCB0aGUgMXN0IElDX0lO
+VFJfUlhfRlVMTC4NCiAgICAgIHQyOiBDbGVhciBsaXN0ZWQgSUNfSU5UUiBiaXRzIGJ5IGkyY19k
+d19yZWFkX2NsZWFyX2ludHJiaXRzX3NsYXZlKCkuDQogICAgICB0MzogRW50ZXIgaTJjX2R3X2ly
+cV9oYW5kbGVyX3NsYXZlKCkgYW5kIHRoZW4gZG8NCiAgICAgICAgICBpMmNfc2xhdmVfZXZlbnQo
+V1JJVEVfUkVDRUlWRUQpIGJlY2F1c2UNCiAgICAgICAgICBpZiAoc3RhdCAmIERXX0lDX0lOVFJf
+UlhfRlVMTCkuDQogICAgICB0NDogSVNSIHdpdGggYm90aCBJQ19JTlRSX1NUT1BfREVUIGFuZCB0
+aGUgMm5kIElDX0lOVFJfUlhfRlVMTC4NCiAgICAgIHQ1OiBDbGVhciBsaXN0ZWQgSUNfSU5UUiBi
+aXRzIGJ5IGkyY19kd19yZWFkX2NsZWFyX2ludHJiaXRzX3NsYXZlKCkuIFRoZQ0KICAgICAgICAg
+IGN1cnJlbnQgSUNfSU5UUl9TVE9QX0RFVCBpcyBjbGVhcmVkIGJ5IHRoaXMNCiAgICAgICAgICBp
+MmNfZHdfcmVhZF9jbGVhcl9pbnRyYml0c19zbGF2ZSgpLg0KICAgICAgdDY6IEVudGVyIGkyY19k
+d19pcnFfaGFuZGxlcl9zbGF2ZSgpIGFuZCB0aGVuIGRvDQogICAgICAgICAgaTJjX3NsYXZlX2V2
+ZW50KFdSSVRFX1JFQ0VJVkVEKSBiZWNhdXNlDQogICAgICAgICAgaWYgKHN0YXQgJiBEV19JQ19J
+TlRSX1JYX0ZVTEwpLg0KICAgICAgdDc6IGkyY19zbGF2ZV9ldmVudChTVE9QKSBuZXZlciBiZSBk
+b25lIGJlY2F1c2UgSUNfSU5UUl9TVE9QX0RFVCB3YXMNCiAgICAgICAgICBjbGVhcmVkIGluIHQ1
+Lg0KDQogICAgVGhlIHJvb3QgY2F1c2UgaXMgdGhhdCBpMmNfZHdfcmVhZF9jbGVhcl9pbnRyYml0
+c19zbGF2ZSgpIHdhcyBjYWxsZWQgbWFueQ0KICAgIHRpbWVzLiBDYWxsaW5nIGkyY19kd19yZWFk
+X2NsZWFyX2ludHJiaXRzX3NsYXZlKCkgb25jZSBpbiBvbmUgSVNSIGFuZCB0YWtlDQogICAgdGhl
+IHJldHVybmVkIHN0YXQgZm9yIGxhdGVyIGhhbmRsaW5nIGlzIHRoZSBzb2x1dGlvbi4NCg0KSSds
+bCBzdWJtaXQgaXQgaWYgeW91IGFjY2VwdCBpdCwgb3IgeW91IGhhdmUgb3RoZXIgc3VnZ2VzdGlv
+bnMuLi4uPw0KDQotLQ0KTWljaGFlbCBXdQ0K
