@@ -7,37 +7,35 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F701C55179
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA585C4363A
 	for <linux-i2c@archiver.kernel.org>; Wed, 28 Oct 2020 22:55:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 03BCE20754
-	for <linux-i2c@archiver.kernel.org>; Wed, 28 Oct 2020 22:55:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 89C8C20756
+	for <linux-i2c@archiver.kernel.org>; Wed, 28 Oct 2020 22:55:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="KP3gUSoH"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="JOKRN+Mw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389782AbgJ1WzJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 28 Oct 2020 18:55:09 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:16506 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389758AbgJ1WzG (ORCPT
+        id S2389781AbgJ1WzL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 28 Oct 2020 18:55:11 -0400
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:18065 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732095AbgJ1WzG (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Oct 2020 18:55:06 -0400
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5f99f6cd0000>; Wed, 28 Oct 2020 15:55:09 -0700
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 28 Oct
- 2020 22:55:02 +0000
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5f99f6b50000>; Wed, 28 Oct 2020 15:54:45 -0700
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 28 Oct
+ 2020 22:55:05 +0000
 Received: from vdi.nvidia.com (10.124.1.5) by mail.nvidia.com (172.20.187.18)
  with Microsoft SMTP Server id 15.0.1473.3 via Frontend Transport; Wed, 28 Oct
- 2020 22:55:01 +0000
+ 2020 22:55:05 +0000
 From:   Khalil Blaiech <kblaiech@nvidia.com>
 To:     <linux-i2c@vger.kernel.org>
 CC:     <kblaiech@nvidia.com>, <wsa+renesas@sang-engineering.com>,
-        "kernel test robot" <lkp@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Vadim Pasternak <vadimp@nvidia.com>
-Subject: [PATCH i2c-next v1 1/6] i2c: mlxbf: Add CONFIG_ACPI to guard ACPI function call
-Date:   Wed, 28 Oct 2020 18:54:17 -0400
-Message-ID: <c0593f8bb8ff482c130add78a72787db490d9f67.1603925077.git.kblaiech@nvidia.com>
+        Leon Romanovsky <leonro@nvidia.com>
+Subject: [PATCH i2c-next v1 5/6] i2c: mlxbf: Update author and maintainer email info
+Date:   Wed, 28 Oct 2020 18:54:21 -0400
+Message-ID: <06e1cf8cbb697c817c55b8885415904a98b9642e.1603925078.git.kblaiech@nvidia.com>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <cover.1603925077.git.kblaiech@nvidia.com>
 References: <cover.1603925077.git.kblaiech@nvidia.com>
@@ -45,73 +43,57 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1603925709; bh=/90AzoLOz/HXiYndPjXqFdcbsxkEu9cCI692cQHHwS8=;
+        t=1603925685; bh=a+SlTyH37duHsyZI8VmNx6g+Rs9Ghxxe6ryBYpOfPD0=;
         h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
          References:MIME-Version:Content-Transfer-Encoding:Content-Type;
-        b=KP3gUSoH6gSmUFiMstCWWGj6ERi7U91GbWoV1oW2Eyn4CxOFDs+T73se9h6rAeN9G
-         2Zjg4whHOenCij290odLzm4aY0KDuKNspqexiiAPAREqsM4oOLKj5lOlAOXATu883+
-         E5+cOkO7IbC87qvubEGsLM0PHXiYN5NZFtLyS5/FdYSeTXOOQhcMqKhLcp149MPCg9
-         XcXuL2st+n7M5sgTwhklX7i8rAX6zmuSdTW2zzXtnWd68aXo5h6KSqxWNbJCsRLjfp
-         ppSGkqwXwFnk4OtzYVTCL7uiRGnVP24n+L65FHBlykx0yTAmWef/zPqILMiWYArcYC
-         /m2R2WvWeSGCA==
+        b=JOKRN+Mw6EOo3sNGtenuXG5zagM9SRIawD42Ys4b5l80FG06pKEpd5VyJV0Km0Rbr
+         LJBORZCbR82kT9nmdr5yBoy3DQAJnm7m0Firej+VoK3Numd8W/ajKZWViX5C5M7IH6
+         vEHjxVjCzllGjX7R1ntq8mTs2jasMCelGCx4NODjlVqSU8NhenlrQtyGOmY+Q9dbJy
+         Irc+UTAG5ICvcGfX+8OJi5wMxlgWFQDUrtMSz/2WcrwAyyg5NKYiJQsKRBN8Eg8uDh
+         zKxzXkB2wS8G1w7TmyP2wrjC/3JaMSDtMx3XwwtgNUUy+u/urYoZOa5kUYzyPL74bp
+         FWCBw9AZCf5iQ==
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The build fails with "implicit declaration of function
-'acpi_device_uid'" error. Thus, protect ACPI function calls
-from being called when CONFIG_ACPI is disabled.
+Correct the email addresses of the author and the maintainer
+of the Mellanox BlueField I2C driver.
 
 Fixes: b5b5b32081cd206b ("i2c: mlxbf: I2C SMBus driver for Mellanox BlueFie=
 ld SoC")
-Reported-by: kernel test robot <lkp@intel.com>
 Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Vadim Pasternak <vadimp@nvidia.com>
 Signed-off-by: Khalil Blaiech <kblaiech@nvidia.com>
 ---
- drivers/i2c/busses/i2c-mlxbf.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ MAINTAINERS                    | 2 +-
+ drivers/i2c/busses/i2c-mlxbf.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 8580de35179f..9128200af1d0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11072,7 +11072,7 @@ F:	Documentation/devicetree/bindings/input/touchscr=
+een/melfas_mip4.txt
+ F:	drivers/input/touchscreen/melfas_mip4.c
+=20
+ MELLANOX BLUEFIELD I2C DRIVER
+-M:	Khalil Blaiech <kblaiech@mellanox.com>
++M:	Khalil Blaiech <kblaiech@nvidia.com>
+ L:	linux-i2c@vger.kernel.org
+ S:	Supported
+ F:	drivers/i2c/busses/i2c-mlxbf.c
 diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.=
 c
-index ee59e0da082d..e18f595b37a7 100644
+index afc996d07504..33574d40ea9c 100644
 --- a/drivers/i2c/busses/i2c-mlxbf.c
 +++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -2264,6 +2264,7 @@ static const struct of_device_id mlxbf_i2c_dt_ids[] =
-=3D {
+@@ -2470,5 +2470,5 @@ static void __exit mlxbf_i2c_exit(void)
+ module_exit(mlxbf_i2c_exit);
 =20
- MODULE_DEVICE_TABLE(of, mlxbf_i2c_dt_ids);
-=20
-+#ifdef CONFIG_ACPI
- static const struct acpi_device_id mlxbf_i2c_acpi_ids[] =3D {
- 	{ "MLNXBF03", (kernel_ulong_t)&mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_1] },
- 	{ "MLNXBF23", (kernel_ulong_t)&mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_2] },
-@@ -2305,6 +2306,12 @@ static int mlxbf_i2c_acpi_probe(struct device *dev, =
-struct mlxbf_i2c_priv *priv)
-=20
- 	return ret;
- }
-+#else
-+static int mlxbf_i2c_acpi_probe(struct device *dev, struct mlxbf_i2c_priv =
-*priv)
-+{
-+	return -ENOENT;
-+}
-+#endif /* CONFIG_ACPI */
-=20
- static int mlxbf_i2c_of_probe(struct device *dev, struct mlxbf_i2c_priv *p=
-riv)
- {
-@@ -2473,7 +2480,9 @@ static struct platform_driver mlxbf_i2c_driver =3D {
- 	.driver =3D {
- 		.name =3D "i2c-mlxbf",
- 		.of_match_table =3D mlxbf_i2c_dt_ids,
-+#ifdef CONFIG_ACPI
- 		.acpi_match_table =3D ACPI_PTR(mlxbf_i2c_acpi_ids),
-+#endif /* CONFIG_ACPI  */
- 	},
- };
-=20
+ MODULE_DESCRIPTION("Mellanox BlueField I2C bus driver");
+-MODULE_AUTHOR("Khalil Blaiech <kblaiech@mellanox.com>");
++MODULE_AUTHOR("Khalil Blaiech <kblaiech@nvidia.com>");
+ MODULE_LICENSE("GPL v2");
 --=20
 2.24.1
 
