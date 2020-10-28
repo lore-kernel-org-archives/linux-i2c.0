@@ -7,37 +7,35 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40F0EC55179
-	for <linux-i2c@archiver.kernel.org>; Wed, 28 Oct 2020 22:55:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CE2AC388F7
+	for <linux-i2c@archiver.kernel.org>; Wed, 28 Oct 2020 22:55:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D7C9820756
-	for <linux-i2c@archiver.kernel.org>; Wed, 28 Oct 2020 22:55:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D6B320756
+	for <linux-i2c@archiver.kernel.org>; Wed, 28 Oct 2020 22:55:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="k8knNgN3"
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="D1oASc0m"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732005AbgJ1WzG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 28 Oct 2020 18:55:06 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:16500 "EHLO
+        id S2389779AbgJ1WzF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 28 Oct 2020 18:55:05 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:16502 "EHLO
         hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389777AbgJ1WzF (ORCPT
+        with ESMTP id S2389776AbgJ1WzF (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Oct 2020 18:55:05 -0400
 Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5f99f6cc0000>; Wed, 28 Oct 2020 15:55:08 -0700
+        id <B5f99f6cc0001>; Wed, 28 Oct 2020 15:55:08 -0700
 Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL109.nvidia.com
  (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 28 Oct
- 2020 22:55:02 +0000
+ 2020 22:55:04 +0000
 Received: from vdi.nvidia.com (10.124.1.5) by mail.nvidia.com (172.20.187.18)
  with Microsoft SMTP Server id 15.0.1473.3 via Frontend Transport; Wed, 28 Oct
- 2020 22:55:02 +0000
+ 2020 22:55:04 +0000
 From:   Khalil Blaiech <kblaiech@nvidia.com>
 To:     <linux-i2c@vger.kernel.org>
 CC:     <kblaiech@nvidia.com>, <wsa+renesas@sang-engineering.com>,
-        "kernel test robot" <lkp@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Vadim Pasternak <vadimp@nvidia.com>
-Subject: [PATCH i2c-next v1 2/6] i2c: mlxbf: Fix resrticted cast warning of sparse
-Date:   Wed, 28 Oct 2020 18:54:18 -0400
-Message-ID: <aa2a06696f4461b7481c1407daf37a4aecce6610.1603925077.git.kblaiech@nvidia.com>
+        Leon Romanovsky <leonro@nvidia.com>
+Subject: [PATCH i2c-next v1 4/6] i2c: mlxbf: Update reference clock frequency
+Date:   Wed, 28 Oct 2020 18:54:20 -0400
+Message-ID: <e9ce81227b9a073bda4c6c347726ce1006e1a0c8.1603925078.git.kblaiech@nvidia.com>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <cover.1603925077.git.kblaiech@nvidia.com>
 References: <cover.1603925077.git.kblaiech@nvidia.com>
@@ -45,56 +43,68 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1603925708; bh=OBIhAJg6cKFfI2zKpYtPUfI+O2XMgI5WpM73U3VZZ8c=;
+        t=1603925708; bh=JGOozmSPHS6vJ6hfE4OWIInXIDFQZ962Oubpd+qGEHk=;
         h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
          References:MIME-Version:Content-Transfer-Encoding:Content-Type;
-        b=k8knNgN3LC+xGxrzxnIl7Rj5h6Z83fN8c8UJAXGqIGduvugBHdmaq830+1Lmk7Dxe
-         77os4aLS8lOJ/NzSiePTd575FZNnBzySv14f16SrnR75uS0N/nO2WUVfFpqUaPHwIk
-         3xUXetyxboMR7koNYJkRRwM1cr4SSP7x4F5YjGQLY7lAqMqF8vC70iTVlGPcJjh129
-         x4EMsgVQxiiPysoBp4YYwzee4/xQPJ8IkgUr7t2mnjRDDjYx4fWDoLRjl5K5tisfj5
-         w46MytQt2Ej7aulgOElqBEX90jwhVRsTeKqovU74tSyftoIObhFkULvRJcmqovm1QL
-         gAbrJWivQ75iw==
+        b=D1oASc0mvB/4Bv8Q6RNHXB04nscQa3kv3zuNl4uCucVPur61zD0jzAP4HCC1GxKYx
+         0Sgsw7sMHYAAl0hWkEv5IF2hXOav3/MuRi7rNY4/fv0OG+g6gAeEAKBg8oxf0pEsOO
+         +cZrZmVXZ0x4f6+/WAOor3sCTAJo9sEh2NklhAy2JdkQRUMTgQuETaNF9TYgRLpfI5
+         s+t+zeft8lYuY7aMHJLTE10w+qtd9T9/0CnBuc8BCdIHKantId5+LlZO5nZvl3/AkX
+         +rubMNH2F7R6e8QrcLkkaWqDwouiwcLTKF3eE3rd5+K1BiniCX8g7CoZSSygVSq7IE
+         p/PQoSi+ddPZQ==
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Address warnings "warning: cast to restricted __be32" reported
-by sparse.
+The reference clock frequency remains the same across Bluefield
+products. Thus, update the frequency and rename the macro.
 
 Fixes: b5b5b32081cd206b ("i2c: mlxbf: I2C SMBus driver for Mellanox BlueFie=
 ld SoC")
-Reported-by: kernel test robot <lkp@intel.com>
 Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Vadim Pasternak <vadimp@nvidia.com>
 Signed-off-by: Khalil Blaiech <kblaiech@nvidia.com>
 ---
- drivers/i2c/busses/i2c-mlxbf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-mlxbf.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.=
 c
-index e18f595b37a7..4bd80b1b6a29 100644
+index fca8a3bddcb1..afc996d07504 100644
 --- a/drivers/i2c/busses/i2c-mlxbf.c
 +++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -510,7 +510,7 @@ static u32 mlxbf_i2c_read(void __iomem *io, int reg)
+@@ -62,10 +62,8 @@
+  * Master. Default value is set to 400MHz.
   */
- static u32 mlxbf_i2c_read_data(void __iomem *io, int reg)
- {
--	return (u32)be32_to_cpu(mlxbf_i2c_read(io, reg));
-+	return ioread32be(io + reg);
- }
+ #define MLXBF_I2C_TYU_PLL_OUT_FREQ  (400 * 1000 * 1000)
+-/* Reference clock for Bluefield 1 - 156 MHz. */
+-#define MLXBF_I2C_TYU_PLL_IN_FREQ   (156 * 1000 * 1000)
+-/* Reference clock for BlueField 2 - 200 MHz. */
+-#define MLXBF_I2C_YU_PLL_IN_FREQ    (200 * 1000 * 1000)
++/* Reference clock for Bluefield - 156 MHz. */
++#define MLXBF_I2C_PLL_IN_FREQ       (156 * 1000 * 1000)
 =20
- /*
-@@ -524,7 +524,7 @@ static u32 mlxbf_i2c_read_data(void __iomem *io, int re=
-g)
-  */
- static void mlxbf_i2c_write_data(void __iomem *io, int reg, u32 val)
- {
--	mlxbf_i2c_write(io, reg, (u32)cpu_to_be32(val));
-+	iowrite32be(val, io + reg);
- }
+ /* Constant used to determine the PLL frequency. */
+ #define MLNXBF_I2C_COREPLL_CONST    16384
+@@ -1422,7 +1420,7 @@ static u64 mlxbf_calculate_freq_from_tyu(struct mlxbf=
+_i2c_resource *corepll_res)
+ 	u32 corepll_val;
+ 	u16 core_f;
 =20
- /*
+-	pad_frequency =3D MLXBF_I2C_TYU_PLL_IN_FREQ;
++	pad_frequency =3D MLXBF_I2C_PLL_IN_FREQ;
+=20
+ 	corepll_val =3D readl(corepll_res->io + MLXBF_I2C_CORE_PLL_REG1);
+=20
+@@ -1457,7 +1455,7 @@ static u64 mlxbf_calculate_freq_from_yu(struct mlxbf_=
+i2c_resource *corepll_res)
+ 	u8 core_od, core_r;
+ 	u32 core_f;
+=20
+-	pad_frequency =3D MLXBF_I2C_YU_PLL_IN_FREQ;
++	pad_frequency =3D MLXBF_I2C_PLL_IN_FREQ;
+=20
+ 	corepll_reg1_val =3D readl(corepll_res->io + MLXBF_I2C_CORE_PLL_REG1);
+ 	corepll_reg2_val =3D readl(corepll_res->io + MLXBF_I2C_CORE_PLL_REG2);
 --=20
 2.24.1
 
