@@ -2,83 +2,109 @@ Return-Path: <SRS0=Trgm=EE=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31D89C4363A
-	for <linux-i2c@archiver.kernel.org>; Thu, 29 Oct 2020 01:23:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D821FC55178
+	for <linux-i2c@archiver.kernel.org>; Thu, 29 Oct 2020 07:47:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ADCBD20791
-	for <linux-i2c@archiver.kernel.org>; Thu, 29 Oct 2020 01:23:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81FCC206ED
+	for <linux-i2c@archiver.kernel.org>; Thu, 29 Oct 2020 07:47:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=vivotek.com header.i=@vivotek.com header.b="VM4Jak4C"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ujy//ADr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729911AbgJ2BXE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 28 Oct 2020 21:23:04 -0400
-Received: from mail.vivotek.com ([60.248.39.150]:59032 "EHLO mail.vivotek.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729907AbgJ1WEE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:04:04 -0400
-Received: from pps.filterd (vivotekpps.vivotek.com [127.0.0.1])
-        by vivotekpps.vivotek.com (8.16.0.42/8.16.0.42) with SMTP id 09S5NlOi028183;
-        Wed, 28 Oct 2020 13:24:26 +0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivotek.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=dkim;
- bh=XWsKafwoBCMXGPRGJKSVlFm0WD27smvMp+c/m4XjJPU=;
- b=VM4Jak4Cqd64+ksznrNTiMVCTvbSKKYmABWCXqeTfQvkdd55srER9iVx5FpGTu1G3qjd
- JainmNlmKcyQ8CZLoPEWK+jo0D+xkyqzl3W4xh98/oFhHLqOzrdEnwWXh5890V96GatK
- 3OUiXzSaaDvFWM8FN+KgLJD25AafDkuWWmA= 
-Received: from cas01.vivotek.tw ([192.168.0.58])
-        by vivotekpps.vivotek.com with ESMTP id 34c6q13vtv-2
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Wed, 28 Oct 2020 13:24:26 +0800
-Received: from MBS07.vivotek.tw ([fe80::2027:4d67:6c01:78d8]) by
- CAS01.vivotek.tw ([::1]) with mapi id 14.03.0487.000; Wed, 28 Oct 2020
- 13:24:20 +0800
-From:   <Michael.Wu@vatics.com>
-To:     <jarkko.nikula@linux.intel.com>,
-        <andriy.shevchenko@linux.intel.com>,
-        <mika.westerberg@linux.intel.com>, <linux-i2c@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <morgan.chang@vatics.com>
-Subject: RE: [PATCH v3] i2c: designware: call
- i2c_dw_read_clear_intrbits_slave() once
-Thread-Topic: [PATCH v3] i2c: designware: call
- i2c_dw_read_clear_intrbits_slave() once
-Thread-Index: AQHWqP8ftBcyz8mHlUeZHq5yT12bhqmkMvSAgAhP5AA=
-Date:   Wed, 28 Oct 2020 05:24:18 +0000
-Message-ID: <5DB475451BAA174CB158B5E897FC1525B1294F5F@MBS07.vivotek.tw>
-References: <20201023054027.13540-1-michael.wu@vatics.com>
- <a44aacbb-fcb4-f83f-b781-b69f52944f09@linux.intel.com>
-In-Reply-To: <a44aacbb-fcb4-f83f-b781-b69f52944f09@linux.intel.com>
-Accept-Language: zh-TW, en-US
-Content-Language: zh-TW
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [192.168.17.134]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S2387630AbgJ2HrW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 29 Oct 2020 03:47:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59068 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387599AbgJ2HrS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Oct 2020 03:47:18 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ADCCC0613CF;
+        Thu, 29 Oct 2020 00:47:18 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id e15so1651823pfh.6;
+        Thu, 29 Oct 2020 00:47:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=RMptxvJmzOcZiuXNgbU/HwziNAPryxG8DYu7tZwcxLQ=;
+        b=ujy//ADrms1eofnQAz11bblwO1E1flvt7rEanUwzH3ALIbzvBP8QBeaL8UwceylDcl
+         YXu+MnsHF6Ic+PrAKO3yIyzJLA1R99bWvJYzlrOClwOiPjDKaipwPPi5E4RC/kYAE8SQ
+         ZAaFZFUfYjlzhrKNLO/PD4/DxffevErzJ21FnJ8G9pPKJQnLrqQgnaYSF1rweqqAf/lm
+         qrlo+rrqS+2m+4fbCkt8p94IQXKMtyAIOmlbGUmz/fX5f9JdlaYyBAEqlGq37dpDK0AV
+         NQIDiHozX1XNOaonMf0QYYT2GexsXc/bwQWdeiaodSADmULgs8GPhKr9yk5arffDnDf2
+         wTbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=RMptxvJmzOcZiuXNgbU/HwziNAPryxG8DYu7tZwcxLQ=;
+        b=rXLkYuX7VzEioQiYL/FweKtmwUcSblY5LbUHmPn+XQEM8+6vTxjNd8EzvOGP0tlou0
+         Yu0tuyQ5rasqxmU5QJfXs5ayYlLn4jVRAXZS2BwWMzqr8EdEUtKDoQizELLIbpgsCR59
+         kAzXmnfRi8i/n0/0/X570Z7g9R2dPZiFdHUpySI0ZIkw/3xjxHN8StMOkDICFq3NNY1O
+         RTQ6+hsdXUzx/Y2peHm5quCoFH3tfljqR8F8rtH6yMX1iYL4ORqLRTkCKMqsQcyPK8+E
+         Vb+dHdDvyEEei0oUWwZYDRhbWOdTjlOKBhPEdpdLzojm/1/xkZ8mu62+/7WGt2Rfp1Xk
+         jrXg==
+X-Gm-Message-State: AOAM533onKxjH/O1N/ZZTFPRDOxBzIDsf2+Woa2YHcibAdxffSavM1Nc
+        II3h5wTCShdhI/1FUjlXnw29bYKY0f0KTKHI
+X-Google-Smtp-Source: ABdhPJw8P1RoK4I78C2zTcT3FY9ZJ4cZamb/26Rqvh2ViBc7KDj3Fnsuu9LYIO9HCkQJTW/1BzyCMA==
+X-Received: by 2002:aa7:9dcd:0:b029:152:421f:23eb with SMTP id g13-20020aa79dcd0000b0290152421f23ebmr3223431pfq.58.1603957637685;
+        Thu, 29 Oct 2020 00:47:17 -0700 (PDT)
+Received: from localhost ([2409:8a28:3c42:6840:9efc:e8ff:fef2:1cdc])
+        by smtp.gmail.com with ESMTPSA id v125sm1864615pfv.75.2020.10.29.00.47.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Oct 2020 00:47:17 -0700 (PDT)
+From:   Coiby Xu <coiby.xu@gmail.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Qii Wang <qii.wang@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-arm-kernel@lists.infradead.org (moderated list:ARM/Mediatek SoC
+        support),
+        linux-mediatek@lists.infradead.org (moderated list:ARM/Mediatek SoC
+        support), linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH 2/5] i2c: mediatek: remove unnecessary CONFIG_PM_SLEEP
+Date:   Thu, 29 Oct 2020 15:46:51 +0800
+Message-Id: <20201029074654.227263-2-coiby.xu@gmail.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201029074654.227263-1-coiby.xu@gmail.com>
+References: <20201029074654.227263-1-coiby.xu@gmail.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-10-28_01:2020-10-26,2020-10-28 signatures=0
-X-Proofpoint-Spam-Reason: safe
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-SGksDQoNCj4gT24gMTAvMjMvMjAgODo0MCBBTSwgTWljaGFlbCBXdSB3cm90ZToNCj4gPiBJZiBz
-b21lIGJpdHMgd2VyZSBjbGVhcmVkIGJ5IGkyY19kd19yZWFkX2NsZWFyX2ludHJiaXRzX3NsYXZl
-KCkgaW4NCj4gPiBpMmNfZHdfaXNyX3NsYXZlKCkgYW5kIG5vdCBoYW5kbGVkIGltbWVkaWF0ZWx5
-LCB0aG9zZSBjbGVhcmVkIGJpdHMgd291bGQNCj4gPiBub3QgYmUgc2hvd24gYWdhaW4gYnkgbGF0
-ZXIgaTJjX2R3X3JlYWRfY2xlYXJfaW50cmJpdHNfc2xhdmUoKS4gVGhleQ0KPiA+IHRoZXJlZm9y
-ZSB3ZXJlIGZvcmdvdHRlbiB0byBiZSBoYW5kbGVkLg0KPiA+DQo+ID4gaTJjX2R3X3JlYWRfY2xl
-YXJfaW50cmJpdHNfc2xhdmUoKSBzaG91bGQgYmUgY2FsbGVkIG9uY2UgaW4gYW4gSVNSIGFuZCB0
-YWtlDQo+ID4gaXRzIHJldHVybmVkIHN0YXRlIGZvciBhbGwgbGF0ZXIgaGFuZGxpbmdzLg0KPiA+
-IC0tLQ0KPiA+ICAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXNsYXZlLmMgfCA3
-ICstLS0tLS0NCj4gPiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgNiBkZWxldGlv
-bnMoLSkNCj4gPg0KPiBBY2tlZC1ieTogSmFya2tvIE5pa3VsYSA8amFya2tvLm5pa3VsYUBsaW51
-eC5pbnRlbC5jb20+DQoNClRoZXJlIGlzIGFub3RoZXIgbG9naWMgaXNzdWUgYWJvdXQgdGhlIEky
-Q19TTEFWRV9XUklURV9SRVFVRVNURUQgcmVwb3J0aW5nLg0KTWF5IEkgZ2l2ZSBwYXRjaGVzIGJh
-c2VkIG9uIHRoaXMgY29tbWl0Pw0KDQpNaWNoYWVsIFd1DQo=
+SET_SYSTEM_SLEEP_PM_OPS has already took good care of CONFIG_PM_CONFIG.
+
+Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
+---
+ drivers/i2c/busses/i2c-mt65xx.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 0cbdfbe605b5..c2939f2e5dea 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -1284,7 +1284,6 @@ static int mtk_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM_SLEEP
+ static int mtk_i2c_resume(struct device *dev)
+ {
+ 	int ret;
+@@ -1302,7 +1301,6 @@ static int mtk_i2c_resume(struct device *dev)
+ 
+ 	return 0;
+ }
+-#endif
+ 
+ static const struct dev_pm_ops mtk_i2c_pm = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(NULL, mtk_i2c_resume)
+-- 
+2.28.0
+
