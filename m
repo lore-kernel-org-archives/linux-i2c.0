@@ -5,104 +5,102 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68537C55178
-	for <linux-i2c@archiver.kernel.org>; Thu, 29 Oct 2020 07:47:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5193C5517A
+	for <linux-i2c@archiver.kernel.org>; Thu, 29 Oct 2020 07:48:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 14EB520EDD
-	for <linux-i2c@archiver.kernel.org>; Thu, 29 Oct 2020 07:47:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7EAED2076B
+	for <linux-i2c@archiver.kernel.org>; Thu, 29 Oct 2020 07:48:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E/npHPWG"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SG2X8Cgs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387635AbgJ2Hr5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 29 Oct 2020 03:47:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59116 "EHLO
+        id S1733189AbgJ2HrO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 29 Oct 2020 03:47:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387704AbgJ2Hrc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Oct 2020 03:47:32 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23437C0613CF;
-        Thu, 29 Oct 2020 00:47:32 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id h6so1662989pgk.4;
-        Thu, 29 Oct 2020 00:47:32 -0700 (PDT)
+        with ESMTP id S1733219AbgJ2HrN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Oct 2020 03:47:13 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFEC7C0613CF;
+        Thu, 29 Oct 2020 00:47:12 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id x13so1640006pfa.9;
+        Thu, 29 Oct 2020 00:47:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=EfUvM2HIYqayJGNB5YFiLjHO4usiXX5f5sqxhofy1FE=;
-        b=E/npHPWGKAKlhVPGqu3KrHiHe4Sw26z0cNVUoqYypll8q94Og6WXUQw6Cs0zO6J73w
-         v/s28342fZ/1xid+SnprcFt946EX+P/PftlsB3LPM6B9HkyRS+X1HSoH0IuWhuUnnDSN
-         2UWEiMHt1jjpNQe0vgn65y/z7ngPnmv6/r5dOhnDeroQN+tAsxHccRY0e2CkSWI524BC
-         K0UQhPgEDtug8ifAbqmuBkzKLIpze8HpsJ9XUQBpQ77RYkFzcfX9yr6OBhYQBrRL+Yfc
-         yi7WU5OZDo3ieFE8qZixr22U+VJszUO2cWmhjX6UIqRsRAlfVdNk941wNj7NSh9VeyJl
-         I/Ew==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=V08PspyNA/Gd/mjf5dTuZbIBxLthbWMSkSzjG2zBo0o=;
+        b=SG2X8CgsISg+8I/Lq0S7/HW98gq4rL+wuR+jZ2nrUH6do8lmt7Vq7N2hJdCSijkXrn
+         mVNqUm6B3SaFqHDoEzvylvI+i9lclHzZd5p0SNMrIHTTwZBYUaeJLX9DTwft7sgTc83Y
+         dwGohqw/6D1GjoeKawPA4RVlrLd+Pz1nSnM6lcLafhjCc0PTfYqeALZER8KZgcd3s/+j
+         w8/nm4moV6Tfw90068cMIEXONYOsXXjMkJDCg+LZubWbIM+YTKdzukxM5EEfnuZ5UrmD
+         74NjdWkEnDZrUxF4cbkaHWjNWrAJZFVG2/wJs4SCJbT0qwONNaapQhxSrRTnYXvod7q2
+         JBxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=EfUvM2HIYqayJGNB5YFiLjHO4usiXX5f5sqxhofy1FE=;
-        b=c6zfFcEyf/rXPF5I6HrgKMOdDEG7xTISGAOFbg5RgaYUl4FzgYYMjw969tBzKuwouv
-         umfLWzt81v0/zH5noihudVZf4J3hJOyeZeIqm3xpw3r8tt1EERMiOiSbZY5qkFpt0Oxo
-         2DN8bbGBlbD/TxIPP6bvjyaBAHX6kEqQFRIza6D7oZ8iUroTPY5Q13gWL5GQg2g3uL6i
-         Voz8l8YW4HPHa1BpYs4gu9qn5ecU4+GaE0otVP0hhtyGZAs6rQY/kizJXP06NSR+SPAH
-         5Bg4nIKV6zGBJ63euwzkTh+2rCMfqzqvFy/lrh1bDFrKNIjmkWa3EAHlwTaA+QMTlM2A
-         Ob4g==
-X-Gm-Message-State: AOAM533A/++FdcDnQS+M3RrUiBZMuGA8XeGNvOn2bMB6xSSZlbozPA8H
-        SwxHZ8dxEl+DodAj2r2hzFXScT2DTdjtcZOe
-X-Google-Smtp-Source: ABdhPJwudijRFRUrG2f6EdIKYZWfRNbRlMZjCvN3h1EpyMXrCHzLF6Zj1YYa35PjfEIP/4HGxJyJdQ==
-X-Received: by 2002:aa7:83c2:0:b029:156:5ece:98b6 with SMTP id j2-20020aa783c20000b02901565ece98b6mr2981705pfn.4.1603957651547;
-        Thu, 29 Oct 2020 00:47:31 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=V08PspyNA/Gd/mjf5dTuZbIBxLthbWMSkSzjG2zBo0o=;
+        b=doMUdxP60DRFnMGW8mS06TYK4JTOp6Fkjyr3Zk0W3uxXMAZ/yfgGAzHJmpDJvkE/7Y
+         6BZfZU0NcPMmI26e2OsaUS2yxlXJeqUP0d5ZX6IlxxMpCwtG8/XbNirmCNrU7uSv13xC
+         MTtSkB2ozJS9X9q/6N4z45/kLu3VerOF9fhIYmZZhXl26kApPItkyAUH+zz+Yhh1Hk9v
+         og2xzqk4h43VdtC1xltjJVzNL3OWxLLczXqf3TyoTIw25etRs9MEmykbE7WbWVHlZHdI
+         5/EjxGG8W8sM3HBKzvp8p7anmEOXJPCR+ehoELmw8h1sWrhGVIEj1XYZhEF0YPClTbQ1
+         sg8g==
+X-Gm-Message-State: AOAM532KdttVLZrwCtp6S7KtSvhvtyacBVO3FwQWHlMfTVjeTIty1hPX
+        ZEunx2wM5sRrv6LeQQneAeYyN1ECsInVQskw
+X-Google-Smtp-Source: ABdhPJyNXhvqb/kNPoP0bT3VqfcZ0W70z0M09OthqII7aEcE3f4rPU0NG/wWU/CIvU0ZQ4ihDKj10w==
+X-Received: by 2002:a17:90a:aa91:: with SMTP id l17mr2964947pjq.198.1603957632406;
+        Thu, 29 Oct 2020 00:47:12 -0700 (PDT)
 Received: from localhost ([2409:8a28:3c42:6840:9efc:e8ff:fef2:1cdc])
-        by smtp.gmail.com with ESMTPSA id q11sm1540708pgm.79.2020.10.29.00.47.29
+        by smtp.gmail.com with ESMTPSA id b16sm1850091pfp.195.2020.10.29.00.47.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2020 00:47:31 -0700 (PDT)
+        Thu, 29 Oct 2020 00:47:12 -0700 (PDT)
 From:   Coiby Xu <coiby.xu@gmail.com>
 To:     linux-i2c@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org (moderated
-        list:ARM/NOMADIK/U300/Ux500 ARCHITECTURES),
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        linux-arm-msm@vger.kernel.org (open list:ARM/QUALCOMM SUPPORT),
         linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 4/5] i2c: nomadik: remove unnecessary CONFIG_PM_SLEEP
-Date:   Thu, 29 Oct 2020 15:46:53 +0800
-Message-Id: <20201029074654.227263-4-coiby.xu@gmail.com>
+Subject: [PATCH 1/5] i2c: qup: remove unnecessary CONFIG_PM_SLEEP
+Date:   Thu, 29 Oct 2020 15:46:50 +0800
+Message-Id: <20201029074654.227263-1-coiby.xu@gmail.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201029074654.227263-1-coiby.xu@gmail.com>
-References: <20201029074654.227263-1-coiby.xu@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-SET_LATE_SYSTEM_SLEEP_PM_OPS has already took good care of CONFIG_PM_CONFIG.
+SET_SYSTEM_SLEEP_PM_OPS has already took good care of CONFIG_PM_CONFIG.
 
 Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
 ---
- drivers/i2c/busses/i2c-nomadik.c | 2 --
+ drivers/i2c/busses/i2c-qup.c | 2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index d4b1b0865f67..cd0f9f92c913 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -873,7 +873,6 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- 	return IRQ_HANDLED;
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index fbc04b60cfd1..bf63e4567705 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -1940,7 +1940,6 @@ static int qup_i2c_pm_resume_runtime(struct device *device)
  }
+ #endif
  
 -#ifdef CONFIG_PM_SLEEP
- static int nmk_i2c_suspend_late(struct device *dev)
+ static int qup_i2c_suspend(struct device *device)
  {
- 	int ret;
-@@ -890,7 +889,6 @@ static int nmk_i2c_resume_early(struct device *dev)
- {
- 	return pm_runtime_force_resume(dev);
+ 	if (!pm_runtime_suspended(device))
+@@ -1955,7 +1954,6 @@ static int qup_i2c_resume(struct device *device)
+ 	pm_request_autosuspend(device);
+ 	return 0;
  }
 -#endif
  
- #ifdef CONFIG_PM
- static int nmk_i2c_runtime_suspend(struct device *dev)
+ static const struct dev_pm_ops qup_i2c_qup_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(
 -- 
 2.28.0
 
