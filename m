@@ -2,41 +2,40 @@ Return-Path: <SRS0=QIrR=EF=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22352C00A89
-	for <linux-i2c@archiver.kernel.org>; Fri, 30 Oct 2020 08:05:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B291C56201
+	for <linux-i2c@archiver.kernel.org>; Fri, 30 Oct 2020 08:05:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E18F2222C
-	for <linux-i2c@archiver.kernel.org>; Fri, 30 Oct 2020 08:05:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AEECB2220B
+	for <linux-i2c@archiver.kernel.org>; Fri, 30 Oct 2020 08:05:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=vivotek.com header.i=@vivotek.com header.b="WotQ/J/m"
+	dkim=pass (1024-bit key) header.d=vivotek.com header.i=@vivotek.com header.b="NhVda22k"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726090AbgJ3IFO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1725987AbgJ3IFO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Fri, 30 Oct 2020 04:05:14 -0400
-Received: from mail.vivotek.com ([60.248.39.150]:48978 "EHLO mail.vivotek.com"
+Received: from mail.vivotek.com ([60.248.39.150]:48994 "EHLO mail.vivotek.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726078AbgJ3IFK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1726082AbgJ3IFK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Fri, 30 Oct 2020 04:05:10 -0400
 Received: from pps.filterd (vivotekpps.vivotek.com [127.0.0.1])
-        by vivotekpps.vivotek.com (8.16.0.42/8.16.0.42) with SMTP id 09U7xpU0013442;
-        Fri, 30 Oct 2020 16:04:57 +0800
+        by vivotekpps.vivotek.com (8.16.0.42/8.16.0.42) with SMTP id 09U80MIm015010;
+        Fri, 30 Oct 2020 16:04:56 +0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivotek.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-type; s=dkim; bh=MEiPWEmutrI6dcy3tVAXJ3gnd1ispPOTl60DsYN2dHo=;
- b=WotQ/J/mcdzQD0RxRICVloPESXkfclR73BuRLK9A8GAAlJqjtxYh+QemRt+r9Bix1vla
- limL9uNu02j68llEeaJUGEluwE9xzFNYT8L0G/BXxAUHAxpCIuclmrE+vwojxpp0EgN8
- Gij5vJTYihjZAI7klonauQdd7mVeK9as4lw= 
+ subject : date : message-id : mime-version : content-type; s=dkim;
+ bh=ECF5VlgUT7MZAjqCXV2X/LFjRoTX9Mtp2Qy4jq7s1LQ=;
+ b=NhVda22k2X3jNVi6kCfPI9OJ1drN1d++14RrbjCBvtM4NASCJVBH/wrVNoIYlMJ1i7PA
+ wIk2hYjXwBJgIB+90nQCz8C2DQ3aYJjFPQYYxwx5XE2suFwQAGRzzotxmkh36TubgrOm
+ 0TBOOR3cPbfO6GRzb4qcev3pk8Q5b2RZtB8= 
 Received: from cas01.vivotek.tw ([192.168.0.58])
-        by vivotekpps.vivotek.com with ESMTP id 34c6q166qr-1
+        by vivotekpps.vivotek.com with ESMTP id 34c6q166qp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Fri, 30 Oct 2020 16:04:57 +0800
+        Fri, 30 Oct 2020 16:04:56 +0800
 Received: from localhost.localdomain (192.168.17.134) by CAS01.vivotek.tw
  (192.168.0.58) with Microsoft SMTP Server (TLS) id 14.3.487.0; Fri, 30 Oct
- 2020 16:04:57 +0800
+ 2020 16:04:55 +0800
 From:   Michael Wu <michael.wu@vatics.com>
 To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -45,12 +44,10 @@ To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         <linux-kernel@vger.kernel.org>
 CC:     Morgan Chang <morgan.chang@vatics.com>,
         Michael Wu <michael.wu@vatics.com>
-Subject: [PATCH 2/2] i2c: designware: slave should do WRITE_REQUESTED before WRITE_RECEIVED
-Date:   Fri, 30 Oct 2020 16:04:20 +0800
-Message-ID: <20201030080420.28016-3-michael.wu@vatics.com>
+Subject: [PATCH 0/2] Designware I2C slave confusing IC_INTR_STOP_DET handle
+Date:   Fri, 30 Oct 2020 16:04:18 +0800
+Message-ID: <20201030080420.28016-1-michael.wu@vatics.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201030080420.28016-1-michael.wu@vatics.com>
-References: <20201030080420.28016-1-michael.wu@vatics.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [192.168.17.134]
@@ -61,101 +58,85 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Sometimes we would get the following flow when doing an i2cset:
+When an I2C slave works, sometimes both IC_INTR_RX_FULL and
+IC_INTR_STOP_DET may be rising during an IRQ handle, especially when
+system is busy or too late to handle interrupts.
 
-0x1 STATUS SLAVE_ACTIVITY=0x1 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+If IC_INTR_RX_FULL is rising and the system doesn't handle immediately,
+IC_INTR_STOP_DET may be rising and the system has to handle these two
+events. For this there may be two problems:
+
+1. IC_INTR_STOP_DET is rising after i2c_dw_read_clear_intrbits_slave()
+   done: It seems invalidated because I2C_SLAVE_WRITE_REQUESTED is
+   reported after the 1st I2C_SLAVE_WRITE_RECEIVED.
+
+$ i2cset -f -y 2 0x42 0x00 0x41; dmesg -c
+[0][clear_intrbits]0x1 STATUS SLAVE_ACTIVITY=0x1 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+[1][irq_handler   ]0x1 STATUS SLAVE_ACTIVITY=0x1 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
 I2C_SLAVE_WRITE_RECEIVED
-0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x714 : INTR_STAT=0x204
+[0][clear_intrbits]0x1 STATUS SLAVE_ACTIVITY=0x1 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+[1][irq_handler   ]0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x714 : INTR_STAT=0x204
 I2C_SLAVE_WRITE_REQUESTED
 I2C_SLAVE_WRITE_RECEIVED
+[0][clear_intrbits]0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x710 : INTR_STAT=0x200
+[1][irq_handler   ]0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x510 : INTR_STAT=0x0
+I2C_SLAVE_STOP
+[2][clear_intrbits]0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x510 : INTR_STAT=0x0
 
-Documentation/i2c/slave-interface.rst says that I2C_SLAVE_WRITE_REQUESTED,
-which is mandatory, should be sent while the data did not arrive yet. It
-means in a write-request I2C_SLAVE_WRITE_REQUESTED should be reported
-before any I2C_SLAVE_WRITE_RECEIVED.
+  t1: ISR with the 1st IC_INTR_RX_FULL.
+  t2: Clear listed IC_INTR bits by i2c_dw_read_clear_intrbits_slave().
+  t3: Enter i2c_dw_irq_handler_slave() and then report
+      I2C_SLAVE_WRITE_RECEIVED due to 'if (stat & DW_IC_INTR_RX_FULL)'
+      matched.
+  t4: ISR with the 2nd IC_INTR_RX_FULL.
+  t5: Clear listed IC_INTR bits by i2c_dw_read_clear_intrbits_slave() while
+      IC_INTR_STOP_DET has not risen yet.
+  t6: IC_INTR_STOP_DET is rising after entering i2c_dw_irq_handler_slave().
+      The driver reports I2C_SLAVE_WRITE_REQUESTED first due to
+      'if ((stat & DW_IC_INTR_RX_FULL) && (stat & DW_IC_INTR_STOP_DET))'
+      matched and then reports I2C_SLAVE_WRITE_RECEIVED.
+  t7: Reports I2C_SLAVE_STOP due to IC_INTR_STOP_DET not be cleared yet.
 
-By the way, I2C_SLAVE_STOP didn't be reported in the above case because
-DW_IC_INTR_STAT was not 0x200.
+2. Both IC_INTR_STOP_DET and IC_INTR_RX_FULL are rising before
+   i2c_dw_read_clear_intrbits_slave(): I2C_SLAVE_STOP never be reported
+   because IC_INTR_STOP_DET was cleared by
+   i2c_dw_read_clear_intrbits_slave().
 
-dev->status can be used to record the current state, especially Designware
-I2C controller has no interrupts to identify a write-request. This patch
-makes not only I2C_SLAVE_WRITE_REQUESTED been reported first when
-IC_INTR_RX_FULL is rising and dev->status isn't STATUS_WRITE_IN_PROGRESS
-but also I2C_SLAVE_STOP been reported when a STOP condition is received.
+$ i2cset -f -y 2 0x42 0x00 0x41; dmesg -c
+[0][clear_intrbits]0x1 STATUS SLAVE_ACTIVITY=0x1 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+[1][irq_handler   ]0x1 STATUS SLAVE_ACTIVITY=0x1 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+I2C_SLAVE_WRITE_RECEIVED
+[0][clear_intrbits]0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x714 : INTR_STAT=0x204
+[1][irq_handler   ]0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+I2C_SLAVE_WRITE_RECEIVED
 
-Signed-off-by: Michael Wu <michael.wu@vatics.com>
----
- drivers/i2c/busses/i2c-designware-slave.c | 45 +++++++++--------------
- 1 file changed, 18 insertions(+), 27 deletions(-)
+  t1: ISR with the 1st IC_INTR_RX_FULL.
+  t2: Clear listed IC_INTR bits by i2c_dw_read_clear_intrbits_slave().
+  t3: Enter i2c_dw_irq_handler_slave() and then report
+      I2C_SLAVE_WRITE_RECEIVED due to 'if (stat & DW_IC_INTR_RX_FULL)'
+      matched.
+  t4: ISR with both IC_INTR_STOP_DET and the 2nd IC_INTR_RX_FULL.
+  t5: Clear listed IC_INTR bits by i2c_dw_read_clear_intrbits_slave().
+      The current IC_INTR_STOP_DET was cleared by this
+      i2c_dw_read_clear_intrbits_slave().
+  t6: Enter i2c_dw_irq_handler_slave() and then report
+      i2c_slave_event(WRITE_RECEIVED) due to
+      'if (stat & DW_IC_INTR_RX_FULL)' matched.
+  t7: I2C_SLAVE_STOP never be reported because IC_INTR_STOP_DET was
+      cleared in t5.
 
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index 13de01a0f75f..0d15f4c1e9f7 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -172,26 +172,25 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
- 		"%#x STATUS SLAVE_ACTIVITY=%#x : RAW_INTR_STAT=%#x : INTR_STAT=%#x\n",
- 		enabled, slave_activity, raw_stat, stat);
- 
--	if ((stat & DW_IC_INTR_RX_FULL) && (stat & DW_IC_INTR_STOP_DET))
--		i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_REQUESTED, &val);
-+	if (stat & DW_IC_INTR_RX_FULL) {
-+		if (dev->status != STATUS_WRITE_IN_PROGRESS) {
-+			dev->status = STATUS_WRITE_IN_PROGRESS;
-+			i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_REQUESTED,
-+					&val);
-+		}
-+
-+		regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
-+		val = tmp;
-+		if (!i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_RECEIVED,
-+				     &val))
-+			dev_vdbg(dev->dev, "Byte %X acked!", val);
-+	}
- 
- 	if (stat & DW_IC_INTR_RD_REQ) {
- 		if (slave_activity) {
--			if (stat & DW_IC_INTR_RX_FULL) {
--				regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
--				val = tmp;
--
--				if (!i2c_slave_event(dev->slave,
--						     I2C_SLAVE_WRITE_RECEIVED,
--						     &val)) {
--					dev_vdbg(dev->dev, "Byte %X acked!",
--						 val);
--				}
--				regmap_read(dev->map, DW_IC_CLR_RD_REQ, &tmp);
--			} else {
--				regmap_read(dev->map, DW_IC_CLR_RD_REQ, &tmp);
--				regmap_read(dev->map, DW_IC_CLR_RX_UNDER, &tmp);
--			}
-+			regmap_read(dev->map, DW_IC_CLR_RD_REQ, &tmp);
-+
-+			dev->status = STATUS_READ_IN_PROGRESS;
- 			if (!i2c_slave_event(dev->slave,
- 					     I2C_SLAVE_READ_REQUESTED,
- 					     &val))
-@@ -203,18 +202,10 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
- 		if (!i2c_slave_event(dev->slave, I2C_SLAVE_READ_PROCESSED,
- 				     &val))
- 			regmap_read(dev->map, DW_IC_CLR_RX_DONE, &tmp);
--
--		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
--		return 1;
- 	}
- 
--	if (stat & DW_IC_INTR_RX_FULL) {
--		regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
--		val = tmp;
--		if (!i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_RECEIVED,
--				     &val))
--			dev_vdbg(dev->dev, "Byte %X acked!", val);
--	} else {
-+	if (stat & DW_IC_INTR_STOP_DET) {
-+		dev->status = STATUS_IDLE;
- 		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
- 	}
- 
+In order to resolve these problems, i2c_dw_read_clear_intrbits_slave()
+should be called only once in an ISR and take the returned stat to handle
+those occurred events. The ISR handling has to be adjusted to conform event
+reporting described in Documentation/i2c/slave-interface.rst.
+
+Michael Wu (2):
+  i2c: designware: call i2c_dw_read_clear_intrbits_slave() once
+  i2c: designware: slave should do WRITE_REQUESTED before WRITE_RECEIVED
+
+ drivers/i2c/busses/i2c-designware-slave.c | 52 +++++++++--------------
+ 1 file changed, 19 insertions(+), 33 deletions(-)
+
 -- 
 2.17.1
 
