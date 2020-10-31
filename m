@@ -1,65 +1,85 @@
-Return-Path: <SRS0=QIrR=EF=vger.kernel.org=linux-i2c-owner@kernel.org>
+Return-Path: <SRS0=2Xmh=EG=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D05BC55178
-	for <linux-i2c@archiver.kernel.org>; Fri, 30 Oct 2020 15:01:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0039C388F7
+	for <linux-i2c@archiver.kernel.org>; Sat, 31 Oct 2020 18:20:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4C8720825
-	for <linux-i2c@archiver.kernel.org>; Fri, 30 Oct 2020 15:01:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B36520709
+	for <linux-i2c@archiver.kernel.org>; Sat, 31 Oct 2020 18:20:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1604168413;
+	bh=WeJM9sqefLyTbec/MpOe67C4HqcW9wc+PbJIX8GXQqo=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=U8tau8RWckWZmVDOeNI/S4N9mzAQAgSk+UOZ2Wm6oJhJgEiaGviMea5Ni8MmLLjJ1
+	 frOgAnDiCUZwOhcPj8tecz8wXUOm+2ihYK2UPBJyXrGEmyRfqepOSCf7zrEeC9J/Lv
+	 mUL8wCDr/UEyqKfqWOwmHNlSQ2CpNxeQUQ6hOWBc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726991AbgJ3PAl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 30 Oct 2020 11:00:41 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:15998 "EHLO
-        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726779AbgJ3PAj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Oct 2020 11:00:39 -0400
-Received: from ironmsg-lv-alpha.qualcomm.com ([10.47.202.13])
-  by alexa-out.qualcomm.com with ESMTP; 30 Oct 2020 08:00:39 -0700
-X-QCInternal: smtphost
-Received: from ironmsg02-blr.qualcomm.com ([10.86.208.131])
-  by ironmsg-lv-alpha.qualcomm.com with ESMTP/TLS/AES256-SHA; 30 Oct 2020 08:00:37 -0700
-X-QCInternal: smtphost
-Received: from c-rojay-linux.qualcomm.com ([10.206.21.80])
-  by ironmsg02-blr.qualcomm.com with ESMTP; 30 Oct 2020 20:30:03 +0530
-Received: by c-rojay-linux.qualcomm.com (Postfix, from userid 88981)
-        id D776126AE; Fri, 30 Oct 2020 20:30:01 +0530 (IST)
-From:   Roja Rani Yarubandi <rojay@codeaurora.org>
-To:     wsa@kernel.org
-Cc:     swboyd@chromium.org, dianders@chromium.org,
-        saiprakash.ranjan@codeaurora.org, gregkh@linuxfoundation.org,
-        mka@chromium.org, akashast@codeaurora.org,
-        msavaliy@qti.qualcomm.com, skakit@codeaurora.org,
-        vkaur@codeaurora.org, pyarlaga@codeaurora.org,
-        rnayak@codeaurora.org, agross@kernel.org,
-        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sumit.semwal@linaro.org, linux-media@vger.kernel.org,
-        Roja Rani Yarubandi <rojay@codeaurora.org>
-Subject: [PATCH V6 0/3] Implement Shutdown callback for geni-i2c
-Date:   Fri, 30 Oct 2020 20:29:56 +0530
-Message-Id: <20201030145959.505-1-rojay@codeaurora.org>
-X-Mailer: git-send-email 2.26.2
+        id S1728209AbgJaSUM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 31 Oct 2020 14:20:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47284 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727967AbgJaSUM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 31 Oct 2020 14:20:12 -0400
+Received: from localhost.localdomain (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20204206D5;
+        Sat, 31 Oct 2020 18:20:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604168412;
+        bh=WeJM9sqefLyTbec/MpOe67C4HqcW9wc+PbJIX8GXQqo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tFb3o3AbvzA/GKzWSwaSam11G2jgvfJ9gPZsU7Y89kQsIop++ogPSUAM/Nnvy6Pld
+         opbjTy6WXTGOyBh+o3SgQkbeg9bNbDzWv9MZrAUL5FF3fYdSTfb7KEYILlC2MZBZhr
+         U1gX6KBXBRbt/u1QB1s7E8NH2XvieHh+yQ0qykjs=
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     linux-iio@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 0/3] dt-bindings: yaml conversion of i2c-gate and IIO users
+Date:   Sat, 31 Oct 2020 18:17:58 +0000
+Message-Id: <20201031181801.742585-1-jic23@kernel.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Roja Rani Yarubandi (3):
-  soc: qcom: geni: Remove "iova" check
-  i2c: i2c-qcom-geni: Store DMA mapping data in geni_i2c_dev struct
-  i2c: i2c-qcom-geni: Add shutdown callback for i2c
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
- drivers/i2c/busses/i2c-qcom-geni.c | 104 ++++++++++++++++++++++++-----
- drivers/soc/qcom/qcom-geni-se.c    |   4 +-
- 2 files changed, 90 insertions(+), 18 deletions(-)
+As part of a general effort to convert all IIO bindings over to yaml,
+we need to handle those that specify an i2c-gate.
+As such this also includes conversion of the base i2c-gate binding
+which is then referenced by the i2c binding files.
+
+Jonathan Cameron (3):
+  dt-bindings:i2c:i2c-gate: txt to yaml conversion
+  dt-bindings:iio:imu:invensense,mpu6050: txt to yaml conversion
+  dt-bindings:iio:gyro:invensense,mpu3050: txt to yaml format
+    conversion.
+
+ .../devicetree/bindings/i2c/i2c-gate.txt      |  41 -------
+ .../devicetree/bindings/i2c/i2c-gate.yaml     |  52 +++++++++
+ .../iio/gyroscope/invensense,mpu3050.txt      |  45 --------
+ .../iio/gyroscope/invensense,mpu3050.yaml     |  70 ++++++++++++
+ .../bindings/iio/imu/inv_mpu6050.txt          |  67 -----------
+ .../bindings/iio/imu/invensense,mpu6050.yaml  | 105 ++++++++++++++++++
+ 6 files changed, 227 insertions(+), 153 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-gate.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-gate.yaml
+ delete mode 100644 Documentation/devicetree/bindings/iio/gyroscope/invensense,mpu3050.txt
+ create mode 100644 Documentation/devicetree/bindings/iio/gyroscope/invensense,mpu3050.yaml
+ delete mode 100644 Documentation/devicetree/bindings/iio/imu/inv_mpu6050.txt
+ create mode 100644 Documentation/devicetree/bindings/iio/imu/invensense,mpu6050.yaml
 
 -- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member 
-of Code Aurora Forum, hosted by The Linux Foundation
+2.28.0
 
