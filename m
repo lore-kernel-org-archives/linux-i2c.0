@@ -2,94 +2,56 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=0.6 required=3.0 tests=BAYES_50,DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,FREEMAIL_REPLYTO_END_DIGIT,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3DDCC388F7
-	for <linux-i2c@archiver.kernel.org>; Wed, 11 Nov 2020 03:22:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A167BC61DD8
+	for <linux-i2c@archiver.kernel.org>; Wed, 11 Nov 2020 07:22:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 526F221741
-	for <linux-i2c@archiver.kernel.org>; Wed, 11 Nov 2020 03:22:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5521520870
+	for <linux-i2c@archiver.kernel.org>; Wed, 11 Nov 2020 07:22:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725867AbgKKDWl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 10 Nov 2020 22:22:41 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:7513 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725839AbgKKDWl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Nov 2020 22:22:41 -0500
-Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4CW95d3vnTzhk9p;
-        Wed, 11 Nov 2020 11:22:29 +0800 (CST)
-Received: from huawei.com (10.175.124.27) by DGGEMS408-HUB.china.huawei.com
- (10.3.19.208) with Microsoft SMTP Server id 14.3.487.0; Wed, 11 Nov 2020
- 11:22:35 +0800
-From:   Wang Xiaojun <wangxiaojun11@huawei.com>
-To:     <kblaiech@nvidia.com>
-CC:     <linux-i2c@vger.kernel.org>
-Subject: [PATCH] i2c: mlxbf: Fix the return check of devm_ioremapm and ioremap
-Date:   Wed, 11 Nov 2020 11:27:26 +0800
-Message-ID: <20201111032726.3675159-1-wangxiaojun11@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        id S1726618AbgKKHWc convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 11 Nov 2020 02:22:32 -0500
+Received: from sw73-70-41.adsl.seed.net.tw ([203.73.70.41]:41653 "EHLO
+        oa.trendtek.com.tw" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1726276AbgKKHWb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Nov 2020 02:22:31 -0500
+Received: from [156.96.44.214] ([156.96.44.214])
+        (authenticated bits=0)
+        by oa.trendtek.com.tw (8.13.8/8.13.1) with ESMTP id 0AB7M2L5021495
+        for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2020 15:22:28 +0800
+Message-Id: <202011110722.0AB7M2L5021495@oa.trendtek.com.tw>
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.124.27]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: Corporate and Personal Loan *
+To:     linux-i2c@vger.kernel.org
+From:   "Investment  Corporate" <financialcapability6@gmail.com>
+Date:   Wed, 11 Nov 2020 00:29:41 -0800
+Reply-To: hmurrah39@gmail.com
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-devm_ioremapm and ioremap may return NULL which cannot be checked
-by IS_ERR.
+Hello linux-i2c@vger.kernel.org
 
-Signed-off-by: Wang Xiaojun <wangxiaojun11@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
----
- drivers/i2c/busses/i2c-mlxbf.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index 33574d40ea9c..2fb0532d8a16 100644
---- a/drivers/i2c/busses/i2c-mlxbf.c
-+++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -1258,9 +1258,9 @@ static int mlxbf_i2c_get_gpio(struct platform_device *pdev,
- 		return -EFAULT;
- 
- 	gpio_res->io = devm_ioremap(dev, params->start, size);
--	if (IS_ERR(gpio_res->io)) {
-+	if (!gpio_res->io) {
- 		devm_release_mem_region(dev, params->start, size);
--		return PTR_ERR(gpio_res->io);
-+		return -ENOMEM;
- 	}
- 
- 	return 0;
-@@ -1323,9 +1323,9 @@ static int mlxbf_i2c_get_corepll(struct platform_device *pdev,
- 		return -EFAULT;
- 
- 	corepll_res->io = devm_ioremap(dev, params->start, size);
--	if (IS_ERR(corepll_res->io)) {
-+	if (!corepll_res->io) {
- 		devm_release_mem_region(dev, params->start, size);
--		return PTR_ERR(corepll_res->io);
-+		return -ENOMEM;
- 	}
- 
- 	return 0;
-@@ -1717,9 +1717,9 @@ static int mlxbf_i2c_init_coalesce(struct platform_device *pdev,
- 			return -EFAULT;
- 
- 		coalesce_res->io = ioremap(params->start, size);
--		if (IS_ERR(coalesce_res->io)) {
-+		if (!coalesce_res->io) {
- 			release_mem_region(params->start, size);
--			return PTR_ERR(coalesce_res->io);
-+			return -ENOMEM;
- 		}
- 
- 		priv->coalesce = coalesce_res;
--- 
-2.25.1
+We are Base Investment Company offering Corporate and Personal Loan at 3% Interest Rate for a duration of 10Years.
 
+
+We also pay 1% commission to brokers, who introduce project owners for finance or other opportunities.
+
+
+Please get back to me if you are interested for more
+
+details.
+
+
+Yours faithfully,
+
+Hashim Murrah
