@@ -2,92 +2,66 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB420C5519F
-	for <linux-i2c@archiver.kernel.org>; Wed, 18 Nov 2020 14:44:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0353CC6369E
+	for <linux-i2c@archiver.kernel.org>; Wed, 18 Nov 2020 14:44:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3F08A221FB
+	by mail.kernel.org (Postfix) with ESMTP id 6FF882151B
 	for <linux-i2c@archiver.kernel.org>; Wed, 18 Nov 2020 14:44:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727012AbgKROoX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1726869AbgKROoX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Wed, 18 Nov 2020 09:44:23 -0500
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:48157 "EHLO
+Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:48155 "EHLO
         mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726869AbgKROoX (ORCPT
+        with ESMTP id S1727010AbgKROoX (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Nov 2020 09:44:23 -0500
 Received: from Internal Mail-Server by MTLPINE1 (envelope-from vadimp@nvidia.com)
-        with SMTP; 18 Nov 2020 16:44:21 +0200
+        with SMTP; 18 Nov 2020 16:44:19 +0200
 Received: from r-build-lowlevel.mtr.labs.mlnx. (r-build-lowlevel.mtr.labs.mlnx [10.209.0.190])
-        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id 0AIEiIHs008040;
-        Wed, 18 Nov 2020 16:44:20 +0200
+        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id 0AIEiIHr008040;
+        Wed, 18 Nov 2020 16:44:18 +0200
 From:   Vadim Pasternak <vadimp@nvidia.com>
 To:     wsa@the-dreams.de
 Cc:     peda@axentia.se, linux-i2c@vger.kernel.org,
         Vadim Pasternak <vadimp@nvidia.com>
-Subject: [Re-send: PATCH i2c-next 1/6] i2c: mux: mlxcpld: Update module license
-Date:   Wed, 18 Nov 2020 16:44:11 +0200
-Message-Id: <20201118144416.184120-2-vadimp@nvidia.com>
+Subject: [Re-send: PATCH i2c-next 0/6] i2c: mux: mlxcpld: Extend driver functionality and update licenses
+Date:   Wed, 18 Nov 2020 16:44:10 +0200
+Message-Id: <20201118144416.184120-1-vadimp@nvidia.com>
 X-Mailer: git-send-email 2.11.0
-In-Reply-To: <20201118144416.184120-1-vadimp@nvidia.com>
-References: <20201118144416.184120-1-vadimp@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Update license to SPDX-License.
+The patchset adds new features for the existing Mellanox systems.
 
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
----
- drivers/i2c/muxes/i2c-mux-mlxcpld.c | 33 +++------------------------------
- 1 file changed, 3 insertions(+), 30 deletions(-)
+Patches #1-#2 update license to SPDX-License.
+Patch #3  moves header file out of x86 realm.
+Patch #4 converts driver to platform driver.
+Patch #5 adds support for word address space devices.
+Patch #6 extends mux number supported by driver.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-mlxcpld.c b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-index 5ed55ca4fe93..53bce81cf5c9 100644
---- a/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-+++ b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-@@ -1,35 +1,8 @@
-+// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
- /*
-- * drivers/i2c/muxes/i2c-mux-mlxcpld.c
-- * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
-- * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
-+ * Mellanox i2c mux driver
-  *
-- * Redistribution and use in source and binary forms, with or without
-- * modification, are permitted provided that the following conditions are met:
-- *
-- * 1. Redistributions of source code must retain the above copyright
-- *    notice, this list of conditions and the following disclaimer.
-- * 2. Redistributions in binary form must reproduce the above copyright
-- *    notice, this list of conditions and the following disclaimer in the
-- *    documentation and/or other materials provided with the distribution.
-- * 3. Neither the names of the copyright holders nor the names of its
-- *    contributors may be used to endorse or promote products derived from
-- *    this software without specific prior written permission.
-- *
-- * Alternatively, this software may be distributed under the terms of the
-- * GNU General Public License ("GPL") version 2 as published by the Free
-- * Software Foundation.
-- *
-- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-- * POSSIBILITY OF SUCH DAMAGE.
-+ * Copyright (C) 2016-2020 Mellanox Technologies
-  */
- 
- #include <linux/device.h>
+Vadim Pasternak (6):
+  i2c: mux: mlxcpld: Update module license
+  platform/x86: mlxcpld: Update module license
+  i2c: mux: mlxcpld: Move header file out of x86 realm
+  i2c: mux: mlxcpld: Convert driver to platform driver
+  i2c: mux: mlxcpld: Extend driver to support word address space devices
+  i2c: mux: mlxcpld: Extend supported mux number
+
+ drivers/i2c/muxes/i2c-mux-mlxcpld.c       | 153 ++++++++++++++----------------
+ include/linux/platform_data/mlxcpld.h     |  29 ++++++
+ include/linux/platform_data/x86/mlxcpld.h |  52 ----------
+ 3 files changed, 102 insertions(+), 132 deletions(-)
+ create mode 100644 include/linux/platform_data/mlxcpld.h
+ delete mode 100644 include/linux/platform_data/x86/mlxcpld.h
+
 -- 
 2.11.0
 
