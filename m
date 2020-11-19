@@ -2,259 +2,153 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD140C64E75
-	for <linux-i2c@archiver.kernel.org>; Wed, 18 Nov 2020 23:41:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E3F7C6379D
+	for <linux-i2c@archiver.kernel.org>; Thu, 19 Nov 2020 15:25:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6710F246BC
-	for <linux-i2c@archiver.kernel.org>; Wed, 18 Nov 2020 23:41:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4056D24698
+	for <linux-i2c@archiver.kernel.org>; Thu, 19 Nov 2020 15:25:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="UCboUK2a"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J/YCGZvt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727226AbgKRXlA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 18 Nov 2020 18:41:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40006 "EHLO
+        id S1728292AbgKSPYy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 19 Nov 2020 10:24:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726847AbgKRXlA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Nov 2020 18:41:00 -0500
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2891C0613D4
-        for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2020 15:40:59 -0800 (PST)
-Received: by mail-pg1-x541.google.com with SMTP id j19so2481757pgg.5
-        for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2020 15:40:59 -0800 (PST)
+        with ESMTP id S1728018AbgKSPYy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2020 10:24:54 -0500
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB71BC0613D4;
+        Thu, 19 Nov 2020 07:24:53 -0800 (PST)
+Received: by mail-pf1-x441.google.com with SMTP id b63so4789918pfg.12;
+        Thu, 19 Nov 2020 07:24:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=GUNYTlRoxTShJaXBCFij617nWR8IGqxqOLzeQGRazD4=;
-        b=UCboUK2a2V4QL6IpRSxdyNWmJNtbg6YgJSaC2q9+GijH/CvsXObYIuVqXRfM2bgvTJ
-         VSp5eAkU+GNliNGBV/z1/sWeNa4zqpbA/g3kubC3GPrb9lZvq2/EBE47i7XW0tTV9FP6
-         bXbdxdTQQXnV6ZEuQULhLzbaUXGA/EM+mEbVA=
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rKGDvwwf0BJyiVgQU7KDz2JZW6ZWNxeRA71HGxrlgOk=;
+        b=J/YCGZvtwlX/8XtYEmysFnKDvjpTRHkzdA9UPpf6ZIS+l5g8K/pF1ED7LmloVVi7fk
+         G3kThb1661IT5QXdx5MS1h5fAsOUkTVQENCAzMchCk/rdVnlVVO6rkour8GUG4Eah2Rt
+         ItInq+Fncz3f2G6BTN2cFW9/ZHi6nBra6y+UZkABzYLtcJZowzNDKUHsT/EPzUM5obWH
+         VzzMFxH+qgrqz8MTwlOflibya14AYn5riuyiwGqtET+qiYGUpea9npZwvaWeX3fAPFJY
+         s0htUe6ht37nAH1ElBZXXatYoUTErd85Y4mf/nIKORJgJ343CWb0jXjGhoFlDDAiYEnF
+         HIUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=GUNYTlRoxTShJaXBCFij617nWR8IGqxqOLzeQGRazD4=;
-        b=PtWyBy5nx4quUFWGpG0QqMMr+61ZDfH9CLxtb7bQzXbeQU+hCfyw3BljWtb6PjeTsV
-         xHlFYCsyHbH9mve8slxioCFxfQTD3fvKowZXqYv1RQR1i8sUNrmauzze/AhX7OVedMEP
-         2uxeXMVDRaxdTt2wzCo5MsbtXgjHTXZuffmZ8Xssf/PR7tJnsO2hZZpVBpKtbIMhk+Hz
-         dKcRtE+97V7seCoCxnguiIdlu1bS3qRhvArI/2XP+34UG36k5G8h+mUK1p9ONsW/TRPI
-         vtlOh1UeysxT+WGklaKNqqzb4UlfsQAn/zQ4dw8BnWMHfy6YbyB87RprXaIGOXTdKtBZ
-         df4g==
-X-Gm-Message-State: AOAM531N+wZYaR4+fKtsSUyfuAiRVOzcI4GIeoJbqlvBpNnLMajE5Eeh
-        +T9LZUn5VK6srmIuGBGfynrfUw==
-X-Google-Smtp-Source: ABdhPJyBXpH8+Vhc6lbduBkiETriLLO5FBOGdoei5wuyD0wjVw9/nLcOQaAubkNQ9sKwYvZXHDXgfA==
-X-Received: by 2002:a63:f404:: with SMTP id g4mr10525718pgi.144.1605742859205;
-        Wed, 18 Nov 2020 15:40:59 -0800 (PST)
-Received: from evgreen-glaptop.cheshire.ch ([2601:646:c780:1404:250:b6ff:fee1:7d4c])
-        by smtp.gmail.com with ESMTPSA id t200sm5210979pfc.143.2020.11.18.15.40.58
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 18 Nov 2020 15:40:58 -0800 (PST)
-From:   Evan Green <evgreen@chromium.org>
-To:     Peter Rosin <peda@axentia.se>
-Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Evan Green <evgreen@chromium.org>,
-        Peter Korsgaard <peter.korsgaard@barco.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [RESEND PATCH v3 2/2] i2c: i2c-mux-gpio: Enable this driver in ACPI land
-Date:   Wed, 18 Nov 2020 15:40:25 -0800
-Message-Id: <20201118153951.RESEND.v3.2.Idef164c23d326f5e5edecfc5d3eb2a68fcf18be1@changeid>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201118234025.376412-1-evgreen@chromium.org>
-References: <20201118234025.376412-1-evgreen@chromium.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rKGDvwwf0BJyiVgQU7KDz2JZW6ZWNxeRA71HGxrlgOk=;
+        b=avvWIKpK/LDCMRacXd+cqWMuMZmUtd1aqPEfHAOp2HMxyAkCWGdPrCJlwt3ltvb6BO
+         4rh8PrJqJkn7sJo5YEUIhdkFqbpjVBAlsKbq2ye811mYTNpSj9VIauAW38U3rq8Xnq5T
+         mW8RQaY2XKcjwo+8Gh3fFb7aCuLw6s8xnmiVcEeMAT8sOscHss1bv4DPeZ0U8di4gsht
+         IPiVwVLUhJOcXqtjzS+lh39TYplhiFuAFMnxMsKuYW3a2tylEZJudViDqqZCHwSvzGLV
+         I1fq0rEwekIuhi69xKjVxq90hlaRzVs+VVt6iMmW/S9aQU3rWUA8PkJ/teCZ6n+62knc
+         mvLQ==
+X-Gm-Message-State: AOAM533/K9O9EyLS/uqRgNYgOIfQlV2yHFTAGlEtqHtjoLFjILZeAGED
+        HUF7sz8gUdyoOZLn+1436IY0/+3wZw6sbNMZSZo=
+X-Google-Smtp-Source: ABdhPJxqG/ieC3mvkvSTZcfaj7z1cqJDpHXN5/j873Xrx9Ga3FWV2TtW5+HAMHSR5worVSvdSuA3xelbBzzNvBE4/88=
+X-Received: by 2002:a63:1514:: with SMTP id v20mr13609620pgl.203.1605799493298;
+ Thu, 19 Nov 2020 07:24:53 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201118234025.376412-1-evgreen@chromium.org> <20201118153951.RESEND.v3.2.Idef164c23d326f5e5edecfc5d3eb2a68fcf18be1@changeid>
+In-Reply-To: <20201118153951.RESEND.v3.2.Idef164c23d326f5e5edecfc5d3eb2a68fcf18be1@changeid>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Thu, 19 Nov 2020 17:25:41 +0200
+Message-ID: <CAHp75VdtwyCj7emc7Bk87q7kMQA0sSX81-aK-fMq4qTfTF-c_g@mail.gmail.com>
+Subject: Re: [RESEND PATCH v3 2/2] i2c: i2c-mux-gpio: Enable this driver in
+ ACPI land
+To:     Evan Green <evgreen@chromium.org>
+Cc:     Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Peter Korsgaard <peter.korsgaard@barco.com>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Enable i2c-mux-gpio devices to be defined via ACPI. The idle-state
-property translates directly to a fwnode_property_*() call. The child
-reg property translates naturally into _ADR in ACPI.
+On Thu, Nov 19, 2020 at 1:40 AM Evan Green <evgreen@chromium.org> wrote:
+>
+> Enable i2c-mux-gpio devices to be defined via ACPI. The idle-state
+> property translates directly to a fwnode_property_*() call. The child
+> reg property translates naturally into _ADR in ACPI.
+>
+> The i2c-parent binding is a relic from the days when the bindings
+> dictated that all direct children of an I2C controller had to be I2C
+> devices. These days that's no longer required. The i2c-mux can sit as a
+> direct child of its parent controller, which is where it makes the most
+> sense from a hardware description perspective. For the ACPI
+> implementation we'll assume that's always how the i2c-mux-gpio is
+> instantiated.
 
-The i2c-parent binding is a relic from the days when the bindings
-dictated that all direct children of an I2C controller had to be I2C
-devices. These days that's no longer required. The i2c-mux can sit as a
-direct child of its parent controller, which is where it makes the most
-sense from a hardware description perspective. For the ACPI
-implementation we'll assume that's always how the i2c-mux-gpio is
-instantiated.
+...
 
-Signed-off-by: Evan Green <evgreen@chromium.org>
----
+> +#ifdef CONFIG_ACPI
+> +
+> +static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
+> +                                    struct fwnode_handle *fwdev,
+> +                                    unsigned int *adr)
+> +
+> +{
+> +       unsigned long long adr64;
+> +       acpi_status status;
+> +
+> +       status = acpi_evaluate_integer(ACPI_HANDLE_FWNODE(fwdev),
+> +                                      METHOD_NAME__ADR,
+> +                                      NULL, &adr64);
+> +
+> +       if (!ACPI_SUCCESS(status)) {
+> +               dev_err(dev, "Cannot get address\n");
+> +               return -EINVAL;
+> +       }
+> +
+> +       *adr = adr64;
+> +       if (*adr != adr64) {
+> +               dev_err(dev, "Address out of range\n");
+> +               return -ERANGE;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +#else
+> +
+> +static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
+> +                                    struct fwnode_handle *fwdev,
+> +                                    unsigned int *adr)
+> +{
+> +       return -EINVAL;
+> +}
+> +
+> +#endif
 
-Changes in v3:
- - Update commit message again (Peter)
- - Added missing \n (Peter)
- - adr64 overflow check (Peter)
- - Don't initialize child (Peter)
- - Limit scope of dev_handle (Peter)
+I'm wondering if you may use acpi_find_child_device() here.
+Or is it a complementary function?
 
-Changes in v2:
- - Make it compile properly when !CONFIG_ACPI (Randy)
- - Update commit message regarding i2c-parent (Peter)
+...
 
- drivers/i2c/muxes/i2c-mux-gpio.c | 107 +++++++++++++++++++++++--------
- 1 file changed, 79 insertions(+), 28 deletions(-)
+> +       device_for_each_child_node(dev, child) {
+> +               if (is_of_node(child)) {
+> +                       fwnode_property_read_u32(child, "reg", values + i);
+> +
+> +               } else if (is_acpi_node(child)) {
+> +                       rc = i2c_mux_gpio_get_acpi_adr(dev, child, values + i);
+> +                       if (rc)
+> +                               return rc;
+> +               }
+> +
+>                 i++;
+>         }
 
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index caaa782b50d83..bac415a52b780 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -49,35 +49,85 @@ static int i2c_mux_gpio_deselect(struct i2c_mux_core *muxc, u32 chan)
- 	return 0;
- }
- 
--#ifdef CONFIG_OF
--static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
--					struct platform_device *pdev)
-+#ifdef CONFIG_ACPI
-+
-+static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
-+				     struct fwnode_handle *fwdev,
-+				     unsigned int *adr)
-+
-+{
-+	unsigned long long adr64;
-+	acpi_status status;
-+
-+	status = acpi_evaluate_integer(ACPI_HANDLE_FWNODE(fwdev),
-+				       METHOD_NAME__ADR,
-+				       NULL, &adr64);
-+
-+	if (!ACPI_SUCCESS(status)) {
-+		dev_err(dev, "Cannot get address\n");
-+		return -EINVAL;
-+	}
-+
-+	*adr = adr64;
-+	if (*adr != adr64) {
-+		dev_err(dev, "Address out of range\n");
-+		return -ERANGE;
-+	}
-+
-+	return 0;
-+}
-+
-+#else
-+
-+static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
-+				     struct fwnode_handle *fwdev,
-+				     unsigned int *adr)
-+{
-+	return -EINVAL;
-+}
-+
-+#endif
-+
-+static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
-+				 struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
--	struct device_node *np = pdev->dev.of_node;
--	struct device_node *adapter_np, *child;
--	struct i2c_adapter *adapter;
-+	struct device_node *np = dev->of_node;
-+	struct device_node *adapter_np;
-+	struct i2c_adapter *adapter = NULL;
-+	struct fwnode_handle *child;
- 	unsigned *values;
--	int i = 0;
-+	int rc, i = 0;
-+
-+	if (is_of_node(dev->fwnode)) {
-+		if (!np)
-+			return -ENODEV;
- 
--	if (!np)
--		return -ENODEV;
-+		adapter_np = of_parse_phandle(np, "i2c-parent", 0);
-+		if (!adapter_np) {
-+			dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
-+			return -ENODEV;
-+		}
-+		adapter = of_find_i2c_adapter_by_node(adapter_np);
-+		of_node_put(adapter_np);
-+
-+	} else if (is_acpi_node(dev->fwnode)) {
-+		/*
-+		 * In ACPI land the mux should be a direct child of the i2c
-+		 * bus it muxes.
-+		 */
-+		acpi_handle dev_handle = ACPI_HANDLE(dev->parent);
- 
--	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
--	if (!adapter_np) {
--		dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
--		return -ENODEV;
-+		adapter = i2c_acpi_find_adapter_by_handle(dev_handle);
- 	}
--	adapter = of_find_i2c_adapter_by_node(adapter_np);
--	of_node_put(adapter_np);
-+
- 	if (!adapter)
- 		return -EPROBE_DEFER;
- 
- 	mux->data.parent = i2c_adapter_id(adapter);
- 	put_device(&adapter->dev);
- 
--	mux->data.n_values = of_get_child_count(np);
--
-+	mux->data.n_values = device_get_child_node_count(dev);
- 	values = devm_kcalloc(dev,
- 			      mux->data.n_values, sizeof(*mux->data.values),
- 			      GFP_KERNEL);
-@@ -86,24 +136,25 @@ static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
- 		return -ENOMEM;
- 	}
- 
--	for_each_child_of_node(np, child) {
--		of_property_read_u32(child, "reg", values + i);
-+	device_for_each_child_node(dev, child) {
-+		if (is_of_node(child)) {
-+			fwnode_property_read_u32(child, "reg", values + i);
-+
-+		} else if (is_acpi_node(child)) {
-+			rc = i2c_mux_gpio_get_acpi_adr(dev, child, values + i);
-+			if (rc)
-+				return rc;
-+		}
-+
- 		i++;
- 	}
- 	mux->data.values = values;
- 
--	if (of_property_read_u32(np, "idle-state", &mux->data.idle))
-+	if (fwnode_property_read_u32(dev->fwnode, "idle-state", &mux->data.idle))
- 		mux->data.idle = I2C_MUX_GPIO_NO_IDLE;
- 
- 	return 0;
- }
--#else
--static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
--					struct platform_device *pdev)
--{
--	return 0;
--}
--#endif
- 
- static int i2c_mux_gpio_probe(struct platform_device *pdev)
- {
-@@ -119,7 +170,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	if (!dev_get_platdata(&pdev->dev)) {
--		ret = i2c_mux_gpio_probe_dt(mux, pdev);
-+		ret = i2c_mux_gpio_probe_fw(mux, pdev);
- 		if (ret < 0)
- 			return ret;
- 	} else {
+And for this I already told in two different threads with similar code
+that perhaps we need common helper that will check reg followed by
+_ADR.
+
 -- 
-2.26.2
-
+With Best Regards,
+Andy Shevchenko
