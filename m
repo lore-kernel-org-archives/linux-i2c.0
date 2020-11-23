@@ -2,117 +2,82 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1B98C56201
-	for <linux-i2c@archiver.kernel.org>; Sun, 22 Nov 2020 18:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE5BAC2D0E4
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Nov 2020 20:27:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7679A21973
-	for <linux-i2c@archiver.kernel.org>; Sun, 22 Nov 2020 18:00:12 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=connolly.tech header.i=@connolly.tech header.b="N9wfKYz9"
+	by mail.kernel.org (Postfix) with ESMTP id 8EB4020724
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Nov 2020 20:27:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728062AbgKVR7w (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 22 Nov 2020 12:59:52 -0500
-Received: from mail-03.mail-europe.com ([91.134.188.129]:42922 "EHLO
-        mail-03.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727317AbgKVR7v (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 Nov 2020 12:59:51 -0500
-Date:   Sun, 22 Nov 2020 17:59:44 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=connolly.tech;
-        s=protonmail; t=1606067987;
-        bh=0tDIIuf1Tt9UO5w2d7UPKWMd7FZ0ye8L9YX/ZJ0uO48=;
-        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=N9wfKYz9xQLTcAPvtTX7NH1mNJcxIOInJfKomsHFIQ6O4eZjlNIfHWG2cyw0hNIti
-         gPNQoCZ0l10nk9fpcdC46Ob7SMUr6JYkC6GU2aH18O8fzIpTCxcNVsnqbpmbslZR9i
-         n2v/z/qSRtJbnDTuG2b0X2jbSxTkzQdXak+buDYw=
-To:     Bjorn Andersson <bjorn.andersson@linaro.org>
-From:   Caleb Connolly <caleb@connolly.tech>
-Cc:     linux-arm-msm@vger.kernel.org, Andy Gross <agross@kernel.org>,
-        Akash Asthana <akashast@codeaurora.org>,
-        Mukesh Savaliya <msavaliy@codeaurora.org>,
-        phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Reply-To: Caleb Connolly <caleb@connolly.tech>
-Subject: Re: [PATCH 5/5] i2c: geni: sdm845: dont perform DMA for OnePlus 6 devices
-Message-ID: <72a37c8c-12e4-eb51-2644-3436d19cf314@connolly.tech>
-In-Reply-To: <20201122034709.GA95182@builder.lan>
-References: <20201112161920.2671430-1-caleb@connolly.tech> <20201112161920.2671430-6-caleb@connolly.tech> <20201122034709.GA95182@builder.lan>
+        id S1729624AbgKWU16 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 23 Nov 2020 15:27:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45376 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728156AbgKWU16 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Nov 2020 15:27:58 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A94FC0613CF
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Nov 2020 12:27:57 -0800 (PST)
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1khIRI-0007s6-02; Mon, 23 Nov 2020 21:27:56 +0100
+Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1khIRH-0006iq-Am; Mon, 23 Nov 2020 21:27:55 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH] i2c: pca-platform: drop two members from driver data that are assigned to only
+Date:   Mon, 23 Nov 2020 21:27:46 +0100
+Message-Id: <20201123202746.2817480-1-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Bjorn,
+io_base and io_size are assigned to only in .probe() and otherwise unused.
 
-It looks like I still have the same issue even with this patch applied.
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/i2c/busses/i2c-pca-platform.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-Regards,
-Caleb
-
-On 2020-11-22 03:47, Bjorn Andersson wrote:
-> On Thu 12 Nov 10:22 CST 2020, Caleb Connolly wrote:
->
->> The OnePlus 6/T has the same issue as the Yoga c630 causing a crash when=
- DMA
->> is used for i2c, so disable it.
->>
->> https://patchwork.kernel.org/patch/11133827/
->>
->> Signed-off-by: Caleb Connolly <caleb@connolly.tech>
->> ---
->>   drivers/i2c/busses/i2c-qcom-geni.c | 6 ++++--
->>   1 file changed, 4 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c=
--qcom-geni.c
->> index 8b4c35f47a70..9acdcfe73be2 100644
->> --- a/drivers/i2c/busses/i2c-qcom-geni.c
->> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
->> @@ -357,7 +357,8 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *=
-gi2c, struct i2c_msg *msg,
->>   =09struct geni_se *se =3D &gi2c->se;
->>   =09size_t len =3D msg->len;
->>
->> -=09if (!of_machine_is_compatible("lenovo,yoga-c630"))
->> +=09if (!of_machine_is_compatible("lenovo,yoga-c630") &&
->> +=09    !of_machine_is_compatible("oneplus,oneplus6"))
-> This hack seems to have been working around two separate issues. First
-> with iommu active the GENI wrappers needs to have their stream mapping
-> configured. Secondly there was a bug in the transaction setup that was
-> recently fixed by Doug Anderson.
->
-> So can you please give the following patch a go? I've yet to test it on
-> the Lenovo machine, but I think it allows us to remove the quirk.
->
-> https://lore.kernel.org/lkml/20201122034149.626045-1-bjorn.andersson@lina=
-ro.org/T/#u
->
-> Regards,
-> Bjorn
->
->>   =09=09dma_buf =3D i2c_get_dma_safe_msg_buf(msg, 32);
->>
->>   =09if (dma_buf)
->> @@ -399,7 +400,8 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *=
-gi2c, struct i2c_msg *msg,
->>   =09struct geni_se *se =3D &gi2c->se;
->>   =09size_t len =3D msg->len;
->>
->> -=09if (!of_machine_is_compatible("lenovo,yoga-c630"))
->> +=09if (!of_machine_is_compatible("lenovo,yoga-c630") &&
->> +=09    !of_machine_is_compatible("oneplus,oneplus6"))
->>   =09=09dma_buf =3D i2c_get_dma_safe_msg_buf(msg, 32);
->>
->>   =09if (dma_buf)
->> --
->> 2.29.2
->>
->>
-
+diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
+index 546426a470cc..86d4f75ef8d3 100644
+--- a/drivers/i2c/busses/i2c-pca-platform.c
++++ b/drivers/i2c/busses/i2c-pca-platform.c
+@@ -33,8 +33,6 @@ struct i2c_pca_pf_data {
+ 	wait_queue_head_t		wait;
+ 	struct i2c_adapter		adap;
+ 	struct i2c_algo_pca_data	algo_data;
+-	unsigned long			io_base;
+-	unsigned long			io_size;
+ };
+ 
+ /* Read/Write functions for different register alignments */
+@@ -156,8 +154,6 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
+ 
+ 	init_waitqueue_head(&i2c->wait);
+ 
+-	i2c->io_base = res->start;
+-	i2c->io_size = resource_size(res);
+ 	i2c->irq = irq;
+ 
+ 	i2c->adap.nr = pdev->id;
+-- 
+2.29.2
 
