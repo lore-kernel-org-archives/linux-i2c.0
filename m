@@ -2,101 +2,86 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF906C56202
-	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 02:00:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D69E6C63798
+	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 07:23:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEDD520B1F
-	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 02:00:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E46E21D91
+	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 07:23:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730921AbgKZCAY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 25 Nov 2020 21:00:24 -0500
-Received: from mga05.intel.com ([192.55.52.43]:59686 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730060AbgKZCAY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 25 Nov 2020 21:00:24 -0500
-IronPort-SDR: KKYAvdoM9cBOKO8v9NMBXTcA2bbLuMAqw6+zdGwosjHGSlhPY7AUPzNx8srWg/rUq4yPJaJEOX
- uMLmZTVDXSrg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9816"; a="256933778"
-X-IronPort-AV: E=Sophos;i="5.78,370,1599548400"; 
-   d="scan'208";a="256933778"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2020 18:00:23 -0800
-IronPort-SDR: 913kfw8Ec+NcvFxFD6m4Gu+rguSGuI/s3mXDR8Y+FHviKD1VfSUOTp2Swp1GI+aSrMDp9DlIXS
- tviKmatTO/xA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.78,370,1599548400"; 
-   d="scan'208";a="359379959"
-Received: from dengjie-mobl1.ccr.corp.intel.com (HELO [10.239.154.51]) ([10.239.154.51])
-  by orsmga008.jf.intel.com with ESMTP; 25 Nov 2020 18:00:18 -0800
-Subject: Re: [PATCH v4] i2c: virtio: add a virtio i2c frontend driver
-To:     "Michael S. Tsirkin" <mst@redhat.com>
+        id S2388476AbgKZHXl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 26 Nov 2020 02:23:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56356 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388475AbgKZHXl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 26 Nov 2020 02:23:41 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D508CC0617A7
+        for <linux-i2c@vger.kernel.org>; Wed, 25 Nov 2020 23:23:40 -0800 (PST)
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1kiBcw-0002cN-IE; Thu, 26 Nov 2020 08:23:38 +0100
+Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1kiBcv-0003vj-B1; Thu, 26 Nov 2020 08:23:37 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Wolfram Sang <wsa@kernel.org>
 Cc:     linux-i2c@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, jasowang@redhat.com,
-        wsa+renesas@sang-engineering.com, wsa@kernel.org,
-        andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com,
-        jdelvare@suse.de, Sergey.Semin@baikalelectronics.ru,
-        krzk@kernel.org, rppt@kernel.org, loic.poulain@linaro.org,
-        tali.perry1@gmail.com, bjorn.andersson@linaro.org,
-        shuo.a.liu@intel.com, conghui.chen@intel.com, yu1.wang@intel.com
-References: <7c5e44c534b3fd07b855af22d8d4b78bc44cd7a4.1602465440.git.jie.deng@intel.com>
- <20201125043422-mutt-send-email-mst@kernel.org>
-From:   Jie Deng <jie.deng@intel.com>
-Message-ID: <6cbea83e-04fa-8d5a-bba7-d80afabe8a5d@intel.com>
-Date:   Thu, 26 Nov 2020 10:00:18 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.3.1
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        kernel@pengutronix.de
+Subject: [PATCH 2/2] i2c: remove check that can never be true
+Date:   Thu, 26 Nov 2020 08:23:31 +0100
+Message-Id: <20201126072331.1737632-2-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201126072331.1737632-1-u.kleine-koenig@pengutronix.de>
+References: <20201126072331.1737632-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <20201125043422-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 2020/11/25 17:35, Michael S. Tsirkin wrote:
+A driver remove callback is only called if the device was bound before.
+So it's sure that both dev and dev->driver are valid and dev is an i2c
+device. If the check fails something louder than "return 0" might be
+appropriate because the problem is grave (something like memory
+corruption), otherwise the check is useless.
 
-> On Mon, Oct 12, 2020 at 09:55:55AM +0800, Jie Deng wrote:
->> Add an I2C bus driver for virtio para-virtualization.
->>
->> The controller can be emulated by the backend driver in
->> any device model software by following the virtio protocol.
->>
->> This driver communicates with the backend driver through a
->> virtio I2C message structure which includes following parts:
->>
->> - Header: i2c_msg addr, flags, len.
->> - Data buffer: the pointer to the I2C msg data.
->> - Status: the processing result from the backend.
->>
->> People may implement different backend drivers to emulate
->> different controllers according to their needs. A backend
->> example can be found in the device model of the open source
->> project ACRN. For more information, please refer to
->> https://projectacrn.org.
->>
->> The virtio device ID 34 is used for this I2C adpter since IDs
->> before 34 have been reserved by other virtio devices.
->>
->> Co-developed-by: Conghui Chen <conghui.chen@intel.com>
->> Signed-off-by: Conghui Chen <conghui.chen@intel.com>
->> Signed-off-by: Jie Deng <jie.deng@intel.com>
->> Reviewed-by: Shuo Liu <shuo.a.liu@intel.com>
->> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> I assume this will be updated once the specification is acked
-> by the virtio tc. Holding off on this one for now since
-> we know there will be host/guest ABI changes.
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/i2c/i2c-core-base.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-Yeah. I will update this driver once the specification is acked by the 
-virtio tc.
-
-Thanks.
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 86e43016ff85..be995a95c4ac 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -549,12 +549,9 @@ static int i2c_device_probe(struct device *dev)
+ 
+ static int i2c_device_remove(struct device *dev)
+ {
+-	struct i2c_client	*client = i2c_verify_client(dev);
++	struct i2c_client	*client = to_i2c_client(dev);
+ 	struct i2c_driver	*driver;
+ 
+-	if (!client || !dev->driver)
+-		return 0;
+-
+ 	driver = to_i2c_driver(dev->driver);
+ 	if (driver->remove) {
+ 		int status = 0;
+-- 
+2.29.2
 
