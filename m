@@ -7,41 +7,39 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D69E6C63798
-	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 07:23:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14B7DC63777
+	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 07:23:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E46E21D91
+	by mail.kernel.org (Postfix) with ESMTP id BB57B2075A
 	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 07:23:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388476AbgKZHXl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S2388475AbgKZHXl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Thu, 26 Nov 2020 02:23:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56356 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388475AbgKZHXl (ORCPT
+        with ESMTP id S1727468AbgKZHXl (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 26 Nov 2020 02:23:41 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D508CC0617A7
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA01C0613D4
         for <linux-i2c@vger.kernel.org>; Wed, 25 Nov 2020 23:23:40 -0800 (PST)
 Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
         by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1kiBcw-0002cN-IE; Thu, 26 Nov 2020 08:23:38 +0100
+        id 1kiBcw-0002cM-IE; Thu, 26 Nov 2020 08:23:38 +0100
 Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
         (envelope-from <ukl@pengutronix.de>)
-        id 1kiBcv-0003vj-B1; Thu, 26 Nov 2020 08:23:37 +0100
+        id 1kiBcv-0003vg-4j; Thu, 26 Nov 2020 08:23:37 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Wolfram Sang <wsa@kernel.org>
 Cc:     linux-i2c@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         kernel@pengutronix.de
-Subject: [PATCH 2/2] i2c: remove check that can never be true
-Date:   Thu, 26 Nov 2020 08:23:31 +0100
-Message-Id: <20201126072331.1737632-2-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 1/2] i2c: Warn when device removing fails
+Date:   Thu, 26 Nov 2020 08:23:30 +0100
+Message-Id: <20201126072331.1737632-1-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201126072331.1737632-1-u.kleine-koenig@pengutronix.de>
-References: <20201126072331.1737632-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,35 +51,51 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-A driver remove callback is only called if the device was bound before.
-So it's sure that both dev and dev->driver are valid and dev is an i2c
-device. If the check fails something louder than "return 0" might be
-appropriate because the problem is grave (something like memory
-corruption), otherwise the check is useless.
+The driver core ignores the return value of struct bus_type::remove. So
+warn if there is an error that went unnoticed before and return 0
+unconditionally in i2c_device_remove().
+
+This prepares changing struct bus_type::remove to return void.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/i2c/i2c-core-base.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/i2c/i2c-core-base.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 86e43016ff85..be995a95c4ac 100644
+index 573b5da145d1..86e43016ff85 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -549,12 +549,9 @@ static int i2c_device_probe(struct device *dev)
- 
- static int i2c_device_remove(struct device *dev)
+@@ -551,15 +551,19 @@ static int i2c_device_remove(struct device *dev)
  {
--	struct i2c_client	*client = i2c_verify_client(dev);
-+	struct i2c_client	*client = to_i2c_client(dev);
+ 	struct i2c_client	*client = i2c_verify_client(dev);
  	struct i2c_driver	*driver;
+-	int status = 0;
  
--	if (!client || !dev->driver)
--		return 0;
--
+ 	if (!client || !dev->driver)
+ 		return 0;
+ 
  	driver = to_i2c_driver(dev->driver);
  	if (driver->remove) {
- 		int status = 0;
++		int status = 0;
++
+ 		dev_dbg(dev, "remove\n");
++
+ 		status = driver->remove(client);
++		if (status)
++			dev_warn(dev, "remove failed (%pe), will be ignored\n", ERR_PTR(status));
+ 	}
+ 
+ 	dev_pm_domain_detach(&client->dev, true);
+@@ -571,7 +575,7 @@ static int i2c_device_remove(struct device *dev)
+ 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
+ 		pm_runtime_put(&client->adapter->dev);
+ 
+-	return status;
++	return 0;
+ }
+ 
+ static void i2c_device_shutdown(struct device *dev)
 -- 
 2.29.2
 
