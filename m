@@ -2,100 +2,102 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14B7DC63777
-	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 07:23:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DEC4C64E7A
+	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 14:55:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB57B2075A
-	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 07:23:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 30B9621D1A
+	for <linux-i2c@archiver.kernel.org>; Thu, 26 Nov 2020 14:55:19 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="kD3eRsvV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388475AbgKZHXl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 26 Nov 2020 02:23:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56354 "EHLO
+        id S2391161AbgKZOyY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 26 Nov 2020 09:54:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727468AbgKZHXl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 26 Nov 2020 02:23:41 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA01C0613D4
-        for <linux-i2c@vger.kernel.org>; Wed, 25 Nov 2020 23:23:40 -0800 (PST)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kiBcw-0002cM-IE; Thu, 26 Nov 2020 08:23:38 +0100
-Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kiBcv-0003vg-4j; Thu, 26 Nov 2020 08:23:37 +0100
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     linux-i2c@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kernel@pengutronix.de
-Subject: [PATCH 1/2] i2c: Warn when device removing fails
-Date:   Thu, 26 Nov 2020 08:23:30 +0100
-Message-Id: <20201126072331.1737632-1-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.29.2
+        with ESMTP id S2389911AbgKZOyX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 26 Nov 2020 09:54:23 -0500
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B38C0613D4
+        for <linux-i2c@vger.kernel.org>; Thu, 26 Nov 2020 06:54:21 -0800 (PST)
+Received: by mail-ej1-x642.google.com with SMTP id f23so3346867ejk.2
+        for <linux-i2c@vger.kernel.org>; Thu, 26 Nov 2020 06:54:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DoEwWU3FcyAaL+Tym7arwyArkXDvjphvUtIZys9Wej0=;
+        b=kD3eRsvVQnTG7OCxCilmXrra/m4FPpCrW4jVWjS7Q4OZC94Ih7CdmxWJOzOChiw8jD
+         SPIG0zYtbau4klIa1W9gBe3c7cb1hpIhWdNeRoYPIMHJobnPAkC0WPkeltRX8BGRTEOa
+         6h5LsfpY4GbzmWlDMRM5kJgfy2+2mLQBDxx77R3aSMzdH8N/qDRnUzVIkVwa4X+DR8/G
+         4qNtyFPGbtTIexPxHwWKdPc3zUK8DZ+HkL2DyCrQXHosnAk7iecyxj9GEVUKZgbIpBmx
+         qMN8hpHcrQfC4dfSujbPtnpzrKOEZ0qGzYDRqZ7377sovm15KETBYofWffrCZvAGgodk
+         2w0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DoEwWU3FcyAaL+Tym7arwyArkXDvjphvUtIZys9Wej0=;
+        b=paR1GsAZAExiz/yDpBQcQ0cQKPBI4YfW69Qxn0RtPuYFbp/+bIgWBI3T6wWFz/Ncq0
+         jWgvUkXFHJJEz9EVFPWgBoYBDIhZkEHaIZsnPFf9TgjWxiDn2zzu1z84CjSNvGxkww+p
+         WJu+JZv2Z/n+BQqdFxSXEz0Jg7Nn0zPBqMeD23PkhV21jdrac2zWSaG1YsXuNaJFH+lh
+         Bk4l7G+TdlGdbhOzg+6Bemm+yOMcT3F2LVYweTDdlVTe9d2neALtCYpT1HY7Hx26UeNo
+         +8NvEIM/tvh1Vbb9g1HrRH4/R+V0yB5sBDmz7SplfhXSVoCj23KwTvWGhoBet7ptOMqd
+         bDCQ==
+X-Gm-Message-State: AOAM531abThLxjUK4rzye84HxH/tn+u6U6UIbEtMaF97IRfsaooi7Rix
+        lKvluFdeeGrENBwYgJV7/X1pCA==
+X-Google-Smtp-Source: ABdhPJzog4qZU/S6/hnX7cYmTgX6VNNApdMKMCARfCVGNQKu+9T0JCWv2ErFeGRZ5bnKWdlwvtY3FA==
+X-Received: by 2002:a17:906:d0cd:: with SMTP id bq13mr2937055ejb.372.1606402460536;
+        Thu, 26 Nov 2020 06:54:20 -0800 (PST)
+Received: from localhost.localdomain ([2a02:2450:102f:d6a:a9ae:e75d:ff39:a0bb])
+        by smtp.gmail.com with ESMTPSA id t10sm3215105eji.61.2020.11.26.06.54.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Nov 2020 06:54:19 -0800 (PST)
+From:   Robert Foss <robert.foss@linaro.org>
+To:     loic.poulain@linaro.org, robert.foss@linaro.org,
+        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v1] i2c: qcom: Fix IRQ error misassignement
+Date:   Thu, 26 Nov 2020 15:53:21 +0100
+Message-Id: <20201126145321.18269-1-robert.foss@linaro.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The driver core ignores the return value of struct bus_type::remove. So
-warn if there is an error that went unnoticed before and return 0
-unconditionally in i2c_device_remove().
+During cci_isr() errors read from register fields belonging to
+i2c master1 are currently assigned to the status field belonging to
+i2c master0. This patch corrects this error, and always assigns
+master1 errors to the status field of master1.
 
-This prepares changing struct bus_type::remove to return void.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Suggested-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
 ---
- drivers/i2c/i2c-core-base.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-qcom-cci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 573b5da145d1..86e43016ff85 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -551,15 +551,19 @@ static int i2c_device_remove(struct device *dev)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
- 	struct i2c_driver	*driver;
--	int status = 0;
+diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
+index f13735beca58..1c259b5188de 100644
+--- a/drivers/i2c/busses/i2c-qcom-cci.c
++++ b/drivers/i2c/busses/i2c-qcom-cci.c
+@@ -194,9 +194,9 @@ static irqreturn_t cci_isr(int irq, void *dev)
+ 	if (unlikely(val & CCI_IRQ_STATUS_0_I2C_M1_ERROR)) {
+ 		if (val & CCI_IRQ_STATUS_0_I2C_M1_Q0_NACK_ERR ||
+ 			val & CCI_IRQ_STATUS_0_I2C_M1_Q1_NACK_ERR)
+-			cci->master[0].status = -ENXIO;
++			cci->master[1].status = -ENXIO;
+ 		else
+-			cci->master[0].status = -EIO;
++			cci->master[1].status = -EIO;
  
- 	if (!client || !dev->driver)
- 		return 0;
- 
- 	driver = to_i2c_driver(dev->driver);
- 	if (driver->remove) {
-+		int status = 0;
-+
- 		dev_dbg(dev, "remove\n");
-+
- 		status = driver->remove(client);
-+		if (status)
-+			dev_warn(dev, "remove failed (%pe), will be ignored\n", ERR_PTR(status));
- 	}
- 
- 	dev_pm_domain_detach(&client->dev, true);
-@@ -571,7 +575,7 @@ static int i2c_device_remove(struct device *dev)
- 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
- 		pm_runtime_put(&client->adapter->dev);
- 
--	return status;
-+	return 0;
- }
- 
- static void i2c_device_shutdown(struct device *dev)
+ 		writel(CCI_HALT_REQ_I2C_M1_Q0Q1, cci->base + CCI_HALT_REQ);
+ 		ret = IRQ_HANDLED;
 -- 
-2.29.2
+2.27.0
 
