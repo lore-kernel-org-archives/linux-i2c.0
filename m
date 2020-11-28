@@ -2,95 +2,111 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D279BC64E7A
-	for <linux-i2c@archiver.kernel.org>; Fri, 27 Nov 2020 16:06:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37D99C83024
+	for <linux-i2c@archiver.kernel.org>; Sat, 28 Nov 2020 22:08:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E45C2087C
-	for <linux-i2c@archiver.kernel.org>; Fri, 27 Nov 2020 16:06:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E76BF2224A
+	for <linux-i2c@archiver.kernel.org>; Sat, 28 Nov 2020 22:08:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="tCTUScwH"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="a8MF0bjL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731185AbgK0QGO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 27 Nov 2020 11:06:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48236 "EHLO
+        id S2389851AbgK1VuJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 28 Nov 2020 16:50:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726889AbgK0QGN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 27 Nov 2020 11:06:13 -0500
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D7C1C0613D1
-        for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2020 08:06:12 -0800 (PST)
-Received: by mail-pg1-x544.google.com with SMTP id t3so4654614pgi.11
-        for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2020 08:06:12 -0800 (PST)
+        with ESMTP id S1733067AbgK1TFP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 28 Nov 2020 14:05:15 -0500
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1A92C09425B
+        for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2020 23:19:45 -0800 (PST)
+Received: by mail-pg1-x542.google.com with SMTP id 34so6008309pgp.10
+        for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2020 23:19:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=5y0cnCOSgeEuZwjF+lwNyk9ZCoaXsS5uH8ZnqDQJLGw=;
-        b=tCTUScwH0byDPkT48N7M1GJPlekh3+TwXyKTpUudGHK3ODmu1Dda/NPabCIFKJA1pq
-         6rU/C30wUUfgMrrNHYjIpriDpAs9V0g6yWCSMYmSgu/ucek7JCgCODNdz0CM/Knc3Rn5
-         JGLGwuD+HO0pizkWONJ0dlc3xSqEew9ssP3xbMAp2+qgn9qSw0M9gblYy3BgsgVXLusp
-         1v1S7hbPq1Q5L85LtddTcXBPznAoGvBuUIysz4NX8gDeNDmao6vOBDKnX19/KtuZhpH1
-         AbxAWnViK43ShTtxjpwXRiZX6BhzBq3vqniBFJGZliRhfb8LjXvGU/XiyI7JsAJt81w1
-         9qQQ==
+        bh=l0rVIvtsW51c7Ccpavw8OYRMig1yB9jbJuctIw5klvQ=;
+        b=a8MF0bjLIbRnZCU6cEhLaXXy/AdUPSVvanp4o0/1hi8wmw5J7mKuIF7siw8NwZvyxr
+         xRYuu3GHvBbNgi3fuXWBtftW4qXdGaKsdmV4wH88qsJDf4HmtAQbYmFAOJRTUw4O8S3W
+         t+OPQKZHl8h/2cJwuIefVv2dz8HtotHGPZsdAhqaLr3RBwhCskY/x87YpfQHR+vrnwiH
+         +85jBGxnZO8viJQ5LcWLwvKY9ltqUJw/HSnTI6vhXk0jx/Ds+23gpA83hStzH2xHHslj
+         130VE+5eYKmP+v51iwyVnj+wB1aqXWiwqRTK/UWdnuCGC69KAHZCpq/rIpeBdlPAsbkG
+         WFrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=5y0cnCOSgeEuZwjF+lwNyk9ZCoaXsS5uH8ZnqDQJLGw=;
-        b=UTcly0m7JheWjh7YPY3g/JCmXrZJPleI2dyuHkohN3D6lVIEz8xeILgIPHuPgf6DDm
-         ckcpQoXlX/AUshhl+mn+/Z/+iiCyUrVlAWDEcoTiv49qnd/NBRgIAE85/GS2HBYiCf3f
-         OEjsZ3qhxGMt+UL7jDB/4KbNSMOG/uWceYIqvlRIyJMAaLxWj94T3NPi2SP6JQo2DmZg
-         D+jlwGshemps0REBd6IDWXje5uskxdOndEyNgsw8Xt/S0+t5NdusxsJDq/UXtgBsD+5O
-         YxzG8V9zfAFm2o0RB8vzMg8rY+vAr9VsT/vboHot5hiWtvodgqE2+i7G4NgNywREdbA9
-         6OCg==
-X-Gm-Message-State: AOAM531AskNS/JTKZW1N124FyjFIEx9yUYi0S0h+bKnN8yrAHA/0jT/8
-        hIuh/Uf0EKcWvfY2zdgFNxib
-X-Google-Smtp-Source: ABdhPJx4PpbtAXHxtk99kkXV1YNZJcl745XhfowqzK9csFKk/5laSELRUQqFg73QzUOtH09NSkk1QA==
-X-Received: by 2002:a17:90a:68c3:: with SMTP id q3mr10906760pjj.135.1606493171411;
-        Fri, 27 Nov 2020 08:06:11 -0800 (PST)
-Received: from thinkpad ([2409:4072:88d:6f0d:1941:b53e:6208:a8c9])
-        by smtp.gmail.com with ESMTPSA id h11sm8258263pfn.27.2020.11.27.08.06.05
+        bh=l0rVIvtsW51c7Ccpavw8OYRMig1yB9jbJuctIw5klvQ=;
+        b=fF2KVBznbM96fHyFIYMVsHXLKEqDYpLwuSvlAE0ke1fRlcZ1dqu3bw5EuRHq7T7C5E
+         VXIPMwd5wWIFQWsFJJCvN85IKc7n30Tpb51ghCqgt9yIVndkYrVv4nMPPhyy3kuygKEK
+         406ByVB+jwlG/Bwp9rL1IfgGxCFOnpI5CoOmUlQGO0+LakGSSsZVymVneOL2TFPBG7Ru
+         XX+1Z+RW1jOUSn3mbtovwXKmGg+ycnwXWPu/3K9GyAKEFRuHRrGlt0vAd+oaf+l8Wec9
+         kL5HJPCNIZWREm8MDresOWnDgyLqhbKQhM1VqMSzhix3MNCSD///AVaTL58YcW1DJfYI
+         /btw==
+X-Gm-Message-State: AOAM533qNW5cBHjmS+LDsJxuwqIPhYbsNVx5tbOw4OpwFPIvyAaV4wyd
+        FJ9IWD3a55t9dkewRm/0TGOM
+X-Google-Smtp-Source: ABdhPJxiSQxBSKdCIpK8nSHxvobIsO698gvNKn20ieEzGCwZ0w6ro0EVK2rwIIa4sxlnKCkO0kMGsA==
+X-Received: by 2002:a63:5126:: with SMTP id f38mr9722126pgb.11.1606547985296;
+        Fri, 27 Nov 2020 23:19:45 -0800 (PST)
+Received: from thinkpad ([2409:4072:15:c612:48ab:f1cc:6b16:2820])
+        by smtp.gmail.com with ESMTPSA id c22sm9383950pfo.211.2020.11.27.23.19.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Nov 2020 08:06:10 -0800 (PST)
-Date:   Fri, 27 Nov 2020 21:36:02 +0530
+        Fri, 27 Nov 2020 23:19:44 -0800 (PST)
+Date:   Sat, 28 Nov 2020 12:49:37 +0530
 From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Robert Foss <robert.foss@linaro.org>
-Cc:     loic.poulain@linaro.org, bjorn.andersson@linaro.org,
-        wsa@kernel.org, todor.too@gmail.com, vkoul@kernel.org,
-        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: qcom: Fix IRQ error misassignement
-Message-ID: <20201127160602.GA3096@thinkpad>
-References: <20201127133937.93208-1-robert.foss@linaro.org>
+To:     Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Cc:     Wolfram Sang <wsa@kernel.org>, Rob Herring <robh+dt@kernel.org>,
+        Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-actions@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v2 12/18] i2c: owl: Add compatible for the Actions Semi
+ S500 I2C controller
+Message-ID: <20201128071937.GO3077@thinkpad>
+References: <cover.1605823502.git.cristian.ciocaltea@gmail.com>
+ <7622fae80d12d7f423fc25190159af494c359200.1605823502.git.cristian.ciocaltea@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201127133937.93208-1-robert.foss@linaro.org>
+In-Reply-To: <7622fae80d12d7f423fc25190159af494c359200.1605823502.git.cristian.ciocaltea@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, Nov 27, 2020 at 02:39:37PM +0100, Robert Foss wrote:
-> During cci_isr() errors read from register fields belonging to
-> i2c master1 are currently assigned to the status field belonging to
-> i2c master0. This patch corrects this error, and always assigns
-> master1 errors to the status field of master1.
+On Fri, Nov 20, 2020 at 01:56:06AM +0200, Cristian Ciocaltea wrote:
+> Add S500 variant to the list of devices supported by the Actions Semi
+> Owl I2C driver.
 > 
-> Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
-> 
+> Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-You don't need a new line here.
-
-> Reported-by: Loic Poulain <loic.poulain@linaro.org>
-> Suggested-by: Loic Poulain <loic.poulain@linaro.org>
-> Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Ah, I thought S500 support needs some change...
 
 Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
 Thanks,
 Mani
+
+> ---
+>  drivers/i2c/busses/i2c-owl.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-owl.c b/drivers/i2c/busses/i2c-owl.c
+> index 5cf5a119a6ad..98882fe4e965 100644
+> --- a/drivers/i2c/busses/i2c-owl.c
+> +++ b/drivers/i2c/busses/i2c-owl.c
+> @@ -508,6 +508,7 @@ static int owl_i2c_probe(struct platform_device *pdev)
+>  }
+>  
+>  static const struct of_device_id owl_i2c_of_match[] = {
+> +	{ .compatible = "actions,s500-i2c" },
+>  	{ .compatible = "actions,s700-i2c" },
+>  	{ .compatible = "actions,s900-i2c" },
+>  	{ /* sentinel */ }
+> -- 
+> 2.29.2
+> 
