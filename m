@@ -2,62 +2,62 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33BDFC83024
-	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20FB8C8300F
+	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DAA07207BC
-	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C2C1420870
+	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KrwSbRpk"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GqMT/RMn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727194AbgK3Nd4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 30 Nov 2020 08:33:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38714 "EHLO
+        id S1726995AbgK3NdV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 30 Nov 2020 08:33:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726992AbgK3Ndz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2020 08:33:55 -0500
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDABEC061A54;
-        Mon, 30 Nov 2020 05:32:19 -0800 (PST)
-Received: by mail-wr1-x441.google.com with SMTP id l1so16212740wrb.9;
-        Mon, 30 Nov 2020 05:32:19 -0800 (PST)
+        with ESMTP id S1726950AbgK3NdT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2020 08:33:19 -0500
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76FBFC061A49;
+        Mon, 30 Nov 2020 05:32:07 -0800 (PST)
+Received: by mail-wm1-x341.google.com with SMTP id h21so25172414wmb.2;
+        Mon, 30 Nov 2020 05:32:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=89ez14xq7f3eSpkmNmdtRshRAe/5L4lRl0ct9tMiZwI=;
-        b=KrwSbRpkuu4BSm67PVspA3L973/nhfUNUj1LnrJbs+oClFQV1BrpYP88f3Tzyy/pWk
-         S5NBRj2mZaoNXTpLnnYfPH2CZwHqnzwC5dKJDBGXb4TU0KmS/aKJ77BBi60vVxoBkE4N
-         8RpohPYtH2vluyjhc+Czpsk+ut8KuwuqdbRQtvfHmgxhKGWlUoioGMDYIX25ylVdkchX
-         ujLCdCYhd56UKF876AjE7xWErdGerktBRLDrcIicF1Bp5afBX+CIRrMiJBLKbXLMr2vb
-         zkNdXUQzblbe0w7rYpZexs7Nn+MLgLASnrmLhDzDYmZYOHd0eRBoBtddZn0RuBZ627fr
-         hClw==
+        bh=tkjtpuVB3caYnMIACCsSyZ57OV1NCqyYvqb38eMikT8=;
+        b=GqMT/RMnWZAbeKEBXyR2jAXpmfIZnGU+oC+bb63+ape3x2Vh8p3/6MqOZ3mNCT0vAq
+         gf5dU+aXbnyaLa1e14gT6Wj2RfJXrDqnASeRpyKPxc3+PENIHlM2wzjdan05XOOqDFkS
+         F+liFzChojXT+rwa30YFUY0qPOABajn9ep6aN8A77rTe77QxNF9/rYGqFtTP4vMQmNve
+         SQXEROCwzHvMTgEUrFi3gs55lGMHXEbBKtmu2cTLUN10R119VDiMkRHqFwmNd0OxZEN2
+         uMgBeuy8aUqw+60XQGp8kof+NLaSgGfsgWeheQ7Kj8vtl78TrJxY4ysVAu8HeSuGExcu
+         GCWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=89ez14xq7f3eSpkmNmdtRshRAe/5L4lRl0ct9tMiZwI=;
-        b=P+KNA+iNxTOCERFUWXtkeiZknXY9xtituPGXlRhMA0OUsiw3ROmbQLCmsp/Mud8+ww
-         yOV8+YmL9/2QwEIOtZPA46c3IZcC+klhanUepZY6vIghneOcM+6dhgj9GTJ8yF3bfsi9
-         zrB6I6mLc8Q3uUAyjdgGbsErMuM1o/6iiF7MTdxFWSpVK9zRtGhHlGjXfnj6+zlmNDor
-         9CA+SzKmyzxCATYj75vNH2mNVdqXc08iUWX7sSGbGoncPC7K4MZM+KTB2hU/lQz5O1oB
-         Xbwif+FyOAJJSsafXmxpGEKms1TyICVkTwJnZn2xN15xoDKKfsSzLVbxZwf6oDwum04w
-         fuxw==
-X-Gm-Message-State: AOAM531lL9P8Hj8yVl4eNby1VYZIvAJDm2oQSJK2od5kRpWi2DRsACPj
-        efC+DhVgsoK53HEkKSVzhED/eUoqm8eij7ba
-X-Google-Smtp-Source: ABdhPJzBAM0ozhvZLf9maCK2gtBJuXaIs+4FGjkWJeME4XV8dzgsQK5BHE8ux3fhzPVaBH11vNi02Q==
-X-Received: by 2002:adf:c452:: with SMTP id a18mr28980463wrg.189.1606743138401;
-        Mon, 30 Nov 2020 05:32:18 -0800 (PST)
+        bh=tkjtpuVB3caYnMIACCsSyZ57OV1NCqyYvqb38eMikT8=;
+        b=DjLtIeDV1RMftNYMsY0Nq8p2nonTlNOfG+3V7qQbHdMnCVuGSTCt5/spVSqTxkuC0m
+         Zbf5fMpLQxN0oPlyx5vn9uUPpw7FEs4+x5xtPd28VAGsoz8jXtf+sry+EgQ5h2DBLFHp
+         2wuUhpxZzUf/Ovys7SbpkWcLCmiojdhWjPiaFSQJ0j9ZmhEKthKjaLLsL37ppqQYPgSb
+         aUkA37hT2Oe3L0MpHWN9jHCbYEOK+ADk4bHqmH8Iy301CBGz4DX8bC36oKTKByt/u4hy
+         UXOiryN39yR5JqG3QkD++bRO7liNos6w6ZO6A9jb1x9lQIw8BfQmodIuDRXtVv1OyN7N
+         sNIA==
+X-Gm-Message-State: AOAM532pjcB6IUgtsobzQv60hKVWt649zmhOctFBEfTE/tZGQKAeplPm
+        LuxsXu2j95WaWxz6SB/+Jf0JdUbOXNzHbBN5
+X-Google-Smtp-Source: ABdhPJz1vJSOOkD6d9W1EvlioA+pIqkPYCN2O5X8bSU4tLQTitlvde+GyrVb8QOnLlSlqBjuYGRRfA==
+X-Received: by 2002:a1c:9901:: with SMTP id b1mr23284287wme.18.1606743125982;
+        Mon, 30 Nov 2020 05:32:05 -0800 (PST)
 Received: from valhalla.home ([2.31.224.80])
-        by smtp.gmail.com with ESMTPSA id g192sm7452333wme.48.2020.11.30.05.32.17
+        by smtp.gmail.com with ESMTPSA id g192sm7452333wme.48.2020.11.30.05.32.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Nov 2020 05:32:17 -0800 (PST)
+        Mon, 30 Nov 2020 05:32:05 -0800 (PST)
 From:   Daniel Scally <djrscally@gmail.com>
 To:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -73,10 +73,11 @@ Cc:     rjw@rjwysocki.net, lenb@kernel.org, gregkh@linuxfoundation.org,
         jacopo+renesas@jmondi.org,
         laurent.pinchart+renesas@ideasonboard.com,
         jorhand@linux.microsoft.com, kitakar@gmail.com,
-        heikki.krogerus@linux.intel.com
-Subject: [PATCH 17/18] gpio: gpiolib-acpi: Export acpi_get_gpiod()
-Date:   Mon, 30 Nov 2020 13:31:28 +0000
-Message-Id: <20201130133129.1024662-18-djrscally@gmail.com>
+        heikki.krogerus@linux.intel.com,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: [PATCH 09/18] ipu3-cio2: Add T: entry to MAINTAINERS
+Date:   Mon, 30 Nov 2020 13:31:20 +0000
+Message-Id: <20201130133129.1024662-10-djrscally@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201130133129.1024662-1-djrscally@gmail.com>
 References: <20201130133129.1024662-1-djrscally@gmail.com>
@@ -86,65 +87,32 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-I need to be able to translate GPIO resources in an acpi_device's _CRS
-into gpio_descs. Those are represented in _CRS as a pathname to a GPIO
-device plus the pin's index number: this function is perfect for that
-purpose.
+Development for the ipu3-cio2 driver is taking place in media_tree, but
+there's no T: entry in MAINTAINERS to denote that - rectify that oversight
 
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Daniel Scally <djrscally@gmail.com>
 ---
 Changes since RFC v3:
 
-	- Patch introduced
+	- None
 
- drivers/gpio/gpiolib-acpi.c | 3 ++-
- include/linux/acpi.h        | 5 +++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index 834a12f3219e..cfadbc263475 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -111,7 +111,7 @@ static int acpi_gpiochip_find(struct gpio_chip *gc, void *data)
-  * controller does not have GPIO chip registered at the moment. This is to
-  * support probe deferral.
-  */
--static struct gpio_desc *acpi_get_gpiod(char *path, int pin)
-+struct gpio_desc *acpi_get_gpiod(char *path, int pin)
- {
- 	struct gpio_chip *chip;
- 	acpi_handle handle;
-@@ -127,6 +127,7 @@ static struct gpio_desc *acpi_get_gpiod(char *path, int pin)
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e3a828249c8c..9702b886d6a4 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8930,6 +8930,7 @@ M:	Bingbu Cao <bingbu.cao@intel.com>
+ R:	Tianshu Qiu <tian.shu.qiu@intel.com>
+ L:	linux-media@vger.kernel.org
+ S:	Maintained
++T:	git git://linuxtv.org/media_tree.git
+ F:	Documentation/userspace-api/media/v4l/pixfmt-srggb10-ipu3.rst
+ F:	drivers/media/pci/intel/ipu3/
  
- 	return gpiochip_get_desc(chip, pin);
- }
-+EXPORT_SYMBOL_GPL(acpi_get_gpiod);
- 
- static irqreturn_t acpi_gpio_irq_handler(int irq, void *data)
- {
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 39263c6b52e1..737115a93138 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -1066,6 +1066,7 @@ void __acpi_handle_debug(struct _ddebug *descriptor, acpi_handle handle, const c
- bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
- 				struct acpi_resource_gpio **agpio);
- int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index);
-+struct gpio_desc *acpi_get_gpiod(char *path, int pin);
- #else
- static inline bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
- 					      struct acpi_resource_gpio **agpio)
-@@ -1076,6 +1077,10 @@ static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
- {
- 	return -ENXIO;
- }
-+struct gpio_desc *acpi_get_gpiod(char *path, int pin)
-+{
-+	return NULL;
-+}
- #endif
- 
- /* Device properties */
 -- 
 2.25.1
 
