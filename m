@@ -2,67 +2,69 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74F87C83035
-	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB681C64E8A
+	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 15:55:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 132AC2085B
-	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7652B2076E
+	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 15:55:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ChBEr66A"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gwYbeeA/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727254AbgK3NeJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 30 Nov 2020 08:34:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38614 "EHLO
+        id S1726620AbgK3PzG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 30 Nov 2020 10:55:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726960AbgK3NdT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2020 08:33:19 -0500
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E523C061A4A;
-        Mon, 30 Nov 2020 05:32:09 -0800 (PST)
-Received: by mail-wr1-x442.google.com with SMTP id p8so16244124wrx.5;
-        Mon, 30 Nov 2020 05:32:08 -0800 (PST)
+        with ESMTP id S1725870AbgK3PzG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2020 10:55:06 -0500
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F38C0613CF;
+        Mon, 30 Nov 2020 07:54:26 -0800 (PST)
+Received: by mail-pj1-x1044.google.com with SMTP id hk16so1621124pjb.4;
+        Mon, 30 Nov 2020 07:54:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=lLPC5gReMpBQQOjOEOK+BC7l1m2aD+CFv1l1upZuyWU=;
-        b=ChBEr66AN5CJJiiJQBZ6+iTU5ba9fDPZ4wh6Y2LJroWiyvvs8jWWsSfm0nVsNTFrmm
-         iIQSQSR6mkP3DSzhsZPm1Trv4qs4G2OokUvsbt28cJozO1//Fg274H2TFE5azshO7AF9
-         MPuBmPPrPCyacfwX/hsbmd4RU+OaWnroJgJGw0gEOBGY2ojipKSGhoi4fAlyyv6FXlCv
-         JhNI+HHHoE5fiBND0/neF5o+s5b5/JL2G/oz5DlVFyxRpwTDZV6sdgREBOazot2Tcrjw
-         4oRRtTheATA05iC4gSyDYzEu/PGLZnT5YX7leawx/crhZQDDzywkqwyxdxiFcNUvG2up
-         aItQ==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=zesD9faGXKfbEuXEqSCTj0ccUc65wmLW/4/yHQTzcz8=;
+        b=gwYbeeA/XiuwxzFx62fUnO9bSA3njd22Bk5f9nyDO0zFjG/1lX6PErcP1PbdLqERs5
+         EwycBG4MhmVMVJ1pkUwfgfDyiW2ObtOKz0UK2P2yKnu0WXJq+SrR+VH+6hHe9bo1gaXv
+         PTYHbtuCmLx67iyaBJBYv+Hgnc6KoPyPUrx/RllA5pZEsKHaoguDtR8vl2T7b4nuzIJ8
+         j57dmNdquJ2l9RFQhN8EiQQThACmStIGPefWhR/3unU94ojTuAE9O9zISvWVrSgp7gvu
+         WxgxPfwJFWhOIw6sL8i+CqfiHixuMKuV3W/sdGguLzgUACWFZaJVAI1KYPNGApjAJ9ey
+         05YA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=lLPC5gReMpBQQOjOEOK+BC7l1m2aD+CFv1l1upZuyWU=;
-        b=pxk2LtzwHt1rfUHyi4TZjzpXzHA1r45ZZ8TrmClBq5MRrfpwtVeLCnJKoxUzVg2lKF
-         mutHv/9ZRwbfPqAIlrA6OZJPf7eU4Xej/+D7KDD0nDhCv1Yc2nJUucpM8YbcyCL14Y9+
-         kSwzpyEBC9YEYc63zCn/8k23Ql2Qi/fLZ6AychxFStAUVyTLFq/0KXVpqBUY4EIy7WEm
-         5eSdNroW5v7ndf3YvJ+N1bnKNJv0Dg75R+9scf9l5pdq16YoU/7dktPnl0YgJDub2Y2/
-         20pPLtvyK7BBNd/1O9J9Gg7+zkbArt948eNcsFsdwF43+D64Fi2iFbptnK1wmQph6jHs
-         F9/w==
-X-Gm-Message-State: AOAM531r/F1dIhZwkOO1H8sgfyiGVQfMxvrOaGkzeX/AzXrOOxNKZxAW
-        hffdz41yWm+rxgWXgHqF5PTmARIP6Ai6dYEt
-X-Google-Smtp-Source: ABdhPJwdHT47DB4kBktF0O94g86AmqcC/kfAYNDEByp+i5WkpdWbz4M15u6JP6DBwO3wwJQKJfZhQw==
-X-Received: by 2002:a5d:4585:: with SMTP id p5mr28223911wrq.65.1606743127500;
-        Mon, 30 Nov 2020 05:32:07 -0800 (PST)
-Received: from valhalla.home ([2.31.224.80])
-        by smtp.gmail.com with ESMTPSA id g192sm7452333wme.48.2020.11.30.05.32.06
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=zesD9faGXKfbEuXEqSCTj0ccUc65wmLW/4/yHQTzcz8=;
+        b=hZnD4aoWCdYu3e8eRKipJFLdkjdI6D69HlxxdFg8N906so7hEdE8rxQL2ZibyvZA8L
+         mEnVtMjOJUGzQsncRICLnRuIbJVCZaLzWW99BRviypoqr/SNR8HZX9Ya+mrGyq0/01Wi
+         jr15ggGM3MxBlgbSykYi8U2Wo9cuE29zziOJkgqQA9hgs9mH7enPkAeIBpO+hsizoK+q
+         Nm0XXz1zRQlnzPNrWewD7+DkhelhlpGrGFVUdmV7/OGhtupL6VdGpYRuUfA+2IAa3iMu
+         /CxWHqJ+h3mUJJg39yLOMvdbEdqehhgO05NJS66xrHBWpzs3N7gmNaSjXXGbWt05nm92
+         RsiQ==
+X-Gm-Message-State: AOAM531FKvZy53KB5uppNZAPDuuQF//FjsAJv5iGdHFKsJNAhx4fcy3C
+        pCmrFoRqnvSvFOnwF95Wd7A=
+X-Google-Smtp-Source: ABdhPJw9nK9xTTC0/xCOmca/W25LMh0JxHZQy60vyo5NUBN4yAzs3Zy2VHby6qJ9oEAy2hb8rSavcg==
+X-Received: by 2002:a17:90a:6346:: with SMTP id v6mr27184285pjs.162.1606751665709;
+        Mon, 30 Nov 2020 07:54:25 -0800 (PST)
+Received: from localhost ([2409:10:2e40:5100:6e29:95ff:fe2d:8f34])
+        by smtp.gmail.com with ESMTPSA id 204sm17331660pfy.59.2020.11.30.07.54.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Nov 2020 05:32:06 -0800 (PST)
-From:   Daniel Scally <djrscally@gmail.com>
-To:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        Mon, 30 Nov 2020 07:54:24 -0800 (PST)
+Date:   Tue, 1 Dec 2020 00:54:22 +0900
+From:   Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+To:     Daniel Scally <djrscally@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-media@vger.kernel.org, devel@acpica.org
-Cc:     rjw@rjwysocki.net, lenb@kernel.org, gregkh@linuxfoundation.org,
+        linux-media@vger.kernel.org, devel@acpica.org, rjw@rjwysocki.net,
+        lenb@kernel.org, gregkh@linuxfoundation.org,
         mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com,
         linus.walleij@linaro.org, bgolaszewski@baylibre.com,
         wsa@kernel.org, yong.zhi@intel.com, sakari.ailus@linux.intel.com,
@@ -73,50 +75,30 @@ Cc:     rjw@rjwysocki.net, lenb@kernel.org, gregkh@linuxfoundation.org,
         jacopo+renesas@jmondi.org,
         laurent.pinchart+renesas@ideasonboard.com,
         jorhand@linux.microsoft.com, kitakar@gmail.com,
-        heikki.krogerus@linux.intel.com,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: [PATCH 10/18] ipu3-cio2: Rename ipu3-cio2.c to allow module to be built from multiple source files retaining ipu3-cio2 name
-Date:   Mon, 30 Nov 2020 13:31:21 +0000
-Message-Id: <20201130133129.1024662-11-djrscally@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201130133129.1024662-1-djrscally@gmail.com>
+        heikki.krogerus@linux.intel.com
+Subject: Re: [PATCH 08/18] lib/test_printf.c: Use helper function to unwind
+ array of software_nodes
+Message-ID: <X8UVroTsTYqp2R1M@jagdpanzerIV.localdomain>
 References: <20201130133129.1024662-1-djrscally@gmail.com>
+ <20201130133129.1024662-9-djrscally@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201130133129.1024662-9-djrscally@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-ipu3-cio2 driver needs extending with multiple files; rename the main
-source file and specify the renamed file in Makefile to accommodate that.
+On (20/11/30 13:31), Daniel Scally wrote:
+> 
+> Use the software_node_unregister_nodes() helper function to unwind this
+> array in a cleaner way.
+> 
+> Acked-by: Petr Mladek <pmladek@suse.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Daniel Scally <djrscally@gmail.com>
 
-Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Daniel Scally <djrscally@gmail.com>
----
-Changes since RFC v3:
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 
-	- None
-
- drivers/media/pci/intel/ipu3/Makefile                          | 2 ++
- drivers/media/pci/intel/ipu3/{ipu3-cio2.c => ipu3-cio2-main.c} | 0
- 2 files changed, 2 insertions(+)
- rename drivers/media/pci/intel/ipu3/{ipu3-cio2.c => ipu3-cio2-main.c} (100%)
-
-diff --git a/drivers/media/pci/intel/ipu3/Makefile b/drivers/media/pci/intel/ipu3/Makefile
-index 98ddd5beafe0..429d516452e4 100644
---- a/drivers/media/pci/intel/ipu3/Makefile
-+++ b/drivers/media/pci/intel/ipu3/Makefile
-@@ -1,2 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
- obj-$(CONFIG_VIDEO_IPU3_CIO2) += ipu3-cio2.o
-+
-+ipu3-cio2-y += ipu3-cio2-main.o
-diff --git a/drivers/media/pci/intel/ipu3/ipu3-cio2.c b/drivers/media/pci/intel/ipu3/ipu3-cio2-main.c
-similarity index 100%
-rename from drivers/media/pci/intel/ipu3/ipu3-cio2.c
-rename to drivers/media/pci/intel/ipu3/ipu3-cio2-main.c
--- 
-2.25.1
-
+	-ss
