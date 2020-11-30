@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97B83C83018
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31E3AC83014
 	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4D32E207BC
-	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA611207BC
+	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IStKaWOi"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U5BTjckr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727077AbgK3Ndb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 30 Nov 2020 08:33:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38590 "EHLO
+        id S1727064AbgK3Nda (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 30 Nov 2020 08:33:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727060AbgK3Nda (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2020 08:33:30 -0500
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1E8C061A53;
-        Mon, 30 Nov 2020 05:32:18 -0800 (PST)
-Received: by mail-wr1-x444.google.com with SMTP id u12so16269477wrt.0;
-        Mon, 30 Nov 2020 05:32:18 -0800 (PST)
+        with ESMTP id S1727040AbgK3NdZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2020 08:33:25 -0500
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89174C061A4B;
+        Mon, 30 Nov 2020 05:32:10 -0800 (PST)
+Received: by mail-wm1-x343.google.com with SMTP id d3so15384325wmb.4;
+        Mon, 30 Nov 2020 05:32:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=511mzKiIywlNQYNwh+9h5lxXxDhZYNjRCyGYr9Xu0us=;
-        b=IStKaWOiny1B/u+cgJ2LRmq2JrnYDg/dGle+7gzHXLBwYdMIXZW29V/uLypqm0eTPo
-         qrvitPzpPhRonnvZRF52o95OdAeIlbOP1iSKfS4WXFOQ8Wq5a3Qo+vwJFono4qnqsR2Y
-         eWDJ+gDq0UoZOK6Jh6B/SK3Gk11h69peJz4vbW/ausArC7j8ihoxiYt0rpU8lWWz3kEg
-         3g4Fb16amSnXdBKSGBqPuKGFRSBO33a5yjbQ7CH+bjICTludUiT8cHDShViWtX+3x/sE
-         u7xrGB8kgvEwDVgYOdeId9xC6/v9nGi5kCFgDI2/w6T8B8Oq7Ij5Bq9LUUWj6gKl38yq
-         nFGw==
+        bh=PU5pzfp9qjZchwd6gQsD9rYDZy2eDuXuRH5bJdGJC0I=;
+        b=U5BTjckr0oVrRYN6a8BJ119QQdABZbwQdy24f0+UzrNFCi+R7C4G/6NODwrPu7MDtt
+         KCpEwMGcMNV2PKLkKA7CVVtBqi46SBHHbCRInZs0SkyQVs1WJMFqAQ5u59viPRCOgY4F
+         kWa8w2arggByNI+erKsz0V+8Dh4+gu2dBBAB2uvMHbCTlU5m9tSzdRnhIubV1HBjM4Jq
+         w7bQ6C2zE0Jk9x/Z8eRcGA2s4w2jbViGjyajCUdD2mS3RwnOjywUh6AxkS7woGqkZ46x
+         GzDPLz1HlQZcKrLMmqXONjniAZtdaMu1RkXvngFhrZb29ZKb66JpdC4szonBwTEkRkzi
+         wCeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=511mzKiIywlNQYNwh+9h5lxXxDhZYNjRCyGYr9Xu0us=;
-        b=aLyyxQ2JmEgJ6/ry92boHfQrImLxThar5ibNPhKyynqdlgIgtK+rrXBFKSPOApC/93
-         aIhzsra6+geZRBoJhr4LVtoQYFkMOyZt0MT0DobOwG9aO6x1FVRNUJ2xFOUmeQTrssXn
-         U/dAE4pe5hYsB7UxtdjMlCGlsdrIXyQY9iTHP/ShgT0QGudyKtZon3i6lwFHUCmjkx/p
-         sb25FcUUNgx6ofWMsQ/eFHasKyMPuNG+2iEeFPlnFsX0ChnBCjVziZ/TVoNlg7HgyAvC
-         Txb2HsLNEYMJyYwa+6NbEd2S96Vs0rzd7oKdIUpA+P9i2qjgReZuQRiYX8TvVOM5oVsz
-         XlhQ==
-X-Gm-Message-State: AOAM532Xci+9ZZj7OSE9XPNpxjf+1ndHmAsrhWe6PW2G1Wd76dS4nD32
-        4vEaveYHzZ+UlW9aHQ+z+FBi9/aDnmIfzlTc
-X-Google-Smtp-Source: ABdhPJx4y/GNSZAZsHXT6kjUa2vcBJ/Pkj3oERILRxY3uLrk1+veimpUUUK/NR8/2AY/Mxf8b9Byeg==
-X-Received: by 2002:adf:d188:: with SMTP id v8mr27895510wrc.167.1606743136993;
-        Mon, 30 Nov 2020 05:32:16 -0800 (PST)
+        bh=PU5pzfp9qjZchwd6gQsD9rYDZy2eDuXuRH5bJdGJC0I=;
+        b=Ilr3Ag7HJr30sPWiURNe813MbHY2IlFWXMOMvh+xpgARj2xmCOnyQy02ikIjSKlf5Y
+         4A38VmnTRMqPHQaRqw3LBksQ54GnSfwhrJBBxUnIJL8HA9lmyVGW1m/DmnDxysm7bDQ0
+         Pj7ELVvMePlAe5E1SMXYfrcSkmr4fsligYqqHIRg4BkiBAIpzAhgdOR0XKkpXVsK0zRY
+         9LzRrKFPu45Z/QcJ0p90EVwDMJ7k3DpSr830g6iLsG2byRJUXYJMCD2CkXC7FnmaKOpP
+         2z6kA3XQBWIe4BJ6IOzxphI00zEaoeQkMCHJMx9hxPeEWwJ/0G5H5EkxzeMcFHErWXgl
+         ZynA==
+X-Gm-Message-State: AOAM532gMQivEkY4rbMDXEu7S9aPVO5pUEkV1pcJ7WvMUqfotf+0PcSZ
+        27a0wMTixu0ybSSNFw1w2MuGZRtluGrmeCyB
+X-Google-Smtp-Source: ABdhPJyWcNS8XvtotcTFst6kuSUA2Ai5YGD+Pmneu3wpVLru3nUAkbKboDh9puEegNK+LTUazenVCg==
+X-Received: by 2002:a1c:4d13:: with SMTP id o19mr23183796wmh.58.1606743128982;
+        Mon, 30 Nov 2020 05:32:08 -0800 (PST)
 Received: from valhalla.home ([2.31.224.80])
-        by smtp.gmail.com with ESMTPSA id g192sm7452333wme.48.2020.11.30.05.32.15
+        by smtp.gmail.com with ESMTPSA id g192sm7452333wme.48.2020.11.30.05.32.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Nov 2020 05:32:16 -0800 (PST)
+        Mon, 30 Nov 2020 05:32:08 -0800 (PST)
 From:   Daniel Scally <djrscally@gmail.com>
 To:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -73,10 +73,10 @@ Cc:     rjw@rjwysocki.net, lenb@kernel.org, gregkh@linuxfoundation.org,
         jacopo+renesas@jmondi.org,
         laurent.pinchart+renesas@ideasonboard.com,
         jorhand@linux.microsoft.com, kitakar@gmail.com,
-        heikki.krogerus@linux.intel.com, Dan Scally <djrscally@gmail.com>
-Subject: [PATCH 16/18] i2c: i2c-core-base: Use the new i2c_acpi_dev_name() in i2c_set_dev_name()
-Date:   Mon, 30 Nov 2020 13:31:27 +0000
-Message-Id: <20201130133129.1024662-17-djrscally@gmail.com>
+        heikki.krogerus@linux.intel.com
+Subject: [PATCH 11/18] media: v4l2-core: v4l2-async: Check possible match in match_fwnode based on sd->fwnode->secondary
+Date:   Mon, 30 Nov 2020 13:31:22 +0000
+Message-Id: <20201130133129.1024662-12-djrscally@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201130133129.1024662-1-djrscally@gmail.com>
 References: <20201130133129.1024662-1-djrscally@gmail.com>
@@ -86,33 +86,39 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Dan Scally <djrscally@gmail.com>
+Where the fwnode graph is comprised of software_nodes, these will be
+assigned as the secondary to dev->fwnode. Check the v4l2_subdev's fwnode
+for a secondary and attempt to match against it during match_fwnode() to
+accommodate that possibility.
 
-To make sure the new i2c_acpi_dev_name() always reflects the name of i2c
-devices sourced from ACPI, use it in i2c_set_dev_name().
-
-Signed-off-by: Dan Scally <djrscally@gmail.com>
+Signed-off-by: Daniel Scally <djrscally@gmail.com>
 ---
 Changes since RFC v3:
 
-	- Patch introduced
+	- None
 
- drivers/i2c/i2c-core-base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-async.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 573b5da145d1..a6d4ceb01077 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -814,7 +814,7 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
- 	}
+diff --git a/drivers/media/v4l2-core/v4l2-async.c b/drivers/media/v4l2-core/v4l2-async.c
+index e3ab003a6c85..6486dbde784f 100644
+--- a/drivers/media/v4l2-core/v4l2-async.c
++++ b/drivers/media/v4l2-core/v4l2-async.c
+@@ -87,6 +87,14 @@ static bool match_fwnode(struct v4l2_async_notifier *notifier,
+ 	if (sd->fwnode == asd->match.fwnode)
+ 		return true;
  
- 	if (adev) {
--		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
-+		dev_set_name(&client->dev, i2c_acpi_dev_name(adev));
- 		return;
- 	}
- 
++	/*
++	 * Check the same situation for any possible secondary assigned to the
++	 * subdev's fwnode
++	 */
++	if ((!IS_ERR_OR_NULL(sd->fwnode->secondary)) &&
++	    sd->fwnode->secondary == asd->match.fwnode)
++		return true;
++
+ 	/*
+ 	 * Otherwise, check if the sd fwnode and the asd fwnode refer to an
+ 	 * endpoint or a device. If they're of the same type, there's no match.
 -- 
 2.25.1
 
