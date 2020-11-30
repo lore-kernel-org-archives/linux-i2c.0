@@ -5,59 +5,59 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F323C8302F
-	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74F87C83035
+	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A831320855
-	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 132AC2085B
+	for <linux-i2c@archiver.kernel.org>; Mon, 30 Nov 2020 13:34:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f0hTX38W"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ChBEr66A"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726970AbgK3NdU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 30 Nov 2020 08:33:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38602 "EHLO
+        id S1727254AbgK3NeJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 30 Nov 2020 08:34:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726316AbgK3NdS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2020 08:33:18 -0500
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1539CC061A51;
-        Mon, 30 Nov 2020 05:32:16 -0800 (PST)
-Received: by mail-wr1-x443.google.com with SMTP id r3so16246791wrt.2;
-        Mon, 30 Nov 2020 05:32:16 -0800 (PST)
+        with ESMTP id S1726960AbgK3NdT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2020 08:33:19 -0500
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E523C061A4A;
+        Mon, 30 Nov 2020 05:32:09 -0800 (PST)
+Received: by mail-wr1-x442.google.com with SMTP id p8so16244124wrx.5;
+        Mon, 30 Nov 2020 05:32:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=g3BMXw9JzXtFm16YDoDU8hR3/fKFvazRWYpnvqcHgAY=;
-        b=f0hTX38WWoYFOqduIv8btPWQeeYXnpvQT0AKV2DDZ116iEm5JP+YpIbA3czDOvy1oI
-         obkFPRnUjDfiJaPS9g4M7+yHNIeMXc6tWNwgTi/ZCp/2wvvVoavHx5mJ3+T+YhlVDH4Y
-         UlWwoPadkMAF/1W74cggIXpoD8Rx6+r1IG0mm0NLiRssof/Oo2HjpJLpfJt36TLWGCkl
-         uvQcBwzlh794D+3V/6d4aOGSKMFglZbKF2hCdd8CJElgla5M2GilkvV6sSwXqpW/MAL8
-         F9sqikgb2+/DBlTINJ+Zpb0DiEHAecd+4i+A5U3QiFYX7LloHZYnR6VWHLpKkhasrEkY
-         yYSQ==
+        bh=lLPC5gReMpBQQOjOEOK+BC7l1m2aD+CFv1l1upZuyWU=;
+        b=ChBEr66AN5CJJiiJQBZ6+iTU5ba9fDPZ4wh6Y2LJroWiyvvs8jWWsSfm0nVsNTFrmm
+         iIQSQSR6mkP3DSzhsZPm1Trv4qs4G2OokUvsbt28cJozO1//Fg274H2TFE5azshO7AF9
+         MPuBmPPrPCyacfwX/hsbmd4RU+OaWnroJgJGw0gEOBGY2ojipKSGhoi4fAlyyv6FXlCv
+         JhNI+HHHoE5fiBND0/neF5o+s5b5/JL2G/oz5DlVFyxRpwTDZV6sdgREBOazot2Tcrjw
+         4oRRtTheATA05iC4gSyDYzEu/PGLZnT5YX7leawx/crhZQDDzywkqwyxdxiFcNUvG2up
+         aItQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=g3BMXw9JzXtFm16YDoDU8hR3/fKFvazRWYpnvqcHgAY=;
-        b=T/fL5sa8bTL1QNUlynW360oRyFWrk2BBmksnygFm4Rqpi4khfZnDg5SeAU2xzma3RR
-         njkfpoSFmujQYz/f/5iOGwHuZkZzOUh/jXE0UNckdoqlTc7ZTFgC0Is1net1FYj+G/Iv
-         r59HEnIb+sTvuC6NsHJmcRJOX+bwfi9oZzx/puwvO4o4ohnlHSAHETCFi5tclvSk6+gu
-         6DAQ6HukHCWT9QC2/XzdfurmdHBEsQSyQ6onzCkgrTkgwSxTjov+Lc0SeLhahWUCjdYH
-         +UOA19D7ly09VKrv649VMuo6U7Y9dt/O9KABozPfef6h5fNrMX3XoQbCLFOeEA8VrXnh
-         9jDQ==
-X-Gm-Message-State: AOAM531c9/rs7WGkW1fuONtjh3Pc4BrdvlW5NED3/E0vWdGG6QH/vJw7
-        3CPS7qeGM/TVf1gDpnjDXGzctqmh9Ik9A/5G
-X-Google-Smtp-Source: ABdhPJzDCcxaoTO342dCdUscQv15sIxKHbckb9UWSMvt9SP2Hs4Rezs8wWCAwD8sNCiCr+Mm4eFlHA==
-X-Received: by 2002:adf:ecc9:: with SMTP id s9mr28663695wro.246.1606743133595;
-        Mon, 30 Nov 2020 05:32:13 -0800 (PST)
+        bh=lLPC5gReMpBQQOjOEOK+BC7l1m2aD+CFv1l1upZuyWU=;
+        b=pxk2LtzwHt1rfUHyi4TZjzpXzHA1r45ZZ8TrmClBq5MRrfpwtVeLCnJKoxUzVg2lKF
+         mutHv/9ZRwbfPqAIlrA6OZJPf7eU4Xej/+D7KDD0nDhCv1Yc2nJUucpM8YbcyCL14Y9+
+         kSwzpyEBC9YEYc63zCn/8k23Ql2Qi/fLZ6AychxFStAUVyTLFq/0KXVpqBUY4EIy7WEm
+         5eSdNroW5v7ndf3YvJ+N1bnKNJv0Dg75R+9scf9l5pdq16YoU/7dktPnl0YgJDub2Y2/
+         20pPLtvyK7BBNd/1O9J9Gg7+zkbArt948eNcsFsdwF43+D64Fi2iFbptnK1wmQph6jHs
+         F9/w==
+X-Gm-Message-State: AOAM531r/F1dIhZwkOO1H8sgfyiGVQfMxvrOaGkzeX/AzXrOOxNKZxAW
+        hffdz41yWm+rxgWXgHqF5PTmARIP6Ai6dYEt
+X-Google-Smtp-Source: ABdhPJwdHT47DB4kBktF0O94g86AmqcC/kfAYNDEByp+i5WkpdWbz4M15u6JP6DBwO3wwJQKJfZhQw==
+X-Received: by 2002:a5d:4585:: with SMTP id p5mr28223911wrq.65.1606743127500;
+        Mon, 30 Nov 2020 05:32:07 -0800 (PST)
 Received: from valhalla.home ([2.31.224.80])
-        by smtp.gmail.com with ESMTPSA id g192sm7452333wme.48.2020.11.30.05.32.12
+        by smtp.gmail.com with ESMTPSA id g192sm7452333wme.48.2020.11.30.05.32.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Nov 2020 05:32:12 -0800 (PST)
+        Mon, 30 Nov 2020 05:32:06 -0800 (PST)
 From:   Daniel Scally <djrscally@gmail.com>
 To:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -73,10 +73,11 @@ Cc:     rjw@rjwysocki.net, lenb@kernel.org, gregkh@linuxfoundation.org,
         jacopo+renesas@jmondi.org,
         laurent.pinchart+renesas@ideasonboard.com,
         jorhand@linux.microsoft.com, kitakar@gmail.com,
-        heikki.krogerus@linux.intel.com
-Subject: [PATCH 14/18] acpi: utils: Add function to fetch dependent acpi_devices
-Date:   Mon, 30 Nov 2020 13:31:25 +0000
-Message-Id: <20201130133129.1024662-15-djrscally@gmail.com>
+        heikki.krogerus@linux.intel.com,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: [PATCH 10/18] ipu3-cio2: Rename ipu3-cio2.c to allow module to be built from multiple source files retaining ipu3-cio2 name
+Date:   Mon, 30 Nov 2020 13:31:21 +0000
+Message-Id: <20201130133129.1024662-11-djrscally@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201130133129.1024662-1-djrscally@gmail.com>
 References: <20201130133129.1024662-1-djrscally@gmail.com>
@@ -86,121 +87,36 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-ACPI devices declare themselves dependent on other devices via the _DEP
-buffer. Fetching the dependee from dependent is a matter of parsing
-_DEP, but currently there's no method to fetch dependent from dependee.
-Add one, so we can parse sensors dependent on a PMIC from the PMIC's
-acpi_driver.
+ipu3-cio2 driver needs extending with multiple files; rename the main
+source file and specify the renamed file in Makefile to accommodate that.
 
+Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Daniel Scally <djrscally@gmail.com>
 ---
 Changes since RFC v3:
 
-	- Patch introduced
+	- None
 
- drivers/acpi/utils.c    | 68 +++++++++++++++++++++++++++++++++++++++++
- include/acpi/acpi_bus.h |  2 ++
- 2 files changed, 70 insertions(+)
+ drivers/media/pci/intel/ipu3/Makefile                          | 2 ++
+ drivers/media/pci/intel/ipu3/{ipu3-cio2.c => ipu3-cio2-main.c} | 0
+ 2 files changed, 2 insertions(+)
+ rename drivers/media/pci/intel/ipu3/{ipu3-cio2.c => ipu3-cio2-main.c} (100%)
 
-diff --git a/drivers/acpi/utils.c b/drivers/acpi/utils.c
-index c177165c8db2..7099529121db 100644
---- a/drivers/acpi/utils.c
-+++ b/drivers/acpi/utils.c
-@@ -807,6 +807,52 @@ static int acpi_dev_match_cb(struct device *dev, const void *data)
- 	return hrv == match->hrv;
- }
- 
-+static int acpi_dev_match_by_dep(struct device *dev, const void *data)
-+{
-+	struct acpi_device *adev = to_acpi_device(dev);
-+	const struct acpi_device *dependee = data;
-+	struct acpi_handle_list dep_handles;
-+	struct acpi_device *candidate;
-+	acpi_handle handle;
-+	acpi_status status;
-+	unsigned int i;
-+	int ret;
+diff --git a/drivers/media/pci/intel/ipu3/Makefile b/drivers/media/pci/intel/ipu3/Makefile
+index 98ddd5beafe0..429d516452e4 100644
+--- a/drivers/media/pci/intel/ipu3/Makefile
++++ b/drivers/media/pci/intel/ipu3/Makefile
+@@ -1,2 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ obj-$(CONFIG_VIDEO_IPU3_CIO2) += ipu3-cio2.o
 +
-+	handle = adev->handle;
-+
-+	if (!acpi_has_method(handle, "_DEP"))
-+		return 0;
-+
-+	status = acpi_evaluate_reference(handle, "_DEP", NULL, &dep_handles);
-+	if (ACPI_FAILURE(status))
-+		return 0;
-+
-+	for (i = 0; i < dep_handles.count; i++) {
-+		struct acpi_device_info *info;
-+
-+		status = acpi_get_object_info(dep_handles.handles[i], &info);
-+		if (ACPI_FAILURE(status))
-+			continue;
-+
-+		if (info->valid & ACPI_VALID_HID) {
-+			ret = acpi_bus_get_device(dep_handles.handles[i], &candidate);
-+			if (ret || !candidate) {
-+				kfree(info);
-+				continue;
-+			}
-+
-+			if (candidate == dependee) {
-+				acpi_dev_put(candidate);
-+				kfree(info);
-+				return 1;
-+			}
-+
-+			kfree(info);
-+		}
-+	}
-+	return 0;
-+}
-+
- /**
-  * acpi_dev_present - Detect that a given ACPI device is present
-  * @hid: Hardware ID of the device.
-@@ -842,6 +888,28 @@ bool acpi_dev_present(const char *hid, const char *uid, s64 hrv)
- }
- EXPORT_SYMBOL(acpi_dev_present);
- 
-+/**
-+ * acpi_dev_get_next_dep_dev - Return next ACPI device dependent on input dev
-+ * @adev: Pointer to the dependee device
-+ * @prev: Pointer to the previous dependent device (or NULL for first match)
-+ *
-+ * Return the next ACPI device which declares itself dependent on @adev in
-+ * the _DEP buffer.
-+ *
-+ * The caller is responsible to call put_device() on the returned device.
-+ */
-+struct acpi_device *acpi_dev_get_next_dep_dev(struct acpi_device *adev,
-+					      struct acpi_device *prev)
-+{
-+	struct device *start = prev ? &prev->dev : NULL;
-+	struct device *dev;
-+
-+	dev = bus_find_device(&acpi_bus_type, start, adev, acpi_dev_match_by_dep);
-+
-+	return dev ? to_acpi_device(dev) : NULL;
-+}
-+EXPORT_SYMBOL(acpi_dev_get_next_dep_dev);
-+
- /**
-  * acpi_dev_get_next_match_dev - Return the next match of ACPI device
-  * @adev: Pointer to the previous acpi_device matching this hid, uid and hrv
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 0a028ba967d3..f5dfeb030b9c 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -688,6 +688,8 @@ static inline bool acpi_device_can_poweroff(struct acpi_device *adev)
- 
- bool acpi_dev_hid_uid_match(struct acpi_device *adev, const char *hid2, const char *uid2);
- 
-+struct acpi_device *
-+acpi_dev_get_next_dep_dev(struct acpi_device *adev, struct acpi_device *prev);
- struct acpi_device *
- acpi_dev_get_next_match_dev(struct acpi_device *adev, const char *hid, const char *uid, s64 hrv);
- struct acpi_device *
++ipu3-cio2-y += ipu3-cio2-main.o
+diff --git a/drivers/media/pci/intel/ipu3/ipu3-cio2.c b/drivers/media/pci/intel/ipu3/ipu3-cio2-main.c
+similarity index 100%
+rename from drivers/media/pci/intel/ipu3/ipu3-cio2.c
+rename to drivers/media/pci/intel/ipu3/ipu3-cio2-main.c
 -- 
 2.25.1
 
