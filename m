@@ -2,91 +2,139 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A38CC83013
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 08:09:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88716C64E8A
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 08:10:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 56B352087C
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 08:09:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2B33D2085B
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 08:10:17 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YAm+m6+W"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728315AbgLAIJW convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 1 Dec 2020 03:09:22 -0500
-Received: from mailout05.rmx.de ([94.199.90.90]:37150 "EHLO mailout05.rmx.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728309AbgLAIJV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 1 Dec 2020 03:09:21 -0500
-X-Greylist: delayed 1962 seconds by postgrey-1.27 at vger.kernel.org; Tue, 01 Dec 2020 03:09:21 EST
-Received: from kdin02.retarus.com (kdin02.dmz1.retloc [172.19.17.49])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mailout05.rmx.de (Postfix) with ESMTPS id 4ClYms0Rytz9vZl;
-        Tue,  1 Dec 2020 08:35:57 +0100 (CET)
-Received: from mta.arri.de (unknown [217.111.95.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by kdin02.retarus.com (Postfix) with ESMTPS id 4ClYmS2TjMz2TTLk;
-        Tue,  1 Dec 2020 08:35:36 +0100 (CET)
-Received: from n95hx1g2.localnet (192.168.54.19) by mta.arri.de
- (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 1 Dec
- 2020 08:34:53 +0100
-From:   Christian Eggers <ceggers@arri.de>
-To:     Wolfram Sang <wsa@kernel.org>, <wsa@the-dreams.de>
-CC:     Oleksij Rempel <linux@rempel-privat.de>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        "David Laight" <David.Laight@aculab.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        <linux-i2c@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH v6 1/3] i2c: imx: Fix reset of I2SR_IAL flag
-Date:   Tue, 1 Dec 2020 08:34:52 +0100
-Message-ID: <18285740.IRuNKOj0Az@n95hx1g2>
-Organization: Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
-In-Reply-To: <20201010110920.GB4669@ninjato>
-References: <20201009110320.20832-1-ceggers@arri.de> <20201009110320.20832-2-ceggers@arri.de> <20201010110920.GB4669@ninjato>
+        id S1728361AbgLAIJ6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 1 Dec 2020 03:09:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42980 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726641AbgLAIJ6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Dec 2020 03:09:58 -0500
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6521C0613CF;
+        Tue,  1 Dec 2020 00:09:11 -0800 (PST)
+Received: by mail-wr1-x444.google.com with SMTP id 64so1173118wra.11;
+        Tue, 01 Dec 2020 00:09:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=g9iTWR+67p816vWv4eUTbB+4T/eP8zsyOLsAJSoKtlo=;
+        b=YAm+m6+W/U+Z6DRI04FKYU92w2q8WYWM/8TgmETTQM51pN4ZSsY96OtwJWwH3Vns5u
+         /PlGcWmnN/1SVBtBVI18qJtrsoR39Sm01wRczcylg4bFcy74AvV77931Mfgy8Qp5DlPB
+         0YmBYgJgbX1n3JQ8FvC8+/0qK/23SknaXT1BYAgYS6VTJaOR6s8tVPe1dFfA8La13IEy
+         QE5An386R6//eE0m1BC8+Q5AHC1byO5CnccjJfTSO0Ab0BnLtu2zdkMKJP001RIg0sTG
+         ZmFYklcjS0lBn8y4REY92K2XlahQ9aUkLLRXsUKRHU5SbB3Hvirqxlcjvcgq4QfAJHod
+         ZBkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=g9iTWR+67p816vWv4eUTbB+4T/eP8zsyOLsAJSoKtlo=;
+        b=K0Um6Oa2SXIb+z0SQp/un5+RhIvry2xpHRI0aLZ5VMyKahWRaBhVbOKrhgv6vxo58f
+         DNn9BSbOR2q2YQqczop+WBCfqS/ECsHOLaMuLvxAjmX5BC6qpVJijr8jJuQRA4rtK5k3
+         Dg78avX0RM7V1fmK3/zctX9twAiz5O4zW6EBAlRujv3d5VSd00UpyHxnTimONvcMufvn
+         07WrFf1E0l4R92rIMiXvIFQ9LMeRN9c++Ecrg7kLpVq7O5qxe7Tjy046OSt4P+HV0Wgm
+         MX87rLaVTL6ctfdfda6aDQ0VzVgNMgg90+E0sc6FcxvFJAasx4FXrBwBZFZsCKR+UwK6
+         G8iw==
+X-Gm-Message-State: AOAM530JwUG2hmJnzHr+YWdpWbWP4fRNfwF/tLTLUSV/kjJBPabFDcxz
+        zQxhd9pShyFfjqhpehgEe2s=
+X-Google-Smtp-Source: ABdhPJxuU9hZf/aIutOrOpK2zuTn7eGQm7+XgXJjvuQIUZhG14t+Pi9orIACi8+VsuaqZiteG3JpZA==
+X-Received: by 2002:adf:f607:: with SMTP id t7mr2200481wrp.169.1606810150609;
+        Tue, 01 Dec 2020 00:09:10 -0800 (PST)
+Received: from [192.168.1.211] ([2.31.224.80])
+        by smtp.gmail.com with ESMTPSA id f3sm1523119wrx.10.2020.12.01.00.09.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Dec 2020 00:09:10 -0800 (PST)
+Subject: Re: [PATCH 18/18] ipu3: Add driver for dummy INT3472 ACPI device
+From:   Dan Scally <djrscally@gmail.com>
+To:     Sakari Ailus <sakari.ailus@iki.fi>
+Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-media@vger.kernel.org, devel@acpica.org, rjw@rjwysocki.net,
+        lenb@kernel.org, gregkh@linuxfoundation.org,
+        mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        wsa@kernel.org, yong.zhi@intel.com, sakari.ailus@linux.intel.com,
+        bingbu.cao@intel.com, tian.shu.qiu@intel.com, mchehab@kernel.org,
+        robert.moore@intel.com, erik.kaneda@intel.com, pmladek@suse.com,
+        rostedt@goodmis.org, sergey.senozhatsky@gmail.com,
+        linux@rasmusvillemoes.dk, kieran.bingham+renesas@ideasonboard.com,
+        jacopo+renesas@jmondi.org,
+        laurent.pinchart+renesas@ideasonboard.com,
+        jorhand@linux.microsoft.com, kitakar@gmail.com,
+        heikki.krogerus@linux.intel.com,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+References: <20201130133129.1024662-1-djrscally@gmail.com>
+ <20201130133129.1024662-19-djrscally@gmail.com>
+ <20201130205203.GQ4351@valkosipuli.retiisi.org.uk>
+ <3e8494a0-a2c0-59e7-46bb-9635c3c239dd@gmail.com>
+ <20201201064421.GR4351@valkosipuli.retiisi.org.uk>
+ <2a548835-78c6-8fe3-cceb-1fc000707157@gmail.com>
+Message-ID: <ee94d229-3d86-d557-1bf7-0d39239928ca@gmail.com>
+Date:   Tue, 1 Dec 2020 08:09:08 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="iso-8859-1"
-X-Originating-IP: [192.168.54.19]
-X-RMX-ID: 20201201-083538-4ClYmS2TjMz2TTLk-0@kdin02
-X-RMX-SOURCE: 217.111.95.66
+In-Reply-To: <2a548835-78c6-8fe3-cceb-1fc000707157@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Saturday, 10 October 2020, 13:09:20 CET, Wolfram Sang wrote:
-> On Fri, Oct 09, 2020 at 01:03:18PM +0200, Christian Eggers wrote:
-> > According to the "VFxxx Controller Reference Manual" (and the comment
-> > block starting at line 97), Vybrid requires writing a one for clearing
-> > an interrupt flag. Syncing the method for clearing I2SR_IIF in
-> > i2c_imx_isr().
-> > 
-> > Signed-off-by: Christian Eggers <ceggers@arri.de>
-> > Fixes: 4b775022f6fd ("i2c: imx: add struct to hold more configurable quirks")
-> > Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> > Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-> > Cc: stable@vger.kernel.org
-> 
-> Applied to for-next, thanks!
-> 
-I cannot find my patches in kernel/git/wsa/linux.git, branch "for-next".
-Did they get lost?
 
-regards
-Christian
-
-
-
-
+On 01/12/2020 08:08, Dan Scally wrote:
+> On 01/12/2020 06:44, Sakari Ailus wrote:
+>> Hi Dan,
+>>
+>> On Mon, Nov 30, 2020 at 11:06:03PM +0000, Dan Scally wrote:
+>>> Hi Sakari
+>>>
+>>> On 30/11/2020 20:52, Sakari Ailus wrote:
+>>>>> +static const struct acpi_device_id int3472_device_id[] = {
+>>>>> +	{ "INT3472", 0 },
+>>>> The INT3472 _HID is really allocated for the tps68470 PMIC chip. It may not
+>>>> be used by other drivers; people will want to build kernels where both of
+>>>> these ACPI table layouts are functional.
+>>>>
+>>>> Instead, I propose, that you add this as an option to the tps68470 driver
+>>>> that figures out whether the ACPI device for the tps68470 device actually
+>>>> describes something else, in a similar fashion you do with the cio2-bridge
+>>>> driver. I think it may need a separate Kconfig option albeit this and
+>>>> cio2-bridge cannot be used separately.
+>>> It actually occurs to me that that may not work (I know I called that
+>>> out as an option we considered, but that was a while ago actually). The
+>>> reason I wasn't worried about the existing tps68470 driver binding to
+>>> these devices is that it's an i2c driver, and these dummy devices don't
+>>> have an I2cSerialBusV2, so no I2C device is created by them the kernel.
+>>>
+>>>
+>>> Won't that mean the tps68470 driver won't ever be probed for these devices?
+>> Oops. I missed this indeed was not an IÂ²C driver. So please ignore the
+>> comment.
+>>
+>> So I guess this wouldn't be an actual problem. I'd still like to test this
+>> on a system with tps68470, as the rest of the set.
+> On my Go2, it .probes() for the actual tps68740 (that machine has both
+> types of INT3472 device) but fails with EINVAL when it can't find the
+> CLDB buffer that these discrete type devices have. My understanding is
+> that means it's free for the actual tps68470 driver to grab the device;
+> although that's not happening because I had to blacklist that driver or
+> it stops the machine from booting at the moment - haven't gotten round
+> to investigating yet.
+Though having said that, it looks like a separate driver like this is
+the least favoured option anyway, so probably it's going to change anyway.
