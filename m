@@ -5,32 +5,40 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E4CFC83011
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 09:25:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD903C64E7B
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 09:25:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F414120674
+	by mail.kernel.org (Postfix) with ESMTP id 58133206C0
 	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 09:25:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389447AbgLAJZJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 1 Dec 2020 04:25:09 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:8896 "EHLO
+        id S2390835AbgLAJYc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 1 Dec 2020 04:24:32 -0500
+Received: from szxga07-in.huawei.com ([45.249.212.35]:8897 "EHLO
         szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390818AbgLAJYa (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Dec 2020 04:24:30 -0500
+        with ESMTP id S2390814AbgLAJYb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Dec 2020 04:24:31 -0500
 Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4Clc8q3221z75q3;
+        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4Clc8q3Brfz75s8;
         Tue,  1 Dec 2020 17:23:23 +0800 (CST)
 Received: from localhost.localdomain.localdomain (10.175.113.25) by
  DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
- 14.3.487.0; Tue, 1 Dec 2020 17:23:40 +0800
+ 14.3.487.0; Tue, 1 Dec 2020 17:23:42 +0800
 From:   Qinglang Miao <miaoqinglang@huawei.com>
-CC:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+To:     Oleksij Rempel <linux@rempel-privat.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>
+CC:     <linux-i2c@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
         Qinglang Miao <miaoqinglang@huawei.com>
-Subject: [PATCH 2/8] i2c: img-scb: fix reference leak when pm_runtime_get_sync fails
-Date:   Tue, 1 Dec 2020 17:31:39 +0800
-Message-ID: <20201201093139.112946-1-miaoqinglang@huawei.com>
+Subject: [PATCH 4/8] i2c: imx: fix reference leak when pm_runtime_get_sync fails
+Date:   Tue, 1 Dec 2020 17:31:41 +0800
+Message-ID: <20201201093141.113135-1-miaoqinglang@huawei.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20201201092924.112461-1-miaoqinglang@huawei.com>
 References: <20201201092924.112461-1-miaoqinglang@huawei.com>
@@ -39,47 +47,46 @@ Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
 X-Originating-IP: [10.175.113.25]
 X-CFilter-Loop: Reflected
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The PM reference count is not expected to be incremented on
-return in functions img_i2c_xfer and img_i2c_init.
+In i2c_imx_xfer() and i2c_imx_remove(), the pm reference count
+is not expected to be incremented on return.
 
-However, pm_runtime_get_sync will increment the PM reference
-count even failed. Forgetting to putting operation will result
-in a reference leak here.
+However, pm_runtime_get_sync will increment pm reference count
+even failed. Forgetting to putting operation will result in a
+reference leak here.
 
 Replace it with pm_runtime_resume_and_get to keep usage
 counter balanced.
 
-Fixes: 93222bd9b966 ("i2c: img-scb: Add runtime PM")
+Fixes: 3a5ee18d2a32 ("i2c: imx: implement master_xfer_atomic callback")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
 ---
- drivers/i2c/busses/i2c-img-scb.c | 4 ++--
+ drivers/i2c/busses/i2c-imx.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 98a89301e..8e987945e 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -1057,7 +1057,7 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			atomic = true;
- 	}
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index c98529c76..93d2069da 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1008,7 +1008,7 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+ 	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+ 	int result;
  
--	ret = pm_runtime_get_sync(adap->dev.parent);
-+	ret = pm_runtime_resume_and_get(adap->dev.parent);
- 	if (ret < 0)
- 		return ret;
+-	result = pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
++	result = pm_runtime_resume_and_get(i2c_imx->adapter.dev.parent);
+ 	if (result < 0)
+ 		return result;
  
-@@ -1158,7 +1158,7 @@ static int img_i2c_init(struct img_i2c *i2c)
- 	u32 rev;
- 	int ret;
+@@ -1252,7 +1252,7 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
+ 	int irq, ret;
  
--	ret = pm_runtime_get_sync(i2c->adap.dev.parent);
-+	ret = pm_runtime_resume_and_get(i2c->adap.dev.parent);
+-	ret = pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_resume_and_get(&pdev->dev);
  	if (ret < 0)
  		return ret;
  
