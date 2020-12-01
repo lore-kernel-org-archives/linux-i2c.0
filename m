@@ -5,35 +5,38 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC3B4C83016
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 09:25:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 928F8C8301E
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 09:25:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AD5C420674
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 09:25:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 61D5C206CB
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Dec 2020 09:25:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390855AbgLAJYi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 1 Dec 2020 04:24:38 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:9080 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390844AbgLAJYf (ORCPT
+        id S2390848AbgLAJYf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 1 Dec 2020 04:24:35 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:8478 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390839AbgLAJYf (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Dec 2020 04:24:35 -0500
-Received: from DGGEMS413-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Clc8n4XBHzLlcD;
-        Tue,  1 Dec 2020 17:23:21 +0800 (CST)
+Received: from DGGEMS414-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4Clc914QZJzhXtc;
+        Tue,  1 Dec 2020 17:23:33 +0800 (CST)
 Received: from localhost.localdomain.localdomain (10.175.113.25) by
- DGGEMS413-HUB.china.huawei.com (10.3.19.213) with Microsoft SMTP Server id
- 14.3.487.0; Tue, 1 Dec 2020 17:23:44 +0800
+ DGGEMS414-HUB.china.huawei.com (10.3.19.214) with Microsoft SMTP Server id
+ 14.3.487.0; Tue, 1 Dec 2020 17:23:46 +0800
 From:   Qinglang Miao <miaoqinglang@huawei.com>
-To:     Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-CC:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+To:     Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>
+CC:     <linux-i2c@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
         Qinglang Miao <miaoqinglang@huawei.com>
-Subject: [PATCH 6/8] i2c: sprd: fix reference leak when pm_runtime_get_sync fails
-Date:   Tue, 1 Dec 2020 17:31:44 +0800
-Message-ID: <20201201093144.113225-1-miaoqinglang@huawei.com>
+Subject: [PATCH 7/8] i2c: stm32f7: fix reference leak when pm_runtime_get_sync fails
+Date:   Tue, 1 Dec 2020 17:31:45 +0800
+Message-ID: <20201201093145.113270-1-miaoqinglang@huawei.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20201201092924.112461-1-miaoqinglang@huawei.com>
 References: <20201201092924.112461-1-miaoqinglang@huawei.com>
@@ -47,7 +50,7 @@ List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 The PM reference count is not expected to be incremented on
-return in sprd_i2c_master_xfer() and sprd_i2c_remove().
+return in these stm32f7_i2c_xx serious functions.
 
 However, pm_runtime_get_sync will increment the PM reference
 count even failed. Forgetting to putting operation will result
@@ -56,29 +59,65 @@ in a reference leak here.
 Replace it with pm_runtime_resume_and_get to keep usage
 counter balanced.
 
-Fixes: 8b9ec0719834 ("i2c: Add Spreadtrum I2C controller driver")
+Fixes: ea6dd25deeb5 ("i2c: stm32f7: add PM_SLEEP suspend/resume support")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
 ---
- drivers/i2c/busses/i2c-sprd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-stm32f7.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-index 19cda6742..103b1a852 100644
---- a/drivers/i2c/busses/i2c-sprd.c
-+++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -284,7 +284,7 @@ static int sprd_i2c_master_xfer(struct i2c_adapter *i2c_adap,
- 	struct sprd_i2c *i2c_dev = i2c_adap->algo_data;
- 	int im, ret;
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index f41f51a17..72fd5bdd6 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1643,7 +1643,7 @@ static int stm32f7_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	i2c_dev->msg_id = 0;
+ 	f7_msg->smbus = false;
  
 -	ret = pm_runtime_get_sync(i2c_dev->dev);
 +	ret = pm_runtime_resume_and_get(i2c_dev->dev);
  	if (ret < 0)
  		return ret;
  
-@@ -570,7 +570,7 @@ static int sprd_i2c_remove(struct platform_device *pdev)
- 	struct sprd_i2c *i2c_dev = platform_get_drvdata(pdev);
+@@ -1689,7 +1689,7 @@ static int stm32f7_i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ 	f7_msg->read_write = read_write;
+ 	f7_msg->smbus = true;
+ 
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -1790,7 +1790,7 @@ static int stm32f7_i2c_reg_slave(struct i2c_client *slave)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -1871,7 +1871,7 @@ static int stm32f7_i2c_unreg_slave(struct i2c_client *slave)
+ 
+ 	WARN_ON(!i2c_dev->slave[id]);
+ 
+-	ret = pm_runtime_get_sync(i2c_dev->dev);
++	ret = pm_runtime_resume_and_get(i2c_dev->dev);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -2268,7 +2268,7 @@ static int stm32f7_i2c_regs_backup(struct stm32f7_i2c_dev *i2c_dev)
  	int ret;
+ 	struct stm32f7_i2c_regs *backup_regs = &i2c_dev->backup_regs;
+ 
+-	ret = pm_runtime_get_sync(i2c_dev->dev);
++	ret = pm_runtime_resume_and_get(i2c_dev->dev);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -2290,7 +2290,7 @@ static int stm32f7_i2c_regs_restore(struct stm32f7_i2c_dev *i2c_dev)
+ 	int ret;
+ 	struct stm32f7_i2c_regs *backup_regs = &i2c_dev->backup_regs;
  
 -	ret = pm_runtime_get_sync(i2c_dev->dev);
 +	ret = pm_runtime_resume_and_get(i2c_dev->dev);
