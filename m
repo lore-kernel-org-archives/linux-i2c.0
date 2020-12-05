@@ -2,87 +2,158 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.4 required=3.0 tests=BAYES_00,DATE_IN_PAST_03_06,
-	DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F429C1B087
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0C10C1B0D8
 	for <linux-i2c@archiver.kernel.org>; Sat,  5 Dec 2020 18:38:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4057E2251D
+	by mail.kernel.org (Postfix) with ESMTP id 7B61D2251D
 	for <linux-i2c@archiver.kernel.org>; Sat,  5 Dec 2020 18:38:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729318AbgLEST1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1729260AbgLEST1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Sat, 5 Dec 2020 13:19:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42900 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727922AbgLERte (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 5 Dec 2020 12:49:34 -0500
-Date:   Sat, 5 Dec 2020 15:12:27 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1607177550;
-        bh=CIg1dKdZ01j4X7aWOWsE5DYxc5DliM0YMIs1RD+O+ME=;
-        h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=i8IOIjDQTsJhAL/9CwrhMCBBe8k3MRfUu/7G8dpEfX+uS/LGMeRF0snMryfw87flL
-         r5s3GeKQE02CTRRGWQL5+MTJgh3bJbS+wxZJfe2fbTJ7nOEtODsqHwGT6gR+n8kE6v
-         pv5FG5zE9TqNR7HytvPk/dkmMc1NuNOxGxKXqYixaiLODc6ssY3gGIxPcUBsyivwba
-         222almcB+JmHOy0sDbItS08zozEuU7EyvhE9aqtdA6veC1e27NICOtFBU2J9PwIifr
-         RHLzELVUTOxBFZlcPBmNcEsowPlje5fYulwQ5/oX52RS2LUmgAmOaS5ZHypx6Yg9wm
-         2uZT5VG/MqqmQ==
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Wang Xiaojun <wangxiaojun11@huawei.com>
-Cc:     kblaiech@nvidia.com, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: mlxbf: Fix the return check of devm_ioremap and
- ioremap
-Message-ID: <20201205141227.GB5761@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Wang Xiaojun <wangxiaojun11@huawei.com>, kblaiech@nvidia.com,
-        linux-i2c@vger.kernel.org
-References: <20201203014647.3468430-1-wangxiaojun11@huawei.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35722 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727897AbgLERsl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 5 Dec 2020 12:48:41 -0500
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B168C02A180;
+        Sat,  5 Dec 2020 08:29:35 -0800 (PST)
+Received: by mail-ed1-x543.google.com with SMTP id cm17so9151843edb.4;
+        Sat, 05 Dec 2020 08:29:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=WQqtIew8z+9SUipnxpDKUsTvv38hqnp7W7iU0a6e5Fs=;
+        b=GV4VZYw1USsEYDmt5Ru/pQcKr7T1UdSSpOCBRlAbP8QAhwwu0CCMLyCzFJ18XKNPgm
+         r9M7/ySC7rbc3yLT9G2f74xyA5WKGxwwtn7UdHmYHS76B03NBCVaKuYWAWtROMHc2KG1
+         txGa81sd1BgTrMOYlJN+gM95NaHFz5+lz5cvr65mR4BiXh496tEM3I6rRbZsTGNBK5JP
+         fApOzjOMkYrZExucX0Cbrap3P8wVXINi7foxYpM4EZTh1trCPDs9sQ7NLjLOYMKcrhg7
+         m0XBIWLuxQnsqyHIElyT5I8gCk9b+p4Jmz2FS4OgqlazTrXVmskWhY361EyiRqiUiJkj
+         PuEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=WQqtIew8z+9SUipnxpDKUsTvv38hqnp7W7iU0a6e5Fs=;
+        b=nhEQI0Eb1Dh1exdHxlw2WnrHI9ZcaQV0kiUHV4sgNQ8Kk1nbSOduY4qGVQhFhRDtZ+
+         L/ZMC2Cszi/kUoLAQE/TBtMANSixotQPFpyw8sM0EBZrnSKz5DVZUfKVFjQx33LbY2Qh
+         S3ZacZ0dQtLj77r2SqquZjbXm4eFh3EFy1y4eCjIIR6XN3fdKJYLSj1obl7PTwLqvOyJ
+         V7YuATxBVpIUDe3RmLHTAGHhIAzP/Rgp4LX4SQUFjVoyJli/aD688av+V5hvvPjPP8c7
+         JINvynoqWIg2ZVCwjAiRmwoSgAyU4eWVTrJ/0l2R9dE+3kh18XuQpTeX7LzN+tclT48i
+         VUcw==
+X-Gm-Message-State: AOAM531ENOTwSmMc7hlcXTmgx1GY4o84trTUn+AlHBEBIp+CQEBsw7jg
+        0EQZBWl8QILbkII/i1E+2tE=
+X-Google-Smtp-Source: ABdhPJxHhxyTbkf8AeKc304pFq3fBp8Q+sg3EtAFKXfOlBuOEWGoJ+qCdATY9KOgo5nUYvxo7zkm1g==
+X-Received: by 2002:aa7:c403:: with SMTP id j3mr12538643edq.217.1607185774251;
+        Sat, 05 Dec 2020 08:29:34 -0800 (PST)
+Received: from ubuntu2004 ([188.24.159.61])
+        by smtp.gmail.com with ESMTPSA id v9sm5438858ejk.48.2020.12.05.08.29.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Dec 2020 08:29:33 -0800 (PST)
+Date:   Sat, 5 Dec 2020 18:29:33 +0200
+From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
+        Vinod Koul <vkoul@kernel.org>, Wolfram Sang <wsa@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-actions@lists.infradead.org, linux-kernel@vger.kernel.org,
+        dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-mmc@vger.kernel.org
+Subject: Re: [PATCH v2 00/18] Add CMU/RMU/DMA/MMC/I2C support for Actions
+ Semi S500 SoCs
+Message-ID: <20201205162933.GA187065@ubuntu2004>
+References: <cover.1605823502.git.cristian.ciocaltea@gmail.com>
+ <20201205061115.GB4068@thinkpad>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="gj572EiMnwbLXET9"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201203014647.3468430-1-wangxiaojun11@huawei.com>
+In-Reply-To: <20201205061115.GB4068@thinkpad>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi Mani,
 
---gj572EiMnwbLXET9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sat, Dec 05, 2020 at 11:41:15AM +0530, Manivannan Sadhasivam wrote:
+> Hi Cristi,
+> 
+> On Fri, Nov 20, 2020 at 01:55:54AM +0200, Cristian Ciocaltea wrote:
+> > Hi,
+> > 
+> > This patchset brings a series of improvements for the Actions Semi S500
+> > SoCs family, by adding support for Clock & Reset Management Units, DMA,
+> > MMC, I2C & SIRQ controllers.
+> > 
+> > Please note the patches consist mostly of DTS and bindings/compatibles
+> > changes, since all the work they depend on has been already merged,
+> > i.e. clock fixes/additions, pinctrl driver, sirq driver.
+> > 
+> > For the moment, I have only enabled the features I could test on
+> > RoseapplePi SBC.
+> > 
+> 
+> I was hoping to apply this series for v5.11 but we ran out of time. So expect
+> this series to be in v5.12.
 
-On Wed, Dec 02, 2020 at 08:46:47PM -0500, Wang Xiaojun wrote:
-> devm_ioremap and ioremap may return NULL which cannot be checked
-> by IS_ERR.
->=20
-> Signed-off-by: Wang Xiaojun <wangxiaojun11@huawei.com>
-> Reported-by: Hulk Robot <hulkci@huawei.com>
+No problem, thanks a lot for taking care of this!
 
-Applied to for-current, thanks!
+Kind regards,
+Cristi
 
-
---gj572EiMnwbLXET9
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/LlUsACgkQFA3kzBSg
-KbZHfQ//SZv/0jg4PQcNbp73t3976kUqQXhy/mwPP9Hx9F4LVWrGfoP/BNxfhCLs
-PoWrSV+NPouAsZpZC13KgVZbQvsCzxCGsVGF2DrvGdLlCrgE3uyv/hn9N/RYsjpA
-P0KAYtmZoqH6kziMPDfrA3N9fwsm4a1V6+2jBqY+pZRMCKrS7BEeTh3FkhsejqbY
-Vm9I3f7FGBM0o01VhPgP8QdjEpEJJmNU+CQNGl40sHKIM0fLyERD21qwpEBATCjc
-TqcN+ibRPbh9E1a+U1nZCa1YvhMr8/sdJ6eoOTUXzkeVlnu2bsB3+CA+Bqo/x4c9
-LuPPD3ruof6iCJM10sKJbkLAm12CcNZji6/9ott1rANBgxBRgMLFuNXkMh0k5KeB
-CQl5bIRAKxQAgztBzp9oqli5EAP0gFl5LLP8GV0XWpsMClkSCLEqpRosRFLY/IbO
-fLBbYp5qz4vl9OB+V3iZYLamEa3MDAnLg+BWCB5jnIAUN6FrmBr+9iDICIsWAVgG
-ZUeYMXueIOB15+lRRllDHhbfgWZwtmgBIj40Xd7++1UeDo9YjJgCpVv5Oc6/HjgX
-A0sksjw/HHaNM9kA/C3PwRb6ZjkiIGDYLzoLd14F8lgwsOnK2UMhIVW46DohcnP8
-d7r+brycQZSFDzxxTGrvjraqfZ/zAwUDamBR+GABiVQg5fm2VUg=
-=79Vn
------END PGP SIGNATURE-----
-
---gj572EiMnwbLXET9--
+> Thanks,
+> Mani
+> 
+> > Thanks,
+> > Cristi
+> > 
+> > Changes in v2:
+> > - Added new bindings/compatibles for S500 DMA, MMC & I2C controllers
+> > - Added support for the SIRQ controller
+> > - Added new entries in MAINTAINERS
+> > - Updated naming of some patches in v1
+> > 
+> > Cristian Ciocaltea (18):
+> >   arm: dts: owl-s500: Add Clock Management Unit
+> >   arm: dts: owl-s500: Set CMU clocks for UARTs
+> >   arm: dts: owl-s500: Add Reset controller
+> >   dt-bindings: dma: owl: Add compatible string for Actions Semi S500 SoC
+> >   dmaengine: owl: Add compatible for the Actions Semi S500 DMA
+> >     controller
+> >   arm: dts: owl-s500: Add DMA controller
+> >   arm: dts: owl-s500: Add pinctrl & GPIO support
+> >   dt-bindings: mmc: owl: Add compatible string for Actions Semi S500 SoC
+> >   arm: dts: owl-s500: Add MMC support
+> >   dt-bindings: i2c: owl: Convert Actions Semi Owl binding to a schema
+> >   MAINTAINERS: Update entry for Actions Semi Owl I2C binding
+> >   i2c: owl: Add compatible for the Actions Semi S500 I2C controller
+> >   arm: dts: owl-s500: Add I2C support
+> >   arm: dts: owl-s500: Add SIRQ controller
+> >   arm: dts: owl-s500-roseapplepi: Use UART clock from CMU
+> >   arm: dts: owl-s500-roseapplepi: Add uSD support
+> >   arm: dts: owl-s500-roseapplepi: Add I2C pinctrl configuration
+> >   MAINTAINERS: Add linux-actions ML for Actions Semi Arch
+> > 
+> >  .../devicetree/bindings/dma/owl-dma.yaml      |   5 +-
+> >  .../devicetree/bindings/i2c/i2c-owl.txt       |  29 ----
+> >  .../devicetree/bindings/i2c/i2c-owl.yaml      |  62 ++++++++
+> >  .../devicetree/bindings/mmc/owl-mmc.yaml      |   4 +-
+> >  MAINTAINERS                                   |   3 +-
+> >  arch/arm/boot/dts/owl-s500-roseapplepi.dts    |  97 +++++++++++-
+> >  arch/arm/boot/dts/owl-s500.dtsi               | 140 ++++++++++++++++++
+> >  drivers/dma/owl-dma.c                         |   1 +
+> >  drivers/i2c/busses/i2c-owl.c                  |   1 +
+> >  9 files changed, 304 insertions(+), 38 deletions(-)
+> >  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.yaml
+> > 
+> > -- 
+> > 2.29.2
+> > 
