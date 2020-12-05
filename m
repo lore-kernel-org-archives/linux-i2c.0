@@ -2,117 +2,168 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F213C4167B
-	for <linux-i2c@archiver.kernel.org>; Sat,  5 Dec 2020 15:12:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9FDFC433FE
+	for <linux-i2c@archiver.kernel.org>; Sat,  5 Dec 2020 18:38:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 36A7A23107
-	for <linux-i2c@archiver.kernel.org>; Sat,  5 Dec 2020 15:12:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 98B1F2251D
+	for <linux-i2c@archiver.kernel.org>; Sat,  5 Dec 2020 18:38:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726395AbgLEPLk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 5 Dec 2020 10:11:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44142 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726867AbgLEO7a (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 5 Dec 2020 09:59:30 -0500
-Date:   Sat, 5 Dec 2020 14:49:07 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1607176156;
-        bh=avTC0vKm+HCnpWOb2l0x6fMZwug0bB+vBnqbMQiiwTM=;
-        h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NHwXk6MB73OjROTKxa+Ok66U4PLyGi7zDvwEe/EhcXjvgsFs26jY7GG2tzefRPA+e
-         IPZBNghbWMUXTKRkHDYEkkt7WEx5yLh5AHgc7Vn+hT0+irGDsaQtLM/+yfc6+t+ppA
-         nBY8CNMpa/Grnq2NgDWz8Mk0OhqF/Cr+oK7XYmcnObS8h1YZcQtzpC/EVhAi33kPSq
-         OmlDhy04aX2dz5S6ZZlRcJI4m4+y7X4w1JOH8P8qqaA34MRE4flZWcvWsCNp/vtpPX
-         N4tJlqMij1fIA1BIHrDciXEwKL6NRGzi0KMY6bKFxdvmbL8G88I5vjg0AV35R3M0eA
-         mt6tvgFYHoNrw==
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Vadim Pasternak <vadimp@mellanox.com>,
-        Khalil Blaiech <kblaiech@mellanox.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: mlxbf: select CONFIG_I2C_SLAVE
-Message-ID: <20201205134907.GA5761@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Vadim Pasternak <vadimp@mellanox.com>,
-        Khalil Blaiech <kblaiech@mellanox.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20201203223311.1251788-1-arnd@kernel.org>
+        id S1729324AbgLEST2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 5 Dec 2020 13:19:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36758 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728047AbgLERzF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 5 Dec 2020 12:55:05 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 558D2C02B8FC;
+        Sat,  5 Dec 2020 08:25:03 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1607185158;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1FFJXTlgaPHPlq6JWR5jS6UY7uzh0dgGC/bjFp+gbqs=;
+        b=nNQoqrajM4mtTtRcF4zjUNShWLzosjUuF6Dq5zJws3xqTuorL0/J5XmBRONWGCs0HkMshG
+        QucEVw6SpX+2R4I3BcxcwOdtywz/FteHm0+FmriPyLOHLyWhufgRILYpWWyfDcN1fx9TPC
+        AtM9vLxfx/tnHZ4HwuDkaNb9i6mlUcfUDgOF7tTVylSjE1qW+t2Ld8UupZNmLXwVZ7EyjR
+        1ODR/p+NvYzrHI8FbI1c72BAFsQU4qTenwqmzQfRdIVPlM8m24OhTTuYa4ate441pnR/3h
+        u+K0bg8duDCOHGDKDUaqrZbZnZkfZ9ruCX75CzLPPYRKsapY9zmW7qZ2RCer4w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1607185158;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1FFJXTlgaPHPlq6JWR5jS6UY7uzh0dgGC/bjFp+gbqs=;
+        b=YGJ7VAeVnR3FO93VpAq1Z2Jq1Qn7TDFMCAN/z+cTtrHFilQiMFhSsX0w4Qo8oNz5+eO9Kh
+        2Fq+x4fOajQ+E1BA==
+To:     Oleksandr Natalenko <oleksandr@natalenko.name>,
+        bugzilla-daemon@bugzilla.kernel.org
+Cc:     jdelvare@suse.de, wsa@kernel.org, benjamin.tissoires@redhat.com,
+        rui.zhang@intel.com, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Carlos Jimenez <javashin1986@gmail.com>
+Subject: Re: [Bug 202453] TRACE irq/18-i801_smb Tainted when enabled threadirqs in kernel commandline.
+In-Reply-To: <20201204201930.vtvitsq6xcftjj3o@spock.localdomain>
+References: <bug-202453-19117@https.bugzilla.kernel.org/> <bug-202453-19117-0k1QQBMPTi@https.bugzilla.kernel.org/> <20201204201930.vtvitsq6xcftjj3o@spock.localdomain>
+Date:   Sat, 05 Dec 2020 17:19:18 +0100
+Message-ID: <87zh2s8buh.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
-Content-Disposition: inline
-In-Reply-To: <20201203223311.1251788-1-arnd@kernel.org>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Fri, Dec 04 2020 at 21:19, Oleksandr Natalenko wrote:
+> On Thu, Dec 03, 2020 at 07:04:00PM +0000, bugzilla-daemon@bugzilla.kernel.org wrote:
+>>    2) Have a wrapper around handle_generic_irq() which ensures that
+>>       interrupts are disabled before invoking it.
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The question is whether it's guaranteed under all circumstances
+> including forced irq threading. The i801 driver has assumptions about
+> this, so I wouldn't be surprised if there are more.
 
-On Thu, Dec 03, 2020 at 11:32:50PM +0100, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->=20
-> If this is not enabled, the interfaces used in this driver do not work:
->=20
-> drivers/i2c/busses/i2c-mlxbf.c:1888:3: error: implicit declaration of fun=
-ction 'i2c_slave_event' [-Werror,-Wimplicit-function-declaration]
->                 i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
->                 ^
-> drivers/i2c/busses/i2c-mlxbf.c:1888:26: error: use of undeclared identifi=
-er 'I2C_SLAVE_WRITE_REQUESTED'
->                 i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
->                                        ^
-> drivers/i2c/busses/i2c-mlxbf.c:1890:32: error: use of undeclared identifi=
-er 'I2C_SLAVE_WRITE_RECEIVED'
->                 ret =3D i2c_slave_event(slave, I2C_SLAVE_WRITE_RECEIVED,
->                                              ^
-> drivers/i2c/busses/i2c-mlxbf.c:1892:26: error: use of undeclared identifi=
-er 'I2C_SLAVE_STOP'
->                 i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
->                                        ^
->=20
-> Fixes: b5b5b32081cd ("i2c: mlxbf: I2C SMBus driver for Mellanox BlueField=
- SoC")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Assuming that a final answer might take some time, the below which
+implements #2 will make it at least work for now.
 
-Applied to for-current, thanks!
+Thanks,
 
+        tglx
+---
+Subject: genirq, i2c: Provide and use generic_dispatch_irq()
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Thu, 03 Dec 2020 19:12:24 +0100
 
---qDbXVdCdHGoSgWSk
-Content-Type: application/pgp-signature; name="signature.asc"
+Carlos reported that on his system booting with 'threadirqs' on the command
+line result in the following warning:
 
------BEGIN PGP SIGNATURE-----
+irq 31 handler irq_default_primary_handler+0x0/0x10 enabled interrupts
+WARNING: CPU: 2 PID: 989 at kernel/irq/handle.c:153 __handle_irq_event_percpu+0x19f/0x1b0
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/Lj84ACgkQFA3kzBSg
-KbY3gQ/9HdDd3tmrX2RSD5pjtUUuQEa0bKb5t41oHP7lnR/WepimCmAWce4QBETd
-ugb81HuAUYhX0tbzQn+TRKC6jYobyChPKpdVVAIbtqBCt1ScLSnvXxRIB7Q5VNJI
-Uwhj0gqnITyvzNdc5if0wGNXk3CphcKkvp0LgpfjxIku+0BQSt5dyCmYTetB2Yy2
-crI6YnBYKu8VbZR3cnTDcTypqDr3tKenE0h2mVqNtbW4H567I6mw5Wi09NBJsANS
-F3qlJjrOfHlWvJWd5iqGKUF4xsEw/Hg63977ulrbVvZnFTIVXsCjHQ9JGt03mHr2
-i0HB31N46gk0LUjNzGU8Oig2UI4ybUl/IQPitroBxahphGU0D44QF2Kf+aQMo4FD
-v3mmnQykUA2+IFAtXucqvKyxrjkHduEi4pcDQVYgOO7LwNEwVuJvqDLJO4mY84JL
-cqiHEdcAZp3Gxi81Wn94TTRJ9MRNNzKLB4DmLIWKQNke0p4+AGSMaD6zlQt2WS66
-nTE5JcKwU/fDxlO1eO7o7aMAKttufq5/wxgjMNTPdBDLtmDUIILNfcpuzH7AdYOR
-Sd6LXCAeOegwog7ipa0yBrWRj9SVRjKtpNP+DmVdWvBxPZOAOqmas/HLeo3yuGHy
-0tGIAYWj+icVlmXrFxWifQC3VxPl+NJP9qR2NIcRijm3dD/GDgA=
-=OE8V
------END PGP SIGNATURE-----
+The reason is in the i2c stack:
 
---qDbXVdCdHGoSgWSk--
+    i801_isr()
+      i801_host_notify_isr()
+        i2c_handle_smbus_host_notify()
+          generic_handle_irq()
+
+and that explodes with forced interrupt threading because it's called with
+interrupts enabled.
+
+It would be possible to set IRQF_NO_THREAD on the i801 interrupt to exclude
+it from force threading, but that would break on RT and require a larger
+update.
+
+It's also unclear whether there are other drivers which can reach that code
+path via i2c_slave_host_notify_cb(). As there are enough i2c drivers which
+use threaded interrupt handlers by default it seems not completely
+impossible that this can happen even without force threaded interrupts.
+
+For a quick fix provide a wrapper around generic_handle_irq() which has a
+local_irq_save/restore() around the invocation and use it in the i2c code.
+
+Reported-by: Carlos Jimenez <javashin1986@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=202453
+---
+ drivers/i2c/i2c-core-base.c |    2 +-
+ include/linux/irqdesc.h     |    1 +
+ kernel/irq/irqdesc.c        |   20 ++++++++++++++++++++
+ 3 files changed, 22 insertions(+), 1 deletion(-)
+
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1385,7 +1385,7 @@ int i2c_handle_smbus_host_notify(struct
+ 	if (irq <= 0)
+ 		return -ENXIO;
+ 
+-	generic_handle_irq(irq);
++	generic_dispatch_irq(irq);
+ 
+ 	return 0;
+ }
+--- a/include/linux/irqdesc.h
++++ b/include/linux/irqdesc.h
+@@ -153,6 +153,7 @@ static inline void generic_handle_irq_de
+ }
+ 
+ int generic_handle_irq(unsigned int irq);
++int generic_dispatch_irq(unsigned int irq);
+ 
+ #ifdef CONFIG_HANDLE_DOMAIN_IRQ
+ /*
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -652,6 +652,26 @@ int generic_handle_irq(unsigned int irq)
+ }
+ EXPORT_SYMBOL_GPL(generic_handle_irq);
+ 
++/**
++ * generic_dispatch_irq - Dispatch an interrupt from an interrupt handler
++ * @irq:	The irq number to handle
++ *
++ * A wrapper around generic_handle_irq() which ensures that interrupts are
++ * disabled when the primary handler of the dispatched irq is invoked.
++ * This is useful for interrupt handlers with dispatching to be safe for
++ * the forced threaded case.
++ */
++int generic_dispatch_irq(unsigned int irq)
++{
++	unsigned long flags;
++	int ret;
++
++	local_irq_save(&flags);
++	ret = generic_handle_irq(irq);
++	local_irq_restore(&flags);
++	return ret;
++}
++
+ #ifdef CONFIG_HANDLE_DOMAIN_IRQ
+ /**
+  * __handle_domain_irq - Invoke the handler for a HW irq belonging to a domain
