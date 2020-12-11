@@ -2,104 +2,78 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25CAAC4361B
-	for <linux-i2c@archiver.kernel.org>; Fri, 11 Dec 2020 21:01:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C9E4C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 11 Dec 2020 23:21:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D6C7724058
-	for <linux-i2c@archiver.kernel.org>; Fri, 11 Dec 2020 21:01:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E7942311C
+	for <linux-i2c@archiver.kernel.org>; Fri, 11 Dec 2020 23:21:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391934AbgLKT1G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 11 Dec 2020 14:27:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33992 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731564AbgLKT0f (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 11 Dec 2020 14:26:35 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9A9EC0613CF
-        for <linux-i2c@vger.kernel.org>; Fri, 11 Dec 2020 11:25:54 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id x22so8446143wmc.5
-        for <linux-i2c@vger.kernel.org>; Fri, 11 Dec 2020 11:25:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=q97jZXfuYNd7LxZyaTU5pq9JJKg4stvLUxrnSqyGA5I=;
-        b=k2AR9sGARZXYpwGn8MAl80tBY+7XmcoFtQazzy68F4rNe4cagRUXR1Qygd2zTI/Wpa
-         nP1gm5YYVjahMVQKUW29FRYavFOMs6g6Wip2Q/Ju8sE2U2vX4O3JuSpcK7M+8eI8+DfV
-         g9uf27qWnbxMi+akfAnL7vfk6+OsWsJRwPSPBSxhMPPOovo5QCQoWhBe/lc+mqV3X2UQ
-         dN74E4qfk5nPlTugnP62kSnXYX591OQ5e5bXrbI80lBnXA5P9PspRYP8aIR1kACgsCKa
-         JlcsAQpqMqxhQ8Q3o01T7DN/4y0mDYhaiYmC9ayYyKFnIhLvrUpwHaRrGYMxt6VMSRr7
-         MIow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=q97jZXfuYNd7LxZyaTU5pq9JJKg4stvLUxrnSqyGA5I=;
-        b=fHzB3tlT/09jEcXjvIeljVVAb3tWM+VgIw3XqqDGfsEVS4wTFipm9Z87DS3cIWEF50
-         2qmKxbOgKUdRX32d04yqZx6f1LhFeRqVVBgMR2NfPWihVmcAEuAoArwT8A5MoMzzNwD3
-         LoOLlbRSnJD9QFj3S3AyR1M1rrYY4c8HQXRKQ6GJCuVkNZI4CPI1nuqr6IofZ3xQ0yGs
-         9vnl5gMt/cJ7r7j+l3rmCAUPwWWtawYpXHsrlKJVFHMXOXPnhN9Xb6onYwPh9F0SsGGx
-         ZQWiGbdSPfcV8IjZ1sX4g/UluuabBSyOEcJvxPFG4iZFJXTMZ5oNIwW0qetLNmSKF02l
-         4eNA==
-X-Gm-Message-State: AOAM5330cBwvz2UqmlWZK+Ajjba/FDHBvR7QFB67saxHIYm54DEhsoWX
-        YmyD4G0rAiqRgOf1+MHQzvc83g==
-X-Google-Smtp-Source: ABdhPJzBdNYFmsqPNxsBcgAWSPRI09hkgUF+ecezKBXQaF8r8ySPhlPdO7cMz9j+gwR5SaWRoPYX4A==
-X-Received: by 2002:a1c:240a:: with SMTP id k10mr14582462wmk.173.1607714753462;
-        Fri, 11 Dec 2020 11:25:53 -0800 (PST)
-Received: from debian-brgl.home (amarseille-656-1-4-167.w90-8.abo.wanadoo.fr. [90.8.158.167])
-        by smtp.gmail.com with ESMTPSA id t188sm16283249wmf.9.2020.12.11.11.25.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Dec 2020 11:25:52 -0800 (PST)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Wolfram Sang <wsa@the-dreams.de>
+        id S2394358AbgLKW02 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 11 Dec 2020 17:26:28 -0500
+Received: from sauhun.de ([88.99.104.3]:58418 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2406910AbgLKW0G (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 11 Dec 2020 17:26:06 -0500
+Received: from localhost (p54b3322b.dip0.t-ipconnect.de [84.179.50.43])
+        by pokefinder.org (Postfix) with ESMTPSA id A70572C0270;
+        Fri, 11 Dec 2020 23:25:23 +0100 (CET)
+Date:   Fri, 11 Dec 2020 23:25:20 +0100
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
 Cc:     linux-i2c@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [GIT PULL] at24: late fixes for v5.10
-Date:   Fri, 11 Dec 2020 20:25:51 +0100
-Message-Id: <20201211192551.2226-1-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.29.1
+Subject: Re: [GIT PULL] at24: late fixes for v5.10
+Message-ID: <20201211222520.GA1003@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
+        Bartosz Golaszewski <brgl@bgdev.pl>, linux-i2c@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+References: <20201211192551.2226-1-brgl@bgdev.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Disposition: inline
+In-Reply-To: <20201211192551.2226-1-brgl@bgdev.pl>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Hi Wolfram,
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I'm terribly sorry but I completely forgot that I had this fix in my tree.
-If you're still sending out fixes for v5.10 to Linus before Sunday, please
-include this one. Otherwise take it into your PR for v5.11 and I'll backport
-it to stable.
 
-Bartosz
+> I'm terribly sorry but I completely forgot that I had this fix in my tree.
+> If you're still sending out fixes for v5.10 to Linus before Sunday, please
+> include this one. Otherwise take it into your PR for v5.11 and I'll backport
+> it to stable.
 
-The following changes since commit 3650b228f83adda7e5ee532e2b90429c03f7b9ec:
+Pulled, thanks. I don't have any fixes pending, but I can send out a PR
+just for this one. That's fine, too.
 
-  Linux 5.10-rc1 (2020-10-25 15:14:11 -0700)
 
-are available in the Git repository at:
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-fixes-for-v5.10
+-----BEGIN PGP SIGNATURE-----
 
-for you to fetch changes up to 4e302c3b568eaf2aeebba804c07aba5d921a8c9e:
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/T8csACgkQFA3kzBSg
+KbZDiQ/+OROT0MkFdV0m67W5+GB4jYZFAg4ZeWuFJ1UXBF4mkqnkqBaVHJAK9UXJ
+szoJG07BBvWhkriYdRqaP4jWj9HTOSkeKMvXazNXVW70HoHKiNqhr3j1F0gfmEAc
+WzhfC7iMPy7ZlM80q37CFjmRU6UDsDobjPfRX1aVQDlipyx4byxZTh+kOKRS6hhy
+F8xmiTnHQmLkEHDbSWDwvPgFzeLxLfRX5qnJpM3opM9KSG94l5WpH1xs4lAy7SGH
+7cfslQncs3BkrXv00r6kphZqxyJQmXMH5T2jYayLapZL5wejpNNVXN/pOQGcMGVW
+4Kmv2AxiVX0tzuP81PGn5jCe4MkCq+x6zPECh+RxTsjcM1J7YbDhJQxajkpbMdFY
+nNzfEyFZ2X//RowZ6Tj9eeg9+p4QTI1C85wk50YsHihV9pYpI79rthYSF5ieaIP3
+hZDqWUC/X4ZElDmfrrs5xNk969RDPvw/thum1m6FlXwizBes1MPEi681Jxg9xKqZ
+XZg+3Oe+Tk1Lc8Z/twhmE/0q+BziBUTNUP6J4MYsFZN2NMmuErFTxx+vqY+y9Hej
+wJbaNIVyo1lu0Y2NP6UP7TBEIP2z4YGplg5c14VQI953i3Mln/oDf+D927pcYh7O
+BCtbE+lEcnxrksJIjyLENVj/6e9GBPTn5JREnn8AyHzE/P75hGc=
+=6/AV
+-----END PGP SIGNATURE-----
 
-  misc: eeprom: at24: fix NVMEM name with custom AT24 device name (2020-12-04 10:46:36 +0100)
-
-----------------------------------------------------------------
-at24 fixes for v5.10
-
-- fix NVMEM name with custom AT24 device name
-
-----------------------------------------------------------------
-Diego Santa Cruz (1):
-      misc: eeprom: at24: fix NVMEM name with custom AT24 device name
-
- drivers/misc/eeprom/at24.c | 1 -
- 1 file changed, 1 deletion(-)
+--wRRV7LY7NUeQGEoC--
