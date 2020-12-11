@@ -3,91 +3,130 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C48AC433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 11 Dec 2020 15:46:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 937BFC4361B
+	for <linux-i2c@archiver.kernel.org>; Fri, 11 Dec 2020 15:47:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D1EB92333C
-	for <linux-i2c@archiver.kernel.org>; Fri, 11 Dec 2020 15:46:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B3232333C
+	for <linux-i2c@archiver.kernel.org>; Fri, 11 Dec 2020 15:47:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406459AbgLKPFq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 11 Dec 2020 10:05:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34256 "EHLO mail.kernel.org"
+        id S2391290AbgLKPFp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 11 Dec 2020 10:05:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406547AbgLKPFN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S2406550AbgLKPFN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Fri, 11 Dec 2020 10:05:13 -0500
-Date:   Fri, 11 Dec 2020 15:44:29 +0100
+Date:   Fri, 11 Dec 2020 15:53:35 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1607697876;
-        bh=MHXtPIev4oLetMfhIs4NBVGMSr9NoVqJEjMkNmVy8tc=;
+        s=k20201202; t=1607698418;
+        bh=YDIuYljoqc26LKVO8C90Z3OhvO6XmgA1mBkLcV52L4Q=;
         h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AhrHHm8jZ5A+2lQUOQka5k4CvFLN2rcb7dlIDTdFh9Ng2Sv/EW2HNMVAH8rnXKEUv
-         7MpcqLoUOa9a/sCn3aur8+OK+F3q+To6yQGqRxty6RD+8+e9fGP3lGeHZiSUnnv3p1
-         Ch3mM5JFHq3CC8IqP4TclAvRnkkDXjNotm8liu8vcFl05AAAqRGjIdMdBiB1wC6ZA+
-         vkVed3cwdYrTBOMu+mNT6TZVQSbcoZDL2yId5mBUmVDvztL9fXva9UDS9GqNTFa4uZ
-         eXgl/wOKB2Lp7JXFwHjhnw9LwdC5mlMvPkFkZSOaLW51OAD+leiweH0wjLe7tIKn1z
-         EG4zuY3jwrjJA==
+        b=Qljz9ZohTXrHZVCSw1s45CrDnlZypeDo9DfenGPcLEiFwfqht65ynHuajG83iUgaU
+         TPSD5vDcXoeG++i9FeAhXWxfFVDqn5nJ/PyoBlUelG2ajvDV3ddzd/8pNltA36km+E
+         1AykQYoCmwIiRyDl/85cKtsWNiU9woYECYqcQB0puf5UiHVZfrUvRoswpWfUjicBWM
+         IIwlAFsju2vVYm50dbDV0144PR3pegCsZva3rFVueT2SmJLShU+9fHCArTgnqsuwK/
+         zod8sOxKaMDAlMpLBWQg31Io9h65gRykfArODM26+THmMK9ryZqm4mZ4YsjSnGlRY0
+         8ECDW9o12Y4gA==
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc:     linux-i2c@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kernel@pengutronix.de
-Subject: Re: [PATCH 1/2] i2c: Warn when device removing fails
-Message-ID: <20201211144429.GA1990@kunai>
+To:     Chunyan Zhang <zhang.lyra@gmail.com>
+Cc:     Baolin Wang <baolin.wang7@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Linhua Xu <linhua.xu@unisoc.com>
+Subject: Re: [PATCH] i2c: sprd: use a specific timeout to avoid system hang
+ up issue
+Message-ID: <20201211145335.GC1990@kunai>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-        linux-i2c@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kernel@pengutronix.de
-References: <20201126072331.1737632-1-u.kleine-koenig@pengutronix.de>
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Linhua Xu <linhua.xu@unisoc.com>
+References: <20201211102248.1018374-1-zhang.lyra@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
+        protocol="application/pgp-signature"; boundary="KN5l+BnMqAQyZLvT"
 Content-Disposition: inline
-In-Reply-To: <20201126072331.1737632-1-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <20201211102248.1018374-1-zhang.lyra@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---8t9RHnE3ZwKMSgU+
-Content-Type: text/plain; charset=utf-8
+--KN5l+BnMqAQyZLvT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 26, 2020 at 08:23:30AM +0100, Uwe Kleine-K=C3=B6nig wrote:
-> The driver core ignores the return value of struct bus_type::remove. So
-> warn if there is an error that went unnoticed before and return 0
-> unconditionally in i2c_device_remove().
->=20
-> This prepares changing struct bus_type::remove to return void.
->=20
-> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+Hi,
 
-Applied to for-next, thanks!
+thanks for your patch!
+
+> If the i2c device SCL bus being pulled up due to some exception before
+> message transfer done, the system cannot receive the completing interrupt
+> signal any more, it would not exit waiting loop until MAX_SCHEDULE_TIMEOUT
+> jiffies eclipse, that would make the system seemed hang up. To avoid that
+> happen, this patch adds a specific timeout for message transfer.
+
+Yes.
+
+> Fixes: 8b9ec0719834 ("i2c: Add Spreadtrum I2C controller driver")
+> Original-by: Linhua Xu <linhua.xu@unisoc.com>
+
+I can't find this tag documented. Maybe "Co-developed by"? Or just
+"Signed-off-by"?
+
+> +	unsigned long timeout =3D msecs_to_jiffies(I2C_XFER_TIMEOUT);
+> =20
+>  	i2c_dev->msg =3D msg;
+>  	i2c_dev->buf =3D msg->buf;
+> @@ -273,7 +276,9 @@ static int sprd_i2c_handle_msg(struct i2c_adapter *i2=
+c_adap,
+> =20
+>  	sprd_i2c_opt_start(i2c_dev);
+> =20
+> -	wait_for_completion(&i2c_dev->complete);
+> +	timeout =3D wait_for_completion_timeout(&i2c_dev->complete, timeout);
+> +	if (!timeout)
+> +		return -EIO;
+
+Basically OK, but readability can be improved. Because it reads "if not
+timeout, then return error". But it IS a timeout :) What about this:
+
+	time_left =3D wait_for_completion_timeout(&i2c_dev->complete,
+						msecs_to_jiffies(I2C_XFER_TIMEOUT));
+	if (!time_left)
+		...
+
+and the rest adjusted accordingly. What do you think?
+
+Kind regards,
+
+   Wolfram
 
 
---8t9RHnE3ZwKMSgU+
+--KN5l+BnMqAQyZLvT
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/ThckACgkQFA3kzBSg
-KbZAtw/+LrlUvMTH5q+YtMKb0q2IieaGzI2sEC4nityLrhyVUxaLjUMWb06MaWEX
-clLpOPeVb/kOQe+814c7sEKtpLGXErj4BW04j7qRd9th1LK2+rv9sYxaMR0snLn/
-VYDkqYRsfyTA3jVznUr+aFe1e6uqqPg7MWgV9jFZSfPd4Bh02I83hqZgCghHqtiR
-ZxCEpAVwv5Tt1BP5dESVSBMmOUqKG2Y1oftVmE2IGezLFkS+QbytkNqw+gcngC+z
-676R4/1RoSwFXNWVlCeQP2gOYYie87ybFDM/zZvvp/cr/5UfQHs5/nX9nP4+GO6l
-CEAgmSa8ZXBFWcyAC6EntROCeZAQNPe13e8q0gzYa5dCYE6nw41dmdGzLgwv3J49
-fGs8ZT7YDVIjqMTLDsE7FxCllnXi25fIdqWwHCJA9Kxsa3YFC3TuC7MrIMNEwUsM
-69OGhNChFJKsFGFRFr+REVsrV283DN5BPlHiZFsrF1iR41Cf6FcgoB63jcmcTam8
-fxhrcdN3xsRy9/1C7IqmoP1+BZUNuw1JVpJNbZU0IoMDAwqcG0czB/JRe/m7affX
-Hq3zAtd0DdvzOZNbIcjGCu3tPUUyoIexvaFQby/6FU0YNwz7ucEau14i/DujpaQ+
-+YghOb6jb7p+uAfD+TYYo9/PFReriUN0n2Vf5sDPqEywXx67X6g=
-=LGzm
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/Th+8ACgkQFA3kzBSg
+KbYbpA/+J22ESmz7QHBJjTsElLQIbQEx4RDg4L/yLMyZxkTNM2rqQOgoKCknZRWU
+PI0YRUKMp4RWDicqIp11+2nLHH/YZ5BWDPD0zg0B2m0x9JIbIvWEMewxP0K8E/OF
+QtlHvpwmUdKnJaLATlqVWTnAZpQ73qfQ6gCQqs2MHcIGhWKYM3gm6zHGudkttmqH
+NMPdbndg//ykaqO62F/lSY4SVhS+sZDzJbiYefMcsz88u2mXdtdaiGt7VWb89WLn
+RTA1jwFoYs69F13cbl3t6TaNjs+0ul5bOiAfh5qx41/sHIyFhKYVd6SLqrD2d4yU
+5mI3i2xNrir6twxyqSQv7EB/vSHyIY/AC9tkDsiL4gQStagWG2aJTUIkhn66ghQV
+xMbpUK7iUy1ddUxAGjCXvm0eTGrFu3rSsTicmI5H2a8nmCljAQ+Y1plSmTGQX/QY
+4+FZZv6lU6Ur8bXPTCFCwKG/1MQNXmmYU+W2ta87Lt9I4dTVJuAP/VJolI4j3ve1
+X47xlHlOi5MI4ix8iS1L4SGbEFOmo9LnmHvsL1lZ7rpO5nthLSKPyr/X94dyrTrs
+V8HuKhfc915ClP4VRRofSQrKdJGMK7LVaq3wQw0+5G5sWAGhLqwqCX94JUmf/MV4
+yiRFXIZMjKMZHlGZubn/rIIzRF3CB+5HjSeTXDul3HezHEGwbJk=
+=YT9Y
 -----END PGP SIGNATURE-----
 
---8t9RHnE3ZwKMSgU+--
+--KN5l+BnMqAQyZLvT--
