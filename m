@@ -2,61 +2,73 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85386C1B0D8
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Dec 2020 12:46:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B854C4361B
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Dec 2020 15:05:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 553512064C
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Dec 2020 12:46:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E60C4225AC
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Dec 2020 15:05:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439177AbgLNMow (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Dec 2020 07:44:52 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:9442 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2439101AbgLNMoq (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Dec 2020 07:44:46 -0500
-Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4Cvgzl4b7yzhr6M;
-        Mon, 14 Dec 2020 20:43:31 +0800 (CST)
-Received: from thunder-town.china.huawei.com (10.174.177.9) by
- DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
- 14.3.498.0; Mon, 14 Dec 2020 20:43:52 +0800
-From:   Zhen Lei <thunder.leizhen@huawei.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Wolfram Sang <wsa@kernel.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-CC:     Zhen Lei <thunder.leizhen@huawei.com>
-Subject: [PATCH v2 0/1] dt-bindings: i2c: dw: cancel mandatory requirements for "#address-cells" and "#size-cells"
-Date:   Mon, 14 Dec 2020 20:43:46 +0800
-Message-ID: <20201214124347.2120-1-thunder.leizhen@huawei.com>
-X-Mailer: git-send-email 2.26.0.windows.1
+        id S1731616AbgLNPFJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Dec 2020 10:05:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50494 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731084AbgLNPFJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Dec 2020 10:05:09 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E9A6C0613D3
+        for <linux-i2c@vger.kernel.org>; Mon, 14 Dec 2020 07:04:29 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id m6so2476572pfm.6
+        for <linux-i2c@vger.kernel.org>; Mon, 14 Dec 2020 07:04:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=b+RWJ4+h9CcyV9dNvpGbR+OOmowaJ15vnZpnVFgZJzk=;
+        b=G/QZcNZE+R8z2RGyo9jTtp0w0EUMhpIR2DR2RD4IKif/RDeGA/bdAt6uY01xpWdBFc
+         lub2x65r2JrlqeQi3S4O19LeU7k99ELDUp5APDrvrucVIDEFC+oPy8bdpa/+dU0z7mTQ
+         vKRyCYp8OWJSXzyCyzzdXIYrbwzlbwyR9SYwt89qfHE7hz7tmH/SxV2YhuM4VdH1LVvC
+         lEwmTS2EiRR2XsDUmhXCLLobdkjHGo2BAuTE4F/BvHXKOV3RyWLmZ4QbeEdDjL2yATHx
+         0owWioap5jPJ3+gAA6QixPFFyiEZryu+521JxbCRbP6/2ihpgpRMxukY4F8XAfWalIuP
+         vtvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=b+RWJ4+h9CcyV9dNvpGbR+OOmowaJ15vnZpnVFgZJzk=;
+        b=sYBGV+RbayKerU92LfPy94tuHJIqAAeMdyRZ2Y0Ynvh4JFs2NBKMOUPPp3WTHqFWVe
+         iOY7A2VwOGHtMSYO56Y8KgAFsfZM9RAoe12VRcmEhZzhmdOND0pzfeREToksyEeZVXIq
+         O4QO181OXrltnAb7Td+/00KgYE9orTpFhpjLAgoMq9qk3ew1lg159w4M5ubzyrP9JVrh
+         14irJPaUwQMWKvmuzYQlpHGtMxIic6sZIY1n4xiFIezBcxCCjesdaTemOFqEzYRqYsGb
+         NP68xNlmC/Jdp1N1uIy4HzEHkUKBRTO7vyI52dMtspQb/JXvQ4GDaTEEweViCFnrMRi5
+         784g==
+X-Gm-Message-State: AOAM532fapekTwXmW4YY2Ab5AC5ZnRI/FL6r2i+HbQAxpBR2YknNe+PJ
+        3nQmFzs8xwlyegcnDbmshCOOlI+V4gfW941k8LtU6xBCPWzrIg==
+X-Google-Smtp-Source: ABdhPJz3MSY5rGx/gBTKYIrts9X+PRA0wNwenAGJ22pNLmgBJV596DOwGIn7VFDx9CSD74txPYvnpmxqrVwR3W/Ym04=
+X-Received: by 2002:a63:c04b:: with SMTP id z11mr23805762pgi.74.1607958268700;
+ Mon, 14 Dec 2020 07:04:28 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.174.177.9]
-X-CFilter-Loop: Reflected
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Mon, 14 Dec 2020 17:05:17 +0200
+Message-ID: <CAHp75VeTO1RR-tGhz-uN+bOMRphAcHpe95GrRrQTtrEs+itK=A@mail.gmail.com>
+Subject: repo update
+To:     Peter Rosin <peda@axentia.se>
+Cc:     linux-i2c <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-v1 --> v2:
-Update the subject and description.
+Hi, Peter.
 
-
-Zhen Lei (1):
-  dt-bindings: i2c: dw: cancel mandatory requirements for
-    "#address-cells" and "#size-cells"
-
- Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml | 8 --------
- 1 file changed, 8 deletions(-)
+For a few releases I have been observing the mux patch ("mux:
+adgs1408: Add mod_devicetable.h...") dangling in Linux Next. It seems
+that one of your repositories hasn't been updated to one of the
+vanilla rc:s or releases. Can you align it so it will not linger in
+Linux Next anymore?
 
 -- 
-1.8.3
-
-
+With Best Regards,
+Andy Shevchenko
