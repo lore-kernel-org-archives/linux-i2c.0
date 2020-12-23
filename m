@@ -5,158 +5,64 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61454C43331
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Dec 2020 17:22:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30962C43219
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Dec 2020 17:26:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2DEE9207D8
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Dec 2020 17:22:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 09D30222F9
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Dec 2020 17:26:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726012AbgLWRWp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 23 Dec 2020 12:22:45 -0500
-Received: from www.zeus03.de ([194.117.254.33]:41318 "EHLO mail.zeus03.de"
+        id S1726837AbgLWR0D (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 23 Dec 2020 12:26:03 -0500
+Received: from www.zeus03.de ([194.117.254.33]:42310 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725957AbgLWRWp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 23 Dec 2020 12:22:45 -0500
+        id S1726855AbgLWRZu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 23 Dec 2020 12:25:50 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
         from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=k1; bh=1JW78K30O2RbXi
-        D/46e66qs9goat0S+NhqzHuG4kNXs=; b=StiL3grPgjnquBqYamH1YGAMWtuMyv
-        KdpGVlNBoPCDRNj1afIEt0U1SxshbwdmZ4Sv5WmUm4EFmP06E9tHhgAuILzjwLs+
-        ewQFHed0DZsUS9JgC2lJYVR9TYFB4pl3K/k1oxTdjddN0P8HA7zMxwdQBKAUdzaw
-        Epd700XulFAtI=
-Received: (qmail 543679 invoked from network); 23 Dec 2020 18:22:03 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 23 Dec 2020 18:22:03 +0100
-X-UD-Smtp-Session: l3s3148p1@D9D77SS3vOdUhszw
+        :mime-version:content-transfer-encoding; s=k1; bh=bFZHVNr/wLE5t3
+        3ExpleTFxbiH3fS6rd+dcM1J0TmwM=; b=P5sr6/6A863pAt6pc72yscDf5LxWoB
+        1vdLcD+JeR60pvsn/U7QTXcMfDYIiBktIWxC8f+IuPcbz3mtJ6oO5/ojrs4CrAIY
+        iyUgGdR/o/7BbPkmkEBPrkpq6sWdAM665rOtHOULB3dN1LmBivJhLoG3Axwjc3AS
+        V7Q9zfwjYDsBw=
+Received: (qmail 544577 invoked from network); 23 Dec 2020 18:25:08 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 23 Dec 2020 18:25:08 +0100
+X-UD-Smtp-Session: l3s3148p1@tdkH+SS3yOdUhszw
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 4/4] i2c: rcar: protect against supurious interrupts on V3U
-Date:   Wed, 23 Dec 2020 18:21:54 +0100
-Message-Id: <20201223172154.34462-5-wsa+renesas@sang-engineering.com>
+To:     linux-renesas-soc@vger.kernel.org
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/5] dt-bindings: i2c: renesas,i2c: add r8a779a0 (V3U) support
+Date:   Wed, 23 Dec 2020 18:25:00 +0100
+Message-Id: <20201223172505.34736-2-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201223172154.34462-1-wsa+renesas@sang-engineering.com>
-References: <20201223172154.34462-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20201223172505.34736-1-wsa+renesas@sang-engineering.com>
+References: <20201223172505.34736-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-V3U creates spurious interrupts which we need to handle. This costs time
-until BUS_PHASE_DATA can be activated which is problematic for Gen2 SoCs
-and earlier. Because of this we introduce two interrupt handlers here
-which will call a generic main irq function once the timing critical
-stuff is done.
-
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 57 ++++++++++++++++++++++++++---------
- 1 file changed, 43 insertions(+), 14 deletions(-)
+ Documentation/devicetree/bindings/i2c/renesas,i2c.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 3c9c3a6f7ac8..12f6d452c0f7 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -625,20 +625,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
-  * generated. It turned out that taking a spinlock at the beginning of the ISR
-  * was already causing repeated messages. Thus, this driver was converted to
-  * the now lockless behaviour. Please keep this in mind when hacking the driver.
-+ * R-Car Gen3 seems to have this fixed but earlier versions than R-Car Gen2 are
-+ * likely affected. Therefore, we have different interrupt handler entries.
-  */
--static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
-+static irqreturn_t rcar_i2c_irq(int irq, struct rcar_i2c_priv *priv, u32 msr)
- {
--	struct rcar_i2c_priv *priv = ptr;
--	u32 msr;
--
--	/* Clear START or STOP immediately, except for REPSTART after read */
--	if (likely(!(priv->flags & ID_P_REP_AFTER_RD)))
--		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
--
--	msr = rcar_i2c_read(priv, ICMSR);
--
--	/* Only handle interrupts that are currently enabled */
--	msr &= rcar_i2c_read(priv, ICMIER);
- 	if (!msr) {
- 		if (rcar_i2c_slave_irq(priv))
- 			return IRQ_HANDLED;
-@@ -682,6 +673,41 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 	return IRQ_HANDLED;
- }
- 
-+static irqreturn_t rcar_i2c_gen2_irq(int irq, void *ptr)
-+{
-+	struct rcar_i2c_priv *priv = ptr;
-+	u32 msr;
-+
-+	/* Clear START or STOP immediately, except for REPSTART after read */
-+	if (likely(!(priv->flags & ID_P_REP_AFTER_RD)))
-+		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
-+
-+	/* Only handle interrupts that are currently enabled */
-+	msr = rcar_i2c_read(priv, ICMSR);
-+	msr &= rcar_i2c_read(priv, ICMIER);
-+
-+	return rcar_i2c_irq(irq, priv, msr);
-+}
-+
-+static irqreturn_t rcar_i2c_gen3_irq(int irq, void *ptr)
-+{
-+	struct rcar_i2c_priv *priv = ptr;
-+	u32 msr;
-+
-+	/* Only handle interrupts that are currently enabled */
-+	msr = rcar_i2c_read(priv, ICMSR);
-+	msr &= rcar_i2c_read(priv, ICMIER);
-+
-+	/*
-+	 * Clear START or STOP immediately, except for REPSTART after read or
-+	 * if a spurious interrupt was detected.
-+	 */
-+	if (likely(!(priv->flags & ID_P_REP_AFTER_RD) && msr))
-+		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
-+
-+	return rcar_i2c_irq(irq, priv, msr);
-+}
-+
- static struct dma_chan *rcar_i2c_request_dma_chan(struct device *dev,
- 					enum dma_transfer_direction dir,
- 					dma_addr_t port_addr)
-@@ -929,6 +955,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	struct i2c_adapter *adap;
- 	struct device *dev = &pdev->dev;
- 	unsigned long irqflags = 0;
-+	irqreturn_t (*irqhandler)(int irq, void *ptr) = rcar_i2c_gen3_irq;
- 	int ret;
- 
- 	/* Otherwise logic will break because some bytes must always use PIO */
-@@ -977,8 +1004,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 
- 	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
- 
--	if (priv->devtype < I2C_RCAR_GEN3)
-+	if (priv->devtype < I2C_RCAR_GEN3) {
- 		irqflags |= IRQF_NO_THREAD;
-+		irqhandler = rcar_i2c_gen2_irq;
-+	}
- 
- 	if (priv->devtype == I2C_RCAR_GEN3) {
- 		priv->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
-@@ -999,7 +1028,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 		priv->flags |= ID_P_HOST_NOTIFY;
- 
- 	priv->irq = platform_get_irq(pdev, 0);
--	ret = devm_request_irq(dev, priv->irq, rcar_i2c_irq, irqflags, dev_name(dev), priv);
-+	ret = devm_request_irq(dev, priv->irq, irqhandler, irqflags, dev_name(dev), priv);
- 	if (ret < 0) {
- 		dev_err(dev, "cannot get irq %d\n", priv->irq);
- 		goto out_pm_disable;
+diff --git a/Documentation/devicetree/bindings/i2c/renesas,i2c.txt b/Documentation/devicetree/bindings/i2c/renesas,i2c.txt
+index 96d869ac3839..5762d2d1ab9c 100644
+--- a/Documentation/devicetree/bindings/i2c/renesas,i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/renesas,i2c.txt
+@@ -26,6 +26,7 @@ Required properties:
+ 	"renesas,i2c-r8a77980" if the device is a part of a R8A77980 SoC.
+ 	"renesas,i2c-r8a77990" if the device is a part of a R8A77990 SoC.
+ 	"renesas,i2c-r8a77995" if the device is a part of a R8A77995 SoC.
++	"renesas,i2c-r8a779a0" if the device is a part of a R8A779A0 SoC.
+ 	"renesas,rcar-gen1-i2c" for a generic R-Car Gen1 compatible device.
+ 	"renesas,rcar-gen2-i2c" for a generic R-Car Gen2 or RZ/G1 compatible
+ 				device.
 -- 
 2.28.0
 
