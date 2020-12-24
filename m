@@ -2,77 +2,64 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAA47C4361B
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Dec 2020 17:26:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE618C433E9
+	for <linux-i2c@archiver.kernel.org>; Thu, 24 Dec 2020 11:13:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 91BDA223E0
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Dec 2020 17:26:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9AB90208A9
+	for <linux-i2c@archiver.kernel.org>; Thu, 24 Dec 2020 11:13:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726958AbgLWRZu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 23 Dec 2020 12:25:50 -0500
-Received: from www.zeus03.de ([194.117.254.33]:42290 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726486AbgLWRZu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 23 Dec 2020 12:25:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=k1; bh=N5+gtJfhBgNR3GRzh/QZPrEtYyM
-        g8i3Kx+IQacgaj9I=; b=cMP3M95faKEZIFTKFE2HWoDRW+NDaASfONbOQym3oTY
-        mBc2c7OiK3EETFo1SmfJjhQjWxMD/1ya99Ua2fLHggsBZkfF9WEL0fYRanjp67fJ
-        77ytIq1RJwi4kYJrgYNWxmQyQorskT75tery+IQrp1W9aIcmyfisaYEAfMafMx/k
-        =
-Received: (qmail 544539 invoked from network); 23 Dec 2020 18:25:07 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 23 Dec 2020 18:25:07 +0100
-X-UD-Smtp-Session: l3s3148p1@nub7+CS3xudUhszw
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-renesas-soc@vger.kernel.org
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        devicetree@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] v3u: enable I2C0-6
-Date:   Wed, 23 Dec 2020 18:24:59 +0100
-Message-Id: <20201223172505.34736-1-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.28.0
+        id S1727114AbgLXLNd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 24 Dec 2020 06:13:33 -0500
+Received: from alexa-out.qualcomm.com ([129.46.98.28]:1807 "EHLO
+        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726186AbgLXLNd (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Dec 2020 06:13:33 -0500
+Received: from ironmsg07-lv.qualcomm.com (HELO ironmsg07-lv.qulacomm.com) ([10.47.202.151])
+  by alexa-out.qualcomm.com with ESMTP; 24 Dec 2020 03:12:52 -0800
+X-QCInternal: smtphost
+Received: from ironmsg02-blr.qualcomm.com ([10.86.208.131])
+  by ironmsg07-lv.qulacomm.com with ESMTP/TLS/AES256-SHA; 24 Dec 2020 03:12:50 -0800
+X-QCInternal: smtphost
+Received: from c-rojay-linux.qualcomm.com ([10.206.21.80])
+  by ironmsg02-blr.qualcomm.com with ESMTP; 24 Dec 2020 16:42:13 +0530
+Received: by c-rojay-linux.qualcomm.com (Postfix, from userid 88981)
+        id 87B692DC8; Thu, 24 Dec 2020 16:42:12 +0530 (IST)
+From:   Roja Rani Yarubandi <rojay@codeaurora.org>
+To:     ulf.hansson@linaro.org, robh+dt@kernel.org,
+        bjorn.andersson@linaro.org, wsa@kernel.org
+Cc:     swboyd@chromium.org, dianders@chromium.org,
+        saiprakash.ranjan@codeaurora.org, mka@chromium.org,
+        akashast@codeaurora.org, msavaliy@qti.qualcomm.com,
+        parashar@codeaurora.org, rnayak@codeaurora.org,
+        linux-pm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        agross@kernel.org, linux-i2c@vger.kernel.org,
+        Roja Rani Yarubandi <rojay@codeaurora.org>
+Subject: [PATCH 0/3] Add support for assigned-performance-states for geni i2c driver
+Date:   Thu, 24 Dec 2020 16:42:07 +0530
+Message-Id: <20201224111210.1214-1-rojay@codeaurora.org>
+X-Mailer: git-send-email 2.29.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-These patches are needed to enable I2C on the Falcon board for the V3U.
-Patch #5 is only for demonstration purposes. The series depends on my
-RWDT series, Ulrich's PFC v2 series and Geert's DMA placeholder. A
-branch can be found here:
+Roja Rani Yarubandi (3):
+  dt-bindings: power: Introduce 'assigned-performance-states' property
+  arm64: dts: sc7180: Add assigned-performance-states for i2c
+  i2c: i2c-qcom-geni: Add support for 'assigned-performance-states'
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/v3u/i2c
-
-There is also a series in-flight to handle spurious interrupts on the
-V3U. Because I have never seen one, I wouldn't call it a dependency, so
-the series is handled seperately.
-
-Looking forward to comments...
-
-
-Koji Matsuoka (2):
-  arm64: dts: renesas: Add I2C to R8A779A0
-  arm64: dts: renesas: Add I2C support for falcon board
-
-Wolfram Sang (3):
-  dt-bindings: i2c: renesas,i2c: add r8a779a0 (V3U) support
-  clk: renesas: r8a779a0: add clocks for I2C
-  v3u: enable other I2C busses for testing
-
- .../devicetree/bindings/i2c/renesas,i2c.txt   |   1 +
- .../boot/dts/renesas/r8a779a0-falcon.dts      |  93 +++++++++++++
- arch/arm64/boot/dts/renesas/r8a779a0.dtsi     | 122 ++++++++++++++++++
- drivers/clk/renesas/r8a779a0-cpg-mssr.c       |   7 +
- 4 files changed, 223 insertions(+)
+ .../bindings/power/power-domain.yaml          | 49 +++++++++++++++++++
+ arch/arm64/boot/dts/qcom/sc7180.dtsi          | 24 +++++++++
+ drivers/i2c/busses/i2c-qcom-geni.c            | 49 +++++++++++++++++++
+ 3 files changed, 122 insertions(+)
 
 -- 
-2.28.0
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member 
+of Code Aurora Forum, hosted by The Linux Foundation
 
