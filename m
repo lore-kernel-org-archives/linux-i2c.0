@@ -2,90 +2,103 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0226C43331
-	for <linux-i2c@archiver.kernel.org>; Mon, 28 Dec 2020 16:48:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B112C0755A
+	for <linux-i2c@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B6955229EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 28 Dec 2020 16:48:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6408E222F9
+	for <linux-i2c@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728159AbgL1Mx2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 28 Dec 2020 07:53:28 -0500
-Received: from mail-oi1-f171.google.com ([209.85.167.171]:34290 "EHLO
-        mail-oi1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728119AbgL1Mx0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 28 Dec 2020 07:53:26 -0500
-Received: by mail-oi1-f171.google.com with SMTP id s75so11373586oih.1;
-        Mon, 28 Dec 2020 04:53:11 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MqVTZLUYzpLGRsvmeYRnbEICtg3112T1D5wrEvu0WF8=;
-        b=Jp3Tib+hkHrVg2j+5A17svkhJcLIr+NmSDZn6NCZUUrHUIWQKjnPxx3vKytknTf8FX
-         OHQfVryAbXWVqAtyo6zfAZvgMkXibkJHKRg7u2oKbzenK4c5NqvjdbO4RgnCFTpl+uSo
-         t/RSMIqlqb90AEUDRhMpuGeQqb6ipKGhFTXtKdNXBtY/SmYBVs148W3Q9J5GZE4FsoAw
-         RjGchmIKe8hVQ2P/M0GzVpYV+KkXtkD2FaXS8KKb9+Xrbj2zJJXK8LztYc62E46Iv80i
-         2y9Y4KAIk7sz/eP6zqc5xCGv3TxUqV/P46ipfWG5GYFxaV5E9iZ9q1wSorg7cfpRPMdV
-         HzPg==
-X-Gm-Message-State: AOAM533mFwpos5OvrFd2OTot/o4182C8NTfJZ5Gf5y5aT6oeArtY9GOG
-        qvMz+jTk0LF070aaoaR8ZsPspK5ylx87kmLhRAM=
-X-Google-Smtp-Source: ABdhPJy9qjiMw2sR7A98E9EXAUa+LXgugsNTuFCVJdDAb0vPgIvZULk7EDqPspZn/vBLdzi5S08dTTOJAn8sNkO8ho4=
-X-Received: by 2002:aca:ec09:: with SMTP id k9mr11763889oih.153.1609159965775;
- Mon, 28 Dec 2020 04:52:45 -0800 (PST)
+        id S1729394AbgL1Wzx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 28 Dec 2020 17:55:53 -0500
+Received: from mga12.intel.com ([192.55.52.136]:28661 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729381AbgL1UIT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 28 Dec 2020 15:08:19 -0500
+IronPort-SDR: qxJEmYEOcl//nJ1CwVeAPYXnzU4tXSCraNWuIPEGpzxLB+AYTZDEx/oe2pvc6L4LsWkt+S3moL
+ OnIvLP+xxI0w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9848"; a="155625473"
+X-IronPort-AV: E=Sophos;i="5.78,456,1599548400"; 
+   d="scan'208";a="155625473"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Dec 2020 12:06:22 -0800
+IronPort-SDR: ns2x00IEq3P4ivZEYLQzzPqlKG2xceSqcgNl6KdngvnTIeYREdndXZdmgVojWnsiASHVPRuOdH
+ hqklLaP2pA2g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.78,456,1599548400"; 
+   d="scan'208";a="459871195"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 28 Dec 2020 12:06:20 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id AFBDF109; Mon, 28 Dec 2020 22:06:19 +0200 (EET)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        linux-gpio@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 3/3] i2c: i801: Refactor mux code since platform_device_unregister() is NULL aware
+Date:   Mon, 28 Dec 2020 22:06:18 +0200
+Message-Id: <20201228200618.58716-3-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201228200618.58716-1-andriy.shevchenko@linux.intel.com>
+References: <20201228200618.58716-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-References: <20201223172154.34462-1-wsa+renesas@sang-engineering.com> <20201223172154.34462-3-wsa+renesas@sang-engineering.com>
-In-Reply-To: <20201223172154.34462-3-wsa+renesas@sang-engineering.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 28 Dec 2020 13:52:34 +0100
-Message-ID: <CAMuHMdV7i28HjfLbrzrJaJw6hB51u=kgmqqYmK_zBETFXumCUg@mail.gmail.com>
-Subject: Re: [PATCH 2/4] i2c: rcar: optimize cacheline to minimize HW race condition
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+platform_device_unregister() is NULL-aware and thus doesn't required a
+duplication check in i801_del_mux(). Besides that it's also error pointer
+aware, and we may drop unneeded assignment in i801_add_mux() followed by
+conversion to PTR_ERR_OR_ZERO() for the returned value.
 
-On Wed, Dec 23, 2020 at 6:22 PM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> 'flags' and 'io' are needed first, so they should be at the beginning of
-> the private struct.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-i801.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-> @@ -119,6 +119,7 @@ enum rcar_i2c_type {
->  };
->
->  struct rcar_i2c_priv {
-> +       u32 flags;
-
-Note that this adds a hole on 64-bit.
-
-But if this really can make a difference, IMHO it is still broken
-
->         void __iomem *io;
->         struct i2c_adapter adap;
->         struct i2c_msg *msg;
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 7c2569a18f8c..1400a8716388 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1433,7 +1433,7 @@ static int i801_add_mux(struct i801_priv *priv)
+ 	const struct i801_mux_config *mux_config;
+ 	struct i2c_mux_gpio_platform_data gpio_data;
+ 	struct gpiod_lookup_table *lookup;
+-	int err, i;
++	int i;
+ 
+ 	if (!priv->mux_drvdata)
+ 		return 0;
+@@ -1473,20 +1473,16 @@ static int i801_add_mux(struct i801_priv *priv)
+ 				PLATFORM_DEVID_NONE, &gpio_data,
+ 				sizeof(struct i2c_mux_gpio_platform_data));
+ 	if (IS_ERR(priv->mux_pdev)) {
+-		err = PTR_ERR(priv->mux_pdev);
+ 		gpiod_remove_lookup_table(lookup);
+-		priv->mux_pdev = NULL;
+ 		dev_err(dev, "Failed to register i2c-mux-gpio device\n");
+-		return err;
+ 	}
+ 
+-	return 0;
++	return PTR_ERR_OR_ZERO(priv->mux_pdev);
+ }
+ 
+ static void i801_del_mux(struct i801_priv *priv)
+ {
+-	if (priv->mux_pdev)
+-		platform_device_unregister(priv->mux_pdev);
++	platform_device_unregister(priv->mux_pdev);
+ 	gpiod_remove_lookup_table(priv->lookup);
+ }
+ 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.29.2
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
