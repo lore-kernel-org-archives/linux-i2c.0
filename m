@@ -2,89 +2,96 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6949C433E0
-	for <linux-i2c@archiver.kernel.org>; Sun, 27 Dec 2020 22:42:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76FDFC43331
+	for <linux-i2c@archiver.kernel.org>; Mon, 28 Dec 2020 14:47:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6152E224DE
-	for <linux-i2c@archiver.kernel.org>; Sun, 27 Dec 2020 22:42:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 494F3207CF
+	for <linux-i2c@archiver.kernel.org>; Mon, 28 Dec 2020 14:47:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbgL0Wmf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 27 Dec 2020 17:42:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57632 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726194AbgL0Wmf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 27 Dec 2020 17:42:35 -0500
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06FE1C061794
-        for <linux-i2c@vger.kernel.org>; Sun, 27 Dec 2020 14:41:54 -0800 (PST)
-Received: by mail-lf1-x12e.google.com with SMTP id m12so20278498lfo.7
-        for <linux-i2c@vger.kernel.org>; Sun, 27 Dec 2020 14:41:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TiUVtK9OeSFWzFQmBANaHzaEsallUsNWzJQS3+gHSHc=;
-        b=D7uRdDCCiZZvK3tsg46HWwkADgyhfJn86vrcI1O6PQlHYexIv5nJqbF6uEdLiESZcS
-         a4oFmUxOEG95/xkh4j8oQABfCPeOjLPfTYeHCmKWLtgffqT8FHp7EYZ0XbPmfCwpXJK4
-         dsKmibMpV9pVYbgaW5jxRuF+D9G7Iq5+Xu5QODr2bVM/kBxnIglZgEGiSHbkRTz8XcCb
-         T+3O8FFkjq89Lu613JoCqLFJcHA2ZjT0SJpa+Eou/w/nvzz95Ai0DiL6hVnXLZeGITTN
-         KgtYzWAAjOuCtAP4bGl22S7HU9gkio8aVWzCz0Qu+zs7bsKBmZHsTfKJCZII+BO3kvxe
-         j4Kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TiUVtK9OeSFWzFQmBANaHzaEsallUsNWzJQS3+gHSHc=;
-        b=Grd/rA4YNyDfUu39GhKraXXPFYdASnx+Lo9LorucEAT8t4weq2xhhifWMWTeKCOxqx
-         k97qetRkqJWfSoQ0rx18pBiV9D1BNXcBBwV7rgwXyZjxlycJTu3qJV752JXc/pOZrOzI
-         oVJTJSl7YkYdPYDxtfmsS90ZJmilg+MMjFpmDKB33TzLvC455ctzI2lHFRzC3Y2j9ZFL
-         0mRBCFDMbnz4fAdMenRzJgeftics9L/rVUO+gN6VcTO3YayPteO414bBsdUpZiqt3nRb
-         gS7TilfLBMcbyQm2tGFtjhJskcxcku4l99FfEIiMT48mW0YkBzvnVLhv29u5zca/6vM2
-         Cl+Q==
-X-Gm-Message-State: AOAM533+Ghl0mjAgwD/tCo7z7koIMk4bXSkCIMt6krPsQX+Y+wo7nWBg
-        4Q44Rm4hItbzr7p5zBDJsttX9nEx9j+W1oQI2GB0Bw==
-X-Google-Smtp-Source: ABdhPJz5A3h25jIqt2I95JWA2PRAYsrrx0V+vogB1FIORy0QrfPRA1WdNKp2vmyB+DcYS5jEhlvkZI/W1o5Be3E3vwg=
-X-Received: by 2002:a05:651c:1312:: with SMTP id u18mr20566799lja.200.1609108913442;
- Sun, 27 Dec 2020 14:41:53 -0800 (PST)
+        id S2392377AbgL1Oq5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 28 Dec 2020 09:46:57 -0500
+Received: from www.zeus03.de ([194.117.254.33]:41278 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2392375AbgL1Oq4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:46:56 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=k1; bh=sRpkyF4vmzNA004YE46ReE+S0eKX
+        SY2NridUw6//xYU=; b=BylV0aaKStlGYvBfdL/0HnJErcHgq80IRnC/J2NImr3J
+        j/mzeqiQ+lfJAOBJwR1CZH53QEo+AVZfDnDYTT6nSJQskuE0XLfBRYYSwKj9QoFS
+        eg9S79KYl9O2wxBa0rkyGuMPxlY8v17+YMT34wDyiQnC9arZPOhY1qC6y861pDs=
+Received: (qmail 1784989 invoked from network); 28 Dec 2020 15:46:14 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 28 Dec 2020 15:46:14 +0100
+X-UD-Smtp-Session: l3s3148p1@2070VYe3ipYgAwDPXwIpAOUwDQytQs2L
+Date:   Mon, 28 Dec 2020 15:46:13 +0100
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Linux I2C <linux-i2c@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: Re: [PATCH 4/4] i2c: rcar: protect against supurious interrupts on
+ V3U
+Message-ID: <20201228144613.GF10822@kunai>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+References: <20201223172154.34462-1-wsa+renesas@sang-engineering.com>
+ <20201223172154.34462-5-wsa+renesas@sang-engineering.com>
+ <CAMuHMdW48sFLernApzcQ7Dqz90kX18d9+9e9ytQ=rVQ2hWD_4A@mail.gmail.com>
 MIME-Version: 1.0
-References: <20201221134225.106728-1-hdegoede@redhat.com>
-In-Reply-To: <20201221134225.106728-1-hdegoede@redhat.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Sun, 27 Dec 2020 23:41:42 +0100
-Message-ID: <CACRpkdZxMf-QgumQhS8-uhrDZYccfrJN=CATnXZj3HHxKfQ03Q@mail.gmail.com>
-Subject: Re: [PATCH] i2c: i801: Fix the i2c-mux gpiod_lookup_table not being
- properly terminated
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Andy Shevchenko <andy@infradead.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="DO5DiztRLs659m5i"
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdW48sFLernApzcQ7Dqz90kX18d9+9e9ytQ=rVQ2hWD_4A@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Dec 21, 2020 at 2:42 PM Hans de Goede <hdegoede@redhat.com> wrote:
 
-> gpiod_add_lookup_table() expects the gpiod_lookup_table->table passed to
-> it to be terminated with a zero-ed out entry.
->
-> So we need to allocate one more entry then we will use.
->
-> Cc: Serge Semin <fancer.lancer@gmail.com>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Andy Shevchenko <andy@infradead.org>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Fixes: d308dfbf62ef ("i2c: mux/i801: Switch to use descriptor passing")
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+--DO5DiztRLs659m5i
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-Yours,
-Linus Walleij
+> >   * the now lockless behaviour. Please keep this in mind when hacking t=
+he driver.
+> > + * R-Car Gen3 seems to have this fixed but earlier versions than R-Car=
+ Gen2 are
+>=20
+> s/than/like/?
+
+What I meant to say was: We know Gen2 is affected (first sentence of the
+paragraph). We know Gen3 is fixed. Earlier than Gen2 is likely affected
+but we don't know. So, I'd like to keep 'than'.
+
+
+--DO5DiztRLs659m5i
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/p77UACgkQFA3kzBSg
+KbYbEw/9EcMXq1US59pfjCl4rAe1T9IkQ9G8oH8eMVtZorlS8UkoU4OMv8qF3zuk
+0yRoum+d658yb1MmzBXMXdIRJetWtiVlXrNYX2tiDRTs30/x6U8R8qIOt/Om9XL/
+4mrel4IiCwvtgOFdAQ9mSAP9qHWFkai/+T9kdBbjiH82ToaIsrmleY/gCfvdYxII
+S7XnSC/jDBHUBbxg2EFvyebD30ggeLuKbG91gvQEHMmps4YpZcPoEUkUYKveat/2
+1dhB2ir/0fN3yNn4nYBYLv3FpvGaH4dAqIFj0RRnI0h9sGpWoL1zLN7vh7+8VTs/
+VXIuEAbLQpAGWw1DBBcUQe0tjhgmJsue0gpxeqHRX4W2pqqrdQeKWZ0iDRzPZWkc
+c7z/JJTDskeZKnVCK7FKbYz1spQ237HKLCJUyyMbADxtuy6TxGwzeghtcIH8Olyj
+XRcAe7L6rDMnGxteA3/qhxrCSzM0UJW9HpVIO/t7mGP+lPYXJiLuoSPVYhd8MlYt
+M5o5mbeOHCUipgbE473uP0WY8Fu9rtqx/9pGxQ00aPVrq/0jv7SjV5gh1ytWKgyg
+/7KcC9pdKYY/STPiJEsXVyt/ErOHXrqqJbIWXHjGTkeC3fcCCIWdlmbR8iTEZ54r
+iTpHv50+iv5ajmQw0U4FHQb9MOAeIMqO+S0mKRlcw+lkh7149l0=
+=oEfR
+-----END PGP SIGNATURE-----
+
+--DO5DiztRLs659m5i--
