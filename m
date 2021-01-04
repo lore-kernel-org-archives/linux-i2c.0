@@ -4,25 +4,25 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5624AC433DB
-	for <linux-i2c@archiver.kernel.org>; Mon,  4 Jan 2021 18:30:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EFFCC433DB
+	for <linux-i2c@archiver.kernel.org>; Mon,  4 Jan 2021 18:32:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1ED1421D94
-	for <linux-i2c@archiver.kernel.org>; Mon,  4 Jan 2021 18:30:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4451C221F9
+	for <linux-i2c@archiver.kernel.org>; Mon,  4 Jan 2021 18:32:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726642AbhADSam (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 4 Jan 2021 13:30:42 -0500
-Received: from sauhun.de ([88.99.104.3]:60494 "EHLO pokefinder.org"
+        id S1726124AbhADSco (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 4 Jan 2021 13:32:44 -0500
+Received: from sauhun.de ([88.99.104.3]:60550 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726396AbhADSam (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 4 Jan 2021 13:30:42 -0500
+        id S1725921AbhADSco (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 4 Jan 2021 13:32:44 -0500
 Received: from localhost (p54b33105.dip0.t-ipconnect.de [84.179.49.5])
-        by pokefinder.org (Postfix) with ESMTPSA id 0EE372C04DF;
-        Mon,  4 Jan 2021 19:30:00 +0100 (CET)
-Date:   Mon, 4 Jan 2021 19:29:59 +0100
+        by pokefinder.org (Postfix) with ESMTPSA id ACDC52C04DF;
+        Mon,  4 Jan 2021 19:32:02 +0100 (CET)
+Date:   Mon, 4 Jan 2021 19:32:02 +0100
 From:   Wolfram Sang <wsa@the-dreams.de>
 To:     qii.wang@mediatek.com
 Cc:     matthias.bgg@gmail.com, linux-i2c@vger.kernel.org,
@@ -30,53 +30,57 @@ Cc:     matthias.bgg@gmail.com, linux-i2c@vger.kernel.org,
         linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com,
         leilk.liu@mediatek.com
 Subject: Re: i2c: mediatek: Fix apdma and i2c hand-shake timeout
-Message-ID: <20210104182959.GC935@ninjato>
+Message-ID: <20210104183202.GD935@ninjato>
 References: <1608812767-3254-1-git-send-email-qii.wang@mediatek.com>
+ <20210104182959.GC935@ninjato>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="uh9ZiVrAOUUm9fzH"
+        protocol="application/pgp-signature"; boundary="tEFtbjk+mNEviIIX"
 Content-Disposition: inline
-In-Reply-To: <1608812767-3254-1-git-send-email-qii.wang@mediatek.com>
+In-Reply-To: <20210104182959.GC935@ninjato>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---uh9ZiVrAOUUm9fzH
+--tEFtbjk+mNEviIIX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 24, 2020 at 08:26:07PM +0800, qii.wang@mediatek.com wrote:
-> From: Qii Wang <qii.wang@mediatek.com>
+On Mon, Jan 04, 2021 at 07:29:59PM +0100, Wolfram Sang wrote:
+> On Thu, Dec 24, 2020 at 08:26:07PM +0800, qii.wang@mediatek.com wrote:
+> > From: Qii Wang <qii.wang@mediatek.com>
+> >=20
+> > With the apdma remove hand-shake signal, it requirs special
+> > operation timing to reset i2c manually, otherwise the interrupt
+> > will not be triggered, i2c transmission will be timeout.
+> >=20
+> > Signed-off-by: Qii Wang <qii.wang@mediatek.com>
 >=20
-> With the apdma remove hand-shake signal, it requirs special
-> operation timing to reset i2c manually, otherwise the interrupt
-> will not be triggered, i2c transmission will be timeout.
->=20
-> Signed-off-by: Qii Wang <qii.wang@mediatek.com>
+> Applied to for-current, thanks!
 
-Applied to for-current, thanks!
+Any Fixes:-Tag we could add?
 
 
---uh9ZiVrAOUUm9fzH
+--tEFtbjk+mNEviIIX
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/zXqcACgkQFA3kzBSg
-KbZQ8w/8DE+WVtoHYrCXAHx91n4/N6jsfZxOi7xLlm9x3FX55Lo0eiHeNIRHjgXV
-puAT1I9S8RkBC7s2Sc9jDH0ZGXsGfSeeWxTJydK3RV1tq59EySpl6PZQ5GYjPRPJ
-VXf12AEDnFFKOHiN4K5N1uRFMkP+mp8lYnher8fJvEN3qOhtg+kQPw/JZVwoJ2yf
-uB4MxKGyYdKPGHgb9cVrJhNYg4wx0wfHGWt/wrai4jVqjcqezI74SiUmbvI9a3B5
-lFAwZkMKKQ44MKclF31Ctil+GRUTDp/ZrpuMKIJMX6zn2yTSS+M174NcvatScm5D
-jJBTOdjKOD7f4Yz1FWsJ+mKx7t+go8+ON5DguoEFxJBVqyjcw7FEgsZLP7f5yrgj
-QaJwdUx5v7E/+WPVAZTb7cnllHrPXrAihrRm4VSKlzbqWxUr0q5CDuIAQLKe4mKV
-EFbRol3wetWpT5y2YPEj9p3O3IZnhYQWMysrnwI9clNOdZ50ChlNRHKylugbBXxF
-V5LmyIHkFXDg6GqZulqaArUkp2kh4bavOejN0JPEZkPg0cGzqb1jd74R8CZuorHL
-JtdZ8hp3icd360VXxSZ3YWeIPOPUSeaBRxusMNnJqNiGS1+4qGeGNBEdY3wdufDh
-lRdyjCKQcIR3Ren+c/A3tbS+TRFQ8A1h9IBpznbaqgc/TQbzoAk=
-=L+pH
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/zXyIACgkQFA3kzBSg
+KbZdEA/+P3rD8ApQef9W5LjRrab8KDgGqnMXQu09AfuzyQBnshelxTMu8B4MZqjI
+NhfB/xNdPXXc/FsG4tr+48/KERJh/QtQG8t+WvWzbHjNASse1qwKjAHX2iP0Wf5x
+PWj3Y63EVSX13vLLCqMnF1B1Cwn5LXgyAqoR1gPbt8SuT2TSyiE0/UMIEEkJE6AV
+4Ta+16BLmuYsi8F6e5gp6Gn+YjNbbJqzzUJ0OSWM/vjsLHyajYlvORwHgjMnVy3R
+GDMM3OEuFWEyFf1dZZqM6Ex7jq1huehNQH+9r/04XGHLatrw3J5nhcxgI8uVgkPw
+5DVzj8m8vGs9R8UgCFE49sFTZfqjyxThRKzeWOInwambhKfBwj+1PNcEQvTgDOLs
+ePpVhlBpbw3UxeV2ieit3PeEMiq2ULYMtdA7LxWHp2yFBjuY07nd/Nb3bu9lmtnH
+K0RED212ymkP1g+D6zc6LQvH+A+IvX9fXPNWFpHnllbrnqSwHuwAL+2sKaFXdPdl
+ok0rCMGRggqAEtorg2y/4ihytL/xtrmAkuNSc5NoandtWdHTMXT9nSOZvw/fQxEN
+NwEnhX9GmHa6DR7BoK81Pz0Gpn//d5w0FIQxS+8Xp8JXneNvyL40WC0+6rHVRCey
+QMCzjbg7igEfYR8J1x8mcHSIZyGVjdAQZ2236sG5OKVg8j6LnDU=
+=DbV2
 -----END PGP SIGNATURE-----
 
---uh9ZiVrAOUUm9fzH--
+--tEFtbjk+mNEviIIX--
