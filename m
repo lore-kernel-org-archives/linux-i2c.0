@@ -2,94 +2,68 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 057C3C433E0
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Jan 2021 21:03:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2097C433E0
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Jan 2021 21:43:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE71C23441
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Jan 2021 21:03:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B4BDC23600
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Jan 2021 21:43:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726507AbhAGVDg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 7 Jan 2021 16:03:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59614 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725944AbhAGVDf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Jan 2021 16:03:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7014233CF;
-        Thu,  7 Jan 2021 21:02:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610053375;
-        bh=ToEzhe4aTG089+z+ka+nehd5MRIUlw197n8wPBEnD1k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=osco3fRsZ7Xil2mUNFljGzdioz2qxmYMoZbM0vYKSTvj7WTueOXmzwxmIGTTSIkHO
-         evHCKj9irBktI00NElt4VRMCa4u8ce1QqlACNgF2u02+w8DYjf6AOiWegn1RB4w5Mt
-         V96VA35Z+WKVpEvCnOiNJr9XKDczypF4b/7xe1dmTg2HfYmYn5X2a23YtPdOHA9T3W
-         8/ZRxKt3/KSXJ5bB2iSmv/fo1EM/xxQrlyoNT+sXSK3wd4eR/6yB85xYAFd87uL23N
-         OHjK//q9Zb6RCoOmIGZXlzqzdbLUB1uf7anTqBut5v8lYrhbnQ+xWPJkoOFba3/UaT
-         z5qrhFRUPQ/DQ==
-Date:   Thu, 7 Jan 2021 22:02:48 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Marek Behun <marek.behun@nic.cz>
+        id S1726052AbhAGVmy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 7 Jan 2021 16:42:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39568 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725944AbhAGVmy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Jan 2021 16:42:54 -0500
+X-Greylist: delayed 11832 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 07 Jan 2021 13:42:14 PST
+Received: from mail.nic.cz (lists.nic.cz [IPv6:2001:1488:800:400::400])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E36EC0612F4;
+        Thu,  7 Jan 2021 13:42:14 -0800 (PST)
+Received: from localhost (unknown [IPv6:2a0e:b107:ae1:0:3e97:eff:fe61:c680])
+        by mail.nic.cz (Postfix) with ESMTPSA id DEEE9142085;
+        Thu,  7 Jan 2021 22:42:11 +0100 (CET)
+Date:   Thu, 7 Jan 2021 22:42:11 +0100
+From:   Marek Behun <marek.behun@nic.cz>
+To:     Wolfram Sang <wsa@kernel.org>
 Cc:     Russell King - ARM Linux admin <linux@armlinux.org.uk>,
         Andrew Lunn <andrew@lunn.ch>, netdev@vger.kernel.org,
-        Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>,
+        Pali =?UTF-8?B?Um9ow6Fy?= <pali@kernel.org>,
         linux-i2c@vger.kernel.org
 Subject: Re: question about i2c_transfer() function (regarding mdio-i2c on
  RollBall SFPs)
-Message-ID: <20210107210248.GA894@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Marek Behun <marek.behun@nic.cz>,
-        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>, netdev@vger.kernel.org,
-        Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>,
-        linux-i2c@vger.kernel.org
+Message-ID: <20210107224211.4f01c055@nic.cz>
+In-Reply-To: <20210107210248.GA894@kunai>
 References: <20210107192500.54d2d0f0@nic.cz>
+        <20210107210248.GA894@kunai>
+X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
-Content-Disposition: inline
-In-Reply-To: <20210107192500.54d2d0f0@nic.cz>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: clamav-milter 0.102.2 at mail
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Thu, 7 Jan 2021 22:02:48 +0100
+Wolfram Sang <wsa@kernel.org> wrote:
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> > My question is whether this is allowed, whether the msgs array passed
+> > to the i2c_transfer() function can have multiple msgs pointing to the
+> > same buffer (the one into which the original page is first stored
+> > with first i2c_msg and then restored from it in the last i2c_msg).  
+> 
+> Sending the messages is serialized, so the buffers won't interfere. At
+> first glance, I think it would work this way. But it's late evening
+> here, so I will have another look again tomorrow.
+> 
 
+I thought as much, but maybe there is some driver which can offload
+whole i2c_transfer to HW, and has to pass the addresses of the buffers
+to the HW, and the HW can have problems if the buffers overlap
+somewhere...
 
-> My question is whether this is allowed, whether the msgs array passed
-> to the i2c_transfer() function can have multiple msgs pointing to the
-> same buffer (the one into which the original page is first stored
-> with first i2c_msg and then restored from it in the last i2c_msg).
-
-Sending the messages is serialized, so the buffers won't interfere. At
-first glance, I think it would work this way. But it's late evening
-here, so I will have another look again tomorrow.
-
-
---NzB8fVQJ5HfG6fxh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/3dvQACgkQFA3kzBSg
-KbYN+RAAq/GUwli2ZLF1jFSc3m48a+PPoTM4nEKil3mqL6mpTTx4Y6narbx05w9/
-rDP1/Bb3eqdSO5qxWbs84knahZi3yYpm71DRXp3859T3LxFPGDimFoHE0sxpOJGX
-nG5m00rrvBBuCv5iPReA6rjJGIyn4pdCM+zd77Er9yNinQaV9OIywZ2WjyVVIqPI
-AIW4lQFFiDq3d7axBUGKpL+suEgn4LFqRRI9j+KHYSpTcEHhrBWg0OdEFwFpvKoT
-ANgZXAL7B8QCpkZw9Z9Yp0d8ujWPAfN89CQWdpc0l3c8PSETEkXPXUgQ+Lor4DRz
-efHkZSUNX3u+lu52McL7l3x334zjQ4b1VPXYE5OJ6vgzPlAB5NK69vIfoVYpedku
-BoGHM0JrJ8UckBrup31FWqSNmhzDCdY9PIwlcgUWakvxFzVV8RnYD4Eu2V8Vwi1E
-tH7iOFH6qS3iZEedosmaiYzWfh047W5GNXPyz6YbxV7nuxjvghm+ivTT6oa1V+FP
-6wAY4uliOfW5aSk0Py51VDqJWtCpZcvod7Ru0FHvD2XncayNgdsen8Tn+Fk8x5f3
-6QylXTpIOc/OlbLDaHJRuXxUSWH/88mxBVvEs6HMVDoPZO+YHQ5y5Nj5QUsZcQQ0
-ZgQpvACu3cMIIlw5BWLMxuEOsamOomS6F3NG9eAix8a/kO8Ci70=
-=rEBb
------END PGP SIGNATURE-----
-
---NzB8fVQJ5HfG6fxh--
+Marek
