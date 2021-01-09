@@ -4,97 +4,72 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7454C43331
-	for <linux-i2c@archiver.kernel.org>; Sat,  9 Jan 2021 12:44:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41900C43381
+	for <linux-i2c@archiver.kernel.org>; Sat,  9 Jan 2021 12:45:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B727A23A60
-	for <linux-i2c@archiver.kernel.org>; Sat,  9 Jan 2021 12:44:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 11A8523A03
+	for <linux-i2c@archiver.kernel.org>; Sat,  9 Jan 2021 12:45:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726510AbhAIMoo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 9 Jan 2021 07:44:44 -0500
-Received: from www.zeus03.de ([194.117.254.33]:50312 "EHLO mail.zeus03.de"
+        id S1726708AbhAIMoz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 9 Jan 2021 07:44:55 -0500
+Received: from www.zeus03.de ([194.117.254.33]:50698 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726407AbhAIMoL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 9 Jan 2021 07:44:11 -0500
+        id S1726688AbhAIMoy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 9 Jan 2021 07:44:54 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
         from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-type:content-transfer-encoding; s=k1; bh=K
-        8X3CPq/CAPJt2DXKVcSEfDZDBVeXKHQCrnUgcxZEcA=; b=aCBI2Q7aNMuTJz1fi
-        ta4ngAUWg5OeKljC7tDEsZZKq0AN4j0A1jfQCWt7Bodknzy9RFI3JVa0wXcByekp
-        bLPVAGqV4ESwgPDU+5x1uouTiZSLICYK4H5zh7B3yjHZsk7ZArrQPpsc4Lm0UBXK
-        ETMAD1EfRkaNBxPghsEuikr5+8=
-Received: (qmail 1725076 invoked from network); 9 Jan 2021 13:43:29 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 9 Jan 2021 13:43:29 +0100
-X-UD-Smtp-Session: l3s3148p1@ECwTBXe4SpYgAwDPXyBeAD+yeC5KBZLe
+        :mime-version:content-transfer-encoding; s=k1; bh=SrIMOhZ2Ymwiq3
+        c747qFRw3y0YPS/JsbyabG07Zp8no=; b=NMSzx4D6ipyAxPSe57JaZOyJUnKsVi
+        N0Ne1v1EFnXziW7SIxmoVAARjrjx8/W7Up5NDwkfzpINIK/G3lbggoflzi3BGOTu
+        9G4h3b8FGYcM42ugm9Et7UB6FAMpyElEvLe3R8Wk1oSFRjSqvBKTI0dNYPyIy5uS
+        rkNhmfdGBjaP4=
+Received: (qmail 1725191 invoked from network); 9 Jan 2021 13:43:32 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 9 Jan 2021 13:43:32 +0100
+X-UD-Smtp-Session: l3s3148p1@ckNCBXe4VJYgAwDPXyBeAD+yeC5KBZLe
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     linux-renesas-soc@vger.kernel.org,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/8] i2c: remove licence boilerplate from main UAPI header
-Date:   Sat,  9 Jan 2021 13:43:06 +0100
-Message-Id: <20210109124314.27466-3-wsa+renesas@sang-engineering.com>
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 7/8] i2c: qup: advertise SMBus transfers using RECV_LEN
+Date:   Sat,  9 Jan 2021 13:43:11 +0100
+Message-Id: <20210109124314.27466-8-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210109124314.27466-1-wsa+renesas@sang-engineering.com>
 References: <20210109124314.27466-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Remove boilerplate because we now have the SPDX header.
+This driver implements I2C_M_RECV_LEN, so it can advertise the SMBus
+transfers needing it. This also enables client devices to check for the
+RECV_LEN capability.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- include/uapi/linux/i2c.h | 32 +++++++-------------------------
- 1 file changed, 7 insertions(+), 25 deletions(-)
+ drivers/i2c/busses/i2c-qup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
-index 8d2f59f53324..7786551eb177 100644
---- a/include/uapi/linux/i2c.h
-+++ b/include/uapi/linux/i2c.h
-@@ -1,29 +1,11 @@
- /* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
--/* ------------------------------------------------------------------------- */
--/*									     */
--/* i2c.h - definitions for the i2c-bus interface			     */
--/*									     */
--/* ------------------------------------------------------------------------- */
--/*   Copyright (C) 1995-2000 Simon G. Vogl
--
--    This program is free software; you can redistribute it and/or modify
--    it under the terms of the GNU General Public License as published by
--    the Free Software Foundation; either version 2 of the License, or
--    (at your option) any later version.
--
--    This program is distributed in the hope that it will be useful,
--    but WITHOUT ANY WARRANTY; without even the implied warranty of
--    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--    GNU General Public License for more details.
--
--    You should have received a copy of the GNU General Public License
--    along with this program; if not, write to the Free Software
--    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
--    MA 02110-1301 USA.							     */
--/* ------------------------------------------------------------------------- */
--
--/* With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi> and
--   Frodo Looijaard <frodol@dds.nl> */
-+/*
-+ * i2c.h - definitions for the I2C bus interface
-+ *
-+ * Copyright (C) 1995-2000 Simon G. Vogl
-+ * With some changes from Kyösti Mälkki <kmalkki@cc.hut.fi> and
-+ * Frodo Looijaard <frodol@dds.nl>
-+ */
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 5a47915869ae..61dc20fd1191 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -1603,7 +1603,7 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
  
- #ifndef _UAPI_LINUX_I2C_H
- #define _UAPI_LINUX_I2C_H
+ static u32 qup_i2c_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
++	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL_ALL & ~I2C_FUNC_SMBUS_QUICK);
+ }
+ 
+ static const struct i2c_algorithm qup_i2c_algo = {
 -- 
 2.29.2
 
