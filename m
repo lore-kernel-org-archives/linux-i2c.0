@@ -2,72 +2,65 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24409C43333
-	for <linux-i2c@archiver.kernel.org>; Sat,  9 Jan 2021 12:45:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EE8AC433E0
+	for <linux-i2c@archiver.kernel.org>; Sat,  9 Jan 2021 19:52:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3DCA238E8
-	for <linux-i2c@archiver.kernel.org>; Sat,  9 Jan 2021 12:45:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FA7623A7F
+	for <linux-i2c@archiver.kernel.org>; Sat,  9 Jan 2021 19:52:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726711AbhAIMox (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 9 Jan 2021 07:44:53 -0500
-Received: from www.zeus03.de ([194.117.254.33]:50686 "EHLO mail.zeus03.de"
+        id S1726001AbhAITvt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 9 Jan 2021 14:51:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726685AbhAIMox (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 9 Jan 2021 07:44:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=k1; bh=ZRdwBwqhqHXGGH
-        jlABb5ul9pWZH2vm9hbg2UWIErqqM=; b=mKO3xMy8ugDjQHCWVmCyevEnxKlpkv
-        yCLkAQVWeYrDG0zYjssfpQxwDZzx1V4MtygplLu3OrTQGoC818WAjPO6MfUMe+cy
-        0j+o9ZzqfBCDCd+tMfYhzhQUTCejuu2SXK69AIKHVuJtzbLsDHsdd8A6iK3GYyr9
-        kXRox55jDoWoM=
-Received: (qmail 1725177 invoked from network); 9 Jan 2021 13:43:32 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 9 Jan 2021 13:43:32 +0100
-X-UD-Smtp-Session: l3s3148p1@Fw85BXe4UpYgAwDPXyBeAD+yeC5KBZLe
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 6/8] i2c: algo: bit: use new macro to specifiy capabilities
-Date:   Sat,  9 Jan 2021 13:43:10 +0100
-Message-Id: <20210109124314.27466-7-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210109124314.27466-1-wsa+renesas@sang-engineering.com>
-References: <20210109124314.27466-1-wsa+renesas@sang-engineering.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1725999AbhAITvt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 9 Jan 2021 14:51:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPS id A8E8323A7F;
+        Sat,  9 Jan 2021 19:51:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1610221868;
+        bh=rd4DEaE3f2znf46Y+qAonYrbgbvDASa8/hVJhb+VU0I=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=VjocK5rgYMESnqrZy+NQh8G3YqsIW9CtXWPde+v3SODx4WPUhJeFrgEc4HuicguCP
+         76z+xbEN6UowGCk28vZ67pMUOorwnxcYqw+4YNOeCwcSq4IXDyfMiC1+tsV6vQoLLW
+         4VfdQO4MO2gFUyKJrs2sQd7wQ5zTUyIYtSNvY6Hke21Cq9ALQ7WCinxMv7pzzumVr/
+         Oi24LGTuxRyE1yMgZHnf2iaJuMsLR7pvY+wAWB92hKbQO9Ss5iAP4dQBLR2n9fF9eM
+         DNEOrYK1eyAYyZoucP0NAGVCgoULzExK7W9NYJZwbF/bcJf4PFGUyXYtLC6M7LGSUm
+         RwDI54jYmB3SQ==
+Subject: Re: [PULL REQUEST] i2c for 5.11
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20210109083156.GA2924@kunai>
+References: <20210109083156.GA2924@kunai>
+X-PR-Tracked-List-Id: <linux-i2c.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20210109083156.GA2924@kunai>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+X-PR-Tracked-Commit-Id: 05f6f7271a38c482c5021967433f7b698e102c45
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: caab314792aca89f327abc8b9f730526d3080366
+Message-Id: <161022186853.8002.2175436833656146973.pr-tracker-bot@kernel.org>
+Date:   Sat, 09 Jan 2021 19:51:08 +0000
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Peter Rosin <peda@axentia.se>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Let's use the new macro for emulating SMBus with RECV_LEN support.
+The pull request you sent on Sat, 9 Jan 2021 09:31:56 +0100:
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/algos/i2c-algo-bit.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
 
-diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
-index 913db013fe90..fc90293afcbf 100644
---- a/drivers/i2c/algos/i2c-algo-bit.c
-+++ b/drivers/i2c/algos/i2c-algo-bit.c
-@@ -622,9 +622,7 @@ static int bit_xfer_atomic(struct i2c_adapter *i2c_adap, struct i2c_msg msgs[],
- 
- static u32 bit_func(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL |
--	       I2C_FUNC_SMBUS_READ_BLOCK_DATA |
--	       I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
-+	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL_ALL |
- 	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
- }
- 
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/caab314792aca89f327abc8b9f730526d3080366
+
+Thank you!
+
 -- 
-2.29.2
-
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
