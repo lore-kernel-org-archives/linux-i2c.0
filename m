@@ -2,648 +2,73 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60B51C433E6
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 00:29:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC81FC433E0
+	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 04:07:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 34A3722D49
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 00:29:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6DFC722B51
+	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 04:07:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729259AbhALA2t (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 11 Jan 2021 19:28:49 -0500
-Received: from mga04.intel.com ([192.55.52.120]:60544 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727892AbhALA2s (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 11 Jan 2021 19:28:48 -0500
-IronPort-SDR: 5AuxPbJU3sTtCBrplgpwuX7FvKCC3jBbEzPcFpbcr4UX6ladquVW2WyLjKnj1v7jxl1X26fG88
- /uah3V+wY38w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="175379158"
-X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="175379158"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 16:27:02 -0800
-IronPort-SDR: uTF+F7B1vh96fqYMGAnx+QS5NCEzdazMk6oGfAeyxH/12ya3Zh4yKcuKtnz6U0cqShMrSx4dc3
- WLVzbK9fRmzA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="348273555"
-Received: from maru.jf.intel.com ([10.54.51.77])
-  by orsmga003.jf.intel.com with ESMTP; 11 Jan 2021 16:27:02 -0800
-From:   Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-To:     Brendan Higgins <brendanhiggins@google.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Joel Stanley <joel@jms.id.au>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andrew Jeffery <andrew@aj.id.au>, Tao Ren <taoren@fb.com>,
-        Cedric Le Goater <clg@kaod.org>
-Cc:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
-        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH v2 3/4] i2c: aspeed: add buffer mode transfer support
-Date:   Mon, 11 Jan 2021 16:37:48 -0800
-Message-Id: <20210112003749.10565-4-jae.hyun.yoo@linux.intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210112003749.10565-1-jae.hyun.yoo@linux.intel.com>
-References: <20210112003749.10565-1-jae.hyun.yoo@linux.intel.com>
+        id S1728700AbhALEG6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 11 Jan 2021 23:06:58 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:12090 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726647AbhALEG6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Jan 2021 23:06:58 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5ffd20390001>; Mon, 11 Jan 2021 20:06:17 -0800
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL109.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 12 Jan
+ 2021 04:06:17 +0000
+Received: from skomatineni-linux.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server id 15.0.1473.3 via Frontend
+ Transport; Tue, 12 Jan 2021 04:06:17 +0000
+From:   Sowjanya Komatineni <skomatineni@nvidia.com>
+To:     <thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
+        <digetx@gmail.com>, <wsa@the-dreams.de>, <skomatineni@nvidia.com>
+CC:     <linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-i2c@vger.kernel.org>
+Subject: [PATCH v2] Create i2c_writesl_vi() to use with VI I2C
+Date:   Mon, 11 Jan 2021 20:06:18 -0800
+Message-ID: <1610424379-23653-1-git-send-email-skomatineni@nvidia.com>
+X-Mailer: git-send-email 2.7.4
+X-NVConfidentiality: public
+MIME-Version: 1.0
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1610424377; bh=+WtY4xmNIdG6tMaS5K+8weiUqcdRO0eE6P6+AH5VMe4=;
+        h=From:To:CC:Subject:Date:Message-ID:X-Mailer:X-NVConfidentiality:
+         MIME-Version:Content-Type;
+        b=TL+LGaFQ+rnm9g4qS3TlwF+aEY8m9fUW47OMh18gQbDW7pZYPnoP5sg5BMfJ4JXXD
+         IbOqelviF4kxmjNC3lkH9KzDcXFJA4P1Yr0Q03VhB5TUdP2phHPohGFJumxh7NLHHJ
+         vn7EofBgNTe1pZ+Ju+uPTmIGoi89P06m9yDSsxr/8mviJnwWtmDilzl3ADDpCqXxfI
+         HOZmTK7jJjRHXZTg4qONOjVCS+B2hqymqFjOnoP7f51LzRrjdxDkLVBBEsAVZYf3MY
+         3/1b7sK5M98zDS1+xRMdjKOyM20uroaji2YJKgZPixgwZD3dm2+miPxc6Q8pMxh7fb
+         P2uzuuj6rZtCQ==
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This driver uses byte mode that makes lots of interrupt calls
-which isn't good for performance and it makes the driver very
-timing sensitive. To improve performance of the driver, this commit
-adds buffer mode transfer support which uses I2C SRAM buffer
-instead of using a single byte buffer.
+Patch in this series is to fix silent hang seen when using writesl()
+for filling VI I2C TX FIFO.
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Tested-by: Tao Ren <taoren@fb.com>
----
-Changes since v1:
-- Updated commit message.
-- Refined using abstract functions.
+Delta between patch versions:
+[v2]:	Creates i2c_writesl_vi() for vi i2c based on v1 feedback.
 
- drivers/i2c/busses/i2c-aspeed.c | 375 +++++++++++++++++++++++++++++---
- 1 file changed, 345 insertions(+), 30 deletions(-)
+[v1]:	Updates i2c_writesl() to use writel() followed by i2c_readl().
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 724bf30600d6..223885e7a62f 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -7,6 +7,7 @@
-  *  Copyright 2017 Google, Inc.
-  */
- 
-+#include <linux/bitfield.h>
- #include <linux/clk.h>
- #include <linux/completion.h>
- #include <linux/err.h>
-@@ -19,15 +20,24 @@
- #include <linux/irqchip/chained_irq.h>
- #include <linux/irqdomain.h>
- #include <linux/kernel.h>
-+#include <linux/mfd/syscon.h>
- #include <linux/module.h>
- #include <linux/of_address.h>
- #include <linux/of_irq.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
-+#include <linux/regmap.h>
- #include <linux/reset.h>
- #include <linux/slab.h>
- 
--/* I2C Register */
-+/* I2C Global Registers */
-+/* 0x00 : I2CG Interrupt Status Register  */
-+/* 0x08 : I2CG Interrupt Target Assignment  */
-+/* 0x0c : I2CG Global Control Register (AST2500)  */
-+#define ASPEED_I2CG_GLOBAL_CTRL_REG			0x0c
-+#define  ASPEED_I2CG_SRAM_BUFFER_EN			BIT(0)
-+
-+/* I2C Bus Registers */
- #define ASPEED_I2C_FUN_CTRL_REG				0x00
- #define ASPEED_I2C_AC_TIMING_REG1			0x04
- #define ASPEED_I2C_AC_TIMING_REG2			0x08
-@@ -35,14 +45,12 @@
- #define ASPEED_I2C_INTR_STS_REG				0x10
- #define ASPEED_I2C_CMD_REG				0x14
- #define ASPEED_I2C_DEV_ADDR_REG				0x18
-+#define ASPEED_I2C_BUF_CTRL_REG				0x1c
- #define ASPEED_I2C_BYTE_BUF_REG				0x20
- 
--/* Global Register Definition */
--/* 0x00 : I2C Interrupt Status Register  */
--/* 0x08 : I2C Interrupt Target Assignment  */
--
- /* Device Register Definition */
- /* 0x00 : I2CD Function Control Register  */
-+#define ASPEED_I2CD_BUFFER_PAGE_SEL_MASK		GENMASK(22, 20)
- #define ASPEED_I2CD_MULTI_MASTER_DIS			BIT(15)
- #define ASPEED_I2CD_SDA_DRIVE_1T_EN			BIT(8)
- #define ASPEED_I2CD_M_SDA_DRIVE_1T_EN			BIT(7)
-@@ -103,6 +111,8 @@
- #define ASPEED_I2CD_BUS_RECOVER_CMD			BIT(11)
- 
- /* Command Bit */
-+#define ASPEED_I2CD_RX_BUFF_ENABLE			BIT(7)
-+#define ASPEED_I2CD_TX_BUFF_ENABLE			BIT(6)
- #define ASPEED_I2CD_M_STOP_CMD				BIT(5)
- #define ASPEED_I2CD_M_S_RX_CMD_LAST			BIT(4)
- #define ASPEED_I2CD_M_RX_CMD				BIT(3)
-@@ -119,6 +129,13 @@
- /* 0x18 : I2CD Slave Device Address Register   */
- #define ASPEED_I2CD_DEV_ADDR_MASK			GENMASK(6, 0)
- 
-+/* 0x1c : I2CD Buffer Control Register */
-+/* Use 8-bits or 6-bits wide bit fileds to support both AST2400 and AST2500 */
-+#define ASPEED_I2CD_BUF_RX_COUNT_MASK			GENMASK(31, 24)
-+#define ASPEED_I2CD_BUF_RX_SIZE_MASK			GENMASK(23, 16)
-+#define ASPEED_I2CD_BUF_TX_COUNT_MASK			GENMASK(15, 8)
-+#define ASPEED_I2CD_BUF_OFFSET_MASK			GENMASK(5, 0)
-+
- enum aspeed_i2c_master_state {
- 	ASPEED_I2C_MASTER_INACTIVE,
- 	ASPEED_I2C_MASTER_PENDING,
-@@ -164,6 +181,11 @@ struct aspeed_i2c_bus {
- 	int				master_xfer_result;
- 	/* Multi-master */
- 	bool				multi_master;
-+	/* Buffer mode */
-+	void __iomem			*buf_base;
-+	u8				buf_offset;
-+	u8				buf_page;
-+	size_t				buf_size;
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	struct i2c_client		*slave;
- 	enum aspeed_i2c_slave_state	slave_state;
-@@ -241,6 +263,77 @@ static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
- }
- 
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
-+static inline void
-+aspeed_i2c_slave_handle_rx_done(struct aspeed_i2c_bus *bus, u32 irq_status,
-+				u8 *value)
-+{
-+	if (bus->buf_base &&
-+	    bus->slave_state == ASPEED_I2C_SLAVE_WRITE_RECEIVED &&
-+	    !(irq_status & ASPEED_I2CD_INTR_NORMAL_STOP))
-+		*value = readb(bus->buf_base);
-+	else
-+		*value = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
-+}
-+
-+static inline void
-+aspeed_i2c_slave_handle_normal_stop(struct aspeed_i2c_bus *bus, u32 irq_status,
-+				    u8 *value)
-+{
-+	int i, len;
-+
-+	if (bus->slave_state == ASPEED_I2C_SLAVE_WRITE_RECEIVED &&
-+	    irq_status & ASPEED_I2CD_INTR_RX_DONE) {
-+		if (bus->buf_base) {
-+			len = FIELD_GET(ASPEED_I2CD_BUF_RX_COUNT_MASK,
-+					readl(bus->base +
-+					      ASPEED_I2C_BUF_CTRL_REG));
-+			for (i = 0; i < len; i++) {
-+				*value = readb(bus->buf_base + i);
-+				i2c_slave_event(bus->slave,
-+						I2C_SLAVE_WRITE_RECEIVED,
-+						value);
-+			}
-+		}
-+	}
-+}
-+
-+static inline void
-+aspeed_i2c_slave_handle_write_requested(struct aspeed_i2c_bus *bus, u8 *value)
-+{
-+	if (bus->buf_base) {
-+		writel(FIELD_PREP(ASPEED_I2CD_BUF_RX_SIZE_MASK,
-+				  bus->buf_size - 1) |
-+		       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK,
-+				  bus->buf_offset),
-+		       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+		writel(ASPEED_I2CD_RX_BUFF_ENABLE,
-+		       bus->base + ASPEED_I2C_CMD_REG);
-+	}
-+}
-+
-+static inline void
-+aspeed_i2c_slave_handle_write_received(struct aspeed_i2c_bus *bus, u8 *value)
-+{
-+	int i, len;
-+
-+	if (bus->buf_base) {
-+		len = FIELD_GET(ASPEED_I2CD_BUF_RX_COUNT_MASK,
-+				readl(bus->base +
-+				      ASPEED_I2C_BUF_CTRL_REG));
-+		for (i = 1; i < len; i++) {
-+			*value = readb(bus->buf_base + i);
-+			i2c_slave_event(bus->slave, I2C_SLAVE_WRITE_RECEIVED,
-+					value);
-+		}
-+		writel(FIELD_PREP(ASPEED_I2CD_BUF_RX_SIZE_MASK,
-+				  bus->buf_size - 1) |
-+		       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK, bus->buf_offset),
-+		       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+		writel(ASPEED_I2CD_RX_BUFF_ENABLE,
-+		       bus->base + ASPEED_I2C_CMD_REG);
-+	}
-+}
-+
- static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
- {
- 	u32 command, irq_handled = 0;
-@@ -267,7 +360,7 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
- 
- 	/* Slave was sent something. */
- 	if (irq_status & ASPEED_I2CD_INTR_RX_DONE) {
--		value = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
-+		aspeed_i2c_slave_handle_rx_done(bus, irq_status, &value);
- 		/* Handle address frame. */
- 		if (bus->slave_state == ASPEED_I2C_SLAVE_START) {
- 			if (value & 0x1)
-@@ -282,9 +375,11 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
- 
- 	/* Slave was asked to stop. */
- 	if (irq_status & ASPEED_I2CD_INTR_NORMAL_STOP) {
-+		aspeed_i2c_slave_handle_normal_stop(bus, irq_status, &value);
- 		irq_handled |= ASPEED_I2CD_INTR_NORMAL_STOP;
- 		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
- 	}
-+
- 	if (irq_status & ASPEED_I2CD_INTR_TX_NAK &&
- 	    bus->slave_state == ASPEED_I2C_SLAVE_READ_PROCESSED) {
- 		irq_handled |= ASPEED_I2CD_INTR_TX_NAK;
-@@ -314,9 +409,11 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
- 	case ASPEED_I2C_SLAVE_WRITE_REQUESTED:
- 		bus->slave_state = ASPEED_I2C_SLAVE_WRITE_RECEIVED;
- 		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
-+		aspeed_i2c_slave_handle_write_requested(bus, &value);
- 		break;
- 	case ASPEED_I2C_SLAVE_WRITE_RECEIVED:
- 		i2c_slave_event(slave, I2C_SLAVE_WRITE_RECEIVED, &value);
-+		aspeed_i2c_slave_handle_write_received(bus, &value);
- 		break;
- 	case ASPEED_I2C_SLAVE_STOP:
- 		i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
-@@ -336,12 +433,76 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
- }
- #endif /* CONFIG_I2C_SLAVE */
- 
-+static inline u32
-+aspeed_i2c_prepare_rx_buf(struct aspeed_i2c_bus *bus, struct i2c_msg *msg)
-+{
-+	u32 command = 0;
-+	int len;
-+
-+	if (msg->len > bus->buf_size) {
-+		len = bus->buf_size;
-+	} else {
-+		len = msg->len;
-+		command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
-+	}
-+
-+	if (bus->buf_base) {
-+		command |= ASPEED_I2CD_RX_BUFF_ENABLE;
-+
-+		writel(FIELD_PREP(ASPEED_I2CD_BUF_RX_SIZE_MASK, len - 1) |
-+		       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK, bus->buf_offset),
-+		       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+	}
-+
-+	return command;
-+}
-+
-+static inline u32
-+aspeed_i2c_prepare_tx_buf(struct aspeed_i2c_bus *bus, struct i2c_msg *msg)
-+{
-+	u8 slave_addr = i2c_8bit_addr_from_msg(msg);
-+	u32 command = 0;
-+	int len;
-+
-+	if (msg->len + 1 > bus->buf_size)
-+		len = bus->buf_size;
-+	else
-+		len = msg->len + 1;
-+
-+	if (bus->buf_base) {
-+		u8 wbuf[4];
-+		int i;
-+
-+		command |= ASPEED_I2CD_TX_BUFF_ENABLE;
-+
-+		/*
-+		 * Yeah, it looks bad but byte writing on remapped I2C SRAM
-+		 * causes corruption so use this way to make dword writings.
-+		 */
-+		wbuf[0] = slave_addr;
-+		for (i = 1; i < len; i++) {
-+			wbuf[i % 4] = msg->buf[i - 1];
-+			if (i % 4 == 3)
-+				writel(*(u32 *)wbuf, bus->buf_base + i - 3);
-+		}
-+		if (--i % 4 != 3)
-+			writel(*(u32 *)wbuf, bus->buf_base + i - (i % 4));
-+
-+		writel(FIELD_PREP(ASPEED_I2CD_BUF_TX_COUNT_MASK, len - 1) |
-+		       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK, bus->buf_offset),
-+		       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+	}
-+
-+	bus->buf_index = len - 1;
-+
-+	return command;
-+}
-+
- /* precondition: bus.lock has been acquired. */
- static void aspeed_i2c_do_start(struct aspeed_i2c_bus *bus)
- {
- 	u32 command = ASPEED_I2CD_M_START_CMD | ASPEED_I2CD_M_TX_CMD;
- 	struct i2c_msg *msg = &bus->msgs[bus->msgs_index];
--	u8 slave_addr = i2c_8bit_addr_from_msg(msg);
- 
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	/*
-@@ -360,12 +521,21 @@ static void aspeed_i2c_do_start(struct aspeed_i2c_bus *bus)
- 
- 	if (msg->flags & I2C_M_RD) {
- 		command |= ASPEED_I2CD_M_RX_CMD;
--		/* Need to let the hardware know to NACK after RX. */
--		if (msg->len == 1 && !(msg->flags & I2C_M_RECV_LEN))
--			command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
-+		if (!(msg->flags & I2C_M_RECV_LEN)) {
-+			if (msg->len && bus->buf_base)
-+				command |= aspeed_i2c_prepare_rx_buf(bus, msg);
-+
-+			/* Need to let the hardware know to NACK after RX. */
-+			if (msg->len <= 1)
-+				command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
-+		}
-+	} else if (msg->len && bus->buf_base) {
-+		command |= aspeed_i2c_prepare_tx_buf(bus, msg);
- 	}
- 
--	writel(slave_addr, bus->base + ASPEED_I2C_BYTE_BUF_REG);
-+	if (!(command & ASPEED_I2CD_TX_BUFF_ENABLE))
-+		writel(i2c_8bit_addr_from_msg(msg),
-+		       bus->base + ASPEED_I2C_BYTE_BUF_REG);
- 	writel(command, bus->base + ASPEED_I2C_CMD_REG);
- }
- 
-@@ -400,6 +570,103 @@ static int aspeed_i2c_is_irq_error(u32 irq_status)
- 	return 0;
- }
- 
-+static inline u32
-+aspeed_i2c_master_handle_tx_first(struct aspeed_i2c_bus *bus,
-+				  struct i2c_msg *msg)
-+{
-+	u32 command = 0;
-+
-+	if (bus->buf_base) {
-+		u8 wbuf[4];
-+		int len;
-+		int i;
-+
-+		if (msg->len - bus->buf_index > bus->buf_size)
-+			len = bus->buf_size;
-+		else
-+			len = msg->len - bus->buf_index;
-+
-+		command |= ASPEED_I2CD_TX_BUFF_ENABLE;
-+
-+		if (msg->len - bus->buf_index > bus->buf_size)
-+			len = bus->buf_size;
-+		else
-+			len = msg->len - bus->buf_index;
-+
-+		for (i = 0; i < len; i++) {
-+			wbuf[i % 4] = msg->buf[bus->buf_index + i];
-+			if (i % 4 == 3)
-+				writel(*(u32 *)wbuf,
-+				       bus->buf_base + i - 3);
-+		}
-+		if (--i % 4 != 3)
-+			writel(*(u32 *)wbuf,
-+			       bus->buf_base + i - (i % 4));
-+
-+		writel(FIELD_PREP(ASPEED_I2CD_BUF_TX_COUNT_MASK,
-+				  len - 1) |
-+		       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK,
-+				  bus->buf_offset),
-+		       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+
-+		bus->buf_index += len;
-+	} else {
-+		writel(msg->buf[bus->buf_index++],
-+		       bus->base + ASPEED_I2C_BYTE_BUF_REG);
-+	}
-+
-+	return command;
-+}
-+
-+static inline void
-+aspeed_i2c_master_handle_rx(struct aspeed_i2c_bus *bus, struct i2c_msg *msg)
-+{
-+	u8 recv_byte;
-+	int len;
-+
-+	if (bus->buf_base) {
-+		len = FIELD_GET(ASPEED_I2CD_BUF_RX_COUNT_MASK,
-+				readl(bus->base + ASPEED_I2C_BUF_CTRL_REG));
-+		memcpy_fromio(msg->buf + bus->buf_index, bus->buf_base, len);
-+		bus->buf_index += len;
-+	} else {
-+		recv_byte = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
-+		msg->buf[bus->buf_index++] = recv_byte;
-+	}
-+}
-+
-+static inline u32
-+aspeed_i2c_master_handle_rx_next(struct aspeed_i2c_bus *bus,
-+				 struct i2c_msg *msg)
-+{
-+	u32 command = 0;
-+
-+	if (bus->buf_base) {
-+		int len;
-+
-+		if (msg->len - bus->buf_index > bus->buf_size) {
-+			len = bus->buf_size;
-+		} else {
-+			len = msg->len - bus->buf_index;
-+			command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
-+		}
-+
-+		command |= ASPEED_I2CD_RX_BUFF_ENABLE;
-+
-+		writel(FIELD_PREP(ASPEED_I2CD_BUF_RX_SIZE_MASK,
-+				  len - 1) |
-+		       FIELD_PREP(ASPEED_I2CD_BUF_TX_COUNT_MASK, 0) |
-+		       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK,
-+				  bus->buf_offset),
-+		       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+	} else {
-+		if (bus->buf_index + 1 == msg->len)
-+			command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
-+	}
-+
-+	return command;
-+}
-+
- static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
- {
- 	u32 irq_handled = 0, command = 0;
-@@ -508,11 +775,10 @@ static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
- 		fallthrough;
- 	case ASPEED_I2C_MASTER_TX_FIRST:
- 		if (bus->buf_index < msg->len) {
-+			command = ASPEED_I2CD_M_TX_CMD;
-+			command |= aspeed_i2c_master_handle_tx_first(bus, msg);
-+			writel(command, bus->base + ASPEED_I2C_CMD_REG);
- 			bus->master_state = ASPEED_I2C_MASTER_TX;
--			writel(msg->buf[bus->buf_index++],
--			       bus->base + ASPEED_I2C_BYTE_BUF_REG);
--			writel(ASPEED_I2CD_M_TX_CMD,
--			       bus->base + ASPEED_I2C_CMD_REG);
- 		} else {
- 			aspeed_i2c_next_msg_or_stop(bus);
- 		}
-@@ -529,26 +795,26 @@ static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
- 		}
- 		irq_handled |= ASPEED_I2CD_INTR_RX_DONE;
- 
--		recv_byte = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
--		msg->buf[bus->buf_index++] = recv_byte;
--
- 		if (msg->flags & I2C_M_RECV_LEN) {
-+			recv_byte = readl(bus->base +
-+					ASPEED_I2C_BYTE_BUF_REG) >> 8;
- 			if (unlikely(recv_byte > I2C_SMBUS_BLOCK_MAX)) {
- 				bus->cmd_err = -EPROTO;
- 				aspeed_i2c_do_stop(bus);
- 				goto out_no_complete;
- 			}
--			msg->len = recv_byte +
--					((msg->flags & I2C_CLIENT_PEC) ? 2 : 1);
-+			msg->len = recv_byte + ((msg->flags & I2C_CLIENT_PEC) ?
-+						2 : 1);
- 			msg->flags &= ~I2C_M_RECV_LEN;
-+		} else if (msg->len) {
-+			aspeed_i2c_master_handle_rx(bus, msg);
- 		}
- 
- 		if (bus->buf_index < msg->len) {
--			bus->master_state = ASPEED_I2C_MASTER_RX;
- 			command = ASPEED_I2CD_M_RX_CMD;
--			if (bus->buf_index + 1 == msg->len)
--				command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
-+			command |= aspeed_i2c_master_handle_rx_next(bus, msg);
- 			writel(command, bus->base + ASPEED_I2C_CMD_REG);
-+			bus->master_state = ASPEED_I2C_MASTER_RX;
- 		} else {
- 			aspeed_i2c_next_msg_or_stop(bus);
- 		}
-@@ -908,6 +1174,9 @@ static int aspeed_i2c_init(struct aspeed_i2c_bus *bus,
- 	if (ret < 0)
- 		return ret;
- 
-+	fun_ctrl_reg |= FIELD_PREP(ASPEED_I2CD_BUFFER_PAGE_SEL_MASK,
-+				   bus->buf_page);
-+
- 	if (of_property_read_bool(pdev->dev.of_node, "multi-master"))
- 		bus->multi_master = true;
- 	else
-@@ -948,6 +1217,52 @@ static int aspeed_i2c_reset(struct aspeed_i2c_bus *bus)
- 	return ret;
- }
- 
-+static void aspeed_i2c_set_xfer_mode(struct aspeed_i2c_bus *bus)
-+{
-+	struct platform_device *pdev = to_platform_device(bus->dev);
-+	bool sram_enabled = true;
-+	int ret;
-+
-+	/*
-+	 * Enable I2C SRAM in case of AST2500.
-+	 * SRAM is enabled by default in AST2400 and AST2600.
-+	 */
-+	if (of_device_is_compatible(pdev->dev.of_node,
-+				    "aspeed,ast2500-i2c-bus")) {
-+		struct regmap *gr_regmap = syscon_regmap_lookup_by_compatible("aspeed,ast2500-i2c-gr");
-+
-+		if (IS_ERR(gr_regmap))
-+			ret = PTR_ERR(gr_regmap);
-+		else
-+			ret = regmap_update_bits(gr_regmap,
-+						 ASPEED_I2CG_GLOBAL_CTRL_REG,
-+						 ASPEED_I2CG_SRAM_BUFFER_EN,
-+						 ASPEED_I2CG_SRAM_BUFFER_EN);
-+
-+		if (ret)
-+			sram_enabled = false;
-+	}
-+
-+	if (sram_enabled) {
-+		struct resource *res = platform_get_resource(pdev,
-+							     IORESOURCE_MEM, 1);
-+
-+		if (res && resource_size(res) >= 2)
-+			bus->buf_base = devm_ioremap_resource(&pdev->dev, res);
-+
-+		if (!IS_ERR_OR_NULL(bus->buf_base)) {
-+			bus->buf_size = resource_size(res);
-+			if (of_device_is_compatible(pdev->dev.of_node,
-+						    "aspeed,ast2400-i2c-bus")) {
-+				bus->buf_page = ((res->start >> 8) &
-+						 GENMASK(3, 0)) - 8;
-+				bus->buf_offset = (res->start >> 2) &
-+						  ASPEED_I2CD_BUF_OFFSET_MASK;
-+			}
-+		}
-+	}
-+}
-+
- static const struct of_device_id aspeed_i2c_bus_of_table[] = {
- 	{
- 		.compatible = "aspeed,ast2400-i2c-bus",
-@@ -970,18 +1285,18 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	const struct of_device_id *match;
- 	struct aspeed_i2c_bus *bus;
- 	struct clk *parent_clk;
--	struct resource *res;
- 	int irq, ret;
- 
- 	bus = devm_kzalloc(&pdev->dev, sizeof(*bus), GFP_KERNEL);
- 	if (!bus)
- 		return -ENOMEM;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	bus->base = devm_ioremap_resource(&pdev->dev, res);
-+	bus->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(bus->base))
- 		return PTR_ERR(bus->base);
- 
-+	bus->dev = &pdev->dev;
-+
- 	parent_clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(parent_clk))
- 		return PTR_ERR(parent_clk);
-@@ -1012,6 +1327,8 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 		bus->get_clk_reg_val = (u32 (*)(struct device *, u32))
- 				match->data;
- 
-+	aspeed_i2c_set_xfer_mode(bus);
-+
- 	/* Initialize the I2C adapter */
- 	spin_lock_init(&bus->lock);
- 	init_completion(&bus->cmd_complete);
-@@ -1023,8 +1340,6 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	strlcpy(bus->adap.name, pdev->name, sizeof(bus->adap.name));
- 	i2c_set_adapdata(&bus->adap, bus);
- 
--	bus->dev = &pdev->dev;
--
- 	/* Clean up any left over interrupt state. */
- 	writel(0, bus->base + ASPEED_I2C_INTR_CTRL_REG);
- 	writel(0xffffffff, bus->base + ASPEED_I2C_INTR_STS_REG);
-@@ -1048,8 +1363,8 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, bus);
- 
--	dev_info(bus->dev, "i2c bus %d registered, irq %d\n",
--		 bus->adap.nr, irq);
-+	dev_info(bus->dev, "i2c bus %d registered (%s mode), irq %d\n",
-+		 bus->adap.nr, bus->buf_base ? "buffer" : "byte", irq);
- 
- 	return 0;
- }
+
+Sowjanya Komatineni (1):
+  i2c: tegra: Create i2c_writesl_vi() to use with VI I2C for filling TX
+    FIFO
+
+ drivers/i2c/busses/i2c-tegra.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
 -- 
-2.17.1
+2.7.4
 
