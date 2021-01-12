@@ -2,37 +2,36 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5175C433DB
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 00:28:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 396BBC433E6
+	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 00:28:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9FBAC22D49
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 00:28:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1543E22D57
+	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 00:28:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727845AbhALA2r (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1730025AbhALA2r (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 11 Jan 2021 19:28:47 -0500
-Received: from mga09.intel.com ([134.134.136.24]:26283 "EHLO mga09.intel.com"
+Received: from mga17.intel.com ([192.55.52.151]:51763 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730040AbhALA2q (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 11 Jan 2021 19:28:46 -0500
-IronPort-SDR: lZdwDrEvt1poKKcWYsyFoqDUcZcbLKo2G3EjadHvgncVKrp5pXssKC+socA4lvMt9rKCmDkJGy
- QldcHF0vejgg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="178109118"
+        id S1727892AbhALA2h (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 11 Jan 2021 19:28:37 -0500
+IronPort-SDR: xetvEMBDZnkGNHgxVq/rR9oUmYE8eOr3KzyUSof9O+1aF77wZBbsGsNskxRWunMFGj5X5PzPcN
+ hvkKMYj+RhDw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="157735948"
 X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="178109118"
+   d="scan'208";a="157735948"
 Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 16:27:01 -0800
-IronPort-SDR: OnmjgqNR5e8kWGDVyrh8ez1WY1OwvWKHjLRc0L4QRwztIDEksBRSvej3JL7sLwx4UK3BqheQVS
- hR7QuMFbq4ag==
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 16:26:50 -0800
+IronPort-SDR: EJU6EsyN0GHXXDNCtpRUB5+w6QCkymJDvspVoFoGCcejFiK+Picwn2jeNT8pbmd0uAqO/YyYNp
+ 2EwLuPDqlxVA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="348273541"
+   d="scan'208";a="348273482"
 Received: from maru.jf.intel.com ([10.54.51.77])
-  by orsmga003.jf.intel.com with ESMTP; 11 Jan 2021 16:27:00 -0800
+  by orsmga003.jf.intel.com with ESMTP; 11 Jan 2021 16:26:50 -0800
 From:   Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 To:     Brendan Higgins <brendanhiggins@google.com>,
         Wolfram Sang <wsa@the-dreams.de>,
@@ -45,12 +44,10 @@ To:     Brendan Higgins <brendanhiggins@google.com>,
 Cc:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
         Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH v2 2/4] ARM: dts: aspeed: modify I2C node to support buffer mode
-Date:   Mon, 11 Jan 2021 16:37:47 -0800
-Message-Id: <20210112003749.10565-3-jae.hyun.yoo@linux.intel.com>
+Subject: [PATCH v2 0/4] i2c: aspeed: Add buffer and DMA modes support
+Date:   Mon, 11 Jan 2021 16:37:45 -0800
+Message-Id: <20210112003749.10565-1-jae.hyun.yoo@linux.intel.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210112003749.10565-1-jae.hyun.yoo@linux.intel.com>
-References: <20210112003749.10565-1-jae.hyun.yoo@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,110 +55,66 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This driver uses byte mode that makes lots of interrupt calls
-so it's not good for performance. Also, it makes the driver very
-timing sensitive. To improve performance of the driver, this commit
-modifies I2C node to support buffer mode which uses I2C SRAM buffer
-instead of using a single byte buffer.
+This patch series adds buffer mode and DMA mode transfer support for the
+Aspeed I2C driver. With this change, default transfer mode will be set to
+buffer mode for better performance, and DMA mode can be selectively used
+depends on platform configuration.
 
-AST2400:
-It has 2 KBytes (256 Bytes x 8 pages) of I2C SRAM buffer pool from
-0x1e78a800 to 0x1e78afff that can be used for all busses with
-buffer pool manipulation. To simplify implementation for supporting
-both AST2400 and AST2500, it assigns each 128 Bytes per bus without
-using buffer pool manipulation so total 1792 Bytes of I2C SRAM
-buffer will be used.
+* Buffer mode
+  AST2400:
+    It has 2 KBytes (256 Bytes x 8 pages) of I2C SRAM buffer pool from
+    0x1e78a800 to 0x1e78afff that can be used for all busses with
+    buffer pool manipulation. To simplify implementation for supporting
+    both AST2400 and AST2500, it assigns each 128 Bytes per bus without
+    using buffer pool manipulation so total 1792 Bytes of I2C SRAM
+    buffer will be used.
 
-AST2500:
-It has 16 Bytes of individual I2C SRAM buffer per each bus and its
-range is from 0x1e78a200 to 0x1e78a2df, so it doesn't have 'buffer
-page selection' bit field in the Function control register, and
-neither 'base address pointer' bit field in the Pool buffer control
-register it has. To simplify implementation for supporting both
-AST2400 and AST2500, it writes zeros on those register bit fields
-but it's okay because it does nothing in AST2500.
+  AST2500:
+    It has 16 Bytes of individual I2C SRAM buffer per each bus and its
+    range is from 0x1e78a200 to 0x1e78a2df, so it doesn't have 'buffer
+    page selection' bit field in the Function control register, and
+    neither 'base address pointer' bit field in the Pool buffer control
+    register it has. To simplify implementation for supporting both
+    AST2400 and AST2500, it writes zeros on those register bit fields
+    but it's okay because it does nothing in AST2500.
 
-AST2600:
-It has 32 Bytes of individual I2C SRAM buffer per each bus and its
-range is from 0x1e78ac00 to 0x1e78adff. Works just like AST2500
-does.
+  AST2600:
+    It has 32 Bytes of individual I2C SRAM buffer per each bus and its
+    range is from 0x1e78ac00 to 0x1e78adff. Works just like AST2500
+    does.
 
-See Documentation/devicetree/bindings/i2c/i2c-aspeed.txt for
-enabling buffer mode details.
+* DMA mode
+  Only AST2500 and later versions support DMA mode under some limitations
+  in case of AST2500:
+    I2C is sharing the DMA H/W with UHCI host controller and MCTP
+    controller. Since those controllers operate with DMA mode only, I2C
+    has to use buffer mode or byte mode instead if one of those
+    controllers is enabled. Also make sure that if SD/eMMC or Port80
+    snoop uses DMA mode instead of PIO or FIFO respectively, I2C can't
+    use DMA mode.
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
----
+Please review it.
+
 Changes since v1:
-- Updated commit message.
-- Removed buffer reg settings to keep the default transfer mode as byte mode.
+V1: https://lore.kernel.org/linux-arm-kernel/20191007231313.4700-1-jae.hyun.yoo@linux.intel.com/
+- Removed a bug fix patch which was merged already from this patch series. 
+- Removed buffer reg settings from default device tree and added the settings
+  into bindings document to show the predefined buffer range per each bus.
+- Updated commit message and comments.
+- Refined driver code using abstract functions.
 
- arch/arm/boot/dts/aspeed-g4.dtsi | 19 ++++++++++++++-----
- arch/arm/boot/dts/aspeed-g5.dtsi | 19 ++++++++++++++-----
- 2 files changed, 28 insertions(+), 10 deletions(-)
+Jae Hyun Yoo (4):
+  dt-bindings: i2c: aspeed: add buffer and DMA mode transfer support
+  ARM: dts: aspeed: modify I2C node to support buffer mode
+  i2c: aspeed: add buffer mode transfer support
+  i2c: aspeed: add DMA mode transfer support
 
-diff --git a/arch/arm/boot/dts/aspeed-g4.dtsi b/arch/arm/boot/dts/aspeed-g4.dtsi
-index b3dafbc8caca..35876b633b08 100644
---- a/arch/arm/boot/dts/aspeed-g4.dtsi
-+++ b/arch/arm/boot/dts/aspeed-g4.dtsi
-@@ -442,12 +442,21 @@
- };
- 
- &i2c {
--	i2c_ic: interrupt-controller@0 {
--		#interrupt-cells = <1>;
--		compatible = "aspeed,ast2400-i2c-ic";
-+	i2c_gr: i2c-global-regs@0 {
-+		compatible = "aspeed,ast2400-i2c-gr", "syscon";
- 		reg = <0x0 0x40>;
--		interrupts = <12>;
--		interrupt-controller;
-+
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges = <0x0 0x0 0x40>;
-+
-+		i2c_ic: interrupt-controller@0 {
-+			#interrupt-cells = <1>;
-+			compatible = "aspeed,ast2400-i2c-ic";
-+			reg = <0x0 0x4>;
-+			interrupts = <12>;
-+			interrupt-controller;
-+		};
- 	};
- 
- 	i2c0: i2c-bus@40 {
-diff --git a/arch/arm/boot/dts/aspeed-g5.dtsi b/arch/arm/boot/dts/aspeed-g5.dtsi
-index 5bc0de0f3365..2ef4fbe43afe 100644
---- a/arch/arm/boot/dts/aspeed-g5.dtsi
-+++ b/arch/arm/boot/dts/aspeed-g5.dtsi
-@@ -565,12 +565,21 @@
- };
- 
- &i2c {
--	i2c_ic: interrupt-controller@0 {
--		#interrupt-cells = <1>;
--		compatible = "aspeed,ast2500-i2c-ic";
-+	i2c_gr: i2c-global-regs@0 {
-+		compatible = "aspeed,ast2500-i2c-gr", "syscon";
- 		reg = <0x0 0x40>;
--		interrupts = <12>;
--		interrupt-controller;
-+
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges = <0x0 0x0 0x40>;
-+
-+		i2c_ic: interrupt-controller@0 {
-+			#interrupt-cells = <1>;
-+			compatible = "aspeed,ast2500-i2c-ic";
-+			reg = <0x0 0x4>;
-+			interrupts = <12>;
-+			interrupt-controller;
-+		};
- 	};
- 
- 	i2c0: i2c-bus@40 {
+ .../devicetree/bindings/i2c/i2c-aspeed.txt    | 126 +++-
+ arch/arm/boot/dts/aspeed-g4.dtsi              |  19 +-
+ arch/arm/boot/dts/aspeed-g5.dtsi              |  19 +-
+ drivers/i2c/busses/i2c-aspeed.c               | 553 ++++++++++++++++--
+ 4 files changed, 667 insertions(+), 50 deletions(-)
+
 -- 
 2.17.1
 
