@@ -2,29 +2,30 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2F34C433DB
-	for <linux-i2c@archiver.kernel.org>; Wed, 13 Jan 2021 18:32:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CA5AC433E0
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 Jan 2021 18:32:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEC87233ED
-	for <linux-i2c@archiver.kernel.org>; Wed, 13 Jan 2021 18:32:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3AAAE233FC
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 Jan 2021 18:32:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728351AbhAMScL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 13 Jan 2021 13:32:11 -0500
-Received: from relay06.th.seeweb.it ([5.144.164.167]:36175 "EHLO
-        relay06.th.seeweb.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725987AbhAMScL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Jan 2021 13:32:11 -0500
-X-Greylist: delayed 362 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Jan 2021 13:32:10 EST
+        id S1725987AbhAMSc0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 13 Jan 2021 13:32:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33322 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726438AbhAMScZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Jan 2021 13:32:25 -0500
+Received: from m-r2.th.seeweb.it (m-r2.th.seeweb.it [IPv6:2001:4b7a:2000:18::171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A5AAC061786
+        for <linux-i2c@vger.kernel.org>; Wed, 13 Jan 2021 10:31:30 -0800 (PST)
 Received: from IcarusMOD.eternityproject.eu (unknown [2.237.20.237])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by m-r2.th.seeweb.it (Postfix) with ESMTPSA id D1C993F25F;
+        by m-r2.th.seeweb.it (Postfix) with ESMTPSA id 4FB513F249;
         Wed, 13 Jan 2021 19:25:25 +0100 (CET)
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@somainline.org>
@@ -36,75 +37,36 @@ Cc:     linux-kernel@vger.kernel.org, konrad.dybcio@somainline.org,
         linux-i2c@vger.kernel.org,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@somainline.org>
-Subject: [PATCH 2/3] i2c: qup: Introduce SCL/SDA noise rejection
-Date:   Wed, 13 Jan 2021 19:25:21 +0100
-Message-Id: <20210113182522.443262-3-angelogioacchino.delregno@somainline.org>
+Subject: [PATCH 0/3] QCOM QUP I2C - Add noise rejection, convert to YAML
+Date:   Wed, 13 Jan 2021 19:25:19 +0100
+Message-Id: <20210113182522.443262-1-angelogioacchino.delregno@somainline.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210113182522.443262-1-angelogioacchino.delregno@somainline.org>
-References: <20210113182522.443262-1-angelogioacchino.delregno@somainline.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Some I2C devices may be glitchy due to electrical noise coming
-from the device itself or because of possible board design issues.
-To overcome this issue, the QUP's I2C in Qualcomm SoCs supports
-a noise rejection setting for both SCL and SDA lines.
+This patch series converts the i2c-qup bindings to YAML and then
+adds support for noise rejection, which is needed for some noisy
+hardware, like the touchscreen on the F(x)Tec Pro1.
+After adding noise rejection, the touchscreen stopped showing
+ghost touch issues and lockups.
 
-Introduce a setting for noise rejection through device properties,
-"qcom,noise-reject-sda" and "qcom,noise-reject-scl", which will
-be used to set the level of noise rejection sensitivity.
-If the properties are not specified, noise rejection will not be
-enabled.
+Tested on F(x)Tec Pro1 (MSM8998)
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
----
- drivers/i2c/busses/i2c-qup.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+AngeloGioacchino Del Regno (3):
+  dt-bindings: i2c: qcom,i2c-qup: Convert txt to YAML schema
+  i2c: qup: Introduce SCL/SDA noise rejection
+  dt-bindings: i2c: qcom,i2c-qup: Document noise rejection properties
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 5a47915869ae..35cc47f010e3 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -39,6 +39,8 @@
- #define QUP_MX_READ_CNT		0x208
- #define QUP_IN_FIFO_BASE	0x218
- #define QUP_I2C_CLK_CTL		0x400
-+#define  QUP_I2C_CLK_CTL_SDA_NR	GENMASK(27, 26)
-+#define  QUP_I2C_CLK_CTL_SCL_NR	GENMASK(25, 24)
- #define QUP_I2C_STATUS		0x404
- #define QUP_I2C_MASTER_GEN	0x408
- 
-@@ -1663,6 +1665,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 	int ret, fs_div, hs_div;
- 	u32 src_clk_freq = DEFAULT_SRC_CLK;
- 	u32 clk_freq = DEFAULT_CLK_FREQ;
-+	u32 noise_reject_scl = 0, noise_reject_sda = 0;
- 	int blocks;
- 	bool is_qup_v1;
- 
-@@ -1860,6 +1863,19 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 		qup->clk_ctl = ((fs_div / 2) << 16) | (hs_div << 8) | (fs_div & 0xff);
- 	}
- 
-+	/* SCL/SDA Noise rejection (optional) */
-+	ret = device_property_read_u32(qup->dev, "qcom,noise-reject-scl",
-+				      &noise_reject_scl);
-+	if (ret == 0)
-+		qup->clk_ctl |= FIELD_PREP(QUP_I2C_CLK_CTL_SCL_NR,
-+					   noise_reject_scl);
-+
-+	ret = device_property_read_u32(qup->dev, "qcom,noise-reject-sda",
-+				      &noise_reject_sda);
-+	if (ret == 0)
-+		qup->clk_ctl |= FIELD_PREP(QUP_I2C_CLK_CTL_SDA_NR,
-+					   noise_reject_sda);
-+
- 	/*
- 	 * Time it takes for a byte to be clocked out on the bus.
- 	 * Each byte takes 9 clock cycles (8 bits + 1 ack).
+ .../devicetree/bindings/i2c/qcom,i2c-qup.txt  |  40 -------
+ .../devicetree/bindings/i2c/qcom,i2c-qup.yaml | 101 ++++++++++++++++++
+ drivers/i2c/busses/i2c-qup.c                  |  16 +++
+ 3 files changed, 117 insertions(+), 40 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/qcom,i2c-qup.yaml
+
 -- 
 2.29.2
 
