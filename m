@@ -2,89 +2,115 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86145C433E9
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 19:42:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B5D5C433E6
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 Jan 2021 00:48:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4AD3B2311F
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 Jan 2021 19:42:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E97BB23132
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 Jan 2021 00:48:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392989AbhALTl7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 12 Jan 2021 14:41:59 -0500
-Received: from www.zeus03.de ([194.117.254.33]:54896 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392184AbhALTl7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 12 Jan 2021 14:41:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=t9XstqtRgrmC0ix2FNPF67k/oNnC
-        JJETaagxYwsHmRE=; b=JaDwonS5UZRK77cksg6+5d/q9duNxG5p8d/FLbtvV5Jz
-        Y11V37KBxCcFyOIRxpCpqbZGfkXY2gaNCCw9HRKhFs1MPFOMTmVvzOaNdakd4Mk7
-        IgSrnsvZutal1lQmf4tTxEBWeXikHBnx8DOQa5A0yj8cbSM4BwT8dJpQDy2GVLY=
-Received: (qmail 2864404 invoked from network); 12 Jan 2021 20:41:17 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 12 Jan 2021 20:41:17 +0100
-X-UD-Smtp-Session: l3s3148p1@ZZq9NLm4qNMgAwDPXwxzAHrEwO71dOp2
-Date:   Tue, 12 Jan 2021 20:41:16 +0100
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC 2/3] media: i2c: adv7842: remove open coded version
- of SMBus block read
-Message-ID: <20210112194116.GA50007@kunai>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-i2c@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20210112164130.47895-1-wsa+renesas@sang-engineering.com>
- <20210112164130.47895-3-wsa+renesas@sang-engineering.com>
+        id S2393728AbhAMAnJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 12 Jan 2021 19:43:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48358 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392137AbhAMADB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 12 Jan 2021 19:03:01 -0500
+Received: from mail-ua1-x92b.google.com (mail-ua1-x92b.google.com [IPv6:2607:f8b0:4864:20::92b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B89C0617A2
+        for <linux-i2c@vger.kernel.org>; Tue, 12 Jan 2021 16:01:39 -0800 (PST)
+Received: by mail-ua1-x92b.google.com with SMTP id g5so122119uak.10
+        for <linux-i2c@vger.kernel.org>; Tue, 12 Jan 2021 16:01:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=X1O0kACakbx2RcXU3rpwMtnI8YwFi/QQJx5lWup4tPs=;
+        b=TDD54LXJMIOHuHC7yNuKWAIpA7mi5lm/OaZT3vtTzB+EkbjAgXxIfvyiLWCvNt2eYd
+         7H015wWHRDVue0tnkGew/FoTWBQN5+AKOCCqt1KtEX+CVdeCsXBTX39Zm+9qh7Cme+C7
+         HYZTgCC2CbUmmy71bvcExAzSpON5Y5i8fhc5Y=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=X1O0kACakbx2RcXU3rpwMtnI8YwFi/QQJx5lWup4tPs=;
+        b=sOwC1of+ucMvTuiiyxggTZn5+Yx9kbIYAd7nP4jg80D04Lddpqztt85ft9RZF2Uftu
+         wOdMX1+kdMt6IOGquC5EAO+vcPMVPb21DpSq73kc9ZlUGyOcfxu8Yie2RpYuA07LOg4G
+         30qwtplILNbw3JApfNyNS7U7QQPQ/6Kpq63p6q9rZr17wwgBVUF5aEJs1gkcpDmGzKKU
+         MhlIjgbYWNt++kqEPESG+2vpoLa87G6WZ4QxCGbK0a8xSInGhr2Yv434zGUtpHIisLVE
+         rknd9jnGmjy7jOORgG5/379VRuigPg1w9Ts6zYCD8RjAUW6tRH4pWjBJZ/2s/IiIS/3v
+         PKaA==
+X-Gm-Message-State: AOAM532TbvUO7Ph+4v3Y04brGKoRxDAKFiZr+rS+NXFB1NvkSawdVRQX
+        xvH3NAM64pMpxcQYY5pwH32qDKwUe/hcAQ==
+X-Google-Smtp-Source: ABdhPJwluMEkzj+bzTbgyTkJlTiX4+5749c0XR9BYQFezvDCLK1Doj+rIQKiXhWyJDgD0Tb7LNur0A==
+X-Received: by 2002:ab0:7386:: with SMTP id l6mr1885854uap.141.1610496098288;
+        Tue, 12 Jan 2021 16:01:38 -0800 (PST)
+Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com. [209.85.217.52])
+        by smtp.gmail.com with ESMTPSA id k14sm48778uae.12.2021.01.12.16.01.37
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Jan 2021 16:01:37 -0800 (PST)
+Received: by mail-vs1-f52.google.com with SMTP id x4so161515vsp.7
+        for <linux-i2c@vger.kernel.org>; Tue, 12 Jan 2021 16:01:37 -0800 (PST)
+X-Received: by 2002:a67:7385:: with SMTP id o127mr2228991vsc.8.1610496096878;
+ Tue, 12 Jan 2021 16:01:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
-Content-Disposition: inline
-In-Reply-To: <20210112164130.47895-3-wsa+renesas@sang-engineering.com>
+References: <20210111151651.1616813-1-vkoul@kernel.org>
+In-Reply-To: <20210111151651.1616813-1-vkoul@kernel.org>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Tue, 12 Jan 2021 16:01:24 -0800
+X-Gmail-Original-Message-ID: <CAD=FV=XvgP5j3ikCnr2zDptFbWPRQhGGQotqyFGmN7NWNP8knA@mail.gmail.com>
+Message-ID: <CAD=FV=XvgP5j3ikCnr2zDptFbWPRQhGGQotqyFGmN7NWNP8knA@mail.gmail.com>
+Subject: Re: [PATCH 0/7] Add and enable GPI DMA users
+To:     Vinod Koul <vkoul@kernel.org>
+Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Amit Pundir <amit.pundir@linaro.org>,
+        linux-spi <linux-spi@vger.kernel.org>, linux-i2c@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi,
 
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Mon, Jan 11, 2021 at 7:17 AM Vinod Koul <vkoul@kernel.org> wrote:
+>
+> Hello,
+>
+> This series add the GPI DMA in qcom geni spi and i2c drivers. For this we
+> first need to move GENI_IF_DISABLE_RO and struct geni_wrapper to common
+> headers and then add support for gpi dma in geni driver.
+>
+> Then we add spi and i2c geni driver changes to support this DMA.
+>
+> Lastly, add the GPI dma nodes and enable dma for spi found in Rb3 board.
+>
+> To merge this, we could merge all thru qcom tree with ack on spi/i2c.
 
+It'd be super great if somewhere (ideally in the commit message and
+maybe somewhere in the code) you could talk more about the different
+modes.  Maybe something like this (if it's correct):
 
-> +static int adv7511_edid_rd(struct v4l2_subdev *sd, uint16_t len, uint8_t *buf)
->  {
->  	struct adv7511_state *state = get_adv7511_state(sd);
-> +	s32 len;
+GPI Mode (confusingly, also known as "GSI" mode in some places): In
+this mode something else running on the SoC is sharing access to the
+geni instance.  This mode allows sharing the device between the Linux
+kernel and other users including handling the fact that other users
+might be running the geni port at a different clock rate.  GPI mode
+limits what you can do with a port.  For instance, direct control of
+chip select is not allowed.  NOTE: if firmware has configured a geni
+instance for GPI then FIFO and SE_DMA usage is not allowed.
+Conversely, if firmware has not configured a geni instance for GPI
+then only FIFO and SE_DMA usage is allowed.
 
-And 'len' here shadows the function argument :( Ok, I need to resend
-this patch. Still, looking forward to a comment if an approach like this
-is acceptable.
+SE DMA Mode: Data transfers happen over DMA.
 
-
---VbJkn9YxBvnuCH5J
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl/9+1gACgkQFA3kzBSg
-KbZFzhAAh2Wa1O3n+/gpFeJusi6JllSei7zH9E2v/pWihrudzMC/FhEp4uPzMDOt
-/w9b9ZLzGTZSxx38qyOdZgJBtib6liZQt6Zgsdrbh0kIRvmXDQNxpx8KZa/1ukZy
-0ze1WghkEI1Jalop1FNnbzRVSBctb/lOCWevcwyQ7fbHca5OeLM8Hj2HHQahH+WU
-s6UMddJAr+f7eOCc1eoc2kSjzQWQUexfNMoaYLvUZZdGTb87dd07mZlcoNgvBoeC
-aM9zzBJUhALDOMioMVZujVc8kWerGF3MSPrT3uglbkGR+cdwo8GNQmoAMhgHRNi9
-U2pHugFL7Oi58skehzpFDuJjqDyIpaX11U7VkrU214tEJOKo4avt+XCjpgoKzFaA
-ZYGUoI1I2JQTo7CEz/Akd/vgSi+umhRAm+GTAhPy+I8q4eJaJagR38iC5zdfYW+a
-S5SsHpGG31BOkIiI7heqa66W7H7B8PuCTie+QzF2rlBFJ3JlzgyuJQpTfx7p4Ths
-Z7dCq2XHyyZiFyqaoRHaIKR5L+oGYfxA5U5nVYjn8hAFIkis+pMwi57VK+Kw5l/m
-GLiTtNjbdRFcB3syxsbdtVSMacohOZl4nIdZhwxRbEpTq9UDTiQNFDVkDXwCw9bB
-7ilk+AoO1gTNaVSEm+xPhzj/l5p7Ez0bgkp00ACEwOUEexu7gG4=
-=qSVB
------END PGP SIGNATURE-----
-
---VbJkn9YxBvnuCH5J--
+SE FIFO Mode: Data is manually transferred into the FIFO by the CPU.
