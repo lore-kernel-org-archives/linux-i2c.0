@@ -2,94 +2,574 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD3E6C433E6
-	for <linux-i2c@archiver.kernel.org>; Thu, 14 Jan 2021 14:40:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DAD1C433E9
+	for <linux-i2c@archiver.kernel.org>; Thu, 14 Jan 2021 15:17:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A821923A6C
-	for <linux-i2c@archiver.kernel.org>; Thu, 14 Jan 2021 14:40:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 22F6023AA3
+	for <linux-i2c@archiver.kernel.org>; Thu, 14 Jan 2021 15:17:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728919AbhANOkB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 14 Jan 2021 09:40:01 -0500
-Received: from mga04.intel.com ([192.55.52.120]:6291 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728523AbhANOkA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 14 Jan 2021 09:40:00 -0500
-IronPort-SDR: MHpZhNm2V45Y6SkhlUjJldR8paUz6fnDt9BauUZB63CBUX1QBUNjB3J9E7P4bb//iF9GA+vdiD
- ycDLZ5y45kXw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9863"; a="175794848"
-X-IronPort-AV: E=Sophos;i="5.79,347,1602572400"; 
-   d="scan'208";a="175794848"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jan 2021 06:38:14 -0800
-IronPort-SDR: fgHQ4xOnPkgoKV+9F/6efulmuQaFDcWfce55AhXBQMCDZrs9NugJjyvQBImQdlPs0+v6l5gxoq
- XtsirzT0Egkg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.79,347,1602572400"; 
-   d="scan'208";a="400916862"
-Received: from mylly.fi.intel.com (HELO mylly.fi.intel.com.) ([10.237.72.56])
-  by fmsmga002.fm.intel.com with ESMTP; 14 Jan 2021 06:38:13 -0800
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     Wolfram Sang <wsa@kernel.org>, Jean Delvare <jdelvare@suse.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH] i2c: i801: Add support for Intel Alder Lake PCH-P
-Date:   Thu, 14 Jan 2021 16:38:11 +0200
-Message-Id: <20210114143811.1820137-1-jarkko.nikula@linux.intel.com>
+        id S1727121AbhANPRZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 14 Jan 2021 10:17:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46978 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726563AbhANPRS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Jan 2021 10:17:18 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7AB6C061757
+        for <linux-i2c@vger.kernel.org>; Thu, 14 Jan 2021 07:16:37 -0800 (PST)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1l04MT-00022O-Ds; Thu, 14 Jan 2021 16:16:33 +0100
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1l04MT-000130-0u; Thu, 14 Jan 2021 16:16:33 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+        Wolfram Sang <wsa@kernel.org>
+List-Id: <soc.lore.kernel.org>
+Cc:     soc@kernel.org, linux-arm-kernel@lists.infradead.org,
+        kernel@pengutronix.de, linux-i2c@vger.kernel.org
+Subject: [PATCH v1 5/7] i2c: Drop unused efm32 bus driver
+Date:   Thu, 14 Jan 2021 16:16:28 +0100
+Message-Id: <20210114151630.128830-6-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210114151630.128830-1-u.kleine-koenig@pengutronix.de>
+References: <20210114151630.128830-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add PCI ID of SMBus controller on Intel Alder Lake PCH-P.
+Support for this machine was just removed, so drop the now unused i2c
+bus driver, too.
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/i2c/busses/i2c-i801.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/Kconfig     |   7 -
+ drivers/i2c/busses/Makefile    |   1 -
+ drivers/i2c/busses/i2c-efm32.c | 469 ---------------------------------
+ 3 files changed, 477 deletions(-)
+ delete mode 100644 drivers/i2c/busses/i2c-efm32.c
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 4435e5fdc75e..b931b629b457 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -73,6 +73,7 @@
-  * Jasper Lake (SOC)		0x4da3	32	hard	yes	yes	yes
-  * Comet Lake-V (PCH)		0xa3a3	32	hard	yes	yes	yes
-  * Alder Lake-S (PCH)		0x7aa3	32	hard	yes	yes	yes
-+ * Alder Lake-P (PCH)		0x51a3	32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -230,6 +231,7 @@
- #define PCI_DEVICE_ID_INTEL_TIGERLAKE_H_SMBUS		0x43a3
- #define PCI_DEVICE_ID_INTEL_ELKHART_LAKE_SMBUS		0x4b23
- #define PCI_DEVICE_ID_INTEL_JASPER_LAKE_SMBUS		0x4da3
-+#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_P_SMBUS		0x51a3
- #define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_S_SMBUS		0x7aa3
- #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS		0x8c22
-@@ -1087,6 +1089,7 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TIGERLAKE_H_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_JASPER_LAKE_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ALDER_LAKE_S_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ALDER_LAKE_P_SMBUS) },
- 	{ 0, }
- };
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index d4d60ad0eda0..fd919f9339d6 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -586,13 +586,6 @@ config I2C_DIGICOLOR
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-digicolor.
  
-@@ -1776,6 +1779,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	case PCI_DEVICE_ID_INTEL_JASPER_LAKE_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_EBG_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_ALDER_LAKE_S_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_ALDER_LAKE_P_SMBUS:
- 		priv->features |= FEATURE_BLOCK_PROC;
- 		priv->features |= FEATURE_I2C_BLOCK_READ;
- 		priv->features |= FEATURE_IRQ;
+-config I2C_EFM32
+-	tristate "EFM32 I2C controller"
+-	depends on ARCH_EFM32 || COMPILE_TEST
+-	help
+-	  This driver supports the i2c block found in Energy Micro's EFM32
+-	  SoCs.
+-
+ config I2C_EG20T
+ 	tristate "Intel EG20T PCH/LAPIS Semicon IOH(ML7213/ML7223/ML7831) I2C"
+ 	depends on PCI && (X86_32 || MIPS || COMPILE_TEST)
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 683c49faca05..894ff95885b8 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -58,7 +58,6 @@ i2c-designware-platform-$(CONFIG_I2C_DESIGNWARE_BAYTRAIL) += i2c-designware-bayt
+ obj-$(CONFIG_I2C_DESIGNWARE_PCI)			+= i2c-designware-pci.o
+ i2c-designware-pci-y					:= i2c-designware-pcidrv.o
+ obj-$(CONFIG_I2C_DIGICOLOR)	+= i2c-digicolor.o
+-obj-$(CONFIG_I2C_EFM32)		+= i2c-efm32.o
+ obj-$(CONFIG_I2C_EG20T)		+= i2c-eg20t.o
+ obj-$(CONFIG_I2C_EMEV2)		+= i2c-emev2.o
+ obj-$(CONFIG_I2C_EXYNOS5)	+= i2c-exynos5.o
+diff --git a/drivers/i2c/busses/i2c-efm32.c b/drivers/i2c/busses/i2c-efm32.c
+deleted file mode 100644
+index f6e13ceeb2b3..000000000000
+--- a/drivers/i2c/busses/i2c-efm32.c
++++ /dev/null
+@@ -1,469 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * Copyright (C) 2014 Uwe Kleine-Koenig for Pengutronix
+- */
+-#include <linux/module.h>
+-#include <linux/platform_device.h>
+-#include <linux/i2c.h>
+-#include <linux/io.h>
+-#include <linux/interrupt.h>
+-#include <linux/err.h>
+-#include <linux/clk.h>
+-
+-#define DRIVER_NAME "efm32-i2c"
+-
+-#define MASK_VAL(mask, val)		((val << __ffs(mask)) & mask)
+-
+-#define REG_CTRL		0x00
+-#define REG_CTRL_EN			0x00001
+-#define REG_CTRL_SLAVE			0x00002
+-#define REG_CTRL_AUTOACK		0x00004
+-#define REG_CTRL_AUTOSE			0x00008
+-#define REG_CTRL_AUTOSN			0x00010
+-#define REG_CTRL_ARBDIS			0x00020
+-#define REG_CTRL_GCAMEN			0x00040
+-#define REG_CTRL_CLHR__MASK		0x00300
+-#define REG_CTRL_BITO__MASK		0x03000
+-#define REG_CTRL_BITO_OFF		0x00000
+-#define REG_CTRL_BITO_40PCC		0x01000
+-#define REG_CTRL_BITO_80PCC		0x02000
+-#define REG_CTRL_BITO_160PCC		0x03000
+-#define REG_CTRL_GIBITO			0x08000
+-#define REG_CTRL_CLTO__MASK		0x70000
+-#define REG_CTRL_CLTO_OFF		0x00000
+-
+-#define REG_CMD			0x04
+-#define REG_CMD_START			0x00001
+-#define REG_CMD_STOP			0x00002
+-#define REG_CMD_ACK			0x00004
+-#define REG_CMD_NACK			0x00008
+-#define REG_CMD_CONT			0x00010
+-#define REG_CMD_ABORT			0x00020
+-#define REG_CMD_CLEARTX			0x00040
+-#define REG_CMD_CLEARPC			0x00080
+-
+-#define REG_STATE		0x08
+-#define REG_STATE_BUSY			0x00001
+-#define REG_STATE_MASTER		0x00002
+-#define REG_STATE_TRANSMITTER		0x00004
+-#define REG_STATE_NACKED		0x00008
+-#define REG_STATE_BUSHOLD		0x00010
+-#define REG_STATE_STATE__MASK		0x000e0
+-#define REG_STATE_STATE_IDLE		0x00000
+-#define REG_STATE_STATE_WAIT		0x00020
+-#define REG_STATE_STATE_START		0x00040
+-#define REG_STATE_STATE_ADDR		0x00060
+-#define REG_STATE_STATE_ADDRACK		0x00080
+-#define REG_STATE_STATE_DATA		0x000a0
+-#define REG_STATE_STATE_DATAACK		0x000c0
+-
+-#define REG_STATUS		0x0c
+-#define REG_STATUS_PSTART		0x00001
+-#define REG_STATUS_PSTOP		0x00002
+-#define REG_STATUS_PACK			0x00004
+-#define REG_STATUS_PNACK		0x00008
+-#define REG_STATUS_PCONT		0x00010
+-#define REG_STATUS_PABORT		0x00020
+-#define REG_STATUS_TXC			0x00040
+-#define REG_STATUS_TXBL			0x00080
+-#define REG_STATUS_RXDATAV		0x00100
+-
+-#define REG_CLKDIV		0x10
+-#define REG_CLKDIV_DIV__MASK		0x001ff
+-#define REG_CLKDIV_DIV(div)		MASK_VAL(REG_CLKDIV_DIV__MASK, (div))
+-
+-#define REG_SADDR		0x14
+-#define REG_SADDRMASK		0x18
+-#define REG_RXDATA		0x1c
+-#define REG_RXDATAP		0x20
+-#define REG_TXDATA		0x24
+-#define REG_IF			0x28
+-#define REG_IF_START			0x00001
+-#define REG_IF_RSTART			0x00002
+-#define REG_IF_ADDR			0x00004
+-#define REG_IF_TXC			0x00008
+-#define REG_IF_TXBL			0x00010
+-#define REG_IF_RXDATAV			0x00020
+-#define REG_IF_ACK			0x00040
+-#define REG_IF_NACK			0x00080
+-#define REG_IF_MSTOP			0x00100
+-#define REG_IF_ARBLOST			0x00200
+-#define REG_IF_BUSERR			0x00400
+-#define REG_IF_BUSHOLD			0x00800
+-#define REG_IF_TXOF			0x01000
+-#define REG_IF_RXUF			0x02000
+-#define REG_IF_BITO			0x04000
+-#define REG_IF_CLTO			0x08000
+-#define REG_IF_SSTOP			0x10000
+-
+-#define REG_IFS			0x2c
+-#define REG_IFC			0x30
+-#define REG_IFC__MASK			0x1ffcf
+-
+-#define REG_IEN			0x34
+-
+-#define REG_ROUTE		0x38
+-#define REG_ROUTE_SDAPEN		0x00001
+-#define REG_ROUTE_SCLPEN		0x00002
+-#define REG_ROUTE_LOCATION__MASK	0x00700
+-#define REG_ROUTE_LOCATION(n)		MASK_VAL(REG_ROUTE_LOCATION__MASK, (n))
+-
+-struct efm32_i2c_ddata {
+-	struct i2c_adapter adapter;
+-
+-	struct clk *clk;
+-	void __iomem *base;
+-	unsigned int irq;
+-	u8 location;
+-	unsigned long frequency;
+-
+-	/* transfer data */
+-	struct completion done;
+-	struct i2c_msg *msgs;
+-	size_t num_msgs;
+-	size_t current_word, current_msg;
+-	int retval;
+-};
+-
+-static u32 efm32_i2c_read32(struct efm32_i2c_ddata *ddata, unsigned offset)
+-{
+-	return readl(ddata->base + offset);
+-}
+-
+-static void efm32_i2c_write32(struct efm32_i2c_ddata *ddata,
+-		unsigned offset, u32 value)
+-{
+-	writel(value, ddata->base + offset);
+-}
+-
+-static void efm32_i2c_send_next_msg(struct efm32_i2c_ddata *ddata)
+-{
+-	struct i2c_msg *cur_msg = &ddata->msgs[ddata->current_msg];
+-
+-	efm32_i2c_write32(ddata, REG_CMD, REG_CMD_START);
+-	efm32_i2c_write32(ddata, REG_TXDATA, i2c_8bit_addr_from_msg(cur_msg));
+-}
+-
+-static void efm32_i2c_send_next_byte(struct efm32_i2c_ddata *ddata)
+-{
+-	struct i2c_msg *cur_msg = &ddata->msgs[ddata->current_msg];
+-
+-	if (ddata->current_word >= cur_msg->len) {
+-		/* cur_msg completely transferred */
+-		ddata->current_word = 0;
+-		ddata->current_msg += 1;
+-
+-		if (ddata->current_msg >= ddata->num_msgs) {
+-			efm32_i2c_write32(ddata, REG_CMD, REG_CMD_STOP);
+-			complete(&ddata->done);
+-		} else {
+-			efm32_i2c_send_next_msg(ddata);
+-		}
+-	} else {
+-		efm32_i2c_write32(ddata, REG_TXDATA,
+-				cur_msg->buf[ddata->current_word++]);
+-	}
+-}
+-
+-static void efm32_i2c_recv_next_byte(struct efm32_i2c_ddata *ddata)
+-{
+-	struct i2c_msg *cur_msg = &ddata->msgs[ddata->current_msg];
+-
+-	cur_msg->buf[ddata->current_word] = efm32_i2c_read32(ddata, REG_RXDATA);
+-	ddata->current_word += 1;
+-	if (ddata->current_word >= cur_msg->len) {
+-		/* cur_msg completely transferred */
+-		ddata->current_word = 0;
+-		ddata->current_msg += 1;
+-
+-		efm32_i2c_write32(ddata, REG_CMD, REG_CMD_NACK);
+-
+-		if (ddata->current_msg >= ddata->num_msgs) {
+-			efm32_i2c_write32(ddata, REG_CMD, REG_CMD_STOP);
+-			complete(&ddata->done);
+-		} else {
+-			efm32_i2c_send_next_msg(ddata);
+-		}
+-	} else {
+-		efm32_i2c_write32(ddata, REG_CMD, REG_CMD_ACK);
+-	}
+-}
+-
+-static irqreturn_t efm32_i2c_irq(int irq, void *dev_id)
+-{
+-	struct efm32_i2c_ddata *ddata = dev_id;
+-	struct i2c_msg *cur_msg = &ddata->msgs[ddata->current_msg];
+-	u32 irqflag = efm32_i2c_read32(ddata, REG_IF);
+-	u32 state = efm32_i2c_read32(ddata, REG_STATE);
+-
+-	efm32_i2c_write32(ddata, REG_IFC, irqflag & REG_IFC__MASK);
+-
+-	switch (state & REG_STATE_STATE__MASK) {
+-	case REG_STATE_STATE_IDLE:
+-		/* arbitration lost? */
+-		ddata->retval = -EAGAIN;
+-		complete(&ddata->done);
+-		break;
+-	case REG_STATE_STATE_WAIT:
+-		/*
+-		 * huh, this shouldn't happen.
+-		 * Reset hardware state and get out
+-		 */
+-		ddata->retval = -EIO;
+-		efm32_i2c_write32(ddata, REG_CMD,
+-				REG_CMD_STOP | REG_CMD_ABORT |
+-				REG_CMD_CLEARTX | REG_CMD_CLEARPC);
+-		complete(&ddata->done);
+-		break;
+-	case REG_STATE_STATE_START:
+-		/* "caller" is expected to send an address */
+-		break;
+-	case REG_STATE_STATE_ADDR:
+-		/* wait for Ack or NAck of slave */
+-		break;
+-	case REG_STATE_STATE_ADDRACK:
+-		if (state & REG_STATE_NACKED) {
+-			efm32_i2c_write32(ddata, REG_CMD, REG_CMD_STOP);
+-			ddata->retval = -ENXIO;
+-			complete(&ddata->done);
+-		} else if (cur_msg->flags & I2C_M_RD) {
+-			/* wait for slave to send first data byte */
+-		} else {
+-			efm32_i2c_send_next_byte(ddata);
+-		}
+-		break;
+-	case REG_STATE_STATE_DATA:
+-		if (cur_msg->flags & I2C_M_RD) {
+-			efm32_i2c_recv_next_byte(ddata);
+-		} else {
+-			/* wait for Ack or Nack of slave */
+-		}
+-		break;
+-	case REG_STATE_STATE_DATAACK:
+-		if (state & REG_STATE_NACKED) {
+-			efm32_i2c_write32(ddata, REG_CMD, REG_CMD_STOP);
+-			complete(&ddata->done);
+-		} else {
+-			efm32_i2c_send_next_byte(ddata);
+-		}
+-	}
+-
+-	return IRQ_HANDLED;
+-}
+-
+-static int efm32_i2c_master_xfer(struct i2c_adapter *adap,
+-		struct i2c_msg *msgs, int num)
+-{
+-	struct efm32_i2c_ddata *ddata = i2c_get_adapdata(adap);
+-	int ret;
+-
+-	if (ddata->msgs)
+-		return -EBUSY;
+-
+-	ddata->msgs = msgs;
+-	ddata->num_msgs = num;
+-	ddata->current_word = 0;
+-	ddata->current_msg = 0;
+-	ddata->retval = -EIO;
+-
+-	reinit_completion(&ddata->done);
+-
+-	dev_dbg(&ddata->adapter.dev, "state: %08x, status: %08x\n",
+-			efm32_i2c_read32(ddata, REG_STATE),
+-			efm32_i2c_read32(ddata, REG_STATUS));
+-
+-	efm32_i2c_send_next_msg(ddata);
+-
+-	wait_for_completion(&ddata->done);
+-
+-	if (ddata->current_msg >= ddata->num_msgs)
+-		ret = ddata->num_msgs;
+-	else
+-		ret = ddata->retval;
+-
+-	return ret;
+-}
+-
+-static u32 efm32_i2c_functionality(struct i2c_adapter *adap)
+-{
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+-}
+-
+-static const struct i2c_algorithm efm32_i2c_algo = {
+-	.master_xfer = efm32_i2c_master_xfer,
+-	.functionality = efm32_i2c_functionality,
+-};
+-
+-static u32 efm32_i2c_get_configured_location(struct efm32_i2c_ddata *ddata)
+-{
+-	u32 reg = efm32_i2c_read32(ddata, REG_ROUTE);
+-
+-	return (reg & REG_ROUTE_LOCATION__MASK) >>
+-		__ffs(REG_ROUTE_LOCATION__MASK);
+-}
+-
+-static int efm32_i2c_probe(struct platform_device *pdev)
+-{
+-	struct efm32_i2c_ddata *ddata;
+-	struct resource *res;
+-	unsigned long rate;
+-	struct device_node *np = pdev->dev.of_node;
+-	u32 location, frequency;
+-	int ret;
+-	u32 clkdiv;
+-
+-	ddata = devm_kzalloc(&pdev->dev, sizeof(*ddata), GFP_KERNEL);
+-	if (!ddata)
+-		return -ENOMEM;
+-	platform_set_drvdata(pdev, ddata);
+-
+-	init_completion(&ddata->done);
+-	strlcpy(ddata->adapter.name, pdev->name, sizeof(ddata->adapter.name));
+-	ddata->adapter.owner = THIS_MODULE;
+-	ddata->adapter.algo = &efm32_i2c_algo;
+-	ddata->adapter.dev.parent = &pdev->dev;
+-	ddata->adapter.dev.of_node = pdev->dev.of_node;
+-	i2c_set_adapdata(&ddata->adapter, ddata);
+-
+-	ddata->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(ddata->clk)) {
+-		ret = PTR_ERR(ddata->clk);
+-		dev_err(&pdev->dev, "failed to get clock: %d\n", ret);
+-		return ret;
+-	}
+-
+-	ddata->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+-	if (IS_ERR(ddata->base))
+-		return PTR_ERR(ddata->base);
+-
+-	if (resource_size(res) < 0x42) {
+-		dev_err(&pdev->dev, "memory resource too small\n");
+-		return -EINVAL;
+-	}
+-
+-	ret = platform_get_irq(pdev, 0);
+-	if (ret <= 0) {
+-		if (!ret)
+-			ret = -EINVAL;
+-		return ret;
+-	}
+-
+-	ddata->irq = ret;
+-
+-	ret = clk_prepare_enable(ddata->clk);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "failed to enable clock (%d)\n", ret);
+-		return ret;
+-	}
+-
+-
+-	ret = of_property_read_u32(np, "energymicro,location", &location);
+-
+-	if (ret)
+-		/* fall back to wrongly namespaced property */
+-		ret = of_property_read_u32(np, "efm32,location", &location);
+-
+-	if (!ret) {
+-		dev_dbg(&pdev->dev, "using location %u\n", location);
+-	} else {
+-		/* default to location configured in hardware */
+-		location = efm32_i2c_get_configured_location(ddata);
+-
+-		dev_info(&pdev->dev, "fall back to location %u\n", location);
+-	}
+-
+-	ddata->location = location;
+-
+-	ret = of_property_read_u32(np, "clock-frequency", &frequency);
+-	if (!ret) {
+-		dev_dbg(&pdev->dev, "using frequency %u\n", frequency);
+-	} else {
+-		frequency = I2C_MAX_STANDARD_MODE_FREQ;
+-		dev_info(&pdev->dev, "defaulting to 100 kHz\n");
+-	}
+-	ddata->frequency = frequency;
+-
+-	rate = clk_get_rate(ddata->clk);
+-	if (!rate) {
+-		dev_err(&pdev->dev, "there is no input clock available\n");
+-		ret = -EINVAL;
+-		goto err_disable_clk;
+-	}
+-	clkdiv = DIV_ROUND_UP(rate, 8 * ddata->frequency) - 1;
+-	if (clkdiv >= 0x200) {
+-		dev_err(&pdev->dev,
+-				"input clock too fast (%lu) to divide down to bus freq (%lu)",
+-				rate, ddata->frequency);
+-		ret = -EINVAL;
+-		goto err_disable_clk;
+-	}
+-
+-	dev_dbg(&pdev->dev, "input clock = %lu, bus freq = %lu, clkdiv = %lu\n",
+-			rate, ddata->frequency, (unsigned long)clkdiv);
+-	efm32_i2c_write32(ddata, REG_CLKDIV, REG_CLKDIV_DIV(clkdiv));
+-
+-	efm32_i2c_write32(ddata, REG_ROUTE, REG_ROUTE_SDAPEN |
+-			REG_ROUTE_SCLPEN |
+-			REG_ROUTE_LOCATION(ddata->location));
+-
+-	efm32_i2c_write32(ddata, REG_CTRL, REG_CTRL_EN |
+-			REG_CTRL_BITO_160PCC | 0 * REG_CTRL_GIBITO);
+-
+-	efm32_i2c_write32(ddata, REG_IFC, REG_IFC__MASK);
+-	efm32_i2c_write32(ddata, REG_IEN, REG_IF_TXC | REG_IF_ACK | REG_IF_NACK
+-			| REG_IF_ARBLOST | REG_IF_BUSERR | REG_IF_RXDATAV);
+-
+-	/* to make bus idle */
+-	efm32_i2c_write32(ddata, REG_CMD, REG_CMD_ABORT);
+-
+-	ret = request_irq(ddata->irq, efm32_i2c_irq, 0, DRIVER_NAME, ddata);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "failed to request irq (%d)\n", ret);
+-		goto err_disable_clk;
+-	}
+-
+-	ret = i2c_add_adapter(&ddata->adapter);
+-	if (ret) {
+-		free_irq(ddata->irq, ddata);
+-
+-err_disable_clk:
+-		clk_disable_unprepare(ddata->clk);
+-	}
+-	return ret;
+-}
+-
+-static int efm32_i2c_remove(struct platform_device *pdev)
+-{
+-	struct efm32_i2c_ddata *ddata = platform_get_drvdata(pdev);
+-
+-	i2c_del_adapter(&ddata->adapter);
+-	free_irq(ddata->irq, ddata);
+-	clk_disable_unprepare(ddata->clk);
+-
+-	return 0;
+-}
+-
+-static const struct of_device_id efm32_i2c_dt_ids[] = {
+-	{
+-		.compatible = "energymicro,efm32-i2c",
+-	}, {
+-		/* sentinel */
+-	}
+-};
+-MODULE_DEVICE_TABLE(of, efm32_i2c_dt_ids);
+-
+-static struct platform_driver efm32_i2c_driver = {
+-	.probe = efm32_i2c_probe,
+-	.remove = efm32_i2c_remove,
+-
+-	.driver = {
+-		.name = DRIVER_NAME,
+-		.of_match_table = efm32_i2c_dt_ids,
+-	},
+-};
+-module_platform_driver(efm32_i2c_driver);
+-
+-MODULE_AUTHOR("Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>");
+-MODULE_DESCRIPTION("EFM32 i2c driver");
+-MODULE_LICENSE("GPL v2");
+-MODULE_ALIAS("platform:" DRIVER_NAME);
 -- 
 2.29.2
 
