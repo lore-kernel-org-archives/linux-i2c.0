@@ -2,143 +2,121 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2B53C4332E
-	for <linux-i2c@archiver.kernel.org>; Fri, 15 Jan 2021 15:53:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 743EDC433DB
+	for <linux-i2c@archiver.kernel.org>; Fri, 15 Jan 2021 15:58:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AF7FA238A0
-	for <linux-i2c@archiver.kernel.org>; Fri, 15 Jan 2021 15:53:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 379B2238EB
+	for <linux-i2c@archiver.kernel.org>; Fri, 15 Jan 2021 15:58:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732304AbhAOPw7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 15 Jan 2021 10:52:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53936 "EHLO
+        id S1728898AbhAOP6V (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 15 Jan 2021 10:58:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732197AbhAOPw7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Jan 2021 10:52:59 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86A77C06179B
-        for <linux-i2c@vger.kernel.org>; Fri, 15 Jan 2021 07:51:46 -0800 (PST)
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1l0RNt-0003NK-0o; Fri, 15 Jan 2021 16:51:33 +0100
-Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1l0RNr-0008LH-RE; Fri, 15 Jan 2021 16:51:31 +0100
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@kernel.org>
-List-Id: <soc.lore.kernel.org>
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
-        soc@kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
-        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH v2 0/7] Remove ARM platform efm32
-Date:   Fri, 15 Jan 2021 16:51:23 +0100
-Message-Id: <20210115155130.185010-1-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.29.2
+        with ESMTP id S1728020AbhAOP6V (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Jan 2021 10:58:21 -0500
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0B12C061757;
+        Fri, 15 Jan 2021 07:57:40 -0800 (PST)
+Received: by mail-qk1-x734.google.com with SMTP id n142so12106467qkn.2;
+        Fri, 15 Jan 2021 07:57:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=wUihvIYTO+c9XI3nDxsZDkyRWMVzMrDyYmjZV2/Hb7w=;
+        b=Y7lA0ZiX7v5y57tlhFjW/SGGhaFXGCVUR3zuOYmxIrpk7M2p+1q4jio2oPEV09AQs0
+         gEfX6z2yV/NHWHXHK94KbBlSrCPOTUuPiMr9+nQqfAOgvwdHq6vo9iZ5AbwAYFKMtQVu
+         q4Js7SrKZavTor2/7rRqeIxLrTf4CgwSvDEleERjezWNqOjaAT/1K4qxlkOz8xw4FD5s
+         1Th1Z0pdll8vKzOS8nIArQBidu9uBplQnPgEUMzti0FO/7D/Jc3DhPuJiGtgDyOtB8sg
+         opk4T4Az3A9+xwborNXjr2I1kH3dRgy3hp/nQpUjVS5Zps+voey7MDmDu3137YnjhrK/
+         61pA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=wUihvIYTO+c9XI3nDxsZDkyRWMVzMrDyYmjZV2/Hb7w=;
+        b=TYqbSd7vXAqrW6EJUUm8aYTsDq8DlJ+feDrJJy6jfaNAwfP84ikZdJvEN1mZzCWY7e
+         QMC/i+46Q+9OEJjfDxElMyUBCh1E63sgBVabLeNE+lSG14yqaSr1F84vTX1b4ba2Vlk+
+         nFDbE/bJpCqSXUNob31tB8B5bM5TqyU7vxpjQcJGyYbZ/1Xc+RWaj1UpCeabJtixO/NA
+         dZ/XZ2YFbqsy6GBC8mifU+1xKK34WeLdB51ftLUygT+KWi3I/0yA5LiA1R7CozX304ns
+         CHCDZotVq8aaqJP3IFDLwSbzEdV4gfRe2PEzTHrAFQ+3v9CjSdbUCeIJwFqxZajVW2Ri
+         VCsA==
+X-Gm-Message-State: AOAM531dzW8IIGUSHsUjdWz+v5JFMsCyoeyFgZX2mZmocK2/SDbMbWDY
+        SKBdulS4AJilvxEFKT6Krjw=
+X-Google-Smtp-Source: ABdhPJz003YQOkYa4cIkwmcrgTOTizyV483ds/v1vxy/GMCLv2tXnW0h7AgWE//d4qMoLd2/Q/TDtQ==
+X-Received: by 2002:a37:27ce:: with SMTP id n197mr12952414qkn.220.1610726260200;
+        Fri, 15 Jan 2021 07:57:40 -0800 (PST)
+Received: from localhost ([62.96.65.119])
+        by smtp.gmail.com with ESMTPSA id t5sm5053412qte.20.2021.01.15.07.57.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Jan 2021 07:57:39 -0800 (PST)
+Date:   Fri, 15 Jan 2021 16:57:36 +0100
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc:     jonathanh@nvidia.com, digetx@gmail.com, wsa@the-dreams.de,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v3] i2c: tegra: Create i2c_writesl_vi() to use with VI
+ I2C for filling TX FIFO
+Message-ID: <YAG7cJb2y3Yym1xy@ulmo>
+References: <1610478161-4877-1-git-send-email-skomatineni@nvidia.com>
+ <1610478161-4877-2-git-send-email-skomatineni@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="oAZvG9Hbx9gUz+i6"
+Content-Disposition: inline
+In-Reply-To: <1610478161-4877-2-git-send-email-skomatineni@nvidia.com>
+User-Agent: Mutt/2.0.4 (26f41dd1) (2020-12-30)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Uwe Kleine-König <uwe@kleine-koenig.org>
 
-Hello,
+--oAZvG9Hbx9gUz+i6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-compared to v1 (Message-Id:
-20210114151630.128830-1-u.kleine-koenig@pengutronix.de) I did the following changes:
+On Tue, Jan 12, 2021 at 11:02:41AM -0800, Sowjanya Komatineni wrote:
+> VI I2C controller has known hardware bug where immediate multiple
+> writes to TX_FIFO register gets stuck.
+>=20
+> Recommended software work around is to read I2C register after
+> each write to TX_FIFO register to flush out the data.
+>=20
+> This patch implements this work around for VI I2C controller.
+>=20
+> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 22 +++++++++++++++++++++-
+>  1 file changed, 21 insertions(+), 1 deletion(-)
 
- - add "serial" to the summary line of the patch removing the serial
-   driver
- - actually remove the serial driver in the patch that claims to do this
-   instead of patch 1.
+Acked-by: Thierry Reding <treding@nvidia.com>
 
-On irc Arnd signalled to want to merge the first patch. As there are no
-hard interdependencies between these, I think the best approach is for the
-individual maintainers to pick up the patches they are responsible for.
+--oAZvG9Hbx9gUz+i6
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Thanks and best regards,
-Uwe
+-----BEGIN PGP SIGNATURE-----
 
-Uwe Kleine-König (7):
-  ARM: drop efm32 platform
-  clk: Drop unused efm32gg driver
-  clocksource: Drop unused efm32 timer code
-  spi: Drop unused efm32 bus driver
-  i2c: Drop unused efm32 bus driver
-  tty: serial: Drop unused efm32 serial driver
-  MAINTAINERS: Remove deleted platform efm32
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmABu24ACgkQ3SOs138+
+s6FI+g//bK107HZ6P4WEwIsk6ntl3FeTnn4J/0XajD+VkUp4bMoZHOtqBHBEdl4R
+dzSIz0B37wVyr2uS4/MvRcdU5WndLpwOG9ZsiUvhR9BI86AlWiqqrTNjzq4ddQ1a
+Aj/mue6Q/Zdgzx5T7Hfs6KnpZcHlz+nGGIK878fUqmKKMtFScyoPuN1wk+FI6ljU
+Fj40ZPjZxMIP/YGosv2W9+m3rYYvksh/87iDF2GnH9BWzPppA4Y2OqeYNiXKblbp
+Cq9xZAo/ilsADBPSJ9sS5fNVsLTh7qg/gGOumoenyox9J1xKk1WkVj0TLUbQOxmx
++xodXVEJ0yhymRbKxJgioziMPspGXrPz33LHMeIYaI0uVw1NIEOfN6ems2lxyWtY
+DhZ0Vy1FOWOacvyq+tBs/Hg1AVaeB60fC98V9gTcXLr/DcF1V9Nxg+hxMugrKjqp
+aN10FpurrmMLQxZsdO3OoIBNae3Ti0c6QYdjsIohPB4hh+0teRXXPGOhjHxmYbE8
+cqWI1BovSlfL7bMMzH7LBKn6MaHsud2hb3G5WH/HheEk5wnrSVXFn64m6+UCVSKk
+3O1ymLtEv9ukBpllHDEibseHNi3/UeVB0Oai4v5durVoJWRQQnNUlCi89Dpj2r4b
+alLWfd1JyBSDBJXg2KyxbePzyvTZX6dFMDc9V7QJ9C5J7ZIQ9eM=
+=X1yL
+-----END PGP SIGNATURE-----
 
- MAINTAINERS                              |   7 -
- arch/arm/Kconfig                         |  10 +-
- arch/arm/Kconfig.debug                   |  17 -
- arch/arm/Makefile                        |   1 -
- arch/arm/boot/dts/Makefile               |   2 -
- arch/arm/boot/dts/efm32gg-dk3750.dts     |  88 ---
- arch/arm/boot/dts/efm32gg.dtsi           | 177 -----
- arch/arm/configs/efm32_defconfig         |  98 ---
- arch/arm/include/debug/efm32.S           |  45 --
- arch/arm/mach-efm32/Makefile             |   2 -
- arch/arm/mach-efm32/Makefile.boot        |   4 -
- arch/arm/mach-efm32/dtmachine.c          |  16 -
- arch/arm/mm/Kconfig                      |   1 -
- drivers/clk/Makefile                     |   1 -
- drivers/clk/clk-efm32gg.c                |  84 ---
- drivers/clocksource/Kconfig              |   9 -
- drivers/clocksource/Makefile             |   1 -
- drivers/clocksource/timer-efm32.c        | 278 --------
- drivers/i2c/busses/Kconfig               |   7 -
- drivers/i2c/busses/Makefile              |   1 -
- drivers/i2c/busses/i2c-efm32.c           | 469 -------------
- drivers/spi/Kconfig                      |   7 -
- drivers/spi/Makefile                     |   1 -
- drivers/spi/spi-efm32.c                  | 462 ------------
- drivers/tty/serial/Kconfig               |  13 -
- drivers/tty/serial/Makefile              |   1 -
- drivers/tty/serial/efm32-uart.c          | 852 -----------------------
- include/linux/platform_data/efm32-spi.h  |  15 -
- include/linux/platform_data/efm32-uart.h |  19 -
- include/uapi/linux/serial_core.h         |   3 -
- 30 files changed, 1 insertion(+), 2690 deletions(-)
- delete mode 100644 arch/arm/boot/dts/efm32gg-dk3750.dts
- delete mode 100644 arch/arm/boot/dts/efm32gg.dtsi
- delete mode 100644 arch/arm/configs/efm32_defconfig
- delete mode 100644 arch/arm/include/debug/efm32.S
- delete mode 100644 arch/arm/mach-efm32/Makefile
- delete mode 100644 arch/arm/mach-efm32/Makefile.boot
- delete mode 100644 arch/arm/mach-efm32/dtmachine.c
- delete mode 100644 drivers/clk/clk-efm32gg.c
- delete mode 100644 drivers/clocksource/timer-efm32.c
- delete mode 100644 drivers/i2c/busses/i2c-efm32.c
- delete mode 100644 drivers/spi/spi-efm32.c
- delete mode 100644 drivers/tty/serial/efm32-uart.c
- delete mode 100644 include/linux/platform_data/efm32-spi.h
- delete mode 100644 include/linux/platform_data/efm32-uart.h
-
-
-base-commit: 5c8fe583cce542aa0b84adc939ce85293de36e5e
--- 
-2.29.2
-
+--oAZvG9Hbx9gUz+i6--
