@@ -2,140 +2,86 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44F14C4332D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53E3CC43331
 	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DA46C20784
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 15CAB22241
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389364AbhARK2U (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 18 Jan 2021 05:28:20 -0500
-Received: from perceval.ideasonboard.com ([213.167.242.64]:55760 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388571AbhARJTz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Jan 2021 04:19:55 -0500
-Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id BB0AF2BB;
-        Mon, 18 Jan 2021 10:19:11 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1610961551;
-        bh=gjnQsqFgxtpSq29xrtqXIVq4Xvc9Ow3B2rHgXQ+GU3o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lYwoQ3Lh7ouSl1TmFTMKG2c4wx3waTDRv8f10AxBqjGIpJ796ly2IOzm2fvAnYDmO
-         hHwEVuJD5DngMdlfvi6mFvMcWOxI85BE53JDlzDfMPsMeAxt5r/1BoGo+k1qmj3jIP
-         DPG34Im8q/Jek+X88TtBRdYDlavT/vy9MRdiHNjE=
-Date:   Mon, 18 Jan 2021 11:18:55 +0200
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Daniel Scally <djrscally@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, devel@acpica.org,
-        rjw@rjwysocki.net, lenb@kernel.org, andy@kernel.org,
-        mika.westerberg@linux.intel.com, linus.walleij@linaro.org,
-        bgolaszewski@baylibre.com, wsa@kernel.org, lee.jones@linaro.org,
-        hdegoede@redhat.com, mgross@linux.intel.com,
-        robert.moore@intel.com, erik.kaneda@intel.com,
-        sakari.ailus@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        kieran.bingham@ideasonboard.com
-Subject: Re: [PATCH v2 4/7] i2c: i2c-core-acpi: Add i2c_acpi_dev_name()
-Message-ID: <YAVSf7+iTPNYf5XS@pendragon.ideasonboard.com>
-References: <20210118003428.568892-1-djrscally@gmail.com>
- <20210118003428.568892-5-djrscally@gmail.com>
+        id S2389821AbhARK3O (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 18 Jan 2021 05:29:14 -0500
+Received: from www.zeus03.de ([194.117.254.33]:43264 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388890AbhARJcu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 18 Jan 2021 04:32:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=k1; bh=jjlIzJbv5AfMOZb8DeeYojqlwPux
+        8lrHsYxvp6bLS6M=; b=zYbQ8rzGeBpdP8pj5YCVWlIshwK8NP5pKgMELuji1aV5
+        UVz9XA9eA4ETqix0Ie6eKwqFFfydFdwWi5b/yh/36ZDPxhDMwFopIqKJjpIq+m5x
+        Dp0vqlqTQT7BqXDrdKgVGgu4tUWtbgPLjQDi757w5M+dY6uGAwukiDnMYLQ+Btg=
+Received: (qmail 643050 invoked from network); 18 Jan 2021 10:32:01 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 18 Jan 2021 10:32:01 +0100
+X-UD-Smtp-Session: l3s3148p1@JozuZCm5uoYgAwDPXwacAOByz8F9Mgm1
+Date:   Mon, 18 Jan 2021 10:32:01 +0100
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc:     linux-i2c@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC 1/3] media: i2c: adv7842: remove open coded version
+ of SMBus block write
+Message-ID: <20210118093201.GC1018@ninjato>
+References: <20210112164130.47895-1-wsa+renesas@sang-engineering.com>
+ <20210112164130.47895-2-wsa+renesas@sang-engineering.com>
+ <f1c17eaf-1ab8-2665-54bb-6df69ab1f067@xs4all.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="0lnxQi9hkpPO77W3"
 Content-Disposition: inline
-In-Reply-To: <20210118003428.568892-5-djrscally@gmail.com>
+In-Reply-To: <f1c17eaf-1ab8-2665-54bb-6df69ab1f067@xs4all.nl>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Daniel,
 
-Thank you for the patch.
+--0lnxQi9hkpPO77W3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 18, 2021 at 12:34:25AM +0000, Daniel Scally wrote:
-> We want to refer to an i2c device by name before it has been
 
-s/i2c device/acpi i2c device/ ?
+> > +#define adv_smbus_write_i2c_block_data i2c_smbus_write_i2c_block_data
+>=20
+> I would prefer it if the driver just uses i2c_smbus_write_i2c_block_data
+> directly instead of relying on this define. It's used only 5 times, so
+> it should be a trivial change.
 
-> created by the kernel; add a function that constructs the name
-> from the acpi device instead.
-> 
-> Signed-off-by: Daniel Scally <djrscally@gmail.com>
-> ---
-> Changes in v2:
-> 
-> 	- Stopped using devm_kasprintf()
-> 
->  drivers/i2c/i2c-core-acpi.c | 16 ++++++++++++++++
->  include/linux/i2c.h         |  5 +++++
->  2 files changed, 21 insertions(+)
-> 
-> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-> index 37c510d9347a..98c3ba9a2350 100644
-> --- a/drivers/i2c/i2c-core-acpi.c
-> +++ b/drivers/i2c/i2c-core-acpi.c
-> @@ -497,6 +497,22 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
->  }
->  EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
->  
-> +/**
-> + * i2c_acpi_dev_name - Construct i2c device name for devs sourced from ACPI
-> + * @adev:     ACPI device to construct the name for
-> + *
-> + * Constructs the name of an i2c device matching the format used by
-> + * i2c_dev_set_name() to allow users to refer to an i2c device by name even
-> + * before they have been instantiated.
-> + *
-> + * The caller is responsible for freeing the returned pointer.
-> + */
-> +char *i2c_acpi_dev_name(struct acpi_device *adev)
-> +{
-> +	return kasprintf(GFP_KERNEL, I2C_DEV_NAME_FORMAT, acpi_dev_name(adev));
+Okay, will change it!
 
-There's a real danger of a memory leak, as the function name sounds very
-similar to dev_name() or acpi_dev_name() and those don't allocate
-memory. I'm not sure what a better name would be, but given that this
-function is only used in patch 6/7 and not in the I2C subsystem itself,
-I wonder if we should inline this kasprintf() call in the caller and
-drop this patch.
 
-> +}
-> +EXPORT_SYMBOL_GPL(i2c_acpi_dev_name);
-> +
->  #ifdef CONFIG_ACPI_I2C_OPREGION
->  static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
->  		u8 cmd, u8 *data, u8 data_len)
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 4d40a4b46810..b82aac05b17f 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -998,6 +998,7 @@ bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
->  u32 i2c_acpi_find_bus_speed(struct device *dev);
->  struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
->  				       struct i2c_board_info *info);
-> +char *i2c_acpi_dev_name(struct acpi_device *adev);
->  struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle);
->  #else
->  static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
-> @@ -1014,6 +1015,10 @@ static inline struct i2c_client *i2c_acpi_new_device(struct device *dev,
->  {
->  	return ERR_PTR(-ENODEV);
->  }
-> +static inline char *i2c_acpi_dev_name(struct acpi_device *adev)
-> +{
-> +	return NULL;
-> +}
->  static inline struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
->  {
->  	return NULL;
+--0lnxQi9hkpPO77W3
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-Regards,
+-----BEGIN PGP SIGNATURE-----
 
-Laurent Pinchart
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAFVY0ACgkQFA3kzBSg
+KbbmFxAAgGh0H3VpFDjIoJkJ89p+HFbHBHoviJp61p/GkaWpQkD8K++fMxEH048H
+6vsASnSSkUqHzdhq/4nHbLVe/wvwe/PZkCqRdMnhuXrhzS0Ip9jZ7ljfA6H/rpxC
+eg8Tcfr6lBW6hNwO+rlagA26+xMwEFrq+yNIs+hr39pzb4oP1lDZVlh8uR9bFXJN
+Onpk/V8tPQY9Y3+SnMWixVcLGRaIeJL9V5EXpv+ZXNmFFqkDcD8Zlwah4qtoz3v8
+PVWgvbFpDsMIMa0sj3kwEnf47c1SIw0flK64n8cdTTGSfKk/7VzDVRIDDYO0/wr1
+aG2KnkQd4FUcHYorlWdG4TMGaTM9A/3c6XeQHJGIfp+VzSe4XI6fFIoHuJD20iFK
+dLKZvnAfe6qLIiaW/0VG8hGo0w98ixJY/W6Y+NlR8eYYDP5mHWU0tDG3JPGsSp93
+LTf5FbubZO2EOgGfMvZKX/eict/DDX+dtckssRX7eaa6T9lxZSGc5oGllkgFhchL
+Iqclq0fDMffCVmlXFHIfDlxojcmB7JZ5HeS2M3+QCu+84VZzGuRLTc4Jf6cxoPwu
+bC3PqeElZHN04RSvUfdVkOkQx8T+jvQuqYkou3duh11d6u7MsIJ0MBbIMPxrYqIR
+5Jkf5KZkwxvFhE5NXab3Fej3u/RE8EZN3gRmkHrxn3k9bJjmIdI=
+=6du5
+-----END PGP SIGNATURE-----
+
+--0lnxQi9hkpPO77W3--
