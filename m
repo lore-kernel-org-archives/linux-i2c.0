@@ -2,106 +2,128 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C332C433E0
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 267D9C4332B
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 36E1D22AAA
+	by mail.kernel.org (Postfix) with ESMTP id E2D3C22227
 	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389793AbhARK3I (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 18 Jan 2021 05:29:08 -0500
-Received: from lb1-smtp-cloud7.xs4all.net ([194.109.24.24]:57459 "EHLO
-        lb1-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388465AbhARJ3i (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Jan 2021 04:29:38 -0500
-Received: from cust-b5b5937f ([IPv6:fc0c:c16d:66b8:757f:c639:739b:9d66:799d])
-        by smtp-cloud7.xs4all.net with ESMTPA
-        id 1QlhlHZKUyutM1QlllY4ib; Mon, 18 Jan 2021 10:24:17 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s2;
-        t=1610961857; bh=V5bzydSc1ZPnrXdRrL7lpMkhwVWP+yxudlc0NqzwcLg=;
-        h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type:From:
-         Subject;
-        b=LjJb1da7PwQrrOvK5VTjsAIIdL/2W1i8CEhWeaH9Ix6vOJ8Hn8PB9MRjCeOaNd4ry
-         YA182xXHotUlSJjffHY3yKwRiNCzqASrIu1mIQWLbD5/xDDC+wJa6ovgxDMBkUrf4+
-         NHMl8GXZpYcUJcqeGBggLnKmI/UJmAMq0x1lqsOHGcFrDaa/gtyMLfIxLzRRwswE1j
-         mT35pqh184U24tZmc5+IP7oYK0GQzSjiB1E1Tp3saxUfpPOHA1XsGp/nyMWjC8Ag7L
-         4uzRIyFWsd4X0cVj/cWCpHPkmn4TYGhPe+Xf5kuYcMNyot0iLBVmFcwwUzKSz3BkRQ
-         gjwVHZfv6XXNw==
-Subject: Re: [PATCH RFC 1/3] media: i2c: adv7842: remove open coded version of
- SMBus block write
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-i2c@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20210112164130.47895-1-wsa+renesas@sang-engineering.com>
- <20210112164130.47895-2-wsa+renesas@sang-engineering.com>
-From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Message-ID: <f1c17eaf-1ab8-2665-54bb-6df69ab1f067@xs4all.nl>
-Date:   Mon, 18 Jan 2021 10:24:13 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        id S2389864AbhARK3o (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 18 Jan 2021 05:29:44 -0500
+Received: from mga14.intel.com ([192.55.52.115]:35570 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389108AbhARJn6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 18 Jan 2021 04:43:58 -0500
+IronPort-SDR: h0zjQ1SZqqlErqkEHnDQ8+gIEo1JohluGcTQ3NcwxwC+qG7khs8TgB6JnHdjO3/cxcUlM1Zdcz
+ x91mFaiJ3Q7w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9867"; a="178003654"
+X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
+   d="scan'208";a="178003654"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 01:42:06 -0800
+IronPort-SDR: bfAEjIVyrcjwDkBOBPtRwqQKr8uSNTOVYXxZMdBjoFafYwZBck/7ouexbXQDFhCtrLO+NfsYlk
+ 5pvp40k/S3Bw==
+X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
+   d="scan'208";a="355127732"
+Received: from paasikivi.fi.intel.com ([10.237.72.42])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 01:42:01 -0800
+Received: by paasikivi.fi.intel.com (Postfix, from userid 1000)
+        id 97696208D7; Mon, 18 Jan 2021 11:41:58 +0200 (EET)
+Date:   Mon, 18 Jan 2021 11:41:58 +0200
+From:   Sakari Ailus <sakari.ailus@linux.intel.com>
+To:     Daniel Scally <djrscally@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, devel@acpica.org,
+        rjw@rjwysocki.net, lenb@kernel.org, andy@kernel.org,
+        mika.westerberg@linux.intel.com, linus.walleij@linaro.org,
+        bgolaszewski@baylibre.com, wsa@kernel.org, lee.jones@linaro.org,
+        hdegoede@redhat.com, mgross@linux.intel.com,
+        robert.moore@intel.com, erik.kaneda@intel.com,
+        andriy.shevchenko@linux.intel.com,
+        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
+Subject: Re: [PATCH v2 3/7] i2c: i2c-core-base: Use format macro in
+ i2c_dev_set_name()
+Message-ID: <20210118094158.GV11878@paasikivi.fi.intel.com>
+References: <20210118003428.568892-1-djrscally@gmail.com>
+ <20210118003428.568892-4-djrscally@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210112164130.47895-2-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-CMAE-Envelope: MS4xfD1sq2GXDgXiWy3ydMcspguHtQRpAB/EUYMeOPjI4hMIZCkDG1Eg+FVk/5Vp+eTSl3dy2NcDoizSgqVF0td9G5eZdBwnZhc9LMOMPjKbxgNfPCoyMOyK
- HNMZC/dwrWgJHeOAsFDYd7skt8DeuCeHQXRf5bg0JVqHxyiItaZ6XqvZ02Am7jpjCl8iA0ydtjF6hnxTdXQi7LP1pPwEXmQ9u9fTvzCQmZSFXa2cgCAziQTq
- zQPaphxns3l7XlcNMloEnVMApVHO8NR66QR9aYfM2+HdYPRtvtPnncjkM84q/Gb1nGcyZ/WwYfQhFiQ7EDb8ScwXrhYbN4gxNhT/toE9XqLe8um3/B1EYAyD
- xNHiYUIf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210118003428.568892-4-djrscally@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 12/01/2021 17:41, Wolfram Sang wrote:
-> The version here is identical to the one in the I2C core, so use a
-> define to keep the original name within the driver but call the I2C core
-> function instead.
+Hi Daniel,
+
+On Mon, Jan 18, 2021 at 12:34:24AM +0000, Daniel Scally wrote:
+> Some places in the kernel allow users to map resources to a device
+> using device name (for example, gpiod_lookup_table). Currently
+> this involves waiting for the i2c_client to have been registered so we
+> can use dev_name(&client->dev). We want to add a function to allow users
+> to refer to an i2c device by name before it has been instantiated, so
+> create a macro for the format that's accessible outside the i2c layer
+> and use it in i2c_dev_set_name()
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Daniel Scally <djrscally@gmail.com>
 > ---
->  drivers/media/i2c/adv7842.c | 14 +-------------
->  1 file changed, 1 insertion(+), 13 deletions(-)
+> 	- Used format macro in i2c_dev_set_name() instead of sub func
 > 
-> diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
-> index 0855f648416d..6ed6bcd1d64d 100644
-> --- a/drivers/media/i2c/adv7842.c
-> +++ b/drivers/media/i2c/adv7842.c
-> @@ -343,19 +343,7 @@ static void adv_smbus_write_byte_no_check(struct i2c_client *client,
->  		       I2C_SMBUS_BYTE_DATA, &data);
->  }
+>  drivers/i2c/i2c-core-base.c | 4 ++--
+>  include/linux/i2c.h         | 3 +++
+>  2 files changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 63ebf722a424..547b8926cac8 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -811,12 +811,12 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
+>  	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
 >  
-> -static s32 adv_smbus_write_i2c_block_data(struct i2c_client *client,
-> -				  u8 command, unsigned length, const u8 *values)
-> -{
-> -	union i2c_smbus_data data;
-> -
-> -	if (length > I2C_SMBUS_BLOCK_MAX)
-> -		length = I2C_SMBUS_BLOCK_MAX;
-> -	data.block[0] = length;
-> -	memcpy(data.block + 1, values, length);
-> -	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-> -			      I2C_SMBUS_WRITE, command,
-> -			      I2C_SMBUS_I2C_BLOCK_DATA, &data);
-> -}
-> +#define adv_smbus_write_i2c_block_data i2c_smbus_write_i2c_block_data
-
-I would prefer it if the driver just uses i2c_smbus_write_i2c_block_data
-directly instead of relying on this define. It's used only 5 times, so
-it should be a trivial change.
-
-Regards,
-
-	Hans
-
+>  	if (info && info->dev_name) {
+> -		dev_set_name(&client->dev, "i2c-%s", info->dev_name);
+> +		dev_set_name(&client->dev, I2C_DEV_NAME_FORMAT, info->dev_name);
+>  		return;
+>  	}
 >  
->  /* ----------------------------------------------------------------------- */
+>  	if (adev) {
+> -		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
+> +		dev_set_name(&client->dev, I2C_DEV_NAME_FORMAT, acpi_dev_name(adev));
+
+Over 80, please wrap.
+
+With that,
+
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+
+>  		return;
+>  	}
 >  
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 56622658b215..4d40a4b46810 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -39,6 +39,9 @@ enum i2c_slave_event;
+>  typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
+>  			      enum i2c_slave_event event, u8 *val);
+>  
+> +/* I2C Device Name Format - to maintain consistency outside the i2c layer */
+> +#define I2C_DEV_NAME_FORMAT		"i2c-%s"
+> +
+>  /* I2C Frequency Modes */
+>  #define I2C_MAX_STANDARD_MODE_FREQ	100000
+>  #define I2C_MAX_FAST_MODE_FREQ		400000
+> -- 
+> 2.25.1
 > 
 
+-- 
+Sakari Ailus
