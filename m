@@ -2,40 +2,35 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 267D9C4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44F14C4332D
 	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E2D3C22227
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA46C20784
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389864AbhARK3o (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 18 Jan 2021 05:29:44 -0500
-Received: from mga14.intel.com ([192.55.52.115]:35570 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389108AbhARJn6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 18 Jan 2021 04:43:58 -0500
-IronPort-SDR: h0zjQ1SZqqlErqkEHnDQ8+gIEo1JohluGcTQ3NcwxwC+qG7khs8TgB6JnHdjO3/cxcUlM1Zdcz
- x91mFaiJ3Q7w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9867"; a="178003654"
-X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
-   d="scan'208";a="178003654"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 01:42:06 -0800
-IronPort-SDR: bfAEjIVyrcjwDkBOBPtRwqQKr8uSNTOVYXxZMdBjoFafYwZBck/7ouexbXQDFhCtrLO+NfsYlk
- 5pvp40k/S3Bw==
-X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
-   d="scan'208";a="355127732"
-Received: from paasikivi.fi.intel.com ([10.237.72.42])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 01:42:01 -0800
-Received: by paasikivi.fi.intel.com (Postfix, from userid 1000)
-        id 97696208D7; Mon, 18 Jan 2021 11:41:58 +0200 (EET)
-Date:   Mon, 18 Jan 2021 11:41:58 +0200
-From:   Sakari Ailus <sakari.ailus@linux.intel.com>
+        id S2389364AbhARK2U (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 18 Jan 2021 05:28:20 -0500
+Received: from perceval.ideasonboard.com ([213.167.242.64]:55760 "EHLO
+        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388571AbhARJTz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Jan 2021 04:19:55 -0500
+Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id BB0AF2BB;
+        Mon, 18 Jan 2021 10:19:11 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1610961551;
+        bh=gjnQsqFgxtpSq29xrtqXIVq4Xvc9Ow3B2rHgXQ+GU3o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lYwoQ3Lh7ouSl1TmFTMKG2c4wx3waTDRv8f10AxBqjGIpJ796ly2IOzm2fvAnYDmO
+         hHwEVuJD5DngMdlfvi6mFvMcWOxI85BE53JDlzDfMPsMeAxt5r/1BoGo+k1qmj3jIP
+         DPG34Im8q/Jek+X88TtBRdYDlavT/vy9MRdiHNjE=
+Date:   Mon, 18 Jan 2021 11:18:55 +0200
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 To:     Daniel Scally <djrscally@gmail.com>
 Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -45,85 +40,102 @@ Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         bgolaszewski@baylibre.com, wsa@kernel.org, lee.jones@linaro.org,
         hdegoede@redhat.com, mgross@linux.intel.com,
         robert.moore@intel.com, erik.kaneda@intel.com,
-        andriy.shevchenko@linux.intel.com,
-        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
-Subject: Re: [PATCH v2 3/7] i2c: i2c-core-base: Use format macro in
- i2c_dev_set_name()
-Message-ID: <20210118094158.GV11878@paasikivi.fi.intel.com>
+        sakari.ailus@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        kieran.bingham@ideasonboard.com
+Subject: Re: [PATCH v2 4/7] i2c: i2c-core-acpi: Add i2c_acpi_dev_name()
+Message-ID: <YAVSf7+iTPNYf5XS@pendragon.ideasonboard.com>
 References: <20210118003428.568892-1-djrscally@gmail.com>
- <20210118003428.568892-4-djrscally@gmail.com>
+ <20210118003428.568892-5-djrscally@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210118003428.568892-4-djrscally@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20210118003428.568892-5-djrscally@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 Hi Daniel,
 
-On Mon, Jan 18, 2021 at 12:34:24AM +0000, Daniel Scally wrote:
-> Some places in the kernel allow users to map resources to a device
-> using device name (for example, gpiod_lookup_table). Currently
-> this involves waiting for the i2c_client to have been registered so we
-> can use dev_name(&client->dev). We want to add a function to allow users
-> to refer to an i2c device by name before it has been instantiated, so
-> create a macro for the format that's accessible outside the i2c layer
-> and use it in i2c_dev_set_name()
+Thank you for the patch.
+
+On Mon, Jan 18, 2021 at 12:34:25AM +0000, Daniel Scally wrote:
+> We want to refer to an i2c device by name before it has been
+
+s/i2c device/acpi i2c device/ ?
+
+> created by the kernel; add a function that constructs the name
+> from the acpi device instead.
 > 
-> Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 > Signed-off-by: Daniel Scally <djrscally@gmail.com>
 > ---
-> 	- Used format macro in i2c_dev_set_name() instead of sub func
+> Changes in v2:
 > 
->  drivers/i2c/i2c-core-base.c | 4 ++--
->  include/linux/i2c.h         | 3 +++
->  2 files changed, 5 insertions(+), 2 deletions(-)
+> 	- Stopped using devm_kasprintf()
 > 
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 63ebf722a424..547b8926cac8 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -811,12 +811,12 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
->  	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
+>  drivers/i2c/i2c-core-acpi.c | 16 ++++++++++++++++
+>  include/linux/i2c.h         |  5 +++++
+>  2 files changed, 21 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> index 37c510d9347a..98c3ba9a2350 100644
+> --- a/drivers/i2c/i2c-core-acpi.c
+> +++ b/drivers/i2c/i2c-core-acpi.c
+> @@ -497,6 +497,22 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
 >  
->  	if (info && info->dev_name) {
-> -		dev_set_name(&client->dev, "i2c-%s", info->dev_name);
-> +		dev_set_name(&client->dev, I2C_DEV_NAME_FORMAT, info->dev_name);
->  		return;
->  	}
->  
->  	if (adev) {
-> -		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
-> +		dev_set_name(&client->dev, I2C_DEV_NAME_FORMAT, acpi_dev_name(adev));
+> +/**
+> + * i2c_acpi_dev_name - Construct i2c device name for devs sourced from ACPI
+> + * @adev:     ACPI device to construct the name for
+> + *
+> + * Constructs the name of an i2c device matching the format used by
+> + * i2c_dev_set_name() to allow users to refer to an i2c device by name even
+> + * before they have been instantiated.
+> + *
+> + * The caller is responsible for freeing the returned pointer.
+> + */
+> +char *i2c_acpi_dev_name(struct acpi_device *adev)
+> +{
+> +	return kasprintf(GFP_KERNEL, I2C_DEV_NAME_FORMAT, acpi_dev_name(adev));
 
-Over 80, please wrap.
+There's a real danger of a memory leak, as the function name sounds very
+similar to dev_name() or acpi_dev_name() and those don't allocate
+memory. I'm not sure what a better name would be, but given that this
+function is only used in patch 6/7 and not in the I2C subsystem itself,
+I wonder if we should inline this kasprintf() call in the caller and
+drop this patch.
 
-With that,
-
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-
->  		return;
->  	}
->  
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_acpi_dev_name);
+> +
+>  #ifdef CONFIG_ACPI_I2C_OPREGION
+>  static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
+>  		u8 cmd, u8 *data, u8 data_len)
 > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 56622658b215..4d40a4b46810 100644
+> index 4d40a4b46810..b82aac05b17f 100644
 > --- a/include/linux/i2c.h
 > +++ b/include/linux/i2c.h
-> @@ -39,6 +39,9 @@ enum i2c_slave_event;
->  typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
->  			      enum i2c_slave_event event, u8 *val);
->  
-> +/* I2C Device Name Format - to maintain consistency outside the i2c layer */
-> +#define I2C_DEV_NAME_FORMAT		"i2c-%s"
-> +
->  /* I2C Frequency Modes */
->  #define I2C_MAX_STANDARD_MODE_FREQ	100000
->  #define I2C_MAX_FAST_MODE_FREQ		400000
-> -- 
-> 2.25.1
-> 
+> @@ -998,6 +998,7 @@ bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
+>  u32 i2c_acpi_find_bus_speed(struct device *dev);
+>  struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+>  				       struct i2c_board_info *info);
+> +char *i2c_acpi_dev_name(struct acpi_device *adev);
+>  struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle);
+>  #else
+>  static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
+> @@ -1014,6 +1015,10 @@ static inline struct i2c_client *i2c_acpi_new_device(struct device *dev,
+>  {
+>  	return ERR_PTR(-ENODEV);
+>  }
+> +static inline char *i2c_acpi_dev_name(struct acpi_device *adev)
+> +{
+> +	return NULL;
+> +}
+>  static inline struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+>  {
+>  	return NULL;
 
 -- 
-Sakari Ailus
+Regards,
+
+Laurent Pinchart
