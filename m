@@ -2,96 +2,106 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE784C43381
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C332C433E0
 	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7A1EB22257
+	by mail.kernel.org (Postfix) with ESMTP id 36E1D22AAA
 	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389845AbhARK3U (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 18 Jan 2021 05:29:20 -0500
-Received: from www.zeus03.de ([194.117.254.33]:43786 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388927AbhARJeg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 18 Jan 2021 04:34:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=rWzjCq1apcJX7BOPIY4Wuk8smjit
-        0Oa42YCJAC4QtcI=; b=oQQ+7mQ+0/QkwRJPoLG7P5eRAZorZ2l7voXnXIUvmgvm
-        trY/7pl7nsGXADvnzo9JLirfv6dEg1fxhR05KHL470Yn/Eb3nfP2Hti935nyfM61
-        tYheijrYcl/iq1W+BCODWuYaPJ/PXurBm9U3YwwWnFXr/d6vRoMhmjJnlRkMaeE=
-Received: (qmail 643757 invoked from network); 18 Jan 2021 10:33:54 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 18 Jan 2021 10:33:54 +0100
-X-UD-Smtp-Session: l3s3148p1@dqahaym5vIYgAwDPXwacAOByz8F9Mgm1
-Date:   Mon, 18 Jan 2021 10:33:54 +0100
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc:     linux-i2c@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        id S2389793AbhARK3I (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 18 Jan 2021 05:29:08 -0500
+Received: from lb1-smtp-cloud7.xs4all.net ([194.109.24.24]:57459 "EHLO
+        lb1-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388465AbhARJ3i (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Jan 2021 04:29:38 -0500
+Received: from cust-b5b5937f ([IPv6:fc0c:c16d:66b8:757f:c639:739b:9d66:799d])
+        by smtp-cloud7.xs4all.net with ESMTPA
+        id 1QlhlHZKUyutM1QlllY4ib; Mon, 18 Jan 2021 10:24:17 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s2;
+        t=1610961857; bh=V5bzydSc1ZPnrXdRrL7lpMkhwVWP+yxudlc0NqzwcLg=;
+        h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type:From:
+         Subject;
+        b=LjJb1da7PwQrrOvK5VTjsAIIdL/2W1i8CEhWeaH9Ix6vOJ8Hn8PB9MRjCeOaNd4ry
+         YA182xXHotUlSJjffHY3yKwRiNCzqASrIu1mIQWLbD5/xDDC+wJa6ovgxDMBkUrf4+
+         NHMl8GXZpYcUJcqeGBggLnKmI/UJmAMq0x1lqsOHGcFrDaa/gtyMLfIxLzRRwswE1j
+         mT35pqh184U24tZmc5+IP7oYK0GQzSjiB1E1Tp3saxUfpPOHA1XsGp/nyMWjC8Ag7L
+         4uzRIyFWsd4X0cVj/cWCpHPkmn4TYGhPe+Xf5kuYcMNyot0iLBVmFcwwUzKSz3BkRQ
+         gjwVHZfv6XXNw==
+Subject: Re: [PATCH RFC 1/3] media: i2c: adv7842: remove open coded version of
+ SMBus block write
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-i2c@vger.kernel.org
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
         linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC 2/3] media: i2c: adv7842: remove open coded version
- of SMBus block read
-Message-ID: <20210118093354.GD1018@ninjato>
 References: <20210112164130.47895-1-wsa+renesas@sang-engineering.com>
- <20210112164130.47895-3-wsa+renesas@sang-engineering.com>
- <62c10525-69c6-e681-feaa-5ec3a865c06c@xs4all.nl>
+ <20210112164130.47895-2-wsa+renesas@sang-engineering.com>
+From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Message-ID: <f1c17eaf-1ab8-2665-54bb-6df69ab1f067@xs4all.nl>
+Date:   Mon, 18 Jan 2021 10:24:13 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="UoPmpPX/dBe4BELn"
-Content-Disposition: inline
-In-Reply-To: <62c10525-69c6-e681-feaa-5ec3a865c06c@xs4all.nl>
+In-Reply-To: <20210112164130.47895-2-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: MS4xfD1sq2GXDgXiWy3ydMcspguHtQRpAB/EUYMeOPjI4hMIZCkDG1Eg+FVk/5Vp+eTSl3dy2NcDoizSgqVF0td9G5eZdBwnZhc9LMOMPjKbxgNfPCoyMOyK
+ HNMZC/dwrWgJHeOAsFDYd7skt8DeuCeHQXRf5bg0JVqHxyiItaZ6XqvZ02Am7jpjCl8iA0ydtjF6hnxTdXQi7LP1pPwEXmQ9u9fTvzCQmZSFXa2cgCAziQTq
+ zQPaphxns3l7XlcNMloEnVMApVHO8NR66QR9aYfM2+HdYPRtvtPnncjkM84q/Gb1nGcyZ/WwYfQhFiQ7EDb8ScwXrhYbN4gxNhT/toE9XqLe8um3/B1EYAyD
+ xNHiYUIf
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On 12/01/2021 17:41, Wolfram Sang wrote:
+> The version here is identical to the one in the I2C core, so use a
+> define to keep the original name within the driver but call the I2C core
+> function instead.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/media/i2c/adv7842.c | 14 +-------------
+>  1 file changed, 1 insertion(+), 13 deletions(-)
+> 
+> diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
+> index 0855f648416d..6ed6bcd1d64d 100644
+> --- a/drivers/media/i2c/adv7842.c
+> +++ b/drivers/media/i2c/adv7842.c
+> @@ -343,19 +343,7 @@ static void adv_smbus_write_byte_no_check(struct i2c_client *client,
+>  		       I2C_SMBUS_BYTE_DATA, &data);
+>  }
+>  
+> -static s32 adv_smbus_write_i2c_block_data(struct i2c_client *client,
+> -				  u8 command, unsigned length, const u8 *values)
+> -{
+> -	union i2c_smbus_data data;
+> -
+> -	if (length > I2C_SMBUS_BLOCK_MAX)
+> -		length = I2C_SMBUS_BLOCK_MAX;
+> -	data.block[0] = length;
+> -	memcpy(data.block + 1, values, length);
+> -	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+> -			      I2C_SMBUS_WRITE, command,
+> -			      I2C_SMBUS_I2C_BLOCK_DATA, &data);
+> -}
+> +#define adv_smbus_write_i2c_block_data i2c_smbus_write_i2c_block_data
 
---UoPmpPX/dBe4BELn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I would prefer it if the driver just uses i2c_smbus_write_i2c_block_data
+directly instead of relying on this define. It's used only 5 times, so
+it should be a trivial change.
 
-Hello Hans,
+Regards,
 
-I hope you are well!
+	Hans
 
-> > The open coded version differs from the one in the core in one way: the
-> > buffer will be always copied back, even when the transfer failed. It
-> > looks like it is expected that the sanity check for a correct CRC and
-> > header will bail out later.
->=20
-> Nah, it's just a bug. It should have returned and checked the error code,
-> so your patch does the right thing.
+>  
+>  /* ----------------------------------------------------------------------- */
+>  
+> 
 
-I see. So, I will only update the commit message.
-
-Thanks for the reviews!
-
-All the best,
-
-   Wolfram
-
---UoPmpPX/dBe4BELn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAFVgEACgkQFA3kzBSg
-KbZ3Cw/9FeXBB9yAE8JaLW1qfx818VZsFHqynPt8ZQfpHw5NjG0LWG0PDLV7zexc
-ICRQU3Q/OeL+6Gvabu2whzaKNsi6Ms5fdOcrEHpiG1kAjjHSFTdEpHmbXbNy/b8r
-lZRPMs1Ch9qDQut4Jwmn1DsZ6jJCcdwokust+jQj32IsbJEsIabT/ixy9bn/uDf3
-SBLWPt4mNJMjMzTcq375BcBdXaMt0SmPzsZ7rHbTTDuao7q8CFjbLdQbrmxW8vEE
-NMdF/YgSX1I5hp467gissGJahs108kKZhAU7SArH8j0aUbfesb6vRMEF0aTpEiwG
-jwT0etOmlFyubjNnS31ONAQBPEf8psZg8k/WUHKdj87Re2yZBueeiZ06t6k8/Sr6
-XXK5gLUAkF8DHF61dJZlVqe7Fhdmwy/+RkfkM1RSaqlC66teSXZror3y1w3bavtr
-qT71YfT221Vxx/gFaoEdWPTW6M8mQyS9umSmCf8BJXwsKo/QCVdkBdpXOfHLOsPT
-bfHAuS7UidzJwgbCwuO9GlrsH/Mvn0GkKQcivzjD4NnfFq6Ll5cYbHKH5u2J3iiy
-VTdl6zcMrend4NTTvXkWyFmM7hwT5ClxKfmTMR0ahvmvU8wg7KWuv95bFhDXU2w8
-jrVDuXDj+NvDKlQ2NgvG14DiHri2/FBvoIqEpgX/w3DdAHizOxc=
-=sKTP
------END PGP SIGNATURE-----
-
---UoPmpPX/dBe4BELn--
