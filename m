@@ -2,163 +2,162 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E078C433DB
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 00:38:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2E9BC433E0
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 02:12:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 49605223E8
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 00:38:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C055F224DF
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 02:12:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730730AbhARAh1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 17 Jan 2021 19:37:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44432 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730507AbhARAfY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Jan 2021 19:35:24 -0500
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54217C061575;
-        Sun, 17 Jan 2021 16:34:44 -0800 (PST)
-Received: by mail-wr1-x42d.google.com with SMTP id c5so14846553wrp.6;
-        Sun, 17 Jan 2021 16:34:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=oxyOObT1sg5s9bWkUVceIGz0KKXfziZMqNtmhxIBUsg=;
-        b=QzL/Nu1C+vMnHFaRThEDIZe5Ncq5Of2W3gkYCJnm8AmU7SESXNgasBnk8UNZDddGaQ
-         NY2UFS1U4m8+RsHxWIsXCuHC55DliW48CVdjoyr/Hcn1plYmlhE+l47VbBxLoz8itTu2
-         aZo45y9QldNIOq5Rzwd+s1ivBqcKHiGqlxioGfubLKYAdjh4m37/fcMJWFQus9zOugXS
-         c2PKC6sAQ6Am6/ejcfKwnxansf6BufsA8GzXsQYwjgJtbZ4C5jlb8HNHBXaD+lJ3jQiN
-         ZY1wZFnmzKWrxFBPslIqd9GIVPEHI3y+LjYJCjN6WD5tpfhV22TIdQt7X/v833C874MM
-         pfbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=oxyOObT1sg5s9bWkUVceIGz0KKXfziZMqNtmhxIBUsg=;
-        b=NyUYXtlmW9rx/aHp6K/xozCJP1rNchifLWx8LL2ebFjUiWvoVSLsk1RbIDOvTeQ24j
-         j10xNCp0SgDwk49PNcAHhCB4fw2fGb9cw3FaTOGpA8qyTcDO/6FY3GxVj7tiayEApjzA
-         S+e6qmLaINLFsTsEBgKVFvYBtG79IFxlTd0bHCsCCmKko13TKEssjxzDWrQ55oG1wiKo
-         Rld9R4CZwZ33/2j8tk4TPi1b+SFyulvutqvwuL1TiHMXeB1UptDCe3fJBeGH+R7raLSt
-         uklrwOV/GOc18nJmXmaBcqOYr7yw8TNYOAiFWQkZgzE4wcio3kkU5hfQ6xNU2Lt/jDwU
-         2gGA==
-X-Gm-Message-State: AOAM530nHKW984q5KIRC22FxPYRyxBzOE9tmt8LOu364uVfUnYKkXtbx
-        Gvlk/LFBsz5Gwrztb6GyYckTT3dA2ylOwA==
-X-Google-Smtp-Source: ABdhPJwP8X4dWttjUj1Bb2v8rxhV65TD73lpEEX+TkikPku+vK0TaGlSy9mss5ow/8gIZF3SXV9r4Q==
-X-Received: by 2002:adf:cc81:: with SMTP id p1mr23185951wrj.339.1610930083018;
-        Sun, 17 Jan 2021 16:34:43 -0800 (PST)
-Received: from valhalla.home ([2.29.208.120])
-        by smtp.gmail.com with ESMTPSA id o124sm23642040wmb.5.2021.01.17.16.34.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Jan 2021 16:34:42 -0800 (PST)
-From:   Daniel Scally <djrscally@gmail.com>
-To:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, devel@acpica.org
-Cc:     rjw@rjwysocki.net, lenb@kernel.org, andy@kernel.org,
-        mika.westerberg@linux.intel.com, linus.walleij@linaro.org,
-        bgolaszewski@baylibre.com, wsa@kernel.org, lee.jones@linaro.org,
-        hdegoede@redhat.com, mgross@linux.intel.com,
-        robert.moore@intel.com, erik.kaneda@intel.com,
-        sakari.ailus@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
-Subject: [PATCH v2 2/7] acpi: utils: Add function to fetch dependent acpi_devices
-Date:   Mon, 18 Jan 2021 00:34:23 +0000
-Message-Id: <20210118003428.568892-3-djrscally@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210118003428.568892-1-djrscally@gmail.com>
-References: <20210118003428.568892-1-djrscally@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1731211AbhARCL7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 17 Jan 2021 21:11:59 -0500
+Received: from foss.arm.com ([217.140.110.172]:48632 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731152AbhARCLW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 17 Jan 2021 21:11:22 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 22D2C147A;
+        Sun, 17 Jan 2021 18:10:11 -0800 (PST)
+Received: from localhost.localdomain (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 17A133F719;
+        Sun, 17 Jan 2021 18:10:07 -0800 (PST)
+From:   Andre Przywara <andre.przywara@arm.com>
+To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>
+Cc:     Icenowy Zheng <icenowy@aosc.io>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Rob Herring <robh@kernel.org>,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Shuosheng Huang <huangshuosheng@allwinnertech.com>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-sunxi@googlegroups.com,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        devicetree@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-spi@vger.kernel.org
+Subject: [PATCH v3 18/21] dt-bindings: allwinner: Add H616 compatible strings
+Date:   Mon, 18 Jan 2021 02:08:45 +0000
+Message-Id: <20210118020848.11721-19-andre.przywara@arm.com>
+X-Mailer: git-send-email 2.14.1
+In-Reply-To: <20210118020848.11721-1-andre.przywara@arm.com>
+References: <20210118020848.11721-1-andre.przywara@arm.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-In some ACPI tables we encounter, devices use the _DEP method to assert
-a dependence on other ACPI devices as opposed to the OpRegions that the
-specification intends. We need to be able to find those devices "from"
-the dependee, so add a function to parse all ACPI Devices and check if
-the include the handle of the dependee device in their _DEP buffer.
+Add simple "allwinner,sun50i-h616-xxx" compatible names to existing
+bindings, and pair them with an existing fallback compatible string,
+as the devices are compatible.
+This covers I2C, infrared, RTC and SPI.
 
-Signed-off-by: Daniel Scally <djrscally@gmail.com>
+Use enums to group all compatible devices together.
+
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Wolfram Sang <wsa@kernel.org> # for I2C
 ---
-Changes in v2:
-	- Used acpi_lpss_dep() as Andy suggested.
+ .../bindings/i2c/marvell,mv64xxx-i2c.yaml     | 21 +++++++------------
+ .../media/allwinner,sun4i-a10-ir.yaml         | 16 ++++++--------
+ .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml |  3 +++
+ .../bindings/spi/allwinner,sun6i-a31-spi.yaml |  1 +
+ 4 files changed, 17 insertions(+), 24 deletions(-)
 
- drivers/acpi/utils.c    | 34 ++++++++++++++++++++++++++++++++++
- include/acpi/acpi_bus.h |  2 ++
- 2 files changed, 36 insertions(+)
-
-diff --git a/drivers/acpi/utils.c b/drivers/acpi/utils.c
-index 78b38775f18b..ec6a2406a886 100644
---- a/drivers/acpi/utils.c
-+++ b/drivers/acpi/utils.c
-@@ -831,6 +831,18 @@ bool acpi_lpss_dep(struct acpi_device *adev, acpi_handle handle)
- 	return false;
- }
+diff --git a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+index 5b5ae402f97a..eb72dd571def 100644
+--- a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+@@ -18,21 +18,14 @@ properties:
+           - const: allwinner,sun4i-a10-i2c
+       - const: allwinner,sun6i-a31-i2c
+       - items:
+-          - const: allwinner,sun8i-a23-i2c
++          - enum:
++              - allwinner,sun8i-a23-i2c
++              - allwinner,sun8i-a83t-i2c
++              - allwinner,sun50i-a64-i2c
++              - allwinner,sun50i-a100-i2c
++              - allwinner,sun50i-h6-i2c
++              - allwinner,sun50i-h616-i2c
+           - const: allwinner,sun6i-a31-i2c
+-      - items:
+-          - const: allwinner,sun8i-a83t-i2c
+-          - const: allwinner,sun6i-a31-i2c
+-      - items:
+-          - const: allwinner,sun50i-a64-i2c
+-          - const: allwinner,sun6i-a31-i2c
+-      - items:
+-          - const: allwinner,sun50i-a100-i2c
+-          - const: allwinner,sun6i-a31-i2c
+-      - items:
+-          - const: allwinner,sun50i-h6-i2c
+-          - const: allwinner,sun6i-a31-i2c
+-
+       - const: marvell,mv64xxx-i2c
+       - const: marvell,mv78230-i2c
+       - const: marvell,mv78230-a0-i2c
+diff --git a/Documentation/devicetree/bindings/media/allwinner,sun4i-a10-ir.yaml b/Documentation/devicetree/bindings/media/allwinner,sun4i-a10-ir.yaml
+index 5fa19d4aeaf3..6d8395d6bca0 100644
+--- a/Documentation/devicetree/bindings/media/allwinner,sun4i-a10-ir.yaml
++++ b/Documentation/devicetree/bindings/media/allwinner,sun4i-a10-ir.yaml
+@@ -20,16 +20,12 @@ properties:
+       - const: allwinner,sun5i-a13-ir
+       - const: allwinner,sun6i-a31-ir
+       - items:
+-          - const: allwinner,sun8i-a83t-ir
+-          - const: allwinner,sun6i-a31-ir
+-      - items:
+-          - const: allwinner,sun8i-r40-ir
+-          - const: allwinner,sun6i-a31-ir
+-      - items:
+-          - const: allwinner,sun50i-a64-ir
+-          - const: allwinner,sun6i-a31-ir
+-      - items:
+-          - const: allwinner,sun50i-h6-ir
++          - enum:
++              - allwinner,sun8i-a83t-ir
++              - allwinner,sun8i-r40-ir
++              - allwinner,sun50i-a64-ir
++              - allwinner,sun50i-h6-ir
++              - allwinner,sun50i-h616-ir
+           - const: allwinner,sun6i-a31-ir
  
-+static int acpi_dev_match_by_dep(struct device *dev, const void *data)
-+{
-+	struct acpi_device *adev = to_acpi_device(dev);
-+	const struct acpi_device *dependee = data;
-+	acpi_handle handle = dependee->handle;
-+
-+	if (acpi_lpss_dep(adev, handle))
-+		return 1;
-+
-+	return 0;
-+}
-+
- /**
-  * acpi_dev_present - Detect that a given ACPI device is present
-  * @hid: Hardware ID of the device.
-@@ -866,6 +878,28 @@ bool acpi_dev_present(const char *hid, const char *uid, s64 hrv)
- }
- EXPORT_SYMBOL(acpi_dev_present);
+   reg:
+diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+index 37c2a601c3fa..97928efd2bc9 100644
+--- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+@@ -26,6 +26,9 @@ properties:
+           - const: allwinner,sun50i-a64-rtc
+           - const: allwinner,sun8i-h3-rtc
+       - const: allwinner,sun50i-h6-rtc
++      - items:
++          - const: allwinner,sun50i-h616-rtc
++          - const: allwinner,sun50i-h6-rtc
  
-+/**
-+ * acpi_dev_get_next_dep_dev - Return next ACPI device dependent on input dev
-+ * @adev: Pointer to the dependee device
-+ * @prev: Pointer to the previous dependent device (or NULL for first match)
-+ *
-+ * Return the next ACPI device which declares itself dependent on @adev in
-+ * the _DEP buffer.
-+ *
-+ * The caller is responsible to call put_device() on the returned device.
-+ */
-+struct acpi_device *acpi_dev_get_next_dep_dev(struct acpi_device *adev,
-+					      struct acpi_device *prev)
-+{
-+	struct device *start = prev ? &prev->dev : NULL;
-+	struct device *dev;
-+
-+	dev = bus_find_device(&acpi_bus_type, start, adev, acpi_dev_match_by_dep);
-+
-+	return dev ? to_acpi_device(dev) : NULL;
-+}
-+EXPORT_SYMBOL(acpi_dev_get_next_dep_dev);
-+
- /**
-  * acpi_dev_get_next_match_dev - Return the next match of ACPI device
-  * @adev: Pointer to the previous acpi_device matching this @hid, @uid and @hrv
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 02a716a0af5d..33deb22294f2 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -683,6 +683,8 @@ static inline bool acpi_device_can_poweroff(struct acpi_device *adev)
+   reg:
+     maxItems: 1
+diff --git a/Documentation/devicetree/bindings/spi/allwinner,sun6i-a31-spi.yaml b/Documentation/devicetree/bindings/spi/allwinner,sun6i-a31-spi.yaml
+index 7866a655d81c..908248260afa 100644
+--- a/Documentation/devicetree/bindings/spi/allwinner,sun6i-a31-spi.yaml
++++ b/Documentation/devicetree/bindings/spi/allwinner,sun6i-a31-spi.yaml
+@@ -25,6 +25,7 @@ properties:
+           - enum:
+               - allwinner,sun8i-r40-spi
+               - allwinner,sun50i-h6-spi
++              - allwinner,sun50i-h616-spi
+           - const: allwinner,sun8i-h3-spi
  
- bool acpi_dev_hid_uid_match(struct acpi_device *adev, const char *hid2, const char *uid2);
- 
-+struct acpi_device *
-+acpi_dev_get_next_dep_dev(struct acpi_device *adev, struct acpi_device *prev);
- struct acpi_device *
- acpi_dev_get_next_match_dev(struct acpi_device *adev, const char *hid, const char *uid, s64 hrv);
- struct acpi_device *
+   reg:
 -- 
-2.25.1
+2.17.5
 
