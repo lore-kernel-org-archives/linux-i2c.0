@@ -6,87 +6,74 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6002CC433E6
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 13:56:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31B7CC433DB
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 14:03:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 14E4B22B47
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 13:56:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EB78E22B4E
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 14:03:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392423AbhARN4E (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 18 Jan 2021 08:56:04 -0500
-Received: from mga05.intel.com ([192.55.52.43]:59073 "EHLO mga05.intel.com"
+        id S2391512AbhARMan (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 18 Jan 2021 07:30:43 -0500
+Received: from mga07.intel.com ([134.134.136.100]:10055 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392453AbhARNwL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 18 Jan 2021 08:52:11 -0500
-IronPort-SDR: mo2AHIpup04DPB7PpJYgnSobKyRwYb7Cm0Q3oh6gm787AV+AF+RJbZ9TV5brNuZ6LwVzSAehFe
- Y9cudTga50aA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9867"; a="263610121"
+        id S2391503AbhARMaj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 18 Jan 2021 07:30:39 -0500
+IronPort-SDR: nUwFUPJV6CSSo518YJoIPh6QYXAsuZMMB2c9JMkiVvps0LfDPy9QM6a39QgjQ1KhD1lwDqAPOf
+ 25ZwWjMvfLoQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9867"; a="242866894"
 X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
-   d="scan'208";a="263610121"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 05:50:25 -0800
-IronPort-SDR: MLmKRq3b4QoZpayrs4ITgd0IkDJ1ntZLWQYao3iSPt0or6j5wbSRJoI87d0U/VhaAOXE+V9RVD
- HNDuV8xa3WMw==
+   d="scan'208";a="242866894"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 04:28:53 -0800
+IronPort-SDR: 6iH2ILx1Vuk7B7LU89OE6QX3T0bl5uWmnLgdqabGa401cHoG+kpRpyXtCNjDmh0DUPh5ZxHfA4
+ 5T0Cd9pQihGg==
 X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
-   d="scan'208";a="402053339"
+   d="scan'208";a="346860180"
 Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 05:50:20 -0800
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 04:28:48 -0800
 Received: from andy by smile with local (Exim 4.94)
         (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1l1UwE-002CGB-0I; Mon, 18 Jan 2021 15:51:22 +0200
-Date:   Mon, 18 Jan 2021 15:51:21 +0200
-From:   "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>
-To:     =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Cc:     Daniel Scally <djrscally@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "platform-driver-x86@vger.kernel.org" 
-        <platform-driver-x86@vger.kernel.org>,
-        "devel@acpica.org" <devel@acpica.org>,
-        "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
-        "lenb@kernel.org" <lenb@kernel.org>,
-        "andy@kernel.org" <andy@kernel.org>,
-        "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
-        "wsa@kernel.org" <wsa@kernel.org>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "hdegoede@redhat.com" <hdegoede@redhat.com>,
-        "mgross@linux.intel.com" <mgross@linux.intel.com>,
-        "robert.moore@intel.com" <robert.moore@intel.com>,
-        "erik.kaneda@intel.com" <erik.kaneda@intel.com>,
-        "sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>,
-        "laurent.pinchart@ideasonboard.com" 
-        <laurent.pinchart@ideasonboard.com>,
-        "kieran.bingham@ideasonboard.com" <kieran.bingham@ideasonboard.com>
-Subject: Re: [PATCH v2 6/7] platform: x86: Add intel_skl_int3472 driver
-Message-ID: <20210118135121.GM4077@smile.fi.intel.com>
+        id 1l1TfK-0027Uk-F1; Mon, 18 Jan 2021 14:29:50 +0200
+Date:   Mon, 18 Jan 2021 14:29:50 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc:     Daniel Scally <djrscally@gmail.com>, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        devel@acpica.org, rjw@rjwysocki.net, lenb@kernel.org,
+        andy@kernel.org, mika.westerberg@linux.intel.com,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        wsa@kernel.org, lee.jones@linaro.org, hdegoede@redhat.com,
+        mgross@linux.intel.com, robert.moore@intel.com,
+        erik.kaneda@intel.com, sakari.ailus@linux.intel.com,
+        kieran.bingham@ideasonboard.com
+Subject: Re: [PATCH v2 1/7] acpi: utils: move acpi_lpss_dep() to utils
+Message-ID: <20210118122950.GE4077@smile.fi.intel.com>
 References: <20210118003428.568892-1-djrscally@gmail.com>
- <20210118003428.568892-7-djrscally@gmail.com>
- <-GKrxu8GJvGe-PlKkLpblw9N-DtVtS7i87BOCLgJR72yf4hUFpUgiOlGcFero_gqgUxJrX2gxtLOnz_31hJugfam0SXXmXxIzGIhS162mhI=@protonmail.com>
+ <20210118003428.568892-2-djrscally@gmail.com>
+ <YAU3msXszVZ8CLjs@pendragon.ideasonboard.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <-GKrxu8GJvGe-PlKkLpblw9N-DtVtS7i87BOCLgJR72yf4hUFpUgiOlGcFero_gqgUxJrX2gxtLOnz_31hJugfam0SXXmXxIzGIhS162mhI=@protonmail.com>
+In-Reply-To: <YAU3msXszVZ8CLjs@pendragon.ideasonboard.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Jan 18, 2021 at 11:12:34AM +0000, Barnabás Pőcze wrote:
-> 2021. január 18., hétfő 1:34 keltezéssel, Daniel Scally írta:
+On Mon, Jan 18, 2021 at 09:24:10AM +0200, Laurent Pinchart wrote:
+> On Mon, Jan 18, 2021 at 12:34:22AM +0000, Daniel Scally wrote:
 
-> Have you considered putting the source (and header) files into a dedicated
-> folder? I think it'd help manageability in the long run, and it'd be immediately
-> obvious that these source files form a single "unit".
+...
 
-What would be the folder name? Because, for example, intel_cht_int33fe* have no
-folder (yet?) and here it's kinda similar case when HID describes something
-else than just one IP.
+> > +bool acpi_lpss_dep(struct acpi_device *adev, acpi_handle handle);
+> 
+> "lpss" stands for low power subsystem, an Intel device within the PCH
+> that handles I2C, SPI, UART, ... I think the function should be renamed,
+> as it's now generic. acpi_dev_has_dep() is a potential candidate, I'm
+> sure better ones exist. A bit of kerneldoc would also not hurt.
+
+Actually a good suggestions. Please apply my tag after addressing above.
 
 -- 
 With Best Regards,
