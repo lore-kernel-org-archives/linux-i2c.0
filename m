@@ -2,138 +2,124 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD200C43332
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B51C7C433DB
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 11:14:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6CC8722241
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8128122ADC
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 11:14:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389871AbhARK3r (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 18 Jan 2021 05:29:47 -0500
-Received: from mga11.intel.com ([192.55.52.93]:37363 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389166AbhARJol (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 18 Jan 2021 04:44:41 -0500
-IronPort-SDR: xTvm9obDFb7MjVvx1Vw1Pa/o6VDM3jCGJ2E0X70NPBDCmtGip+2CQijf2v7FpGhAufl55RBPwy
- nr/c4GQvk4tA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9867"; a="175277848"
-X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
-   d="scan'208";a="175277848"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 01:42:44 -0800
-IronPort-SDR: jVDVyL+1vvMd8SeoDIk51ZW3B/D398sltO/FBsgtKmWHqEkAoylU+dzZXhi5dStzYMWxc82stw
- KjMgNYFEFsag==
-X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
-   d="scan'208";a="355127834"
-Received: from paasikivi.fi.intel.com ([10.237.72.42])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 01:42:40 -0800
-Received: by paasikivi.fi.intel.com (Postfix, from userid 1000)
-        id 7A48A208D7; Mon, 18 Jan 2021 11:42:38 +0200 (EET)
-Date:   Mon, 18 Jan 2021 11:42:38 +0200
-From:   Sakari Ailus <sakari.ailus@linux.intel.com>
+        id S2389912AbhARLNi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 18 Jan 2021 06:13:38 -0500
+Received: from mail-40133.protonmail.ch ([185.70.40.133]:56664 "EHLO
+        mail-40133.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389404AbhARLNe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Jan 2021 06:13:34 -0500
+Date:   Mon, 18 Jan 2021 11:12:34 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1610968360;
+        bh=peSC9o9yu05hJE1IC0P2apZMWF5VoegXfyyqCO9GoLM=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=n3XZ3zXlRHqfavOYPOO4tMpM6ITEmWi7rzGm1xwFAXrA+DFpaNcnHbXyTD0eQaL0N
+         xqR7q698aaAqxz/QTH/P7btgZ0H//3/BvLEHd0K+66DfrfUfORbrj5tmGE0HTdaaCw
+         o1awLClmG58F+Hwqq9edfb4Q1t/wBUWASaq2qI0Y=
 To:     Daniel Scally <djrscally@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, devel@acpica.org,
-        rjw@rjwysocki.net, lenb@kernel.org, andy@kernel.org,
-        mika.westerberg@linux.intel.com, linus.walleij@linaro.org,
-        bgolaszewski@baylibre.com, wsa@kernel.org, lee.jones@linaro.org,
-        hdegoede@redhat.com, mgross@linux.intel.com,
-        robert.moore@intel.com, erik.kaneda@intel.com,
-        andriy.shevchenko@linux.intel.com,
-        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
-Subject: Re: [PATCH v2 3/7] i2c: i2c-core-base: Use format macro in
- i2c_dev_set_name()
-Message-ID: <20210118094238.GW11878@paasikivi.fi.intel.com>
-References: <20210118003428.568892-1-djrscally@gmail.com>
- <20210118003428.568892-4-djrscally@gmail.com>
- <20210118094158.GV11878@paasikivi.fi.intel.com>
+From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "platform-driver-x86@vger.kernel.org" 
+        <platform-driver-x86@vger.kernel.org>,
+        "devel@acpica.org" <devel@acpica.org>,
+        "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
+        "lenb@kernel.org" <lenb@kernel.org>,
+        "andy@kernel.org" <andy@kernel.org>,
+        "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>,
+        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
+        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
+        "wsa@kernel.org" <wsa@kernel.org>,
+        "lee.jones@linaro.org" <lee.jones@linaro.org>,
+        "hdegoede@redhat.com" <hdegoede@redhat.com>,
+        "mgross@linux.intel.com" <mgross@linux.intel.com>,
+        "robert.moore@intel.com" <robert.moore@intel.com>,
+        "erik.kaneda@intel.com" <erik.kaneda@intel.com>,
+        "sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>,
+        "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>,
+        "laurent.pinchart@ideasonboard.com" 
+        <laurent.pinchart@ideasonboard.com>,
+        "kieran.bingham@ideasonboard.com" <kieran.bingham@ideasonboard.com>
+Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Subject: Re: [PATCH v2 6/7] platform: x86: Add intel_skl_int3472 driver
+Message-ID: <-GKrxu8GJvGe-PlKkLpblw9N-DtVtS7i87BOCLgJR72yf4hUFpUgiOlGcFero_gqgUxJrX2gxtLOnz_31hJugfam0SXXmXxIzGIhS162mhI=@protonmail.com>
+In-Reply-To: <20210118003428.568892-7-djrscally@gmail.com>
+References: <20210118003428.568892-1-djrscally@gmail.com> <20210118003428.568892-7-djrscally@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210118094158.GV11878@paasikivi.fi.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Jan 18, 2021 at 11:41:58AM +0200, Sakari Ailus wrote:
-> Hi Daniel,
-> 
-> On Mon, Jan 18, 2021 at 12:34:24AM +0000, Daniel Scally wrote:
-> > Some places in the kernel allow users to map resources to a device
-> > using device name (for example, gpiod_lookup_table). Currently
-> > this involves waiting for the i2c_client to have been registered so we
-> > can use dev_name(&client->dev). We want to add a function to allow users
-> > to refer to an i2c device by name before it has been instantiated, so
-> > create a macro for the format that's accessible outside the i2c layer
-> > and use it in i2c_dev_set_name()
-> > 
-> > Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Signed-off-by: Daniel Scally <djrscally@gmail.com>
-> > ---
-> > 	- Used format macro in i2c_dev_set_name() instead of sub func
-> > 
-> >  drivers/i2c/i2c-core-base.c | 4 ++--
-> >  include/linux/i2c.h         | 3 +++
-> >  2 files changed, 5 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> > index 63ebf722a424..547b8926cac8 100644
-> > --- a/drivers/i2c/i2c-core-base.c
-> > +++ b/drivers/i2c/i2c-core-base.c
-> > @@ -811,12 +811,12 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
-> >  	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
-> >  
-> >  	if (info && info->dev_name) {
-> > -		dev_set_name(&client->dev, "i2c-%s", info->dev_name);
-> > +		dev_set_name(&client->dev, I2C_DEV_NAME_FORMAT, info->dev_name);
-> >  		return;
-> >  	}
-> >  
-> >  	if (adev) {
-> > -		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
-> > +		dev_set_name(&client->dev, I2C_DEV_NAME_FORMAT, acpi_dev_name(adev));
-> 
-> Over 80, please wrap.
-> 
-> With that,
-> 
-> Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Hi
 
-Or rather:
 
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+2021. janu=C3=A1r 18., h=C3=A9tf=C5=91 1:34 keltez=C3=A9ssel, Daniel Scally=
+ =C3=ADrta:
 
-> 
-> >  		return;
-> >  	}
-> >  
-> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > index 56622658b215..4d40a4b46810 100644
-> > --- a/include/linux/i2c.h
-> > +++ b/include/linux/i2c.h
-> > @@ -39,6 +39,9 @@ enum i2c_slave_event;
-> >  typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
-> >  			      enum i2c_slave_event event, u8 *val);
-> >  
-> > +/* I2C Device Name Format - to maintain consistency outside the i2c layer */
-> > +#define I2C_DEV_NAME_FORMAT		"i2c-%s"
-> > +
-> >  /* I2C Frequency Modes */
-> >  #define I2C_MAX_STANDARD_MODE_FREQ	100000
-> >  #define I2C_MAX_FAST_MODE_FREQ		400000
-> > -- 
-> > 2.25.1
-> > 
-> 
-> -- 
-> Sakari Ailus
+> ACPI devices with _HID INT3472 are currently matched to the tps68470
+> driver, however this does not cover all situations in which that _HID
+> occurs. We've encountered three possibilities:
+>
+> 1. On Chrome OS devices, an ACPI device with _HID INT3472 (representing
+> a physical tps68470 device) that requires a GPIO and OpRegion driver
+> 2. On devices designed for Windows, an ACPI device with _HID INT3472
+> (again representing a physical tps68470 device) which requires GPIO,
+> Clock and Regulator drivers.
+> 3. On other devices designed for Windows, an ACPI device with _HID
+> INT3472 which does NOT represent a physical tps68470, and is instead
+> used as a dummy device to group some system GPIO lines which are meant
+> to be consumed by the sensor that is dependent on this entry.
+>
+> This commit adds a new module, registering a platform driver to deal
+> with the 3rd scenario plus an i2c-driver to deal with #1 and #2, by
+> querying the CLDB buffer found against INT3472 entries to determine
+> which is most appropriate.
+>
+> Suggested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Signed-off-by: Daniel Scally <djrscally@gmail.com>
+> ---
+> Changes in v2:
+>
+> =09- Switched to a module registering a platform driver to run
+> =09the dummy ACPI devices, plus an i2c driver to replace and extend
+> =09the existing tps68470 driver
+> =09- Added clock handling functions to the int3472-discrete driver
+> =09- A whole bunch of other changes too numerous to enumerate
+>  MAINTAINERS                                   |   5 +
+>  drivers/platform/x86/Kconfig                  |  25 +
+>  drivers/platform/x86/Makefile                 |   4 +
+>  .../platform/x86/intel_skl_int3472_common.c   | 100 ++++
+>  .../platform/x86/intel_skl_int3472_common.h   | 100 ++++
+>  .../platform/x86/intel_skl_int3472_discrete.c | 496 ++++++++++++++++++
+>  .../platform/x86/intel_skl_int3472_tps68470.c | 145 +++++
+>  7 files changed, 875 insertions(+)
+>  create mode 100644 drivers/platform/x86/intel_skl_int3472_common.c
+>  create mode 100644 drivers/platform/x86/intel_skl_int3472_common.h
+>  create mode 100644 drivers/platform/x86/intel_skl_int3472_discrete.c
+>  create mode 100644 drivers/platform/x86/intel_skl_int3472_tps68470.c
 
--- 
-Sakari Ailus
+Have you considered putting the source (and header) files into a dedicated
+folder? I think it'd help manageability in the long run, and it'd be immedi=
+ately
+obvious that these source files form a single "unit".
+
+
+Regards,
+Barnab=C3=A1s P=C5=91cze
