@@ -2,86 +2,97 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53E3CC43331
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77567C4332E
 	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 15CAB22241
+	by mail.kernel.org (Postfix) with ESMTP id 403B822227
 	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 10:34:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389821AbhARK3O (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 18 Jan 2021 05:29:14 -0500
-Received: from www.zeus03.de ([194.117.254.33]:43264 "EHLO mail.zeus03.de"
+        id S2389879AbhARK3z (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 18 Jan 2021 05:29:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388890AbhARJcu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 18 Jan 2021 04:32:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=jjlIzJbv5AfMOZb8DeeYojqlwPux
-        8lrHsYxvp6bLS6M=; b=zYbQ8rzGeBpdP8pj5YCVWlIshwK8NP5pKgMELuji1aV5
-        UVz9XA9eA4ETqix0Ie6eKwqFFfydFdwWi5b/yh/36ZDPxhDMwFopIqKJjpIq+m5x
-        Dp0vqlqTQT7BqXDrdKgVGgu4tUWtbgPLjQDi757w5M+dY6uGAwukiDnMYLQ+Btg=
-Received: (qmail 643050 invoked from network); 18 Jan 2021 10:32:01 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 18 Jan 2021 10:32:01 +0100
-X-UD-Smtp-Session: l3s3148p1@JozuZCm5uoYgAwDPXwacAOByz8F9Mgm1
-Date:   Mon, 18 Jan 2021 10:32:01 +0100
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc:     linux-i2c@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC 1/3] media: i2c: adv7842: remove open coded version
- of SMBus block write
-Message-ID: <20210118093201.GC1018@ninjato>
-References: <20210112164130.47895-1-wsa+renesas@sang-engineering.com>
- <20210112164130.47895-2-wsa+renesas@sang-engineering.com>
- <f1c17eaf-1ab8-2665-54bb-6df69ab1f067@xs4all.nl>
+        id S2388537AbhARJtr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 18 Jan 2021 04:49:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA85122240;
+        Mon, 18 Jan 2021 09:49:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1610963342;
+        bh=9bTutVuu/DSuDKBMjc+IVf0+eQrTrDMyPzHtibHj+6k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UAR35gZ46BzuN7kM6fHMzaBLqnTSd1J7OPzW8UCkfDgrutwQ0fxwL/B3demIaiTP5
+         7U+DY26pte7HTim5LazSjwT3I+RIOqsC7fvZCulRc/WZocNAnM+NytJzcj5NwQYipo
+         MMKDmeLFjI2+qtOsTzE1TNdpqfuECs0aJyOCiVf5fO6k1WNdT26VEQZGZXwS91ORae
+         3AyHTivLWMCb1j+bALrSkgwJAPSPJ+/2e3DBWAjvblsOd2C23q5scZFi382wEOavuK
+         yJmflvccN7Wa5EB78J3X+u9qFXJyiv94HXJvdMbfwr2YADaz91hvBT5GKKS+WRAq0i
+         w1CO90NpxvCDg==
+Date:   Mon, 18 Jan 2021 10:48:59 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc:     Daniel Scally <djrscally@gmail.com>, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        devel@acpica.org, rjw@rjwysocki.net, lenb@kernel.org,
+        andy@kernel.org, mika.westerberg@linux.intel.com,
+        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        lee.jones@linaro.org, hdegoede@redhat.com, mgross@linux.intel.com,
+        robert.moore@intel.com, erik.kaneda@intel.com,
+        andriy.shevchenko@linux.intel.com,
+        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
+Subject: Re: [PATCH v2 3/7] i2c: i2c-core-base: Use format macro in
+ i2c_dev_set_name()
+Message-ID: <20210118094859.GE1018@ninjato>
+References: <20210118003428.568892-1-djrscally@gmail.com>
+ <20210118003428.568892-4-djrscally@gmail.com>
+ <20210118094158.GV11878@paasikivi.fi.intel.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0lnxQi9hkpPO77W3"
+        protocol="application/pgp-signature"; boundary="Dzs2zDY0zgkG72+7"
 Content-Disposition: inline
-In-Reply-To: <f1c17eaf-1ab8-2665-54bb-6df69ab1f067@xs4all.nl>
+In-Reply-To: <20210118094158.GV11878@paasikivi.fi.intel.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---0lnxQi9hkpPO77W3
+--Dzs2zDY0zgkG72+7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 
-> > +#define adv_smbus_write_i2c_block_data i2c_smbus_write_i2c_block_data
+> >  	if (adev) {
+> > -		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
+> > +		dev_set_name(&client->dev, I2C_DEV_NAME_FORMAT, acpi_dev_name(adev));
 >=20
-> I would prefer it if the driver just uses i2c_smbus_write_i2c_block_data
-> directly instead of relying on this define. It's used only 5 times, so
-> it should be a trivial change.
+> Over 80, please wrap.
 
-Okay, will change it!
+I am not that strict with the 80, and I don't think it will improve
+readability here. It can stay this time IMO.
 
 
---0lnxQi9hkpPO77W3
+--Dzs2zDY0zgkG72+7
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAFVY0ACgkQFA3kzBSg
-KbbmFxAAgGh0H3VpFDjIoJkJ89p+HFbHBHoviJp61p/GkaWpQkD8K++fMxEH048H
-6vsASnSSkUqHzdhq/4nHbLVe/wvwe/PZkCqRdMnhuXrhzS0Ip9jZ7ljfA6H/rpxC
-eg8Tcfr6lBW6hNwO+rlagA26+xMwEFrq+yNIs+hr39pzb4oP1lDZVlh8uR9bFXJN
-Onpk/V8tPQY9Y3+SnMWixVcLGRaIeJL9V5EXpv+ZXNmFFqkDcD8Zlwah4qtoz3v8
-PVWgvbFpDsMIMa0sj3kwEnf47c1SIw0flK64n8cdTTGSfKk/7VzDVRIDDYO0/wr1
-aG2KnkQd4FUcHYorlWdG4TMGaTM9A/3c6XeQHJGIfp+VzSe4XI6fFIoHuJD20iFK
-dLKZvnAfe6qLIiaW/0VG8hGo0w98ixJY/W6Y+NlR8eYYDP5mHWU0tDG3JPGsSp93
-LTf5FbubZO2EOgGfMvZKX/eict/DDX+dtckssRX7eaa6T9lxZSGc5oGllkgFhchL
-Iqclq0fDMffCVmlXFHIfDlxojcmB7JZ5HeS2M3+QCu+84VZzGuRLTc4Jf6cxoPwu
-bC3PqeElZHN04RSvUfdVkOkQx8T+jvQuqYkou3duh11d6u7MsIJ0MBbIMPxrYqIR
-5Jkf5KZkwxvFhE5NXab3Fej3u/RE8EZN3gRmkHrxn3k9bJjmIdI=
-=6du5
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAFWYsACgkQFA3kzBSg
+KbZ5TxAAqm6pyHARUGL0cKim01HMV/DtxQ7nhbhn/VLKU53KGUuaBt/1obKOLso1
+wgY9LSF/Q0AjqgCEk8TqAi0oKPqBJdjzeIIBMe54dxiqCLo5RlaDIELGe51BZtKQ
+29xIhGlsla1j+mFx0Rerfj5hq3ne58e2MnBQDFIOJpwGdKkdaH1SqvDlA9OtN0nJ
+dMsXbVCIcPCyVPEwW4evvlBhLa2PCxxuJB6WgQFPxHhgaXZoomi7lIhwH5OE66Ea
+PVuGvIAldWSAU2bTBBfeKxpwRWWJ4ktsjU31aaIhwT8JHxe7K7eltFrhXXqCeXSJ
+fKxX2og3vx7wVuCAaM7pPkJFTZJTkb/cn+Ukh6S4UaWc80LV6nAcSWMWO68tTGVt
+Evx3Ym+UqWwDP/FW9DcI+44wQgjPRh6q/c++KgID1E7MyrGVWAyNQb3OFYqRuSp1
+6xsrDrJqTdm9DAsWwW3eSC0Dmb3i2JmiwdHluMnKr9C21AbiUTMKxrIz3lWj1Cs0
+7Ukn1GJIq+gOwiTZFJkEA69+LDOoGztKi6gzj2HQwDDG48GP9FHQVCmH9t39LHFm
+sm76hgfNYZNBGtda/WYTZL6wYwmzDvNCPqP4Ukyl6qmUWYN5fHMm0Akr9yrL13KR
+Ts1zB536gMUPqtLdgC2l0kqisbbqtXQetkv7QWaxyJ/vlEXXO54=
+=sHGt
 -----END PGP SIGNATURE-----
 
---0lnxQi9hkpPO77W3--
+--Dzs2zDY0zgkG72+7--
