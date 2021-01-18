@@ -2,59 +2,60 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B4EDC433DB
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 00:35:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FF7CC433E0
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 00:35:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3AF71223DB
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 00:35:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 667C2223DB
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 00:35:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730487AbhARAfX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 17 Jan 2021 19:35:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44422 "EHLO
+        id S1730540AbhARAfd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 17 Jan 2021 19:35:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730468AbhARAfW (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Jan 2021 19:35:22 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E826FC061573;
-        Sun, 17 Jan 2021 16:34:41 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id r4so12385274wmh.5;
-        Sun, 17 Jan 2021 16:34:41 -0800 (PST)
+        with ESMTP id S1730532AbhARAf2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Jan 2021 19:35:28 -0500
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B19A7C0613C1;
+        Sun, 17 Jan 2021 16:34:46 -0800 (PST)
+Received: by mail-wr1-x434.google.com with SMTP id y17so14846229wrr.10;
+        Sun, 17 Jan 2021 16:34:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hv3QULuAw3daEtPKtW/GfZxtyLAjRCNrwbUyjJ0z7Xs=;
-        b=iab6/rtv8fV2t/9tKiUZM6JzYtYY5t2jiLWWaSJwuY4UQBwFm9+jBWNQ7plLcMo4yv
-         Ew0u3XTUYFIes11V2xwarfu+yyqrmpJhps5NW8NU0GNSSaAm3mJ7uvOqOL1+RkHGzr6m
-         AXeXBkXDUe3OqWEcONBJEtzhC4f1kP3x3rAntdvkvCIFQt5FfmxIfVFRaTAlA6F4rRj/
-         p+h9CYL6A2JH8yF1B6Sn8jm6eeZ6CNHF0HnDMyj+iCp2wSXj70pjrPQcs2F/OVF1FAEK
-         UONkTBn3oPbgabnAfnEbWYEueALZzKbthyc5W7LXOI38rJEfnfjVvbIvGLgZ56YWAv/O
-         CcSA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=PbvX9p++F2mDiu44jiSND5knwA5OcZJgkRIiG9x4IPE=;
+        b=aK2h+ZKGBqLjK+HOsK8Eb94wCvZZPHTRYUej+vcgRDgyBKsMIHmwfl+IK5pu94V0EG
+         9C86oP5mfCuSSVn/H1QmrHiJ3FwAa8iwt4W1Y5CUXK121frgvoxSGe26vlzjHr9+S1A0
+         5+dc9s6vi3u2Q6RbKUHK5s7YKhgotybEZC5+ukSDjW5rq2fyhTSDCa4X3hp8Gc73fLYy
+         gR24PgQGPz7T+Wi6P8qE7VmyNzvNV4IdO1vLa5sT/JjIEvtwG9z6ag6rD/hBdLTPICsB
+         eP4KcjnTjj5JY4AwJ6FQLaPn+sjG3uHR7GO/IdszjqJsnOtt+/09bNFcvozu8LaoE67L
+         YRVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hv3QULuAw3daEtPKtW/GfZxtyLAjRCNrwbUyjJ0z7Xs=;
-        b=pOVyc+hEhXCvnB9KpAj8DjaNczycBidmZi8qbsgJZ9c3nhUIB6blz18jUenXm8BVLC
-         7epdXB2fgSSjzi/9NRwUo4FOQ+obuof3/2+4hZJvZ/ur4MXJGh65Epi1rmfczbC5FURt
-         aBK7Ga86dVPRvSENOqSRYWGZAgvazrAAwWS5jWtm/fcGN29yzW9dHz7KMQ42i/DNM3pE
-         UnyaoEBgy5EtMz9ExaJxMJAVUj2KbX3ag3FRwBlSdvuyOuYTieTKfdiOfq//cAc4gSSc
-         EKJKGUBY9A4sLFQHhg7DpaAIcCvUNJ6ycFU3zF/K1Iz4XlUnpTunb591HGOckO48xibF
-         kSrw==
-X-Gm-Message-State: AOAM5333qTqvngQZz7Ql6ebXRofpY3vC8xL3ygKJJS9yNAmS14YZt6WS
-        ETpmBFAyIAdmp1tpMfCtzzgEAVqsaoA8eQ==
-X-Google-Smtp-Source: ABdhPJx2d8jb8IceRsmC0SWY66dY7dVMCHYr1ggXjUpDi/gyQV3E+EAl3VTbJ8wyyNCBSbuwmUlSqA==
-X-Received: by 2002:a1c:6383:: with SMTP id x125mr18434747wmb.46.1610930080551;
-        Sun, 17 Jan 2021 16:34:40 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=PbvX9p++F2mDiu44jiSND5knwA5OcZJgkRIiG9x4IPE=;
+        b=Sry+6HM0bI3M3s45VmNvcM4yO9fCyaqet2ZqIQjC5JU3Zug3Yh3NnV5GcXXvE6XwJZ
+         e2q5ZUL3gEzPhYIqP0tlU3n/WxE6PrE41ngOi6NZ7iERMgMJcuWjPWfttwaoFhCX2fHq
+         G+6MQN/W65MXlQKK9NQy71prCBc9AiPWUDPy2Gydqgajmja5Ca5QTOT27k9uEr7uoaYk
+         4CJEMohWqrcafhuX7oMPoZL3FVjCWBPgbxqMwI+Qw8Qlx0K97h+1InYyAqIgJ9f+TvQH
+         cthkilRnWPZe78xG8ieQ8tRr5vJHHAtME/83RnWZKcnA32tbMPXWZtYdLq7D7ujcN4KU
+         ViAQ==
+X-Gm-Message-State: AOAM531L0E0ZN6lvUMp8LFVRBGXnoYtcwN4ukUosRewjFtdE/1zCShkZ
+        x0C6GuSYLeOKwOuqWvxIbnyUNzhUwH/Rpw==
+X-Google-Smtp-Source: ABdhPJzn7m9FqPVHSUWMPIKCaOySd8Kyzq/uVeNq66KJG9h3ejnku8fB0HiFon0VF+qkXnVSKChDFA==
+X-Received: by 2002:a05:6000:104d:: with SMTP id c13mr22897288wrx.127.1610930085498;
+        Sun, 17 Jan 2021 16:34:45 -0800 (PST)
 Received: from valhalla.home ([2.29.208.120])
-        by smtp.gmail.com with ESMTPSA id o124sm23642040wmb.5.2021.01.17.16.34.39
+        by smtp.gmail.com with ESMTPSA id o124sm23642040wmb.5.2021.01.17.16.34.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Jan 2021 16:34:39 -0800 (PST)
+        Sun, 17 Jan 2021 16:34:44 -0800 (PST)
 From:   Daniel Scally <djrscally@gmail.com>
 To:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -66,97 +67,82 @@ Cc:     rjw@rjwysocki.net, lenb@kernel.org, andy@kernel.org,
         robert.moore@intel.com, erik.kaneda@intel.com,
         sakari.ailus@linux.intel.com, andriy.shevchenko@linux.intel.com,
         laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
-Subject: [PATCH v2 0/7] Introduce intel_skl_int3472 driver 
-Date:   Mon, 18 Jan 2021 00:34:21 +0000
-Message-Id: <20210118003428.568892-1-djrscally@gmail.com>
+Subject: [PATCH v2 4/7] i2c: i2c-core-acpi: Add i2c_acpi_dev_name()
+Date:   Mon, 18 Jan 2021 00:34:25 +0000
+Message-Id: <20210118003428.568892-5-djrscally@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210118003428.568892-1-djrscally@gmail.com>
+References: <20210118003428.568892-1-djrscally@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hello all
+We want to refer to an i2c device by name before it has been
+created by the kernel; add a function that constructs the name
+from the acpi device instead.
 
-v1 for this series was originally 14-18 of this series:
-https://lore.kernel.org/linux-media/20201130133129.1024662-1-djrscally@gmail.com/T/#m91934e12e3d033da2e768e952ea3b4a125ee3e67
+Signed-off-by: Daniel Scally <djrscally@gmail.com>
+---
+Changes in v2:
 
-At the moment in the kernel the ACPI _HID INT3472 is taken by the tps68470
-MFD driver, but that driver can only handle some of the cases of that _HID
-that we see. There are at least these three possibilities:
+	- Stopped using devm_kasprintf()
 
-1. INT3472 devices that provide GPIOs through the usual framework and run
-   power and clocks through an operation region; this is the situation that
-   the current module handles and is seen on ChromeOS devices
-2. INT3472 devices that provide GPIOs, plus clocks and regulators that are
-   meant to be driven through the usual frameworks, usually seen on devices
-   designed to run Windows
-3. INT3472 devices that don't actually represent a physical tps68470, but
-   are being used as a convenient way of grouping a bunch of system GPIO
-   lines that are intended to enable power and clocks for sensors which
-   are called out as dependent on them. Also seen on devices designed to
-   run Windows.
+ drivers/i2c/i2c-core-acpi.c | 16 ++++++++++++++++
+ include/linux/i2c.h         |  5 +++++
+ 2 files changed, 21 insertions(+)
 
-This series introduces a new module which registers:
-
-1. An i2c driver that determines which scenario (#1 or #2) applies to the
-   machine and registers platform devices to be bound to GPIO, OpRegion,
-   clock and regulator drivers as appropriate.
-2. A platform driver that binds to the dummy INT3472 devices described in
-   #3
-
-The platform driver for the dummy device registers the GPIO lines that
-enable the clocks and regulators to the sensors via those frameworks so
-that sensor drivers can consume them in the usual fashion. The existing
-GPIO and OpRegion tps68470 drivers will work with the i2c driver that's
-registered. Clock and regulator drivers are currently in the works.
-
-The existing mfd/tps68470.c driver being thus superseded, it is removed.
-
-This has been tested on a number of devices; but currently **not** on a
-ChromeOS, which we ideally need to do to ensure no regression caused by
-replacing the tps68470 MFD driver.
-
-Thanks
-Dan
-
-Daniel Scally (7):
-  acpi: utils: move acpi_lpss_dep() to utils
-  acpi: utils: Add function to fetch dependent acpi_devices
-  i2c: i2c-core-base: Use format macro in i2c_dev_set_name()
-  i2c: i2c-core-acpi: Add i2c_acpi_dev_name()
-  gpio: gpiolib-acpi: Export acpi_get_gpiod()
-  platform: x86: Add intel_skl_int3472 driver
-  mfd: Remove tps68470 MFD driver
-
- MAINTAINERS                                   |   5 +
- drivers/acpi/acpi_lpss.c                      |  24 -
- drivers/acpi/internal.h                       |   1 +
- drivers/acpi/pmic/Kconfig                     |   1 -
- drivers/acpi/utils.c                          |  58 ++
- drivers/gpio/Kconfig                          |   1 -
- drivers/gpio/gpiolib-acpi.c                   |   3 +-
- drivers/i2c/i2c-core-acpi.c                   |  16 +
- drivers/i2c/i2c-core-base.c                   |   4 +-
- drivers/mfd/Kconfig                           |  18 -
- drivers/mfd/Makefile                          |   1 -
- drivers/mfd/tps68470.c                        |  97 ----
- drivers/platform/x86/Kconfig                  |  25 +
- drivers/platform/x86/Makefile                 |   4 +
- .../platform/x86/intel_skl_int3472_common.c   | 100 ++++
- .../platform/x86/intel_skl_int3472_common.h   | 100 ++++
- .../platform/x86/intel_skl_int3472_discrete.c | 496 ++++++++++++++++++
- .../platform/x86/intel_skl_int3472_tps68470.c | 145 +++++
- include/acpi/acpi_bus.h                       |   2 +
- include/linux/acpi.h                          |   5 +
- include/linux/i2c.h                           |   8 +
- 21 files changed, 969 insertions(+), 145 deletions(-)
- delete mode 100644 drivers/mfd/tps68470.c
- create mode 100644 drivers/platform/x86/intel_skl_int3472_common.c
- create mode 100644 drivers/platform/x86/intel_skl_int3472_common.h
- create mode 100644 drivers/platform/x86/intel_skl_int3472_discrete.c
- create mode 100644 drivers/platform/x86/intel_skl_int3472_tps68470.c
-
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 37c510d9347a..98c3ba9a2350 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -497,6 +497,22 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+ }
+ EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
+ 
++/**
++ * i2c_acpi_dev_name - Construct i2c device name for devs sourced from ACPI
++ * @adev:     ACPI device to construct the name for
++ *
++ * Constructs the name of an i2c device matching the format used by
++ * i2c_dev_set_name() to allow users to refer to an i2c device by name even
++ * before they have been instantiated.
++ *
++ * The caller is responsible for freeing the returned pointer.
++ */
++char *i2c_acpi_dev_name(struct acpi_device *adev)
++{
++	return kasprintf(GFP_KERNEL, I2C_DEV_NAME_FORMAT, acpi_dev_name(adev));
++}
++EXPORT_SYMBOL_GPL(i2c_acpi_dev_name);
++
+ #ifdef CONFIG_ACPI_I2C_OPREGION
+ static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
+ 		u8 cmd, u8 *data, u8 data_len)
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 4d40a4b46810..b82aac05b17f 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -998,6 +998,7 @@ bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
+ u32 i2c_acpi_find_bus_speed(struct device *dev);
+ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+ 				       struct i2c_board_info *info);
++char *i2c_acpi_dev_name(struct acpi_device *adev);
+ struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle);
+ #else
+ static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
+@@ -1014,6 +1015,10 @@ static inline struct i2c_client *i2c_acpi_new_device(struct device *dev,
+ {
+ 	return ERR_PTR(-ENODEV);
+ }
++static inline char *i2c_acpi_dev_name(struct acpi_device *adev)
++{
++	return NULL;
++}
+ static inline struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+ {
+ 	return NULL;
 -- 
 2.25.1
 
