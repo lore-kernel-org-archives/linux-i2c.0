@@ -6,35 +6,35 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36C4FC433E6
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 13:47:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 233AFC433E0
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 13:54:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E6E7F221F8
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 13:47:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB639221F8
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jan 2021 13:54:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404801AbhARNrc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 18 Jan 2021 08:47:32 -0500
-Received: from mga18.intel.com ([134.134.136.126]:65233 "EHLO mga18.intel.com"
+        id S2392566AbhARNyN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 18 Jan 2021 08:54:13 -0500
+Received: from mga07.intel.com ([134.134.136.100]:11188 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404795AbhARNr3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 18 Jan 2021 08:47:29 -0500
-IronPort-SDR: PHbFSyYwdZKF2dJwYf5oO1yoczyN55npoH3GI2HjEtf+akQ+WsJwzJD2dnfr+5XLjHCwQ0BHxk
- y4Ykk5KJTKgQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9867"; a="166470431"
+        id S2392537AbhARNx7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 18 Jan 2021 08:53:59 -0500
+IronPort-SDR: FsBN1LPfwfzTVEIgYpAQt/EZ1ViDGCbzsXosAwvz7TcR9qU79MlXRGhnzh8qOX1T47HWtswDsG
+ rdlpOD0lIyVA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9867"; a="242874244"
 X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
-   d="scan'208";a="166470431"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 05:45:38 -0800
-IronPort-SDR: PR+hv6hLqfNAtcPkVR04+0gnc9Nps5QoJuhmEnVa+uj3n6TC6qC5b0f0KRAHLvkbZ6i4z61E+3
- vByLHB6fpw9A==
+   d="scan'208";a="242874244"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 05:52:14 -0800
+IronPort-SDR: idZMKSyigO8avX5+ct25yJP/03K3E41bU/vlGs1poIWmGYv6fl7ALo5+1+MgRDu334yxHdubuJ
+ HotjxZQgYHBw==
 X-IronPort-AV: E=Sophos;i="5.79,356,1602572400"; 
-   d="scan'208";a="406222305"
+   d="scan'208";a="353515615"
 Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 05:45:33 -0800
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2021 05:52:08 -0800
 Received: from andy by smile with local (Exim 4.94)
         (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1l1Urb-002Bz6-Fo; Mon, 18 Jan 2021 15:46:35 +0200
-Date:   Mon, 18 Jan 2021 15:46:35 +0200
+        id 1l1Uxy-002CMg-95; Mon, 18 Jan 2021 15:53:10 +0200
+Date:   Mon, 18 Jan 2021 15:53:10 +0200
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Daniel Scally <djrscally@gmail.com>
 Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
@@ -47,24 +47,26 @@ Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         robert.moore@intel.com, erik.kaneda@intel.com,
         sakari.ailus@linux.intel.com, laurent.pinchart@ideasonboard.com,
         kieran.bingham@ideasonboard.com
-Subject: Re: [PATCH v2 5/7] gpio: gpiolib-acpi: Export acpi_get_gpiod()
-Message-ID: <20210118134635.GL4077@smile.fi.intel.com>
+Subject: Re: [PATCH v2 7/7] mfd: Remove tps68470 MFD driver
+Message-ID: <20210118135310.GN4077@smile.fi.intel.com>
 References: <20210118003428.568892-1-djrscally@gmail.com>
- <20210118003428.568892-6-djrscally@gmail.com>
- <20210118134502.GK4077@smile.fi.intel.com>
+ <20210118003428.568892-8-djrscally@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210118134502.GK4077@smile.fi.intel.com>
+In-Reply-To: <20210118003428.568892-8-djrscally@gmail.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Jan 18, 2021 at 03:45:02PM +0200, Andy Shevchenko wrote:
-> On Mon, Jan 18, 2021 at 12:34:26AM +0000, Daniel Scally wrote:
+On Mon, Jan 18, 2021 at 12:34:28AM +0000, Daniel Scally wrote:
+> This driver only covered one scenario in which ACPI devices with _HID
+> INT3472 are found, and its functionality has been taken over by the
+> intel-skl-int3472 module, so remove it.
 
-And prefix: "gpiolib: acpi: ".
+Prefix: "mfd: tps68470: ". Rationale: easier to look for specific commits, by,
+for example, running `git log --grep tps68470`.
 
 -- 
 With Best Regards,
