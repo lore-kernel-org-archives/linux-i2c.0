@@ -2,87 +2,113 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57510C433DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95146C433E9
 	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 14:37:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B60720729
+	by mail.kernel.org (Postfix) with ESMTP id 6731920729
 	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 14:37:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387569AbhASOe5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 19 Jan 2021 09:34:57 -0500
-Received: from mga09.intel.com ([134.134.136.24]:38678 "EHLO mga09.intel.com"
+        id S2387587AbhASOgQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 19 Jan 2021 09:36:16 -0500
+Received: from www.zeus03.de ([194.117.254.33]:55106 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387635AbhASJg7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 19 Jan 2021 04:36:59 -0500
-IronPort-SDR: +mcbgIGpvgow1F5e6VE5S1GtIOm3FVCYsAKR0tqE12pnJHBfUuRpeL7m0PWgawHfAWO0CPLqPL
- ZJxi9X79vffA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9868"; a="179051386"
-X-IronPort-AV: E=Sophos;i="5.79,358,1602572400"; 
-   d="scan'208";a="179051386"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2021 01:34:54 -0800
-IronPort-SDR: ZyqcKiU5pqIaa4jK/y2/kFZdKURQvGqk5xzdXr4GsBSdbnY941/vMnTNW1eh005BqSKScnjNF6
- GS5fHddU9VVw==
-X-IronPort-AV: E=Sophos;i="5.79,358,1602572400"; 
-   d="scan'208";a="426408521"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2021 01:34:44 -0800
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1l1nQM-003Lep-8a; Tue, 19 Jan 2021 11:35:42 +0200
-Date:   Tue, 19 Jan 2021 11:35:42 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc:     Daniel Scally <djrscally@gmail.com>, linux-kernel@vger.kernel.org,
-        linux-acpi@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        devel@acpica.org, rjw@rjwysocki.net, lenb@kernel.org,
-        andy@kernel.org, mika.westerberg@linux.intel.com,
-        linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        wsa@kernel.org, lee.jones@linaro.org, hdegoede@redhat.com,
-        mgross@linux.intel.com, robert.moore@intel.com,
-        erik.kaneda@intel.com, sakari.ailus@linux.intel.com,
-        kieran.bingham@ideasonboard.com
-Subject: Re: [PATCH v2 6/7] platform: x86: Add intel_skl_int3472 driver
-Message-ID: <20210119093542.GP4077@smile.fi.intel.com>
-References: <20210118003428.568892-1-djrscally@gmail.com>
- <20210118003428.568892-7-djrscally@gmail.com>
- <YAVRqWeUsLjvU62P@pendragon.ideasonboard.com>
- <20210118144606.GO4077@smile.fi.intel.com>
- <75e99a06-4579-44ee-5f20-8f2ee3309a68@gmail.com>
- <1053125f-7cb2-8aa0-3204-24df62986184@gmail.com>
- <YAZ6Y1QDyWwPGE69@pendragon.ideasonboard.com>
+        id S2387712AbhASJkZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 19 Jan 2021 04:40:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=k1; bh=7oj9WQno7QEpA1
+        XamLc4MgaH1m7rUqRR3GpKdU/K1M0=; b=lFqM8BxbfRkKtAIH+OAQCIBqJ/edPp
+        JDKwf35ERefl3U+wvK83fIYZpnHZyz/s20k7uUNgt28icomNL6aOPYiQYsqwm1s1
+        bohjfIVCxb3R+hPN86P5QcokI9CG8yqb8p3Gkza8tfz+tcAnnLyUJR7ZYjy1yftS
+        viVYfXxUrMUNU=
+Received: (qmail 1003573 invoked from network); 19 Jan 2021 10:39:21 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 Jan 2021 10:39:21 +0100
+X-UD-Smtp-Session: l3s3148p1@Gm/3nD258tkgAwDPXyX1ACWcscxtZ2TX
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Corey Minyard <minyard@acm.org>,
+        openipmi-developer@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 3/3] ipmi: remove open coded version of SMBus block write
+Date:   Tue, 19 Jan 2021 10:39:10 +0100
+Message-Id: <20210119093912.1838-4-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210119093912.1838-1-wsa+renesas@sang-engineering.com>
+References: <20210119093912.1838-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YAZ6Y1QDyWwPGE69@pendragon.ideasonboard.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Jan 19, 2021 at 08:21:23AM +0200, Laurent Pinchart wrote:
-> On Tue, Jan 19, 2021 at 12:11:40AM +0000, Daniel Scally wrote:
-> > On 18/01/2021 21:19, Daniel Scally wrote:
+The block-write function of the core was not used because there was no
+client-struct to use. However, in this case it seems apropriate to use a
+temporary client struct. Because we are answering a request we recieved
+when being a client ourselves. So, convert the code to use a temporary
+client and use the block-write function of the I2C core.
 
-...
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-> > (also, Laurent, if we did it this way we wouldn't be able to also handle
-> > the led-indicator GPIO here without some fairly major rework)
-> 
-> Given the additional complexity I don't think it's worth it, your
-> implementation is fine and code duplication with clk-gpio is minimal.
+Changes since RFC:
+* don't use stack but kmemdup. No complaints from buildbots
 
-Making clk-gpio.c available as a library is a win in long term and reduces a
-possible duplication by others in the future. I bet we even might find already
-clk-gpio parts in some drivers.
+ drivers/char/ipmi/ipmb_dev_int.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
+diff --git a/drivers/char/ipmi/ipmb_dev_int.c b/drivers/char/ipmi/ipmb_dev_int.c
+index 382b28f1cf2f..49b8f22fdcf0 100644
+--- a/drivers/char/ipmi/ipmb_dev_int.c
++++ b/drivers/char/ipmi/ipmb_dev_int.c
+@@ -137,7 +137,7 @@ static ssize_t ipmb_write(struct file *file, const char __user *buf,
+ {
+ 	struct ipmb_dev *ipmb_dev = to_ipmb_dev(file);
+ 	u8 rq_sa, netf_rq_lun, msg_len;
+-	union i2c_smbus_data data;
++	struct i2c_client *temp_client;
+ 	u8 msg[MAX_MSG_LEN];
+ 	ssize_t ret;
+ 
+@@ -160,21 +160,21 @@ static ssize_t ipmb_write(struct file *file, const char __user *buf,
+ 	}
+ 
+ 	/*
+-	 * subtract rq_sa and netf_rq_lun from the length of the msg passed to
+-	 * i2c_smbus_xfer
++	 * subtract rq_sa and netf_rq_lun from the length of the msg. Fill the
++	 * temporary client. Note that its use is an exception for IPMI.
+ 	 */
+ 	msg_len = msg[IPMB_MSG_LEN_IDX] - SMBUS_MSG_HEADER_LENGTH;
+-	if (msg_len > I2C_SMBUS_BLOCK_MAX)
+-		msg_len = I2C_SMBUS_BLOCK_MAX;
++	temp_client = kmemdup(ipmb_dev->client, sizeof(*temp_client), GFP_KERNEL);
++	if (!temp_client)
++		return -ENOMEM;
++
++	temp_client->addr = rq_sa;
+ 
+-	data.block[0] = msg_len;
+-	memcpy(&data.block[1], msg + SMBUS_MSG_IDX_OFFSET, msg_len);
+-	ret = i2c_smbus_xfer(ipmb_dev->client->adapter, rq_sa,
+-			     ipmb_dev->client->flags,
+-			     I2C_SMBUS_WRITE, netf_rq_lun,
+-			     I2C_SMBUS_BLOCK_DATA, &data);
++	ret = i2c_smbus_write_block_data(temp_client, netf_rq_lun, msg_len,
++					 msg + SMBUS_MSG_IDX_OFFSET);
++	kfree(temp_client);
+ 
+-	return ret ? : count;
++	return ret < 0 ? ret : count;
+ }
+ 
+ static __poll_t ipmb_poll(struct file *file, poll_table *wait)
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.29.2
 
