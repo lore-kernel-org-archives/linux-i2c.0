@@ -2,100 +2,229 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C92F6C4321A
-	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 22:40:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DD97C433E6
+	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 22:40:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AF96C22D08
-	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 22:40:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0115A23104
+	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 22:40:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390500AbhASOgm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 19 Jan 2021 09:36:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37090 "EHLO
+        id S2388461AbhASOgi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 19 Jan 2021 09:36:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405176AbhASLGH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jan 2021 06:06:07 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B1CC061575
-        for <linux-i2c@vger.kernel.org>; Tue, 19 Jan 2021 03:05:20 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id z21so12759246pgj.4
-        for <linux-i2c@vger.kernel.org>; Tue, 19 Jan 2021 03:05:20 -0800 (PST)
+        with ESMTP id S2389822AbhASKl0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jan 2021 05:41:26 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA02C061574;
+        Tue, 19 Jan 2021 02:40:45 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id g10so829033wrx.1;
+        Tue, 19 Jan 2021 02:40:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=4TOzYyZIin/yiRGi1ie9o6/CbIyjNQOy95/3SVEBU9A=;
-        b=uExiI/2TzOCWPI0pjBTK0TdMIUfxRWt8KPMbORnS5c9XO68eyPvKDWJwxuopER796L
-         vURhfaHxKLDrdEPMFkOr9D58bDFAGeSBZqyZoZFnV8Ds7wkLh1pLnTtIRfKzC3SNrIG8
-         4yP6GQFO22QzekfpAs4U1eCA1618km+cf6i7I1xDcH3U66TWqpFoSnJURTiEhgICz/DU
-         PNnFj2qdBYVwZw3IYfwhM3DmNJJsRyPbxgsnldEdXpXHVPwmlxWQ3gmqbfaoayhgLuzv
-         3XIncpgMG7FADLMlh68SnARce4hUuVnnPuu2JPftCXyp7Mk01bVkT2woy+Zvbj/1lR5b
-         eoIQ==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=F7MOlU8kHHn2XTukeIE9Iko2L8CsU70yAPMfznuhzSQ=;
+        b=BojE+Im6fBBLyHM6bhmu9tWUn4QGwKAhFVUxD06vFWREB46B/xjgOanqAbclsG4gWF
+         ZOLcpexq6KTGyjJfhrqgajkmVZaBtQRuNwJ1M9C+vljTN38mqDl0GkNGNYSEuc/2axCW
+         DEC9vo/XnOe6Ju4ijcYDgKQcz8fpnxRRmx2Or+joYJf9MXwi3s8QlUOM66xC29EN+rdd
+         XEpLrPV15RNw9qTISW3bmJaUcwqUmSCtzyXF8qYCW+vcaZkSB1BbVO/HmABHGALV/GMO
+         Mmrr31h8ooFovmNNvHX5uRlOjx/d6YVPK4xL2ZKQxfgRuJJnsBpJmih6Wi043VAGJNxz
+         oZ9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=4TOzYyZIin/yiRGi1ie9o6/CbIyjNQOy95/3SVEBU9A=;
-        b=kBwAIVpUCWArg3xBXtuKUiMrKnVcSZgVOkSyXFPU2R4viwFJqmYgcQdaYlZy0z0qdZ
-         bbzxP2lF/VpseDs7wEZK2LPCSi3ldKb/NvSHzkds86fKSsWkJTsTbod4o0vIij43gV5h
-         iZyS1drPpe/kRDj/2bqeWvLgpzdELtCRDPjOqG35Z7W2qvCsPzozjbyqdo/J7H1IeX0M
-         +znKl7Xxt7OREjUdX7zTUIwNn0J94YjFI1m///30JeKmy3ZEC6wLX3vLFdWcVguEiQ9H
-         W8ULeEY5n/W68GWlzVLhXPgxuulrcOjvFEy6E6geRxUSk2FA7PKvkc64dybx588HcnNH
-         Uikw==
-X-Gm-Message-State: AOAM533mBKCZjom+ZyXWJEnvR+9iQ0v+0PrgjWdbm6GrGIX5LjTERtN2
-        5YOu8BJUXFilFKQc06eIMJH/ew==
-X-Google-Smtp-Source: ABdhPJypZ7g85maNn/Fq9wWXClDnT5wovR1kfqNu7P4AWwxVkN+tY7vWNWWbv+l/0xEltuRgBAxuTA==
-X-Received: by 2002:a62:a508:0:b029:1ba:621:ff29 with SMTP id v8-20020a62a5080000b02901ba0621ff29mr707798pfm.44.1611054320340;
-        Tue, 19 Jan 2021 03:05:20 -0800 (PST)
-Received: from localhost ([122.172.59.240])
-        by smtp.gmail.com with ESMTPSA id a5sm18186189pgl.41.2021.01.19.03.05.18
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 19 Jan 2021 03:05:18 -0800 (PST)
-Date:   Tue, 19 Jan 2021 16:35:16 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Rajendra Nayak <rnayak@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Roja Rani Yarubandi <rojay@codeaurora.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Doug Anderson <dianders@chromium.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Matthias Kaehlcke <mka@chromium.org>, akashast@codeaurora.org,
-        msavaliy@qti.qualcomm.com, parashar@codeaurora.org,
-        Linux PM <linux-pm@vger.kernel.org>,
-        DTML <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        Andy Gross <agross@kernel.org>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 3/3] i2c: i2c-qcom-geni: Add support for
- 'assigned-performance-states'
-Message-ID: <20210119110516.fgbbllyg7lxwwfdz@vireshk-i7>
-References: <20201224111210.1214-1-rojay@codeaurora.org>
- <20201224111210.1214-4-rojay@codeaurora.org>
- <YAGqKfDfB7EEuZVn@builder.lan>
- <6bfec3e6-3d26-7ade-d836-032273856ce2@codeaurora.org>
- <CAPDyKFqF0NE3QRAEfiqj5QOXXH2om4CpyyeudeqoovANfvjsaQ@mail.gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=F7MOlU8kHHn2XTukeIE9Iko2L8CsU70yAPMfznuhzSQ=;
+        b=dxleFyRIDpDRY15e0xUr6dWE3HiMRLWhYnRVLvU73E8NDBZ4VC3WLy8LiJnRry21Jw
+         FSwAK6rYQzkrdTj+/+ucmqnUV78z30PewmwIm3W522pZe+L04se2Vfe5hVWMlGI3Nzbu
+         cY9Mww/5oMcwlcKlrFzOn3K0PX3GVAVOLsWogSkmR/Rjwke+P115sZhf/tpM+wQI0FHn
+         A3yDtZnzlc9yVndcYyldhIh4NUfsk38Sw8vdVr4VMK0c9K/JT6PkJuc3CIUMx0zPngVW
+         tqdoqc/RDdNSU43Qr32+Pfu6w/4Hu1TlVFtqh4RnuFAF0Qdd9vX++QyGMBMF55tJmun8
+         UItA==
+X-Gm-Message-State: AOAM530r1Cnj12BIdaIR+7qMNb0SWXipKWP0ARAcszx+mPR9US6ctVx/
+        I985AdgyXlNfInXQjURzjo2symMRG7i3TA==
+X-Google-Smtp-Source: ABdhPJzum3UBJX+dAAp2fxEMTCdW6oKCzvMipLNSVyk+wDODMyMNx8yhB1voskDMKUOSK6WBUMdQqg==
+X-Received: by 2002:a5d:6cad:: with SMTP id a13mr3576739wra.275.1611052844461;
+        Tue, 19 Jan 2021 02:40:44 -0800 (PST)
+Received: from [192.168.1.211] ([2.29.208.120])
+        by smtp.gmail.com with ESMTPSA id z184sm3941017wmg.7.2021.01.19.02.40.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Jan 2021 02:40:43 -0800 (PST)
+Subject: Re: [PATCH v2 6/7] platform: x86: Add intel_skl_int3472 driver
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, devel@acpica.org,
+        rjw@rjwysocki.net, lenb@kernel.org, andy@kernel.org,
+        mika.westerberg@linux.intel.com, linus.walleij@linaro.org,
+        bgolaszewski@baylibre.com, wsa@kernel.org, lee.jones@linaro.org,
+        hdegoede@redhat.com, mgross@linux.intel.com,
+        robert.moore@intel.com, erik.kaneda@intel.com,
+        sakari.ailus@linux.intel.com, kieran.bingham@ideasonboard.com
+References: <20210118003428.568892-1-djrscally@gmail.com>
+ <20210118003428.568892-7-djrscally@gmail.com>
+ <YAVRqWeUsLjvU62P@pendragon.ideasonboard.com>
+ <20210118144606.GO4077@smile.fi.intel.com>
+ <75e99a06-4579-44ee-5f20-8f2ee3309a68@gmail.com>
+ <20210119092448.GN4077@smile.fi.intel.com>
+From:   Daniel Scally <djrscally@gmail.com>
+Message-ID: <a735380b-57ac-1950-b29a-07fe6cb708d2@gmail.com>
+Date:   Tue, 19 Jan 2021 10:40:42 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPDyKFqF0NE3QRAEfiqj5QOXXH2om4CpyyeudeqoovANfvjsaQ@mail.gmail.com>
-User-Agent: NeoMutt/20180716-391-311a52
+In-Reply-To: <20210119092448.GN4077@smile.fi.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 19-01-21, 12:02, Ulf Hansson wrote:
-> As a matter of fact this was quite recently discussed [1], which also
-> pointed out some issues when using the "required-opps" in combination,
-> but perhaps that got resolved? Viresh?
 
-Perhaps we never did anything there ..
+On 19/01/2021 09:24, Andy Shevchenko wrote:
+>>>>> +static struct i2c_driver int3472_tps68470 = {
+>>>>> +	.driver = {
+>>>>> +		.name = "int3472-tps68470",
+>>>>> +		.acpi_match_table = int3472_device_id,
+>>>>> +	},
+>>>>> +	.probe_new = skl_int3472_tps68470_probe,
+>>>>> +};
+>>> I'm not sure we want to have like this. If I'm not mistaken the I²C driver can
+>>> be separated without ACPI IDs (just having I²C IDs) and you may instantiate it
+>>> via i2c_new_client_device() or i2c_acpi_new_device() whichever suits better...
+>> Sorry, I'm a bit confused by this. The i2c device is already
+>> present...we just want the driver to bind to them, so what role do those
+>> functions have there?
+> What I meant is something like
+>
+>  *_i2c.c
+> 	real I²C driver for the TPS chip, but solely with I²C ID table, no ACPI
+> 	involved (and it sounds like it should be mfd/tps one, in which you
+> 	just cut out ACPI IDs and convert to pure I²C one, that what I had
+> 	suggested in the first place)
 
--- 
-viresh
+
+Ahh; sorry - i misunderstood what you meant there. I understand now I
+think, but there is one complication; the ACPI subsystem already creates
+a client for that i2c adapter and address; i2c_new_client_device()
+includes a check to see whether that adapter / address combination has
+an i2c device already.  So we would have to have the platform driver
+with ACPI ID first find the existing i2c_client and unregister it before
+registering the new one...the existing clients have a name matching the
+ACPI device instance name (e.g i2c-INT3472:00) which we can't use as an
+i2c_device_id of course.
+
+>
+>  *_proxy.c
+> 	GPIO proxy as library
+>
+>  *.c
+> 	platform driver with ACPI ID, in which ->probe() we actually instantiate
+> 	above via calling i2c_acpi_new_device(), *if needed*, along with GPIO
+> 	proxy
+>
+> ...
+>
+>>>>> +struct int3472_gpio_clock {
+>>>>> +	struct clk *clk;
+>>>>> +	struct clk_hw clk_hw;
+>>>>> +	struct clk_lookup *cl;
+>>>>> +	struct gpio_desc *gpio;
+>>>>> +};
+>>>>> +static const struct clk_ops skl_int3472_clock_ops = {
+>>>>> +	.prepare = skl_int3472_clk_prepare,
+>>>>> +	.unprepare = skl_int3472_clk_unprepare,
+>>>>> +	.enable = skl_int3472_clk_enable,
+>>>>> +	.disable = skl_int3472_clk_disable,
+>>>>> +};
+>>> Wondering if this has some similarities with and actually can utilize clk-gpio
+>>> driver.
+>>> Yeah, sounds like reinventing clk-gpio.c.
+>>>
+>>> static const struct clk_ops clk_gpio_gate_ops = {
+>>> 	.enable = clk_gpio_gate_enable,
+>>> 	.disable = clk_gpio_gate_disable,
+>>> 	.is_enabled = clk_gpio_gate_is_enabled,
+>>> };
+>>>
+>>> Or is it mux? It has support there as well.
+>>>
+>> Hmm, yeah, this looks like it would work actually. So I think I'd need to:
+>>
+>>
+>> 1. Make enabling INTEL_SKL_INT3472 also enable the clk-gpio driver
+>>
+>> 2. Register a platform device to bind to the clk-gpio driver
+>>
+>> 3. Register a gpio lookup table so that the clk-gpio driver can find the
+>> gpio in question using gpiod_get()
+>>
+>> And that looks like it will work; I'll try it.
+> You need to modify clk-gpio.c to export
+>
+> clk_hw_register_gpio_gate()
+> clk_hw_register_gpio_mux()
+>
+> (perhaps it will require to add *_unregister() counterparts) and call it from
+> your code.
+>
+> See, for example, how clk_hw_unregister_fixed_rate() is being used. Another
+> case is to add a helper directly into clk-gpio and call it instead of
+> clk_hw_*() one, see how clk_register_fractional_divider() is implemented and
+> used.
+
+
+I'll take a look, thanks
+
+
+> ...
+>
+>>>>> +	/* Lenovo Miix 510-12ISK - OV5648, Rear */
+>>>>> +	{ "GEFF150023R", REGULATOR_SUPPLY("avdd", "i2c-OVTI5648:00"), NULL},
+>>>>> +	/* Surface Go 1&2 - OV5693, Front */
+>>>>> +	{ "YHCU", REGULATOR_SUPPLY("avdd", "i2c-INT33BE:00"), NULL},
+>>> I'm wondering if you should use same I2C format macro and create this
+>>> dynamically? Or rather find a corresponding ACPI device instance and
+>>> copy it's name? ...
+>> The supply name needs hard-coding really, but the device name I suppose
+>> can come from int3472->sensor_name.
+> To be strict in terms you are using "device instance name" in the
+> REGULATOR_SUPPLY() second parameter. Because "device name" is generic and
+> doesn't point to the actual *instance* of the device in the system.
+>
+> So, and "device name instance" we may get only by traversing through the (ACPI)
+> bus and find corresponding struct device and derive name from it. Same way like
+> you have done in previous patch series.
+>
+> Because there is no guarantee that, e.g., i2c-INT33BE:00 will be present on
+> the system and moreover there is no guarantee that if two INT33BE or more
+> devices are present you will get :00 always for the one you need!
+
+
+Mm, good point, hadn't considered two identical sensors on the same
+platform.  Alright; I'll think about this in more detail, thank you.
+
+
+>>>>> +		opregion_dev = skl_int3472_register_pdev("tps68470_pmic_opregion",
+>>>>> +							 &client->dev);
+>>>>> +		if (IS_ERR(opregion_dev)) {
+>>>>> +			ret = PTR_ERR(opregion_dev);
+>>>>> +			goto err_free_gpio;
+>>>>> +		}
+>>>>> +	}
+>>>> I wonder if this could be simplified by using devm_mfd_add_devices. You
+>>>> could have two arrays of mfd_cell, one for each case.
+>>> Yeah, which effectively means that we should have some kind of mfd/tps68470 in
+>>> place.
+>> Can you expand on what you mean by that a little, please?
+> The very first comment in this reply should hopefully shed a light on my idea.
+>
+It did, thanks
