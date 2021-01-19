@@ -2,64 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE780C433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 853EBC433E6
 	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 14:37:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E073206E5
+	by mail.kernel.org (Postfix) with ESMTP id 5B8F2206E5
 	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 14:37:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392057AbhASOgq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 19 Jan 2021 09:36:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405252AbhASLMn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jan 2021 06:12:43 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5A5BC0613C1;
-        Tue, 19 Jan 2021 03:12:02 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id y187so16349257wmd.3;
-        Tue, 19 Jan 2021 03:12:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=vzBb5/Tv6UlBk+EMbkqMhlDzSJvMQnejvX8e7cfy6pY=;
-        b=iyKbA/ref/cqKHgmpv0D2SbIRkZVdsRnvxsb1kFyMXSwCclym02NRPq2rQUaahMNWf
-         fFOWZgA4hllMQSYlubBVGt3BNHoMUSYFtQXTeNCgHOdlnMMnoMIsf/ShygjQZiucVuCk
-         i09fmQjHgfbGTL2MeqfkeC1iGYWKDcHtbZVopWJO62y47u2A3ZC7G5MfmrpyV8pLTixn
-         U7a5PhbLQcQe3K0K8FKJ/Vax2pFtkcbfQig32ukhx9PrijsfqDUfzkcjbtJGIQdkxCMd
-         ERW/P9Sg5AnY1Z5qLRkxdgA/OJsNYEN1ZVDGxEPSZGEQtcwoXxWZixH0Cf54RKs5+WcM
-         NfUA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=vzBb5/Tv6UlBk+EMbkqMhlDzSJvMQnejvX8e7cfy6pY=;
-        b=nufY3A+laS7DgkUbNxdtQg9/Vj+0bGZut2jhfL160Ck8nmV0qGdLAOF4HG2eFHJk0R
-         fUBzB130DMC5MQVljTfy3Jn65KX+DdOZT9CPApn4WQK3WY2ryKy8weP/Dou/zT3c7OTk
-         pZ5YdxfxYZ8aZAwYQ+/4ETKtN1nBkXg8LcFY/i5KLk9hbI3FSDEBe+lyScg7J3jPXVJx
-         JpfTqPiElAXtnRwyMLAB+NfOnDcQa4/iPg17lbIosxUojafYH+Hvz+/P1HhICRSQLEFm
-         jZj8xAy6NASpbmM3ypogB/OUcfRuLqdGsssSRbgY4AKmeQL/JAC/0ct6kDn1y2mGvxih
-         E4Lw==
-X-Gm-Message-State: AOAM532fqqkdequECosTr3D7GuUu/+8IAgd9eGHdw0jcGYzNTWRl1NXh
-        2OSZT+3mn26KIDHDlhggjuI=
-X-Google-Smtp-Source: ABdhPJzXyvKMRBHff/3egHeqjvWcHG8JKBSU0/vF5pWK95xFgz+RG+FsjEHU51pFgAwOPbn5ONplsA==
-X-Received: by 2002:a1c:24c4:: with SMTP id k187mr3693910wmk.14.1611054721747;
-        Tue, 19 Jan 2021 03:12:01 -0800 (PST)
-Received: from [192.168.1.211] ([2.29.208.120])
-        by smtp.gmail.com with ESMTPSA id 17sm3833428wmk.48.2021.01.19.03.12.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Jan 2021 03:12:01 -0800 (PST)
-Subject: Re: [PATCH v2 6/7] platform: x86: Add intel_skl_int3472 driver
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>
-Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        id S2391089AbhASOgn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 19 Jan 2021 09:36:43 -0500
+Received: from mga02.intel.com ([134.134.136.20]:47521 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390924AbhASLJt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 19 Jan 2021 06:09:49 -0500
+IronPort-SDR: ayeeKwzXc+2a1Its2izeC0KEq4y2QB0yIuiQW7WCh49++sSYfWfSTwGWmmnmvEOGCVdsV2l4Wa
+ 1iFf/z2Z8rpg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9868"; a="165999520"
+X-IronPort-AV: E=Sophos;i="5.79,358,1602572400"; 
+   d="scan'208";a="165999520"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2021 03:07:40 -0800
+IronPort-SDR: ZuC9+ihAO86GOtXpMGq+tCSJWtRZxpK/ZQwFe9cqlfzrvLbMidkWIyPYaM9VwptmFjhsptGp+j
+ G8WRrN2cEFDA==
+X-IronPort-AV: E=Sophos;i="5.79,358,1602572400"; 
+   d="scan'208";a="365713651"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2021 03:07:35 -0800
+Received: from andy by smile with local (Exim 4.94)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1l1osH-003RIQ-1u; Tue, 19 Jan 2021 13:08:37 +0200
+Date:   Tue, 19 Jan 2021 13:08:37 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Daniel Scally <djrscally@gmail.com>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
         platform-driver-x86@vger.kernel.org, devel@acpica.org,
         rjw@rjwysocki.net, lenb@kernel.org, andy@kernel.org,
@@ -67,46 +46,94 @@ Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         bgolaszewski@baylibre.com, wsa@kernel.org, lee.jones@linaro.org,
         hdegoede@redhat.com, mgross@linux.intel.com,
         robert.moore@intel.com, erik.kaneda@intel.com,
-        sakari.ailus@linux.intel.com, laurent.pinchart@ideasonboard.com
+        sakari.ailus@linux.intel.com, kieran.bingham@ideasonboard.com
+Subject: Re: [PATCH v2 6/7] platform: x86: Add intel_skl_int3472 driver
+Message-ID: <20210119110837.GT4077@smile.fi.intel.com>
 References: <20210118003428.568892-1-djrscally@gmail.com>
  <20210118003428.568892-7-djrscally@gmail.com>
- <2d8d7072-3b6f-4ffa-29dc-51f31fe4af72@ideasonboard.com>
- <20210119111122.GU4077@smile.fi.intel.com>
-From:   Daniel Scally <djrscally@gmail.com>
-Message-ID: <c720ec32-b6d1-9b78-376e-4e3686878d70@gmail.com>
-Date:   Tue, 19 Jan 2021 11:12:00 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ <YAVRqWeUsLjvU62P@pendragon.ideasonboard.com>
+ <20210118144606.GO4077@smile.fi.intel.com>
+ <75e99a06-4579-44ee-5f20-8f2ee3309a68@gmail.com>
+ <20210119092448.GN4077@smile.fi.intel.com>
+ <a735380b-57ac-1950-b29a-07fe6cb708d2@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210119111122.GU4077@smile.fi.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <a735380b-57ac-1950-b29a-07fe6cb708d2@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Tue, Jan 19, 2021 at 10:40:42AM +0000, Daniel Scally wrote:
+> On 19/01/2021 09:24, Andy Shevchenko wrote:
+> >>>>> +static struct i2c_driver int3472_tps68470 = {
+> >>>>> +	.driver = {
+> >>>>> +		.name = "int3472-tps68470",
+> >>>>> +		.acpi_match_table = int3472_device_id,
+> >>>>> +	},
+> >>>>> +	.probe_new = skl_int3472_tps68470_probe,
+> >>>>> +};
+> >>> I'm not sure we want to have like this. If I'm not mistaken the I²C driver can
+> >>> be separated without ACPI IDs (just having I²C IDs) and you may instantiate it
+> >>> via i2c_new_client_device() or i2c_acpi_new_device() whichever suits better...
+> >> Sorry, I'm a bit confused by this. The i2c device is already
+> >> present...we just want the driver to bind to them, so what role do those
+> >> functions have there?
+> > What I meant is something like
+> >
+> >  *_i2c.c
+> > 	real I²C driver for the TPS chip, but solely with I²C ID table, no ACPI
+> > 	involved (and it sounds like it should be mfd/tps one, in which you
+> > 	just cut out ACPI IDs and convert to pure I²C one, that what I had
+> > 	suggested in the first place)
+> 
+> Ahh; sorry - i misunderstood what you meant there. I understand now I
+> think, but there is one complication; the ACPI subsystem already creates
+> a client for that i2c adapter and address; i2c_new_client_device()
+> includes a check to see whether that adapter / address combination has
+> an i2c device already.  So we would have to have the platform driver
+> with ACPI ID first find the existing i2c_client and unregister it before
+> registering the new one...the existing clients have a name matching the
+> ACPI device instance name (e.g i2c-INT3472:00) which we can't use as an
+> i2c_device_id of course.
 
-On 19/01/2021 11:11, Andy Shevchenko wrote:
-> On Tue, Jan 19, 2021 at 10:56:17AM +0000, Kieran Bingham wrote:
->> On 18/01/2021 00:34, Daniel Scally wrote:
-> ...
->
->>> +config INTEL_SKL_INT3472
->>> +	tristate "Intel SkyLake ACPI INT3472 Driver"
->>> +	depends on X86 && ACPI
->>> +	select REGMAP_I2C
->> I've tried compiling this as a built in and a module and on my minimal
->> config I had failures on both for regulator_register and
->> regulator_unregister.
->>
->> I suspect this needs to have either a selects or a depends upon
->> CONFIG_REGULATOR
-> Valid point, although it seems no consensus on which is better to use. It seems
-> to me that in this case we need to select it.
->
-Yeah; it will be necessary for the gpio-regulator too anyway I expect.
+See how INT33FE is being handled. Hint: drivers/acpi/scan.c:~1600
 
+static const struct acpi_device_id i2c_multi_instantiate_ids[] = {
+	{"BSG1160", },
+	{"BSG2150", },
+	{"INT33FE", },
+	{"INT3515", },
+	{}
+};
 
-Thanks Kieran; I missed that entirely.
+So, we quirklist it here and instantiate manually from platform driver (new
+coming one).
+
+...
+
+> > You need to modify clk-gpio.c to export
+> >
+> > clk_hw_register_gpio_gate()
+> > clk_hw_register_gpio_mux()
+> >
+> > (perhaps it will require to add *_unregister() counterparts) and call it from
+> > your code.
+> >
+> > See, for example, how clk_hw_unregister_fixed_rate() is being used. Another
+
+Here I meant of course clk_hw_register_fixed_rate().
+
+> > case is to add a helper directly into clk-gpio and call it instead of
+> > clk_hw_*() one, see how clk_register_fractional_divider() is implemented and
+> > used.
+> 
+> I'll take a look, thanks
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
