@@ -2,64 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84F8CC433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B54DCC43381
 	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 14:37:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 61228206E5
+	by mail.kernel.org (Postfix) with ESMTP id 90B64206E5
 	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jan 2021 14:37:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392075AbhASOhE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 19 Jan 2021 09:37:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39458 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2393747AbhASN2x (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jan 2021 08:28:53 -0500
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A3B9C061573;
-        Tue, 19 Jan 2021 05:28:11 -0800 (PST)
-Received: by mail-wm1-x32b.google.com with SMTP id c127so1260089wmf.5;
-        Tue, 19 Jan 2021 05:28:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=5y8Ro1ypuMwid9mJ+5yTb8j+eAM7KPlRMembrO9vocc=;
-        b=lx6zvICzjPPHETERikm0s4RqzxKqjLCL/yTU4tYQDIumZZt4FI6Zr0zXmBGkJ4xtSg
-         Tpev99JjWdgHUg0pnM/bgFnJ1naDMnmNS+C4GOAxcA6U9nR7HAHbyT668vglCwGfXn7k
-         mQrTwoyW3LrjUlLHMqNTTBDb5o8sw8NWZSuvNybzvMkicpDX10QKTtp5Eu5f8acMamf+
-         kF9QqGU/8CINxLPv+UGKla0AoMuD0DXTAB4hbRfqV/SMTPm9/862zcSP7K+cAKuw/0U9
-         YT6AEHteHr8n+n7FkZQslMfQdIogjDB/Lh1c2nanAh+bQzmIe2ezQ9LuuMGIlSbtXLbO
-         id0g==
+        id S2392067AbhASOgu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 19 Jan 2021 09:36:50 -0500
+Received: from mail-ot1-f44.google.com ([209.85.210.44]:38261 "EHLO
+        mail-ot1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390548AbhASNQU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jan 2021 08:16:20 -0500
+Received: by mail-ot1-f44.google.com with SMTP id 34so8870534otd.5;
+        Tue, 19 Jan 2021 05:15:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=5y8Ro1ypuMwid9mJ+5yTb8j+eAM7KPlRMembrO9vocc=;
-        b=swUAc9o7nu6HWCv0ZiH0jmVg9uGGm5wU6OGmwiSclCNFZgkxIa18x4ZAEfNEqEPHMu
-         Z9gfU3WJOmHPELuFyatHfCoAQa211GRxWc6uj2Qf9SmjDYiJCz47cMXLk3QwNh5MtGZU
-         8Sh1tDtElzNydm3iu6Ce/9JfWntHxaM0SI6ytYEeTemai5TUWrBWVaXDIidmP0xuBv3L
-         smzYcf744SFToYLod6etYOJTTc2mHKVKmNzWvX4HzDmNllfJxcj9jQpYz31BQDw0/eBK
-         Ij+geNHkP9AUGFEpSnAsyHFNYW7Tw1mqr/8vJW2VfqdUxcpOYDyYcmFn4qgqrd6UVyn4
-         hSWA==
-X-Gm-Message-State: AOAM531CuP+sQsD4wLA5mamFJUYOWF4jzH1UOlvJLbNgRiRjR9nkglD5
-        WRj1bNbfIlDestSCSSWqQ8I=
-X-Google-Smtp-Source: ABdhPJyqV3r5lugb4G4AUkJpM01DH9xMik3Jbf10xwwURpVgVJLd2eqD2bWAvX85ZopBoeYJj6Z5Rg==
-X-Received: by 2002:a7b:c08b:: with SMTP id r11mr2514749wmh.11.1611062890337;
-        Tue, 19 Jan 2021 05:28:10 -0800 (PST)
-Received: from [192.168.1.211] ([2.29.208.120])
-        by smtp.gmail.com with ESMTPSA id b64sm4518824wmb.26.2021.01.19.05.28.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Jan 2021 05:28:09 -0800 (PST)
-Subject: Re: [PATCH v2 2/7] acpi: utils: Add function to fetch dependent
- acpi_devices
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wxvsvsxyrpOZ/oY0spXlDXsPyT4qu420p3DmEnH6sfU=;
+        b=C7wqhDP881vKuRJx4NtLfuZjZGmBJsIQrLDCx47XV0OF/4dM5uoX6p/JUIDHW0vV77
+         VwsHE2cg70S6Nncx0BxDd4cD94/YhBJFE5B7rh+OVogNaSxiZM8U5CVQ+yAZb4EOicK/
+         i1hnEvBoNigSBeb12JDfGHd9iQu+Ej77JxDUF4xj6LOAEHseSgYYEMJQm+JjCio0+O5G
+         9GNCW0mqaAVvx19o9z+vX2NX9K1W6wWyqXuKIaQNtXmdKtc9e9SMg4zCk9vVZrADlYwo
+         P2Z7YfKKEzzaD9V8oN/X39MaJ7L1X3ILBmGM+ZdLljJAt9he7jzr4iNADjbKe8DVhZZZ
+         88Bw==
+X-Gm-Message-State: AOAM532jeKNkUBYdvL1O4Sglw2i3wVayK5VcspLs2DGDZzt2T0rfeE3J
+        IRE4mauSJ5Jr/104mmPWg+rug9mLlnKH5VuCKbdJHncX
+X-Google-Smtp-Source: ABdhPJwCehh3k/IMteXxnwOxWa37biw3gKZKIYGKKmoFB1cZ9WYyVmZ60RkecMm29B8DPoHIR9VSqGcKux2VkA0z8VU=
+X-Received: by 2002:a9d:1710:: with SMTP id i16mr3359773ota.260.1611062133927;
+ Tue, 19 Jan 2021 05:15:33 -0800 (PST)
+MIME-Version: 1.0
+References: <20210118003428.568892-1-djrscally@gmail.com> <20210118003428.568892-3-djrscally@gmail.com>
+ <CAJZ5v0gVQsZ4rxXW8uMidW9zfY_S50zpfrL-Gq0J3Z4-qqBiww@mail.gmail.com> <b381b48e-1bf2-f3e7-10a6-e51cd261f43c@gmail.com>
+In-Reply-To: <b381b48e-1bf2-f3e7-10a6-e51cd261f43c@gmail.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 19 Jan 2021 14:15:21 +0100
+Message-ID: <CAJZ5v0iU2m4Hs6APuauQ645DwbjYaB8nJFjYH0+7yQnR-FPZBQ@mail.gmail.com>
+Subject: Re: [PATCH v2 2/7] acpi: utils: Add function to fetch dependent acpi_devices
+To:     Daniel Scally <djrscally@gmail.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
         linux-gpio@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>,
         Platform Driver <platform-driver-x86@vger.kernel.org>,
@@ -79,66 +65,40 @@ Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Kieran Bingham <kieran.bingham@ideasonboard.com>
-References: <20210118003428.568892-1-djrscally@gmail.com>
- <20210118003428.568892-3-djrscally@gmail.com>
- <CAJZ5v0gVQsZ4rxXW8uMidW9zfY_S50zpfrL-Gq0J3Z4-qqBiww@mail.gmail.com>
- <b381b48e-1bf2-f3e7-10a6-e51cd261f43c@gmail.com>
- <CAJZ5v0iU2m4Hs6APuauQ645DwbjYaB8nJFjYH0+7yQnR-FPZBQ@mail.gmail.com>
-From:   Daniel Scally <djrscally@gmail.com>
-Message-ID: <29f82122-8059-c9dc-15af-a6812e5509f7@gmail.com>
-Date:   Tue, 19 Jan 2021 13:28:08 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <CAJZ5v0iU2m4Hs6APuauQ645DwbjYaB8nJFjYH0+7yQnR-FPZBQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-
-On 19/01/2021 13:15, Rafael J. Wysocki wrote:
-> On Mon, Jan 18, 2021 at 9:51 PM Daniel Scally <djrscally@gmail.com> wrote:
->> On 18/01/2021 16:14, Rafael J. Wysocki wrote:
->>> On Mon, Jan 18, 2021 at 1:37 AM Daniel Scally <djrscally@gmail.com> wrote:
->>>> In some ACPI tables we encounter, devices use the _DEP method to assert
->>>> a dependence on other ACPI devices as opposed to the OpRegions that the
->>>> specification intends. We need to be able to find those devices "from"
->>>> the dependee, so add a function to parse all ACPI Devices and check if
->>>> the include the handle of the dependee device in their _DEP buffer.
->>> What exactly do you need this for?
->> So, in our DSDT we have devices with _HID INT3472, plus sensors which
->> refer to those INT3472's in their _DEP method. The driver binds to the
->> INT3472 device, we need to find the sensors dependent on them.
->>
-> Well, this is an interesting concept. :-)
+On Mon, Jan 18, 2021 at 9:51 PM Daniel Scally <djrscally@gmail.com> wrote:
 >
-> Why does _DEP need to be used for that?  Isn't there any other way to
-> look up the dependent sensors?
+> On 18/01/2021 16:14, Rafael J. Wysocki wrote:
+> > On Mon, Jan 18, 2021 at 1:37 AM Daniel Scally <djrscally@gmail.com> wrote:
+> >> In some ACPI tables we encounter, devices use the _DEP method to assert
+> >> a dependence on other ACPI devices as opposed to the OpRegions that the
+> >> specification intends. We need to be able to find those devices "from"
+> >> the dependee, so add a function to parse all ACPI Devices and check if
+> >> the include the handle of the dependee device in their _DEP buffer.
+> > What exactly do you need this for?
+>
+> So, in our DSDT we have devices with _HID INT3472, plus sensors which
+> refer to those INT3472's in their _DEP method. The driver binds to the
+> INT3472 device, we need to find the sensors dependent on them.
+>
 
+Well, this is an interesting concept. :-)
 
-If there is, I'm not aware of it, I don't see a reference to the sensor
-in the INT3472 device (named "PMI0", with the corresponding sensor being
-"CAM0") in DSDT  [1]
+Why does _DEP need to be used for that?  Isn't there any other way to
+look up the dependent sensors?
 
->>> Would it be practical to look up the suppliers in acpi_dep_list instead?
->>>
->>> Note that supplier drivers may remove entries from there, but does
->>> that matter for your use case?
->> Ah - that may work, yes. Thank you, let me test that.
-> Even if that doesn't work right away, but it can be made work, I would
-> very much prefer that to the driver parsing _DEP for every device in
-> the namespace by itself.
+>
+> > Would it be practical to look up the suppliers in acpi_dep_list instead?
+> >
+> > Note that supplier drivers may remove entries from there, but does
+> > that matter for your use case?
+>
+> Ah - that may work, yes. Thank you, let me test that.
 
-
-Alright; I haven't looked too closely yet, but I think an iterator over
-acpi_dep_list exported from the ACPI subsystem would also work in a
-pretty similar way to the function introduced in this patch does,
-without much work
-
-
-[1]
-https://gist.githubusercontent.com/djrscally/e64d112180517352fa3392878b0f4a7d/raw/88b90b3ea4204fd7845257b6666fdade47cc2981/dsdt.dsl
-
+Even if that doesn't work right away, but it can be made work, I would
+very much prefer that to the driver parsing _DEP for every device in
+the namespace by itself.
