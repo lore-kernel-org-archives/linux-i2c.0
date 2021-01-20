@@ -7,37 +7,38 @@ X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45CE6C433E9
-	for <linux-i2c@archiver.kernel.org>; Wed, 20 Jan 2021 13:55:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B14F3C433DB
+	for <linux-i2c@archiver.kernel.org>; Wed, 20 Jan 2021 13:58:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2059423357
-	for <linux-i2c@archiver.kernel.org>; Wed, 20 Jan 2021 13:55:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6136D23380
+	for <linux-i2c@archiver.kernel.org>; Wed, 20 Jan 2021 13:58:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733197AbhATNyW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 20 Jan 2021 08:54:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56712 "EHLO mail.kernel.org"
+        id S1728622AbhATNzU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 20 Jan 2021 08:55:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387688AbhATN31 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 20 Jan 2021 08:29:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A11423359;
-        Wed, 20 Jan 2021 13:28:43 +0000 (UTC)
+        id S2388994AbhATN3u (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 20 Jan 2021 08:29:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF6ED2336E;
+        Wed, 20 Jan 2021 13:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611149324;
-        bh=/90opyJtKERP5tgf9ueyDwCIIX9c+vUt6VtWbEcw9Wc=;
+        s=k20201202; t=1611149328;
+        bh=MPz1/mCr++CpM2FqDMmxn42e+iHtH2KviV1Gr4CIwl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEchGDK0An5+FCHEOo+Nl+pxUOXeujt95zQ3RvAoWBNCzdmFPxRHMicbhlqUuHzFE
-         6+9fmBfIOOCMdp9ymQKObok6WcPwuMBN/h8dCQYKFfvbOAkL9+GGoT5wHXPm4NX0xj
-         QmMQK9hxAqwB4Ha03QCVPH6/DsEU5dtRPm6erKuzOkAhHZZ4VTiUqr3Q9FoopSUzjV
-         fYg7dobQTPshADwgQq5l3wCoMaNlJPRU/P5+JVYR9KShBlviy3UB6lzT5uE99Srvz+
-         uBQnQyVno3W8z5ew860m+6r3cE2CLeFtiiEWsdKdprkPx816OkCCiFgW9oOo/8s731
-         tv3oJgC0zrOBg==
+        b=sI+BCEILChQn/x/MaSwZr+YGJi11pFRmMsOqf1UuDSBEXk7cldfW9jqsq2DL3wL3j
+         Z9WDFeCunw1BypQudCwYfJpjDJ3Eto+WtEDtiijC58dqM05yXtLEn3UeE24Dq66D42
+         3bMe960+1klcc0O0U1YCaaujir26fNggtZg2xjSGVJYwrbZuy7N+edc5OIRpxv38r4
+         SJLCtZl9EjkwqmXf81U0h96H6bQk8qFdm68yYNIsmZRO8Rbwn2v+05Llc+Qn9V+b7Y
+         wPxfWagtNrWCD/8QvgHNEHNWWxmbDb+hpesmdEuT8Gp9J6oUn6Z1xR1kIuosx6+mzl
+         fPZnrU7yrjH5A==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-i2c@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Barry Song <baohua@kernel.org>
-Subject: [PATCH 1/3] i2c: remove sirf bus driver
-Date:   Wed, 20 Jan 2021 14:28:32 +0100
-Message-Id: <20210120132834.2375048-2-arnd@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Jun Nie <jun.nie@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 3/3] i2c: remove zte zx bus driver
+Date:   Wed, 20 Jan 2021 14:28:34 +0100
+Message-Id: <20210120132834.2375048-4-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210120132834.2375048-1-arnd@kernel.org>
 References: <20210120132834.2375048-1-arnd@kernel.org>
@@ -49,558 +50,688 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The CSR SiRF prima2/atlas platforms are getting removed, so this driver
-is no longer needed.
+The zte zx platform is getting removed, so this driver is no
+longer needed.
 
-Cc: Barry Song <baohua@kernel.org>
+Cc: Jun Nie <jun.nie@linaro.org>
+Cc: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- .../devicetree/bindings/i2c/i2c-sirf.txt      |  19 -
- drivers/i2c/busses/Kconfig                    |  10 -
+ .../devicetree/bindings/i2c/i2c-zx2967.txt    |  22 -
+ drivers/i2c/busses/Kconfig                    |   9 -
  drivers/i2c/busses/Makefile                   |   1 -
- drivers/i2c/busses/i2c-sirf.c                 | 475 ------------------
- 4 files changed, 505 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-sirf.txt
- delete mode 100644 drivers/i2c/busses/i2c-sirf.c
+ drivers/i2c/busses/i2c-zx2967.c               | 602 ------------------
+ 4 files changed, 634 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
+ delete mode 100644 drivers/i2c/busses/i2c-zx2967.c
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-sirf.txt b/Documentation/devicetree/bindings/i2c/i2c-sirf.txt
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt b/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
 deleted file mode 100644
-index 2701eefb00f7..000000000000
---- a/Documentation/devicetree/bindings/i2c/i2c-sirf.txt
+index cb806d1ae4c9..000000000000
+--- a/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
 +++ /dev/null
-@@ -1,19 +0,0 @@
--I2C for SiRFprimaII platforms
+@@ -1,22 +0,0 @@
+-ZTE zx2967 I2C controller
 -
--Required properties :
--- compatible : Must be "sirf,prima2-i2c"
--- reg: physical base address of the controller and length of memory mapped
--     region.
--- interrupts: interrupt number to the cpu.
+-Required properties:
+- - compatible: must be "zte,zx296718-i2c"
+- - reg: physical address and length of the device registers
+- - interrupts: a single interrupt specifier
+- - clocks: clock for the device
+- - #address-cells: should be <1>
+- - #size-cells: should be <0>
+- - clock-frequency: the desired I2C bus clock frequency.
 -
--Optional properties:
--- clock-frequency : Constains desired I2C/HS-I2C bus clock frequency in Hz.
--  The absence of the property indicates the default frequency 100 kHz.
+-Examples:
 -
--Examples :
--
--i2c0: i2c@b00e0000 {
--    compatible = "sirf,prima2-i2c";
--    reg = <0xb00e0000 0x10000>;
--    interrupts = <24>;
--};
+-	i2c@112000 {
+-		compatible = "zte,zx296718-i2c";
+-		reg = <0x00112000 0x1000>;
+-		interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&osc24m>;
+-		#address-cells = <1>
+-		#size-cells = <0>;
+-		clock-frequency = <1600000>;
+-	};
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 0e284fb750e5..85ed2b2bd31a 100644
+index f31922769187..7a9b6af77d9a 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -1000,16 +1000,6 @@ config I2C_SIMTEC
- 	  This driver can also be built as a module. If so, the module
- 	  will be called i2c-simtec.
+@@ -1377,15 +1377,6 @@ config I2C_OPAL
+ 	  This driver can also be built as a module. If so, the module will be
+ 	  called as i2c-opal.
  
--config I2C_SIRF
--	tristate "CSR SiRFprimaII I2C interface"
--	depends on ARCH_SIRF || COMPILE_TEST
+-config I2C_ZX2967
+-	tristate "ZTE ZX2967 I2C support"
+-	depends on ARCH_ZX
+-	default y
 -	help
--	  If you say yes to this option, support will be included for the
--	  CSR SiRFprimaII I2C interface.
+-	  Selecting this option will add ZX2967 I2C driver.
+-	  This driver can also be built as a module. If so, the module will be
+-	  called i2c-zx2967.
 -
--	  This driver can also be built as a module.  If so, the module
--	  will be called i2c-sirf.
--
- config I2C_SPRD
- 	tristate "Spreadtrum I2C interface"
- 	depends on I2C=y && (ARCH_SPRD || COMPILE_TEST)
+ config I2C_FSI
+ 	tristate "FSI I2C driver"
+ 	depends on FSI
 diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 683c49faca05..45ce4caa0c2b 100644
+index 6621c9581658..48a484b4bf67 100644
 --- a/drivers/i2c/busses/Makefile
 +++ b/drivers/i2c/busses/Makefile
-@@ -99,7 +99,6 @@ obj-$(CONFIG_I2C_S3C2410)	+= i2c-s3c2410.o
- obj-$(CONFIG_I2C_SH7760)	+= i2c-sh7760.o
- obj-$(CONFIG_I2C_SH_MOBILE)	+= i2c-sh_mobile.o
- obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
--obj-$(CONFIG_I2C_SIRF)		+= i2c-sirf.o
- obj-$(CONFIG_I2C_SPRD)		+= i2c-sprd.o
- obj-$(CONFIG_I2C_ST)		+= i2c-st.o
- obj-$(CONFIG_I2C_STM32F4)	+= i2c-stm32f4.o
-diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
+@@ -120,7 +120,6 @@ obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
+ obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
+ obj-$(CONFIG_I2C_XLP9XX)	+= i2c-xlp9xx.o
+ obj-$(CONFIG_I2C_RCAR)		+= i2c-rcar.o
+-obj-$(CONFIG_I2C_ZX2967)	+= i2c-zx2967.o
+ 
+ # External I2C/SMBus adapter drivers
+ obj-$(CONFIG_I2C_DIOLAN_U2C)	+= i2c-diolan-u2c.o
+diff --git a/drivers/i2c/busses/i2c-zx2967.c b/drivers/i2c/busses/i2c-zx2967.c
 deleted file mode 100644
-index 30db8fafe078..000000000000
---- a/drivers/i2c/busses/i2c-sirf.c
+index 8db9519695a6..000000000000
+--- a/drivers/i2c/busses/i2c-zx2967.c
 +++ /dev/null
-@@ -1,475 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-or-later
+@@ -1,602 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
 -/*
-- * I2C bus driver for CSR SiRFprimaII
+- * Copyright (C) 2017 Sanechips Technology Co., Ltd.
+- * Copyright 2017 Linaro Ltd.
 - *
-- * Copyright (c) 2011 Cambridge Silicon Radio Limited, a CSR plc group company.
+- * Author: Baoyou Xie <baoyou.xie@linaro.org>
 - */
 -
--#include <linux/interrupt.h>
--#include <linux/kernel.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/platform_device.h>
--#include <linux/i2c.h>
 -#include <linux/clk.h>
--#include <linux/err.h>
+-#include <linux/i2c.h>
+-#include <linux/interrupt.h>
 -#include <linux/io.h>
+-#include <linux/module.h>
+-#include <linux/platform_device.h>
 -
--#define SIRFSOC_I2C_CLK_CTRL		0x00
--#define SIRFSOC_I2C_STATUS		0x0C
--#define SIRFSOC_I2C_CTRL		0x10
--#define SIRFSOC_I2C_IO_CTRL		0x14
--#define SIRFSOC_I2C_SDA_DELAY		0x18
--#define SIRFSOC_I2C_CMD_START		0x1C
--#define SIRFSOC_I2C_CMD_BUF		0x30
--#define SIRFSOC_I2C_DATA_BUF		0x80
+-#define REG_CMD				0x04
+-#define REG_DEVADDR_H			0x0C
+-#define REG_DEVADDR_L			0x10
+-#define REG_CLK_DIV_FS			0x14
+-#define REG_CLK_DIV_HS			0x18
+-#define REG_WRCONF			0x1C
+-#define REG_RDCONF			0x20
+-#define REG_DATA			0x24
+-#define REG_STAT			0x28
 -
--#define SIRFSOC_I2C_CMD_BUF_MAX		16
--#define SIRFSOC_I2C_DATA_BUF_MAX	16
+-#define I2C_STOP			0
+-#define I2C_MASTER			BIT(0)
+-#define I2C_ADDR_MODE_TEN		BIT(1)
+-#define I2C_IRQ_MSK_ENABLE		BIT(3)
+-#define I2C_RW_READ			BIT(4)
+-#define I2C_CMB_RW_EN			BIT(5)
+-#define I2C_START			BIT(6)
 -
--#define SIRFSOC_I2C_CMD(x)		(SIRFSOC_I2C_CMD_BUF + (x)*0x04)
--#define SIRFSOC_I2C_DATA_MASK(x)        (0xFF<<(((x)&3)*8))
--#define SIRFSOC_I2C_DATA_SHIFT(x)       (((x)&3)*8)
+-#define I2C_ADDR_LOW_MASK		GENMASK(6, 0)
+-#define I2C_ADDR_LOW_SHIFT		0
+-#define I2C_ADDR_HI_MASK		GENMASK(2, 0)
+-#define I2C_ADDR_HI_SHIFT		7
 -
--#define SIRFSOC_I2C_DIV_MASK		(0xFFFF)
+-#define I2C_WFIFO_RESET			BIT(7)
+-#define I2C_RFIFO_RESET			BIT(7)
 -
--/* I2C status flags */
--#define SIRFSOC_I2C_STAT_BUSY		BIT(0)
--#define SIRFSOC_I2C_STAT_TIP		BIT(1)
--#define SIRFSOC_I2C_STAT_NACK		BIT(2)
--#define SIRFSOC_I2C_STAT_TR_INT		BIT(4)
--#define SIRFSOC_I2C_STAT_STOP		BIT(6)
--#define SIRFSOC_I2C_STAT_CMD_DONE	BIT(8)
--#define SIRFSOC_I2C_STAT_ERR		BIT(9)
--#define SIRFSOC_I2C_CMD_INDEX		(0x1F<<16)
+-#define I2C_IRQ_ACK_CLEAR		BIT(7)
+-#define I2C_INT_MASK			GENMASK(6, 0)
 -
--/* I2C control flags */
--#define SIRFSOC_I2C_RESET		BIT(0)
--#define SIRFSOC_I2C_CORE_EN		BIT(1)
--#define SIRFSOC_I2C_MASTER_MODE		BIT(2)
--#define SIRFSOC_I2C_CMD_DONE_EN		BIT(11)
--#define SIRFSOC_I2C_ERR_INT_EN		BIT(12)
+-#define I2C_TRANS_DONE			BIT(0)
+-#define I2C_SR_EDEVICE			BIT(1)
+-#define I2C_SR_EDATA			BIT(2)
 -
--#define SIRFSOC_I2C_SDA_DELAY_MASK	(0xFF)
--#define SIRFSOC_I2C_SCLF_FILTER		(3<<8)
+-#define I2C_FIFO_MAX			16
 -
--#define SIRFSOC_I2C_START_CMD		BIT(0)
+-#define I2C_TIMEOUT			msecs_to_jiffies(1000)
 -
--#define SIRFSOC_I2C_CMD_RP(x)		((x)&0x7)
--#define SIRFSOC_I2C_NACK		BIT(3)
--#define SIRFSOC_I2C_WRITE		BIT(4)
--#define SIRFSOC_I2C_READ		BIT(5)
--#define SIRFSOC_I2C_STOP		BIT(6)
--#define SIRFSOC_I2C_START		BIT(7)
+-#define DEV(i2c)			((i2c)->adap.dev.parent)
 -
--#define SIRFSOC_I2C_ERR_NOACK      1
--#define SIRFSOC_I2C_ERR_TIMEOUT    2
--
--struct sirfsoc_i2c {
--	void __iomem *base;
--	struct clk *clk;
--	u32 cmd_ptr;		/* Current position in CMD buffer */
--	u8 *buf;		/* Buffer passed by user */
--	u32 msg_len;		/* Message length */
--	u32 finished_len;	/* number of bytes read/written */
--	u32 read_cmd_len;	/* number of read cmd sent */
--	int msg_read;		/* 1 indicates a read message */
--	int err_status;		/* 1 indicates an error on bus */
--
--	u32 sda_delay;		/* For suspend/resume */
--	u32 clk_div;
--	int last;		/* Last message in transfer, STOP cmd can be sent */
--
--	struct completion done;	/* indicates completion of message transfer */
--	struct i2c_adapter adapter;
+-struct zx2967_i2c {
+-	struct i2c_adapter	adap;
+-	struct clk		*clk;
+-	struct completion	complete;
+-	u32			clk_freq;
+-	void __iomem		*reg_base;
+-	size_t			residue;
+-	int			irq;
+-	int			msg_rd;
+-	u8			*cur_trans;
+-	u8			access_cnt;
+-	int			error;
 -};
 -
--static void i2c_sirfsoc_read_data(struct sirfsoc_i2c *siic)
+-static void zx2967_i2c_writel(struct zx2967_i2c *i2c,
+-			      u32 val, unsigned long reg)
 -{
--	u32 data = 0;
+-	writel_relaxed(val, i2c->reg_base + reg);
+-}
+-
+-static u32 zx2967_i2c_readl(struct zx2967_i2c *i2c, unsigned long reg)
+-{
+-	return readl_relaxed(i2c->reg_base + reg);
+-}
+-
+-static void zx2967_i2c_writesb(struct zx2967_i2c *i2c,
+-			       void *data, unsigned long reg, int len)
+-{
+-	writesb(i2c->reg_base + reg, data, len);
+-}
+-
+-static void zx2967_i2c_readsb(struct zx2967_i2c *i2c,
+-			      void *data, unsigned long reg, int len)
+-{
+-	readsb(i2c->reg_base + reg, data, len);
+-}
+-
+-static void zx2967_i2c_start_ctrl(struct zx2967_i2c *i2c)
+-{
+-	u32 status;
+-	u32 ctl;
+-
+-	status = zx2967_i2c_readl(i2c, REG_STAT);
+-	status |= I2C_IRQ_ACK_CLEAR;
+-	zx2967_i2c_writel(i2c, status, REG_STAT);
+-
+-	ctl = zx2967_i2c_readl(i2c, REG_CMD);
+-	if (i2c->msg_rd)
+-		ctl |= I2C_RW_READ;
+-	else
+-		ctl &= ~I2C_RW_READ;
+-	ctl &= ~I2C_CMB_RW_EN;
+-	ctl |= I2C_START;
+-	zx2967_i2c_writel(i2c, ctl, REG_CMD);
+-}
+-
+-static void zx2967_i2c_flush_fifos(struct zx2967_i2c *i2c)
+-{
+-	u32 offset;
+-	u32 val;
+-
+-	if (i2c->msg_rd) {
+-		offset = REG_RDCONF;
+-		val = I2C_RFIFO_RESET;
+-	} else {
+-		offset = REG_WRCONF;
+-		val = I2C_WFIFO_RESET;
+-	}
+-
+-	val |= zx2967_i2c_readl(i2c, offset);
+-	zx2967_i2c_writel(i2c, val, offset);
+-}
+-
+-static int zx2967_i2c_empty_rx_fifo(struct zx2967_i2c *i2c, u32 size)
+-{
+-	u8 val[I2C_FIFO_MAX] = {0};
 -	int i;
 -
--	for (i = 0; i < siic->read_cmd_len; i++) {
--		if (!(i & 0x3))
--			data = readl(siic->base + SIRFSOC_I2C_DATA_BUF + i);
--		siic->buf[siic->finished_len++] =
--			(u8)((data & SIRFSOC_I2C_DATA_MASK(i)) >>
--				SIRFSOC_I2C_DATA_SHIFT(i));
+-	if (size > I2C_FIFO_MAX) {
+-		dev_err(DEV(i2c), "fifo size %d over the max value %d\n",
+-			size, I2C_FIFO_MAX);
+-		return -EINVAL;
 -	}
+-
+-	zx2967_i2c_readsb(i2c, val, REG_DATA, size);
+-	for (i = 0; i < size; i++) {
+-		*i2c->cur_trans++ = val[i];
+-		i2c->residue--;
+-	}
+-
+-	barrier();
+-
+-	return 0;
 -}
 -
--static void i2c_sirfsoc_queue_cmd(struct sirfsoc_i2c *siic)
+-static int zx2967_i2c_fill_tx_fifo(struct zx2967_i2c *i2c)
 -{
--	u32 regval;
--	int i = 0;
+-	size_t residue = i2c->residue;
+-	u8 *buf = i2c->cur_trans;
 -
--	if (siic->msg_read) {
--		while (((siic->finished_len + i) < siic->msg_len)
--				&& (siic->cmd_ptr < SIRFSOC_I2C_CMD_BUF_MAX)) {
--			regval = SIRFSOC_I2C_READ | SIRFSOC_I2C_CMD_RP(0);
--			if (((siic->finished_len + i) ==
--					(siic->msg_len - 1)) && siic->last)
--				regval |= SIRFSOC_I2C_STOP | SIRFSOC_I2C_NACK;
--			writel(regval,
--				siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
--			i++;
--		}
+-	if (residue == 0) {
+-		dev_err(DEV(i2c), "residue is %d\n", (int)residue);
+-		return -EINVAL;
+-	}
 -
--		siic->read_cmd_len = i;
+-	if (residue <= I2C_FIFO_MAX) {
+-		zx2967_i2c_writesb(i2c, buf, REG_DATA, residue);
+-
+-		/* Again update before writing to FIFO to make sure isr sees. */
+-		i2c->residue = 0;
+-		i2c->cur_trans = NULL;
 -	} else {
--		while ((siic->cmd_ptr < SIRFSOC_I2C_CMD_BUF_MAX - 1)
--				&& (siic->finished_len < siic->msg_len)) {
--			regval = SIRFSOC_I2C_WRITE | SIRFSOC_I2C_CMD_RP(0);
--			if ((siic->finished_len == (siic->msg_len - 1))
--				&& siic->last)
--				regval |= SIRFSOC_I2C_STOP;
--			writel(regval,
--				siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
--			writel(siic->buf[siic->finished_len++],
--				siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
--		}
+-		zx2967_i2c_writesb(i2c, buf, REG_DATA, I2C_FIFO_MAX);
+-		i2c->residue -= I2C_FIFO_MAX;
+-		i2c->cur_trans += I2C_FIFO_MAX;
 -	}
--	siic->cmd_ptr = 0;
 -
--	/* Trigger the transfer */
--	writel(SIRFSOC_I2C_START_CMD, siic->base + SIRFSOC_I2C_CMD_START);
+-	barrier();
+-
+-	return 0;
 -}
 -
--static irqreturn_t i2c_sirfsoc_irq(int irq, void *dev_id)
+-static int zx2967_i2c_reset_hardware(struct zx2967_i2c *i2c)
 -{
--	struct sirfsoc_i2c *siic = (struct sirfsoc_i2c *)dev_id;
--	u32 i2c_stat = readl(siic->base + SIRFSOC_I2C_STATUS);
+-	u32 val;
+-	u32 clk_div;
 -
--	if (i2c_stat & SIRFSOC_I2C_STAT_ERR) {
--		/* Error conditions */
--		siic->err_status = SIRFSOC_I2C_ERR_NOACK;
--		writel(SIRFSOC_I2C_STAT_ERR, siic->base + SIRFSOC_I2C_STATUS);
+-	val = I2C_MASTER | I2C_IRQ_MSK_ENABLE;
+-	zx2967_i2c_writel(i2c, val, REG_CMD);
 -
--		if (i2c_stat & SIRFSOC_I2C_STAT_NACK)
--			dev_dbg(&siic->adapter.dev, "ACK not received\n");
--		else
--			dev_err(&siic->adapter.dev, "I2C error\n");
+-	clk_div = clk_get_rate(i2c->clk) / i2c->clk_freq - 1;
+-	zx2967_i2c_writel(i2c, clk_div, REG_CLK_DIV_FS);
+-	zx2967_i2c_writel(i2c, clk_div, REG_CLK_DIV_HS);
 -
--		/*
--		 * Due to hardware ANOMALY, we need to reset I2C earlier after
--		 * we get NOACK while accessing non-existing clients, otherwise
--		 * we will get errors even we access existing clients later
--		 */
--		writel(readl(siic->base + SIRFSOC_I2C_CTRL) | SIRFSOC_I2C_RESET,
--				siic->base + SIRFSOC_I2C_CTRL);
--		while (readl(siic->base + SIRFSOC_I2C_CTRL) & SIRFSOC_I2C_RESET)
--			cpu_relax();
+-	zx2967_i2c_writel(i2c, I2C_FIFO_MAX - 1, REG_WRCONF);
+-	zx2967_i2c_writel(i2c, I2C_FIFO_MAX - 1, REG_RDCONF);
+-	zx2967_i2c_writel(i2c, 1, REG_RDCONF);
 -
--		complete(&siic->done);
--	} else if (i2c_stat & SIRFSOC_I2C_STAT_CMD_DONE) {
--		/* CMD buffer execution complete */
--		if (siic->msg_read)
--			i2c_sirfsoc_read_data(siic);
--		if (siic->finished_len == siic->msg_len)
--			complete(&siic->done);
--		else /* Fill a new CMD buffer for left data */
--			i2c_sirfsoc_queue_cmd(siic);
+-	zx2967_i2c_flush_fifos(i2c);
 -
--		writel(SIRFSOC_I2C_STAT_CMD_DONE, siic->base + SIRFSOC_I2C_STATUS);
--	}
+-	return 0;
+-}
 -
+-static void zx2967_i2c_isr_clr(struct zx2967_i2c *i2c)
+-{
+-	u32 status;
+-
+-	status = zx2967_i2c_readl(i2c, REG_STAT);
+-	status |= I2C_IRQ_ACK_CLEAR;
+-	zx2967_i2c_writel(i2c, status, REG_STAT);
+-}
+-
+-static irqreturn_t zx2967_i2c_isr(int irq, void *dev_id)
+-{
+-	u32 status;
+-	struct zx2967_i2c *i2c = (struct zx2967_i2c *)dev_id;
+-
+-	status = zx2967_i2c_readl(i2c, REG_STAT) & I2C_INT_MASK;
+-	zx2967_i2c_isr_clr(i2c);
+-
+-	if (status & I2C_SR_EDEVICE)
+-		i2c->error = -ENXIO;
+-	else if (status & I2C_SR_EDATA)
+-		i2c->error = -EIO;
+-	else if (status & I2C_TRANS_DONE)
+-		i2c->error = 0;
+-	else
+-		goto done;
+-
+-	complete(&i2c->complete);
+-done:
 -	return IRQ_HANDLED;
 -}
 -
--static void i2c_sirfsoc_set_address(struct sirfsoc_i2c *siic,
--	struct i2c_msg *msg)
+-static void zx2967_set_addr(struct zx2967_i2c *i2c, u16 addr)
 -{
--	unsigned char addr;
--	u32 regval = SIRFSOC_I2C_START | SIRFSOC_I2C_CMD_RP(0) | SIRFSOC_I2C_WRITE;
+-	u16 val;
 -
--	/* no data and last message -> add STOP */
--	if (siic->last && (msg->len == 0))
--		regval |= SIRFSOC_I2C_STOP;
+-	val = (addr >> I2C_ADDR_LOW_SHIFT) & I2C_ADDR_LOW_MASK;
+-	zx2967_i2c_writel(i2c, val, REG_DEVADDR_L);
 -
--	writel(regval, siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
--
--	addr = i2c_8bit_addr_from_msg(msg);
--
--	/* Reverse direction bit */
--	if (msg->flags & I2C_M_REV_DIR_ADDR)
--		addr ^= 1;
--
--	writel(addr, siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
+-	val = (addr >> I2C_ADDR_HI_SHIFT) & I2C_ADDR_HI_MASK;
+-	zx2967_i2c_writel(i2c, val, REG_DEVADDR_H);
+-	if (val)
+-		val = zx2967_i2c_readl(i2c, REG_CMD) | I2C_ADDR_MODE_TEN;
+-	else
+-		val = zx2967_i2c_readl(i2c, REG_CMD) & ~I2C_ADDR_MODE_TEN;
+-	zx2967_i2c_writel(i2c, val, REG_CMD);
 -}
 -
--static int i2c_sirfsoc_xfer_msg(struct sirfsoc_i2c *siic, struct i2c_msg *msg)
+-static int zx2967_i2c_xfer_bytes(struct zx2967_i2c *i2c, u32 bytes)
 -{
--	u32 regval = readl(siic->base + SIRFSOC_I2C_CTRL);
--	/* timeout waiting for the xfer to finish or fail */
--	int timeout = msecs_to_jiffies((msg->len + 1) * 50);
+-	unsigned long time_left;
+-	int rd = i2c->msg_rd;
+-	int ret;
 -
--	i2c_sirfsoc_set_address(siic, msg);
+-	reinit_completion(&i2c->complete);
 -
--	writel(regval | SIRFSOC_I2C_CMD_DONE_EN | SIRFSOC_I2C_ERR_INT_EN,
--		siic->base + SIRFSOC_I2C_CTRL);
--	i2c_sirfsoc_queue_cmd(siic);
--
--	if (wait_for_completion_timeout(&siic->done, timeout) == 0) {
--		siic->err_status = SIRFSOC_I2C_ERR_TIMEOUT;
--		dev_err(&siic->adapter.dev, "Transfer timeout\n");
+-	if (rd) {
+-		zx2967_i2c_writel(i2c, bytes - 1, REG_RDCONF);
+-	} else {
+-		ret = zx2967_i2c_fill_tx_fifo(i2c);
+-		if (ret)
+-			return ret;
 -	}
 -
--	writel(regval & ~(SIRFSOC_I2C_CMD_DONE_EN | SIRFSOC_I2C_ERR_INT_EN),
--		siic->base + SIRFSOC_I2C_CTRL);
--	writel(0, siic->base + SIRFSOC_I2C_CMD_START);
+-	zx2967_i2c_start_ctrl(i2c);
 -
--	/* i2c control doesn't response, reset it */
--	if (siic->err_status == SIRFSOC_I2C_ERR_TIMEOUT) {
--		writel(readl(siic->base + SIRFSOC_I2C_CTRL) | SIRFSOC_I2C_RESET,
--			siic->base + SIRFSOC_I2C_CTRL);
--		while (readl(siic->base + SIRFSOC_I2C_CTRL) & SIRFSOC_I2C_RESET)
--			cpu_relax();
+-	time_left = wait_for_completion_timeout(&i2c->complete,
+-						I2C_TIMEOUT);
+-	if (time_left == 0)
+-		return -ETIMEDOUT;
+-
+-	if (i2c->error)
+-		return i2c->error;
+-
+-	return rd ? zx2967_i2c_empty_rx_fifo(i2c, bytes) : 0;
+-}
+-
+-static int zx2967_i2c_xfer_msg(struct zx2967_i2c *i2c,
+-			       struct i2c_msg *msg)
+-{
+-	int ret;
+-	int i;
+-
+-	zx2967_i2c_flush_fifos(i2c);
+-
+-	i2c->cur_trans = msg->buf;
+-	i2c->residue = msg->len;
+-	i2c->access_cnt = msg->len / I2C_FIFO_MAX;
+-	i2c->msg_rd = msg->flags & I2C_M_RD;
+-
+-	for (i = 0; i < i2c->access_cnt; i++) {
+-		ret = zx2967_i2c_xfer_bytes(i2c, I2C_FIFO_MAX);
+-		if (ret)
+-			return ret;
 -	}
--	return siic->err_status ? -EAGAIN : 0;
+-
+-	if (i2c->residue > 0) {
+-		ret = zx2967_i2c_xfer_bytes(i2c, i2c->residue);
+-		if (ret)
+-			return ret;
+-	}
+-
+-	i2c->residue = 0;
+-	i2c->access_cnt = 0;
+-
+-	return 0;
 -}
 -
--static u32 i2c_sirfsoc_func(struct i2c_adapter *adap)
+-static int zx2967_i2c_xfer(struct i2c_adapter *adap,
+-			   struct i2c_msg *msgs, int num)
 -{
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
--}
+-	struct zx2967_i2c *i2c = i2c_get_adapdata(adap);
+-	int ret;
+-	int i;
 -
--static int i2c_sirfsoc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
--	int num)
--{
--	struct sirfsoc_i2c *siic = adap->algo_data;
--	int i, ret;
--
--	clk_enable(siic->clk);
+-	zx2967_set_addr(i2c, msgs->addr);
 -
 -	for (i = 0; i < num; i++) {
--		siic->buf = msgs[i].buf;
--		siic->msg_len = msgs[i].len;
--		siic->msg_read = !!(msgs[i].flags & I2C_M_RD);
--		siic->err_status = 0;
--		siic->cmd_ptr = 0;
--		siic->finished_len = 0;
--		siic->last = (i == (num - 1));
--
--		ret = i2c_sirfsoc_xfer_msg(siic, &msgs[i]);
--		if (ret) {
--			clk_disable(siic->clk);
+-		ret = zx2967_i2c_xfer_msg(i2c, &msgs[i]);
+-		if (ret)
 -			return ret;
--		}
 -	}
 -
--	clk_disable(siic->clk);
 -	return num;
 -}
 -
--/* I2C algorithms associated with this master controller driver */
--static const struct i2c_algorithm i2c_sirfsoc_algo = {
--	.master_xfer = i2c_sirfsoc_xfer,
--	.functionality = i2c_sirfsoc_func,
+-static void
+-zx2967_smbus_xfer_prepare(struct zx2967_i2c *i2c, u16 addr,
+-			  char read_write, u8 command, int size,
+-			  union i2c_smbus_data *data)
+-{
+-	u32 val;
+-
+-	val = zx2967_i2c_readl(i2c, REG_RDCONF);
+-	val |= I2C_RFIFO_RESET;
+-	zx2967_i2c_writel(i2c, val, REG_RDCONF);
+-	zx2967_set_addr(i2c, addr);
+-	val = zx2967_i2c_readl(i2c, REG_CMD);
+-	val &= ~I2C_RW_READ;
+-	zx2967_i2c_writel(i2c, val, REG_CMD);
+-
+-	switch (size) {
+-	case I2C_SMBUS_BYTE:
+-		zx2967_i2c_writel(i2c, command, REG_DATA);
+-		break;
+-	case I2C_SMBUS_BYTE_DATA:
+-		zx2967_i2c_writel(i2c, command, REG_DATA);
+-		if (read_write == I2C_SMBUS_WRITE)
+-			zx2967_i2c_writel(i2c, data->byte, REG_DATA);
+-		break;
+-	case I2C_SMBUS_WORD_DATA:
+-		zx2967_i2c_writel(i2c, command, REG_DATA);
+-		if (read_write == I2C_SMBUS_WRITE) {
+-			zx2967_i2c_writel(i2c, (data->word >> 8), REG_DATA);
+-			zx2967_i2c_writel(i2c, (data->word & 0xff),
+-					  REG_DATA);
+-		}
+-		break;
+-	}
+-}
+-
+-static int zx2967_smbus_xfer_read(struct zx2967_i2c *i2c, int size,
+-				  union i2c_smbus_data *data)
+-{
+-	unsigned long time_left;
+-	u8 buf[2];
+-	u32 val;
+-
+-	reinit_completion(&i2c->complete);
+-
+-	val = zx2967_i2c_readl(i2c, REG_CMD);
+-	val |= I2C_CMB_RW_EN;
+-	zx2967_i2c_writel(i2c, val, REG_CMD);
+-
+-	val = zx2967_i2c_readl(i2c, REG_CMD);
+-	val |= I2C_START;
+-	zx2967_i2c_writel(i2c, val, REG_CMD);
+-
+-	time_left = wait_for_completion_timeout(&i2c->complete,
+-						I2C_TIMEOUT);
+-	if (time_left == 0)
+-		return -ETIMEDOUT;
+-
+-	if (i2c->error)
+-		return i2c->error;
+-
+-	switch (size) {
+-	case I2C_SMBUS_BYTE:
+-	case I2C_SMBUS_BYTE_DATA:
+-		val = zx2967_i2c_readl(i2c, REG_DATA);
+-		data->byte = val;
+-		break;
+-	case I2C_SMBUS_WORD_DATA:
+-	case I2C_SMBUS_PROC_CALL:
+-		buf[0] = zx2967_i2c_readl(i2c, REG_DATA);
+-		buf[1] = zx2967_i2c_readl(i2c, REG_DATA);
+-		data->word = (buf[0] << 8) | buf[1];
+-		break;
+-	default:
+-		return -EOPNOTSUPP;
+-	}
+-
+-	return 0;
+-}
+-
+-static int zx2967_smbus_xfer_write(struct zx2967_i2c *i2c)
+-{
+-	unsigned long time_left;
+-	u32 val;
+-
+-	reinit_completion(&i2c->complete);
+-	val = zx2967_i2c_readl(i2c, REG_CMD);
+-	val |= I2C_START;
+-	zx2967_i2c_writel(i2c, val, REG_CMD);
+-
+-	time_left = wait_for_completion_timeout(&i2c->complete,
+-						I2C_TIMEOUT);
+-	if (time_left == 0)
+-		return -ETIMEDOUT;
+-
+-	if (i2c->error)
+-		return i2c->error;
+-
+-	return 0;
+-}
+-
+-static int zx2967_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+-			     unsigned short flags, char read_write,
+-			     u8 command, int size, union i2c_smbus_data *data)
+-{
+-	struct zx2967_i2c *i2c = i2c_get_adapdata(adap);
+-
+-	if (size == I2C_SMBUS_QUICK)
+-		read_write = I2C_SMBUS_WRITE;
+-
+-	switch (size) {
+-	case I2C_SMBUS_QUICK:
+-	case I2C_SMBUS_BYTE:
+-	case I2C_SMBUS_BYTE_DATA:
+-	case I2C_SMBUS_WORD_DATA:
+-		zx2967_smbus_xfer_prepare(i2c, addr, read_write,
+-					  command, size, data);
+-		break;
+-	default:
+-		return -EOPNOTSUPP;
+-	}
+-
+-	if (read_write == I2C_SMBUS_READ)
+-		return zx2967_smbus_xfer_read(i2c, size, data);
+-
+-	return zx2967_smbus_xfer_write(i2c);
+-}
+-
+-static u32 zx2967_i2c_func(struct i2c_adapter *adap)
+-{
+-	return I2C_FUNC_I2C |
+-	       I2C_FUNC_SMBUS_QUICK |
+-	       I2C_FUNC_SMBUS_BYTE |
+-	       I2C_FUNC_SMBUS_BYTE_DATA |
+-	       I2C_FUNC_SMBUS_WORD_DATA |
+-	       I2C_FUNC_SMBUS_BLOCK_DATA |
+-	       I2C_FUNC_SMBUS_PROC_CALL |
+-	       I2C_FUNC_SMBUS_I2C_BLOCK;
+-}
+-
+-static int __maybe_unused zx2967_i2c_suspend(struct device *dev)
+-{
+-	struct zx2967_i2c *i2c = dev_get_drvdata(dev);
+-
+-	i2c_mark_adapter_suspended(&i2c->adap);
+-	clk_disable_unprepare(i2c->clk);
+-
+-	return 0;
+-}
+-
+-static int __maybe_unused zx2967_i2c_resume(struct device *dev)
+-{
+-	struct zx2967_i2c *i2c = dev_get_drvdata(dev);
+-
+-	clk_prepare_enable(i2c->clk);
+-	i2c_mark_adapter_resumed(&i2c->adap);
+-
+-	return 0;
+-}
+-
+-static SIMPLE_DEV_PM_OPS(zx2967_i2c_dev_pm_ops,
+-			 zx2967_i2c_suspend, zx2967_i2c_resume);
+-
+-static const struct i2c_algorithm zx2967_i2c_algo = {
+-	.master_xfer = zx2967_i2c_xfer,
+-	.smbus_xfer = zx2967_smbus_xfer,
+-	.functionality = zx2967_i2c_func,
 -};
 -
--static int i2c_sirfsoc_probe(struct platform_device *pdev)
+-static const struct i2c_adapter_quirks zx2967_i2c_quirks = {
+-	.flags = I2C_AQ_NO_ZERO_LEN,
+-};
+-
+-static const struct of_device_id zx2967_i2c_of_match[] = {
+-	{ .compatible = "zte,zx296718-i2c", },
+-	{ },
+-};
+-MODULE_DEVICE_TABLE(of, zx2967_i2c_of_match);
+-
+-static int zx2967_i2c_probe(struct platform_device *pdev)
 -{
--	struct sirfsoc_i2c *siic;
--	struct i2c_adapter *adap;
+-	struct zx2967_i2c *i2c;
+-	void __iomem *reg_base;
 -	struct clk *clk;
--	int bitrate;
--	int ctrl_speed;
--	int irq;
+-	int ret;
 -
--	int err;
--	u32 regval;
+-	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
+-	if (!i2c)
+-		return -ENOMEM;
 -
--	clk = clk_get(&pdev->dev, NULL);
+-	reg_base = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(reg_base))
+-		return PTR_ERR(reg_base);
+-
+-	clk = devm_clk_get(&pdev->dev, NULL);
 -	if (IS_ERR(clk)) {
--		err = PTR_ERR(clk);
--		dev_err(&pdev->dev, "Clock get failed\n");
--		goto err_get_clk;
+-		dev_err(&pdev->dev, "missing controller clock");
+-		return PTR_ERR(clk);
 -	}
 -
--	err = clk_prepare(clk);
--	if (err) {
--		dev_err(&pdev->dev, "Clock prepare failed\n");
--		goto err_clk_prep;
+-	ret = clk_prepare_enable(clk);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to enable i2c_clk\n");
+-		return ret;
 -	}
 -
--	err = clk_enable(clk);
--	if (err) {
--		dev_err(&pdev->dev, "Clock enable failed\n");
--		goto err_clk_en;
+-	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
+-				       &i2c->clk_freq);
+-	if (ret) {
+-		dev_err(&pdev->dev, "missing clock-frequency");
+-		return ret;
 -	}
 -
--	ctrl_speed = clk_get_rate(clk);
+-	ret = platform_get_irq(pdev, 0);
+-	if (ret < 0)
+-		return ret;
 -
--	siic = devm_kzalloc(&pdev->dev, sizeof(*siic), GFP_KERNEL);
--	if (!siic) {
--		err = -ENOMEM;
--		goto out;
+-	i2c->irq = ret;
+-	i2c->reg_base = reg_base;
+-	i2c->clk = clk;
+-
+-	init_completion(&i2c->complete);
+-	platform_set_drvdata(pdev, i2c);
+-
+-	ret = zx2967_i2c_reset_hardware(i2c);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to initialize i2c controller\n");
+-		goto err_clk_unprepare;
 -	}
--	adap = &siic->adapter;
--	adap->class = I2C_CLASS_DEPRECATED;
 -
--	siic->base = devm_platform_ioremap_resource(pdev, 0);
--	if (IS_ERR(siic->base)) {
--		err = PTR_ERR(siic->base);
--		goto out;
+-	ret = devm_request_irq(&pdev->dev, i2c->irq,
+-			zx2967_i2c_isr, 0, dev_name(&pdev->dev), i2c);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to request irq %i\n", i2c->irq);
+-		goto err_clk_unprepare;
 -	}
 -
--	irq = platform_get_irq(pdev, 0);
--	if (irq < 0) {
--		err = irq;
--		goto out;
--	}
--	err = devm_request_irq(&pdev->dev, irq, i2c_sirfsoc_irq, 0,
--		dev_name(&pdev->dev), siic);
--	if (err)
--		goto out;
+-	i2c_set_adapdata(&i2c->adap, i2c);
+-	strlcpy(i2c->adap.name, "zx2967 i2c adapter",
+-		sizeof(i2c->adap.name));
+-	i2c->adap.algo = &zx2967_i2c_algo;
+-	i2c->adap.quirks = &zx2967_i2c_quirks;
+-	i2c->adap.nr = pdev->id;
+-	i2c->adap.dev.parent = &pdev->dev;
+-	i2c->adap.dev.of_node = pdev->dev.of_node;
 -
--	adap->algo = &i2c_sirfsoc_algo;
--	adap->algo_data = siic;
--	adap->retries = 3;
--
--	adap->dev.of_node = pdev->dev.of_node;
--	adap->dev.parent = &pdev->dev;
--	adap->nr = pdev->id;
--
--	strlcpy(adap->name, "sirfsoc-i2c", sizeof(adap->name));
--
--	platform_set_drvdata(pdev, adap);
--	init_completion(&siic->done);
--
--	/* Controller initialisation */
--
--	writel(SIRFSOC_I2C_RESET, siic->base + SIRFSOC_I2C_CTRL);
--	while (readl(siic->base + SIRFSOC_I2C_CTRL) & SIRFSOC_I2C_RESET)
--		cpu_relax();
--	writel(SIRFSOC_I2C_CORE_EN | SIRFSOC_I2C_MASTER_MODE,
--		siic->base + SIRFSOC_I2C_CTRL);
--
--	siic->clk = clk;
--
--	err = of_property_read_u32(pdev->dev.of_node,
--		"clock-frequency", &bitrate);
--	if (err < 0)
--		bitrate = I2C_MAX_STANDARD_MODE_FREQ;
--
--	/*
--	 * Due to some hardware design issues, we need to tune the formula.
--	 * Since i2c is open drain interface that allows the slave to
--	 * stall the transaction by holding the SCL line at '0', the RTL
--	 * implementation is waiting for SCL feedback from the pin after
--	 * setting it to High-Z ('1'). This wait adds to the high-time
--	 * interval counter few cycles of the input synchronization
--	 * (depending on the SCL_FILTER_REG field), and also the time it
--	 * takes for the board pull-up resistor to rise the SCL line.
--	 * For slow SCL settings these additions are negligible,
--	 * but they start to affect the speed when clock is set to faster
--	 * frequencies.
--	 * Through the actual tests, use the different user_div value(which
--	 * in the divider formula 'Fio / (Fi2c * user_div)') to adapt
--	 * the different ranges of i2c bus clock frequency, to make the SCL
--	 * more accurate.
--	 */
--	if (bitrate <= 30000)
--		regval = ctrl_speed / (bitrate * 5);
--	else if (bitrate > 30000 && bitrate <= 280000)
--		regval = (2 * ctrl_speed) / (bitrate * 11);
--	else
--		regval = ctrl_speed / (bitrate * 6);
--
--	writel(regval, siic->base + SIRFSOC_I2C_CLK_CTRL);
--	if (regval > 0xFF)
--		writel(0xFF, siic->base + SIRFSOC_I2C_SDA_DELAY);
--	else
--		writel(regval, siic->base + SIRFSOC_I2C_SDA_DELAY);
--
--	err = i2c_add_numbered_adapter(adap);
--	if (err < 0)
--		goto out;
--
--	clk_disable(clk);
--
--	dev_info(&pdev->dev, " I2C adapter ready to operate\n");
+-	ret = i2c_add_numbered_adapter(&i2c->adap);
+-	if (ret)
+-		goto err_clk_unprepare;
 -
 -	return 0;
 -
--out:
--	clk_disable(clk);
--err_clk_en:
--	clk_unprepare(clk);
--err_clk_prep:
--	clk_put(clk);
--err_get_clk:
--	return err;
+-err_clk_unprepare:
+-	clk_disable_unprepare(i2c->clk);
+-	return ret;
 -}
 -
--static int i2c_sirfsoc_remove(struct platform_device *pdev)
+-static int zx2967_i2c_remove(struct platform_device *pdev)
 -{
--	struct i2c_adapter *adapter = platform_get_drvdata(pdev);
--	struct sirfsoc_i2c *siic = adapter->algo_data;
+-	struct zx2967_i2c *i2c = platform_get_drvdata(pdev);
 -
--	writel(SIRFSOC_I2C_RESET, siic->base + SIRFSOC_I2C_CTRL);
--	i2c_del_adapter(adapter);
--	clk_unprepare(siic->clk);
--	clk_put(siic->clk);
+-	i2c_del_adapter(&i2c->adap);
+-	clk_disable_unprepare(i2c->clk);
+-
 -	return 0;
 -}
 -
--#ifdef CONFIG_PM
--static int i2c_sirfsoc_suspend(struct device *dev)
--{
--	struct i2c_adapter *adapter = dev_get_drvdata(dev);
--	struct sirfsoc_i2c *siic = adapter->algo_data;
--
--	clk_enable(siic->clk);
--	siic->sda_delay = readl(siic->base + SIRFSOC_I2C_SDA_DELAY);
--	siic->clk_div = readl(siic->base + SIRFSOC_I2C_CLK_CTRL);
--	clk_disable(siic->clk);
--	return 0;
--}
--
--static int i2c_sirfsoc_resume(struct device *dev)
--{
--	struct i2c_adapter *adapter = dev_get_drvdata(dev);
--	struct sirfsoc_i2c *siic = adapter->algo_data;
--
--	clk_enable(siic->clk);
--	writel(SIRFSOC_I2C_RESET, siic->base + SIRFSOC_I2C_CTRL);
--	while (readl(siic->base + SIRFSOC_I2C_CTRL) & SIRFSOC_I2C_RESET)
--		cpu_relax();
--	writel(SIRFSOC_I2C_CORE_EN | SIRFSOC_I2C_MASTER_MODE,
--		siic->base + SIRFSOC_I2C_CTRL);
--	writel(siic->clk_div, siic->base + SIRFSOC_I2C_CLK_CTRL);
--	writel(siic->sda_delay, siic->base + SIRFSOC_I2C_SDA_DELAY);
--	clk_disable(siic->clk);
--	return 0;
--}
--
--static const struct dev_pm_ops i2c_sirfsoc_pm_ops = {
--	.suspend = i2c_sirfsoc_suspend,
--	.resume = i2c_sirfsoc_resume,
--};
--#endif
--
--static const struct of_device_id sirfsoc_i2c_of_match[] = {
--	{ .compatible = "sirf,prima2-i2c", },
--	{},
--};
--MODULE_DEVICE_TABLE(of, sirfsoc_i2c_of_match);
--
--static struct platform_driver i2c_sirfsoc_driver = {
--	.driver = {
--		.name = "sirfsoc_i2c",
--#ifdef CONFIG_PM
--		.pm = &i2c_sirfsoc_pm_ops,
--#endif
--		.of_match_table = sirfsoc_i2c_of_match,
+-static struct platform_driver zx2967_i2c_driver = {
+-	.probe	= zx2967_i2c_probe,
+-	.remove	= zx2967_i2c_remove,
+-	.driver	= {
+-		.name  = "zx2967_i2c",
+-		.of_match_table = zx2967_i2c_of_match,
+-		.pm = &zx2967_i2c_dev_pm_ops,
 -	},
--	.probe = i2c_sirfsoc_probe,
--	.remove = i2c_sirfsoc_remove,
 -};
--module_platform_driver(i2c_sirfsoc_driver);
+-module_platform_driver(zx2967_i2c_driver);
 -
--MODULE_DESCRIPTION("SiRF SoC I2C master controller driver");
--MODULE_AUTHOR("Zhiwu Song <Zhiwu.Song@csr.com>");
--MODULE_AUTHOR("Xiangzhen Ye <Xiangzhen.Ye@csr.com>");
+-MODULE_AUTHOR("Baoyou Xie <baoyou.xie@linaro.org>");
+-MODULE_DESCRIPTION("ZTE ZX2967 I2C Bus Controller driver");
 -MODULE_LICENSE("GPL v2");
 -- 
 2.29.2
