@@ -2,95 +2,127 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFF49C433DB
-	for <linux-i2c@archiver.kernel.org>; Fri, 22 Jan 2021 09:00:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40D1FC433E9
+	for <linux-i2c@archiver.kernel.org>; Fri, 22 Jan 2021 12:31:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D875238D7
-	for <linux-i2c@archiver.kernel.org>; Fri, 22 Jan 2021 09:00:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2110C23437
+	for <linux-i2c@archiver.kernel.org>; Fri, 22 Jan 2021 12:31:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727211AbhAVJAX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 22 Jan 2021 04:00:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55572 "EHLO mail.kernel.org"
+        id S1727078AbhAVJ0P (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 22 Jan 2021 04:26:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727118AbhAVI57 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 22 Jan 2021 03:57:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8D42236F9;
-        Fri, 22 Jan 2021 08:57:17 +0000 (UTC)
+        id S1727376AbhAVJRS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 22 Jan 2021 04:17:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69725239D4;
+        Fri, 22 Jan 2021 09:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611305838;
-        bh=4WN6WZIW13Le34niPrIRUQdbKEyv4ykFjZJuLrSXaiU=;
+        s=k20201202; t=1611306461;
+        bh=nV3I3ct6uOXZdsO/zAKfYmcrv4KNXm6gHX/iiv9UjrQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JhSYGN0PghLXGESOCeXh2tkF9iNKbHvDaqdFkKDlU/X+fapCtshs5v5qccX3I8ooi
-         TWEMQS/2Q/DNYCYSY9rifsjlllcaf+opDTNiHSVvDEdPQbZuINrtfjSJCMWdHjDvYJ
-         3PXK6vTAZzilC6pq9sMfmEOuvwQKsHOLq2ouJeTT/4Izo+MCwKI2c1lfb0GudbPrEf
-         W1hFxq7jkNvW4hEAuoV4uOKvPr0EpPuFD2/cWjHRNhP8HiucXqEw+w5VxllIxpjc0V
-         tYNp8XDRRi19KMweFRNWs5pV6l6nkVvszb46x3GtasG+rt7OKc+7htL1dtZDbg7BYT
-         tMrX1uqh7WYAA==
-Date:   Fri, 22 Jan 2021 09:57:15 +0100
+        b=sYf3PzMCN3IkVyPRGtRZ0mFh/GfcyzepIlbb8ZQltNttPYuxIS2c86dvo2IiVHtYp
+         Q+7SiTXu3Q1qkF4TgXOQPxX/a2Co/tACASDhAjYQyrwCISzoANRK6zfVtL6tVP62qR
+         VSuEDT1VWcoLW0/S+SB7l2cnxK3RlEzD3MdiUz4RHUit3bAU6kl8O068qy6oxDjPZ+
+         uXstxzunYM5+xhpZqcHzVzRuPJEonVwfsahme4d0x9xaF/wSIOtWvdQBAwkJREw7/J
+         ELbT44JxOwU/kLiEKc07cGrgl7zV3uH1NeNl66Ux/8XfieyPgsOu+TIcgHJVrf11i8
+         lQoQGc/CT5rBw==
+Date:   Fri, 22 Jan 2021 10:07:37 +0100
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 2/3] i2c: remove u300 bus driver
-Message-ID: <20210122085715.GD858@kunai>
+To:     Youling Tang <tangyouling@loongson.cn>
+Cc:     Seth Heasley <seth.heasley@intel.com>,
+        Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] i2c: ismt: Use dma_set_mask_and_coherent
+Message-ID: <20210122090737.GG858@kunai>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Arnd Bergmann <arnd@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Linus Walleij <linus.walleij@linaro.org>
-References: <20210120132834.2375048-1-arnd@kernel.org>
- <20210120132834.2375048-3-arnd@kernel.org>
+        Youling Tang <tangyouling@loongson.cn>,
+        Seth Heasley <seth.heasley@intel.com>,
+        Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1606978252-26169-1-git-send-email-tangyouling@loongson.cn>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Xm/fll+QQv+hsKip"
+        protocol="application/pgp-signature"; boundary="qxfKREH7IwbezJ+T"
 Content-Disposition: inline
-In-Reply-To: <20210120132834.2375048-3-arnd@kernel.org>
+In-Reply-To: <1606978252-26169-1-git-send-email-tangyouling@loongson.cn>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---Xm/fll+QQv+hsKip
+--qxfKREH7IwbezJ+T
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 20, 2021 at 02:28:33PM +0100, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Thu, Dec 03, 2020 at 02:50:52PM +0800, Youling Tang wrote:
+> 'pci_set_dma_mask()' + 'pci_set_consistent_dma_mask()' can be replaced by
+> an equivalent 'dma_set_mask_and_coherent()' which is much less verbose.
 >=20
-> The ST-Ericsson U300 platform is getting removed, so this driver is no
-> longer needed.
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Youling Tang <tangyouling@loongson.cn>
+
+Seth, Neil, are you OK with this patch?
+
+> ---
 >=20
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> v3: Fix build errors of incompatible pointer types.
+>=20
+>  drivers/i2c/busses/i2c-ismt.c | 10 +++-------
+>  1 file changed, 3 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+> index a35a27c..88f6039 100644
+> --- a/drivers/i2c/busses/i2c-ismt.c
+> +++ b/drivers/i2c/busses/i2c-ismt.c
+> @@ -903,16 +903,12 @@ ismt_probe(struct pci_dev *pdev, const struct pci_d=
+evice_id *id)
+>  		return -ENODEV;
+>  	}
+> =20
+> -	if ((pci_set_dma_mask(pdev, DMA_BIT_MASK(64)) !=3D 0) ||
+> -	    (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64)) !=3D 0)) {
+> -		if ((pci_set_dma_mask(pdev, DMA_BIT_MASK(32)) !=3D 0) ||
+> -		    (pci_set_consistent_dma_mask(pdev,
+> -						 DMA_BIT_MASK(32)) !=3D 0)) {
+> -			dev_err(&pdev->dev, "pci_set_dma_mask fail %p\n",
+> +	if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64)) !=3D 0)
+> +		if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32)) !=3D 0) {
+> +			dev_err(&pdev->dev, "dma_set_mask_and_coherent fail %p\n",
+>  				pdev);
+>  			return -ENODEV;
+>  		}
+> -	}
+> =20
+>  	err =3D ismt_dev_init(priv);
+>  	if (err)
+> --=20
+> 2.1.0
+>=20
 
-Applied to for-next, thanks!
-
-
---Xm/fll+QQv+hsKip
+--qxfKREH7IwbezJ+T
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAKk2sACgkQFA3kzBSg
-KbZRvw/+OyljxnUQNMREamklyeMJR02JwAidu/4PEqYdquzIA3hgLXGqi20iyOs0
-eV/DBJDZIZekazTWX+kJBChu284tXDhz5pO2Yh7F15RbZJyrvTRWSnpsY4tfBICL
-sGglvz/djBnA66li63iOFwJeudxIU23sKVfTSA6v0iq6384mtgu2dJFIPjZV1Yi4
-JnaJhPEcO3RPnH5uUUKW9mqTt5Imt4AoVkJLeF4b65+xJWyeDzs7UOgyALvSrd9J
-BRc5vRVyZCpzAyk0lr4P9vy9STFdVrt3rB+hP1V9VPLT8luK2JMZn8kgxrVdNI+0
-+dUwOhUK2X2gRrsyFceZF7l8WRoLnE3srE5BU9+U3NeQdc096Uh7wqRxdVxa6g4D
-PEPqMkhXAiCBmJrs6bDZTg1J7EwK7NNZjElNRw4Npuftz/Ne416Z06qncny1a4hj
-pZPQVLOYKVYE1V+oLqHn4hhsE7olTWNWXqFhGvAaYTktIHjjiWTajQATMlyGb3HB
-ub6Qv74/yHg29czwHMlzRnOpqpGosdo7zS7vBFqmU8yLs2Ccsmn19KabAl5Md3um
-FZ8FY+JB8qP10hlt6e2z3yttUJ061Fr3iY58q48178VHk+s8VEBy51Ne4eoGrr+0
-nop5C1q8v3e6jRzF0maSRynlmSv04LSX+222NJRvNohRkXtHQAw=
-=nwUW
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAKldkACgkQFA3kzBSg
+Kbb6hxAApGjfA14lG697L3sDX0kkV97wifgK3SOXUJuV+JgidPBfeQ6RG6oU5N07
+u+Dfp9SD30HIoG0SxMQYRta6L+JgSZIOPdYqwCGrewCNoFT4qZK2B4P+mMMeGpaC
+XX9br17j5XL5/EKkPTl2M0+1Zhs1+nA612LhrpCAOyUxcdLtvbEMjIkzRt8BXv8w
+S8jzYaEk8NB+uFzW5JQb1GBAGri+VWk4SWOhm9e1HTtVvqcf2z4B/ekC1uGI0lXM
+bRfLe5gnZ2+fy6411IvBaU8yJ8VFtOyQzswsMgerBJ6MYuwd9UtTfhpv74H9Dkjq
+sUWjQLvwwKke8utghJKWiWHmeRQNC+Ihes9RjbFyujGWYrU0vMs2k82iyFElHrUq
+vA9HQYkyuHUVmjT06iVIb8N8zPs+B8DQtLvC567roxYdY5kHRBCbgZDCegPVc3VJ
+IIQLwEt4U4RpQHv0CqDVEp5cQnv+lWtcRkYFwZItw2F4+KTB0Ch+kEtYKZUqv+/k
+nPCltlnpGkDSWloexme5twrs0poKW9GRJipQQezV8bP0kcv5JTitd0vEzLIl6mKf
+gaBs/5qX5p7+ziXmGcMARMzNmPvVUCw7OmzLGddjnEKulECMa1GgdUQ8+6I3oVXT
+moJE/m5qJ1v3DzErmoJtgofD06MeBw4bVYEAsnnpvXR8CUsZDZw=
+=Due/
 -----END PGP SIGNATURE-----
 
---Xm/fll+QQv+hsKip--
+--qxfKREH7IwbezJ+T--
