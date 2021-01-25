@@ -2,74 +2,207 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78987C433DB
-	for <linux-i2c@archiver.kernel.org>; Tue, 26 Jan 2021 11:39:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A1BFC433DB
+	for <linux-i2c@archiver.kernel.org>; Tue, 26 Jan 2021 19:07:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 365F823110
-	for <linux-i2c@archiver.kernel.org>; Tue, 26 Jan 2021 11:39:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D827622A84
+	for <linux-i2c@archiver.kernel.org>; Tue, 26 Jan 2021 19:07:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405178AbhAZLiz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 26 Jan 2021 06:38:55 -0500
-Received: from mailgw02.mediatek.com ([1.203.163.81]:50075 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2405076AbhAZLhs (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Jan 2021 06:37:48 -0500
-X-UUID: 990d186ba92343e8bfd443ea0b47d956-20210126
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=ubXBAWnixO4YxtuhUh1DiAeTDZZzaPG4feh7XdGCkaE=;
-        b=JfxGp6V1b8fbco8zdvweb7b0pKkQeRcu1RrE8rv+wYeHzfvHwX6ivQeE2drN+VAb3T7I5JzZWgAqca64Y8wggH6a5RaQclskbWZSv6EvLMFD+V5lT5ylxjBX3TL+pu/K/P0YeIHQMHFvnZq4m/Oh2mpGqmRcTn9oOOUAqWMhRIM=;
-X-UUID: 990d186ba92343e8bfd443ea0b47d956-20210126
-Received: from mtkcas34.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
-        (envelope-from <qii.wang@mediatek.com>)
-        (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 679044507; Tue, 26 Jan 2021 19:37:03 +0800
-Received: from MTKCAS36.mediatek.inc (172.27.4.186) by MTKMBS31N2.mediatek.inc
- (172.27.4.87) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 26 Jan
- 2021 19:37:00 +0800
-Received: from [10.17.3.153] (10.17.3.153) by MTKCAS36.mediatek.inc
- (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 26 Jan 2021 19:37:00 +0800
-Message-ID: <1611661020.15158.4.camel@mhfsdcap03>
-Subject: Re: [RESEND, V2] i2c: mediatek: Move suspend and resume handling to
- NOIRQ phase
-From:   Qii Wang <qii.wang@mediatek.com>
-To:     <wsa@the-dreams.de>
-CC:     <matthias.bgg@gmail.com>, <linux-i2c@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>
-Date:   Tue, 26 Jan 2021 19:37:00 +0800
-In-Reply-To: <1610180990-23496-1-git-send-email-qii.wang@mediatek.com>
-References: <1610180990-23496-1-git-send-email-qii.wang@mediatek.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.10.4-0ubuntu2 
+        id S1726581AbhAZGAk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 26 Jan 2021 01:00:40 -0500
+Received: from foss.arm.com ([217.140.110.172]:46534 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727848AbhAYMSs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 25 Jan 2021 07:18:48 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9DB8A11FB;
+        Mon, 25 Jan 2021 04:00:13 -0800 (PST)
+Received: from slackpad.fritz.box (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A8D0B3F66E;
+        Mon, 25 Jan 2021 04:00:10 -0800 (PST)
+Date:   Mon, 25 Jan 2021 11:59:32 +0000
+From:   Andre Przywara <andre.przywara@arm.com>
+To:     Samuel Holland <samuel@sholland.org>
+Cc:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Icenowy Zheng <icenowy@aosc.io>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Rob Herring <robh@kernel.org>,
+        =?UTF-8?B?Q2zDqW1lbnQgUMOpcm9u?= <peron.clem@gmail.com>,
+        Shuosheng Huang <huangshuosheng@allwinnertech.com>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-sunxi@googlegroups.com,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        devicetree@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-spi@vger.kernel.org
+Subject: Re: [PATCH v3 18/21] dt-bindings: allwinner: Add H616 compatible
+ strings
+Message-ID: <20210125115932.6b9f148d@slackpad.fritz.box>
+In-Reply-To: <c21019af-a6e4-4a06-5307-23b227d25934@sholland.org>
+References: <20210118020848.11721-1-andre.przywara@arm.com>
+        <20210118020848.11721-19-andre.przywara@arm.com>
+        <c21019af-a6e4-4a06-5307-23b227d25934@sholland.org>
+Organization: Arm Ltd.
+X-Mailer: Claws Mail 3.17.1 (GTK+ 2.24.31; x86_64-slackware-linux-gnu)
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: D2689A47C73DBFA32FCB9D08FDB02ABC14DCEABC9620876DA2B7C062BC0DFA232000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-SGkgV29sZnJhbSwNCg0KT24gU2F0LCAyMDIxLTAxLTA5IGF0IDE2OjI5ICswODAwLCBxaWkud2Fu
-Z0BtZWRpYXRlay5jb20gd3JvdGU6DQo+IEZyb206IFFpaSBXYW5nIDxxaWkud2FuZ0BtZWRpYXRl
-ay5jb20+DQo+IA0KPiBTb21lIGkyYyBkZXZpY2UgZHJpdmVyIGluZGlyZWN0bHkgdXNlcyBJMkMg
-ZHJpdmVyIHdoZW4gaXQgaXMgbm93DQo+IGJlaW5nIHN1c3BlbmRlZC4gVGhlIGkyYyBkZXZpY2Vz
-IGRyaXZlciBpcyBzdXNwZW5kZWQgZHVyaW5nIHRoZQ0KPiBOT0lSUSBwaGFzZSBhbmQgdGhpcyBj
-YW5ub3QgYmUgY2hhbmdlZCBkdWUgdG8gb3RoZXIgZGVwZW5kZW5jaWVzLg0KPiBUaGVyZWZvcmUs
-IHdlIGFsc28gbmVlZCB0byBtb3ZlIHRoZSBzdXNwZW5kIGhhbmRsaW5nIGZvciB0aGUgSTJDDQo+
-IGNvbnRyb2xsZXIgZHJpdmVyIHRvIHRoZSBOT0lSUSBwaGFzZSBhcyB3ZWxsLg0KPiANCj4gU2ln
-bmVkLW9mZi1ieTogUWlpIFdhbmcgPHFpaS53YW5nQG1lZGlhdGVrLmNvbT4NCj4gLS0tDQo+IA0K
-PiBDaGFuZ2VzIGluIHYyOg0KPiAgICAgICAgIC0gUmVwbGllZCBzb21lIGNvbW1lbnRzDQo+ICAg
-ICAgICAgLSBGaXhlZCB0aGUgd3Jvbmcgc3BlbGxpbmcgbWVkYWl0ZWsgdG8gbWVkaWF0ZWsNCj4g
-DQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4eC5jIHwgMTkgKysrKysrKysrKysrKysr
-Ky0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDE2IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0p
-DQo+IA0KDQpJIGhhdmVuJ3Qgc2VlbiBhbnkgbmV3IGNvbW1lbnRzLCBjYW4gaXQgZ28gaW50byA1
-LjExPw0KDQpUaGFua3MNCg0KCVFpaQ0K
+On Sun, 17 Jan 2021 22:28:47 -0600
+Samuel Holland <samuel@sholland.org> wrote:
+
+Hi,
+
+
+> On 1/17/21 8:08 PM, Andre Przywara wrote:
+> > Add simple "allwinner,sun50i-h616-xxx" compatible names to existing
+> > bindings, and pair them with an existing fallback compatible string,
+> > as the devices are compatible.
+> > This covers I2C, infrared, RTC and SPI.
+> > 
+> > Use enums to group all compatible devices together.
+> > 
+> > Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+> > Acked-by: Rob Herring <robh@kernel.org>
+> > Acked-by: Wolfram Sang <wsa@kernel.org> # for I2C
+> > ---
+> >  .../bindings/i2c/marvell,mv64xxx-i2c.yaml     | 21 +++++++------------
+> >  .../media/allwinner,sun4i-a10-ir.yaml         | 16 ++++++--------
+> >  .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml |  3 +++
+> >  .../bindings/spi/allwinner,sun6i-a31-spi.yaml |  1 +
+> >  4 files changed, 17 insertions(+), 24 deletions(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+> > index 5b5ae402f97a..eb72dd571def 100644
+> > --- a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+> > +++ b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+> > @@ -18,21 +18,14 @@ properties:
+> >            - const: allwinner,sun4i-a10-i2c
+> >        - const: allwinner,sun6i-a31-i2c
+> >        - items:
+> > -          - const: allwinner,sun8i-a23-i2c
+> > +          - enum:
+> > +              - allwinner,sun8i-a23-i2c
+> > +              - allwinner,sun8i-a83t-i2c
+> > +              - allwinner,sun50i-a64-i2c
+> > +              - allwinner,sun50i-a100-i2c
+> > +              - allwinner,sun50i-h6-i2c
+> > +              - allwinner,sun50i-h616-i2c
+> >            - const: allwinner,sun6i-a31-i2c
+> > -      - items:
+> > -          - const: allwinner,sun8i-a83t-i2c
+> > -          - const: allwinner,sun6i-a31-i2c
+> > -      - items:
+> > -          - const: allwinner,sun50i-a64-i2c
+> > -          - const: allwinner,sun6i-a31-i2c
+> > -      - items:
+> > -          - const: allwinner,sun50i-a100-i2c
+> > -          - const: allwinner,sun6i-a31-i2c
+> > -      - items:
+> > -          - const: allwinner,sun50i-h6-i2c
+> > -          - const: allwinner,sun6i-a31-i2c
+> > -
+> >        - const: marvell,mv64xxx-i2c
+> >        - const: marvell,mv78230-i2c
+> >        - const: marvell,mv78230-a0-i2c
+> > diff --git a/Documentation/devicetree/bindings/media/allwinner,sun4i-a10-ir.yaml b/Documentation/devicetree/bindings/media/allwinner,sun4i-a10-ir.yaml
+> > index 5fa19d4aeaf3..6d8395d6bca0 100644
+> > --- a/Documentation/devicetree/bindings/media/allwinner,sun4i-a10-ir.yaml
+> > +++ b/Documentation/devicetree/bindings/media/allwinner,sun4i-a10-ir.yaml
+> > @@ -20,16 +20,12 @@ properties:
+> >        - const: allwinner,sun5i-a13-ir
+> >        - const: allwinner,sun6i-a31-ir
+> >        - items:
+> > -          - const: allwinner,sun8i-a83t-ir
+> > -          - const: allwinner,sun6i-a31-ir
+> > -      - items:
+> > -          - const: allwinner,sun8i-r40-ir
+> > -          - const: allwinner,sun6i-a31-ir
+> > -      - items:
+> > -          - const: allwinner,sun50i-a64-ir
+> > -          - const: allwinner,sun6i-a31-ir
+> > -      - items:
+> > -          - const: allwinner,sun50i-h6-ir
+> > +          - enum:
+> > +              - allwinner,sun8i-a83t-ir
+> > +              - allwinner,sun8i-r40-ir
+> > +              - allwinner,sun50i-a64-ir
+> > +              - allwinner,sun50i-h6-ir
+> > +              - allwinner,sun50i-h616-ir
+> >            - const: allwinner,sun6i-a31-ir
+> >  
+> >    reg:
+> > diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+> > index 37c2a601c3fa..97928efd2bc9 100644
+> > --- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+> > +++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+> > @@ -26,6 +26,9 @@ properties:
+> >            - const: allwinner,sun50i-a64-rtc
+> >            - const: allwinner,sun8i-h3-rtc
+> >        - const: allwinner,sun50i-h6-rtc
+> > +      - items:
+> > +          - const: allwinner,sun50i-h616-rtc
+> > +          - const: allwinner,sun50i-h6-rtc  
+> 
+> Since H6, the RTC manages the 24 MHz DCXO, so it provides a fourth clock
+> output. If this is easy to change later, then it is fine for now, but
+> maybe it is better to get the H616 binding correct from the beginning?
+
+So you mean that RTC register +0x160 controls the system HOSC clock,
+so the main input clock for all the PLLs and other clocks? And by
+clearing bit 1 in there we can stop this?
+
+And if that is the case, do you suggest that we should model this in
+the DT, so that the fixed-clock "<&osc24M>" should be replaced with
+"<&rtc 3>"?
+
+So from a "the DT describes the hardware" point of view that would
+probably the right way, but not sure if Linux is happy about that. At
+the very least that would mean to extend the RTC driver to export a
+fourth clock, and all devices would now depend on the RTC (also for
+probing!). And Linux can realistically never turn that clock off
+anyway (without grinding to a halt), so this register is more useful
+for ARISC firmware?
+
+So I am somewhat undecided: changing this for the H6 would make newer
+DTs unusable on older kernels, without anything we really gain. When
+we really want this, we should indeed use the opportunity to
+introduce this at least for the H616 from day one, to avoid this
+situation here.
+But this requires more changes than just the binding, doesn't it?
+
+Cheers,
+Andre
+  
+> 
+> >    reg:
+> >      maxItems: 1
+> > diff --git a/Documentation/devicetree/bindings/spi/allwinner,sun6i-a31-spi.yaml b/Documentation/devicetree/bindings/spi/allwinner,sun6i-a31-spi.yaml
+> > index 7866a655d81c..908248260afa 100644
+> > --- a/Documentation/devicetree/bindings/spi/allwinner,sun6i-a31-spi.yaml
+> > +++ b/Documentation/devicetree/bindings/spi/allwinner,sun6i-a31-spi.yaml
+> > @@ -25,6 +25,7 @@ properties:
+> >            - enum:
+> >                - allwinner,sun8i-r40-spi
+> >                - allwinner,sun50i-h6-spi
+> > +              - allwinner,sun50i-h616-spi
+> >            - const: allwinner,sun8i-h3-spi
+> >  
+> >    reg:
+> >   
+> 
 
