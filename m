@@ -2,82 +2,119 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0763DC43331
-	for <linux-i2c@archiver.kernel.org>; Thu, 28 Jan 2021 09:29:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71883C433DB
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 Jan 2021 09:47:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CBFCB64DEC
-	for <linux-i2c@archiver.kernel.org>; Thu, 28 Jan 2021 09:29:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2082064DD6
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 Jan 2021 09:47:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232361AbhA1JUV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 28 Jan 2021 04:20:21 -0500
-Received: from www.zeus03.de ([194.117.254.33]:49440 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232435AbhA1JQ1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 28 Jan 2021 04:16:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=Ce3BwYuGIywXjpBlp+osaGxqEMp0
-        dpdIYyXZq2m7nmo=; b=aUkpaR/TjM15D/MW7HK4mN+yAObjpPPSTs15X6whYOMn
-        OwTu19ZFHeQD877kBKTTZ0L1npM3Qz9OrvpNz83HAtZQxszEbRoE1Q9q0LK7DuHi
-        Mof+8J1doCX/nQd0qWBEOHVD67q6aliwvVe7bbHMrqieWBsigoZF+PMqx8dwCLQ=
-Received: (qmail 166700 invoked from network); 28 Jan 2021 10:15:43 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 28 Jan 2021 10:15:43 +0100
-X-UD-Smtp-Session: l3s3148p1@n4oMVfK5eJQgAwDPXyX1AEdA8SGgn5QT
-Date:   Thu, 28 Jan 2021 10:15:43 +0100
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH 1/2] i2c: smbus: don't abuse loop variable
-Message-ID: <20210128091543.GH963@ninjato>
-References: <20210112151230.46518-1-wsa+renesas@sang-engineering.com>
- <20210112151230.46518-2-wsa+renesas@sang-engineering.com>
+        id S231267AbhA1Jqm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 28 Jan 2021 04:46:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38388 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229785AbhA1JpD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 28 Jan 2021 04:45:03 -0500
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 355F2C061756
+        for <linux-i2c@vger.kernel.org>; Thu, 28 Jan 2021 01:44:22 -0800 (PST)
+Received: by mail-ej1-x636.google.com with SMTP id gx5so6762235ejb.7
+        for <linux-i2c@vger.kernel.org>; Thu, 28 Jan 2021 01:44:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=SoCmbGxN/aO/kMcp3ztDvA2jTIObtogCqRK1+lIzWfA=;
+        b=oqpFU4MLxEO7C9YvlPwddm12aFeciDO382Q47IoKOi3ls4NYbIibDT0ss7Tnf4Bwsm
+         pVE6cROJYJcgp2SoTTjLQ7vPOxSyOexkDPcH639ixiLGoOhsAdX4ABh9Egnke8Lk6HFZ
+         NGE8WDGxpJCFo+BD0BZ8LNXf+fQ9eax70X8RZlQmNUvFQcBWTY3cHvtKv/eumpN+8/a9
+         9PZfWDKV5jUND+Kw/QKWvQ4yhKRm5IGK+XzmVmuykp+GaKvgR1DvCgKrLYnx4RdZKSJu
+         7S+0foOLHxcFNcOVU7MBEquAjyKaAGsMeZgGAAhdnX1YSxULhwpShF+TACdNI/ENrpEo
+         Goxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SoCmbGxN/aO/kMcp3ztDvA2jTIObtogCqRK1+lIzWfA=;
+        b=bFAcZIC5z/whhGpXbrZyKI3rLk3X/uO6+BTU8md4KLjVF1ci17FUBLZe0QTX7RjGZ/
+         uggHYK9Pel5RNFIqtsQ0fpDrLdX5zRMqp0HYFOhn9UI0SA+5ACVs8/U4U4KhHxkmGzDW
+         Q4CS3xwNmZ+KHb2QnI3N7/VcOPCMHcsizeQWVcQiYGislO3yeEJfO/O1Ug1VqTC5leZz
+         3qBljbg653VxrAxgS414qDtYvHKQ0D9NhUcs+CP98hyih5cgcaCVK8iY8GGl0mp/TAp6
+         87VYlaaq3PnjGZZMk4LcE1uKcG1YESKvWSR89DpLn/kdF/XadVaGjcOvFWZWmLPXclF/
+         0aiw==
+X-Gm-Message-State: AOAM530jxHdLfW7M33uhdjzSvduoHYPi+xLTyRYfah5BxCQaL1xuSBxe
+        Jkcv36NOzK94hozLq7JKKJ/WYbh5XwWE3R00D8G4Lw==
+X-Google-Smtp-Source: ABdhPJw+bEQ61E9n+dxT4VZUxb9uxr8oP2NUtJj9jFKlnJGI7qmHaQTDBvD9FryzOOMcwj3liYroiqFH/335Zoi//TQ=
+X-Received: by 2002:a17:907:2632:: with SMTP id aq18mr3193614ejc.445.1611827060831;
+ Thu, 28 Jan 2021 01:44:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ik0NlRzMGhMnxrMX"
-Content-Disposition: inline
-In-Reply-To: <20210112151230.46518-2-wsa+renesas@sang-engineering.com>
+References: <20210128081030.2345998-1-hsiufangho@google.com>
+ <CAMpxmJWMMMNYj-U3WXGBa2GOO1xLze44ABnxnBo6-owgUwWwog@mail.gmail.com> <YBJ/3UuIMyfjpMHg@kroah.com>
+In-Reply-To: <YBJ/3UuIMyfjpMHg@kroah.com>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Thu, 28 Jan 2021 10:44:10 +0100
+Message-ID: <CAMpxmJXejQjbR1qZEYTcyrFUYivJ5_U0Tchmh5V4ZqOi5NK=7A@mail.gmail.com>
+Subject: Re: [PATCH] eeprom: at24: Add permission to write_timeout
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Jenny Ho <hsiufangho@google.com>, Arnd Bergmann <arnd@arndb.de>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Thu, Jan 28, 2021 at 10:12 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Jan 28, 2021 at 10:04:42AM +0100, Bartosz Golaszewski wrote:
+> > On Thu, Jan 28, 2021 at 9:10 AM Jenny Ho <hsiufangho@google.com> wrote:
+> > >
+> > > Need to change timeout time for different use
+> > > cases to prevent I2C error cases. Open the api
+> > > and allow Read/Write permission to write_timeout
+> > >
+> > > Signed-off-by: Jenny Ho <hsiufangho@google.com>
+> > > ---
+> > >  drivers/misc/eeprom/at24.c | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> > > index 926408b41270..39caead4058c 100644
+> > > --- a/drivers/misc/eeprom/at24.c
+> > > +++ b/drivers/misc/eeprom/at24.c
+> > > @@ -117,7 +117,7 @@ MODULE_PARM_DESC(at24_io_limit, "Maximum bytes per I/O (default 128)");
+> > >   * it's important to recover from write timeouts.
+> > >   */
+> > >  static unsigned int at24_write_timeout = 25;
+> > > -module_param_named(write_timeout, at24_write_timeout, uint, 0);
+> > > +module_param_named(write_timeout, at24_write_timeout, uint, 0600);
+> > >  MODULE_PARM_DESC(at24_write_timeout, "Time (in ms) to try writes (default 25)");
+> > >
+> > >  struct at24_chip_data {
+> > > --
+> > > 2.30.0.280.ga3ce27912f-goog
+> > >
+> >
+> > IMO this should be a per-chip device property and not a global module
+> > param. Any chance you could maybe try and extend the driver with a new
+> > property for that?
+>
+> This already is a global module parameter :)
+>
 
---ik0NlRzMGhMnxrMX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I know but if we're touching it, then better do the right thing. :)
 
-On Tue, Jan 12, 2021 at 04:12:29PM +0100, Wolfram Sang wrote:
-> Don't use 'i' to carry data, make a specific variable for it. After the
-> move to memcpy recently, we can even remove 'i'.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> But I agree, having it per-device would be much better, a sysfs
+> attribute would easily work for that.
+>
 
-Applied to for-next, thanks!
+I was thinking about a generic device property that could be set from
+device tree etc. I doubt there's much need to change this at runtime
+outside of development?
 
-
---ik0NlRzMGhMnxrMX
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmASgLsACgkQFA3kzBSg
-KbYEOg/+PKEgbRA2NiBtzk21Qa8j/cADvF5RMtig93vUTLkvBySAPfeadBiGo0DV
-bJgAQR+P/UW9iudmYk8KufCsGVl94Ubh9ZR0+7M2Sio0iahWdfPdUclPec9klb4B
-W5H4ejrjzyHDk5JWhTUE6+CWJWD+2GoUOg3F4c/DbQUm6hjy3wYyAsg4Z3P7Pc6E
-B8beEUcGL8a6biiNniqpCwH5+O1Z15dW3le0WuPFryPtbQyMazwPQd4d5Y48AvwD
-EsACtXHnBrLg81ArcA07GdPNZmsEwvaXu7aM0Bz+skjzf1qv43M2jylCw0W/4IN+
-9/GMPAouiPqYO7RYylIK7e+/bQsZBLiMcmTXiQdOD9RH0+DnjVtXrSndYJqEZq/4
-bBwsbs2LfAWKwA/zUpPGJrgYSZbmMkZPVv5lxb0uETRTR6BtrlpnhD6tm81WC54V
-YvJd9YBp1APbdzPIK6nJBamDNH33k1MSfqeRtCD4yNuEzLQ8tloQV2z/AYc7lXa8
-XsEY1814Gi5d6cBhE6JzAZvPgcWHZIIZJJhxBp1EGto2nFcb0zx1lpsstJ0Gs/fF
-XK4qHtuhegyml/FjYBxs5g+ePfoDtJPx+kPMCdT7Ib9V7MBRql/Pme4bjSTqVNew
-NVe/bn8zD+nQBXWBdZBc9loNnXbdts0AL0pgj1bM66cRUKc3zmE=
-=9pGe
------END PGP SIGNATURE-----
-
---ik0NlRzMGhMnxrMX--
+Bart
