@@ -2,305 +2,172 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D06A6C433E0
-	for <linux-i2c@archiver.kernel.org>; Fri, 29 Jan 2021 19:29:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1A69C433E0
+	for <linux-i2c@archiver.kernel.org>; Fri, 29 Jan 2021 21:24:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 770E864DE3
-	for <linux-i2c@archiver.kernel.org>; Fri, 29 Jan 2021 19:29:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A58F64E0B
+	for <linux-i2c@archiver.kernel.org>; Fri, 29 Jan 2021 21:24:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233076AbhA2T2u (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 29 Jan 2021 14:28:50 -0500
-Received: from mout.kundenserver.de ([212.227.17.10]:57697 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233045AbhA2T2j (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 29 Jan 2021 14:28:39 -0500
-Received: from envy.fritz.box ([87.123.100.109]) by mrelayeu.kundenserver.de
- (mreue108 [213.165.67.113]) with ESMTPSA (Nemesis) id
- 1M2w8Y-1l6gOn1pgS-003IpU; Fri, 29 Jan 2021 20:25:57 +0100
-From:   mail@richard-neumann.de
-To:     syniurge@gmail.com, nehal-bakulchandra.shah@amd.com,
-        shyam-sundar.s-k@amd.com, mail@richard-neumann.de,
-        andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/2] i2c: i2c-amd-mp2: Remove NIH logging functions
-Date:   Fri, 29 Jan 2021 20:25:52 +0100
-Message-Id: <20210129192553.55906-2-mail@richard-neumann.de>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210129192553.55906-1-mail@richard-neumann.de>
-References: <20210129192553.55906-1-mail@richard-neumann.de>
+        id S233214AbhA2VYG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 29 Jan 2021 16:24:06 -0500
+Received: from mga06.intel.com ([134.134.136.31]:9705 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232776AbhA2VYF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 29 Jan 2021 16:24:05 -0500
+IronPort-SDR: B/YHyPl/so9M/APay8n/FyCmVMrrYqBaln1DLKVX3IOEc+lTuzEULWj1/PSbmdk9RxQSL8uJA3
+ MEL5Yuktjxmg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9879"; a="242005593"
+X-IronPort-AV: E=Sophos;i="5.79,386,1602572400"; 
+   d="scan'208";a="242005593"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2021 13:22:19 -0800
+IronPort-SDR: 8TLGKFkxh7yP7CkNxzB+YxP0Zrq2iIwPA5OEWVGItUxtV3d8iJghJPpWQwbX40LoPBcaFfGbW8
+ w6+hW1T+bo1A==
+X-IronPort-AV: E=Sophos;i="5.79,386,1602572400"; 
+   d="scan'208";a="370545067"
+Received: from paasikivi.fi.intel.com ([10.237.72.42])
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2021 13:22:14 -0800
+Received: by paasikivi.fi.intel.com (Postfix, from userid 1000)
+        id D8B8B211D8; Fri, 29 Jan 2021 23:22:11 +0200 (EET)
+Date:   Fri, 29 Jan 2021 23:22:11 +0200
+From:   Sakari Ailus <sakari.ailus@linux.intel.com>
+To:     "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     linux-i2c <linux-i2c@vger.kernel.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Mani, Rajmohan" <rajmohan.mani@intel.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
+        Hyungwoo Yang <hyungwoo.yang@intel.com>,
+        Linux Media Mailing List <linux-media@vger.kernel.org>
+Subject: Re: [PATCH v9 1/7] ACPI: scan: Obtain device's desired enumeration
+ power state
+Message-ID: <20210129212211.GK32460@paasikivi.fi.intel.com>
+References: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
+ <20210128232729.16064-1-sakari.ailus@linux.intel.com>
+ <CAJZ5v0hdG1W0D5E6GbrTDiAjMyC0mSgb3Z2WEBy3hhb4iJhDNw@mail.gmail.com>
+ <20210129164522.GJ32460@paasikivi.fi.intel.com>
+ <CAJZ5v0iJB80QX9ze9_hpNP4R-+C36Rvn8d+7S-4-guWrN=SiWQ@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:RMNLIRuQ4L4YfhVs6P/qlVnIHdQFlvmYBpM7hC0CAORQNJy6L5V
- /rB7STI1+QSkBf78L+P3ASftgCvvNIXZNDqey/V/m4M/NVEZwBrV8nfV+Fg/tf3BHr4Y/dy
- KdvkZWOn+8jU2/53+FsYjpuUFoV40lECeOQTyn3X/n7PPyefeHJH/Og32mkDqSoJXlyLaMQ
- RYIoUjV1GOTl7rknAvrhA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:7zsIC2GBltI=:k9t1SoPp0a2b7am4Qvn85K
- xA3ETG+smvF0sUYihv5xJET8pXi/kZlfUOd05Si71LxwmasGne/x+tvN4d+s+U/XboWDxzQWB
- 1etZuFdwSFWmSaJS7Y9FgrYtj2AVizGcux9crEpfzPOGwrf7KMVXFU5y2WbM3haa36K/+5xaD
- iSF9aUO5IQ/UBQqs6zA22DfNRIPWq6/e7X0yuzf/sFYPF3Qp68E6WtQmRcBhDKADRqf0Iwq2V
- YJW1jHD8l4nutrs9ty+mWrylfMGpboIPdGQeEzuwNy9Qo20+SmkyeaO6ze/DxofDxRse/Hvz8
- X1VztkK4LCpZd7x/4NAIfudlOMhNPnYHNc2mqnS4ApElZyo8X9BQo2B5NQ8E+g4iUQK9kOTMz
- G1wAg9pWGiqU/NjzZavQTcxrkDA5npn9qQTcVE/e45jXe3PThO+O5CttLygpH1GqJRIFwAgED
- gCwxXvbz9w==
+In-Reply-To: <CAJZ5v0iJB80QX9ze9_hpNP4R-+C36Rvn8d+7S-4-guWrN=SiWQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Richard Neumann <mail@richard-neumann.de>
+On Fri, Jan 29, 2021 at 05:57:17PM +0100, Rafael J. Wysocki wrote:
+> On Fri, Jan 29, 2021 at 5:45 PM Sakari Ailus
+> <sakari.ailus@linux.intel.com> wrote:
+> >
+> > Hi Rafael,
+> >
+> > Thanks for the comments.
+> >
+> > On Fri, Jan 29, 2021 at 03:07:57PM +0100, Rafael J. Wysocki wrote:
+> > > On Fri, Jan 29, 2021 at 12:27 AM Sakari Ailus
+> > > <sakari.ailus@linux.intel.com> wrote:
+> > > >
+> > > > Store a device's desired enumeration power state in struct
+> > > > acpi_device_power_flags during acpi_device object's initialisation.
+> > > >
+> > > > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> > > > ---
+> > > >  drivers/acpi/scan.c     | 6 ++++++
+> > > >  include/acpi/acpi_bus.h | 3 ++-
+> > > >  2 files changed, 8 insertions(+), 1 deletion(-)
+> > > >
+> > > > diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+> > > > index 1d7a02ee45e05..b077c645c9845 100644
+> > > > --- a/drivers/acpi/scan.c
+> > > > +++ b/drivers/acpi/scan.c
+> > > > @@ -987,6 +987,8 @@ static void acpi_bus_init_power_state(struct acpi_device *device, int state)
+> > > >
+> > > >  static void acpi_bus_get_power_flags(struct acpi_device *device)
+> > > >  {
+> > > > +       unsigned long long pre;
+> > > > +       acpi_status status;
+> > > >         u32 i;
+> > > >
+> > > >         /* Presence of _PS0|_PR0 indicates 'power manageable' */
+> > > > @@ -1008,6 +1010,10 @@ static void acpi_bus_get_power_flags(struct acpi_device *device)
+> > > >         if (acpi_has_method(device->handle, "_DSW"))
+> > > >                 device->power.flags.dsw_present = 1;
+> > > >
+> > > > +       status = acpi_evaluate_integer(device->handle, "_PRE", NULL, &pre);
+> > > > +       if (ACPI_SUCCESS(status) && !pre)
+> > > > +               device->power.flags.allow_low_power_probe = 1;
+> > >
+> > > While this is what has been discussed and thanks for taking it into
+> > > account, I'm now thinking that it may be cleaner to introduce a new
+> > > object to return the deepest power state of the device in which it can
+> > > be enumerated, say _DSE (Device State for Enumeration) such that 4
+> > > means D3cold, 3 - D3hot and so on, so the above check can be replaced
+> > > with something like
+> > >
+> > > status = acpi_evaluate_integer(device->handle, "_PRE", NULL, &dse);
+> >
+> > s/_PRE/_DSE/
+> >
+> > ?
+> 
+> Yes, sorry.
+> 
+> >
+> > > if (ACPI_FAILURE(status))
+> >
+> > ACPI_SUCCESS?
+> 
+> Yup.
+> 
+> > >         device->power.state_for_enumeratin = dse;
+> > >
+> > > And then, it is a matter of comparing ->power.state_for_enumeratin
+> > > with ->power.state and putting the device into D0 if the former is
+> > > shallower than the latter.
+> > >
+> > > What do you think?
+> >
+> > Sounds good. How about calling the function e.g.
+> > acpi_device_resume_for_probe(), so runtime PM could be used to resume the
+> > device if the function returns true?
+> 
+> I'd rather try to power it up before enabling runtime PM, because in
+> order to do the latter properly, you need to know if the device is
+> active or suspended to start with.
+> 
+> So you need something like (pseudo-code)
+> 
+> if (this_device_needs_to_be_on(ACPI_COMPANION(dev))) {
+>    acpi_device_set_power(ACPI_COMPANION(dev), ACPI_STATE_D0);
+>    pm_runtime_set_active(dev);
+> } else {
+>    pm_runtime_set_suspended(dev);
 
-Use pci_{info,warn,err,dbg} functions of the kernel's PCI API.
-Remove unnecessary ndev_pdev, ndev_name and ndev_dev macros.
-Remove useless __func__ from logging.
+I guess the else branch isn't needed? The device remains suspended if its
+state hasn't been changed.
 
-Signed-off-by: Richard Neumann <mail@richard-neumann.de>
----
- drivers/i2c/busses/i2c-amd-mp2-pci.c  | 53 +++++++++++++--------------
- drivers/i2c/busses/i2c-amd-mp2-plat.c |  3 +-
- drivers/i2c/busses/i2c-amd-mp2.h      |  3 --
- 3 files changed, 27 insertions(+), 32 deletions(-)
+> }
+> 
+> and then you can enable PM-runtime.
 
-diff --git a/drivers/i2c/busses/i2c-amd-mp2-pci.c b/drivers/i2c/busses/i2c-amd-mp2-pci.c
-index cd3fd5ee5f65..1067932f2457 100644
---- a/drivers/i2c/busses/i2c-amd-mp2-pci.c
-+++ b/drivers/i2c/busses/i2c-amd-mp2-pci.c
-@@ -30,7 +30,7 @@ static void amd_mp2_c2p_mutex_unlock(struct amd_i2c_common *i2c_common)
- 	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
- 
- 	if (unlikely(privdata->c2p_lock_busid != i2c_common->bus_id)) {
--		dev_warn(ndev_dev(privdata),
-+		pci_warn(privdata->pci_dev,
- 			 "bus %d attempting to unlock C2P locked by bus %d\n",
- 			 i2c_common->bus_id, privdata->c2p_lock_busid);
- 		return;
-@@ -59,8 +59,7 @@ int amd_mp2_bus_enable_set(struct amd_i2c_common *i2c_common, bool enable)
- 	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
- 	union i2c_cmd_base i2c_cmd_base;
- 
--	dev_dbg(ndev_dev(privdata), "%s id: %d\n", __func__,
--		i2c_common->bus_id);
-+	pci_dbg(privdata->pci_dev, "id: %d\n", i2c_common->bus_id);
- 
- 	i2c_cmd_base.ul = 0;
- 	i2c_cmd_base.s.i2c_cmd = enable ? i2c_enable : i2c_disable;
-@@ -111,20 +110,20 @@ EXPORT_SYMBOL_GPL(amd_mp2_rw);
- static void amd_mp2_pci_check_rw_event(struct amd_i2c_common *i2c_common)
- {
- 	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
-+	struct pci_dev *pdev = privdata->pci_dev;
- 	int len = i2c_common->eventval.r.length;
- 	u32 slave_addr = i2c_common->eventval.r.slave_addr;
- 	bool err = false;
- 
- 	if (unlikely(len != i2c_common->msg->len)) {
--		dev_err(ndev_dev(privdata),
-+		pci_err(pdev,
- 			"length %d in event doesn't match buffer length %d!\n",
- 			len, i2c_common->msg->len);
- 		err = true;
- 	}
- 
- 	if (unlikely(slave_addr != i2c_common->msg->addr)) {
--		dev_err(ndev_dev(privdata),
--			"unexpected slave address %x (expected: %x)!\n",
-+		pci_err(pdev, "unexpected slave address %x (expected: %x)!\n",
- 			slave_addr, i2c_common->msg->addr);
- 		err = true;
- 	}
-@@ -136,13 +135,14 @@ static void amd_mp2_pci_check_rw_event(struct amd_i2c_common *i2c_common)
- static void __amd_mp2_process_event(struct amd_i2c_common *i2c_common)
- {
- 	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
-+	struct pci_dev *pdev = privdata->pci_dev;
- 	enum status_type sts = i2c_common->eventval.r.status;
- 	enum response_type res = i2c_common->eventval.r.response;
- 	int len = i2c_common->eventval.r.length;
- 
- 	if (res != command_success) {
- 		if (res != command_failed)
--			dev_err(ndev_dev(privdata), "invalid response to i2c command!\n");
-+			pci_err(pdev, "invalid response to i2c command!\n");
- 		return;
- 	}
- 
-@@ -155,22 +155,22 @@ static void __amd_mp2_process_event(struct amd_i2c_common *i2c_common)
- 					      privdata->mmio + AMD_C2P_MSG2,
- 					      len);
- 		} else if (sts != i2c_readfail_event) {
--			dev_err(ndev_dev(privdata),
--				"invalid i2c status after read (%d)!\n", sts);
-+			pci_err(pdev, "invalid i2c status after read (%d)!\n",
-+				sts);
- 		}
- 		break;
- 	case i2c_write:
- 		if (sts == i2c_writecomplete_event)
- 			amd_mp2_pci_check_rw_event(i2c_common);
- 		else if (sts != i2c_writefail_event)
--			dev_err(ndev_dev(privdata),
--				"invalid i2c status after write (%d)!\n", sts);
-+			pci_err(pdev, "invalid i2c status after write (%d)!\n",
-+				sts);
- 		break;
- 	case i2c_enable:
- 		if (sts == i2c_busenable_complete)
- 			i2c_common->cmd_success = true;
- 		else if (sts != i2c_busenable_failed)
--			dev_err(ndev_dev(privdata),
-+			pci_err(pdev,
- 				"invalid i2c status after bus enable (%d)!\n",
- 				sts);
- 		break;
-@@ -178,7 +178,7 @@ static void __amd_mp2_process_event(struct amd_i2c_common *i2c_common)
- 		if (sts == i2c_busdisable_complete)
- 			i2c_common->cmd_success = true;
- 		else if (sts != i2c_busdisable_failed)
--			dev_err(ndev_dev(privdata),
-+			pci_err(pdev,
- 				"invalid i2c status after bus disable (%d)!\n",
- 				sts);
- 		break;
-@@ -190,10 +190,10 @@ static void __amd_mp2_process_event(struct amd_i2c_common *i2c_common)
- void amd_mp2_process_event(struct amd_i2c_common *i2c_common)
- {
- 	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
-+	struct pci_dev *pdev = privdata->pci_dev;
- 
- 	if (unlikely(i2c_common->reqcmd == i2c_none)) {
--		dev_warn(ndev_dev(privdata),
--			 "received msg but no cmd was sent (bus = %d)!\n",
-+		pci_warn(pdev, "received msg but no cmd was sent (bus = %d)!\n",
- 			 i2c_common->bus_id);
- 		return;
- 	}
-@@ -208,6 +208,7 @@ EXPORT_SYMBOL_GPL(amd_mp2_process_event);
- static irqreturn_t amd_mp2_irq_isr(int irq, void *dev)
- {
- 	struct amd_mp2_dev *privdata = dev;
-+	struct pci_dev *pdev = privdata->pci_dev;
- 	struct amd_i2c_common *i2c_common;
- 	u32 val;
- 	unsigned int bus_id;
-@@ -236,8 +237,7 @@ static irqreturn_t amd_mp2_irq_isr(int irq, void *dev)
- 		val = readl(privdata->mmio + AMD_P2C_MSG_INTEN);
- 		if (val != 0) {
- 			writel(0, privdata->mmio + AMD_P2C_MSG_INTEN);
--			dev_warn(ndev_dev(privdata),
--				 "received irq without message\n");
-+			pci_warn(pdev, "received irq without message\n");
- 			ret = IRQ_HANDLED;
- 		}
- 	}
-@@ -255,13 +255,13 @@ EXPORT_SYMBOL_GPL(amd_mp2_rw_timeout);
- int amd_mp2_register_cb(struct amd_i2c_common *i2c_common)
- {
- 	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
-+	struct pci_dev *pdev = privdata->pci_dev;
- 
- 	if (i2c_common->bus_id > 1)
- 		return -EINVAL;
- 
- 	if (privdata->busses[i2c_common->bus_id]) {
--		dev_err(ndev_dev(privdata),
--			"Bus %d already taken!\n", i2c_common->bus_id);
-+		pci_err(pdev, "Bus %d already taken!\n", i2c_common->bus_id);
- 		return -EINVAL;
- 	}
- 
-@@ -301,13 +301,13 @@ static int amd_mp2_pci_init(struct amd_mp2_dev *privdata,
- 
- 	rc = pcim_enable_device(pci_dev);
- 	if (rc) {
--		dev_err(ndev_dev(privdata), "Failed to enable MP2 PCI device\n");
-+		pci_err(pci_dev, "Failed to enable MP2 PCI device\n");
- 		goto err_pci_enable;
- 	}
- 
- 	rc = pcim_iomap_regions(pci_dev, 1 << 2, pci_name(pci_dev));
- 	if (rc) {
--		dev_err(ndev_dev(privdata), "I/O memory remapping failed\n");
-+		pci_err(pci_dev, "I/O memory remapping failed\n");
- 		goto err_pci_enable;
- 	}
- 	privdata->mmio = pcim_iomap_table(pci_dev)[2];
-@@ -327,7 +327,7 @@ static int amd_mp2_pci_init(struct amd_mp2_dev *privdata,
- 	rc = devm_request_irq(&pci_dev->dev, pci_dev->irq, amd_mp2_irq_isr,
- 			      IRQF_SHARED, dev_name(&pci_dev->dev), privdata);
- 	if (rc)
--		dev_err(&pci_dev->dev, "Failure requesting irq %i: %d\n",
-+		pci_err(pci_dev, "Failure requesting irq %i: %d\n",
- 			pci_dev->irq, rc);
- 
- 	return rc;
-@@ -363,7 +363,7 @@ static int amd_mp2_pci_probe(struct pci_dev *pci_dev,
- 
- 	privdata->probed = true;
- 
--	dev_info(&pci_dev->dev, "MP2 device registered.\n");
-+	pci_info(pci_dev, "MP2 device registered.\n");
- 	return 0;
- }
- 
-@@ -385,6 +385,7 @@ static int amd_mp2_pci_suspend(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
- 	struct amd_mp2_dev *privdata = pci_get_drvdata(pci_dev);
-+	struct pci_dev *pdev = privdata->pci_dev;
- 	struct amd_i2c_common *i2c_common;
- 	unsigned int bus_id;
- 	int ret = 0;
-@@ -397,8 +398,7 @@ static int amd_mp2_pci_suspend(struct device *dev)
- 
- 	ret = pci_save_state(pci_dev);
- 	if (ret) {
--		dev_err(ndev_dev(privdata),
--			"pci_save_state failed = %d\n", ret);
-+		pci_err(pdev, "pci_save_state failed = %d\n", ret);
- 		return ret;
- 	}
- 
-@@ -417,8 +417,7 @@ static int amd_mp2_pci_resume(struct device *dev)
- 	pci_restore_state(pci_dev);
- 	ret = pci_enable_device(pci_dev);
- 	if (ret < 0) {
--		dev_err(ndev_dev(privdata),
--			"pci_enable_device failed = %d\n", ret);
-+		pci_err(pci_dev, "pci_enable_device failed = %d\n", ret);
- 		return ret;
- 	}
- 
-diff --git a/drivers/i2c/busses/i2c-amd-mp2-plat.c b/drivers/i2c/busses/i2c-amd-mp2-plat.c
-index 506433bc0ff2..de058671f9b8 100644
---- a/drivers/i2c/busses/i2c-amd-mp2-plat.c
-+++ b/drivers/i2c/busses/i2c-amd-mp2-plat.c
-@@ -88,8 +88,7 @@ static void i2c_amd_cmd_completion(struct amd_i2c_common *i2c_common)
- 	union i2c_event *event = &i2c_common->eventval;
- 
- 	if (event->r.status == i2c_readcomplete_event)
--		dev_dbg(&i2c_dev->pdev->dev, "%s readdata:%*ph\n",
--			__func__, event->r.length,
-+		dev_dbg(&i2c_dev->pdev->dev, "readdata:%*ph\n", event->r.length,
- 			i2c_common->msg->buf);
- 
- 	complete(&i2c_dev->cmd_complete);
-diff --git a/drivers/i2c/busses/i2c-amd-mp2.h b/drivers/i2c/busses/i2c-amd-mp2.h
-index 058362edebaa..6b91e285745d 100644
---- a/drivers/i2c/busses/i2c-amd-mp2.h
-+++ b/drivers/i2c/busses/i2c-amd-mp2.h
-@@ -185,9 +185,6 @@ struct amd_mp2_dev {
- 	unsigned int probed;
- };
- 
--#define ndev_pdev(ndev) ((ndev)->pci_dev)
--#define ndev_name(ndev) pci_name(ndev_pdev(ndev))
--#define ndev_dev(ndev) (&ndev_pdev(ndev)->dev)
- #define work_amd_i2c_common(__work) \
- 	container_of(__work, struct amd_i2c_common, work.work)
- 
+Yes, agreed, this is what drivers should do. The I²C framework would use
+the function and conditionally power the device on before enabling runtime
+PM.
+
+This is how it's implemented by the set already but I think the change in
+semantics requires a little more still.
+
 -- 
-2.30.0
-
+Sakari Ailus
