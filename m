@@ -2,90 +2,80 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 162E5C43381
-	for <linux-i2c@archiver.kernel.org>; Sat, 30 Jan 2021 17:35:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13BF7C43381
+	for <linux-i2c@archiver.kernel.org>; Sun, 31 Jan 2021 20:09:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E249764E19
-	for <linux-i2c@archiver.kernel.org>; Sat, 30 Jan 2021 17:35:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B945A64E1F
+	for <linux-i2c@archiver.kernel.org>; Sun, 31 Jan 2021 20:09:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229832AbhA3Rfp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 30 Jan 2021 12:35:45 -0500
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:42618 "EHLO
-        mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S231701AbhA3Rfo (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 30 Jan 2021 12:35:44 -0500
-Received: from Internal Mail-Server by MTLPINE1 (envelope-from vadimp@nvidia.com)
-        with SMTP; 30 Jan 2021 19:34:56 +0200
-Received: from r-build-lowlevel.mtr.labs.mlnx. (r-build-lowlevel.mtr.labs.mlnx [10.209.0.190])
-        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id 10UHYnGr010866;
-        Sat, 30 Jan 2021 19:34:56 +0200
-From:   Vadim Pasternak <vadimp@nvidia.com>
-To:     peda@axentia.se, wsa@the-dreams.de
-Cc:     linux-i2c@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>
-Subject: [PATCH i2c-next v3 6/6] i2c: mux: mlxcpld: Add callback to notify mux creation completion
-Date:   Sat, 30 Jan 2021 19:34:47 +0200
-Message-Id: <20210130173447.26328-7-vadimp@nvidia.com>
-X-Mailer: git-send-email 2.11.0
-In-Reply-To: <20210130173447.26328-1-vadimp@nvidia.com>
-References: <20210130173447.26328-1-vadimp@nvidia.com>
+        id S231493AbhAaUJW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 31 Jan 2021 15:09:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42306 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231379AbhAaTqL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 31 Jan 2021 14:46:11 -0500
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F67C061A27
+        for <linux-i2c@vger.kernel.org>; Sun, 31 Jan 2021 11:35:17 -0800 (PST)
+Received: by mail-lf1-x133.google.com with SMTP id f1so19875825lfu.3
+        for <linux-i2c@vger.kernel.org>; Sun, 31 Jan 2021 11:35:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=TMdAwgGCU0UK2zGDufFD/rnwy1XjE0usi+CtbeAisS8=;
+        b=XZNf2G5ga3i/e0kxJm4Usq8ojU9pUUov9Ps2+vp3HvTpxsIJVu8VDUJLGxtXGyvwcQ
+         AAnh1Lu2EQb+IGdRHowyxfY2TJ6TxDwoC0LovnoCrtz25JVV3UJKzw3zRjVu0gFSlSnM
+         98MUPt4nnZIrbp+Jl0FWzGyR6UG9YyOQib4Pg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=TMdAwgGCU0UK2zGDufFD/rnwy1XjE0usi+CtbeAisS8=;
+        b=FKRW7TWKd4ARSBqI6FD5gUimVVCJKMcJueRflYfpeX+5U78pI4G0+fgYr0Atqa2Jjj
+         DjzfU4koTOO7qB0gFrRaY4QC66h9FLNVrqQNhWK9djnJ9ErQ9DHiqv7o2M7Mo0rhUV2y
+         wdh9UhSZ+DdK0mn/dpHVCWj2qWBgA9yfD9Fm0Mp/leOxqGH53Jcz562mIG3MT6Q2Zi4v
+         Yxq7IqYNMxMZCjZ5W94D+wbN3+oYmBDRByQtTdYrxXmLb47MpHpVW7N9Nx8PUPF3NVwg
+         NNNAK9HNy87iEBrOvQbo68uaBaa5rFy+Mmnioy6gsN6WWhDBHRUZFOGO5UAv82Q6W3ey
+         6lKQ==
+X-Gm-Message-State: AOAM530H/3D6zWy6kL9cMEoCdj/xSRLkX4pTjysvfKP5w3ThZLAZxFub
+        mB2LmWJJujmT+oZl4LhF0vOeAKpj8IzaGg==
+X-Google-Smtp-Source: ABdhPJw4qjVpQytKFEPXlWVrVNMlSBhDsfxiYtDc5aIU1EFL8yMzSNAfGXCzrqfvfkDAX0vixOo1pA==
+X-Received: by 2002:ac2:5462:: with SMTP id e2mr7330386lfn.655.1612121715436;
+        Sun, 31 Jan 2021 11:35:15 -0800 (PST)
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com. [209.85.208.177])
+        by smtp.gmail.com with ESMTPSA id 127sm3528908ljf.132.2021.01.31.11.35.14
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 31 Jan 2021 11:35:14 -0800 (PST)
+Received: by mail-lj1-f177.google.com with SMTP id y14so4314831ljn.8
+        for <linux-i2c@vger.kernel.org>; Sun, 31 Jan 2021 11:35:14 -0800 (PST)
+X-Received: by 2002:a2e:850d:: with SMTP id j13mr8269533lji.507.1612121714111;
+ Sun, 31 Jan 2021 11:35:14 -0800 (PST)
+MIME-Version: 1.0
+References: <20210131114017.GA1332@kunai>
+In-Reply-To: <20210131114017.GA1332@kunai>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sun, 31 Jan 2021 11:34:57 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiZ5-eiJbkJxQo+kXPN=wRBTGZZHKUB8eA428Uft7j1Eg@mail.gmail.com>
+Message-ID: <CAHk-=wiZ5-eiJbkJxQo+kXPN=wRBTGZZHKUB8eA428Uft7j1Eg@mail.gmail.com>
+Subject: Re: [PULL REQUEST] i2c for 5.11
+To:     Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Peter Rosin <peda@axentia.se>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add notification to inform caller that mux objects array has been
-created. It allows to user, invoked platform device registration for
-"i2c-mux-mlxcpld" driver, to be notified that mux infrastructure is
-available, and thus some devices could be connected to this
-infrastructure.
+On Sun, Jan 31, 2021 at 3:40 AM Wolfram Sang <wsa@kernel.org> wrote:
+>
+> one I2C driver update this time.
 
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
----
- drivers/i2c/muxes/i2c-mux-mlxcpld.c   | 4 ++++
- include/linux/platform_data/mlxcpld.h | 5 +++++
- 2 files changed, 9 insertions(+)
+Pulled (manual notification because the automation seems very flaky).
 
-diff --git a/drivers/i2c/muxes/i2c-mux-mlxcpld.c b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-index 5e0672f9979b..1a879f6a31ef 100644
---- a/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-+++ b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-@@ -159,6 +159,10 @@ static int mlxcpld_mux_probe(struct platform_device *pdev)
- 			goto virt_reg_failed;
- 	}
- 
-+	/* Notify caller when all channels' adapters are created. */
-+	if (pdata->completion_notify)
-+		pdata->completion_notify(pdata->handle, muxc->parent, muxc->adapter);
-+
- 	return 0;
- 
- virt_reg_failed:
-diff --git a/include/linux/platform_data/mlxcpld.h b/include/linux/platform_data/mlxcpld.h
-index a7bee798d991..d7610b528856 100644
---- a/include/linux/platform_data/mlxcpld.h
-+++ b/include/linux/platform_data/mlxcpld.h
-@@ -15,12 +15,17 @@
-  * @num_adaps - number of adapters
-  * @sel_reg_addr - mux select register offset in CPLD space
-  * @reg_size: register size in bytes
-+ * @handle: handle to be passed by callback
-+ * @completion_notify: callback to notify when all the adapters are created
-  */
- struct mlxcpld_mux_plat_data {
- 	int *chan_ids;
- 	int num_adaps;
- 	int sel_reg_addr;
- 	u8 reg_size;
-+	void *handle;
-+	int (*completion_notify)(void *handle, struct i2c_adapter *parent,
-+				 struct i2c_adapter *adapters[]);
- };
- 
- #endif /* _LINUX_I2C_MLXCPLD_H */
--- 
-2.11.0
-
+            Linus
