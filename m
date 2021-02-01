@@ -2,80 +2,173 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13BF7C43381
-	for <linux-i2c@archiver.kernel.org>; Sun, 31 Jan 2021 20:09:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB05AC433E6
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 08:59:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B945A64E1F
-	for <linux-i2c@archiver.kernel.org>; Sun, 31 Jan 2021 20:09:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7471264E3F
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 08:59:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231493AbhAaUJW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 31 Jan 2021 15:09:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42306 "EHLO
+        id S232392AbhBAI7B (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 1 Feb 2021 03:59:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231379AbhAaTqL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 31 Jan 2021 14:46:11 -0500
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F67C061A27
-        for <linux-i2c@vger.kernel.org>; Sun, 31 Jan 2021 11:35:17 -0800 (PST)
-Received: by mail-lf1-x133.google.com with SMTP id f1so19875825lfu.3
-        for <linux-i2c@vger.kernel.org>; Sun, 31 Jan 2021 11:35:17 -0800 (PST)
+        with ESMTP id S231915AbhBAI6y (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 1 Feb 2021 03:58:54 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CAF0C061574
+        for <linux-i2c@vger.kernel.org>; Mon,  1 Feb 2021 00:57:48 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id d2so17946900edz.3
+        for <linux-i2c@vger.kernel.org>; Mon, 01 Feb 2021 00:57:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=TMdAwgGCU0UK2zGDufFD/rnwy1XjE0usi+CtbeAisS8=;
-        b=XZNf2G5ga3i/e0kxJm4Usq8ojU9pUUov9Ps2+vp3HvTpxsIJVu8VDUJLGxtXGyvwcQ
-         AAnh1Lu2EQb+IGdRHowyxfY2TJ6TxDwoC0LovnoCrtz25JVV3UJKzw3zRjVu0gFSlSnM
-         98MUPt4nnZIrbp+Jl0FWzGyR6UG9YyOQib4Pg=
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=GyxsNnWu7EqjyU0NKMwi2dzcVL+ptjeCIPcsXEH/9OY=;
+        b=i6PdTJrbTgfPEq1qvNzYS4t4VsejQHvBMA2i45CHObKGwPzTKS4X3R5W02R02DNRfr
+         9F48UgomgbOq6gppxgT4+6tuQmsSHf5a7Vr2bMdmt57Uk39z4OU49+Do6uCOXRqHkV4f
+         XE510R+cNphZYBjIKhw5YlVF955NPuWlSvhpasOICJu+nCFpU8GkzQKIg6AxYZ2wOFOx
+         7fxMDR9GSb9IaenWC1mMrNc2pzs6J+uQqfoAp42APYhs+a4ElJZZ0CIgjXBbfND2wQFw
+         2uJbWV+HCa/Z5qJx2c+Oo0Etw5ORVx5jgX00rHyrO1+Ug3riu1gD7nHgATlqC2gexrji
+         lbYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=TMdAwgGCU0UK2zGDufFD/rnwy1XjE0usi+CtbeAisS8=;
-        b=FKRW7TWKd4ARSBqI6FD5gUimVVCJKMcJueRflYfpeX+5U78pI4G0+fgYr0Atqa2Jjj
-         DjzfU4koTOO7qB0gFrRaY4QC66h9FLNVrqQNhWK9djnJ9ErQ9DHiqv7o2M7Mo0rhUV2y
-         wdh9UhSZ+DdK0mn/dpHVCWj2qWBgA9yfD9Fm0Mp/leOxqGH53Jcz562mIG3MT6Q2Zi4v
-         Yxq7IqYNMxMZCjZ5W94D+wbN3+oYmBDRByQtTdYrxXmLb47MpHpVW7N9Nx8PUPF3NVwg
-         NNNAK9HNy87iEBrOvQbo68uaBaa5rFy+Mmnioy6gsN6WWhDBHRUZFOGO5UAv82Q6W3ey
-         6lKQ==
-X-Gm-Message-State: AOAM530H/3D6zWy6kL9cMEoCdj/xSRLkX4pTjysvfKP5w3ThZLAZxFub
-        mB2LmWJJujmT+oZl4LhF0vOeAKpj8IzaGg==
-X-Google-Smtp-Source: ABdhPJw4qjVpQytKFEPXlWVrVNMlSBhDsfxiYtDc5aIU1EFL8yMzSNAfGXCzrqfvfkDAX0vixOo1pA==
-X-Received: by 2002:ac2:5462:: with SMTP id e2mr7330386lfn.655.1612121715436;
-        Sun, 31 Jan 2021 11:35:15 -0800 (PST)
-Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com. [209.85.208.177])
-        by smtp.gmail.com with ESMTPSA id 127sm3528908ljf.132.2021.01.31.11.35.14
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 31 Jan 2021 11:35:14 -0800 (PST)
-Received: by mail-lj1-f177.google.com with SMTP id y14so4314831ljn.8
-        for <linux-i2c@vger.kernel.org>; Sun, 31 Jan 2021 11:35:14 -0800 (PST)
-X-Received: by 2002:a2e:850d:: with SMTP id j13mr8269533lji.507.1612121714111;
- Sun, 31 Jan 2021 11:35:14 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=GyxsNnWu7EqjyU0NKMwi2dzcVL+ptjeCIPcsXEH/9OY=;
+        b=LxY35pgPKzNFcZigV0PhqzSEcELuh4VpW2HCCezNAeAWx9yD8Vt+RvxMeeXPDsOkJR
+         +UzKQLZ5lxLP83SU5pD+1ZSntfYOAJPZ3pCt2cP9RoX5ZciU6/1o6ZMvuN7g6iMKnsaz
+         04LS8Hv7jQmzkWTgdXM6ytEGDmbLbNFjBoROEHH1zj1y1ifC/zs3EDyLdTGXepNv5cNV
+         16e1Sf/BsKGMkmkbqvvV/oic6+KP0vleGf1muzhkkloP2fscmIzbpSWdLyia+SEpS4Rm
+         2LOsjgQfru7xY1Gn/xIP73WuarmPXhhVodnYeU1XMkG3bGDsMWSaCNFdJUndN2mqh7VA
+         Isfg==
+X-Gm-Message-State: AOAM530bpDvuXpI2pjrV++CKX2doORKwp8tHUfj0vzZMbuibmwiZRl6H
+        0k8VFYpGADGwSXZPWssv9Zz0/Nu2ORsj408FJf0p1A==
+X-Google-Smtp-Source: ABdhPJx7YJeaIThw9MHlmgqwuHrnNn2An/DeuJv641UUQWTVd5Zapsko0YlOuYX2v/CmLEKKjveQedF2USmYjR4gynw=
+X-Received: by 2002:a05:6402:35ca:: with SMTP id z10mr17750262edc.186.1612169867171;
+ Mon, 01 Feb 2021 00:57:47 -0800 (PST)
 MIME-Version: 1.0
-References: <20210131114017.GA1332@kunai>
-In-Reply-To: <20210131114017.GA1332@kunai>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sun, 31 Jan 2021 11:34:57 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wiZ5-eiJbkJxQo+kXPN=wRBTGZZHKUB8eA428Uft7j1Eg@mail.gmail.com>
-Message-ID: <CAHk-=wiZ5-eiJbkJxQo+kXPN=wRBTGZZHKUB8eA428Uft7j1Eg@mail.gmail.com>
-Subject: Re: [PULL REQUEST] i2c for 5.11
-To:     Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Peter Rosin <peda@axentia.se>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
+References: <20200903081550.6012-1-sakari.ailus@linux.intel.com>
+ <20210128232729.16064-7-sakari.ailus@linux.intel.com> <CAMpxmJVTPgvxOVdTkmt4VjUnGabNBKauKF_DKtnnkV6O0QYTWA@mail.gmail.com>
+ <20210129121955.GH32460@paasikivi.fi.intel.com>
+In-Reply-To: <20210129121955.GH32460@paasikivi.fi.intel.com>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Mon, 1 Feb 2021 09:57:36 +0100
+Message-ID: <CAMpxmJUfP86jQg11imFUtjt8KtJ25tDRQUGvrZqDbT5xyKoH9A@mail.gmail.com>
+Subject: Re: [PATCH v9 7/7] at24: Support probing while off
+To:     Sakari Ailus <sakari.ailus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     linux-i2c <linux-i2c@vger.kernel.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Rajmohan Mani <rajmohan.mani@intel.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
+        Hyungwoo Yang <hyungwoo.yang@intel.com>,
+        linux-media <linux-media@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Sun, Jan 31, 2021 at 3:40 AM Wolfram Sang <wsa@kernel.org> wrote:
+On Fri, Jan 29, 2021 at 1:20 PM Sakari Ailus
+<sakari.ailus@linux.intel.com> wrote:
 >
-> one I2C driver update this time.
+> Hi Bartosz,
+>
+> Thanks for the review.
+>
+> On Fri, Jan 29, 2021 at 11:56:00AM +0100, Bartosz Golaszewski wrote:
+> > On Fri, Jan 29, 2021 at 12:27 AM Sakari Ailus
+> > <sakari.ailus@linux.intel.com> wrote:
+> > >
+> > > In certain use cases (where the chip is part of a camera module, and =
+the
+> > > camera module is wired together with a camera privacy LED), powering =
+on
+> > > the device during probe is undesirable. Add support for the at24 to
+> > > execute probe while being powered off. For this to happen, a hint in =
+form
+> > > of a device property is required from the firmware.
+> > >
+> > > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> > > ---
+> > >  drivers/misc/eeprom/at24.c | 43 +++++++++++++++++++++++-------------=
+--
+> > >  1 file changed, 26 insertions(+), 17 deletions(-)
+> > >
+> > > diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> > > index 926408b41270c..dd0b3f24e3808 100644
+> > > --- a/drivers/misc/eeprom/at24.c
+> > > +++ b/drivers/misc/eeprom/at24.c
+> > > @@ -595,6 +595,7 @@ static int at24_probe(struct i2c_client *client)
+> > >         bool i2c_fn_i2c, i2c_fn_block;
+> > >         unsigned int i, num_addresses;
+> > >         struct at24_data *at24;
+> > > +       bool low_power;
+> > >         struct regmap *regmap;
+> > >         bool writable;
+> > >         u8 test_byte;
+> > > @@ -750,14 +751,16 @@ static int at24_probe(struct i2c_client *client=
+)
+> > >
+> > >         i2c_set_clientdata(client, at24);
+> > >
+> > > -       err =3D regulator_enable(at24->vcc_reg);
+> > > -       if (err) {
+> > > -               dev_err(dev, "Failed to enable vcc regulator\n");
+> > > -               return err;
+> > > -       }
+> > > +       low_power =3D acpi_dev_state_low_power(&client->dev);
+> >
+> > I've raised my concern about the naming of this before but no
+> > discussion followed. Do we really want to name it: "low power"? This
+> > is misleading as the device can actually be powered off at probe().
+> > "Low power" suggests some low-power state or even low battery IMO.
+>
+> This was suggested by Rafael in place of "powered off" as it's not know t=
+he
+> device is powered off. The same terms should be used in all contexts (ACP=
+I
+> and I=C2=B2C frameworks and drivers). Others haven't expressed concerns.
+>
 
-Pulled (manual notification because the automation seems very flaky).
+So we're describing a situation where "device may be powered off" by
+calling it "low_power". This doesn't make sense. Why not something
+like: acpi_dev_may_be_off(), acpi_dev_powerdown_possible(),
+acpi_dev_possibly_off(). If I'm reading a driver's code an see
+"acpi_dev_state_low_power()", I would have never guessed it refers to
+a situation where the device may be potentially powered-down.
 
-            Linus
+> ACPI spec appears to be using terms "on" and "off".
+>
+> The use of the function is not limited to driver probe time.
+>
+> >
+> > If anything: I'd prefer the 'low_power' local variable be changed to
+> > "no_test_read".
+>
+> That misses the power management related suggestion now present in the na=
+me
+> --- the device needs to be suspended using runtime PM if probe fails and
+> it's not in "low power state".
+>
+> How about "off_during_probe"?
+>
+
+Yes, this is much better than low_power.
+
+Bartosz
+
+> --
+> Kind regards,
+>
+> Sakari Ailus
