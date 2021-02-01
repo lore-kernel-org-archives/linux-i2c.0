@@ -7,66 +7,74 @@ X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 997ECC433E0
-	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 18:18:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A50B1C433DB
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 21:57:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5284C64EA1
-	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 18:18:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6BDF964ED3
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 21:57:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbhBASSJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 1 Feb 2021 13:18:09 -0500
-Received: from mga04.intel.com ([192.55.52.120]:64944 "EHLO mga04.intel.com"
+        id S229832AbhBAV5M (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 1 Feb 2021 16:57:12 -0500
+Received: from sauhun.de ([88.99.104.3]:57710 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232201AbhBASRr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 1 Feb 2021 13:17:47 -0500
-IronPort-SDR: eRVRMB4c5v0PG2l99V/SKVgnrUXKpjLhfVrJfOaUNsIebXjs8W/9RUn/N/S1Xv3oFeGGtGs8NS
- Q7ud3/OauHxw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9882"; a="178166577"
-X-IronPort-AV: E=Sophos;i="5.79,393,1602572400"; 
-   d="scan'208";a="178166577"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2021 10:16:11 -0800
-IronPort-SDR: 7ZTkZfhuXzF7tmOMmHnDrQnEHTXexXTrhVR8ghgtlvHHzTOhV1hOCID+pwkTOLSQBsCSzb5Y6H
- NuHbPBIMip5g==
-X-IronPort-AV: E=Sophos;i="5.79,393,1602572400"; 
-   d="scan'208";a="370025800"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2021 10:16:09 -0800
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1l6dk6-001CGd-CH; Mon, 01 Feb 2021 20:16:06 +0200
-Date:   Mon, 1 Feb 2021 20:16:06 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Richard Neumann <mail@richard-neumann.de>
-Cc:     syniurge@gmail.com, nehal-bakulchandra.shah@amd.com,
-        shyam-sundar.s-k@amd.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] i2c: i2c-amd-mp2: Remove NIH logging functions
-Message-ID: <YBhFZikbVgyaFqNs@smile.fi.intel.com>
-References: <20210201175138.8986-1-mail@richard-neumann.de>
- <20210201175138.8986-2-mail@richard-neumann.de>
+        id S229813AbhBAV5L (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 1 Feb 2021 16:57:11 -0500
+Received: from localhost (p5486cf8f.dip0.t-ipconnect.de [84.134.207.143])
+        by pokefinder.org (Postfix) with ESMTPSA id 303052C0AC5;
+        Mon,  1 Feb 2021 22:56:29 +0100 (CET)
+Date:   Mon, 1 Feb 2021 22:56:26 +0100
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Vadim Pasternak <vadimp@nvidia.com>
+Cc:     peda@axentia.se, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH i2c-next v2 2/7] platform/x86: mlxcpld: Update module
+ license
+Message-ID: <20210201215626.GB24315@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
+        Vadim Pasternak <vadimp@nvidia.com>, peda@axentia.se,
+        linux-i2c@vger.kernel.org
+References: <20210122192502.17645-1-vadimp@nvidia.com>
+ <20210122192502.17645-3-vadimp@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="b5gNqxB1S1yM7hjW"
 Content-Disposition: inline
-In-Reply-To: <20210201175138.8986-2-mail@richard-neumann.de>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <20210122192502.17645-3-vadimp@nvidia.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Feb 01, 2021 at 06:51:37PM +0100, Richard Neumann wrote:
-> Use pci_{info,warn,err,dbg} functions of the kernel's PCI API.
-> Remove unnecessary ndev_pdev(), ndev_name() and ndev_dev() macros.
-> While at it, remove useless __func__ from logging.
-> 
-> Signed-off-by: Richard Neumann <mail@richard-neumann.de>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-I haven't given you the tag for this patch, but this time it's okay,
-no need to resend.
+--b5gNqxB1S1yM7hjW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-With Best Regards,
-Andy Shevchenko
+On Fri, Jan 22, 2021 at 09:24:57PM +0200, Vadim Pasternak wrote:
+> Update license to SPDX-License.
+>=20
+> Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+
+Applied to for-next, thanks!
 
 
+--b5gNqxB1S1yM7hjW
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAYeQoACgkQFA3kzBSg
+KbawoA//bsNlSs6l1EzgTyBui6GjUXjYuspoi5XEJG0cjPozLHoMQXalurnwbM2w
+2/MciavM39Q+XT/f3/iyiTCaxiZiVhCvIDLypfC0o/XxKRFC5j2WoYjjeR3QejPN
+JjI42HQOZ8C/++pOvPqJMyaYI6Yt1A9714h1tVuKXAL32Jp2wFdptrGb0MIVeEQB
+cTtlT+vEHUPLAoNVypt7A1ycU+p+Jzzu8D34bO5RKaENO7OuG4Nz8fnZDh5WIuNL
+BRlu0X/JwEDCsiK6H5+m+ymVr8VaMgNdqIAIh6W27l+k2tXODS6QUMEhJYGaAwnq
+M8fgp/Bg8IIeh+mUeyxc8j7Dy6oHbk81hLRbtkWJatjFK4wY79IsrCb5cqnDtKgc
+0RsSAYN/Dz0f1Lk6DafIUE7LJA3aCrp4lxc8SgrKqtMtn5G4rCft0C/JycKVBkj6
+sxrWL5ueEeR/9+OS5OO/ylzPQaEhoVZOTMJq3Uibzjyw2VhaSvtgs17YtmU27Enr
+wfVmMC4QEq5e7cxJubovLYUT5+Y42yaRPcRy/gokijY6VqKT+Ncl4aKrzq02LP1U
+7j/g8+cVG9ASVBnrl8d4XOh23i6Uo1YnPNMnUICTUhn5SAXu8C0+BnMBO/1xFf76
+2wXKI+jHnjcClt08iIXjrkDBI9LGD3lssbaZeqyl7DsnMJcveKA=
+=t+tT
+-----END PGP SIGNATURE-----
+
+--b5gNqxB1S1yM7hjW--
