@@ -4,93 +4,102 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D047DC433E0
-	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 22:04:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DBE4C433E9
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 22:08:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9194B64E2C
-	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 22:04:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B26C64E50
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 22:08:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229996AbhBAWEC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 1 Feb 2021 17:04:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56286 "EHLO mail.kernel.org"
+        id S229555AbhBAWIR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 1 Feb 2021 17:08:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229831AbhBAWD4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 1 Feb 2021 17:03:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A91364D92;
-        Mon,  1 Feb 2021 22:03:14 +0000 (UTC)
+        id S230055AbhBAWH6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 1 Feb 2021 17:07:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E37D64E2C;
+        Mon,  1 Feb 2021 22:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1612216995;
-        bh=SD5hcJPKXw5+XdYGFxyx1vpvAOsqU17t1KZiL1O3Ilc=;
+        s=k20201202; t=1612217238;
+        bh=x41kuEjrEv0ynrAHUk/wntD0PwGw1d5iRindrjKXweI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mLitDEYNbSt+zZssJUpc+OtPhxKX9OO//VOAoHOi7r/1bG0eQtRjMlEGTlr/ujWJ7
-         2YiPME/PTSLW92plKj3UIi9UfELFaS9DpWhbokXjzj0Xgd2fxxIfwNcpK1R151c2Vs
-         uB/1K8NDKgfX6lLdmqsCAwl3/g4mjm5NFSCpiDDpbZr5fyDLctOrXuZ6tBmPo8YmqN
-         SkMhWZcM0oObSLC5ybWXq8zDpjW1owaF9FRk33BPhHbz5D96xFwW9VoheMwqU7bq/o
-         yxY3mVwlgg4fyKcfw/apBQ/9SMKjzoA/c/YW1GlL/i798HOOycRwUw77r617Bjzjut
-         DKDQvGiP5iVzQ==
-Date:   Mon, 1 Feb 2021 23:03:11 +0100
+        b=Do88UeT05QFpRq9a8z686c0FrzNUKsxGLNKXgmyIm/x6Y3jAzX7ltKFUvWYG0N5qK
+         e6H+U9tB2EvJPbbGWtduDrmD+HqwYMX35ss9eHtnJAQTfNtbm5iAAbRM9AO41iw7wf
+         POeNLOSu4IwKYw+SYuCTVy8Q8rLjeegyTf0Lvx1EBySmqOeDQSv2+o5m2ddLjEoCM8
+         /E1bkxFZRR3IetxaEZne2F6kvaWxXLFliedW418y/fR0ITsrtI7f9jcPOOLkueS9IC
+         9oojUXsy/SK+OW724s7DhBvnfBXGxWu2htTFVhePWVyI+12M6N8jkNJhxOIx5mOyC6
+         goH+nJfBoGiiw==
+Date:   Mon, 1 Feb 2021 23:07:14 +0100
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Richard Neumann <mail@richard-neumann.de>
-Cc:     syniurge@gmail.com, nehal-bakulchandra.shah@amd.com,
-        shyam-sundar.s-k@amd.com, andriy.shevchenko@linux.intel.com,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] i2c: i2c-amd-mp2: Remove NIH logging functions
-Message-ID: <20210201220311.GD24315@kunai>
+To:     Samuel Holland <samuel@sholland.org>
+Cc:     Gregory CLEMENT <gregory.clement@bootlin.com>,
+        linux-i2c@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Ondrej Jirman <megous@megous.com>,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com
+Subject: Re: [PATCH] i2c: mv64xxx: Add runtime PM support
+Message-ID: <20210201220714.GF24315@kunai>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Richard Neumann <mail@richard-neumann.de>, syniurge@gmail.com,
-        nehal-bakulchandra.shah@amd.com, shyam-sundar.s-k@amd.com,
-        andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20210201175138.8986-1-mail@richard-neumann.de>
- <20210201175138.8986-2-mail@richard-neumann.de>
+        Samuel Holland <samuel@sholland.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        linux-i2c@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Ondrej Jirman <megous@megous.com>, linux-kernel@vger.kernel.org,
+        linux-sunxi@googlegroups.com
+References: <20210103105146.33835-1-samuel@sholland.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="zbGR4y+acU1DwHSi"
+        protocol="application/pgp-signature"; boundary="l+goss899txtYvYf"
 Content-Disposition: inline
-In-Reply-To: <20210201175138.8986-2-mail@richard-neumann.de>
+In-Reply-To: <20210103105146.33835-1-samuel@sholland.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---zbGR4y+acU1DwHSi
+--l+goss899txtYvYf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 01, 2021 at 06:51:37PM +0100, Richard Neumann wrote:
-> Use pci_{info,warn,err,dbg} functions of the kernel's PCI API.
-> Remove unnecessary ndev_pdev(), ndev_name() and ndev_dev() macros.
-> While at it, remove useless __func__ from logging.
+On Sun, Jan 03, 2021 at 04:51:46AM -0600, Samuel Holland wrote:
+> To save power, gate the clock when the bus is inactive, during system
+> sleep, and during shutdown. On some platforms, specifically Allwinner
+> A13/A20, gating the clock implicitly resets the module as well. Since
+> the module already needs to be reset after some suspend/resume cycles,
+> it is simple enough to reset it during every runtime suspend/resume.
 >=20
-> Signed-off-by: Richard Neumann <mail@richard-neumann.de>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Because the bus may be used by wakeup source IRQ threads, it needs to
+> be functional as soon as IRQs are enabled. Thus, its system PM hooks
+> need to run in the noirq phase.
+>=20
+> Signed-off-by: Samuel Holland <samuel@sholland.org>
 
-$subject looked wrong to me so I changed it to "convert to PCI logging
-functions". Applied to for-next, thanks!
+Applied to for-next with Gregory's ack, thanks!
 
 
---zbGR4y+acU1DwHSi
+--l+goss899txtYvYf
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAYep8ACgkQFA3kzBSg
-KbZP6Q/+IdTaOU1Tino6fMC7XzPc6AuY7SouD4qGDUYIM2gXCSaNoz60MV9Zr93v
-EP5d1rXn9EmDvF7e4hr9oPiP0lF2TGxgWrOiUXDjjt+zNLXz3uBUL3jdwmhxVvK2
-yABZAXjcchAFjxqq6eGzXMvrrmmQlKNITrMTue5COx15hv+2ZSOQ3I1cL/VTjJ6q
-lhNCEeQQaSGFnmIQr/Mpz2xdfz4VTTqBXi+7q1Yfi6jMfvO0++QeUdG8U9XoC/G2
-/0n8FcdNERDO4AFTR0IAEuwKm2Ta5JycgU3NknP24SBVv/d4vo3JdzpTTW+fZ4R9
-ZObGjLRCKdix1o0AvybuHLcck4zRGDV7ESiIaSLN+QrYBbpqf8jsBp9sL7VnJOiw
-GVI3qSYK1CCFfsL5tvrxuRZ5/Wohdv1/OPwtK6rUV7zSVfox16g6L7fx4kO/chPs
-zTbODDS+4oAnKx/m6efQam0COGs02s0H4TII99j4ge9qxVlrctIvukFf2gPl1p2+
-jkWZfkxiUZrXejwYYys957CC9EGt1ecdVfiden0nHO44Bsp06/1EaDqngjhkGL3W
-bHjF2Jpzp9WbAmxy1Qgq5KyNR0uFLNyMsKYAj0NrrbVoQSe1BzRrgLZDBZQMM32a
-JaOisYxIeBy8NWlYm7fUpTivQFcZafxCkvsmVVPddC476jMQjps=
-=L2gM
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAYe5IACgkQFA3kzBSg
+Kbb84w//fMp6ks/Ehg2LSMYiABFF2vGZ4Zmqmu7pP6h7vs66KtM2TxBXLbUq9ZW/
+csd7S8p4QnoxCAwmP6i11d/yWP8gttKhq/TZTZUz5ENIayhIpDl8o6ST6NCcvFsR
+S/b8zsIGx+H4Ez92AEf9a5NpaUsZ4HU1eerR8hIrzXeUT8deCLo97KRKwa/iQrNL
+t4q4m/WAkrt+THlfYdU1LZN8L4u46QdxsWIhhmdJnGM+6Ah2n+WgMMfskTvE7oTI
+GtGldyMIk8sgIYe/36GE08d36Uccw5KkqIkl8pVqivGq3R+B9BdH+D/jtuBRDa/r
+Uv14bTu7zfjDtxvLUxfiUUaolWw+ojjp8YfZZ0Nhl4IZuJH9DVQ0z6lAl1OZ0eiJ
+d7ZKuHo0zwgxzZ6RjDrbBXQJsbqZwx2aIbdI0RRzLNJoZhFVINdmvKdzwBwGY3Y4
+kVUFGncRNO5RGnRNOlbG/06FScpThaQy3UvX5kyq0ua++khc4lB1qysEa+UDBd9Q
+x9QBqkhyv1+fOI/WY4vbTBxtYIMf0p54AqIsTEveKJ09v0POBltkmuLPKrYMt+Sa
+2hB4q5JyI3V/aMFF7N3qWUPhyYGDTrFu9lHC/FAYpX/mzcMDU2Wq8dLcydfEiLmE
+SwK0C1sRIdf9So8vuzyGjOND+X/cHO7Z4kCGpzseZtskUNfjMhc=
+=N8RG
 -----END PGP SIGNATURE-----
 
---zbGR4y+acU1DwHSi--
+--l+goss899txtYvYf--
