@@ -7,73 +7,77 @@ X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D00AC433E0
-	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 21:57:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1049AC43381
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 21:57:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4D36664EC3
-	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 21:57:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAFDD64EC3
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Feb 2021 21:57:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbhBAV5G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 1 Feb 2021 16:57:06 -0500
-Received: from sauhun.de ([88.99.104.3]:57698 "EHLO pokefinder.org"
+        id S229555AbhBAV5W (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 1 Feb 2021 16:57:22 -0500
+Received: from sauhun.de ([88.99.104.3]:57720 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229498AbhBAV5F (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 1 Feb 2021 16:57:05 -0500
+        id S229739AbhBAV5P (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 1 Feb 2021 16:57:15 -0500
 Received: from localhost (p5486cf8f.dip0.t-ipconnect.de [84.134.207.143])
-        by pokefinder.org (Postfix) with ESMTPSA id BE06E2C04D3;
-        Mon,  1 Feb 2021 22:56:21 +0100 (CET)
-Date:   Mon, 1 Feb 2021 22:56:18 +0100
+        by pokefinder.org (Postfix) with ESMTPSA id 62A962C0AC8;
+        Mon,  1 Feb 2021 22:56:34 +0100 (CET)
+Date:   Mon, 1 Feb 2021 22:56:34 +0100
 From:   Wolfram Sang <wsa@the-dreams.de>
 To:     Vadim Pasternak <vadimp@nvidia.com>
 Cc:     peda@axentia.se, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH i2c-next v2 1/7] i2c: mux: mlxcpld: Update module license
-Message-ID: <20210201215618.GA24315@kunai>
+Subject: Re: [PATCH i2c-next v2 3/7] i2c: mux: mlxcpld: Move header file out
+ of x86 realm
+Message-ID: <20210201215634.GC24315@kunai>
 Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
         Vadim Pasternak <vadimp@nvidia.com>, peda@axentia.se,
         linux-i2c@vger.kernel.org
 References: <20210122192502.17645-1-vadimp@nvidia.com>
- <20210122192502.17645-2-vadimp@nvidia.com>
+ <20210122192502.17645-4-vadimp@nvidia.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
+        protocol="application/pgp-signature"; boundary="TYecfFk8j8mZq+dy"
 Content-Disposition: inline
-In-Reply-To: <20210122192502.17645-2-vadimp@nvidia.com>
+In-Reply-To: <20210122192502.17645-4-vadimp@nvidia.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---G4iJoqBmSsgzjUCe
+--TYecfFk8j8mZq+dy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 22, 2021 at 09:24:56PM +0200, Vadim Pasternak wrote:
-> Update license to SPDX-License.
+On Fri, Jan 22, 2021 at 09:24:58PM +0200, Vadim Pasternak wrote:
+> Move out header file from include/linux/platform_data/x86/ to
+> include/linux/platform_data/, since it does not depend on x86
+> architecture.
 >=20
 > Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+> Reviewed-by: Michael Shych <michaelsh@nvidia.com>
 
 Applied to for-next, thanks!
 
 
---G4iJoqBmSsgzjUCe
+--TYecfFk8j8mZq+dy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAYeP4ACgkQFA3kzBSg
-KbYnGA//ZeJLgx1W9JKfMU3J84D+jS7qMii4AtkCnL95toqTXwy0M6rTAbUD1YHF
-7VQRNvKyuUS5c6RPURNBbi1knL+1njcfl2VnRC/L5IcwPV0hrtfqB/NagJhLFWEg
-bK7t46AvkzZinsfkVN0mQFX6pvvClWYWx8uDTf2dNpeSAdRot7E20TyeOoCTdH0I
-zaZaqzPeCM2dQLruI7PAtK2SED1DIh9lI8seyZ0NadpO/r3Px0cznI0+yIBZddde
-KrNfZaVEqgv3Wle63i82N3RTMt45Ri6sXbAwgflZfFlwLP4GR5bgGDnpFzhTs2+I
-pTrCxAWXDDCWuqE+0lpVdPf4FiAIvXJzRZ3+AZlrlC6xO/CzL8uNIco45cqrHQuh
-BMlWYMFNd5TApXRG1Uj6gSPuFCYcSl+1mRVTiROWk1gfW4MPw/n5EX8CvCUWEaSo
-5FE9LRBuh/9FZW8lPXDX7cfgI7xdByGnwCDLwJPLx4lR3FUaS6rTA5kRxoKWrW7s
-nUqgBv0sXQoK0M3JrvU9c9K5/GNqLKaOQXhO7iII9yrDigeCECj1DUVe54hcbtho
-n07NxRIoJjjAeK8cgbfup0HpthSlfZZUDFS1mHMmsbwybbZEE7dIsseJOSWAwWzN
-mSjCIXW9YUEYE+q4YmWf0vH5VF97MG2TQWNUSngshZ5KeEpGhY4=
-=qMTH
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAYeRIACgkQFA3kzBSg
+KbZtMA/9HTch4ENItt+ZfHN2HOJpTvUNxWSYlW1/f39oImuPZexh4XhVhrmTQUgW
+nufFrbu6Nh8b46n31woSDFRVynwmJzwvcdRsJWbn3AQTh3jaLqoX3lPdQod1huE7
+XZxJXX4zsPEk2Z13h5+pC+E4QruIR7QSgtn4BKIiLOS9dN4OsXCn99msNFdcp/LQ
+//j17a7bMaPYqLKiY273Mtt4cCT8ZRNlW1U3MXbAgCrDITvNRAyTueOfjsJyvx8a
+jGqjULx7FTHxzzq53SOEGGHSmekY+nIvzw6nEClU57UKyxW/9wjovbGTN1ztltnI
+LLtF7zgi8zciyKbUY0aNGfNbuTdY3f4FEPxnJ2wzjPTn4DrK2Dih0t7fVvqnoXhr
+kzIP4vQtli5eHP5nDph7jYo3vv2N6jK6BCOwgnpbf1zCmDS7njMdhgVdJbxYRQFh
+Bu/KzEK96W79890Lil0Q8AaKRP8/Qa7VUigVK+sfENvlWB3d0u/Uxun0Fd+v8y03
+LdSUoGgzloh+ayRydvl1AdRvdWmc5nl3V6y1e3WhjYRZgPnKT5Bpqn8TYw8hGbMO
+UiA6sJ7DlbrwOQRK475KRKHrWTD1ZDYnV3OfhrW6XG4nYYOZA1HNn2CftzJICmu5
++DJcnRRqbgBw9aqhNiPc1uh/JmUrSf0zzHII5gTepuVThza5w+0=
+=N4F7
 -----END PGP SIGNATURE-----
 
---G4iJoqBmSsgzjUCe--
+--TYecfFk8j8mZq+dy--
