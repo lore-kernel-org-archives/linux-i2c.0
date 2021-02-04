@@ -7,90 +7,214 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7766DC433DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF7DAC433E0
 	for <linux-i2c@archiver.kernel.org>; Thu,  4 Feb 2021 16:26:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3472A64F42
+	by mail.kernel.org (Postfix) with ESMTP id 9F27964F4E
 	for <linux-i2c@archiver.kernel.org>; Thu,  4 Feb 2021 16:26:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237044AbhBDQ0y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S237729AbhBDQ0y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Thu, 4 Feb 2021 11:26:54 -0500
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:49687 "EHLO
+Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:49659 "EHLO
         mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S237958AbhBDQZr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Feb 2021 11:25:47 -0500
+        with ESMTP id S237846AbhBDQZq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Feb 2021 11:25:46 -0500
 Received: from Internal Mail-Server by MTLPINE1 (envelope-from vadimp@nvidia.com)
-        with SMTP; 4 Feb 2021 18:24:58 +0200
+        with SMTP; 4 Feb 2021 18:24:54 +0200
 Received: from r-build-lowlevel.mtr.labs.mlnx. (r-build-lowlevel.mtr.labs.mlnx [10.209.0.190])
-        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id 114GOrHG012325;
-        Thu, 4 Feb 2021 18:24:58 +0200
+        by labmailer.mlnx (8.13.8/8.13.8) with ESMTP id 114GOrHC012325;
+        Thu, 4 Feb 2021 18:24:54 +0200
 From:   Vadim Pasternak <vadimp@nvidia.com>
 To:     peda@axentia.se, wsa@the-dreams.de
 Cc:     linux-i2c@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>
-Subject: [PATCH i2c-next v4 5/6] i2c: mux: mlxcpld: Extend supported mux number
-Date:   Thu,  4 Feb 2021 18:24:50 +0200
-Message-Id: <20210204162451.29518-6-vadimp@nvidia.com>
+Subject: [PATCH i2c-next v4 1/6] i2c: mux: mlxcpld: Convert driver to platform driver
+Date:   Thu,  4 Feb 2021 18:24:46 +0200
+Message-Id: <20210204162451.29518-2-vadimp@nvidia.com>
 X-Mailer: git-send-email 2.11.0
 In-Reply-To: <20210204162451.29518-1-vadimp@nvidia.com>
 References: <20210204162451.29518-1-vadimp@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Allow to extend mux number supported by driver.
-Currently it is limited by eight, which is not enough for new coming
-Mellanox modular system with line cards, which require up to 64 mux
-support.
+Convert driver from 'i2c' to 'platform'.
+The motivation is to avoid I2C addressing conflict between
+‘i2c-mux-cpld’ driver, providing mux selection and deselection through
+CPLD ‘mux control’ register, and CPLD host driver. The CPLD is I2C
+device and is multi-functional device performing logic for different
+components, like LED, ‘hwmon’, interrupt control, watchdog etcetera.
+For such configuration CPLD should be host I2C device, connected to the
+relevant I2C bus with the relevant I2C address and all others component
+drivers are supposed to be its children.
+The hierarchy in such case will be like in the below example:
+ls /sys/bus/i2c/devices/44-0032
+i2c-mux-mlxcpld.44  leds-mlxreg.44  mlxreg-io.44
+ls /sys/bus/i2c/devices/44-0032/i2c-mux-mlxcpld.44
+channel-0, …,  channel-X
+
+Currently this driver is not activated by any kernel driver,
+so this conversion doesn’t affect any user.
 
 Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
 Reviewed-by: Michael Shych <michaelsh@nvidia.com>
 ---
-v3->v4:
- Comments pointed out by Peter:
- - Move changes for i2c_mux_add_adapter(): use 'chan_id' instead of
-  'force_nr' to patch #4.
 v1->v2:
  Comments pointed out by Peter:
- - Remove introducing of 'base_nr' field.
- - Drop chan increment in mlxcpld_mux_select_chan().
- Added by Vadim:
- - Rename 'adaps_ids' array to 'chan_ids' array.
- - Drop forcing of adapter 'nr'.
+ - Drop change for last channel setting in mlxcpld_mux_deselect().
 ---
- drivers/i2c/muxes/i2c-mux-mlxcpld.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/i2c/muxes/i2c-mux-mlxcpld.c | 62 +++++++++++++++++--------------------
+ 1 file changed, 28 insertions(+), 34 deletions(-)
 
 diff --git a/drivers/i2c/muxes/i2c-mux-mlxcpld.c b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-index ba307ee6b034..5e0672f9979b 100644
+index 3d894cfb19df..b53f1479272d 100644
 --- a/drivers/i2c/muxes/i2c-mux-mlxcpld.c
 +++ b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-@@ -15,8 +15,6 @@
- #include <linux/platform_device.h>
- #include <linux/slab.h>
- 
--#define CPLD_MUX_MAX_NCHANS	8
--
+@@ -20,10 +20,12 @@
  /* mlxcpld_mux - mux control structure:
-  * @last_val - last selected register value or -1 if mux deselected
+  * @last_chan - last register value
   * @client - I2C device client
-@@ -142,7 +140,7 @@ static int mlxcpld_mux_probe(struct platform_device *pdev)
- 	if (!i2c_check_functionality(client->adapter, func))
++ * @pdata: platform data
+  */
+ struct mlxcpld_mux {
+ 	u8 last_chan;
+ 	struct i2c_client *client;
++	struct mlxcpld_mux_plat_data pdata;
+ };
+ 
+ /* MUX logic description.
+@@ -54,37 +56,30 @@ struct mlxcpld_mux {
+  *
+  */
+ 
+-static const struct i2c_device_id mlxcpld_mux_id[] = {
+-	{ "mlxcpld_mux_module", 0 },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(i2c, mlxcpld_mux_id);
+-
+ /* Write to mux register. Don't use i2c_transfer() and i2c_smbus_xfer()
+  * for this as they will try to lock adapter a second time.
+  */
+ static int mlxcpld_mux_reg_write(struct i2c_adapter *adap,
+-				 struct i2c_client *client, u8 val)
++				 struct mlxcpld_mux *mux, u8 val)
+ {
+-	struct mlxcpld_mux_plat_data *pdata = dev_get_platdata(&client->dev);
++	struct i2c_client *client = mux->client;
+ 	union i2c_smbus_data data = { .byte = val };
+ 
+ 	return __i2c_smbus_xfer(adap, client->addr, client->flags,
+-				I2C_SMBUS_WRITE, pdata->sel_reg_addr,
++				I2C_SMBUS_WRITE, mux->pdata.sel_reg_addr,
+ 				I2C_SMBUS_BYTE_DATA, &data);
+ }
+ 
+ static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
+ {
+-	struct mlxcpld_mux *data = i2c_mux_priv(muxc);
+-	struct i2c_client *client = data->client;
++	struct mlxcpld_mux *mux = i2c_mux_priv(muxc);
+ 	u8 regval = chan + 1;
+ 	int err = 0;
+ 
+ 	/* Only select the channel if its different from the last channel */
+-	if (data->last_chan != regval) {
+-		err = mlxcpld_mux_reg_write(muxc->parent, client, regval);
+-		data->last_chan = err < 0 ? 0 : regval;
++	if (mux->last_chan != regval) {
++		err = mlxcpld_mux_reg_write(muxc->parent, mux, regval);
++		mux->last_chan = err < 0 ? 0 : regval;
+ 	}
+ 
+ 	return err;
+@@ -92,21 +87,19 @@ static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
+ 
+ static int mlxcpld_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
+ {
+-	struct mlxcpld_mux *data = i2c_mux_priv(muxc);
+-	struct i2c_client *client = data->client;
++	struct mlxcpld_mux *mux = i2c_mux_priv(muxc);
+ 
+ 	/* Deselect active channel */
+-	data->last_chan = 0;
++	mux->last_chan = 0;
+ 
+-	return mlxcpld_mux_reg_write(muxc->parent, client, data->last_chan);
++	return mlxcpld_mux_reg_write(muxc->parent, mux, mux->last_chan);
+ }
+ 
+ /* Probe/reomove functions */
+-static int mlxcpld_mux_probe(struct i2c_client *client,
+-			     const struct i2c_device_id *id)
++static int mlxcpld_mux_probe(struct platform_device *pdev)
+ {
+-	struct i2c_adapter *adap = client->adapter;
+-	struct mlxcpld_mux_plat_data *pdata = dev_get_platdata(&client->dev);
++	struct mlxcpld_mux_plat_data *pdata = dev_get_platdata(&pdev->dev);
++	struct i2c_client *client = to_i2c_client(pdev->dev.parent);
+ 	struct i2c_mux_core *muxc;
+ 	int num, force;
+ 	struct mlxcpld_mux *data;
+@@ -115,18 +108,20 @@ static int mlxcpld_mux_probe(struct i2c_client *client,
+ 	if (!pdata)
+ 		return -EINVAL;
+ 
+-	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
++	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
  		return -ENODEV;
  
--	muxc = i2c_mux_alloc(client->adapter, &pdev->dev, CPLD_MUX_MAX_NCHANS,
-+	muxc = i2c_mux_alloc(client->adapter, &pdev->dev, pdata->num_adaps,
+-	muxc = i2c_mux_alloc(adap, &client->dev, CPLD_MUX_MAX_NCHANS,
++	muxc = i2c_mux_alloc(client->adapter, &pdev->dev, CPLD_MUX_MAX_NCHANS,
  			     sizeof(*data), 0, mlxcpld_mux_select_chan,
  			     mlxcpld_mux_deselect);
  	if (!muxc)
-@@ -155,7 +153,7 @@ static int mlxcpld_mux_probe(struct platform_device *pdev)
- 	data->last_val = -1; /* force the first selection */
+ 		return -ENOMEM;
+ 
++	platform_set_drvdata(pdev, muxc);
+ 	data = i2c_mux_priv(muxc);
+-	i2c_set_clientdata(client, muxc);
+ 	data->client = client;
++	memcpy(&data->pdata, pdata, sizeof(*pdata));
+ 	data->last_chan = 0; /* force the first selection */
  
  	/* Create an adapter for each channel. */
--	for (num = 0; num < CPLD_MUX_MAX_NCHANS; num++) {
-+	for (num = 0; num < pdata->num_adaps; num++) {
- 		err = i2c_mux_add_adapter(muxc, 0, pdata->chan_ids[num], 0);
- 		if (err)
- 			goto virt_reg_failed;
+@@ -149,24 +144,23 @@ static int mlxcpld_mux_probe(struct i2c_client *client,
+ 	return err;
+ }
+ 
+-static int mlxcpld_mux_remove(struct i2c_client *client)
++static int mlxcpld_mux_remove(struct platform_device *pdev)
+ {
+-	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
++	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
+ 
+ 	i2c_mux_del_adapters(muxc);
+ 	return 0;
+ }
+ 
+-static struct i2c_driver mlxcpld_mux_driver = {
+-	.driver		= {
+-		.name	= "mlxcpld-mux",
++static struct platform_driver mlxcpld_mux_driver = {
++	.driver = {
++		.name = "i2c-mux-mlxcpld",
+ 	},
+-	.probe		= mlxcpld_mux_probe,
+-	.remove		= mlxcpld_mux_remove,
+-	.id_table	= mlxcpld_mux_id,
++	.probe = mlxcpld_mux_probe,
++	.remove = mlxcpld_mux_remove,
+ };
+ 
+-module_i2c_driver(mlxcpld_mux_driver);
++module_platform_driver(mlxcpld_mux_driver);
+ 
+ MODULE_AUTHOR("Michael Shych (michaels@mellanox.com)");
+ MODULE_DESCRIPTION("Mellanox I2C-CPLD-MUX driver");
 -- 
 2.11.0
 
