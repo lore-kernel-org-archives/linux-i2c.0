@@ -2,164 +2,106 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C591C433DB
-	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 22:48:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5426AC433E0
+	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 23:18:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E412664FD7
-	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 22:48:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C0BA64FAE
+	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 23:18:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233308AbhBEWsD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 5 Feb 2021 17:48:03 -0500
-Received: from mga12.intel.com ([192.55.52.136]:61266 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229586AbhBENcm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 5 Feb 2021 08:32:42 -0500
-IronPort-SDR: leOgntPwmnYSChsVUgDrn8OD1MXye/2Cb3nWWCKkc3ZO7mTk9XPjYZEBNPevcZjf7/2MFNsv2/
- ioY6CRNZnHJA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9885"; a="160589445"
-X-IronPort-AV: E=Sophos;i="5.81,154,1610438400"; 
-   d="scan'208";a="160589445"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2021 05:24:57 -0800
-IronPort-SDR: tsFjqPXflkKVrUq2GBeFF08LfZfad/IyEnl8GBObhJxqdcToZHgFwnVZJxHtPExxEYBvyftzFA
- jY9NJToJRXJQ==
-X-IronPort-AV: E=Sophos;i="5.81,154,1610438400"; 
-   d="scan'208";a="373390607"
-Received: from paasikivi.fi.intel.com ([10.237.72.42])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2021 05:24:53 -0800
-Received: from punajuuri.localdomain (punajuuri.localdomain [192.168.240.130])
-        by paasikivi.fi.intel.com (Postfix) with ESMTP id 90B8420D38;
-        Fri,  5 Feb 2021 15:24:51 +0200 (EET)
-Received: from sailus by punajuuri.localdomain with local (Exim 4.92)
-        (envelope-from <sakari.ailus@linux.intel.com>)
-        id 1l816f-0005GL-C1; Fri, 05 Feb 2021 15:25:05 +0200
-From:   Sakari Ailus <sakari.ailus@linux.intel.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     Wolfram Sang <wsa@the-dreams.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
-        Hyungwoo Yang <hyungwoo.yang@intel.com>,
-        linux-media@vger.kernel.org
-Subject: [PATCH v10 3/7] Documentation: ACPI: Document _DSE object usage for enum power state
-Date:   Fri,  5 Feb 2021 15:25:01 +0200
-Message-Id: <20210205132505.20173-4-sakari.ailus@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210205132505.20173-1-sakari.ailus@linux.intel.com>
-References: <20210205132505.20173-1-sakari.ailus@linux.intel.com>
+        id S229910AbhBEXQs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 5 Feb 2021 18:16:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59026 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231451AbhBEKeB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 5 Feb 2021 05:34:01 -0500
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A413BC06178C
+        for <linux-i2c@vger.kernel.org>; Fri,  5 Feb 2021 02:33:20 -0800 (PST)
+Received: by mail-ej1-x629.google.com with SMTP id p20so11133894ejb.6
+        for <linux-i2c@vger.kernel.org>; Fri, 05 Feb 2021 02:33:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nakZx3zOEZLUUZAMILq/ar1r+Acw84d9yqhqJi2BCQ4=;
+        b=MCaRB/yhouM+RasCXL7nWTII8zlWlMUWJAulO8jiC92x8qY3zCz/ZGArDm64ac/QVu
+         VLQM9j87YSDa3s86JmjFuS0nHbLZedPdvmtL7t/YozzV3TlB5BwbFOu+tbzemhs3XjDv
+         qQyeiCfX55uvYTwtzs6Qm0U0ROsgSkXHI7zsFMI84+S4aUpEwnJLT1sb0s1QqxH9N76H
+         aFcfa1C0x/QwJzp1/IMOouUvIXzmYNBHSoMxXokMqH3fjYiacgwIGHe51hPP5gTubOXT
+         tttNxPaUJCMjFmYYAT2UziRm1+BKsTzMNXOhAzCsl9vWOXkAutzGpRf1FXkTdXqnALF8
+         W4ng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nakZx3zOEZLUUZAMILq/ar1r+Acw84d9yqhqJi2BCQ4=;
+        b=UDbmNwqrUbgmap1QqOUqCtTBJ4WsWqD8538rIPfNHmL3oSimvK/Pm9rqkLPTpffYMr
+         cntx4lPloeGE2O6XMLqqH5UF+PmzYZXDOzaHekAn4hsGbH0wqQt9USKzEWPRcsSexLQM
+         DOHMH10u5uOHfd0Y7JMdmiIMiRc31C0QYKDbkyrCpZL+/UExEGoAVdCBLRy8f+bqsUm8
+         ZQWWNDmmT3UF3FzQ0I3nBb21Y8rNAtW5v8KpRzjObEFZwUsUya7KMdAeo5uZjHF0WP+0
+         ZozeT6jBh+zXYqZ3rGqChDkJCsLz06NQr+eAeJ5mQZe/4SmKcUV6XgdLqe9NWh13kr1b
+         Js+g==
+X-Gm-Message-State: AOAM530sNNfgsMFUwJNyOi/FP5ha0jCrVgjWXztRsIm8d+4xPFJzVP59
+        EdOrSpfOq3291bvNmQLCWdgY70lKbn4Y7RHoOhuAjg==
+X-Google-Smtp-Source: ABdhPJyHaqQrjRO5cpqMINsa6mjFq2ZDnqJ4rhd+YTk+15U1aHYwn6Iulgfm+QqVy4Lfq+NfF6kym99R3LGVRL0xXUA=
+X-Received: by 2002:a17:906:8053:: with SMTP id x19mr3388210ejw.470.1612521199418;
+ Fri, 05 Feb 2021 02:33:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20210128111343.2295888-1-geert+renesas@glider.be>
+ <20210128113353.GN963@ninjato> <CAMuHMdW--A2bwe==+A35_sLAS2OkXzi2hY0Ky_dwL0n8irHMZw@mail.gmail.com>
+In-Reply-To: <CAMuHMdW--A2bwe==+A35_sLAS2OkXzi2hY0Ky_dwL0n8irHMZw@mail.gmail.com>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Fri, 5 Feb 2021 11:33:08 +0100
+Message-ID: <CAMpxmJXcbTnCbseAap=F0QO2Er6ANGSfgPMuoufaD2qQyUbpRA@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: eeprom: at24: Document ROHM BR24G01
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Document the use of the _DSE object for setting desirable power state
-during probe.
+On Thu, Jan 28, 2021 at 12:59 PM Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+>
+> Hi Wolfram,
+>
+> On Thu, Jan 28, 2021 at 12:33 PM Wolfram Sang
+> <wsa+renesas@sang-engineering.com> wrote:
+> > On Thu, Jan 28, 2021 at 12:13:43PM +0100, Geert Uytterhoeven wrote:
+> > > Document the compatible value for the ROHM Semiconductor BR24G01 I2C bus
+> > > EEPROM.
+> >
+> > What is the difference between those two? Could one also be the fallback
+> > of the other (just in the highly unlikely case we need "generic" Rohm
+> > handling somewhen)?
+>
+> Good question.  The datasheets look similar.
+> Parametric search on rohm.com says the G-series differs in using
+> "Cu wire bonding".
+>
+> Gr{oetje,eeting}s,
+>
+>                         Geert
+>
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+>
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+>                                 -- Linus Torvalds
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
----
- Documentation/firmware-guide/acpi/index.rst   |  1 +
- .../firmware-guide/acpi/low-power-probe.rst   | 69 +++++++++++++++++++
- 2 files changed, 70 insertions(+)
- create mode 100644 Documentation/firmware-guide/acpi/low-power-probe.rst
+I'm fine with the current form as it's simpler than using two
+fallbacks. Do you want to submit another version anyway or can I pick
+it up?
 
-diff --git a/Documentation/firmware-guide/acpi/index.rst b/Documentation/firmware-guide/acpi/index.rst
-index f72b5f1769fb2..d02712acccbc0 100644
---- a/Documentation/firmware-guide/acpi/index.rst
-+++ b/Documentation/firmware-guide/acpi/index.rst
-@@ -25,5 +25,6 @@ ACPI Support
-    acpi-lid
-    lpit
-    video_extension
-+   low-power-probe
-    extcon-intel-int3496
-    intel-pmc-mux
-diff --git a/Documentation/firmware-guide/acpi/low-power-probe.rst b/Documentation/firmware-guide/acpi/low-power-probe.rst
-new file mode 100644
-index 0000000000000..b96804d959a6c
---- /dev/null
-+++ b/Documentation/firmware-guide/acpi/low-power-probe.rst
-@@ -0,0 +1,69 @@
-+.. SPDX-License-Identifier: GPL-2.0
-+
-+======================================
-+Probing I²C devices in low power state
-+======================================
-+
-+Introduction
-+============
-+
-+In some cases it may be preferred to leave certain devices powered off for the
-+entire system bootup if powering on these devices has adverse side effects,
-+beyond just powering on the said device.
-+
-+How it works
-+============
-+
-+The _DSE (Device State for Enumeration) object that evaluates to integer 0 may
-+be used to tell Linux the highest allowed D state for a device during probe. If
-+the driver indicates its support for this by setting the
-+I2C_DRV_FL_ALLOW_LOW_POWER_PROBE flag in struct i2c_driver.flags field and the
-+_DSE object evaluates to integer higher than the D state of the device, the
-+device will not be powered on (put in D0 state) for probe.
-+
-+The D states and thus also the allowed values for _DSE are listed below. Refer
-+to [1] for more information on device power states.
-+
-+.. code-block:: text
-+
-+	Number	State	Description
-+	0	D0	Device fully powered on
-+	1	D1
-+	2	D2
-+	3	D3hot
-+	4	D3cold	Off
-+
-+The downside is that as the device is not powered on, even if there's a problem
-+with the device, the driver likely probes just fine but the first user will
-+find out the device doesn't work, instead of a failure at probe time. This
-+feature should thus be used sparingly.
-+
-+References
-+==========
-+
-+[1] https://uefi.org/specifications/ACPI/6.4/02_Definition_of_Terms/Definition_of_Terms.html#device-power-state-definitions
-+
-+Example
-+=======
-+
-+An ASL example describing an ACPI device using _DSE object to tell Operating
-+System the device should remain powered off during probe looks like this. Some
-+objects not relevant from the example point of view have been omitted.
-+
-+.. code-block:: text
-+
-+	Device (CAM0)
-+        {
-+		Name (_HID, "SONY319A")
-+		Name (_UID, Zero)
-+		Name (_CRS, ResourceTemplate ()
-+		{
-+			I2cSerialBus(0x0020, ControllerInitiated, 0x00061A80,
-+				     AddressingMode7Bit, "\\_SB.PCI0.I2C0",
-+				     0x00, ResourceConsumer)
-+		})
-+		Name (_DSE, 0, NotSerialized)
-+		{
-+			Return (0x4)
-+                }
-+	}
--- 
-2.20.1
-
+Bartosz
