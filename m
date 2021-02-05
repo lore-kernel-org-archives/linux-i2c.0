@@ -2,131 +2,137 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B3AEC433E0
-	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 13:12:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE529C433DB
+	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 13:33:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 11E8C64FBC
-	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 13:12:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 94F3A64E0B
+	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 13:33:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230378AbhBENM0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 5 Feb 2021 08:12:26 -0500
-Received: from antares.kleine-koenig.org ([94.130.110.236]:34562 "EHLO
-        antares.kleine-koenig.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231284AbhBENJ7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 5 Feb 2021 08:09:59 -0500
-Received: by antares.kleine-koenig.org (Postfix, from userid 1000)
-        id D67A7AED6A1; Fri,  5 Feb 2021 14:08:50 +0100 (CET)
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        kvm@vger.kernel.org, David Airlie <airlied@linux.ie>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Jaroslav Kysela <perex@perex.cz>,
-        Eric Anholt <eric@anholt.net>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig.org@pengutronix.de>, linux-i2c@vger.kernel.org,
-        Jiri Slaby <jirislaby@kernel.org>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-watchdog@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Takashi Iwai <tiwai@suse.com>,
-        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        linux-serial@vger.kernel.org, linux-input@vger.kernel.org,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Mike Leach <mike.leach@linaro.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        alsa-devel@alsa-project.org,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        coresight@lists.linaro.org, Vladimir Zapolskiy <vz@mleia.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
-        Matt Mackall <mpm@selenic.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>, linux-mmc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org,
-        Vinod Koul <vkoul@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        linux-crypto@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
-        Leo Yan <leo.yan@linaro.org>, dmaengine@vger.kernel.org
-Subject: [PATCH] coresight: etm4x: Fix merge resolution for amba rework
-Date:   Fri,  5 Feb 2021 14:08:47 +0100
-Message-Id: <20210205130848.20009-1-uwe@kleine-koenig.org>
-X-Mailer: git-send-email 2.29.2
+        id S229741AbhBENco (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 5 Feb 2021 08:32:44 -0500
+Received: from mga17.intel.com ([192.55.52.151]:27051 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229941AbhBEN2w (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 5 Feb 2021 08:28:52 -0500
+IronPort-SDR: HMda+JDJ6wSQaig/Y66hxemEet48FqLM3w/x/zYpwarsGgvF0Jg1FJUaq5kwgE072slJ/2HMBb
+ fxIqNThzQ8Wg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9885"; a="161185331"
+X-IronPort-AV: E=Sophos;i="5.81,154,1610438400"; 
+   d="scan'208";a="161185331"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2021 05:24:57 -0800
+IronPort-SDR: 8xB7uGNbhzbDEtmhZopEqMhzKsMzmDhzd70XXHPvml2U/KrUhlS+Pa6rErtslb1cKlfUN56Tx+
+ FKMAWbhLpY1g==
+X-IronPort-AV: E=Sophos;i="5.81,154,1610438400"; 
+   d="scan'208";a="357699229"
+Received: from paasikivi.fi.intel.com ([10.237.72.42])
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2021 05:24:53 -0800
+Received: from punajuuri.localdomain (punajuuri.localdomain [192.168.240.130])
+        by paasikivi.fi.intel.com (Postfix) with ESMTP id 98A9820D41;
+        Fri,  5 Feb 2021 15:24:51 +0200 (EET)
+Received: from sailus by punajuuri.localdomain with local (Exim 4.92)
+        (envelope-from <sakari.ailus@linux.intel.com>)
+        id 1l816f-0005GO-Cw; Fri, 05 Feb 2021 15:25:05 +0200
+From:   Sakari Ailus <sakari.ailus@linux.intel.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa@the-dreams.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
+        Hyungwoo Yang <hyungwoo.yang@intel.com>,
+        linux-media@vger.kernel.org
+Subject: [PATCH v10 4/7] ACPI: Add a convenience function to tell a device is in low power state
+Date:   Fri,  5 Feb 2021 15:25:02 +0200
+Message-Id: <20210205132505.20173-5-sakari.ailus@linux.intel.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210205132505.20173-1-sakari.ailus@linux.intel.com>
+References: <20210205132505.20173-1-sakari.ailus@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This was non-trivial to get right because commits
-c23bc382ef0e ("coresight: etm4x: Refactor probing routine") and
-5214b563588e ("coresight: etm4x: Add support for sysreg only devices")
-changed the code flow considerably. With this change the driver can be
-built again.
+Add a convenience function to tell whether a device is in low power state,
+primarily for use in drivers' probe or remove functions on busses where
+the custom is to power on the device for the duration of both.
 
-Fixes: 0573d3fa4864 ("Merge branch 'devel-stable' of git://git.armlinux.org.uk/~rmk/linux-arm into char-misc-next")
-Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
+Returns false on non-ACPI systems.
+
+Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
 ---
-On Fri, Feb 05, 2021 at 12:07:09PM +0100, Greg Kroah-Hartman wrote:
-> On Fri, Feb 05, 2021 at 11:56:15AM +0100, Uwe Kleine-König wrote:
-> > I didn't compile test, but I'm willing to bet your resolution is wrong.
-> > You have no return statement in etm4_remove_dev() but its return type is
-> > int and etm4_remove_amba() still returns int but should return void.
-> 
-> Can you send a patch to fix this up?
+ drivers/acpi/device_pm.c | 23 +++++++++++++++++++++++
+ include/linux/acpi.h     |  6 ++++++
+ 2 files changed, 29 insertions(+)
 
-Sure, here it comes. As I'm unsure if you want to squash it into the
-merge or want to keep it separate I crafted a commit message. If you
-prefer squashing feel free to do so.
-
-This change corresponds to the merge resolution I suggested before.
-
-Best regards
-Uwe
-
- drivers/hwtracing/coresight/coresight-etm4x-core.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x-core.c b/drivers/hwtracing/coresight/coresight-etm4x-core.c
-index bc55b261af23..c8ecd91e289e 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x-core.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x-core.c
-@@ -1906,15 +1906,16 @@ static int __exit etm4_remove_dev(struct etmv4_drvdata *drvdata)
- 	cpus_read_unlock();
- 
- 	coresight_unregister(drvdata->csdev);
+diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
+index 096153761ebc3..5a58be779a8cd 100644
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -1336,4 +1336,27 @@ int acpi_dev_pm_attach(struct device *dev, bool power_on)
+ 	return 1;
+ }
+ EXPORT_SYMBOL_GPL(acpi_dev_pm_attach);
 +
-+	return 0;
- }
- 
--static int __exit etm4_remove_amba(struct amba_device *adev)
-+static void __exit etm4_remove_amba(struct amba_device *adev)
++/**
++ * acpi_dev_state_low_power - Check the current ACPI power state of a device.
++ * @dev: Physical device the ACPI power state of which to check
++ *
++ * On a system without ACPI, return false. On a system with ACPI, return true if
++ * the current ACPI power state of the device is not D0, or false otherwise.
++ *
++ * Note that the power state of a device is not well-defined after it has been
++ * passed to acpi_device_set_power() and before that function returns, so it is
++ * not valid to ask for the ACPI power state of the device in that time frame.
++ */
++bool acpi_dev_state_low_power(struct device *dev)
++{
++	struct acpi_device *adev = ACPI_COMPANION(dev);
++
++	if (!adev)
++		return false;
++
++	return adev->power.state != ACPI_STATE_D0;
++}
++EXPORT_SYMBOL_GPL(acpi_dev_state_low_power);
++
+ #endif /* CONFIG_PM */
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 4703daafcce9e..864786adb567c 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -982,6 +982,7 @@ int acpi_dev_resume(struct device *dev);
+ int acpi_subsys_runtime_suspend(struct device *dev);
+ int acpi_subsys_runtime_resume(struct device *dev);
+ int acpi_dev_pm_attach(struct device *dev, bool power_on);
++bool acpi_dev_state_low_power(struct device *dev);
+ #else
+ static inline int acpi_subsys_runtime_suspend(struct device *dev) { return 0; }
+ static inline int acpi_subsys_runtime_resume(struct device *dev) { return 0; }
+@@ -989,6 +990,11 @@ static inline int acpi_dev_pm_attach(struct device *dev, bool power_on)
  {
- 	struct etmv4_drvdata *drvdata = dev_get_drvdata(&adev->dev);
- 
- 	if (drvdata)
--		return etm4_remove_dev(drvdata);
--	return 0;
-+		etm4_remove_dev(drvdata);
+ 	return 0;
  }
++
++static inline bool acpi_dev_state_low_power(struct device *dev)
++{
++	return false;
++}
+ #endif
  
- static int __exit etm4_remove_platform_dev(struct platform_device *pdev)
+ #if defined(CONFIG_ACPI) && defined(CONFIG_PM_SLEEP)
 -- 
-2.29.2
+2.20.1
 
