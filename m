@@ -2,170 +2,212 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A48C5C433E6
-	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 22:32:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28EA5C433E0
+	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 22:48:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 71BE064F06
-	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 22:32:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDC1964E0F
+	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 22:48:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231931AbhBEWcV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 5 Feb 2021 17:32:21 -0500
-Received: from de-deferred2.bosch-org.com ([139.15.180.217]:39766 "EHLO
-        de-deferred2.bosch-org.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232315AbhBEOQK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 5 Feb 2021 09:16:10 -0500
-Received: from de-out1.bosch-org.com (snat-lb41g3-dmz-psi-sl1-maildeferred.fe.ssn.bosch.com [139.15.180.215])
-        by fe0vms0193.rbdmz01.com (Postfix) with ESMTPS id 4DXKhV0dqhzqPN;
-        Fri,  5 Feb 2021 16:53:30 +0100 (CET)
-Received: from fe0vm1650.rbesz01.com (lb41g3-ha-dmz-psi-sl1-mailout.fe.ssn.bosch.com [139.15.230.188])
-        by fe0vms0187.rbdmz01.com (Postfix) with ESMTPS id 4DXKdH1nd8z1XLDQv;
-        Fri,  5 Feb 2021 16:50:43 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=de.bosch.com;
-        s=key3-intmail; t=1612540243;
-        bh=fP74M6HwZDCum3+vzeaerJPkseKxvj4gZV75mefECbo=; l=10;
-        h=From:Subject:From:Reply-To:Sender;
-        b=BFyuHrASzp3561tTs9ypVNcLBywXr4MmrO95y/5oH8MS0atS6GpZS1diHxcL6YjaV
-         9jEdK/DU2JgykhK6zqDnY5p3+AWQPpGfwi+8TjSUKQUX7cSlvNOhWc0CHEL++tEzqx
-         XmdhOf/c+u1+OBzjti95/wHRyVC0PnBP4kut9DhU=
-Received: from fe0vm7918.rbesz01.com (unknown [10.58.172.176])
-        by fe0vm1650.rbesz01.com (Postfix) with ESMTPS id 4DXKdH1PBKz2HM;
-        Fri,  5 Feb 2021 16:50:43 +0100 (CET)
-X-AuditID: 0a3aad10-b0bff70000002230-42-601d6953e72d
-Received: from fe0vm1652.rbesz01.com ( [10.58.173.29])
-        (using TLS with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by fe0vm7918.rbesz01.com (SMG Outbound) with SMTP id 70.4D.08752.3596D106; Fri,  5 Feb 2021 16:50:43 +0100 (CET)
-Received: from SI-HUB2000.de.bosch.com (si-hub2000.de.bosch.com [10.4.103.108])
-        by fe0vm1652.rbesz01.com (Postfix) with ESMTPS id 4DXKdH0MYtzV16;
-        Fri,  5 Feb 2021 16:50:43 +0100 (CET)
-Received: from luchador.grb-fir.grb.de.bosch.com (10.19.187.97) by
- SI-HUB2000.de.bosch.com (10.4.103.108) with Microsoft SMTP Server id
- 15.1.2106.2; Fri, 5 Feb 2021 16:50:42 +0100
-From:   Mark Jonas <mark.jonas@de.bosch.com>
-To:     Support Opensource <support.opensource@diasemi.com>,
-        Lee Jones <lee.jones@linaro.org>
-CC:     <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <Adam.Thomson.Opensource@diasemi.com>,
-        <stwiss.opensource@diasemi.com>, <marek.vasut@gmail.com>,
-        <tingquan.ruan@cn.bosch.com>, <hubert.streidl@de.bosch.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Mark Jonas <mark.jonas@de.bosch.com>
-Subject: [PATCH v3] mfd: da9063: Support SMBus and I2C mode
-Date:   Fri, 5 Feb 2021 16:50:06 +0100
-Message-ID: <20210205155006.130458-1-mark.jonas@de.bosch.com>
-X-Mailer: git-send-email 2.25.1
+        id S232435AbhBEWrl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 5 Feb 2021 17:47:41 -0500
+Received: from mga09.intel.com ([134.134.136.24]:26783 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229522AbhBEN2w (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 5 Feb 2021 08:28:52 -0500
+IronPort-SDR: ftTHK/sOTyQ9MPA2pdg9ieH5kDU4lolvjPcKtw9jtMx5ECbHnvj2BdXHzE0+7Ls1yMhxZwbjU9
+ 5MyJteJAwjeQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9885"; a="181578729"
+X-IronPort-AV: E=Sophos;i="5.81,154,1610438400"; 
+   d="scan'208";a="181578729"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2021 05:25:01 -0800
+IronPort-SDR: RpsqP7/ztACPjxsOHS3FQ9XjZLHVCCAvCC+t5NWps+rak3kd8IjSyGTSdAyU9NeIQUi4UOi4jF
+ CbskbWWBIORw==
+X-IronPort-AV: E=Sophos;i="5.81,154,1610438400"; 
+   d="scan'208";a="581148954"
+Received: from paasikivi.fi.intel.com ([10.237.72.42])
+  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2021 05:24:58 -0800
+Received: from punajuuri.localdomain (punajuuri.localdomain [192.168.240.130])
+        by paasikivi.fi.intel.com (Postfix) with ESMTP id A8082213E5;
+        Fri,  5 Feb 2021 15:24:51 +0200 (EET)
+Received: from sailus by punajuuri.localdomain with local (Exim 4.92)
+        (envelope-from <sakari.ailus@linux.intel.com>)
+        id 1l816f-0005GU-F0; Fri, 05 Feb 2021 15:25:05 +0200
+From:   Sakari Ailus <sakari.ailus@linux.intel.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa@the-dreams.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
+        Hyungwoo Yang <hyungwoo.yang@intel.com>,
+        linux-media@vger.kernel.org
+Subject: [PATCH v10 6/7] media: i2c: imx319: Support probe while the device is off
+Date:   Fri,  5 Feb 2021 15:25:04 +0200
+Message-Id: <20210205132505.20173-7-sakari.ailus@linux.intel.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210205132505.20173-1-sakari.ailus@linux.intel.com>
+References: <20210205132505.20173-1-sakari.ailus@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrLLMWRmVeSWpSXmKPExsXCZbVWVjc4UzbB4O88doul75cyW9z/epTR
-        ouPvF0aLy7vmsFkc3XOP2eLq7/UsFntbLzJb3N0/l9GBw2PFJ32PnbPusntsWtXJ5nHn2h42
-        j8+b5AJYo7hsUlJzMstSi/TtErgyrhzazlbwT7Li69aFrA2Ma0S7GDk5JARMJCZcP8zUxcjF
-        ISQwnUli8do3bBDObkaJ1xNPs0I42xklrt7dwATSwiagJXHzxA5mEFtEIFqi5esJsHZmgVVM
-        EndW7WIHSQgLWEt0zutiBLFZBFQkXpy8AtbMK2Ar8X3rTnaI3fISMy99Z4eIC0qcnPmEBcRm
-        Boo3b53NDGFLSBx88YJ5AiPfLCRls5CUzUJStoCReRWjaFqqQVmuuaWhhV5RUmpxlYGhXnJ+
-        7iZGSAgL7GC83f1B7xAjEwfjIUYJDmYlEd7ENqkEId6UxMqq1KL8+KLSnNTiQ4zSHCxK4rwq
-        PBvjhATSE0tSs1NTC1KLYLJMHJxSDUxtYv6f5oU7LfyfMz13YxyzztSEh7tcjNT5a91fz9h0
-        YlUgV7mnRlRz8NWMBO3T271lVhxbdz33nHmc0USH14V/j2+J6Np8Uv1yiGSnwHG1/xd2PXKt
-        +qATtH2fqlTj/7cRAjl73RPlRVPy/rz6PSth1baU0nC3+uhkKQ9rG9FXO+4fbVqp/c1UzKL5
-        clnAl51OG4vk+GanbTpawCou7SzRGPakTlNy88zpSo2qz7h439yPvn92bu0iQacTMYf0WiaI
-        Ftx8vt2oyjUr/f+E3av3mXw+LsuaYXJapyGusuaF5gvGxdd1y36rbUr8PinOWeYZ37P+RRzy
-        W7tW123avldrInPo2QvreCc8naS8dbMSS3FGoqEWc1FxIgDtFBBU0AIAAA==
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Hubert Streidl <hubert.streidl@de.bosch.com>
+From: Rajmohan Mani <rajmohan.mani@intel.com>
 
-By default the PMIC DA9063 2-wire interface is SMBus compliant. This
-means the PMIC will automatically reset the interface when the clock
-signal ceases for more than the SMBus timeout of 35 ms.
+Tell ACPI device PM code that the driver supports the device being powered
+off when the driver's probe function is entered.
 
-If the I2C driver / device is not capable of creating atomic I2C
-transactions, a context change can cause a ceasing of the clock signal.
-This can happen if for example a real-time thread is scheduled. Then
-the DA9063 in SMBus mode will reset the 2-wire interface. Subsequently
-a write message could end up in the wrong register. This could cause
-unpredictable system behavior.
-
-The DA9063 PMIC also supports an I2C compliant mode for the 2-wire
-interface. This mode does not reset the interface when the clock
-signal ceases. Thus the problem depicted above does not occur.
-
-This patch tests for the bus functionality "I2C_FUNC_I2C". It can
-reasonably be assumed that the bus cannot obey SMBus timings if
-this functionality is set. SMBus commands most probably are emulated
-in this case which is prone to the latency issue described above.
-
-This patch enables the I2C bus mode if I2C_FUNC_I2C is set or
-otherwise enables the SMBus mode for a native SMBus controller
-which doesn't have I2C_FUNC_I2C set.
-
-Signed-off-by: Hubert Streidl <hubert.streidl@de.bosch.com>
-Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+Signed-off-by: Rajmohan Mani <rajmohan.mani@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
 ---
-Changes in v3:
-  - busmode now contains the correct bit DA9063_TWOWIRE_TO
+ drivers/media/i2c/imx319.c | 72 +++++++++++++++++++++++---------------
+ 1 file changed, 44 insertions(+), 28 deletions(-)
 
-Changes in v2:
-  - Implement proposal by Adam Thomson and Wolfram Sang to check for
-    functionality I2C_FUNC_I2C instead of introducing a new DT property.
-
- drivers/mfd/da9063-i2c.c             | 15 +++++++++++++++
- include/linux/mfd/da9063/registers.h |  3 +++
- 2 files changed, 18 insertions(+)
-
-diff --git a/drivers/mfd/da9063-i2c.c b/drivers/mfd/da9063-i2c.c
-index 3781d0bb7786..4c5e0f69942f 100644
---- a/drivers/mfd/da9063-i2c.c
-+++ b/drivers/mfd/da9063-i2c.c
-@@ -355,6 +355,7 @@ static int da9063_i2c_probe(struct i2c_client *i2c,
- 			    const struct i2c_device_id *id)
- {
- 	struct da9063 *da9063;
-+	unsigned int busmode;
- 	int ret;
+diff --git a/drivers/media/i2c/imx319.c b/drivers/media/i2c/imx319.c
+index 8473c0bbb35d6..e0b22e9318fed 100644
+--- a/drivers/media/i2c/imx319.c
++++ b/drivers/media/i2c/imx319.c
+@@ -140,6 +140,8 @@ struct imx319 {
  
- 	da9063 = devm_kzalloc(&i2c->dev, sizeof(struct da9063), GFP_KERNEL);
-@@ -442,6 +443,20 @@ static int da9063_i2c_probe(struct i2c_client *i2c,
- 		return ret;
- 	}
+ 	/* Streaming on/off */
+ 	bool streaming;
++	/* True if the device has been identified */
++	bool identified;
+ };
  
-+	if (i2c_check_functionality(i2c->adapter, I2C_FUNC_I2C)) {
-+		dev_info(da9063->dev, "I2C mode");
-+		busmode = 0;
-+	} else {
-+		dev_info(da9063->dev, "SMBus mode");
-+		busmode = DA9063_TWOWIRE_TO;
-+	}
-+	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONFIG_J,
-+	      DA9063_TWOWIRE_TO, busmode);
-+	if (ret < 0) {
-+		dev_err(da9063->dev, "Failed to set 2-wire bus mode.\n");
+ static const struct imx319_reg imx319_global_regs[] = {
+@@ -2084,6 +2086,31 @@ imx319_set_pad_format(struct v4l2_subdev *sd,
+ 	return 0;
+ }
+ 
++/* Verify chip ID */
++static int imx319_identify_module(struct imx319 *imx319)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(&imx319->sd);
++	int ret;
++	u32 val;
++
++	if (imx319->identified)
++		return 0;
++
++	ret = imx319_read_reg(imx319, IMX319_REG_CHIP_ID, 2, &val);
++	if (ret)
++		return ret;
++
++	if (val != IMX319_CHIP_ID) {
++		dev_err(&client->dev, "chip id mismatch: %x!=%x",
++			IMX319_CHIP_ID, val);
 +		return -EIO;
 +	}
 +
- 	return da9063_device_init(da9063, i2c->irq);
++	imx319->identified = true;
++
++	return 0;
++}
++
+ /* Start streaming */
+ static int imx319_start_streaming(struct imx319 *imx319)
+ {
+@@ -2091,6 +2118,10 @@ static int imx319_start_streaming(struct imx319 *imx319)
+ 	const struct imx319_reg_list *reg_list;
+ 	int ret;
+ 
++	ret = imx319_identify_module(imx319);
++	if (ret)
++		return ret;
++
+ 	/* Global Setting */
+ 	reg_list = &imx319_global_setting;
+ 	ret = imx319_write_regs(imx319, reg_list->regs, reg_list->num_of_regs);
+@@ -2208,26 +2239,6 @@ static int __maybe_unused imx319_resume(struct device *dev)
+ 	return ret;
  }
  
-diff --git a/include/linux/mfd/da9063/registers.h b/include/linux/mfd/da9063/registers.h
-index 1dbabf1b3cb8..6e0f66a2e727 100644
---- a/include/linux/mfd/da9063/registers.h
-+++ b/include/linux/mfd/da9063/registers.h
-@@ -1037,6 +1037,9 @@
- #define		DA9063_NONKEY_PIN_AUTODOWN	0x02
- #define		DA9063_NONKEY_PIN_AUTOFLPRT	0x03
+-/* Verify chip ID */
+-static int imx319_identify_module(struct imx319 *imx319)
+-{
+-	struct i2c_client *client = v4l2_get_subdevdata(&imx319->sd);
+-	int ret;
+-	u32 val;
+-
+-	ret = imx319_read_reg(imx319, IMX319_REG_CHIP_ID, 2, &val);
+-	if (ret)
+-		return ret;
+-
+-	if (val != IMX319_CHIP_ID) {
+-		dev_err(&client->dev, "chip id mismatch: %x!=%x",
+-			IMX319_CHIP_ID, val);
+-		return -EIO;
+-	}
+-
+-	return 0;
+-}
+-
+ static const struct v4l2_subdev_core_ops imx319_subdev_core_ops = {
+ 	.subscribe_event = v4l2_ctrl_subdev_subscribe_event,
+ 	.unsubscribe_event = v4l2_event_subdev_unsubscribe,
+@@ -2422,6 +2433,7 @@ static struct imx319_hwcfg *imx319_get_hwcfg(struct device *dev)
+ static int imx319_probe(struct i2c_client *client)
+ {
+ 	struct imx319 *imx319;
++	bool low_power;
+ 	int ret;
+ 	u32 i;
  
-+/* DA9063_REG_CONFIG_J (addr=0x10F) */
-+#define DA9063_TWOWIRE_TO			0x40
-+
- /* DA9063_REG_MON_REG_5 (addr=0x116) */
- #define DA9063_MON_A8_IDX_MASK			0x07
- #define		DA9063_MON_A8_IDX_NONE		0x00
+@@ -2434,11 +2446,14 @@ static int imx319_probe(struct i2c_client *client)
+ 	/* Initialize subdev */
+ 	v4l2_i2c_subdev_init(&imx319->sd, client, &imx319_subdev_ops);
+ 
+-	/* Check module identity */
+-	ret = imx319_identify_module(imx319);
+-	if (ret) {
+-		dev_err(&client->dev, "failed to find sensor: %d", ret);
+-		goto error_probe;
++	low_power = acpi_dev_state_low_power(&client->dev);
++	if (!low_power) {
++		/* Check module identity */
++		ret = imx319_identify_module(imx319);
++		if (ret) {
++			dev_err(&client->dev, "failed to find sensor: %d", ret);
++			goto error_probe;
++		}
+ 	}
+ 
+ 	imx319->hwcfg = imx319_get_hwcfg(&client->dev);
+@@ -2491,10 +2506,10 @@ static int imx319_probe(struct i2c_client *client)
+ 		goto error_media_entity;
+ 
+ 	/*
+-	 * Device is already turned on by i2c-core with ACPI domain PM.
+-	 * Enable runtime PM and turn off the device.
++	 * Don't set the device's state to active if it's in a low power state.
+ 	 */
+-	pm_runtime_set_active(&client->dev);
++	if (!low_power)
++		pm_runtime_set_active(&client->dev);
+ 	pm_runtime_enable(&client->dev);
+ 	pm_runtime_idle(&client->dev);
+ 
+@@ -2547,6 +2562,7 @@ static struct i2c_driver imx319_i2c_driver = {
+ 	},
+ 	.probe_new = imx319_probe,
+ 	.remove = imx319_remove,
++	.flags = I2C_DRV_FL_ALLOW_LOW_POWER_PROBE,
+ };
+ module_i2c_driver(imx319_i2c_driver);
+ 
 -- 
-2.25.1
+2.20.1
 
