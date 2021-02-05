@@ -5,43 +5,43 @@ X-Spam-Level:
 X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC46DC4332D
-	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 08:53:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E8E8C43331
+	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 08:53:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 90ACF64F3C
-	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 08:53:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDAEF64F3C
+	for <linux-i2c@archiver.kernel.org>; Fri,  5 Feb 2021 08:53:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbhBEIxQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 5 Feb 2021 03:53:16 -0500
-Received: from mx07-00178001.pphosted.com ([185.132.182.106]:53886 "EHLO
+        id S229870AbhBEIxT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 5 Feb 2021 03:53:19 -0500
+Received: from mx07-00178001.pphosted.com ([185.132.182.106]:53884 "EHLO
         mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229720AbhBEIxE (ORCPT
+        by vger.kernel.org with ESMTP id S229651AbhBEIxE (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 5 Feb 2021 03:53:04 -0500
 Received: from pps.filterd (m0241204.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1158oe9c025982;
+        by mx07-00178001.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1158ofSl025992;
         Fri, 5 Feb 2021 09:52:08 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references : mime-version :
  content-type; s=selector1;
- bh=a/WzW5u9oZm4Te6wakI3Z6sVptDelyDPT1JPG6TGgag=;
- b=1HK5VDL7zr91nt5H11oRqFSg0FkcSCEJBolqlEV70tfB/9m18AgHD/ptj9S6khitsXrr
- 70yrP5TemjJdQ8Djj7iF4bwmS+hWTWAUkVMuhOsE8PKwRn8bI9D0BoFlKZJhRpGPzfYj
- fN0GEUbxza4y7Ym5LAMbVy4JpFpGGmSF2VyGz7C3TY3UiwNv/dsI9lZu7hklFHfHoxVy
- AZqbIJqdpIeBuTvh05kmGmVn9BDOt6/SlRwAUDj+oy8p9Iu/tCytjDSy16FGTkoy80Vf
- RPwVsTAaGP314HTckLDaNSxHyJ6GFsOp51TwPKDA+172okHp7kmB2xQQfyoIc+oclkPQ 2w== 
+ bh=hZZHp1JpStDPwHbkG6Dc3WR7sLwf+/8Ce3BPuIJA6Mw=;
+ b=hMF/sP5IBXJlIt2YgWNYk938KAJvAQt7WqLOz/8Z25zeOAPJaEcb4tKVECLkjrbvlQK1
+ MT09T+rhgNmJZe3x6yRA2LsvQY5sseJcKA1I+jsjfHclXXVUMTX8giQDCjExCpsaF0Jd
+ BYCN2S45OB0tl7HmuXiHJHZSfWpp78AWffwUkuDS1eeCq80nN6HLYVVLvyUS1RKQqDxl
+ wRLTEn4490EQzOooUM2ABiNeIMXbzPlI/5arFwW4eGxgVhgkewvKZtuLsAfe+8vRbNKX
+ zWQ5umUrQ7arX/88xN/0Ue6gC1ETjDwYP+Z5CSd+GP4lOq0tPZTh+3xcz8FM2SSHu2nt rg== 
 Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 36ey7hev2k-1
+        by mx07-00178001.pphosted.com with ESMTP id 36ey7hev2g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 05 Feb 2021 09:52:08 +0100
 Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 2CA82100038;
-        Fri,  5 Feb 2021 09:52:08 +0100 (CET)
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id A9C8B10002A;
+        Fri,  5 Feb 2021 09:52:07 +0100 (CET)
 Received: from Webmail-eu.st.com (sfhdag2node3.st.com [10.75.127.6])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 17FB8221794;
-        Fri,  5 Feb 2021 09:52:08 +0100 (CET)
-Received: from localhost (10.75.127.46) by SFHDAG2NODE3.st.com (10.75.127.6)
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 9C8DA221793;
+        Fri,  5 Feb 2021 09:52:07 +0100 (CET)
+Received: from localhost (10.75.127.45) by SFHDAG2NODE3.st.com (10.75.127.6)
  with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 5 Feb 2021 09:52:07
  +0100
 From:   Alain Volmat <alain.volmat@foss.st.com>
@@ -53,16 +53,16 @@ CC:     <mark.rutland@arm.com>, <pierre-yves.mordret@foss.st.com>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, <fabrice.gasnier@foss.st.com>,
         <alain.volmat@foss.st.com>
-Subject: [PATCH 5/5] i2c: stm32f7: indicate the address being accessed on errors
-Date:   Fri, 5 Feb 2021 09:51:44 +0100
-Message-ID: <1612515104-838-6-git-send-email-alain.volmat@foss.st.com>
+Subject: [PATCH 4/5] ARM: dts: stm32: enable the analog filter for all I2C nodes in stm32mp151
+Date:   Fri, 5 Feb 2021 09:51:43 +0100
+Message-ID: <1612515104-838-5-git-send-email-alain.volmat@foss.st.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1612515104-838-1-git-send-email-alain.volmat@foss.st.com>
 References: <1612515104-838-1-git-send-email-alain.volmat@foss.st.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Originating-IP: [10.75.127.46]
-X-ClientProxiedBy: SFHDAG3NODE1.st.com (10.75.127.7) To SFHDAG2NODE3.st.com
+X-Originating-IP: [10.75.127.45]
+X-ClientProxiedBy: SFHDAG3NODE3.st.com (10.75.127.9) To SFHDAG2NODE3.st.com
  (10.75.127.6)
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
  definitions=2021-02-05_06:2021-02-05,2021-02-05 signatures=0
@@ -70,46 +70,65 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-To help debugging issues, add the address of the slave being
-accessed when getting an error.
+Enable the analog filter for all I2C nodes of the stm32mp151.
 
 Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/stm32mp151.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index f77cd6512a86..ef642fe1eb2c 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1602,7 +1602,8 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
+diff --git a/arch/arm/boot/dts/stm32mp151.dtsi b/arch/arm/boot/dts/stm32mp151.dtsi
+index 3c75abacb374..558fc8fb38b6 100644
+--- a/arch/arm/boot/dts/stm32mp151.dtsi
++++ b/arch/arm/boot/dts/stm32mp151.dtsi
+@@ -493,6 +493,7 @@
+ 			#size-cells = <0>;
+ 			st,syscfg-fmp = <&syscfg 0x4 0x1>;
+ 			wakeup-source;
++			i2c-analog-filter;
+ 			status = "disabled";
+ 		};
  
- 	/* Bus error */
- 	if (status & STM32F7_I2C_ISR_BERR) {
--		dev_err(dev, "<%s>: Bus error\n", __func__);
-+		dev_err(dev, "<%s>: Bus error accessing addr 0x%x\n",
-+			__func__, f7_msg->addr);
- 		writel_relaxed(STM32F7_I2C_ICR_BERRCF, base + STM32F7_I2C_ICR);
- 		stm32f7_i2c_release_bus(&i2c_dev->adap);
- 		f7_msg->result = -EIO;
-@@ -1610,13 +1611,15 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
+@@ -508,6 +509,7 @@
+ 			#size-cells = <0>;
+ 			st,syscfg-fmp = <&syscfg 0x4 0x2>;
+ 			wakeup-source;
++			i2c-analog-filter;
+ 			status = "disabled";
+ 		};
  
- 	/* Arbitration loss */
- 	if (status & STM32F7_I2C_ISR_ARLO) {
--		dev_dbg(dev, "<%s>: Arbitration loss\n", __func__);
-+		dev_dbg(dev, "<%s>: Arbitration loss accessing addr 0x%x\n",
-+			__func__, f7_msg->addr);
- 		writel_relaxed(STM32F7_I2C_ICR_ARLOCF, base + STM32F7_I2C_ICR);
- 		f7_msg->result = -EAGAIN;
- 	}
+@@ -523,6 +525,7 @@
+ 			#size-cells = <0>;
+ 			st,syscfg-fmp = <&syscfg 0x4 0x4>;
+ 			wakeup-source;
++			i2c-analog-filter;
+ 			status = "disabled";
+ 		};
  
- 	if (status & STM32F7_I2C_ISR_PECERR) {
--		dev_err(dev, "<%s>: PEC error in reception\n", __func__);
-+		dev_err(dev, "<%s>: PEC error in reception accessing addr 0x%x\n",
-+			__func__, f7_msg->addr);
- 		writel_relaxed(STM32F7_I2C_ICR_PECCF, base + STM32F7_I2C_ICR);
- 		f7_msg->result = -EINVAL;
- 	}
+@@ -538,6 +541,7 @@
+ 			#size-cells = <0>;
+ 			st,syscfg-fmp = <&syscfg 0x4 0x10>;
+ 			wakeup-source;
++			i2c-analog-filter;
+ 			status = "disabled";
+ 		};
+ 
+@@ -1533,6 +1537,7 @@
+ 			#size-cells = <0>;
+ 			st,syscfg-fmp = <&syscfg 0x4 0x8>;
+ 			wakeup-source;
++			i2c-analog-filter;
+ 			status = "disabled";
+ 		};
+ 
+@@ -1570,6 +1575,7 @@
+ 			#size-cells = <0>;
+ 			st,syscfg-fmp = <&syscfg 0x4 0x20>;
+ 			wakeup-source;
++			i2c-analog-filter;
+ 			status = "disabled";
+ 		};
+ 
 -- 
 2.17.1
 
