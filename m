@@ -2,113 +2,109 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A41D1C4332B
-	for <linux-i2c@archiver.kernel.org>; Mon,  8 Feb 2021 08:03:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE4C3C433E0
+	for <linux-i2c@archiver.kernel.org>; Mon,  8 Feb 2021 10:55:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 799CD64E7D
-	for <linux-i2c@archiver.kernel.org>; Mon,  8 Feb 2021 08:03:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E9A464E7A
+	for <linux-i2c@archiver.kernel.org>; Mon,  8 Feb 2021 10:55:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229986AbhBHIDC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 8 Feb 2021 03:03:02 -0500
-Received: from mga11.intel.com ([192.55.52.93]:18280 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230035AbhBHIDB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 8 Feb 2021 03:03:01 -0500
-IronPort-SDR: ZcNOVZe4/w3Z7NYH82bFU6LUYH4nRsA3ohPgEY4xik48UUJLbLlDbYiipSeLP4ft0LRlZY9K+H
- XjAVYb7jlOYA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9888"; a="178165608"
-X-IronPort-AV: E=Sophos;i="5.81,161,1610438400"; 
-   d="scan'208";a="178165608"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2021 00:01:14 -0800
-IronPort-SDR: TAeApzPzcsHD2nkD1WnSRdfB3aHdH4EvqMFWDF9iS82Szz7Zcm8ei8sWTroW7XKGJkXXa2l5iG
- 3XsPj8VbOElQ==
-X-IronPort-AV: E=Sophos;i="5.81,161,1610438400"; 
-   d="scan'208";a="577574042"
-Received: from paasikivi.fi.intel.com ([10.237.72.42])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2021 00:01:10 -0800
-Received: by paasikivi.fi.intel.com (Postfix, from userid 1000)
-        id A08E22082C; Mon,  8 Feb 2021 10:01:08 +0200 (EET)
-Date:   Mon, 8 Feb 2021 10:01:08 +0200
-From:   Sakari Ailus <sakari.ailus@linux.intel.com>
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
-        Hyungwoo Yang <hyungwoo.yang@intel.com>,
-        linux-media@vger.kernel.org
-Subject: Re: [PATCH v10 3/7] Documentation: ACPI: Document _DSE object usage
- for enum power state
-Message-ID: <20210208080108.GL32460@paasikivi.fi.intel.com>
-References: <20210205132505.20173-1-sakari.ailus@linux.intel.com>
- <20210205132505.20173-4-sakari.ailus@linux.intel.com>
- <4894ef52-71f5-c651-c45b-4788f0e24162@infradead.org>
+        id S232456AbhBHKyq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 8 Feb 2021 05:54:46 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:12461 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232347AbhBHKvt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 Feb 2021 05:51:49 -0500
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4DZ2pn6lkHzjJWd;
+        Mon,  8 Feb 2021 18:49:53 +0800 (CST)
+Received: from localhost.localdomain (10.67.165.24) by
+ DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
+ 14.3.498.0; Mon, 8 Feb 2021 18:50:52 +0800
+From:   Weihang Li <liweihang@huawei.com>
+To:     <wsa@kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mips@vger.kernel.org>
+CC:     <linuxarm@openeuler.org>, Weihang Li <liweihang@huawei.com>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH] i2c: busses: Replace spin_lock_irqsave with spin_lock in hard IRQ
+Date:   Mon, 8 Feb 2021 18:48:37 +0800
+Message-ID: <1612781317-51815-1-git-send-email-liweihang@huawei.com>
+X-Mailer: git-send-email 2.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4894ef52-71f5-c651-c45b-4788f0e24162@infradead.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+X-Originating-IP: [10.67.165.24]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Randy,
+There is no need to do irqsave and irqrestore in context of hard IRQ.
 
-On Fri, Feb 05, 2021 at 04:56:47PM -0800, Randy Dunlap wrote:
-> On 2/5/21 5:25 AM, Sakari Ailus wrote:
-> > Document the use of the _DSE object for setting desirable power state
-> > during probe.
-> > 
-> > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> > Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-> > ---
-> >  Documentation/firmware-guide/acpi/index.rst   |  1 +
-> >  .../firmware-guide/acpi/low-power-probe.rst   | 69 +++++++++++++++++++
-> >  2 files changed, 70 insertions(+)
-> >  create mode 100644 Documentation/firmware-guide/acpi/low-power-probe.rst
-> > 
-> 
-> > diff --git a/Documentation/firmware-guide/acpi/low-power-probe.rst b/Documentation/firmware-guide/acpi/low-power-probe.rst
-> > new file mode 100644
-> > index 0000000000000..b96804d959a6c
-> > --- /dev/null
-> > +++ b/Documentation/firmware-guide/acpi/low-power-probe.rst
-> > @@ -0,0 +1,69 @@
-> > +.. SPDX-License-Identifier: GPL-2.0
-> > +
-> > +======================================
-> > +Probing I²C devices in low power state
-> > +======================================
-> > +
-> > +Introduction
-> > +============
-> > +
-> > +In some cases it may be preferred to leave certain devices powered off for the
-> > +entire system bootup if powering on these devices has adverse side effects,
-> > +beyond just powering on the said device.
-> > +
-> > +How it works
-> > +============
-> >
-> 
-> Hi,
-> 
-> Please don't use ============ underlines for all section levels.
+Cc: Baruch Siach <baruch@tkos.co.il>
+Cc: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+---
+ drivers/i2c/busses/i2c-digicolor.c | 5 ++---
+ drivers/i2c/busses/i2c-jz4780.c    | 5 ++---
+ 2 files changed, 4 insertions(+), 6 deletions(-)
 
-The sections under the title are intended to be on the same level.
-
+diff --git a/drivers/i2c/busses/i2c-digicolor.c b/drivers/i2c/busses/i2c-digicolor.c
+index f67639d..60c838c 100644
+--- a/drivers/i2c/busses/i2c-digicolor.c
++++ b/drivers/i2c/busses/i2c-digicolor.c
+@@ -160,12 +160,11 @@ static irqreturn_t dc_i2c_irq(int irq, void *dev_id)
+ {
+ 	struct dc_i2c *i2c = dev_id;
+ 	int cmd_status = dc_i2c_cmd_status(i2c);
+-	unsigned long flags;
+ 	u8 addr_cmd;
+ 
+ 	writeb_relaxed(1, i2c->regs + II_INTFLAG_CLEAR);
+ 
+-	spin_lock_irqsave(&i2c->lock, flags);
++	spin_lock(&i2c->lock);
+ 
+ 	if (cmd_status == II_CMD_STATUS_ACK_BAD
+ 	    || cmd_status == II_CMD_STATUS_ABORT) {
+@@ -207,7 +206,7 @@ static irqreturn_t dc_i2c_irq(int irq, void *dev_id)
+ 	}
+ 
+ out:
+-	spin_unlock_irqrestore(&i2c->lock, flags);
++	spin_unlock(&i2c->lock);
+ 	return IRQ_HANDLED;
+ }
+ 
+diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
+index cb4a25e..8509c5f 100644
+--- a/drivers/i2c/busses/i2c-jz4780.c
++++ b/drivers/i2c/busses/i2c-jz4780.c
+@@ -437,9 +437,8 @@ static irqreturn_t jz4780_i2c_irq(int irqno, void *dev_id)
+ 	unsigned short intst;
+ 	unsigned short intmsk;
+ 	struct jz4780_i2c *i2c = dev_id;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&i2c->lock, flags);
++	spin_lock(&i2c->lock);
+ 	intmsk = jz4780_i2c_readw(i2c, JZ4780_I2C_INTM);
+ 	intst = jz4780_i2c_readw(i2c, JZ4780_I2C_INTST);
+ 
+@@ -551,7 +550,7 @@ static irqreturn_t jz4780_i2c_irq(int irqno, void *dev_id)
+ 	}
+ 
+ done:
+-	spin_unlock_irqrestore(&i2c->lock, flags);
++	spin_unlock(&i2c->lock);
+ 	return IRQ_HANDLED;
+ }
+ 
 -- 
-Regards,
+2.8.1
 
-Sakari Ailus
