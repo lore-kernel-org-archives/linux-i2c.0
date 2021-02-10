@@ -2,102 +2,78 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54D9BC433E0
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Feb 2021 12:44:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7726EC433DB
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Feb 2021 19:05:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C8C664E32
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Feb 2021 12:44:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4965F64E3B
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Feb 2021 19:05:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231944AbhBJMoA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 10 Feb 2021 07:44:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46586 "EHLO
+        id S234388AbhBJTFi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 10 Feb 2021 14:05:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231259AbhBJMmD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 Feb 2021 07:42:03 -0500
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37F7FC06178B
-        for <linux-i2c@vger.kernel.org>; Wed, 10 Feb 2021 04:39:22 -0800 (PST)
-Received: by mail-wr1-x430.google.com with SMTP id g6so2299808wrs.11
-        for <linux-i2c@vger.kernel.org>; Wed, 10 Feb 2021 04:39:22 -0800 (PST)
+        with ESMTP id S234200AbhBJTFV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 Feb 2021 14:05:21 -0500
+Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD33C061793
+        for <linux-i2c@vger.kernel.org>; Wed, 10 Feb 2021 11:04:33 -0800 (PST)
+Received: by mail-io1-xd2c.google.com with SMTP id z21so1697805iob.7
+        for <linux-i2c@vger.kernel.org>; Wed, 10 Feb 2021 11:04:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=1kyBZaooKRsp8dgexZ6zNvaY5AzBnW9II7l4W6gOhuw=;
-        b=O4lNCmLMV9J0Ms/nyo9bru40D9IVTCxzo8GIO0KKuXiuMjWx2Bf4Yj+8xrqfdwgLKq
-         E0iTf4A8gQ8Iord7nPRw2d/z0He3EtJXQRO65BIkDB+S+lKe26C8fqq+l20a+1RbthYa
-         OvixAYupu4BoF+sIpiF7hCHCCd+JrXf09UMB+vf6ryDMHJgha8nbYU83INe2+Q/hJO9N
-         qaIafM17kRScTPZF1idFxvcFieyuWMPj1JbuByHhNmz7ZN6ZZlJIE2sx3ZE80hvi+Ayg
-         Vx6m+/qFAsSR8BfXbBSgOYnBaO9McXZz7ZFYXc/JO7K4aJTia/9Dzuzs0GOKVdjA7zXp
-         oJrw==
+        d=google.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=0nz0GUsbRFyNnjWojh4Sd2INZUh1Ds16k3rHdVW/EPA=;
+        b=A2cdovxkIKtELi2w/FD0eh20qFrsRJ9m8bgn04wHsjX39jCePX8BZ0ZYU3gP3A7zik
+         l3kisF+RrDveBqMn1qsCLEfx+RMLL9a12H4LAXL6+MbF9OEzM2yDmfeK+8PZZC9DBm4U
+         N9uHrKzdNQs558nxtHzKK1/05dygx/Cgtr6eLB5ThcIUj6Eh2V3hwVt75RWafjd0Ka4I
+         hVUtlZXXCUYuVnES9G97KHHRWR8B/X11fniQbqJBnXrF18cYbv56MTVzDuldeqRExmqe
+         52D9+k8QuTeF6cfXyf2Nqp5VlApTaDL3yAjKggaERZMgONjnZdzZ1kv7RmvGbzclxOTR
+         dhAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=1kyBZaooKRsp8dgexZ6zNvaY5AzBnW9II7l4W6gOhuw=;
-        b=uDcN3fu/NCBPIzkDfmxB+ZTDpinuKwLz+L4uSvj6sNCnGrGF4eYx7uyr10ArAK3ma0
-         O3LoTCk+dqfqqQL+5zSjqsdV8t+IezlliCw7DKyRlAGExWLsd8VfI/C8bOmPlnRJlijI
-         bgLZoINARmO03UQPw2cEOUzCHWtlSQd9Z6FE89k3YeyWj7WeLIqxiM9Kxw1brCdjkje7
-         Hcj9ETgp3bbVp7FuYp24PFy1f7XQCs8tuB9gA04Q4rjde/bVroFlbOHCl9xxk0reISno
-         y9PuWboTIm8g3vjA5ZDnZtAVb96XwOYvO3WxAAHLqhwj7jq0Mvme4AxI1pdebaCJYmro
-         1iuw==
-X-Gm-Message-State: AOAM531u0+cWexu5xqfd0gL4bSqfNtJDW4PWVoPLTLGpMZHQmzkzbznL
-        u2piEsnPB/3X5INs6q6HOMKYwA==
-X-Google-Smtp-Source: ABdhPJwaMajU0ekWhcAOPZ7M34YWM1+aYu0KvI9knZBZdrhQ7qx+ml71EPfE4k5kUEqP3aSx5RXxKQ==
-X-Received: by 2002:adf:e689:: with SMTP id r9mr1369150wrm.273.1612960761021;
-        Wed, 10 Feb 2021 04:39:21 -0800 (PST)
-Received: from debian-brgl.home (amarseille-656-1-4-167.w90-8.abo.wanadoo.fr. [90.8.158.167])
-        by smtp.gmail.com with ESMTPSA id l1sm2001248wmq.17.2021.02.10.04.39.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Feb 2021 04:39:20 -0800 (PST)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     linux-i2c@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [GIT PULL] at24: updates for v5.12
-Date:   Wed, 10 Feb 2021 13:39:19 +0100
-Message-Id: <20210210123919.20033-1-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.29.1
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=0nz0GUsbRFyNnjWojh4Sd2INZUh1Ds16k3rHdVW/EPA=;
+        b=NMHAuMZX5HZV9b7CxbBnx7mJ5B+cyem4pdocKP6h5pApu3yTHaRvOhwZ+P7fGvxe39
+         Rvj0rPHKNeSsGdVUmT3DLsQ28fF3v+GGsC+TN6rXgnRg+F565rtIulehQYdSdMaHdgy+
+         pJbe5gfQd44ugYJqVqYpQSwmjHcc7CvTP2svoBXDni2rQkR83ckHyHqKVOuET1xt5C2C
+         aQBC46UH+2k5dWShfK0ftp0X+/D0HuJsIzjqg52lGDMx1taUC2tCgBKSbU3fDKO7ffCM
+         rgjN/SiUpOQKOowrdMe8BJyk7HDCXaF1FrPd74zVDa9YmAFMMzvIONsz86QRO2cndUMH
+         ktyA==
+X-Gm-Message-State: AOAM533BWXUi4Q0l7NJT5cET58THGjyQkoQiAgw0IvKAhWjzxB87cE+f
+        KBziP9twhcWdGMz9DMpBlBojRh6D+UXUG3a5w3VZYGHYzxNWTg==
+X-Google-Smtp-Source: ABdhPJwCLNIQIGoplQHAEFgLkPQrA0HTTzwwWSkq3vsWElwg9LOHRWmF6/PHGXM8tavuVUtm9t7D43llTsjRuR3EJSE=
+X-Received: by 2002:a05:6638:58:: with SMTP id a24mr4910542jap.40.1612983872917;
+ Wed, 10 Feb 2021 11:04:32 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   Alex Qiu <xqiu@google.com>
+Date:   Wed, 10 Feb 2021 11:04:22 -0800
+Message-ID: <CAA_a9x+ysAxT6T11S_M4pKenq2vDO762nnXUvAuXOCL7S9ozxg@mail.gmail.com>
+Subject: Kernel Doc on Navigating I2C Sysfs for I2C Topology
+To:     peda@axentia.se, Wolfram Sang <wsa@kernel.org>
+Cc:     Linux I2C <linux-i2c@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Hi Peter and Wolfram,
 
-Hi Wolfram,
+I'm looking for some documentation online to guide hardware engineers
+on how to find out what logical I2C bus number to use for i2ctools in
+sysfs when they know the physical I2C topology (BMC physical bus
+number and MUX channels). I read through the doc under
+Documentation/i2c/, but didn't find any. I didn't find much on this by
+searching the Internet, either.
 
-This is a single trivial commit for at24 for the v5.12 merge window.
-Please pull.
+Is it some doc that I can add to Documentation/i2c/ or
+Documentation/i2c/i2c-topology.rst? Any suggestions or thoughts?
 
-Bartosz
+Thank you!
 
-The following changes since commit 5c8fe583cce542aa0b84adc939ce85293de36e5e:
-
-  Linux 5.11-rc1 (2020-12-27 15:30:22 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-updates-for-v5.12
-
-for you to fetch changes up to 5366c48f327ec9e0261333a876384a26da91c854:
-
-  dt-bindings: eeprom: at24: Document ROHM BR24G01 (2021-02-09 19:19:09 +0100)
-
-----------------------------------------------------------------
-at24: updates for v5.12
-
-- add a new compatible string to the AT24 DT bindings
-
-----------------------------------------------------------------
-Geert Uytterhoeven (1):
-      dt-bindings: eeprom: at24: Document ROHM BR24G01
-
- Documentation/devicetree/bindings/eeprom/at24.yaml | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+- Alex Qiu
