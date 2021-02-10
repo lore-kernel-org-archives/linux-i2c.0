@@ -5,39 +5,39 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88090C4332D
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Feb 2021 23:11:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 039A9C43332
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Feb 2021 23:11:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 51FE964EDF
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Feb 2021 23:11:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDDDA64ED0
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Feb 2021 23:11:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234222AbhBJXLq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 10 Feb 2021 18:11:46 -0500
-Received: from mga03.intel.com ([134.134.136.65]:18268 "EHLO mga03.intel.com"
+        id S234226AbhBJXLr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 10 Feb 2021 18:11:47 -0500
+Received: from mga07.intel.com ([134.134.136.100]:42606 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232578AbhBJXKR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S234105AbhBJXKR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Wed, 10 Feb 2021 18:10:17 -0500
-IronPort-SDR: xAr1KMuC7k01DlyKh1KTe2apER90107GxEkfJIF3Sq8gHCxgfSvmMezHpewT0roB3FLpYHtDhR
- FcxihCcsdJ8A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9891"; a="182233228"
+IronPort-SDR: 9TZGAR7fN5ecXkHhru/hH5dLMOvkes7QBjicOVwHvt2lFraTK1mf4fC3EH9sVYONgsVzHjJoLZ
+ 51CSVdYRabZw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9891"; a="246232235"
 X-IronPort-AV: E=Sophos;i="5.81,169,1610438400"; 
-   d="scan'208";a="182233228"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2021 15:08:06 -0800
-IronPort-SDR: 5LKcnIsjQMODyiwUZavTP9a10ehotS3GefcEwHkWUX1Go+g3zfMdXJu29F3a9GLNx/g0MfJdxx
- FCbvpVPszeSg==
+   d="scan'208";a="246232235"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2021 15:08:07 -0800
+IronPort-SDR: fhtEZmjeUKd1omTL6/ZLcY2qYGbMJ9nbZcwmdQGLN6qH5Mt0yq9niw1V4Isf10iBJKQTIb3maR
+ DwlcTWSVO37g==
 X-IronPort-AV: E=Sophos;i="5.81,169,1610438400"; 
-   d="scan'208";a="361506953"
+   d="scan'208";a="436856005"
 Received: from paasikivi.fi.intel.com ([10.237.72.42])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2021 15:08:03 -0800
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2021 15:08:04 -0800
 Received: from punajuuri.localdomain (punajuuri.localdomain [192.168.240.130])
-        by paasikivi.fi.intel.com (Postfix) with ESMTP id 464A4204A6;
+        by paasikivi.fi.intel.com (Postfix) with ESMTP id 50DD52079D;
         Thu, 11 Feb 2021 01:08:01 +0200 (EET)
 Received: from sailus by punajuuri.localdomain with local (Exim 4.92)
         (envelope-from <sakari.ailus@linux.intel.com>)
-        id 1l9yaW-0007tQ-TP; Thu, 11 Feb 2021 01:08:00 +0200
+        id 1l9yaW-0007tX-W9; Thu, 11 Feb 2021 01:08:01 +0200
 From:   Sakari Ailus <sakari.ailus@linux.intel.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     Wolfram Sang <wsa@the-dreams.de>,
@@ -50,61 +50,125 @@ Cc:     Wolfram Sang <wsa@the-dreams.de>,
         Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
         Hyungwoo Yang <hyungwoo.yang@intel.com>,
         linux-media@vger.kernel.org
-Subject: [PATCH v11 1/7] ACPI: scan: Obtain device's desired enumeration power state
-Date:   Thu, 11 Feb 2021 01:07:54 +0200
-Message-Id: <20210210230800.30291-2-sakari.ailus@linux.intel.com>
+Subject: [PATCH v11 3/7] Documentation: ACPI: Document _DSE object usage for enum power state
+Date:   Thu, 11 Feb 2021 01:07:56 +0200
+Message-Id: <20210210230800.30291-4-sakari.ailus@linux.intel.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20210210230800.30291-1-sakari.ailus@linux.intel.com>
 References: <20210210230800.30291-1-sakari.ailus@linux.intel.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Store a device's desired enumeration power state in struct
-acpi_device_power during acpi_device object's initialisation.
+Document the use of the _DSE object for setting desirable power state
+during probe.
 
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
 ---
- drivers/acpi/scan.c     | 4 ++++
- include/acpi/acpi_bus.h | 1 +
- 2 files changed, 5 insertions(+)
+ Documentation/firmware-guide/acpi/index.rst   |  1 +
+ .../firmware-guide/acpi/non-d0-probe.rst      | 78 +++++++++++++++++++
+ 2 files changed, 79 insertions(+)
+ create mode 100644 Documentation/firmware-guide/acpi/non-d0-probe.rst
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index a184529d8fa40..6a9b4a92c4f66 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -987,6 +987,7 @@ static void acpi_bus_init_power_state(struct acpi_device *device, int state)
- 
- static void acpi_bus_get_power_flags(struct acpi_device *device)
- {
-+	unsigned long long dse = ACPI_STATE_D0;
- 	u32 i;
- 
- 	/* Presence of _PS0|_PR0 indicates 'power manageable' */
-@@ -1008,6 +1009,9 @@ static void acpi_bus_get_power_flags(struct acpi_device *device)
- 	if (acpi_has_method(device->handle, "_DSW"))
- 		device->power.flags.dsw_present = 1;
- 
-+	acpi_evaluate_integer(device->handle, "_DSE", NULL, &dse);
-+	device->power.state_for_enumeration = dse;
+diff --git a/Documentation/firmware-guide/acpi/index.rst b/Documentation/firmware-guide/acpi/index.rst
+index f72b5f1769fb2..c0d68acceab6b 100644
+--- a/Documentation/firmware-guide/acpi/index.rst
++++ b/Documentation/firmware-guide/acpi/index.rst
+@@ -25,5 +25,6 @@ ACPI Support
+    acpi-lid
+    lpit
+    video_extension
++   non-d0-probe
+    extcon-intel-int3496
+    intel-pmc-mux
+diff --git a/Documentation/firmware-guide/acpi/non-d0-probe.rst b/Documentation/firmware-guide/acpi/non-d0-probe.rst
+new file mode 100644
+index 0000000000000..9fc78bab5f300
+--- /dev/null
++++ b/Documentation/firmware-guide/acpi/non-d0-probe.rst
+@@ -0,0 +1,78 @@
++.. SPDX-License-Identifier: GPL-2.0
 +
- 	/*
- 	 * Enumerate supported power management states
- 	 */
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 02a716a0af5d4..becfc9f57002b 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -276,6 +276,7 @@ struct acpi_device_power {
- 	int state;		/* Current state */
- 	struct acpi_device_power_flags flags;
- 	struct acpi_device_power_state states[ACPI_D_STATE_COUNT];	/* Power states (D0-D3Cold) */
-+	u8 state_for_enumeration; /* Maximum power state for enumeration */
- };
- 
- /* Performance Management */
++========================================
++Probing devices in other D states than 0
++========================================
++
++Introduction
++============
++
++In some cases it may be preferred to leave certain devices powered off for the
++entire system bootup if powering on these devices has adverse side effects,
++beyond just powering on the said device.
++
++How it works
++============
++
++The _DSE (Device State for Enumeration) object that evaluates to an integer may
++be used to tell Linux the highest allowed D state for a device during probe.
++The support for _DSE requires support from the kernel bus type if the bus
++driver normally sets the device in D0 state for probe.
++
++The downside of using _DSE is that as the device is not powered on, even if
++there's a problem with the device, the driver likely probes just fine but the
++first user will find out the device doesn't work, instead of a failure at probe
++time. This feature should thus be used sparingly.
++
++I²C
++---
++
++If an I²C driver indicates its support for this by setting the
++I2C_DRV_ACPI_WAIVE_D0_PROBE flag in struct i2c_driver.flags field and the
++_DSE object evaluates to integer higher than the D state of the device,
++the device will not be powered on (put in D0 state) for probe.
++
++D states
++--------
++
++The D states and thus also the allowed values for _DSE are listed below. Refer
++to [1] for more information on device power states.
++
++.. code-block:: text
++
++	Number	State	Description
++	0	D0	Device fully powered on
++	1	D1
++	2	D2
++	3	D3hot
++	4	D3cold	Off
++
++References
++==========
++
++[1] https://uefi.org/specifications/ACPI/6.4/02_Definition_of_Terms/Definition_of_Terms.html#device-power-state-definitions
++
++Example
++=======
++
++An ASL example describing an ACPI device using _DSE object to tell Operating
++System the device should remain powered off during probe looks like this. Some
++objects not relevant from the example point of view have been omitted.
++
++.. code-block:: text
++
++	Device (CAM0)
++        {
++		Name (_HID, "SONY319A")
++		Name (_UID, Zero)
++		Name (_CRS, ResourceTemplate ()
++		{
++			I2cSerialBus(0x0020, ControllerInitiated, 0x00061A80,
++				     AddressingMode7Bit, "\\_SB.PCI0.I2C0",
++				     0x00, ResourceConsumer)
++		})
++		Name (_DSE, 0, NotSerialized)
++		{
++			Return (0x4)
++                }
++	}
 -- 
 2.20.1
 
