@@ -2,116 +2,179 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5838C433DB
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Feb 2021 11:19:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5C3AC433DB
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Feb 2021 12:05:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 73C3764E32
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Feb 2021 11:19:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 99EBA60232
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Feb 2021 12:05:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232161AbhBWLTY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 23 Feb 2021 06:19:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44650 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232160AbhBWLTX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Feb 2021 06:19:23 -0500
-Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB7FC061574;
-        Tue, 23 Feb 2021 03:18:43 -0800 (PST)
-Received: by mail-qt1-x830.google.com with SMTP id o34so460617qtd.11;
-        Tue, 23 Feb 2021 03:18:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jms.id.au; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=VV7rEIve6yKGpkMRY5hUYwZ7RTxYrpNXrvLCtfvfuXg=;
-        b=RzmUtKDC7CFuAPBTb7dsBZ1dX6XfNmRs/2DfC1ACIN3taC6QwxcYqjuUCkaqT/FmHp
-         RZm8vt/wPryOa+vCnT6Is/iWpucbeyJROoZnGWdCdOgIbUL+ac6CMR85zZ/8un3eVDYy
-         hVfwIRWlkdbBFZ0lF6SKe7WdEmfB1EgtLrOSo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VV7rEIve6yKGpkMRY5hUYwZ7RTxYrpNXrvLCtfvfuXg=;
-        b=R4FCml49oT5UgA860PGVUuEq0xjT/ngLr5W9uUZwcYZ8vejEYzntZrEEjF6tlsOEKs
-         utDa6RBKyvMRWHgQ2b0YI8ZpYQkjj/kc7A9QSDFvyDkGeSVqtAgzjZhiJpmQb1iDM/z+
-         oqmQx7hLpSqu4fymB+9Nz2zJTD7LKJwaiz7ppTC+MYmDunfajqotlNjzTCZV/TvgNEtF
-         NffQCHECRz8UL6Ww6BvuXL7bUhYYFhbyUCl7pcmau7f+jh33fF3EFC1nm65y9OkDtaQE
-         4qxHiTJUD8wrY4fJx+oNQwmLvEhL4SxqpxeGHxEdp05egJQV6rTdP09fj445RfdUYA36
-         RmIg==
-X-Gm-Message-State: AOAM530P5OsvhXGud7uCW0k4Vw5JmTARDUBW+UbdW41yAubfaxiZjlXs
-        U0Rinfds5nmV/T38WHlaPGgXnyuXHi3i0QbmhiSKu6Or
-X-Google-Smtp-Source: ABdhPJxAlqNlBFfBiQeyjUiNfVYmAYsZbURb6MXd2/TmhTdms/rgFCRvOm6E5N3wwEesKB9w7do60A/zBEzwkJXA8SA=
-X-Received: by 2002:ac8:7599:: with SMTP id s25mr23612473qtq.135.1614079121544;
- Tue, 23 Feb 2021 03:18:41 -0800 (PST)
+        id S232464AbhBWMFO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 23 Feb 2021 07:05:14 -0500
+Received: from lb2-smtp-cloud8.xs4all.net ([194.109.24.25]:36431 "EHLO
+        lb2-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232817AbhBWMCE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Feb 2021 07:02:04 -0500
+Received: from cust-b5b5937f ([IPv6:fc0c:c16d:66b8:757f:c639:739b:9d66:799d])
+        by smtp-cloud8.xs4all.net with ESMTPA
+        id EWNHlxmb0fIMiEWNLluGpF; Tue, 23 Feb 2021 13:01:11 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s2;
+        t=1614081671; bh=1hLmo70e6QdzywjzHOXuJ1hUlzuPjRX05cJRBwMEB6I=;
+        h=Subject:To:From:Message-ID:Date:MIME-Version:Content-Type:From:
+         Subject;
+        b=FMCaBCmqpEBnU3Q9S/jXlcwisFIRrO1n6dtWcMQai0POjdZLnNfVQ+L9melF6apPF
+         fdTAJtLb1mG3bftbGTR1PL6HW5ghoRIsi6SJQaARvtoaAwU5K4eb3kg1tNWluwe5G7
+         iyK400JCQaCqA2SLekAe3Lqk5XOSK8gDBfbUaAztPwKTOczWVB9L2Lb+HaWbo/n00G
+         S4JR25FDp0hixtQwPX+SliWlolYnrZJsUxY5hFKibpC/dcjywWZqgf6T7OPqXOgID6
+         mtUc/o6IdN4HebQc3vQqL5kY8l9oIodDWB/lfRQ1l6j5/Ylrxb5hx/Gf6ExJmsgXk5
+         Q3cKPeWgG/E7Q==
+Subject: Re: [PATCH v2] media: i2c: adv7511: remove open coded version of
+ SMBus block read
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-media@vger.kernel.org
+Cc:     linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+References: <20210127103357.5045-1-wsa+renesas@sang-engineering.com>
+From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Message-ID: <bea536b1-9d81-3f41-8ca5-7fb075422290@xs4all.nl>
+Date:   Tue, 23 Feb 2021 13:01:07 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.7.1
 MIME-Version: 1.0
-References: <20210223020925.22856-1-dingsenjie@163.com>
-In-Reply-To: <20210223020925.22856-1-dingsenjie@163.com>
-From:   Joel Stanley <joel@jms.id.au>
-Date:   Tue, 23 Feb 2021 11:18:28 +0000
-Message-ID: <CACPK8XeYaRkgWfG33+3ohCPKupqCay0jPp85hdt-XybWvM1eRA@mail.gmail.com>
-Subject: Re: [PATCH] i2c/busses:remove unneeded variable: "ret"
-To:     dingsenjie@163.com
-Cc:     Brendan Higgins <brendanhiggins@google.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-aspeed <linux-aspeed@lists.ozlabs.org>,
-        linux-i2c@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        dingsenjie <dingsenjie@yulong.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210127103357.5045-1-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: MS4xfKR18NfCtNTh2IebkSTudHoupJrjs8VOfJOF0Z3JLTiColv51DxZ8YAvJGv1w9wJqios3z5H6MotvoHhHMT+UJnj70vDYYbaT0GTm1gC9tEpsFeq5l27
+ hufbUMuV245wzUpQXHGwCY0gohgtJhK0K/VxEzbUcTJi4DnBOq4SfD4wtGhV3bELmiwmwjeLjKgN6+Eh+l0K1RahuV6HKl6UX1K1VU6bbqi0CcDl/KU1JJ5u
+ rdQnkNLnbohvBBhg3BIjDsghIHYZYEFV7YOL/BAV+IInTl8Ez5vQPJfEJ5GRuvb+FZFy0RTNtcD1qKUnl9YX58XCZkp2wuJMH1cHlZKd4f4=
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, 23 Feb 2021 at 08:04, <dingsenjie@163.com> wrote:
->
-> From: dingsenjie <dingsenjie@yulong.com>
->
-> remove unneeded variable: "ret".
->
-> Signed-off-by: dingsenjie <dingsenjie@yulong.com>
+Hi Wolfram,
 
-Thanks for the patch. Instead of removing the unused variable, I think
-the code could be improved to return error codes when the recovery
-fails.
+On 27/01/2021 11:33, Wolfram Sang wrote:
+> The open coded version differs from the one in the core in one way: the
+> buffer will be always copied back, even when the transfer failed. Be
+> more robust: use the block read from the I2C core and propagate a
+> potential errno further to the sanity checks.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Cheers,
+This looks good.
 
-Joel
+If you want to merge this, then you can add my:
+
+Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+
+If you want me to take it, then just let me know and I'll queue it up for 5.13.
+
+Regards,
+
+	Hans
 
 > ---
->  drivers/i2c/busses/i2c-aspeed.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index 724bf30..efad900 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -175,7 +175,6 @@ struct aspeed_i2c_bus {
->  static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
+> 
+> Changes since v1:
+> * respect 'err' in more code paths
+> * updated comment
+> 
+>  drivers/media/i2c/adv7511-v4l2.c | 58 ++++++++++++++------------------
+>  1 file changed, 26 insertions(+), 32 deletions(-)
+> 
+> diff --git a/drivers/media/i2c/adv7511-v4l2.c b/drivers/media/i2c/adv7511-v4l2.c
+> index a3161d709015..9183003ae22d 100644
+> --- a/drivers/media/i2c/adv7511-v4l2.c
+> +++ b/drivers/media/i2c/adv7511-v4l2.c
+> @@ -214,36 +214,25 @@ static inline void adv7511_wr_and_or(struct v4l2_subdev *sd, u8 reg, u8 clr_mask
+>  	adv7511_wr(sd, reg, (adv7511_rd(sd, reg) & clr_mask) | val_mask);
+>  }
+>  
+> -static int adv_smbus_read_i2c_block_data(struct i2c_client *client,
+> -					 u8 command, unsigned length, u8 *values)
+> -{
+> -	union i2c_smbus_data data;
+> -	int ret;
+> -
+> -	if (length > I2C_SMBUS_BLOCK_MAX)
+> -		length = I2C_SMBUS_BLOCK_MAX;
+> -	data.block[0] = length;
+> -
+> -	ret = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+> -			     I2C_SMBUS_READ, command,
+> -			     I2C_SMBUS_I2C_BLOCK_DATA, &data);
+> -	memcpy(values, data.block + 1, length);
+> -	return ret;
+> -}
+> -
+> -static void adv7511_edid_rd(struct v4l2_subdev *sd, uint16_t len, uint8_t *buf)
+> +static int adv7511_edid_rd(struct v4l2_subdev *sd, uint16_t len, uint8_t *buf)
 >  {
->         unsigned long time_left, flags;
-> -       int ret = 0;
->         u32 command;
->
->         spin_lock_irqsave(&bus->lock, flags);
-> @@ -232,7 +231,7 @@ static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
->  out:
->         spin_unlock_irqrestore(&bus->lock, flags);
->
-> -       return ret;
-> +       return 0;
->
->  reset_out:
->         spin_unlock_irqrestore(&bus->lock, flags);
-> --
-> 1.9.1
->
->
+>  	struct adv7511_state *state = get_adv7511_state(sd);
+>  	int i;
+> -	int err = 0;
+>  
+>  	v4l2_dbg(1, debug, sd, "%s:\n", __func__);
+>  
+> -	for (i = 0; !err && i < len; i += I2C_SMBUS_BLOCK_MAX)
+> -		err = adv_smbus_read_i2c_block_data(state->i2c_edid, i,
+> +	for (i = 0; i < len; i += I2C_SMBUS_BLOCK_MAX) {
+> +		s32 ret;
+> +
+> +		ret = i2c_smbus_read_i2c_block_data(state->i2c_edid, i,
+>  						    I2C_SMBUS_BLOCK_MAX, buf + i);
+> -	if (err)
+> -		v4l2_err(sd, "%s: i2c read error\n", __func__);
+> +		if (ret < 0) {
+> +			v4l2_err(sd, "%s: i2c read error\n", __func__);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	return 0;
+>  }
+>  
+>  static inline int adv7511_cec_read(struct v4l2_subdev *sd, u8 reg)
+> @@ -1668,22 +1657,27 @@ static bool adv7511_check_edid_status(struct v4l2_subdev *sd)
+>  	if (edidRdy & MASK_ADV7511_EDID_RDY) {
+>  		int segment = adv7511_rd(sd, 0xc4);
+>  		struct adv7511_edid_detect ed;
+> +		int err;
+>  
+>  		if (segment >= EDID_MAX_SEGM) {
+>  			v4l2_err(sd, "edid segment number too big\n");
+>  			return false;
+>  		}
+>  		v4l2_dbg(1, debug, sd, "%s: got segment %d\n", __func__, segment);
+> -		adv7511_edid_rd(sd, 256, &state->edid.data[segment * 256]);
+> -		adv7511_dbg_dump_edid(2, debug, sd, segment, &state->edid.data[segment * 256]);
+> -		if (segment == 0) {
+> -			state->edid.blocks = state->edid.data[0x7e] + 1;
+> -			v4l2_dbg(1, debug, sd, "%s: %d blocks in total\n", __func__, state->edid.blocks);
+> +		err = adv7511_edid_rd(sd, 256, &state->edid.data[segment * 256]);
+> +		if (!err) {
+> +			adv7511_dbg_dump_edid(2, debug, sd, segment, &state->edid.data[segment * 256]);
+> +			if (segment == 0) {
+> +				state->edid.blocks = state->edid.data[0x7e] + 1;
+> +				v4l2_dbg(1, debug, sd, "%s: %d blocks in total\n",
+> +					 __func__, state->edid.blocks);
+> +			}
+>  		}
+> -		if (!edid_verify_crc(sd, segment) ||
+> -		    !edid_verify_header(sd, segment)) {
+> -			/* edid crc error, force reread of edid segment */
+> -			v4l2_err(sd, "%s: edid crc or header error\n", __func__);
+> +
+> +		if (err || !edid_verify_crc(sd, segment) || !edid_verify_header(sd, segment)) {
+> +			/* Couldn't read EDID or EDID is invalid. Force retry! */
+> +			if (!err)
+> +				v4l2_err(sd, "%s: edid crc or header error\n", __func__);
+>  			state->have_monitor = false;
+>  			adv7511_s_power(sd, false);
+>  			adv7511_s_power(sd, true);
+> 
+
