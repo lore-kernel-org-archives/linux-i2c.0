@@ -2,557 +2,218 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2516EC433E0
-	for <linux-i2c@archiver.kernel.org>; Wed, 24 Feb 2021 19:08:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF1D7C433DB
+	for <linux-i2c@archiver.kernel.org>; Wed, 24 Feb 2021 19:15:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BF94B64F1B
-	for <linux-i2c@archiver.kernel.org>; Wed, 24 Feb 2021 19:08:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C88264E90
+	for <linux-i2c@archiver.kernel.org>; Wed, 24 Feb 2021 19:15:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235187AbhBXTHz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 24 Feb 2021 14:07:55 -0500
-Received: from mga05.intel.com ([192.55.52.43]:47725 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236014AbhBXTHs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 24 Feb 2021 14:07:48 -0500
-IronPort-SDR: PHJxm/2K09S4rqOz2wWlhyeRROReuWnpxrAVN6mHsTkwyk/R/eGWSflBWg1vn5DDglTNmf6JGH
- j6AfOre9PRcw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9905"; a="270243446"
-X-IronPort-AV: E=Sophos;i="5.81,203,1610438400"; 
-   d="scan'208";a="270243446"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Feb 2021 11:04:34 -0800
-IronPort-SDR: RGI7Uo3MVhDUBI/KPv/KhjVwX4FPoRivLE2pBqG24WRGafMwhIwko3CNnr0MA94ftYt/NkDwxO
- Hv80nwZyGWFw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,203,1610438400"; 
-   d="scan'208";a="367098945"
-Received: from maru.jf.intel.com ([10.54.51.77])
-  by orsmga006.jf.intel.com with ESMTP; 24 Feb 2021 11:04:34 -0800
-From:   Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-To:     Brendan Higgins <brendanhiggins@google.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Joel Stanley <joel@jms.id.au>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andrew Jeffery <andrew@aj.id.au>, Tao Ren <taoren@fb.com>,
-        Cedric Le Goater <clg@kaod.org>
-Cc:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
-        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH v4 4/4] i2c: aspeed: add DMA mode transfer support
-Date:   Wed, 24 Feb 2021 11:17:20 -0800
-Message-Id: <20210224191720.7724-5-jae.hyun.yoo@linux.intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210224191720.7724-1-jae.hyun.yoo@linux.intel.com>
-References: <20210224191720.7724-1-jae.hyun.yoo@linux.intel.com>
+        id S234468AbhBXTPN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 24 Feb 2021 14:15:13 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:43810 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236146AbhBXTOE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 24 Feb 2021 14:14:04 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1614193956;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=R1nPZdLLEujUDoG3y2UCPe4/5w/0ZZBej+r55eTDHpI=;
+        b=Zgj6nz6DLbLM83GNetM7RSMBJM5RIUfFDyxmO5DEd4I7mmiKs0zOARkRhXL8oL7eaW5VGG
+        iUcNuUrDKRwde80n/KT7IfPtGQ2XKTF20zGJHZcxAYPSKUPN9/NIjhnIIhrZ0L/ywOZn49
+        vZizv2bzlVIoDVUqyj/3pLAu4rLkkCw=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-43-awzbp7HjPGeNlnSi5oOmfA-1; Wed, 24 Feb 2021 14:12:34 -0500
+X-MC-Unique: awzbp7HjPGeNlnSi5oOmfA-1
+Received: by mail-ed1-f69.google.com with SMTP id t9so1427484edd.3
+        for <linux-i2c@vger.kernel.org>; Wed, 24 Feb 2021 11:12:34 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=R1nPZdLLEujUDoG3y2UCPe4/5w/0ZZBej+r55eTDHpI=;
+        b=THiDAf3So+qGUoJkAHiWoiK5+QchClP0Yi8ft1mwjerJIOyLq17CIqLgONStcdoBum
+         WK95ODAQwtCkwWCS7rJMLHZgeRJHsowMY0nunPSQ16fjZ7KM8MjSUqq65shZMG460MJ4
+         8oeiT+EmcGZptP7VaOkHPHdsyE9UzRQcBKM/CEpl589C1uGIgkvKs2At7tDce7wFmnnF
+         mmyu1F3cxgDJhqbTFNDPEE7+axg0Pf0GiSgvJx7JmTB03CQbslmSscj77s5AiQ9oZ/tP
+         qoEbDNbFtIvVK9mzfWkV+y+cDt1D+Tfz2jr70KNhBBAz9HVcDEs5Gk6hOs8xW/mdEe9e
+         eB+g==
+X-Gm-Message-State: AOAM530nfsjDyEwWylZgy236D2r0LNAPO+5pvOXdC8kVAeLYWiFTXGNP
+        WyqQ8rgPpWEkU9/r1ibQyzmDPDXk1mGre/F7jQb29HqtkVJJI1B1n4uEj59DAKDXrmmgJfbHr1e
+        Y8KqrumBZvks49hycd0b3
+X-Received: by 2002:a17:907:d86:: with SMTP id go6mr31329724ejc.337.1614193953163;
+        Wed, 24 Feb 2021 11:12:33 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz4SdbV/WPoy9YHkKBQTsJjahnYzDnHy531S+6gpK15yqgaq/hV6zbmyh3pNUTPOADdv2mN3Q==
+X-Received: by 2002:a17:907:d86:: with SMTP id go6mr31329711ejc.337.1614193952968;
+        Wed, 24 Feb 2021 11:12:32 -0800 (PST)
+Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
+        by smtp.gmail.com with ESMTPSA id lu26sm227422ejb.33.2021.02.24.11.12.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 24 Feb 2021 11:12:32 -0800 (PST)
+Subject: Re: [PATCH v1 1/1] i2c: cht-wc: Use fwnode for the controller and IRQ
+ domain
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20210223172231.2224-1-andriy.shevchenko@linux.intel.com>
+ <fea7ce9a-01a9-cab8-8675-be5c44cb8a27@redhat.com>
+ <YDZLuzNivBP4HcPd@smile.fi.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <7e5f8d81-0ee5-b8ad-ed72-06d4677cd8f7@redhat.com>
+Date:   Wed, 24 Feb 2021 20:12:31 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
+MIME-Version: 1.0
+In-Reply-To: <YDZLuzNivBP4HcPd@smile.fi.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This commit adds DMA mode transfer support.
+Hi,
 
-Only AST2500 and later versions support DMA mode.
+On 2/24/21 1:51 PM, Andy Shevchenko wrote:
+> On Tue, Feb 23, 2021 at 08:25:35PM +0100, Hans de Goede wrote:
+>> On 2/23/21 6:22 PM, Andy Shevchenko wrote:
+>>> It's better to describe the I²C controller and associated IRQ domain with
+>>> fwnode, so they will find their place in the hierarchy in sysfs and also
+>>> make easier to debug.
+>>>
+>>> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>>> ---
+>>>
+>>> Hans, unfortunately I have no device at hand with INT34D3. This is only compile
+>>> tested in that sense. Also I would like to hear if you like the idea in general.
+>>>
+>>>  drivers/i2c/busses/i2c-cht-wc.c | 6 ++++--
+>>>  1 file changed, 4 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
+>>> index f80d79e973cd..dbf55842b0dc 100644
+>>> --- a/drivers/i2c/busses/i2c-cht-wc.c
+>>> +++ b/drivers/i2c/busses/i2c-cht-wc.c
+>>> @@ -303,6 +303,7 @@ static struct bq24190_platform_data bq24190_pdata = {
+>>>  static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+>>>  {
+>>>  	struct intel_soc_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
+>>> +	struct fwnode_handle *fwnode = dev_fwnode(&pdev->dev);
+>>
+>> So this will point to the ACPi-companion fwnode of the CHT Whiskey Cove PMIC
+>> controller.
+> 
+> Right.
+> 
+>>>  	struct cht_wc_i2c_adap *adap;
+>>>  	struct i2c_board_info board_info = {
+>>>  		.type = "bq24190",
+>>> @@ -333,6 +334,7 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+>>>  	strlcpy(adap->adapter.name, "PMIC I2C Adapter",
+>>>  		sizeof(adap->adapter.name));
+>>>  	adap->adapter.dev.parent = &pdev->dev;
+>>> +	set_primary_fwnode(&adap->adapter.dev, fwnode);
+>>
+>> So now we have the main PMIC device i2c-client, the platform-device instantiated
+>> for the MFD-cell for the PMIC's builtin I2C-controller; and the device instantiated
+>> for the adapter-device all 3 share the same ACPI-companion fwnode.
+> 
+> Okay, this step in this patch maybe not needed (or should be a separate change,
+> but I don't see clearly what would be the benefit out of it).
+> 
+>>>  	/* Clear and activate i2c-adapter interrupts, disable client IRQ */
+>>>  	adap->old_irq_mask = adap->irq_mask = ~CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK;
+>>> @@ -350,8 +352,8 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+>>>  		return ret;
+>>>  
+>>>  	/* Alloc and register client IRQ */
+>>> -	adap->irq_domain = irq_domain_add_linear(pdev->dev.of_node, 1,
+>>> -						 &irq_domain_simple_ops, NULL);
+>>> +	adap->irq_domain = irq_domain_create_linear(fwnode, 1,
+>>> +						    &irq_domain_simple_ops, NULL);
+>>
+>> Hmm, not sure this is right, admittedly the old code looks weird too, but now we
+>> are creating a second irq_domain at the same level as the irq_domain created for
+>> the IRQ-chip part of the PMIC. But this is really more of a child-domain of just
+>> the I2C-controller MFD-cell. The IRQ-CHIP part of the PMIC has a single IRQ for the
+>> I2C controller which gets raised both on i2c-transfer completions and when the
+>> pin on the PMIC which is reserved as input for the IRQ coming out of the charger-chip
+>> gets triggered.
+>>
+>> IOW we have this:
+>>
+>>
+>>                PMIC
+>>                  |
+>>     ------------------------------
+>>     |       |        |           |
+>>    IRQ1   IRQ2      IRQ3       I2C-IRQ
+>>                                  |
+>>                    ----------------------------------
+>>                    |        |         |             |
+>>                  READIRQ   WRIRQ    NACKIRQ     CLIENT-IRQ
+>>
+>> Where READIRQ, WRIRQ and NACKIRQ are directly consumed
+>> and the CLIENT-IRQ is being represented as a single IRQ on
+>> a new irqchip so that we can pass it along to the i2c-driver
+>> for the charger-chip which is connected to the Whiskey Cove's
+>> builtin I2C controller.
+>>
+>> But doing as you suggest would model the IRQs as:
+>>
+>>                PMIC
+>>                  |
+>>     --------------------------------------------------
+>>     |       |        |           |                    |
+>>    IRQ1   IRQ2      IRQ3       I2C-IRQ           CLIENT-IRQ
+>>
+>> Which is not the same really. I guess it is better then what we
+>> have though ?
+> 
+> Hmm... There should not be difference in the hierarchy. add_linear ==
+> create_linear. The propagation of *device* (not an IRQ) fwnode is just
+> convenient way to have IRQ domain be named (instead of 'unknown-N' or so).
+> Maybe I have read __irq_domain_add() code wrongly.
 
-AST2500 has these restrictions:
-  - If one of these controllers is enabled
-      * UHCI host controller
-      * MCTP controller
-    I2C has to use buffer mode or byte mode instead
-    since these controllers run only in DMA mode and
-    I2C is sharing the same DMA H/W with them.
-  - If one of these controllers uses DMA mode, I2C
-    can't use DMA mode
-      * SD/eMMC
-      * Port80 snoop
+Sorry, this is probably my bad. The first ASCII-art which I posted is
+how things actually work in HW. The second one is how I assumed that
+things would look like in some nested representation of the IRQ-domains
+given that all the IRQs mentioned in the ASCII-art now use the same fwnode
+as parent for their domain. But poking around in sysfs I don't see any
+hierarchical representation of the domains at all. Actually I cannot
+find any representation of the IRQ domains inside sysfs (I've never
+looked at / into this before) ?
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
----
-Changes since v3:
-- None
+If what you say is right and the fwnode is only used to set a name (where can
+I see those names ?) then your patch is probably correct.
 
-Changes since v2:
-- Refined SoC family dependent xfer mode configuration functions.
+> Nevertheless, thinking more about it, why we don't add an IRQ chip via regmap
+> IRQ API?
 
-Changes since v1:
-- Updated commit message and comments.
-- Refined using abstract functions.
+There already is a regmap IRQ chip associated with the MFD device and the
+IRQ handling required here is somewhat tricky (see the comments in the driver)
+so I would prefer to keep this as is.
 
- drivers/i2c/busses/i2c-aspeed.c | 265 ++++++++++++++++++++++++++------
- 1 file changed, 216 insertions(+), 49 deletions(-)
+>> Note I can test any changes made here, but I'm not 100% convinced that
+>> the current version of this patch is correct.
+> 
+> If we settle on the idea first. I'm (slowly) looking forward to check another
+> CherryTrail device we have at the lab, but we lack of some (power) equipment
+> right now to setup it properly. I hope it may have the Whiskey Cove PMIC there.
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index ffc52937df26..3e3bb014b027 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -10,6 +10,8 @@
- #include <linux/bitfield.h>
- #include <linux/clk.h>
- #include <linux/completion.h>
-+#include <linux/dma-mapping.h>
-+#include <linux/dmapool.h>
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/i2c.h>
-@@ -47,6 +49,8 @@
- #define ASPEED_I2C_DEV_ADDR_REG				0x18
- #define ASPEED_I2C_BUF_CTRL_REG				0x1c
- #define ASPEED_I2C_BYTE_BUF_REG				0x20
-+#define ASPEED_I2C_DMA_ADDR_REG				0x24
-+#define ASPEED_I2C_DMA_LEN_REG				0x28
- 
- /* Device Register Definition */
- /* 0x00 : I2CD Function Control Register  */
-@@ -111,6 +115,8 @@
- #define ASPEED_I2CD_BUS_RECOVER_CMD			BIT(11)
- 
- /* Command Bit */
-+#define ASPEED_I2CD_RX_DMA_ENABLE			BIT(9)
-+#define ASPEED_I2CD_TX_DMA_ENABLE			BIT(8)
- #define ASPEED_I2CD_RX_BUFF_ENABLE			BIT(7)
- #define ASPEED_I2CD_TX_BUFF_ENABLE			BIT(6)
- #define ASPEED_I2CD_M_STOP_CMD				BIT(5)
-@@ -136,6 +142,14 @@
- #define ASPEED_I2CD_BUF_TX_COUNT_MASK			GENMASK(15, 8)
- #define ASPEED_I2CD_BUF_OFFSET_MASK			GENMASK(5, 0)
- 
-+/* 0x24 : I2CD DMA Mode Buffer Address Register */
-+#define ASPEED_I2CD_DMA_ADDR_MASK			GENMASK(31, 2)
-+#define ASPEED_I2CD_DMA_ALIGN				4
-+
-+/* 0x28 : I2CD DMA Transfer Length Register */
-+#define ASPEED_I2CD_DMA_LEN_SHIFT			0
-+#define ASPEED_I2CD_DMA_LEN_MASK			GENMASK(11, 0)
-+
- enum aspeed_i2c_master_state {
- 	ASPEED_I2C_MASTER_INACTIVE,
- 	ASPEED_I2C_MASTER_PENDING,
-@@ -161,6 +175,7 @@ struct aspeed_i2c_config {
- 	u32 (*get_clk_reg_val)(struct device *dev, u32 divisor);
- 	int (*enable_sram)(void);
- 	int (*set_buf_xfer_mode)(struct device *dev);
-+	int (*set_dma_xfer_mode)(struct device *dev);
- };
- 
- struct aspeed_i2c_bus {
-@@ -190,6 +205,12 @@ struct aspeed_i2c_bus {
- 	void __iomem			*buf_base;
- 	u8				buf_offset;
- 	u8				buf_page;
-+	/* DMA mode */
-+	struct dma_pool			*dma_pool;
-+	dma_addr_t			dma_handle;
-+	u8				*dma_buf;
-+	size_t				dma_len;
-+	/* Buffer/DMA mode */
- 	size_t				buf_size;
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	struct i2c_client		*slave;
-@@ -272,9 +293,13 @@ static inline void
- aspeed_i2c_slave_handle_rx_done(struct aspeed_i2c_bus *bus, u32 irq_status,
- 				u8 *value)
- {
--	if (bus->buf_base &&
-+	if (bus->dma_buf &&
- 	    bus->slave_state == ASPEED_I2C_SLAVE_WRITE_RECEIVED &&
- 	    !(irq_status & ASPEED_I2CD_INTR_NORMAL_STOP))
-+		*value = bus->dma_buf[0];
-+	else if (bus->buf_base &&
-+		 bus->slave_state == ASPEED_I2C_SLAVE_WRITE_RECEIVED &&
-+		 !(irq_status & ASPEED_I2CD_INTR_NORMAL_STOP))
- 		*value = readb(bus->buf_base);
- 	else
- 		*value = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
-@@ -288,7 +313,18 @@ aspeed_i2c_slave_handle_normal_stop(struct aspeed_i2c_bus *bus, u32 irq_status,
- 
- 	if (bus->slave_state == ASPEED_I2C_SLAVE_WRITE_RECEIVED &&
- 	    irq_status & ASPEED_I2CD_INTR_RX_DONE) {
--		if (bus->buf_base) {
-+		if (bus->dma_buf) {
-+			len = bus->buf_size -
-+			      FIELD_GET(ASPEED_I2CD_DMA_LEN_MASK,
-+					readl(bus->base +
-+					      ASPEED_I2C_DMA_LEN_REG));
-+			for (i = 0; i < len; i++) {
-+				*value = bus->dma_buf[i];
-+				i2c_slave_event(bus->slave,
-+						I2C_SLAVE_WRITE_RECEIVED,
-+						value);
-+			}
-+		} else if (bus->buf_base) {
- 			len = FIELD_GET(ASPEED_I2CD_BUF_RX_COUNT_MASK,
- 					readl(bus->base +
- 					      ASPEED_I2C_BUF_CTRL_REG));
-@@ -305,7 +341,14 @@ aspeed_i2c_slave_handle_normal_stop(struct aspeed_i2c_bus *bus, u32 irq_status,
- static inline void
- aspeed_i2c_slave_handle_write_requested(struct aspeed_i2c_bus *bus, u8 *value)
- {
--	if (bus->buf_base) {
-+	if (bus->dma_buf) {
-+		writel(bus->dma_handle & ASPEED_I2CD_DMA_ADDR_MASK,
-+		       bus->base + ASPEED_I2C_DMA_ADDR_REG);
-+		writel(FIELD_PREP(ASPEED_I2CD_DMA_LEN_MASK, bus->buf_size),
-+		       bus->base + ASPEED_I2C_DMA_LEN_REG);
-+		writel(ASPEED_I2CD_RX_DMA_ENABLE,
-+		       bus->base + ASPEED_I2C_CMD_REG);
-+	} else if (bus->buf_base) {
- 		writel(FIELD_PREP(ASPEED_I2CD_BUF_RX_SIZE_MASK,
- 				  bus->buf_size - 1) |
- 		       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK,
-@@ -321,7 +364,23 @@ aspeed_i2c_slave_handle_write_received(struct aspeed_i2c_bus *bus, u8 *value)
- {
- 	int i, len;
- 
--	if (bus->buf_base) {
-+	if (bus->dma_buf) {
-+		len = bus->buf_size -
-+		      FIELD_GET(ASPEED_I2CD_DMA_LEN_MASK,
-+				readl(bus->base +
-+				      ASPEED_I2C_DMA_LEN_REG));
-+		for (i = 1; i < len; i++) {
-+			*value = bus->dma_buf[i];
-+			i2c_slave_event(bus->slave, I2C_SLAVE_WRITE_RECEIVED,
-+					value);
-+		}
-+		writel(bus->dma_handle & ASPEED_I2CD_DMA_ADDR_MASK,
-+		       bus->base + ASPEED_I2C_DMA_ADDR_REG);
-+		writel(FIELD_PREP(ASPEED_I2CD_DMA_LEN_MASK, bus->buf_size),
-+		       bus->base + ASPEED_I2C_DMA_LEN_REG);
-+		writel(ASPEED_I2CD_RX_DMA_ENABLE,
-+		       bus->base + ASPEED_I2C_CMD_REG);
-+	} else if (bus->buf_base) {
- 		len = FIELD_GET(ASPEED_I2CD_BUF_RX_COUNT_MASK,
- 				readl(bus->base +
- 				      ASPEED_I2C_BUF_CTRL_REG));
-@@ -451,7 +510,15 @@ aspeed_i2c_prepare_rx_buf(struct aspeed_i2c_bus *bus, struct i2c_msg *msg)
- 		command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
- 	}
- 
--	if (bus->buf_base) {
-+	if (bus->dma_buf) {
-+		command |= ASPEED_I2CD_RX_DMA_ENABLE;
-+
-+		writel(bus->dma_handle & ASPEED_I2CD_DMA_ADDR_MASK,
-+		       bus->base + ASPEED_I2C_DMA_ADDR_REG);
-+		writel(FIELD_PREP(ASPEED_I2CD_DMA_LEN_MASK, len),
-+		       bus->base + ASPEED_I2C_DMA_LEN_REG);
-+		bus->dma_len = len;
-+	} else {
- 		command |= ASPEED_I2CD_RX_BUFF_ENABLE;
- 
- 		writel(FIELD_PREP(ASPEED_I2CD_BUF_RX_SIZE_MASK, len - 1) |
-@@ -474,7 +541,18 @@ aspeed_i2c_prepare_tx_buf(struct aspeed_i2c_bus *bus, struct i2c_msg *msg)
- 	else
- 		len = msg->len + 1;
- 
--	if (bus->buf_base) {
-+	if (bus->dma_buf) {
-+		command |= ASPEED_I2CD_TX_DMA_ENABLE;
-+
-+		bus->dma_buf[0] = slave_addr;
-+		memcpy(bus->dma_buf + 1, msg->buf, len);
-+
-+		writel(bus->dma_handle & ASPEED_I2CD_DMA_ADDR_MASK,
-+		       bus->base + ASPEED_I2C_DMA_ADDR_REG);
-+		writel(FIELD_PREP(ASPEED_I2CD_DMA_LEN_MASK, len),
-+		       bus->base + ASPEED_I2C_DMA_LEN_REG);
-+		bus->dma_len = len;
-+	} else {
- 		u8 wbuf[4];
- 		int i;
- 
-@@ -527,18 +605,19 @@ static void aspeed_i2c_do_start(struct aspeed_i2c_bus *bus)
- 	if (msg->flags & I2C_M_RD) {
- 		command |= ASPEED_I2CD_M_RX_CMD;
- 		if (!(msg->flags & I2C_M_RECV_LEN)) {
--			if (msg->len && bus->buf_base)
-+			if (msg->len && (bus->dma_buf || bus->buf_base))
- 				command |= aspeed_i2c_prepare_rx_buf(bus, msg);
- 
- 			/* Need to let the hardware know to NACK after RX. */
- 			if (msg->len <= 1)
- 				command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
- 		}
--	} else if (msg->len && bus->buf_base) {
-+	} else if (msg->len && (bus->dma_buf || bus->buf_base)) {
- 		command |= aspeed_i2c_prepare_tx_buf(bus, msg);
- 	}
- 
--	if (!(command & ASPEED_I2CD_TX_BUFF_ENABLE))
-+	if (!(command & (ASPEED_I2CD_TX_BUFF_ENABLE |
-+			 ASPEED_I2CD_TX_DMA_ENABLE)))
- 		writel(i2c_8bit_addr_from_msg(msg),
- 		       bus->base + ASPEED_I2C_BYTE_BUF_REG);
- 	writel(command, bus->base + ASPEED_I2C_CMD_REG);
-@@ -581,42 +660,55 @@ aspeed_i2c_master_handle_tx_first(struct aspeed_i2c_bus *bus,
- {
- 	u32 command = 0;
- 
--	if (bus->buf_base) {
--		u8 wbuf[4];
-+	if (bus->dma_buf || bus->buf_base) {
- 		int len;
--		int i;
- 
- 		if (msg->len - bus->buf_index > bus->buf_size)
- 			len = bus->buf_size;
- 		else
- 			len = msg->len - bus->buf_index;
- 
--		command |= ASPEED_I2CD_TX_BUFF_ENABLE;
-+		if (bus->dma_buf) {
-+			command |= ASPEED_I2CD_TX_DMA_ENABLE;
- 
--		if (msg->len - bus->buf_index > bus->buf_size)
--			len = bus->buf_size;
--		else
--			len = msg->len - bus->buf_index;
-+			memcpy(bus->dma_buf, msg->buf + bus->buf_index, len);
- 
--		/*
--		 * Looks bad here again but use dword writings to avoid data
--		 * corruption of byte writing on remapped I2C SRAM.
--		 */
--		for (i = 0; i < len; i++) {
--			wbuf[i % 4] = msg->buf[bus->buf_index + i];
--			if (i % 4 == 3)
-+			writel(bus->dma_handle & ASPEED_I2CD_DMA_ADDR_MASK,
-+			       bus->base + ASPEED_I2C_DMA_ADDR_REG);
-+			writel(FIELD_PREP(ASPEED_I2CD_DMA_LEN_MASK, len),
-+			       bus->base + ASPEED_I2C_DMA_LEN_REG);
-+			bus->dma_len = len;
-+		} else {
-+			u8 wbuf[4];
-+			int i;
-+
-+			command |= ASPEED_I2CD_TX_BUFF_ENABLE;
-+
-+			if (msg->len - bus->buf_index > bus->buf_size)
-+				len = bus->buf_size;
-+			else
-+				len = msg->len - bus->buf_index;
-+
-+			/*
-+			 * Looks bad here again but use dword writings to avoid
-+			 * data corruption of byte writing on remapped I2C SRAM.
-+			 */
-+			for (i = 0; i < len; i++) {
-+				wbuf[i % 4] = msg->buf[bus->buf_index + i];
-+				if (i % 4 == 3)
-+					writel(*(u32 *)wbuf,
-+					       bus->buf_base + i - 3);
-+			}
-+			if (--i % 4 != 3)
- 				writel(*(u32 *)wbuf,
--				       bus->buf_base + i - 3);
--		}
--		if (--i % 4 != 3)
--			writel(*(u32 *)wbuf,
--			       bus->buf_base + i - (i % 4));
-+				       bus->buf_base + i - (i % 4));
- 
--		writel(FIELD_PREP(ASPEED_I2CD_BUF_TX_COUNT_MASK,
--				  len - 1) |
--		       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK,
--				  bus->buf_offset),
--		       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+			writel(FIELD_PREP(ASPEED_I2CD_BUF_TX_COUNT_MASK,
-+					  len - 1) |
-+			       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK,
-+					  bus->buf_offset),
-+			       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+		}
- 
- 		bus->buf_index += len;
- 	} else {
-@@ -633,7 +725,14 @@ aspeed_i2c_master_handle_rx(struct aspeed_i2c_bus *bus, struct i2c_msg *msg)
- 	u8 recv_byte;
- 	int len;
- 
--	if (bus->buf_base) {
-+	if (bus->dma_buf) {
-+		len = bus->dma_len -
-+		      FIELD_GET(ASPEED_I2CD_DMA_LEN_MASK,
-+				readl(bus->base + ASPEED_I2C_DMA_LEN_REG));
-+
-+		memcpy(msg->buf + bus->buf_index, bus->dma_buf, len);
-+		bus->buf_index += len;
-+	} else if (bus->buf_base) {
- 		len = FIELD_GET(ASPEED_I2CD_BUF_RX_COUNT_MASK,
- 				readl(bus->base + ASPEED_I2C_BUF_CTRL_REG));
- 		memcpy_fromio(msg->buf + bus->buf_index, bus->buf_base, len);
-@@ -650,7 +749,7 @@ aspeed_i2c_master_handle_rx_next(struct aspeed_i2c_bus *bus,
- {
- 	u32 command = 0;
- 
--	if (bus->buf_base) {
-+	if (bus->dma_buf || bus->buf_base) {
- 		int len;
- 
- 		if (msg->len - bus->buf_index > bus->buf_size) {
-@@ -660,14 +759,24 @@ aspeed_i2c_master_handle_rx_next(struct aspeed_i2c_bus *bus,
- 			command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
- 		}
- 
--		command |= ASPEED_I2CD_RX_BUFF_ENABLE;
-+		if (bus->dma_buf) {
-+			command |= ASPEED_I2CD_RX_DMA_ENABLE;
- 
--		writel(FIELD_PREP(ASPEED_I2CD_BUF_RX_SIZE_MASK,
--				  len - 1) |
--		       FIELD_PREP(ASPEED_I2CD_BUF_TX_COUNT_MASK, 0) |
--		       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK,
--				  bus->buf_offset),
--		       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+			writel(bus->dma_handle & ASPEED_I2CD_DMA_ADDR_MASK,
-+			       bus->base + ASPEED_I2C_DMA_ADDR_REG);
-+			writel(FIELD_PREP(ASPEED_I2CD_DMA_LEN_MASK, len),
-+			       bus->base + ASPEED_I2C_DMA_LEN_REG);
-+			bus->dma_len = len;
-+		} else {
-+			command |= ASPEED_I2CD_RX_BUFF_ENABLE;
-+
-+			writel(FIELD_PREP(ASPEED_I2CD_BUF_RX_SIZE_MASK,
-+					  len - 1) |
-+			       FIELD_PREP(ASPEED_I2CD_BUF_TX_COUNT_MASK, 0) |
-+			       FIELD_PREP(ASPEED_I2CD_BUF_OFFSET_MASK,
-+					  bus->buf_offset),
-+			       bus->base + ASPEED_I2C_BUF_CTRL_REG);
-+		}
- 	} else {
- 		if (bus->buf_index + 1 == msg->len)
- 			command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
-@@ -1287,22 +1396,63 @@ static int aspeed_i2c_25xx_set_buf_xfer_mode(struct device *dev)
- 	return bus->buf_size ? 0 : -EINVAL;
- }
- 
-+static int aspeed_i2c_24xx_set_dma_xfer_mode(struct device *dev)
-+{
-+	/* AST24xx doesn't support DMA mode */
-+
-+	return -EBADR;
-+}
-+
-+static int aspeed_i2c_25xx_set_dma_xfer_mode(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct aspeed_i2c_bus *bus = platform_get_drvdata(pdev);
-+	int ret;
-+
-+	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32));
-+	if (!ret) {
-+		bus->buf_size = ASPEED_I2CD_DMA_LEN_MASK >>
-+				ASPEED_I2CD_DMA_LEN_SHIFT;
-+		bus->dma_pool = dma_pool_create("i2c-aspeed",
-+						&pdev->dev,
-+						bus->buf_size,
-+						ASPEED_I2CD_DMA_ALIGN,
-+						0);
-+		if (bus->dma_pool)
-+			bus->dma_buf = dma_pool_alloc(bus->dma_pool,
-+						      GFP_KERNEL,
-+						      &bus->dma_handle);
-+
-+		if (!bus->dma_buf) {
-+			ret = -ENOMEM;
-+			bus->buf_size = 0;
-+			dev_dbg(&pdev->dev, "Cannot allocate DMA buffer\n");
-+			dma_pool_destroy(bus->dma_pool);
-+		}
-+	}
-+
-+	return ret;
-+}
-+
- static const struct aspeed_i2c_config ast24xx_config = {
- 	.get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val,
- 	.enable_sram = aspeed_i2c_24xx_enable_sram,
- 	.set_buf_xfer_mode = aspeed_i2c_24xx_set_buf_xfer_mode,
-+	.set_dma_xfer_mode = aspeed_i2c_24xx_set_dma_xfer_mode,
- };
- 
- static const struct aspeed_i2c_config ast25xx_config = {
- 	.get_clk_reg_val = aspeed_i2c_25xx_get_clk_reg_val,
- 	.enable_sram = aspeed_i2c_25xx_enable_sram,
- 	.set_buf_xfer_mode = aspeed_i2c_25xx_set_buf_xfer_mode,
-+	.set_dma_xfer_mode = aspeed_i2c_25xx_set_dma_xfer_mode,
- };
- 
- static const struct aspeed_i2c_config ast26xx_config = {
- 	.get_clk_reg_val = aspeed_i2c_25xx_get_clk_reg_val,
- 	.enable_sram = aspeed_i2c_24xx_enable_sram,
- 	.set_buf_xfer_mode = aspeed_i2c_25xx_set_buf_xfer_mode,
-+	.set_dma_xfer_mode = aspeed_i2c_25xx_set_dma_xfer_mode,
- };
- 
- static const struct of_device_id aspeed_i2c_bus_of_table[] = {
-@@ -1324,8 +1474,12 @@ static void aspeed_i2c_set_xfer_mode(struct aspeed_i2c_bus *bus)
- 		return;
- 
- 	ret = bus->config->enable_sram();
--	if (!ret && !strncasecmp(mode, "buf", 3))
--		ret = bus->config->set_buf_xfer_mode(bus->dev);
-+	if (!ret) {
-+		if (!strncasecmp(mode, "buf", 3))
-+			ret = bus->config->set_buf_xfer_mode(bus->dev);
-+		else if (!strncasecmp(mode, "dma", 3))
-+			ret = bus->config->set_dma_xfer_mode(bus->dev);
-+	}
- 
- 	if (ret)
- 		dev_dbg(&pdev->dev, "Use default (byte) xfer mode\n");
-@@ -1400,22 +1554,31 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	 */
- 	ret = aspeed_i2c_init(bus, pdev);
- 	if (ret < 0)
--		return ret;
-+		goto out_free_dma_buf;
- 
- 	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
- 	ret = devm_request_irq(&pdev->dev, irq, aspeed_i2c_bus_irq,
- 			       0, dev_name(&pdev->dev), bus);
- 	if (ret < 0)
--		return ret;
-+		goto out_free_dma_buf;
- 
- 	ret = i2c_add_adapter(&bus->adap);
- 	if (ret < 0)
--		return ret;
-+		goto out_free_dma_buf;
- 
- 	dev_info(bus->dev, "i2c bus %d registered (%s mode), irq %d\n",
--		 bus->adap.nr, bus->buf_base ? "buf" : "byte", irq);
-+		 bus->adap.nr, bus->dma_buf ? "dma" :
-+					      bus->buf_base ? "buf" : "byte",
-+		 irq);
- 
- 	return 0;
-+
-+out_free_dma_buf:
-+	if (bus->dma_buf)
-+		dma_pool_free(bus->dma_pool, bus->dma_buf, bus->dma_handle);
-+	dma_pool_destroy(bus->dma_pool);
-+
-+	return ret;
- }
- 
- static int aspeed_i2c_remove_bus(struct platform_device *pdev)
-@@ -1433,6 +1596,10 @@ static int aspeed_i2c_remove_bus(struct platform_device *pdev)
- 
- 	reset_control_assert(bus->rst);
- 
-+	if (bus->dma_buf)
-+		dma_pool_free(bus->dma_pool, bus->dma_buf, bus->dma_handle);
-+	dma_pool_destroy(bus->dma_pool);
-+
- 	i2c_del_adapter(&bus->adap);
- 
- 	return 0;
--- 
-2.17.1
+More testing is always welcome :)   With that said, testing these changes really
+is not a lot of work for me.
+
+Regards,
+
+Hans
 
