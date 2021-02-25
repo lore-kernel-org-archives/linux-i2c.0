@@ -2,94 +2,82 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8BCFC433DB
-	for <linux-i2c@archiver.kernel.org>; Thu, 25 Feb 2021 14:08:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2AC3C433E0
+	for <linux-i2c@archiver.kernel.org>; Thu, 25 Feb 2021 14:27:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8C99D64F11
-	for <linux-i2c@archiver.kernel.org>; Thu, 25 Feb 2021 14:08:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4491564F11
+	for <linux-i2c@archiver.kernel.org>; Thu, 25 Feb 2021 14:27:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231154AbhBYOIO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 25 Feb 2021 09:08:14 -0500
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:38669 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232549AbhBYOIN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 25 Feb 2021 09:08:13 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=zhangliguang@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UPYfGtW_1614262019;
-Received: from 30.39.207.232(mailfrom:zhangliguang@linux.alibaba.com fp:SMTPD_---0UPYfGtW_1614262019)
+        id S229722AbhBYO1i (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 25 Feb 2021 09:27:38 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:54627 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229507AbhBYO1h (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 25 Feb 2021 09:27:37 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R841e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=zhangliguang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UPYnEh._1614263193;
+Received: from localhost(mailfrom:zhangliguang@linux.alibaba.com fp:SMTPD_---0UPYnEh._1614263193)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 25 Feb 2021 22:07:00 +0800
-Subject: Re: [PATCH] i2c: designware: Get right data length
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+          Thu, 25 Feb 2021 22:26:41 +0800
+From:   Liguang Zhang <zhangliguang@linux.alibaba.com>
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20210225023528.121135-1-zhangliguang@linux.alibaba.com>
- <YDeH27Vgble8FetC@smile.fi.intel.com>
-From:   =?UTF-8?B?5Lmx55+z?= <zhangliguang@linux.alibaba.com>
-Message-ID: <c89a0aa3-b580-7726-e7d7-4b3ce103e90a@linux.alibaba.com>
-Date:   Thu, 25 Feb 2021 22:06:59 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        Philipp Zabel <p.zabel@pengutronix.de>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>
+Subject: [PATCH v2] i2c: designware: Get right data length
+Date:   Thu, 25 Feb 2021 22:26:31 +0800
+Message-Id: <20210225142631.1882-1-zhangliguang@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
 MIME-Version: 1.0
-In-Reply-To: <YDeH27Vgble8FetC@smile.fi.intel.com>
-Content-Type: text/plain; charset=gbk; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
-ÔÚ 2021/2/25 19:19, Andy Shevchenko Ð´µÀ:
-> On Thu, Feb 25, 2021 at 10:35:28AM +0800, Liguang Zhang wrote:
->> IC_DATA_CMD[11] indicates the first data byte received after the address
->> phase for receive transfer in Master receiver or Slave receiver mode,
->> this bit was set in some transfer flow. IC_DATA_CMD[7:0] contains the
->> data to be transmitted or received on the I2C bus, so we should use the
->> lower 8 bits to get the right data length.
-> Thanks for the report and fix!
-> My comments below.
+IC_DATA_CMD[11] indicates the first data byte received after the address
+phase for receive transfer in Master receiver or Slave receiver mode,
+this bit was set in some transfer flow. IC_DATA_CMD[7:0] contains the
+data to be transmitted or received on the I2C bus, so we should use the
+lower 8 bits to get the real data length.
 
-Thanks for your comments. I will optimize my code follow your comments 
-and send v2 revision.
+Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+---
+ drivers/i2c/busses/i2c-designware-core.h   | 2 ++
+ drivers/i2c/busses/i2c-designware-master.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-Regards,
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 85307cfa7109..5392b82f68a4 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -38,6 +38,8 @@
+ #define DW_IC_CON_TX_EMPTY_CTRL			BIT(8)
+ #define DW_IC_CON_RX_FIFO_FULL_HLD_CTRL		BIT(9)
+ 
++#define DW_IC_DATA_CMD_DAT			GENMASK(7, 0)
++
+ /*
+  * Registers offset
+  */
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index d6425ad6e6a3..dd27b9dbe931 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -432,7 +432,7 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+ 			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
+ 			/* Ensure length byte is a valid value */
+ 			if (flags & I2C_M_RECV_LEN &&
+-			    tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
++			    (tmp & DW_IC_DATA_CMD_DAT) <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
+ 				len = i2c_dw_recv_len(dev, tmp);
+ 			}
+ 			*buf++ = tmp;
+-- 
+2.19.1.6.gb485710b
 
-Liguang
-
->
->> Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
->> ---
->>   drivers/i2c/busses/i2c-designware-master.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
->> index d6425ad6e6a3..c3cf76f6c607 100644
->> --- a/drivers/i2c/busses/i2c-designware-master.c
->> +++ b/drivers/i2c/busses/i2c-designware-master.c
->> @@ -432,7 +432,7 @@ i2c_dw_read(struct dw_i2c_dev *dev)
->>   			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
->>   			/* Ensure length byte is a valid value */
->>   			if (flags & I2C_M_RECV_LEN &&
->> -			    tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
->> +			    (tmp & 0xff) <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
-> Can we rather describe this as
->
-> #define DW_IC_DATA_CMD_DAT   GENMASK(7, 0)
->
-> in *.h file and...
->
-> 			    (tmp & DW_IC_DATA_CMD_DAT) <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
-> ...here?
->
->>   				len = i2c_dw_recv_len(dev, tmp);
->>   			}
->>   			*buf++ = tmp;
->> -- 
->> 2.19.1.6.gb485710b
->>
