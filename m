@@ -2,89 +2,67 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_2
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FBC1C433E0
-	for <linux-i2c@archiver.kernel.org>; Mon,  1 Mar 2021 12:13:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8DD7C433E6
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Mar 2021 12:23:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 48AE364E40
-	for <linux-i2c@archiver.kernel.org>; Mon,  1 Mar 2021 12:13:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8944564E37
+	for <linux-i2c@archiver.kernel.org>; Mon,  1 Mar 2021 12:23:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233570AbhCAMNh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 1 Mar 2021 07:13:37 -0500
-Received: from mga02.intel.com ([134.134.136.20]:6607 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233549AbhCAMNe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 1 Mar 2021 07:13:34 -0500
-IronPort-SDR: BS4RFWLEvZ7zv7SId9PfN/by8ttb3Zs1Z2DgQJ2mg3PiWP+IyCJM7nMFgXODo2AX5eMiUr1E/r
- XrugVuKbTQsw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9909"; a="173573680"
-X-IronPort-AV: E=Sophos;i="5.81,215,1610438400"; 
-   d="scan'208";a="173573680"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2021 04:11:47 -0800
-IronPort-SDR: gUA0LbTEcUEdSQsKIp5iXeKjN/nBXDZy5Pog61nPnurKuGwW8gYLa17540bXo984ytkjKEQim2
- /ez9RTGvHPaw==
-X-IronPort-AV: E=Sophos;i="5.81,215,1610438400"; 
-   d="scan'208";a="435380350"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2021 04:09:35 -0800
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1lGhMb-0098Ty-Ql; Mon, 01 Mar 2021 14:09:25 +0200
-Date:   Mon, 1 Mar 2021 14:09:25 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Viresh Kumar <viresh.kumar@linaro.org>
-Cc:     Jie Deng <jie.deng@intel.com>, linux-i2c@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, mst@redhat.com, wsa@kernel.org,
-        jasowang@redhat.com, wsa+renesas@sang-engineering.com,
-        conghui.chen@intel.com, arnd@arndb.de, kblaiech@mellanox.com,
-        jarkko.nikula@linux.intel.com, Sergey.Semin@baikalelectronics.ru,
-        rppt@kernel.org, loic.poulain@linaro.org, tali.perry1@gmail.com,
-        u.kleine-koenig@pengutronix.de, bjorn.andersson@linaro.org,
-        yu1.wang@intel.com, shuo.a.liu@intel.com
-Subject: Re: [PATCH v5] i2c: virtio: add a virtio i2c frontend driver
-Message-ID: <YDzZdc9+6hEvIDS1@smile.fi.intel.com>
-References: <00f826ffe1b6b4f5fb41de2b55ad6b8783b7ff45.1614579846.git.jie.deng@intel.com>
- <20210301115441.a4s5xzwm6d6ohz7f@vireshk-i7>
+        id S234386AbhCAMXH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 1 Mar 2021 07:23:07 -0500
+Received: from mailgw02.mediatek.com ([1.203.163.81]:39520 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S234008AbhCAMXG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 1 Mar 2021 07:23:06 -0500
+X-UUID: e04229979be24e64a497ae8d3c2e0ca5-20210301
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=gs/svU8lhJHXw6APVwlc6cCBq2DNAv6aE+F+Aj/pGlQ=;
+        b=JdHO5bevxhGPTCgkH57o2TT1mzqvC3ogHkIr2jTrAHQ0wCMoZs8UxhbVbve1JVfX4q0Pd5axby01PIasKMWbbLWYIdwfcQLKDDxxLs8mCbDRvemb6NM48CjaX+LNnlFGZ4PLIcfOQFHx7cJzrWRJJw0UiaMVfRgJnUshd0LDA6M=;
+X-UUID: e04229979be24e64a497ae8d3c2e0ca5-20210301
+Received: from mtkcas35.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
+        (envelope-from <qii.wang@mediatek.com>)
+        (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1503276849; Mon, 01 Mar 2021 20:22:13 +0800
+Received: from MTKCAS36.mediatek.inc (172.27.4.186) by MTKMBS31N2.mediatek.inc
+ (172.27.4.87) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 1 Mar
+ 2021 20:22:01 +0800
+Received: from [10.17.3.153] (10.17.3.153) by MTKCAS36.mediatek.inc
+ (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Mon, 1 Mar 2021 20:22:01 +0800
+Message-ID: <1614601321.16737.5.camel@mhfsdcap03>
+Subject: Re: [PATCH] i2c: mediatek: Get device clock-stretch time via dts
+From:   Qii Wang <qii.wang@mediatek.com>
+To:     <wsa@the-dreams.de>
+CC:     <matthias.bgg@gmail.com>, <linux-i2c@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>
+Date:   Mon, 1 Mar 2021 20:22:01 +0800
+In-Reply-To: <1612348525-13364-1-git-send-email-qii.wang@mediatek.com>
+References: <1612348525-13364-1-git-send-email-qii.wang@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.10.4-0ubuntu2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210301115441.a4s5xzwm6d6ohz7f@vireshk-i7>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+X-TM-SNTS-SMTP: 7A2577D5E8F4CF0FD35F7C75FCE434CDC2524106DFD176D68BD41856E5BE214F2000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Mar 01, 2021 at 05:24:41PM +0530, Viresh Kumar wrote:
-> On 01-03-21, 14:41, Jie Deng wrote:
-> > +/**
-> > + * struct virtio_i2c_req - the virtio I2C request structure
-> > + * @out_hdr: the OUT header of the virtio I2C message
-> > + * @write_buf: contains one I2C segment being written to the device
-> > + * @read_buf: contains one I2C segment being read from the device
-> > + * @in_hdr: the IN header of the virtio I2C message
-> > + */
-> > +struct virtio_i2c_req {
-> > +	struct virtio_i2c_out_hdr out_hdr;
-> > +	u8 *write_buf;
-> > +	u8 *read_buf;
-> > +	struct virtio_i2c_in_hdr in_hdr;
-> > +};
-> 
-> I am not able to appreciate the use of write/read bufs here as we
-> aren't trying to read/write data in the same transaction. Why do we
-> have two bufs here as well as in specs ?
-
-I²C and SMBus support bidirectional transfers as well. I think two buffers is
-the right thing to do.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
+SGksDQpPbiBXZWQsIDIwMjEtMDItMDMgYXQgMTg6MzUgKzA4MDAsIHFpaS53YW5nQG1lZGlhdGVr
+LmNvbSB3cm90ZToNCj4gRnJvbTogUWlpIFdhbmcgPHFpaS53YW5nQG1lZGlhdGVrLmNvbT4NCj4g
+DQo+IHRTVSxTVEEvdEhELFNUQS90U1UsU1RPUCBtYXliZSBvdXQgb2Ygc3BlYyBkdWUgdG8gZGV2
+aWNlDQo+IGNsb2NrLXN0cmV0Y2hpbmcgb3IgY2lyY3VpdCBsb3NzLCB3ZSBjb3VsZCBnZXQgZGV2
+aWNlDQo+IGNsb2NrLXN0cmV0Y2ggdGltZSBmcm9tIGR0cyB0byBhZGp1c3QgdGhlc2UgcGFyYW1l
+dGVycw0KPiB0byBtZWV0IHRoZSBzcGVjIHZpYSBFWFRfQ09ORiByZWdpc3Rlci4NCj4gDQo+IFNp
+Z25lZC1vZmYtYnk6IFFpaSBXYW5nIDxxaWkud2FuZ0BtZWRpYXRlay5jb20+DQo+IC0tLQ0KDQpD
+YW4gaXQgbWVyZ2UgaW50byA1LjEyPyBvciBkbyBJIG5lZWQgdG8gcmVzZW5kIHRoZSBwYXRjaD8N
+Cg0KVGhhbmtzLA0KCVFpaQ0K
 
