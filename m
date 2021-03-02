@@ -4,33 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24A07C4332B
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21865C43381
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:28:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E61ED64FB2
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E04FD64E62
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:28:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242274AbhCCBPq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 2 Mar 2021 20:15:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50832 "EHLO mail.kernel.org"
+        id S242298AbhCCBPx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 2 Mar 2021 20:15:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245735AbhCBMiT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:38:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF09F64F4C;
-        Tue,  2 Mar 2021 11:56:47 +0000 (UTC)
+        id S1384038AbhCBNwd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 2 Mar 2021 08:52:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E33964F72;
+        Tue,  2 Mar 2021 11:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686208;
-        bh=+7LclTKHzIOR90r+KzUvTzXCGvGArJVXRmP2usOJ2Ok=;
+        s=k20201202; t=1614686272;
+        bh=WBPXsz4WZudRCvS5C99vhxKE7pTuA0i3oabXbJnn+NQ=;
         h=From:To:Cc:Subject:Date:From;
-        b=j3E9dbnPFZ3YzzXwQT5Eyoslrd4Sv2fYRzf8Kd7gscBV2qO/zGF1PriZ4RYjhWAMW
-         IpaRsaEt/5bATX7X1FtdqEU58aNPbxGAjLPVq4Bc/iBwaHSottFqv8m5a4w7cWqFys
-         /GF6cOldYymIxfpNDsir1lDpsLtfzPWotIlkmyqZq51xTzyUVd4OdWx9kSXy8fll1J
-         hvX0c1tu5OHQQjV+TRQft1gpO0/8I8cdP5lWVh0or4oA52EpvTRRxGFrfKDR1UcEgq
-         ugzdeRnjjFis7F8VZY1sAAsaf4uZyUDr35+wvt0hQp4O7cXQ/LRi8ImcdnVtmSrZ23
-         X7H+RdHK2ah6g==
+        b=Ygm3W3TmB0qOI9ANIb0jofssna/80MdNxrXnLQqXKPEeHiERaamSGLHHxcAEF4ZUF
+         STGasbjPf40zXRTdvSDFxq8x5jNGdr23RSQ+28sdkKRqaO/L9VXWTUkp4EZn3M3IE2
+         E+S3OkT7CPqHAZOiWVSq1s6jdMeNyk0sJNqkCm6KF4Yqwv5lBig6Atj6YGqOt8xtW4
+         pHW/D8IUgrnalvhNti+jm7nt1dgUU4odgjKvsZsAxahAjytEQ00vthYFuIFl6Ik0OR
+         neFxgUvhqCPl2CgpnjoAUwZGtrnSDTlmLCs0k4Ed+/rUN6sYC7y85rRKD3oklIE/Cr
+         xUignxAcCgHmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -38,9 +38,9 @@ Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         <niklas.soderlund+renesas@ragnatech.se>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/47] i2c: rcar: faster irq code to minimize HW race condition
-Date:   Tue,  2 Mar 2021 06:56:00 -0500
-Message-Id: <20210302115646.62291-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 01/33] i2c: rcar: faster irq code to minimize HW race condition
+Date:   Tue,  2 Mar 2021 06:57:17 -0500
+Message-Id: <20210302115749.62653-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,10 +68,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 217def2d7cb4..824586d7ee56 100644
+index 9c162a01a584..9d54ae935524 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -91,7 +91,6 @@
+@@ -89,7 +89,6 @@
  
  #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
  #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
@@ -79,7 +79,7 @@ index 217def2d7cb4..824586d7ee56 100644
  #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
  
  #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
-@@ -621,7 +620,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+@@ -616,7 +615,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
  /*
   * This driver has a lock-free design because there are IP cores (at least
   * R-Car Gen2) which have an inherent race condition in their hardware design.
@@ -88,7 +88,7 @@ index 217def2d7cb4..824586d7ee56 100644
   * the interrupt was generated, otherwise an unwanted repeated message gets
   * generated. It turned out that taking a spinlock at the beginning of the ISR
   * was already causing repeated messages. Thus, this driver was converted to
-@@ -630,13 +629,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+@@ -625,13 +624,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
  static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
  {
  	struct rcar_i2c_priv *priv = ptr;
