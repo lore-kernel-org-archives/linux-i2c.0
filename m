@@ -2,127 +2,90 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2176FC2BA11
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A9DDC433E0
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ED09464FAB
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2D97564FB2
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242174AbhCCBPb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 2 Mar 2021 20:15:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55896 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347528AbhCBLbg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 2 Mar 2021 06:31:36 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EBC5C061793
-        for <linux-i2c@vger.kernel.org>; Tue,  2 Mar 2021 03:30:32 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id g4so13663681pgj.0
-        for <linux-i2c@vger.kernel.org>; Tue, 02 Mar 2021 03:30:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TKcFkhM8Mf5DiRPH37Ng7ifpctLWMXPxIAc63q2YCdc=;
-        b=STh1OiHiN3RIX3HBgcV9cNh+gyrXDrSjs+yTS/x+kts2F/gPdGop3OxANQsWwz1PTv
-         JTnRE9eMpVVbVq9og+Q5gdkjwX+2PuRATcx+sYWgU5KIYCnXmtL52ehxz79ifFORxLgs
-         eYUjOtMlD8m+37T0fPp+NqB1Qcq07p8BTq5gI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TKcFkhM8Mf5DiRPH37Ng7ifpctLWMXPxIAc63q2YCdc=;
-        b=jJ9KnNGy0890p2bt3CJaac0oNkF5ZeO/qVkqQ863oh4bmVinWyHJEvCIvduW72u+3b
-         R/jPy4v7Ac3K+yObaq+/zw/FemxI+Le6qc3wfXd6Y75sCVOtl4NXhQk3Xs0u2wAvpV4W
-         MOd89PNG/NKs771fHGsFllRkLv20zN9xo9TriVg1FRCxb0EC1RhFPzmOD+cbamWUsYR0
-         8hilcjyXuMvqGrFf+Qcdf03VcRVYch9J9IsZ9Nrp2//ISIlzbuQxZ9j6IKJTRCG33rWk
-         UePXSH8fQL3sFyf/ZHmCjbZ03ypc6SxdYLyVKZ1HABZQ5opZkXJ+pn0zFgdcFChW3JlK
-         LiuQ==
-X-Gm-Message-State: AOAM533D4OHr1zoFlzDkyEf4Unj82afN0Guob1FCxTEAtc0gbiNUz9pG
-        7TGzXLhlYSQdeFK7WaR3h6vrIasuGQj6+MvLcDaJ7w==
-X-Google-Smtp-Source: ABdhPJwBgRaP7xzFKc8KjHOOHQlUJLofabevE4D9pSBMT3XRudmsTh+IeR6puUqZDyGDZajOd3aOQ/x6HgQHHW5CLqc=
-X-Received: by 2002:a63:515a:: with SMTP id r26mr17916655pgl.257.1614684632012;
- Tue, 02 Mar 2021 03:30:32 -0800 (PST)
+        id S242222AbhCCBPl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 2 Mar 2021 20:15:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46974 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S244198AbhCBMVD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:21:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 264AC64F14;
+        Tue,  2 Mar 2021 11:58:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614686317;
+        bh=xHXRJThog1hkYwY3dSKNZooLBmgzZ2qlg5ktIXw3/Q0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=j1ShV0X5vgMam0HnRvVfhzBy0ZotGymwSBPG32HpECN8LsX693IvB/hRm4B8FWJ/x
+         P6k0TXZCswCY4mUHbz26UOV4Dqs7wpcFyst9uLovO+kQgexjhx5zd2boa1LSz+xzWp
+         d40ZFG7Do+Pxorh6/vGNiz4yqJu5UuhiTczW0NoxZJiUJYnyx0eRQv/O0wSG9j4/Aj
+         bVf8iF8vF+ck/P5teXHj3/j3JC+uAxJH8KW2Sa8tjzCC5CohQG8TYxhI/k1NZZcyxe
+         MQavWcEz4PjDmddO7ZqRUaDh6GQR70rGu1mDio1rh4hc0nHKLO0PFZHy9zcrroFX4U
+         SG6CdGC4l+fCw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/21] i2c: rcar: optimize cacheline to minimize HW race condition
+Date:   Tue,  2 Mar 2021 06:58:15 -0500
+Message-Id: <20210302115835.63269-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-References: <1612348525-13364-1-git-send-email-qii.wang@mediatek.com>
-In-Reply-To: <1612348525-13364-1-git-send-email-qii.wang@mediatek.com>
-From:   Ikjoon Jang <ikjn@chromium.org>
-Date:   Tue, 2 Mar 2021 19:30:21 +0800
-Message-ID: <CAATdQgCoLB-iOcxN2ptDmqD69FnyUen5XeRTq=LCCfXmWkBeWw@mail.gmail.com>
-Subject: Re: [PATCH] i2c: mediatek: Get device clock-stretch time via dts
-To:     qii.wang@mediatek.com
-Cc:     wsa@the-dreams.de, srv_heupstream <srv_heupstream@mediatek.com>,
-        leilk.liu@mediatek.com, open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>, linux-i2c@vger.kernel.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Qii,
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On Wed, Feb 3, 2021 at 6:43 PM <qii.wang@mediatek.com> wrote:
->
-> From: Qii Wang <qii.wang@mediatek.com>
->
-> tSU,STA/tHD,STA/tSU,STOP maybe out of spec due to device
-> clock-stretching or circuit loss, we could get device
-> clock-stretch time from dts to adjust these parameters
-> to meet the spec via EXT_CONF register.
->
-> Signed-off-by: Qii Wang <qii.wang@mediatek.com>
-> ---
->  drivers/i2c/busses/i2c-mt65xx.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-> index 2ffd2f3..47c7255 100644
-> --- a/drivers/i2c/busses/i2c-mt65xx.c
-> +++ b/drivers/i2c/busses/i2c-mt65xx.c
-> @@ -245,6 +245,7 @@ struct mtk_i2c {
->         u16 irq_stat;                   /* interrupt status */
->         unsigned int clk_src_div;
->         unsigned int speed_hz;          /* The speed in transfer */
-> +       unsigned int clock_stretch_ns;
->         enum mtk_trans_op op;
->         u16 timing_reg;
->         u16 high_speed_reg;
-> @@ -607,7 +608,8 @@ static int mtk_i2c_check_ac_timing(struct mtk_i2c *i2c,
->         else
->                 clk_ns = sample_ns / 2;
->
-> -       su_sta_cnt = DIV_ROUND_UP(spec->min_su_sta_ns, clk_ns);
-> +       su_sta_cnt = DIV_ROUND_UP(spec->min_su_sta_ns + i2c->clock_stretch_ns,
-> +                                 clk_ns);
->         if (su_sta_cnt > max_sta_cnt)
->                 return -1;
->
-> @@ -1171,6 +1173,8 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
->         if (i2c->clk_src_div == 0)
->                 return -EINVAL;
->
-> +       of_property_read_u32(np, "clock-stretch-ns", &i2c->clock_stretch_ns);
-> +
+[ Upstream commit 25c2e0fb5fefb8d7847214cf114d94c7aad8e9ce ]
 
-I think this new property "clock-stretch-ns" is for the same purpose of
-"i2c-scl-falling-time-ns" + "i2c-scl-rising-time-ns" defined in
-Documentation/devicetree/bindings/i2c/i2c.txt?
+'flags' and 'io' are needed first, so they should be at the beginning of
+the private struct.
 
->         i2c->have_pmic = of_property_read_bool(np, "mediatek,have-pmic");
->         i2c->use_push_pull =
->                 of_property_read_bool(np, "mediatek,use-push-pull");
-> --
-> 1.9.1
-> _______________________________________________
-> Linux-mediatek mailing list
-> Linux-mediatek@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-mediatek
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/i2c/busses/i2c-rcar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index f9029800d399..3ea2ceec676c 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -117,6 +117,7 @@ enum rcar_i2c_type {
+ };
+ 
+ struct rcar_i2c_priv {
++	u32 flags;
+ 	void __iomem *io;
+ 	struct i2c_adapter adap;
+ 	struct i2c_msg *msg;
+@@ -127,7 +128,6 @@ struct rcar_i2c_priv {
+ 
+ 	int pos;
+ 	u32 icccr;
+-	u32 flags;
+ 	u8 recovery_icmcr;	/* protected by adapter lock */
+ 	enum rcar_i2c_type devtype;
+ 	struct i2c_client *slave;
+-- 
+2.30.1
+
