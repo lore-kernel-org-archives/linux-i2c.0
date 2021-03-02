@@ -2,108 +2,109 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAB9AC28EBD
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73389C46461
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A5BCF64FBF
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46D2F64FAB
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242152AbhCCBPa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 2 Mar 2021 20:15:30 -0500
-Received: from mout.kundenserver.de ([217.72.192.73]:58633 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1838561AbhCBK4x (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 2 Mar 2021 05:56:53 -0500
-Received: from mail-wm1-f47.google.com ([209.85.128.47]) by
- mrelayeu.kundenserver.de (mreue108 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MWzbr-1lJap01VGb-00XIbh; Tue, 02 Mar 2021 11:54:19 +0100
-Received: by mail-wm1-f47.google.com with SMTP id n4so2210381wmq.3;
-        Tue, 02 Mar 2021 02:54:19 -0800 (PST)
-X-Gm-Message-State: AOAM531PfHCGTnwKqf4Xca8S6I4j7fUd6pXrkwopqJwyO5GPhRUNGCUP
-        rQnofa//7fuFoxNYTzaPk53TbSs7qqcyjCaznWE=
-X-Google-Smtp-Source: ABdhPJwSy1Zm9Mymlo1hNSTEvNea2JqPihM0NDsdqQ4z0ab+tRCjmNhlJs5SPzaIvZ02aT2eYQCACTgNAzu/Id76t/U=
-X-Received: by 2002:a05:600c:4f11:: with SMTP id l17mr3405660wmq.38.1614682458937;
- Tue, 02 Mar 2021 02:54:18 -0800 (PST)
+        id S242192AbhCCBPd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 2 Mar 2021 20:15:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38706 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1383596AbhCBL4R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 2 Mar 2021 06:56:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C703661477;
+        Tue,  2 Mar 2021 11:55:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614686136;
+        bh=+7LclTKHzIOR90r+KzUvTzXCGvGArJVXRmP2usOJ2Ok=;
+        h=From:To:Cc:Subject:Date:From;
+        b=iUb5IrY/SkX6o8A+LOAE/pGNluVtKakeZYd/P1XmBO4UEPbaWVTHzz+F8eaH1qhUQ
+         Mi0rMV5xY19yzb/Mtqi4nXstBcPDl9i9izuG2p44fZ/e5LsN/Kpvv6MSrCXBtc2D7t
+         UZLMcHxHl3Rg/ahE8xHa0YO3ARs2oBi1AJCbIk5nxYOcCAAkw6CplIj05GfrmowCYm
+         ICC2oNCpz7a2ROr1junRFu52ZofaGgs0TOwkeKQrsaEVF0NgJtL/1Rwogc1nbHU2jS
+         yFDYoUY3ms59B9k8x9NoM57KwsT/J/7fcBEONKOMcjg9sXB1gThWnIxFVlFCIPwjN9
+         8Fv6xgmHdhf3Q==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 01/52] i2c: rcar: faster irq code to minimize HW race condition
+Date:   Tue,  2 Mar 2021 06:54:42 -0500
+Message-Id: <20210302115534.61800-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-References: <00f826ffe1b6b4f5fb41de2b55ad6b8783b7ff45.1614579846.git.jie.deng@intel.com>
- <CAK8P3a1ZXbodV07TTErnQunCLWOBnzRiVdLCxBD743fn-6FbXg@mail.gmail.com>
- <56fdef9a-b373-32f2-6dac-e687caa813c8@intel.com> <YD4KovxeoNG/c8QC@stefanha-x1.localdomain>
-In-Reply-To: <YD4KovxeoNG/c8QC@stefanha-x1.localdomain>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Tue, 2 Mar 2021 11:54:02 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a23L-Y0vzJTb5w1MkumaYAJQ6Owiq6RZ2XE=i8gBMTUZw@mail.gmail.com>
-Message-ID: <CAK8P3a23L-Y0vzJTb5w1MkumaYAJQ6Owiq6RZ2XE=i8gBMTUZw@mail.gmail.com>
-Subject: Re: [PATCH v5] i2c: virtio: add a virtio i2c frontend driver
-To:     Stefan Hajnoczi <stefanha@redhat.com>
-Cc:     Jie Deng <jie.deng@intel.com>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Jason Wang <jasowang@redhat.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        conghui.chen@intel.com, kblaiech@mellanox.com,
-        jarkko.nikula@linux.intel.com,
-        Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
-        Mike Rapoport <rppt@kernel.org>, loic.poulain@linaro.org,
-        Tali Perry <tali.perry1@gmail.com>,
-        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        yu1.wang@intel.com, shuo.a.liu@intel.com,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:gF0XgA0E5NC4LDXr21/b567gTU0xy0MQFYkHv+4rdqtRDoDZiBb
- bI9+BvBZDafPfhbcySdS7YnBoPEkq31Fkfo5z6OnVOnrzncPdsrhBoWlmokCMRLtJULXy7U
- 5+m4xnWEk3w7SmQ+/dV6XH0AEz7GtXYBpDnWq3E1ct1ItUYDxCcBJPDBzNNC99fDTbeMdKD
- a+C2FYpG8ygzJ+R9ZPOMg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:vjcPgti2woE=:JBOJcGWnz+Uvvppff19JPY
- eMN1rU3e0Xhd67jckah4dd3wl/kTrzR3Co+OsU7o8DHAX9Ps81aRewDkGLfmDe5qMUNVEhF/x
- Xb9naahW/uSxUo7ze/6x1I0NsTM08wBYrwsNSHi+AnmY4UMSgoAf8rPLFuuFJLsfZjpPUOSNz
- VO0dhjXlnPGMZQN8dA/P3cuxxuPqpb4Cg/Z7Ax9ajm0+2XiV9kMRv2riOL34bTEWVvLCx+Eyw
- Erj3K7e17ZsGJlARuk+ZqQpioITVziD4n747e03IeiVZaiQmyMUugWY8tpOXyrNFecx/Bk6np
- 2zmdvJ7JT93U///nWSq4n/00XQeo3lWXjb2z/qT5hX1V9ueTcF3gWlOiVSTgt4euiQfkRL34o
- 5mf8mO2JF1McAJjdnQibudjdiJvNQgDV9ZkumRUQGGcdGZll+gW7+EX6U8WQVBB/n+hA7ZXOf
- PZ8PtF/T02zo/RpIVhSoKYCX1ovX0YKGWxD5SzoQdUb3TG8hi/KZ6yTxUQAAYpRW6wabap7fZ
- mmZG/1YOOZzBx2oWOXTs7bYfpRb5+m3vR9u01ZVJbq4zbhIowCs0eaWqvCzhQY97g==
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Mar 2, 2021 at 10:51 AM Stefan Hajnoczi <stefanha@redhat.com> wrote:
-> On Tue, Mar 02, 2021 at 10:42:06AM +0800, Jie Deng wrote:
-> > > > +/*
-> > > > + * Definitions for virtio I2C Adpter
-> > > > + *
-> > > > + * Copyright (c) 2021 Intel Corporation. All rights reserved.
-> > > > + */
-> > > > +
-> > > > +#ifndef _UAPI_LINUX_VIRTIO_I2C_H
-> > > > +#define _UAPI_LINUX_VIRTIO_I2C_H
-> > > Why is this a uapi header? Can't this all be moved into the driver
-> > > itself?
->
-> Linux VIRTIO drivers provide a uapi header with structs and constants
-> that describe the device interface. This allows other software like
-> QEMU, other operating systems, etc to reuse these headers instead of
-> redefining everything.
->
-> These files should contain:
-> 1. Device-specific feature bits (VIRTIO_<device>_F_<feature>)
-> 2. VIRTIO Configuration Space layout (struct virtio_<device>_config)
-> 3. Virtqueue request layout (struct virtio_<device>_<req/resp>)
->
-> For examples, see <linux/virtio_net.h> and <linux/virtio_blk.h>.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Ok, makes sense. So it's not strictly uapi but just helpful for
-virtio applications to reference these. I suppose it is slightly harder
-when building qemu on other operating systems though, how does
-it get these headers on BSD or Windows?
+[ Upstream commit c7b514ec979e23a08c411f3d8ed39c7922751422 ]
 
-       Arnd
+To avoid the HW race condition on R-Car Gen2 and earlier, we need to
+write to ICMCR as soon as possible in the interrupt handler. We can
+improve this by writing a static value instead of masking out bits.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/i2c/busses/i2c-rcar.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 217def2d7cb4..824586d7ee56 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -91,7 +91,6 @@
+ 
+ #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
+ #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
+-#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
+ #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
+ 
+ #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
+@@ -621,7 +620,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ /*
+  * This driver has a lock-free design because there are IP cores (at least
+  * R-Car Gen2) which have an inherent race condition in their hardware design.
+- * There, we need to clear RCAR_BUS_MASK_DATA bits as soon as possible after
++ * There, we need to switch to RCAR_BUS_PHASE_DATA as soon as possible after
+  * the interrupt was generated, otherwise an unwanted repeated message gets
+  * generated. It turned out that taking a spinlock at the beginning of the ISR
+  * was already causing repeated messages. Thus, this driver was converted to
+@@ -630,13 +629,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ {
+ 	struct rcar_i2c_priv *priv = ptr;
+-	u32 msr, val;
++	u32 msr;
+ 
+ 	/* Clear START or STOP immediately, except for REPSTART after read */
+-	if (likely(!(priv->flags & ID_P_REP_AFTER_RD))) {
+-		val = rcar_i2c_read(priv, ICMCR);
+-		rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
+-	}
++	if (likely(!(priv->flags & ID_P_REP_AFTER_RD)))
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	msr = rcar_i2c_read(priv, ICMSR);
+ 
+-- 
+2.30.1
+
