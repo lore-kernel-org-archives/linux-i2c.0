@@ -2,68 +2,60 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 173A2C4332E
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 113E5C43332
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB13464FAB
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D38F164FA6
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241779AbhCCBOA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 2 Mar 2021 20:14:00 -0500
-Received: from mga07.intel.com ([134.134.136.100]:22924 "EHLO mga07.intel.com"
+        id S242027AbhCCBPG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 2 Mar 2021 20:15:06 -0500
+Received: from mga07.intel.com ([134.134.136.100]:40780 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234985AbhCBFMx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 2 Mar 2021 00:12:53 -0500
-IronPort-SDR: M0+QNDo5E75z1snl2cJZlheux0PeRoI59l1YYSQWVE+OzduezhoALizsyEF9Htz/CSd8EdYiC1
- JgNyF4Pn2uTA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9910"; a="250737284"
+        id S1835941AbhCBG3E (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 2 Mar 2021 01:29:04 -0500
+IronPort-SDR: HGl9bUtvDsbikKjEiRvFFuMr2O2s4an9eFVixOyJEDgPm1J5dNbUt54qnbN++kKmgGyZzbJEPh
+ +bfwGWgEMU7w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9910"; a="250753309"
 X-IronPort-AV: E=Sophos;i="5.81,216,1610438400"; 
-   d="scan'208";a="250737284"
+   d="scan'208";a="250753309"
 Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2021 21:06:56 -0800
-IronPort-SDR: wC2bDyBmi0EgPUh2mckEVJcTi1BVjhN/kpCXBscfpu7q505k7SZLIfh0tJa+QWXTl/V4r+wymJ
- DqZBizKNO+Pw==
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2021 22:28:16 -0800
+IronPort-SDR: 4HEhIRxtLlBjbR5Mq0Pp6v5Wx40ez790z7ZwrTBe9T3G/JC2/2KZSjqbv1hsWgiGI5g7TMbXCP
+ Y87wtZlJrYGg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.81,216,1610438400"; 
-   d="scan'208";a="444591095"
+   d="scan'208";a="444614627"
 Received: from unknown (HELO [10.239.154.55]) ([10.239.154.55])
-  by orsmga001.jf.intel.com with ESMTP; 01 Mar 2021 21:06:50 -0800
+  by orsmga001.jf.intel.com with ESMTP; 01 Mar 2021 22:28:09 -0800
 Subject: Re: [PATCH v5] i2c: virtio: add a virtio i2c frontend driver
-To:     Viresh Kumar <viresh.kumar@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Cc:     Linux I2C <linux-i2c@vger.kernel.org>,
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     linux-i2c@vger.kernel.org,
         virtualization@lists.linux-foundation.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Jason Wang <jasowang@redhat.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        conghui.chen@intel.com, kblaiech@mellanox.com,
-        jarkko.nikula@linux.intel.com,
-        Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
-        Mike Rapoport <rppt@kernel.org>, loic.poulain@linaro.org,
-        Tali Perry <tali.perry1@gmail.com>,
-        =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        linux-kernel@vger.kernel.org, mst@redhat.com, wsa@kernel.org,
+        jasowang@redhat.com, wsa+renesas@sang-engineering.com,
+        andriy.shevchenko@linux.intel.com, conghui.chen@intel.com,
+        arnd@arndb.de, kblaiech@mellanox.com,
+        jarkko.nikula@linux.intel.com, Sergey.Semin@baikalelectronics.ru,
+        rppt@kernel.org, loic.poulain@linaro.org, tali.perry1@gmail.com,
+        u.kleine-koenig@pengutronix.de, bjorn.andersson@linaro.org,
         yu1.wang@intel.com, shuo.a.liu@intel.com,
-        Stefan Hajnoczi <stefanha@redhat.com>
+        Paolo Bonzini <pbonzini@redhat.com>
 References: <00f826ffe1b6b4f5fb41de2b55ad6b8783b7ff45.1614579846.git.jie.deng@intel.com>
- <CAK8P3a1ZXbodV07TTErnQunCLWOBnzRiVdLCxBD743fn-6FbXg@mail.gmail.com>
- <20210302040114.rg6bb32g2bsivsgf@vireshk-i7>
- <20210302042233.7ppagwjk3rah3uh3@vireshk-i7>
+ <20210301115441.a4s5xzwm6d6ohz7f@vireshk-i7>
+ <16efea9f-d606-4cf9-9213-3c1cf9b1a906@intel.com>
+ <20210302034323.gkqymzngyqofrdsr@vireshk-i7>
 From:   Jie Deng <jie.deng@intel.com>
-Message-ID: <5e66fc1b-81d3-341e-4864-adb021e9ce1e@intel.com>
-Date:   Tue, 2 Mar 2021 13:06:49 +0800
+Message-ID: <664d590d-b43f-1829-3ea0-44a4054dfca6@intel.com>
+Date:   Tue, 2 Mar 2021 14:28:09 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Firefox/78.0 Thunderbird/78.7.0
 MIME-Version: 1.0
-In-Reply-To: <20210302042233.7ppagwjk3rah3uh3@vireshk-i7>
+In-Reply-To: <20210302034323.gkqymzngyqofrdsr@vireshk-i7>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Language: en-US
@@ -72,52 +64,53 @@ List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
-On 2021/3/2 12:22, Viresh Kumar wrote:
-> On 02-03-21, 09:31, Viresh Kumar wrote:
->> On 01-03-21, 16:19, Arnd Bergmann wrote:
->>> On Mon, Mar 1, 2021 at 7:41 AM Jie Deng <jie.deng@intel.com> wrote:
->>>
->>>> --- /dev/null
->>>> +++ b/include/uapi/linux/virtio_i2c.h
->>>> @@ -0,0 +1,56 @@
->>>> +/* SPDX-License-Identifier: GPL-2.0-or-later WITH Linux-syscall-note */
->>>> +/*
->>>> + * Definitions for virtio I2C Adpter
->>>> + *
->>>> + * Copyright (c) 2021 Intel Corporation. All rights reserved.
->>>> + */
->>>> +
->>>> +#ifndef _UAPI_LINUX_VIRTIO_I2C_H
->>>> +#define _UAPI_LINUX_VIRTIO_I2C_H
->>> Why is this a uapi header? Can't this all be moved into the driver
->>> itself?
->>>
->>>> +/**
->>>> + * struct virtio_i2c_req - the virtio I2C request structure
->>>> + * @out_hdr: the OUT header of the virtio I2C message
->>>> + * @write_buf: contains one I2C segment being written to the device
->>>> + * @read_buf: contains one I2C segment being read from the device
->>>> + * @in_hdr: the IN header of the virtio I2C message
->>>> + */
->>>> +struct virtio_i2c_req {
->>>> +       struct virtio_i2c_out_hdr out_hdr;
->>>> +       u8 *write_buf;
->>>> +       u8 *read_buf;
->>>> +       struct virtio_i2c_in_hdr in_hdr;
->>>> +};
->>> In particular, this structure looks like it is only ever usable between
->>> the transfer functions in the driver itself, it is shared with neither
->>> user space nor the virtio host side.
->> Why is it so ? Won't you expect hypervisors or userspace apps to use
->> these ?
-> This comment applies only for the first two structures as the third
-> one is never exchanged over virtio.
-Yeah. Actually, the backend only needs "struct virtio_i2c_out_hdr out_hdr"
-and "struct virtio_i2c_in_hdr in_hdr" for communication. So we only need 
-to keep
-the first two in uapi and move "struct virtio_i2c_req" into the driver.
+On 2021/3/2 11:43, Viresh Kumar wrote:
+> On 02-03-21, 10:21, Jie Deng wrote:
+>> On 2021/3/1 19:54, Viresh Kumar wrote:
+>> That's my original proposal. I used to mirror this interface with "struct
+>> i2c_msg".
+>>
+>> But the design philosophy of virtio TC is that VIRTIO devices are not
+>> specific to Linux
+>> so the specs design should avoid the limitations of the current Linux driver
+>> behavior.
+> Right, I understand that.
+>
+>> We had some discussion about this. You may check these links to learn the
+>> story.
+>> https://lists.oasis-open.org/archives/virtio-comment/202010/msg00016.html
+>> https://lists.oasis-open.org/archives/virtio-comment/202010/msg00033.html
+>> https://lists.oasis-open.org/archives/virtio-comment/202011/msg00025.html
+> So the thing is that we want to support full duplex mode, right ?
+>
+> How will that work protocol wise ? I mean how would we know if we are
+> expecting both tx and rx buffers in a transfer ?
 
-But Jason wanted to include "struct virtio_i2c_req" in uapi. He 
-explained in this link
-https://lists.linuxfoundation.org/pipermail/virtualization/2020-October/050222.html.
-Do you agree with that explanation ?
+Not for the full duplex. As Paolo explained in those links.
+We defined a combined request called "write-read request"
+
+"
+This is when a write is followed by a read: the master
+starts off the transmission with a write, then sends a second START,
+then continues with a read from the same address.
+
+In theory there's no difference between one multi-segment transaction
+and many single-segment transactions _in a single-master scenario_.
+
+However, it is a plausible configuration to have multiple guests sharing
+an I2C host device as if they were multiple master.
+
+So the spec should provide a way at least to support for transactions with
+1 write and 1 read segment in one request to the same address.
+
+"
+
+ From the perspective of specification design, it hopes to provide more 
+choices
+while from the perspective of specific implementation, we can choose 
+what we need
+as long as it does not violate the specification.
+
+Since the current Linux driver doesn't use this mechanism. I'm 
+considering to move
+the "struct virtio_i2c_req" into the driver and use one "buf" instead.
