@@ -4,33 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 926EFC433E6
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00281C4332D
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4641A64FA9
+	by mail.kernel.org (Postfix) with ESMTP id BE0E264FA9
 	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242245AbhCCBPn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 2 Mar 2021 20:15:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51320 "EHLO mail.kernel.org"
+        id S242288AbhCCBPw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 2 Mar 2021 20:15:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344108AbhCBMiR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:38:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1342964F40;
-        Tue,  2 Mar 2021 11:56:48 +0000 (UTC)
+        id S237788AbhCBMnR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:43:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D68DE64F7E;
+        Tue,  2 Mar 2021 11:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686209;
-        bh=T9VhanuWJu/sRtrg731RxKgJzqEsndhyllDNaolkWuk=;
+        s=k20201202; t=1614686274;
+        bh=usTZBEyYoeHw+d0qswx2qWUgUYZxRBkXSl4lWppua3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SX8bsl84EkdaEA9NltU7Y+Q+KKt5z8f0VVZ05Pq5q5oe6GH2vOqkYWZpoZti0keA2
-         EnBSuDB/EgfM4A/ksiPjbwJ/75oDPhOp6v/UUen0w41iQTROyLWCJgDQXFv6ZW82vi
-         uHZs6F0fIt9gnPI8u8nIH/Z0KiSF9d9BLKHVKsBJSJR9+uk0ctpe9N/B50oQzk44qR
-         6v93rfB9KDfeAXWK6pZGdGB9IrZcbS6Dom+88SX4kWEY3HUEjf42OeiBbiIFXzcC1S
-         L8KnqTgjbXFHFImOxDYlzP8Vc/1qbmOBs6VtrY/sJf3MDodxgMomfSnKFwcBTqTa5R
-         t+exo2k7M+WMA==
+        b=TMWuaPpADRSIWFtJ8waDecrTR23oGYQVxpzB1AFbJUNjNuDiiBa4jSCTVyD1AnO9p
+         o2u2NhsBp1HzKP1LYohxXb9gUFLQC1klKOVIZCV5RRCKNQEb63xGQrWG/WPMQFWCHx
+         YIrMXGI/3hFqSPrlPpTSHmtyUCenqeuirhVvMoMOXVr0cvjFSH53syy2FrdK0oY0gt
+         rI+PEigDAFKJ1ssFjPYKlqFbHi1f31gZ4geYl5TQqYFkRKSm47ucqB+Z7t5JCyyUMq
+         VoPWzDPfYek2yeRQpyrSr3SYATEkKIl7qlMlX0q97Cfed8wYkPikES3zl1psMnzeQ3
+         3we2ozjsZQzxQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -38,12 +38,12 @@ Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         <niklas.soderlund+renesas@ragnatech.se>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 02/47] i2c: rcar: optimize cacheline to minimize HW race condition
-Date:   Tue,  2 Mar 2021 06:56:01 -0500
-Message-Id: <20210302115646.62291-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 02/33] i2c: rcar: optimize cacheline to minimize HW race condition
+Date:   Tue,  2 Mar 2021 06:57:18 -0500
+Message-Id: <20210302115749.62653-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210302115646.62291-1-sashal@kernel.org>
-References: <20210302115646.62291-1-sashal@kernel.org>
+In-Reply-To: <20210302115749.62653-1-sashal@kernel.org>
+References: <20210302115749.62653-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -69,10 +69,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 824586d7ee56..ad6630e3cc77 100644
+index 9d54ae935524..d0c4b3019e41 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -119,6 +119,7 @@ enum rcar_i2c_type {
+@@ -116,6 +116,7 @@ enum rcar_i2c_type {
  };
  
  struct rcar_i2c_priv {
@@ -80,7 +80,7 @@ index 824586d7ee56..ad6630e3cc77 100644
  	void __iomem *io;
  	struct i2c_adapter adap;
  	struct i2c_msg *msg;
-@@ -129,7 +130,6 @@ struct rcar_i2c_priv {
+@@ -126,7 +127,6 @@ struct rcar_i2c_priv {
  
  	int pos;
  	u32 icccr;
