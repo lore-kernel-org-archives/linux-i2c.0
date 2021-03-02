@@ -2,121 +2,132 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECD39C432C3
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:19:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25568C4361B
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:19:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B6DF264FA6
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:19:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E732E64FA9
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:19:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233366AbhCCBIM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 2 Mar 2021 20:08:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40804 "EHLO
+        id S238718AbhCCBLM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 2 Mar 2021 20:11:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242826AbhCBDor (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 1 Mar 2021 22:44:47 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BF13C0617AA
-        for <linux-i2c@vger.kernel.org>; Mon,  1 Mar 2021 19:44:44 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id t29so12938321pfg.11
-        for <linux-i2c@vger.kernel.org>; Mon, 01 Mar 2021 19:44:44 -0800 (PST)
+        with ESMTP id S238411AbhCBELp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 1 Mar 2021 23:11:45 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E29FC061756
+        for <linux-i2c@vger.kernel.org>; Mon,  1 Mar 2021 20:01:18 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id n10so12986564pgl.10
+        for <linux-i2c@vger.kernel.org>; Mon, 01 Mar 2021 20:01:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=6ocpLpD/YC8p2XAnodhqPke9yP3AITZZa1l575H6MVw=;
-        b=JHRHOhgiaoddDWynTZrpm0LW4LFDXMQcRKcMcbdOJtmyfINwmNDmZaMLymueC48zTF
-         LXjl5N8e8EOpVd1LA5MbOCgSlxkj1RdR2BeQM6PI5jAgFWEm7XBADNEzXblAl9KqDfDi
-         PuTLvXSY63nOrAGOOCChUi0melOu/i/F+YJ15x0bo0t+RP0sMtujH7oEcHRuiCexKX1m
-         hvpQ4OVX15bWs6b2Nq3+l1fkBIJcEoA7Z4rJJy0RyXkdYpbwOF7q1LXvIUMqeLmnDqFT
-         u51n3nxiN4UR94MMNwleVgVd6peH3XMEfodhWsISfD9FlpHhIae/MdRoLXtPEUzVnJ22
-         XUzA==
+         :content-disposition:in-reply-to:user-agent;
+        bh=fFBpOaqnIYwYnvUE7iGG9eoxcoU1KoADt/9w4iLg1yw=;
+        b=q0OEep7CBUYxMngfrjMfv3HZu1xA48/HR3WYDg8qoU56rfayFbakMoW82KYFzgKiKF
+         VgHLKajrxipKwAGxsfOn2tcuvEY8sR8HfPh+6P1FYTj3AEgzbvUIoor9ftbErqzATWYr
+         xFDJno2Q0y9X4K3L3vcm4y+X5ekiPoux6piKGtXBCnhSTBIb72yCypB5bhP1CeBXkBR4
+         twotd69qrl7DT1eum1/QK9XD8i0rKweAd5TP7ktTNAtcRD3/ZOqpAB8+sY50IZPGkobt
+         GfN1auFf741DxgpuvNjEWBCO/KsejxjnrqbOo8qnqU3LlFezhBttzLbe+jQ+3Pv9rWlI
+         8YNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=6ocpLpD/YC8p2XAnodhqPke9yP3AITZZa1l575H6MVw=;
-        b=b7xQL5rXgG0vp8s8sZBzIEArYPaWDkWsWAIhilyxzqzuDGT70ezhUW2gUniUE4+1uL
-         T2zpbryajoD9lU617tycsQzQHdmmN1lDP8x72NRD+7HYGri+RzqFFHXzL8SM6aoc6cs8
-         iK+Jld5wWWqvTa2D8MLurJ2JXc04Ghylo4gRWyejyvuHtEQHfHyI4/yXgk47oyjk1yNA
-         47FVgh3sHL++QNAOfij24QKk0GfHH+TPzoH3LMcbg+4SMlFiuRzvpm7d0yatwunJ6VDm
-         OO2B3zbnEJBDXvf9WbvacPwX64l8TGWa4UtXD8ZOmDL0m55Ki0YhAnmk4pxf9HkYVwMc
-         iNEg==
-X-Gm-Message-State: AOAM531YT5ECMwsBt36GZF5BDPv6G5PO6fsMdC9Zu08ci1EWAt6SuNCZ
-        MhOISJIa1OKS3qVNUdpJKHBX/Q==
-X-Google-Smtp-Source: ABdhPJx/Q+oofnFLde6CKHvTI9rHRmh2kqI4wTqTF5wpOq8Djwac9vMGULsXLHbE4mwfBcRp/551Ww==
-X-Received: by 2002:a63:374f:: with SMTP id g15mr16584551pgn.212.1614656684033;
-        Mon, 01 Mar 2021 19:44:44 -0800 (PST)
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=fFBpOaqnIYwYnvUE7iGG9eoxcoU1KoADt/9w4iLg1yw=;
+        b=PjcF/lfKStOqmNCPANrM4tNs9Y92rl/Qw/dzIDvvxKdu98hBZ1ASyn0het881EB1cj
+         FPOp0kplz52IJquHnW/uyNIiazLrgC33xo59XX0E33yA+JvBuSAKwylaVCi4R0p44ozP
+         BI0yhXJLdkM/SSzM6Zk1YgO5zY2O/BLkQ18RreLLkssXgWTkMR6xMqaG9fPpIyRtUdAM
+         /CWlhIKK2e/2/AVpXRjE0AWhfqZVJVjH4gF8vYFMjswFyB2x8thAq1tTEI/BivP0bynM
+         Sfl5UMRhgdkNW9pD+70HOSQIHYqkkJIfkxVom9VOnqrciB3UovoYyQeuzYvWj6jXF2+V
+         8dKw==
+X-Gm-Message-State: AOAM533yjlFvwyenKOxk7vrBjCeSKEZg1ONPnb8cSDbdf1zwyISBXc3T
+        PJd0Lm9SjjyQl0amYDNtajGNwA==
+X-Google-Smtp-Source: ABdhPJwbjaFWc0Ydncg0uXfe9DLT4ZT7DoinOOCZ+jmQSnlLVm/5KAgdBGUCxAUDY6noeHfJpmIz+Q==
+X-Received: by 2002:a62:4e92:0:b029:1ee:251d:50a1 with SMTP id c140-20020a624e920000b02901ee251d50a1mr1492865pfb.53.1614657677648;
+        Mon, 01 Mar 2021 20:01:17 -0800 (PST)
 Received: from localhost ([122.171.124.15])
-        by smtp.gmail.com with ESMTPSA id l19sm1018928pjt.16.2021.03.01.19.44.43
+        by smtp.gmail.com with ESMTPSA id c29sm17523742pgb.58.2021.03.01.20.01.15
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Mar 2021 19:44:43 -0800 (PST)
-Date:   Tue, 2 Mar 2021 09:14:41 +0530
+        Mon, 01 Mar 2021 20:01:16 -0800 (PST)
+Date:   Tue, 2 Mar 2021 09:31:14 +0530
 From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Jie Deng <jie.deng@intel.com>, linux-i2c@vger.kernel.org,
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Jie Deng <jie.deng@intel.com>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
         virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, mst@redhat.com, wsa@kernel.org,
-        jasowang@redhat.com, wsa+renesas@sang-engineering.com,
-        conghui.chen@intel.com, arnd@arndb.de, kblaiech@mellanox.com,
-        jarkko.nikula@linux.intel.com, Sergey.Semin@baikalelectronics.ru,
-        rppt@kernel.org, loic.poulain@linaro.org, tali.perry1@gmail.com,
-        u.kleine-koenig@pengutronix.de, bjorn.andersson@linaro.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Jason Wang <jasowang@redhat.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        conghui.chen@intel.com, kblaiech@mellanox.com,
+        jarkko.nikula@linux.intel.com,
+        Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
+        Mike Rapoport <rppt@kernel.org>, loic.poulain@linaro.org,
+        Tali Perry <tali.perry1@gmail.com>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         yu1.wang@intel.com, shuo.a.liu@intel.com
 Subject: Re: [PATCH v5] i2c: virtio: add a virtio i2c frontend driver
-Message-ID: <20210302034441.dcmrx4ughbtusolg@vireshk-i7>
+Message-ID: <20210302040114.rg6bb32g2bsivsgf@vireshk-i7>
 References: <00f826ffe1b6b4f5fb41de2b55ad6b8783b7ff45.1614579846.git.jie.deng@intel.com>
- <20210301115441.a4s5xzwm6d6ohz7f@vireshk-i7>
- <YDzZdc9+6hEvIDS1@smile.fi.intel.com>
- <YDzZocYCA8UC1FCW@smile.fi.intel.com>
+ <CAK8P3a1ZXbodV07TTErnQunCLWOBnzRiVdLCxBD743fn-6FbXg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YDzZocYCA8UC1FCW@smile.fi.intel.com>
+In-Reply-To: <CAK8P3a1ZXbodV07TTErnQunCLWOBnzRiVdLCxBD743fn-6FbXg@mail.gmail.com>
 User-Agent: NeoMutt/20180716-391-311a52
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 01-03-21, 14:10, Andy Shevchenko wrote:
-> On Mon, Mar 01, 2021 at 02:09:25PM +0200, Andy Shevchenko wrote:
-> > On Mon, Mar 01, 2021 at 05:24:41PM +0530, Viresh Kumar wrote:
-> > > On 01-03-21, 14:41, Jie Deng wrote:
-> > > > +/**
-> > > > + * struct virtio_i2c_req - the virtio I2C request structure
-> > > > + * @out_hdr: the OUT header of the virtio I2C message
-> > > > + * @write_buf: contains one I2C segment being written to the device
-> > > > + * @read_buf: contains one I2C segment being read from the device
-> > > > + * @in_hdr: the IN header of the virtio I2C message
-> > > > + */
-> > > > +struct virtio_i2c_req {
-> > > > +	struct virtio_i2c_out_hdr out_hdr;
-> > > > +	u8 *write_buf;
-> > > > +	u8 *read_buf;
-> > > > +	struct virtio_i2c_in_hdr in_hdr;
-> > > > +};
-> > > 
-> > > I am not able to appreciate the use of write/read bufs here as we
-> > > aren't trying to read/write data in the same transaction. Why do we
-> > > have two bufs here as well as in specs ?
-> > 
-> > I²C and SMBus support bidirectional transfers as well. I think two buffers is
-> > the right thing to do.
+On 01-03-21, 16:19, Arnd Bergmann wrote:
+> On Mon, Mar 1, 2021 at 7:41 AM Jie Deng <jie.deng@intel.com> wrote:
 > 
-> Strictly speaking "half duplex".
+> > --- /dev/null
+> > +++ b/include/uapi/linux/virtio_i2c.h
+> > @@ -0,0 +1,56 @@
+> > +/* SPDX-License-Identifier: GPL-2.0-or-later WITH Linux-syscall-note */
+> > +/*
+> > + * Definitions for virtio I2C Adpter
+> > + *
+> > + * Copyright (c) 2021 Intel Corporation. All rights reserved.
+> > + */
+> > +
+> > +#ifndef _UAPI_LINUX_VIRTIO_I2C_H
+> > +#define _UAPI_LINUX_VIRTIO_I2C_H
+> 
+> Why is this a uapi header? Can't this all be moved into the driver
+> itself?
+> 
+> > +/**
+> > + * struct virtio_i2c_req - the virtio I2C request structure
+> > + * @out_hdr: the OUT header of the virtio I2C message
+> > + * @write_buf: contains one I2C segment being written to the device
+> > + * @read_buf: contains one I2C segment being read from the device
+> > + * @in_hdr: the IN header of the virtio I2C message
+> > + */
+> > +struct virtio_i2c_req {
+> > +       struct virtio_i2c_out_hdr out_hdr;
+> > +       u8 *write_buf;
+> > +       u8 *read_buf;
+> > +       struct virtio_i2c_in_hdr in_hdr;
+> > +};
+> 
+> In particular, this structure looks like it is only ever usable between
+> the transfer functions in the driver itself, it is shared with neither
+> user space nor the virtio host side.
 
-Half duplex is what this driver implemented, i.e. only one side can
-send a msg at once, we don't need two buffers for that for sure.
-
-Though we need two buffers if we are ever going to support full
-duplex.
+Why is it so ? Won't you expect hypervisors or userspace apps to use
+these ?
 
 -- 
 viresh
