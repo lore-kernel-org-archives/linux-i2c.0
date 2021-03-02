@@ -2,80 +2,92 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64550C433E0
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 926EFC433E6
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2828064FA6
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4641A64FA9
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:21:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242225AbhCCBPm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 2 Mar 2021 20:15:42 -0500
-Received: from mailgw02.mediatek.com ([1.203.163.81]:32304 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1443647AbhCBMdE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 2 Mar 2021 07:33:04 -0500
-X-UUID: 5fafb8e125d3457daa75546a34b4ad5f-20210302
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=3ZRCi/nRxti+OHB6RGuP2kk8X0Uuta9T9GY8fOIWmF8=;
-        b=uP89SOWI/4awQ9Sr2L5UPRGyaZvTeT0Z8+XtwFDT1Jl/VXo8arBymKJc20gPhe+EzoCvVtMxCcrlWI9EyrzGl2ku7hipqVBSzLKcSU0/mM6D2ELKxrCils4rsJRCSBMls6HUCkTYfVYO9Ls9Bp/1Q9SIKOf/w+O/Taclv4EnWZ0=;
-X-UUID: 5fafb8e125d3457daa75546a34b4ad5f-20210302
-Received: from mtkcas36.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
-        (envelope-from <qii.wang@mediatek.com>)
-        (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 539081713; Tue, 02 Mar 2021 20:32:14 +0800
-Received: from MTKCAS32.mediatek.inc (172.27.4.184) by MTKMBS31N1.mediatek.inc
- (172.27.4.69) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 2 Mar
- 2021 20:32:11 +0800
-Received: from [10.17.3.153] (10.17.3.153) by MTKCAS32.mediatek.inc
- (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 2 Mar 2021 20:32:11 +0800
-Message-ID: <1614688331.28437.7.camel@mhfsdcap03>
-Subject: Re: [PATCH] i2c: mediatek: Get device clock-stretch time via dts
-From:   Qii Wang <qii.wang@mediatek.com>
-To:     Ikjoon Jang <ikjn@chromium.org>
-CC:     <wsa@the-dreams.de>, srv_heupstream <srv_heupstream@mediatek.com>,
-        <leilk.liu@mediatek.com>, open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
-        "Matthias Brugger" <matthias.bgg@gmail.com>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>
-Date:   Tue, 2 Mar 2021 20:32:11 +0800
-In-Reply-To: <CAATdQgCoLB-iOcxN2ptDmqD69FnyUen5XeRTq=LCCfXmWkBeWw@mail.gmail.com>
-References: <1612348525-13364-1-git-send-email-qii.wang@mediatek.com>
-         <CAATdQgCoLB-iOcxN2ptDmqD69FnyUen5XeRTq=LCCfXmWkBeWw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.10.4-0ubuntu2 
+        id S242245AbhCCBPn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 2 Mar 2021 20:15:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51320 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1344108AbhCBMiR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:38:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1342964F40;
+        Tue,  2 Mar 2021 11:56:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614686209;
+        bh=T9VhanuWJu/sRtrg731RxKgJzqEsndhyllDNaolkWuk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SX8bsl84EkdaEA9NltU7Y+Q+KKt5z8f0VVZ05Pq5q5oe6GH2vOqkYWZpoZti0keA2
+         EnBSuDB/EgfM4A/ksiPjbwJ/75oDPhOp6v/UUen0w41iQTROyLWCJgDQXFv6ZW82vi
+         uHZs6F0fIt9gnPI8u8nIH/Z0KiSF9d9BLKHVKsBJSJR9+uk0ctpe9N/B50oQzk44qR
+         6v93rfB9KDfeAXWK6pZGdGB9IrZcbS6Dom+88SX4kWEY3HUEjf42OeiBbiIFXzcC1S
+         L8KnqTgjbXFHFImOxDYlzP8Vc/1qbmOBs6VtrY/sJf3MDodxgMomfSnKFwcBTqTa5R
+         t+exo2k7M+WMA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 02/47] i2c: rcar: optimize cacheline to minimize HW race condition
+Date:   Tue,  2 Mar 2021 06:56:01 -0500
+Message-Id: <20210302115646.62291-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210302115646.62291-1-sashal@kernel.org>
+References: <20210302115646.62291-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: 2EB7B12E6C512922AD6609AB522FD825146F1596765CF85E5FB095D7D12A9FB82000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-SGksDQpPbiBUdWUsIDIwMjEtMDMtMDIgYXQgMTk6MzAgKzA4MDAsIElram9vbiBKYW5nIHdyb3Rl
-Og0KPiBIaSBRaWksDQo+ID4NCj4gPiBAQCAtMTE3MSw2ICsxMTczLDggQEAgc3RhdGljIGludCBt
-dGtfaTJjX3BhcnNlX2R0KHN0cnVjdCBkZXZpY2Vfbm9kZSAqbnAsIHN0cnVjdCBtdGtfaTJjICpp
-MmMpDQo+ID4gICAgICAgICBpZiAoaTJjLT5jbGtfc3JjX2RpdiA9PSAwKQ0KPiA+ICAgICAgICAg
-ICAgICAgICByZXR1cm4gLUVJTlZBTDsNCj4gPg0KPiA+ICsgICAgICAgb2ZfcHJvcGVydHlfcmVh
-ZF91MzIobnAsICJjbG9jay1zdHJldGNoLW5zIiwgJmkyYy0+Y2xvY2tfc3RyZXRjaF9ucyk7DQo+
-ID4gKw0KPiANCj4gSSB0aGluayB0aGlzIG5ldyBwcm9wZXJ0eSAiY2xvY2stc3RyZXRjaC1ucyIg
-aXMgZm9yIHRoZSBzYW1lIHB1cnBvc2Ugb2YNCj4gImkyYy1zY2wtZmFsbGluZy10aW1lLW5zIiAr
-ICJpMmMtc2NsLXJpc2luZy10aW1lLW5zIiBkZWZpbmVkIGluDQo+IERvY3VtZW50YXRpb24vZGV2
-aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLnR4dD8NCj4gDQoNCkkgaGF2ZW4ndCBmaW5kIHRoZSBj
-b3JyZXNwb25kaW5nIGluc3RydWN0aW9uczthbmQgdGhpcyBwYXRjaCBpcyBmb3IgdGhlDQpwcm9i
-bGVtIGNhdXNlZCBieSBjbG9jay1zdHJldGNoIHdoZW4gdGhlIHNjbCBpcyBwdWxsZWQuDQoNCj4g
-PiAgICAgICAgIGkyYy0+aGF2ZV9wbWljID0gb2ZfcHJvcGVydHlfcmVhZF9ib29sKG5wLCAibWVk
-aWF0ZWssaGF2ZS1wbWljIik7DQo+ID4gICAgICAgICBpMmMtPnVzZV9wdXNoX3B1bGwgPQ0KPiA+
-ICAgICAgICAgICAgICAgICBvZl9wcm9wZXJ0eV9yZWFkX2Jvb2wobnAsICJtZWRpYXRlayx1c2Ut
-cHVzaC1wdWxsIik7DQo+ID4gLS0NCj4gPiAxLjkuMQ0KPiA+IF9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fDQo+ID4gTGludXgtbWVkaWF0ZWsgbWFpbGluZyBs
-aXN0DQo+ID4gTGludXgtbWVkaWF0ZWtAbGlzdHMuaW5mcmFkZWFkLm9yZw0KPiA+IGh0dHA6Ly9s
-aXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtbWVkaWF0ZWsNCg0K
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+[ Upstream commit 25c2e0fb5fefb8d7847214cf114d94c7aad8e9ce ]
+
+'flags' and 'io' are needed first, so they should be at the beginning of
+the private struct.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/i2c/busses/i2c-rcar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 824586d7ee56..ad6630e3cc77 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -119,6 +119,7 @@ enum rcar_i2c_type {
+ };
+ 
+ struct rcar_i2c_priv {
++	u32 flags;
+ 	void __iomem *io;
+ 	struct i2c_adapter adap;
+ 	struct i2c_msg *msg;
+@@ -129,7 +130,6 @@ struct rcar_i2c_priv {
+ 
+ 	int pos;
+ 	u32 icccr;
+-	u32 flags;
+ 	u8 recovery_icmcr;	/* protected by adapter lock */
+ 	enum rcar_i2c_type devtype;
+ 	struct i2c_client *slave;
+-- 
+2.30.1
 
