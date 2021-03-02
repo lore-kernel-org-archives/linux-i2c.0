@@ -2,112 +2,124 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88732C28E86
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E3A1C4332B
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 597D764FAB
-	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E30E064FC8
+	for <linux-i2c@archiver.kernel.org>; Wed,  3 Mar 2021 01:20:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242045AbhCCBPO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 2 Mar 2021 20:15:14 -0500
-Received: from mga01.intel.com ([192.55.52.88]:33412 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376313AbhCBHRB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 2 Mar 2021 02:17:01 -0500
-IronPort-SDR: HfKJdSqFdQi/GbNiy1oYExChle7pPTBIPr3GEN/c20aMzop3iHAyGEjkHkT391/DG5X6LSMPJA
- 0yNNEUcIM4iw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9910"; a="206345510"
-X-IronPort-AV: E=Sophos;i="5.81,216,1610438400"; 
-   d="scan'208";a="206345510"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2021 23:16:11 -0800
-IronPort-SDR: cONYIPV0OpIAhapGBuMV8l0Va3BTh17wycnHERsBtyZn7o1wKu8N/PRruo2a5RXzARs2ntB5/C
- +jd9tVBIgNbQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,216,1610438400"; 
-   d="scan'208";a="444631585"
-Received: from unknown (HELO [10.239.154.55]) ([10.239.154.55])
-  by orsmga001.jf.intel.com with ESMTP; 01 Mar 2021 23:16:05 -0800
-Subject: Re: [PATCH v5] i2c: virtio: add a virtio i2c frontend driver
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+        id S241972AbhCCBOw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 2 Mar 2021 20:14:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34140 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344568AbhCBF0d (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 2 Mar 2021 00:26:33 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46265C06178A
+        for <linux-i2c@vger.kernel.org>; Mon,  1 Mar 2021 21:25:36 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id t26so13139063pgv.3
+        for <linux-i2c@vger.kernel.org>; Mon, 01 Mar 2021 21:25:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=pjnIqWr4W5c6Rfpfq+1B4oObRaCw2aXuDrZPon0JAAw=;
+        b=QDGCef49J+YEYWjt3GPyAryWMv4lwEf5kBZEzzM/dbIWG4gd9wu57ZJUFjlbFCZ5UL
+         NB/GBOLvqyfQjS3RD/ocetVm6mSMDipqVXazooMCN47fHFY4xyHHQNpOOneTAxehas6n
+         10li34CgfQXpAbo7r31CLx5apAdX4p1TRUwf+q2JDkZWoUt0gdnL2hDunCmFPsJT2PiC
+         QEDkisfE+MmRrbfxAEDtZVBiaxy7umr0gGpU6mIhG/PJVhSdFUceQ5avScWq79Pu5qX8
+         M+zhjhN4uO9tZCd6aBGN5ZXC8xp0sueOqemkv/5PBqyDN62DlaydxwyZ9JxRaVy951IF
+         q5jw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=pjnIqWr4W5c6Rfpfq+1B4oObRaCw2aXuDrZPon0JAAw=;
+        b=uLuALMoeXTwuLT0GZ7LWBIXnXWVLRybb1Cz8VBQrfZx+XFiNOlGRQ0fLUwyIOhcGdy
+         pQNayHWnPgeCGLHM7HxXs02nVpBgZU4l84WdMnJa9kR+sEYqkMVldkTgWFZQwVT+Y1Kh
+         ygVNlKenXKo8pgTvMwlAQSg/eVsyCeaejNnKPhw9dkDQo9VJ9Oc99xf6tWQhL+z+8ovF
+         lM9CqTFowRROAAWip9cy3/6l7af1FTq9rYdi0EHoUS7M+bJjpA4n5gu82r873DuTIP7T
+         NuxqboSu9SEns/UUwSXXQqOZNNpK7IxWcistUHrYLhdMSXIfY/0mpMDWqE0DaqKeM0xl
+         iAkA==
+X-Gm-Message-State: AOAM530OrGAg+U4kZgv6hFkYHlNVOVSVr9JSaDsnZiCHs61gyqN8FIvB
+        RTwnpQSD3F0mXAPoh9xkr59Lfw==
+X-Google-Smtp-Source: ABdhPJwKpZ7suTk61XskKgNbSXO/rLU1BT7eJSqyuOfbUaVz+DIW5sZQGdY3MkGgzlDoGuLAI+c/fw==
+X-Received: by 2002:a05:6a00:1693:b029:1ec:b0af:d1d with SMTP id k19-20020a056a001693b02901ecb0af0d1dmr18206446pfc.42.1614662735639;
+        Mon, 01 Mar 2021 21:25:35 -0800 (PST)
+Received: from localhost ([122.171.124.15])
+        by smtp.gmail.com with ESMTPSA id a136sm19383970pfa.66.2021.03.01.21.25.34
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Mar 2021 21:25:35 -0800 (PST)
+Date:   Tue, 2 Mar 2021 10:55:33 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Jie Deng <jie.deng@intel.com>
 Cc:     linux-i2c@vger.kernel.org,
         virtualization@lists.linux-foundation.org,
         linux-kernel@vger.kernel.org, mst@redhat.com, wsa@kernel.org,
         jasowang@redhat.com, wsa+renesas@sang-engineering.com,
-        conghui.chen@intel.com, arnd@arndb.de, kblaiech@mellanox.com,
+        andriy.shevchenko@linux.intel.com, conghui.chen@intel.com,
+        arnd@arndb.de, kblaiech@mellanox.com,
         jarkko.nikula@linux.intel.com, Sergey.Semin@baikalelectronics.ru,
         rppt@kernel.org, loic.poulain@linaro.org, tali.perry1@gmail.com,
         u.kleine-koenig@pengutronix.de, bjorn.andersson@linaro.org,
-        yu1.wang@intel.com, shuo.a.liu@intel.com, viresh.kumar@linaro.org
+        yu1.wang@intel.com, shuo.a.liu@intel.com
+Subject: Re: [PATCH v5] i2c: virtio: add a virtio i2c frontend driver
+Message-ID: <20210302052533.syriswm7gmainpnb@vireshk-i7>
 References: <00f826ffe1b6b4f5fb41de2b55ad6b8783b7ff45.1614579846.git.jie.deng@intel.com>
- <YDzZHKdrpROgSdg3@smile.fi.intel.com>
-From:   Jie Deng <jie.deng@intel.com>
-Message-ID: <5888846c-cc7b-44b1-98df-9fa10d89a3ff@intel.com>
-Date:   Tue, 2 Mar 2021 15:16:03 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.7.0
+ <20210302044214.gnnce5ptwehrsnpc@vireshk-i7>
+ <1e01448f-52f6-3d39-6794-d140637fdcc3@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <YDzZHKdrpROgSdg3@smile.fi.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1e01448f-52f6-3d39-6794-d140637fdcc3@intel.com>
+User-Agent: NeoMutt/20180716-391-311a52
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On 02-03-21, 13:21, Jie Deng wrote:
+> 
+> On 2021/3/2 12:42, Viresh Kumar wrote:
+> > On 01-03-21, 14:41, Jie Deng wrote:
+> > > +static int virtio_i2c_send_reqs(struct virtqueue *vq,
+> > > +				struct virtio_i2c_req *reqs,
+> > > +				struct i2c_msg *msgs, int nr)
+> > > +{
+> > > +	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
+> > > +	int i, outcnt, incnt, err = 0;
+> > > +	u8 *buf;
+> > > +
+> > > +	for (i = 0; i < nr; i++) {
+> > > +		if (!msgs[i].len)
+> > > +			break;
+> > > +
+> > > +		reqs[i].out_hdr.addr = cpu_to_le16(msgs[i].addr << 1);
+> > And this won't work for 10 bit addressing right? Don't we support that
+> > in kernel ?
+> > 
+> >  From Spec:
+> > 
+> > \begin{tabular}{ |l||l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l| }
+> > \hline
+> > Bits           & 15 & 14 & 13 & 12 & 11 & 10 & 9  & 8  & 7  & 6  & 5  & 4  & 3  & 2  & 1  & 0 \\
+> > \hline
+> > 7-bit address  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & 0  & A6 & A5 & A4 & A3 & A2 & A1 & A0 & 0 \\
+> > \hline
+> > 10-bit address & A7 & A6 & A5 & A4 & A3 & A2 & A1 & A0 & 1  & 1  & 1  & 1  & 0  & A9 & A8 & 0 \\
+> > \hline
+> > \end{tabular}
+> Currently, to make things simple, this driver only supports 7 bit mode.
+> It doesn't declare "I2C_FUNC_10BIT_ADDR" in the functionality.
+> We may add in the future according to the need.
 
-On 2021/3/1 20:07, Andy Shevchenko wrote:
-> On Mon, Mar 01, 2021 at 02:41:35PM +0800, Jie Deng wrote:
->> Add an I2C bus driver for virtio para-virtualization.
->>
->> The controller can be emulated by the backend driver in
->> any device model software by following the virtio protocol.
->>
->> The device specification can be found on
->> https://lists.oasis-open.org/archives/virtio-comment/202101/msg00008.html.
->>
->> By following the specification, people may implement different
->> backend drivers to emulate different controllers according to
->> their needs.
-> ...
->
->> +		buf = kzalloc(msgs[i].len, GFP_KERNEL);
->> +		if (!buf)
->> +			break;
->> +
->> +		if (msgs[i].flags & I2C_M_RD) {
-> kzalloc()
->
->> +			reqs[i].read_buf = buf;
->> +			sg_init_one(&msg_buf, reqs[i].read_buf, msgs[i].len);
->> +			sgs[outcnt + incnt++] = &msg_buf;
->> +		} else {
->> +			reqs[i].write_buf = buf;
->> +			memcpy(reqs[i].write_buf, msgs[i].buf, msgs[i].len);
-> kmemdup() ?
-Do you mean using "kzalloc" in the if condition and "kmemdup" in the 
-else condition ?
-Then we have to check the NULL twice which is also not good.
->> +			sg_init_one(&msg_buf, reqs[i].write_buf, msgs[i].len);
->> +			sgs[outcnt++] = &msg_buf;
->> +		}
-> ...
->
->> +
->> +
-> One blank line is enough.
-Will fix it. Thank you.
-> ...
->
->
->> +	ret = virtio_i2c_send_reqs(vq, reqs, msgs, num);
->> +	if (ret == 0)
->> +		goto err_unlock_free;
->> +	else
-> Redundant.
-Good catch !
->> +		nr = ret;
+Okay, fair enough. Please add such details somewhere in the code so
+people can understand it. You can very well add these at the top of
+the file as well, in the general header.
+
+-- 
+viresh
