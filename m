@@ -2,151 +2,271 @@ Return-Path: <SRS0=In8Y=IG=vger.kernel.org=linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AF28C433E6
-	for <linux-i2c@archiver.kernel.org>; Mon,  8 Mar 2021 04:59:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 281C9C433DB
+	for <linux-i2c@archiver.kernel.org>; Mon,  8 Mar 2021 12:21:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C4E465166
-	for <linux-i2c@archiver.kernel.org>; Mon,  8 Mar 2021 04:59:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C68F6651C9
+	for <linux-i2c@archiver.kernel.org>; Mon,  8 Mar 2021 12:21:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234257AbhCHE7X (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 7 Mar 2021 23:59:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46922 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbhCHE7F (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 7 Mar 2021 23:59:05 -0500
-Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C57C06174A;
-        Sun,  7 Mar 2021 20:59:05 -0800 (PST)
-Received: by mail-ot1-x32c.google.com with SMTP id t16so8028322ott.3;
-        Sun, 07 Mar 2021 20:59:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ZUvcfnkox4LhpcIq2ddGdCAV16jxJEBVa2beBV/87wo=;
-        b=prYAO2kjGQZVXIAguu5TNjY41YBapgOJRmDtP202Iy3DFrHRrnD92r1EC9uB3QgpSb
-         3P7ArdzOHxB77/kK4vFbwr5fvoAzqQFuEXA+7mZtIOW57s3h8InrTLlaXihwYX/GiBgO
-         pHPkFgNc7ENEXz2DROYWLn9KcuBwo4l/eLfvLXwo4b9FVvMP88hGPuZ73SPVf3ZmUJTZ
-         8HFM0rArtVifRmCKonHJPEzcHDEx5sbIN1fvVmjes+jYsDDR+LnA7YXAtbzQWvvO1se5
-         Ogw5HA1Fb4ObMeQD2CBDLWFH48P57SuQBbZaQouzgtoleFCpzxI+MUSV6v1dItQQ//lS
-         zEsw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=ZUvcfnkox4LhpcIq2ddGdCAV16jxJEBVa2beBV/87wo=;
-        b=qmWfrwoNxflML43q+RG7d/b8XwypRIB4aAUEMf5Xy6o2f9jhgfrgtoHlIBUT0lzNgv
-         MQe7INKsB/amBmjzcFkzyTYusD9nqEm0kwfSc+7wvZLfxqmD9sorO0oTNUqQ7Tv4j1Dh
-         XYRxNC5dFtL7RshbOOmFFRt/3AONL5VxvCUoInXgG6K46UbS5pxaBWUbd2G4LVGK5aPM
-         3NrPXW3mYvP6upEKEnBDr+6aN2qS9yeLxCy+tazH5RSdFtGl/nkpGSaxIIocOOer55mO
-         t1/ZyDXC31lC+O7CfFQDm/xZpenOqUvhLOy2AdtRowwBKghHBOQu8VP7KI93qtbc15Tu
-         GAeQ==
-X-Gm-Message-State: AOAM533kBb9MiuHtipsr1MtbHCeBXvjApW7rYZu2twnsBzb88ibH/30X
-        enocsMBgAGeOGzJ/beA6iZaDgK4LwF0=
-X-Google-Smtp-Source: ABdhPJzG6dS3Tsy1arKfLzW4En0A1BxCoae+FZdnSwj2kje9p1etOO0hzoQTE2i8o/zMORjJ9h3Gkw==
-X-Received: by 2002:a05:6830:14a:: with SMTP id j10mr3270593otp.143.1615179544471;
-        Sun, 07 Mar 2021 20:59:04 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 1sm2444961otr.53.2021.03.07.20.59.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 07 Mar 2021 20:59:03 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: Errant readings on LM81 with T2080 SoC
-To:     Chris Packham <Chris.Packham@alliedtelesis.co.nz>,
-        "jdelvare@suse.com" <jdelvare@suse.com>
-Cc:     "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
-References: <8e0a88ba-01e9-9bc1-c78b-20f26ce27d12@alliedtelesis.co.nz>
- <96d660bc-17ab-4e0e-9a94-bce1737a8da1@roeck-us.net>
- <4a1b1494-df96-2d8c-9323-beb2c2ba706b@alliedtelesis.co.nz>
- <a67ea323-634d-d34e-c63e-b1aaa4737b19@alliedtelesis.co.nz>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
- RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
- nyFiKxUehbNF3r9qlJgPqONwX5vJy4/GvDHdddSCxV41P/ejsZ8PykxyJs98UWhF54tGRWFl
- 7i1xvaDB9lN5WTLRKSO7wICuLiSz5WZHXMkyF4d+/O5ll7yz/o/JxK5vO/sduYDIlFTvBZDh
- gzaEtNf5tQjsjG4io8E0Yq0ViobLkS2RTNZT8ICq/Jmvl0SpbHRvYwa2DhNsK0YjHFQBB0FX
- IdhdUEzNefcNcYvqigJpdICoP2e4yJSyflHFO4dr0OrdnGLe1Zi/8Xo/2+M1dSSEt196rXaC
- kwu2KgIgmkRBb3cp2vIBBIIowU8W3qC1+w+RdMUrZxKGWJ3juwcgveJlzMpMZNyM1jobSXZ0
- VHGMNJ3MwXlrEFPXaYJgibcg6brM6wGfX/LBvc/haWw4yO24lT5eitm4UBdIy9pKkKmHHh7s
- jfZJkB5fWKVdoCv/omy6UyH6ykLOPFugl+hVL2Prf8xrXuZe1CMS7ID9Lc8FaL1ROIN/W8Vk
- BIsJMaWOhks//7d92Uf3EArDlDShwR2+D+AMon8NULuLBHiEUQARAQABzTJHdWVudGVyIFJv
- ZWNrIChMaW51eCBhY2NvdW50KSA8bGludXhAcm9lY2stdXMubmV0PsLBgQQTAQIAKwIbAwYL
- CQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEFAlVcphcFCRmg06EACgkQyx8mb86fmYFg0RAA
- nzXJzuPkLJaOmSIzPAqqnutACchT/meCOgMEpS5oLf6xn5ySZkl23OxuhpMZTVX+49c9pvBx
- hpvl5bCWFu5qC1jC2eWRYU+aZZE4sxMaAGeWenQJsiG9lP8wkfCJP3ockNu0ZXXAXwIbY1O1
- c+l11zQkZw89zNgWgKobKzrDMBFOYtAh0pAInZ9TSn7oA4Ctejouo5wUugmk8MrDtUVXmEA9
- 7f9fgKYSwl/H7dfKKsS1bDOpyJlqhEAH94BHJdK/b1tzwJCFAXFhMlmlbYEk8kWjcxQgDWMu
- GAthQzSuAyhqyZwFcOlMCNbAcTSQawSo3B9yM9mHJne5RrAbVz4TWLnEaX8gA5xK3uCNCeyI
- sqYuzA4OzcMwnnTASvzsGZoYHTFP3DQwf2nzxD6yBGCfwNGIYfS0i8YN8XcBgEcDFMWpOQhT
- Pu3HeztMnF3HXrc0t7e5rDW9zCh3k2PA6D2NV4fews9KDFhLlTfCVzf0PS1dRVVWM+4jVl6l
- HRIAgWp+2/f8dx5vPc4Ycp4IsZN0l1h9uT7qm1KTwz+sSl1zOqKD/BpfGNZfLRRxrXthvvY8
- BltcuZ4+PGFTcRkMytUbMDFMF9Cjd2W9dXD35PEtvj8wnEyzIos8bbgtLrGTv/SYhmPpahJA
- l8hPhYvmAvpOmusUUyB30StsHIU2LLccUPPOwU0ETofVZwEQALlLbQeBDTDbwQYrj0gbx3bq
- 7kpKABxN2MqeuqGr02DpS9883d/t7ontxasXoEz2GTioevvRmllJlPQERVxM8gQoNg22twF7
- pB/zsrIjxkE9heE4wYfN1AyzT+AxgYN6f8hVQ7Nrc9XgZZe+8IkuW/Nf64KzNJXnSH4u6nJM
- J2+Dt274YoFcXR1nG76Q259mKwzbCukKbd6piL+VsT/qBrLhZe9Ivbjq5WMdkQKnP7gYKCAi
- pNVJC4enWfivZsYupMd9qn7Uv/oCZDYoBTdMSBUblaLMwlcjnPpOYK5rfHvC4opxl+P/Vzyz
- 6WC2TLkPtKvYvXmdsI6rnEI4Uucg0Au/Ulg7aqqKhzGPIbVaL+U0Wk82nz6hz+WP2ggTrY1w
- ZlPlRt8WM9w6WfLf2j+PuGklj37m+KvaOEfLsF1v464dSpy1tQVHhhp8LFTxh/6RWkRIR2uF
- I4v3Xu/k5D0LhaZHpQ4C+xKsQxpTGuYh2tnRaRL14YMW1dlI3HfeB2gj7Yc8XdHh9vkpPyuT
- nY/ZsFbnvBtiw7GchKKri2gDhRb2QNNDyBnQn5mRFw7CyuFclAksOdV/sdpQnYlYcRQWOUGY
- HhQ5eqTRZjm9z+qQe/T0HQpmiPTqQcIaG/edgKVTUjITfA7AJMKLQHgp04Vylb+G6jocnQQX
- JqvvP09whbqrABEBAAHCwWUEGAECAA8CGwwFAlVcpi8FCRmg08MACgkQyx8mb86fmYHNRQ/+
- J0OZsBYP4leJvQF8lx9zif+v4ZY/6C9tTcUv/KNAE5leyrD4IKbnV4PnbrVhjq861it/zRQW
- cFpWQszZyWRwNPWUUz7ejmm9lAwPbr8xWT4qMSA43VKQ7ZCeTQJ4TC8kjqtcbw41SjkjrcTG
- wF52zFO4bOWyovVAPncvV9eGA/vtnd3xEZXQiSt91kBSqK28yjxAqK/c3G6i7IX2rg6pzgqh
- hiH3/1qM2M/LSuqAv0Rwrt/k+pZXE+B4Ud42hwmMr0TfhNxG+X7YKvjKC+SjPjqp0CaztQ0H
- nsDLSLElVROxCd9m8CAUuHplgmR3seYCOrT4jriMFBtKNPtj2EE4DNV4s7k0Zy+6iRQ8G8ng
- QjsSqYJx8iAR8JRB7Gm2rQOMv8lSRdjva++GT0VLXtHULdlzg8VjDnFZ3lfz5PWEOeIMk7Rj
- trjv82EZtrhLuLjHRCaG50OOm0hwPSk1J64R8O3HjSLdertmw7eyAYOo4RuWJguYMg5DRnBk
- WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
- HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <5709f180-04b5-09b2-e1c4-53eb5c9345d8@roeck-us.net>
-Date:   Sun, 7 Mar 2021 20:59:01 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S230359AbhCHMUv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 8 Mar 2021 07:20:51 -0500
+Received: from mga07.intel.com ([134.134.136.100]:3478 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230198AbhCHMUm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:20:42 -0500
+IronPort-SDR: qFL0bywx0W5lHuV5IRJ/M1upYBRPOpAgZMsa05cCW9zshqI/lwbUPMdFMhns/uakh93CwPb1y9
+ RL5M57D3tOcg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9916"; a="252044291"
+X-IronPort-AV: E=Sophos;i="5.81,232,1610438400"; 
+   d="scan'208";a="252044291"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2021 04:20:41 -0800
+IronPort-SDR: qEYXtnubt1FHTC7Hp+Uhs8umBOyGmRTh1J+lpCtRg0qDE6fNk33L6Z47yR2ofbQB0GRgYvXp6W
+ WXVMw6LNE1rQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,232,1610438400"; 
+   d="scan'208";a="369401484"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga003.jf.intel.com with ESMTP; 08 Mar 2021 04:20:37 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 04DC01EC; Mon,  8 Mar 2021 14:20:37 +0200 (EET)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Tan Jui Nee <jui.nee.tan@intel.com>,
+        Jim Quinlan <james.quinlan@broadcom.com>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Cc:     Jean Delvare <jdelvare@suse.com>, Peter Tyser <ptyser@xes-inc.com>,
+        hdegoede@redhat.com, henning.schild@siemens.com
+Subject: [PATCH v1 2/7] PCI: Convert __pci_read_base() to __pci_bus_read_base()
+Date:   Mon,  8 Mar 2021 14:20:15 +0200
+Message-Id: <20210308122020.57071-3-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210308122020.57071-1-andriy.shevchenko@linux.intel.com>
+References: <20210308122020.57071-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <a67ea323-634d-d34e-c63e-b1aaa4737b19@alliedtelesis.co.nz>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 3/7/21 8:37 PM, Chris Packham wrote:
-[ ... ]
->> That's from -ENXIO which is used in only one place in i2c-mpc.c. I'll 
->> enable some debug and see what we get.
-> 
-> For the errant readings there was nothing abnormal reported by the driver.
-> 
-> For the "No such device or address" I saw "mpc-i2c ffe119000.i2c: No 
-> RXAK" which matches up with the -ENXIO return.
-> 
+Some drivers would like to read PCI BAR of the devices which has been not or
+can't be enumerated.
 
-Id suggest to check the time until not busy and stop in mpc_xfer().
-Those hot loops are unusual, and may well mess up the code especially
-if preempt is enabled. Also, are you using interrupts or polling in
-your system ? The interrupt handler looks a bit odd, with "Read again
-to allow register to stabilise".
+In particular such mechanism is required to read PCI BAR of hidden
+devices behind Primary to Sideband (P2SB) bridge.
 
-Do you have fsl,timeout set in the devicetree properties and, if so,
-have you played with it ?
+Refactor __pci_read_base() to provide __pci_bus_read_base() and
+represent the former one as static inline helper.
 
-Other than that, the only other real idea I have would be to monitor
-the i2c bus.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/pci/pci.h   | 13 ++++++++-
+ drivers/pci/probe.c | 69 +++++++++++++++++++++++----------------------
+ 2 files changed, 48 insertions(+), 34 deletions(-)
 
-Guenter
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index ef7c4661314f..58a0e9f7a530 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -258,8 +258,19 @@ bool pci_bus_generic_read_dev_vendor_id(struct pci_bus *bus, int devfn, u32 *pl,
+ int pci_idt_bus_quirk(struct pci_bus *bus, int devfn, u32 *pl, int crs_timeout);
+ 
+ int pci_setup_device(struct pci_dev *dev);
++
++int __pci_bus_read_base(struct pci_bus *bus, unsigned int devfn,
++			enum pci_bar_type type,
++			struct resource *res, unsigned int reg,
++			bool mmio_always_on);
++static inline
+ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+-		    struct resource *res, unsigned int reg);
++		    struct resource *res, unsigned int reg)
++{
++	res->name = pci_name(dev);
++	return __pci_bus_read_base(dev->bus, dev->devfn, type, res, reg, dev->mmio_always_on);
++}
++
+ void pci_configure_ari(struct pci_dev *dev);
+ void __pci_bus_size_bridges(struct pci_bus *bus,
+ 			struct list_head *realloc_head);
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 7d67be52d8e5..8cf139724a42 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -129,7 +129,7 @@ static u64 pci_size(u64 base, u64 maxbase, u64 mask)
+ 	return size;
+ }
+ 
+-static inline unsigned long decode_bar(struct pci_dev *dev, u32 bar)
++static inline unsigned long decode_bar(u32 bar)
+ {
+ 	u32 mem_type;
+ 	unsigned long flags;
+@@ -165,16 +165,21 @@ static inline unsigned long decode_bar(struct pci_dev *dev, u32 bar)
+ #define PCI_COMMAND_DECODE_ENABLE	(PCI_COMMAND_MEMORY | PCI_COMMAND_IO)
+ 
+ /**
+- * __pci_read_base - Read a PCI BAR
+- * @dev: the PCI device
++ * __pci_bus_read_base - Read a PCI BAR
++ * @bus: the PCI bus
++ * @devfn: the PCI device and function
+  * @type: type of the BAR
+  * @res: resource buffer to be filled in
+  * @pos: BAR position in the config space
++ * @mmio_always_on: disallow turning off IO/MEM decoding during BAR sizing
+  *
+  * Returns 1 if the BAR is 64-bit, or 0 if 32-bit.
++ * In case of error resulting @res->flags is 0.
+  */
+-int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+-		    struct resource *res, unsigned int pos)
++int __pci_bus_read_base(struct pci_bus *bus, unsigned int devfn,
++			enum pci_bar_type type,
++			struct resource *res, unsigned int pos,
++			bool mmio_always_on)
+ {
+ 	u32 l = 0, sz = 0, mask;
+ 	u64 l64, sz64, mask64;
+@@ -184,20 +189,18 @@ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+ 	mask = type ? PCI_ROM_ADDRESS_MASK : ~0;
+ 
+ 	/* No printks while decoding is disabled! */
+-	if (!dev->mmio_always_on) {
+-		pci_read_config_word(dev, PCI_COMMAND, &orig_cmd);
++	if (!mmio_always_on) {
++		pci_bus_read_config_word(bus, devfn, PCI_COMMAND, &orig_cmd);
+ 		if (orig_cmd & PCI_COMMAND_DECODE_ENABLE) {
+-			pci_write_config_word(dev, PCI_COMMAND,
++			pci_bus_write_config_word(bus, devfn, PCI_COMMAND,
+ 				orig_cmd & ~PCI_COMMAND_DECODE_ENABLE);
+ 		}
+ 	}
+ 
+-	res->name = pci_name(dev);
+-
+-	pci_read_config_dword(dev, pos, &l);
+-	pci_write_config_dword(dev, pos, l | mask);
+-	pci_read_config_dword(dev, pos, &sz);
+-	pci_write_config_dword(dev, pos, l);
++	pci_bus_read_config_dword(bus, devfn, pos, &l);
++	pci_bus_write_config_dword(bus, devfn, pos, l | mask);
++	pci_bus_read_config_dword(bus, devfn, pos, &sz);
++	pci_bus_write_config_dword(bus, devfn, pos, l);
+ 
+ 	/*
+ 	 * All bits set in sz means the device isn't working properly.
+@@ -216,7 +219,7 @@ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+ 		l = 0;
+ 
+ 	if (type == pci_bar_unknown) {
+-		res->flags = decode_bar(dev, l);
++		res->flags = decode_bar(l);
+ 		res->flags |= IORESOURCE_SIZEALIGN;
+ 		if (res->flags & IORESOURCE_IO) {
+ 			l64 = l & PCI_BASE_ADDRESS_IO_MASK;
+@@ -236,26 +239,25 @@ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+ 	}
+ 
+ 	if (res->flags & IORESOURCE_MEM_64) {
+-		pci_read_config_dword(dev, pos + 4, &l);
+-		pci_write_config_dword(dev, pos + 4, ~0);
+-		pci_read_config_dword(dev, pos + 4, &sz);
+-		pci_write_config_dword(dev, pos + 4, l);
++		pci_bus_read_config_dword(bus, devfn, pos + 4, &l);
++		pci_bus_write_config_dword(bus, devfn, pos + 4, ~0);
++		pci_bus_read_config_dword(bus, devfn, pos + 4, &sz);
++		pci_bus_write_config_dword(bus, devfn, pos + 4, l);
+ 
+ 		l64 |= ((u64)l << 32);
+ 		sz64 |= ((u64)sz << 32);
+ 		mask64 |= ((u64)~0 << 32);
+ 	}
+ 
+-	if (!dev->mmio_always_on && (orig_cmd & PCI_COMMAND_DECODE_ENABLE))
+-		pci_write_config_word(dev, PCI_COMMAND, orig_cmd);
++	if (!mmio_always_on && (orig_cmd & PCI_COMMAND_DECODE_ENABLE))
++		pci_bus_write_config_word(bus, devfn, PCI_COMMAND, orig_cmd);
+ 
+ 	if (!sz64)
+ 		goto fail;
+ 
+ 	sz64 = pci_size(l64, sz64, mask64);
+ 	if (!sz64) {
+-		pci_info(dev, FW_BUG "reg 0x%x: invalid BAR (can't size)\n",
+-			 pos);
++		pci_bus_info(bus, devfn, FW_BUG "reg 0x%x: invalid BAR (can't size)\n", pos);
+ 		goto fail;
+ 	}
+ 
+@@ -265,8 +267,9 @@ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+ 			res->flags |= IORESOURCE_UNSET | IORESOURCE_DISABLED;
+ 			res->start = 0;
+ 			res->end = 0;
+-			pci_err(dev, "reg 0x%x: can't handle BAR larger than 4GB (size %#010llx)\n",
+-				pos, (unsigned long long)sz64);
++			pci_bus_err(bus, devfn,
++				    "reg 0x%x: can't handle BAR larger than 4GB (size %#010llx)\n",
++				    pos, (unsigned long long)sz64);
+ 			goto out;
+ 		}
+ 
+@@ -275,8 +278,9 @@ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+ 			res->flags |= IORESOURCE_UNSET;
+ 			res->start = 0;
+ 			res->end = sz64 - 1;
+-			pci_info(dev, "reg 0x%x: can't handle BAR above 4GB (bus address %#010llx)\n",
+-				 pos, (unsigned long long)l64);
++			pci_bus_info(bus, devfn,
++				     "reg 0x%x: can't handle BAR above 4GB (bus address %#010llx)\n",
++				     pos, (unsigned long long)l64);
+ 			goto out;
+ 		}
+ 	}
+@@ -284,8 +288,8 @@ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+ 	region.start = l64;
+ 	region.end = l64 + sz64 - 1;
+ 
+-	pcibios_bus_to_resource(dev->bus, res, &region);
+-	pcibios_resource_to_bus(dev->bus, &inverted_region, res);
++	pcibios_bus_to_resource(bus, res, &region);
++	pcibios_resource_to_bus(bus, &inverted_region, res);
+ 
+ 	/*
+ 	 * If "A" is a BAR value (a bus address), "bus_to_resource(A)" is
+@@ -302,18 +306,17 @@ int __pci_read_base(struct pci_dev *dev, enum pci_bar_type type,
+ 		res->flags |= IORESOURCE_UNSET;
+ 		res->start = 0;
+ 		res->end = region.end - region.start;
+-		pci_info(dev, "reg 0x%x: initial BAR value %#010llx invalid\n",
+-			 pos, (unsigned long long)region.start);
++		pci_bus_info(bus, devfn, "reg 0x%x: initial BAR value %#010llx invalid\n",
++			     pos, (unsigned long long)region.start);
+ 	}
+ 
+ 	goto out;
+ 
+-
+ fail:
+ 	res->flags = 0;
+ out:
+ 	if (res->flags)
+-		pci_info(dev, "reg 0x%x: %pR\n", pos, res);
++		pci_bus_info(bus, devfn, "reg 0x%x: %pR\n", pos, res);
+ 
+ 	return (res->flags & IORESOURCE_MEM_64) ? 1 : 0;
+ }
+-- 
+2.30.1
+
