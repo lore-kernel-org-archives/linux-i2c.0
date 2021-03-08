@@ -5,36 +5,36 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6688AC4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97462C43331
 	for <linux-i2c@archiver.kernel.org>; Mon,  8 Mar 2021 12:21:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2DBD6651DE
+	by mail.kernel.org (Postfix) with ESMTP id 6A164651C9
 	for <linux-i2c@archiver.kernel.org>; Mon,  8 Mar 2021 12:21:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230486AbhCHMUw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S230490AbhCHMUw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 8 Mar 2021 07:20:52 -0500
-Received: from mga07.intel.com ([134.134.136.100]:3478 "EHLO mga07.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:50394 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230169AbhCHMUm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:20:42 -0500
-IronPort-SDR: Qef8E12BSHAwArql24qevcPZ5OU8KhgJ01nVnY1Y3/0SC3IgYWJOMSnkSvPfJ/1YHlAKC5MxCP
- jtudN8iOZbTA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9916"; a="252044285"
+        id S229899AbhCHMUp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:20:45 -0500
+IronPort-SDR: zIGAmOx867xjMHvY+EbgcAeNLZMsDSbrf32CxupRQpkIjuhZFvIBtwfHisgcn98GWy/mxL1xB0
+ mu9rla0PyU4w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9916"; a="188123992"
 X-IronPort-AV: E=Sophos;i="5.81,232,1610438400"; 
-   d="scan'208";a="252044285"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2021 04:20:41 -0800
-IronPort-SDR: 2q3WNouO93QO5ykGzfaw+a9Vr4WuKb3dTbqIHNKitQOgq+WsN9clIO/C3nSrxGwM3eaL2KRaye
- uf82+az6QKpw==
+   d="scan'208";a="188123992"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2021 04:20:45 -0800
+IronPort-SDR: k+ZwVv0GBZN4dfhCEeyImvenxb0htCvn0NC5N0Egd6QiQ1mhjPY2+kda1cAOaFkbmeWlPbS8I9
+ eHmuda2rPqHw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.81,232,1610438400"; 
-   d="scan'208";a="369401482"
+   d="scan'208";a="376069693"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga003.jf.intel.com with ESMTP; 08 Mar 2021 04:20:37 -0800
+  by fmsmga007.fm.intel.com with ESMTP; 08 Mar 2021 04:20:41 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 11573263; Mon,  8 Mar 2021 14:20:38 +0200 (EET)
+        id 381D356B; Mon,  8 Mar 2021 14:20:38 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Jean Delvare <jdelvare@suse.de>,
@@ -48,9 +48,9 @@ To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         linux-pci@vger.kernel.org
 Cc:     Jean Delvare <jdelvare@suse.com>, Peter Tyser <ptyser@xes-inc.com>,
         hdegoede@redhat.com, henning.schild@siemens.com
-Subject: [PATCH v1 3/7] PCI: New Primary to Sideband (P2SB) bridge support library
-Date:   Mon,  8 Mar 2021 14:20:16 +0200
-Message-Id: <20210308122020.57071-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 6/7] mfd: lpc_ich: Add support for pinctrl in non-ACPI system
+Date:   Mon,  8 Mar 2021 14:20:19 +0200
+Message-Id: <20210308122020.57071-7-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122020.57071-1-andriy.shevchenko@linux.intel.com>
 References: <20210308122020.57071-1-andriy.shevchenko@linux.intel.com>
@@ -60,179 +60,161 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Jonathan Yong <jonathan.yong@intel.com>
+From: Tan Jui Nee <jui.nee.tan@intel.com>
 
-There is already one and at least one more user is coming which
-requires an access to Primary to Sideband bridge (P2SB) in order to
-get IO or MMIO bar hidden by BIOS. Create a library to access P2SB
-for x86 devices.
+Add support for non-ACPI systems, such as system that uses
+Advanced Boot Loader (ABL) whereby a platform device has to be created
+in order to bind with pin control and GPIO.
 
-Signed-off-by: Jonathan Yong <jonathan.yong@intel.com>
-Co-developed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+At the moment, Intel Apollo Lake In-Vehicle Infotainment (IVI) system
+requires a driver to hide and unhide P2SB to lookup P2SB BAR and pass
+the PCI BAR address to GPIO.
+
+Signed-off-by: Tan Jui Nee <jui.nee.tan@intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/pci/Kconfig      |  8 ++++
- drivers/pci/Makefile     |  1 +
- drivers/pci/pci-p2sb.c   | 83 ++++++++++++++++++++++++++++++++++++++++
- include/linux/pci-p2sb.h | 28 ++++++++++++++
- 4 files changed, 120 insertions(+)
- create mode 100644 drivers/pci/pci-p2sb.c
- create mode 100644 include/linux/pci-p2sb.h
+ drivers/mfd/lpc_ich.c | 100 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 99 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
-index 0c473d75e625..740e5b30d6fd 100644
---- a/drivers/pci/Kconfig
-+++ b/drivers/pci/Kconfig
-@@ -252,6 +252,14 @@ config PCIE_BUS_PEER2PEER
- 
- endchoice
- 
-+config PCI_P2SB
-+	bool "Primary to Sideband (P2SB) bridge access support"
-+	depends on PCI && X86
-+	help
-+	  The Primary to Sideband bridge is an interface to some PCI
-+	  devices connected through it. In particular, SPI NOR
-+	  controller in Intel Apollo Lake SoC is one of such devices.
-+
- source "drivers/pci/hotplug/Kconfig"
- source "drivers/pci/controller/Kconfig"
- source "drivers/pci/endpoint/Kconfig"
-diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
-index d62c4ac4ae1b..eee8d5dda7d9 100644
---- a/drivers/pci/Makefile
-+++ b/drivers/pci/Makefile
-@@ -23,6 +23,7 @@ obj-$(CONFIG_PCI_IOV)		+= iov.o
- obj-$(CONFIG_PCI_BRIDGE_EMUL)	+= pci-bridge-emul.o
- obj-$(CONFIG_PCI_LABEL)		+= pci-label.o
- obj-$(CONFIG_X86_INTEL_MID)	+= pci-mid.o
-+obj-$(CONFIG_PCI_P2SB)		+= pci-p2sb.o
- obj-$(CONFIG_PCI_SYSCALL)	+= syscall.o
- obj-$(CONFIG_PCI_STUB)		+= pci-stub.o
- obj-$(CONFIG_PCI_PF_STUB)	+= pci-pf-stub.o
-diff --git a/drivers/pci/pci-p2sb.c b/drivers/pci/pci-p2sb.c
-new file mode 100644
-index 000000000000..68d7dad48cdb
---- /dev/null
-+++ b/drivers/pci/pci-p2sb.c
-@@ -0,0 +1,83 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Primary to Sideband bridge (P2SB) access support
+diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
+index 8e9bd6813287..959247b6987a 100644
+--- a/drivers/mfd/lpc_ich.c
++++ b/drivers/mfd/lpc_ich.c
+@@ -8,7 +8,8 @@
+  *  Configuration Registers.
+  *
+  *  This driver is derived from lpc_sch.
+-
 + *
-+ * Copyright (c) 2017, 2021 Intel Corporation.
-+ *
-+ * Authors: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-+ *	    Jonathan Yong <jonathan.yong@intel.com>
-+ */
++ *  Copyright (C) 2017, 2021 Intel Corporation
+  *  Copyright (c) 2011 Extreme Engineering Solution, Inc.
+  *  Author: Aaron Sierra <asierra@xes-inc.com>
+  *
+@@ -43,6 +44,7 @@
+ #include <linux/acpi.h>
+ #include <linux/pci.h>
+ #include <linux/pci-p2sb.h>
++#include <linux/pinctrl/pinctrl.h>
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/lpc_ich.h>
+ #include <linux/platform_data/itco_wdt.h>
+@@ -140,6 +142,73 @@ static struct mfd_cell lpc_ich_gpio_cell = {
+ 	.ignore_resource_conflicts = true,
+ };
+ 
++/* Offset data for Apollo Lake GPIO controllers */
++#define APL_GPIO_SOUTHWEST_OFFSET	0xc00000
++#define APL_GPIO_SOUTHWEST_SIZE		0x654
++#define APL_GPIO_NORTHWEST_OFFSET	0xc40000
++#define APL_GPIO_NORTHWEST_SIZE		0x764
++#define APL_GPIO_NORTH_OFFSET		0xc50000
++#define APL_GPIO_NORTH_SIZE		0x76c
++#define APL_GPIO_WEST_OFFSET		0xc70000
++#define APL_GPIO_WEST_SIZE		0x674
 +
-+#include <linux/bitops.h>
-+#include <linux/export.h>
-+#include <linux/pci-p2sb.h>
++#define APL_GPIO_NR_DEVICES		4
++#define APL_GPIO_IRQ			14
 +
-+#include <asm/cpu_device_id.h>
-+#include <asm/intel-family.h>
-+
-+#include "pci.h"
-+
-+#define P2SBC_HIDE_BYTE			0xe1
-+#define P2SBC_HIDE_BIT			BIT(0)
-+
-+static const struct x86_cpu_id p2sb_cpu_ids[] = {
-+	X86_MATCH_INTEL_FAM6_MODEL(ATOM_GOLDMONT,	PCI_DEVFN(13, 0)),
-+	{}
++static struct resource apl_gpio_resources[APL_GPIO_NR_DEVICES][2] = {
++	{
++		DEFINE_RES_MEM(APL_GPIO_NORTH_OFFSET, APL_GPIO_NORTH_SIZE),
++		DEFINE_RES_IRQ(APL_GPIO_IRQ),
++	},
++	{
++		DEFINE_RES_MEM(APL_GPIO_NORTHWEST_OFFSET, APL_GPIO_NORTHWEST_SIZE),
++		DEFINE_RES_IRQ(APL_GPIO_IRQ),
++	},
++	{
++		DEFINE_RES_MEM(APL_GPIO_WEST_OFFSET, APL_GPIO_WEST_SIZE),
++		DEFINE_RES_IRQ(APL_GPIO_IRQ),
++	},
++	{
++		DEFINE_RES_MEM(APL_GPIO_SOUTHWEST_OFFSET, APL_GPIO_SOUTHWEST_SIZE),
++		DEFINE_RES_IRQ(APL_GPIO_IRQ),
++	},
 +};
 +
-+static int pci_p2sb_devfn(unsigned int *devfn)
++/* The order must be in sync with apl_pinctrl_soc_data */
++static const struct mfd_cell apl_gpio_devices[APL_GPIO_NR_DEVICES] = {
++	{
++		/* North */
++		.name = "apollolake-pinctrl",
++		.id = 0,
++		.num_resources = ARRAY_SIZE(apl_gpio_resources[0]),
++		.resources = apl_gpio_resources[0],
++		.ignore_resource_conflicts = true,
++	},
++	{
++		/* NorthWest */
++		.name = "apollolake-pinctrl",
++		.id = 1,
++		.num_resources = ARRAY_SIZE(apl_gpio_resources[1]),
++		.resources = apl_gpio_resources[1],
++		.ignore_resource_conflicts = true,
++	},
++	{
++		/* West */
++		.name = "apollolake-pinctrl",
++		.id = 2,
++		.num_resources = ARRAY_SIZE(apl_gpio_resources[2]),
++		.resources = apl_gpio_resources[2],
++		.ignore_resource_conflicts = true,
++	},
++	{
++		/* SouthWest */
++		.name = "apollolake-pinctrl",
++		.id = 3,
++		.num_resources = ARRAY_SIZE(apl_gpio_resources[3]),
++		.resources = apl_gpio_resources[3],
++		.ignore_resource_conflicts = true,
++	},
++};
+ 
+ static struct mfd_cell lpc_ich_spi_cell = {
+ 	.name = "intel-spi",
+@@ -1082,6 +1151,29 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
+ 	return ret;
+ }
+ 
++static int lpc_ich_init_pinctrl(struct pci_dev *dev)
 +{
-+	const struct x86_cpu_id *id;
-+
-+	id = x86_match_cpu(p2sb_cpu_ids);
-+	if (!id)
-+		return -ENODEV;
-+
-+	*devfn = (unsigned int)id->driver_data;
-+	return 0;
-+}
-+
-+/**
-+ * pci_p2sb_bar - Get Primary to Sideband bridge (P2SB) device BAR
-+ * @pdev:	PCI device to get a PCI bus to communicate with
-+ * @devfn:	PCI slot and function to communicate with
-+ * @mem:	memory resource to be filled in
-+ *
-+ * The BIOS prevents the P2SB device from being enumerated by the PCI
-+ * subsystem, so we need to unhide and hide it back to lookup the BAR.
-+ *
-+ * Caller must provide a valid pointer to @mem.
-+ *
-+ * Locking is handled by pci_rescan_remove_lock mutex.
-+ *
-+ * Return:
-+ * 0 on success or appropriate errno value on error.
-+ */
-+int pci_p2sb_bar(struct pci_dev *pdev, unsigned int devfn, struct resource *mem)
-+{
-+	struct pci_bus *bus = pdev->bus;
-+	unsigned int df;
++	struct resource base;
++	unsigned int i;
 +	int ret;
 +
-+	/* Get devfn for P2SB device itself */
-+	ret = pci_p2sb_devfn(&df);
++	ret = pci_p2sb_bar(dev, PCI_DEVFN(13, 0), &base);
 +	if (ret)
 +		return ret;
 +
-+	pci_lock_rescan_remove();
++	for (i = 0; i < ARRAY_SIZE(apl_gpio_devices); i++) {
++		struct resource *mem = &apl_gpio_resources[i][0];
 +
-+	/* Unhide the P2SB device */
-+	pci_bus_write_config_byte(bus, df, P2SBC_HIDE_BYTE, 0);
++		/* Fill MEM resource */
++		mem->start += base.start;
++		mem->end += base.start;
++		mem->flags = base.flags;
++	}
 +
-+	/* Read the first BAR of the device in question */
-+	__pci_bus_read_base(bus, devfn, pci_bar_unknown, mem, PCI_BASE_ADDRESS_0, true);
-+
-+	/* Hide the P2SB device */
-+	pci_bus_write_config_byte(bus, df, P2SBC_HIDE_BYTE, P2SBC_HIDE_BIT);
-+
-+	pci_unlock_rescan_remove();
-+
-+	pci_bus_info(bus, devfn, "BAR: %pR\n", mem);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(pci_p2sb_bar);
-diff --git a/include/linux/pci-p2sb.h b/include/linux/pci-p2sb.h
-new file mode 100644
-index 000000000000..15dd42737c84
---- /dev/null
-+++ b/include/linux/pci-p2sb.h
-@@ -0,0 +1,28 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Primary to Sideband bridge (P2SB) access support
-+ */
-+
-+#ifndef _PCI_P2SB_H
-+#define _PCI_P2SB_H
-+
-+#include <linux/errno.h>
-+
-+struct pci_dev;
-+struct resource;
-+
-+#if IS_BUILTIN(CONFIG_PCI_P2SB)
-+
-+int pci_p2sb_bar(struct pci_dev *pdev, unsigned int devfn, struct resource *mem);
-+
-+#else /* CONFIG_PCI_P2SB is not set */
-+
-+static inline
-+int pci_p2sb_bar(struct pci_dev *pdev, unsigned int devfn, struct resource *mem)
-+{
-+	return -ENODEV;
++	return mfd_add_devices(&dev->dev, 0, apl_gpio_devices,
++			       ARRAY_SIZE(apl_gpio_devices), NULL, 0, NULL);
 +}
 +
-+#endif /* CONFIG_PCI_P2SB */
+ static void lpc_ich_test_spi_write(struct pci_dev *dev, unsigned int devfn,
+ 				   struct intel_spi_boardinfo *info)
+ {
+@@ -1198,6 +1290,12 @@ static int lpc_ich_probe(struct pci_dev *dev,
+ 			cell_added = true;
+ 	}
+ 
++	if (priv->chipset == LPC_APL) {
++		ret = lpc_ich_init_pinctrl(dev);
++		if (!ret)
++			cell_added = true;
++	}
 +
-+#endif /* _PCI_P2SB_H */
+ 	if (lpc_chipset_info[priv->chipset].spi_type) {
+ 		ret = lpc_ich_init_spi(dev);
+ 		if (!ret)
 -- 
 2.30.1
 
