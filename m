@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96256C2BA13
-	for <linux-i2c@archiver.kernel.org>; Thu, 11 Mar 2021 15:28:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF82FC433E9
+	for <linux-i2c@archiver.kernel.org>; Thu, 11 Mar 2021 15:31:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 735C560202
-	for <linux-i2c@archiver.kernel.org>; Thu, 11 Mar 2021 15:28:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE81564FF1
+	for <linux-i2c@archiver.kernel.org>; Thu, 11 Mar 2021 15:31:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234200AbhCKP2H (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 11 Mar 2021 10:28:07 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:34301 "EHLO
+        id S234141AbhCKPam (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 11 Mar 2021 10:30:42 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:34458 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234368AbhCKP1r (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 11 Mar 2021 10:27:47 -0500
-Received: from mail-ed1-f70.google.com ([209.85.208.70])
+        with ESMTP id S234046AbhCKPaO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 11 Mar 2021 10:30:14 -0500
+Received: from mail-wm1-f70.google.com ([209.85.128.70])
         by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <krzysztof.kozlowski@canonical.com>)
-        id 1lKNCD-0004mN-TI
-        for linux-i2c@vger.kernel.org; Thu, 11 Mar 2021 15:25:54 +0000
-Received: by mail-ed1-f70.google.com with SMTP id bi17so10014528edb.6
-        for <linux-i2c@vger.kernel.org>; Thu, 11 Mar 2021 07:25:53 -0800 (PST)
+        id 1lKNE0-0005h8-6y
+        for linux-i2c@vger.kernel.org; Thu, 11 Mar 2021 15:27:44 +0000
+Received: by mail-wm1-f70.google.com with SMTP id v5so4183022wml.9
+        for <linux-i2c@vger.kernel.org>; Thu, 11 Mar 2021 07:27:44 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=WNNBQoeYbiaXwIioLMfeHDmEpvN4s0z+f2iELsIEM3g=;
-        b=UX0vmSiaQJb5ZHUySThvxourAKBZX/cmHIbM1AdxxGPc6n0kqo9VNLvYO55HKOvlU1
-         Br1vwLnTYrN/GEi1nXVIHhGE5oXkSHm/Y9CvK7cXS8qdXfmhQM4GgKFuMOR7vGsAZyb+
-         5yPoRxlYrkvsGmB8zQ8bjNYT1N0LRglzW+en81HLR/zYaWeZetVDCRf0pY9G66MwbOn0
-         UVzjmXWM1drS+C73KovbYqSF3yqB8tqbkYQWEQkR1nQP+ONrWplCnrq3XpD+p7IkjwQq
-         sfud3QYzXXXCd0E82NhlnRV3N6Vfs5YA34rF9LqnXqbdIj73LQ+HDuO9oa2MwWWiEPm7
-         JRew==
-X-Gm-Message-State: AOAM530MiQBtISKnVMpnlfecXBfxA9vUZ0v6pAxGCR3JfH5hAY3lTlj9
-        Wy775vVCth7ZRbswa7V6luB+AbCFDoif6Gxl71LTA4iI8QhJYKiiCajhrbuKB3o+X0WGoJYwOGI
-        WpsplGwfgkVgo75+qXLheBmymIMZzm4g9Mk9wjA==
-X-Received: by 2002:a05:6402:2215:: with SMTP id cq21mr9274778edb.281.1615476353414;
-        Thu, 11 Mar 2021 07:25:53 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz84GEivsrxMtPNo4w3XJQXVZ55xsq/2JYDwU24XYid3WZpGznITM5djSJ6+HC1Qzj5FYXbTw==
-X-Received: by 2002:a05:6402:2215:: with SMTP id cq21mr9274760edb.281.1615476353246;
-        Thu, 11 Mar 2021 07:25:53 -0800 (PST)
+        bh=UjkBHzEIXy3Qt0KfyB8W+UTqTimKf+/Z4F2P3MBYO1k=;
+        b=Nmtm8DN9Ctj+SgFAbjJwqGscxFl7+B23GDa3TASg8/Gv2/LfP/0zXRP7z31qZB1Kc0
+         bEj0i1rIxtmx4M8wrTm/qt4Cfpn3YAt+74eJLDxiYcs10/76IS41roPsfysof8zfSAKA
+         5UwJFCDJwHnsg5wGNkVIrDgk5XxVk1sCv8UNZb3PWBItwkAKx6L64XkIyert12Hft9Jq
+         x2AL9grZj8G58KaneGCm8enkDQM/RFQs0VZ0UOXRd+vuigSu9l43VdSYlFc2QbQnceF2
+         83RHbAEeu0uu5ROMdqQDu7eVoZYLmesGqhHeP9hE5OKaNkXcjB8VfKgtlmiW8+4BKthI
+         uBcg==
+X-Gm-Message-State: AOAM531iElzRMQmBfHV+YNhaEE7QT64Jv5GsebAMYwyQTvnqZwmtKSk7
+        h4yDgRL/IzR42PonIaxEOgmAOxiQ01dSw8Sh+Cll6Uctnxb7yYBUW5ZxHFD6fl9PJxjnO0BY6Iu
+        jIfRj2C7T5cjJkzbbxHtonXQei9pJspwkIl24EA==
+X-Received: by 2002:a05:6402:149:: with SMTP id s9mr9105089edu.247.1615476453451;
+        Thu, 11 Mar 2021 07:27:33 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy9JEFJOCs9xlVCDjG2l3JIb1sIqxzKP3KekIDHOJltUt18JZjWfClKITi/qC3i9sP0ViNxqQ==
+X-Received: by 2002:a05:6402:149:: with SMTP id s9mr9105059edu.247.1615476453282;
+        Thu, 11 Mar 2021 07:27:33 -0800 (PST)
 Received: from localhost.localdomain (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
-        by smtp.gmail.com with ESMTPSA id v25sm1517826edr.18.2021.03.11.07.25.52
+        by smtp.gmail.com with ESMTPSA id t15sm1552389edw.84.2021.03.11.07.27.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Mar 2021 07:25:52 -0800 (PST)
+        Thu, 11 Mar 2021 07:27:32 -0800 (PST)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 List-Id: <soc.lore.kernel.org>
 To:     Russell King <linux@armlinux.org.uk>,
@@ -78,9 +78,9 @@ To:     Russell King <linux@armlinux.org.uk>,
         linux-fpga@vger.kernel.org, linux-i2c@vger.kernel.org,
         netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com
 Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH v3 02/15] ARM: socfpga: introduce common ARCH_INTEL_SOCFPGA
-Date:   Thu, 11 Mar 2021 16:25:32 +0100
-Message-Id: <20210311152545.1317581-3-krzysztof.kozlowski@canonical.com>
+Subject: [PATCH v3 11/15] dmaengine: socfpga: use ARCH_INTEL_SOCFPGA also for 32-bit ARM SoCs
+Date:   Thu, 11 Mar 2021 16:27:31 +0100
+Message-Id: <20210311152731.1318428-1-krzysztof.kozlowski@canonical.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210311152545.1317581-1-krzysztof.kozlowski@canonical.com>
 References: <20210311152545.1317581-1-krzysztof.kozlowski@canonical.com>
@@ -90,141 +90,27 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Simplify 32-bit and 64-bit Intel SoCFPGA Kconfig options by having only
-one for both of them.  This the common practice for other platforms.
-Additionally, the ARCH_SOCFPGA is too generic as SoCFPGA designs come
-from multiple vendors.
+ARCH_SOCFPGA is being renamed to ARCH_INTEL_SOCFPGA so adjust the
+32-bit ARM drivers to rely on new symbol.
 
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 ---
- arch/arm/Kconfig                    | 2 +-
- arch/arm/Kconfig.debug              | 6 +++---
- arch/arm/Makefile                   | 2 +-
- arch/arm/boot/dts/Makefile          | 2 +-
- arch/arm/mach-socfpga/Kconfig       | 4 ++++
- arch/arm64/Kconfig.platforms        | 4 ++++
- arch/arm64/boot/dts/altera/Makefile | 2 +-
- 7 files changed, 15 insertions(+), 7 deletions(-)
+ drivers/dma/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 853aab5ab327..37f94cf0cfdb 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1320,7 +1320,7 @@ config ARM_PSCI
- # selected platforms.
- config ARCH_NR_GPIO
- 	int
--	default 2048 if ARCH_SOCFPGA
-+	default 2048 if ARCH_INTEL_SOCFPGA
- 	default 1024 if ARCH_BRCMSTB || ARCH_RENESAS || ARCH_TEGRA || \
- 		ARCH_ZYNQ || ARCH_ASPEED
- 	default 512 if ARCH_EXYNOS || ARCH_KEYSTONE || SOC_OMAP5 || \
-diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
-index 9e0b5e7f12af..36016497b1b3 100644
---- a/arch/arm/Kconfig.debug
-+++ b/arch/arm/Kconfig.debug
-@@ -1087,7 +1087,7 @@ choice
- 		  on SD5203 UART.
+diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
+index 0c2827fd8c19..a0836ffc22e0 100644
+--- a/drivers/dma/Kconfig
++++ b/drivers/dma/Kconfig
+@@ -100,7 +100,7 @@ config AT_XDMAC
  
- 	config DEBUG_SOCFPGA_UART0
--		depends on ARCH_SOCFPGA
-+		depends on ARCH_INTEL_SOCFPGA
- 		bool "Use SOCFPGA UART0 for low-level debug"
- 		select DEBUG_UART_8250
- 		help
-@@ -1095,7 +1095,7 @@ choice
- 		  on SOCFPGA(Cyclone 5 and Arria 5) based platforms.
- 
- 	config DEBUG_SOCFPGA_ARRIA10_UART1
--		depends on ARCH_SOCFPGA
-+		depends on ARCH_INTEL_SOCFPGA
- 		bool "Use SOCFPGA Arria10 UART1 for low-level debug"
- 		select DEBUG_UART_8250
- 		help
-@@ -1103,7 +1103,7 @@ choice
- 		  on SOCFPGA(Arria 10) based platforms.
- 
- 	config DEBUG_SOCFPGA_CYCLONE5_UART1
--		depends on ARCH_SOCFPGA
-+		depends on ARCH_INTEL_SOCFPGA
- 		bool "Use SOCFPGA Cyclone 5 UART1 for low-level debug"
- 		select DEBUG_UART_8250
- 		help
-diff --git a/arch/arm/Makefile b/arch/arm/Makefile
-index dad5502ecc28..415c3514573a 100644
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -209,7 +209,7 @@ machine-$(CONFIG_PLAT_SAMSUNG)		+= s3c
- machine-$(CONFIG_ARCH_S5PV210)		+= s5pv210
- machine-$(CONFIG_ARCH_SA1100)		+= sa1100
- machine-$(CONFIG_ARCH_RENESAS)	 	+= shmobile
--machine-$(CONFIG_ARCH_SOCFPGA)		+= socfpga
-+machine-$(CONFIG_ARCH_INTEL_SOCFPGA)	+= socfpga
- machine-$(CONFIG_ARCH_STI)		+= sti
- machine-$(CONFIG_ARCH_STM32)		+= stm32
- machine-$(CONFIG_ARCH_SUNXI)		+= sunxi
-diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 53b6e06bf19a..fe8f7c349f1d 100644
---- a/arch/arm/boot/dts/Makefile
-+++ b/arch/arm/boot/dts/Makefile
-@@ -1033,7 +1033,7 @@ dtb-$(CONFIG_ARCH_S5PV210) += \
- 	s5pv210-smdkc110.dtb \
- 	s5pv210-smdkv210.dtb \
- 	s5pv210-torbreck.dtb
--dtb-$(CONFIG_ARCH_SOCFPGA) += \
-+dtb-$(CONFIG_ARCH_INTEL_SOCFPGA) += \
- 	socfpga_arria5_socdk.dtb \
- 	socfpga_arria10_socdk_nand.dtb \
- 	socfpga_arria10_socdk_qspi.dtb \
-diff --git a/arch/arm/mach-socfpga/Kconfig b/arch/arm/mach-socfpga/Kconfig
-index c3bb68d57cea..e43ed0ca6860 100644
---- a/arch/arm/mach-socfpga/Kconfig
-+++ b/arch/arm/mach-socfpga/Kconfig
-@@ -2,6 +2,7 @@
- menuconfig ARCH_SOCFPGA
- 	bool "Altera SOCFPGA family"
- 	depends on ARCH_MULTI_V7
-+	select ARCH_INTEL_SOCFPGA
- 	select ARCH_SUPPORTS_BIG_ENDIAN
- 	select ARM_AMBA
- 	select ARM_GIC
-@@ -20,6 +21,9 @@ menuconfig ARCH_SOCFPGA
- 	select PL310_ERRATA_769419
- 
- if ARCH_SOCFPGA
-+config ARCH_INTEL_SOCFPGA
-+	bool
-+
- config SOCFPGA_SUSPEND
- 	bool "Suspend to RAM on SOCFPGA"
- 	help
-diff --git a/arch/arm64/Kconfig.platforms b/arch/arm64/Kconfig.platforms
-index cdfd5fed457f..ecab67a1afb8 100644
---- a/arch/arm64/Kconfig.platforms
-+++ b/arch/arm64/Kconfig.platforms
-@@ -256,9 +256,13 @@ config ARCH_SEATTLE
- 
- config ARCH_STRATIX10
- 	bool "Altera's Stratix 10 SoCFPGA Family"
-+	select ARCH_INTEL_SOCFPGA
- 	help
- 	  This enables support for Altera's Stratix 10 SoCFPGA Family.
- 
-+config ARCH_INTEL_SOCFPGA
-+	bool
-+
- config ARCH_SYNQUACER
- 	bool "Socionext SynQuacer SoC Family"
- 
-diff --git a/arch/arm64/boot/dts/altera/Makefile b/arch/arm64/boot/dts/altera/Makefile
-index 10119c7ab437..4db83fbeb115 100644
---- a/arch/arm64/boot/dts/altera/Makefile
-+++ b/arch/arm64/boot/dts/altera/Makefile
-@@ -1,3 +1,3 @@
- # SPDX-License-Identifier: GPL-2.0-only
--dtb-$(CONFIG_ARCH_STRATIX10) += socfpga_stratix10_socdk.dtb \
-+dtb-$(CONFIG_ARCH_INTEL_SOCFPGA) += socfpga_stratix10_socdk.dtb \
- 				socfpga_stratix10_socdk_nand.dtb
+ config AXI_DMAC
+ 	tristate "Analog Devices AXI-DMAC DMA support"
+-	depends on MICROBLAZE || NIOS2 || ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_SOCFPGA || COMPILE_TEST
++	depends on MICROBLAZE || NIOS2 || ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_INTEL_SOCFPGA || COMPILE_TEST
+ 	select DMA_ENGINE
+ 	select DMA_VIRTUAL_CHANNELS
+ 	select REGMAP_MMIO
 -- 
 2.25.1
 
