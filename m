@@ -2,269 +2,279 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B537C433E0
-	for <linux-i2c@archiver.kernel.org>; Sat, 13 Mar 2021 09:46:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AE43C433DB
+	for <linux-i2c@archiver.kernel.org>; Sun, 14 Mar 2021 13:32:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 63E7864F26
-	for <linux-i2c@archiver.kernel.org>; Sat, 13 Mar 2021 09:46:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E571F64EE2
+	for <linux-i2c@archiver.kernel.org>; Sun, 14 Mar 2021 13:32:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230441AbhCMJqS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 13 Mar 2021 04:46:18 -0500
-Received: from lizzard.sbs.de ([194.138.37.39]:37057 "EHLO lizzard.sbs.de"
+        id S230441AbhCNNba (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 14 Mar 2021 09:31:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230309AbhCMJqS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 13 Mar 2021 04:46:18 -0500
-Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
-        by lizzard.sbs.de (8.15.2/8.15.2) with ESMTPS id 12D9k0DI026052
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 13 Mar 2021 10:46:00 +0100
-Received: from md1za8fc.ad001.siemens.net ([139.22.115.33])
-        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 12D9jvnd007966;
-        Sat, 13 Mar 2021 10:45:58 +0100
-Date:   Sat, 13 Mar 2021 10:45:57 +0100
-From:   Henning Schild <henning.schild@siemens.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Tan Jui Nee <jui.nee.tan@intel.com>,
-        Jim Quinlan <james.quinlan@broadcom.com>,
-        Jonathan Yong <jonathan.yong@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <linux-pci@vger.kernel.org>, Jean Delvare <jdelvare@suse.com>,
-        Peter Tyser <ptyser@xes-inc.com>, <hdegoede@redhat.com>
-Subject: Re: [PATCH v1 3/7] PCI: New Primary to Sideband (P2SB) bridge
- support library
-Message-ID: <20210313104557.321de08e@md1za8fc.ad001.siemens.net>
-In-Reply-To: <20210308122020.57071-4-andriy.shevchenko@linux.intel.com>
-References: <20210308122020.57071-1-andriy.shevchenko@linux.intel.com>
-        <20210308122020.57071-4-andriy.shevchenko@linux.intel.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S230078AbhCNNbK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 14 Mar 2021 09:31:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABAB064E90;
+        Sun, 14 Mar 2021 13:31:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615728670;
+        bh=fpeXms2XysKoPhdleqm3dgdDokeUjvQH+YSalvw4ZtQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SNlHqofY0tEIg2fjBDh5s4uX3UaNV8nfajt8IldrgKnCBwqGYgkXY0uSoMw3uEKCy
+         kCGeofkYSOweaCsVe2/CR8uzRTMIFwrWxnq76Q+AM2LQIMu4ZnmfGjJr/H0RxqdKc1
+         7bY2yt84zfY/u7a6dLjiAAfJR4KynDPLX7c0umzEJK/KdW6D8MlInzj+LCzD+NY8K4
+         TgsKhqPluwiUhcqG0486oyfyLEwCRu9DKY8gdkJBHPcUc/UB88f++8rpMCAzoGLFBY
+         xKQXY2BWq+LZiSHroY6g/C905RBmOg4MiFcelzQFMl3sDr0DBR75f6oiQ4JoPivkEg
+         3JINZBGeq93BA==
+Date:   Sun, 14 Mar 2021 14:31:06 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Bence =?utf-8?B?Q3PDs2vDoXM=?= <bence98@sch.bme.hu>
+Cc:     linux-i2c@vger.kernel.org
+Subject: Re: [PATCH 2/2] Adding i2c-cp2615 driver
+Message-ID: <20210314133106.GB913@ninjato>
+References: <CACCVKEHLHJom4k7YEh2ZRfd-yY9FqLskKmjvcAvYkXLeAaiZ0Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
+Content-Disposition: inline
+In-Reply-To: <CACCVKEHLHJom4k7YEh2ZRfd-yY9FqLskKmjvcAvYkXLeAaiZ0Q@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Am Mon, 8 Mar 2021 14:20:16 +0200
-schrieb Andy Shevchenko <andriy.shevchenko@linux.intel.com>:
 
-> From: Jonathan Yong <jonathan.yong@intel.com>
-> 
-> There is already one and at least one more user is coming which
-> requires an access to Primary to Sideband bridge (P2SB) in order to
-> get IO or MMIO bar hidden by BIOS. Create a library to access P2SB
-> for x86 devices.
-> 
-> Signed-off-by: Jonathan Yong <jonathan.yong@intel.com>
-> Co-developed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+--wq9mPyueHGvFACwf
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+On Wed, Feb 10, 2021 at 10:08:54PM +0100, Bence Cs=C3=B3k=C3=A1s wrote:
+> For a hardware project, I need the I2C master of SiLabs' CP2615 chip
+> to be visible from under Linux. This patchset adds i2c-cp2615, a
+> driver which sets up an i2c_adapter for said chip.
+>=20
+> This is my first contribution, so forgive me (but do let me know) if
+> I've broken habit.
+
+Thank you for your contribution and sorry for the delay (which is
+only because of not enough time and not because of no interest).
+
+First thing is that patch 1 & 2 should be squashed into one patch.
+
+
+> Signed-off-by: Bence Cs=C3=B3k=C3=A1s <bence98@sch.bme.hu>
 > ---
->  drivers/pci/Kconfig      |  8 ++++
->  drivers/pci/Makefile     |  1 +
->  drivers/pci/pci-p2sb.c   | 83
-> ++++++++++++++++++++++++++++++++++++++++ include/linux/pci-p2sb.h |
-> 28 ++++++++++++++ 4 files changed, 120 insertions(+)
->  create mode 100644 drivers/pci/pci-p2sb.c
->  create mode 100644 include/linux/pci-p2sb.h
-> 
-> diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
-> index 0c473d75e625..740e5b30d6fd 100644
-> --- a/drivers/pci/Kconfig
-> +++ b/drivers/pci/Kconfig
-> @@ -252,6 +252,14 @@ config PCIE_BUS_PEER2PEER
->  
->  endchoice
->  
-> +config PCI_P2SB
-> +	bool "Primary to Sideband (P2SB) bridge access support"
-> +	depends on PCI && X86
-> +	help
-> +	  The Primary to Sideband bridge is an interface to some PCI
-> +	  devices connected through it. In particular, SPI NOR
-> +	  controller in Intel Apollo Lake SoC is one of such devices.
+>  drivers/i2c/busses/cp2615_drv.c | 150 ++++++++++++++++++++++++++++++++
+>  drivers/i2c/busses/cp2615_iop.c |  32 +++++++
+>  drivers/i2c/busses/cp2615_iop.h |  60 +++++++++++++
+
+Then, all these files should go into one file named "i2c-cp2615.c". We
+can factor out stuff later if another user turns up. But for starters,
+all in one file is more convenient.
+
+> +static int
+> +cp2615_i2c_send(struct usb_interface *usbif, struct cp2615_i2c_transfer =
+*i2c_w)
+> +{
+> +    struct cp2615_iop_msg *msg =3D kzalloc(sizeof(struct
+> cp2615_iop_msg), GFP_KERNEL);
+
+The patch look garbled with broken lines; are you using gmail WEB UI?
+Hopefully, this document can help you:
+
+	Documentation/process/email-clients.rst
+
+If it is not garbled, then I can review it better. Some things already.
+
+> +struct i2c_adapter_quirks cp2615_i2c_quirks =3D {
+> +    .max_write_len =3D MAX_I2C_SIZE,
+> +    .max_read_len =3D MAX_I2C_SIZE,
+
+Yes, good, we need quirks. But IIUC these also on top:
+
+	.flags =3D I2C_AQ_COMB_WRITE_THEN_READ,
+	.max_comb_1st_msg_len =3D MAX_I2C_SIZE,
+	.max_comb_2nd_msg_len =3D MAX_I2C_SIZE,
+
+because the datasheet says "The transfer consists of a write cycle
+followed by a read cycle." BTW this is kinda bad for multi-master:
+"Repeated start between the write and read cycles is not supported". But
+I guess this bus will not be really used in multi-master setups.
+However, it should be commented somewhere.
+
+> +static void
+> +cp2615_i2c_remove(struct usb_interface *usbif)
+> +{
+> +    struct i2c_adapter *adap =3D usb_get_intfdata(usbif);
 > +
->  source "drivers/pci/hotplug/Kconfig"
->  source "drivers/pci/controller/Kconfig"
->  source "drivers/pci/endpoint/Kconfig"
-> diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
-> index d62c4ac4ae1b..eee8d5dda7d9 100644
-> --- a/drivers/pci/Makefile
-> +++ b/drivers/pci/Makefile
-> @@ -23,6 +23,7 @@ obj-$(CONFIG_PCI_IOV)		+= iov.o
->  obj-$(CONFIG_PCI_BRIDGE_EMUL)	+= pci-bridge-emul.o
->  obj-$(CONFIG_PCI_LABEL)		+= pci-label.o
->  obj-$(CONFIG_X86_INTEL_MID)	+= pci-mid.o
-> +obj-$(CONFIG_PCI_P2SB)		+= pci-p2sb.o
->  obj-$(CONFIG_PCI_SYSCALL)	+= syscall.o
->  obj-$(CONFIG_PCI_STUB)		+= pci-stub.o
->  obj-$(CONFIG_PCI_PF_STUB)	+= pci-pf-stub.o
-> diff --git a/drivers/pci/pci-p2sb.c b/drivers/pci/pci-p2sb.c
-> new file mode 100644
-> index 000000000000..68d7dad48cdb
-> --- /dev/null
-> +++ b/drivers/pci/pci-p2sb.c
-> @@ -0,0 +1,83 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Primary to Sideband bridge (P2SB) access support
-> + *
-> + * Copyright (c) 2017, 2021 Intel Corporation.
-> + *
-> + * Authors: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> + *	    Jonathan Yong <jonathan.yong@intel.com>
-> + */
+> +    usb_set_intfdata(usbif, NULL);
+> +    i2c_del_adapter(adap);
+> +    kfree(adap);
+> +    dev_info(&usbif->dev, "Removed CP2615's I2C bus\n");
+
+This dev_info can go.
+
+> +}
 > +
-> +#include <linux/bitops.h>
-> +#include <linux/export.h>
-> +#include <linux/pci-p2sb.h>
+> +static int
+> +cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id=
+ *id)
+> +{
+> +    int ret =3D 0;
+> +    struct i2c_adapter *adap;
+> +    struct usb_device *usbdev =3D interface_to_usbdev(usbif);
 > +
-> +#include <asm/cpu_device_id.h>
-> +#include <asm/intel-family.h>
+> +    ret =3D usb_set_interface(usbdev, IOP_IFN, IOP_ALTSETTING);
+> +    if (ret)
+> +        goto out;
+
+'return ret;' instead of 'goto out;' here and later.
+
 > +
-> +#include "pci.h"
+> +    adap =3D kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+
+devm_kzalloc? Then you can leave out the kfrees.
+
+> +    if (!adap) {
+> +        ret =3D -ENOMEM;
+> +        goto out;
+> +    }
 > +
-> +#define P2SBC_HIDE_BYTE			0xe1
-> +#define P2SBC_HIDE_BIT			BIT(0)
+> +    strncpy(adap->name, usbdev->serial, sizeof(adap->name));
+> +    adap->owner =3D THIS_MODULE;
+> +    adap->class =3D I2C_CLASS_HWMON | I2C_CLASS_SPD;
+
+I guess you instantiate client devices via sysfs? Then, this line can
+go, too.
+
+> +    adap->dev.parent =3D &usbif->dev;
+> +    adap->dev.of_node =3D usbif->dev.of_node;
+> +    adap->timeout =3D HZ;
+> +    adap->algo =3D &cp2615_i2c_algo;
+> +    adap->quirks =3D &cp2615_i2c_quirks;
+> +    adap->algo_data =3D usbif;
 > +
-> +static const struct x86_cpu_id p2sb_cpu_ids[] = {
-> +	X86_MATCH_INTEL_FAM6_MODEL(ATOM_GOLDMONT,
-> PCI_DEVFN(13, 0)),
-> +	{}
+> +    ret =3D i2c_add_adapter(adap);
+> +    if (ret) {
+> +        kfree(adap);
+> +        goto out;
+> +    }
+> +
+> +    usb_set_intfdata(usbif, adap);
+> +    dev_info(&usbif->dev, "Added CP2615's I2C bus\n");
+
+This dev_info can go.
+
+> +out:
+> +    return ret;
+> +}
+> +
+> +static const struct usb_device_id id_table[] =3D {
+> +    { USB_DEVICE(CP2615_VID, CP2615_PID) },
+> +    { }
 > +};
 > +
-> +static int pci_p2sb_devfn(unsigned int *devfn)
-> +{
-> +	const struct x86_cpu_id *id;
+> +MODULE_DEVICE_TABLE(usb, id_table);
 > +
-> +	id = x86_match_cpu(p2sb_cpu_ids);
-> +	if (!id)
-> +		return -ENODEV;
+> +static struct usb_driver cp2615_i2c_driver =3D {
+> +    .name =3D "i2c-cp2615",
+> +    .probe =3D cp2615_i2c_probe,
+> +    .disconnect =3D cp2615_i2c_remove,
+> +    .id_table =3D id_table,
+> +//    .dev_groups =3D cp2615_groups,
+
+This should go.
+
+> +};
 > +
-> +	*devfn = (unsigned int)id->driver_data;
-> +	return 0;
-> +}
+> +module_usb_driver(cp2615_i2c_driver);
 > +
-> +/**
-> + * pci_p2sb_bar - Get Primary to Sideband bridge (P2SB) device BAR
-> + * @pdev:	PCI device to get a PCI bus to communicate with
-> + * @devfn:	PCI slot and function to communicate with
-> + * @mem:	memory resource to be filled in
+> +MODULE_AUTHOR("Bence Cs=C3=B3k=C3=A1s <bence98@sch.bme.hu>");
+> +MODULE_DESCRIPTION("CP2615 I2C bus driver");
+> +MODULE_LICENSE("GPL");
 
-Do we really need that many arguments to it?
+Please also add an SPDX header at the top. Check other i2c drivers for
+an appropriate.
 
-Before i had, in a platform driver that never had its own pci_dev or bus
+> +    if (ret) {
+> +        ret->preamble =3D 0x2A2A;
+> +        ret->length =3D htons(data_len+6);
+> +        ret->msg =3D htons(msg);
+> +        if(data && data_len)
+> +            memcpy(&ret->data, data, data_len);
+> +        return 0;
+> +    } else
+> +        return -EINVAL;
 
-  res->start = simatic_ipc_get_membase0(PCI_DEVFN(13, 0));
-  if (res-start == 0)
-    return -ENODEV;
+Curly braces around 'else' branch. Please run 'scripts/checkpatch' on
+your patch.
 
-So helper only asked for the devfn, returned base and no dedicated
-error code.
+> +enum cp2615_iop_msg_type {
+> +    iop_GetAccessoryInfo =3D 0xD100,
+> +    iop_AccessoryInfo =3D 0xA100,
+> +    iop_GetPortConfiguration =3D 0xD203,
+> +    iop_PortConfiguration =3D 0xA203,
+> +    // ...
 
-With this i need
+This should go.
 
-  struct pci_bus *bus = pci_find_bus(0, 0);
-  struct pci_dev *pci_dev = bus->self;
-  unsigned int magic_i_do_not_want =  PCI_DEVFN(13, 0);
+> +    iop_DoI2cTransfer =3D 0xD400,
+> +    iop_I2cTransferResult =3D 0xA400,
+> +    iop_GetSerialState =3D 0xD501,
+> +    iop_SerialState =3D 0xA501
+> +};
+> +struct cp2615_i2c_transfer {
+> +    unsigned char tag, i2caddr, read_len, write_len;
+> +    char data[MAX_I2C_SIZE];
 
-> + * The BIOS prevents the P2SB device from being enumerated by the PCI
-> + * subsystem, so we need to unhide and hide it back to lookup the
-> BAR.
-> + *
-> + * Caller must provide a valid pointer to @mem.
-> + *
-> + * Locking is handled by pci_rescan_remove_lock mutex.
-> + *
-> + * Return:
-> + * 0 on success or appropriate errno value on error.
-> + */
-> +int pci_p2sb_bar(struct pci_dev *pdev, unsigned int devfn, struct
-> resource *mem) +{
-> +	struct pci_bus *bus = pdev->bus;
+u8?
 
-if (!pdev)
-	bus = pci_find_bus(0, 0);
-
-Or can we drop the whole arg?
-
-> +	unsigned int df;
-> +	int ret;
+> +};
 > +
-> +	/* Get devfn for P2SB device itself */
-> +	ret = pci_p2sb_devfn(&df);
-> +	if (ret)
-> +		return ret;
+> +struct cp2615_i2c_transfer_result {
+> +    unsigned char tag, i2caddr, status, read_len;
+> +    char data[MAX_I2C_SIZE];
 
-if (!devfn)
-	devfn = df;
+u8?
 
-I guess that second devfn is for devices behind that bridge. So
-unhiding it might reveal several devices? But when caring about that
-p2sb do i really need to know its devfn. If so i would like to get
+> +};
+> +
 
-EXPORT_SYMBOL(pci_p2sb_devfn);
+I am not a USB expert, but maybe someone else can have a look on your
+updated patch.
 
-regards,
-Henning
+Despite the comments, looks quite good already.
 
-> +
-> +	pci_lock_rescan_remove();
-> +
-> +	/* Unhide the P2SB device */
-> +	pci_bus_write_config_byte(bus, df, P2SBC_HIDE_BYTE, 0);
-> +
-> +	/* Read the first BAR of the device in question */
-> +	__pci_bus_read_base(bus, devfn, pci_bar_unknown, mem,
-> PCI_BASE_ADDRESS_0, true); +
-> +	/* Hide the P2SB device */
-> +	pci_bus_write_config_byte(bus, df, P2SBC_HIDE_BYTE,
-> P2SBC_HIDE_BIT); +
-> +	pci_unlock_rescan_remove();
-> +
-> +	pci_bus_info(bus, devfn, "BAR: %pR\n", mem);
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(pci_p2sb_bar);
-> diff --git a/include/linux/pci-p2sb.h b/include/linux/pci-p2sb.h
-> new file mode 100644
-> index 000000000000..15dd42737c84
-> --- /dev/null
-> +++ b/include/linux/pci-p2sb.h
-> @@ -0,0 +1,28 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * Primary to Sideband bridge (P2SB) access support
-> + */
-> +
-> +#ifndef _PCI_P2SB_H
-> +#define _PCI_P2SB_H
-> +
-> +#include <linux/errno.h>
-> +
-> +struct pci_dev;
-> +struct resource;
-> +
-> +#if IS_BUILTIN(CONFIG_PCI_P2SB)
-> +
-> +int pci_p2sb_bar(struct pci_dev *pdev, unsigned int devfn, struct
-> resource *mem); +
-> +#else /* CONFIG_PCI_P2SB is not set */
-> +
-> +static inline
-> +int pci_p2sb_bar(struct pci_dev *pdev, unsigned int devfn, struct
-> resource *mem) +{
-> +	return -ENODEV;
-> +}
-> +
-> +#endif /* CONFIG_PCI_P2SB */
-> +
-> +#endif /* _PCI_P2SB_H */
+Happy hacking,
 
+   Wolfram
+
+
+--wq9mPyueHGvFACwf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmBOEBYACgkQFA3kzBSg
+Kbaslw/6AiYvZGVp4e+OPf4lDYCncc1hRR3Feb/LZMYdG2XpPyH/71PIflxuYVUs
+R6gdd2FchWXL5IFZXwXOBsSEG8L6x9c5UM7JuQC+yKP40Wg9FsrIihEuSCG8tXWo
+/W1SsBJ+CNmu1Dw3f8Mt0rj2Vo+G8EC7QaGc6OaG35XxfUFCQdXqIn/CZR+kpKdU
+3bHrbSmS27WLeQeGnVo26MnlzfbLhgunHgTmntUZLqKnov7eNSS+Tr+WDvNGraaL
+OXcPqGk9ayBUNnYeW/FcUOK4gOcZ90QFTGWaOxEisiEKANevFmdc/xngBo4UbzwG
+jq5IB4iAEA+0UHIeB3RYbbgozqzPDAS8dox8jvZZ40wLo+PnSZ3Ljlyr2MYmEOt5
+3ulDy65LdjzbpQQGa+Ioy3CU9Kb6/y1IBkZ5BO5m7uCYbG5+b1ndPFPagRGu3CkL
+snS/GAR1THWoBzfczdceEqJE8fQ4hwWlF/FbaAr+FDkkfs12pgk3CGIiP3BryoeI
+4C4LB3k4jVaED6o2/cvJvco/ip2YRwjYU6/7MMX7ezVeiX3zmB96RcX10hT4gdN9
++ZSLttSKGkkuU0aD6Veild91/qq5ERTCfCHgdQPsfhaKaCrQS+NnvWxFnxhKl5LA
+hzgkrpinSNNwMDIVIFw2OpaYr3G7ffgHir2WQJdXTDFgE9PjGAs=
+=XdY0
+-----END PGP SIGNATURE-----
+
+--wq9mPyueHGvFACwf--
