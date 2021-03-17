@@ -7,53 +7,53 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30DDDC433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 365A5C43381
 	for <linux-i2c@archiver.kernel.org>; Wed, 17 Mar 2021 06:54:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB53964DF2
-	for <linux-i2c@archiver.kernel.org>; Wed, 17 Mar 2021 06:54:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 10B4A64FC0
+	for <linux-i2c@archiver.kernel.org>; Wed, 17 Mar 2021 06:54:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbhCQGyW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 17 Mar 2021 02:54:22 -0400
-Received: from mail-eopbgr80040.outbound.protection.outlook.com ([40.107.8.40]:10718
+        id S230274AbhCQGyX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 17 Mar 2021 02:54:23 -0400
+Received: from mail-eopbgr80045.outbound.protection.outlook.com ([40.107.8.45]:7720
         "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230196AbhCQGxz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 17 Mar 2021 02:53:55 -0400
+        id S230227AbhCQGyG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 17 Mar 2021 02:54:06 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JQSijPWpDwbpZ6PRVq9SgzItkUFGzx/0kIJKzV1+TQ3gCeymWvioKWIYFE1cllwMFKh0/hROjQVHXy0NC+/jrsVxGZhGDQnjB/IKLHjQitzEHYb1O1ESHKkH4a0N/SM2zH0K+8Kj6QbnbB2F6S1Jel9NrDQ/kTGWk2NZFXTiZAuWPwtYtiHw8zt1zkem0GRmmIyFhBUfNBAxmA2emb5loiND6MRgZ/akXyL2+Ki9jM9r9j47gt4zjFGjj1kOE1qeblWsLEpGHsjVx0wIMLlep8p6g5WUicxnR4LWt7+BSqAUobVL4rstUsPYusY3oFamiH48YTB3InHnnxDtAqZwmA==
+ b=L1QOq91E+Hyj4arFROUnMfi5mi1MTbDWD+xsTdwqzOWhUDTQ1iybsLAafEn0yCj5U15FYLebSR3RaJdft3AlEDh8vjKRHDVWi1p+UESiRNgVAvcBM1+FyoN4xKQ0VaQ001vJaKSmhFOICqpjfe034DGTG9+5wG+HfiJLb8CB0SRRxb/Uevc9CD5HIKZoLtV4rqm1kXvhnaE3VQfdRTr23LXEczXJCd5OIiuoVLfuk8sCAHfByt6suBrOZv9K85s9yMjsxO0GUP8irBNIfRwKpNfvsDWOLcUjJaL5OOKdWbl+GPsdy8ryAI73GIVbKINg/SUZtrYihCuINZse7lt1pg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9Se8hWqGvCo9wJQw1RkitCxcl2pq7EcTPAm1sjr//KQ=;
- b=JVNAkeXaXwogc7XkHh7euH6pR3lzpWQTovFlbUzgOCyzSjANSM7rUOczedxqMwwO00JthvwCwLyPA9a/5D9rO6V2jkHjevYA0OcZ4eqYZ4PKgM4SVloTPtbeM7S3/PHMFLI58KgXdeEJSIosL6t6Q3HOaWXk2YzNCzyid1ufZiwRF5OfebTQf4GTPs7JAqNIEIP2W6/oGapfnzT4JwIPVOZoL+Mg5IO+bltltWb2I5Koe6swG/2KSZTAYt/OYBBX0oc7XKEe6I2QRohLE5DF4nS24vv/1o/2haNWIx23qWIpLHSx26YEFUtXK922RIO1NCtmmTBnzm8ko2ppZMJnoQ==
+ bh=nomvi37GOQXre/v0V/gsm69Yx3x51YjooFfhnsICFqg=;
+ b=UfTuKe5fJ36AcHBRMSXpDlJTGxAKVG1gV8jbOnAmQFW3S06rcIVBedZfEcNVqstQzJG9cMIgCbszyl53scZdPI4jCubP7a0AyG6qIKJKGq3+IVTCVwS2wUEUtyA77q/+WMwlS/2iTmEQ+sg0DDla+jZgQAPBtlJUso01rxMaT6phq0QCqRraf8X/RhnVIPHk6RKmJ6/6jlJ/7HRnJNOy+I6J6x1I8CESs40pR5OOR7eAHKwQEHuaQw2btbokaI6q/JLA9LiZlW3gH7mjSB1nqpWJD84++qr+HNBeEwr3RzTtnl9w+Iy+wbsI+ZI2WFDMZX4jLX4RVRKjJsdAyLiU/g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
  header.d=nxp.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9Se8hWqGvCo9wJQw1RkitCxcl2pq7EcTPAm1sjr//KQ=;
- b=NKN+px0ww2+yL5lbRGw46IaJGmIXTWzN8m2ZFbbGpIMturOXc39DCt9u7s+SkbdVYQ9kmnRGaHvmRkK1G6Lfv8lfO15r50iy3K/HJVctPWXoCbtJZq3t4XAKqtr4pRIc2FyhuWFHhOUfQqAtucLg+D4gh10UjGrqxJJp9wboYi4=
+ bh=nomvi37GOQXre/v0V/gsm69Yx3x51YjooFfhnsICFqg=;
+ b=PnvKPZLMJH7im9Ul8PQNa/D1L6877h7F2dKCuEBuNdiCRCINY/aTcRD3OtTmcWCaTftw2u7a95IiUIuSZNdvLImRh8QjfaGu5KI011dUFkxsjicgFH3tsYkm0VtabI7ohHqAxHH7F9PUEgwI4613Lopps2DSstMyirr+vJK8i3g=
 Authentication-Results: nxp.com; dkim=none (message not signed)
  header.d=none;nxp.com; dmarc=none action=none header.from=nxp.com;
 Received: from AM0PR04MB5618.eurprd04.prod.outlook.com (2603:10a6:208:123::11)
  by AM0PR04MB7091.eurprd04.prod.outlook.com (2603:10a6:208:197::9) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3933.31; Wed, 17 Mar
- 2021 06:53:52 +0000
+ 2021 06:54:02 +0000
 Received: from AM0PR04MB5618.eurprd04.prod.outlook.com
  ([fe80::69a8:a768:8fa1:7236]) by AM0PR04MB5618.eurprd04.prod.outlook.com
  ([fe80::69a8:a768:8fa1:7236%7]) with mapi id 15.20.3933.032; Wed, 17 Mar 2021
- 06:53:52 +0000
+ 06:54:02 +0000
 From:   Clark Wang <xiaoning.wang@nxp.com>
 To:     aisheng.dong@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de
 Cc:     kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
         sumit.semwal@linaro.org, christian.koenig@amd.com,
         linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 01/11] i2c: imx-lpi2c: directly retrun ISR when detect a NACK
-Date:   Wed, 17 Mar 2021 14:53:49 +0800
-Message-Id: <20210317065359.3109394-2-xiaoning.wang@nxp.com>
+Subject: [PATCH 04/11] i2c: imx-lpi2c: manage irq resource request/release in runtime pm
+Date:   Wed, 17 Mar 2021 14:53:52 +0800
+Message-Id: <20210317065359.3109394-5-xiaoning.wang@nxp.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210317065359.3109394-1-xiaoning.wang@nxp.com>
 References: <20210317065359.3109394-1-xiaoning.wang@nxp.com>
@@ -65,93 +65,138 @@ X-ClientProxiedBy: HK2PR02CA0215.apcprd02.prod.outlook.com
  (2603:10a6:208:123::11)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (119.31.174.71) by HK2PR02CA0215.apcprd02.prod.outlook.com (2603:1096:201:20::27) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3955.18 via Frontend Transport; Wed, 17 Mar 2021 06:53:48 +0000
+Received: from localhost.localdomain (119.31.174.71) by HK2PR02CA0215.apcprd02.prod.outlook.com (2603:1096:201:20::27) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3955.18 via Frontend Transport; Wed, 17 Mar 2021 06:53:59 +0000
 X-MS-PublicTrafficType: Email
 X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 96b3eca0-040d-465b-8662-08d8e9116cac
+X-MS-Office365-Filtering-Correlation-Id: 9bc4d20a-fa46-4171-dc9f-08d8e9117310
 X-MS-TrafficTypeDiagnostic: AM0PR04MB7091:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <AM0PR04MB70918B80390FEF3611375249F36A9@AM0PR04MB7091.eurprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:741;
+X-Microsoft-Antispam-PRVS: <AM0PR04MB7091B00309C967DF7E93A9C1F36A9@AM0PR04MB7091.eurprd04.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:792;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: IwM31GGqK8BF4WOu2azxXFYhwaGiiTrsM1DRwRKlAczaeZd1auXah5iCRCmXUhWWXGZWevDTsDTTSgx7z3beKqoTawuhj8cgXB1qa+jTf1KUybllT/ws8iNYrnNQvnSShqqaSE/tJBxjAHO8le0NnU2ib5px3TlxDWEq9kaVBrBCs4S8axJ7xL79UMI66KrW/tUVJBpUxnQ6B0M/n8hcqdpTC0qHjCQI//0m1B7k9ajD82M+/g2nFIX88vh8kG4LB/XIwoZiV8eLiXnpOa2uoKWdthyDW3JIvCn3V59qKyVxZUmeb6b1BY0OCnK5uVY9MBM5d3ePOL398WlmcbCFen2gUgfrIIfSsyRtG8kCdUAuySbWAtJ1kTJ0Dh49C3ANk5GU/rWlxAAfvr0SEQqjuk6WpBl0zfdYfRFD1PeSwEhjO3VGzOvyNAb/xap7sxY3c4h/573ZyqzOc9REUXeMNQJM3OSKVqp6M327ZJN1YwwFwcBExzhFrg+AetHRC1Du7D/pmjP75UMRmDzyjewiYWFSq3TY6606BJkkKCsgYD2+orXmcfwUPCcUfrL9z93JYXdM6wropGz0OYzmFEVZJ9V9VYZ4o4KhVt9sTQ5J7PXUggtPA13Na7BMrZEVt673
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB5618.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(376002)(396003)(346002)(39860400002)(136003)(478600001)(66556008)(66476007)(69590400012)(6506007)(66946007)(83380400001)(36756003)(16526019)(5660300002)(2616005)(316002)(2906002)(1076003)(8936002)(26005)(52116002)(186003)(956004)(4326008)(6512007)(6486002)(8676002)(86362001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?NjvVRzFk502hwF/Kssyyw4GRVrONJ+v9lJhhtj0GWBhnwEUbKzvSG0THp+Y4?=
- =?us-ascii?Q?1DG7wQRbAmWpPh5PUBLfy4ArUDp6f0H78gJfJS/468yrlpU+QNn8BCFxFPH7?=
- =?us-ascii?Q?fwgpvB61CqUx3D9xgsXpXHr1KiobpCUmanUz0HeiZACd/uqcsOblmQVD4W4/?=
- =?us-ascii?Q?o2NlSs/2ITuuFiTd8CTpvLHjCMEabQwZtQCa7bTw0sT0DPK4po/lTCVWB2/r?=
- =?us-ascii?Q?9TK5YaA+U4/PVWw+G8zMyS6jYniPZZOh06J1XH64BMXSi3gIj+gakI5LmEuS?=
- =?us-ascii?Q?yLX2xOVO2u0hgG9RcAjo+WTfgnL0xUg35pG9KUWllBfB1QMwEsYst9CBef0D?=
- =?us-ascii?Q?tq0yTdTD8Ua4dEgXBAZSW5B+T4R/1aniKckEZgiHg+ONW1tehqNPk8G7jZ6H?=
- =?us-ascii?Q?Sf8WLW/7r1iLZCOL95StHFw1Ln86ABsgdngvM7rTSG1ehhC1dSvH2zs48pxR?=
- =?us-ascii?Q?jpKZVPnqjonMEu6mkqiT9Zjkl8CDOWoTrL1z0vjr1sjwZQe/BX0DhXjBvBpD?=
- =?us-ascii?Q?/tMBr+etz+AqYVnr1FVNq71swoW8V5yKaGlTRyQpir4H+vgfPUY0hCkJs89S?=
- =?us-ascii?Q?6oPs+2XVSI462dIrMuH9P171tUq42J6hl2i/wKmfT6HKx4YDh08+AEZi0XCd?=
- =?us-ascii?Q?Jvj8lozX64bMFqNlUhRznwEPOIQ+pP3qmB6bg4V0+/lMMm/mpvH8kd/OMo86?=
- =?us-ascii?Q?ra0yk7BcWw5PWQ5l2WnAqeLReRqm3TnjMJjtJq1N0+1qc9fx8kKL1E5STubR?=
- =?us-ascii?Q?geRDpai+sSxx6Y7UUZ89y/a84LWJlY1ued6aN6LtmRpU9eX5CeE7EUQRrR3V?=
- =?us-ascii?Q?KLDaU7bH33+TNqeVaV/+Mwgy1TK4VVtdkdjeIyyubRJ+LBD2YgrDShGO/mTd?=
- =?us-ascii?Q?t2uWcO1zlxefZ8e/hCfyAjtP6rcvY0Wmg/IBfq/TkBxMAcGw/ghU1GhlgIcF?=
- =?us-ascii?Q?NX1bA5AaQ+nj1ZS5nby/nRiIkDtTc41DYD9S4NYKHS//BT/ZjdaFga0vdflN?=
- =?us-ascii?Q?FccDNFPcf0h0ys66/wOyWzke3gBChLld04SoFrqDbovs3MRBvWyxhqwDHwyL?=
- =?us-ascii?Q?XJCh0/vwRNjG4zPfvH+qYdYgZGaYIeGrwhLHfYbvI6/PW2L6oT2VR25ENPN7?=
- =?us-ascii?Q?t7dJEXkByPjRDTR2hwINSOkVn0tlhdTM63T0YeTIKLdlO+6ucTes0Egs4RnP?=
- =?us-ascii?Q?Fj3buBhFIckMYlTBQZ7TFmUbUno98QGgwetsCG0t6YXEMqr5xo8rLZXTdNr4?=
- =?us-ascii?Q?2u8rLXEVFwLCqEp/iZVAyn+16JX4Q9mH+WYCI+CpF5at9vgv9fM4lCSKCwMy?=
- =?us-ascii?Q?bJt57BECnCXaO/Yt3mwKHwkk?=
+X-Microsoft-Antispam-Message-Info: A9Voj86+LFYuVtI8q7sdILA1UrXJXEtrfxo3mtEMcXTt4zMIwb57kJpI2vIRYFUtZtJLiaNI91luWd9t5qc1GSPd117v00FYtbx/Kn9MB40qvZp5t/H3F8heqrhLL1s+d6eFPC3M+Fg6g9+wB6gnhTPO8rImXJ9hgcSr9OgTqpaXZ/HWcFUIwir+wjYa9gRxxu6y7cXeS0FaYeJqsUhRS5nFQEHhQ+kx3bOmvz0PCFN5WjU+EfXFcOk2BcjC9GvG463D/zwB49lqlQVlmcrWQPZMPwRwgaLaV43C+P+4alKBf4by7otJ7aNs1lT4Lu7T/V/yNdZM5p0JEctoH0Tm6CBXC2sBcasAj2/+N22qCrCWqZb+fz0tk3QLgBaj258ua3FZarDO2I+UFj/59ucZpNSMmjjBV1yEnOp3MUS8aaukysMPMzD9SS8Iv1hJqk3rZh9BUpQl1ZCSN6xGp9EHpNZ3/gfl/NDm6YyOSbrQ7RFkAj3GLE93Fj+/HlkHTg72+DtOmNwNpoOYkdhj+YlZOPnF+DPjH/AO79G9iz2hEQXJUE2fAzLY2CqxAKLsTuKbbj4UfXawiPzWoNbinzsBDEZ0iL10jx3XMS5MrpkFvrzeb+YSPCgYvoxMszyOSgnN
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB5618.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(376002)(396003)(346002)(39860400002)(136003)(478600001)(66556008)(66476007)(69590400012)(6506007)(66946007)(83380400001)(36756003)(16526019)(5660300002)(2616005)(316002)(2906002)(1076003)(8936002)(26005)(52116002)(186003)(956004)(4326008)(6512007)(6486002)(8676002)(6666004)(86362001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?R79hcwmQQEGgqm4sOrCzouOihvEGFUTpInUqokUeVdRddEAoZeDqC8fGYJBZ?=
+ =?us-ascii?Q?Tho5llgLYjdV71wtH7Ak1A6iUEpSWuWRVTgeWuh0BpWmTd0lRFY8n5+6CNx7?=
+ =?us-ascii?Q?9wRuQoJZRgTT0ofzOOCXesfRpNlcrfNxhzdl3LqxTZ+zLZyri6ucU39D2HDO?=
+ =?us-ascii?Q?lfDh2njrZPUS/REkunRH7Ik3k9lYi9BAYQ6OLfUlkxZhqe8ObNZyxe0kfNkZ?=
+ =?us-ascii?Q?3BbcSOLL7hjXeglkMxZ5LmM7EKFNv8ynDhxh9IKQBkHW5mItBpduPUP2o05u?=
+ =?us-ascii?Q?koTN698zxmSf6phzre8XMLAjEHBDUlVOBIp6vnvnmgOyyn+rNkZugDHjdW+r?=
+ =?us-ascii?Q?6qTX4Szlp16C3hYMVhGDfIX2y3h+JWKP6RD8PTMd6I8oqChwv8hk+UzfVRYd?=
+ =?us-ascii?Q?Opdv7pjxaxwgDqdjaOdhKRi9c8Y2R/Xv2VKieN0RsyXjDQGM++OUqXHWUY7n?=
+ =?us-ascii?Q?EqIfhNpcpImx5JI4eg4T1w9kkADjM7bLXsj7tFKgde372vFseDpUJik+uUKI?=
+ =?us-ascii?Q?FTERbxk52lbMtTYjp2gnV+a6SFm0SvCtvkYH3Z+z1CseERVrMUkLVtn1uniP?=
+ =?us-ascii?Q?kJivcs5fGfKPyDnxJJq+O95z/5FihzY5yybTDnY0YhqxNXQaHjMl5etMyMZC?=
+ =?us-ascii?Q?m/NT0l9ccFMm2sTBBfpGJWg+Xg/gF4emPCkYMFp9rhWgzkVNSkcg7diGlgIb?=
+ =?us-ascii?Q?72g8C7EHzJaUvmlhNzdp77MqRhwwtZzKVM6T4oDxiZjut6FHWAgG0jfqHWNg?=
+ =?us-ascii?Q?xlBTaSpp3oqG7t59/GmS/aifPoY//GNSrxf3kpVSyGNVxP+XsEOOWd0uei+b?=
+ =?us-ascii?Q?muCeUg24i38PXkM4dYcmzsbokGfP5gBrW1o8G0CUZ/IhcesgaHTM5rSjDD2K?=
+ =?us-ascii?Q?+IS+gBMsH5Wgkb0jU1RHMK+f71m+H4Uef0YGZFseh6Gn3LPiT0i3jebFIC3x?=
+ =?us-ascii?Q?qm4VPpY+W4SLumbIYNEeGy38f+Xe+v6PlEBkAv/9oOerLMAg+9wx8A4GcBFf?=
+ =?us-ascii?Q?nW6wpvg/6aSERJEKT4WD5DsLh6GVZyV65ExeTQvqUc9g0THCdJavrWBRQIUR?=
+ =?us-ascii?Q?dOxK4qcTPNk7V+fHZtzwY7lHKwLbkcNHkiA2L/jE7/TCw+GRrXY9R7OBDV49?=
+ =?us-ascii?Q?FAj6CPQEN/zuhOuXdw3dIzw6r8V0QG2oledbh+1IE+/+sRaOKA8OWeoy+i4O?=
+ =?us-ascii?Q?RsLHnl6BUPK7oqsRfHRxO8V4rCrUubMUU7p86/H0HsHaHssMNBxr63aLdO6I?=
+ =?us-ascii?Q?aF7v/Zoqa2YE2etVsvNK1wLuBESRCnSpp96SF+yAQF8PI3OJzBVwvjRAnaGV?=
+ =?us-ascii?Q?te+jFch5sI7vot10MHbQMnAq?=
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 96b3eca0-040d-465b-8662-08d8e9116cac
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9bc4d20a-fa46-4171-dc9f-08d8e9117310
 X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB5618.eurprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Mar 2021 06:53:52.3464
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Mar 2021 06:54:02.8295
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: nAYj9Q1EKiKIAOMBMSNuE431/uFlI9RGwimzhYfU7+lb+Fyfh7yuLI5uIVpaom+jEVZey5wZs7nkygDJhvtbww==
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8/iJD6JUz0gGmQivJKbucKEjQFBJuMbUVQr9WKuzRiy9Ks4kESbPL6+BtIJtCOZEd6ORfygf6LdBdiM/iVK4JA==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB7091
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Gao Pan <pandy.gao@nxp.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-A NACK flag in ISR means i2c bus error. In such codition,
-there is no need to do read/write operation. It's better
-to return ISR directly and then stop i2c transfer.
+Manage irq resource request/release in runtime pm to save irq domain's
+power.
 
-Signed-off-by: Gao Pan <pandy.gao@nxp.com>
-Signed-off-by: Clark Wang <xiaoning.wang@nxp.com>
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 9db6ccded5e9..bbf44ac95021 100644
+index 664fcc0dba51..e718bb6b2387 100644
 --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
 +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -507,15 +507,17 @@ static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
- 	lpi2c_imx_intctrl(lpi2c_imx, 0);
- 	temp = readl(lpi2c_imx->base + LPI2C_MSR);
+@@ -94,6 +94,7 @@ enum lpi2c_imx_pincfg {
  
-+	if (temp & MSR_NDF) {
-+		complete(&lpi2c_imx->complete);
-+		goto ret;
+ struct lpi2c_imx_struct {
+ 	struct i2c_adapter	adapter;
++	int			irq;
+ 	struct clk		*clk_per;
+ 	struct clk		*clk_ipg;
+ 	void __iomem		*base;
+@@ -543,7 +544,7 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
+ {
+ 	struct lpi2c_imx_struct *lpi2c_imx;
+ 	unsigned int temp;
+-	int irq, ret;
++	int ret;
+ 
+ 	lpi2c_imx = devm_kzalloc(&pdev->dev, sizeof(*lpi2c_imx), GFP_KERNEL);
+ 	if (!lpi2c_imx)
+@@ -553,9 +554,9 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
+ 	if (IS_ERR(lpi2c_imx->base))
+ 		return PTR_ERR(lpi2c_imx->base);
+ 
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
+-		return irq;
++	lpi2c_imx->irq = platform_get_irq(pdev, 0);
++	if (lpi2c_imx->irq < 0)
++		return lpi2c_imx->irq;
+ 
+ 	lpi2c_imx->adapter.owner	= THIS_MODULE;
+ 	lpi2c_imx->adapter.algo		= &lpi2c_imx_algo;
+@@ -581,14 +582,6 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		lpi2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
+ 
+-	ret = devm_request_irq(&pdev->dev, irq, lpi2c_imx_isr,
+-			       IRQF_NO_SUSPEND,
+-			       pdev->name, lpi2c_imx);
+-	if (ret) {
+-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+-		return ret;
+-	}
+-
+ 	i2c_set_adapdata(&lpi2c_imx->adapter, lpi2c_imx);
+ 	platform_set_drvdata(pdev, lpi2c_imx);
+ 
+@@ -640,6 +633,7 @@ static int __maybe_unused lpi2c_runtime_suspend(struct device *dev)
+ {
+ 	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
+ 
++	devm_free_irq(dev, lpi2c_imx->irq, lpi2c_imx);
+ 	clk_disable_unprepare(lpi2c_imx->clk_ipg);
+ 	clk_disable_unprepare(lpi2c_imx->clk_per);
+ 	pinctrl_pm_select_idle_state(dev);
+@@ -665,6 +659,14 @@ static int __maybe_unused lpi2c_runtime_resume(struct device *dev)
+ 		dev_err(dev, "can't enable I2C ipg clock, ret=%d\n", ret);
+ 	}
+ 
++	ret = devm_request_irq(dev, lpi2c_imx->irq, lpi2c_imx_isr,
++			       IRQF_NO_SUSPEND,
++			       dev_name(dev), lpi2c_imx);
++	if (ret) {
++		dev_err(dev, "can't claim irq %d\n", lpi2c_imx->irq);
++		return ret;
 +	}
 +
- 	if (temp & MSR_RDF)
- 		lpi2c_imx_read_rxfifo(lpi2c_imx);
--
--	if (temp & MSR_TDF)
-+	else if (temp & MSR_TDF)
- 		lpi2c_imx_write_txfifo(lpi2c_imx);
- 
--	if (temp & MSR_NDF)
--		complete(&lpi2c_imx->complete);
--
-+ret:
- 	return IRQ_HANDLED;
+ 	return ret;
  }
  
 -- 
