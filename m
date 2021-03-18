@@ -4,87 +4,90 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2A51C433E9
-	for <linux-i2c@archiver.kernel.org>; Thu, 18 Mar 2021 10:52:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C43CC433E0
+	for <linux-i2c@archiver.kernel.org>; Thu, 18 Mar 2021 10:55:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 650F764F3B
-	for <linux-i2c@archiver.kernel.org>; Thu, 18 Mar 2021 10:52:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 236C364F57
+	for <linux-i2c@archiver.kernel.org>; Thu, 18 Mar 2021 10:55:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229999AbhCRKwQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 18 Mar 2021 06:52:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48210 "EHLO mail.kernel.org"
+        id S230286AbhCRKzA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 18 Mar 2021 06:55:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230180AbhCRKv5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 18 Mar 2021 06:51:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 661C464F3B;
-        Thu, 18 Mar 2021 10:51:56 +0000 (UTC)
+        id S230079AbhCRKyt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 18 Mar 2021 06:54:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 304AD64EF6;
+        Thu, 18 Mar 2021 10:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616064717;
-        bh=GGf+pazItb5QrmIMPrXejMNcW2SCcwiSSjwQVQ0igKk=;
+        s=k20201202; t=1616064888;
+        bh=jKNzxVOtluBlw3sWcfi2a8h55RR1kuhcHLwoPXUuXNI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=igjAnYEme5rIKdM7p4HEBnrIMN/8EBwQpO8JuM8asxfeN5iq1v4j949z0o137IeCt
-         UHLUvVc+srNricctNYHZQ77yC7qv+DaxFYi1T//+iWiM7M2mnJfSOGPhh1TwVPYKen
-         ww1HfCcvdKGMVYgi7SYn/VUWV5uzvBcllSuTGAfER3fZgebU08aXThhJk/eneztw+c
-         wH+Z0uO87nvxZFpbmO28KXvqPiPc0wj2El3+hyHQgBFlZcVUu8wE82RKfVHGjjej6q
-         p26VvfhcHrBuahoczACeSkIr/eSzU/3VJfNVYfJ0WE8e8k7TUKiK6lQVUYZtl+O1+m
-         Ys0Gass6TW0kw==
-Date:   Thu, 18 Mar 2021 11:51:53 +0100
+        b=DhnnIoJN0lNOxbLTPyMz8PT2FK0UyXjuPbDoNFgyPoo/bEihuxYqr/npgPYt+Eqi4
+         BtjFysjtLHWPqewCE9t8v8leKgW/jDWrcQwklfPiZhk0VR9fk+Cx/KfmY7XCxgZWgP
+         H1Cdpgi5X8Duts8q2od38N5pdcZNvTG8GoulyQpktFYJszJ+xVEISC0bqR7Bb3ZPZM
+         x9XZbOqNVj5LMMvmHUv1+eC/2e+KhHcTokLc0ESH07W2ZkyiHkmYc5uhUctBCImXCC
+         7ANbR6wK257lwVjyZVPe5y97khYwXHdBbCg3KiE2MH/G7+QpSu4mUoIBRUTjnI7MKz
+         TCV53GjyE8WWw==
+Date:   Thu, 18 Mar 2021 11:54:46 +0100
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Pierre Yves MORDRET <pierre-yves.mordret@foss.st.com>
-Cc:     Alain Volmat <alain.volmat@foss.st.com>, robh+dt@kernel.org,
-        mark.rutland@arm.com, mcoquelin.stm32@gmail.com,
+To:     Alain Volmat <alain.volmat@foss.st.com>
+Cc:     robh+dt@kernel.org, mark.rutland@arm.com,
+        pierre-yves.mordret@foss.st.com, mcoquelin.stm32@gmail.com,
         alexandre.torgue@foss.st.com, linux-i2c@vger.kernel.org,
         devicetree@vger.kernel.org,
         linux-stm32@st-md-mailman.stormreply.com,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         fabrice.gasnier@foss.st.com
-Subject: Re: [PATCH 2/5] i2c: stm32f7: support DT binding i2c-analog-filter
-Message-ID: <20210318105153.GC974@ninjato>
+Subject: Re: [PATCH 3/5] i2c: stm32f7: add support for DNF i2c-digital-filter
+ binding
+Message-ID: <20210318105446.GE974@ninjato>
 References: <1612515104-838-1-git-send-email-alain.volmat@foss.st.com>
- <1612515104-838-3-git-send-email-alain.volmat@foss.st.com>
- <d39593ea-ef47-5688-202b-66458f13ecc8@foss.st.com>
+ <1612515104-838-4-git-send-email-alain.volmat@foss.st.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4ZLFUWh1odzi/v6L"
+        protocol="application/pgp-signature"; boundary="HnQK338I3UIa/qiP"
 Content-Disposition: inline
-In-Reply-To: <d39593ea-ef47-5688-202b-66458f13ecc8@foss.st.com>
+In-Reply-To: <1612515104-838-4-git-send-email-alain.volmat@foss.st.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---4ZLFUWh1odzi/v6L
+--HnQK338I3UIa/qiP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Feb 05, 2021 at 09:51:42AM +0100, Alain Volmat wrote:
+> Add the support for the i2c-digital-filter binding, allowing to enable
+> the digital filter via the device-tree and indicate its value in the DT.
+>=20
+> Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+
+Applied to for-next, thanks!
 
 
-> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
-
-Please use "Reviewed-by" or "Acked-by" next time, then I will see it
-in patchwork as taken care of. Thanks!
-
-
---4ZLFUWh1odzi/v6L
+--HnQK338I3UIa/qiP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmBTMMkACgkQFA3kzBSg
-Kba3Xw/+InFaMGAXyoMz6thqL08q0+4FQDDeDDx5N5sdhNeLiatAR0wv+GZaNvv/
-CIJmuep7LJ6IDNRsGLHn1XK/LYs3okh7981RqvrV5qVnVhtGCpXSMmybV0SLF/7Q
-pJqB3L+/2feQCwZ8TbESM/bcXpp6G9Da8xi3amZ5bpxzy/5TZVvjUTak+RqrWEK5
-7CH0qpRnSbX1dIhElLuHYxosS83jOGr/YhFao+N5kXZUE1Hu5vIuCCUhb1ezV8t6
-WJCTGOxh1THRVFL94kTmYzsmZVkHOY4wvStFAvBKpYK98cWJ7NNemiHgdtUBtCB3
-ZWxTIUheV2tPmY9t9U2GTvYqJUsYNIloGdlIMBPa81C4xr1i2UIkiaalU7uGr5Rt
-IBAFyxlPwAKxNrHLlQBiagZBFNIR5Aka/n8VJqAoEzyUl2WjQ7K3dl2A+J+F1YdK
-Ahw5GbVNIhHLmtz/mJ8DerX9fhpI7vItN2+DV7ebIWMFcMuwpl357sLT0fmrdcE4
-iBm52QMTWDEkVjfUPxBEBDJYW0eR/EsYj+K6zecaJi2HH6RH8AUbg2ViM7FWY1rA
-S150rH4yl+wR3jQNe3hGtJMQF5NsWftnqzmcoe2EGM2pBR5d7mLcz8guJe3Vo8fm
-Vj9Hsdq+qnOjixksh0u6o2SBcNjfJYj2PrtBUD8sWO4QZCIwWc4=
-=AnVO
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmBTMXYACgkQFA3kzBSg
+KbZGvg//Qt/rXoaq3I2LSLApIOkG9Zqt6hluxc/ZtzNTzPpac8rf3Pgygn6mFwxK
+POSs9/q1k1rwtQnmmypL4fPvZ/SBiyEUSzGURWcx/hPw28P9kGNxVD2TZgsVzCgt
+TVr8Gj5CmYFxyuDTnhk2hWloPUkCGxmg30+Mv8WZG6LaxQDNBxizxl5TNh5nj5KX
+DOA1rhb8UbM/mV08Ce+2w10Ey5J0rT6xSmjPfFP9yol0+bsf2O5gVddyXWfQoUnf
+Zy0IgVfDrZFbm//4ORn10BuWR0pAexwiUw1wjEn5+Kg76jUHkJMLUMUtgDkhmHKt
+HlenoBaDSCTV3JdWJTeyq4EMeACCK01/DmavasUM7QqFtFiaGs0MxB+A6+NA/0bk
+1joVv8VruYvOeAMEp6sd3IOgU7KKHEkGuWWLHMAgs07NkO1156bbso0S6fBntC1G
+NwLEvdw4QhqDZAMMI/CDOzNfdQuLIEx2O4Dg3PKF/S1iuZmOZbRUDzP1YM5KkXLx
+eOfug+uTKI38fz1R7xzB/Eu+YTJozPiP+SCqn4O/Ji3BAMUO1CTuat/FBTTLCOxt
+n5yeSwtYxuqcu/Q9w3NGdzlgVZPNYa7a+Osm9yuUV1fFJicuYa4iB0huIdeAloEA
+w6sMnkcgop193dfRKUDaJicib7c0qUX+wRI9Tl5gyPePhm8fuiU=
+=HLHK
 -----END PGP SIGNATURE-----
 
---4ZLFUWh1odzi/v6L--
+--HnQK338I3UIa/qiP--
