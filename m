@@ -2,82 +2,73 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32A85C433E0
-	for <linux-i2c@archiver.kernel.org>; Mon, 22 Mar 2021 08:29:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6908C433C1
+	for <linux-i2c@archiver.kernel.org>; Mon, 22 Mar 2021 11:13:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E67AA61925
-	for <linux-i2c@archiver.kernel.org>; Mon, 22 Mar 2021 08:29:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD5D961994
+	for <linux-i2c@archiver.kernel.org>; Mon, 22 Mar 2021 11:13:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230042AbhCVI2o (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 22 Mar 2021 04:28:44 -0400
-Received: from mga01.intel.com ([192.55.52.88]:11146 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230040AbhCVI2i (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 22 Mar 2021 04:28:38 -0400
-IronPort-SDR: PHWMEBfO6tyGokH0FhaGvqjcKkx21ntI2UjFJAEE100i4PvkySWWG8cyD+zN2+3lJkT2NxTPoj
- c/zorXn1CNiQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9930"; a="210291437"
-X-IronPort-AV: E=Sophos;i="5.81,268,1610438400"; 
-   d="scan'208";a="210291437"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Mar 2021 01:28:37 -0700
-IronPort-SDR: B4r06u5gEarLdb3pVnUy1PVeMTpmrYqd8XYUNiKF5/HB8KAV+XHWfMu96lCnaN4TZykDLrFMaW
- rGBQ89h+itBw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,268,1610438400"; 
-   d="scan'208";a="414390082"
-Received: from unknown (HELO [10.239.154.55]) ([10.239.154.55])
-  by orsmga008.jf.intel.com with ESMTP; 22 Mar 2021 01:28:32 -0700
-Subject: Re: [PATCH v9] i2c: virtio: add a virtio i2c frontend driver
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     linux-i2c@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, wsa@kernel.org, jasowang@redhat.com,
-        wsa+renesas@sang-engineering.com,
-        andriy.shevchenko@linux.intel.com, conghui.chen@intel.com,
-        arnd@arndb.de, kblaiech@mellanox.com,
-        jarkko.nikula@linux.intel.com, Sergey.Semin@baikalelectronics.ru,
-        rppt@kernel.org, loic.poulain@linaro.org, tali.perry1@gmail.com,
-        u.kleine-koenig@pengutronix.de, bjorn.andersson@linaro.org,
-        yu1.wang@intel.com, shuo.a.liu@intel.com, viresh.kumar@linaro.org,
-        stefanha@redhat.com, pbonzini@redhat.com
-References: <e09c07532f5456816eb91ef4176bf910284df4ff.1616418890.git.jie.deng@intel.com>
- <20210322041857-mutt-send-email-mst@kernel.org>
-From:   Jie Deng <jie.deng@intel.com>
-Message-ID: <5f4aec88-3131-ca20-e28e-383642c9a2ad@intel.com>
-Date:   Mon, 22 Mar 2021 16:28:31 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.7.0
+        id S230203AbhCVLNX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 22 Mar 2021 07:13:23 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:14059 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230202AbhCVLMu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Mar 2021 07:12:50 -0400
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4F3sGx5bZFzNq0Q;
+        Mon, 22 Mar 2021 19:10:17 +0800 (CST)
+Received: from localhost.localdomain (10.67.165.24) by
+ DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
+ 14.3.498.0; Mon, 22 Mar 2021 19:12:38 +0800
+From:   Yicong Yang <yangyicong@hisilicon.com>
+To:     <wsa@kernel.org>, <linux-i2c@vger.kernel.org>
+CC:     <andriy.shevchenko@linux.intel.com>, <digetx@gmail.com>,
+        <treding@nvidia.com>, <jarkko.nikula@linux.intel.com>,
+        <rmk+kernel@armlinux.org.uk>, <song.bao.hua@hisilicon.com>,
+        <john.garry@huawei.com>, <yangyicong@hisilicon.com>,
+        <prime.zeng@huawei.com>, <linuxarm@huawei.com>
+Subject: [PATCH v3 0/3] Add support for HiSilicon I2C controller
+Date:   Mon, 22 Mar 2021 19:10:10 +0800
+Message-ID: <1616411413-7177-1-git-send-email-yangyicong@hisilicon.com>
+X-Mailer: git-send-email 2.8.1
 MIME-Version: 1.0
-In-Reply-To: <20210322041857-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain
+X-Originating-IP: [10.67.165.24]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Add driver and MAINTAINERS for HiSilicon I2C controller on Kunpeng SoC. Also
+provide the devm_*() variants for adding the I2C adapters.
 
-On 2021/3/22 16:19, Michael S. Tsirkin wrote:
-> On Mon, Mar 22, 2021 at 09:35:59PM +0800, Jie Deng wrote:
->> diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
->> index bc1c062..6ae32db 100644
->> --- a/include/uapi/linux/virtio_ids.h
->> +++ b/include/uapi/linux/virtio_ids.h
->> @@ -54,5 +54,6 @@
->>   #define VIRTIO_ID_FS			26 /* virtio filesystem */
->>   #define VIRTIO_ID_PMEM			27 /* virtio pmem */
->>   #define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
->> +#define VIRTIO_ID_I2C_ADPTER		34 /* virtio i2c adpter */
-> ADPTER -> ADAPTER?
-> adpter -> adapter?
+Change since v2:
+- handle -EPROBE_DEFER case when get irq number by platform_get_irq()
+Link: https://lore.kernel.org/linux-i2c/1615296137-14558-1-git-send-email-yangyicong@hisilicon.com/
 
+Change since v1:
+- fix compile test error on 32bit arch, reported by intel lkp robot:
+  64 bit division without using kernel wrapper in probe function.
+Link:https://lore.kernel.org/linux-i2c/1615016946-55670-1-git-send-email-yangyicong@hisilicon.com/
 
-Good catch. Thanks Michael.
+Yicong Yang (3):
+  i2c: core: add managed function for adding i2c adapters
+  i2c: add support for HiSilicon I2C controller
+  MAINTAINERS: Add maintainer for HiSilicon I2C driver
 
+ MAINTAINERS                   |   7 +
+ drivers/i2c/busses/Kconfig    |  10 +
+ drivers/i2c/busses/Makefile   |   1 +
+ drivers/i2c/busses/i2c-hisi.c | 525 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-core-base.c   |  39 ++++
+ include/linux/i2c.h           |   1 +
+ 6 files changed, 583 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-hisi.c
+
+-- 
+2.8.1
 
