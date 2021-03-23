@@ -2,618 +2,483 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+X-Spam-Status: No, score=-14.8 required=3.0 tests=BAYES_00,
+	DATE_IN_FUTURE_06_12,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61290C433ED
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Mar 2021 04:34:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1C3BC433C1
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Mar 2021 06:20:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3808F619B6
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Mar 2021 04:34:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C1913619BA
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Mar 2021 06:20:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbhCWEe3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 23 Mar 2021 00:34:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33490 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229622AbhCWEdy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Mar 2021 00:33:54 -0400
-Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [IPv6:2001:df5:b000:5::4])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B212EC0613D9
-        for <linux-i2c@vger.kernel.org>; Mon, 22 Mar 2021 21:33:53 -0700 (PDT)
-Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id C25C6891B3;
-        Tue, 23 Mar 2021 17:33:48 +1300 (NZDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-        s=mail181024; t=1616474028;
-        bh=QfeDP95sCv2SewuqWItI7gTMDloyQxHEwRRt8dG7Dr8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=AJSeMcwxhs7CRawp/+BUuT4/Y/qrNRZ1EKeebnZhdLAP38SmEXAeV30xMzezpXw77
-         fCshKxpRywvJAAYJ+xlAi8pUHucGlPuyB0UbTujQcLNWlejkjFBO5w+A55uuA0u5Ao
-         W1g/3dJkJbnue3Z4C5BKY/nJ6jL3MKJX1FrzJsScwrqCa9Hl+JLtRN9ws6week/uKu
-         OdemY5p4Ctyk8SWCVl+CRck0WACkZgcahCWveZ7VrKJRMdLAg89Pc+pxYH+PpTOfOA
-         poBhwLmAVx7twLLyR0DzjodjkUh2CWfdkEKFhMJmRIXnyphvtf7FnNOI+4goRJdZpl
-         acAesl4Kck4sg==
-Received: from smtp (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-        id <B60596fac0003>; Tue, 23 Mar 2021 17:33:48 +1300
-Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.20])
-        by smtp (Postfix) with ESMTP id 249B013EED4;
-        Tue, 23 Mar 2021 17:34:04 +1300 (NZDT)
-Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
-        id 947B528409A; Tue, 23 Mar 2021 17:33:48 +1300 (NZDT)
-From:   Chris Packham <chris.packham@alliedtelesis.co.nz>
-To:     robh+dt@kernel.org, linux@roeck-us.net, wsa@kernel.org,
-        jdelvare@suse.com
-Cc:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH 6/6] i2c: mpc: Interrupt driven transfer
-Date:   Tue, 23 Mar 2021 17:33:31 +1300
-Message-Id: <20210323043331.21878-7-chris.packham@alliedtelesis.co.nz>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210323043331.21878-1-chris.packham@alliedtelesis.co.nz>
-References: <20210323043331.21878-1-chris.packham@alliedtelesis.co.nz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=GfppYjfL c=1 sm=1 tr=0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=dESyimp9J3IA:10 a=uHd7jcRfAAAA:8 a=5ev65v1id6XjEa6wf1UA:9 a=FVs-WqTgHo97eV9s:21 a=eDJpZUWDSCT-sJcP:21 a=W4h6EnClZ8UN7yAF:21 a=Ht9MEGjvesGdgnQqdPSO:22
-X-SEG-SpamProfiler-Score: 0
-x-atlnz-ls: pat
+        id S229590AbhCWGTx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 23 Mar 2021 02:19:53 -0400
+Received: from mga04.intel.com ([192.55.52.120]:19216 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229548AbhCWGTw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 23 Mar 2021 02:19:52 -0400
+IronPort-SDR: TXErRrvHeu25NLrFonJG8nuSfPn4668YKRfjWY6iHCTso4/A4EqXbcXSWhBdvMNxrR+9QnDojn
+ Pjk+S5Aa52CQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9931"; a="188097902"
+X-IronPort-AV: E=Sophos;i="5.81,271,1610438400"; 
+   d="scan'208";a="188097902"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Mar 2021 23:19:51 -0700
+IronPort-SDR: hJoAnHy/NRPKWqfXjeo+1OLINlutkWoE6biSrm9jS6QLmKMOX+JNmVvPppSKPYLdVWCWcb/COY
+ KcD8KooTTPvw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,271,1610438400"; 
+   d="scan'208";a="390764759"
+Received: from jiedeng-optiplex-7050.sh.intel.com ([10.239.154.104])
+  by orsmga002.jf.intel.com with ESMTP; 22 Mar 2021 23:19:45 -0700
+From:   Jie Deng <jie.deng@intel.com>
+To:     linux-i2c@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org
+Cc:     mst@redhat.com, wsa@kernel.org, jasowang@redhat.com,
+        wsa+renesas@sang-engineering.com,
+        andriy.shevchenko@linux.intel.com, conghui.chen@intel.com,
+        arnd@arndb.de, kblaiech@mellanox.com,
+        jarkko.nikula@linux.intel.com, Sergey.Semin@baikalelectronics.ru,
+        rppt@kernel.org, jie.deng@intel.com, loic.poulain@linaro.org,
+        tali.perry1@gmail.com, u.kleine-koenig@pengutronix.de,
+        bjorn.andersson@linaro.org, yu1.wang@intel.com,
+        shuo.a.liu@intel.com, viresh.kumar@linaro.org, stefanha@redhat.com,
+        pbonzini@redhat.com
+Subject: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
+Date:   Tue, 23 Mar 2021 22:19:49 +0800
+Message-Id: <226a8d5663b7bb6f5d06ede7701eedb18d1bafa1.1616493817.git.jie.deng@intel.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The fsl-i2c controller will generate an interrupt after every byte
-transferred. Make use of this interrupt to drive a state machine which
-allows the next part of a transfer to happen as soon as the interrupt is
-received. This is particularly helpful with SMBUS devices like the LM81
-which will timeout if we take too long between bytes in a transfer.
+Add an I2C bus driver for virtio para-virtualization.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+The controller can be emulated by the backend driver in
+any device model software by following the virtio protocol.
+
+The device specification can be found on
+https://lists.oasis-open.org/archives/virtio-comment/202101/msg00008.html.
+
+By following the specification, people may implement different
+backend drivers to emulate different controllers according to
+their needs.
+
+Co-developed-by: Conghui Chen <conghui.chen@intel.com>
+Signed-off-by: Conghui Chen <conghui.chen@intel.com>
+Signed-off-by: Jie Deng <jie.deng@intel.com>
 ---
- drivers/i2c/busses/i2c-mpc.c | 430 +++++++++++++++++++----------------
- 1 file changed, 237 insertions(+), 193 deletions(-)
+Changes in v10:
+        - Fix some typo errors.
+        - Refined the virtio_i2c_complete_reqs to use less code lines.
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 46cdb36e2f9b..5ffde3428232 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -1,16 +1,11 @@
-+// SPDX-License-Identifier: GPL-2.0
- /*
-- * (C) Copyright 2003-2004
-- * Humboldt Solutions Ltd, adrian@humboldt.co.uk.
--
-  * This is a combined i2c adapter and algorithm driver for the
-  * MPC107/Tsi107 PowerPC northbridge and processors that include
-  * the same I2C unit (8240, 8245, 85xx).
-  *
-- * Release 0.8
-- *
-- * This file is licensed under the terms of the GNU General Public
-- * License version 2. This program is licensed "as is" without any
-- * warranty of any kind, whether express or implied.
-+ * Copyright (C) 2003-2004 Humboldt Solutions Ltd, adrian@humboldt.co.uk
-+ * Copyright (C) 2021 Allied Telesis Labs
-  */
-=20
- #include <linux/kernel.h>
-@@ -58,11 +53,32 @@
- #define CSR_MIF  0x02
- #define CSR_RXAK 0x01
-=20
-+enum mpc_i2c_action {
-+	MPC_I2C_ACTION_INVALID =3D 0,
-+	MPC_I2C_ACTION_START,
-+	MPC_I2C_ACTION_RESTART,
-+	MPC_I2C_ACTION_READ_BEGIN,
-+	MPC_I2C_ACTION_READ_BYTE,
-+	MPC_I2C_ACTION_WRITE,
-+	MPC_I2C_ACTION_STOP,
+Changes in v9:
+        - Remove the virtio_adapter and update its members in probe.
+        - Refined the virtio_i2c_complete_reqs for buf free.
+
+Changes in v8:
+        - Make virtio_i2c.adap a pointer.
+        - Mark members in virtio_i2c_req with ____cacheline_aligned.
+
+Changes in v7:
+        - Remove unused headers.
+        - Update Makefile and Kconfig.
+        - Add the cleanup after completing reqs.
+        - Avoid memcpy for data marked with I2C_M_DMA_SAFE.
+        - Fix something reported by kernel test robot.
+
+Changes in v6:
+        - Move struct virtio_i2c_req into the driver.
+        - Use only one buf in struct virtio_i2c_req.
+
+Changes in v5:
+        - The first version based on the acked specification.
+
+ drivers/i2c/busses/Kconfig      |  11 ++
+ drivers/i2c/busses/Makefile     |   3 +
+ drivers/i2c/busses/i2c-virtio.c | 276 ++++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/virtio_i2c.h |  40 ++++++
+ include/uapi/linux/virtio_ids.h |   1 +
+ 5 files changed, 331 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-virtio.c
+ create mode 100644 include/uapi/linux/virtio_i2c.h
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 05ebf75..cb8d0d8 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -21,6 +21,17 @@ config I2C_ALI1535
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-ali1535.
+ 
++config I2C_VIRTIO
++	tristate "Virtio I2C Adapter"
++	select VIRTIO
++	help
++	  If you say yes to this option, support will be included for the virtio
++	  I2C adapter driver. The hardware can be emulated by any device model
++	  software according to the virtio protocol.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called i2c-virtio.
++
+ config I2C_ALI1563
+ 	tristate "ALI 1563"
+ 	depends on PCI
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 615f35e..efdd3f3 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -145,4 +145,7 @@ obj-$(CONFIG_I2C_XGENE_SLIMPRO) += i2c-xgene-slimpro.o
+ obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+ obj-$(CONFIG_I2C_FSI)		+= i2c-fsi.o
+ 
++# VIRTIO I2C host controller driver
++obj-$(CONFIG_I2C_VIRTIO)	+= i2c-virtio.o
++
+ ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+new file mode 100644
+index 0000000..99a1e30
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-virtio.c
+@@ -0,0 +1,276 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Virtio I2C Bus Driver
++ *
++ * The Virtio I2C Specification:
++ * https://raw.githubusercontent.com/oasis-tcs/virtio-spec/master/virtio-i2c.tex
++ *
++ * Copyright (c) 2021 Intel Corporation. All rights reserved.
++ */
++
++#include <linux/acpi.h>
++#include <linux/completion.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/virtio.h>
++#include <linux/virtio_ids.h>
++#include <linux/virtio_config.h>
++#include <linux/virtio_i2c.h>
++
++/**
++ * struct virtio_i2c - virtio I2C data
++ * @vdev: virtio device for this controller
++ * @completion: completion of virtio I2C message
++ * @adap: I2C adapter for this controller
++ * @lock: lock for virtqueue processing
++ * @vq: the virtio virtqueue for communication
++ */
++struct virtio_i2c {
++	struct virtio_device *vdev;
++	struct completion completion;
++	struct i2c_adapter adap;
++	struct mutex lock;
++	struct virtqueue *vq;
 +};
 +
-+static char *action_str[] =3D {
-+	"invalid",
-+	"start",
-+	"restart",
-+	"read begin",
-+	"read",
-+	"write",
-+	"stop",
++/**
++ * struct virtio_i2c_req - the virtio I2C request structure
++ * @out_hdr: the OUT header of the virtio I2C message
++ * @buf: the buffer into which data is read, or from which it's written
++ * @in_hdr: the IN header of the virtio I2C message
++ */
++struct virtio_i2c_req {
++	struct virtio_i2c_out_hdr out_hdr	____cacheline_aligned;
++	uint8_t *buf				____cacheline_aligned;
++	struct virtio_i2c_in_hdr in_hdr		____cacheline_aligned;
 +};
 +
- struct mpc_i2c {
- 	struct device *dev;
- 	void __iomem *base;
- 	u32 interrupt;
--	wait_queue_head_t queue;
-+	wait_queue_head_t waitq;
-+	spinlock_t              lock;
- 	struct i2c_adapter adap;
- 	int irq;
- 	u32 real_clk;
-@@ -70,6 +86,16 @@ struct mpc_i2c {
- 	u8 fdr, dfsrr;
- #endif
- 	struct clk *clk_per;
-+	u32 cntl_bits;
-+	enum mpc_i2c_action action;
-+	struct i2c_msg *msgs;
-+	int num_msgs;
-+	int curr_msg;
-+	u32 byte_posn;
-+	u32 block;
-+	int rc;
-+	int expect_rxack;
-+
- };
-=20
- struct mpc_i2c_divider {
-@@ -86,19 +112,6 @@ static inline void writeccr(struct mpc_i2c *i2c, u32 =
-x)
- 	writeb(x, i2c->base + MPC_I2C_CR);
- }
-=20
--static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
--{
--	struct mpc_i2c *i2c =3D dev_id;
--	if (readb(i2c->base + MPC_I2C_SR) & CSR_MIF) {
--		/* Read again to allow register to stabilise */
--		i2c->interrupt =3D readb(i2c->base + MPC_I2C_SR);
--		writeb(0, i2c->base + MPC_I2C_SR);
--		wake_up(&i2c->queue);
--		return IRQ_HANDLED;
--	}
--	return IRQ_NONE;
--}
--
- /* Sometimes 9th clock pulse isn't generated, and slave doesn't release
-  * the bus, because it wants to send ACK.
-  * Following sequence of enabling/disabling and sending start/stop gener=
-ates
-@@ -121,45 +134,6 @@ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
- 	}
- }
-=20
--static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
--{
--	u32 cmd_err;
--	int result;
--
--	result =3D wait_event_timeout(i2c->queue,
--			(i2c->interrupt & CSR_MIF), timeout);
--
--	if (unlikely(!(i2c->interrupt & CSR_MIF))) {
--		dev_dbg(i2c->dev, "wait timeout\n");
--		writeccr(i2c, 0);
--		result =3D -ETIMEDOUT;
--	}
--
--	cmd_err =3D i2c->interrupt;
--	i2c->interrupt =3D 0;
--
--	if (result < 0)
--		return result;
--
--	if (!(cmd_err & CSR_MCF)) {
--		dev_dbg(i2c->dev, "unfinished\n");
--		return -EIO;
--	}
--
--	if (cmd_err & CSR_MAL) {
--		dev_dbg(i2c->dev, "MAL\n");
--		return -EAGAIN;
--	}
--
--	if (writing && (cmd_err & CSR_RXAK)) {
--		dev_dbg(i2c->dev, "No RXAK\n");
--		/* generate stop */
--		writeccr(i2c, CCR_MEN);
--		return -ENXIO;
--	}
--	return 0;
--}
--
- #if defined(CONFIG_PPC_MPC52xx) || defined(CONFIG_PPC_MPC512x)
- static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] =3D {
- 	{20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
-@@ -434,168 +408,209 @@ static void mpc_i2c_setup_8xxx(struct device_node=
- *node,
- }
- #endif /* CONFIG_FSL_SOC */
-=20
--static void mpc_i2c_start(struct mpc_i2c *i2c)
-+static void mpc_i2c_finish(struct mpc_i2c *i2c, int rc)
- {
--	/* Clear arbitration */
--	writeb(0, i2c->base + MPC_I2C_SR);
--	/* Start with MEN */
--	writeccr(i2c, CCR_MEN);
-+	i2c->rc =3D rc;
-+	i2c->block =3D 0;
-+	i2c->cntl_bits =3D CCR_MEN;
-+	writeccr(i2c, i2c->cntl_bits);
-+	wake_up(&i2c->waitq);
- }
-=20
--static void mpc_i2c_stop(struct mpc_i2c *i2c)
-+static void mpc_i2c_do_action(struct mpc_i2c *i2c)
- {
--	writeccr(i2c, CCR_MEN);
--}
-+	struct i2c_msg *msg =3D &i2c->msgs[i2c->curr_msg];
-+	int dir =3D 0;
-+	int recv_len =3D 0;
-+	u8 byte;
-+
-+	dev_dbg(i2c->dev, "%s: action =3D %s\n", __func__,
-+		action_str[i2c->action]);
-+
-+	i2c->cntl_bits &=3D ~(CCR_RSTA | CCR_MTX | CCR_TXAK);
-+
-+	if (msg->flags & I2C_M_RD)
-+		dir =3D 1;
-+	if (msg->flags & I2C_M_RECV_LEN)
-+		recv_len =3D 1;
-+
-+	switch (i2c->action) {
-+	case MPC_I2C_ACTION_RESTART:
-+		i2c->cntl_bits |=3D CCR_RSTA;
-+		fallthrough;
-+
-+	case MPC_I2C_ACTION_START:
-+		i2c->cntl_bits |=3D CCR_MSTA | CCR_MTX;
-+		writeccr(i2c, i2c->cntl_bits);
-+		writeb((msg->addr << 1) | dir, i2c->base + MPC_I2C_DR);
-+		i2c->expect_rxack =3D 1;
-+		i2c->action =3D dir ? MPC_I2C_ACTION_READ_BEGIN : MPC_I2C_ACTION_WRITE=
-;
-+		break;
-+
-+	case MPC_I2C_ACTION_READ_BEGIN:
-+		if (msg->len) {
-+			if (msg->len =3D=3D 1 && !(msg->flags & I2C_M_RECV_LEN))
-+				i2c->cntl_bits |=3D CCR_TXAK;
-+
-+			writeccr(i2c, i2c->cntl_bits);
-+			/* Dummy read */
-+			readb(i2c->base + MPC_I2C_DR);
-+		}
-+		i2c->action =3D MPC_I2C_ACTION_READ_BYTE;
-+		break;
-=20
--static int mpc_write(struct mpc_i2c *i2c, int target,
--		     const u8 *data, int length, int restart)
--{
--	int i, result;
--	unsigned timeout =3D i2c->adap.timeout;
--	u32 flags =3D restart ? CCR_RSTA : 0;
-+	case MPC_I2C_ACTION_READ_BYTE:
-+		if (i2c->byte_posn || !recv_len) {
-+			/* Generate txack on next to last byte */
-+			if (i2c->byte_posn =3D=3D msg->len - 2)
-+				i2c->cntl_bits |=3D CCR_TXAK;
-+			/* Do not generate stop on last byte */
-+			if (i2c->byte_posn =3D=3D msg->len - 1)
-+				i2c->cntl_bits |=3D CCR_MTX;
-=20
--	/* Start as master */
--	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
--	/* Write target byte */
--	writeb((target << 1), i2c->base + MPC_I2C_DR);
-+			writeccr(i2c, i2c->cntl_bits);
-+		}
-=20
--	result =3D i2c_wait(i2c, timeout, 1);
--	if (result < 0)
--		return result;
-+		byte =3D readb(i2c->base + MPC_I2C_DR);
-=20
--	for (i =3D 0; i < length; i++) {
--		/* Write data byte */
--		writeb(data[i], i2c->base + MPC_I2C_DR);
-+		if (i2c->byte_posn =3D=3D 0 && recv_len) {
-+			if (byte =3D=3D 0 || byte > I2C_SMBUS_BLOCK_MAX) {
-+				mpc_i2c_finish(i2c, -EPROTO);
-+				return;
-+			}
-+			msg->len +=3D byte;
-+			/*
-+			 * For block reads, generate txack here if data length
-+			 * is 1 byte (total length is 2 bytes).
-+			 */
-+			if (msg->len =3D=3D 2) {
-+				i2c->cntl_bits |=3D CCR_TXAK;
-+				writeccr(i2c, i2c->cntl_bits);
-+			}
-+		}
-=20
--		result =3D i2c_wait(i2c, timeout, 1);
--		if (result < 0)
--			return result;
-+		dev_dbg(i2c->dev, "%s: %s %02x\n", __func__,
-+			action_str[i2c->action], byte);
-+		msg->buf[i2c->byte_posn++] =3D byte;
-+		break;
-+
-+	case MPC_I2C_ACTION_WRITE:
-+		dev_dbg(i2c->dev, "%s: %s %02x\n", __func__,
-+			action_str[i2c->action], msg->buf[i2c->byte_posn]);
-+		writeb(msg->buf[i2c->byte_posn++], i2c->base + MPC_I2C_DR);
-+		i2c->expect_rxack =3D 1;
-+		break;
-+
-+	case MPC_I2C_ACTION_STOP:
-+		mpc_i2c_finish(i2c, 0);
-+		break;
-+
-+	case MPC_I2C_ACTION_INVALID:
-+	default:
-+		BUG();
-+		break;
- 	}
-=20
--	return 0;
-+	if (msg->len =3D=3D i2c->byte_posn) {
-+		i2c->curr_msg++;
-+		i2c->byte_posn =3D 0;
-+
-+		if (i2c->curr_msg =3D=3D i2c->num_msgs) {
-+			i2c->action =3D MPC_I2C_ACTION_STOP;
-+			/*
-+			 * We don't get another interrupt on read so
-+			 * finish the transfer now
-+			 */
-+			if (dir)
-+				mpc_i2c_finish(i2c, 0);
-+		} else {
-+			i2c->action =3D MPC_I2C_ACTION_RESTART;
-+		}
-+	}
- }
-=20
--static int mpc_read(struct mpc_i2c *i2c, int target,
--		    u8 *data, int length, int restart, bool recv_len)
-+static void mpc_i2c_do_intr(struct mpc_i2c *i2c, u8 status)
- {
--	unsigned timeout =3D i2c->adap.timeout;
--	int i, result;
--	u32 flags =3D restart ? CCR_RSTA : 0;
-+	unsigned long flags;
-=20
--	/* Switch to read - restart */
--	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
--	/* Write target address byte - this time with the read flag set */
--	writeb((target << 1) | 1, i2c->base + MPC_I2C_DR);
-+	spin_lock_irqsave(&i2c->lock, flags);
-=20
--	result =3D i2c_wait(i2c, timeout, 1);
--	if (result < 0)
--		return result;
-+	if (!(status & CSR_MCF)) {
-+		dev_dbg(i2c->dev, "unfinished\n");
-+		mpc_i2c_finish(i2c, -EIO);
-+		goto out;
-+	}
-=20
--	if (length) {
--		if (length =3D=3D 1 && !recv_len)
--			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
--		else
--			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA);
--		/* Dummy read */
--		readb(i2c->base + MPC_I2C_DR);
-+	if (status & CSR_MAL) {
-+		dev_dbg(i2c->dev, "arbiritration lost\n");
-+		mpc_i2c_finish(i2c, -EAGAIN);
-+		goto out;
- 	}
-=20
--	for (i =3D 0; i < length; i++) {
--		u8 byte;
-+	if (i2c->expect_rxack && (status & CSR_RXAK)) {
-+		dev_dbg(i2c->dev, "no RXAK\n");
-+		mpc_i2c_finish(i2c, -ENXIO);
-+		goto out;
-+	}
-+	i2c->expect_rxack =3D 0;
-=20
--		result =3D i2c_wait(i2c, timeout, 0);
--		if (result < 0)
--			return result;
-+	mpc_i2c_do_action(i2c);
-=20
--		/*
--		 * For block reads, we have to know the total length (1st byte)
--		 * before we can determine if we are done.
--		 */
--		if (i || !recv_len) {
--			/* Generate txack on next to last byte */
--			if (i =3D=3D length - 2)
--				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
--					 | CCR_TXAK);
--			/* Do not generate stop on last byte */
--			if (i =3D=3D length - 1)
--				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
--					 | CCR_MTX);
--		}
-+out:
-+	spin_unlock_irqrestore(&i2c->lock, flags);
-+}
-=20
--		byte =3D readb(i2c->base + MPC_I2C_DR);
-+static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
++static void virtio_i2c_msg_done(struct virtqueue *vq)
 +{
-+	struct mpc_i2c *i2c =3D dev_id;
-+	u8 status =3D readb(i2c->base + MPC_I2C_SR);
-=20
--		/*
--		 * Adjust length if first received byte is length.
--		 * The length is 1 length byte plus actually data length
--		 */
--		if (i =3D=3D 0 && recv_len) {
--			if (byte =3D=3D 0 || byte > I2C_SMBUS_BLOCK_MAX)
--				return -EPROTO;
--			length +=3D byte;
--			/*
--			 * For block reads, generate txack here if data length
--			 * is 1 byte (total length is 2 bytes).
--			 */
--			if (length =3D=3D 2)
--				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
--					 | CCR_TXAK);
--		}
--		data[i] =3D byte;
-+	if (status & CSR_MIF) {
-+		writeb(0, i2c->base + MPC_I2C_SR);
-+		mpc_i2c_do_intr(i2c, status);
-+		return IRQ_HANDLED;
- 	}
-+	return IRQ_NONE;
++	struct virtio_i2c *vi = vq->vdev->priv;
++
++	complete(&vi->completion);
 +}
 +
-+static void mpc_i2c_wait_for_completion(struct mpc_i2c *i2c)
++static int virtio_i2c_send_reqs(struct virtqueue *vq,
++				struct virtio_i2c_req *reqs,
++				struct i2c_msg *msgs, int nr)
 +{
-+	long time_left;
-=20
--	return length;
-+	time_left =3D wait_event_timeout(i2c->waitq, !i2c->block, i2c->adap.tim=
-eout);
++	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
++	int i, outcnt, incnt, err = 0;
 +
++	for (i = 0; i < nr; i++) {
++		if (!msgs[i].len)
++			break;
++
++		/*
++		 * Only 7-bit mode supported for this moment. For the address format,
++		 * Please check the Virtio I2C Specification.
++		 */
++		reqs[i].out_hdr.addr = cpu_to_le16(msgs[i].addr << 1);
++
++		if (i != nr - 1)
++			reqs[i].out_hdr.flags = cpu_to_le32(VIRTIO_I2C_FLAGS_FAIL_NEXT);
++
++		outcnt = incnt = 0;
++		sg_init_one(&out_hdr, &reqs[i].out_hdr, sizeof(reqs[i].out_hdr));
++		sgs[outcnt++] = &out_hdr;
++
++		reqs[i].buf = i2c_get_dma_safe_msg_buf(&msgs[i], 1);
++		if (!reqs[i].buf)
++			break;
++
++		sg_init_one(&msg_buf, reqs[i].buf, msgs[i].len);
++
++		if (msgs[i].flags & I2C_M_RD)
++			sgs[outcnt + incnt++] = &msg_buf;
++		else
++			sgs[outcnt++] = &msg_buf;
++
++		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
++		sgs[outcnt + incnt++] = &in_hdr;
++
++		err = virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL);
++		if (err < 0) {
++			pr_err("failed to add msg[%d] to virtqueue.\n", i);
++			i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], false);
++			break;
++		}
++	}
++
++	return i;
++}
++
++static int virtio_i2c_complete_reqs(struct virtqueue *vq,
++				    struct virtio_i2c_req *reqs,
++				    struct i2c_msg *msgs, int nr,
++				    bool timeout)
++{
++	struct virtio_i2c_req *req;
++	bool failed = timeout;
++	unsigned int len;
++	int i, j = 0;
++
++	for (i = 0; i < nr; i++) {
++		/* Detach the ith request from the vq */
++		req = virtqueue_get_buf(vq, &len);
++
++		/*
++		 * Condition (req && req == &reqs[i]) should always meet since
++		 * we have total nr requests in the vq.
++		 */
++		if (!failed && (WARN_ON(!(req && req == &reqs[i])) ||
++		    (req->in_hdr.status != VIRTIO_I2C_MSG_OK)))
++			failed = true;
++
++		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
++		if (!failed)
++			++j;
++	}
++
++	return (timeout ? -ETIMEDOUT : j);
++}
++
++static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
++{
++	struct virtio_i2c *vi = i2c_get_adapdata(adap);
++	struct virtqueue *vq = vi->vq;
++	struct virtio_i2c_req *reqs;
++	unsigned long time_left;
++	int ret, nr;
++
++	reqs = kcalloc(num, sizeof(*reqs), GFP_KERNEL);
++	if (!reqs)
++		return -ENOMEM;
++
++	mutex_lock(&vi->lock);
++
++	ret = virtio_i2c_send_reqs(vq, reqs, msgs, num);
++	if (ret == 0)
++		goto err_unlock_free;
++
++	nr = ret;
++	reinit_completion(&vi->completion);
++	virtqueue_kick(vq);
++
++	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
 +	if (!time_left)
-+		i2c->rc =3D -ETIMEDOUT;
-+	else if (time_left < 0)
-+		i2c->rc =3D time_left;
- }
-=20
--static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int =
-num)
-+static int mpc_i2c_execute_msg(struct mpc_i2c *i2c)
- {
--	struct i2c_msg *pmsg;
--	int i;
--	int ret =3D 0;
--	unsigned long orig_jiffies =3D jiffies;
--	struct mpc_i2c *i2c =3D i2c_get_adapdata(adap);
-+	unsigned long orig_jiffies;
-+	unsigned long flags;
-=20
--	mpc_i2c_start(i2c);
-+	spin_lock_irqsave(&i2c->lock, flags);
-=20
--	/* Allow bus up to 1s to become not busy */
--	while (readb(i2c->base + MPC_I2C_SR) & CSR_MBB) {
--		if (signal_pending(current)) {
--			dev_dbg(i2c->dev, "Interrupted\n");
--			writeccr(i2c, 0);
--			return -EINTR;
--		}
--		if (time_after(jiffies, orig_jiffies + HZ)) {
--			u8 status =3D readb(i2c->base + MPC_I2C_SR);
-+	i2c->curr_msg =3D 0;
-+	i2c->rc =3D 0;
-+	i2c->byte_posn =3D 0;
-+	i2c->block =3D 1;
-+	i2c->action =3D MPC_I2C_ACTION_START;
-=20
--			dev_dbg(i2c->dev, "timeout\n");
--			if ((status & (CSR_MCF | CSR_MBB | CSR_RXAK)) !=3D 0) {
--				writeb(status & ~CSR_MAL,
--				       i2c->base + MPC_I2C_SR);
--				i2c_recover_bus(&i2c->adap);
--			}
--			return -EIO;
--		}
--		schedule();
--	}
-+	i2c->cntl_bits =3D CCR_MEN | CCR_MIEN;
-+	writeb(0, i2c->base + MPC_I2C_SR);
-+	writeccr(i2c, i2c->cntl_bits);
++		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
 +
-+	mpc_i2c_do_action(i2c);
++	ret = virtio_i2c_complete_reqs(vq, reqs, msgs, nr, !time_left);
 +
-+	spin_unlock_irqrestore(&i2c->lock, flags);
-+
-+	mpc_i2c_wait_for_completion(i2c);
-+
-+	if (i2c->rc =3D=3D -EIO || i2c->rc =3D=3D -EAGAIN || i2c->rc =3D=3D -ET=
-IMEDOUT)
-+		i2c_recover_bus(&i2c->adap);
-=20
--	for (i =3D 0; ret >=3D 0 && i < num; i++) {
--		pmsg =3D &msgs[i];
--		dev_dbg(i2c->dev,
--			"Doing %s %d bytes to 0x%02x - %d of %d messages\n",
--			pmsg->flags & I2C_M_RD ? "read" : "write",
--			pmsg->len, pmsg->addr, i + 1, num);
--		if (pmsg->flags & I2C_M_RD) {
--			bool recv_len =3D pmsg->flags & I2C_M_RECV_LEN;
--
--			ret =3D mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i,
--				       recv_len);
--			if (recv_len && ret > 0)
--				pmsg->len =3D ret;
--		} else {
--			ret =3D
--			    mpc_write(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
--		}
--	}
--	mpc_i2c_stop(i2c); /* Initiate STOP */
- 	orig_jiffies =3D jiffies;
- 	/* Wait until STOP is seen, allow up to 1 s */
- 	while (readb(i2c->base + MPC_I2C_SR) & CSR_MBB) {
-@@ -612,7 +627,35 @@ static int mpc_xfer(struct i2c_adapter *adap, struct=
- i2c_msg *msgs, int num)
- 		}
- 		cond_resched();
- 	}
--	return (ret < 0) ? ret : num;
-+
-+	return i2c->rc;
++err_unlock_free:
++	mutex_unlock(&vi->lock);
++	kfree(reqs);
++	return ret;
 +}
 +
-+static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int =
-num)
++static void virtio_i2c_del_vqs(struct virtio_device *vdev)
 +{
-+	int rc, ret =3D num;
-+	struct mpc_i2c *i2c =3D i2c_get_adapdata(adap);
-+	int i;
++	vdev->config->reset(vdev);
++	vdev->config->del_vqs(vdev);
++}
 +
-+	dev_dbg(i2c->dev, "%s: num =3D %d\n", __func__, num);
-+	for (i =3D 0; i < num; i++)
-+		dev_dbg(i2c->dev, "  addr =3D %02x, flags =3D %02x, len =3D %d, %*ph\n=
-",
-+			msgs[i].addr, msgs[i].flags, msgs[i].len,
-+			msgs[i].flags & I2C_M_RD ? 0 : msgs[i].len,
-+			msgs[i].buf);
++static int virtio_i2c_setup_vqs(struct virtio_i2c *vi)
++{
++	struct virtio_device *vdev = vi->vdev;
 +
-+	BUG_ON(i2c->msgs !=3D NULL);
-+	i2c->msgs =3D msgs;
-+	i2c->num_msgs =3D num;
++	vi->vq = virtio_find_single_vq(vdev, virtio_i2c_msg_done, "msg");
++	return PTR_ERR_OR_ZERO(vi->vq);
++}
 +
-+	rc =3D mpc_i2c_execute_msg(i2c);
-+	if (rc < 0)
-+		ret =3D rc;
++static u32 virtio_i2c_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
 +
-+	i2c->num_msgs =3D 0;
-+	i2c->msgs =3D NULL;
++static struct i2c_algorithm virtio_algorithm = {
++	.master_xfer = virtio_i2c_xfer,
++	.functionality = virtio_i2c_func,
++};
++
++static int virtio_i2c_probe(struct virtio_device *vdev)
++{
++	struct device *pdev = vdev->dev.parent;
++	struct virtio_i2c *vi;
++	int ret;
++
++	vi = devm_kzalloc(&vdev->dev, sizeof(*vi), GFP_KERNEL);
++	if (!vi)
++		return -ENOMEM;
++
++	vdev->priv = vi;
++	vi->vdev = vdev;
++
++	mutex_init(&vi->lock);
++	init_completion(&vi->completion);
++
++	ret = virtio_i2c_setup_vqs(vi);
++	if (ret)
++		return ret;
++
++	vi->adap.owner = THIS_MODULE;
++	snprintf(vi->adap.name, sizeof(vi->adap.name), "Virtio I2C Adapter");
++	vi->adap.class = I2C_CLASS_DEPRECATED;
++	vi->adap.algo = &virtio_algorithm;
++	vi->adap.dev.parent = &vdev->dev;
++	vi->adap.timeout = HZ / 10;
++	i2c_set_adapdata(&vi->adap, vi);
++
++	/* Setup ACPI node for controlled devices which will be probed through ACPI */
++	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(pdev));
++
++	ret = i2c_add_adapter(&vi->adap);
++	if (ret) {
++		virtio_i2c_del_vqs(vdev);
++		dev_err(&vdev->dev, "failed to add virtio-i2c adapter.\n");
++	}
 +
 +	return ret;
- }
-=20
- static u32 mpc_functionality(struct i2c_adapter *adap)
-@@ -667,7 +710,8 @@ static int fsl_i2c_probe(struct platform_device *op)
-=20
- 	i2c->dev =3D &op->dev; /* for debug and error output */
-=20
--	init_waitqueue_head(&i2c->queue);
-+	init_waitqueue_head(&i2c->waitq);
-+	spin_lock_init(&i2c->lock);
-=20
- 	i2c->base =3D devm_platform_ioremap_resource(op, 0);
- 	if (IS_ERR(i2c->base)) {
---=20
-2.30.2
++}
++
++static void virtio_i2c_remove(struct virtio_device *vdev)
++{
++	struct virtio_i2c *vi = vdev->priv;
++
++	i2c_del_adapter(&vi->adap);
++	virtio_i2c_del_vqs(vdev);
++}
++
++static struct virtio_device_id id_table[] = {
++	{ VIRTIO_ID_I2C_ADAPTER, VIRTIO_DEV_ANY_ID },
++	{}
++};
++MODULE_DEVICE_TABLE(virtio, id_table);
++
++static int __maybe_unused virtio_i2c_freeze(struct virtio_device *vdev)
++{
++	virtio_i2c_del_vqs(vdev);
++	return 0;
++}
++
++static int __maybe_unused virtio_i2c_restore(struct virtio_device *vdev)
++{
++	return virtio_i2c_setup_vqs(vdev->priv);
++}
++
++static struct virtio_driver virtio_i2c_driver = {
++	.id_table	= id_table,
++	.probe		= virtio_i2c_probe,
++	.remove		= virtio_i2c_remove,
++	.driver	= {
++		.name	= "i2c_virtio",
++	},
++#ifdef CONFIG_PM_SLEEP
++	.freeze = virtio_i2c_freeze,
++	.restore = virtio_i2c_restore,
++#endif
++};
++module_virtio_driver(virtio_i2c_driver);
++
++MODULE_AUTHOR("Jie Deng <jie.deng@intel.com>");
++MODULE_AUTHOR("Conghui Chen <conghui.chen@intel.com>");
++MODULE_DESCRIPTION("Virtio i2c bus driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/uapi/linux/virtio_i2c.h b/include/uapi/linux/virtio_i2c.h
+new file mode 100644
+index 0000000..bbcfb2c
+--- /dev/null
++++ b/include/uapi/linux/virtio_i2c.h
+@@ -0,0 +1,40 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later WITH Linux-syscall-note */
++/*
++ * Definitions for virtio I2C Adpter
++ *
++ * Copyright (c) 2021 Intel Corporation. All rights reserved.
++ */
++
++#ifndef _UAPI_LINUX_VIRTIO_I2C_H
++#define _UAPI_LINUX_VIRTIO_I2C_H
++
++#include <linux/types.h>
++
++/* The bit 0 of the @virtio_i2c_out_hdr.@flags, used to group the requests */
++#define VIRTIO_I2C_FLAGS_FAIL_NEXT	0x00000001
++
++/**
++ * struct virtio_i2c_out_hdr - the virtio I2C message OUT header
++ * @addr: the controlled device address
++ * @padding: used to pad to full dword
++ * @flags: used for feature extensibility
++ */
++struct virtio_i2c_out_hdr {
++	__le16 addr;
++	__le16 padding;
++	__le32 flags;
++};
++
++/**
++ * struct virtio_i2c_in_hdr - the virtio I2C message IN header
++ * @status: the processing result from the backend
++ */
++struct virtio_i2c_in_hdr {
++	__u8 status;
++};
++
++/* The final status written by the device */
++#define VIRTIO_I2C_MSG_OK	0
++#define VIRTIO_I2C_MSG_ERR	1
++
++#endif /* _UAPI_LINUX_VIRTIO_I2C_H */
+diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
+index bc1c062..b89391d 100644
+--- a/include/uapi/linux/virtio_ids.h
++++ b/include/uapi/linux/virtio_ids.h
+@@ -54,5 +54,6 @@
+ #define VIRTIO_ID_FS			26 /* virtio filesystem */
+ #define VIRTIO_ID_PMEM			27 /* virtio pmem */
+ #define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
++#define VIRTIO_ID_I2C_ADAPTER		34 /* virtio i2c adapter */
+ 
+ #endif /* _LINUX_VIRTIO_IDS_H */
+-- 
+2.7.4
 
