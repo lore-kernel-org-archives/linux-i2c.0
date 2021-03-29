@@ -7,39 +7,39 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 120F9C433E5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F758C433EA
 	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 10:51:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F394B619A6
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 10:51:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D5AE61997
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 10:51:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232770AbhC2KvQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Mar 2021 06:51:16 -0400
+        id S232711AbhC2KvR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Mar 2021 06:51:17 -0400
 Received: from mga02.intel.com ([134.134.136.20]:49552 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232741AbhC2Ku4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 29 Mar 2021 06:50:56 -0400
-IronPort-SDR: CSLVAVjaldjfHB6cB+TfCMCQgPFVtBroqzlEfjVVDxKpIkHvYZJLGzeMW9QHtXigPVp6+tFnOp
- ewfC7K8f9N/w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9937"; a="178653680"
+        id S232732AbhC2Kuz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 29 Mar 2021 06:50:55 -0400
+IronPort-SDR: 3XgH5mpe6ZZu01l++vGnIhjecmj8trt6uwanDtxy7vrKVi6h7kfNSHP0Xu2NFGglMGvp1jgfYm
+ KBOY5tE9KcJQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9937"; a="178653667"
 X-IronPort-AV: E=Sophos;i="5.81,287,1610438400"; 
-   d="scan'208";a="178653680"
+   d="scan'208";a="178653667"
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Mar 2021 03:50:55 -0700
-IronPort-SDR: MytefdG5msTQLBfkpejKuD6BpJnoEAMkY0R0BcXmGf8HwDZFb6SK8WsyIWOZApMgrH3n2ASWQ7
- w35EJsvd46iQ==
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Mar 2021 03:50:47 -0700
+IronPort-SDR: JkD5Oy3hVYWfGJXOsuOTsPmBNkURB/dcSjUcUBRt+RrI9q5H8jsZw1FfjNdmH/Ilc+vmSTjUaN
+ reprAYCtnYnw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.81,287,1610438400"; 
-   d="scan'208";a="515955915"
+   d="scan'208";a="515955873"
 Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 29 Mar 2021 03:50:53 -0700
+  by fmsmga001.fm.intel.com with ESMTP; 29 Mar 2021 03:50:46 -0700
 From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
 To:     Wolfram Sang <wsa@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 11/12] Input: elantech - Prepare a complete software node for the device
-Date:   Mon, 29 Mar 2021 13:50:46 +0300
-Message-Id: <20210329105047.51033-12-heikki.krogerus@linux.intel.com>
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 07/12] i2c: cht-wc: Constify the software node
+Date:   Mon, 29 Mar 2021 13:50:42 +0300
+Message-Id: <20210329105047.51033-8-heikki.krogerus@linux.intel.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210329105047.51033-1-heikki.krogerus@linux.intel.com>
 References: <20210329105047.51033-1-heikki.krogerus@linux.intel.com>
@@ -49,47 +49,40 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Creating a software node and supplying that for the device
-instead of only the device properties in it. A software
-node was always created in any case to hold the additional
-device properties, so this change does not have any real
-effect.
-
-This change makes it possible to remove support for the
-problematic "dangling" device properties from i2c subsystem,
-i.e. the "properties" member from struct i2c_board_info. The
-problems caused by them are not related to this driver.
+Additional device properties are always just a part of a
+software fwnode. If the device properties are constant, the
+software node can also be constant.
 
 Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/mouse/elantech.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-cht-wc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 97381e2e03bae..2d0bc029619ff 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1885,8 +1885,6 @@ static int elantech_create_smbus(struct psmouse *psmouse,
- 	};
- 	unsigned int idx = 0;
+diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
+index f80d79e973cd2..08f491ea21ac9 100644
+--- a/drivers/i2c/busses/i2c-cht-wc.c
++++ b/drivers/i2c/busses/i2c-cht-wc.c
+@@ -280,6 +280,10 @@ static const struct property_entry bq24190_props[] = {
+ 	{ }
+ };
  
--	smbus_board.properties = i2c_props;
--
- 	i2c_props[idx++] = PROPERTY_ENTRY_U32("touchscreen-size-x",
- 						   info->x_max + 1);
- 	i2c_props[idx++] = PROPERTY_ENTRY_U32("touchscreen-size-y",
-@@ -1918,6 +1916,10 @@ static int elantech_create_smbus(struct psmouse *psmouse,
- 	if (elantech_is_buttonpad(info))
- 		i2c_props[idx++] = PROPERTY_ENTRY_BOOL("elan,clickpad");
- 
-+	smbus_board.fwnode = fwnode_create_software_node(i2c_props, NULL);
-+	if (IS_ERR(smbus_board.fwnode))
-+		return PTR_ERR(smbus_board.fwnode);
++static const struct software_node bq24190_node = {
++	.properties = bq24190_props,
++};
 +
- 	return psmouse_smbus_init(psmouse, &smbus_board, NULL, 0, false,
- 				  leave_breadcrumbs);
- }
+ static struct regulator_consumer_supply fusb302_consumer = {
+ 	.supply = "vbus",
+ 	/* Must match fusb302 dev_name in intel_cht_int33fe.c */
+@@ -308,7 +312,7 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+ 		.type = "bq24190",
+ 		.addr = 0x6b,
+ 		.dev_name = "bq24190",
+-		.properties = bq24190_props,
++		.swnode = &bq24190_node,
+ 		.platform_data = &bq24190_pdata,
+ 	};
+ 	int ret, reg, irq;
 -- 
 2.30.2
 
