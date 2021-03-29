@@ -2,195 +2,122 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CB62C433C1
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 05:57:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D644C433E0
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 06:10:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0CA9561960
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 05:57:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12C206196C
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 06:10:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230209AbhC2F4g (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Mar 2021 01:56:36 -0400
-Received: from mail-dm6nam11on2049.outbound.protection.outlook.com ([40.107.223.49]:10752
-        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230243AbhC2F4L (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 29 Mar 2021 01:56:11 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QGpIim3VSPWfU1lhsi+uqR+yS+46odgMddqTrUAh3SGHmA+PJZACCp/PWi/trCm1rWAbcw9PRDBOnqZZs3gganbzslntDDK8f9Va3v1AEO1cl2sOOeE65YLVxK3SuwKA0G7OoDv6BoD6tBWHbQYQCE8C+Yb+/5NDAJK9C0FTK4OhxHGPYfX5f3LgjAffElDHuZNlwcWaQGAymEMBXwNKiMarr2bozHBDEqwYREAIcCsh5P3OW63IOe8h0Ua28NE7OB4XclqyUiC6IHqzL6mb8MMCyj0KiX/wbnhbSSqIRhcbRkKn2PhXSvb2FTlRVeKcOItj6+KsOeD0mqI+l4o8XA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xW2x/Kvrla03X4xkbwvYwSofSayev3a3VlsjkHesv/w=;
- b=Rn8gsS07AbLdKbKcaB+XOtbyezhoC3iutXSFvqkvxbGhL5koTFKgP7pR3zTB4rNzN1Mba2QBuyBgq4L0N8mz//zew6JAWyXyNOzbt9mstCdoaWgFMNixx6l/7Nldeusm2QpExMNfK7usHMrOSIP5pt8l0h2D2Ul895RlAgx1cVCvIKbAwFKHAeiVGMXkh1Zx7Us7+BPKuSUdacESU0/0QI2bHrbHz8Z2+0V/2b+pcW6+HLVWjr8YC7hvu40/1RmrhDO65y0s4AWPLEbX6vs0reGFmndbWE6e9xNOgEyuWXst1hvP07MKiigqZHeNKX4NmvXKEc8Mfj3o+VK6yBZ7vQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xW2x/Kvrla03X4xkbwvYwSofSayev3a3VlsjkHesv/w=;
- b=VzfxHv4/WoCOlA4PeDQY2GCxfSfuAVR0Kzrr7GsDiVBKux6vNg6Nt9D/1HYuI7u0C2RDECaRkKqW6CNndiw1j7nqXGF4eOUwwQ0igREh3a/82gJ3cy1gvIaoUAyiGt8eVPrQM+Gz/boSo+/AMi5vUXA9g+4UBjVY5ZovDyx25kw=
-Authentication-Results: amd.com; dkim=none (message not signed)
- header.d=none;amd.com; dmarc=none action=none header.from=amd.com;
-Received: from DM5PR12MB1835.namprd12.prod.outlook.com (2603:10b6:3:10c::9) by
- DM5PR12MB2503.namprd12.prod.outlook.com (2603:10b6:4:b2::15) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3977.24; Mon, 29 Mar 2021 05:56:10 +0000
-Received: from DM5PR12MB1835.namprd12.prod.outlook.com
- ([fe80::508b:bdb3:d353:9052]) by DM5PR12MB1835.namprd12.prod.outlook.com
- ([fe80::508b:bdb3:d353:9052%10]) with mapi id 15.20.3977.032; Mon, 29 Mar
- 2021 05:56:09 +0000
-Subject: Re: [PATCH] i2c: add i2c bus driver for amd navi gpu
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Nehal Bakulchandra Shah <Nehal-Bakulchandra.shah@amd.com>
-References: <20210309133147.1042775-1-Sanket.Goswami@amd.com>
- <YEeFgZSIY5lb2ubP@smile.fi.intel.com>
- <fa1a59fb-a7fa-44bb-1629-5e726f164b94@amd.com>
- <YFzC19IiGZdmLCOR@smile.fi.intel.com>
- <617d0164-1290-250f-ae34-828c6b4b390a@amd.com>
- <YF26F8IFmbo80rMq@smile.fi.intel.com>
-From:   "Goswami, Sanket" <Sanket.Goswami@amd.com>
-Message-ID: <0ec22c6a-ec19-774d-bcc7-04a7f69c841c@amd.com>
-Date:   Mon, 29 Mar 2021 11:25:58 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.0
-In-Reply-To: <YF26F8IFmbo80rMq@smile.fi.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [165.204.157.251]
-X-ClientProxiedBy: MA1PR01CA0124.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a00:35::18) To DM5PR12MB1835.namprd12.prod.outlook.com
- (2603:10b6:3:10c::9)
+        id S230243AbhC2GKT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Mar 2021 02:10:19 -0400
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:25508 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230224AbhC2GJ6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Mar 2021 02:09:58 -0400
+Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12T5t3I5017332;
+        Mon, 29 Mar 2021 08:09:10 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=selector1;
+ bh=gGpfvp2WBQZrUmjXPkc3CMLw8WnEqLTNqaoTYOZbV8U=;
+ b=UE85ZbyUYRgJrYf0GuqQFAoMolyD5DNJ4ORM/jCe5NOwUGpEgGZVzD/96YQz0A1II5Jg
+ u1ujS782rVQWPVEPKWfpNCLpAnWp1T1p+0LFj8cPcfOyqIfFEi5yyCEP46T++BYCuA6s
+ w24J81eXTCQI7EnRUCI95CtZYQ9T5ALObykf9GCWUZRc+PusRPlZpF6lqmEdfSIF1t1a
+ +keCcJH59z6vFSgQFt2JzaGUv6CPhgwMlaTxDYA/kYNXx9i3Kbfee3xQvfv6HwQIaFQv
+ dZKION2cReqdPZ282BmFbkUjGhrxjC893F2q/dlE//uS6Vu39a5Ao9LsVaHr6b6Wj1y9 6w== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 37jvdmjm9m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 29 Mar 2021 08:09:10 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 322AF10003B;
+        Mon, 29 Mar 2021 08:09:09 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag2node3.st.com [10.75.127.6])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 22F14221773;
+        Mon, 29 Mar 2021 08:09:09 +0200 (CEST)
+Received: from localhost (10.75.127.47) by SFHDAG2NODE3.st.com (10.75.127.6)
+ with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 29 Mar 2021 08:09:08
+ +0200
+From:   Alain Volmat <alain.volmat@foss.st.com>
+To:     <wsa@kernel.org>, <robh+dt@kernel.org>
+CC:     <mark.rutland@arm.com>, <pierre-yves.mordret@foss.st.com>,
+        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@foss.st.com>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@foss.st.com>,
+        <alain.volmat@foss.st.com>
+Subject: [PATCH v3 1/2] dt-bindings: i2c: stm32f7: add st,smbus-alert binding for SMBus Alert
+Date:   Mon, 29 Mar 2021 08:09:04 +0200
+Message-ID: <1616998145-28278-2-git-send-email-alain.volmat@foss.st.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1616998145-28278-1-git-send-email-alain.volmat@foss.st.com>
+References: <1616998145-28278-1-git-send-email-alain.volmat@foss.st.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [10.136.34.232] (165.204.157.251) by MA1PR01CA0124.INDPRD01.PROD.OUTLOOK.COM (2603:1096:a00:35::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3977.25 via Frontend Transport; Mon, 29 Mar 2021 05:56:07 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: c601e6a2-cc35-4d0e-6bc7-08d8f27759c8
-X-MS-TrafficTypeDiagnostic: DM5PR12MB2503:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM5PR12MB25035A91F4232213BCE62B399C7E9@DM5PR12MB2503.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: OwHYkD9nLmnCs379eVwDS4YPp49U7GIoexneUY+X2VuWkRqSRWVKD4mt6Z+MysnNCFQ9QWy4uGGPbXR75jj9rJbeqcpRv8g/KJ0VZEgNPZ2EMhX5Tl9128v+AYt+RkwnErGph9eA8vCMddzGbJDo8EdfN/Nw9wYMy1yC2U1cH0vZsqD0sOJZnPEowXIXR9dgkJ+NtXBoltfFvmWyr5cwLiJXqOEU5RY22BjXUw+JF/KOKyNN4Z3CvAGewh+ofBHV604uTyzZRKqLOeaVXv8jLC89n1VJn9lVHYIBunKJghp3ciQnsv/YRfe+XGX9wG9/kZnfdC1VmGJYdhnMILMe/QxiPBznWceiJP08XfpgELr+JaPBiMXpGb+3lDyZYD1p4zY4YNkFTql7tqqxhMjtFQBVKHw5UOrMRGPd3n0WKmjWaBaa9TLMfQLL82+jVUXXhqIBpaWB7C93+ipPm865AuIz6LJHpQi1QnP74umk4CoDVPfuKF2J4XGGjnbWLyYHjHONCCntKLwXs5kdL6/EOL+bAKbcH9lDDWheczLyw807hcmNW/UdNC6hyINBhzw6TXVjduo0Uy7KmdQGcD3vGkmfA5AEkisSALG3NvbtMZoKX7A6aoLptOtlkmoG7qBd0dGRi3RjhVrjCJ8npPUsrINXdSYpIMf7OzEuWKWzPiKCxXEANmFdB8f3rpdIOAhZKC9VONDiFWXvs0nq2RE1bQ9weccovk6U9+6Ky4GIADY=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM5PR12MB1835.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(396003)(376002)(366004)(39860400002)(136003)(5660300002)(316002)(16576012)(54906003)(52116002)(478600001)(31696002)(6486002)(4326008)(31686004)(86362001)(8676002)(36756003)(8936002)(186003)(956004)(2616005)(26005)(38100700001)(6916009)(2906002)(66946007)(83380400001)(53546011)(66476007)(6666004)(16526019)(66556008)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?Ujc3OWRrbUE2b2wzZ0RvM3ZqWjNaWHErR09OZmdpb2xRZXJJTnhhRlRpaVNW?=
- =?utf-8?B?eEpNMnFDdUpNM3J3eW1uOGoyUG1tRzA1TGZ0WVBoQ25oVGZzTFZEa3NrUHVO?=
- =?utf-8?B?blBnTGwrc2JQbnpVWE1Lc29wbjZDNS82Ky9vS2RWbU12QkNWenA1NDg2Zksy?=
- =?utf-8?B?WHdBelZWYS9PR2ltV1pNa2lpSHJBOGZtaVRzS1V6VTRyL2RyQjRWcVc5Rmdj?=
- =?utf-8?B?UWpNSXRzSUdkZi9PemFFcEhwN3JocFZFVmpwaTlaZXNwN05aTnRLL2doMi95?=
- =?utf-8?B?NFgzd3hSclVkeE1TWHdEdmt6b2VRU0h2SU1udGkybUduT1Z4U0ZDcGNIQ01t?=
- =?utf-8?B?b21Ka2k4WlFxRXU0c0pnQ1J6WDBBU3EweW4wZEQ0RklaN1JFL3dtZ09lY0FQ?=
- =?utf-8?B?QllHVGNTRTNkM05lWHR6U1A1R3BQSFNsWlBYeXJkQTV6V3hlVFJOOGd5ak5k?=
- =?utf-8?B?ZlRoTFlsMjBOQTE0SGU3blFyOVV0a2U2TG1nK3hDWVliY2RGSGhnVkhDM2cv?=
- =?utf-8?B?ckVkdVZPd2xsSks4YmVRTUpUNUtQZ0lNZDk3aDZkSktRTm5TdDEyWFplcytm?=
- =?utf-8?B?UEVnZ0RWcEVEMFhIUzZqZEhnV1IzNzAwLzN1SWttZlJTeXVucGJBMlJNNm1h?=
- =?utf-8?B?RDVseEJzOVpaN0hpbjh6RkhXRHFWQktvQ3dVUmJXT0tXcFZMb2lRYXpBMW9j?=
- =?utf-8?B?alBOZFBHTVZwY1ZJNDFtWUtobmFWR2xrZ0hFNnFqd2ZESWlzcDVOK2IyT01U?=
- =?utf-8?B?NFZ1bXdBekpNNUNtazl1WVcxZEJGLzNvbGxRZEhXQ3hYTWdDdlVNUER0NGp2?=
- =?utf-8?B?dHRpWGZObWY4UHdkL0twamlDd1JuMkd3bFNWK3lpc1pUYUNDK3U5YmJSa3I5?=
- =?utf-8?B?NGtHTkNBazJlS2R0ZjFjbzdkMFBPOFlBc2JVMDZ1N3JNTkVZaFNWMXY0VU9C?=
- =?utf-8?B?cVBRZ3o0WDIxdVl5eUtZNUEweFJmekNRa2l5ZU9tRWJmVHBvVzFYUnVON3o5?=
- =?utf-8?B?c2JrRGh3R0dZV2RBbXlvSUJFSS94MFNoclpsV2RYTXIwLzdLdkRBVnVOYmoy?=
- =?utf-8?B?ZDJjVFZtZUdkUnVNcDhjVmlOT0xCSmY4VWFwNk5TaWVRQUF0SWJCNnBiTWpI?=
- =?utf-8?B?cHBXblJOOXFSVjc5OUhHalVRSzJiSitMQzBxR1M3QVd4Tm12cGd5OHhUZVNW?=
- =?utf-8?B?OHpIek0xM0xFZ0ZnMEJ2cUFHK1RTZjEzSWJQN0J4WlorQU5Sd2wvODgyS2g0?=
- =?utf-8?B?eVBhdTF3U1hoSkgzMGRmSzh0bDEvZnNnYmdMdGdIcWZRQXM2clR2UE9FNlhI?=
- =?utf-8?B?K1o1SWxrNUZTTnFrUUZPOG5rRDhheDR1UDQ5b1ladGJVeG5WaXl6WTU3a3Y5?=
- =?utf-8?B?cmd4Wm1BQVlTUWRkZGc2eUYyU0ViUEppVUdtVWpxN1FkQ1FQSW91blZ3U1lv?=
- =?utf-8?B?dDNUcGdKQVR1bUtwYVJ4QzEwdWs4a1JXdGFiZWlVNHBWekhiRGNkcFZvUkcw?=
- =?utf-8?B?cENSdnoxS2xZdUY2dGxFck02bitWRkh5ZmxzUVNJOGF6WElFaHFzMG5NdUU1?=
- =?utf-8?B?cWx5UmpCRGpxeU1GS1ZPL2VNc0hqaTJ1elc2Vmk3UlpJYjcwZ1dIR24vVUdw?=
- =?utf-8?B?Y1BEdk1aTXNqUWMrcC83REhLREJaYnNQU1FBeTBBOHIzZFpUckorTWJXZjlI?=
- =?utf-8?B?RkduY2FjMUluUENXOXNiaS9SZ2dCYnJiTXdYQ3lpWEc2UTNvdXU3a1FyMVJM?=
- =?utf-8?Q?vmLsNPU7HCqI8R9kX6kzY1VssDSAQmNNfrnKI0a?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c601e6a2-cc35-4d0e-6bc7-08d8f27759c8
-X-MS-Exchange-CrossTenant-AuthSource: DM5PR12MB1835.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2021 05:56:09.7880
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: uxDlrHOJQ+oX3hdoogfumUa+U9ob1dF0h8fX2ilMgxnLRY8GA73sBp7gPRQHZ0XTcAOoszYIq1dTi698lLFR8Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB2503
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.47]
+X-ClientProxiedBy: SFHDAG1NODE1.st.com (10.75.127.1) To SFHDAG2NODE3.st.com
+ (10.75.127.6)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-29_02:2021-03-26,2021-03-29 signatures=0
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Andy,
+Based on the SMBus specification, SMBus Alert active state is low.
+As often on SoC, the SMBus Alert pin is not only dedicated to this
+feature and can also be used for another purpose (by configuring it
+as alternate function for other functions via pinctrl).
 
-Thanks for the review.
+"smbus" dt-binding has been introduced recently [1], however it is also
+used to indicate usage of host-notify feature.
+Relying on 'smbus' binding for SMBus-Alert as well as it was discussed
+previously [2] would lead to requiring the SMBALERT# pin to be configured
+as alternate function for i2c/smbus controller even if only host-notify is
+needed.
+Indeed, not doing so would lead to spurious SMBus Alert interrupts since
+the i2c/smbus controller would see the (not configured) SMBA pin as low
+level.
 
-On 26-Mar-21 16:10, Andy Shevchenko wrote:
-> [CAUTION: External Email]
-> 
-> On Fri, Mar 26, 2021 at 03:53:34PM +0530, Goswami, Sanket wrote:
->> On 25-Mar-21 22:35, Andy Shevchenko wrote:
->>> On Mon, Mar 22, 2021 at 10:26:55PM +0530, Goswami, Sanket wrote:
->>>> On 09-Mar-21 19:56, Andy Shevchenko wrote:
->>>>> On Tue, Mar 09, 2021 at 07:01:47PM +0530, Sanket Goswami wrote:
-> 
-> ...
-> 
->>> And I think I already have told you that I prefer to see rather MODEL_ quirk.
->>
->> I did not find MODEL_ quirk reference in the PCI device tree, It is actually
->> used in platform device tree which is completely different from our PCI
->> based configuration, can you please provide some reference of MODEL_ quirk
->> which will be part of the PCI device tree?
-> 
-> I meant the name of new definition for quirk.
+For that reason, SMBus-Alert needs to have its own binding in order
+to only be enabled whenever SMBALERT# pin is configured as alternate
+function for i2c/smbus controller.
 
-Can you please elaborate this? i am not able to comprehend.
+[1] https://lore.kernel.org/linux-i2c/20200721062217.GA1044@kunai/
+[2] https://lore.kernel.org/linux-i2c/20200701143738.GF3457@gnbcxd0016.gnb.st.com/
 
-> ...
-> 
->>>>> Also why (1) and this can't be instantiated from ACPI / DT?
->>>> It is in line with the existing PCIe-based DesignWare driver,
->>>> A similar approach is used by the various vendors.
->>>
->>> Here is no answer to the question. What prevents you to fix your ACPI tables or
->>> DT?
->>>
->>> We already got rid of FIFO hard coded values, timings are harder to achieve,
->>> but we expect that new firmwares will provide values in the ACPI tables.
->>
->> AMD NAVI GPU card is the PCI initiated driver, not ACPI initiated,
-> 
-> Which doesn't prevent to have an ACPI companion (via description in the
-> tables).
-> 
->> and also
->> It does not contain a corresponding ACPI match table.
-> 
-> Yes, that's what should be done in the firmware.
-> At least for the new version of firmware consider to add proper data into the
-> tables.
-> 
->> Moreover, AMD  NAVI GPU
->> based products are already in the commercial market hence going by this
->> approach will break the functionalities for the same.
-> 
-> This is quite bad and unfortunate. So, you have to elaborate this in the commit
-> message.
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-Sure, will take care of this as part of commit message of v3.
-> 
-> --
-> With Best Regards,
-> Andy Shevchenko
-> 
-> 
-Thanks,
-Sanket
+---
+v3: use lore.kernel.org links
+v2: introduce st,smbus-alert property
+---
+ Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+index d747f4990ad8..0d45ead7d835 100644
+--- a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+@@ -36,6 +36,11 @@ allOf:
+             minItems: 3
+             maxItems: 3
+ 
++        st,smbus-alert:
++          description: Enable the SMBus-Alert via SMBA pin, note SMBA pin
++                       must also be configured via pinctrl.
++          type: boolean
++
+   - if:
+       properties:
+         compatible:
+-- 
+2.17.1
+
