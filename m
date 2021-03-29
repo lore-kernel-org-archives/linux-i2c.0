@@ -7,39 +7,39 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31C65C433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 120F9C433E5
 	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 10:51:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1BF8961936
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 10:51:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F394B619A6
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Mar 2021 10:51:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232784AbhC2KvR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Mar 2021 06:51:17 -0400
-Received: from mga02.intel.com ([134.134.136.20]:49554 "EHLO mga02.intel.com"
+        id S232770AbhC2KvQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Mar 2021 06:51:16 -0400
+Received: from mga02.intel.com ([134.134.136.20]:49552 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232734AbhC2Kuz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 29 Mar 2021 06:50:55 -0400
-IronPort-SDR: RSxkwKRQo4IcaY2cepr49Nf+h6M2H6JQeGakm6kMFgA9lBD2JdhoL/F4KGW0+0HZfpx6U4mMGX
- oIb41SC54kDQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9937"; a="178653674"
+        id S232741AbhC2Ku4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 29 Mar 2021 06:50:56 -0400
+IronPort-SDR: CSLVAVjaldjfHB6cB+TfCMCQgPFVtBroqzlEfjVVDxKpIkHvYZJLGzeMW9QHtXigPVp6+tFnOp
+ ewfC7K8f9N/w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9937"; a="178653680"
 X-IronPort-AV: E=Sophos;i="5.81,287,1610438400"; 
-   d="scan'208";a="178653674"
+   d="scan'208";a="178653680"
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Mar 2021 03:50:51 -0700
-IronPort-SDR: 1QVmwb5KTXWYJ1FegoDIfF+bA7p+nGsfPzTTUn/xS4RiLicZ9db8HRhl+NPGyqfD/UmJvPHyGX
- GwmmemhOyIyg==
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Mar 2021 03:50:55 -0700
+IronPort-SDR: MytefdG5msTQLBfkpejKuD6BpJnoEAMkY0R0BcXmGf8HwDZFb6SK8WsyIWOZApMgrH3n2ASWQ7
+ w35EJsvd46iQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.81,287,1610438400"; 
-   d="scan'208";a="515955897"
+   d="scan'208";a="515955915"
 Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 29 Mar 2021 03:50:49 -0700
+  by fmsmga001.fm.intel.com with ESMTP; 29 Mar 2021 03:50:53 -0700
 From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
 To:     Wolfram Sang <wsa@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Max Staudt <max@enpas.org>
-Subject: [PATCH 09/12] i2c: icy: Constify the software node
-Date:   Mon, 29 Mar 2021 13:50:44 +0300
-Message-Id: <20210329105047.51033-10-heikki.krogerus@linux.intel.com>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 11/12] Input: elantech - Prepare a complete software node for the device
+Date:   Mon, 29 Mar 2021 13:50:46 +0300
+Message-Id: <20210329105047.51033-12-heikki.krogerus@linux.intel.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210329105047.51033-1-heikki.krogerus@linux.intel.com>
 References: <20210329105047.51033-1-heikki.krogerus@linux.intel.com>
@@ -49,86 +49,47 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Complete software node can now be supplied to the device
-with struct i2c_board_info.
+Creating a software node and supplying that for the device
+instead of only the device properties in it. A software
+node was always created in any case to hold the additional
+device properties, so this change does not have any real
+effect.
+
+This change makes it possible to remove support for the
+problematic "dangling" device properties from i2c subsystem,
+i.e. the "properties" member from struct i2c_board_info. The
+problems caused by them are not related to this driver.
 
 Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: Max Staudt <max@enpas.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/i2c/busses/i2c-icy.c | 32 +++++++++-----------------------
- 1 file changed, 9 insertions(+), 23 deletions(-)
+ drivers/input/mouse/elantech.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-icy.c b/drivers/i2c/busses/i2c-icy.c
-index 66c9923fc7665..c8c422e9dda43 100644
---- a/drivers/i2c/busses/i2c-icy.c
-+++ b/drivers/i2c/busses/i2c-icy.c
-@@ -54,7 +54,6 @@ struct icy_i2c {
- 
- 	void __iomem *reg_s0;
- 	void __iomem *reg_s1;
--	struct fwnode_handle *ltc2990_fwnode;
- 	struct i2c_client *ltc2990_client;
- };
- 
-@@ -115,6 +114,10 @@ static const struct property_entry icy_ltc2990_props[] = {
- 	{ }
- };
- 
-+static const struct software_node icy_ltc2990_node = {
-+	.properties = icy_ltc2990_props,
-+};
-+
- static int icy_probe(struct zorro_dev *z,
- 		     const struct zorro_device_id *ent)
- {
-@@ -123,6 +126,7 @@ static int icy_probe(struct zorro_dev *z,
- 	struct fwnode_handle *new_fwnode;
- 	struct i2c_board_info ltc2990_info = {
- 		.type		= "ltc2990",
-+		.swnode		= &icy_ltc2990_node,
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 97381e2e03bae..2d0bc029619ff 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1885,8 +1885,6 @@ static int elantech_create_smbus(struct psmouse *psmouse,
  	};
+ 	unsigned int idx = 0;
  
- 	i2c = devm_kzalloc(&z->dev, sizeof(*i2c), GFP_KERNEL);
-@@ -174,26 +178,10 @@ static int icy_probe(struct zorro_dev *z,
- 	 *
- 	 * See property_entry above for in1, in2, temp3.
- 	 */
--	new_fwnode = fwnode_create_software_node(icy_ltc2990_props, NULL);
--	if (IS_ERR(new_fwnode)) {
--		dev_info(&z->dev, "Failed to create fwnode for LTC2990, error: %ld\n",
--			 PTR_ERR(new_fwnode));
--	} else {
--		/*
--		 * Store the fwnode so we can destroy it on .remove().
--		 * Only store it on success, as fwnode_remove_software_node()
--		 * is NULL safe, but not PTR_ERR safe.
--		 */
--		i2c->ltc2990_fwnode = new_fwnode;
--		ltc2990_info.fwnode = new_fwnode;
+-	smbus_board.properties = i2c_props;
 -
--		i2c->ltc2990_client =
--			i2c_new_scanned_device(&i2c->adapter,
--					       &ltc2990_info,
--					       icy_ltc2990_addresses,
--					       NULL);
--	}
--
-+	i2c->ltc2990_client = i2c_new_scanned_device(&i2c->adapter,
-+						     &ltc2990_info,
-+						     icy_ltc2990_addresses,
-+						     NULL);
- 	return 0;
+ 	i2c_props[idx++] = PROPERTY_ENTRY_U32("touchscreen-size-x",
+ 						   info->x_max + 1);
+ 	i2c_props[idx++] = PROPERTY_ENTRY_U32("touchscreen-size-y",
+@@ -1918,6 +1916,10 @@ static int elantech_create_smbus(struct psmouse *psmouse,
+ 	if (elantech_is_buttonpad(info))
+ 		i2c_props[idx++] = PROPERTY_ENTRY_BOOL("elan,clickpad");
+ 
++	smbus_board.fwnode = fwnode_create_software_node(i2c_props, NULL);
++	if (IS_ERR(smbus_board.fwnode))
++		return PTR_ERR(smbus_board.fwnode);
++
+ 	return psmouse_smbus_init(psmouse, &smbus_board, NULL, 0, false,
+ 				  leave_breadcrumbs);
  }
- 
-@@ -202,8 +190,6 @@ static void icy_remove(struct zorro_dev *z)
- 	struct icy_i2c *i2c = dev_get_drvdata(&z->dev);
- 
- 	i2c_unregister_device(i2c->ltc2990_client);
--	fwnode_remove_software_node(i2c->ltc2990_fwnode);
--
- 	i2c_del_adapter(&i2c->adapter);
- }
- 
 -- 
 2.30.2
 
