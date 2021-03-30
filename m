@@ -7,24 +7,24 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8AECC433C1
-	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 14:23:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01068C433E1
+	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 14:23:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 756EA619BD
+	by mail.kernel.org (Postfix) with ESMTP id BFCD8619C7
 	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 14:23:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232017AbhC3OWc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 30 Mar 2021 10:22:32 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:14643 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232027AbhC3OWJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 Mar 2021 10:22:09 -0400
-Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F8s5T63qgznWLY;
-        Tue, 30 Mar 2021 22:19:25 +0800 (CST)
+        id S232001AbhC3OWf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 30 Mar 2021 10:22:35 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:15407 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232007AbhC3OWL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 Mar 2021 10:22:11 -0400
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4F8s6f5Vz2znTsc;
+        Tue, 30 Mar 2021 22:20:26 +0800 (CST)
 Received: from localhost.localdomain (10.67.165.24) by
  DGGEMS402-HUB.china.huawei.com (10.3.19.202) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 30 Mar 2021 22:21:55 +0800
+ 14.3.498.0; Tue, 30 Mar 2021 22:21:57 +0800
 From:   Yicong Yang <yangyicong@hisilicon.com>
 To:     <wsa@kernel.org>, <andriy.shevchenko@linux.intel.com>,
         <linux-i2c@vger.kernel.org>, <Sergey.Semin@baikalelectronics.ru>,
@@ -34,9 +34,9 @@ CC:     <digetx@gmail.com>, <treding@nvidia.com>,
         <song.bao.hua@hisilicon.com>, <john.garry@huawei.com>,
         <mika.westerberg@linux.intel.com>, <yangyicong@hisilicon.com>,
         <prime.zeng@huawei.com>, <linuxarm@huawei.com>
-Subject: [PATCH v5 1/5] i2c: core: add managed function for adding i2c adapters
-Date:   Tue, 30 Mar 2021 22:19:22 +0800
-Message-ID: <1617113966-40498-2-git-send-email-yangyicong@hisilicon.com>
+Subject: [PATCH 5/5] i2c: designware: Switch over to i2c_freq_mode_string()
+Date:   Tue, 30 Mar 2021 22:19:26 +0800
+Message-ID: <1617113966-40498-6-git-send-email-yangyicong@hisilicon.com>
 X-Mailer: git-send-email 2.8.1
 In-Reply-To: <1617113966-40498-1-git-send-email-yangyicong@hisilicon.com>
 References: <1617113966-40498-1-git-send-email-yangyicong@hisilicon.com>
@@ -48,68 +48,58 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Some I2C controller drivers will only unregister the I2C
-adapter in their .remove() callback, which can be done
-by simply using a managed variant to add the I2C adapter.
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-So add the managed functions for adding the I2C adapter.
+Use generic i2c_freq_mode_string() helper to print chosen bus speed.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
 ---
- drivers/i2c/i2c-core-base.c | 26 ++++++++++++++++++++++++++
- include/linux/i2c.h         |  1 +
- 2 files changed, 27 insertions(+)
+ drivers/i2c/busses/i2c-designware-master.c | 20 ++++----------------
+ 1 file changed, 4 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 63ebf72..de9402c 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1703,6 +1703,32 @@ void i2c_del_adapter(struct i2c_adapter *adap)
- }
- EXPORT_SYMBOL(i2c_del_adapter);
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index dd27b9d..b64c4c8 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -35,10 +35,10 @@ static void i2c_dw_configure_fifo_master(struct dw_i2c_dev *dev)
  
-+static void devm_i2c_del_adapter(void *adapter)
-+{
-+	i2c_del_adapter(adapter);
-+}
-+
-+/**
-+ * devm_i2c_add_adapter - device-managed variant of i2c_add_adapter()
-+ * @dev: managing device for adding this I2C adapter
-+ * @adapter: the adapter to add
-+ * Context: can sleep
-+ *
-+ * Add adapter with dynamic bus number, same with i2c_add_adapter()
-+ * but the adapter will be auto deleted on driver detach.
-+ */
-+int devm_i2c_add_adapter(struct device *dev, struct i2c_adapter *adapter)
-+{
-+	int ret;
-+
-+	ret = i2c_add_adapter(adapter);
-+	if (ret)
-+		return ret;
-+
-+	return devm_add_action_or_reset(dev, devm_i2c_del_adapter, adapter);
-+}
-+EXPORT_SYMBOL_GPL(devm_i2c_add_adapter);
-+
- static void i2c_parse_timing(struct device *dev, char *prop_name, u32 *cur_val_p,
- 			    u32 def_val, bool use_def)
+ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
  {
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 5662265..10bd0b0 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -844,6 +844,7 @@ static inline void i2c_mark_adapter_resumed(struct i2c_adapter *adap)
-  */
- #if IS_ENABLED(CONFIG_I2C)
- int i2c_add_adapter(struct i2c_adapter *adap);
-+int devm_i2c_add_adapter(struct device *dev, struct i2c_adapter *adapter);
- void i2c_del_adapter(struct i2c_adapter *adap);
- int i2c_add_numbered_adapter(struct i2c_adapter *adap);
+-	const char *mode_str, *fp_str = "";
+ 	u32 comp_param1;
+ 	u32 sda_falling_time, scl_falling_time;
+ 	struct i2c_timings *t = &dev->timings;
++	const char *fp_str = "";
+ 	u32 ic_clk;
+ 	int ret;
  
+@@ -153,22 +153,10 @@ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
+ 
+ 	ret = i2c_dw_set_sda_hold(dev);
+ 	if (ret)
+-		goto out;
+-
+-	switch (dev->master_cfg & DW_IC_CON_SPEED_MASK) {
+-	case DW_IC_CON_SPEED_STD:
+-		mode_str = "Standard Mode";
+-		break;
+-	case DW_IC_CON_SPEED_HIGH:
+-		mode_str = "High Speed Mode";
+-		break;
+-	default:
+-		mode_str = "Fast Mode";
+-	}
+-	dev_dbg(dev->dev, "Bus speed: %s%s\n", mode_str, fp_str);
++		return ret;
+ 
+-out:
+-	return ret;
++	dev_dbg(dev->dev, "Bus speed: %s\n", i2c_freq_mode_string(t->bus_freq_hz));
++	return 0;
+ }
+ 
+ /**
 -- 
 2.8.1
 
