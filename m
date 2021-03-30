@@ -2,62 +2,62 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62DC9C433E3
-	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 16:32:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC678C433C1
+	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 16:34:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 451456198A
-	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 16:32:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 952FF6198A
+	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 16:34:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231701AbhC3QcI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 30 Mar 2021 12:32:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44116 "EHLO
+        id S231874AbhC3Qdo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 30 Mar 2021 12:33:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232224AbhC3QcH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 Mar 2021 12:32:07 -0400
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205FDC061574;
-        Tue, 30 Mar 2021 09:32:07 -0700 (PDT)
-Received: by mail-lj1-x22d.google.com with SMTP id u9so20557884ljd.11;
-        Tue, 30 Mar 2021 09:32:07 -0700 (PDT)
+        with ESMTP id S231532AbhC3QdO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 Mar 2021 12:33:14 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 177C2C061574;
+        Tue, 30 Mar 2021 09:33:14 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id r20so20605503ljk.4;
+        Tue, 30 Mar 2021 09:33:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:message-id:date:user-agent
+        h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=GPAcV11R/L+P1u9b3RSmVrWfaWEqoVvG9J5nxbf+QEo=;
-        b=XM9NK3722R7qywh4wVdtcG8OqORAz6OscdXHBm7UUi9jr9HW0vZuqEllp+kirld5mo
-         lfbr+wePX5lj/IWLqNRUPkbWc/YeOAhrWYhxvOBJulZL39OE4d3sTQuDScaKEIPOFubL
-         rHx9RIeiKgeN4JmTKzu33Z/UtmPRq6Bao+LOYRNb3UjQnrO57k0BtJjOoGGrHefeRPVo
-         wIoNn6E8CeUGgFHaRT28NW3eOXwpasjFRm1ppOOWV6FWPzyZXZklG2iEeYqzbXD/Yn4N
-         pnmHW1ZW/iCavkoU9cIblmr3aYHf9quhLZ51Sw9RaZS5fU+wkcpdmSCUXEzSQlK0FQxn
-         5htw==
+        bh=CT8db4cvO7S02JvPSHxU5rkG2mfIf4ddG0qsyFVMwQg=;
+        b=mYtNOivmhosBZV9pv9FPhOg6FFD+pM7ldsuKQzXr7p7pN6zuP0nFJSRyMX9EcUKFM7
+         iggu3rh8l3o/6NHebtNDsK1ENf8iI7IS3jnrOr+0Re0DaZXQAyvc0hVT1KUsHWfMzFYt
+         yNrpFyMlV0zD4cOSXOvwJqkq1npPS9bLvSb+jRUbGvumByujBqp7DJZu++PrBOwslY83
+         eQRocwOMM/bAGE0PO0VNyUPngEZv6wCdaOL8ZDfzA8vz7aMXVjznX3HKiMVH0ZCdrWxj
+         uHV8CrDjt2EliaF6h3CnUwkwQypNNtPMlj5iBgGg+scKNveI+3/b7PpfFHo7SNf4pv55
+         7HgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=GPAcV11R/L+P1u9b3RSmVrWfaWEqoVvG9J5nxbf+QEo=;
-        b=adt6BiTD9Qh/YcFA31/GQK/8HhyO5NhEOgrQUnyTZwtpR1aNvX8KndyEMpvsYj/aON
-         FU7DlBmOxc3DCC/Iu6v8zN9rvG9YNl7RE9Xj1FIZeowA+CBZuAnXxmH5Kg4xMzuSeFoE
-         XZ4v0YBhJlYxwXVUFhtXi+RYlhcAS2pVKdCv58doeixKpU8c8n0/nd7CqO8BKSAih96G
-         dE3Ah5d05+cm1XyjNRcpoeo+tvQ7M4b/ubBxRbv17ZBIX4CVRIYoPJ2XRQyjIi7mQhBq
-         9DdMoNo3N/GfsKiEy9ZsSrUNV9yuAcxga5C4FTR143GSIi7BGZ+kjBU1z01jpmemP30i
-         boMg==
-X-Gm-Message-State: AOAM531rjpIT6L6zn36BUl6U5CisWHZX3gOOj4PXQmR3XEXOYee5R4WY
-        puWnPjHME73GWDuv8v7GTII=
-X-Google-Smtp-Source: ABdhPJyTksEHvYP2eK7/ntlIbgSJQKHIuIIIyn81/lVP4fpIKYG2V2yUtOhA9SPfdGO78vOYkMvFDw==
-X-Received: by 2002:a2e:9f45:: with SMTP id v5mr21265637ljk.183.1617121925711;
-        Tue, 30 Mar 2021 09:32:05 -0700 (PDT)
+        bh=CT8db4cvO7S02JvPSHxU5rkG2mfIf4ddG0qsyFVMwQg=;
+        b=nldW6lJYuDYgzeE85RHG3RMDWndCfHPTqd12eNxRdYv64WEL+RWso9DWL9n9MmxzHL
+         Lg1Z3Q+w3OZy9ALcVzRRLSb5659WVgqznQoLvPwbtZKcCM1q+RSk/5Pt7Z6e4vTwfc/G
+         71FklMqmf/ejpWdSGe1I35ioJKaVw22/dL9wVGh85g1tExbjgvc4dA8cIUEIcaEZ97bT
+         NNx+8rQm6F64eza73bXDcpRYhdKBpjIwJtZe2q3D3c/quVD8yjcMfj38APtHOUz3aI1F
+         ja4jyRh86ysu7ZCHBLU1ewYUU3No7hqvbAQ+19Vrga+DDSnurT3ol1bIrfU+WPGYTrEb
+         xlXQ==
+X-Gm-Message-State: AOAM531vmz2AhF8qn/8ihu8CR0lrfuk/SURgpZHZzoOp5eapIrn6MrYd
+        vVHYLfYMjrlOlX8TOQ+786I=
+X-Google-Smtp-Source: ABdhPJymTtBBXGNFYKmCOj16/tNmr/vkk/fDO+rYKifgTio/eBbOMNYIW9Ui9B361DJ/bQJMEJwmUA==
+X-Received: by 2002:a2e:581d:: with SMTP id m29mr22237461ljb.97.1617121992676;
+        Tue, 30 Mar 2021 09:33:12 -0700 (PDT)
 Received: from [192.168.2.145] (109-252-193-98.dynamic.spd-mgts.ru. [109.252.193.98])
-        by smtp.googlemail.com with ESMTPSA id u9sm2949917ljj.0.2021.03.30.09.32.05
+        by smtp.googlemail.com with ESMTPSA id t13sm2847634ljk.47.2021.03.30.09.33.11
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 30 Mar 2021 09:32:05 -0700 (PDT)
+        Tue, 30 Mar 2021 09:33:12 -0700 (PDT)
 Subject: Re: [PATCH v5 3/5] i2c: add support for HiSilicon I2C controller
-From:   Dmitry Osipenko <digetx@gmail.com>
 To:     Yicong Yang <yangyicong@hisilicon.com>, wsa@kernel.org,
         andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org,
         Sergey.Semin@baikalelectronics.ru, linux-kernel@vger.kernel.org
@@ -67,13 +67,13 @@ Cc:     treding@nvidia.com, jarkko.nikula@linux.intel.com,
         prime.zeng@huawei.com, linuxarm@huawei.com
 References: <1617113966-40498-1-git-send-email-yangyicong@hisilicon.com>
  <1617113966-40498-4-git-send-email-yangyicong@hisilicon.com>
- <b761fa05-1bf9-ce4c-e2b5-f39b418f0da9@gmail.com>
-Message-ID: <7efac5e2-aa1c-0575-0e9e-ca4eb659ed3f@gmail.com>
-Date:   Tue, 30 Mar 2021 19:32:04 +0300
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <58a43540-155c-36d0-94ca-453313dc005c@gmail.com>
+Date:   Tue, 30 Mar 2021 19:33:11 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <b761fa05-1bf9-ce4c-e2b5-f39b418f0da9@gmail.com>
+In-Reply-To: <1617113966-40498-4-git-send-email-yangyicong@hisilicon.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -81,30 +81,19 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-30.03.2021 19:24, Dmitry Osipenko пишет:
->> +struct hisi_i2c_controller {
->> +	struct i2c_adapter adapter;
->> +	void __iomem *iobase;
->> +	struct device *dev;
->> +	int irq;
->> +
->> +	/* Intermediates for recording the transfer process */
->> +	struct completion *completion;
->> +	struct i2c_msg *msgs;
->> +	int msg_num;
->> +	int msg_tx_idx;
->> +	int buf_tx_idx;
->> +	int msg_rx_idx;
->> +	int buf_rx_idx;
->> +	u16 tar_addr;
->> +	u32 xfer_err;
->> +
->> +	/* I2C bus configuration */
->> +	struct i2c_timings t;
->> +	u64 clk_rate_khz;
-> Looks like the u64 is overkill here and it doesn't allow you to use
-> COMPILE_TEST because 32bit arches can divide u64 only using the
-> do_div(), please fix this.
-
-I see now that the value isn't divided anywhere directly in the code, my
-bad. Looks good then.
+30.03.2021 17:19, Yicong Yang пишет:
+> Add HiSilicon I2C controller driver for the Kunpeng SoC. It provides
+> the access to the i2c busses, which connects to the eeprom, rtc, etc.
+> 
+> The driver works with IRQ mode, and supports basic I2C features and 10bit
+> address. The DMA is not supported.
+> 
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+> ---
+>  drivers/i2c/busses/Kconfig    |  10 +
+>  drivers/i2c/busses/Makefile   |   1 +
+>  drivers/i2c/busses/i2c-hisi.c | 506 ++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 517 insertions(+)
+>  create mode 100644 drivers/i2c/busses/i2c-hisi.c
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
