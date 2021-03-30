@@ -7,24 +7,24 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEDF1C433E3
-	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 13:09:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13726C433E2
+	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 13:09:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A0519619CA
+	by mail.kernel.org (Postfix) with ESMTP id E3C64619C5
 	for <linux-i2c@archiver.kernel.org>; Tue, 30 Mar 2021 13:09:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232038AbhC3NI7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S231574AbhC3NI7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Tue, 30 Mar 2021 09:08:59 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:15401 "EHLO
+Received: from szxga06-in.huawei.com ([45.249.212.32]:15402 "EHLO
         szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232076AbhC3NIb (ORCPT
+        with ESMTP id S232079AbhC3NIb (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 Mar 2021 09:08:31 -0400
 Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4F8qTg699xznTq1;
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4F8qTg5vdtznTls;
         Tue, 30 Mar 2021 21:06:47 +0800 (CST)
 Received: from localhost.localdomain (10.67.165.24) by
  DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 30 Mar 2021 21:08:18 +0800
+ 14.3.498.0; Tue, 30 Mar 2021 21:08:19 +0800
 From:   Yicong Yang <yangyicong@hisilicon.com>
 To:     <wsa@kernel.org>, <linux-i2c@vger.kernel.org>
 CC:     <andriy.shevchenko@linux.intel.com>, <digetx@gmail.com>,
@@ -32,9 +32,9 @@ CC:     <andriy.shevchenko@linux.intel.com>, <digetx@gmail.com>,
         <rmk+kernel@armlinux.org.uk>, <song.bao.hua@hisilicon.com>,
         <john.garry@huawei.com>, <yangyicong@hisilicon.com>,
         <prime.zeng@huawei.com>, <linuxarm@huawei.com>
-Subject: [PATCH v4 1/4] i2c: core: add managed function for adding i2c adapters
-Date:   Tue, 30 Mar 2021 21:05:46 +0800
-Message-ID: <1617109549-4013-2-git-send-email-yangyicong@hisilicon.com>
+Subject: [PATCH v4 4/4] MAINTAINERS: Add maintainer for HiSilicon I2C driver
+Date:   Tue, 30 Mar 2021 21:05:49 +0800
+Message-ID: <1617109549-4013-5-git-send-email-yangyicong@hisilicon.com>
 X-Mailer: git-send-email 2.8.1
 In-Reply-To: <1617109549-4013-1-git-send-email-yangyicong@hisilicon.com>
 References: <1617109549-4013-1-git-send-email-yangyicong@hisilicon.com>
@@ -46,67 +46,31 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Some I2C controller drivers will only unregister the I2C
-adapter in their .remove() callback, which can be done
-by simply using a managed variant to add the I2C adapter.
-
-So add the managed functions for adding the I2C adapter.
+Add maintainer for HiSilicon I2C driver.
 
 Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
 ---
- drivers/i2c/i2c-core-base.c | 26 ++++++++++++++++++++++++++
- include/linux/i2c.h         |  1 +
- 2 files changed, 27 insertions(+)
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 63ebf72..de9402c 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1703,6 +1703,32 @@ void i2c_del_adapter(struct i2c_adapter *adap)
- }
- EXPORT_SYMBOL(i2c_del_adapter);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 8d23b0e..da2754a 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8040,6 +8040,13 @@ F:	drivers/crypto/hisilicon/hpre/hpre.h
+ F:	drivers/crypto/hisilicon/hpre/hpre_crypto.c
+ F:	drivers/crypto/hisilicon/hpre/hpre_main.c
  
-+static void devm_i2c_del_adapter(void *adapter)
-+{
-+	i2c_del_adapter(adapter);
-+}
++HISILICON I2C CONTROLLER DRIVER
++M:	Yicong Yang <yangyicong@hisilicon.com>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++W:	https://www.hisilicon.com
++F:	drivers/i2c/busses/i2c-hisi.c
 +
-+/**
-+ * devm_i2c_add_adapter - device-managed variant of i2c_add_adapter()
-+ * @dev: managing device for adding this I2C adapter
-+ * @adapter: the adapter to add
-+ * Context: can sleep
-+ *
-+ * Add adapter with dynamic bus number, same with i2c_add_adapter()
-+ * but the adapter will be auto deleted on driver detach.
-+ */
-+int devm_i2c_add_adapter(struct device *dev, struct i2c_adapter *adapter)
-+{
-+	int ret;
-+
-+	ret = i2c_add_adapter(adapter);
-+	if (ret)
-+		return ret;
-+
-+	return devm_add_action_or_reset(dev, devm_i2c_del_adapter, adapter);
-+}
-+EXPORT_SYMBOL_GPL(devm_i2c_add_adapter);
-+
- static void i2c_parse_timing(struct device *dev, char *prop_name, u32 *cur_val_p,
- 			    u32 def_val, bool use_def)
- {
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 5662265..10bd0b0 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -844,6 +844,7 @@ static inline void i2c_mark_adapter_resumed(struct i2c_adapter *adap)
-  */
- #if IS_ENABLED(CONFIG_I2C)
- int i2c_add_adapter(struct i2c_adapter *adap);
-+int devm_i2c_add_adapter(struct device *dev, struct i2c_adapter *adapter);
- void i2c_del_adapter(struct i2c_adapter *adap);
- int i2c_add_numbered_adapter(struct i2c_adapter *adap);
- 
+ HISILICON LPC BUS DRIVER
+ M:	john.garry@huawei.com
+ S:	Maintained
 -- 
 2.8.1
 
