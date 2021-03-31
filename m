@@ -2,145 +2,112 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFEC3C433DB
-	for <linux-i2c@archiver.kernel.org>; Wed, 31 Mar 2021 07:10:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47494C433DB
+	for <linux-i2c@archiver.kernel.org>; Wed, 31 Mar 2021 07:19:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A21E5619D3
-	for <linux-i2c@archiver.kernel.org>; Wed, 31 Mar 2021 07:10:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E40CF619D8
+	for <linux-i2c@archiver.kernel.org>; Wed, 31 Mar 2021 07:19:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233697AbhCaHJf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 31 Mar 2021 03:09:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37976 "EHLO mail.kernel.org"
+        id S233780AbhCaHSu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 31 Mar 2021 03:18:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233968AbhCaHJT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 31 Mar 2021 03:09:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01BCF619CD;
-        Wed, 31 Mar 2021 07:09:18 +0000 (UTC)
+        id S231523AbhCaHSj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 31 Mar 2021 03:18:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04B08619AB;
+        Wed, 31 Mar 2021 07:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617174559;
-        bh=iY9vHbcUnG5YAQ7S+Zswyr75kvWJ4LwY/t1hPgUkfQo=;
+        s=k20201202; t=1617175118;
+        bh=8beEdFjtCAW+MZgiUCa4tYu3TEKJK3jHtRssNTqgmzg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EDKZwsxvclGwppNvm4wSzRLl/RPgzG6UexiySW3Uqjnec9YEjheglo2dfiD5jkP/A
-         cwyL4h65IznZx0FkO+qpyKqlt59Pd4kTf5z3UeRW7KhJepIzrFnyxyH/y3xSXh8dAt
-         Ryeii5bJuZPHPN5EGnhrOQtM+FpcjUuZRqEecrLvLFSzJ3iE6/2aEhY4T0NlvwYUzg
-         3Mjh5yjb30BuieTDFTTM+0rRsVGZG0aklPBBEaI/mRMPiwh84PgOR78GLfqSUeKv7q
-         gd6Im/2ReMLdryBw/vkqirSUPjzmNxVGCD5hF6LJQIrghGm67JJlnClrrvjQkGTEe8
-         eWhgbSF7VNl3g==
-Date:   Wed, 31 Mar 2021 09:09:13 +0200
+        b=CXCYOT31EaTt/xV9uUEkFHglHFUrw+VWuEQuvaHKqZLdUmbw7D7kdlu9IROqbck16
+         iA7R7qVtoxa28s/80+yANQSBa4vLQfdPkD/iWkjPPG+1kYascbEQfdg9Rto3bx2m+I
+         CDAF7HKX1FPEdK1soNI08hOeMLDQaRaPoRgkDH17T6TStzwfw8Jr8T4c0v1NGSZ0am
+         Kr3WqslciQUHKP9sTrjz/swTsIs0CvKu5KTNwxyboH3lRA7n1BmCdwQHICgF8q36bU
+         pnISfbtIxzIkgkpIhsOp9Wv3pdwjLMehEFIIzokDUIKi04qe4d4MHSA/8eubIzNCXC
+         YHx/BtlWydN7g==
+Date:   Wed, 31 Mar 2021 09:18:35 +0200
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Bence =?utf-8?B?Q3PDs2vDoXM=?= <bence98@sch.bme.hu>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] Adding i2c-cp2615: i2c support for Silicon Labs'
- CP2615 Digital Audio Bridge
-Message-ID: <20210331070913.GA1025@ninjato>
-References: <20210318115210.2014204-1-bence98@sch.bme.hu>
- <20210318115210.2014204-3-bence98@sch.bme.hu>
+To:     Zhou Yanjie <zhouyanjie@wanyeetech.com>
+Cc:     paul@crapouillou.net, stable@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dongsheng.qiu@ingenic.com,
+        aric.pzqi@ingenic.com, sernia.zhou@foxmail.com
+Subject: Re: [PATCH] I2C: JZ4780: Fix bug for Ingenic X1000.
+Message-ID: <20210331071835.GB1025@ninjato>
+References: <1616084743-112402-1-git-send-email-zhouyanjie@wanyeetech.com>
+ <1616084743-112402-2-git-send-email-zhouyanjie@wanyeetech.com>
+ <20210318170623.GA1961@ninjato>
+ <644d19d8-9444-4dde-a891-c9dfd523389e@wanyeetech.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+        protocol="application/pgp-signature"; boundary="4SFOXa2GPu3tIq4H"
 Content-Disposition: inline
-In-Reply-To: <20210318115210.2014204-3-bence98@sch.bme.hu>
+In-Reply-To: <644d19d8-9444-4dde-a891-c9dfd523389e@wanyeetech.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=utf-8
+--4SFOXa2GPu3tIq4H
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 18, 2021 at 11:52:10AM +0000, Bence Cs=C3=B3k=C3=A1s wrote:
-> Create an i2c_adapter for CP2615's I2C master interface by
-> implementing parts of the CP2615's I/O Protocol (IOP)
+Hi,=20
+
+> > Any write operation? I wonder then why nobody noticed before?
 >=20
-> Signed-off-by: Bence Cs=C3=B3k=C3=A1s <bence98@sch.bme.hu>
+>=20
+> The standard I2C communication should look like this:
+>=20
+> Read:
+>=20
+> device_addr + w, reg_addr, device_addr + r, data;
+>=20
+> Write:
+>=20
+> device_addr + w, reg_addr, data;
+>=20
+>=20
+> But without this patch, it looks like this:
+>=20
+> Read:
+>=20
+> device_addr + w, reg_addr, device_addr + r, data;
+>=20
+> Write:
+>=20
+> device_addr + w, reg_addr, device_addr + w, data;
+>=20
+> This is clearly not correct.
 
-So, my code checkers report:
-
-    SPARSE
-drivers/i2c/busses/i2c-cp2615.c:88:21: warning: incorrect type in assignmen=
-t (different base types)
-drivers/i2c/busses/i2c-cp2615.c:88:21:    expected unsigned short [usertype=
-] length
-drivers/i2c/busses/i2c-cp2615.c:88:21:    got restricted __be16 [usertype]
-drivers/i2c/busses/i2c-cp2615.c:89:18: warning: incorrect type in assignmen=
-t (different base types)
-drivers/i2c/busses/i2c-cp2615.c:89:18:    expected unsigned short [usertype=
-] msg
-drivers/i2c/busses/i2c-cp2615.c:89:18:    got restricted __be16 [usertype]
-drivers/i2c/busses/i2c-cp2615.c:78:5: warning: symbol 'cp2615_init_iop_msg'=
- was not declared. Should it be static?
-drivers/i2c/busses/i2c-cp2615.c:96:5: warning: symbol 'cp2615_init_i2c_msg'=
- was not declared. Should it be static?
-drivers/i2c/busses/i2c-cp2615.c:102:5: warning: symbol 'cp2615_check_status=
-' was not declared. Should it be static?
-drivers/i2c/busses/i2c-cp2615.c:131:41: warning: cast to restricted __be16
-drivers/i2c/busses/i2c-cp2615.c:131:41: warning: cast to restricted __be16
-drivers/i2c/busses/i2c-cp2615.c:131:41: warning: cast to restricted __be16
-drivers/i2c/busses/i2c-cp2615.c:131:41: warning: cast to restricted __be16
-drivers/i2c/busses/i2c-cp2615.c:148:25: warning: restricted __be16 degrades=
- to integer
-drivers/i2c/busses/i2c-cp2615.c:212:27: warning: symbol 'cp2615_i2c_quirks'=
- was not declared. Should it be static?
-    CPPCHECK
-drivers/i2c/busses/i2c-cp2615.c:258:9: warning: Identical condition and ret=
-urn expression 'ret', return value is always 0 [identicalConditionAfterEarl=
-yExit]
- return ret;
-        ^
-  CC      drivers/i2c/busses/i2c-cp2615.o
-drivers/i2c/busses/i2c-cp2615.c:78:5: warning: no previous prototype for =
-=E2=80=98cp2615_init_iop_msg=E2=80=99 [-Wmissing-prototypes]
-   78 | int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop=
-_msg_type msg,
-      |     ^~~~~~~~~~~~~~~~~~~
-drivers/i2c/busses/i2c-cp2615.c:96:5: warning: no previous prototype for =
-=E2=80=98cp2615_init_i2c_msg=E2=80=99 [-Wmissing-prototypes]
-   96 | int cp2615_init_i2c_msg(struct cp2615_iop_msg *ret, const struct cp=
-2615_i2c_transfer *data)
-      |     ^~~~~~~~~~~~~~~~~~~
-drivers/i2c/busses/i2c-cp2615.c:102:5: warning: no previous prototype for =
-=E2=80=98cp2615_check_status=E2=80=99 [-Wmissing-prototypes]
-  102 | int cp2615_check_status(enum cp2615_i2c_status status)
-      |     ^~~~~~~~~~~~~~~~~~~
-drivers/i2c/busses/i2c-cp2615.c: In function =E2=80=98cp2615_i2c_probe=E2=
-=80=99:
-drivers/i2c/busses/i2c-cp2615.c:244:2: warning: =E2=80=98strncpy=E2=80=99 s=
-pecified bound 48 equals destination size [-Wstringop-truncation]
-  244 |  strncpy(adap->name, usbdev->serial, sizeof(adap->name));
-      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The missing 'static' are what buildbot also reported and are correct.
-Please check the others if they need action. Especially the strncpy
-thing.
-
-Other than that, it looks good. I like that you bind to the IOP
-interface only. Keeping the CamelCase is also OK.
+Thanks for the additional information! I understand now. I added a bit
+of this to the commit message of v2 to explain the situation.
 
 
---jRHKVT23PllUwdXP
+--4SFOXa2GPu3tIq4H
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmBkIBUACgkQFA3kzBSg
-KbYCxQ//ZBDf3ywaF011ykcNSNDYxnUwsQalRfCEneAp0IKo12neqBIdVETIggDN
-/kS5k3kt8DHneJnxoaZbLf3wTEWBwNfnS0S7ewNvrke/I++16z8Tl/aimtI9GOp1
-KVPky41c/f9Woupt/orXUeuOZe2EZtkohSPIDi5CEJQGanheEcoY7iju+d4Lr0Se
-O/tfClphbbTZiOeUSMDIJ8GdNNTIUGrHW5731wRY3+lInn2TcRpQwsSxRRexhYkE
-NR40o8q7HV8ocU/QMNXYP3fbjWj9qWU3SYBJTPKW3LfJGtQhSRr68o7TiCzi+mUO
-/ovR2Z1dtulptyhScyHdMpGLgE+tm1FJbEKCu4e0IcyN/WJmkjRFH8Zrolc+lm63
-0ETunluow3e9m4czmkJ3LeGo++Ex5TjkjSctw6L1tbdRhnEyvX/xtu5k+UAegEn2
-fkLUD9tDwFbibQhxSU/ixkSIT5sZEfcfsntI2B44uKu4RM2y5HMQO0fO+257sdyc
-g9tfNhISV+/GlSNwX58MNpSMZICjuF7j+/z9BVO0A7l7GgaNJqALE2Dn3opNh1zP
-19pFmeKKygqAtKgcCcB9klOHpas2oDPDsd+SKy+bWCWbGENuHGF3cKgLWiRyg4rV
-yTRMUU0QJ2GSx7C/7DfysxixV7gPQFsUPZ6QnmEj9A8+qypJDEY=
-=VqNI
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmBkIksACgkQFA3kzBSg
+KbZykQ//eDkcN/ZQvGDP0emgsNO6lU3HtajHI/lRiW/APQ3o+w69CqfEgOtbnJ00
+5Kf0rOkFKeeuMNlv7xZNLOxJoq+V52e1g0S5m5DsVkFFL5rxmfYfBdOAChGoCzHp
+6AfwU+QJjG0ETWgEq/4Wh8wqPbIYeYtATkJA8FcFQEu1bAA5JyGr/xuNNToTd/ln
+PDpoJ0laVjU5ADjQJUBZSctEW07TfdOPumwVYmmpoAtmbc/O26aGp9R/ptZGMxVV
+vTSVI2ghYL70Maoom42YfBQHUNVgqyU14jBw24Jkhu3+lB/B2IHszjG/qyRlEjTM
+gHcu1wSPrXtKGjcicqFU/DVcJviOOZqni2la1ExLkuXE3xVOERAfcMZWZ05C410P
+kB+YWBa5qE3iZllEgDN7f55SXZNX4kT7QpV6o/KGtJ6kPmQtPAb5X/9yTe69ogSe
+PSaNpicjhmiUmgKh+Zu3ttxDREZNmhIbX6h1YMkYN1Ocz8PG9l42zRuFRLnqqRND
+zcSIlK2PfO2XWYXaSNqo3weN66/oLX6kRjJSsTLpsfkuMU0SqE3LFjjqeCJRIEtP
+v2okUgzFcqL9YuyQrwklbUxZ9fe4/cXpsHqwzpFPqlbgyqa16oxzIuNOQ/AG0M3S
+m7s+bQ566uplLlH/VWW+Kg5Ak70k4tuAZCNB5Z2TaTRmpVO/02Y=
+=cthv
 -----END PGP SIGNATURE-----
 
---jRHKVT23PllUwdXP--
+--4SFOXa2GPu3tIq4H--
