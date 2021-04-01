@@ -2,111 +2,113 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84138C43462
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 06:40:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F95BC433ED
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 11:11:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 50391610D0
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 06:40:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8A0761057
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 11:11:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233332AbhDAGjt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 1 Apr 2021 02:39:49 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:20661 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233024AbhDAGjR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 1 Apr 2021 02:39:17 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1617259155; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=WTlV2xRuqBGN5yAQfQ5SfEWrU6o6mEBhlV6AOHQK0lI=;
- b=V4+0MlsHFfurvxacopLjaB/QYtw2Shx4rnOMWFuQ+zEK9cZn7am2ssdTYGyMVgl+87uXDqv+
- LNimgu2t+8F/AeDztrvP/er02UYp3RQcaBDkevUgK0B0k65rLR7D43Hg5gWtsbEQh2eVCUUF
- zY2MOfGq/WhNFuFknYTm73bnKQU=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI5ZGU3NiIsICJsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n05.prod.us-east-1.postgun.com with SMTP id
- 60656a938166b7eff7386475 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 01 Apr 2021 06:39:14
- GMT
-Sender: rojay=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 2E286C43461; Thu,  1 Apr 2021 06:39:14 +0000 (UTC)
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: rojay)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 7533DC433CA;
-        Thu,  1 Apr 2021 06:39:13 +0000 (UTC)
+        id S234081AbhDALLQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 1 Apr 2021 07:11:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60400 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234035AbhDALLL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Apr 2021 07:11:11 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA08DC061797;
+        Thu,  1 Apr 2021 04:11:10 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id b16so1491642eds.7;
+        Thu, 01 Apr 2021 04:11:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=s2HcVSCCLJRWL3IhED4YLi8u+pfQMoybfhbgzWH6HrA=;
+        b=ljQI1XsW+DquJSGEy0G7DK4/p6OaZwF181DDDMWlkdjbRwtvUBa0K/TT/MK1Qy9bES
+         l93FC7pgMId+NgeRUCyBeHpE0oIeJN/2dSOZ1AbXjJTHF5zIrOtu/l7GuH30cjT25xJI
+         3JqeUVr1T1DeZIGhbm0zZ4KXuxBZPLIN4X07iDg00yGb73xcy7Z17OeAHXceAOk0nB0Z
+         UZnGlksE2tYeUpCQAcV+Dd2P2eH/bTA87ZusI7WQ4vtF6/g4e5TgYE0sqstUM68KnrGI
+         jH6JvMCb+OpojpRxyXNISem8QmO3K39UGCLyEsVaTBp36jnXBYnkxcnefUniggq0aKR8
+         Kphw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=s2HcVSCCLJRWL3IhED4YLi8u+pfQMoybfhbgzWH6HrA=;
+        b=ZwicFt4vfORUAtrP54UmiUgCXWrK4zN9GzyXof9AvlQKnEaXDmULPgpGaSIm9/C9b2
+         L38E1LPmTucglRk4TtsLZbw/p+VftqQ1b3DjUmAte97AM3c0NcQR65+zOmhqg7Ug4LV5
+         hm6mTVl3H6iwDt9PobDp5K+vKJHM4kNaRZmZh8EThz/0u76csKJn2poOn1IImFXhNaUs
+         xmuOlUkyCnor7IokDGgT1Hz+awFXtdO1gCO/9l6v7NwyHidIfeeAEmFunHE/CeaiCnYk
+         vuFnk7QxdRNxiknkH5JVhKSRV6AXVawOUPiOam2dI9rE5mzrVxz6EWdWsvSejwmLqgeT
+         ZaTA==
+X-Gm-Message-State: AOAM533Fps+e+WqhISghAze+ufP9rERR3fw3IHwdGKeU/JdPsXhPK9xV
+        KDnx8x60bFRr92/z1Su8JDUHZBlbD4Q=
+X-Google-Smtp-Source: ABdhPJytPMshfe7m91EyPFJIynR8WWxD4OQSsiN4bJZBRzrMNzbdF3ZrppfRAh72Ru/RhRB+QsMKaw==
+X-Received: by 2002:a50:e882:: with SMTP id f2mr9340058edn.184.1617275469324;
+        Thu, 01 Apr 2021 04:11:09 -0700 (PDT)
+Received: from localhost ([62.96.65.119])
+        by smtp.gmail.com with ESMTPSA id ak20sm2581050ejc.72.2021.04.01.04.11.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Apr 2021 04:11:08 -0700 (PDT)
+Date:   Thu, 1 Apr 2021 13:11:36 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFT 2/2] i2c: tegra-bpmp: make some functions void
+Message-ID: <YGWqaOynDZvQ4q5u@orome.fritz.box>
+References: <20210331075141.22227-1-wsa@kernel.org>
+ <20210331075141.22227-3-wsa@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Thu, 01 Apr 2021 12:09:13 +0530
-From:   rojay@codeaurora.org
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
-        Rajendra Nayak <rnayak@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Doug Anderson <dianders@chromium.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Matthias Kaehlcke <mka@chromium.org>, akashast@codeaurora.org,
-        msavaliy@qti.qualcomm.com, parashar@codeaurora.org,
-        Linux PM <linux-pm@vger.kernel.org>,
-        DTML <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        Andy Gross <agross@kernel.org>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 3/3] i2c: i2c-qcom-geni: Add support for
- 'assigned-performance-states'
-In-Reply-To: <29b30a2c0c4d7292747a073d23daaa70@codeaurora.org>
-References: <20201224111210.1214-1-rojay@codeaurora.org>
- <20201224111210.1214-4-rojay@codeaurora.org> <YAGqKfDfB7EEuZVn@builder.lan>
- <6bfec3e6-3d26-7ade-d836-032273856ce2@codeaurora.org>
- <CAPDyKFqF0NE3QRAEfiqj5QOXXH2om4CpyyeudeqoovANfvjsaQ@mail.gmail.com>
- <20210119110516.fgbbllyg7lxwwfdz@vireshk-i7>
- <CAPDyKFogrWt=K3VtEZVH5bPL_fYt7rgdm5wGgq+QHtzX-n0z7g@mail.gmail.com>
- <29b30a2c0c4d7292747a073d23daaa70@codeaurora.org>
-Message-ID: <cfd90d2a05aa0411ee7a976a89a361af@codeaurora.org>
-X-Sender: rojay@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="Tz59CajpPpnP8faV"
+Content-Disposition: inline
+In-Reply-To: <20210331075141.22227-3-wsa@kernel.org>
+User-Agent: Mutt/2.0.6 (98f8cb83) (2021-03-06)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 2021-02-12 14:51, rojay@codeaurora.org wrote:
-> On 2021-01-20 19:01, Ulf Hansson wrote:
->> On Tue, 19 Jan 2021 at 12:05, Viresh Kumar <viresh.kumar@linaro.org> 
->> wrote:
->>> 
->>> On 19-01-21, 12:02, Ulf Hansson wrote:
->>> > As a matter of fact this was quite recently discussed [1], which also
->>> > pointed out some issues when using the "required-opps" in combination,
->>> > but perhaps that got resolved? Viresh?
->>> 
->>> Perhaps we never did anything there ..
->> 
->> Okay. Looks like we should pick up that discussion again, to conclude
->> on how to move forward.
->> 
-> 
-> Soft Reminder!
-> 
 
-Request Viresh, Uffe to discuss on the way forward.
+--Tz59CajpPpnP8faV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->>> 
->>> --
->>> viresh
->> 
->> Kind regards
->> Uffe
-> 
-> - Roja
+On Wed, Mar 31, 2021 at 09:51:41AM +0200, Wolfram Sang wrote:
+> They return 0 always, so save some lines and code.
+>=20
+> Signed-off-by: Wolfram Sang <wsa@kernel.org>
+> ---
+>  drivers/i2c/busses/i2c-tegra-bpmp.c | 20 ++++----------------
+>  1 file changed, 4 insertions(+), 16 deletions(-)
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+--Tz59CajpPpnP8faV
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmBlqmcACgkQ3SOs138+
+s6GObA//fgBvfAUilYNrbW31wPJOnNX0fX7Jt2XqeS27SJBuSnQ4lyeQ9GLg8DRs
+TJWuoHW/8fLZyEvy8CTM5foyotJg/hj2ygzZNZE9c3khIjIkfZCZsJhoDJ+z+fcX
+arvJ7sefXjVRgBUo5RwQ2bizG9mVeF6OsEWrC/OjGe+NLza8lYOYFv5/BoqtB5qa
+9SI2XSCATBWDWGcc5bjivbJ4UIE45cW8YK+LOFupy3IYAwRDlFqCw4Uw4tqa6zKT
+MIRDv/6VFbTOBAHOuRtCrsPiACovbep3bz5ryQ86PBakYzMIDNQd9UAMLSpZUUnW
+TCcH3u8GqtfsPlnbFr6774/B7klc+AoyHZTSXe+g+VDTRDuE5RiJhpPNYQp9p6QU
+OKAx+uzLyZkhjQTbhn3zAPuwTnqJOzGqlSB5jy4vx7cHepVf4LAOxJhnl3TGh5xL
+R5ImO+uZ3V9ETHFICtCrZchcddqXEhAWLjo0asGfDzuIgq5aNtd+3cCnP5Dbx2LQ
+h7X516FbAItFGtn3uRS2monwcvKeiK8c0sgocqHHRXViZP24ekXtgKZNX3dZQkzd
+M3q6cL1uX9KDBgSoYdZpEYLBWpkrFTU3zEwxZYliJE7XgaOEghDrmg4EwgKQOOUl
+YVUTgEG4Lr7RKuQDLOnv0ov1Z3+sC7ox4luJLW9ITJ0ZiAgv4h0=
+=Q+Bx
+-----END PGP SIGNATURE-----
+
+--Tz59CajpPpnP8faV--
