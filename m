@@ -2,101 +2,113 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D06D3C4360C
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 17:56:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74268C43616
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 17:56:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9F1C360FF3
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 17:56:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 449A36112F
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 17:56:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236265AbhDAR4G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S234103AbhDAR4G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Thu, 1 Apr 2021 13:56:06 -0400
-Received: from mail-wr1-f49.google.com ([209.85.221.49]:46937 "EHLO
-        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234960AbhDARoH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Apr 2021 13:44:07 -0400
-Received: by mail-wr1-f49.google.com with SMTP id v4so2603409wrp.13;
-        Thu, 01 Apr 2021 10:44:05 -0700 (PDT)
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59884 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237193AbhDARvB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Apr 2021 13:51:01 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D472C08EA3B;
+        Thu,  1 Apr 2021 06:23:22 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id ap14so2924307ejc.0;
+        Thu, 01 Apr 2021 06:23:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=TLYZzYC7kune3zSfVVdBcQLOfp865ju5ItSB96/oYR8=;
+        b=F0RkON/ZHnb/EPNaq/7KFYBOhpTGGhmebZzMBLB1CcCsPGdlDFuE60mVwTDb1ebLul
+         i3uuA02RhRlL3exJ0mMhKLIEFry3Kz3TrG+WjxJR/aGZ9leQaSNNxAuysvYrbFtsv6yP
+         Ha+bEX7lVgQdUbm6qP8oSjAxP6bO9y83MPLuZmj+vy7AAZpPhbCKlHnUyx8IzkMS77ai
+         aG6lmGBjNrCbu4SFymoPYBTVqQ2tHh6v2uUDrk8H0DHi1Zk9JHvYdgNhvJyhdZwb0yFc
+         rHU5KHyZJpH/7O2c58pPDNlYvtEYSU2zsfJ2UJmpeEzsd+nhcxXwniIVuNbJucWb/pvB
+         3PYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=gjskHJdt/cBvV7iCEidveAPKT6ao1TW5TgwFfOyC23s=;
-        b=iWPU5xg5RNm0WZUBMBKp1X9EdVsk5sKM6cOb4zbVI8vhG3VCBDpTbr9UDAFgXQNh9g
-         qJcUjzuppWPvYrkeTfvyorkTRXrkCRQLEl04DKsmpaz9oN7fBebty6CCBhM2XoF5J1Hc
-         +WfIoCBTVMDYVYoJQSOt/9351MUnt6NAGGbXTUd9Qy7advXmTB+nOZWiiVlAAIEPlK/o
-         DkDEq2dTPtNJpQ/6WRZB4A/N/dvzQaQfEVgq6cCOh/Bwa1V6Lpl0esAkA6zQs48XDI+e
-         2AhDFUZ/JPDbZ1QSlVse5lAjWA+fOWWk/FAaGoxIkseye5R1y70wriv57bq8TGj4CFU3
-         dS9w==
-X-Gm-Message-State: AOAM531m9QGJie0KCHkAZCfJ76MUnknlpaayScTREYLptNSm+IotxZcg
-        dnTFr47HN3XG7pEUGMv0m0xfae8K59c=
-X-Google-Smtp-Source: ABdhPJxBDpVKMVKmUq7c6tRyYr3sCvnVeMMT1xh1Xp6CB+1rM3nqkVl8ZC/kFNPbbls7b8LMKQadEQ==
-X-Received: by 2002:adf:f150:: with SMTP id y16mr10994688wro.414.1617299043791;
-        Thu, 01 Apr 2021 10:44:03 -0700 (PDT)
-Received: from [192.168.1.115] (xdsl-188-155-192-147.adslplus.ch. [188.155.192.147])
-        by smtp.googlemail.com with ESMTPSA id u3sm10708145wrt.82.2021.04.01.10.44.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 01 Apr 2021 10:44:02 -0700 (PDT)
-Subject: Re: [PATCH 05/12] ARM: s3c: mini2440: Constify the software node
-To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc:     Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20210329105047.51033-1-heikki.krogerus@linux.intel.com>
- <20210329105047.51033-6-heikki.krogerus@linux.intel.com>
- <709e434f-9e35-bdd1-7785-1938b2fb80ee@kernel.org>
- <YGHIyRu625C/kgRL@kuha.fi.intel.com>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-Message-ID: <c326cef1-523a-0ce8-70a1-5cf89bde35f2@kernel.org>
-Date:   Thu, 1 Apr 2021 19:44:02 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=TLYZzYC7kune3zSfVVdBcQLOfp865ju5ItSB96/oYR8=;
+        b=guLY8MHUD6IXtlQYyBXlzi+fUh0E3SrkETJeAagrXRolYeVHJX6rP/fYrXoSOB5h4o
+         RGNf5zhHwSoWEfkMTLklCH0Oi8UFjPmrb8dO+Fw4HzsYfuisQDVu/aEzKZDvoIcrpX+C
+         TZRaogKE0BAM6vZhOjNFL1VG5X0XNkSJhfOySb4pEa1CyeDV7qQWmrGosIxnaomyuExb
+         OkFlNwZCYnsD00OCeB2X9z73D7p5uMNjmlsX5eDLP8GIiPrzgJuxiCDYGWohXVtlefZh
+         OPbvxE8W10ywQP4GOja8jxE11mRk7b6APzMEjilfuG75Xw5IlTTN3F3kz103JfSdpZhE
+         55cw==
+X-Gm-Message-State: AOAM532xreRCpY3qLRD9kN/hDSxooNT5BRj4VngpkR5dP67wTxvZss7c
+        z1vUeuT6m/h2jKiAUWT3GvNWi1jEnNs=
+X-Google-Smtp-Source: ABdhPJyBznMqCW/x1FurFDOu4scrUFIfE/XmC/zTKwBktKJoDSyl/UtzPFVugI9of5VNQ9YuSj3Z3w==
+X-Received: by 2002:a17:907:3d8d:: with SMTP id he13mr9274707ejc.530.1617283401002;
+        Thu, 01 Apr 2021 06:23:21 -0700 (PDT)
+Received: from localhost ([62.96.65.119])
+        by smtp.gmail.com with ESMTPSA id r24sm3492722edw.11.2021.04.01.06.23.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Apr 2021 06:23:17 -0700 (PDT)
+Date:   Thu, 1 Apr 2021 15:23:45 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, Jonathan Hunter <jonathanh@nvidia.com>,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFT 2/2] i2c: tegra-bpmp: make some functions void
+Message-ID: <YGXJYUGVFa5EaQR0@orome.fritz.box>
+References: <20210331075141.22227-1-wsa@kernel.org>
+ <20210331075141.22227-3-wsa@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <YGHIyRu625C/kgRL@kuha.fi.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="fKfBd+NSkD+Qw2c1"
+Content-Disposition: inline
+In-Reply-To: <20210331075141.22227-3-wsa@kernel.org>
+User-Agent: Mutt/2.0.6 (98f8cb83) (2021-03-06)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 29/03/2021 14:32, Heikki Krogerus wrote:
-> On Mon, Mar 29, 2021 at 12:58:41PM +0200, Krzysztof Kozlowski wrote:
->> On 29/03/2021 12:50, Heikki Krogerus wrote:
->>> Additional device properties are always just a part of a
->>> software fwnode. If the device properties are constant, the
->>> software node can also be constant.
->>>
->> Hi,
->>
->> Thanks for your work.
->>
->> I did not get the cover letter nor other patches from this set and I
->> don't see how the i2c uses the swnode. This makes difficult to judge
->> whether this looks reasonable. At least without the context the title
->> looks misleading - you add software_node or change to use software_node
->> instead of constifying it.
-> 
-> OK, I'll try to open this up somehow...
-> 
-> Whenever additional device properties are added to devices by using
-> the old device property API (device_add_properties()) that also i2c
-> core code uses, in reality a software node is always created to hold
-> those properties. It's just always dynamically allocated.
-> 
-> The goal of this series is to prepare the i2c subsystem and drivers
-> for the removal of that old device property API, but I did not see
-> that as relevant info for this patch, because even if we did not in
-> the end remove that old API, this change is still useful.
-> 
-> The patch does exactly what the subject says. After this we supply the
-> device a constant software node instead of a dynamically allocated one.
 
-Thanks for explanation. The follow up question is - can I take it
-independently via ARM Samsung/S3C tree?
+--fKfBd+NSkD+Qw2c1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best regards,
-Krzysztof
+On Wed, Mar 31, 2021 at 09:51:41AM +0200, Wolfram Sang wrote:
+> They return 0 always, so save some lines and code.
+>=20
+> Signed-off-by: Wolfram Sang <wsa@kernel.org>
+> ---
+>  drivers/i2c/busses/i2c-tegra-bpmp.c | 20 ++++----------------
+>  1 file changed, 4 insertions(+), 16 deletions(-)
+
+Tested-by: Thierry Reding <treding@nvidia.com>
+
+--fKfBd+NSkD+Qw2c1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmBlyWEACgkQ3SOs138+
+s6Fr+w/8Cde29MsDOpSRJDI8gGeaJ7W0dB+GLmGeTHzpQ5RcuFtVB1QCKxqdxLwx
+2iOMk0pRlDWGyBu/qu0KVtlMkyyM4z8O5iKrATmQJ1rxWavni30DmIt061lrtz2P
+RADljdIPlX+MCkhuRJillY6HgzzGxI+R+0aMhXR2xr01jcS0cUeMwhXT9iVHnS2M
+oGR3PKADJpmGd5lVqcfI+tyta0wgX/jmhzINGl4b4rFwICVu7hJhhktzaG3Ya6+H
+TPCGg+zKw4QH2iuEGmU170j7Yppwacv3eo6qAI96umhf7UpWbeZ//pODEMNRuEUi
+HryDiM2U/HbqBW6FglJ57x9JX0kVa7zKqBMYFHlzTdkPDsEQnbPJ3Z1DNtkEzYLs
+asOM0bxplZ7RW7cP92C1RcuTdqGy2pz7bjr/JrgwVuMSAynYLBpKkoorfn9NzskT
+siSUjHqJKiX5FuOSu5I/jDL2qOkcoz74LLshISNS1QOnoF7dDGc0p8OQCsUF4HCp
+12FiOggiymwXQ9LATcHp+o4R1b4suSdHuKwtxOWVf6JFUdnezuva15I7upiSrV6l
+gKDPpvYHYifogF2hwMbp77Aw9V7gTsW6rdHcXvX4lvbmBPy12V1EOpgEsSvlqPMF
+5eeFS19cNeECRsgxmCG+kJKV3Iy9SJ0Yre41Lo3c4w4uEgsNHFY=
+=N6Kb
+-----END PGP SIGNATURE-----
+
+--fKfBd+NSkD+Qw2c1--
