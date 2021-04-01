@@ -2,86 +2,99 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39F43C433ED
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 18:11:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7409AC433ED
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 18:22:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0A2CF610D1
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 18:11:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F51D6023C
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 18:22:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236324AbhDASLU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 1 Apr 2021 14:11:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34230 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237859AbhDASEn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Apr 2021 14:04:43 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0AF7C02FE82
-        for <linux-i2c@vger.kernel.org>; Thu,  1 Apr 2021 08:56:30 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id x26so1810092pfn.0
-        for <linux-i2c@vger.kernel.org>; Thu, 01 Apr 2021 08:56:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6ySoa5+Xb3eBjoT8tOVrfmR1P0l9TqoPHNpKMH+oLf8=;
-        b=qhSPnwOklXCDjC8td/rdLvOqJYjJp8BhDvWrcFWc6+rfu0O85iJHf6Lz0NuKOavziT
-         o609NQCWh+WhhcErxSILC3a+Oxsqp0pmPAJ31Rm5xqcJYcilIHGmoLnOm1rqKamHmhow
-         0VexppA33Fpvs0EEJq6a79qZMmJ53mmyeVPmIplcg1KYb0tWGBcEVrrsaNOEH5GxoGI7
-         wBf037g8xp3/0XZbjQAjCNI2ARGKxWzvUoWZl8/6a47dopqajzPdN/88llKVtfzeVyTd
-         8ZvQMmW1X7Q8OEBFx78C3LIPi4MPNbe1eAqviksUGoOPA+a8Foi+sFff2gCucg7ss50O
-         Z98w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6ySoa5+Xb3eBjoT8tOVrfmR1P0l9TqoPHNpKMH+oLf8=;
-        b=KJkhr2WUK5GtmVFGx8Tm66pbCMcwJjCY7L68q17qXgHLRT7Nqh6KWz/983zudUpgu6
-         ZFXEVtAZAbyfrDnrOOpXsMgFHRUkC9oLLi8pWZWBbVqOcSET+nVSRNGjxZQR0xpPlgIE
-         zpDqgvRbzWDLntSaKlrEqA4AF2A+gKd8n8plKOPs17WS5yQQ6/tgd7I6fc/iP78+z+jm
-         oifGGsSBU2ocweQ9KzV1RRhp9z3yFUQq15kOPPsGGac5ZM6XpPRUkIESuwc0suK/upEc
-         P5+L6xmvu2kMtmYef5E2rpoC0fsZk1OT2m5z7h378ckMYqfv8zDbok4mvtQzhd2VejT8
-         Bzqw==
-X-Gm-Message-State: AOAM531JxrKyJwvlv96TFtpSH1emmYQXpQ4W41f2Ba10xu5zQot0Npg6
-        K6FsUGBRwBtE3c4d28xnWeMK1xSm63o=
-X-Google-Smtp-Source: ABdhPJywHQBRx//QbrNf5EeQowWjU8JKeMN3mCWW5EjrkXaFnaJerRhUrOFY7RGMAV5Qgnh70Bc2OQ==
-X-Received: by 2002:aa7:88cb:0:b029:215:6f93:d220 with SMTP id k11-20020aa788cb0000b02902156f93d220mr7916289pff.36.1617292589679;
-        Thu, 01 Apr 2021 08:56:29 -0700 (PDT)
-Received: from [10.67.49.104] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id u2sm5858184pjy.14.2021.04.01.08.56.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 01 Apr 2021 08:56:29 -0700 (PDT)
-Subject: Re: [PATCH] i2c: brcmstb: remove unused including <linux/version.h>
-To:     Tian Tao <tiantao6@hisilicon.com>,
-        bcm-kernel-feedback-list@broadcom.com
-Cc:     linux-i2c@vger.kernel.org
-References: <1617284267-27743-1-git-send-email-tiantao6@hisilicon.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <e8347292-a0c4-bf90-b4e8-6190c7cb7602@gmail.com>
-Date:   Thu, 1 Apr 2021 08:56:27 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S234638AbhDASWx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 1 Apr 2021 14:22:53 -0400
+Received: from mga14.intel.com ([192.55.52.115]:59020 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237333AbhDASLw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 1 Apr 2021 14:11:52 -0400
+IronPort-SDR: DMIfi0CH7UekL36xFEXsfGtGA9OWVePn0H7AGa7SkFBlmdDoip8LTAdBUZ15LC22tueHE4RYjr
+ QE7stDsM7ysQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9941"; a="191782557"
+X-IronPort-AV: E=Sophos;i="5.81,296,1610438400"; 
+   d="scan'208";a="191782557"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Apr 2021 11:06:25 -0700
+IronPort-SDR: Df3vkX/tq6o0sqSF+irExac4U+Rd9OJWaLRfQ2UN0Xykv6vY8SXvrrd4riQP3vx/Gp2eXaVjRh
+ PCTCNTbTl3ew==
+X-IronPort-AV: E=Sophos;i="5.81,296,1610438400"; 
+   d="scan'208";a="517438729"
+Received: from lahna.fi.intel.com (HELO lahna) ([10.237.72.163])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Apr 2021 11:06:20 -0700
+Received: by lahna (sSMTP sendmail emulation); Thu, 01 Apr 2021 21:06:17 +0300
+Date:   Thu, 1 Apr 2021 21:06:17 +0300
+From:   Mika Westerberg <mika.westerberg@linux.intel.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Henning Schild <henning.schild@siemens.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Tan Jui Nee <jui.nee.tan@intel.com>,
+        Jim Quinlan <james.quinlan@broadcom.com>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-pci@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
+        Peter Tyser <ptyser@xes-inc.com>, hdegoede@redhat.com
+Subject: Re: [PATCH v1 3/7] PCI: New Primary to Sideband (P2SB) bridge
+ support library
+Message-ID: <20210401180617.GL2542@lahna.fi.intel.com>
+References: <20210308122020.57071-1-andriy.shevchenko@linux.intel.com>
+ <20210308122020.57071-4-andriy.shevchenko@linux.intel.com>
+ <20210313104557.321de08e@md1za8fc.ad001.siemens.net>
+ <YGXqDxSJhCO9bD1X@smile.fi.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <1617284267-27743-1-git-send-email-tiantao6@hisilicon.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YGXqDxSJhCO9bD1X@smile.fi.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 4/1/21 6:37 AM, Tian Tao wrote:
-> Remove including <linux/version.h> that don't need it.
+On Thu, Apr 01, 2021 at 06:43:11PM +0300, Andy Shevchenko wrote:
+> On Sat, Mar 13, 2021 at 10:45:57AM +0100, Henning Schild wrote:
+> > Am Mon, 8 Mar 2021 14:20:16 +0200
+> > schrieb Andy Shevchenko <andriy.shevchenko@linux.intel.com>:
 > 
-> Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
-> Signed-off-by: Zhiqi Song <songzhiqi1@huawei.com>
+> ...
+> 
+> > > + * pci_p2sb_bar - Get Primary to Sideband bridge (P2SB) device BAR
+> > > + * @pdev:	PCI device to get a PCI bus to communicate with
+> > > + * @devfn:	PCI slot and function to communicate with
+> > > + * @mem:	memory resource to be filled in
+> > 
+> > Do we really need that many arguments to it?
+> > 
+> > Before i had, in a platform driver that never had its own pci_dev or bus
+> > 
+> >   res->start = simatic_ipc_get_membase0(PCI_DEVFN(13, 0));
+> >   if (res-start == 0)
+> >     return -ENODEV;
+> > 
+> > So helper only asked for the devfn, returned base and no dedicated
+> > error code.
+> > 
+> > With this i need
+> > 
+> >   struct pci_bus *bus = pci_find_bus(0, 0);
+> >   struct pci_dev *pci_dev = bus->self;
+> >   unsigned int magic_i_do_not_want =  PCI_DEVFN(13, 0);
+> 
+> What confuses me is the use for SPI NOR controller on Broxton. And I think
+> we actually can indeed hide all this under the hood by exposing P2SB to the OS.
+> 
+> Mika, what do you think?
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Not sure I follow. Do you mean we force unhide P2SB and then bind (MFD)
+driver to that?
