@@ -2,121 +2,101 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI autolearn=no
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A35A9C468C0
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D06D3C4360C
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 17:56:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9056B6136D
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F1C360FF3
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Apr 2021 17:56:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234620AbhDARpl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:45:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40596 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234559AbhDARiA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 1 Apr 2021 13:38:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B76F161386;
-        Thu,  1 Apr 2021 16:42:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617295378;
-        bh=i04niHeXuQvwIy5MixftZzotTP0TGOM+jM0OxbF9CXw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=V0A1RN+DPE2xtWYyDCDoxSGkMsS1QrILEzosJPbis4ibuJoVVIl4ZdF3i89mvsOY6
-         +fH7WX9Ps2Jlw9/cbCJBJ5mE48dsmK6NXkCaZyPpEvUSmKuddYv4gHqDBUra6f0Ov4
-         nsJ3lsAcFsxMUwflSoK41pwCfsEUJjmbZyP54B0FA4EbtF5Lil1xT4B5yteUg0cR6O
-         44aRc52oTCBzFrJ/QDenCd7I7SjQU+BqxUMTOsg65DGdcFl/pJDm9X3KNf6oNC+8bX
-         O+nOlYUmtOKeZLZEjVUn4oBVUMvm5rzm9B0e6Vr7a4PrWk6PM1tA3AKtNmQXJt5Kd5
-         bVuJrTDgpDRZg==
-Date:   Thu, 1 Apr 2021 11:42:56 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Henning Schild <henning.schild@siemens.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Tan Jui Nee <jui.nee.tan@intel.com>,
-        Jim Quinlan <james.quinlan@broadcom.com>,
-        Jonathan Yong <jonathan.yong@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-pci@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
-        Peter Tyser <ptyser@xes-inc.com>, hdegoede@redhat.com
-Subject: Re: [PATCH v1 3/7] PCI: New Primary to Sideband (P2SB) bridge
- support library
-Message-ID: <20210401164256.GA1516177@bjorn-Precision-5520>
+        id S236265AbhDAR4G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:56:06 -0400
+Received: from mail-wr1-f49.google.com ([209.85.221.49]:46937 "EHLO
+        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234960AbhDARoH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Apr 2021 13:44:07 -0400
+Received: by mail-wr1-f49.google.com with SMTP id v4so2603409wrp.13;
+        Thu, 01 Apr 2021 10:44:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=gjskHJdt/cBvV7iCEidveAPKT6ao1TW5TgwFfOyC23s=;
+        b=iWPU5xg5RNm0WZUBMBKp1X9EdVsk5sKM6cOb4zbVI8vhG3VCBDpTbr9UDAFgXQNh9g
+         qJcUjzuppWPvYrkeTfvyorkTRXrkCRQLEl04DKsmpaz9oN7fBebty6CCBhM2XoF5J1Hc
+         +WfIoCBTVMDYVYoJQSOt/9351MUnt6NAGGbXTUd9Qy7advXmTB+nOZWiiVlAAIEPlK/o
+         DkDEq2dTPtNJpQ/6WRZB4A/N/dvzQaQfEVgq6cCOh/Bwa1V6Lpl0esAkA6zQs48XDI+e
+         2AhDFUZ/JPDbZ1QSlVse5lAjWA+fOWWk/FAaGoxIkseye5R1y70wriv57bq8TGj4CFU3
+         dS9w==
+X-Gm-Message-State: AOAM531m9QGJie0KCHkAZCfJ76MUnknlpaayScTREYLptNSm+IotxZcg
+        dnTFr47HN3XG7pEUGMv0m0xfae8K59c=
+X-Google-Smtp-Source: ABdhPJxBDpVKMVKmUq7c6tRyYr3sCvnVeMMT1xh1Xp6CB+1rM3nqkVl8ZC/kFNPbbls7b8LMKQadEQ==
+X-Received: by 2002:adf:f150:: with SMTP id y16mr10994688wro.414.1617299043791;
+        Thu, 01 Apr 2021 10:44:03 -0700 (PDT)
+Received: from [192.168.1.115] (xdsl-188-155-192-147.adslplus.ch. [188.155.192.147])
+        by smtp.googlemail.com with ESMTPSA id u3sm10708145wrt.82.2021.04.01.10.44.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Apr 2021 10:44:02 -0700 (PDT)
+Subject: Re: [PATCH 05/12] ARM: s3c: mini2440: Constify the software node
+To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc:     Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210329105047.51033-1-heikki.krogerus@linux.intel.com>
+ <20210329105047.51033-6-heikki.krogerus@linux.intel.com>
+ <709e434f-9e35-bdd1-7785-1938b2fb80ee@kernel.org>
+ <YGHIyRu625C/kgRL@kuha.fi.intel.com>
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+Message-ID: <c326cef1-523a-0ce8-70a1-5cf89bde35f2@kernel.org>
+Date:   Thu, 1 Apr 2021 19:44:02 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YGXqfvBv37eLL28Z@smile.fi.intel.com>
+In-Reply-To: <YGHIyRu625C/kgRL@kuha.fi.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Apr 01, 2021 at 06:45:02PM +0300, Andy Shevchenko wrote:
-> On Tue, Mar 09, 2021 at 09:42:52AM +0100, Henning Schild wrote:
-> > Am Mon, 8 Mar 2021 19:42:21 -0600
-> > schrieb Bjorn Helgaas <helgaas@kernel.org>:
-> > > On Mon, Mar 08, 2021 at 09:16:50PM +0200, Andy Shevchenko wrote:
-> > > > On Mon, Mar 08, 2021 at 12:52:12PM -0600, Bjorn Helgaas wrote:  
-> > > > > On Mon, Mar 08, 2021 at 02:20:16PM +0200, Andy Shevchenko wrote:  
+On 29/03/2021 14:32, Heikki Krogerus wrote:
+> On Mon, Mar 29, 2021 at 12:58:41PM +0200, Krzysztof Kozlowski wrote:
+>> On 29/03/2021 12:50, Heikki Krogerus wrote:
+>>> Additional device properties are always just a part of a
+>>> software fwnode. If the device properties are constant, the
+>>> software node can also be constant.
+>>>
+>> Hi,
+>>
+>> Thanks for your work.
+>>
+>> I did not get the cover letter nor other patches from this set and I
+>> don't see how the i2c uses the swnode. This makes difficult to judge
+>> whether this looks reasonable. At least without the context the title
+>> looks misleading - you add software_node or change to use software_node
+>> instead of constifying it.
 > 
-> ...
+> OK, I'll try to open this up somehow...
 > 
-> > > > > > +	/* Read the first BAR of the device in question */
-> > > > > > +	__pci_bus_read_base(bus, devfn, pci_bar_unknown, mem,
-> > > > > > PCI_BASE_ADDRESS_0, true);  
-> > > > > 
-> > > > > I don't get this.  Apparently this normally hidden device is
-> > > > > consuming PCI address space.  The PCI core needs to know
-> > > > > about this.  If it doesn't, the PCI core may assign this
-> > > > > space to another device.  
-> > > > 
-> > > > Right, it returns all 1:s to any request so PCI core *thinks*
-> > > > it's plugged off (like D3cold or so).  
-> > > 
-> > > I'm asking about the MMIO address space.  The BAR is a register
-> > > in config space.  AFAICT, clearing P2SBC_HIDE_BYTE makes that
-> > > BAR visible.  The BAR describes a region of PCI address space.
-> > > It looks like setting P2SBC_HIDE_BIT makes the BAR disappear
-> > > from config space, but it sounds like the PCI address space
-> > > *described* by the BAR is still claimed by the device.  If the
-> > > device didn't respond to that MMIO space, you would have no
-> > > reason to read the BAR at all.
-> > > 
-> > > So what keeps the PCI core from assigning that MMIO space to
-> > > another device?
-> > 
-> > The device will respond to MMIO while being hidden. I am afraid
-> > nothing stops a collision, except for the assumption that the BIOS
-> > is always right and PCI devices never get remapped. But just
-> > guessing here.
-> > 
-> > I have seen devices with coreboot having the P2SB visible, and
-> > most likely relocatable. Making it visible in Linux and not hiding
-> > it again might work, but probably only as long as Linux will not
-> > relocate it.  Which i am afraid might seriously upset the BIOS,
-> > depending on what a device does with those GPIOs and which parts
-> > are implemented in the BIOS.
+> Whenever additional device properties are added to devices by using
+> the old device property API (device_add_properties()) that also i2c
+> core code uses, in reality a software node is always created to hold
+> those properties. It's just always dynamically allocated.
 > 
-> So the question is, do we have knobs in PCI core to mark device
-> fixes in terms of BARs, no relocation must be applied, no other
-> devices must have the region?
+> The goal of this series is to prepare the i2c subsystem and drivers
+> for the removal of that old device property API, but I did not see
+> that as relevant info for this patch, because even if we did not in
+> the end remove that old API, this change is still useful.
+> 
+> The patch does exactly what the subject says. After this we supply the
+> device a constant software node instead of a dynamically allocated one.
 
-I think the closest thing is the IORESOURCE_PCI_FIXED bit that we use
-for things that must not be moved.  Generally PCI resources are
-associated with a pci_dev, and we set IORESOURCE_PCI_FIXED for BARs,
-e.g., dev->resource[n].  We do that for IDE legacy regions (see
-LEGACY_IO_RESOURCE), Langwell devices (pci_fixed_bar_fixup()),
-"enhanced allocation" (pci_ea_flags()), and some quirks (quirk_io()).
+Thanks for explanation. The follow up question is - can I take it
+independently via ARM Samsung/S3C tree?
 
-In your case, the device is hidden so it doesn't respond to config
-accesses, so there is no pci_dev for it.
-
-Maybe you could do some sort of quirk that allocates its own struct
-resource, fills it in, sets IORESOURCE_PCI_FIXED, and does something
-similar to pci_claim_resource()?
-
-Bjorn
+Best regards,
+Krzysztof
