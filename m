@@ -2,388 +2,85 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68C86C43461
-	for <linux-i2c@archiver.kernel.org>; Mon,  5 Apr 2021 09:03:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EB5EC433B4
+	for <linux-i2c@archiver.kernel.org>; Mon,  5 Apr 2021 11:55:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 496DA613CD
-	for <linux-i2c@archiver.kernel.org>; Mon,  5 Apr 2021 09:03:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 303E3613AE
+	for <linux-i2c@archiver.kernel.org>; Mon,  5 Apr 2021 11:55:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237355AbhDEJDi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 5 Apr 2021 05:03:38 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:15543 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237687AbhDEJDd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 5 Apr 2021 05:03:33 -0400
-Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FDPky5t5mzPnpt
-        for <linux-i2c@vger.kernel.org>; Mon,  5 Apr 2021 17:00:42 +0800 (CST)
-Received: from localhost.localdomain (10.69.192.56) by
- DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
- 14.3.498.0; Mon, 5 Apr 2021 17:03:24 +0800
-From:   Tian Tao <tiantao6@hisilicon.com>
-To:     <linux-i2c@vger.kernel.org>
-Subject: [PATCH drivers/i2c 1/3] i2c: amd8111: Fix coding style issues
-Date:   Mon, 5 Apr 2021 17:03:48 +0800
-Message-ID: <1617613430-11921-2-git-send-email-tiantao6@hisilicon.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1617613430-11921-1-git-send-email-tiantao6@hisilicon.com>
-References: <1617613430-11921-1-git-send-email-tiantao6@hisilicon.com>
+        id S235091AbhDELzQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 5 Apr 2021 07:55:16 -0400
+Received: from mga18.intel.com ([134.134.136.126]:3197 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233778AbhDELzP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 5 Apr 2021 07:55:15 -0400
+IronPort-SDR: 8OKhLOOrVILWGUlPpnk79x9SOfr6O8ZFC/3Jthdy1FmuDf8g6mg22RswVlYZrkNACtI/vfgQV4
+ rvshMRSyEmBg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9944"; a="180369817"
+X-IronPort-AV: E=Sophos;i="5.81,306,1610438400"; 
+   d="scan'208";a="180369817"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2021 04:55:09 -0700
+IronPort-SDR: lvCz5YQ3hu6F1EWnO35gp0ow77sH81xKQI7b+ZXGY+9LY1hKA8E9c62igLvEGcFyW7H+qMMKva
+ f0JQkS2Z9n0w==
+X-IronPort-AV: E=Sophos;i="5.81,306,1610438400"; 
+   d="scan'208";a="395785573"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2021 04:55:07 -0700
+Received: from andy by smile with local (Exim 4.94)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1lTNou-001Pml-E5; Mon, 05 Apr 2021 14:55:04 +0300
+Date:   Mon, 5 Apr 2021 14:55:04 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "wsa@kernel.org" <wsa@kernel.org>,
+        yangyicong <yangyicong@huawei.com>
+Subject: Re: [PATCH v1 1/1] i2c: designware: Adjust bus_freq_hz when refuse
+ high speed mode set
+Message-ID: <YGr6mGz+DZ5y8eNA@smile.fi.intel.com>
+References: <20210331110510.67523-1-andriy.shevchenko@linux.intel.com>
+ <07b6264280314d919f2747290bb80b01@hisilicon.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.69.192.56]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <07b6264280314d919f2747290bb80b01@hisilicon.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Fix the following checkpatch errors:
+On Wed, Mar 31, 2021 at 09:37:41PM +0000, Song Bao Hua (Barry Song) wrote:
+> > From: Andy Shevchenko [mailto:andriy.shevchenko@linux.intel.com]
+> > Sent: Thursday, April 1, 2021 12:05 AM
+> > To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>; Serge Semin
+> > <Sergey.Semin@baikalelectronics.ru>; linux-i2c@vger.kernel.org;
+> > linux-kernel@vger.kernel.org
 
-  ERROR: "foo * bar" should be "foo *bar"
-  #189: FILE: drivers/i2c/busses/i2c-amd8111.c:189:
+...
 
-  ERROR: "foo * bar" should be "foo *bar"
-  #191: FILE: drivers/i2c/busses/i2c-amd8111.c:191:
+> > Fixes: b6e67145f149 ("i2c: designware: Enable high speed mode")
+> > Reported-by: "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>
+> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> 
+> Thanks for fixing that.
+> 
+> Reviewed-by: Barry Song <song.bao.hua@hisilicon.com>
 
-  ERROR: switch and case should be at the same indent
-  #201: FILE: drivers/i2c/busses/i2c-amd8111.c:201:
+Thanks!
+Wolfram, can be this applied for v5.12-rc7?
 
-  ERROR: switch and case should be at the same indent
-  #359: FILE: drivers/i2c/busses/i2c-amd8111.c:359:
-
-No functional changes.
-
-Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
-Signed-off-by: Zihao Tang <tangzihao1@hisilicon.com>
-Cc: Jean Delvare <jdelvare@suse.com>
----
- drivers/i2c/busses/i2c-amd8111.c | 268 +++++++++++++++++++--------------------
- 1 file changed, 134 insertions(+), 134 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
-index 34862ad..1ed7e94 100644
---- a/drivers/i2c/busses/i2c-amd8111.c
-+++ b/drivers/i2c/busses/i2c-amd8111.c
-@@ -186,9 +186,9 @@ static int amd_ec_write(struct amd_smbus *smbus, unsigned char address,
- #define AMD_SMB_PRTCL_PEC		0x80
- 
- 
--static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
-+static s32 amd8111_access(struct i2c_adapter *adap, u16 addr,
- 		unsigned short flags, char read_write, u8 command, int size,
--		union i2c_smbus_data * data)
-+		union i2c_smbus_data *data)
- {
- 	struct amd_smbus *smbus = adap->algo_data;
- 	unsigned char protocol, len, pec, temp[2];
-@@ -199,130 +199,130 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
- 	pec = (flags & I2C_CLIENT_PEC) ? AMD_SMB_PRTCL_PEC : 0;
- 
- 	switch (size) {
--		case I2C_SMBUS_QUICK:
--			protocol |= AMD_SMB_PRTCL_QUICK;
--			read_write = I2C_SMBUS_WRITE;
--			break;
--
--		case I2C_SMBUS_BYTE:
--			if (read_write == I2C_SMBUS_WRITE) {
--				status = amd_ec_write(smbus, AMD_SMB_CMD,
--						      command);
--				if (status)
--					return status;
--			}
--			protocol |= AMD_SMB_PRTCL_BYTE;
--			break;
--
--		case I2C_SMBUS_BYTE_DATA:
--			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
-+	case I2C_SMBUS_QUICK:
-+		protocol |= AMD_SMB_PRTCL_QUICK;
-+		read_write = I2C_SMBUS_WRITE;
-+		break;
-+
-+	case I2C_SMBUS_BYTE:
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			status = amd_ec_write(smbus, AMD_SMB_CMD,
-+						command);
- 			if (status)
- 				return status;
--			if (read_write == I2C_SMBUS_WRITE) {
--				status = amd_ec_write(smbus, AMD_SMB_DATA,
--						      data->byte);
--				if (status)
--					return status;
--			}
--			protocol |= AMD_SMB_PRTCL_BYTE_DATA;
--			break;
-+		}
-+		protocol |= AMD_SMB_PRTCL_BYTE;
-+		break;
- 
--		case I2C_SMBUS_WORD_DATA:
--			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
-+	case I2C_SMBUS_BYTE_DATA:
-+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
-+		if (status)
-+			return status;
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			status = amd_ec_write(smbus, AMD_SMB_DATA,
-+						data->byte);
- 			if (status)
- 				return status;
--			if (read_write == I2C_SMBUS_WRITE) {
--				status = amd_ec_write(smbus, AMD_SMB_DATA,
--						      data->word & 0xff);
--				if (status)
--					return status;
--				status = amd_ec_write(smbus, AMD_SMB_DATA + 1,
--						      data->word >> 8);
--				if (status)
--					return status;
--			}
--			protocol |= AMD_SMB_PRTCL_WORD_DATA | pec;
--			break;
-+		}
-+		protocol |= AMD_SMB_PRTCL_BYTE_DATA;
-+		break;
- 
--		case I2C_SMBUS_BLOCK_DATA:
--			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
--			if (status)
--				return status;
--			if (read_write == I2C_SMBUS_WRITE) {
--				len = min_t(u8, data->block[0],
--					    I2C_SMBUS_BLOCK_MAX);
--				status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
--				if (status)
--					return status;
--				for (i = 0; i < len; i++) {
--					status =
--					  amd_ec_write(smbus, AMD_SMB_DATA + i,
--						       data->block[i + 1]);
--					if (status)
--						return status;
--				}
--			}
--			protocol |= AMD_SMB_PRTCL_BLOCK_DATA | pec;
--			break;
--
--		case I2C_SMBUS_I2C_BLOCK_DATA:
--			len = min_t(u8, data->block[0],
--				    I2C_SMBUS_BLOCK_MAX);
--			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
--			if (status)
--				return status;
--			status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
--			if (status)
--				return status;
--			if (read_write == I2C_SMBUS_WRITE)
--				for (i = 0; i < len; i++) {
--					status =
--					  amd_ec_write(smbus, AMD_SMB_DATA + i,
--						       data->block[i + 1]);
--					if (status)
--						return status;
--				}
--			protocol |= AMD_SMB_PRTCL_I2C_BLOCK_DATA;
--			break;
--
--		case I2C_SMBUS_PROC_CALL:
--			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
--			if (status)
--				return status;
-+	case I2C_SMBUS_WORD_DATA:
-+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
-+		if (status)
-+			return status;
-+		if (read_write == I2C_SMBUS_WRITE) {
- 			status = amd_ec_write(smbus, AMD_SMB_DATA,
--					      data->word & 0xff);
-+						data->word & 0xff);
- 			if (status)
- 				return status;
- 			status = amd_ec_write(smbus, AMD_SMB_DATA + 1,
--					      data->word >> 8);
-+						data->word >> 8);
- 			if (status)
- 				return status;
--			protocol = AMD_SMB_PRTCL_PROC_CALL | pec;
--			read_write = I2C_SMBUS_READ;
--			break;
-+		}
-+		protocol |= AMD_SMB_PRTCL_WORD_DATA | pec;
-+		break;
- 
--		case I2C_SMBUS_BLOCK_PROC_CALL:
-+	case I2C_SMBUS_BLOCK_DATA:
-+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
-+		if (status)
-+			return status;
-+		if (read_write == I2C_SMBUS_WRITE) {
- 			len = min_t(u8, data->block[0],
--				    I2C_SMBUS_BLOCK_MAX - 1);
--			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
--			if (status)
--				return status;
-+					I2C_SMBUS_BLOCK_MAX);
- 			status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
- 			if (status)
- 				return status;
- 			for (i = 0; i < len; i++) {
--				status = amd_ec_write(smbus, AMD_SMB_DATA + i,
--						      data->block[i + 1]);
-+				status =
-+					amd_ec_write(smbus, AMD_SMB_DATA + i,
-+						data->block[i + 1]);
- 				if (status)
- 					return status;
- 			}
--			protocol = AMD_SMB_PRTCL_BLOCK_PROC_CALL | pec;
--			read_write = I2C_SMBUS_READ;
--			break;
-+		}
-+		protocol |= AMD_SMB_PRTCL_BLOCK_DATA | pec;
-+		break;
-+
-+	case I2C_SMBUS_I2C_BLOCK_DATA:
-+		len = min_t(u8, data->block[0],
-+				I2C_SMBUS_BLOCK_MAX);
-+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
-+		if (status)
-+			return status;
-+		status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
-+		if (status)
-+			return status;
-+		if (read_write == I2C_SMBUS_WRITE)
-+			for (i = 0; i < len; i++) {
-+				status =
-+					amd_ec_write(smbus, AMD_SMB_DATA + i,
-+						data->block[i + 1]);
-+				if (status)
-+					return status;
-+			}
-+		protocol |= AMD_SMB_PRTCL_I2C_BLOCK_DATA;
-+		break;
- 
--		default:
--			dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
--			return -EOPNOTSUPP;
-+	case I2C_SMBUS_PROC_CALL:
-+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
-+		if (status)
-+			return status;
-+		status = amd_ec_write(smbus, AMD_SMB_DATA,
-+					data->word & 0xff);
-+		if (status)
-+			return status;
-+		status = amd_ec_write(smbus, AMD_SMB_DATA + 1,
-+					data->word >> 8);
-+		if (status)
-+			return status;
-+		protocol = AMD_SMB_PRTCL_PROC_CALL | pec;
-+		read_write = I2C_SMBUS_READ;
-+		break;
-+
-+	case I2C_SMBUS_BLOCK_PROC_CALL:
-+		len = min_t(u8, data->block[0],
-+				I2C_SMBUS_BLOCK_MAX - 1);
-+		status = amd_ec_write(smbus, AMD_SMB_CMD, command);
-+		if (status)
-+			return status;
-+		status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
-+		if (status)
-+			return status;
-+		for (i = 0; i < len; i++) {
-+			status = amd_ec_write(smbus, AMD_SMB_DATA + i,
-+						data->block[i + 1]);
-+			if (status)
-+				return status;
-+		}
-+		protocol = AMD_SMB_PRTCL_BLOCK_PROC_CALL | pec;
-+		read_write = I2C_SMBUS_READ;
-+		break;
-+
-+	default:
-+		dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
-+		return -EOPNOTSUPP;
- 	}
- 
- 	status = amd_ec_write(smbus, AMD_SMB_ADDR, addr << 1);
-@@ -357,40 +357,40 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
- 		return 0;
- 
- 	switch (size) {
--		case I2C_SMBUS_BYTE:
--		case I2C_SMBUS_BYTE_DATA:
--			status = amd_ec_read(smbus, AMD_SMB_DATA, &data->byte);
--			if (status)
--				return status;
--			break;
-+	case I2C_SMBUS_BYTE:
-+	case I2C_SMBUS_BYTE_DATA:
-+		status = amd_ec_read(smbus, AMD_SMB_DATA, &data->byte);
-+		if (status)
-+			return status;
-+		break;
- 
--		case I2C_SMBUS_WORD_DATA:
--		case I2C_SMBUS_PROC_CALL:
--			status = amd_ec_read(smbus, AMD_SMB_DATA, temp + 0);
--			if (status)
--				return status;
--			status = amd_ec_read(smbus, AMD_SMB_DATA + 1, temp + 1);
--			if (status)
--				return status;
--			data->word = (temp[1] << 8) | temp[0];
--			break;
-+	case I2C_SMBUS_WORD_DATA:
-+	case I2C_SMBUS_PROC_CALL:
-+		status = amd_ec_read(smbus, AMD_SMB_DATA, temp + 0);
-+		if (status)
-+			return status;
-+		status = amd_ec_read(smbus, AMD_SMB_DATA + 1, temp + 1);
-+		if (status)
-+			return status;
-+		data->word = (temp[1] << 8) | temp[0];
-+		break;
- 
--		case I2C_SMBUS_BLOCK_DATA:
--		case I2C_SMBUS_BLOCK_PROC_CALL:
--			status = amd_ec_read(smbus, AMD_SMB_BCNT, &len);
-+	case I2C_SMBUS_BLOCK_DATA:
-+	case I2C_SMBUS_BLOCK_PROC_CALL:
-+		status = amd_ec_read(smbus, AMD_SMB_BCNT, &len);
-+		if (status)
-+			return status;
-+		len = min_t(u8, len, I2C_SMBUS_BLOCK_MAX);
-+		fallthrough;
-+	case I2C_SMBUS_I2C_BLOCK_DATA:
-+		for (i = 0; i < len; i++) {
-+			status = amd_ec_read(smbus, AMD_SMB_DATA + i,
-+						data->block + i + 1);
- 			if (status)
- 				return status;
--			len = min_t(u8, len, I2C_SMBUS_BLOCK_MAX);
--			fallthrough;
--		case I2C_SMBUS_I2C_BLOCK_DATA:
--			for (i = 0; i < len; i++) {
--				status = amd_ec_read(smbus, AMD_SMB_DATA + i,
--						     data->block + i + 1);
--				if (status)
--					return status;
--			}
--			data->block[0] = len;
--			break;
-+		}
-+		data->block[0] = len;
-+		break;
- 	}
- 
- 	return 0;
 -- 
-2.7.4
+With Best Regards,
+Andy Shevchenko
+
 
