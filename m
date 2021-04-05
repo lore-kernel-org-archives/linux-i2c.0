@@ -2,75 +2,68 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCACCC433B4
-	for <linux-i2c@archiver.kernel.org>; Sun,  4 Apr 2021 17:58:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C20AC433B4
+	for <linux-i2c@archiver.kernel.org>; Mon,  5 Apr 2021 08:18:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 92B8F61103
-	for <linux-i2c@archiver.kernel.org>; Sun,  4 Apr 2021 17:58:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 355F06138B
+	for <linux-i2c@archiver.kernel.org>; Mon,  5 Apr 2021 08:18:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230494AbhDDR6x (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 4 Apr 2021 13:58:53 -0400
-Received: from mxout01.lancloud.ru ([45.84.86.81]:59166 "EHLO
-        mxout01.lancloud.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229861AbhDDR6w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 4 Apr 2021 13:58:52 -0400
-X-Greylist: delayed 354 seconds by postgrey-1.27 at vger.kernel.org; Sun, 04 Apr 2021 13:58:52 EDT
-Received: from LanCloud
-DKIM-Filter: OpenDKIM Filter v2.11.0 mxout01.lancloud.ru 17E0A206FFD0
-Received: from LanCloud
-Received: from LanCloud
-Received: from LanCloud
-From:   Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Subject: [PATCH] i2c: rcar: add IRQ check
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        <linux-i2c@vger.kernel.org>
-Organization: Open Mobile Platform, LLC
-CC:     <linux-renesas-soc@vger.kernel.org>
-Message-ID: <8a05ea84-28e6-4d76-4f6d-55fb0a0cdf24@omprussia.ru>
-Date:   Sun, 4 Apr 2021 20:52:48 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S230196AbhDEIS1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 5 Apr 2021 04:18:27 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:15480 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229660AbhDEIS0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 5 Apr 2021 04:18:26 -0400
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FDNlX2T7XzwQrw;
+        Mon,  5 Apr 2021 16:16:08 +0800 (CST)
+Received: from localhost.localdomain (10.69.192.56) by
+ DGGEMS401-HUB.china.huawei.com (10.3.19.201) with Microsoft SMTP Server id
+ 14.3.498.0; Mon, 5 Apr 2021 16:18:15 +0800
+From:   Tian Tao <tiantao6@hisilicon.com>
+To:     <wsa@kernel.org>
+CC:     <linux-i2c@vger.kernel.org>
+Subject: [PATCH] i2c: core: Fix spacing error by checkpatch
+Date:   Mon, 5 Apr 2021 16:18:42 +0800
+Message-ID: <1617610722-11498-1-git-send-email-tiantao6@hisilicon.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [192.168.11.198]
-X-ClientProxiedBy: LFEXT01.lancloud.ru (fd00:f066::141) To
- LFEX1908.lancloud.ru (fd00:f066::208)
+Content-Type: text/plain
+X-Originating-IP: [10.69.192.56]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to devm_request_irq() (which
-takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
-an original error code.  Stop calling devm_request_irq() with the
-invalid IRQ #s.
+Fix the following checkpatch error:
+ #614: FILE: drivers/i2c/i2c-core-base.c:614:
+ +	len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
+ 	                                               ^
+No functional changes.
 
-Fixes: 6ccbe607132b ("i2c: add Renesas R-Car I2C driver")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-
+Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
 ---
- drivers/i2c/busses/i2c-rcar.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core-base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux/drivers/i2c/busses/i2c-rcar.c
-===================================================================
---- linux.orig/drivers/i2c/busses/i2c-rcar.c
-+++ linux/drivers/i2c/busses/i2c-rcar.c
-@@ -1027,7 +1027,9 @@ static int rcar_i2c_probe(struct platfor
- 	if (of_property_read_bool(dev->of_node, "smbus"))
- 		priv->flags |= ID_P_HOST_NOTIFY;
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 7039b8a..e4d4a34 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -612,7 +612,7 @@ modalias_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	if (len != -ENODEV)
+ 		return len;
  
--	priv->irq = platform_get_irq(pdev, 0);
-+	priv->irq = ret = platform_get_irq(pdev, 0);
-+	if (ret < 0)
-+		goto out_pm_disable;
- 	ret = devm_request_irq(dev, priv->irq, irqhandler, irqflags, dev_name(dev), priv);
- 	if (ret < 0) {
- 		dev_err(dev, "cannot get irq %d\n", priv->irq);
+-	len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
++	len = acpi_device_modalias(dev, buf, PAGE_SIZE - 1);
+ 	if (len != -ENODEV)
+ 		return len;
+ 
+-- 
+2.7.4
+
