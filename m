@@ -4,40 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4BBAC433B4
-	for <linux-i2c@archiver.kernel.org>; Wed,  7 Apr 2021 01:42:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE2CDC433B4
+	for <linux-i2c@archiver.kernel.org>; Wed,  7 Apr 2021 03:01:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 938D6613A7
-	for <linux-i2c@archiver.kernel.org>; Wed,  7 Apr 2021 01:42:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 80FF0613D0
+	for <linux-i2c@archiver.kernel.org>; Wed,  7 Apr 2021 03:01:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347764AbhDGBnF convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 6 Apr 2021 21:43:05 -0400
-Received: from szxga07-in.huawei.com ([45.249.212.35]:16366 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235801AbhDGBnE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 6 Apr 2021 21:43:04 -0400
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4FFRtL6pPGz9vBq;
-        Wed,  7 Apr 2021 09:40:42 +0800 (CST)
+        id S233174AbhDGDBy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 6 Apr 2021 23:01:54 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:15928 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231847AbhDGDBv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 6 Apr 2021 23:01:51 -0400
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4FFTdk224CzjYV0;
+        Wed,  7 Apr 2021 10:59:54 +0800 (CST)
 Received: from localhost.localdomain (10.175.102.38) by
- DGGEMS401-HUB.china.huawei.com (10.3.19.201) with Microsoft SMTP Server id
- 14.3.498.0; Wed, 7 Apr 2021 09:42:46 +0800
+ DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
+ 14.3.498.0; Wed, 7 Apr 2021 11:01:30 +0800
 From:   Wei Yongjun <weiyongjun1@huawei.com>
 To:     <weiyongjun1@huawei.com>, Sanket Goswami <Sanket.Goswami@amd.com>,
         "Jarkko Nikula" <jarkko.nikula@linux.intel.com>
 CC:     <linux-i2c@vger.kernel.org>, <kernel-janitors@vger.kernel.org>,
         Hulk Robot <hulkci@huawei.com>
-Subject: [PATCH -next] i2c: designware: Fix return value check in navi_amd_register_client()
-Date:   Wed, 7 Apr 2021 01:52:53 +0000
-Message-ID: <20210407015253.3002049-1-weiyongjun1@huawei.com>
+Subject: [PATCH -next v2] i2c: designware: Fix return value check in navi_amd_register_client()
+Date:   Wed, 7 Apr 2021 03:11:37 +0000
+Message-ID: <20210407031137.2750993-1-weiyongjun1@huawei.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type:   text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 X-Originating-IP: [10.175.102.38]
 X-CFilter-Loop: Reflected
 Precedence: bulk
@@ -51,6 +50,8 @@ value check should be replaced with IS_ERR().
 Fixes: 17631e8ca2d3 ("i2c: designware: Add driver support for AMD NAVI GPU")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+---
+v1 -> v2: fix description format.
 ---
  drivers/i2c/busses/i2c-designware-pcidrv.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
