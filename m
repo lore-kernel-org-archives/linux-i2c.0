@@ -7,20 +7,20 @@ X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
 	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16E9AC433B4
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Apr 2021 20:31:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7490FC433B4
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Apr 2021 20:58:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5A5161105
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Apr 2021 20:31:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A593601FE
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Apr 2021 20:58:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234965AbhDJUbW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 10 Apr 2021 16:31:22 -0400
-Received: from mxout03.lancloud.ru ([45.84.86.113]:39374 "EHLO
+        id S234874AbhDJU6P (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 10 Apr 2021 16:58:15 -0400
+Received: from mxout03.lancloud.ru ([45.84.86.113]:40000 "EHLO
         mxout03.lancloud.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234548AbhDJUbT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 10 Apr 2021 16:31:19 -0400
+        with ESMTP id S234439AbhDJU6O (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 10 Apr 2021 16:58:14 -0400
 Received: from LanCloud
-DKIM-Filter: OpenDKIM Filter v2.11.0 mxout03.lancloud.ru F0046207521C
+DKIM-Filter: OpenDKIM Filter v2.11.0 mxout03.lancloud.ru 6399B208CD25
 Received: from LanCloud
 Received: from LanCloud
 Received: from LanCloud
@@ -36,8 +36,8 @@ CC:     <linux-mips@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>
 References: <7995bba1-61dd-baa3-51ea-0fb2fccc19a0@omprussia.ru>
 Organization: Open Mobile Platform, LLC
-Message-ID: <b27b3e14-d928-f44d-8b67-2d7645009f3c@omprussia.ru>
-Date:   Sat, 10 Apr 2021 23:31:01 +0300
+Message-ID: <ca43d9f0-28c7-d23e-402e-bb2b0113517c@omprussia.ru>
+Date:   Sat, 10 Apr 2021 23:57:56 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.1
 MIME-Version: 1.0
@@ -46,7 +46,7 @@ Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-Originating-IP: [192.168.11.198]
-X-ClientProxiedBy: LFEXT01.lancloud.ru (fd00:f066::141) To
+X-ClientProxiedBy: LFEXT02.lancloud.ru (fd00:f066::142) To
  LFEX1908.lancloud.ru (fd00:f066::208)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
@@ -55,18 +55,13 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 On 4/10/21 11:11 PM, Sergey Shtylyov wrote:
 
 > Here are 6 patches against the 'master' branch of Martin Petersen's 'scsi.git' repo.
+
+   Oops, left that line unfinished. Wolfram's 'linux.git' repo, of course... :-)
+
 > The affected drivers call platform_get_irq() but largely ignore its result -- they
 > blithely pass the negative error codes to devm_request_irq() which expects *unsinged*
 > IRQ #s. Stop doing that by checking what exactly platform_get_irq() returns.
-> 
-> [1/6] i2c: cadence: add IRQ check
-> [2/6] i2c: emev2: add IRQ check
-> [3/6] i2c: jz4780: add IRQ check
-> [4/6] i2c: mlxbf: add IRQ check
-> [5/6] i2c: rcar: add IRQ check
 
-   Forgot to mention that the whole v2 patch set grew from this R-Car patch.
+[...]
 
-> [6/6] i2c: sh7760: add IRQ check
-
-MBR, Sergey
+MNR, Sergey
