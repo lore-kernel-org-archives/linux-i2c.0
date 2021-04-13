@@ -2,46 +2,46 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0596CC433ED
-	for <linux-i2c@archiver.kernel.org>; Tue, 13 Apr 2021 14:37:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E16A8C433B4
+	for <linux-i2c@archiver.kernel.org>; Tue, 13 Apr 2021 14:37:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D2612613B3
-	for <linux-i2c@archiver.kernel.org>; Tue, 13 Apr 2021 14:37:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD8A1613A9
+	for <linux-i2c@archiver.kernel.org>; Tue, 13 Apr 2021 14:37:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243346AbhDMOiP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 13 Apr 2021 10:38:15 -0400
-Received: from mga12.intel.com ([192.55.52.136]:44168 "EHLO mga12.intel.com"
+        id S244620AbhDMOiR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 13 Apr 2021 10:38:17 -0400
+Received: from mga18.intel.com ([134.134.136.126]:54662 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237179AbhDMOiO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 13 Apr 2021 10:38:14 -0400
-IronPort-SDR: KcxiDkliPBYEPvhe5aOXgkKJjLBTxT0iwt1JwUJpwIuHYLZJ78Le7PfK69zqtF3mK3Bjx+GAcC
- OmyNEs3a7Jyw==
-X-IronPort-AV: E=McAfee;i="6200,9189,9953"; a="173919058"
+        id S243824AbhDMOiQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 13 Apr 2021 10:38:16 -0400
+IronPort-SDR: fVTNZ9IG1CzC5Je0UavB95Dbe6ssEDDVgGrURcM/hU5lzXQfdXVMeB9j3D2VNUlKkbBPI4vy/N
+ 1bAljSMGNp+w==
+X-IronPort-AV: E=McAfee;i="6200,9189,9953"; a="181940558"
 X-IronPort-AV: E=Sophos;i="5.82,219,1613462400"; 
-   d="scan'208";a="173919058"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2021 07:37:54 -0700
-IronPort-SDR: hikAh/u1PLSUJ5UU7CKgkyX3XGxkCv7m2pl4ZasOWQr6mFUS11V+wM07v3M80smkoI35REla1z
- 7qNTHxOXfM0w==
+   d="scan'208";a="181940558"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2021 07:37:55 -0700
+IronPort-SDR: /zlEhL58J+c+PfuKImPCcisc5t9ZR8hZDeKtpUD/Uryd1XJOItgtm3njWnlnnX+WhLUumAs9uA
+ 0TTm1dSUIZjQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.82,219,1613462400"; 
-   d="scan'208";a="417878777"
+   d="scan'208";a="424279256"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga008.fm.intel.com with ESMTP; 13 Apr 2021 07:37:52 -0700
+  by orsmga008.jf.intel.com with ESMTP; 13 Apr 2021 07:37:53 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 4D29612A; Tue, 13 Apr 2021 17:38:09 +0300 (EEST)
+        id DCA1A147; Tue, 13 Apr 2021 17:38:09 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>, wsa@kernel.org,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 2/4] i2c: mpc: Remove CONFIG_PM_SLEEP ifdeffery
-Date:   Tue, 13 Apr 2021 17:37:54 +0300
-Message-Id: <20210413143756.60138-2-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 3/4] i2c: mpc: Use device_get_match_data() helper
+Date:   Tue, 13 Apr 2021 17:37:55 +0300
+Message-Id: <20210413143756.60138-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210413143756.60138-1-andriy.shevchenko@linux.intel.com>
 References: <20210413143756.60138-1-andriy.shevchenko@linux.intel.com>
@@ -51,60 +51,59 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Use __maybe_unused for the suspend()/resume() hooks and get rid of
-the CONFIG_PM_SLEEP ifdeffery to improve the code.
+Use the device_get_match_data() helper instead of open coding.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-mpc.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-mpc.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 6dc029a31d36..2376accd4e8e 100644
+index 2376accd4e8e..ec9d7d93e80f 100644
 --- a/drivers/i2c/busses/i2c-mpc.c
 +++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -66,9 +66,7 @@ struct mpc_i2c {
- 	struct i2c_adapter adap;
- 	int irq;
- 	u32 real_clk;
--#ifdef CONFIG_PM_SLEEP
- 	u8 fdr, dfsrr;
--#endif
- 	struct clk *clk_per;
+@@ -19,6 +19,7 @@
+ #include <linux/of_address.h>
+ #include <linux/of_irq.h>
+ #include <linux/of_platform.h>
++#include <linux/property.h>
+ #include <linux/slab.h>
+ 
+ #include <linux/clk.h>
+@@ -643,10 +644,9 @@ static struct i2c_bus_recovery_info fsl_i2c_recovery_info = {
+ 	.recover_bus = fsl_i2c_bus_recovery,
  };
  
-@@ -761,8 +759,7 @@ static int fsl_i2c_remove(struct platform_device *op)
- 	return 0;
- };
- 
--#ifdef CONFIG_PM_SLEEP
--static int mpc_i2c_suspend(struct device *dev)
-+static int __maybe_unused mpc_i2c_suspend(struct device *dev)
+-static const struct of_device_id mpc_i2c_of_match[];
+ static int fsl_i2c_probe(struct platform_device *op)
  {
- 	struct mpc_i2c *i2c = dev_get_drvdata(dev);
+-	const struct of_device_id *match;
++	const struct mpc_i2c_data *data;
+ 	struct mpc_i2c *i2c;
+ 	const u32 *prop;
+ 	u32 clock = MPC_I2C_CLOCK_LEGACY;
+@@ -655,10 +655,6 @@ static int fsl_i2c_probe(struct platform_device *op)
+ 	struct clk *clk;
+ 	int err;
  
-@@ -772,7 +769,7 @@ static int mpc_i2c_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int mpc_i2c_resume(struct device *dev)
-+static int __maybe_unused mpc_i2c_resume(struct device *dev)
- {
- 	struct mpc_i2c *i2c = dev_get_drvdata(dev);
- 
-@@ -781,12 +778,7 @@ static int mpc_i2c_resume(struct device *dev)
- 
- 	return 0;
- }
+-	match = of_match_device(mpc_i2c_of_match, &op->dev);
+-	if (!match)
+-		return -EINVAL;
 -
- static SIMPLE_DEV_PM_OPS(mpc_i2c_pm_ops, mpc_i2c_suspend, mpc_i2c_resume);
--#define MPC_I2C_PM_OPS	(&mpc_i2c_pm_ops)
--#else
--#define MPC_I2C_PM_OPS	NULL
--#endif
+ 	i2c = devm_kzalloc(&op->dev, sizeof(*i2c), GFP_KERNEL);
+ 	if (!i2c)
+ 		return -ENOMEM;
+@@ -709,8 +705,8 @@ static int fsl_i2c_probe(struct platform_device *op)
+ 			clock = *prop;
+ 	}
  
- static const struct mpc_i2c_data mpc_i2c_data_512x = {
- 	.setup = mpc_i2c_setup_512x,
+-	if (match->data) {
+-		const struct mpc_i2c_data *data = match->data;
++	data = device_get_match_data(&op->dev);
++	if (data) {
+ 		data->setup(op->dev.of_node, i2c, clock);
+ 	} else {
+ 		/* Backwards compatibility */
 -- 
 2.30.2
 
