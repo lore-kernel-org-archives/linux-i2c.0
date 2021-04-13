@@ -2,90 +2,93 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FD74C43460
-	for <linux-i2c@archiver.kernel.org>; Tue, 13 Apr 2021 05:10:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 394AEC433ED
+	for <linux-i2c@archiver.kernel.org>; Tue, 13 Apr 2021 05:10:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0FD64613AB
-	for <linux-i2c@archiver.kernel.org>; Tue, 13 Apr 2021 05:10:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1970B613A9
+	for <linux-i2c@archiver.kernel.org>; Tue, 13 Apr 2021 05:10:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242755AbhDMFK1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 13 Apr 2021 01:10:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49248 "EHLO
+        id S242498AbhDMFKc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 13 Apr 2021 01:10:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242405AbhDMFK0 (ORCPT
+        with ESMTP id S240996AbhDMFK0 (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Apr 2021 01:10:26 -0400
 Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [IPv6:2001:df5:b000:5::4])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFD72C06175F
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B95B7C061756
         for <linux-i2c@vger.kernel.org>; Mon, 12 Apr 2021 22:10:07 -0700 (PDT)
 Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (Client did not present a certificate)
-        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 24EFB806A8;
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id C3443891B1;
         Tue, 13 Apr 2021 17:10:03 +1200 (NZST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
         s=mail181024; t=1618290603;
-        bh=Mo9Jb9NuUCdMrV9mhGoOphtTec+QGiASdV2SztXHQjc=;
-        h=From:To:Cc:Subject:Date;
-        b=klG4gMF3qgHjqxi4vHdt30TYY7vOOQbgKTlfO0GXjE692KE+fWu84Bu45xw62Zj90
-         ZCaNerxfCc8G8BRStF1+9ZUK8F8V3TEJ2hJ0fT5TDH4AN87JEWrLLAOyUAGO5UKAFZ
-         uGUXMFTMzJVyXYPJa7nViW8qS7Ldaj5i3FJxtpnhEa6w4OvzOygWbdsJJpROImEmEj
-         YNesoZxNVclqirEcyDVffFwSvKqXHr/KVQYT+R2eqOxHKSBSpCnNDbn/ycdxTnb2pS
-         3glfBNnCPsBMrds9maXWwa6tyhsH/PLWwnIHFvmtiv6t8zIyhqNWR+Be5RUR+clB3m
-         4xh/JO9eH1yug==
+        bh=06bqgRoIKo1bw/WYZTmwcz803si3F00eqbZ0lClVLho=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=SCmPXAwtCrbeS3jtjMhL17IXanoo7R1rqH4xKEPOl4FWicIFqg+mo9TLnUypW+2PQ
+         L57/s3WntlZwFDXM3M8H1//LdapBP0kdY7okkXdZiQyuzSVhTnKMGNtUsBVE/93SgS
+         Z3/r852iGZcAhxF/TF22qorNIZ4dcksXfqZVzgGPaQEVEtkeqe+UUMal9iniGX1puw
+         bgvtMCBjhllBXqOI5swMabifEVkZHm71AG8xu6W5MF3W5QK4u67gDT8NcZl2r+DqqW
+         4G+GlsVGO7bbG9iYJr2BmXHnamIPP6bMDk5tvqQBEhRwHxQrvCDEYLFlFUJympek1o
+         ttHKdxewmps5w==
 Received: from smtp (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-        id <B607527ab0000>; Tue, 13 Apr 2021 17:10:02 +1200
+        id <B607527ab0004>; Tue, 13 Apr 2021 17:10:03 +1200
 Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.20])
-        by smtp (Postfix) with ESMTP id 3A74513EEED;
+        by smtp (Postfix) with ESMTP id CCB6013EEED;
         Tue, 13 Apr 2021 17:10:23 +1200 (NZST)
 Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
-        id 003FC284083; Tue, 13 Apr 2021 17:10:02 +1200 (NZST)
+        id 94948284083; Tue, 13 Apr 2021 17:10:03 +1200 (NZST)
 From:   Chris Packham <chris.packham@alliedtelesis.co.nz>
 To:     Wolfram Sang <wsa@kernel.org>
 Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
         Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH v3 0/4] i2c: mpc: Refactor to improve responsiveness
-Date:   Tue, 13 Apr 2021 17:09:51 +1200
-Message-Id: <20210413050956.23264-1-chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH v3 3/3] MAINTAINERS: Add Chris Packham as FREESCALE MPC I2C maintainer
+Date:   Tue, 13 Apr 2021 17:09:55 +1200
+Message-Id: <20210413050956.23264-5-chris.packham@alliedtelesis.co.nz>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210413050956.23264-1-chris.packham@alliedtelesis.co.nz>
+References: <20210413050956.23264-1-chris.packham@alliedtelesis.co.nz>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=NaGYKFL4 c=1 sm=1 tr=0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=3YhXtTcJ-WEA:10 a=035Devx1kFi9PKnuwTsA:9
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=NaGYKFL4 c=1 sm=1 tr=0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=3YhXtTcJ-WEA:10 a=VwQbUJbxAAAA:8 a=8AirrxEcAAAA:8 a=iNMaT824dxZMgvWejbMA:9 a=AjGcO6oz07-iQ99wixmX:22 a=ST-jHhOKWsTCqRlWije3:22
 X-SEG-SpamProfiler-Score: 0
 x-atlnz-ls: pat
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This is an update to what is already in i2c/for-next. I've included "i2c:=
- mpc:
-use device managed APIs" which had some problems in the remove code path =
-which
-Wei Yongjun kindly pointed out with a fix. I've incorporated those change=
-s into
-this version in case the original is reverted.
+Add Chris Packham as FREESCALE MPC I2C maintainer.
 
-I've tested on T2081 and P2041 based systems with a number of i2c and smb=
-us
-devices. Also this time I included a few iterations of module insert/remo=
-ve
-which would have caught the earlier errors.
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+---
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Chris Packham (4):
-  i2c: mpc: use device managed APIs
-  i2c: mpc: Interrupt driven transfer
-  i2c: mpc: Remove redundant NULL check
-  MAINTAINERS: Add Chris Packham as FREESCALE MPC I2C maintainer
-
- MAINTAINERS                  |   7 +
- drivers/i2c/busses/i2c-mpc.c | 488 +++++++++++++++++++----------------
- 2 files changed, 267 insertions(+), 228 deletions(-)
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 56e9e4d777d8..3bc77ba8cd05 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7135,6 +7135,13 @@ S:	Maintained
+ F:	Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
+ F:	drivers/i2c/busses/i2c-imx-lpi2c.c
+=20
++FREESCALE MPC I2C DRIVER
++M:	Chris Packham <chris.packham@alliedtelesis.co.nz>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/i2c/i2c-mpc.yaml
++F:	drivers/i2c/busses/i2c-mpc.c
++
+ FREESCALE QORIQ DPAA ETHERNET DRIVER
+ M:	Madalin Bucur <madalin.bucur@nxp.com>
+ L:	netdev@vger.kernel.org
 --=20
 2.31.1
 
