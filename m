@@ -2,85 +2,110 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03530C433B4
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Apr 2021 06:25:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D65F0C433B4
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Apr 2021 06:45:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D7179613F4
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Apr 2021 06:25:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD1A961152
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Apr 2021 06:45:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230395AbhDOG0L (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 15 Apr 2021 02:26:11 -0400
-Received: from mga01.intel.com ([192.55.52.88]:45226 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230366AbhDOG0L (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 15 Apr 2021 02:26:11 -0400
-IronPort-SDR: 3M1ecVUBcJ83xrr9h0SXiRSX+QWmD8G0U+mig7csHqeN5PHoXV9mVJqX2fAFTVQnrJHaRnU1ZG
- pHxjF10/WzzA==
-X-IronPort-AV: E=McAfee;i="6200,9189,9954"; a="215297418"
-X-IronPort-AV: E=Sophos;i="5.82,223,1613462400"; 
-   d="scan'208";a="215297418"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2021 23:25:47 -0700
-IronPort-SDR: zY54dWZOt7m6OJWkJm9OClz48C/KRlYVNxj28nO9i1Ow2gAi24vZ3f0pwI7yaw5r46tPMikjTP
- 74pQ++ZiUsUA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.82,223,1613462400"; 
-   d="scan'208";a="421587324"
-Received: from dengjie-mobl1.ccr.corp.intel.com (HELO [10.239.154.55]) ([10.239.154.55])
-  by orsmga007.jf.intel.com with ESMTP; 14 Apr 2021 23:25:41 -0700
-Subject: Re: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
-To:     Viresh Kumar <viresh.kumar@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, wsa@the-dreams.de
-Cc:     wsa@kernel.org, wsa@the-dreams.de, mst@redhat.com,
-        linux-i2c@vger.kernel.org,
+        id S230201AbhDOGqE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 15 Apr 2021 02:46:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48962 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229503AbhDOGqE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Apr 2021 02:46:04 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4AFEC061756
+        for <linux-i2c@vger.kernel.org>; Wed, 14 Apr 2021 23:45:41 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id s14so6696720pjl.5
+        for <linux-i2c@vger.kernel.org>; Wed, 14 Apr 2021 23:45:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=ISz3TyCn2/uIV44d4r1X/5cuqYAQkTLj0NPgFtRUo2I=;
+        b=ZkNXqgXt17/0WJ4uQEF9j6e/5EMQTJWO4jWtpcFp26A0tT3EGv9X7opfYTgaLaA7kN
+         GJo6U3f0Id4pHUfxCIEXDZQP9NxPYLneOAYwpovFXcIw+UHB3CUIPAlaFgQvRrsoze4N
+         ccHbzbI0j2UaRVNnRvCrTmbeD40PEy2ObsDc1shrBjwtRnh/FUIt994nEOcHAbNpb24H
+         /c/2k2xvA4c7eg2hLT7ltJbJyeOpM+Hk0rRwk4Bcoek5J7x+OYH7nWDK6CuiqbckOU3p
+         vBKsiufpBAHBwBdj9QsrdaYeX3QvoifBnoAY+dLWoVW+bUCn5aAFsi2E/CBvg9cq9ABq
+         aaWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=ISz3TyCn2/uIV44d4r1X/5cuqYAQkTLj0NPgFtRUo2I=;
+        b=fx/AL2t5r/84q/AvHmIWh7F+mR43j3YYERSYFt6acOfJ1gaQ0EJgXOWxKYU/4irF9/
+         kEOfe1G9DvhmDqm/h4sXGQIkk50uoew1/BsPPKFv7pQUxR93FbVhMkcIC4e6vFtgWZhM
+         iKzz6ZwSHK5S0eQfQLZxVDpDjC/PHZUzvl3MklDV6u6jUBVmdz5az3XA6Hw0IAe2AJRc
+         bheLvqYqGueuYMTLYufmNn6BrV4jIowFl4imyjx7sZ1Jh03VWHAdrPh6IuUcQPa/TCiC
+         znSl48p+G/6NKApYS1672UXRw5joJ2C3MXSrneazomLJZ45mUhcLlTN6n8PYfmOQkdgA
+         c0VA==
+X-Gm-Message-State: AOAM532FrcVyY05RF8pVqzLOVgjqqn4Pn64KRNy4GB0OPvYaIOcF309B
+        ksLCbe38PnfeLSqEVGOksAiQaw==
+X-Google-Smtp-Source: ABdhPJxkskB8P0tKMWapxuD4NGGfvFGy45KJl/a5vd6yWCCWrv6b9XsNU0j5YzeODTXO0B57rwGdkw==
+X-Received: by 2002:a17:90a:5910:: with SMTP id k16mr2266235pji.207.1618469141190;
+        Wed, 14 Apr 2021 23:45:41 -0700 (PDT)
+Received: from localhost ([136.185.154.93])
+        by smtp.gmail.com with ESMTPSA id p3sm1184591pfq.136.2021.04.14.23.45.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Apr 2021 23:45:40 -0700 (PDT)
+Date:   Thu, 15 Apr 2021 12:15:38 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Jie Deng <jie.deng@intel.com>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
         virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, jasowang@redhat.com,
-        wsa+renesas@sang-engineering.com,
-        andriy.shevchenko@linux.intel.com, conghui.chen@intel.com,
-        arnd@arndb.de, kblaiech@mellanox.com,
-        jarkko.nikula@linux.intel.com, Sergey.Semin@baikalelectronics.ru,
-        rppt@kernel.org, loic.poulain@linaro.org, tali.perry1@gmail.com,
-        u.kleine-koenig@pengutronix.de, bjorn.andersson@linaro.org,
-        yu1.wang@intel.com, shuo.a.liu@intel.com, stefanha@redhat.com
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Jason Wang <jasowang@redhat.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        conghui.chen@intel.com, kblaiech@mellanox.com,
+        jarkko.nikula@linux.intel.com,
+        Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
+        Mike Rapoport <rppt@kernel.org>, loic.poulain@linaro.org,
+        Tali Perry <tali.perry1@gmail.com>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        yu1.wang@intel.com, shuo.a.liu@intel.com,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
+Message-ID: <20210415064538.a4vf7egk6l3u6zfz@vireshk-i7>
 References: <226a8d5663b7bb6f5d06ede7701eedb18d1bafa1.1616493817.git.jie.deng@intel.com>
- <e93836c3-d444-0b8c-c9df-559de0d5f27e@intel.com>
- <20210414035229.7uqfdcd6dy2ryg3s@vireshk-i7>
-From:   Jie Deng <jie.deng@intel.com>
-Message-ID: <dc5d6f92-8f90-5731-5fce-4b2b6a72c81f@intel.com>
-Date:   Thu, 15 Apr 2021 14:25:40 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.7.0
+ <20210323072704.rgoelmq62fl2wjjf@vireshk-i7>
+ <a2994a8f-bbf9-b26f-a9d2-eb02df6623b8@intel.com>
+ <CAK8P3a3OBUZC2nxaQ2wyL9EeT3gzXUX9sfJ+ZJfJUiJK_3ZkrA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210414035229.7uqfdcd6dy2ryg3s@vireshk-i7>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a3OBUZC2nxaQ2wyL9EeT3gzXUX9sfJ+ZJfJUiJK_3ZkrA@mail.gmail.com>
+User-Agent: NeoMutt/20180716-391-311a52
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On 23-03-21, 10:27, Arnd Bergmann wrote:
+> I usually recommend the use of __maybe_unused for the suspend/resume
+> callbacks for drivers that use SIMPLE_DEV_PM_OPS() or similar helpers
+> that hide the exact conditions under which the functions get called.
+> 
+> In this driver, there is an explicit #ifdef in the reference to the
+> functions, so
+> it would make sense to use the same #ifdef around the definition.
 
-On 2021/4/14 11:52, Viresh Kumar wrote:
->
->> Is i2c/for-next the right tree to merge it
->> ?
-> It should be.
+Jie,
 
-Thanks Viresh.
+I was talking about this comment when I said I was expecting a new
+version. I think you still need to make this change.
 
-
-Hi Wolfram,
-
-Do you have any comments for this patch ? Your opinion will be important 
-to improve this patch
-
-since you are the maintainer of I2C.
-
-Thanks,
-
-Jie
-
+-- 
+viresh
