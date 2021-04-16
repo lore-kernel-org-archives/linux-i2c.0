@@ -2,159 +2,206 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C570EC433B4
-	for <linux-i2c@archiver.kernel.org>; Fri, 16 Apr 2021 14:43:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2CE4C43461
+	for <linux-i2c@archiver.kernel.org>; Fri, 16 Apr 2021 22:40:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9960A61166
-	for <linux-i2c@archiver.kernel.org>; Fri, 16 Apr 2021 14:43:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 84F74613D7
+	for <linux-i2c@archiver.kernel.org>; Fri, 16 Apr 2021 22:40:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236001AbhDPOnn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 16 Apr 2021 10:43:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46520 "EHLO
+        id S231997AbhDPWlU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 16 Apr 2021 18:41:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244989AbhDPOng (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Apr 2021 10:43:36 -0400
-Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50EA1C061574
-        for <linux-i2c@vger.kernel.org>; Fri, 16 Apr 2021 07:43:11 -0700 (PDT)
-Received: by mail-io1-xd33.google.com with SMTP id a9so17065389ioc.8
-        for <linux-i2c@vger.kernel.org>; Fri, 16 Apr 2021 07:43:11 -0700 (PDT)
+        with ESMTP id S233361AbhDPWlT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Apr 2021 18:41:19 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 031A7C061760
+        for <linux-i2c@vger.kernel.org>; Fri, 16 Apr 2021 15:40:54 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id c3so462764pfo.3
+        for <linux-i2c@vger.kernel.org>; Fri, 16 Apr 2021 15:40:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Lp6KUcpzifC+AOvSZvapIoyzvGHXfJkgx9ufls5cSDs=;
-        b=euQfq2wFnH47LbM4abT1kLxvYkf6Sm9dtzlvDEkHRLT16XPhriYBl4jchj3CNIj5Cb
-         78dEEh4TPIwY63jFSpB3a/4Hw6jbLBUaSghrWwAniyOnmsLBpSGqHaFBCqMY0IIv7hvo
-         XREmLq4799LTQ+vzSqvxuvuQjrowfvajPCs7k=
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ViswrO4sNM/Xqi4udoIc8TV1g5Dhwym3dG9TOSi7ivs=;
+        b=TMpqd+SZZNmTBRTV6uWewh2kSXCh2ZpBo6CN20Dp1CF52eaoP14/KHfKKwODaGwtt5
+         xl0iLUpo8safOBqsFCvyhS5LCcuKLHRmVOjaOrgrg9NYd9R1G99pU2Ryy6JuC3vJBP5U
+         5TgykYHu6b4idrMShUykAgXxtyU1Zhne4XTJ0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Lp6KUcpzifC+AOvSZvapIoyzvGHXfJkgx9ufls5cSDs=;
-        b=onItIR3UiabvWsQDyC1VH9AewTOvuL93EdqYmB+GXZD25Hi3m3RfxuRRhXA2q1825/
-         x1U08fJgHflbjHkOqMK8Uv+WHEdlUOOaP7C38LuJBTkZbkeQz5gKeAVn6//slsZuo7PG
-         1eW2C3wOPbZXR1sm2axa/JxLrFZgvstGJlMPrcrZyWenfqgzhPah0I2W4AxRD8NzvdX1
-         Rsq2lU1OrdOTA8m1m6WmsmJcP6VwWbtz1yKS3m5cdOR5Zj0beg5BqHs4gBkNcM1X2o+A
-         H2w6HPzVH43Lt+x7Sy3LuDo0nKhfHMexO3wJ1E4AOtGim74Qv/YzochKSCC2QRT7JaQH
-         o+ww==
-X-Gm-Message-State: AOAM530qlEJFHaa46HBdF4XE3XWZHWPW2XB+qlj4rE1vk/Sx+ySmFchw
-        OOhYyRfxSNYuvQ2eKGFzAmz4h1fUwIx4TaRuDawZXw==
-X-Google-Smtp-Source: ABdhPJzZne3Oah6jq0y3MQ7cXog0eHGiB4uUC0V04tFOpjqhXtg1Qck21Dtp3ESr9EjxkzptDtOP0iJHWG1Ya4WW0SQ=
-X-Received: by 2002:a05:6638:38a4:: with SMTP id b36mr4265974jav.102.1618584190633;
- Fri, 16 Apr 2021 07:43:10 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210414172916.2689361-1-hsinyi@chromium.org> <20210414172916.2689361-7-hsinyi@chromium.org>
- <87y2dicnpy.fsf@intel.com>
-In-Reply-To: <87y2dicnpy.fsf@intel.com>
-From:   Hsin-Yi Wang <hsinyi@chromium.org>
-Date:   Fri, 16 Apr 2021 22:42:44 +0800
-Message-ID: <CAJMQK-iUgQBH8uW07fpbptE33D5NsVwmZXngcZknPw93apRK0A@mail.gmail.com>
-Subject: Re: [PATCH v19 6/6] drm/i915/selftests: Rename functions names
-To:     Jani Nikula <jani.nikula@linux.intel.com>
-Cc:     Wolfram Sang <wsa@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ViswrO4sNM/Xqi4udoIc8TV1g5Dhwym3dG9TOSi7ivs=;
+        b=dhJwothncc6bhTXcT6ksXHC1z0XvGpmjlsD44Wy3IBRyFZ2uoDMojKgf6p2XT2loh0
+         Ss5Fdl+6dB+EKHJPRjDVnIgBqDjfukE3HcFJNBxhY4YUfPjjspz44dnNPgvtAeXFhJ64
+         kGUYuJHI9S0hYYhUlq6l23VHDzilHp3dCKBVvilG/LGAl6HhSpxADpYyQTo81jl0L7AF
+         Zq/LARVuZIJrHKooQCo4PnJJG7kZ/oEp9zZRcNvjXGDcupqmpPwfa+wVpZRst5riwJJh
+         0BuA1mt++JyvgNrRtIFeub3UGmR3pn4YX6eUECwRDTK5dZRs8vAjuF6+SPU5nNibTYEJ
+         wjZw==
+X-Gm-Message-State: AOAM531XCxtoztaCupFg0pznLaWCBf5xPF4uHH4kbFzO1K8tomm2m0rQ
+        zUQID3//VJw3ea1dxbaJuMgP9g==
+X-Google-Smtp-Source: ABdhPJx6lCORDd6OQS0dzEmoduf0wcmDKI4UY+j+Y/gi2+7rXDlEFFzUVrPJJjly2rZhsMrKa7vSlw==
+X-Received: by 2002:a63:c446:: with SMTP id m6mr1059717pgg.71.1618612853290;
+        Fri, 16 Apr 2021 15:40:53 -0700 (PDT)
+Received: from tictac2.mtv.corp.google.com ([2620:15c:202:201:dc8a:c9d0:aa5b:5386])
+        by smtp.gmail.com with ESMTPSA id r6sm5633659pgp.64.2021.04.16.15.40.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Apr 2021 15:40:52 -0700 (PDT)
+From:   Douglas Anderson <dianders@chromium.org>
+To:     Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Sam Ravnborg <sam@ravnborg.org>, Wolfram Sang <wsa@kernel.org>
+Cc:     Stephen Boyd <swboyd@chromium.org>, robdclark@chromium.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Steev Klimaszewski <steev@kali.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        linux-arm-msm@vger.kernel.org, Linus W <linus.walleij@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Andy Gross <agross@kernel.org>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Maxime Ripard <mripard@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        linux-i2c@vger.kernel.org, Qii Wang <qii.wang@mediatek.com>,
-        Devicetree List <devicetree@vger.kernel.org>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Bibby Hsieh <bibby.hsieh@mediatek.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org
-Content-Type: text/plain; charset="UTF-8"
+        Robert Foss <robert.foss@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v4 00/27] drm: Fix EDID reading on ti-sn65dsi86; solve some chicken-and-egg problems
+Date:   Fri, 16 Apr 2021 15:39:23 -0700
+Message-Id: <20210416223950.3586967-1-dianders@chromium.org>
+X-Mailer: git-send-email 2.31.1.368.gbe11c130af-goog
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, Apr 16, 2021 at 10:23 PM Jani Nikula
-<jani.nikula@linux.intel.com> wrote:
->
-> On Thu, 15 Apr 2021, Hsin-Yi Wang <hsinyi@chromium.org> wrote:
-> > pm_resume and pm_suspend might be conflict with the ones defined in
-> > include/linux/suspend.h. Rename pm_resume{suspend} to
-> > i915_pm_resume{suspend} since they are only used here.
->
-> I agree with the rationale here.
->
-> Do you need this to be part of your series, or shall we just pick this
-> up for i915? (We might consider renaming to something else or prefix the
-> functions with _ though, as we also have existing i915_pm_suspend and
-> i915_pm_resume elsewhere.)
->
+The primary goal of this series is to try to properly fix EDID reading
+for eDP panels using the ti-sn65dsi86 bridge.
 
-This patch can be separated from the series, thanks.
+Previously we had a patch that added EDID reading but it turned out
+not to work at bootup. This caused some extra churn at bootup as we
+tried (and failed) to read the EDID several times and also ended up
+forcing us to use the hardcoded mode at boot. With this patch series I
+believe EDID reading is reliable at boot now and we never use the
+hardcoded mode.
 
+This series is the logical successor to the 3-part series containing
+the patch ("drm/bridge: ti-sn65dsi86: Properly get the EDID, but only
+if refclk") [1] though only one actual patch is the same between the
+two.
 
-> BR,
-> Jani.
->
-> >
-> > Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-> > Reported-by: kernel test robot <lkp@intel.com>
-> > ---
-> >  drivers/gpu/drm/i915/selftests/i915_gem.c | 10 +++++-----
-> >  1 file changed, 5 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/drivers/gpu/drm/i915/selftests/i915_gem.c b/drivers/gpu/drm/i915/selftests/i915_gem.c
-> > index dc394fb7ccfa..525afda9d31f 100644
-> > --- a/drivers/gpu/drm/i915/selftests/i915_gem.c
-> > +++ b/drivers/gpu/drm/i915/selftests/i915_gem.c
-> > @@ -94,7 +94,7 @@ static int pm_prepare(struct drm_i915_private *i915)
-> >       return 0;
-> >  }
-> >
-> > -static void pm_suspend(struct drm_i915_private *i915)
-> > +static void i915_pm_suspend(struct drm_i915_private *i915)
-> >  {
-> >       intel_wakeref_t wakeref;
-> >
-> > @@ -116,7 +116,7 @@ static void pm_hibernate(struct drm_i915_private *i915)
-> >       }
-> >  }
-> >
-> > -static void pm_resume(struct drm_i915_private *i915)
-> > +static void i915_pm_resume(struct drm_i915_private *i915)
-> >  {
-> >       intel_wakeref_t wakeref;
-> >
-> > @@ -152,12 +152,12 @@ static int igt_gem_suspend(void *arg)
-> >       if (err)
-> >               goto out;
-> >
-> > -     pm_suspend(i915);
-> > +     i915_pm_suspend(i915);
-> >
-> >       /* Here be dragons! Note that with S3RST any S3 may become S4! */
-> >       simulate_hibernate(i915);
-> >
-> > -     pm_resume(i915);
-> > +     i915_pm_resume(i915);
-> >
-> >       err = switch_to_context(ctx);
-> >  out:
-> > @@ -192,7 +192,7 @@ static int igt_gem_hibernate(void *arg)
-> >       /* Here be dragons! */
-> >       simulate_hibernate(i915);
-> >
-> > -     pm_resume(i915);
-> > +     i915_pm_resume(i915);
-> >
-> >       err = switch_to_context(ctx);
-> >  out:
->
-> --
-> Jani Nikula, Intel Open Source Graphics Center
+This series starts out with some general / obvious fixes and moves on
+to some more specific and maybe controversial ones. I wouldn't object
+to some of the earlier ones landing if they look ready.
+
+This patch was developed agains linuxnext (next-20210416) on a
+sc7180-trogdor-lazor device. To get things booting for me, I had to
+use Stephen's patch [2] to keep from crashing but otherwise all the
+patches I needed were here.
+
+Primary change between v2 and v3 is to stop doing the EDID caching in
+the core. I also added Andrzej's review tags.
+
+Between v3 and v4 this series grew a whole lot. I changed it so that
+the EDID reading is actually driven by the panel driver now as was
+suggested by Andrzej. While I still believe that the old approach
+wasn't too bad I'm still switching. Why?
+
+The main reason is that I think it's useful in general for the panel
+code to have access to the DDC bus and to be able to read the
+EDID. This may allow us to more easily have the panel code support
+multiple sources of panels--it can read the EDID and possibly adjust
+timings based on the model ID. It also allows the panel code (or
+perhaps backlight code?) to send DDC commands if they are need for a
+particular panel.
+
+At the moment, once the panel is provided the DDC bus then existing
+code will assume that it should be in charge of reading the
+EDID. While it doesn't have to work that way, it seems sane to build
+on what's already there.
+
+In order to expose the DDC bus to the panel, I had to solve a bunch of
+chicken-and-egg problems in terms of probe ordering between the bridge
+and the panel. I've broken the bridge driver into several sub drivers
+to make this happen. At the moment the sub-drivers are just there to
+solve the probe problem, but conceivably someone could use them to
+break the driver up in the future if need be.
+
+I apologize in advance for the length of this series. I'm currently
+working through getting commit access to drm-misc [3] so I can land
+the first several patches which are already reviewed. There are still
+a lot of patches even after the first few, but hopefully you can see
+that there are only so many because they're broken up into nice and
+reviewable bite-sized-chunks. :-)
+
+[1] https://lore.kernel.org/r/20210304155144.3.I60a7fb23ce4589006bc95c64ab8d15c74b876e68@changeid/
+[2] https://lore.kernel.org/r/161706912161.3012082.17313817257247946143@swboyd.mtv.corp.google.com/
+[3] https://gitlab.freedesktop.org/freedesktop/freedesktop/-/issues/348
+
+Changes in v4:
+- Reword commit mesage slightly.
+
+Changes in v3:
+- Removed "NOTES" from commit message.
+
+Changes in v2:
+- Removed 2nd paragraph in commit message.
+
+Douglas Anderson (27):
+  drm/bridge: Fix the stop condition of drm_bridge_chain_pre_enable()
+  drm/bridge: ti-sn65dsi86: Simplify refclk handling
+  drm/bridge: ti-sn65dsi86: Remove incorrectly tagged kerneldoc comment
+  drm/bridge: ti-sn65dsi86: Reorder remove()
+  drm/bridge: ti-sn65dsi86: Move drm_panel_unprepare() to post_disable()
+  drm/bridge: ti-sn65dsi86: Get rid of the useless detect() function
+  drm/panel: panel-simple: Use runtime pm to avoid excessive unprepare /
+    prepare
+  drm/bridge: ti-sn65dsi86: Rename the main driver data structure
+  drm/bridge: ti-sn65dsi86: More renames in prep for sub-devices
+  drm/bridge: ti-sn65dsi86: Clean debugfs code
+  drm/bridge: ti-sn65dsi86: Add local var for "dev" to simplify probe
+  drm/bridge: ti-sn65dsi86: Cleanup managing of drvdata
+  drm/bridge: ti-sn65dsi86: Use devm to do our runtime_disable
+  drm/bridge: ti-sn65dsi86: Move all the chip-related init to the start
+  drm/bridge: ti-sn65dsi86: Break GPIO and MIPI-to-eDP bridge into
+    sub-drivers
+  drm/panel: panel-simple: Get rid of hacky HPD chicken-and-egg code
+  drm/bridge: ti-sn65dsi86: Use pm_runtime autosuspend
+  drm/bridge: ti-sn65dsi86: Code motion of refclk management functions
+  drm/bridge: ti-sn65dsi86: If refclk, DP AUX can happen w/out
+    pre-enable
+  drm/bridge: ti-sn65dsi86: Promote the AUX channel to its own sub-dev
+  i2c: i2c-core-of: Fix corner case of finding adapter by node
+  drm/panel: panel-simple: Remove extra call:
+    drm_connector_update_edid_property()
+  drm/panel: panel-simple: Power the panel when reading the EDID
+  drm/panel: panel-simple: Cache the EDID as long as we retain power
+  drm/bridge: ti-sn65dsi86: Don't read EDID blob over DDC
+  arm64: dts: qcom: Link the panel to the bridge's DDC bus
+  drm/panel: panel-simple: Prepare/unprepare are refcounted, not forced
+
+ arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi |   1 +
+ drivers/gpu/drm/bridge/Kconfig               |   1 +
+ drivers/gpu/drm/bridge/ti-sn65dsi86.c        | 748 ++++++++++++-------
+ drivers/gpu/drm/drm_bridge.c                 |   3 +
+ drivers/gpu/drm/panel/Kconfig                |   1 +
+ drivers/gpu/drm/panel/panel-simple.c         | 123 +--
+ drivers/i2c/i2c-core-of.c                    |  17 +-
+ 7 files changed, 555 insertions(+), 339 deletions(-)
+
+-- 
+2.31.1.368.gbe11c130af-goog
+
