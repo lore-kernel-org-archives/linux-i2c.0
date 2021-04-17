@@ -2,91 +2,87 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A47CC433ED
-	for <linux-i2c@archiver.kernel.org>; Sat, 17 Apr 2021 20:02:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FB80C433ED
+	for <linux-i2c@archiver.kernel.org>; Sat, 17 Apr 2021 20:06:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2A02C61248
-	for <linux-i2c@archiver.kernel.org>; Sat, 17 Apr 2021 20:02:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EA7BA61245
+	for <linux-i2c@archiver.kernel.org>; Sat, 17 Apr 2021 20:06:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236718AbhDQUC3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 17 Apr 2021 16:02:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
+        id S236718AbhDQUHW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 17 Apr 2021 16:07:22 -0400
+Received: from sauhun.de ([88.99.104.3]:38770 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236491AbhDQUC2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 17 Apr 2021 16:02:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57E4861245;
-        Sat, 17 Apr 2021 20:02:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618689722;
-        bh=mYlYNe9vhGS5GN1BHRstkMtGknRsuT48a1sa8RFcZL4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AK4DfimelZx+dUHM+pQJ1BVccfz/TA8CF5Ab1uKpGlF4gCwO/HPVsuzdaNW3CnY2q
-         0NX4to0QibKvQMyrTXa/1Rx41JB/3NF/sSOodH16D02QbG0wCgrskzFSIMgDvPfor5
-         jwrSKHZ/LAP5DIwaFNulNl0mpGGE+E+KVxpFKTnVG6lXi5j+QykU3pX0ybLFa+idIt
-         v8WRYxY9r1G8fLeq06+YMCL2zTXW4G2lbhqB+y4mMNt72nUFFJoIUXqZH0dc9RNS7u
-         YZg0OzYyd50wS614i7K52OImHfq/HK88cktywgABM1s/dbjd4rTuTVxbEVVHr9WiML
-         uPr8pEZC41obA==
-Date:   Sat, 17 Apr 2021 22:01:54 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Cc:     linux-i2c@vger.kernel.org
-Subject: Re: [PATCH] i2c: sh7760: fix IRQ error path
-Message-ID: <20210417200154.GA9996@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        linux-i2c@vger.kernel.org
-References: <7995bba1-61dd-baa3-51ea-0fb2fccc19a0@omprussia.ru>
- <5b81bf63-edc4-bb62-3aff-4ae9432e339b@omprussia.ru>
+        id S236491AbhDQUHW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 17 Apr 2021 16:07:22 -0400
+Received: from localhost (p5486c83a.dip0.t-ipconnect.de [84.134.200.58])
+        by pokefinder.org (Postfix) with ESMTPSA id C437D2C04D8;
+        Sat, 17 Apr 2021 22:06:53 +0200 (CEST)
+Date:   Sat, 17 Apr 2021 22:06:51 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Qii Wang <qii.wang@mediatek.com>
+Cc:     matthias.bgg@gmail.com, linux-i2c@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com,
+        leilk.liu@mediatek.com
+Subject: Re: [PATCH 1/3] i2c: mediatek: Fix send master code at more than 1MHz
+Message-ID: <20210417200651.GB9996@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
+        Qii Wang <qii.wang@mediatek.com>, matthias.bgg@gmail.com,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        srv_heupstream@mediatek.com, leilk.liu@mediatek.com
+References: <1618642012-10444-1-git-send-email-qii.wang@mediatek.com>
+ <1618642012-10444-2-git-send-email-qii.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+        protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
 Content-Disposition: inline
-In-Reply-To: <5b81bf63-edc4-bb62-3aff-4ae9432e339b@omprussia.ru>
+In-Reply-To: <1618642012-10444-2-git-send-email-qii.wang@mediatek.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---wRRV7LY7NUeQGEoC
+--mxv5cy4qt+RJ9ypb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Apr 17, 2021 at 10:05:05PM +0300, Sergey Shtylyov wrote:
-> While adding the invalid IRQ check after calling platform_get_irq(),
-> I managed to overlook that the driver has a complex error path in its
-> probe() method, thus a simple *return* couldn't be used.  Use a proper
-> *goto* instead!
+On Sat, Apr 17, 2021 at 02:46:50PM +0800, Qii Wang wrote:
+> There are some omissions in the previous patch about replacing
+> I2C_MAX_FAST_MODE__FREQ with I2C_MAX_FAST_MODE_PLUS_FREQ and
+> need to fix it.
 >=20
-> Fixes: e5b2e3e74201 ("i2c: sh7760: add IRQ check")
-> Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
->=20
+> Fixes: b44658e755b5("i2c: mediatek: Send i2c master code at more than 1MH=
+z")
+> Signed-off-by: Qii Wang <qii.wang@mediatek.com>
 
 Applied to for-next, thanks!
 
 
---wRRV7LY7NUeQGEoC
+--mxv5cy4qt+RJ9ypb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmB7PqwACgkQFA3kzBSg
-Kbb3Sg/+Lvs++C2EEsf0HRgwcF/tryrtpGPIEbj4Ig6sJpWb8WQI1BSgeAYHxEuT
-A9nqzNUa/M1/EeXJA5aXiE/mdNSePbf769zqzn4k/NlC4bC10stSm62HKilvgT/f
-6d2C+lrz4umURCUmiE5a0/t728z/tctArMm8BqxaYA/4G64LqfXyhb93/tNheL8I
-0N29W2z5MWQkIYe1rGR3JxvOEqV1+dAPgwfzGRbt8RPfthPbc3Z/1YkbeclU0UD5
-GZB+bV83MRNiaQjdhV3GJ62GIG0ZoJuRR7bYDGLhJL4+9AjcjVbOwEnk90ZtjZtN
-Xg18VrNFH3Hz0KOEVFHGQRP2CarXp/VMCNTNJpcpj5b6DQEK9ZYZFhmqpNuStrwj
-PZo7vEPZPzRv3QY806JSQOkZSGtT647vRMhrZeHX+LE989OaO7zjjJlQHohqyp7F
-qor6E5F7Qd6Vm+qC6S5ZxMssOk2HM0q5YQBvhXFJpbvU2DTKvmLIARHwYukZQcMw
-148bnd3H4pxWHkQ1jt/OsBaNet5KRKP0XcdBihZ6RIyDrj0lkaKpHFVJV+f4l/Ru
-5oAgNhHM02tSRT9TJVnEGZirGi/Ft6Uq8A3zfO0ycrnW3tlzY1LsNF26q6bbRVaA
-Z1IyFvzHiERV+jRCLjiW9Lnlem8/for7YCh2QsoOZ7qJiH5atKQ=
-=sl0+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmB7P9sACgkQFA3kzBSg
+KbYszg//Ys8QY2ABRS7HhCXmy+h1BQOnBbmvO2Sk+srldLlKEV3XxiGXAMFKxDUK
+alfu0bBeTL//v7gGJoHeoDQefjTfpje/mGgRrROCiInSE4gcVPohw5gdr4WdwNKs
+FcUH3HldvjVETlXkTYT0lDitFmfFgcY34HvwXxZoG2fPGhNtmxNCOyCE+0P5/dvK
+RX9KCDyPqh5nRRuTx3akh4xRUYBaGZ2T2sRgHmxFdPRLXAePtP2PBBXonAOzCFhD
+8G2OmCqwjt9Iytem2z3BvBbPAt1mYqTtoHlZPr5PRwxJtp+aGoHhg3J/6TTBrCM1
+P0tyMTGPIwwgvu9NnfM9zOIiWW5dmvsM9hPsLirwKM87Hf5qp25ZIHA2bWrS8M/U
+Fwwo1mZjmpcaTIn1MRoa0JDX7MDiKwIpWgF2yFUHyelnzdyIf+bLifQCjRPRGBqF
+wsOR/t1Rf0JnoQguoWcQLqqvt0KtwSZZGZUaM1a2Mpz/wi5QRzwvhJsZ2ZfqBcvt
+rg+9XtmgmpEhe99e+ElwAbsqFgpXB5VGDvmI3+F+61OGF8vh/P1CrN/Vhgpl8qy9
+FtAQmBFDW3LpFBKyrsRp8cZ/Ht1RyesGksRM08bX410LF0AUEQ+csEKQVm9rHr0d
+zD5toVtXz/KkWW2OFS1/LZDLvrDvM/3cdFosBDTsNqqcbb4Q70o=
+=2+Jz
 -----END PGP SIGNATURE-----
 
---wRRV7LY7NUeQGEoC--
+--mxv5cy4qt+RJ9ypb--
