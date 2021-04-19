@@ -5,32 +5,32 @@ X-Spam-Level:
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06F69C433ED
-	for <linux-i2c@archiver.kernel.org>; Mon, 19 Apr 2021 20:44:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A3E7C433B4
+	for <linux-i2c@archiver.kernel.org>; Mon, 19 Apr 2021 20:46:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C9E33613C1
-	for <linux-i2c@archiver.kernel.org>; Mon, 19 Apr 2021 20:44:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0BF97613D3
+	for <linux-i2c@archiver.kernel.org>; Mon, 19 Apr 2021 20:46:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242557AbhDSUor (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 19 Apr 2021 16:44:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54296 "EHLO mail.kernel.org"
+        id S242865AbhDSUq2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 19 Apr 2021 16:46:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242428AbhDSUoj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:44:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D24FF613C6;
-        Mon, 19 Apr 2021 20:44:07 +0000 (UTC)
+        id S242725AbhDSUpU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:45:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEEDC613E8;
+        Mon, 19 Apr 2021 20:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865048;
-        bh=D/0VPNZQe0Wm9G3YYl/k56JPejxtAWIdGzAxgNJGWnc=;
+        s=k20201202; t=1618865083;
+        bh=O0aJk7yl5L0JlBjz0Kbj9BcJvkTErtNoKU7OJicrA3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pA/Zas2L+UAJQ89lAB6n9vQ4803o/299sv4KyEbgtBli44K8LDBnIilfAKJqe2OcJ
-         vtYL2oq1Uj7q3j464a9jTOaSjV0iDFrfpZQkf0F+7lm/4neMOEAIg7r52YOtTeRYR1
-         aMgXhZhRP7pwlx1kVN4LUgk3p+1iOVUvw55WAvy28tdXHbpmmTCwEihWTz84bfR5T1
-         KLcmmVCPLnG8bWSAWOAf2eeN0/FYf9vBjBXi4wtySxxMpVlJ3OwQuEwaWluhxUTBHh
-         x57tQlvcG9JZ15X1s0RQg1nREse6VGPIj2Wn3dnqKD7zc6x+4Ktidiq0dEaw8Y6TpG
-         3xcSRrOrx//rw==
+        b=LthL4IBWr025g+PMzI2rQd51OBBHmii5gRjd2ll38/RaVIzkHdAyuPYOIFaGrjIQw
+         D0R1xUXjUW5yoQvp0fkkhbSgmJCRgkg+StWTb0BsPKSdC1eq0/HiZwcF4sY1yyB2GV
+         uOJcjc4WNeGEZO3qH29NposdcxBRrUgPq0Dx4+JTzUbd3tjVcItJBDMLDnDmilcUTJ
+         ovV89WMgAUZsKaw6RaXbtweUc+OZKto6938lQ7blbbJP4BA8Gx9Yo9jxLaL+xmwGEm
+         DCeXEUm5fWHW+MhE+8LChkbZzthfz/ZEHKRhBnUmiusoleHiLYxYUY0o6jMlvm1Q2S
+         1HR0ooaQ/RcXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
@@ -38,12 +38,12 @@ Cc:     =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         Samuel Holland <samuel@sholland.org>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 17/23] i2c: mv64xxx: Fix random system lock caused by runtime PM
-Date:   Mon, 19 Apr 2021 16:43:36 -0400
-Message-Id: <20210419204343.6134-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 15/21] i2c: mv64xxx: Fix random system lock caused by runtime PM
+Date:   Mon, 19 Apr 2021 16:44:13 -0400
+Message-Id: <20210419204420.6375-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210419204343.6134-1-sashal@kernel.org>
-References: <20210419204343.6134-1-sashal@kernel.org>
+In-Reply-To: <20210419204420.6375-1-sashal@kernel.org>
+References: <20210419204420.6375-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -88,10 +88,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 5cfe70aedced..1b55352abbe8 100644
+index e0e45fc19b8f..453c4a6a3e71 100644
 --- a/drivers/i2c/busses/i2c-mv64xxx.c
 +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -220,6 +220,10 @@ mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
+@@ -218,6 +218,10 @@ mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
  	writel(0, drv_data->reg_base + drv_data->reg_offsets.ext_addr);
  	writel(MV64XXX_I2C_REG_CONTROL_TWSIEN | MV64XXX_I2C_REG_CONTROL_STOP,
  		drv_data->reg_base + drv_data->reg_offsets.control);
