@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D054C43461
-	for <linux-i2c@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BA26C433B4
+	for <linux-i2c@archiver.kernel.org>; Mon, 19 Apr 2021 20:50:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F6EC6101C
-	for <linux-i2c@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA88A61104
+	for <linux-i2c@archiver.kernel.org>; Mon, 19 Apr 2021 20:50:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237742AbhDSUs6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 19 Apr 2021 16:48:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55468 "EHLO mail.kernel.org"
+        id S243243AbhDSUua (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 19 Apr 2021 16:50:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242768AbhDSUq5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:46:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72C97613D2;
-        Mon, 19 Apr 2021 20:45:30 +0000 (UTC)
+        id S242861AbhDSUs3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:48:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97E35613E7;
+        Mon, 19 Apr 2021 20:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865131;
-        bh=M+N2MxbnGQjhURZ3gS5hwFCV7PfmBdMis2chExCLoZw=;
+        s=k20201202; t=1618865149;
+        bh=og2Q4E/klbWQawev0GlHejxRsd44tPIx5GGlFkQkKqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pP1vUPtZy9RxyYyh3YdMrJPQcyAV+pU6O1Cb7NSH89RaqsAzaDUhfN+sgv382U0LU
-         wd1cZ4oriTWkG61brUOIBLSPfVUW7aved8ajwg2plfImyt6spDxP5dwI0uuyHvlFmW
-         DSIsiin+JrHi4a7s/Yjn+nUk0revfAt1Os5raxME6WjB67MYDr7iG7zxM12e1LXgv0
-         nt63/fAIMzFlaofx5Dl4Xao9iNV9D7IUs7X4t7KzkcAsNL7iYi7ABpDPzoUz91Zp8I
-         PjFcT4KbWrwLts29Io+wTwCQsryQFW1pAe1h3HmWFWD0xws2/AVES0HWq4yiIQxncd
-         N52UoVcGNLpBw==
+        b=DAezwSpop3v1LYRMo2Ma0aDuvNVfQVkFmeMTLN/JCk1CyL73ge7ByhF2V5Aj67NdE
+         RDdmmf4iFuQJbwT2ClXvZd4s0xe0n1rCMGJ1DL/YTPyeWPDIBLOIxNAzEtDPJ1DmGi
+         L9t1gCLWF1dz+qv0+hM5lrI5DDrHOjfox2MOBqPJGsxyt7/4bWwADBdF8uIn37sE+t
+         QNn5QTG6vHq993/x071BfL/+qI5zwJKp0o9IIi8y9BxBCxUN+g1Yum54p4S6QBG0gu
+         sVlD3gEQdb/IX3xYiLk8Mx6NKhlMivYpp6+LMiFNwt3KR79F9okj6r3rJYE9Pz9/aP
+         o0tvSlZxbpKKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
@@ -38,12 +38,12 @@ Cc:     =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         Samuel Holland <samuel@sholland.org>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 09/12] i2c: mv64xxx: Fix random system lock caused by runtime PM
-Date:   Mon, 19 Apr 2021 16:45:14 -0400
-Message-Id: <20210419204517.6770-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 08/11] i2c: mv64xxx: Fix random system lock caused by runtime PM
+Date:   Mon, 19 Apr 2021 16:45:33 -0400
+Message-Id: <20210419204536.6924-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210419204517.6770-1-sashal@kernel.org>
-References: <20210419204517.6770-1-sashal@kernel.org>
+In-Reply-To: <20210419204536.6924-1-sashal@kernel.org>
+References: <20210419204536.6924-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -88,10 +88,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index a5a95ea5b81a..7409cfba2195 100644
+index b0fb97823d6a..ba1eef0797a0 100644
 --- a/drivers/i2c/busses/i2c-mv64xxx.c
 +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -218,6 +218,10 @@ mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
+@@ -217,6 +217,10 @@ mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
  	writel(0, drv_data->reg_base + drv_data->reg_offsets.ext_addr);
  	writel(MV64XXX_I2C_REG_CONTROL_TWSIEN | MV64XXX_I2C_REG_CONTROL_STOP,
  		drv_data->reg_base + drv_data->reg_offsets.control);
