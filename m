@@ -8,51 +8,51 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A11DC433B4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB694C43461
 	for <linux-i2c@archiver.kernel.org>; Fri, 23 Apr 2021 16:59:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 710B1613C2
+	by mail.kernel.org (Postfix) with ESMTP id B10186115C
 	for <linux-i2c@archiver.kernel.org>; Fri, 23 Apr 2021 16:59:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243184AbhDWRAa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S243257AbhDWRAa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Fri, 23 Apr 2021 13:00:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47626 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243216AbhDWRAZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Apr 2021 13:00:25 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04AAEC061574
-        for <linux-i2c@vger.kernel.org>; Fri, 23 Apr 2021 09:59:45 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id nm3-20020a17090b19c3b029014e1bbf6c60so1592877pjb.4
-        for <linux-i2c@vger.kernel.org>; Fri, 23 Apr 2021 09:59:45 -0700 (PDT)
+        with ESMTP id S243089AbhDWRA0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Apr 2021 13:00:26 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55EFBC061347
+        for <linux-i2c@vger.kernel.org>; Fri, 23 Apr 2021 09:59:48 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id u7so23702876plr.6
+        for <linux-i2c@vger.kernel.org>; Fri, 23 Apr 2021 09:59:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=xP5DIs1FkSE0BDkM2KIzYkHfQ0hdD3i5eW0X+nUNW+Y=;
-        b=Nui0pXvr5mJQMbnlzuYsHB8sZuXeWkPY3IJOWfaIzTzDi/nK7GX+qeRokQsNKy2fYL
-         j1y6mX12y+CQx8BOw57VkZYhCBu6XhRlhhbJYAlTfbuYaUlcixbob351UBwviRX9wNcv
-         xKZ6ARbbjmm25KQR9dd0/UTv4z2clW3SG0Ocs=
+        bh=18NetlXwajgnpGQtVunxvSsH/vFYq/mVRN14SJhebag=;
+        b=Ck7dXMTbcXqeGgybSMoVJO8he10e+uD3PDZhu711leqKrmLBpUQUXHTfjVUNGYvep7
+         wBw9BaFyMxvm+8ABL/EHL06v2KrcsvmFeZig4SsNT9h3vPzTc5qxpJgd5q6+fB1Xb3kK
+         l0QMDHopNz0pzurKAeArFflw0HhvXrjUQQBEk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=xP5DIs1FkSE0BDkM2KIzYkHfQ0hdD3i5eW0X+nUNW+Y=;
-        b=H3sYf3BUaTmK+34ZOYGBSRm7xE7HSzinCEintDR+m3LhYtqnXPAqiyx/IY+EDR5MQZ
-         hrlLdcwBKnma6TFTI4HKQ7DPng+W0ezQrtO867wNHkrRuA3hPGBZf00ILDwhPh6e3/sJ
-         PReoO5yRXzlnqCwwlWrheeSvCiSXJ78R1GV/wuP+IIBvmL00l97Bp+bgpiUWu/ThP9WQ
-         qhnqqVpLKaEP1nZSJm2ibJN3lYVUw2OjcTJRp/wlxOBOTBtVERgs6wd0U4iRnzYwdmcA
-         riWRJWDgEm/5yIRcZEu2qoNRZtgW+iTjiFOg5mLQ6ft3MwJ0dmuW8A0gYgwXncC1Z8q5
-         I5OQ==
-X-Gm-Message-State: AOAM533NYVNn+1tx5eMrf355/7VQ2xogclvyxRrzyQetNumtWHhcYsQc
-        4LshkGdu7sZFXkA9uwAWiZPeIQ==
-X-Google-Smtp-Source: ABdhPJxb8n3U3zZOiWMrXechOGFa6o/j6TcVWcBF+GRLB7Z3nK12l4CAlGd+Lw7zqpaW3ocWIOL1DQ==
-X-Received: by 2002:a17:90a:a395:: with SMTP id x21mr5425317pjp.95.1619197184632;
-        Fri, 23 Apr 2021 09:59:44 -0700 (PDT)
+        bh=18NetlXwajgnpGQtVunxvSsH/vFYq/mVRN14SJhebag=;
+        b=H7ZsIHRpE8tzdlX2/M1NmiYOXkSWzKpFPJ5PrQcPp4dXJ0jmTjUwtL16Bp3QoQtiTr
+         0ZnmV2QuQDyLxbUKwPTYtEnvCDqJ6b25pyxpDoyFe4xvUu6/WHupjUq/6Tvq6NQVuIgV
+         uOFFJVls8IFJyejwF1GCII40zX44k2nhXJAeqPIIkwFMYWvNGT0IQVWU73JLBbhquzt5
+         4vry1ek6SLPDYeLjvAC24Qz8e/MKeYhXLUzQ6nhYLvotjEF0FvWY+gmSCgiD0NbCsiq7
+         /Z7fxFU/Ih48fC5k/0USm7CT8pIxGaKKyrLG3iU/dCUSXFhUhqGUghXHJ9mr3FF/Pw2M
+         wdYA==
+X-Gm-Message-State: AOAM532W+KhM/WYU1xejo1auoRniC8bFeJeG0zaIIQKxuIDxAIV2yAWY
+        RvJRdwygYp2bifXrrSMvJ+VoFw==
+X-Google-Smtp-Source: ABdhPJwN39XHiMoFkDUGK/jYMlHhuJ0OnCKc4g/vY5QfA/Nq2SW/ZbIYpEoQf3oJgDhOndPFkJpK4Q==
+X-Received: by 2002:a17:90a:540b:: with SMTP id z11mr5459263pjh.133.1619197187959;
+        Fri, 23 Apr 2021 09:59:47 -0700 (PDT)
 Received: from tictac2.mtv.corp.google.com ([2620:15c:202:201:6d86:663d:71f8:6a11])
-        by smtp.gmail.com with ESMTPSA id v8sm5123607pfm.128.2021.04.23.09.59.43
+        by smtp.gmail.com with ESMTPSA id v8sm5123607pfm.128.2021.04.23.09.59.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Apr 2021 09:59:44 -0700 (PDT)
+        Fri, 23 Apr 2021 09:59:47 -0700 (PDT)
 From:   Douglas Anderson <dianders@chromium.org>
 To:     Andrzej Hajda <a.hajda@samsung.com>,
         Neil Armstrong <narmstrong@baylibre.com>,
@@ -74,9 +74,9 @@ Cc:     linux-arm-msm@vger.kernel.org, robdclark@chromium.org,
         David Airlie <airlied@linux.ie>,
         Robert Foss <robert.foss@linaro.org>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v5 04/20] drm/bridge: ti-sn65dsi86: Use devm to do our runtime_disable
-Date:   Fri, 23 Apr 2021 09:58:50 -0700
-Message-Id: <20210423095743.v5.4.I1e627eb5f316c0cf6595b120e6e262f5bf890300@changeid>
+Subject: [PATCH v5 07/20] drm/bridge: ti-sn65dsi86: Cleanup managing of drvdata
+Date:   Fri, 23 Apr 2021 09:58:53 -0700
+Message-Id: <20210423095743.v5.7.If5d4d4e22e97bebcd493b76765c1759527705620@changeid>
 X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
 In-Reply-To: <20210423165906.2504169-1-dianders@chromium.org>
 References: <20210423165906.2504169-1-dianders@chromium.org>
@@ -86,64 +86,62 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-There's no devm_runtime_enable(), but it's easy to use
-devm_add_action_or_reset() and means we don't need to worry about the
-disable in our remove() routine or in error paths.
+Let's:
+- Set the drvdata as soon as it's allocated. This just sets up a
+  pointer so there's no downside here.
+- Remove the useless call to i2c_set_clientdata() which is literally
+  the same thing as dev_set_drvdata().
 
-No functional changes intended by this change.
+No functional changes intended.
 
 Signed-off-by: Douglas Anderson <dianders@chromium.org>
 Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
 
-Changes in v5:
-- Reordered to debugfs change to avoid transient issue
+(no changes since v1)
 
- drivers/gpu/drm/bridge/ti-sn65dsi86.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/bridge/ti-sn65dsi86.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-index 57574132e200..44d8395505f0 100644
+index c868193f5b8f..75a41198993f 100644
 --- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
 +++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-@@ -1213,6 +1213,11 @@ static void ti_sn_bridge_parse_lanes(struct ti_sn65dsi86 *pdata,
- 	pdata->ln_polrs = ln_polrs;
- }
+@@ -1244,6 +1244,8 @@ static int ti_sn65dsi86_probe(struct i2c_client *client,
+ 	pdata = devm_kzalloc(dev, sizeof(struct ti_sn65dsi86), GFP_KERNEL);
+ 	if (!pdata)
+ 		return -ENOMEM;
++	dev_set_drvdata(dev, pdata);
++	pdata->dev = dev;
  
-+static void ti_sn65dsi86_runtime_disable(void *data)
-+{
-+	pm_runtime_disable(data);
-+}
-+
- static int ti_sn65dsi86_probe(struct i2c_client *client,
- 			      const struct i2c_device_id *id)
- {
-@@ -1272,12 +1277,13 @@ static int ti_sn65dsi86_probe(struct i2c_client *client,
- 		return ret;
+ 	pdata->regmap = devm_regmap_init_i2c(client,
+ 					     &ti_sn65dsi86_regmap_config);
+@@ -1252,16 +1254,12 @@ static int ti_sn65dsi86_probe(struct i2c_client *client,
+ 		return PTR_ERR(pdata->regmap);
+ 	}
  
- 	pm_runtime_enable(pdata->dev);
-+	ret = devm_add_action_or_reset(pdata->dev, ti_sn65dsi86_runtime_disable, pdata->dev);
-+	if (ret)
-+		return ret;
- 
- 	ret = ti_sn_setup_gpio_controller(pdata);
--	if (ret) {
--		pm_runtime_disable(pdata->dev);
-+	if (ret)
- 		return ret;
--	}
- 
- 	i2c_set_clientdata(client, pdata);
- 
-@@ -1314,8 +1320,6 @@ static int ti_sn65dsi86_remove(struct i2c_client *client)
- 
- 	drm_bridge_remove(&pdata->bridge);
- 
--	pm_runtime_disable(pdata->dev);
+-	pdata->dev = dev;
 -
- 	of_node_put(pdata->host_node);
+ 	ret = drm_of_find_panel_or_bridge(dev->of_node, 1, 0, &pdata->panel, NULL);
+ 	if (ret) {
+ 		DRM_ERROR("could not find any panel node\n");
+ 		return ret;
+ 	}
  
- 	return 0;
+-	dev_set_drvdata(dev, pdata);
+-
+ 	pdata->enable_gpio = devm_gpiod_get(dev, "enable", GPIOD_OUT_LOW);
+ 	if (IS_ERR(pdata->enable_gpio)) {
+ 		DRM_ERROR("failed to get enable gpio from DT\n");
+@@ -1294,8 +1292,6 @@ static int ti_sn65dsi86_probe(struct i2c_client *client,
+ 	if (ret)
+ 		return ret;
+ 
+-	i2c_set_clientdata(client, pdata);
+-
+ 	pdata->aux.name = "ti-sn65dsi86-aux";
+ 	pdata->aux.dev = dev;
+ 	pdata->aux.transfer = ti_sn_aux_transfer;
 -- 
 2.31.1.498.g6c1eba8ee3d-goog
 
