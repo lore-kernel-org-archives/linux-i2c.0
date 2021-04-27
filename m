@@ -2,56 +2,56 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F916C43460
-	for <linux-i2c@archiver.kernel.org>; Tue, 27 Apr 2021 05:36:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CAADC433B4
+	for <linux-i2c@archiver.kernel.org>; Tue, 27 Apr 2021 05:36:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5590D613C1
-	for <linux-i2c@archiver.kernel.org>; Tue, 27 Apr 2021 05:36:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 08B61608FC
+	for <linux-i2c@archiver.kernel.org>; Tue, 27 Apr 2021 05:36:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbhD0FhK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 27 Apr 2021 01:37:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49614 "EHLO
+        id S231127AbhD0FhP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 27 Apr 2021 01:37:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229636AbhD0FhI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Apr 2021 01:37:08 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70A05C06175F
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Apr 2021 22:36:23 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id f6-20020a17090a6546b029015088cf4a1eso6604817pjs.2
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Apr 2021 22:36:23 -0700 (PDT)
+        with ESMTP id S230219AbhD0FhL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Apr 2021 01:37:11 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9631BC061756
+        for <linux-i2c@vger.kernel.org>; Mon, 26 Apr 2021 22:36:28 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id kb13-20020a17090ae7cdb02901503d67f0beso804663pjb.0
+        for <linux-i2c@vger.kernel.org>; Mon, 26 Apr 2021 22:36:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=aTHnAMIQD5s8JadjAbGJIjLqhqT66XAtuscyCUM1Exg=;
-        b=iDVXwOEZxmA8fOzgfknudnogPZoKYmxt3u8dTcHSHwypV0CykQKeRziphRLC3veOyJ
-         AnOIFpfBBOdlNpdVwEX7841ZSHmTd/+D00vrCuLcizuefC4WPLuMgL6v9IyHllx2fhBm
-         qc1fJPhDE1Z3eibkPtW/NYxlStO0vq/IeLVNc=
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=ch2oBLC6NQEww7nsJ+lCH4p8Gxy8IDtfp3C2k0cWO+A=;
+        b=iDT/mscq6c4jBDu4qaDzOe3nXm1ALmCUYfi+kLqFJOGJboFHaIsHKm5eQHmbuEaUsi
+         e2pm1psA/gibSKNBQ3QDGIwJaA0qTniHLFxuyTSeDExIYdYDSY0aUtM15Ab32BvDrU3X
+         Fqw0WP+vbOmWk1ZVtLuq3op9CLgo0pp9ZczUk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=aTHnAMIQD5s8JadjAbGJIjLqhqT66XAtuscyCUM1Exg=;
-        b=tYf6UNM03YhyWuLzvFkBoDovorB4Aq42bh8y4cVNU/7bmzTptKVTkDs01BCItJAGNH
-         BKj4DIpHHZsn3YczsDC2hSVeabTkwpOGsaOsSY+mIwiR5RXRebS2B88WL2u8TzwmX1Gl
-         dllcPQndZMm+0ze85CweuQj4JV4/JaOYcRAu4uS5MXlEOOIIxJkUikPu16E2lGba7iNK
-         YotAgwY+3Yv0PQ1AAMf2H4ceNRYhBnFOujze4ftQMCiJXWjgMXU1JcfA6O208GVaHD7M
-         n9XJQxi+l8jHYUZOMa9zhGXcLYG0X76v9vksFpUAshddNhX43NHQH35S03uihf6iHCFc
-         3how==
-X-Gm-Message-State: AOAM5304pKwG8hMN74CE2CBrV8JvokI2z4F86cisRYOmtnv/v2AH5zvb
-        dVKCykqhyaFSYRurmPxMhbi32A==
-X-Google-Smtp-Source: ABdhPJwhDlroLXq4uzG2AtyLbgaJBtpApsdyh91sUIMYLFNmkYl6oY9Myfj40DiDCM4x+JYA/8iPoA==
-X-Received: by 2002:a17:90a:5907:: with SMTP id k7mr3159032pji.197.1619501782729;
-        Mon, 26 Apr 2021 22:36:22 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=ch2oBLC6NQEww7nsJ+lCH4p8Gxy8IDtfp3C2k0cWO+A=;
+        b=AYsAL9yS2Rmwp2jNAMjJ/nJ+XahnlFpjRhJ1d5XUVAkoTc0XMokJeoWaLHmfrLSEBm
+         Y8wBPY1VyiXvCl0uf6SW9205w30hbiweYJ60yO9ODzbBzBATLd/PR0TscV5RZCcZz/PP
+         fbeBHSAdUAEWNpRwKWt9aEvW4Cc2BuHJbgCDoGT+l2tHGUZK3ePIdNIh596t4nQQg3fM
+         E5tKV59hcmRYeDr7kKO29HJkTHXwlrgwmi5uIN70Kff7u2uXfHNegpM6dS9i7LwkAeor
+         nvPvOJQQElIOcgXGj2C7X/AydBiDpbyeKpQ1LuIZja56lu5yzCZQln84U63FYVv3cfkq
+         mU4A==
+X-Gm-Message-State: AOAM531xkKJoPxIdJAFUxsJ73z1oFXuHLnhIsgxyjhIewJnBj8urdIZp
+        kJa0RGaxOW6NiK8t4Z9ptQoYig==
+X-Google-Smtp-Source: ABdhPJx+gZbECjl99mVB5kXeY+H3By4RaE8KMXOPfabslEPl1PyacDfTdB7lt1pkQt0cn6pfYCGwgw==
+X-Received: by 2002:a17:902:db03:b029:ec:94dd:b6b3 with SMTP id m3-20020a170902db03b02900ec94ddb6b3mr22246181plx.69.1619501788150;
+        Mon, 26 Apr 2021 22:36:28 -0700 (PDT)
 Received: from hsinyi-z840.tpe.corp.google.com ([2401:fa00:1:10:3984:c4f5:8612:6b3e])
-        by smtp.gmail.com with ESMTPSA id gc15sm993529pjb.2.2021.04.26.22.36.19
+        by smtp.gmail.com with ESMTPSA id gc15sm993529pjb.2.2021.04.26.22.36.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Apr 2021 22:36:22 -0700 (PDT)
+        Mon, 26 Apr 2021 22:36:27 -0700 (PDT)
 From:   Hsin-Yi Wang <hsinyi@chromium.org>
 To:     Wolfram Sang <wsa@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
@@ -65,90 +65,39 @@ Cc:     linux-i2c@vger.kernel.org, Qii Wang <qii.wang@mediatek.com>,
         Marek Szyprowski <m.szyprowski@samsung.com>,
         Bibby Hsieh <bibby.hsieh@mediatek.com>,
         Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v20 0/5] add power control in i2c
-Date:   Tue, 27 Apr 2021 13:36:12 +0800
-Message-Id: <20210427053617.27972-1-hsinyi@chromium.org>
+Subject: [PATCH v20 2/5] dt-binding: i2c: mt65xx: add vbus-supply property
+Date:   Tue, 27 Apr 2021 13:36:14 +0800
+Message-Id: <20210427053617.27972-3-hsinyi@chromium.org>
 X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
+In-Reply-To: <20210427053617.27972-1-hsinyi@chromium.org>
+References: <20210427053617.27972-1-hsinyi@chromium.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Although in the most platforms, the power of eeprom
-and i2c are alway on, some platforms disable the
-eeprom and i2c power in order to meet low power request.
+Add vbus-supply property for mt65xx. The regulator can be passed into
+core and turned off during suspend/sleep to reduce power consumption.
 
-This patch add the pm_runtime ops to control power to
-support all platforms.
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-Changes since v19:
- - resend v19 with fix tag added.
-
-Changes since v18:
- - Fix a function name conflict with drivers/gpu/drm/i915/selftests/i915_gem.c
-
-Changes since v17:
- - Add a patch to fix unbalanced regulator disabling.
- - Add dts patch.
-
-Changes since v16:
- - request regulator in device instead of in the core.
- - control regulator only if it's provided.
-
-Changes since v15:
- - Squash the fix[1] for v15.
-[1] https://patchwork.ozlabs.org/project/linux-i2c/patch/20200522101327.13456-1-m.szyprowski@samsung.com/
-
-Changes since v14:
- - change the return value in normal condition
- - access the variable after NULL pointer checking
- - add ack tag
-
-Changes since v13:
- - fixup some logic error
-
-Changes since v12:
- - rebase onto v5.7-rc1
- - change the property description in binding
-
-Changes since v11:
- - use suspend_late/resume_early instead of suspend/resume
- - rebase onto v5.6-rc1
-
-Changes since v10:
- - fixup some worng codes
-
-Changes since v9:
- - fixup build error
- - remove redundant code
-
-Changes since v8:
- - fixup some wrong code
- - remove redundant message
-
-[... snip ...]
-
-
-Bibby Hsieh (1):
-  i2c: core: support bus regulator controlling in adapter
-
-Hsin-Yi Wang (4):
-  dt-binding: i2c: mt65xx: add vbus-supply property
-  i2c: mediatek: mt65xx: add optional vbus-supply
-  misc: eeprom: at24: check suspend status before disable regulator
-  arm64: dts: mt8183: add supply name for eeprom
-
- .../devicetree/bindings/i2c/i2c-mt65xx.txt    |  1 +
- .../dts/mediatek/mt8183-kukui-kakadu.dtsi     |  4 +
- .../dts/mediatek/mt8183-kukui-kodama.dtsi     |  4 +
- .../boot/dts/mediatek/mt8183-kukui-krane.dtsi |  4 +
- drivers/i2c/busses/i2c-mt65xx.c               |  7 ++
- drivers/i2c/i2c-core-base.c                   | 88 +++++++++++++++++++
- drivers/misc/eeprom/at24.c                    |  6 +-
- include/linux/i2c.h                           |  2 +
- 8 files changed, 114 insertions(+), 2 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
+index 7f0194fdd0cc..2c45647e9f0b 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
+@@ -32,6 +32,7 @@ Optional properties:
+   - mediatek,have-pmic: platform can control i2c form special pmic side.
+     Only mt6589 and mt8135 support this feature.
+   - mediatek,use-push-pull: IO config use push-pull mode.
++  - vbus-supply: phandle to the regulator that provides power to SCL/SDA.
+ 
+ Example:
+ 
 -- 
 2.31.1.498.g6c1eba8ee3d-goog
 
