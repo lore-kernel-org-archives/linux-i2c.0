@@ -2,136 +2,108 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A8B5C43461
-	for <linux-i2c@archiver.kernel.org>; Wed, 28 Apr 2021 12:28:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DEB5C43460
+	for <linux-i2c@archiver.kernel.org>; Wed, 28 Apr 2021 13:48:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 02FDA6141E
-	for <linux-i2c@archiver.kernel.org>; Wed, 28 Apr 2021 12:28:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 270B161443
+	for <linux-i2c@archiver.kernel.org>; Wed, 28 Apr 2021 13:48:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235096AbhD1M2w (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 28 Apr 2021 08:28:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34882 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234674AbhD1M2w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Apr 2021 08:28:52 -0400
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D7EEC061574;
-        Wed, 28 Apr 2021 05:28:06 -0700 (PDT)
-Received: by mail-pg1-x536.google.com with SMTP id z16so3671951pga.1;
-        Wed, 28 Apr 2021 05:28:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=FCc5BZu5iRztXIUiSt2+3FhaGtDlfucfxXcqT01eExc=;
-        b=s1ybdI7WecLYnVPXzIG8r2ufsshTyUG6UBIgf5iZ9rQliaO9QErsrYXIa/i4JeqNQF
-         NTu9m1+eajP/7Ozit9TFqR+4pw8P2Ja2s3PWyb+f91pWvvAARcpkSa+HnfVT/C/YVfvh
-         n1crgTzs3K/MEAN/PW2chwCa1hS4loARDIabSVxomFETp3p/GHQ6A7vKf+mCo2pRHjPk
-         iP54a/IAcobV9YjClrPOCz7bYoxN5yAG9KY9zz4dLEAwBwpm4yB+RkP4st+duj5Hhhcm
-         mIXNDw134CsfCAfh/20N4PNaO70pYYZV7Z7MtExQtmJLlziHJgb6W+q0lVqgn0RcmV85
-         /Olg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=FCc5BZu5iRztXIUiSt2+3FhaGtDlfucfxXcqT01eExc=;
-        b=AFGPKFtmgN0uyEycfjqp3+A+2w/4LFfmATcCpYLvtMcZjbWVfLYFfIs5STReNQVkD4
-         bVmSQhW7apFRWMA3IJsdKtI4wvZDiljL4ywJvbO1l8CBAev1z7obOf7jXki/sKBqakZw
-         hNz+BTt4ATvI6Tjb2uBIeC2/lEzYtHZiQaEcpE2vt3wfDJY7+yH0DYGOila1eF3rIxG4
-         nhBUV+LTKiRcgX0Vsg7noTo2XbB08MJEAW05oKE9KPW96b8JFTX7fOqP3tYWSBO7ZD2B
-         8jywk7cmCvut/BWrdHINOA5lfdt9i2i9h3sNMhC4062D2NmZ6XI56lQ/PrCxJebQZtGY
-         LmvQ==
-X-Gm-Message-State: AOAM533nCtsKzuLctaEcCf8P4NftDHyrBxXUOrvyCu2eMeGB5xyEOxFE
-        XsxvasTX90FFPRn2GJbaGjc=
-X-Google-Smtp-Source: ABdhPJzFwvuMniv8ai0SvEHoZynqHjurs4c0D6rOCMpJ54ptB8lK6dKuU/popa6Id15ZLDpegNO2ww==
-X-Received: by 2002:a65:6085:: with SMTP id t5mr26835510pgu.201.1619612884496;
-        Wed, 28 Apr 2021 05:28:04 -0700 (PDT)
-Received: from localhost ([157.45.56.196])
-        by smtp.gmail.com with ESMTPSA id l3sm4868719pju.44.2021.04.28.05.28.02
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 28 Apr 2021 05:28:03 -0700 (PDT)
-Date:   Wed, 28 Apr 2021 17:57:55 +0530
-From:   Shubhankar Kuranagatti <shubhankarvk@gmail.com>
-To:     wsa@kernel.org
-Cc:     sumit.semwal@linaro.org, christian.koenig@amd.com,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linaro-mm-sig@lists.linaro.org
-Subject: [PATCH] drivers: i2c: i2c-core-smbus.c: Fix alignment of comment
-Message-ID: <20210428122755.2s56uotb225rezcw@kewl-virtual-machine>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: NeoMutt/20171215
+        id S239888AbhD1Nt3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 28 Apr 2021 09:49:29 -0400
+Received: from lucky1.263xmail.com ([211.157.147.131]:42566 "EHLO
+        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229928AbhD1Nt3 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Apr 2021 09:49:29 -0400
+Received: from localhost (unknown [192.168.167.235])
+        by lucky1.263xmail.com (Postfix) with ESMTP id 7B39ABA115;
+        Wed, 28 Apr 2021 21:48:09 +0800 (CST)
+X-MAIL-GRAY: 0
+X-MAIL-DELIVERY: 1
+X-ADDR-CHECKED4: 1
+X-ANTISPAM-LEVEL: 2
+X-ABS-CHECKED: 0
+Received: from localhost.localdomain (unknown [58.22.7.114])
+        by smtp.263.net (postfix) whith ESMTP id P2750T140649007400704S1619617681633012_;
+        Wed, 28 Apr 2021 21:48:09 +0800 (CST)
+X-IP-DOMAINF: 1
+X-UNIQUE-TAG: <e985095ae2b11a15e9ea2b1ede2141c0>
+X-RL-SENDER: cl@rock-chips.com
+X-SENDER: cl@rock-chips.com
+X-LOGIN-NAME: cl@rock-chips.com
+X-FST-TO: heiko@sntech.de
+X-RCPT-COUNT: 30
+X-SENDER-IP: 58.22.7.114
+X-ATTACHMENT-NUM: 0
+X-System-Flag: 0
+From:   <cl@rock-chips.com>
+To:     heiko@sntech.de
+Cc:     robh+dt@kernel.org, jagan@amarulasolutions.com, wens@csie.org,
+        uwe@kleine-koenig.org, mail@david-bauer.net, jbx6244@gmail.com,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+        jensenhuang@friendlyarm.com, michael@amarulasolutions.com,
+        cnsztl@gmail.com, devicetree@vger.kernel.org,
+        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
+        gregkh@linuxfoundation.org, linux-serial@vger.kernel.org,
+        linux-i2c@vger.kernel.org, jay.xu@rock-chips.com,
+        shawn.lin@rock-chips.com, david.wu@rock-chips.com,
+        zhangqing@rock-chips.com, huangtao@rock-chips.com,
+        cl@rock-chips.com, wim@linux-watchdog.org, linux@roeck-us.net,
+        jamie@jamieiles.com, linux-watchdog@vger.kernel.org, maz@kernel.org
+Subject: [PATCH v3 03/10] dt-bindings: mmc: rockchip-dw-mshc: add description for rk3568
+Date:   Wed, 28 Apr 2021 21:47:52 +0800
+Message-Id: <20210428134759.22076-4-cl@rock-chips.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20210428134759.22076-1-cl@rock-chips.com>
+References: <20210428134759.22076-1-cl@rock-chips.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Multi line comment have been aligned starting with a *
-The closing */ has been shifted to a new line.
-Single space replaced with tab space
-This is done to maintain code uniformity.
+From: Liang Chen <cl@rock-chips.com>
 
-Signed-off-by: Shubhankar Kuranagatti <shubhankarvk@gmail.com>
+add "rockchip,rk3568-dw-mshc", "rockchip,rk3288-dw-mshc" for mmc nodes on
+a rk3568 platform to rockchip-dw-mshc.yaml.
+
+Signed-off-by: Liang Chen <cl@rock-chips.com>
 ---
- drivers/i2c/i2c-core-smbus.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ .../devicetree/bindings/mmc/rockchip-dw-mshc.yaml        | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index d2d32c0fd8c3..205750518c21 100644
---- a/drivers/i2c/i2c-core-smbus.c
-+++ b/drivers/i2c/i2c-core-smbus.c
-@@ -66,10 +66,11 @@ static inline void i2c_smbus_add_pec(struct i2c_msg *msg)
- }
+diff --git a/Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.yaml b/Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.yaml
+index 3762f1c8de96..eaa3b0ef24f6 100644
+--- a/Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.yaml
++++ b/Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.yaml
+@@ -29,21 +29,14 @@ properties:
+       - const: rockchip,rk3288-dw-mshc
+       - items:
+           - enum:
+-            # for Rockchip PX30
+               - rockchip,px30-dw-mshc
+-            # for Rockchip RK3036
+               - rockchip,rk3036-dw-mshc
+-            # for Rockchip RK322x
+               - rockchip,rk3228-dw-mshc
+-            # for Rockchip RK3308
+               - rockchip,rk3308-dw-mshc
+-            # for Rockchip RK3328
+               - rockchip,rk3328-dw-mshc
+-            # for Rockchip RK3368
+               - rockchip,rk3368-dw-mshc
+-            # for Rockchip RK3399
+               - rockchip,rk3399-dw-mshc
+-            # for Rockchip RV1108
++              - rockchip,rk3568-dw-mshc
+               - rockchip,rv1108-dw-mshc
+           - const: rockchip,rk3288-dw-mshc
  
- /* Return <0 on CRC error
--   If there was a write before this read (most cases) we need to take the
--   partial CRC from the write part into account.
--   Note that this function does modify the message (we need to decrease the
--   message length to hide the CRC byte from the caller). */
-+ * If there was a write before this read (most cases) we need to take the
-+ * partial CRC from the write part into account.
-+ * Note that this function does modify the message (we need to decrease the
-+ * message length to hide the CRC byte from the caller).
-+ */
- static int i2c_smbus_check_pec(u8 cpec, struct i2c_msg *msg)
- {
- 	u8 rpec = msg->buf[--msg->len];
-@@ -113,7 +114,7 @@ EXPORT_SYMBOL(i2c_smbus_read_byte);
- s32 i2c_smbus_write_byte(const struct i2c_client *client, u8 value)
- {
- 	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
--	                      I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
-+			I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
- }
- EXPORT_SYMBOL(i2c_smbus_write_byte);
- 
-@@ -387,7 +388,8 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
- 		if (read_write == I2C_SMBUS_READ) {
- 			msg[1].flags |= I2C_M_RECV_LEN;
- 			msg[1].len = 1; /* block length will be added by
--					   the underlying bus driver */
-+					 * the underlying bus driver
-+					 */
- 			i2c_smbus_try_get_dmabuf(&msg[1], 0);
- 		} else {
- 			msg[0].len = data->block[0] + 2;
-@@ -418,7 +420,8 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
- 
- 		msg[1].flags |= I2C_M_RECV_LEN;
- 		msg[1].len = 1; /* block length will be added by
--				   the underlying bus driver */
-+				 * the underlying bus driver
-+				 */
- 		i2c_smbus_try_get_dmabuf(&msg[1], 0);
- 		break;
- 	case I2C_SMBUS_I2C_BLOCK_DATA:
 -- 
 2.17.1
+
+
 
