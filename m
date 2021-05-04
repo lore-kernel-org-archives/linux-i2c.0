@@ -2,87 +2,77 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2EF9C433B4
-	for <linux-i2c@archiver.kernel.org>; Tue,  4 May 2021 13:52:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1E95C43461
+	for <linux-i2c@archiver.kernel.org>; Tue,  4 May 2021 14:36:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C38A76115C
-	for <linux-i2c@archiver.kernel.org>; Tue,  4 May 2021 13:52:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 89424613BE
+	for <linux-i2c@archiver.kernel.org>; Tue,  4 May 2021 14:36:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231127AbhEDNxL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 4 May 2021 09:53:11 -0400
-Received: from smtp1.axis.com ([195.60.68.17]:46183 "EHLO smtp1.axis.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231138AbhEDNxL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 4 May 2021 09:53:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=axis.com; q=dns/txt; s=axis-central1; t=1620136336;
-  x=1651672336;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=1iENLt//KBfg17reazfrU60VwtlexWbd03KEL50ys7Q=;
-  b=k6rjHqd16FOul5iqZNJzBbNvUty2p94jl/uiWb1gAPb3dDa8rR602ku6
-   9hy07oXrgyecInAQeKbTqnnnnHAF/u8Gru70NgDKX77gC+p5ThVrA5Uia
-   TZqU0ICP3uLDnidBn5R+8JVfXDEpSF2A3hYHlZ1WGI8u13uZXHqQ8gm98
-   obeVG07mmGWZU3/YFLV7Z+glP/5gKtVFdQaoW8Cbc2wlP/GgAWZhj+0o4
-   Sc5DEmJMLEb4N5q/kdTUNvfQkIHKyLI6FTMLdM02LvtFCyitNHCIsYhNu
-   UnPzZE3L306NFp4ouu4oFKJfCzg9LzWUbLnQGGnWGJNNCgB4+DJ7Q3xUc
-   Q==;
-From:   =?UTF-8?q?Bj=C3=B6rn=20Ard=C3=B6?= <bjorn.ardo@axis.com>
-To:     <wsa@kernel.org>
-CC:     <linux-i2c@vger.kernel.org>, <kernel@axis.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20Ard=C3=B6?= <bjorn.ardo@axis.com>
-Subject: [PATCH] i2c: slave-eeprom: add an of_match_table
-Date:   Tue, 4 May 2021 15:52:09 +0200
-Message-ID: <20210504135209.4757-1-bjorn.ardo@axis.com>
-X-Mailer: git-send-email 2.20.1
+        id S231318AbhEDOhB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 4 May 2021 10:37:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59594 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231157AbhEDOhB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 4 May 2021 10:37:01 -0400
+Received: from andre.telenet-ops.be (andre.telenet-ops.be [IPv6:2a02:1800:120:4::f00:15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B790C061761
+        for <linux-i2c@vger.kernel.org>; Tue,  4 May 2021 07:36:05 -0700 (PDT)
+Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed20:1ca1:e52f:3ec5:3ac5])
+        by andre.telenet-ops.be with bizsmtp
+        id 0ec32500M3aEpPb01ec3lH; Tue, 04 May 2021 16:36:03 +0200
+Received: from rox.of.borg ([192.168.97.57])
+        by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1ldw9a-002njy-RZ; Tue, 04 May 2021 16:36:02 +0200
+Received: from geert by rox.of.borg with local (Exim 4.93)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1ldw9a-00HQ9x-Bq; Tue, 04 May 2021 16:36:02 +0200
+From:   Geert Uytterhoeven <geert+renesas@glider.be>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Chris Brandt <chris.brandt@renesas.com>
+Cc:     linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 2/6] dt-bindings: i2c: renesas,i2c: Drop "renesas,i2c-rcar"
+Date:   Tue,  4 May 2021 16:35:54 +0200
+Message-Id: <3628120234ef0fbc26cba14e62ff8468bfb961fa.1620138454.git.geert+renesas@glider.be>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <cover.1620138454.git.geert+renesas@glider.be>
+References: <cover.1620138454.git.geert+renesas@glider.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This is needed since commit af503716ac14 ("i2c: core: report OF style
-module alias for devices registered via OF").
+The compatible value "renesas,i2c-rcar" was deprecated in commit
+ad4a8dc3fec6485b ("i2c: rcar: Add per-Generation fallback bindings"),
+and never had any users in upstream Linux.  Drop its description from
+the DT bindings.
 
-Signed-off-by: Björn Ardö <bjorn.ardo@axis.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- drivers/i2c/i2c-slave-eeprom.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ Documentation/devicetree/bindings/i2c/renesas,i2c.txt | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
-index 5c7ae421cacf..89274b72b369 100644
---- a/drivers/i2c/i2c-slave-eeprom.c
-+++ b/drivers/i2c/i2c-slave-eeprom.c
-@@ -204,9 +204,23 @@ static const struct i2c_device_id i2c_slave_eeprom_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, i2c_slave_eeprom_id);
+diff --git a/Documentation/devicetree/bindings/i2c/renesas,i2c.txt b/Documentation/devicetree/bindings/i2c/renesas,i2c.txt
+index 5762d2d1ab9c9658..f4240fcf28bbf6eb 100644
+--- a/Documentation/devicetree/bindings/i2c/renesas,i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/renesas,i2c.txt
+@@ -32,7 +32,6 @@ Required properties:
+ 				device.
+ 	"renesas,rcar-gen3-i2c" for a generic R-Car Gen3 or RZ/G2 compatible
+ 				device.
+-	"renesas,i2c-rcar" (deprecated)
  
-+static const struct of_device_id i2c_slave_eeprom_match[] = {
-+	{ .compatible = "linux,slave-24c02", },
-+	{ .compatible = "linux,slave-24c02ro", },
-+	{ .compatible = "linux,slave-24c32", },
-+	{ .compatible = "linux,slave-24c32ro", },
-+	{ .compatible = "linux,slave-24c64", },
-+	{ .compatible = "linux,slave-24c64ro", },
-+	{ .compatible = "linux,slave-24c512", },
-+	{ .compatible = "linux,slave-24c512ro", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, i2c_slave_eeprom_match);
-+
- static struct i2c_driver i2c_slave_eeprom_driver = {
- 	.driver = {
- 		.name = "i2c-slave-eeprom",
-+		.of_match_table = i2c_slave_eeprom_match,
- 	},
- 	.probe = i2c_slave_eeprom_probe,
- 	.remove = i2c_slave_eeprom_remove,
+ 	When compatible with the generic version, nodes must list the
+ 	SoC-specific version corresponding to the platform first followed
 -- 
-2.20.1
+2.25.1
 
