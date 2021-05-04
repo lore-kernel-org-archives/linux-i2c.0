@@ -2,67 +2,92 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 748B0C433B4
-	for <linux-i2c@archiver.kernel.org>; Tue,  4 May 2021 14:42:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA6EBC433B4
+	for <linux-i2c@archiver.kernel.org>; Tue,  4 May 2021 14:49:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4D4D3613B3
-	for <linux-i2c@archiver.kernel.org>; Tue,  4 May 2021 14:42:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9DA3D61175
+	for <linux-i2c@archiver.kernel.org>; Tue,  4 May 2021 14:49:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230363AbhEDOnR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 4 May 2021 10:43:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36792 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230086AbhEDOnR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 4 May 2021 10:43:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59B5B613B3;
-        Tue,  4 May 2021 14:42:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620139342;
-        bh=PYPsVpOMTvNJwbf8RMnEK/FX8y+faIhHsQH0q972Hpo=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=JxYzEEDwLUP8zOrBerahSq6vHZSWM67cK8aNf0h3rNy9+WAzOkIYkU2IMAGCLwswu
-         8Aqy/7MyTMeLZzU9uhUoXsFY2cc83va0xSto8NQXrYNpv2cqpmIXn4FtJYOnw1qu1A
-         z10/etRdjB1rSG+65ZYv1fFcxP72CdpuVVZXtqP04t6W9rT70gWtcXsVBuI75PhTYP
-         P15zhg+pF24h2FR55fx3ciOsDzPFwrff5O69htjBcbPyU7Q6+3cqNMGZtEkdiktl3s
-         /lOQ/cYJ9U5GZw60jG4I35wYG8aJtcVWQKnaeAkJI3T52M1eRA+ZXmynKDWS8AsSTe
-         H2fPJa0ryIVyw==
-Received: by mail-qk1-f178.google.com with SMTP id i67so5602351qkc.4;
-        Tue, 04 May 2021 07:42:22 -0700 (PDT)
-X-Gm-Message-State: AOAM532SHoUQotPrwtBZntnzwVa2Gbc2Svm4jA+95/TdEj8T/hVKLLPM
-        dV2SZMBbbNp6+P8KqeECQJCESMxMEbB4aNC9MA==
-X-Google-Smtp-Source: ABdhPJxB4e7Sk9Wq5fxRct/7J6Zd7HsiLal+5KjbDTA1U1QuVbHi86pOHClFGrQblIfiKf5y8tKrEDoLRlmbHZ77xRc=
-X-Received: by 2002:a05:620a:1409:: with SMTP id d9mr25280915qkj.464.1620139341502;
- Tue, 04 May 2021 07:42:21 -0700 (PDT)
+        id S231409AbhEDOu2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 4 May 2021 10:50:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34454 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231143AbhEDOu2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 4 May 2021 10:50:28 -0400
+Received: from baptiste.telenet-ops.be (baptiste.telenet-ops.be [IPv6:2a02:1800:120:4::f00:13])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9EE4C061574
+        for <linux-i2c@vger.kernel.org>; Tue,  4 May 2021 07:49:32 -0700 (PDT)
+Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed20:1ca1:e52f:3ec5:3ac5])
+        by baptiste.telenet-ops.be with bizsmtp
+        id 0epX250023aEpPb01epXyF; Tue, 04 May 2021 16:49:31 +0200
+Received: from rox.of.borg ([192.168.97.57])
+        by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1ldwMc-002nvc-KK; Tue, 04 May 2021 16:49:30 +0200
+Received: from geert by rox.of.borg with local (Exim 4.93)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1ldwMc-00HQRq-7O; Tue, 04 May 2021 16:49:30 +0200
+From:   Geert Uytterhoeven <geert+renesas@glider.be>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Chris Paterson <chris.paterson2@renesas.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc:     linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 2/2] ARM: dts: r8a7794: Remove generic compatible strings from iic blocks
+Date:   Tue,  4 May 2021 16:49:26 +0200
+Message-Id: <99626a30ef0bc71f4ce5244ebdb67bab20184a7e.1620139307.git.geert+renesas@glider.be>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <cover.1620139307.git.geert+renesas@glider.be>
+References: <cover.1620139307.git.geert+renesas@glider.be>
 MIME-Version: 1.0
-References: <cover.1620138454.git.geert+renesas@glider.be>
-In-Reply-To: <cover.1620138454.git.geert+renesas@glider.be>
-From:   Rob Herring <robh+dt@kernel.org>
-Date:   Tue, 4 May 2021 09:42:08 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqKTYq0T6RP6oR928HmADSeoJREoF+RMAHNm+YGigiS4AQ@mail.gmail.com>
-Message-ID: <CAL_JsqKTYq0T6RP6oR928HmADSeoJREoF+RMAHNm+YGigiS4AQ@mail.gmail.com>
-Subject: Re: [PATCH 0/6] dt-bindings: i2c: renesas: Convert to json-schema
-To:     Geert Uytterhoeven <geert+renesas@glider.be>
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Chris Brandt <chris.brandt@renesas.com>,
-        linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, May 4, 2021 at 9:36 AM Geert Uytterhoeven
-<geert+renesas@glider.be> wrote:
->
->         Hi all,
->
-> This patch series converts the DT bindings for the various I2C
-> controllers found in Renesas SoCs to json-schema, after a small cleanup
-> to ease the conversion.
+The IIC blocks on R-Car E2 do not have the automatic transmission
+registers.  Hence they thus must not declare compatibility with the
+R-Car Gen2-specific and generic versions.
 
-You missed the DT list. Can you resend please.
+Fixes: aa9b992ea2d3c2cc ("ARM: dts: r8a7794: Add IIC nodes")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ arch/arm/boot/dts/r8a7794.dtsi | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-Rob
+diff --git a/arch/arm/boot/dts/r8a7794.dtsi b/arch/arm/boot/dts/r8a7794.dtsi
+index 0035770e74de80a5..f974b8676bc59222 100644
+--- a/arch/arm/boot/dts/r8a7794.dtsi
++++ b/arch/arm/boot/dts/r8a7794.dtsi
+@@ -457,9 +457,7 @@ i2c5: i2c@e6528000 {
+ 		};
+ 
+ 		i2c6: i2c@e6500000 {
+-			compatible = "renesas,iic-r8a7794",
+-				     "renesas,rcar-gen2-iic",
+-				     "renesas,rmobile-iic";
++			compatible = "renesas,iic-r8a7794";
+ 			reg = <0 0xe6500000 0 0x425>;
+ 			interrupts = <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 318>;
+@@ -474,9 +472,7 @@ i2c6: i2c@e6500000 {
+ 		};
+ 
+ 		i2c7: i2c@e6510000 {
+-			compatible = "renesas,iic-r8a7794",
+-				     "renesas,rcar-gen2-iic",
+-				     "renesas,rmobile-iic";
++			compatible = "renesas,iic-r8a7794";
+ 			reg = <0 0xe6510000 0 0x425>;
+ 			interrupts = <GIC_SPI 175 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 323>;
+-- 
+2.25.1
+
