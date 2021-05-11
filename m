@@ -2,84 +2,106 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4C7CC43460
-	for <linux-i2c@archiver.kernel.org>; Tue, 11 May 2021 21:21:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 964B4C43462
+	for <linux-i2c@archiver.kernel.org>; Tue, 11 May 2021 21:21:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8C87613C1
-	for <linux-i2c@archiver.kernel.org>; Tue, 11 May 2021 21:21:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 606436191C
+	for <linux-i2c@archiver.kernel.org>; Tue, 11 May 2021 21:21:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229952AbhEKVWG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 11 May 2021 17:22:06 -0400
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:48230 "EHLO
+        id S230009AbhEKVWH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 11 May 2021 17:22:07 -0400
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:48243 "EHLO
         gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbhEKVWF (ORCPT
+        with ESMTP id S229925AbhEKVWF (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Tue, 11 May 2021 17:22:05 -0400
 Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (Client did not present a certificate)
-        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 56D03806B6;
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id A15F4891AD;
         Wed, 12 May 2021 09:20:55 +1200 (NZST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
         s=mail181024; t=1620768055;
-        bh=4dX9P5KDi1fr7Qs6oEsdntuC7ZXWJh3Zpfa0sqNoOyE=;
-        h=From:To:Cc:Subject:Date;
-        b=DGwIX2QlPRWdTgox6EGCq5hGy1DXVMAVwGsn2RUVpBJ2m6SOxU/pcoYn9mTC40vPu
-         rZSRM/nAqUSOHZqt/cwm637WeBoY2B/CpXpFZfKh+MbHohLImQ1PCxAip3q+CMRqPj
-         e5zPORpqbarLcu6pmYS7CtZOkHRks53Z779oXh/lF66HyoNXC5b/c/H4FsOtwrkODL
-         YG17OaO3nK6lusWUqTe07frW4aATZZX2uLAx1pWgFivxBmPpxZzFyPu70Rba2kBFWW
-         e9jUC7A/8TCgp9nIZ3kwgpu71aFIG7jeRHcbvkqyxHiU7j3PwgLZyEBXkCu1zR9zJm
-         Hmn1dlTnLxFtA==
+        bh=NuxtmiB9vBtPJ7+lr2Jkbk+llLCBqpimoEWh66Aw+ZA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=fTiG4o8jYm31vmd7bCG8oEeTmrJtwWArdupFwEcUK21zMu/yU/AUT4WYTNaYHUesz
+         WadDVszJW83O1laIrGmQqbwxw/QNHgRPLH7wMK9V1JFh6Q6+EWjAOkU9CO8WAaRaEn
+         LRqfsksu5c8mVcMAVE9h6o2bwqF2XzLkpVVdCHlciS25SlBDBP3VfQOZt6xSP6QbT1
+         g8lqwBj3xvpcPejoB9RVIqzjATUuy3m+UMf0n4Bag1/tSBZigA3U922X5QufnCPAv/
+         LUhAzt3Ke+iJt1HBeLagEKnAhu8uk+oZ4dXnxK8ARZ0VFt8ZivdOh5iDSVFRCzIHbb
+         fP0+1Q8mOmt6A==
 Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-        id <B609af5370000>; Wed, 12 May 2021 09:20:55 +1200
+        id <B609af5370002>; Wed, 12 May 2021 09:20:55 +1200
 Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.20])
-        by pat.atlnz.lc (Postfix) with ESMTP id 3A08513ECA6;
+        by pat.atlnz.lc (Postfix) with ESMTP id 8079013ECA6;
         Wed, 12 May 2021 09:20:55 +1200 (NZST)
 Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
-        id 34DA3283A61; Wed, 12 May 2021 09:20:55 +1200 (NZST)
+        id 7D10D283A61; Wed, 12 May 2021 09:20:55 +1200 (NZST)
 From:   Chris Packham <chris.packham@alliedtelesis.co.nz>
 To:     wsa@kernel.org, andriy.shevchenko@linux.intel.com,
         andy.shevchenko@gmail.com, robh+dt@kernel.org, mpe@ellerman.id.au
 Cc:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH v3 0/4] P2040/P2041 i2c recovery erratum
-Date:   Wed, 12 May 2021 09:20:48 +1200
-Message-Id: <20210511212052.27242-1-chris.packham@alliedtelesis.co.nz>
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>
+Subject: [PATCH v3 2/4] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P2041 i2c controllers
+Date:   Wed, 12 May 2021 09:20:50 +1200
+Message-Id: <20210511212052.27242-3-chris.packham@alliedtelesis.co.nz>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210511212052.27242-1-chris.packham@alliedtelesis.co.nz>
+References: <20210511212052.27242-1-chris.packham@alliedtelesis.co.nz>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=K6Jc4BeI c=1 sm=1 tr=0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=5FLXtPjwQuUA:10 a=LMdnaIF9TloyW3KOcEsA:9
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=K6Jc4BeI c=1 sm=1 tr=0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=5FLXtPjwQuUA:10 a=CCyhWkR5sz16QRgSDIcA:9
 X-SEG-SpamProfiler-Score: 0
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The P2040/P2041 has an erratum where the i2c recovery scheme
-documented in the reference manual (and currently implemented
-in the i2c-mpc.c driver) does not work. The errata document
-provides an alternative that does work. This series implements
-that alternative and uses a property in the devicetree to
-decide when the alternative mechanism is needed.
+The i2c controllers on the P2040/P2041 have an erratum where the
+documented scheme for i2c bus recovery will not work (A-004447). A
+different mechanism is needed which is documented in the P2040 Chip
+Errata Rev Q (latest available at the time of writing).
 
-Chris Packham (4):
-  dt-bindings: i2c: mpc: Add fsl,i2c-erratum-a004447 flag
-  powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P2041 i2c
-    controllers
-  powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P1010 i2c
-    controllers
-  i2c: mpc: implement erratum A-004447 workaround
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+---
+ arch/powerpc/boot/dts/fsl/p2041si-post.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
- .../devicetree/bindings/i2c/i2c-mpc.yaml      |  7 ++
- arch/powerpc/boot/dts/fsl/p1010si-post.dtsi   |  8 ++
- arch/powerpc/boot/dts/fsl/p2041si-post.dtsi   | 16 ++++
- drivers/i2c/busses/i2c-mpc.c                  | 81 ++++++++++++++++++-
- 4 files changed, 110 insertions(+), 2 deletions(-)
-
+diff --git a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi b/arch/powerpc/b=
+oot/dts/fsl/p2041si-post.dtsi
+index 872e4485dc3f..ddc018d42252 100644
+--- a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
++++ b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
+@@ -371,7 +371,23 @@ sdhc@114000 {
+ 	};
+=20
+ /include/ "qoriq-i2c-0.dtsi"
++	i2c@118000 {
++		fsl,i2c-erratum-a004447;
++	};
++
++	i2c@118100 {
++		fsl,i2c-erratum-a004447;
++	};
++
+ /include/ "qoriq-i2c-1.dtsi"
++	i2c@119000 {
++		fsl,i2c-erratum-a004447;
++	};
++
++	i2c@119100 {
++		fsl,i2c-erratum-a004447;
++	};
++
+ /include/ "qoriq-duart-0.dtsi"
+ /include/ "qoriq-duart-1.dtsi"
+ /include/ "qoriq-gpio-0.dtsi"
 --=20
 2.31.1
 
