@@ -2,194 +2,99 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2D85C433ED
-	for <linux-i2c@archiver.kernel.org>; Wed, 12 May 2021 21:11:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40859C433ED
+	for <linux-i2c@archiver.kernel.org>; Wed, 12 May 2021 21:12:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 600F6610CA
-	for <linux-i2c@archiver.kernel.org>; Wed, 12 May 2021 21:11:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F8E261155
+	for <linux-i2c@archiver.kernel.org>; Wed, 12 May 2021 21:12:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239849AbhELVMY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 12 May 2021 17:12:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38128 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377304AbhELTDb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 12 May 2021 15:03:31 -0400
-Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AF7C061244
-        for <linux-i2c@vger.kernel.org>; Wed, 12 May 2021 11:57:57 -0700 (PDT)
-Received: by mail-ot1-x32e.google.com with SMTP id q7-20020a9d57870000b02902a5c2bd8c17so21502582oth.5
-        for <linux-i2c@vger.kernel.org>; Wed, 12 May 2021 11:57:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:in-reply-to:references:from:user-agent:date:message-id
-         :subject:to:cc;
-        bh=PehLa9MGShjuTsXrSuonmCUzxBSw0r+oW/besiLAOSg=;
-        b=e7QWriUulUNRPB0jJnAJKw/zMmZn8kRRBSywopzp5wcDxq2VWWf3bpHvugikCOY9W7
-         a0kHkr5Jzk42OGM3+lOAtcuS0p0ieGRuKMhb2vlc8V0O/xW/q5D3pDzlFkt0uzQFmD9p
-         nSwAKymo6YI0llaqDyFJQY9dDhKN070USLUjM=
+        id S239945AbhELVMk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 12 May 2021 17:12:40 -0400
+Received: from mail-oo1-f52.google.com ([209.85.161.52]:36857 "EHLO
+        mail-oo1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1385217AbhELUHN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 12 May 2021 16:07:13 -0400
+Received: by mail-oo1-f52.google.com with SMTP id v13-20020a4aa40d0000b02902052145a469so3585641ool.3;
+        Wed, 12 May 2021 13:06:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:in-reply-to:references:from
-         :user-agent:date:message-id:subject:to:cc;
-        bh=PehLa9MGShjuTsXrSuonmCUzxBSw0r+oW/besiLAOSg=;
-        b=k0TzLIr+mzkhGXS6b4PN+tUShUjUDK86NNpQTlAYXJV+W/QrlfLMop47cTHC9YQdAf
-         J6zGsccC63dfR2qRAntJva8OZdxV43uJ20FpadXaFcQAbvlG9+jMkxjjCDv5BvG+bUO8
-         oqlfaZA8LNoGtXIgXMTDiHBtggBKzf4nptvAksWyicZOijaGAXdjG6OXlN3hwsmgH182
-         mec6zxtsOKbYuMley85WRGRUshUyQ8UVw2U++HY2QW2wzePMMmGNQ9R6vPIVxYGB8/ic
-         xuWRcxUT5E8kRTCQVxYq6g7ribu8UW7bUUI8il3KE3XQQKYxM1Y+C9JU9n2WEnjQIJZP
-         sbyg==
-X-Gm-Message-State: AOAM530gwjNTxgtfOKC6E2SrJxUbxmYBS4X+DSpMF2mL6Wn24lVHlkO1
-        rcYRNKg3PD2mcv1MmWgkbMkUbsj0LLh9w/GxfZRfvA==
-X-Google-Smtp-Source: ABdhPJzBOj/82oAh5sBucFDlICY1aaY8WRL1s5yQq3y7rEs/5jiHV7d0KyTPx5JmEzraeDWWvfK+qDFF5VxaUmj9mUE=
-X-Received: by 2002:a9d:1ea9:: with SMTP id n38mr32942611otn.233.1620845876668;
- Wed, 12 May 2021 11:57:56 -0700 (PDT)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Wed, 12 May 2021 11:57:56 -0700
-MIME-Version: 1.0
-In-Reply-To: <20210512082220.7137-1-rojay@codeaurora.org>
-References: <20210512082220.7137-1-rojay@codeaurora.org>
-From:   Stephen Boyd <swboyd@chromium.org>
-User-Agent: alot/0.9.1
-Date:   Wed, 12 May 2021 11:57:56 -0700
-Message-ID: <CAE-0n52D-K1T0QgxA-S7BXxE3Qk807F9edNyR+2RL4YxRyigMg@mail.gmail.com>
-Subject: Re: [PATCH V10] i2c: i2c-qcom-geni: Add shutdown callback for i2c
-To:     Roja Rani Yarubandi <rojay@codeaurora.org>, wsa@kernel.org
-Cc:     dianders@chromium.org, saiprakash.ranjan@codeaurora.org,
-        gregkh@linuxfoundation.org, mka@chromium.org,
-        skananth@codeaurora.org, msavaliy@qti.qualcomm.com,
-        skakit@codeaurora.org, rnayak@codeaurora.org, agross@kernel.org,
-        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sumit.semwal@linaro.org, linux-media@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
+         :message-id;
+        bh=W+U+q4eTJh3spyOvwiyGHGUH//7zxa04tD+r5bY4uEs=;
+        b=NAvX5HW7A+Dy4y4Y0MLDMYlAvJjQqgJl1U0gcQ48zCrorzUE2x2HNAKqZfrfeCVRl3
+         TslM4C5Al6kRoKJrgP37rCJl3ElsJs/fsGTAkz8QuudEXBJPaphrLbXjNl6q9zCT8RV3
+         f4tBxHwsOOQauE8xtZqVxnJS2f7P7cVe+p4vDG33XNnqUoMuB0LWAwSDEI1QjOsT3dYu
+         yPkHv/EiJdgrwaPDo5ijg7Lj97J1nPXkZRNudQgGLxYSgWDUKJaYi4/QruKDdTe/uA2g
+         P8GKh2LVwR9HoaMJdvCUYQ60wt4IuxOVcpA2VeaQfJXs8WtQv8aVBpVv1Vh0Pp60T3fp
+         f9ZA==
+X-Gm-Message-State: AOAM5324jBeTP5/Lwkb66ZIEa2Eu0/KYn8B/7X39+2YcGOb6w6wHfzcY
+        2kqLPxp5MeCCk2rA3NKGFA==
+X-Google-Smtp-Source: ABdhPJz6exy8PFow7Wm6BrJeScyxRaMuPcJ29FGguAbvDNvhXui353fKkfnfOGYvQv2F8Or+1TWQfA==
+X-Received: by 2002:a4a:c446:: with SMTP id h6mr18340852ooq.82.1620849964709;
+        Wed, 12 May 2021 13:06:04 -0700 (PDT)
+Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id r2sm165952otq.28.2021.05.12.13.06.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 May 2021 13:06:03 -0700 (PDT)
+Received: (nullmailer pid 204088 invoked by uid 1000);
+        Wed, 12 May 2021 18:35:16 -0000
+From:   Rob Herring <robh@kernel.org>
+To:     =?utf-8?b?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+Cc:     devicetree@vger.kernel.org, Ray Jui <rjui@broadcom.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        =?utf-8?b?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Scott Branden <sbranden@broadcom.com>
+In-Reply-To: <20210512160750.15183-1-zajec5@gmail.com>
+References: <20210512160750.15183-1-zajec5@gmail.com>
+Subject: Re: [PATCH] dt-bindings: i2c: brcm,iproc-i2c: convert to the json-schema
+Date:   Wed, 12 May 2021 13:35:16 -0500
+Message-Id: <1620844516.523024.204087.nullmailer@robh.at.kernel.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Quoting Roja Rani Yarubandi (2021-05-12 01:22:20)
-> If the hardware is still accessing memory after SMMU translation
-> is disabled (as part of smmu shutdown callback), then the
-> IOVAs (I/O virtual address) which it was using will go on the bus
-> as the physical addresses which will result in unknown crashes
-> like NoC/interconnect errors.
->
-> So, implement shutdown callback for i2c driver to suspend the bus
-> during system "reboot" or "shutdown".
->
-> Fixes: 37692de5d523 ("i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller")
-> Signed-off-by: Roja Rani Yarubandi <rojay@codeaurora.org>
+On Wed, 12 May 2021 18:07:50 +0200, Rafał Miłecki wrote:
+> From: Rafał Miłecki <rafal@milecki.pl>
+> 
+> This helps validating DTS files.
+> 
+> Introduced changes:
+> 1. Added arm-gic.h include
+> 
+> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
 > ---
-> Changes in V2:
->  - As per Stephen's comments added seperate function for stop transfer,
->    fixed minor nitpicks.
->  - As per Stephen's comments, changed commit text.
->
-> Changes in V3:
->  - As per Stephen's comments, squashed patch 1 into patch 2, added Fixes tag.
->  - As per Akash's comments, included FIFO case in stop_xfer, fixed minor nitpicks.
->
-> Changes in V4:
->  - As per Stephen's comments cleaned up geni_i2c_stop_xfer function,
->    added dma_buf in geni_i2c_dev struct to call i2c_put_dma_safe_msg_buf()
->    from other functions, removed "iova" check in geni_se_rx_dma_unprep()
->    and geni_se_tx_dma_unprep() functions.
->  - Added two helper functions geni_i2c_rx_one_msg_done() and
->    geni_i2c_tx_one_msg_done() to unwrap the things after rx/tx FIFO/DMA
->    transfers, so that the same can be used in geni_i2c_stop_xfer() function
->    during shutdown callback. Updated commit text accordingly.
->  - Checking whether it is tx/rx transfer using I2C_M_RD which is valid for both
->    FIFO and DMA cases, so dropped DMA_RX_ACTIVE and DMA_TX_ACTIVE bit checking
->
-> Changes in V5:
->  - As per Stephen's comments, added spin_lock_irqsave & spin_unlock_irqsave in
->    geni_i2c_stop_xfer() function.
->
-> Changes in V6:
->  - As per Stephen's comments, taken care of unsafe lock order in
->    geni_i2c_stop_xfer().
->  - Moved spin_lock/unlock to geni_i2c_rx_msg_cleanup() and
->    geni_i2c_tx_msg_cleanup() functions.
->
-> Changes in V7:
->  - No changes
->
-> Changes in V8:
->  - As per Wolfram Sang comment, removed goto and modified geni_i2c_stop_xfer()
->    accordingly.
->
-> Changes in V9:
->  - Fixed possbile race by protecting gi2c->cur and calling geni_i2c_abort_xfer()
->    with adding another parameter to differentiate from which sequence is the
->    geni_i2c_abort_xfer() called and handle the spin_lock/spin_unlock accordingly
->    inside geni_i2c_abort_xfer(). For this added two macros ABORT_XFER and
->    STOP_AND_ABORT_XFER.
->  - Added a bool variable "stop_xfer" in geni_i2c_dev struct, used to put stop
->    to upcoming geni_i2c_rx_one_msg() and geni_i2c_tx_one_msg() calls once we
->    recieve the shutdown call.
->  - Added gi2c->cur == NULL check in geni_i2c_irq() to not to process the irq
->    even if any transfer is queued and shutdown to HW received.
->
-> Changes in V10:
->  - As per Stephen's comments, removed ongoing transfers flush and only
->    suspending i2c bus in shutdown callback.
->  - Also removed all other changes which have been made for ongoing transfers
->    flush, handling race issues etc., during shutdown callback.
->  - Updated commit text accordingly.
->
->  drivers/i2c/busses/i2c-qcom-geni.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-> index 214b4c913a13..277ab7e7dd51 100644
-> --- a/drivers/i2c/busses/i2c-qcom-geni.c
-> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-> @@ -650,6 +650,14 @@ static int geni_i2c_remove(struct platform_device *pdev)
->         return 0;
->  }
->
-> +static void geni_i2c_shutdown(struct platform_device *pdev)
-> +{
-> +       struct geni_i2c_dev *gi2c = platform_get_drvdata(pdev);
-> +
-> +       if (!pm_runtime_status_suspended(gi2c->se.dev))
-> +               pm_runtime_set_suspended(gi2c->se.dev);
+>  .../bindings/i2c/brcm,iproc-i2c.txt           | 46 ------------
+>  .../bindings/i2c/brcm,iproc-i2c.yaml          | 71 +++++++++++++++++++
+>  2 files changed, 71 insertions(+), 46 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
+>  create mode 100644 Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.yaml
+> 
 
-What was wrong with my suggested approach of telling i2c core that the
-bus is suspended? This looks to do a bunch of work right before we're
-shutting down, when it would be simpler to just mark the bus as
-suspended and have it block future transactions and spit out a warning.
+My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
+on your patch (DT_CHECKER_FLAGS is new in v5.13):
 
-I do see that we should be marking it suspended/resumed during runtime
-suspend/resume. I'm also confused if during system wide suspend/resume
-we actually do anything in this driver. Is runtime suspend called for
-system wide suspend?
+yamllint warnings/errors:
 
-----8<----
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c
-b/drivers/i2c/busses/i2c-qcom-geni.c
-index 214b4c913a13..ca12d348336b 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -656,6 +656,7 @@ static int __maybe_unused
-geni_i2c_runtime_suspend(struct device *dev)
- 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+dtschema/dtc warnings/errors:
+Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.example.dt.yaml:0:0: /example-0/i2c@18008000/wm8750@1a: failed to match any schema with compatible: ['wlf,wm8750']
 
- 	disable_irq(gi2c->irq);
-+	i2c_mark_adapter_suspended(&gi2c->adap);
- 	ret = geni_se_resources_off(&gi2c->se);
- 	if (ret) {
- 		enable_irq(gi2c->irq);
-@@ -682,6 +683,7 @@ static int __maybe_unused
-geni_i2c_runtime_resume(struct device *dev)
- 		return ret;
+See https://patchwork.ozlabs.org/patch/1477696
 
- 	enable_irq(gi2c->irq);
-+	i2c_mark_adapter_resumed(&gi2c->adap);
- 	gi2c->suspended = 0;
- 	return 0;
- }
+This check can fail if there are any dependencies. The base for a patch
+series is generally the most recent rc1.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit.
+
