@@ -2,98 +2,97 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D2BBC433B4
-	for <linux-i2c@archiver.kernel.org>; Wed, 12 May 2021 21:12:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB231C433ED
+	for <linux-i2c@archiver.kernel.org>; Thu, 13 May 2021 03:34:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3696060240
-	for <linux-i2c@archiver.kernel.org>; Wed, 12 May 2021 21:12:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A5F5461419
+	for <linux-i2c@archiver.kernel.org>; Thu, 13 May 2021 03:34:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346334AbhELVND (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 12 May 2021 17:13:03 -0400
-Received: from mail-oi1-f175.google.com ([209.85.167.175]:37828 "EHLO
-        mail-oi1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385278AbhELUIA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 12 May 2021 16:08:00 -0400
-Received: by mail-oi1-f175.google.com with SMTP id k25so23420967oic.4;
-        Wed, 12 May 2021 13:06:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
-         :message-id;
-        bh=kyyZKIpa+isk/I+3Wcw7Vxw0ujugSMU4FOyrzbAVzpw=;
-        b=FId1qL7Jf82knP6bkNwrFzR7O19bz0dTv2kUZgmp7vQwUnszrckt8mX3zy1nvAPZQr
-         9wFYgoXpwUaTz/V9rLmw51EMHVutsjlt/kbUITx//KXFKgI743sLjWDcqASoNxGHCvgi
-         djwxZUpGsiVr/EM6t/XHvx1kINuHFvzj+RzsC1kucCm22sc/hkfBnnUYdOMBVsEhjikW
-         Fgr/5HzByblUGuOf06TjH6JIu4CGq/VWT515RfSXaOeHwZ0rWXYVNDFDAuB5cXMsSy/9
-         m7Zyn/E2I8luCnDAnkkECaKqTFV02n7CzP/p+7KxHcDhP5mC6xkUuk64+vPnSthsJeeL
-         Erzg==
-X-Gm-Message-State: AOAM530Ug8rkiIHYIFeduuArS9YJtllRa3pbTZxmvItKEqyVLmBnVuHt
-        dr3GK/IyMDum/AvBxaJJ4w==
-X-Google-Smtp-Source: ABdhPJw3KpvYHYZCV/gfx36/2FQXrVtbHjC67rCvN1gpPTFqtdfvUxaY3gYFIjhKzUizld7WFMP1eA==
-X-Received: by 2002:a05:6808:193:: with SMTP id w19mr10842598oic.152.1620850011715;
-        Wed, 12 May 2021 13:06:51 -0700 (PDT)
-Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id q26sm185943otn.0.2021.05.12.13.06.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 May 2021 13:06:50 -0700 (PDT)
-Received: (nullmailer pid 204084 invoked by uid 1000);
-        Wed, 12 May 2021 18:35:16 -0000
-From:   Rob Herring <robh@kernel.org>
-To:     daire.mcnamara@microchip.com
-Cc:     cyril.jean@microchip.com, linux-i2c@vger.kernel.org,
-        palmer@dabbelt.com, robh+dt@kernel.org, wsa@kernel.org,
-        padmarao.begari@microchip.com, conor.dooley@microchip.com,
-        devicetree@vger.kernel.org, lewis.hanly@microchip.com,
-        david.abdurachmanov@gmail.com
-In-Reply-To: <20210512112024.1651757-2-daire.mcnamara@microchip.com>
-References: <20210512112024.1651757-1-daire.mcnamara@microchip.com> <20210512112024.1651757-2-daire.mcnamara@microchip.com>
-Subject: Re: [PATCH v1 1/2] dt-bindings: i2c: microchip: Add Microchip PolarFire host binding
-Date:   Wed, 12 May 2021 13:35:16 -0500
-Message-Id: <1620844516.507815.204083.nullmailer@robh.at.kernel.org>
+        id S230301AbhEMDfQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 12 May 2021 23:35:16 -0400
+Received: from lucky1.263xmail.com ([211.157.147.131]:43542 "EHLO
+        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230018AbhEMDfP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 12 May 2021 23:35:15 -0400
+Received: from localhost (unknown [192.168.167.224])
+        by lucky1.263xmail.com (Postfix) with ESMTP id D0640BA0CE;
+        Thu, 13 May 2021 11:33:58 +0800 (CST)
+X-MAIL-GRAY: 0
+X-MAIL-DELIVERY: 1
+X-ADDR-CHECKED4: 1
+X-ANTISPAM-LEVEL: 2
+X-ABS-CHECKED: 0
+Received: from localhost.localdomain (unknown [58.22.7.114])
+        by smtp.263.net (postfix) whith ESMTP id P12381T139987660035840S1620876834871090_;
+        Thu, 13 May 2021 11:33:57 +0800 (CST)
+X-IP-DOMAINF: 1
+X-UNIQUE-TAG: <9e628830b7c19a64fdc016674d074f56>
+X-RL-SENDER: cl@rock-chips.com
+X-SENDER: cl@rock-chips.com
+X-LOGIN-NAME: cl@rock-chips.com
+X-FST-TO: heiko@sntech.de
+X-RCPT-COUNT: 30
+X-SENDER-IP: 58.22.7.114
+X-ATTACHMENT-NUM: 0
+X-System-Flag: 0
+From:   <cl@rock-chips.com>
+To:     heiko@sntech.de
+Cc:     robh+dt@kernel.org, jagan@amarulasolutions.com, wens@csie.org,
+        uwe@kleine-koenig.org, mail@david-bauer.net, jbx6244@gmail.com,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+        jensenhuang@friendlyarm.com, michael@amarulasolutions.com,
+        cnsztl@gmail.com, devicetree@vger.kernel.org,
+        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
+        gregkh@linuxfoundation.org, linux-serial@vger.kernel.org,
+        linux-i2c@vger.kernel.org, jay.xu@rock-chips.com,
+        shawn.lin@rock-chips.com, david.wu@rock-chips.com,
+        zhangqing@rock-chips.com, huangtao@rock-chips.com,
+        cl@rock-chips.com, wim@linux-watchdog.org, linux@roeck-us.net,
+        jamie@jamieiles.com, linux-watchdog@vger.kernel.org, maz@kernel.org
+Subject: [RESEND PATCH v4 06/10] dt-bindings: gpio: change items restriction of clock for rockchip,gpio-bank
+Date:   Thu, 13 May 2021 11:33:51 +0800
+Message-Id: <20210513033351.17879-1-cl@rock-chips.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20210429081151.17558-1-cl@rock-chips.com>
+References: <20210429081151.17558-1-cl@rock-chips.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, 12 May 2021 12:20:23 +0100, daire.mcnamara@microchip.com wrote:
-> From: Daire McNamara <daire.mcnamara@microchip.com>
-> 
-> Add device tree bindings for the Microchip PolarFire I2C controller
-> 
-> Signed-off-by: Daire McNamara <daire.mcnamara@microchip.com>
-> ---
->  .../bindings/i2c/microchip,mpfs-i2c.yaml      | 74 +++++++++++++++++++
->  1 file changed, 74 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/microchip,mpfs-i2c.yaml
-> 
+From: Liang Chen <cl@rock-chips.com>
 
-My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
-on your patch (DT_CHECKER_FLAGS is new in v5.13):
+The clock property need 2 items on some rockchip chips.
 
-yamllint warnings/errors:
+Signed-off-by: Liang Chen <cl@rock-chips.com>
+---
+ Documentation/devicetree/bindings/gpio/rockchip,gpio-bank.yaml | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-dtschema/dtc warnings/errors:
-Documentation/devicetree/bindings/i2c/microchip,mpfs-i2c.example.dts:19:18: fatal error: dt-bindings/clock/microchip,mpfs-clock.h: No such file or directory
-   19 |         #include <dt-bindings/clock/microchip,mpfs-clock.h>
-      |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-make[1]: *** [scripts/Makefile.lib:380: Documentation/devicetree/bindings/i2c/microchip,mpfs-i2c.example.dt.yaml] Error 1
-make[1]: *** Waiting for unfinished jobs....
-make: *** [Makefile:1416: dt_binding_check] Error 2
+diff --git a/Documentation/devicetree/bindings/gpio/rockchip,gpio-bank.yaml b/Documentation/devicetree/bindings/gpio/rockchip,gpio-bank.yaml
+index d993e00..0df147f 100644
+--- a/Documentation/devicetree/bindings/gpio/rockchip,gpio-bank.yaml
++++ b/Documentation/devicetree/bindings/gpio/rockchip,gpio-bank.yaml
+@@ -22,7 +22,11 @@ properties:
+     maxItems: 1
+ 
+   clocks:
+-    maxItems: 1
++    minItems: 1
++    maxItems: 2
++    items:
++      - description: APB interface clock source
++      - description: GPIO debounce reference clock source
+ 
+   gpio-controller: true
+ 
+-- 
+2.7.4
 
-See https://patchwork.ozlabs.org/patch/1477553
 
-This check can fail if there are any dependencies. The base for a patch
-series is generally the most recent rc1.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit.
 
