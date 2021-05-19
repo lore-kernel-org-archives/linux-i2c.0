@@ -2,113 +2,109 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE7F0C43460
-	for <linux-i2c@archiver.kernel.org>; Wed, 19 May 2021 12:57:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 850A0C433ED
+	for <linux-i2c@archiver.kernel.org>; Wed, 19 May 2021 15:29:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A1CB16135B
-	for <linux-i2c@archiver.kernel.org>; Wed, 19 May 2021 12:57:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59F57610E9
+	for <linux-i2c@archiver.kernel.org>; Wed, 19 May 2021 15:29:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346567AbhESM7F (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 19 May 2021 08:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48378 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232671AbhESM7E (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 May 2021 08:59:04 -0400
-Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F22C06175F;
-        Wed, 19 May 2021 05:57:45 -0700 (PDT)
-Received: by mail-qk1-x72f.google.com with SMTP id 124so243083qkh.10;
-        Wed, 19 May 2021 05:57:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=aipg9oIDAuCQSbPEUtZjOrYb0WaeP7Y8nbKSRmG50Bc=;
-        b=Pa4ogUhOF7OBZJ6ZHNl0MgR59SkKIlnoGrDNn/lcOBGbuPpPz34+2AOEpjE6KcRep0
-         3rhPml2WgX1tHOgnE1NyFZrFzIlt51EJmUSsfjrkf10trdA60D+Zcz73YlqdI0rdL3D0
-         KrGwfkNaKB0U/YzFPmg3WUmOjWMfEjOBenyI3ohJ8Lx3B0u5X/nxD0NtpdaB9371Y0md
-         dCOkLqkLT/f7QItk5bUjTi6/SI7VFvvOngKItIaipenTMH6IuuHpoeOaIaVv7YRKCb5q
-         /YNW293ujFUdLxhJ07r8jesWtFVEBcPP9Nu7eWr+ikxPxIpnIJhQQ8mwpXU3mKa6ib6s
-         AOpQ==
+        id S1354766AbhESPar (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 19 May 2021 11:30:47 -0400
+Received: from mail-oi1-f174.google.com ([209.85.167.174]:38768 "EHLO
+        mail-oi1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344451AbhESPaq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 May 2021 11:30:46 -0400
+Received: by mail-oi1-f174.google.com with SMTP id z3so13458003oib.5;
+        Wed, 19 May 2021 08:29:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=aipg9oIDAuCQSbPEUtZjOrYb0WaeP7Y8nbKSRmG50Bc=;
-        b=aitEj7gaMK7SlQFHyL4ZJqICAwNKQ8/sAH8Lajw2UpHAEgDNDm2hvNEGfuZgUfSXZL
-         HF1NM1kZiMEB/drVjZMKQPhtzjqojO97eKKQIPJunGa7Q5rAQa4T26kAxV9j+ihMuYnu
-         rtmhDLYJzbjg9FbQms9XTW/oJgVmNFGucR7LFXvV72Kvsn8/N3RzDKMbQCdlBYRiP1XI
-         zz5W5anZx81TjtZfM3JIZ0EE1bwd7IyAxauDTCiAQc1wiKtuWBbS6kwFcz8H7b3BneO1
-         ZW9XJP8HMu5joxpXGamBK0jbnAXRl7kmLU4lfgt2RVhWmNx23M8p2LuenJ+vMyxUM9X2
-         eGrw==
-X-Gm-Message-State: AOAM531KaiNXRANXgkNXuWTshkUt3O6hLowmUpJIOR2SnLM1OUcBhIzh
-        Uq/3tjjYpriObzEYbYfcPDI=
-X-Google-Smtp-Source: ABdhPJzaymXiwmNRUJ76y5xNhS+pauWT0YHJrip4/vT9Q++zTymq3niN2b7yOKjYqwJx982fyC8aoA==
-X-Received: by 2002:ae9:c016:: with SMTP id u22mr11911036qkk.114.1621429063845;
-        Wed, 19 May 2021 05:57:43 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d11sm15252598qke.61.2021.05.19.05.57.42
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
+         :message-id;
+        bh=6sgw4dZNi4BFtEEc+m0JLU9MKkrHkvN3LLqqxVCcWAY=;
+        b=j2FpOQMXxV3EPfoiNla8JC5JaavgBbHkq4A6LC43AhG6v2vXKuT4IZ/NDJyzpSZboi
+         /sTCijFo3M35UJ5jKNiRH9HY3o28vxO8smSCilYRVF6r5Us5jpT9lMNmcsVQIf+oQ5NE
+         X0gFHHsgSdT5EiZUnEvGic9XW0Q3utlxYoJdIKI86Ex+nnUSUSge3urG+LjcH3WrK7d9
+         iAxERfaB2bt9Qj+ohN6z+arpVh1CM6LFQ7ePZQaTkgrlXbFcH2yBz+1Fk6RR5ZZKRNpr
+         G9useTT8egNcyjqxeXClJi6HGlwxwjXeg3NtUUT9e1SqEgh+CzEpj1MDPpk4wZhSS45p
+         FkrQ==
+X-Gm-Message-State: AOAM531Hxk2Pc9XwSk5Ae7f753YsfKUdvV3jXZrsoXlh/d0sEVD/V/zw
+        7cyqJPKZBEsFMT5TGRLWIoXfX/kljQ==
+X-Google-Smtp-Source: ABdhPJxpcJcisKTasg8QiYFuZTHsZe6ssMjCsGuLZrRJywLDzjgJu1juj+3zcOycyjoKvnHHz5hSzA==
+X-Received: by 2002:a54:481a:: with SMTP id j26mr7226575oij.154.1621438166265;
+        Wed, 19 May 2021 08:29:26 -0700 (PDT)
+Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id b18sm1458otk.62.2021.05.19.08.29.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 May 2021 05:57:42 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 19 May 2021 05:57:41 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     cl@rock-chips.com
-Cc:     heiko@sntech.de, robh+dt@kernel.org, jagan@amarulasolutions.com,
-        wens@csie.org, uwe@kleine-koenig.org, mail@david-bauer.net,
-        jbx6244@gmail.com, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
-        jensenhuang@friendlyarm.com, michael@amarulasolutions.com,
-        cnsztl@gmail.com, devicetree@vger.kernel.org,
-        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
-        gregkh@linuxfoundation.org, linux-serial@vger.kernel.org,
-        linux-i2c@vger.kernel.org, jay.xu@rock-chips.com,
-        shawn.lin@rock-chips.com, david.wu@rock-chips.com,
-        zhangqing@rock-chips.com, huangtao@rock-chips.com,
-        wim@linux-watchdog.org, jamie@jamieiles.com,
-        linux-watchdog@vger.kernel.org, maz@kernel.org
-Subject: Re: [PATCH v4 04/10] dt-bindings: watchdog: dw-wdt: add description
- for rk3568
-Message-ID: <20210519125741.GA2241939@roeck-us.net>
-References: <20210429081151.17558-1-cl@rock-chips.com>
- <20210429081151.17558-5-cl@rock-chips.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210429081151.17558-5-cl@rock-chips.com>
+        Wed, 19 May 2021 08:29:25 -0700 (PDT)
+Received: (nullmailer pid 3134231 invoked by uid 1000);
+        Wed, 19 May 2021 15:29:24 -0000
+From:   Rob Herring <robh@kernel.org>
+To:     Quan Nguyen <quan@os.amperecomputing.com>
+Cc:     openbmc@lists.ozlabs.org, Wolfram Sang <wsa@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Open Source Submission <patches@amperecomputing.com>,
+        openipmi-developer@lists.sourceforge.net,
+        "Thang Q . Nguyen" <thang@os.amperecomputing.com>,
+        devicetree@vger.kernel.org, Corey Minyard <minyard@acm.org>,
+        Joel Stanley <joel@jms.id.au>,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+        Phong Vo <phong@os.amperecomputing.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        linux-aspeed@lists.ozlabs.org,
+        Brendan Higgins <brendanhiggins@google.com>
+In-Reply-To: <20210519074934.20712-8-quan@os.amperecomputing.com>
+References: <20210519074934.20712-1-quan@os.amperecomputing.com> <20210519074934.20712-8-quan@os.amperecomputing.com>
+Subject: Re: [PATCH v3 7/7] bindings: ipmi: Add binding for Aspeed SSIF BMC driver
+Date:   Wed, 19 May 2021 10:29:24 -0500
+Message-Id: <1621438164.118346.3134230.nullmailer@robh.at.kernel.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Apr 29, 2021 at 04:11:45PM +0800, cl@rock-chips.com wrote:
-> From: Liang Chen <cl@rock-chips.com>
+On Wed, 19 May 2021 14:49:34 +0700, Quan Nguyen wrote:
+> Add device tree binding document for the Aspeed SSIF BMC driver.
 > 
-> add "rockchip,rk3568-wdt", "snps,dw-wdt" for watchdog nodes on
-> a rk3568 platform to snps,dw-wdt.yaml.
-> 
-> Signed-off-by: Liang Chen <cl@rock-chips.com>
-> Acked-by: Rob Herring <robh@kernel.org>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+> Signed-off-by: Quan Nguyen <quan@os.amperecomputing.com>
 > ---
->  Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml | 1 +
->  1 file changed, 1 insertion(+)
+> v3:
+>   + Switched to use DT schema format [Rob]
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-> index b58596b1831d..6461eb4f4a27 100644
-> --- a/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/snps,dw-wdt.yaml
-> @@ -27,6 +27,7 @@ properties:
->                - rockchip,rk3328-wdt
->                - rockchip,rk3368-wdt
->                - rockchip,rk3399-wdt
-> +              - rockchip,rk3568-wdt
->                - rockchip,rv1108-wdt
->            - const: snps,dw-wdt
->  
+>  .../bindings/ipmi/aspeed-ssif-bmc.yaml        | 33 +++++++++++++++++++
+>  1 file changed, 33 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/ipmi/aspeed-ssif-bmc.yaml
+> 
+
+My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
+on your patch (DT_CHECKER_FLAGS is new in v5.13):
+
+yamllint warnings/errors:
+
+dtschema/dtc warnings/errors:
+Documentation/devicetree/bindings/ipmi/aspeed-ssif-bmc.example.dts:21.13-26: Warning (reg_format): /example-0/ssif-bmc@10:reg: property has invalid length (4 bytes) (#address-cells == 1, #size-cells == 1)
+Documentation/devicetree/bindings/ipmi/aspeed-ssif-bmc.example.dt.yaml: Warning (pci_device_reg): Failed prerequisite 'reg_format'
+Documentation/devicetree/bindings/ipmi/aspeed-ssif-bmc.example.dt.yaml: Warning (pci_device_bus_num): Failed prerequisite 'reg_format'
+Documentation/devicetree/bindings/ipmi/aspeed-ssif-bmc.example.dt.yaml: Warning (simple_bus_reg): Failed prerequisite 'reg_format'
+Documentation/devicetree/bindings/ipmi/aspeed-ssif-bmc.example.dt.yaml: Warning (i2c_bus_reg): Failed prerequisite 'reg_format'
+Documentation/devicetree/bindings/ipmi/aspeed-ssif-bmc.example.dt.yaml: Warning (spi_bus_reg): Failed prerequisite 'reg_format'
+/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/ipmi/aspeed-ssif-bmc.example.dt.yaml: example-0: ssif-bmc@10:reg:0: [16] is too short
+	From schema: /usr/local/lib/python3.8/dist-packages/dtschema/schemas/reg.yaml
+
+See https://patchwork.ozlabs.org/patch/1480727
+
+This check can fail if there are any dependencies. The base for a patch
+series is generally the most recent rc1.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit.
+
