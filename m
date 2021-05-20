@@ -2,220 +2,113 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EC6EC433B4
-	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 19:01:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B680C43460
+	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 19:01:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F6FB61246
-	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 19:01:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 32EDF61244
+	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 19:01:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236477AbhETTCd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 20 May 2021 15:02:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32812 "EHLO
+        id S236585AbhETTCf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 20 May 2021 15:02:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236456AbhETTCc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 May 2021 15:02:32 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6148C061763
-        for <linux-i2c@vger.kernel.org>; Thu, 20 May 2021 12:01:10 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id i17so18693688wrq.11
-        for <linux-i2c@vger.kernel.org>; Thu, 20 May 2021 12:01:10 -0700 (PDT)
+        with ESMTP id S236547AbhETTCe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 May 2021 15:02:34 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB68AC061574
+        for <linux-i2c@vger.kernel.org>; Thu, 20 May 2021 12:01:12 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id u4-20020a05600c00c4b02901774b80945cso6031251wmm.3
+        for <linux-i2c@vger.kernel.org>; Thu, 20 May 2021 12:01:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=2DRojMIGvqGqfd6599LIXINUCsrKqBTGuM0HeJNOCqY=;
-        b=BhW/gXf8pWSAZIebe6nxATFBDBMilShlmVRZzJL0Z7cmhZ34wH8yiODRYqZmjd0Bbw
-         5FLnj7yUL68hbF/XNuFKxoi0pfP4IxkJ9c+tMdT028yF+NF5NC4AbnGloFwc4U/IgJJb
-         HkBmb6/op7D4qo7GUrP+MqqfwZ6YMDM+Oxk8Miamy9HC5vBwZMh5J6OxRXCPhVYondTN
-         OQQCjBR3wG190MivkxGFRMZfvJSZhA+Pb19zi5r6dE1ffLHfPQK8OngnGA2VqwGj8doy
-         fyt+TWfbk49ktvoZDPBPDYLY6+bP73h8SefLmUIpQlMpElMBtYVTr7MMgHl7IQ2YM0NU
-         tiQg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=OpCSticW7YPgZgJxCE8cbDx0EqQrxetbzAKz9peYyF8=;
+        b=rum12OCXNeB91NHK8OZ7C8IAuERyHFgpqirkg8+/GdO9/4Aqq8IK2bdHC5hQnrQPCn
+         8g6i/4sSK6ecIyG4wKapN0uXY2UnUBPijUZQtY2IotooG+y8Tr7zN2mCfUfDV/lmWZUc
+         DTDDMadcQ1MT2W586OkIW4NRqrL5l8WgwoLgEAlaC17MNWCMg/0w1VlbejargJLBCcvA
+         nwtTTBZ+MeZOZ4n/S33TEw98bUEG5PYdJxxo0BeJbdQc7lHrCyDnyJD0k88gHJY96KNv
+         ftQUFOsluDrJCq/PcOdhz+AmD/mcOpn03wA125vbu9661mXoRiuJQC9sTPhBQ2fOkPy7
+         61pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=2DRojMIGvqGqfd6599LIXINUCsrKqBTGuM0HeJNOCqY=;
-        b=bWNOghrvW+1CY0Z8wYid+D3YKLE9mkLSP5txPCMxQJe25Y7kQ2CHsM0ngBS9bEEFDM
-         rJPWNoBogqLbu3vZVHOcdgF/tbhkldJlOT8PNz5afWfaxcdI/ZCcsa1wEORgK3nm183s
-         EYOsuM9BsgPgDwmT0glv50H5/d1aw23wdTdXbuoAsVlI/+e15IuGBALboZk2nxHXPuc0
-         91LBtiBSbJ5fAghE/LosV1VeyCUXpDnl3xw7SVMTYv9PE0o1bWnR1igv1dMExU9QxYZ5
-         lYpZmjp1FowYru+eUQ8307C+tVMt3lGa0wy8TqLf19ua5XBVI3DufylPMTqSNlH7SXM/
-         ci1Q==
-X-Gm-Message-State: AOAM531UmlR0fFewWeS2xVF9pfZcY71gC34Oh2A4uu69R3Rz5WpqRsJc
-        r4/BQkSSd9UgDnMhgxwE4C/NyQ==
-X-Google-Smtp-Source: ABdhPJyFFyrDcMhhbJFcjr+Bz0N+pSMlyvPDFQtGOrLH3IV1YMX4KzVeEjRTqSnwuhvjNtamRbprxA==
-X-Received: by 2002:adf:f58e:: with SMTP id f14mr5759911wro.258.1621537269261;
-        Thu, 20 May 2021 12:01:09 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=OpCSticW7YPgZgJxCE8cbDx0EqQrxetbzAKz9peYyF8=;
+        b=Iuu8CO6cO3440SLK/Do22Ydr7lOTMx4euyH8koFAiovvSIkaRwQLhAeFd+FkYTMfk8
+         3ks93hL4OXcRVgQTQggicGh09yyckIWMM3TXgrNt3IoipJxsIO+8hsmuZCvZBNecZHmd
+         2pEan8F7F3bIMxUE9X7NNeiClvg1nyu6zXVvVQUPmgY57j+gfCi+x3PFdVnQAeMnUBgJ
+         3L3k1QzuCsOWDu8eVe7/dotN0NnxZ3aXqdGO+e7D+hQm0a0pF8+UhCvuEadyrufY15/X
+         0V+jZYTKi4mhYvoE27x6qEM0IBq24CNDq+NWV8yt3gvwOE67GbexdXl54deywu5Umcq9
+         dYvw==
+X-Gm-Message-State: AOAM530Nm0X3rVefPJ+5OH8o3hVWSFiQCwTLGuNlDxED5joJvMWFrk3y
+        qMCbikW+amODKwi07XL/MzCG5A==
+X-Google-Smtp-Source: ABdhPJyfYaIzCTa4ubV3n/89Vo1inkTDbjpp3dXp4x3SwQVTQl/7uPVasMjzAWaTRF2315tqrJfY3A==
+X-Received: by 2002:a05:600c:b58:: with SMTP id k24mr5373590wmr.155.1621537271597;
+        Thu, 20 May 2021 12:01:11 -0700 (PDT)
 Received: from dell.default ([91.110.221.215])
-        by smtp.gmail.com with ESMTPSA id p20sm9011899wmq.10.2021.05.20.12.01.07
+        by smtp.gmail.com with ESMTPSA id p20sm9011899wmq.10.2021.05.20.12.01.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 May 2021 12:01:08 -0700 (PDT)
+        Thu, 20 May 2021 12:01:11 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org,
-        Alain Volmat <alain.volmat@foss.st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Anders Berg <anders.berg@lsi.com>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Cedric Madianga <cedric.madianga@gmail.com>,
-        Dennis Kovalev <dkovalev@ru.mvista.com>,
+Cc:     linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>,
         Doug Anderson <dianders@chromium.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Krzysztof Adamski <krzysztof.adamski@nokia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-        linux-riscv@lists.infradead.org,
-        linux-rockchip@lists.infradead.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-tegra@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Maxime Coquelin <maxime.coquelin@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Max Schwarz <max.schwarz@online.de>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Peter Korsgaard <peter@korsgaard.com>,
-        Peter Rosin <peda@axentia.se>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-        Rudolf Marek <r.marek@assembler.cz>,
-        Sachin Verma <sachin.verma@st.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shariff Md <smohammed@nvidia.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Thor Thayer <thor.thayer@linux.intel.com>,
-        Tomoya MORINAGA <tomoya.rohm@gmail.com>,
-        Vaibhav Gupta <vaibhavgupta40@gmail.com>,
-        Vitaly Wool <vwool@ru.mvista.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 00/16] Rid W=1 warnings from I2C
-Date:   Thu, 20 May 2021 20:00:49 +0100
-Message-Id: <20210520190105.3772683-1-lee.jones@linaro.org>
+        linux-i2c@vger.kernel.org
+Subject: [PATCH 02/16] i2c: muxes: i2c-arb-gpio-challenge: Demote non-conformant kernel-doc headers
+Date:   Thu, 20 May 2021 20:00:51 +0100
+Message-Id: <20210520190105.3772683-3-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210520190105.3772683-1-lee.jones@linaro.org>
+References: <20210520190105.3772683-1-lee.jones@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This set is part of a larger effort attempting to clean-up W=1
-kernel builds, which are currently overwhelmingly riddled with
-niggly little warnings.
+Fixes the following W=1 kernel build warning(s):
 
-Lee Jones (16):
-  i2c: busses: i2c-nomadik: Fix formatting issue pertaining to 'timeout'
-  i2c: muxes: i2c-arb-gpio-challenge: Demote non-conformant kernel-doc
-    headers
-  i2c: busses: i2c-ali1563: File headers are not good candidates for
-    kernel-doc
-  i2c: busses: i2c-altera: Fix formatting issue in struct and demote
-    unworthy kernel-doc headers
-  i2c: busses: i2c-axxia: Fix formatting issue in struct and demote
-    unworthy kernel-doc headers
-  i2c: busses: i2c-cadence: Fix incorrectly documented 'enum
-    cdns_i2c_slave_mode'
-  i2c: busses: i2c-designware-master: Fix misnaming of
-    'i2c_dw_init_master()'
-  i2c: busses: i2c-eg20t: Fix 'bad line' issue and provide description
-    for 'msgs' param
-  i2c: busses: i2c-mxs: Demote barely half complete kernel-doc header
-  i2c: busses: i2c-ocores: Place the expected function names into the
-    documentation headers
-  i2c: busses: i2c-pnx: Provide descriptions for 'alg_data' data
-    structure
-  i2c: busses: i2c-rk3x: Demote unworthy headers and help more complete
-    ones
-  i2c: busses: i2c-st: Fix copy/paste function misnaming issues
-  i2c: busses: i2c-stm32f4: Remove incorrectly placed ' ' from function
-    name
-  i2c: busses: i2c-tegra-bpmp: Demote kernel-doc abuses
-  i2c: busses: i2c-st: trivial: Fix spelling issue 'enmpty => empty'
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c:43: warning: Function parameter or member 'muxc' not described in 'i2c_arbitrator_select'
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c:43: warning: Function parameter or member 'chan' not described in 'i2c_arbitrator_select'
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c:86: warning: Function parameter or member 'muxc' not described in 'i2c_arbitrator_deselect'
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c:86: warning: Function parameter or member 'chan' not described in 'i2c_arbitrator_deselect'
 
- drivers/i2c/busses/i2c-ali1563.c           |  2 +-
- drivers/i2c/busses/i2c-altera.c            |  9 ++++-----
- drivers/i2c/busses/i2c-axxia.c             | 11 +++++------
- drivers/i2c/busses/i2c-cadence.c           |  2 +-
- drivers/i2c/busses/i2c-designware-master.c |  2 +-
- drivers/i2c/busses/i2c-eg20t.c             |  3 ++-
- drivers/i2c/busses/i2c-mxs.c               |  2 +-
- drivers/i2c/busses/i2c-nomadik.c           |  2 +-
- drivers/i2c/busses/i2c-ocores.c            |  8 ++++----
- drivers/i2c/busses/i2c-pnx.c               |  8 ++++----
- drivers/i2c/busses/i2c-rk3x.c              | 18 +++++++++---------
- drivers/i2c/busses/i2c-st.c                |  4 ++--
- drivers/i2c/busses/i2c-stm32f4.c           |  2 +-
- drivers/i2c/busses/i2c-tegra-bpmp.c        |  4 ++--
- drivers/i2c/muxes/i2c-arb-gpio-challenge.c |  4 ++--
- 15 files changed, 40 insertions(+), 41 deletions(-)
-
-Cc: Alain Volmat <alain.volmat@foss.st.com>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Anders Berg <anders.berg@lsi.com>
-Cc: Andreas Larsson <andreas@gaisler.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Cedric Madianga <cedric.madianga@gmail.com>
-Cc: Dennis Kovalev <dkovalev@ru.mvista.com>
-Cc: Doug Anderson <dianders@chromium.org>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Heiko Stuebner <heiko@sntech.de>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Jonathan Hunter <jonathanh@nvidia.com>
-Cc: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-riscv@lists.infradead.org
-Cc: linux-rockchip@lists.infradead.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Cc: linux-tegra@vger.kernel.org
-Cc: Marek Vasut <marex@denx.de>
-Cc: Maxime Coquelin <maxime.coquelin@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Max Schwarz <max.schwarz@online.de>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Patrice Chotard <patrice.chotard@foss.st.com>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Peter Korsgaard <peter@korsgaard.com>
 Cc: Peter Rosin <peda@axentia.se>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
-Cc: Rudolf Marek <r.marek@assembler.cz>
-Cc: Sachin Verma <sachin.verma@st.com>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Shariff Md <smohammed@nvidia.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: Thor Thayer <thor.thayer@linux.intel.com>
-Cc: Tomoya MORINAGA <tomoya.rohm@gmail.com>
-Cc: Vaibhav Gupta <vaibhavgupta40@gmail.com>
-Cc: Vitaly Wool <vwool@ru.mvista.com>
-Cc: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Wolfram Sang <wsa@kernel.org>
+Cc: Doug Anderson <dianders@chromium.org>
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
+index 6dc88902c189f..1c78657631f4f 100644
+--- a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
++++ b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
+@@ -34,7 +34,7 @@ struct i2c_arbitrator_data {
+ };
+ 
+ 
+-/**
++/*
+  * i2c_arbitrator_select - claim the I2C bus
+  *
+  * Use the GPIO-based signalling protocol; return -EBUSY if we fail.
+@@ -77,7 +77,7 @@ static int i2c_arbitrator_select(struct i2c_mux_core *muxc, u32 chan)
+ 	return -EBUSY;
+ }
+ 
+-/**
++/*
+  * i2c_arbitrator_deselect - release the I2C bus
+  *
+  * Release the I2C bus using the GPIO-based signalling protocol.
 -- 
 2.31.1
 
