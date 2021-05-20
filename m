@@ -8,54 +8,54 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 755E5C43617
-	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 14:12:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 752BAC43470
+	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 14:12:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 585B36109F
-	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 14:12:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 559D161279
+	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 14:12:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243747AbhETON0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 20 May 2021 10:13:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50888 "EHLO
+        id S243757AbhETON1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 20 May 2021 10:13:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240755AbhETOMj (ORCPT
+        with ESMTP id S239356AbhETOMj (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 May 2021 10:12:39 -0400
 Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE702C061362;
-        Thu, 20 May 2021 07:09:48 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id p7so14092887wru.10;
-        Thu, 20 May 2021 07:09:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D09C061360;
+        Thu, 20 May 2021 07:09:46 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id j14so16089455wrq.5;
+        Thu, 20 May 2021 07:09:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Y1NjdOLHUQzHFymiFoDSQw2j72nXbqyPKvtTA9/f6Uc=;
-        b=KIxRPaBeOTncTLOq/GzzgVaXLfRpMno2CKJ1r1XpsilyS2AJJviWYBO5ztuhIAyr5Q
-         gWVB6i62yuxQ5ZvNdbfiNj0LHMPVmda0LEZQ3n+YH8T8MvT7Q8XtFXyUghqTcwrWIPCg
-         kZ1z2oC/K0LYOvFSnUopnV0jJikHJupZFSFHLj/Pll097wX67gr8bdKt68LTztZhHP06
-         xIHit+GUNRKaY+w1oGEJ8s1CHYuotQx1ugqs/UVneiEyKsNZcG/nrJvE9MTbJtE8p2Sp
-         ThDo0t1VodfZvNHeEVYJ/e0RQw+67TQVvCu9YIr08H+2WI2Ss/11a5b5RwCvX1IuhE2G
-         FL8w==
+        bh=KDoc5xeYWeYU512Wm3d18mdOADpuvy7ld0OqNa7izfs=;
+        b=BisTvPuF4Xk2mSdE5bIv/gwo9hRcuiQbs2gjplPiPe0+aURCkd8g5ddQulG0eLfIwT
+         /FkKERmDOu6qQ4mwzf0HFSHxHafK/rFzBhPwTVeuif0u/IlR+fFglDbJGZkJ9i2moplY
+         +bASBUvQ0jO3iO1iA7WHSKU2sZQn0cNOaGtJyscw2LoULIozDXY0G1sfPLzI7pZiL+/9
+         oPMoQR6xQhhhw1HSMgNWkOYFxl018A8rTjvjfwkUeMcQCgBtusMSXJZ+haMfG0iUVQE2
+         4dsv40SMZf3dXutpohAs0o+LNrF/UbLRZ1ozgCl9+7UmAlzcASkIKYqXI/Q3BuObQcG2
+         uZtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Y1NjdOLHUQzHFymiFoDSQw2j72nXbqyPKvtTA9/f6Uc=;
-        b=Wo5Smw5nfTOad4ituoPqAqj2ZZSy5MFkkCijAm1fCogMrXJ6YUbyj2jAnk5r0MUhHS
-         etTyEIVPTrl/nKGz/kQd8NPSB+MedOJLfB2e+6bl3DCm5QO7R/pm5TUXT6pC1c4xqNq+
-         W1a/z0Z4LFcbnhyqxwmOfgbMbHLpn3E3tkUtKL+p84ZEA1U8MRC+D9/xPCkT9JdL5LMy
-         KBtzSTAxo0FrXyYIuXSXXsDkmFl4XGlS1e6aG41sL9P8V1M3y8ktaQSOxnEk4Mt2gKLu
-         oWmXnlkzaS1DtllS/wZWfLytoecEdS7IQsR7iqmYRlzfBc0jhISFYd2NwxGr1N/WjXCg
-         mQPw==
-X-Gm-Message-State: AOAM532h0gc7uuJX3JDbgtsU1pysEkw09SrerUBHQXg2qAFSbJXrb+KG
-        FoqawY3Mw8CG8Fk7V+PxYbM=
-X-Google-Smtp-Source: ABdhPJwqb6mUjLbwGH71A/chftV3nIElc651+4LMvdK9c4JnnAJNbEWUR2LV3QKWrSlgkLWlhC1iOQ==
-X-Received: by 2002:adf:d231:: with SMTP id k17mr4426065wrh.78.1621519787548;
-        Thu, 20 May 2021 07:09:47 -0700 (PDT)
+        bh=KDoc5xeYWeYU512Wm3d18mdOADpuvy7ld0OqNa7izfs=;
+        b=W5vqVfy2/7VsTWhz2om8+GiJYIbSWkKQzBAw9tX0vT11FlvuZV5Gv6VLgMgUiNX7hx
+         Asjo32oGwf1mzHE4u1BYEnmfk4ByKTPMnfXH17jmB715kZi/PpiyRqMGmaxIORl6NzBE
+         uZg29QlBCTvgb5S9YuPQUPO3zqM6LzMSF1ljwPBT3PoUozl5jFpCji9ZeE9cC0BF8jvL
+         i0tDb1FxO0TVoWZ151sJdTHwKyUixvrGwmkv9R1Ee3fms0gWRqvMWaIiAfLsA9zaQRXE
+         U0Z8jO8GqIgTTqCnPDR12fYHB8NGzQ0CaF0jh3YNkl5Yb9c+OjNACLmH/6dtSex3e+xX
+         wyyg==
+X-Gm-Message-State: AOAM532EKM3u4+ob6X0Iqi7LzdkTpvUFtFGrACD8SFu92K6yMijU9NPM
+        tiMBc9hHU5wMndDs0rylMZQ=
+X-Google-Smtp-Source: ABdhPJxA2TbO813ryCP8bj191enw1wM7kxjE/0km1fqqMpYb8222YuAkdkbYQKcuug/tVCPHtfDGpg==
+X-Received: by 2002:adf:9d8c:: with SMTP id p12mr4625583wre.310.1621519785265;
+        Thu, 20 May 2021 07:09:45 -0700 (PDT)
 Received: from valhalla.home ([91.110.20.117])
-        by smtp.gmail.com with ESMTPSA id m6sm8411974wml.3.2021.05.20.07.09.46
+        by smtp.gmail.com with ESMTPSA id m6sm8411974wml.3.2021.05.20.07.09.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 May 2021 07:09:47 -0700 (PDT)
+        Thu, 20 May 2021 07:09:44 -0700 (PDT)
 From:   Daniel Scally <djrscally@gmail.com>
 To:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -76,10 +76,11 @@ Cc:     Len Brown <lenb@kernel.org>,
         Mark Gross <mgross@linux.intel.com>,
         Robert Moore <robert.moore@intel.com>,
         Erik Kaneda <erik.kaneda@intel.com>,
-        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
-Subject: [PATCH v4 6/8] gpiolib: acpi: Add acpi_gpio_get_io_resource()
-Date:   Thu, 20 May 2021 15:09:26 +0100
-Message-Id: <20210520140928.3252671-7-djrscally@gmail.com>
+        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH v4 4/8] gpiolib: acpi: Export acpi_get_gpiod()
+Date:   Thu, 20 May 2021 15:09:24 +0100
+Message-Id: <20210520140928.3252671-5-djrscally@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210520140928.3252671-1-djrscally@gmail.com>
 References: <20210520140928.3252671-1-djrscally@gmail.com>
@@ -89,77 +90,79 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add a function to verify that a given acpi_resource represents an IO
-type GPIO resource, and return it if so.
+We need to be able to translate GPIO resources in an ACPI device's _CRS
+into GPIO descriptor array. Those are represented in _CRS as a pathname
+to a GPIO device plus the pin's index number: the acpi_get_gpiod()
+function is perfect for that purpose.
 
+As it's currently only used internally within the GPIO layer, provide and
+export a wrapper function that additionally holds a reference to the GPIO
+device.
+
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Signed-off-by: Daniel Scally <djrscally@gmail.com>
 ---
 Changes since v3:
-	- Patch introduced
 
- drivers/gpio/gpiolib-acpi.c | 23 +++++++++++++++++++++++
- include/linux/acpi.h        |  7 +++++++
+	- Renamed function to acpi_get_and_request_gpiod() - and no longer
+	renaming acpi_get_gpiod()
+
+ drivers/gpio/gpiolib-acpi.c   | 28 ++++++++++++++++++++++++++++
+ include/linux/gpio/consumer.h |  2 ++
  2 files changed, 30 insertions(+)
 
 diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index 684ddb35d83b..9887bb684575 100644
+index 5b4111e4be3f..684ddb35d83b 100644
 --- a/drivers/gpio/gpiolib-acpi.c
 +++ b/drivers/gpio/gpiolib-acpi.c
-@@ -196,6 +196,29 @@ bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
+@@ -128,6 +128,34 @@ static struct gpio_desc *acpi_get_gpiod(char *path, int pin)
+ 	return gpiochip_get_desc(chip, pin);
  }
- EXPORT_SYMBOL_GPL(acpi_gpio_get_irq_resource);
  
 +/**
-+ * acpi_gpio_get_io_resource - Fetch details of an ACPI resource if it is a GPIO
-+ *			       I/O resource or return False if not.
-+ * @ares:	Pointer to the ACPI resource to fetch
-+ * @agpio:	Pointer to a &struct acpi_resource_gpio to store the output pointer
++ * acpi_get_and_request_gpiod() - Translate ACPI GPIO pin to GPIO descriptor
++ *                               and hold a refcount to the GPIO device.
++ * @path:      ACPI GPIO controller full path name, (e.g. "\\_SB.GPO1")
++ * @pin:       ACPI GPIO pin number (0-based, controller-relative)
++ * @label:     Label to pass to gpiod_request()
++ *
++ * This function is a simple pass-through to acpi_get_gpiod(), except that
++ * as it is intended for use outside of the GPIO layer (in a similar fashion to
++ * gpiod_get_index() for example) it also holds a reference to the GPIO device.
 + */
-+bool acpi_gpio_get_io_resource(struct acpi_resource *ares,
-+			       struct acpi_resource_gpio **agpio)
++struct gpio_desc *acpi_get_and_request_gpiod(char *path, int pin, char *label)
 +{
-+	struct acpi_resource_gpio *gpio;
++	struct gpio_desc *gpio;
++	int ret;
 +
-+	if (ares->type != ACPI_RESOURCE_TYPE_GPIO)
-+		return false;
++	gpio = acpi_get_gpiod(path, pin);
++	if (IS_ERR(gpio))
++		return gpio;
 +
-+	gpio = &ares->data.gpio;
-+	if (gpio->connection_type != ACPI_RESOURCE_GPIO_TYPE_IO)
-+		return false;
++	ret = gpiod_request(gpio, label);
++	if (ret)
++		return ERR_PTR(ret);
 +
-+	*agpio = gpio;
-+	return true;
++	return gpio;
 +}
-+EXPORT_SYMBOL_GPL(acpi_gpio_get_io_resource);
++EXPORT_SYMBOL_GPL(acpi_get_and_request_gpiod);
 +
- static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
- 				      struct acpi_gpio_event *event)
+ static irqreturn_t acpi_gpio_irq_handler(int irq, void *data)
  {
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 170b9bebdb2b..e8ba7063c000 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -1098,6 +1098,8 @@ void __acpi_handle_debug(struct _ddebug *descriptor, acpi_handle handle, const c
- #if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
- bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
- 				struct acpi_resource_gpio **agpio);
-+bool acpi_gpio_get_io_resource(struct acpi_resource *ares,
-+			       struct acpi_resource_gpio **agpio);
- int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int index);
- #else
- static inline bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
-@@ -1105,6 +1107,11 @@ static inline bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
- {
- 	return false;
- }
-+static inline bool acpi_gpio_get_io_resource(struct acpi_resource *ares,
-+					     struct acpi_resource_gpio **agpio)
-+{
-+	return false;
-+}
- static inline int acpi_dev_gpio_irq_get_by(struct acpi_device *adev,
- 					   const char *name, int index)
- {
+ 	struct acpi_gpio_event *event = data;
+diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
+index c73b25bc9213..566feb56601f 100644
+--- a/include/linux/gpio/consumer.h
++++ b/include/linux/gpio/consumer.h
+@@ -692,6 +692,8 @@ int devm_acpi_dev_add_driver_gpios(struct device *dev,
+ 				   const struct acpi_gpio_mapping *gpios);
+ void devm_acpi_dev_remove_driver_gpios(struct device *dev);
+ 
++struct gpio_desc *acpi_get_and_request_gpiod(char *path, int pin, char *label);
++
+ #else  /* CONFIG_GPIOLIB && CONFIG_ACPI */
+ 
+ struct acpi_device;
 -- 
 2.25.1
 
