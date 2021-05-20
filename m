@@ -5,57 +5,57 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6726AC43470
-	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 14:11:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B46DC4360C
+	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 14:12:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E6EF61353
-	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 14:11:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4DB3A61244
+	for <linux-i2c@archiver.kernel.org>; Thu, 20 May 2021 14:12:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243715AbhETONS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 20 May 2021 10:13:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51090 "EHLO
+        id S243732AbhETONZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 20 May 2021 10:13:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240757AbhETOMb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 May 2021 10:12:31 -0400
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E71C06135D;
-        Thu, 20 May 2021 07:09:45 -0700 (PDT)
-Received: by mail-wm1-x32e.google.com with SMTP id f6-20020a1c1f060000b0290175ca89f698so5506283wmf.5;
-        Thu, 20 May 2021 07:09:45 -0700 (PDT)
+        with ESMTP id S236832AbhETOMi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 May 2021 10:12:38 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD486C061361;
+        Thu, 20 May 2021 07:09:47 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id n2so17908807wrm.0;
+        Thu, 20 May 2021 07:09:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=DScPvwKQ0WIISqQGprqYEDaZlRL+0SsZpAZEoDfBM6E=;
-        b=epZ4NBGpKpmvR3LAKLC/jkyQMGltnEBa5H02wagxkhhCHKquMX5fi2bDZLjGNwu4ii
-         AcG2OthR4bi5RozEMLbjtxLPMOqj7bkO7idvRGHIcVJTtMB0spUIgYXFttxBkP68J41U
-         Y5AljqNAZgkzpseQnkEQeqBKToJ+pnfz8hnSnvlITOF9XNaRiMCH4n6g55JzTPUSkYFA
-         bC6G22Z0ry+PIpccTR1tdVlMUFI2uha6MmIipdRd60VSOZvg+klYLb5KaiAC9DaoW+7+
-         tVvUr7MgXuYWcbrkH6iTl4QakQOmYIliszriFQyJjoXkf9HztBcJ3fMJOIWBDYWVyTdq
-         PrzA==
+        bh=hrezTbeUnB44Jq8jpE0EGXBBC95jZc3BI1HpgJHuc3E=;
+        b=BG5z9OHjJtE6foNzs9KvYI1znXuHbxzHT64Zex9Nz+9NOk8AjDerA27cgft8+C5VGU
+         uNR8qNNanJTfGWhRW22zobrqtwT9cP4cJbYxeO+aUmFKE5hwoVin8pYm4C6oAtAq0xS/
+         wNZ4eWgCuVeufDV3AqtWSItVjV3JfiD99WXVN4uMG6qkTt2jUqZZzuGjBBwMcQAeFKYz
+         m5svFHE4c1LDShvqZlOpeu7jVAbpN5T0NE2yh2otyWRsLavqkG82K0SHtBgWHFArD7dJ
+         HS/RakkufSBC219eztgN/IF7x36MKLBolqxh00XWnVSY2rdwb3ELYrdbdT9RfQSLO0Yb
+         UBag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=DScPvwKQ0WIISqQGprqYEDaZlRL+0SsZpAZEoDfBM6E=;
-        b=U/yMIotYKlM+nqrBevJneKzT5nUj5n3y1pBxxMB8i9dyXsKBDucodHRi5wcFy9Y3ST
-         p1qZQ7sck20TGwKLHgdX+LYvTW81ItNdxZpeCy21wX5RR/K20tAAiaNHgidEOytkFMuJ
-         NJbBOsO2GKTjvlQZWQiuhbqfGqujo7jHhpv6ddEL1RjZPq/0+fBlsjgnEVCKl8o20jhO
-         /KcBd45lGUgl+fRLaYkkRcrk4lu5cKk9XtCTTZ67rSeP7/eIbghAWNVKUkK0pl2eVdBu
-         U+aUYG8tHgcysVACgr5vh6hJs8VIUrkU3YXdKuC/+F8tiiNAHBnx6l3K/V+wen7RaQeu
-         ydfA==
-X-Gm-Message-State: AOAM530U9PRvfSkge4ELzefCthepBaLCmNZSlWzKGDvoWpNkhk9qY9PV
-        Zoq53yfd4TjZoBNUwy/Nqxw=
-X-Google-Smtp-Source: ABdhPJysq0wOJR0dRUN8yQ2vkDAD3ldi//g2fuhWbfYRM4Z4Si/r62BsMPieVqlNTKe/TG0oXyeQgQ==
-X-Received: by 2002:a7b:cd04:: with SMTP id f4mr4024898wmj.84.1621519784115;
-        Thu, 20 May 2021 07:09:44 -0700 (PDT)
+        bh=hrezTbeUnB44Jq8jpE0EGXBBC95jZc3BI1HpgJHuc3E=;
+        b=Cv7XQ5+G5rmEE8puWJocTviVf2rU7/UkHmYsH+jQymRBv77vNDxq8w58TG5avstDdP
+         QfwMb0a28nNeN8Od29YkxrmfC2jDAGMg+HDeGhRiY5EbXs//kWNQ/3X764YPLMTl5XU/
+         DCNHopuwAdAG/flAoXZQhp6f+Ax+fYxeCDlw9jpOA/ViEV41eMNzSHORV5L5RT27CtnZ
+         n/0p1HuCdYDpRSSMzFEjRrnq7UPCHJM9/z0ORqsuWDwRzRIldWMGBbZn456mzD2jWY/8
+         YCgpVHYn9PpMXYBmGarHVtjXqdCU8RMQhCdt4J22i/9vQP2tqd5cR09zMvcdwAxO5Z0f
+         GkFA==
+X-Gm-Message-State: AOAM532JV5sOtrInw+OZIp7UsRpdJWXmIzfBum+oe6bnFrFpnIXBNdf+
+        7hSQcyDEHF1n6q0QR37rLh4=
+X-Google-Smtp-Source: ABdhPJwswwszza5NkAZ5hZyeTl1MTHiFRi+v733q3DYJ/IwTZdIlc9YEpMz3KP/YH/J/48X31p6qfQ==
+X-Received: by 2002:adf:9c8e:: with SMTP id d14mr4719995wre.140.1621519786437;
+        Thu, 20 May 2021 07:09:46 -0700 (PDT)
 Received: from valhalla.home ([91.110.20.117])
-        by smtp.gmail.com with ESMTPSA id m6sm8411974wml.3.2021.05.20.07.09.42
+        by smtp.gmail.com with ESMTPSA id m6sm8411974wml.3.2021.05.20.07.09.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 May 2021 07:09:43 -0700 (PDT)
+        Thu, 20 May 2021 07:09:46 -0700 (PDT)
 From:   Daniel Scally <djrscally@gmail.com>
 To:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -76,11 +76,10 @@ Cc:     Len Brown <lenb@kernel.org>,
         Mark Gross <mgross@linux.intel.com>,
         Robert Moore <robert.moore@intel.com>,
         Erik Kaneda <erik.kaneda@intel.com>,
-        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com,
-        Sakari Ailus <sakari.ailus@linux.intel.com>
-Subject: [PATCH v4 3/8] i2c: core: Add a format macro for I2C device names
-Date:   Thu, 20 May 2021 15:09:23 +0100
-Message-Id: <20210520140928.3252671-4-djrscally@gmail.com>
+        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
+Subject: [PATCH v4 5/8] clkdev: Make clkdev_drop() null aware
+Date:   Thu, 20 May 2021 15:09:25 +0100
+Message-Id: <20210520140928.3252671-6-djrscally@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210520140928.3252671-1-djrscally@gmail.com>
 References: <20210520140928.3252671-1-djrscally@gmail.com>
@@ -90,61 +89,32 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Some places in the kernel allow users to map resources to a device
-using device name (for example, in the struct gpiod_lookup_table).
-Currently this involves waiting for the I2C client to have been registered
-so we can use dev_name(&client->dev). We want to add a function to allow
-users to refer to an I2C device by name before it has been instantiated,
-so create a macro for the format that's accessible outside the I2C layer
-and use it in i2c_dev_set_name().
+To simplify error handling paths, many functions are no-ops when passed
+NULL pointers, for example gpiod_remove_lookup_table(). Mirror that
+behaviour for clkdev_drop().
 
-Acked-by: Wolfram Sang <wsa@kernel.org>
-Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Daniel Scally <djrscally@gmail.com>
 ---
 Changes since v3:
-	- None
+	- Patch introduced
 
- drivers/i2c/i2c-core-base.c | 4 ++--
- include/linux/i2c.h         | 3 +++
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/clk/clkdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 5a97e4a02fa2..2ca50a6f5514 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -852,12 +852,12 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
- 	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
- 
- 	if (info && info->dev_name) {
--		dev_set_name(&client->dev, "i2c-%s", info->dev_name);
-+		dev_set_name(&client->dev, I2C_DEV_NAME_FORMAT, info->dev_name);
- 		return;
- 	}
- 
- 	if (adev) {
--		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
-+		dev_set_name(&client->dev, I2C_DEV_NAME_FORMAT, acpi_dev_name(adev));
- 		return;
- 	}
- 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index e8f2ac8c9c3d..d9f433617a8d 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -39,6 +39,9 @@ enum i2c_slave_event;
- typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
- 			      enum i2c_slave_event event, u8 *val);
- 
-+/* I2C Device Name Format - to maintain consistency outside the i2c layer */
-+#define I2C_DEV_NAME_FORMAT		"i2c-%s"
+diff --git a/drivers/clk/clkdev.c b/drivers/clk/clkdev.c
+index 0f2e3fcf0f19..c082720f8ade 100644
+--- a/drivers/clk/clkdev.c
++++ b/drivers/clk/clkdev.c
+@@ -286,6 +286,9 @@ EXPORT_SYMBOL(clk_add_alias);
+  */
+ void clkdev_drop(struct clk_lookup *cl)
+ {
++	if (!cl)
++		return;
 +
- /* I2C Frequency Modes */
- #define I2C_MAX_STANDARD_MODE_FREQ	100000
- #define I2C_MAX_FAST_MODE_FREQ		400000
+ 	mutex_lock(&clocks_mutex);
+ 	list_del(&cl->node);
+ 	mutex_unlock(&clocks_mutex);
 -- 
 2.25.1
 
