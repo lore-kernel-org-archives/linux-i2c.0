@@ -8,61 +8,60 @@ X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4381CC47086
-	for <linux-i2c@archiver.kernel.org>; Tue, 25 May 2021 20:07:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B160C47086
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 May 2021 20:07:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1D0A6613B6
-	for <linux-i2c@archiver.kernel.org>; Tue, 25 May 2021 20:07:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DFE54611BE
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 May 2021 20:07:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231134AbhEYUJB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 25 May 2021 16:09:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39550 "EHLO
+        id S232413AbhEYUJD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 25 May 2021 16:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229595AbhEYUJB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 May 2021 16:09:01 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61BB6C061756
-        for <linux-i2c@vger.kernel.org>; Tue, 25 May 2021 13:07:29 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id j14so31738379wrq.5
-        for <linux-i2c@vger.kernel.org>; Tue, 25 May 2021 13:07:29 -0700 (PDT)
+        with ESMTP id S229595AbhEYUJC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 May 2021 16:09:02 -0400
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5583C061574
+        for <linux-i2c@vger.kernel.org>; Tue, 25 May 2021 13:07:31 -0700 (PDT)
+Received: by mail-wr1-x433.google.com with SMTP id z17so33490077wrq.7
+        for <linux-i2c@vger.kernel.org>; Tue, 25 May 2021 13:07:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=to:cc:from:subject:message-id:date:user-agent:mime-version
          :content-language:content-transfer-encoding;
-        bh=uGXuQSOJsjAaVr0sDt1k63gACINGt4GRMWEoZs4TWyE=;
-        b=DXGreGWdzF/7BMoYbt+OeRYyTbONpfVio7AlHg6oVbY0SfhRnomqIiKrxWEEdOHuCj
-         /sqgK/hQKWNwahdx2wd3eB1xVmZ2R27GSxi6FuELZxQzeY8AlwhZN6xqsQz+r/i1vIUe
-         e1hZlacSSknQgKXw/3m2sMRBaYqew3ANQ/DnVUXhShczpqc9LT60N+/k6nVhOtpXX2km
-         PO0hxZ0an47F8NQJRc3FxQzbmsy/YEuy4gPHwwxGKqsyMcxy1pkgfQUE4aND49MKlRjq
-         aIMO7qQw+wZskgmo0Xt6Mwn1rQ+Rnex+tJdCgwZN0lZ9R/03i5yIgxgSi9P5OreQnnv0
-         UUDQ==
+        bh=qvKiuBDY+VgAAoPV6KAc3s0HADINjeNcDBw9g070Usg=;
+        b=OqqieHDcXRSSiTgYAMgaFC1ODM/uLnfZ/GapIWcoMKaXmqsl1LA9ZsMQlcnbOTEZ7M
+         +bJ8Ys5uTIas1pARKKiH/zpaq48VUsUyTQ0p2VXiZg+A1MRzPrskKsAjgJi4fWIGmaSO
+         I5IlSsGb8RTWAT+0rc50bkDjYAshSSOc9h0N6mgrD+BNHViE/ZF12USfOy4JuDmuTg+L
+         zFfsV6K9zM2K/fp8wSiFoMevZbxkQVYWLbcf6b5CSyBVw5Ith3qkGhKlndtI4wZlhvbb
+         emBnFuY+rQlIO/tYOKm8RQTcAum8ZQW1ZQdhyp79x+5bwk876cz9hWjZbCDD7RqKAn+B
+         Nd4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
          :mime-version:content-language:content-transfer-encoding;
-        bh=uGXuQSOJsjAaVr0sDt1k63gACINGt4GRMWEoZs4TWyE=;
-        b=jDOwO444x9RlsWcpVu1D92s4GK8f+oMg6HDhQSkOzPugYHY0GsNCYqp4mY9mfuEuwj
-         5w8NTbdOZ6FFhYefGbxZD4pB+uHxhQd/kyWwxHKsmQBPi2mUmgVe+YiOapIyRh0T7PZj
-         PFfadKl4ZGloHMCFWi9TEfXouxokgGrtxZebGfJZdKwgrVjd9mOBELDgBsZcrrEFiAIg
-         Wdt2r5mWIMcfS8v1eAh4eqy6qkEdGu17YlAWKAWn2oYB7//JjMT9TEHADhc12/gaJVsg
-         lGupyZKS2Nc02/Nf5hqeC/YYsZ1LMD1u3lPez/Pjsj79xmlVmdg+hp9sOw7ccJdysVTJ
-         0GqA==
-X-Gm-Message-State: AOAM531pn4gvBw7Pz0QlJOltiLM/hL0rI3CrFrHxGUL0sStcg1AlrUUW
-        SPDAxidVXl3gACV3BdcMfuvKec3Xbr4=
-X-Google-Smtp-Source: ABdhPJzAo1XYKuQAVQWc4E3mjGxY9e0IcpSNPOSkg4+DSbNkIObix4xU1cXmEpn8y8nWFGTxJR+Rqg==
-X-Received: by 2002:a5d:5688:: with SMTP id f8mr29246363wrv.237.1621973247778;
-        Tue, 25 May 2021 13:07:27 -0700 (PDT)
+        bh=qvKiuBDY+VgAAoPV6KAc3s0HADINjeNcDBw9g070Usg=;
+        b=FWLyDPBGmTQDF47Y7hmNWYyCSZhQ++xpeV0+aqgJIXXIYtpeJ9p/NNgkn3ZFflQhvT
+         TpPU/DlOAhVGaGLaXaT7kDEhmMBKDT36wW/tdvnWnEM+F35XBtdSoKt8bPTFpDzEqbcK
+         T/nQnLB3oEa9O7TAPFeFBbLvx6B/XDR+F1ItmvDjKx4pMQZ6XC/qdBlsjTEnLV2yce39
+         PB/IUPCoeYOmV4sIqazgL3wlL/W+sFDnWTslVyIZo60yI/WtXawxapIUf/eR0oqpPvyl
+         WTiL72eJn8sPbRTnbj35Nm/8Cp2lvPpzoO9kr8n0Jx9EggAEscSdUTbh1LkGT0V/TTKH
+         BzlA==
+X-Gm-Message-State: AOAM532VepcpbEVgtD9ylnGGT2wVGg+NrPgTsF9i5YDpyuUGemuc3o4i
+        RWvCCxlZeo+Wb1EEa6v+EIUa2QdSKzk=
+X-Google-Smtp-Source: ABdhPJwLwWapt5KsxLJKMEU5vOIz9pdy5scH/9+K1P8hM8zkigxwQaJ4+SjP0MqFPS+Rkg1StC3F4w==
+X-Received: by 2002:a5d:5008:: with SMTP id e8mr28757946wrt.386.1621973250024;
+        Tue, 25 May 2021 13:07:30 -0700 (PDT)
 Received: from ?IPv6:2003:ea:8f38:4600:a053:ef5d:7e3e:e120? (p200300ea8f384600a053ef5d7e3ee120.dip0.t-ipconnect.de. [2003:ea:8f38:4600:a053:ef5d:7e3e:e120])
-        by smtp.googlemail.com with ESMTPSA id w25sm12181619wmk.25.2021.05.25.13.07.27
+        by smtp.googlemail.com with ESMTPSA id r14sm17071816wrx.74.2021.05.25.13.07.29
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 May 2021 13:07:27 -0700 (PDT)
+        Tue, 25 May 2021 13:07:29 -0700 (PDT)
 To:     Jean Delvare <jdelvare@suse.com>
 Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 From:   Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH] i2c: i801: Simplify initialization of i2c_board_info in
- i801_probe_optional_slaves
-Message-ID: <c2c797f9-7c5c-9545-0cac-675a191c7e40@gmail.com>
-Date:   Tue, 25 May 2021 22:01:31 +0200
+Subject: [PATCH] i2c: i801: Improve i801_setup_hstcfg
+Message-ID: <d5ec9de2-dd54-6ee2-a791-13ca510bcd43@gmail.com>
+Date:   Tue, 25 May 2021 22:07:17 +0200
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.10.2
 MIME-Version: 1.0
@@ -73,33 +72,60 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Why shall we bother to open-code something that the compiler can do for us.
+i801_setup_hstcfg() leaves the bits in priv->original_hstcfg that
+we're interested in intact. Therefore we can remove the return value
+from the function and use priv->original_hstcfg directly.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
- drivers/i2c/busses/i2c-i801.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 9588d5bcf..0c08cfec5 100644
+index 54d84b9ef..047f73f1a 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1291,11 +1291,11 @@ static void i801_probe_optional_slaves(struct i801_priv *priv)
- 		return;
+@@ -1692,19 +1692,17 @@ static inline int i801_acpi_probe(struct i801_priv *priv) { return 0; }
+ static inline void i801_acpi_remove(struct i801_priv *priv) { }
+ #endif
  
- 	if (apanel_addr) {
--		struct i2c_board_info info;
-+		struct i2c_board_info info = {
-+			.addr = apanel_addr,
-+			.type = "fujitsu_apanel"
-+		};
+-static unsigned char i801_setup_hstcfg(struct i801_priv *priv)
++static void i801_setup_hstcfg(struct i801_priv *priv)
+ {
+ 	unsigned char hstcfg = priv->original_hstcfg;
  
--		memset(&info, 0, sizeof(struct i2c_board_info));
--		info.addr = apanel_addr;
--		strlcpy(info.type, "fujitsu_apanel", I2C_NAME_SIZE);
- 		i2c_new_client_device(&priv->adapter, &info);
+ 	hstcfg &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
+ 	hstcfg |= SMBHSTCFG_HST_EN;
+ 	pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hstcfg);
+-	return hstcfg;
+ }
+ 
+ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+-	unsigned char temp;
+ 	int err, i;
+ 	struct i801_priv *priv;
+ 
+@@ -1827,16 +1825,16 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
  	}
  
+ 	pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &priv->original_hstcfg);
+-	temp = i801_setup_hstcfg(priv);
++	i801_setup_hstcfg(priv);
+ 	if (!(priv->original_hstcfg & SMBHSTCFG_HST_EN))
+ 		dev_info(&dev->dev, "Enabling SMBus device\n");
+ 
+-	if (temp & SMBHSTCFG_SMB_SMI_EN) {
++	if (priv->original_hstcfg & SMBHSTCFG_SMB_SMI_EN) {
+ 		dev_dbg(&dev->dev, "SMBus using interrupt SMI#\n");
+ 		/* Disable SMBus interrupt feature if SMBus using SMI# */
+ 		priv->features &= ~FEATURE_IRQ;
+ 	}
+-	if (temp & SMBHSTCFG_SPD_WD)
++	if (priv->original_hstcfg & SMBHSTCFG_SPD_WD)
+ 		dev_info(&dev->dev, "SPD Write Disable is set\n");
+ 
+ 	/* Clear special mode bits */
 -- 
 2.31.1
 
