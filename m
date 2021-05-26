@@ -4,42 +4,42 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCE0DC47082
-	for <linux-i2c@archiver.kernel.org>; Wed, 26 May 2021 18:49:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B40DAC47088
+	for <linux-i2c@archiver.kernel.org>; Wed, 26 May 2021 18:49:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEC17613D4
-	for <linux-i2c@archiver.kernel.org>; Wed, 26 May 2021 18:49:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F6EE613BE
+	for <linux-i2c@archiver.kernel.org>; Wed, 26 May 2021 18:49:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233762AbhEZSuc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S235732AbhEZSuc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Wed, 26 May 2021 14:50:32 -0400
-Received: from mail-ot1-f46.google.com ([209.85.210.46]:39480 "EHLO
+Received: from mail-ot1-f46.google.com ([209.85.210.46]:42815 "EHLO
         mail-ot1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235733AbhEZSu1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 May 2021 14:50:27 -0400
-Received: by mail-ot1-f46.google.com with SMTP id d25-20020a0568300459b02902f886f7dd43so1987809otc.6;
-        Wed, 26 May 2021 11:48:55 -0700 (PDT)
+        with ESMTP id S233560AbhEZSu0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 May 2021 14:50:26 -0400
+Received: by mail-ot1-f46.google.com with SMTP id n3-20020a9d74030000b029035e65d0a0b8so1961792otk.9;
+        Wed, 26 May 2021 11:48:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=mNKNtAI43Z/nC3L+rfhHTkgzIxEjqQehyJ1O9ZC2MQY=;
-        b=XfjVNv09z0hfGqQcpoMZaV74GI6Gk9bpgtcgN9/Y3w5Ddflgfqd1u1ST9dQsMta1uB
-         92SGi2Tn0sayEklzr47L3R9qDPQV9Y7SQOR0NSnmylVn1BxN2k2Xj+IOcJFWVr013P6+
-         ZK9xAdXBG1N/qoeR83yAmFyAszUP+IQ1c0cLARHM6DUwXzjiBsEwvm54KHISUX0xDS8B
-         oL7zS0LgzFEd4h6J92YzPjvY2LMOtrT57abn1L97iXGqn1yDpJI/U071tj6B3jZJk9AC
-         NEITz8bTs4AniPxhypN0T1Nj9YUqDK0Oqov3EkSUy8UBQYkrb5DS8M4B7LsHGRGqtWpN
-         Ym4Q==
-X-Gm-Message-State: AOAM530n0TLChJPy9s0V4TGAF8Xl52YQVe30M+WazL7tYwn0jWbxHVWg
-        HX4SFaOkyUW7+VTDV1M43fLJP0uUwA==
-X-Google-Smtp-Source: ABdhPJxKEDxjvVnbKXErJL/F82kbMFfB0uGc/GViWS/EWSonIJC+X3SF90OTp8zuJRUQETyLIeEitA==
-X-Received: by 2002:a05:6830:14d:: with SMTP id j13mr3424433otp.232.1622054934401;
-        Wed, 26 May 2021 11:48:54 -0700 (PDT)
+        bh=NUv3HY5Qq3devlXxPwSWcFNHs0zXCFYyGR/SmlCxD/4=;
+        b=tj97cDRrKKp/2FQUJYRgYzYbiq9RUSZyJ14Ij9pyjB6x6ZJhhXIjK+OF0XTMRTwaze
+         Tdlux5+2fFv//IZ7uc5AWfIM/4gy+DUHnO31DB91YnD31KfL2Ttsx62tqYMh2hKBo88A
+         QWlYZK7nc4PKHHScMVdW6wxVJfV4qHXCU1PwSi0CUyHKjyof6LEcCQo/QD8cOBuZL4T6
+         9yJBPDSLtuAKOVBYFhjH4nZ2W3iKpxLRbH7E1GD3COiS4Od/6UWvlH0fbXMdS7sr+PQH
+         qpDixol9ZUsS6sXHoal1nVECJVQKYQMvlFTlfVTexBK5wrLQgMJxzx0axXSX2J4vw5yi
+         p0GA==
+X-Gm-Message-State: AOAM531V8WxfCzZT1ybGLNhrpxF0y/XCK8dnnuQFPUA3vZNjOZeWhuai
+        vy2/pI8t7Qwe/aUsbBYaFnoCXXqXxA==
+X-Google-Smtp-Source: ABdhPJxdrrxZf5jhSx6JCFfPitKZYaitgdqLfoq5cUybptpyokb8nJxhvgCGjhgOiCrcS0rIycek9Q==
+X-Received: by 2002:a9d:73d8:: with SMTP id m24mr3473683otk.269.1622054932752;
+        Wed, 26 May 2021 11:48:52 -0700 (PDT)
 Received: from xps15.herring.priv (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.googlemail.com with ESMTPSA id x65sm7224otb.59.2021.05.26.11.48.52
+        by smtp.googlemail.com with ESMTPSA id x65sm7224otb.59.2021.05.26.11.48.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 May 2021 11:48:53 -0700 (PDT)
+        Wed, 26 May 2021 11:48:52 -0700 (PDT)
 From:   Rob Herring <robh@kernel.org>
 To:     devicetree@vger.kernel.org, Peter Rosin <peda@axentia.se>,
         Wolfram Sang <wsa@kernel.org>
@@ -54,81 +54,231 @@ Cc:     linux-kernel@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         linux-i2c@vger.kernel.org
-Subject: [PATCH v2 6/6] dt-bindings: i2c: maxim,max9286: Use the i2c-mux.yaml schema
-Date:   Wed, 26 May 2021 13:48:39 -0500
-Message-Id: <20210526184839.2937899-7-robh@kernel.org>
+Subject: [PATCH v2 5/6] dt-bindings: i2c: i2c-mux-pca954x: Convert to DT schema
+Date:   Wed, 26 May 2021 13:48:38 -0500
+Message-Id: <20210526184839.2937899-6-robh@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210526184839.2937899-1-robh@kernel.org>
 References: <20210526184839.2937899-1-robh@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Use the i2c-mux.yaml schema in the maxim,max9286 binding schema. With this,
-several properties can be dropped as they are defined in i2c-mux.yaml
-already.
+Convert the i2c-mux-pca954x binding to DT schema format.
 
-Cc: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Cc: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Cc: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Add the missing compatible for 'nxp,pca9645' which is already in use.
+
 Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Rob Herring <robh@kernel.org>
 ---
- .../bindings/media/i2c/maxim,max9286.yaml     | 23 +++----------------
- 1 file changed, 3 insertions(+), 20 deletions(-)
+v2:
+ - Add 'nxp,pca9645'
+ - Fix compatible sorting
+---
+ .../bindings/i2c/i2c-mux-pca954x.txt          |  74 ------------
+ .../bindings/i2c/i2c-mux-pca954x.yaml         | 110 ++++++++++++++++++
+ 2 files changed, 110 insertions(+), 74 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
 
-diff --git a/Documentation/devicetree/bindings/media/i2c/maxim,max9286.yaml b/Documentation/devicetree/bindings/media/i2c/maxim,max9286.yaml
-index ee16102fdfe7..02f656e78700 100644
---- a/Documentation/devicetree/bindings/media/i2c/maxim,max9286.yaml
-+++ b/Documentation/devicetree/bindings/media/i2c/maxim,max9286.yaml
-@@ -111,17 +111,10 @@ properties:
- 
-   i2c-mux:
-     type: object
-+    $ref: /schemas/i2c/i2c-mux.yaml#
-+    unevaluatedProperties: false
-     description: |
--      Each GMSL link is modelled as a child bus of an i2c bus
--      multiplexer/switch, in accordance with bindings described in
--      Documentation/devicetree/bindings/i2c/i2c-mux.txt.
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+deleted file mode 100644
+index 9f3f3eb67e87..000000000000
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ /dev/null
+@@ -1,74 +0,0 @@
+-* NXP PCA954x I2C bus switch
 -
--    properties:
--      '#address-cells':
--        const: 1
+-The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
 -
--      '#size-cells':
--        const: 0
-+      Each GMSL link is modelled as a child bus of an i2c bus multiplexer/switch.
- 
-     patternProperties:
-       "^i2c@[0-3]$":
-@@ -133,12 +126,6 @@ properties:
-           channels.
- 
-         properties:
--          '#address-cells':
--            const: 1
+-Required Properties:
 -
--          '#size-cells':
--            const: 0
+-  - compatible: Must contain one of the following.
+-    "nxp,pca9540",
+-    "nxp,pca9542",
+-    "nxp,pca9543",
+-    "nxp,pca9544",
+-    "nxp,pca9545",
+-    "nxp,pca9546", "nxp,pca9846",
+-    "nxp,pca9547", "nxp,pca9847",
+-    "nxp,pca9548", "nxp,pca9848",
+-    "nxp,pca9849"
 -
-           reg:
-             description: The index of the GMSL channel.
-             maxItems: 1
-@@ -173,10 +160,6 @@ properties:
- 
-             additionalProperties: false
- 
--        additionalProperties: false
+-  - reg: The I2C address of the device.
 -
--    additionalProperties: false
+-  The following required properties are defined externally:
 -
- required:
-   - compatible
-   - reg
+-  - Standard I2C mux properties. See i2c-mux.txt in this directory.
+-  - I2C child bus nodes. See i2c-mux.txt in this directory.
+-
+-Optional Properties:
+-
+-  - reset-gpios: Reference to the GPIO connected to the reset input.
+-  - idle-state: if present, overrides i2c-mux-idle-disconnect,
+-    Please refer to Documentation/devicetree/bindings/mux/mux-controller.yaml
+-  - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
+-    children in idle state. This is necessary for example, if there are several
+-    multiplexers on the bus and the devices behind them use same I2C addresses.
+-  - interrupts: Interrupt mapping for IRQ.
+-  - interrupt-controller: Marks the device node as an interrupt controller.
+-  - #interrupt-cells : Should be two.
+-    - first cell is the pin number
+-    - second cell is used to specify flags.
+-    See also Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+-
+-Example:
+-
+-	i2c-switch@74 {
+-		compatible = "nxp,pca9548";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-		reg = <0x74>;
+-
+-		interrupt-parent = <&ipic>;
+-		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
+-		interrupt-controller;
+-		#interrupt-cells = <2>;
+-
+-		i2c@2 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <2>;
+-
+-			eeprom@54 {
+-				compatible = "atmel,24c08";
+-				reg = <0x54>;
+-			};
+-		};
+-
+-		i2c@4 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <4>;
+-
+-			rtc@51 {
+-				compatible = "nxp,pcf8563";
+-				reg = <0x51>;
+-			};
+-		};
+-	};
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+new file mode 100644
+index 000000000000..9f1726d0356b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+@@ -0,0 +1,110 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/i2c-mux-pca954x.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: NXP PCA954x I2C bus switch
++
++maintainers:
++  - Laurent Pinchart <laurent.pinchart@ideasonboard.com>
++
++description:
++  The binding supports NXP PCA954x and PCA984x I2C mux/switch devices.
++
++allOf:
++  - $ref: /schemas/i2c/i2c-mux.yaml#
++
++properties:
++  compatible:
++    oneOf:
++      - enum:
++          - nxp,pca9540
++          - nxp,pca9542
++          - nxp,pca9543
++          - nxp,pca9544
++          - nxp,pca9545
++          - nxp,pca9546
++          - nxp,pca9547
++          - nxp,pca9548
++          - nxp,pca9846
++          - nxp,pca9847
++          - nxp,pca9848
++          - nxp,pca9849
++      - items:
++          - const: nxp,pca9646
++          - const: nxp,pca9546
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  "#interrupt-cells":
++    const: 2
++
++  interrupt-controller: true
++
++  reset-gpios:
++    maxItems: 1
++
++  i2c-mux-idle-disconnect:
++    type: boolean
++    description: Forces mux to disconnect all children in idle state. This is
++      necessary for example, if there are several multiplexers on the bus and
++      the devices behind them use same I2C addresses.
++
++  idle-state:
++    description: if present, overrides i2c-mux-idle-disconnect
++    $ref: /schemas/mux/mux-controller.yaml#/properties/idle-state
++
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        i2c-mux@74 {
++            compatible = "nxp,pca9548";
++            #address-cells = <1>;
++            #size-cells = <0>;
++            reg = <0x74>;
++
++            interrupt-parent = <&ipic>;
++            interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
++            interrupt-controller;
++            #interrupt-cells = <2>;
++
++            i2c@2 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                reg = <2>;
++
++                eeprom@54 {
++                    compatible = "atmel,24c08";
++                    reg = <0x54>;
++                };
++            };
++
++            i2c@4 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                reg = <4>;
++
++                rtc@51 {
++                    compatible = "nxp,pcf8563";
++                    reg = <0x51>;
++                };
++            };
++        };
++    };
++...
 -- 
 2.27.0
 
