@@ -7,130 +7,86 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49C23C4708A
-	for <linux-i2c@archiver.kernel.org>; Wed, 26 May 2021 12:39:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CF12C4708B
+	for <linux-i2c@archiver.kernel.org>; Wed, 26 May 2021 12:43:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2F5AA613D6
-	for <linux-i2c@archiver.kernel.org>; Wed, 26 May 2021 12:39:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 543236101E
+	for <linux-i2c@archiver.kernel.org>; Wed, 26 May 2021 12:43:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232367AbhEZMlV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 26 May 2021 08:41:21 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:56619 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234469AbhEZMlR (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 May 2021 08:41:17 -0400
-Received: from mail-vs1-f71.google.com ([209.85.217.71])
-        by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <krzysztof.kozlowski@canonical.com>)
-        id 1llsp6-00007l-GT
-        for linux-i2c@vger.kernel.org; Wed, 26 May 2021 12:39:44 +0000
-Received: by mail-vs1-f71.google.com with SMTP id x2-20020a67c0820000b0290231d255cecdso187281vsi.4
-        for <linux-i2c@vger.kernel.org>; Wed, 26 May 2021 05:39:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gN2u9zXldM21EHt67+sMR5HlACJwh4tvgZXmS6a8P94=;
-        b=T+I5DpZhXmOLQWzRA82Iwo8Miy560fmBYr3QnS1tVFb9nfotWMYKGi1k1VyR3CuTz7
-         cAt+i69I9NXSFOf0c0zqutpQZZudOMyARGrnagUZYDV1VUgghIoxNFktA8T5bEiT8Atg
-         Eq794DL/V2xSgwo8m9REHuB+dxIOVrKEkklq7cVJnHFZlnQ1K2ImRKmkEtTDsymiBEay
-         oi8HPqgWj03n+G4Mn4Xyvjjjv4ZsVRcaErlABWtHFJJN7rvdfgTMqj7lMuG0DgRUumQw
-         3x7iKwnkzMgp5YE4Ysjaro6Cne61q59Zk/5+KkNmuzZtB4whr6ynmkVmglNfBdPd+prn
-         2pXQ==
-X-Gm-Message-State: AOAM533emm3U0ea/TwSq2u10namLKG4Jky1yROcW9GIj+jhPgWT+NqCr
-        uU9EBRU3ihb1ZTR85S1K7Y4BAxZDHRoPCewRljL6zvWqhfh+7RBkypdgki7I4BlKXK+Ve3c6sRH
-        bL+li85oMtrhIunuwGBL3m+GLibE9IIPFxMnC5w==
-X-Received: by 2002:ab0:5acf:: with SMTP id x15mr32137315uae.132.1622032783581;
-        Wed, 26 May 2021 05:39:43 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw/SfZLr/bmF5flVczWQ9oLy5YTXK6WvySQPDkCj5uV/aFtLdOjVhbvV6qeYmmthiflkK7Q7Q==
-X-Received: by 2002:ab0:5acf:: with SMTP id x15mr32137298uae.132.1622032783424;
-        Wed, 26 May 2021 05:39:43 -0700 (PDT)
-Received: from localhost.localdomain ([45.237.48.4])
-        by smtp.gmail.com with ESMTPSA id n77sm1693475vke.24.2021.05.26.05.39.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 May 2021 05:39:42 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sylwester Nawrocki <snawrocki@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>
-Subject: [RESEND PATCH] i2c: s3c2410: fix possible NULL pointer deref on read message after write
-Date:   Wed, 26 May 2021 08:39:37 -0400
-Message-Id: <20210526123937.22958-1-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.27.0
+        id S233979AbhEZMpL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 26 May 2021 08:45:11 -0400
+Received: from mga14.intel.com ([192.55.52.115]:46596 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234731AbhEZMox (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 26 May 2021 08:44:53 -0400
+IronPort-SDR: 1USzK07JjAKewNr5TSTJO8TeayNUceycYLE8UpmFSagqKF/dhzviurrP4g9iNSTXzcinJUsctR
+ JFffmW6t53uQ==
+X-IronPort-AV: E=McAfee;i="6200,9189,9995"; a="202210458"
+X-IronPort-AV: E=Sophos;i="5.82,331,1613462400"; 
+   d="scan'208";a="202210458"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 May 2021 05:43:15 -0700
+IronPort-SDR: 1X5vo9M7VygZNZQSa1VCQhMAvfKUuQ+yiCMQhPP03UkoKZhzAY6Zy5Ytx6wke9sl7Ulb4tGi5O
+ fBGx0etEZC4Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.82,331,1613462400"; 
+   d="scan'208";a="443019366"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga008.jf.intel.com with ESMTP; 26 May 2021 05:43:11 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 7B8E199D; Wed, 26 May 2021 15:43:30 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-staging@lists.linux.dev
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH v1 6/6] staging: atomisp: Remove unused port_enabled variable
+Date:   Wed, 26 May 2021 15:43:22 +0300
+Message-Id: <20210526124322.48915-6-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210526124322.48915-1-andriy.shevchenko@linux.intel.com>
+References: <20210526124322.48915-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Interrupt handler processes multiple message write requests one after
-another, till the driver message queue is drained.  However if driver
-encounters a read message without preceding START, it stops the I2C
-transfer as it is an invalid condition for the controller.  At least the
-comment describes a requirement "the controller forces us to send a new
-START when we change direction".  This stop results in clearing the
-message queue (i2c->msg = NULL).
+Remove unused port_enabled variable in ia_css_isys_rx_configure().
 
-The code however immediately jumped back to label "retry_write" which
-dereferenced the "i2c->msg" making it a possible NULL pointer
-dereference.
-
-The Coverity analysis:
-1. Condition !is_msgend(i2c), taking false branch.
-   if (!is_msgend(i2c)) {
-
-2. Condition !is_lastmsg(i2c), taking true branch.
-   } else if (!is_lastmsg(i2c)) {
-
-3. Condition i2c->msg->flags & 1, taking true branch.
-   if (i2c->msg->flags & I2C_M_RD) {
-
-4. write_zero_model: Passing i2c to s3c24xx_i2c_stop, which sets i2c->msg to NULL.
-   s3c24xx_i2c_stop(i2c, -EINVAL);
-
-5. Jumping to label retry_write.
-   goto retry_write;
-
-6. var_deref_model: Passing i2c to is_msgend, which dereferences null i2c->msg.
-   if (!is_msgend(i2c)) {"
-
-All previous calls to s3c24xx_i2c_stop() in this interrupt service
-routine are followed by jumping to end of function (acknowledging
-the interrupt and returning).  This seems a reasonable choice also here
-since message buffer was entirely emptied.
-
-Addresses-Coverity: Explicit null dereferenced
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
+ drivers/staging/media/atomisp/pci/runtime/isys/src/rx.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-Reason for resend - the patch did not get necessary testing however I
-think it is correct, therefore resending without "RFT".
----
- drivers/i2c/busses/i2c-s3c2410.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index ab928613afba..4d82761e1585 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -480,7 +480,10 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
- 					 * forces us to send a new START
- 					 * when we change direction
- 					 */
-+					dev_dbg(i2c->dev,
-+						"missing START before write->read\n");
- 					s3c24xx_i2c_stop(i2c, -EINVAL);
-+					break;
- 				}
+diff --git a/drivers/staging/media/atomisp/pci/runtime/isys/src/rx.c b/drivers/staging/media/atomisp/pci/runtime/isys/src/rx.c
+index 29486dcc9a04..79e82fc08aa9 100644
+--- a/drivers/staging/media/atomisp/pci/runtime/isys/src/rx.c
++++ b/drivers/staging/media/atomisp/pci/runtime/isys/src/rx.c
+@@ -490,7 +490,6 @@ unsigned int ia_css_csi2_calculate_input_system_alignment(
+ void ia_css_isys_rx_configure(const rx_cfg_t *config,
+ 			      const enum ia_css_input_mode input_mode)
+ {
+-	bool port_enabled[N_MIPI_PORT_ID];
+ 	bool any_port_enabled = false;
+ 	enum mipi_port_id port;
  
- 				goto retry_write;
+@@ -527,8 +526,6 @@ void ia_css_isys_rx_configure(const rx_cfg_t *config,
+ 					_HRT_CSS_RECEIVER_2400_RX_COUNT_REG_IDX,
+ 					config->rxcount);
+ 
+-		port_enabled[port] = true;
+-
+ 		if (input_mode != IA_CSS_INPUT_MODE_BUFFERED_SENSOR) {
+ 			/* MW: A bit of a hack, straight wiring of the capture
+ 			 * units,assuming they are linearly enumerated. */
 -- 
-2.27.0
+2.30.2
 
