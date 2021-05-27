@@ -2,88 +2,78 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A93FC47089
-	for <linux-i2c@archiver.kernel.org>; Thu, 27 May 2021 00:21:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28E96C4708B
+	for <linux-i2c@archiver.kernel.org>; Thu, 27 May 2021 05:38:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7252F613AB
-	for <linux-i2c@archiver.kernel.org>; Thu, 27 May 2021 00:21:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF565613B6
+	for <linux-i2c@archiver.kernel.org>; Thu, 27 May 2021 05:38:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233633AbhE0AXF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 26 May 2021 20:23:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54340 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233040AbhE0AXE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 May 2021 20:23:04 -0400
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AAAAC061574
-        for <linux-i2c@vger.kernel.org>; Wed, 26 May 2021 17:21:31 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id q7so5271565lfr.6
-        for <linux-i2c@vger.kernel.org>; Wed, 26 May 2021 17:21:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lRcwXTkXFqjHbLkGyM+Iivo9S+3vdfLIMeWV2k96/WM=;
-        b=IcdHg9mtSIbKyQXE7To2tKBA5bjosTWl12QMBa/kT2sO6/0yLESdYBXhe/muIyLQvv
-         SDfxb7HhzfyCzr9groZNH5cT/VyTZl+SFMrPNtiEYC80BuIcBHt/CM1kcnTlXc+I52cG
-         jJ1rp51adY7ITDDDwKFKiWxeZT39YuNeKEVY4REpR8JJYwXY4P1GOdyACypnwShNTwEd
-         UuhGQL0rwxBHlC7RyWiqRpIcoHfVpGk94e9HrlqlLBoXJCms4y/o4Q5FkRume2lEACxC
-         Da4Wq0MKqA3qZYSDTd1OpR2yt47XE9w50Lzs/MgUpwmmqbDytgeEaYc9J96rcf114kvY
-         /82A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lRcwXTkXFqjHbLkGyM+Iivo9S+3vdfLIMeWV2k96/WM=;
-        b=CJ5WzYWee0bTK+Q+GVRNfbL3MGQDvoaAW3nGCZcZsWxfcWm4RzaYco8O6jl5jg+vHF
-         kUl+Qiw4OKHVbQfqmsR9WiWwLVWsV+tONDv5Lk1G+UqrADUKhFoI1eWjBnRqtTIZ1mYO
-         1XBsY7PyJw2uDvmPoqHMCyJKrlMY78Ws3ZZEAxSDBEHP2Y2kHdnXNrMmlq/EcF42Zn80
-         DhTIUysi5U9tcvv58athGxIb2KkXntPA1Qgasn5rrQhPEzNpjW/kHMPDP4T6l3r71RcU
-         pKJqxDSKlvTKOgEJJIuGkB+ps6prbm2+95FHRMh+BxXJ8hbL4v2M1mHxeJ48Lo2xWEpv
-         djIA==
-X-Gm-Message-State: AOAM531CqymswNOaH3gDFXhO2/2sYAcziVgovVLDrZa2LUUY6PqWAgbw
-        62iQcUQuZHoKNK0OrYAVGenGGl5aRK3rEc/zh+3K5A==
-X-Google-Smtp-Source: ABdhPJwrZ46JCTawi7sfWZOjm1/sDDo4oQx316hZrft4mHIMt1cbwJe4Y1fVtf3CXaYRK3O8LpBxZyR4eEcnsnV+p28=
-X-Received: by 2002:ac2:5145:: with SMTP id q5mr457753lfd.529.1622074889945;
- Wed, 26 May 2021 17:21:29 -0700 (PDT)
+        id S233383AbhE0Fju (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 27 May 2021 01:39:50 -0400
+Received: from first.geanix.com ([116.203.34.67]:51024 "EHLO first.geanix.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229500AbhE0Fjr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 27 May 2021 01:39:47 -0400
+Received: from [192.168.64.199] (unknown [185.17.218.86])
+        by first.geanix.com (Postfix) with ESMTPSA id 3D58E46261A;
+        Thu, 27 May 2021 05:38:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
+        t=1622093891; bh=Ea4RLXzKpmKcbvvfHICx48KNrLLyjPII0nhUV1PdrgU=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=KRKlcCafVU9MyTGoRrlNcArOK6OJ771dNJvCEiWYz9FP/MpGk5DpCqvT1sy0LCmmG
+         TdWLWk3IXRunt7uVnwhz0PDSFD1b60vNgd+UTuEaXqu9HHbOdz5u/bA1mtCSgyRGTz
+         Z0mXiRsC5B6xWfSR0KJhZman6LlIkvuLLCq1Me7wp5UBzNyi99kvFYwfbzK6LHMEly
+         EphN/AllDTtK8fNOzLP7/mHoQtyxLnEYEWJtEYAVS1/u4pnCb9wFD4Sy+5Yz155/+5
+         vyanLhzg93VHBvxXzTiMerGVmxRJlWJMxNinrDcFXKHw9rwNLeYKu6MJaqwDHyHwzf
+         gBXN318S8r+QA==
+Subject: Re: [PATCH] i2c: core: Add stub for i2c_verify_client() if
+ !CONFIG_I2C
+To:     Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Tom Rix <trix@redhat.com>, Wolfram Sang <wsa@kernel.org>
+References: <20210526174436.2208277-1-jic23@kernel.org>
+From:   Sean Nyekjaer <sean@geanix.com>
+Message-ID: <e7029066-f66f-b345-adfd-5807d376de2e@geanix.com>
+Date:   Thu, 27 May 2021 07:38:10 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-References: <20210520190105.3772683-1-lee.jones@linaro.org> <20210520190105.3772683-2-lee.jones@linaro.org>
-In-Reply-To: <20210520190105.3772683-2-lee.jones@linaro.org>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Thu, 27 May 2021 02:21:18 +0200
-Message-ID: <CACRpkdYj=kU6ix5GoTYc4bKcskoJM1mmmSbKMW4yEjRy4f3Zwg@mail.gmail.com>
-Subject: Re: [PATCH 01/16] i2c: busses: i2c-nomadik: Fix formatting issue
- pertaining to 'timeout'
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>,
-        Sachin Verma <sachin.verma@st.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210526174436.2208277-1-jic23@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, May 20, 2021 at 9:01 PM Lee Jones <lee.jones@linaro.org> wrote:
+On 26/05/2021 19.44, Jonathan Cameron wrote:
+> From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> 
+> If I2C is not compiled, there is no way we should see a call to
+> i2c_verify_client() on a device that is an i2c client. As such,
+> provide a stub to return NULL to resolve an associated build failure.
+> 
+> The build is failing with this link error
+> ld: fxls8962af-core.o: in function `fxls8962af_fifo_transfer':
+> fxls8962af-core.c: undefined reference to `i2c_verify_client'
+> 
+> Reported-by: Tom Rix <trix@redhat.com>
+> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Fixes: 68068fad0e1c ("iio: accel: fxls8962af: fix errata bug E3 - I2C burst reads")
+> Cc: Sean Nyekjaer <sean@geanix.com>
+> Cc: Wolfram Sang <wsa@kernel.org>
+Reviewed-by: Sean Nyekjaer <sean@geanix.com>
+> ---
+> 
+> Note the broken patch is only in the IIO/togreg branch at the moment.
 
-> Fixes the following W=1 kernel build warning(s):
->
->  drivers/i2c/busses/i2c-nomadik.c:184: warning: Function parameter or member 'timeout' not described in 'nmk_i2c_dev'
->
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
-> Cc: Sachin Verma <sachin.verma@st.com>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-i2c@vger.kernel.org
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Didn't quite get that the stub was should go in linux/i2c.h, thought I had to make a stub in the driver.
+But this seems appropriate :)
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-
-Yours,
-Linus Walleij
+/Sean
