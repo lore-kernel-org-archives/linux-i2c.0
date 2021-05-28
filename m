@@ -2,140 +2,119 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13E1BC47087
-	for <linux-i2c@archiver.kernel.org>; Fri, 28 May 2021 09:13:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36C48C4708C
+	for <linux-i2c@archiver.kernel.org>; Fri, 28 May 2021 09:23:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5820613B5
-	for <linux-i2c@archiver.kernel.org>; Fri, 28 May 2021 09:13:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1605E613E5
+	for <linux-i2c@archiver.kernel.org>; Fri, 28 May 2021 09:23:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235179AbhE1JPK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 28 May 2021 05:15:10 -0400
-Received: from mga02.intel.com ([134.134.136.20]:32115 "EHLO mga02.intel.com"
+        id S234520AbhE1JYn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 28 May 2021 05:24:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234967AbhE1JPJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 28 May 2021 05:15:09 -0400
-IronPort-SDR: QgrU6mBBd4z6qej/kxakXkpI3PsEOUH1Z00hMM0I7uJOOs07sB74K8DzFxl+78znduAapWCkNO
- oEghAcqJ3eRQ==
-X-IronPort-AV: E=McAfee;i="6200,9189,9997"; a="190040211"
-X-IronPort-AV: E=Sophos;i="5.83,229,1616482800"; 
-   d="scan'208";a="190040211"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2021 02:13:34 -0700
-IronPort-SDR: 9w4uSKreoXGZPMZikJmizy0IOVXPpcwXWsO0G2R2+zOTfY75UchsXRmhA+8tVemaOoNcv/9lp5
- trbTOBBfW3MA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,229,1616482800"; 
-   d="scan'208";a="473013704"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by FMSMGA003.fm.intel.com with ESMTP; 28 May 2021 02:13:32 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 4E9EBB7; Fri, 28 May 2021 12:13:55 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Wolfram Sang <wsa@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 2/2] i2c: core: Propagate all possible errors when requesting recovery GPIOs
-Date:   Fri, 28 May 2021 12:13:51 +0300
-Message-Id: <20210528091351.70699-2-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210528091351.70699-1-andriy.shevchenko@linux.intel.com>
-References: <20210528091351.70699-1-andriy.shevchenko@linux.intel.com>
+        id S230205AbhE1JYn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 28 May 2021 05:24:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57F896127A;
+        Fri, 28 May 2021 09:23:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622193789;
+        bh=MjONBw7wRUJTyBcaMGUBEu7fsH8mQc/WqqIXCP5czV8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ddzvog6ftfvS2jFuWUTZJrqBMCMsIQ5RnXMAX6ZXWdl51PumQv/6ac+tiArzNG1D0
+         9bwz/Dl/oOt8qKaRnVbtm6zy66cgCK0aC9YH5Ms8IM1H8gWpKWiCimtYDl/oING8zw
+         pRaZkn2OymFwpH7QTMdutQlXEalGJ8+iJFbnStSY+Ry72u40qrQHwjYLiyBICaca7s
+         /HvE8CuONVPdZw+e33Iu1yxoQ8WamgS7EAsoH+GIHTlCezJh2sJcXLJhZrrPXBLBKV
+         AycmSI+1TlaZurn+JlgyFmZXQL4UKAhsLnIfQvKHkF3zTIRGtAcsRefW2Bsi0huYZ8
+         QQCx8meKaYA6A==
+Date:   Fri, 28 May 2021 11:23:06 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Rob Herring <robh@kernel.org>
+Cc:     =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
+        devicetree@vger.kernel.org, Ray Jui <rjui@broadcom.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Scott Branden <sbranden@broadcom.com>
+Subject: Re: [PATCH] dt-bindings: i2c: brcm,iproc-i2c: convert to the
+ json-schema
+Message-ID: <YLC2en7Mj7kurlCd@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
+        devicetree@vger.kernel.org, Ray Jui <rjui@broadcom.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Scott Branden <sbranden@broadcom.com>
+References: <20210512160750.15183-1-zajec5@gmail.com>
+ <1620844516.523024.204087.nullmailer@robh.at.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="sU1nzSdQCIUU5nt7"
+Content-Disposition: inline
+In-Reply-To: <1620844516.523024.204087.nullmailer@robh.at.kernel.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-If GPIO is available but we can't get it by some other, than deferred probe,
-reason, propagate it to the caller.
 
-No functional change since i2c_register_adapter() still cares only about
-deferred probe.
+--sU1nzSdQCIUU5nt7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
-v2: made it as a series to avoid error when applying (LKP)
- drivers/i2c/i2c-core-base.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+Hi Rob,
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index ae1b1b610aca..40b8aa91db9a 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -348,19 +348,20 @@ static int i2c_gpio_init_generic_recovery(struct i2c_adapter *adap)
- 	 * GPIO recovery is available
- 	 */
- 	if (!bri->scl_gpiod) {
--		gpiod = devm_gpiod_get(dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
--		if (PTR_ERR(gpiod) == -EPROBE_DEFER) {
--			ret  = -EPROBE_DEFER;
-+		gpiod = devm_gpiod_get_optional(dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
-+		if (IS_ERR(gpiod)) {
-+			ret = PTR_ERR(gpiod);
- 			goto cleanup_pinctrl_state;
- 		}
--		if (!IS_ERR(gpiod)) {
-+
-+		if (gpiod) {
- 			bri->scl_gpiod = gpiod;
- 			bri->recover_bus = i2c_generic_scl_recovery;
- 			dev_info(dev, "using generic GPIOs for recovery\n");
- 		}
- 	}
- 
--	/* SDA GPIOD line is optional, so we care about DEFER only */
-+	/* SDA GPIO line is optional */
- 	if (!bri->sda_gpiod) {
- 		/*
- 		 * We have SCL. Pull SCL low and wait a bit so that SDA glitches
-@@ -368,18 +369,19 @@ static int i2c_gpio_init_generic_recovery(struct i2c_adapter *adap)
- 		 */
- 		gpiod_direction_output(bri->scl_gpiod, 0);
- 		udelay(10);
--		gpiod = devm_gpiod_get(dev, "sda", GPIOD_IN);
-+
-+		gpiod = devm_gpiod_get_optional(dev, "sda", GPIOD_IN);
- 
- 		/* Wait a bit in case of a SDA glitch, and then release SCL. */
- 		udelay(10);
- 		gpiod_direction_output(bri->scl_gpiod, 1);
- 
--		if (PTR_ERR(gpiod) == -EPROBE_DEFER) {
--			ret = -EPROBE_DEFER;
-+		if (IS_ERR(gpiod)) {
-+			ret = PTR_ERR(gpiod);
- 			goto cleanup_pinctrl_state;
- 		}
--		if (!IS_ERR(gpiod))
--			bri->sda_gpiod = gpiod;
-+
-+		bri->sda_gpiod = gpiod;
- 	}
- 
- cleanup_pinctrl_state:
-@@ -401,12 +403,14 @@ static int i2c_init_recovery(struct i2c_adapter *adap)
- 	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
- 	bool is_error_level = true;
- 	char *err_str;
-+	int ret;
- 
- 	if (!bri)
- 		return 0;
- 
--	if (i2c_gpio_init_recovery(adap) == -EPROBE_DEFER)
--		return -EPROBE_DEFER;
-+	ret = i2c_gpio_init_recovery(adap);
-+	if (ret)
-+		return ret;
- 
- 	if (!bri->recover_bus) {
- 		err_str = "no suitable method provided";
--- 
-2.30.2
+> My bot found errors running 'make DT_CHECKER_FLAGS=3D-m dt_binding_check'
+> on your patch (DT_CHECKER_FLAGS is new in v5.13):
+>=20
+> yamllint warnings/errors:
+>=20
+> dtschema/dtc warnings/errors:
+> Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.example.dt.yaml:0:0:=
+ /example-0/i2c@18008000/wm8750@1a: failed to match any schema with compati=
+ble: ['wlf,wm8750']
 
+A generic question:
+
+So sound/wm8750.txt was not converted yet. However, if this conversion
+is fine otherwise, I'd vote to apply it nonetheless because it is one
+conversion less to do then. Alternatively, we could change the example
+to include a simple EEPROM which has an already converted binding doc.
+
+What is the procedure here?
+
+All the best and thanks for your work!
+
+   Wolfram
+
+
+--sU1nzSdQCIUU5nt7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmCwtnYACgkQFA3kzBSg
+KbY50g//Z/96gKh+DxM8IicUGujbkEgNAgF6V5iKIFkGtFN83AvfB1uoCcF1vGts
+oSnOdiyYqtFbQi+6rWYqsApEYwywKBdeLNOLvFHMgC9dvbl+pw6Q0URFsl7IvXab
+RWIJFv5FakRdGLRHqE0i2zWkKFjxzuyj32inqpx2HXHF2tQ4UpZnH11lD/oIJqul
+WKG+5fuWNVwjd8hqTca+3fQNyZzOlPyk815JNR5ZUVd3vZ5U+IymIQBc9q0KudgQ
+K5GfP85dVk28vMxzuM5eih6hnCmkaD1WCKeclroesPFIbLnm4LhUANLpMn/lIaEZ
+pfAQoi5NBciVG65up8vFJ6onGBCGh+TsEn05djsJjO2y2qRzpAlz/sGEb/UpyegM
+ZhzSQmvOLn5Ic3PRqCM0ZzGj2UgIglo+rb6wP34j3j4TlTPqpOEsu+hGHuou9+7p
+kP5T9APqYxFmtW/5RHQVxnEjxVxt+7jxSHrfNuVj+iJOiS6epcIWzo28RXna/Cei
+h+Yf03aRWCIx6B64VO6921qJzgROcSgpSSS62EB2xFHHrpzjGzHOLuf58eukjGyb
+NbekCRn6ttQrRAdbxXfnGWX+egDLpvxMKvHPbbFqBtHqZRhLOr47LcO/3/PHEs++
+lBLL+2fqKn0VsvGrPhi6U/pOghA27HdmOJ7jrkj6bGyb1gpFCSE=
+=Ylob
+-----END PGP SIGNATURE-----
+
+--sU1nzSdQCIUU5nt7--
