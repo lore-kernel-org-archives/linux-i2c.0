@@ -2,226 +2,266 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C0B3C47080
-	for <linux-i2c@archiver.kernel.org>; Mon, 31 May 2021 13:23:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53803C47082
+	for <linux-i2c@archiver.kernel.org>; Mon, 31 May 2021 13:23:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66D256142C
-	for <linux-i2c@archiver.kernel.org>; Mon, 31 May 2021 13:23:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 373F361423
+	for <linux-i2c@archiver.kernel.org>; Mon, 31 May 2021 13:23:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232088AbhEaNYp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 31 May 2021 09:24:45 -0400
-Received: from mx07-00178001.pphosted.com ([185.132.182.106]:60568 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232281AbhEaNWp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 May 2021 09:22:45 -0400
-Received: from pps.filterd (m0241204.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14VDGG8h017742;
-        Mon, 31 May 2021 15:20:45 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=selector1;
- bh=a2HRjUDuOdBPvwc+9z9T/CFX3ODxZ1xmC88BSw9xlJg=;
- b=lcPQNuc9ZE4ed4uCmXixNOTR7xg9H2S7d+bRAvdugGyN0soEYxPgICLqbxlp/Vjqd085
- AREIzrdxyk/YwFrnYMBJ6OfyEPfFRny74oIhP5M2GcHgQXtsVwVFZDiexAweUzzoAPL8
- lYM4e5quAMtNhvURIKvCxuy0hhJGTbSdO9NEeMdwWHssyasbFuYGjP012uNKMIhko7GS
- CbUu1E1kT7tIDNf/JQiCDeOvqfhh5I/ssBgWJViCu/x7B5TIGGLHnbNcZP2mgZZc3uTw
- WSyppcyE0ZQJwKVGTvxMxjtDWuvsjsnSfM9gfNo1zPQGIpyv4xRDebXpXeM14yY61qv4 xw== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 38vbah4var-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 May 2021 15:20:45 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 11F4410002A;
-        Mon, 31 May 2021 15:20:45 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag2node3.st.com [10.75.127.6])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id EA73924187E;
-        Mon, 31 May 2021 15:20:44 +0200 (CEST)
-Received: from lmecxl0573.lme.st.com (10.75.127.46) by SFHDAG2NODE3.st.com
- (10.75.127.6) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 31 May
- 2021 15:20:43 +0200
-Subject: Re: [PATCH 0/4] Fix the i2c/clk bug of stm32 mcu platform
-To:     <dillon.minfei@gmail.com>, <pierre-yves.mordret@foss.st.com>,
-        <alain.volmat@foss.st.com>, <mcoquelin.stm32@gmail.com>,
-        <alexandre.torgue@foss.st.com>, <sumit.semwal@linaro.org>,
-        <christian.koenig@amd.com>, <mturquette@baylibre.com>
-CC:     <sboyd@kernel.org>, <linux-i2c@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
-        <dri-devel@lists.freedesktop.org>,
-        <linaro-mm-sig@lists.linaro.org>, <linux-clk@vger.kernel.org>
-References: <1620990152-19255-1-git-send-email-dillon.minfei@gmail.com>
-From:   Patrice CHOTARD <patrice.chotard@foss.st.com>
-Message-ID: <401eb514-27bd-03f6-f7a5-22604882b28a@foss.st.com>
-Date:   Mon, 31 May 2021 15:20:42 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S231760AbhEaNY7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 31 May 2021 09:24:59 -0400
+Received: from mail-bn8nam12on2088.outbound.protection.outlook.com ([40.107.237.88]:47584
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231975AbhEaNW5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 31 May 2021 09:22:57 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Ko4BbthXis4HWXsTW2mvkWFZGoQBp0P2aAseMPfEXTHcdvr/eheGxKD7emD5RjBHZ8T9gQEtm4aNLw/U4ge9jXivEu+p/7znFNhZQ2NuxuG+8XqatWTa0ZgGnOlFZcv+27gAPbEMuHVZ99gu8kAv2ZdPA5IZarzKz6wNkC3S8B5zWhiCy7dRtDMGNjyCcw7AGOwUuQY9Zd320xA37RBGzHVIP/N8WOWAfoLHriRECqMpbzgJSy5gWcx6WdQuEueWL7nCfB/Uw6wgwguofsL5XpmCDa2IsK+/BfFNTAMCggQ0KJ0rHJJZLjqGTBErjBJe4vDgtcDDVgIslg0cXf0AjA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=iumiq/0C8WuU8ugMFid/jCCxE70N8/gFak5ZMoT9yNM=;
+ b=nBbapYqiYohd3LXh020cxPftfMSkjyVX8DOBWjxkPsB2eEcwi7/nJ1xkZsYcPedZpGTNZgJmexI8TltgvfDSiU+VxjLZPqO7iqndu3MBNDEyi4Y5VlLoVZHRszA+ZR+oQ+63/WRx4Wc1R2E+TNpxA8HzGHM0UIvDSfidhazg+uUlRuKFixY0tONEAVWrJ6jrscUSOCi60vcHcssqjH0ZLm80Zw4MvxXgr+aGichxDx2Q3ufZo+JphBGV15ON/UFe/x8D27TfcMsdOw+OWPgTOHEJ6n+N6UT/mtB+b3gdtmbLnQWG17cQpjPY4sRpvOZaAhO6H5RHRLGIwj6VX/R/rg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 149.199.62.198) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=xilinx.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=xilinx.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=iumiq/0C8WuU8ugMFid/jCCxE70N8/gFak5ZMoT9yNM=;
+ b=K6FI9Qxg3o/x9CjJfCjlcz6Ms+VxsMyHctqAkWnwyhqWDM6ywulVEvtcMtyRDcHOUwEL+ys526YaMXgSLZOtxTKlFDYYorVN6z5r9K+6q61FLkW5UctNLaZhQCmgVs1Y5dZZYstHPcXtCkBlEkYN+LJNJrmshUCKfrUBr9pU1G4=
+Received: from SN2PR01CA0067.prod.exchangelabs.com (2603:10b6:800::35) by
+ BN8PR02MB5730.namprd02.prod.outlook.com (2603:10b6:408:ae::11) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4173.21; Mon, 31 May 2021 13:21:16 +0000
+Received: from SN1NAM02FT0013.eop-nam02.prod.protection.outlook.com
+ (2603:10b6:800:0:cafe::91) by SN2PR01CA0067.outlook.office365.com
+ (2603:10b6:800::35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.21 via Frontend
+ Transport; Mon, 31 May 2021 13:21:15 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 149.199.62.198)
+ smtp.mailfrom=xilinx.com; vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=pass action=none header.from=xilinx.com;
+Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
+ 149.199.62.198 as permitted sender) receiver=protection.outlook.com;
+ client-ip=149.199.62.198; helo=xsj-pvapexch01.xlnx.xilinx.com;
+Received: from xsj-pvapexch01.xlnx.xilinx.com (149.199.62.198) by
+ SN1NAM02FT0013.mail.protection.outlook.com (10.97.4.188) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.4150.30 via Frontend Transport; Mon, 31 May 2021 13:21:15 +0000
+Received: from xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) by
+ xsj-pvapexch01.xlnx.xilinx.com (172.19.86.40) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Mon, 31 May 2021 06:20:42 -0700
+Received: from smtp.xilinx.com (172.19.127.95) by
+ xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server id
+ 15.1.2176.2 via Frontend Transport; Mon, 31 May 2021 06:20:42 -0700
+Envelope-to: git@xilinx.com,
+ linux-i2c@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org,
+ marex@denx.de
+Received: from [10.140.6.25] (port=53014 helo=xhdnagasure40.xilinx.com)
+        by smtp.xilinx.com with esmtp (Exim 4.90)
+        (envelope-from <raviteja.narayanam@xilinx.com>)
+        id 1lnhqS-0004GE-MU; Mon, 31 May 2021 06:20:41 -0700
+From:   Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+To:     <linux-i2c@vger.kernel.org>, <michal.simek@xilinx.com>
+CC:     <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <git@xilinx.com>, <marex@denx.de>,
+        Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+Subject: [PATCH 04/10] i2c: xiic: Add smbus_block_read functionality
+Date:   Mon, 31 May 2021 07:19:42 -0600
+Message-ID: <20210531131948.19477-5-raviteja.narayanam@xilinx.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20210531131948.19477-1-raviteja.narayanam@xilinx.com>
+References: <20210531131948.19477-1-raviteja.narayanam@xilinx.com>
 MIME-Version: 1.0
-In-Reply-To: <1620990152-19255-1-git-send-email-dillon.minfei@gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.75.127.46]
-X-ClientProxiedBy: SFHDAG1NODE3.st.com (10.75.127.3) To SFHDAG2NODE3.st.com
- (10.75.127.6)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-31_08:2021-05-31,2021-05-31 signatures=0
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a7d5f4b0-0d31-4f2e-a3cd-08d92436f7e7
+X-MS-TrafficTypeDiagnostic: BN8PR02MB5730:
+X-Microsoft-Antispam-PRVS: <BN8PR02MB57304F7A3144E5147FEA1A7DCA3F9@BN8PR02MB5730.namprd02.prod.outlook.com>
+X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ZG8lS9U15VKQOyn8HcOouHdDg0LQE51APXRUGz7vy3toitYSKELMsUNBvE/9AIWFJpBKos2CjbJvf9rtBHWkMfxwGkVaunDU4k/g9lBLGIkCWJwwgN1q5Uta75NjzqMd2uX/hiGVsIGdd+LektqWafEwzi1KTNLpZt27aKJ7t0pDA9RSZ5tm08KP21g+ehqhOo09soC6+/E+QYyxqUJKTpNvyJRQ6Rv+Y5yVgMdbXlv0EUKOjHvTgPWprDzUYiyzqwEMAEY6uTQYSAKuZ41qbkdcUca++QJN/JsRqciNxjKFdKkDR5fLi4Jag4JkUljX1L+9C12w7YvbMS8lQrAjZFEm+BAi6N7k5qMwdvBiFAwMTJ4dP5631yA5WEBQEErwS6T0gJ0ExBR/1VG5r/oH/4ajmPafJPJTtfWR2jr22jg72Pea/NXkcz+2cr2pf8hDWnoWeSM9WHhHGtNTCkBVEHXHQDH0m8YSQTQ3dS67kqsCMLkD0u5jrQg5/IOOfFNEc5P2gHHSkqHRFUbrb23aSnUqFrJZtRgT9ImxluaoDm9ucFtbRZkrHQjPw7HPICtXVBdk+l/D/GqxB43zJX31yM9G5W57D/zaIy1aFFrtyGT4W4StMZAGyWjUfkf8I7QAGLNqt3nXUMp/ucgAL+wK1P1IKB7w3Pv4jNxRTCKhXlzWw6UDEpfXeGESsdrB+I9hyIv8XYEhE2GB1NBlntsg6A==
+X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch01.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(4636009)(396003)(39860400002)(376002)(346002)(136003)(36840700001)(46966006)(7696005)(5660300002)(36860700001)(26005)(426003)(110136005)(186003)(1076003)(2906002)(316002)(8676002)(478600001)(47076005)(8936002)(82310400003)(70206006)(4326008)(6636002)(2616005)(70586007)(43170500006)(82740400003)(7636003)(44832011)(36756003)(83380400001)(356005)(336012)(54906003)(107886003)(9786002)(102446001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: xilinx.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 May 2021 13:21:15.4823
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: a7d5f4b0-0d31-4f2e-a3cd-08d92436f7e7
+X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch01.xlnx.xilinx.com]
+X-MS-Exchange-CrossTenant-AuthSource: SN1NAM02FT0013.eop-nam02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR02MB5730
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Dillon
+smbus_block_read is added to xiic driver to read from few sensors
+which support this command. Since the number of bytes to read is not
+known prior to transfer, we are using xiic standard mode for low level
+control of IP.
 
+Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+---
+ drivers/i2c/busses/i2c-xiic.c | 82 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 76 insertions(+), 6 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index fa2eef9e622f..51b5fd5768db 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -62,6 +62,7 @@ enum xiic_endian {
+  * @singlemaster: Indicates bus is single master
+  * @dynamic: Mode of controller
+  * @prev_msg_tx: Previous message is Tx
++ * @smbus_block_read: Flag to handle block read
+  */
+ struct xiic_i2c {
+ 	struct device *dev;
+@@ -80,6 +81,7 @@ struct xiic_i2c {
+ 	bool singlemaster;
+ 	bool dynamic;
+ 	bool prev_msg_tx;
++	bool smbus_block_read;
+ };
+ 
+ #define XIIC_MSB_OFFSET 0
+@@ -336,6 +338,54 @@ static void xiic_deinit(struct xiic_i2c *i2c)
+ 	xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, cr & ~XIIC_CR_ENABLE_DEVICE_MASK);
+ }
+ 
++static void xiic_smbus_block_read_setup(struct xiic_i2c *i2c)
++{
++	u8 rxmsg_len;
++	u8 rfd_set = 0;
++
++	/*
++	 * Clear the I2C_M_RECV_LEN flag to avoid setting
++	 * message length again
++	 */
++	i2c->rx_msg->flags &= ~I2C_M_RECV_LEN;
++
++	/* Set smbus_block_read flag to identify in isr */
++	i2c->smbus_block_read = true;
++
++	/* Read byte from rx fifo and set message length */
++	rxmsg_len  = xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
++
++	i2c->rx_msg->buf[i2c->rx_pos++] = rxmsg_len;
++
++	/* Check if received length is valid */
++	if (rxmsg_len <= I2C_SMBUS_BLOCK_MAX) {
++		/* Set Receive fifo depth */
++		if (rxmsg_len > IIC_RX_FIFO_DEPTH) {
++			rfd_set = IIC_RX_FIFO_DEPTH - 1;
++			i2c->rx_msg->len = rxmsg_len + 1;
++		} else if ((rxmsg_len == 1) ||
++			   (rxmsg_len == 0)) {
++			/*
++			 * Minimum of 3 bytes required to exit cleanly. 1 byte
++			 * already received, Second byte is being received. Have
++			 * to set NACK in read_rx before receiving the last byte
++			 */
++			i2c->rx_msg->len = 3;
++		} else {
++			rfd_set = rxmsg_len - 2;
++			i2c->rx_msg->len = rxmsg_len + 1;
++		}
++		xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rfd_set);
++
++		return;
++	}
++
++	/* Invalid message length, trigger STATE_ERROR with tx_msg_len in ISR */
++	i2c->tx_msg->len = 3;
++	i2c->smbus_block_read = false;
++	dev_err(i2c->adap.dev.parent, "smbus_block_read Invalid msg length\n");
++}
++
+ static void xiic_read_rx(struct xiic_i2c *i2c)
+ {
+ 	u8 bytes_in_fifo, cr = 0, bytes_to_read = 0;
+@@ -358,6 +408,12 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
+ 	if (!i2c->dynamic) {
+ 		bytes_rem = xiic_rx_space(i2c) - bytes_in_fifo;
+ 
++		/* Set msg length if smbus_block_read */
++		if (i2c->rx_msg->flags & I2C_M_RECV_LEN) {
++			xiic_smbus_block_read_setup(i2c);
++			return;
++		}
++
+ 		if (bytes_rem > IIC_RX_FIFO_DEPTH) {
+ 			bytes_to_read = bytes_in_fifo;
+ 		} else if (bytes_rem > 1) {
+@@ -627,6 +683,12 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
+ 		/* The bus is not busy, disable BusNotBusy interrupt */
+ 		xiic_irq_dis(i2c, XIIC_INTR_BNB_MASK);
+ 
++		if (i2c->tx_msg && i2c->smbus_block_read) {
++			i2c->smbus_block_read = false;
++			/* Set requested message len=1 to indicate STATE_DONE */
++			i2c->tx_msg->len = 1;
++		}
++
+ 		if (!i2c->tx_msg)
+ 			goto out;
+ 
+@@ -755,8 +817,12 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
+ 			rfd_set = IIC_RX_FIFO_DEPTH - 1;
+ 		} else if ((rx_watermark == 1) || (rx_watermark == 0)) {
+ 			rfd_set = rx_watermark - 1;
+-			/* Handle single byte transfer separately */
+-			cr |= XIIC_CR_NO_ACK_MASK;
++
++			/* Set No_ACK, except for smbus_block_read */
++			if (!(i2c->rx_msg->flags & I2C_M_RECV_LEN)) {
++				/* Handle single byte transfer separately */
++				cr |= XIIC_CR_NO_ACK_MASK;
++			}
+ 		} else {
+ 			rfd_set = rx_watermark - 2;
+ 		}
+@@ -986,10 +1052,14 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	/* Initialize prev message type */
+ 	i2c->prev_msg_tx = false;
+ 
+-	/* Enter standard mode only when read length is > 255 bytes */
++	/*
++	 * Enter standard mode only when read length is > 255 bytes or
++	 * for smbus_block_read transaction
++	 */
+ 	for (count = 0; count < i2c->nmsgs; count++) {
+-		if ((i2c->tx_msg[count].flags & I2C_M_RD) &&
+-		    i2c->tx_msg[count].len > MAX_READ_LENGTH_DYNAMIC) {
++		if (((i2c->tx_msg[count].flags & I2C_M_RD) &&
++		     i2c->tx_msg[count].len > MAX_READ_LENGTH_DYNAMIC) ||
++		    (i2c->tx_msg[count].flags & I2C_M_RECV_LEN)) {
+ 			i2c->dynamic = false;
+ 			break;
+ 		}
+@@ -1020,7 +1090,7 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 
+ static u32 xiic_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
+ }
+ 
+ static const struct i2c_algorithm xiic_algorithm = {
+-- 
+2.17.1
 
-On 5/14/21 1:02 PM, dillon.minfei@gmail.com wrote:
-> From: Dillon Min <dillon.minfei@gmail.com>
-> 
-> This seriese fix three i2c/clk bug for stm32 f4/f7
-> - kernel runing in sdram, i2c driver get data timeout
-> - ltdc clk turn off after kernel console active
-> - kernel hang in set ltdc clock rate
-> 
-> clk bug found on stm32f429/f469-disco board
-> 
-> Hi Patrice:
-> below is the guide to verify the patch:
-> 
-> setup test env with following files(link at below 'files link'):
-> [1] u-boot-dtb.bin
-> [2] rootfs zip file (used in kernel initramfs)
-> [3] u-boot's mkimage to create itb file
-> [4] kernel config file
-> [5] my itb with-or-without i2c patch
-> 
-> This patch based on kernel commit:
-> 88b06399c9c766c283e070b022b5ceafa4f63f19
-> 
-> Note:
-> panel-ilitek-ili9341.c is the driver which was submitted last year, but not
-> get accepted. it's used to setup touch screen calibration, then test i2c.
-> 
-> create itb file(please correct path of 'data'):
-> ./mkimage -f stm32.its stm32.itb
-> 
-> HW setup:
-> console:
->        PA9, PA10
->        usart0
->        serial@40011000
->        115200 8n1
-> 
-> -- flash u-boot.bin to stm32f429-disco on PC
-> $ sudo openocd -f board/stm32f429discovery.cfg -c \
->   '{PATH-TO-YOUR-UBOOT}/u-boot-dtb.bin 0x08000000 exit reset'
-> 
-> -- setup kernel load bootargs at u-boot
-> U-Boot > setenv bootargs 'console=tty0 console=ttySTM0,115200
->                     root=/dev/ram rdinit=/linuxrc loglevel=8 fbcon=rotate:2'
-> U-Boot > loady;bootm
-> (download stm32.dtb or your kernel with itb format, or download zImage, dtb)
-> 
-
-
-Thanks for these informations
-I was able to load and boot DTB and uImage directly in SDRAM as you suggested, 
-i saw Linux logo and kernel log on the STM32F429-disco display, 
-but i can't reach the login.
-
-The last kernel log i got is :
-
-Starting kernel ...
-
-[    0.000000] Booting Linux on physical CPU 0x0
-[    0.000000] Linux version 5.13.0-rc1-00082-g9dbbd5cb6240-dirty (nxp11987@lmecxl0573.lme1
-[    0.000000] CPU: ARMv7-M [410fc241] revision 1 (ARMv7M), cr=00000000
-[    0.000000] CPU: unknown data cache, unknown instruction cache
-[    0.000000] OF: fdt: Machine model: STMicroelectronics STM32F429i-DISCO board
-[    0.000000] Zone ranges:
-[    0.000000]   Normal   [mem 0x0000000090000000-0x00000000907fffff]
-[    0.000000] Movable zone start for each node
-[    0.000000] Early memory node ranges
-
-[...]
-
-[    2.637564] printk: console [ttySTM0] enabled
-[    2.747984] panel-ilitek-ili9341 spi0.1: get optional vcc failed
-[    2.758986] spi_stm32 40015000.spi: driver initialized
-[    2.795733] i2c /dev entries driver
-[    2.849955] stmpe-i2c 0-0041: stmpe811 detected, chip id: 0x811
-[    2.922030] stmpe-ts stmpe-ts: DMA mask not set
-[    2.965729] input: stmpe-ts as /devices/platform/soc/40005c00.i2c/i2c-0/0-0041/stmpe-ts0
-[    2.991570] stm32f4-i2c 40005c00.i2c: STM32F4 I2C driver registered
-[    3.058262] [drm] Initialized stm 1.0.0 20170330 for 40016800.display-controller on min0
-[    3.665951] panel-ilitek-ili9341 spi0.1: initialized display rgb interface
-[    3.765208] Console: switching to colour frame buffer device 30x40
-[    4.014269] stm32-display 40016800.display-controller: [drm] fb0: stmdrmfb frame buffere
-[    4.212737] Freeing unused kernel memory: 324K
-[    4.287300] This architecture does not have kernel memory protection.
-[    4.401202] Run /linuxrc as init process
-[    4.478622]   with arguments:
-[    4.555069]     /linuxrc
-[    4.595406]   with environment:
-[    4.672213]     HOME=/
-[    4.712511]     TERM=linux
-[  206.785289] random: crng init done
-
-
-I can't test your I2C patch.
-
-Patrice
-
-
-> -- setup ts_calibrate running env on stm32f429-disco
-> / # export TSLIB_CONFFILE=/etc/ts.conf
-> / # export TSLIB_TSDEVICE=/dev/input/event0
-> / # export TSLIB_CONSOLEDEVICE=none
-> / # export TSLIB_FBDEVICE=/dev/fb0
-> 
-> -- clear screen
-> / # ./fb
-> 
-> -- run ts_calibrate 
-> / # ts_calibrate
-> (you can calibrate touchscreen now, and get below errors)
-> 
-> [  113.942087] stmpe-i2c0-0041: failed to read regs 0x52: -110
-> [  114.063598] stmpe-i2c 0-0041: failed to read reg 0x4b: -16
-> [  114.185629] stmpe-i2c 0-0041: failed to read reg 0x40: -16
-> [  114.307257] stmpe-i2c 0-0041: failed to write reg 0xb: -16
-> 
-> ...
-> with i2c patch applied, you will find below logs:
-> 
-> RAW---------------------> 3164 908 183 118.110884
-> TS_READ_RAW----> x = 3164, y =908, pressure = 183
-> RAW---------------------> 3166 922 126 118.138946
-> TS_READ_RAW----> x = 3166, y = 922, pressure = 126
-> ....
-> 
-> files link:
-> https://drive.google.com/drive/folders/1qNbjChcB6UGtKzne2F5x9_WG_sZFyo3o?usp=sharing
-> 
-> 
-> 
-> 
-> Dillon Min (4):
->   drm/panel: Add ilitek ili9341 panel driver
->   i2c: stm32f4: Fix stmpe811 get xyz data timeout issue
->   clk: stm32: Fix stm32f429's ltdc driver hang in set clock rate
->   clk: stm32: Fix ltdc's clock turn off by clk_disable_unused() after
->     kernel startup
-> 
->  drivers/clk/clk-stm32f4.c                    |   10 +-
->  drivers/gpu/drm/panel/Kconfig                |   12 +
->  drivers/gpu/drm/panel/Makefile               |    1 +
->  drivers/gpu/drm/panel/panel-ilitek-ili9341.c | 1285 ++++++++++++++++++++++++++
->  drivers/i2c/busses/i2c-stm32f4.c             |   12 +-
->  5 files changed, 1310 insertions(+), 10 deletions(-)
->  create mode 100755 drivers/gpu/drm/panel/panel-ilitek-ili9341.c
-> 
