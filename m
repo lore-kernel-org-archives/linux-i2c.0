@@ -2,112 +2,146 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDED7C47080
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Jun 2021 14:04:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BBC5C47080
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Jun 2021 15:03:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C04E561376
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Jun 2021 14:04:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C2D46128A
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Jun 2021 15:03:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233970AbhFAOF6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 1 Jun 2021 10:05:58 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:6120 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233964AbhFAOFz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Jun 2021 10:05:55 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4FvYjg3bTZzYpZN;
-        Tue,  1 Jun 2021 22:01:27 +0800 (CST)
-Received: from dggpeml500017.china.huawei.com (7.185.36.243) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Tue, 1 Jun 2021 22:04:11 +0800
-Received: from huawei.com (10.175.103.91) by dggpeml500017.china.huawei.com
- (7.185.36.243) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Tue, 1 Jun 2021
- 22:04:10 +0800
-From:   Yang Yingliang <yangyingliang@huawei.com>
-To:     <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>
-CC:     <wsa@kernel.org>, <f.fainelli@gmail.com>
-Subject: [PATCH -next] i2c: bcm2835: add missing disable and put clk on error in bcm2835_i2c_probe()
-Date:   Tue, 1 Jun 2021 22:08:35 +0800
-Message-ID: <20210601140835.3595921-1-yangyingliang@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        id S234043AbhFAPEw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 1 Jun 2021 11:04:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34020 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233924AbhFAPEw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Jun 2021 11:04:52 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1129C061574;
+        Tue,  1 Jun 2021 08:03:09 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id cb9so5872975edb.1;
+        Tue, 01 Jun 2021 08:03:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=wxdXKgcJOLVIsdWYp16GD2tdmuCQabo69N9o5gXMFQc=;
+        b=NdaVzt419/0A1UZh5W07t5UVPcFiBxBvZdB5g/unksXj39PhmpYBxuJAYVlxnaykMQ
+         4489Di3p3YKYPEJ1yn7ObtQQZYpAdDlUJvVkd9yhNXbkHgRaYzgzf5EkavaRI6u8bGCn
+         YiO+jh2+f+Ilw8n+5dvetEy4Lrwp4GSIqGbs3CnGYY6g1onO6/xdthZWp8Tss3EXgxgk
+         KuuRkU/jLbTcHDfB+ztVldOu2T/LjGvBxnQwDmeJzKcGQx3mgbin48TrWO2ML/yCgHzk
+         MLVeW6h89EWrWUIvkaMYOCbkcq7end/r50YbL7Qr/O10reTxjycX1DQx+RWl4G3DW/fc
+         bluQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=wxdXKgcJOLVIsdWYp16GD2tdmuCQabo69N9o5gXMFQc=;
+        b=nfDbVpc3zoDW1A3qgzqJb9mcMIVzkGGeel0R+phWqtJ0Xg6zNf6rHnvhq3g0/UWPd5
+         sjKxpiqLIfd0ODWMvn49z/MYvWley6kLRY23nifoZr6kPmvVyw4BmNcwFjto5zLDQBzJ
+         +ehKyneLdYO5kJMgTM+XrnR7RW2kmCalUMh+kPMXOj031xEG8RNWRv/m/WMb5vDNeRd4
+         mNImCaT69ijlcAPY5O7hRRoAKi2gJSTFWM/sGYUwrxJ8zy4WwvTnf+5a1FsctdqbD+uA
+         SvO3cOfhRlAi6iVMaorim+Lj4AH5H1q50BTVeLQS+eagsndBFruzDQoxjBqnZgIOp5ag
+         7eGg==
+X-Gm-Message-State: AOAM531+EjKfiDyD1yQrPfj0zX3ZYYbNCB/2Pm3fg5b/otXsL/38V/FB
+        JpXK++jqyg8pP88HpRTcxmY=
+X-Google-Smtp-Source: ABdhPJy0uimJUbz8rqAFk6jlRXH+bWrZe7CLnVSDFX2Sg9HVHp214eXSoB147n7qH0JEYJkGmBGIGw==
+X-Received: by 2002:a05:6402:12d8:: with SMTP id k24mr22591758edx.47.1622559788309;
+        Tue, 01 Jun 2021 08:03:08 -0700 (PDT)
+Received: from localhost ([62.96.65.119])
+        by smtp.gmail.com with ESMTPSA id v19sm1429028ejh.86.2021.06.01.08.03.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Jun 2021 08:03:06 -0700 (PDT)
+Date:   Tue, 1 Jun 2021 17:04:42 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Shariff Md <smohammed@nvidia.com>, linux-i2c@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 15/16] i2c: busses: i2c-tegra-bpmp: Demote kernel-doc
+ abuses
+Message-ID: <YLZMipfJt9rnIqV4@orome.fritz.box>
+References: <20210520190105.3772683-1-lee.jones@linaro.org>
+ <20210520190105.3772683-16-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.103.91]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpeml500017.china.huawei.com (7.185.36.243)
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="YzqOiTxPrUP7Jx1k"
+Content-Disposition: inline
+In-Reply-To: <20210520190105.3772683-16-lee.jones@linaro.org>
+User-Agent: Mutt/2.0.6 (98f8cb83) (2021-03-06)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add clk_disable_unprepare() and clk_rate_exclusive_put() on error
-path in bcm2835_i2c_probe().
 
-Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
----
- drivers/i2c/busses/i2c-bcm2835.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+--YzqOiTxPrUP7Jx1k
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 37443edbf754..a7fa3429c389 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -449,13 +449,14 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	ret = clk_prepare_enable(i2c_dev->bus_clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Couldn't prepare clock");
--		return ret;
-+		goto err_put_clk;
- 	}
- 
- 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (!irq) {
- 		dev_err(&pdev->dev, "No IRQ resource\n");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_disable_clk;
- 	}
- 	i2c_dev->irq = irq->start;
- 
-@@ -463,7 +464,8 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 			  dev_name(&pdev->dev), i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Could not request IRQ\n");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_disable_clk;
- 	}
- 
- 	adap = &i2c_dev->adapter;
-@@ -480,9 +482,17 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
- 
- 	ret = i2c_add_adapter(adap);
--	if (ret)
-+	if (ret) {
- 		free_irq(i2c_dev->irq, i2c_dev);
-+		goto err_disable_clk;
-+	}
- 
-+	return 0;
-+
-+err_disable_clk:
-+	clk_disable_unprepare(i2c_dev->bus_clk);
-+err_put_clk:
-+	clk_rate_exclusive_put(i2c_dev->bus_clk);
- 	return ret;
- }
- 
--- 
-2.25.1
+On Thu, May 20, 2021 at 08:01:04PM +0100, Lee Jones wrote:
+> Fixes the following W=3D1 kernel build warning(s):
+>=20
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:86: warning: Function parameter or m=
+ember 'i2c' not described in 'tegra_bpmp_serialize_i2c_msg'
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:86: warning: Function parameter or m=
+ember 'request' not described in 'tegra_bpmp_serialize_i2c_msg'
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:86: warning: Function parameter or m=
+ember 'msgs' not described in 'tegra_bpmp_serialize_i2c_msg'
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:86: warning: Function parameter or m=
+ember 'num' not described in 'tegra_bpmp_serialize_i2c_msg'
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:86: warning: expecting prototype for=
+ The serialized I2C format is simply the following(). Prototype was for teg=
+ra_bpmp_serialize_i2c_msg() instead
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:130: warning: Function parameter or =
+member 'i2c' not described in 'tegra_bpmp_i2c_deserialize'
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:130: warning: Function parameter or =
+member 'response' not described in 'tegra_bpmp_i2c_deserialize'
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:130: warning: Function parameter or =
+member 'msgs' not described in 'tegra_bpmp_i2c_deserialize'
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:130: warning: Function parameter or =
+member 'num' not described in 'tegra_bpmp_i2c_deserialize'
+>  drivers/i2c/busses/i2c-tegra-bpmp.c:130: warning: expecting prototype fo=
+r The data in the BPMP(). Prototype was for tegra_bpmp_i2c_deserialize() in=
+stead
+>=20
+> Cc: Thierry Reding <thierry.reding@gmail.com>
+> Cc: Jonathan Hunter <jonathanh@nvidia.com>
+> Cc: Wolfram Sang <wsa@kernel.org>
+> Cc: Shariff Md <smohammed@nvidia.com>
+> Cc: linux-i2c@vger.kernel.org
+> Cc: linux-tegra@vger.kernel.org
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  drivers/i2c/busses/i2c-tegra-bpmp.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+--YzqOiTxPrUP7Jx1k
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmC2TIcACgkQ3SOs138+
+s6HCoxAAgj33Wj3TAjYzXbOl8ORr2Iol4DmRu6QO+eJJ8/uw3Wl82xiAUFCb9OGK
+13JZpGo+uYttqJs1v372Qd0aGYtMoiTt9ylmRhZ3+N28smNUYUfPWrSpE6cet54W
+Xzd1x2jOqJ/g61yJ4cX0JkvakghNQNQ7nclcbxgfJiv9pgL38IrQ4CVziRuwULz5
+9rbPBTBiBacAUgMLMPPVsLhS4+adpf34CTmZnYFtK4ReVqcZOeI7IZYH853tddWY
+DydaZQRZ5wyjt8/cu+D4m86aKXJQl59GF30vwQ85I8YlES649Kys5YC09dy/ZsXx
+O42GPEEybJZGnF7ERLuzcBEWdRkd2ugXON0iUsHNFphCyrjaib8sqk8VVwH7xGrn
+WyjbUT7vqYhtXxch2sYrrn7OUglRh608r1Lg9h/m5C9n7WVozz7hcB0Fp6AFkpfv
+nHjds7UX88HYIRdX2gbM9BSTEXIgD+ASGi9DnTQagGtwdyZNC5UPoX8iBlSxR+RN
+kLmFZbZXtv1M142wjY46HO5rdc74v728a7cYYGisQKHS9JKJ1ygypHkaqyMfsUs4
+/X/FlQP1Ky0omj6Epoo+oPw+8396axhXcJmO3X3vqPSC5ByhQ9fHaB6wJdsQ/Vt6
+F50mdsAyp77dq+1Y6P//+wQcCOGgQrk/ut5rouhvNCJjmnR3Vok=
+=tO9/
+-----END PGP SIGNATURE-----
+
+--YzqOiTxPrUP7Jx1k--
