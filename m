@@ -2,102 +2,188 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA917C4708F
-	for <linux-i2c@archiver.kernel.org>; Wed,  2 Jun 2021 02:32:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 350BDC4708F
+	for <linux-i2c@archiver.kernel.org>; Wed,  2 Jun 2021 04:42:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3D2D613AD
-	for <linux-i2c@archiver.kernel.org>; Wed,  2 Jun 2021 02:32:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 18C98610E7
+	for <linux-i2c@archiver.kernel.org>; Wed,  2 Jun 2021 04:42:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230413AbhFBCeD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 1 Jun 2021 22:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230400AbhFBCeD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Jun 2021 22:34:03 -0400
-Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [IPv6:2001:df5:b000:5::4])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09828C061574
-        for <linux-i2c@vger.kernel.org>; Tue,  1 Jun 2021 19:32:20 -0700 (PDT)
-Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 8C2DC83646;
-        Wed,  2 Jun 2021 14:32:15 +1200 (NZST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-        s=mail181024; t=1622601135;
-        bh=EQQVSK+0QJTK16+K58HZ49/bcvwdWuz0jHQrnvLd4Rg=;
-        h=From:To:CC:Subject:Date:References:In-Reply-To;
-        b=f4uR3oEr9dZfwpQW/NPhDpbNV3Ljrtr0hrZyn5BtOFIDDvKQ1jkHD1llcvJv/frXU
-         7nnR/5DCWpoTVF1xPhUCIezwUtLoRJeXPdSyhvxr7IbAKS8x/3V9XyxihZEacURcdZ
-         /USqNJ0YcxueNqOK0L+t3+Bmj6bwYbPsCBMznPaJTByl4PQNCVYSTpdSAoERLNoacM
-         4o6E6M0tOxFis2B/jyntHEV9cxt9AakpwCED+ZU6I4Mn0nhswNbO466DcryCCMxsaX
-         wEZS5PCM7TPeyHPByggpnARkh5SGrby06O9FtxZd+5G3Mm6asmfiKhLXgmlEhjAj1M
-         lLXD6kNOE4dCw==
-Received: from svr-chch-ex1.atlnz.lc (Not Verified[2001:df5:b000:bc8::77]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-        id <B60b6edaf0001>; Wed, 02 Jun 2021 14:32:15 +1200
-Received: from svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8::77) by
- svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8::77) with Microsoft SMTP Server
- (TLS) id 15.0.1497.18; Wed, 2 Jun 2021 14:32:15 +1200
-Received: from svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8]) by
- svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8%12]) with mapi id
- 15.00.1497.018; Wed, 2 Jun 2021 14:32:15 +1200
-From:   Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-To:     Ray Jui <ray.jui@broadcom.com>, "wsa@kernel.org" <wsa@kernel.org>,
-        "rjui@broadcom.com" <rjui@broadcom.com>,
-        "sbranden@broadcom.com" <sbranden@broadcom.com>,
-        "bcm-kernel-feedback-list@broadcom.com" 
-        <bcm-kernel-feedback-list@broadcom.com>
-CC:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Richard Laing <Richard.Laing@alliedtelesis.co.nz>
-Subject: Re: [PATCH] i2c: bcm-iproc: Add i2c recovery support
-Thread-Topic: [PATCH] i2c: bcm-iproc: Add i2c recovery support
-Thread-Index: AQHXVacbqgXaQg7ZR0qJitirfUU45Kr+3pAAgABb9QA=
-Date:   Wed, 2 Jun 2021 02:32:14 +0000
-Message-ID: <d133a136-11c1-1693-6f9b-e6fcf6a448f6@alliedtelesis.co.nz>
-References: <20210530225659.17138-1-chris.packham@alliedtelesis.co.nz>
- <7962c2ae-f3c6-66a4-e976-f7edbf80781c@broadcom.com>
-In-Reply-To: <7962c2ae-f3c6-66a4-e976-f7edbf80781c@broadcom.com>
-Accept-Language: en-NZ, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.32.1.11]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <87BADBB809678C4FA734F022485B7B0B@atlnz.lc>
-Content-Transfer-Encoding: base64
+        id S229524AbhFBEny (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 2 Jun 2021 00:43:54 -0400
+Received: from pi.codeconstruct.com.au ([203.29.241.158]:46378 "EHLO
+        codeconstruct.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229658AbhFBEnx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Jun 2021 00:43:53 -0400
+Received: by codeconstruct.com.au (Postfix, from userid 10001)
+        id 52B4C219AE; Wed,  2 Jun 2021 12:42:02 +0800 (AWST)
+From:   Matt Johnston <matt@codeconstruct.com.au>
+To:     linux-i2c@vger.kernel.org, matt@codeconstruct.com.au
+Cc:     linux-aspeed@lists.ozlabs.org, jk@codeconstruct.com.au
+Subject: [RFC PATCH 1/3] i2c: core: Allow 255 byte transfers for SMBus 3.x
+Date:   Wed,  2 Jun 2021 12:41:11 +0800
+Message-Id: <20210602044113.1581347-2-matt@codeconstruct.com.au>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210602044113.1581347-1-matt@codeconstruct.com.au>
+References: <20210602044113.1581347-1-matt@codeconstruct.com.au>
 MIME-Version: 1.0
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=WOcBoUkR c=1 sm=1 tr=0 a=Xf/6aR1Nyvzi7BryhOrcLQ==:117 a=xqWC_Br6kY4A:10 a=oKJsc7D3gJEA:10 a=IkcTkHD0fZMA:10 a=r6YtysWOX24A:10 a=4CoGGOvJKCGszEM0gbIA:9 a=QEXdDO2ut3YA:10
-X-SEG-SpamProfiler-Score: 0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-DQpPbiAyLzA2LzIxIDk6MDMgYW0sIFJheSBKdWkgd3JvdGU6DQo+DQo+IE9uIDUvMzAvMjAyMSAz
-OjU2IFBNLCBDaHJpcyBQYWNraGFtIHdyb3RlOg0KPj4gRnJvbTogUmljaGFyZCBMYWluZyA8cmlj
-aGFyZC5sYWluZ0BhbGxpZWR0ZWxlc2lzLmNvLm56Pg0KPj4NCj4+IFRoZSBiY20taXByb2MgY29u
-dHJvbGxlciBjYW4gcHV0IHRoZSBTREEvU0NMIGxpbmVzIGludG8gYml0LWJhbmcgbW9kZSwNCj4+
-IG1ha2UgdXNlIG9mIHRoaXMgdG8gc3VwcG9ydCBpMmMgYnVzIHJlY292ZXJ5Lg0KPj4NCj4+IFNp
-Z25lZC1vZmYtYnk6IFJpY2hhcmQgTGFpbmcgPHJpY2hhcmQubGFpbmdAYWxsaWVkdGVsZXNpcy5j
-by5uej4NCj4+IFNpZ25lZC1vZmYtYnk6IENocmlzIFBhY2toYW0gPGNocmlzLnBhY2toYW1AYWxs
-aWVkdGVsZXNpcy5jby5uej4NCj4+IC0tLQ0KPHNuaXA+DQo+ICsNCj4+ICtzdGF0aWMgc3RydWN0
-IGkyY19idXNfcmVjb3ZlcnlfaW5mbyBiY21faXByb2NfcmVjb3ZlcnlfaW5mbyA9IHsNCj4gc3Rh
-dGljIGNvbnN0IHN0cnVjdCAuLi4NCg0KVGhlIGtlcm5lbCB0ZXN0IGJvdCBkb2Vzbid0IGxpa2Ug
-dGhlIHN1Z2dlc3Rpb24uDQoNCiA+PiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWJjbS1pcHJvYy5j
-OjEyNjQ6MjY6IGVycm9yOiBhc3NpZ25pbmcgdG8gDQonc3RydWN0IGkyY19idXNfcmVjb3Zlcnlf
-aW5mbyAqJyBmcm9tICdjb25zdCBzdHJ1Y3QgDQppMmNfYnVzX3JlY292ZXJ5X2luZm8gKicgZGlz
-Y2FyZHMgcXVhbGlmaWVycyANClstV2Vycm9yLC1XaW5jb21wYXRpYmxlLXBvaW50ZXItdHlwZXMt
-ZGlzY2FyZHMtcXVhbGlmaWVyc10NCg0KIMKgwqDCoMKgwqDCoMKgwqDCoMKgIGFkYXAtPmJ1c19y
-ZWNvdmVyeV9pbmZvID0gJmJjbV9pcHJvY19yZWNvdmVyeV9pbmZvOw0KIMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIF4g
-fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+DQoNCkkgY2FuIHNlZSB3aHkuIEFyZSB5b3UgaGFwcHkg
-Zm9yIG1lIHRvIGRyb3AgdGhlIGNvbnN0IGluIHYzPyBPciBwZXJoYXBzIA0KeW91IGhhdmUgYSBi
-ZXR0ZXIgc3VnZ2VzdGlvbi4NCg==
+SMBus 3.0 increased the maximum block transfer size from
+32 bytes to 255 bytes. We increase the size of
+struct i2c_smbus_data's block[] member.
+
+i2c_smbus_xfer() and i2c_smbus_xfer_emulated() now support 255 byte
+block operations, other block functions remain limited to 32 bytes for
+compatibility with existing callers.
+
+We allow adapters to indicate support for the larger size with
+I2C_FUNC_SMBUS_V3_BLOCK. Most emulated drivers should be able
+to use 255 byte blocks by replacing I2C_SMBUS_BLOCK_MAX
+with I2C_SMBUS_V3_BLOCK_MAX though some will have hardware limitations
+that need testing.
+
+Signed-off-by: Matt Johnston <matt@codeconstruct.com.au>
+---
+ drivers/i2c/i2c-core-smbus.c | 20 +++++++++++++-------
+ include/linux/i2c.h          | 13 +++++++++++++
+ include/uapi/linux/i2c.h     |  5 ++++-
+ 3 files changed, 30 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+index d2d32c0fd8c3..8b723d684f54 100644
+--- a/drivers/i2c/i2c-core-smbus.c
++++ b/drivers/i2c/i2c-core-smbus.c
+@@ -295,7 +295,8 @@ static void i2c_smbus_try_get_dmabuf(struct i2c_msg *msg, u8 init_val)
+ 	bool is_read = msg->flags & I2C_M_RD;
+ 	unsigned char *dma_buf;
+ 
+-	dma_buf = kzalloc(I2C_SMBUS_BLOCK_MAX + (is_read ? 2 : 3), GFP_KERNEL);
++	dma_buf = kzalloc(I2C_SMBUS_V3_BLOCK_MAX + (is_read ? 2 : 3),
++		GFP_KERNEL);
+ 	if (!dma_buf)
+ 		return;
+ 
+@@ -321,9 +322,10 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 	 * initialize most things with sane defaults, to keep the code below
+ 	 * somewhat simpler.
+ 	 */
+-	unsigned char msgbuf0[I2C_SMBUS_BLOCK_MAX+3];
+-	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
++	unsigned char msgbuf0[I2C_SMBUS_V3_BLOCK_MAX+3];
++	unsigned char msgbuf1[I2C_SMBUS_V3_BLOCK_MAX+2];
+ 	int nmsgs = read_write == I2C_SMBUS_READ ? 2 : 1;
++	u16 block_max;
+ 	u8 partial_pec = 0;
+ 	int status;
+ 	struct i2c_msg msg[2] = {
+@@ -342,6 +344,10 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 	bool wants_pec = ((flags & I2C_CLIENT_PEC) && size != I2C_SMBUS_QUICK
+ 			  && size != I2C_SMBUS_I2C_BLOCK_DATA);
+ 
++	/* Drivers must opt in to 255 byte max block size */
++	block_max = i2c_check_functionality(adapter, I2C_FUNC_SMBUS_V3_BLOCK)
++			? I2C_SMBUS_V3_BLOCK_MAX : I2C_SMBUS_BLOCK_MAX;
++
+ 	msgbuf0[0] = command;
+ 	switch (size) {
+ 	case I2C_SMBUS_QUICK:
+@@ -391,7 +397,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 			i2c_smbus_try_get_dmabuf(&msg[1], 0);
+ 		} else {
+ 			msg[0].len = data->block[0] + 2;
+-			if (msg[0].len > I2C_SMBUS_BLOCK_MAX + 2) {
++			if (msg[0].len > block_max + 2) {
+ 				dev_err(&adapter->dev,
+ 					"Invalid block write size %d\n",
+ 					data->block[0]);
+@@ -405,7 +411,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 	case I2C_SMBUS_BLOCK_PROC_CALL:
+ 		nmsgs = 2; /* Another special case */
+ 		read_write = I2C_SMBUS_READ;
+-		if (data->block[0] > I2C_SMBUS_BLOCK_MAX) {
++		if (data->block[0] > block_max) {
+ 			dev_err(&adapter->dev,
+ 				"Invalid block write size %d\n",
+ 				data->block[0]);
+@@ -422,7 +428,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 		i2c_smbus_try_get_dmabuf(&msg[1], 0);
+ 		break;
+ 	case I2C_SMBUS_I2C_BLOCK_DATA:
+-		if (data->block[0] > I2C_SMBUS_BLOCK_MAX) {
++		if (data->block[0] > block_max) {
+ 			dev_err(&adapter->dev, "Invalid block %s size %d\n",
+ 				read_write == I2C_SMBUS_READ ? "read" : "write",
+ 				data->block[0]);
+@@ -490,7 +496,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 			break;
+ 		case I2C_SMBUS_BLOCK_DATA:
+ 		case I2C_SMBUS_BLOCK_PROC_CALL:
+-			if (msg[1].buf[0] > I2C_SMBUS_BLOCK_MAX) {
++			if (msg[1].buf[0] > block_max) {
+ 				dev_err(&adapter->dev,
+ 					"Invalid block size returned: %d\n",
+ 					msg[1].buf[0]);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index e8f2ac8c9c3d..57170468301e 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -50,6 +50,19 @@ typedef int (*i2c_slave_cb_t)(struct i2c_client *client,
+ struct module;
+ struct property_entry;
+ 
++/* SMBus 3.0 extends the maximum block read/write size to 255 (from 32).
++ * The larger size is only supported by some drivers, indicated by
++ * the I2C_FUNC_SMBUS_V3_BLOCK functionality bit.
++ */
++#define I2C_SMBUS_V3_BLOCK_MAX	255	/* As specified in SMBus 3.0 standard */
++
++/* Note compatibility definition in uapi header with 32 byte block */
++union i2c_smbus_data {
++	__u8 byte;
++	__u16 word;
++	__u8 block[I2C_SMBUS_V3_BLOCK_MAX + 1]; /* block[0] is used for length */
++};
++
+ #if IS_ENABLED(CONFIG_I2C)
+ /* Return the Frequency mode string based on the bus frequency */
+ const char *i2c_freq_mode_string(u32 bus_freq_hz);
+diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+index 92326ebde350..7b7d90b50cf0 100644
+--- a/include/uapi/linux/i2c.h
++++ b/include/uapi/linux/i2c.h
+@@ -108,6 +108,7 @@ struct i2c_msg {
+ #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer  */
+ #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr. */
+ #define I2C_FUNC_SMBUS_HOST_NOTIFY	0x10000000 /* SMBus 2.0 or later */
++#define I2C_FUNC_SMBUS_V3_BLOCK		0x20000000 /* Device supports 255 byte block */
+ 
+ #define I2C_FUNC_SMBUS_BYTE		(I2C_FUNC_SMBUS_READ_BYTE | \
+ 					 I2C_FUNC_SMBUS_WRITE_BYTE)
+@@ -137,13 +138,15 @@ struct i2c_msg {
+ /*
+  * Data for SMBus Messages
+  */
+-#define I2C_SMBUS_BLOCK_MAX	32	/* As specified in SMBus standard */
++#define I2C_SMBUS_BLOCK_MAX	32	/* As specified in SMBus 2.0 standard */
++#ifndef __KERNEL__
+ union i2c_smbus_data {
+ 	__u8 byte;
+ 	__u16 word;
+ 	__u8 block[I2C_SMBUS_BLOCK_MAX + 2]; /* block[0] is used for length */
+ 			       /* and one more for user-space compatibility */
+ };
++#endif
+ 
+ /* i2c_smbus_xfer read or write markers */
+ #define I2C_SMBUS_READ	1
+-- 
+2.30.2
+
