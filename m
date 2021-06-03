@@ -2,113 +2,163 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48229C47096
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 20:29:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D46D7C47099
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:40:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2A1DD613D7
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 20:29:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAEC361404
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:40:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbhFCUbS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Jun 2021 16:31:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42510 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229576AbhFCUbR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 3 Jun 2021 16:31:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E826610A8;
-        Thu,  3 Jun 2021 20:29:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622752172;
-        bh=sGq6oKPms0kNvmxNCOxFbzMFtDrdcpap7CSC86qsXjU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=a5oXb7mX6JHtqA2/XlXVpNClLuOvlNa+QCPsDXLyukBVDlS/682k8sC3+ulBz3gRz
-         XBqecb3JPzqHCEg92q+XbORuU4J2IZEoK/jXz1ML6ilJNYauNfbCRKrxeP6fADAakY
-         H6GfidBzWEmOZr5JaggVGASUSCcudoM5fLJ10E7hKqOcPFYhmYGhRkcgEdd/pOGOjy
-         b0PEzPrxk5VJQYyedyu5gsjVYerD3+DUrWDQWlawdP5kGNaMD7BaCZrh+XPw+OpK6F
-         eTcxxtM4FZPjvNea9UP5TvOLPtaAEE935X6B46Crc4xyabLXv25KNVauRpVTX8tfmw
-         5T2AugxDHIvig==
-Date:   Thu, 3 Jun 2021 22:29:29 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Marek Vasut <marex@denx.de>, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 09/16] i2c: busses: i2c-mxs: Demote barely half complete
- kernel-doc header
-Message-ID: <YLk7qcWTZnQmLGkW@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>, Marek Vasut <marex@denx.de>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <20210520190105.3772683-1-lee.jones@linaro.org>
- <20210520190105.3772683-10-lee.jones@linaro.org>
+        id S229803AbhFCWmY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Jun 2021 18:42:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38932 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229704AbhFCWmY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Jun 2021 18:42:24 -0400
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50CF0C06174A;
+        Thu,  3 Jun 2021 15:40:26 -0700 (PDT)
+Received: by mail-wm1-x32a.google.com with SMTP id b145-20020a1c80970000b029019c8c824054so6767140wmd.5;
+        Thu, 03 Jun 2021 15:40:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=9bSfSMQxktukE2bkFT53oq75scSeKdwwSpf8Uvj1M/U=;
+        b=MzlWxnd2BvsZFZ8024ZTALS1je1zPZkCqP70AnL0JswJnOjzEdugOeY1JH0peylslc
+         tv9T/QyHwC9P9iK4XUr82xk/b2oyJPCELFhgo0zLVhglRQZXx0wSicmbdXWOaQlgYw1s
+         w5BaReBCQRkit6RDLLnIu7ivwaFf07rAUmUIwYqWKBQtS8ZyoV+EWLctY/tZNo5MeJv3
+         SlZtjRMV4AVMqJr/sCkUMqwItrpIZR8Zh3mij9zIbcbuIYPAtKl5L62obxtrTLhS2CeB
+         knHgCyCOPe0nitYiuavZhJAVnhGDD7NHgn9eiZyJ+vqOWVR1P2rLEjsjp1wNiG1Gq8Yn
+         joeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=9bSfSMQxktukE2bkFT53oq75scSeKdwwSpf8Uvj1M/U=;
+        b=VoV2KQQ+02+caT8ub9/+oM8mVVl+YhVyCYW9wphl4bpJ4KHl77+nG2hiWsO1luyrXO
+         cn53l32r8ae5ahdq4j4JaiWdtMlPNHYeMZYLAsmjnhr22iT0K1Y8Bhnmd569rmUCYngE
+         N21FzKvtL9QbQHPi/9o9J++dpyEZEdqS2JiGSqmOpGf2v26FdPDfHre0HYlPyxDqA7BU
+         l2dU0G67GjiEq9DnmwAe9wW9RVhM/9AfyDidjR9ho1tmSjQPhym3s6H2AUQ19FyhOZuR
+         x9g0rpVxG/FJN7QzwgxpJJUgtXwuFIAT4AG9CDGjUx6KUiL0B79X2Uew5tCq1T5JoM5F
+         3Pfw==
+X-Gm-Message-State: AOAM530UI3zyQQB2ZWDACzDtoPXETfTXspAjIn+5VeNZVNIgUkcpFdyP
+        4QLfaAtZ4+CZVCcQxw0rxHM=
+X-Google-Smtp-Source: ABdhPJwSTyy/UEJQ5uIrxum+kq4DojYedsdQto1Q/RdQRtly0MAoQIPvCRI7CPKWSvqg6p6/oJRYKw==
+X-Received: by 2002:a05:600c:2194:: with SMTP id e20mr557589wme.173.1622760024967;
+        Thu, 03 Jun 2021 15:40:24 -0700 (PDT)
+Received: from valhalla.home ([91.110.88.218])
+        by smtp.gmail.com with ESMTPSA id f14sm4612103wry.40.2021.06.03.15.40.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Jun 2021 15:40:24 -0700 (PDT)
+From:   Daniel Scally <djrscally@gmail.com>
+To:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Daniel Scally <djrscally@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, devel@acpica.org
+Cc:     Len Brown <lenb@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Mark Gross <mgross@linux.intel.com>,
+        Robert Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
+Subject: [PATCH v5 4/6] gpiolib: acpi: Add acpi_gpio_get_io_resource()
+Date:   Thu,  3 Jun 2021 23:40:05 +0100
+Message-Id: <20210603224007.120560-5-djrscally@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210603224007.120560-1-djrscally@gmail.com>
+References: <20210603224007.120560-1-djrscally@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="6g+7uqXUeTsn23FL"
-Content-Disposition: inline
-In-Reply-To: <20210520190105.3772683-10-lee.jones@linaro.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Add a function to verify that a given acpi_resource represents an IO
+type GPIO resource, and return it if so.
 
---6g+7uqXUeTsn23FL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Daniel Scally <djrscally@gmail.com>
+---
+Changes since v4:
+	- None
 
-On Thu, May 20, 2021 at 08:00:58PM +0100, Lee Jones wrote:
-> Fixes the following W=3D1 kernel build warning(s):
->=20
->  drivers/i2c/busses/i2c-mxs.c:131: warning: Function parameter or member =
-'timing0' not described in 'mxs_i2c_dev'
->  drivers/i2c/busses/i2c-mxs.c:131: warning: Function parameter or member =
-'timing1' not described in 'mxs_i2c_dev'
->  drivers/i2c/busses/i2c-mxs.c:131: warning: Function parameter or member =
-'timing2' not described in 'mxs_i2c_dev'
->  drivers/i2c/busses/i2c-mxs.c:131: warning: Function parameter or member =
-'dmach' not described in 'mxs_i2c_dev'
->  drivers/i2c/busses/i2c-mxs.c:131: warning: Function parameter or member =
-'pio_data' not described in 'mxs_i2c_dev'
->  drivers/i2c/busses/i2c-mxs.c:131: warning: Function parameter or member =
-'addr_data' not described in 'mxs_i2c_dev'
->  drivers/i2c/busses/i2c-mxs.c:131: warning: Function parameter or member =
-'sg_io' not described in 'mxs_i2c_dev'
->  drivers/i2c/busses/i2c-mxs.c:131: warning: Function parameter or member =
-'dma_read' not described in 'mxs_i2c_dev'
+ drivers/gpio/gpiolib-acpi.c | 23 +++++++++++++++++++++++
+ include/linux/acpi.h        |  7 +++++++
+ 2 files changed, 30 insertions(+)
 
-Disabling kernel-doc works around, does not really fix, or?
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 684ddb35d83b..9887bb684575 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -196,6 +196,29 @@ bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
+ }
+ EXPORT_SYMBOL_GPL(acpi_gpio_get_irq_resource);
+ 
++/**
++ * acpi_gpio_get_io_resource - Fetch details of an ACPI resource if it is a GPIO
++ *			       I/O resource or return False if not.
++ * @ares:	Pointer to the ACPI resource to fetch
++ * @agpio:	Pointer to a &struct acpi_resource_gpio to store the output pointer
++ */
++bool acpi_gpio_get_io_resource(struct acpi_resource *ares,
++			       struct acpi_resource_gpio **agpio)
++{
++	struct acpi_resource_gpio *gpio;
++
++	if (ares->type != ACPI_RESOURCE_TYPE_GPIO)
++		return false;
++
++	gpio = &ares->data.gpio;
++	if (gpio->connection_type != ACPI_RESOURCE_GPIO_TYPE_IO)
++		return false;
++
++	*agpio = gpio;
++	return true;
++}
++EXPORT_SYMBOL_GPL(acpi_gpio_get_io_resource);
++
+ static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
+ 				      struct acpi_gpio_event *event)
+ {
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 170b9bebdb2b..e8ba7063c000 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -1098,6 +1098,8 @@ void __acpi_handle_debug(struct _ddebug *descriptor, acpi_handle handle, const c
+ #if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
+ bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
+ 				struct acpi_resource_gpio **agpio);
++bool acpi_gpio_get_io_resource(struct acpi_resource *ares,
++			       struct acpi_resource_gpio **agpio);
+ int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int index);
+ #else
+ static inline bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
+@@ -1105,6 +1107,11 @@ static inline bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
+ {
+ 	return false;
+ }
++static inline bool acpi_gpio_get_io_resource(struct acpi_resource *ares,
++					     struct acpi_resource_gpio **agpio)
++{
++	return false;
++}
+ static inline int acpi_dev_gpio_irq_get_by(struct acpi_device *adev,
+ 					   const char *name, int index)
+ {
+-- 
+2.25.1
 
-
---6g+7uqXUeTsn23FL
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmC5O6kACgkQFA3kzBSg
-Kba+oRAAgn6zXi7ble+SalVCB6J3uzAkonp8GMoF4fc8TxMBZIDhLEGIqJLvYZA4
-Od7iJgHnBT+7ldaJlwfDWtasSvUZCrsjjFWBpRhtoLuCbyqlHO3tOyyUIOKKFvOZ
-OZUnQsAu0CGi1IxPzmlTvj6wUIzzkwd+HdaZyVKe3uMMoDHMUXpMG/r6hNKtyOCm
-HHa87HeM6sIX5ZWY+O7lsv+J+KwGcmGNg/LitlgD3lsSMihyUsWnErH1DrwPOPqd
-krmTufn0qSA4LPXm7dwL1buq/Or/tMxV+skW7T9lW2/ZEWO6xk/EvfBZ1Hw3qORY
-+N5QzivDNgqHQIPl/vWWAF6+Q5NwipdZMxmPN237iQEcR7sfJDhyIClB5RGU9sMr
-SyT/zZOqjIJH+iZDwm29dlpYW4hTpTQOdpv3dG1XcPTXTn4QRlJ4HB7qwwrJPu3k
-2bo1hBmFac7Y6daENJoL7XfGSLvyv8iL20KrxTeJ5ksWJmvLzsIV17nb/1lCR6e2
-mP0l0/vijk3Gz261pms8B7++aZrdMR8moqX0WwPcEpIHiG2wByRzOo7hyd0r9e9i
-B1hk+eDDhh/+BjwUalsr4ydtTu32Va4ayC9is+YRwnmoCAGDMn+mRbSm4duTmjM/
-bAPTS06DecWtMoWzBR/+LgcBA6reEsCG7NOdGTl0aQgtHDLrgqU=
-=vqpJ
------END PGP SIGNATURE-----
-
---6g+7uqXUeTsn23FL--
