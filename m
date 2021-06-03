@@ -8,51 +8,51 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D111BC47099
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:41:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 824EEC4709C
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:41:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ACFBF61405
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:41:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B6EE61401
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:41:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229620AbhFCWnY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Jun 2021 18:43:24 -0400
-Received: from mail-wm1-f45.google.com ([209.85.128.45]:55991 "EHLO
-        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229934AbhFCWnW (ORCPT
+        id S229975AbhFCWnZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Jun 2021 18:43:25 -0400
+Received: from mail-wr1-f49.google.com ([209.85.221.49]:34804 "EHLO
+        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229936AbhFCWnW (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Jun 2021 18:43:22 -0400
-Received: by mail-wm1-f45.google.com with SMTP id g204so4271026wmf.5;
-        Thu, 03 Jun 2021 15:41:27 -0700 (PDT)
+Received: by mail-wr1-f49.google.com with SMTP id q5so7390072wrm.1;
+        Thu, 03 Jun 2021 15:41:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=v3QfIydZGkGipcvDZNw73YLVb3iWu6audWMrUd8HLug=;
-        b=IE850zi5NfWVjbNQqLKrNXQ2B8+A3QkwxfHQBdv8nNEJ/QDlymbFB315ixIMLQzkkt
-         J4KqT0dA1h6s10vve/AhkxEX4Y8UhbvNn7bdlwkFaZiHZoOMLtxV77frOVYQBrR70c7z
-         FlazxVAuZ3ujJtp8EZlkvPuOYiAs2m9tE3SISGT6IG1T4pwE5wkgxw8PpLnPuBAS8keP
-         UUOjGyomlg1w1+VYdGXt0nCK/IBIdswNkNbJ/Bw6RKuyoTR0b3klEVnKQ2JJuqR6eWut
-         uv6ZRm8lBff1D/ul/L/Bboywd0tg2LubR7ftIhxhHIuKsG9OYBrZsmPxXGvH+4MT8O2N
-         Iaew==
+        bh=Wr0DQwa2N8Nhh3PpOsvuqJiv8SZNSWRt25YX/z3lHvs=;
+        b=ssFtdsQ/dgMIcbaKvEXljP2D+0jqmA4B3xwbX+/TU8kMTuSSmoh/bmTxZ0FLvj6ItX
+         O0rRbKm0KX//Qdb5pxNawpQcukJYEgsvr/nH5dnIUUaglng25fKqcYrAnrjmBrDzKjlE
+         o9es+3Ab+R2g1Me9SxrTQ99RXhFnkjVD3F2eNFgKredcB2s2rPVKzZaZwF4bdf8mPRil
+         jfsxo+tVYuMcD1jXQtWv9TGXe4mXDwyXYDrkuBYgAzQKPukTpt1SjGd3wJ5EmpxgGKNP
+         EwG9wpha3oCIbJpwJNuG4/qsgWtkcr6gS2hOx8Wk8YkaGNv6tRHMuL9SITig2qfbqPhL
+         wrfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=v3QfIydZGkGipcvDZNw73YLVb3iWu6audWMrUd8HLug=;
-        b=dTDRj4Gckji7KTX/mYGyC89IrzqjwpyMNuEhwC7kK9Z0HhdXl82+jfX7I3bgD8RDgR
-         sYO1tICL47ZJimESSz36iXjPru2XuDe8kAW6AZi45HHkLm8Tb+YRgwLeF+g9zWKg/LjD
-         I2LUqhpt2rryLYWh9tURyUsr6BJ1cAvPpRDKYGgd22RNkvNYc1qBu82MTOHlcD3D9GzT
-         bG8/bVCC6d9W6TRPuLS9zxlI40HyF6nrMycYUpS0v4ypRVj6i0dPhT7eaFjKxdAE6UsO
-         2OJAHWmIeHwv5RZO4TIxjP1setlvidoLju1EvW8/8BLBn1i5OxJiBPiFDzdYc3PRhQxX
-         GOHQ==
-X-Gm-Message-State: AOAM532d8Iac3WP5N0HYjQKlnAmKhiiE5tJHac6sUwCSPYgG/FuhlAIY
-        6ecRfizcxNDeapjrSoRr+XqEL0vQmb8qog==
-X-Google-Smtp-Source: ABdhPJxPO6qYV4aBDuJ2N+E77H1Tpas2++/lXEthBQmgenFk+Okdeo/bakVyhKXtLO1m9BVKU7N0kw==
-X-Received: by 2002:a05:600c:2256:: with SMTP id a22mr567314wmm.113.1622760027280;
-        Thu, 03 Jun 2021 15:40:27 -0700 (PDT)
+        bh=Wr0DQwa2N8Nhh3PpOsvuqJiv8SZNSWRt25YX/z3lHvs=;
+        b=XmDBRtOjbgnwTa64VBAdRco6r8Buz9gm+DWqqfPqLrVet4AH1ILluudXJnKli6dhAa
+         pUu31ZDArQa88n7/rRdsOHGL65Jmk1nJnubCaEtLhKdcYBi6e8P5xE9Yqwdr0H/lO4Ve
+         m564IWIJ/hKuCv8SBJwmEHEPBRf51z1SMWjUa4cMm+1tRd8k/OsyZmBApkfxHRjbGPLL
+         fThAtvDs98oT1XwkzvkFWODfb+6IDaABVWcx8aG47i2Kk49Fj2jXsDjgD4Eq1gAcx+cZ
+         xaM1vHAOA4EX0k/rLFxaQ+r276XglgM4dBwmeu4JusQhTzFenqMQkew27C2SBafFPJRI
+         wNEA==
+X-Gm-Message-State: AOAM530E/AthtpboeuTJrXTcAf1B9LnEQwrcs4CpxPtQAl0drHd3rzVa
+        l6+L6y7LU59UwrzG8DulkjI=
+X-Google-Smtp-Source: ABdhPJylv8HIBUpe0U6Q0glG8qYRFtWczYrpz1dp2LWJF/ICq4hO0HU1F+8SJFoDLIpJEabXS+GJmg==
+X-Received: by 2002:a5d:64a3:: with SMTP id m3mr666708wrp.172.1622760021638;
+        Thu, 03 Jun 2021 15:40:21 -0700 (PDT)
 Received: from valhalla.home ([91.110.88.218])
-        by smtp.gmail.com with ESMTPSA id f14sm4612103wry.40.2021.06.03.15.40.26
+        by smtp.gmail.com with ESMTPSA id f14sm4612103wry.40.2021.06.03.15.40.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Jun 2021 15:40:26 -0700 (PDT)
+        Thu, 03 Jun 2021 15:40:21 -0700 (PDT)
 From:   Daniel Scally <djrscally@gmail.com>
 To:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -71,11 +71,10 @@ Cc:     Len Brown <lenb@kernel.org>,
         Mark Gross <mgross@linux.intel.com>,
         Robert Moore <robert.moore@intel.com>,
         Erik Kaneda <erik.kaneda@intel.com>,
-        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v5 6/6] mfd: tps68470: Remove tps68470 MFD driver
-Date:   Thu,  3 Jun 2021 23:40:07 +0100
-Message-Id: <20210603224007.120560-7-djrscally@gmail.com>
+        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
+Subject: [PATCH v5 1/6] ACPI: scan: Extend acpi_walk_dep_device_list()
+Date:   Thu,  3 Jun 2021 23:40:02 +0100
+Message-Id: <20210603224007.120560-2-djrscally@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210603224007.120560-1-djrscally@gmail.com>
 References: <20210603224007.120560-1-djrscally@gmail.com>
@@ -85,196 +84,384 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This driver only covered one scenario in which ACPI devices with _HID
-INT3472 are found, and its functionality has been taken over by the
-intel-skl-int3472 module, so remove it.
+The acpi_walk_dep_device_list() is not as generalisable as its name
+implies, serving only to decrement the dependency count for each
+dependent device of the input. Extend the function to instead accept
+a callback which can be applied to all the dependencies in acpi_dep_list.
+Replace all existing calls to the function with calls to a wrapper, passing
+a callback that applies the same dependency reduction.
 
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Maximilian Luz <luzmaximilian@gmail.com>  # for platform/surface parts
 Signed-off-by: Daniel Scally <djrscally@gmail.com>
 ---
 Changes since v4:
 	- None
 
- drivers/acpi/pmic/Kconfig |  2 +-
- drivers/gpio/Kconfig      |  2 +-
- drivers/mfd/Kconfig       | 18 --------
- drivers/mfd/Makefile      |  1 -
- drivers/mfd/tps68470.c    | 97 ---------------------------------------
- 5 files changed, 2 insertions(+), 118 deletions(-)
- delete mode 100644 drivers/mfd/tps68470.c
+ drivers/acpi/ec.c                             |  2 +-
+ drivers/acpi/pmic/intel_pmic_chtdc_ti.c       |  2 +-
+ drivers/acpi/scan.c                           | 69 ++++++++++++++-----
+ drivers/gpio/gpiolib-acpi.c                   | 10 +--
+ drivers/i2c/i2c-core-acpi.c                   |  8 +--
+ drivers/platform/surface/aggregator/core.c    |  6 +-
+ drivers/platform/surface/surface3_power.c     | 22 +++---
+ .../platform/surface/surface_acpi_notify.c    |  7 +-
+ include/acpi/acpi_bus.h                       |  7 ++
+ include/linux/acpi.h                          |  4 +-
+ 10 files changed, 90 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/acpi/pmic/Kconfig b/drivers/acpi/pmic/Kconfig
-index 56bbcb2ce61b..f84b8f6038dc 100644
---- a/drivers/acpi/pmic/Kconfig
-+++ b/drivers/acpi/pmic/Kconfig
-@@ -52,7 +52,7 @@ endif	# PMIC_OPREGION
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index 13565629ce0a..3f7680a007a3 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -1627,7 +1627,7 @@ static int acpi_ec_add(struct acpi_device *device)
+ 	WARN(!ret, "Could not request EC cmd io port 0x%lx", ec->command_addr);
  
- config TPS68470_PMIC_OPREGION
- 	bool "ACPI operation region support for TPS68470 PMIC"
--	depends on MFD_TPS68470
-+	depends on INTEL_SKL_INT3472
- 	help
- 	  This config adds ACPI operation region support for TI TPS68470 PMIC.
- 	  TPS68470 device is an advanced power management unit that powers
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 1dd0ec6727fd..10228abeee56 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -1367,7 +1367,7 @@ config GPIO_TPS65912
+ 	/* Reprobe devices depending on the EC */
+-	acpi_walk_dep_device_list(ec->handle);
++	acpi_dev_clear_dependencies(device);
  
- config GPIO_TPS68470
- 	bool "TPS68470 GPIO"
--	depends on MFD_TPS68470
-+	depends on INTEL_SKL_INT3472
- 	help
- 	  Select this option to enable GPIO driver for the TPS68470
- 	  chip family.
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 5c7f2b100191..99c4e1a80ae0 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -1499,24 +1499,6 @@ config MFD_TPS65217
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called tps65217.
+ 	acpi_handle_debug(ec->handle, "enumerated.\n");
+ 	return 0;
+diff --git a/drivers/acpi/pmic/intel_pmic_chtdc_ti.c b/drivers/acpi/pmic/intel_pmic_chtdc_ti.c
+index a5101b07611a..fef7831d0d63 100644
+--- a/drivers/acpi/pmic/intel_pmic_chtdc_ti.c
++++ b/drivers/acpi/pmic/intel_pmic_chtdc_ti.c
+@@ -117,7 +117,7 @@ static int chtdc_ti_pmic_opregion_probe(struct platform_device *pdev)
+ 		return err;
  
--config MFD_TPS68470
--	bool "TI TPS68470 Power Management / LED chips"
--	depends on ACPI && PCI && I2C=y
--	depends on I2C_DESIGNWARE_PLATFORM=y
--	select MFD_CORE
--	select REGMAP_I2C
--	help
--	  If you say yes here you get support for the TPS68470 series of
--	  Power Management / LED chips.
--
--	  These include voltage regulators, LEDs and other features
--	  that are often used in portable devices.
--
--	  This option is a bool as it provides an ACPI operation
--	  region, which must be available before any of the devices
--	  using this are probed. This option also configures the
--	  designware-i2c driver to be built-in, for the same reason.
--
- config MFD_TI_LP873X
- 	tristate "TI LP873X Power Management IC"
- 	depends on I2C
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 4f6d2b8a5f76..8b322d89a0c5 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -105,7 +105,6 @@ obj-$(CONFIG_MFD_TPS65910)	+= tps65910.o
- obj-$(CONFIG_MFD_TPS65912)	+= tps65912-core.o
- obj-$(CONFIG_MFD_TPS65912_I2C)	+= tps65912-i2c.o
- obj-$(CONFIG_MFD_TPS65912_SPI)  += tps65912-spi.o
--obj-$(CONFIG_MFD_TPS68470)	+= tps68470.o
- obj-$(CONFIG_MFD_TPS80031)	+= tps80031.o
- obj-$(CONFIG_MENELAUS)		+= menelaus.o
+ 	/* Re-enumerate devices depending on PMIC */
+-	acpi_walk_dep_device_list(ACPI_HANDLE(pdev->dev.parent));
++	acpi_dev_clear_dependencies(ACPI_COMPANION(pdev->dev.parent));
+ 	return 0;
+ }
  
-diff --git a/drivers/mfd/tps68470.c b/drivers/mfd/tps68470.c
-deleted file mode 100644
-index 4a4df4ffd18c..000000000000
---- a/drivers/mfd/tps68470.c
-+++ /dev/null
-@@ -1,97 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- * TPS68470 chip Parent driver
-- *
-- * Copyright (C) 2017 Intel Corporation
-- *
-- * Authors:
-- *	Rajmohan Mani <rajmohan.mani@intel.com>
-- *	Tianshu Qiu <tian.shu.qiu@intel.com>
-- *	Jian Xu Zheng <jian.xu.zheng@intel.com>
-- *	Yuning Pu <yuning.pu@intel.com>
-- */
--
--#include <linux/acpi.h>
--#include <linux/delay.h>
--#include <linux/i2c.h>
--#include <linux/init.h>
--#include <linux/mfd/core.h>
--#include <linux/mfd/tps68470.h>
--#include <linux/regmap.h>
--
--static const struct mfd_cell tps68470s[] = {
--	{ .name = "tps68470-gpio" },
--	{ .name = "tps68470_pmic_opregion" },
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 453eff8ec8c3..195635c3462b 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -47,12 +47,6 @@ static DEFINE_MUTEX(acpi_hp_context_lock);
+  */
+ static u64 spcr_uart_addr;
+ 
+-struct acpi_dep_data {
+-	struct list_head node;
+-	acpi_handle supplier;
+-	acpi_handle consumer;
 -};
 -
--static const struct regmap_config tps68470_regmap_config = {
--	.reg_bits = 8,
--	.val_bits = 8,
--	.max_register = TPS68470_REG_MAX,
--};
+ void acpi_scan_lock_acquire(void)
+ {
+ 	mutex_lock(&acpi_scan_lock);
+@@ -2111,30 +2105,69 @@ static void acpi_bus_attach(struct acpi_device *device, bool first_pass)
+ 		device->handler->hotplug.notify_online(device);
+ }
+ 
+-void acpi_walk_dep_device_list(acpi_handle handle)
++static int acpi_scan_clear_dep(struct acpi_dep_data *dep, void *data)
+ {
+-	struct acpi_dep_data *dep, *tmp;
+ 	struct acpi_device *adev;
+ 
++	acpi_bus_get_device(dep->consumer, &adev);
++
++	if (adev) {
++		adev->dep_unmet--;
++		if (!adev->dep_unmet)
++			acpi_bus_attach(adev, true);
++	}
++
++	list_del(&dep->node);
++	kfree(dep);
++
++	return 0;
++}
++
++/**
++ * acpi_walk_dep_device_list - Apply a callback to every entry in acpi_dep_list
++ * @handle:	The ACPI handle of the supplier device
++ * @callback:	Pointer to the callback function to apply
++ * @data:	Pointer to some data to pass to the callback
++ *
++ * The return value of the callback determines this function's behaviour. If 0
++ * is returned we continue to iterate over acpi_dep_list. If a positive value
++ * is returned then the loop is broken but this function returns 0. If a
++ * negative value is returned by the callback then the loop is broken and that
++ * value is returned as the final error.
++ */
++int acpi_walk_dep_device_list(acpi_handle handle,
++			      int (*callback)(struct acpi_dep_data *, void *),
++			      void *data)
++{
++	struct acpi_dep_data *dep, *tmp;
++	int ret;
++
+ 	mutex_lock(&acpi_dep_list_lock);
+ 	list_for_each_entry_safe(dep, tmp, &acpi_dep_list, node) {
+ 		if (dep->supplier == handle) {
+-			acpi_bus_get_device(dep->consumer, &adev);
 -
--static int tps68470_chip_init(struct device *dev, struct regmap *regmap)
--{
--	unsigned int version;
--	int ret;
+-			if (adev) {
+-				adev->dep_unmet--;
+-				if (!adev->dep_unmet)
+-					acpi_bus_attach(adev, true);
+-			}
 -
--	/* Force software reset */
--	ret = regmap_write(regmap, TPS68470_REG_RESET, TPS68470_REG_RESET_MASK);
--	if (ret)
--		return ret;
--
--	ret = regmap_read(regmap, TPS68470_REG_REVID, &version);
--	if (ret) {
--		dev_err(dev, "Failed to read revision register: %d\n", ret);
--		return ret;
--	}
--
--	dev_info(dev, "TPS68470 REVID: 0x%x\n", version);
--
--	return 0;
--}
--
--static int tps68470_probe(struct i2c_client *client)
--{
--	struct device *dev = &client->dev;
--	struct regmap *regmap;
--	int ret;
--
--	regmap = devm_regmap_init_i2c(client, &tps68470_regmap_config);
--	if (IS_ERR(regmap)) {
--		dev_err(dev, "devm_regmap_init_i2c Error %ld\n",
--			PTR_ERR(regmap));
--		return PTR_ERR(regmap);
--	}
--
--	i2c_set_clientdata(client, regmap);
--
--	ret = tps68470_chip_init(dev, regmap);
--	if (ret < 0) {
--		dev_err(dev, "TPS68470 Init Error %d\n", ret);
--		return ret;
--	}
--
--	ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE, tps68470s,
--			      ARRAY_SIZE(tps68470s), NULL, 0, NULL);
--	if (ret < 0) {
--		dev_err(dev, "devm_mfd_add_devices failed: %d\n", ret);
--		return ret;
--	}
--
--	return 0;
--}
--
--static const struct acpi_device_id tps68470_acpi_ids[] = {
--	{"INT3472"},
--	{},
--};
--
--static struct i2c_driver tps68470_driver = {
--	.driver = {
--		   .name = "tps68470",
--		   .acpi_match_table = tps68470_acpi_ids,
--	},
--	.probe_new = tps68470_probe,
--};
--builtin_i2c_driver(tps68470_driver);
+-			list_del(&dep->node);
+-			kfree(dep);
++			ret = callback(dep, data);
++			if (ret)
++				break;
+ 		}
+ 	}
+ 	mutex_unlock(&acpi_dep_list_lock);
++
++	return ret > 0 ? 0 : ret;
+ }
+ EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
+ 
++/**
++ * acpi_dev_clear_dependencies - Inform consumers that the device is now active
++ * @supplier: Pointer to the supplier &struct acpi_device
++ *
++ * Clear dependencies on the given device.
++ */
++void acpi_dev_clear_dependencies(struct acpi_device *supplier)
++{
++	acpi_walk_dep_device_list(supplier->handle, acpi_scan_clear_dep, NULL);
++}
++EXPORT_SYMBOL_GPL(acpi_dev_clear_dependencies);
++
+ /**
+  * acpi_bus_scan - Add ACPI device node objects in a given namespace scope.
+  * @handle: Root of the namespace scope to scan.
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 3ef22a3c104d..5b4111e4be3f 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -1233,14 +1233,14 @@ static void acpi_gpiochip_scan_gpios(struct acpi_gpio_chip *achip)
+ void acpi_gpiochip_add(struct gpio_chip *chip)
+ {
+ 	struct acpi_gpio_chip *acpi_gpio;
+-	acpi_handle handle;
++	struct acpi_device *adev;
+ 	acpi_status status;
+ 
+ 	if (!chip || !chip->parent)
+ 		return;
+ 
+-	handle = ACPI_HANDLE(chip->parent);
+-	if (!handle)
++	adev = ACPI_COMPANION(chip->parent);
++	if (!adev)
+ 		return;
+ 
+ 	acpi_gpio = kzalloc(sizeof(*acpi_gpio), GFP_KERNEL);
+@@ -1254,7 +1254,7 @@ void acpi_gpiochip_add(struct gpio_chip *chip)
+ 	INIT_LIST_HEAD(&acpi_gpio->events);
+ 	INIT_LIST_HEAD(&acpi_gpio->deferred_req_irqs_list_entry);
+ 
+-	status = acpi_attach_data(handle, acpi_gpio_chip_dh, acpi_gpio);
++	status = acpi_attach_data(adev->handle, acpi_gpio_chip_dh, acpi_gpio);
+ 	if (ACPI_FAILURE(status)) {
+ 		dev_err(chip->parent, "Failed to attach ACPI GPIO chip\n");
+ 		kfree(acpi_gpio);
+@@ -1263,7 +1263,7 @@ void acpi_gpiochip_add(struct gpio_chip *chip)
+ 
+ 	acpi_gpiochip_request_regions(acpi_gpio);
+ 	acpi_gpiochip_scan_gpios(acpi_gpio);
+-	acpi_walk_dep_device_list(handle);
++	acpi_dev_clear_dependencies(adev);
+ }
+ 
+ void acpi_gpiochip_remove(struct gpio_chip *chip)
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 8ceaa88dd78f..6f0aa0ed3241 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -259,8 +259,8 @@ static acpi_status i2c_acpi_add_device(acpi_handle handle, u32 level,
+  */
+ void i2c_acpi_register_devices(struct i2c_adapter *adap)
+ {
++	struct acpi_device *adev;
+ 	acpi_status status;
+-	acpi_handle handle;
+ 
+ 	if (!has_acpi_companion(&adap->dev))
+ 		return;
+@@ -275,11 +275,11 @@ void i2c_acpi_register_devices(struct i2c_adapter *adap)
+ 	if (!adap->dev.parent)
+ 		return;
+ 
+-	handle = ACPI_HANDLE(adap->dev.parent);
+-	if (!handle)
++	adev = ACPI_COMPANION(adap->dev.parent);
++	if (!adev)
+ 		return;
+ 
+-	acpi_walk_dep_device_list(handle);
++	acpi_dev_clear_dependencies(adev);
+ }
+ 
+ static const struct acpi_device_id i2c_acpi_force_400khz_device_ids[] = {
+diff --git a/drivers/platform/surface/aggregator/core.c b/drivers/platform/surface/aggregator/core.c
+index 8dc2c267bcd6..517f774a6e60 100644
+--- a/drivers/platform/surface/aggregator/core.c
++++ b/drivers/platform/surface/aggregator/core.c
+@@ -621,8 +621,8 @@ static const struct acpi_gpio_mapping ssam_acpi_gpios[] = {
+ 
+ static int ssam_serial_hub_probe(struct serdev_device *serdev)
+ {
++	struct acpi_device *ssh = ACPI_COMPANION(&serdev->dev);
+ 	struct ssam_controller *ctrl;
+-	acpi_handle *ssh = ACPI_HANDLE(&serdev->dev);
+ 	acpi_status astatus;
+ 	int status;
+ 
+@@ -652,7 +652,7 @@ static int ssam_serial_hub_probe(struct serdev_device *serdev)
+ 	if (status)
+ 		goto err_devopen;
+ 
+-	astatus = ssam_serdev_setup_via_acpi(ssh, serdev);
++	astatus = ssam_serdev_setup_via_acpi(ssh->handle, serdev);
+ 	if (ACPI_FAILURE(astatus)) {
+ 		status = -ENXIO;
+ 		goto err_devinit;
+@@ -706,7 +706,7 @@ static int ssam_serial_hub_probe(struct serdev_device *serdev)
+ 	 *       For now let's thus default power/wakeup to false.
+ 	 */
+ 	device_set_wakeup_capable(&serdev->dev, true);
+-	acpi_walk_dep_device_list(ssh);
++	acpi_dev_clear_dependencies(ssh);
+ 
+ 	return 0;
+ 
+diff --git a/drivers/platform/surface/surface3_power.c b/drivers/platform/surface/surface3_power.c
+index cc4f9cba6856..dea82aa1abd4 100644
+--- a/drivers/platform/surface/surface3_power.c
++++ b/drivers/platform/surface/surface3_power.c
+@@ -446,12 +446,12 @@ mshw0011_space_handler(u32 function, acpi_physical_address command,
+ 
+ static int mshw0011_install_space_handler(struct i2c_client *client)
+ {
+-	acpi_handle handle;
++	struct acpi_device *adev;
+ 	struct mshw0011_handler_data *data;
+ 	acpi_status status;
+ 
+-	handle = ACPI_HANDLE(&client->dev);
+-	if (!handle)
++	adev = ACPI_COMPANION(&client->dev);
++	if (!adev)
+ 		return -ENODEV;
+ 
+ 	data = kzalloc(sizeof(struct mshw0011_handler_data),
+@@ -460,25 +460,25 @@ static int mshw0011_install_space_handler(struct i2c_client *client)
+ 		return -ENOMEM;
+ 
+ 	data->client = client;
+-	status = acpi_bus_attach_private_data(handle, (void *)data);
++	status = acpi_bus_attach_private_data(adev->handle, (void *)data);
+ 	if (ACPI_FAILURE(status)) {
+ 		kfree(data);
+ 		return -ENOMEM;
+ 	}
+ 
+-	status = acpi_install_address_space_handler(handle,
+-				ACPI_ADR_SPACE_GSBUS,
+-				&mshw0011_space_handler,
+-				NULL,
+-				data);
++	status = acpi_install_address_space_handler(adev->handle,
++						    ACPI_ADR_SPACE_GSBUS,
++						    &mshw0011_space_handler,
++						    NULL,
++						    data);
+ 	if (ACPI_FAILURE(status)) {
+ 		dev_err(&client->dev, "Error installing i2c space handler\n");
+-		acpi_bus_detach_private_data(handle);
++		acpi_bus_detach_private_data(adev->handle);
+ 		kfree(data);
+ 		return -ENOMEM;
+ 	}
+ 
+-	acpi_walk_dep_device_list(handle);
++	acpi_dev_clear_dependencies(adev);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/platform/surface/surface_acpi_notify.c b/drivers/platform/surface/surface_acpi_notify.c
+index ef9c1f8e8336..8339988d95c1 100644
+--- a/drivers/platform/surface/surface_acpi_notify.c
++++ b/drivers/platform/surface/surface_acpi_notify.c
+@@ -798,7 +798,7 @@ static int san_consumer_links_setup(struct platform_device *pdev)
+ 
+ static int san_probe(struct platform_device *pdev)
+ {
+-	acpi_handle san = ACPI_HANDLE(&pdev->dev);
++	struct acpi_device *san = ACPI_COMPANION(&pdev->dev);
+ 	struct ssam_controller *ctrl;
+ 	struct san_data *data;
+ 	acpi_status astatus;
+@@ -821,7 +821,8 @@ static int san_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, data);
+ 
+-	astatus = acpi_install_address_space_handler(san, ACPI_ADR_SPACE_GSBUS,
++	astatus = acpi_install_address_space_handler(san->handle,
++						     ACPI_ADR_SPACE_GSBUS,
+ 						     &san_opreg_handler, NULL,
+ 						     &data->info);
+ 	if (ACPI_FAILURE(astatus))
+@@ -835,7 +836,7 @@ static int san_probe(struct platform_device *pdev)
+ 	if (status)
+ 		goto err_install_dev;
+ 
+-	acpi_walk_dep_device_list(san);
++	acpi_dev_clear_dependencies(san);
+ 	return 0;
+ 
+ err_install_dev:
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index 3a82faac5767..0b2c4f170f4d 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -280,6 +280,12 @@ struct acpi_device_power {
+ 	struct acpi_device_power_state states[ACPI_D_STATE_COUNT];	/* Power states (D0-D3Cold) */
+ };
+ 
++struct acpi_dep_data {
++	struct list_head node;
++	acpi_handle supplier;
++	acpi_handle consumer;
++};
++
+ /* Performance Management */
+ 
+ struct acpi_device_perf_flags {
+@@ -685,6 +691,7 @@ static inline bool acpi_device_can_poweroff(struct acpi_device *adev)
+ 
+ bool acpi_dev_hid_uid_match(struct acpi_device *adev, const char *hid2, const char *uid2);
+ 
++void acpi_dev_clear_dependencies(struct acpi_device *supplier);
+ struct acpi_device *
+ acpi_dev_get_next_match_dev(struct acpi_device *adev, const char *hid, const char *uid, s64 hrv);
+ struct acpi_device *
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index c60745f657e9..170b9bebdb2b 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -666,7 +666,9 @@ extern bool acpi_driver_match_device(struct device *dev,
+ 				     const struct device_driver *drv);
+ int acpi_device_uevent_modalias(struct device *, struct kobj_uevent_env *);
+ int acpi_device_modalias(struct device *, char *, int);
+-void acpi_walk_dep_device_list(acpi_handle handle);
++int acpi_walk_dep_device_list(acpi_handle handle,
++			      int (*callback)(struct acpi_dep_data *, void *),
++			      void *data);
+ 
+ struct platform_device *acpi_create_platform_device(struct acpi_device *,
+ 						    struct property_entry *);
 -- 
 2.25.1
 
