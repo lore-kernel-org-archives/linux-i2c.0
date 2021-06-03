@@ -2,160 +2,118 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6315C47242
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:41:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B11BFC47082
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:58:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AA612613D8
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:41:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9476E61411
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:58:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229981AbhFCWn0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Jun 2021 18:43:26 -0400
-Received: from mail-wr1-f43.google.com ([209.85.221.43]:42708 "EHLO
-        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229961AbhFCWn0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Jun 2021 18:43:26 -0400
-Received: by mail-wr1-f43.google.com with SMTP id c5so7337648wrq.9;
-        Thu, 03 Jun 2021 15:41:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Kmp6dSBMRLiq8EO1sTf6qChRpauTe2dmrjHETj38s2U=;
-        b=Q1tjpkAdYyR3Hk2RMnBthVZMhmaIQZ4b0k87Z3jNPTj+44FOAZRytw2yyZpmFnWlaW
-         cXp610ctBOV7CBq/ueEGdhM01CbNo3SARSU/8VnnJwheRDRpQn8dnJ0UEzVOKLcSKuqe
-         TiU/Q6G6YO9XGRZ0PSlqCmARuFzCE/sbI/vTUwRyVRvbc/6IH+MISv39zHItESdH+ZDG
-         9ToXHQB8vQi1V9XQ/9NYFXA9zPvV+zhdq3NiEaE7yMItpS7Fv8hbcwkXeGuW//MrOdWr
-         V7OcP9dQat4tTLOtEMT+KLclIWTizuLx/h274rT7iKIralGYKdY1tu0FVzAEP/6zQpof
-         wqmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Kmp6dSBMRLiq8EO1sTf6qChRpauTe2dmrjHETj38s2U=;
-        b=IrCg4ViJc6WJ57RwOXbYoeGMLDhH/ihxbzR7mh+hxtAIvQ71HbpdsnfvX39Nb39eHS
-         Qhn++earBwM1pLv5TXwKw77Zcnr3qTYNqiL14X9ctvUWZpHB0JYpjp/GTsvP6vwvBQFJ
-         Nx+B3PgmadYqVO66IsFuHO+Ac8U123WJhF2ehBDIcH2qIgBo2rNtLPbICDwCtXT56eI1
-         dMnlTFx3HEjOwUpCiJCETnKwSRZu8n6Djj7zg6Fmm0Ker5vDSTk7d+ZvzirOZxWCo6yW
-         tNHO8nbilDr3s0aj0YXzyx4JWKOmKKcSisWoaZqlX17c0bJmvCdVb5RZWbWm7CYha0u8
-         Xfiw==
-X-Gm-Message-State: AOAM531DgyVHkU/RSki4X91XRhmSEut0ebPsRto15eFhzqPdYVY/Ot4c
-        k3ZblyweEQO8t+eBE89JNt8=
-X-Google-Smtp-Source: ABdhPJyoBD+gzNGPlwurXFCGJJQgxkpRtARpcMsaH2I3nIg+SviaNB4pCapmAZM/YGd+mHUMvU/FPA==
-X-Received: by 2002:a5d:664c:: with SMTP id f12mr659229wrw.206.1622760023745;
-        Thu, 03 Jun 2021 15:40:23 -0700 (PDT)
-Received: from valhalla.home ([91.110.88.218])
-        by smtp.gmail.com with ESMTPSA id f14sm4612103wry.40.2021.06.03.15.40.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Jun 2021 15:40:23 -0700 (PDT)
-From:   Daniel Scally <djrscally@gmail.com>
-To:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, devel@acpica.org
-Cc:     Len Brown <lenb@kernel.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Mark Gross <mgross@linux.intel.com>,
-        Robert Moore <robert.moore@intel.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v5 3/6] gpiolib: acpi: Export acpi_get_gpiod()
-Date:   Thu,  3 Jun 2021 23:40:04 +0100
-Message-Id: <20210603224007.120560-4-djrscally@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210603224007.120560-1-djrscally@gmail.com>
-References: <20210603224007.120560-1-djrscally@gmail.com>
+        id S229629AbhFCW7q (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Jun 2021 18:59:46 -0400
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:51169 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229775AbhFCW7p (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Jun 2021 18:59:45 -0400
+Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id A6B8E83646;
+        Fri,  4 Jun 2021 10:57:56 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1622761076;
+        bh=UReRs+RXJ9g1itkvp5ajmVGxwj/uORUz3kM60zJLeE8=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To;
+        b=RDZf3I8hfcolBbYx61OK2O8Cpq/Ob4onx7temvJ/TozGAy2ti6e6FHXDHJHjWqvHQ
+         E0qdtws8LuePizxNUczyWERdK+fl+/Vpwns7M2OI5mlt0lDTozqiN+06TQLC0fUts/
+         n2vlZmfNuN8ewATuhNrsTxawYUQ2iVRuJqMPbMkADP7fhcut8x1JspsMlQl+I79iJ0
+         VpdLLHfuFf9xJrkJHUmN/wI40H+k5/SOhn87Rcjl0Hr+xfk3eVJmEevcTDDx4n/h5y
+         18nL8FYzVNcW2oBPhHhGkqwITD+7OScvCcTRhd9zeiMy6w4cdSvOd3898P+f+ZgIRp
+         T+MWajX92Z+fQ==
+Received: from svr-chch-ex1.atlnz.lc (Not Verified[2001:df5:b000:bc8::77]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
+        id <B60b95e740001>; Fri, 04 Jun 2021 10:57:56 +1200
+Received: from svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8)
+ by svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8) with
+ Microsoft SMTP Server (TLS) id 15.0.1497.18; Fri, 4 Jun 2021 10:57:56 +1200
+Received: from svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8]) by
+ svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8%12]) with mapi id
+ 15.00.1497.018; Fri, 4 Jun 2021 10:57:56 +1200
+From:   Chris Packham <Chris.Packham@alliedtelesis.co.nz>
+To:     Jean Delvare <jdelvare@suse.de>
+CC:     "wsa@kernel.org" <wsa@kernel.org>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Subject: Re: [i2c-tools PATCH] tools: i2cbusses: Handle bus names like
+ /dev/i2c-0
+Thread-Topic: [i2c-tools PATCH] tools: i2cbusses: Handle bus names like
+ /dev/i2c-0
+Thread-Index: AQHXUUU4lShaIvwr4kGbbJtnuax88Kr0mMMAgADmLICAChYrAIAClviA
+Date:   Thu, 3 Jun 2021 22:57:56 +0000
+Message-ID: <2ab0c1a3-0b75-1ff7-ae2c-7934e43204c3@alliedtelesis.co.nz>
+References: <20210525090612.26157-1-chris.packham@alliedtelesis.co.nz>
+ <20210526093918.73c40482@endymion>
+ <a9bce37a-085b-f863-e1b0-5f5faa91f063@alliedtelesis.co.nz>
+ <20210602092504.462bc28e@endymion>
+In-Reply-To: <20210602092504.462bc28e@endymion>
+Accept-Language: en-NZ, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.32.1.11]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <2CBB3E4A4955244FA96F3826C542998E@atlnz.lc>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=WOcBoUkR c=1 sm=1 tr=0 a=Xf/6aR1Nyvzi7BryhOrcLQ==:117 a=xqWC_Br6kY4A:10 a=oKJsc7D3gJEA:10 a=IkcTkHD0fZMA:10 a=r6YtysWOX24A:10 a=9414qwDsabXxwPD2zR4A:9 a=QEXdDO2ut3YA:10
+X-SEG-SpamProfiler-Score: 0
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-We need to be able to translate GPIO resources in an ACPI device's _CRS
-into GPIO descriptor array. Those are represented in _CRS as a pathname
-to a GPIO device plus the pin's index number: the acpi_get_gpiod()
-function is perfect for that purpose.
-
-As it's currently only used internally within the GPIO layer, provide and
-export a wrapper function that additionally holds a reference to the GPIO
-device.
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Daniel Scally <djrscally@gmail.com>
----
-Changes since v4:
-	- None
-
- drivers/gpio/gpiolib-acpi.c   | 28 ++++++++++++++++++++++++++++
- include/linux/gpio/consumer.h |  2 ++
- 2 files changed, 30 insertions(+)
-
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index 5b4111e4be3f..684ddb35d83b 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -128,6 +128,34 @@ static struct gpio_desc *acpi_get_gpiod(char *path, int pin)
- 	return gpiochip_get_desc(chip, pin);
- }
- 
-+/**
-+ * acpi_get_and_request_gpiod() - Translate ACPI GPIO pin to GPIO descriptor
-+ *                               and hold a refcount to the GPIO device.
-+ * @path:      ACPI GPIO controller full path name, (e.g. "\\_SB.GPO1")
-+ * @pin:       ACPI GPIO pin number (0-based, controller-relative)
-+ * @label:     Label to pass to gpiod_request()
-+ *
-+ * This function is a simple pass-through to acpi_get_gpiod(), except that
-+ * as it is intended for use outside of the GPIO layer (in a similar fashion to
-+ * gpiod_get_index() for example) it also holds a reference to the GPIO device.
-+ */
-+struct gpio_desc *acpi_get_and_request_gpiod(char *path, int pin, char *label)
-+{
-+	struct gpio_desc *gpio;
-+	int ret;
-+
-+	gpio = acpi_get_gpiod(path, pin);
-+	if (IS_ERR(gpio))
-+		return gpio;
-+
-+	ret = gpiod_request(gpio, label);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	return gpio;
-+}
-+EXPORT_SYMBOL_GPL(acpi_get_and_request_gpiod);
-+
- static irqreturn_t acpi_gpio_irq_handler(int irq, void *data)
- {
- 	struct acpi_gpio_event *event = data;
-diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
-index c73b25bc9213..566feb56601f 100644
---- a/include/linux/gpio/consumer.h
-+++ b/include/linux/gpio/consumer.h
-@@ -692,6 +692,8 @@ int devm_acpi_dev_add_driver_gpios(struct device *dev,
- 				   const struct acpi_gpio_mapping *gpios);
- void devm_acpi_dev_remove_driver_gpios(struct device *dev);
- 
-+struct gpio_desc *acpi_get_and_request_gpiod(char *path, int pin, char *label);
-+
- #else  /* CONFIG_GPIOLIB && CONFIG_ACPI */
- 
- struct acpi_device;
--- 
-2.25.1
-
+T24gMi8wNi8yMSA3OjI1IHBtLCBKZWFuIERlbHZhcmUgd3JvdGU6DQo+IEhpIENocmlzLA0KPg0K
+PiBPbiBXZWQsIDI2IE1heSAyMDIxIDIxOjIzOjA3ICswMDAwLCBDaHJpcyBQYWNraGFtIHdyb3Rl
+Og0KPj4gT24gMjYvMDUvMjEgNzozOSBwbSwgSmVhbiBEZWx2YXJlIHdyb3RlOg0KPj4+IEkgY2Fu
+J3QgcmVhbGx5IHNlZSB0aGUgdmFsdWUgb2YgdGhpcyBjaGFuZ2UsIHNvcnJ5LiBZb3Ugd2FudCB0
+byB1c2UgYQ0KPj4+IGxvbmdlciBwYXJhbWV0ZXIgc28geW91IGNhbiB0YWItY29tcGxldGUgaXQu
+IFRoZSBvcmlnaW5hbCBwYXJhbWV0ZXIgd2FzDQo+Pj4gYSAxLSBvciAyLWRpZ2l0IG51bWJlciwg
+d2hpY2ggaXMgZmFzdGVyIHRvIHR5cGUgdGhhbiAvZDx0YWI+aTI8dGFiPi4NCj4+PiBQbHVzIGlm
+IHlvdSBoYXZlIG11bHRpcGxlIGkyYyBidXNlcywgdGFiIGNvbXBsZXRpb24gY2FuJ3QgZ3Vlc3Mg
+d2hpY2gNCj4+PiBvbmUgeW91IHdhbnQgYW55d2F5LCBzbyB5b3UnbGwgaGF2ZSB0byB0eXBlIHRo
+ZSBidXMgbnVtYmVyIGV2ZW50dWFsbHkuDQo+Pj4NCj4+PiBTbywgd2hhdCBkbyB3ZSBhY3R1YWxs
+eSB3aW4gaGVyZT8NCj4+IE15IG1haW4gbW90aXZhdGlvbiB3YXMgdG8gcmVwbGFjZSBhbiBpbi1o
+b3VzZSB0b29sIHRoYXQgaXMgcHJvdmlkZXMNCj4+IHNpbWlsYXIgZnVuY3Rpb25hbGl0eSBidXQg
+aXQgY3VycmVudGx5IHRha2VzIHRoZSBidXMgYXMgYSBwYXRoLiBBdCBmaXJzdA0KPj4gSSBldmVu
+IHRob3VnaHQgdGhlcmUgd2FzIGEgYnVnIGJlY2F1c2UgSSB0aG91Z2h0ICJvciBhbiBJMkMgYnVz
+IG5hbWUiDQo+PiBtZWFudCB0aGUgcGF0aCwgaXQgd2Fzbid0IHVudGlsIEkgbG9va2VkIGF0IHRo
+ZSBjb2RlIHRoYXQgSSByZWFsaXNlZA0KPj4gdGhpcyB3YXMgdGhlIG5hbWUgdXNlZCBpbiB0aGUg
+a2VybmVsLg0KPiBPSywgdGhhdCdzIGEgYmV0dGVyIGV4cGxhbmF0aW9uLiBCdXQgSSdtIHN0aWxs
+IG5vdCBjb252aW5jZWQgYnkgdGhlDQo+IGJlbmVmaXQuIEknbSBzdXJlIHlvdSBndXlzIGNhbiBs
+ZWFybiBxdWlja2x5IHRvIHBhc3MganVzdCB0aGUgaTJjIGJ1cw0KPiBudW1iZXIgYXMgdGhlIGZp
+cnN0IHBhcmFtZXRlci4gUGx1cyBJIGRvbid0IGxpa2UgeW91ciBpbXBsZW1lbnRhdGlvbg0KPiBm
+b3IgdmFyaW91cyB0ZWNobmljYWwgcmVhc29ucyBhbnl3YXkgKGxpa2UgYWxsb2NhdGluZyBleHRy
+YSBtZW1vcnkgZm9yDQo+IGV2ZXJ5IGJ1cyB3aGVuIHlvdSBtYXkgbmV2ZXIgYWN0dWFsbHkgbmVl
+ZCBpdCwgYW5kIGhhcmQtY29kaW5nIHRoZQ0KPiAvZGV2L2kyYy08Tj4gcGF0dGVybiB3aGVuIHRo
+ZXJlJ3MgYXQgbGVhc3Qgb25lIGFsdGVybmF0aXZlIHN1cHBvcnRlZCBieQ0KPiBpMmMtdG9vbHMg
+YXQgdGhlIG1vbWVudCAtIGFsdGhvdWdoIEknbSB1bnN1cmUgaWYgYW55b25lIHN0aWxsIHVzZXMg
+aXQpLg0KPiBTbyBJJ20gbm90IGdvaW5nIHRvIGFwcGx5IHlvdXIgcGF0Y2gsIHNvcnJ5Lg0KDQpZ
+ZWFoIEkgaGFkIGEgZmV3IGdvZXMgYXQgaW1wbGVtZW50aW5nIHRoaXMuIEl0IHNlZW1lZCB0aGUg
+c2ltcGxlc3QgDQpkZXNwaXRlIHRoZSBtZW1vcnkgdXNlICh3aGljaCBJIHRob3VnaHQgcHJvYmFi
+bHkgd291bGRuJ3QgYmUgYSBwcm9ibGVtIA0KZ2l2ZW4gdGhlIGZhY3QgdGhlc2UgdG9vbHMgcnVu
+IGFuIHRoZW4gc3RvcCkuIEkgYWxzbyB0aG91Z2h0IGFib3V0IA0KcGFzc2luZyB0aGUgYXJndW1l
+bnQgZG93biB0byB0aGUgdW5kZXJseWluZyBvcGVuKCkgaWYgcGFyc2luZyBhcyBhIA0KbnVtYmVy
+IG9yIG5hbWUgZmFpbGVkIGJ1dCBhZ2FpbiB0aGF0IHdvdWxkIGludm9sdmUgYSBmYWlyIGJpdCBv
+ZiBjaHVybi4NCg0KPj4gT25lIGFkdmFudGFnZSBJIGNhbiBzZWUgaXMgdGhhdCB0aGUgL2Q8dGFi
+Pi9pMjx0YWI+IGltcGxpY2l0bHkgdmFsaWRhdGVzDQo+PiB0aGF0IHRoZSBidXMgYWN0dWFsbHkg
+ZXhpc3RzIChhc3N1bWluZyAvZGV2IGlzIG1hbmFnZWQgYnkgZGV2dG1wZnMNCj4+IGFuZC9vciB1
+ZGV2KS4NCj4gVGhhdCdzIG5vdCBhbiBhZHZhbnRhZ2UuIFJ1bm5pbmcgdGhlIGNvbW1hbmQgb24g
+dGhlIHdyb25nIEkyQyBidXMgY291bGQNCj4gaGF2ZSBiYWQgY29uc2VxdWVuY2VzLiBUaGUgb25s
+eSBzYWZlIHdheSB0byB1c2UgdGhlIHRvb2wgd2l0aG91dA0KPiBjaGVja2luZyB0aGUgbGlzdCBv
+ZiBhdmFpbGFibGUgaTJjIGJ1c2VzIGZpcnN0IGlzIHRvIHNlbGVjdCB0aGUgSTJDIGJ1cw0KPiBi
+eSBuYW1lLg0KDQpZZXMgSSBzZWUgeW91ciBwb2ludC4gTW9zdGx5IHdlIHVzZSB0aGVzZSB0b29s
+cyBmb3IgZGVidWdnaW5nIGJyb2tlbiANCnN5c3RlbXMgYW55d2F5IHNvICJiYWQgY29uc2VxdWVu
+Y2VzIiBoYXZlIGFscmVhZHkgaGFwcGVuZWQuDQoNClNvdW5kcyBsaWtlIHNvbWUgcmUtdHJhaW5p
+bmcgb2YgZmluZ2VycyBpcyB0aGUgYmVzdCBhcHByb2FjaC4NCg==
