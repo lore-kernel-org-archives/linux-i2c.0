@@ -2,56 +2,57 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 251CFC47098
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A20EEC4709A
 	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:41:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 06D0E6120F
+	by mail.kernel.org (Postfix) with ESMTP id 91198613D8
 	for <linux-i2c@archiver.kernel.org>; Thu,  3 Jun 2021 22:41:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229839AbhFCWnS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Jun 2021 18:43:18 -0400
-Received: from mail-wm1-f46.google.com ([209.85.128.46]:55988 "EHLO
-        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229697AbhFCWnS (ORCPT
+        id S229916AbhFCWnT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Jun 2021 18:43:19 -0400
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:33686 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229620AbhFCWnS (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Jun 2021 18:43:18 -0400
-Received: by mail-wm1-f46.google.com with SMTP id g204so4270872wmf.5;
-        Thu, 03 Jun 2021 15:41:21 -0700 (PDT)
+Received: by mail-wr1-f52.google.com with SMTP id a20so7421744wrc.0;
+        Thu, 03 Jun 2021 15:41:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AGHMFQROySDuAI1WX8+v+a7AxJ/f1867TETlzbkJ1nQ=;
-        b=r8a9gJC5FypqHxKB+UOi77NVllKbePD3mMj9P4XqyUwlU8wayWLqr+0Dico3Q4l7ta
-         yGgbybsjhf0T0dJuofwy7w8ltOo3CW6920PcGOeif6QF821ltJ6S3Cr+CscucllsudIt
-         cREXhX/6AltO6rsuQQ5ffy4hmQ1bWTFzZLcJTQDeVqEOrdM6UIB+rR7Rff7xtMigNdYs
-         YQBJPgaCsqanE7Lb5DToFWJ3m2VCcbVLFJJS/aX6WLIbw4sEfgu7/1IN5qv51mx4rl1T
-         FW1DHE7bBQNRw7qGF6hgSBlii2HOGycI4g3yr+Pf+bA1aNEnwstZnnPTD1ckRh34Uilb
-         Fshg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=nvI/xJn+zNjZ5L1MPeKPb1oyyFE33mVgV745ZMdAF50=;
+        b=k42izcCLvhCKdJnbAxoaQ032H+mdbsho5piDKxueB9Hv77hIawXJbbH4Gm8G60G8O9
+         Bu+pyqIrKVeYAuNMezslTvOJvXIxukLBEBn5Z0wUt7Rfg2YZrGpvE0ptlQgYfIkoKo9C
+         /F4LrjsEHVP3WzK5fCnNWB4eYeXOJlL1hU09anGpgSq+qW74CqFfDYlkiaaWEPF3UrcX
+         bgtDUXW5cF7BeJec414+W8NnJYe0pITGbZ4+QePS2QzNtluG4PJwdpeSUY375t6ezWq5
+         3ckTKY0IdK448jMfAuLRnS5U0T7Oaa4YnVJlvoDmfD1SHsvWB7y32SG/xbGYvTKTnmbQ
+         BAFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AGHMFQROySDuAI1WX8+v+a7AxJ/f1867TETlzbkJ1nQ=;
-        b=ogUhIWJl+AUj1Da/SxE/XmVd8lcvWDoNLe8QRZ9qJKRQoceaZt2nMlR05K6SLPj1iN
-         Y3VbHST4CroSyeuKbeEki80LRW6RzJ5pR20CcEkojjVXbILZ0nN+845hQLNb0oj32Qzq
-         tjw8linDa/NKcFW6r/dMs/kx0MX4Twwm5CIXMiU28HcUaGJLFhKfjkEWs/LNmmkpWRc1
-         PwACXe3P0fymfgzdsj4R2h6aCYB6kRcP12h1T8fjiPRW6VgmottPuufx0f3RR8KKyYYF
-         hV8mkTYZGmuf34toBgdwUVSko+Au01qJ7oPuSF7mOkzk9CE1Me2O0fQfR+7JZ6t34PAj
-         jhXg==
-X-Gm-Message-State: AOAM5312/z1n10Ft1VT5aEoZsRDz8RVLSeMiETUcNqb14LLm7m7Gx7sU
-        OVSyBVO2BLnnintwrcFDr28=
-X-Google-Smtp-Source: ABdhPJy+3T3gQHQj3wZJFUax3BGw5seXgjSn2gkSQDt8uOtA+WSf1j5i6XYDGFIzhJt+KkxEjgGZ9g==
-X-Received: by 2002:a7b:c052:: with SMTP id u18mr594606wmc.105.1622760020478;
-        Thu, 03 Jun 2021 15:40:20 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=nvI/xJn+zNjZ5L1MPeKPb1oyyFE33mVgV745ZMdAF50=;
+        b=YUoZNGfYzuFFeect5UoF51S4b3i7SndG4j6Xdu/4GGGtzzXoPIgHmTEhezXqF+8OqP
+         Kw2SbnSS+zaVjbr7D21DcBzAYZTVoxrv+FqMmI9wsuZhsv8crXnXosxKZfhFScDvnHyp
+         d4GyeyTAuxjpCGzxXu/hrrrT/sFV5gDx5EwxJlHdFxGZPuRe4V/lRxAX7H8Sk26v+/Vn
+         LSkFuGHzbNi3ftfnrmPvQWfhBWk0jhx6tveuPAW0P+LZdXDAmhRn6Nzo7gaQZ/CdFRZs
+         qNicZDlqnwaJbCYMZXhoWP+3AJuZlToTbWUTFT77SqEOh7u0CYwCFhXIY9LgJ5hujy2o
+         N58Q==
+X-Gm-Message-State: AOAM532SGVUTObj4eAiyzSxtzFgHoSveasnQpyVTuhqAZ8zTbbEIOCUY
+        IsecaM9ohzuzEYMmCSwjA7A=
+X-Google-Smtp-Source: ABdhPJwOxPUXTLCRJf2vNkCBOP09t5jhPt/e9brAgyLsSoZR2RYZU/OM42Fh/mUALcl17wkLZSBbfQ==
+X-Received: by 2002:a5d:5189:: with SMTP id k9mr618934wrv.319.1622760022693;
+        Thu, 03 Jun 2021 15:40:22 -0700 (PDT)
 Received: from valhalla.home ([91.110.88.218])
-        by smtp.gmail.com with ESMTPSA id f14sm4612103wry.40.2021.06.03.15.40.19
+        by smtp.gmail.com with ESMTPSA id f14sm4612103wry.40.2021.06.03.15.40.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Jun 2021 15:40:19 -0700 (PDT)
+        Thu, 03 Jun 2021 15:40:22 -0700 (PDT)
 From:   Daniel Scally <djrscally@gmail.com>
 To:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -70,86 +71,102 @@ Cc:     Len Brown <lenb@kernel.org>,
         Mark Gross <mgross@linux.intel.com>,
         Robert Moore <robert.moore@intel.com>,
         Erik Kaneda <erik.kaneda@intel.com>,
-        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
-Subject: [PATCH v5 0/6] Introduce intel_skl_int3472 module
-Date:   Thu,  3 Jun 2021 23:40:01 +0100
-Message-Id: <20210603224007.120560-1-djrscally@gmail.com>
+        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH v5 2/6] ACPI: scan: Add function to fetch dependent of acpi device
+Date:   Thu,  3 Jun 2021 23:40:03 +0100
+Message-Id: <20210603224007.120560-3-djrscally@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210603224007.120560-1-djrscally@gmail.com>
+References: <20210603224007.120560-1-djrscally@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hello all
+In some ACPI tables we encounter, devices use the _DEP method to assert
+a dependence on other ACPI devices as opposed to the OpRegions that the
+specification intends. We need to be able to find those devices "from"
+the dependee, so add a callback and a wrapper to walk over the
+acpi_dep_list and return the dependent ACPI device.
 
-Bit longer than hoped but here's v5.
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Daniel Scally <djrscally@gmail.com>
+---
+Changes since v5:
 
-v4:
-https://lore.kernel.org/lkml/20210520140928.3252671-1-djrscally@gmail.com/
+	- Functions renamed
 
-v3
-https://lore.kernel.org/lkml/20210222130735.1313443-1-djrscally@gmail.com/
+ drivers/acpi/scan.c     | 35 +++++++++++++++++++++++++++++++++++
+ include/acpi/acpi_bus.h |  1 +
+ 2 files changed, 36 insertions(+)
 
-v2
-https://lore.kernel.org/platform-driver-x86/20210118003428.568892-1-djrscally@gmail.com/
-
-v1
-https://lore.kernel.org/linux-media/20201130133129.1024662-1-djrscally@gmail.com/T/#m91934e12e3d033da2e768e952ea3b4a125ee3e67
-
-The only changes are the dropped patches, renamed functions in 2/6 and most of
-Andy's suggestions on 5/6 - I didn't hit them all yet but didn't want to delay
-this any more.
-
-Series level changelog:
-
-	- Dropped all but the essential patches to simplify merge plan - thanks
-	Hans.
-
-Daniel Scally (6):
-  ACPI: scan: Extend acpi_walk_dep_device_list()
-  ACPI: scan: Add function to fetch dependent of acpi device
-  gpiolib: acpi: Export acpi_get_gpiod()
-  gpiolib: acpi: Add acpi_gpio_get_io_resource()
-  platform/x86: Add intel_skl_int3472 driver
-  mfd: tps68470: Remove tps68470 MFD driver
-
- MAINTAINERS                                   |   5 +
- drivers/acpi/ec.c                             |   2 +-
- drivers/acpi/pmic/Kconfig                     |   2 +-
- drivers/acpi/pmic/intel_pmic_chtdc_ti.c       |   2 +-
- drivers/acpi/scan.c                           | 104 ++++-
- drivers/gpio/Kconfig                          |   2 +-
- drivers/gpio/gpiolib-acpi.c                   |  61 ++-
- drivers/i2c/i2c-core-acpi.c                   |   8 +-
- drivers/mfd/Kconfig                           |  18 -
- drivers/mfd/Makefile                          |   1 -
- drivers/mfd/tps68470.c                        |  97 ----
- drivers/platform/surface/aggregator/core.c    |   6 +-
- drivers/platform/surface/surface3_power.c     |  22 +-
- .../platform/surface/surface_acpi_notify.c    |   7 +-
- drivers/platform/x86/Kconfig                  |   2 +
- drivers/platform/x86/Makefile                 |   1 +
- drivers/platform/x86/intel-int3472/Kconfig    |  30 ++
- drivers/platform/x86/intel-int3472/Makefile   |   5 +
- .../intel_skl_int3472_clk_and_regulator.c     | 196 ++++++++
- .../intel-int3472/intel_skl_int3472_common.c  | 106 +++++
- .../intel-int3472/intel_skl_int3472_common.h  | 118 +++++
- .../intel_skl_int3472_discrete.c              | 417 ++++++++++++++++++
- .../intel_skl_int3472_tps68470.c              | 137 ++++++
- include/acpi/acpi_bus.h                       |   8 +
- include/linux/acpi.h                          |  11 +-
- include/linux/gpio/consumer.h                 |   2 +
- 26 files changed, 1205 insertions(+), 165 deletions(-)
- delete mode 100644 drivers/mfd/tps68470.c
- create mode 100644 drivers/platform/x86/intel-int3472/Kconfig
- create mode 100644 drivers/platform/x86/intel-int3472/Makefile
- create mode 100644 drivers/platform/x86/intel-int3472/intel_skl_int3472_clk_and_regulator.c
- create mode 100644 drivers/platform/x86/intel-int3472/intel_skl_int3472_common.c
- create mode 100644 drivers/platform/x86/intel-int3472/intel_skl_int3472_common.h
- create mode 100644 drivers/platform/x86/intel-int3472/intel_skl_int3472_discrete.c
- create mode 100644 drivers/platform/x86/intel-int3472/intel_skl_int3472_tps68470.c
-
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 195635c3462b..9af64c34e286 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -2105,6 +2105,20 @@ static void acpi_bus_attach(struct acpi_device *device, bool first_pass)
+ 		device->handler->hotplug.notify_online(device);
+ }
+ 
++static int acpi_dev_get_first_consumer_dev_cb(struct acpi_dep_data *dep, void *data)
++{
++	struct acpi_device *adev;
++
++	adev = acpi_bus_get_acpi_device(dep->consumer);
++	if (!adev)
++		/* If we don't find an adev then we want to continue parsing */
++		return 0;
++
++	*(struct acpi_device **)data = adev;
++
++	return 1;
++}
++
+ static int acpi_scan_clear_dep(struct acpi_dep_data *dep, void *data)
+ {
+ 	struct acpi_device *adev;
+@@ -2168,6 +2182,27 @@ void acpi_dev_clear_dependencies(struct acpi_device *supplier)
+ }
+ EXPORT_SYMBOL_GPL(acpi_dev_clear_dependencies);
+ 
++/**
++ * acpi_dev_get_first_consumer_dev - Return ACPI device dependent on @supplier
++ * @supplier: Pointer to the dependee device
++ *
++ * Returns the first &struct acpi_device which declares itself dependent on
++ * @supplier via the _DEP buffer, parsed from the acpi_dep_list.
++ *
++ * The caller is responsible for putting the reference to adev when it is no
++ * longer needed.
++ */
++struct acpi_device *acpi_dev_get_first_consumer_dev(struct acpi_device *supplier)
++{
++	struct acpi_device *adev = NULL;
++
++	acpi_walk_dep_device_list(supplier->handle,
++				  acpi_dev_get_first_consumer_dev_cb, &adev);
++
++	return adev;
++}
++EXPORT_SYMBOL_GPL(acpi_dev_get_first_consumer_dev);
++
+ /**
+  * acpi_bus_scan - Add ACPI device node objects in a given namespace scope.
+  * @handle: Root of the namespace scope to scan.
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index 0b2c4f170f4d..4bed30e61c5b 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -692,6 +692,7 @@ static inline bool acpi_device_can_poweroff(struct acpi_device *adev)
+ bool acpi_dev_hid_uid_match(struct acpi_device *adev, const char *hid2, const char *uid2);
+ 
+ void acpi_dev_clear_dependencies(struct acpi_device *supplier);
++struct acpi_device *acpi_dev_get_first_consumer_dev(struct acpi_device *supplier);
+ struct acpi_device *
+ acpi_dev_get_next_match_dev(struct acpi_device *adev, const char *hid, const char *uid, s64 hrv);
+ struct acpi_device *
 -- 
 2.25.1
 
