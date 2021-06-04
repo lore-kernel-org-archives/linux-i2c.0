@@ -2,147 +2,105 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 994C5C47083
-	for <linux-i2c@archiver.kernel.org>; Fri,  4 Jun 2021 13:57:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B21EC4708F
+	for <linux-i2c@archiver.kernel.org>; Fri,  4 Jun 2021 14:09:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 85948613FF
-	for <linux-i2c@archiver.kernel.org>; Fri,  4 Jun 2021 13:57:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 516866140F
+	for <linux-i2c@archiver.kernel.org>; Fri,  4 Jun 2021 14:09:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230403AbhFDN65 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 4 Jun 2021 09:58:57 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:46778 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230203AbhFDN64 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 4 Jun 2021 09:58:56 -0400
-Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 44AF521A26;
-        Fri,  4 Jun 2021 13:57:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1622815029; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=z2+UtbdG0K09sdy6OOI7W2NBVk+QSBaf9EwZA0VYAWA=;
-        b=ucABSgfv2DJdtPbeWzmBbNRlyIJpI0Y1FcavX0LTspEAd+mS1EP+L9crWgkuecgNJfKe2S
-        ZPUu8YKP59e/cykz92nwOP+OkxFXK7yqO+lHCkrGoAaGzVAtsbXoW2Z6TWFbT/xmcyGY6W
-        ho54hOwOxu053m6LCH+Ofg8MkMMkTY8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1622815029;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=z2+UtbdG0K09sdy6OOI7W2NBVk+QSBaf9EwZA0VYAWA=;
-        b=MVKCYJDw7id0+hMlEEolREH/eisaZ1AyYtHJWCpPV5fz7JCjap40Gv/mKcgts0kLcxniAw
-        /Fq+eHgzu4thdvBQ==
-Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        by imap.suse.de (Postfix) with ESMTP id EFF92118DD;
-        Fri,  4 Jun 2021 13:57:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1622815029; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=z2+UtbdG0K09sdy6OOI7W2NBVk+QSBaf9EwZA0VYAWA=;
-        b=ucABSgfv2DJdtPbeWzmBbNRlyIJpI0Y1FcavX0LTspEAd+mS1EP+L9crWgkuecgNJfKe2S
-        ZPUu8YKP59e/cykz92nwOP+OkxFXK7yqO+lHCkrGoAaGzVAtsbXoW2Z6TWFbT/xmcyGY6W
-        ho54hOwOxu053m6LCH+Ofg8MkMMkTY8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1622815029;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=z2+UtbdG0K09sdy6OOI7W2NBVk+QSBaf9EwZA0VYAWA=;
-        b=MVKCYJDw7id0+hMlEEolREH/eisaZ1AyYtHJWCpPV5fz7JCjap40Gv/mKcgts0kLcxniAw
-        /Fq+eHgzu4thdvBQ==
-Received: from director2.suse.de ([192.168.254.72])
-        by imap3-int with ESMTPSA
-        id tO3MNzQxumCbZAAALh3uQQ
-        (envelope-from <jdelvare@suse.de>); Fri, 04 Jun 2021 13:57:08 +0000
-Date:   Fri, 4 Jun 2021 15:57:08 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     Peter Korsgaard <peter@korsgaard.com>, linux-i2c@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH i2c-tools] Revert "tools: i2ctransfer: add check for
- returned length from driver"
-Message-ID: <20210604155708.14159db0@endymion>
-In-Reply-To: <YLew8cFWTRQKrBuk@kunai>
-References: <20210209110556.18814-1-wsa+renesas@sang-engineering.com>
-        <20210226174337.63a9c2a6@endymion>
-        <20210310204648.GA332643@ninjato>
-        <87tuoe5zfc.fsf@dell.be.48ers.dk>
-        <20210413125433.GA9879@kunai>
-        <20210521132158.6e0689c0@endymion>
-        <YK1fwC4aR5RKTPcB@kunai>
-        <20210602110332.73f9cbc1@endymion>
-        <YLew8cFWTRQKrBuk@kunai>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S230288AbhFDOLn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 4 Jun 2021 10:11:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43512 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230122AbhFDOLm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 4 Jun 2021 10:11:42 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CAD7C061767;
+        Fri,  4 Jun 2021 07:09:46 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id o2-20020a05600c4fc2b029019a0a8f959dso5711326wmq.1;
+        Fri, 04 Jun 2021 07:09:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=Cv3AoU/Qne3R+pDAUBp+7K/h07fGByZilOe5eXOw1P8=;
+        b=SjlE5dKFCHdrYfDLCyo5GweaLxQ5ZhXX0GvAB058F8V17qk2/JTS5NfNoKNo5BmPsI
+         +6/f04LMM6TXon0ciy/7tAXOJlFdZpl5FoysGW4Y/Bad3p7N/da4rWoiu+4/x4UG8JlW
+         Du8/WLdOADAhX0+0xeJ0STiqohpk9gsEB3vCxB4aTsGKyXvBrWUjjggq4I4b7Maq5nrk
+         gr9EXwPs7aKP0BFbzqrmVK5j7T9leJRkw6ryC+yvCJfnA3r+6/R4t0l0IRBljIFsk19X
+         MpbwQuecHbnwJoGAXybvqZS4Pc8CpvZcsUQR3St4hvYdbAuR9a0SZZQwPUBbY3XKGGA1
+         HCiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=Cv3AoU/Qne3R+pDAUBp+7K/h07fGByZilOe5eXOw1P8=;
+        b=Kk9Vy1/lnFroiTAw4VbNZlo9q06GdeCoBZ6JT0eHCnELpAX6MP989sKP3sdVdhSCzw
+         M2Dt5Bx0lRiTbvCRER/zASEgPRFR/5s8LQimkjM6wz8Hhhy2Z1QmsCXrcdsOpFzMGERx
+         OemnxJPzMhvxBkkz5QZ5jnkPquxAg69qjrYFxY0cGelP/3J8OnTNAnUEYseBAzpaBlP6
+         Xt/s83lafpgI0AMZ2H93iENj/XRcOhrh9BbsCWsVhtWW5vPuLFX9Pv5XeAlWbdAmeSdk
+         GLUhOCybd14i3BmDWpEE7/UQ5pxt5dQO8DH01Sve/QWq/65LmzMGAj8CDYrxQOocrbG7
+         AcBw==
+X-Gm-Message-State: AOAM5318zXCO74yGwZNa6Pc8DpHS/TWvnQYcRY4Cuqyt6x2W0CMyunUJ
+        bfMLctNH9Yw7LHKK/Wh+T9U=
+X-Google-Smtp-Source: ABdhPJy+WE4mGUJmQPq33OL/qXM8L3e9qUu+NeOV2Ug4e2SKgw9CLJVJ3YHBc2xmv/1XqnIQ0yJRvA==
+X-Received: by 2002:a7b:c002:: with SMTP id c2mr3898490wmb.118.1622815785194;
+        Fri, 04 Jun 2021 07:09:45 -0700 (PDT)
+Received: from [192.168.1.211] ([2.29.20.84])
+        by smtp.gmail.com with ESMTPSA id v18sm7631514wrb.10.2021.06.04.07.09.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Jun 2021 07:09:44 -0700 (PDT)
+Subject: Re: [PATCH v5 4/6] gpiolib: acpi: Add acpi_gpio_get_io_resource()
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, devel@acpica.org,
+        Len Brown <lenb@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Mark Gross <mgross@linux.intel.com>,
+        Robert Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com
+References: <20210603224007.120560-1-djrscally@gmail.com>
+ <20210603224007.120560-5-djrscally@gmail.com>
+ <YLokNQCJ7WXKZepR@smile.fi.intel.com>
+From:   Daniel Scally <djrscally@gmail.com>
+Message-ID: <ca51ab71-9cdd-0d00-959f-9e1b2df3588c@gmail.com>
+Date:   Fri, 4 Jun 2021 15:09:43 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <YLokNQCJ7WXKZepR@smile.fi.intel.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, 2 Jun 2021 18:25:21 +0200, Wolfram Sang wrote:
-> Well, I thought mainly about this patch "tools: i2cbusses: Handle bus
-> names like /dev/i2c-0" but you took care of it faster than I did.
-> 
-> There is only one patch left in patchwork from 2016:
-> 
-> http://patchwork.ozlabs.org/project/linux-i2c/patch/044b3af6a47dfa92e047f0ff57e39a5b61e00058.1463165295.git.leonard.crestez@intel.com/
-> "[i2c-tools] i2cget: Add support for i2c block data"
-> 
-> That's all what's left in patchwork.
-> 
-> Dunno if you care about the old patch, but I think we are good to go for
-> a release.
 
-Yes I do care. Apparently I wasn't Cc'd on that thread so I wasn't even
-aware that patch existed. It would be very nice if you could bump the
-thread to me (unless there's a way to retrieve it from patchwork that I
-didn't find?)
-
-I read the thread, my initial answer would have matched Guenter's (as
-always...) but the contributor has a point, the range option is not
-supported by i2cdump in I2C block mode. Whether it's better to add
-support for it there, or in i2cget, I'll see.
-
-I think i2cget has my preference, because i2cdump pretty much assumes
-that I2C block reads retrieve successive 8-bit register values, so you
-can have block boundaries anywhere without changing the result. As a
-matter of fact, while i2cdump attempts to make 32-byte I2C block reads,
-it will transparently handle short reads by issuing additional block
-reads at arbitrary offsets. This works nicely for EEPROMs but could
-fail for other devices.
-
-If we only want *one* I2C block read at a specified offset then i2cget
-seems more appropriate indeed.
-
-Looking at the code, I see that i2cdump already supports SMBus block
-mode, in a way which is very similar to what the contributor asked for,
-i.e. it doesn't really dump the chip's registers, but merely reads one
-SMBus block at a specific offset. It's questionable why this should
-belong to i2cdump in the first place, beyond the fact that it returns
-several values when i2cget typically returns only one value.
-
-So one option would be get rid of "s" mode in i2cdump, and add support
-for both I2C and SMBus block read to i2cget.
-
-Might be possible to add support for range limitation to I2C block
-reads in i2cdump nevertheless, as it could be useful to read only
-portions of EEPROMs.
-
--- 
-Jean Delvare
-SUSE L3 Support
+On 04/06/2021 14:01, Andy Shevchenko wrote:
+> On Thu, Jun 03, 2021 at 11:40:05PM +0100, Daniel Scally wrote:
+>> Add a function to verify that a given acpi_resource represents an IO
+>> type GPIO resource, and return it if so.
+> I would rephrase this to something like:
+>
+> "Add a function to verify that a given ACPI resource represents a GpioIo() type
+> of resource, and return it if so."
+>
+> I can amend when applying to my branch.
+>
+That wording is perfectly fine by me
