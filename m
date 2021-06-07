@@ -2,138 +2,88 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8CC6C47082
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Jun 2021 15:22:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 211C9C4743F
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Jun 2021 15:23:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ADEAD611AC
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Jun 2021 15:22:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 103E460C3D
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Jun 2021 15:23:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230212AbhFGPYg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Jun 2021 11:24:36 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:54320 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230422AbhFGPYf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Jun 2021 11:24:35 -0400
-Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id A93081FD30;
-        Mon,  7 Jun 2021 15:22:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1623079363; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IHrxrqjI2FD4f2RsK+Y33pAZtcLIFXMBKuPbbrRe2es=;
-        b=Xzlszo05kM5sLH9EhVtYvcRcNYqh/kTyr3Sllei4UBx5ZyZJ/rXYT6xs/B1k1ydOW1vSdl
-        2xbyoUeqs1PWz0NyDrY0Dy+tG92hiaTQKWH1s02ld4H+Cbv4r1hz+ipZ+xH44U6oeAyPqE
-        Ojlidr+d1PdoNXL4+GX1+n1aCL4zijQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1623079363;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IHrxrqjI2FD4f2RsK+Y33pAZtcLIFXMBKuPbbrRe2es=;
-        b=Ne6NgIz9WdQahMijtxV4jE8sEZPhRckEqzOi0zC6uc+NwABjgkwZotuZ4o7yQRSZjOOpwc
-        RIHS1vu1uFUDvjBQ==
-Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        by imap.suse.de (Postfix) with ESMTP id 6B7C6118DD;
-        Mon,  7 Jun 2021 15:22:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1623079363; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IHrxrqjI2FD4f2RsK+Y33pAZtcLIFXMBKuPbbrRe2es=;
-        b=Xzlszo05kM5sLH9EhVtYvcRcNYqh/kTyr3Sllei4UBx5ZyZJ/rXYT6xs/B1k1ydOW1vSdl
-        2xbyoUeqs1PWz0NyDrY0Dy+tG92hiaTQKWH1s02ld4H+Cbv4r1hz+ipZ+xH44U6oeAyPqE
-        Ojlidr+d1PdoNXL4+GX1+n1aCL4zijQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1623079363;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IHrxrqjI2FD4f2RsK+Y33pAZtcLIFXMBKuPbbrRe2es=;
-        b=Ne6NgIz9WdQahMijtxV4jE8sEZPhRckEqzOi0zC6uc+NwABjgkwZotuZ4o7yQRSZjOOpwc
-        RIHS1vu1uFUDvjBQ==
-Received: from director2.suse.de ([192.168.254.72])
-        by imap3-int with ESMTPSA
-        id yU8NGMM5vmDgaQAALh3uQQ
-        (envelope-from <jdelvare@suse.de>); Mon, 07 Jun 2021 15:22:43 +0000
-Date:   Mon, 7 Jun 2021 17:22:42 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Heiner Kallweit <hkallweit1@gmail.com>
-Cc:     Hector Martin <marcan@marcan.st>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: i801: Ensure that SMBHSTSTS_INUSE_STS is
- cleared when leaving i801_access
-Message-ID: <20210607172242.564bcd38@endymion>
-In-Reply-To: <cefbeb76-5f7f-036b-fa0e-1e339d261c35@gmail.com>
-References: <cefbeb76-5f7f-036b-fa0e-1e339d261c35@gmail.com>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S230311AbhFGPZT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Jun 2021 11:25:19 -0400
+Received: from mga14.intel.com ([192.55.52.115]:49117 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230226AbhFGPZS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 7 Jun 2021 11:25:18 -0400
+IronPort-SDR: gsqVsUxdvpLT0gYfdrs85sN3IKWFsxoGIukOtV6M+r5hxQUxbZf5eL2UEbPQ275UyCl/Czooy7
+ 5K22ylb0ht8w==
+X-IronPort-AV: E=McAfee;i="6200,9189,10008"; a="204457151"
+X-IronPort-AV: E=Sophos;i="5.83,255,1616482800"; 
+   d="scan'208";a="204457151"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jun 2021 08:23:26 -0700
+IronPort-SDR: BX9d2tQscwdi2GyUamI3FiWdcaqJbLx8RPuPM6dy61aSDorKkwsVyfVhmEmZpr9JQakeG1+M21
+ TfRkuOsrSRKg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.83,255,1616482800"; 
+   d="scan'208";a="551922470"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 07 Jun 2021 08:23:25 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id F414418E; Mon,  7 Jun 2021 18:23:48 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        wsa@kernel.org
+Subject: [PATCH v2 3/3] i2c: designware: Fix indentation in the header
+Date:   Mon,  7 Jun 2021 18:23:44 +0300
+Message-Id: <20210607152344.57458-3-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210607152344.57458-1-andriy.shevchenko@linux.intel.com>
+References: <20210607152344.57458-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Heiner, Hector,
+In couple of places the indentation makes harder to read the code.
+Fix it to be sane.
 
-On Sun, 6 Jun 2021 15:55:55 +0200, Heiner Kallweit wrote:
-> As explained in [0] currently we may leave SMBHSTSTS_INUSE_STS set,
-> thus potentially breaking ACPI/BIOS usage of the SMBUS device.
-> 
-> Seems patch [0] needs a little bit more of review effort, therefore
-> I'd suggest to apply a part of it as quick win. Just clearing
-> SMBHSTSTS_INUSE_STS when leaving i801_access() should fix the
-> referenced issue and leaves more time for discussing a more
-> sophisticated locking handling.
-> 
-> [0] https://www.spinics.net/lists/linux-i2c/msg51558.html
-> 
-> Fixes: 01590f361e94 ("i2c: i801: Instantiate SPD EEPROMs automatically")
-> Cc: stable@vger.kernel.org
-> Suggested-by: Hector Martin <marcan@marcan.st>
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> ---
-> v2:
-> - add proper stable tag
-> ---
->  drivers/i2c/busses/i2c-i801.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index c7d96cf5e..ab3470e77 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -948,6 +948,9 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
->  	}
->  
->  out:
-> +	/* Unlock the SMBus device for use by BIOS/ACPI */
-> +	outb_p(SMBHSTSTS_INUSE_STS, SMBHSTSTS(priv));
-> +
->  	pm_runtime_mark_last_busy(&priv->pci_dev->dev);
->  	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
->  	mutex_unlock(&priv->acpi_lock);
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+v2: no changes
+ drivers/i2c/busses/i2c-designware-core.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Good idea.
-
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Tested-by: Jean Delvare <jdelvare@suse.de>
-
-Hector, can you please rebase your patch on top of this one? I'll
-review it later when I have more time to allocate to the task.
-
-Thanks,
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 6a53f75abf7c..60a2e750cee9 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -117,7 +117,7 @@
+ 
+ #define DW_IC_ERR_TX_ABRT	0x1
+ 
+-#define DW_IC_TAR_10BITADDR_MASTER BIT(12)
++#define DW_IC_TAR_10BITADDR_MASTER	BIT(12)
+ 
+ #define DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH	(BIT(2) | BIT(3))
+ #define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK	GENMASK(3, 2)
+@@ -245,7 +245,7 @@ struct dw_i2c_dev {
+ 	struct clk		*clk;
+ 	struct clk		*pclk;
+ 	struct reset_control	*rst;
+-	struct i2c_client		*slave;
++	struct i2c_client	*slave;
+ 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
+ 	int			cmd_err;
+ 	struct i2c_msg		*msgs;
 -- 
-Jean Delvare
-SUSE L3 Support
+2.30.2
+
