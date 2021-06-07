@@ -2,137 +2,119 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35D7EC47095
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Jun 2021 15:23:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F7FFC47095
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Jun 2021 15:39:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 231B5611AE
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Jun 2021 15:23:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6AAB8611C0
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Jun 2021 15:39:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230226AbhFGPZZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Jun 2021 11:25:25 -0400
-Received: from mga07.intel.com ([134.134.136.100]:8763 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230444AbhFGPZV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 7 Jun 2021 11:25:21 -0400
-IronPort-SDR: comv0sf6oScud/G2Ub6vAv1K/K4DLDQzmpD+c5RtLaGOf/sd+ZI37DBFWXvlA5q8xgEtQvER0c
- PDzxifuitIRQ==
-X-IronPort-AV: E=McAfee;i="6200,9189,10008"; a="268498735"
-X-IronPort-AV: E=Sophos;i="5.83,255,1616482800"; 
-   d="scan'208";a="268498735"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jun 2021 08:23:29 -0700
-IronPort-SDR: mx7ERCpO4WVwXhZ56Y6LgC2y3dMqvbe3QBjs5nvbjQ2ZA8fkcD0Ms4US9ss/4gdY1HttqP06L0
- TAx0FwnTsAoQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,255,1616482800"; 
-   d="scan'208";a="413062691"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 07 Jun 2021 08:23:25 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id E4530A3; Mon,  7 Jun 2021 18:23:48 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        wsa@kernel.org
-Subject: [PATCH v2 2/3] i2c: designware: Use DIV_ROUND_CLOSEST() macro
-Date:   Mon,  7 Jun 2021 18:23:43 +0300
-Message-Id: <20210607152344.57458-2-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210607152344.57458-1-andriy.shevchenko@linux.intel.com>
-References: <20210607152344.57458-1-andriy.shevchenko@linux.intel.com>
+        id S230351AbhFGPlM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Jun 2021 11:41:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230288AbhFGPlL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Jun 2021 11:41:11 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A37CAC061766;
+        Mon,  7 Jun 2021 08:39:20 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id n12so14060928pgs.13;
+        Mon, 07 Jun 2021 08:39:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=EP1Z0R9h6Sk7sEUIq6S/xiKMedmYureXcAho+7LMC/M=;
+        b=WLw1Tq9ZDGcWI3iT7HDdRvX8MplsK9woqfj5VMOePBGLw7iduyhz26GDmRLScAWlOp
+         WCgJWQFd+2YZFpdJ2NmdJMCjcCvAP90Jnb5kXj+vK1zi1XMcTObOdR/Cxwy2mbTLcXM0
+         L4gAJPoB1zmj8kLUxJq8A3RwRZ5uf+fCB9M5HzndZBWRrIB+RF0xXSL/VuWo9+chTw3F
+         Du8BXcgAJRfjabWmYynHIiitxws/Ub1irAH+iC/iLIWUtCpNZrXLDuQDpo3sNdycZ9xa
+         W7HJS7vxZYIETq/VZxdOrHjW9Vo5uBoCEZwxZvocVoa52dHjn2v71T/T9jCvdJLOrbmx
+         6jbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=EP1Z0R9h6Sk7sEUIq6S/xiKMedmYureXcAho+7LMC/M=;
+        b=ZoBNPzA22R0CtLBmJ+HxB2pfQJU4+w4qyjA0Cs0Yq3taRzLpLeGwpg5PQbGzdBpupb
+         KdGpOBk9ZHNWUBOtlHfVTsySNW9TNibWdmGNsmpes6GHF+tLbfU+ZJxGJHBZy+e6S0JP
+         OdKJIFTwJMPtyH5+yC14C79pAuhcpMbb/8mnA7Nd1FfNui8+msSNc/lj0XSujdgDjdvZ
+         sBFWedn+Y/4dF+/C/bk7EPq2rsSdMBskF5Z13EWO+4jSMrWCBjVLYUffLxnb2c84v/oG
+         PLmMTa54lgplJjj646Pf7pwf9R3Mst48VPn7Moz/elU+228pGA+5lyoAQ8Zl7jImm+lb
+         L/MQ==
+X-Gm-Message-State: AOAM531gosAqIKtKVcp2PXlXZqYC2yzNA95CSGqexaoMSsyVJ9E1yqER
+        DpfVqeQl2F1fm8+XnfS1h5s=
+X-Google-Smtp-Source: ABdhPJzlPvF6wYriSLd06z56jNI1M7ohQpHxM71ODUFLoNeaworDF5JIrv+ov5+6YtixyJPPRuJEdA==
+X-Received: by 2002:a05:6a00:a02:b029:2ec:a0a6:9c54 with SMTP id p2-20020a056a000a02b02902eca0a69c54mr13085147pfh.47.1623080360171;
+        Mon, 07 Jun 2021 08:39:20 -0700 (PDT)
+Received: from localhost (185.212.56.112.16clouds.com. [185.212.56.112])
+        by smtp.gmail.com with ESMTPSA id s3sm9859870pgs.62.2021.06.07.08.39.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Jun 2021 08:39:19 -0700 (PDT)
+From:   Dejin Zheng <zhengdejin5@gmail.com>
+To:     helgaas@kernel.org, corbet@lwn.net, jarkko.nikula@linux.intel.com,
+        andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
+        rric@kernel.org, bhelgaas@google.com, wsa@kernel.org,
+        Sanket.Goswami@amd.com, linux-doc@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-pci@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, Dejin Zheng <zhengdejin5@gmail.com>
+Subject: [PATCH v7 0/4] Introduce pcim_alloc_irq_vectors()
+Date:   Mon,  7 Jun 2021 23:39:12 +0800
+Message-Id: <20210607153916.1021016-1-zhengdejin5@gmail.com>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Instead of open-coding DIV_ROUND_CLOSEST() and similar use the macros directly.
-While at it, replace numbers with predefined SI metric prefixes.
+Introduce pcim_alloc_irq_vectors(), a device-managed version of
+pci_alloc_irq_vectors(), In some i2c drivers, If pcim_enable_device()
+has been called before, then pci_alloc_irq_vectors() is actually a
+device-managed function. It is used as a device-managed function, So
+replace it with pcim_alloc_irq_vectors().
 
-No functional change intended.
+Changelog
+---------
+v6 -> v7:
+	- rebase to PCI next branch
+	- add a stub for pci_is_managed() when disable PCI for
+	  fix build error in sparc architecture.
+v5 -> v6:
+	- rebase to 5.13-rc4
+v4 -> v5:
+	- Remove the check of enable device in pcim_alloc_irq_vectors()
+	  and make it as a static line function.
+	- Modify the subject name in patch 3 and patch 4.
+v3 -> v4:
+	- add some commit comments for patch 3
+v2 -> v3:
+	- Add some commit comments for replace some codes in
+	  pcim_release() by pci_free_irq_vectors().
+	- Simplify the error handling path in i2c designware
+	  driver.
+v1 -> v2:
+	- Use pci_free_irq_vectors() to replace some code in
+	  pcim_release().
+	- Modify some commit messages.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
-v2: to get 10^0 based numbers divide by 10^-6 which is MICRO (Jarkko)
- drivers/i2c/busses/i2c-designware-common.c  | 8 ++++----
- drivers/i2c/busses/i2c-designware-platdrv.c | 5 +++--
- 2 files changed, 7 insertions(+), 6 deletions(-)
+Dejin Zheng (4):
+  PCI: Introduce pcim_alloc_irq_vectors()
+  Documentation: devres: Add pcim_alloc_irq_vectors()
+  i2c: designware: Use pcim_alloc_irq_vectors() to allocate IRQ vectors
+  i2c: thunderx: Use pcim_alloc_irq_vectors() to allocate IRQ vectors
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index fdc34d9e3702..bf2a4920638a 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -24,6 +24,7 @@
- #include <linux/regmap.h>
- #include <linux/swab.h>
- #include <linux/types.h>
-+#include <linux/units.h>
- 
- #include "i2c-designware-core.h"
- 
-@@ -350,7 +351,7 @@ u32 i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
- 		 *
- 		 * If your hardware is free from tHD;STA issue, try this one.
- 		 */
--		return (ic_clk * tSYMBOL + 500000) / 1000000 - 8 + offset;
-+		return DIV_ROUND_CLOSEST(ic_clk * tSYMBOL, MICRO) - 8 + offset;
- 	else
- 		/*
- 		 * Conditional expression:
-@@ -366,8 +367,7 @@ u32 i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
- 		 * The reason why we need to take into account "tf" here,
- 		 * is the same as described in i2c_dw_scl_lcnt().
- 		 */
--		return (ic_clk * (tSYMBOL + tf) + 500000) / 1000000
--			- 3 + offset;
-+		return DIV_ROUND_CLOSEST(ic_clk * (tSYMBOL + tf), MICRO) - 3 + offset;
- }
- 
- u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
-@@ -383,7 +383,7 @@ u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
- 	 * account the fall time of SCL signal (tf).  Default tf value
- 	 * should be 0.3 us, for safety.
- 	 */
--	return ((ic_clk * (tLOW + tf) + 500000) / 1000000) - 1 + offset;
-+	return DIV_ROUND_CLOSEST(ic_clk * (tLOW + tf), MICRO) - 1 + offset;
- }
- 
- int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev)
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 4b37f28ec0c6..21113665ddea 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -31,12 +31,13 @@
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/suspend.h>
-+#include <linux/units.h>
- 
- #include "i2c-designware-core.h"
- 
- static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- {
--	return clk_get_rate(dev->clk)/1000;
-+	return clk_get_rate(dev->clk) / KILO;
- }
- 
- #ifdef CONFIG_ACPI
-@@ -270,7 +271,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 
- 		if (!dev->sda_hold_time && t->sda_hold_ns)
- 			dev->sda_hold_time =
--				div_u64(clk_khz * t->sda_hold_ns + 500000, 1000000);
-+				DIV_S64_ROUND_CLOSEST(clk_khz * t->sda_hold_ns, MICRO);
- 	}
- 
- 	adap = &dev->adapter;
+ .../driver-api/driver-model/devres.rst        |  1 +
+ drivers/i2c/busses/i2c-designware-pcidrv.c    | 15 +++--------
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c      |  2 +-
+ drivers/pci/pci.c                             |  5 +---
+ include/linux/pci.h                           | 25 +++++++++++++++++++
+ 5 files changed, 32 insertions(+), 16 deletions(-)
+
 -- 
-2.30.2
+2.30.1
 
