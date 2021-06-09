@@ -1,77 +1,79 @@
 Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: *
-X-Spam-Status: No, score=1.0 required=3.0 tests=BAYES_50,DKIMWL_BL,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Level: 
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BA66C48BD1
-	for <linux-i2c@archiver.kernel.org>; Wed,  9 Jun 2021 13:49:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4676DC48BCD
+	for <linux-i2c@archiver.kernel.org>; Wed,  9 Jun 2021 17:30:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8596D61351
-	for <linux-i2c@archiver.kernel.org>; Wed,  9 Jun 2021 13:49:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16DC4613D2
+	for <linux-i2c@archiver.kernel.org>; Wed,  9 Jun 2021 17:30:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236379AbhFINvd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 9 Jun 2021 09:51:33 -0400
-Received: from flippie-beckerswealthsa.xyz ([62.173.138.170]:43910 "EHLO
-        host.flippie-beckerswealthsa.xyz" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236624AbhFINvc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Jun 2021 09:51:32 -0400
-X-Greylist: delayed 5193 seconds by postgrey-1.27 at vger.kernel.org; Wed, 09 Jun 2021 09:51:31 EDT
-Received: from flippie-beckerswealthsa.xyz (ec2-18-118-29-154.us-east-2.compute.amazonaws.com [18.118.29.154])
-        by host.flippie-beckerswealthsa.xyz (Postfix) with ESMTPA id C8FA930C3C7F
-        for <linux-i2c@vger.kernel.org>; Wed,  9 Jun 2021 15:09:32 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 host.flippie-beckerswealthsa.xyz C8FA930C3C7F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=flippie-beckerswealthsa.xyz; s=default; t=1623240573;
-        bh=h0ivQLrZuUWuyEKz/TWb+FP9AASpHhVqOsJtRcwKQV4=;
-        h=Reply-To:From:To:Subject:Date:From;
-        b=T6zmsoFnqn311ocdRuTePvJ1K56slKJLdavbH5lx6/clwLDWTLJGWpQUIZQBD0c11
-         h11px0lKc2BXXBxSRd6B0FuP8aV2O2bAmAwHO87dXRtCcKksZEMFLbD2BuB0RSPEDs
-         QsdK+eEdXfhgjCpYFzzJwh5R9QLSNmc8X5xIKpYw=
-DKIM-Filter: OpenDKIM Filter v2.11.0 host.flippie-beckerswealthsa.xyz C8FA930C3C7F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=flippie-beckerswealthsa.xyz; s=default; t=1623240573;
-        bh=h0ivQLrZuUWuyEKz/TWb+FP9AASpHhVqOsJtRcwKQV4=;
-        h=Reply-To:From:To:Subject:Date:From;
-        b=T6zmsoFnqn311ocdRuTePvJ1K56slKJLdavbH5lx6/clwLDWTLJGWpQUIZQBD0c11
-         h11px0lKc2BXXBxSRd6B0FuP8aV2O2bAmAwHO87dXRtCcKksZEMFLbD2BuB0RSPEDs
-         QsdK+eEdXfhgjCpYFzzJwh5R9QLSNmc8X5xIKpYw=
-Reply-To: jmasuku40@flippiebeckerwealthservices.com
-From:   Jotham Masuku <jmasuku40@flippie-beckerswealthsa.xyz>
-To:     linux-i2c@vger.kernel.org
-Subject: Projects
-Date:   09 Jun 2021 12:09:32 +0000
-Message-ID: <20210609120932.06ED7E613B876B9A@flippie-beckerswealthsa.xyz>
-Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S229957AbhFIRcS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 9 Jun 2021 13:32:18 -0400
+Received: from mga14.intel.com ([192.55.52.115]:27500 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229961AbhFIRcS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 9 Jun 2021 13:32:18 -0400
+IronPort-SDR: 1ZjXi/olLDN+krB6eCcakL8J/TKg/EGWe3+eUstKHHxMHGxEV+KdrKbK1p9GrLDYZ5vPFvDI28
+ BSsoIJWpc6zw==
+X-IronPort-AV: E=McAfee;i="6200,9189,10010"; a="204937086"
+X-IronPort-AV: E=Sophos;i="5.83,261,1616482800"; 
+   d="scan'208";a="204937086"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2021 10:30:23 -0700
+IronPort-SDR: JYaEUtInlXRxvx9R42ABSyWPD5FldFMAlV9OB3wYCFEChl8YEcR+1ketRibhSBtVS6vUS1whrj
+ 1Fct8FFaLa5Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.83,261,1616482800"; 
+   d="scan'208";a="552051340"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga004.jf.intel.com with ESMTP; 09 Jun 2021 10:30:21 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 9A2DAE7; Wed,  9 Jun 2021 20:30:45 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Hans de Goede <hdegoede@redhat.com>, wsa@kernel.org
+Subject: [PATCH v2 1/1] i2c: cht-wc: Replace of_node by NULL
+Date:   Wed,  9 Jun 2021 20:30:35 +0300
+Message-Id: <20210609173035.83777-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.30.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hello there,
+The driver is run on the platforms where OF node is always NULL.
+The confusion comes from IRQ domain APIs that take either OF or
+firmware node as input parameter. Since fwnode is not used here
+either, replace of_node by NULL.
 
-I hope this message finds you in good spirits especially during=20
-this challenging time of coronavirus pandemic. I hope you and=20
-your family are well and keeping safe. Anyway, I am Jotham=20
-Masuku, a broker working with Flippiebecker Wealth. I got your=20
-contact (along with few other contacts) through an online=20
-business directory and I thought I should contact you to see if=20
-you are interested in this opportunity. I am contacting you=20
-because one of my high profile clients is interested in investing=20
-abroad and has asked me to look for individuals and companies=20
-with interesting business ideas and projects that he can invest=20
-in. He wants to invest a substantial amount of asset abroad.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+v2: rewrote in order to pass NULL instead of of_node (Hans)
+ drivers/i2c/busses/i2c-cht-wc.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Please kindly respond back to this email if you are interested in=20
-this opportunity. Once I receive your response, I will give you=20
-more details and we can plan a strategy that will be beneficial=20
-to all parties.
+diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
+index 08f491ea21ac..1cf68f85b2e1 100644
+--- a/drivers/i2c/busses/i2c-cht-wc.c
++++ b/drivers/i2c/busses/i2c-cht-wc.c
+@@ -354,8 +354,7 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+ 		return ret;
+ 
+ 	/* Alloc and register client IRQ */
+-	adap->irq_domain = irq_domain_add_linear(pdev->dev.of_node, 1,
+-						 &irq_domain_simple_ops, NULL);
++	adap->irq_domain = irq_domain_add_linear(NULL, 1, &irq_domain_simple_ops, NULL);
+ 	if (!adap->irq_domain)
+ 		return -ENOMEM;
+ 
+-- 
+2.30.2
 
-Best regards
-
-J Masuku
-Flippiebecker Wealth
