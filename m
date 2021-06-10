@@ -2,121 +2,120 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 737B4C48BCD
-	for <linux-i2c@archiver.kernel.org>; Wed,  9 Jun 2021 17:33:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5067FC47094
+	for <linux-i2c@archiver.kernel.org>; Thu, 10 Jun 2021 09:10:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 54BBC613D7
-	for <linux-i2c@archiver.kernel.org>; Wed,  9 Jun 2021 17:33:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3155061249
+	for <linux-i2c@archiver.kernel.org>; Thu, 10 Jun 2021 09:10:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230507AbhFIRfH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 9 Jun 2021 13:35:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50712 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230075AbhFIRfH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Jun 2021 13:35:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623259991;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Z5PeafNk3PET9iL6P0K5jSNG1YbfyZtfZ3N7TbBn370=;
-        b=OImRQG6hbpP6gTgK+So8tGEEV89TKonitXeGzVJQPG5Rq1pHoRBMhRgbdV+GoVoC704C8r
-        QSKMroiAU78LqBc/EUK8wGb1+RLf2ilWI4EpBxC5M3j65aMfWlRdOZ2Jk9XlAzOqxJl3mx
-        1XmconQPtgV7GYNxsKf2/QS3WXAdUN8=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-41-sEVYpGhyNjSiuvwQkiZhhA-1; Wed, 09 Jun 2021 13:33:10 -0400
-X-MC-Unique: sEVYpGhyNjSiuvwQkiZhhA-1
-Received: by mail-ed1-f70.google.com with SMTP id y18-20020a0564022712b029038ffac1995eso12783989edd.12
-        for <linux-i2c@vger.kernel.org>; Wed, 09 Jun 2021 10:33:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Z5PeafNk3PET9iL6P0K5jSNG1YbfyZtfZ3N7TbBn370=;
-        b=ZxizrnoPhSE6IsB19xBxkUS+XwFIA8WW1vinT8q6cCitFmVFAxrJcda0PBsRTDMZuK
-         y19OCmXXGI9FRCLnIOq+giIjjxpCtYTvaSB1Lki1KK7EaiFQUN/ZKs3+4eTAGQrjVIXO
-         zrnhzQ635V48/gLRXFWS8Wt7TAQjEE08Jo3ZN0xiuz6xaNui2iv6LzK5ZSxjIx2VXCOJ
-         pb1MTOPh+9FEBd3deOtAre9bk5szXNj+5Z5/aWlAHRiKEgNyhb9c0FjaBZicmY66H9ke
-         88JbnCIno210bMDLbYEPMnSs5kT8rkzW9vac3xKWtxvT/zI9hajpWhrz5zoemATtH6BE
-         YA9Q==
-X-Gm-Message-State: AOAM531C8tOAnAhoBKHGARZKtEY8tyS0mYfFB8BnBflyDRdyUfBX8/8L
-        l2UnSStXCxJtAZHNZmY2NTL2v/ZDjv4HjbCQtiyqrdWc5ncj/N7NZG744UBwsTauWfE9gN8g+uH
-        DsD4IbSyP6g9PaucjFRXT
-X-Received: by 2002:a17:906:2dcb:: with SMTP id h11mr954405eji.52.1623259989322;
-        Wed, 09 Jun 2021 10:33:09 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz4nbim+Zr6BK+zgNZSMI68VdIfv/jfWQlUElfYxtyDWRUb5a2I4XkK7fPwA76egn6tK0cHLQ==
-X-Received: by 2002:a17:906:2dcb:: with SMTP id h11mr954397eji.52.1623259989163;
-        Wed, 09 Jun 2021 10:33:09 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id i5sm178077edt.11.2021.06.09.10.33.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Jun 2021 10:33:08 -0700 (PDT)
-Subject: Re: [PATCH v2 1/1] i2c: cht-wc: Replace of_node by NULL
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     wsa@kernel.org
-References: <20210609173035.83777-1-andriy.shevchenko@linux.intel.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <12ff5e74-a38d-a1f4-3a9d-6ac9379b2924@redhat.com>
-Date:   Wed, 9 Jun 2021 19:33:08 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S230321AbhFJJMn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 10 Jun 2021 05:12:43 -0400
+Received: from david.siemens.de ([192.35.17.14]:48416 "EHLO david.siemens.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229942AbhFJJMn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 10 Jun 2021 05:12:43 -0400
+X-Greylist: delayed 491 seconds by postgrey-1.27 at vger.kernel.org; Thu, 10 Jun 2021 05:12:42 EDT
+Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
+        by david.siemens.de (8.15.2/8.15.2) with ESMTPS id 15A92FRb022870
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Jun 2021 11:02:15 +0200
+Received: from md1za8fc.ad001.siemens.net ([167.87.8.208])
+        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 15A92DK0011717;
+        Thu, 10 Jun 2021 11:02:13 +0200
+Date:   Thu, 10 Jun 2021 11:02:11 +0200
+From:   Henning Schild <henning.schild@siemens.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Tan Jui Nee <jui.nee.tan@intel.com>,
+        "Jim Quinlan" <james.quinlan@broadcom.com>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-pci@vger.kernel.org>, Jean Delvare <jdelvare@suse.com>,
+        Peter Tyser <ptyser@xes-inc.com>, <hdegoede@redhat.com>
+Subject: Re: [rfc, PATCH v1 0/7] PCI: introduce p2sb helper
+Message-ID: <20210610110211.0e239af6@md1za8fc.ad001.siemens.net>
+In-Reply-To: <20210308122020.57071-1-andriy.shevchenko@linux.intel.com>
+References: <20210308122020.57071-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210609173035.83777-1-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+Am Mon, 8 Mar 2021 14:20:13 +0200
+schrieb Andy Shevchenko <andriy.shevchenko@linux.intel.com>:
 
-On 6/9/21 7:30 PM, Andy Shevchenko wrote:
-> The driver is run on the platforms where OF node is always NULL.
-> The confusion comes from IRQ domain APIs that take either OF or
-> firmware node as input parameter. Since fwnode is not used here
-> either, replace of_node by NULL.
+> There are a few users and even at least one more is coming
+> that would like to utilize p2sb mechanisms like hide/unhide
+> a device from PCI configuration space.
 > 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
-> v2: rewrote in order to pass NULL instead of of_node (Hans)
->  drivers/i2c/busses/i2c-cht-wc.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-
-Thanks, patch looks good to me:
-
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Regards,
-
-Hans
-
-
-
+> Here is the series to deduplicate existing users and provide
+> a generic way for new comers.
 > 
-> diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
-> index 08f491ea21ac..1cf68f85b2e1 100644
-> --- a/drivers/i2c/busses/i2c-cht-wc.c
-> +++ b/drivers/i2c/busses/i2c-cht-wc.c
-> @@ -354,8 +354,7 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
->  		return ret;
->  
->  	/* Alloc and register client IRQ */
-> -	adap->irq_domain = irq_domain_add_linear(pdev->dev.of_node, 1,
-> -						 &irq_domain_simple_ops, NULL);
-> +	adap->irq_domain = irq_domain_add_linear(NULL, 1, &irq_domain_simple_ops, NULL);
->  	if (!adap->irq_domain)
->  		return -ENOMEM;
->  
+> It also includes a patch to enable GPIO controllers on Apollo Lake
+> when it's used with ABL bootloader w/o ACPI support.
+
+That bit is especially interesting. Making pinctl*lake initialize when
+ACPI IDs are missing and p2sb is hidden.
+
+However i have seen pinctl-broxton get confused because it was trying
+to come up twice on a system that has the ACPI entries. Once as
+"INT3452" and second as "apollolake-pinctrl". They should probably
+mutually exclude each other. And the two different names for "the
+same"? thing make it impossible to write a driver using those GPIOs.
+Unless it would try and look up both variants or not looking up with
+gpiochip.label.
+
+I would also need that "enable GPIO w/o ACPI" for skylake. I think it
+would be generally useful if the GPIO controllers would be enabled not
+depending on ACPI, and coming up with only one "label" to build on top.
+
+regards,
+Henning
+
+> Please, comment on the approach and individual patches.
+> 
+> (Since it's cross subsystem, the PCI seems like a main one and
+>  I think it makes sense to route it thru it with immutable tag
+>  or branch provided for the others).
+> 
+> Andy Shevchenko (5):
+>   PCI: Introduce pci_bus_*() printing macros when device is not
+>     available
+>   PCI: Convert __pci_read_base() to __pci_bus_read_base()
+>   mfd: lpc_ich: Factor out lpc_ich_enable_spi_write()
+>   mfd: lpc_ich: Switch to generic pci_p2sb_bar()
+>   i2c: i801: convert to use common P2SB accessor
+> 
+> Jonathan Yong (1):
+>   PCI: New Primary to Sideband (P2SB) bridge support library
+> 
+> Tan Jui Nee (1):
+>   mfd: lpc_ich: Add support for pinctrl in non-ACPI system
+> 
+>  drivers/i2c/busses/Kconfig    |   1 +
+>  drivers/i2c/busses/i2c-i801.c |  40 +++-------
+>  drivers/mfd/Kconfig           |   1 +
+>  drivers/mfd/lpc_ich.c         | 135
+> +++++++++++++++++++++++++++++----- drivers/pci/Kconfig           |
+> 8 ++ drivers/pci/Makefile          |   1 +
+>  drivers/pci/pci-p2sb.c        |  89 ++++++++++++++++++++++
+>  drivers/pci/pci.h             |  13 +++-
+>  drivers/pci/probe.c           |  81 ++++++++++----------
+>  include/linux/pci-p2sb.h      |  28 +++++++
+>  include/linux/pci.h           |   9 +++
+>  11 files changed, 313 insertions(+), 93 deletions(-)
+>  create mode 100644 drivers/pci/pci-p2sb.c
+>  create mode 100644 include/linux/pci-p2sb.h
 > 
 
