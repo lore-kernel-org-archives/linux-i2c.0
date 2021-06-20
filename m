@@ -2,101 +2,94 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11316C49EA3
-	for <linux-i2c@archiver.kernel.org>; Sun, 20 Jun 2021 20:42:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6361C48BDF
+	for <linux-i2c@archiver.kernel.org>; Sun, 20 Jun 2021 20:46:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EEF7660E0B
-	for <linux-i2c@archiver.kernel.org>; Sun, 20 Jun 2021 20:42:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C9C4D6109F
+	for <linux-i2c@archiver.kernel.org>; Sun, 20 Jun 2021 20:46:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbhFTUoY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 20 Jun 2021 16:44:24 -0400
-Received: from www.zeus03.de ([194.117.254.33]:50888 "EHLO mail.zeus03.de"
+        id S229632AbhFTUsN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 20 Jun 2021 16:48:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229901AbhFTUoX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 20 Jun 2021 16:44:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=rPEDGrMnpzriAaduvLJy8olF7Ekl
-        3L3+W37+QAmJ6rE=; b=OYmJuv9Nv9MTF3G+BaV/BVsmdH8ZjKAyy1uiMXaqlEMX
-        dhgzq5Xr3+nN5GJiqZapeZK3aKDol435vHSqS/U5vZMKv6NT+IqsRlWeedsTMjdW
-        9l1a2D0rTlT/TL3QX0kesdwYFZ1B+Q66RUqltAOMDxUmv8pbym4IKn0HOIz44KM=
-Received: (qmail 1498434 invoked from network); 20 Jun 2021 22:42:09 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 Jun 2021 22:42:09 +0200
-X-UD-Smtp-Session: l3s3148p1@pyYylzjFuqAgAwDPXzseADJuEzJK6i8P
-Date:   Sun, 20 Jun 2021 22:42:08 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Geert Uytterhoeven <geert+renesas@glider.be>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH v2 1/5] dt-bindings: i2c: renesas,iic: Always declare
- generic compatibility
-Message-ID: <YM+oIBki95i+M3m3@kunai>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rob Herring <robh+dt@kernel.org>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-References: <cover.1624013699.git.geert+renesas@glider.be>
- <760fec5fa71bfff4c7bfe944cfc385f9d8e1945b.1624013699.git.geert+renesas@glider.be>
+        id S230031AbhFTUsN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 20 Jun 2021 16:48:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DC596108E;
+        Sun, 20 Jun 2021 20:45:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1624221960;
+        bh=naTIKEbPfHq0PGsbC0nXabesWxO/GoVYUNgYk01R+ms=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=H/4aEpgPRQ47y5roOIfnGdkeQsCs02zox8cuM2obPM4tUaJjQZHdOYNlyRJCByGy8
+         dV1sPsLReNjfaOuA+pr3r7CqgmZ7O3ghQ2yT14+zjgPgRtMioi/rbjF1cHoN3Imwqd
+         6uHQhJZP9kckV17uXqUkKjKe6N3Fy/DaTrKxlPCG2l6ZRCXw7AtRkYhJt3W4SWxNte
+         3cgsEgXhgNdY6cd+AmIX8apDnPL/LPWtf6uMDcA2lifJhpIGVTsOuEWShfknbm8+sE
+         bt/VImy0hXdUdZTrTjS1GLG/gwIBKZGFI3RM630BzuyYUJ2GO62zCOEKjZHhQenjRB
+         SyaHvDBi77b8w==
+Date:   Sun, 20 Jun 2021 22:45:57 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Loic Poulain <loic.poulain@linaro.org>
+Cc:     andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org,
+        Jonathan Marek <jonathan@marek.ca>
+Subject: Re: [PATCH] i2c: qcom-cci: add sm8250 compatible
+Message-ID: <YM+pBQzIO27FPKVt@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org,
+        Jonathan Marek <jonathan@marek.ca>
+References: <1623659341-21954-1-git-send-email-loic.poulain@linaro.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="XQAhqO+0zOPiVfGE"
+        protocol="application/pgp-signature"; boundary="IAGS9dtNf0nmirDq"
 Content-Disposition: inline
-In-Reply-To: <760fec5fa71bfff4c7bfe944cfc385f9d8e1945b.1624013699.git.geert+renesas@glider.be>
+In-Reply-To: <1623659341-21954-1-git-send-email-loic.poulain@linaro.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---XQAhqO+0zOPiVfGE
+--IAGS9dtNf0nmirDq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 18, 2021 at 01:04:07PM +0200, Geert Uytterhoeven wrote:
-> According to the Hardware User's Manual, automatic transmission for PMIC
-> control (DVFS) is not available on the R-Car E3 and RZ/G2E SoC.
-> Experiments showed this really means that support for automatic DVFS is
-> not present, while the IIC automatic transmission feature itself is
-> still available, albeit not super useful.
+On Mon, Jun 14, 2021 at 10:29:01AM +0200, Loic Poulain wrote:
+> From: Jonathan Marek <jonathan@marek.ca>
 >=20
-> Hence there is no longer a reason not to declare compatibility with the
-> R-Car Gen3-specific and generic versions, and the corresponding
-> paragraph can be dropped.
+> SM8250 CCI is the same as SDM845, add an equivalent compatible for SM8250.
 >=20
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+> Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+> Reviewed-by: Vinod Koul <vkoul@kernel.org>
+> Acked-by: Rob Herring <robh@kernel.org>
 
-Applied to for-next, thanks!
+This patch is in -next since 2021-05-25. But I forgot to send the mail
+saying so. Sorry!
 
 
---XQAhqO+0zOPiVfGE
+--IAGS9dtNf0nmirDq
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmDPqCAACgkQFA3kzBSg
-KbavKhAAieylew2XvqIj0S/fUzUjQEJYqEr++I7I/JUpyhP7IYMzrzrcrbGsFO2m
-nsgjOJnLi0kYQyHEeLzdvY+qT1V2jQu8JXtWGUsaoHHAx2nu/rsIX5FvQDvI/Ojk
-cp0EX0X2hmspmooScfPP0TzdBF0b/gZeiUQb8O56zWYtKSFG2PnkrvWD9Y8KbqKf
-tnq5VMt6jxkasU/UGQr43d0E4BD4aN0RdVhosYmxkuxbuNQ0VMW8epuO4PpZv/KI
-IvMOeQWiCd3HuTvE7a2lf7+yAzg3ZE0gsJSR5Ffzi7MF6/LLDvtgYSQ/ZIpCQbsH
-ULe/9RvQIQJxRUDyMLTVO1O8lw0155iW+gPkaFspUvrIeBd8JOfqYtyK13oqjI0U
-7RjLC58C3AX3+0tTr2pXGcozPTHkLt+bAgpMF1pwlnt1dzG8a7xSyJmHypiNt1du
-lYLzcynOZrKnMncFEz71p0hNUt8t8DYG6SGngIOGGvMT+r8A+stpjIZeax//MYdu
-Q49xKzS+S9bBPQO9lxu3Ky/P+UPMGIy+n5VvrDITqXDl0TAxjevXn9mxRqOvv9ez
-9YHvuIJmGhIbATtoMNYmQGD8Jz1UcU2W38kR6MJImRWJOWyxcxd+lSOcO7A3MT99
-soNe0D26K/XFfXYqxtbdVf2aA6pU0dtANCfdpidWi+Otol7oDak=
-=us4T
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmDPqQQACgkQFA3kzBSg
+KbYIlw//Yx85vOuXCRtMZvdsMKBAJRnfW7um/NRfQAhyqr4GC5bCwPxQRHtF8O8N
+O/qZjWg9Om1wgS7EwtqjqKF4Ytiag2+CqpHDCI6ksvXfmsZP/85pTTA//qXHm99P
+tpxu9x1iRl/GqYoVTu7nCCJDWwJq9XcyLTVnjUZgM5S7u7GLAaw8s2B/6K5GHPCu
+DXdBMDN/L+v+iLaXLYFUrbABLZlqC61nf3iL0I95dg72Uz8weRr5QDV1e6Jw493t
+InRKkt3lMf5fKdOkrQFII27ECDb0zbMdEi1hdGzwHEEwwe+lcluv6sk8IJsAvaoX
+DiGVqruaUMwxiLJudZZm0ipvYJaBZO7Cdo7nWs3LHUko9Gmfvz+d3IxBenzz4AMF
+4BP64R76u8EAwoEosk3xNvzWQQTGg4wSZ7EUlns6YTOZ+R3tpZxt3L7Sbpbjz4tc
+5ULYjOQcNzCYEiM7m2tk3CiWk9gc1n0dCo3OCgh2sb1REfN3u4MO5U1atBdQWS3e
+othz/xMTCOMhOXCbNdn+tpa3w4bPmkdUqM90N0dQgdbvclXoKnYugvcneIVzOcsE
+GpHGoA6gvOf6wswIQUbzGNkRr0AcGOQIWWtwVkzMoMkXTU3aVLpegsBCwXeNDwfY
+o06nyWhkkBr0NYZ3xu0Vg4Ii4I8q2CHBvUICpF0KxzZtjTpPHkc=
+=F6fK
 -----END PGP SIGNATURE-----
 
---XQAhqO+0zOPiVfGE--
+--IAGS9dtNf0nmirDq--
