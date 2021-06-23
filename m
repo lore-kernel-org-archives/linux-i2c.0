@@ -2,95 +2,97 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DA7EC4743C
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Jun 2021 14:08:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 911E7C4743C
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Jun 2021 16:19:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 613086108E
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Jun 2021 14:08:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7943E61026
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Jun 2021 16:19:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231215AbhFWOKf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 23 Jun 2021 10:10:35 -0400
-Received: from www.zeus03.de ([194.117.254.33]:51866 "EHLO mail.zeus03.de"
+        id S229886AbhFWQVR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 23 Jun 2021 12:21:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231269AbhFWOK1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 23 Jun 2021 10:10:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=Mj7EQ7nV6Jff7yb7wTLlSMV9KN4G
-        GlxCKUMrrU/WKG0=; b=ocAEe0L4rkKg1d6QWI1gro1X1R2AKa+p4y272Tb1UVP9
-        rGpOJ3/nYsIJC1LFxXspuOzc0HRIGeLp90Lm3EI/F/p+vjrIP/foSuV0KTZ09fH0
-        qNaDAIJz29s7VrZEBTTXzPkFC7L+nNqkryZIc1FvayFL7Hnu7rT62YeZ38mZDT4=
-Received: (qmail 2630227 invoked from network); 23 Jun 2021 16:08:08 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 23 Jun 2021 16:08:08 +0200
-X-UD-Smtp-Session: l3s3148p1@Xfieb2/FVMUgAwDPXwWqAK4jk/jYs7Oa
-Date:   Wed, 23 Jun 2021 16:08:08 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Linux MMC List <linux-mmc@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 5/7] i2c: rcar: : use proper DMAENGINE API for termination
-Message-ID: <YNNASBSYBu5lisae@ninjato>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux MMC List <linux-mmc@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20210623095942.3325-1-wsa+renesas@sang-engineering.com>
- <20210623095942.3325-6-wsa+renesas@sang-engineering.com>
- <CAMuHMdVQ-XFy6fP_g70N8ukNPFj20ds-iEDF58Ocnpg7e5wLsQ@mail.gmail.com>
+        id S229726AbhFWQVQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 23 Jun 2021 12:21:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9DC560FEE;
+        Wed, 23 Jun 2021 16:18:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1624465138;
+        bh=nFxDX3ob+5lrr19ZRCiRLVmW1vX1e+NTnnN+gVbSdx8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=h7IWxKWOYuMGPnptAXVpdupWM233lGFswGdu03Vw2NdlsTi+IM17AoN46iYQZzozU
+         ZWrpXu/oN685eSERGJzz85apt8LDgtA+YCbc/4YX5YLDDyje8R7jWdn3P6nplpAxOx
+         uhPbBFObjU/M9K0O82sO3Ea/mYp+ECJdceAixCVfDKyl9fdwOIHvkGra/L3Mwjmyv7
+         9VjW2rcaF1nMpkR4FHTpVYNipv9SxH1q4o+w0t3PFKBenI6HBPHcBsDxsp4Ahh2wb/
+         Z+9gEMy1jXbg/Ke0cD/Mt9UK2yZBqQz6PcNIOJTlhGWEIC6r7gMWmF/r3SvgCbNXCK
+         R/i0bTstCaing==
+Date:   Wed, 23 Jun 2021 18:18:51 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+Cc:     linux-i2c@vger.kernel.org, michal.simek@xilinx.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        git@xilinx.com
+Subject: Re: [PATCH] i2c: cadence: Clear HOLD bit before xfer_size register
+ rolls over
+Message-ID: <YNNe63q2T/9ndSgg@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
+        linux-i2c@vger.kernel.org, michal.simek@xilinx.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        git@xilinx.com
+References: <1606203965-31595-1-git-send-email-raviteja.narayanam@xilinx.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Z0m2yZezuwqrXzq0"
+        protocol="application/pgp-signature"; boundary="OyBLtaJDLVkSju19"
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdVQ-XFy6fP_g70N8ukNPFj20ds-iEDF58Ocnpg7e5wLsQ@mail.gmail.com>
+In-Reply-To: <1606203965-31595-1-git-send-email-raviteja.narayanam@xilinx.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---Z0m2yZezuwqrXzq0
+--OyBLtaJDLVkSju19
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Nov 24, 2020 at 01:16:05PM +0530, Raviteja Narayanam wrote:
+> On Xilinx zynq SOC if the delay between address register write and
+> control register write in cdns_mrecv function is more, the xfer size
+> register rolls over and controller is stuck. This is an IP bug and
+> is resolved in later versions of IP.
+>=20
+> To avoid this scenario, disable the interrupts on the current processor
+> core between the two register writes and enable them later. This can
+> help achieve the timing constraint.
+>=20
+> Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+
+Applied to for-next, thanks!
 
 
-> Is this safe? The driver is not using a threaded irq, and DMA termination
-> may be called from the interrupt handler.
-
-You are right, this will not work. Not my best day today, I overlooked
-it for i2c-rcar and lost the note pointing out the same issue for
-stm32f7 :(
-
-> Have you tried triggering DMA termination, with lockdep enabled?
-
-Nope. As the code didn't show signs of async nature, I assumed sync was
-desired anyhow.
-
-
---Z0m2yZezuwqrXzq0
+--OyBLtaJDLVkSju19
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmDTQEgACgkQFA3kzBSg
-Kba2eQ/+PTvyfQg4n/PazU8mc7PeuEydjDsjlvyoZeRijo5PCY1/JU5x2WnfDA/K
-PRIUd/IqAmJuvB+38UY9TgqWmRheri6XfyYhqbLE9Yt6MjMjFYhKKce/9PAr04nS
-5j2/CqpCoU0aWC1CNBdJNXDFGV3vFReq+ej9zexu01LRyR5oWu5etce2iux2U/pn
-FJ7FB2tABa80dRUxETG7vSCAxJla0L8efirY1dlFbFH0mZeN/tiG1apEXYjJhD5A
-ds9M4DkKcYhc2JIK2MCEgb0RDYdxcv1x7ff+Eud9cAfL28SnQUUFmGTvUXQBRCQr
-OyRBctpCvDRDu3jKKcW/J0wK3sn9FJKyws0HoH2/L1k7KjK66PF34Upqd/VCmt0r
-fMSbT9XwZCbQorwkolfW60JmfaIIaNEnwcYLjJd99ElpgYnqahmYlPUgVCC+ByzH
-oSXLiSO2purA2ZerMj7wNyMpkf99U3pERaJvs5imoGgWepicyKrY/OIJ4kFDKZVK
-XICVU4I4xXevkcQyaS90kgCyiM7k31K3FORtCoMnoRqRUlaltdNu+46tLwTrZRte
-eHRNya3znaxWNIYy15v5ddatwcQnyRImJZzhI7BMhQr3A5JaCMcv8FEH86M3CZZg
-FxKuKiqwejA9Vj+EvWp34mTnqify/ZZQ0/Z3NZXnj0FeX57Ek6o=
-=lvkI
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmDTXuYACgkQFA3kzBSg
+KbYIdg//exVtEUi0D2HX1w/0woHDZRYQ/uFHs4XoH8Ptbj2eWqUTHEKz+9tepW91
+vtkbu2vGzNeP8m4aEVB1zg9ncCn0aj+EYJGb68JvLFGGgoHf2R7i1ko2PoAV4d47
+q3ZNU1F54QRvUScOc5soabUQBVJ0NFRQJJ841ZAEqL0ODHmkrZYa4ki8EvV6zPEH
+FI1g2ccETNrBGoS3no8u9ecAMV5RFEP3zYHDjnpyLyPSODnkB/eH8fhjCMmvyE39
+3/PwLQGpT0qlj0yDk1T38ohUUucDD6V9YbrHvKw9w0F3Pfq21w8fGSKL/sIRkhwo
+spbt7lCT9ao1rLgd/8NXVqRl69tLv+fqJI0vl0YvJyOVTyddWRTHZDw8D9qDiS5Z
+8iGbgWU3UAgfTFkm9l2IyZZikzBCWuTwYWMfxwP9ZHrlmR/28V3jAjL9/AOXm/sd
+x5d0qMKsJHta9yKqnmERGiTFSRTKrBk4RhEhMVD89a131VyMfoHnNZQOnHLhjAgh
+wDnvDz5TQthhCQzeLKWfUPTMMsNojfg/qsbXWrOoUySqVYD8nlHsuvNUopKno6MA
+Y5SdLK5NetL3qvED/0MmchTZbNgWsnvhbTjpxbnuaLfvtGlu6G2w2gfQ3VRuPflc
+jptjt3QNgph9TwVra44sl04QHp3+1/kXO7UgfWiARuKFoAJHcXw=
+=1t/y
 -----END PGP SIGNATURE-----
 
---Z0m2yZezuwqrXzq0--
+--OyBLtaJDLVkSju19--
