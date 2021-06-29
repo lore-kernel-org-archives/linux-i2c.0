@@ -2,35 +2,34 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E210C11F64
-	for <linux-i2c@archiver.kernel.org>; Tue, 29 Jun 2021 03:03:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE982C11F64
+	for <linux-i2c@archiver.kernel.org>; Tue, 29 Jun 2021 03:04:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 41D2961D05
-	for <linux-i2c@archiver.kernel.org>; Tue, 29 Jun 2021 03:03:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 925A161D0E
+	for <linux-i2c@archiver.kernel.org>; Tue, 29 Jun 2021 03:04:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231398AbhF2DGQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 28 Jun 2021 23:06:16 -0400
-Received: from mga12.intel.com ([192.55.52.136]:50692 "EHLO mga12.intel.com"
+        id S231332AbhF2DGp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 28 Jun 2021 23:06:45 -0400
+Received: from mga03.intel.com ([134.134.136.65]:14776 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231332AbhF2DGP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 28 Jun 2021 23:06:15 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10029"; a="187761273"
+        id S231219AbhF2DGo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 28 Jun 2021 23:06:44 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10029"; a="208112885"
 X-IronPort-AV: E=Sophos;i="5.83,307,1616482800"; 
-   d="scan'208";a="187761273"
+   d="scan'208";a="208112885"
 Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2021 20:03:48 -0700
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2021 20:04:17 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.83,307,1616482800"; 
-   d="scan'208";a="456601083"
+   d="scan'208";a="456601201"
 Received: from dengjie-mobl1.ccr.corp.intel.com (HELO [10.239.154.58]) ([10.239.154.58])
-  by fmsmga008.fm.intel.com with ESMTP; 28 Jun 2021 20:03:43 -0700
+  by fmsmga008.fm.intel.com with ESMTP; 28 Jun 2021 20:04:11 -0700
 Subject: Re: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
-To:     Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@kernel.org>,
+To:     Wolfram Sang <wsa@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
         Linux I2C <linux-i2c@vger.kernel.org>,
         virtualization@lists.linux-foundation.org,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -51,92 +50,50 @@ To:     Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@kernel.org>,
 References: <226a8d5663b7bb6f5d06ede7701eedb18d1bafa1.1616493817.git.jie.deng@intel.com>
  <YNmK0MP5ffQpiipt@ninjato>
  <CAK8P3a2qrfhyfZA-8qPVQ252tZXSBKVT==GigJMVvX5_XLPrCQ@mail.gmail.com>
+ <YNmVg3ZhshshlbSx@ninjato>
+ <CAK8P3a3Z-9MbsH6ZkXENZ-vt8+W5aP3t+EBcEGRmh2Cgr89R8Q@mail.gmail.com>
+ <YNmg2IEpUlArZXPK@ninjato>
+ <CAK8P3a3vD0CpuJW=3w3nq0h9HECCiOigNWK-SvXq=m1zZpqvjA@mail.gmail.com>
+ <YNnjh3xxyaZZSo9N@ninjato>
 From:   Jie Deng <jie.deng@intel.com>
-Message-ID: <cdadf700-921b-7c61-210d-7aad355a3871@intel.com>
-Date:   Tue, 29 Jun 2021 11:03:42 +0800
+Message-ID: <4c7f0989-305b-fe4c-63d1-966043c5d2f2@intel.com>
+Date:   Tue, 29 Jun 2021 11:04:10 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Firefox/78.0 Thunderbird/78.10.0
 MIME-Version: 1.0
-In-Reply-To: <CAK8P3a2qrfhyfZA-8qPVQ252tZXSBKVT==GigJMVvX5_XLPrCQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <YNnjh3xxyaZZSo9N@ninjato>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 2021/6/28 17:01, Arnd Bergmann wrote:
-
-> On Mon, Jun 28, 2021 at 10:39 AM Wolfram Sang <wsa@kernel.org> wrote:
->> sorry for the long delay. I am not familiar with VFIO, so I had to dive
->> into the topic a little first. I am still not seeing through it
->> completely, so I have very high-level questions first.
-> You probably know this already, but just in case for clarification
-> these are two different things:
+On 2021/6/28 22:58, Wolfram Sang wrote:
+> If adding support incrementally works for such an interface, this makes
+> sense as well.
 >
-> VFIO: kernel feature to make raw (usually PCI) devices available
->             to user space drivers and virtual machines from a kernel
->             running on bare metal.
->
-> virtio: transport protocol for implementing arbitrary paravirtualized
->            drivers in (usually) a virtual machine guest without giving the
->            guest access to hardware registers.
->
-Thanks Arnd for clarification.
+> So, where are we? As I understand, this v10 does not support I2C
+> transactions (or I2C_RDWR as you said). But you want to support all
+> clients. So, this doesn't match, or?
 
-Let me add some more:
+I hope we can have a minimum working driver get merged first so that we 
+can have a base.
 
+The v10 has three remaining problems:
 
-The native model is as follows: a specific native I2C driver operates a 
-specific hardware.
+     1. To remove vi->adap.class = I2C_CLASS_DEPRECATED; (already 
+confirmed by Wolfram)
 
-A specific native I2C driverÂ  <--> A specific hardware
+     2. Use #ifdef CONFIG_PM_SLEEP to replace the "__maybe_unused" 
+(already confirmed by Arnd)
 
+     3. It seems the I2C core takes care of locking already, so is it 
+safy to remove "struct mutex lock in struct virtio_i2c"?
 
-The virtio paravirtualized model is something like:
-
-virtio-i2c <--> virtio I2C interfaces <--> virtio-backend <--> Real hardware
-
-virtio-i2c: is this driver, the frontend driver.
-
-virtio I2C interfaces: which are described in the specification.
-
-https://raw.githubusercontent.com/oasis-tcs/virtio-spec/master/virtio-i2c.tex.
-
- Â Â Â  I had tried to mirror Linux I2C interfaces (like "i2c_msg") into 
-virtio I2C interface directly. But
-
- Â Â Â  when I was doing upstream for this specification, I understood the 
-virtio TC had the design philosophy
-
- Â Â Â  "VIRTIO devices are not specific to Linux so the specs design 
-should avoid the limitations of the
-
- Â Â Â  current Linux driver behavior." So we redefined a minimum virtio 
-I2C interfaces to make a working POC.
-
- Â Â Â  and we may extend it in the future according to the need.
-
-virtio-backend: the backend driver communicate with virtio-i2c by 
-following virtio I2C interfaces specs.
-
- Â Â Â Â  The are already two backend drivers developed by Viresh, one in 
-QEMU, another in rust-vmm.
-
- Â Â Â Â  1. vhost-user: 
-https://lore.kernel.org/qemu-devel/cover.1617278395.git.viresh.kumar@linaro.org/t/#m3b5044bad9769b170f505e63bd081eb27cef8db2
-
- Â Â Â Â  2. rust-vmm I2C backend: 
-https://github.com/rust-vmm/vhost-device/pull/1
-
+         (Raised by Viresh, still need Wolfram's confirmation)
 
 Regards,
 
 Jie
-
-
-
-
-
-
 
