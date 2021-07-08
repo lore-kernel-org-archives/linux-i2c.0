@@ -2,244 +2,503 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F880C11F70
-	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jul 2021 12:41:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BEF6C07E96
+	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jul 2021 18:09:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D655F61418
-	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jul 2021 12:41:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EB1796192C
+	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jul 2021 18:09:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231347AbhGHMoa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 8 Jul 2021 08:44:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53040 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231490AbhGHMoW (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Jul 2021 08:44:22 -0400
-Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0C7C0613E4
-        for <linux-i2c@vger.kernel.org>; Thu,  8 Jul 2021 05:41:40 -0700 (PDT)
-Received: by mail-vs1-xe2f.google.com with SMTP id h18so3513912vsj.2
-        for <linux-i2c@vger.kernel.org>; Thu, 08 Jul 2021 05:41:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=hP9H7HVTE7TFrRNTl1vyqWVVeZcuqXBCZg0bGqclL/A=;
-        b=VetX2Cfr8bdRNaZiWLEm04u6bqZW3l6DI4CAN74JIY7k4z1gUX2WPAhVDnzm350lf2
-         zN9Z12JQmbzlk/BWNUXvjVAbpB66ZXuvK3SPb444QQ5diXQOytBY51L2/oTaoUD9VeXU
-         uFurAnxdtCpnicZBLB0yD9ojUwv6W/qtm1PvBS9AFUFJNPr3tKxeC4wQWDvFkNeWRoRf
-         7SjXn45LyDiaoeLgbbyRwVPp/zZWqO3qYud0+Xn/514eUefuiFS0gjROioJ7tCP2C/ZN
-         ZUSLS7lmtDXFsaxdqMahs7f08oqXmzo9A5DfBGmAWg3PByPV9/9CFdzFbNZ8GtPMsFJE
-         z42g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=hP9H7HVTE7TFrRNTl1vyqWVVeZcuqXBCZg0bGqclL/A=;
-        b=lFjX45RcNbBwx1gR7sWFfk7u77pd+xB9aamT7ZofnrfU+tktOyGkgn9WhtN2VGBgWg
-         Zzgv1NK6dr7ImksWHGu6dxDcgqMRAZJ6+pgStYO52YrbhmnJ6T6htu702dkb5FlhPM/h
-         5gGmH7c48RfPZIvcpXTPT8P09zERXqhRL19JXa+zuntTPZZM50OqvnpN81QaCS/Y/Sp3
-         0VT7wSz0CB8Dg5V+s/tHgRO8BT5t5Bl54vl24AnNrS9jenYXPLpVcdSipSkVyqSICP5m
-         j6hn3ByDL/0XcgxoSecxNlo9y/ozVsTZQ9N0w4PnjLSvcLRVJBQSvRfPcEB0gJyACi0J
-         MQ0g==
-X-Gm-Message-State: AOAM5309dzyDg7ELWhPGnpcQF7GNlQXVCxkpiK12n0fyh5muofhQN+lo
-        pCvYTiF4JZl6cRFOV4xZqsIOjeSmsvstLZXCtoiBCg==
-X-Google-Smtp-Source: ABdhPJywz4fR2V+V+6/E9OWxEVi9/b58VFa4IZ2LlJTPpT0B9SRAdSG9PM7u1rPMHG2ZlSabjmUDzfVjnsqdUEe3bFI=
-X-Received: by 2002:a67:8783:: with SMTP id j125mr27888650vsd.42.1625748098931;
- Thu, 08 Jul 2021 05:41:38 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210706154803.1631813-1-u.kleine-koenig@pengutronix.de> <20210706154803.1631813-5-u.kleine-koenig@pengutronix.de>
-In-Reply-To: <20210706154803.1631813-5-u.kleine-koenig@pengutronix.de>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Thu, 8 Jul 2021 14:41:02 +0200
-Message-ID: <CAPDyKFo0zuooWAkuR=BcsvcJ2pmSrcEoBhuC8+ne18GQphyPHA@mail.gmail.com>
-Subject: Re: [PATCH v2 4/4] bus: Make remove callback return void
-To:     =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Geoff Levand <geoff@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Alison Schofield <alison.schofield@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Ben Widawsky <ben.widawsky@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        id S230323AbhGHSLv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 8 Jul 2021 14:11:51 -0400
+Received: from foss.arm.com ([217.140.110.172]:36016 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230248AbhGHSLt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 8 Jul 2021 14:11:49 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 34EBE1063;
+        Thu,  8 Jul 2021 11:09:07 -0700 (PDT)
+Received: from usa.arm.com (e103737-lin.cambridge.arm.com [10.1.197.49])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id A1C643F66F;
+        Thu,  8 Jul 2021 11:09:05 -0700 (PDT)
+From:   Sudeep Holla <sudeep.holla@arm.com>
+To:     linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
         Cristian Marussi <cristian.marussi@arm.com>,
-        Wu Hao <hao.wu@intel.com>, Tom Rix <trix@redhat.com>,
-        Moritz Fischer <mdf@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Jens Taprogge <jens.taprogge@taprogge.org>,
-        Johannes Thumshirn <morbidrsa@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Alex Dubov <oakad@yahoo.com>, Lee Jones <lee.jones@linaro.org>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Thorsten Scherer <t.scherer@eckelmann.de>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>, Michael Buesch <m@bues.ch>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
-        Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>,
-        Andreas Noever <andreas.noever@gmail.com>,
-        Michael Jamet <michael.jamet@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Yehezkel Bernat <YehezkelShB@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Martyn Welch <martyn@welchs.me.uk>,
-        Manohar Vanga <manohar.vanga@gmail.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, Marc Zyngier <maz@kernel.org>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Joey Pabalan <jpabalanb@gmail.com>,
-        =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Frank Li <lznuaa@gmail.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        Bodo Stroesser <bostroesser@gmail.com>,
-        Hannes Reinecke <hare@suse.de>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        SeongJae Park <sjpark@amazon.de>,
-        Julien Grall <jgrall@amazon.com>,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-acpi@vger.kernel.org, linux-wireless@vger.kernel.org,
-        linux-sunxi@lists.linux.dev, linux-cxl@vger.kernel.org,
-        nvdimm@lists.linux.dev, dmaengine@vger.kernel.org,
-        linux1394-devel@lists.sourceforge.net, linux-fpga@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org,
-        industrypack-devel@lists.sourceforge.net,
-        linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
-        netdev@vger.kernel.org, linux-ntb@googlegroups.com,
-        linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-scsi@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-arm-msm@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-staging@lists.linux.dev,
-        greybus-dev@lists.linaro.org, target-devel@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-serial@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        xen-devel@lists.xenproject.org,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Johannes Thumshirn <jth@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Jassi Brar <jassisinghbrar@gmail.com>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wolfram Sang <wsa@kernel.org>, linux-hwmon@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH 07/13] mailbox: pcc: Use PCC mailbox channel pointer instead of standard
+Date:   Thu,  8 Jul 2021 19:08:45 +0100
+Message-Id: <20210708180851.2311192-8-sudeep.holla@arm.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210708180851.2311192-1-sudeep.holla@arm.com>
+References: <20210708180851.2311192-1-sudeep.holla@arm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, 6 Jul 2021 at 17:53, Uwe Kleine-K=C3=B6nig
-<u.kleine-koenig@pengutronix.de> wrote:
->
-> The driver core ignores the return value of this callback because there
-> is only little it can do when a device disappears.
->
-> This is the final bit of a long lasting cleanup quest where several
-> buses were converted to also return void from their remove callback.
-> Additionally some resource leaks were fixed that were caused by drivers
-> returning an error code in the expectation that the driver won't go
-> away.
->
-> With struct bus_type::remove returning void it's prevented that newly
-> implemented buses return an ignored error code and so don't anticipate
-> wrong expectations for driver authors.
->
-> Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk> (For ARM, Am=
-ba and related parts)
-> Acked-by: Mark Brown <broonie@kernel.org>
-> Acked-by: Chen-Yu Tsai <wens@csie.org> (for drivers/bus/sunxi-rsb.c)
-> Acked-by: Pali Roh=C3=A1r <pali@kernel.org>
-> Acked-by: Mauro Carvalho Chehab <mchehab@kernel.org> (for drivers/media)
-> Acked-by: Hans de Goede <hdegoede@redhat.com> (For drivers/platform)
-> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Acked-By: Vinod Koul <vkoul@kernel.org>
-> Acked-by: Juergen Gross <jgross@suse.com> (For Xen)
-> Acked-by: Lee Jones <lee.jones@linaro.org> (For drivers/mfd)
-> Acked-by: Johannes Thumshirn <jth@kernel.org> (For drivers/mcb)
-> Acked-by: Johan Hovold <johan@kernel.org>
-> Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org> (For drive=
-rs/slimbus)
-> Acked-by: Kirti Wankhede <kwankhede@nvidia.com> (For drivers/vfio)
-> Acked-by: Maximilian Luz <luzmaximilian@gmail.com>
-> Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com> (For ulpi and=
- typec)
-> Acked-by: Samuel Iglesias Gons=C3=A1lvez <siglesias@igalia.com> (For ipac=
-k)
-> Reviewed-by: Tom Rix <trix@redhat.com> (For fpga)
-> Acked-by: Geoff Levand <geoff@infradead.org> (For ps3)
-> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+Now that we have all the shared memory region information populated in
+the pcc_mbox_chan, let us propagate the pointer to the same as the
+return value to pcc_mbox_request channel.
 
-Acked-by: Ulf Hansson <ulf.hansson@linaro.org> # For MMC
+This eliminates the need for the individual users of PCC mailbox to
+parse the PCCT subspace entries and fetch the shmem information. This
+also eliminates the need for PCC mailbox controller to set con_priv to
+PCCT subspace entries. This is required as con_priv is private to the
+controller driver to attach private data associated with the channel and
+not meant to be used by the mailbox client/users.
 
-[...]
+Let us convert all the users of pcc_mbox_{request,free}_channel to use
+new interface.
 
-Kind regards
-Uffe
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Wolfram Sang <wsa@kernel.org>
+Cc: linux-hwmon@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+---
+ drivers/acpi/cppc_acpi.c               | 43 +++++++-----------
+ drivers/hwmon/xgene-hwmon.c            | 35 ++++++---------
+ drivers/i2c/busses/i2c-xgene-slimpro.c | 33 +++++---------
+ drivers/mailbox/pcc.c                  | 61 +++++++-------------------
+ include/acpi/pcc.h                     | 12 ++---
+ 5 files changed, 61 insertions(+), 123 deletions(-)
+
+diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
+index eb5685167d19..dad6c0c1dd3d 100644
+--- a/drivers/acpi/cppc_acpi.c
++++ b/drivers/acpi/cppc_acpi.c
+@@ -43,7 +43,7 @@
+ #include <acpi/cppc_acpi.h>
+ 
+ struct cppc_pcc_data {
+-	struct mbox_chan *pcc_channel;
++	struct pcc_mbox_chan *pcc_channel;
+ 	void __iomem *pcc_comm_addr;
+ 	bool pcc_channel_acquired;
+ 	unsigned int deadline_us;
+@@ -295,7 +295,7 @@ static int send_pcc_cmd(int pcc_ss_id, u16 cmd)
+ 	pcc_ss_data->platform_owns_pcc = true;
+ 
+ 	/* Ring doorbell */
+-	ret = mbox_send_message(pcc_ss_data->pcc_channel, &cmd);
++	ret = mbox_send_message(pcc_ss_data->pcc_channel->mchan, &cmd);
+ 	if (ret < 0) {
+ 		pr_err("Err sending PCC mbox message. ss: %d cmd:%d, ret:%d\n",
+ 		       pcc_ss_id, cmd, ret);
+@@ -308,10 +308,10 @@ static int send_pcc_cmd(int pcc_ss_id, u16 cmd)
+ 	if (pcc_ss_data->pcc_mrtt)
+ 		pcc_ss_data->last_cmd_cmpl_time = ktime_get();
+ 
+-	if (pcc_ss_data->pcc_channel->mbox->txdone_irq)
+-		mbox_chan_txdone(pcc_ss_data->pcc_channel, ret);
++	if (pcc_ss_data->pcc_channel->mchan->mbox->txdone_irq)
++		mbox_chan_txdone(pcc_ss_data->pcc_channel->mchan, ret);
+ 	else
+-		mbox_client_txdone(pcc_ss_data->pcc_channel, ret);
++		mbox_client_txdone(pcc_ss_data->pcc_channel->mchan, ret);
+ 
+ end:
+ 	if (cmd == CMD_WRITE) {
+@@ -493,46 +493,33 @@ EXPORT_SYMBOL_GPL(acpi_get_psd_map);
+ 
+ static int register_pcc_channel(int pcc_ss_idx)
+ {
+-	struct acpi_pcct_hw_reduced *cppc_ss;
++	struct pcc_mbox_chan *pcc_chan;
+ 	u64 usecs_lat;
+ 
+ 	if (pcc_ss_idx >= 0) {
+-		pcc_data[pcc_ss_idx]->pcc_channel =
+-			pcc_mbox_request_channel(&cppc_mbox_cl,	pcc_ss_idx);
++		pcc_chan = pcc_mbox_request_channel(&cppc_mbox_cl, pcc_ss_idx);
+ 
+-		if (IS_ERR(pcc_data[pcc_ss_idx]->pcc_channel)) {
++		if (IS_ERR(pcc_chan)) {
+ 			pr_err("Failed to find PCC channel for subspace %d\n",
+ 			       pcc_ss_idx);
+ 			return -ENODEV;
+ 		}
+ 
+-		/*
+-		 * The PCC mailbox controller driver should
+-		 * have parsed the PCCT (global table of all
+-		 * PCC channels) and stored pointers to the
+-		 * subspace communication region in con_priv.
+-		 */
+-		cppc_ss = (pcc_data[pcc_ss_idx]->pcc_channel)->con_priv;
+-
+-		if (!cppc_ss) {
+-			pr_err("No PCC subspace found for %d CPPC\n",
+-			       pcc_ss_idx);
+-			return -ENODEV;
+-		}
+-
++		pcc_data[pcc_ss_idx]->pcc_channel = pcc_chan;
+ 		/*
+ 		 * cppc_ss->latency is just a Nominal value. In reality
+ 		 * the remote processor could be much slower to reply.
+ 		 * So add an arbitrary amount of wait on top of Nominal.
+ 		 */
+-		usecs_lat = NUM_RETRIES * cppc_ss->latency;
++		usecs_lat = NUM_RETRIES * pcc_chan->latency;
+ 		pcc_data[pcc_ss_idx]->deadline_us = usecs_lat;
+-		pcc_data[pcc_ss_idx]->pcc_mrtt = cppc_ss->min_turnaround_time;
+-		pcc_data[pcc_ss_idx]->pcc_mpar = cppc_ss->max_access_rate;
+-		pcc_data[pcc_ss_idx]->pcc_nominal = cppc_ss->latency;
++		pcc_data[pcc_ss_idx]->pcc_mrtt = pcc_chan->min_turnaround_time;
++		pcc_data[pcc_ss_idx]->pcc_mpar = pcc_chan->max_access_rate;
++		pcc_data[pcc_ss_idx]->pcc_nominal = pcc_chan->latency;
+ 
+ 		pcc_data[pcc_ss_idx]->pcc_comm_addr =
+-			acpi_os_ioremap(cppc_ss->base_address, cppc_ss->length);
++			acpi_os_ioremap(pcc_chan->shmem_base_addr,
++					pcc_chan->shmem_size);
+ 		if (!pcc_data[pcc_ss_idx]->pcc_comm_addr) {
+ 			pr_err("Failed to ioremap PCC comm region mem for %d\n",
+ 			       pcc_ss_idx);
+diff --git a/drivers/hwmon/xgene-hwmon.c b/drivers/hwmon/xgene-hwmon.c
+index 382ef0395d8e..30aae8642069 100644
+--- a/drivers/hwmon/xgene-hwmon.c
++++ b/drivers/hwmon/xgene-hwmon.c
+@@ -93,6 +93,7 @@ struct slimpro_resp_msg {
+ struct xgene_hwmon_dev {
+ 	struct device		*dev;
+ 	struct mbox_chan	*mbox_chan;
++	struct pcc_mbox_chan	*pcc_chan;
+ 	struct mbox_client	mbox_client;
+ 	int			mbox_idx;
+ 
+@@ -652,7 +653,7 @@ static int xgene_hwmon_probe(struct platform_device *pdev)
+ 			goto out_mbox_free;
+ 		}
+ 	} else {
+-		struct acpi_pcct_hw_reduced *cppc_ss;
++		struct pcc_mbox_chan *pcc_chan;
+ 		const struct acpi_device_id *acpi_id;
+ 		int version;
+ 
+@@ -671,26 +672,16 @@ static int xgene_hwmon_probe(struct platform_device *pdev)
+ 		}
+ 
+ 		cl->rx_callback = xgene_hwmon_pcc_rx_cb;
+-		ctx->mbox_chan = pcc_mbox_request_channel(cl, ctx->mbox_idx);
+-		if (IS_ERR(ctx->mbox_chan)) {
++		pcc_chan = pcc_mbox_request_channel(cl, ctx->mbox_idx);
++		if (IS_ERR(pcc_chan)) {
+ 			dev_err(&pdev->dev,
+ 				"PPC channel request failed\n");
+ 			rc = -ENODEV;
+ 			goto out_mbox_free;
+ 		}
+ 
+-		/*
+-		 * The PCC mailbox controller driver should
+-		 * have parsed the PCCT (global table of all
+-		 * PCC channels) and stored pointers to the
+-		 * subspace communication region in con_priv.
+-		 */
+-		cppc_ss = ctx->mbox_chan->con_priv;
+-		if (!cppc_ss) {
+-			dev_err(&pdev->dev, "PPC subspace not found\n");
+-			rc = -ENODEV;
+-			goto out;
+-		}
++		ctx->pcc_chan = pcc_chan;
++		ctx->mbox_chan = pcc_chan->mchan;
+ 
+ 		if (!ctx->mbox_chan->mbox->txdone_irq) {
+ 			dev_err(&pdev->dev, "PCC IRQ not supported\n");
+@@ -702,16 +693,16 @@ static int xgene_hwmon_probe(struct platform_device *pdev)
+ 		 * This is the shared communication region
+ 		 * for the OS and Platform to communicate over.
+ 		 */
+-		ctx->comm_base_addr = cppc_ss->base_address;
++		ctx->comm_base_addr = pcc_chan->shmem_base_addr;
+ 		if (ctx->comm_base_addr) {
+ 			if (version == XGENE_HWMON_V2)
+ 				ctx->pcc_comm_addr = (void __force *)ioremap(
+ 							ctx->comm_base_addr,
+-							cppc_ss->length);
++							pcc_chan->shmem_size);
+ 			else
+ 				ctx->pcc_comm_addr = memremap(
+ 							ctx->comm_base_addr,
+-							cppc_ss->length,
++							pcc_chan->shmem_size,
+ 							MEMREMAP_WB);
+ 		} else {
+ 			dev_err(&pdev->dev, "Failed to get PCC comm region\n");
+@@ -727,11 +718,11 @@ static int xgene_hwmon_probe(struct platform_device *pdev)
+ 		}
+ 
+ 		/*
+-		 * cppc_ss->latency is just a Nominal value. In reality
++		 * pcc_chan->latency is just a Nominal value. In reality
+ 		 * the remote processor could be much slower to reply.
+ 		 * So add an arbitrary amount of wait on top of Nominal.
+ 		 */
+-		ctx->usecs_lat = PCC_NUM_RETRIES * cppc_ss->latency;
++		ctx->usecs_lat = PCC_NUM_RETRIES * pcc_chan->latency;
+ 	}
+ 
+ 	ctx->hwmon_dev = hwmon_device_register_with_groups(ctx->dev,
+@@ -757,7 +748,7 @@ static int xgene_hwmon_probe(struct platform_device *pdev)
+ 	if (acpi_disabled)
+ 		mbox_free_channel(ctx->mbox_chan);
+ 	else
+-		pcc_mbox_free_channel(ctx->mbox_chan);
++		pcc_mbox_free_channel(ctx->pcc_chan);
+ out_mbox_free:
+ 	kfifo_free(&ctx->async_msg_fifo);
+ 
+@@ -773,7 +764,7 @@ static int xgene_hwmon_remove(struct platform_device *pdev)
+ 	if (acpi_disabled)
+ 		mbox_free_channel(ctx->mbox_chan);
+ 	else
+-		pcc_mbox_free_channel(ctx->mbox_chan);
++		pcc_mbox_free_channel(ctx->pcc_chan);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
+index bba08cbce6e1..1a19ebad60ad 100644
+--- a/drivers/i2c/busses/i2c-xgene-slimpro.c
++++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
+@@ -103,6 +103,7 @@ struct slimpro_i2c_dev {
+ 	struct i2c_adapter adapter;
+ 	struct device *dev;
+ 	struct mbox_chan *mbox_chan;
++	struct pcc_mbox_chan *pcc_chan;
+ 	struct mbox_client mbox_client;
+ 	int mbox_idx;
+ 	struct completion rd_complete;
+@@ -466,7 +467,7 @@ static int xgene_slimpro_i2c_probe(struct platform_device *pdev)
+ 			return PTR_ERR(ctx->mbox_chan);
+ 		}
+ 	} else {
+-		struct acpi_pcct_hw_reduced *cppc_ss;
++		struct pcc_mbox_chan *pcc_chan;
+ 		const struct acpi_device_id *acpi_id;
+ 		int version = XGENE_SLIMPRO_I2C_V1;
+ 
+@@ -483,24 +484,14 @@ static int xgene_slimpro_i2c_probe(struct platform_device *pdev)
+ 
+ 		cl->tx_block = false;
+ 		cl->rx_callback = slimpro_i2c_pcc_rx_cb;
+-		ctx->mbox_chan = pcc_mbox_request_channel(cl, ctx->mbox_idx);
+-		if (IS_ERR(ctx->mbox_chan)) {
++		pcc_chan = pcc_mbox_request_channel(cl, ctx->mbox_idx);
++		if (IS_ERR(pcc_chan)) {
+ 			dev_err(&pdev->dev, "PCC mailbox channel request failed\n");
+-			return PTR_ERR(ctx->mbox_chan);
++			return PTR_ERR(ctx->pcc_chan);
+ 		}
+ 
+-		/*
+-		 * The PCC mailbox controller driver should
+-		 * have parsed the PCCT (global table of all
+-		 * PCC channels) and stored pointers to the
+-		 * subspace communication region in con_priv.
+-		 */
+-		cppc_ss = ctx->mbox_chan->con_priv;
+-		if (!cppc_ss) {
+-			dev_err(&pdev->dev, "PPC subspace not found\n");
+-			rc = -ENOENT;
+-			goto mbox_err;
+-		}
++		ctx->pcc_chan = pcc_chan;
++		ctx->mbox_chan = pcc_chan->mchan;
+ 
+ 		if (!ctx->mbox_chan->mbox->txdone_irq) {
+ 			dev_err(&pdev->dev, "PCC IRQ not supported\n");
+@@ -512,17 +503,17 @@ static int xgene_slimpro_i2c_probe(struct platform_device *pdev)
+ 		 * This is the shared communication region
+ 		 * for the OS and Platform to communicate over.
+ 		 */
+-		ctx->comm_base_addr = cppc_ss->base_address;
++		ctx->comm_base_addr = pcc_chan->shmem_base_addr;
+ 		if (ctx->comm_base_addr) {
+ 			if (version == XGENE_SLIMPRO_I2C_V2)
+ 				ctx->pcc_comm_addr = memremap(
+ 							ctx->comm_base_addr,
+-							cppc_ss->length,
++							pcc_chan->shmem_size,
+ 							MEMREMAP_WT);
+ 			else
+ 				ctx->pcc_comm_addr = memremap(
+ 							ctx->comm_base_addr,
+-							cppc_ss->length,
++							pcc_chan->shmem_size,
+ 							MEMREMAP_WB);
+ 		} else {
+ 			dev_err(&pdev->dev, "Failed to get PCC comm region\n");
+@@ -561,7 +552,7 @@ static int xgene_slimpro_i2c_probe(struct platform_device *pdev)
+ 	if (acpi_disabled)
+ 		mbox_free_channel(ctx->mbox_chan);
+ 	else
+-		pcc_mbox_free_channel(ctx->mbox_chan);
++		pcc_mbox_free_channel(ctx->pcc_chan);
+ 
+ 	return rc;
+ }
+@@ -575,7 +566,7 @@ static int xgene_slimpro_i2c_remove(struct platform_device *pdev)
+ 	if (acpi_disabled)
+ 		mbox_free_channel(ctx->mbox_chan);
+ 	else
+-		pcc_mbox_free_channel(ctx->mbox_chan);
++		pcc_mbox_free_channel(ctx->pcc_chan);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/mailbox/pcc.c b/drivers/mailbox/pcc.c
+index affde0995d52..49971e007e40 100644
+--- a/drivers/mailbox/pcc.c
++++ b/drivers/mailbox/pcc.c
+@@ -79,24 +79,9 @@ struct pcc_chan_info {
+ 	int db_irq;
+ };
+ 
++#define to_pcc_chan_info(c) container_of(c, struct pcc_chan_info, chan)
+ static struct pcc_chan_info *chan_info;
+-
+ static struct mbox_controller pcc_mbox_ctrl = {};
+-/**
+- * get_pcc_channel - Given a PCC subspace idx, get
+- *	the respective mbox_channel.
+- * @id: PCC subspace index.
+- *
+- * Return: ERR_PTR(errno) if error, else pointer
+- *	to mbox channel.
+- */
+-static struct mbox_chan *get_pcc_channel(int id)
+-{
+-	if (id < 0 || id >= pcc_mbox_ctrl.num_chans)
+-		return ERR_PTR(-ENOENT);
+-
+-	return &pcc_mbox_channels[id];
+-}
+ 
+ /*
+  * PCC can be used with perf critical drivers such as CPPC
+@@ -239,26 +224,16 @@ static irqreturn_t pcc_mbox_irq(int irq, void *p)
+  *		ACPI package. This is used to lookup the array of PCC
+  *		subspaces as parsed by the PCC Mailbox controller.
+  *
+- * Return: Pointer to the Mailbox Channel if successful or
+- *		ERR_PTR.
++ * Return: Pointer to the PCC Mailbox Channel if successful or ERR_PTR.
+  */
+-struct mbox_chan *pcc_mbox_request_channel(struct mbox_client *cl,
+-					   int subspace_id)
++struct pcc_mbox_chan *
++pcc_mbox_request_channel(struct mbox_client *cl, int subspace_id)
+ {
+ 	struct pcc_chan_info *pchan = chan_info + subspace_id;
+ 	struct device *dev = pcc_mbox_ctrl.dev;
+-	struct mbox_chan *chan;
++	struct mbox_chan *chan = pchan->chan.mchan;
+ 	unsigned long flags;
+ 
+-	/*
+-	 * Each PCC Subspace is a Mailbox Channel.
+-	 * The PCC Clients get their PCC Subspace ID
+-	 * from their own tables and pass it here.
+-	 * This returns a pointer to the PCC subspace
+-	 * for the Client to operate on.
+-	 */
+-	chan = get_pcc_channel(subspace_id);
+-
+ 	if (IS_ERR(chan) || chan->cl) {
+ 		dev_err(dev, "Channel not found for idx: %d\n", subspace_id);
+ 		return ERR_PTR(-EBUSY);
+@@ -284,38 +259,32 @@ struct mbox_chan *pcc_mbox_request_channel(struct mbox_client *cl,
+ 		if (unlikely(rc)) {
+ 			dev_err(dev, "failed to register PCC interrupt %d\n",
+ 				pchan->db_irq);
+-			pcc_mbox_free_channel(chan);
+-			chan = ERR_PTR(rc);
++			pcc_mbox_free_channel(&pchan->chan);
++			return ERR_PTR(rc);
+ 		}
+ 	}
+ 
+-	return chan;
++	return &pchan->chan;
+ }
+ EXPORT_SYMBOL_GPL(pcc_mbox_request_channel);
+ 
+ /**
+  * pcc_mbox_free_channel - Clients call this to free their Channel.
+  *
+- * @chan: Pointer to the mailbox channel as returned by
+- *		pcc_mbox_request_channel()
++ * @pchan: Pointer to the PCC mailbox channel as returned by
++ *	   pcc_mbox_request_channel()
+  */
+-void pcc_mbox_free_channel(struct mbox_chan *chan)
++void pcc_mbox_free_channel(struct pcc_mbox_chan *pchan)
+ {
+-	u32 id = chan - pcc_mbox_channels;
+-	struct pcc_chan_info *pchan;
++	struct pcc_chan_info *pchan_info = to_pcc_chan_info(pchan);
++	struct mbox_chan *chan = pchan->mchan;
+ 	unsigned long flags;
+ 
+ 	if (!chan || !chan->cl)
+ 		return;
+ 
+-	if (id >= pcc_mbox_ctrl.num_chans) {
+-		pr_debug("pcc_mbox_free_channel: Invalid mbox_chan passed\n");
+-		return;
+-	}
+-
+-	pchan = chan_info + id;
+-	if (pchan->db_irq > 0)
+-		devm_free_irq(chan->mbox->dev, pchan->db_irq, chan);
++	if (pchan_info->db_irq > 0)
++		devm_free_irq(chan->mbox->dev, pchan_info->db_irq, chan);
+ 
+ 	spin_lock_irqsave(&chan->lock, flags);
+ 	chan->cl = NULL;
+diff --git a/include/acpi/pcc.h b/include/acpi/pcc.h
+index 5e510a6b8052..73e806fe7ce7 100644
+--- a/include/acpi/pcc.h
++++ b/include/acpi/pcc.h
+@@ -20,16 +20,16 @@ struct pcc_mbox_chan {
+ 
+ #define MAX_PCC_SUBSPACES	256
+ #ifdef CONFIG_PCC
+-extern struct mbox_chan *pcc_mbox_request_channel(struct mbox_client *cl,
+-						  int subspace_id);
+-extern void pcc_mbox_free_channel(struct mbox_chan *chan);
++extern struct pcc_mbox_chan *
++pcc_mbox_request_channel(struct mbox_client *cl, int subspace_id);
++extern void pcc_mbox_free_channel(struct pcc_mbox_chan *chan);
+ #else
+-static inline struct mbox_chan *pcc_mbox_request_channel(struct mbox_client *cl,
+-							 int subspace_id)
++static inline struct pcc_mbox_chan *
++pcc_mbox_request_channel(struct mbox_client *cl, int subspace_id)
+ {
+ 	return ERR_PTR(-ENODEV);
+ }
+-static inline void pcc_mbox_free_channel(struct mbox_chan *chan) { }
++static inline void pcc_mbox_free_channel(struct pcc_mbox_chan *chan) { }
+ #endif
+ 
+ #endif /* _PCC_H */
+-- 
+2.25.1
+
