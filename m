@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0856BC07E99
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Jul 2021 02:28:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6426C11F73
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Jul 2021 02:33:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E99F7613AF
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Jul 2021 02:28:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CD1D61407
+	for <linux-i2c@archiver.kernel.org>; Sat, 10 Jul 2021 02:33:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232763AbhGJCb2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 9 Jul 2021 22:31:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43064 "EHLO mail.kernel.org"
+        id S233242AbhGJCfo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 9 Jul 2021 22:35:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234773AbhGJC3o (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:29:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8BBD613AF;
-        Sat, 10 Jul 2021 02:26:59 +0000 (UTC)
+        id S235640AbhGJCe5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:34:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60520613CC;
+        Sat, 10 Jul 2021 02:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884020;
-        bh=jVncZAnMggGZeg3UTgJN68Hmf3jbpO01ey4iR3L8YYo=;
+        s=k20201202; t=1625884321;
+        bh=L7B8jWpA0eVGQdZRPFLwWbDUxnKVm/LaZBmlk4YsjAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSV3ql4NYqlHmeOjkyBnoBy4f4iHwN/FB7Zt6rvKc85PchwGkBW8bop/ag2GthWzT
-         ij8zVvmRoRQj6/KI2gcwnFcM8to8Tv7+VRwJT4hGbPESg0odXZC9CkcYODSzaPAkUR
-         ayrtFDrAG2HHXfOCM+dGPylEDZJBeeXFTk4uzRXX/eIf7J6sF0fklc7eNZnClrqx3S
-         Dw2wa6XaTo1o/Gd4C8LKm37tUPWantQDGmrdOuj6oCjjpPTqmUlQ69i9mu1eixs7Ca
-         yW3y7MBqV54oL376DbM5+1+eq2Y2nrks8mpvUJr5Ah4aIggTu/5xiroLmdSOFXKEC4
-         UYkA6gjwfwdHg==
+        b=fdel0uMAXurKDW704DIT7lMbC9K4pXDBpgOJsXSzrYw6T/zjCsxxfYELEtEXK0pF2
+         lbah/ITHLNOcOwAdK36+CytdNNX1/pCBEr/NjeYLJcuV3+rXvbjdfpwYgSCwQseagA
+         c7WCcqJUEP+3p9U/oCApQhSQj6olxGfdT7+lKx7NdLzNKXF+PMXkX8A6n1IVYj/tcQ
+         P4VRrexn+ugKeeGdj7hggwiWSViehFfvISGaZ2Mp7G7sjfK4xHSvLpIKGpSwxtkjjF
+         gCvewTg1RM2htukzQb2B8jKtSC0ItJiB08rUTO8bHhQuKNajADF8cpjL/MFI/vxVw2
+         v+JDhS3+6xOwA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -38,12 +38,12 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Stephen Boyd <swboyd@chromium.org>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
         linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 90/93] i2c: core: Disable client irq on reboot/shutdown
-Date:   Fri,  9 Jul 2021 22:24:24 -0400
-Message-Id: <20210710022428.3169839-90-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 62/63] i2c: core: Disable client irq on reboot/shutdown
+Date:   Fri,  9 Jul 2021 22:27:08 -0400
+Message-Id: <20210710022709.3170675-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
-References: <20210710022428.3169839-1-sashal@kernel.org>
+In-Reply-To: <20210710022709.3170675-1-sashal@kernel.org>
+References: <20210710022709.3170675-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -83,7 +83,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index c13e7f107dd3..bdce6d3e5327 100644
+index 840f59650c7c..1b93fae58ec7 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
 @@ -24,6 +24,7 @@
@@ -94,7 +94,7 @@ index c13e7f107dd3..bdce6d3e5327 100644
  #include <linux/irqflags.h>
  #include <linux/jump_label.h>
  #include <linux/kernel.h>
-@@ -585,6 +586,8 @@ static void i2c_device_shutdown(struct device *dev)
+@@ -459,6 +460,8 @@ static void i2c_device_shutdown(struct device *dev)
  	driver = to_i2c_driver(dev->driver);
  	if (driver->shutdown)
  		driver->shutdown(client);
