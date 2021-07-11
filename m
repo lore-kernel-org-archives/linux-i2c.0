@@ -2,107 +2,94 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB28BC07E9E
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Jul 2021 02:41:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A290EC07E9C
+	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jul 2021 17:44:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D70B9613C5
-	for <linux-i2c@archiver.kernel.org>; Sat, 10 Jul 2021 02:41:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85EA461153
+	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jul 2021 17:44:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235312AbhGJCnq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 9 Jul 2021 22:43:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33772 "EHLO mail.kernel.org"
+        id S230415AbhGKRra convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 11 Jul 2021 13:47:30 -0400
+Received: from gloria.sntech.de ([185.11.138.130]:53612 "EHLO gloria.sntech.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235400AbhGJCmz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:42:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A637D613CA;
-        Sat, 10 Jul 2021 02:39:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884749;
-        bh=BC0d3JEZTjVg/cD/fz//KnLazwuydKt7zuKa+28OpfY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=goEL54qN3dhGWn78R3dvm4wGh5y/4Ret/qnW5mOWzXpfHnMd7CpvaqyvuMWINIWdZ
-         aSh1arC91LPNDtOPYcS6EmyrPnCa6GzlpZy1AcwSfKdQxO6Nt6f0eJGgBK3Rf/bykh
-         bNdNb3ZQtop3HZ2jirDNuIXKODmFVbdZQTSTOQVaaaC2R6FcVU15dgzNzZsPsj06fh
-         FYk4GIxRPZBwFHXcGP8cVijFSookoCVtLiHLF7ERrbnFjmeO4tIxxj55kEjV+QEkOs
-         hfH0Q+4S+nif4pGa1Vbcg/Q/UpGj5YI9Qdisl9llQhRihCnB+uXesVgMG71hmQsMbb
-         vqBvje/1DTgEg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 25/26] i2c: core: Disable client irq on reboot/shutdown
-Date:   Fri,  9 Jul 2021 22:36:03 -0400
-Message-Id: <20210710023604.3172486-25-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210710023604.3172486-1-sashal@kernel.org>
-References: <20210710023604.3172486-1-sashal@kernel.org>
+        id S230353AbhGKRra (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 11 Jul 2021 13:47:30 -0400
+Received: from ip5f5aa64a.dynamic.kabel-deutschland.de ([95.90.166.74] helo=diego.localnet)
+        by gloria.sntech.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <heiko@sntech.de>)
+        id 1m2dV2-0008H7-WF; Sun, 11 Jul 2021 19:44:17 +0200
+From:   Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+To:     Lee Jones <lee.jones@linaro.org>,
+        Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     cl@rock-chips.com, thierry.reding@gmail.com, robh+dt@kernel.org,
+        jagan@amarulasolutions.com, wens@csie.org, uwe@kleine-koenig.org,
+        mail@david-bauer.net, jbx6244@gmail.com,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+        jensenhuang@friendlyarm.com, michael@amarulasolutions.com,
+        cnsztl@gmail.com, devicetree@vger.kernel.org,
+        ulf.hansson@linaro.org, linux-mmc@vger.kernel.org,
+        gregkh@linuxfoundation.org, linux-serial@vger.kernel.org,
+        linux-i2c@vger.kernel.org, jay.xu@rock-chips.com,
+        shawn.lin@rock-chips.com, david.wu@rock-chips.com,
+        zhangqing@rock-chips.com, huangtao@rock-chips.com,
+        wim@linux-watchdog.org, linux@roeck-us.net, jamie@jamieiles.com,
+        linux-watchdog@vger.kernel.org, maz@kernel.org,
+        linux-pwm@vger.kernel.org
+Subject: Re: [RESEND PATCH v5 1/4] dt-bindings: pwm: rockchip: add description for rk3568
+Date:   Sun, 11 Jul 2021 19:44:12 +0200
+Message-ID: <5069193.2yuIWEeYC1@diego>
+In-Reply-To: <20210705074405.uj62h4evd6htftf3@pengutronix.de>
+References: <20210622020517.13100-1-cl@rock-chips.com> <YOK1+pMy+N64eR75@dell> <20210705074405.uj62h4evd6htftf3@pengutronix.de>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="iso-8859-1"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Am Montag, 5. Juli 2021, 09:44:05 CEST schrieb Uwe Kleine-König:
+> Hello Lee,
+> 
+> On Mon, Jul 05, 2021 at 08:34:18AM +0100, Lee Jones wrote:
+> > On Mon, 05 Jul 2021, Uwe Kleine-König wrote:
+> > > On Wed, Jun 23, 2021 at 10:13:03AM +0800, cl@rock-chips.com wrote:
+> > > > From: Liang Chen <cl@rock-chips.com>
+> > > > 
+> > > > add "rockchip,rk3568-pwm", "rockchip,rk3328-pwm" for pwm nodes on
+> > > > a rk3568 platform to pwm-rockchip.yaml.
+> > > 
+> > > [...]
+> > > 
+> > > Who is supposed to apply this patch? Does this need blessing by Rob?
+> > 
+> > There is no standard. [...]
+> 
+> I'm aware of that. That's why I asked to prevent that everybody thinks
+> some other maintainer will care for it.
 
-[ Upstream commit b64210f2f7c11c757432ba3701d88241b2b98fb1 ]
+I suppose Thierry would be the one responsible?
 
-If an i2c client receives an interrupt during reboot or shutdown it may
-be too late to service it by making an i2c transaction on the bus
-because the i2c controller has already been shutdown. This can lead to
-system hangs if the i2c controller tries to make a transfer that is
-doomed to fail because the access to the i2c pins is already shut down,
-or an iommu translation has been torn down so i2c controller register
-access doesn't work.
+I.e. bindings normally go through the subsystem tree and
+	$ scripts/get_maintainer.pl drivers/pwm
+returns:
 
-Let's simply disable the irq if there isn't a shutdown callback for an
-i2c client when there is an irq associated with the device. This will
-make sure that irqs don't come in later than the time that we can handle
-it. We don't do this if the i2c client device already has a shutdown
-callback because presumably they're doing the right thing and quieting
-the device so irqs don't come in after the shutdown callback returns.
+Thierry Reding <thierry.reding@gmail.com> (maintainer:PWM SUBSYSTEM)
+"Uwe Kleine-König" <u.kleine-koenig@pengutronix.de> (reviewer:PWM SUBSYSTEM)
+Lee Jones <lee.jones@linaro.org> (maintainer:PWM SUBSYSTEM)
+linux-pwm@vger.kernel.org (open list:PWM SUBSYSTEM)
+linux-kernel@vger.kernel.org (open list)
 
-Reported-by: kernel test robot <lkp@intel.com>
-[swboyd@chromium.org: Dropped newline, added commit text, added
-interrupt.h for robot build error]
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/i2c-core.c | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 4fd7bfda2f9d..67e44e990777 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -42,6 +42,7 @@
- #include <linux/i2c.h>
- #include <linux/idr.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/irqflags.h>
- #include <linux/jump_label.h>
- #include <linux/kernel.h>
-@@ -1003,6 +1004,8 @@ static void i2c_device_shutdown(struct device *dev)
- 	driver = to_i2c_driver(dev->driver);
- 	if (driver->shutdown)
- 		driver->shutdown(client);
-+	else if (client->irq > 0)
-+		disable_irq(client->irq);
- }
- 
- static void i2c_client_dev_release(struct device *dev)
--- 
-2.30.2
+See my reply to the original pwm binding patch from 2021-06-21.
+
+Heiko
+
 
