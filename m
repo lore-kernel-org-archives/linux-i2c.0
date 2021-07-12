@@ -2,91 +2,98 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF0BBC07E99
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jul 2021 09:58:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2995EC07E9C
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jul 2021 12:12:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C38CA610CC
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jul 2021 09:58:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A9CE61153
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jul 2021 12:12:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234876AbhGLKBY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 12 Jul 2021 06:01:24 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:47794 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234845AbhGLKBP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Jul 2021 06:01:15 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 2671921CC2;
-        Mon, 12 Jul 2021 09:58:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1626083905; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=tN+/jQcb9wt27oZiUX+cr+yWa0ndh+jabpTzive6u7A=;
-        b=KMPN7ng7bXK8jza4Yx9MBpdC5uXpbJHBdvagf/Cu3OkZFRKh0RM1Iz8f9O5Nlg0DAYpv7X
-        dmPCz+buGs2ehF8WtCTnnybngUhbUl61Jyc3BezGFLAhtSA4LDBN9mebM1aSW8JV/OWTi5
-        MPJpJWwVbBQlfb8X0iLUlmblEVfTr/U=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1626083905;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=tN+/jQcb9wt27oZiUX+cr+yWa0ndh+jabpTzive6u7A=;
-        b=1f8YCOCy6pCmWYtX0/qFVPx5IO2Z8nrgf0/6VFpDkQiskOptLD3VkgkCBV79dSPmte09YW
-        lKmyfvJDuRDMblAg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E0A5413B1D;
-        Mon, 12 Jul 2021 09:58:24 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id Fqc6NEAS7GDyLQAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Mon, 12 Jul 2021 09:58:24 +0000
-Date:   Mon, 12 Jul 2021 11:58:23 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     Linux I2C <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH 0/7] Rework block read support among i2cget and i2cdump
-Message-ID: <20210712115823.74149795@endymion>
-In-Reply-To: <YNdIEUpBoToGN7JY@kunai>
-References: <20210608172338.0cf520a1@endymion>
-        <YNdIEUpBoToGN7JY@kunai>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S233501AbhGLMOw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 12 Jul 2021 08:14:52 -0400
+Received: from mga14.intel.com ([192.55.52.115]:52381 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230074AbhGLMOw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 12 Jul 2021 08:14:52 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10042"; a="209785552"
+X-IronPort-AV: E=Sophos;i="5.84,232,1620716400"; 
+   d="scan'208";a="209785552"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2021 05:12:03 -0700
+X-IronPort-AV: E=Sophos;i="5.84,232,1620716400"; 
+   d="scan'208";a="652927011"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2021 05:12:00 -0700
+Received: from andy by smile with local (Exim 4.94.2)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1m2umv-00CDOQ-W1; Mon, 12 Jul 2021 15:11:53 +0300
+Date:   Mon, 12 Jul 2021 15:11:53 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Henning Schild <henning.schild@siemens.com>
+Cc:     "Enrico Weigelt, metux IT consult" <lkml@metux.net>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Tan Jui Nee <jui.nee.tan@intel.com>,
+        Jim Quinlan <james.quinlan@broadcom.com>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-pci@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
+        Peter Tyser <ptyser@xes-inc.com>, hdegoede@redhat.com
+Subject: Re: [PATCH v1 3/7] PCI: New Primary to Sideband (P2SB) bridge
+ support library
+Message-ID: <YOwxidwFKL9fS9gr@smile.fi.intel.com>
+References: <YEZ4IitUa+I9HM5F@smile.fi.intel.com>
+ <20210309014221.GA1831206@bjorn-Precision-5520>
+ <20210309094252.396b7f2d@md1za8fc.ad001.siemens.net>
+ <3f33a178-3002-e93e-89f1-8cf05097da25@metux.net>
+ <20210406154001.3eec0698@md1za8fc.ad001.siemens.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210406154001.3eec0698@md1za8fc.ad001.siemens.net>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On Sat, 26 Jun 2021 17:30:25 +0200, Wolfram Sang wrote:
-> > The idea would be to get the first 6 patches in the upcoming i2c-tools
-> > v4.3, and apply the 7th patch "later" (either immediately after that
-> > release, or some time later, I'm not sure).  
+On Tue, Apr 06, 2021 at 03:40:01PM +0200, Henning Schild wrote:
+> Am Fri, 2 Apr 2021 15:09:12 +0200
+> schrieb "Enrico Weigelt, metux IT consult" <lkml@metux.net>:
 > 
-> I agree with this approach.
+> > On 09.03.21 09:42, Henning Schild wrote:
+> > 
+> > > The device will respond to MMIO while being hidden. I am afraid
+> > > nothing stops a collision, except for the assumption that the BIOS
+> > > is always right and PCI devices never get remapped. But just
+> > > guessing here.  
+> > 
+> > What could go wrong if it is remapped, except that this driver would
+> > write to the wrong mmio space ?
+> > 
+> > If it's unhidden, pci-core should see it and start the usual probing,
+> > right ?
 > 
-> I had a glimpse at the patches and think they look good so far. I would
-> have squashed patches 1+2, but this minor, of course.
+> I have seen this guy exposed to Linux on coreboot machines. No issues.
+> But i can imagine BIOSs that somehow make use of the device and assume
+> it wont move. So we would at least need a parameter to allow keeping
+> that device hidden, or "fixed" in memory.
 
-I would have too but patch 1 was submitted by somebody else. I didn't
-want to put more changes in it than was required for committing
-acceptance, so as to respect the original submission.
+I'm wondering if they have pin control device described in the ACPI.
+If so, how in that case you prevent double initialisation?
+
+We would need to check both: P2SB and ACPI tables. Basically if we enable P2SB
+as a PCI device we may create a corresponding driver (somewhere under
+drivers/pci or PDx86) and check in its probe that ACPI device is also present
+and functional.
 
 -- 
-Jean Delvare
-SUSE L3 Support
+With Best Regards,
+Andy Shevchenko
+
+
