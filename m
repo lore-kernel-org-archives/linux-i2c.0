@@ -7,128 +7,134 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD1FFC11F66
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jul 2021 14:20:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C37EC07E9A
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jul 2021 14:23:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B46A4610A7
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jul 2021 14:20:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F5EB61026
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jul 2021 14:23:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235207AbhGLOWz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 12 Jul 2021 10:22:55 -0400
-Received: from mga12.intel.com ([192.55.52.136]:45957 "EHLO mga12.intel.com"
+        id S233949AbhGLOZy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 12 Jul 2021 10:25:54 -0400
+Received: from mga06.intel.com ([134.134.136.31]:31911 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235178AbhGLOWy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 12 Jul 2021 10:22:54 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10042"; a="189672816"
+        id S230070AbhGLOZy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 12 Jul 2021 10:25:54 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10042"; a="271100640"
 X-IronPort-AV: E=Sophos;i="5.84,234,1620716400"; 
-   d="scan'208";a="189672816"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2021 07:20:05 -0700
+   d="scan'208";a="271100640"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2021 07:23:05 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.84,234,1620716400"; 
-   d="scan'208";a="561758426"
+   d="scan'208";a="629678264"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga004.jf.intel.com with ESMTP; 12 Jul 2021 07:20:03 -0700
+  by orsmga005.jf.intel.com with ESMTP; 12 Jul 2021 07:23:03 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 88ED5B7; Mon, 12 Jul 2021 17:20:30 +0300 (EEST)
+        id E6DFBFF; Mon, 12 Jul 2021 17:23:30 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        wsa@kernel.org
-Subject: [PATCH v3 2/3] i2c: designware: Use DIV_ROUND_CLOSEST() macro
-Date:   Mon, 12 Jul 2021 17:20:26 +0300
-Message-Id: <20210712142027.22900-2-andriy.shevchenko@linux.intel.com>
+Cc:     Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH v1 1/2] i2c: dev: Define pr_fmt() and drop duplication substrings
+Date:   Mon, 12 Jul 2021 17:23:22 +0300
+Message-Id: <20210712142323.23118-1-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210712142027.22900-1-andriy.shevchenko@linux.intel.com>
-References: <20210712142027.22900-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Instead of open-coding DIV_ROUND_CLOSEST() and similar use the macros directly.
-While at it, replace numbers with predefined SI metric prefixes.
+Define pr_fmt() to print module name as prefix and at the same time
+drop duplication substrings in the messages.
 
-No functional change intended.
+While at it, convert printk(<LEVEL>) to pr_<level>().
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-v3: no changes
- drivers/i2c/busses/i2c-designware-common.c  | 8 ++++----
- drivers/i2c/busses/i2c-designware-platdrv.c | 5 +++--
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/i2c/i2c-dev.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index fdc34d9e3702..bf2a4920638a 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -24,6 +24,7 @@
- #include <linux/regmap.h>
- #include <linux/swab.h>
- #include <linux/types.h>
-+#include <linux/units.h>
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index cb64fe649390..6cf98c06653a 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -14,6 +14,8 @@
  
- #include "i2c-designware-core.h"
+ /* The I2C_RDWR ioctl code is written by Kolja Waschk <waschk@telos.de> */
  
-@@ -350,7 +351,7 @@ u32 i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
- 		 *
- 		 * If your hardware is free from tHD;STA issue, try this one.
- 		 */
--		return (ic_clk * tSYMBOL + 500000) / 1000000 - 8 + offset;
-+		return DIV_ROUND_CLOSEST(ic_clk * tSYMBOL, MICRO) - 8 + offset;
- 	else
- 		/*
- 		 * Conditional expression:
-@@ -366,8 +367,7 @@ u32 i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
- 		 * The reason why we need to take into account "tf" here,
- 		 * is the same as described in i2c_dw_scl_lcnt().
- 		 */
--		return (ic_clk * (tSYMBOL + tf) + 500000) / 1000000
--			- 3 + offset;
-+		return DIV_ROUND_CLOSEST(ic_clk * (tSYMBOL + tf), MICRO) - 3 + offset;
- }
++#define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
++
+ #include <linux/cdev.h>
+ #include <linux/compat.h>
+ #include <linux/device.h>
+@@ -68,8 +70,7 @@ static struct i2c_dev *get_free_i2c_dev(struct i2c_adapter *adap)
+ 	struct i2c_dev *i2c_dev;
  
- u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
-@@ -383,7 +383,7 @@ u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
- 	 * account the fall time of SCL signal (tf).  Default tf value
- 	 * should be 0.3 us, for safety.
- 	 */
--	return ((ic_clk * (tLOW + tf) + 500000) / 1000000) - 1 + offset;
-+	return DIV_ROUND_CLOSEST(ic_clk * (tLOW + tf), MICRO) - 1 + offset;
- }
- 
- int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev)
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 4b37f28ec0c6..21113665ddea 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -31,12 +31,13 @@
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/suspend.h>
-+#include <linux/units.h>
- 
- #include "i2c-designware-core.h"
- 
- static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- {
--	return clk_get_rate(dev->clk)/1000;
-+	return clk_get_rate(dev->clk) / KILO;
- }
- 
- #ifdef CONFIG_ACPI
-@@ -270,7 +271,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 
- 		if (!dev->sda_hold_time && t->sda_hold_ns)
- 			dev->sda_hold_time =
--				div_u64(clk_khz * t->sda_hold_ns + 500000, 1000000);
-+				DIV_S64_ROUND_CLOSEST(clk_khz * t->sda_hold_ns, MICRO);
+ 	if (adap->nr >= I2C_MINORS) {
+-		printk(KERN_ERR "i2c-dev: Out of device minors (%d)\n",
+-		       adap->nr);
++		pr_err("Out of device minors (%d)\n", adap->nr);
+ 		return ERR_PTR(-ENODEV);
  	}
  
- 	adap = &dev->adapter;
+@@ -145,8 +146,7 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
+ 	if (tmp == NULL)
+ 		return -ENOMEM;
+ 
+-	pr_debug("i2c-dev: i2c-%d reading %zu bytes.\n",
+-		iminor(file_inode(file)), count);
++	pr_debug("i2c-%d reading %zu bytes.\n", iminor(file_inode(file)), count);
+ 
+ 	ret = i2c_master_recv(client, tmp, count);
+ 	if (ret >= 0)
+@@ -169,8 +169,7 @@ static ssize_t i2cdev_write(struct file *file, const char __user *buf,
+ 	if (IS_ERR(tmp))
+ 		return PTR_ERR(tmp);
+ 
+-	pr_debug("i2c-dev: i2c-%d writing %zu bytes.\n",
+-		iminor(file_inode(file)), count);
++	pr_debug("i2c-%d writing %zu bytes.\n", iminor(file_inode(file)), count);
+ 
+ 	ret = i2c_master_send(client, tmp, count);
+ 	kfree(tmp);
+@@ -673,8 +672,7 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
+ 		return res;
+ 	}
+ 
+-	pr_debug("i2c-dev: adapter [%s] registered as minor %d\n",
+-		 adap->name, adap->nr);
++	pr_debug("adapter [%s] registered as minor %d\n", adap->name, adap->nr);
+ 	return 0;
+ }
+ 
+@@ -693,7 +691,7 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
+ 
+ 	put_i2c_dev(i2c_dev, true);
+ 
+-	pr_debug("i2c-dev: adapter [%s] unregistered\n", adap->name);
++	pr_debug("adapter [%s] unregistered\n", adap->name);
+ 	return 0;
+ }
+ 
+@@ -726,7 +724,7 @@ static int __init i2c_dev_init(void)
+ {
+ 	int res;
+ 
+-	printk(KERN_INFO "i2c /dev entries driver\n");
++	pr_info("i2c /dev entries driver\n");
+ 
+ 	res = register_chrdev_region(MKDEV(I2C_MAJOR, 0), I2C_MINORS, "i2c");
+ 	if (res)
+@@ -754,7 +752,7 @@ static int __init i2c_dev_init(void)
+ out_unreg_chrdev:
+ 	unregister_chrdev_region(MKDEV(I2C_MAJOR, 0), I2C_MINORS);
+ out:
+-	printk(KERN_ERR "%s: Driver Initialisation failed\n", __FILE__);
++	pr_err("Driver Initialisation failed\n");
+ 	return res;
+ }
+ 
 -- 
 2.30.2
 
