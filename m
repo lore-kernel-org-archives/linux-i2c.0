@@ -7,32 +7,32 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0093C07E9A
-	for <linux-i2c@archiver.kernel.org>; Wed, 14 Jul 2021 13:20:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CBF8C11F66
+	for <linux-i2c@archiver.kernel.org>; Wed, 14 Jul 2021 13:20:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9945B6128C
+	by mail.kernel.org (Postfix) with ESMTP id DFE47613BE
 	for <linux-i2c@archiver.kernel.org>; Wed, 14 Jul 2021 13:20:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239284AbhGNNXA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S239381AbhGNNXA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Wed, 14 Jul 2021 09:23:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45226 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231445AbhGNNW7 (ORCPT
+        with ESMTP id S231535AbhGNNW7 (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Jul 2021 09:22:59 -0400
 Received: from baptiste.telenet-ops.be (baptiste.telenet-ops.be [IPv6:2a02:1800:120:4::f00:13])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1FDAC061762
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF5F4C061765
         for <linux-i2c@vger.kernel.org>; Wed, 14 Jul 2021 06:20:07 -0700 (PDT)
 Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed10:39cc:190a:2775:cfe7])
         by baptiste.telenet-ops.be with bizsmtp
-        id V1L52500c1ccfby011L5J1; Wed, 14 Jul 2021 15:20:06 +0200
+        id V1L52500Q1ccfby011L5Hw; Wed, 14 Jul 2021 15:20:06 +0200
 Received: from rox.of.borg ([192.168.97.57])
         by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.93)
         (envelope-from <geert@linux-m68k.org>)
-        id 1m3eo1-00193w-Hd; Wed, 14 Jul 2021 15:20:05 +0200
+        id 1m3eo1-00193u-Bm; Wed, 14 Jul 2021 15:20:05 +0200
 Received: from geert by rox.of.borg with local (Exim 4.93)
         (envelope-from <geert@linux-m68k.org>)
-        id 1m3eo0-00Aapx-TF; Wed, 14 Jul 2021 15:20:04 +0200
+        id 1m3eo0-00Aapj-RN; Wed, 14 Jul 2021 15:20:04 +0200
 From:   Geert Uytterhoeven <geert+renesas@glider.be>
 To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -41,9 +41,9 @@ To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
 Cc:     linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
         devicetree@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH/RFC 3/4] arm64: dts: renesas: r9a07g044: Add I2C interrupt-names
-Date:   Wed, 14 Jul 2021 15:20:02 +0200
-Message-Id: <d35ba11bd705e3c728f94ff0414ac6ae1156244f.1626267422.git.geert+renesas@glider.be>
+Subject: [PATCH/RFC 1/4] dt-bindings: i2c: renesas,riic: Add interrupt-names
+Date:   Wed, 14 Jul 2021 15:20:00 +0200
+Message-Id: <a81d0e14e395f297666e8c3a8ce3e292d2606a65.1626267422.git.geert+renesas@glider.be>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <cover.1626267422.git.geert+renesas@glider.be>
 References: <cover.1626267422.git.geert+renesas@glider.be>
@@ -53,54 +53,65 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add "interrupt-names" properties to the I2C device nodes, to make it
-easier to review the interrupt mappings.
+The Renesas RZ/A and RZ/G2L I2C Bus Interface has no less than 8
+interrupts.  Hence document the "interrupt-names" property, to make it
+easier to review the interrupt mappings in DTS files.
+
+Note that this property cannot be made required yet, as the RIIC nodes
+in all DTS files lack the property.
 
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- arch/arm64/boot/dts/renesas/r9a07g044.dtsi | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .../devicetree/bindings/i2c/renesas,riic.yaml | 29 ++++++++++++++-----
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r9a07g044.dtsi b/arch/arm64/boot/dts/renesas/r9a07g044.dtsi
-index 9a7489dc70d10882..0dd181739fdfc0f6 100644
---- a/arch/arm64/boot/dts/renesas/r9a07g044.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r9a07g044.dtsi
-@@ -102,6 +102,8 @@ i2c0: i2c@10058000 {
- 				     <GIC_SPI 351 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 354 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 355 IRQ_TYPE_LEVEL_HIGH>;
-+			interrupt-names = "tei", "ri", "ti", "spi", "sti",
-+					  "naki", "ali", "tmoi";
- 			clocks = <&cpg CPG_MOD R9A07G044_I2C0_PCLK>;
- 			clock-frequency = <100000>;
- 			resets = <&cpg R9A07G044_I2C0_MRST>;
-@@ -122,6 +124,8 @@ i2c1: i2c@10058400 {
- 				     <GIC_SPI 359 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 362 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 363 IRQ_TYPE_LEVEL_HIGH>;
-+			interrupt-names = "tei", "ri", "ti", "spi", "sti",
-+					  "naki", "ali", "tmoi";
- 			clocks = <&cpg CPG_MOD R9A07G044_I2C1_PCLK>;
- 			clock-frequency = <100000>;
- 			resets = <&cpg R9A07G044_I2C1_MRST>;
-@@ -142,6 +146,8 @@ i2c2: i2c@10058800 {
- 				     <GIC_SPI 367 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 370 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 371 IRQ_TYPE_LEVEL_HIGH>;
-+			interrupt-names = "tei", "ri", "ti", "spi", "sti",
-+					  "naki", "ali", "tmoi";
- 			clocks = <&cpg CPG_MOD R9A07G044_I2C2_PCLK>;
- 			clock-frequency = <100000>;
- 			resets = <&cpg R9A07G044_I2C2_MRST>;
-@@ -162,6 +168,8 @@ i2c3: i2c@10058c00 {
- 				     <GIC_SPI 375 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 378 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 379 IRQ_TYPE_LEVEL_HIGH>;
-+			interrupt-names = "tei", "ri", "ti", "spi", "sti",
-+					  "naki", "ali", "tmoi";
- 			clocks = <&cpg CPG_MOD R9A07G044_I2C3_PCLK>;
- 			clock-frequency = <100000>;
- 			resets = <&cpg R9A07G044_I2C3_MRST>;
+diff --git a/Documentation/devicetree/bindings/i2c/renesas,riic.yaml b/Documentation/devicetree/bindings/i2c/renesas,riic.yaml
+index 52d92ec7ec0b2112..70f998f006305c25 100644
+--- a/Documentation/devicetree/bindings/i2c/renesas,riic.yaml
++++ b/Documentation/devicetree/bindings/i2c/renesas,riic.yaml
+@@ -27,14 +27,25 @@ properties:
+ 
+   interrupts:
+     items:
+-      - description: Transmit End Interrupt (TEI)
+-      - description: Receive Data Full Interrupt (RI)
+-      - description: Transmit Data Empty Interrupt (TI)
+-      - description: Stop Condition Detection Interrupt (SPI)
+-      - description: Start Condition Detection Interrupt (STI)
+-      - description: NACK Reception Interrupt (NAKI)
+-      - description: Arbitration-Lost Interrupt (ALI)
+-      - description: Timeout Interrupt (TMOI)
++      - description: Transmit End Interrupt
++      - description: Receive Data Full Interrupt
++      - description: Transmit Data Empty Interrupt
++      - description: Stop Condition Detection Interrupt
++      - description: Start Condition Detection Interrupt
++      - description: NACK Reception Interrupt
++      - description: Arbitration-Lost Interrupt
++      - description: Timeout Interrupt
++
++  interrupt-names:
++    items:
++      - const: tei
++      - const: ri
++      - const: ti
++      - const: spi
++      - const: sti
++      - const: naki
++      - const: ali
++      - const: tmoi
+ 
+   clock-frequency:
+     description:
+@@ -85,6 +96,8 @@ examples:
+                          <GIC_SPI 162 IRQ_TYPE_LEVEL_HIGH>,
+                          <GIC_SPI 163 IRQ_TYPE_LEVEL_HIGH>,
+                          <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
++            interrupt-names = "tei", "ri", "ti", "spi", "sti", "naki", "ali",
++                              "tmoi";
+             clocks = <&mstp9_clks R7S72100_CLK_I2C0>;
+             clock-frequency = <100000>;
+             power-domains = <&cpg_clocks>;
 -- 
 2.25.1
 
