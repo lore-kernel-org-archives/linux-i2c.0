@@ -2,91 +2,92 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2410CC07E96
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jul 2021 07:09:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C24C07E96
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jul 2021 14:15:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 01E036120A
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jul 2021 07:09:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA491613C7
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jul 2021 14:15:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237031AbhGOHM3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 15 Jul 2021 03:12:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36986 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233763AbhGOHM3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jul 2021 03:12:29 -0400
-Received: from mail-il1-x133.google.com (mail-il1-x133.google.com [IPv6:2607:f8b0:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E379C06175F
-        for <linux-i2c@vger.kernel.org>; Thu, 15 Jul 2021 00:09:36 -0700 (PDT)
-Received: by mail-il1-x133.google.com with SMTP id a11so4124260ilf.2
-        for <linux-i2c@vger.kernel.org>; Thu, 15 Jul 2021 00:09:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9B+oTQwgmo4p1Ky+jMiYsVX5twnQnFrh+/KabLkfKoM=;
-        b=gXX+pNEeNfCIXnvpl5zzg72jHjH+3zkYJyYwbmO1kzh6ft7/OouMUm8xc5cxG1XPp8
-         Vfl1oHQrkntzz2y4B62MFB0npJvEz/EllABrsOjYb23ZWwcji9c17WbupAJqSMCKjf0q
-         P9puY5/sExP8rW+vR6b7vTTJ9DDQLHDyikWKMFxq6Z+CSp+C0hNwnB5kLycCHNfoPdF0
-         ZME0I/BW6gRIqG6XyZirldBU3sEofWoFpeDFdYt+CBSvj2oKp21RqmylUxRHM9lqPuuJ
-         Njxiq/CD9vBHyByW1XrAxcB0Y//F+cqnQDlTU5eH2uxU8VpUmofQm/oQOYs4ipZrnaFl
-         xsFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9B+oTQwgmo4p1Ky+jMiYsVX5twnQnFrh+/KabLkfKoM=;
-        b=nyTx2hhEh7qGaCrM4ylXkBg7Wf3rzhjvHfTyHi9Ubw+625Ex9TkKMdBObyMUrIshVD
-         Vq/VN+Fnwij6zhnmMGVqJxBplEHHZfN4+YI0DX8z9uzeBRPaRotUoXeprPTKdPVvzlat
-         GmcVPqjHPLxe/MDiynwe2Z+YbInmEFE+eBXLySEPplvcVQ+z0UfHk2K3pJuNodg3HE4U
-         SyQxJ841UOUkwGmrmHAItnPD1hqwFNBquohWnr83Y4Z3PgO2jyqjW8tGZEbF0Z79V4Q1
-         0jbOa+OIZGnRPMmIrHVnXYSK38qntodPNwgb5cOg9llXKcmoOS9rEJPvfokI/Frk3ctu
-         8kpw==
-X-Gm-Message-State: AOAM533uPQBPThdezmeX9LpkInOIcNysp05lUHbc02+lSdU8beN0KhlC
-        +nCEs4VE+uOsc785IAjRoat58RdDkNZnE552bfkFnA==
-X-Google-Smtp-Source: ABdhPJwuKUmsa/XevSPh49jg4k4QcER8gMdTrKqp3qt3Rwy5IFwH+L9++y/Wz79S7Mh+BnEstfthYeRZOPSds8h1z9k=
-X-Received: by 2002:a92:d990:: with SMTP id r16mr1786919iln.204.1626332975821;
- Thu, 15 Jul 2021 00:09:35 -0700 (PDT)
+        id S229457AbhGOOSR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 15 Jul 2021 10:18:17 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:37628 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232055AbhGOOSQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jul 2021 10:18:16 -0400
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id E01E322A72;
+        Thu, 15 Jul 2021 14:15:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1626358522; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=eqYkoMArbZU/JBUjcMsctLjmY1bXNj/5re+Ez2dl5Bk=;
+        b=dz6cJU7de4Q0kR+JNy7WeAAmZjdCR25Ol4NaFl48+JlMTMw2k7loQ5Dg2qmknxCXhrvEHZ
+        aSiHR/+xLYRnKns2aNWu0kj+yGG1zVbO4LUXw8msUuzjI6Z0yWAYE1wg/Md+P2drz06u98
+        LfAfdzhNCBaHU1/kQlCA03tbdzE6PR0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1626358522;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=eqYkoMArbZU/JBUjcMsctLjmY1bXNj/5re+Ez2dl5Bk=;
+        b=I5fJvls97VYcNz7/BeH8ulxtrrT/dJHQPPj6eVd4+Fx8Cc6LapmGX4oZzXSKW1wEUQ4kw9
+        X+6D3idJtkomRvCw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 98A6113C38;
+        Thu, 15 Jul 2021 14:15:22 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 5AZZIvpC8GB7XQAAMHmgww
+        (envelope-from <jdelvare@suse.de>); Thu, 15 Jul 2021 14:15:22 +0000
+Date:   Thu, 15 Jul 2021 16:15:20 +0200
+From:   Jean Delvare <jdelvare@suse.de>
+To:     Linux I2C <linux-i2c@vger.kernel.org>
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>
+Subject: Upcoming release of i2c-tools (will be 4.3)
+Message-ID: <20210715161520.3830c3d1@endymion>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-References: <1626316157-24935-1-git-send-email-kewei.xu@mediatek.com> <1626316157-24935-9-git-send-email-kewei.xu@mediatek.com>
-In-Reply-To: <1626316157-24935-9-git-send-email-kewei.xu@mediatek.com>
-From:   Tzung-Bi Shih <tzungbi@google.com>
-Date:   Thu, 15 Jul 2021 15:09:25 +0800
-Message-ID: <CA+Px+wWNcSkxvsEoUrgBN73+jhq8qjFJodYjQnY1zW2d0a5yRA@mail.gmail.com>
-Subject: Re: [PATCH 8/8] i2c: mediatek: modify bus speed calculation formula
-To:     Kewei Xu <kewei.xu@mediatek.com>
-Cc:     wsa@the-dreams.de, matthias.bgg@gmail.com, robh+dt@kernel.org,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com,
-        leilk.liu@mediatek.com, qii.wang@mediatek.com,
-        qiangming.xia@mediatek.com, ot_daolong.zhu@mediatek.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Jul 15, 2021 at 10:32 AM Kewei Xu <kewei.xu@mediatek.com> wrote:
-> When clock-div is 0 or greater than 1, the bus speed
-> calculated by the old speed calculation formula will be
-> larger than the target speed. So we update the formula.
-The patch sounds like a fix up.  Need a "Fixes" tag.
+Hi all,
 
->         for (clk_div = 1; clk_div <= max_clk_div; clk_div++) {
->                 clk_src = parent_clk / clk_div;
-> +               i2c->ac_timing.inter_clk_div = clk_div - 1;
-Using the way to pass the parameter "inter_clk_div" to
-mtk_i2c_calculate_speed() looks like a hack.  inter_clk_div is set
-again[1] next to the for loop.
+Due to a regression in i2c-tools 4.2, we decided to hurry the release
+of i2c-tools 4.3 even though there aren't that many changes queued.
+Well there are still a few nice new features so the update will be
+worth it. Here's what the CHANGES file has to say about what's coming:
 
-[1]: https://elixir.bootlin.com/linux/v5.14-rc1/source/drivers/i2c/busses/i2c-mt65xx.c#L831
+  decode-dimms: Attempt to decode LPDDR3 modules
+  eeprom, eepromer: Removed the tools in favor of eeprog
+  i2cdetect: Sort the bus list by number
+  i2cdump: Add range support to I2C block mode
+           Deprecate SMBus block mode
+  i2cget: Add support for I2C block read
+          Add support for SMBus block read
+  i2ctransfer: Reverted check for returned length from driver
 
+I will tag and release v4.3 next week. Until then, please give it good
+testing if you can, and report any issue.
 
-
-I have no domain knowledge of what/how the patch fixes.  But if this
-is a standalone fixup patch, suggest separating to an independent
-patch.
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
