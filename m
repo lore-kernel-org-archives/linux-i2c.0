@@ -3,87 +3,95 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3BE3C636C9
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jul 2021 17:13:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D032C636C7
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jul 2021 17:43:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CA85D613F9
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jul 2021 17:13:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5CF1461357
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jul 2021 17:43:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232607AbhGORQH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 15 Jul 2021 13:16:07 -0400
-Received: from mail-io1-f49.google.com ([209.85.166.49]:34559 "EHLO
-        mail-io1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231950AbhGORQH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jul 2021 13:16:07 -0400
-Received: by mail-io1-f49.google.com with SMTP id g22so7338147iom.1;
-        Thu, 15 Jul 2021 10:13:12 -0700 (PDT)
+        id S230325AbhGORqk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 15 Jul 2021 13:46:40 -0400
+Received: from mail-il1-f170.google.com ([209.85.166.170]:43544 "EHLO
+        mail-il1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229506AbhGORqj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jul 2021 13:46:39 -0400
+Received: by mail-il1-f170.google.com with SMTP id w1so5717456ilg.10;
+        Thu, 15 Jul 2021 10:43:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=UsmnHH1R20y4QhVMi3pI7HitDhrJiPutY7rarWLdy9U=;
-        b=kg7kOm22AI+tclZ94rVUNi2BnVvjKqPY0g6Q7UH4+eKj1JIMD7NOb/br68AU4kG/qN
-         IO1wzakzy+Tm8/RLuFsUM+cOUSgwewYU7IOhdDeDvMIFgVbhR5Vd1kgbOcFPUQUnswuR
-         xbAUYKkxPkfzFWLyeMiHBN2wmrCDuR2TlG3nD4RbkBU03ROAHw6ZqtieJruUtUSinSrB
-         iHKene6souZY1Gvk9VzQ3TvHnTPnIdnEqdTMhK7jR8jzMtBI55guyP8oU/QOhcgte9M4
-         1JMDkg7aVAiDV9HH4dPbsinndOsAL6ffQdLSPd/NhMC/dnv4SMZuZoeb8mJalhtJvFEV
-         c5yw==
-X-Gm-Message-State: AOAM531WeYCMng2Qh7nljknctFoFfNHUhj8X0NOun3hwpenV/3f1EDaK
-        PMSDKigCv7CAPfA8UDNe6g==
-X-Google-Smtp-Source: ABdhPJzlfRyG9qRBnzm4ridy94plL9cJfOddhDqzb+BlnBMpRWWerff0577EGmmHSWFqC/sDXDRpUA==
-X-Received: by 2002:a5e:9602:: with SMTP id a2mr4015229ioq.146.1626369192650;
-        Thu, 15 Jul 2021 10:13:12 -0700 (PDT)
+         :mime-version:content-disposition:in-reply-to;
+        bh=eJvBNVIbt4HGtOUd1eE/GFLNbukv56MIw2CIkqxy0xM=;
+        b=moKe+B8jqMI25Wq+Qb2g98jdgm3YH1s0FGb+HBemsUouyYl01ePZf3SP0Pq7Xn2blE
+         17RyaWvH+f4VstCwvNqRtPl7hfkJ4sD55pu1mUxYM08ZljKKzyVc77iRJWxouiyPyjNO
+         f7uXSVjfx5eBirSlBBqPAe14gwfLCKeXuO5277lz8y/wX7YSZSqgVJA9IqpS9ZBdv9G9
+         R3iVmIvGU+Z7m8RlHOx5dBoDaspXKCD5BrM6FYj5CXTNlZ85a+wZZO3lKZj3865OmlU8
+         g+975RMxBxKyF5orF3fumJWPwcsWWqrux0r6JUqf3lFnjH3il/VagD4atrdS0BHCAZID
+         6T3g==
+X-Gm-Message-State: AOAM532ZaSthoCp4OXjd82/kEuS4R168np8zBbxhJQoBHWgHqql9tQ18
+        SyB+PQx5pSFg/dFfYJBsGQ==
+X-Google-Smtp-Source: ABdhPJyUCaDwlujyrWqGxamEcOBQBh/mEVhjQMODh+aCT6OUUAmS+sAvZKgCichuIqty/y4GGWAqLg==
+X-Received: by 2002:a05:6e02:1b8f:: with SMTP id h15mr3426922ili.151.1626371025179;
+        Thu, 15 Jul 2021 10:43:45 -0700 (PDT)
 Received: from robh.at.kernel.org ([64.188.179.248])
-        by smtp.gmail.com with ESMTPSA id q1sm3618053ioi.42.2021.07.15.10.13.10
+        by smtp.gmail.com with ESMTPSA id w1sm3056450ilv.59.2021.07.15.10.43.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Jul 2021 10:13:11 -0700 (PDT)
-Received: (nullmailer pid 1261924 invoked by uid 1000);
-        Thu, 15 Jul 2021 17:13:08 -0000
-Date:   Thu, 15 Jul 2021 11:13:08 -0600
+        Thu, 15 Jul 2021 10:43:42 -0700 (PDT)
+Received: (nullmailer pid 1309176 invoked by uid 1000);
+        Thu, 15 Jul 2021 17:43:39 -0000
+Date:   Thu, 15 Jul 2021 11:43:39 -0600
 From:   Rob Herring <robh@kernel.org>
-To:     =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+To:     Quan Nguyen <quan@os.amperecomputing.com>
+Cc:     Brendan Higgins <brendanhiggins@google.com>,
+        Corey Minyard <minyard@acm.org>, Wolfram Sang <wsa@kernel.org>,
+        linux-i2c@vger.kernel.org,
+        "Thang Q . Nguyen" <thang@os.amperecomputing.com>,
+        linux-aspeed@lists.ozlabs.org, devicetree@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net,
+        Rob Herring <robh+dt@kernel.org>,
+        Joel Stanley <joel@jms.id.au>,
         linux-arm-kernel@lists.infradead.org,
-        bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH RESEND] dt-bindings: i2c: brcm,iproc-i2c: convert to the
- json-schema
-Message-ID: <20210715171308.GA1261646@robh.at.kernel.org>
-References: <20210713093155.1752-1-zajec5@gmail.com>
+        Open Source Submission <patches@amperecomputing.com>,
+        linux-kernel@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Phong Vo <phong@os.amperecomputing.com>,
+        Andrew Jeffery <andrew@aj.id.au>
+Subject: Re: [PATCH v5 3/3] bindings: ipmi: Add binding for SSIF BMC driver
+Message-ID: <20210715174339.GA1309142@robh.at.kernel.org>
+References: <20210714033833.11640-1-quan@os.amperecomputing.com>
+ <20210714033833.11640-4-quan@os.amperecomputing.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210713093155.1752-1-zajec5@gmail.com>
+In-Reply-To: <20210714033833.11640-4-quan@os.amperecomputing.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, 13 Jul 2021 11:31:55 +0200, Rafał Miłecki wrote:
-> From: Rafał Miłecki <rafal@milecki.pl>
+On Wed, 14 Jul 2021 10:38:33 +0700, Quan Nguyen wrote:
+> Add device tree binding document for the SSIF BMC driver.
 > 
-> This helps validating DTS files.
-> 
-> Introduced changes:
-> 1. Added arm-gic.h include
-> 
-> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+> Signed-off-by: Quan Nguyen <quan@os.amperecomputing.com>
 > ---
-> RESEND: commit 11480dbfe1d5 ("ASoC: wm8750: convert to the json-schema")
-> is part of the 5.14-rc1 so Rob's bot should be happy this time.
-> ---
->  .../bindings/i2c/brcm,iproc-i2c.txt           | 46 ------------
->  .../bindings/i2c/brcm,iproc-i2c.yaml          | 71 +++++++++++++++++++
->  2 files changed, 71 insertions(+), 46 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
->  create mode 100644 Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.yaml
+> v5:
+>   + None
+> 
+> v4:
+>   + Fix warning with dt_binding_check [Rob]
+>   + Change aspeed-ssif-bmc.yaml to ssif-bmc.yaml [Quan]
+> 
+> v3:
+>   + Switched to use DT schema format [Rob]
+> 
+> v2:
+>   + None
+> 
+>  .../devicetree/bindings/ipmi/ssif-bmc.yaml    | 38 +++++++++++++++++++
+>  1 file changed, 38 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/ipmi/ssif-bmc.yaml
 > 
 
-Applied, thanks!
+Reviewed-by: Rob Herring <robh@kernel.org>
