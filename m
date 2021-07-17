@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96ED7C6379A
-	for <linux-i2c@archiver.kernel.org>; Sat, 17 Jul 2021 10:18:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 871B3C636CE
+	for <linux-i2c@archiver.kernel.org>; Sat, 17 Jul 2021 10:18:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 855C3613D4
-	for <linux-i2c@archiver.kernel.org>; Sat, 17 Jul 2021 10:18:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7232F613EE
+	for <linux-i2c@archiver.kernel.org>; Sat, 17 Jul 2021 10:18:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233684AbhGQKVT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 17 Jul 2021 06:21:19 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:35870 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S233313AbhGQKVK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 17 Jul 2021 06:21:10 -0400
-X-UUID: 8a5666f75c5c47d4ba7fbf0b75cb9503-20210717
-X-UUID: 8a5666f75c5c47d4ba7fbf0b75cb9503-20210717
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
+        id S233740AbhGQKVV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 17 Jul 2021 06:21:21 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:50678 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S233398AbhGQKVM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 17 Jul 2021 06:21:12 -0400
+X-UUID: 82f131d2cffa4d79873e75fd5610d4a9-20210717
+X-UUID: 82f131d2cffa4d79873e75fd5610d4a9-20210717
+Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw02.mediatek.com
         (envelope-from <kewei.xu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 561805863; Sat, 17 Jul 2021 18:18:10 +0800
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1275498462; Sat, 17 Jul 2021 18:18:12 +0800
 Received: from mtkcas11.mediatek.inc (172.21.101.40) by
  mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Sat, 17 Jul 2021 18:18:08 +0800
+ 15.0.1497.2; Sat, 17 Jul 2021 18:18:10 +0800
 Received: from localhost.localdomain (10.17.3.153) by mtkcas11.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Sat, 17 Jul 2021 18:18:07 +0800
+ Transport; Sat, 17 Jul 2021 18:18:09 +0800
 From:   Kewei Xu <kewei.xu@mediatek.com>
 To:     <wsa@the-dreams.de>
 CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
@@ -42,9 +42,9 @@ CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
         <qii.wang@mediatek.com>, <yuhan.wei@mediatek.com>,
         <kewei.xu@mediatek.com>, <ot_daolong.zhu@mediatek.com>,
         <liguo.zhang@mediatek.com>
-Subject: [PATCH v4 6/8] i2c: mediatek: Add OFFSET_EXT_CONF setting back
-Date:   Sat, 17 Jul 2021 18:17:57 +0800
-Message-ID: <1626517079-9057-7-git-send-email-kewei.xu@mediatek.com>
+Subject: [PATCH v4 8/8] i2c: mediatek: modify bus speed calculation formula
+Date:   Sat, 17 Jul 2021 18:17:59 +0800
+Message-ID: <1626517079-9057-9-git-send-email-kewei.xu@mediatek.com>
 X-Mailer: git-send-email 1.9.1
 In-Reply-To: <1626517079-9057-1-git-send-email-kewei.xu@mediatek.com>
 References: <1626517079-9057-1-git-send-email-kewei.xu@mediatek.com>
@@ -55,60 +55,102 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-In the commit be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust
-support"), we miss setting OFFSET_EXT_CONF register if
-i2c->dev_comp->timing_adjust is false, now add it back.
+When clock-div is 0 or greater than 1, the bus speed
+calculated by the old speed calculation formula will be
+larger than the target speed. So we update the formula.
 
-Fixes: be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust support")
 Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 35 +++++++++++++++++++++++----------
+ 1 file changed, 25 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index abdbf27b6eb4..a2a5a4ec1d81 100644
+index 061775489380..45939f919085 100644
 --- a/drivers/i2c/busses/i2c-mt65xx.c
 +++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -41,6 +41,8 @@
- #define I2C_HANDSHAKE_RST		0x0020
- #define I2C_FIFO_ADDR_CLR		0x0001
- #define I2C_DELAY_LEN			0x0002
-+#define I2C_ST_START_CON		0x8001
-+#define I2C_FS_START_CON		0x1800
- #define I2C_TIME_CLR_VALUE		0x0000
- #define I2C_TIME_DEFAULT_VALUE		0x0003
- #define I2C_WRRD_TRANAC_VALUE		0x0002
-@@ -484,6 +486,7 @@ static void mtk_i2c_clock_disable(struct mtk_i2c *i2c)
- static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
- {
- 	u16 control_reg;
-+	u16 ext_conf_val;
+@@ -68,11 +68,12 @@
+ #define I2C_DEFAULT_CLK_DIV		5
+ #define MAX_SAMPLE_CNT_DIV		8
+ #define MAX_STEP_CNT_DIV		64
+-#define MAX_CLOCK_DIV			256
++#define MAX_CLOCK_DIV_8BITS		256
++#define MAX_CLOCK_DIV_5BITS		32
+ #define MAX_HS_STEP_CNT_DIV		8
+-#define I2C_STANDARD_MODE_BUFFER	(1000 / 2)
+-#define I2C_FAST_MODE_BUFFER		(300 / 2)
+-#define I2C_FAST_MODE_PLUS_BUFFER	(20 / 2)
++#define I2C_STANDARD_MODE_BUFFER	(1000 / 3)
++#define I2C_FAST_MODE_BUFFER		(300 / 3)
++#define I2C_FAST_MODE_PLUS_BUFFER	(20 / 3)
  
- 	if (i2c->dev_comp->apdma_sync) {
- 		writel(I2C_DMA_WARM_RST, i2c->pdmabase + OFFSET_RST);
-@@ -518,8 +521,13 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
- 	if (i2c->dev_comp->ltiming_adjust)
- 		mtk_i2c_writew(i2c, i2c->ltiming_reg, OFFSET_LTIMING);
+ #define I2C_CONTROL_RS                  (0x1 << 1)
+ #define I2C_CONTROL_DMA_EN              (0x1 << 2)
+@@ -719,14 +720,26 @@ static int mtk_i2c_calculate_speed(struct mtk_i2c *i2c, unsigned int clk_src,
+ 	unsigned int best_mul;
+ 	unsigned int cnt_mul;
+ 	int ret = -EINVAL;
++	int clock_div_constraint = 0;
  
-+	if (i2c->speed_hz <= I2C_MAX_STANDARD_MODE_FREQ)
-+		ext_conf_val = I2C_ST_START_CON;
-+	else
-+		ext_conf_val = I2C_FS_START_CON;
+ 	if (target_speed > I2C_MAX_HIGH_SPEED_MODE_FREQ)
+ 		target_speed = I2C_MAX_HIGH_SPEED_MODE_FREQ;
+ 
++	if (i2c->default_timing_adjust) {
++		clock_div_constraint = 0;
++	} else if (i2c->dev_comp->ltiming_adjust &&
++		   i2c->ac_timing.inter_clk_div > 1) {
++		clock_div_constraint = 1;
++	} else if (i2c->dev_comp->ltiming_adjust &&
++		   i2c->ac_timing.inter_clk_div == 0) {
++		clock_div_constraint = -1;
++	}
 +
- 	if (i2c->dev_comp->timing_adjust) {
--		mtk_i2c_writew(i2c, i2c->ac_timing.ext, OFFSET_EXT_CONF);
-+		ext_conf_val = i2c->ac_timing.ext;
- 		mtk_i2c_writew(i2c, i2c->ac_timing.inter_clk_div,
- 			       OFFSET_CLOCK_DIV);
- 		mtk_i2c_writew(i2c, I2C_SCL_MIS_COMP_VALUE,
-@@ -544,6 +552,7 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
- 				       OFFSET_HS_STA_STO_AC_TIMING);
- 		}
- 	}
-+	mtk_i2c_writew(i2c, ext_conf_val, OFFSET_EXT_CONF);
+ 	max_step_cnt = mtk_i2c_max_step_cnt(target_speed);
+ 	base_step_cnt = max_step_cnt;
+ 	/* Find the best combination */
+-	opt_div = DIV_ROUND_UP(clk_src >> 1, target_speed);
++	opt_div = DIV_ROUND_UP(clk_src >> 1, target_speed) +
++		  clock_div_constraint;
+ 	best_mul = MAX_SAMPLE_CNT_DIV * max_step_cnt;
  
- 	/* If use i2c pin from PMIC mt6397 side, need set PATH_DIR first */
- 	if (i2c->have_pmic)
+ 	/* Search for the best pair (sample_cnt, step_cnt) with
+@@ -761,7 +774,8 @@ static int mtk_i2c_calculate_speed(struct mtk_i2c *i2c, unsigned int clk_src,
+ 	sample_cnt = base_sample_cnt;
+ 	step_cnt = base_step_cnt;
+ 
+-	if ((clk_src / (2 * sample_cnt * step_cnt)) > target_speed) {
++	if ((clk_src / (2 * (sample_cnt * step_cnt - clock_div_constraint))) >
++		 target_speed) {
+ 		/* In this case, hardware can't support such
+ 		 * low i2c_bus_freq
+ 		 */
+@@ -848,13 +862,16 @@ static int mtk_i2c_set_speed_adjust_timing(struct mtk_i2c *i2c,
+ 	target_speed = i2c->speed_hz;
+ 	parent_clk /= i2c->clk_src_div;
+ 
+-	if (i2c->dev_comp->timing_adjust)
+-		max_clk_div = MAX_CLOCK_DIV;
++	if (i2c->dev_comp->timing_adjust && i2c->dev_comp->ltiming_adjust)
++		max_clk_div = MAX_CLOCK_DIV_5BITS;
++	else if (i2c->dev_comp->timing_adjust)
++		max_clk_div = MAX_CLOCK_DIV_8BITS;
+ 	else
+ 		max_clk_div = 1;
+ 
+ 	for (clk_div = 1; clk_div <= max_clk_div; clk_div++) {
+ 		clk_src = parent_clk / clk_div;
++		i2c->ac_timing.inter_clk_div = clk_div - 1;
+ 
+ 		if (target_speed > I2C_MAX_FAST_MODE_PLUS_FREQ) {
+ 			/* Set master code speed register */
+@@ -901,8 +918,6 @@ static int mtk_i2c_set_speed_adjust_timing(struct mtk_i2c *i2c,
+ 		break;
+ 	}
+ 
+-	i2c->ac_timing.inter_clk_div = clk_div - 1;
+-
+ 	return 0;
+ }
+ 
 -- 
 2.18.0
 
