@@ -2,201 +2,82 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 753B0C636CD
-	for <linux-i2c@archiver.kernel.org>; Sat, 17 Jul 2021 10:18:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35E23C636CA
+	for <linux-i2c@archiver.kernel.org>; Sun, 18 Jul 2021 12:51:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 50AD0613DF
-	for <linux-i2c@archiver.kernel.org>; Sat, 17 Jul 2021 10:18:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E36A600D3
+	for <linux-i2c@archiver.kernel.org>; Sun, 18 Jul 2021 12:51:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233810AbhGQKVV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 17 Jul 2021 06:21:21 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:35894 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S233335AbhGQKVL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 17 Jul 2021 06:21:11 -0400
-X-UUID: 46844434fa684892978705faed5fd61a-20210717
-X-UUID: 46844434fa684892978705faed5fd61a-20210717
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
-        (envelope-from <kewei.xu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 560594797; Sat, 17 Jul 2021 18:18:11 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Sat, 17 Jul 2021 18:18:09 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Sat, 17 Jul 2021 18:18:08 +0800
-From:   Kewei Xu <kewei.xu@mediatek.com>
-To:     <wsa@the-dreams.de>
-CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
-        <qii.wang@mediatek.com>, <yuhan.wei@mediatek.com>,
-        <kewei.xu@mediatek.com>, <ot_daolong.zhu@mediatek.com>,
-        <liguo.zhang@mediatek.com>
-Subject: [PATCH v4 7/8] i2c: mediatek: Isolate speed setting via dts for special devices
-Date:   Sat, 17 Jul 2021 18:17:58 +0800
-Message-ID: <1626517079-9057-8-git-send-email-kewei.xu@mediatek.com>
-X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1626517079-9057-1-git-send-email-kewei.xu@mediatek.com>
-References: <1626517079-9057-1-git-send-email-kewei.xu@mediatek.com>
+        id S233552AbhGRMyP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 18 Jul 2021 08:54:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58216 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232859AbhGRMyP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 18 Jul 2021 08:54:15 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D15C061762
+        for <linux-i2c@vger.kernel.org>; Sun, 18 Jul 2021 05:51:16 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id hr1so23381764ejc.1
+        for <linux-i2c@vger.kernel.org>; Sun, 18 Jul 2021 05:51:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=GgDX/gDdFzff38eVLEbKWZCi0IIuTpi3FYNjXmZlnds=;
+        b=ganJDQm8LclKiMhkWYCbqQ/6kZxjOkkzyMGSSg5hBJUp2zS9joBQxeR1CtgcYujpoQ
+         ytQxOXpJ6OIEv+d6bvK2eZCpODlSc28s7JPJTi+BwGErICvuf9AjZJWD9xa/jnYuPETu
+         WZyjlGuMkkjdQFBRbyo/sC3ZUgW0WrH6EWGotnLwhHUu4Uufj8R3Mpa4OE6kLzGfFK5A
+         prMVDQN0R6QpwyPaNx5f4fi1JovpHF2Vhc6VdziVdcOhIk87jhA60xXS0HNQ3uqOGIQe
+         nsPT/Qt4E21SvbxAkSNpr1eUAmpFW2j9/uwhxkGlyWJc8avcj1m4EQl35oD1Gz1IEqne
+         3uyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=GgDX/gDdFzff38eVLEbKWZCi0IIuTpi3FYNjXmZlnds=;
+        b=PkwA5XUANv5ObEbJYhguaEtefoQRWiuuCL//5P8n6GUJhZgR2BYW4mJBiVBdTb+VUe
+         3ZiJSIRfi+MsnMkDp1lNRyXfHhvfw9FLV3YJV57qH271kEHP83fXrCpsgsiRO+6nAw9F
+         ng3kBRoo0IqscxAZBDhLGjQLTFTnU+s0tWpi11fkAEz9xx1grUk+Uqmsc+6vyqrrDd24
+         /RIJ5ED9yDb4+ZabnJcHc7lKqZKRMj7GEJFRmpqjQaB7lLnkwJPu1JHFyeMqmkUO6+CP
+         HH720EK/3CXj3JbdY9cdQNqJyaiRkVQ/ZhZ3U6jPl0U0TZG6pdBsCcfVANEN7WKbFZtn
+         8hMw==
+X-Gm-Message-State: AOAM532YaCccsCQuI7mV7cgEtXS9xSAmxPfCsBk0TdOe4ZdJdpc9jGrh
+        qwAzidTDf43I6e5G+TNAqsb2JyGTb8tZ5jL8seEcz8/eRhc=
+X-Google-Smtp-Source: ABdhPJw8p0uxj5aSXFZ2tueSYRJGIdL7kxHds9KD25zbKp+CCBxcoJnvnuIOARIicLuWItUBQsIMR4xfiQkYb7qsFp4=
+X-Received: by 2002:a17:906:384c:: with SMTP id w12mr22545936ejc.445.1626612674863;
+ Sun, 18 Jul 2021 05:51:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+References: <20210705093314.20322-1-brgl@bgdev.pl>
+In-Reply-To: <20210705093314.20322-1-brgl@bgdev.pl>
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+Date:   Sun, 18 Jul 2021 14:51:04 +0200
+Message-ID: <CAMRc=MciijLbimum3Bs+9DJLQm72voBZCc0D8h97ZRtEioN5MA@mail.gmail.com>
+Subject: Re: [GIT PULL] at24: fixes for v5.14
+To:     Wolfram Sang <wsa@the-dreams.de>
+Cc:     linux-i2c <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-In the commit be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust
-support"), the I2C timing calculation has been revised to support
-ac-timing adjustment, however that will break on some I2C components.
-As a result we want to introduce a new setting "default-adjust-timing"
-so those components can choose to use the old (default) timing algorithm.
+On Mon, Jul 5, 2021 at 11:33 AM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+>
+> Wolfram,
+>
+> Please pull the following fix for an issue that was raised recently on the
+> list. If multiple eeproms would have the same labels in the system, the driver
+> would refuse to bind any other than the first one.
+>
+> Best Regards,
+> Bartosz Golaszewski
+>
 
-Fixes: be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust support")
-Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
----
- drivers/i2c/busses/i2c-mt65xx.c | 77 +++++++++++++++++++++++++++++++--
- 1 file changed, 73 insertions(+), 4 deletions(-)
+Hi Wolfram,
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index a2a5a4ec1d81..061775489380 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -65,6 +65,7 @@
- #define I2C_DMA_HARD_RST		0x0002
- #define I2C_DMA_HANDSHAKE_RST		0x0004
- 
-+#define I2C_DEFAULT_CLK_DIV		5
- #define MAX_SAMPLE_CNT_DIV		8
- #define MAX_STEP_CNT_DIV		64
- #define MAX_CLOCK_DIV			256
-@@ -249,6 +250,7 @@ struct mtk_i2c {
- 	struct clk *clk_arb;		/* Arbitrator clock for i2c */
- 	bool have_pmic;			/* can use i2c pins from PMIC */
- 	bool use_push_pull;		/* IO config push-pull mode */
-+	bool default_timing_adjust;	/* no timing adjust mode */
- 
- 	u16 irq_stat;			/* interrupt status */
- 	unsigned int clk_src_div;
-@@ -526,7 +528,11 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
- 	else
- 		ext_conf_val = I2C_FS_START_CON;
- 
--	if (i2c->dev_comp->timing_adjust) {
-+	if (i2c->default_timing_adjust) {
-+		if (i2c->dev_comp->timing_adjust)
-+			mtk_i2c_writew(i2c, I2C_DEFAULT_CLK_DIV - 1,
-+				       OFFSET_CLOCK_DIV);
-+	} else if (i2c->dev_comp->timing_adjust) {
- 		ext_conf_val = i2c->ac_timing.ext;
- 		mtk_i2c_writew(i2c, i2c->ac_timing.inter_clk_div,
- 			       OFFSET_CLOCK_DIV);
-@@ -609,7 +615,7 @@ static int mtk_i2c_check_ac_timing(struct mtk_i2c *i2c,
- 	unsigned int sample_ns = div_u64(1000000000ULL * (sample_cnt + 1),
- 					 clk_src);
- 
--	if (!i2c->dev_comp->timing_adjust)
-+	if (i2c->default_timing_adjust || !i2c->dev_comp->timing_adjust)
- 		return 0;
- 
- 	if (i2c->dev_comp->ltiming_adjust)
-@@ -769,7 +775,65 @@ static int mtk_i2c_calculate_speed(struct mtk_i2c *i2c, unsigned int clk_src,
- 	return 0;
- }
- 
--static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
-+static int mtk_i2c_set_speed_default_timing(struct mtk_i2c *i2c,
-+					    unsigned int parent_clk)
-+{
-+	unsigned int clk_src;
-+	unsigned int step_cnt;
-+	unsigned int sample_cnt;
-+	unsigned int l_step_cnt;
-+	unsigned int l_sample_cnt;
-+	unsigned int target_speed;
-+	int ret;
-+
-+	if (i2c->dev_comp->timing_adjust)
-+		i2c->clk_src_div *= I2C_DEFAULT_CLK_DIV;
-+
-+	clk_src = parent_clk / i2c->clk_src_div;
-+	target_speed = i2c->speed_hz;
-+
-+	if (target_speed > I2C_MAX_FAST_MODE_PLUS_FREQ) {
-+		/* Set master code speed register */
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src,
-+					      I2C_MAX_FAST_MODE_FREQ,
-+					      &l_step_cnt, &l_sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (l_sample_cnt << 8) | l_step_cnt;
-+
-+		/* Set the high speed mode register */
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->high_speed_reg = I2C_TIME_DEFAULT_VALUE |
-+			(sample_cnt << 12) | (step_cnt << 8);
-+
-+		if (i2c->dev_comp->ltiming_adjust)
-+			i2c->ltiming_reg = (l_sample_cnt << 6) | l_step_cnt |
-+					   (sample_cnt << 12) | (step_cnt << 9);
-+	} else {
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (sample_cnt << 8) | step_cnt;
-+
-+		/* Disable the high speed transaction */
-+		i2c->high_speed_reg = I2C_TIME_CLR_VALUE;
-+
-+		if (i2c->dev_comp->ltiming_adjust)
-+			i2c->ltiming_reg = (sample_cnt << 6) | step_cnt;
-+	}
-+
-+	return 0;
-+}
-+
-+static int mtk_i2c_set_speed_adjust_timing(struct mtk_i2c *i2c,
-+					   unsigned int parent_clk)
- {
- 	unsigned int clk_src;
- 	unsigned int step_cnt;
-@@ -1254,6 +1318,8 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
- 	i2c->have_pmic = of_property_read_bool(np, "mediatek,have-pmic");
- 	i2c->use_push_pull =
- 		of_property_read_bool(np, "mediatek,use-push-pull");
-+	i2c->default_timing_adjust =
-+		of_property_read_bool(np, "mediatek,default-timing-adjust");
- 
- 	i2c_parse_fw_timings(i2c->dev, &i2c->timing_info, true);
- 
-@@ -1333,7 +1399,10 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 
- 	strlcpy(i2c->adap.name, I2C_DRV_NAME, sizeof(i2c->adap.name));
- 
--	ret = mtk_i2c_set_speed(i2c, clk_get_rate(clk));
-+	if (i2c->default_timing_adjust)
-+		ret = mtk_i2c_set_speed_default_timing(i2c, clk_get_rate(clk));
-+	else
-+		ret = mtk_i2c_set_speed_adjust_timing(i2c, clk_get_rate(clk));
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to set the speed.\n");
- 		return -EINVAL;
--- 
-2.18.0
+Gentle ping for the PR.
 
+Bart
