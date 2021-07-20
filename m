@@ -2,144 +2,98 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EB68C07E95
-	for <linux-i2c@archiver.kernel.org>; Tue, 20 Jul 2021 15:16:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AF3DC07E95
+	for <linux-i2c@archiver.kernel.org>; Tue, 20 Jul 2021 20:45:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DED1B610C7
-	for <linux-i2c@archiver.kernel.org>; Tue, 20 Jul 2021 15:16:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 354DC60FEA
+	for <linux-i2c@archiver.kernel.org>; Tue, 20 Jul 2021 20:45:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238188AbhGTOd6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 20 Jul 2021 10:33:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48206 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239272AbhGTONr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Jul 2021 10:13:47 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56FD2C061786;
-        Tue, 20 Jul 2021 07:50:07 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id ee25so28755990edb.5;
-        Tue, 20 Jul 2021 07:50:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=DfaYjaAQWD7iw8jrijr5uZKZKd1db+DgTG/cmZm1AoU=;
-        b=rfezC5dL7JwoDTyXVJMplYPp7NimB1xesQl2PaOTxXk13s7kDmCnCAfywwPd28wZX2
-         9TDa9akJR/eMHMFiK/5mLlNHDwS1bQzlQ8xC9OmmyPlVX6d2V2afKWOpLJrThSQorLHT
-         7WvJ0klPF7M7MUUDqRA/Df/N7n4BWJkAwgt6pqcdfOfMJd5wqfnfYHFZZjBl8LWSIp0t
-         6o1jCMxWs1Vwkzhj3seqgKcSOUdRpzgSgqQP3JdBA00eJO1lafaxKX+5cVZjTersw+h8
-         U0ylwPPLZaZ4dUYs8FnLlYZTiluTNNHGc3nz4IviEafuIuEsaNJmQGwYijfe7VJWJcFQ
-         kENA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=DfaYjaAQWD7iw8jrijr5uZKZKd1db+DgTG/cmZm1AoU=;
-        b=X3MHt1QdFKtgsyZYg+ceU8aUcEMRHKEcJXVvnI2XGYBIrAd2YMmPQj+sQ7XdDHnvLZ
-         0sXZF49gMYJyBpwC1G3l+lAXwqWPdvp7LLVNBUqzWnU+xRWgq5RlJ5zKgA4nVonO3+kQ
-         hVZfxR5IRbiZpv5uOTUPk9/1IPllUQJk80rzGKnaaiprxiVSKgdm4Z53U69sMBtSfCdw
-         cbk6+++VpvH+zaUFRZdZdcD34V0DSOjEQGW1sb84fjTqc+W6UbM3shRr7ri3Ixc5pYzH
-         ulz7/Y7odqiFV/JNY1x5UPwTrxf9h3sb/fKuXAS+y5acYDDPbszxRzsIkWuMgdSmaveJ
-         qVqg==
-X-Gm-Message-State: AOAM532HRe6xRaAhLwjxfWyrOBCyuhncn7L9ahL9R0ZJ+GHqkxsELMXE
-        BcTBKYtnWHWqFLVdCCIUg1VD0mWpB76c6P0FYQc=
-X-Google-Smtp-Source: ABdhPJw88j9PXuncQg+libg07ckFW1eeacVNT7ZHohEgh6T49pi57vahmjem4mbdgcSh4CwVvTdldg==
-X-Received: by 2002:a05:6402:1011:: with SMTP id c17mr13780157edu.144.1626792605965;
-        Tue, 20 Jul 2021 07:50:05 -0700 (PDT)
-Received: from localhost.localdomain (cbl217-132-240-31.bb.netvision.net.il. [217.132.240.31])
-        by smtp.googlemail.com with ESMTPSA id n13sm4876600eda.36.2021.07.20.07.50.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jul 2021 07:50:05 -0700 (PDT)
-From:   Michael Zaidman <michael.zaidman@gmail.com>
-To:     jikos@kernel.org, benjamin.tissoires@redhat.com,
-        aaron.jones@ftdichip.com
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-i2c@vger.kernel.org,
-        Michael Zaidman <michael.zaidman@gmail.com>
-Subject: [PATCH v1] HID: ft260: fix device removal due to USB disconnect
-Date:   Tue, 20 Jul 2021 17:49:54 +0300
-Message-Id: <20210720144954.5392-1-michael.zaidman@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        id S232233AbhGTUEf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 20 Jul 2021 16:04:35 -0400
+Received: from sauhun.de ([88.99.104.3]:47718 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237360AbhGTTtk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 20 Jul 2021 15:49:40 -0400
+Received: from localhost (p5486cc6d.dip0.t-ipconnect.de [84.134.204.109])
+        by pokefinder.org (Postfix) with ESMTPSA id E80CA2C011D;
+        Tue, 20 Jul 2021 22:30:15 +0200 (CEST)
+Date:   Tue, 20 Jul 2021 22:30:15 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     linux-i2c@vger.kernel.org
+Subject: Re: [GIT PULL] at24: fixes for v5.14
+Message-ID: <YPcyV6HAKV4Vzlzx@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
+        Bartosz Golaszewski <brgl@bgdev.pl>, linux-i2c@vger.kernel.org
+References: <20210705093314.20322-1-brgl@bgdev.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="wHR8a9E9sxZ42SfM"
+Content-Disposition: inline
+In-Reply-To: <20210705093314.20322-1-brgl@bgdev.pl>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This commit fixes a regression introduced by the commit 82f09a637dd3
-("HID: ft260: improve error handling of ft260_hid_feature_report_get()")
-when upon USB disconnect, the ft260 i2c device is still available within
-the /dev folder.
 
-Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
-Acked-by: Aaron Jones (FTDI-UK) <aaron.jones@ftdichip.com>
----
- drivers/hid/hid-ft260.c | 25 ++++++++-----------------
- 1 file changed, 8 insertions(+), 17 deletions(-)
+--wHR8a9E9sxZ42SfM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index f43a8406cb9a..fa73a35aaf98 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -742,8 +742,8 @@ static int ft260_is_interface_enabled(struct hid_device *hdev)
- 	int ret;
- 
- 	ret = ft260_get_system_config(hdev, &cfg);
--	if (ret)
--		return ret;
-+	if (ret < 0)
-+		return 0;
- 
- 	ft260_dbg("interface:  0x%02x\n", interface);
- 	ft260_dbg("chip mode:  0x%02x\n", cfg.chip_mode);
-@@ -754,23 +754,16 @@ static int ft260_is_interface_enabled(struct hid_device *hdev)
- 	switch (cfg.chip_mode) {
- 	case FT260_MODE_ALL:
- 	case FT260_MODE_BOTH:
--		if (interface == 1) {
-+		if (interface == 1)
- 			hid_info(hdev, "uart interface is not supported\n");
--			return 0;
--		}
--		ret = 1;
-+		else
-+			ret = 1;
- 		break;
- 	case FT260_MODE_UART:
--		if (interface == 0) {
--			hid_info(hdev, "uart is unsupported on interface 0\n");
--			ret = 0;
--		}
-+		hid_info(hdev, "uart interface is not supported\n");
- 		break;
- 	case FT260_MODE_I2C:
--		if (interface == 1) {
--			hid_info(hdev, "i2c is unsupported on interface 1\n");
--			ret = 0;
--		}
-+		ret = 1;
- 		break;
- 	}
- 	return ret;
-@@ -1004,11 +997,9 @@ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- static void ft260_remove(struct hid_device *hdev)
- {
--	int ret;
- 	struct ft260_device *dev = hid_get_drvdata(hdev);
- 
--	ret = ft260_is_interface_enabled(hdev);
--	if (ret <= 0)
-+	if (!dev)
- 		return;
- 
- 	sysfs_remove_group(&hdev->dev.kobj, &ft260_attr_group);
--- 
-2.25.1
+On Mon, Jul 05, 2021 at 11:33:14AM +0200, Bartosz Golaszewski wrote:
+> Wolfram,
+>=20
+> Please pull the following fix for an issue that was raised recently on the
+> list. If multiple eeproms would have the same labels in the system, the d=
+river
+> would refuse to bind any other than the first one.
+>=20
+> Best Regards,
+> Bartosz Golaszewski
+>=20
+> The following changes since commit 62fb9874f5da54fdb243003b386128037319b2=
+19:
+>=20
+>   Linux 5.13 (2021-06-27 15:21:11 -0700)
+>=20
+> are available in the Git repository at:
+>=20
+>   git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-=
+fixes-for-v5.14
+>=20
+> for you to fetch changes up to c36748ac545421d94a5091c754414c0f3664bf10:
+>=20
+>   misc: eeprom: at24: Always append device id even if label property is s=
+et. (2021-07-01 18:49:37 +0200)
+>=20
 
+Back from the holidays and merged to for-current, thanks!
+
+
+--wHR8a9E9sxZ42SfM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmD3MlcACgkQFA3kzBSg
+Kbap/g//UOXuklDtNMrYRLYVE1v5MpqDK8Aw3gwtq6B+42vRxzeSQwQiD5GK6MuD
+6/vbLqbdnhgHUxCpTUfn0Czt0Xt6Et9DMFgfLKIE2X09zkjX0jTn2ZAFNAsC6ier
+z+NZ40VnGdPXOg1TEK+CHUFVTuxPS8cS6DDaevDMS860JI0DRfEZ6sQY93Nq7pUg
+fSqpQtkZfVQqg0HZ6U24QguhAZEetVuc8Fs0fKC8lFA29LykDbj1OK/dvNXNeMX5
+dtpART6MFz9QH+Us9M4fA/9zXgFaJTEauL/VdarxRnTxF/KsJKzu//MptPnFums6
+n+sodQfEp8HLuTC3T8VoXIRHFlcOBnavQ5mf4wsAccTnw/7I0/stNab3M133NI8a
+qgGoiX/kW2hDugSRB6PGKYbWxb5L7Ssa6+UdoK2hyJCA+ud1sOTrJEQ160IUcWqF
+2krk87mn5wDrxUoKq8enV8Bt9t7SNcVqoH6hp6dbXZaH0UQyEtp/JNxju3S6DjI8
+DKipK4ouGI/5kypbGeuDqt/ppzL1C8LTV4kzmXQo7/BmvgOdsKJuykqfW21zDBRz
+Ti/JVbCff4KOpXfwSAr/66a2f2lTbAGfajylmRGAjXM/MDIv3Cx26VwCmWdeFKU8
+XdOrQqHJ8kT+FBgsObq7c834jfMxmOw1n1SLY2HJzIy0hy9HJmI=
+=Ni0o
+-----END PGP SIGNATURE-----
+
+--wHR8a9E9sxZ42SfM--
