@@ -2,154 +2,110 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64D63C4338F
-	for <linux-i2c@archiver.kernel.org>; Tue, 27 Jul 2021 15:59:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28B3BC4338F
+	for <linux-i2c@archiver.kernel.org>; Tue, 27 Jul 2021 16:03:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4721961B71
-	for <linux-i2c@archiver.kernel.org>; Tue, 27 Jul 2021 15:59:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 02A7761B7B
+	for <linux-i2c@archiver.kernel.org>; Tue, 27 Jul 2021 16:03:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbhG0P76 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 27 Jul 2021 11:59:58 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1554 "EHLO
+        id S229580AbhG0QD3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 27 Jul 2021 12:03:29 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38968 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229569AbhG0P75 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Jul 2021 11:59:57 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16RFgG7e033051;
-        Tue, 27 Jul 2021 11:59:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=XaSc/Wt3VOhRhYRfb4ziMBSu9t/ZtvP7pymZ+cQcG8o=;
- b=HGrRnaEZuHSMkTR5XfQ17e3NAW5fuO7Y/B0Pi+6OG/ght2od7Us5/RTO1pclvAtqqHwn
- 9ZSfhfQhEjPThDRAKCCrm0GejjLwL8nY19QkeJpBjExY/qwUpoeff4SDIX6FjhKf0dQN
- nGZbwerkJpY4ufCKC2qBeR/ifxrxkZLE880kGbSJ3cMesxHHqSnrysKE9+U/z1lQBOpy
- dYwx1QHpx4hnE2/Cv7NP+yQySsyqI1TFK4Wa3dTOyaqQpiIFHnZ1mIjEAw/ifSd9kv5N
- 2wF0muInuxubV7jPHUGkKXaGWnpYR+VFvR/YLc78sG1w1pR/xhKPual9v6J79heSBQ0A SQ== 
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a2kbd55yx-1
+        by vger.kernel.org with ESMTP id S229441AbhG0QD3 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Jul 2021 12:03:29 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16RFgWEH103302;
+        Tue, 27 Jul 2021 12:03:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=tzEgKGyj8W0dnaCzQaQnjISWyFObQwE3HIBtnrO+VzQ=;
+ b=apDqCTUHa4DBmwxrJYhghtEQs+sYiPjUMqUt2QSX8rde87Tg1FJBY5Ysu08GMALCcFEg
+ UzAz2BIUzhnt1+Kb9isfBIIewKBNBofUcMM4OfQ2Pkp+1XDv0wPXwi0DFos6iyklRTuz
+ BIS8yW3f2E2EU1Mgo2dE9emXHLDeLI78D9TeGK6/7KtNlcxVQkfpOLgh4wu22Cg0GaOj
+ vb4F0bBWdzO5DECULETjzlLPNQm0szJVYbgpNmo0Q48q1gl8FACtfE+J9Qm62+nesSlN
+ O6a2A5VotfiyVAnY9+6dlnCN/2fJrWG1C4tmpSI9IZgC+duM3YPh1u9dulu0W98Flaog Uw== 
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a2mhb9wq6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 11:59:54 -0400
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16RFwMJ8007585;
-        Tue, 27 Jul 2021 15:59:53 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma04dal.us.ibm.com with ESMTP id 3a235n1trb-1
+        Tue, 27 Jul 2021 12:03:23 -0400
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16RG2IAn006929;
+        Tue, 27 Jul 2021 16:03:22 GMT
+Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
+        by ppma01wdc.us.ibm.com with ESMTP id 3a236128bf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 15:59:53 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16RFxqGM30015966
+        Tue, 27 Jul 2021 16:03:22 +0000
+Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
+        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16RG3LBE25755996
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 27 Jul 2021 15:59:52 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CA85A28068;
-        Tue, 27 Jul 2021 15:59:52 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6A1A628059;
-        Tue, 27 Jul 2021 15:59:52 +0000 (GMT)
-Received: from v0005c16 (unknown [9.211.139.59])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 27 Jul 2021 15:59:52 +0000 (GMT)
-Message-ID: <600b3bc1cdd570b0954f7a61865975f3f3158c90.camel@linux.ibm.com>
-Subject: Re: [PATCH] i2c: mux: pca954x: Support multiple devices on a single
- reset line
+        Tue, 27 Jul 2021 16:03:21 GMT
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C6E58BE063;
+        Tue, 27 Jul 2021 16:03:21 +0000 (GMT)
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 78218BE04F;
+        Tue, 27 Jul 2021 16:03:21 +0000 (GMT)
+Received: from v0005c16.aus.stglabs.ibm.com (unknown [9.211.139.59])
+        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 27 Jul 2021 16:03:21 +0000 (GMT)
 From:   Eddie James <eajames@linux.ibm.com>
-To:     Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-Date:   Tue, 27 Jul 2021 10:59:51 -0500
-In-Reply-To: <997d20b4-457c-17ba-e9bf-193132768afa@axentia.se>
-References: <20210505215918.45720-1-eajames@linux.ibm.com>
-         <997d20b4-457c-17ba-e9bf-193132768afa@axentia.se>
-Organization: IBM
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+To:     linux-i2c@vger.kernel.org
+Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        peda@axentia.se, robh+dt@kernel.org,
+        Eddie James <eajames@linux.ibm.com>
+Subject: [PATCH v2 1/2] dt-bindings: i2c: i2c-mux-pca954x: Define the reset-shared-hogged gpio
+Date:   Tue, 27 Jul 2021 11:03:14 -0500
+Message-Id: <20210727160315.15575-2-eajames@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210727160315.15575-1-eajames@linux.ibm.com>
+References: <20210727160315.15575-1-eajames@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 7mK_MrH5vxyFrILPGfV8PtFV_McVdRaL
-X-Proofpoint-GUID: 7mK_MrH5vxyFrILPGfV8PtFV_McVdRaL
+X-Proofpoint-GUID: Vyf720QxfoeiT0OonjgbZUU4fAMmIVgO
+X-Proofpoint-ORIG-GUID: Vyf720QxfoeiT0OonjgbZUU4fAMmIVgO
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-27_10:2021-07-27,2021-07-27 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
- suspectscore=0 malwarescore=0 impostorscore=0 adultscore=0
- lowpriorityscore=0 spamscore=0 priorityscore=1501 mlxlogscore=999
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
+ malwarescore=0 phishscore=0 adultscore=0 suspectscore=0 impostorscore=0
+ clxscore=1015 priorityscore=1501 lowpriorityscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2107140000 definitions=main-2107270093
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, 2021-05-07 at 00:08 +0200, Peter Rosin wrote:
-> Hi!
-> 
-> On 2021-05-05 23:59, Eddie James wrote:
-> > Some systems connect several PCA954x devices to a single reset
-> > GPIO. For
-> > these devices to get out of reset and probe successfully, only the
-> > first
-> > device probed should change the GPIO. Add this functionality by
-> > checking
-> > for EBUSY when getting the GPIO fails. Then, retry getting the GPIO
-> > with
-> > the non-exclusive flag and wait for the reset line to drop. This
-> > prevents
-> > the later probes from proceding while the device is still reset.
-> 
-> (nit: proceeding)
-> 
-> The patch assumes that all muxes with interconnected resets are only
-> ever reset "in symphony". But there is no guarantee anywhere that
-> this
-> actually holds.
+Add a property to describe a reset input that is shared between multiple
+PCA953x muxes.
 
-Thanks for your comments Peter, you are quite right, this won't do.
-I've finally come back around to this and will send a new patch that
-handles it differently - please let me know what you think.
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Thanks!
-Eddie
-
-> 
-> So, I don't see how this can be safe. Sure, it may very well work in
-> the
-> majority of cases, but it seems very dangerous. If one instance
-> resets
-> muxes controlled by other instances, any cached value is destroyed in
-> those instances and anything can happen. Sure, if you have HW like
-> this,
-> then you have what you have. But I don't see any good way to handle
-> this case in an elegant way. If this scheme is allowed the dangers of
-> relying on it at minimum needs to be documented.
-> 
-> And what if the second instance reads the gpio just a few ns after
-> the
-> reset is released? The first instance waits for 1us before proceeding
-> to give the chip some time to recover from the reset, but that
-> respite
-> may be lost to other instances.
-> 
-> What if the first instance does the reset but then fails the probe
-> later,
-> possibly because the chip isn't there, but then other instances
-> manages
-> to time their probe just so that the gpio is busy at the right point,
-> and then proceeds without holding a reference to the gpio. Then the
-> first
-> instance also lets go of the gpio and you end up with a bunch of
-> instances
-> relying on a pin that noone holds a reference to. Or, yet another
-> instance
-> enters the picture and finds the gpio free and pulls a reset behind
-> the
-> back of the intermediate instances which have already proceeded.
-> 
-> Or am I reading something wrong?
-> 
-> Cheers,
-> Peter
-> 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+index 9f1726d0356b..06b9f8385bd7 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+@@ -49,6 +49,11 @@ properties:
+   reset-gpios:
+     maxItems: 1
+ 
++  reset-shared-hogged-gpios:
++    maxItems: 1
++    description: Reference to a shared, hogged GPIO connected to the reset
++      input of several PCA954x muxes.
++
+   i2c-mux-idle-disconnect:
+     type: boolean
+     description: Forces mux to disconnect all children in idle state. This is
+-- 
+2.27.0
 
