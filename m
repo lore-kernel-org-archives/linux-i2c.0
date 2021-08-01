@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AEA1C4338F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69361C4320A
 	for <linux-i2c@archiver.kernel.org>; Sun,  1 Aug 2021 14:24:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 10A1A60EB5
+	by mail.kernel.org (Postfix) with ESMTP id 4E72A60F36
 	for <linux-i2c@archiver.kernel.org>; Sun,  1 Aug 2021 14:24:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231984AbhHAOZE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S232000AbhHAOZE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Sun, 1 Aug 2021 10:25:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232017AbhHAOZD (ORCPT
+        with ESMTP id S232012AbhHAOZD (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Sun, 1 Aug 2021 10:25:03 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A844EC0613D5
-        for <linux-i2c@vger.kernel.org>; Sun,  1 Aug 2021 07:24:55 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id k38-20020a05600c1ca6b029025af5e0f38bso1025370wms.5
-        for <linux-i2c@vger.kernel.org>; Sun, 01 Aug 2021 07:24:55 -0700 (PDT)
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98FB7C06175F
+        for <linux-i2c@vger.kernel.org>; Sun,  1 Aug 2021 07:24:54 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id k4so7412596wrc.0
+        for <linux-i2c@vger.kernel.org>; Sun, 01 Aug 2021 07:24:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:from:to:cc:references:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=NycVvCwydv6O/fEy4I0Ls/fG/ySzA4Qeak5oA/a4k3U=;
-        b=CYtsONRECWEgjICD6LVWB0MiqJ3YnjPC2YgBq0BGp/hik0+9vlZdWOV0bjZmD6JCO/
-         qCn+ClotgMzuzYHWL0Nq5CrdjN+XKdiP+Y3cGPxLRi5WTIfdIJof9Zs1iRuDuQHN4a6W
-         x8rRlcsrADmXtq25dl0CyDAzYgnxRuM3uPvHr4WUTOgjVIernbvolyfF9TtmeKbD/HLO
-         OLLLdOmdQGfcbmbPBy/Hkp1/F+EJS/p9nz6lJ5yLr8e9yCnO0FOfkeiGAQqdVeyDnaph
-         BifFggaNw6lQxIQbYVu+urfz8DjFqO+yySkHyMqEMLPYQt/2xwc6lRBBqbCVaSvBvPRY
-         UCQA==
+        bh=TmnI1DA9qy/cXtkHhmO57MjxX6J0GiS83vJ7Yq4S73s=;
+        b=BuE7w4vmksI1OCz8kRN/pAWThkZ2l+bHRvXmyY7z3Zx2hdj+asV2Ytx3HXo+hXbXZG
+         jx/20YsOTsp5+hHvZN7kc0f3BFTAgO+tfZ57grp0XrQztLYVFSRUWccbP+YBFxkOnhrO
+         o66OkS9H+xgZVg5aGmFD4MBBlQmz0pSAukF237O3O7SWu9TjKxDxgjbdtp3bhhpzabsn
+         eQJYFeMu9IJg4djpRhMf1v0eX0Hv/vMKtM+V4emQJ9U8U/c+FPF3J7RKA41iuuaZaa3E
+         r4mRO1z/lYJykP0meQMeHLbAsebskQygHgzLHiL8PyVcW4MAEDhaysPYQX2+E/SS3uTD
+         lTeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:from:to:cc:references:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=NycVvCwydv6O/fEy4I0Ls/fG/ySzA4Qeak5oA/a4k3U=;
-        b=Ifjw/w7pZ4eBlEq28eW1NoQ5sYiA7jy7UcwjfRVDEdJjdAKiLqEuDWpXkLU5dvhzgh
-         883P57uzIJISUPlzkA+qLZzks/EOLJg5w5tyiIpx4fp2I9n+3kZjxcffA9QKGlqPzyVm
-         z16/0psoNAy98+wl1tRG+uUDOrOG8juJ97Jvr2dkXq8vsVeIWIffXun1bttzuHyyRdC0
-         OifQ8uoxzeJl1uQ4kb7MnS41Y4ENOmOyIjFd15aAoloHhTD08Cn2KsmIs7ds2Wyw/KGY
-         oxq4kELHeTBizVUTB617eLxSGI7Sm4ykkW47ij/1dYOwmIrf0/8CjW7QEMlvcd40vOYB
-         OxzA==
-X-Gm-Message-State: AOAM532yAkwcpe+MnwUPiDj7QvWcvrBOLdFbRfdPAdELe1cA8c/s/frq
-        ZyU/sqI+QHCqyaAu1k+XNRAOFetChFGutA==
-X-Google-Smtp-Source: ABdhPJw3joonMpVYhQaGLnn+KUx6D8mqyTa7HiTskyVJM2R8Q/xW9y1GvjqmWU39EO3O0Y9FdZ0O0g==
-X-Received: by 2002:a7b:cb01:: with SMTP id u1mr12351291wmj.44.1627827894084;
-        Sun, 01 Aug 2021 07:24:54 -0700 (PDT)
+        bh=TmnI1DA9qy/cXtkHhmO57MjxX6J0GiS83vJ7Yq4S73s=;
+        b=KjQTV1tr0EYC17d37TVU7ct+vgC3rGIUCWyPfU3lWBuR8Hjt3nCnDNaivwNSC/LV+n
+         ax/Hu6466G4XtbiAdoE/cVA4riW22qqcUPmTf7CM2fyfAdRrkrByzKxV+gf74Qc3aavK
+         EIXwyvgduR6y9jeXc8C1mD/+ew6q+3EYvkyIuUVkT2kP2Mvx1AAXePV3CH7sWlUxPswt
+         lgh1ZhwLyUpmLEYVftwOJ1fdBt4V6pnD8zUP+pNGoK9KjvM/jV56fv6p217PSqz5atzv
+         x6WM1+Z2UY24vo68PKIiKGQev1wKNQviXDMzSOavqRwoac9w2oIJ3OtUQyycPyUGp8bM
+         uXJw==
+X-Gm-Message-State: AOAM530X7dDM2jWDO8fnCd+YKWW0KKQYHG7fR9W08170JAEWISFrFg/C
+        9/Z2aZMlBCKh5Yz17yuYKEzlAPaThfuIYQ==
+X-Google-Smtp-Source: ABdhPJx05WiCO4BUyqCnP1ydy6klaSD2flBzJRCOPoPV3fNSnHeGDMoJS4kVU068CxjNx+BP8PGvNg==
+X-Received: by 2002:adf:d4c5:: with SMTP id w5mr12813393wrk.381.1627827892976;
+        Sun, 01 Aug 2021 07:24:52 -0700 (PDT)
 Received: from ?IPv6:2003:ea:8f10:c200:9d9e:757:f317:c524? (p200300ea8f10c2009d9e0757f317c524.dip0.t-ipconnect.de. [2003:ea:8f10:c200:9d9e:757:f317:c524])
-        by smtp.googlemail.com with ESMTPSA id d8sm8594013wrv.20.2021.08.01.07.24.53
+        by smtp.googlemail.com with ESMTPSA id t8sm8573868wmj.5.2021.08.01.07.24.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 01 Aug 2021 07:24:53 -0700 (PDT)
-Subject: [PATCH 09/10] i2c: i801: Improve register_dell_lis3lv02d_i2c_device
+        Sun, 01 Aug 2021 07:24:52 -0700 (PDT)
+Subject: [PATCH 08/10] i2c: i801: Improve i801_add_mux
 From:   Heiner Kallweit <hkallweit1@gmail.com>
 To:     Jean Delvare <jdelvare@suse.com>
 Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 References: <7a1581de-7566-15da-d1af-08cbf8c5e46f@gmail.com>
-Message-ID: <5d8e72e2-085b-32ea-0a86-eeecfe1e94f3@gmail.com>
-Date:   Sun, 1 Aug 2021 16:23:34 +0200
+Message-ID: <12a96946-c857-b6f8-9623-407b1c71d2c5@gmail.com>
+Date:   Sun, 1 Aug 2021 16:22:31 +0200
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.12.0
 MIME-Version: 1.0
@@ -75,57 +75,73 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-- Use an initializer for struct i2c_board_info info
-- Use dmi_match()
-- Simplify loop logic
+The return value of i801_add_mux() isn't used, so let's change it to void.
+In addition remove the not needed cast to struct gpiod_lookup.
+GPIO_LOOKUP() uses GPIO_LOOKUP_IDX() that includes this cast.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
- drivers/i2c/busses/i2c-i801.c | 28 +++++++++-------------------
- 1 file changed, 9 insertions(+), 19 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 958b2e14b..1ca92a1e0 100644
+index 5fa8dc1cb..958b2e14b 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1245,28 +1245,18 @@ static const struct {
+@@ -1389,7 +1389,7 @@ static const struct dmi_system_id mux_dmi_table[] = {
+ };
  
- static void register_dell_lis3lv02d_i2c_device(struct i801_priv *priv)
+ /* Setup multiplexing if needed */
+-static int i801_add_mux(struct i801_priv *priv)
++static void i801_add_mux(struct i801_priv *priv)
  {
--	struct i2c_board_info info;
--	const char *dmi_product_name;
-+	struct i2c_board_info info = { .type = "lis3lv02d" };
+ 	struct device *dev = &priv->adapter.dev;
+ 	const struct i801_mux_config *mux_config;
+@@ -1398,7 +1398,7 @@ static int i801_add_mux(struct i801_priv *priv)
  	int i;
  
--	dmi_product_name = dmi_get_system_info(DMI_PRODUCT_NAME);
--	for (i = 0; i < ARRAY_SIZE(dell_lis3lv02d_devices); ++i) {
--		if (strcmp(dmi_product_name,
--			   dell_lis3lv02d_devices[i].dmi_product_name) == 0)
--			break;
--	}
--
--	if (i == ARRAY_SIZE(dell_lis3lv02d_devices)) {
--		dev_warn(&priv->pci_dev->dev,
--			 "Accelerometer lis3lv02d is present on SMBus but its"
--			 " address is unknown, skipping registration\n");
--		return;
--	}
-+	for (i = 0; i < ARRAY_SIZE(dell_lis3lv02d_devices); ++i)
-+		if (dmi_match(DMI_PRODUCT_NAME, dell_lis3lv02d_devices[i].dmi_product_name)) {
-+			info.addr = dell_lis3lv02d_devices[i].i2c_addr;
-+			i2c_new_client_device(&priv->adapter, &info);
-+			return;
-+		}
+ 	if (!priv->mux_drvdata)
+-		return 0;
++		return;
+ 	mux_config = priv->mux_drvdata;
  
--	memset(&info, 0, sizeof(struct i2c_board_info));
--	info.addr = dell_lis3lv02d_devices[i].i2c_addr;
--	strlcpy(info.type, "lis3lv02d", I2C_NAME_SIZE);
--	i2c_new_client_device(&priv->adapter, &info);
-+	pci_warn(priv->pci_dev,
-+		 "Accelerometer lis3lv02d is present on SMBus but its address is unknown, skipping registration\n");
+ 	/* Prepare the platform data */
+@@ -1414,13 +1414,11 @@ static int i801_add_mux(struct i801_priv *priv)
+ 			      struct_size(lookup, table, mux_config->n_gpios + 1),
+ 			      GFP_KERNEL);
+ 	if (!lookup)
+-		return -ENOMEM;
++		return;
+ 	lookup->dev_id = "i2c-mux-gpio";
+-	for (i = 0; i < mux_config->n_gpios; i++) {
+-		lookup->table[i] = (struct gpiod_lookup)
+-			GPIO_LOOKUP(mux_config->gpio_chip,
+-				    mux_config->gpios[i], "mux", 0);
+-	}
++	for (i = 0; i < mux_config->n_gpios; i++)
++		lookup->table[i] = GPIO_LOOKUP(mux_config->gpio_chip,
++					       mux_config->gpios[i], "mux", 0);
+ 	gpiod_add_lookup_table(lookup);
+ 	priv->lookup = lookup;
+ 
+@@ -1438,8 +1436,6 @@ static int i801_add_mux(struct i801_priv *priv)
+ 		gpiod_remove_lookup_table(lookup);
+ 		dev_err(dev, "Failed to register i2c-mux-gpio device\n");
+ 	}
+-
+-	return PTR_ERR_OR_ZERO(priv->mux_pdev);
  }
  
- /* Register optional slaves */
+ static void i801_del_mux(struct i801_priv *priv)
+@@ -1469,7 +1465,7 @@ static unsigned int i801_get_adapter_class(struct i801_priv *priv)
+ 	return class;
+ }
+ #else
+-static inline int i801_add_mux(struct i801_priv *priv) { return 0; }
++static inline void i801_add_mux(struct i801_priv *priv) { }
+ static inline void i801_del_mux(struct i801_priv *priv) { }
+ 
+ static inline unsigned int i801_get_adapter_class(struct i801_priv *priv)
 -- 
 2.32.0
 
