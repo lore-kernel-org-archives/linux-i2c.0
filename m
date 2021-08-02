@@ -2,65 +2,67 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AAE2C4338F
-	for <linux-i2c@archiver.kernel.org>; Sun,  1 Aug 2021 15:01:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E266FC4338F
+	for <linux-i2c@archiver.kernel.org>; Mon,  2 Aug 2021 12:53:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 09BCA610A8
-	for <linux-i2c@archiver.kernel.org>; Sun,  1 Aug 2021 15:01:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C1D5A60F58
+	for <linux-i2c@archiver.kernel.org>; Mon,  2 Aug 2021 12:53:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231967AbhHAPCC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 1 Aug 2021 11:02:02 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:39890 "EHLO
+        id S233730AbhHBMyB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 2 Aug 2021 08:54:01 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:53702 "EHLO
         smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231940AbhHAPCC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 1 Aug 2021 11:02:02 -0400
+        with ESMTP id S233688AbhHBMyA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 2 Aug 2021 08:54:00 -0400
 Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id C4EC521F5A;
-        Sun,  1 Aug 2021 15:01:53 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id C109521FDC;
+        Mon,  2 Aug 2021 12:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1627830113; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1627908830; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=8wFBeMibKDuGEbBs6qLeMSOqJ1VTvO0FY/B0vJHtVxc=;
-        b=qxfImd0meBY2pxAj6TTieUVU03boE/NBa0y39k068wKzds1sWJBZXBv1tQjafARkIRyfgo
-        gEkRjK2lVbpN/g8siESEji94gMDJolFIfUVqWJU/ChvmdefdFwYQtDi20Fln3f1KIbi3js
-        Ly7wzujZf25K5Psrb4GpIDjPP/TtzBA=
+        bh=VdFhtn57yPP2EIBIBkmFa7iqmG16GZMqN7QHTwaZQA8=;
+        b=gq7IyBQ+SFEtioP87J/oAmy+7WA1ZiUBVj6WKYwCtF7Rx1REGhu1ugqo8sMm7G8TEEffEb
+        1Tm2qmTST7V4VpFtGe4OBptQOFhlsmEiuaHSyTshaAzp7rf42lGFUWr07wKXla+sToqzAf
+        0C437JzPmql+8eoS5CaKXqDf9h4KwbU=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1627830113;
+        s=susede2_ed25519; t=1627908830;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=8wFBeMibKDuGEbBs6qLeMSOqJ1VTvO0FY/B0vJHtVxc=;
-        b=l/hrMTdQAW6e8A94lPrfKel1BtQmJYATuVLzae8vzWd6Z4lNHfp4IA3jo1RCzYAiaMtM7M
-        LclYhd7HayjhKfBA==
+        bh=VdFhtn57yPP2EIBIBkmFa7iqmG16GZMqN7QHTwaZQA8=;
+        b=NhU65Tg01hJOp/OWhYW5H5A0F3YfIx473GEoYr72JW7Q2QS3DR2njV6oTOmFySdr0+X1zZ
+        c7o43MjpP9iYmaCQ==
 Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id 8997C136B6;
-        Sun,  1 Aug 2021 15:01:53 +0000 (UTC)
+        by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id 8E87D13983;
+        Mon,  2 Aug 2021 12:53:50 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap1.suse-dmz.suse.de with ESMTPSA
-        id pROiHmG3BmFFWQAAGKfGzw
-        (envelope-from <jdelvare@suse.de>); Sun, 01 Aug 2021 15:01:53 +0000
-Date:   Sun, 1 Aug 2021 17:01:52 +0200
+        id RfFbIN7qB2GdWwAAGKfGzw
+        (envelope-from <jdelvare@suse.de>); Mon, 02 Aug 2021 12:53:50 +0000
+Date:   Mon, 2 Aug 2021 14:53:47 +0200
 From:   Jean Delvare <jdelvare@suse.de>
-To:     Baruch Siach <baruch@tkos.co.il>
-Cc:     linux-i2c@vger.kernel.org
-Subject: Re: [PATCH i2c-tools] Makefile: drop KERNELVERSION
-Message-ID: <20210801170152.3d9bb659@endymion>
-In-Reply-To: <b04c0610e6b0c16c555a1578dee24b1b022bbd1c.1627649880.git.baruch@tkos.co.il>
-References: <b04c0610e6b0c16c555a1578dee24b1b022bbd1c.1627649880.git.baruch@tkos.co.il>
+To:     Heiner Kallweit <hkallweit1@gmail.com>
+Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH 01/10] i2c: i801: Don't call pm_runtime_allow
+Message-ID: <20210802145347.605ce8d5@endymion>
+In-Reply-To: <c0eeddf6-f630-d18b-cdae-0d74ed095f9c@gmail.com>
+References: <7a1581de-7566-15da-d1af-08cbf8c5e46f@gmail.com>
+        <c0eeddf6-f630-d18b-cdae-0d74ed095f9c@gmail.com>
 Organization: SUSE Linux
 X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
@@ -70,30 +72,42 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, 30 Jul 2021 15:58:00 +0300, Baruch Siach wrote:
-> KERNELVERSION is unused since commit 4b89e48a1039f ("Delete the
-> decode-xeon script...").
+Hi Heiner,
+
+On Sun, 01 Aug 2021 16:16:56 +0200, Heiner Kallweit wrote:
+> Drivers should not call pm_runtime_allow(), see
+> Documentation/power/pci.rst. Therefore remove the call and leave this
+> to user space. Also remove the not needed call to pm_runtime_forbid().
 > 
-> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 > ---
->  Makefile | 2 --
+>  drivers/i2c/busses/i2c-i801.c | 2 --
 >  1 file changed, 2 deletions(-)
 > 
-> diff --git a/Makefile b/Makefile
-> index e784921f9f98..5ac8a59dd390 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -50,8 +50,6 @@ USE_STATIC_LIB := 1
->  endif
->  endif
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 92ec291c0..362e74761 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -1891,7 +1891,6 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  	pm_runtime_set_autosuspend_delay(&dev->dev, 1000);
+>  	pm_runtime_use_autosuspend(&dev->dev);
+>  	pm_runtime_put_autosuspend(&dev->dev);
+> -	pm_runtime_allow(&dev->dev);
 >  
-> -KERNELVERSION	:= $(shell uname -r)
-> -
->  .PHONY: all strip clean install uninstall
+>  	return 0;
+>  }
+> @@ -1900,7 +1899,6 @@ static void i801_remove(struct pci_dev *dev)
+>  {
+>  	struct i801_priv *priv = pci_get_drvdata(dev);
 >  
->  all:
+> -	pm_runtime_forbid(&dev->dev);
+>  	pm_runtime_get_noresume(&dev->dev);
+>  
+>  	i801_disable_host_notify(priv);
 
-Applied, thanks.
+These calls were added by Jarkko (Cc'd) and I'm not familiar with power
+management so I'll need an explicit ack from him before I can accept
+this patch.
 
 -- 
 Jean Delvare
