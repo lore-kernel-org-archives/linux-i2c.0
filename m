@@ -5,42 +5,42 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23581C43214
-	for <linux-i2c@archiver.kernel.org>; Tue,  3 Aug 2021 16:00:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A40BEC432BE
+	for <linux-i2c@archiver.kernel.org>; Tue,  3 Aug 2021 16:00:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0929260462
-	for <linux-i2c@archiver.kernel.org>; Tue,  3 Aug 2021 16:00:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8DAEA600CD
+	for <linux-i2c@archiver.kernel.org>; Tue,  3 Aug 2021 16:00:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230095AbhHCQBG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 3 Aug 2021 12:01:06 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:41727 "EHLO
+        id S229691AbhHCQBJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 3 Aug 2021 12:01:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24956 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229716AbhHCQBG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 3 Aug 2021 12:01:06 -0400
+        by vger.kernel.org with ESMTP id S230334AbhHCQBJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 3 Aug 2021 12:01:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1628006454;
+        s=mimecast20190719; t=1628006457;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=w+ZbjeQ+nj2MN9GQ4vAN7nTPNWMFQzcQOlTIQOz2s8Y=;
-        b=IbhYTa+g1Sa/Ax50apixf43tGAdapmr9Br5uG0Bu1EFsTPRySmEe1GdNM94FLSC2B1qEk2
-        QClxOHm+BN0UhCXRaxF+mSrP45apYjPtVmEZpDq4odrBx5mQvzVrwZ/kmuKp45p+BoMMOA
-        wqoyMgflCl+k8FbFJFZkKkdC0g/vkSo=
+        bh=Mu6anSj/ipKUd3FO9ecZvr5VFBZFhfWI4lC0AL7jAKk=;
+        b=XvmgbMt3iCdaEItwyUsvWV+PnavlktzqEKcpRuR2zT2BH5R5KAJjeR+63xTNX9xnJJp84y
+        0rxSC/GwjICR/llrLgtryhs8Bb0yhBctbIxQpGvb5csV4be6E1C+r3L+YjzXHRWfD/xA3a
+        Mau2qH3PVAtbTQs0STLaaQMx0qf9rhc=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-10-fOP6rkVdPte4zgM839A_0A-1; Tue, 03 Aug 2021 12:00:50 -0400
-X-MC-Unique: fOP6rkVdPte4zgM839A_0A-1
+ us-mta-469-DEmSyiy5MymO2BEHFbl7lA-1; Tue, 03 Aug 2021 12:00:56 -0400
+X-MC-Unique: DEmSyiy5MymO2BEHFbl7lA-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 71EC6363A0;
-        Tue,  3 Aug 2021 16:00:49 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ED9D31009609;
+        Tue,  3 Aug 2021 16:00:54 +0000 (UTC)
 Received: from x1.localdomain (unknown [10.39.193.55])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CE83660C0F;
-        Tue,  3 Aug 2021 16:00:47 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4D31F60C05;
+        Tue,  3 Aug 2021 16:00:53 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Mark Gross <mgross@linux.intel.com>,
         Andy Shevchenko <andy@infradead.org>,
@@ -49,9 +49,9 @@ To:     Mark Gross <mgross@linux.intel.com>,
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         platform-driver-x86@vger.kernel.org, linux-i2c@vger.kernel.org,
         linux-acpi@vger.kernel.org
-Subject: [PATCH 1/4] i2c: acpi: Add an i2c_acpi_client_count() helper function
-Date:   Tue,  3 Aug 2021 18:00:41 +0200
-Message-Id: <20210803160044.158802-2-hdegoede@redhat.com>
+Subject: [PATCH 4/4] platform/x86: intel_cht_int33fe: Use the new i2c_acpi_client_count() helper
+Date:   Tue,  3 Aug 2021 18:00:44 +0200
+Message-Id: <20210803160044.158802-5-hdegoede@redhat.com>
 In-Reply-To: <20210803160044.158802-1-hdegoede@redhat.com>
 References: <20210803160044.158802-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -61,84 +61,61 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-We have 3 files now which have the need to count the number of
-I2cSerialBus resources in an ACPI-device's resource-list.
-
-Currently all implement their own helper function for this,
-add a generic helper function to replace the 3 implementations.
+Use the new i2c_acpi_client_count() helper, this
+results in a nice cleanup.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/i2c-core-acpi.c | 32 ++++++++++++++++++++++++++++++++
- include/linux/i2c.h         |  5 +++++
- 2 files changed, 37 insertions(+)
+ .../intel/int33fe/intel_cht_int33fe_common.c  | 29 +------------------
+ 1 file changed, 1 insertion(+), 28 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 6f0aa0ed3241..aaeeacc12121 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -69,6 +69,38 @@ bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
- }
- EXPORT_SYMBOL_GPL(i2c_acpi_get_i2c_resource);
+diff --git a/drivers/platform/x86/intel/int33fe/intel_cht_int33fe_common.c b/drivers/platform/x86/intel/int33fe/intel_cht_int33fe_common.c
+index 251ed9bac789..463222521e61 100644
+--- a/drivers/platform/x86/intel/int33fe/intel_cht_int33fe_common.c
++++ b/drivers/platform/x86/intel/int33fe/intel_cht_int33fe_common.c
+@@ -16,33 +16,6 @@
  
-+static int i2c_acpi_resource_count(struct acpi_resource *ares, void *data)
-+{
-+	struct acpi_resource_i2c_serialbus *sb;
-+	int *count = data;
-+
-+	if (i2c_acpi_get_i2c_resource(ares, &sb))
-+		*count = *count + 1;
-+
-+	return 1;
-+}
-+
-+/**
-+ * i2c_acpi_client_count - Count the number of I2cSerialBus resources
-+ * @adev:	ACPI device
-+ *
-+ * Returns the number of I2cSerialBus resources in the ACPI-device's
-+ * resource-list; or a negative error code.
-+ */
-+int i2c_acpi_client_count(struct acpi_device *adev)
-+{
-+	int ret, count = 0;
-+	LIST_HEAD(r);
-+
-+	ret = acpi_dev_get_resources(adev, &r, i2c_acpi_resource_count, &count);
-+	if (ret < 0)
-+		return ret;
-+
-+	acpi_dev_free_resource_list(&r);
-+	return count;
-+}
-+EXPORT_SYMBOL_GPL(i2c_acpi_client_count);
-+
- static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
+ #define EXPECTED_PTYPE		4
+ 
+-static int cht_int33fe_i2c_res_filter(struct acpi_resource *ares, void *data)
+-{
+-	struct acpi_resource_i2c_serialbus *sb;
+-	int *count = data;
+-
+-	if (i2c_acpi_get_i2c_resource(ares, &sb))
+-		(*count)++;
+-
+-	return 1;
+-}
+-
+-static int cht_int33fe_count_i2c_clients(struct device *dev)
+-{
+-	struct acpi_device *adev = ACPI_COMPANION(dev);
+-	LIST_HEAD(resource_list);
+-	int count = 0;
+-	int ret;
+-
+-	ret = acpi_dev_get_resources(adev, &resource_list,
+-				     cht_int33fe_i2c_res_filter, &count);
+-	acpi_dev_free_resource_list(&resource_list);
+-	if (ret < 0)
+-		return ret;
+-
+-	return count;
+-}
+-
+ static int cht_int33fe_check_hw_type(struct device *dev)
  {
- 	struct i2c_acpi_lookup *lookup = data;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 3eb60a2e9e61..2ce3efbe9198 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -1010,6 +1010,7 @@ struct acpi_resource_i2c_serialbus;
- #if IS_ENABLED(CONFIG_ACPI)
- bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
- 			       struct acpi_resource_i2c_serialbus **i2c);
-+int i2c_acpi_client_count(struct acpi_device *adev);
- u32 i2c_acpi_find_bus_speed(struct device *dev);
- struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
- 				       struct i2c_board_info *info);
-@@ -1020,6 +1021,10 @@ static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
- {
- 	return false;
- }
-+static inline int i2c_acpi_client_count(struct acpi_device *adev)
-+{
-+	return 0;
-+}
- static inline u32 i2c_acpi_find_bus_speed(struct device *dev)
- {
- 	return 0;
+ 	unsigned long long ptyp;
+@@ -69,7 +42,7 @@ static int cht_int33fe_check_hw_type(struct device *dev)
+ 		return -ENODEV;
+ 	}
+ 
+-	ret = cht_int33fe_count_i2c_clients(dev);
++	ret = i2c_acpi_client_count(ACPI_COMPANION(dev));
+ 	if (ret < 0)
+ 		return ret;
+ 
 -- 
 2.31.1
 
