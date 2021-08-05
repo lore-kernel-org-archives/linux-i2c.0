@@ -7,62 +7,62 @@ X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BCA3C4338F
-	for <linux-i2c@archiver.kernel.org>; Thu,  5 Aug 2021 09:52:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2190AC4338F
+	for <linux-i2c@archiver.kernel.org>; Thu,  5 Aug 2021 10:41:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 77F4C610A0
-	for <linux-i2c@archiver.kernel.org>; Thu,  5 Aug 2021 09:52:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EDD276105A
+	for <linux-i2c@archiver.kernel.org>; Thu,  5 Aug 2021 10:41:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238897AbhHEJwS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 5 Aug 2021 05:52:18 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:60104 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232728AbhHEJwS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Aug 2021 05:52:18 -0400
+        id S240237AbhHEKmJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 5 Aug 2021 06:42:09 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:38002 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232619AbhHEKmI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Aug 2021 06:42:08 -0400
 Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 0F2592231E;
-        Thu,  5 Aug 2021 09:51:58 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 41FE31FD37;
+        Thu,  5 Aug 2021 10:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1628157118; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1628160114; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=eqX1JDFpbJs936siW1aR4IwV1kqhp4/yCgdxapSVaRQ=;
-        b=kNYStU1DalBNyW7UJrj3lwvlo+FFNoAvfr5sc5g2AmM/bEBsAESo/EQi6eqP0LyhAZ2EQG
-        +PJYhEeFJNR0etOVvQx+fKnpULJS+9400IZywBU/S77OTpdUrnGamMw8RkecVR7vGEL/md
-        fjgAhdNytSlmZ8xv7IXB1xDWXNoq/30=
+        bh=7L6k7Zw2ZIau4O5/7J2BiHoRC/q4nKwDgo2nh+KxxeU=;
+        b=d1eHewqv4FH7uIEcqCG39l4SxAm0l7JrFDV+DR0CHZCAkfOeUtn7gyddqKRiwtTz7E8QRl
+        hypgGJhLy8EmXHmqppv5uHrFJli0RZ9v/uG/hhFTKSlGcCatEDRL+84/vBVKZoZ7hH0gFO
+        DvHyoksnS+1Ih+eqb72KZUlqMXodgJA=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1628157118;
+        s=susede2_ed25519; t=1628160114;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=eqX1JDFpbJs936siW1aR4IwV1kqhp4/yCgdxapSVaRQ=;
-        b=mD+ebSHaT85v1HHz1Jr8ty7nT8NwxQuDLSsllb4l0t4QuYMc+kjOOZeSQLc3dZhOQx6837
-        NswQgzjz8ZrrqxBg==
+        bh=7L6k7Zw2ZIau4O5/7J2BiHoRC/q4nKwDgo2nh+KxxeU=;
+        b=JXiVgfXtiiZgaybHyJzTuKUsMPcRaqPAKEy1d21s0IOa1UyZvxAuNM4n6uLicrr+FPrU7Q
+        z+W71k1sStiyS1Cw==
 Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id D62AE139CD;
-        Thu,  5 Aug 2021 09:51:57 +0000 (UTC)
+        by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id 134BB13785;
+        Thu,  5 Aug 2021 10:41:54 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap1.suse-dmz.suse.de with ESMTPSA
-        id ZjHzMb20C2EkagAAGKfGzw
-        (envelope-from <jdelvare@suse.de>); Thu, 05 Aug 2021 09:51:57 +0000
-Date:   Thu, 5 Aug 2021 11:51:56 +0200
+        id v8ZzAnLAC2G7eQAAGKfGzw
+        (envelope-from <jdelvare@suse.de>); Thu, 05 Aug 2021 10:41:54 +0000
+Date:   Thu, 5 Aug 2021 12:41:50 +0200
 From:   Jean Delvare <jdelvare@suse.de>
 To:     Heiner Kallweit <hkallweit1@gmail.com>
-Cc:     Pali =?UTF-8?B?Um9ow6Fy?= <pali@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 05/10] i2c: i801: Improve is_dell_system_with_lis3lv02d
-Message-ID: <20210805115156.70e364be@endymion>
-In-Reply-To: <f2477399-62df-0036-7d35-4e8634afad9c@gmail.com>
+Cc:     linux-i2c@vger.kernel.org
+Subject: Re: [PATCH 06/10] i2c: i801: Remove not needed check for
+ PCI_COMMAND_INTX_DISABLE
+Message-ID: <20210805124150.3fbdfa9b@endymion>
+In-Reply-To: <f9115eb4-4b19-0a9c-0354-b3ded261c155@gmail.com>
 References: <7a1581de-7566-15da-d1af-08cbf8c5e46f@gmail.com>
-        <f2477399-62df-0036-7d35-4e8634afad9c@gmail.com>
+        <f9115eb4-4b19-0a9c-0354-b3ded261c155@gmail.com>
 Organization: SUSE Linux
 X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
@@ -74,74 +74,51 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 Hi Heiner,
 
-On Sun, 01 Aug 2021 16:20:19 +0200, Heiner Kallweit wrote:
-> Replace the ugly cast of the return_value pointer with proper usage.
-> In addition use dmi_match() instead of open-coding it.
+On Sun, 01 Aug 2021 16:21:08 +0200, Heiner Kallweit wrote:
+> do_pci_enable_device() takes care that PCI_COMMAND_INTX_DISABLE
+> is cleared if a legacy interrupt is used.
 
-Pali, would you be able to test this patch?
+Only if pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin) returned a
+non-zero pin, if I read the code correctly. While I can't remember the
+context in which I wrote this piece of code, I suppose that pin == 0
+was the situation where this test was needed. I mean, the board
+designer can legitimately not wire the interrupt pin, and require that
+polling is being used, right?
+
+In your favor, I can't find any online kernel log with this message.
+However that doesn't mean I'm comfortable removing the safety check.
 
 > Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 > ---
->  drivers/i2c/busses/i2c-i801.c | 13 ++++---------
->  1 file changed, 4 insertions(+), 9 deletions(-)
+>  drivers/i2c/busses/i2c-i801.c | 9 +--------
+>  1 file changed, 1 insertion(+), 8 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index d971ee20c..a6287c520 100644
+> index a6287c520..5b9eebc1c 100644
 > --- a/drivers/i2c/busses/i2c-i801.c
 > +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -1191,7 +1191,7 @@ static acpi_status check_acpi_smo88xx_device(acpi_handle obj_handle,
+> @@ -1825,19 +1825,12 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  		priv->features &= ~FEATURE_IRQ;
 >  
->  	kfree(info);
+>  	if (priv->features & FEATURE_IRQ) {
+> -		u16 pcictl, pcists;
+> +		u16 pcists;
 >  
-> -	*((bool *)return_value) = true;
-> +	*return_value = obj_handle;
->  	return AE_CTRL_TERMINATE;
->  
->  smo88xx_not_found:
-> @@ -1201,13 +1201,10 @@ static acpi_status check_acpi_smo88xx_device(acpi_handle obj_handle,
->  
->  static bool is_dell_system_with_lis3lv02d(void)
->  {
-> -	bool found;
-> -	const char *vendor;
-> +	acpi_handle found = NULL;
->  
-> -	vendor = dmi_get_system_info(DMI_SYS_VENDOR);
-> -	if (!vendor || strcmp(vendor, "Dell Inc."))
-> +	if (!dmi_match(DMI_SYS_VENDOR, "Dell Inc."))
->  		return false;
-
-Looks good to me.
-
+>  		/* Complain if an interrupt is already pending */
+>  		pci_read_config_word(priv->pci_dev, PCI_STATUS, &pcists);
+>  		if (pcists & PCI_STATUS_INTERRUPT)
+>  			dev_warn(&dev->dev, "An interrupt is pending!\n");
 > -
-
-I see no reason to remove that blank line.
-
->  	/*
->  	 * Check that ACPI device SMO88xx is present and is functioning.
->  	 * Function acpi_get_devices() already filters all ACPI devices
-> @@ -1216,9 +1213,7 @@ static bool is_dell_system_with_lis3lv02d(void)
->  	 * accelerometer but unfortunately ACPI does not provide any other
->  	 * information (like I2C address).
->  	 */
-> -	found = false;
-> -	acpi_get_devices(NULL, check_acpi_smo88xx_device, NULL,
-> -			 (void **)&found);
-> +	acpi_get_devices(NULL, check_acpi_smo88xx_device, NULL, &found);
-
-The choice of return value by the acpi_get_devices() designer is very
-unfortunate. It would have been much more convenient if the return
-value was different whether a match has been found or not. Oh well.
-
-I agree that the proposed change is a nicer way to work around this
-limitation. Unfortunately I can't test this as I do not own a Dell
-laptop. Were you able to test it? If not, I hope Pali will.
-
+> -		/* Check if interrupts have been disabled */
+> -		pci_read_config_word(priv->pci_dev, PCI_COMMAND, &pcictl);
+> -		if (pcictl & PCI_COMMAND_INTX_DISABLE) {
+> -			dev_info(&dev->dev, "Interrupts are disabled\n");
+> -			priv->features &= ~FEATURE_IRQ;
+> -		}
+>  	}
 >  
->  	return found;
->  }
+>  	if (priv->features & FEATURE_IRQ) {
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
 -- 
 Jean Delvare
