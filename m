@@ -2,63 +2,104 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70C13C43214
-	for <linux-i2c@archiver.kernel.org>; Wed, 11 Aug 2021 15:54:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23C04C4320A
+	for <linux-i2c@archiver.kernel.org>; Wed, 11 Aug 2021 19:04:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 568BA61008
-	for <linux-i2c@archiver.kernel.org>; Wed, 11 Aug 2021 15:54:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E8233610FC
+	for <linux-i2c@archiver.kernel.org>; Wed, 11 Aug 2021 19:04:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233201AbhHKPy4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 11 Aug 2021 11:54:56 -0400
-Received: from mga07.intel.com ([134.134.136.100]:2131 "EHLO mga07.intel.com"
+        id S230270AbhHKTEl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 11 Aug 2021 15:04:41 -0400
+Received: from www.zeus03.de ([194.117.254.33]:42170 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233639AbhHKPyc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 11 Aug 2021 11:54:32 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10073"; a="278894565"
-X-IronPort-AV: E=Sophos;i="5.84,313,1620716400"; 
-   d="scan'208";a="278894565"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2021 08:53:49 -0700
-X-IronPort-AV: E=Sophos;i="5.84,313,1620716400"; 
-   d="scan'208";a="526982377"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2021 08:53:48 -0700
-Received: from andy by smile with local (Exim 4.94.2)
-        (envelope-from <andriy.shevchenko@intel.com>)
-        id 1mDqY2-008C5g-Aq; Wed, 11 Aug 2021 18:53:42 +0300
-Date:   Wed, 11 Aug 2021 18:53:42 +0300
-From:   Andy Shevchenko <andriy.shevchenko@intel.com>
-To:     Heiner Kallweit <hkallweit1@gmail.com>
-Cc:     Jean Delvare <jdelvare@suse.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH v2 9/9] i2c: i801: Improve handling platform data for tco
- device
-Message-ID: <YRPyhtiEfNHzPb2J@smile.fi.intel.com>
-References: <e46ac7c1-1bb0-2caf-58e6-2fcaa89d30ae@gmail.com>
- <0e8188d1-e35c-162b-6657-b22e8034483c@gmail.com>
+        id S229802AbhHKTEk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 11 Aug 2021 15:04:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=k1; bh=yotAXwGxPU3du2t0851ttQ/XEv4u
+        xc75haydCGhcwDk=; b=uhRV3nizCjjBdQUbDSIINuQ40KhPgDduxHvZ7loqVD4E
+        J5TZYUfonKw/uoS7XbNuyCR6VO79Br63PP+58KBbgbc4aFWHYpFrobsZpXCAB/YH
+        fsFHVaXHKtntIDaby9s4/LSP/qeB1kx99cKx1blQeryPrz1UgkkegpucWYY/G3s=
+Received: (qmail 2749631 invoked from network); 11 Aug 2021 21:04:14 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 11 Aug 2021 21:04:14 +0200
+X-UD-Smtp-Session: l3s3148p1@8oDASE3JxOIgAwDPXwY8AGSWydYZifHX
+Date:   Wed, 11 Aug 2021 21:04:12 +0200
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Chris Brandt <chris.brandt@renesas.com>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>
+Subject: Re: [PATCH/RFC 0/4] dt-bindings: i2c: renesas,riic: Add
+ interrupt-names
+Message-ID: <YRQfLN3r0gFiQMG1@kunai>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Chris Brandt <chris.brandt@renesas.com>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>
+References: <cover.1626267422.git.geert+renesas@glider.be>
+ <YRPdTiAakb6OBd2k@shikoro>
+ <CAMuHMdVmKuYo7XhrQsLhXCOyRa=-aKwbtub=yi5nuSvJ22An2Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="VhfuD+Qk+C9o4mf/"
 Content-Disposition: inline
-In-Reply-To: <0e8188d1-e35c-162b-6657-b22e8034483c@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <CAMuHMdVmKuYo7XhrQsLhXCOyRa=-aKwbtub=yi5nuSvJ22An2Q@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, Aug 06, 2021 at 11:18:40PM +0200, Heiner Kallweit wrote:
-> The platform data structures are used in the respective i801_add_tco
-> functions only. Therefore we can make the definitions local to these
-> functions.
 
-Side note: usually we refer to the functions like "i801_add_tco()" (w/o
-quotes).
+--VhfuD+Qk+C9o4mf/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--- 
-With Best Regards,
-Andy Shevchenko
+Hi Geert,
 
+> Probably it is not worth doing this in lockstep (1/4 in v5.15 through
+> i2c, 2/4 and 3/4 in v5.16 through renesas-devel, and 4/4 in v5.17
+> through i2c).
 
+I agree!
+
+> I have different branches for DT binding and DTS, but I guess it
+> doesn't hurt to deviate and apply both to renesas-arm-dt-for-v5.15...
+
+Sounds good, thanks!
+
+All the best,
+
+   Wolfram
+
+--VhfuD+Qk+C9o4mf/
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmEUHygACgkQFA3kzBSg
+KbZXaBAAim/mI+VPfpgtyAN2RE3C4n/H5lYiDnzByB2Rqq4t1ammd2RoLwDibtxp
+5wE1CelXSD64Q3tRvRCyQBImxrhI76BlD8UjtXaQ2Y3PRVdRHgR1DueVXa24q/6N
+ofkxPM4LAWU4kF2I7RfMyFau5Dtf/oJlCKncF/TK5+/SGO/eBqxgZVY1o0+9r7ix
+C1yHFEEI3KVnvbRygGk1aUT+kQm5KZAPD9/SnPnyu9Fq81I0r0oJi8jWNm8hT3i3
+JxjCR0y+OrhUP2jrknkTTZfghYiR17GVcAPqVIog+dbZ8Eq5l8v2u0Qea7OWLtDV
+hzZ3l9owIhjXk0uXDX7VYhwRTq1WreY0fqm9686mQOTNBcf/1BuY6gr0fp1Woqhf
+PNsgEkBm/TgTIA08gLkB1E1HHDSErBYwAnXy2zRW/BTTA/MdrM9GFkMZ1EuzVLwv
+9/jiDGuD/kYJwxH+TzzkW2IwK05UEg9j+kY4iMbHeOntM0LNTAj5n7jYH4TXdm9v
+z9NnEGOXxHgJoVeK98yFxUQk5GOjXzg59Jsp00qtVFGf1Y6f+4RaXw/zP1NODoru
+37UnxfH9XoRB2qZo6Rf0w7r+L2zDe3r8IFg03lDt6B5jeK1R+icVZ2SUWmT2t0Ob
+2b/JHxlxqf54JVcj7kwifucu1oO0ScCLV2Q0mOsGgIdU2Jg/V40=
+=bJpJ
+-----END PGP SIGNATURE-----
+
+--VhfuD+Qk+C9o4mf/--
