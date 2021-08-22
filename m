@@ -2,124 +2,89 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45805C4320A
-	for <linux-i2c@archiver.kernel.org>; Sat, 21 Aug 2021 07:40:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 246C8C4338F
+	for <linux-i2c@archiver.kernel.org>; Sun, 22 Aug 2021 09:07:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2A5B4611CA
-	for <linux-i2c@archiver.kernel.org>; Sat, 21 Aug 2021 07:40:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 02CA061057
+	for <linux-i2c@archiver.kernel.org>; Sun, 22 Aug 2021 09:07:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232719AbhHUHl3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 21 Aug 2021 03:41:29 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:58224 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S232195AbhHUHl3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 21 Aug 2021 03:41:29 -0400
-X-UUID: 2a75eff14ac5463ab90bb4ff072b6551-20210821
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=BZuld3Pemgzl736JSP8kztfRG7SFrLKgqimIWjvahso=;
-        b=KMemjg/JbriLuYuBRYBhKoqnFZ7P/YW1HOHG0XKDEbZyayIVNDLW3l5iTHrWJJBfPj1XEmEmUge6bV3jXm86CLbo3kbeP72Qycq0NBWKZIz+iehg03/oqlMDH158hMJNZZQLVkJQZuexW2Egui0/poYaNWUj8bEM13WG1vSA+n4=;
-X-UUID: 2a75eff14ac5463ab90bb4ff072b6551-20210821
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <kewei.xu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 786966555; Sat, 21 Aug 2021 15:40:46 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Sat, 21 Aug 2021 15:40:45 +0800
-Received: from mhfsdcap04 (10.17.3.154) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Sat, 21 Aug 2021 15:40:44 +0800
-Message-ID: <fce8934ec25d18307df11e2f308a255da5a25ce3.camel@mediatek.com>
-Subject: Re: [PATCH v4 3/8] i2c: mediatek: Reset the handshake signal
- between i2c and dma
-From:   Kewei Xu <kewei.xu@mediatek.com>
-To:     Chen-Yu Tsai <wenst@chromium.org>
-CC:     <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>,
-        "Rob Herring" <robh+dt@kernel.org>, <linux-i2c@vger.kernel.org>,
-        Devicetree List <devicetree@vger.kernel.org>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>,
-        srv_heupstream <srv_heupstream@mediatek.com>,
-        <leilk.liu@mediatek.com>, <qii.wang@mediatek.com>,
-        <yuhan.wei@mediatek.com>, <ot_daolong.zhu@mediatek.com>,
-        <liguo.zhang@mediatek.com>
-Date:   Sat, 21 Aug 2021 15:40:45 +0800
-In-Reply-To: <CAGXv+5EGpUV0eaQ6duZ8y8u2dvc1y3uc2YwWP=07D+ZZpzMCvQ@mail.gmail.com>
-References: <1626517079-9057-1-git-send-email-kewei.xu@mediatek.com>
-         <1626517079-9057-4-git-send-email-kewei.xu@mediatek.com>
-         <CAGXv+5EGpUV0eaQ6duZ8y8u2dvc1y3uc2YwWP=07D+ZZpzMCvQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+        id S232251AbhHVJIM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 22 Aug 2021 05:08:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32922 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231147AbhHVJIM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 Aug 2021 05:08:12 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F9A2C061575;
+        Sun, 22 Aug 2021 02:07:31 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id l7-20020a1c2507000000b002e6be5d86b3so8737250wml.3;
+        Sun, 22 Aug 2021 02:07:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=AhPq++c5LnLSV6coaXUp7/7VbDNysWaKtvq47wkdGAs=;
+        b=A6OyULkPkFg7lqEv4VdvuWuRyKWJSL7oT/xAey7fZDYfziA4jTHwCaS266A5M72c9+
+         OSRy6RgxcjP07hpEIx2wvw9MAa5/nK+9bKCw0+xzkyZY+Ia/F9166dFSGUyTChJyvZv5
+         Bwn1ixH51p5bXOI8+Gh1TCNLmB77N27cjXWj2r9LvCbor3p3wHTgZXLIQU6M3s0zNORE
+         /eyBzTfmoaaVQf2u0Gx/8JweaVXjayfDPUfAkHxNYfY7Nfc89t/2S7vnQaNui4dVGu0c
+         5QfGSglb302VBjBPag0KxEz4i/IkRV0oXjmlzzQjkXC1kW+Z/D0iM9JDa/Tzz7BvZKnD
+         WY6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=AhPq++c5LnLSV6coaXUp7/7VbDNysWaKtvq47wkdGAs=;
+        b=rfLAyRLClapQeo37r+DW3aMnLpLJXKPn3k9+6o1hsdBDK18hF7ntClkJTed3BNAOg4
+         rKziZEjzbHiz5sQwwcIUQfTAHJWV5r9LKrhsto5IyE1ZPxJNtq9qQt8m5jmnfVJdlRin
+         SLAgJSYGH9oinfDUExKXnDkysXHXSD4bpy/3X/87DzkgWJJ07516U5YuOxNHQJEsctRs
+         FvHptoX92kkQd0BAvQlis8IcAfJGEOb4EPadGbpNdhAbChcGw3yzPLBHkPZWb4nypRyA
+         Cxm4/IvhcoSmDyNiooAUAOBXa2OSN5BTBl6hh6ezV7mrgENQ+7+UaUH8MS42BJPIKoh3
+         grcQ==
+X-Gm-Message-State: AOAM532H9aKxgL52e7EbLt0cCXCPD/reB7XUeNGW8iH7eaYsaVGQL3ck
+        wiJYISpBrXPZnerZw4BLPVbkwRoOs/N1GQ==
+X-Google-Smtp-Source: ABdhPJzxq7lQKTqstwQLycqiGMLlWfb++OLHjx2SRn3+U0yvi6F20Pz9xGZ37U5CoH63qfahXrHvOw==
+X-Received: by 2002:a1c:46:: with SMTP id 67mr11586320wma.29.1629623249777;
+        Sun, 22 Aug 2021 02:07:29 -0700 (PDT)
+Received: from [192.168.1.22] (amarseille-551-1-7-65.w92-145.abo.wanadoo.fr. [92.145.152.65])
+        by smtp.gmail.com with ESMTPSA id k12sm11787655wrd.75.2021.08.22.02.07.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 22 Aug 2021 02:07:29 -0700 (PDT)
+Subject: Re: [PATCH] i2c: Fix return value of bcm_kona_i2c_probe()
+To:     zhaoxiao <zhaoxiao@uniontech.com>, f.fainelli@gmail.com,
+        rjui@broadcom.com, sbranden@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20210816083756.22294-1-zhaoxiao@uniontech.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <1d1be6bc-d0bb-7bfa-803f-c220c7492791@gmail.com>
+Date:   Sun, 22 Aug 2021 11:07:29 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-X-MTK:  N
-Content-Transfer-Encoding: base64
+In-Reply-To: <20210816083756.22294-1-zhaoxiao@uniontech.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-T24gV2VkLCAyMDIxLTA4LTExIGF0IDE2OjQxICswODAwLCBDaGVuLVl1IFRzYWkgd3JvdGU6DQo+
-IEhpLA0KPiANCj4gT24gU2F0LCBKdWwgMTcsIDIwMjEgYXQgNjoyOSBQTSBLZXdlaSBYdSA8a2V3
-ZWkueHVAbWVkaWF0ZWsuY29tPg0KPiB3cm90ZToNCj4gPiANCj4gPiBEdWUgdG8gY2hhbmdlcyBp
-biB0aGUgaGFyZHdhcmUgZGVzaWduIG9mIHRoZSBoYW5kc2hha2luZyBzaWduYWwNCj4gPiBiZXR3
-ZWVuIGkyYyBhbmQgZG1hLCBpdCBpcyBuZWNlc3NhcnkgdG8gcmVzZXQgdGhlIGhhbmRzaGFraW5n
-DQo+ID4gc2lnbmFsIGJlZm9yZSBlYWNoIHRyYW5zZmVyIHRvIGVuc3VyZSB0aGF0IHRoZSBtdWx0
-aS1tc2dzIGNhbg0KPiA+IGJlIHRyYW5zZmVycmVkIGNvcnJlY3RseS4NCj4gDQo+IFRoaXMgYWxz
-byBhZmZlY3RzIE1UODE5Mi4gSGFzIHRoaXMgYmVlbiB0ZXN0ZWQgb24gdGhhdCBTb0MgYXMgd2Vs
-bD8NCg0KWWVzLCBJdCBoYXMgYmVlbiB0ZXN0ZWQgb24gTVQ4MTkyLg0KDQo+IA0KPiA+IFNpZ25l
-ZC1vZmYtYnk6IEtld2VpIFh1IDxrZXdlaS54dUBtZWRpYXRlay5jb20+DQo+ID4gLS0tDQo+ID4g
-IGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXQ2NXh4LmMgfCAxNCArKysrKysrKysrKysrKw0KPiA+
-ICAxIGZpbGUgY2hhbmdlZCwgMTQgaW5zZXJ0aW9ucygrKQ0KPiA+IA0KPiA+IGRpZmYgLS1naXQg
-YS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW10NjV4eC5jDQo+ID4gYi9kcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLW10NjV4eC5jDQo+ID4gaW5kZXggMjIyZmY3NjVlNTVkLi5jMDEwODM4N2YzNGIgMTAw
-NjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1tdDY1eHguYw0KPiA+ICsrKyBi
-L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXQ2NXh4LmMNCj4gPiBAQCAtNDcsNiArNDcsOSBAQA0K
-PiA+ICAjZGVmaW5lIEkyQ19SRF9UUkFOQUNfVkFMVUUgICAgICAgICAgICAweDAwMDENCj4gPiAg
-I2RlZmluZSBJMkNfU0NMX01JU19DT01QX1ZBTFVFICAgICAgICAgMHgwMDAwDQo+ID4gICNkZWZp
-bmUgSTJDX0NITl9DTFJfRkxBRyAgICAgICAgICAgICAgIDB4MDAwMA0KPiA+ICsjZGVmaW5lIEky
-Q19DTFJfREVCVUdDVFIgICAgICAgICAgICAgICAweDAwMDANCj4gPiArI2RlZmluZSBJMkNfUkVM
-SUFCSUxJVFkgICAgICAgICAgICAgICAgICAgICAgICAweDAwMTANCj4gPiArI2RlZmluZSBJMkNf
-RE1BQUNLX0VOQUJMRSAgICAgICAgICAgICAgMHgwMDA4DQo+ID4gDQo+ID4gICNkZWZpbmUgSTJD
-X0RNQV9DT05fVFggICAgICAgICAgICAgICAgIDB4MDAwMA0KPiA+ICAjZGVmaW5lIEkyQ19ETUFf
-Q09OX1JYICAgICAgICAgICAgICAgICAweDAwMDENCj4gPiBAQCAtODUwLDYgKzg1MywxNyBAQCBz
-dGF0aWMgaW50IG10a19pMmNfZG9fdHJhbnNmZXIoc3RydWN0IG10a19pMmMNCj4gPiAqaTJjLCBz
-dHJ1Y3QgaTJjX21zZyAqbXNncywNCj4gPiANCj4gPiAgICAgICAgIHJlaW5pdF9jb21wbGV0aW9u
-KCZpMmMtPm1zZ19jb21wbGV0ZSk7DQo+ID4gDQo+ID4gKyAgICAgICBpZiAoaTJjLT5kZXZfY29t
-cC0+YXBkbWFfc3luYykgew0KPiA+ICsgICAgICAgICAgICAgICBtdGtfaTJjX3dyaXRldyhpMmMs
-IEkyQ19DTFJfREVCVUdDVFIsDQo+ID4gT0ZGU0VUX0RFQlVHQ1RSTCk7DQo+ID4gKyAgICAgICAg
-ICAgICAgIHdyaXRlbChJMkNfRE1BX0hBTkRTSEFLRV9SU1QgfCBJMkNfRE1BX1dBUk1fUlNULA0K
-PiA+ICsgICAgICAgICAgICAgICAgICAgICAgaTJjLT5wZG1hYmFzZSArIE9GRlNFVF9SU1QpOw0K
-PiA+ICsgICAgICAgICAgICAgICB3cml0ZWwoSTJDX0RNQV9DTFJfRkxBRywgaTJjLT5wZG1hYmFz
-ZSArDQo+ID4gT0ZGU0VUX1JTVCk7DQo+IA0KPiBJMkNfRE1BX1dBUk1fUlNUIGlzIHNlbGYtY2xl
-YXJpbmcuIElzIEkyQ19ETUFfSEFORFNIQUtFX1JTVCBub3QNCj4gc2VsZi1jbGVhcmluZz8gSWYg
-Ym90aCBhcmUgc2VsZi1jbGVhcmluZywgZG9uJ3QgeW91IG5lZWQgdG8gd2FpdCBhbmQNCj4gY2hl
-Y2sgZm9yIHRoZW0gdG8gY2xlYXJlZD8gSWYgdGhleSBhcmVuJ3Qgc2VsZi1jbGVhcmluZywgZG8g
-eW91IG5lZWQNCj4gdG8gZGVsYXkgc29tZSB0aW1lIGZvciB0aGVtIHRvIGNvbXBsZXRlPw0KPiAN
-Cg0KVGhhbmsgeW91IGZvciB5b3VyIHN1Z2dlc3Rpb24uIFdlIHdpbGwgYXBwcm9wcmlhdGVseSBh
-ZGQgdGhlIGRlbGF5IGluDQp0aGUgbmV4dCB2ZXJzaW9uIG9mIHBhdGNoIGFjY29yZGluZyB0byB0
-aGUgaGFyZHdhcmUgYmVoYXZpb3INCmNoYXJhY3RlcmlzdGljcy4gDQoNClJlZ2FyZHMNCktld2Vp
-DQoNCj4gPiArICAgICAgICAgICAgICAgbXRrX2kyY193cml0ZXcoaTJjLCBJMkNfSEFORFNIQUtF
-X1JTVCwNCj4gPiBPRkZTRVRfU09GVFJFU0VUKTsNCj4gPiArICAgICAgICAgICAgICAgbXRrX2ky
-Y193cml0ZXcoaTJjLCBJMkNfQ0hOX0NMUl9GTEFHLA0KPiA+IE9GRlNFVF9TT0ZUUkVTRVQpOw0K
-PiANCj4gU2FtZSBoZXJlLiBObyB0aW1lIGRlbGF5IG5lZWRlZD8NCj4gDQo+ID4gKyAgICAgICAg
-ICAgICAgIG10a19pMmNfd3JpdGV3KGkyYywgSTJDX1JFTElBQklMSVRZIHwNCj4gPiBJMkNfRE1B
-QUNLX0VOQUJMRSwNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgT0ZGU0VUX0RF
-QlVHQ1RSTCk7DQo+IA0KPiBBIGNvbW1lbnQgZXhwbGFpbmluZyB3aGF0IHRoZSBzZWN0aW9uIGFi
-b3ZlIGRvZXMgd291bGQgYmUgbmljZS4NCj4gQUZBSUNVDQo+IHRoaXMgaXMgZm9yY2UgcmVzZXR0
-aW5nIHRoZSBETUEgaGFuZGxpbmcuDQo+IA0KPiANCj4gUmVnYXJkcw0KPiBDaGVuWXUNCj4gDQo+
-ID4gKyAgICAgICB9DQo+ID4gKw0KPiA+ICAgICAgICAgY29udHJvbF9yZWcgPSBtdGtfaTJjX3Jl
-YWR3KGkyYywgT0ZGU0VUX0NPTlRST0wpICYNCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICB+
-KEkyQ19DT05UUk9MX0RJUl9DSEFOR0UgfCBJMkNfQ09OVFJPTF9SUyk7DQo+ID4gICAgICAgICBp
-ZiAoKGkyYy0+c3BlZWRfaHogPiBJMkNfTUFYX0ZBU1RfTU9ERV9QTFVTX0ZSRVEpIHx8DQo+ID4g
-KGxlZnRfbnVtID49IDEpKQ0KPiA+IC0tDQo+ID4gMi4xOC4wDQo+ID4gX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCj4gPiBMaW51eC1tZWRpYXRlayBtYWls
-aW5nIGxpc3QNCj4gPiBMaW51eC1tZWRpYXRla0BsaXN0cy5pbmZyYWRlYWQub3JnDQo+ID4gaHR0
-cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1tZWRpYXRlaw0K
 
+
+On 8/16/2021 10:37 AM, zhaoxiao wrote:
+> When call function devm_platform_ioremap_resource(), we should use IS_ERR()
+> to check the return value and return PTR_ERR() if failed.
+> 
+> Signed-off-by: zhaoxiao <zhaoxiao@uniontech.com>
+
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
