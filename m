@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D571C432BE
-	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:05:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3112C4320A
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:05:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5EB83613AD
-	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:05:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 86D4F61373
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:05:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237272AbhHWNGc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S237300AbhHWNGc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 23 Aug 2021 09:06:32 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:53818 "EHLO
+Received: from mailgw02.mediatek.com ([210.61.82.184]:53740 "EHLO
         mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S237164AbhHWNGb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Aug 2021 09:06:31 -0400
-X-UUID: 113cba8d4ec64a4ba5f8e2a8d3c28c7a-20210823
-X-UUID: 113cba8d4ec64a4ba5f8e2a8d3c28c7a-20210823
+        with ESMTP id S235649AbhHWNGc (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Aug 2021 09:06:32 -0400
+X-UUID: 0802132c3032473ba51729c45abcab01-20210823
+X-UUID: 0802132c3032473ba51729c45abcab01-20210823
 Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
         (envelope-from <kewei.xu@mediatek.com>)
         (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 896504563; Mon, 23 Aug 2021 21:05:44 +0800
+        with ESMTP id 392248089; Mon, 23 Aug 2021 21:05:42 +0800
 Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Mon, 23 Aug 2021 21:05:42 +0800
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Mon, 23 Aug 2021 21:05:40 +0800
 Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 23 Aug 2021 21:05:41 +0800
+ Transport; Mon, 23 Aug 2021 21:05:39 +0800
 From:   Kewei Xu <kewei.xu@mediatek.com>
 To:     <wsa@the-dreams.de>
 CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
@@ -42,12 +42,10 @@ CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
         <qii.wang@mediatek.com>, <liguo.zhang@mediatek.com>,
         <caiyu.chen@mediatek.com>, <ot_daolong.zhu@mediatek.com>,
         <yuhan.wei@mediatek.com>, <kewei.xu@mediatek.com>
-Subject: [PATCH 2/7] i2c: mediatek: Reset the handshake signal between i2c and dma
-Date:   Mon, 23 Aug 2021 21:05:32 +0800
-Message-ID: <1629723937-10839-3-git-send-email-kewei.xu@mediatek.com>
+Subject: [PATCH v5 0/7] Introducing an attribute to select the time setting
+Date:   Mon, 23 Aug 2021 21:05:30 +0800
+Message-ID: <1629723937-10839-1-git-send-email-kewei.xu@mediatek.com>
 X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1629723937-10839-1-git-send-email-kewei.xu@mediatek.com>
-References: <1629723937-10839-1-git-send-email-kewei.xu@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-MTK:  N
@@ -55,74 +53,40 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Due to changes in the hardware design of the handshaking signal
-between i2c and dma, it is necessary to reset the handshaking
-signal before each transfer to ensure that the multi-msgs can
-be transferred correctly.
+v5:
+1. Replace the previous variable name "default_timing_adjust" with "use-default-timing"
+2. Added waiting for dma reset mechanism
+3. Remove received patch(dt-bindings: i2c: update bindings for MT8195 SOC)
 
-Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
----
- drivers/i2c/busses/i2c-mt65xx.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+v4:
+1. Remove the repeated assignment of the inter_clk_div parameter
+2. Modify the wrong assignment of OFFSET_MULTI_DMA
+3. Unify the log print format of the i2c_dump_register() and drop the extra outer parentheses
+4. Place the fixes at the very least
+5. Add fixed tags 25708278f810 ("i2c: mediatek: Add i2c support for MediaTek MT8183")
+6. Add "i2c: mediatek: modify bus speed calculation formula"
+7. Fix single line characters exceeding 80 characters
+8. Combine two different series of patches.
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 2661ed0..abda525 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -15,6 +15,7 @@
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/kernel.h>
- #include <linux/mm.h>
- #include <linux/module.h>
-@@ -47,6 +48,9 @@
- #define I2C_RD_TRANAC_VALUE		0x0001
- #define I2C_SCL_MIS_COMP_VALUE		0x0000
- #define I2C_CHN_CLR_FLAG		0x0000
-+#define I2C_CLR_DEBUGCTR		0x0000
-+#define I2C_RELIABILITY			0x0010
-+#define I2C_DMAACK_ENABLE		0x0008
- 
- #define I2C_DMA_CON_TX			0x0000
- #define I2C_DMA_CON_RX			0x0001
-@@ -842,6 +846,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	u16 restart_flag = 0;
- 	u16 dma_sync = 0;
- 	u32 reg_4g_mode;
-+	u32 reg_dma_reset;
- 	u8 *dma_rd_buf = NULL;
- 	u8 *dma_wr_buf = NULL;
- 	dma_addr_t rpaddr = 0;
-@@ -855,6 +860,27 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 
- 	reinit_completion(&i2c->msg_complete);
- 
-+	if (i2c->dev_comp->apdma_sync && left_num > 1) {
-+		mtk_i2c_writew(i2c, I2C_CLR_DEBUGCTR, OFFSET_DEBUGCTRL);
-+		writel(I2C_DMA_HANDSHAKE_RST | I2C_DMA_WARM_RST,
-+		       i2c->pdmabase + OFFSET_RST);
-+
-+		ret = readw_poll_timeout(i2c->pdmabase + OFFSET_RST,
-+					 reg_dma_reset,
-+					 !(reg_dma_reset & I2C_DMA_WARM_RST),
-+					 0, 100);
-+		if (ret) {
-+			dev_err(i2c->dev, "DMA warm reset timeout\n");
-+			return -ETIMEDOUT;
-+		}
-+
-+		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_RST);
-+		mtk_i2c_writew(i2c, I2C_HANDSHAKE_RST, OFFSET_SOFTRESET);
-+		mtk_i2c_writew(i2c, I2C_CHN_CLR_FLAG, OFFSET_SOFTRESET);
-+		mtk_i2c_writew(i2c, I2C_RELIABILITY | I2C_DMAACK_ENABLE,
-+			       OFFSET_DEBUGCTRL);
-+	}
-+
- 	control_reg = mtk_i2c_readw(i2c, OFFSET_CONTROL) &
- 			~(I2C_CONTROL_DIR_CHANGE | I2C_CONTROL_RS);
- 	if ((i2c->speed_hz > I2C_MAX_FAST_MODE_PLUS_FREQ) || (left_num >= 1))
+v3:
+1. Fix code errors caused by v2 modification
+
+v2:
+1. Add "dt-bindings: i2c: add attribute default-timing-adjust"
+2. Split the fix into sepatate patch.
+
+Kewei Xu (7):
+  i2c: mediatek: fixing the incorrect register offset
+  i2c: mediatek: Reset the handshake signal between i2c and dma
+  i2c: mediatek: Dump i2c/dma register when a timeout occurs
+  dt-bindings: i2c: add attribute use-default-timing
+  i2c: mediatek: Add OFFSET_EXT_CONF setting back
+  i2c: mediatek: Isolate speed setting via dts for special devices
+  i2c: mediatek: modify bus speed calculation formula
+
+ .../devicetree/bindings/i2c/i2c-mt65xx.txt    |   2 +
+ drivers/i2c/busses/i2c-mt65xx.c               | 207 ++++++++++++++++--
+ 2 files changed, 192 insertions(+), 17 deletions(-)
+
 -- 
-1.9.1
-
+2.18.0
