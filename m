@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41D05C43216
-	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:05:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8248EC43214
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:06:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 29D2D60041
-	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:05:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 67F7B60F25
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:06:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237356AbhHWNGh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 23 Aug 2021 09:06:37 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:53896 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S237320AbhHWNGf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Aug 2021 09:06:35 -0400
-X-UUID: 7cbe1d0f06b0447891188bd522d75cf7-20210823
-X-UUID: 7cbe1d0f06b0447891188bd522d75cf7-20210823
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw02.mediatek.com
+        id S237375AbhHWNGk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 23 Aug 2021 09:06:40 -0400
+Received: from mailgw01.mediatek.com ([60.244.123.138]:47874 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S237326AbhHWNGg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Aug 2021 09:06:36 -0400
+X-UUID: 56438c35d9ec4b3d9815772af16de519-20210823
+X-UUID: 56438c35d9ec4b3d9815772af16de519-20210823
+Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
         (envelope-from <kewei.xu@mediatek.com>)
         (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 698978585; Mon, 23 Aug 2021 21:05:48 +0800
+        with ESMTP id 721592154; Mon, 23 Aug 2021 21:05:45 +0800
 Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Mon, 23 Aug 2021 21:05:46 +0800
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Mon, 23 Aug 2021 21:05:43 +0800
 Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 23 Aug 2021 21:05:45 +0800
+ Transport; Mon, 23 Aug 2021 21:05:42 +0800
 From:   Kewei Xu <kewei.xu@mediatek.com>
 To:     <wsa@the-dreams.de>
 CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
@@ -42,9 +42,9 @@ CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
         <qii.wang@mediatek.com>, <liguo.zhang@mediatek.com>,
         <caiyu.chen@mediatek.com>, <ot_daolong.zhu@mediatek.com>,
         <yuhan.wei@mediatek.com>, <kewei.xu@mediatek.com>
-Subject: [PATCH 6/7] i2c: mediatek: Isolate speed setting via dts for special devices
-Date:   Mon, 23 Aug 2021 21:05:36 +0800
-Message-ID: <1629723937-10839-7-git-send-email-kewei.xu@mediatek.com>
+Subject: [PATCH 3/7] i2c: mediatek: Dump i2c/dma register when a timeout occurs
+Date:   Mon, 23 Aug 2021 21:05:33 +0800
+Message-ID: <1629723937-10839-4-git-send-email-kewei.xu@mediatek.com>
 X-Mailer: git-send-email 1.9.1
 In-Reply-To: <1629723937-10839-1-git-send-email-kewei.xu@mediatek.com>
 References: <1629723937-10839-1-git-send-email-kewei.xu@mediatek.com>
@@ -55,148 +55,104 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-In the commit be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust
-support"), the I2C timing calculation has been revised to support
-ac-timing adjustment, however that will break on some I2C components.
-As a result we want to introduce a new setting "default-adjust-timing"
-so those components can choose to use the old (default) timing algorithm.
+When a timeout error occurs in i2c transter, it is usually related
+to the i2c/dma IP hardware configuration. Therefore, the purpose of
+this patch is to dump the key register values of i2c/dma when a
+timeout occurs in i2c for debugging.
 
-Fixes: be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust support")
 Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 77 ++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 73 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 56 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 55 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 4da6b43..18b5659 100644
+index abda525..633bce4 100644
 --- a/drivers/i2c/busses/i2c-mt65xx.c
 +++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -66,6 +66,7 @@
- #define I2C_DMA_HARD_RST		0x0002
- #define I2C_DMA_HANDSHAKE_RST		0x0004
- 
-+#define I2C_DEFAULT_CLK_DIV		5
- #define MAX_SAMPLE_CNT_DIV		8
- #define MAX_STEP_CNT_DIV		64
- #define MAX_CLOCK_DIV			256
-@@ -250,6 +251,7 @@ struct mtk_i2c {
- 	struct clk *clk_arb;		/* Arbitrator clock for i2c */
- 	bool have_pmic;			/* can use i2c pins from PMIC */
- 	bool use_push_pull;		/* IO config push-pull mode */
-+	bool use_default_timing;	/* no timing adjust mode */
- 
- 	u16 irq_stat;			/* interrupt status */
- 	unsigned int clk_src_div;
-@@ -532,7 +534,11 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
- 	else
- 		ext_conf_val = I2C_FS_START_CON;
- 
--	if (i2c->dev_comp->timing_adjust) {
-+	if (i2c->use_default_timing) {
-+		if (i2c->dev_comp->timing_adjust)
-+			mtk_i2c_writew(i2c, I2C_DEFAULT_CLK_DIV - 1,
-+				       OFFSET_CLOCK_DIV);
-+	} else if (i2c->dev_comp->timing_adjust) {
- 		ext_conf_val = i2c->ac_timing.ext;
- 		mtk_i2c_writew(i2c, i2c->ac_timing.inter_clk_div,
- 			       OFFSET_CLOCK_DIV);
-@@ -615,7 +621,7 @@ static int mtk_i2c_check_ac_timing(struct mtk_i2c *i2c,
- 	unsigned int sample_ns = div_u64(1000000000ULL * (sample_cnt + 1),
- 					 clk_src);
- 
--	if (!i2c->dev_comp->timing_adjust)
-+	if (i2c->use_default_timing || !i2c->dev_comp->timing_adjust)
- 		return 0;
- 
- 	if (i2c->dev_comp->ltiming_adjust)
-@@ -775,7 +781,65 @@ static int mtk_i2c_calculate_speed(struct mtk_i2c *i2c, unsigned int clk_src,
+@@ -129,6 +129,7 @@ enum I2C_REGS_OFFSET {
+ 	OFFSET_HS,
+ 	OFFSET_SOFTRESET,
+ 	OFFSET_DCM_EN,
++	OFFSET_MULTI_DMA,
+ 	OFFSET_PATH_DIR,
+ 	OFFSET_DEBUGSTAT,
+ 	OFFSET_DEBUGCTRL,
+@@ -196,6 +197,7 @@ enum I2C_REGS_OFFSET {
+ 	[OFFSET_TRANSFER_LEN_AUX] = 0x44,
+ 	[OFFSET_CLOCK_DIV] = 0x48,
+ 	[OFFSET_SOFTRESET] = 0x50,
++	[OFFSET_MULTI_DMA] = 0x8c,
+ 	[OFFSET_SCL_MIS_COMP_POINT] = 0x90,
+ 	[OFFSET_DEBUGSTAT] = 0xe4,
+ 	[OFFSET_DEBUGCTRL] = 0xe8,
+@@ -837,6 +839,57 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
  	return 0;
  }
  
--static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
-+static int mtk_i2c_set_speed_default_timing(struct mtk_i2c *i2c,
-+					    unsigned int parent_clk)
++static void i2c_dump_register(struct mtk_i2c *i2c)
 +{
-+	unsigned int clk_src;
-+	unsigned int step_cnt;
-+	unsigned int sample_cnt;
-+	unsigned int l_step_cnt;
-+	unsigned int l_sample_cnt;
-+	unsigned int target_speed;
-+	int ret;
-+
-+	if (i2c->dev_comp->timing_adjust)
-+		i2c->clk_src_div *= I2C_DEFAULT_CLK_DIV;
-+
-+	clk_src = parent_clk / i2c->clk_src_div;
-+	target_speed = i2c->speed_hz;
-+
-+	if (target_speed > I2C_MAX_FAST_MODE_PLUS_FREQ) {
-+		/* Set master code speed register */
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src,
-+					      I2C_MAX_FAST_MODE_FREQ,
-+					      &l_step_cnt, &l_sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (l_sample_cnt << 8) | l_step_cnt;
-+
-+		/* Set the high speed mode register */
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->high_speed_reg = I2C_TIME_DEFAULT_VALUE |
-+			(sample_cnt << 12) | (step_cnt << 8);
-+
-+		if (i2c->dev_comp->ltiming_adjust)
-+			i2c->ltiming_reg = (l_sample_cnt << 6) | l_step_cnt |
-+					   (sample_cnt << 12) | (step_cnt << 9);
-+	} else {
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (sample_cnt << 8) | step_cnt;
-+
-+		/* Disable the high speed transaction */
-+		i2c->high_speed_reg = I2C_TIME_CLR_VALUE;
-+
-+		if (i2c->dev_comp->ltiming_adjust)
-+			i2c->ltiming_reg = (sample_cnt << 6) | step_cnt;
++	dev_err(i2c->dev, "SLAVE_ADDR: 0x%x, INTR_MASK: 0x%x\n",
++		mtk_i2c_readw(i2c, OFFSET_SLAVE_ADDR),
++		mtk_i2c_readw(i2c, OFFSET_INTR_MASK));
++	dev_err(i2c->dev, "INTR_STAT: 0x%x, CONTROL: 0x%x\n",
++		mtk_i2c_readw(i2c, OFFSET_INTR_STAT),
++		mtk_i2c_readw(i2c, OFFSET_CONTROL));
++	dev_err(i2c->dev, "TRANSFER_LEN: 0x%x, TRANSAC_LEN: 0x%x\n",
++		mtk_i2c_readw(i2c, OFFSET_TRANSFER_LEN),
++		mtk_i2c_readw(i2c, OFFSET_TRANSAC_LEN));
++	dev_err(i2c->dev, "DELAY_LEN: 0x%x, HTIMING: 0x%x\n",
++		mtk_i2c_readw(i2c, OFFSET_DELAY_LEN),
++		mtk_i2c_readw(i2c, OFFSET_TIMING));
++	dev_err(i2c->dev, "START: 0x%x, EXT_CONF: 0x%x\n",
++		mtk_i2c_readw(i2c, OFFSET_START),
++		mtk_i2c_readw(i2c, OFFSET_EXT_CONF));
++	dev_err(i2c->dev, "HS: 0x%x, IO_CONFIG: 0x%x\n",
++		mtk_i2c_readw(i2c, OFFSET_HS),
++		mtk_i2c_readw(i2c, OFFSET_IO_CONFIG));
++	dev_err(i2c->dev, "DCM_EN: 0x%x, TRANSFER_LEN_AUX: 0x%x\n",
++		mtk_i2c_readw(i2c, OFFSET_DCM_EN),
++		mtk_i2c_readw(i2c, OFFSET_TRANSFER_LEN_AUX));
++	dev_err(i2c->dev, "CLOCK_DIV: 0x%x, FIFO_STAT: 0x%x\n",
++		mtk_i2c_readw(i2c, OFFSET_CLOCK_DIV),
++		mtk_i2c_readw(i2c, OFFSET_FIFO_STAT));
++	dev_err(i2c->dev, "DEBUGCTRL : 0x%x, DEBUGSTAT: 0x%x\n",
++		mtk_i2c_readw(i2c, OFFSET_DEBUGCTRL),
++		mtk_i2c_readw(i2c, OFFSET_DEBUGSTAT));
++	if (i2c->dev_comp->regs == mt_i2c_regs_v2) {
++		dev_err(i2c->dev, "LTIMING: 0x%x, MULTI_DMA: 0x%x\n",
++			mtk_i2c_readw(i2c, OFFSET_LTIMING),
++			mtk_i2c_readw(i2c, OFFSET_MULTI_DMA));
 +	}
-+
-+	return 0;
++	dev_err(i2c->dev, "\nDMA_INT_FLAG: 0x%x, DMA_INT_EN: 0x%x\n",
++		readl(i2c->pdmabase + OFFSET_INT_FLAG),
++		readl(i2c->pdmabase + OFFSET_INT_EN));
++	dev_err(i2c->dev, "DMA_EN: 0x%x, DMA_CON: 0x%x\n",
++		readl(i2c->pdmabase + OFFSET_EN),
++		readl(i2c->pdmabase + OFFSET_CON));
++	dev_err(i2c->dev, "DMA_TX_MEM_ADDR: 0x%x, DMA_RX_MEM_ADDR: 0x%x\n",
++		readl(i2c->pdmabase + OFFSET_TX_MEM_ADDR),
++		readl(i2c->pdmabase + OFFSET_RX_MEM_ADDR));
++	dev_err(i2c->dev, "DMA_TX_LEN: 0x%x, DMA_RX_LEN: 0x%x\n",
++		readl(i2c->pdmabase + OFFSET_TX_LEN),
++		readl(i2c->pdmabase + OFFSET_RX_LEN));
++	dev_err(i2c->dev, "DMA_TX_4G_MODE: 0x%x, DMA_RX_4G_MODE: 0x%x",
++		readl(i2c->pdmabase + OFFSET_TX_4G_MODE),
++		readl(i2c->pdmabase + OFFSET_RX_4G_MODE));
 +}
 +
-+static int mtk_i2c_set_speed_adjust_timing(struct mtk_i2c *i2c,
-+					   unsigned int parent_clk)
+ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 			       int num, int left_num)
  {
- 	unsigned int clk_src;
- 	unsigned int step_cnt;
-@@ -1271,6 +1335,8 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
- 	i2c->have_pmic = of_property_read_bool(np, "mediatek,have-pmic");
- 	i2c->use_push_pull =
- 		of_property_read_bool(np, "mediatek,use-push-pull");
-+	i2c->use_default_timing =
-+		of_property_read_bool(np, "mediatek,use-default-timing");
+@@ -1065,7 +1118,8 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 	}
  
- 	i2c_parse_fw_timings(i2c->dev, &i2c->timing_info, true);
- 
-@@ -1357,7 +1423,10 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 
- 	strlcpy(i2c->adap.name, I2C_DRV_NAME, sizeof(i2c->adap.name));
- 
--	ret = mtk_i2c_set_speed(i2c, clk_get_rate(clk));
-+	if (i2c->use_default_timing)
-+		ret = mtk_i2c_set_speed_default_timing(i2c, clk_get_rate(clk));
-+	else
-+		ret = mtk_i2c_set_speed_adjust_timing(i2c, clk_get_rate(clk));
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to set the speed.\n");
- 		return -EINVAL;
+ 	if (ret == 0) {
+-		dev_dbg(i2c->dev, "addr: %x, transfer timeout\n", msgs->addr);
++		dev_err(i2c->dev, "addr: %x, transfer timeout\n", msgs->addr);
++		i2c_dump_register(i2c);
+ 		mtk_i2c_init_hw(i2c);
+ 		return -ETIMEDOUT;
+ 	}
 -- 
 1.9.1
 
