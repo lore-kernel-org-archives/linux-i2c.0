@@ -2,76 +2,150 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A479C432BE
-	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 14:45:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35EBBC4338F
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 21:42:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3C982613B1
-	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 14:45:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1CC69613D2
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 21:42:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230354AbhHWOq2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 23 Aug 2021 10:46:28 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:57139 "EHLO
-        relay.uni-heidelberg.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230290AbhHWOq1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Aug 2021 10:46:27 -0400
-X-Greylist: delayed 428 seconds by postgrey-1.27 at vger.kernel.org; Mon, 23 Aug 2021 10:46:27 EDT
-X-IPAS-Result: =?us-ascii?q?A2CDAABesiNh/1BqzoFaHQEBAQEJARIBBQUBQIFHBgELA?=
- =?us-ascii?q?YMhVoUzkQubbYIHAQEBAQEBAQEBCTcHAQIEAQGEaoI7AiU2Bw4BAgQBAQEBA?=
- =?us-ascii?q?wIDAQEBAQEBAwEBBgEBAQEBBgSBJIVoDYZCAQEEASMPAUYQCxgCAiYCAhQoI?=
- =?us-ascii?q?S6CV4JmIQ+oZ3qBMYEBg00BhFuBKh0GgRAqAYVwU4UJgk+CKYQKMD6CS4IWg?=
- =?us-ascii?q?nqCZASFMgiBOVREvxkHjWyTfQQWLJVYkSCQXpF3k1mFMIFoBIIJMz6DOU8ZD?=
- =?us-ascii?q?5cmhUxCZwIGAQoBAQMJhT0BAYkrAQE?=
-IronPort-HdrOrdr: A9a23:z62F1anQsZK+CoY9KY3YfzVlSl/pDfIb3DAbv31ZSRFFG/Fwz/
- re+MjzpiWE7wr5OUtQ4uxoV5PhfZqxz/NICMwqTNKftWrdyRGVxeNZnOjfKlTbckWUnNK1l5
- 0QEZSWY+eeMbEOt6fHCX6DferIruPqzEniv5a5854kd3ASV0hP1XYANjqm
-X-IronPort-Anti-Spam-Filtered: true
-Received: from lemon.iwr.uni-heidelberg.de ([129.206.106.80])
-  by relay.uni-heidelberg.de with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 23 Aug 2021 16:38:35 +0200
-Received: from hlauer by lemon.iwr.uni-heidelberg.de with local (Exim 4.92)
-        (envelope-from <hlauer@lemon.iwr.uni-heidelberg.de>)
-        id 1mIB5u-000112-Ey; Mon, 23 Aug 2021 16:38:34 +0200
-Date:   Mon, 23 Aug 2021 16:38:34 +0200
-From:   Hermann.Lauer@uni-heidelberg.de
-To:     Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc:     linux-i2c@vger.kernel.org
-Subject: Re: Re: I2C MV64XXX: Showing Allwinner debug LCR register in bus
- lock case
-Message-ID: <20210823143834.GP8757@lemon.iwr.uni-heidelberg.de>
-References: <20210729073100.GA8757@lemon.iwr.uni-heidelberg.de>
- <87mtq3zxhx.fsf@BL-laptop>
+        id S232956AbhHWVnB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 23 Aug 2021 17:43:01 -0400
+Received: from phobos.denx.de ([85.214.62.61]:40760 "EHLO phobos.denx.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232503AbhHWVnA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 23 Aug 2021 17:43:00 -0400
+Received: from tr.lan (ip-89-176-112-137.net.upcbroadband.cz [89.176.112.137])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id E7ACA81FC6;
+        Mon, 23 Aug 2021 23:42:15 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1629754936;
+        bh=GU37FIeuFBtxTf9ROaPkhRsxalMDB2svF77w7psfyL0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gvSel/JXZ4i/xqWEGggRxEpIsi/JneAt85N0q8suAfg54805QaOb8pJsiNPK/aKcr
+         YlnMbxBcsvB/axzygX6hWzs0N1Sq/CmUrZO7z/NVYKMOowoBhT5SmLGiwy/DfQXvpp
+         gB9UZfgrSm+KpKdzKoUfBg2DPiSkyO7HQLbRaD3+Ye0om7SAgReI+9ID2OWQT6nWfo
+         Rwjvk7tAvfEoVlNZICSD35WG5dLCwFUlBI4/FCsONvdtL9MCY9A3ZrC53URKLELQvA
+         RW3/eznDUyjJK5LMiAdb4RLKlaSuP5iYpusicM1Z62g2nj4ITdt07HdcrMlBz3Gwpo
+         O2RPqD/UVV60w==
+From:   Marek Vasut <marex@denx.de>
+To:     linux-i2c@vger.kernel.org
+Cc:     Marek Vasut <marex@denx.de>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH v2 1/6] i2c: xiic: Fix broken locking on tx_msg
+Date:   Mon, 23 Aug 2021 23:41:40 +0200
+Message-Id: <20210823214145.295104-2-marex@denx.de>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210823214145.295104-1-marex@denx.de>
+References: <20210823214145.295104-1-marex@denx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <87mtq3zxhx.fsf@BL-laptop>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hello Grégory,
+The tx_msg is set from multiple places, sometimes without locking,
+which fall apart on any SMP system. Only ever access tx_msg inside
+the driver mutex.
 
-On Fri, Jul 30, 2021 at 04:28:58PM +0200, Gregory CLEMENT wrote:
-> > if Allwinner i2c locks, the is a LCR register (reg_base + 0x20),
-> > which shows directly the state of the SCL and SDA lines. So you can
-> > see which line (if any) is pulled externally low.
-> >
-> > Is there a similar usefull register in the original MV64XXX MARVELL
-> > chip?
-> 
-> I've check on the Armada 38x datasheet and at least on this one there is
-> no such register or register with similar information. That's mean you
-> won't be able to use it for any device only the Allwinner ones.
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Cc: Wolfram Sang <wsa@kernel.org>
+---
+V2: Initialize RX message pointer in xiic_start_xfer() too
+---
+ drivers/i2c/busses/i2c-xiic.c | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-Thanks for looking! So, is ifdefing in the driver then the best solution to
-display that valueable information?
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index bb93db98404ef..50320dd32eea9 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -170,7 +170,7 @@ struct xiic_i2c {
+ #define xiic_tx_space(i2c) ((i2c)->tx_msg->len - (i2c)->tx_pos)
+ #define xiic_rx_space(i2c) ((i2c)->rx_msg->len - (i2c)->rx_pos)
+ 
+-static int xiic_start_xfer(struct xiic_i2c *i2c);
++static int xiic_start_xfer(struct xiic_i2c *i2c, struct i2c_msg *msgs, int num);
+ static void __xiic_start_xfer(struct xiic_i2c *i2c);
+ 
+ /*
+@@ -684,15 +684,25 @@ static void __xiic_start_xfer(struct xiic_i2c *i2c)
+ 
+ }
+ 
+-static int xiic_start_xfer(struct xiic_i2c *i2c)
++static int xiic_start_xfer(struct xiic_i2c *i2c, struct i2c_msg *msgs, int num)
+ {
+ 	int ret;
++
+ 	mutex_lock(&i2c->lock);
+ 
++	ret = xiic_busy(i2c);
++	if (ret)
++		goto out;
++
++	i2c->tx_msg = msgs;
++	i2c->rx_msg = NULL;
++	i2c->nmsgs = num;
++
+ 	ret = xiic_reinit(i2c);
+ 	if (!ret)
+ 		__xiic_start_xfer(i2c);
+ 
++out:
+ 	mutex_unlock(&i2c->lock);
+ 
+ 	return ret;
+@@ -710,14 +720,7 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	if (err < 0)
+ 		return err;
+ 
+-	err = xiic_busy(i2c);
+-	if (err)
+-		goto out;
+-
+-	i2c->tx_msg = msgs;
+-	i2c->nmsgs = num;
+-
+-	err = xiic_start_xfer(i2c);
++	err = xiic_start_xfer(i2c, msgs, num);
+ 	if (err < 0) {
+ 		dev_err(adap->dev.parent, "Error xiic_start_xfer\n");
+ 		goto out;
+@@ -725,9 +728,11 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 
+ 	if (wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
+ 		(i2c->state == STATE_DONE), HZ)) {
++		mutex_lock(&i2c->lock);
+ 		err = (i2c->state == STATE_DONE) ? num : -EIO;
+ 		goto out;
+ 	} else {
++		mutex_lock(&i2c->lock);
+ 		i2c->tx_msg = NULL;
+ 		i2c->rx_msg = NULL;
+ 		i2c->nmsgs = 0;
+@@ -735,6 +740,7 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 		goto out;
+ 	}
+ out:
++	mutex_unlock(&i2c->lock);
+ 	pm_runtime_mark_last_busy(i2c->dev);
+ 	pm_runtime_put_autosuspend(i2c->dev);
+ 	return err;
+-- 
+2.32.0
 
-Thanks for any idea,
- greetings
-  Hermann
-
-> > I'd like to make the patch https://bitbucket.org/hlauer/kernel/src/master/patches/i2c-buslock.patchl working for that chip, too.
