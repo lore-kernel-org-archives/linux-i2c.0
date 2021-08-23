@@ -4,222 +4,125 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF758C4338F
-	for <linux-i2c@archiver.kernel.org>; Sun, 22 Aug 2021 19:38:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D571C432BE
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:05:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AF0FD61266
-	for <linux-i2c@archiver.kernel.org>; Sun, 22 Aug 2021 19:38:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5EB83613AD
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Aug 2021 13:05:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229843AbhHVTi7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 22 Aug 2021 15:38:59 -0400
-Received: from smtp04.smtpout.orange.fr ([80.12.242.126]:29931 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229821AbhHVTi6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 Aug 2021 15:38:58 -0400
-Received: from pop-os.home ([90.126.253.178])
-        by mwinf5d51 with ME
-        id kjeE250013riaq203jeEec; Sun, 22 Aug 2021 21:38:16 +0200
-X-ME-Helo: pop-os.home
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Sun, 22 Aug 2021 21:38:16 +0200
-X-ME-IP: 90.126.253.178
-From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-To:     syniurge@gmail.com, nehal-bakulchandra.shah@amd.com,
-        shyam-sundar.s-k@amd.com, seth.heasley@intel.com,
-        nhorman@tuxdriver.com
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH] i2c: switch from 'pci_' to 'dma_' API
-Date:   Sun, 22 Aug 2021 21:38:12 +0200
-Message-Id: <fad542b558afc45496f7a7ba581593cd46e68f7c.1629660967.git.christophe.jaillet@wanadoo.fr>
-X-Mailer: git-send-email 2.30.2
+        id S237272AbhHWNGc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 23 Aug 2021 09:06:32 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:53818 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S237164AbhHWNGb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Aug 2021 09:06:31 -0400
+X-UUID: 113cba8d4ec64a4ba5f8e2a8d3c28c7a-20210823
+X-UUID: 113cba8d4ec64a4ba5f8e2a8d3c28c7a-20210823
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
+        (envelope-from <kewei.xu@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 896504563; Mon, 23 Aug 2021 21:05:44 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Mon, 23 Aug 2021 21:05:42 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Mon, 23 Aug 2021 21:05:41 +0800
+From:   Kewei Xu <kewei.xu@mediatek.com>
+To:     <wsa@the-dreams.de>
+CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
+        <qii.wang@mediatek.com>, <liguo.zhang@mediatek.com>,
+        <caiyu.chen@mediatek.com>, <ot_daolong.zhu@mediatek.com>,
+        <yuhan.wei@mediatek.com>, <kewei.xu@mediatek.com>
+Subject: [PATCH 2/7] i2c: mediatek: Reset the handshake signal between i2c and dma
+Date:   Mon, 23 Aug 2021 21:05:32 +0800
+Message-ID: <1629723937-10839-3-git-send-email-kewei.xu@mediatek.com>
+X-Mailer: git-send-email 1.9.1
+In-Reply-To: <1629723937-10839-1-git-send-email-kewei.xu@mediatek.com>
+References: <1629723937-10839-1-git-send-email-kewei.xu@mediatek.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The wrappers in include/linux/pci-dma-compat.h should go away.
+Due to changes in the hardware design of the handshaking signal
+between i2c and dma, it is necessary to reset the handshaking
+signal before each transfer to ensure that the multi-msgs can
+be transferred correctly.
 
-The patch has been generated with the coccinelle script below.
-
-It has been hand modified to use 'dma_set_mask_and_coherent()' instead of
-'pci_set_dma_mask()/pci_set_consistent_dma_mask()' when applicable.
-This is less verbose.
-
-While at it a 'dev_err()' message has been slightly simplified.
-
-It has been compile tested.
-
-
-@@
-@@
--    PCI_DMA_BIDIRECTIONAL
-+    DMA_BIDIRECTIONAL
-
-@@
-@@
--    PCI_DMA_TODEVICE
-+    DMA_TO_DEVICE
-
-@@
-@@
--    PCI_DMA_FROMDEVICE
-+    DMA_FROM_DEVICE
-
-@@
-@@
--    PCI_DMA_NONE
-+    DMA_NONE
-
-@@
-expression e1, e2, e3;
-@@
--    pci_alloc_consistent(e1, e2, e3)
-+    dma_alloc_coherent(&e1->dev, e2, e3, GFP_)
-
-@@
-expression e1, e2, e3;
-@@
--    pci_zalloc_consistent(e1, e2, e3)
-+    dma_alloc_coherent(&e1->dev, e2, e3, GFP_)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_free_consistent(e1, e2, e3, e4)
-+    dma_free_coherent(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_map_single(e1, e2, e3, e4)
-+    dma_map_single(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_unmap_single(e1, e2, e3, e4)
-+    dma_unmap_single(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4, e5;
-@@
--    pci_map_page(e1, e2, e3, e4, e5)
-+    dma_map_page(&e1->dev, e2, e3, e4, e5)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_unmap_page(e1, e2, e3, e4)
-+    dma_unmap_page(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_map_sg(e1, e2, e3, e4)
-+    dma_map_sg(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_unmap_sg(e1, e2, e3, e4)
-+    dma_unmap_sg(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_dma_sync_single_for_cpu(e1, e2, e3, e4)
-+    dma_sync_single_for_cpu(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_dma_sync_single_for_device(e1, e2, e3, e4)
-+    dma_sync_single_for_device(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_dma_sync_sg_for_cpu(e1, e2, e3, e4)
-+    dma_sync_sg_for_cpu(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_dma_sync_sg_for_device(e1, e2, e3, e4)
-+    dma_sync_sg_for_device(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2;
-@@
--    pci_dma_mapping_error(e1, e2)
-+    dma_mapping_error(&e1->dev, e2)
-
-@@
-expression e1, e2;
-@@
--    pci_set_dma_mask(e1, e2)
-+    dma_set_mask(&e1->dev, e2)
-
-@@
-expression e1, e2;
-@@
--    pci_set_consistent_dma_mask(e1, e2)
-+    dma_set_coherent_mask(&e1->dev, e2)
-
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
 ---
-If needed, see post from Christoph Hellwig on the kernel-janitors ML:
-   https://marc.info/?l=kernel-janitors&m=158745678307186&w=4
----
- drivers/i2c/busses/i2c-amd-mp2-pci.c |  4 ++--
- drivers/i2c/busses/i2c-ismt.c        | 12 +++++-------
- 2 files changed, 7 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-amd-mp2-pci.c b/drivers/i2c/busses/i2c-amd-mp2-pci.c
-index ce130a821ea5..adf0e8c1ec01 100644
---- a/drivers/i2c/busses/i2c-amd-mp2-pci.c
-+++ b/drivers/i2c/busses/i2c-amd-mp2-pci.c
-@@ -307,9 +307,9 @@ static int amd_mp2_pci_init(struct amd_mp2_dev *privdata,
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 2661ed0..abda525 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -15,6 +15,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
+@@ -47,6 +48,9 @@
+ #define I2C_RD_TRANAC_VALUE		0x0001
+ #define I2C_SCL_MIS_COMP_VALUE		0x0000
+ #define I2C_CHN_CLR_FLAG		0x0000
++#define I2C_CLR_DEBUGCTR		0x0000
++#define I2C_RELIABILITY			0x0010
++#define I2C_DMAACK_ENABLE		0x0008
  
- 	pci_set_master(pci_dev);
+ #define I2C_DMA_CON_TX			0x0000
+ #define I2C_DMA_CON_RX			0x0001
+@@ -842,6 +846,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 	u16 restart_flag = 0;
+ 	u16 dma_sync = 0;
+ 	u32 reg_4g_mode;
++	u32 reg_dma_reset;
+ 	u8 *dma_rd_buf = NULL;
+ 	u8 *dma_wr_buf = NULL;
+ 	dma_addr_t rpaddr = 0;
+@@ -855,6 +860,27 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
  
--	rc = pci_set_dma_mask(pci_dev, DMA_BIT_MASK(64));
-+	rc = dma_set_mask(&pci_dev->dev, DMA_BIT_MASK(64));
- 	if (rc) {
--		rc = pci_set_dma_mask(pci_dev, DMA_BIT_MASK(32));
-+		rc = dma_set_mask(&pci_dev->dev, DMA_BIT_MASK(32));
- 		if (rc)
- 			goto err_dma_mask;
- 	}
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index a6187cbec2c9..f4820fd3dc13 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -918,13 +918,11 @@ ismt_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		return -ENODEV;
- 	}
+ 	reinit_completion(&i2c->msg_complete);
  
--	if ((pci_set_dma_mask(pdev, DMA_BIT_MASK(64)) != 0) ||
--	    (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64)) != 0)) {
--		if ((pci_set_dma_mask(pdev, DMA_BIT_MASK(32)) != 0) ||
--		    (pci_set_consistent_dma_mask(pdev,
--						 DMA_BIT_MASK(32)) != 0)) {
--			dev_err(&pdev->dev, "pci_set_dma_mask fail %p\n",
--				pdev);
-+	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
-+	if (err) {
-+		err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
-+		if (err) {
-+			dev_err(&pdev->dev, "dma_set_mask fail\n");
- 			return -ENODEV;
- 		}
- 	}
++	if (i2c->dev_comp->apdma_sync && left_num > 1) {
++		mtk_i2c_writew(i2c, I2C_CLR_DEBUGCTR, OFFSET_DEBUGCTRL);
++		writel(I2C_DMA_HANDSHAKE_RST | I2C_DMA_WARM_RST,
++		       i2c->pdmabase + OFFSET_RST);
++
++		ret = readw_poll_timeout(i2c->pdmabase + OFFSET_RST,
++					 reg_dma_reset,
++					 !(reg_dma_reset & I2C_DMA_WARM_RST),
++					 0, 100);
++		if (ret) {
++			dev_err(i2c->dev, "DMA warm reset timeout\n");
++			return -ETIMEDOUT;
++		}
++
++		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_RST);
++		mtk_i2c_writew(i2c, I2C_HANDSHAKE_RST, OFFSET_SOFTRESET);
++		mtk_i2c_writew(i2c, I2C_CHN_CLR_FLAG, OFFSET_SOFTRESET);
++		mtk_i2c_writew(i2c, I2C_RELIABILITY | I2C_DMAACK_ENABLE,
++			       OFFSET_DEBUGCTRL);
++	}
++
+ 	control_reg = mtk_i2c_readw(i2c, OFFSET_CONTROL) &
+ 			~(I2C_CONTROL_DIR_CHANGE | I2C_CONTROL_RS);
+ 	if ((i2c->speed_hz > I2C_MAX_FAST_MODE_PLUS_FREQ) || (left_num >= 1))
 -- 
-2.30.2
+1.9.1
 
