@@ -2,80 +2,102 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31CDFC4320A
-	for <linux-i2c@archiver.kernel.org>; Tue, 24 Aug 2021 03:30:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83006C4338F
+	for <linux-i2c@archiver.kernel.org>; Tue, 24 Aug 2021 04:48:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1B59C6120A
-	for <linux-i2c@archiver.kernel.org>; Tue, 24 Aug 2021 03:30:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C36961246
+	for <linux-i2c@archiver.kernel.org>; Tue, 24 Aug 2021 04:48:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234581AbhHXDbd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 23 Aug 2021 23:31:33 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:37504 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S232605AbhHXDbY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Aug 2021 23:31:24 -0400
-X-UUID: 286aa35c5766491a9aa61877174c0299-20210824
-X-UUID: 286aa35c5766491a9aa61877174c0299-20210824
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <kewei.xu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1610211224; Tue, 24 Aug 2021 11:30:37 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Tue, 24 Aug 2021 11:30:35 +0800
-Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 24 Aug 2021 11:30:35 +0800
-From:   Kewei Xu <kewei.xu@mediatek.com>
-To:     <wsa@the-dreams.de>
-CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
-        <qii.wang@mediatek.com>, <liguo.zhang@mediatek.com>,
-        <caiyu.chen@mediatek.com>, <ot_daolong.zhu@mediatek.com>,
-        <yuhan.wei@mediatek.com>, <kewei.xu@mediatek.com>
-Subject: [RESEND PATCH v5 4/7] dt-bindings: i2c: add attribute use-default-timing
-Date:   Tue, 24 Aug 2021 11:30:25 +0800
-Message-ID: <1629775828-19993-5-git-send-email-kewei.xu@mediatek.com>
-X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1629775828-19993-1-git-send-email-kewei.xu@mediatek.com>
-References: <1629775828-19993-1-git-send-email-kewei.xu@mediatek.com>
+        id S229630AbhHXEt1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 24 Aug 2021 00:49:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55616 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229568AbhHXEt1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 Aug 2021 00:49:27 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B445C061575
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Aug 2021 21:48:43 -0700 (PDT)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1mIOMa-0007KN-0X; Tue, 24 Aug 2021 06:48:40 +0200
+Received: from ore by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1mIOMY-0002vE-R0; Tue, 24 Aug 2021 06:48:38 +0200
+Date:   Tue, 24 Aug 2021 06:48:38 +0200
+From:   Oleksij Rempel <o.rempel@pengutronix.de>
+To:     Andrew Manley <andrew.manley@sealingtech.com>
+Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "biwen.li@nxp.com" <biwen.li@nxp.com>,
+        "wsa@kernel.org" <wsa@kernel.org>,
+        Tim Harvey <tharvey@gateworks.com>,
+        Embedded Controller <embedded-controller@sealingtech.com>
+Subject: Re: I2C_SLAVE_STOP with i.MX 8M Mini I2C driver
+Message-ID: <20210824044838.GA14337@pengutronix.de>
+References: <MN2PR13MB4208E382DD4A2BE7A4D5A8DFE3FF9@MN2PR13MB4208.namprd13.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <MN2PR13MB4208E382DD4A2BE7A4D5A8DFE3FF9@MN2PR13MB4208.namprd13.prod.outlook.com>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 06:16:43 up 187 days,  7:40, 72 users,  load average: 0.09, 0.08,
+ 0.09
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add attribute use-default-timing for DT-binding document.
+Hi Andrew,
 
-Fixes: be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust support")
-Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
----
- Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt | 2 ++
- 1 file changed, 2 insertions(+)
+On Thu, Aug 19, 2021 at 12:23:29PM +0000, Andrew Manley wrote:
+> Dear maintainers,
+> 
+> I have an i.MX 8M Mini and I am running a 5.13 Linux kernel. I am attempting to send IPMI commands to a Supermicro server over I2C. However, I am not sure that the I2C_SLAVE_STOP​ event is triggering when it is supposed to or at least when I assumed it would trigger.
+> 
+> First, I instantiated an I2C slave backend with its own address. Then I crafted some IPMI messages following the specification, specifying that the server responds to the slave address that I used to create the backend. After that, I can write the bytes to the server as a master on the I2C bus with no problems. As part of the IPMI specification, the server responds to my request by becoming a master on the I2C bus and then writing the response back to us at the address specified.
+> 
+> At this point, the i2c-imx.c​ driver seems to handle all the slave events related to being written to and the backend driver receives all the bytes as they are being received. However, the backend driver doesn't appear to receive the I2C_SLAVE_STOP​ event when we are finished. This causes a problem as then there is no determinable way to know when the bytes have finished writing. After reading the documentation for the event https://www.kernel.org/doc/html/latest/i2c/slave-interface.html, I assumed it would be triggered after the master is finished writing to us. I also thought as part of the I2C specification that the master was required to send a STOP signal when it was finished. Is it possible that it isn't triggering but should?
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
-index 5ea216a..4dbb697 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
-@@ -34,6 +34,8 @@ Optional properties:
-     Only mt6589 and mt8135 support this feature.
-   - mediatek,use-push-pull: IO config use push-pull mode.
-   - vbus-supply: phandle to the regulator that provides power to SCL/SDA.
-+  - mediatek,use-default-timing: use default timing calculation, no timing
-+    adjustment.
- 
- Example:
- 
+From the i2c-imx driver point of view we, detect stop signal on this
+path:
+i2c_imx_slave_isr()
+  if (status & I2SR_IAAS) { /* Addressed as a slave */
+    ...
+  } else if (!(ctl & I2CR_MTX)) { /* Receive mode */
+    if (status & I2SR_IBB) { /* No STOP signal detected */
+     ...
+    } else { /* STOP signal is detected */
+
+If IBB would change just after we have read it in the interrupt handler,
+we would not be able to detect the STOP signal.
+
+This is only my assumption. You will need to compare transfer on the BUS
+(with logic analyzer) with kernel traces.
+
+> I noticed that there is a patch ​05ae60bc24f765d0db6b7c6e5acabf22718b823d from December that is supposed to "Synthesize end of transaction events". Is it not possible to figure out when the transmission actually ends?
+
+It depends on actual hardware implementation of the IBB bit. For
+example, are we actually able to get IRQ for this bit or we need to poll
+it? imx8mm documentation is not very clear about it.
+
+Regards,
+Oleksij
 -- 
-1.9.1
-
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
