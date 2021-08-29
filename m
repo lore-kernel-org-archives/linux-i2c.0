@@ -2,201 +2,98 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7717C04FE3
-	for <linux-i2c@archiver.kernel.org>; Sat, 28 Aug 2021 10:51:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13133C432BE
+	for <linux-i2c@archiver.kernel.org>; Sun, 29 Aug 2021 02:57:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEBE660EE9
-	for <linux-i2c@archiver.kernel.org>; Sat, 28 Aug 2021 10:51:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E98F060E08
+	for <linux-i2c@archiver.kernel.org>; Sun, 29 Aug 2021 02:57:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbhH1Kwa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 28 Aug 2021 06:52:30 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:34372 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S233886AbhH1KwK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 28 Aug 2021 06:52:10 -0400
-X-UUID: fd844b79cae741618a74609e590f430c-20210828
-X-UUID: fd844b79cae741618a74609e590f430c-20210828
-Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw01.mediatek.com
-        (envelope-from <kewei.xu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1221047945; Sat, 28 Aug 2021 18:51:16 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Sat, 28 Aug 2021 18:51:15 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Sat, 28 Aug 2021 18:51:14 +0800
-From:   Kewei Xu <kewei.xu@mediatek.com>
-To:     <wsa@the-dreams.de>
-CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
-        <qii.wang@mediatek.com>, <liguo.zhang@mediatek.com>,
-        <caiyu.chen@mediatek.com>, <ot_daolong.zhu@mediatek.com>,
-        <yuhan.wei@mediatek.com>, <kewei.xu@mediatek.com>
-Subject: [PATCH v6 6/7] i2c: mediatek: Isolate speed setting via dts for special devices
-Date:   Sat, 28 Aug 2021 18:50:58 +0800
-Message-ID: <1630147859-17031-7-git-send-email-kewei.xu@mediatek.com>
-X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1630147859-17031-1-git-send-email-kewei.xu@mediatek.com>
-References: <1630147859-17031-1-git-send-email-kewei.xu@mediatek.com>
+        id S233468AbhH2C5x (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 28 Aug 2021 22:57:53 -0400
+Received: from vps.xff.cz ([195.181.215.36]:38356 "EHLO vps.xff.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233430AbhH2C5x (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 28 Aug 2021 22:57:53 -0400
+X-Greylist: delayed 315 seconds by postgrey-1.27 at vger.kernel.org; Sat, 28 Aug 2021 22:57:52 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
+        t=1630205504; bh=E3TX1uiaCCo6JfafnOTAiv2GSkpdyPupucanyUViILw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=HxffAQce1C4GrbdZuSfvWQ6+DfavBnHR8xKIsPIslQG3FhoFGGbRlrteInNazk00O
+         WOkbtalW52HnlvgKym4wERSuB+ypwNPltSMgWmRct2JI+2z4PolTGC4XFkcIdjIZp2
+         MiEPTtMX+JdF29gbECu3Jw/gL4SQe70/odNFijmw=
+From:   Ondrej Jirman <megous@megous.com>
+To:     Heiko Stuebner <heiko@sntech.de>,
+        linux-arm-kernel@lists.infradead.org (moderated list:ARM/Rockchip SoC
+        support),
+        linux-rockchip@lists.infradead.org (open list:ARM/Rockchip SoC support),
+        linux-i2c@vger.kernel.org (open list:I2C SUBSYSTEM HOST DRIVERS),
+        linux-kernel@vger.kernel.org (open list)
+Cc:     Ondrej Jirman <megous@megous.com>
+Subject: [PATCH] i2c: rk3x: Handle a spurious start completion interrupt flag
+Date:   Sun, 29 Aug 2021 04:51:30 +0200
+Message-Id: <20210829025130.1058877-1-megous@megous.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-In the commit be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust
-support"), the I2C timing calculation has been revised to support
-ac-timing adjustment, however that will break on some I2C components.
-As a result we want to introduce a new setting "default-adjust-timing"
-so those components can choose to use the old (default) timing algorithm.
+In a typical read transfer, start completion flag is being set after
+read finishes (notice ipd bit 4 being set):
 
-Fixes: be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust support")
-Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
+trasnfer poll=0
+i2c start
+rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
+i2c read
+rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
+i2c stop
+rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 33
+
+This causes I2C transfer being aborted in polled mode from a stop completion
+handler:
+
+trasnfer poll=1
+i2c start
+rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
+i2c read
+rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 0
+rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
+i2c stop
+rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 13
+i2c stop
+rk3x-i2c fdd40000.i2c: unexpected irq in STOP: 0x10
+
+Clearing the START flag after read fixes the issue without any obvious
+side effects.
+
+This issue was dicovered on RK3566 when adding support for powering
+off the RK817 PMIC.
+
+Signed-off-by: Ondrej Jirman <megous@megous.com>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 77 ++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 73 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-rk3x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 6ded82e..0cf130b 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -66,6 +66,7 @@
- #define I2C_DMA_HARD_RST		0x0002
- #define I2C_DMA_HANDSHAKE_RST		0x0004
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 819ab4ee517e..02ddb237f69a 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -423,8 +423,8 @@ static void rk3x_i2c_handle_read(struct rk3x_i2c *i2c, unsigned int ipd)
+ 	if (!(ipd & REG_INT_MBRF))
+ 		return;
  
-+#define I2C_DEFAULT_CLK_DIV		5
- #define MAX_SAMPLE_CNT_DIV		8
- #define MAX_STEP_CNT_DIV		64
- #define MAX_CLOCK_DIV			256
-@@ -250,6 +251,7 @@ struct mtk_i2c {
- 	struct clk *clk_arb;		/* Arbitrator clock for i2c */
- 	bool have_pmic;			/* can use i2c pins from PMIC */
- 	bool use_push_pull;		/* IO config push-pull mode */
-+	bool use_default_timing;	/* no timing adjust mode */
+-	/* ack interrupt */
+-	i2c_writel(i2c, REG_INT_MBRF, REG_IPD);
++	/* ack interrupt (read also produces a spurious START flag, clear it too) */
++	i2c_writel(i2c, REG_INT_MBRF | REG_INT_START, REG_IPD);
  
- 	u16 irq_stat;			/* interrupt status */
- 	unsigned int clk_src_div;
-@@ -532,7 +534,11 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
- 	else
- 		ext_conf_val = I2C_FS_START_CON;
- 
--	if (i2c->dev_comp->timing_adjust) {
-+	if (i2c->use_default_timing) {
-+		if (i2c->dev_comp->timing_adjust)
-+			mtk_i2c_writew(i2c, I2C_DEFAULT_CLK_DIV - 1,
-+				       OFFSET_CLOCK_DIV);
-+	} else if (i2c->dev_comp->timing_adjust) {
- 		ext_conf_val = i2c->ac_timing.ext;
- 		mtk_i2c_writew(i2c, i2c->ac_timing.inter_clk_div,
- 			       OFFSET_CLOCK_DIV);
-@@ -615,7 +621,7 @@ static int mtk_i2c_check_ac_timing(struct mtk_i2c *i2c,
- 	unsigned int sample_ns = div_u64(1000000000ULL * (sample_cnt + 1),
- 					 clk_src);
- 
--	if (!i2c->dev_comp->timing_adjust)
-+	if (i2c->use_default_timing || !i2c->dev_comp->timing_adjust)
- 		return 0;
- 
- 	if (i2c->dev_comp->ltiming_adjust)
-@@ -775,7 +781,65 @@ static int mtk_i2c_calculate_speed(struct mtk_i2c *i2c, unsigned int clk_src,
- 	return 0;
- }
- 
--static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
-+static int mtk_i2c_set_speed_default_timing(struct mtk_i2c *i2c,
-+					    unsigned int parent_clk)
-+{
-+	unsigned int clk_src;
-+	unsigned int step_cnt;
-+	unsigned int sample_cnt;
-+	unsigned int l_step_cnt;
-+	unsigned int l_sample_cnt;
-+	unsigned int target_speed;
-+	int ret;
-+
-+	if (i2c->dev_comp->timing_adjust)
-+		i2c->clk_src_div *= I2C_DEFAULT_CLK_DIV;
-+
-+	clk_src = parent_clk / i2c->clk_src_div;
-+	target_speed = i2c->speed_hz;
-+
-+	if (target_speed > I2C_MAX_FAST_MODE_PLUS_FREQ) {
-+		/* Set master code speed register */
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src,
-+					      I2C_MAX_FAST_MODE_FREQ,
-+					      &l_step_cnt, &l_sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (l_sample_cnt << 8) | l_step_cnt;
-+
-+		/* Set the high speed mode register */
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->high_speed_reg = I2C_TIME_DEFAULT_VALUE |
-+			(sample_cnt << 12) | (step_cnt << 8);
-+
-+		if (i2c->dev_comp->ltiming_adjust)
-+			i2c->ltiming_reg = (l_sample_cnt << 6) | l_step_cnt |
-+					   (sample_cnt << 12) | (step_cnt << 9);
-+	} else {
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (sample_cnt << 8) | step_cnt;
-+
-+		/* Disable the high speed transaction */
-+		i2c->high_speed_reg = I2C_TIME_CLR_VALUE;
-+
-+		if (i2c->dev_comp->ltiming_adjust)
-+			i2c->ltiming_reg = (sample_cnt << 6) | step_cnt;
-+	}
-+
-+	return 0;
-+}
-+
-+static int mtk_i2c_set_speed_adjust_timing(struct mtk_i2c *i2c,
-+					   unsigned int parent_clk)
- {
- 	unsigned int clk_src;
- 	unsigned int step_cnt;
-@@ -1271,6 +1335,8 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
- 	i2c->have_pmic = of_property_read_bool(np, "mediatek,have-pmic");
- 	i2c->use_push_pull =
- 		of_property_read_bool(np, "mediatek,use-push-pull");
-+	i2c->use_default_timing =
-+		of_property_read_bool(np, "mediatek,use-default-timing");
- 
- 	i2c_parse_fw_timings(i2c->dev, &i2c->timing_info, true);
- 
-@@ -1357,7 +1423,10 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 
- 	strlcpy(i2c->adap.name, I2C_DRV_NAME, sizeof(i2c->adap.name));
- 
--	ret = mtk_i2c_set_speed(i2c, clk_get_rate(clk));
-+	if (i2c->use_default_timing)
-+		ret = mtk_i2c_set_speed_default_timing(i2c, clk_get_rate(clk));
-+	else
-+		ret = mtk_i2c_set_speed_adjust_timing(i2c, clk_get_rate(clk));
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to set the speed.\n");
- 		return -EINVAL;
+ 	/* Can only handle a maximum of 32 bytes at a time */
+ 	if (len > 32)
 -- 
-1.9.1
+2.33.0
 
