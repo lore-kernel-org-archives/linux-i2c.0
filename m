@@ -7,26 +7,26 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 834C5C433FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 13 Sep 2021 08:48:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 503AFC43219
+	for <linux-i2c@archiver.kernel.org>; Mon, 13 Sep 2021 08:48:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6A41660FA0
-	for <linux-i2c@archiver.kernel.org>; Mon, 13 Sep 2021 08:48:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3C1FB60FC1
+	for <linux-i2c@archiver.kernel.org>; Mon, 13 Sep 2021 08:48:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238299AbhIMItc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 13 Sep 2021 04:49:32 -0400
-Received: from inva020.nxp.com ([92.121.34.13]:58542 "EHLO inva020.nxp.com"
+        id S238297AbhIMItf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 13 Sep 2021 04:49:35 -0400
+Received: from inva020.nxp.com ([92.121.34.13]:58484 "EHLO inva020.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238073AbhIMIt3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S238261AbhIMIt3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Mon, 13 Sep 2021 04:49:29 -0400
 Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 47C361A2A43;
-        Mon, 13 Sep 2021 10:48:13 +0200 (CEST)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id A7C201A2A14;
+        Mon, 13 Sep 2021 10:48:12 +0200 (CEST)
 Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 3A5AF1A2A54;
-        Mon, 13 Sep 2021 10:48:13 +0200 (CEST)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 99D8D1A2A45;
+        Mon, 13 Sep 2021 10:48:12 +0200 (CEST)
 Received: from fsr-ub1664-175.ea.freescale.net (fsr-ub1664-175.ea.freescale.net [10.171.82.40])
-        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id A9FE5202EC;
+        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 164EF202EC;
         Mon, 13 Sep 2021 10:48:12 +0200 (CEST)
 From:   Abel Vesa <abel.vesa@nxp.com>
 To:     Rob Herring <robh@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>,
@@ -39,9 +39,9 @@ Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
         NXP Linux Team <linux-imx@nxp.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-arm-kernel@lists.infradead.org, Abel Vesa <abel.vesa@nxp.com>
-Subject: [PATCH 09/10] dt-bindings: i2c: imx-lpi2c: Add i.MX8DXL compatible match
-Date:   Mon, 13 Sep 2021 11:47:53 +0300
-Message-Id: <1631522874-19862-10-git-send-email-abel.vesa@nxp.com>
+Subject: [PATCH 08/10] dt-bindings: fsl: scu: add i.MX8DXL ocotp binding
+Date:   Mon, 13 Sep 2021 11:47:52 +0300
+Message-Id: <1631522874-19862-9-git-send-email-abel.vesa@nxp.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1631522874-19862-1-git-send-email-abel.vesa@nxp.com>
 References: <1631522874-19862-1-git-send-email-abel.vesa@nxp.com>
@@ -52,22 +52,22 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-index 29b9447f3b84..3505577082d7 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
-@@ -18,7 +18,9 @@ properties:
-       - enum:
-           - fsl,imx7ulp-lpi2c
-           - fsl,imx8qm-lpi2c
-+          - fsl,imx8dxl-lpi2c
-       - items:
-+          - const: fsl,imx8dxl-lpi2c
-           - const: fsl,imx8qxp-lpi2c
-           - const: fsl,imx7ulp-lpi2c
+diff --git a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+index fd0061712443..f1470d562156 100644
+--- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
++++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+@@ -141,7 +141,8 @@ OCOTP bindings based on SCU Message Protocol
+ Required properties:
+ - compatible:		Should be one of:
+ 			"fsl,imx8qm-scu-ocotp",
+-			"fsl,imx8qxp-scu-ocotp".
++			"fsl,imx8qxp-scu-ocotp",
++			"fsl,imx8dxl-scu-ocotp".
+ - #address-cells:	Must be 1. Contains byte index
+ - #size-cells:		Must be 1. Contains byte length
  
 -- 
 2.31.1
