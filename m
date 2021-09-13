@@ -2,113 +2,86 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 097D7C43219
-	for <linux-i2c@archiver.kernel.org>; Thu,  9 Sep 2021 13:22:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69437C433F5
+	for <linux-i2c@archiver.kernel.org>; Mon, 13 Sep 2021 08:48:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E3CE161051
-	for <linux-i2c@archiver.kernel.org>; Thu,  9 Sep 2021 13:22:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44D266101C
+	for <linux-i2c@archiver.kernel.org>; Mon, 13 Sep 2021 08:48:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353612AbhIINXN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 9 Sep 2021 09:23:13 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:54084 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356944AbhIINPA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Sep 2021 09:15:00 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 938501FDEE;
-        Thu,  9 Sep 2021 13:13:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1631193227; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=pFMRfoyR43hfi0VWujmUi6zgOxK+wVXStaOWAPl9ihk=;
-        b=jwKuuIPjmKLoBl9qRZBKB49VW4UfAudv/rGnMyjKgBqPkpmrFqAOXvMM1+HsncTPIFyjLG
-        UiDZJT/R9vrZyXHupExniDumvyGKGJvCfCBpsa80aGmMpDEj3K4weQaS47ndkZeu/EiaZN
-        TRUZCzHzOZZcl2h+4MwOhVbdwy0qYR8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1631193227;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=pFMRfoyR43hfi0VWujmUi6zgOxK+wVXStaOWAPl9ihk=;
-        b=baFrK6w72S8VISeLlLZ1TZebCQin7lJIg4i8J+4B6Hlg2+qdOH9YOKCCx4rUfiZHL1MTLm
-        pR13G4mWYUcgyqCw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3A5B513B36;
-        Thu,  9 Sep 2021 13:13:47 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id KFuqC4sIOmFKDwAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Thu, 09 Sep 2021 13:13:47 +0000
-Date:   Thu, 9 Sep 2021 15:13:20 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.14 088/252] i2c: i801: Fix handling
- SMBHSTCNT_PEC_EN
-Message-ID: <20210909151320.7bddd134@endymion>
-In-Reply-To: <20210909114106.141462-88-sashal@kernel.org>
-References: <20210909114106.141462-1-sashal@kernel.org>
-        <20210909114106.141462-88-sashal@kernel.org>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S236022AbhIMItY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 13 Sep 2021 04:49:24 -0400
+Received: from inva021.nxp.com ([92.121.34.21]:35022 "EHLO inva021.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237849AbhIMItY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 13 Sep 2021 04:49:24 -0400
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id CBA4A202A17;
+        Mon, 13 Sep 2021 10:48:07 +0200 (CEST)
+Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id BE8D0202A2E;
+        Mon, 13 Sep 2021 10:48:07 +0200 (CEST)
+Received: from fsr-ub1664-175.ea.freescale.net (fsr-ub1664-175.ea.freescale.net [10.171.82.40])
+        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 434B6202EC;
+        Mon, 13 Sep 2021 10:48:07 +0200 (CEST)
+From:   Abel Vesa <abel.vesa@nxp.com>
+To:     Rob Herring <robh@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Fabio Estevam <festevam@gmail.com>
+Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
+        linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-arm-kernel@lists.infradead.org, Abel Vesa <abel.vesa@nxp.com>
+Subject: [PATCH 00/10] arm64: dts: Add i.MX8DXL initial support
+Date:   Mon, 13 Sep 2021 11:47:44 +0300
+Message-Id: <1631522874-19862-1-git-send-email-abel.vesa@nxp.com>
+X-Mailer: git-send-email 2.7.4
+X-Virus-Scanned: ClamAV using ClamSMTP
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Sascha,
+This allows i.MX8DXL EVK board to boot to prompt.
 
-On Thu,  9 Sep 2021 07:38:22 -0400, Sasha Levin wrote:
-> From: Heiner Kallweit <hkallweit1@gmail.com>
-> 
-> [ Upstream commit a6b8bb6a813a6621c75ceacd1fa604c0229e9624 ]
-> 
-> Bit SMBHSTCNT_PEC_EN is used only if software calculates the CRC and
-> uses register SMBPEC. This is not supported by the driver, it supports
-> hw-calculation of CRC only (using bit SMBAUXSTS_CRCE). The chip spec
-> states the following, therefore never set bit SMBHSTCNT_PEC_EN.
-> 
-> Chapter SMBus CRC Generation and Checking
-> If the AAC bit is set in the Auxiliary Control register, the PCH
-> automatically calculates and drives CRC at the end of the transmitted
-> packet for write cycles, and will check the CRC for read cycles. It will
-> not transmit the contents of the PEC register for CRC. The PEC bit must
-> not be set in the Host Control register. If this bit is set, unspecified
-> behavior will result.
-> 
-> This patch is based solely on the specification and compile-tested only,
-> because I have no PEC-capable devices.
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> Tested-by: Jean Delvare <jdelvare@suse.de>
-> Signed-off-by: Wolfram Sang <wsa@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/i2c/busses/i2c-i801.c | 27 +++++++++++----------------
->  1 file changed, 11 insertions(+), 16 deletions(-)
+Abel Vesa (5):
+  arm64: dts: imx8-ss-lsio: Add mu5a mailbox
+  arm64: dts: freescale: Add adma subsystem dtsi for imx8dxl
+  dt-bindings: fsl: scu: add i.MX8DXL ocotp binding
+  dt-bindings: i2c: imx-lpi2c: Add i.MX8DXL compatible match
+  dt-bindings: serial: fsl-lpuart: Add i.MX8DXL compatible
 
-This patch fixes a theoretical problem nobody has ever complained
-about. I don't think it makes sense to backport it to stable kernel
-branches.
+Jacky Bai (5):
+  arm64: dts: freescale: Add the top level dtsi support for imx8dxl
+  arm64: dts: freescale: Add the imx8dxl connectivity subsys dtsi
+  arm64: dts: freescale: Add ddr subsys dtsi for imx8dxl
+  arm64: dts: freescale: Add lsio subsys dtsi for imx8dxl
+  arm64: dts: imx8dxl: Add i.MX8DXL evk board support
+
+ .../bindings/arm/freescale/fsl,scu.txt        |   3 +-
+ .../bindings/i2c/i2c-imx-lpi2c.yaml           |   2 +
+ .../bindings/serial/fsl-lpuart.yaml           |   1 +
+ arch/arm64/boot/dts/freescale/Makefile        |   1 +
+ .../boot/dts/freescale/imx8-ss-lsio.dtsi      |   7 +
+ arch/arm64/boot/dts/freescale/imx8dxl-evk.dts | 266 ++++++++++++++++++
+ .../boot/dts/freescale/imx8dxl-ss-adma.dtsi   |  53 ++++
+ .../boot/dts/freescale/imx8dxl-ss-conn.dtsi   | 137 +++++++++
+ .../boot/dts/freescale/imx8dxl-ss-ddr.dtsi    |  36 +++
+ .../boot/dts/freescale/imx8dxl-ss-lsio.dtsi   |  78 +++++
+ arch/arm64/boot/dts/freescale/imx8dxl.dtsi    | 245 ++++++++++++++++
+ 11 files changed, 828 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl-ss-adma.dtsi
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl-ss-conn.dtsi
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl-ss-ddr.dtsi
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl-ss-lsio.dtsi
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl.dtsi
 
 -- 
-Jean Delvare
-SUSE L3 Support
+2.31.1
+
