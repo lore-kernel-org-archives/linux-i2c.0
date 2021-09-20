@@ -3,143 +3,124 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E7E4C433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 20 Sep 2021 11:41:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 282B9C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 20 Sep 2021 15:22:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 10CAE60E08
-	for <linux-i2c@archiver.kernel.org>; Mon, 20 Sep 2021 11:41:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0CCEA60F58
+	for <linux-i2c@archiver.kernel.org>; Mon, 20 Sep 2021 15:22:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237041AbhITLnD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 20 Sep 2021 07:43:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40200 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237018AbhITLnD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Sep 2021 07:43:03 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89934C061574
-        for <linux-i2c@vger.kernel.org>; Mon, 20 Sep 2021 04:41:36 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id dj4so4022521edb.5
-        for <linux-i2c@vger.kernel.org>; Mon, 20 Sep 2021 04:41:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=oznmaGRVrHtxLdz21rhT8rtGnk/pKW1IuycVU1NNZQI=;
-        b=nu64i44cca1TGhdrBZc2AvH4MW0LRu5At3GAsQIrPlXRtMVZfMWIXmSBkLptlRvJRH
-         AV2QCk702OsMKqbMV4KMwGoX/I8mGIZOfP6jE8Jj+GP9ZiIBh85A5ADj4+jeg6A2HwmM
-         b0v1iNGEoqYQS26gLB7YsXH00izdvInsUgmoNEl2jIONbtRmU9UrkR6Gqb9Vq7ajfUgh
-         anQV5ToXNwrn/ibNU2ME96S/tyu8kRLA5dWmipfvE9Phnb3ZeqkfyGFSqRP/CYPji5Ce
-         uhWtziQQx58aWa30lWN8GrOSKzIDILLiHFwaSUbcI4kPGxDW+V+KJUsay1nqHVix0fGE
-         ruBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=oznmaGRVrHtxLdz21rhT8rtGnk/pKW1IuycVU1NNZQI=;
-        b=yZxWUwr70IwzNl9L9MwgDgKyZweMq3ntAJ2BcVosVAPydpJ+VH4v9OMhPcZyFtqiYt
-         QAYfkweI10AmGKy+kDNI9us8F/fVG5UjSDdqvUkUJzfR0KJFDMG9YdIGNyNcp6cIs/BE
-         0TjgI6N7e5Aodp0rrpTHO2YmVjE0I+ExbsQmQTa0lMEAdAkYvzCEMvMB1oW3WuwqB09v
-         b5YYBHpVAG2nrc5GFctkl3wiVKthpyqJj1FgKPijbkjHUrrQM0oN2laTNOzr7Y8XzypF
-         DMUHOkQzTcDoT0wbvPlSnmcjrxCM7fpAi2ZvWEqKCwIDgpLNOcfEsafRzrKbD+pV/26d
-         MYtg==
-X-Gm-Message-State: AOAM533CpDXdm9vlTViZAhzjGGKYLkGIEqZDsKs4l/nxOfp+mGV2JzRm
-        vpBW3dCvZ55VCleJhS9h2/yTQY0A0U6Edi/7vqKeGA==
-X-Google-Smtp-Source: ABdhPJzidiKuODsDvZlYYgCkPEtfjXh1pYOz7UvhV5Ir0F2MUFALenmhBFjaWEn7IE11o62BoFhcsUsnFvA0tdGtAPw=
-X-Received: by 2002:a50:e0c3:: with SMTP id j3mr3071349edl.60.1632138095096;
- Mon, 20 Sep 2021 04:41:35 -0700 (PDT)
+        id S235854AbhITPX1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 20 Sep 2021 11:23:27 -0400
+Received: from mx07-00178001.pphosted.com ([185.132.182.106]:60978 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232933AbhITPX1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Sep 2021 11:23:27 -0400
+Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18KC9Z8G017961;
+        Mon, 20 Sep 2021 17:21:47 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=selector1;
+ bh=b7hcOpEfWmmbiP3fmkyQWZ9KGNhFbGxU2+u71yWZU+o=;
+ b=4Nn8VC4FHnKEHoIRuAFIAn0OwTY92KFhFgzV1SDE4y511V2zK5pPQfMsjefXnrCAFiIB
+ Ldy5Y3L38hVvll0o2jyKI7dLWAMNCjFlZCyw6DmBDbSvrGMDDLL02K7OXLLWoLxfWEGd
+ wUVYXPMyveIW2kbqUvwZD1YWO58Y4MdioB3JSP3njtqRKmhzirjfdMHxkpV3IsqbVoe1
+ Ylgj7Hn6zMCW1FVu1zO/xjK8b8dgODUHRCRDuzslLU2IDrDB1lCbxErzFOKzklGsKsMV
+ lAw8UYiaPB49bxHr8jbzlvDTmmCTPL6UEa++OzQmdSvr7JEnieBQaaTnrzRjTTJS8uct pA== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 3b6t2c8uu8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Sep 2021 17:21:46 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 1F51C100034;
+        Mon, 20 Sep 2021 17:21:46 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag2node2.st.com [10.75.127.5])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 165CA22F7B7;
+        Mon, 20 Sep 2021 17:21:46 +0200 (CEST)
+Received: from localhost (10.75.127.46) by SFHDAG2NODE2.st.com (10.75.127.5)
+ with Microsoft SMTP Server (TLS) id 15.0.1497.18; Mon, 20 Sep 2021 17:21:45
+ +0200
+From:   Alain Volmat <alain.volmat@foss.st.com>
+To:     <wsa@kernel.org>, <pierre-yves.mordret@foss.st.com>
+CC:     <alexandre.torgue@foss.st.com>, <linux-i2c@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@foss.st.com>,
+        <amelie.delaunay@foss.st.com>, <alain.volmat@foss.st.com>
+Subject: [PATCH 1/4] i2c: stm32f7: flush TX FIFO upon transfer errors
+Date:   Mon, 20 Sep 2021 17:21:29 +0200
+Message-ID: <1632151292-18503-2-git-send-email-alain.volmat@foss.st.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1632151292-18503-1-git-send-email-alain.volmat@foss.st.com>
+References: <1632151292-18503-1-git-send-email-alain.volmat@foss.st.com>
 MIME-Version: 1.0
-References: <20210920072842.30889-1-brgl@bgdev.pl> <CAHp75Vc0ytt4gWqaEWVOLSwu8J15t92JXg790jvjtGJqMo5_6A@mail.gmail.com>
-In-Reply-To: <CAHp75Vc0ytt4gWqaEWVOLSwu8J15t92JXg790jvjtGJqMo5_6A@mail.gmail.com>
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-Date:   Mon, 20 Sep 2021 13:41:24 +0200
-Message-ID: <CAMRc=MeLMngUi3oZAWuM6sBazvm6iXOYiVYbHOjbCdm7Z9r3bQ@mail.gmail.com>
-Subject: Re: [PATCH] MAINTAINERS: update my email address
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Wolfram Sang <wsa@the-dreams.de>, Sekhar Nori <nsekhar@ti.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.46]
+X-ClientProxiedBy: SFHDAG2NODE2.st.com (10.75.127.5) To SFHDAG2NODE2.st.com
+ (10.75.127.5)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-20_07,2021-09-20_01,2020-04-07_01
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Sep 20, 2021 at 11:42 AM Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
->
-> On Mon, Sep 20, 2021 at 12:31 PM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-> >
-> > My professional situation changes soon. Update my email address.
->
-> I'm wondering if @kernel.org address would be a better choice. In such
-> a case you don't need to send a patch whenever your situation changes.
->
+While handling an error during transfer (ex: NACK), it could
+happen that the driver has already written data into TXDR
+before the transfer get stopped.
+This commit add TXDR Flush after end of transfer in case of error to
+avoid sending a wrong data on any other slave upon next transfer.
 
-This is my "private professional" address that I had used even before
-doing kernel work on BayLibre payroll - I intend to keep it from now
-on.
+Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
 
-> Either way, with hope that you will be still active here,
-> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
-I will! :)
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index b9b19a2a2ffa..ed977b6f7ab6 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1696,6 +1696,16 @@ static int stm32f7_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	time_left = wait_for_completion_timeout(&i2c_dev->complete,
+ 						i2c_dev->adap.timeout);
+ 	ret = f7_msg->result;
++	if (ret) {
++		/*
++		 * It is possible that some unsent data have already been
++		 * written into TXDR. To avoid sending old data in a
++		 * further transfer, flush TXDR in case of any error
++		 */
++		writel_relaxed(STM32F7_I2C_ISR_TXE,
++			       i2c_dev->base + STM32F7_I2C_ISR);
++		goto pm_free;
++	}
+ 
+ 	if (!time_left) {
+ 		dev_dbg(i2c_dev->dev, "Access to slave 0x%x timed out\n",
+@@ -1744,8 +1754,16 @@ static int stm32f7_i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ 	timeout = wait_for_completion_timeout(&i2c_dev->complete,
+ 					      i2c_dev->adap.timeout);
+ 	ret = f7_msg->result;
+-	if (ret)
++	if (ret) {
++		/*
++		 * It is possible that some unsent data have already been
++		 * written into TXDR. To avoid sending old data in a
++		 * further transfer, flush TXDR in case of any error
++		 */
++		writel_relaxed(STM32F7_I2C_ISR_TXE,
++			       i2c_dev->base + STM32F7_I2C_ISR);
+ 		goto pm_free;
++	}
+ 
+ 	if (!timeout) {
+ 		dev_dbg(dev, "Access to slave 0x%x timed out\n", f7_msg->addr);
+-- 
+2.25.1
 
-Bart
-
->
-> > Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-> > ---
-> >  MAINTAINERS | 8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index eeb4c70b3d5b..6bebe6168922 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -2962,7 +2962,7 @@ F:        crypto/async_tx/
-> >  F:     include/linux/async_tx.h
-> >
-> >  AT24 EEPROM DRIVER
-> > -M:     Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > +M:     Bartosz Golaszewski <brgl@bgdev.pl>
-> >  L:     linux-i2c@vger.kernel.org
-> >  S:     Maintained
-> >  T:     git git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git
-> > @@ -7986,7 +7986,7 @@ F:        include/linux/gpio/regmap.h
-> >
-> >  GPIO SUBSYSTEM
-> >  M:     Linus Walleij <linus.walleij@linaro.org>
-> > -M:     Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > +M:     Bartosz Golaszewski <brgl@bgdev.pl>
-> >  L:     linux-gpio@vger.kernel.org
-> >  S:     Maintained
-> >  T:     git git://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git
-> > @@ -11367,7 +11367,7 @@ F:      Documentation/devicetree/bindings/iio/proximity/maxbotix,mb1232.yaml
-> >  F:     drivers/iio/proximity/mb1232.c
-> >
-> >  MAXIM MAX77650 PMIC MFD DRIVER
-> > -M:     Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > +M:     Bartosz Golaszewski <brgl@bgdev.pl>
-> >  L:     linux-kernel@vger.kernel.org
-> >  S:     Maintained
-> >  F:     Documentation/devicetree/bindings/*/*max77650.yaml
-> > @@ -18689,7 +18689,7 @@ F:      include/linux/clk/ti.h
-> >
-> >  TI DAVINCI MACHINE SUPPORT
-> >  M:     Sekhar Nori <nsekhar@ti.com>
-> > -R:     Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > +R:     Bartosz Golaszewski <brgl@bgdev.pl>
-> >  L:     linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
-> >  S:     Supported
-> >  T:     git git://git.kernel.org/pub/scm/linux/kernel/git/nsekhar/linux-davinci.git
-> > --
-> > 2.30.1
-> >
