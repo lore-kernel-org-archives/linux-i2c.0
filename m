@@ -2,89 +2,198 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6304CC433EF
-	for <linux-i2c@archiver.kernel.org>; Wed, 22 Sep 2021 16:57:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36193C433F5
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Sep 2021 03:34:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 47854611CA
-	for <linux-i2c@archiver.kernel.org>; Wed, 22 Sep 2021 16:57:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17CA26103D
+	for <linux-i2c@archiver.kernel.org>; Thu, 23 Sep 2021 03:34:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236638AbhIVQ6x (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 22 Sep 2021 12:58:53 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:36549 "EHLO
-        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236537AbhIVQ6x (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Sep 2021 12:58:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1632329843; x=1663865843;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=AkgT5JiHWx2mZGF7DusjmOiIvbj1ToNLNU0qRyMkF2w=;
-  b=DaoOUbg3Ocznz1rtezTfs2fTjXp3HocgQRMq5zlu9g5IFwPDJtOj8smj
-   m6/ite9EbNlYOYQhzlEn68aBNsTX/RmyIEaC+CT+F38TXljRLwGgpwSaB
-   2x/wgSQnCOAOfXvdSUHpGkv4/+BTYN6+yyjWxhqM+jrRUauLc3/H3LiS8
-   4=;
-Received: from ironmsg-lv-alpha.qualcomm.com ([10.47.202.13])
-  by alexa-out.qualcomm.com with ESMTP; 22 Sep 2021 09:57:23 -0700
-X-QCInternal: smtphost
-Received: from nalasex01a.na.qualcomm.com ([10.47.209.196])
-  by ironmsg-lv-alpha.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2021 09:57:22 -0700
-Received: from localhost (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.922.7; Wed, 22 Sep 2021
- 09:57:21 -0700
-From:   Jamie Iles <quic_jiles@quicinc.com>
-To:     <linux-i2c@vger.kernel.org>
-CC:     Jamie Iles <quic_jiles@quicinc.com>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH] i2c / ACPI: fix resource leak in reconfiguration device addition
-Date:   Wed, 22 Sep 2021 17:57:18 +0100
-Message-ID: <20210922165718.179585-1-quic_jiles@quicinc.com>
+        id S239053AbhIWDfx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 22 Sep 2021 23:35:53 -0400
+Received: from pi.codeconstruct.com.au ([203.29.241.158]:59534 "EHLO
+        codeconstruct.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235623AbhIWDfx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Sep 2021 23:35:53 -0400
+Received: by codeconstruct.com.au (Postfix, from userid 10001)
+        id 2D7F120165; Thu, 23 Sep 2021 11:34:16 +0800 (AWST)
+From:   Matt Johnston <matt@codeconstruct.com.au>
+To:     devicetree@vger.kernel.org
+Cc:     linux-i2c@vger.kernel.org, Jeremy Kerr <jk@codeconstruct.com.au>
+Subject: [PATCH v4] dt-bindings: net: New binding mctp-i2c-controller
+Date:   Thu, 23 Sep 2021 11:34:06 +0800
+Message-Id: <20210923033406.3166902-1-matt@codeconstruct.com.au>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-acpi_i2c_find_adapter_by_handle() calls bus_find_device() which takes a
-reference on the adapter which is never released which will result in a
-reference count leak and render the adapter unremovable.  Make sure to
-put the adapter after creating the client in the same manner that we do
-for OF.
+Used to define a local endpoint to communicate with MCTP peripherals
+attached to an I2C bus. This I2C endpoint can communicate with remote
+MCTP devices on the I2C bus.
 
-Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
-Cc: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Wolfram Sang <wsa@kernel.org>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Jamie Iles <quic_jiles@quicinc.com>
+In the example I2C topology below (matching the second yaml example) we
+have MCTP devices on busses i2c1 and i2c6. MCTP-supporting busses are
+indicated by the 'mctp-controller' DT property on an I2C bus node.
+
+A mctp-i2c-controller I2C client DT node is placed at the top of the
+mux topology, since only the root I2C adapter will support I2C slave
+functionality.
+                                               .-------.
+                                               |eeprom |
+    .------------.     .------.               /'-------'
+    | adapter    |     | mux  --@0,i2c5------'
+    | i2c1       ----.*|      --@1,i2c6--.--.
+    |............|    \'------'           \  \  .........
+    | mctp-i2c-  |     \                   \  \ .mctpB  .
+    | controller |      \                   \  '.0x30   .
+    |            |       \  .........        \  '.......'
+    | 0x50       |        \ .mctpA  .         \ .........
+    '------------'         '.0x1d   .          '.mctpC  .
+                            '.......'          '.0x31   .
+                                                '.......'
+(mctpX boxes above are remote MCTP devices not included in the DT at
+present, they can be hotplugged/probed at runtime. A DT binding for
+specific fixed MCTP devices could be added later if required)
+
+Signed-off-by: Matt Johnston <matt@codeconstruct.com.au>
 ---
- drivers/i2c/i2c-core-acpi.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 6f0aa0ed3241..74925621f239 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -422,6 +422,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
- 			break;
+Changes:
+
+v3->v4:
+Formatting and YAML syntax fixes, rename .yaml file to match
+
+v2->v3:
+Change the MCTP indicator to being a property on the I2C bus node.
+
+Thanks,
+Matt
+
+ Documentation/devicetree/bindings/i2c/i2c.txt |  4 +
+ .../bindings/net/mctp-i2c-controller.yaml     | 92 +++++++++++++++++++
+ 2 files changed, 96 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/net/mctp-i2c-controller.yaml
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+index b864916e087f..fc3dd7ec0445 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -95,6 +95,10 @@ wants to support one of the below features, it should adapt these bindings.
+ - smbus-alert
+ 	states that the optional SMBus-Alert feature apply to this bus.
  
- 		i2c_acpi_register_device(adapter, adev, &info);
-+		put_device(&adapter->dev);
- 		break;
- 	case ACPI_RECONFIG_DEVICE_REMOVE:
- 		if (!acpi_device_enumerated(adev))
++- mctp-controller
++	indicates that the system is accessible via this bus as an endpoint for
++	MCTP over I2C transport.
++
+ Required properties (per child device)
+ --------------------------------------
+ 
+diff --git a/Documentation/devicetree/bindings/net/mctp-i2c-controller.yaml b/Documentation/devicetree/bindings/net/mctp-i2c-controller.yaml
+new file mode 100644
+index 000000000000..afd11c9422fa
+--- /dev/null
++++ b/Documentation/devicetree/bindings/net/mctp-i2c-controller.yaml
+@@ -0,0 +1,92 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/net/mctp-i2c-controller.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: MCTP I2C transport binding
++
++maintainers:
++  - Matt Johnston <matt@codeconstruct.com.au>
++
++description: |
++  An mctp-i2c-controller defines a local MCTP endpoint on an I2C controller.
++  MCTP I2C is specified by DMTF DSP0237.
++
++  An mctp-i2c-controller must be attached to an I2C adapter which supports
++  slave functionality. I2C busses (either directly or as subordinate mux
++  busses) are attached to the mctp-i2c-controller with a 'mctp-controller'
++  property on each used bus. Each mctp-controller I2C bus will be presented
++  to the host system as a separate MCTP I2C instance.
++
++properties:
++  compatible:
++    const: mctp-i2c-controller
++
++  reg:
++    minimum: 0x40000000
++    maximum: 0x4000007f
++    description: |
++      7 bit I2C address of the local endpoint.
++      I2C_OWN_SLAVE_ADDRESS (1<<30) flag must be set.
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++
++examples:
++  - |
++    // Basic case of a single I2C bus
++    #include <dt-bindings/i2c/i2c.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      mctp-controller;
++
++      mctp@30 {
++        compatible = "mctp-i2c-controller";
++        reg = <(0x30 | I2C_OWN_SLAVE_ADDRESS)>;
++      };
++    };
++
++  - |
++    // Mux topology with multiple MCTP-handling busses under
++    // a single mctp-i2c-controller.
++    // i2c1 and i2c6 can have MCTP devices, i2c5 does not.
++    #include <dt-bindings/i2c/i2c.h>
++
++    i2c1: i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      mctp-controller;
++
++      mctp@50 {
++        compatible = "mctp-i2c-controller";
++        reg = <(0x50 | I2C_OWN_SLAVE_ADDRESS)>;
++      };
++    };
++
++    i2c-mux {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      i2c-parent = <&i2c1>;
++
++      i2c5: i2c@0 {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        reg = <0>;
++        eeprom@33 {
++          reg = <0x33>;
++        };
++      };
++
++      i2c6: i2c@1 {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        reg = <1>;
++        mctp-controller;
++      };
++    };
 -- 
 2.30.2
 
