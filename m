@@ -2,27 +2,27 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80708C4332F
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Sep 2021 12:17:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33489C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Sep 2021 12:17:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D47A60FF2
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Sep 2021 12:17:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E846608FE
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Sep 2021 12:17:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240618AbhI1MTT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 28 Sep 2021 08:19:19 -0400
-Received: from inva021.nxp.com ([92.121.34.21]:58622 "EHLO inva021.nxp.com"
+        id S240639AbhI1MTW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 28 Sep 2021 08:19:22 -0400
+Received: from inva020.nxp.com ([92.121.34.13]:60422 "EHLO inva020.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240579AbhI1MTR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 28 Sep 2021 08:19:17 -0400
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id BCC0F202836;
-        Tue, 28 Sep 2021 14:17:36 +0200 (CEST)
+        id S240603AbhI1MTT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 28 Sep 2021 08:19:19 -0400
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 92BDD1A283F;
+        Tue, 28 Sep 2021 14:17:38 +0200 (CEST)
 Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id AE5D2200235;
-        Tue, 28 Sep 2021 14:17:36 +0200 (CEST)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 8536E1A0153;
+        Tue, 28 Sep 2021 14:17:38 +0200 (CEST)
 Received: from fsr-ub1664-175.ea.freescale.net (fsr-ub1664-175.ea.freescale.net [10.171.82.40])
-        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 2790B2030E;
-        Tue, 28 Sep 2021 14:17:36 +0200 (CEST)
+        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 00B342030E;
+        Tue, 28 Sep 2021 14:17:37 +0200 (CEST)
 From:   Abel Vesa <abel.vesa@nxp.com>
 To:     Rob Herring <robh@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>,
@@ -35,9 +35,9 @@ Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-arm-kernel@lists.infradead.org,
         Abel Vesa <abel.vesa@nxp.com>, Jacky Bai <ping.bai@nxp.com>
-Subject: [PATCH v2 04/10] arm64: dts: freescale: Add the imx8dxl connectivity subsys dtsi
-Date:   Tue, 28 Sep 2021 15:17:14 +0300
-Message-Id: <1632831440-5880-5-git-send-email-abel.vesa@nxp.com>
+Subject: [PATCH v2 07/10] arm64: dts: imx8dxl: Add i.MX8DXL evk board support
+Date:   Tue, 28 Sep 2021 15:17:17 +0300
+Message-Id: <1632831440-5880-8-git-send-email-abel.vesa@nxp.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1632831440-5880-1-git-send-email-abel.vesa@nxp.com>
 References: <1632831440-5880-1-git-send-email-abel.vesa@nxp.com>
@@ -48,159 +48,299 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Jacky Bai <ping.bai@nxp.com>
 
-On i.MX8DXL, the Connectivity subsystem includes below peripherals:
-1x ENET with AVB support, 1x ENET with TSN support, 2x USB OTG,
-1x eMMC, 2x SD, 1x NAND.
+Add i.MX8DXL EVK board support.
 
 Signed-off-by: Jacky Bai <ping.bai@nxp.com>
 Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 ---
- .../boot/dts/freescale/imx8dxl-ss-conn.dtsi   | 137 ++++++++++++++++++
- 1 file changed, 137 insertions(+)
- create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl-ss-conn.dtsi
+ arch/arm64/boot/dts/freescale/Makefile        |   1 +
+ arch/arm64/boot/dts/freescale/imx8dxl-evk.dts | 266 ++++++++++++++++++
+ 2 files changed, 267 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8dxl-ss-conn.dtsi b/arch/arm64/boot/dts/freescale/imx8dxl-ss-conn.dtsi
+diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+index db9e36ebe932..81619db8ac23 100644
+--- a/arch/arm64/boot/dts/freescale/Makefile
++++ b/arch/arm64/boot/dts/freescale/Makefile
+@@ -65,6 +65,7 @@ dtb-$(CONFIG_ARCH_MXC) += imx8mq-pico-pi.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mq-thor96.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mq-zii-ultra-rmb3.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8mq-zii-ultra-zest.dtb
++dtb-$(CONFIG_ARCH_MXC) += imx8dxl-evk.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8qm-mek.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8qxp-ai_ml.dtb
+ dtb-$(CONFIG_ARCH_MXC) += imx8qxp-colibri-eval-v3.dtb
+diff --git a/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts b/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
 new file mode 100644
-index 000000000000..b0059296a03f
+index 000000000000..c0ba90efc7a1
 --- /dev/null
-+++ b/arch/arm64/boot/dts/freescale/imx8dxl-ss-conn.dtsi
-@@ -0,0 +1,137 @@
++++ b/arch/arm64/boot/dts/freescale/imx8dxl-evk.dts
+@@ -0,0 +1,266 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright 2019-2021 NXP
 + */
 +
-+/delete-node/ &enet1_lpcg;
-+/delete-node/ &fec2;
++/dts-v1/;
 +
-+&conn_subsys {
-+	conn_enet0_root_clk: clock-conn-enet0-root {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <250000000>;
-+		clock-output-names = "conn_enet0_root_clk";
++#include "imx8dxl.dtsi"
++
++/ {
++	model = "Freescale i.MX8DXL EVK";
++	compatible = "fsl,imx8dxl-evk", "fsl,imx8dxl";
++
++	chosen {
++		stdout-path = &lpuart0;
 +	};
 +
-+	eqos: ethernet@5b050000 {
-+		compatible = "nxp,imx8dxl-dwmac-eqos", "snps,dwmac-5.10a";
-+		reg = <0x5b050000 0x10000>;
-+		interrupt-parent = <&gic>;
-+		interrupts = <GIC_SPI 163 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 162 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-names = "eth_wake_irq", "macirq";
-+		clocks = <&eqos_lpcg IMX_LPCG_CLK_2>,
-+			 <&eqos_lpcg IMX_LPCG_CLK_4>,
-+			 <&eqos_lpcg IMX_LPCG_CLK_0>,
-+			 <&eqos_lpcg IMX_LPCG_CLK_3>,
-+			 <&eqos_lpcg IMX_LPCG_CLK_1>;
-+		clock-names = "stmmaceth", "pclk", "ptp_ref", "tx", "mem";
-+		assigned-clocks = <&clk IMX_SC_R_ENET_1 IMX_SC_PM_CLK_PER>;
-+		assigned-clock-rates = <125000000>;
-+		power-domains = <&pd IMX_SC_R_ENET_1>;
-+		clk_csr = <0>;
-+		status = "disabled";
++	memory@80000000 {
++		device_type = "memory";
++		reg = <0x00000000 0x80000000 0 0x40000000>;
 +	};
 +
-+	usbotg2: usb@5b0e0000 {
-+		compatible = "fsl,imx8dxl-usb", "fsl,imx7ulp-usb";
-+		reg = <0x5b0e0000 0x200>;
-+		interrupt-parent = <&gic>;
-+		interrupts = <GIC_SPI 166 IRQ_TYPE_LEVEL_HIGH>;
-+		fsl,usbphy = <&usbphy2>;
-+		fsl,usbmisc = <&usbmisc2 0>;
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
 +		/*
-+		 * usbotg1 and usbotg2 share one clcok
-+		 * scfw disable clock access and keep it always on
-+		 * in case other core (M4) use one of these.
++		 * 0x8800_0000 ~ 0x8FFF_FFFF is reserved for M4
++		 * Shouldn't be used at A core and Linux side.
++		 *
 +		 */
-+		clocks = <&clk_dummy>;
-+		ahb-burst-config = <0x0>;
-+		tx-burst-size-dword = <0x10>;
-+		rx-burst-size-dword = <0x10>;
-+		#stream-id-cells = <1>;
-+		power-domains = <&pd IMX_SC_R_USB_1>;
-+		status = "disabled";
++		m4_reserved: m4@0x88000000 {
++			no-map;
++			reg = <0 0x88000000 0 0x8000000>;
++		};
++
++		/* global autoconfigured region for contiguous allocations */
++		linux,cma {
++			compatible = "shared-dma-pool";
++			reusable;
++			size = <0 0x14000000>;
++			alloc-ranges = <0 0x98000000 0 0x14000000>;
++			linux,cma-default;
++		};
 +	};
 +
-+	usbmisc2: usbmisc@5b0e0200 {
-+		#index-cells = <1>;
-+		compatible = "fsl,imx8dxl-usbmisc", "fsl,imx7ulp-usbmisc";
-+		reg = <0x5b0e0200 0x200>;
++	reg_usdhc2_vmmc: usdhc2-vmmc {
++		compatible = "regulator-fixed";
++		regulator-name = "SD1_SPWR";
++		regulator-min-microvolt = <3000000>;
++		regulator-max-microvolt = <3000000>;
++		gpio = <&lsio_gpio4 30 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++		off-on-delay-us = <3480>;
 +	};
-+
-+	usbphy2: usbphy@0x5b110000 {
-+		compatible = "fsl,imx8dxl-usbphy", "fsl,imx7ulp-usbphy";
-+		reg = <0x5b110000 0x1000>;
-+		clocks = <&usb2_2_lpcg IMX_LPCG_CLK_7>;
-+		status = "disabled";
-+	};
-+
-+	eqos_lpcg: clock-controller@5b240000 {
-+		compatible = "fsl,imx8qxp-lpcg";
-+		reg = <0x5b240000 0x10000>;
-+		#clock-cells = <1>;
-+		clocks = <&conn_enet0_root_clk>,
-+			 <&conn_axi_clk>,
-+			 <&conn_axi_clk>,
-+			 <&clk IMX_SC_R_ENET_1 IMX_SC_PM_CLK_PER>,
-+			 <&conn_ipg_clk>;
-+		clock-indices = <IMX_LPCG_CLK_0>,
-+				<IMX_LPCG_CLK_2>,
-+				<IMX_LPCG_CLK_4>,
-+				<IMX_LPCG_CLK_5>,
-+				<IMX_LPCG_CLK_6>;
-+		clock-output-names = "eqos_ptp",
-+				     "eqos_mem_clk",
-+				     "eqos_aclk",
-+				     "eqos_clk",
-+				     "eqos_csr_clk";
-+		power-domains = <&pd IMX_SC_R_ENET_1>;
-+	};
-+
-+	usb2_2_lpcg: clock-controller@5b280000 {
-+		compatible = "fsl,imx8qxp-lpcg";
-+		reg = <0x5b280000 0x10000>;
-+		#clock-cells = <1>;
-+
-+		clock-indices = <IMX_LPCG_CLK_7>;
-+		clocks = <&conn_ipg_clk>;
-+		clock-output-names = "usboh3_2_phy_ipg_clk";
-+	};
-+
 +};
 +
-+&enet0_lpcg {
-+	clocks = <&conn_enet0_root_clk>,
-+		 <&conn_enet0_root_clk>,
-+		 <&conn_axi_clk>,
-+		 <&clk IMX_SC_R_ENET_0 IMX_SC_C_TXCLK>,
-+		 <&conn_ipg_clk>,
-+		 <&conn_ipg_clk>;
++&lpuart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_lpuart0>;
++	status = "okay";
 +};
 +
-+&fec1 {
-+	compatible = "fsl,imx8dxl-fec", "fsl,imx8qm-fec";
-+	interrupts = <GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>,
-+		     <GIC_SPI 158 IRQ_TYPE_LEVEL_HIGH>,
-+		     <GIC_SPI 159 IRQ_TYPE_LEVEL_HIGH>,
-+		     <GIC_SPI 161 IRQ_TYPE_LEVEL_HIGH>;
-+	assigned-clocks = <&clk IMX_SC_R_ENET_0 IMX_SC_C_CLKDIV>;
-+	assigned-clock-rates = <125000000>;
++&lpuart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_lpuart1>;
++	status = "okay";
++};
++
++&lsio_gpio4 {
++	status = "okay";
++};
++
++&lsio_gpio5 {
++	status = "okay";
++};
++
++&thermal_zones {
++	pmic-thermal0 {
++		polling-delay-passive = <250>;
++		polling-delay = <2000>;
++		thermal-sensors = <&tsens IMX_SC_R_PMIC_0>;
++		trips {
++			pmic_alert0: trip0 {
++				temperature = <110000>;
++				hysteresis = <2000>;
++				type = "passive";
++			};
++			pmic_crit0: trip1 {
++				temperature = <125000>;
++				hysteresis = <2000>;
++				type = "critical";
++			};
++		};
++		cooling-maps {
++			map0 {
++				trip = <&pmic_alert0>;
++				cooling-device =
++					<&A35_0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++					<&A35_1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++			};
++		};
++	};
 +};
 +
 +&usdhc1 {
-+	compatible = "fsl,imx8dxl-usdhc", "fsl,imx8qxp-usdhc";
-+	interrupts = <GIC_SPI 138 IRQ_TYPE_LEVEL_HIGH>;
++		pinctrl-names = "default", "state_100mhz", "state_200mhz";
++		pinctrl-0 = <&pinctrl_usdhc1>;
++		pinctrl-1 = <&pinctrl_usdhc1_100mhz>;
++		pinctrl-2 = <&pinctrl_usdhc1_200mhz>;
++		bus-width = <8>;
++		no-sd;
++		no-sdio;
++		non-removable;
++		status = "okay";
 +};
 +
 +&usdhc2 {
-+	compatible = "fsl,imx8dxl-usdhc", "fsl,imx8qxp-usdhc";
-+	interrupts = <GIC_SPI 139 IRQ_TYPE_LEVEL_HIGH>;
++		pinctrl-names = "default", "state_100mhz", "state_200mhz";
++		pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
++		pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
++		pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
++		bus-width = <4>;
++		vmmc-supply = <&reg_usdhc2_vmmc>;
++		cd-gpios = <&lsio_gpio5 1 GPIO_ACTIVE_LOW>;
++		wp-gpios = <&lsio_gpio5 0 GPIO_ACTIVE_HIGH>;
++		max-frequency = <100000000>;
++		status = "okay";
 +};
 +
-+&usdhc3 {
-+	compatible = "fsl,imx8dxl-usdhc", "fsl,imx8qxp-usdhc";
-+	interrupts = <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>;
++&iomuxc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_hog>;
++
++	pinctrl_hog: hoggrp {
++		fsl,pins = <
++			IMX8DXL_COMP_CTL_GPIO_1V8_3V3_GPIORHB_PAD	0x000514a0
++			IMX8DXL_COMP_CTL_GPIO_1V8_3V3_GPIORHK_PAD	0x000014a0
++			IMX8DXL_SPI3_CS0_ADMA_ACM_MCLK_OUT1		0x0600004c
++			IMX8DXL_SNVS_TAMPER_OUT1_LSIO_GPIO2_IO05_IN	0x0600004c
++		>;
++	};
++
++	pinctrl_i2c2: i2c2grp {
++		fsl,pins = <
++			IMX8DXL_SPI1_SCK_ADMA_I2C2_SDA		0x06000021
++			IMX8DXL_SPI1_SDO_ADMA_I2C2_SCL		0x06000021
++		>;
++	};
++
++	pinctrl_i2c3: i2c3grp {
++		fsl,pins = <
++			IMX8DXL_SPI1_CS0_ADMA_I2C3_SDA		0x06000021
++			IMX8DXL_SPI1_SDI_ADMA_I2C3_SCL		0x06000021
++		>;
++	};
++
++	pinctrl_lpuart0: lpuart0grp {
++		fsl,pins = <
++			IMX8DXL_UART0_RX_ADMA_UART0_RX		0x06000020
++			IMX8DXL_UART0_TX_ADMA_UART0_TX		0x06000020
++		>;
++	};
++
++	pinctrl_lpuart1: lpuart1grp {
++		fsl,pins = <
++			IMX8DXL_UART1_TX_ADMA_UART1_TX          0x06000020
++			IMX8DXL_UART1_RX_ADMA_UART1_RX          0x06000020
++			IMX8DXL_UART1_RTS_B_ADMA_UART1_RTS_B    0x06000020
++			IMX8DXL_UART1_CTS_B_ADMA_UART1_CTS_B    0x06000020
++		>;
++	};
++
++	pinctrl_usdhc1: usdhc1grp {
++		fsl,pins = <
++			IMX8DXL_EMMC0_CLK_CONN_EMMC0_CLK	0x06000041
++			IMX8DXL_EMMC0_CMD_CONN_EMMC0_CMD	0x00000021
++			IMX8DXL_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
++			IMX8DXL_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
++			IMX8DXL_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
++			IMX8DXL_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
++			IMX8DXL_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
++			IMX8DXL_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
++			IMX8DXL_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
++			IMX8DXL_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
++			IMX8DXL_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
++		>;
++	};
++
++	pinctrl_usdhc1_100mhz: usdhc1grp100mhz {
++		fsl,pins = <
++			IMX8DXL_EMMC0_CLK_CONN_EMMC0_CLK	0x06000041
++			IMX8DXL_EMMC0_CMD_CONN_EMMC0_CMD	0x00000021
++			IMX8DXL_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
++			IMX8DXL_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
++			IMX8DXL_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
++			IMX8DXL_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
++			IMX8DXL_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
++			IMX8DXL_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
++			IMX8DXL_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
++			IMX8DXL_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
++			IMX8DXL_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
++		>;
++	};
++
++	pinctrl_usdhc1_200mhz: usdhc1grp200mhz {
++		fsl,pins = <
++			IMX8DXL_EMMC0_CLK_CONN_EMMC0_CLK	0x06000041
++			IMX8DXL_EMMC0_CMD_CONN_EMMC0_CMD	0x00000021
++			IMX8DXL_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
++			IMX8DXL_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
++			IMX8DXL_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
++			IMX8DXL_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
++			IMX8DXL_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
++			IMX8DXL_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
++			IMX8DXL_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
++			IMX8DXL_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
++			IMX8DXL_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
++		>;
++	};
++
++	pinctrl_usdhc2_gpio: usdhc2gpiogrp {
++		fsl,pins = <
++			IMX8DXL_ENET0_RGMII_TX_CTL_LSIO_GPIO4_IO30	0x00000040 /* RESET_B */
++			IMX8DXL_ENET0_RGMII_TXD1_LSIO_GPIO5_IO00	0x00000021 /* WP */
++			IMX8DXL_ENET0_RGMII_TXD2_LSIO_GPIO5_IO01	0x00000021 /* CD */
++		>;
++	};
++
++	pinctrl_usdhc2: usdhc2grp {
++		fsl,pins = <
++			IMX8DXL_ENET0_RGMII_RXC_CONN_USDHC1_CLK		0x06000041
++			IMX8DXL_ENET0_RGMII_RX_CTL_CONN_USDHC1_CMD	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD0_CONN_USDHC1_DATA0	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD1_CONN_USDHC1_DATA1	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD2_CONN_USDHC1_DATA2	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD3_CONN_USDHC1_DATA3	0x00000021
++			IMX8DXL_ENET0_RGMII_TXD0_CONN_USDHC1_VSELECT	0x00000021
++		>;
++	};
++
++	pinctrl_usdhc2_100mhz: usdhc2grp100mhz {
++		fsl,pins = <
++			IMX8DXL_ENET0_RGMII_RXC_CONN_USDHC1_CLK		0x06000041
++			IMX8DXL_ENET0_RGMII_RX_CTL_CONN_USDHC1_CMD	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD0_CONN_USDHC1_DATA0	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD1_CONN_USDHC1_DATA1	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD2_CONN_USDHC1_DATA2	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD3_CONN_USDHC1_DATA3	0x00000021
++			IMX8DXL_ENET0_RGMII_TXD0_CONN_USDHC1_VSELECT	0x00000021
++		>;
++	};
++
++	pinctrl_usdhc2_200mhz: usdhc2grp200mhz {
++		fsl,pins = <
++			IMX8DXL_ENET0_RGMII_RXC_CONN_USDHC1_CLK		0x06000041
++			IMX8DXL_ENET0_RGMII_RX_CTL_CONN_USDHC1_CMD	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD0_CONN_USDHC1_DATA0	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD1_CONN_USDHC1_DATA1	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD2_CONN_USDHC1_DATA2	0x00000021
++			IMX8DXL_ENET0_RGMII_RXD3_CONN_USDHC1_DATA3	0x00000021
++			IMX8DXL_ENET0_RGMII_TXD0_CONN_USDHC1_VSELECT	0x00000021
++		>;
++	};
 +};
 -- 
 2.31.1
