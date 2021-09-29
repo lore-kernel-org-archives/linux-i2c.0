@@ -2,94 +2,83 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 249FDC433F5
-	for <linux-i2c@archiver.kernel.org>; Wed, 29 Sep 2021 20:56:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CBA1C433EF
+	for <linux-i2c@archiver.kernel.org>; Wed, 29 Sep 2021 21:03:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DF38961462
-	for <linux-i2c@archiver.kernel.org>; Wed, 29 Sep 2021 20:56:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66694613A9
+	for <linux-i2c@archiver.kernel.org>; Wed, 29 Sep 2021 21:03:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346816AbhI2U6Y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 29 Sep 2021 16:58:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39544 "EHLO mail.kernel.org"
+        id S1343814AbhI2VF0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 29 Sep 2021 17:05:26 -0400
+Received: from www.zeus03.de ([194.117.254.33]:47436 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346812AbhI2U6Y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 29 Sep 2021 16:58:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA630611EF;
-        Wed, 29 Sep 2021 20:56:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632949002;
-        bh=TNi/mUJDowoV8HXHjOWSXBOb9jkNxNy2oKGJBi00AXo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZQ6F43eu2Nkksh5pcO29C2pWUSqf1JAhyXx2JBCnYDRM0zEwVx3ATwyzlMYFM7QGB
-         PLc9IRkrmWe9TH2RVEYa6KBvrZwNLMZbSAIRlsiARRULjpTCNDY4vFOVALxxpziJ/L
-         tDgTvuwiO3s24f7aOD8ncwfmvGUOf3FbXTUg+fZbfF6Bruqk2Eg3TaMcRvlVRoxu2R
-         gcWWzBgKHHbBmk9s6gbLlZybIe/8q6gsbClbFFIIdIamSoAnDV/xW3jvE+Ip76QgSM
-         L+fgPrg3mYPZDygZff4v2e0uLjBNlDIWeiYxUrFHIMS/B3BEXEvc7LszueVho1Gba9
-         4syBrwDkcOsFQ==
-Date:   Wed, 29 Sep 2021 22:56:39 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Jamie Iles <quic_jiles@quicinc.com>
-Cc:     linux-i2c@vger.kernel.org,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c / ACPI: fix resource leak in reconfiguration device
- addition
-Message-ID: <YVTTB//qSm7bLCy4@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Jamie Iles <quic_jiles@quicinc.com>, linux-i2c@vger.kernel.org,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-References: <20210922165718.179585-1-quic_jiles@quicinc.com>
+        id S237372AbhI2VFX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 29 Sep 2021 17:05:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=k1; bh=qNDVgogKsAve+SdXmpiix6RvGn37
+        Dw9NRQ0dUuB7eWE=; b=dNvgP7Je9RQy3oxx7cnQv/6lS320feKNgKt9duZCJpLE
+        6XVWvS5vzj1QrsHB8AfK46BhyozM+cDbMHknt79SUks1HJ5ZXojqBKhv+jl+UVnE
+        k+Z4b00YgM1oNJ9fZ32CLr69olZYEwCBVBxraIdGA/4KMkXR+peiWbBGa0jsZR4=
+Received: (qmail 1802299 invoked from network); 29 Sep 2021 23:03:39 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Sep 2021 23:03:39 +0200
+X-UD-Smtp-Session: l3s3148p1@A+0RqijNEuEgAwDPXwj5ACKF5hhAYpZw
+Date:   Wed, 29 Sep 2021 23:03:37 +0200
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Ryo Kataoka <ryo.kataoka.wt@renesas.com>
+Subject: Re: [PATCH] i2c: rcar: enable interrupts before starting transfer
+Message-ID: <YVTUqQVlmB2Pe8B+@kunai>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        Ryo Kataoka <ryo.kataoka.wt@renesas.com>
+References: <20210915134827.13043-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="lF3zHISEJvtARqd+"
+        protocol="application/pgp-signature"; boundary="0WE1ricZrn/U+nmo"
 Content-Disposition: inline
-In-Reply-To: <20210922165718.179585-1-quic_jiles@quicinc.com>
+In-Reply-To: <20210915134827.13043-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---lF3zHISEJvtARqd+
+--0WE1ricZrn/U+nmo
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 22, 2021 at 05:57:18PM +0100, Jamie Iles wrote:
-> acpi_i2c_find_adapter_by_handle() calls bus_find_device() which takes a
-> reference on the adapter which is never released which will result in a
-> reference count leak and render the adapter unremovable.  Make sure to
-> put the adapter after creating the client in the same manner that we do
-> for OF.
+On Wed, Sep 15, 2021 at 03:48:27PM +0200, Wolfram Sang wrote:
+> We want to enable the interrupts _before_ starting the transfer because
+> it is good programming style and also the proposed order in the R-Car
+> manual. There is no difference in practice because it doesn't matter in
+> which order both conditions appear if we wait for both to happen.
 >=20
-> Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifi=
-cations")
-> Cc: Octavian Purdila <octavian.purdila@intel.com>
-> Cc: Wolfram Sang <wsa@kernel.org>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Signed-off-by: Jamie Iles <quic_jiles@quicinc.com>
+> Signed-off-by: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---lF3zHISEJvtARqd+
+--0WE1ricZrn/U+nmo
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmFU0wcACgkQFA3kzBSg
-KbZxpQ//dH3N8qXK50Tl30wLQfD/6IoH48prhVKGgdnNtlWDn6c89WgSaL61Tg2Y
-SuE+tw7KX31enVyb81LvdsXmpIPamvmRJOKGSmoUmBeAQWPwL3K9wVRf92VqiVT+
-JFDXlNrUeW798sYDBQgjl7gTidMZl+bQRUUCO5e2ZLbRbLCqSdaG5TEWzQcsZdgv
-ijWRsfUm73H0/59+DgAaHp19QLFMOy79kD43HgAlL5vQHyHK4Do9+XbEzmX2/tOn
-ib6IIYU7UTjPedYmLK4UAeIZCagXeiU9xVzt0QNS8ksWRaEVLrXCADNH5JCo8v58
-2LxfSRU66pvIh+BC7cBUGQ0L14eBcC4BitmYIzFFgadsqcBNXbQJSlKZGOcKuFFw
-LnJj6Yp6a9IBtohKiDHqcv6FlIl0kNTn1WhAbKx5eLGuIcICScPyfRGuCvbCg1YX
-1CcsRr7xuw3DK2OQvFS6xHYu3NYjpO7iUppW7xlL6ZtLSwgSXT0ivD7l/2n+mxwx
-dIx7NLRDRECuLtR9nPaVwvAmzB5qPjT7gDwYFAQRYplIOsKMrtj/SdFG1/JVnb4I
-q8iM7VlIbV5TyK0mWnbbI/PgSTmVZqZeFw2uSsDD+qKwfTUoJpU7kzK45/WgxSxR
-+HTte+FJRovKzOk7UxBj1jSrw2njpae7e2OJIGcTUVWY3JQ4isA=
-=mvpQ
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmFU1KkACgkQFA3kzBSg
+KbYXkw/9GOcYNtCYE3I3BnCh8AFRhxa//HW7r4lcxvEpua9ezEcR1oq7YRpURsEh
+Lu/XpgmxjiaenK0l3UuES8loeXpfBssiOHJ3DCtM1k7FJV2m5O8n10JoVJa7Br0k
+mO+MN35zSqN3rlTU00ZO1Yv49OgVId1bBitJ4iD2r4Zg+vSA8OPZFB+05+WGNatX
+gc9lvFROMyPaTD8GorH730tE2eaxBoz1El/LPvVbKSHSBb+catKSxQeVN6K570Jt
+gXlwqsyLzbANpqRy48izY5csoDJaS0Pg9471Z+o3jdRx3Y73W9j8vlaQU0qa1NLN
+fuTf7Wf+7MKQLLBfpYThFXhOtgNRZEU3kMrTzqDCwbiIgjYAd9ZXHDg2AeE42gYW
+gS76os/eawyMOoTAMXVGYh8r5iffQAc0BmyMLml7WFJkjB11K+BwrNhe/LBWF20K
+uHkEKdDLoQEqMlD77C35fh2JAD82EUReGxyFJ4gpRiNEQIwZ3a038jPrNF0Gj3Xi
+Qyor61cauh3O6K1Pp+LQ0QYJVelraFN5KalfUqBpXhHo/kAxqC2bVcFhpPNKoPTl
+sTExNpMbqih9CcGFSS+2hhkIO/1MAoo49495mffNYWIOgs9qO4Al8L0XSd3aXb1l
+FERCjiEw1bhpxH5gEwWXNfSibjSaLU6CMIJX+EOwdpxOMRkI2ZA=
+=oH9w
 -----END PGP SIGNATURE-----
 
---lF3zHISEJvtARqd+--
+--0WE1ricZrn/U+nmo--
