@@ -2,96 +2,84 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19F27C433EF
-	for <linux-i2c@archiver.kernel.org>; Wed, 29 Sep 2021 21:08:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BC4FC433FE
+	for <linux-i2c@archiver.kernel.org>; Wed, 29 Sep 2021 21:11:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E934361501
-	for <linux-i2c@archiver.kernel.org>; Wed, 29 Sep 2021 21:08:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0432A61462
+	for <linux-i2c@archiver.kernel.org>; Wed, 29 Sep 2021 21:11:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345622AbhI2VJz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 29 Sep 2021 17:09:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43558 "EHLO mail.kernel.org"
+        id S235757AbhI2VNL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 29 Sep 2021 17:13:11 -0400
+Received: from sauhun.de ([88.99.104.3]:55134 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345479AbhI2VJy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 29 Sep 2021 17:09:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C386C61462;
-        Wed, 29 Sep 2021 21:08:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632949693;
-        bh=8RfE8LObIehoOay7RuxzMwSriklUkd1h6TG0ki7LQ28=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=C7NWTS+/EqEP6uGJ4NwOETaP+26tLkOucCUNdnU1RDGptPpZqIkoe2xYd7W1c9Yd3
-         1HoN9bWuC4fwQHHM+WisD+U/aurrwjsyxbaIgrTFculs+7Mu0/0GuQNiapyCKQMOAa
-         6ylv/+kJ+U4g0AZG7yUWOV5XYZ1yfDWmR1eXXfMo0xEjELK4+WJ5Obai7uow85Fbt9
-         +nIPgvDvIKQEse062EAkQ5EUG25yW4JxPBTXdvY+SPwoRLJ/71ahkCFGA6HYq9QqyW
-         EXDR9tLzCNoQAAs9HC1n8njfL9laLYD5hhB/juubF8RQ/ecfhys7c+jTUb7b8kQNQv
-         x5b7Os4ILCtBQ==
-Date:   Wed, 29 Sep 2021 23:08:10 +0200
-From:   "wsa@kernel.org" <wsa@kernel.org>
-To:     Michael Brunner <Michael.Brunner@kontron.com>
-Cc:     "linux@roeck-us.net" <linux@roeck-us.net>,
-        "sameo@linux.intel.com" <sameo@linux.intel.com>,
-        "mibru@gmx.de" <mibru@gmx.de>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Ingmar Klein <Ingmar.Klein@kontron.com>
-Subject: Re: [PATCH] i2c: i2c-kempld: deprecate class based instantiation
-Message-ID: <YVTVuufRQoZwP/Cx@kunai>
-Mail-Followup-To: "wsa@kernel.org" <wsa@kernel.org>,
-        Michael Brunner <Michael.Brunner@kontron.com>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "sameo@linux.intel.com" <sameo@linux.intel.com>,
-        "mibru@gmx.de" <mibru@gmx.de>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Ingmar Klein <Ingmar.Klein@kontron.com>
-References: <823bd555e13a3c62be199d4e23c352a5535aad85.camel@kontron.com>
+        id S1346355AbhI2VNL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 29 Sep 2021 17:13:11 -0400
+X-Greylist: delayed 595 seconds by postgrey-1.27 at vger.kernel.org; Wed, 29 Sep 2021 17:13:10 EDT
+Received: from localhost (p5486ce57.dip0.t-ipconnect.de [84.134.206.87])
+        by pokefinder.org (Postfix) with ESMTPSA id E78CD2C015D;
+        Wed, 29 Sep 2021 23:01:30 +0200 (CEST)
+Date:   Wed, 29 Sep 2021 23:01:30 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Sekhar Nori <nsekhar@ti.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH] MAINTAINERS: update my email address
+Message-ID: <YVTUKgXTUVIFPDFw@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@baylibre.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+References: <20210920072842.30889-1-brgl@bgdev.pl>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="/V+eDJhj/KJ/bhCu"
+        protocol="application/pgp-signature"; boundary="H23KkeOpPGGMhDW8"
 Content-Disposition: inline
-In-Reply-To: <823bd555e13a3c62be199d4e23c352a5535aad85.camel@kontron.com>
+In-Reply-To: <20210920072842.30889-1-brgl@bgdev.pl>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---/V+eDJhj/KJ/bhCu
+--H23KkeOpPGGMhDW8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 31, 2021 at 10:29:36AM +0000, Michael Brunner wrote:
-> Warn users that class based instantiation is going away soon in favour
-> of more robust probing and faster bootup times.
+On Mon, Sep 20, 2021 at 09:28:42AM +0200, Bartosz Golaszewski wrote:
+> My professional situation changes soon. Update my email address.
 >=20
-> Class based instantiation has already been removed for other controllers
-> and it makes absolutely sense to do it for this one too.
->=20
-> Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
-> Acked-by: Ingmar Klein <ingmar.klein@kontron.com>
+> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 
-Applied to for-next, thanks!
+Shall I take this via I2C?
 
 
---/V+eDJhj/KJ/bhCu
+--H23KkeOpPGGMhDW8
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmFU1boACgkQFA3kzBSg
-KbanYw//ce3qRSiQefbKdk5YDnlVEnJrNa0aIzfPZfudFg7dFAh5urC8aPFk4zOr
-sh00aARRR0nRVgcFS908rv2237EhPEFZH+l0ajhBeoE3Yw8mDHqvs2LHndWbIZdf
-8Ntp0CiBd5BrHUYZ13Gb/uQdBLZ/lFGUgqw4TFEO9AoLc5NNhglF8Oz8odq8Nydj
-2zA9MbYXLV2V/047ogpew2C/5lvERl1wY7m7LLX7sCb2RCXIBJe2WQnHqiNU3EtN
-MOGMa83zYFIYy2+bO8q4r4te4C/VQajaEjKCHnx0cP8qgw/ui9HXGw6orLY2a9fe
-sxeOzwurgg4nKjY7h9Ax4jj4Deg9bnKdjgJ3kHp758Jul1xP2RP8UP18Fe4sWMgs
-AmxM/DTVmnGIAfi4xUEsI9Pa0CRVVqupGmbEOTnlUhT0lElVlfbMmpbwiqaL6Imy
-qNc3B6M1HmYRmq5ZYsefGQ2Ztv0QvWvRFzniGAxnO+XDR6vHhTctkLVII9VBQPRT
-zOvhPiayuA5mbgL3Kh2szA2LT4ygfIyzr3dciSkYvF0ZjghCw+I1JIjnWIwuUPFZ
-hWoOkuL00YuaN1O+88Fn/KHYRjUhNgCN6POXgWGljjaAUlnZtmwyLVq0bzsthyAn
-F5NIlm7Iih5Y7hiCajsXD2LvPA/jZKpfvS2PVndD0ddPAb5ADeU=
-=VemB
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmFU1CoACgkQFA3kzBSg
+KbbuVw/+NrrHxvP3FzFvYN0B88/7Fd/YOG4nWPi1XfvXj7qNMfc8xSXHbwp3FOqE
+dYyOhWpC6iQ7kSd/SJQ2nH1fc+UtA6OGZbsO4jrhQwKHthGwomEZR+0RPs1ASrcr
+KbI4h+NfsVQrTX5IlKn/L0vJ7/B7qXkUyfA+ddmOuKf6bHcpCH03L5XduDQc/kjM
+883Bylfnp9pdjchU57JfgJ+x9UduirEQ3h8zPnpIVYXB+I1KTzAfCSCEuNqH4WuY
+E6cb2OR6z4ZSavIJYpRGfzevpIOr1Bof5OJjCVS158ttdHj0hUE5/6xxQv2SiqfE
+cV8zmySnIDkO+g8rLZ2gIQJV+XbYBrtAEaqy5bRA32ZyPxNAJt6OE0Hb2e2SbdYX
+EurpnR1IkzDh0kn7VDZIZ3Rx69jOdKtSI/bzSrCPaAvh+lczjIgXGYflV5urcCyK
+BQT3NFVJKBTWBIhMb9xqfUCqoOxOC1peafVDEfdYjATohxviY3PT0QPLI8dNd4JS
+8ujJ/563hiwXP3nE0eR9aaerL+LvQcH5p/VPrDrs23qT1lOhF7+yBzgoy3ouy5T9
+kq1EKsi2f63GzInbIVlztsQ+nbmXITLkKUXrqZ0nqfTCjtrcUkfAbKBNK0AixcMK
+z8KLRzehne0CbNVEMaQ5Q0EHX8+0cyAQsFfgr27oKnfTSc9mZeA=
+=mnA6
 -----END PGP SIGNATURE-----
 
---/V+eDJhj/KJ/bhCu--
+--H23KkeOpPGGMhDW8--
