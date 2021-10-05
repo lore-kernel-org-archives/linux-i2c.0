@@ -2,57 +2,57 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC0C9C433EF
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Oct 2021 00:32:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90A31C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Oct 2021 00:32:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A605B61526
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Oct 2021 00:32:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 72FAE613CF
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Oct 2021 00:32:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229813AbhJEAeU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 4 Oct 2021 20:34:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49296 "EHLO
+        id S229848AbhJEAeV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 4 Oct 2021 20:34:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229744AbhJEAeT (ORCPT
+        with ESMTP id S229486AbhJEAeT (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Mon, 4 Oct 2021 20:34:19 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB742C061745;
-        Mon,  4 Oct 2021 17:32:29 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id o59-20020a9d2241000000b0054745f28c69so23775581ota.13;
-        Mon, 04 Oct 2021 17:32:29 -0700 (PDT)
+Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4070BC061749;
+        Mon,  4 Oct 2021 17:32:30 -0700 (PDT)
+Received: by mail-oi1-x232.google.com with SMTP id s69so23875119oie.13;
+        Mon, 04 Oct 2021 17:32:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ipz7xffc8Dx6gOQOlB5rGtaa9WYEn6G5MvPEhjCtxRY=;
-        b=eaLMgQj6EE8Zaw1EDqnTOZwv3twmHnsUIHj3YwqHeFz8cjm79zIiFO4wOAdOMxDih7
-         nXjzGxU3yb2++SHML96tEt80+MiKhKIyjj7E4esRw1gl26OZPSQyJEsw/AP5KATGqjzQ
-         ZFP6MkP3l1fYmMrxgmUHvdRisyFklb219+dZl0nxkRr6IoHm8BD3pWdLShgCBajM4c1q
-         DcdU2EklA/lxaM9y+MPgQnD0msHDZ3RAO8C23+aj3vz1BcyDWssjpsCAAY65tJF+jh9J
-         OUP7LB0N5oBzJ5RUPWL2xVKCHb2ErE8kHBwGWDjYgiD56jsCpW84HKQD5wZnc/UDgPIE
-         0Nng==
+        bh=t/jVZ06a5/BtkTEQsv93Iskc6/yE5SoN8Er3SXjSRo0=;
+        b=k1hzRXHnpGFdgZlsdx0jjlvXflQZHrNmyq9Y4yq3OXobuDSAb8tl+BDYQ1sC8ynD+E
+         ycotN17PITJ4uCL42iPToynhMClDhNtWTfi9MN91XbCuWaqePUtfIf94zFojZn/Ds0d6
+         7RHu87puT/TaTBbq0fs1KggB1GPcTaTtzikoMoBy8rJaEpmgMIQmxZjYly8D7emnYD0W
+         2BwS83XKxyLaiBoWvlxQhDC2X2Wyxe/VSjJCsevUOLjg8nj3ZBkbDRS+s4Q5/QBWWjiN
+         H6DVVxJ9eGkCRdpXJL9n0eXwwMCcANlvmjWstFTNpHcWfzPG9ubdCac3L4nUL1b/XrAp
+         NmSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=ipz7xffc8Dx6gOQOlB5rGtaa9WYEn6G5MvPEhjCtxRY=;
-        b=7/232zYKtKqpAWHJp8DUjL8OqRPNjqqxxlRbTJWDe4+iE7UMlc0PhbokCx1Z+ewU4D
-         WChm4KaHdc09zJGH/O3MiBrnY56Af655p8arom0bkn7vGTFeFFpSZQ4TJr2sPdn9/303
-         kXLZocvHqoX0B/ceYWLLitOi/A7F/OvhJjTe/e9Z5/6+GTYiZdDC5wkMhKXRYIgn/hyi
-         nAh0hK98sXiUKB60oFzTjYQjv6l0SqQF9mWEjHHUFz+P7UgkpmuThx1BJHoc7levl34w
-         O1kD0JuvCGPxfm8Dib/mJ1VN1+8FHM47w3kfhRqfTEeRR7Oq+5TSOcpmoCTEw1GiiCYG
-         1sNg==
-X-Gm-Message-State: AOAM5306Rk4pSCJh+iA08GCKeheZD1L0HffyEov+V8AnlozYg4J02/UT
-        /3guvrfgVie8Rhz4xx4/uA==
-X-Google-Smtp-Source: ABdhPJzIOPKlNmd5AV7rhHjDJnlCHwmmSEo/rLeIIPwrAVi/5hc9YwaOqgwz2QIetb/qIe5k43/rYw==
-X-Received: by 2002:a05:6830:128d:: with SMTP id z13mr12178858otp.19.1633393949139;
+        bh=t/jVZ06a5/BtkTEQsv93Iskc6/yE5SoN8Er3SXjSRo0=;
+        b=KDqRAT98nP6EWs6YR4bWeazdvPU85w1BbeSj74Mjo5G2hkidwjHC/C7jeasDETYuQm
+         t3P2qIYzsX0i4AOWdoMaaConk9zdhP/i/eOEzoqDLv8jbeQUYaBGdKOT/dCSDI5M20V8
+         +6xbx5u79u9xR2fSgt2FqSe8Ezfc/wErmDt1EIAWGuhvSCsBGKPE8Qe05odM/f+EaQRN
+         R0Zx77onI1L7u6ML/cII7U7ForyzOnQOXhkJIKynpx4fVOEtkoiUUXatf3FYwDF6/l2s
+         C5QDmx7bCAZfJoL1+hJMBiYtWwsS0mtXJ2iZFTgbtZE/5dcoQrJZa+Bk6dJjOMyKsprk
+         y64Q==
+X-Gm-Message-State: AOAM533u01JZKRpcsepiK9TSsqdrmGQm9NFK/n6yfLbJm6L9/SJxR7SZ
+        0HRXThFxpMtcC7uJhL96Pw==
+X-Google-Smtp-Source: ABdhPJwjJQ7XfFdyN8Xc/JOyzSejb/WwXqAWVF8AaGEJeKNYwMKvDso72xg0AhFxYLGQwXydOMF0sw==
+X-Received: by 2002:a05:6808:57:: with SMTP id v23mr117164oic.172.1633393949568;
         Mon, 04 Oct 2021 17:32:29 -0700 (PDT)
 Received: from serve.minyard.net (serve.minyard.net. [2001:470:b8f6:1b::1])
-        by smtp.gmail.com with ESMTPSA id s16sm3134877otq.78.2021.10.04.17.32.27
+        by smtp.gmail.com with ESMTPSA id k23sm3198138ook.45.2021.10.04.17.32.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Oct 2021 17:32:27 -0700 (PDT)
+        Mon, 04 Oct 2021 17:32:28 -0700 (PDT)
 Sender: Corey Minyard <tcminyard@gmail.com>
 Received: from t560.minyard.net (unknown [IPv6:2001:470:b8f6:1b:1ce5:3fb4:8fe9:30d1])
-        by serve.minyard.net (Postfix) with ESMTPA id AA50B1800F1;
+        by serve.minyard.net (Postfix) with ESMTPA id E5E0F1800F7;
         Tue,  5 Oct 2021 00:32:26 +0000 (UTC)
 From:   minyard@acm.org
 To:     Oleksij Rempel <o.rempel@pengutronix.de>
@@ -61,9 +61,9 @@ Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
         Andrew Manley <andrew.manley@sealingtech.com>,
         linux-kernel@vger.kernel.org, Corey Minyard <cminyard@mvista.com>,
         Corey Minyard <minyard@acm.org>
-Subject: [PATCH 1/3] i2c:imx: Add timer for handling the stop condition
-Date:   Mon,  4 Oct 2021 19:32:14 -0500
-Message-Id: <20211005003216.2670632-2-minyard@acm.org>
+Subject: [PATCH 3/3] i2c:imx: Use an hrtimer, not a timer, for checking for bus idle
+Date:   Mon,  4 Oct 2021 19:32:16 -0500
+Message-Id: <20211005003216.2670632-4-minyard@acm.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211005003216.2670632-1-minyard@acm.org>
 References: <20211005003216.2670632-1-minyard@acm.org>
@@ -75,193 +75,96 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Corey Minyard <cminyard@mvista.com>
 
-Most IMX I2C interfaces don't generate an interrupt on a stop condition,
-so it won't generate a timely stop event on a slave mode transfer.
-Some users, like IPMB, need a timely stop event to work properly.
-
-So, add a timer and add the proper handling to generate a stop event in
-slave mode if the interface goes idle.
+The timer is too slow and significantly reduces performance.  Use an
+hrtimer to get things working faster.
 
 Signed-off-by: Corey Minyard <minyard@acm.org>
 Tested-by: Andrew Manley <andrew.manley@sealingtech.com>
 Reviewed-by: Andrew Manley <andrew.manley@sealingtech.com>
 ---
- drivers/i2c/busses/i2c-imx.c | 78 +++++++++++++++++++++++++++---------
- 1 file changed, 59 insertions(+), 19 deletions(-)
+ drivers/i2c/busses/i2c-imx.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 3576b63a6c03..97369fe48b30 100644
+index 26a04dc0590b..4b0e9d1784dd 100644
 --- a/drivers/i2c/busses/i2c-imx.c
 +++ b/drivers/i2c/busses/i2c-imx.c
-@@ -37,6 +37,8 @@
- #include <linux/io.h>
+@@ -38,7 +38,7 @@
  #include <linux/iopoll.h>
  #include <linux/kernel.h>
-+#include <linux/spinlock.h>
-+#include <linux/timer.h>
+ #include <linux/spinlock.h>
+-#include <linux/timer.h>
++#include <linux/hrtimer.h>
  #include <linux/module.h>
  #include <linux/of.h>
  #include <linux/of_device.h>
-@@ -210,6 +212,10 @@ struct imx_i2c_struct {
- 	struct imx_i2c_dma	*dma;
- 	struct i2c_client	*slave;
- 	enum i2c_slave_event last_slave_event;
+@@ -53,6 +53,8 @@
+ /* This will be the driver name the kernel reports */
+ #define DRIVER_NAME "imx-i2c"
+ 
++#define I2C_IMX_CHECK_DELAY 30000 /* Time to check for bus idle, in NS */
 +
-+	/* For checking slave events. */
-+	spinlock_t	  slave_lock;
-+	struct timer_list slave_timer;
+ /*
+  * Enable DMA if transfer byte size is bigger than this threshold.
+  * As the hardware request, it must bigger than 4 bytes.\
+@@ -214,8 +216,8 @@ struct imx_i2c_struct {
+ 	enum i2c_slave_event last_slave_event;
+ 
+ 	/* For checking slave events. */
+-	spinlock_t	  slave_lock;
+-	struct timer_list slave_timer;
++	spinlock_t     slave_lock;
++	struct hrtimer slave_timer;
  };
  
  static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
-@@ -680,7 +686,7 @@ static void i2c_imx_slave_event(struct imx_i2c_struct *i2c_imx,
- 
- static void i2c_imx_slave_finish_op(struct imx_i2c_struct *i2c_imx)
- {
--	u8 val;
-+	u8 val = 0;
- 
- 	while (i2c_imx->last_slave_event != I2C_SLAVE_STOP) {
- 		switch (i2c_imx->last_slave_event) {
-@@ -701,10 +707,11 @@ static void i2c_imx_slave_finish_op(struct imx_i2c_struct *i2c_imx)
- 	}
- }
- 
--static irqreturn_t i2c_imx_slave_isr(struct imx_i2c_struct *i2c_imx,
--				     unsigned int status, unsigned int ctl)
-+/* Returns true if the timer should be restarted, false if not. */
-+static irqreturn_t i2c_imx_slave_handle(struct imx_i2c_struct *i2c_imx,
-+					unsigned int status, unsigned int ctl)
- {
--	u8 value;
-+	u8 value = 0;
- 
- 	if (status & I2SR_IAL) { /* Arbitration lost */
- 		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
-@@ -712,6 +719,16 @@ static irqreturn_t i2c_imx_slave_isr(struct imx_i2c_struct *i2c_imx,
- 			return IRQ_HANDLED;
+@@ -783,13 +785,16 @@ static irqreturn_t i2c_imx_slave_handle(struct imx_i2c_struct *i2c_imx,
  	}
  
-+	if (!(status & I2SR_IBB)) {
-+		/* No master on the bus, that could mean a stop condition. */
-+		i2c_imx_slave_finish_op(i2c_imx);
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (!(status & I2SR_ICF))
-+		/* Data transfer still in progress, ignore this. */
-+		goto out;
-+
- 	if (status & I2SR_IAAS) { /* Addressed as a slave */
- 		i2c_imx_slave_finish_op(i2c_imx);
- 		if (status & I2SR_SRW) { /* Master wants to read from us*/
-@@ -737,16 +754,9 @@ static irqreturn_t i2c_imx_slave_isr(struct imx_i2c_struct *i2c_imx,
- 			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
- 		}
- 	} else if (!(ctl & I2CR_MTX)) { /* Receive mode */
--		if (status & I2SR_IBB) { /* No STOP signal detected */
--			value = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
--			i2c_imx_slave_event(i2c_imx,
--					    I2C_SLAVE_WRITE_RECEIVED, &value);
--		} else { /* STOP signal is detected */
--			dev_dbg(&i2c_imx->adapter.dev,
--				"STOP signal detected");
--			i2c_imx_slave_event(i2c_imx,
--					    I2C_SLAVE_STOP, &value);
--		}
-+		value = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-+		i2c_imx_slave_event(i2c_imx,
-+				    I2C_SLAVE_WRITE_RECEIVED, &value);
- 	} else if (!(status & I2SR_RXAK)) { /* Transmit mode received ACK */
- 		ctl |= I2CR_MTX;
- 		imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
-@@ -755,15 +765,32 @@ static irqreturn_t i2c_imx_slave_isr(struct imx_i2c_struct *i2c_imx,
- 				    I2C_SLAVE_READ_PROCESSED, &value);
- 
- 		imx_i2c_write_reg(value, i2c_imx, IMX_I2C_I2DR);
--	} else { /* Transmit mode received NAK */
-+	} else { /* Transmit mode received NAK, operation is done */
- 		ctl &= ~I2CR_MTX;
- 		imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
- 		imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-+		i2c_imx_slave_finish_op(i2c_imx);
-+		return IRQ_HANDLED;
- 	}
- 
-+out:
-+	mod_timer(&i2c_imx->slave_timer, jiffies + 1);
+ out:
+-	mod_timer(&i2c_imx->slave_timer, jiffies + 1);
++	hrtimer_try_to_cancel(&i2c_imx->slave_timer);
++	hrtimer_forward_now(&i2c_imx->slave_timer, I2C_IMX_CHECK_DELAY);
++	hrtimer_restart(&i2c_imx->slave_timer);
  	return IRQ_HANDLED;
  }
  
-+static void i2c_imx_slave_timeout(struct timer_list *t)
-+{
-+	struct imx_i2c_struct *i2c_imx = from_timer(i2c_imx, t, slave_timer);
-+	unsigned int ctl, status;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&i2c_imx->slave_lock, flags);
-+	status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-+	ctl = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+	i2c_imx_slave_handle(i2c_imx, status, ctl);
-+	spin_unlock_irqrestore(&i2c_imx->slave_lock, flags);
-+}
-+
- static void i2c_imx_slave_init(struct imx_i2c_struct *i2c_imx)
+-static void i2c_imx_slave_timeout(struct timer_list *t)
++static enum hrtimer_restart i2c_imx_slave_timeout(struct hrtimer *t)
  {
- 	int temp;
-@@ -843,7 +870,9 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
- {
- 	struct imx_i2c_struct *i2c_imx = dev_id;
+-	struct imx_i2c_struct *i2c_imx = from_timer(i2c_imx, t, slave_timer);
++	struct imx_i2c_struct *i2c_imx = container_of(t, struct imx_i2c_struct,
++						      slave_timer);
  	unsigned int ctl, status;
-+	unsigned long flags;
+ 	unsigned long flags;
  
-+	spin_lock_irqsave(&i2c_imx->slave_lock, flags);
- 	status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+@@ -798,6 +803,7 @@ static void i2c_imx_slave_timeout(struct timer_list *t)
  	ctl = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
- 
-@@ -851,14 +880,20 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
- 		i2c_imx_clear_irq(i2c_imx, I2SR_IIF);
- 		if (i2c_imx->slave) {
- 			if (!(ctl & I2CR_MSTA)) {
--				return i2c_imx_slave_isr(i2c_imx, status, ctl);
--			} else if (i2c_imx->last_slave_event !=
--				   I2C_SLAVE_STOP) {
--				i2c_imx_slave_finish_op(i2c_imx);
-+				irqreturn_t ret;
-+
-+				ret = i2c_imx_slave_handle(i2c_imx,
-+							   status, ctl);
-+				spin_unlock_irqrestore(&i2c_imx->slave_lock,
-+						       flags);
-+				return ret;
- 			}
-+			i2c_imx_slave_finish_op(i2c_imx);
- 		}
-+		spin_unlock_irqrestore(&i2c_imx->slave_lock, flags);
- 		return i2c_imx_master_isr(i2c_imx, status);
- 	}
-+	spin_unlock_irqrestore(&i2c_imx->slave_lock, flags);
- 
- 	return IRQ_NONE;
+ 	i2c_imx_slave_handle(i2c_imx, status, ctl);
+ 	spin_unlock_irqrestore(&i2c_imx->slave_lock, flags);
++	return HRTIMER_NORESTART;
  }
-@@ -1378,6 +1413,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	if (!i2c_imx)
+ 
+ static void i2c_imx_slave_init(struct imx_i2c_struct *i2c_imx)
+@@ -1423,7 +1429,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
  		return -ENOMEM;
  
-+	spin_lock_init(&i2c_imx->slave_lock);
-+	timer_setup(&i2c_imx->slave_timer, i2c_imx_slave_timeout, 0);
-+
+ 	spin_lock_init(&i2c_imx->slave_lock);
+-	timer_setup(&i2c_imx->slave_timer, i2c_imx_slave_timeout, 0);
++	hrtimer_init(&i2c_imx->slave_timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
++	i2c_imx->slave_timer.function = i2c_imx_slave_timeout;
+ 
  	match = device_get_match_data(&pdev->dev);
  	if (match)
- 		i2c_imx->hwdata = match;
-@@ -1491,6 +1529,8 @@ static int i2c_imx_remove(struct platform_device *pdev)
+@@ -1538,7 +1545,7 @@ static int i2c_imx_remove(struct platform_device *pdev)
  	if (ret < 0)
  		return ret;
  
-+	del_timer_sync(&i2c_imx->slave_timer);
-+
+-	del_timer_sync(&i2c_imx->slave_timer);
++	hrtimer_cancel(&i2c_imx->slave_timer);
+ 
  	/* remove adapter */
  	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
- 	i2c_del_adapter(&i2c_imx->adapter);
 -- 
 2.25.1
 
