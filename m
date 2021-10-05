@@ -2,54 +2,54 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B74BFC433FE
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Oct 2021 14:38:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECC94C433F5
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Oct 2021 14:38:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9F122613D5
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Oct 2021 14:38:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D4D0C613E6
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Oct 2021 14:38:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235660AbhJEOkQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Oct 2021 10:40:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47474 "EHLO
+        id S235727AbhJEOkY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 Oct 2021 10:40:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235652AbhJEOkO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Oct 2021 10:40:14 -0400
+        with ESMTP id S235725AbhJEOkS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Oct 2021 10:40:18 -0400
 Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28BDCC061765
-        for <linux-i2c@vger.kernel.org>; Tue,  5 Oct 2021 07:38:23 -0700 (PDT)
-Received: by mail-lf1-x12d.google.com with SMTP id n8so30878280lfk.6
-        for <linux-i2c@vger.kernel.org>; Tue, 05 Oct 2021 07:38:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 797FDC06174E
+        for <linux-i2c@vger.kernel.org>; Tue,  5 Oct 2021 07:38:27 -0700 (PDT)
+Received: by mail-lf1-x12d.google.com with SMTP id n8so30879093lfk.6
+        for <linux-i2c@vger.kernel.org>; Tue, 05 Oct 2021 07:38:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=semihalf-com.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=klTjczTUx8b1c2tX38XlKQEw8mKHpQEoY//ZV2AWwv8=;
-        b=Dt8fAg1I9xPaomCa7reH7OK7NJBIuG3OckiqCfqYhOscZS+aDefAdl2iB6gSGYc9N8
-         FWy4PDKwKyaeGINQDfSU+6/FBU8W2XimCAdNYeQAQ/yWL5WwZd6iCnfQQBRBP1g7DC6f
-         vLM0zBqkF++xS5L5lTB3R/2D1vO5dxzLFDjFb50sfpu7WYK0pdYEvIi1gcO8GBaDGfnm
-         fh1wWuUp7K97RzDezKc/7D1y1AK9c82a9Y8QmOT7ySgQYgQTM4LKqn1uWWEEW2t8q1uy
-         FXPACkkrzTjyQMyaektNdKcOQ3M9x7HIp3bTHhSlCyhsoNjUWaaeTrWdBF6eUGbNP2SE
-         ePWg==
+        bh=aD0ZimcpDdMwxxDkok8INnwAF4L8JkxKG7hlNjJNuc4=;
+        b=xr/EbJQXsQv4f8TFJbE2w6XzhEQf/jsX9u4gGwqhd0AvcG1AQDhsxEeR3pfpTpw9c/
+         KWVwcxUDdoeM0yqquLJuLWpJAAopOx97wTP2Q+143laE4khIxbb7JeDeJkR0gOb8oIYC
+         41ZvV95CrLfPsQoREGzi1/nO++3VwdYgi7hfrL1aUdWK/pibrAd2XGwDYYRuFNx+X2/j
+         gcsZYfGj1GvbBlX1TeaPjFFx5ZmBKAMWu6nLTQlVGsYEgOUO5gOnH6phW7sFkuA0VJp7
+         0bdXaeVjd+P/1BCvlgovSJPtphlexKfI7yWMs6mFzykdj73vQENifMenCHBjmbdX5E9Y
+         gEOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=klTjczTUx8b1c2tX38XlKQEw8mKHpQEoY//ZV2AWwv8=;
-        b=j/hPS9bgBV/ZOBthc6TO6WjIespi6VyJy5ujU7FLZnFyeSRC/nwp/THZaBtfrVsF0Y
-         qR3BKvdQCHk6GjprUA/UzrL4lmhpA9yojZiGIrgVu01qUg5UQm8c7GaukMJdn71aVsx2
-         PKf/9dhgDO2gpphX+WlKtHbzrz3yzj2Rhl+U8/+AWTaDcmAdQe8ByYPnXY+kQRfMSj+s
-         bD8ERJxG/vZ48aFxuvVIf97+YlxQBpvJpJPglO+eecLGGaUI6Pgwmi1gcbhXcawX5T3r
-         SQVeHtbqr+tYiAPfZTN/xHdhL9j10phoQCkBUYdB/6AAshFWf4Ckw37kVfwRz33OSOfq
-         5Fpw==
-X-Gm-Message-State: AOAM531e9nrob20sZ+6/Eg7Wnwx5QCLfkqF1L+wPX33TTi274JUEtJkv
-        /s+FvBYrXvCPR4XssWGlGsQOZA==
-X-Google-Smtp-Source: ABdhPJyClsOWQd1HOJx8+kEKXL8GXAvDh/ETWKrerqxRvGr3pDmCfDtf3PwnNF8948g8MDS7LYIO4w==
-X-Received: by 2002:a05:6512:32c1:: with SMTP id f1mr3769373lfg.471.1633444692745;
-        Tue, 05 Oct 2021 07:38:12 -0700 (PDT)
+        bh=aD0ZimcpDdMwxxDkok8INnwAF4L8JkxKG7hlNjJNuc4=;
+        b=KLLrRDRcv9aTy/hIkGOPWjONimgsrtWTwhjnMtt+QGmsbxjYNMANxPY31I4oQmpU2x
+         8FMHWu71fSr9eVIWtnN5DKHhXrsMfD12CQKJvKEXz0OohioWsIJ5forHkkFZkBnZ33+v
+         8nki9GBnZ16HbCDi/AVnHZ4uzMGcUKmJYIsc3hZaIRsfKVbgZ0utmdmO4vfMROvp+WyN
+         pBmFTqA6cibkMSw4VUIaR5LzAWr+wp8sisrYhp4mf8cbeIcb3WTXJt+Ui2sIRRtERxxD
+         x6W3nhEIuPJLWwdUSpICn9bjuWt5EATQWBiz+YKxyWVRiux9jDB0htVVAgWNr9IDzGOI
+         vZ8A==
+X-Gm-Message-State: AOAM530rEjOKFdAAAfZzQbEXIJpH3N3JL2Vo1axemiAk+P9QzciXXk37
+        3Grt4VkWPo+whByx/UYeY8+k5A==
+X-Google-Smtp-Source: ABdhPJz1Gqoll+/R0fBf7HkcMgpMiilGz9sNSE96xW6sZExUwmOViaK4fIephyq2Ege3h6LgH4KT9Q==
+X-Received: by 2002:a05:6512:1053:: with SMTP id c19mr3819153lfb.283.1633444697355;
+        Tue, 05 Oct 2021 07:38:17 -0700 (PDT)
 Received: from grasshopper.googchameleon.semihalf.net ([83.142.187.85])
-        by smtp.gmail.com with ESMTPSA id u25sm1973835lfc.176.2021.10.05.07.38.11
+        by smtp.gmail.com with ESMTPSA id u25sm1973835lfc.176.2021.10.05.07.38.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Oct 2021 07:38:12 -0700 (PDT)
+        Tue, 05 Oct 2021 07:38:17 -0700 (PDT)
 From:   =?UTF-8?q?Pawe=C5=82=20Anikiel?= <pan@semihalf.com>
 List-Id: <soc.lore.kernel.org>
 To:     jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
@@ -64,9 +64,9 @@ Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
         ka@semihalf.com, tn@semihalf.com, jam@semihalf.com,
         amstan@google.com,
         =?UTF-8?q?Pawe=C5=82=20Anikiel?= <pan@semihalf.com>
-Subject: [PATCH v2 1/4] i2c: check bus number property in DesignWare I2C Controller
-Date:   Tue,  5 Oct 2021 16:37:45 +0200
-Message-Id: <20211005143748.2471647-2-pan@semihalf.com>
+Subject: [PATCH v2 3/4] reset: socfpga: add empty driver allowing consumers to probe
+Date:   Tue,  5 Oct 2021 16:37:47 +0200
+Message-Id: <20211005143748.2471647-4-pan@semihalf.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211005143748.2471647-1-pan@semihalf.com>
 References: <20211005143748.2471647-1-pan@semihalf.com>
@@ -77,32 +77,49 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On SoCFPGA systems, it's desireable to have fixed numbering for
-i2c busses, while being able to enable/disable them (e.g. have i2c1
-be mapped to /dev/i2c-1, even though i2c0 is disabled). This can also
-be achieved using devicetree aliases (see i2c_add_adapter). However,
-having the driver be self-contained without relying on aliases is more
-robust.
+The early reset driver doesn't ever probe, which causes consuming
+devices to be unable to probe. Add an empty driver to set this device
+as available, allowing consumers to probe.
 
 Signed-off-by: Paweł Anikiel <pan@semihalf.com>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/reset/reset-socfpga.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 21113665ddea..f27e6bc9ad9d 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -280,7 +280,8 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 					I2C_CLASS_HWMON : I2C_CLASS_DEPRECATED;
- 	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
- 	adap->dev.of_node = pdev->dev.of_node;
--	adap->nr = -1;
-+	if (of_property_read_u32(pdev->dev.of_node, "busno", &adap->nr))
-+		adap->nr = -1;
- 
- 	if (dev->flags & ACCESS_NO_IRQ_SUSPEND) {
- 		dev_pm_set_driver_flags(&pdev->dev,
+diff --git a/drivers/reset/reset-socfpga.c b/drivers/reset/reset-socfpga.c
+index 2a72f861f798..8c6492e5693c 100644
+--- a/drivers/reset/reset-socfpga.c
++++ b/drivers/reset/reset-socfpga.c
+@@ -92,3 +92,29 @@ void __init socfpga_reset_init(void)
+ 	for_each_matching_node(np, socfpga_early_reset_dt_ids)
+ 		a10_reset_init(np);
+ }
++
++/*
++ * The early driver is problematic, because it doesn't register
++ * itself as a driver. This causes certain device links to prevent
++ * consumer devices from probing. The hacky solution is to register
++ * an empty driver, whose only job is to attach itself to the reset
++ * manager and call probe.
++ */
++static const struct of_device_id socfpga_reset_dt_ids[] = {
++	{ .compatible = "altr,rst-mgr", },
++	{ /* sentinel */ },
++};
++
++static int reset_simple_probe(struct platform_device *pdev)
++{
++	return 0;
++}
++
++static struct platform_driver reset_socfpga_driver = {
++	.probe	= reset_simple_probe,
++	.driver = {
++		.name		= "socfpga-reset",
++		.of_match_table	= socfpga_reset_dt_ids,
++	},
++};
++builtin_platform_driver(reset_socfpga_driver);
 -- 
 2.25.1
 
