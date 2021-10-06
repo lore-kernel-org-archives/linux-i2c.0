@@ -2,27 +2,27 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74337C433EF
-	for <linux-i2c@archiver.kernel.org>; Wed,  6 Oct 2021 13:26:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC1ECC43219
+	for <linux-i2c@archiver.kernel.org>; Wed,  6 Oct 2021 13:26:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5EEC46113A
-	for <linux-i2c@archiver.kernel.org>; Wed,  6 Oct 2021 13:26:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D76CB61151
+	for <linux-i2c@archiver.kernel.org>; Wed,  6 Oct 2021 13:26:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238995AbhJFN2b (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 6 Oct 2021 09:28:31 -0400
-Received: from inva021.nxp.com ([92.121.34.21]:40756 "EHLO inva021.nxp.com"
+        id S239067AbhJFN2e (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 6 Oct 2021 09:28:34 -0400
+Received: from inva021.nxp.com ([92.121.34.21]:40814 "EHLO inva021.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238499AbhJFN2X (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 6 Oct 2021 09:28:23 -0400
+        id S238781AbhJFN2Y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 6 Oct 2021 09:28:24 -0400
 Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 94A97201054;
-        Wed,  6 Oct 2021 15:26:29 +0200 (CEST)
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 94AF4201A49;
+        Wed,  6 Oct 2021 15:26:31 +0200 (CEST)
 Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 86753200E2B;
-        Wed,  6 Oct 2021 15:26:29 +0200 (CEST)
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 87B48201A46;
+        Wed,  6 Oct 2021 15:26:31 +0200 (CEST)
 Received: from fsr-ub1664-175.ea.freescale.net (fsr-ub1664-175.ea.freescale.net [10.171.82.40])
-        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id E8A192029F;
-        Wed,  6 Oct 2021 15:26:28 +0200 (CEST)
+        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id E94142029F;
+        Wed,  6 Oct 2021 15:26:30 +0200 (CEST)
 From:   Abel Vesa <abel.vesa@nxp.com>
 To:     Rob Herring <robh@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>,
@@ -34,10 +34,10 @@ Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
         NXP Linux Team <linux-imx@nxp.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        Abel Vesa <abel.vesa@nxp.com>, Jacky Bai <ping.bai@nxp.com>
-Subject: [PATCH v3 06/11] arm64: dts: freescale: Add lsio subsys dtsi for imx8dxl
-Date:   Wed,  6 Oct 2021 16:25:59 +0300
-Message-Id: <1633526764-30151-7-git-send-email-abel.vesa@nxp.com>
+        Abel Vesa <abel.vesa@nxp.com>
+Subject: [PATCH v3 09/11] dt-bindings: i2c: i2c-imx-lpi2c: Fix dtbs_check compatible oneOf error
+Date:   Wed,  6 Oct 2021 16:26:02 +0300
+Message-Id: <1633526764-30151-10-git-send-email-abel.vesa@nxp.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1633526764-30151-1-git-send-email-abel.vesa@nxp.com>
 References: <1633526764-30151-1-git-send-email-abel.vesa@nxp.com>
@@ -46,112 +46,39 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Jacky Bai <ping.bai@nxp.com>
+Fix following dtbs_check error:
 
-On i.MX8DXL, the LSIO subsystem includes below devices:
+arch/arm64/boot/dts/freescale/imx8qm-mek.dt.yaml:
+i2c@5a800000: compatible: 'oneOf' conditional failed, one must be fixed:
+        ['fsl,imx8qm-lpi2c', 'fsl,imx7ulp-lpi2c'] is too long
+        Additional items are not allowed ('fsl,imx7ulp-lpi2c' was
+unexpected)
+        'fsl,imx8qxp-lpi2c' was expected
+        From schema:
+Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
 
-1x Inline Encryption Engine (IEE)
-1x FlexSPI
-4x Pulse Width Modulator (PWM)
-5x General Purpose Timer (GPT)
-8x GPIO
-14x Message Unit (MU)
-256KB On-Chip Memory (OCRAM)
-
-compared to the common imx8-ss-lsio dtsi, some nodes' interrupt
-property need to be updated.
-
-Signed-off-by: Jacky Bai <ping.bai@nxp.com>
 Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 ---
- .../boot/dts/freescale/imx8dxl-ss-lsio.dtsi   | 78 +++++++++++++++++++
- 1 file changed, 78 insertions(+)
- create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl-ss-lsio.dtsi
+ Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8dxl-ss-lsio.dtsi b/arch/arm64/boot/dts/freescale/imx8dxl-ss-lsio.dtsi
-new file mode 100644
-index 000000000000..d90602bab384
---- /dev/null
-+++ b/arch/arm64/boot/dts/freescale/imx8dxl-ss-lsio.dtsi
-@@ -0,0 +1,78 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * Copyright 2019-2021 NXP
-+ */
-+&lsio_gpio0 {
-+	compatible = "fsl,imx8dxl-gpio", "fsl,imx35-gpio";
-+	interrupts = <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_gpio1 {
-+	compatible = "fsl,imx8dxl-gpio", "fsl,imx35-gpio";
-+	interrupts = <GIC_SPI 79 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_gpio2 {
-+	compatible = "fsl,imx8dxl-gpio", "fsl,imx35-gpio";
-+	interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_gpio3 {
-+	compatible = "fsl,imx8dxl-gpio", "fsl,imx35-gpio";
-+	interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_gpio4 {
-+	compatible = "fsl,imx8dxl-gpio", "fsl,imx35-gpio";
-+	interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_gpio5 {
-+	compatible = "fsl,imx8dxl-gpio", "fsl,imx35-gpio";
-+	interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_gpio6 {
-+	compatible = "fsl,imx8dxl-gpio", "fsl,imx35-gpio";
-+	interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_gpio7 {
-+	compatible = "fsl,imx8dxl-gpio", "fsl,imx35-gpio";
-+	interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_mu0 {
-+	compatible = "fsl,imx8dxl-mu", "fsl,imx8qxp-mu", "fsl,imx6sx-mu";
-+	interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_mu1 {
-+	compatible = "fsl,imx8-mu-scu", "fsl,imx8qxp-mu", "fsl,imx6sx-mu";
-+	interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_mu2 {
-+	compatible = "fsl,imx8-mu-scu", "fsl,imx8qxp-mu", "fsl,imx6sx-mu";
-+	interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_mu3 {
-+	compatible = "fsl,imx8-mu-scu", "fsl,imx8qxp-mu", "fsl,imx6sx-mu";
-+	interrupts = <GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_mu4 {
-+	compatible = "fsl,imx8-mu-scu", "fsl,imx8qxp-mu", "fsl,imx6sx-mu";
-+	interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_mu5 {
-+	compatible = "fsl,imx8-mu-scu", "fsl,imx8qxp-mu", "fsl,imx6sx-mu";
-+	interrupts = <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
-+&lsio_mu13 {
-+	compatible = "fsl,imx8-mu-scu", "fsl,imx8qxp-mu", "fsl,imx6sx-mu";
-+	interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
-+};
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
+index 29b9447f3b84..acf2d5f45f4e 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
+@@ -18,8 +18,11 @@ properties:
+       - enum:
+           - fsl,imx7ulp-lpi2c
+           - fsl,imx8qm-lpi2c
++          - fsl,imx8qxp-lpi2c
+       - items:
+-          - const: fsl,imx8qxp-lpi2c
++          - enum:
++              - fsl,imx8qm-lpi2c
++              - fsl,imx8qxp-lpi2c
+           - const: fsl,imx7ulp-lpi2c
+ 
+   reg:
 -- 
 2.31.1
 
