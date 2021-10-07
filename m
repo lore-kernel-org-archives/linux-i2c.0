@@ -2,103 +2,79 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F622C433EF
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:18:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77E88C433FE
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:18:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3FCA761058
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:18:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 640056128C
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:18:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243286AbhJGRUa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 7 Oct 2021 13:20:30 -0400
-Received: from mga03.intel.com ([134.134.136.65]:52260 "EHLO mga03.intel.com"
+        id S243278AbhJGRUt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 7 Oct 2021 13:20:49 -0400
+Received: from mga01.intel.com ([192.55.52.88]:40897 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243289AbhJGRUX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Oct 2021 13:20:23 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10130"; a="226267045"
+        id S243302AbhJGRUn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 7 Oct 2021 13:20:43 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10130"; a="249634844"
 X-IronPort-AV: E=Sophos;i="5.85,355,1624345200"; 
-   d="scan'208";a="226267045"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2021 10:18:16 -0700
-X-ExtLoop1: 1
+   d="scan'208";a="249634844"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2021 10:18:49 -0700
 X-IronPort-AV: E=Sophos;i="5.85,355,1624345200"; 
-   d="scan'208";a="624344047"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 07 Oct 2021 10:18:13 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id D9DC3B7; Thu,  7 Oct 2021 20:18:19 +0300 (EEST)
+   d="scan'208";a="590223287"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2021 10:18:46 -0700
+Received: from andy by smile with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1mYX2Y-009byY-Pn;
+        Thu, 07 Oct 2021 20:18:42 +0300
+Date:   Thu, 7 Oct 2021 20:18:42 +0300
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+To:     "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Saravana Kannan <saravanak@google.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <brgl@bgdev.pl>,
         Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH v3 2/3] i2c: acpi: Replace custom function with device_match_acpi_handle()
-Date:   Thu,  7 Oct 2021 20:18:14 +0300
-Message-Id: <20211007171815.28336-2-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211007171815.28336-1-andriy.shevchenko@linux.intel.com>
-References: <20211007171815.28336-1-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2 3/3] gpiolib: acpi: Replace custom code with
+ device_match_acpi_handle()
+Message-ID: <YV8r8rdBugAd+Ab8@smile.fi.intel.com>
+References: <20211006173125.84423-1-andriy.shevchenko@linux.intel.com>
+ <20211006173125.84423-3-andriy.shevchenko@linux.intel.com>
+ <CAJZ5v0iN+28gccy00_Ces9bYsLCNJaHaTZGMUwRrPA6TpY3H8A@mail.gmail.com>
+ <YV8oAThCe2dR6K1n@smile.fi.intel.com>
+ <CAJZ5v0hTqUnvvhEN4O-Boi-_RBFvT5mNKBn+fVdo4XWz0-XJ_Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0hTqUnvvhEN4O-Boi-_RBFvT5mNKBn+fVdo4XWz0-XJ_Q@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Since driver core provides a generic device_match_acpi_handle()
-we may replace the custom one with it. This unifies code to find
-an adapter with the similar one which finds a client.
+On Thu, Oct 07, 2021 at 07:07:19PM +0200, Rafael J. Wysocki wrote:
+> On Thu, Oct 7, 2021 at 7:02 PM Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+> > On Thu, Oct 07, 2021 at 06:50:46PM +0200, Rafael J. Wysocki wrote:
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
-v3: no changes
- drivers/i2c/i2c-core-acpi.c | 22 +++++++++-------------
- 1 file changed, 9 insertions(+), 13 deletions(-)
+...
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 7ea2ac712a57..0aea776cd4c9 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -398,24 +398,20 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
- }
- EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
- 
--static int i2c_acpi_find_match_adapter(struct device *dev, const void *data)
--{
--	struct i2c_adapter *adapter = i2c_verify_adapter(dev);
--
--	if (!adapter)
--		return 0;
--
--	return ACPI_HANDLE(dev) == (acpi_handle)data;
--}
--
- struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
- {
-+	struct i2c_adapter *adapter;
- 	struct device *dev;
- 
--	dev = bus_find_device(&i2c_bus_type, NULL, handle,
--			      i2c_acpi_find_match_adapter);
-+	dev = bus_find_device(&i2c_bus_type, NULL, handle, device_match_acpi_handle);
-+	if (!dev)
-+		return NULL;
-+
-+	adapter = i2c_verify_adapter(dev);
-+	if (!adapter)
-+		put_device(dev);
- 
--	return dev ? i2c_verify_adapter(dev) : NULL;
-+	return adapter;
- }
- EXPORT_SYMBOL_GPL(i2c_acpi_find_adapter_by_handle);
- 
+> > Thanks for review, I will update for v3.
+> > Any other comments to the series?
+> 
+> Not really.  Patch [2/3] is correct AFAICS.
+
+v3 on its way!
+
 -- 
-2.33.0
+With Best Regards,
+Andy Shevchenko
+
 
