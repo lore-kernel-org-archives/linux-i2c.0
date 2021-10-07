@@ -2,105 +2,91 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F33EC433EF
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:08:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 178CBC433FE
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:18:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 54A39610EA
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:08:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F2A7C61042
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:18:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242896AbhJGRKH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 7 Oct 2021 13:10:07 -0400
-Received: from mga01.intel.com ([192.55.52.88]:39912 "EHLO mga01.intel.com"
+        id S243031AbhJGRUO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 7 Oct 2021 13:20:14 -0400
+Received: from mga05.intel.com ([192.55.52.43]:2893 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242368AbhJGRKG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Oct 2021 13:10:06 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10130"; a="249631415"
+        id S242959AbhJGRUO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 7 Oct 2021 13:20:14 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10130"; a="312508078"
 X-IronPort-AV: E=Sophos;i="5.85,355,1624345200"; 
-   d="scan'208";a="249631415"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2021 10:06:00 -0700
+   d="scan'208";a="312508078"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2021 10:18:18 -0700
+X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.85,355,1624345200"; 
-   d="scan'208";a="522673087"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2021 10:05:57 -0700
-Received: from andy by smile with local (Exim 4.95)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1mYWq9-009bcw-Jj;
-        Thu, 07 Oct 2021 20:05:53 +0300
-Date:   Thu, 7 Oct 2021 20:05:53 +0300
+   d="scan'208";a="478648609"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga007.jf.intel.com with ESMTP; 07 Oct 2021 10:18:13 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id C9191159; Thu,  7 Oct 2021 20:18:19 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Dmitry Osipenko <digetx@gmail.com>
-Cc:     LakshmiPraveen Kopparthi <LakshmiPraveen.Kopparthi@microchip.com>,
-        wsa@kernel.org, treding@nvidia.com, mirq-linux@rere.qmqm.pl,
-        s.shtylyov@omp.ru, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com
-Subject: Re: [PATCH v1 1/2] i2c:busses:Register PCI1XXXX adapter to I2C
- subsystem
-Message-ID: <YV8o8agZ4O4bj6fa@smile.fi.intel.com>
-References: <20210929062215.23905-1-LakshmiPraveen.Kopparthi@microchip.com>
- <20210929062215.23905-2-LakshmiPraveen.Kopparthi@microchip.com>
- <a63bbad2-b7b4-47da-93bd-4152a2c8b93f@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Saravana Kannan <saravanak@google.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH v3 1/3] driver core: Provide device_match_acpi_handle() helper
+Date:   Thu,  7 Oct 2021 20:18:13 +0300
+Message-Id: <20211007171815.28336-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <a63bbad2-b7b4-47da-93bd-4152a2c8b93f@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Oct 07, 2021 at 07:40:04PM +0300, Dmitry Osipenko wrote:
-> 29.09.2021 09:22, LakshmiPraveen Kopparthi пишет:
+We have couple of users of this helper, make it available for them.
 
-...
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+v3: no changes
+ drivers/base/core.c        | 6 ++++++
+ include/linux/device/bus.h | 1 +
+ 2 files changed, 7 insertions(+)
 
-> > +static int pci1xxxx_i2c_suspend(struct device *dev)
-> > +{
-> > +	struct pci1xxxx_i2c *i2c = dev_get_drvdata(dev);
-> > +	struct pci_dev *pdev = to_pci_dev(dev);
-
-How pdev is used?
-
-> > +	u32 regval;
-> > +
-> > +	i2c_mark_adapter_suspended(&i2c->adap);
-> > +
-> > +	pci1xxxx_ack_high_level_intr(i2c, ALL_HIGH_LAYER_INTR);
-> > +	pci1xxxx_i2c_config_high_level_intr(i2c, ALL_HIGH_LAYER_INTR, false);
-> > +
-> > +	/*
-> > +	 * Enable the PERST_DIS bit to mask the PERST from
-> > +	 * resetting the core regs
-> > +	 */
-> > +	regval = readl(i2c->i2c_base + SMBUS_RESET_REG);
-> > +	regval |= PERI_SMBUS_D3_RESET_DIS;
-> > +	writel(regval, i2c->i2c_base + SMBUS_RESET_REG);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int pci1xxxx_i2c_resume(struct device *dev)
-> > +{
-> > +	struct pci1xxxx_i2c *i2c = dev_get_drvdata(dev);
-
-> > +	struct pci_dev *pdev = to_pci_dev(dev);
-
-Ditto.
-
-> > +	u32 regval;
-> > +
-> > +	i2c_mark_adapter_resumed(&i2c->adap);
-> > +
-> > +	regval = readl(i2c->i2c_base + SMBUS_RESET_REG);
-> > +	regval &= ~PERI_SMBUS_D3_RESET_DIS;
-> > +	writel(regval, i2c->i2c_base + SMBUS_RESET_REG);
-> > +
-> > +	return 0;
-> > +}
-
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index b67ebe6a323c..fd034d742447 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -4838,6 +4838,12 @@ int device_match_acpi_dev(struct device *dev, const void *adev)
+ }
+ EXPORT_SYMBOL(device_match_acpi_dev);
+ 
++int device_match_acpi_handle(struct device *dev, const void *handle)
++{
++	return ACPI_HANDLE(dev) == handle;
++}
++EXPORT_SYMBOL(device_match_acpi_handle);
++
+ int device_match_any(struct device *dev, const void *unused)
+ {
+ 	return 1;
+diff --git a/include/linux/device/bus.h b/include/linux/device/bus.h
+index 062777a45a74..a039ab809753 100644
+--- a/include/linux/device/bus.h
++++ b/include/linux/device/bus.h
+@@ -143,6 +143,7 @@ int device_match_of_node(struct device *dev, const void *np);
+ int device_match_fwnode(struct device *dev, const void *fwnode);
+ int device_match_devt(struct device *dev, const void *pdevt);
+ int device_match_acpi_dev(struct device *dev, const void *adev);
++int device_match_acpi_handle(struct device *dev, const void *handle);
+ int device_match_any(struct device *dev, const void *unused);
+ 
+ /* iterator helpers for buses */
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.33.0
 
