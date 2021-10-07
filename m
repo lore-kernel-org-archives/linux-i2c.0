@@ -2,45 +2,48 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16708C433EF
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 16:51:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB0F7C433FE
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:07:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F07976103B
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 16:50:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B721B61263
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Oct 2021 17:07:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235396AbhJGQww (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 7 Oct 2021 12:52:52 -0400
-Received: from mail-ot1-f43.google.com ([209.85.210.43]:45584 "EHLO
-        mail-ot1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229810AbhJGQwv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Oct 2021 12:52:51 -0400
-Received: by mail-ot1-f43.google.com with SMTP id g15-20020a9d128f000000b0054e3d55dd81so3118775otg.12;
-        Thu, 07 Oct 2021 09:50:57 -0700 (PDT)
+        id S243041AbhJGRJZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 7 Oct 2021 13:09:25 -0400
+Received: from mail-ot1-f54.google.com ([209.85.210.54]:35441 "EHLO
+        mail-ot1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242368AbhJGRJY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Oct 2021 13:09:24 -0400
+Received: by mail-ot1-f54.google.com with SMTP id 77-20020a9d0ed3000000b00546e10e6699so8372352otj.2;
+        Thu, 07 Oct 2021 10:07:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=aQITjc9EkelfmrMblmNfFJUe60PWwUG8kF/gKJHNbBc=;
-        b=Bt/vlGbBj6PsGhgxH84G7Cx1PPHFg/FL0IjwoYSmOoJtjj/YbjisB2UmFXDvakIwa1
-         /+kd/Kyo214vY0mJnbMAOL+Jmb/BB/bi43lKfqLP9V+cBTHINpFuJO330wlJiy5IaaZC
-         UbDDvDyDCIEmoDy2+d8Sv5cdKPNb/gvq2UUP2rGQt2IholhX8fcyh0D2Izo92Vr5zjig
-         5PanzghM+4P8NAre2Uy2IXjsIN+In8Br/P2NFE9AvNXGuQpgzDexZCNOA7WmapANiuHO
-         Jxlf9bfmvWNqZvQi/CXnRL3FgY6Eov+qjJMPmHMpJtUWDWs2uEB0LnxQrggsEMdf+WZo
-         1LAg==
-X-Gm-Message-State: AOAM530KmRQWdS8dp2VkRm/ppGYZ2/nTvLBEEGrWHVXcM6xrxeg59qf0
-        ufICzw/g1/M3M0mWyHKsdFPBMRxBGWlunlIsTLc=
-X-Google-Smtp-Source: ABdhPJxkjmzjRmeA6qfA9L5v1U4is/YhJfMjAJ5Dp0rAk60j7IrwbvPf+wzuD0LRsGALgVrNNm8Wh2hn7IhCG/VmVtk=
-X-Received: by 2002:a9d:2f24:: with SMTP id h33mr4678062otb.254.1633625457450;
- Thu, 07 Oct 2021 09:50:57 -0700 (PDT)
+        bh=IefJA9LBUD7adbLBoj6lhBu/BQqC/aTFaIOQ0tDZ+DQ=;
+        b=5VMHO66+Ciwq244nC8uszX8d4UYVKucH5RRnVQNiAfFQW28/z10912Zr0kWyoAwh6U
+         3H7MqcK5KCYeUJCMVYtPH1+wV7j7y0b4pZjM4csUW03tyi7+s1Nrh/zewvK5Zi6B+Eys
+         JRtsGyoZgD5HFhbx9xentsSmuopJNul4p5tEiiANdx1gxHOFk92YXYEc62HDEU9/9Dle
+         xfy6MIZUtuLoRzuMOzf1wph3l27u/2/mWul4XoGX+mLlS1icrL7I7hAMzQZSArIqPegw
+         VG9QPZXLxYNonWy0c9zFX+0gAD6sDw0PFKr36hOdVBdwbSpXzXRtuLkinBqtwnaDTMy8
+         mx6w==
+X-Gm-Message-State: AOAM531fLD+hi7pYWWy64U8L4pEYHDCMeA63Jvclx7BIavaAmVG7lnPX
+        No2PzqCAq4oBANc5sY9e0BjNjwKPdiOF0ZoJNDE=
+X-Google-Smtp-Source: ABdhPJzrrsgi8uz8zu+MUoSiFl5pa9fUsEyroZv6f/hs128KFBk/gp7uP9JpenjMSxRdtp+uu9Z2//YAVV7FkeHQ274=
+X-Received: by 2002:a9d:2f24:: with SMTP id h33mr4756669otb.254.1633626449857;
+ Thu, 07 Oct 2021 10:07:29 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211006173125.84423-1-andriy.shevchenko@linux.intel.com> <20211006173125.84423-3-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20211006173125.84423-3-andriy.shevchenko@linux.intel.com>
+References: <20211006173125.84423-1-andriy.shevchenko@linux.intel.com>
+ <20211006173125.84423-3-andriy.shevchenko@linux.intel.com>
+ <CAJZ5v0iN+28gccy00_Ces9bYsLCNJaHaTZGMUwRrPA6TpY3H8A@mail.gmail.com> <YV8oAThCe2dR6K1n@smile.fi.intel.com>
+In-Reply-To: <YV8oAThCe2dR6K1n@smile.fi.intel.com>
 From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Thu, 7 Oct 2021 18:50:46 +0200
-Message-ID: <CAJZ5v0iN+28gccy00_Ces9bYsLCNJaHaTZGMUwRrPA6TpY3H8A@mail.gmail.com>
+Date:   Thu, 7 Oct 2021 19:07:19 +0200
+Message-ID: <CAJZ5v0hTqUnvvhEN4O-Boi-_RBFvT5mNKBn+fVdo4XWz0-XJ_Q@mail.gmail.com>
 Subject: Re: [PATCH v2 3/3] gpiolib: acpi: Replace custom code with device_match_acpi_handle()
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Saravana Kannan <saravanak@google.com>,
         =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
@@ -48,7 +51,6 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
         ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
         linux-i2c <linux-i2c@vger.kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <brgl@bgdev.pl>,
@@ -58,37 +60,24 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Oct 6, 2021 at 7:31 PM Andy Shevchenko
+On Thu, Oct 7, 2021 at 7:02 PM Andy Shevchenko
 <andriy.shevchenko@linux.intel.com> wrote:
 >
-> Since driver core provides a generic device_match_acpi_handle()
-> we may replace the custom code with it.
+> On Thu, Oct 07, 2021 at 06:50:46PM +0200, Rafael J. Wysocki wrote:
+> > On Wed, Oct 6, 2021 at 7:31 PM Andy Shevchenko
+> > <andriy.shevchenko@linux.intel.com> wrote:
 >
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
-> v2: no changes
->  drivers/gpio/gpiolib-acpi.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
+> ...
 >
-> diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-> index 47712b6903b5..32f1f720b94b 100644
-> --- a/drivers/gpio/gpiolib-acpi.c
-> +++ b/drivers/gpio/gpiolib-acpi.c
-> @@ -95,10 +95,7 @@ static bool acpi_gpio_deferred_req_irqs_done;
+> > > +       return gc->parent ? device_match_acpi_handle(gc->parent, data) : false;
+> >
+> > return gc->parent && device_match_acpi_handle(gc->parent, data);
+> >
+> > would work too if I'm not mistaken.
 >
->  static int acpi_gpiochip_find(struct gpio_chip *gc, void *data)
->  {
-> -       if (!gc->parent)
-> -               return false;
-> -
-> -       return ACPI_HANDLE(gc->parent) == data;
-> +       return gc->parent ? device_match_acpi_handle(gc->parent, data) : false;
+> Seems so.
+>
+> Thanks for review, I will update for v3.
+> Any other comments to the series?
 
-return gc->parent && device_match_acpi_handle(gc->parent, data);
-
-would work too if I'm not mistaken.
-
->  }
->
->  /**
-> --
+Not really.  Patch [2/3] is correct AFAICS.
