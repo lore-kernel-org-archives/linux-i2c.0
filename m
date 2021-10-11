@@ -2,22 +2,22 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00DD0C43217
-	for <linux-i2c@archiver.kernel.org>; Mon, 11 Oct 2021 10:41:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F257BC433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 11 Oct 2021 10:56:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E3CE66103C
-	for <linux-i2c@archiver.kernel.org>; Mon, 11 Oct 2021 10:41:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E2EE361058
+	for <linux-i2c@archiver.kernel.org>; Mon, 11 Oct 2021 10:56:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235956AbhJKKnG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 11 Oct 2021 06:43:06 -0400
-Received: from sauhun.de ([88.99.104.3]:53416 "EHLO pokefinder.org"
+        id S236082AbhJKK6y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 11 Oct 2021 06:58:54 -0400
+Received: from sauhun.de ([88.99.104.3]:53570 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235868AbhJKKnE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 11 Oct 2021 06:43:04 -0400
+        id S236190AbhJKK6t (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 11 Oct 2021 06:58:49 -0400
 Received: from localhost (p54b3315a.dip0.t-ipconnect.de [84.179.49.90])
-        by pokefinder.org (Postfix) with ESMTPSA id 47DA82C00A6;
-        Mon, 11 Oct 2021 12:41:01 +0200 (CEST)
-Date:   Mon, 11 Oct 2021 12:41:01 +0200
+        by pokefinder.org (Postfix) with ESMTPSA id 45CB42C00A6;
+        Mon, 11 Oct 2021 12:56:46 +0200 (CEST)
+Date:   Mon, 11 Oct 2021 12:56:45 +0200
 From:   Wolfram Sang <wsa@the-dreams.de>
 To:     Kewei Xu <kewei.xu@mediatek.com>
 Cc:     matthias.bgg@gmail.com, robh+dt@kernel.org,
@@ -27,9 +27,9 @@ Cc:     matthias.bgg@gmail.com, robh+dt@kernel.org,
         leilk.liu@mediatek.com, qii.wang@mediatek.com,
         liguo.zhang@mediatek.com, caiyu.chen@mediatek.com,
         ot_daolong.zhu@mediatek.com, yuhan.wei@mediatek.com
-Subject: Re: [PATCH v8 2/5] i2c: mediatek: Dump i2c/dma register when a
- timeout occurs
-Message-ID: <YWQUvV2papMMoMlM@kunai>
+Subject: Re: [PATCH v7 6/7] i2c: mediatek: Isolate speed setting via dts for
+ special devices
+Message-ID: <YWQYbaTIhud2QHNP@kunai>
 Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
         Kewei Xu <kewei.xu@mediatek.com>, matthias.bgg@gmail.com,
         robh+dt@kernel.org, linux-i2c@vger.kernel.org,
@@ -39,53 +39,65 @@ Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
         qii.wang@mediatek.com, liguo.zhang@mediatek.com,
         caiyu.chen@mediatek.com, ot_daolong.zhu@mediatek.com,
         yuhan.wei@mediatek.com
-References: <20211010070516.26763-1-kewei.xu@mediatek.com>
- <20211010070516.26763-3-kewei.xu@mediatek.com>
+References: <20210917101416.20760-1-kewei.xu@mediatek.com>
+ <20210917101416.20760-7-kewei.xu@mediatek.com>
+ <YVf+83LdUEPjoLdI@kunai>
+ <1891acec7f5c417f62081a8b10249b265df7ea62.camel@mediatek.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="JtSQ7rtXR1c2yVew"
+        protocol="application/pgp-signature"; boundary="VEgwt+bxKre9p0ta"
 Content-Disposition: inline
-In-Reply-To: <20211010070516.26763-3-kewei.xu@mediatek.com>
+In-Reply-To: <1891acec7f5c417f62081a8b10249b265df7ea62.camel@mediatek.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---JtSQ7rtXR1c2yVew
+--VEgwt+bxKre9p0ta
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, Oct 10, 2021 at 03:05:13PM +0800, Kewei Xu wrote:
-> When a timeout error occurs in i2c transter, it is usually related
-> to the i2c/dma IP hardware configuration. Therefore, the purpose of
-> this patch is to dump the key register values of i2c/dma when a
-> timeout occurs in i2c for debugging.
->=20
-> Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
-> Reviewed-by: Qii Wang <qii.wang@mediatek.com>
+Hi,
 
-Applied to for-next, thanks!
+> stretching. But if the slave device stretch the SCL line for too long
+> time, our design still cannot make tSU,STA/tHD,STA/tSU,STO meet spec.
+
+Isn't the new algorithm broken if it cannot support clock stretching?
+What was the problem of the old algorithm not meeting the spec?
+
+> However in the old (default) timing algorithm before the commit
+> be5ce0e97cc7 ("i2c: mediatek: Add i2c ac-timing adjust support"),
+> tSU,STA/tHD,STA/tSU,STO can meet spec. So we want to define a new
+> setting "default-adjust-timing" for using the old (default) timing
+> algorithm."
+
+What I still do not get: the old algorithm was able to handle clock
+stretching. Why can't you update the new one to handle clock stretching
+as well. I might be missing something, but what is it?
+
+Happy hacking,
+
+   Wolfram
 
 
---JtSQ7rtXR1c2yVew
+--VEgwt+bxKre9p0ta
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmFkFLwACgkQFA3kzBSg
-KbaUeQ//VSuKXbSjtpnmqhB/rNYBemDzI/uIR1UVNHnMegYbHmnxIsjnYKTDcJpA
-xYsVjufqGagxzSPSED6xQ6tcIVl/I6NJ/D5XOZyVSYHOaXF6Y0OgfxlFXcrokLL+
-UWblDSIAcoxOqnIcKv5CFUvpfocIO8pQeHNFD+v+bn1is/dNxzCmuKOF70tsT0Qu
-hMNRUV1C/sVULBd9Kl5JBdBQxRSeTEnhYpx3X1WBOe6xlptSh26j2VlaUEl0E2C2
-L6erBq6K9MQoYDX7Zolyt0759HxNJjRH4bJxZQ2xMTDO29u3c6/a2DjPGKQ/p31c
-P+viAE53Csz6ooV6krMfR+hYSa6uEvG1SZ4l+6buUHTJ8tSSPpU7srNISofHgSzO
-a+VPrnNOI8RuxP/XKWNO13pPsc9+pULXXUOOi4Ozt+0y0Swql+Cdkvx+HNZ8TXIF
-eIaYJLMTuebxNjWMcJuX6wvT8L2UwLhpAo3XY93a+FJgUCdfPzCFd9uxHfWYX1Ad
-B8oLzJQw/XsVHOF/97fm64ODVBy8ndQyIy6yPSBBdsZ1a9Sn5SgDjehHunJP5b4B
-jDCdB0EBeA7R0bp58UCROkxcE17JMTfe+kVM6KPMw/RD2Sv/VG6wTawUl8+cax44
-LlUQssHqGedkJsg4DHMFpF7L/U+knIq6iqtmzd9/fscD50y5zEY=
-=pHeR
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmFkGG0ACgkQFA3kzBSg
+KbZD3g//RihGqp/HqgzrerO26mwuF/kpOwfbJAoegQU0RTv+6k2GV/0x7lvxfxmj
+hTRoxrNH+wQYSQLiAwwqPwJ+nXTzoob2WVFXd0+KPeVXm7C84+PIWEg5xth9kpfX
+Kd+ReQezeCfSEthKN43pE0roJmobGBVK43PX2kxRjluZqN4NbmnaaWoV3xY6YJs0
+RWM5gOESUyfAUr1s23uPXPI/+VwA27jpEXhabP5CxciQpJizJ4Agdtx9dkOZuCMF
+TsgXrFj3ZD6EETIQXoNkTkjZyiSVVC5XyAdKVsGxHA966Vi+s9MCbqPZj9Hq1STO
+v03VnlbCyQzL2cy/09XYDS8Mu0Xph1MQg8nbQEsD8SgsrR6BM7Lv6gRbXd//TaSH
+xMz/+kU6B90pBnc+H+wjpwwjMxGTTcwLzRqYB0HsSJ7/kO3vHrXIVe9KyUrRmyHm
+fHwKAkO0SNKjWyrLdhixR9pmgYTKpVKt4zwmEZiqTvbb923yZ9fU1qpnts7rtXZi
+P8g5CaqtG2piS/5VLfRjinMbPH6Tl4KPT4OBMZAuoZ10EL16XjdODrrG6jA1oA5h
+QzWdk8sbQiidCpZG/WGTz9yMQUlZeJZOefsfNyQwOJ5E0kxff+tWFLmF32fusrhm
+Yoyg00b+KULq1E8zb7X9PCn0o0K8bwE3bhrlGdsHcpCR76p2r6E=
+=1ToD
 -----END PGP SIGNATURE-----
 
---JtSQ7rtXR1c2yVew--
+--VEgwt+bxKre9p0ta--
