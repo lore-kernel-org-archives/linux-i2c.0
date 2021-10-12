@@ -2,107 +2,158 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 639D3C433EF
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 Oct 2021 07:25:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E9E8C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue, 12 Oct 2021 14:06:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3AFA4610A3
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 Oct 2021 07:25:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 497BD60F11
+	for <linux-i2c@archiver.kernel.org>; Tue, 12 Oct 2021 14:06:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232500AbhJLH1R (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 12 Oct 2021 03:27:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46418 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233995AbhJLH1K (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 12 Oct 2021 03:27:10 -0400
-Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9AABC061570
-        for <linux-i2c@vger.kernel.org>; Tue, 12 Oct 2021 00:25:08 -0700 (PDT)
-Received: by mail-qk1-x730.google.com with SMTP id az39so4967262qkb.5
-        for <linux-i2c@vger.kernel.org>; Tue, 12 Oct 2021 00:25:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=wZpT6T+fhSX11iKtQ6864FN/R474hCm4mU8x3lz89UA=;
-        b=oFhnvjwDeanXbc/YvUaxkh5cpD6Nc+WJZpOJr/+UFPmf7g0K4rjornx3Y0GHqjGbkB
-         +NuhyFr5SN1kgspcb2C4R4OyHBn/0coV6r0PPWt8cXRYF0GGzyb6hci2YqhU3WoduOMH
-         3yIM0pp5FMHglXKw6DN4EAD2rQjXo9QM9ULi2jhqtmB5gMPY7EOkyeOet+k3NLHjzva9
-         5W5YX+kSww0ob7N9L0ruT9IdBnegHYzXiaH3tCNrtf3zyWKYGuT7QsIbm2GBmx4IxFvW
-         /c3FRgCjVuWinxpRIZO3wchRd/zqO85UvR8o9TLJSmldHzqIGpqe8Z0S4eeyfrBI4mAH
-         I8iQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=wZpT6T+fhSX11iKtQ6864FN/R474hCm4mU8x3lz89UA=;
-        b=BlbP3JjQc4Wu9Mlcnnxb4WgzmL8isr6OqWFSHyeMM9knsZO4uoD/7mKor2hD3UdV8C
-         yD7wEITwU8QHW1qIu3Y3RYpbqzlG2TIodPkzv7RoHuGwGuJs3hDc6XXRZ66owecCCoZC
-         V+DeLwiF3zqoTTHBPf+gf8GqH2nq4EA1tBTD4Kb5A6d31cFXG4OZQCIGTDQtZCsxxgmy
-         Q5RGKOQwZ+vyzo53lQRSejqraCx26sttVTDoRb+cBpd6NJ1t8u3qGklBQHVPpTyuuAon
-         22nOIvSa98Er9PE0z3vtE77PoLTn5B26fiE/xIJmWQTHeaBP9qPVMAP7iM8zPvMZNFa8
-         ujJg==
-X-Gm-Message-State: AOAM531Vk7v6Tlf3i83I2S7c8oFokPZ46PxuFbueSWH38u5apw1Ei4qy
-        x3f6AO4cpFs/3mq6R2CkI8bQzijViqjexGxTvU8mYf6zbtoLJQ==
-X-Google-Smtp-Source: ABdhPJxfvviHVKJ0+x34xHWr7MJgTLOzL3sxSA7TBpOeiyoRGYjt26vmGwUqQ2b1Jp+2svZC31RR5FK9f8o52c52eOg=
-X-Received: by 2002:a37:a9d3:: with SMTP id s202mr7819026qke.482.1634023508037;
- Tue, 12 Oct 2021 00:25:08 -0700 (PDT)
+        id S236607AbhJLOI3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 12 Oct 2021 10:08:29 -0400
+Received: from esa.microchip.iphmx.com ([68.232.153.233]:33011 "EHLO
+        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236678AbhJLOI2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 12 Oct 2021 10:08:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1634047587; x=1665583587;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=A0HJ1L4RAxgrnu670Fu9z6eUkxENtCwk60XBuTGkTJc=;
+  b=d6cAc6GOtKR7c2TAn3wOjbVkGUmw+IlkFtm9/xK7Z2/ZAM2CAssA0oSt
+   Q+ONjzJcACIb+frdbLwFz9uQh7rp469nt9TxvfhPQCflr8RtuelH5bq2b
+   blyVAnn+VbBdPQXkPPQ/BWf/DNadM8COe4dMetb38CQH3bWvzAyBmfSCI
+   8C/q0eHnl3SaUH9vfQdUOsW+WBZ9LsxzOB6k9hwM6/lMIRwXgrtOMFm8U
+   IK49TBV0PGfTAXsYPNCGNHyLb41TND6e4xhjgfPuBcuuQ3fcI1SAMypbz
+   v7vBpbgYFcPvUqaVntc5H71b1RlEbhHre6Za5blBD+9vV5J+eSEcnJ4es
+   g==;
+IronPort-SDR: ktGpWK/6cNqbIkdRQtHHtS4Fooz4rQgmIYjxTHAmBmaRsU2qbAXrA1EvEldEH7vP5daqLc/hrN
+ uLHOVSe/PCEIrscLA+f4m/mX9mKPZ0cfphZjY5vbjIeoRlyei8TC+JbfjnZ0+UrazXvgzKGlZ7
+ 6tsii7WB+jNrHyUos0oK3XxtE+3cB4U+5yYO8Pwu/7Cp/YFLymcW+sJd6lhyHj+HIlfpPNgwE5
+ G9K5VanjON5CfzJFrF8m8zn5IUEwicQq99cHEjXoXeSqb7bqjhPHP/30GNg/X848wSJVXCcdQT
+ EbxTQVQe9c009KiEK/O3T3Am
+X-IronPort-AV: E=Sophos;i="5.85,367,1624345200"; 
+   d="scan'208";a="139412090"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 12 Oct 2021 07:06:25 -0700
+Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.14; Tue, 12 Oct 2021 07:06:24 -0700
+Received: from soft-dev3-1.microsemi.net (10.10.115.15) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
+ 15.1.2176.14 via Frontend Transport; Tue, 12 Oct 2021 07:06:22 -0700
+From:   Horatiu Vultur <horatiu.vultur@microchip.com>
+To:     <robh+dt@kernel.org>, <nicolas.ferre@microchip.com>,
+        <alexandre.belloni@bootlin.com>, <ludovic.desroches@microchip.com>,
+        <codrin.ciubotariu@microchip.com>, <linux-i2c@vger.kernel.org>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     Horatiu Vultur <horatiu.vultur@microchip.com>
+Subject: [PATCH 2/2] i2c: at91: add support for brsrcclk
+Date:   Tue, 12 Oct 2021 16:07:18 +0200
+Message-ID: <20211012140718.2138278-3-horatiu.vultur@microchip.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211012140718.2138278-1-horatiu.vultur@microchip.com>
+References: <20211012140718.2138278-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-References: <CAJOps0smzC980mxpwqCtxbjCwzzU0ur4tm_f=mGH8t1PLPjPNA@mail.gmail.com>
- <SI2PR03MB616766BD1A04F4D32B9A56A090B69@SI2PR03MB6167.apcprd03.prod.outlook.com>
- <CAHb3i=t6gCr8TwyZ-wPz26q1Ubz38qVuPyRDkPcVHAQFcmF_ag@mail.gmail.com>
-In-Reply-To: <CAHb3i=t6gCr8TwyZ-wPz26q1Ubz38qVuPyRDkPcVHAQFcmF_ag@mail.gmail.com>
-From:   Tali Perry <tali.perry1@gmail.com>
-Date:   Tue, 12 Oct 2021 10:24:57 +0300
-Message-ID: <CAHb3i=tCQorVyG0UvbnLt=CcxcUdn=-WDosaJvLracwkGEg+tA@mail.gmail.com>
-Subject: Re: [RFC Patch 2/2] add npcm7xx debug counters as sysfs attributes
-To:     Linux I2C <linux-i2c@vger.kernel.org>,
-        Sui Chen <suichen@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Oct 12, 2021 at 10:09 AM Tali Perry <tali.perry1@gmail.com> wrote:
+This allows to set the TWI bite rate based on a programmable clock source.
+The lan966x supports this feature.
 
-> On Tuesday, October 12, 2021 4:08 AM Sui Chen <suichen@google.com> wrote:
->
-> This change adds npcm7xx debug counters as sysfs attributes using the i2c_adapter_stats_register_counter function.
->
-> Signed-off-by: Sui Chen <suichen@google.com>
-> ---
->  drivers/i2c/busses/i2c-npcm7xx.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-> index 2ad166355ec9b..def044207cae2 100644
-> --- a/drivers/i2c/busses/i2c-npcm7xx.c
-> +++ b/drivers/i2c/busses/i2c-npcm7xx.c
-> @@ -2224,6 +2224,14 @@ static void npcm_i2c_init_debugfs(struct platform_device *pdev,
->   debugfs_create_u64("rec_fail_cnt", 0444, d, &bus->rec_fail_cnt);
->   debugfs_create_u64("timeout_cnt", 0444, d, &bus->timeout_cnt);
->
-> + /* register debug counters in sysfs */
-> + i2c_adapter_stats_register_counter(&bus->adap, "ber_cnt",
-> + &bus->ber_cnt); i2c_adapter_stats_register_counter(&bus->adap,
-> + "nack_cnt", &bus->nack_cnt);
-> + i2c_adapter_stats_register_counter(&bus->adap, "rec_succ_cnt",
-> &bus->rec_succ_cnt);
-> + i2c_adapter_stats_register_counter(&bus->adap, "rec_fail_cnt",
-> &bus->rec_fail_cnt);
-> + i2c_adapter_stats_register_counter(&bus->adap, "timeout_cnt",
-> &bus->timeout_cnt);
-> + i2c_adapter_stats_register_counter(&bus->adap, "i2c_speed",
-> + &bus->bus_freq);
-> +
->   bus->debugfs = d;
->  }
->
-> --
-> 2.33.0.882.g93a45727a2-goog
->
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ drivers/i2c/busses/i2c-at91-core.c   | 16 ++++++++++++++++
+ drivers/i2c/busses/i2c-at91-master.c | 23 +++++++++++++++++++++--
+ drivers/i2c/busses/i2c-at91.h        |  1 +
+ 3 files changed, 38 insertions(+), 2 deletions(-)
 
-Reviewed-by: Tali Perry <tali.perry1@gmail.com>
+diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at91-core.c
+index 2df9df585131..d98b437e5775 100644
+--- a/drivers/i2c/busses/i2c-at91-core.c
++++ b/drivers/i2c/busses/i2c-at91-core.c
+@@ -146,6 +146,19 @@ static struct at91_twi_pdata sam9x60_config = {
+ 	.has_clear_cmd = true,
+ };
+ 
++static struct at91_twi_pdata lan966x_config = {
++	.clk_max_div = 7,
++	.clk_offset = 0,
++	.clk_brsrcclk = true,
++	.has_unre_flag = true,
++	.has_alt_cmd = true,
++	.has_hold_field = true,
++	.has_dig_filtr = true,
++	.has_adv_dig_filtr = true,
++	.has_ana_filtr = true,
++	.has_clear_cmd = true,
++};
++
+ static const struct of_device_id atmel_twi_dt_ids[] = {
+ 	{
+ 		.compatible = "atmel,at91rm9200-i2c",
+@@ -174,6 +187,9 @@ static const struct of_device_id atmel_twi_dt_ids[] = {
+ 	}, {
+ 		.compatible = "microchip,sam9x60-i2c",
+ 		.data = &sam9x60_config,
++	}, {
++		.compatible = "microchip,lan966x-i2c",
++		.data = &lan966x_config,
+ 	}, {
+ 		/* sentinel */
+ 	}
+diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+index b0eae94909f4..f504af30adbe 100644
+--- a/drivers/i2c/busses/i2c-at91-master.c
++++ b/drivers/i2c/busses/i2c-at91-master.c
+@@ -120,8 +120,27 @@ static void at91_calc_twi_clock(struct at91_twi_dev *dev)
+ 		}
+ 	}
+ 
+-	dev->twi_cwgr_reg = (ckdiv << 16) | (cdiv << 8) | cdiv
+-			    | AT91_TWI_CWGR_HOLD(hold);
++	if (pdata->clk_brsrcclk) {
++		u8 chdiv, cldiv, gck_pr;
++
++		gck_pr = 1000000000 / clk_get_rate(dev->clk);
++
++		/* thigh = bus_freq_hz in ns * 0.4
++		 * tlow = bus_freq_hz in ns * 0.6
++		 * chdiv = (thigh / GCK_PR)/2 ^ CKDIV
++		 * cldiv = (tlow / GCK_PR)/2 ^ CKDIV
++		 * where ckdiv = 0;
++		 */
++		cldiv = (1000000000 / t->bus_freq_hz * 6 / 10) / gck_pr;
++		chdiv = (1000000000 / t->bus_freq_hz * 4 / 10) / gck_pr;
++
++		dev->twi_cwgr_reg = (chdiv << 8) | cldiv
++			| AT91_TWI_CWGR_HOLD(hold)
++			| pdata->clk_brsrcclk << 20;
++	} else {
++		dev->twi_cwgr_reg = (ckdiv << 16) | (cdiv << 8) | cdiv
++			| AT91_TWI_CWGR_HOLD(hold);
++	}
+ 
+ 	dev->filter_width = filter_width;
+ 
+diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+index 942e9c3973bb..f7328fbe8eb8 100644
+--- a/drivers/i2c/busses/i2c-at91.h
++++ b/drivers/i2c/busses/i2c-at91.h
+@@ -115,6 +115,7 @@
+ struct at91_twi_pdata {
+ 	unsigned clk_max_div;
+ 	unsigned clk_offset;
++	bool clk_brsrcclk;
+ 	bool has_unre_flag;
+ 	bool has_alt_cmd;
+ 	bool has_hold_field;
+-- 
+2.33.0
 
-Thanks for this patch!
-
-Tali Perry
-Nuvoton
