@@ -2,33 +2,33 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5C7EC433FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 13 Oct 2021 20:32:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4734CC43219
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 Oct 2021 20:32:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BD5CD61175
-	for <linux-i2c@archiver.kernel.org>; Wed, 13 Oct 2021 20:32:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3086E6101E
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 Oct 2021 20:32:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229726AbhJMUeq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S229462AbhJMUeq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Wed, 13 Oct 2021 16:34:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50206 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229750AbhJMUep (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Oct 2021 16:34:45 -0400
+        with ESMTP id S229764AbhJMUeq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Oct 2021 16:34:46 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1475DC061746
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19657C061760
         for <linux-i2c@vger.kernel.org>; Wed, 13 Oct 2021 13:32:42 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1makvR-0007Ed-Rk; Wed, 13 Oct 2021 22:32:33 +0200
+        id 1makvT-0007Fh-C2; Wed, 13 Oct 2021 22:32:35 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1makvQ-0005mY-KQ; Wed, 13 Oct 2021 22:32:32 +0200
+        id 1makvS-0005nk-Qg; Wed, 13 Oct 2021 22:32:34 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1makvQ-0000Q2-JR; Wed, 13 Oct 2021 22:32:32 +0200
+        id 1makvS-0000R1-Pi; Wed, 13 Oct 2021 22:32:34 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Jonathan Cameron <jic23@kernel.org>
@@ -36,16 +36,16 @@ Cc:     Lars-Peter Clausen <lars@metafoo.de>,
         Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@kernel.org>,
         kernel@pengutronix.de, linux-i2c@vger.kernel.org,
         linux-iio@vger.kernel.org, linux-spi@vger.kernel.org
-Subject: [PATCH 04/15] iio: accel: kxsd9: Make kxsd9_common_remove() return void
-Date:   Wed, 13 Oct 2021 22:32:12 +0200
-Message-Id: <20211013203223.2694577-5-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 15/15] iio: pressure: ms5611: Make ms5611_remove() return void
+Date:   Wed, 13 Oct 2021 22:32:23 +0200
+Message-Id: <20211013203223.2694577-16-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211013203223.2694577-1-u.kleine-koenig@pengutronix.de>
 References: <20211013203223.2694577-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Patch-Hashes: v=1; h=sha256; i=h76q3cLCdrlpBZzubcejFNmAN+YxeIevTTFn3m/6Iu4=; m=HXOeAuGEz3UmuRmcI6USXlUHzFnswGV/iLrDmebvpqw=; p=C2975iDAPM5S4ZU15ygYhTAmxjGWjEfdkzsUJijEx+8=; g=a31e9c62397b8fd3b0f84d26651bf3370a81cdb8
-X-Patch-Sig: m=pgp; i=u.kleine-koenig@pengutronix.de; s=0x0D2511F322BFAB1C1580266BE2DCDD9132669BD6; b=iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmFnQe0ACgkQwfwUeK3K7Akq0wf/fPU oiHD+U/lT7FXjKUpXS4VOhtuEmwLM36vR32DsVPH0iRB4K0Y73LqZHbrZtNqlR+MRP0j9WO8qsGQY x3eV7aVQ6CQKBEnLTtECSCWgHlsvt+SJ0+rb1ZRi2u4kyiAxQ9gfaCXIKn7aCTiLVTb5eOmJCIMno T6O8DmrySns59vBDgY+SzS93sdOhdkyRFi8nSDt+v/h9HbcDuDpJxx14TL4mQ76Ftl/A+efjpI6r6 I3zW/gSB6NQnw8MUOToIH0ejwMAwEWDxeTGwd9QP8ovE1yafOSN4qHQNzVTb0Aw/waOxnyx79oPAJ L7hdreDkZoEsgZfAWccEutxxYLdTZXg==
+X-Patch-Hashes: v=1; h=sha256; i=/VRI7wZRmFcSbOjCVUYLGjkMVb4qhYVytXhgnxhlT8M=; m=lxKoKlZVQowk7xdd1hVtcDO/bwfnAO7kAD40An36nNI=; p=ju0qK/fA1FRs/jFLg2Wz1o5GOd25Mp81ZaVaWpejtdo=; g=cc7f8a2b89009abb1f248faa74e93d27afb4a720
+X-Patch-Sig: m=pgp; i=u.kleine-koenig@pengutronix.de; s=0x0D2511F322BFAB1C1580266BE2DCDD9132669BD6; b=iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmFnQhcACgkQwfwUeK3K7AkB0Qf/Qnu zJOfEoVx0mmr8M5D+IKq90Afb8WftaM2TnvMcCq0DP1+mV31i8ctCJxCHUTV1csXD49ykUl9M1DLa 0qJLRJuKYpbv01y5ST+i5eG1sdgd93qw01tUSM5L1GTYWkOMN2ZIcF77asKFlJdg3XnOj+qjW8K7z DZyxLyxJr4coCbhkGsK/OiCCBwN5LqXK0cAU3mOu+V6214WjyCHBke0eoNpD8gI7Czgv8lKqbfMik HW9kimL/VCYmS6P6GI+B4qQWDKZe4oA4Av1Sn4C36DMn5lQ3nXW32Ta1UfkxS53P0prdE10TT8yi4 nd43pzSCzoSGcVJ+/f5D3B69RGykE4Q==
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
 X-SA-Exim-Mail-From: ukl@pengutronix.de
@@ -55,84 +55,81 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Up to now kxsd9_common_remove() returns zero unconditionally. Make it
-return void instead which makes it easier to see in the callers that
-there is no error to handle.
+Up to now ms5611_remove() returns zero unconditionally. Make it return
+void instead which makes it easier to see in the callers that there is
+no error to handle.
 
 Also the return value of i2c and spi remove callbacks is ignored anyway.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/accel/kxsd9-i2c.c | 4 +++-
- drivers/iio/accel/kxsd9-spi.c | 4 +++-
- drivers/iio/accel/kxsd9.c     | 4 +---
- drivers/iio/accel/kxsd9.h     | 2 +-
+ drivers/iio/pressure/ms5611.h      | 2 +-
+ drivers/iio/pressure/ms5611_core.c | 4 +---
+ drivers/iio/pressure/ms5611_i2c.c  | 4 +++-
+ drivers/iio/pressure/ms5611_spi.c  | 4 +++-
  4 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iio/accel/kxsd9-i2c.c b/drivers/iio/accel/kxsd9-i2c.c
-index b580d605f848..274b41a6e603 100644
---- a/drivers/iio/accel/kxsd9-i2c.c
-+++ b/drivers/iio/accel/kxsd9-i2c.c
-@@ -34,7 +34,9 @@ static int kxsd9_i2c_probe(struct i2c_client *i2c,
+diff --git a/drivers/iio/pressure/ms5611.h b/drivers/iio/pressure/ms5611.h
+index bc06271fa38b..86b1c4b1820d 100644
+--- a/drivers/iio/pressure/ms5611.h
++++ b/drivers/iio/pressure/ms5611.h
+@@ -61,6 +61,6 @@ struct ms5611_state {
  
- static int kxsd9_i2c_remove(struct i2c_client *client)
- {
--	return kxsd9_common_remove(&client->dev);
-+	kxsd9_common_remove(&client->dev);
-+
-+	return 0;
+ int ms5611_probe(struct iio_dev *indio_dev, struct device *dev,
+ 		 const char *name, int type);
+-int ms5611_remove(struct iio_dev *indio_dev);
++void ms5611_remove(struct iio_dev *indio_dev);
+ 
+ #endif /* _MS5611_H */
+diff --git a/drivers/iio/pressure/ms5611_core.c b/drivers/iio/pressure/ms5611_core.c
+index 214b0d25f598..ee75f08655c9 100644
+--- a/drivers/iio/pressure/ms5611_core.c
++++ b/drivers/iio/pressure/ms5611_core.c
+@@ -474,13 +474,11 @@ int ms5611_probe(struct iio_dev *indio_dev, struct device *dev,
  }
+ EXPORT_SYMBOL(ms5611_probe);
  
- static const struct of_device_id kxsd9_of_match[] = {
-diff --git a/drivers/iio/accel/kxsd9-spi.c b/drivers/iio/accel/kxsd9-spi.c
-index 7971ec1eeb7e..441e6b764281 100644
---- a/drivers/iio/accel/kxsd9-spi.c
-+++ b/drivers/iio/accel/kxsd9-spi.c
-@@ -34,7 +34,9 @@ static int kxsd9_spi_probe(struct spi_device *spi)
- 
- static int kxsd9_spi_remove(struct spi_device *spi)
+-int ms5611_remove(struct iio_dev *indio_dev)
++void ms5611_remove(struct iio_dev *indio_dev)
  {
--	return kxsd9_common_remove(&spi->dev);
-+	kxsd9_common_remove(&spi->dev);
-+
-+	return 0;
- }
- 
- static const struct spi_device_id kxsd9_spi_id[] = {
-diff --git a/drivers/iio/accel/kxsd9.c b/drivers/iio/accel/kxsd9.c
-index bf7ed9e7d00f..2faf85ca996e 100644
---- a/drivers/iio/accel/kxsd9.c
-+++ b/drivers/iio/accel/kxsd9.c
-@@ -478,7 +478,7 @@ int kxsd9_common_probe(struct device *dev,
- }
- EXPORT_SYMBOL(kxsd9_common_probe);
- 
--int kxsd9_common_remove(struct device *dev)
-+void kxsd9_common_remove(struct device *dev)
- {
- 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
- 	struct kxsd9_state *st = iio_priv(indio_dev);
-@@ -489,8 +489,6 @@ int kxsd9_common_remove(struct device *dev)
- 	pm_runtime_put_noidle(dev);
- 	pm_runtime_disable(dev);
- 	kxsd9_power_down(st);
+ 	iio_device_unregister(indio_dev);
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	ms5611_fini(indio_dev);
 -
 -	return 0;
  }
- EXPORT_SYMBOL(kxsd9_common_remove);
+ EXPORT_SYMBOL(ms5611_remove);
  
-diff --git a/drivers/iio/accel/kxsd9.h b/drivers/iio/accel/kxsd9.h
-index 5e3ca212f5be..c04dbfa4e0d0 100644
---- a/drivers/iio/accel/kxsd9.h
-+++ b/drivers/iio/accel/kxsd9.h
-@@ -8,6 +8,6 @@
- int kxsd9_common_probe(struct device *dev,
- 		       struct regmap *map,
- 		       const char *name);
--int kxsd9_common_remove(struct device *dev);
-+void kxsd9_common_remove(struct device *dev);
+diff --git a/drivers/iio/pressure/ms5611_i2c.c b/drivers/iio/pressure/ms5611_i2c.c
+index 7c04f730430c..5c82d80f85b6 100644
+--- a/drivers/iio/pressure/ms5611_i2c.c
++++ b/drivers/iio/pressure/ms5611_i2c.c
+@@ -110,7 +110,9 @@ static int ms5611_i2c_probe(struct i2c_client *client,
  
- extern const struct dev_pm_ops kxsd9_dev_pm_ops;
+ static int ms5611_i2c_remove(struct i2c_client *client)
+ {
+-	return ms5611_remove(i2c_get_clientdata(client));
++	ms5611_remove(i2c_get_clientdata(client));
++
++	return 0;
+ }
+ 
+ static const struct of_device_id ms5611_i2c_matches[] = {
+diff --git a/drivers/iio/pressure/ms5611_spi.c b/drivers/iio/pressure/ms5611_spi.c
+index 45d3a7d5be8e..79bed64c9b68 100644
+--- a/drivers/iio/pressure/ms5611_spi.c
++++ b/drivers/iio/pressure/ms5611_spi.c
+@@ -112,7 +112,9 @@ static int ms5611_spi_probe(struct spi_device *spi)
+ 
+ static int ms5611_spi_remove(struct spi_device *spi)
+ {
+-	return ms5611_remove(spi_get_drvdata(spi));
++	ms5611_remove(spi_get_drvdata(spi));
++
++	return 0;
+ }
+ 
+ static const struct of_device_id ms5611_spi_matches[] = {
 -- 
 2.30.2
 
