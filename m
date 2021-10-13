@@ -2,176 +2,87 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00F01C433F5
-	for <linux-i2c@archiver.kernel.org>; Wed, 13 Oct 2021 13:16:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C11D4C433EF
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 Oct 2021 14:09:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DE49F610FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 13 Oct 2021 13:16:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9BA88610FE
+	for <linux-i2c@archiver.kernel.org>; Wed, 13 Oct 2021 14:09:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234870AbhJMNSd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 13 Oct 2021 09:18:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48647 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234135AbhJMNSc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Oct 2021 09:18:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634130988;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=3UweUBspHinuJSQhguEdx6WU40R4nh4wg670z3EQDCs=;
-        b=XNP1QDwX2f719a9ZrFnhwucrTmmJi3xG6/ZEi9kIsyI5EgoqN8WKfM1aPjoQSJIbgOQFYV
-        pFRVUyG4/rV6koPl8MKbwi0AXmQTYeRxBCWmzjs1lY2Bl9yZ8PmUbb1llOU47KJzq7j5Ui
-        2AnDvE9EkAQFUkWYniyGFIldV/jAtHA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-397-51EXKiPTPNOe2wB9MiFWRQ-1; Wed, 13 Oct 2021 09:16:25 -0400
-X-MC-Unique: 51EXKiPTPNOe2wB9MiFWRQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 85FDA100A95A;
-        Wed, 13 Oct 2021 13:16:22 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.33.167])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6603219E7E;
-        Wed, 13 Oct 2021 13:16:20 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id DEFAB22023A; Wed, 13 Oct 2021 09:16:19 -0400 (EDT)
-Date:   Wed, 13 Oct 2021 09:16:19 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        Matt Mackall <mpm@selenic.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Gonglei <arei.gonglei@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        "Enrico Weigelt, metux IT consult" <info@metux.net>,
-        Viresh Kumar <vireshk@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        David Airlie <airlied@linux.ie>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>, Jie Deng <jie.deng@intel.com>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        David Hildenbrand <david@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Eric Van Hensbergen <ericvh@gmail.com>,
-        Latchesar Ionkov <lucho@ionkov.net>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Anton Yakovlev <anton.yakovlev@opensynergy.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, linux-um@lists.infradead.org,
-        virtualization@lists.linux-foundation.org,
-        linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-gpio@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-wireless@vger.kernel.org,
-        nvdimm@lists.linux.dev, linux-remoteproc@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        v9fs-developer@lists.sourceforge.net, kvm@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: Re: [PATCH RFC] virtio: wrap config->reset calls
-Message-ID: <YWbcI15YOkhnPh5x@redhat.com>
-References: <20211013105226.20225-1-mst@redhat.com>
+        id S230324AbhJMOL5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 13 Oct 2021 10:11:57 -0400
+Received: from esa.microchip.iphmx.com ([68.232.153.233]:42906 "EHLO
+        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230298AbhJMOL5 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Oct 2021 10:11:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1634134194; x=1665670194;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=S1R0ueUW/ZMahy3QrgzBWmGL8fqwA2pjk1VqK8I02+k=;
+  b=eGMGCKZNrm8CSCEl0KPTz1JxDPaDGvsisx1T7TgW5Jpd9SK25rru3Dn4
+   4lrMS8ISp8/FFlEOBzNHSlHbJldHk79j9cgNWA+Xvt27hXiWJzGo+cju7
+   U730SnDBBOf4rDr6aIde2+Sa98numC5qUe/bUthJz4wtYKT+kTIraAIVF
+   TOnKgKp/FMwarh/9jgXJrqdaXjvdlGwHqMVj6YPQX1taJVOZTK7maO2D8
+   cUbs95CvSSAJs7Z7qIoVrOQsAoe6Yt5j0Skkx9hkv18kV9rvewvDdMavD
+   MgFpAXIbGDkQkrMKLe2okT8Cz+r/69ahgtt9HQl67xRAZn5jZdF7JW6+x
+   A==;
+IronPort-SDR: KxJ6ZQcWrcirUhJ0QepG88B8+yY706LRXVmGS8XZHMhNY8QiYahL9ugeeEaoy4OPZKFLLbQnsv
+ LWiOMa8jOB2xNrQYwlRydDVB/45jBt6fCyP7OXgWKKJ8rW7hQ6sWbzGIn3fqW1Vu1WmOT/4M45
+ V/mJJDh/oU+2Sb6blgqyJrmZE/OS3R3oeZyr0p+y4e2NBMlGsRWLEcVLoDBMyCrd+vBUgpoA8R
+ rZfOVO7g6tKc9OqMj8GrEGsolLMy+6EzEpphAUAerq2ZTRStmrDbPekVv3dkSxhgEBT8zSvHqI
+ Zctae4Sjq/Bu8QbJFW9UCxF6
+X-IronPort-AV: E=Sophos;i="5.85,371,1624345200"; 
+   d="scan'208";a="140154216"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 13 Oct 2021 07:09:50 -0700
+Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.14; Wed, 13 Oct 2021 07:09:49 -0700
+Received: from soft-dev3-1.microsemi.net (10.10.115.15) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server id
+ 15.1.2176.14 via Frontend Transport; Wed, 13 Oct 2021 07:09:48 -0700
+From:   Horatiu Vultur <horatiu.vultur@microchip.com>
+To:     <peda@axentia.se>, <robh+dt@kernel.org>,
+        <peter.korsgaard@barco.com>, <lars.povlsen@microchip.com>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     Horatiu Vultur <horatiu.vultur@microchip.com>
+Subject: [PATCH 1/2] dt-bindings: i2c-mux-gpio: Add optional DT property
+Date:   Wed, 13 Oct 2021 16:10:02 +0200
+Message-ID: <20211013141003.2388495-2-horatiu.vultur@microchip.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211013141003.2388495-1-horatiu.vultur@microchip.com>
+References: <20211013141003.2388495-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211013105226.20225-1-mst@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Oct 13, 2021 at 06:55:31AM -0400, Michael S. Tsirkin wrote:
-> This will enable cleanups down the road.
-> The idea is to disable cbs, then add "flush_queued_cbs" callback
-> as a parameter, this way drivers can flush any work
-> queued after callbacks have been disabled.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  arch/um/drivers/virt-pci.c                 | 2 +-
->  drivers/block/virtio_blk.c                 | 4 ++--
->  drivers/bluetooth/virtio_bt.c              | 2 +-
->  drivers/char/hw_random/virtio-rng.c        | 2 +-
->  drivers/char/virtio_console.c              | 4 ++--
->  drivers/crypto/virtio/virtio_crypto_core.c | 8 ++++----
->  drivers/firmware/arm_scmi/virtio.c         | 2 +-
->  drivers/gpio/gpio-virtio.c                 | 2 +-
->  drivers/gpu/drm/virtio/virtgpu_kms.c       | 2 +-
->  drivers/i2c/busses/i2c-virtio.c            | 2 +-
->  drivers/iommu/virtio-iommu.c               | 2 +-
->  drivers/net/caif/caif_virtio.c             | 2 +-
->  drivers/net/virtio_net.c                   | 4 ++--
->  drivers/net/wireless/mac80211_hwsim.c      | 2 +-
->  drivers/nvdimm/virtio_pmem.c               | 2 +-
->  drivers/rpmsg/virtio_rpmsg_bus.c           | 2 +-
->  drivers/scsi/virtio_scsi.c                 | 2 +-
->  drivers/virtio/virtio.c                    | 5 +++++
->  drivers/virtio/virtio_balloon.c            | 2 +-
->  drivers/virtio/virtio_input.c              | 2 +-
->  drivers/virtio/virtio_mem.c                | 2 +-
->  fs/fuse/virtio_fs.c                        | 4 ++--
+Add optional property 'select-delay' DT property. In case this is set
+then a delay is added when changing mux state. The value is specified in
+usec.
 
-fs/fuse/virtio_fs.c changes look good to me.
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
-
-Vivek
-
-[..]
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 0ad89c6629d7..27c3b74070a2 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -895,7 +895,7 @@ static int virtio_fs_probe(struct virtio_device *vdev)
->  	return 0;
->  
->  out_vqs:
-> -	vdev->config->reset(vdev);
-> +	virtio_reset_device(vdev);
->  	virtio_fs_cleanup_vqs(vdev, fs);
->  	kfree(fs->vqs);
->  
-> @@ -927,7 +927,7 @@ static void virtio_fs_remove(struct virtio_device *vdev)
->  	list_del_init(&fs->list);
->  	virtio_fs_stop_all_queues(fs);
->  	virtio_fs_drain_all_queues_locked(fs);
-> -	vdev->config->reset(vdev);
-> +	virtio_reset_device(vdev);
->  	virtio_fs_cleanup_vqs(vdev, fs);
->  
->  	vdev->priv = NULL;
-
-
-Thanks
-Vivek
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
+index d4cf10582a26..d0dacbad491a 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
+@@ -28,6 +28,7 @@ Required properties:
+ Optional properties:
+ - idle-state: value to set the muxer to when idle. When no value is
+   given, it defaults to the last value used.
++- select-delay: GPIO settle delay when changing mux state. In usec.
+ 
+ For each i2c child node, an I2C child bus will be created. They will
+ be numbered based on their order in the device tree.
+-- 
+2.33.0
 
