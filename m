@@ -2,30 +2,30 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49F4BC433FE
-	for <linux-i2c@archiver.kernel.org>; Thu, 14 Oct 2021 13:48:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 807C3C433EF
+	for <linux-i2c@archiver.kernel.org>; Thu, 14 Oct 2021 13:48:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3107D610D0
-	for <linux-i2c@archiver.kernel.org>; Thu, 14 Oct 2021 13:48:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 679A0610CF
+	for <linux-i2c@archiver.kernel.org>; Thu, 14 Oct 2021 13:48:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231681AbhJNNuF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 14 Oct 2021 09:50:05 -0400
-Received: from mga04.intel.com ([192.55.52.120]:33255 "EHLO mga04.intel.com"
+        id S231701AbhJNNuP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 14 Oct 2021 09:50:15 -0400
+Received: from mga12.intel.com ([192.55.52.136]:10895 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231388AbhJNNuF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 14 Oct 2021 09:50:05 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10136"; a="226447913"
+        id S231417AbhJNNuO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 14 Oct 2021 09:50:14 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10136"; a="207792675"
 X-IronPort-AV: E=Sophos;i="5.85,372,1624345200"; 
-   d="scan'208";a="226447913"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Oct 2021 06:48:00 -0700
+   d="scan'208";a="207792675"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Oct 2021 06:47:59 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.85,372,1624345200"; 
-   d="scan'208";a="659972121"
+   d="scan'208";a="481265454"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga005.jf.intel.com with ESMTP; 14 Oct 2021 06:47:56 -0700
+  by orsmga007.jf.intel.com with ESMTP; 14 Oct 2021 06:47:56 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 6791B2E4; Thu, 14 Oct 2021 16:48:04 +0300 (EEST)
+        id 5C3AA361; Thu, 14 Oct 2021 16:48:04 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Saravana Kannan <saravanak@google.com>,
@@ -39,67 +39,58 @@ Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <brgl@bgdev.pl>,
         Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH v4 2/3] i2c: acpi: Replace custom function with device_match_acpi_handle()
-Date:   Thu, 14 Oct 2021 16:47:55 +0300
-Message-Id: <20211014134756.39092-2-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 1/3] driver core: Provide device_match_acpi_handle() helper
+Date:   Thu, 14 Oct 2021 16:47:54 +0300
+Message-Id: <20211014134756.39092-1-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014134756.39092-1-andriy.shevchenko@linux.intel.com>
-References: <20211014134756.39092-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Since driver core provides a generic device_match_acpi_handle()
-we may replace the custom one with it. This unifies code to find
-an adapter with the similar one which finds a client.
+We have a couple of users of this helper, make it available for them.
+
+The prototype for the helper is specifically crafted in order to be
+easily used with bus_find_device() call. That's why its location is
+in the driver core rather than ACPI.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Wolfram Sang <wsa@kernel.org>
 ---
-v4: added tag (Wolfram)
- drivers/i2c/i2c-core-acpi.c | 22 +++++++++-------------
- 1 file changed, 9 insertions(+), 13 deletions(-)
+v4: amended changelog to clarify implementation details (Rafael)
+ drivers/base/core.c        | 6 ++++++
+ include/linux/device/bus.h | 1 +
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 7ea2ac712a57..0aea776cd4c9 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -398,24 +398,20 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index b67ebe6a323c..fd034d742447 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -4838,6 +4838,12 @@ int device_match_acpi_dev(struct device *dev, const void *adev)
  }
- EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
+ EXPORT_SYMBOL(device_match_acpi_dev);
  
--static int i2c_acpi_find_match_adapter(struct device *dev, const void *data)
--{
--	struct i2c_adapter *adapter = i2c_verify_adapter(dev);
--
--	if (!adapter)
--		return 0;
--
--	return ACPI_HANDLE(dev) == (acpi_handle)data;
--}
--
- struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
- {
-+	struct i2c_adapter *adapter;
- 	struct device *dev;
- 
--	dev = bus_find_device(&i2c_bus_type, NULL, handle,
--			      i2c_acpi_find_match_adapter);
-+	dev = bus_find_device(&i2c_bus_type, NULL, handle, device_match_acpi_handle);
-+	if (!dev)
-+		return NULL;
++int device_match_acpi_handle(struct device *dev, const void *handle)
++{
++	return ACPI_HANDLE(dev) == handle;
++}
++EXPORT_SYMBOL(device_match_acpi_handle);
 +
-+	adapter = i2c_verify_adapter(dev);
-+	if (!adapter)
-+		put_device(dev);
+ int device_match_any(struct device *dev, const void *unused)
+ {
+ 	return 1;
+diff --git a/include/linux/device/bus.h b/include/linux/device/bus.h
+index 062777a45a74..a039ab809753 100644
+--- a/include/linux/device/bus.h
++++ b/include/linux/device/bus.h
+@@ -143,6 +143,7 @@ int device_match_of_node(struct device *dev, const void *np);
+ int device_match_fwnode(struct device *dev, const void *fwnode);
+ int device_match_devt(struct device *dev, const void *pdevt);
+ int device_match_acpi_dev(struct device *dev, const void *adev);
++int device_match_acpi_handle(struct device *dev, const void *handle);
+ int device_match_any(struct device *dev, const void *unused);
  
--	return dev ? i2c_verify_adapter(dev) : NULL;
-+	return adapter;
- }
- EXPORT_SYMBOL_GPL(i2c_acpi_find_adapter_by_handle);
- 
+ /* iterator helpers for buses */
 -- 
 2.33.0
 
