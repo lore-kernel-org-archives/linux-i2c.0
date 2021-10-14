@@ -2,30 +2,30 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 807C3C433EF
-	for <linux-i2c@archiver.kernel.org>; Thu, 14 Oct 2021 13:48:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FA4AC433FE
+	for <linux-i2c@archiver.kernel.org>; Thu, 14 Oct 2021 13:48:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 679A0610CF
-	for <linux-i2c@archiver.kernel.org>; Thu, 14 Oct 2021 13:48:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 767AE610CF
+	for <linux-i2c@archiver.kernel.org>; Thu, 14 Oct 2021 13:48:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231701AbhJNNuP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 14 Oct 2021 09:50:15 -0400
+        id S231417AbhJNNuQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 14 Oct 2021 09:50:16 -0400
 Received: from mga12.intel.com ([192.55.52.136]:10895 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231417AbhJNNuO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 14 Oct 2021 09:50:14 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10136"; a="207792675"
+        id S231388AbhJNNuP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 14 Oct 2021 09:50:15 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10136"; a="207792678"
 X-IronPort-AV: E=Sophos;i="5.85,372,1624345200"; 
-   d="scan'208";a="207792675"
+   d="scan'208";a="207792678"
 Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Oct 2021 06:47:59 -0700
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Oct 2021 06:48:00 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.85,372,1624345200"; 
-   d="scan'208";a="481265454"
+   d="scan'208";a="481265455"
 Received: from black.fi.intel.com ([10.237.72.28])
   by orsmga007.jf.intel.com with ESMTP; 14 Oct 2021 06:47:56 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 5C3AA361; Thu, 14 Oct 2021 16:48:04 +0300 (EEST)
+        id 73C3D36E; Thu, 14 Oct 2021 16:48:04 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Saravana Kannan <saravanak@google.com>,
@@ -39,58 +39,43 @@ Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <brgl@bgdev.pl>,
         Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH v4 1/3] driver core: Provide device_match_acpi_handle() helper
-Date:   Thu, 14 Oct 2021 16:47:54 +0300
-Message-Id: <20211014134756.39092-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 3/3] gpiolib: acpi: Replace custom code with device_match_acpi_handle()
+Date:   Thu, 14 Oct 2021 16:47:56 +0300
+Message-Id: <20211014134756.39092-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211014134756.39092-1-andriy.shevchenko@linux.intel.com>
+References: <20211014134756.39092-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-We have a couple of users of this helper, make it available for them.
-
-The prototype for the helper is specifically crafted in order to be
-easily used with bus_find_device() call. That's why its location is
-in the driver core rather than ACPI.
+Since driver core provides a generic device_match_acpi_handle()
+we may replace the custom code with it.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-v4: amended changelog to clarify implementation details (Rafael)
- drivers/base/core.c        | 6 ++++++
- include/linux/device/bus.h | 1 +
- 2 files changed, 7 insertions(+)
+v4: no changes
+ drivers/gpio/gpiolib-acpi.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index b67ebe6a323c..fd034d742447 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -4838,6 +4838,12 @@ int device_match_acpi_dev(struct device *dev, const void *adev)
- }
- EXPORT_SYMBOL(device_match_acpi_dev);
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 47712b6903b5..985e8589c58b 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -95,10 +95,7 @@ static bool acpi_gpio_deferred_req_irqs_done;
  
-+int device_match_acpi_handle(struct device *dev, const void *handle)
-+{
-+	return ACPI_HANDLE(dev) == handle;
-+}
-+EXPORT_SYMBOL(device_match_acpi_handle);
-+
- int device_match_any(struct device *dev, const void *unused)
+ static int acpi_gpiochip_find(struct gpio_chip *gc, void *data)
  {
- 	return 1;
-diff --git a/include/linux/device/bus.h b/include/linux/device/bus.h
-index 062777a45a74..a039ab809753 100644
---- a/include/linux/device/bus.h
-+++ b/include/linux/device/bus.h
-@@ -143,6 +143,7 @@ int device_match_of_node(struct device *dev, const void *np);
- int device_match_fwnode(struct device *dev, const void *fwnode);
- int device_match_devt(struct device *dev, const void *pdevt);
- int device_match_acpi_dev(struct device *dev, const void *adev);
-+int device_match_acpi_handle(struct device *dev, const void *handle);
- int device_match_any(struct device *dev, const void *unused);
+-	if (!gc->parent)
+-		return false;
+-
+-	return ACPI_HANDLE(gc->parent) == data;
++	return gc->parent && device_match_acpi_handle(gc->parent, data);
+ }
  
- /* iterator helpers for buses */
+ /**
 -- 
 2.33.0
 
