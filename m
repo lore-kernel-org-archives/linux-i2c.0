@@ -2,115 +2,110 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A3D8C433F5
-	for <linux-i2c@archiver.kernel.org>; Tue, 19 Oct 2021 14:39:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA953C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue, 19 Oct 2021 17:29:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 20CEB6113B
-	for <linux-i2c@archiver.kernel.org>; Tue, 19 Oct 2021 14:39:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C63A661354
+	for <linux-i2c@archiver.kernel.org>; Tue, 19 Oct 2021 17:29:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229963AbhJSOlf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 19 Oct 2021 10:41:35 -0400
-Received: from mga01.intel.com ([192.55.52.88]:57346 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229641AbhJSOle (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 19 Oct 2021 10:41:34 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10142"; a="252001992"
-X-IronPort-AV: E=Sophos;i="5.87,164,1631602800"; 
-   d="scan'208";a="252001992"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2021 07:17:07 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,164,1631602800"; 
-   d="scan'208";a="661823740"
-Received: from mylly.fi.intel.com (HELO mylly.fi.intel.com.) ([10.237.72.56])
-  by orsmga005.jf.intel.com with ESMTP; 19 Oct 2021 07:17:04 -0700
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        ck+kernelbugzilla@bl4ckb0x.de, stephane.poignant@protonmail.com
-Subject: [PATCH] i2c: i801: Fix interrupt storm from SMB_ALERT signal
-Date:   Tue, 19 Oct 2021 17:17:00 +0300
-Message-Id: <20211019141700.764413-1-jarkko.nikula@linux.intel.com>
-X-Mailer: git-send-email 2.33.0
+        id S234630AbhJSRbu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 19 Oct 2021 13:31:50 -0400
+Received: from smtp03.smtpout.orange.fr ([80.12.242.125]:61782 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232127AbhJSRbs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Oct 2021 13:31:48 -0400
+Received: from [192.168.1.18] ([92.140.161.106])
+        by smtp.orange.fr with ESMTPA
+        id csvdmJ16MPNphcsvem4kWR; Tue, 19 Oct 2021 19:29:34 +0200
+X-ME-Helo: [192.168.1.18]
+X-ME-Auth: YWZlNiIxYWMyZDliZWIzOTcwYTEyYzlhMmU3ZiQ1M2U2MzfzZDfyZTMxZTBkMTYyNDBjNDJlZmQ3ZQ==
+X-ME-Date: Tue, 19 Oct 2021 19:29:34 +0200
+X-ME-IP: 92.140.161.106
+Subject: Re: [PATCH] i2c: thunderx: Fix some resource leak
+To:     Robert Richter <rric@kernel.org>
+Cc:     jan.glauber@gmail.com, wsa@kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+References: <6657505309174d3ea6df14169d42b6df91298470.1634374036.git.christophe.jaillet@wanadoo.fr>
+ <YW3j4MF/y4T6Rtzp@rric.localdomain>
+From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Message-ID: <5a3eccff-f39d-29dc-976c-1de7b32e36c5@wanadoo.fr>
+Date:   Tue, 19 Oct 2021 19:29:33 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
+In-Reply-To: <YW3j4MF/y4T6Rtzp@rric.localdomain>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Currently interrupt storm will occur from i2-i801 after first transaction
-if SMB_ALERT signal is enabled and ever asserted, even before the driver
-is loaded and does not recover because that interrupt is not
-acknowledged.
+Le 18/10/2021 à 23:15, Robert Richter a écrit :
+> On 16.10.21 10:48:26, Christophe JAILLET wrote:
+>> We need to undo a 'pci_request_regions()' call in the error handling path
+>> of the probe function and in the remove function.
+> 
+> Isn't that devm and thus not needed?
 
-This fix aims to fix it by two ways:
-- Add acknowledging for the SMB_ALERT interrupt status
-- Disable the SMB_ALERT interrupt on platforms where possible since the
-  driver currently does not make use for it
+My bad, you are obviously right, sorry for the noise.
 
-Acknowledging resets the SMB_ALERT interrupt status on all platforms and
-also should help to avoid interrupt storm on older platforms where the
-SMB_ALERT interrupt disabling is not available.
+I was aware that 'pcim_enable_device()' was turning automagically 
+'pci_alloc_irq_vectors()' into a managed function. But I wasn't for 
+'pci_request_regions()'. Now I'm :)
 
-For simplicity this fix reuses the host notify feature for disabling and
-restoring original register value.
+CJ
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=177311
-Reported-by: ck+kernelbugzilla@bl4ckb0x.de
-Reported-by: stephane.poignant@protonmail.com
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
-Hi Conrad and Stephane. This patch is otherwise the same than the one I
-had in bugzilla but this adds also acknowledging for the SMB_ALERT
-interrupt. There is short time window during driver load and unload
-where interrupt storm will still occur if signal was asserted. Also
-interrupt disabling is possible only on ICH3 and later so interrupt
-acknowledging should also help those old platforms.
----
- drivers/i2c/busses/i2c-i801.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 115660dce722..e95de4ce6b64 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -190,6 +190,7 @@
- #define SMBSLVSTS_HST_NTFY_STS	BIT(0)
- 
- /* Host Notify Command register bits */
-+#define SMBSLVCMD_SMBALERT_DISABLE	BIT(2)
- #define SMBSLVCMD_HST_NTFY_INTREN	BIT(0)
- 
- #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
-@@ -642,9 +643,11 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
- 	 * Clear irq sources and report transaction result.
- 	 * ->status must be cleared before the next transaction is started.
- 	 */
--	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS;
--	if (status) {
-+	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS | SMBHSTSTS_SMBALERT_STS;
-+	if (status)
- 		outb_p(status, SMBHSTSTS(priv));
-+	status &= ~SMBHSTSTS_SMBALERT_STS;
-+	if (status) {
- 		priv->status = status;
- 		complete(&priv->done);
- 	}
-@@ -972,9 +975,9 @@ static void i801_enable_host_notify(struct i2c_adapter *adapter)
- 	if (!(priv->features & FEATURE_HOST_NOTIFY))
- 		return;
- 
--	if (!(SMBSLVCMD_HST_NTFY_INTREN & priv->original_slvcmd))
--		outb_p(SMBSLVCMD_HST_NTFY_INTREN | priv->original_slvcmd,
--		       SMBSLVCMD(priv));
-+	/* Enable host notify interrupt and disable SMB_ALERT signal */
-+	outb_p(SMBSLVCMD_HST_NTFY_INTREN | SMBSLVCMD_SMBALERT_DISABLE |
-+	       priv->original_slvcmd, SMBSLVCMD(priv));
- 
- 	/* clear Host Notify bit to allow a new notification */
- 	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
--- 
-2.33.0
+> 
+>>
+>> Fixes: 22d40209de3b ("i2c: thunderx: Add i2c driver for ThunderX SOC")
+>> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+>> ---
+>>   drivers/i2c/busses/i2c-thunderx-pcidrv.c | 9 +++++++--
+>>   1 file changed, 7 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+>> index 12c90aa0900e..2d37096a6968 100644
+>> --- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+>> +++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+>> @@ -177,8 +177,10 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+>>   		return ret;
+>>   
+> 
+> There is a pcim_enable_device() call before all that, so the regions
+> should be removed on device release, see pcim_release().
+> 
+> -Robert
+> 
+>>   	i2c->twsi_base = pcim_iomap(pdev, 0, pci_resource_len(pdev, 0));
+>> -	if (!i2c->twsi_base)
+>> -		return -EINVAL;
+>> +	if (!i2c->twsi_base) {
+>> +		ret = -EINVAL;
+>> +		goto err_release_regions;
+>> +	}
+>>   
+>>   	thunder_i2c_clock_enable(dev, i2c);
+>>   	ret = device_property_read_u32(dev, "clock-frequency", &i2c->twsi_freq);
+>> @@ -231,6 +233,8 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+>>   
+>>   error:
+>>   	thunder_i2c_clock_disable(dev, i2c->clk);
+>> +err_release_regions:
+>> +	pci_release_regions(pdev);
+>>   	return ret;
+>>   }
+>>   
+>> @@ -241,6 +245,7 @@ static void thunder_i2c_remove_pci(struct pci_dev *pdev)
+>>   	thunder_i2c_smbus_remove(i2c);
+>>   	thunder_i2c_clock_disable(&pdev->dev, i2c->clk);
+>>   	i2c_del_adapter(&i2c->adap);
+>> +	pci_release_regions(pdev);
+>>   }
+>>   
+>>   static const struct pci_device_id thunder_i2c_pci_id_table[] = {
+>> -- 
+>> 2.30.2
+>>
+> 
 
