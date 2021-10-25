@@ -2,125 +2,132 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A56EC433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 25 Oct 2021 11:41:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92550C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 25 Oct 2021 21:35:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6006561076
-	for <linux-i2c@archiver.kernel.org>; Mon, 25 Oct 2021 11:41:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6CC4760FDC
+	for <linux-i2c@archiver.kernel.org>; Mon, 25 Oct 2021 21:35:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233102AbhJYLoA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 25 Oct 2021 07:44:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57544 "EHLO
+        id S233919AbhJYVh7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 25 Oct 2021 17:37:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232207AbhJYLn5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Oct 2021 07:43:57 -0400
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B5DFC061745;
-        Mon, 25 Oct 2021 04:41:35 -0700 (PDT)
-Received: by mail-ed1-x529.google.com with SMTP id g8so10320150edb.2;
-        Mon, 25 Oct 2021 04:41:35 -0700 (PDT)
+        with ESMTP id S233569AbhJYVh6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Oct 2021 17:37:58 -0400
+Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD37C061767
+        for <linux-i2c@vger.kernel.org>; Mon, 25 Oct 2021 14:35:36 -0700 (PDT)
+Received: by mail-pf1-x449.google.com with SMTP id f9-20020a056a001ac900b0044c4f04a6b1so7170253pfv.23
+        for <linux-i2c@vger.kernel.org>; Mon, 25 Oct 2021 14:35:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Af+qmYvV3PY7oY9iMHf1WDLN+yTC/dfVl6LmNB2Ru+M=;
-        b=iLTzGHKq62wcRXJw/NQeb8QVl0SSGxd0VOXTRXyEMYtWDF16J/H4D9o1cX+9caqz8h
-         pXrPyzBaUiZ0wa/rRI5QqSYx28CxRd1p5Ys03yoYaNBgm3qYTV80XOmaEFCOc8WN3eI+
-         /Zwrh18K9RiH6f4EmIOxd9zjwFUeuIeq/GdpkLulr84hMeotFMMfUuWWmc1F0lnxsvey
-         1wozSc9mRa+aSgqBIsqi3KeUU16h2VN8zp5sptzJqmma4Ljkt5BOEK3yDYNWT89byf7X
-         cX9CfI4culRu/NEpETmT2OCUXcdXtWlLT82RGyimdnOIp4g0iEyt3U8uwefzVYNDGf9/
-         VyeQ==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=IsG+1m99AvoR1yZKJQrlzvDKdWHsv+YhZuLrk/U7nqM=;
+        b=nb3VuU7Ntj1eqgLyfUJOmSueS+kzxRn5xRwY2HECFl95yc1ZFK+33rTVSGkm5KfuYY
+         adNJ7rNi0AiA209QwvG6tbsGzzvPOVTZZKPdFHfXOEllvEjM4Bx5sGSe4m+euxR6plwK
+         oZPIfDsk8DuutC6BSByCbYpo1UVU5yYINtqZWEwqmK4sKpPskC0y4DR9tLLWCo1c+Qa4
+         gxa9PwtlkKpe+ke0HbEqiUVMJQgWdCM4me3E3AZMBF4Jxkz9irB8lW4RExijrsIx8a2p
+         AYlatBnzdMBxWZZY3O4urwqHW561D0s7fUlKTosWiWk4pr8fgUKCpj079qfn/6vCizpO
+         6Rwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Af+qmYvV3PY7oY9iMHf1WDLN+yTC/dfVl6LmNB2Ru+M=;
-        b=UUfPSHY/5GTlh7vNnngmfbwcsOt1bbIg3kAuA7pAdr+5yiWD+5apss0uaJI76lIM0B
-         PZNlk+dFc68optixYEHjIqKAyILm+RYyPEpMXWQ1Tb13icpyy9tzLG042Y/VZ/JtZLBj
-         AZzJhiDwiefr//OvgpmAuy96rWNR++eWXf6MBy2DbhgqhgN3M8z84jozTE3JHJwIKaXi
-         f6ONyxx/qZpx8+Uwm0kOIn9Go5HjvbCVJjFg0HJW93gFp6sWMbRjCW4fYssGvWltrRmy
-         8UdxH94gs4NyNN4pffRPyXicaJwVUI7+ocgYLLVt14J9AeCQKDVP+8RLV4bG+8DcQafQ
-         aadw==
-X-Gm-Message-State: AOAM532wd7W+KrnWTlLjEnCsLZLCJmsW7oqOtBK8pUNvMRulJG3xTnhE
-        yHSacVq8seR56o2Xe1L4jRZLNbzZQxllRv5/bb0=
-X-Google-Smtp-Source: ABdhPJzjBN4K07mgHexd4fWyTF3MfP5LCSNqxjtFEIj1rgPmmarKsiTdhxurgICUQfmRRjgJ3XTV28Ui7aDLiZxfOA8=
-X-Received: by 2002:a17:906:d553:: with SMTP id cr19mr14340955ejc.128.1635162093757;
- Mon, 25 Oct 2021 04:41:33 -0700 (PDT)
-MIME-Version: 1.0
-References: <20211025094119.82967-1-hdegoede@redhat.com> <20211025094119.82967-12-hdegoede@redhat.com>
-In-Reply-To: <20211025094119.82967-12-hdegoede@redhat.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Mon, 25 Oct 2021 14:40:39 +0300
-Message-ID: <CAHp75VdJav6L03oVNd0DNA8jUXHPaqNzHU+q=+2-eEbh087bOQ@mail.gmail.com>
-Subject: Re: [PATCH v4 11/11] platform/x86: int3472: Deal with probe ordering issues
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Mark Gross <markgross@kernel.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=IsG+1m99AvoR1yZKJQrlzvDKdWHsv+YhZuLrk/U7nqM=;
+        b=yKq9EeIaAbrU2sGSw25Rq/7B6/s8CVL+94rn3HHTWuLw68l1UJXZIo8eyFh/KrK0rS
+         Qba5XKEnusV5szULM7fprmAZ2vNSDV1CnfaOvfR/EAvN5IqwVE7eclJCcfljNk32uMoe
+         5+EnEsEiuLDdi8FCutya4eOd6pei2FSdl4vmN/M3WwuccDGaXS2sliq07pyasB2zF7uD
+         jWkpqukugcDAxEjoeu/HsPrG5jxlu18TqLXbcxnbDBBK8tfMAAw8hSDUw3ojWXc76hSe
+         8Iag/u6DQh0VKgMOs2pgT9HaoBP4CMCkzY6cmBHgeCjxpv2ZxF80911Eu5Y+k60mRIF3
+         woyQ==
+X-Gm-Message-State: AOAM532hqkutwy8ZIeN84ZqsSbwGZLk9iJIzNbhP6Wvq/gklLnYHDCzD
+        j1ZSpQVUPvsDxKImm2LhVI6+cOUHCFGx
+X-Google-Smtp-Source: ABdhPJzES92KcEzUjQonpDW/7/i9OxpiiGezgo7YKMv28uo46LmDd7nvnKJGsZ+zBG+xuEvbLNeZmcJFh/+9
+X-Received: from rajat2.mtv.corp.google.com ([2620:15c:202:201:5478:3d15:6893:1074])
+ (user=rajatja job=sendgmr) by 2002:a17:90a:eb18:: with SMTP id
+ j24mr22613368pjz.196.1635197735729; Mon, 25 Oct 2021 14:35:35 -0700 (PDT)
+Date:   Mon, 25 Oct 2021 14:35:28 -0700
+Message-Id: <20211025213532.2349161-1-rajatja@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.33.0.1079.g6e70778dc9-goog
+Subject: [PATCH v2 0/3] i2c: Enable asynchronous suspend/resume
+From:   Rajat Jain <rajatja@google.com>
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>, Len Brown <lenb@kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Kate Hsuan <hpa@redhat.com>,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
+        dtor@google.com
+Cc:     Rajat Jain <rajatja@google.com>, rajatxjain@gmail.com,
+        dbasehore@chromium.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Oct 25, 2021 at 12:42 PM Hans de Goede <hdegoede@redhat.com> wrote:
->
-> The clk and regulator frameworks expect clk/regulator consumer-devices
-> to have info about the consumed clks/regulators described in the device's
-> fw_node.
->
-> To work around this info missing from the ACPI tables on devices where
-> the int3472 driver is used, the int3472 MFD-cell drivers attach info about
-> consumers to the clks/regulators when registering these.
->
-> This causes problems with the probe ordering wrt drivers for consumers
-> of these clks/regulators. Since the lookups are only registered when the
-> provider-driver binds, trying to get these clks/regulators before then
-> results in a -ENOENT error for clks and a dummy regulator for regulators.
->
-> All the sensor ACPI fw-nodes have a _DEP dependency on the INT3472 ACPI
-> fw-node, so to work around these probe ordering issues the ACPI core /
-> i2c-code does not instantiate the I2C-clients for any ACPI devices
-> which have a _DEP dependency on an INT3472 ACPI device until all
-> _DEP-s are met.
->
-> This relies on acpi_dev_clear_dependencies() getting called by the driver
-> for the _DEP-s when they are ready, add a acpi_dev_clear_dependencies()
-> call to the discrete.c probe code.
->
-> In the tps68470 case calling acpi_dev_clear_dependencies() is already done
-> by the acpi_gpiochip_add() call done by the driver for the GPIO MFD cell
-> (The GPIO cell is deliberately the last cell created to make sure the
-> clk + regulator cells are already instantiated when this happens).
->
-> However for proper probe ordering, the clk/regulator cells must not just
-> be instantiated the must be fully ready (the clks + regulators must be
-> registered with their subsystems).
->
-> Add MODULE_SOFTDEP dependencies for the clk and regulator drivers for
-> the instantiated MFD-cells so that these are loaded before us and so
-> that they bind immediately when the platform-devs are instantiated.
+(The only change in v2 is to add Jarkko's ack / tested-by)
 
-Just a side note: MODULE_SOFTDEP() won't work in some (special?) cases
-when module tools are limited in functionality (e.g. busybox
-implementation as of today).
+PM Core allows buses and drivers to specify if they'd like their devices
+to suspend/resume synchronously or asynchronously. When resuming:
+
+1) SYNCHRONOUS DEVICES:
+ - All synchronous devices (system wide!) are resumed in a single thread,
+   serially i.e. one after the other. So their resume latencies add up,
+   and also, this results in unnecessary and unnatural waiting order.
+
+   In my current system (total resume time ~895ms) and this is the trend
+   on almost all chromebooks in the past 3-4 years (we carry patch3 in
+   our tree already, without which it would be even more worse):
+   https://rajatxjain.github.io/public_shared/resume_before_patches.html
+   As you can see I2C devices do not even begin to resume until 450ms,
+   waiting unnaturally for another device i915 to finish resuming: 
+
+   I2C touchscreen device (resume latency = 374 ms) - asynchronous
+   -> (waiting on) I2C adapter resume (synchronous)
+     -> (waiting on) Designware resume (synchronous)
+       -> (waiting on) intel_backlight resume (synchronous)
+         -> (waiting on) its PARENT i915 resume (asynchronous resume
+                                                       time = 376ms)
+   As you can see the two biggest resume routines are both run serially
+   after one another (even though they don't have any real dependency)
+   thus increasing the system critical resume path. If we can run them
+   concurrently, we can cut down the system resume time considerably. 
+ 
+2) ASYNCHRONOUS DEVICES: 
+- On the other hand, all asynchronous devices's resume routines are
+  scheduled so they can run in parallel with other asynchronous
+  routines. PM core still ensures for both async/sync devices that:
+   - All parent child relations are honored.
+   - Any device dependencies are honored. Device dependencies between
+     any 2 unrelated devices can be specified using device_link_add().
+   - Async resume devices are sychnronized at the end of each
+     suspend/resume phase, before moving onto next.
+
+   With these patches in place, the I2C devices can resume in parallel
+   with i915: 
+   https://rajatxjain.github.io/public_shared/resume_after_patch.html
+
+As far as I understand, the only reason we might not want a device to be
+marked for asynchronous resume is if we suspect it cannot handle
+concurrent resume with other devices, which does not look to be the
+case. 
+    
+This patchset marks the designware, the I2c adapters, and the i2c 
+clients for asynchronous suspend/resume. In case it helps to gain any
+confidence, the patch 3 (for i2c clients) has been included and shipping
+on all our chromebooks for the past 3+ years, and has not shown any
+issues. The designware and i2c adapters should be easier.
+
+Derek Basehore (1):
+  i2c: enable async suspend/resume on i2c client devices
+
+Rajat Jain (2):
+  i2c: designware: Enable async suspend / resume of designware devices
+  i2c: enable async suspend/resume for i2c adapters
+
+ drivers/i2c/busses/i2c-designware-platdrv.c | 2 ++
+ drivers/i2c/i2c-core-base.c                 | 2 ++
+ 2 files changed, 4 insertions(+)
 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.33.0.1079.g6e70778dc9-goog
+
