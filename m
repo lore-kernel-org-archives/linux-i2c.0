@@ -2,190 +2,178 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1279BC433EF
-	for <linux-i2c@archiver.kernel.org>; Tue, 26 Oct 2021 21:28:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 290FFC433F5
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 Oct 2021 06:11:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DD0A760EB4
-	for <linux-i2c@archiver.kernel.org>; Tue, 26 Oct 2021 21:28:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B031610CB
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 Oct 2021 06:11:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239613AbhJZVaq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 26 Oct 2021 17:30:46 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:33368 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239602AbhJZVan (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Oct 2021 17:30:43 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id AF6F91FD40;
-        Tue, 26 Oct 2021 21:28:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1635283696; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=z1ET4Z0gPlkKUJqqYRVC9any/0mVnEksgVPzB05OKl4=;
-        b=ZrattbXT/Hus7BadPdf+0FyrO7gp0QmXg8YP+//SuqP+0YLbaekdAw+Elesk3ipImSljzQ
-        SQAj9rvNDF+GFKW0GnoZeK4wQkHqM9aOEkR3CPz88+kiwY9vqSpvrFB0phcRU8WIoJlpd5
-        90PiFm2/ayBC5VROa55epZllH0tsW/8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1635283696;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=z1ET4Z0gPlkKUJqqYRVC9any/0mVnEksgVPzB05OKl4=;
-        b=hsnl3Gxvag1eigo3DRQTqu+NtIl8rDtZX53pz6GlASF5DDu3zz1rG44EdbGyr9TxMDwcY/
-        I0z9JdPm3UT/xNAQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4345413DB6;
-        Tue, 26 Oct 2021 21:28:16 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id OocyDfByeGEROgAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Tue, 26 Oct 2021 21:28:16 +0000
-Date:   Tue, 26 Oct 2021 23:28:15 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        ck+kernelbugzilla@bl4ckb0x.de, stephane.poignant@protonmail.com
-Subject: Re: [PATCH] i2c: i801: Fix interrupt storm from SMB_ALERT signal
-Message-ID: <20211026232815.513362d6@endymion>
-In-Reply-To: <20211019141700.764413-1-jarkko.nikula@linux.intel.com>
-References: <20211019141700.764413-1-jarkko.nikula@linux.intel.com>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S238409AbhJ0GNz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 27 Oct 2021 02:13:55 -0400
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:33952 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231208AbhJ0GNw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Oct 2021 02:13:52 -0400
+Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19R5prE3007246;
+        Wed, 27 Oct 2021 08:10:50 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=selector1;
+ bh=q0IzamWoBnMLIIIWgH1c6YZ0YARVpDAlAywCoCd8O6A=;
+ b=pLut+GxRqLoEwutxmEsKmT0U9f6n8Czu59GaLbziADOMwtznLgQUZ54Gw0mFG30LzTFI
+ mAf8pn9K9k2l9XDGD8kyB8y+cnm5BmAO3YB00+gyy/yFMSCCO5HF8/PQ6lATeCubYrNt
+ DdiIwe9I6oNJ1LpNKfJ0tNMiodtkGtIRzCLDVOx9JfwIBUGTkeKgOf8Hru+PdxHSGGIB
+ WmjLMAKdFPGg4+kJmvUsa+tgl9tTdDraTeFW116MnoqgEuCPXI2gblkV13eeEpJbnLHW
+ 9gSaSeXE68XwgQBNQi7Ez8d68t00m5nmdGyM96U93gZ2aaDRvaLknKJ4aiI1DjaFKmGE dQ== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 3by10br34g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Oct 2021 08:10:50 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 08F3C100034;
+        Wed, 27 Oct 2021 08:10:46 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag2node2.st.com [10.75.127.5])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id A09DC21810A;
+        Wed, 27 Oct 2021 08:10:46 +0200 (CEST)
+Received: from lmecxl0573.lme.st.com (10.75.127.49) by SFHDAG2NODE2.st.com
+ (10.75.127.5) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Wed, 27 Oct
+ 2021 08:10:43 +0200
+Subject: Re: dt-bindings: treewide: Update @st.com email address to
+ @foss.st.com
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        maxime coquelin <mcoquelin.stm32@gmail.com>,
+        "alexandre torgue" <alexandre.torgue@foss.st.com>,
+        michael turquette <mturquette@baylibre.com>,
+        stephen boyd <sboyd@kernel.org>,
+        herbert xu <herbert@gondor.apana.org.au>,
+        "david s . miller" <davem@davemloft.net>,
+        david airlie <airlied@linux.ie>,
+        daniel vetter <daniel@ffwll.ch>,
+        "thierry reding" <thierry.reding@gmail.com>,
+        sam ravnborg <sam@ravnborg.org>,
+        "yannick fertre" <yannick.fertre@foss.st.com>,
+        philippe cornu <philippe.cornu@foss.st.com>,
+        benjamin gaignard <benjamin.gaignard@linaro.org>,
+        vinod koul <vkoul@kernel.org>,
+        ohad ben-cohen <ohad@wizery.com>,
+        bjorn andersson <bjorn.andersson@linaro.org>,
+        baolin wang <baolin.wang7@gmail.com>,
+        jonathan cameron <jic23@kernel.org>,
+        "lars-peter clausen" <lars@metafoo.de>,
+        olivier moysan <olivier.moysan@foss.st.com>,
+        arnaud pouliquen <arnaud.pouliquen@foss.st.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>,
+        Jassi Brar <jassisinghbrar@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Hugues Fruchet <hugues.fruchet@foss.st.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        "Miquel Raynal" <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Matt Mackall <mpm@selenic.com>,
+        "Alessandro Zummo" <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Ahmad Fatoum" <a.fatoum@pengutronix.de>,
+        Jagan Teki <jagan@amarulasolutions.com>,
+        dillon min <dillon.minfei@gmail.com>,
+        Marek Vasut <marex@denx.de>,
+        "Laurent Pinchart" <laurent.pinchart@ideasonboard.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Fabien Dessenne <fabien.dessenne@foss.st.com>,
+        Christophe Roullier <christophe.roullier@foss.st.com>,
+        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
+        Lionel Debieve <lionel.debieve@foss.st.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+        Ludovic Barre <ludovic.barre@foss.st.com>,
+        Christophe Kerello <christophe.kerello@foss.st.com>,
+        pascal Paillet <p.paillet@foss.st.com>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        "Jose Abreu" <joabreu@synopsys.com>,
+        Le Ray <erwan.leray@foss.st.com>
+CC:     <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-clk@vger.kernel.org>, <linux-crypto@vger.kernel.org>,
+        <dri-devel@lists.freedesktop.org>, <dmaengine@vger.kernel.org>,
+        <linux-remoteproc@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-iio@vger.kernel.org>, <alsa-devel@alsa-project.org>,
+        <linux-media@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
+        <netdev@vger.kernel.org>, <linux-phy@lists.infradead.org>,
+        <linux-gpio@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <linux-serial@vger.kernel.org>, <linux-spi@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <linux-usb@vger.kernel.org>,
+        <linux-watchdog@vger.kernel.org>
+References: <20211020065000.21312-1-patrice.chotard@foss.st.com>
+ <22fb6f19-21eb-dcb5-fa31-bb243d4a7eaf@canonical.com>
+From:   Patrice CHOTARD <patrice.chotard@foss.st.com>
+Message-ID: <e8ddc63b-a0b5-79ae-6aff-19810cf74920@foss.st.com>
+Date:   Wed, 27 Oct 2021 08:10:42 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <22fb6f19-21eb-dcb5-fa31-bb243d4a7eaf@canonical.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.75.127.49]
+X-ClientProxiedBy: SFHDAG1NODE2.st.com (10.75.127.2) To SFHDAG2NODE2.st.com
+ (10.75.127.5)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-27_01,2021-10-26_01,2020-04-07_01
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Jarkko,
+Hi Krzysztof
 
-On Tue, 19 Oct 2021 17:17:00 +0300, Jarkko Nikula wrote:
-> Currently interrupt storm will occur from i2-i801 after first transaction
-
-Typo: i2c-i801.
-
-> if SMB_ALERT signal is enabled and ever asserted, even before the driver
-> is loaded and does not recover because that interrupt is not
-> acknowledged.
-
-Thank you very much for looking into this old bug and finally figuring
-it out. Great job!
-
-So basically the interrupt storm begins as soon as SMBHSTCNT_INTREN is
-set, because that bit controls both regular SMBus transactions and
-SMBALERT# (but not Host Notify which has its own interrupt enable
-control bit).
-
-> This fix aims to fix it by two ways:
-> - Add acknowledging for the SMB_ALERT interrupt status
-> - Disable the SMB_ALERT interrupt on platforms where possible since the
->   driver currently does not make use for it
+On 10/20/21 9:45 AM, Krzysztof Kozlowski wrote:
+> On 20/10/2021 08:50, patrice.chotard@foss.st.com wrote:
+>> From: Patrice Chotard <patrice.chotard@foss.st.com>
+>>
+>> Not all @st.com email address are concerned, only people who have
+>> a specific @foss.st.com email will see their entry updated.
+>> For some people, who left the company, remove their email.
+>>
 > 
-> Acknowledging resets the SMB_ALERT interrupt status on all platforms and
-> also should help to avoid interrupt storm on older platforms where the
-> SMB_ALERT interrupt disabling is not available.
+> Please split simple address change from maintainer updates (removal,
+> addition).
+
+ok
+
 > 
-> For simplicity this fix reuses the host notify feature for disabling and
-> restoring original register value.
+> Also would be nice to see here explained *why* are you doing this.
+
+Our @foss.st.com address are dedicated for upstream activities, 
+i will add a comment about this.
+
+Thanks
+Patrice
+
 > 
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=177311
-> Reported-by: ck+kernelbugzilla@bl4ckb0x.de
-> Reported-by: stephane.poignant@protonmail.com
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
-> Hi Conrad and Stephane. This patch is otherwise the same than the one I
-> had in bugzilla but this adds also acknowledging for the SMB_ALERT
-> interrupt. There is short time window during driver load and unload
-> where interrupt storm will still occur if signal was asserted. Also
-
-The storm only starts with the first transaction, loading the driver
-does not start it, so I can't see the window at load time.
-
-For driver unload time, maybe we should restore SMBHSTCNT_INTREN to
-its original value at that time, to prevent an interrupt storm from
-happening. If we don't, then I suspect we'll have a storm not only for
-a short time window but actually forever.
-
-> interrupt disabling is possible only on ICH3 and later so interrupt
-> acknowledging should also help those old platforms.
-
-I'd be very surprised if systems with pre-ICH3 chipsets are still up
-and running. Even the ICH3 is 20 year old by now. So I wouldn't bother
-with them.
-
-> ---
->  drivers/i2c/busses/i2c-i801.c | 13 ++++++++-----
->  1 file changed, 8 insertions(+), 5 deletions(-)
+> Best regards,
+> Krzysztof
 > 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 115660dce722..e95de4ce6b64 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -190,6 +190,7 @@
->  #define SMBSLVSTS_HST_NTFY_STS	BIT(0)
->  
->  /* Host Notify Command register bits */
-> +#define SMBSLVCMD_SMBALERT_DISABLE	BIT(2)
->  #define SMBSLVCMD_HST_NTFY_INTREN	BIT(0)
->  
->  #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
-> @@ -642,9 +643,11 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
->  	 * Clear irq sources and report transaction result.
->  	 * ->status must be cleared before the next transaction is started.
->  	 */
-> -	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS;
-> -	if (status) {
-> +	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS | SMBHSTSTS_SMBALERT_STS;
-> +	if (status)
->  		outb_p(status, SMBHSTSTS(priv));
-
-Might be worth a comment.
-
-> +	status &= ~SMBHSTSTS_SMBALERT_STS;
-> +	if (status) {
->  		priv->status = status;
->  		complete(&priv->done);
->  	}
-> @@ -972,9 +975,9 @@ static void i801_enable_host_notify(struct i2c_adapter *adapter)
->  	if (!(priv->features & FEATURE_HOST_NOTIFY))
->  		return;
->  
-> -	if (!(SMBSLVCMD_HST_NTFY_INTREN & priv->original_slvcmd))
-> -		outb_p(SMBSLVCMD_HST_NTFY_INTREN | priv->original_slvcmd,
-> -		       SMBSLVCMD(priv));
-> +	/* Enable host notify interrupt and disable SMB_ALERT signal */
-> +	outb_p(SMBSLVCMD_HST_NTFY_INTREN | SMBSLVCMD_SMBALERT_DISABLE |
-> +	       priv->original_slvcmd, SMBSLVCMD(priv));
-
-A more verbose comment would be welcome too. Right now we know why we
-are doing that, but in a few years we won't remember.
-
->  
->  	/* clear Host Notify bit to allow a new notification */
->  	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
-
-Tested-by: Jean Delvare <jdelvare@suse.de>
-
-(But my system was not affected by the issue in the first place, so
-it's only a non-regression test.)
-
-I'm also wondering whether it would make sense to actually support
-SMBus Alert in the driver. We have core support for it already. If
-there are systems out there which generate such events, then maybe
-there's some value to be added. But we'd need to know which devices are
-sending them. For the time being I agree that just fixing the interrupt
-storms is more important.
-
--- 
-Jean Delvare
-SUSE L3 Support
