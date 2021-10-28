@@ -2,119 +2,161 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83DC0C433EF
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 Oct 2021 18:54:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD139C433EF
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 Oct 2021 12:23:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 664A160F38
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 Oct 2021 18:54:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7548610CA
+	for <linux-i2c@archiver.kernel.org>; Thu, 28 Oct 2021 12:23:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240518AbhJ0S4h (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 27 Oct 2021 14:56:37 -0400
-Received: from mail-ot1-f51.google.com ([209.85.210.51]:43536 "EHLO
-        mail-ot1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230437AbhJ0S4g (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Oct 2021 14:56:36 -0400
-Received: by mail-ot1-f51.google.com with SMTP id y15-20020a9d460f000000b0055337e17a55so4952365ote.10;
-        Wed, 27 Oct 2021 11:54:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0BMTeXCdhZ7VaC/eWMcigTkrnP2pN01kWWzYJFIQyu0=;
-        b=HO7aDRTVppu2yosyAPICQSxU5lZ2c/IAU7mENzj2Yo+g35S4jyN81S/nOvQFt8IeMa
-         iSxbgkOPknv3UJfXJ6ZB+rNIIieF0nX7pT8u9A8ugyviKYXfqJ9GynfPJGnXg0lY3wQz
-         k+P/M9SLXiqEYYLMKu7PHGki/0gOxznCv6Yag5tQvV6ldvgXyYq6qPGbc5y7bzhD/xNh
-         tdNfTP9V/rlGW4/88xZTr+UVPxpAxxJtswzyAWYyna3mLcyjIWZtMVpTYFYbMfJVcQDG
-         08mRvET7OYyxzDFsLcVnMNoYavmi2C4ydmBkWJk+4qYzGPdt776gKCgEEypNcqjYjSKt
-         mK/A==
-X-Gm-Message-State: AOAM5325/P09KwSftqsB9AjpEOKVfdPFpMMIgKDiIDS9b1odyIR+0dJL
-        T/wbSmw5pyTjdh15j7B3wrShb8sE7KZPGVLcXKc=
-X-Google-Smtp-Source: ABdhPJw0AMpRmI1zFTOHuehxHHn8AZdWi9FzbUBykmyZ1w/j7Rjw32Mx1RuAL2p+wihj2Y1Je++etttIOPSnN3B9SVM=
-X-Received: by 2002:a05:6830:1af0:: with SMTP id c16mr25788038otd.16.1635360850599;
- Wed, 27 Oct 2021 11:54:10 -0700 (PDT)
+        id S230337AbhJ1M0W (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 28 Oct 2021 08:26:22 -0400
+Received: from esa.microchip.iphmx.com ([68.232.154.123]:3532 "EHLO
+        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229998AbhJ1M0V (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 28 Oct 2021 08:26:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1635423834; x=1666959834;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=0Oq6s7AaG3bBjKwD3GLU5KykTSVALr5XWLndoODjwLU=;
+  b=Rue0PgcyZZgsrKknQdIrkBaZNzzj46k7JGO6pSQhVMuqPR24GtgSaY6w
+   D8B196oXaGEELWZ7iDgzJyuovmItZ+2kiw13s8B6JoestoMK1HZR0bmpw
+   S+Gq/iUsqAT3tqJZbIjY7AOxiZ6DV62vCBGfivua8RzhhccK05QTYe+k3
+   1aCHrnYL7i3rAaikCo3Brc7OUJplavf6DVF+fQ/Vd5irBzHKXcb421XAI
+   hJDtv2d9vrXNrpIBJI3n4A73R1AIh3WPOUXXSjvCC/iLn+PlmEDjGeDbx
+   xQQKhofBv2WIvL7MaE2Q0PWzrKj3+IGXndwlZ3v46USFzQnjE+zDoUX+J
+   A==;
+IronPort-SDR: Jvt9IWyJhVgbyC8C7YE7fAwf8FOQFwPQjJpYGNXGuvyTt+PIMFEcAa6JTDfEyUoGL2Hfvmaq2w
+ zkokjxpdqcdZObeGyaYVsgJDNYsblmTlPAvakcUsV+KKlllU6BinRfLW99C4jvDTOLFiiJfRNd
+ MuaTB72RiiUYZb1UKPwsYqdHulv250M1Fj7u7iXdc8JRinM0ukID43cpoTx4oBSVfpmEeqrKXk
+ a3JA/6HV4WJHaB+8NhaQfxMC7DVbsb6Kjtf+DGbo02g+Sq2CK/YcuGIc3zi4lkIrTWnMTcUogx
+ H2tJA3Ns9EAQWxB0z8je9So2
+X-IronPort-AV: E=Sophos;i="5.87,189,1631602800"; 
+   d="scan'208";a="134648670"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 28 Oct 2021 05:23:51 -0700
+Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.14; Thu, 28 Oct 2021 05:23:51 -0700
+Received: from localhost (10.10.115.15) by chn-vm-ex01.mchp-main.com
+ (10.10.85.143) with Microsoft SMTP Server id 15.1.2176.14 via Frontend
+ Transport; Thu, 28 Oct 2021 05:23:50 -0700
+Date:   Thu, 28 Oct 2021 14:25:33 +0200
+From:   Horatiu Vultur <horatiu.vultur@microchip.com>
+To:     Peter Rosin <peda@axentia.se>
+CC:     <robh+dt@kernel.org>, <peter.korsgaard@barco.com>,
+        <lars.povlsen@microchip.com>, <linux-i2c@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] i2c: i2c-mux-gpio: Add support 'select-delay'
+ property
+Message-ID: <20211028122533.4o63fuguyqfua5tm@soft-dev3-1.localhost>
+References: <20211013141003.2388495-1-horatiu.vultur@microchip.com>
+ <20211013141003.2388495-3-horatiu.vultur@microchip.com>
+ <9fe92c02-40af-a077-4189-6f0c0a934745@axentia.se>
 MIME-Version: 1.0
-References: <20211025094119.82967-1-hdegoede@redhat.com> <20211025094119.82967-3-hdegoede@redhat.com>
-In-Reply-To: <20211025094119.82967-3-hdegoede@redhat.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Wed, 27 Oct 2021 20:53:59 +0200
-Message-ID: <CAJZ5v0h2gaVxOKL0xnDpJiO2G3zvacTVbQajYaDBcXuxaoEjrg@mail.gmail.com>
-Subject: Re: [PATCH v4 02/11] i2c: acpi: Use acpi_dev_ready_for_enumeration() helper
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Mark Gross <markgross@kernel.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>, Len Brown <lenb@kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Kate Hsuan <hpa@redhat.com>,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        Wolfram Sang <wsa@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+In-Reply-To: <9fe92c02-40af-a077-4189-6f0c0a934745@axentia.se>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Oct 25, 2021 at 11:42 AM Hans de Goede <hdegoede@redhat.com> wrote:
->
-> The clk and regulator frameworks expect clk/regulator consumer-devices
-> to have info about the consumed clks/regulators described in the device's
-> fw_node.
->
-> To work around cases where this info is not present in the firmware tables,
-> which is often the case on x86/ACPI devices, both frameworks allow the
-> provider-driver to attach info about consumers to the clks/regulators
-> when registering these.
->
-> This causes problems with the probe ordering wrt drivers for consumers
-> of these clks/regulators. Since the lookups are only registered when the
-> provider-driver binds, trying to get these clks/regulators before then
-> results in a -ENOENT error for clks and a dummy regulator for regulators.
->
-> To ensure the correct probe-ordering the ACPI core has code to defer the
-> enumeration of consumers affected by this until the providers are ready.
->
-> Call the new acpi_dev_ready_for_enumeration() helper to avoid
-> enumerating / instantiating i2c-clients too early.
->
-> Acked-by: Wolfram Sang <wsa@kernel.org>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+The 10/27/2021 12:41, Peter Rosin wrote:
+> 
+> Hi!
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Hi Peter,
 
-> ---
->  drivers/i2c/i2c-core-acpi.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-> index 546cc935e035..71eee5bc17ab 100644
-> --- a/drivers/i2c/i2c-core-acpi.c
-> +++ b/drivers/i2c/i2c-core-acpi.c
-> @@ -144,9 +144,12 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
->         struct list_head resource_list;
->         int ret;
->
-> -       if (acpi_bus_get_status(adev) || !adev->status.present)
-> +       if (acpi_bus_get_status(adev))
->                 return -EINVAL;
->
-> +       if (!acpi_dev_ready_for_enumeration(adev))
-> +               return -ENODEV;
-> +
->         if (acpi_match_device_ids(adev, i2c_acpi_ignored_device_ids) == 0)
->                 return -ENODEV;
->
-> --
-> 2.31.1
->
+> 
+> I'm sorry for the slow response...
+> 
+> On 2021-10-13 16:10, Horatiu Vultur wrote:
+> > Use select-delay property to add a delay once the mux state is changed.
+> > This is required on some platforms to allow the GPIO signals to get
+> > stabilized.
+> >
+> > Signed-off-by: Lars Povlsen <lars.povlsen@microchip.com>
+> > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+> > ---
+> >  drivers/i2c/muxes/i2c-mux-gpio.c | 7 +++++++
+> >  1 file changed, 7 insertions(+)
+> >
+> > diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+> > index bac415a52b78..1cc69eb67221 100644
+> > --- a/drivers/i2c/muxes/i2c-mux-gpio.c
+> > +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+> > @@ -13,6 +13,8 @@
+> >  #include <linux/slab.h>
+> >  #include <linux/bits.h>
+> >  #include <linux/gpio/consumer.h>
+> > +#include <linux/delay.h>
+> > +
+> >  /* FIXME: stop poking around inside gpiolib */
+> >  #include "../../gpio/gpiolib.h"
+> >
+> > @@ -20,6 +22,7 @@ struct gpiomux {
+> >       struct i2c_mux_gpio_platform_data data;
+> >       int ngpios;
+> >       struct gpio_desc **gpios;
+> > +     int select_delay;
+> >  };
+> >
+> >  static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
+> > @@ -29,6 +32,8 @@ static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
+> >       values[0] = val;
+> >
+> >       gpiod_set_array_value_cansleep(mux->ngpios, mux->gpios, NULL, values);
+> > +     if (mux->select_delay)
+> > +             udelay(mux->select_delay);
+> 
+> Use fsleep(mux->select_delay) if you don't know how long the delay really
+> is.
+> 
+> However, you needlessly invoke the delay even if you do not actually change
+> the state of the mux. In order to fix that, you need to keep track of the
+> current state of the mux, but that's a chunk of boring code to write. If you
+> instead switch to using a mux-gpio from the mux subsystem and point an
+> i2c-mux-gpmux to that instance, you get that for free, and you can make simple
+> changes to the i2c-mux-gpmux driver to get this sorted properly, basically
+> exactly as this patch but with this
+> 
+> -       ret = mux_control_select(mux->control, chan->channel);
+> +       ret = mux_control_select_delay(mux->control, chan->channel,
+> +                                      mux->delay_us);
+> 
+> instead of the udelay/fsleep in this patch. That will invoke the requested
+> delay, but only if too little time has gone by since the latest state change.
+
+Thanks for the advice! I will change to use i2c-mux-gpmux and make the
+changes there.
+
+> 
+> That interface (mux_control_select_delay) is brand new though, but available
+> in linux-next and scheduled for the next merge window. But, since I fumbled
+> this series it's a bit late for this merge window anyway (sorry again) so
+> that should not be an issue.
+
+No worries, I will try to send a new version.
+
+> 
+> Cheers,
+> Peter
+> 
+> >  }
+> >
+> >  static int i2c_mux_gpio_select(struct i2c_mux_core *muxc, u32 chan)
+> > @@ -153,6 +158,8 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
+> >       if (fwnode_property_read_u32(dev->fwnode, "idle-state", &mux->data.idle))
+> >               mux->data.idle = I2C_MUX_GPIO_NO_IDLE;
+> >
+> > +     fwnode_property_read_u32(dev->fwnode, "select-delay", &mux->select_delay);
+> > +
+> >       return 0;
+> >  }
+> >
+> >
+
+-- 
+/Horatiu
