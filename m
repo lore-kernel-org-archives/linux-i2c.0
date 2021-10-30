@@ -2,159 +2,168 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA293C433F5
-	for <linux-i2c@archiver.kernel.org>; Fri, 29 Oct 2021 20:07:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35762C433FE
+	for <linux-i2c@archiver.kernel.org>; Sat, 30 Oct 2021 18:28:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B840561038
-	for <linux-i2c@archiver.kernel.org>; Fri, 29 Oct 2021 20:07:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 166F361054
+	for <linux-i2c@archiver.kernel.org>; Sat, 30 Oct 2021 18:28:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230271AbhJ2UKZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 29 Oct 2021 16:10:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229458AbhJ2UKZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 29 Oct 2021 16:10:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA1DF603E5;
-        Fri, 29 Oct 2021 20:07:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635538076;
-        bh=JWNtTtZlxxStPFFK9YVHU96GPvygUXlX9vi+gf6rdT0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fqhDha9Gy8xEL5TPhe5gn5OQSU07xsXUub+8fvEkKQQMHgnfou9nBUCfxq7luxlB4
-         Qi6hUHtyfemei9t8bVGFvRxiFek2KvDF+dF0wHJR8y9S/IdhyH7oKSATgYa9HYZqtK
-         A2cCCiWYlYktYN4yE7sAuJ+joFw4Jk/1P+Z46TeofuoXcEsu3vwIINoBEw6eoIE5Wq
-         u5VjiTF9lwpupE4rU9WXAxnIx8XfrtJwZEYc+7NCSjCRZ3FgRBDeqtqnBp4D8IQTmr
-         xT2d5WHGOnK+MwGbZAIFHovevQCJU5Y/3yVTbzFCqHYYn3NbAyBjtY/kSEzbJWHcAG
-         EbGeYE7g09Wyg==
-Date:   Fri, 29 Oct 2021 22:07:53 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc:     f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
-        nsaenz@kernel.org, krzk@kernel.org, stefan.wahren@i2se.com,
-        nh6z@nh6z.net, eric@anholt.net, linux-i2c@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH] i2c: bcm2835: Fix the error handling in
- 'bcm2835_i2c_probe()'
-Message-ID: <YXxUmXtXBR3Oy0C3@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
-        nsaenz@kernel.org, krzk@kernel.org, stefan.wahren@i2se.com,
-        nh6z@nh6z.net, eric@anholt.net, linux-i2c@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org
-References: <338008c444af4785a07fb5a402b60225a4964ae9.1629484876.git.christophe.jaillet@wanadoo.fr>
+        id S229474AbhJ3Sa7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 30 Oct 2021 14:30:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38335 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229782AbhJ3Sa6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 30 Oct 2021 14:30:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635618508;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=tVvWAEyocSYIBR9AcGsLALyZb02ytJh04fxwsOMZ8rM=;
+        b=dZRzDV9N+NIKxwDBXl2e3Q/tan7Ppy4ux9aw38+Qxn3XSeiLuKUk5lkDs+OMXP+3yMCYzd
+        FWPtt/omSZUCxSv1DuwUVcW9ZJxkVBtOpnIdmVMReVqkEdwIfz4YJ7V772uc5RMKXNZ9pu
+        qIAHSLt8BgoF66z4gFT8iRra7h5saKg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-549-bnSJrRByMw68x3MMRsWsFw-1; Sat, 30 Oct 2021 14:28:19 -0400
+X-MC-Unique: bnSJrRByMw68x3MMRsWsFw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A1DCD1808319;
+        Sat, 30 Oct 2021 18:28:17 +0000 (UTC)
+Received: from x1.localdomain (unknown [10.39.192.75])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D26425F4E9;
+        Sat, 30 Oct 2021 18:28:14 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Mark Gross <markgross@kernel.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sebastian Reichel <sre@kernel.org>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Yauhen Kharuzhy <jekhor@gmail.com>,
+        Tsuchiya Yuto <kitakar@gmail.com>,
+        platform-driver-x86@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-efi@vger.kernel.org
+Subject: [PATCH 00/13] power-suppy/i2c/extcon: Add support for cht-wc PMIC without USB-PD support
+Date:   Sat, 30 Oct 2021 20:28:00 +0200
+Message-Id: <20211030182813.116672-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="vErO5tT5H1S1DPMw"
-Content-Disposition: inline
-In-Reply-To: <338008c444af4785a07fb5a402b60225a4964ae9.1629484876.git.christophe.jaillet@wanadoo.fr>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On many X86 devices with a Cherry Trail SoC the PMIC / battery charger
+support is not fully handled by ACPI. Instead we need to load native
+drivers for the PMIC and various chips surrounding the PMIC like the
+charger IC. So far we mostly support the AXP288 PMIC this way, as well
+as the Intel Whiskey Cove PMIC with a FUSB302 Type-C controller + other
+ICs for a USB-PD, USB-3 (superspeed) and DP-altmode capable Type-C
+connector, as found on the GPD win and GPD pocket mini laptops.
 
---vErO5tT5H1S1DPMw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On the Xiaomi Mi Pad 2 tablet the Whiskey Cove PMIC is used in
+a different setup then on the GPD devices, supporting only USB-2 with
+BC1.2 spec charger detection on its USB connector.
 
-On Fri, Aug 20, 2021 at 08:43:33PM +0200, Christophe JAILLET wrote:
-> Some resource should be released if an error occurs in
-> 'bcm2835_i2c_probe()'.
-> Add an error handling path and the needed 'clk_disable_unprepare()' and
-> 'clk_rate_exclusive_put()' calls.
->=20
-> While at it, rework the bottom of the function to use this newly added
-> error handling path and have an explicit and more standard "return 0;" at
-> the end of the normal path.
->=20
-> Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+This series adds support for the charger IC in this setup and for having
+the extcon-intel-cht-wc code control the 5V Vbus boost converter and
+the USB role-switch, which is done by the FUSB302 Type-C controller driver
+in the GPD case.
 
-Could someone from the BCM community kindly test/approve this change?
+This fixes the tablet not charging under Linux, host-mode only working
+when booted in host-mode, as well as device-mode not working. Note
+device-mode still does not work when plugged into a CDP port. I have
+identified the cause for this and I plan to submit a fix later.
 
-> ---
->  drivers/i2c/busses/i2c-bcm2835.c | 18 ++++++++++++++----
->  1 file changed, 14 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bc=
-m2835.c
-> index 37443edbf754..a2f19b4c2402 100644
-> --- a/drivers/i2c/busses/i2c-bcm2835.c
-> +++ b/drivers/i2c/busses/i2c-bcm2835.c
-> @@ -449,13 +449,14 @@ static int bcm2835_i2c_probe(struct platform_device=
- *pdev)
->  	ret =3D clk_prepare_enable(i2c_dev->bus_clk);
->  	if (ret) {
->  		dev_err(&pdev->dev, "Couldn't prepare clock");
-> -		return ret;
-> +		goto err_put_exclusive_rate;
->  	}
-> =20
->  	irq =3D platform_get_resource(pdev, IORESOURCE_IRQ, 0);
->  	if (!irq) {
->  		dev_err(&pdev->dev, "No IRQ resource\n");
-> -		return -ENODEV;
-> +		ret =3D -ENODEV;
-> +		goto err_disable_unprepare_clk;
->  	}
->  	i2c_dev->irq =3D irq->start;
-> =20
-> @@ -463,7 +464,7 @@ static int bcm2835_i2c_probe(struct platform_device *=
-pdev)
->  			  dev_name(&pdev->dev), i2c_dev);
->  	if (ret) {
->  		dev_err(&pdev->dev, "Could not request IRQ\n");
-> -		return -ENODEV;
-> +		goto err_disable_unprepare_clk;
->  	}
-> =20
->  	adap =3D &i2c_dev->adapter;
-> @@ -481,7 +482,16 @@ static int bcm2835_i2c_probe(struct platform_device =
-*pdev)
-> =20
->  	ret =3D i2c_add_adapter(adap);
->  	if (ret)
-> -		free_irq(i2c_dev->irq, i2c_dev);
-> +		goto err_free_irq;
-> +
-> +	return 0;
-> +
-> +err_free_irq:
-> +	free_irq(i2c_dev->irq, i2c_dev);
-> +err_disable_unprepare_clk:
-> +	clk_disable_unprepare(i2c_dev->bus_clk);
-> +err_put_exclusive_rate:
-> +	clk_rate_exclusive_put(i2c_dev->bus_clk);
-> =20
->  	return ret;
->  }
-> --=20
-> 2.30.2
->=20
+This series consists of the following parts:
 
---vErO5tT5H1S1DPMw
-Content-Type: application/pgp-signature; name="signature.asc"
+Patch 1 + 2: Add a "intel,cht-wc-setup" device property to the Whiskey Cove
+i2c-client so that various WC drivers can use this to identify which setup
+they are dealing with.
 
------BEGIN PGP SIGNATURE-----
+Patch 3 + 4: bq25890 psy driver bug-fixes
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmF8VJkACgkQFA3kzBSg
-KbaJ9Q//fa5saV/r7SzxO3K6INdB08qy4jv7WsqQcvKqjd+v6nkAkKVDFH8hxhPB
-prBzqeWlhaC1JrLZgptjkhFw6q2N1YFJ99OqGs0mJWi4PpNq9myxA7OjWKD64oPD
-sregXrpVzM5E79a9n7GbduJkt5PDHRmBqeZtXRrFyzbLYPVCh3leimqY5p20EMXI
-Z48PQvJgzbb5mlA3QCaL9pmZVjrnTk2WSAMCbTt80ufad72SNPvWFaqfWqdpANt6
-uYPSBkpGf1jqBo/XxS1GVhdRw2YAipvbOhgXYwjLECd+MAVttxYcOKwaowY766do
-Whe1JpunWvSbU4W4pH2hyiEElc2s5z8dttNGBbZwLJ9wqLnNSdTIGz9xLznjekoL
-afXl1kRQvPSkNOQqazn7rwIGpKwVwH64fPBbuaCQ5tnCXVU1THM/8U1yl+QQyJzG
-XlI/bP1CZbKkA4bd4BzGHCP3+RP2jrrpshyVjIV1uuu1stpNVdL/DV26reo3wgzf
-w2zs00f9WGlEj2iNBbYdqZN2cEh8KV/oWuwI52nmXgkAaLvsiRWaWKrfqikYaAZG
-SO3k06Xdg2Xf+wgHU1HBFHRhhIlCFBzr087FdR67aisx8xOrUP8iYs83VdETaJGe
-g28ReVnmVU1oafs5p5UMt0j09Wd+lA87k0RMQek/LuvYWS9t2pM=
-=fkVz
------END PGP SIGNATURE-----
+Patch 5 - 8: bq25890 psy support for non-devicetree devices
 
---vErO5tT5H1S1DPMw--
+Patch 9 + 10: bq25890 psy support for registering the builtin Vbus boost
+converter as a regulator
+
+Patch 11: Add support to the i2c-cht-wc I2C-controller driver to
+instantiate an i2c-client for the attached bq25890 charger
+
+Patch 12 + 13: extcon-intel-cht-wc add support for the USB-2 only with
+BC1.2 charger detection setup
+
+Assuming everybody is ok with this series, we need to talk about how
+to merge this.
+
+Patch 1 makes some very small changes (just a rename) to
+drivers/firmware/efi code, I would like to merging this + patch 2 through
+the pdx86 tree (where the real changes are). Ard, can I have your ack
+for this please ?
+
+Patch 11 depends on a header file added by patch 10, since the
+i2c-cht-wc.c code otherwise sees very little changes I believe it makes
+sense for patch 11 to be merged into linux-power-supply.git/for-next
+together with patches 3-10. Wolfram can we have you ack for this?
+
+Patch 12 + 13 can be merged through the extcon tree, these have no
+(compile time) dependencies on the other patches.
+
+This is all 5.17 material, and I will make sure the pdx86 patches
+adding the new property will land in 5.17-rc1, hopefully the rest
+will land then too, but if other bits land later that is fine too,
+as long as the new property is there behavior won't change on the
+GPD win/pocket and we won't get any regressions.
+
+Regards,
+
+Hans
+
+p.s.
+
+Patch 3 and 4 are pure bq25890 bugfixes and should probably be picked up
+right away independent of the rest of the series.
+
+
+Hans de Goede (13):
+  platform/x86: Rename touchscreen_dmi to dmi_device_properties
+  platform/x86: dmi_device_properties: Add setup info for boards with a
+    CHT Whiskey Cove PMIC
+  power: supply: bq25890: Fix race causing oops at boot
+  power: supply: bq25890: Fix initial setting of the F_CONV_RATE field
+  power: supply: bq25890: Add a bq25890_rw_init_data() helper
+  power: supply: bq25890: Add support for skipping initialization
+  power: supply: bq25890: Enable charging on boards where we skip reset
+  power: supply: bq25890: Drop dev->platform_data == NULL check
+  power: supply: bq25890: Add bq25890_set_otg_cfg() helper
+  power: supply: bq25890: Add support for registering the Vbus boost
+    converter as a regulator
+  i2c: cht-wc: Add support for devices using a bq25890 charger
+  extcon: intel-cht-wc: Check new "intel,cht-wc-setup" device-property
+  extcon: intel-cht-wc: Add support for devices with an USB-micro-B
+    connector
+
+ MAINTAINERS                                   |   2 +-
+ drivers/extcon/extcon-intel-cht-wc.c          | 119 ++++++++--
+ drivers/firmware/efi/embedded-firmware.c      |   4 +-
+ drivers/i2c/busses/i2c-cht-wc.c               |  77 ++++--
+ drivers/platform/x86/Kconfig                  |  20 +-
+ drivers/platform/x86/Makefile                 |   2 +-
+ ...chscreen_dmi.c => dmi_device_properties.c} |  54 ++++-
+ drivers/power/supply/bq25890_charger.c        | 223 ++++++++++++------
+ include/linux/efi_embedded_fw.h               |   2 +-
+ include/linux/power/bq25890_charger.h         |  15 ++
+ 10 files changed, 400 insertions(+), 118 deletions(-)
+ rename drivers/platform/x86/{touchscreen_dmi.c => dmi_device_properties.c} (96%)
+ create mode 100644 include/linux/power/bq25890_charger.h
+
+-- 
+2.31.1
+
