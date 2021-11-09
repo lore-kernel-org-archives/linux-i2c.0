@@ -2,142 +2,114 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6862FC433EF
-	for <linux-i2c@archiver.kernel.org>; Tue,  9 Nov 2021 06:59:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA591C4332F
+	for <linux-i2c@archiver.kernel.org>; Tue,  9 Nov 2021 08:35:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 51E9A61151
-	for <linux-i2c@archiver.kernel.org>; Tue,  9 Nov 2021 06:59:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A6489611C1
+	for <linux-i2c@archiver.kernel.org>; Tue,  9 Nov 2021 08:35:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243401AbhKIHCY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 9 Nov 2021 02:02:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38782 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243389AbhKIHCX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 9 Nov 2021 02:02:23 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C08C061764
-        for <linux-i2c@vger.kernel.org>; Mon,  8 Nov 2021 22:59:38 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1mkL6S-0006o5-Rw; Tue, 09 Nov 2021 07:59:32 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1mkL6S-0007ri-3j; Tue, 09 Nov 2021 07:59:32 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1mkL6S-0006Pv-2c; Tue, 09 Nov 2021 07:59:32 +0100
-Date:   Tue, 9 Nov 2021 07:59:27 +0100
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Robert =?utf-8?B?xZp3acSZY2tp?= <robert@swiecki.net>,
-        linux-i2c@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        linux-pci@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] pci: Don't call resume callback for nearly bound devices
-Message-ID: <20211109065927.26v6xn7d5yyuxw4h@pengutronix.de>
-References: <20211108212226.253mwl4wp7xjckqz@pengutronix.de>
- <20211109025619.GA1131403@bhelgaas>
+        id S239424AbhKIIh7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 9 Nov 2021 03:37:59 -0500
+Received: from mail-ua1-f47.google.com ([209.85.222.47]:34468 "EHLO
+        mail-ua1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244280AbhKIIhg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 9 Nov 2021 03:37:36 -0500
+Received: by mail-ua1-f47.google.com with SMTP id b3so37086347uam.1;
+        Tue, 09 Nov 2021 00:34:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AeQsRqY/GskMz/vOm4ldxuS7JHiWlKXTjA+Am1FlP0g=;
+        b=5r7uvOhw7ynCk9Af+p6Mek1PwSJ53TQ2RWapaDY4UfTPNdB/UuxNSVRvZ+QrLxnHzE
+         kArpQlzv1vM9eX3gFCT683DrheD2AU3GtdIy2f71BA59DA5FxaQu7VvVcPOmnD3ch4+d
+         dmrhIJDJwA1F0fi3dPULvCHo8HK7FHtUGxwbSmrQMwnWBtDs8NpkWBzWcmKwfTk2ocpX
+         Y8iFF5fWSFtJ8PF1K81VmxkP7IARFB9a7sf5ClUE4WpXgNNafowPbLTUphsjVpf2ALsG
+         pDpDC6OvhbLuoLz1VTSFu0jtNyXzFKfyQvSu/atdMFvLYdKvtREXTb417r8Bg2Po96Ur
+         lDDg==
+X-Gm-Message-State: AOAM533YHVNpX3xKC2R3FC38oYiEFNevOQvMRUpyvgETqWfjG7S3349n
+        FknGjDx7Ty2EqWjWv4jXZ9j9F6hm4PNNghw9
+X-Google-Smtp-Source: ABdhPJwa1j6nX5jloLYtG9RuU90/Sh9fPVM9brTspVa1+XS29skV/GXmtqcLaiUDjzoIxZ5qEBA8dQ==
+X-Received: by 2002:ab0:6942:: with SMTP id c2mr7733560uas.92.1636446889902;
+        Tue, 09 Nov 2021 00:34:49 -0800 (PST)
+Received: from mail-ua1-f51.google.com (mail-ua1-f51.google.com. [209.85.222.51])
+        by smtp.gmail.com with ESMTPSA id f7sm2310878vkm.31.2021.11.09.00.34.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Nov 2021 00:34:49 -0800 (PST)
+Received: by mail-ua1-f51.google.com with SMTP id b17so37082452uas.0;
+        Tue, 09 Nov 2021 00:34:49 -0800 (PST)
+X-Received: by 2002:a9f:2584:: with SMTP id 4mr7741221uaf.114.1636446888895;
+ Tue, 09 Nov 2021 00:34:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="cwmyhnz7b32zl6pa"
-Content-Disposition: inline
-In-Reply-To: <20211109025619.GA1131403@bhelgaas>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+References: <20211108150554.4457-1-conor.dooley@microchip.com> <20211108150554.4457-5-conor.dooley@microchip.com>
+In-Reply-To: <20211108150554.4457-5-conor.dooley@microchip.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 9 Nov 2021 09:34:37 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdX1Xm9CP2hSpkD4ApVJ8gC_ZAE1L5CT0zjF+b5An4kmqw@mail.gmail.com>
+Message-ID: <CAMuHMdX1Xm9CP2hSpkD4ApVJ8gC_ZAE1L5CT0zjF+b5An4kmqw@mail.gmail.com>
+Subject: Re: [PATCH 04/13] dt-bindings: riscv: update microchip polarfire binds
+To:     Conor Dooley <conor.dooley@microchip.com>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jassi Brar <jassisinghbrar@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Lewis Hanly <lewis.hanly@microchip.com>,
+        daire.mcnamara@microchip.com, Atish Patra <atish.patra@wdc.com>,
+        ivan.griffin@microchip.com,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        linux-rtc@vger.kernel.org, linux-spi <linux-spi@vger.kernel.org>,
+        USB list <linux-usb@vger.kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Bin Meng <bin.meng@windriver.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi Conor,
 
---cwmyhnz7b32zl6pa
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Nov 8, 2021 at 4:06 PM <conor.dooley@microchip.com> wrote:
+> From: Conor Dooley <conor.dooley@microchip.com>
+>
+> Add mpfs-soc to clear undocumented binding warning
+>
+> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+> ---
+>  Documentation/devicetree/bindings/riscv/microchip.yaml | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/Documentation/devicetree/bindings/riscv/microchip.yaml b/Documentation/devicetree/bindings/riscv/microchip.yaml
+> index 3f981e897126..1ff7a5224bbc 100644
+> --- a/Documentation/devicetree/bindings/riscv/microchip.yaml
+> +++ b/Documentation/devicetree/bindings/riscv/microchip.yaml
+> @@ -21,6 +21,7 @@ properties:
+>        - enum:
+>            - microchip,mpfs-icicle-kit
+>        - const: microchip,mpfs
+> +      - const: microchip,mpfs-soc
 
-Hello,
+Doesn't the "s" in "mpfs" already stand for "soc"?
 
-On Mon, Nov 08, 2021 at 08:56:19PM -0600, Bjorn Helgaas wrote:
-> [+cc Greg: new device_is_bound() use]
+Gr{oetje,eeting}s,
 
-ack, that's what I would have suggested now, too.
+                        Geert
 
-> On Mon, Nov 08, 2021 at 10:22:26PM +0100, Uwe Kleine-K=F6nig wrote:
-> > pci_pm_runtime_resume() exits early when the device to resume isn't
-> > bound yet:
-> >=20
-> > 	if (!to_pci_driver(dev->driver))
-> > 		return 0;
-> >=20
-> > This however isn't true when the device currently probes and
-> > local_pci_probe() calls pm_runtime_get_sync() because then the driver
-> > core already setup dev->driver. As a result the driver's resume callback
-> > is called before the driver's probe function is called and so more often
-> > than not required driver data isn't setup yet.
-> >=20
-> > So replace the check for the device being unbound by a check that only
-> > becomes true after .probe() succeeded.
->=20
-> I like the fact that this patch is short and simple.
->=20
-> But there are 30+ users of to_pci_driver().  This patch asserts that
-> *one* of them, pci_pm_runtime_resume(), is special and needs to test
-> device_is_bound() instead of using to_pci_driver().
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Maybe for the other locations using device_is_bound(&pdev->dev) instead
-of to_pci_driver(pdev) !=3D NULL would be nice, too?
-
-I have another doubt: device_is_bound() should (according to its
-kernel-doc) be called with the device lock held. For the call stack that
-is (maybe) fixed here, the lock is held (by __device_attach). We
-probably should check if the lock is also held for the other calls of
-pci_pm_runtime_resume().
-
-Hmm, the device lock is a mutex, the pm functions might be called in
-atomic context, right?
-
-> It's special because the current PM implementation calls it via
-> pm_runtime_get_sync() before the driver's .probe() method.  That
-> connection is a little bit obscure and fragile.  What if the PM
-> implementation changes?
-
-Maybe a saver bet would be to not use pm_runtime_get_sync() in
-local_pci_probe()?
-
-I wonder if the same problem exists on remove, i.e. pci_device_remove()
-calls pm_runtime_put_sync() after the driver's .remove() callback was
-called.
-
-> Maybe we just need a comment there about why it looks different than
-> the other PM interfaces?
-
-A comment is a good idea for sure.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---cwmyhnz7b32zl6pa
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmGKHEwACgkQwfwUeK3K
-7Amw8gf/UszCbpMZd4Nif+A0PIUE7CV8Uk5cXTWAiOyvw+uYUKC6Z0zpieJGInpX
-Vhv3RqJTysGPOQrfv8704K2uPS4IZbhjyFKtR1G5Y4WGfTE5UL8q8m/KVGeNJVFG
-rRr68rTStaar6wgMiecqsGKW0BK2rbGk+hS/KAjUW1vyATQD3UThueMGjch4Ner/
-YY3JsREE/tWOIx5dZZ0fuFkMD+x4ZVTBbCx35JA3HlTrrKVlcp+EKi2PjyTPLuqI
-TuaG7NO5/5x0hl3G0h+HWCNvtOSrGhrixRbUdG4BcBPC0qLXwxXwfLOOTMztlrN5
-NCxrJV73lLR52PN0jk0bW2FLX1o3uQ==
-=+kYc
------END PGP SIGNATURE-----
-
---cwmyhnz7b32zl6pa--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
