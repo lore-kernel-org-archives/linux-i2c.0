@@ -2,27 +2,27 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FD5AC433F5
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Nov 2021 17:47:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D09DC433EF
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Nov 2021 17:47:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F28161037
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Nov 2021 17:47:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 48B086103A
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Nov 2021 17:47:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232566AbhKJRuO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 10 Nov 2021 12:50:14 -0500
-Received: from inva020.nxp.com ([92.121.34.13]:47942 "EHLO inva020.nxp.com"
+        id S232719AbhKJRuP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 10 Nov 2021 12:50:15 -0500
+Received: from inva020.nxp.com ([92.121.34.13]:47860 "EHLO inva020.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232553AbhKJRuG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 10 Nov 2021 12:50:06 -0500
+        id S232546AbhKJRuE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 10 Nov 2021 12:50:04 -0500
 Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 090341A1964;
-        Wed, 10 Nov 2021 18:47:17 +0100 (CET)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id B6A641A1957;
+        Wed, 10 Nov 2021 18:47:15 +0100 (CET)
 Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id EE77A1A1961;
-        Wed, 10 Nov 2021 18:47:16 +0100 (CET)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id A92BE1A110C;
+        Wed, 10 Nov 2021 18:47:15 +0100 (CET)
 Received: from fsr-ub1664-175.ea.freescale.net (fsr-ub1664-175.ea.freescale.net [10.171.82.40])
-        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 62DC720399;
-        Wed, 10 Nov 2021 18:47:16 +0100 (CET)
+        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 1E3C520399;
+        Wed, 10 Nov 2021 18:47:15 +0100 (CET)
 From:   Abel Vesa <abel.vesa@nxp.com>
 To:     Rob Herring <robh@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>,
@@ -35,9 +35,9 @@ Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         Abel Vesa <abel.vesa@nxp.com>
-Subject: [PATCH v4 12/12] dt-bindings: serial: fsl-lpuart: Add i.MX8DXL compatible
-Date:   Wed, 10 Nov 2021 19:46:55 +0200
-Message-Id: <1636566415-22750-13-git-send-email-abel.vesa@nxp.com>
+Subject: [PATCH v4 10/12] dt-bindings: fsl: scu: Add i.MX8DXL ocotp binding
+Date:   Wed, 10 Nov 2021 19:46:53 +0200
+Message-Id: <1636566415-22750-11-git-send-email-abel.vesa@nxp.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1636566415-22750-1-git-send-email-abel.vesa@nxp.com>
 References: <1636566415-22750-1-git-send-email-abel.vesa@nxp.com>
@@ -46,28 +46,28 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add i.MX8DXL lpuart compatible to the bindings documentation.
+Add i.MX8DXL ocotp compatible to the SCU bindings documentation.
 
 Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/serial/fsl-lpuart.yaml | 4 ++++
- 1 file changed, 4 insertions(+)
+ Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/serial/fsl-lpuart.yaml b/Documentation/devicetree/bindings/serial/fsl-lpuart.yaml
-index dc1f0e07cbd4..fa8a602ccb22 100644
---- a/Documentation/devicetree/bindings/serial/fsl-lpuart.yaml
-+++ b/Documentation/devicetree/bindings/serial/fsl-lpuart.yaml
-@@ -27,6 +27,10 @@ properties:
-       - items:
-           - const: fsl,imx8qm-lpuart
-           - const: fsl,imx8qxp-lpuart
-+      - items:
-+          - const: fsl,imx8dxl-lpuart
-+          - const: fsl,imx8qxp-lpuart
-+          - const: fsl,imx7ulp-lpuart
+diff --git a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+index fd0061712443..f1470d562156 100644
+--- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
++++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+@@ -141,7 +141,8 @@ OCOTP bindings based on SCU Message Protocol
+ Required properties:
+ - compatible:		Should be one of:
+ 			"fsl,imx8qm-scu-ocotp",
+-			"fsl,imx8qxp-scu-ocotp".
++			"fsl,imx8qxp-scu-ocotp",
++			"fsl,imx8dxl-scu-ocotp".
+ - #address-cells:	Must be 1. Contains byte index
+ - #size-cells:		Must be 1. Contains byte length
  
-   reg:
-     maxItems: 1
 -- 
 2.31.1
 
