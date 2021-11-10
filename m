@@ -2,27 +2,27 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E8E1C433FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Nov 2021 17:47:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE3F7C433FE
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Nov 2021 17:47:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 046AB61002
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 Nov 2021 17:47:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B82AA6103A
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 Nov 2021 17:47:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232648AbhKJRuI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 10 Nov 2021 12:50:08 -0500
-Received: from inva021.nxp.com ([92.121.34.21]:39750 "EHLO inva021.nxp.com"
+        id S232649AbhKJRuN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 10 Nov 2021 12:50:13 -0500
+Received: from inva020.nxp.com ([92.121.34.13]:47944 "EHLO inva020.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232504AbhKJRuB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 10 Nov 2021 12:50:01 -0500
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id D19C12010D2;
-        Wed, 10 Nov 2021 18:47:11 +0100 (CET)
+        id S232552AbhKJRuG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 10 Nov 2021 12:50:06 -0500
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 5DD851A110C;
+        Wed, 10 Nov 2021 18:47:16 +0100 (CET)
 Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id C4830201076;
-        Wed, 10 Nov 2021 18:47:11 +0100 (CET)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 519511A1963;
+        Wed, 10 Nov 2021 18:47:16 +0100 (CET)
 Received: from fsr-ub1664-175.ea.freescale.net (fsr-ub1664-175.ea.freescale.net [10.171.82.40])
-        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 36EB820399;
-        Wed, 10 Nov 2021 18:47:11 +0100 (CET)
+        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id BA9D520399;
+        Wed, 10 Nov 2021 18:47:15 +0100 (CET)
 From:   Abel Vesa <abel.vesa@nxp.com>
 To:     Rob Herring <robh@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>,
@@ -35,9 +35,9 @@ Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         Abel Vesa <abel.vesa@nxp.com>
-Subject: [PATCH v4 04/12] arm64: dts: imx8-ss-lsio: Add mu5a mailbox
-Date:   Wed, 10 Nov 2021 19:46:47 +0200
-Message-Id: <1636566415-22750-5-git-send-email-abel.vesa@nxp.com>
+Subject: [PATCH v4 11/12] dt-bindings: i2c: imx-lpi2c: Add i.MX8DXL compatible match
+Date:   Wed, 10 Nov 2021 19:46:54 +0200
+Message-Id: <1636566415-22750-12-git-send-email-abel.vesa@nxp.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1636566415-22750-1-git-send-email-abel.vesa@nxp.com>
 References: <1636566415-22750-1-git-send-email-abel.vesa@nxp.com>
@@ -46,32 +46,25 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The mailbox of the lsio mu5a is used by rpmsg on imx8qxp and
-imx8dxl platforms.
+Add i.MX8DXL lpi2c compatible to the bindings documentation.
 
 Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 ---
- arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi b/arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi
-index ee4e585a9c39..76abdab40c75 100644
---- a/arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8-ss-lsio.dtsi
-@@ -141,6 +141,13 @@ lsio_mu4: mailbox@5d1f0000 {
- 		status = "disabled";
- 	};
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
+index fe0c89edf7c1..1fb6a0469a25 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.yaml
+@@ -20,6 +20,7 @@ properties:
+       - items:
+           - enum:
+               - fsl,imx8qxp-lpi2c
++              - fsl,imx8dxl-lpi2c
+               - fsl,imx8qm-lpi2c
+           - const: fsl,imx7ulp-lpi2c
  
-+	lsio_mu5: mailbox@5d200000 {
-+		reg = <0x5d200000 0x10000>;
-+		interrupts = <GIC_SPI 184 IRQ_TYPE_LEVEL_HIGH>;
-+		#mbox-cells = <2>;
-+		power-domains = <&pd IMX_SC_R_MU_5A>;
-+	};
-+
- 	lsio_mu13: mailbox@5d280000 {
- 		reg = <0x5d280000 0x10000>;
- 		interrupts = <GIC_SPI 192 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.31.1
 
