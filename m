@@ -2,108 +2,193 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5367C433F5
-	for <linux-i2c@archiver.kernel.org>; Thu, 11 Nov 2021 15:13:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2786AC433F5
+	for <linux-i2c@archiver.kernel.org>; Thu, 11 Nov 2021 16:04:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BD28A61252
-	for <linux-i2c@archiver.kernel.org>; Thu, 11 Nov 2021 15:13:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 018B561252
+	for <linux-i2c@archiver.kernel.org>; Thu, 11 Nov 2021 16:04:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234065AbhKKPQZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 11 Nov 2021 10:16:25 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:32315 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234053AbhKKPQY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 11 Nov 2021 10:16:24 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636643614;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=RaQiWNaeSvc1w9swWxxIumoFqnCNft3G1L1GowqGe2c=;
-        b=MSDTsxISWasLMfut4FQp6aIyIIUpEvvO0BNmPqpvYRWtZ7W9JA5/1dF/GbtGN0h7O8qndi
-        MWSJvnPV35hZfgjDhFJ+5IQVsn7iAzNygKXl3IVygTVOWLefw1yrooxZ9DoZEY6nJw/Nf+
-        F4V2NjHbvtvYkcNwyfOft/I4/dGmF84=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-48-5PaQ2Gu7NLyC3KZDOO8DCQ-1; Thu, 11 Nov 2021 10:13:33 -0500
-X-MC-Unique: 5PaQ2Gu7NLyC3KZDOO8DCQ-1
-Received: by mail-ed1-f72.google.com with SMTP id h15-20020a056402094f00b003e51ef806a9so1481824edz.6
-        for <linux-i2c@vger.kernel.org>; Thu, 11 Nov 2021 07:13:33 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=RaQiWNaeSvc1w9swWxxIumoFqnCNft3G1L1GowqGe2c=;
-        b=tIuRXMQc80HCDphxlIa3AZZ9XWjsxpWGgCbTDHEwZ1iQ+g55Yel3FhabAtg/0mpvZM
-         I+hejADBTiN6OgkvXBBXSjFBYrKVGrdmT7Lctokqfe60lW56eeZrjgkm+huRT4lflayJ
-         hbNOK5vYo0J9xow5RhwbUXMkLPD1n2oyvXadqyed1oFPm/fdb5D4qRh07NDBqkHStpDI
-         14P8wU5g6+2msWrVVoTskHNSyr6GbpalGk/l+36gtEmtlSUpb7sSYnVGcPna106HV29A
-         Pg0Y11wh9Sz/ThRuCeT+xwy2ABKlBeco/GE2R6NdwrBdCxb5Zf7u4ZytImKNxPIMdgBR
-         shBg==
-X-Gm-Message-State: AOAM533X/KfCDrxnZwqKErXq7ikPNt+nZkg/cblbnkv4brAyfXgMEEXs
-        HVadKJBI7/xTzYSLMQac/NJrtk+GTxysSkSfS4n9CsvkIeNxYl+LN4uI9buWR0XJbTQLTSgBZT3
-        lFWX2z79dArvw4yqWT3lJ
-X-Received: by 2002:a05:6402:184c:: with SMTP id v12mr10984232edy.242.1636643612257;
-        Thu, 11 Nov 2021 07:13:32 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwsd8FhsX1gKUjz/vl5VBZUjBU0VRQilvxDGoCBMaISX6Ysxjz7/nj2uP1yoHWIQVdIILT48w==
-X-Received: by 2002:a05:6402:184c:: with SMTP id v12mr10984194edy.242.1636643612058;
-        Thu, 11 Nov 2021 07:13:32 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1054:9d19:e0f0:8214? (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id nb4sm1606641ejc.21.2021.11.11.07.13.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 11 Nov 2021 07:13:31 -0800 (PST)
-Message-ID: <4b8f27a2-9c2f-af96-cbd2-9e4c01d37c90@redhat.com>
-Date:   Thu, 11 Nov 2021 16:13:30 +0100
+        id S233497AbhKKQHI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 11 Nov 2021 11:07:08 -0500
+Received: from smtp2.axis.com ([195.60.68.18]:37534 "EHLO smtp2.axis.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233902AbhKKQHH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 11 Nov 2021 11:07:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=axis.com; q=dns/txt; s=axis-central1; t=1636646658;
+  x=1668182658;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=0ewH1kGjLHxx6u24wLlQZv3p2b5h5AfAa9KIwPCRDzk=;
+  b=Iq9qRX57uGNbSasJlg+NDCw5qtJlkZw5f19B4r/4pOGTTG1uIMBVbk0c
+   MrmOVR+LFtzkHKzOZcS2024Ye6l82H0q4JPAFCKBJ2ZPxr3f+/F+gZR6t
+   8CbM1ZhJ9VPI3M0+WqFQNAmizL0Ocpxt9Z5wolbc/A01Th0t8dhi2BU7j
+   IX5USzm5YBFMsdTpAvJvKhj4x/bt2D5BbpqxVeCbk5IGNaF4nlatmSLtP
+   in8SIbBOfbJzKcpXdgCSzBdxuha2Fsix1xjC1Z4haJhVVsuJcEu6o8qtm
+   YKxYKI9YDPNzl4G6z+a8CPZof6u6ucYmEzA7Aj7u5w61unjk3M/mPU8jO
+   A==;
+From:   Vincent Whitchurch <vincent.whitchurch@axis.com>
+To:     <wsa@kernel.org>, <jie.deng@intel.com>, <viresh.kumar@linaro.org>
+CC:     <conghui.chen@intel.com>, <mst@redhat.com>,
+        <virtualization@lists.linux-foundation.org>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <kernel@axis.com>, Vincent Whitchurch <vincent.whitchurch@axis.com>
+Subject: [PATCH v2 2/2] i2c: virtio: fix completion handling
+Date:   Thu, 11 Nov 2021 17:04:12 +0100
+Message-ID: <20211111160412.11980-3-vincent.whitchurch@axis.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20211111160412.11980-1-vincent.whitchurch@axis.com>
+References: <20211111160412.11980-1-vincent.whitchurch@axis.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH v4 04/11] regulator: Introduce tps68470-regulator driver
-Content-Language: en-US
-To:     Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Mark Gross <markgross@kernel.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>, Len Brown <lenb@kernel.org>,
-        linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Kate Hsuan <hpa@redhat.com>, linux-media@vger.kernel.org,
-        linux-clk@vger.kernel.org
-References: <20211025094119.82967-1-hdegoede@redhat.com>
- <20211025094119.82967-5-hdegoede@redhat.com>
- <YYpmMNefsGUhqJ9W@paasikivi.fi.intel.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <YYpmMNefsGUhqJ9W@paasikivi.fi.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Sakari,
+The driver currently assumes that the notify callback is only received
+when the device is done with all the queued buffers.
 
-On 11/9/21 13:14, Sakari Ailus wrote:
+However, this is not true, since the notify callback could be called
+without any of the queued buffers being completed (for example, with
+virtio-pci and shared interrupts) or with only some of the buffers being
+completed (since the driver makes them available to the device in
+multiple separate virtqueue_add_sgs() calls).
 
-<snip>
+This can lead to incorrect data on the I2C bus or memory corruption in
+the guest if the device operates on buffers which are have been freed by
+the driver.  (The WARN_ON in the driver is also triggered.)
 
->> +config REGULATOR_TPS68470
->> +	tristate "TI TPS68370 PMIC Regulators Driver"
-> 
-> s/3/4/
+ BUG kmalloc-128 (Tainted: G        W        ): Poison overwritten
+ First byte 0x0 instead of 0x6b
+ Allocated in i2cdev_ioctl_rdwr+0x9d/0x1de age=243 cpu=0 pid=28
+ 	memdup_user+0x2e/0xbd
+ 	i2cdev_ioctl_rdwr+0x9d/0x1de
+ 	i2cdev_ioctl+0x247/0x2ed
+ 	vfs_ioctl+0x21/0x30
+ 	sys_ioctl+0xb18/0xb41
+ Freed in i2cdev_ioctl_rdwr+0x1bb/0x1de age=68 cpu=0 pid=28
+ 	kfree+0x1bd/0x1cc
+ 	i2cdev_ioctl_rdwr+0x1bb/0x1de
+ 	i2cdev_ioctl+0x247/0x2ed
+ 	vfs_ioctl+0x21/0x30
+ 	sys_ioctl+0xb18/0xb41
 
-Thanks fixed for the upcoming v6 of the patch-series.
+Fix this by calling virtio_get_buf() from the notify handler like other
+virtio drivers and by actually waiting for all the buffers to be
+completed.
 
-Regards,
+Fixes: 3cfc88380413d20f ("i2c: virtio: add a virtio i2c frontend driver")
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+---
+ drivers/i2c/busses/i2c-virtio.c | 34 +++++++++++++++------------------
+ 1 file changed, 15 insertions(+), 19 deletions(-)
 
-Hans
-
+diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+index 7b2474e6876f..2d3ae8e238ec 100644
+--- a/drivers/i2c/busses/i2c-virtio.c
++++ b/drivers/i2c/busses/i2c-virtio.c
+@@ -22,24 +22,24 @@
+ /**
+  * struct virtio_i2c - virtio I2C data
+  * @vdev: virtio device for this controller
+- * @completion: completion of virtio I2C message
+  * @adap: I2C adapter for this controller
+  * @vq: the virtio virtqueue for communication
+  */
+ struct virtio_i2c {
+ 	struct virtio_device *vdev;
+-	struct completion completion;
+ 	struct i2c_adapter adap;
+ 	struct virtqueue *vq;
+ };
+ 
+ /**
+  * struct virtio_i2c_req - the virtio I2C request structure
++ * @completion: completion of virtio I2C message
+  * @out_hdr: the OUT header of the virtio I2C message
+  * @buf: the buffer into which data is read, or from which it's written
+  * @in_hdr: the IN header of the virtio I2C message
+  */
+ struct virtio_i2c_req {
++	struct completion completion;
+ 	struct virtio_i2c_out_hdr out_hdr	____cacheline_aligned;
+ 	uint8_t *buf				____cacheline_aligned;
+ 	struct virtio_i2c_in_hdr in_hdr		____cacheline_aligned;
+@@ -47,9 +47,11 @@ struct virtio_i2c_req {
+ 
+ static void virtio_i2c_msg_done(struct virtqueue *vq)
+ {
+-	struct virtio_i2c *vi = vq->vdev->priv;
++	struct virtio_i2c_req *req;
++	unsigned int len;
+ 
+-	complete(&vi->completion);
++	while ((req = virtqueue_get_buf(vq, &len)))
++		complete(&req->completion);
+ }
+ 
+ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+@@ -69,6 +71,8 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+ 		if (!msgs[i].len)
+ 			break;
+ 
++		init_completion(&reqs[i].completion);
++
+ 		/*
+ 		 * Only 7-bit mode supported for this moment. For the address
+ 		 * format, Please check the Virtio I2C Specification.
+@@ -108,21 +112,13 @@ static int virtio_i2c_complete_reqs(struct virtqueue *vq,
+ 				    struct virtio_i2c_req *reqs,
+ 				    struct i2c_msg *msgs, int num)
+ {
+-	struct virtio_i2c_req *req;
+ 	bool failed = false;
+-	unsigned int len;
+ 	int i, j = 0;
+ 
+ 	for (i = 0; i < num; i++) {
+-		/* Detach the ith request from the vq */
+-		req = virtqueue_get_buf(vq, &len);
++		struct virtio_i2c_req *req = &reqs[i];
+ 
+-		/*
+-		 * Condition req == &reqs[i] should always meet since we have
+-		 * total num requests in the vq. reqs[i] can never be NULL here.
+-		 */
+-		if (!failed && (WARN_ON(req != &reqs[i]) ||
+-				req->in_hdr.status != VIRTIO_I2C_MSG_OK))
++		if (!failed && req->in_hdr.status != VIRTIO_I2C_MSG_OK)
+ 			failed = true;
+ 
+ 		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
+@@ -158,11 +154,13 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	 * remote here to clear the virtqueue, so we can try another set of
+ 	 * messages later on.
+ 	 */
+-
+-	reinit_completion(&vi->completion);
+ 	virtqueue_kick(vq);
+ 
+-	wait_for_completion(&vi->completion);
++	/*
++	 * We only need to wait for the last one since the device is required
++	 * to complete requests in order.
++	 */
++	wait_for_completion(&reqs[count - 1].completion);
+ 
+ 	count = virtio_i2c_complete_reqs(vq, reqs, msgs, count);
+ 
+@@ -211,8 +209,6 @@ static int virtio_i2c_probe(struct virtio_device *vdev)
+ 	vdev->priv = vi;
+ 	vi->vdev = vdev;
+ 
+-	init_completion(&vi->completion);
+-
+ 	ret = virtio_i2c_setup_vqs(vi);
+ 	if (ret)
+ 		return ret;
+-- 
+2.28.0
 
