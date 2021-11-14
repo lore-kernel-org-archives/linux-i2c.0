@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C404C433EF
-	for <linux-i2c@archiver.kernel.org>; Sun, 14 Nov 2021 17:07:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75C2EC433EF
+	for <linux-i2c@archiver.kernel.org>; Sun, 14 Nov 2021 17:07:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3E5E960F0F
-	for <linux-i2c@archiver.kernel.org>; Sun, 14 Nov 2021 17:07:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5FAA8610F9
+	for <linux-i2c@archiver.kernel.org>; Sun, 14 Nov 2021 17:07:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236491AbhKNRJu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 14 Nov 2021 12:09:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:23614 "EHLO
+        id S236241AbhKNRKe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 14 Nov 2021 12:10:34 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49067 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236363AbhKNRHl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 14 Nov 2021 12:07:41 -0500
+        by vger.kernel.org with ESMTP id S236426AbhKNRH7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 14 Nov 2021 12:07:59 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636909487;
+        s=mimecast20190719; t=1636909505;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=VkrzRyLpI/vm0BtNuQueusLpeyS5Qzu5q0EpoAb3tQo=;
-        b=iUw2v1+612eLMS67+AZMyp6s+L5ev88xQo124YGVPSR+xeLS8DIplFZj7gwoTi5IHeRzn5
-        W5NO3VFERxjgOHfdSVnDHGz2aH5+3qybzdIrFhVXx+KN3KrmCbQCpUmOJLdVxs6ZQgEevp
-        9C9CzPbthVgtmpBGGvtzBnZYMJ3fz50=
+        bh=HKhlJl6L8XG/e1kTNa2zkugX2OC5+vLBLiGtbBb04F8=;
+        b=MLOg2iwmBd3QCJ0ICb+PAK2bXOOoOhxNfBGmcZPkD2xoOKuOKSHkj/eZQtrddDe94xlEOK
+        KhbL/PLnQrt92GbXvyAiYMumcw5c+KEwkSXQsTCrnH725w6HcqjkGItmpBy5etwRk0kRCS
+        Q3tmUMYMgc2cRTAnItnGdPGqQ1JQTUk=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-219-zDr9d-1sPKOZe8rtTdVxDQ-1; Sun, 14 Nov 2021 12:04:44 -0500
-X-MC-Unique: zDr9d-1sPKOZe8rtTdVxDQ-1
+ us-mta-512-sStz62q6NCWVIasF6iVnTA-1; Sun, 14 Nov 2021 12:04:58 -0500
+X-MC-Unique: sStz62q6NCWVIasF6iVnTA-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 58C5D1080865;
-        Sun, 14 Nov 2021 17:04:41 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4C7E2809864;
+        Sun, 14 Nov 2021 17:04:56 +0000 (UTC)
 Received: from x1.localdomain (unknown [10.39.192.93])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E49291346F;
-        Sun, 14 Nov 2021 17:04:37 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CFF3819EF9;
+        Sun, 14 Nov 2021 17:04:52 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
@@ -52,9 +52,9 @@ Cc:     Hans de Goede <hdegoede@redhat.com>, Len Brown <lenb@kernel.org>,
         platform-driver-x86@vger.kernel.org, linux-i2c@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-efi@vger.kernel.org
-Subject: [PATCH v2 16/20] extcon: intel-cht-wc: Use new intel_cht_wc_get_model() helper
-Date:   Sun, 14 Nov 2021 18:03:31 +0100
-Message-Id: <20211114170335.66994-17-hdegoede@redhat.com>
+Subject: [PATCH v2 20/20] extcon: intel-cht-wc: Report RID_A for ACA adapters
+Date:   Sun, 14 Nov 2021 18:03:35 +0100
+Message-Id: <20211114170335.66994-21-hdegoede@redhat.com>
 In-Reply-To: <20211114170335.66994-1-hdegoede@redhat.com>
 References: <20211114170335.66994-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -64,77 +64,57 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The CHT_WC_VBUS_GPIO_CTLO GPIO actually driving an external 5V Vboost
-converter for Vbus depends on the board on which the Cherry Trail -
-Whiskey Cove PMIC is actually used.
+Make cht_wc_extcon_get_id() report RID_A for ACA adapters, instead of
+reporting ID_FLOAT.
 
-Since the information about the exact PMIC setup is necessary in other
-places too, the drivers/mfd/intel_soc_pmic_chtwc.c code now has a new
-intel_cht_wc_get_model() helper.
+According to the spec. we should read the USB-ID pin ADC value
+to determine the resistance of the used pull-down resister and
+then return RID_A / RID_B / RID_C based on this. But all "Accessory
+Charger Adapter"s (ACAs) which users can actually buy always use
+a combination of a charging port with one or more USB-A ports, so
+they should always use a resistor indicating RID_A. But the spec
+is hard to read / badly-worded so some of them actually indicate
+they are a RID_B ACA evnen though they clearly are a RID_A ACA.
 
-Only poke the CHT_WC_VBUS_GPIO_CTLO GPIO if this new helper returns
-INTEL_CHT_WC_GPD_WIN_POCKET, which indicates the Type-C (with PD and
-DP-altmode) setup used on the GPD pocket and GPD win; and on which
-this GPIO actually controls an external 5V Vboost converter.
+To workaround this simply always return INTEL_USB_RID_A, which
+matches all the ACAs which users can actually buy.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/extcon/extcon-intel-cht-wc.c | 35 +++++++++++++++++-----------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+ drivers/extcon/extcon-intel-cht-wc.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/extcon/extcon-intel-cht-wc.c b/drivers/extcon/extcon-intel-cht-wc.c
-index 771f6f4cf92e..a5aeeecc44fb 100644
+index 1030610a3494..c92bc98cb428 100644
 --- a/drivers/extcon/extcon-intel-cht-wc.c
 +++ b/drivers/extcon/extcon-intel-cht-wc.c
-@@ -14,6 +14,7 @@
- #include <linux/module.h>
- #include <linux/mod_devicetable.h>
- #include <linux/platform_device.h>
-+#include <linux/property.h>
- #include <linux/regmap.h>
- #include <linux/slab.h>
- 
-@@ -358,20 +359,26 @@ static int cht_wc_extcon_probe(struct platform_device *pdev)
- 	if (IS_ERR(ext->edev))
- 		return PTR_ERR(ext->edev);
- 
--	/*
--	 * When a host-cable is detected the BIOS enables an external 5v boost
--	 * converter to power connected devices there are 2 problems with this:
--	 * 1) This gets seen by the external battery charger as a valid Vbus
--	 *    supply and it then tries to feed Vsys from this creating a
--	 *    feedback loop which causes aprox. 300 mA extra battery drain
--	 *    (and unless we drive the external-charger-disable pin high it
--	 *    also tries to charge the battery causing even more feedback).
--	 * 2) This gets seen by the pwrsrc block as a SDP USB Vbus supply
--	 * Since the external battery charger has its own 5v boost converter
--	 * which does not have these issues, we simply turn the separate
--	 * external 5v boost converter off and leave it off entirely.
--	 */
--	cht_wc_extcon_set_5v_boost(ext, false);
-+	switch (intel_cht_wc_get_model()) {
-+	case INTEL_CHT_WC_GPD_WIN_POCKET:
-+		/*
-+		 * When a host-cable is detected the BIOS enables an external 5v boost
-+		 * converter to power connected devices there are 2 problems with this:
-+		 * 1) This gets seen by the external battery charger as a valid Vbus
-+		 *    supply and it then tries to feed Vsys from this creating a
-+		 *    feedback loop which causes aprox. 300 mA extra battery drain
-+		 *    (and unless we drive the external-charger-disable pin high it
-+		 *    also tries to charge the battery causing even more feedback).
-+		 * 2) This gets seen by the pwrsrc block as a SDP USB Vbus supply
-+		 * Since the external battery charger has its own 5v boost converter
-+		 * which does not have these issues, we simply turn the separate
-+		 * external 5v boost converter off and leave it off entirely.
-+		 */
-+		cht_wc_extcon_set_5v_boost(ext, false);
-+		break;
-+	default:
-+		break;
-+	}
- 
- 	/* Enable sw control */
- 	ret = cht_wc_extcon_sw_control(ext, true);
+@@ -121,13 +121,21 @@ static int cht_wc_extcon_get_id(struct cht_wc_extcon_data *ext, int pwrsrc_sts)
+ 		return INTEL_USB_ID_GND;
+ 	case CHT_WC_PWRSRC_RID_FLOAT:
+ 		return INTEL_USB_ID_FLOAT;
++	/*
++	 * According to the spec. we should read the USB-ID pin ADC value here
++	 * to determine the resistance of the used pull-down resister and then
++	 * return RID_A / RID_B / RID_C based on this. But all "Accessory
++	 * Charger Adapter"s (ACAs) which users can actually buy always use
++	 * a combination of a charging port with one or more USB-A ports, so
++	 * they should always use a resistor indicating RID_A. But the spec
++	 * is hard to read / badly-worded so some of them actually indicate
++	 * they are a RID_B ACA evnen though they clearly are a RID_A ACA.
++	 * To workaround this simply always return INTEL_USB_RID_A, which
++	 * matches all the ACAs which users can actually buy.
++	 */
+ 	case CHT_WC_PWRSRC_RID_ACA:
++		return INTEL_USB_RID_A;
+ 	default:
+-		/*
+-		 * Once we have IIO support for the GPADC we should read
+-		 * the USBID GPADC channel here and determine ACA role
+-		 * based on that.
+-		 */
+ 		return INTEL_USB_ID_FLOAT;
+ 	}
+ }
 -- 
 2.31.1
 
