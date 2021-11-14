@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30417C4332F
-	for <linux-i2c@archiver.kernel.org>; Sun, 14 Nov 2021 17:04:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7983C433F5
+	for <linux-i2c@archiver.kernel.org>; Sun, 14 Nov 2021 17:04:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 12E6B610F9
-	for <linux-i2c@archiver.kernel.org>; Sun, 14 Nov 2021 17:04:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B00B660EFD
+	for <linux-i2c@archiver.kernel.org>; Sun, 14 Nov 2021 17:04:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236209AbhKNRHB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 14 Nov 2021 12:07:01 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:41709 "EHLO
+        id S236176AbhKNRHJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 14 Nov 2021 12:07:09 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:26543 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236180AbhKNRGw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 14 Nov 2021 12:06:52 -0500
+        by vger.kernel.org with ESMTP id S236184AbhKNRHH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 14 Nov 2021 12:07:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636909437;
+        s=mimecast20190719; t=1636909452;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=6OsrSqIS8dRf7JRKcuWamIO8LFYSgkzTf71ZkiaHlxY=;
-        b=ahoOMvErycTIcuZgD/yqL1cSNE8B51GdTbkNnGk3vSJeTIvxAqiC2LitSp4hLJi57x1vCJ
-        DLs3kIjejsf3LDXnPA0CajoQtpIEoNK/KH+IeeT62NgxwpK5dPz82PpBgSfGaVXYaMoKKt
-        5sEBJsNBxdKUN0BDtcb/qupsi195AVI=
+        bh=z0PtzQUpE4e+rg3mkfPABfZsN9EZ2U/8QQiDQfDb9rE=;
+        b=h1gej2NAtE87Uk6FpkHgZbHr7X5nah5xMNBwOCMU2y8d7MoGTGS6WxyDE7fSi5OSCUkp2C
+        MR13uGgUPYvG3H/ZGASMguJlhJ8fp4g5/pXWWo7qmrRk6TbUIBEKLCMRRnW1TVNTaHd17H
+        DQ8/QWqkxJ0tFVJwjX9B6+fWi1ZA2nY=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-311-1pxDy5bLNS6uSzOaqv-_Aw-1; Sun, 14 Nov 2021 12:03:54 -0500
-X-MC-Unique: 1pxDy5bLNS6uSzOaqv-_Aw-1
+ us-mta-199-spOxP1pDOqWTG9O659uzYg-1; Sun, 14 Nov 2021 12:04:09 -0500
+X-MC-Unique: spOxP1pDOqWTG9O659uzYg-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C6F1D802B7A;
-        Sun, 14 Nov 2021 17:03:51 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DABA98005A2;
+        Sun, 14 Nov 2021 17:04:06 +0000 (UTC)
 Received: from x1.localdomain (unknown [10.39.192.93])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3D1A61346F;
-        Sun, 14 Nov 2021 17:03:48 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5723B1346F;
+        Sun, 14 Nov 2021 17:04:03 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
@@ -52,9 +52,9 @@ Cc:     Hans de Goede <hdegoede@redhat.com>, Len Brown <lenb@kernel.org>,
         platform-driver-x86@vger.kernel.org, linux-i2c@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-efi@vger.kernel.org
-Subject: [PATCH v2 03/20] power: supply: bq25890: Rename IILIM field to IINLIM
-Date:   Sun, 14 Nov 2021 18:03:18 +0100
-Message-Id: <20211114170335.66994-4-hdegoede@redhat.com>
+Subject: [PATCH v2 07/20] power: supply: bq25890: Add support to read back the settings from the chip
+Date:   Sun, 14 Nov 2021 18:03:22 +0100
+Message-Id: <20211114170335.66994-8-hdegoede@redhat.com>
 In-Reply-To: <20211114170335.66994-1-hdegoede@redhat.com>
 References: <20211114170335.66994-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -64,73 +64,58 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Yauhen Kharuzhy <jekhor@gmail.com>
+On most X86/ACPI devices there is no devicetree to supply the necessary
+init-data. Instead the firmware already fully initializes the bq25890
+charger at boot. To support this, add support for reading back the
+settings from the chip through a new "linux,read-back-settings" boolean.
 
-Rename the Input Current Limit field in the REG00 from IILIM to IINLIM
-accordingly with the bq2589x datasheet. This is just cosmetical change
-to reduce confusion.
+So far this new property is only used on X86/ACPI (non devicetree) devs,
+IOW it is not used in actual devicetree files. The devicetree-bindings
+maintainers have requested properties like these to not be added to the
+devicetree-bindings, so the new property is deliberately not added
+to the existing devicetree-bindings.
 
-Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/power/supply/bq25890_charger.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+Changes in v2:
+- New patch in v2 of this series, together with the "linux,skip-reset" patch
+  this patch replaces the "ti,skip-init" patch from v1
+---
+ drivers/power/supply/bq25890_charger.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/power/supply/bq25890_charger.c b/drivers/power/supply/bq25890_charger.c
-index b7eac5428083..b208cc2193b8 100644
+index 864904d7eaeb..b7c38d2c5ede 100644
 --- a/drivers/power/supply/bq25890_charger.c
 +++ b/drivers/power/supply/bq25890_charger.c
-@@ -40,7 +40,7 @@ static const char *const bq25890_chip_name[] = {
- };
+@@ -111,6 +111,7 @@ struct bq25890_device {
+ 	struct regmap_field *rmap_fields[F_MAX_FIELDS];
  
- enum bq25890_fields {
--	F_EN_HIZ, F_EN_ILIM, F_IILIM,				     /* Reg00 */
-+	F_EN_HIZ, F_EN_ILIM, F_IINLIM,				     /* Reg00 */
- 	F_BHOT, F_BCOLD, F_VINDPM_OFS,				     /* Reg01 */
- 	F_CONV_START, F_CONV_RATE, F_BOOSTF, F_ICO_EN,
- 	F_HVDCP_EN, F_MAXC_EN, F_FORCE_DPM, F_AUTO_DPDM_EN,	     /* Reg02 */
-@@ -153,7 +153,7 @@ static const struct reg_field bq25890_reg_fields[] = {
- 	/* REG00 */
- 	[F_EN_HIZ]		= REG_FIELD(0x00, 7, 7),
- 	[F_EN_ILIM]		= REG_FIELD(0x00, 6, 6),
--	[F_IILIM]		= REG_FIELD(0x00, 0, 5),
-+	[F_IINLIM]		= REG_FIELD(0x00, 0, 5),
- 	/* REG01 */
- 	[F_BHOT]		= REG_FIELD(0x01, 6, 7),
- 	[F_BCOLD]		= REG_FIELD(0x01, 5, 5),
-@@ -256,7 +256,7 @@ enum bq25890_table_ids {
- 	/* range tables */
- 	TBL_ICHG,
- 	TBL_ITERM,
--	TBL_IILIM,
-+	TBL_IINLIM,
- 	TBL_VREG,
- 	TBL_BOOSTV,
- 	TBL_SYSVMIN,
-@@ -299,7 +299,7 @@ static const union {
- 	/* TODO: BQ25896 has max ICHG 3008 mA */
- 	[TBL_ICHG] =	{ .rt = {0,	  5056000, 64000} },	 /* uA */
- 	[TBL_ITERM] =	{ .rt = {64000,   1024000, 64000} },	 /* uA */
--	[TBL_IILIM] =   { .rt = {100000,  3250000, 50000} },	 /* uA */
-+	[TBL_IINLIM] =  { .rt = {100000,  3250000, 50000} },	 /* uA */
- 	[TBL_VREG] =	{ .rt = {3840000, 4608000, 16000} },	 /* uV */
- 	[TBL_BOOSTV] =	{ .rt = {4550000, 5510000, 64000} },	 /* uV */
- 	[TBL_SYSVMIN] = { .rt = {3000000, 3700000, 100000} },	 /* uV */
-@@ -503,11 +503,11 @@ static int bq25890_power_supply_get_property(struct power_supply *psy,
- 		break;
+ 	bool skip_reset;
++	bool read_back_init_data;
+ 	enum bq25890_chip_version chip_version;
+ 	struct bq25890_init_data init_data;
+ 	struct bq25890_state state;
+@@ -666,7 +667,7 @@ static int bq25890_chip_reset(struct bq25890_device *bq)
  
- 	case POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT:
--		ret = bq25890_field_read(bq, F_IILIM);
-+		ret = bq25890_field_read(bq, F_IINLIM);
- 		if (ret < 0)
- 			return ret;
+ static int bq25890_rw_init_data(struct bq25890_device *bq)
+ {
+-	bool write = true;
++	bool write = !bq->read_back_init_data;
+ 	int ret;
+ 	int i;
  
--		val->intval = bq25890_find_val(ret, TBL_IILIM);
-+		val->intval = bq25890_find_val(ret, TBL_IINLIM);
- 		break;
+@@ -950,6 +951,10 @@ static int bq25890_fw_probe(struct bq25890_device *bq)
+ 	struct bq25890_init_data *init = &bq->init_data;
  
- 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
+ 	bq->skip_reset = device_property_read_bool(bq->dev, "linux,skip-reset");
++	bq->read_back_init_data = device_property_read_bool(bq->dev,
++						"linux,read-back-settings");
++	if (bq->read_back_init_data)
++		return 0;
+ 
+ 	ret = bq25890_fw_read_u32_props(bq);
+ 	if (ret < 0)
 -- 
 2.31.1
 
