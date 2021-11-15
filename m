@@ -2,20 +2,20 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FE77C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E57CC433EF
 	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 02:49:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2D48B61356
+	by mail.kernel.org (Postfix) with ESMTP id 44A526134F
 	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 02:49:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229880AbhKOCwq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 14 Nov 2021 21:52:46 -0500
-Received: from pi.codeconstruct.com.au ([203.29.241.158]:51300 "EHLO
+        id S229899AbhKOCws (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 14 Nov 2021 21:52:48 -0500
+Received: from pi.codeconstruct.com.au ([203.29.241.158]:51396 "EHLO
         codeconstruct.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229686AbhKOCwj (ORCPT
+        with ESMTP id S229723AbhKOCwj (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Sun, 14 Nov 2021 21:52:39 -0500
 Received: by codeconstruct.com.au (Postfix, from userid 10001)
-        id 97B3C2022C; Mon, 15 Nov 2021 10:49:40 +0800 (AWST)
+        id 51970202B9; Mon, 15 Nov 2021 10:49:42 +0800 (AWST)
 From:   Matt Johnston <matt@codeconstruct.com.au>
 Cc:     Zev Weiss <zev@bewilderbeest.net>, Wolfram Sang <wsa@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -33,10 +33,12 @@ Cc:     Zev Weiss <zev@bewilderbeest.net>, Wolfram Sang <wsa@kernel.org>,
         Benjamin Fair <benjaminfair@google.com>,
         Jeremy Kerr <jk@codeconstruct.com.au>,
         linux-i2c@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH net-next v3 0/6] MCTP I2C driver
-Date:   Mon, 15 Nov 2021 10:49:20 +0800
-Message-Id: <20211115024926.205385-1-matt@codeconstruct.com.au>
+Subject: [PATCH net-next v3 4/6] i2c: npcm7xx: Allow 255 byte block SMBus transfers
+Date:   Mon, 15 Nov 2021 10:49:24 +0800
+Message-Id: <20211115024926.205385-5-matt@codeconstruct.com.au>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211115024926.205385-1-matt@codeconstruct.com.au>
+References: <20211115024926.205385-1-matt@codeconstruct.com.au>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To:     unlisted-recipients:; (no To-header on input)
@@ -44,55 +46,36 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+255 byte support has been tested on a npcm750 board
 
-This patch series adds a netdev driver providing MCTP transport over
-I2C. 
+Signed-off-by: Matt Johnston <matt@codeconstruct.com.au>
+Reviewed-by: Tali Perry <tali.perry1@gmail.com>
+Reviewed-by: Patrick Venture <venture@google.com>
+---
+ drivers/i2c/busses/i2c-npcm7xx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-It applies against net-next using recent MCTP changes there, though also
-has I2C core changes for review. I'll leave it to maintainers where it
-should be applied - please let me know if it needs to be submitted
-differently.
-
-The I2C patches were previously sent as RFC though the only feedback
-there was an ack to 255 bytes for aspeed.
-
-The dt-bindings patch went through review on the list.
-
-Cheers,
-Matt
-
---
-v3:
- - Added Reviewed-bys for npcm7xx
- - Resend with net-next open
-v2:
- - Simpler Kconfig condition for i2c-mux dependency, from Randy Dunlap
-
-Matt Johnston (6):
-  i2c: core: Allow 255 byte transfers for SMBus 3.x
-  i2c: dev: Handle 255 byte blocks for i2c ioctl
-  i2c: aspeed: Allow 255 byte block transfers
-  i2c: npcm7xx: Allow 255 byte block SMBus transfers
-  dt-bindings: net: New binding mctp-i2c-controller
-  mctp i2c: MCTP I2C binding driver
-
- Documentation/devicetree/bindings/i2c/i2c.txt |   4 +
- .../bindings/net/mctp-i2c-controller.yaml     |  92 ++
- drivers/i2c/busses/i2c-aspeed.c               |   5 +-
- drivers/i2c/busses/i2c-npcm7xx.c              |   3 +-
- drivers/i2c/i2c-core-smbus.c                  |  20 +-
- drivers/i2c/i2c-dev.c                         |  93 +-
- drivers/net/mctp/Kconfig                      |  12 +
- drivers/net/mctp/Makefile                     |   1 +
- drivers/net/mctp/mctp-i2c.c                   | 982 ++++++++++++++++++
- include/linux/i2c.h                           |  13 +
- include/uapi/linux/i2c-dev.h                  |   2 +
- include/uapi/linux/i2c.h                      |   7 +-
- 12 files changed, 1209 insertions(+), 25 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/net/mctp-i2c-controller.yaml
- create mode 100644 drivers/net/mctp/mctp-i2c.c
-
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index 2ad166355ec9..6d60f65add85 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -1399,7 +1399,7 @@ static void npcm_i2c_irq_master_handler_read(struct npcm_i2c *bus)
+ 		if (bus->read_block_use) {
+ 			/* first byte in block protocol is the size: */
+ 			data = npcm_i2c_rd_byte(bus);
+-			data = clamp_val(data, 1, I2C_SMBUS_BLOCK_MAX);
++			data = clamp_val(data, 1, I2C_SMBUS_V3_BLOCK_MAX);
+ 			bus->rd_size = data + block_extra_bytes_size;
+ 			bus->rd_buf[bus->rd_ind++] = data;
+ 
+@@ -2187,6 +2187,7 @@ static u32 npcm_i2c_functionality(struct i2c_adapter *adap)
+ 	       I2C_FUNC_SMBUS_EMUL |
+ 	       I2C_FUNC_SMBUS_BLOCK_DATA |
+ 	       I2C_FUNC_SMBUS_PEC |
++	       I2C_FUNC_SMBUS_V3_BLOCK |
+ 	       I2C_FUNC_SLAVE;
+ }
+ 
 -- 
 2.32.0
 
