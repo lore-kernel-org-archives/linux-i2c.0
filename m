@@ -2,117 +2,76 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D531BC433FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 15:42:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C250C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 15:43:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB70661C12
-	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 15:42:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52BD361B68
+	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 15:43:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236534AbhKOPpJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 15 Nov 2021 10:45:09 -0500
-Received: from mga07.intel.com ([134.134.136.100]:53935 "EHLO mga07.intel.com"
+        id S236632AbhKOPp7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 15 Nov 2021 10:45:59 -0500
+Received: from mga04.intel.com ([192.55.52.120]:10514 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236674AbhKOPpF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 15 Nov 2021 10:45:05 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10168"; a="296891655"
+        id S236539AbhKOPpv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 15 Nov 2021 10:45:51 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10168"; a="232184126"
 X-IronPort-AV: E=Sophos;i="5.87,236,1631602800"; 
-   d="scan'208";a="296891655"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2021 07:42:09 -0800
+   d="scan'208";a="232184126"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2021 07:42:54 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.87,236,1631602800"; 
-   d="scan'208";a="454064088"
+   d="scan'208";a="585306504"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga006.jf.intel.com with ESMTP; 15 Nov 2021 07:42:07 -0800
+  by FMSMGA003.fm.intel.com with ESMTP; 15 Nov 2021 07:42:52 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id C7D3B173; Mon, 15 Nov 2021 17:42:09 +0200 (EET)
+        id 76C861CF; Mon, 15 Nov 2021 17:42:55 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Evan Green <evgreen@chromium.org>, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Cc:     Peter Korsgaard <peter.korsgaard@barco.com>,
         Peter Rosin <peda@axentia.se>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/3] =?UTF-8?q?i2c:=20mux:=20gpio:=C2=A0Replace=20custo?= =?UTF-8?q?m=20acpi=5Fget=5Flocal=5Faddress()?=
-Date:   Mon, 15 Nov 2021 17:41:59 +0200
-Message-Id: <20211115154201.46579-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 3/3] i2c: mux: gpio: Use array_size() helper
+Date:   Mon, 15 Nov 2021 17:42:01 +0200
+Message-Id: <20211115154201.46579-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211115154201.46579-1-andriy.shevchenko@linux.intel.com>
+References: <20211115154201.46579-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Recently ACPI gained the acpi_get_local_address() API which may be used
-instead of home grown i2c_mux_gpio_get_acpi_adr().
+Use array_size() helper to aid in 2-factor allocation instances.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/muxes/i2c-mux-gpio.c | 43 ++------------------------------
- 1 file changed, 2 insertions(+), 41 deletions(-)
+ drivers/i2c/muxes/i2c-mux-gpio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index bac415a52b78..31e6eb1591bb 100644
+index b09c10f36ddb..73a23e117ebe 100644
 --- a/drivers/i2c/muxes/i2c-mux-gpio.c
 +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -49,45 +49,6 @@ static int i2c_mux_gpio_deselect(struct i2c_mux_core *muxc, u32 chan)
- 	return 0;
- }
+@@ -7,6 +7,7 @@
  
--#ifdef CONFIG_ACPI
--
--static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
--				     struct fwnode_handle *fwdev,
--				     unsigned int *adr)
--
--{
--	unsigned long long adr64;
--	acpi_status status;
--
--	status = acpi_evaluate_integer(ACPI_HANDLE_FWNODE(fwdev),
--				       METHOD_NAME__ADR,
--				       NULL, &adr64);
--
--	if (!ACPI_SUCCESS(status)) {
--		dev_err(dev, "Cannot get address\n");
--		return -EINVAL;
--	}
--
--	*adr = adr64;
--	if (*adr != adr64) {
--		dev_err(dev, "Address out of range\n");
--		return -ERANGE;
--	}
--
--	return 0;
--}
--
--#else
--
--static int i2c_mux_gpio_get_acpi_adr(struct device *dev,
--				     struct fwnode_handle *fwdev,
--				     unsigned int *adr)
--{
--	return -EINVAL;
--}
--
--#endif
--
- static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
- 				 struct platform_device *pdev)
- {
-@@ -141,9 +102,9 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
- 			fwnode_property_read_u32(child, "reg", values + i);
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
++#include <linux/overflow.h>
+ #include <linux/platform_data/i2c-mux-gpio.h>
+ #include <linux/platform_device.h>
+ #include <linux/module.h>
+@@ -152,7 +153,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 		return -EPROBE_DEFER;
  
- 		} else if (is_acpi_node(child)) {
--			rc = i2c_mux_gpio_get_acpi_adr(dev, child, values + i);
-+			rc = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), values + i);
- 			if (rc)
--				return rc;
-+				return dev_err_probe(dev, rc, "Cannot get address\n");
- 		}
- 
- 		i++;
+ 	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values,
+-			     ngpios * sizeof(*mux->gpios), 0,
++			     array_size(ngpios, sizeof(*mux->gpios)), 0,
+ 			     i2c_mux_gpio_select, NULL);
+ 	if (!muxc) {
+ 		ret = -ENOMEM;
 -- 
 2.33.0
 
