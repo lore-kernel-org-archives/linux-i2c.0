@@ -2,96 +2,94 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DE99C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 15:43:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32847C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 15:47:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44F2D61504
-	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 15:43:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1468B60F51
+	for <linux-i2c@archiver.kernel.org>; Mon, 15 Nov 2021 15:47:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236500AbhKOPqI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 15 Nov 2021 10:46:08 -0500
-Received: from mga05.intel.com ([192.55.52.43]:57842 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236685AbhKOPqH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 15 Nov 2021 10:46:07 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10169"; a="319673560"
-X-IronPort-AV: E=Sophos;i="5.87,236,1631602800"; 
-   d="scan'208";a="319673560"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2021 07:42:55 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,236,1631602800"; 
-   d="scan'208";a="471945761"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga002.jf.intel.com with ESMTP; 15 Nov 2021 07:42:52 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id ADDBB173; Mon, 15 Nov 2021 17:42:54 +0200 (EET)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Evan Green <evgreen@chromium.org>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Peter Korsgaard <peter.korsgaard@barco.com>,
-        Peter Rosin <peda@axentia.se>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 2/3] i2c: mux: gpio: Don't dereference fwnode from struct device
-Date:   Mon, 15 Nov 2021 17:42:00 +0200
-Message-Id: <20211115154201.46579-2-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211115154201.46579-1-andriy.shevchenko@linux.intel.com>
-References: <20211115154201.46579-1-andriy.shevchenko@linux.intel.com>
+        id S236685AbhKOPuJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 15 Nov 2021 10:50:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45506 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236608AbhKOPuF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 15 Nov 2021 10:50:05 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B81C061570;
+        Mon, 15 Nov 2021 07:46:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:References:Cc:To:From:
+        Subject:Sender:Reply-To:Content-ID:Content-Description;
+        bh=J7uXGJmhnlDyH4Tj71s3ZSy+aVBqj936IH1uygv5tSQ=; b=N5NGkn74xTAQgR6H6/JiDFJh+H
+        9jPfupoupMUbmVuCvty3+FSdeFBDHNS2Hzp8Id2opL0Gb8/v+K/bB/KWdfAXcCOamV2RatkmAlRuX
+        yid50znxCh40yyxmD5koUeM8mZW0ACfBIqttmRDGEIiuYlnEvzzOffftif60b2HplpvoDzTWfiYn5
+        V0Is3XHr/iZtzwRxVCfNCGaQXkZApAih03RDHc2zDbYHJcx6+zqKHx5abvhgdqRK1I2wvHSRmx9w6
+        vhUfpgojZEx1fQOKBlf2EJ8MM770fSZF9le+KRjh385av/DodQYcL44lLhZF6XZFE9MVKy503viiJ
+        +hbsDnjQ==;
+Received: from [2601:1c0:6280:3f0::aa0b]
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mmeBv-00G5No-6Z; Mon, 15 Nov 2021 15:46:43 +0000
+Subject: Re: [PATCH v1 1/1] i2c: designware: Fix the kernel doc description
+ for struct dw_i2c_dev
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+References: <20211112123459.73538-1-andriy.shevchenko@linux.intel.com>
+ <e62bf878-03df-1b93-2177-7b8a3be293c4@infradead.org>
+ <CAHp75Vd71WPosA8Sy999Mb5ZiGEGg-y3vxYsYz3st5Ng2PJ98A@mail.gmail.com>
+ <07932f56-ec2d-46a5-7c8e-3f4aab7afd35@infradead.org>
+Message-ID: <767f36e9-e043-06dd-f847-7405524b432e@infradead.org>
+Date:   Mon, 15 Nov 2021 07:46:42 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
+In-Reply-To: <07932f56-ec2d-46a5-7c8e-3f4aab7afd35@infradead.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-We have a special helper to get fwnode out of struct device.
-Moreover, dereferencing it directly prevents the fwnode
-modifications in the future.
+On 11/12/21 8:43 AM, Randy Dunlap wrote:
+> On 11/12/21 8:26 AM, Andy Shevchenko wrote:
+>> On Fri, Nov 12, 2021 at 6:01 PM Randy Dunlap <rdunlap@infradead.org> wrote:
+>>> On 11/12/21 4:34 AM, Andy Shevchenko wrote:
+>>
+>> ...
+>>
+>>>> + * @rinfo: I²C GPIO recovery information
+>>>
+>>> Preferably:   "I2C"
+>>
+>> Why?
+> 
+> See below vvvvvvvvvvvvvvvvv:
+>>> like it is in thousands of places in the kernel source tree.
+> 
+> 
+>> UTF-8 has been established for more than a decade. I prefer to use the
+>> proper form of the abbreviation (*).
+>>
+>> *) Check UM10204.pdf.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/muxes/i2c-mux-gpio.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index 31e6eb1591bb..b09c10f36ddb 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -53,6 +53,7 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
- 				 struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-+	struct fwnode_handle *fwnode = dev_fwnode(dev);
- 	struct device_node *np = dev->of_node;
- 	struct device_node *adapter_np;
- 	struct i2c_adapter *adapter = NULL;
-@@ -60,7 +61,7 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
- 	unsigned *values;
- 	int rc, i = 0;
- 
--	if (is_of_node(dev->fwnode)) {
-+	if (is_of_node(fwnode)) {
- 		if (!np)
- 			return -ENODEV;
- 
-@@ -72,7 +73,7 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
- 		adapter = of_find_i2c_adapter_by_node(adapter_np);
- 		of_node_put(adapter_np);
- 
--	} else if (is_acpi_node(dev->fwnode)) {
-+	} else if (is_acpi_node(fwnode)) {
- 		/*
- 		 * In ACPI land the mux should be a direct child of the i2c
- 		 * bus it muxes.
-@@ -111,7 +112,7 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
- 	}
- 	mux->data.values = values;
- 
--	if (fwnode_property_read_u32(dev->fwnode, "idle-state", &mux->data.idle))
-+	if (device_property_read_u32(dev, "idle-state", &mux->data.idle))
- 		mux->data.idle = I2C_MUX_GPIO_NO_IDLE;
- 
- 	return 0;
+> > Yes, I am aware of what is in the spec.
+> 
+> Wolfram, what do you prefer?
+
+>I prefer I2C. But it is more a reading habit. I would neither enforce
+>I2C nor I²C.
+
+OK, let's leave it as Andy sent it then.
+
+Acked-by: Randy Dunlap <rdunla@infradead.org>
+
+
 -- 
-2.33.0
-
+~Randy
