@@ -2,102 +2,92 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA605C433FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 24 Nov 2021 17:29:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70DC7C433EF
+	for <linux-i2c@archiver.kernel.org>; Wed, 24 Nov 2021 23:56:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242931AbhKXRca (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 24 Nov 2021 12:32:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242092AbhKXRca (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 24 Nov 2021 12:32:30 -0500
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F26BAC061574;
-        Wed, 24 Nov 2021 09:29:19 -0800 (PST)
-Received: by mail-lj1-x22d.google.com with SMTP id e11so6925289ljo.13;
-        Wed, 24 Nov 2021 09:29:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ydUydaywLW87b6G3VEUPeR5PFEYyoQL/BmcPvqzWAYE=;
-        b=CyZhQDspBWd+9xlvoI5RVBF+09UDksRX0c03lZTTtQ/7SilD8KdMDQ1DZ6hrVRsZiN
-         t5TvcoXmsHKHYC/JfKthFjYHWPYsQ/OMcKcorVPvFI56Ixyxi4EHeeN9XC2OAqThTn1Y
-         BZYL/5rzIqHLBqJJvNVsAg9l8SHRJr4C92FiFHueGuN0c1b9wVcUf4SEmShRwu2IFJrF
-         +cuzJDzIeEQguNTtO4g5XNPNQhbpLGJDADTNg/Ueg0q3pddl+TdM8mT+gOK9VY6n05JH
-         ySR9yR9+/228BIGVgHT/9r6ERxG+jbMRR5lASbNaab1UyapCu3GIu51cPhA9DVC1evnD
-         biUA==
+        id S237424AbhKXX7S (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 24 Nov 2021 18:59:18 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:24628 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237406AbhKXX7S (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 24 Nov 2021 18:59:18 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637798167;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=7Aq2BDIOL1rOwQ9dBnbb+hwIKJaZN1tdzzbInSFnljw=;
+        b=PsFShBzOCpfS6ocmYn6trsCj0ZBzYo9zgT8+QHqiPjeBdQhCaNaxauJW9fs5dN7rxUrJgD
+        nbeeNsgVlo/bmXw0x8sbH4KmGL7RHmwKbwzg+Pcv8q2A9lhtELVwiu0kKgzBJJxgyYjyLC
+        6XF912QN9MnIxo9MwPRz/av2EAaNjuw=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-7-VHbo26SCMu6_14KdQZc37g-1; Wed, 24 Nov 2021 18:56:06 -0500
+X-MC-Unique: VHbo26SCMu6_14KdQZc37g-1
+Received: by mail-ed1-f72.google.com with SMTP id v9-20020a50d849000000b003dcb31eabaaso3800457edj.13
+        for <linux-i2c@vger.kernel.org>; Wed, 24 Nov 2021 15:56:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ydUydaywLW87b6G3VEUPeR5PFEYyoQL/BmcPvqzWAYE=;
-        b=2QUO7rBWvaGtTfoK4H8AFzItdz3uOlKQoOYT9kBtXKYBSsKYTmtGAMqpAjUiW6G0YD
-         /w1SYlvuoAIXM1s0n4PVow+t94h1kjFa/kdVNRte2FNRMzBYhbdv7D3c96V6e3171nIm
-         TUtghViYBTTc8JafF23rgu1cuy8QjE1i+szLJVSPJ5xDIOiDqw8ZvWQkj0TqzOdSKolv
-         OOzKDwOuuGN5d0HIPa4+dRP3eI3xAxKL8PaOxmF+srCuhGEvulc+w3lqo/PCjVj0YT1h
-         OB+LQRq6NK5IZqGtzs0NWdR98EZPb22Cdb2D34vk1Tdti7GtZ3FVIDnQc7PDMDoJI+W5
-         07jg==
-X-Gm-Message-State: AOAM530h4sez5ugjwGHceTeTyu6+Izo9/IS+s3yrDKQ/e1JJXXOszxNu
-        Fr+qlgYIXWLG0O5ny0gVXzs=
-X-Google-Smtp-Source: ABdhPJxPXUgL5sbmJ8QgM/1O4cZrC1JEdGxYpsxf6RgyOm2YXACjxbTj8io/Abcqz4xAMIM9ZZpS1w==
-X-Received: by 2002:a2e:9806:: with SMTP id a6mr17728616ljj.185.1637774958306;
-        Wed, 24 Nov 2021 09:29:18 -0800 (PST)
-Received: from [192.168.2.145] (94-29-48-99.dynamic.spd-mgts.ru. [94.29.48.99])
-        by smtp.googlemail.com with ESMTPSA id e17sm40549lfq.102.2021.11.24.09.29.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 24 Nov 2021 09:29:18 -0800 (PST)
-Subject: Re: [PATCH v2] i2c: tegra: Add ACPI support
-To:     Akhil R <akhilrajeev@nvidia.com>,
-        "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>,
-        "christian.koenig@amd.com" <christian.koenig@amd.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        "linaro-mm-sig@lists.linaro.org" <linaro-mm-sig@lists.linaro.org>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "p.zabel@pengutronix.de" <p.zabel@pengutronix.de>,
-        "sumit.semwal@linaro.org" <sumit.semwal@linaro.org>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>
-Cc:     Shardar Mohammed <smohammed@nvidia.com>
-References: <1637328734-20576-1-git-send-email-akhilrajeev@nvidia.com>
- <1637651753-5067-1-git-send-email-akhilrajeev@nvidia.com>
- <eebf20ea-6a7f-1120-5ad8-b6dc1f9935e6@gmail.com>
- <BN9PR12MB5273A7628D80076F4EF2CC69C0619@BN9PR12MB5273.namprd12.prod.outlook.com>
- <b06a5072-f0f4-c9f9-f9a2-8d76b4432415@gmail.com>
- <BN9PR12MB5273CA3AA78636EB0500897AC0619@BN9PR12MB5273.namprd12.prod.outlook.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <4af00198-82b8-6611-544e-4bba51354278@gmail.com>
-Date:   Wed, 24 Nov 2021 20:29:16 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=7Aq2BDIOL1rOwQ9dBnbb+hwIKJaZN1tdzzbInSFnljw=;
+        b=Bbe9ngwFk5QHsharJTm0xl1YfGsjRyPWNdl+Xkr+xx4o78eVfDcYB8selB37/7+UOB
+         59Mg9vnBJ5VhSvN9LK50araXY8jUelcpEqiZkjax6TrVa/BD3zcyXmqqC1cVv6D0XN0z
+         ik3iwWHtPILDO3+X/cM1BTSsOOJPftxcSh20UxHZca/gfY9AGXJ65GAgcx4Zp7PeEGtk
+         Ywh6RgxhBZTFKjfL7k1PM4OZRVs/od1hRURkm4byL9XhSp7yixkujUE9KYZ4vf6sNpWP
+         wf5hs3awyMCt/ZBcOGldvZJMNBgPt22TCpKfudhuzKJIS2x0RAwmHuEY9Q3xuxUlYB/e
+         t2nA==
+X-Gm-Message-State: AOAM531uPAvvCR39QSYkbhyZrSOP9nMZ/ZAhc0yuHIoxLEodO4LrGpaA
+        I2dYYVLLf1XbaWuqr+a0fP+Nb89S59PT9E1Iz7R4qfY0oNVzaxSV1NkO8swJTUPd9vbvT+1aNK8
+        pVWq5nsoTBsti12bRWVDs
+X-Received: by 2002:a17:907:86a1:: with SMTP id qa33mr25976954ejc.142.1637798164841;
+        Wed, 24 Nov 2021 15:56:04 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy/BeF/KE9jXz/y70P34AnKAccg8V9yjGfdr5JI7QmEdI6beBgERTWQTzGGy07CdiEexVs2GQ==
+X-Received: by 2002:a17:907:86a1:: with SMTP id qa33mr25976932ejc.142.1637798164681;
+        Wed, 24 Nov 2021 15:56:04 -0800 (PST)
+Received: from redhat.com ([2a0e:1c80:14::66])
+        by smtp.gmail.com with ESMTPSA id q17sm863125edd.10.2021.11.24.15.56.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Nov 2021 15:56:03 -0800 (PST)
+Date:   Wed, 24 Nov 2021 18:55:56 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Vincent Whitchurch <vincent.whitchurch@axis.com>
+Cc:     wsa@kernel.org, jie.deng@intel.com, viresh.kumar@linaro.org,
+        conghui.chen@intel.com, virtualization@lists.linux-foundation.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@axis.com
+Subject: Re: [PATCH v2 0/2] virtio-i2c: Fix buffer handling
+Message-ID: <20211124185546-mutt-send-email-mst@kernel.org>
+References: <20211111160412.11980-1-vincent.whitchurch@axis.com>
 MIME-Version: 1.0
-In-Reply-To: <BN9PR12MB5273CA3AA78636EB0500897AC0619@BN9PR12MB5273.namprd12.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211111160412.11980-1-vincent.whitchurch@axis.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-24.11.2021 19:40, Akhil R пишет:
->> 24.11.2021 10:18, Akhil R пишет:
->>>> *i2c_dev)
->>>>>               i2c_dev->is_vi = true;  }
->>>> How are you going to differentiate the VI I2C from a non-VI? This
->>>> doesn't look right.
->>> This patch adds the ACPI support to only non-VI I2C. The device_ids in
->>> match table are added accordingly. I suppose, of_device_is_compatible
->>> always returns false as there is no device tree.
->>> Agree with the other comments.
->>
->> Will the VI I2C have a different ACPI ID or how it's going to work?
-> As there is a different compatible for VI I2C in device tree, I suppose the ACPI
-> would have a different ID as well. I think the logic would also need an update 
-> if to have VI I2C using the ACPI. But that wasn't actually considered in this patch.
+On Thu, Nov 11, 2021 at 05:04:10PM +0100, Vincent Whitchurch wrote:
+> This fixes a couple of bugs in the buffer handling in virtio-i2c which can
+> result in incorrect data on the I2C bus or memory corruption in the guest.
+> 
+> I tested this on UML (virtio-uml needs a bug fix too, I will sent that out
+> later) with the device implementation in rust-vmm/vhost-device.
+> 
+> Changes in v2:
+> - Added Acked-by and Fixes tags
 
-Thanks, you could reflected it in the commit message.
+
+What are the plans for this patchset?
+
+> Vincent Whitchurch (2):
+>   i2c: virtio: disable timeout handling
+>   i2c: virtio: fix completion handling
+> 
+>  drivers/i2c/busses/i2c-virtio.c | 46 ++++++++++++++-------------------
+>  1 file changed, 19 insertions(+), 27 deletions(-)
+> 
+> -- 
+> 2.28.0
+
