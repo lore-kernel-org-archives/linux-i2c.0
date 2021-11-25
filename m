@@ -2,38 +2,38 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4A4DC433EF
-	for <linux-i2c@archiver.kernel.org>; Thu, 25 Nov 2021 16:57:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82583C433FE
+	for <linux-i2c@archiver.kernel.org>; Thu, 25 Nov 2021 16:58:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356643AbhKYRAz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 25 Nov 2021 12:00:55 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:35005 "EHLO
+        id S1357062AbhKYRBQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 25 Nov 2021 12:01:16 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:47673 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1356639AbhKYQ6x (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 25 Nov 2021 11:58:53 -0500
+        by vger.kernel.org with ESMTP id S242250AbhKYQ7Q (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 25 Nov 2021 11:59:16 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1637859340;
+        s=mimecast20190719; t=1637859364;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=CnaCRXQQDkNaLaN82LcLlN5i1GlnXuJtYhrqJc4aPrU=;
-        b=XJ+hVHNO7R2ejPbQOHNPDGbVBBMd2+jWWYWTuGlJ3JZB6g+iNQOd43GVCMVzvRguF0U0WV
-        CYztywzZmiX7p4uhbUU8rR5c8Yis15wtVwAGwFUS7jEPYT3AuCzK/r9NH0GQM9Oz/KqztV
-        CMHOBdy9JURxCZshYqLFp6xFUPVR0fo=
+        bh=4AauWsBn+Sx8Yj6yrBnLHSIrw2mK+l0fhEMc6JtSf9M=;
+        b=EAmT3tQXh61O6kvoqgYltOpJTQy7BRMtZnkGW7rB1k5LQ3ybOwjZ9tkFPiI5KKVyK4Kl1y
+        tSyz4CLv61Hfvit3PaM4tdPsJM9W1ZmO62BoU+uf37cvLTQCeSXcdjayPXAguLKTKKhq7l
+        RE5ws7yaSmm7Vwt+nKHXxDuuYJJCrK4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-98-heASMzY_PHmzitdPyzmRMw-1; Thu, 25 Nov 2021 11:55:36 -0500
-X-MC-Unique: heASMzY_PHmzitdPyzmRMw-1
+ us-mta-2-qm8pmyg_NCOQz5YW_88agA-1; Thu, 25 Nov 2021 11:55:00 -0500
+X-MC-Unique: qm8pmyg_NCOQz5YW_88agA-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 311E1801B00;
-        Thu, 25 Nov 2021 16:55:34 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BF4761006AA1;
+        Thu, 25 Nov 2021 16:54:57 +0000 (UTC)
 Received: from x1.localdomain (unknown [10.39.195.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 62E7D67842;
-        Thu, 25 Nov 2021 16:55:30 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D716167840;
+        Thu, 25 Nov 2021 16:54:53 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
         Mark Gross <markgross@kernel.org>,
@@ -52,10 +52,11 @@ Cc:     Hans de Goede <hdegoede@redhat.com>, Len Brown <lenb@kernel.org>,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Kate Hsuan <hpa@redhat.com>, linux-media@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: [PATCH v6 15/15] media: ipu3-cio2: Add support for instantiating i2c-clients for VCMs
-Date:   Thu, 25 Nov 2021 17:54:12 +0100
-Message-Id: <20211125165412.535063-16-hdegoede@redhat.com>
+        linux-clk@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH v6 08/15] platform/x86: int3472: Split into 2 drivers
+Date:   Thu, 25 Nov 2021 17:54:05 +0100
+Message-Id: <20211125165412.535063-9-hdegoede@redhat.com>
 In-Reply-To: <20211125165412.535063-1-hdegoede@redhat.com>
 References: <20211125165412.535063-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -65,191 +66,375 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Some sensors come with a variable-focus lens where the lens focus is
-controller by a VCM (Voice Coil Motor). If there is a VCM for the
-lens-focus, and if so which one, is described on the vcm_type field
-of the ACPI SSDB table.
+The intel_skl_int3472.ko module contains 2 separate drivers,
+the int3472_discrete platform driver and the int3472_tps68470
+I2C-driver.
 
-These VCMs are a second I2C device listed as an extra I2cSerialBusV2
-resource in the same ACPI device as the sensor. The i2c-core-acpi.c
-code only instantiates an i2c-client for the first I2cSerialBusV2
-resource.
+These 2 drivers contain very little shared code, only
+skl_int3472_get_acpi_buffer() and skl_int3472_fill_cldb() are
+shared.
 
-Add support for instantiating an i2c-client for the VCM with
-the type of the i2c-client set based on the SSDB vcm_type field.
+Split the module into 2 drivers, linking the little shared code
+directly into both.
 
+This will allow us to add soft-module dependencies for the
+tps68470 clk, gpio and regulator drivers to the new
+intel_skl_int3472_tps68470.ko to help with probe ordering issues
+without causing these modules to get loaded on boards which only
+use the int3472_discrete platform driver.
+
+While at it also rename the .c and .h files to remove the
+cumbersome intel_skl_int3472_ prefix.
+
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/media/pci/intel/ipu3/cio2-bridge.c | 55 ++++++++++++++++++++++
- drivers/media/pci/intel/ipu3/cio2-bridge.h | 16 ++++++-
- 2 files changed, 69 insertions(+), 2 deletions(-)
+Note git rename detection is failing for the new common.c but this is
+just the old intel_skl_int3472_common.c with the driver registering
+bits removed.
+---
+ drivers/platform/x86/intel/int3472/Makefile   |   9 +-
+ ...lk_and_regulator.c => clk_and_regulator.c} |   2 +-
+ drivers/platform/x86/intel/int3472/common.c   |  54 +++++++++
+ .../{intel_skl_int3472_common.h => common.h}  |   3 -
+ ...ntel_skl_int3472_discrete.c => discrete.c} |  28 ++++-
+ .../intel/int3472/intel_skl_int3472_common.c  | 106 ------------------
+ ...ntel_skl_int3472_tps68470.c => tps68470.c} |  23 +++-
+ 7 files changed, 105 insertions(+), 120 deletions(-)
+ rename drivers/platform/x86/intel/int3472/{intel_skl_int3472_clk_and_regulator.c => clk_and_regulator.c} (99%)
+ create mode 100644 drivers/platform/x86/intel/int3472/common.c
+ rename drivers/platform/x86/intel/int3472/{intel_skl_int3472_common.h => common.h} (94%)
+ rename drivers/platform/x86/intel/int3472/{intel_skl_int3472_discrete.c => discrete.c} (93%)
+ delete mode 100644 drivers/platform/x86/intel/int3472/intel_skl_int3472_common.c
+ rename drivers/platform/x86/intel/int3472/{intel_skl_int3472_tps68470.c => tps68470.c} (86%)
 
-diff --git a/drivers/media/pci/intel/ipu3/cio2-bridge.c b/drivers/media/pci/intel/ipu3/cio2-bridge.c
-index 460ef7f78234..9b02f5599082 100644
---- a/drivers/media/pci/intel/ipu3/cio2-bridge.c
-+++ b/drivers/media/pci/intel/ipu3/cio2-bridge.c
-@@ -3,6 +3,7 @@
+diff --git a/drivers/platform/x86/intel/int3472/Makefile b/drivers/platform/x86/intel/int3472/Makefile
+index 2362e04db18d..771e720528a0 100644
+--- a/drivers/platform/x86/intel/int3472/Makefile
++++ b/drivers/platform/x86/intel/int3472/Makefile
+@@ -1,5 +1,4 @@
+-obj-$(CONFIG_INTEL_SKL_INT3472)		+= intel_skl_int3472.o
+-intel_skl_int3472-y			:= intel_skl_int3472_common.o \
+-					   intel_skl_int3472_discrete.o \
+-					   intel_skl_int3472_tps68470.o \
+-					   intel_skl_int3472_clk_and_regulator.o
++obj-$(CONFIG_INTEL_SKL_INT3472)		+= intel_skl_int3472_discrete.o \
++					   intel_skl_int3472_tps68470.o
++intel_skl_int3472_discrete-y		:= discrete.o clk_and_regulator.o common.o
++intel_skl_int3472_tps68470-y		:= tps68470.o common.o
+diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_clk_and_regulator.c b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
+similarity index 99%
+rename from drivers/platform/x86/intel/int3472/intel_skl_int3472_clk_and_regulator.c
+rename to drivers/platform/x86/intel/int3472/clk_and_regulator.c
+index 1700e7557a82..1cf958983e86 100644
+--- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_clk_and_regulator.c
++++ b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
+@@ -9,7 +9,7 @@
+ #include <linux/regulator/driver.h>
+ #include <linux/slab.h>
  
- #include <linux/acpi.h>
- #include <linux/device.h>
-+#include <linux/i2c.h>
- #include <linux/pci.h>
- #include <linux/property.h>
- #include <media/v4l2-fwnode.h>
-@@ -38,6 +39,18 @@ static const struct cio2_property_names prop_names = {
- 	.link_frequencies = "link-frequencies",
- };
+-#include "intel_skl_int3472_common.h"
++#include "common.h"
  
-+static const char * const cio2_vcm_types[] = {
-+	"ad5823",
-+	"dw9714",
-+	"ad5816",
-+	"dw9719",
-+	"dw9718",
-+	"dw9806b",
-+	"wv517s",
-+	"lc898122xa",
-+	"lc898212axb",
-+};
+ /*
+  * The regulators have to have .ops to be valid, but the only ops we actually
+diff --git a/drivers/platform/x86/intel/int3472/common.c b/drivers/platform/x86/intel/int3472/common.c
+new file mode 100644
+index 000000000000..350655a9515b
+--- /dev/null
++++ b/drivers/platform/x86/intel/int3472/common.c
+@@ -0,0 +1,54 @@
++// SPDX-License-Identifier: GPL-2.0
++/* Author: Dan Scally <djrscally@gmail.com> */
 +
- static int cio2_bridge_read_acpi_buffer(struct acpi_device *adev, char *id,
- 					void *data, u32 size)
- {
-@@ -134,6 +147,12 @@ static void cio2_bridge_create_fwnode_properties(
- 	sensor->dev_properties[2] = PROPERTY_ENTRY_U32(
- 					sensor->prop_names.orientation,
- 					orientation);
-+	if (sensor->ssdb.vcmtype) {
-+		sensor->vcm_ref[0] =
-+			SOFTWARE_NODE_REFERENCE(&sensor->swnodes[SWNODE_VCM]);
-+		sensor->dev_properties[3] =
-+			PROPERTY_ENTRY_REF_ARRAY("lens-focus", sensor->vcm_ref);
++#include <linux/acpi.h>
++#include <linux/slab.h>
++
++#include "common.h"
++
++union acpi_object *skl_int3472_get_acpi_buffer(struct acpi_device *adev, char *id)
++{
++	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
++	acpi_handle handle = adev->handle;
++	union acpi_object *obj;
++	acpi_status status;
++
++	status = acpi_evaluate_object(handle, id, NULL, &buffer);
++	if (ACPI_FAILURE(status))
++		return ERR_PTR(-ENODEV);
++
++	obj = buffer.pointer;
++	if (!obj)
++		return ERR_PTR(-ENODEV);
++
++	if (obj->type != ACPI_TYPE_BUFFER) {
++		acpi_handle_err(handle, "%s object is not an ACPI buffer\n", id);
++		kfree(obj);
++		return ERR_PTR(-EINVAL);
 +	}
- 
- 	sensor->ep_properties[0] = PROPERTY_ENTRY_U32(
- 					sensor->prop_names.bus_type,
-@@ -195,6 +214,33 @@ static void cio2_bridge_create_connection_swnodes(struct cio2_bridge *bridge,
- 						sensor->node_names.endpoint,
- 						&nodes[SWNODE_CIO2_PORT],
- 						sensor->cio2_properties);
-+	if (sensor->ssdb.vcmtype)
-+		nodes[SWNODE_VCM] =
-+			NODE_VCM(cio2_vcm_types[sensor->ssdb.vcmtype - 1]);
++
++	return obj;
 +}
 +
-+static void cio2_bridge_instantiate_vcm_i2c_client(struct cio2_sensor *sensor)
++int skl_int3472_fill_cldb(struct acpi_device *adev, struct int3472_cldb *cldb)
 +{
-+	struct i2c_board_info board_info = { };
-+	char name[16];
++	union acpi_object *obj;
++	int ret;
 +
-+	if (!sensor->ssdb.vcmtype)
-+		return;
++	obj = skl_int3472_get_acpi_buffer(adev, "CLDB");
++	if (IS_ERR(obj))
++		return PTR_ERR(obj);
 +
-+	snprintf(name, sizeof(name), "%s-VCM", acpi_dev_name(sensor->adev));
-+	board_info.dev_name = name;
-+	strscpy(board_info.type, cio2_vcm_types[sensor->ssdb.vcmtype - 1],
-+		ARRAY_SIZE(board_info.type));
-+	board_info.swnode = &sensor->swnodes[SWNODE_VCM];
-+
-+	sensor->vcm_i2c_client =
-+		i2c_acpi_new_device_by_fwnode(acpi_fwnode_handle(sensor->adev),
-+					      1, &board_info);
-+	if (IS_ERR(sensor->vcm_i2c_client)) {
-+		dev_warn(&sensor->adev->dev, "Error instantiation VCM i2c-client: %ld\n",
-+			 PTR_ERR(sensor->vcm_i2c_client));
-+		sensor->vcm_i2c_client = NULL;
-+	}
- }
- 
- static void cio2_bridge_unregister_sensors(struct cio2_bridge *bridge)
-@@ -207,6 +253,7 @@ static void cio2_bridge_unregister_sensors(struct cio2_bridge *bridge)
- 		software_node_unregister_nodes(sensor->swnodes);
- 		ACPI_FREE(sensor->pld);
- 		acpi_dev_put(sensor->adev);
-+		i2c_unregister_device(sensor->vcm_i2c_client);
- 	}
- }
- 
-@@ -239,6 +286,12 @@ static int cio2_bridge_connect_sensor(const struct cio2_sensor_config *cfg,
- 		if (ret)
- 			goto err_put_adev;
- 
-+		if (sensor->ssdb.vcmtype > ARRAY_SIZE(cio2_vcm_types)) {
-+			dev_warn(&adev->dev, "Unknown VCM type %d\n",
-+				 sensor->ssdb.vcmtype);
-+			sensor->ssdb.vcmtype = 0;
-+		}
-+
- 		status = acpi_get_physical_device_location(adev->handle, &sensor->pld);
- 		if (ACPI_FAILURE(status)) {
- 			ret = -ENODEV;
-@@ -269,6 +322,8 @@ static int cio2_bridge_connect_sensor(const struct cio2_sensor_config *cfg,
- 		sensor->adev = acpi_dev_get(adev);
- 		adev->fwnode.secondary = fwnode;
- 
-+		cio2_bridge_instantiate_vcm_i2c_client(sensor);
-+
- 		dev_info(&cio2->dev, "Found supported sensor %s\n",
- 			 acpi_dev_name(adev));
- 
-diff --git a/drivers/media/pci/intel/ipu3/cio2-bridge.h b/drivers/media/pci/intel/ipu3/cio2-bridge.h
-index 202c7d494f7a..4418cbd08208 100644
---- a/drivers/media/pci/intel/ipu3/cio2-bridge.h
-+++ b/drivers/media/pci/intel/ipu3/cio2-bridge.h
-@@ -8,6 +8,8 @@
- 
- #include "ipu3-cio2.h"
- 
-+struct i2c_client;
-+
- #define CIO2_HID				"INT343E"
- #define CIO2_MAX_LANES				4
- #define MAX_NUM_LINK_FREQS			3
-@@ -42,12 +44,19 @@
- 		.properties = _PROPS,		\
- 	}
- 
-+#define NODE_VCM(_TYPE)				\
-+	(const struct software_node) {		\
-+		.name = _TYPE,			\
++	if (obj->buffer.length > sizeof(*cldb)) {
++		acpi_handle_err(adev->handle, "The CLDB buffer is too large\n");
++		ret = -EINVAL;
++		goto out_free_obj;
 +	}
 +
- enum cio2_sensor_swnodes {
- 	SWNODE_SENSOR_HID,
- 	SWNODE_SENSOR_PORT,
- 	SWNODE_SENSOR_ENDPOINT,
- 	SWNODE_CIO2_PORT,
- 	SWNODE_CIO2_ENDPOINT,
-+	/* Must be last because it is optional / maybe empty */
-+	SWNODE_VCM,
- 	SWNODE_COUNT
++	memcpy(cldb, obj->buffer.pointer, obj->buffer.length);
++	ret = 0;
++
++out_free_obj:
++	kfree(obj);
++	return ret;
++}
+diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.h b/drivers/platform/x86/intel/int3472/common.h
+similarity index 94%
+rename from drivers/platform/x86/intel/int3472/intel_skl_int3472_common.h
+rename to drivers/platform/x86/intel/int3472/common.h
+index 714fde73b524..d14944ee8586 100644
+--- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.h
++++ b/drivers/platform/x86/intel/int3472/common.h
+@@ -105,9 +105,6 @@ struct int3472_discrete_device {
+ 	struct gpiod_lookup_table gpios;
  };
  
-@@ -106,8 +115,10 @@ struct cio2_sensor_config {
- struct cio2_sensor {
- 	char name[ACPI_ID_LEN];
- 	struct acpi_device *adev;
-+	struct i2c_client *vcm_i2c_client;
+-int skl_int3472_discrete_probe(struct platform_device *pdev);
+-int skl_int3472_discrete_remove(struct platform_device *pdev);
+-int skl_int3472_tps68470_probe(struct i2c_client *client);
+ union acpi_object *skl_int3472_get_acpi_buffer(struct acpi_device *adev,
+ 					       char *id);
+ int skl_int3472_fill_cldb(struct acpi_device *adev, struct int3472_cldb *cldb);
+diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_discrete.c b/drivers/platform/x86/intel/int3472/discrete.c
+similarity index 93%
+rename from drivers/platform/x86/intel/int3472/intel_skl_int3472_discrete.c
+rename to drivers/platform/x86/intel/int3472/discrete.c
+index e59d79c7e82f..d2e8a87a077e 100644
+--- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_discrete.c
++++ b/drivers/platform/x86/intel/int3472/discrete.c
+@@ -14,7 +14,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/uuid.h>
  
--	struct software_node swnodes[6];
-+	/* SWNODE_COUNT + 1 for terminating empty node */
-+	struct software_node swnodes[SWNODE_COUNT + 1];
- 	struct cio2_node_names node_names;
+-#include "intel_skl_int3472_common.h"
++#include "common.h"
  
- 	struct cio2_sensor_ssdb ssdb;
-@@ -115,10 +126,11 @@ struct cio2_sensor {
+ /*
+  * 79234640-9e10-4fea-a5c1-b5aa8b19756f
+@@ -332,7 +332,9 @@ static int skl_int3472_parse_crs(struct int3472_discrete_device *int3472)
+ 	return 0;
+ }
  
- 	struct cio2_property_names prop_names;
- 	struct property_entry ep_properties[5];
--	struct property_entry dev_properties[4];
-+	struct property_entry dev_properties[5];
- 	struct property_entry cio2_properties[3];
- 	struct software_node_ref_args local_ref[1];
- 	struct software_node_ref_args remote_ref[1];
-+	struct software_node_ref_args vcm_ref[1];
- };
+-int skl_int3472_discrete_probe(struct platform_device *pdev)
++static int skl_int3472_discrete_remove(struct platform_device *pdev);
++
++static int skl_int3472_discrete_probe(struct platform_device *pdev)
+ {
+ 	struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
+ 	struct int3472_discrete_device *int3472;
+@@ -395,7 +397,7 @@ int skl_int3472_discrete_probe(struct platform_device *pdev)
+ 	return ret;
+ }
  
- struct cio2_bridge {
+-int skl_int3472_discrete_remove(struct platform_device *pdev)
++static int skl_int3472_discrete_remove(struct platform_device *pdev)
+ {
+ 	struct int3472_discrete_device *int3472 = platform_get_drvdata(pdev);
+ 
+@@ -411,3 +413,23 @@ int skl_int3472_discrete_remove(struct platform_device *pdev)
+ 
+ 	return 0;
+ }
++
++static const struct acpi_device_id int3472_device_id[] = {
++	{ "INT3472", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, int3472_device_id);
++
++static struct platform_driver int3472_discrete = {
++	.driver = {
++		.name = "int3472-discrete",
++		.acpi_match_table = int3472_device_id,
++	},
++	.probe = skl_int3472_discrete_probe,
++	.remove = skl_int3472_discrete_remove,
++};
++module_platform_driver(int3472_discrete);
++
++MODULE_DESCRIPTION("Intel SkyLake INT3472 ACPI Discrete Device Driver");
++MODULE_AUTHOR("Daniel Scally <djrscally@gmail.com>");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.c b/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.c
+deleted file mode 100644
+index 497e74fba75f..000000000000
+--- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_common.c
++++ /dev/null
+@@ -1,106 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/* Author: Dan Scally <djrscally@gmail.com> */
+-
+-#include <linux/acpi.h>
+-#include <linux/i2c.h>
+-#include <linux/platform_device.h>
+-#include <linux/slab.h>
+-
+-#include "intel_skl_int3472_common.h"
+-
+-union acpi_object *skl_int3472_get_acpi_buffer(struct acpi_device *adev, char *id)
+-{
+-	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+-	acpi_handle handle = adev->handle;
+-	union acpi_object *obj;
+-	acpi_status status;
+-
+-	status = acpi_evaluate_object(handle, id, NULL, &buffer);
+-	if (ACPI_FAILURE(status))
+-		return ERR_PTR(-ENODEV);
+-
+-	obj = buffer.pointer;
+-	if (!obj)
+-		return ERR_PTR(-ENODEV);
+-
+-	if (obj->type != ACPI_TYPE_BUFFER) {
+-		acpi_handle_err(handle, "%s object is not an ACPI buffer\n", id);
+-		kfree(obj);
+-		return ERR_PTR(-EINVAL);
+-	}
+-
+-	return obj;
+-}
+-
+-int skl_int3472_fill_cldb(struct acpi_device *adev, struct int3472_cldb *cldb)
+-{
+-	union acpi_object *obj;
+-	int ret;
+-
+-	obj = skl_int3472_get_acpi_buffer(adev, "CLDB");
+-	if (IS_ERR(obj))
+-		return PTR_ERR(obj);
+-
+-	if (obj->buffer.length > sizeof(*cldb)) {
+-		acpi_handle_err(adev->handle, "The CLDB buffer is too large\n");
+-		ret = -EINVAL;
+-		goto out_free_obj;
+-	}
+-
+-	memcpy(cldb, obj->buffer.pointer, obj->buffer.length);
+-	ret = 0;
+-
+-out_free_obj:
+-	kfree(obj);
+-	return ret;
+-}
+-
+-static const struct acpi_device_id int3472_device_id[] = {
+-	{ "INT3472", 0 },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(acpi, int3472_device_id);
+-
+-static struct platform_driver int3472_discrete = {
+-	.driver = {
+-		.name = "int3472-discrete",
+-		.acpi_match_table = int3472_device_id,
+-	},
+-	.probe = skl_int3472_discrete_probe,
+-	.remove = skl_int3472_discrete_remove,
+-};
+-
+-static struct i2c_driver int3472_tps68470 = {
+-	.driver = {
+-		.name = "int3472-tps68470",
+-		.acpi_match_table = int3472_device_id,
+-	},
+-	.probe_new = skl_int3472_tps68470_probe,
+-};
+-
+-static int skl_int3472_init(void)
+-{
+-	int ret;
+-
+-	ret = platform_driver_register(&int3472_discrete);
+-	if (ret)
+-		return ret;
+-
+-	ret = i2c_register_driver(THIS_MODULE, &int3472_tps68470);
+-	if (ret)
+-		platform_driver_unregister(&int3472_discrete);
+-
+-	return ret;
+-}
+-module_init(skl_int3472_init);
+-
+-static void skl_int3472_exit(void)
+-{
+-	platform_driver_unregister(&int3472_discrete);
+-	i2c_del_driver(&int3472_tps68470);
+-}
+-module_exit(skl_int3472_exit);
+-
+-MODULE_DESCRIPTION("Intel SkyLake INT3472 ACPI Device Driver");
+-MODULE_AUTHOR("Daniel Scally <djrscally@gmail.com>");
+-MODULE_LICENSE("GPL v2");
+diff --git a/drivers/platform/x86/intel/int3472/intel_skl_int3472_tps68470.c b/drivers/platform/x86/intel/int3472/tps68470.c
+similarity index 86%
+rename from drivers/platform/x86/intel/int3472/intel_skl_int3472_tps68470.c
+rename to drivers/platform/x86/intel/int3472/tps68470.c
+index 42e688f4cad4..e95b0f50b384 100644
+--- a/drivers/platform/x86/intel/int3472/intel_skl_int3472_tps68470.c
++++ b/drivers/platform/x86/intel/int3472/tps68470.c
+@@ -7,7 +7,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
+ 
+-#include "intel_skl_int3472_common.h"
++#include "common.h"
+ 
+ #define DESIGNED_FOR_CHROMEOS		1
+ #define DESIGNED_FOR_WINDOWS		2
+@@ -102,7 +102,7 @@ static int skl_int3472_tps68470_calc_type(struct acpi_device *adev)
+ 	return DESIGNED_FOR_WINDOWS;
+ }
+ 
+-int skl_int3472_tps68470_probe(struct i2c_client *client)
++static int skl_int3472_tps68470_probe(struct i2c_client *client)
+ {
+ 	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
+ 	struct regmap *regmap;
+@@ -142,3 +142,22 @@ int skl_int3472_tps68470_probe(struct i2c_client *client)
+ 
+ 	return ret;
+ }
++
++static const struct acpi_device_id int3472_device_id[] = {
++	{ "INT3472", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, int3472_device_id);
++
++static struct i2c_driver int3472_tps68470 = {
++	.driver = {
++		.name = "int3472-tps68470",
++		.acpi_match_table = int3472_device_id,
++	},
++	.probe_new = skl_int3472_tps68470_probe,
++};
++module_i2c_driver(int3472_tps68470);
++
++MODULE_DESCRIPTION("Intel SkyLake INT3472 ACPI TPS68470 Device Driver");
++MODULE_AUTHOR("Daniel Scally <djrscally@gmail.com>");
++MODULE_LICENSE("GPL v2");
 -- 
 2.33.1
 
