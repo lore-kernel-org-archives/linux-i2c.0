@@ -2,69 +2,96 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83659C433F5
-	for <linux-i2c@archiver.kernel.org>; Fri, 26 Nov 2021 19:18:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5151C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 26 Nov 2021 22:50:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235425AbhKZTVz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 26 Nov 2021 14:21:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41332 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233255AbhKZTTz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 26 Nov 2021 14:19:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C318C061A24;
-        Fri, 26 Nov 2021 10:41:31 -0800 (PST)
-Received: from mail.kernel.org (unknown [198.145.29.99])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAB6C62338;
-        Fri, 26 Nov 2021 18:35:15 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPS id 2423C6008E;
-        Fri, 26 Nov 2021 18:35:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637951715;
-        bh=90Pew1VjM3fxxyuTXSlJJwIU0g0YhylRQJIYJZBsgBs=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=sjOz+8EG8jj4XHNSRpqCSf6BxwEQP+5Ubhhp/IPQ7pjSeJYAxprit1T68vltizQq3
-         GXg+bYrw2XL+D8X62jrlTNxcBjv971ReKYyEd6x5u9ZFDk5VpqM7M+xy800gCauJrm
-         MyVQR+IeLfNhsZIujWnhnCxNf4uXrOSHNQtugchy+VdqdBLZGj6r1rpppg8yWhgxe6
-         1+yaFld0SoB2NErobHVe2HBy0OY83KxSWle7YH4kb3DZ79sKEZuV7gNhV4wgJKk1nQ
-         Lo3VbC/c/WMA0PqVaZtr6NSBHpZ9yM1MhZe6xhhasxHxY++hADu8o6TM+LMil2IHRE
-         6i51xjDZ6HUsA==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 1DB1D60A3E;
-        Fri, 26 Nov 2021 18:35:15 +0000 (UTC)
-Subject: Re: [PULL REQUEST] i2c for v5.16
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <YaC5FYorV4yyQnaE@kunai>
-References: <YaC5FYorV4yyQnaE@kunai>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <YaC5FYorV4yyQnaE@kunai>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-X-PR-Tracked-Commit-Id: bed68f4f4db429a0bf544887e64dc710e5a690ea
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 80d75202f033f51581020a5ac06699d4dff89e73
-Message-Id: <163795171511.22939.11310940243320684912.pr-tracker-bot@kernel.org>
-Date:   Fri, 26 Nov 2021 18:35:15 +0000
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Rosin <peda@axentia.se>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
+        id S231462AbhKZWxO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 26 Nov 2021 17:53:14 -0500
+Received: from vps0.lunn.ch ([185.16.172.187]:54208 "EHLO vps0.lunn.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239549AbhKZWvO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 26 Nov 2021 17:51:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:To:From:Date:From:Sender:Reply-To:Subject:Date:
+        Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=L0jL/JDF3mZatKYXvhswt5OjSKQ39TiN08Rrl5nIFCs=; b=Gf9nbyq4kEILLJ1Qbhs6/h/5X6
+        gnDTUoaqg+UO/tWYpMbIuDN1c0V8Z8AgbeyH2dwvusnYmjPfeDWNVhIB1Yw4XzY5wKpOW/T87T8Rl
+        IXcv4m+5lqjsNIHKRLYw+Bl2f+aefYRc6GAuIWTvsKjEPSaK7RebWrb27BZuBpoCz990=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1mqk0Z-00EjZD-N8; Fri, 26 Nov 2021 23:47:55 +0100
+Date:   Fri, 26 Nov 2021 23:47:55 +0100
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     wsa@kernel.org, broonie@kernel.org, robh+dt@kernel.org,
+        linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Patrice Chotard <patrice.chotard@foss.st.com>
+Subject: Re: [RFC] sti: Conflict in node name for an IP supporting both I2C
+ and SPI
+Message-ID: <YaFkG85DHMMRiD7O@lunn.ch>
+References: <20211125210428.GA27075@gnbcxl0045.gnb.st.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211125210428.GA27075@gnbcxl0045.gnb.st.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The pull request you sent on Fri, 26 Nov 2021 11:38:13 +0100:
+On Thu, Nov 25, 2021 at 10:04:28PM +0100, Alain Volmat wrote:
+> Hello,
+> 
+> in the STi platform [1], the I2C and SPI controllers are handled by the
+> same IP, which can be configured in either one or the other mode.
+> This leads to warnings during the DT build and I was wondering if you could
+> give me some hints about how such situation should be handled since this
+> concern DT warnings but also bindings and YAML.
+> 
+> In the SoC DT (dtsi), for each IP, there are 2 entries:
+> 
+> One for the I2C mode (implemented by the driver i2c/busses/i2c-st.c)
+>                 i2c@9840000 {
+>                         compatible = "st,comms-ssc4-i2c";
+>                         interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
+>                         reg = <0x9840000 0x110>;
+>                         clocks = <&clk_s_c0_flexgen CLK_EXT2F_A9>;
+>                         clock-names = "ssc";
+>                         clock-frequency = <400000>;
+>                         pinctrl-names = "default";
+>                         pinctrl-0 = <&pinctrl_i2c0_default>;
+>                         #address-cells = <1>;
+>                         #size-cells = <0>;
+> 
+>                         status = "disabled";
+>                 };
+> 
+> One for the SPI mode (implemented by the driver spi/spi-st-ssc4.c)
+>                 spi@9840000 {
+>                         compatible = "st,comms-ssc4-spi";
+>                         reg = <0x9840000 0x110>;
+>                         interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
+>                         clocks = <&clk_s_c0_flexgen CLK_EXT2F_A9>;
+>                         clock-names = "ssc";
+>                         pinctrl-0 = <&pinctrl_spi0_default>;
+>                         pinctrl-names = "default";
+>                         #address-cells = <1>;
+>                         #size-cells = <0>;
+> 
+>                         status = "disabled";
+>                 };
+> 
+> So basically, there are 2 nodes, one for each mode, and enabling one or the
+> other mode is done within the board DT.
+> Since the address is the same, this obviously leads to warning during the build
+> of the DT.
+> 
+> arch/arm/boot/dts/stih407-family.dtsi:363.15-376.5: Warning (unique_unit_address): /soc/i2c@9840000: duplicate unit-address (also used in node /soc/spi@9840000)
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+How about making the compiler look at the status value. So long as
+only zero or one is enabled, it should not be an issue. If you have
+two or more nodes enabled for an address, then you want a warning or
+error.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/80d75202f033f51581020a5ac06699d4dff89e73
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+     Andrew
