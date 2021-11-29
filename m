@@ -2,194 +2,105 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01B0BC433FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 20:26:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B1E7C433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 20:34:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230140AbhK2U3i (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Nov 2021 15:29:38 -0500
-Received: from mail-oi1-f180.google.com ([209.85.167.180]:38827 "EHLO
-        mail-oi1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231637AbhK2U0e (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 15:26:34 -0500
-Received: by mail-oi1-f180.google.com with SMTP id r26so36809085oiw.5;
-        Mon, 29 Nov 2021 12:23:16 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=lDk8BlneSuRVeKSf5grrrIRYXl1VbeT1udhOyG1OtVk=;
-        b=Dn0HbFSXMVpM8g6TPx9ce76jmgRiR5Pm8r3oRIbCj2W/MNB87naj3CYoT1KvRfBVHv
-         XU5N84CuUAnnWKU97nA3CaKQKkpvS4BZ0M5yF5qqaEoVEPMjrOK1KUUHAhoVlGYVBfbN
-         2YRcmRsH+VhP/FDmg2KTQfgsQ76AP7SZPElqJ76g6Nvkk5sxEKxKUz1N9AVaPyK/V5FH
-         nZqG74h97ILvQRViBCAvYlpf1EIgEVmZVoWDC3AyDyj/zsuBc2QxDSy0blG/kkjycM5W
-         lGKjhvzVWqyQPbSqnwOkLbI9NU8GWpF4i9lTyyA2MnoEHgbQgr1x5T9mUTKueU/FnZoF
-         jnIA==
-X-Gm-Message-State: AOAM532XcQyvSgRi2OFLuXmCX4UfMjqHIOJexDjs/cKCKt1C/yF6XBPd
-        SdIVDAM1s3M1QqnR96neSw==
-X-Google-Smtp-Source: ABdhPJwF7Y+9YhXyqxZGUYPifOjP+P5BOlnWsiZCV4rCVdjToGw+1EGueSoksyzSxVFXxzRBg793XQ==
-X-Received: by 2002:aca:ab86:: with SMTP id u128mr271578oie.41.1638217396125;
-        Mon, 29 Nov 2021 12:23:16 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id x17sm2419929oot.30.2021.11.29.12.23.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Nov 2021 12:23:15 -0800 (PST)
-Received: (nullmailer pid 540951 invoked by uid 1000);
-        Mon, 29 Nov 2021 20:23:14 -0000
-Date:   Mon, 29 Nov 2021 14:23:14 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     "LH.Kuo" <lhjeff911@gmail.com>
-Cc:     p.zabel@pengutronix.de, daniel.thompson@linaro.org,
-        lee.jones@linaro.org, u.kleine-koenig@pengutronix.de,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, qinjian@cqplus1.com,
-        wells.lu@sunplus.com, "LH.Kuo" <lh.kuo@sunplus.com>
-Subject: Re: [PATCH v2 2/2] devicetree bindings I2C Add bindings doc for
- Sunplus SP7021
-Message-ID: <YaU2snDw5KiGjgjJ@robh.at.kernel.org>
-References: <1635496955-13985-1-git-send-email-lh.kuo@sunplus.com>
- <1636441166-8127-1-git-send-email-lh.kuo@sunplus.com>
- <1636441166-8127-3-git-send-email-lh.kuo@sunplus.com>
+        id S233152AbhK2UiB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Nov 2021 15:38:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33680 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232388AbhK2UgB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 15:36:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB8E6C08EB52
+        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 09:10:03 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F29FB81261
+        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 17:10:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1971C53FAD;
+        Mon, 29 Nov 2021 17:10:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638205801;
+        bh=4bS07e8gSW0fzxfov2nAwWrVbwc0hGwfKPrp9/F+D28=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jUS5SUjIqcrZUwRDemw/GqNK/qzEd4ERyfN7aW0SqwOVXvOB/kckgxhnKI824y9Xz
+         MOdA0uTaRaMVo+hm+lG9rJJYvYh5z1+1itLGvfR2KefufEWneWK5HyB6rlR/Knxpih
+         VbsoQByoRksLE8Fs6JCYiZ4RCT18+ImbgxWB7XYnvUgxh5DMEcE+87KBLF5FMvXjho
+         gFGxknNYdVMosD+gNWrRxElXrtkEyb6UVc3zlp1Qs9IukKvgEzfa5QrrEWP385n9Tv
+         j0dCnVqM6rhW6LLVeXeWn2c9DLvhnM+vB2As9K57syelkDNSim/hQPI+rfj2mxk0xq
+         3wm5j+IbflFSg==
+Date:   Mon, 29 Nov 2021 18:09:58 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Sui Chen <suichen@google.com>
+Cc:     linux-i2c@vger.kernel.org
+Subject: Re: [RFC Patch 0/2] I2C statistics as sysfs attributes
+Message-ID: <YaUJZn0aLf7GknY9@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Sui Chen <suichen@google.com>, linux-i2c@vger.kernel.org
+References: <CAJOps0s4qY3O36BGUpffzzA=gxw_crDzf_iif2fq0RdVhfCydg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="befE5sYyLMVpU4pD"
 Content-Disposition: inline
-In-Reply-To: <1636441166-8127-3-git-send-email-lh.kuo@sunplus.com>
+In-Reply-To: <CAJOps0s4qY3O36BGUpffzzA=gxw_crDzf_iif2fq0RdVhfCydg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Nov 09, 2021 at 02:59:26PM +0800, LH.Kuo wrote:
-> Add devicetree bindings I2C Add bindings doc for Sunplus SP7021
-> 
-> Signed-off-by: LH.Kuo <lh.kuo@sunplus.com>
 
-As with other SunPlus patches, author and S-o-b must match.
+--befE5sYyLMVpU4pD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> ---
-> Changes in v2:
->  - Addressed all comments from Mr. Rob Herring.
->  - Modified the structure and register access method.
->  - Modifiedthe path about MAINTAINERS. ( wrong messages PATH in v1).
->  - Modifiedthe the YAML file.
-> 
->  .../devicetree/bindings/i2c/i2c-sunplus.yaml       | 82 ++++++++++++++++++++++
->  MAINTAINERS                                        |  1 +
->  2 files changed, 83 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml b/Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml
-> new file mode 100644
-> index 0000000..af860ee
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml
-> @@ -0,0 +1,82 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +# Copyright (C) Sunplus Co., Ltd. 2021
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/i2c/i2c-sunplus.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Sunplus's I2C controller
-> +
-> +allOf:
-> +  - $ref: /schemas/i2c/i2c-controller.yaml#
-> +
-> +maintainers:
-> +  - lh.kuo <lh.kuo@sunplus.com>
+Hi Sui Chen,
 
-Full name here please.
+> It appears bus errors and NACK counts are frequently found in many
+> I2C controllers; a few I2C bus drivers now export those counters to
+> debugfs. There is some effort in attempting to monitor a large
+> number of BMCs (board management controllers) and we are wondering if
+> it is possible to have a more stable and unified interface for those
+> counters to be exported to compared to the debugfs, so that a single
+> command can be used to obtain the counters from different types of I2C
+> controllers.
 
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - sunplus,sp7021-i2cm
-> +      - sunplus,q645-i2cm
-> +
-> +  reg:
-> +    items:
-> +      - description: Base address and length of the I2C registers
-> +      - description: Base address and length of the I2C DMA registers
+There are at least two things to consider here:
 
-Drop 'Base address and length of the '.
+1) Why do you need this information? I don't think values like NACK
+count describe the health of a system. NACKs are perfectly OK in regular
+I2C communication. So, for now, I think debugfs is the better place.
+An exception might be the bus speed. Some people already had an interest
+in this.
 
-> +
-> +  reg-names:
-> +    items:
-> +      - const: i2cm
-> +      - const: i2cmdma
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  clocks:
-> +    maxItems: 1
-> +
-> +  resets:
-> +    maxItems: 1
-> +
-> +  clock-frequency:
-> +    enum: [ 100000, 400000 ]
+2) Even when this information is kept in debugfs, we can still add some
+core helper to have a standardized structure for the created files. This
+is independent from sysfs. I don't think I want this a standardized ABI,
+currently. Unless you explain good reasons to me :)
 
-You can't support other frequencies?
+Thanks and happy hacking,
 
-> +
-> +  pinctrl-names:
-> +    description:
-> +      A pinctrl state named "default" must be defined.
-> +    const: default
-> +
-> +  pinctrl-0:
-> +    description:
-> +      A phandle to the default pinctrl state.
-
-You don't have to define pinctrl properties when there's only 'default'.
+   Wolfram
 
 
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - reg-names
-> +  - interrupts
-> +  - clocks
-> +  - resets
-> +  - pinctrl-names
-> +  - pinctrl-0
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/clock/sp-sp7021.h>
-> +    #include <dt-bindings/reset/sp-sp7021.h>
-> +    #include <dt-bindings/interrupt-controller/irq.h>
-> +    i2c@9C004600 {
-> +        compatible = "sunplus,sp7021-i2cm";
-> +        reg = <0x9c004600 0x80>, <0x9c004680 0x80>;
-> +        reg-names = "i2cm", "i2cmdma";
-> +        interrupt-parent = <&intc>;
-> +        interrupts = <174 IRQ_TYPE_LEVEL_HIGH>;
-> +        clocks = <&clkc I2CM0>;
-> +        resets = <&rstc RST_I2CM0>;
-> +        clock-frequency = <100000>;
-> +        pinctrl-names = "default";
-> +        pinctrl-0 = <&i2cm0_pins>;
-> +    };
-> +...
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 5b7a8a2..575a8e0 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -18193,6 +18193,7 @@ SUNPLUS I2C CONTROLLER INTERFACE DRIVER
->  M:	LH Kuo <lh.kuo@sunplus.com>
->  L:	linux-i2c@vger.kernel.org
->  S:	Maintained
-> +F:	Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml
->  F:	drivers/i2c/busses/i2c-sunplus.c
->  
->  SUPERH
-> -- 
-> 2.7.4
-> 
-> 
+--befE5sYyLMVpU4pD
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGlCWIACgkQFA3kzBSg
+KbYh9A//fzE1WzmhwzTu6KhijDC8bErZxcMkQLw5Ygsdtx7LXH+2fhxkF403vCQu
+fqTYuYvJBQ0SevY66WCKay9F5aU6gh/1eBvsFUwD3kgMTtZCpXfucbs7Qxwxnm+N
+LtW8ex163qwrxOIuAaFSa5/Izpc6LgG4A/Dnsgj5ljCxTPFyZac0q/QaVkm3al5A
+J5SZGMT3Pi/FjnfoQap66di0RyqVSkig6TikY+H5Zb0wOQUDctXgWNDjqwJ4CMyL
+zuZr4u1bYmiLw2w7l+zSfXkHkXJUHJscUX0S7oxKjeLVw1uSfY18ipclaHIMkXgw
+ru7CoOPLBFmGoq4JBDHuK70yjrCnwq29LCN61coOAKWkjLF+b/D2+rDTc7U9/Ftm
+bI1pkSaWppC89CtzQtmm9vgWtVMuMttGrtFt8UCSXaoG+ao9ht0/tUobcuRqCxL5
+W9LdDRgeIi6gxPTv9ekTfUQp73k/eFQuaS6a8ZMix+hAxFmZipD4XblurauYyzA5
+j7E/4jLIXX2+6QlDF6s2+tBb3PEc250Sr2x8/FvR7qLPDnCmQgmC7xwdWGX+9Wd7
+LSUdZkoDslvRSernaesZY/mVaF8JoGhDWkYyIPuQZlJ1eRjAQlyFIfgj3Anyj1mq
+MNeIu44irPaNOzQPwrIP9GtiGxOsaCJzV/svSUJfwxN8Re3D+1o=
+=2E/k
+-----END PGP SIGNATURE-----
+
+--befE5sYyLMVpU4pD--
