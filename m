@@ -2,106 +2,93 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0F44C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 08:55:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63193C433F5
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 08:56:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244421AbhK2I6o (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Nov 2021 03:58:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50396 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241213AbhK2I4n (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 03:56:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02083C06179E;
-        Mon, 29 Nov 2021 00:41:58 -0800 (PST)
+        id S232672AbhK2I77 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Nov 2021 03:59:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35644 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243474AbhK2I56 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 03:57:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6F27B80933;
-        Mon, 29 Nov 2021 08:41:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C88EFC004E1;
-        Mon, 29 Nov 2021 08:41:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EE62B80E2F
+        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 08:54:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35034C004E1;
+        Mon, 29 Nov 2021 08:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638175315;
-        bh=Mj7X1l1gdYa1BrDv7xW5CTAYeo/8ZoHro5zWrCtQfS0=;
+        s=k20201202; t=1638176078;
+        bh=tG+g0qpUyzxrH0U8Y5MsCl8YqThQohi0vumLE6Ao278=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bWPFZ95lyp63A1gGOC+Esl2VtWEQ+pmcM1sHVtoMW7W9OEmKrRd2w1pmjXIW4woJw
-         gfVqQKgSIEFKBG+mNjX+pYdi2EtBXWwA3zSsu4PpZRdCA0451kDdslP+IwqpObKQ3z
-         PG9w8lhi71WWpP0X36nTMlqA0Czqq1orJXyPlHdRuIhbFC3eMIsC2LTFPa9Dqh5Hud
-         I6uez9ZrrUPRWYmaNWdQtUCR8FOVbk+mwlm4cJDzxHWbLE3/JKQ03XS9j0fE3/rYrx
-         LcurGcStuFLkw0rx2j36f4dodIhoBzK0gfkGt5AmV2nEJX+QjEpjv7xhB/5QC9mjDw
-         Zyy+4DI4HXqiw==
-Date:   Mon, 29 Nov 2021 09:41:52 +0100
+        b=DpEAUaBz7FKUsVMTKfGTV0KK+wQjrc73bIizoac9GN/DRkMeK3InbCxK6hhfqq6/l
+         kvA8RE97zonZ0Xeylxe8YZPhtgC6LRBQUZkHladv2cqyxwpqTv87NilnQZQVIVdSHW
+         2BcH4czbsnnXyk+xJunA6Z0J9mp0EJNnGfyWwjahYEm5mxzUPzSqBFp5pGs9CzXQo3
+         qCLFf+j5si9oUT07q/HQT3hS9L1agoSV4+ed3TJZIWumZRv5zcuV/vyDvU0Vc68lPY
+         sx1WNUfVOrWTBZRmcyXaLUcv1yjMCXW9W15AroJgjJBneNtF3HE8hWmzlp01bAblnA
+         eFUlDKl15Dmpw==
+Date:   Mon, 29 Nov 2021 09:54:35 +0100
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Abel Vesa <abel.vesa@nxp.com>
-Cc:     Rob Herring <robh@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v4 11/12] dt-bindings: i2c: imx-lpi2c: Add i.MX8DXL
- compatible match
-Message-ID: <YaSSUHH2e9mHxhtx@kunai>
+To:     Heiner Kallweit <hkallweit1@gmail.com>
+Cc:     Jean Delvare <jdelvare@suse.com>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Subject: Re: i2c: i801: Don't silently correct invalid transfer size
+Message-ID: <YaSVS2BLBZet4bj+@kunai>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Abel Vesa <abel.vesa@nxp.com>, Rob Herring <robh@kernel.org>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-References: <1636566415-22750-1-git-send-email-abel.vesa@nxp.com>
- <1636566415-22750-12-git-send-email-abel.vesa@nxp.com>
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jean Delvare <jdelvare@suse.com>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+References: <a5e9b8b5-82af-96a1-b983-d98c2fa140f9@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="DOW3NFxjw4Y5rvlF"
+        protocol="application/pgp-signature"; boundary="jaFRAQe47WhOdGvK"
 Content-Disposition: inline
-In-Reply-To: <1636566415-22750-12-git-send-email-abel.vesa@nxp.com>
+In-Reply-To: <a5e9b8b5-82af-96a1-b983-d98c2fa140f9@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---DOW3NFxjw4Y5rvlF
+--jaFRAQe47WhOdGvK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 10, 2021 at 07:46:54PM +0200, Abel Vesa wrote:
-> Add i.MX8DXL lpi2c compatible to the bindings documentation.
+On Sun, Nov 07, 2021 at 10:57:00PM +0100, Heiner Kallweit wrote:
+> If an invalid block size is provided, reject it instead of silently
+> changing it to a supported value. Especially critical I see the case of
+> a write transfer with block length 0. In this case we have no guarantee
+> that the byte we would write is valid. When silently reducing a read to
+> 32 bytes then we don't return an error and the caller may falsely
+> assume that we returned the full requested data.
 >=20
-> Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
+> If this change should break any (broken) caller, then I think we should
+> fix the caller.
+>=20
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
 Applied to for-next, thanks!
 
 
---DOW3NFxjw4Y5rvlF
+--jaFRAQe47WhOdGvK
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGkklAACgkQFA3kzBSg
-KbafeA/8CuvjQGEPMI9aeqCJabLH5w3PdiM3Jxbt5FxwFcHpcPZEqbOPxQWWjCQ2
-gKwxwCmf0ZrZx3+AxMYkNx3B5iL4E0E3ArecwVJavz/SG+kq0NoIhX6YvVGYJV8r
-j8qKyP934FsPOsJlwuULcjmwT4eZQPTjc++oCslYvYMY6Z1DJEPL3BGILab38kQy
-S30YPaxpTsJEWfqGhUixUjCh5LhglzXoe4sHKKfhViPeeHzMFX78gZwwIwr7UyDc
-cvGHFsbF5f0kItFkcchyQRuSEkok5pXzzyzq8fYjAKTdaPMzhGVtsOLj6f3sUl7q
-KtZnUI3PvLryFP/IjuHhbs23dEjfU9EH8xuYVxfBYriBHQPct6GmogEaSkw0WqVs
-UqmR/olx/CPTYBhw+XkiDb+lgglb21yIHeaQ3LHO4+gBGTcWPY5ieiqt3xZXKKdl
-C5KoE3gB2NoaX1gYBObJb+txyXpMYJJynmzzruQKA7hwK3wwsEMaZqffBzfwwk8p
-7xUQ/qPoa+/+hB0xb1lvcv9W0lujSe+z5QbFMQ8rkvKZqtst0hQelmO1PCVbcfG+
-xFkAz6afeMaUAW8M28hBuFbQlAvHqNqT+tQn0BCEhgZBVe5L+YOxSJ7PuJMCLBPB
-eFolg3Anrbfp2UMonwjNlFKvxx/9XpkXy0I2HO7Swb2DZ7s6dt0=
-=tzkd
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGklUsACgkQFA3kzBSg
+Kbbniw/9FV7u2qwSL90MptsJSSIt/oKJdiGx6JiPSD0/okIcNB5bTENrfUdbBRxQ
+5HyZnxsvldGrMfL7AdYSWa4t/UEo4OgoBPBNrktOQ+wo6ZhEWKeXPXc2c5tgCOPN
+xTBvXGHdm0wgyk1+VD4kjCISyjfAjTZZyRfHnh/vfGunS1c4w5cjxwqXK1+auP+5
+laDxBimVQ+DGNbNnXRX3b3cSFJ7ONcvAodDLtqjFmQFYK7YrIAr4onLRhCuuIVxR
+H1m6cgIBrEB/jQyMcqiQUVf5Fjo703Zpy5g/LPZxv9KaJqws2soHoi+NKhJqnxcF
+2bSiafWr2+WdIom58tdKYCkQVhnwcfcs6mwYn5y9fy0GXdnAJQxjvk/co1JNhiot
+lBOwchzuNv+vuC4Hggzk8vgO8LMEhNcnzWdJdw6zCOhG6aPLpxYQr+K17i+lRmFI
+q71ZaeeZyNN3TEx+f2tu+7vq2m4TaL9DV1rFTmAlDnjflumodg387xlU0pbhwEJz
+sVyz6uKQH1EFw5qUrkVkk9dpU4SLJm3gi6i6ziHcwIzEwdGttLSSfrYhcDOoGfzq
+uxhjogxut4Hb6jyCbFKxfG+fwn9v3zAaLwhZ/EMAzs7zN5lULzDY57D2Ns92WIxs
+1uo2YplEGJShpfYg7dNY8ixcEcK1oDiGgk9Ggn5tr6VE6rcifTk=
+=fWPd
 -----END PGP SIGNATURE-----
 
---DOW3NFxjw4Y5rvlF--
+--jaFRAQe47WhOdGvK--
