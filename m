@@ -2,177 +2,108 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EC0AC433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 22:23:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FC7FC4332F
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 22:33:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbhK2W0Q (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Nov 2021 17:26:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58648 "EHLO
+        id S233773AbhK2Wgd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Nov 2021 17:36:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233543AbhK2WXr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 17:23:47 -0500
-Received: from mail-ua1-x931.google.com (mail-ua1-x931.google.com [IPv6:2607:f8b0:4864:20::931])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7F13C09676C
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 12:38:59 -0800 (PST)
-Received: by mail-ua1-x931.google.com with SMTP id o1so36803454uap.4
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 12:38:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=UONcs7N6LGxVu2k8VNIBFR8w78/QJ3sPH/s1Z5GJbro=;
-        b=noH8p60w0Jb98Gun1YSBguriftRk73erhwNTOPAf0Xyfpd3cQ8YQLdk0dHdFCR1L/V
-         VrbMrAhXcw1OzPppMd1vEqZMILJq4Be4I+3XY4YrVFi+ez8sbi2I10v75Hzf1oAKt7Md
-         Q+cvz1xKXfTgGvcmKkzceKwtuG2XPov5wncs00SjT30lSAPi0nz1rgj5LYqDrXjXbwrd
-         7qJ2K/OlJwBdQB+TZLO+Uy7e1hft0Au/MPm+8zOCJqUVXLzTHyR5Ted8dz9vzXFYRmAv
-         pFLYaHJJ3SzU0UlR3r5WXbyN0td2n1zWE0TOOJKSdPvYoBjSfIBXLpFKtsOyF1bjh5D1
-         IQuQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=UONcs7N6LGxVu2k8VNIBFR8w78/QJ3sPH/s1Z5GJbro=;
-        b=NHtsH9dnM6/FHmbAZV+QuuK7z4gSFrLSv2bJfLMMuEpOHBGIACv8jJFWza1xzghfyM
-         xyIho030kwsy5v+0RMqjw0HOShJlgVT6T5rmqr1uxGP0JLVOh2L/B8rSjgfJXpfnaHZX
-         eIkHVoLJNTNxPjVMNCCblM/Q8DhUO4blMW8C67aBhcekX3w7zQlvSitxNyMELwUXLiaa
-         3zlzGMLKPSPn1Pv7Znr745dCIZyJzXfWN/3stk/C5NDXiWYtM/+LIM0633eHvsz7knw+
-         jlY7ca3rEHZhuoXDyaC0eqgfodp6axJIRG1mpgxjQeYoQ05cIxvBt5a5/tZen2wiLDcf
-         rfzg==
-X-Gm-Message-State: AOAM532wGBVaEhgHem09NLBQLFfVTCA8QJx2ql3SotTuszD3saGXGXve
-        28S8ZDckjpzVPUUIlbQipbrKPb/UNj4QQ7AtF4Z18g==
-X-Google-Smtp-Source: ABdhPJzhebEttD8OzDSAnlep6FeEbByTFuexl48l99GbNggwLSd6/VU+oEF2UMCz1+jFsh7LSdV7Dujt31QbGYN5BvA=
-X-Received: by 2002:a67:be0f:: with SMTP id x15mr36219046vsq.86.1638218338933;
- Mon, 29 Nov 2021 12:38:58 -0800 (PST)
+        with ESMTP id S231676AbhK2Wfp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 17:35:45 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DAD5C201F9B;
+        Mon, 29 Nov 2021 11:15:55 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A8224CE167C;
+        Mon, 29 Nov 2021 19:15:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3473EC53FD4;
+        Mon, 29 Nov 2021 19:15:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638213351;
+        bh=As5tGxBWpsIBr6Ptb98MIpSwR+cID+ZtMAjxC8CabBc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AeNzBB06DPCfeHGq6k4OFx0j224B1i++bhjyaRLcobu0p9O1K7sTYCxY0x9YyQwyl
+         tJEkYMkGJng+5yPY9cIxMQl+zM8BayIAfOcRD/fOgJmW/NOwspug1j2qmw+yYpnUUZ
+         5gjmnYNTtYLEZLOHxGKCH2uiNSPzF8ZE0Q/eN/wHaMl+E+JwnIRhwMo/ux7lqJzvdo
+         OlB/gW8G/xXKyL+7c8Hoe2ImxoyPIl5uyq6O3vXkpxo6f2ASjnEqewPTkgQGW8dluo
+         Tmj7ohRjbFUzJBELi6QQxlG1inHVLqAOemgUiNp0vYcR9IhY2+CnJi5VYYW93ig9uv
+         PW8GahJaUb+kQ==
+Date:   Mon, 29 Nov 2021 20:15:48 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Dejin Zheng <zhengdejin5@gmail.com>
+Cc:     helgaas@kernel.org, corbet@lwn.net, jarkko.nikula@linux.intel.com,
+        andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
+        rric@kernel.org, bhelgaas@google.com, Sanket.Goswami@amd.com,
+        linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 3/4] i2c: designware: Use pcim_alloc_irq_vectors() to
+ allocate IRQ vectors
+Message-ID: <YaUm5NBr/Pb/i0Vv@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Dejin Zheng <zhengdejin5@gmail.com>, helgaas@kernel.org,
+        corbet@lwn.net, jarkko.nikula@linux.intel.com,
+        andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
+        rric@kernel.org, bhelgaas@google.com, Sanket.Goswami@amd.com,
+        linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20210607153916.1021016-1-zhengdejin5@gmail.com>
+ <20210607153916.1021016-4-zhengdejin5@gmail.com>
 MIME-Version: 1.0
-References: <20211127223253.19098-1-semen.protsenko@linaro.org>
- <20211127223253.19098-6-semen.protsenko@linaro.org> <9a51b37b-d2c4-fb73-bd3f-447c94a66c82@canonical.com>
- <CAPLW+4=Xp0m3ycm5c1WSJGtr6vRxx1fsW0MOo65fXMfaB1sR+w@mail.gmail.com>
-In-Reply-To: <CAPLW+4=Xp0m3ycm5c1WSJGtr6vRxx1fsW0MOo65fXMfaB1sR+w@mail.gmail.com>
-From:   Sam Protsenko <semen.protsenko@linaro.org>
-Date:   Mon, 29 Nov 2021 22:38:47 +0200
-Message-ID: <CAPLW+4n+y2cARyeV53hBfUdbyy5ZtCCisDQ20ANF7mM0uh_V4g@mail.gmail.com>
-Subject: Re: [PATCH 5/8] tty: serial: samsung: Enable console as module
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Rob Herring <robh+dt@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jaewon Kim <jaewon02.kim@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        David Virag <virag.david003@gmail.com>,
-        Youngmin Nam <youngmin.nam@samsung.com>,
-        devicetree@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Lgy2OFLg3jDVJdoD"
+Content-Disposition: inline
+In-Reply-To: <20210607153916.1021016-4-zhengdejin5@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, 29 Nov 2021 at 22:18, Sam Protsenko <semen.protsenko@linaro.org> wrote:
->
-> On Mon, 29 Nov 2021 at 10:52, Krzysztof Kozlowski
-> <krzysztof.kozlowski@canonical.com> wrote:
-> >
-> > On 27/11/2021 23:32, Sam Protsenko wrote:
-> > > Enable serial driver to be built as a module. To do so, init the console
-> > > support on driver/module load instead of using console_initcall().
-> > >
-> > > This is needed for proper support of USIv2 driver (which can be built as
-> > > a module, which in turn makes SERIAL_SAMSUNG be a module too). It also
-> > > might be useful for Android GKI modularization efforts.
-> > >
-> > > Inspired by commit 87a0b9f98ac5 ("tty: serial: meson: enable console as
-> > > module").
-> > >
-> > > Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
-> > > ---
-> > >  drivers/tty/serial/Kconfig       |  2 +-
-> > >  drivers/tty/serial/samsung_tty.c | 21 +++++++++++++++++++--
-> > >  2 files changed, 20 insertions(+), 3 deletions(-)
-> > >
-> > > diff --git a/drivers/tty/serial/Kconfig b/drivers/tty/serial/Kconfig
-> > > index fc543ac97c13..0e5ccb25bdb1 100644
-> > > --- a/drivers/tty/serial/Kconfig
-> > > +++ b/drivers/tty/serial/Kconfig
-> > > @@ -263,7 +263,7 @@ config SERIAL_SAMSUNG_UARTS
-> > >
-> > >  config SERIAL_SAMSUNG_CONSOLE
-> > >       bool "Support for console on Samsung SoC serial port"
-> > > -     depends on SERIAL_SAMSUNG=y
-> > > +     depends on SERIAL_SAMSUNG
-> > >       select SERIAL_CORE_CONSOLE
-> > >       select SERIAL_EARLYCON
-> > >       help
-> > > diff --git a/drivers/tty/serial/samsung_tty.c b/drivers/tty/serial/samsung_tty.c
-> > > index f986a9253dc8..92a63e9392ed 100644
-> > > --- a/drivers/tty/serial/samsung_tty.c
-> > > +++ b/drivers/tty/serial/samsung_tty.c
-> > > @@ -1720,10 +1720,10 @@ static int __init s3c24xx_serial_console_init(void)
-> > >       register_console(&s3c24xx_serial_console);
-> > >       return 0;
-> > >  }
-> > > -console_initcall(s3c24xx_serial_console_init);
-> > >
-> > >  #define S3C24XX_SERIAL_CONSOLE &s3c24xx_serial_console
-> > >  #else
-> > > +static inline int s3c24xx_serial_console_init(void) { return 0; }
-> > >  #define S3C24XX_SERIAL_CONSOLE NULL
-> > >  #endif
-> > >
-> > > @@ -2898,7 +2898,24 @@ static struct platform_driver samsung_serial_driver = {
-> > >       },
-> > >  };
-> > >
-> > > -module_platform_driver(samsung_serial_driver);
-> > > +static int __init samsung_serial_init(void)
-> > > +{
-> > > +     int ret;
-> > > +
-> > > +     ret = s3c24xx_serial_console_init();
-> > > +     if (ret)
-> > > +             return ret;
-> >
-> > This will trigger warns on module re-loading, won't it? Either suppress
-> > unbind or cleanup in module exit.
-> >
->
-> I guess that's already taken care of in  samsung_serial_remove(): it's
-> doing uart_remove_one_port(), which in turn does unregister_console().
-> So I don't think anything extra should be done on module exit. Or I'm
-> missing something?
->
-> That case (unload/load) actually doesn't work well in my case: serial
-> console doesn't work after doing "modprobe -r samsung_tty; modprobe
-> samsung_tty" (but it works fine e.g. in case of i2c_exynos5 driver).
-> Not sure what is wrong, but I can see that my board keeps running
-> (heartbeat LED is still blinking). Not even sure if that use case
-> (unload/load) was ever functional before.
->
-> Anyway, please let me know if you think something should be done about
-> this particular patch. Right now I don't see anything missing.
->
 
-...But I'll actually add proper error path handling in
-samsung_serial_init(), i.e. unregister console if
-platform_driver_register() fails. And I'll add the same console
-unregister in samsung_serial_exit(), just in case.
+--Lgy2OFLg3jDVJdoD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > > +
-> > > +     return platform_driver_register(&samsung_serial_driver);
-> > > +}
-> > > +
-> > > +static void __exit samsung_serial_exit(void)
-> > > +{
-> > > +     platform_driver_unregister(&samsung_serial_driver);
-> > > +}
-> > > +
-> > > +module_init(samsung_serial_init);
-> > > +module_exit(samsung_serial_exit);
-> > >
-> > >  #ifdef CONFIG_SERIAL_SAMSUNG_CONSOLE
-> > >  /*
-> > >
-> >
-> >
-> > Best regards,
-> > Krzysztof
+On Mon, Jun 07, 2021 at 11:39:15PM +0800, Dejin Zheng wrote:
+> The pcim_alloc_irq_vectors() function, an explicit device-managed version
+> of pci_alloc_irq_vectors(). If pcim_enable_device() has been called
+> before, then pci_alloc_irq_vectors() is actually a device-managed
+> function. It is used here as a device-managed function, So replace it
+> with pcim_alloc_irq_vectors(). At the same time, Remove the
+> pci_free_irq_vectors() function to simplify the error handling path.
+> the freeing resources will take automatically when device is gone.
+>=20
+> Reviewed-by: Robert Richter <rric@kernel.org>
+> Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
+
+Dunno the status of this series, but if it ever goes upstream, I am fine
+with the I2C changes:
+
+Acked-by: Wolfram Sang <wsa@kernel.org> # for I2C
+
+
+--Lgy2OFLg3jDVJdoD
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGlJuQACgkQFA3kzBSg
+KbZ4Hw/+JuoqxZy2bbiNX8LiPt6gXGhQrly3nu+8bhOe5smWpEmFpLUdQHX/0CPk
+QJguw68urbcJH1tvCw2g5KM81McukpSavS9mi74JLSwJWblmWZFxXNBxirkDP9QP
+/2c6wBEal8h+0T0inKLYm+uUk3DXmVmVp5iv6ZA9kdlfjVvJEAifcgY6/Ie8mOwc
+gIuvTuNtRc6YbneDnLbFjII1sgLepkASr4paZ/KgUwVULdqjm8Q6CHzg9OmHWjwF
+2oEA7CtIO30pe6Ky6tbVOdcxjBhxYC4h66erAMnqO7Wk3QLS4obEowuX1/i5uAWT
+FOO7Az8tKuR+lMNNh3AfTJbkeNNs+wcAb3L2SvIy14braTddeNe5FyzSuC+9QM7X
+x5wIFkXz/SbB1eJt/X4KVCadgKZXxK6NMsSmPuktO5+EYxSySZMJQgtWHcC9aP7E
+4n4gt/sINW3XkKnNv19vHBuXpn7EPkM8h+t/tK/3SHWDYZzRCRLA55lebYvmcqHs
+2BlPZ2cu/WbOm34KeO5y9GFmpKo5pO2TlonWrSVE6T9WnJ01yXd1iPvj4pBnCg6E
+6ttwzMfrZkPn0piefq6nRnUutg2jHK/re6ylAMayBOfr9C0JlEfUELxgETyXmbn0
+ASU8ebTBdSUWSdi6dyEkCUn8XFEzuojFeUBEr9G4p3ycG07BF00=
+=rRir
+-----END PGP SIGNATURE-----
+
+--Lgy2OFLg3jDVJdoD--
