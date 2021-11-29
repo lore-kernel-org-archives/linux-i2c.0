@@ -2,98 +2,125 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEB90C43217
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 10:34:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CD5BC433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 10:42:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235612AbhK2KiC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Nov 2021 05:38:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42972 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236462AbhK2KgA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 05:36:00 -0500
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AD9C08EA50
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 02:02:27 -0800 (PST)
-Received: by mail-wr1-x42b.google.com with SMTP id t9so18484206wrx.7
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 02:02:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=0P1DBQCz6Re487E8k4zSiqVVuB28Lrg52FapbU18jpo=;
-        b=FaMMR9yWiYxcazApHQ/wg9yKC+NVzoM8Vwo2xVOxiFnNQDm0cdh54iKMf/CKTcaVBi
-         3v0V2JSIftMr20OKDj2qRUUxchnnN6VnmRLtkxZXy10G83MeHoqUxhevvdBYaZi54eKe
-         3ORoI2GGQ1BYzjtd8UwdlW+nDkoYEOSE1wRJVYCHLXFv2q5CUH/SwrEQHJDAo0gfhgRi
-         iVII4IF7xmSWTw91dL3E+EkV+gucjbh5wQhMQNwAtnirzBG1yXdjkr+EUD9T0W5Fikou
-         dr+m0d3Y7+cRy0yHzrk+SPJHgUYX0eiJgjgJZDgqoT6K6yUgzwXLqT8mNzYLZciIrPRm
-         cOow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=0P1DBQCz6Re487E8k4zSiqVVuB28Lrg52FapbU18jpo=;
-        b=wgcWclScY8paJ1g+293t5JQLsLKBNgp1zR9pZ+XX7I1rgnTfovqMnNdlcF6+kvqWNl
-         dxbCzZf/aE5mQi79tSLhLXpYNbFIWBeHoq5Qm4WFX+Yxou7nx4jJf0oXVIEt7jO62/fz
-         AihkVYG+hsohj4sCVTmuPEQip4n2owfT7XVCKPsEqIzwqaeEHlkcTvndc87wCB1hYdks
-         1uU8yipR2nv+L/sD0k1QCzb+WCDa71+AjKzaVdmrNRDP7vOSaLOPzrjQ5LbQuZGEabPH
-         4uyO4kdFhq4Trmg/0iuCDmfoQ5ClgOY+GWH5cFWgIP6GnM60XNoczWaMz4riiUJ6cC8g
-         oPVw==
-X-Gm-Message-State: AOAM5316g4bGJuLJV1o8eh6/jc1Y/0uS1Gdm18Peb2g2AbmVegJORrUO
-        nl7OcrhsR7XLTJRLYExFlTUjCw==
-X-Google-Smtp-Source: ABdhPJxW8KDLLi9B5knbiZGRFmjeaSoYfXl8Bf8QIeqm1eg6FgSQrPWaHsYoimlSs5TggZT1/ujJSQ==
-X-Received: by 2002:adf:8010:: with SMTP id 16mr32377814wrk.559.1638180146284;
-        Mon, 29 Nov 2021 02:02:26 -0800 (PST)
-Received: from ?IPv6:2a01:e34:ed2f:f020:8236:a2e5:8d62:e9cd? ([2a01:e34:ed2f:f020:8236:a2e5:8d62:e9cd])
-        by smtp.googlemail.com with ESMTPSA id g5sm17498490wri.45.2021.11.29.02.02.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Nov 2021 02:02:25 -0800 (PST)
-Subject: Re: [PATCH V6 3/7] dt-bindings: timer: tpm-timer: Add imx8ulp
- compatible string
-To:     "Peng Fan (OSS)" <peng.fan@oss.nxp.com>, robh+dt@kernel.org,
-        aisheng.dong@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
-        ulf.hansson@linaro.org, broonie@kernel.org, linux@roeck-us.net,
-        wim@linux-watchdog.org, linux@rempel-privat.de
-Cc:     kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S1346013AbhK2KpT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Nov 2021 05:45:19 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60544 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348541AbhK2KnS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 05:43:18 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 940E5B80E80;
+        Mon, 29 Nov 2021 10:40:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AD8CC53FAD;
+        Mon, 29 Nov 2021 10:39:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638182399;
+        bh=dEEOcQfEB95yM+DcjkZPRT2lrjVYea8Y1lBzvzrExkw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lqEICburaTXd7FBOJ8WP1mTsl3Lpk/QJjgwNPL6h4TTf/8aj3FQRIkWnzhSMwz99p
+         VQftEDF43EG7hots65fgIwZeVSe8Wk31sszc+P5Au/1VWro6T10ftJ4Ow8ucvKpTT7
+         nqOm8ubVUh5TsjYs9V78G+H0Fw/n1SocH27DNOguHiYLuRUAbWZ/44HfFO/yepNTP+
+         wyAGK6IDY2viPPbTjJTLFz4EHh4TKDAY9sUFrIgcY5blD9tKz4ZkS47lx9Qy6i7rBC
+         isYruR6GPBLAjxTfaBuPI1ImH38EIGALZ2jb1mR+gM4VfOrvVA2TOuJq44nmqAJrfO
+         hoSmK05UEGQ/w==
+Date:   Mon, 29 Nov 2021 11:39:56 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, nicolas.ferre@microchip.com,
+        alexandre.belloni@bootlin.com, ludovic.desroches@microchip.com,
+        andrew@sanpeople.com, mhoffman@lightlink.com, khali@linux-fr.org
+Subject: Re: [PATCH 1/3] i2c: at91: move i2c_recover_bus() outside of
+ at91_do_twi_transfer()
+Message-ID: <YaSt/CXWmZGmt+te@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
         linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        Jacky Bai <ping.bai@nxp.com>, Rob Herring <robh@kernel.org>,
-        Peng Fan <peng.fan@nxp.com>
-References: <20211126074002.1535696-1-peng.fan@oss.nxp.com>
- <20211126074002.1535696-4-peng.fan@oss.nxp.com>
-From:   Daniel Lezcano <daniel.lezcano@linaro.org>
-Message-ID: <d075b19a-c82b-9732-2034-1837a303c072@linaro.org>
-Date:   Mon, 29 Nov 2021 11:02:23 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        linux-kernel@vger.kernel.org, nicolas.ferre@microchip.com,
+        alexandre.belloni@bootlin.com, ludovic.desroches@microchip.com,
+        andrew@sanpeople.com, mhoffman@lightlink.com, khali@linux-fr.org
+References: <20210727111554.1338832-1-codrin.ciubotariu@microchip.com>
+ <20210727111554.1338832-2-codrin.ciubotariu@microchip.com>
 MIME-Version: 1.0
-In-Reply-To: <20211126074002.1535696-4-peng.fan@oss.nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="3OthpyYLRMGfk6Jx"
+Content-Disposition: inline
+In-Reply-To: <20210727111554.1338832-2-codrin.ciubotariu@microchip.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 26/11/2021 08:39, Peng Fan (OSS) wrote:
-> From: Jacky Bai <ping.bai@nxp.com>
-> 
-> The tpm timer on i.MX8ULP is derived from i.MX7ULP, it use two
-> compatible strings, so update the compatible string for it.
-> 
-> Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-> Acked-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Jacky Bai <ping.bai@nxp.com>
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
 
-Applied, thanks
+--3OthpyYLRMGfk6Jx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Codrin,
+
+sorry for the super-long delay. There is an issue here with regard to
+bus recovery which affetcs more drivers and I can't make up my mind how
+to handle it...
+
+> Fixes: d3d3fdcc4c90 ("i2c: at91: implement i2c bus recovery")
+
+Sidenote: I don't think this is a fix.
+
+> +	if (ret < 0) {
+> +		/*
+> +		 * some faulty I2C slave devices might hold SDA down;
+> +		 * we can send a bus clear command, hoping that the pins will be
+> +		 * released
+> +		 */
+> +		i2c_recover_bus(&dev->adapter);
+> +	} else {
+> +		ret = num;
+> +	}
+
+So, one issue is more straightforward. Bus recovery is applied on all
+errors. It should only be called when SDA is stuck.
+
+The other issue is that bus recovery is applied after a transfer. The
+I2C specs mention bus recovery only at the beginning of a transfer when
+SDA is detected low. I think it also makes more sense because the bus
+may also be stuck because of a misbehaving bootloader etc. This will be
+caught when the check is done at the beginning.
+
+However, moving the detection to the beginning leaves room for a
+regression, because your driver already does it at the end of a
+transfer. However, I'd think all regressions coming up need seperate
+fixing anyhow. Unless I overlooked something, of course.
+
+So, I think it should be moved to the beginning of a transfer, but I am
+open for discussion, so we get the best possible bus recovery in Linux.
+
+Happy hacking,
+
+   Wolfram
 
 
--- 
-<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
+--3OthpyYLRMGfk6Jx
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGkrfgACgkQFA3kzBSg
+KbY+Fw//XBnb5n5/XOjcc6s8oJlvjKElkgzd8bDBmXWnRC8XyQPjiWNO4+oXLhOu
+UkkIaGzL7RcQEc0Bc1JswFqCK8PKdQQDGCJ+BIpk0e9Yfz0Srwg066PJWBuXtNlw
+L+11VKeIPG/18dwrk9HFxP/rQV6mu7hjTAFDUNvUrc7WKR0V/O1ll6ci8RUJ72Vq
+y86v+YF3eTOaBhy61AvttrTitCGyVb0m0TWt3i5nYY+BMKVLns96COqw/UE5GA7c
+jkhRaScyYy+QWhj3o5myWB3K6ynika+5kh1OhHFYsV9xkrdngAR1bLgroeV9PJ91
+EcOZkFJ6fbbaDKBWNeGi4f3UDCpvSyQlPy8uAHXsmF2hGI5SUiW7mWXlezUbQzyk
+i3yFNtlsCQ6lY7qM+iA4JXtRSu1vB2wR69kK67RgpNl+K71mFYdutKVPZcDYHAza
+yOIB6Su6VYge1G2EaBAhdfopBUJyfDqMIBRgowQqd73urdHT4qcFLhRhnnhssvX6
+W2OW7kY3uQvN5Kx1zoxbZGprdMGw/tMIosCesVWWOn+iGNYXiUxpDOr3yyLMvhz2
+u1Rpq8Mn99tnA8TSwmuJnlvW7TTsKFY1y5kpbj3U6Uh49FAPyQMeS2jqT0L7fd58
+rrWJ3M8BUS05ISoyfWvrqaOmW6YjIMCqYGOgmxLdEkyd9uppPTM=
+=dQkj
+-----END PGP SIGNATURE-----
+
+--3OthpyYLRMGfk6Jx--
