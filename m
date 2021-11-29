@@ -2,97 +2,194 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81366C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 20:26:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01B0BC433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 20:26:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231381AbhK2U31 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Nov 2021 15:29:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59212 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234540AbhK2UZq (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 15:25:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F488C025542;
-        Mon, 29 Nov 2021 09:00:08 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0B11615BF;
-        Mon, 29 Nov 2021 17:00:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 632D0C53FC7;
-        Mon, 29 Nov 2021 17:00:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638205207;
-        bh=zp3v0tEjkVXyMXsgHVlwxFZPWYI5F7lWo5ERzAP4pv0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M/rJdA5ldDAhTzPUsqVIJLJfyJxzsDObnp0IfBWxjotm4mcnu/EY3bvTLtUULKbA/
-         s7QTs6doatOqN9SZusgexDLtOckbIxW12aIm3g+yA5D0g5zOdM3YHrsgeuJak0S89U
-         9HVWzT/i6HxtxUSC/HZDHxCTFoEeg9ivBIBr4rlYoYBJdfbEh9Wugk+jq23FVwt+7v
-         IEDKhCQwdqWSonKvP1Qr3IK7oG0fl+Wa85ODDOBd+xBwlUeeFi30hanLdU9e3GtrFb
-         YGAdx8pf6RPsELcACt0qmWpXrmxdCR/s3a99d1vJR0o/+HEnXf91mMW2CWJmVkOYfd
-         Ga+PxzDc3iPRA==
-Date:   Mon, 29 Nov 2021 18:00:04 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     lakshmi.sowjanya.d@intel.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bala.senthil@intel.com,
-        pandith.n@intel.com
-Subject: Re: [PATCH v1 2/2] i2c: designware-pci: Set ideal timing parameters
- for Elkhart Lake PSE
-Message-ID: <YaUHFM2xyLQiXFMt@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        lakshmi.sowjanya.d@intel.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bala.senthil@intel.com,
-        pandith.n@intel.com
-References: <20211109103552.18677-1-lakshmi.sowjanya.d@intel.com>
- <20211109103552.18677-2-lakshmi.sowjanya.d@intel.com>
- <44b0646b-165a-065e-1029-026ef1b6cc27@linux.intel.com>
+        id S230140AbhK2U3i (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Nov 2021 15:29:38 -0500
+Received: from mail-oi1-f180.google.com ([209.85.167.180]:38827 "EHLO
+        mail-oi1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231637AbhK2U0e (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 15:26:34 -0500
+Received: by mail-oi1-f180.google.com with SMTP id r26so36809085oiw.5;
+        Mon, 29 Nov 2021 12:23:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=lDk8BlneSuRVeKSf5grrrIRYXl1VbeT1udhOyG1OtVk=;
+        b=Dn0HbFSXMVpM8g6TPx9ce76jmgRiR5Pm8r3oRIbCj2W/MNB87naj3CYoT1KvRfBVHv
+         XU5N84CuUAnnWKU97nA3CaKQKkpvS4BZ0M5yF5qqaEoVEPMjrOK1KUUHAhoVlGYVBfbN
+         2YRcmRsH+VhP/FDmg2KTQfgsQ76AP7SZPElqJ76g6Nvkk5sxEKxKUz1N9AVaPyK/V5FH
+         nZqG74h97ILvQRViBCAvYlpf1EIgEVmZVoWDC3AyDyj/zsuBc2QxDSy0blG/kkjycM5W
+         lGKjhvzVWqyQPbSqnwOkLbI9NU8GWpF4i9lTyyA2MnoEHgbQgr1x5T9mUTKueU/FnZoF
+         jnIA==
+X-Gm-Message-State: AOAM532XcQyvSgRi2OFLuXmCX4UfMjqHIOJexDjs/cKCKt1C/yF6XBPd
+        SdIVDAM1s3M1QqnR96neSw==
+X-Google-Smtp-Source: ABdhPJwF7Y+9YhXyqxZGUYPifOjP+P5BOlnWsiZCV4rCVdjToGw+1EGueSoksyzSxVFXxzRBg793XQ==
+X-Received: by 2002:aca:ab86:: with SMTP id u128mr271578oie.41.1638217396125;
+        Mon, 29 Nov 2021 12:23:16 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id x17sm2419929oot.30.2021.11.29.12.23.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Nov 2021 12:23:15 -0800 (PST)
+Received: (nullmailer pid 540951 invoked by uid 1000);
+        Mon, 29 Nov 2021 20:23:14 -0000
+Date:   Mon, 29 Nov 2021 14:23:14 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     "LH.Kuo" <lhjeff911@gmail.com>
+Cc:     p.zabel@pengutronix.de, daniel.thompson@linaro.org,
+        lee.jones@linaro.org, u.kleine-koenig@pengutronix.de,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, qinjian@cqplus1.com,
+        wells.lu@sunplus.com, "LH.Kuo" <lh.kuo@sunplus.com>
+Subject: Re: [PATCH v2 2/2] devicetree bindings I2C Add bindings doc for
+ Sunplus SP7021
+Message-ID: <YaU2snDw5KiGjgjJ@robh.at.kernel.org>
+References: <1635496955-13985-1-git-send-email-lh.kuo@sunplus.com>
+ <1636441166-8127-1-git-send-email-lh.kuo@sunplus.com>
+ <1636441166-8127-3-git-send-email-lh.kuo@sunplus.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="/SwrNiUKbKjtHACx"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44b0646b-165a-065e-1029-026ef1b6cc27@linux.intel.com>
+In-Reply-To: <1636441166-8127-3-git-send-email-lh.kuo@sunplus.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Tue, Nov 09, 2021 at 02:59:26PM +0800, LH.Kuo wrote:
+> Add devicetree bindings I2C Add bindings doc for Sunplus SP7021
+> 
+> Signed-off-by: LH.Kuo <lh.kuo@sunplus.com>
 
---/SwrNiUKbKjtHACx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+As with other SunPlus patches, author and S-o-b must match.
 
-Hi Jarkko,
+> ---
+> Changes in v2:
+>  - Addressed all comments from Mr. Rob Herring.
+>  - Modified the structure and register access method.
+>  - Modifiedthe path about MAINTAINERS. ( wrong messages PATH in v1).
+>  - Modifiedthe the YAML file.
+> 
+>  .../devicetree/bindings/i2c/i2c-sunplus.yaml       | 82 ++++++++++++++++++++++
+>  MAINTAINERS                                        |  1 +
+>  2 files changed, 83 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml b/Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml
+> new file mode 100644
+> index 0000000..af860ee
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml
+> @@ -0,0 +1,82 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +# Copyright (C) Sunplus Co., Ltd. 2021
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/i2c-sunplus.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Sunplus's I2C controller
+> +
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +
+> +maintainers:
+> +  - lh.kuo <lh.kuo@sunplus.com>
 
-> To both:
+Full name here please.
 
-If it is not causing too much trouble for you, I'd appreciate if you
-could ack patches separately. This gives me a better overview in
-patchwork which series are completely checked.
+> +
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - sunplus,sp7021-i2cm
+> +      - sunplus,q645-i2cm
+> +
+> +  reg:
+> +    items:
+> +      - description: Base address and length of the I2C registers
+> +      - description: Base address and length of the I2C DMA registers
 
-Thanks and happy hacking,
+Drop 'Base address and length of the '.
 
-   Wolfram
+> +
+> +  reg-names:
+> +    items:
+> +      - const: i2cm
+> +      - const: i2cmdma
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  clocks:
+> +    maxItems: 1
+> +
+> +  resets:
+> +    maxItems: 1
+> +
+> +  clock-frequency:
+> +    enum: [ 100000, 400000 ]
+
+You can't support other frequencies?
+
+> +
+> +  pinctrl-names:
+> +    description:
+> +      A pinctrl state named "default" must be defined.
+> +    const: default
+> +
+> +  pinctrl-0:
+> +    description:
+> +      A phandle to the default pinctrl state.
+
+You don't have to define pinctrl properties when there's only 'default'.
 
 
---/SwrNiUKbKjtHACx
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGlBxMACgkQFA3kzBSg
-KbZluA/8CDJ73gKGvbrKGQwwnIZh21vnMhozZyRI4Bovh8aN95i0W3u9zZgc1K/e
-gMLqTH8498jZ4Wkw3nIks899PTLCUc1oEhnHMdtdqy4D5tGoJdIsZCwKVvefqfzR
-RBQka5QeilBVsers35VWHR49+l9Qh6bGdxYVy3LanhQ5e3zMDjYatwWX2OwcKqSb
-H5Eakq+Syuwbdo65ZrsnBQ5BDL7EO1+enrvbkwGy/sVxnc4e9GG36wACcNitC9r8
-I2D+BzlpxNlsqzIimY+ct+ZW1ahk6Nbi7cejrnMEwop/nlDBPGO7wCso6hXSqlWR
-UWbX4peA/INBeH6pFo6ZzYCc4mVVGGysJBPrezsGhBG/zSP2o2pIZ6doryx02vdi
-IY4Wk+0/ednZYvzrUvt2Nq0YHuadeR7weCG9zbN7/U8QgDxJV6DuU+GM/5ONRNMd
-jZCfsBNDI6UmXzAnpwsYzdij6q3BS+VTjnNAeR+Ylq84LdC0CjpFH5ZaYpG4F8dh
-awV6KtK4d4+Sr6SIaBWpjlf9arW4bEqm+0DQUtP+za3HDrA0ImFP6Rca7hZLHVkw
-vZUpRjXqF43ctsCHTNTFJGo+jgEPgEi8Z13UQYobz7tx/CX89w9JwKly7QtBjo76
-S5j05AFoEEK0TbolasVzkAq9Qa1t8et5/MVVWuIW/e4ceuQu5C4=
-=lDLI
------END PGP SIGNATURE-----
-
---/SwrNiUKbKjtHACx--
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - reg-names
+> +  - interrupts
+> +  - clocks
+> +  - resets
+> +  - pinctrl-names
+> +  - pinctrl-0
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/clock/sp-sp7021.h>
+> +    #include <dt-bindings/reset/sp-sp7021.h>
+> +    #include <dt-bindings/interrupt-controller/irq.h>
+> +    i2c@9C004600 {
+> +        compatible = "sunplus,sp7021-i2cm";
+> +        reg = <0x9c004600 0x80>, <0x9c004680 0x80>;
+> +        reg-names = "i2cm", "i2cmdma";
+> +        interrupt-parent = <&intc>;
+> +        interrupts = <174 IRQ_TYPE_LEVEL_HIGH>;
+> +        clocks = <&clkc I2CM0>;
+> +        resets = <&rstc RST_I2CM0>;
+> +        clock-frequency = <100000>;
+> +        pinctrl-names = "default";
+> +        pinctrl-0 = <&i2cm0_pins>;
+> +    };
+> +...
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 5b7a8a2..575a8e0 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -18193,6 +18193,7 @@ SUNPLUS I2C CONTROLLER INTERFACE DRIVER
+>  M:	LH Kuo <lh.kuo@sunplus.com>
+>  L:	linux-i2c@vger.kernel.org
+>  S:	Maintained
+> +F:	Documentation/devicetree/bindings/i2c/i2c-sunplus.yaml
+>  F:	drivers/i2c/busses/i2c-sunplus.c
+>  
+>  SUPERH
+> -- 
+> 2.7.4
+> 
+> 
