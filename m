@@ -2,93 +2,98 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 555BCC433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 09:59:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEB90C43217
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 10:34:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230377AbhK2KCx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Nov 2021 05:02:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35270 "EHLO
+        id S235612AbhK2KiC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Nov 2021 05:38:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231590AbhK2KAw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 05:00:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0065C0613E1;
-        Mon, 29 Nov 2021 01:40:06 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C92B6123E;
-        Mon, 29 Nov 2021 09:40:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 292D3C004E1;
-        Mon, 29 Nov 2021 09:40:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638178805;
-        bh=ZhrZMdR4hI+luzbo+GzPORQaaCnJyhm/SoWTXwO5h1A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BMHoA94rKV5psCRpZ21WtLB5m8KQbFk8E3zmj5YSx8u0eorGyWG0wJTTRW+nFEZXT
-         5h9O4h5ifkeg/FL4Nfy/hov+Vcis8MW4/48F8rPCSE5jBCvm7wlxTd+064RUhZaE0F
-         q+ePf5i9fErYg4Bj8H9J2fbJC0xJ46LGyBPTReicugSGbGCnNrkji0Ve0qJMWvixTs
-         ZraIgsoWWf2xJq5MqnqxiwGP6/u41+4CX41yiwM7g3W623DnNWaNCxMdOvNhRr3eFW
-         JuI6844RWf4HvSivxn+PA7184vAbVJL/l8NYyaL7iEwIekIP5Q7n8b/ktmVuIN3+V4
-         K314tUybE8rZQ==
-Date:   Mon, 29 Nov 2021 10:40:02 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     John Keeping <john@metanate.com>
-Cc:     linux-i2c@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: rk3x: enable clock before getting rate
-Message-ID: <YaSf8uDjGCBHcHyZ@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        John Keeping <john@metanate.com>, linux-i2c@vger.kernel.org,
-        Heiko Stuebner <heiko@sntech.de>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20211004131539.1253195-1-john@metanate.com>
+        with ESMTP id S236462AbhK2KgA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 05:36:00 -0500
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AD9C08EA50
+        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 02:02:27 -0800 (PST)
+Received: by mail-wr1-x42b.google.com with SMTP id t9so18484206wrx.7
+        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 02:02:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=0P1DBQCz6Re487E8k4zSiqVVuB28Lrg52FapbU18jpo=;
+        b=FaMMR9yWiYxcazApHQ/wg9yKC+NVzoM8Vwo2xVOxiFnNQDm0cdh54iKMf/CKTcaVBi
+         3v0V2JSIftMr20OKDj2qRUUxchnnN6VnmRLtkxZXy10G83MeHoqUxhevvdBYaZi54eKe
+         3ORoI2GGQ1BYzjtd8UwdlW+nDkoYEOSE1wRJVYCHLXFv2q5CUH/SwrEQHJDAo0gfhgRi
+         iVII4IF7xmSWTw91dL3E+EkV+gucjbh5wQhMQNwAtnirzBG1yXdjkr+EUD9T0W5Fikou
+         dr+m0d3Y7+cRy0yHzrk+SPJHgUYX0eiJgjgJZDgqoT6K6yUgzwXLqT8mNzYLZciIrPRm
+         cOow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=0P1DBQCz6Re487E8k4zSiqVVuB28Lrg52FapbU18jpo=;
+        b=wgcWclScY8paJ1g+293t5JQLsLKBNgp1zR9pZ+XX7I1rgnTfovqMnNdlcF6+kvqWNl
+         dxbCzZf/aE5mQi79tSLhLXpYNbFIWBeHoq5Qm4WFX+Yxou7nx4jJf0oXVIEt7jO62/fz
+         AihkVYG+hsohj4sCVTmuPEQip4n2owfT7XVCKPsEqIzwqaeEHlkcTvndc87wCB1hYdks
+         1uU8yipR2nv+L/sD0k1QCzb+WCDa71+AjKzaVdmrNRDP7vOSaLOPzrjQ5LbQuZGEabPH
+         4uyO4kdFhq4Trmg/0iuCDmfoQ5ClgOY+GWH5cFWgIP6GnM60XNoczWaMz4riiUJ6cC8g
+         oPVw==
+X-Gm-Message-State: AOAM5316g4bGJuLJV1o8eh6/jc1Y/0uS1Gdm18Peb2g2AbmVegJORrUO
+        nl7OcrhsR7XLTJRLYExFlTUjCw==
+X-Google-Smtp-Source: ABdhPJxW8KDLLi9B5knbiZGRFmjeaSoYfXl8Bf8QIeqm1eg6FgSQrPWaHsYoimlSs5TggZT1/ujJSQ==
+X-Received: by 2002:adf:8010:: with SMTP id 16mr32377814wrk.559.1638180146284;
+        Mon, 29 Nov 2021 02:02:26 -0800 (PST)
+Received: from ?IPv6:2a01:e34:ed2f:f020:8236:a2e5:8d62:e9cd? ([2a01:e34:ed2f:f020:8236:a2e5:8d62:e9cd])
+        by smtp.googlemail.com with ESMTPSA id g5sm17498490wri.45.2021.11.29.02.02.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 29 Nov 2021 02:02:25 -0800 (PST)
+Subject: Re: [PATCH V6 3/7] dt-bindings: timer: tpm-timer: Add imx8ulp
+ compatible string
+To:     "Peng Fan (OSS)" <peng.fan@oss.nxp.com>, robh+dt@kernel.org,
+        aisheng.dong@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
+        ulf.hansson@linaro.org, broonie@kernel.org, linux@roeck-us.net,
+        wim@linux-watchdog.org, linux@rempel-privat.de
+Cc:     kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Jacky Bai <ping.bai@nxp.com>, Rob Herring <robh@kernel.org>,
+        Peng Fan <peng.fan@nxp.com>
+References: <20211126074002.1535696-1-peng.fan@oss.nxp.com>
+ <20211126074002.1535696-4-peng.fan@oss.nxp.com>
+From:   Daniel Lezcano <daniel.lezcano@linaro.org>
+Message-ID: <d075b19a-c82b-9732-2034-1837a303c072@linaro.org>
+Date:   Mon, 29 Nov 2021 11:02:23 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="m5TcwiphfSOva+uT"
-Content-Disposition: inline
-In-Reply-To: <20211004131539.1253195-1-john@metanate.com>
+In-Reply-To: <20211126074002.1535696-4-peng.fan@oss.nxp.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On 26/11/2021 08:39, Peng Fan (OSS) wrote:
+> From: Jacky Bai <ping.bai@nxp.com>
+> 
+> The tpm timer on i.MX8ULP is derived from i.MX7ULP, it use two
+> compatible strings, so update the compatible string for it.
+> 
+> Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Jacky Bai <ping.bai@nxp.com>
+> Signed-off-by: Peng Fan <peng.fan@nxp.com>
 
---m5TcwiphfSOva+uT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Oct 04, 2021 at 02:15:39PM +0100, John Keeping wrote:
-> clk_get_rate() is documented as requiring the clock to be enabled.
-> Ensure that the bus clock is enabled before calling clk_get_rate() in
-> rk3x_i2c_probe() to satisfy this requirement.
->=20
-> Signed-off-by: John Keeping <john@metanate.com>
-
-Doesn't look like an urgent bugfix, so applied to for-next, thanks! Let
-me know if it should go to for-current instead.
+Applied, thanks
 
 
---m5TcwiphfSOva+uT
-Content-Type: application/pgp-signature; name="signature.asc"
+-- 
+<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGkn/IACgkQFA3kzBSg
-KbZCAA//edcBmoIXEz3MVD3TsEFx5qCOw0SxbZj6aq1kjReXgv81FZWzRs2JzzNp
-h+pO0Yxm26BZ681UJtqr8NzvlUSDmZLiI//jv4xRdkXmOSHY4OCZuK1LdIYFU63Z
-sKLg09YMWpXe9HxPO0ziowG+LGDQDfjS56OJxJEpbjYnSDcWPKV8Jzcw1x5LEg76
-h62m58mZHSX61FL72ay3pHhUuLbBiRaQfP7w4xSibZEsHSrYAiOLI/WvqGkEmHvL
-LGrpLNCemr+5/aQ5+wFVOuide2uKFOlBJWNcNUH5MEFtlMFf+gRaTb4BUNdbXWI9
-hkHqysMMDmyy5mGwDDgm3lil2KV0aAk7bNX1gO5ZZhYU0WCO6lj9e13hJZgdWu4j
-s6L0xEQQ/1wYhNg0qTE+R+8wXQSCOquLFznqnJ2T7+9kpZDQGnM5E6IUUZk1kJYl
-CfDbboUoRYs6wwhZ9jiIXFn2EN5KqBGwC+u8UkOIwPZAH5P96RgmEp2mdPQHH5aL
-LufL2AvruEMRP0e/uFA6aRCQVmX6iUEqDGcrtIcEWLTnJUjMvkaKvY+bhpvgt/eu
-VK0c3nQPYNm5RuLyTRQ7/QeNQ7XjWnDuZARnOuws1EzRf76Zs9Sc08aY1H4MVzpW
-62hFBkeidXaf1cTeAiRPj8c4+twr9Nmg2oaG6YwehlF6pjzmXUI=
-=zvfT
------END PGP SIGNATURE-----
-
---m5TcwiphfSOva+uT--
+Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+<http://twitter.com/#!/linaroorg> Twitter |
+<http://www.linaro.org/linaro-blog/> Blog
