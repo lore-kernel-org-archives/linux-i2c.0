@@ -2,88 +2,101 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D186AC433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 08:57:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F6C2C433F5
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 09:00:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241241AbhK2JAx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Nov 2021 04:00:53 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60052 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245262AbhK2I6w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 03:58:52 -0500
+        id S242654AbhK2JDV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Nov 2021 04:03:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50518 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237704AbhK2JBP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 04:01:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D093DC0613FB;
+        Mon, 29 Nov 2021 00:46:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59787611F9
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Nov 2021 08:55:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0674EC004E1;
-        Mon, 29 Nov 2021 08:55:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E4396121C;
+        Mon, 29 Nov 2021 08:46:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2523EC53FAD;
+        Mon, 29 Nov 2021 08:46:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638176134;
-        bh=Bgd9cb07mL4WJE5Nzqt4GNOAOJPRP83zleQ54J9jl5k=;
+        s=k20201202; t=1638175606;
+        bh=oaLcDR+6x2GaOYtTmlKovn8ka1IF1mNadAa/b6xBwck=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KNmxBWYLSjUIbHzMFHMP32xVrvHqxr5XRdarPiZEkazezm+GNiqR3hDhZs3Ndxoge
-         gjEWSVdUPIwk/cAbV4oTZN4Ejd2Mu6hY4LMghSW3KCmgb1CJnvlLnnQFm9Eam8rgCh
-         irwSjf3VwgpgXDia2BuR1PIPZvQkKl3ROSvIHGtmuu4iDJXW6iXs4bzU54QMNwb3BR
-         MoykZ0sP5eAGwUIVnNiPTCDtcF4Pk6n9ynZ7SEqPQkMlXp+cIS8NEB0sLs+KfSpss7
-         i0UwZcgbYTQyzYE5r8eK6ZMELCZUSRRO6Sj6Ve7td607phC+GV+hVL2TscqCGEbUJl
-         7NeYDVW/Ky2Vg==
-Date:   Mon, 29 Nov 2021 09:55:31 +0100
+        b=Pg7ZEiGG4J5cFQgcqe6beVg4tjKtyzfpJ+htRrxFTjSijtioif8Dg/tPOGgHU7Msk
+         Q19ml6+MomEAXzIODPSPIWb1zoNoAX19UP2bd1rL+ZnzPYyQavsUmZOfURVc3UhHDN
+         snOOXQ3fCC1L6pGxH2xRN8mWlPd71GPnK6e3nQHSqrrYQySduzwa/HTbA0CZmfoiZv
+         vV0R0jFaK/J95RXMTTETTdM5oIOk3s7D8RfhP/w/p/g0ksj0M3FZiGKGbYn9zyOr1q
+         5wjV9DRAWnR/GS/qBUVO7MfRiX1XxiGzQUrsh5M/0mRaXYpZlZlOrTzh2KEcUrmvCu
+         ny64YgQN6h8eg==
+Date:   Mon, 29 Nov 2021 09:46:43 +0100
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Heiner Kallweit <hkallweit1@gmail.com>
-Cc:     Jean Delvare <jdelvare@suse.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH v2] i2c: i801: Remove i801_set_block_buffer_mode
-Message-ID: <YaSVg37N+TY5Tccv@kunai>
+To:     Akhil R <akhilrajeev@nvidia.com>
+Cc:     andy.shevchenko@gmail.com, christian.koenig@amd.com,
+        digetx@gmail.com, dri-devel@lists.freedesktop.org,
+        jonathanh@nvidia.com, ldewangan@nvidia.com,
+        linaro-mm-sig@lists.linaro.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-tegra@vger.kernel.org, p.zabel@pengutronix.de,
+        sumit.semwal@linaro.org, thierry.reding@gmail.com
+Subject: Re: [PATCH v4] i2c: tegra: Add the ACPI support
+Message-ID: <YaSTcx7sZfn0cZ4i@kunai>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-References: <f6e13674-7f86-529f-10e2-6b34bc5f8f6c@gmail.com>
+        Akhil R <akhilrajeev@nvidia.com>, andy.shevchenko@gmail.com,
+        christian.koenig@amd.com, digetx@gmail.com,
+        dri-devel@lists.freedesktop.org, jonathanh@nvidia.com,
+        ldewangan@nvidia.com, linaro-mm-sig@lists.linaro.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-tegra@vger.kernel.org,
+        p.zabel@pengutronix.de, sumit.semwal@linaro.org,
+        thierry.reding@gmail.com
+References: <1637859224-5179-1-git-send-email-akhilrajeev@nvidia.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="d/tuIzvysDK/fZAb"
+        protocol="application/pgp-signature"; boundary="iDFdsTcaXlfLI7aZ"
 Content-Disposition: inline
-In-Reply-To: <f6e13674-7f86-529f-10e2-6b34bc5f8f6c@gmail.com>
+In-Reply-To: <1637859224-5179-1-git-send-email-akhilrajeev@nvidia.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---d/tuIzvysDK/fZAb
+--iDFdsTcaXlfLI7aZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 18, 2021 at 11:58:17PM +0100, Heiner Kallweit wrote:
-> If FEATURE_BLOCK_BUFFER is set then bit SMBAUXCTL_E32B is supported
-> and there's no benefit in reading it back. Origin of this check
-> seems to be 14 yrs ago when people were not completely sure which
-> chip versions support the block buffer mode.
+On Thu, Nov 25, 2021 at 10:23:44PM +0530, Akhil R wrote:
+> Add support for the ACPI based device registration so that the driver
+> can be also enabled through ACPI table.
 >=20
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> This does not include the ACPI support for Tegra VI and DVC I2C.
+>=20
+> Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
 
 Applied to for-next, thanks!
 
 
---d/tuIzvysDK/fZAb
+--iDFdsTcaXlfLI7aZ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGklYMACgkQFA3kzBSg
-KbZR6xAAl+EoMDbpDOJhzImxJy6fKW2IIq6HnMC29+1D+0fOalD8RqsLt7XONCDn
-GXPn1gxM2vwUxyvqf0ANW2a74TaHH0jbOPFoNepI+rNRXFGAJimMgcwkdjgok8Qi
-haBE+exgPm+zKV7q3ACQYTLSih1VNoG17LUQFwkfa06v5WQHODJnm++Yq813tgLi
-wTQ9F6a6VyQy41c9cqaprQNopeBdlZBJorcnoC3yRY2FuHvG/S0dM4csXlO01lvq
-einPrk3IUTqnXAEDamIckCFoDs0rWVNYr7XEggcX7osp4d45RUknoE/NkpRcycYd
-QKd6KwU8ibcOL6+0/LEtm+DhvkCbPl/s87WxCugRnNc5EtIoYoakrzGPune+UGSd
-fuQEZWO8cDife7krQjCXx4ofyRGmcvGUrBwFoFc0ADfHlYQASSEX3Q+e5sJzI7B+
-/MCUBN+w/MPqnaRok06s2Gtr1FVIGclaX58mbz95vgenD0m1GtFQbvxT7+zx3YT9
-bcMqW/Tjg2RCyQ76qMfoFxXz2nYrenOqgrjmESVn0qcNWq1uiJGW6yq+03lyMLRw
-GNSONpMrjQepWXZ8wzFKScwCOztUDAZ3U1l8LnmxssN8OjEXX2CqOqdli3Jl6+Fm
-1KkMFg0kWuxiNT7Cdd78AOXn/2LuufEg64Sw8eZWBYKJ8Vz9R2k=
-=F0Ca
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGkk3MACgkQFA3kzBSg
+KbbDPg//YV1hcN80cjWSN7APDde7BabZiypwDgo8ZFZOkOsbZ2VOzZXpgyn42+4y
+3TyxXQDyO3xpqfsC0AaYnK/cGc1QqJC9xAKE4VeogWXC1yw9zPs1/UptGtvEPjAV
+wPR3TsJxNZYlEAfXkTlI5iFQh85893vXGxX+5t9XnXjLSWqawgF97UPcohaliALQ
+mtZhFbXEXccJujSSXUkmBZeSYi1YV8N23HO6kx7YjQ+DxgAjCdPXxLlHOSBhg9fe
+7nWlRC/+uUZr7hdkrD/jqi3wzXkHaiWKb0slAqmZdunzFvFpocDgIPaBazBhsbln
+Pu5RFoFpdZKqp+lP2c7RsnjU5SU9ptWxMy6HZKq6sdjNrNPAC9U8vZdVlax7kar2
+oxbhZ685bIQVtk9ep+X49eo15JN1xm+grQcTmvPpNr9mVBOEyItviBqD53kyCfFa
+P2RTudptER0hoN5gVG8m5c04qFeLQfR49kLI02zLmsyQJZE/AEkvMYiy8G/ETOei
+eOkD1A11JUgkDG3ZzkqODI2MLkhyGwHi4DyA60Xw3FX6kktcJqrAK4RT+1Cn+4fk
+Jb+Bb7PTLV0osT6H0XSGXv55Zbt9A9F5mvnQAKpnvk+vmhbmUGcS4yPnLWKi41s+
+qdute+3i7oHiAjXQfcPJ0eWVRPO5GzVwUE+MF3B4XHxg5jL0OYM=
+=PuO7
 -----END PGP SIGNATURE-----
 
---d/tuIzvysDK/fZAb--
+--iDFdsTcaXlfLI7aZ--
