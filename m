@@ -2,82 +2,106 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96ABFC433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 08:54:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0F44C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 08:55:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241794AbhK2I55 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Nov 2021 03:57:57 -0500
-Received: from www.zeus03.de ([194.117.254.33]:53860 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241866AbhK2Iz4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 29 Nov 2021 03:55:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=fpJOoPyYg6hVeCltHSGQUkvTfFK6
-        Nebl1nhZTFpK1Y0=; b=xBXyfwopLDKU9Nz61wh1Z3YPhKGuLbpnSmlSxJcnWoPk
-        5ejlgV15oVvdoAx2kru1fvoBv8dV/i1GeeX6NTxQ8DizqJcCI4s4VHZcxANY76AF
-        FxZ51F503VSebovNyYTdpmBTorh9ZpLbSalsg1irYUUSClGBF8TyzyLQz8m6V8Y=
-Received: (qmail 3328153 invoked from network); 29 Nov 2021 09:52:36 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Nov 2021 09:52:36 +0100
-X-UD-Smtp-Session: l3s3148p1@Z3zuj+nRRoMgAwDPXwQPANVKnN07LEVW
-Date:   Mon, 29 Nov 2021 09:52:35 +0100
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH] i2c: cbus-gpio: set atomic transfer callback
-Message-ID: <YaSU0xY8T1o/YVjg@kunai>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Aaro Koskinen <aaro.koskinen@iki.fi>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>
-References: <20211127194214.26785-1-aaro.koskinen@iki.fi>
+        id S244421AbhK2I6o (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Nov 2021 03:58:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241213AbhK2I4n (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 03:56:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02083C06179E;
+        Mon, 29 Nov 2021 00:41:58 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6F27B80933;
+        Mon, 29 Nov 2021 08:41:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C88EFC004E1;
+        Mon, 29 Nov 2021 08:41:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638175315;
+        bh=Mj7X1l1gdYa1BrDv7xW5CTAYeo/8ZoHro5zWrCtQfS0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bWPFZ95lyp63A1gGOC+Esl2VtWEQ+pmcM1sHVtoMW7W9OEmKrRd2w1pmjXIW4woJw
+         gfVqQKgSIEFKBG+mNjX+pYdi2EtBXWwA3zSsu4PpZRdCA0451kDdslP+IwqpObKQ3z
+         PG9w8lhi71WWpP0X36nTMlqA0Czqq1orJXyPlHdRuIhbFC3eMIsC2LTFPa9Dqh5Hud
+         I6uez9ZrrUPRWYmaNWdQtUCR8FOVbk+mwlm4cJDzxHWbLE3/JKQ03XS9j0fE3/rYrx
+         LcurGcStuFLkw0rx2j36f4dodIhoBzK0gfkGt5AmV2nEJX+QjEpjv7xhB/5QC9mjDw
+         Zyy+4DI4HXqiw==
+Date:   Mon, 29 Nov 2021 09:41:52 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Abel Vesa <abel.vesa@nxp.com>
+Cc:     Rob Herring <robh@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH v4 11/12] dt-bindings: i2c: imx-lpi2c: Add i.MX8DXL
+ compatible match
+Message-ID: <YaSSUHH2e9mHxhtx@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Abel Vesa <abel.vesa@nxp.com>, Rob Herring <robh@kernel.org>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+References: <1636566415-22750-1-git-send-email-abel.vesa@nxp.com>
+ <1636566415-22750-12-git-send-email-abel.vesa@nxp.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="b9GrKyQY5gnt784g"
+        protocol="application/pgp-signature"; boundary="DOW3NFxjw4Y5rvlF"
 Content-Disposition: inline
-In-Reply-To: <20211127194214.26785-1-aaro.koskinen@iki.fi>
+In-Reply-To: <1636566415-22750-12-git-send-email-abel.vesa@nxp.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---b9GrKyQY5gnt784g
+--DOW3NFxjw4Y5rvlF
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Nov 27, 2021 at 09:42:14PM +0200, Aaro Koskinen wrote:
-> CBUS transfers have always been atomic, but after commit 63b96983a5dd
-> ("i2c: core: introduce callbacks for atomic transfers") we started to see
-> warnings during e.g. poweroff as the atomic callback is not explicitly se=
-t.
-> Fix that.
+On Wed, Nov 10, 2021 at 07:46:54PM +0200, Abel Vesa wrote:
+> Add i.MX8DXL lpi2c compatible to the bindings documentation.
 >=20
-> Fixes the following WARNING seen during Nokia N810 power down:
->=20
-> [  786.570617] reboot: Power down
+> Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---b9GrKyQY5gnt784g
+--DOW3NFxjw4Y5rvlF
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGklNMACgkQFA3kzBSg
-KbapBw/9HhenVd+RT99tr8OCMp334qKvAw/UqZvMESRj2kCh/6QvLjiOwbczI/J5
-3lxBhviiM1/n3IU+FtO78ng/X1FX8MaRmgb3h5b9oyjI7ojsQRiI+WzWMb5UMulF
-bSHCm8drSPa0HAl4snt7YpHKwqJYKsZ9fvajS+I+DnYGVy/iliHLB1rFppnN6Hmt
-V9Ugzy1t6EUXc1tzG1VC7Q02/PI5+ru/WjiVToF9mFCqYnC9yFffC5TPa80lEHhq
-tQUY78of6AJa8wg64yL2tiFzmmedHI46gpEKItZYfpvh3xWc2uJJeyyi8My7kBN4
-502r6808ZeQ+KZFGSi8+uTGVFSxq/MCnmV14CNIqTmsNe46+JDoL2Pk+5qu153MK
-MEkkLKGOEA5IK+K+gInZN1PktExqdBrS4XB5P9iuntpCK5i3qneP5x4BmaYcVAsh
-zPXWrdaY8u3mrh9i79pF/XwkU/6o8zt4z18PWlYzbSLvs2HOa+KElf8X4VeRx52B
-FyP8qPWhjtnXnt/oH1pOPwZ8C3LPvVZWzGyqJfSSagHhgDfTqHICMiv8PYvT+wtI
-UoWG1eCt5NXBR4ibDmy3NCipJcShzLm7HfsbE42h8eK8WxiFicG05UeZaqerMgQ0
-2/31FiUCcCV+pf8XgsaYbgy0MpdGC6Yp3lWmJeZ+pQx6EI9tBE8=
-=jYSH
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGkklAACgkQFA3kzBSg
+KbafeA/8CuvjQGEPMI9aeqCJabLH5w3PdiM3Jxbt5FxwFcHpcPZEqbOPxQWWjCQ2
+gKwxwCmf0ZrZx3+AxMYkNx3B5iL4E0E3ArecwVJavz/SG+kq0NoIhX6YvVGYJV8r
+j8qKyP934FsPOsJlwuULcjmwT4eZQPTjc++oCslYvYMY6Z1DJEPL3BGILab38kQy
+S30YPaxpTsJEWfqGhUixUjCh5LhglzXoe4sHKKfhViPeeHzMFX78gZwwIwr7UyDc
+cvGHFsbF5f0kItFkcchyQRuSEkok5pXzzyzq8fYjAKTdaPMzhGVtsOLj6f3sUl7q
+KtZnUI3PvLryFP/IjuHhbs23dEjfU9EH8xuYVxfBYriBHQPct6GmogEaSkw0WqVs
+UqmR/olx/CPTYBhw+XkiDb+lgglb21yIHeaQ3LHO4+gBGTcWPY5ieiqt3xZXKKdl
+C5KoE3gB2NoaX1gYBObJb+txyXpMYJJynmzzruQKA7hwK3wwsEMaZqffBzfwwk8p
+7xUQ/qPoa+/+hB0xb1lvcv9W0lujSe+z5QbFMQ8rkvKZqtst0hQelmO1PCVbcfG+
+xFkAz6afeMaUAW8M28hBuFbQlAvHqNqT+tQn0BCEhgZBVe5L+YOxSJ7PuJMCLBPB
+eFolg3Anrbfp2UMonwjNlFKvxx/9XpkXy0I2HO7Swb2DZ7s6dt0=
+=tzkd
 -----END PGP SIGNATURE-----
 
---b9GrKyQY5gnt784g--
+--DOW3NFxjw4Y5rvlF--
