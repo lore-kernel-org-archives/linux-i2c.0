@@ -2,147 +2,104 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C2B6C4332F
-	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 20:10:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59EC8C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 29 Nov 2021 20:18:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233260AbhK2UOL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Nov 2021 15:14:11 -0500
-Received: from mail-oi1-f179.google.com ([209.85.167.179]:34675 "EHLO
-        mail-oi1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233549AbhK2UMI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 15:12:08 -0500
-Received: by mail-oi1-f179.google.com with SMTP id t19so36815629oij.1;
-        Mon, 29 Nov 2021 12:08:50 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Z6xdOSQsfsaoPSj9BpA6Xmod/xwiCQkOb+qTA/iCb/o=;
-        b=mMamZOPZMcT6WNosUBYp4n0oFl4pn33lkbNiYL2v2y6B4/u2/owYEVJXz+LHXOi5Pd
-         2CFy4rszd1uh9pUDAtI8mtq4ICVebFJzEwIkEOxdYG/zQE3JoNNf3TnNiUG5sUXXHP5v
-         mUGaYr7rRa8Wz0KvhXfikXqvya9TU9gvm8+QowWOQYGNb4uR8QN/eK83g80bdzRptWxJ
-         2lx2uPGg8BWerrg8dpCv7IJVtbl9qaxDb+GZPKXKFpSY7hTPhE+0+ZalKLfWquFSWTDW
-         EnPCIG7L0qCcg7l3Uud00uJ01eQ3lBFBdHQrhZ70Py7R/Rald8zrXHM5/Hivb8MgnCCr
-         x0oA==
-X-Gm-Message-State: AOAM531xdmA4PNRTdrpeSH7i0VQkE+WqucNk1Z+YriLf6dZWJSC3prmv
-        U4LsHMhKaMspYayAXRq4KA==
-X-Google-Smtp-Source: ABdhPJy2T7U5QNpYE8mKhDs4Y0kpsY4X+RruhTn7EbB9g52UuWIuwRJoXI1gDNqGmpcZq9IEms65YQ==
-X-Received: by 2002:a05:6808:3c2:: with SMTP id o2mr241205oie.112.1638216529867;
-        Mon, 29 Nov 2021 12:08:49 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id n6sm2837920otj.78.2021.11.29.12.08.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Nov 2021 12:08:49 -0800 (PST)
-Received: (nullmailer pid 520021 invoked by uid 1000);
-        Mon, 29 Nov 2021 20:08:47 -0000
-Date:   Mon, 29 Nov 2021 14:08:47 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Conor.Dooley@microchip.com
-Cc:     krzysztof.kozlowski@canonical.com, broonie@kernel.org,
-        aou@eecs.berkeley.edu, linus.walleij@linaro.org,
-        bgolaszewski@baylibre.com, palmer@dabbelt.com,
-        paul.walmsley@sifive.com, jassisinghbrar@gmail.com,
-        atish.patra@wdc.com, Daire.McNamara@microchip.com,
-        Lewis.Hanly@microchip.com, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, geert@linux-m68k.org,
-        linux-gpio@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-crypto@vger.kernel.org, linux-usb@vger.kernel.org,
-        bin.meng@windriver.com, linux-i2c@vger.kernel.org,
-        alexandre.belloni@bootlin.com, Ivan.Griffin@microchip.com,
-        linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
-        a.zummo@towertech.it, gregkh@linuxfoundation.org
-Subject: Re: [PATCH 06/13] dt-bindings: rng: add bindings for microchip mpfs
- rng
-Message-ID: <YaUzT6+WvICiTk1q@robh.at.kernel.org>
-References: <20211108150554.4457-1-conor.dooley@microchip.com>
- <20211108150554.4457-7-conor.dooley@microchip.com>
- <f60cf7e0-4f67-f4b3-2596-01114cff6623@canonical.com>
- <71c6917e-1463-c708-550a-726e5fe1566d@microchip.com>
- <ca17d6ac-ef8e-b01c-3278-7cbb0d5745e3@canonical.com>
- <ea871add-bddc-c4ae-ac9d-e86b4fad5a02@microchip.com>
- <a0713a10-3409-4401-e612-0a9c06f88ea1@canonical.com>
- <9d6f2e66-860c-2b8a-0b45-7dc56dd5298f@microchip.com>
+        id S230054AbhK2UVh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 29 Nov 2021 15:21:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58012 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234621AbhK2USW (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Nov 2021 15:18:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 864EAC06FD58;
+        Mon, 29 Nov 2021 08:51:27 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C2EEB8121A;
+        Mon, 29 Nov 2021 16:51:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53BD7C53FC7;
+        Mon, 29 Nov 2021 16:51:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638204685;
+        bh=/N3hJs+8+g3Nkkrg8lQ2OdQ2KQb16KwS5vn0inTiGlo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=t+Mq0UkXbA4a6Wt6h0xiiXD4aebndrAF+dVTyMZN88cCwEAqCKOaaAkx3BwsHowCT
+         /XZQdsuqYhDZmBGWFeFv2uftvdb/P1PEC95VCxlG8ORHXW9i+n0Fxc65Q42WZdvCmr
+         bmjobxtLIVNZNxidKOg+8HhfEHJQg0cxaJxA5LEf5RPAhW3oD2YUbPgMGUe+C5hGz6
+         8Tqpgfirm9blVoIYzvxHiQpK+91EXsKSFaDjSY/IduPHkb4WNOI5YfeXoiVqmXdRo7
+         chDRm0wYm23sB90lUmq1W8Z1Fnpl20O8742Xpim7sST8R+bg7cJtAxXy86bOt0x7gf
+         ehm18Ngwf0gGw==
+Date:   Mon, 29 Nov 2021 17:51:22 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Rajat Jain <rajatja@google.com>
+Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org, dtor@google.com,
+        Derek Basehore <dbasehore@chromium.org>, rajatxjain@gmail.com
+Subject: Re: [PATCH 3/3] i2c: enable async suspend/resume on i2c client
+ devices
+Message-ID: <YaUFCizDRFbK/3ON@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Rajat Jain <rajatja@google.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org, dtor@google.com,
+        Derek Basehore <dbasehore@chromium.org>, rajatxjain@gmail.com
+References: <20211025213532.2349161-1-rajatja@google.com>
+ <20211025213532.2349161-4-rajatja@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="wQLIdAQj1LoHmbEk"
 Content-Disposition: inline
-In-Reply-To: <9d6f2e66-860c-2b8a-0b45-7dc56dd5298f@microchip.com>
+In-Reply-To: <20211025213532.2349161-4-rajatja@google.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Nov 10, 2021 at 09:46:23AM +0000, Conor.Dooley@microchip.com wrote:
-> On 10/11/2021 07:43, Krzysztof Kozlowski wrote:
-> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> > 
-> > On 09/11/2021 14:36, Conor.Dooley@microchip.com wrote:
-> >> On 09/11/2021 12:56, Krzysztof Kozlowski wrote:
-> >>> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> >>>
-> >>> On 09/11/2021 13:54, Conor.Dooley@microchip.com wrote:
-> >>>> On 08/11/2021 21:16, Krzysztof Kozlowski wrote:
-> >>>>> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> >>>>>
-> >>>>> On 08/11/2021 16:05, conor.dooley@microchip.com wrote:
-> >>>>>> From: Conor Dooley <conor.dooley@microchip.com>
-> >>>>>>
-> >>>>>> Add device tree bindings for the hardware rng device accessed via
-> >>>>>> the system services on the Microchip PolarFire SoC.
-> >>>>>>
-> >>>>>> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-> >>>>>> ---
-> >>>>>>     .../bindings/rng/microchip,mpfs-rng.yaml      | 31 +++++++++++++++++++
-> >>>>>>     1 file changed, 31 insertions(+)
-> >>>>>>     create mode 100644 Documentation/devicetree/bindings/rng/microchip,mpfs-rng.yaml
-> >>>>>>
-> >>>>>> diff --git a/Documentation/devicetree/bindings/rng/microchip,mpfs-rng.yaml b/Documentation/devicetree/bindings/rng/microchip,mpfs-rng.yaml
-> >>>>>> new file mode 100644
-> >>>>>> index 000000000000..e8ecb3538a86
-> >>>>>> --- /dev/null
-> >>>>>> +++ b/Documentation/devicetree/bindings/rng/microchip,mpfs-rng.yaml
-> >>>>>> @@ -0,0 +1,31 @@
-> >>>>>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> >>>>>> +%YAML 1.2
-> >>>>>> +---
-> >>>>>> +$id: "http://devicetree.org/schemas/rng/microchip,mpfs-rng.yaml#"
-> >>>>>> +$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-> >>>>>> +
-> >>>>>> +title: Microchip MPFS random number generator
-> >>>>>> +
-> >>>>>> +maintainers:
-> >>>>>> +  - Conor Dooley <conor.dooley@microchip.com>
-> >>>>>> +
-> >>>>>> +properties:
-> >>>>>> +  compatible:
-> >>>>>> +    const: microchip,polarfire-soc-rng
-> >>>>>> +
-> >>>>>> +  syscontroller:
-> >>>>>> +    maxItems: 1
-> >>>>>> +    description: name of the system controller device node
-> >>>>>
-> >>>>> There are several issues with this:
-> >>>>> 1. You need to describe the type.
-> >>>>> 2. Description is not helpful (just copying the name of property) and
-> >>>>> actually misleading because you do not put there the name of device node.
-> >>>>> 3. What is it? Looks like syscon (or sometimes called sysreg). If yes,
-> >>>>> please use existing syscon bindings.
-> >>>> 1 & 2 - Correct, it is bad & I'll write a better description for it.
-> >>>> 3 - Its a system controller implemented as a mailbox. The syscontroller
-> >>>> is the mailbox client, which the rng and generic drivers both use.
-> >>>
-> >>> I understood that pointed device node is a mailbox, not this node. But
-> >>> here, what is it here? How do you use it here?
-> >> The system controller is the means of access to the random number
-> >> generator. The phandle to the sys controller is provided here so that
-> >> the rng driver can locate the mailbox client through which it requests
-> >> random numbers.
-> > 
-> > I am asking this to understand whether there is a generic or existing
-> > property which should be used instead.
-> > 
-> > If I understand correctly, the rng driver needs a mailbox client?
-> Correct, it needs one. Binding for that is here:
-> Documentation/devicetree/bindings/soc/microchip/microchip,polarfire-soc-sys-controller.yaml
 
-The rng node and others should be a child of the sys controller node.
+--wQLIdAQj1LoHmbEk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rob
+On Mon, Oct 25, 2021 at 02:35:31PM -0700, Rajat Jain wrote:
+> From: Derek Basehore <dbasehore@chromium.org>
+>=20
+> This enables the async suspend for i2c client devices. This reduces
+> the suspend/resume time considerably on platforms where i2c devices
+> can take a lot of time (hundreds of ms) to resume.
+>=20
+> Signed-off-by: Derek Basehore <dbasehore@chromium.org>
+> Signed-off-by: Rajat Jain <rajatja@google.com>
+> Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+
+Applied to for-next, thanks!
+
+
+--wQLIdAQj1LoHmbEk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGlBQkACgkQFA3kzBSg
+Kba8ew//TmsHAD6TPCDx31Bq9oPE2vqGNsvpZsr6eiPRQwIw2eEhpxXZWHwvw/+G
+N2un2Oxs5nnccZGuurO3NheZrj1bRv8kQLgRqM6DagVJy43BbH1/rocsCGstfyui
+HO3XMrooBDXkJJueLYrTqXmsOGdXb2n5bol/sSl3RkUcenFJ8haz5kkDULvHTVUV
+ajbr8EpIiY4kyf99IWPbgYkJvoYbrjsbaR06e9wWB52I1i+POf4o7W8YMgJUzK75
+Qa0qcdgEp/ACnk9BfINd+rF4X0a1NRnvQSnK4HtiqJC/Y/UedguAMhZS0Dt9Lcpb
+H8P2HVz1mqFIzbRec4JCYlCQOikvIWtz2sFbi/qpxANiWAM79YYbkIW6xiKrOkyO
+mPK0SIYkbX4aMcvPcBFMEkIWTnuZC7rPvp+h8bDnDgZ0oIBqG/pjBZwijekd56Lt
+tipzbPngQqqbmnEOb70Zh/GriuI9YEq9LIFNtSYYuW+MeArxrCuMMs74QH0H3ETG
+NMrkXbj02kyLyxSa8I4jzqnOQEqQyifmeRTXGxzTD6IL+MnNrUpKAIOOSu+l8zkF
+AChwzy5TDawjGz/TlzyP60VH3RyGsiV2Bfl3/6zr3oanoXh/hKBnP01iZM3y8Ltk
+/OoIs8m4oCFweI7vFWURaUSYBu1Pvh9u3s8BxFG+b7wf6jq95jg=
+=3k5a
+-----END PGP SIGNATURE-----
+
+--wQLIdAQj1LoHmbEk--
