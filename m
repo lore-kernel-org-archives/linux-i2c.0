@@ -2,88 +2,82 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DE7C433F5
-	for <linux-i2c@archiver.kernel.org>; Wed,  1 Dec 2021 11:04:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2F50C433FE
+	for <linux-i2c@archiver.kernel.org>; Wed,  1 Dec 2021 11:35:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbhLALHt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 1 Dec 2021 06:07:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55052 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbhLALHt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Dec 2021 06:07:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6815C061574
-        for <linux-i2c@vger.kernel.org>; Wed,  1 Dec 2021 03:04:28 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67B1EB81E17
-        for <linux-i2c@vger.kernel.org>; Wed,  1 Dec 2021 11:04:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 796B3C53FCC;
-        Wed,  1 Dec 2021 11:04:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638356664;
-        bh=7pQ0uFUOVKeErMhY9dzJH14SYOZ5LKeB2g8dQfFONSY=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=ewIcKZnbCOe2YvYsNotfoJhLmZuLVD/iDH+zlwmFTbDxRcUzOfb4MgPz56fPQi3/m
-         vVAUze2gR897KUAJhHtA+f7YFxIZe64HwqtszzAS5GwwSYkhPvQZfFfpDlBZHFVbST
-         angezio7KkhQR0MAFSwAjfV5EmLznL3D41GFwDreb2TTCJj+QLQ6UuwT0Vpr8mXfoX
-         zI56kgoyk8IfQZfTIlEMScgnVuEjIGwURXb3fgOX5KsAFyYE82Zbgf7J/WotBIan0r
-         SPZ7jA8KGKV1zLYsZtf0+opfrG50cP2fY31VlCBFO/yNeuBnGVyyadIER8yuY8FUEA
-         DQgZEmwXJNt0Q==
-Date:   Wed, 1 Dec 2021 12:04:21 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     linux-i2c@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        pierre-yves.mordret@foss.st.com
-Subject: Re: [PATCH] i2c: stm32f7: remove noisy and imprecise log messages
-Message-ID: <YadWtUWHhQgWbh4+@ninjato>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        pierre-yves.mordret@foss.st.com
-References: <20211130093816.12789-1-wsa@kernel.org>
- <20211130162534.GA813993@gnbcxd0016.gnb.st.com>
- <YaaakSa16Dun6b+h@kunai>
- <20211201105953.GA825735@gnbcxd0016.gnb.st.com>
+        id S243832AbhLALjA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 1 Dec 2021 06:39:00 -0500
+Received: from mga11.intel.com ([192.55.52.93]:46333 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S243700AbhLALi7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 1 Dec 2021 06:38:59 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10184"; a="233942572"
+X-IronPort-AV: E=Sophos;i="5.87,278,1631602800"; 
+   d="scan'208";a="233942572"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2021 03:35:38 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.87,278,1631602800"; 
+   d="scan'208";a="512667219"
+Received: from mylly.fi.intel.com (HELO [10.237.72.148]) ([10.237.72.148])
+  by orsmga008.jf.intel.com with ESMTP; 01 Dec 2021 03:35:35 -0800
+Subject: Re: [PATCH v1 1/2] i2c: designware-pci: Add support for Fast Mode
+ Plus and High Speed Mode
+To:     "D, Lakshmi Sowjanya" <lakshmi.sowjanya.d@intel.com>,
+        Wolfram Sang <wsa@kernel.org>
+Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Senthil, Bala" <bala.senthil@intel.com>,
+        "N, Pandith" <pandith.n@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Saha, Tamal" <tamal.saha@intel.com>
+References: <20211109103552.18677-1-lakshmi.sowjanya.d@intel.com>
+ <YaUGV3lEmW9qtP+3@kunai>
+ <042d2c9f-4333-44b1-09c0-b0953a51c176@linux.intel.com>
+ <DM6PR11MB36609A77B3F5D7730FA16A52C4689@DM6PR11MB3660.namprd11.prod.outlook.com>
+ <4a420cc0-d18a-32db-ed58-f611336c99ec@linux.intel.com>
+ <Yac0JgqrEdUJcfsf@ninjato>
+ <DM6PR11MB366003BA82D2A65F60D3AF4BC4689@DM6PR11MB3660.namprd11.prod.outlook.com>
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Message-ID: <691f1f59-5f6e-14b5-7607-38b91c23e149@linux.intel.com>
+Date:   Wed, 1 Dec 2021 13:35:34 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="NuMdnzB3da78tof9"
-Content-Disposition: inline
-In-Reply-To: <20211201105953.GA825735@gnbcxd0016.gnb.st.com>
+In-Reply-To: <DM6PR11MB366003BA82D2A65F60D3AF4BC4689@DM6PR11MB3660.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On 12/1/21 11:39 AM, D, Lakshmi Sowjanya wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: Wolfram Sang <wsa@kernel.org>
+>> Sent: Wednesday, December 1, 2021 2:07 PM
+>> To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>> Cc: D, Lakshmi Sowjanya <lakshmi.sowjanya.d@intel.com>; linux-
+>> i2c@vger.kernel.org; linux-kernel@vger.kernel.org; Senthil, Bala
+>> <bala.senthil@intel.com>; N, Pandith <pandith.n@intel.com>; Andy
+>> Shevchenko <andriy.shevchenko@linux.intel.com>; Saha, Tamal
+>> <tamal.saha@intel.com>
+>> Subject: Re: [PATCH v1 1/2] i2c: designware-pci: Add support for Fast Mode
+>> Plus and High Speed Mode
+>>
+>>
+>>> See the comments from Andy. Recent enough Elkhart Lake BIOS and his
+>>> patches from last year already provide the timing parameters. Feeling
+>>> embarrassed I forgot them :-(
+>>
+>> But the u16 conversion of the existing parameters is still useful?
+> 
+> Jarkko: I've seen the changes by Andy. These patches are no more required as suggested. I'm following up on the same, regarding ACPI table entries.
+> 
+> I have the same query...is the u16 conversion of existing parameters still useful?
+> 
+Yes, that's useful.
 
---NuMdnzB3da78tof9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> Ok, I thus send a 2 patches serie with mine and yours reworked on top of
-> mine together. Hope you don't mind.
-
-Please do.
-
-
---NuMdnzB3da78tof9
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGnVrAACgkQFA3kzBSg
-KbZFqBAAqoRiBLM+wqt8C/bR/WA5jcs7cTFUiZuRBT1bmfGGDqlqoizsNhF39Ms4
-OLAsU/9u7K3btfWcopWLWlmnnvcGXb90cV2CY1AAJG0dQRhFMdW9a5+llW/wpYyM
-F0jtNoMa+5cd85pvEa9RVlOPK1QnwvLTd/IktdpaxqFSITVLrwc6RJ2fmUkqFSLH
-7p/PtEGGgOp1fVYmPvLW8FZ0UFE0EaVcaVcpcstyyKDz+F4tYD0YSqWuFS3b+9TF
-URPpQ9M1xVCu9Ygz9X9UPmVXxOlYILhrymSCOaUs2095ypKQUVI1+IuyJpRfPyp1
-T8TUWo4mMFVHglTYdrE1Ulz/dORTAqPF2ht6BKZQVfYsHSxU7+dFqSQ6k1NuEaat
-Yy5wGWNCJ/fH5BYKVxGgfWVjKL387HuRtF6vdbe6s8wMvkPFyIBc80l69INvFsup
-bGTpW6jTluoEdN8tChdHsySd/xWgMXh+8NJqIq+7ObKCcm4Sabl0zOMgJBycBsSQ
-xZhAJA0x5EvSmIVslwCpjFbnw5xrxMZCFjGGKX6DpDRAD5JDQyOT2fV5UjhcuM+g
-wzHvnCkoEUVIDm1xmz2xa4Up3qWw82i1GXin5z2XfdMcHNe2M4uN5b2ov5Njb57e
-NEDAWA+EqtuUaA7C8RNITHx/DLEBvYQsGNHwAiB3eyShSY70KJg=
-=J5Dz
------END PGP SIGNATURE-----
-
---NuMdnzB3da78tof9--
+Jarkko
