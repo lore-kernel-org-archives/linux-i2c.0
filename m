@@ -2,183 +2,132 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 841FAC433FE
-	for <linux-i2c@archiver.kernel.org>; Sat,  4 Dec 2021 21:58:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C02DC433F5
+	for <linux-i2c@archiver.kernel.org>; Sun,  5 Dec 2021 12:57:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379621AbhLDWCL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 4 Dec 2021 17:02:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47450 "EHLO
+        id S233913AbhLENAu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 5 Dec 2021 08:00:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345345AbhLDWBx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 4 Dec 2021 17:01:53 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2DBC061359
-        for <linux-i2c@vger.kernel.org>; Sat,  4 Dec 2021 13:58:26 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id y196so5168361wmc.3
-        for <linux-i2c@vger.kernel.org>; Sat, 04 Dec 2021 13:58:26 -0800 (PST)
+        with ESMTP id S230287AbhLENAt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 5 Dec 2021 08:00:49 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED90C061714
+        for <linux-i2c@vger.kernel.org>; Sun,  5 Dec 2021 04:57:22 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id o13so16355089wrs.12
+        for <linux-i2c@vger.kernel.org>; Sun, 05 Dec 2021 04:57:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=TQEb5+4d/MHt4xPSobaL7ml5ouD0gEGBDjqG0G4xX9M=;
-        b=bMvib3+0+Wys7m2opfbcYMtwZH0h9iF7p5WHE975CgOxfIggqJfOAwhbBGQiOkpmLp
-         Y7yrLRbn730nzfj7KgrVmU1ut8gDYH3Fh0l/e/Bje+IE62QakfP23MEcqkdYEPG9VF9q
-         Ean/drejcExfdq6JZQdEa8CRmITPgg/mQ4YSk6PHwnja3k2790wCXwB1TowknWC5Bjq2
-         9iwwAgaoij7yFXiepCq8DjpEE2YbgnJ9NWvg4I0UqvnY3KME+H0d7h0/Hunl4soe+P3U
-         wYrCB/WjFHO10eut0MjupN93G9AD3QAA1DPPrlk4jWunAW6PSkJOXdBtk2wj2X4qzASk
-         uokA==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:content-language:from:to:cc
+         :subject:content-transfer-encoding;
+        bh=C0dVLya84y0lKeV8OPOv5ezrVmy33XM9yH54TV5FqXI=;
+        b=hV6KpRpwCzEObUCmv3JxXWQoVq1c92vbWk9Jjzq3P2vdkd9dZdRLdRqVieiO/obx1u
+         o/tV5juZkvFQugvGP4sg6SAMjSV9OWXbdqAfLklkdsNwL9xjQKoPhrzvS+o23bSYJbA+
+         1q+4Tbbk5Qcr5e/Wr/oD50y+q8uTkQ2BwcuJuF91Y9mW4Qa7+vEYh74UyTe9ikuYrqJC
+         ZeGpxc8eD4SuERzfop7jNCGLBIwQnd7HeVWLPStIANBM7MUzsOr4v6VHQSbvkV5s5zju
+         9Q7oOVp6SqPzSLksYZs9+6l3y41X5fDCIp5Ijn8LGTUR2NuiPpaFyPGI7NcwGqxjiHMO
+         r3kQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=TQEb5+4d/MHt4xPSobaL7ml5ouD0gEGBDjqG0G4xX9M=;
-        b=VVkzwfPKK7h9tWZabu1HdiMw+FvMvUHlLfjjF6zw81+sf7wpVLmvcepx4Xp/TFei8h
-         RqctfRg+EUVIlfvdiAcs+5ihcZs9wlnEfZPU4WXNGAF4dcXquWmdzHGd7wIYhkRGGQzP
-         sH6bWVwBbqCxuwxoeD1O6OCFB8+qkyzdIAlzULLbUDJm8g+CUBZ+SuHeV3Wrsx86GNzF
-         qtMqeHut+WXHn989sX7VvviCw+09nDD4d+oj0+VrJ+qypeCOmaWkmijb64LW9dn1/FSU
-         D1++qM2JeP/ZF0IzN11VR8kQtl6RcyEnN/IeU3hZ2GDj6fXB/Nc3RKdJrx+hmTWW2Evw
-         M3rg==
-X-Gm-Message-State: AOAM530R/zE0VoK46bIXjcikRtavlnL5NBy0nj6a/lHqy1wbRYMm3sy9
-        bR2qcmDifYjkXhr7ekoeZkArzg==
-X-Google-Smtp-Source: ABdhPJxsmUmcm4wGrsq5SHc9haax2YPJ+pJMSSGHPb093CeXkzhok2gdt19LICBfpHEVXblBur9Cbw==
-X-Received: by 2002:a1c:1c8:: with SMTP id 191mr25771329wmb.90.1638655105330;
-        Sat, 04 Dec 2021 13:58:25 -0800 (PST)
-Received: from localhost ([31.134.121.151])
-        by smtp.gmail.com with ESMTPSA id q8sm6570843wrx.71.2021.12.04.13.58.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Dec 2021 13:58:24 -0800 (PST)
-From:   Sam Protsenko <semen.protsenko@linaro.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     Jaewon Kim <jaewon02.kim@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        David Virag <virag.david003@gmail.com>,
-        Youngmin Nam <youngmin.nam@samsung.com>,
-        Wolfram Sang <wsa@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH v2 RESEND 3/8] dt-bindings: i2c: exynos5: Add bus clock
-Date:   Sat,  4 Dec 2021 23:58:15 +0200
-Message-Id: <20211204215820.17378-4-semen.protsenko@linaro.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211204215820.17378-1-semen.protsenko@linaro.org>
-References: <20211204215820.17378-1-semen.protsenko@linaro.org>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:from:to:cc:subject:content-transfer-encoding;
+        bh=C0dVLya84y0lKeV8OPOv5ezrVmy33XM9yH54TV5FqXI=;
+        b=13QjAKUHjpLB+vDPNPO0az8+57wwPZYj9si//s3xU69kaPsx/f244Qer69nWIOzloa
+         /sh9XefN33PHM1JYRg+N6lbSGg2flUKsWqP6A2vxklNz+LfCZ5sObq/gKWgWuDdPB7a8
+         R1mvr0CWyk4XVPzQ1ueDgQRzSi2o7dZ+k7jnE5msT1Q3ELatKQ5DFceqWf2o/Z/hdjp9
+         YvjnxUgzeyQApcF6NrktaCfZ7+tpfyKNOwX9KlAz7SmnX16xG7xY7vIgbyzREljhqAXJ
+         yATLq3RDq5jZkEfSxb2Rzht0v/8eAhhUEh81XQG+/xnqyB5hY/D0gETLg2c8x2ABALn4
+         D1+g==
+X-Gm-Message-State: AOAM533RNyGH81aA+Hur1AYbV6dCFcMvfxUj+IcFZ9pYhAfUseEowfoK
+        dyOO7NHrLxJNPRjiTs41PF/KIUmOEZs=
+X-Google-Smtp-Source: ABdhPJwu2cKjPWe5p/m/fIKDnBSgkwb5F7BeVudR9ClsbjMmSn5gKw6qR5+UceAU0UDOFFksIHcmGg==
+X-Received: by 2002:adf:e8c8:: with SMTP id k8mr35127357wrn.135.1638709040989;
+        Sun, 05 Dec 2021 04:57:20 -0800 (PST)
+Received: from ?IPV6:2003:ea:8f1a:f00:c00f:8db8:101c:6db1? (p200300ea8f1a0f00c00f8db8101c6db1.dip0.t-ipconnect.de. [2003:ea:8f1a:f00:c00f:8db8:101c:6db1])
+        by smtp.googlemail.com with ESMTPSA id d6sm8409869wrn.53.2021.12.05.04.57.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 05 Dec 2021 04:57:20 -0800 (PST)
+Message-ID: <7de775e9-7bae-d45d-fb6d-f86719c13f9d@gmail.com>
+Date:   Sun, 5 Dec 2021 13:57:15 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.2
+Content-Language: en-US
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+To:     Jean Delvare <jdelvare@suse.com>
+Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Subject: [PATCH] i2c: i801: improve interrupt handler
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-In new Exynos SoCs (like Exynos850) where HSI2C is implemented as a
-part of USIv2 block, there are two clocks provided to HSI2C controller:
-  - PCLK: bus clock (APB), provides access to register interface
-  - IPCLK: operating IP-core clock; SCL is derived from this one
+Not sure if it can happen, but better play safe: If SMBHSTSTS_BYTE_DONE
+and an error flag is set, then don't trust the result and skip calling
+i801_isr_byte_done(). In addition clear status bit SMBHSTSTS_BYTE_DONE
+in the main interrupt handler, this allows to simplify the code a
+little.
 
-Both clocks have to be asserted for HSI2C to be functional in that case.
-
-Modify bindings doc to allow specifying bus clock in addition to
-already described operating clock.
-
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
-Changes in v2:
-  - Added 'clock-names' property to 'required:' in case of ExynosAutoV9
-  - Added example for two clocks case
+ drivers/i2c/busses/i2c-i801.c | 25 ++++++++-----------------
+ 1 file changed, 8 insertions(+), 17 deletions(-)
 
- .../devicetree/bindings/i2c/i2c-exynos5.yaml  | 59 +++++++++++++++++--
- 1 file changed, 53 insertions(+), 6 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-index bb6c22fbc442..19874e8b73b9 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-@@ -18,9 +18,6 @@ description: |
-   define USI node in device tree file, choosing "i2c" configuration. Please see
-   Documentation/devicetree/bindings/soc/samsung/exynos-usi.yaml for details.
- 
--allOf:
--  - $ref: /schemas/i2c/i2c-controller.yaml#
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index a087f4834..c4c67505d 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -575,9 +575,6 @@ static void i801_isr_byte_done(struct i801_priv *priv)
+ 		/* Write next byte, except for IRQ after last byte */
+ 		outb_p(priv->data[++priv->count], SMBBLKDAT(priv));
+ 	}
 -
- properties:
-   compatible:
-     oneOf:
-@@ -49,11 +46,16 @@ properties:
-       clock-frequency is >= 1MHz.
+-	/* Clear BYTE_DONE to continue with next byte */
+-	outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
+ }
  
-   clocks:
--    maxItems: 1
--    description: I2C operating clock
-+    minItems: 1
-+    items:
-+      - description: I2C operating clock
-+      - description: Bus clock (APB)
+ static irqreturn_t i801_host_notify_isr(struct i801_priv *priv)
+@@ -607,7 +604,6 @@ static irqreturn_t i801_host_notify_isr(struct i801_priv *priv)
+  *      BUS_ERR - SMI# transaction collision
+  *      FAILED - transaction was canceled due to a KILL request
+  *    When any of these occur, update ->status and signal completion.
+- *    ->status must be cleared before kicking off the next transaction.
+  *
+  * 2) For byte-by-byte (I2C read/write) transactions, one BYTE_DONE interrupt
+  *    occurs for each byte of a byte-by-byte to prepare the next byte.
+@@ -632,23 +628,18 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
+ 	}
  
-   clock-names:
--    const: hsi2c
-+    minItems: 1
-+    items:
-+      - const: hsi2c
-+      - const: hsi2c_pclk
+ 	status = inb_p(SMBHSTSTS(priv));
+-	if (status & SMBHSTSTS_BYTE_DONE)
++	if ((status & SMBHSTSTS_BYTE_DONE) && !(status & STATUS_ERROR_FLAGS))
+ 		i801_isr_byte_done(priv);
  
- required:
-   - compatible
-@@ -61,6 +63,31 @@ required:
-   - interrupts
-   - clocks
- 
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - samsung,exynosautov9-hsi2c
+ 	/*
+-	 * Clear remaining IRQ sources: Completion of last command, errors
+-	 * and the SMB_ALERT signal. SMB_ALERT status is set after signal
+-	 * assertion independently of the interrupt generation being blocked
+-	 * or not so clear it always when the status is set.
+-	 */
+-	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS | SMBHSTSTS_SMBALERT_STS;
+-	if (status)
+-		outb_p(status, SMBHSTSTS(priv));
+-	status &= ~SMBHSTSTS_SMBALERT_STS; /* SMB_ALERT not reported */
+-	/*
+-	 * Report transaction result.
+-	 * ->status must be cleared before the next transaction is started.
++	 * Clear IRQ sources: SMB_ALERT status is set after signal assertion
++	 * independently of the interrupt generation being blocked or not
++	 * so clear it always when the status is set.
+ 	 */
++	status &= STATUS_FLAGS | SMBHSTSTS_SMBALERT_STS;
++	outb_p(status, SMBHSTSTS(priv));
 +
-+    then:
-+      properties:
-+        clocks:
-+          minItems: 2
-+
-+        clock-names:
-+          minItems: 2
-+
-+      required:
-+        - clock-names
-+
-+    else:
-+      properties:
-+        clocks:
-+          maxItems: 1
-+
- unevaluatedProperties: false
- 
- examples:
-@@ -84,3 +111,23 @@ examples:
-             reg = <0x66>;
-         };
-     };
-+
-+  - |
-+    #include <dt-bindings/clock/exynos850.h>
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+
-+    hsi2c_2: i2c@138c0000 {
-+        compatible = "samsung,exynosautov9-hsi2c";
-+        reg = <0x138c0000 0xc0>;
-+        interrupts = <GIC_SPI 195 IRQ_TYPE_LEVEL_HIGH>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+        clocks = <&cmu_peri CLK_GOUT_HSI2C2_IPCLK>,
-+                 <&cmu_peri CLK_GOUT_HSI2C2_PCLK>;
-+        clock-names = "hsi2c", "hsi2c_pclk";
-+
-+        pmic@66 {
-+            /* compatible = "samsung,s2mps11-pmic"; */
-+            reg = <0x66>;
-+        };
-+    };
++	status &= STATUS_ERROR_FLAGS | SMBHSTSTS_INTR;
+ 	if (status) {
+ 		priv->status = status;
+ 		complete(&priv->done);
 -- 
-2.30.2
+2.34.1
 
