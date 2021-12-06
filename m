@@ -2,114 +2,87 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D24B0C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon,  6 Dec 2021 21:21:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A287C4332F
+	for <linux-i2c@archiver.kernel.org>; Mon,  6 Dec 2021 22:28:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351619AbhLFVYl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 6 Dec 2021 16:24:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60472 "EHLO
+        id S1357561AbhLFWb1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 6 Dec 2021 17:31:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351472AbhLFVYB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Dec 2021 16:24:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4779CC0613FE;
-        Mon,  6 Dec 2021 13:20:32 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 92ED0CE1582;
-        Mon,  6 Dec 2021 21:20:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71740C341C6;
-        Mon,  6 Dec 2021 21:20:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825628;
-        bh=UqIoGty3x6i+tPouRMfzEwDwRqaI2XcL1JbTVVMihyY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iii0E+JYjiH2xJJ246ZhfAFEjDSb9Htp0PTHZKyRC4fuMoMYgJWBMkEWysEoyeOW4
-         LhSH5qGEGXE9SqttEZ8k44uplhH8V0VdklVeCx3Krr0PxHg+QlwjjkqGA0iFRsVp4t
-         JnjGxaqFClF+haRQtiQlWo43eSiwVlflzX5bjNv4Rc4G9lUnmEq8jDbgUlrfAYaQQW
-         xhyKcbTVTRBfTICBSM3U3QyOM5Gpijhh5JIYFPY7jBRoD4jTEfzeMI+6xWVUyOtB//
-         EleAYX2xGImRzPCB1mwixqOOOCIwpIOzC2QASOMoTgCTw+c/2JJItM4tcnE8ak+uWX
-         LWAqKfryQgM8Q==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ondrej Jirman <megous@megous.com>,
-        John Keeping <john@metanate.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        heiko@sntech.de, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/5] i2c: rk3x: Handle a spurious start completion interrupt flag
-Date:   Mon,  6 Dec 2021 16:20:19 -0500
-Message-Id: <20211206212021.1661517-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211206212021.1661517-1-sashal@kernel.org>
-References: <20211206212021.1661517-1-sashal@kernel.org>
+        with ESMTP id S1357412AbhLFWbV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Dec 2021 17:31:21 -0500
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFB38C061746;
+        Mon,  6 Dec 2021 14:27:52 -0800 (PST)
+Received: by mail-pg1-x534.google.com with SMTP id g16so3407090pgi.1;
+        Mon, 06 Dec 2021 14:27:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ZJ9W19F9BVtFlFnJBI6M88XF4BCu/CVE632l0mNkIIQ=;
+        b=Y3xPtXcFAlydwm4j3JE2Uyb0fc1dC6VOqUmI2NEQReFtcqSW7ySiMc5FhgoFJNTLHI
+         jyKDd/kyvGUneg62yT4DIquASKBOthjxnu2R5G/52wqIfwv/K1dFwkS4Jad+RhYAZba/
+         sPBTwZHz/yE0Dyr9D9tlB9qIXIYbWuuJLZY0hYihOtod9T1zptaCBw7nDDMK9kxRL9+C
+         D15x9hro9t3EPMZC7FbSPWA7MnISH/m80E/xTWgcYNU5RbwpTuxct8y7pk5bXVogAJeg
+         BsETK7ugE+iNwYnLxGKZGNIHDDX32m5tS4vZ08E0w3QJBpWHvxyrT2wxSurdjInGcsSH
+         wOBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ZJ9W19F9BVtFlFnJBI6M88XF4BCu/CVE632l0mNkIIQ=;
+        b=G399SJbkYdAUjZL0Pi4L6xrldSk2TRzoKHibYrpTFsrPy+BUMHXzjM8l8exz07lKSN
+         5VVPLpGw6tW1JDLmLvY1KOQaWkZ//FhPKdnSavtlW8mXTDFnwDNJIGsMIMgHUTpAjVnx
+         /AYnKIt0XeHmkjDX9papimyDP5xM9/KURm4mFaQT9wFjDvdKiteE8ndU5RwZrg1Jnkpm
+         J8T0pQ71c+v6DzMdFBwcPXaket+QNGKj+fNKmUk9wBlQ4gI1C+9UO4j0yzGqDyFpWZRa
+         GhBySkwCg23UIm7qM3E62jgTxs3gJHg6rCZbG0KytLyVTkqQoMXd8he36IBu52t+x6+U
+         GaZw==
+X-Gm-Message-State: AOAM531la9r4Rj3F0dY2r5pLC+n8Oe3efJCw+I8S9ycVDeMXFpO6aOWl
+        BAlNt0Zps+rM1sSvvF4EW3vxcp7MTkY=
+X-Google-Smtp-Source: ABdhPJwtp2Spm/FITxeUSHHC6FaMEGtczgkWuSeK7WtAXvD4RyiWpvbxMlNKdUu0lggbf4qXzG/EyA==
+X-Received: by 2002:aa7:970e:0:b0:4a2:655f:7a12 with SMTP id a14-20020aa7970e000000b004a2655f7a12mr39360359pfg.65.1638829671878;
+        Mon, 06 Dec 2021 14:27:51 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id oj11sm337484pjb.46.2021.12.06.14.27.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Dec 2021 14:27:51 -0800 (PST)
+Subject: Re: [PATCH] dt-bindings: i2c: brcm,bcm2835-i2c: convert to YAML
+ schema
+To:     David Heidelberg <david@ixit.cz>, Rob Herring <robh+dt@kernel.org>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Stephen Warren <swarren@wwwdotorg.org>
+Cc:     ~okias/devicetree@lists.sr.ht, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+References: <20211206184613.100809-1-david@ixit.cz>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <d337e0e9-7013-b10f-f696-5133da3490e5@gmail.com>
+Date:   Mon, 6 Dec 2021 14:27:49 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211206184613.100809-1-david@ixit.cz>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Ondrej Jirman <megous@megous.com>
+On 12/6/21 10:46 AM, David Heidelberg wrote:
+> Switch the DT binding to a YAML schema to enable the DT validation.
+> 
+> Signed-off-by: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 02fe0fbd8a21e183687925c3a266ae27dda9840f ]
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 
-In a typical read transfer, start completion flag is being set after
-read finishes (notice ipd bit 4 being set):
-
-trasnfer poll=0
-i2c start
-rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
-i2c read
-rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
-i2c stop
-rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 33
-
-This causes I2C transfer being aborted in polled mode from a stop completion
-handler:
-
-trasnfer poll=1
-i2c start
-rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
-i2c read
-rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 0
-rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
-i2c stop
-rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 13
-i2c stop
-rk3x-i2c fdd40000.i2c: unexpected irq in STOP: 0x10
-
-Clearing the START flag after read fixes the issue without any obvious
-side effects.
-
-This issue was dicovered on RK3566 when adding support for powering
-off the RK817 PMIC.
-
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-rk3x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index df220666d6274..b4f8cd7dc8b74 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -424,8 +424,8 @@ static void rk3x_i2c_handle_read(struct rk3x_i2c *i2c, unsigned int ipd)
- 	if (!(ipd & REG_INT_MBRF))
- 		return;
- 
--	/* ack interrupt */
--	i2c_writel(i2c, REG_INT_MBRF, REG_IPD);
-+	/* ack interrupt (read also produces a spurious START flag, clear it too) */
-+	i2c_writel(i2c, REG_INT_MBRF | REG_INT_START, REG_IPD);
- 
- 	/* Can only handle a maximum of 32 bytes at a time */
- 	if (len > 32)
+Let me know if you are planning on converting more of the bcm2835
+binding so we don't overlap. Thanks!
 -- 
-2.33.0
-
+Florian
