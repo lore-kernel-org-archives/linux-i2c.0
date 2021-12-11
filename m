@@ -2,96 +2,111 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A347BC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Dec 2021 21:23:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 606D3C433F5
+	for <linux-i2c@archiver.kernel.org>; Sat, 11 Dec 2021 04:16:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240192AbhLJV1V (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 10 Dec 2021 16:27:21 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:58864 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237368AbhLJV1U (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Dec 2021 16:27:20 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0FF3DCE2D41;
-        Fri, 10 Dec 2021 21:23:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAE7BC00446;
-        Fri, 10 Dec 2021 21:23:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639171421;
-        bh=WZhMzHgknQpWsqrRNERS1gjjZ0fPcQiMPzk5ltfw6kc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TlDxseGnBGuKdK+5tchCA7yu/kVuWetPW6/apm/qXwr6f9dbFpQq1jXk5ghwAa8qK
-         fx6ht9/XzG9kFq/R4quwslmi2c81DEDz48Sp3uTUBOHnQnVedV8xEgAu0G8eAz7Wzp
-         K+9iQEx9ZVdXxbMOU6aqxpBPBu7OBILsvwNP+lVNLDjRF8np4JX6eBHdh7d8jpzzax
-         /XOVCdgoasqYkNZvnhD9KJdMWnhkGSqHrJCaKIS7ST3tkqR8mvxH2xzYUGcIfORDiQ
-         L7FkGiL06ULu27og9Ai0zOAb8Z+N/+vuBUxQvIW4qudhlZ/NW0+lW+JUVv8FG4dYJi
-         OeB0ga/43vtAA==
-Date:   Fri, 10 Dec 2021 22:23:35 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Akhil R <akhilrajeev@nvidia.com>
-Cc:     andy.shevchenko@gmail.com, christian.koenig@amd.com,
-        digetx@gmail.com, jonathanh@nvidia.com, ldewangan@nvidia.com,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-tegra@vger.kernel.org, p.zabel@pengutronix.de,
-        sumit.semwal@linaro.org, thierry.reding@gmail.com,
-        robh+dt@kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v3] i2c: tegra: use i2c_timings for bus clock freq
-Message-ID: <YbPFV39VU4YY9SOn@ninjato>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Akhil R <akhilrajeev@nvidia.com>, andy.shevchenko@gmail.com,
-        christian.koenig@amd.com, digetx@gmail.com, jonathanh@nvidia.com,
-        ldewangan@nvidia.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
-        p.zabel@pengutronix.de, sumit.semwal@linaro.org,
-        thierry.reding@gmail.com, robh+dt@kernel.org,
-        devicetree@vger.kernel.org
-References: <1639138557-1709-1-git-send-email-akhilrajeev@nvidia.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="S5JuNTA1eC+dxV7V"
-Content-Disposition: inline
-In-Reply-To: <1639138557-1709-1-git-send-email-akhilrajeev@nvidia.com>
+        id S1345845AbhLKEU0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 10 Dec 2021 23:20:26 -0500
+Received: from mga14.intel.com ([192.55.52.115]:33265 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1345829AbhLKEUZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Dec 2021 23:20:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1639196209; x=1670732209;
+  h=from:to:cc:subject:date:message-id;
+  bh=DUmrzvVoskRHGVGcIrie/Qwex1NV/ufikffceISj/8k=;
+  b=VANUOdP620/X5Nfn+1VjkoFu4ob2WO509EeEj29Qn8P/VjQsX6AlX2L+
+   TCwKHsklUhn19S/AL97ZaBlRUyJwa1UEwAZdntjzzgMKdat8qNsLS+Sjq
+   zEgyvD6R0R7W1Ut4toQsJzz8tHfKl37gAmvouA4Wc8EVkPIRCfJjv8dXz
+   yl35Gh0/GGW8fzIJhPF4ccuPeTW41U+OiebAYJAkZUQvYbOq+u6S3/b4F
+   mV6aYO7z+bg7ll6KSfZbl56hnO8V5F5ciI1FSDvuT8PHlkGIzabHGwa0D
+   +Q7VGeqvwyFXnfN9Lrxb+fv7uhXJ5KQdK1zg7SsUV5EAGTB3RKAazRNVL
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10194"; a="238730556"
+X-IronPort-AV: E=Sophos;i="5.88,197,1635231600"; 
+   d="scan'208";a="238730556"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2021 20:16:46 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,197,1635231600"; 
+   d="scan'208";a="613150652"
+Received: from coresw01.iind.intel.com ([10.106.46.194])
+  by orsmga004.jf.intel.com with ESMTP; 10 Dec 2021 20:16:44 -0800
+From:   tamal.saha@intel.com
+To:     wsa@kernel.org, andriy.shevchenko@linux.intel.com,
+        jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org
+Cc:     tamal.saha@intel.com, bala.senthil@intel.com
+Subject: [PATCH v1] i2c: designware: Do not complete i2c read without RX_FULL interrupt
+Date:   Sat, 11 Dec 2021 09:46:43 +0530
+Message-Id: <20211211041643.21543-1-tamal.saha@intel.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+From: Tamal Saha <tamal.saha@intel.com>
 
---S5JuNTA1eC+dxV7V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Intel Keem Bay platform supports multimaster operations over same i2c
+bus using Synopsis i2c designware IP. When multi masters initiate i2c
+operation simultaneously in a loop, SCL line is stucked low forever
+after few i2c operations. Following interrupt sequences are observed
+in:
+  working case: TX_EMPTY, RX_FULL and STOP_DET
+  non working case: TX_EMPTY, STOP_DET, RX_FULL.
 
-On Fri, Dec 10, 2021 at 05:45:57PM +0530, Akhil R wrote:
-> Use i2c_timings struct and corresponding methods to get bus clock frequen=
-cy
->=20
-> Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
-> Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+DW_apb_i2c stretches the SCL line when the TX FIFO is empty or when
+RX FIFO is full. The DW_apb_i2c master will continue to hold the SCL
+line LOW until RX FIFO is read.
 
-Applied to for-next, thanks!
+Linux kernel i2c designware software does not handle above non working
+sequence. TX_EMPTY, RX_FULL and STOP_DET routine execution are required
+in sequence although RX_FULL interrupt is raised after STOP_DET by
+hardware. Clear STOP_DET for following conditions
+  (STOP_DET ,RX_FULL, rx_outstanding)
+    Write Operation: (1, 0, 0)
+    Read Operation:
+      RX_FULL followed by STOP_DET: (0, 1, 1) -> (1, 0, 0)
+      STOP_DET followed by RX_FULL: (1, 0, 1) -> (1, 1, 0)
+      RX_FULL and STOP_DET together: (1, 1, 1)
 
+Signed-off-by: Tamal Saha <tamal.saha@intel.com>
+---
+ drivers/i2c/busses/i2c-designware-master.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---S5JuNTA1eC+dxV7V
-Content-Type: application/pgp-signature; name="signature.asc"
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 9b08bb5df38d..9177463c2cbb 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -701,7 +701,8 @@ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+ 		regmap_read(dev->map, DW_IC_CLR_RX_DONE, &dummy);
+ 	if (stat & DW_IC_INTR_ACTIVITY)
+ 		regmap_read(dev->map, DW_IC_CLR_ACTIVITY, &dummy);
+-	if (stat & DW_IC_INTR_STOP_DET)
++	if ((stat & DW_IC_INTR_STOP_DET) &&
++	    ((dev->rx_outstanding == 0) || (stat & DW_IC_INTR_RX_FULL)))
+ 		regmap_read(dev->map, DW_IC_CLR_STOP_DET, &dummy);
+ 	if (stat & DW_IC_INTR_START_DET)
+ 		regmap_read(dev->map, DW_IC_CLR_START_DET, &dummy);
+@@ -723,6 +724,7 @@ static int i2c_dw_irq_handler_master(struct dw_i2c_dev *dev)
+ 	if (stat & DW_IC_INTR_TX_ABRT) {
+ 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
+ 		dev->status = STATUS_IDLE;
++		dev->rx_outstanding = 0;
+ 
+ 		/*
+ 		 * Anytime TX_ABRT is set, the contents of the tx/rx
+@@ -745,7 +747,8 @@ static int i2c_dw_irq_handler_master(struct dw_i2c_dev *dev)
+ 	 */
+ 
+ tx_aborted:
+-	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err)
++	if (((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err) &&
++	     (dev->rx_outstanding == 0))
+ 		complete(&dev->cmd_complete);
+ 	else if (unlikely(dev->flags & ACCESS_INTR_MASK)) {
+ 		/* Workaround to trigger pending interrupt */
+-- 
+2.17.1
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmGzxVMACgkQFA3kzBSg
-KbZebg//SU+X/Tm0ervkH0g5sxrsw9ac426lDyOrd0/0YbXjCiHaQZxi6HJMzRht
-h6nEUbpTDnX5qgNZ/zJ79AYReqm8huhZzb6I0a3neNTlMTrJoUg1iykXGAO9QHGo
-Hj9R7dwJpMJRHonGvOVqi9uPLpGxOMQyQuBS1kX4DxuEwRTjLiqhWKYzEn6nvVnY
-Y65hmkT0NjpzmvFVx9fT7PFudSp5+0jyFIkj3AOi+p/N5WGr7EI+wLE9CwrLuIAa
-vzEIlaPa6+43SDSGSrzjmACNFjodEgLNuhK8Aor4DUiMKRGC45Bj1qIN7fYRNPbU
-wT2QQ8vHO2ooPVZWFdGJ4G8jjxzF4Q0dqNNuTXD6m3pZAELN/5vmnxyPVG0Tk0Q3
-8hrfg+1uYXQuIdbfjduZNLSdXfHcT76NVrT+WftJMQmadt9AURZ9Olhjmx2uJHuW
-QruqXLmM9iku3QFO74puRcWDNEDuQn2fGWzhhR7/zyt6MMS7Agd69O+nFHofbeE1
-OMs9kigGD2fU8PlVQ+AzUJbiUvHCxdKd3zFbWpiHhDDTYooMlMCAv85RH44c7WBV
-P9PDA4ArgughAcFS/F6PhVpuUcsUec6RpuU8UsUdfqSWdkUmdym21/GglwaxUVMw
-eM8jTFJ6HSWeg3ePu/FEv/tFUsJiSpW1n8kgsR1lf3rhBWKg/pw=
-=2KoO
------END PGP SIGNATURE-----
-
---S5JuNTA1eC+dxV7V--
