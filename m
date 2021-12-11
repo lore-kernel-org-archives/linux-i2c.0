@@ -2,92 +2,148 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00431C433FE
-	for <linux-i2c@archiver.kernel.org>; Sat, 11 Dec 2021 20:12:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4DFCC433F5
+	for <linux-i2c@archiver.kernel.org>; Sat, 11 Dec 2021 23:23:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230155AbhLKUMo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 11 Dec 2021 15:12:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59092 "EHLO
+        id S229697AbhLKXXI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 11 Dec 2021 18:23:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229591AbhLKUMn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 11 Dec 2021 15:12:43 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E88B5C061714;
-        Sat, 11 Dec 2021 12:12:42 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id m27so23914852lfj.12;
-        Sat, 11 Dec 2021 12:12:42 -0800 (PST)
+        with ESMTP id S229691AbhLKXXI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 11 Dec 2021 18:23:08 -0500
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1206DC061714
+        for <linux-i2c@vger.kernel.org>; Sat, 11 Dec 2021 15:23:08 -0800 (PST)
+Received: by mail-wr1-x434.google.com with SMTP id u1so20921050wru.13
+        for <linux-i2c@vger.kernel.org>; Sat, 11 Dec 2021 15:23:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=1NX00lfdfJEOmAGyiJqx+//AAUizbRo1RDb63QViKlk=;
-        b=WLa28H62/MxLZ/L/Fc9vw8GNYtDrk/K22CQruONOV7GwAwD/dLgLjwXdwd7hZ+Hg2W
-         EImb9TQZtJfGit9HwbXsz0vghR/slk9HUDpHGNwTKSlw34JRrUt/pzHbo0eSmyQgvsWH
-         4P0bE7DhfkD6zZh1/rl0ITod5jA8IrkplpKRzRy5J8/njc2h309o73FiC3DV1Qi574nx
-         0GByGwBSNdrrOG0z+C3CGa4KvkeMOZRPmt+0L0k0tiqBr19JLVTlur2U32muIfezGt01
-         L0Q5sG1XgtCK8fMzuGpVg0rgtLV7T/OJ4SN9V8Yq1Us2OBGduqFViH7MB4sZLY12Fsep
-         6h8A==
+        h=message-id:date:mime-version:user-agent:subject:content-language
+         :from:to:references:in-reply-to:content-transfer-encoding;
+        bh=63LdywA6Fzb9Ph+cdue7STT0iTxxghvEq9GfnjKO6BQ=;
+        b=h30aU3XTIq4RTenlwCdXGqyEteXzhIk4zf7r2v6ejJwmNkpJAYg8tKR4142VFVG8us
+         A5DJPf/LVLws0CfTSbxsXa7HOFpBOmXDakTX26fnuEE29tttmIOut4NhuY4CmZZSsGSL
+         SR/9N3BAQGXgkYyJ3lZPvjILnXQc/HK9TrAsjDg2sfjYzB/I+iFQpsVtW9c1+GCYeQaW
+         6GwsKfwL8n+KfZd7LhVikNH3tbUX2lEjxWCC5n20hH43Lg5X4A0IG7PkVaz7nfGgYwHT
+         RRIczZ5F8ZTwRngnNQl5sFhvqajUeN20y2IrEQ1RYwQ45meHqLd1poDhJL6CD80FPBIR
+         dGUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:from:to:references:in-reply-to
          :content-transfer-encoding;
-        bh=1NX00lfdfJEOmAGyiJqx+//AAUizbRo1RDb63QViKlk=;
-        b=l3Rh/om4ZGTVazyqw3AQKMsoJUFrd3e9PAK27l19gDla/o1ocBCDPpzKB18+7IGxz4
-         I7u6D4yoPsyrUzhLGqPU4RtXaHtbgvImdhQMdbJWr+HAlgXD/Pjieq+nQQJhLRbFFrmB
-         BzdPgrEXRhUxhZaHRZAFW0YP0nsST5OL1f9mDf08SVcUVVtL46OaYTZB06+5+ZCNDM+A
-         I4IUbGPIa6BzvpMyQ9Mb6vaEi6OfZTKQbvWAPRVmJPeXS5fI6CgNQ87o5UKX9vx3M6WI
-         qjlwv0bzVeypI8+nK+zBwKoepNMqPuGWigYHSTatHLUon8yNceUmaDKGe6oQ1/kiyIIf
-         G3xA==
-X-Gm-Message-State: AOAM530r2RpDxL6owIFGxw+gg8T6Hicfmh7Re0z5o78YIaD1NWylmbFH
-        oBzxIK5tPf129s9s4L5DMJcBvVmoqu4=
-X-Google-Smtp-Source: ABdhPJwYvn9cCJZhDtDvzm/np2uqdT1CxD52LOZm/NibOjCeH2ooOvJR/7/oDphCpRJdH4VL2/A9tg==
-X-Received: by 2002:ac2:4d0a:: with SMTP id r10mr18686144lfi.210.1639253560831;
-        Sat, 11 Dec 2021 12:12:40 -0800 (PST)
-Received: from [192.168.2.145] (94-29-46-111.dynamic.spd-mgts.ru. [94.29.46.111])
-        by smtp.googlemail.com with ESMTPSA id x18sm745539ljd.110.2021.12.11.12.12.39
+        bh=63LdywA6Fzb9Ph+cdue7STT0iTxxghvEq9GfnjKO6BQ=;
+        b=EcLN3tfzFNdI3snhoTVbjek7HB+IIu/L4pQqSE+jS/oEgQaLNN99+YSpK/969Odx02
+         /LHl9QofBXOgiLxegp5n+XPOqtcIymRQUtG8fa64EkaJgzK/gQ7qn7NBwr7kjXC9HACr
+         mTRUEPMLVy7lgb0aSjwrTzKGhYcEL+QlXaTNZkOpfpolSjk0KfvmaKMmROMsudnFw7oU
+         fE7HY83d/AgrY7OU6wjvpoCTKOBeEe2qHchqptyepytOj2ZIDG+qzMqB7R0DpIbt+7FB
+         gbuayk5n/TapD/JTswL6O49ie6K3L5AnWFzuqCC3qVXym2sYlKg4/Rh0vYtWFJVBWorh
+         JnAA==
+X-Gm-Message-State: AOAM530d/gm3usBh8AuQfwz/E4VPVh0Wxo1f9U7PRBqYaASvFX9Xk4X2
+        RLQ3SGyLJ+w3eJQJvDSpw0dL8YuMBm8=
+X-Google-Smtp-Source: ABdhPJy3mrlQuVuyGZJb3dE0aeUQ9wnV3d06Qj1jaCRhFO6le6IASSHLhMDF6p0rCsYRP75WsI5E/Q==
+X-Received: by 2002:a05:6000:250:: with SMTP id m16mr22304796wrz.459.1639264986421;
+        Sat, 11 Dec 2021 15:23:06 -0800 (PST)
+Received: from ?IPV6:2003:ea:8f24:fd00:41e7:8952:1031:d2bc? (p200300ea8f24fd0041e789521031d2bc.dip0.t-ipconnect.de. [2003:ea:8f24:fd00:41e7:8952:1031:d2bc])
+        by smtp.googlemail.com with ESMTPSA id a1sm7733534wri.89.2021.12.11.15.23.03
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 11 Dec 2021 12:12:40 -0800 (PST)
-Subject: Re: [PATCH 2/2] i2c: tegra: Add SMBus block read and SMBus alert
- functions
-To:     Akhil R <akhilrajeev@nvidia.com>,
-        "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>,
-        "christian.koenig@amd.com" <christian.koenig@amd.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "p.zabel@pengutronix.de" <p.zabel@pengutronix.de>,
-        "sumit.semwal@linaro.org" <sumit.semwal@linaro.org>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-References: <1639062321-18840-1-git-send-email-akhilrajeev@nvidia.com>
- <1639062321-18840-3-git-send-email-akhilrajeev@nvidia.com>
- <72ea6030-5f2d-4f51-3a42-8386c3638c65@gmail.com>
- <BN9PR12MB52733A443AA5D5A690CE7132C0719@BN9PR12MB5273.namprd12.prod.outlook.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <595413e0-3535-a40e-9a28-490d297c386a@gmail.com>
-Date:   Sat, 11 Dec 2021 23:12:39 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        Sat, 11 Dec 2021 15:23:05 -0800 (PST)
+Message-ID: <f11fbfad-4c94-7080-d1d2-c11d17e863ba@gmail.com>
+Date:   Sun, 12 Dec 2021 00:22:58 +0100
 MIME-Version: 1.0
-In-Reply-To: <BN9PR12MB52733A443AA5D5A690CE7132C0719@BN9PR12MB5273.namprd12.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: i801: I2C block read should be usable also on
+ ICH/ICH0/ICH2/ICH3/ICH4
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+To:     Jean Delvare <jdelvare@suse.com>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+References: <b4cb50db-7226-282f-e04a-02fbe0b605a0@gmail.com>
+In-Reply-To: <b4cb50db-7226-282f-e04a-02fbe0b605a0@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-10.12.2021 12:38, Akhil R пишет:
->> Although, you shouldn't need it at all, use devm_gpiod_get_optional().
-> smbus-alert is provided in the i2c dt bindings by default. I felt it is good
-> to put it into use since the use case is same.
+On 06.12.2021 22:18, Heiner Kallweit wrote:
+> Currently we use the following feature definitions. However, according to
+> the respective datasheets, also ICH/ICH0/ICH2/ICH3/ICH4 support I2C block
+> read. The implementation we have should work also on these chip versions.
+> 
+Basically the same I found for interrupt support. It's available on all
+chip versions. Any specific reason why driver uses interrupts from ICH5
+only?
 
-My point is that you don't need to use device_property_read_bool().
 
-Instead, you could use devm_gpiod_get_optional() and check whether
-returned GPIO is ERR or NULL (not present). Which could be a bit nicer
-variant.
+> The commit message of 6342064cad7a ("i2c-i801: Implement I2C block read
+> support") states that i2c block read is supported from ICH5 only.
+> This doesn't seem to be true. Or is this feature broken on older chip
+> versions? 
+> 
+> To me it seems we could remove FEATURE_I2C_BLOCK_READ because all chip
+> versions support this feature. Below is an experimental patch, for the
+> ones with test hw. A test case could be to use decode-dimms that
+> uses i2c block read to read the EEPROM content.
+> 
+> * Supports the following Intel I/O Controller Hubs (ICH):
+>  *
+>  *					I/O			Block	I2C
+>  *					region	SMBus	Block	proc.	block
+>  * Chip name			PCI ID	size	PEC	buffer	call	read
+>  * ---------------------------------------------------------------------------
+>  * 82801AA (ICH)		0x2413	16	no	no	no	no
+>  * 82801AB (ICH0)		0x2423	16	no	no	no	no
+>  * 82801BA (ICH2)		0x2443	16	no	no	no	no
+>  * 82801CA (ICH3)		0x2483	32	soft	no	no	no
+>  * 82801DB (ICH4)		0x24c3	32	hard	yes	no	no
+>  * 82801E (ICH5)		0x24d3	32	hard	yes	yes	yes
+> 
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 930c6edbe..fd9a19a80 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -294,7 +294,6 @@ struct i801_priv {
+>  #define FEATURE_SMBUS_PEC	BIT(0)
+>  #define FEATURE_BLOCK_BUFFER	BIT(1)
+>  #define FEATURE_BLOCK_PROC	BIT(2)
+> -#define FEATURE_I2C_BLOCK_READ	BIT(3)
+>  #define FEATURE_IRQ		BIT(4)
+>  #define FEATURE_HOST_NOTIFY	BIT(5)
+>  /* Not really a feature, but it's convenient to handle it as such */
+> @@ -780,10 +779,6 @@ static int i801_block_transaction(struct i801_priv *priv, union i2c_smbus_data *
+>  			pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &hostc);
+>  			pci_write_config_byte(priv->pci_dev, SMBHSTCFG,
+>  					      hostc | SMBHSTCFG_I2C_EN);
+> -		} else if (!(priv->features & FEATURE_I2C_BLOCK_READ)) {
+> -			dev_err(&priv->pci_dev->dev,
+> -				"I2C block read is unsupported!\n");
+> -			return -EOPNOTSUPP;
+>  		}
+>  	}
+>  
+> @@ -956,11 +951,10 @@ static u32 i801_func(struct i2c_adapter *adapter)
+>  	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
+>  	       I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
+>  	       I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_WRITE_I2C_BLOCK |
+> +	       I2C_FUNC_SMBUS_READ_I2C_BLOCK |
+>  	       ((priv->features & FEATURE_SMBUS_PEC) ? I2C_FUNC_SMBUS_PEC : 0) |
+>  	       ((priv->features & FEATURE_BLOCK_PROC) ?
+>  		I2C_FUNC_SMBUS_BLOCK_PROC_CALL : 0) |
+> -	       ((priv->features & FEATURE_I2C_BLOCK_READ) ?
+> -		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0) |
+>  	       ((priv->features & FEATURE_HOST_NOTIFY) ?
+>  		I2C_FUNC_SMBUS_HOST_NOTIFY : 0);
+>  }
+> @@ -997,7 +991,7 @@ static const struct i2c_algorithm smbus_algorithm = {
+>  	.functionality	= i801_func,
+>  };
+>  
+> -#define FEATURES_ICH5	(FEATURE_BLOCK_PROC | FEATURE_I2C_BLOCK_READ	| \
+> +#define FEATURES_ICH5	(FEATURE_BLOCK_PROC | 				  \
+>  			 FEATURE_IRQ | FEATURE_SMBUS_PEC		| \
+>  			 FEATURE_BLOCK_BUFFER | FEATURE_HOST_NOTIFY)
+>  #define FEATURES_ICH4	(FEATURE_SMBUS_PEC | FEATURE_BLOCK_BUFFER | \
+
