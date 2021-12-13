@@ -2,36 +2,35 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 331B3C433FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 13 Dec 2021 18:00:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF74EC433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 13 Dec 2021 18:00:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235530AbhLMSAh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 13 Dec 2021 13:00:37 -0500
-Received: from mga07.intel.com ([134.134.136.100]:22696 "EHLO mga07.intel.com"
+        id S241621AbhLMSAk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 13 Dec 2021 13:00:40 -0500
+Received: from mga01.intel.com ([192.55.52.88]:57909 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238502AbhLMSAc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 13 Dec 2021 13:00:32 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10197"; a="302170326"
+        id S238447AbhLMSAj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 13 Dec 2021 13:00:39 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10197"; a="262918302"
 X-IronPort-AV: E=Sophos;i="5.88,203,1635231600"; 
-   d="scan'208";a="302170326"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 10:00:31 -0800
+   d="scan'208";a="262918302"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 10:00:33 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.88,203,1635231600"; 
-   d="scan'208";a="464732560"
+   d="scan'208";a="566773390"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga006.jf.intel.com with ESMTP; 13 Dec 2021 10:00:29 -0800
+  by fmsmga008.fm.intel.com with ESMTP; 13 Dec 2021 10:00:31 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 15A371EE; Mon, 13 Dec 2021 20:00:36 +0200 (EET)
+        id 2C3185EF; Mon, 13 Dec 2021 20:00:36 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>
-Subject: [PATCH v2 4/6] i2c: designware-pci: Fix to change data types of hcnt and lcnt parameters
-Date:   Mon, 13 Dec 2021 20:00:32 +0200
-Message-Id: <20211213180034.30929-4-andriy.shevchenko@linux.intel.com>
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH v2 6/6] i2c: designware-pci: Add a note about struct dw_scl_sda_cfg usage
+Date:   Mon, 13 Dec 2021 20:00:34 +0200
+Message-Id: <20211213180034.30929-6-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211213180034.30929-1-andriy.shevchenko@linux.intel.com>
 References: <20211213180034.30929-1-andriy.shevchenko@linux.intel.com>
@@ -41,39 +40,36 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>
+Add a note about struct dw_scl_sda_cfg usage to discourage people
+of using this structure on new platforms. Instead they should try
+hard to put the needed information into firmware descriptions.
 
-The data type of hcnt and lcnt in the struct dw_i2c_dev is of type u16.
-It's better to have same data type in struct dw_scl_sda_cfg as well.
-
-Signed-off-by: Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 ---
 v2: added tag (Jarkko)
 
- drivers/i2c/busses/i2c-designware-pcidrv.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index e4be5420840a..499970d70755 100644
+index bc19d7f59d31..0ae3bbe8ed4e 100644
 --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
 +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -39,10 +39,10 @@ enum dw_pci_ctl_id_t {
+@@ -38,6 +38,13 @@ enum dw_pci_ctl_id_t {
+ 	navi_amd,
  };
  
++/*
++ * This is a legacy structure to describe the hardware counters
++ * to configure signal timings on the bus. For Device Tree platforms
++ * one should use the respective properties and for ACPI there is
++ * a set of ACPI methods that provide these counters. No new
++ * platform should use this structure.
++ */
  struct dw_scl_sda_cfg {
--	u32 ss_hcnt;
--	u32 fs_hcnt;
--	u32 ss_lcnt;
--	u32 fs_lcnt;
-+	u16 ss_hcnt;
-+	u16 fs_hcnt;
-+	u16 ss_lcnt;
-+	u16 fs_lcnt;
- 	u32 sda_hold;
- };
- 
+ 	u16 ss_hcnt;
+ 	u16 fs_hcnt;
 -- 
 2.33.0
 
