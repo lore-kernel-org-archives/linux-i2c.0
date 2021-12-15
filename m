@@ -2,99 +2,91 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3BF7C433F5
-	for <linux-i2c@archiver.kernel.org>; Tue, 14 Dec 2021 19:19:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB827C433F5
+	for <linux-i2c@archiver.kernel.org>; Wed, 15 Dec 2021 07:51:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229680AbhLNTTA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 14 Dec 2021 14:19:00 -0500
-Received: from fallback17.m.smailru.net ([94.100.176.130]:36594 "EHLO
-        fallback17.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229671AbhLNTS7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Dec 2021 14:18:59 -0500
-X-Greylist: delayed 989 seconds by postgrey-1.27 at vger.kernel.org; Tue, 14 Dec 2021 14:18:59 EST
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=inbox.ru; s=mail3;
-        h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:From:Subject:Content-Type:Content-Transfer-Encoding:To:Cc; bh=FTG10nFpuh46oFN3tDJmheiI0PCDQn2nxAjJTjT+neI=;
-        t=1639509539;x=1640114939; 
-        b=EGVaPgFb/72oPk66oDtU3G8Q45go8Nbjz6SgvkS/QB4XrTDP97vMLff3EOsvpyUf5T6T1Ga8UV+wLOSgFpYVLUYbmY1RB2TtSbhjQEeh2nGWMuVxL6aeEpohTWbD3TDBXVFVv7Gud+vB4Pdc1DLMr9qfK2aS81nnYOcpKSiVtPI=;
-Received: from [10.161.55.49] (port=48890 helo=smtpng1.i.mail.ru)
-        by fallback17.m.smailru.net with esmtp (envelope-from <fido_max@inbox.ru>)
-        id 1mxD4G-000311-RK
-        for linux-i2c@vger.kernel.org; Tue, 14 Dec 2021 22:02:29 +0300
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=inbox.ru; s=mail4;
-        h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:From:Subject:Content-Type:Content-Transfer-Encoding:To:Cc; bh=FTG10nFpuh46oFN3tDJmheiI0PCDQn2nxAjJTjT+neI=;
-        t=1639508548;x=1640113948; 
-        b=VAwZ2xZlYO/uvcGoNhijvmZVorTm5G1C3CWok+MMp4SAof/1EMDHQmWM+4jYDOCew20vxjUnwoqg3eQfYA+LcNLvx6BmuRgzT4H79zPnceYJvNJs8zceyRhtqLNDNGO0554rLlC2AxmQEmy9KbIsbsiCkMKyAhWe8A4lhXPT39dXF28ZpRntzNRFLzWP5CXkhqGD5DFVU6rVemzJ2gdBeXBsH7oflTuo+nBklbYBcqV4EmHUH7peZu5fBw9Ihoihu1er4ovhCJzv+PIc7cJDjmIryOE8V/thoYV6UmhSGCFJQnZB6KXSMUHI8rFJcCP0DsLDDTl0oKB4bfnZWT3dDQ==;
-Received: by smtpng1.m.smailru.net with esmtpa (envelope-from <fido_max@inbox.ru>)
-        id 1mxD4D-0005Xv-IK; Tue, 14 Dec 2021 22:02:26 +0300
-Message-ID: <bdc66b6e-e7b6-26a3-3427-d2c13fe40e77@inbox.ru>
-Date:   Tue, 14 Dec 2021 22:02:24 +0300
+        id S234083AbhLOHvN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 15 Dec 2021 02:51:13 -0500
+Received: from mga18.intel.com ([134.134.136.126]:27224 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230260AbhLOHvM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 15 Dec 2021 02:51:12 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10198"; a="226029945"
+X-IronPort-AV: E=Sophos;i="5.88,207,1635231600"; 
+   d="scan'208";a="226029945"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2021 23:51:12 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,207,1635231600"; 
+   d="scan'208";a="545492292"
+Received: from mylly.fi.intel.com (HELO [10.237.72.88]) ([10.237.72.88])
+  by orsmga001.jf.intel.com with ESMTP; 14 Dec 2021 23:51:11 -0800
+Message-ID: <3d67442c-87a7-e05b-7f69-de501fc0ad29@linux.intel.com>
+Date:   Wed, 15 Dec 2021 09:51:10 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH v3 0/2] Add Microchip EEPROM 24xx1025 support.
+ Firefox/91.0 Thunderbird/91.4.0
+Subject: Re: [PATCH v2 1/6] i2c: designware-pci: Use temporary variable for
+ struct device
 Content-Language: en-US
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     linux-i2c <linux-i2c@vger.kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <20211210182604.14288-1-fido_max@inbox.ru>
- <CAMRc=MdXmFxLKumVE632420O=TVwx9FyYqX1K-XK_r91jYzcpg@mail.gmail.com>
-From:   Maxim Kochetkov <fido_max@inbox.ru>
-In-Reply-To: <CAMRc=MdXmFxLKumVE632420O=TVwx9FyYqX1K-XK_r91jYzcpg@mail.gmail.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>
+References: <20211213180034.30929-1-andriy.shevchenko@linux.intel.com>
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+In-Reply-To: <20211213180034.30929-1-andriy.shevchenko@linux.intel.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-4EC0790: 10
-X-7564579A: B8F34718100C35BD
-X-77F55803: 4F1203BC0FB41BD9FFF274446F725B74F2BE858B52863E69B5EA3FEFA4FF93A2182A05F538085040FC55A8FF699977EDB0868B856CC993DF2F6B72600AE920D71524737528303E99
-X-7FA49CB5: FF5795518A3D127A4AD6D5ED66289B5278DA827A17800CE7AED985C8E545F588EA1F7E6F0F101C67BD4B6F7A4D31EC0BCC500DACC3FED6E28638F802B75D45FF8AA50765F79006375AC38C7EC4509C8B8638F802B75D45FF36EB9D2243A4F8B5A6FCA7DBDB1FC311F39EFFDF887939037866D6147AF826D8B09F1F99151D9328CD844D3B74AA98C26F9789CCF6C18C3F8528715B7D10C86878DA827A17800CE746CC513BB44FBA1D9FA2833FD35BB23D9E625A9149C048EE33AC447995A7AD18F04B652EEC242312D2E47CDBA5A96583BD4B6F7A4D31EC0BC014FD901B82EE079FA2833FD35BB23D27C277FBC8AE2E8BEC1C9C6CFAD2A0F5A471835C12D1D977C4224003CC8364762BB6847A3DEAEFB0F43C7A68FF6260569E8FC8737B5C2249EC8D19AE6D49635B68655334FD4449CB9ECD01F8117BC8BEAAAE862A0553A39223F8577A6DFFEA7CFA80D66F452D417A43847C11F186F3C59DAA53EE0834AAEE
-X-C1DE0DAB: 0D63561A33F958A5274EEB22F5C6BFEB420CFBA70F93AC1739DDF65CE623504CD59269BC5F550898D99A6476B3ADF6B47008B74DF8BB9EF7333BD3B22AA88B938A852937E12ACA75F0DFBB38B116E9C7410CA545F18667F91A7EA1CDA0B5A7A0
-X-C8649E89: 4E36BF7865823D7055A7F0CF078B5EC49A30900B95165D34AF12ADB97C97CD896B07285701A674B10D7C7BB32CF7077DD33154507DB07040A607BFCCFDCCDA211D7E09C32AA3244CFF26C8BF161E54A94370BC33E542A1C355E75C8D0ED9F6EE83B48618A63566E0
-X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu530nj6fImhcD4MUrOEAnl0W826KZ9Q+tr5ycPtXkTV4k65bRjmOUUP8cvGozZ33TWg5HZplvhhXbhDGzqmQDTd6OAevLeAnq3Ra9uf7zvY2zzsIhlcp/Y7m53TZgf2aB4JOg4gkr2biojqIoINCajonD6F3MBAlr/zw==
-X-Mailru-Sender: 689FA8AB762F7393C37E3C1AEC41BA5D556D71E5F7CB2DDBD57AD070CFDE22CE98CC072019C18A892CA7F8C7C9492E1F2F5E575105D0B01ADBE2EF17B331888EEAB4BC95F72C04283CDA0F3B3F5B9367
-X-Mras: Ok
-X-7564579A: 78E4E2B564C1792B
-X-77F55803: 6242723A09DB00B4C456381A22064F8E4D2CF43611C06B136AAF023CE55F9FB6049FFFDB7839CE9E6AE0A34E1E843E51D6706DDF13F3677EDD05BACAD6ABBAB8BF2F5A2C46A105E2
-X-7FA49CB5: 0D63561A33F958A5F8D332E61E978C9B07E367B96AD4953CE6369596922D47ABCACD7DF95DA8FC8BD5E8D9A59859A8B64071617579528AACCC7F00164DA146DAFE8445B8C89999728AA50765F79006376B023E84F73EF47C389733CBF5DBD5E9C8A9BA7A39EFB766F5D81C698A659EA7CC7F00164DA146DA9985D098DBDEAEC8093C2F12201C912AF6B57BC7E6449061A352F6E88A58FB86F5D81C698A659EA775ECD9A6C639B01B78DA827A17800CE71D0063F52110EA4A731C566533BA786AA5CC5B56E945C8DA
-X-C1DE0DAB: 0D63561A33F958A5F8D332E61E978C9B07E367B96AD4953CF8DD3ECFEDB37B94D59269BC5F550898D99A6476B3ADF6B4886A5961035A09600383DAD389E261318FB05168BE4CE3AF
-X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu530nj6fImhcD4MUrOEAnl0W826KZ9Q+tr5ycPtXkTV4k65bRjmOUUP8cvGozZ33TWg5HZplvhhXbhDGzqmQDTd6OAevLeAnq3Ra9uf7zvY2zzsIhlcp/Y7m53TZgf2aB4JOg4gkr2biojqIoINCajonAKhITXgVT2YQ==
-X-Mailru-MI: 800
-X-Mras: Ok
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-
-
-On 13.12.2021 16:40, Bartosz Golaszewski wrote:
-> On Fri, Dec 10, 2021 at 7:26 PM Maxim Kochetkov <fido_max@inbox.ru> wrote:
->>
->> Add Microchip EEPROM 24xx1025 support.
->>
->> v3: add dt-bindings
->> v2: rebased on git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git/at24/for-next
->>
->> Maxim Kochetkov (2):
->>    eeprom: at24: Add support for 24c1025 EEPROM
->>    dt-bindings: at24: add at24c1025
->>
->>   .../devicetree/bindings/eeprom/at24.yaml          |  4 ++++
->>   drivers/misc/eeprom/at24.c                        | 15 ++++++++++++++-
->>   2 files changed, 18 insertions(+), 1 deletion(-)
->>
->> --
->> 2.32.0
->>
+On 12/13/21 20:00, Andy Shevchenko wrote:
+> Use temporary variable for struct device to make code neater.
 > 
-> Series queued for v5.17.
-
-Great!
-https://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git/log/drivers/misc/eeprom?h=at24/for-next
-
-was merged into next:
-https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/drivers/misc/eeprom?id=eb67a13c80a75ebd73f70538fc2e7f6f09ef778a
-
-But without 24c1025 commits
-
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+> v2: dropped dev --> i_dev renaming (Jarkko)
+>   drivers/i2c/busses/i2c-designware-pcidrv.c | 52 +++++++++++-----------
+>   1 file changed, 26 insertions(+), 26 deletions(-)
 > 
-> Bart
+> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> index 0f409a4c2da0..5f76010f7dfd 100644
+> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> @@ -207,23 +207,23 @@ static struct dw_pci_controller dw_pci_controllers[] = {
+>   };
+>   
+>   #ifdef CONFIG_PM
+> -static int i2c_dw_pci_suspend(struct device *dev)
+> +static int i2c_dw_pci_suspend(struct device *d)
+>   {
+> -	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
+> +	struct dw_i2c_dev *dev = dev_get_drvdata(d);
+>   >   
+> -	dev = devm_kzalloc(&pdev->dev, sizeof(struct dw_i2c_dev), GFP_KERNEL);
+> +	dev = devm_kzalloc(d, sizeof(*dev), GFP_KERNEL);
+Ditto.
+
+> -	i_dev->suspended = true;
+> -	i_dev->disable(i_dev);
+> +	dev->suspended = true;
+> +	dev->disable(dev);
+>   
+In my opinion this brings more mess than removes. If I see 
+dev->something I'll immediatelly think "struct device" and get confused. 
+x_dev->something or dev_y->something not so much. And this change adds 
+in my opinion more confusion than removes.
+
+>   	if (id->driver_data >= ARRAY_SIZE(dw_pci_controllers)) {
+> -		dev_err(&pdev->dev, "%s: invalid driver data %ld\n", __func__,
+> -			id->driver_data);
+> +		dev_err(d, "%s: invalid driver data %ld\n", __func__, id->driver_data);
+>   		return -EINVAL;
+
+Honestly, what's is the value of this change? Yet another differently 
+named "device" pointer more to the mess (Inconsistent naming use of 
+struct dw_i2c_dev *dev, struct dw_i2c_dev *i_dev and struct device *dev 
+in the i2c-designware-*).
+
+Jarkko
