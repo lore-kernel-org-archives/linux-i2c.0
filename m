@@ -2,101 +2,130 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22371C433F5
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Dec 2021 18:49:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B827BC433F5
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Dec 2021 20:19:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240728AbhLPStj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Dec 2021 13:49:39 -0500
-Received: from inva021.nxp.com ([92.121.34.21]:53550 "EHLO inva021.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236543AbhLPSt2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 16 Dec 2021 13:49:28 -0500
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 57A24201A98;
-        Thu, 16 Dec 2021 19:49:27 +0100 (CET)
-Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 4B0252013DE;
-        Thu, 16 Dec 2021 19:49:27 +0100 (CET)
-Received: from fsr-ub1664-175.ea.freescale.net (fsr-ub1664-175.ea.freescale.net [10.171.82.40])
-        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id C7C95202AD;
-        Thu, 16 Dec 2021 19:49:25 +0100 (CET)
-From:   Abel Vesa <abel.vesa@nxp.com>
-To:     Rob Herring <robh@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
+        id S241219AbhLPUTe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Dec 2021 15:19:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42636 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241282AbhLPUTd (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Dec 2021 15:19:33 -0500
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FDAEC06173E;
+        Thu, 16 Dec 2021 12:19:33 -0800 (PST)
+Received: by mail-ed1-x52e.google.com with SMTP id e3so92239270edu.4;
+        Thu, 16 Dec 2021 12:19:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=72vtUg8lpD9RmmoMvh+ZH1I3XqbPfTU1qYPquUy7V7s=;
+        b=gUE44e4FrDWAyGq5iIqAX6DcfeBlUxL6cVhanO8XzP04xxyEYbZF4PPGzTeq9jktDD
+         2jb4gf3O1Lalx6Knx1ZVKQ7wbYHjJ49OtfTLmaieQIngKmtmAAC7srcaeaPHz8d2IxUS
+         QgVP8MwVwfQ5Xi8lz3cDbQp4CDFFAQ5bzwihbOkJICofkOAuoD3+5jzH6Ng37g4isotN
+         0fxSiyygj2dLsJZx8y238rNVVJz3wswQp5KMqt0MTQshXYPWBVw9e7rkVarCE8WNCpoG
+         z3BbW2BCWap6vmNI1VV64fdWytHivFOcW2JaSmV3vDM8ru9TjpPOUAPvxFP6/RRyOJFh
+         GzyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=72vtUg8lpD9RmmoMvh+ZH1I3XqbPfTU1qYPquUy7V7s=;
+        b=TmLVZloqtDPe5vaMP7fOQi4LgT5JUXhgLM60VRADFVDNC0JKDf6uPczYxUzl8jilZA
+         4D6+qcPQy+hmSMSZhYX/SeuYuDF5Fz6ko41J9oBrWVJtMzk9jMsxP035xTgGZdXnGRU6
+         orgb637FQkILRSnX04hcwCORlpLqXD7qrveY4LM/ze2hUW3J4QCxRLIkhPf7HhYZK7N7
+         GwrAaZfBvn93Px2p6QHxmjBIspZ768/Vo10F7rv0GzMcJlRBpfrdWlymsnNsYw63Wvv7
+         1vsc5ZCh4J8nKaK0ZrVchdMbmcilmlIhCbnjRy148xvBJ3O38zx310YKWbMLzqj2/Gcx
+         H4vA==
+X-Gm-Message-State: AOAM533aP6DyYZH0h1N7CIVx6+x3l9z1VGgYDRzmWWODvX76WsR/Y+4M
+        HLaojNPwKmbjbZKQnsI6aKNQR0L7ULTGP7Vn6TbfAiI6VaaTTzX98c4=
+X-Google-Smtp-Source: ABdhPJzle6kPZJq6DVHDycIk891CMZBBF39xWduDs+8JvG3epYSRRZ/PQ2+wkVGsp6ZOvLoElqu94t5I+gFeaZ9FmX4=
+X-Received: by 2002:a17:906:30da:: with SMTP id b26mr17533409ejb.497.1639685971950;
+ Thu, 16 Dec 2021 12:19:31 -0800 (PST)
+MIME-Version: 1.0
+References: <1639660402-31207-1-git-send-email-akhilrajeev@nvidia.com>
+ <1639660402-31207-3-git-send-email-akhilrajeev@nvidia.com>
+ <CAHp75VcvrM0qLQE-04UZEkxbAvkE-MNSN7RGC7mPxj+1hoUyTw@mail.gmail.com> <BN9PR12MB52732B801C0D15BBBA71B8DDC0779@BN9PR12MB5273.namprd12.prod.outlook.com>
+In-Reply-To: <BN9PR12MB52732B801C0D15BBBA71B8DDC0779@BN9PR12MB5273.namprd12.prod.outlook.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Thu, 16 Dec 2021 22:18:54 +0200
+Message-ID: <CAHp75VfQpgWhKXM=1oRg8d_ntZvxkSArQv=6eaq7tyU6-KvJjg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] i2c: smbus: Use device_ functions instead of of_
+To:     Akhil R <akhilrajeev@nvidia.com>
+Cc:     Wolfram Sang <wsa@kernel.org>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Christian Koenig <christian.koenig@amd.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Fabio Estevam <festevam@gmail.com>
-Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
-        linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org,
-        NXP Linux Team <linux-imx@nxp.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        Abel Vesa <abel.vesa@nxp.com>, Jacky Bai <ping.bai@nxp.com>
-Subject: [RESEND v4 06/10] arm64: dts: freescale: Add ddr subsys dtsi for imx8dxl
-Date:   Thu, 16 Dec 2021 20:48:10 +0200
-Message-Id: <1639680494-23183-7-git-send-email-abel.vesa@nxp.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1639680494-23183-1-git-send-email-abel.vesa@nxp.com>
-References: <1639680494-23183-1-git-send-email-abel.vesa@nxp.com>
-X-Virus-Scanned: ClamAV using ClamSMTP
+        linux-tegra <linux-tegra@vger.kernel.org>,
+        Krishna Yarlagadda <kyarlagadda@nvidia.com>,
+        Suresh Mangipudi <smangipudi@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Jacky Bai <ping.bai@nxp.com>
+On Thu, Dec 16, 2021 at 6:08 PM Akhil R <akhilrajeev@nvidia.com> wrote:
+> > On Thu, Dec 16, 2021 at 3:14 PM Akhil R <akhilrajeev@nvidia.com> wrote:
 
-Add the ddr subsys dtsi for i.MX8DXL. Additional db pmu is added
-compared to i.MX8QXP.
+...
 
-Signed-off-by: Jacky Bai <ping.bai@nxp.com>
-Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
----
- .../boot/dts/freescale/imx8dxl-ss-ddr.dtsi    | 36 +++++++++++++++++++
- 1 file changed, 36 insertions(+)
- create mode 100644 arch/arm64/boot/dts/freescale/imx8dxl-ss-ddr.dtsi
+> > > -       irq = of_property_match_string(adapter->dev.of_node, "interrupt-
+> > names",
+> > > -                                      "smbus_alert");
+> > > +       irq = device_property_match_string(adapter->dev.parent, "interrupt-
+> > names",
+> > > +                                          "smbus_alert");
+> >
+> > Hmm... Adapter device node is not the same as the node for its parent.
+> > Do you have some code that propagates of_node from parent to child?
+> Adapter device does not have an of_node unless the adapter driver
+> sets it, I guess. I see all the adapter drivers add the of_node and
+> parent for adapter. Also, there are many places in i2c-core-base and
+> i2c-core-acpi where adapter->dev.parent is referred to as the adapter
+> driver device.
+>
+> Basically, adapter->dev.parent and adapter->dev.of_node would
+> ultimately refer to the same device (or the of_node of that device),
+> as far as I understand.
+> >
+> > I.o.w. I would expect to see
+> >
+> >        irq = device_property_match_string(&adapter->dev, "interrupt-names",
+> >
+> > here.
+> It would then require adding the fw_node as well from the adapter driver.
+> I felt it made more sense to refer adapter->dev.parent here as most of the
+> (or rather all of the) adapter drivers already sets it.
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8dxl-ss-ddr.dtsi b/arch/arm64/boot/dts/freescale/imx8dxl-ss-ddr.dtsi
-new file mode 100644
-index 000000000000..75b482966d94
---- /dev/null
-+++ b/arch/arm64/boot/dts/freescale/imx8dxl-ss-ddr.dtsi
-@@ -0,0 +1,36 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * Copyright 2021 NXP
-+ */
-+
-+&ddr_subsys {
-+	db_ipg_clk: clock-db-ipg {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <456000000>;
-+		clock-output-names = "db_ipg_clk";
-+	};
-+
-+	db_pmu0: db-pmu@5ca40000 {
-+		compatible = "fsl,imx8dxl-db-pmu";
-+		reg = <0x5ca40000 0x10000>;
-+		interrupt-parent = <&gic>;
-+		interrupts = <GIC_SPI 338 IRQ_TYPE_LEVEL_HIGH>;
-+		clocks = <&db_pmu0_lpcg IMX_LPCG_CLK_0>,
-+			 <&db_pmu0_lpcg IMX_LPCG_CLK_1>;
-+		clock-names = "ipg", "cnt";
-+		power-domains = <&pd IMX_SC_R_PERF>;
-+	};
-+
-+	db_pmu0_lpcg: clock-controller@5cae0000 {
-+		compatible = "fsl,imx8qxp-lpcg";
-+		reg = <0x5cae0000 0x10000>;
-+		#clock-cells = <1>;
-+		clocks = <&db_ipg_clk>, <&db_ipg_clk>;
-+		clock-indices = <IMX_LPCG_CLK_0>,
-+				<IMX_LPCG_CLK_1>;
-+		clock-output-names = "perf_lpcg_cnt_clk",
-+				     "perf_lpcg_ipg_clk";
-+		power-domains = <&pd IMX_SC_R_PERF>;
-+	};
-+};
+Is this
+https://elixir.bootlin.com/linux/latest/source/drivers/i2c/i2c-core-base.c#L1047
+what you are looking for?
+
+...
+
+> > >         if (irq == -EINVAL || irq == -ENODATA)
+> > >                 return 0;
+> > >         else if (irq < 0)
+> >
+> > TBH the entire code smells. "Interesting" way of getting an optional named
+> > interrupt.
+> I felt it useful to have it this way as it would remain agnostic to device tree and
+> the ACPI. We would not have to add redundant codes in adapter drivers that
+> are using ACPI table.
+>
+> Named interrupts for the ACPI as well, I feel would be a useful addition that can
+> prove to be of value more than this change; I believe.
+
+Me too. My comment was about current state of affairs, and not to your change.
+
 -- 
-2.31.1
-
+With Best Regards,
+Andy Shevchenko
