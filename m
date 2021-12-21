@@ -2,126 +2,120 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35D09C4321E
-	for <linux-i2c@archiver.kernel.org>; Tue, 21 Dec 2021 17:55:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6618C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue, 21 Dec 2021 18:07:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240761AbhLURzk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 21 Dec 2021 12:55:40 -0500
-Received: from mail-qk1-f171.google.com ([209.85.222.171]:34778 "EHLO
-        mail-qk1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240752AbhLURzj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Dec 2021 12:55:39 -0500
-Received: by mail-qk1-f171.google.com with SMTP id t6so13346038qkg.1;
-        Tue, 21 Dec 2021 09:55:39 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=4GSGA/qwtNXG0IPZ01RqeQiJyKL3VoAZk2c0sbKkobg=;
-        b=hlfjFvMtD79EiL/LGYq82Z1elOoAOubXKDaCJkEHPoftWwakQIsYns8HVhu/mnQPum
-         2k1ZiIHWFYJYRo1XuE7Ni9+1ToDmJbOMqtJ7gWazRPyS0o0OsE8mFT5ZBwB6WnAryTYt
-         0Aogzc2pbINGNJQavvaoc4eE1/WzLf4de6pG6YL8vIavMjiDgeRedqTlGlAu6zqlGrq0
-         SShn+4CUa0bAvoN/dCtNBwnxUdYSIqdBc1uEFiEuZISrUs/Py5e7HjRIDexdJxhEjwsm
-         cCDzeljhIj/Q8KnwpHOYIQeEhB1wFJx873LVBp1XCjR+mfph2ZMhX45IpiA4k23p3+Or
-         Q/Xg==
-X-Gm-Message-State: AOAM531pTbm2BROPCb0zP4FG6ljA96TPzvJtT390rerLdu1ti+w1gYAk
-        0xHaYFz1lF6FU/pEHWvjWQ==
-X-Google-Smtp-Source: ABdhPJz5vgBn1TjeZtoc2YYKvQ+HmcEPZTFsNL3qHHc8SbteC0W1UmfcNlqbGX3NnNYb5boB3sk4Pg==
-X-Received: by 2002:a05:620a:258e:: with SMTP id x14mr2824830qko.578.1640109338673;
-        Tue, 21 Dec 2021 09:55:38 -0800 (PST)
-Received: from robh.at.kernel.org ([24.55.105.145])
-        by smtp.gmail.com with ESMTPSA id bm35sm14659623qkb.86.2021.12.21.09.55.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Dec 2021 09:55:38 -0800 (PST)
-Received: (nullmailer pid 1495705 invoked by uid 1000);
-        Tue, 21 Dec 2021 17:55:33 -0000
-Date:   Tue, 21 Dec 2021 13:55:33 -0400
-From:   Rob Herring <robh@kernel.org>
-To:     conor.dooley@microchip.com
-Cc:     linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        jassisinghbrar@gmail.com, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, thierry.reding@gmail.com,
-        u.kleine-koenig@pengutronix.de, lee.jones@linaro.org,
-        linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
+        id S240863AbhLUSH2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 21 Dec 2021 13:07:28 -0500
+Received: from mga02.intel.com ([134.134.136.20]:28871 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236894AbhLUSH2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 21 Dec 2021 13:07:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1640110048; x=1671646048;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Nwz96mDAYB2gmKI8bVpsfwylETs2xaB50GhG3S0F5YA=;
+  b=TaHXYCwoyV9T7oVvznTMZJMN0s0cUTUv4393UyAxRV16ichWvO/QrNCW
+   Ub0LenJY06u+ld2oJAWRjyBY+BKjx5IYNo5uuhDu9AEZ8o7GzEF74m7N9
+   EqimZZ4qg5/rRlzbjWAqC/AdMgrQI4UIyuAm1Vlx73zDxnrXNDACkNKrc
+   DbldzHGo/ddL8U5tnzdUmRnVk8LO2/L8wmoVTS6zKceN82JvCbfffDoXP
+   IRUO1WqkBqGFKeUSg1wpNBa2xjredC+3d7JdH3yoP6Wll/Jd28KoPYtid
+   IGwvjMlxlyx2jbR20blELVYg/Gi4PjsqguU8KuxVRex+S0NJ0FWgtpbJp
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10205"; a="227751330"
+X-IronPort-AV: E=Sophos;i="5.88,224,1635231600"; 
+   d="scan'208";a="227751330"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Dec 2021 09:41:06 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,224,1635231600"; 
+   d="scan'208";a="521805190"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga007.fm.intel.com with ESMTP; 21 Dec 2021 09:41:01 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id B5A8F331; Tue, 21 Dec 2021 19:41:09 +0200 (EET)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Wolfram Sang <wsa@kernel.org>, Jean Delvare <jdelvare@suse.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Tan Jui Nee <jui.nee.tan@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Kate Hsuan <hpa@redhat.com>,
+        Jonathan Yong <jonathan.yong@intel.com>,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-crypto@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
-        krzysztof.kozlowski@canonical.com, geert@linux-m68k.org,
-        bin.meng@windriver.com, heiko@sntech.de, lewis.hanly@microchip.com,
-        daire.mcnamara@microchip.com, ivan.griffin@microchip.com,
-        atish.patra@wdc.com
-Subject: Re: [PATCH v2 03/17] dt-bindings: soc/microchip: make
- systemcontroller a mfd
-Message-ID: <YcIVFZSqt/JSuk3J@robh.at.kernel.org>
-References: <20211217093325.30612-1-conor.dooley@microchip.com>
- <20211217093325.30612-4-conor.dooley@microchip.com>
+        linux-pci@vger.kernel.org, linux-gpio@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Cc:     Jean Delvare <jdelvare@suse.com>, Peter Tyser <ptyser@xes-inc.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Gross <markgross@kernel.org>,
+        Henning Schild <henning.schild@siemens.com>
+Subject: [PATCH v2 4/8] pinctrl: intel: Check against matching data instead of ACPI companion
+Date:   Tue, 21 Dec 2021 19:39:41 +0200
+Message-Id: <20211221173945.53674-4-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211221173945.53674-1-andriy.shevchenko@linux.intel.com>
+References: <20211221173945.53674-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211217093325.30612-4-conor.dooley@microchip.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, Dec 17, 2021 at 09:33:11AM +0000, conor.dooley@microchip.com wrote:
-> From: Conor Dooley <conor.dooley@microchip.com>
-> 
-> Make the system controller on the Polarfire SoC
-> a "simple,mfd" so that the services can be child
-> nodes of the system controller node.
-> 
-> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-> ---
->  .../microchip,mpfs-sys-controller.yaml        | 33 +++++++++++++++++--
->  1 file changed, 30 insertions(+), 3 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml b/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-> index f699772fedf3..014cb44b8f31 100644
-> --- a/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-> +++ b/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-> @@ -13,13 +13,34 @@ description: |
->    The PolarFire SoC system controller is communicated with via a mailbox.
->    This document describes the bindings for the client portion of that mailbox.
->  
-> -
->  properties:
->    mboxes:
->      maxItems: 1
->  
->    compatible:
-> -    const: microchip,mpfs-sys-controller
-> +    items:
-> +      - const: microchip,mpfs-sys-controller
-> +      - const: simple-mfd
+In some cases we may get a platform device that has ACPI companion
+which is different to the pin control described in the ACPI tables.
+This is primarily happens when device is instantiated by board file.
 
-'simple-mfd' means there is zero dependency on the parent for the child 
-nodes. Isn't 'mboxes' a dependency?
+In order to allow this device being enumerated, refactor
+intel_pinctrl_get_soc_data() to check the matching data instead of
+ACPI companion.
 
-> +
-> +  hwrandom:
-> +    type: object
-> +
-> +    properties:
-> +      compatible:
-> +        const: microchip,mpfs-rng
-> +
-> +    required:
-> +      - compatible
-> +
-> +  sysserv:
-> +    type: object
-> +
-> +    properties:
-> +      compatible:
-> +        const: microchip,mpfs-generic-service
-> +
-> +    required:
-> +      - compatible
+Reported-by: Henning Schild <henning.schild@siemens.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/pinctrl/intel/pinctrl-intel.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-There's not really any need to have child nodes which have no resources. 
-The driver for microchip,mpfs-sys-controller can create child devices.
+diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
+index 85750974d182..7d8a7e7b0aef 100644
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -1598,16 +1598,14 @@ EXPORT_SYMBOL_GPL(intel_pinctrl_probe_by_uid);
+ 
+ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_device *pdev)
+ {
++	const struct intel_pinctrl_soc_data * const *table;
+ 	const struct intel_pinctrl_soc_data *data = NULL;
+-	const struct intel_pinctrl_soc_data **table;
+-	struct acpi_device *adev;
+-	unsigned int i;
+ 
+-	adev = ACPI_COMPANION(&pdev->dev);
+-	if (adev) {
+-		const void *match = device_get_match_data(&pdev->dev);
++	table = device_get_match_data(&pdev->dev);
++	if (table) {
++		struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
++		unsigned int i;
+ 
+-		table = (const struct intel_pinctrl_soc_data **)match;
+ 		for (i = 0; table[i]; i++) {
+ 			if (!strcmp(adev->pnp.unique_id, table[i]->uid)) {
+ 				data = table[i];
+@@ -1621,7 +1619,7 @@ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_
+ 		if (!id)
+ 			return ERR_PTR(-ENODEV);
+ 
+-		table = (const struct intel_pinctrl_soc_data **)id->driver_data;
++		table = (const struct intel_pinctrl_soc_data * const *)id->driver_data;
+ 		data = table[pdev->id];
+ 	}
+ 
+-- 
+2.34.1
 
-Rob
