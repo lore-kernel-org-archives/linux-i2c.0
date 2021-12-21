@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3167C4167D
-	for <linux-i2c@archiver.kernel.org>; Tue, 21 Dec 2021 18:19:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94281C4332F
+	for <linux-i2c@archiver.kernel.org>; Tue, 21 Dec 2021 18:20:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241183AbhLUSTQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 21 Dec 2021 13:19:16 -0500
-Received: from mga01.intel.com ([192.55.52.88]:5878 "EHLO mga01.intel.com"
+        id S241220AbhLUSUU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 21 Dec 2021 13:20:20 -0500
+Received: from mga09.intel.com ([134.134.136.24]:10988 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241055AbhLUSTO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 21 Dec 2021 13:19:14 -0500
+        id S232361AbhLUSUU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 21 Dec 2021 13:20:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1640110754; x=1671646754;
+  t=1640110820; x=1671646820;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Nwz96mDAYB2gmKI8bVpsfwylETs2xaB50GhG3S0F5YA=;
-  b=cxykWUj6eBA0TSfZJYj/iGTMLpIc75/baFTZbEKELgByYZgOxCtyOG2c
-   ui5yqqqF3jLp0IjZLumF+dLR8VisNf0fE8JiOfv6itr+As7FrgMzf6uX9
-   ZTb9eWO7z4MYpkQm3y7Sfw3UgMktqEok+EmUDur3zkMqQ3mnJhgJnbKt7
-   0kt3i4dZs6p8h67bApN4oBbDodSIEwoS648sLDig+naIo5EyFRTjEJgDv
-   RdAK8A2SgSmZcdNSSDov87lXmDFiYFNwGkcgCUFBMGj9Y6oB7O2oZKluo
-   UeH6vkw3xSw/3aDAuH+Efg3HBvy3XCBa6/9E3obNoqTVABjaWub7jwd/g
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10205"; a="264655633"
+  bh=4k4x29Qb+0v8l+0y3SmwpANCykxqEpDNAkQhk4vCpjE=;
+  b=RlOUG/kZFpqBkPcTllYNGKXJ9TZG8//+iRWw4Z8/iWubRpwzg9cjIcSI
+   Exfqefgylm+ldP8HwV5J1wihr1p0Xnjqj9jAJ53W9EAvUdQv/yxZLeY2f
+   aSdbxwLeY3LrrhXxNuYH3KpEcepOxvcxTeYb5Rt4rvzyaJ+2kk4zt+O7x
+   deH2d7wAW1RH7HYiWX+Koxq+PFppP7nyi3Ou/FTY+eo7kzKR1IfJbCRra
+   wR3PQrTGCV5/x/C1fP+I3zeRpdNQ8tYWwfSeONrCeJ+LyQcvha17qHesO
+   60VGE4r1BCMF9Pa2MPmeFnv0rQHeWAmbmOmkgBChA+gGlalgXB6UslmhM
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10205"; a="240270381"
 X-IronPort-AV: E=Sophos;i="5.88,224,1635231600"; 
-   d="scan'208";a="264655633"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Dec 2021 10:15:37 -0800
+   d="scan'208";a="240270381"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Dec 2021 10:15:37 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.88,224,1635231600"; 
-   d="scan'208";a="586780229"
+   d="scan'208";a="607153233"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga004.fm.intel.com with ESMTP; 21 Dec 2021 10:15:31 -0800
+  by FMSMGA003.fm.intel.com with ESMTP; 21 Dec 2021 10:15:31 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 13AA836F; Tue, 21 Dec 2021 20:15:40 +0200 (EET)
+        id DEBC6144; Tue, 21 Dec 2021 20:15:39 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Wolfram Sang <wsa@kernel.org>, Jean Delvare <jdelvare@suse.de>,
         Heiner Kallweit <hkallweit1@gmail.com>,
@@ -55,9 +55,9 @@ Cc:     Jean Delvare <jdelvare@suse.com>, Peter Tyser <ptyser@xes-inc.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Mark Gross <markgross@kernel.org>,
         Henning Schild <henning.schild@siemens.com>
-Subject: [PATCH v3 4/8] pinctrl: intel: Check against matching data instead of ACPI companion
-Date:   Tue, 21 Dec 2021 20:15:22 +0200
-Message-Id: <20211221181526.53798-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 1/8] PCI: Introduce pci_bus_*() printing macros when device is not available
+Date:   Tue, 21 Dec 2021 20:15:19 +0200
+Message-Id: <20211221181526.53798-2-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211221181526.53798-1-andriy.shevchenko@linux.intel.com>
 References: <20211221181526.53798-1-andriy.shevchenko@linux.intel.com>
@@ -67,55 +67,68 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-In some cases we may get a platform device that has ACPI companion
-which is different to the pin control described in the ACPI tables.
-This is primarily happens when device is instantiated by board file.
+In some cases PCI device structure is not available and we want to print
+information based on the bus and devfn parameters. For this cases introduce
+pci_bus_*() printing macros and replace in existing users.
 
-In order to allow this device being enumerated, refactor
-intel_pinctrl_get_soc_data() to check the matching data instead of
-ACPI companion.
-
-Reported-by: Henning Schild <henning.schild@siemens.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/pci/probe.c | 12 +++---------
+ include/linux/pci.h |  8 ++++++++
+ 2 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index 85750974d182..7d8a7e7b0aef 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -1598,16 +1598,14 @@ EXPORT_SYMBOL_GPL(intel_pinctrl_probe_by_uid);
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 78962652f5bf..82014b248f4d 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -2333,16 +2333,12 @@ static bool pci_bus_wait_crs(struct pci_bus *bus, int devfn, u32 *l,
+ 	 */
+ 	while (pci_bus_crs_vendor_id(*l)) {
+ 		if (delay > timeout) {
+-			pr_warn("pci %04x:%02x:%02x.%d: not ready after %dms; giving up\n",
+-				pci_domain_nr(bus), bus->number,
+-				PCI_SLOT(devfn), PCI_FUNC(devfn), delay - 1);
++			pci_bus_warn(bus, devfn, "not ready after %dms; giving up\n", delay - 1);
  
- const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_device *pdev)
- {
-+	const struct intel_pinctrl_soc_data * const *table;
- 	const struct intel_pinctrl_soc_data *data = NULL;
--	const struct intel_pinctrl_soc_data **table;
--	struct acpi_device *adev;
--	unsigned int i;
+ 			return false;
+ 		}
+ 		if (delay >= 1000)
+-			pr_info("pci %04x:%02x:%02x.%d: not ready after %dms; waiting\n",
+-				pci_domain_nr(bus), bus->number,
+-				PCI_SLOT(devfn), PCI_FUNC(devfn), delay - 1);
++			pci_bus_info(bus, devfn, "not ready after %dms; waiting\n", delay - 1);
  
--	adev = ACPI_COMPANION(&pdev->dev);
--	if (adev) {
--		const void *match = device_get_match_data(&pdev->dev);
-+	table = device_get_match_data(&pdev->dev);
-+	if (table) {
-+		struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
-+		unsigned int i;
- 
--		table = (const struct intel_pinctrl_soc_data **)match;
- 		for (i = 0; table[i]; i++) {
- 			if (!strcmp(adev->pnp.unique_id, table[i]->uid)) {
- 				data = table[i];
-@@ -1621,7 +1619,7 @@ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_
- 		if (!id)
- 			return ERR_PTR(-ENODEV);
- 
--		table = (const struct intel_pinctrl_soc_data **)id->driver_data;
-+		table = (const struct intel_pinctrl_soc_data * const *)id->driver_data;
- 		data = table[pdev->id];
+ 		msleep(delay);
+ 		delay *= 2;
+@@ -2352,9 +2348,7 @@ static bool pci_bus_wait_crs(struct pci_bus *bus, int devfn, u32 *l,
  	}
  
+ 	if (delay >= 1000)
+-		pr_info("pci %04x:%02x:%02x.%d: ready after %dms\n",
+-			pci_domain_nr(bus), bus->number,
+-			PCI_SLOT(devfn), PCI_FUNC(devfn), delay - 1);
++		pci_bus_info(bus, devfn, "ready after %dms\n", delay - 1);
+ 
+ 	return true;
+ }
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index d4308f847e58..e3c9edd103df 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -2484,4 +2484,12 @@ void pci_uevent_ers(struct pci_dev *pdev, enum  pci_ers_result err_type);
+ 	WARN_ONCE(condition, "%s %s: " fmt, \
+ 		  dev_driver_string(&(pdev)->dev), pci_name(pdev), ##arg)
+ 
++#define pci_bus_printk(level, bus, devfn, fmt, arg...) \
++	printk(level "pci %04x:%02x:%02x.%d: " fmt, \
++	       pci_domain_nr(bus), (bus)->number, PCI_SLOT(devfn), PCI_FUNC(devfn), ##arg)
++
++#define pci_bus_err(bus, devfn, fmt, arg...)	pci_bus_printk(KERN_ERR, (bus), devfn, fmt, ##arg)
++#define pci_bus_warn(bus, devfn, fmt, arg...)	pci_bus_printk(KERN_WARNING, (bus), devfn, fmt, ##arg)
++#define pci_bus_info(bus, devfn, fmt, arg...)	pci_bus_printk(KERN_INFO, (bus), devfn, fmt, ##arg)
++
+ #endif /* LINUX_PCI_H */
 -- 
 2.34.1
 
