@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 966BBC433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA8E2C433EF
 	for <linux-i2c@archiver.kernel.org>; Wed, 22 Dec 2021 16:20:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241697AbhLVQUi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S241720AbhLVQUi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Wed, 22 Dec 2021 11:20:38 -0500
-Received: from mga01.intel.com ([192.55.52.88]:40847 "EHLO mga01.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:11186 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241647AbhLVQUi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S241685AbhLVQUi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Wed, 22 Dec 2021 11:20:38 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1640190038; x=1671726038;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=MXvEvTDY3wXxjdpwc1zjX86H1PjRuybykzxgW93brTo=;
-  b=NMULG771sR7YFcw+FgIw5/s4CRNqtCiYBTTX8JeqloIvsK7KHkIeNPb4
-   XgluAU7BocsO+Nw1x81et5W7rTD4aa4QYWrGKC6hdL/vOnNORF7+4cGqP
-   86ZtJ7Ze9iIHY5qU/s5cEw02ATnSdNZ+EJyGUGVNcCEO9DiFoDpPVfweu
-   AOR3ZnPMMHhgdx/VEtoc31Vfuvw4HHJjsp/Rgcsy416hT0IuTB5/QrQ9p
-   iQUSR0boLNQkmZVpnYkHPoxCFpzIWy3jog8BpEhnv8+jNbQurPdpuEICO
-   E1qO8BFmvqxUUsIOg8UhLk03GFQ4/vJmhAQm4KG/YF68LIj/KO8nGwkTs
+  bh=bSrE3n9guR4oArlJQzkkvu5lthRmqYSrXzrJ2E3dEp4=;
+  b=exeiI6MkTriHkiFrO79Sm/G/O6fuhVDVi5+jS2Kh/ruvivOJ0BNzT7vg
+   LQmlW4V1T+lN4+bWR5G3NutQD3psyAzHL95JFzehzX1I8njsPjyqBLmVq
+   WW/rINK9ZLyoeA4xpgniI3+3acCwMvk+XEK6uv6THYsvvWUlZNZE8le1s
+   B1pXsDiRl335ANM0BtzpM0EtYSx1m3cO6k1x/PGqrYIZyoZFKP2h5i+5K
+   uSpUbxhEVE2wgIiHyaJkClixgBeaJWqTc93oxiOB3/WkE5vysIaWeVfji
+   CqrgYZr0rDt16dbDa5SVwhOVmRI+jKOPDuRMNhr80hUvzdp6UIzHr2uOI
    w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10206"; a="264852528"
+X-IronPort-AV: E=McAfee;i="6200,9189,10206"; a="240458813"
 X-IronPort-AV: E=Sophos;i="5.88,227,1635231600"; 
-   d="scan'208";a="264852528"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2021 08:20:37 -0800
+   d="scan'208";a="240458813"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2021 08:20:38 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.88,227,1635231600"; 
-   d="scan'208";a="607457623"
+   d="scan'208";a="587058497"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by FMSMGA003.fm.intel.com with ESMTP; 22 Dec 2021 08:20:35 -0800
+  by fmsmga004.fm.intel.com with ESMTP; 22 Dec 2021 08:20:35 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 3A95137D; Wed, 22 Dec 2021 18:20:44 +0200 (EET)
+        id 143D881; Wed, 22 Dec 2021 18:20:44 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Wolfram Sang <wsa@kernel.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -44,9 +44,9 @@ Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
         Ajay Gupta <ajayg@nvidia.com>,
         "Shah, Nehal-bakulchandra" <nehal-bakulchandra.shah@amd.com>
-Subject: [PATCH v2 5/5] i2c: designware-pci: Switch to use i2c_new_ccgx_ucsi()
-Date:   Wed, 22 Dec 2021 18:20:41 +0200
-Message-Id: <20211222162041.64625-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 2/5] i2c: nvidia-gpu: Switch to use i2c_new_ccgx_ucsi()
+Date:   Wed, 22 Dec 2021 18:20:38 +0200
+Message-Id: <20211222162041.64625-2-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211222162041.64625-1-andriy.shevchenko@linux.intel.com>
 References: <20211222162041.64625-1-andriy.shevchenko@linux.intel.com>
@@ -62,77 +62,73 @@ Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
 v2: rebased on top of current i2c/for-next
 
- drivers/i2c/busses/Kconfig                 |  1 +
- drivers/i2c/busses/i2c-designware-pcidrv.c | 30 ++++------------------
- 2 files changed, 6 insertions(+), 25 deletions(-)
+ drivers/i2c/busses/Kconfig          |  1 +
+ drivers/i2c/busses/i2c-nvidia-gpu.c | 26 ++++++--------------------
+ 2 files changed, 7 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 0c9b089d1456..e2e8ae7ed2a7 100644
+index 08e24e396e37..0c9b089d1456 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -578,6 +578,7 @@ config I2C_DESIGNWARE_PCI
- 	tristate "Synopsys DesignWare PCI"
+@@ -252,6 +252,7 @@ config I2C_NFORCE2_S4985
+ config I2C_NVIDIA_GPU
+ 	tristate "NVIDIA GPU I2C controller"
  	depends on PCI
- 	select I2C_DESIGNWARE_CORE
 +	select I2C_CCGX_UCSI
  	help
  	  If you say yes to this option, support will be included for the
- 	  Synopsys DesignWare I2C adapter. Only master mode is supported.
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index ef4250f8852b..2782dddfb087 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -24,6 +24,7 @@
- #include <linux/slab.h>
+ 	  NVIDIA GPU I2C controller which is used to communicate with the GPU's
+diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c b/drivers/i2c/busses/i2c-nvidia-gpu.c
+index b5055a3cbd93..8117c3674209 100644
+--- a/drivers/i2c/busses/i2c-nvidia-gpu.c
++++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
+@@ -17,6 +17,8 @@
  
- #include "i2c-designware-core.h"
+ #include <asm/unaligned.h>
+ 
 +#include "i2c-ccgx-ucsi.h"
++
+ /* I2C definitions */
+ #define I2C_MST_CNTL				0x00
+ #define I2C_MST_CNTL_GEN_START			BIT(0)
+@@ -266,23 +268,6 @@ static const struct software_node ccgx_node = {
+ 	.properties = ccgx_props,
+ };
  
- #define DRIVER_NAME "i2c-designware-pci"
- #define AMD_CLK_RATE_HZ	100000
-@@ -125,26 +126,6 @@ static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
- 	return -ENODEV;
- }
- 
-- /*
--  * TODO find a better way how to deduplicate instantiation
--  * of USB PD slave device from nVidia GPU driver.
--  */
--static int navi_amd_register_client(struct dw_i2c_dev *dev)
+-static int gpu_populate_client(struct gpu_i2c_dev *i2cd, int irq)
 -{
--	struct i2c_board_info	info;
+-	i2cd->gpu_ccgx_ucsi = devm_kzalloc(i2cd->dev,
+-					   sizeof(*i2cd->gpu_ccgx_ucsi),
+-					   GFP_KERNEL);
+-	if (!i2cd->gpu_ccgx_ucsi)
+-		return -ENOMEM;
 -
--	memset(&info, 0, sizeof(struct i2c_board_info));
--	strscpy(info.type, "ccgx-ucsi", I2C_NAME_SIZE);
--	info.addr = 0x08;
--	info.irq = dev->irq;
--
--	dev->slave = i2c_new_client_device(&dev->adapter, &info);
--	if (IS_ERR(dev->slave))
--		return PTR_ERR(dev->slave);
--
--	return 0;
+-	strlcpy(i2cd->gpu_ccgx_ucsi->type, "ccgx-ucsi",
+-		sizeof(i2cd->gpu_ccgx_ucsi->type));
+-	i2cd->gpu_ccgx_ucsi->addr = 0x8;
+-	i2cd->gpu_ccgx_ucsi->irq = irq;
+-	i2cd->gpu_ccgx_ucsi->swnode = &ccgx_node;
+-	i2cd->ccgx_client = i2c_new_client_device(&i2cd->adapter, i2cd->gpu_ccgx_ucsi);
+-	return PTR_ERR_OR_ZERO(i2cd->ccgx_client);
 -}
 -
- static int navi_amd_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
+ static int gpu_i2c_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  {
- 	struct dw_i2c_dev *dev = dev_get_drvdata(&pdev->dev);
-@@ -325,11 +306,10 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 	struct gpu_i2c_dev *i2cd;
+@@ -328,9 +313,10 @@ static int gpu_i2c_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (status < 0)
+ 		goto free_irq_vectors;
+ 
+-	status = gpu_populate_client(i2cd, pdev->irq);
+-	if (status < 0) {
+-		dev_err(&pdev->dev, "gpu_populate_client failed %d\n", status);
++	i2cd->ccgx_client = i2c_new_ccgx_ucsi(&i2cd->adapter, pdev->irq, &ccgx_node);
++	if (IS_ERR(i2cd->ccgx_client)) {
++		status = dev_err_probe(&pdev->dev, PTR_ERR(i2cd->ccgx_client),
++				       "register UCSI failed\n");
+ 		goto del_adapter;
  	}
  
- 	if ((dev->flags & MODEL_MASK) == MODEL_AMD_NAVI_GPU) {
--		r = navi_amd_register_client(dev);
--		if (r) {
--			dev_err(dev->dev, "register client failed with %d\n", r);
--			return r;
--		}
-+		dev->slave = i2c_new_ccgx_ucsi(&dev->adapter, dev->irq, NULL);
-+		if (IS_ERR(dev->slave))
-+			return dev_err_probe(dev->dev, PTR_ERR(dev->slave),
-+					     "register UCSI failed\n");
- 	}
- 
- 	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
 -- 
 2.34.1
 
