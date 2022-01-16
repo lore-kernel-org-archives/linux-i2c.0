@@ -2,125 +2,178 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCAE5C43219
-	for <linux-i2c@archiver.kernel.org>; Sun, 16 Jan 2022 14:19:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F97BC433FE
+	for <linux-i2c@archiver.kernel.org>; Sun, 16 Jan 2022 16:02:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232943AbiAPOTN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 16 Jan 2022 09:19:13 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:50044 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229785AbiAPOTM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 16 Jan 2022 09:19:12 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31DF260F2E;
-        Sun, 16 Jan 2022 14:19:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D360C36AE7;
-        Sun, 16 Jan 2022 14:19:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642342750;
-        bh=KujYZ44NbqHewC3hStYnBx16eqgxm1SsBiD7vgCzy1A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sKsNPdg/t/aehm0kbBx0+iaMt7Vs15thP7mY+lgsvv2wpHp7hhFp/CL3s/+VFunx8
-         VMGsJpG9T+206AG5qxqWiAVL+YwMP+lMdgO6G29sYG5yQOnXi5Wp9YcaTPGre6QZaH
-         1Q5W85dO5PtMcGij5VwJ57avVdKo6t7UZumaWiEk=
-Date:   Sun, 16 Jan 2022 15:19:06 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     Sergey Shtylyov <s.shtylyov@omp.ru>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>, linux-iio@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>, alsa-devel@alsa-project.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        linux-phy@lists.infradead.org,
-        Thierry Reding <thierry.reding@gmail.com>,
-        linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org,
-        linux-gpio@vger.kernel.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        openipmi-developer@lists.sourceforge.net,
-        Saravanan Sekar <sravanhome@gmail.com>,
-        Khuong Dinh <khuong@os.amperecomputing.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        kvm@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
-        Richard Weinberger <richard@nod.at>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-serial@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        platform-driver-x86@vger.kernel.org, linux-pwm@vger.kernel.org,
-        John Garry <john.garry@huawei.com>,
-        Robert Richter <rric@kernel.org>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        Corey Minyard <minyard@acm.org>, linux-pm@vger.kernel.org,
-        Peter Korsgaard <peter@korsgaard.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Mark Gross <markgross@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Takashi Iwai <tiwai@suse.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Benson Leung <bleung@chromium.org>,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        Tony Luck <tony.luck@intel.com>,
-        Mun Yew Tham <mun.yew.tham@intel.com>,
-        Eric Auger <eric.auger@redhat.com>, netdev@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Cornelia Huck <cohuck@redhat.com>, linux-mmc@vger.kernel.org,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        linux-spi@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Vinod Koul <vkoul@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Niklas =?iso-8859-1?Q?S=F6derlund?= 
-        <niklas.soderlund@ragnatech.se>,
-        linux-mediatek@lists.infradead.org,
-        Brian Norris <computersforpeace@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 1/2] platform: make platform_get_irq_optional() optional
- (summary)
-Message-ID: <YeQpWu2sUVOSaT9I@kroah.com>
-References: <20220110195449.12448-1-s.shtylyov@omp.ru>
- <20220110195449.12448-2-s.shtylyov@omp.ru>
- <20220115183643.6zxalxqxrhkfgdfq@pengutronix.de>
+        id S233475AbiAPQCW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 16 Jan 2022 11:02:22 -0500
+Received: from rere.qmqm.pl ([91.227.64.183]:43762 "EHLO rere.qmqm.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233440AbiAPQCV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 16 Jan 2022 11:02:21 -0500
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4JcKYS0w7PzMc;
+        Sun, 16 Jan 2022 17:02:20 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1642348940; bh=b+aXZUEZ/iu/vA0Z9GFMnzJiD2dDum0zArW4qRVtf2o=;
+        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
+        b=dKJmCZ1XudMh1ggQg5NMcX9+k5jU5RrNDShmOatiazuusXPFWFowhXS4jO9+kgBo+
+         Gl1lUFUpLRqS/r815J3UqfkLhII5OUbaRu6dbPcqwagD8GYaMbGDrMrXSmrgDceQJ0
+         GRdcyh7hRCtSRmc5jE4Mm2kRzG18p5gL+nZtHS1rAF5re+LMS/3zRQnZUBvaVcwZRk
+         CDXvP+K63cUg+RKoFzSbDvxWwGt4ALR4bQsajQxlFviE/57XaV9tPeapxR9tiM7fBd
+         U4/Vc53yWk8/2wiiv6ftvIIxq02WSPjS7+u+oPVvcy8mODYeDP0lGc6mZ3TSxxxBSP
+         eraQ8ocKf6ypQ==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.103.4 at mail
+Date:   Sun, 16 Jan 2022 17:02:19 +0100
+Message-Id: <b8bc368b7beea938849b89334e4635a59a76f0f3.1642348712.git.mirq-linux@rere.qmqm.pl>
+In-Reply-To: <cover.1642348712.git.mirq-linux@rere.qmqm.pl>
+References: <cover.1642348712.git.mirq-linux@rere.qmqm.pl>
+From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH 2/2] i2c: tegra: allow VI support to be compiled out
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220115183643.6zxalxqxrhkfgdfq@pengutronix.de>
+To:     Laxman Dewangan <ldewangan@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-tegra@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Sat, Jan 15, 2022 at 07:36:43PM +0100, Uwe Kleine-K�nig wrote:
-> A possible compromise: We can have both. We rename
-> platform_get_irq_optional() to platform_get_irq_silent() (or
-> platform_get_irq_silently() if this is preferred) and once all users are
-> are changed (which can be done mechanically), we reintroduce a
-> platform_get_irq_optional() with Sergey's suggested semantic (i.e.
-> return 0 on not-found, no error message printking).
+Save a bit of code for older Tegra platforms by compiling out
+VI's I2C mode support that's used only for Tegra210.
 
-Please do not do that as anyone trying to forward-port an old driver
-will miss the abi change of functionality and get confused.  Make
-build-breaking changes, if the way a function currently works is
-changed in order to give people a chance.
+$ size i2c-tegra.o
+   text    data     bss     dec     hex filename
+  10385     240       8   10633    2989 i2c-tegra.o (full)
+   9617     240       8    9865    2689 i2c-tegra.o (no-dvc)
+   9389     240       8    9637    25a5 i2c-tegra.o (no-vi)
+   8617     240       8    8865    22a1 i2c-tegra.o (no-vi,no-dvc)
 
-thanks,
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+---
+ drivers/i2c/busses/Kconfig     |  8 ++++++++
+ drivers/i2c/busses/i2c-tegra.c | 20 ++++++++++++--------
+ 2 files changed, 20 insertions(+), 8 deletions(-)
 
-greg k-h
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index b557b832bfec..2dd5974acc14 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -1087,6 +1087,14 @@ config I2C_TEGRA_DVC
+ 	  If you say yes to this option, tegra-i2c will also support
+ 	  I2C controller that is part of DVC in Tegra20 SoCs.
+ 
++config I2C_TEGRA_VI
++	bool "NVIDIA Tegra VI I2C controller"
++	depends on I2C_TEGRA
++	default y if ARCH_TEGRA_210_SOC
++	help
++	  If you say yes to this option, tegra-i2c will also support
++	  I2C controller that is part of VI in Tegra210 SoCs.
++
+ config I2C_TEGRA_BPMP
+ 	tristate "NVIDIA Tegra BPMP I2C controller"
+ 	depends on TEGRA_BPMP || COMPILE_TEST
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 60ecf6c9f649..140fbce203cb 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -295,6 +295,7 @@ struct tegra_i2c_dev {
+ };
+ 
+ #define IS_DVC(dev) (IS_ENABLED(CONFIG_I2C_TEGRA_DVC) && dev->is_dvc)
++#define IS_VI(dev)  (IS_ENABLED(CONFIG_I2C_TEGRA_VI) && dev->is_vi)
+ 
+ static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
+ 		       unsigned int reg)
+@@ -315,7 +316,7 @@ static u32 tegra_i2c_reg_addr(struct tegra_i2c_dev *i2c_dev, unsigned int reg)
+ {
+ 	if (IS_DVC(i2c_dev))
+ 		reg += (reg >= I2C_TX_FIFO) ? 0x10 : 0x40;
+-	else if (i2c_dev->is_vi)
++	else if (IS_VI(i2c_dev))
+ 		reg = 0xc00 + (reg << 2);
+ 
+ 	return reg;
+@@ -444,7 +445,7 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
+ 	u32 *dma_buf;
+ 	int err;
+ 
+-	if (!i2c_dev->hw->has_apb_dma || i2c_dev->is_vi)
++	if (!i2c_dev->hw->has_apb_dma || IS_VI(i2c_dev))
+ 		return 0;
+ 
+ 	if (!IS_ENABLED(CONFIG_TEGRA20_APB_DMA)) {
+@@ -635,7 +636,7 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ 	i2c_writel(i2c_dev, val, I2C_CNFG);
+ 	i2c_writel(i2c_dev, 0, I2C_INT_MASK);
+ 
+-	if (i2c_dev->is_vi)
++	if (IS_VI(i2c_dev))
+ 		tegra_i2c_vi_init(i2c_dev);
+ 
+ 	switch (i2c_dev->bus_clk_rate) {
+@@ -687,7 +688,7 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ 		return err;
+ 	}
+ 
+-	if (!IS_DVC(i2c_dev) && !i2c_dev->is_vi) {
++	if (!IS_DVC(i2c_dev) && !IS_VI(i2c_dev)) {
+ 		u32 sl_cfg = i2c_readl(i2c_dev, I2C_SL_CNFG);
+ 
+ 		sl_cfg |= I2C_SL_CNFG_NACK | I2C_SL_CNFG_NEWSL;
+@@ -1612,7 +1613,9 @@ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
+ static const struct of_device_id tegra_i2c_of_match[] = {
+ 	{ .compatible = "nvidia,tegra194-i2c", .data = &tegra194_i2c_hw, },
+ 	{ .compatible = "nvidia,tegra186-i2c", .data = &tegra186_i2c_hw, },
++#if IS_ENABLED(CONFIG_I2C_TEGRA_VI)
+ 	{ .compatible = "nvidia,tegra210-i2c-vi", .data = &tegra210_i2c_hw, },
++#endif
+ 	{ .compatible = "nvidia,tegra210-i2c", .data = &tegra210_i2c_hw, },
+ 	{ .compatible = "nvidia,tegra124-i2c", .data = &tegra124_i2c_hw, },
+ 	{ .compatible = "nvidia,tegra114-i2c", .data = &tegra114_i2c_hw, },
+@@ -1643,7 +1646,8 @@ static void tegra_i2c_parse_dt(struct tegra_i2c_dev *i2c_dev)
+ 	    of_device_is_compatible(np, "nvidia,tegra20-i2c-dvc"))
+ 		i2c_dev->is_dvc = true;
+ 
+-	if (of_device_is_compatible(np, "nvidia,tegra210-i2c-vi"))
++	if (IS_ENABLED(CONFIG_I2C_TEGRA_VI) &&
++	    of_device_is_compatible(np, "nvidia,tegra210-i2c-vi"))
+ 		i2c_dev->is_vi = true;
+ }
+ 
+@@ -1656,7 +1660,7 @@ static int tegra_i2c_init_clocks(struct tegra_i2c_dev *i2c_dev)
+ 	if (i2c_dev->hw == &tegra20_i2c_hw || i2c_dev->hw == &tegra30_i2c_hw)
+ 		i2c_dev->clocks[i2c_dev->nclocks++].id = "fast-clk";
+ 
+-	if (i2c_dev->is_vi)
++	if (IS_VI(i2c_dev))
+ 		i2c_dev->clocks[i2c_dev->nclocks++].id = "slow";
+ 
+ 	err = devm_clk_bulk_get(i2c_dev->dev, i2c_dev->nclocks,
+@@ -1777,7 +1781,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	 * VI I2C device shouldn't be marked as IRQ-safe because VI I2C won't
+ 	 * be used for atomic transfers.
+ 	 */
+-	if (!i2c_dev->is_vi)
++	if (!IS_VI(i2c_dev))
+ 		pm_runtime_irq_safe(i2c_dev->dev);
+ 
+ 	pm_runtime_enable(i2c_dev->dev);
+@@ -1850,7 +1854,7 @@ static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
+ 	 * power ON/OFF during runtime PM resume/suspend, meaning that
+ 	 * controller needs to be re-initialized after power ON.
+ 	 */
+-	if (i2c_dev->is_vi) {
++	if (IS_VI(i2c_dev)) {
+ 		err = tegra_i2c_init(i2c_dev);
+ 		if (err)
+ 			goto disable_clocks;
+-- 
+2.30.2
+
