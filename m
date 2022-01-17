@@ -2,44 +2,47 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95C19C43217
-	for <linux-i2c@archiver.kernel.org>; Mon, 17 Jan 2022 17:07:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D4CAC433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 17 Jan 2022 17:07:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242157AbiAQRHR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 17 Jan 2022 12:07:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52696 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238329AbiAQRFS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jan 2022 12:05:18 -0500
+        id S242658AbiAQRHn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 17 Jan 2022 12:07:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45120 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242688AbiAQRFl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jan 2022 12:05:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2574C0612E1;
+        Mon, 17 Jan 2022 09:03:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D39F5B81158;
-        Mon, 17 Jan 2022 17:05:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD2C7C36AEF;
-        Mon, 17 Jan 2022 17:05:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D47D16120D;
+        Mon, 17 Jan 2022 17:03:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DC46C36AEF;
+        Mon, 17 Jan 2022 17:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439114;
+        s=k20201202; t=1642439028;
         bh=sTCekZEw9uEAHrjdVyISUfUMGWrR2PuYEye6KgK+SL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCZiTEcspviayWSpPluqPzZWkMd0Xdl9+QtJW1QbT+JAJ517r8wSLT4gBaX6IDGA8
-         Bf7J6nlDsthA/+wD2ugPeqmn5+jI3783fxhl29p8zo15x5NGum3dqH1lx24QeLaDHs
-         GyU/FM1G1wBtzXKmp7hNZUISCPe8r68UjeBlWwYVQH8UyNnkxVeft5vxXnof3IHy/x
-         QxWy/2xa7trmAZuFJ/u2ovDLIdG9b8YzIYfOyb/ETLCFtDQMXVpTHI3LAUmwpDVd9q
-         80lA2TWQtq/mfA0HyQGRb07fhBZ7xE34DcAzghEe92rO/1WPHEQxPwXHKc+2BGZAPr
-         wPGyxc0QE1IMQ==
+        b=kqOh69Or382VrhZitcab/jcoIrACJTqwRg9LAJeP/mQRg3kSbxJzB+wGjErKoTGGc
+         NKvncrxZ2ovS988xN5wk72jq2g7mNQWDOproulpW9qurmtcVpk5AeRga3JMwMXRiTG
+         NMsYonZmk0QXUCoeJtONMmmczyPhMhfuCB4LTCd+uvfnQJ9xy382S4LRv28/s5URTf
+         E1wGw5E+TiOMpSKPYzT6MkRJS6jw3g3jKSAAQchiQ6QK4AIUoFLKYcjFVqGdvYiTeG
+         YKmzlNHsfPplNxXj/vPo0FR/J96zhyLmCAHhur3eh8qbdyCHuWYzpXfBDpbAEDepvE
+         C83Sg2C4Sys6Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
         Scott Wood <oss@buserror.net>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         chris.packham@alliedtelesis.co.nz, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/21] i2c: mpc: Correct I2C reset procedure
-Date:   Mon, 17 Jan 2022 12:04:41 -0500
-Message-Id: <20220117170454.1472347-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 10/34] i2c: mpc: Correct I2C reset procedure
+Date:   Mon, 17 Jan 2022 12:03:00 -0500
+Message-Id: <20220117170326.1471712-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220117170454.1472347-1-sashal@kernel.org>
-References: <20220117170454.1472347-1-sashal@kernel.org>
+In-Reply-To: <20220117170326.1471712-1-sashal@kernel.org>
+References: <20220117170326.1471712-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
