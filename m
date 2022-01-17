@@ -2,44 +2,45 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B217C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 17 Jan 2022 17:16:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E867BC433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 17 Jan 2022 17:16:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242121AbiAQRQE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 17 Jan 2022 12:16:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47814 "EHLO
+        id S242835AbiAQRQh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 17 Jan 2022 12:16:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243659AbiAQRMh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jan 2022 12:12:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3911CC08E814;
-        Mon, 17 Jan 2022 09:07:35 -0800 (PST)
+        with ESMTP id S243151AbiAQRNE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jan 2022 12:13:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B8ECC0612E1;
+        Mon, 17 Jan 2022 09:07:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC4FBB81145;
-        Mon, 17 Jan 2022 17:07:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC604C36AED;
-        Mon, 17 Jan 2022 17:07:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2479612A8;
+        Mon, 17 Jan 2022 17:07:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CD79C36AE7;
+        Mon, 17 Jan 2022 17:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439252;
-        bh=Nnp6w8GL4hiQozY8T/6HlO69LhX6+pjDvbt3rnlGots=;
+        s=k20201202; t=1642439264;
+        bh=bpMBu5yH7MGhV8vmY6xchErCuexz35VkhDge5dgYqqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AW9/ZBTDnt2dLIHYx1hrdXknbhnuDKaHmZsbrEmAKmJnl8MNe5FvYkw2ekmw1f1LV
-         jUceZ0kaxbutjfwCA1RGcMw4LKzRftk72gPA4UNUkPaOxDFfLeUnpfxRZxDrI+4pSr
-         eCiLdMZu4p2u9K5Gyh11TYMvrV0mlYqIyTo25d/GbBcTYCqHpiAcDpVa5ulYOcHO95
-         mYu/FA5AT4jpP8UW3Yl8kYJ9ziC8jZG8deRBi1jQK4wlqEpXWGdNp1OH8bc6o1rwUu
-         4Ba+ZhAvM5MvuXq+kMzZdtl0q7x+OS3GL7ejDBaa0zxgMbTtJqcpiDw9ofBf4dEQOv
-         UkoSFocNBzkIw==
+        b=FExpqSyb657oNhAYBqWsUjsdKQW6SbsRgpErO+hQMRBAYBxnHtEndaohC9CXeYg5w
+         Ft3gTncbRV1XuUDnhS2LQcHCq0Su0HqBEdXMfWWH2p4Gr2N8zdcihGW/JK3MpFAwMA
+         bKlBwrJipQGon+OBhoSRg09yx2SbXYjChDJ5oqVb73SMb9TXHXVYlwk1Mf4YurR41s
+         jgUFLetw6c/LXzmHQGpd7q46UmR6Mrg3I+Vq6biQ3jHQwcJ/DE2L/4HnbrB3vLMD7c
+         eulgvi0rGiiqeU6WZaYLkoxIu2DTv1Wk1qN4+rYEU94DCpPTbA2hLpl4vj7PZZCUZ+
+         FL61TG0n0V5wA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 05/13] i2c: i801: Don't silently correct invalid transfer size
-Date:   Mon, 17 Jan 2022 12:07:13 -0500
-Message-Id: <20220117170722.1473137-5-sashal@kernel.org>
+Cc:     Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 10/13] i2c: designware-pci: Fix to change data types of hcnt and lcnt parameters
+Date:   Mon, 17 Jan 2022 12:07:18 -0500
+Message-Id: <20220117170722.1473137-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170722.1473137-1-sashal@kernel.org>
 References: <20220117170722.1473137-1-sashal@kernel.org>
@@ -51,61 +52,42 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>
 
-[ Upstream commit effa453168a7eeb8a562ff4edc1dbf9067360a61 ]
+[ Upstream commit d52097010078c1844348dc0e467305e5f90fd317 ]
 
-If an invalid block size is provided, reject it instead of silently
-changing it to a supported value. Especially critical I see the case of
-a write transfer with block length 0. In this case we have no guarantee
-that the byte we would write is valid. When silently reducing a read to
-32 bytes then we don't return an error and the caller may falsely
-assume that we returned the full requested data.
+The data type of hcnt and lcnt in the struct dw_i2c_dev is of type u16.
+It's better to have same data type in struct dw_scl_sda_cfg as well.
 
-If this change should break any (broken) caller, then I think we should
-fix the caller.
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Reported-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 0e04b27e3158d..b577c64f3b3ec 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -762,6 +762,11 @@ static int i801_block_transaction(struct i801_priv *priv,
- 	int result = 0;
- 	unsigned char hostc;
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 96f8230cd2d33..5c32a7ef476da 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -49,10 +49,10 @@ enum dw_pci_ctl_id_t {
+ };
  
-+	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
-+		data->block[0] = I2C_SMBUS_BLOCK_MAX;
-+	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
-+		return -EPROTO;
-+
- 	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
- 		if (read_write == I2C_SMBUS_WRITE) {
- 			/* set I2C_EN bit in configuration register */
-@@ -775,16 +780,6 @@ static int i801_block_transaction(struct i801_priv *priv,
- 		}
- 	}
+ struct dw_scl_sda_cfg {
+-	u32 ss_hcnt;
+-	u32 fs_hcnt;
+-	u32 ss_lcnt;
+-	u32 fs_lcnt;
++	u16 ss_hcnt;
++	u16 fs_hcnt;
++	u16 ss_lcnt;
++	u16 fs_lcnt;
+ 	u32 sda_hold;
+ };
  
--	if (read_write == I2C_SMBUS_WRITE
--	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
--		if (data->block[0] < 1)
--			data->block[0] = 1;
--		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
--			data->block[0] = I2C_SMBUS_BLOCK_MAX;
--	} else {
--		data->block[0] = 32;	/* max for SMBus block reads */
--	}
--
- 	/* Experience has shown that the block buffer can only be used for
- 	   SMBus (not I2C) block transactions, even though the datasheet
- 	   doesn't mention this limitation. */
 -- 
 2.34.1
 
