@@ -2,44 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A9A8C4332F
-	for <linux-i2c@archiver.kernel.org>; Mon, 17 Jan 2022 17:09:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCCA5C4332F
+	for <linux-i2c@archiver.kernel.org>; Mon, 17 Jan 2022 17:11:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243251AbiAQRJC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 17 Jan 2022 12:09:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54256 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242508AbiAQRHB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jan 2022 12:07:01 -0500
+        id S242865AbiAQRLT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 17 Jan 2022 12:11:19 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57780 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242547AbiAQRHi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jan 2022 12:07:38 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 835C2B8116B;
-        Mon, 17 Jan 2022 17:06:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63DF0C36AEC;
-        Mon, 17 Jan 2022 17:06:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C40E1612A4;
+        Mon, 17 Jan 2022 17:07:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5999EC36AEC;
+        Mon, 17 Jan 2022 17:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439218;
-        bh=10N+I46ycgYorHj50Ok5rvkOkrdy4oDRd2b9iQrWrFU=;
+        s=k20201202; t=1642439257;
+        bh=ztCq9ANAcBkHdS4/TOCP4mgItl7HAp3oyahqlUf+rPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YveEKWL9nmwU+3T52BkOvO21EdqpD0alLs81OSMRcOzqv01H8KyqGIL7OaXRx1WOi
-         d3Swb2tXlXiS/G77JBPhu+5PnVLDk6w0gt5ms1dWHBh5B38DxkFlue2Or5T66ASlkn
-         EFXGYJbGEvQr6MsPd2Yd7HAp8Ta/ybSsK1MY0DWuolGh0JzeN4R8LypUQ5YQqJ0shM
-         iZopvwhs7U5LAW2QTGTWxRs7VlQmgCHAuQuwh3JQNb9tDclKIR+lmtNthVL9hltM7o
-         HX5g5m/LYwxy3HvAykEb85Se8CzHj51CadFVjYtgMjqRQhoytzRL4Wsx/e5Icv2ee5
-         GfwosNjpRnmjg==
+        b=llx0wWBx9ceVD2hDe0QY8iXCFR+vlvBkbH1WH82FCIwLX7yQTfJoPNlMJFSu96BxP
+         z48+6427qvFSdtf1WQAz1veQbVXPPGMSIZ7KE244+bmazmxDSEl+YHf4GaVrPZjF06
+         xCM3JMrFhdGJRe5oJ39jF2tQaGfTHvZLHsdk3shAGWDWcYwEpcg/GayK0YLUPZAUI9
+         /kQFoWvCkApGxpt7JJDGixYhiqH3HuP5O+K9+46iPQrM+WW9puEiC0yI8TFLrJlAIQ
+         rG2OG24D7KTOkUUbZcw4AeKJkwfzHIUl6KAlSGp4BZNAuZ3eX+BqsIE1gxG4QR0+l5
+         9I9paqL2Atqxw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
         Scott Wood <oss@buserror.net>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         chris.packham@alliedtelesis.co.nz, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/16] i2c: mpc: Correct I2C reset procedure
-Date:   Mon, 17 Jan 2022 12:06:31 -0500
-Message-Id: <20220117170638.1472900-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 07/13] i2c: mpc: Correct I2C reset procedure
+Date:   Mon, 17 Jan 2022 12:07:15 -0500
+Message-Id: <20220117170722.1473137-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220117170638.1472900-1-sashal@kernel.org>
-References: <20220117170638.1472900-1-sashal@kernel.org>
+In-Reply-To: <20220117170722.1473137-1-sashal@kernel.org>
+References: <20220117170722.1473137-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -68,7 +68,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 15 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 7db5554d2b4e7..194bf06ecb25e 100644
+index 90e4f839eb1cb..d153fc28e6bfb 100644
 --- a/drivers/i2c/busses/i2c-mpc.c
 +++ b/drivers/i2c/busses/i2c-mpc.c
 @@ -107,23 +107,30 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
