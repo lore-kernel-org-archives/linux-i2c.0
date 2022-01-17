@@ -2,47 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01D0BC433FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 17 Jan 2022 17:07:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95C19C43217
+	for <linux-i2c@archiver.kernel.org>; Mon, 17 Jan 2022 17:07:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242691AbiAQRHL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 17 Jan 2022 12:07:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45108 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242128AbiAQRFL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jan 2022 12:05:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEE29C06136E;
-        Mon, 17 Jan 2022 09:03:44 -0800 (PST)
+        id S242157AbiAQRHR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 17 Jan 2022 12:07:17 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52696 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238329AbiAQRFS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jan 2022 12:05:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E69361225;
-        Mon, 17 Jan 2022 17:03:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF67BC36AED;
-        Mon, 17 Jan 2022 17:03:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D39F5B81158;
+        Mon, 17 Jan 2022 17:05:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD2C7C36AEF;
+        Mon, 17 Jan 2022 17:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439023;
-        bh=gHJkcpYKXR/RhQBBuV2zUOoAWjs3ei98HPq/WqtjGlw=;
+        s=k20201202; t=1642439114;
+        bh=sTCekZEw9uEAHrjdVyISUfUMGWrR2PuYEye6KgK+SL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pKSzQsXbDmND+HDfrdvVzRDZe6wu5iaZ2uXs2lCYYN4ccNTeaef9QZXPksUaIx9Vt
-         kcC+UwAjSSJkPGbS/V9UYPKF7bvega+REtkzlPB39VQRu25D8KnoSfQEhBKxYS6Zyn
-         0iFP9wIJFXEzlEyY/uQkKYSJ1osA54wCKra1H/zfYOJ8rMfYh22xe7thqJ/hcGHUGq
-         575RNT48xW+s40eo/AKgysWHE8dCkrKGFzQmbkDfq17kvYfa7jQc/Y7Dfz1FDTGTgY
-         k+pvyehmKArmCThzG9aF1ZNSe2Cdx/1NbvaNetHxyQvnQL1NFKuJhX1i89gcXYxcg0
-         yx4KHoSXgm29Q==
+        b=gCZiTEcspviayWSpPluqPzZWkMd0Xdl9+QtJW1QbT+JAJ517r8wSLT4gBaX6IDGA8
+         Bf7J6nlDsthA/+wD2ugPeqmn5+jI3783fxhl29p8zo15x5NGum3dqH1lx24QeLaDHs
+         GyU/FM1G1wBtzXKmp7hNZUISCPe8r68UjeBlWwYVQH8UyNnkxVeft5vxXnof3IHy/x
+         QxWy/2xa7trmAZuFJ/u2ovDLIdG9b8YzIYfOyb/ETLCFtDQMXVpTHI3LAUmwpDVd9q
+         80lA2TWQtq/mfA0HyQGRb07fhBZ7xE34DcAzghEe92rO/1WPHEQxPwXHKc+2BGZAPr
+         wPGyxc0QE1IMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 08/34] i2c: i801: Don't silently correct invalid transfer size
-Date:   Mon, 17 Jan 2022 12:02:58 -0500
-Message-Id: <20220117170326.1471712-8-sashal@kernel.org>
+Cc:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        Scott Wood <oss@buserror.net>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        chris.packham@alliedtelesis.co.nz, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 09/21] i2c: mpc: Correct I2C reset procedure
+Date:   Mon, 17 Jan 2022 12:04:41 -0500
+Message-Id: <20220117170454.1472347-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220117170326.1471712-1-sashal@kernel.org>
-References: <20220117170326.1471712-1-sashal@kernel.org>
+In-Reply-To: <20220117170454.1472347-1-sashal@kernel.org>
+References: <20220117170454.1472347-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -51,61 +48,68 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-[ Upstream commit effa453168a7eeb8a562ff4edc1dbf9067360a61 ]
+[ Upstream commit ebe82cf92cd4825c3029434cabfcd2f1780e64be ]
 
-If an invalid block size is provided, reject it instead of silently
-changing it to a supported value. Especially critical I see the case of
-a write transfer with block length 0. In this case we have no guarantee
-that the byte we would write is valid. When silently reducing a read to
-32 bytes then we don't return an error and the caller may falsely
-assume that we returned the full requested data.
+Current I2C reset procedure is broken in two ways:
+1) It only generate 1 START instead of 9 STARTs and STOP.
+2) It leaves the bus Busy so every I2C xfer after the first
+   fixup calls the reset routine again, for every xfer there after.
 
-If this change should break any (broken) caller, then I think we should
-fix the caller.
+This fixes both errors.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Acked-by: Scott Wood <oss@buserror.net>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-mpc.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index eab6fd6b890eb..5618c1ff34dc3 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -797,6 +797,11 @@ static int i801_block_transaction(struct i801_priv *priv,
- 	int result = 0;
- 	unsigned char hostc;
- 
-+	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
-+		data->block[0] = I2C_SMBUS_BLOCK_MAX;
-+	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
-+		return -EPROTO;
-+
- 	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
- 		if (read_write == I2C_SMBUS_WRITE) {
- 			/* set I2C_EN bit in configuration register */
-@@ -810,16 +815,6 @@ static int i801_block_transaction(struct i801_priv *priv,
- 		}
- 	}
- 
--	if (read_write == I2C_SMBUS_WRITE
--	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
--		if (data->block[0] < 1)
--			data->block[0] = 1;
--		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
--			data->block[0] = I2C_SMBUS_BLOCK_MAX;
--	} else {
--		data->block[0] = 32;	/* max for SMBus block reads */
--	}
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index af349661fd769..8de8296d25831 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -105,23 +105,30 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+ /* Sometimes 9th clock pulse isn't generated, and slave doesn't release
+  * the bus, because it wants to send ACK.
+  * Following sequence of enabling/disabling and sending start/stop generates
+- * the 9 pulses, so it's all OK.
++ * the 9 pulses, each with a START then ending with STOP, so it's all OK.
+  */
+ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+ {
+ 	int k;
+-	u32 delay_val = 1000000 / i2c->real_clk + 1;
 -
- 	/* Experience has shown that the block buffer can only be used for
- 	   SMBus (not I2C) block transactions, even though the datasheet
- 	   doesn't mention this limitation. */
+-	if (delay_val < 2)
+-		delay_val = 2;
++	unsigned long flags;
+ 
+ 	for (k = 9; k; k--) {
+ 		writeccr(i2c, 0);
+-		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
++		writeb(0, i2c->base + MPC_I2C_SR); /* clear any status bits */
++		writeccr(i2c, CCR_MEN | CCR_MSTA); /* START */
++		readb(i2c->base + MPC_I2C_DR); /* init xfer */
++		udelay(15); /* let it hit the bus */
++		local_irq_save(flags); /* should not be delayed further */
++		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSTA); /* delay SDA */
+ 		readb(i2c->base + MPC_I2C_DR);
+-		writeccr(i2c, CCR_MEN);
+-		udelay(delay_val << 1);
++		if (k != 1)
++			udelay(5);
++		local_irq_restore(flags);
+ 	}
++	writeccr(i2c, CCR_MEN); /* Initiate STOP */
++	readb(i2c->base + MPC_I2C_DR);
++	udelay(15); /* Let STOP propagate */
++	writeccr(i2c, 0);
+ }
+ 
+ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
 -- 
 2.34.1
 
