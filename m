@@ -2,34 +2,57 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2ED9C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 17 Jan 2022 17:16:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55A41C433EF
+	for <linux-i2c@archiver.kernel.org>; Tue, 18 Jan 2022 08:25:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242206AbiAQRQi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 17 Jan 2022 12:16:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244139AbiAQROi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jan 2022 12:14:38 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9085BC0612F2
-        for <linux-i2c@vger.kernel.org>; Mon, 17 Jan 2022 09:08:31 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1n9VSt-0007f8-E9; Mon, 17 Jan 2022 18:06:43 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1n9VSk-00Ar9W-EE; Mon, 17 Jan 2022 18:06:33 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1n9VSj-0002dO-9e; Mon, 17 Jan 2022 18:06:33 +0100
-Date:   Mon, 17 Jan 2022 18:06:09 +0100
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
+        id S1344148AbiARIZR convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 18 Jan 2022 03:25:17 -0500
+Received: from mail-ua1-f45.google.com ([209.85.222.45]:42760 "EHLO
+        mail-ua1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232989AbiARIZQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Jan 2022 03:25:16 -0500
+Received: by mail-ua1-f45.google.com with SMTP id p1so35034049uap.9;
+        Tue, 18 Jan 2022 00:25:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=wwyuk2lsKqIfL1r34uR4hiV5J4os/EyMOhjZZucVxAA=;
+        b=I2i1nK3KE49ayM/k/7+QwdNB1Zw/V8rfgqp4QCmvWpqWYqVHuXXZLHkoGFbUNZwQoa
+         5n58deiE9GIRaPOlMyVpmgpPhdeM6+XjSafr9D/U+9wMw7QnCwIKSHifBPKaKoKI7ghV
+         GPjZiS0nW+lz1lWDERj4p5QQ60xQw9CHXpsjRJ1hmG+OzAfo7VdqIEEb5MXSZJ4tk/sN
+         wK6lF0d8e/ePocJHJLPejU1HF8xld5m/zmPX0RLIdCeaaIPTzpkjHd0Jw8D0cXvhbrYZ
+         FHbmY3rE4GmX6ZIIgeSp6MmNKyIiUbHsjMTOOage5nc+kV1Al0PTA5oAEiRtF6XNNBFK
+         UC4A==
+X-Gm-Message-State: AOAM531TjjIono2QQrSzMZER0NUpWw9YWmdyoa4VDcXGutV5AUI3N5Qk
+        NMu4UvqkxsalSADZQSGZWKANBWSt+9lqXV/t
+X-Google-Smtp-Source: ABdhPJxEapMDT1TLJpP3jj0kK0vs2RhIajlcXxONwhZS+EvdSgowj8ApkJ3nRAIXNWOHwgyRPrDJbQ==
+X-Received: by 2002:ab0:e13:: with SMTP id g19mr9097770uak.135.1642494314740;
+        Tue, 18 Jan 2022 00:25:14 -0800 (PST)
+Received: from mail-ua1-f44.google.com (mail-ua1-f44.google.com. [209.85.222.44])
+        by smtp.gmail.com with ESMTPSA id j76sm4044397vke.27.2022.01.18.00.25.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Jan 2022 00:25:13 -0800 (PST)
+Received: by mail-ua1-f44.google.com with SMTP id 2so10353317uax.10;
+        Tue, 18 Jan 2022 00:25:13 -0800 (PST)
+X-Received: by 2002:ab0:4d42:: with SMTP id k2mr7281422uag.78.1642494312957;
+ Tue, 18 Jan 2022 00:25:12 -0800 (PST)
+MIME-Version: 1.0
+References: <29f0c65d-77f2-e5b2-f6cc-422add8a707d@omp.ru> <20220114092557.jrkfx7ihg26ekzci@pengutronix.de>
+ <61b80939-357d-14f5-df99-b8d102a4e1a1@omp.ru> <20220114202226.ugzklxv4wzr6egwj@pengutronix.de>
+ <c9026f17-2b3f-ee94-0ea3-5630f981fbc1@omp.ru> <CAMuHMdXVbRudGs69f9ZzaP1PXhteDNZiXA658eMFAwP4nr9r3w@mail.gmail.com>
+ <20220117092444.opoedfcf5k5u6otq@pengutronix.de> <CAMuHMdUgZUeraHadRAi2Z=DV+NuNBrKPkmAKsvFvir2MuquVoA@mail.gmail.com>
+ <20220117114923.d5vajgitxneec7j7@pengutronix.de> <CAMuHMdWCKERO20R2iVHq8P=BaoauoBAtiampWzfMRYihi3Sb0g@mail.gmail.com>
+ <20220117170609.yxaamvqdkivs56ju@pengutronix.de>
+In-Reply-To: <20220117170609.yxaamvqdkivs56ju@pengutronix.de>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 18 Jan 2022 09:25:01 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdXbuZqEpYivyS6hkaRN+CwTOGaHq_OROwVAWvDD6OXODQ@mail.gmail.com>
+Message-ID: <CAMuHMdXbuZqEpYivyS6hkaRN+CwTOGaHq_OROwVAWvDD6OXODQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] platform: make platform_get_irq_optional() optional
+To:     =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
 Cc:     Andrew Lunn <andrew@lunn.ch>, Ulf Hansson <ulf.hansson@linaro.org>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         KVM list <kvm@vger.kernel.org>,
@@ -98,406 +121,76 @@ Cc:     Andrew Lunn <andrew@lunn.ch>, Ulf Hansson <ulf.hansson@linaro.org>,
         James Morse <james.morse@arm.com>,
         Zha Qipeng <qipeng.zha@intel.com>,
         Sebastian Reichel <sre@kernel.org>,
-        Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
+        =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
         linux-mediatek@lists.infradead.org,
         Brian Norris <computersforpeace@gmail.com>,
         netdev <netdev@vger.kernel.org>
-Subject: Re: [PATCH 1/2] platform: make platform_get_irq_optional() optional
-Message-ID: <20220117170609.yxaamvqdkivs56ju@pengutronix.de>
-References: <29f0c65d-77f2-e5b2-f6cc-422add8a707d@omp.ru>
- <20220114092557.jrkfx7ihg26ekzci@pengutronix.de>
- <61b80939-357d-14f5-df99-b8d102a4e1a1@omp.ru>
- <20220114202226.ugzklxv4wzr6egwj@pengutronix.de>
- <c9026f17-2b3f-ee94-0ea3-5630f981fbc1@omp.ru>
- <CAMuHMdXVbRudGs69f9ZzaP1PXhteDNZiXA658eMFAwP4nr9r3w@mail.gmail.com>
- <20220117092444.opoedfcf5k5u6otq@pengutronix.de>
- <CAMuHMdUgZUeraHadRAi2Z=DV+NuNBrKPkmAKsvFvir2MuquVoA@mail.gmail.com>
- <20220117114923.d5vajgitxneec7j7@pengutronix.de>
- <CAMuHMdWCKERO20R2iVHq8P=BaoauoBAtiampWzfMRYihi3Sb0g@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="aw3dtkiiyid6id5x"
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdWCKERO20R2iVHq8P=BaoauoBAtiampWzfMRYihi3Sb0g@mail.gmail.com>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi Uwe,
 
---aw3dtkiiyid6id5x
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Jan 17, 2022 at 6:06 PM Uwe Kleine-König
+<u.kleine-koenig@pengutronix.de> wrote:
+> On Mon, Jan 17, 2022 at 02:08:19PM +0100, Geert Uytterhoeven wrote:
+> > On Mon, Jan 17, 2022 at 12:49 PM Uwe Kleine-König
+> > <u.kleine-koenig@pengutronix.de> wrote:
+> > > > The logic in e.g. drivers/tty/serial/sh-sci.c and
+> > > > drivers/spi/spi-rspi.c could be simplified and improved (currently
+> > > > it doesn't handle deferred probe) if platform_get_irq_optional()
+> > > > would return 0 instead of -ENXIO.
 
-On Mon, Jan 17, 2022 at 02:08:19PM +0100, Geert Uytterhoeven wrote:
-> Hi Uwe,
->=20
-> On Mon, Jan 17, 2022 at 12:49 PM Uwe Kleine-K=F6nig
-> <u.kleine-koenig@pengutronix.de> wrote:
-> > On Mon, Jan 17, 2022 at 11:35:52AM +0100, Geert Uytterhoeven wrote:
-> > > On Mon, Jan 17, 2022 at 10:24 AM Uwe Kleine-K=F6nig
-> > > <u.kleine-koenig@pengutronix.de> wrote:
-> > > > On Mon, Jan 17, 2022 at 09:41:42AM +0100, Geert Uytterhoeven wrote:
-> > > > > On Sat, Jan 15, 2022 at 9:22 PM Sergey Shtylyov <s.shtylyov@omp.r=
-u> wrote:
-> > > > > > On 1/14/22 11:22 PM, Uwe Kleine-K=F6nig wrote:
-> > > > > > > You have to understand that for clk (and regulator and gpiod)=
- NULL is a
-> > > > > > > valid descriptor that can actually be used, it just has no ef=
-fect. So
-> > > > > > > this is a convenience value for the case "If the clk/regulato=
-r/gpiod in
-> > > > > > > question isn't available, there is nothing to do". This is wh=
-at makes
-> > > > > > > clk_get_optional() and the others really useful and justifies=
- their
-> > > > > > > existence. This doesn't apply to platform_get_irq_optional().
-> > > > > >
-> > > > > >    I do understand that. However, IRQs are a different beast wi=
-th their
-> > > > > > own justifications...
-> > > > >
-> > > > > > > clk_get_optional() is sane and sensible for cases where the c=
-lk might be
-> > > > > > > absent and it helps you because you don't have to differentia=
-te between
-> > > > > > > "not found" and "there is an actual resource".
-> > > > > > >
-> > > > > > > The reason for platform_get_irq_optional()'s existence is jus=
-t that
-> > > > > > > platform_get_irq() emits an error message which is wrong or s=
-uboptimal
-> > > > > >
-> > > > > >    I think you are very wrong here. The real reason is to simpl=
-ify the
-> > > > > > callers.
-> > > > >
-> > > > > Indeed.
-> > > >
-> > > > The commit that introduced platform_get_irq_optional() said:
-> > > >
-> > > >         Introduce a new platform_get_irq_optional() that works much=
- like
-> > > >         platform_get_irq() but does not output an error on failure =
-to
-> > > >         find the interrupt.
-> > > >
-> > > > So the author of 8973ea47901c81a1912bd05f1577bed9b5b52506 failed to
-> > > > mention the real reason? Or look at
-> > > > 31a8d8fa84c51d3ab00bf059158d5de6178cf890:
-> > > >
-> > > >         [...] use platform_get_irq_optional() to get second/third I=
-RQ
-> > > >         which are optional to avoid below error message during prob=
-e:
-> > > >         [...]
-> > > >
-> > > > Look through the output of
-> > > >
-> > > >         git log -Splatform_get_irq_optional
-> > > >
-> > > > to find several more of these.
+> > > Also for spi-rspi.c I don't see how platform_get_irq_byname_optional()
+> > > returning 0 instead of -ENXIO would help. Please talk in patches.
+
+[...]
+
+> This is not a simplification, just looking at the line count and the
+> added gotos. That's because it also improves error handling and so the
+> effect isn't easily spotted.
+
+Yes, it's larger because it adds currently missing error handling.
+
+> What about the following idea (in pythonic pseudo code for simplicity):
+
+No idea what you gain by throwing in a language that is irrelevant
+to kernel programming (why no Rust? ;-)
+
+> > > > So there are three reasons: because the absence of an optional IRQ
+> > > > is not an error, and thus that should not cause (a) an error code
+> > > > to be returned, and (b) an error message to be printed, and (c)
+> > > > because it can simplify the logic in device drivers.
 > > >
-> > > Commit 8973ea47901c81a1 ("driver core: platform: Introduce
-> > > platform_get_irq_optional()") and the various fixups fixed the ugly
-> > > printing of error messages that were not applicable.
-> > > In hindsight, probably commit 7723f4c5ecdb8d83 ("driver core:
-> > > platform: Add an error message to platform_get_irq*()") should have
-> > > been reverted instead, until a platform_get_irq_optional() with proper
-> > > semantics was introduced.
+> > > I don't agree to (a). If the value signaling not-found is -ENXIO or 0
+> > > (or -ENODEV) doesn't matter much. I wouldn't deviate from the return
+> > > code semantics of platform_get_irq() just for having to check against 0
+> > > instead of -ENXIO. Zero is then just another magic value.
 > >
-> > ack.
-> >
-> > > But as we were all in a hurry to kill the non-applicable error
-> > > message, we went for the quick and dirty fix.
-> > >
-> > > > Also I fail to see how a caller of (today's) platform_get_irq_optio=
-nal()
-> > > > is simpler than a caller of platform_get_irq() given that there is =
-no
-> > > > semantic difference between the two. Please show me a single
-> > > > conversion from platform_get_irq to platform_get_irq_optional that
-> > > > yielded a simplification.
-> > >
-> > > That's exactly why we want to change the latter to return 0 ;-)
-> >
-> > OK. So you agree to my statement "The reason for
-> > platform_get_irq_optional()'s existence is just that platform_get_irq()
-> > emits an error message [...]". Actually you don't want to oppose but
-> > say: It's unfortunate that the silent variant of platform_get_irq() took
-> > the obvious name of a function that could have an improved return code
-> > semantic.
-> >
-> > So my suggestion to rename todays platform_get_irq_optional() to
-> > platform_get_irq_silently() and then introducing
-> > platform_get_irq_optional() with your suggested semantic seems
-> > intriguing and straigt forward to me.
->=20
-> I don't really see the point of needing platform_get_irq_silently(),
-> unless as an intermediary step, where it's going to be removed again
-> once the conversion has completed.
+> > Zero is a natural magic value (also for pointers).
+> > Errors are always negative.
+> > Positive values are cookies (or pointers) associated with success.
+>
+> Yeah, the issue where we don't agree is if "not-found" is special enough
+> to deserve the natural magic value. For me -ENXIO is magic enough to
+> handle the absence of an irq line. I consider it even the better magic
+> value.
 
-We agree that one of the two functions is enough, just differ in which
-of the two we want to have. :-)
+It differs from other subsystems (clk, gpio, reset), which do return
+zero on not found.
+What's the point in having *_optional() APIs if they just return the
+same values as the non-optional ones?
 
-If you think platform_get_irq_silently() is a good intermediate step for
-your goal, then we agree to rename platform_get_irq_optional(). So I
-suggest you ack my patch.
 
-> Still, the rename would touch all users at once anyway.
+Gr{oetje,eeting}s,
 
-It would be more easy to keep the conversion regression-free however. A
-plain rename is simple to verify. And then converting to the new
-platform_get_irq_optional() can be done individually and without the
-need to do everything in a single step.
+                        Geert
 
-> > Another thought: platform_get_irq emits an error message for all
-> > problems. Wouldn't it be consistent to let platform_get_irq_optional()
-> > emit an error message for all problems but "not found"?
-> > Alternatively remove the error printk from platform_get_irq().
->=20
-> Yes, all problems but not found are real errors.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-If you want to make platform_get_irq and its optional variant more
-similar to the others, dropping the error message is the way to go.
-
-> > > > So you need some more effort to convince me of your POV.
-> > > >
-> > > > > Even for clocks, you cannot assume that you can always blindly use
-> > > > > the returned dummy (actually a NULL pointer) to call into the clk
-> > > > > API.  While this works fine for simple use cases, where you just
-> > > > > want to enable/disable an optional clock (clk_prepare_enable() and
-> > > > > clk_disable_unprepare()), it does not work for more complex use c=
-ases.
-> > > >
-> > > > Agreed. But for clks and gpiods and regulators the simple case is q=
-uite
-> > > > usual. For irqs it isn't.
-> > >
-> > > It is for devices that can have either separate interrupts, or a sing=
-le
-> > > multiplexed interrupt.
-> > >
-> > > The logic in e.g. drivers/tty/serial/sh-sci.c and
-> > > drivers/spi/spi-rspi.c could be simplified and improved (currently
-> > > it doesn't handle deferred probe) if platform_get_irq_optional()
-> > > would return 0 instead of -ENXIO.
-> >
-> > Looking at sh-sci.c the irq handling logic could be improved even
-> > without a changed platform_get_irq_optional():
-> >
-> > diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-> > index 968967d722d4..c7dc9fb84844 100644
-> > --- a/drivers/tty/serial/sh-sci.c
-> > +++ b/drivers/tty/serial/sh-sci.c
-> > @@ -2873,11 +2873,13 @@ static int sci_init_single(struct platform_devi=
-ce *dev,
-> >          * interrupt ID numbers, or muxed together with another interru=
-pt.
-> >          */
-> >         if (sci_port->irqs[0] < 0)
-> > -               return -ENXIO;
-> > +               return sci_port->irqs[0];
-> >
-> > -       if (sci_port->irqs[1] < 0)
-> > +       if (sci_port->irqs[1] =3D=3D -ENXIO)
-> >                 for (i =3D 1; i < ARRAY_SIZE(sci_port->irqs); i++)
-> >                         sci_port->irqs[i] =3D sci_port->irqs[0];
-> > +       else if (sci_port->irqs[1] < 0)
-> > +               return sci_port->irqs[1];
-> >
-> >         sci_port->params =3D sci_probe_regmap(p);
-> >         if (unlikely(sci_port->params =3D=3D NULL))
-> >
-> > And then the code flow is actively irritating. sci_init_single() copies
-> > irqs[0] to all other irqs[i] and then sci_request_irq() loops over the
-> > already requested irqs and checks for duplicates. A single place that
-> > identifies the exact set of required irqs would already help a lot.
->=20
-> Yeah, it's ugly and convoluted, like the wide set of hardware the
-> driver supports.
->=20
-> > Also for spi-rspi.c I don't see how platform_get_irq_byname_optional()
-> > returning 0 instead of -ENXIO would help. Please talk in patches.
->=20
-> --- a/drivers/spi/spi-rspi.c
-> +++ b/drivers/spi/spi-rspi.c
-> @@ -1420,17 +1420,25 @@ static int rspi_probe(struct platform_device *pde=
-v)
->         ctlr->max_native_cs =3D rspi->ops->num_hw_ss;
->=20
->         ret =3D platform_get_irq_byname_optional(pdev, "rx");
-> -       if (ret < 0) {
-> +       if (ret < 0)
-> +               goto error2;
-> +
-> +       if (!ret) {
->                 ret =3D platform_get_irq_byname_optional(pdev, "mux");
-> -               if (ret < 0)
-> +               if (!ret)
->                         ret =3D platform_get_irq(pdev, 0);
-> +               if (ret < 0)
-> +                       goto error2;
-> +
->                 if (ret >=3D 0)
->                         rspi->rx_irq =3D rspi->tx_irq =3D ret;
->         } else {
->                 rspi->rx_irq =3D ret;
->                 ret =3D platform_get_irq_byname(pdev, "tx");
-> -               if (ret >=3D 0)
-> -                       rspi->tx_irq =3D ret;
-> +               if (ret < 0)
-> +                       goto error2;
-> +
-> +               rspi->tx_irq =3D ret;
->         }
->=20
->         if (rspi->rx_irq =3D=3D rspi->tx_irq) {
-
-This is not a simplification, just looking at the line count and the
-added gotos. That's because it also improves error handling and so the
-effect isn't easily spotted.
-
-> I like it when the "if (ret < ) ..." error handling is the first check to=
- do.
-
-That's a relevant difference between us.
-
-> With -ENXIO, it becomes more convoluted. and looks less nice (IMHO).
->=20
-> > Preferably first simplify in-driver logic to make the conversion to the
-> > new platform_get_irq_optional() actually reviewable.
->=20
-> So I have to choose between
->=20
->     if (ret < 0 && ret !=3D -ENXIO)
->             return ret;
->=20
->     if (ret) {
->             ...
->     }
->=20
-> and
->=20
->     if (ret =3D=3D -ENXIO) {
->             ...
->     } else if (ret < 0)
->             return ret;
->     }
-
-I would do the latter, then it's in the normal order for error handling
-
-	handle some specific errors;
-	forward unhandled errors up the stack;
-	handle success;
-
-but it seems you prefer to not call "not found" an error. Actually I
-think it's an advantage that the driver has to mention -ENXIO, feels
-like proper error handling to me. I guess we won't agree about that
-though.
-
-What about the following idea (in pythonic pseudo code for simplicity):
-
-	# the rspi device either has two irqs, one for rx and one for
-	# tx, or a single one for both together.
-
-	def muxed_hander(irq):
-		status =3D readl(STATUS)
-		if status & IF_RX:
-			rx_handler()
-		if status & IF_TX:
-			tx_handler()
-
-	def probe_muxed_irq():
-		irq =3D platform_get_irq_by_name("mux")
-		if irq < 0:
-			return irq;
-
-		request_irq(irq, muxed_handler)
-
-	def probe_separate_irqs():
-		txirq =3D platform_get_irq_by_name("tx")
-		if txirq < 0:
-			return txirq
-
-		rxirq =3D platform_get_irq_by_name("rx")
-		if rxirq < 0:
-			return rxirq
-
-		request_irq(txirq, tx_handler)
-		request_irq(rxirq, rx_handler)
-
-	def probe():
-		ret =3D probe_separate_irqs()
-		if ret =3D=3D -ENXIO:
-			ret =3D probe_muxed_irq()
-
-		if ret < 0:
-			return ret
-
-looks clean (to me that is) and allows to skip the demuxing in
-tx_handler and rx_handler (which might or might not yield improved
-runtime behaviour). Maybe a bit more verbose, but simpler to grasp for a
-human, isn't it?
-
-> with the final target being
->=20
->     if (ret < 0)
->             return ret;
->=20
->     if (ret) {
->             ...
->     }
->=20
-> So the first option means the final change is smaller, but it looks less
-> nice than the second option (IMHO).
-> But the second option means more churn.
->=20
-> > > So there are three reasons: because the absence of an optional IRQ
-> > > is not an error, and thus that should not cause (a) an error code
-> > > to be returned, and (b) an error message to be printed, and (c)
-> > > because it can simplify the logic in device drivers.
-> >
-> > I don't agree to (a). If the value signaling not-found is -ENXIO or 0
-> > (or -ENODEV) doesn't matter much. I wouldn't deviate from the return
-> > code semantics of platform_get_irq() just for having to check against 0
-> > instead of -ENXIO. Zero is then just another magic value.
->=20
-> Zero is a natural magic value (also for pointers).
-> Errors are always negative.
-> Positive values are cookies (or pointers) associated with success.
-
-Yeah, the issue where we don't agree is if "not-found" is special enough
-to deserve the natural magic value. For me -ENXIO is magic enough to
-handle the absence of an irq line. I consider it even the better magic
-value.
-
-> > (c) still has to be proven, see above.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---aw3dtkiiyid6id5x
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmHlof4ACgkQwfwUeK3K
-7Aniewf+MoaFo3EYfzYPpJGODkMHLkkxMbHUg8vSMqRQM6WJsf8c9vxwcsWAL4ve
-Et7WTI1iMsw9uc3Wiag0LUt2KFm0pxr+OCAyIEsfQ/5exnZOmiPovOmrt8eNPe8c
-hTXRJzXnsS9aZP/mJjPEqSZKaBTA/0WYUaKJUQsHq0cxBBtQCeUlMtXmCgCcRUFZ
-NK/trtp/5N3W9bLhTFaZ+tCe0aYS5iQAihlnquEZNjJjeTyuZfN/pCbeiAZdDFv1
-S85HGZU7QsH9jV00tdrlAze2aLGJ11VXdnibbL3l5ITXHpJKBdpBFZHGazA0P5iG
-b1PnP722liY900ec+sr8AE7Gyb3swA==
-=kGnZ
------END PGP SIGNATURE-----
-
---aw3dtkiiyid6id5x--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
