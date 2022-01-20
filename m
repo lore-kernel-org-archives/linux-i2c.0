@@ -2,167 +2,113 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCF9EC4332F
-	for <linux-i2c@archiver.kernel.org>; Wed, 19 Jan 2022 23:09:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2A1EC433EF
+	for <linux-i2c@archiver.kernel.org>; Thu, 20 Jan 2022 00:17:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357756AbiASXJP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 19 Jan 2022 18:09:15 -0500
-Received: from mail-co1nam11on2041.outbound.protection.outlook.com ([40.107.220.41]:47396
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1344307AbiASXIE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 19 Jan 2022 18:08:04 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aT7TMuJ7vrpMaIari3WNPBFO/6gTY11N3LHWaTASs6Jgcb5T/I9qGni0evFQu6QUvhqlDWWvFOniS36GsvKTCkC3P1HEUfAuVc3p80nD0TxhLyOr8oWUqvhhg1XAMcrxoJu+PcrWJfpWKwsAy06d1ZrUGlQ+d2+owwzCu2ppnQFEEBPL/OjfsVW3EFBOeWbHbmLB/FSwjraWiKVc/Y1NTo6HjaQRapL8S38bApeahtttI35z6yCWSpaVhOGU2h5e7OjpvXVq1m7ph9atkiKP8Da9pnG1Cu0qRHj6FGOAMxJPYi5UyOnduFDXZiusGM5svPiZpzcBhLTkTieaohMC1w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=6wSpAD2KemZjot21SmFWBP8nWq5/A4vKoYw8VaZ8yFA=;
- b=dPD6YvSpXq7WcnUzqCmDgHJ5NiyOgrf8meYULBGa4sB5o2Zl+StaCvEOuycGIZiSGXyfWvZ5ksPsJ/rTQ+tnglhdG0KW6lGQt58UJ3lczf/7d8vplpf68tcLyCaiUieIAlVparn4E92dpyONSZWIp9lSmULrs4Lk74xR3k9a/ORyvMfkspaoHPaz3H/Zn9idOQ2jwFp42GbF5cx2Wff3FW7ITbgXFwFxuY7qK+rAGudeJyipXOBDE8iekz1u1xe5eXCChR/a3X/CVl7AzRju/Jokd1hY20WRutNVWeIqw3ZGGbXBeeVcAFSR+81I68WKUU5vYFewjZhRuAaxXtBDlQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=roeck-us.net smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6wSpAD2KemZjot21SmFWBP8nWq5/A4vKoYw8VaZ8yFA=;
- b=bqF2dmenjymR+gRvB/oD0Ptguqorg0hn0qgtRyjhB4SjnrRhTMFAM9PjIUekTmEHu69w3JPnqd0cqUZV+6GP2p1bIdHTuCstSfImSYGgqlA2gGgG/IaHfu9XUtX6437bee0SjMilPrHa2ck4Ut1110oFvXHHDzsdYKl2ESU5rdU=
-Received: from DM6PR11CA0034.namprd11.prod.outlook.com (2603:10b6:5:190::47)
- by BY5PR12MB4147.namprd12.prod.outlook.com (2603:10b6:a03:205::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4888.11; Wed, 19 Jan
- 2022 23:08:02 +0000
-Received: from DM6NAM11FT009.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:190:cafe::d) by DM6PR11CA0034.outlook.office365.com
- (2603:10b6:5:190::47) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4909.8 via Frontend
- Transport; Wed, 19 Jan 2022 23:08:02 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DM6NAM11FT009.mail.protection.outlook.com (10.13.173.20) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4909.7 via Frontend Transport; Wed, 19 Jan 2022 23:08:02 +0000
-Received: from ethanolx7ea3host.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.18; Wed, 19 Jan
- 2022 17:08:00 -0600
-From:   Terry Bowman <terry.bowman@amd.com>
-To:     <terry.bowman@amd.com>, <linux@roeck-us.net>,
-        <linux-watchdog@vger.kernel.org>, <jdelvare@suse.com>,
-        <linux-i2c@vger.kernel.org>, <wsa@kernel.org>,
-        <andy.shevchenko@gmail.com>, <rafael.j.wysocki@intel.com>
-CC:     <linux-kernel@vger.kernel.org>, <wim@linux-watchdog.org>,
-        <rrichter@amd.com>, <thomas.lendacky@amd.com>,
-        <sudheesh.mavila@amd.com>, <Nehal-bakulchandra.Shah@amd.com>,
-        <Basavaraj.Natikar@amd.com>, <Shyam-sundar.S-k@amd.com>,
-        <Mario.Limonciello@amd.com>
-Subject: [PATCH v3 8/9] i2c: piix4: Add EFCH MMIO support for SMBus port select
-Date:   Wed, 19 Jan 2022 17:06:25 -0600
-Message-ID: <20220119230626.31560-9-terry.bowman@amd.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220119230626.31560-1-terry.bowman@amd.com>
-References: <20220119230626.31560-1-terry.bowman@amd.com>
+        id S1357664AbiATARI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 19 Jan 2022 19:17:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37622 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357655AbiATARI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Jan 2022 19:17:08 -0500
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76EFC061574
+        for <linux-i2c@vger.kernel.org>; Wed, 19 Jan 2022 16:17:07 -0800 (PST)
+Received: by mail-lf1-x131.google.com with SMTP id s30so14944124lfo.7
+        for <linux-i2c@vger.kernel.org>; Wed, 19 Jan 2022 16:17:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=semihalf-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NPDv/4ut9T/p09x8/AMRX86/gRJUHk8SX5V3uS3JB0o=;
+        b=an2BcXLPoLBuGiM8g9XhPMet4vOHDlh9p2qdL/Yhl8QdYZT7M1mtaBd+I3nCrUTzKg
+         4P2kN2u5XnN0SC6sfE/n1kqWdlWxqo5fMAo6AjwLjseqVC+60RivmIkqYtUXhGfWf5vE
+         tpUKhpO/8x+5IRmWLXKwlZD8pZIlNl8myLe+Ra+X9gOD8wFhRp6TehDJySCa1Zcun2xo
+         RnUdEL1Tl7WeS12qzVzlG1oaGqzOGz1dVjRpRXaNJT4tIXbhLZgmbkz8dE98JQATBUSx
+         EL4jn8Rk6xiCOgVHhV22ZeosdsabN1IeqZRi2BLVz1LRDvDyL736ixbPEz2TdkTgiH5F
+         A/ZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NPDv/4ut9T/p09x8/AMRX86/gRJUHk8SX5V3uS3JB0o=;
+        b=Vo1hif1e/iU7tM8VlwcmKxkwnfcDG7BFge52vdxVs4zZAG4QItUcnSRmDRK/yuea4s
+         eqM+roJ2JowVMPwY9y1IqNSs2l95Xvi4CB+e5VSnGItHID0lSqQrG5IOu7V+qNWwc6KL
+         X/OQF31BK6gCCSz250E5zKPgFvTf2jxrbBq2cv7F9GcmuCkJF67W1ybG/L8hxcT8p1wX
+         Tzc0uSaDK3UD9uu0llrhXl1vUNE16gSwLTzZxUrd1m8DlVEyVVFFGOj6z6qCIiF1K+jQ
+         ZQjHLugCdFC6jkJBH37/LBxa3eC4wbrUrTnnCKZJ0t0XX3osJtKGcPYYTMZeRZ+3fwOm
+         y7Fg==
+X-Gm-Message-State: AOAM532ObsQ/XJLCqHKAd2o0ui4EwOsmwSgIF4nzhpeAMfmYeCCNBNIF
+        zvr4N3o2XtaOV3e3iiLCmOFXkUpOCNIZVQ==
+X-Google-Smtp-Source: ABdhPJw3YT+KtDMp9FPvOftu6GuZa6cXHtcvpG9ClSYN+lARCm867nv1EONzwfYsSZYCnFwereq4FA==
+X-Received: by 2002:ac2:5d4e:: with SMTP id w14mr3796792lfd.574.1642637826068;
+        Wed, 19 Jan 2022 16:17:06 -0800 (PST)
+Received: from dabros-l.roam.corp.google.com ([185.157.14.92])
+        by smtp.gmail.com with ESMTPSA id v27sm119564lfo.243.2022.01.19.16.17.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Jan 2022 16:17:05 -0800 (PST)
+From:   Jan Dabros <jsd@semihalf.com>
+To:     linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        jarkko.nikula@linux.intel.com
+Cc:     andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
+        hdegoede@redhat.com, wsa@kernel.org, rrangel@chromium.org,
+        mw@semihalf.com, jaz@semihalf.com, upstream@semihalf.com,
+        jsd@semihalf.com
+Subject: [PATCH 0/2] i2c-designware: Add support for AMD PSP semaphore
+Date:   Thu, 20 Jan 2022 01:16:19 +0100
+Message-Id: <20220120001621.705352-1-jsd@semihalf.com>
+X-Mailer: git-send-email 2.34.1.703.g22d0c6ccf7-goog
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 20cc6cd2-4673-4f4e-ea83-08d9dba08aea
-X-MS-TrafficTypeDiagnostic: BY5PR12MB4147:EE_
-X-Microsoft-Antispam-PRVS: <BY5PR12MB4147AA9550642732B141BF0483599@BY5PR12MB4147.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:3513;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 4fS5XqijUU9JwPEyfsuwggNq7lQ1vmKHCsg9kcw4FDkqBrA0n7tDKkDjovb5UBJUM77Tm7ZIbZLNFKGpIUEzrEvNQCrnUT/pjfDIKhmWOGJqoBI0UkWFZSnctPO3Q35FxztMfDAXmKdrCy+yylcZ8obIuZcvYeJpcc47ANM+ChPpd4b9Rb7L9y6JIjtFlIGW7HaNzyjRjjn2b4v+y5QrAY7N3DVaplFtkBsZThZgY11Wl62/ZDGKzX0Lc4Hd04G0ClfZjf3mBIffw3I0t8VWQH2JGHl01XIGxRG2KNNbWfjmcTHgwuJ9B6ynqCoMVs97QU+zvpO5aQsqa87rjUf/bmQnqf/lMVbJgahcB9ahnC8vCO7VGADIcHI0hQHl70GoyF7t/B0WMJZ6t43boaodLWVOn79lYGuIjQeHkrxABsZmfOdiziXQ4BpqN9ezdblFQu2uDuzr4dybcMlVyxdw4K406kQZghHScYH+XEIFKrZPvf7gzMC9Bdf6Be459yDLxG3LsQeo50sYUbsei159v2qmZtDfC/OAw+Lcguj9I3LHVS26vVzHmAMjYUtJwrLLVJVdwPqJ2PQkX3boleCmOUbhExszk5lu3b9mbDp9bDGl0kRb8DY5KZT45eoHuOIS2SWXueOem1uIZqev79FK1oUYzb9FN/6D8kMxjcLafpU0VH9tEMZMLRdX5+d8MeRB7jXQLZLjy7yxOQz5jwh+WWdJXwbBmlGQzoBZabzozSqC0Ic0uSOECBh0NHKEVd0umjp58tScaMn2aQC0o9HA5biIFvOOTKeQI9j81XwA1A5JGuyumxIHUSTl69U9P++R
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(40470700002)(46966006)(36840700001)(54906003)(82310400004)(8936002)(2616005)(36756003)(26005)(336012)(1076003)(83380400001)(8676002)(2906002)(6666004)(508600001)(110136005)(7696005)(81166007)(316002)(44832011)(36860700001)(426003)(40460700001)(70206006)(86362001)(5660300002)(186003)(16526019)(47076005)(4326008)(356005)(70586007)(2101003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Jan 2022 23:08:02.0599
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 20cc6cd2-4673-4f4e-ea83-08d9dba08aea
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT009.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4147
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-AMD processors include registers capable of selecting between 2 SMBus
-ports. Port selection is made during each user access by writing to
-FCH::PM::DECODEEN[smbus0sel]. Change the driver to use MMIO during
-SMBus port selection because cd6h/cd7h port I/O is not available on
-later AMD processors.
+This patchset comprises support for new i2c-designware controller setup on some
+AMD Cezanne SoCs, where x86 is sharing i2c bus with PSP. PSP uses the same
+controller and acts as an i2c arbitrator there (x86 is leasing bus from it).
 
-Signed-off-by: Terry Bowman <terry.bowman@amd.com>
----
- drivers/i2c/busses/i2c-piix4.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+First commit aims to improve generic i2c-designware code by adding extra locking
+on probe() and disable() paths. I would like to ask someone with access to
+boards which use Intel BayTrail(CONFIG_I2C_DESIGNWARE_BAYTRAIL) to verify
+behavior of my changes on such setup.
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index b85f926451b8..1811bdc96363 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -755,19 +755,28 @@ static void piix4_imc_wakeup(void)
- 	release_region(KERNCZ_IMC_IDX, 2);
- }
- 
--static int piix4_sb800_port_sel(u8 port)
-+static int piix4_sb800_port_sel(u8 port, struct sb800_mmio_cfg *mmio_cfg)
- {
- 	u8 smba_en_lo;
- 
--	outb_p(piix4_port_sel_sb800, SB800_PIIX4_SMB_IDX);
--	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
-+	if (mmio_cfg->use_mmio) {
-+		smba_en_lo = ioread8(mmio_cfg->addr + piix4_port_sel_sb800);
-+
-+		if ((smba_en_lo & piix4_port_mask_sb800) != port)
-+			iowrite8((smba_en_lo & ~piix4_port_mask_sb800) | port,
-+				 mmio_cfg->addr + piix4_port_sel_sb800);
-+	} else {
-+		outb_p(piix4_port_sel_sb800, SB800_PIIX4_SMB_IDX);
-+		smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
- 
--	if ((smba_en_lo & piix4_port_mask_sb800) != port)
--		outb_p((smba_en_lo & ~piix4_port_mask_sb800) | port,
--		       SB800_PIIX4_SMB_IDX + 1);
-+		if ((smba_en_lo & piix4_port_mask_sb800) != port)
-+			outb_p((smba_en_lo & ~piix4_port_mask_sb800) | port,
-+			       SB800_PIIX4_SMB_IDX + 1);
-+	}
- 
- 	return (smba_en_lo & piix4_port_mask_sb800);
- }
-+
- /*
-  * Handles access to multiple SMBus ports on the SB800.
-  * The port is selected by bits 2:1 of the smb_en register (0x2c).
-@@ -844,12 +853,12 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 		}
- 	}
- 
--	prev_port = piix4_sb800_port_sel(adapdata->port);
-+	prev_port = piix4_sb800_port_sel(adapdata->port, &adapdata->mmio_cfg);
- 
- 	retval = piix4_access(adap, addr, flags, read_write,
- 			      command, size, data);
- 
--	piix4_sb800_port_sel(prev_port);
-+	piix4_sb800_port_sel(prev_port, &adapdata->mmio_cfg);
- 
- 	/* Release the semaphore */
- 	outb_p(smbslvcnt | 0x20, SMBSLVCNT);
+Second commit adds support for new PSP semaphore arbitration mechanism.
+Implementation is similar to the one from i2c-designware-baytrail.c however
+there are two main differences:
+1) Add new ACPI ID in order to protect against silent binding of the old driver
+to the setup with PSP semaphore. Extra flag ARBITRATION_SEMAPHORE added to this
+new _HID allows to recognize setup with PSP.
+2) Beside acquire_lock() and release_lock() methods we are also applying quirks
+to the lock_bus() and unlock_bus() global adapter methods. With this in place
+all i2c clients drivers may lock i2c bus for a desired number of i2c
+transactions (e.g. write-wait-read) without being aware of that such bus is
+shared with another entity.
+
+This patchset is a follow-up to the RFC sent earlier on LKML [1], with review
+comments applied.
+
+Looking forward to some feedback.
+
+[1] https://lkml.org/lkml/2021/12/22/219
+
+Jan Dabros (2):
+  i2c: designware: Add missing locks
+  i2c: designware: Add AMD PSP I2C bus support
+
+ MAINTAINERS                                  |   1 +
+ drivers/acpi/acpi_apd.c                      |   1 +
+ drivers/i2c/busses/Kconfig                   |  10 +
+ drivers/i2c/busses/Makefile                  |   1 +
+ drivers/i2c/busses/i2c-designware-amdpsp.c   | 357 +++++++++++++++++++
+ drivers/i2c/busses/i2c-designware-baytrail.c |  10 +-
+ drivers/i2c/busses/i2c-designware-common.c   |  12 +
+ drivers/i2c/busses/i2c-designware-core.h     |  18 +-
+ drivers/i2c/busses/i2c-designware-master.c   |   6 +
+ drivers/i2c/busses/i2c-designware-platdrv.c  |  61 ++++
+ 10 files changed, 469 insertions(+), 8 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-designware-amdpsp.c
+
 -- 
-2.30.2
+2.34.1.703.g22d0c6ccf7-goog
 
