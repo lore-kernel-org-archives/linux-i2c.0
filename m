@@ -2,125 +2,154 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FAB0C433EF
-	for <linux-i2c@archiver.kernel.org>; Thu, 20 Jan 2022 11:32:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BA77C4321E
+	for <linux-i2c@archiver.kernel.org>; Thu, 20 Jan 2022 11:40:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231612AbiATLcZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 20 Jan 2022 06:32:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47778 "EHLO
+        id S231475AbiATLkj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 20 Jan 2022 06:40:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230322AbiATLcZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 Jan 2022 06:32:25 -0500
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96DBC061574;
-        Thu, 20 Jan 2022 03:32:24 -0800 (PST)
-Received: by mail-ed1-x52e.google.com with SMTP id b13so27561886edn.0;
-        Thu, 20 Jan 2022 03:32:24 -0800 (PST)
+        with ESMTP id S231459AbiATLkh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 Jan 2022 06:40:37 -0500
+Received: from mail-oo1-xc36.google.com (mail-oo1-xc36.google.com [IPv6:2607:f8b0:4864:20::c36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55FFDC061574;
+        Thu, 20 Jan 2022 03:40:37 -0800 (PST)
+Received: by mail-oo1-xc36.google.com with SMTP id l7-20020a4a2707000000b002dde197c749so2070439oof.10;
+        Thu, 20 Jan 2022 03:40:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=WwqLFdAqbjzHEvpW1UH/4aQ0iDawRpJsHatZKSEMOk8=;
-        b=cPo6jp4f0KIo9GC4MryHnLdBB3d79OC04LySscCUQzgVHJfgRsxvDxRifOMMyXN2YA
-         2HangN6G4bO4nSooM8s4WBgTcZek0iITbEU29p7sMmNfZNKTqdF+9ElkC1qG7yP88uxa
-         xQYbqNGp15diaAd9PY0pubkt1juVJWACWzjRCP+9rHRHwNlXPwzcKQu8MBrTX3Ln3+Yd
-         rbm4K1nrPXeMLfQljPCtLY+QX9+UGPI3DKWT6WGeKylTs/BwjFCRwssodWGezi4rEe1E
-         o45RslrdeczWVZjSH1NRdUYijqE6TTW+okrp76moFno6wqtlNOFKCymyCHVCkGp6p5ZB
-         rNkg==
+        bh=IURShh+tAODqAiJh+KDJ+01PfxKxuj1xZUOMackfOOk=;
+        b=Vz1pvQALrPt8wZAYERJlR7js9v4/O4ym8VLsubf10xKBms/HSrNyJXsvLUKVPNz2er
+         z9y+6nPpnS1qbFwvKwvJorb0aIcWu63ZFCha1bhWzJH7j1MFpfTrIFzyaQa00g+b1UFg
+         wCO+8ajcrVTlY4dtkpmSgqGqvfxa4zoI31BvQggtxFB/0MXIwL9qG/XyDMZXxGeTkHiK
+         vDn1LtEM2iBH8xCc+4qhPyIX5aK0onRaVfO6k6V2ZgTS6FQ7r+O88jb7LSRI7mYQh0sP
+         kkC0b533v7hmJ/EjyCQ8E4jxwvWW9+JZqK4CRU2XFJCepYw+mCDbLaLCO0yyFAUVRbME
+         bg1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=WwqLFdAqbjzHEvpW1UH/4aQ0iDawRpJsHatZKSEMOk8=;
-        b=PNGn8xzUzewLsY3OP3wVIIfrARFF7Yvfw4dmzP2wjmY4YxVKJSZ9LhG1TjHPqvdVmw
-         Don0WMKSf4xjOBdrnyR9Z6g7sVayvKEA4Db+JywjrKXDO2vK+4M4gSTPVV1VH+rihe+P
-         chKu7FQj6cd5RDnWylpUcoKlku48NtDI0R+SHTLVddRb1XuXanXykrADffRKDrJANXEC
-         Er4o6EIy4obq9WdDt4+RVA0cmY2i0wM16ItBrEvE58pHw7x6nQ+gFtuFv12jX1I6zgqf
-         BOoGROaqsNDF5JQAa9kfU5no5g6l0kAhTLOrK1P4X2d8iprGHwTRje8GXMe4P4/4u0YM
-         CmTw==
-X-Gm-Message-State: AOAM531ThnBVsq5MI+QNR3FF7WCojlpGwWTZId87lXqAQu9D6zDa3qKI
-        3ggT+1Hv7XqYQOay95sD1LDZoIiuaEoRKrxsjL7/VGy/OgdZhw==
-X-Google-Smtp-Source: ABdhPJwb6RqXpYiaUV3x8IjDCNXLKolMSHKJFWmmgMamNK4UgHoa7a/w+4nlHP/suS2cjf2Pt1JVcTChIVOUEa/jsGo=
-X-Received: by 2002:a17:906:8693:: with SMTP id g19mr23021785ejx.579.1642678343371;
- Thu, 20 Jan 2022 03:32:23 -0800 (PST)
+        bh=IURShh+tAODqAiJh+KDJ+01PfxKxuj1xZUOMackfOOk=;
+        b=CBwg8evbXewTKOVoBhJZHj4P0TqGmS9TjGZIAHe4Ki1FvCnRR1jPaDN6izzBj+rthG
+         7/iB1pLaT7T+7i08Mkq6csNs6XAETHypE3o9zbEDNGSHYEhxJM7+ugLfAsbTW2Vdntuk
+         sEtckbCHAB3x/8fOZMp6CXKbYA9UAvxgEZ5xEuLTm/P5qcJf2s3+UrtgbWbR0Do4zJms
+         5ssKA6k2UKpeY5olaH4n0AgS1YUb7B+9AaPiErn/iPNvgn6YlU685vCm45Kj5eqq5fnY
+         EsCS3aXSSCTKs80IzIMKMDNPBBg6FQUO5N0++lLVVWciqJJ+PnyU0C6rryXq0ah5lVr7
+         VQbg==
+X-Gm-Message-State: AOAM530VHa5L2eJsIWZTUZLAG37JmD/D5TDlARfUHxjFJcrC+6IgYpDx
+        K/HPSmaYGUG8GK0eLrMtubIivo5BJWUPg4UqHe4=
+X-Google-Smtp-Source: ABdhPJzVUuPUA0+dLs3T4/ac9raYhHS1yiR6xjixMRgj1sa6nF5nfrTil5Enm8pp/zVblcBTM7eQu4CMn+laojzaQUo=
+X-Received: by 2002:a05:6808:1b25:: with SMTP id bx37mr7082972oib.129.1642678836132;
+ Thu, 20 Jan 2022 03:40:36 -0800 (PST)
 MIME-Version: 1.0
-References: <20220119230626.31560-1-terry.bowman@amd.com>
-In-Reply-To: <20220119230626.31560-1-terry.bowman@amd.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Thu, 20 Jan 2022 13:30:40 +0200
-Message-ID: <CAHp75VcUVY+51o0DFhvYTjpydfF=L_rTGan74sZRMPDMmXtsQg@mail.gmail.com>
-Subject: Re: [PATCH v3 0/9] i2c: piix4: Replace cd6h/cd7h port I/O accesses
- with MMIO accesses
-To:     Terry Bowman <terry.bowman@amd.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-        Jean Delvare <jdelvare@suse.com>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Robert Richter <rrichter@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        sudheesh.mavila@amd.com,
-        "Shah, Nehal-bakulchandra" <Nehal-bakulchandra.Shah@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Mario Limonciello <Mario.Limonciello@amd.com>
+References: <20220120104009.159147-1-krzysztof.kozlowski@canonical.com> <a370a74a-2548-fc20-20b0-89e48645086f@baylibre.com>
+In-Reply-To: <a370a74a-2548-fc20-20b0-89e48645086f@baylibre.com>
+From:   Enric Balletbo Serra <eballetbo@gmail.com>
+Date:   Thu, 20 Jan 2022 12:40:24 +0100
+Message-ID: <CAFqH_52NGQYjtEPvsK+pPM12-U6j9vhVCZCFwh6xAABdd+7hqw@mail.gmail.com>
+Subject: Re: [PATCH 1/2] dt-bindings: display: bridge: drop Enric Balletbo i
+ Serra from maintainers
+To:     Neil Armstrong <narmstrong@baylibre.com>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Rob Herring <robh+dt@kernel.org>,
+        Benson Leung <bleung@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Nicolas Boichat <drinkcat@chromium.org>,
+        Simon Glass <sjg@chromium.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-i2c@vger.kernel.org, linux-iio <linux-iio@vger.kernel.org>,
+        Linux Input <linux-input@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 1:06 AM Terry Bowman <terry.bowman@amd.com> wrote:
->
-> This series changes the piix4_smbus driver's cd6h/cd7h port I/O accesses
-> to use MMIO instead. This is necessary because cd6h/cd7h port I/O may be
-> disabled on later AMD processors.
->
-> This series includes patches with MMIO accesses to registers
-> FCH::PM::DECODEEN and FCH::PM::ISACONTROL. The same registers are also
-> accessed by the sp5100_tco driver.[1] Synchronization to the MMIO
-> registers is required in both drivers.
->
-> The first patch creates a macro to request MMIO region using the 'muxed'
-> retry logic. This is used in patch 6 to synchronize accesses to EFCH MMIO.
->
-> The second patch replaces a hardcoded region size with a #define. This is
-> to improve maintainability and was requested from v2 review.
->
-> The third patch moves duplicated region request/release code into
-> functions. This locates related code into functions and reduces code line
-> count. This will also make adding MMIO support in patch 6 easier.
->
-> The fourth patch moves SMBus controller address detection into a function.
-> This is in preparation for adding MMIO region support.
->
-> The fifth patch moves EFCH port selection into a function. This is in
-> preparation for adding MMIO region support.
->
-> The sixth patch adds MMIO support for region requesting/releasing and
-> mapping. This is necessary for using MMIO to detect SMBus controller
-> address, enable SMBbus controller region, and control the port select.
->
-> The seventh patch updates the SMBus controller address detection to support
-> using MMIO. This is necessary because the driver accesses registers
-> FCH::PM::DECODEEN and FCH::PM::ISACONTOL during initialization and they are
-> only available using MMIO on later AMD processors.
->
-> The eighth patch updates the SMBus port selection to support MMIO. This is
-> required because port selection control resides in the
-> FCH::PM::DECODEEN[smbus0sel] and is only accessible using MMIO on later AMD
-> processors.
->
-> The ninth patch enables the EFCH MMIO functionality added earlier in this
-> series. The SMBus controller's PCI revision ID is used to check if EFCH
-> MMIO is supported by HW and should be enabled in the driver.
+Hi,
 
-In general looks good to me, but I believe it will be much better if
-we agreed on converting driver to use iomap_port() +
-ioreadXX()/iowriteXX() (means dropping I/O accessor _p variants for
-good). This would make the series cleaner and less invasive.
+Missatge de Neil Armstrong <narmstrong@baylibre.com> del dia dj., 20
+de gen. 2022 a les 11:52:
+>
+> On 20/01/2022 11:40, Krzysztof Kozlowski wrote:
+> > Enric Balletbo i Serra emails bounce:
+> >
+> >   <enric.balletbo@collabora.com>: Recipient address rejected: User unknown in  local recipient table
+> >
+> > so drop him from the maintainers, similarly to commit 3119c28634dd
+> > ("MAINTAINERS: Chrome: Drop Enric Balletbo i Serra").  Add generic DRM
+> > bridge maintainers to Analogix ANX7814.
+> >
+> > Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+> > ---
+> >  .../devicetree/bindings/display/bridge/analogix,anx7814.yaml  | 4 +++-
+> >  .../bindings/display/bridge/google,cros-ec-anx7688.yaml       | 1 -
+> >  Documentation/devicetree/bindings/display/bridge/ps8640.yaml  | 1 -
+> >  3 files changed, 3 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/Documentation/devicetree/bindings/display/bridge/analogix,anx7814.yaml b/Documentation/devicetree/bindings/display/bridge/analogix,anx7814.yaml
+> > index 8e13f27b28ed..bce96b5b0db0 100644
+> > --- a/Documentation/devicetree/bindings/display/bridge/analogix,anx7814.yaml
+> > +++ b/Documentation/devicetree/bindings/display/bridge/analogix,anx7814.yaml
+> > @@ -7,7 +7,9 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+> >  title: Analogix ANX7814 SlimPort (Full-HD Transmitter)
+> >
+> >  maintainers:
+> > -  - Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> > +  - Andrzej Hajda <andrzej.hajda@intel.com>
+> > +  - Neil Armstrong <narmstrong@baylibre.com>
+> > +  - Robert Foss <robert.foss@linaro.org>
+> >
+> >  properties:
+> >    compatible:
+> > diff --git a/Documentation/devicetree/bindings/display/bridge/google,cros-ec-anx7688.yaml b/Documentation/devicetree/bindings/display/bridge/google,cros-ec-anx7688.yaml
+> > index 9f7cc6b757cb..a88a5d8c7ba5 100644
+> > --- a/Documentation/devicetree/bindings/display/bridge/google,cros-ec-anx7688.yaml
+> > +++ b/Documentation/devicetree/bindings/display/bridge/google,cros-ec-anx7688.yaml
+> > @@ -8,7 +8,6 @@ title: ChromeOS EC ANX7688 HDMI to DP Converter through Type-C Port
+> >
+> >  maintainers:
+> >    - Nicolas Boichat <drinkcat@chromium.org>
+> > -  - Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> >
+> >  description: |
+> >    ChromeOS EC ANX7688 is a display bridge that converts HDMI 2.0 to
+> > diff --git a/Documentation/devicetree/bindings/display/bridge/ps8640.yaml b/Documentation/devicetree/bindings/display/bridge/ps8640.yaml
+> > index cdaf7a7a8f88..186e17be51fb 100644
+> > --- a/Documentation/devicetree/bindings/display/bridge/ps8640.yaml
+> > +++ b/Documentation/devicetree/bindings/display/bridge/ps8640.yaml
+> > @@ -8,7 +8,6 @@ title: MIPI DSI to eDP Video Format Converter Device Tree Bindings
+> >
+> >  maintainers:
+> >    - Nicolas Boichat <drinkcat@chromium.org>
+> > -  - Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> >
+> >  description: |
+> >    The PS8640 is a low power MIPI-to-eDP video format converter supporting
+> >
+>
+> Let's wait for Enric's response, but in any case (removal or new address):
+> Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+>
 
--- 
-With Best Regards,
-Andy Shevchenko
+I'm fine with the removal as I don't have access anymore to this
+hardware so it doesn't really make sense to be there. Sorry for not
+sending the patches myself before.
+
+Acked-by: Enric Balletbo i Serra <eballetbo@kernel.org>
+
+Best regards,
+  Enric
+
+> Neil
