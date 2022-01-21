@@ -2,1587 +2,185 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37553C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 21 Jan 2022 07:51:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 658D3C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 21 Jan 2022 09:18:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379168AbiAUHu6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 21 Jan 2022 02:50:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38758 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379155AbiAUHuw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Jan 2022 02:50:52 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9AB6C06173F;
-        Thu, 20 Jan 2022 23:50:49 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id l16so8648247pjl.4;
-        Thu, 20 Jan 2022 23:50:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :in-reply-to:references;
-        bh=/ZSesE2mc5OAoTd+1nWba0cUb3aOKh6DkW7gD+gj+Z0=;
-        b=NjglrGCNd/E3fYn4WiZ8hViSIS3PQOYEXcfaRecH8veaHuKdOKzLXbNBa0GAaZpOQh
-         iVoLXf9bzO61Yeyv0IRVI03X4cksgItp/6xYKVeAKqrMf5p8SIVBJMBpE6dRAbRM7N+v
-         BVlAZO1fBoR74xamhY39r9cjQCv7sp7OdSoik4qNPMb+eIu96lUGVoru42lBlKQ9XsSA
-         4pMHK611jdBPWmEJe6cnXMMkeG9MD86pCz54ziQUWydbs+HFvT09r3WDSv+d46WzsqBn
-         nWzTIhD1Il17gxnJWzE2CwBv3Z0sx4tXea0B0JbcOdzBH2++LoBDE1N8Kv4/x7rcm7xZ
-         7uYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:in-reply-to:references;
-        bh=/ZSesE2mc5OAoTd+1nWba0cUb3aOKh6DkW7gD+gj+Z0=;
-        b=5vVWWdFaCKPTfc3si4ksYhtPmLNHAsJP8f8ClLW7BEn0H+X4b8Aab+XmvkhHk8/MDn
-         FgLbfXJYEN++AbMISaLoUqL2dYA2HO/U7xgf2xOVIX882mKFjlg/J2kEhRbOtkq+W6fN
-         DBvQ2412xKA2He7GiMVq9R04QodTGEMsHlJ50a7syF1BCiX9rYTNBD/w2s+9/vFJj01R
-         070+00M6+IAIZapaaUs4k8my0NChS5SAx8TtXTPE9fth5IXHHDGimg3RJXiwhT6FDXvL
-         dufz5284qLYjIScblfXd86apAd4RqL9IPdiiCt2EwIRPPDY0NUlL45AFLjy47h/5aMFj
-         igPA==
-X-Gm-Message-State: AOAM53170AywJOKsMfeY8PIiNcGzUheKkixTO6WjArQ3yesAVb1YBelR
-        aQrEn+gnpdHsI6n06ixEZUQ=
-X-Google-Smtp-Source: ABdhPJxk5gFrUpGbXimRwjexsY8666DzwN0wJyjM1p+nl+p1a8uaf+WDMUUN2L/82zkrk8wzAOku9w==
-X-Received: by 2002:a17:90a:ab8a:: with SMTP id n10mr3441135pjq.76.1642751448838;
-        Thu, 20 Jan 2022 23:50:48 -0800 (PST)
-Received: from scdiu3.sunplus.com ([113.196.136.192])
-        by smtp.googlemail.com with ESMTPSA id n35sm3353873pgb.25.2022.01.20.23.50.46
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 20 Jan 2022 23:50:48 -0800 (PST)
-From:   Li-hao Kuo <lhjeff911@gmail.com>
-To:     p.zabel@pengutronix.de, daniel.thompson@linaro.org,
-        lee.jones@linaro.org, u.kleine-koenig@pengutronix.de,
-        robh+dt@kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
-Cc:     lh.kuo@sunplus.com, wells.lu@sunplus.com,
-        Li-hao Kuo <lhjeff911@gmail.com>
-Subject: [PATCH v4 1/2] i2c: Add i2c driver for Sunplus SP7021
-Date:   Fri, 21 Jan 2022 15:50:55 +0800
-Message-Id: <6a89649e76d6feb0090c2d6c74105e059b1a8558.1642751147.git.lhjeff911@gmail.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <cover.1642751147.git.lhjeff911@gmail.com>
-References: <cover.1642751147.git.lhjeff911@gmail.com>
-In-Reply-To: <cover.1642751147.git.lhjeff911@gmail.com>
-References: <cover.1642751147.git.lhjeff911@gmail.com>
+        id S233335AbiAUJSp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 21 Jan 2022 04:18:45 -0500
+Received: from mail-bn7nam10on2046.outbound.protection.outlook.com ([40.107.92.46]:42913
+        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S235232AbiAUJSp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 21 Jan 2022 04:18:45 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=C2JCozzSa2z/W09zJ9heS1Qp34z4Mz0HtVEj2B3HnPB/jKIsSxcNZeI1M63qby1o47cIKJk5y0Zr9Xc8/WbxLT90PimzMcIp3p53e4cv2Dii8R6wcTCTKDxjl8/96Lnmgk1DiT+JyQCgAVvtCzL//Oc3HbWwgJ3ifmxLgHmcnlpCNL4fSlSMbpbW+smUCBd+yuANXPadk1OXvGzNEQoVgNjNGWzDEvPK1kctoN3NnVTrzVp8m+UE3JGO64KRgCdmGEazTSDP5qugO1WCFdvRUnkG3xbCo+JbYoCvYYS40MD7kTbuYA2P5yAEIlVQluo2evmE87VUEtsxSiCmsrG85g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=56+ujtCnJmxp55pgAe9NKelPtjqa2zqm2yAyTSFk40c=;
+ b=DdenMRciNSN37F2I5l29wY+27HjgEYzofQ3tnL8pzEq0x6fR3aPN23AH3vj0QPkQAnsMhhEVj9besjqyTKQNEuCbrcVMTGMEHVAzFR98XFOXNBBB199EL7/Iy7bF3J9KlBBfx33db5XXGcuok0QZ34e6UA6i+VPqvz6JqEWNeL4dcUxiN1OntoWdlFBd5Lyx/qur5gDun5umIR32HxErvxiPUIhCO/+hYJno5D4GuGyHq8pSKXHf5T8IRmB73chIqFXrXnbnIS7+Aycl965dFxjkN25McbwrTSrfShNNsdl/D+FWnpjL59lp84wJPlqyOyytvPVUOgEQ9Gw0Lc5Nbw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=56+ujtCnJmxp55pgAe9NKelPtjqa2zqm2yAyTSFk40c=;
+ b=Or/mMCsGojmXfw6j/z8x+C3EO6jkY+2h1BfZF25bRre1HvdriAG7tM56TANHW+bb/jpJFQHAAQTUCCgslt3Quy8hH49ZgYadGuJLLu4xKb01ASUBTxkF6hDWi8cq+7fAeUFtsG6HcGyuCocYsL2pyurs2fpk3dzmPRv9kKEHs8K5WM+8uBhWn1axWlKN8wmsg0/Xtdag9psM8RL0WVES6v5cgTUP+RkL6J4R5xYLUA1PvyRp4BfzCcgp6Kfaoj4I7PmKuJBkQKlr7CvAzxl9kia8CNF77uINizzqiDvq/60LK9jpurIeQLz9NxWKYsjohZ02DTss/p1KftSP50yrHw==
+Received: from DM5PR12MB1850.namprd12.prod.outlook.com (2603:10b6:3:108::23)
+ by DM6PR12MB2731.namprd12.prod.outlook.com (2603:10b6:5:45::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4888.11; Fri, 21 Jan
+ 2022 09:18:42 +0000
+Received: from DM5PR12MB1850.namprd12.prod.outlook.com
+ ([fe80::880d:1407:db31:5851]) by DM5PR12MB1850.namprd12.prod.outlook.com
+ ([fe80::880d:1407:db31:5851%11]) with mapi id 15.20.4888.014; Fri, 21 Jan
+ 2022 09:18:42 +0000
+From:   Akhil R <akhilrajeev@nvidia.com>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+CC:     =?utf-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Christian Koenig <christian.koenig@amd.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Len Brown <lenb@kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-tegra <linux-tegra@vger.kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: RE: [PATCH v3 1/3] device property: Add device_irq_get_byname
+Thread-Topic: [PATCH v3 1/3] device property: Add device_irq_get_byname
+Thread-Index: AQHYDgP0GKDzb95CsEKkwcPPL/OBh6xsACaAgAEwamA=
+Date:   Fri, 21 Jan 2022 09:18:42 +0000
+Message-ID: <DM5PR12MB18504794AD0FB11536F893BEC05B9@DM5PR12MB1850.namprd12.prod.outlook.com>
+References: <1642686255-25951-1-git-send-email-akhilrajeev@nvidia.com>
+ <1642686255-25951-2-git-send-email-akhilrajeev@nvidia.com>
+ <CAHp75VeOvXf6twskZp-Y-s8AQEpftA0SOUJfXqO5sJ1FKNKgCA@mail.gmail.com>
+In-Reply-To: <CAHp75VeOvXf6twskZp-Y-s8AQEpftA0SOUJfXqO5sJ1FKNKgCA@mail.gmail.com>
+Accept-Language: en-IN, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 1a47f219-f83c-465f-1a0a-08d9dcbf0496
+x-ms-traffictypediagnostic: DM6PR12MB2731:EE_
+x-microsoft-antispam-prvs: <DM6PR12MB2731074FDCC89AF3F953D60AC05B9@DM6PR12MB2731.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8273;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: djGWOnYtMTvMhJiKjLz4mngoFiubEPGpXvIbTndr0RmFySzaHe9DR03a4tWcuevwHErLbDi8jXQ4ffHTpwkE085X+H3w6dPuGrLWv6Yl34Ev1fDEXt6Dh58qBmV6KzDR2Bgma5Ux76FQ18r/WkOmQmN30z2w0n5p+oVI/tdoRsL/ioC8GJGWYtlVjQvGltJHppqbStdTVs/ER4IzurlmcbqJeE+g59kzTpoXWrgzhjORjsZP8M9L3nO3CzW70eav0+hWZ/BOjSexQkiy6Ru8T/i3DJDoEJjGK2J9H4QsP9nujCAfQK/U5EWAeoJ71CXJKyNGaJcEDhCh+44B+48muvIgXGzJCcRualWzROuJ7g8EYA/+nsONAX68H5onqZzzPU3jELgZ+LbHmt65tpVnuGza8XRj5BZ+VinTgAjXBCTZM0HSf1GBV2EY5sTWfV2rSI7q6KBgXOZmLZlbJW7QOfUSFEFPgw5woEn1j38r8byy0ETJSFK/MteYttDIYS6W1znQV5csWJ/dYEwqmiJQcDoKgVyenNGLKYk7dL+mPb0j48xlnUd1rZjxA5vV9417RDFLunN/hV27pTPmwopaNTUElFHeShFVTPnZP8LjZtcGMtarzYB8t8uSLrgHrsIWjGminwODnyo9AZAWq1GExZL6MaYnUizbkbSs63y4dL0CK5Npz9Sm522zVjexUuV3P9busEjGpMIS7XT0rnuErw==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM5PR12MB1850.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(508600001)(38100700002)(8936002)(64756008)(33656002)(38070700005)(316002)(86362001)(26005)(66446008)(2906002)(4326008)(7416002)(66476007)(55016003)(5660300002)(66556008)(186003)(9686003)(83380400001)(7696005)(6916009)(54906003)(122000001)(66946007)(55236004)(76116006)(8676002)(71200400001)(52536014)(6506007);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?bEQwU3NWcTAwa2hqTDFrZSt3Vmo4bTVvZTFobjJCbWNwTUlnRnZyZzdjMlhJ?=
+ =?utf-8?B?eE9tak9OY1NzWWwvT2ZTaU96ME9IYitQVkE3Yk1LM2JQancrYnVTd1ByUlZz?=
+ =?utf-8?B?MURvRldVMmtsRnpQVU4rZGhiRkJveHRrY0syQjN3T04yb053QUZmaUtIVXFk?=
+ =?utf-8?B?SUIwMzhwekNGUWRVdW5jWG53Z21OeXRNbDRUaTZkNHpIajNVdDJxcXZGNHZ3?=
+ =?utf-8?B?OWZPRDNoVGRHcXMyQW1lbGVVVVJtVXB2YzFDbVk4ZUxuOGlhZGVmNm9lSVcz?=
+ =?utf-8?B?UkVaeUQ3Z283bkFHdUluczFOejJrQUVDNDJ3ZXJML1JDK1pMUVJiMnB1bERw?=
+ =?utf-8?B?L2MxY1dVU2dvbUU3WWZEcEQ0bEJxSWJHcFM2MHFORW9WVHk5TENsYnlseGtQ?=
+ =?utf-8?B?S3Q3ZW9DT0ZuU1BDcHlHQUt4R1RiU00wWXhWNTZFcWJSYmRKakw0OWtsSktn?=
+ =?utf-8?B?NmdiS0ZZT01xVFo3aUFYU3dXa0VuSHBZK0dERm1ScHpDVU5lQ3RLRU8zSlIw?=
+ =?utf-8?B?NVdKS1ZYWmxWSk9KMk5UYVF4RFl4emlqWFpXdlBtZUxEdU9tWExGME9UZVpt?=
+ =?utf-8?B?dW9HRENMeFZReS9MazVXR1NySnlSUlo0R3BXWXU1UVV0SVhWb0JZMXlCS2Jl?=
+ =?utf-8?B?TVpzWHpCby9tQjg2dk92R3drOXQ1NExHNXJKNjJTQkRYWm8zaFFINzEzbUZa?=
+ =?utf-8?B?UmIyYkRnS0RiQzNRR1I4Y3loK1lqZkxMS3dsR2RQZEQyNXZybHBQWlBQSDBn?=
+ =?utf-8?B?bTRVMkFvemF4LzhaTm1sTVcrOXlHM0NXK2xFdUVQanBIZVdpUWtOZlN3b053?=
+ =?utf-8?B?VHBuS1hXaThEci9hem1zRWZDcm16N2Fuc2VvNTNGSFpZcFdTaDZiVWNaTzVD?=
+ =?utf-8?B?Ny95bktwYlQ2NWlTOEYrM1dsYXhSSzhTOHM2VUdaMHc5TGVCdUViTWpkNzkr?=
+ =?utf-8?B?bkxGZWxwV0s0MXEzbTNGQTNneW5ITnZkdUljRFAyKzNZcmhFL0l0b1JudTlT?=
+ =?utf-8?B?VFNkbGwya3M0Q2dJa2ZWOEZLQWRURStpVUROTHRwWms4Qm5SRXFUSjFXVEkv?=
+ =?utf-8?B?OUdkQXQxM0xVbUsxQ3RuR1BqTWxJU3FqTUlpRm5oRkl0Nkw0LzBWellMZy9j?=
+ =?utf-8?B?a1ROTTN6Z1cvbWtPUzBHaTAwZ1JiWk1kOUo5NUdNSmUvMHJGMmN1WmxEd20w?=
+ =?utf-8?B?endKeGRyclVMNHBpRE9jUWliUWxiUlFqeXBmRzYxNjd2Z1ZZYkxuOWpRbkx4?=
+ =?utf-8?B?ajA1RG1hems0Y04rQnk3bXY2blNQd01iT3VsY1ZxTndpcXEvYkNKRzIwOTZi?=
+ =?utf-8?B?aHNtUStLZE96V0RXS01PSW5WdUJ1RkgzTGd6WFpVZnhwNFRocEN3K3VMRTA4?=
+ =?utf-8?B?anlHQTBTblhaOENLQnhNdmFBVnRGcGh4VW5RTzlPZlArSzlabnJ2RUNqRFAv?=
+ =?utf-8?B?ZzlRaVBuc2ttZldvbHJxU3VYSHVMYU83aU5yMTZoOFhIbHhxMmUrdTJQVGFL?=
+ =?utf-8?B?ZnduUGZlNzlSOGhWNlFKeFdVTUp3QStBanozQU1wQXFHZS9ZeHdLV0FtMkFD?=
+ =?utf-8?B?T1ZKeEs3ZjErNkVLMXQveUJRbjZqNTg2U2w2dnVSTU9NRHUrdGZYbnprOW5X?=
+ =?utf-8?B?OXNzbi8rU3Y3WU5uU2NuTWZ3TDZwdW12U0o2QWM2MmFSM3grRGpBZkZ1TGxu?=
+ =?utf-8?B?SU9ab1Z2SjA4ZXJFS3Mra1NabEhCRFhWZTdvdTB5U21JaDU5aW1JcWo1Y3N6?=
+ =?utf-8?B?VFVWUmFIdDZIQzA1OEN5Skx3Y1V3bVZxUjdvaERVRG0zNnIwdGlFb3VINVJz?=
+ =?utf-8?B?TUpFSWVyTTl2b280VHZsOFdTcWhpVjBYRXdoaEJsd2NVNG9MK05Ga21raGhL?=
+ =?utf-8?B?eVFJOWNORXVDL3RQbVlBTEN5Yy8yTTVOU1NMcFhSZTdsQ3h4OVlRcnRibDBF?=
+ =?utf-8?B?MWI1N1JNYXphaW5zN3dPOXJEYmZueGkycDNtZ0Vtb1BnSFppeGlBWis5NmdX?=
+ =?utf-8?B?SlM3d1Zyb1VTNTVzaElueURobGUycUR2Qmd3Q00vSkR6N1dST3dYNXRVM29y?=
+ =?utf-8?B?ZnE0RG9LRXQ3YUE2ZTQyWkp2Ykw2Y2srZGJGS1RvSWdRdVZBUDl2RnFOcjB4?=
+ =?utf-8?B?djRFTzZIUVFGbFpVcnE4ZStIU01GaUNqUkp4QUxEK2ZnOE1Cb1VLenFJWXd4?=
+ =?utf-8?B?MHc9PQ==?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DM5PR12MB1850.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1a47f219-f83c-465f-1a0a-08d9dcbf0496
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Jan 2022 09:18:42.2664
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: bAGBkqkej0BMrWM9DioGDNl0cL3EWVpa7qDK9vJrVdql4C6DO5zudKnhj/pu+j3YX1F/vkP+CeAG6CWynxenUQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB2731
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add i2c driver for Sunplus SP7021.
-
-Signed-off-by: Li-hao Kuo <lhjeff911@gmail.com>
----
-Changes in v4:
- - Modified the YAML file : fix indentation issue
-
- MAINTAINERS                      |    6 +
- drivers/i2c/busses/Kconfig       |   10 +
- drivers/i2c/busses/Makefile      |    1 +
- drivers/i2c/busses/i2c-sunplus.c | 1447 ++++++++++++++++++++++++++++++++++++++
- 4 files changed, 1464 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-sunplus.c
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index b84e2d5..4f83935 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18490,6 +18490,12 @@ L:	netdev@vger.kernel.org
- S:	Maintained
- F:	drivers/net/ethernet/dlink/sundance.c
- 
-+SUNPLUS I2C CONTROLLER INTERFACE DRIVER
-+M:	Li-hao Kuo <lhjeff911@gmail.com>
-+L:	linux-i2c@vger.kernel.org
-+S:	Maintained
-+F:	drivers/i2c/busses/i2c-sunplus.c
-+
- SUPERH
- M:	Yoshinori Sato <ysato@users.sourceforge.jp>
- M:	Rich Felker <dalias@libc.org>
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 42da31c..df35b0e 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1055,6 +1055,16 @@ config I2C_SUN6I_P2WI
- 	  This interface is used to connect to specific PMIC devices (like the
- 	  AXP221).
- 
-+config I2C_SUNPLUS
-+	tristate "Sunplus I2C driver"
-+	depends on SOC_SP7021 || COMPILE_TEST
-+	help
-+	  Say Y here to include support for I2C controller in the
-+	  Sunplus SoCs.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called as i2c-sunplus.
-+
- config I2C_SYNQUACER
- 	tristate "Socionext SynQuacer I2C controller"
- 	depends on ARCH_SYNQUACER || COMPILE_TEST
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 1d00dce..00f2e9a 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -107,6 +107,7 @@ obj-$(CONFIG_I2C_STM32F4)	+= i2c-stm32f4.o
- i2c-stm32f7-drv-objs := i2c-stm32f7.o i2c-stm32.o
- obj-$(CONFIG_I2C_STM32F7)	+= i2c-stm32f7-drv.o
- obj-$(CONFIG_I2C_SUN6I_P2WI)	+= i2c-sun6i-p2wi.o
-+obj-$(CONFIG_I2C_SUNPLUS)	+= i2c-sunplus.o
- obj-$(CONFIG_I2C_SYNQUACER)	+= i2c-synquacer.o
- obj-$(CONFIG_I2C_TEGRA)		+= i2c-tegra.o
- obj-$(CONFIG_I2C_TEGRA_BPMP)	+= i2c-tegra-bpmp.o
-diff --git a/drivers/i2c/busses/i2c-sunplus.c b/drivers/i2c/busses/i2c-sunplus.c
-new file mode 100644
-index 0000000..e78ec15
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-sunplus.c
-@@ -0,0 +1,1447 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) Sunplus Inc.
-+ * Author: Li-hao Kuo <lhjeff911@gmail.com>
-+ */
-+
-+#include <linux/bitfield.h>
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/device.h>
-+#include <linux/dma-mapping.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/kthread.h>
-+#include <linux/module.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
-+#include <linux/reset.h>
-+
-+#define SP_I2C_STD_FREQ                      100
-+#define SP_I2C_FAST_FREQ                     400
-+#define SP_I2C_SLEEP_TIMEOUT                 200
-+#define SP_I2C_SCL_DELAY                     1
-+#define SP_CLK_SOURCE_FREQ                   27000
-+#define SP_BUFFER_SIZE                       1024
-+#define SP_I2C_EMP_THOLD                     4
-+
-+#define SP_I2C_BURST_RDATA_BYTES             16
-+#define SP_I2C_BURST_RDATA_FLAG              (BIT(31) | BIT(15))
-+#define SP_I2C_BURST_RDATA_ALL_FLAG          GENMASK(31, 0)
-+
-+#define SP_I2C_CTL0_REG 0x0000
-+//control0
-+#define SP_I2C_CTL0_FREQ_MASK                GENMASK(26, 24)
-+#define SP_I2C_CTL0_PREFETCH                 BIT(18)
-+#define SP_I2C_CTL0_RESTART_EN               BIT(17)
-+#define SP_I2C_CTL0_SUBADDR_EN               BIT(16)
-+#define SP_I2C_CTL0_SW_RESET                 BIT(15)
-+#define SP_I2C_CTL0_SLAVE_ADDR_MASK          GENMASK(7, 1)
-+
-+#define SP_I2C_CTL1_REG 0x0004
-+//control1
-+#define SP_I2C_CTL1_ALL_CLR                  GENMASK(9, 0)
-+#define SP_I2C_CTL1_EMP_CLR                  BIT(9)
-+#define SP_I2C_CTL1_SCL_HOLD_TOO_LONG_CLR    BIT(8)
-+#define SP_I2C_CTL1_SCL_WAIT_CLR             BIT(7)
-+#define SP_I2C_CTL1_EMP_THOLD_CLR            BIT(6)
-+#define SP_I2C_CTL1_DATA_NACK_CLR            BIT(5)
-+#define SP_I2C_CTL1_ADDRESS_NACK_CLR         BIT(4)
-+#define SP_I2C_CTL1_BUSY_CLR                 BIT(3)
-+#define SP_I2C_CTL1_CLKERR_CLR               BIT(2)
-+#define SP_I2C_CTL1_DONE_CLR                 BIT(1)
-+#define SPI2C_CTL1_SIFBUSY_CLR               BIT(0)
-+
-+#define SP_I2C_CTL2_REG 0x0008
-+//control2
-+#define SP_I2C_CTL2_FREQ_CUSTOM_MASK         GENMASK(10, 0)  // 11 bit
-+#define SP_I2C_CTL2_SCL_DELAY_MASK           GENMASK(25, 24)
-+#define SP_I2C_CTL2_SDA_HALF_ENABLE          BIT(31)
-+
-+#define SP_I2C_INT_REG                       0x001c
-+#define SP_I2C_INT_EN0_REG                   0x0020
-+#define SP_I2C_MOD_REG                       0x0024
-+#define SP_I2C_CTL6_REG                      0x0030
-+#define SP_I2C_INT_EN1_REG                   0x0034
-+#define SP_I2C_STATUS3_REG                   0x0038
-+#define SP_I2C_STATUS4_REG                   0x0040
-+#define SP_I2C_INT_EN2_REG                   0x0040
-+#define SP_I2C_CTL7_REG                      0x0044
-+//control7
-+#define SP_I2C_CTL7_RD_MASK                  GENMASK(31, 16)
-+#define SP_I2C_CTL7_WR_MASK                  GENMASK(15, 0)  //bit[31:16]
-+//i2c master mode
-+#define SP_I2C_MODE_DMA_MODE                 BIT(2)
-+#define SP_I2C_MODE_MANUAL_MODE              BIT(1)
-+#define SP_I2C_MODE_MANUAL_TRIG              BIT(0)
-+
-+#define SP_I2C_DATA0_REG                     0x0060
-+
-+#define SP_I2C_DMA_CONF_REG                  0x0004
-+#define SP_I2C_DMA_LEN_REG                   0x0008
-+#define SP_I2C_DMA_ADDR_REG                  0x000c
-+//dma config
-+#define SP_I2C_DMA_CFG_DMA_GO                BIT(8)
-+#define SP_I2C_DMA_CFG_NON_BUF_MODE          BIT(2)
-+#define SP_I2C_DMA_CFG_SAME_SLAVE            BIT(1)
-+#define SP_I2C_DMA_CFG_DMA_MODE              BIT(0)
-+
-+#define SP_I2C_DMA_FLAG_REG 0x0014
-+//dma interrupt flag
-+#define SP_I2C_DMA_INT_LENGTH0_FLAG          BIT(6)
-+#define SP_I2C_DMA_INT_THRESHOLD_FLAG        BIT(5)
-+#define SP_I2C_DMA_INT_IP_TIMEOUT_FLAG       BIT(4)
-+#define SP_I2C_DMA_INT_GDMA_TIMEOUT_FLAG     BIT(3)
-+#define SP_I2C_DMA_INT_WB_EN_ERROR_FLAG      BIT(2)
-+#define SP_I2C_DMA_INT_WCNT_ERROR_FLAG       BIT(1)
-+#define SP_I2C_DMA_INT_DMA_DONE_FLAG         BIT(0)
-+
-+#define SP_I2C_DMA_INT_EN_REG 0x0018
-+//dma interrupt enable
-+#define SP_I2C_DMA_EN_LENGTH0_INT            BIT(6)
-+#define SP_I2C_DMA_EN_THRESHOLD_INT          BIT(5)
-+#define SP_I2C_DMA_EN_IP_TIMEOUT_INT         BIT(4)
-+#define SP_I2C_DMA_EN_GDMA_TIMEOUT_INT       BIT(3)
-+#define SP_I2C_DMA_EN_WB_EN_ERROR_INT        BIT(2)
-+#define SP_I2C_DMA_EN_WCNT_ERROR_INT         BIT(1)
-+#define SP_I2C_DMA_EN_DMA_DONE_INT           BIT(0)
-+//interrupt
-+#define SP_I2C_INT_RINC_INDEX                GENMASK(20, 18) //bit[20:18]
-+#define SP_I2C_INT_WINC_INDEX                GENMASK(17, 15) //bit[17:15]
-+#define SP_I2C_INT_SCL_HOLD_TOO_LONG_FLAG    BIT(11)
-+#define SP_I2C_INT_WFIFO_ENABLE              BIT(10)
-+#define SP_I2C_INT_FULL_FLAG                 BIT(9)
-+#define SP_I2C_INT_EMPTY_FLAG                BIT(8)
-+#define SP_I2C_INT_SCL_WAIT_FLAG             BIT(7)
-+#define SP_I2C_INT_EMPTY_THRESHOLD_FLAG      BIT(6)
-+#define SP_I2C_INT_DATA_NACK_FLAG            BIT(5)
-+#define SP_I2C_INT_ADDRESS_NACK_FLAG         BIT(4)
-+#define SP_I2C_INT_BUSY_FLAG                 BIT(3)
-+#define SP_I2C_INT_CLKERR_FLAG               BIT(2)
-+#define SP_I2C_INT_DONE_FLAG                 BIT(1)
-+#define SP_I2C_INT_SIFBUSY_FLAG              BIT(0)
-+//interrupt enable0
-+#define SP_I2C_EN0_SCL_HOLD_TOO_LONG_INT     BIT(13)
-+#define SP_I2C_EN0_NACK_INT                  BIT(12)
-+#define SP_I2C_EN0_CTL_EMP_THOLD             GENMASK(11, 9)
-+#define SP_I2C_EN0_EMPTY_INT                 BIT(8)
-+#define SP_I2C_EN0_SCL_WAIT_INT              BIT(7)
-+#define SP_I2C_EN0_EMP_THOLD_INT             BIT(6)
-+#define SP_I2C_EN0_DATA_NACK_INT             BIT(5)
-+#define SP_I2C_EN0_ADDRESS_NACK_INT          BIT(4)
-+#define SP_I2C_EN0_BUSY_INT                  BIT(3)
-+#define SP_I2C_EN0_CLKERR_INT                BIT(2)
-+#define SP_I2C_EN0_DONE_INT                  BIT(1)
-+#define SP_I2C_EN0_SIFBUSY_INT               BIT(0)
-+
-+#define SP_I2C_RESET(id, val)                (((1 << 16) | (val)) << (id))
-+#define SP_I2C_CLKEN(id, val)                (((1 << 16) | (val)) << (id))
-+#define SP_I2C_GCLKEN(id, val)               (((1 << 16) | (val)) << (id))
-+
-+#define SP_I2C_POWER_CLKEN3                  0x0010
-+#define SP_I2C_POWER_GCLKEN3                 0x0038
-+#define SP_I2C_POWER_RESET3                  0x0060
-+
-+enum sp_state_e_ {
-+	SPI2C_SUCCESS = 0,    /* successful */
-+	SPI2C_STATE_WR = 1,  /* i2c is write */
-+	SPI2C_STATE_RD = 2,   /* i2c is read */
-+	SPI2C_STATE_IDLE = 3,   /* i2c is idle */
-+	SPI2C_STATE_DMA_WR = 4,/* i2c is dma write */
-+	SPI2C_STATE_DMA_RD = 5, /* i2c is dma read */
-+};
-+
-+enum sp_i2c_switch_e_ {
-+	SP_I2C_DMA_POWER_NO_SW = 0,
-+	SP_I2C_DMA_POWER_SW = 1,
-+};
-+
-+struct sp_i2c_cmd {
-+	unsigned int dev_id;
-+	unsigned int freq;
-+	unsigned int slave_addr;
-+	unsigned int restart_en;
-+	unsigned int write_cnt;
-+	unsigned int read_cnt;
-+	unsigned char *write_data;
-+	unsigned char *read_data;
-+};
-+
-+struct sp_i2c_irq_dma_flag {
-+	unsigned char dma_done;
-+	unsigned char write_cnt_err;
-+	unsigned char wb_en_err;
-+	unsigned char gdma_timeout;
-+	unsigned char ipt_timerout;
-+	unsigned char threshold;
-+	unsigned char dma_ligth;
-+};
-+
-+struct sp_i2c_irq_flag {
-+	unsigned char active_done;
-+	unsigned char addr_nack;
-+	unsigned char data_nack;
-+	unsigned char emp_thold;
-+	unsigned char fifo_empty;
-+	unsigned char fifo_full;
-+	unsigned char scl_hold_too_long;
-+	unsigned char read_over_flow;
-+};
-+
-+struct sp_i2c_irq_event {
-+	enum sp_state_e_ rw_state;
-+	struct sp_i2c_irq_flag irq_flag;
-+	struct sp_i2c_irq_dma_flag irq_dma_flag;
-+	unsigned int burst_cnt;
-+	unsigned int burst_remainder;
-+	unsigned int data_index;
-+	unsigned int data_total_len;
-+	unsigned int reg_data_index;
-+	unsigned char busy;
-+	unsigned char ret;
-+	unsigned char *data_buf;
-+};
-+
-+enum sp_i2c_dma_mode {
-+	I2C_DMA_WRITE_MODE,
-+	I2C_DMA_READ_MODE,
-+};
-+
-+enum sp_i2c_mode {
-+	I2C_WRITE_MODE,
-+	I2C_READ_MODE,
-+	I2C_RESTART_MODE,
-+};
-+
-+enum sp_i2c_active_mode {
-+	I2C_TRIGGER,
-+	I2C_AUTO,
-+};
-+
-+struct i2c_compatible {
-+	int mode; /* dma power switch*/
-+	int total_port;
-+};
-+
-+struct sp_i2c_dev {
-+	struct device *dev;
-+	struct i2c_adapter adap;
-+	struct sp_i2c_cmd spi2c_cmd;
-+	struct sp_i2c_irq_event spi2c_irq;
-+	struct clk *clk;
-+	struct reset_control *rstc;
-+	unsigned int mode;
-+	unsigned int total_port;
-+	unsigned int i2c_clk_freq;
-+	int irq;
-+	void __iomem *i2c_regs;
-+	void __iomem *i2c_dma_regs;
-+	void __iomem *i2c_power_regs;
-+	wait_queue_head_t wait;
-+};
-+
-+static unsigned int sp_i2cm_get_int_flag(void __iomem *sr)
-+{
-+	return readl(sr + SP_I2C_INT_REG);
-+}
-+
-+static void sp_i2cm_status_clear(void __iomem *sr, u32 flag)
-+{
-+	u32 ctl1;
-+
-+	ctl1 = readl(sr + SP_I2C_CTL1_REG);
-+	ctl1 |= flag;
-+	writel(ctl1, sr + SP_I2C_CTL1_REG);
-+
-+	ctl1 = readl(sr + SP_I2C_CTL1_REG);
-+	ctl1 &= (~flag);
-+	writel(ctl1, sr + SP_I2C_CTL1_REG);
-+}
-+
-+static void sp_i2cm_reset(void __iomem *sr)
-+{
-+	u32 ctl0;
-+
-+	ctl0 = readl(sr + SP_I2C_CTL0_REG);
-+	ctl0 |= SP_I2C_CTL0_SW_RESET;
-+	writel(ctl0, sr + SP_I2C_CTL0_REG);
-+
-+	udelay(2);
-+}
-+
-+static void sp_i2cm_data0_set(void __iomem *sr, void *wrdata)
-+{
-+	unsigned int *wdata = wrdata;
-+
-+	writel(*wdata, sr + SP_I2C_DATA0_REG);
-+}
-+
-+static void sp_i2cm_int_en0_disable(void __iomem *sr, unsigned int int0)
-+{
-+	u32 val;
-+
-+	val = readl(sr + SP_I2C_INT_EN0_REG);
-+	val &= (~int0);
-+	writel(val, sr + SP_I2C_INT_EN0_REG);
-+}
-+
-+static void sp_i2cm_rdata_flag_get(void __iomem *sr, unsigned int *flag)
-+{
-+	*flag = readl(sr + SP_I2C_STATUS3_REG);
-+}
-+
-+static unsigned int sp_i2cm_over_flag_get(void __iomem *sr)
-+{
-+	return readl(sr + SP_I2C_STATUS4_REG);
-+}
-+
-+static void sp_i2cm_data_get(void __iomem *sr, unsigned int index, void *rxdata)
-+{
-+	unsigned int *rdata = rxdata;
-+
-+	*rdata = readl(sr + SP_I2C_DATA0_REG + (index * 4));
-+}
-+
-+static void sp_i2cm_rdata_flag_clear(void __iomem *sr, unsigned int flag)
-+{
-+	writel(flag, sr + SP_I2C_CTL6_REG);
-+	writel(0, sr + SP_I2C_CTL6_REG);
-+}
-+
-+static void sp_i2cm_clock_freq_set(void __iomem *sr,  unsigned int freq)
-+{
-+	unsigned int div;
-+	u32 ctl0, ctl2;
-+
-+	div = SP_CLK_SOURCE_FREQ / freq;
-+	div -= 1;
-+	if (SP_CLK_SOURCE_FREQ % freq != 0)
-+		div += 1;
-+
-+	if (div > SP_I2C_CTL2_FREQ_CUSTOM_MASK)
-+		div = SP_I2C_CTL2_FREQ_CUSTOM_MASK;
-+
-+	ctl0 = readl(sr + SP_I2C_CTL0_REG);
-+	ctl0 &= ~SP_I2C_CTL0_FREQ_MASK;
-+	writel(ctl0, sr + SP_I2C_CTL0_REG);
-+
-+	ctl2 = readl(sr + SP_I2C_CTL2_REG);
-+	ctl2 &= ~SP_I2C_CTL2_FREQ_CUSTOM_MASK;
-+	ctl2 |= FIELD_PREP(SP_I2C_CTL2_FREQ_CUSTOM_MASK, div);
-+	writel(ctl2, sr + SP_I2C_CTL2_REG);
-+}
-+
-+static void sp_i2cm_slave_addr_set(void __iomem *sr, unsigned int addr)
-+{
-+	u32 ctl0;
-+
-+	ctl0 = readl(sr + SP_I2C_CTL0_REG);
-+	ctl0 &= ~SP_I2C_CTL0_SLAVE_ADDR_MASK;
-+	ctl0 |= FIELD_PREP(SP_I2C_CTL0_SLAVE_ADDR_MASK, addr);
-+	writel(ctl0, sr + SP_I2C_CTL0_REG);
-+}
-+
-+static void sp_i2cm_scl_delay_set(void __iomem *sr, unsigned int delay)
-+{
-+	u32 ctl2;
-+
-+	ctl2 = readl(sr + SP_I2C_CTL2_REG);
-+	ctl2 &= ~SP_I2C_CTL2_SCL_DELAY_MASK;
-+	ctl2 |= FIELD_PREP(SP_I2C_CTL2_SCL_DELAY_MASK, delay);
-+	ctl2 &= ~SP_I2C_CTL2_SDA_HALF_ENABLE;
-+	writel(ctl2, sr + SP_I2C_CTL2_REG);
-+}
-+
-+static void sp_i2cm_trans_cnt_set(void __iomem *sr, unsigned int write_cnt,
-+				  unsigned int read_cnt)
-+{
-+	u32 ctl7 = 0;
-+
-+	ctl7 = FIELD_PREP(SP_I2C_CTL7_RD_MASK, read_cnt) |
-+			  FIELD_PREP(SP_I2C_CTL7_WR_MASK, write_cnt);
-+	writel(ctl7, sr + SP_I2C_CTL7_REG);
-+}
-+
-+static void sp_i2cm_active_mode_set(void __iomem *sr, enum sp_i2c_active_mode mode)
-+{
-+	u32 val;
-+
-+	val = readl(sr + SP_I2C_MOD_REG);
-+	val &= (~(SP_I2C_MODE_MANUAL_MODE | SP_I2C_MODE_MANUAL_TRIG));
-+	switch (mode) {
-+	default:
-+	case I2C_TRIGGER:
-+		break;
-+	case I2C_AUTO:
-+		val |= SP_I2C_MODE_MANUAL_MODE;
-+		break;
-+	}
-+	writel(val, sr + SP_I2C_MOD_REG);
-+}
-+
-+static void sp_i2cm_data_tx(void __iomem *sr, void *wdata, unsigned int cnt)
-+{
-+	unsigned int *wrdata = wdata;
-+	unsigned int i;
-+
-+	for (i = 0 ; i < cnt ; i++)
-+		writel(wrdata[i], sr + SP_I2C_DATA0_REG + (i * 4));
-+}
-+
-+static void sp_i2cm_rw_mode_set(void __iomem *sr, enum sp_i2c_mode rw_mode)
-+{
-+	u32 ctl0;
-+
-+	ctl0 = readl(sr + SP_I2C_CTL0_REG);
-+	switch (rw_mode) {
-+	default:
-+	case I2C_WRITE_MODE:
-+		ctl0 &= ~(SP_I2C_CTL0_PREFETCH |
-+				SP_I2C_CTL0_RESTART_EN | SP_I2C_CTL0_SUBADDR_EN);
-+		break;
-+	case I2C_READ_MODE:
-+		ctl0 &= (~(SP_I2C_CTL0_RESTART_EN | SP_I2C_CTL0_SUBADDR_EN));
-+		ctl0 |= SP_I2C_CTL0_PREFETCH;
-+		break;
-+	case I2C_RESTART_MODE:
-+		ctl0 |= (SP_I2C_CTL0_PREFETCH |
-+				SP_I2C_CTL0_RESTART_EN | SP_I2C_CTL0_SUBADDR_EN);
-+		break;
-+	}
-+	writel(ctl0, sr + SP_I2C_CTL0_REG);
-+}
-+
-+static void sp_i2cm_int_en0_set(void __iomem *sr, u32 int0)
-+{
-+	writel(int0, sr + SP_I2C_INT_EN0_REG);
-+}
-+
-+static void sp_i2cm_int_en1_set(void __iomem *sr, u32 rdata_en)
-+{
-+	writel(rdata_en, sr + SP_I2C_INT_EN1_REG);
-+}
-+
-+static void sp_i2cm_int_en2_set(void __iomem *sr, u32 overflow_en)
-+{
-+	writel(overflow_en, sr + SP_I2C_INT_EN2_REG);
-+}
-+
-+static void sp_i2cm_enable(unsigned int device_id, void *membase)
-+{
-+	writel(SP_I2C_CLKEN(device_id, 1),  membase + SP_I2C_POWER_CLKEN3);
-+	writel(SP_I2C_GCLKEN(device_id, 0), membase + SP_I2C_POWER_GCLKEN3);
-+	writel(SP_I2C_RESET(device_id, 0), membase + SP_I2C_POWER_RESET3);
-+}
-+
-+static void sp_i2cm_manual_trigger(void __iomem *sr)
-+{
-+	u32 val;
-+
-+	val = readl(sr + SP_I2C_MOD_REG);
-+	val |= SP_I2C_MODE_MANUAL_TRIG;
-+	writel(val, sr + SP_I2C_MOD_REG);
-+}
-+
-+static void sp_i2cm_int_en0_with_thershold_set(void __iomem *sr, unsigned int int0,
-+					       unsigned char threshold)
-+{
-+	u32 val;
-+
-+	int0 &= ~SP_I2C_EN0_CTL_EMP_THOLD;
-+	val = int0 | FIELD_PREP(SP_I2C_EN0_CTL_EMP_THOLD, threshold);
-+	writel(val, sr + SP_I2C_INT_EN0_REG);
-+}
-+
-+static void sp_i2cm_dma_mode_enable(void __iomem *sr)
-+{
-+	u32 val;
-+
-+	val = readl(sr + SP_I2C_MOD_REG);
-+	val |= SP_I2C_MODE_DMA_MODE;
-+	writel(val, sr + SP_I2C_MOD_REG);
-+}
-+
-+static unsigned int sp_i2cm_get_dma_int_flag(void __iomem *sr_dma)
-+{
-+	return readl(sr_dma + SP_I2C_INT_REG);
-+}
-+
-+static void sp_i2cm_dma_int_flag_clear(void __iomem *sr_dma, unsigned int flag)
-+{
-+	u32 val;
-+
-+	val = readl(sr_dma + SP_I2C_DMA_FLAG_REG);
-+	val |= flag;
-+	writel(val, sr_dma + SP_I2C_DMA_FLAG_REG);
-+}
-+
-+static void sp_i2cm_dma_addr_set(void __iomem *sr_dma, dma_addr_t addr)
-+{
-+	writel(addr, sr_dma + SP_I2C_DMA_ADDR_REG);
-+}
-+
-+static void sp_i2cm_dma_length_set(void __iomem *sr_dma, unsigned int length)
-+{
-+	length &= (0xFFFF);  //only support 16 bit
-+	writel(length, sr_dma + SP_I2C_DMA_LEN_REG);
-+}
-+
-+static void sp_i2cm_dma_rw_mode_set(void __iomem *sr_dma, enum sp_i2c_dma_mode rw_mode)
-+{
-+	u32 val;
-+
-+	val = readl(sr_dma + SP_I2C_DMA_CONF_REG);
-+	switch (rw_mode) {
-+	default:
-+	case I2C_DMA_WRITE_MODE:
-+		val |= SP_I2C_DMA_CFG_DMA_MODE;
-+		break;
-+	case I2C_DMA_READ_MODE:
-+		val &= (~SP_I2C_DMA_CFG_DMA_MODE);
-+		break;
-+	}
-+	writel(val, sr_dma + SP_I2C_DMA_CONF_REG);
-+}
-+
-+static void sp_i2cm_dma_int_en_set(void __iomem *sr_dma, unsigned int dma_int)
-+{
-+	writel(dma_int, sr_dma + SP_I2C_DMA_INT_EN_REG);
-+}
-+
-+static void sp_i2cm_dma_go_set(void __iomem *sr_dma)
-+{
-+	u32 val;
-+
-+	val = readl(sr_dma + SP_I2C_DMA_CONF_REG);
-+	val |= SP_I2C_DMA_CFG_DMA_GO;
-+	writel(val, sr_dma + SP_I2C_DMA_CONF_REG);
-+}
-+
-+static void _sp_i2cm_intflag_check(struct sp_i2c_dev *spi2c, struct sp_i2c_irq_event *spi2c_irq)
-+{
-+	void __iomem *sr = spi2c->i2c_regs;
-+	unsigned int int_flag = 0;
-+	unsigned int overflow_flag = 0;
-+
-+	int_flag = sp_i2cm_get_int_flag(sr);
-+
-+	if (int_flag & SP_I2C_INT_DONE_FLAG)
-+		spi2c_irq->irq_flag.active_done = 1;
-+	else
-+		spi2c_irq->irq_flag.active_done = 0;
-+
-+	if (int_flag & SP_I2C_INT_ADDRESS_NACK_FLAG)
-+		spi2c_irq->irq_flag.addr_nack = 1;
-+	else
-+		spi2c_irq->irq_flag.addr_nack = 0;
-+
-+	if (int_flag & SP_I2C_INT_DATA_NACK_FLAG)
-+		spi2c_irq->irq_flag.data_nack = 1;
-+	else
-+		spi2c_irq->irq_flag.data_nack = 0;
-+	// write use
-+	if (int_flag & SP_I2C_INT_EMPTY_THRESHOLD_FLAG)
-+		spi2c_irq->irq_flag.emp_thold = 1;
-+	else
-+		spi2c_irq->irq_flag.emp_thold = 0;
-+	// write use
-+	if (int_flag & SP_I2C_INT_EMPTY_FLAG)
-+		spi2c_irq->irq_flag.fifo_empty = 1;
-+	else
-+		spi2c_irq->irq_flag.fifo_empty = 0;
-+	// write use (for debug)
-+	if (int_flag & SP_I2C_INT_FULL_FLAG)
-+		spi2c_irq->irq_flag.fifo_full = 1;
-+	else
-+		spi2c_irq->irq_flag.fifo_full = 0;
-+
-+	if (int_flag & SP_I2C_INT_SCL_HOLD_TOO_LONG_FLAG)
-+		spi2c_irq->irq_flag.scl_hold_too_long = 1;
-+	else
-+		spi2c_irq->irq_flag.scl_hold_too_long = 0;
-+
-+	sp_i2cm_status_clear(sr, SP_I2C_CTL1_ALL_CLR);
-+
-+	overflow_flag = sp_i2cm_over_flag_get(sr);
-+
-+	if (overflow_flag)
-+		spi2c_irq->irq_flag.read_over_flow = 1;
-+	else
-+		spi2c_irq->irq_flag.read_over_flow = 0;
-+}
-+
-+static void _sp_i2cm_dma_intflag_check(struct sp_i2c_dev *spi2c,
-+				       struct sp_i2c_irq_event *spi2c_irq)
-+{
-+	void __iomem *sr_dma = spi2c->i2c_dma_regs;
-+	u32 int_flag = 0;
-+
-+	int_flag = sp_i2cm_get_dma_int_flag(sr_dma);
-+
-+	if (int_flag & SP_I2C_DMA_INT_DMA_DONE_FLAG)
-+		spi2c_irq->irq_dma_flag.dma_done = 1;
-+	else
-+		spi2c_irq->irq_dma_flag.dma_done = 0;
-+
-+	if (int_flag & SP_I2C_DMA_INT_WCNT_ERROR_FLAG)
-+		spi2c_irq->irq_dma_flag.write_cnt_err = 1;
-+	else
-+		spi2c_irq->irq_dma_flag.write_cnt_err = 0;
-+
-+	if (int_flag & SP_I2C_DMA_INT_WB_EN_ERROR_FLAG)
-+		spi2c_irq->irq_dma_flag.wb_en_err = 1;
-+	else
-+		spi2c_irq->irq_dma_flag.wb_en_err = 0;
-+
-+	if (int_flag & SP_I2C_DMA_INT_GDMA_TIMEOUT_FLAG)
-+		spi2c_irq->irq_dma_flag.gdma_timeout = 1;
-+	else
-+		spi2c_irq->irq_dma_flag.gdma_timeout = 0;
-+
-+	if (int_flag & SP_I2C_DMA_INT_IP_TIMEOUT_FLAG)
-+		spi2c_irq->irq_dma_flag.ipt_timerout = 1;
-+	else
-+		spi2c_irq->irq_dma_flag.ipt_timerout = 0;
-+
-+	if (int_flag & SP_I2C_DMA_INT_LENGTH0_FLAG)
-+		spi2c_irq->irq_dma_flag.dma_ligth = 1;
-+	else
-+		spi2c_irq->irq_dma_flag.dma_ligth = 0;
-+
-+	sp_i2cm_dma_int_flag_clear(sr_dma, 0x7F);  //write 1 to clear
-+}
-+
-+static irqreturn_t _sp_i2cm_irqevent_handler(int irq, void *args)
-+{
-+	struct sp_i2c_dev *spi2c = args;
-+	struct sp_i2c_irq_event *spi2c_irq = &spi2c->spi2c_irq;
-+	void __iomem *sr = spi2c->i2c_regs;
-+	unsigned char r_data[SP_I2C_BURST_RDATA_BYTES] = {0};
-+	unsigned char w_data[32] = {0};
-+	unsigned int rdata_flag = 0;
-+	unsigned int bit_index = 0;
-+	int i = 0, j = 0, k = 0;
-+
-+	_sp_i2cm_intflag_check(spi2c, spi2c_irq);
-+
-+switch (spi2c_irq->rw_state) {
-+case SPI2C_STATE_WR:
-+case SPI2C_STATE_DMA_WR:
-+	if (spi2c_irq->irq_flag.active_done) {
-+		spi2c_irq->ret = SPI2C_SUCCESS;
-+		wake_up(&spi2c->wait);
-+	} else if (spi2c_irq->irq_flag.addr_nack || spi2c_irq->irq_flag.data_nack) {
-+		if (spi2c_irq->rw_state == SPI2C_STATE_DMA_WR)
-+			dev_err(spi2c->dev, "DMA wtire NACK!!\n");
-+		else
-+			dev_err(spi2c->dev, "wtire NACK!!\n");
-+
-+		spi2c_irq->ret = -ENXIO;
-+		spi2c_irq->irq_flag.active_done = 1;
-+		wake_up(&spi2c->wait);
-+		sp_i2cm_reset(sr);
-+	} else if (spi2c_irq->irq_flag.scl_hold_too_long) {
-+		spi2c_irq->ret = -EINVAL;
-+		spi2c_irq->irq_flag.active_done = 1;
-+		wake_up(&spi2c->wait);
-+		sp_i2cm_reset(sr);
-+	} else if (spi2c_irq->irq_flag.fifo_empty) {
-+		spi2c_irq->ret = -ENXIO;
-+		spi2c_irq->irq_flag.active_done = 1;
-+		wake_up(&spi2c->wait);
-+		sp_i2cm_reset(sr);
-+	} else if ((spi2c_irq->burst_cnt > 0) &&
-+			(spi2c_irq->rw_state == SPI2C_STATE_WR)) {
-+		if (spi2c_irq->irq_flag.emp_thold) {
-+			for (i = 0; i < SP_I2C_EMP_THOLD; i++) {
-+				for (j = 0; j < 4; j++) {
-+					if (spi2c_irq->data_index >=
-+					    spi2c_irq->data_total_len)
-+						w_data[j] = 0;
-+					else
-+						w_data[j] =
-+					spi2c_irq->data_buf[spi2c_irq->data_index];
-+					spi2c_irq->data_index++;
-+				}
-+				sp_i2cm_data0_set(sr, w_data);
-+				spi2c_irq->burst_cnt--;
-+				if (spi2c_irq->burst_cnt == 0) {
-+					sp_i2cm_int_en0_disable(sr,
-+								SP_I2C_EN0_EMP_THOLD_INT |
-+								SP_I2C_EN0_EMPTY_INT);
-+					break;
-+				}
-+			}
-+				sp_i2cm_status_clear(sr, SP_I2C_CTL1_EMP_THOLD_CLR);
-+		}
-+	}
-+	break;
-+
-+case SPI2C_STATE_RD:
-+case SPI2C_STATE_DMA_RD:
-+		if (spi2c_irq->irq_flag.addr_nack || spi2c_irq->irq_flag.data_nack) {
-+			if (spi2c_irq->rw_state == SPI2C_STATE_DMA_RD)
-+				dev_err(spi2c->dev, "DMA read NACK!!\n");
-+			else
-+				dev_err(spi2c->dev, "read NACK!!\n");
-+
-+			spi2c_irq->ret = -ENXIO;
-+			spi2c_irq->irq_flag.active_done = 1;
-+			wake_up(&spi2c->wait);
-+			sp_i2cm_reset(sr);
-+		} else if (spi2c_irq->irq_flag.scl_hold_too_long) {
-+			spi2c_irq->ret = -EINVAL;
-+			spi2c_irq->irq_flag.active_done = 1;
-+			wake_up(&spi2c->wait);
-+			sp_i2cm_reset(sr);
-+		} else if (spi2c_irq->irq_flag.read_over_flow) {
-+			spi2c_irq->ret = -EINVAL;
-+			spi2c_irq->irq_flag.active_done = 1;
-+			wake_up(&spi2c->wait);
-+			sp_i2cm_reset(sr);
-+} else {
-+	if (spi2c_irq->burst_cnt > 0 && spi2c_irq->rw_state == SPI2C_STATE_RD) {
-+		sp_i2cm_rdata_flag_get(sr, &rdata_flag);
-+		for (i = 0; i < (32 / SP_I2C_BURST_RDATA_BYTES); i++) {
-+			bit_index = (SP_I2C_BURST_RDATA_BYTES - 1) + (SP_I2C_BURST_RDATA_BYTES * i);
-+			if (rdata_flag & (1 << bit_index)) {
-+				for (j = 0; j < (SP_I2C_BURST_RDATA_BYTES / 4); j++) {
-+					k = spi2c_irq->reg_data_index + j;
-+					if (k >= 8)
-+						k -= 8;
-+
-+					sp_i2cm_data_get(sr, k, &spi2c_irq->data_buf
-+							 [spi2c_irq->data_index]);
-+					spi2c_irq->data_index += 4;
-+				}
-+				sp_i2cm_rdata_flag_clear(sr, (((1 << SP_I2C_BURST_RDATA_BYTES) -
-+							 1) << (SP_I2C_BURST_RDATA_BYTES * i)));
-+				spi2c_irq->reg_data_index += (SP_I2C_BURST_RDATA_BYTES / 4);
-+				if (spi2c_irq->reg_data_index >= 8)
-+					spi2c_irq->burst_cnt--;
-+			}
-+		}
-+	}
-+		if (spi2c_irq->irq_flag.active_done) {
-+			if (spi2c_irq->burst_remainder && spi2c_irq->rw_state == SPI2C_STATE_RD) {
-+				j = 0;
-+			for (i = 0; i < (SP_I2C_BURST_RDATA_BYTES / 4); i++) {
-+				k = spi2c_irq->reg_data_index + i;
-+				if (k >= 8)
-+					k -= 8;
-+				sp_i2cm_data_get(sr, k, &r_data[j]);
-+				j += 4;
-+			}
-+
-+				for (i = 0; i < spi2c_irq->burst_remainder; i++)
-+					spi2c_irq->data_buf[spi2c_irq->data_index + i] = r_data[i];
-+			}
-+				spi2c_irq->ret = SPI2C_SUCCESS;
-+				wake_up(&spi2c->wait);
-+		}
-+	}
-+	break;
-+
-+default:
-+	break;
-+}
-+
-+	_sp_i2cm_dma_intflag_check(spi2c, spi2c_irq);
-+	switch (spi2c_irq->rw_state) {
-+	case SPI2C_STATE_DMA_WR:
-+		if (spi2c_irq->irq_dma_flag.dma_done) {
-+			spi2c_irq->ret = SPI2C_SUCCESS;
-+			wake_up(&spi2c->wait);
-+		}
-+		break;
-+	case SPI2C_STATE_DMA_RD:
-+		if (spi2c_irq->irq_dma_flag.dma_done) {
-+			spi2c_irq->ret = SPI2C_SUCCESS;
-+			wake_up(&spi2c->wait);
-+		}
-+		break;
-+
-+	default:
-+		break;
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int _sp_i2cm_init(unsigned int device_id, struct sp_i2c_dev *spi2c)
-+{
-+	void __iomem *sr = spi2c->i2c_regs;
-+
-+	if (device_id >= spi2c->total_port)
-+		return -ENXIO;
-+
-+	sp_i2cm_reset(sr);
-+	return SPI2C_SUCCESS;
-+}
-+
-+static int _sp_i2cm_get_resources(struct platform_device *pdev, struct sp_i2c_dev *spi2c)
-+{
-+	int ret;
-+
-+	spi2c->i2c_regs = devm_platform_ioremap_resource_byname(pdev, "i2cm");
-+	if (IS_ERR(spi2c->i2c_regs))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(spi2c->i2c_regs), "regs get fail\n");
-+
-+	spi2c->i2c_dma_regs = devm_platform_ioremap_resource_byname(pdev, "i2cmdma");
-+	if (IS_ERR(spi2c->i2c_dma_regs))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(spi2c->i2c_dma_regs), "regs get fail\n");
-+
-+	spi2c->i2c_power_regs = devm_platform_ioremap_resource_byname(pdev, "i2cdmapower");
-+	if (IS_ERR(spi2c->i2c_power_regs))
-+		spi2c->i2c_power_regs = 0;
-+
-+	spi2c->irq = platform_get_irq(pdev, 0);
-+	if (spi2c->irq < 0)
-+		return spi2c->irq;
-+
-+	ret = devm_request_irq(&pdev->dev, spi2c->irq, _sp_i2cm_irqevent_handler,
-+			       IRQF_TRIGGER_HIGH, pdev->name, spi2c);
-+	if (ret)
-+		return ret;
-+
-+	return SPI2C_SUCCESS;
-+}
-+
-+static int sp_i2cm_read(struct sp_i2c_cmd *spi2c_cmd, struct sp_i2c_dev *spi2c)
-+{
-+	void __iomem *sr = spi2c->i2c_regs;
-+	struct sp_i2c_irq_event *spi2c_irq = &spi2c->spi2c_irq;
-+	unsigned int int0 = 0, int1 = 0, int2 = 0;
-+	unsigned int burst_cnt = 0, burst_r = 0;
-+	unsigned int write_cnt = 0;
-+	unsigned int read_cnt = 0;
-+	int ret = SPI2C_SUCCESS;
-+
-+	if (spi2c_irq->busy || spi2c_cmd->dev_id > spi2c->total_port) {
-+		dev_err(spi2c->dev, "IO error !!\n");
-+		return -ENXIO;
-+	}
-+
-+	memset(spi2c_irq, 0, sizeof(*spi2c_irq));
-+	spi2c_irq->busy = 1;
-+
-+	write_cnt = spi2c_cmd->write_cnt;
-+	read_cnt = spi2c_cmd->read_cnt;
-+
-+	if (spi2c_cmd->restart_en) {
-+		if (write_cnt > 32) {
-+			spi2c_irq->busy = 0;
-+			dev_err(spi2c->dev,
-+				"I2C write count is invalid !! write count=%d\n", write_cnt);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	if (read_cnt > 0xFFFF  || read_cnt == 0) {
-+		spi2c_irq->busy = 0;
-+		dev_err(spi2c->dev,
-+			"I2C read count is invalid !! read count=%d\n", read_cnt);
-+		return -EINVAL;
-+	}
-+
-+	burst_cnt = read_cnt / SP_I2C_BURST_RDATA_BYTES;
-+	burst_r = read_cnt % SP_I2C_BURST_RDATA_BYTES;
-+
-+	int0 = (SP_I2C_EN0_SCL_HOLD_TOO_LONG_INT | SP_I2C_EN0_EMPTY_INT | SP_I2C_EN0_DATA_NACK_INT
-+			| SP_I2C_EN0_ADDRESS_NACK_INT | SP_I2C_EN0_DONE_INT);
-+	if (burst_cnt) {
-+		int1 = SP_I2C_BURST_RDATA_FLAG;
-+		int2 = SP_I2C_BURST_RDATA_ALL_FLAG;
-+	}
-+
-+	spi2c_irq->rw_state = SPI2C_STATE_RD;
-+	spi2c_irq->burst_cnt = burst_cnt;
-+	spi2c_irq->burst_remainder = burst_r;
-+	spi2c_irq->data_index = 0;
-+	spi2c_irq->reg_data_index = 0;
-+	spi2c_irq->data_total_len = read_cnt;
-+	spi2c_irq->data_buf = spi2c_cmd->read_data;
-+
-+	sp_i2cm_reset(sr);
-+	sp_i2cm_clock_freq_set(sr, spi2c_cmd->freq);
-+	sp_i2cm_slave_addr_set(sr, spi2c_cmd->slave_addr);
-+	sp_i2cm_scl_delay_set(sr, SP_I2C_SCL_DELAY);
-+	sp_i2cm_trans_cnt_set(sr, write_cnt, read_cnt);
-+	sp_i2cm_active_mode_set(sr, I2C_TRIGGER);
-+
-+	if (spi2c_cmd->restart_en) {
-+		write_cnt = spi2c_cmd->write_cnt  / 4;
-+		if (spi2c_cmd->write_cnt % 4)
-+			write_cnt += 1;
-+
-+		sp_i2cm_data_tx(sr, spi2c_cmd->write_data, write_cnt);
-+		sp_i2cm_rw_mode_set(sr, I2C_RESTART_MODE);
-+	} else {
-+		sp_i2cm_rw_mode_set(sr, I2C_READ_MODE);
-+	}
-+
-+	sp_i2cm_int_en0_set(sr, int0);
-+	sp_i2cm_int_en1_set(sr, int1);
-+	sp_i2cm_int_en2_set(sr, int2);
-+	sp_i2cm_manual_trigger(sr);	//start send data
-+
-+	ret = wait_event_timeout(spi2c->wait, spi2c_irq->irq_flag.active_done,
-+				 (SP_I2C_SLEEP_TIMEOUT * HZ) / 500);
-+	if (ret == 0) {
-+		dev_err(spi2c->dev, "I2C read timeout !!\n");
-+		ret = -ETIMEDOUT;
-+	} else {
-+		ret = spi2c_irq->ret;
-+	}
-+	sp_i2cm_reset(sr);
-+	spi2c_irq->rw_state = SPI2C_STATE_IDLE;
-+	spi2c_irq->busy = 0;
-+
-+	return ret;
-+}
-+
-+static int sp_i2cm_write(struct sp_i2c_cmd *spi2c_cmd, struct sp_i2c_dev *spi2c)
-+{
-+	struct sp_i2c_irq_event *spi2c_irq = &spi2c->spi2c_irq;
-+	void __iomem *sr = spi2c->i2c_regs;
-+	unsigned int write_cnt = 0;
-+	unsigned int burst_cnt = 0;
-+	unsigned int int0 = 0;
-+	int ret = SPI2C_SUCCESS;
-+	int i = 0;
-+
-+	if (spi2c_irq->busy || spi2c_cmd->dev_id > spi2c->total_port) {
-+		dev_err(spi2c->dev, "IO error !!\n");
-+		return -ENXIO;
-+	}
-+
-+	memset(spi2c_irq, 0, sizeof(*spi2c_irq));
-+	spi2c_irq->busy = 1;
-+
-+	write_cnt = spi2c_cmd->write_cnt;
-+
-+	if (write_cnt > 0xFFFF) {
-+		spi2c_irq->busy = 0;
-+		dev_err(spi2c->dev,
-+			"I2C write count is invalid !! write count=%d\n", write_cnt);
-+		return -EINVAL;
-+	}
-+
-+	burst_cnt = write_cnt  / 4;
-+	if (write_cnt % 4)
-+		burst_cnt += 1;
-+
-+	int0 = (SP_I2C_EN0_SCL_HOLD_TOO_LONG_INT | SP_I2C_EN0_EMPTY_INT | SP_I2C_EN0_DATA_NACK_INT
-+			| SP_I2C_EN0_ADDRESS_NACK_INT | SP_I2C_EN0_DONE_INT);
-+
-+	if (burst_cnt)
-+		int0 |= SP_I2C_EN0_EMP_THOLD_INT;
-+
-+	spi2c_irq->rw_state = SPI2C_STATE_WR;
-+	spi2c_irq->burst_cnt = burst_cnt;
-+	spi2c_irq->data_index = i;
-+	spi2c_irq->data_total_len = write_cnt;
-+	spi2c_irq->data_buf = spi2c_cmd->write_data;
-+
-+	sp_i2cm_reset(sr);
-+	sp_i2cm_clock_freq_set(sr, spi2c_cmd->freq);
-+	sp_i2cm_slave_addr_set(sr, spi2c_cmd->slave_addr);
-+	sp_i2cm_scl_delay_set(sr, SP_I2C_SCL_DELAY);
-+	sp_i2cm_trans_cnt_set(sr, write_cnt, 0);
-+	sp_i2cm_active_mode_set(sr, I2C_TRIGGER);
-+	sp_i2cm_rw_mode_set(sr, I2C_WRITE_MODE);
-+	sp_i2cm_data_tx(sr, spi2c_cmd->write_data, burst_cnt);
-+
-+	if (burst_cnt)
-+		sp_i2cm_int_en0_with_thershold_set(sr, int0, SP_I2C_EMP_THOLD);
-+	else
-+		sp_i2cm_int_en0_set(sr, int0);
-+
-+	sp_i2cm_manual_trigger(sr);	//start send data
-+
-+	ret = wait_event_timeout(spi2c->wait, spi2c_irq->irq_flag.active_done,
-+				 (SP_I2C_SLEEP_TIMEOUT * HZ) / 500);
-+	if (ret == 0) {
-+		dev_err(spi2c->dev, "I2C write timeout !!\n");
-+		ret = -ETIMEDOUT;
-+	} else {
-+		ret = spi2c_irq->ret;
-+	}
-+	sp_i2cm_reset(sr);
-+	spi2c_irq->rw_state = SPI2C_STATE_IDLE;
-+	spi2c_irq->busy = 0;
-+
-+	return ret;
-+}
-+
-+static int sp_i2cm_dma_write(struct sp_i2c_cmd *spi2c_cmd, struct sp_i2c_dev *spi2c)
-+{
-+	struct sp_i2c_irq_event *spi2c_irq = &spi2c->spi2c_irq;
-+	void __iomem *sr_dma = spi2c->i2c_dma_regs;
-+	void __iomem *sr = spi2c->i2c_regs;
-+	unsigned int int0 = 0;
-+	unsigned int dma_int = 0;
-+	int ret = SPI2C_SUCCESS;
-+	dma_addr_t dma_w_addr = 0;
-+
-+	if (spi2c_irq->busy || spi2c_cmd->dev_id > spi2c->total_port) {
-+		dev_err(spi2c->dev, "IO error !!\n");
-+		return -ENXIO;
-+	}
-+
-+	if (spi2c->mode == SP_I2C_DMA_POWER_SW && spi2c->i2c_power_regs != 0)
-+		sp_i2cm_enable(0, spi2c->i2c_power_regs);
-+
-+	memset(spi2c_irq, 0, sizeof(*spi2c_irq));
-+	spi2c_irq->busy = 1;
-+
-+	if (spi2c_cmd->write_cnt > 0xFFFF) {
-+		spi2c_irq->busy = 0;
-+		dev_err(spi2c->dev, "write count = %d is invalid!\n", spi2c_cmd->write_cnt);
-+		return -EINVAL;
-+	}
-+
-+	spi2c_irq->rw_state = SPI2C_STATE_DMA_WR;
-+
-+	dma_w_addr = dma_map_single(spi2c->dev, spi2c_cmd->write_data,
-+				    spi2c_cmd->write_cnt, DMA_TO_DEVICE);
-+
-+	if (dma_mapping_error(spi2c->dev, dma_w_addr))
-+		return -ENOMEM;
-+
-+	int0 = (SP_I2C_EN0_SCL_HOLD_TOO_LONG_INT | SP_I2C_EN0_EMPTY_INT
-+	 | SP_I2C_EN0_DATA_NACK_INT | SP_I2C_EN0_ADDRESS_NACK_INT | SP_I2C_EN0_DONE_INT);
-+
-+	dma_int = SP_I2C_DMA_EN_DMA_DONE_INT;
-+
-+	sp_i2cm_reset(sr);
-+	sp_i2cm_dma_mode_enable(sr);
-+	sp_i2cm_clock_freq_set(sr, spi2c_cmd->freq);
-+	sp_i2cm_slave_addr_set(sr, spi2c_cmd->slave_addr);
-+	sp_i2cm_scl_delay_set(sr, SP_I2C_SCL_DELAY);
-+	sp_i2cm_active_mode_set(sr, I2C_AUTO);
-+	sp_i2cm_rw_mode_set(sr, I2C_WRITE_MODE);
-+	sp_i2cm_int_en0_set(sr, int0);
-+
-+	sp_i2cm_dma_addr_set(sr_dma, dma_w_addr);
-+	sp_i2cm_dma_length_set(sr_dma, spi2c_cmd->write_cnt);
-+	sp_i2cm_dma_rw_mode_set(sr_dma, I2C_DMA_READ_MODE);
-+	sp_i2cm_dma_int_en_set(sr_dma, dma_int);
-+	sp_i2cm_dma_go_set(sr_dma);
-+
-+	ret = wait_event_timeout(spi2c->wait, spi2c_irq->irq_dma_flag.dma_done,
-+				 (SP_I2C_SLEEP_TIMEOUT * HZ) / 200);
-+	if (ret == 0) {
-+		dev_err(spi2c->dev, "I2C DMA write timeout !!\n");
-+		ret = -ETIMEDOUT;
-+	} else {
-+		ret = spi2c_irq->ret;
-+	}
-+	sp_i2cm_status_clear(sr, 0xFFFFFFFF);
-+
-+	spi2c_irq->rw_state = SPI2C_STATE_IDLE;
-+	spi2c_irq->busy = 0;
-+
-+	sp_i2cm_reset(sr);
-+
-+	return ret;
-+}
-+
-+static int sp_i2cm_dma_read(struct sp_i2c_cmd *spi2c_cmd, struct sp_i2c_dev *spi2c)
-+{
-+	struct sp_i2c_irq_event *spi2c_irq = &spi2c->spi2c_irq;
-+	void __iomem *sr_dma = spi2c->i2c_dma_regs;
-+	void __iomem *sr = spi2c->i2c_regs;
-+	unsigned int int0 = 0, int1 = 0, int2 = 0;
-+	unsigned int write_cnt = 0;
-+	unsigned int read_cnt = 0;
-+	unsigned int dma_int = 0;
-+	int ret = SPI2C_SUCCESS;
-+	dma_addr_t dma_r_addr = 0;
-+
-+	if (spi2c_irq->busy || spi2c_cmd->dev_id > spi2c->total_port) {
-+		dev_err(spi2c->dev, "IO error !!\n");
-+		return -ENXIO;
-+	}
-+
-+	if (spi2c->mode == SP_I2C_DMA_POWER_SW && spi2c->i2c_power_regs != 0)
-+		sp_i2cm_enable(0, spi2c->i2c_power_regs);
-+
-+	memset(spi2c_irq, 0, sizeof(*spi2c_irq));
-+	spi2c_irq->busy = 1;
-+
-+	write_cnt = spi2c_cmd->write_cnt;
-+	read_cnt = spi2c_cmd->read_cnt;
-+
-+	if (spi2c_cmd->restart_en) {
-+		if (write_cnt > 32) {
-+			spi2c_irq->busy = 0;
-+			dev_err(spi2c->dev,
-+				"I2C write count is invalid !! write count=%d\n", write_cnt);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	if (read_cnt > 0xFFFF  || read_cnt == 0) {
-+		spi2c_irq->busy = 0;
-+		dev_err(spi2c->dev,
-+			"I2C read count is invalid !! read count=%d\n", read_cnt);
-+		return -EINVAL;
-+	}
-+
-+	dma_r_addr = dma_map_single(spi2c->dev, spi2c_cmd->read_data,
-+				    spi2c_cmd->read_cnt, DMA_FROM_DEVICE);
-+
-+	if (dma_mapping_error(spi2c->dev, dma_r_addr))
-+		return -ENOMEM;
-+
-+	int0 = (SP_I2C_EN0_SCL_HOLD_TOO_LONG_INT | SP_I2C_EN0_EMPTY_INT | SP_I2C_EN0_DATA_NACK_INT
-+		| SP_I2C_EN0_ADDRESS_NACK_INT | SP_I2C_EN0_DONE_INT);
-+
-+	dma_int = SP_I2C_DMA_EN_DMA_DONE_INT;
-+
-+	spi2c_irq->rw_state = SPI2C_STATE_DMA_RD;
-+	spi2c_irq->data_index = 0;
-+	spi2c_irq->reg_data_index = 0;
-+	spi2c_irq->data_total_len = read_cnt;
-+
-+	sp_i2cm_reset(sr);
-+	sp_i2cm_dma_mode_enable(sr);
-+	sp_i2cm_clock_freq_set(sr, spi2c_cmd->freq);
-+	sp_i2cm_slave_addr_set(sr, spi2c_cmd->slave_addr);
-+	sp_i2cm_scl_delay_set(sr, SP_I2C_SCL_DELAY);
-+
-+	if (spi2c_cmd->restart_en) {
-+		sp_i2cm_active_mode_set(sr, I2C_TRIGGER);
-+		sp_i2cm_rw_mode_set(sr, I2C_RESTART_MODE);
-+		sp_i2cm_trans_cnt_set(sr, write_cnt, read_cnt);
-+		write_cnt = spi2c_cmd->write_cnt  / 4;
-+		if (spi2c_cmd->write_cnt % 4)
-+			write_cnt += 1;
-+
-+		sp_i2cm_data_tx(sr, spi2c_cmd->write_data, write_cnt);
-+
-+	} else {
-+		sp_i2cm_active_mode_set(sr, I2C_AUTO);
-+		sp_i2cm_rw_mode_set(sr, I2C_READ_MODE);
-+	}
-+
-+	sp_i2cm_int_en0_set(sr, int0);
-+	sp_i2cm_int_en1_set(sr, int1);
-+	sp_i2cm_int_en2_set(sr, int2);
-+
-+	sp_i2cm_dma_addr_set(sr_dma, dma_r_addr);
-+	sp_i2cm_dma_length_set(sr_dma, spi2c_cmd->read_cnt);
-+	sp_i2cm_dma_rw_mode_set(sr_dma, I2C_DMA_WRITE_MODE);
-+	sp_i2cm_dma_int_en_set(sr_dma, dma_int);
-+	sp_i2cm_dma_go_set(sr_dma);
-+
-+	if (spi2c_cmd->restart_en)
-+		sp_i2cm_manual_trigger(sr); //start send data
-+
-+	ret = wait_event_timeout(spi2c->wait, spi2c_irq->irq_dma_flag.dma_done,
-+				 (SP_I2C_SLEEP_TIMEOUT * HZ) / 200);
-+	if (ret == 0) {
-+		dev_err(spi2c->dev, "I2C DMA read timeout !!\n");
-+		ret = -ETIMEDOUT;
-+	} else {
-+		ret = spi2c_irq->ret;
-+	}
-+	sp_i2cm_status_clear(sr, 0xFFFFFFFF);
-+
-+	//copy data from virtual addr to spi2c_cmd->read_data
-+	spi2c_irq->rw_state = SPI2C_STATE_IDLE;
-+	spi2c_irq->busy = 0;
-+
-+	sp_i2cm_reset(sr);
-+	return ret;
-+}
-+
-+static int sp_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+{
-+	struct sp_i2c_dev *spi2c = adap->algo_data;
-+	struct sp_i2c_cmd *spi2c_cmd = &spi2c->spi2c_cmd;
-+	unsigned char restart_w_data[32] = {0};
-+	unsigned int  restart_write_cnt = 0;
-+	unsigned int  restart_en = 0;
-+	int ret = SPI2C_SUCCESS;
-+	int i = 0;
-+
-+	ret = pm_runtime_get_sync(spi2c->dev);
-+
-+	if (num == 0)
-+		return -EINVAL;
-+
-+	memset(spi2c_cmd, 0, sizeof(*spi2c_cmd));
-+	spi2c_cmd->dev_id = adap->nr;
-+
-+	if (spi2c_cmd->freq > SP_I2C_FAST_FREQ)
-+		spi2c_cmd->freq = SP_I2C_FAST_FREQ;
-+	else
-+		spi2c_cmd->freq = spi2c->i2c_clk_freq / 1000;
-+
-+	for (i = 0; i < num; i++) {
-+		if (msgs[i].flags & I2C_M_TEN)
-+			return -EINVAL;
-+
-+		spi2c_cmd->slave_addr = msgs[i].addr;
-+		if (msgs[i].flags & I2C_M_NOSTART) {
-+			restart_write_cnt = msgs[i].len;
-+			for (i = 0; i < restart_write_cnt; i++)
-+				restart_w_data[i] = msgs[i].buf[i];
-+
-+			restart_en = 1;
-+			continue;
-+		}
-+		if (msgs[i].flags & I2C_M_RD) {
-+			if (restart_en == 1) {
-+				spi2c_cmd->write_cnt = restart_write_cnt;
-+				spi2c_cmd->write_data = restart_w_data;
-+				restart_en = 0;
-+				spi2c_cmd->restart_en = 1;
-+			}
-+			spi2c_cmd->read_cnt = msgs[i].len;
-+			spi2c_cmd->read_data = i2c_get_dma_safe_msg_buf(&msgs[i], 4);
-+
-+			if (spi2c_cmd->read_cnt < 4 || !spi2c_cmd->read_data) {
-+				spi2c_cmd->read_data = msgs[i].buf;
-+				ret = sp_i2cm_read(spi2c_cmd, spi2c);
-+			} else {
-+				ret = sp_i2cm_dma_read(spi2c_cmd, spi2c);
-+				i2c_put_dma_safe_msg_buf(spi2c_cmd->read_data, &msgs[i], true);
-+			}
-+		} else {
-+			spi2c_cmd->write_cnt = msgs[i].len;
-+			spi2c_cmd->write_data = i2c_get_dma_safe_msg_buf(&msgs[i], 4);
-+				if (spi2c_cmd->write_cnt < 4 || !spi2c_cmd->write_data) {
-+					spi2c_cmd->write_data = msgs[i].buf;
-+					ret = sp_i2cm_write(spi2c_cmd, spi2c);
-+				} else {
-+					ret = sp_i2cm_dma_write(spi2c_cmd, spi2c);
-+					i2c_put_dma_safe_msg_buf(spi2c_cmd->write_data,
-+								 &msgs[i], true);
-+				}
-+		}
-+		if (ret != SPI2C_SUCCESS)
-+			return -EIO;
-+	}
-+
-+	pm_runtime_put(spi2c->dev);
-+	return num;
-+}
-+
-+static u32 sp_functionality(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+static struct i2c_algorithm sp_algorithm = {
-+	.master_xfer	= sp_master_xfer,
-+	.functionality	= sp_functionality,
-+};
-+
-+static const struct i2c_compatible i2c_7021_compat = {
-+	.mode = SP_I2C_DMA_POWER_SW,
-+	.total_port = 4,
-+};
-+
-+static const struct i2c_compatible i2c_645_compat = {
-+	.mode = SP_I2C_DMA_POWER_NO_SW,
-+	.total_port = 6,
-+
-+};
-+
-+static const struct of_device_id sp_i2c_of_match[] = {
-+	{	.compatible = "sunplus,sp7021-i2cm",
-+		.data = &i2c_7021_compat, },
-+	{	.compatible = "sunplus,q645-i2cm",
-+		.data = &i2c_645_compat, },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, sp_i2c_of_match);
-+
-+static void sp_i2c_disable_unprepare(void *data)
-+{
-+	clk_disable_unprepare(data);
-+}
-+
-+static void sp_i2c_reset_control_assert(void *data)
-+{
-+	reset_control_assert(data);
-+}
-+
-+static int sp_i2c_probe(struct platform_device *pdev)
-+{
-+	struct sp_i2c_dev *spi2c;
-+	struct i2c_adapter *p_adap;
-+	unsigned int i2c_clk_freq;
-+	int device_id = 0;
-+	int ret = SPI2C_SUCCESS;
-+	struct device *dev = &pdev->dev;
-+	const struct i2c_compatible *dev_mode;
-+
-+	if (pdev->dev.of_node) {
-+		pdev->id = of_alias_get_id(pdev->dev.of_node, "i2c");
-+		device_id = pdev->id;
-+	}
-+
-+	spi2c = devm_kzalloc(&pdev->dev, sizeof(*spi2c), GFP_KERNEL);
-+	if (!spi2c)
-+		return -ENOMEM;
-+
-+	if (!of_property_read_u32(pdev->dev.of_node, "clock-frequency", &i2c_clk_freq))
-+		spi2c->i2c_clk_freq = i2c_clk_freq;
-+	else
-+		spi2c->i2c_clk_freq = SP_I2C_STD_FREQ * 1000;
-+
-+	spi2c->dev = &pdev->dev;
-+	ret = _sp_i2cm_get_resources(pdev, spi2c);
-+	if (ret != SPI2C_SUCCESS)
-+		return ret;
-+
-+	spi2c->clk = devm_clk_get(dev, NULL);
-+	if (IS_ERR(spi2c->clk))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(spi2c->clk), "err get clock\n");
-+
-+	spi2c->rstc = devm_reset_control_get_exclusive(dev, NULL);
-+	if (IS_ERR(spi2c->rstc))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(spi2c->rstc), "err get reset\n");
-+
-+	ret = clk_prepare_enable(spi2c->clk);
-+	if (ret)
-+		return dev_err_probe(&pdev->dev, ret, "failed to enable clk\n");
-+
-+	ret = devm_add_action_or_reset(dev, sp_i2c_disable_unprepare, spi2c->clk);
-+	if (ret)
-+		return ret;
-+
-+	ret = reset_control_deassert(spi2c->rstc);
-+	if (ret)
-+		dev_err_probe(&pdev->dev, ret, "failed to deassert reset\n");
-+
-+	ret = devm_add_action_or_reset(dev, sp_i2c_reset_control_assert, spi2c->rstc);
-+	if (ret)
-+		return ret;
-+
-+	init_waitqueue_head(&spi2c->wait);
-+
-+	dev_mode = of_device_get_match_data(&pdev->dev);
-+	spi2c->mode = dev_mode->mode;
-+	spi2c->total_port = dev_mode->total_port;
-+	p_adap = &spi2c->adap;
-+	sprintf(p_adap->name, "%s%d", "sunplus-i2cm", device_id);
-+	p_adap->algo = &sp_algorithm;
-+	p_adap->algo_data = spi2c;
-+	p_adap->nr = device_id;
-+	p_adap->class = 0;
-+	p_adap->retries = 5;
-+	p_adap->dev.parent = &pdev->dev;
-+	p_adap->dev.of_node = pdev->dev.of_node;
-+
-+	ret = i2c_add_numbered_adapter(p_adap);
-+	ret = _sp_i2cm_init(device_id, spi2c);
-+	platform_set_drvdata(pdev, spi2c);
-+
-+	pm_runtime_set_autosuspend_delay(&pdev->dev, 5000);
-+	pm_runtime_use_autosuspend(&pdev->dev);
-+	pm_runtime_set_active(&pdev->dev);
-+	pm_runtime_enable(&pdev->dev);
-+
-+	return ret;
-+}
-+
-+static int sp_i2c_remove(struct platform_device *pdev)
-+{
-+	struct sp_i2c_dev *spi2c = platform_get_drvdata(pdev);
-+	struct i2c_adapter *p_adap = &spi2c->adap;
-+
-+	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
-+	i2c_del_adapter(p_adap);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused sp_i2c_suspend(struct device *dev)
-+{
-+	struct sp_i2c_dev *spi2c = dev_get_drvdata(dev);
-+	struct i2c_adapter *p_adap = &spi2c->adap;
-+
-+	if (p_adap->nr < spi2c->total_port)
-+		reset_control_assert(spi2c->rstc);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused sp_i2c_resume(struct device *dev)
-+{
-+	struct sp_i2c_dev *spi2c = dev_get_drvdata(dev);
-+	struct i2c_adapter *p_adap = &spi2c->adap;
-+
-+	if (p_adap->nr < spi2c->total_port) {
-+		reset_control_deassert(spi2c->rstc);
-+		clk_prepare_enable(spi2c->clk);
-+	}
-+	return 0;
-+}
-+
-+static int sp_i2c_runtime_suspend(struct device *dev)
-+{
-+	struct sp_i2c_dev *spi2c = dev_get_drvdata(dev);
-+	struct i2c_adapter *p_adap = &spi2c->adap;
-+
-+	if (p_adap->nr < spi2c->total_port)
-+		reset_control_assert(spi2c->rstc);
-+
-+	return 0;
-+}
-+
-+static int sp_i2c_runtime_resume(struct device *dev)
-+{
-+	struct sp_i2c_dev *spi2c = dev_get_drvdata(dev);
-+	struct i2c_adapter *p_adap = &spi2c->adap;
-+
-+	if (p_adap->nr < spi2c->total_port) {
-+		reset_control_deassert(spi2c->rstc);   //release reset
-+		clk_prepare_enable(spi2c->clk);        //enable clken and disable gclken
-+	}
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops sp7021_i2c_pm_ops = {
-+	SET_RUNTIME_PM_OPS(sp_i2c_runtime_suspend,
-+			   sp_i2c_runtime_resume, NULL)
-+	SET_SYSTEM_SLEEP_PM_OPS(sp_i2c_suspend, sp_i2c_resume)
-+
-+};
-+
-+#define sp_i2c_pm_ops  (&sp7021_i2c_pm_ops)
-+
-+static struct platform_driver sp_i2c_driver = {
-+	.probe		= sp_i2c_probe,
-+	.remove		= sp_i2c_remove,
-+	.driver		= {
-+		.name		= "sunplus-i2cm",
-+		.of_match_table = sp_i2c_of_match,
-+		.pm     = sp_i2c_pm_ops,
-+	},
-+};
-+
-+static int __init sp_i2c_adap_init(void)
-+{
-+	return platform_driver_register(&sp_i2c_driver);
-+}
-+module_init(sp_i2c_adap_init);
-+
-+static void __exit sp_i2c_adap_exit(void)
-+{
-+	platform_driver_unregister(&sp_i2c_driver);
-+}
-+module_exit(sp_i2c_adap_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Li-hao Kuo <lhjeff911@gmail.com>");
-+MODULE_DESCRIPTION("Sunplus I2C Master Driver");
--- 
-2.7.4
-
+PiBUaGFua3MsIG15IGNvbW1lbnRzIGJlbG93Lg0KVGhhbmtzIGZvciB0aGUgaW5wdXRzLiANCj4g
+DQo+ID4gQWRkIGRldmljZV9pcnFfZ2V0X2J5bmFtZSgpIHRvIGdldCBhbiBpbnRlcnJ1cHQgYnkg
+bmFtZSBmcm9tIGJvdGggdGhlDQo+ID4gQUNQSSB0YWJsZSBhbmQgdGhlIERldmljZSBUcmVlLg0K
+PiANCj4gVGhpcyBuZWVkcyB0byBiZSBjbGFyaWZpZWQgKGl0J3Mgbm90IGFuZCwgYnV0IG9yKSwg
+d2hhdCBhYm91dDoNCj4gDQo+ICAgQWRkIGRldmljZV9pcnFfZ2V0X2J5bmFtZSgpIHRvIGdldCBh
+biBpbnRlcnJ1cHQgYnkgbmFtZSBmcm9tIGVpdGhlcg0KPiAgIEFDUEkgdGFibGUgb3IgRGV2aWNl
+IFRyZWUgd2hpY2hldmVyIGhhcyBpdC4NCj4gDQo+ID4gVGhpcyB3aWxsIGFsbG93IHRvIHVzZSAn
+aW50ZXJydXB0LW5hbWVzJyBpbiBfRFNEIHdoaWNoIGNhbiBiZSBtYXBwZWQNCj4gPiB0bw0KPiAN
+Cj4gSW4gdGhlIEFDUEkgY2FzZSB0aGlzDQo+IGFsbG93IHVzIHRvDQo+IA0KPiA+IEludGVycnVw
+dCgpIHJlc291cmNlIGJ5IGluZGV4LiBUaGUgaW1wbGVtZW50YXRpb24gaXMgc2ltaWxhciB0bw0K
+PiA+ICdpbnRlcnJ1cHQtbmFtZXMnIGluIHRoZSBEZXZpY2UgVHJlZS4NCj4gDQo+IC4uLg0KPiAN
+Cj4gPiAgLyoqDQo+ID4gKyAqIGZ3bm9kZV9pcnFfZ2V0X2J5bmFtZSAtIEdldCBJUlEgZnJvbSBh
+IGZ3bm9kZSB1c2luZyBpdHMgbmFtZQ0KPiA+ICsgKiBAZndub2RlOiAgICBQb2ludGVyIHRvIHRo
+ZSBmaXJtd2FyZSBub2RlDQo+ID4gKyAqIEBuYW1lOiAgICAgIElSUSBuYW1lDQo+ID4gKyAqDQo+
+ID4gKyAqIERlc2NyaXB0aW9uOg0KPiA+ICsgKiBGaW5kIGEgbWF0Y2ggdG8gdGhlIHN0cmluZyAn
+bmFtZScgaW4gdGhlICdpbnRlcnJ1cHQtbmFtZXMnIHN0cmluZw0KPiA+ICsgYXJyYXkNCj4gDQo+
+ICduYW1lJyAtLT4gQG5hbWUNCj4gDQo+ID4gKyAqIGluIF9EU0QgZm9yIEFDUEksIG9yIG9mX25v
+ZGUgZm9yIGRldmljZSB0cmVlLiBUaGVuIGdldCB0aGUgTGludXgNCj4gPiArIElSUQ0KPiANCj4g
+RGV2aWNlIFRyZWUNCj4gDQo+ID4gKyAqIG51bWJlciBvZiB0aGUgSVJRIHJlc291cmNlIGNvcnJl
+c3BvbmRpbmcgdG8gdGhlIGluZGV4IG9mIHRoZQ0KPiA+ICsgbWF0Y2hlZA0KPiA+ICsgKiBzdHJp
+bmcuDQo+ID4gKyAqDQo+ID4gKyAqIFJldHVybjoNCj4gDQo+ID4gKyAqIExpbnV4IElSUSBudW1i
+ZXIgb24gc3VjY2Vzcw0KPiA+ICsgKiBOZWdhdGl2ZSBlcnJubyBvdGhlcndpc2UuDQo+IA0KPiAg
+KiBMaW51eCBJUlEgbnVtYmVyIG9uIHN1Y2Nlc3MsIG9yIG5lZ2F0aXZlIGVycm5vIG90aGVyd2lz
+ZS4NCj4gDQo+ID4gKyAqLw0KPiA+ICtpbnQgZndub2RlX2lycV9nZXRfYnluYW1lKGNvbnN0IHN0
+cnVjdCBmd25vZGVfaGFuZGxlICpmd25vZGUsIGNvbnN0DQo+ID4gK2NoYXIgKm5hbWUpIHsNCj4g
+PiArICAgICAgIGludCBpbmRleDsNCj4gPiArDQo+ID4gKyAgICAgICBpZiAoIW5hbWUpDQo+ID4g
+KyAgICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOw0KPiA+ICsNCj4gPiArICAgICAgIGluZGV4
+ID0gZndub2RlX3Byb3BlcnR5X21hdGNoX3N0cmluZyhmd25vZGUsICJpbnRlcnJ1cHQtbmFtZXMi
+LA0KPiBuYW1lKTsNCj4gPiArICAgICAgIGlmIChpbmRleCA8IDApDQo+ID4gKyAgICAgICAgICAg
+ICAgIHJldHVybiBpbmRleDsNCj4gPiArDQo+ID4gKyAgICAgICByZXR1cm4gZndub2RlX2lycV9n
+ZXQoZndub2RlLCBpbmRleCk7IH0NCj4gDQo+IC4uLg0KPiANCj4gPiArLyoqDQo+ID4gKyAqIGRl
+dmljZV9pcnFfZ2V0X2J5bmFtZSAtIEdldCBJUlEgb2YgYSBkZXZpY2UgdXNpbmcgaW50ZXJydXB0
+IG5hbWUNCj4gPiArICogQGRldjogRGV2aWNlIHRvIGdldCB0aGUgaW50ZXJydXB0DQo+ID4gKyAq
+IEBuYW1lOiBJUlEgbmFtZQ0KPiA+ICsgKg0KPiA+ICsgKiBEZXNjcmlwdGlvbjoNCj4gPiArICog
+RmluZCBhIG1hdGNoIHRvIHRoZSBzdHJpbmcgJ25hbWUnIGluIHRoZSAnaW50ZXJydXB0LW5hbWVz
+JyBzdHJpbmcNCj4gPiArYXJyYXkNCj4gPiArICogaW4gX0RTRCBmb3IgQUNQSSwgb3Igb2Zfbm9k
+ZSBmb3IgZGV2aWNlIHRyZWUuIFRoZW4gZ2V0IHRoZSBMaW51eA0KPiA+ICtJUlENCj4gPiArICog
+bnVtYmVyIG9mIHRoZSBJUlEgcmVzb3VyY2UgY29ycmVzcG9uZGluZyB0byB0aGUgaW5kZXggb2Yg
+dGhlDQo+ID4gK21hdGNoZWQNCj4gPiArICogc3RyaW5nLg0KPiA+ICsgKg0KPiA+ICsgKiBSZXR1
+cm46DQo+ID4gKyAqIExpbnV4IElSUSBudW1iZXIgb24gc3VjY2Vzcw0KPiA+ICsgKiBOZWdhdGl2
+ZSBlcnJubyBvdGhlcndpc2UuDQo+ID4gKyAqLw0KPiANCj4gQXMgcGVyIGFib3ZlLg0KPiANCj4g
+Li4uDQo+IA0KPiA+ICtpbnQgZGV2aWNlX2lycV9nZXRfYnluYW1lKHN0cnVjdCBkZXZpY2UgKmRl
+diwgY29uc3QgY2hhciAqbmFtZSk7DQo+IA0KPiBTaW5jZSB3ZSBkb24ndCBoYXZlIGRldmljZV9p
+cnFfZ2V0KCkgcGVyaGFwcyB3ZSBkb24ndCBuZWVkIHRoaXMgb25lIHJpZ2h0IG5vdw0KPiAoanVz
+dCBvcGVuIGNvZGUgaXQgaW4gdGhlIGNhbGxlcikuIFRoaXMgd2lsbCBzYXRpc2Z5IFJhZmFlbCdz
+IHJlcXVlc3QuDQoNCklmIHRvIGNvZGUgdGhlIHNhbWUgaW4gY2FsbGVyLCBJIGd1ZXNzLCBpdCB3
+b3VsZCBsb29rIGxpa2UgdGhpcyAtDQoJIGlycSA9IGZ3bm9kZV9pcnFfZ2V0X2J5bmFtZShkZXZf
+Zndub2RlKGFkYXB0ZXItPmRldi5wYXJlbnQpLA0KCQkJCQkgInNtYnVzX2FsZXJ0Iik7DQoNCkxv
+b2tzIG9rYXkgdG8gbWUsIGJ1dCBpZiBnaXZlbiBhbiBvcHRpb24gSSB3b3VsZCBnbyB3aXRoIGRl
+dmljZV9pcnFfZ2V0X2J5bmFtZSgpLg0KDQpUaGFua3MsDQpBa2hpbA0K
