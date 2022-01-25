@@ -2,208 +2,153 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99DACC433F5
-	for <linux-i2c@archiver.kernel.org>; Tue, 25 Jan 2022 08:36:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CA23C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 Jan 2022 09:31:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359460AbiAYIfy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 25 Jan 2022 03:35:54 -0500
-Received: from mail-qv1-f51.google.com ([209.85.219.51]:38608 "EHLO
-        mail-qv1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378752AbiAYIb3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Jan 2022 03:31:29 -0500
-Received: by mail-qv1-f51.google.com with SMTP id b12so4529982qvz.5;
-        Tue, 25 Jan 2022 00:31:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0nj3tQtaS2Jftix8pFrL2+Rvw9SRm0Q+IWJ3wAkzl0s=;
-        b=WB9h79SHkFBh8zEGcIeB7E5HjafQdfpc08WU2JJUiiPYqy9M9KJ/1Obbo3AoYDuZM1
-         L1ZQ35GjmvhlgLfu/XAavya6XuAAD+5NoospC4UKkm5iDbh8x7/5myPjkvSpHJx+1S1t
-         MJoJYqGdK7EVegPvSwcyshqEkzm5FfysYVYEy17n9KIBsqKUHA751y1SqRy7fxRZTJIJ
-         XwSLmmOSBQVCaiCt5Lp+1+6RoKze+67Ygj9GhfzsJEBTjeJWUcv/cptoSXjrRnyPWrD9
-         Bp/hDQh9OiCwjzfUPD47V6Yg/M2Hs5SNbYhyiB9BDtvD2gf0W0vSHVNHDpyLrrFV4q7J
-         DrAg==
-X-Gm-Message-State: AOAM533jz79E3Mb70YzDiCSOaQNE/eMwJqeM8QoYVLs1gyCdu9MFvtXH
-        rBe1oSOzAy87kimGpLjSGZsXQpf32NMPiu/s
-X-Google-Smtp-Source: ABdhPJxcd215HVffZw8fBf1K2zIojl7li593qA7bzWJqK/5Jrw3HmZ2JtI9Yl6fpG+4KjmAtaakXdQ==
-X-Received: by 2002:a05:6214:3006:: with SMTP id ke6mr15873363qvb.59.1643099481113;
-        Tue, 25 Jan 2022 00:31:21 -0800 (PST)
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com. [209.85.219.50])
-        by smtp.gmail.com with ESMTPSA id d8sm8722166qtd.70.2022.01.25.00.31.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Jan 2022 00:31:21 -0800 (PST)
-Received: by mail-qv1-f50.google.com with SMTP id k4so24225123qvt.6;
-        Tue, 25 Jan 2022 00:31:20 -0800 (PST)
-X-Received: by 2002:a05:6102:a04:: with SMTP id t4mr1874173vsa.77.1643099137125;
- Tue, 25 Jan 2022 00:25:37 -0800 (PST)
+        id S1573993AbiAYJbG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 25 Jan 2022 04:31:06 -0500
+Received: from mail-mw2nam10on2088.outbound.protection.outlook.com ([40.107.94.88]:48224
+        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1379691AbiAYJIh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Jan 2022 04:08:37 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JdG/mPjkRQip4sJhQJouh56kDEDKaZL1tv7r4vqK8Idu9bxAPlh0C4GEhSGKI+JHCb2o4TaBneZGwlza3vFqEZnCNi9mQ/dHTHdi7EYrtg5Dy2qTngC6AZ4HLGO3VeFSfq5OTREPD55zOybbzFneuKoEeSpIWPgvApfDQo7UoMI2kGCJRMpJmHp6XdOQFrnL6f2KvEMmCA390XsEot/wTJEqMRmC87Qm7D9oY0Rm7PVX3EFfJ3lwPSIh2wfD3MPKOkJDLD9E7kiThHwCD9WXsyG9sWvAQ8owvJo06NR8ALEuaYWAXeQtdCIptygi36XT8znKGG7KYbg/CeLXnWEvSQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=FzkqF3CuXAbyLSKc1MLu1CCbkfd3U+dE+ZAOlYufDCo=;
+ b=SloL92YNMDE2SBFTwnb6+PcUCrZWcw3whQRjyNFMYH4k96vV8r1fZEQ57ZBv/hJ/u53uGFMXM1yp7njRS4Z15A8JvXo8lP6coq2ZpHTAWmejNcouQF7HyfVAU9DuSkOHhq/JYTil33zB/xpYSgzN88ajUjeuhVBXok3BCbXF/a+PGnbGdY54ixnUg4PF537mGDzXdPSXxkZ5VPHxmNqR4LacT1/61x3R0YHC0ml75Bi1fKAsGfQVTy3blF1MIlLpsoaWOaN+RXgbfrK6Xqa9wPVUa7uP9Pjg3H+WIYtDvG/5SGosqv4acp5PMyMTLI1+oA9R2g8LqV/Wj8SLpfHRHQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.238) smtp.rcpttodomain=linaro.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=FzkqF3CuXAbyLSKc1MLu1CCbkfd3U+dE+ZAOlYufDCo=;
+ b=U4wXsvR4CZ7CB+AXx19vdxEXoB+/R5PBAOCF3HZ1LQzodX4a+PHM+5jbo23bYvDjTqDMmyDkQRpr7h90378X2KvM3ucPfI9kWVWgyJj0TOfKZxhTWFznWMBKTxSrPvxE4P+qdgNYCappgsNllK1uqyWEZ8OqrlUN1GX2PzDvFZzZx/rMip8KJNgWguRn/L75aP9p33VXK49kmrirQhNcMgFKl5fn8h55s4l9IIxwOf1WkH7d66SJ2/2WoVuRcOcR9hV0CEHGEhcloCFG8MJfBFAujXu22IQ+OCgAVz9DUotTWMJsSLPw96agF2P5/m+EH3d3Thq8AI3q6BeIgO7P6g==
+Received: from CO2PR05CA0100.namprd05.prod.outlook.com (2603:10b6:104:1::26)
+ by DM6PR12MB4943.namprd12.prod.outlook.com (2603:10b6:5:1bc::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4909.8; Tue, 25 Jan
+ 2022 09:08:31 +0000
+Received: from CO1NAM11FT056.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:104:1:cafe::af) by CO2PR05CA0100.outlook.office365.com
+ (2603:10b6:104:1::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4930.15 via Frontend
+ Transport; Tue, 25 Jan 2022 09:08:31 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.238; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (12.22.5.238) by
+ CO1NAM11FT056.mail.protection.outlook.com (10.13.175.107) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4909.7 via Frontend Transport; Tue, 25 Jan 2022 09:08:30 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ DRHQMAIL105.nvidia.com (10.27.9.14) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.18; Tue, 25 Jan 2022 09:08:30 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.9;
+ Tue, 25 Jan 2022 01:08:30 -0800
+Received: from kyarlagadda-linux.nvidia.com (10.127.8.10) by mail.nvidia.com
+ (10.126.190.181) with Microsoft SMTP Server id 15.2.986.9 via Frontend
+ Transport; Tue, 25 Jan 2022 01:08:26 -0800
+From:   Akhil R <akhilrajeev@nvidia.com>
+To:     <digetx@gmail.com>, <jonathanh@nvidia.com>, <ldewangan@nvidia.com>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-tegra@vger.kernel.org>, <mperttunen@nvidia.com>,
+        <thierry.reding@gmail.com>, <sumit.semwal@linaro.org>,
+        <p.zabel@pengutronix.de>, <christian.koenig@amd.com>
+CC:     <akhilrajeev@nvidia.com>
+Subject: [PATCH] i2c: tegra: Add SMBus block read function
+Date:   Tue, 25 Jan 2022 14:38:22 +0530
+Message-ID: <1643101702-16206-1-git-send-email-akhilrajeev@nvidia.com>
+X-Mailer: git-send-email 2.7.4
+X-NVConfidentiality: public
 MIME-Version: 1.0
-References: <CAMuHMdWsMGPiQaPS0-PJ_+Mc5VQ37YdLfbHr_aS40kB+SfW-aw@mail.gmail.com>
- <20220112213121.5ruae5mxwj6t3qiy@pengutronix.de> <Yd9L9SZ+g13iyKab@sirena.org.uk>
- <20220113110831.wvwbm75hbfysbn2d@pengutronix.de> <YeA7CjOyJFkpuhz/@sirena.org.uk>
- <20220113194358.xnnbhsoyetihterb@pengutronix.de> <YeF05vBOzkN+xYCq@smile.fi.intel.com>
- <20220115154539.j3tsz5ioqexq2yuu@pengutronix.de> <YehdsUPiOTwgZywq@smile.fi.intel.com>
- <20220120075718.5qtrpc543kkykaow@pengutronix.de> <Ye6/NgfxsZnpXE09@smile.fi.intel.com>
- <15796e57-f7d4-9c66-3b53-0b026eaf31d8@omp.ru>
-In-Reply-To: <15796e57-f7d4-9c66-3b53-0b026eaf31d8@omp.ru>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Tue, 25 Jan 2022 09:25:25 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdXouECKa43OwUgQ6dA+gNeOqEZHZgOmQzqknzYiA924YA@mail.gmail.com>
-Message-ID: <CAMuHMdXouECKa43OwUgQ6dA+gNeOqEZHZgOmQzqknzYiA924YA@mail.gmail.com>
-Subject: Re: [PATCH] driver core: platform: Rename platform_get_irq_optional()
- to platform_get_irq_silent()
-To:     Sergey Shtylyov <s.shtylyov@omp.ru>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Andrew Lunn <andrew@lunn.ch>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        KVM list <kvm@vger.kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>, linux-iio@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Guenter Roeck <groeck@chromium.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        MTD Maling List <linux-mtd@lists.infradead.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        linux-phy@lists.infradead.org, Jiri Slaby <jirislaby@kernel.org>,
-        openipmi-developer@lists.sourceforge.net,
-        Khuong Dinh <khuong@os.amperecomputing.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Linux PWM List <linux-pwm@vger.kernel.org>,
-        Robert Richter <rric@kernel.org>,
-        Saravanan Sekar <sravanhome@gmail.com>,
-        Corey Minyard <minyard@acm.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        John Garry <john.garry@huawei.com>,
-        Peter Korsgaard <peter@korsgaard.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Mark Gross <markgross@kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Sebastian Reichel <sre@kernel.org>,
-        Eric Auger <eric.auger@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Takashi Iwai <tiwai@suse.com>,
-        platform-driver-x86@vger.kernel.org,
-        Benson Leung <bleung@chromium.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-edac@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        Mun Yew Tham <mun.yew.tham@intel.com>,
-        Hans de Goede <hdegoede@redhat.com>, netdev@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Linux MMC List <linux-mmc@vger.kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Richard Weinberger <richard@nod.at>,
-        =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
-        linux-mediatek@lists.infradead.org,
-        Brian Norris <computersforpeace@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: b5f6c050-8a05-4f9c-30a6-08d9dfe241ca
+X-MS-TrafficTypeDiagnostic: DM6PR12MB4943:EE_
+X-Microsoft-Antispam-PRVS: <DM6PR12MB494373E12527C314B972EEEEC05F9@DM6PR12MB4943.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1227;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: HdA7mAcvTb3gxonG3AsBSPnMBUpVEDEn8SeidZlc1jFIx/HXaD0jLbKcO/ujxpy29FOxDpczmCkkTB5AYDBtzwgMSAnRPcxCv60R7Mk+oxZ1a3ma7wKOjdEikli3/+0t1l1CxV5YKakbDRlf/fSyyLvwgmsoMF8L/nJs1f+mhUGk0G2ic7ejhtQP7Y83Ruq5Wq1s4Cwc4VMqhmPC0cmgXFVGBU7IAf2DQaQyCv80ITdhPK9i+dHq7R1n/eKj/AU2LWmowrtXctjN5uu02ArY5SDlFyaQwkf3x8s8fSUZ9hhoYTUOl138YvXKYbndJchm9sNTwhmorLln2CATV8YhTQJsHBRKTEJ0y4yq7lD1JOGdexh3kpIDBFYQKriZM/ZajwaH8+lFpMoMwbUHtTMLlAW86RL7VPg5/EMQuek8ouXd6IeAuaanovGEJMDyo2N6hU7XHW3cr26avYz7nH4CjugVutR1aReXUzSRrNz1Y5jR7VRN0MrZ+qV2WGemg49O2mL+hHtcmRonFhoJ48cvuPMgWm9ZuYni9ykf17SapE+Wkz9wdiPEZYISJYHug7vPynR+4cdx0Qy7BRyWeRCJpUt6pNFbnjAtPdAKl73Hko1QReiU2mr04M9QgkkeiqEP00hse5qhT215U89KsvQdDtRA/HENLSegbSlXWn2OlwbLiZBvvxbFGd2iBmaWLOssq6U/MVGBGWv6MSX/wRMIJ/KbNbl8JRMt9HJoXW0FvaS42Kc2N2+mY4NgXJrTMQfzaOdzrDLTusK0HhKEaJpyKOrHg8AGBZMHBARoYMfxXFNQiq96jEoVf7bf6mETPE85XBmdGBb6EaKyPR+VMbzADnhI/kuuptANgK5/n3oDino=
+X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(4636009)(40470700004)(36840700001)(46966006)(110136005)(316002)(81166007)(36756003)(8936002)(26005)(8676002)(36860700001)(6666004)(426003)(86362001)(107886003)(336012)(40460700003)(186003)(356005)(508600001)(83380400001)(2906002)(5660300002)(2616005)(921005)(47076005)(4326008)(7696005)(70206006)(70586007)(82310400004)(83996005)(36900700001)(2101003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Jan 2022 09:08:30.7914
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: b5f6c050-8a05-4f9c-30a6-08d9dfe241ca
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT056.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4943
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Sergey,
+Emulate SMBus block read using ContinueXfer to read the length byte
 
-On Mon, Jan 24, 2022 at 10:02 PM Sergey Shtylyov <s.shtylyov@omp.ru> wrote:
-> On 1/24/22 6:01 PM, Andy Shevchenko wrote:
-> >>>>>>> It'd certainly be good to name anything that doesn't correspond to one
-> >>>>>>> of the existing semantics for the API (!) something different rather
-> >>>>>>> than adding yet another potentially overloaded meaning.
-> >>>>>>
-> >>>>>> It seems we're (at least) three who agree about this. Here is a patch
-> >>>>>> fixing the name.
-> >>>>>
-> >>>>> And similar number of people are on the other side.
-> >>>>
-> >>>> If someone already opposed to the renaming (and not only the name) I
-> >>>> must have missed that.
-> >>>>
-> >>>> So you think it's a good idea to keep the name
-> >>>> platform_get_irq_optional() despite the "not found" value returned by it
-> >>>> isn't usable as if it were a normal irq number?
-> >>>
-> >>> I meant that on the other side people who are in favour of Sergey's patch.
-> >>> Since that I commented already that I opposed the renaming being a standalone
-> >>> change.
-> >>>
-> >>> Do you agree that we have several issues with platform_get_irq*() APIs?
-> [...]
-> >>> 2. The vIRQ0 handling: a) WARN() followed by b) returned value 0
-> >>
-> >> I'm happy with the vIRQ0 handling. Today platform_get_irq() and it's
-> >> silent variant returns either a valid and usuable irq number or a
-> >> negative error value. That's totally fine.
-> >
-> > It might return 0.
-> > Actually it seems that the WARN() can only be issued in two cases:
-> > - SPARC with vIRQ0 in one of the array member
-> > - fallback to ACPI for GPIO IRQ resource with index 0
->
->    You have probably missed the recent discovery that arch/sh/boards/board-aps4*.c
-> causes IRQ0 to be passed as a direct IRQ resource?
+Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-So far no one reported seeing the big fat warning ;-)
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 03cea10..2941e42 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -1233,6 +1233,11 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		return err;
+ 
+ 	i2c_dev->msg_buf = msg->buf;
++
++	/* The condition true implies smbus block read and len is already read */
++	if (msg->flags & I2C_M_RECV_LEN && end_state != MSG_END_CONTINUE)
++		i2c_dev->msg_buf = msg->buf + 1;
++
+ 	i2c_dev->msg_buf_remaining = msg->len;
+ 	i2c_dev->msg_err = I2C_ERR_NONE;
+ 	i2c_dev->msg_read = !!(msg->flags & I2C_M_RD);
+@@ -1389,6 +1394,15 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 			else
+ 				end_type = MSG_END_REPEAT_START;
+ 		}
++		/* If M_RECV_LEN use ContinueXfer to read the first byte */
++		if (msgs[i].flags & I2C_M_RECV_LEN) {
++			ret = tegra_i2c_xfer_msg(i2c_dev, &msgs[i], MSG_END_CONTINUE);
++			if (ret)
++				break;
++			/* Set the read byte as msg len */
++			msgs[i].len = msgs[i].buf[0];
++			dev_dbg(i2c_dev->dev, "reading %d bytes\n", msgs[i].len);
++		}
+ 		ret = tegra_i2c_xfer_msg(i2c_dev, &msgs[i], end_type);
+ 		if (ret)
+ 			break;
+@@ -1416,10 +1430,10 @@ static u32 tegra_i2c_func(struct i2c_adapter *adap)
+ {
+ 	struct tegra_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+ 	u32 ret = I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK) |
+-		  I2C_FUNC_10BIT_ADDR |	I2C_FUNC_PROTOCOL_MANGLING;
++		  I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
+ 
+ 	if (i2c_dev->hw->has_continue_xfer_support)
+-		ret |= I2C_FUNC_NOSTART;
++		ret |= I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+ 
+ 	return ret;
+ }
+-- 
+2.7.4
 
-> > The bottom line here is the SPARC case. Anybody familiar with the platform
-> > can shed a light on this. If there is no such case, we may remove warning
-> > along with ret = 0 case from platfrom_get_irq().
->
->    I'm afraid you're too fast here... :-)
->    We'll have a really hard time if we continue to allow IRQ0 to be returned by
-> platform_get_irq() -- we'll have oto fileter it out in the callers then...
-
-So far no one reported seeing the big fat warning?
-
-> >>> 3. The specific cookie for "IRQ not found, while no error happened" case
-> >>
-> >> Not sure what you mean here. I have no problem that a situation I can
-> >> cope with is called an error for the query function. I just do error
-> >> handling and continue happily. So the part "while no error happened" is
-> >> irrelevant to me.
-> >
-> > I meant that instead of using special error code, 0 is very much good for
-> > the cases when IRQ is not found. It allows to distinguish -ENXIO from the
-> > low layer from -ENXIO with this magic meaning.
->
->    I don't see how -ENXIO can trickle from the lower layers, frankly...
-
-It might one day, leading to very hard to track bugs.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
