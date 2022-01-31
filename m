@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9526C433FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 15:14:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2BE0C43219
+	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 15:14:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377605AbiAaPOg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 31 Jan 2022 10:14:36 -0500
-Received: from mga03.intel.com ([134.134.136.65]:14352 "EHLO mga03.intel.com"
+        id S1379050AbiAaPOi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 31 Jan 2022 10:14:38 -0500
+Received: from mga18.intel.com ([134.134.136.126]:17029 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349421AbiAaPOI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 31 Jan 2022 10:14:08 -0500
+        id S1378391AbiAaPOW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 31 Jan 2022 10:14:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1643642048; x=1675178048;
+  t=1643642062; x=1675178062;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=zl1WEsN+S0fe432u7xlUnaY5szL7dEoqtZRLgOVer54=;
-  b=kKHExrE11clqVVWI9rCEYj4ADv9IJzpqI+CYvs4DEo7WigXpNERAgzKT
-   +6xB05sbVdcwaWjZ6J88JNkAbFcE/6//bXfMxXIBJr+teFHYMVPLY28Mx
-   hug0dMGWePtUAPy+B+eVAArQd/nP9nftJAtdpkLuibeX/Ie6WCW209mVW
-   NYwRerQ36tBJyMmHwv6GxMByltUhZml+J20KJpsTagRwovqognBAlZGPs
-   oY4X10sZkydOB3YBXUJr3kgW5KmVdrU+dpexTM3mdk+Ub2766e219Sq7/
-   TDX7u2nYRQUMFkfjV59XiP1J7k3fE1NDQxCK1es9/chbMWPIWjUjbKfFF
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10243"; a="247432625"
+  bh=+exGFQd/cTQyWk2QAcEy4X66VsJFxyo/yocq2eE5qj4=;
+  b=clZGuHtXt2CIGzvmpQNKRCTstHpILMRliNXPW3NSmhGlLLH65M5sZdGx
+   4tHoGF+yjvJUc7fONE5QQZdtSTmhrfm8v0abEEYgSxb8nE+YUa/VvBebY
+   s2EpOpYISuQxYdqiH6QoGnXtFL6OIv8bps4OMoys7HEtf+zVidGtCmJAG
+   l2NhlwdbiCUkYILx8ZEZDJbnfcxgB4AU65/w5GjDtGnEK87IO1LgkXHi5
+   CGsSfc8yZZc516mM/JHIJrhxaTmSxfvkIjVs4xA5/2VZznNLRdksuX1ux
+   Qn0HFw3rgf13PqfkzBiuJlRfHiwFZ4P1T7x9b9h4o3QzF27u1Luxg7coD
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10243"; a="231050143"
 X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
-   d="scan'208";a="247432625"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 07:14:07 -0800
+   d="scan'208";a="231050143"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 07:14:15 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
-   d="scan'208";a="534199166"
+   d="scan'208";a="479189238"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 31 Jan 2022 07:14:01 -0800
+  by orsmga003.jf.intel.com with ESMTP; 31 Jan 2022 07:14:08 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id E5C9A3C8; Mon, 31 Jan 2022 17:14:15 +0200 (EET)
+        id 2FF2250C; Mon, 31 Jan 2022 17:14:16 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Wolfram Sang <wsa@kernel.org>, Jean Delvare <jdelvare@suse.de>,
@@ -60,9 +60,9 @@ Cc:     Borislav Petkov <bp@alien8.de>,
         Andy Shevchenko <andy@kernel.org>,
         Mark Gross <markgross@kernel.org>,
         Henning Schild <henning.schild@siemens.com>
-Subject: [PATCH v4 3/8] mfd: lpc_ich: Factor out lpc_ich_enable_spi_write()
-Date:   Mon, 31 Jan 2022 17:13:41 +0200
-Message-Id: <20220131151346.45792-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 8/8] EDAC, pnd2: convert to use common P2SB accessor
+Date:   Mon, 31 Jan 2022 17:13:46 +0200
+Message-Id: <20220131151346.45792-9-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220131151346.45792-1-andriy.shevchenko@linux.intel.com>
 References: <20220131151346.45792-1-andriy.shevchenko@linux.intel.com>
@@ -72,63 +72,121 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Factor out duplicate code to lpc_ich_enable_spi_write() helper function.
+Since we have a common P2SB accessor in tree we may use it instead of
+open coded variants.
+
+Replace custom code by p2sb_bar() call.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
 ---
- drivers/mfd/lpc_ich.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/edac/Kconfig     |  1 +
+ drivers/edac/pnd2_edac.c | 55 ++++++++++++----------------------------
+ 2 files changed, 17 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
-index f10e53187f67..13d8c64318e6 100644
---- a/drivers/mfd/lpc_ich.c
-+++ b/drivers/mfd/lpc_ich.c
-@@ -1084,12 +1084,21 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
- 	return ret;
+diff --git a/drivers/edac/Kconfig b/drivers/edac/Kconfig
+index 58ab63642e72..e566d66999a9 100644
+--- a/drivers/edac/Kconfig
++++ b/drivers/edac/Kconfig
+@@ -262,6 +262,7 @@ config EDAC_I10NM
+ config EDAC_PND2
+ 	tristate "Intel Pondicherry2"
+ 	depends on PCI && X86_64 && X86_MCE_INTEL
++	select P2SB if X86
+ 	help
+ 	  Support for error detection and correction on the Intel
+ 	  Pondicherry2 Integrated Memory Controller. This SoC IP is
+diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
+index 7d1df120e24c..a20b299f1202 100644
+--- a/drivers/edac/pnd2_edac.c
++++ b/drivers/edac/pnd2_edac.c
+@@ -28,6 +28,8 @@
+ #include <linux/bitmap.h>
+ #include <linux/math64.h>
+ #include <linux/mod_devicetable.h>
++#include <linux/platform_data/x86/p2sb.h>
++
+ #include <asm/cpu_device_id.h>
+ #include <asm/intel-family.h>
+ #include <asm/processor.h>
+@@ -232,42 +234,14 @@ static u64 get_mem_ctrl_hub_base_addr(void)
+ 	return U64_LSHIFT(hi.base, 32) | U64_LSHIFT(lo.base, 15);
  }
  
-+static void lpc_ich_test_spi_write(struct pci_dev *dev, unsigned int devfn,
-+				   struct intel_spi_boardinfo *info)
-+{
-+	u32 bcr;
-+
-+	pci_bus_read_config_dword(dev->bus, devfn, BCR, &bcr);
-+	info->writeable = !!(bcr & BCR_WPD);
-+}
-+
- static int lpc_ich_init_spi(struct pci_dev *dev)
+-static u64 get_sideband_reg_base_addr(void)
+-{
+-	struct pci_dev *pdev;
+-	u32 hi, lo;
+-	u8 hidden;
+-
+-	pdev = pci_get_device(PCI_VENDOR_ID_INTEL, 0x19dd, NULL);
+-	if (pdev) {
+-		/* Unhide the P2SB device, if it's hidden */
+-		pci_read_config_byte(pdev, 0xe1, &hidden);
+-		if (hidden)
+-			pci_write_config_byte(pdev, 0xe1, 0);
+-
+-		pci_read_config_dword(pdev, 0x10, &lo);
+-		pci_read_config_dword(pdev, 0x14, &hi);
+-		lo &= 0xfffffff0;
+-
+-		/* Hide the P2SB device, if it was hidden before */
+-		if (hidden)
+-			pci_write_config_byte(pdev, 0xe1, hidden);
+-
+-		pci_dev_put(pdev);
+-		return (U64_LSHIFT(hi, 32) | U64_LSHIFT(lo, 0));
+-	} else {
+-		return 0xfd000000;
+-	}
+-}
+-
+ #define DNV_MCHBAR_SIZE  0x8000
+ #define DNV_SB_PORT_SIZE 0x10000
+ static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *name)
  {
- 	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
- 	struct resource *res = &intel_spi_res[0];
- 	struct intel_spi_boardinfo *info;
--	u32 spi_base, rcba, bcr;
-+	u32 spi_base, rcba;
+ 	struct pci_dev *pdev;
+ 	void __iomem *base;
+-	u64 addr;
+-	unsigned long size;
++	struct resource r;
++	int ret;
  
- 	info = devm_kzalloc(&dev->dev, sizeof(*info), GFP_KERNEL);
- 	if (!info)
-@@ -1113,8 +1122,7 @@ static int lpc_ich_init_spi(struct pci_dev *dev)
- 			res->start = spi_base + SPIBASE_LPT;
- 			res->end = res->start + SPIBASE_LPT_SZ - 1;
- 
--			pci_read_config_dword(dev, BCR, &bcr);
--			info->writeable = !!(bcr & BCR_WPD);
-+			lpc_ich_test_spi_write(dev, dev->devfn, info);
+ 	if (op == 4) {
+ 		pdev = pci_get_device(PCI_VENDOR_ID_INTEL, 0x1980, NULL);
+@@ -279,20 +253,23 @@ static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *na
+ 	} else {
+ 		/* MMIO via memory controller hub base address */
+ 		if (op == 0 && port == 0x4c) {
+-			addr = get_mem_ctrl_hub_base_addr();
+-			if (!addr)
++			memset(&r, 0, sizeof(r));
++
++			r.start = get_mem_ctrl_hub_base_addr();
++			if (!r.start)
+ 				return -ENODEV;
+-			size = DNV_MCHBAR_SIZE;
++			r.end = r.start + DNV_MCHBAR_SIZE - 1;
+ 		} else {
+ 			/* MMIO via sideband register base address */
+-			addr = get_sideband_reg_base_addr();
+-			if (!addr)
+-				return -ENODEV;
+-			addr += (port << 16);
+-			size = DNV_SB_PORT_SIZE;
++			ret = p2sb_bar(NULL, 0, &r);
++			if (ret)
++				return ret;
++
++			r.start += (port << 16);
++			r.end = r.start + DNV_SB_PORT_SIZE - 1;
  		}
- 		break;
  
-@@ -1135,8 +1143,7 @@ static int lpc_ich_init_spi(struct pci_dev *dev)
- 			res->start = spi_base & 0xfffffff0;
- 			res->end = res->start + SPIBASE_APL_SZ - 1;
+-		base = ioremap((resource_size_t)addr, size);
++		base = ioremap(r.start, resource_size(&r));
+ 		if (!base)
+ 			return -ENODEV;
  
--			pci_bus_read_config_dword(bus, spi, BCR, &bcr);
--			info->writeable = !!(bcr & BCR_WPD);
-+			lpc_ich_test_spi_write(dev, spi, info);
- 		}
- 
- 		pci_bus_write_config_byte(bus, p2sb, 0xe1, 0x1);
 -- 
 2.34.1
 
