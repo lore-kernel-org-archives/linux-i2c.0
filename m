@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86CC4C433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 12:34:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F823C433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 12:34:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377794AbiAaMek (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 31 Jan 2022 07:34:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38666 "EHLO
+        id S1378051AbiAaMeo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 31 Jan 2022 07:34:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377708AbiAaMei (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jan 2022 07:34:38 -0500
+        with ESMTP id S1377728AbiAaMej (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jan 2022 07:34:39 -0500
 Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0728C06173B;
-        Mon, 31 Jan 2022 04:34:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24481C06173D;
+        Mon, 31 Jan 2022 04:34:39 -0800 (PST)
 From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1643632476;
+        s=2020; t=1643632477;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=4Cnx2U3ehecH1EXxHKkd2xHBgTX+RcdbAsjgFaXCm/o=;
-        b=fU93pza/ZNETYaCsug8jceTgh74lN4xCg7XEi6i9wyj4TmQkCQnwaKQyFD/Bje8g4LhfYq
-        ivMLGxUfvDv8qwlaLLeLIckp6c2YdKOsfOTCa/Uo7nMnLgt8LcuMwCFIrgizaqdqjokJJC
-        oApPa4uFKZx2ulwkblGpZerv7rOq3RNAe8MHFLT5G4BUIzIyta1SLVEU2mxs3odpF1XUlI
-        HTdK/lXvMXfSjut0vo0beBmZe29Ii4tx4v9HE90JGDtofhLQI9amjERww7YAFUgYPhacrc
-        aMevfhtwGd0ObY29eFr6iVCyeQgJm+imvwLXqNpTq+42ODVzNqbZYSLbqzfdvw==
+        bh=3Rf56x1+Ad9rEt91/emuxS1F2pB4aiqCl6htULN1OW8=;
+        b=NItl7Sm8Sv5ZaZ5pyGetxkOE/XosAyw1Dhafd35BWYF3AZ2wlMF0JlE014D8ZkIWfl13cz
+        rcS815gCwV/KsKUNNBwuB0iGRs2ZpGX0NJyyYTxZLtGSrqQYVOio1CabZXCdYcRkMp3PWo
+        iZFVXBfcJbKCc9drgMh1h8oUD7jS/7Ys12c7yOm0WNjcegWdJtPUy2CklxnxxJgZBnPFgp
+        ZKE6I7MFgk2a8cbEuOHg+JZHgyNMqxfaOkiF0BVcHv9aE8aHwy7H7YCJC0Yq+sViS6aABI
+        9QESDEJ5YTamladmXXncEIluMmNgNr5ZdTyfIOYxSeLV6CR/8K2XLP1WWd4+uQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1643632476;
+        s=2020e; t=1643632477;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=4Cnx2U3ehecH1EXxHKkd2xHBgTX+RcdbAsjgFaXCm/o=;
-        b=E3vfHQTM7BzQ+R1R6RodJ9z8eBL9l02WqeF9xkbXHZrnawkMLcEQpWWcGMb3Vxa+JcMgcv
-        2y9smJBQm+7Rq1CA==
+        bh=3Rf56x1+Ad9rEt91/emuxS1F2pB4aiqCl6htULN1OW8=;
+        b=sM8TDHdyAIVrrUiRyNvRG/FFsmdPiet8KBnHDjkQYPlM/VPUyDAcs0VgIPboQLk4/Zp2ED
+        Sl8ssbU1jFbAFPBw==
 To:     greybus-dev@lists.linaro.org, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-staging@lists.linux.dev,
         linux-usb@vger.kernel.org, netdev@vger.kernel.org
@@ -50,13 +50,10 @@ Cc:     "David S. Miller" <davem@davemloft.net>,
         Thomas Gleixner <tglx@linutronix.de>,
         UNGLinuxDriver@microchip.com, Wolfram Sang <wsa@kernel.org>,
         Woojung Huh <woojung.huh@microchip.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Michael Below <below@judiz.de>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>
-Subject: [PATCH v2 2/7] i2c: core: Use generic_handle_irq_safe() in i2c_handle_smbus_host_notify().
-Date:   Mon, 31 Jan 2022 13:33:59 +0100
-Message-Id: <20220131123404.175438-3-bigeasy@linutronix.de>
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH v2 5/7] mfd: ezx-pcap: Use generic_handle_irq_safe().
+Date:   Mon, 31 Jan 2022 13:34:02 +0100
+Message-Id: <20220131123404.175438-6-bigeasy@linutronix.de>
 In-Reply-To: <20220131123404.175438-1-bigeasy@linutronix.de>
 References: <20220131123404.175438-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
@@ -65,41 +62,33 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The i2c-i801 driver invokes i2c_handle_smbus_host_notify() from his
-interrupt service routine. On PREEMPT_RT i2c-i801's handler is forced
-threaded with enabled interrupts which leads to a warning by
-handle_irq_event_percpu() assuming that irq_default_primary_handler()
-enabled interrupts.
-
-i2c-i801's interrupt handler can't be made non-threaded because the
-interrupt line is shared with other devices.
-
-Use generic_handle_irq_safe() which can invoked with disabled and enabled
+Instead of manually disabling interrupts before invoking use
+generic_handle_irq_safe() which can be invoked with enabled and disabled
 interrupts.
 
-Reported-by: Michael Below <below@judiz.de>
-Link: https://bugs.debian.org/1002537
-Cc: Salvatore Bonaccorso <carnil@debian.org>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Acked-by: Wolfram Sang <wsa@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/ezx-pcap.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 2c59dd748a49f..3f9e5303b6163 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1424,7 +1424,7 @@ int i2c_handle_smbus_host_notify(struct i2c_adapter *=
-adap, unsigned short addr)
- 	if (irq <=3D 0)
- 		return -ENXIO;
+diff --git a/drivers/mfd/ezx-pcap.c b/drivers/mfd/ezx-pcap.c
+index 70fa18b04ad2b..b14d3f98e1ebd 100644
+--- a/drivers/mfd/ezx-pcap.c
++++ b/drivers/mfd/ezx-pcap.c
+@@ -193,13 +193,11 @@ static void pcap_isr_work(struct work_struct *work)
+ 		ezx_pcap_write(pcap, PCAP_REG_MSR, isr | msr);
+ 		ezx_pcap_write(pcap, PCAP_REG_ISR, isr);
 =20
--	generic_handle_irq(irq);
-+	generic_handle_irq_safe(irq);
-=20
- 	return 0;
+-		local_irq_disable();
+ 		service =3D isr & ~msr;
+ 		for (irq =3D pcap->irq_base; service; service >>=3D 1, irq++) {
+ 			if (service & 1)
+-				generic_handle_irq(irq);
++				generic_handle_irq_safe(irq);
+ 		}
+-		local_irq_enable();
+ 		ezx_pcap_write(pcap, PCAP_REG_MSR, pcap->msr);
+ 	} while (gpio_get_value(pdata->gpio));
  }
 --=20
 2.34.1
