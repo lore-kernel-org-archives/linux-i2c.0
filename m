@@ -2,38 +2,38 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AD58C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 11:11:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E43FC4332F
+	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 11:11:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359071AbiAaLK6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1359091AbiAaLK6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 31 Jan 2022 06:10:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44516 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377537AbiAaLKK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jan 2022 06:10:10 -0500
+        with ESMTP id S1377588AbiAaLKN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jan 2022 06:10:13 -0500
 Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A344BC061714;
-        Mon, 31 Jan 2022 03:07:53 -0800 (PST)
-Date:   Mon, 31 Jan 2022 12:07:50 +0100
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDDE0C06175B;
+        Mon, 31 Jan 2022 03:10:05 -0800 (PST)
+Date:   Mon, 31 Jan 2022 12:10:02 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1643627272;
+        s=2020; t=1643627404;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=wZ2f6mxJtMd++5Aml5rgNLLSnjcWCv443/ajj7HSqQo=;
-        b=H7sx3pRzJHs2iSgUDPf/9+DKJAQHt0np+pCaCdI+Ffi232MTfpVtlOijisw4TtgPa3KVaT
-        bNORJUrty8/GGtFI1qKf1WVuvW4Ci3Ly0dfhBMIYtmaQWjHck7DDl2soXrVFPn5VDlduyn
-        oGD7LifyA365+7K8lYlyf/gateZqhErFd7NrEDXuN39w904LIrV7coW/7bBcWc7mkU8vHi
-        JwHBiqMFl2mUvs5bLgAZY+LglkvJs+um0fXck7OxYIX8xGzAZt0cgFaWAYOBVSewL39uW2
-        +dgVGYthpNPJLJUVA6VakYI3XwoZoHJP2Gcu52wyLvOn6mdZx9L9rh8cc8su5Q==
+        bh=VU/JLz6tZsfDSK1NGHlZJZDBKesuKZckLqSjhO2EaU4=;
+        b=MlRIySoABztrXXhRXSWmvo2UV3/cD+W5Hip49G7RuhEGWfXMve9+967C7hina7NbgL0gsA
+        aUsyVHVYqGGLzEAbCDnSBVARPcsyU62kssRd0FSyDb89J9lITtt7CgXLZ0DSZlUdLN5T/w
+        qHNlm/789QXdfRSQ37F2M6KewwXuqn/+0LdECa+8B6SFUBy6IZuEV8ZmutujHGlddT6mSy
+        LNUV9GJiEmtcb0UHeocT/ZyR7a+euq531BP7TAhXOFfSViefgJbswq1Ben8f0CIQKhfO4J
+        DX/KxI7Aj22VxGxM8DU0CabHTBLnbrQsayoEQ4Y/4pFVta2+UVm6Q+TlXVYbSw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1643627272;
+        s=2020e; t=1643627404;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=wZ2f6mxJtMd++5Aml5rgNLLSnjcWCv443/ajj7HSqQo=;
-        b=kzgTFt+D+034T01mnmcXciv1jHrUGkWJ38AFDFX50eklm0gwKWXdMojKgeBSU+4Rw+9DPy
-        5ED8sSRdw15wHbBQ==
+        bh=VU/JLz6tZsfDSK1NGHlZJZDBKesuKZckLqSjhO2EaU4=;
+        b=EsmtkMsJP6d5SP/mA+91F7XriKaPzaz7coj7QQMGILO4ncBzqs3VZj2EY51lcXyjhTegar
+        UlifgoPYSZH9lYAA==
 From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 To:     Wolfram Sang <wsa@kernel.org>, greybus-dev@lists.linaro.org,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -48,40 +48,27 @@ To:     Wolfram Sang <wsa@kernel.org>, greybus-dev@lists.linaro.org,
         Rui Miguel Silva <rmfrfs@gmail.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         UNGLinuxDriver@microchip.com,
-        Woojung Huh <woojung.huh@microchip.com>,
-        Michael Below <below@judiz.de>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: Re: [PATCH 2/7] i2c: core: Use generic_handle_irq_safe() in
- i2c_handle_smbus_host_notify().
-Message-ID: <YffDBiITSRQQXnVh@linutronix.de>
+        Woojung Huh <woojung.huh@microchip.com>
+Subject: Re: [PATCH 3/7] i2c: cht-wc: Use generic_handle_irq_safe().
+Message-ID: <YffDiv+NNWYFXJkX@linutronix.de>
 References: <20220127113303.3012207-1-bigeasy@linutronix.de>
- <20220127113303.3012207-3-bigeasy@linutronix.de>
- <YfLSNNDVtAFx1P9u@shikoro>
+ <20220127113303.3012207-4-bigeasy@linutronix.de>
+ <YfLThZsBwAucs2vp@shikoro>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <YfLSNNDVtAFx1P9u@shikoro>
+In-Reply-To: <YfLThZsBwAucs2vp@shikoro>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 2022-01-27 18:11:16 [+0100], Wolfram Sang wrote:
+On 2022-01-27 18:16:53 [+0100], Wolfram Sang wrote:
+> On Thu, Jan 27, 2022 at 12:32:59PM +0100, Sebastian Andrzej Siewior wrote:
+> > Instead of manually disabling interrupts before invoking use
+> > generic_handle_irq() which can be invoked with enabled and disabled
 > 
-> I guess you want this to go together with patch 1, so:
-> 
-> Acked-by: Wolfram Sang <wsa@kernel.org>
-> 
-> I agree with adding the kernel bugzilla entry at least:
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=202453
-> 
-> Probably the others which Oleksandr metioned, too.
+> generic_handle_irq_safe()
 
-No, they are not relevant because none of them can be reproduced on a
-v5.12+ kernel or any of <v5.12 stable maintained trees.
-
-They triggered in the past only with the `threadirqs' option on the
-commandline and this has been fixed by commit
-   81e2073c175b8 ("genirq: Disable interrupts for force threaded handlers")
+Yes, thank you.
 
 Sebastian
