@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C75A7C4332F
-	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 15:14:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 128F3C35273
+	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 15:14:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378391AbiAaPOl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 31 Jan 2022 10:14:41 -0500
-Received: from mga03.intel.com ([134.134.136.65]:14352 "EHLO mga03.intel.com"
+        id S1379366AbiAaPOq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 31 Jan 2022 10:14:46 -0500
+Received: from mga07.intel.com ([134.134.136.100]:19426 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1377474AbiAaPOf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 31 Jan 2022 10:14:35 -0500
+        id S1378011AbiAaPOS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 31 Jan 2022 10:14:18 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1643642075; x=1675178075;
+  t=1643642058; x=1675178058;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=JTIHagqELHJ2NnIvhXpAYqT0MDsrE5mJxtdev6kwq/4=;
-  b=ZUFpPh99ITdkf+5UEkVUcyS4yHTwDtFMg+uBT00EH8cZ0bVZKZ/JF5la
-   NAtWcZ2RoIRgod71wg4ZjWnY9C4yskBHjQKW5M/NLe5PQvAkHXi/15HJn
-   aEbj8Hv5Lf6AGcqSwgxNDMEXJtTSCjC2GRElJ596rzJve2scmZqF0892E
-   g1RiePdvXeScrHaTw5QABsyLThrVFXvBClgWjtGn0WB9Z2hAx1Nu+4sSV
-   WmALCadjyC/Wx9vq6MC6I/jhEHqj0jT25aYJuINbu+v4/kaEbij4Bhsor
-   g92TbIaVFYk+JX1Gn2eHK7vYNPU39HbvYrMfpOhTtxEwBVhibEACueQKL
+  bh=vJUYQ/EJ/+uq9B5gt7mFGRv4EuD1lZY/DDkYVSbHwtk=;
+  b=H47sRiEDjDi9jnUHsRBWZPUI4q1PBKBLijYH8pQPUTelmoYapBRBBgwc
+   H3n2pDiZsBTYGzOzwmR70+HfB1Rnt1A2NlpoR/EWWqyH2lbLb9NHPqnHg
+   C2Qqww2DJxuZqpaBl+tbWSqWZh8U+HkiBh4+/3xnD7Qw+CKwBR0RqStpf
+   yUii2qn/jWQSZH+93FNDySd8ovQ5XXzPHfXxuH8Zfhok4MqwyJEr5aLGP
+   e+6MIzLXwun+bhxCPjL5xdOTEiiB/HAkevQrz//JzSocrbqwGIne1JeLD
+   m/kruB2CNOdNWbfiUKQuuI6duSfifETev3EL1NydK7mPV8i5yWSJoPDEJ
    Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10243"; a="247432632"
+X-IronPort-AV: E=McAfee;i="6200,9189,10243"; a="310787725"
 X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
-   d="scan'208";a="247432632"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 07:14:08 -0800
+   d="scan'208";a="310787725"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 07:14:08 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
-   d="scan'208";a="534199168"
+   d="scan'208";a="626393642"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 31 Jan 2022 07:14:02 -0800
+  by fmsmga002.fm.intel.com with ESMTP; 31 Jan 2022 07:14:01 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id F267741C; Mon, 31 Jan 2022 17:14:15 +0200 (EET)
+        id D90843C5; Mon, 31 Jan 2022 17:14:15 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Wolfram Sang <wsa@kernel.org>, Jean Delvare <jdelvare@suse.de>,
@@ -60,9 +60,9 @@ Cc:     Borislav Petkov <bp@alien8.de>,
         Andy Shevchenko <andy@kernel.org>,
         Mark Gross <markgross@kernel.org>,
         Henning Schild <henning.schild@siemens.com>
-Subject: [PATCH v4 4/8] mfd: lpc_ich: Switch to generic p2sb_bar()
-Date:   Mon, 31 Jan 2022 17:13:42 +0200
-Message-Id: <20220131151346.45792-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 2/8] pinctrl: intel: Check against matching data instead of ACPI companion
+Date:   Mon, 31 Jan 2022 17:13:40 +0200
+Message-Id: <20220131151346.45792-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220131151346.45792-1-andriy.shevchenko@linux.intel.com>
 References: <20220131151346.45792-1-andriy.shevchenko@linux.intel.com>
@@ -72,86 +72,56 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Instead of open coding p2sb_bar() functionality we are going to
-use generic library. There is one more user en route.
+In some cases we may get a platform device that has ACPI companion
+which is different to the pin control described in the ACPI tables.
+This is primarily happens when device is instantiated by board file.
 
-This is more than just a clean-up. It also fixes a potential issue
-seen when SPI BAR is 64-bit. The current code works if and only if
-the PCI BAR of the hidden device is inside 4G address space. In case
-when firmware decides to go above 4G, we will get a wrong address.
+In order to allow this device being enumerated, refactor
+intel_pinctrl_get_soc_data() to check the matching data instead of
+ACPI companion.
 
+Reported-by: Henning Schild <henning.schild@siemens.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Acked-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/mfd/Kconfig   |  1 +
- drivers/mfd/lpc_ich.c | 20 ++++++--------------
- 2 files changed, 7 insertions(+), 14 deletions(-)
+ drivers/pinctrl/intel/pinctrl-intel.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index ba0b3eb131f1..544a3425c054 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -572,6 +572,7 @@ config LPC_ICH
- 	tristate "Intel ICH LPC"
- 	depends on PCI
- 	select MFD_CORE
-+	select P2SB if X86
- 	help
- 	  The LPC bridge function of the Intel ICH provides support for
- 	  many functional units. This driver provides needed support for
-diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
-index 13d8c64318e6..95dca5434917 100644
---- a/drivers/mfd/lpc_ich.c
-+++ b/drivers/mfd/lpc_ich.c
-@@ -45,6 +45,7 @@
- #include <linux/mfd/core.h>
- #include <linux/mfd/lpc_ich.h>
- #include <linux/platform_data/itco_wdt.h>
-+#include <linux/platform_data/x86/p2sb.h>
+diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
+index 826d494f3cc6..48f55991ae8c 100644
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -1626,16 +1626,14 @@ EXPORT_SYMBOL_GPL(intel_pinctrl_probe_by_uid);
  
- #define ACPIBASE		0x40
- #define ACPIBASE_GPE_OFF	0x28
-@@ -69,8 +70,6 @@
- #define BCR			0xdc
- #define BCR_WPD			BIT(0)
+ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_device *pdev)
+ {
++	const struct intel_pinctrl_soc_data * const *table;
+ 	const struct intel_pinctrl_soc_data *data = NULL;
+-	const struct intel_pinctrl_soc_data **table;
+-	struct acpi_device *adev;
+-	unsigned int i;
  
--#define SPIBASE_APL_SZ		4096
--
- #define GPIOBASE_ICH0		0x58
- #define GPIOCTRL_ICH0		0x5C
- #define GPIOBASE_ICH6		0x48
-@@ -1127,26 +1126,19 @@ static int lpc_ich_init_spi(struct pci_dev *dev)
- 		break;
+-	adev = ACPI_COMPANION(&pdev->dev);
+-	if (adev) {
+-		const void *match = device_get_match_data(&pdev->dev);
++	table = device_get_match_data(&pdev->dev);
++	if (table) {
++		struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
++		unsigned int i;
  
- 	case INTEL_SPI_BXT: {
--		unsigned int p2sb = PCI_DEVFN(13, 0);
- 		unsigned int spi = PCI_DEVFN(13, 2);
--		struct pci_bus *bus = dev->bus;
-+		int ret;
+-		table = (const struct intel_pinctrl_soc_data **)match;
+ 		for (i = 0; table[i]; i++) {
+ 			if (!strcmp(adev->pnp.unique_id, table[i]->uid)) {
+ 				data = table[i];
+@@ -1649,7 +1647,7 @@ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_
+ 		if (!id)
+ 			return ERR_PTR(-ENODEV);
  
- 		/*
- 		 * The P2SB is hidden by BIOS and we need to unhide it in
- 		 * order to read BAR of the SPI flash device. Once that is
- 		 * done we hide it again.
- 		 */
--		pci_bus_write_config_byte(bus, p2sb, 0xe1, 0x0);
--		pci_bus_read_config_dword(bus, spi, PCI_BASE_ADDRESS_0,
--					  &spi_base);
--		if (spi_base != ~0) {
--			res->start = spi_base & 0xfffffff0;
--			res->end = res->start + SPIBASE_APL_SZ - 1;
--
--			lpc_ich_test_spi_write(dev, spi, info);
--		}
-+		ret = p2sb_bar(dev->bus, spi, res);
-+		if (ret)
-+			return ret;
- 
--		pci_bus_write_config_byte(bus, p2sb, 0xe1, 0x1);
-+		lpc_ich_test_spi_write(dev, spi, info);
- 		break;
+-		table = (const struct intel_pinctrl_soc_data **)id->driver_data;
++		table = (const struct intel_pinctrl_soc_data * const *)id->driver_data;
+ 		data = table[pdev->id];
  	}
  
 -- 
