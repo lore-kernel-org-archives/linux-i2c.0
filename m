@@ -2,104 +2,133 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36890C43219
-	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 13:38:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9526C433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 15:14:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379081AbiAaNiO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 31 Jan 2022 08:38:14 -0500
-Received: from mail-oi1-f169.google.com ([209.85.167.169]:39583 "EHLO
-        mail-oi1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378954AbiAaNho (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jan 2022 08:37:44 -0500
-Received: by mail-oi1-f169.google.com with SMTP id e81so26662029oia.6;
-        Mon, 31 Jan 2022 05:37:44 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
-         :message-id;
-        bh=dRJYxYg6M513ADX19fELFRfGgMGqN9dmswwNJo+15eU=;
-        b=AV2IqK4xRs/rT7tPWZqMx2P8lA4si+tnHS2yLGGezrs7BAuFH+2pB19ePT2Ja5uflH
-         OscYP3X3WIig6k4WNZgU+b56cW27zhwZk7ZRaCg0w09+e60vdSMJVN6Vpbepg1pvzX52
-         UhTtgLeXkCqpduRh9UIYIANTFwMr26epVJBH9eDBD0gHazods54GU/M4CqezLuCWKhOx
-         aiwI1AzH/sNvl4NimEVrFsXokgdbD8WgiKOyMqSZtHUJqG3qkK8frXnLjYWLO590G8C7
-         OyMpmvscUR5sYJvCGA7h5ACS5/khD7TZ6MHbImpWsB5ZcTJvrHNWrvUVIF3YinktcwAx
-         J3Mw==
-X-Gm-Message-State: AOAM533qM2fB1I8JPZ2e1xm1OGeXv80SmJMbq69gaPmrgNYI/sRiweJn
-        BA733UEkOi2hll12t9k4mw==
-X-Google-Smtp-Source: ABdhPJxf7xEF6ASgsS22KYFq2drQaTLC9zin7gpaq+t/OkVYsMOveK/Vxr4nFYjFUepMzMyIvAUqNw==
-X-Received: by 2002:a05:6808:168e:: with SMTP id bb14mr17517593oib.106.1643636259228;
-        Mon, 31 Jan 2022 05:37:39 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id n66sm14639502oif.35.2022.01.31.05.37.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Jan 2022 05:37:38 -0800 (PST)
-Received: (nullmailer pid 140173 invoked by uid 1000);
-        Mon, 31 Jan 2022 13:37:31 -0000
-From:   Rob Herring <robh@kernel.org>
-To:     conor.dooley@microchip.com
-Cc:     linux-riscv@lists.infradead.org, linux-gpio@vger.kernel.org,
-        atishp@rivosinc.com, heiko@sntech.de, jassisinghbrar@gmail.com,
-        thierry.reding@gmail.com, linux-i2c@vger.kernel.org,
-        robh+dt@kernel.org, daire.mcnamara@microchip.com,
-        alexandre.belloni@bootlin.com, paul.walmsley@sifive.com,
-        brgl@bgdev.pl, geert@linux-m68k.org, aou@eecs.berkeley.edu,
-        linux-rtc@vger.kernel.org, palmer@dabbelt.com,
-        lee.jones@linaro.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bin.meng@windriver.com,
-        a.zummo@towertech.it, krzysztof.kozlowski@canonical.com,
-        linus.walleij@linaro.org, u.kleine-koenig@pengutronix.de,
-        ivan.griffin@microchip.com, linux-pwm@vger.kernel.org,
-        lewis.hanly@microchip.com
-In-Reply-To: <20220131114726.973690-7-conor.dooley@microchip.com>
-References: <20220131114726.973690-1-conor.dooley@microchip.com> <20220131114726.973690-7-conor.dooley@microchip.com>
-Subject: Re: [PATCH v5 06/12] dt-bindings: pwm: add microchip corepwm binding
-Date:   Mon, 31 Jan 2022 07:37:31 -0600
-Message-Id: <1643636251.124352.140172.nullmailer@robh.at.kernel.org>
+        id S1377605AbiAaPOg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 31 Jan 2022 10:14:36 -0500
+Received: from mga03.intel.com ([134.134.136.65]:14352 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1349421AbiAaPOI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 31 Jan 2022 10:14:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1643642048; x=1675178048;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=zl1WEsN+S0fe432u7xlUnaY5szL7dEoqtZRLgOVer54=;
+  b=kKHExrE11clqVVWI9rCEYj4ADv9IJzpqI+CYvs4DEo7WigXpNERAgzKT
+   +6xB05sbVdcwaWjZ6J88JNkAbFcE/6//bXfMxXIBJr+teFHYMVPLY28Mx
+   hug0dMGWePtUAPy+B+eVAArQd/nP9nftJAtdpkLuibeX/Ie6WCW209mVW
+   NYwRerQ36tBJyMmHwv6GxMByltUhZml+J20KJpsTagRwovqognBAlZGPs
+   oY4X10sZkydOB3YBXUJr3kgW5KmVdrU+dpexTM3mdk+Ub2766e219Sq7/
+   TDX7u2nYRQUMFkfjV59XiP1J7k3fE1NDQxCK1es9/chbMWPIWjUjbKfFF
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10243"; a="247432625"
+X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
+   d="scan'208";a="247432625"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 07:14:07 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
+   d="scan'208";a="534199166"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga007.fm.intel.com with ESMTP; 31 Jan 2022 07:14:01 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id E5C9A3C8; Mon, 31 Jan 2022 17:14:15 +0200 (EET)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Jean Delvare <jdelvare@suse.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Tan Jui Nee <jui.nee.tan@intel.com>,
+        Kate Hsuan <hpa@redhat.com>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Cc:     Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Peter Tyser <ptyser@xes-inc.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mark Gross <markgross@kernel.org>,
+        Henning Schild <henning.schild@siemens.com>
+Subject: [PATCH v4 3/8] mfd: lpc_ich: Factor out lpc_ich_enable_spi_write()
+Date:   Mon, 31 Jan 2022 17:13:41 +0200
+Message-Id: <20220131151346.45792-4-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220131151346.45792-1-andriy.shevchenko@linux.intel.com>
+References: <20220131151346.45792-1-andriy.shevchenko@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, 31 Jan 2022 11:47:21 +0000, conor.dooley@microchip.com wrote:
-> From: Conor Dooley <conor.dooley@microchip.com>
-> 
-> Add device tree bindings for the Microchip fpga fabric based "core" PWM
-> controller.
-> 
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> 
-> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-> ---
->  .../bindings/pwm/microchip,corepwm.yaml       | 75 +++++++++++++++++++
->  1 file changed, 75 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml
-> 
+Factor out duplicate code to lpc_ich_enable_spi_write() helper function.
 
-My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
-on your patch (DT_CHECKER_FLAGS is new in v5.13):
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/mfd/lpc_ich.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-yamllint warnings/errors:
-
-dtschema/dtc warnings/errors:
-Documentation/devicetree/bindings/pwm/microchip,corepwm.example.dts:19:18: fatal error: dt-bindings/clock/microchip,mpfs-clock.h: No such file or directory
-   19 |         #include "dt-bindings/clock/microchip,mpfs-clock.h"
-      |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-make[1]: *** [scripts/Makefile.lib:378: Documentation/devicetree/bindings/pwm/microchip,corepwm.example.dt.yaml] Error 1
-make[1]: *** Waiting for unfinished jobs....
-make: *** [Makefile:1398: dt_binding_check] Error 2
-
-doc reference errors (make refcheckdocs):
-
-See https://patchwork.ozlabs.org/patch/1586680
-
-This check can fail if there are any dependencies. The base for a patch
-series is generally the most recent rc1.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit.
+diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
+index f10e53187f67..13d8c64318e6 100644
+--- a/drivers/mfd/lpc_ich.c
++++ b/drivers/mfd/lpc_ich.c
+@@ -1084,12 +1084,21 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
+ 	return ret;
+ }
+ 
++static void lpc_ich_test_spi_write(struct pci_dev *dev, unsigned int devfn,
++				   struct intel_spi_boardinfo *info)
++{
++	u32 bcr;
++
++	pci_bus_read_config_dword(dev->bus, devfn, BCR, &bcr);
++	info->writeable = !!(bcr & BCR_WPD);
++}
++
+ static int lpc_ich_init_spi(struct pci_dev *dev)
+ {
+ 	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
+ 	struct resource *res = &intel_spi_res[0];
+ 	struct intel_spi_boardinfo *info;
+-	u32 spi_base, rcba, bcr;
++	u32 spi_base, rcba;
+ 
+ 	info = devm_kzalloc(&dev->dev, sizeof(*info), GFP_KERNEL);
+ 	if (!info)
+@@ -1113,8 +1122,7 @@ static int lpc_ich_init_spi(struct pci_dev *dev)
+ 			res->start = spi_base + SPIBASE_LPT;
+ 			res->end = res->start + SPIBASE_LPT_SZ - 1;
+ 
+-			pci_read_config_dword(dev, BCR, &bcr);
+-			info->writeable = !!(bcr & BCR_WPD);
++			lpc_ich_test_spi_write(dev, dev->devfn, info);
+ 		}
+ 		break;
+ 
+@@ -1135,8 +1143,7 @@ static int lpc_ich_init_spi(struct pci_dev *dev)
+ 			res->start = spi_base & 0xfffffff0;
+ 			res->end = res->start + SPIBASE_APL_SZ - 1;
+ 
+-			pci_bus_read_config_dword(bus, spi, BCR, &bcr);
+-			info->writeable = !!(bcr & BCR_WPD);
++			lpc_ich_test_spi_write(dev, spi, info);
+ 		}
+ 
+ 		pci_bus_write_config_byte(bus, p2sb, 0xe1, 0x1);
+-- 
+2.34.1
 
