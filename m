@@ -2,37 +2,37 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51094C433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 12:34:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A2FDC433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 12:34:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377594AbiAaMeh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 31 Jan 2022 07:34:37 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:59410 "EHLO
+        id S1377752AbiAaMej (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 31 Jan 2022 07:34:39 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:59484 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233466AbiAaMeh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jan 2022 07:34:37 -0500
+        with ESMTP id S1377681AbiAaMei (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jan 2022 07:34:38 -0500
 From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1643632475;
+        s=2020; t=1643632477;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=9t0l66X+9+rOkZ0CpBJw8Upffgz+ZzqJoLeQyVHWW5g=;
-        b=obux4keDpJq+njhJHJRgeO/GrKtUnbH3Ymq8SlsxTOHyetBB1sXOBGThc+7g84EQTNeyMg
-        Q2Bxplobgr+pAdpuM2CBPHjsSqrycwCQ6b+jlfAtjM95vIfLKK7K0MbWYSxEWI5MF2YlAS
-        nAHiV8sR1xr3e9fWWRdEPjjUXZbgM6D0CyAK9uJDL2I5o/KPY9heigp1yExL7w1h1DFpDe
-        3+FvFmI/FVHSI0SvEP3BinCQJIWKo6i7sI8n8/Moxyf3mK6kuJbPrSYtuoGL1XhMBH4Euw
-        uPCGndsGH4lITQQVMDahzrm6julaTBuSWxKyZhcLYGu5gK/fHOKZ8AtHfOb1zg==
+        bh=xJWvr65dKavzLpT9wk8poZEoprQ5XoEoPP+pD1dTjoU=;
+        b=Z/KGWakY3YQlkXWWU17c/U6IyXfQ2ddGu2eAM1wSlkX5J3cDhZ/2sw01mwLlFcckDsouWb
+        6DQIC8M/NmorkRzCyc4PAaOaZAUR9X3K7NumnAmRwAAbUUktaHsL8Ya2glWuNNY3Ner0R+
+        B624oJtvIdvwqA0J4mJNppn96yQ04dJ7PtlWVG1SLpP68xYftg6aTWuZaFVXM62pEfN/wo
+        +ivNf1zd/2FL3+dtp1JTFrpaBsBtgkC5eww1zsh1fzhS4Uz7bJNeJAqDQDXfdoFkqEKaFM
+        +NQflqvo3TspLnpeEAgXit6O7IiqKmpVYpn4KdJDfHic9T8O2PEGqOYKf32EBA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1643632475;
+        s=2020e; t=1643632477;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=9t0l66X+9+rOkZ0CpBJw8Upffgz+ZzqJoLeQyVHWW5g=;
-        b=IBw/srGY3rzYIpvWDICG/4UlhGAOGaNaVFhhnyWsQENyUqbX5K0weOOSICPjdQGbbkEFc3
-        QOcFD+eFNpeh6rCw==
+        bh=xJWvr65dKavzLpT9wk8poZEoprQ5XoEoPP+pD1dTjoU=;
+        b=1FiRpdEpOIKmEaDN1Ok6OZsrGcwa2CFIdZD9jXw4HkbjamLiJUBykx5vbsIIS/XPmAktwm
+        /+0hNxq/DdZqnyDg==
 To:     greybus-dev@lists.linaro.org, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-staging@lists.linux.dev,
         linux-usb@vger.kernel.org, netdev@vger.kernel.org
@@ -47,11 +47,10 @@ Cc:     "David S. Miller" <davem@davemloft.net>,
         Thomas Gleixner <tglx@linutronix.de>,
         UNGLinuxDriver@microchip.com, Wolfram Sang <wsa@kernel.org>,
         Woojung Huh <woojung.huh@microchip.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>
-Subject: [PATCH v2 1/7] genirq: Provide generic_handle_irq_safe().
-Date:   Mon, 31 Jan 2022 13:33:58 +0100
-Message-Id: <20220131123404.175438-2-bigeasy@linutronix.de>
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH v2 4/7] mfd: hi6421-spmi-pmic: Use generic_handle_irq_safe().
+Date:   Mon, 31 Jan 2022 13:34:01 +0100
+Message-Id: <20220131123404.175438-5-bigeasy@linutronix.de>
 In-Reply-To: <20220131123404.175438-1-bigeasy@linutronix.de>
 References: <20220131123404.175438-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
@@ -60,67 +59,47 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Provide generic_handle_irq_safe() which can used from any context.
+generic_handle_irq() is invoked from a regular interrupt service
+routine. This handler will become a forced-threaded handler on
+PREEMPT_RT and will be invoked with enabled interrupts. The
+generic_handle_irq() must be invoked with disabled interrupts in order
+to avoid deadlocks.
 
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Instead of manually disabling interrupts before invoking use
+generic_handle_irq_safe() which can be invoked with enabled and disabled
+interrupts.
+
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Oleksandr Natalenko <oleksandr@natalenko.name>
 ---
- include/linux/irqdesc.h |  1 +
- kernel/irq/irqdesc.c    | 23 +++++++++++++++++++++++
- 2 files changed, 24 insertions(+)
+ drivers/misc/hi6421v600-irq.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/irqdesc.h b/include/linux/irqdesc.h
-index 93d270ca0c567..a77584593f7d1 100644
---- a/include/linux/irqdesc.h
-+++ b/include/linux/irqdesc.h
-@@ -160,6 +160,7 @@ static inline void generic_handle_irq_desc(struct irq_d=
-esc *desc)
+diff --git a/drivers/misc/hi6421v600-irq.c b/drivers/misc/hi6421v600-irq.c
+index 1c763796cf1fa..caa3de37698b0 100644
+--- a/drivers/misc/hi6421v600-irq.c
++++ b/drivers/misc/hi6421v600-irq.c
+@@ -117,8 +117,8 @@ static irqreturn_t hi6421v600_irq_handler(int irq, void=
+ *__priv)
+ 			 * If both powerkey down and up IRQs are received,
+ 			 * handle them at the right order
+ 			 */
+-			generic_handle_irq(priv->irqs[POWERKEY_DOWN]);
+-			generic_handle_irq(priv->irqs[POWERKEY_UP]);
++			generic_handle_irq_safe(priv->irqs[POWERKEY_DOWN]);
++			generic_handle_irq_safe(priv->irqs[POWERKEY_UP]);
+ 			pending &=3D ~HISI_IRQ_POWERKEY_UP_DOWN;
+ 		}
 =20
- int handle_irq_desc(struct irq_desc *desc);
- int generic_handle_irq(unsigned int irq);
-+int generic_handle_irq_safe(unsigned int irq);
+@@ -126,7 +126,7 @@ static irqreturn_t hi6421v600_irq_handler(int irq, void=
+ *__priv)
+ 			continue;
 =20
- #ifdef CONFIG_IRQ_DOMAIN
- /*
-diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
-index 2267e6527db3c..4c58fa940a61c 100644
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -662,6 +662,29 @@ int generic_handle_irq(unsigned int irq)
- }
- EXPORT_SYMBOL_GPL(generic_handle_irq);
+ 		for_each_set_bit(offset, &pending, BITS_PER_BYTE) {
+-			generic_handle_irq(priv->irqs[offset + i * BITS_PER_BYTE]);
++			generic_handle_irq_safe(priv->irqs[offset + i * BITS_PER_BYTE]);
+ 		}
+ 	}
 =20
-+/**
-+ * generic_handle_irq_safe - Invoke the handler for a particular irq from =
-any
-+ *			     context.
-+ * @irq:	The irq number to handle
-+ *
-+ * Returns:	0 on success, a negative value on error.
-+ *
-+ * This function can be called any context (IRQ or process context). It wi=
-ll
-+ * report an error if not invoked from IRQ context and the irq has been ma=
-rked
-+ * to enforce IRQ-contex only.
-+ */
-+int generic_handle_irq_safe(unsigned int irq)
-+{
-+	unsigned long flags;
-+	int ret;
-+
-+	local_irq_save(flags);
-+	ret =3D handle_irq_desc(irq_to_desc(irq));
-+	local_irq_restore(flags);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(generic_handle_irq_safe);
-+
- #ifdef CONFIG_IRQ_DOMAIN
- /**
-  * generic_handle_domain_irq - Invoke the handler for a HW irq belonging
 --=20
 2.34.1
 
