@@ -2,81 +2,77 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65703C433FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 31 Jan 2022 19:46:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0DF1C433EF
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Feb 2022 00:18:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348778AbiAaTp7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 31 Jan 2022 14:45:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53912 "EHLO
+        id S230300AbiBAASt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 31 Jan 2022 19:18:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240770AbiAaTp6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jan 2022 14:45:58 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F88C061714;
-        Mon, 31 Jan 2022 11:45:58 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id g15-20020a17090a67cf00b001b7d5b6bedaso145559pjm.4;
-        Mon, 31 Jan 2022 11:45:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=006/8OHX6+u1AjFJpDJySc+x8beZciHLwH0JdA+GUO8=;
-        b=SntdH3KcRPQuJaaaWW/tEIrTqX0yFOqperUWrHPQOV39kP/sJnfoYUrHuY9Y742lUy
-         FDG4oakJInYuEmGnFUZcVgtz6ShkUMCX4Mis18QoVpScnASqCO+MHONdqh8u2CkQYZge
-         O95oArvcKJ/8gGZKnTKrou3HNkpcGGwH/+4DH2vTZzwY/fQJLrXNuyI0plNINYArAODi
-         C7I6DdDJX1i1PfxTZUa04ce+I7Y/3zMQSTsHdDC2i2e8y1oO3p23IfB5FeEOtwxefEcJ
-         manz77JprbE3RQBrkvimBH4ULR0OnWaRwaTpMhyQFovSDGxQzPB+iXR6jQzxTucUqFLD
-         4XMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=006/8OHX6+u1AjFJpDJySc+x8beZciHLwH0JdA+GUO8=;
-        b=PuSg8kpECE8kzUN87hz4dHMa9HHAKZFfYhDUvIL8QNxkJQICgJw3dYqHqALogd+5/g
-         CzA2Su8UzoH6dltwhh1Ibd7sq5GDjI08F6VP2ld42F78EAFpy7x3FhBdFrX9AZmOW/Qy
-         UQdYcq5SjzP/NmdiLe6X3ZmAeGG9M8vcAT51OF1ClpLplx+azGXCWu/w9DGRzsCoQDSD
-         PpEQuFksV+8ggGpfy1p3b3nWuEIJu5gI/r9MLQhlu2W4BkuQ0ADiWw/4NZDvF7k98D2L
-         G1piHU993/dZ6Bk8n1UMZQWh75rJtVm5QxZGZF7lhimQcdBXIgfhKLvl5WbO+BCfn0Cr
-         JK2w==
-X-Gm-Message-State: AOAM533G3Y172xI6wKWu6aVC6CQuRHimlBY3dTM+WMipIj5AIxTuPk5W
-        cMhSbfWhzuNFHw6SQfIXYUk=
-X-Google-Smtp-Source: ABdhPJxdho/GYn9CZr1JaFtmoVh/TWWDKrfEjn7oaS42OK1py2xdKQ/BKiZd9f9EgA9xgHL7ZffBTQ==
-X-Received: by 2002:a17:90a:8c8b:: with SMTP id b11mr3732073pjo.197.1643658358046;
-        Mon, 31 Jan 2022 11:45:58 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:6213:1c4:865f:204c])
-        by smtp.gmail.com with ESMTPSA id j12sm19276170pgf.63.2022.01.31.11.45.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Jan 2022 11:45:56 -0800 (PST)
-Date:   Mon, 31 Jan 2022 11:45:54 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Samuel Holland <samuel@sholland.org>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Ondrej Jirman <x@xff.cz>
-Subject: Re: [PATCH 3/5] Input: pinephone-keyboard - Build in the default
- keymap
-Message-ID: <Yfg8crUuCLO0SxVj@google.com>
-References: <20220129230043.12422-1-samuel@sholland.org>
- <20220129230043.12422-4-samuel@sholland.org>
+        with ESMTP id S230290AbiBAASs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jan 2022 19:18:48 -0500
+Received: from thorn.bewilderbeest.net (thorn.bewilderbeest.net [IPv6:2605:2700:0:5::4713:9cab])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 184D9C06173B;
+        Mon, 31 Jan 2022 16:18:48 -0800 (PST)
+Received: from hatter.bewilderbeest.net (174-21-190-118.tukw.qwest.net [174.21.190.118])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: zev)
+        by thorn.bewilderbeest.net (Postfix) with ESMTPSA id 68340407;
+        Mon, 31 Jan 2022 16:18:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bewilderbeest.net;
+        s=thorn; t=1643674726;
+        bh=vzPsNjZvndAyHxwYzpRfPbOzW25qWDh7MkzyvlonJCI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=giilTykb2ELfTcPfC8n/+sJ0g9/UFXKa/W5nrtxv0TvhP63lm8znl5kNWAcGdvfNb
+         qoxAzlFBuLgBsjc4UUzLMUH1V+QNdjxN9gvZ7MaHbF+fA7p1a6u/OD11gxEsUweeqe
+         rdrvQvXDTuiT8d/pc9TynkRPqKeFXTQtrois/LQU=
+From:   Zev Weiss <zev@bewilderbeest.net>
+To:     linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>
+Cc:     Zev Weiss <zev@bewilderbeest.net>, openbmc@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH v2 0/2] ic2: mux: pca9541: add delayed-release support
+Date:   Mon, 31 Jan 2022 16:18:08 -0800
+Message-Id: <20220201001810.19516-1-zev@bewilderbeest.net>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220129230043.12422-4-samuel@sholland.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Samuel,
+Hello,
 
-On Sat, Jan 29, 2022 at 05:00:40PM -0600, Samuel Holland wrote:
-> The PinePhone keyboard comes with removable keys, but there is a default
-> layout labeled from the factory. Use this keymap if none is provided in
-> the devicetree.
+This series adds support for a new pca9541 device-tree property
+("release-delay-us"), which delays releasing ownership of the bus
+after a transaction for a configurable duration, anticipating that
+another transaction may follow shortly.  By avoiding a
+release/reacquisition between transactions, this can provide a
+substantial performance improvement for back-to-back operations -- on
+a Delta AHE-50DC (ASPEED AST1250) system running OpenBMC with dozens
+of LM25066 PMICs on PCA9541-arbitrated busses, a setting of 10000 (10
+ms) reduces the median latency the psusensor daemon's hwmon sysfs file
+reads from 2.28 ms to 0.99 ms (a 57% improvement).
 
-Why can't we require to have it in device tree?
 
-Thanks.
+Thanks,
+Zev
+
+Changes since v1 [0]:
+ - removed spurious #include line from dt-bindings example
+
+[0] https://lore.kernel.org/linux-i2c/20220124213850.3766-1-zev@bewilderbeest.net/
+
+Zev Weiss (2):
+  i2c: mux: pca9541: add delayed-release support
+  dt-bindings: i2c: add nxp,pca9541 release-delay-us property
+
+ .../devicetree/bindings/i2c/nxp,pca9541.txt   |  9 +++
+ drivers/i2c/muxes/i2c-mux-pca9541.c           | 56 ++++++++++++++++---
+ 2 files changed, 56 insertions(+), 9 deletions(-)
 
 -- 
-Dmitry
+2.34.1
+
