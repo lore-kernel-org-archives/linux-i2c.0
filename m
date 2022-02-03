@@ -2,110 +2,80 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C40F8C433FE
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Feb 2022 14:14:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFDE3C433EF
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Feb 2022 14:33:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235787AbiBCOOd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Feb 2022 09:14:33 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:53144 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234727AbiBCOOb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Feb 2022 09:14:31 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 305722114D;
-        Thu,  3 Feb 2022 14:14:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1643897670; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IsVlcPPz4fb5Gf2ImKOnD8UP/Sqe6RXNED24nJE5qKY=;
-        b=TdvsgBazf40G3Zr1OXu884xSANl5KtoMWSjvIFL1QtFI6DEIRomHKAvbkSPCY8f8jade6c
-        gtkp/jGWUimi84/2NsyRq93Cl/PIU8PIsmijCSLm7nidDZnlde4c1dxU8QCxiYoe8nnKci
-        icwsJBsgbD4JpDws/ubGrlApiz7G2E4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1643897670;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IsVlcPPz4fb5Gf2ImKOnD8UP/Sqe6RXNED24nJE5qKY=;
-        b=fwkYbBPid4pC93NTSV6xWGdFvVUHzDurGFrnYL0GBEcvMzOIvcZoOcxSMwN3nzXk8fLfKb
-        /6KZpAwTIvHjfnAw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 706F313C0F;
-        Thu,  3 Feb 2022 14:14:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 4mTgGUXj+2HsVQAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Thu, 03 Feb 2022 14:14:29 +0000
-Date:   Thu, 3 Feb 2022 15:14:24 +0100
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Wolfram Sang <wsa@kernel.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Tan Jui Nee <jui.nee.tan@intel.com>,
-        Kate Hsuan <hpa@redhat.com>,
-        Jonathan Yong <jonathan.yong@intel.com>,
-        linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        Borislav Petkov <bp@alien8.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
-        James Morse <james.morse@arm.com>,
-        Robert Richter <rric@kernel.org>,
-        Peter Tyser <ptyser@xes-inc.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andy@kernel.org>,
-        Mark Gross <markgross@kernel.org>,
-        Henning Schild <henning.schild@siemens.com>
-Subject: Re: [PATCH v4 6/8] i2c: i801: convert to use common P2SB accessor
-Message-ID: <20220203151424.2a35c864@endymion>
-In-Reply-To: <20220131151346.45792-7-andriy.shevchenko@linux.intel.com>
-References: <20220131151346.45792-1-andriy.shevchenko@linux.intel.com>
-        <20220131151346.45792-7-andriy.shevchenko@linux.intel.com>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S1351291AbiBCOdc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Feb 2022 09:33:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58208 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351278AbiBCOd0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Feb 2022 09:33:26 -0500
+Received: from michel.telenet-ops.be (michel.telenet-ops.be [IPv6:2a02:1800:110:4::f00:18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A7FC061741
+        for <linux-i2c@vger.kernel.org>; Thu,  3 Feb 2022 06:33:23 -0800 (PST)
+Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed40:15aa:ab80:d2f:edb])
+        by michel.telenet-ops.be with bizsmtp
+        id qeZN2600B4dXKBW06eZNje; Thu, 03 Feb 2022 15:33:22 +0100
+Received: from rox.of.borg ([192.168.97.57])
+        by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1nFdAo-00D0Xl-1i; Thu, 03 Feb 2022 15:33:22 +0100
+Received: from geert by rox.of.borg with local (Exim 4.93)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1nFdAn-002sr2-D8; Thu, 03 Feb 2022 15:33:21 +0100
+From:   Geert Uytterhoeven <geert+renesas@glider.be>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 1/2] dt-bindings: i2c: renesas,rcar-i2c: Add r8a779f0 support
+Date:   Thu,  3 Feb 2022 15:33:16 +0100
+Message-Id: <9558127ad3a49fc6e03a0f9cb9ff19917f4e52ab.1643898531.git.geert+renesas@glider.be>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <cover.1643898531.git.geert+renesas@glider.be>
+References: <cover.1643898531.git.geert+renesas@glider.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Andy,
+Document support for the I2C Bus Interfaces in the Renesas R-Car S4-8
+(R8A779F0) SoC, including a new family-specific compatible value for the
+R-Car Gen4 family.
 
-On Mon, 31 Jan 2022 17:13:44 +0200, Andy Shevchenko wrote:
-> Since we have a common P2SB accessor in tree we may use it instead of
-> open coded variants.
-> 
-> Replace custom code by p2sb_bar() call.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Acked-by: Hans de Goede <hdegoede@redhat.com>
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
->  drivers/i2c/busses/Kconfig        |  1 +
->  drivers/i2c/busses/i2c-i801.c     | 39 +++++++------------------------
->  drivers/platform/x86/intel/p2sb.c |  6 +++++
->  3 files changed, 16 insertions(+), 30 deletions(-)
-> (...)
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-
-And thank you for taking the time to write this neat P2SB API and to
-convert all the code that was doing the same so far.
-
+diff --git a/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml b/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
+index 052aad44e781a561..c30107833a5145f9 100644
+--- a/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
+@@ -49,6 +49,11 @@ properties:
+               - renesas,i2c-r8a779a0     # R-Car V3U
+           - const: renesas,rcar-gen3-i2c # R-Car Gen3 and RZ/G2
+ 
++      - items:
++          - enum:
++              - renesas,i2c-r8a779f0     # R-Car S4-8
++          - const: renesas,rcar-gen4-i2c # R-Car Gen4
++
+   reg:
+     maxItems: 1
+ 
+@@ -132,6 +137,7 @@ allOf:
+             enum:
+               - renesas,rcar-gen2-i2c
+               - renesas,rcar-gen3-i2c
++              - renesas,rcar-gen4-i2c
+     then:
+       required:
+         - resets
 -- 
-Jean Delvare
-SUSE L3 Support
+2.25.1
+
