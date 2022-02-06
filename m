@@ -2,94 +2,223 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71934C433FE
-	for <linux-i2c@archiver.kernel.org>; Sun,  6 Feb 2022 12:51:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75998C433EF
+	for <linux-i2c@archiver.kernel.org>; Sun,  6 Feb 2022 13:57:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229647AbiBFMvX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 6 Feb 2022 07:51:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57824 "EHLO
+        id S240420AbiBFN5x (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 6 Feb 2022 08:57:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235893AbiBFMvX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Feb 2022 07:51:23 -0500
-X-Greylist: delayed 285 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 06 Feb 2022 04:51:21 PST
-Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00B12C06173B;
-        Sun,  6 Feb 2022 04:51:21 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3F17D5C0097;
-        Sun,  6 Feb 2022 07:46:33 -0500 (EST)
-Received: from imap47 ([10.202.2.97])
-  by compute2.internal (MEProxy); Sun, 06 Feb 2022 07:46:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svenpeter.dev;
-         h=cc:cc:content-transfer-encoding:content-type:date:date:from
-        :from:in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm3; bh=iB7sQB+HR0zZzq
-        fqF6V/y4fSMD6WHmU40dKjddl6GWE=; b=I92EMCIjV/ulOM0Ysw2hT9bxeM9C+P
-        whZNjdbpwDr0ubWQdPxXmEcci/B9zaRTfWQ7URdNgDMFqCWFf6VUsXAgnmKArCil
-        S3X3326BFnC5zztGrbdSVZKKGPXjVW69A+OzySTi5CA1Uin5bMwrABb9YiXR5OuN
-        hNG8cTe4/x9uD8kddmNmG6oq7c8JztS89SQa1ZDdYas9guXH5HF9MUaYhMB0Dmi9
-        hagd9muQ9IET4pCO9rqPCe/L+T7Q5U6+kL63C5OZLCJFYnzS9jQvs82EIAPvO1hk
-        S4qVf447/wEPpHHvtXT+qJKb7wK+lxNPqd8BnTX5rn6aPtYv3DfkJGtQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=iB7sQB+HR0zZzqfqF6V/y4fSMD6WHmU40dKjddl6G
-        WE=; b=V59r16DgpWDZ44/2A7kbi4VnOsPkt7HUDaS39bgRubVLEbEYkdYi6XYGS
-        Fajq0bPHwbJx2514fmASN9PtrYLhuo/NEQGfdUGyEAr9tXKStg0J+/eGcx0DbyF9
-        SssZFjfyYNDqQjagKNDRQDR577UyDKzw8t2VvKnU2M2efzeHz5e3voRGTDp814sz
-        vGMwpdpPbxzyHHvBgnx/hWPCPYkbBN+hjeHEFn5u4hGZ7xLeKVh6dM6b5ca2EIKt
-        0cG4FVmuGnz9L38glCTe3RdSlp5JTPuZwnEExTVRWqGD4YKypGGr/o37tvi5jILz
-        EpUxv1ECsYme7G/fs7Eqh86/S6mNA==
-X-ME-Sender: <xms:J8P_YVFsbJ-8QGmGDFK8DTbKZnjhbPsTwsCYNnc4YjpI_KXOK31B5g>
-    <xme:J8P_YaUAHauvKZxtrMzemzuR50PO9Kbza9l2hVH0aJCuFl_fUp2SIXhr55WUvMoyE
-    zVWS6CMVg1YZphpMXA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrheefgdeggecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvufgtgfesthhqredtreerjeenucfhrhhomhepfdfuvhgv
-    nhcurfgvthgvrhdfuceoshhvvghnsehsvhgvnhhpvghtvghrrdguvghvqeenucggtffrrg
-    htthgvrhhnpeetueduleetfeeuledvleehheeivedvhfekheejjeduhfeileffffduhfek
-    ieelgeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hsvhgvnhesshhvvghnphgvthgvrhdruggvvh
-X-ME-Proxy: <xmx:J8P_YXLcaY8FaUrBmdHMu8YmFjmf0yX6dbYBXWHA6Yfgm-EkEXUMPw>
-    <xmx:J8P_YbG0HIbcj0W06pdJ4yUpMx1pNqijn03AfzxgCQfRRGv_4hmzvg>
-    <xmx:J8P_YbW5_zFtSvppx5JAuExh8gtEbG-gqUBXzzV0Or63Aky1VoGcqg>
-    <xmx:KcP_YdKHgXP_rVLQsIsbcD9QtjuQyDGJqJ3YmEA_H2P9aMzhNjOzlA>
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id C147827402BF; Sun,  6 Feb 2022 07:46:31 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.5.0-alpha0-4586-g104bd556f9-fm-20220203.002-g104bd556
-Mime-Version: 1.0
-Message-Id: <6b3ece8e-bba8-425c-91e6-e8b35abbf715@www.fastmail.com>
-In-Reply-To: <20220204095914.5678-1-povik+lin@cutebit.org>
-References: <20220204095914.5678-1-povik+lin@cutebit.org>
-Date:   Sun, 06 Feb 2022 13:46:11 +0100
-From:   "Sven Peter" <sven@svenpeter.dev>
-To:     =?UTF-8?Q?Martin_Povi=C5=A1er?= <povik+lin@cutebit.org>
-Cc:     "Hector Martin" <marcan@marcan.st>,
-        "Michael Ellerman" <mpe@ellerman.id.au>,
-        "Alyssa Rosenzweig" <alyssa@rosenzweig.io>,
-        "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-        "Paul Mackerras" <paulus@samba.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: pasemi: Drop I2C classes from platform driver variant
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S233988AbiBFN5w (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Feb 2022 08:57:52 -0500
+X-Greylist: delayed 7071 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 06 Feb 2022 05:57:50 PST
+Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B474CC043182;
+        Sun,  6 Feb 2022 05:57:50 -0800 (PST)
+Received: from [77.244.183.192] (port=63680 helo=melee.fritz.box)
+        by hostingweb31.netsons.net with esmtpa (Exim 4.94.2)
+        (envelope-from <luca@lucaceresoli.net>)
+        id 1nGgDK-00059v-PZ; Sun, 06 Feb 2022 13:00:18 +0100
+From:   Luca Ceresoli <luca@lucaceresoli.net>
+To:     linux-media@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc:     Luca Ceresoli <luca@lucaceresoli.net>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Peter Rosin <peda@axentia.se>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        matti.vaittinen@fi.rohmeurope.com
+Subject: [RFCv3 3/6] media: dt-bindings: add DS90UB953-Q1 video serializer
+Date:   Sun,  6 Feb 2022 12:59:36 +0100
+Message-Id: <20220206115939.3091265-4-luca@lucaceresoli.net>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220206115939.3091265-1-luca@lucaceresoli.net>
+References: <20220206115939.3091265-1-luca@lucaceresoli.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - lucaceresoli.net
+X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca+lucaceresoli.net/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, Feb 4, 2022, at 10:59, Martin Povi=C5=A1er wrote:
-> Drop I2C device-probing classes from platform variant of the PASemi
-> controller as it is only used on platforms where I2C devices should
-> be instantiated in devicetree. (The I2C_CLASS_DEPRECATED flag is not
-> raised as up to this point no devices relied on the old behavior.)
->
-> Fixes: d88ae2932df0 ("i2c: pasemi: Add Apple platform driver")
-> Signed-off-by: Martin Povi=C5=A1er <povik+lin@cutebit.org>
+Describe the Texas Instruments DS90UB953-Q1, a MIPI CSI-2 video serializer
+with I2C Address Translator and remote GPIOs.
 
-Reviewed-by: Sven Peter <sven@svenpeter.dev>
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+
+---
+
+Changes RFCv2 -> RFCv3:
+
+ - rewrite in yaml
+
+Changes RFCv1 -> RFCv2: none, this patch is new in RFCv2
+---
+ .../bindings/media/i2c/ti,ds90ub953-q1.yaml   | 96 +++++++++++++++++++
+ MAINTAINERS                                   |  7 ++
+ include/dt-bindings/media/ds90ub953.h         | 16 ++++
+ 3 files changed, 119 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/media/i2c/ti,ds90ub953-q1.yaml
+ create mode 100644 include/dt-bindings/media/ds90ub953.h
+
+diff --git a/Documentation/devicetree/bindings/media/i2c/ti,ds90ub953-q1.yaml b/Documentation/devicetree/bindings/media/i2c/ti,ds90ub953-q1.yaml
+new file mode 100644
+index 000000000000..2a836a3e65e9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/media/i2c/ti,ds90ub953-q1.yaml
+@@ -0,0 +1,96 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++# Copyright (C) 2019 Renesas Electronics Corp.
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/media/i2c/ti,ds90ub953-q1.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Texas Instruments DS90UB953-Q1 video serializer
++
++maintainers:
++  - Luca Ceresoli <luca@lucaceresoli.net>
++
++description: |
++  The TI DS90UB953-Q1 is a MIPI CSI-2 video serializer that forwards a MIPI
++  CSI-2 input video stream over an FPD Link 3 connection to a remote
++  deserializer. It also allows access to I2C and GPIO from the deserializer.
++
++  The DT definitions can be found in include/dt-bindings/media/ds90ub953.h
++
++  When used as a the remote counterpart of a deserializer (e.g. the
++  DS90UB954-Q1), the serializer is described in the
++  "deserializer/remote-chips/remote-chip@[01]" node.
++
++properties:
++  compatible:
++    const: ti,ds90ub953-q1
++
++  reg:
++    description: |
++      Index of the remote (serializer) RX port that this serializer is
++      connected to.
++    maxItems: 1
++
++  clocks:
++    description: FPD-Link line rate (provided by the deserializer)
++    maxItems: 1
++
++  gpio-controller: true
++
++  '#gpio-cells':
++    const: 2
++
++  '#clock-cells':
++    const: 0
++
++  ti,gpio-functions:
++    description: |
++      A list of 4 values defining how the 4 GPIO pins are connected in
++      hardware; possible values are:
++      - DS90_GPIO_FUNC_UNUSED (0): the GPIO is not unused
++      - DS90_GPIO_FUNC_INPUT (1): the GPIO is an input to the ds90ub953,
++        the remote chip (deserializer) can read its value
++      - DS90_GPIO_FUNC_OUTPUT_REMOTE (2): the GPIO is an output from the
++        ds90ub953, the remote chip (deserializer) can set its value
++      For unspecified values the GPIO is assumed to be unused.
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    maxItems: 4
++
++patternProperties:
++  '^ti,ds90ub953-q1-(clk|d[0-3])-inv-pol-quirk$':
++    description: |
++      The MIPI CSI-2 input clock lane or any of the data lanes has inverted
++      polarity in hardware
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - gpio-controller
++  - '#gpio-cells'
++  - '#clock-cells'
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/media/ds90ub953.h>
++    remote-chips {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      remote-chip@0 {
++        reg = <0>;
++        compatible = "ti,ds90ub953-q1";
++        clocks = <&deser>;
++        ti,gpio-functions =
++          <DS90_GPIO_FUNC_UNUSED
++          DS90_GPIO_FUNC_OUTPUT_REMOTE
++          DS90_GPIO_FUNC_UNUSED
++          DS90_GPIO_FUNC_UNUSED>;
++
++        gpio-controller;
++        #gpio-cells = <2>;
++        #clock-cells = <0>;
++      };
++    };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 7383aec87e4a..4429ce035496 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -19090,6 +19090,13 @@ F:	include/linux/dma/k3-udma-glue.h
+ F:	include/linux/dma/ti-cppi5.h
+ F:	include/linux/dma/k3-psil.h
+ 
++TEXAS INSTRUMENTS DS90UB953 VIDEO SERIALIZER DRIVER
++M:	Luca Ceresoli <luca@lucaceresoli.net>
++L:	linux-media@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/media/i2c/ti,ds90ub953-q1.yaml
++F:	include/dt-bindings/media/ds90ub953.h
++
+ TEXAS INSTRUMENTS' SYSTEM CONTROL INTERFACE (TISCI) PROTOCOL DRIVER
+ M:	Nishanth Menon <nm@ti.com>
+ M:	Tero Kristo <kristo@kernel.org>
+diff --git a/include/dt-bindings/media/ds90ub953.h b/include/dt-bindings/media/ds90ub953.h
+new file mode 100644
+index 000000000000..5359432968e9
+--- /dev/null
++++ b/include/dt-bindings/media/ds90ub953.h
+@@ -0,0 +1,16 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/**
++ * Definitions for the Texas Instruments DS90UB953-Q1 video serializer
++ *
++ * Copyright (c) 2019 Luca Ceresoli <luca@lucaceresoli.net>
++ */
++
++#ifndef _DS90UB953_H
++#define _DS90UB953_H
++
++#define DS90_GPIO_FUNC_UNUSED             0
++#define DS90_GPIO_FUNC_INPUT              1
++#define DS90_GPIO_FUNC_OUTPUT_REMOTE      2
++#define DS90_GPIO_N_FUNCS                 3
++
++#endif /* _DS90UB953_H */
+-- 
+2.25.1
 
