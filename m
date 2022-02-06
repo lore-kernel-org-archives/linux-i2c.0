@@ -2,33 +2,26 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4DC7C4167B
-	for <linux-i2c@archiver.kernel.org>; Sun,  6 Feb 2022 13:58:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22EAEC433EF
+	for <linux-i2c@archiver.kernel.org>; Sun,  6 Feb 2022 13:58:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241472AbiBFN6d (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 6 Feb 2022 08:58:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51726 "EHLO
+        id S242042AbiBFN6x (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 6 Feb 2022 08:58:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241604AbiBFN6c (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Feb 2022 08:58:32 -0500
+        with ESMTP id S242164AbiBFN6s (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Feb 2022 08:58:48 -0500
 Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C286C06173B;
-        Sun,  6 Feb 2022 05:58:28 -0800 (PST)
-Received: from [77.244.183.192] (port=64704 helo=[192.168.178.41])
-        by hostingweb31.netsons.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94.2)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A74EC0401E3;
+        Sun,  6 Feb 2022 05:58:38 -0800 (PST)
+Received: from [77.244.183.192] (port=63680 helo=melee.fritz.box)
+        by hostingweb31.netsons.net with esmtpa (Exim 4.94.2)
         (envelope-from <luca@lucaceresoli.net>)
-        id 1nGgIE-0008JV-V4; Sun, 06 Feb 2022 13:05:23 +0100
-Message-ID: <9e7d1e8a-2270-423e-980d-b47fe374cf33@lucaceresoli.net>
-Date:   Sun, 6 Feb 2022 13:05:21 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [RFCv3 0/6] TI camera serdes and I2C address translation
-Content-Language: en-US
+        id 1nGgD1-00059v-Kg; Sun, 06 Feb 2022 12:59:59 +0100
+From:   Luca Ceresoli <luca@lucaceresoli.net>
 To:     linux-media@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
+Cc:     Luca Ceresoli <luca@lucaceresoli.net>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Wolfram Sang <wsa@the-dreams.de>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
@@ -41,17 +34,20 @@ Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
         matti.vaittinen@fi.rohmeurope.com
-References: <20220206115939.3091265-1-luca@lucaceresoli.net>
-From:   Luca Ceresoli <luca@lucaceresoli.net>
+Subject: [RFCv3 1/6] i2c: core: let adapters be notified of client attach/detach
+Date:   Sun,  6 Feb 2022 12:59:34 +0100
+Message-Id: <20220206115939.3091265-2-luca@lucaceresoli.net>
+X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220206115939.3091265-1-luca@lucaceresoli.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20220206115939.3091265-1-luca@lucaceresoli.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
 X-AntiAbuse: Original Domain - vger.kernel.org
 X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
 X-AntiAbuse: Sender Address Domain - lucaceresoli.net
-X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca@lucaceresoli.net
+X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca+lucaceresoli.net/only user confirmed/virtual account not confirmed
 X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
 X-Source: 
 X-Source-Args: 
@@ -60,12 +56,113 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+An adapter might need to know when a new device is about to be
+added. This will soon bee needed to implement an "I2C address
+translator" (ATR for short), a device that propagates I2C transactions
+with a different slave address (an "alias" address). An ATR driver
+needs to know when a slave is being added to find a suitable alias and
+program the device translation map.
 
-apologies for the incorrect cover letter subject. :( It should have been
-as in the present e-mail, which I'm sending mostly to help search
-engines find the subject...
+Add an attach/detach callback pair to allow adapter drivers to be
+notified of clients being added and removed.
 
-Regards.
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+
+---
+
+Changes RFCv2 -> RFCv3:
+
+ - rebase on current master
+
+Changes RFCv1 -> RFCv2:
+
+ - Document struct i2c_attach_operations
+---
+ drivers/i2c/i2c-core-base.c | 18 +++++++++++++++++-
+ include/linux/i2c.h         | 16 ++++++++++++++++
+ 2 files changed, 33 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 2c59dd748a49..aea1e1b552b0 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -966,15 +966,23 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ 		}
+ 	}
+ 
++	if (adap->attach_ops &&
++	    adap->attach_ops->attach_client &&
++	    adap->attach_ops->attach_client(adap, info, client) != 0)
++		goto out_remove_swnode;
++
+ 	status = device_register(&client->dev);
+ 	if (status)
+-		goto out_remove_swnode;
++		goto out_detach_client;
+ 
+ 	dev_dbg(&adap->dev, "client [%s] registered with bus id %s\n",
+ 		client->name, dev_name(&client->dev));
+ 
+ 	return client;
+ 
++out_detach_client:
++	if (adap->attach_ops && adap->attach_ops->detach_client)
++		adap->attach_ops->detach_client(adap, client);
+ out_remove_swnode:
+ 	device_remove_software_node(&client->dev);
+ out_err_put_of_node:
+@@ -996,9 +1004,17 @@ EXPORT_SYMBOL_GPL(i2c_new_client_device);
+  */
+ void i2c_unregister_device(struct i2c_client *client)
+ {
++	struct i2c_adapter *adap;
++
+ 	if (IS_ERR_OR_NULL(client))
+ 		return;
+ 
++	adap = client->adapter;
++
++	if (adap->attach_ops &&
++	    adap->attach_ops->detach_client)
++		adap->attach_ops->detach_client(adap, client);
++
+ 	if (client->dev.of_node) {
+ 		of_node_clear_flag(client->dev.of_node, OF_POPULATED);
+ 		of_node_put(client->dev.of_node);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 7d4f52ceb7b5..aadd71e0533c 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -587,6 +587,21 @@ struct i2c_lock_operations {
+ 	void (*unlock_bus)(struct i2c_adapter *adapter, unsigned int flags);
+ };
+ 
++/**
++ * struct i2c_attach_operations - callbacks to notify client attach/detach
++ * @attach_client: Notify of new client being attached
++ * @detach_client: Notify of new client being detached
++ *
++ * Both ops are optional.
++ */
++struct i2c_attach_operations {
++	int  (*attach_client)(struct i2c_adapter *adapter,
++			      const struct i2c_board_info *info,
++			      const struct i2c_client *client);
++	void (*detach_client)(struct i2c_adapter *adapter,
++			      const struct i2c_client *client);
++};
++
+ /**
+  * struct i2c_timings - I2C timing information
+  * @bus_freq_hz: the bus frequency in Hz
+@@ -729,6 +744,7 @@ struct i2c_adapter {
+ 
+ 	/* data fields that are valid for all devices	*/
+ 	const struct i2c_lock_operations *lock_ops;
++	const struct i2c_attach_operations *attach_ops;
+ 	struct rt_mutex bus_lock;
+ 	struct rt_mutex mux_lock;
+ 
 -- 
-Luca
+2.25.1
+
