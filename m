@@ -2,136 +2,64 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CC65C433EF
-	for <linux-i2c@archiver.kernel.org>; Sun,  6 Feb 2022 13:59:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9F87C433EF
+	for <linux-i2c@archiver.kernel.org>; Sun,  6 Feb 2022 14:17:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239785AbiBFN7B (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 6 Feb 2022 08:59:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52364 "EHLO
+        id S242092AbiBFORR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 6 Feb 2022 09:17:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241785AbiBFN6v (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Feb 2022 08:58:51 -0500
-Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C00C03FED7;
-        Sun,  6 Feb 2022 05:58:44 -0800 (PST)
-Received: from [77.244.183.192] (port=63680 helo=melee.fritz.box)
-        by hostingweb31.netsons.net with esmtpa (Exim 4.94.2)
-        (envelope-from <luca@lucaceresoli.net>)
-        id 1nGgCy-00059v-LP; Sun, 06 Feb 2022 12:59:56 +0100
-From:   Luca Ceresoli <luca@lucaceresoli.net>
-To:     linux-media@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc:     Luca Ceresoli <luca@lucaceresoli.net>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Jacopo Mondi <jacopo@jmondi.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Peter Rosin <peda@axentia.se>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        matti.vaittinen@fi.rohmeurope.com
-Subject: [RFCv3 0/6] Hi,
-Date:   Sun,  6 Feb 2022 12:59:33 +0100
-Message-Id: <20220206115939.3091265-1-luca@lucaceresoli.net>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S233178AbiBFORQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Feb 2022 09:17:16 -0500
+Received: from mail.marcansoft.com (marcansoft.com [IPv6:2a01:298:fe:f::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E2F1C06173B;
+        Sun,  6 Feb 2022 06:17:13 -0800 (PST)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: marcan@marcan.st)
+        by mail.marcansoft.com (Postfix) with ESMTPSA id 5D7774254F;
+        Sun,  6 Feb 2022 14:17:03 +0000 (UTC)
+Subject: Re: [PATCH v2] i2c: pasemi: Drop I2C classes from platform driver
+ variant
+To:     =?UTF-8?Q?Martin_Povi=c5=a1er?= <povik+lin@cutebit.org>,
+        Sven Peter <sven@svenpeter.dev>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220204095914.5678-1-povik+lin@cutebit.org>
+From:   Hector Martin <marcan@marcan.st>
+Message-ID: <4884be12-e4e8-1b75-ee1b-3a8dc20bf342@marcan.st>
+Date:   Sun, 6 Feb 2022 23:17:00 +0900
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
+In-Reply-To: <20220204095914.5678-1-povik+lin@cutebit.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: es-ES
 Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - lucaceresoli.net
-X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca+lucaceresoli.net/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-this RFCv3, codename "FOSDEM Fries", of RFC patches to support the TI
-DS90UB9xx serializer/deserializer chipsets with I2C address translation.
+On 04/02/2022 18.59, Martin Povišer wrote:
+> Drop I2C device-probing classes from platform variant of the PASemi
+> controller as it is only used on platforms where I2C devices should
+> be instantiated in devicetree. (The I2C_CLASS_DEPRECATED flag is not
+> raised as up to this point no devices relied on the old behavior.)
+> 
+> Fixes: d88ae2932df0 ("i2c: pasemi: Add Apple platform driver")
+> Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
 
-I sent RFCv2 back in 2019 (!). After that I have applied most of the
-improvements proposed during code review, most notably device tree
-representation and proper use of kernel abstractions for clocks and GPIO. I
-have also done many improvements all over the drivers code.
+Acked-by: Hector Martin <marcan@marcan.st>
 
-However I still don't consider these drivers "ready", hence the RFC status.
-
-One reason is that, while the I2C ATR idea has been considered good by
-Wolfram, its implementation requires I2C core changes that have been tried
-but never made it to mainline. I think that discussion needs to be reopened
-and work has to be done on that side. Thus for the time being this code
-still has the alias pool: it is an interim solution until I2C core is
-ready.
-
-Also be aware that the only hardware where I sould test this code runs a
-v4.19 kernel. I cannot guarantee it will work perfectly on mainline.
-
-And since my hardware has only one camera connected to each deserializer I
-dropped support. However I wrote the code to be able to easily add support
-for 2 and 4 camera inputs as well as 2 CSI-2 outputs (DS90UB960).
-
-Finally, I dropped all attempts at supporting hotplug. The goals I had 2+
-years ago are not reasonably doable even with current kernels. Luckily all
-the users that I talked with are happy without hotplug. For this reason I
-simplified the serializer management in the DS90UB954 driver by keeping the
-serializer always instantiated.
-
-Even with the above limitations I felt I'd send this v3 anyway since
-several people have contacted me since v2 asking whether this
-implementation has made progress towards mainline. Some even improved on
-top of my code it their own forks. As I cannot afford to work on this topic
-in the near future, here is the latest and greatest version I can produce,
-with all the improvements I made so far.
-
-That's all, enjoy the code!
-
-References:
-
-[RFCv2] https://lore.kernel.org/lkml/20190723203723.11730-1-luca@lucaceresoli.net/
-[RFCv1] https://lore.kernel.org/linux-media/20190108223953.9969-1-luca@lucaceresoli.net/
-
-Best regards.
-Luca
-
-Luca Ceresoli (6):
-  i2c: core: let adapters be notified of client attach/detach
-  i2c: add I2C Address Translator (ATR) support
-  media: dt-bindings: add DS90UB953-Q1 video serializer
-  media: dt-bindings: add DS90UB954-Q1 video deserializer
-  media: ds90ub954: new driver for TI DS90UB954-Q1 video deserializer
-  media: ds90ub953: new driver for TI DS90UB953-Q1 video serializer
-
- .../bindings/media/i2c/ti,ds90ub953-q1.yaml   |   96 +
- .../bindings/media/i2c/ti,ds90ub954-q1.yaml   |  235 +++
- MAINTAINERS                                   |   22 +
- drivers/i2c/Kconfig                           |    9 +
- drivers/i2c/Makefile                          |    1 +
- drivers/i2c/i2c-atr.c                         |  557 ++++++
- drivers/i2c/i2c-core-base.c                   |   18 +-
- drivers/media/i2c/Kconfig                     |   22 +
- drivers/media/i2c/Makefile                    |    3 +
- drivers/media/i2c/ds90ub953.c                 |  560 ++++++
- drivers/media/i2c/ds90ub954.c                 | 1648 +++++++++++++++++
- include/dt-bindings/media/ds90ub953.h         |   16 +
- include/linux/i2c-atr.h                       |   82 +
- include/linux/i2c.h                           |   16 +
- 14 files changed, 3284 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/media/i2c/ti,ds90ub953-q1.yaml
- create mode 100644 Documentation/devicetree/bindings/media/i2c/ti,ds90ub954-q1.yaml
- create mode 100644 drivers/i2c/i2c-atr.c
- create mode 100644 drivers/media/i2c/ds90ub953.c
- create mode 100644 drivers/media/i2c/ds90ub954.c
- create mode 100644 include/dt-bindings/media/ds90ub953.h
- create mode 100644 include/linux/i2c-atr.h
+Heh, so that's where this was... I remember running into this and
+wondering if there was a way to turn it off.
 
 -- 
-2.25.1
-
+Hector Martin (marcan@marcan.st)
+Public Key: https://mrcn.st/pub
