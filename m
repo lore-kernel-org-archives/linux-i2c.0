@@ -2,130 +2,79 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB30EC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D66E6C433F5
 	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 13:22:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344251AbiBGNTl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1386959AbiBGNTl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 7 Feb 2022 08:19:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51862 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442751AbiBGMVi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 07:21:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEC99C0401C2;
-        Mon,  7 Feb 2022 04:11:56 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECA70B8120F;
-        Mon,  7 Feb 2022 12:11:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3B14C340EB;
-        Mon,  7 Feb 2022 12:11:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644235912;
-        bh=5gMb2sVTGroqNBeDfOf0Z9dK1PjhMmifCwWjbl/BngI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WNOwgobMcO+5QbbaE5uTv5JtVOctLDnzVB4gkvkG5W/jtjnQaIJsSNcsSrARrFuFs
-         iUDRb3Mq8U7l1AvhGZK8k6QNixcs3joakKnTAF2FLadTB4hptjP1+qiiKnPmyX1TVk
-         G+LCuoyZemDy5D1/VXAC1R+7EOg8NZZXyYqc1nKI6ibKOR7cGRQzmgoYdLjqIMGeGR
-         mhhedWDNCz+r+PRDEMtApgyVPY9SSF0jn/CcIWp2OBv7lOFkus/6W/kWwZaiU4L0WC
-         n/2z4KIc73RpZd5Ceg8Z5tZQP4RWouTViAVcEnqf60beaG2Z4w466nsNq1plDnltY5
-         eN+/sLYwrsXSA==
-Date:   Mon, 7 Feb 2022 13:11:49 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Jean Delvare <jdelvare@suse.de>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Tan Jui Nee <jui.nee.tan@intel.com>,
-        Kate Hsuan <hpa@redhat.com>,
-        Jonathan Yong <jonathan.yong@intel.com>,
-        linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        Borislav Petkov <bp@alien8.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
-        James Morse <james.morse@arm.com>,
-        Robert Richter <rric@kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Peter Tyser <ptyser@xes-inc.com>,
+        with ESMTP id S1449002AbiBGNOi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 08:14:38 -0500
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95512C043181;
+        Mon,  7 Feb 2022 05:14:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644239677; x=1675775677;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Ugw6VHighrhQDjS9nDrgU6Gp603CM4GjJYcOJX8CFzo=;
+  b=VDGaXvBYSqBzJVX0LJP6acFFFBGCjchrZFDykJZLLUmjrb3XQasWHjPg
+   zklT+1HdArIzFg7pRA6Xsot/iJhIb6BvS3XWDs1SRX1V1TKPwVeknsrZm
+   dshMO6JqB29kgQ7u0Asq7vFxgwGZ7ZXFCZxuoW7JDUf9B1yyqYAsCY2ej
+   LEDRIcXbwrywd72+Qg4I9gVFdjZpuSNBp2NgDLd1A67lg3o9ZZWkRrg64
+   itFqdnP6FKFIzqOSugPihTwceIfSWs+KOLy+aDZiaFFq9cI5Ksk6qpB+0
+   iYJ9zRcRSL4CWcT0yu6TkK2RRe4ntKVU4fI2PtJFYUa2wLDg835NWrac7
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10250"; a="246301284"
+X-IronPort-AV: E=Sophos;i="5.88,349,1635231600"; 
+   d="scan'208";a="246301284"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 05:14:34 -0800
+X-IronPort-AV: E=Sophos;i="5.88,349,1635231600"; 
+   d="scan'208";a="584828064"
+Received: from smile.fi.intel.com ([10.237.72.61])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 05:14:32 -0800
+Received: from andy by smile.fi.intel.com with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1nH3pl-001uYa-DZ;
+        Mon, 07 Feb 2022 15:13:33 +0200
+Date:   Mon, 7 Feb 2022 15:13:33 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andy@kernel.org>,
-        Mark Gross <markgross@kernel.org>,
-        Henning Schild <henning.schild@siemens.com>
-Subject: Re: [PATCH v4 6/8] i2c: i801: convert to use common P2SB accessor
-Message-ID: <YgEMhTT87aY76JQZ@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Tan Jui Nee <jui.nee.tan@intel.com>, Kate Hsuan <hpa@redhat.com>,
-        Jonathan Yong <jonathan.yong@intel.com>,
-        linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tony Luck <tony.luck@intel.com>, James Morse <james.morse@arm.com>,
-        Robert Richter <rric@kernel.org>, Jean Delvare <jdelvare@suse.com>,
-        Peter Tyser <ptyser@xes-inc.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andy@kernel.org>,
-        Mark Gross <markgross@kernel.org>,
-        Henning Schild <henning.schild@siemens.com>
-References: <20220131151346.45792-1-andriy.shevchenko@linux.intel.com>
- <20220131151346.45792-7-andriy.shevchenko@linux.intel.com>
+        Ajay Gupta <ajayg@nvidia.com>,
+        "Shah, Nehal-bakulchandra" <nehal-bakulchandra.shah@amd.com>
+Subject: Re: [PATCH v3 1/5] i2c: Introduce common module to instantiate CCGx
+ UCSI
+Message-ID: <YgEa/blO2UMzztCq@smile.fi.intel.com>
+References: <20220105141935.24109-1-andriy.shevchenko@linux.intel.com>
+ <Ye7AhqMsOkfvHOAg@smile.fi.intel.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="q6vDFucLg0OY10c4"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220131151346.45792-7-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <Ye7AhqMsOkfvHOAg@smile.fi.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Mon, Jan 24, 2022 at 05:06:47PM +0200, Andy Shevchenko wrote:
+> On Wed, Jan 05, 2022 at 04:19:31PM +0200, Andy Shevchenko wrote:
+> > Introduce a common module to provide an API to instantiate UCSI device
+> > for Cypress CCGx Type-C controller. Individual bus drivers need to select
+> > this one on demand.
+> 
+> Ajay, is it possible to get your tag on the series, please?
 
---q6vDFucLg0OY10c4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Wolfram, can you remind, please, what the process is, if there is
+a non-responsive (in a meaningful period of time) maintainer?
 
-On Mon, Jan 31, 2022 at 05:13:44PM +0200, Andy Shevchenko wrote:
-> Since we have a common P2SB accessor in tree we may use it instead of
-> open coded variants.
->=20
-> Replace custom code by p2sb_bar() call.
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Acked-by: Hans de Goede <hdegoede@redhat.com>
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Acked-by: Wolfram Sang <wsa@kernel.org>
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
---q6vDFucLg0OY10c4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBDIUACgkQFA3kzBSg
-KbZUaA/8DRJuCj7W7r4GvotOsX0pfGB7yfmokP/mtSPdJf2Dwu7d1QFlD1LAT4Bn
-Ne9tAGHdPQ+I2fkolX/+mojLbwBWBMtQELFQYJEOKcLpt77H8IR+9d0HvGXuycal
-bA59hcNywNJB6BVWYJXxJgCovLxZmet5Pvl+vo3+ArxbJI2UzZNwhg+6SfEj+mwE
-S0ZjZyD7+BJfFYZ44AGQn9p8bqDiC0vz7T/yTUz5GVylNJ4blPLcjEZ/gFDvXgBL
-L0Cio2QiPf7V7q/awOxmQr8iIWMbAu8/kjjQbr+2astCs92x65sv0QakJzJt+2GG
-3MSzyWKJIzUpJLG07IJlP98ZK0aB+hAkd2XWC5LTN92HRINYKbIuSvOHBGWFk4eG
-nJMxbq35p67nOdx0ba4w7NjyrysdKmqZrTbZC+e1j7KJMezTCP7PGLlB/68ic0RN
-mg7gEuBRltMw1CqLIZzR8cQRiPSwMd47msNoJ9l84FLk/N+0arFI/sw7lrUUgWUR
-ug0VLz3WfSfF6t+g7Vsqnk4ZbQ0g5FMOYQdDryqhoFDy9d2V+aoC98AG3JqoJ5Mg
-ejSV//Jtw2fYvbmbgvNmKMavq3tsbpcpkYukU9l/dbJAfo/q39ptyKpKRjNMfkjF
-ZW96HlhXKStsI6ei/0BFzZ2Il/ztJKtxBxMIJ3NMtqWw0Ipscxk=
-=Y6Q6
------END PGP SIGNATURE-----
-
---q6vDFucLg0OY10c4--
