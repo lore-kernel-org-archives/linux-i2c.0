@@ -2,139 +2,89 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B77F9C43219
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 793A9C433EF
 	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 15:32:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345470AbiBGPbL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S244756AbiBGPbL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 7 Feb 2022 10:31:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45784 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382300AbiBGP0e (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 10:26:34 -0500
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25EA1C0401C8
-        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 07:26:34 -0800 (PST)
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com [209.85.208.70])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 9F1564003D
-        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 15:26:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1644247592;
-        bh=jtBwxjA6IxdUXSiBKA9l5yKPNOzp1lDJ3zELoV7GVzI=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=tyxraPvfd6lWxeGVlnuGZskaQusMOgJF+KTiDy9I/TrsHX4Sc2oUTC0+KIsCpRHLR
-         gomZdj5D/lWgQjtz1/fMYEq6WJxtqQ9Kvz3Q+rEajOr04YWEAwl9B2ldhrCUpfr5p4
-         NjictvAj0vtWXifOrvgmVQXnHskaMpARKghlchKk2fVd9LhvZhNWcBW4hbpYbMcvg5
-         cRU/3o/QhecY6NNayYezsZCH/xwgbHl6VlruvG0RTIoWm7IhBdc//+HQo4xrM6Bd8O
-         98BMDZZRiICvIIyk6NkzM1S5p6PkvwFnW0rogva4d/43d7MKOjNyKlHNUg7RxbrY0l
-         EleT8M/tDtCmQ==
-Received: by mail-ed1-f70.google.com with SMTP id g5-20020a056402090500b0040f28e1da47so4352583edz.8
-        for <linux-i2c@vger.kernel.org>; Mon, 07 Feb 2022 07:26:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=jtBwxjA6IxdUXSiBKA9l5yKPNOzp1lDJ3zELoV7GVzI=;
-        b=e+F+b1V63tItsCmA2bpLt8ZtQApwZIVQBFIVimBYSVJnHCkp7s1XB0ZSCH+whyIjeH
-         Af9Xgk9lE7PvXABbtiNJqBbHEDn5Xu3dOGx9N3o8UTffSCxq+AXjTMkCj8nXqhHtf2fz
-         Tfe8FIvPDah3x9LrsXQfTA/N5IQ4gagN00nc3texMgI6J0IRufYvj1wEZ2ledaJfYXe0
-         2OcM9PY8TIZ3fGDtG5pXE0WLf/BHyR5+mPwt73VQjxftf/nOlMoz1V2vV50LFBps36A8
-         MI1bbhVJMQv2vjzuQGDL8Mf85aTqDBZWHrUGRP1jyj9f5cY490RQCBfQFS9dzgLTsFSM
-         K+jg==
-X-Gm-Message-State: AOAM532WiGtPQar3IHUlC5+eVBtr+G+LfrC4pFxGH0EfB4PTkM4oI8o5
-        lqYwe1YFQq0/00s5OJIMLIZZYNNBIOBONnIL34ozLRU5+iirIXB83jxY/3CwD4/25IYRCY31hkq
-        h6NML6i937i3V70GYKU+ID3ha3eZtaq4jbNHFQg==
-X-Received: by 2002:a05:6402:2682:: with SMTP id w2mr14308634edd.355.1644247592208;
-        Mon, 07 Feb 2022 07:26:32 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxVJn4Nlc49XX5kswoAu+DV9XJFl3JgZB7TwRP+HT5uWO4LoDj7YPKGUhK5pvvh8K/hZa2i2A==
-X-Received: by 2002:a05:6402:2682:: with SMTP id w2mr14308602edd.355.1644247592039;
-        Mon, 07 Feb 2022 07:26:32 -0800 (PST)
-Received: from [192.168.0.89] (xdsl-188-155-168-84.adslplus.ch. [188.155.168.84])
-        by smtp.gmail.com with ESMTPSA id ec52sm3945244edb.24.2022.02.07.07.26.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Feb 2022 07:26:31 -0800 (PST)
-Message-ID: <086655b0-b9d2-30ed-1496-47cdc6346003@canonical.com>
-Date:   Mon, 7 Feb 2022 16:26:30 +0100
+        with ESMTP id S236028AbiBGPSK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 10:18:10 -0500
+X-Greylist: delayed 554 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Feb 2022 07:18:08 PST
+Received: from pokefinder.org (sauhun.de [88.99.104.3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AA94BC0401C5
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 07:18:08 -0800 (PST)
+Received: from localhost (i5E861ACA.versanet.de [94.134.26.202])
+        by pokefinder.org (Postfix) with ESMTPSA id 75C9C2C00BF;
+        Mon,  7 Feb 2022 16:08:53 +0100 (CET)
+Date:   Mon, 7 Feb 2022 16:08:53 +0100
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Stefan Wahren <stefan.wahren@i2se.com>
+Cc:     Eric Anholt <eric@anholt.net>,
+        Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] i2c: bcm2835: Avoid clock stretching timeouts
+Message-ID: <YgE2BbZ29KDcClQO@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Eric Anholt <eric@anholt.net>,
+        Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+References: <1519422151-6218-1-git-send-email-stefan.wahren@i2se.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v1 6/6] i2c: npcm: Support NPCM845
-Content-Language: en-US
-To:     =?UTF-8?Q?Jonathan_Neusch=c3=a4fer?= <j.neuschaefer@gmx.net>,
-        Tyrone Ting <warp5tw@gmail.com>
-Cc:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
-        venture@google.com, yuenn@google.com, benjaminfair@google.com,
-        robh+dt@kernel.org, semen.protsenko@linaro.org,
-        yangyicong@hisilicon.com, wsa@kernel.org, jie.deng@intel.com,
-        sven@svenpeter.dev, bence98@sch.bme.hu, lukas.bulwahn@gmail.com,
-        arnd@arndb.de, olof@lixom.net, andriy.shevchenko@linux.intel.com,
-        tali.perry@nuvoton.com, Avi.Fishman@nuvoton.com,
-        tomer.maimon@nuvoton.com, KWLIU@nuvoton.com, JJLIU0@nuvoton.com,
-        kfting@nuvoton.com, devicetree@vger.kernel.org,
-        openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220207063338.6570-1-warp5tw@gmail.com>
- <20220207063338.6570-7-warp5tw@gmail.com> <YgEJ1M40AG9EuRPI@latitude>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-In-Reply-To: <YgEJ1M40AG9EuRPI@latitude>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="E0hofHivG5Efz7YJ"
+Content-Disposition: inline
+In-Reply-To: <1519422151-6218-1-git-send-email-stefan.wahren@i2se.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 07/02/2022 13:00, Jonathan Neuschäfer wrote:
-> Hello,
-> 
-> On Mon, Feb 07, 2022 at 02:33:38PM +0800, Tyrone Ting wrote:
->> From: Tyrone Ting <kfting@nuvoton.com>
->>
->> NPCM8XX uses a similar i2c module as NPCM7XX.
->> The only difference is that the internal HW FIFO
->> is larger.
->>
->> Related Makefile and Kconfig files are modified
->> to support as well.
->>
->> Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
-> 
-> It's not really a bug fix, but rather an additional feature.
-> Therefore, I suggest removing the Fixes tag from this patch.
-> 
->> Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
->> Signed-off-by: Tali Perry <tali.perry1@gmail.com>
->> ---
-> [...]
->>  /* init register and default value required to enable module */
->>  #define NPCM_I2CSEGCTL			0xE4
->> +#ifdef CONFIG_ARCH_NPCM7XX
->>  #define NPCM_I2CSEGCTL_INIT_VAL		0x0333F000
->> +#else
->> +#define NPCM_I2CSEGCTL_INIT_VAL		0x9333F000
->> +#endif
-> 
-> This is going to cause problems when someone tries to compile a kernel
-> that runs on both NPCM7xx and NPCM8xx (because the driver will then only
-> work on NPCM7xx).
 
-Yes, good catch.
+--E0hofHivG5Efz7YJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The NPCM7XX is multiplatform, I guess NPCM8xx will be as well, so this
-looks like an invalid code. How such code is supposed to work on
-multiplatform kernel?
+On Fri, Feb 23, 2018 at 10:42:31PM +0100, Stefan Wahren wrote:
+> From: Eric Anholt <eric@anholt.net>
+>=20
+> The CLKT register contains at poweron 0x40, which at our typical 100kHz
+> bus rate means .64ms. But there is no specified limit to how long devices
+> should be able to stretch the clocks, so just disable the timeout. We
+> still have a timeout wrapping the entire transfer.
+>=20
+> Signed-off-by: Eric Anholt <eric@anholt.net>
+> Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
 
-> 
-> And every time another platform is added, this approach will make the
-> code less readable.
-> 
-> A more future-proof approach is probably to have a struct with chip-
-> specific data (such as the I2CSECCTL initialization value), which is
-> then selected via the .data field in of_device_id.
+Okay, it has been years but the issue came up again [1] so finally
+applied to for-current with stable added, thanks!
+
+[1] http://patchwork.ozlabs.org/project/linux-i2c/patch/20220117102504.9058=
+5-1-iivanov@suse.de/
 
 
-Best regards,
-Krzysztof
+--E0hofHivG5Efz7YJ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBNgQACgkQFA3kzBSg
+KbY0PhAAoWXhn76ZXvHh2hCBWXJJ7P+ZU3YOiy0yWlq6vYOF78lxa1vfNp9Tebs/
+DU2G00RSNELeYGMHvY7IDh3VeCCiBlBDO48XodGQAl4TQILevqVbZO4+mAGyIdiQ
+bYcKH/RZcChe6LT5ggS1hrf0YqDfdyNPfSif3ml8zYoXV7RWU5EJ/GlFSTlng/JE
+onnRZi+7nwXVIroU70S0Ao/lQB3idRouFoiogWYdR47se+Ihq5jXJhMMmqc4sS57
+hpIeZ/sWFSlCM2aeqRoxh7K48qkMKT6CKEQCbFXtgSmj8s2HIisvyRTrm9Yv1sK7
+VmmMIKltbXYj3mf8cGOzC6L4PBhShqhCxos5gXYqs/kkC3MsoHYBGSIC88YPxWZF
+GjJauGYcUlY4NAjJ073KxpFcAq8zHg860vupGaKuevAvuOrygl0CZmIhVHW4fkdw
+xvEK3DftnvqOoqgKWDWGqL+3jWUVlz2pKczcI/h+8tnThdHSwQZJ5LcXgJwPOmgP
+k8G3IttQOKYgy1Mmp1DcFiaPIxpuH/r4UUEYB+c6NsO59bUjMRd5NI6WRdzI6tnX
+Hj5ZESK4LdxDYk/1Yn3EqC7wZ74m7HBqF2twr77drDPha95LKn72fXKzL0aMWeCe
+fD8u/gI3XCl67D8FLrLsZeopnIct2KD4pnQDj0lx9EMARShoCxg=
+=57h/
+-----END PGP SIGNATURE-----
+
+--E0hofHivG5Efz7YJ--
