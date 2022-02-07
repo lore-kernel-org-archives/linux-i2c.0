@@ -2,107 +2,92 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA64EC4332F
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 15:05:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04D3EC43219
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 15:05:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243241AbiBGPDP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1344827AbiBGPDP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 7 Feb 2022 10:03:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52492 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442170AbiBGOrf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 09:47:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7742CC03FEC5;
-        Mon,  7 Feb 2022 06:47:34 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32F13B8112E;
-        Mon,  7 Feb 2022 14:47:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5927FC004E1;
-        Mon,  7 Feb 2022 14:47:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644245252;
-        bh=823u3Op3WC/cpHw0jFq2FcbGrRnHMEfr+lxNki6buM4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VtR4Lc2o/2f2O1v+eJk5kB/88OB8coFXuZfqbBDd6ZbxbPM8t/pDkFnqT71Qbz6Cd
-         6A0Z3AYCW/QWWqGrcrJLRx7O25UDAuWh10K8SvOA9bQiitl58S07ikxj2XB7VuCTdp
-         nBVJp6BHDKzRVPILgzMn8JA9vTmpSE3n/EheNADnXpuXZj4Z5Qb21oSIHfSEhwG+9E
-         3btfgGN6huk3PLYw07XHo7R1/n8VaKM4Ip9F2jMPZ8BzAh75BvLSDwwTQx2gKyxSwZ
-         QYKpQR9SLtrGeT4MPhlIRqogpf5FueORddYBT7gTm+K6eVUgdHH3f31EPfMVfnlD1d
-         UxrNXBWczu0Kw==
-Date:   Mon, 7 Feb 2022 15:47:28 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc:     f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
-        nsaenz@kernel.org, krzk@kernel.org, stefan.wahren@i2se.com,
-        nh6z@nh6z.net, eric@anholt.net, linux-i2c@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH] i2c: bcm2835: Fix the error handling in
- 'bcm2835_i2c_probe()'
-Message-ID: <YgExAGEN91QEnObO@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
-        nsaenz@kernel.org, krzk@kernel.org, stefan.wahren@i2se.com,
-        nh6z@nh6z.net, eric@anholt.net, linux-i2c@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org
-References: <338008c444af4785a07fb5a402b60225a4964ae9.1629484876.git.christophe.jaillet@wanadoo.fr>
+        with ESMTP id S1345920AbiBGOkQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 09:40:16 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82002C0401C4;
+        Mon,  7 Feb 2022 06:40:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644244815; x=1675780815;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=Q6N+UcBKjA+CjKknORZ8CqxajQcoIA8wV93IdhlS3kg=;
+  b=UOwoTMmVGsThd4Kl08ni05wNeNpyvoVwyaspTMGNNw52FWdujudTXNas
+   7l1e3VAWAZWT1I0UapI+a8gqfJiea/rNw4XByVHssOvbfscdtt7eceLIM
+   TVPBAPyXZWmOOnDohfVhgvdomECposjweyk4wzhdEfBAAJ02RQ1NhO4pG
+   StZfXRbodd3I3/ZjSadNagpUm8ZE8dq0D7d0zOJGXXgXEd34P76Nzz3UX
+   wMHmQVm/CO2wU4/5CfkP1ze8IKyw0kge0NU9m6zvR5DH8gU7VD8/6NGPk
+   MyZgjparTNcyzPAfyfZeXhhZQrLssBqjh39tMl9yxhKWdvPzKrW/4owSF
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10250"; a="248492922"
+X-IronPort-AV: E=Sophos;i="5.88,350,1635231600"; 
+   d="scan'208";a="248492922"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 06:40:15 -0800
+X-IronPort-AV: E=Sophos;i="5.88,350,1635231600"; 
+   d="scan'208";a="700485590"
+Received: from smile.fi.intel.com ([10.237.72.61])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 06:40:12 -0800
+Received: from andy by smile.fi.intel.com with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1nH5Af-001w3R-Ff;
+        Mon, 07 Feb 2022 16:39:13 +0200
+Date:   Mon, 7 Feb 2022 16:39:13 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Ajay Gupta <ajayg@nvidia.com>,
+        "Shah, Nehal-bakulchandra" <nehal-bakulchandra.shah@amd.com>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Amit Cohen <amcohen@nvidia.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Sameer Pujar <spujar@nvidia.com>
+Subject: Re: [PATCH v3 1/5] i2c: Introduce common module to instantiate CCGx
+ UCSI
+Message-ID: <YgEvEQ7BRc4KhOcF@smile.fi.intel.com>
+References: <20220105141935.24109-1-andriy.shevchenko@linux.intel.com>
+ <Ye7AhqMsOkfvHOAg@smile.fi.intel.com>
+ <YgEa/blO2UMzztCq@smile.fi.intel.com>
+ <YgEpYE2VNc05XhpG@shikoro>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="hummrw8NxFlbNLQO"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <338008c444af4785a07fb5a402b60225a4964ae9.1629484876.git.christophe.jaillet@wanadoo.fr>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YgEpYE2VNc05XhpG@shikoro>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Mon, Feb 07, 2022 at 03:14:56PM +0100, Wolfram Sang wrote:
+> 
+> > > Ajay, is it possible to get your tag on the series, please?
+> > 
+> > Wolfram, can you remind, please, what the process is, if there is
+> > a non-responsive (in a meaningful period of time) maintainer?
+> 
+> Well, I can apply patches if there is no response but interest and
+> reasonable trust, of course. Your series has interest and trust. But
+> still, it may be nice to ping active people from Nvidia and ask about
+> Ajay.
 
---hummrw8NxFlbNLQO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Okay, I have Cc'ed this message to the people whose addresses I found in the
+changes in the Git history of the vanilla kernel with most frequent appearance.
 
-On Fri, Aug 20, 2021 at 08:43:33PM +0200, Christophe JAILLET wrote:
-> Some resource should be released if an error occurs in
-> 'bcm2835_i2c_probe()'.
-> Add an error handling path and the needed 'clk_disable_unprepare()' and
-> 'clk_rate_exclusive_put()' calls.
->=20
-> While at it, rework the bottom of the function to use this newly added
-> error handling path and have an explicit and more standard "return 0;" at
-> the end of the normal path.
->=20
-> Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+The Q is who is on nVidia side is responsible now for I²C controller driver?
 
-Sadly, noone tested it but I think it is good to avoid the resource
-leaks. So, rebased and applied to for-next, thanks! Please kindly check
-if I rebased correctly the irq error case (once I pushed out).
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
---hummrw8NxFlbNLQO
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBMPwACgkQFA3kzBSg
-KbZFKhAAi5cesS0ucf8ZPQrs1eGglGGzCUhyOm3t8uff8TDyHkmFfRSu9xG2Dwh9
-ie1QiIKrf+qHPLVIsd9DXn+vYbOs/oF4B4uLEJ37RCbADAIX90YwY8x9w+txWBtv
-5Jj3RRtqrFafNBS8ml2efRbiftcNT8ii9K3yxw3p3a4RNaFBPUkw0ccAcna6kHhk
-v0rHg4JxjilGg92qO1QWdJZ1y419qGxHtOL3kCUx9M+CTgGkTEivkqnCoHkjz7z9
-piN3FvfZ2ZrfuzVC65iU5YseCpaPiKwWcKVeaKPAvVvEpa4LCzfgn/Jo/T9kCnzc
-mRO+dwpJO0xPVYcQhHVz4HM5m0MVNywFpxnvLMygSxq4LXQYzUAv/v1I6qkfUrAi
-S7eJ5bkE0ngrEZgrdTGZW+O8FaJmek3KqDVmYcOZRPfzUH6Qcw6qYtEe1JepOTd0
-FYgsjz5C2oi5IzRHg2RSFreyoIRf2DqD4YxUkvMXFFkMfA/P1RRKOKJ9eHv1Q8L+
-ItFxhffLAA5BaKXE/ZxOdOKVFhfWY8xhb/phE9XmHzTlX1vPMI+e33eJRp9dz26b
-qWuYmUkEnhm1U+BvUt9gQLSQa9eRH0Nce6E8/4rmQJGQDFSX61NHIUtGAbWe6pm+
-zL+nxrjRIh7EPUTqs/7QlXCHfZZfGUbn0NTrtZXZes5cdOYsn2g=
-=UMF4
------END PGP SIGNATURE-----
-
---hummrw8NxFlbNLQO--
