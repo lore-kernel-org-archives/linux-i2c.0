@@ -2,149 +2,104 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ED9CC433F5
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 20:11:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C34F2C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 20:27:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237994AbiBGUKs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Feb 2022 15:10:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42178 "EHLO
+        id S241539AbiBGU04 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Feb 2022 15:26:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240553AbiBGUH6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 15:07:58 -0500
-Received: from mail-oo1-f45.google.com (mail-oo1-f45.google.com [209.85.161.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5205BC0401DA;
-        Mon,  7 Feb 2022 12:07:58 -0800 (PST)
-Received: by mail-oo1-f45.google.com with SMTP id o192-20020a4a2cc9000000b00300af40d795so15026052ooo.13;
-        Mon, 07 Feb 2022 12:07:58 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=HsXp1ktRNXXH1ZuQq9T7gkz8YQLCBAGSvs9f6otXSEc=;
-        b=kTD45pxxBRaJAEMawetNv/mQtrIxcK7j9j96hqdJhE0EnE3hbxqzAAWvJkgsX6Hqmt
-         mtmQtr+s/xZaYEoUNxF2jNgxZSVpz0b9llomZuCjyuXdaErEY0WGor6HESxgOruB89Ih
-         qg3DRl8mRLQWfwz7VRRIQppC+WBoPV36HByI7tDF68hOOVyzFmSMArnkSQCvBtfrkoBh
-         j1nTw4rgQ4+G4CA1K5SCWUYt0/DQ6lN9T+RutjVQbJshkBfZdhQIuDuDRUKlI71wSEZK
-         PtRmznH5Dgz0grw6afPCD5C/gBQbnwUWKN04r7Y4joDBBkShbai4oi39rkBObJrGXxkm
-         FoOQ==
-X-Gm-Message-State: AOAM532L3nl4BQkAt8fLUsskaeHHqrZpisclhHZo5v6wfBKVwZx8B52m
-        dXx/1ullVMeZMr5AO4Td8A==
-X-Google-Smtp-Source: ABdhPJwZ69i+KxDCJdLyXXbkdUnY+k1QIC0WKQTQTKD8UaxeMwXblmqX/F1sU7XCejibDstsOhUa7A==
-X-Received: by 2002:a4a:d051:: with SMTP id x17mr562987oor.60.1644264477617;
-        Mon, 07 Feb 2022 12:07:57 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id ep17sm4757304oab.21.2022.02.07.12.07.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Feb 2022 12:07:56 -0800 (PST)
-Received: (nullmailer pid 820845 invoked by uid 1000);
-        Mon, 07 Feb 2022 20:07:55 -0000
-Date:   Mon, 7 Feb 2022 14:07:55 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     conor.dooley@microchip.com
-Cc:     linus.walleij@linaro.org, brgl@bgdev.pl, jassisinghbrar@gmail.com,
-        thierry.reding@gmail.com, u.kleine-koenig@pengutronix.de,
-        lee.jones@linaro.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, geert@linux-m68k.org,
-        krzysztof.kozlowski@canonical.com, linux-gpio@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        bin.meng@windriver.com, heiko@sntech.de, lewis.hanly@microchip.com,
-        daire.mcnamara@microchip.com, ivan.griffin@microchip.com,
-        atishp@rivosinc.com, Palmer Dabbelt <palmer@rivosinc.com>
-Subject: Re: [PATCH v6 02/12] dt-bindings: soc/microchip: add services as sub
- devs of sys ctrlr
-Message-ID: <YgF8G/Eed03xn9iI@robh.at.kernel.org>
-References: <20220207162637.1658677-1-conor.dooley@microchip.com>
- <20220207162637.1658677-3-conor.dooley@microchip.com>
+        with ESMTP id S241525AbiBGUXv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 15:23:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6B79C0401DA;
+        Mon,  7 Feb 2022 12:23:50 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78102B816F8;
+        Mon,  7 Feb 2022 20:23:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68F06C004E1;
+        Mon,  7 Feb 2022 20:23:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644265428;
+        bh=usqaXiifcEu+JIY0FJvPPoSf4O8s+5EkUbpQUKh5KyU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mqQKGW8oImfRrgLRIJs936msARKuW7MF6OO4wl5/4jfGk14W8csXorOwibKtXBS4p
+         ivQ3yCdOEV2Ed1I4uqW97PAyTfKxPQO+3OBYs7KPntk3Dl8cL9cU9XWG+MquvabU2v
+         mI2DYXDw+zbzRCkNVxN6E9Pqw8EHdCDX8MAemYQI24K3yjSJcKYs7YMsDjk6DCBpc7
+         Y0efuOcSVJRXAkAsgk1eZKFBNEDqpU2d5wiie3J+q2w80KP4MpJY905Ouf+WF0oDKV
+         ENblOEROW7KC5dpUDMOOgZVuq7NgKGZDy1T75sGyAsQ7NMML1S3ZFrjR6zWPscGxeh
+         YYuThUp1DnThQ==
+Date:   Mon, 7 Feb 2022 21:23:45 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Derek Basehore <dbasehore@chromium.org>,
+        Rajat Jain <rajatja@google.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Subject: Re: 5.17-rc regression: X1 Carbon touchpad not resumed
+Message-ID: <YgF/0QGFN4SppLKg@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Derek Basehore <dbasehore@chromium.org>,
+        Rajat Jain <rajatja@google.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+References: <89456fcd-a113-4c82-4b10-a9bcaefac68f@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="SVWOx/Z2IM0sSr6X"
 Content-Disposition: inline
-In-Reply-To: <20220207162637.1658677-3-conor.dooley@microchip.com>
+In-Reply-To: <89456fcd-a113-4c82-4b10-a9bcaefac68f@google.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Feb 07, 2022 at 04:26:28PM +0000, conor.dooley@microchip.com wrote:
-> From: Conor Dooley <conor.dooley@microchip.com>
-> 
-> Document mpfs-rng and mpfs-generic-service as subdevices of the system
-> controller.
-> 
-> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-> Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-> ---
->  .../microchip,mpfs-sys-controller.yaml        | 35 +++++++++++++++++--
->  1 file changed, 33 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml b/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-> index f699772fedf3..b02c8bd72605 100644
-> --- a/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-> +++ b/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-> @@ -13,7 +13,6 @@ description: |
->    The PolarFire SoC system controller is communicated with via a mailbox.
->    This document describes the bindings for the client portion of that mailbox.
->  
-> -
->  properties:
->    mboxes:
->      maxItems: 1
-> @@ -21,6 +20,38 @@ properties:
->    compatible:
->      const: microchip,mpfs-sys-controller
->  
-> +  rng:
-> +    type: object
-> +
-> +    description: |
-> +      The hardware random number generator on the Polarfire SoC is
-> +      accessed via the mailbox interface provided by the system controller
-> +
-> +    properties:
-> +      compatible:
-> +        const: microchip,mpfs-rng
-> +
-> +    required:
-> +      - compatible
-> +
-> +  sysserv:
-> +    type: object
-> +
-> +    description: |
-> +      The PolarFire SoC system controller is communicated with via a mailbox.
-> +      This binding represents several of the functions provided by the system
-> +      controller which do not belong in a specific subsystem, such as reading
-> +      the fpga device certificate, all of which follow the same format:
-> +        - a command + optional payload sent to the sys controller
-> +        - a status + a payload returned to Linux
-> +
-> +    properties:
-> +      compatible:
-> +        const: microchip,mpfs-generic-service
-> +
-> +    required:
-> +      - compatible
-> +
->  required:
->    - compatible
->    - mboxes
-> @@ -29,7 +60,7 @@ additionalProperties: false
->  
->  examples:
->    - |
-> -    syscontroller: syscontroller {
-> +    syscontroller {
->        compatible = "microchip,mpfs-sys-controller";
->        mboxes = <&mbox 0>;
 
-Removing the child nodes in the example doesn't address my comment. You 
-still have them in the schema. IOW, this patch should be dropped unless 
-you have reasons for child nodes other than I want to partition the OS 
-drivers a certain way and creating DT nodes instantiates them for me.
+--SVWOx/Z2IM0sSr6X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->      };
-> -- 
-> 2.35.1
-> 
-> 
+Hello Hugh,
+
+> Bisection led to 172d931910e1db800f4e71e8ed92281b6f8c6ee2
+> ("i2c: enable async suspend/resume on i2c client devices")
+> and reverting that fixes it for me.
+
+Thank you for the report plus bisection and sorry for the regression!
+
+I will wait a few days if people come up with a fix. If not, I will
+revert the offending commit. Are you willing to test patches in case
+there will be some?
+
+All the best,
+
+   Wolfram
+
+
+--SVWOx/Z2IM0sSr6X
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBf80ACgkQFA3kzBSg
+KbYP/w//bKPTb4uzystTG/NLAI6vfcl66Q1s10ZKVC8aEK7LS+bSSMLTiUmSf638
+vYP5hs+neOiDdeBFdhYvcm1tMlud6quQKsYugbtNLQxY1J+bBJnqMLLWZ8zn/EHf
+0G4jLNW3u3v2C88A7E6dEywMsx+8CDtdtqcDWXKljIMbV3yNLPF1c8qhHsbh8diO
+xIv6RY8KSnR37uG+3hv7TQEXLM15hc8KT7l7sMtgQb1+oMRnpsalbPmJFTyx4cy8
+zanBvoSgg3PlYx4C8/cGzc2YSaMZKPNs5PIdC2nodlL0gm6JVDIx37KuEzqVs6gA
+9r1BQzdcjPkoW87Pi7HLnTD6h/XcWb8MAK6gnu9hO1UxjCTFMFxMnYQ6wpyni5rk
+bXr/MhALZfMh+T+yUFe3p3zrRZEp7ek9uKiPFXFdjg/gNaxen5BgYsXBMlUjU0rh
+U6UZce3AP9Oct+lDa9OrwoG7l58pTZRb7PCBjpS3B07u5YngzXybf4/vdbak4se4
+DFWMCBKaWgngJPEcu6z7ar2BOhwAFWFNuNUPDWulW3KsEVf6GUh9rDAyHaLAWnwN
+2RqsAkMs1IsFJWXwxM4EiJSEiPB+nKKXW4BPRjCQ6NS0Yn8duiGOphlgQPK8oC36
++53oDlSCYXEWEp2W0zhZJOv8l9hmDabbwJopfSaxq2nmLOyGYJ0=
+=a8CQ
+-----END PGP SIGNATURE-----
+
+--SVWOx/Z2IM0sSr6X--
