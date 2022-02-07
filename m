@@ -2,168 +2,100 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF13AC4332F
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 09:39:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 581C0C4332F
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 12:09:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233258AbiBGJhz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Feb 2022 04:37:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57238 "EHLO
+        id S229379AbiBGMJi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Feb 2022 07:09:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351414AbiBGJ3J (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 04:29:09 -0500
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25422C043185
-        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 01:29:08 -0800 (PST)
-Received: by mail-ed1-x52b.google.com with SMTP id cn6so5955533edb.5
-        for <linux-i2c@vger.kernel.org>; Mon, 07 Feb 2022 01:29:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=9elements.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=esc1uJ/1b1Bl5sIRdBGqAaIciPpRZPZmuwi/GvPIASI=;
-        b=Kq7bxOK0EXnru4hWpt1BGbQD5x4elFR7kZIzwLbqjeBN3yWqt4iBQOeArytKJZQpf9
-         E4N7dJ0mOWMz9kp2XDwsxS/1K2k7ZpoqR+3BH/1md8ux2ayeH0kt4WHInqwdSbfJfSY5
-         6JWSfLb99OPJZyawEm11RCO/iLITTvYRylyRwd8ELCXeDnMf749ux5AvqPvofnRaI0eQ
-         3Ca13gb8SNaecWc+CHEgW4BwLibXanZR5CgtdLC6hnTipxW3Hy61ZJ9fTjhZ4Tn1wrPo
-         oCy+FzSPRhxKqYKPrxO8pY7moA2slRp3//1BpaZUfgqSBpgwUClZlXEToOK2mdznQBtp
-         q46A==
+        with ESMTP id S1385342AbiBGLbd (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 06:31:33 -0500
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB5DC03FECA
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 03:30:12 -0800 (PST)
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com [209.85.208.71])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 81A063F1E6
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 11:21:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1644232876;
+        bh=8Y9yNV8EX7NTdignHPRQY252HgYt0mlpY9TRr3lWof4=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=eSTSgcNb5oVwfcw0ULwPZgHsDxRfMEBuxriKUgbStBXQdjXd11jYqzwadGxDxOykc
+         EBWcInM7eeHx4uo934mDavnItYbh1/cl6g4RHkw3DIh9ShzEnFV0mXd5Cni+4d0EmK
+         N7gzpz8Iw93dtVHqyQFXATMdhA3XxcSFpZjhYgjv2U2trv+43ejV2/YqONbiPnbekt
+         ARkcT2LaYj9VhlJu30bmHzD9Gp5Ms7ZGMrNaL2nKRSc4DHV+gS8mi36Ab0IqXPceus
+         vkW+HEomIL1lFyNlc4cOrrywyS1Ob4jRyBtgulQzIsMImsgnHO5eFp5+X3Z6godOzi
+         2J1YioqkXRWZQ==
+Received: by mail-ed1-f71.google.com with SMTP id w3-20020a50c443000000b0040696821132so7620951edf.22
+        for <linux-i2c@vger.kernel.org>; Mon, 07 Feb 2022 03:21:16 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=esc1uJ/1b1Bl5sIRdBGqAaIciPpRZPZmuwi/GvPIASI=;
-        b=Xz7SUk5QyHU/tY332Z6eITq8IZgQJ3z6Ab4YjVwpZbRukZYEKwonftk45ogmBOA5CQ
-         wwajD00jWob2VIi1q8v+mKE7ycNVCXw4f/ZzhkUxT+HrkI9W1qHqTXfiCwVmsDuKpION
-         UhhNoXDfYDWH9EryP/uNW4oaoiDzOJAHaWrVHrDJgFSg9nYq5pVgB62dfknQW7ZXD+16
-         O8sUmDoy3Q7D/XH9/ZxNNKDXNH+Oa6dkDWdxZZZ/Dr1P3nhI6L9AjcBtkNvJ/ms6VVFF
-         h96PKNlVkoj1x5SElXwu3g1ovId7vTpRxpbndAN9tpRasHArBXu+3JopofNaZ0+uxwzg
-         nVKg==
-X-Gm-Message-State: AOAM5308WFrRhQ8lhofgsKY6VqqzYDuxRMHOn3+9hBPjFWul7ZqI0pOG
-        sLuRXyrrT6gWfvA+rjrmZy4vm5cm5ZPmDg==
-X-Google-Smtp-Source: ABdhPJz6ga72M9Fh/6kWosxb2MY91mI/eDTayZjisNyDXZdtus2V/AVbaeSGGoDuxA4tsjwqhiy16g==
-X-Received: by 2002:a50:ee16:: with SMTP id g22mr5850857eds.434.1644226146737;
-        Mon, 07 Feb 2022 01:29:06 -0800 (PST)
-Received: from fedora.. (ip-088-153-139-166.um27.pools.vodafone-ip.de. [88.153.139.166])
-        by smtp.gmail.com with ESMTPSA id g9sm3487059ejm.152.2022.02.07.01.29.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Feb 2022 01:29:06 -0800 (PST)
-From:   Patrick Rudolph <patrick.rudolph@9elements.com>
-To:     Peter Rosin <peda@axentia.se>, Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Cc:     Patrick Rudolph <patrick.rudolph@9elements.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [v4 3/3] i2c: muxes: pca954x: Add regulator support
-Date:   Mon,  7 Feb 2022 10:28:26 +0100
-Message-Id: <20220207092827.104978-4-patrick.rudolph@9elements.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220207092827.104978-1-patrick.rudolph@9elements.com>
-References: <20220207092827.104978-1-patrick.rudolph@9elements.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=8Y9yNV8EX7NTdignHPRQY252HgYt0mlpY9TRr3lWof4=;
+        b=8FNY1cOcLy2eW1k1kCk4wbJq1FGZjwdnewetDoaV6il495rv+M2b9B1BUhyh2q/HGM
+         mRrjPOEwKi3sbs971k6nH9oUbM92IYByeb0ysHlXLv6D5p4D3YdRcQjap2tW1V3Ip0Aq
+         P0mC8PrNAI17F9t4d0m98Ttm+gS66G54sYLEF6iIm4shAEUHMHfWrJRZA/vSguYUwTTR
+         x+/nJ67UllyFMHGVChr9IPUPstic8X26qd11cCQ37Hb17lVgbHSy993sSSvSw+OIHwjV
+         qUAdvyQt7NPYDP3OeFzqBEYEKCIySBcitwmFmmLa2AN9ve1R/gk9e5qG7+zMVMmtfrSz
+         7n1w==
+X-Gm-Message-State: AOAM5337zqk2bWZ9VwBd2jZDCJ1yFvDQIE3RpOc9pNbdDdIm+j2wdNUO
+        nT5BFJYzqq0Sz28h93nVMRfwoDlpJaFUNgpWr4ozUV6P3rDYuh8rtqhZqYztRjOSIvUr/C8kYq1
+        tq2zi+FRM2wNt8L9fbPVbfb1fx5MRWyCZPFc0nQ==
+X-Received: by 2002:a5d:6603:: with SMTP id n3mr9256733wru.20.1644232866048;
+        Mon, 07 Feb 2022 03:21:06 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz28bw0iWdum97UqccNObiTCl0E42zll9NAhEqs1JdVzu878pa6CnjxT2SeV0Ew8TU0VtcspA==
+X-Received: by 2002:a5d:6603:: with SMTP id n3mr9256693wru.20.1644232865857;
+        Mon, 07 Feb 2022 03:21:05 -0800 (PST)
+Received: from [192.168.0.87] (xdsl-188-155-168-84.adslplus.ch. [188.155.168.84])
+        by smtp.gmail.com with ESMTPSA id b4sm2321525wrw.100.2022.02.07.03.21.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Feb 2022 03:21:05 -0800 (PST)
+Message-ID: <776e1b61-678d-6686-06fe-a74b7ff68b85@canonical.com>
+Date:   Mon, 7 Feb 2022 12:21:03 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v1 2/6] i2c: npcm: Fix timeout calculation
+Content-Language: en-US
+To:     Tyrone Ting <warp5tw@gmail.com>, avifishman70@gmail.com,
+        tmaimon77@gmail.com, tali.perry1@gmail.com, venture@google.com,
+        yuenn@google.com, benjaminfair@google.com, robh+dt@kernel.org,
+        semen.protsenko@linaro.org, yangyicong@hisilicon.com,
+        wsa@kernel.org, jie.deng@intel.com, sven@svenpeter.dev,
+        bence98@sch.bme.hu, lukas.bulwahn@gmail.com, arnd@arndb.de,
+        olof@lixom.net, andriy.shevchenko@linux.intel.com,
+        tali.perry@nuvoton.com, Avi.Fishman@nuvoton.com,
+        tomer.maimon@nuvoton.com, KWLIU@nuvoton.com, JJLIU0@nuvoton.com,
+        kfting@nuvoton.com
+Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20220207063338.6570-1-warp5tw@gmail.com>
+ <20220207063338.6570-3-warp5tw@gmail.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+In-Reply-To: <20220207063338.6570-3-warp5tw@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add an optional vdd regulator and enable it when found for devices
-that are powered off by default.
+On 07/02/2022 07:33, Tyrone Ting wrote:
+> From: Tali Perry <tali.perry1@gmail.com>
+> 
+> Use adap.timeout for timeout calculation instead of hard-coded
+> value of 35ms.
+> Use syscon to access gcr, instead of "compatible".
 
-Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 32 ++++++++++++++++++++++++-----
- 1 file changed, 27 insertions(+), 5 deletions(-)
+One commit = one fix/feature/logical change, so requirement of syscon
+should be a separate commit.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 33b9a6a1fffa..086647193ea9 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -49,6 +49,7 @@
- #include <linux/module.h>
- #include <linux/pm.h>
- #include <linux/property.h>
-+#include <linux/regulator/consumer.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
- #include <dt-bindings/mux/mux.h>
-@@ -119,6 +120,7 @@ struct pca954x {
- 	struct irq_domain *irq;
- 	unsigned int irq_mask;
- 	raw_spinlock_t lock;
-+	struct regulator *supply;
- };
- 
- /* Provide specs for the PCA954x and MAX735x types we know about */
-@@ -459,6 +461,9 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
- 	struct pca954x *data = i2c_mux_priv(muxc);
- 	int c, irq;
- 
-+	if (!IS_ERR_OR_NULL(data->supply))
-+		regulator_disable(data->supply);
-+
- 	if (data->irq) {
- 		for (c = 0; c < data->chip->nchans; c++) {
- 			irq = irq_find_mapping(data->irq, c);
-@@ -513,15 +518,30 @@ static int pca954x_probe(struct i2c_client *client,
- 			     pca954x_select_chan, pca954x_deselect_mux);
- 	if (!muxc)
- 		return -ENOMEM;
-+
- 	data = i2c_mux_priv(muxc);
- 
- 	i2c_set_clientdata(client, muxc);
- 	data->client = client;
- 
-+	data->supply = devm_regulator_get_optional(dev, "vdd");
-+	if (IS_ERR(data->supply)) {
-+		if ((PTR_ERR(data->supply) == -EPROBE_DEFER))
-+			return -EPROBE_DEFER;
-+	} else {
-+		ret = regulator_enable(data->supply);
-+		if (ret) {
-+			dev_err(dev, "Failed to enable regulator vdd: %d\n", ret);
-+			return ret;
-+		}
-+	}
-+
- 	/* Reset the mux if a reset GPIO is specified. */
- 	gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
--	if (IS_ERR(gpio))
--		return PTR_ERR(gpio);
-+	if (IS_ERR(gpio)) {
-+		ret = PTR_ERR(gpio);
-+		goto fail_cleanup;
-+	}
- 	if (gpio) {
- 		udelay(1);
- 		gpiod_set_value_cansleep(gpio, 0);
-@@ -538,7 +558,7 @@ static int pca954x_probe(struct i2c_client *client,
- 
- 		ret = i2c_get_device_id(client, &id);
- 		if (ret && ret != -EOPNOTSUPP)
--			return ret;
-+			goto fail_cleanup;
- 
- 		if (!ret &&
- 		    (id.manufacturer_id != data->chip->id.manufacturer_id ||
-@@ -546,7 +566,8 @@ static int pca954x_probe(struct i2c_client *client,
- 			dev_warn(dev, "unexpected device id %03x-%03x-%x\n",
- 				 id.manufacturer_id, id.part_id,
- 				 id.die_revision);
--			return -ENODEV;
-+			ret = -ENODEV;
-+			goto fail_cleanup;
- 		}
- 	}
- 
-@@ -565,7 +586,8 @@ static int pca954x_probe(struct i2c_client *client,
- 	ret = pca954x_init(client, data);
- 	if (ret < 0) {
- 		dev_warn(dev, "probe failed\n");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto fail_cleanup;
- 	}
- 
- 	ret = pca954x_irq_setup(muxc);
--- 
-2.34.1
 
+Best regards,
+Krzysztof
