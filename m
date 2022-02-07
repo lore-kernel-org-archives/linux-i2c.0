@@ -2,89 +2,108 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 793A9C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 15:32:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72C38C433F5
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 15:49:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244756AbiBGPbL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Feb 2022 10:31:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42174 "EHLO
+        id S236479AbiBGPtg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Feb 2022 10:49:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236028AbiBGPSK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 10:18:10 -0500
-X-Greylist: delayed 554 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Feb 2022 07:18:08 PST
-Received: from pokefinder.org (sauhun.de [88.99.104.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AA94BC0401C5
-        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 07:18:08 -0800 (PST)
-Received: from localhost (i5E861ACA.versanet.de [94.134.26.202])
-        by pokefinder.org (Postfix) with ESMTPSA id 75C9C2C00BF;
-        Mon,  7 Feb 2022 16:08:53 +0100 (CET)
-Date:   Mon, 7 Feb 2022 16:08:53 +0100
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Stefan Wahren <stefan.wahren@i2se.com>
-Cc:     Eric Anholt <eric@anholt.net>,
-        Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] i2c: bcm2835: Avoid clock stretching timeouts
-Message-ID: <YgE2BbZ29KDcClQO@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Eric Anholt <eric@anholt.net>,
-        Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-References: <1519422151-6218-1-git-send-email-stefan.wahren@i2se.com>
+        with ESMTP id S1383590AbiBGPlx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 10:41:53 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C314C0401C1
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 07:41:52 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 22EB4210F5;
+        Mon,  7 Feb 2022 15:41:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1644248511; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6H1lczMww632+m9qnBiJrOgEx45yrdh71/qAEynzkmA=;
+        b=uUXXv+sc20VPpPcXRQF07s4Y4ChwpJAaVFzqrUO4mVUrE7STCZYkUSo2UTK+3Rpub+WQ+2
+        SSN35a/7/jSafEnwO1/SnWn8HVi6DrLeCuJV4tThQ2Nkj1tcgJw7tma7yZomJPwHumkdHV
+        I9aSg4MBpU2fOkgIf47Dk+xqzjU0M2s=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1644248511;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6H1lczMww632+m9qnBiJrOgEx45yrdh71/qAEynzkmA=;
+        b=vIJFbwSnCiqOU4VDPRhj4NsXk2QY0pUYzSdDJ+ZFoGCDSlFfUtDkw/s1DLSM4MtwGVUxtR
+        SgD6pftumZDc7vCQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0CB2613C41;
+        Mon,  7 Feb 2022 15:41:51 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 5FltAb89AWLiawAAMHmgww
+        (envelope-from <iivanov@suse.de>); Mon, 07 Feb 2022 15:41:51 +0000
+Date:   Mon, 7 Feb 2022 17:41:50 +0200
+From:   "Ivan T. Ivanov" <iivanov@suse.de>
+To:     Wolfram Sang <wsa@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Phil Elwell <phil@raspberrypi.org>
+Subject: Re: [PATCH] i2c: bcm2835: Set clock-stretch timeout to 35ms
+Message-ID: <20220207154150.yigvhzjvskzzmqpu@suse>
+References: <20220117102504.90585-1-iivanov@suse.de>
+ <YfPHawUXJRPDHPmM@shikoro>
+ <YgE3jMkzisFZFHb5@shikoro>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="E0hofHivG5Efz7YJ"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1519422151-6218-1-git-send-email-stefan.wahren@i2se.com>
+In-Reply-To: <YgE3jMkzisFZFHb5@shikoro>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On 02-07 16:15, Wolfram Sang wrote:
+> Date: Mon, 7 Feb 2022 16:15:24 +0100
+> From: Wolfram Sang <wsa@kernel.org>
+> To: "Ivan T. Ivanov" <iivanov@suse.de>, Florian Fainelli
+>  <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden
+>  <sbranden@broadcom.com>, Nicolas Saenz Julienne <nsaenz@kernel.org>,
+>  linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Phil
+>  Elwell <phil@raspberrypi.org>
+> Subject: Re: [PATCH] i2c: bcm2835: Set clock-stretch timeout to 35ms
+> Message-ID: <YgE3jMkzisFZFHb5@shikoro>
+Tags: all arm i2c linux me ring rpi
+> 
+> 
+> > By default, busses are I2C and not SMBus, so it looks like we should
+> > finally apply this patch which disables CLKT:
+> > 
+> > http://patchwork.ozlabs.org/project/linux-i2c/patch/1519422151-6218-1-git-send-email-stefan.wahren@i2se.com/
+> 
+> I applied this now to for-current and added stable. That should avoid
+> unwanted timeouts.
 
---E0hofHivG5Efz7YJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks! Unfortunately reporter went silent after I have prepared for him
+kernel package with _this_ patch [1], so it will be difficult to verify
+above change on my side.
 
-On Fri, Feb 23, 2018 at 10:42:31PM +0100, Stefan Wahren wrote:
-> From: Eric Anholt <eric@anholt.net>
->=20
-> The CLKT register contains at poweron 0x40, which at our typical 100kHz
-> bus rate means .64ms. But there is no specified limit to how long devices
-> should be able to stretch the clocks, so just disable the timeout. We
-> still have a timeout wrapping the entire transfer.
->=20
-> Signed-off-by: Eric Anholt <eric@anholt.net>
-> Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+> 
+> > If you really want the SMBus timeout applied, you can check for a
+> > "smbus" property in DT and then set CLKT accordingly in a seperate
+> > patch.
+> 
+> This still holds.
 
-Okay, it has been years but the issue came up again [1] so finally
-applied to for-current with stable added, thanks!
+Sure, will keep it in mind.
 
-[1] http://patchwork.ozlabs.org/project/linux-i2c/patch/20220117102504.9058=
-5-1-iivanov@suse.de/
+Regards,
+Ivan
 
+[1] https://bugzilla.suse.com/show_bug.cgi?id=1192976
 
---E0hofHivG5Efz7YJ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBNgQACgkQFA3kzBSg
-KbY0PhAAoWXhn76ZXvHh2hCBWXJJ7P+ZU3YOiy0yWlq6vYOF78lxa1vfNp9Tebs/
-DU2G00RSNELeYGMHvY7IDh3VeCCiBlBDO48XodGQAl4TQILevqVbZO4+mAGyIdiQ
-bYcKH/RZcChe6LT5ggS1hrf0YqDfdyNPfSif3ml8zYoXV7RWU5EJ/GlFSTlng/JE
-onnRZi+7nwXVIroU70S0Ao/lQB3idRouFoiogWYdR47se+Ihq5jXJhMMmqc4sS57
-hpIeZ/sWFSlCM2aeqRoxh7K48qkMKT6CKEQCbFXtgSmj8s2HIisvyRTrm9Yv1sK7
-VmmMIKltbXYj3mf8cGOzC6L4PBhShqhCxos5gXYqs/kkC3MsoHYBGSIC88YPxWZF
-GjJauGYcUlY4NAjJ073KxpFcAq8zHg860vupGaKuevAvuOrygl0CZmIhVHW4fkdw
-xvEK3DftnvqOoqgKWDWGqL+3jWUVlz2pKczcI/h+8tnThdHSwQZJ5LcXgJwPOmgP
-k8G3IttQOKYgy1Mmp1DcFiaPIxpuH/r4UUEYB+c6NsO59bUjMRd5NI6WRdzI6tnX
-Hj5ZESK4LdxDYk/1Yn3EqC7wZ74m7HBqF2twr77drDPha95LKn72fXKzL0aMWeCe
-fD8u/gI3XCl67D8FLrLsZeopnIct2KD4pnQDj0lx9EMARShoCxg=
-=57h/
------END PGP SIGNATURE-----
-
---E0hofHivG5Efz7YJ--
