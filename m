@@ -2,30 +2,31 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C567C43219
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 12:16:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3495CC433EF
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 13:19:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383464AbiBGMJ4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Feb 2022 07:09:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50020 "EHLO
+        id S231149AbiBGNSi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Feb 2022 08:18:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387856AbiBGLlk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 06:41:40 -0500
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06893C043189;
-        Mon,  7 Feb 2022 03:41:17 -0800 (PST)
+        with ESMTP id S1442187AbiBGMU1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 07:20:27 -0500
+X-Greylist: delayed 329 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Feb 2022 04:06:24 PST
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7B5C0302EC;
+        Mon,  7 Feb 2022 04:06:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1644234076;
-        bh=bSkEZSwNdnc9xMNGqzoYVpfNSEmdW/ref73MmstW5+I=;
+        s=badeba3b8450; t=1644235582;
+        bh=ny+4Ok9hjLmZqMdJOe+AHOHZyUc8dQTSBOKig5sw1Zw=;
         h=X-UI-Sender-Class:Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=XKNoXJ8ORNpRa6BEg2UDAw6KfggwYuY+odeH6+JiSS27QR0GUg8AgS+5eaBrjozuw
-         +1c4pzQbWvamgmRnpQFWcOr2waKP6Yb9ESmVUb2nrm56PgSayacC3TycnQy5x0htxu
-         zolaM5fjOYElVDVfpmvgWT6+s/1iYScgLg9U3e6M=
+        b=Gl5KqIy622abwGTYrM6Xo1WJVLlSblrb3aZsWKqO25F/xWICAtUsE3POqESd0qXde
+         bM/ExhXbhRuSDpoDn5S6s91bGYfLyLKUZ7uc7DIowflvAYfIr1dY18SX2aNmS/sclK
+         gxxRpSL13TkqoebmCiH+62phf+icKdvYCL4KdPtY=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from longitude ([5.146.194.160]) by mail.gmx.net (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MEFzr-1nQhMS2D01-00ABLe; Mon, 07
- Feb 2022 12:27:21 +0100
-Date:   Mon, 7 Feb 2022 12:27:19 +0100
+Received: from longitude ([5.146.194.160]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1N5VHG-1oO2ST3tkI-01709e; Mon, 07
+ Feb 2022 13:00:24 +0100
+Date:   Mon, 7 Feb 2022 13:00:20 +0100
 From:   Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
 To:     Tyrone Ting <warp5tw@gmail.com>
 Cc:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
@@ -40,185 +41,126 @@ Cc:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         kfting@nuvoton.com, devicetree@vger.kernel.org,
         openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 2/6] i2c: npcm: Fix timeout calculation
-Message-ID: <YgECF6jZ7wj8TOfl@latitude>
+Subject: Re: [PATCH v1 6/6] i2c: npcm: Support NPCM845
+Message-ID: <YgEJ1M40AG9EuRPI@latitude>
 References: <20220207063338.6570-1-warp5tw@gmail.com>
- <20220207063338.6570-3-warp5tw@gmail.com>
+ <20220207063338.6570-7-warp5tw@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="RZxU18GLaf6NWGkB"
+        protocol="application/pgp-signature"; boundary="LFTVFI5jLgkqvDDv"
 Content-Disposition: inline
-In-Reply-To: <20220207063338.6570-3-warp5tw@gmail.com>
-X-Provags-ID: V03:K1:b064a7NKHMgEF0K2xAV1J3QyZzhrY5hXbM6HPqaw3wSsioPSz57
- QCtE6C3BEk0+/Sv/aNi4DhaHOSt35BV+Lg+G8nt3n256zXBiDTmeGoFyzzeWnXN8OvjZGNf
- xoLZSJFHBiPf35wndAyrO81+bpEzCRDOzCLgfvk02kWCktIZbv9XoDVsvkpktRF+c1QMKw3
- 1cmDHtFr9/kIzgjziTXqA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:gjR+nIwBzxM=:CqWV+EuoyyGV4esrML38xY
- 2DUfnDL8n5RL5jpCp4hQyjR5oq1U9ijVTT9nrYvxLI5qe3WpdxBgf0gKOIRZe2QZZpiHN0Bc6
- u8e8OfPZjmBQMgGnGAjz2hH/1nodbYjdu94Q0YvXfU4UpyxrNEzhZ2V9OC4+Acwp4bCD933Ar
- leVUZhP37v3e6uFhnY/WXN1NSDcKl9b5yos02bYl4ESx2/p2+p1BmiRrpsJ2ClPOpJuUOhiNU
- 7XWERVQCvWZM2IjQeGMkx9kSSIwIRklvGv9nXa2R3F8DU7ClUV5RwrPA3qfh+rTL35E6Kc+Mk
- XCf3SsBvt7+3KalHabPljjs7n+9grgDvN/0ufYopYZjI+kKYpXBPuGnsphJr99ZQsWjaETOmn
- KumzzQel3fyVEU2d5RGAfwV6EMsHEGVV62LPopv7kFblE+1xizjRJAAqjezK0R+b/UlZ6Mhn9
- XlGr5zolq7SYvSMh710gI6+0+SIFJTq5hgbDKgbJtuWr08EUhGtf/rSBcKCrLGhKr/Zf05obE
- 3DlCkzEHy8IZpfLq1WjM/LuiVSLSa3OVkXoA1aK3Cvw+YSyCY/5BfDu++v6qJOc5jtd5I7ukx
- K6fB1lic2MTekpA/Vv8tgzoZP5/wy1FnA+NSynR8nhjQtj0B1TDu8zeABUqSfmnJOZh4fkHMd
- JKAkv+GnisuloW5/JRK/pDjFk+NiweYd90JlAx/NMzwnwduTiLJwMK7MmSYMsnq9MZSvhDyWd
- spLC4Ke+F32Wg6V7mYKL5GkFjvLcy2Gr7rp0DVSdWE0fq76fM4NB2Z/L0VBjthsFWqaicZ5Af
- 4AWv3WFs8megYK6h/cMD4E8AMDVhO2kmeFVNFglDXV1zxvXDxrAVlqgTyk4sSB5UsBIouVz8A
- VPe4l9XprddMJkJrHNSNS32lnxbw6dlUBmHZXPAUuERQwyJ9S8f3lp9cOm6lLEU/y9JAbF/Mg
- sKivnP48dlPrq+Zn1o83z8KPoeaTiz6N75swf5WBzbiubNOIvX9dyfLOCkqB+caTeF++gJxhI
- OMxez616D6Y0G4wJ3cEX7r1ORpxQdZaPgSoY6dU5W7tigS68iilRufSi8wOFtDrFr5a6JAK5k
- b2d1Hfrtfa8P4U=
+In-Reply-To: <20220207063338.6570-7-warp5tw@gmail.com>
+X-Provags-ID: V03:K1:yg89WwvSEPrQ7hqxZPv4583IrZHv7A7T87r0LqD6PbFz3C7FN/u
+ DCigsPCdor6D5A6cW9pbDSVK9Wv7zDCZff+OnUfqn03zB/IKN/kfRue1QlcueWxNEcDF7cq
+ v7kUL6I1LDa0n/X7JpqTp/cVEV9z/uaWTnAp/M1NjLk7sw5xbBxX58aGYTsD5gpunxjgfA6
+ 1P2h57S5hXSollPCTcc1Q==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:z6mXA6PRim8=:mnjFTZTnYE8Rw0YqXK6Ju9
+ EyPZ1VT51XgCvfmBG89lRz0bIoctrULAb1vHRywr1bHkpSSwpOwU0JPSZ39f3VTQosv8+n1Ln
+ IQVwl0P/pmchLf2hPEcwXPEnSZMBm3aPCaOjTLDdOGt8WuofFTsg1NlDXtQAL6hUxb+f664Jz
+ T+nFYfH4wkQ5ZBbFBK/I1AXur7v6YhZSh8h+7xuw4hxMPhG/+rCCkyuTK9vCxesBVcSfUeEYq
+ mUhEUHyTm/66iNDunR7t9MeOmnO+mI8sF+p3StscGU4QQi6spe15p5Pngk2exoUrb3pB/ZO9i
+ FiTER85pcKwlVJhkCK9IoC+CVAG2bKbA7hR7QdGCrfsvhg/hRrg1O1/ZZdm0K7lIfIadS8HwE
+ pVBznNpqhml5Itx44k7c8eBlzeSt+27H8YOXX4Ym4PVhr4ews0awjftUpJeZ+56kHELa6avPO
+ U852nmB3gVtbZsavfSn7vLW2EYf8+GGgh59FNdLcauJ1l6ooLVkAUbSPStdot8gKGFt2hs28V
+ IbLHjLl+NeuCZoX4xP8BN94diXVD3PNsJWiM1LtCbfoncST5NqOjTORtI1JV7XLqpGpdd4km7
+ erfOMwc6A0hwDkeRubSfBFCfjCcU+CPZ4adDSnNDxTS3YwqGjJNxJHg7tT8gsQbXOErA0ygG7
+ +M/MTFCxEobsuk1+UAnWW3NqFNCg4eRJuEApMJk8TxglvXJY4YTHFEjCJwAHJxQADWXjku1Ni
+ kXch0HbzJjH1oLesnaeUg50UmWEV2e80HLpeGpnjXBfZ//GED0SBhbm8XX5IuYJbVPjFPbi3L
+ RWV9odHYf4B/9ACh7uvqZbIMPsvnw4OBY58eMEO+TjToDpGRiNARX8yRfjzxapiV+MdAxkDgv
+ 7E28V+Kldm2f8OOLYeSMo2HkfkfT4jGeQ90kaYr5aGzWiXxVPa2kuPKuARG8FEJZBdqiBZpMW
+ XCBODFxdHxmrZ/AKTKiPQAyMynqiU9sRb/Yvvw0cXIbvF/V29PmBHv0+Xz2ZKu/QYGj/N4Y35
+ Lo1+r6P+QHMQiIx9Y6hKhS3hR5e4zKQs7IQxVUiglyngVV00yzbBiqvCrYYBjatETOfB6/k3U
+ I+VXA3WMgs0SLg=
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---RZxU18GLaf6NWGkB
+--LFTVFI5jLgkqvDDv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hello,
 
-On Mon, Feb 07, 2022 at 02:33:34PM +0800, Tyrone Ting wrote:
-> From: Tali Perry <tali.perry1@gmail.com>
+On Mon, Feb 07, 2022 at 02:33:38PM +0800, Tyrone Ting wrote:
+> From: Tyrone Ting <kfting@nuvoton.com>
 >=20
-> Use adap.timeout for timeout calculation instead of hard-coded
-> value of 35ms.
-
-
-> Use syscon to access gcr, instead of "compatible".
-
-Please put the GCR/syscon change into a separate patch, because it is
-not obvious from the commit title that such a change would happen in
-this patch.
-
+> NPCM8XX uses a similar i2c module as NPCM7XX.
+> The only difference is that the internal HW FIFO
+> is larger.
+>=20
+> Related Makefile and Kconfig files are modified
+> to support as well.
 >=20
 > Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller drive=
 r")
-> Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+
+It's not really a bug fix, but rather an additional feature.
+Therefore, I suggest removing the Fixes tag from this patch.
+
 > Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
+> Signed-off-by: Tali Perry <tali.perry1@gmail.com>
 > ---
->  drivers/i2c/busses/i2c-npcm7xx.c | 18 +++++++-----------
->  1 file changed, 7 insertions(+), 11 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-np=
-cm7xx.c
-> index 2ad166355ec9..ddeee6f53621 100644
-> --- a/drivers/i2c/busses/i2c-npcm7xx.c
-> +++ b/drivers/i2c/busses/i2c-npcm7xx.c
-> @@ -2047,7 +2047,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter =
-*adap, struct i2c_msg *msgs,
->  	u16 nwrite, nread;
->  	u8 *write_data, *read_data;
->  	u8 slave_addr;
-> -	int timeout;
-> +	unsigned long timeout;
->  	int ret =3D 0;
->  	bool read_block =3D false;
->  	bool read_PEC =3D false;
-> @@ -2099,13 +2099,13 @@ static int npcm_i2c_master_xfer(struct i2c_adapte=
-r *adap, struct i2c_msg *msgs,
->  	 * 9: bits per transaction (including the ack/nack)
->  	 */
->  	timeout_usec =3D (2 * 9 * USEC_PER_SEC / bus->bus_freq) * (2 + nread + =
-nwrite);
-> -	timeout =3D max(msecs_to_jiffies(35), usecs_to_jiffies(timeout_usec));
-> +	timeout =3D max(bus->adap.timeout, usecs_to_jiffies(timeout_usec));
->  	if (nwrite >=3D 32 * 1024 || nread >=3D 32 * 1024) {
->  		dev_err(bus->dev, "i2c%d buffer too big\n", bus->num);
->  		return -EINVAL;
->  	}
-> =20
-> -	time_left =3D jiffies + msecs_to_jiffies(DEFAULT_STALL_COUNT) + 1;
-> +	time_left =3D jiffies + timeout + 1;
->  	do {
->  		/*
->  		 * we must clear slave address immediately when the bus is not
-> @@ -2131,7 +2131,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter =
-*adap, struct i2c_msg *msgs,
->  	}
-> =20
->  	npcm_i2c_init_params(bus);
-> -	bus->dest_addr =3D slave_addr;
-> +	bus->dest_addr =3D slave_addr << 1;
+[...]
+>  /* init register and default value required to enable module */
+>  #define NPCM_I2CSEGCTL			0xE4
+> +#ifdef CONFIG_ARCH_NPCM7XX
+>  #define NPCM_I2CSEGCTL_INIT_VAL		0x0333F000
+> +#else
+> +#define NPCM_I2CSEGCTL_INIT_VAL		0x9333F000
+> +#endif
 
-This seems unrelated to timeout calculation.
+This is going to cause problems when someone tries to compile a kernel
+that runs on both NPCM7xx and NPCM8xx (because the driver will then only
+work on NPCM7xx).
 
->  	bus->msgs =3D msgs;
->  	bus->msgs_num =3D num;
->  	bus->cmd_err =3D 0;
-> @@ -2233,9 +2233,9 @@ static int npcm_i2c_probe_bus(struct platform_devic=
-e *pdev)
->  	struct i2c_adapter *adap;
->  	struct clk *i2c_clk;
->  	static struct regmap *gcr_regmap;
-> -	static struct regmap *clk_regmap;
->  	int irq;
->  	int ret;
-> +	struct device_node *np =3D pdev->dev.of_node;
-> =20
->  	bus =3D devm_kzalloc(&pdev->dev, sizeof(*bus), GFP_KERNEL);
->  	if (!bus)
-> @@ -2250,15 +2250,11 @@ static int npcm_i2c_probe_bus(struct platform_dev=
-ice *pdev)
->  		return PTR_ERR(i2c_clk);
->  	bus->apb_clk =3D clk_get_rate(i2c_clk);
-> =20
-> -	gcr_regmap =3D syscon_regmap_lookup_by_compatible("nuvoton,npcm750-gcr"=
-);
-> +	gcr_regmap =3D syscon_regmap_lookup_by_phandle(np, "syscon");
->  	if (IS_ERR(gcr_regmap))
->  		return PTR_ERR(gcr_regmap);
->  	regmap_write(gcr_regmap, NPCM_I2CSEGCTL, NPCM_I2CSEGCTL_INIT_VAL);
-> =20
-> -	clk_regmap =3D syscon_regmap_lookup_by_compatible("nuvoton,npcm750-clk"=
-);
-> -	if (IS_ERR(clk_regmap))
-> -		return PTR_ERR(clk_regmap);
+And every time another platform is added, this approach will make the
+code less readable.
 
-I agree that clk_regmap can be removed, but I'd rather see it in a
-separate patch, because it's unrelated to the timeout calculation.
+A more future-proof approach is probably to have a struct with chip-
+specific data (such as the I2CSECCTL initialization value), which is
+then selected via the .data field in of_device_id.
 
-> -
->  	bus->reg =3D devm_platform_ioremap_resource(pdev, 0);
->  	if (IS_ERR(bus->reg))
->  		return PTR_ERR(bus->reg);
-> @@ -2269,7 +2265,7 @@ static int npcm_i2c_probe_bus(struct platform_devic=
-e *pdev)
->  	adap =3D &bus->adap;
->  	adap->owner =3D THIS_MODULE;
->  	adap->retries =3D 3;
-> -	adap->timeout =3D HZ;
-> +	adap->timeout =3D msecs_to_jiffies(35);
->  	adap->algo =3D &npcm_i2c_algo;
->  	adap->quirks =3D &npcm_i2c_quirks;
->  	adap->algo_data =3D bus;
+
+>  static const struct of_device_id npcm_i2c_bus_of_table[] =3D {
+>  	{ .compatible =3D "nuvoton,npcm750-i2c", },
+> +	{ .compatible =3D "nuvoton,npcm845-i2c", },
+>  	{}
+>  };
+>  MODULE_DEVICE_TABLE(of, npcm_i2c_bus_of_table);
+
+e.g.:
+
+	static const struct of_device_id npcm_i2c_bus_of_table[] =3D {
+		{ .compatible =3D "nuvoton,npcm750-i2c", .data =3D &npcm750_info },
+		{ .compatible =3D "nuvoton,npcm845-i2c", .data =3D &npcm845_info },
+		{}
+	};
+	MODULE_DEVICE_TABLE(of, npcm_i2c_bus_of_table);
 
 
 Best regards,
 Jonathan
 
---RZxU18GLaf6NWGkB
+--LFTVFI5jLgkqvDDv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEvHAHGBBjQPVy+qvDCDBEmo7zX9sFAmIBAhcACgkQCDBEmo7z
-X9uCbA/+NL/rpWypOlFcnBB6ISQecB6S6RoUnN3cnFt2SaNw2nQGu5P/Nrzbx1L4
-9fBT0i385RpgaUqTHIV3ldE+75kstoCC4af1nuTXWG03Y6jhEbly/Hs0u6f4TOnJ
-2y3DnEigDmCcG7K57OlsucUlhQMpJ4591qgZJV80Jf6ZjkmBR6VXnSPY0ISAwOjB
-RH+QZyG91QRDIS7Az8Xw0PnaEhy/YntqCGICaT2D3yXcTWb8qPGJNu0uaBOVP+9o
-vNPbJ76zLdsuW351xKFE2uY3cxnqwwznqeU4dzWBKe/wDC77wCq0Irsi+y7dA3S5
-dna8ZzSXBPP0wDAltMiMqQKrZp8L21DWZeT/V2/ohg7XhQ9Q2fLIWLhf9XUupTAZ
-rEJH+Ebq1GVSJZdEj7lKmxUlL2C1FvMb8g4yMItrs/5+ZpsY6XZbZHonWJGJ32IZ
-zS/mCGJyIwb8/K2J/ts9zYCOqXgaybLXmyf5vWwEp3udg5ZicnruqiG4xtZDysSk
-KLKQpdLKVaPwqdzHdZaxshXP1P/cgF53BAy0uIadanoBRF0MdgaJdOZuA69jVN5Q
-Jr7V27NC2zCWOX+QG9x63hS5MXCnwcwCUn9qgS3WezBZWB1Y7/QPfuOZC8ETgIP0
-Le3Ngiv9rt9esIaW9YjoW3/+QBxhulJKMiYerTqGWN/2fVD35CI=
-=QKMT
+iQIzBAABCgAdFiEEvHAHGBBjQPVy+qvDCDBEmo7zX9sFAmIBCaYACgkQCDBEmo7z
+X9uI7A/+MWPp/zPHPaH3lYE4rWHKtXP/hbBmF0vkBrZkvhLAh69d3QhFSCURD+7b
+aC2EGxA6Jmnnbq4iGi76fSAge1D6KiDCpYvi3QLRSY5h66nEyvnAs2JlZZXMfBkQ
+TTCWSzdULh1ow8+IdwzTuQ/ngCNk+Dar1R8tsPvZjfgjNA+huM/UuBNP6c8XY/pe
+r1gGazpuFO5IittQwGVqW0f7WVdu7gBGsuOBlpdS4xMGdw5Zp2XSmMXPjESEI6Tp
+lCycBXLdhzEokfA76PhOuRSjn6V3fyZYlw/iIxLh/vISBD+XtAt9RuvvqHmxIlS0
+T+rqm3Kdn6BPb6xYxdBt2lySI6838dS7CvAI4ntu42bGTM+xboOSXm7RTUT0/PRV
+cGV3Uo3vx9fLNWVjxLhEbuMYyGY1AbE5UuORWkij2XilAWrwOqvFUWWu0Xw5UnaA
+SaWSZHU7/9QP16BCwoVt5Nv2HiygMddN50dZFAzcy2oLXoChLFThcrc5KGKvfX/4
+ltXWQ4XI+7riX9QhoD9HX2SLwTNaX1V8nHojvzbflb7UIvujg8VSu2uBq6hRElDe
+BrBEbtEkFYVzs2zkULWGsp9bQGcwJF3gVEWFTpxuLWS6xFB3kJqPhVffoqxL4NbD
+W3HqOmJArx3js3avkgpp3LzI8hAAYfq+yP3Fibsmc9Z89mU5rYE=
+=8qyc
 -----END PGP SIGNATURE-----
 
---RZxU18GLaf6NWGkB--
+--LFTVFI5jLgkqvDDv--
