@@ -2,142 +2,99 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDF1AC4167D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1A51C3526C
 	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 13:19:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242501AbiBGNTh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Feb 2022 08:19:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37962 "EHLO
+        id S1344271AbiBGNTk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Feb 2022 08:19:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447705AbiBGNBN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 08:01:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AF2C043181;
-        Mon,  7 Feb 2022 05:01:11 -0800 (PST)
+        with ESMTP id S1442351AbiBGMU4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 07:20:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBEE0C02B5C4;
+        Mon,  7 Feb 2022 04:08:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B846AB81020;
-        Mon,  7 Feb 2022 13:01:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0157DC004E1;
-        Mon,  7 Feb 2022 13:01:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66A1061027;
+        Mon,  7 Feb 2022 12:08:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 239F2C004E1;
+        Mon,  7 Feb 2022 12:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644238869;
-        bh=JOc1/6BZgCfsZYq3N36mbfIFoPDeRG9grLrfprzG+r8=;
+        s=k20201202; t=1644235696;
+        bh=aJS2fMJOFOu6nNUlDjL6FgGlZo9MICA7XYvXLN/4y6k=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JqNzuh+GfyMIdM8LVAIedh2MKCYgVMklskYwUHWzplhWZR/hBE0x/twHaAFevsUXq
-         C/E4Jug/AouJue+jyUK/C0O1u/z12BfWJzANeJFD7Au8GmHtqxed85it87Jm2c/VqD
-         5iQ2ykyE0D210OFRnxrp1QLzwip5+oW/VaaxIp7XSR+CYrpbYVdATtoLE0qWcPrSMb
-         8utW3YP28BdnBMw5zbLGVlnmKtCXWwvzOLnjMU0h/mIDR6ryIvPGoCHVc56p2gkMmX
-         xf59ddSVHTIZcKFaqjrShePZ4Tx2FXmxeTqpSHjx+6maF4TIXk0gIvwTnGVuoTw0fE
-         AQlM41k4JBebA==
-Date:   Mon, 7 Feb 2022 14:01:06 +0100
+        b=Fhg3SvK4SFuwMYrPoW/24O1P70+1xqqeudOs8fEyomQr/FN/UJwWCMoUdDjxmgPS5
+         cCesZajB+PjlwovB1EeOhC2UyCYNhejtYILBJuv3/GQWjAQbOoxRpcCyB7IjAoDGVm
+         YiR5fhwPIjf3EZ5/ygKIbW5UuLTD3pT7F0x4rzXVfH+R5ugiHn6pXsESDJtYOAZnZ1
+         UELlN2dofYGqtcQfawmd+sDerheL3N77KK/p2Ku40CYIO8EsZXUjxISCl4gt7MtUmI
+         Efopu4Zp8pTdtKFm0/SHx7zfNKGRZhB8UmS74f7Afv0uRnHJBnx5EMTMCf+efZOVdQ
+         NVkwj+x+4B4xw==
+Date:   Mon, 7 Feb 2022 13:08:10 +0100
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Sui Chen <suichen@google.com>
-Cc:     linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        openbmc@lists.ozlabs.org, joel@jms.id.au, andrew@aj.id.au,
-        tali.perry1@gmail.com, benjaminfair@google.com, krellan@google.com,
-        kernel test robot <lkp@intel.com>
-Subject: Re: [RFC Patch v3 1/3] i2c debug counters as sysfs attributes
-Message-ID: <YgEYEk355t8C4J1x@shikoro>
+To:     Terry Bowman <terry.bowman@amd.com>,
+        Jean Delvare <jdelvare@suse.de>
+Cc:     linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+        linux-i2c@vger.kernel.org, andy.shevchenko@gmail.com,
+        rafael.j.wysocki@intel.com, linux-kernel@vger.kernel.org,
+        wim@linux-watchdog.org, rrichter@amd.com, thomas.lendacky@amd.com,
+        sudheesh.mavila@amd.com, Nehal-bakulchandra.Shah@amd.com,
+        Basavaraj.Natikar@amd.com, Shyam-sundar.S-k@amd.com,
+        Mario.Limonciello@amd.com
+Subject: Re: [PATCH v4 0/9] i2c: piix4: Replace cd6h/cd7h port I/O accesses
+ with MMIO accesses
+Message-ID: <YgELqjDHnPdJeor8@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Sui Chen <suichen@google.com>, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, joel@jms.id.au,
-        andrew@aj.id.au, tali.perry1@gmail.com, benjaminfair@google.com,
-        krellan@google.com, kernel test robot <lkp@intel.com>
-References: <20211221174344.1249202-1-suichen@google.com>
- <20211221174344.1249202-2-suichen@google.com>
+        Terry Bowman <terry.bowman@amd.com>,
+        Jean Delvare <jdelvare@suse.de>, linux@roeck-us.net,
+        linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
+        andy.shevchenko@gmail.com, rafael.j.wysocki@intel.com,
+        linux-kernel@vger.kernel.org, wim@linux-watchdog.org,
+        rrichter@amd.com, thomas.lendacky@amd.com, sudheesh.mavila@amd.com,
+        Nehal-bakulchandra.Shah@amd.com, Basavaraj.Natikar@amd.com,
+        Shyam-sundar.S-k@amd.com, Mario.Limonciello@amd.com
+References: <20220130184130.176646-1-terry.bowman@amd.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="kV9YJMcLA9AXD3Nw"
+        protocol="application/pgp-signature"; boundary="0kO5rWOtCL0wqwOz"
 Content-Disposition: inline
-In-Reply-To: <20211221174344.1249202-2-suichen@google.com>
+In-Reply-To: <20220130184130.176646-1-terry.bowman@amd.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---kV9YJMcLA9AXD3Nw
+--0kO5rWOtCL0wqwOz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi,
+On Sun, Jan 30, 2022 at 12:41:21PM -0600, Terry Bowman wrote:
+> This series changes the piix4_smbus driver's cd6h/cd7h port I/O accesses
+> to use MMIO instead. This is necessary because cd6h/cd7h port I/O may be
+> disabled on later AMD processors.
 
-I finally had some time to look at your proposal. As I wrote last time,
-you convinced me to have the stats in sysfs for apple-to-apple
-comparisons.
-
-One change I'd like to see is to let the I2C core handle the stats and
-not the individual bus drivers. From what I see, the I2C core could
-handle all this if the bus drivers use proper fault codes.
-
-> - ber_cnt (bus error count)
-
-I'm not sure what exactly "bus error" means in this case. But I think it
-can be translated to any not-otherwise handled errno returned by
-__i2c_transfer() or __i2c_smbus_transfer(). I also think it should be
-named "bus_errors". Do we really need the "cnt" suffix?
-
-> - nack_cnt (NACK count)
-
-This would be -ENXIO for __i2c_transfer and friends. Name should be
-"NACKs"?
-
-> - rec_fail_cnt, rec_succ_cnt (recovery failure/success count)
-
-This would be the return code of i2c_recover_bus(). Names should be
-"recovery_failures" and "recovery_successes"?
-
-> - timeout_cnt (timeout count)
-
-This would be -ETIMEDOUT for __i2c_transfer and friends. Name should be
-"timeouts"?
-
-> - i2c_speed (bus frequency)
-
-Yes, we can have that. I don't think this is really a stat, though. It
-is an attribute of an adapter. It has been requested before:
-
-http://patchwork.ozlabs.org/project/linux-i2c/patch/1413403411-8895-4-git-send-email-octavian.purdila@intel.com/
-http://patchwork.ozlabs.org/project/linux-i2c/patch/20181210084111.6938-2-tudor.ambarus@microchip.com/
-http://patchwork.ozlabs.org/project/linux-i2c/patch/20201013100314.216154-1-tali.perry1@gmail.com/
-
-So, I think we can tackle it again but it is orthogonal from the stats
-series.
-
-> - tx_complete_cnt (transaction completed, including both as an initiator
->   and as a target)
-
-This would be retval == num_msgs for __i2c_transfer and friends. I also
-think it should be named "transfers_completed". "tx" often goes with
-"rx" as a pair. I really wondered "why only tx" first.
-
-So, let's keep at the high level first. What do you think about my
-suggestions?
-
-Thanks and happy hacking,
-
-   Wolfram
+Review from Andy is already great, I'll give Jean a few more days for comments.
 
 
---kV9YJMcLA9AXD3Nw
+--0kO5rWOtCL0wqwOz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBGA4ACgkQFA3kzBSg
-KbYCOA/+NKh18t9FOXG44dWZgqsl4HHVMSmEjwzcVjFNG8EDlatHUuhVIO2jag8j
-3SWfe/lNFa0e30K0ggYZDSkkL70i65Rs6/7bxCGL8+UhD3K+w5l7+6IKkAJ/cYOf
-ZtnjnOhMQxQ9YFh/YxG7+xOd9vJ8gpi001htwf6t0OBU7KR80SfjF+YlkZfZ/BVJ
-9Xsr965j/Qf+wFzrPtuEmMo7qScyns95fcryivYCg+/9RQ101+sUs4AtE41bKFIo
-3gtxbEoyqVMweaF4sigBqnu75fillhHlU3+ChU54IzPwclTBfX1i1YqLOAkA9wUn
-jf3OTXgOCORXhVDF6rXd7GaiZdDzvBFk85oluZP3KxpwraYhNCjPOYgZko6fQqJB
-fPxipmFwHionCOje+owWxIJskFc/nfEFl32VtO+QXpFklXkm/LkAqb+imgMjZDw0
-UBJxDI1LW8vAmxcoQR9Qh4iiiAjCkV5RoOosevk1Q68N6rbv8KuWFio2PqmcDmOE
-W5A24VtxdbYyYJ9jMchSRXJoPXNW5I4YZ0W4v4WIqyWWGODPjOanxr57RBlDuJbo
-KqqIwmc8N8kTIE2qvJ7cn2vZ8RoRdQsAUNL6gRFUsjqA/470yLwTkzPfRh9/ACB2
-e/Q5dEAm7CNzs5hfSWxg8ViAJA6EW2XThZW9Or2XSvkRj/l5YeA=
-=logL
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBC6YACgkQFA3kzBSg
+Kbbf+A//QnkzRA2XLzIn4yFkblDLK1v4Eb8XLapnVWTg6CF3fjzr5vYT0PTd/J+c
+OdWVrwW1SlhKHMRVEyfZMpXPw/6Zys8EPKuoBA7eitqXCnz3mSu0RFx9SNcAd1Xm
+HPPamxgrf38Tq7jFOaVpUPzTulkB4rvDfBcy4CdKJAF7hKUdXvGtC3n3tKwRHvrw
+gZalZOaCKK6bvL/VcCrNr0MagP32Lte9+uziOSgBY6e5OJovnux7xHYGlsSU/E49
+Uvy6dcIkK+351RUT+kHe//hPGTyeK8EZ1/vIDd7YSAbOY2bfAC7fcC7UV4DBoX5T
+hwdi2s7nRybXqfORTbN1sPoxjyJx/l3w3yLghhrm3zknNGu24qF/7iAh7ZggRvpK
+we5a1eLAe//7ozZQmmk7Evj1+uEj/JPbDsAX3fOXDJfMlkYaRaGRFtcbCViY7cJj
+1gVApL4oA2/0RhRC9G0DJNsvXeyY6tsW2Kf0RYtAjVnxs4PGFxzDOfyPno78pRuY
+6udoUbHHw46sMYRnhiRxRz8L4EFcNfbKpKjkEV8Ynazpp5qlDwDThCjUgg+EwBSp
+x9H7HjlcuD8T3s2cXtZpyjvT0JoCHcWYL5HYIplBjM+LBF6bjvERHv2xP6PyS0lF
++KHLpea6ON3CJDH+/NWLe8lpNWEZy7IqY36GVMp7xlg/mdQowCw=
+=+FEx
 -----END PGP SIGNATURE-----
 
---kV9YJMcLA9AXD3Nw--
+--0kO5rWOtCL0wqwOz--
