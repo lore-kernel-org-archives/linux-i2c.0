@@ -2,80 +2,130 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9CE3C433F5
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 13:21:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB30EC433EF
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 13:22:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386957AbiBGNTl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1344251AbiBGNTl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 7 Feb 2022 08:19:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33252 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447408AbiBGM4x (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 07:56:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEF93C043181;
-        Mon,  7 Feb 2022 04:56:52 -0800 (PST)
+        with ESMTP id S1442751AbiBGMVi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 07:21:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEC99C0401C2;
+        Mon,  7 Feb 2022 04:11:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4793661123;
-        Mon,  7 Feb 2022 12:56:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FD66C004E1;
-        Mon,  7 Feb 2022 12:56:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECA70B8120F;
+        Mon,  7 Feb 2022 12:11:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3B14C340EB;
+        Mon,  7 Feb 2022 12:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644238611;
-        bh=8xgMJsl6httlwP/0dJYgn5BHyLzJK1hTK6WwcDbk8gM=;
+        s=k20201202; t=1644235912;
+        bh=5gMb2sVTGroqNBeDfOf0Z9dK1PjhMmifCwWjbl/BngI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ln6QFa642uBptjmCoJaPrIwBhwHzjksqi/8ZYGtnGXPJ5RbaOeX2CgXt5M6YLGv/3
-         PjMvEwILR41IQWSXddMktTcSgPZvUy3J9g8qavzWpobqsit9w69wc+eLjfRGXXt1s2
-         RSp+If0YZuQZ1qCsDz5jjhnHgSn0UCzh0n0DTk48XghpcYynq1yDZ2LKEjXAXM2pCQ
-         aj2thhyUGKdjZpaOl/V5T+D/Vww8tAY8ijq399ywdZ5kCQtVmIB7MyZs/2XPQRyENw
-         WPt3P1gdfuDY0qs8eRPElT0Drl+gd/loo69MvrX8BSNlaUuB+VyHEvPv96apC+lyBG
-         TiyGhVqb4kS1w==
-Date:   Mon, 7 Feb 2022 12:56:47 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Patrick Rudolph <patrick.rudolph@9elements.com>
-Cc:     Peter Rosin <peda@axentia.se>, Liam Girdwood <lgirdwood@gmail.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [v4 3/3] i2c: muxes: pca954x: Add regulator support
-Message-ID: <YgEXD4eTK3gB1EzM@sirena.org.uk>
-References: <20220207092827.104978-1-patrick.rudolph@9elements.com>
- <20220207092827.104978-4-patrick.rudolph@9elements.com>
+        b=WNOwgobMcO+5QbbaE5uTv5JtVOctLDnzVB4gkvkG5W/jtjnQaIJsSNcsSrARrFuFs
+         iUDRb3Mq8U7l1AvhGZK8k6QNixcs3joakKnTAF2FLadTB4hptjP1+qiiKnPmyX1TVk
+         G+LCuoyZemDy5D1/VXAC1R+7EOg8NZZXyYqc1nKI6ibKOR7cGRQzmgoYdLjqIMGeGR
+         mhhedWDNCz+r+PRDEMtApgyVPY9SSF0jn/CcIWp2OBv7lOFkus/6W/kWwZaiU4L0WC
+         n/2z4KIc73RpZd5Ceg8Z5tZQP4RWouTViAVcEnqf60beaG2Z4w466nsNq1plDnltY5
+         eN+/sLYwrsXSA==
+Date:   Mon, 7 Feb 2022 13:11:49 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Jean Delvare <jdelvare@suse.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Tan Jui Nee <jui.nee.tan@intel.com>,
+        Kate Hsuan <hpa@redhat.com>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Peter Tyser <ptyser@xes-inc.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mark Gross <markgross@kernel.org>,
+        Henning Schild <henning.schild@siemens.com>
+Subject: Re: [PATCH v4 6/8] i2c: i801: convert to use common P2SB accessor
+Message-ID: <YgEMhTT87aY76JQZ@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Tan Jui Nee <jui.nee.tan@intel.com>, Kate Hsuan <hpa@redhat.com>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>, James Morse <james.morse@arm.com>,
+        Robert Richter <rric@kernel.org>, Jean Delvare <jdelvare@suse.com>,
+        Peter Tyser <ptyser@xes-inc.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mark Gross <markgross@kernel.org>,
+        Henning Schild <henning.schild@siemens.com>
+References: <20220131151346.45792-1-andriy.shevchenko@linux.intel.com>
+ <20220131151346.45792-7-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="UyFMJwItiuRhtm5G"
+        protocol="application/pgp-signature"; boundary="q6vDFucLg0OY10c4"
 Content-Disposition: inline
-In-Reply-To: <20220207092827.104978-4-patrick.rudolph@9elements.com>
-X-Cookie: Never give an inch!
+In-Reply-To: <20220131151346.45792-7-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---UyFMJwItiuRhtm5G
+--q6vDFucLg0OY10c4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 07, 2022 at 10:28:26AM +0100, Patrick Rudolph wrote:
+On Mon, Jan 31, 2022 at 05:13:44PM +0200, Andy Shevchenko wrote:
+> Since we have a common P2SB accessor in tree we may use it instead of
+> open coded variants.
+>=20
+> Replace custom code by p2sb_bar() call.
+>=20
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Acked-by: Hans de Goede <hdegoede@redhat.com>
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-> Add an optional vdd regulator and enable it when found for devices
-> that are powered off by default.
+Acked-by: Wolfram Sang <wsa@kernel.org>
 
-Unless this device can work without power this regulator usage should
-not be optional.  This is just removing error handling.
 
---UyFMJwItiuRhtm5G
+--q6vDFucLg0OY10c4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmIBFw4ACgkQJNaLcl1U
-h9A1egf9FMFSaHWLZsE3ryRLlLWyRHTjN4R2PxElpm1jq3pj0VHsVvILflBYg3TU
-GVL/43pbgQ1rlKCc7gI79Wsnqodp8io8QbKVd8h+8HgE29sUQ/5V9MdsT1vfNDhS
-stkN5asRMsh8+qn3JatbyNSoxT9MMRAcwYrkjjTxlG5em9Bg71UeDgUV7mhzsPP9
-3c3+vSDnsRxnwqUdJX0wnurECFsPEN9sgXkwXVRpnBvnpqf8ClIbyO4ersSPDkAA
-ZoPQl64D3cOwXqEhr+qoI8v/I8k5Lg63qSZ22Ij9OxaRNrex6ivNMmUA1uocinsF
-gZzmWmXIgy6rUy3+o7e/pc89GaP4ng==
-=BYgj
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBDIUACgkQFA3kzBSg
+KbZUaA/8DRJuCj7W7r4GvotOsX0pfGB7yfmokP/mtSPdJf2Dwu7d1QFlD1LAT4Bn
+Ne9tAGHdPQ+I2fkolX/+mojLbwBWBMtQELFQYJEOKcLpt77H8IR+9d0HvGXuycal
+bA59hcNywNJB6BVWYJXxJgCovLxZmet5Pvl+vo3+ArxbJI2UzZNwhg+6SfEj+mwE
+S0ZjZyD7+BJfFYZ44AGQn9p8bqDiC0vz7T/yTUz5GVylNJ4blPLcjEZ/gFDvXgBL
+L0Cio2QiPf7V7q/awOxmQr8iIWMbAu8/kjjQbr+2astCs92x65sv0QakJzJt+2GG
+3MSzyWKJIzUpJLG07IJlP98ZK0aB+hAkd2XWC5LTN92HRINYKbIuSvOHBGWFk4eG
+nJMxbq35p67nOdx0ba4w7NjyrysdKmqZrTbZC+e1j7KJMezTCP7PGLlB/68ic0RN
+mg7gEuBRltMw1CqLIZzR8cQRiPSwMd47msNoJ9l84FLk/N+0arFI/sw7lrUUgWUR
+ug0VLz3WfSfF6t+g7Vsqnk4ZbQ0g5FMOYQdDryqhoFDy9d2V+aoC98AG3JqoJ5Mg
+ejSV//Jtw2fYvbmbgvNmKMavq3tsbpcpkYukU9l/dbJAfo/q39ptyKpKRjNMfkjF
+ZW96HlhXKStsI6ei/0BFzZ2Il/ztJKtxBxMIJ3NMtqWw0Ipscxk=
+=Y6Q6
 -----END PGP SIGNATURE-----
 
---UyFMJwItiuRhtm5G--
+--q6vDFucLg0OY10c4--
