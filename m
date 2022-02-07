@@ -2,101 +2,99 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E679EC4167B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5D0DC43219
 	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 14:36:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243830AbiBGOgj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Feb 2022 09:36:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60974 "EHLO
+        id S233926AbiBGOgg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Feb 2022 09:36:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235071AbiBGOPB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 09:15:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F81AC0401C0;
-        Mon,  7 Feb 2022 06:15:00 -0800 (PST)
+        with ESMTP id S1392281AbiBGOZy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 09:25:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A4BC0401C1;
+        Mon,  7 Feb 2022 06:25:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE95B60A57;
-        Mon,  7 Feb 2022 14:14:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACF23C004E1;
-        Mon,  7 Feb 2022 14:14:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 070E6B81366;
+        Mon,  7 Feb 2022 14:25:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57B21C004E1;
+        Mon,  7 Feb 2022 14:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644243299;
-        bh=kXCavZxVDpPavOetLGC5KN88JPcZOskGkjpwki3m8Q4=;
+        s=k20201202; t=1644243951;
+        bh=HLHC5kYlmgiVol/HTCLPWA1+tcHtue1uHj+0Zm9Kz1E=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tqOZR3W07vwmXzQCM2E0Jpg29RkdWgGlOikhYShhnfwqLUDp3bwc9NNnNvRRNrEdS
-         NG74LGgdD+pQO0gGxzbxZtLTFn2WfDh7izPqjiqifo1BhL63ZWsPi4fea1HrhNneOw
-         XJezewxS0cAkDkZCAlbvMqDOCn11nAIi7erEPS09RUSMmo495JbQbb9dVeoYYW15Bo
-         B/vG92mt3hmQk4bi6PghWSswbxtq/mcqFkFrcbTw1CxiUXju0ZsYJH+LDz+b9JLkxt
-         5a5EqC2ZB6xulm11xwaKRxewuYvS+Vn1uZazPSwvWlsiqgoy0bOeyna9J1j9vZscoo
-         xZmftkPnQXOWw==
-Date:   Mon, 7 Feb 2022 15:14:56 +0100
+        b=NAkKnojlf8nOcd1zdvJG269h4VvgoS1tx2eMVLVUdq1KehG9ijhMcHmbPFGnjmwQl
+         icebgXXfD0D3+32WbqQsxkIPFw9mdVH+Ei3Cdvu97I5IGXIcyWVge/rL2B7Az2a2wd
+         N38P+BuKEUrZx8gmzHroUSIynEe9ebi+4RtcwV8gSJB8DZyNMHIqqU7atRxjPXpjJG
+         k4uTpuAbIvL1lZaiM1eMkOvhg9PKRB8HoO/Idlfw8lr/fcEVhkmB634Q/pJAEWu7n6
+         iGa/8qAVi+3IgtpCXk606OjwsW6PhX0LV+c8nK6skgmfCSUxxtGLCOFtz12lKyQZ6w
+         9OCuWpn8SXUDQ==
+Date:   Mon, 7 Feb 2022 15:25:48 +0100
 From:   Wolfram Sang <wsa@kernel.org>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Ajay Gupta <ajayg@nvidia.com>,
-        "Shah, Nehal-bakulchandra" <nehal-bakulchandra.shah@amd.com>
-Subject: Re: [PATCH v3 1/5] i2c: Introduce common module to instantiate CCGx
- UCSI
-Message-ID: <YgEpYE2VNc05XhpG@shikoro>
+Cc:     Jan Dabros <jsd@semihalf.com>, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com,
+        mika.westerberg@linux.intel.com, hdegoede@redhat.com,
+        rrangel@chromium.org, mw@semihalf.com, jaz@semihalf.com,
+        upstream@semihalf.com, thomas.lendacky@amd.com,
+        alexander.deucher@amd.com, Nimesh.Easow@amd.com,
+        mario.limonciello@amd.com
+Subject: Re: [PATCH v3 2/2] i2c: designware: Add AMD PSP I2C bus support
+Message-ID: <YgEr7LtUAd4QWiiR@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Ajay Gupta <ajayg@nvidia.com>,
-        "Shah, Nehal-bakulchandra" <nehal-bakulchandra.shah@amd.com>
-References: <20220105141935.24109-1-andriy.shevchenko@linux.intel.com>
- <Ye7AhqMsOkfvHOAg@smile.fi.intel.com>
- <YgEa/blO2UMzztCq@smile.fi.intel.com>
+        Jan Dabros <jsd@semihalf.com>, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com,
+        mika.westerberg@linux.intel.com, hdegoede@redhat.com,
+        rrangel@chromium.org, mw@semihalf.com, jaz@semihalf.com,
+        upstream@semihalf.com, thomas.lendacky@amd.com,
+        alexander.deucher@amd.com, Nimesh.Easow@amd.com,
+        mario.limonciello@amd.com
+References: <20220120001621.705352-2-jsd@semihalf.com>
+ <20220202144302.1438303-1-jsd@semihalf.com>
+ <20220202144302.1438303-2-jsd@semihalf.com>
+ <YfqtkBIZZxp2Au2l@smile.fi.intel.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="5Q9Y37aHm32GDcLx"
+        protocol="application/pgp-signature"; boundary="SIzHU/GnM/M7r84T"
 Content-Disposition: inline
-In-Reply-To: <YgEa/blO2UMzztCq@smile.fi.intel.com>
+In-Reply-To: <YfqtkBIZZxp2Au2l@smile.fi.intel.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---5Q9Y37aHm32GDcLx
+--SIzHU/GnM/M7r84T
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 
-> > Ajay, is it possible to get your tag on the series, please?
->=20
-> Wolfram, can you remind, please, what the process is, if there is
-> a non-responsive (in a meaningful period of time) maintainer?
+> Side note, please start a new email thread for new version of the series.
 
-Well, I can apply patches if there is no response but interest and
-reasonable trust, of course. Your series has interest and trust. But
-still, it may be nice to ping active people from Nvidia and ask about
-Ajay.
+Yes, please. Also, neither me nor patchwork got patch 1 of this series.
+So, please ensure the series is complete when you resend.
 
 
---5Q9Y37aHm32GDcLx
+--SIzHU/GnM/M7r84T
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBKVwACgkQFA3kzBSg
-Kba05RAAk9nEfFctEY0932pfK/smckobW69iSd1by93obopbJTmi5wR0SzqHaCBq
-PQwjiH+vW1OBkwE1oTr1L5CJnub3EB1dnfjmQV5maDyVx/wHO/gVwlsNiDtO8/fG
-AAv7b1EP7jXtbcGMhaB9CDf6K9ZCCb4PuQbe5Wdk0ijcPeDiQbpzgf1yxC522SS/
-dcJbeb5Uth2Mad4G29yyqBlykJW/I2iXDVy3sahMin1c/6hhMkXYJBsodrztKmbt
-3vK6JXRCktFemcKH+SduSmo3Oa3ELwqcphCk+5u65YIEX2hJm9W3+ffakIQVpnRo
-lDoRcJBo63KjJOQvDzN3aDexUgzss42s18/EtEyFVQgsW3zxF3e4sgexn1tii5fj
-KTV9ejhDvlLK4FxijYYTs7IpqOdqwnc9rRmtS1lffVHP04gNoT7RaFbxsLxqrky0
-IxfRUDdJPRdK27M709iGszlYww9SUpSbBuNBbwMC+LgXXPRR2YW0JvoPpWg9Oo20
-MC4B+aQvzW/ubcEYUjaYytGfCca1Ulmm7Zr/sau3IY6zw0gyh/UZtDlg2LTUBzVS
-WpaFNaZpZ7WrdrbnZBZ/6Di3xvGtvgheqPQpaHhajrpeSxlrqCgh0rXMBxe/m7t0
-feKmmC6ffTMWpjUrz7ZZFp/aktcBe7bIZ3ftQlb6dBf9CgE9OX4=
-=HfHu
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBK+wACgkQFA3kzBSg
+KbYrsw//fiOCfzLwTF5MEYmWaoK3l/DgNzthdC4XSU9gf+fwP10TYHRCT0lPAvVY
+lkXBNWrBOqXml78l6XIhQgHIaYkGYHYu/658IUdxBn7YR4VgInSQsYMUzA+hbY3G
+ZG2bgttBXL5rQ6vWl++kB34W0wyNhDd5G+FGFn9HK8cHpAntzjFFWyaS4ZFXFLeQ
+FFHHTxfAaDITr2MqEoE3OBc79bCg6uZ+JSeyqKzpxYDL9PhkNb5htEr+cgs159UX
+GAIlDSPFYOtbvG5y3XWsWiejcSTaWFjDX6v6l02y6Gv1JmXpsXOy+mvif5qlpBTe
+BLPd/Qi8CDW9xLiJa/9JQtEb3zKyfFbW1V6Ox3O89zXk94T1AWV7PKYYksRajDi7
+K7nzSCpEF39mxKhNle+Zrr+DFF2u+XDm1zE4bTj41LYgI6WW7lnZI55lbxU104Xv
+5XHz42qV3XwqClDBf1FmSPmI99OSWVDH0AGMgs4Qf1pwKGQzfiIE/VFTeU+6mlSX
+i6qRwn48EX/8tp9p9RJfou7fwcFmFJCdvBFB6QBTmdFxcfkvPsBqhqe4tZWppFd3
+jAtFdua/qlD22T7y860rk3a+xxOrSPG8HeeHtv1/Y2KhbUzuolnkQQu8c4IK5+NT
+GIOd3FyH7uoJRXYGqer7FgWWxhXtFNXZEIeJQszRk7nk8qjT3i4=
+=BnQ3
 -----END PGP SIGNATURE-----
 
---5Q9Y37aHm32GDcLx--
+--SIzHU/GnM/M7r84T--
