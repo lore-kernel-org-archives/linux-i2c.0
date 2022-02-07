@@ -2,525 +2,270 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31C5BC433F5
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 08:36:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06996C4167E
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 09:37:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233508AbiBGIf6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Feb 2022 03:35:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58206 "EHLO
+        id S235751AbiBGJhT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Feb 2022 04:37:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244786AbiBGI10 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 03:27:26 -0500
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2691AC043181
-        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 00:27:25 -0800 (PST)
-Received: by mail-pf1-x435.google.com with SMTP id 192so11716253pfz.3
-        for <linux-i2c@vger.kernel.org>; Mon, 07 Feb 2022 00:27:25 -0800 (PST)
+        with ESMTP id S1351398AbiBGJ3G (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 04:29:06 -0500
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A99C043181
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 01:29:05 -0800 (PST)
+Received: by mail-ej1-x630.google.com with SMTP id k25so39812142ejp.5
+        for <linux-i2c@vger.kernel.org>; Mon, 07 Feb 2022 01:29:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=FUgg4Equ2He9Zu5YgUnLDTuk24eDlugPiPqltuoxuSI=;
-        b=jsxJRPT5HrKdHN0aukhZ0jx5VsFJukcuO8DiaecEH3isCh7tmsxns7tJLrMewiBVI4
-         vdihfqxC3KiIFTQJUGNNwt7nqS5LqidMhjO++/PcnFQy3iQM7buSi9yUMg9+cfCQiVtT
-         zfW3kwOTkGcxTYTOCA9KFaNlrb5tJ4lfJo51Fqqknudnl1W1c4fhmWPvT0nKc7XKnmpm
-         /b+U6schCJi+xPqNqqSKenOH78L93ovKF/x0iCBQKLp68PjpKHpZDgdAFWWZwxYUYJKX
-         ZWNrvGOugVs4hlosEbQc1Y9sJTSpzsNgO+Vch10WLCm1QV78HR6Slj7AnRnvgHZe/akn
-         f7yg==
+        d=9elements.com; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=O0k8KhFMdBtBZFFVKWcjCSCyxGIr4s4QCXxRmW6v5O8=;
+        b=dMUN3by6U4hZHRUiyZbQB88dim8pVI3xH+nIf5rpOYvAVUV2YKffWyoloOS8+mSB9B
+         VI6r88auKKMD2YhbE78umjv84fl3CCk+r3EnrAeD8tF9Ca0ZVHfMW17eJdpoIRV9LRaP
+         VUHRr07wnma+mo5Xvj8TB1AdmiDCsugE5j83JS52b+LcR13tHhWI7V6RT6oi0k5LYULg
+         eVNuNr2NuH6M/WAyANBxUH0r81Fb/FwgmXP2OnbrR1YtQFe/BDlglDpzwlzEBMhannX4
+         hYFPz3gSmH7kR4oSFLFCUKJ7La8fSc6MlWFIEb56ivEKO/ZaemdxjcoI3r4QzqqGkhV5
+         +V1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=FUgg4Equ2He9Zu5YgUnLDTuk24eDlugPiPqltuoxuSI=;
-        b=nEIYBz639e5SC9zu/Bd7cHvuoiI8GUXOZM8IvH5V2ZXqc3XIpSITIQsEQlR3ZDGS52
-         uL8DpEDo1f0ApIAYA4kC1yjas8jhdWv0pLgFyc6k6u9lKTY+/FeE/Z+MsQc+/MlabrEK
-         guXP05wxAfnpD6aOz/AMmOS2G9xMg9yz3c2B151ITnLUGXshvRux8gLExrJW1aHuAyv1
-         jIXf0qDrxhfkCiQhDlCWM5KqC796PO4PouIe6N4pgqmMWFe0GQ1ZbU3Q8tteJmBXA5iz
-         o9uhwHyySZ/T99//5JhniqJCCaTPa6sc3XD9bHZFH24RDFfNui0yqRfMkqHx38SwOHyq
-         nWrw==
-X-Gm-Message-State: AOAM532EwdphJXhC9CfWVEerVQdJ93OkSHoJpHt+RYP6k8Kn6vR5dbjw
-        TBpKMtONXs+oydfh3/f87Y7m2wngoYsBlD+fzrPbhw==
-X-Google-Smtp-Source: ABdhPJx2eW3thz8UJ/xBubbYMDkStcxn24j3cGWJnzcGfETIdIlBkrOO9dGxLR3+mfZtG34i2txITFEvo/Jq56FzQ00=
-X-Received: by 2002:a63:d848:: with SMTP id k8mr8633728pgj.164.1644222444466;
- Mon, 07 Feb 2022 00:27:24 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=O0k8KhFMdBtBZFFVKWcjCSCyxGIr4s4QCXxRmW6v5O8=;
+        b=kvGA7ox+/wmv8jGh4DmtZ3kh7HDYkfooOACKJ+TljNWlgR7u7J8nUy4ngFfc76dETv
+         VnWk8WVifvmI6swbe3TCOUyzV+8vmfXfp6Cn/tI3OG4Xk+mhpiU/ErLET3dLud/+b1pG
+         Dp9uDZ3UvL3aRVchTm3yrCufbZA/rcQeCvTcWJdUc4Ppb5H2esjHvCtE0UB1prex8Wkh
+         t1BWYNi6VraORZ1nxHU2mc7bGgJww9l6BaAgLDRo1VXElwDvH8Segh2y58CpL9Gq2sSf
+         2i2t2l83Vy6tLjRCisnh9PfxRbUr5TqBWqmxZA8te+bAX6mTB5B+iKSJm0oMWz7WB8lR
+         6iUg==
+X-Gm-Message-State: AOAM531DFRl8vlWdSWFAGGp60pVmn613w4NAk2ySltIPRLpXqcFkI36c
+        tfrGRONNHNCTbBKFgc6tlSQ07HRuikizSw==
+X-Google-Smtp-Source: ABdhPJz+aQNvytf0rYMcnO0YPZsmW4+5G3DWaE54m44kEpckybhe3lTAjf9Li2zm6+YgM+bcv+O10w==
+X-Received: by 2002:a17:907:8a27:: with SMTP id sc39mr9354396ejc.314.1644226144461;
+        Mon, 07 Feb 2022 01:29:04 -0800 (PST)
+Received: from fedora.. (ip-088-153-139-166.um27.pools.vodafone-ip.de. [88.153.139.166])
+        by smtp.gmail.com with ESMTPSA id g9sm3487059ejm.152.2022.02.07.01.29.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Feb 2022 01:29:04 -0800 (PST)
+From:   Patrick Rudolph <patrick.rudolph@9elements.com>
+To:     Peter Rosin <peda@axentia.se>
+Cc:     Patrick Rudolph <patrick.rudolph@9elements.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [v4 2/3] i2c: muxes: pca954x: Add MAX735x/MAX736x support
+Date:   Mon,  7 Feb 2022 10:28:25 +0100
+Message-Id: <20220207092827.104978-3-patrick.rudolph@9elements.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220207092827.104978-1-patrick.rudolph@9elements.com>
+References: <20220207092827.104978-1-patrick.rudolph@9elements.com>
 MIME-Version: 1.0
-References: <20220120001621.705352-2-jsd@semihalf.com> <20220202144302.1438303-1-jsd@semihalf.com>
- <20220202144302.1438303-2-jsd@semihalf.com> <YfqtkBIZZxp2Au2l@smile.fi.intel.com>
-In-Reply-To: <YfqtkBIZZxp2Au2l@smile.fi.intel.com>
-From:   =?UTF-8?B?SmFuIETEhWJyb8Wb?= <jsd@semihalf.com>
-Date:   Mon, 7 Feb 2022 09:27:12 +0100
-Message-ID: <CAOtMz3O_j5-0ZLJngQpzQSGduhZVnQ8awBvGkMdUQWAX8nN5Hw@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] i2c: designware: Add AMD PSP I2C bus support
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Grzegorz Jaszczyk <jaz@semihalf.com>, upstream@semihalf.com,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "Deucher, Alexander" <alexander.deucher@amd.com>,
-        "Easow, Nimesh" <Nimesh.Easow@amd.com>,
-        "Limonciello, Mario" <mario.limonciello@amd.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Andy,
+Add support for the following Maxim chips using the existing PCA954x
+driver:
+- MAX7356
+- MAX7357
+- MAX7358
+- MAX7367
+- MAX7368
+- MAX7369
 
-=C5=9Br., 2 lut 2022 o 17:16 Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> napisa=C5=82(a):
->
-> On Wed, Feb 02, 2022 at 03:43:02PM +0100, Jan Dabros wrote:
-> > Implement an I2C controller sharing mechanism between the host (kernel)
-> > and PSP co-processor on some platforms equipped with AMD Cezanne SoC.
-> >
-> > On these platforms we need to implement "software" i2c arbitration.
-> > Default arbitration owner is PSP and kernel asks for acquire as well
-> > as inform about release of the i2c bus via mailbox mechanism.
-> >
-> >             +---------+
-> >  <- ACQUIRE |         |
-> >   +---------|   CPU   |\
-> >   |         |         | \      +----------+  SDA
-> >   |         +---------+  \     |          |-------
-> > MAILBOX                   +--> |  I2C-DW  |  SCL
-> >   |         +---------+        |          |-------
-> >   |         |         |        +----------+
-> >   +---------|   PSP   |
-> >    <- ACK   |         |
-> >             +---------+
-> >
-> >             +---------+
-> >  <- RELEASE |         |
-> >   +---------|   CPU   |
-> >   |         |         |        +----------+  SDA
-> >   |         +---------+        |          |-------
-> > MAILBOX                   +--> |  I2C-DW  |  SCL
-> >   |         +---------+  /     |          |-------
-> >   |         |         | /      +----------+
-> >   +---------|   PSP   |/
-> >    <- ACK   |         |
-> >             +---------+
-> >
-> > The solution is similar to i2c-designware-baytrail.c implementation, wh=
-ere
-> > we are using a generic i2c-designware-* driver with a small "wrapper".
-> >
-> > In contrary to baytrail semaphore implementation, beside internal
-> > acquire_lock() and release_lock() methods we are also applying quirks t=
-o
-> > lock_bus() and unlock_bus() global adapter methods. With this in place
-> > all i2c clients drivers may lock i2c bus for a desired number of i2c
-> > transactions (e.g. write-wait-read) without being aware of that such bu=
-s
-> > is shared with another entity.
-> >
-> > Modify i2c_dw_probe_lock_support() to select correct semaphore
-> > implementation at runtime, since now we have more than one available.
-> >
-> > Configure new matching ACPI ID "AMDI0019" and register
-> > ARBITRATION_SEMAPHORE flag in order to distinguish setup with PSP
-> > arbitration.
-> >
-> > Add myself as a reviewer for I2C DesignWare in order to help with revie=
-wing
-> > and testing possible changes touching new i2c-designware-amdpsp.c modul=
-e.
->
-> Side note, please start a new email thread for new version of the series.
+All added Maxim chips behave like the PCA954x, where a single SMBUS byte
+write selects up to 8 channels to be bridged to the primary bus.
 
-Sure, will do so starting with v4.
+The MAX7357 exposes 6 additional registers at Power-On-Reset and is
+configured to:
+ - Disabled interrupts on bus locked up detection
+ - Enable bus locked-up clearing
+ - Disconnect only locked bus instead of all channels
 
->
-> Looks good enough to me, although a few minor comments below.
-> Up to you to address them now or later.
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+While the MAX7357/MAX7358 have interrupt support, they don't act as
+interrupt controller like the PCA9545 does. Thus don't enable IRQ support
+and handle them like the PCA9548.
 
-Thanks a lot! I will address your comments and send v4.
+Tested using the MAX7357 and verified that the stalled bus is disconnected
+while the other channels remain operational.
 
->
-> > Signed-off-by: Jan Dabros <jsd@semihalf.com>
+Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
+---
+ drivers/i2c/muxes/Kconfig           |  4 +-
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 92 +++++++++++++++++++++++++++--
+ 2 files changed, 90 insertions(+), 6 deletions(-)
 
-(...)
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 1708b1a82da2..2ac99d044199 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -65,11 +65,11 @@ config I2C_MUX_PCA9541
+ 	  will be called i2c-mux-pca9541.
+ 
+ config I2C_MUX_PCA954x
+-	tristate "NXP PCA954x and PCA984x I2C Mux/switches"
++	tristate "NXP PCA954x/PCA984x and Maxim MAX735x/MAX736x I2C Mux/switches"
+ 	depends on GPIOLIB || COMPILE_TEST
+ 	help
+ 	  If you say yes here you get support for the NXP PCA954x
+-	  and PCA984x I2C mux/switch devices.
++	  and PCA984x and Maxim MAX735x/MAX736x I2C mux/switch devices.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mux-pca954x.
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 4ad665757dd8..33b9a6a1fffa 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -4,6 +4,7 @@
+  *
+  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
+  * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
++ * Copyright (c) 2022 Patrick Rudolph <patrick.rudolph@9elements.com>
+  *
+  * This module supports the PCA954x and PCA984x series of I2C multiplexer/switch
+  * chips made by NXP Semiconductors.
+@@ -11,6 +12,12 @@
+  *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
+  *	 PCA9548, PCA9846, PCA9847, PCA9848 and PCA9849.
+  *
++ * It's also compatible to Maxims MAX735x I2C switch chips, which are controlled
++ * as the NXP PCA9548 and the MAX736x chips that act like the PCA9544.
++ *
++ * This includes the:
++ *	 MAX7356, MAX7357, MAX7358, MAX7367, MAX7368 and MAX7369
++ *
+  * These chips are all controlled via the I2C bus itself, and all have a
+  * single 8-bit register. The upstream "parent" bus fans out to two,
+  * four, or eight downstream busses or channels; which of these
+@@ -50,7 +57,30 @@
+ 
+ #define PCA954X_IRQ_OFFSET 4
+ 
++/*
++ * MAX7357 exposes 7 registers on POR which allow to configure additional
++ * features. Disable interrupts, enable bus locked-up clearing,
++ * isolate only the locked channel instead of all channels.
++ */
++#define MAX7357_CONF_INT_ENABLE			BIT(0)
++#define MAX7357_CONF_FLUSH_OUT			BIT(1)
++#define MAX7357_CONF_RELEASE_INT		BIT(2)
++#define MAX7357_CONF_LOCK_UP_CLEAR		BIT(3)
++#define MAX7357_CONF_DISCON_SINGLE_CHAN		BIT(4)
++#define MAX7357_CONF_BUS_LOCKUP_DETECTION	BIT(5)
++#define MAX7357_CONF_ENABLE_BASIC_MODE		BIT(6)
++#define MAX7357_CONF_PRECONNECT_TEST		BIT(7)
++
++#define MAX7357_CONF_DEFAULTS (MAX7357_CONF_FLUSH_OUT | \
++	 MAX7357_CONF_DISCON_SINGLE_CHAN)
++
+ enum pca_type {
++	max_7367,
++	max_7368,
++	max_7369,
++	max_7356,
++	max_7357,
++	max_7358,
+ 	pca_9540,
+ 	pca_9542,
+ 	pca_9543,
+@@ -69,6 +99,7 @@ struct chip_desc {
+ 	u8 nchans;
+ 	u8 enable;	/* used for muxes only */
+ 	u8 has_irq;
++	u8 max7357;
+ 	enum muxtype {
+ 		pca954x_ismux = 0,
+ 		pca954x_isswi
+@@ -90,8 +121,42 @@ struct pca954x {
+ 	raw_spinlock_t lock;
+ };
+ 
+-/* Provide specs for the PCA954x types we know about */
++/* Provide specs for the PCA954x and MAX735x types we know about */
+ static const struct chip_desc chips[] = {
++	[max_7356] = {
++		.nchans = 8,
++		.muxtype = pca954x_isswi,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
++	},
++	[max_7357] = {
++		.nchans = 8,
++		.muxtype = pca954x_isswi,
++		.max7357 = 1,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
++	},
++	[max_7358] = {
++		.nchans = 8,
++		.muxtype = pca954x_isswi,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
++	},
++	[max_7367] = {
++		.nchans = 4,
++		.muxtype = pca954x_isswi,
++		.has_irq = 1,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
++	},
++	[max_7368] = {
++		.nchans = 4,
++		.muxtype = pca954x_isswi,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
++	},
++	[max_7369] = {
++		.nchans = 4,
++		.enable = 0x4,
++		.muxtype = pca954x_ismux,
++		.has_irq = 1,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
++	},
+ 	[pca_9540] = {
+ 		.nchans = 2,
+ 		.enable = 0x4,
+@@ -177,6 +242,12 @@ static const struct chip_desc chips[] = {
+ };
+ 
+ static const struct i2c_device_id pca954x_id[] = {
++	{ "max7356", max_7356 },
++	{ "max7357", max_7357 },
++	{ "max7358", max_7358 },
++	{ "max7367", max_7367 },
++	{ "max7368", max_7368 },
++	{ "max7369", max_7369 },
+ 	{ "pca9540", pca_9540 },
+ 	{ "pca9542", pca_9542 },
+ 	{ "pca9543", pca_9543 },
+@@ -194,6 +265,12 @@ static const struct i2c_device_id pca954x_id[] = {
+ MODULE_DEVICE_TABLE(i2c, pca954x_id);
+ 
+ static const struct of_device_id pca954x_of_match[] = {
++	{ .compatible = "maxim,max7356", .data = &chips[max_7356] },
++	{ .compatible = "maxim,max7357", .data = &chips[max_7357] },
++	{ .compatible = "maxim,max7358", .data = &chips[max_7358] },
++	{ .compatible = "maxim,max7367", .data = &chips[max_7367] },
++	{ .compatible = "maxim,max7368", .data = &chips[max_7368] },
++	{ .compatible = "maxim,max7369", .data = &chips[max_7369] },
+ 	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
+ 	{ .compatible = "nxp,pca9542", .data = &chips[pca_9542] },
+ 	{ .compatible = "nxp,pca9543", .data = &chips[pca_9543] },
+@@ -401,9 +478,16 @@ static int pca954x_init(struct i2c_client *client, struct pca954x *data)
+ 	else
+ 		data->last_chan = 0; /* Disconnect multiplexer */
+ 
+-	ret = i2c_smbus_write_byte(client, data->last_chan);
+-	if (ret < 0)
+-		data->last_chan = 0;
++	if (data->chip->max7357) {
++		ret = i2c_smbus_write_byte_data(client, data->last_chan,
++						MAX7357_CONF_DEFAULTS);
++		if (ret < 0)
++			data->last_chan = 0;
++	} else {
++		ret = i2c_smbus_write_byte(client, data->last_chan);
++		if (ret < 0)
++			data->last_chan = 0;
++	}
+ 
+ 	return ret;
+ }
+-- 
+2.34.1
 
-> > --- /dev/null
-> > +++ b/drivers/i2c/busses/i2c-designware-amdpsp.c
-> > @@ -0,0 +1,389 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +
-> > +#include <linux/bitfield.h>
->
-> IIRC this does not guarantee bits.h inclusion.
-
-That is correct. There is a comment in bitfield.h with example of
-GENMASK usage, but bits.h isn't actually included there.
-
->
-> > +#include <linux/i2c.h>
-> > +#include <linux/io-64-nonatomic-lo-hi.h>
-> > +#include <linux/psp-sev.h>
-> > +#include <linux/types.h>
-> > +
-> > +#include <asm/msr.h>
-> > +
-> > +#include "i2c-designware-core.h"
-> > +
-> > +#define MSR_AMD_PSP_ADDR     0xc00110a2
-> > +#define PSP_MBOX_OFFSET              0x10570
-> > +#define PSP_CMD_TIMEOUT_MS   500
-> > +
-> > +#define PSP_I2C_REQ_BUS_CMD          0x64
-> > +#define PSP_I2C_REQ_RETRY_CNT                10
-> > +#define PSP_I2C_REQ_RETRY_DELAY_USEC (50 * 1000)
->
-> _US is enough and possibly (50 * USEC_PER_MSEC).
-
-ACK.
-
->
-> > +#define PSP_I2C_REQ_STS_OK           0x0
-> > +#define PSP_I2C_REQ_STS_BUS_BUSY     0x1
-> > +#define PSP_I2C_REQ_STS_INV_PARAM    0x3
-> > +
-> > +#define PSP_MBOX_FIELDS_STS          GENMASK(15, 0)
-> > +#define PSP_MBOX_FIELDS_CMD          GENMASK(23, 16)
-> > +#define PSP_MBOX_FIELDS_RESERVED     GENMASK(29, 24)
-> > +#define PSP_MBOX_FIELDS_RECOVERY     BIT(30)
-> > +#define PSP_MBOX_FIELDS_READY                BIT(31)
-> > +
-> > +struct psp_req_buffer_hdr {
-> > +     u32 total_size;
-> > +     u32 status;
-> > +};
-> > +
-> > +enum psp_i2c_req_type {
-> > +     PSP_I2C_REQ_ACQUIRE,
-> > +     PSP_I2C_REQ_RELEASE,
-> > +     PSP_I2C_REQ_MAX
-> > +};
-> > +
-> > +struct psp_i2c_req {
-> > +     struct psp_req_buffer_hdr hdr;
-> > +     enum psp_i2c_req_type type;
-> > +} __aligned(32);
->
-> I forgot if this alignment is requirement due to DMA or so?
-> We may use ____cacheline_aligned in such case.
-
-I used some old code as a reference - this structure is mapped by PSP,
-thus alignment applied here. I'm checking this with AMD whether it is
-really needed or at least can be somehow limited - still waiting for
-their response.
-I propose to left this as is right now and eventually remove or make
-more liberal in the future.
-
->
-> > +struct psp_mbox {
-> > +     u32 cmd_fields;
-> > +     u64 i2c_req_addr;
-> > +} __packed;
-> > +
-> > +static DEFINE_MUTEX(psp_i2c_access_mutex);
-> > +static unsigned long psp_i2c_sem_acquired;
-> > +static void __iomem *mbox_iomem;
-> > +static u32 psp_i2c_access_count;
-> > +static bool psp_i2c_mbox_fail;
-> > +static struct device *psp_i2c_dev;
-> > +
-> > +/*
-> > + * Implementation of PSP-x86 i2c-arbitration mailbox introduced for AM=
-D Cezanne
-> > + * family of SoCs.
-> > + */
-> > +
-> > +static int psp_get_mbox_addr(unsigned long *mbox_addr)
-> > +{
-> > +     unsigned long long psp_mmio;
-> > +
-> > +     if (rdmsrl_safe(MSR_AMD_PSP_ADDR, &psp_mmio))
-> > +             return -EIO;
-> > +
-> > +     *mbox_addr =3D (unsigned long)(psp_mmio + PSP_MBOX_OFFSET);
-> > +
-> > +     return 0;
-> > +}
-> > +
-> > +static int psp_mbox_probe(void)
-> > +{
-> > +     unsigned long mbox_addr;
-> > +     int ret;
-> > +
-> > +     ret =3D psp_get_mbox_addr(&mbox_addr);
-> > +     if (ret)
-> > +             return ret;
-> > +
-> > +     mbox_iomem =3D ioremap(mbox_addr, sizeof(struct psp_mbox));
-> > +     if (!mbox_iomem)
-> > +             return -ENOMEM;
-> > +
-> > +     return 0;
-> > +}
-> > +
-> > +
-> > +/* Recovery field should be equal 0 to start sending commands */
-> > +static int psp_check_mbox_recovery(struct psp_mbox __iomem *mbox)
-> > +{
-> > +     u32 tmp;
-> > +
-> > +     tmp =3D readl(&mbox->cmd_fields);
-> > +
-> > +     return FIELD_GET(PSP_MBOX_FIELDS_RECOVERY, tmp);
-> > +}
-> > +
-> > +static int psp_wait_cmd(struct psp_mbox __iomem *mbox)
-> > +{
-> > +     u32 tmp, expected;
-> > +
-> > +     /* Expect mbox_cmd to be cleared and ready bit to be set by PSP *=
-/
-> > +     expected =3D FIELD_PREP(PSP_MBOX_FIELDS_READY, 1);
-> > +
-> > +     return readl_poll_timeout(&mbox->cmd_fields, tmp, (tmp =3D=3D exp=
-ected),
-> > +                               0, 1000 * PSP_CMD_TIMEOUT_MS);
->
-> 0?!
-
-Yes, we are checking for readiness of PSP mailbox in a tight loop. We
-would like to proceed further quickly as soon as this bit is set.
-Actually checking this twice per every ACQUIRE&RELEASE - once before
-sending command (to check whether PSP is ready to accept requests) and
-second time after sending it. Do you think we should increase
-@sleep_us value?
-
->
-> > +}
-> > +
-> > +/* Status equal to 0 means that PSP succeed processing command */
-> > +static int psp_check_mbox_sts(struct psp_mbox __iomem *mbox)
->
->   static u32 ...
->
-> So reader will know it won't return error codes.
-
-ACK/
-
->
-> > +{
-> > +     u32 cmd_reg;
-> > +
-> > +     cmd_reg =3D readl(&mbox->cmd_fields);
-> > +
-> > +     return FIELD_GET(PSP_MBOX_FIELDS_STS, cmd_reg);
-> > +}
-> > +
-> > +static int psp_send_cmd(struct psp_i2c_req *req)
-> > +{
-> > +     struct psp_mbox __iomem *mbox =3D mbox_iomem;
-> > +     phys_addr_t req_addr;
-> > +     u32 cmd_reg;
-> > +
-> > +     if (psp_check_mbox_recovery(mbox))
-> > +             return -EIO;
-> > +
-> > +     if (psp_wait_cmd(mbox))
-> > +             return -EBUSY;
-> > +
-> > +     /*
-> > +      * Fill mailbox with address of command-response buffer, which wi=
-ll be
-> > +      * used for sending i2c requests as well as reading status return=
-ed by
-> > +      * PSP. Use physical address of buffer, since PSP will map this r=
-egion.
-> > +      */
-> > +     req_addr =3D __psp_pa((void *)req);
-> > +     writeq(req_addr, &mbox->i2c_req_addr);
-> > +
-> > +     /* Write command register to trigger processing */
-> > +     cmd_reg =3D FIELD_PREP(PSP_MBOX_FIELDS_CMD, PSP_I2C_REQ_BUS_CMD);
-> > +     writel(cmd_reg, &mbox->cmd_fields);
-> > +
-> > +     if (psp_wait_cmd(mbox))
-> > +             return -ETIMEDOUT;
-> > +
-> > +     if (psp_check_mbox_sts(mbox))
-> > +             return -EIO;
-> > +
-> > +     return 0;
-> > +}
-> > +
-> > +/* Helper to verify status returned by PSP */
-> > +static int check_i2c_req_sts(struct psp_i2c_req *req)
-> > +{
-> > +     int status;
-> > +
-> > +     status =3D readl(&req->hdr.status);
-> > +
-> > +     switch (status) {
-> > +     case PSP_I2C_REQ_STS_OK:
-> > +             return 0;
-> > +     case PSP_I2C_REQ_STS_BUS_BUSY:
-> > +             return -EBUSY;
-> > +     case PSP_I2C_REQ_STS_INV_PARAM:
-> > +     default:
-> > +             return -EIO;
-> > +     };
-> > +}
-> > +
-> > +static int psp_send_check_i2c_req(struct psp_i2c_req *req)
-> > +{
-> > +     /*
-> > +      * Errors in x86-PSP i2c-arbitration protocol may occur at two le=
-vels:
-> > +      * 1. mailbox communication - PSP is not operational or some IO e=
-rrors
-> > +      * with basic communication had happened;
-> > +      * 2. i2c-requests - PSP refuses to grant i2c arbitration to x86 =
-for too
-> > +      * long.
-> > +      * In order to distinguish between these two in error handling co=
-de, all
-> > +      * errors on the first level (returned by psp_send_cmd) are shado=
-wed by
-> > +      * -EIO.
-> > +      */
-> > +     if (psp_send_cmd(req))
-> > +             return -EIO;
-> > +
-> > +     return check_i2c_req_sts(req);
-> > +}
-> > +
-> > +static int psp_send_i2c_req(enum psp_i2c_req_type i2c_req_type)
-> > +{
-> > +     struct psp_i2c_req *req;
-> > +     unsigned long start;
-> > +     int status, ret;
-> > +
-> > +     /* Allocate command-response buffer */
-> > +     req =3D kzalloc(sizeof(*req), GFP_KERNEL);
-> > +     if (!req)
-> > +             return -ENOMEM;
-> > +
-> > +     req->hdr.total_size =3D sizeof(*req);
-> > +     req->type =3D i2c_req_type;
-> > +
-> > +     start =3D jiffies;
-> > +     ret =3D read_poll_timeout(psp_send_check_i2c_req, status,
-> > +                             (status !=3D -EBUSY),
-> > +                             PSP_I2C_REQ_RETRY_DELAY_USEC,
-> > +                             PSP_I2C_REQ_RETRY_CNT * PSP_I2C_REQ_RETRY=
-_DELAY_USEC,
-> > +                             0, req);
-> > +     if (ret)
-> > +             goto cleanup;
->
-> > +     if (status) {
-> > +             ret =3D status;
-> > +             goto cleanup;
-> > +     }
->
-> I would write it in this form:
->
->         ret =3D status;
->         if (ret)
->                 goto cleanup;
-
-ACK.
-
-> > +     dev_dbg(psp_i2c_dev, "Request accepted by PSP after %ums\n",
-> > +             jiffies_to_msecs(jiffies - start));
-> > +
-> > +cleanup:
-> > +     kfree(req);
-> > +     return ret;
-> > +}
-> > +
-> > +static int psp_acquire_i2c_bus(void)
-> > +{
-> > +     int status;
-> > +
-> > +     mutex_lock(&psp_i2c_access_mutex);
-> > +
-> > +     /* Return early if mailbox malfunctioned */
-> > +     if (psp_i2c_mbox_fail)
-> > +             goto cleanup;
-> > +
-> > +     /*
-> > +      * Simply increment usage counter and return if PSP semaphore was
-> > +      * already taken by kernel.
-> > +      */
-> > +     if (psp_i2c_access_count > 0) {
->
-> ' > 0' is redundant. It's unsigned.
-
-ACK.
-
->
-> > +             psp_i2c_access_count++;
-> > +             goto cleanup;
-> > +     };
-> > +
-> > +     status =3D psp_send_i2c_req(PSP_I2C_REQ_ACQUIRE);
-> > +     if (status) {
-> > +             if (status =3D=3D -ETIMEDOUT)
-> > +                     dev_err(psp_i2c_dev, "Timed out waiting for PSP t=
-o release I2C bus\n");
-> > +             else
-> > +                     dev_err(psp_i2c_dev, "PSP communication error\n")=
-;
-> > +
-> > +             dev_err(psp_i2c_dev, "Assume i2c bus is for exclusive hos=
-t usage\n");
-> > +             psp_i2c_mbox_fail =3D true;
-> > +             goto cleanup;
-> > +     }
-> > +
-> > +     psp_i2c_sem_acquired =3D jiffies;
-> > +     psp_i2c_access_count++;
-> > +
-> > +     /*
-> > +      * In case of errors with PSP arbitrator psp_i2c_mbox_fail variab=
-le is
-> > +      * set above. As a consequence consecutive calls to acquire will =
-bypass
-> > +      * communication with PSP. At any case i2c bus is granted to the =
-caller,
-> > +      * thus always return success.
-> > +      */
-> > +cleanup:
-> > +     mutex_unlock(&psp_i2c_access_mutex);
-> > +     return 0;
-> > +}
-> > +
-> > +static void psp_release_i2c_bus(void)
-> > +{
-> > +     int status;
-> > +
-> > +     mutex_lock(&psp_i2c_access_mutex);
-> > +
-> > +     /* Return early if mailbox was malfunctional */
-> > +     if (psp_i2c_mbox_fail)
-> > +             goto cleanup;
-> > +
-> > +     /*
-> > +      * If we are last owner of PSP semaphore, need to release aribtra=
-tion
-> > +      * via mailbox.
-> > +      */
-> > +     psp_i2c_access_count--;
->
-> > +     if (psp_i2c_access_count > 0)
->
-> Ditto.
-
-ACK.
-
-Best Regards,
-Jan
