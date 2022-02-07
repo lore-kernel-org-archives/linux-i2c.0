@@ -2,100 +2,74 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 581C0C4332F
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 12:09:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4856C433F5
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 12:16:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229379AbiBGMJi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Feb 2022 07:09:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44966 "EHLO
+        id S235199AbiBGMJu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Feb 2022 07:09:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385342AbiBGLbd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 06:31:33 -0500
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB5DC03FECA
-        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 03:30:12 -0800 (PST)
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com [209.85.208.71])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 81A063F1E6
-        for <linux-i2c@vger.kernel.org>; Mon,  7 Feb 2022 11:21:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1644232876;
-        bh=8Y9yNV8EX7NTdignHPRQY252HgYt0mlpY9TRr3lWof4=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=eSTSgcNb5oVwfcw0ULwPZgHsDxRfMEBuxriKUgbStBXQdjXd11jYqzwadGxDxOykc
-         EBWcInM7eeHx4uo934mDavnItYbh1/cl6g4RHkw3DIh9ShzEnFV0mXd5Cni+4d0EmK
-         N7gzpz8Iw93dtVHqyQFXATMdhA3XxcSFpZjhYgjv2U2trv+43ejV2/YqONbiPnbekt
-         ARkcT2LaYj9VhlJu30bmHzD9Gp5Ms7ZGMrNaL2nKRSc4DHV+gS8mi36Ab0IqXPceus
-         vkW+HEomIL1lFyNlc4cOrrywyS1Ob4jRyBtgulQzIsMImsgnHO5eFp5+X3Z6godOzi
-         2J1YioqkXRWZQ==
-Received: by mail-ed1-f71.google.com with SMTP id w3-20020a50c443000000b0040696821132so7620951edf.22
-        for <linux-i2c@vger.kernel.org>; Mon, 07 Feb 2022 03:21:16 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=8Y9yNV8EX7NTdignHPRQY252HgYt0mlpY9TRr3lWof4=;
-        b=8FNY1cOcLy2eW1k1kCk4wbJq1FGZjwdnewetDoaV6il495rv+M2b9B1BUhyh2q/HGM
-         mRrjPOEwKi3sbs971k6nH9oUbM92IYByeb0ysHlXLv6D5p4D3YdRcQjap2tW1V3Ip0Aq
-         P0mC8PrNAI17F9t4d0m98Ttm+gS66G54sYLEF6iIm4shAEUHMHfWrJRZA/vSguYUwTTR
-         x+/nJ67UllyFMHGVChr9IPUPstic8X26qd11cCQ37Hb17lVgbHSy993sSSvSw+OIHwjV
-         qUAdvyQt7NPYDP3OeFzqBEYEKCIySBcitwmFmmLa2AN9ve1R/gk9e5qG7+zMVMmtfrSz
-         7n1w==
-X-Gm-Message-State: AOAM5337zqk2bWZ9VwBd2jZDCJ1yFvDQIE3RpOc9pNbdDdIm+j2wdNUO
-        nT5BFJYzqq0Sz28h93nVMRfwoDlpJaFUNgpWr4ozUV6P3rDYuh8rtqhZqYztRjOSIvUr/C8kYq1
-        tq2zi+FRM2wNt8L9fbPVbfb1fx5MRWyCZPFc0nQ==
-X-Received: by 2002:a5d:6603:: with SMTP id n3mr9256733wru.20.1644232866048;
-        Mon, 07 Feb 2022 03:21:06 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz28bw0iWdum97UqccNObiTCl0E42zll9NAhEqs1JdVzu878pa6CnjxT2SeV0Ew8TU0VtcspA==
-X-Received: by 2002:a5d:6603:: with SMTP id n3mr9256693wru.20.1644232865857;
-        Mon, 07 Feb 2022 03:21:05 -0800 (PST)
-Received: from [192.168.0.87] (xdsl-188-155-168-84.adslplus.ch. [188.155.168.84])
-        by smtp.gmail.com with ESMTPSA id b4sm2321525wrw.100.2022.02.07.03.21.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Feb 2022 03:21:05 -0800 (PST)
-Message-ID: <776e1b61-678d-6686-06fe-a74b7ff68b85@canonical.com>
-Date:   Mon, 7 Feb 2022 12:21:03 +0100
+        with ESMTP id S1383591AbiBGLXB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 06:23:01 -0500
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C669C043181;
+        Mon,  7 Feb 2022 03:23:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644232981; x=1675768981;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=dUGZzS8EC40nfUarY4jwY+040gT34k7WB1DGm5ou7O8=;
+  b=LfFdJ7r8EFfi0dMcII+OaIQEK4lvBwcCnZWCEQ4ZB27igp2nwPPRSpxy
+   rkOk5wJ/ULpGvox89zKNUx2obukB/wonHeQlQlLJW+FgT0xbiC9HR+oug
+   ZYIU0wWM0u0orYb1tUlmmK6rUQp8A7ocO4D6pVcaKU6y+i5J0aH5L/H8l
+   7fwk66Wyk/0OvwpONbEG6psFiDVrfxJ/VOJvI1Woaz13uaKf5MtDKmNUs
+   GRYeQCaXTOVUFHsQc0t3HicDvm08dgPAyMBidmwqBfPgqERxpS7dJ9aZZ
+   Nfzd+jz8mdN+uuklNw0w1CTsANk+wFBC7UA/kzwYQ7y7qS51Ve9C4u79E
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10250"; a="273213979"
+X-IronPort-AV: E=Sophos;i="5.88,349,1635231600"; 
+   d="scan'208";a="273213979"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 03:23:00 -0800
+X-IronPort-AV: E=Sophos;i="5.88,349,1635231600"; 
+   d="scan'208";a="632425274"
+Received: from smile.fi.intel.com ([10.237.72.61])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 03:22:58 -0800
+Received: from andy by smile.fi.intel.com with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1nH25m-001sYP-Sn;
+        Mon, 07 Feb 2022 13:21:58 +0200
+Date:   Mon, 7 Feb 2022 13:21:58 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Yicong Yang <yangyicong@huawei.com>
+Cc:     Yicong Yang <yangyicong@hisilicon.com>,
+        jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com,
+        wsa@kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, prime.zeng@hisilicon.com,
+        linuxarm@huawei.com
+Subject: Re: [PATCH 0/2] Add I2C bus recovery support on Kunpeng 920/930
+Message-ID: <YgEA1lPq7bUnUqKo@smile.fi.intel.com>
+References: <20220125124930.50369-1-yangyicong@hisilicon.com>
+ <0db7b7ab-a640-b8c3-33cc-29731a65227b@huawei.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v1 2/6] i2c: npcm: Fix timeout calculation
-Content-Language: en-US
-To:     Tyrone Ting <warp5tw@gmail.com>, avifishman70@gmail.com,
-        tmaimon77@gmail.com, tali.perry1@gmail.com, venture@google.com,
-        yuenn@google.com, benjaminfair@google.com, robh+dt@kernel.org,
-        semen.protsenko@linaro.org, yangyicong@hisilicon.com,
-        wsa@kernel.org, jie.deng@intel.com, sven@svenpeter.dev,
-        bence98@sch.bme.hu, lukas.bulwahn@gmail.com, arnd@arndb.de,
-        olof@lixom.net, andriy.shevchenko@linux.intel.com,
-        tali.perry@nuvoton.com, Avi.Fishman@nuvoton.com,
-        tomer.maimon@nuvoton.com, KWLIU@nuvoton.com, JJLIU0@nuvoton.com,
-        kfting@nuvoton.com
-Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220207063338.6570-1-warp5tw@gmail.com>
- <20220207063338.6570-3-warp5tw@gmail.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-In-Reply-To: <20220207063338.6570-3-warp5tw@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0db7b7ab-a640-b8c3-33cc-29731a65227b@huawei.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 07/02/2022 07:33, Tyrone Ting wrote:
-> From: Tali Perry <tali.perry1@gmail.com>
+On Mon, Feb 07, 2022 at 03:37:17PM +0800, Yicong Yang wrote:
+> a friendly ping ...
 > 
-> Use adap.timeout for timeout calculation instead of hard-coded
-> value of 35ms.
-> Use syscon to access gcr, instead of "compatible".
+> Hi Designware maintainers and Wolfram, any comments for this?
 
-One commit = one fix/feature/logical change, so requirement of syscon
-should be a separate commit.
+Answered, sorry for the delay.
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
-Best regards,
-Krzysztof
