@@ -2,102 +2,96 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 436D9C433FE
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 15:04:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA26AC43217
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Feb 2022 15:05:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229614AbiBGPDN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Feb 2022 10:03:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49364 "EHLO
+        id S244505AbiBGPDP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Feb 2022 10:03:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383558AbiBGOot (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 09:44:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A598C0401C1;
-        Mon,  7 Feb 2022 06:44:49 -0800 (PST)
+        with ESMTP id S1442378AbiBGOtu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Feb 2022 09:49:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7F4C0401C1;
+        Mon,  7 Feb 2022 06:49:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA078610F4;
-        Mon,  7 Feb 2022 14:44:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C5E6C004E1;
-        Mon,  7 Feb 2022 14:44:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9444EB8120F;
+        Mon,  7 Feb 2022 14:49:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93AABC004E1;
+        Mon,  7 Feb 2022 14:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644245088;
-        bh=nAXYK6axBeHMkgxPIHA717JtUwiI1dmoeMXfl99zioA=;
+        s=k20201202; t=1644245387;
+        bh=Psuk8AKsWmJK43HTQObBBI61+Rcw5PoqojA+kFWelj8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mQITou0XDAOSWP81fk1y1hectagluyyjmUG8VGPZGPCxJTm0AWNNjllv0hA67naU8
-         2ThVsMrysosu7UCWIWsIkpEBCdBm3kfTtEjZY9jY3YVSA1WqL3BvN8FrrC67rKWKG6
-         ohV61tzluTTstzOKHYz1RgNltgcaVtcxfD6oYwWpMIbaWuBlISp9i6hyzAxHS8mXGe
-         rXZRkSw68DyfXNPtiPrW/xy2onfDbyINxLiIpWz4hfgNKpcGiUZ8fk39WRcSuLWRHS
-         dNwxBskJL2wzYBSQe4AjcyMd2GFj3+zjGCNvoIuWfsTEa6WVmespaNc76tpREPTcQ7
-         /1b+imhMuoi4Q==
-Date:   Mon, 7 Feb 2022 15:44:44 +0100
+        b=SheyqPxVih7lRu98iWTPmguQH9bpZdzyFZaGuGbhPOX6dBN1acx/q81ZaN7Fy43au
+         sq69Nx8eFT7NEWNktA0MA7DVMWzueVmb5TbSLEvSUKlsZ29736w2z9t2KhixH2WQjY
+         XzECg5hzPUa7jegYkYsEqciQkgJWV4/C7KBa2DHx8NAAMMYSVelmDSAze/KSTbQVfW
+         Klm0SyO0l7ZsCgMdGyFFYbR5gI4JwcEcTpAP5K64VFfoVrPsIR1LOjvTULk4rIomL3
+         d9x017YwmYcN591K+vVlM1cwNFjVFXp5OzETt+prna76Lph07Blw/BV8bMlkmXb+wM
+         BEmvWR0hzJtpQ==
+Date:   Mon, 7 Feb 2022 15:49:44 +0100
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc:     Elie Morisse <syniurge@gmail.com>,
-        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
-        Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
-        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Subject: Re: [PATCH] i2c: amd-mp2: Remove useless DMA-32 fallback
- configuration
-Message-ID: <YgEwXK8h+KR3LPgg@shikoro>
+To:     Yang Yingliang <yangyingliang@huawei.com>
+Cc:     linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        f.fainelli@gmail.com
+Subject: Re: [PATCH -next] i2c: bcm2835: add missing disable and put clk on
+ error in bcm2835_i2c_probe()
+Message-ID: <YgExiKpGzpr01Bbf@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Elie Morisse <syniurge@gmail.com>,
-        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
-        Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
-        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-References: <80f5c9b0f496d769882d807008c21aad192139f9.1641731644.git.christophe.jaillet@wanadoo.fr>
+        Yang Yingliang <yangyingliang@huawei.com>,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        f.fainelli@gmail.com
+References: <20210601140835.3595921-1-yangyingliang@huawei.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="9lcnKpQ8wmhWyrg8"
+        protocol="application/pgp-signature"; boundary="ATbTRyqtzskqR3Km"
 Content-Disposition: inline
-In-Reply-To: <80f5c9b0f496d769882d807008c21aad192139f9.1641731644.git.christophe.jaillet@wanadoo.fr>
+In-Reply-To: <20210601140835.3595921-1-yangyingliang@huawei.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---9lcnKpQ8wmhWyrg8
+--ATbTRyqtzskqR3Km
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jan 09, 2022 at 01:34:18PM +0100, Christophe JAILLET wrote:
-> As stated in [1], dma_set_mask() with a 64-bit mask never fails if
-> dev->dma_mask is non-NULL.
-> So, if it fails, the 32 bits case will also fail for the same reason.
+On Tue, Jun 01, 2021 at 10:08:35PM +0800, Yang Yingliang wrote:
+> Add clk_disable_unprepare() and clk_rate_exclusive_put() on error
+> path in bcm2835_i2c_probe().
 >=20
->=20
-> Simplify code and remove some dead code accordingly.
->=20
-> [1]: https://lkml.org/lkml/2021/6/7/398
->=20
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+> Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 
-Applied to for-next, thanks!
+Correct, but I applied another version instead which was a tad better:
+http://patchwork.ozlabs.org/project/linux-i2c/patch/338008c444af4785a07fb5a=
+402b60225a4964ae9.1629484876.git.christophe.jaillet@wanadoo.fr/
+
+But thanks for working on it!
 
 
---9lcnKpQ8wmhWyrg8
+--ATbTRyqtzskqR3Km
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBMFwACgkQFA3kzBSg
-KbYR4Q//TGJNfc01Vq4YzC91lxvdI0IbGaGZiLakzfjOYcDpAt9bJ7ogy9VAo9bI
-TnFGvBNKeooCJnCMXFZCjgBJjVNBG71dk+22V8GgtrG4pvAksmh0i6p/eRco9R0Q
-13zEEbgvjLzF+ryjmoD+ef0XOQsf6zpjUdwlJQTkvmytTV6kq3d/O8tGrfbL/dxx
-nHQU2mFEGSmqby47J2V2t2wlgrowwDc2X8FGG70B/8Xw6ZqQCeDqnHAdWmKNwuTV
-RPzumkAIRo86tAzbtqvyMsrqNlvIXRkkiGjYtcEm/Jgqj8ANHSK7i1AJkwpt4R+f
-vMWzLjczDI9tdPX5CyTIkR/Vdv0jZBdDkUeIFklkBNpzKroRP9LAxxE7BUyulFEK
-5l++WnUJBzYhA0EuQEpujjCYMx/lzPav1jqZDKnjQs8aInM8b64PumPqEi60lKs8
-/OHnl+uoMLmVVJMZOwQ/c0Jo6naUSqvPUGGiKmrOpW1mWsfBU+cMQNXdreMAxDXE
-MN7yf+4bst1+zKpRQ0aHFGnOmuXfBhTHWM+oXlD433AjiB927m62P1MiWtxnV6/R
-R4pvUF80qYUK0vCI2Qs11CNehsaeuBUYToYFrnAix/22HAyYy4k0FDCoJwyy/sGl
-BrYzt10ucPouHsOA+jIG//eKDoSwMA6JfH3W53X87PuTggGbl7E=
-=qksk
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIBMYgACgkQFA3kzBSg
+Kba2Sw//RGcfdx9shYhs0YZsY75d2VgluBKQ2CTI/NRmZHAnL0Hdzk1UMjGiDT4Y
+LLmUslwBk8od97Kl2rPJ6PN86TfaX06AqMYPgoWLoJnNGhDIum9xSOOZHjdX7l6F
+uOfXJy6aai/rw5ssexFMmkurKovETniqg56zoDuYEXc8UTA9n2u/8dLGO/LRr17/
+ix23u/aAvBpulPd51CWEQ1kasCC+Ncle+9VA6JeJlazg+YqSOeH3q1evAu68Guks
+o0Va3xPpEPP0ri+FOLNm9T4zbbdvmihSbaC8ZtKizptPWr7DIs47D27wyYHzVn64
+KagL1rAjA61LYng5qxPnLZ61n0esZu5FPnRBz2p44YyuWzrvY0KzpMf/0xRsNbmd
+B59y7QrW2ejdwsfjMYe6v/dR3HzJBAPB8ZKPPlyuMluPzny/0EZPir1Uj4toIEGB
+QPq392DO4F41J5zi0rmeEYZ5qD7GRc/5oNacT6Xjkx34t+DqlWBlyHzXviPr0K+p
+zV7+FslxHiZ1eGsGIeNqcfybw+bYewZt4nnwq76zRPAvgTNBvnBHelzCfiADas8x
+F36eT+MK4cTBwnTEV5ae5rtKKuY+xgDDpfKIDLmYj8NGtmQFsLVyEYRHcRcgJgEn
+Y6b8+IPjsdCJ0DIntD3AxNQ4JmyaQRfwGHtlFFkyGwXdfoBoLp4=
+=h19W
 -----END PGP SIGNATURE-----
 
---9lcnKpQ8wmhWyrg8--
+--ATbTRyqtzskqR3Km--
