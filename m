@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41049C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A77B9C43219
 	for <linux-i2c@archiver.kernel.org>; Fri, 11 Feb 2022 18:15:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352545AbiBKSPY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 11 Feb 2022 13:15:24 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55416 "EHLO
+        id S1352549AbiBKSP0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 11 Feb 2022 13:15:26 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352511AbiBKSPU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 11 Feb 2022 13:15:20 -0500
+        with ESMTP id S1352501AbiBKSPT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 11 Feb 2022 13:15:19 -0500
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 018D6D41;
-        Fri, 11 Feb 2022 10:15:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8727CEC;
+        Fri, 11 Feb 2022 10:15:17 -0800 (PST)
 From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1644603317;
+        s=2020; t=1644603316;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=7IuoNc+UWwZXKcOsPOEqlxYI2AFgB+PxAmhNQBVvZYk=;
-        b=tyfJGhse34IHkzEJRWlrJtA0Oc15FsGnW/DrJdsSpNXgvVyC7vvKnwuUZYvTPDv794z5g5
-        WLuMa6u70ITvCipSrElXENioDEaAx7PVop0wggJM6jsohFCdAXOMm6qB9Ag+JYIblUSA2L
-        25RgKRbGSe/8cox8BoPaA+UaUOgNlBKIh6KKa65xAxIP1CnvQqh3lCIN2u9LIatLH+8s5p
-        V0717GDsVTZGKvYSwBRYY/zVEGqPUkj+t+ZklV2ziSZOv5U5jdBttfDwJONGkqAv+DuOJi
-        coHTW8ECPDIflGcHETGrs0L5Xikum3UdKB+l6lno/1G5jmbqChKarRUHgGD1iw==
+        bh=3Rf56x1+Ad9rEt91/emuxS1F2pB4aiqCl6htULN1OW8=;
+        b=LchHan5TX6agjdim4dt+UPKaRjNJpZCZdn17aiPGBGe97pGsT3FtcRNNhlF3GC/cXHKCpw
+        Z9C3ha2WLtqm2BUN5hLJoh1FCyXnvy/pXO0PuHAN47g8EksqwkNJElM2DBNG3Wm1sBuatm
+        GdNGfnaZ8BMNCaCWC659M+ZxWLQfZCxc9CuYx9cGxQGS0VfRaJqBtew87tHT65RXckjiPX
+        BdN7dV4yVaWjwpPkMSkBZ0C2i2pgMRXdifeFbiX4Q6xDs7J1nQfNmrAs8zCFRFUg1Egztu
+        5UHdFHcxuBZN9ngMFATPIZEvkaYT3obAGepyZRT46XRqJfHqFp51vvFuu15qtA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1644603317;
+        s=2020e; t=1644603316;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=7IuoNc+UWwZXKcOsPOEqlxYI2AFgB+PxAmhNQBVvZYk=;
-        b=3WNFUDrYJCRoKYi7lRw4iOjzlkKKK/mibHyET6iEg04XS8vM5eFyRgH+jWbWuEX09LCekS
-        jR7gqSHUktVV+1Cw==
+        bh=3Rf56x1+Ad9rEt91/emuxS1F2pB4aiqCl6htULN1OW8=;
+        b=3KjVfpW7VDjW0vSYVcWiBhYkT1kUMMT3/hcg6t0USTDFn6O02udQdcj7IiM1Q3ZhUFNgAc
+        4sOF6cXimOuRYZAQ==
 To:     greybus-dev@lists.linaro.org, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-staging@lists.linux.dev,
         linux-usb@vger.kernel.org, netdev@vger.kernel.org
@@ -51,9 +51,9 @@ Cc:     "David S. Miller" <davem@davemloft.net>,
         UNGLinuxDriver@microchip.com, Wolfram Sang <wsa@kernel.org>,
         Woojung Huh <woojung.huh@microchip.com>,
         Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH v4 7/7] staging: greybus: gpio: Use generic_handle_irq_safe().
-Date:   Fri, 11 Feb 2022 19:15:00 +0100
-Message-Id: <20220211181500.1856198-8-bigeasy@linutronix.de>
+Subject: [PATCH v4 5/7] mfd: ezx-pcap: Use generic_handle_irq_safe().
+Date:   Fri, 11 Feb 2022 19:14:58 +0100
+Message-Id: <20220211181500.1856198-6-bigeasy@linutronix.de>
 In-Reply-To: <20220211181500.1856198-1-bigeasy@linutronix.de>
 References: <20220211181500.1856198-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
@@ -67,29 +67,29 @@ generic_handle_irq_safe() which can be invoked with enabled and disabled
 interrupts.
 
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/staging/greybus/gpio.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/mfd/ezx-pcap.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/staging/greybus/gpio.c b/drivers/staging/greybus/gpio.c
-index 7e6347fe93f99..8a7cf1d0e9688 100644
---- a/drivers/staging/greybus/gpio.c
-+++ b/drivers/staging/greybus/gpio.c
-@@ -391,10 +391,7 @@ static int gb_gpio_request_handler(struct gb_operation=
- *op)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/mfd/ezx-pcap.c b/drivers/mfd/ezx-pcap.c
+index 70fa18b04ad2b..b14d3f98e1ebd 100644
+--- a/drivers/mfd/ezx-pcap.c
++++ b/drivers/mfd/ezx-pcap.c
+@@ -193,13 +193,11 @@ static void pcap_isr_work(struct work_struct *work)
+ 		ezx_pcap_write(pcap, PCAP_REG_MSR, isr | msr);
+ 		ezx_pcap_write(pcap, PCAP_REG_ISR, isr);
 =20
--	local_irq_disable();
--	ret =3D generic_handle_irq(irq);
--	local_irq_enable();
--
-+	ret =3D generic_handle_irq_safe(irq);
- 	if (ret)
- 		dev_err(dev, "failed to invoke irq handler\n");
-=20
+-		local_irq_disable();
+ 		service =3D isr & ~msr;
+ 		for (irq =3D pcap->irq_base; service; service >>=3D 1, irq++) {
+ 			if (service & 1)
+-				generic_handle_irq(irq);
++				generic_handle_irq_safe(irq);
+ 		}
+-		local_irq_enable();
+ 		ezx_pcap_write(pcap, PCAP_REG_MSR, pcap->msr);
+ 	} while (gpio_get_value(pdata->gpio));
+ }
 --=20
 2.34.1
 
