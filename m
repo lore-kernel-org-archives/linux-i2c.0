@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2817C433F5
-	for <linux-i2c@archiver.kernel.org>; Fri, 11 Feb 2022 18:15:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41049C433F5
+	for <linux-i2c@archiver.kernel.org>; Fri, 11 Feb 2022 18:15:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352513AbiBKSPU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 11 Feb 2022 13:15:20 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55384 "EHLO
+        id S1352545AbiBKSPY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 11 Feb 2022 13:15:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352488AbiBKSPS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 11 Feb 2022 13:15:18 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14AF3CEC;
-        Fri, 11 Feb 2022 10:15:17 -0800 (PST)
+        with ESMTP id S1352511AbiBKSPU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 11 Feb 2022 13:15:20 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 018D6D41;
+        Fri, 11 Feb 2022 10:15:19 -0800 (PST)
 From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1644603315;
+        s=2020; t=1644603317;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=/cEQ+7C4ff0CH04JiPwSBP6tluhPY4Bc2prPBUnnOrc=;
-        b=weBCzzVhJQjCmYj0xLAI3somZLYH4QpKQlgEOxVQBc+SD8Wgzy7l7Kbsyv//QeoM89S/Dt
-        E5ckfmqE0z+sKdYjI0lWRLtd4mIlp/3oHwWJROPZT8F9kzoj4QflW6cilM4Lz8A2LbtGb5
-        YG/T7BoTnHibARGZwuu6t7u5pPesQIhnleGDl33VGz3TpXJpznzGALWkgWprZ6CVEBXSFV
-        cMyKC5tZxzVT1uYV3p4vXWuiw9Ky0AKDm5UEnUZgEGW3a5QwzBYAvi+eXEF1PFBu9N0T03
-        SBXQBduDCPl29NlMr3f1ZYmFZUsnRNeBjEUf3zM8Oca9moOptl5OLd3tpvsMvg==
+        bh=7IuoNc+UWwZXKcOsPOEqlxYI2AFgB+PxAmhNQBVvZYk=;
+        b=tyfJGhse34IHkzEJRWlrJtA0Oc15FsGnW/DrJdsSpNXgvVyC7vvKnwuUZYvTPDv794z5g5
+        WLuMa6u70ITvCipSrElXENioDEaAx7PVop0wggJM6jsohFCdAXOMm6qB9Ag+JYIblUSA2L
+        25RgKRbGSe/8cox8BoPaA+UaUOgNlBKIh6KKa65xAxIP1CnvQqh3lCIN2u9LIatLH+8s5p
+        V0717GDsVTZGKvYSwBRYY/zVEGqPUkj+t+ZklV2ziSZOv5U5jdBttfDwJONGkqAv+DuOJi
+        coHTW8ECPDIflGcHETGrs0L5Xikum3UdKB+l6lno/1G5jmbqChKarRUHgGD1iw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1644603315;
+        s=2020e; t=1644603317;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=/cEQ+7C4ff0CH04JiPwSBP6tluhPY4Bc2prPBUnnOrc=;
-        b=HcAxfRxChi+//Wx9GScSFQ55hBZQKs0AiX+S0bDe4Y0S8I8f9fSV5HiaTTjcHIO8Vc5PlK
-        Tk51jIO2m301h8DQ==
+        bh=7IuoNc+UWwZXKcOsPOEqlxYI2AFgB+PxAmhNQBVvZYk=;
+        b=3WNFUDrYJCRoKYi7lRw4iOjzlkKKK/mibHyET6iEg04XS8vM5eFyRgH+jWbWuEX09LCekS
+        jR7gqSHUktVV+1Cw==
 To:     greybus-dev@lists.linaro.org, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-staging@lists.linux.dev,
         linux-usb@vger.kernel.org, netdev@vger.kernel.org
@@ -51,9 +51,9 @@ Cc:     "David S. Miller" <davem@davemloft.net>,
         UNGLinuxDriver@microchip.com, Wolfram Sang <wsa@kernel.org>,
         Woojung Huh <woojung.huh@microchip.com>,
         Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH v4 3/7] i2c: cht-wc: Use generic_handle_irq_safe().
-Date:   Fri, 11 Feb 2022 19:14:56 +0100
-Message-Id: <20220211181500.1856198-4-bigeasy@linutronix.de>
+Subject: [PATCH v4 7/7] staging: greybus: gpio: Use generic_handle_irq_safe().
+Date:   Fri, 11 Feb 2022 19:15:00 +0100
+Message-Id: <20220211181500.1856198-8-bigeasy@linutronix.de>
 In-Reply-To: <20220211181500.1856198-1-bigeasy@linutronix.de>
 References: <20220211181500.1856198-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
@@ -67,36 +67,29 @@ generic_handle_irq_safe() which can be invoked with enabled and disabled
 interrupts.
 
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Wolfram Sang <wsa@kernel.org>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/i2c/busses/i2c-cht-wc.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/staging/greybus/gpio.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-w=
-c.c
-index 1cf68f85b2e11..8ccf0c928bb44 100644
---- a/drivers/i2c/busses/i2c-cht-wc.c
-+++ b/drivers/i2c/busses/i2c-cht-wc.c
-@@ -99,15 +99,8 @@ static irqreturn_t cht_wc_i2c_adap_thread_handler(int id=
-, void *data)
- 	 * interrupt handler as well, so running the client irq handler from
- 	 * this thread will cause things to lock up.
- 	 */
--	if (reg & CHT_WC_EXTCHGRIRQ_CLIENT_IRQ) {
--		/*
--		 * generic_handle_irq expects local IRQs to be disabled
--		 * as normally it is called from interrupt context.
--		 */
--		local_irq_disable();
--		generic_handle_irq(adap->client_irq);
--		local_irq_enable();
--	}
-+	if (reg & CHT_WC_EXTCHGRIRQ_CLIENT_IRQ)
-+		generic_handle_irq_safe(adap->client_irq);
+diff --git a/drivers/staging/greybus/gpio.c b/drivers/staging/greybus/gpio.c
+index 7e6347fe93f99..8a7cf1d0e9688 100644
+--- a/drivers/staging/greybus/gpio.c
++++ b/drivers/staging/greybus/gpio.c
+@@ -391,10 +391,7 @@ static int gb_gpio_request_handler(struct gb_operation=
+ *op)
+ 		return -EINVAL;
+ 	}
 =20
- 	return IRQ_HANDLED;
- }
+-	local_irq_disable();
+-	ret =3D generic_handle_irq(irq);
+-	local_irq_enable();
+-
++	ret =3D generic_handle_irq_safe(irq);
+ 	if (ret)
+ 		dev_err(dev, "failed to invoke irq handler\n");
+=20
 --=20
 2.34.1
 
