@@ -2,134 +2,179 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F481C433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 11:18:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 023DEC433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 11:24:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235833AbiBNLSe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Feb 2022 06:18:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45888 "EHLO
+        id S1350923AbiBNLYt convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Feb 2022 06:24:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350663AbiBNLSS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Feb 2022 06:18:18 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8954165828
-        for <linux-i2c@vger.kernel.org>; Mon, 14 Feb 2022 02:51:26 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 33C561F38B;
-        Mon, 14 Feb 2022 10:51:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1644835885; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PRX3IQG7OaJxoZrZ33FhHgSbfLUYDWQJ3Ke9IkgSTIA=;
-        b=Ljlb0gnHKYjaHCrTBqkYq9ZR05z0z/nXOdaCWZ9p91B+vDZWPik33VcTZ20FzYKX1h6oPu
-        ya35gl+TJ4vKsl9qaqZLwUSavwY0pk5HjdaoKhZZ80Swi5rux0zJMtxklgpEovIS0d4ePp
-        77P9hClI0sWArrbEKHjo4Or8olr7V+Y=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1644835885;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PRX3IQG7OaJxoZrZ33FhHgSbfLUYDWQJ3Ke9IkgSTIA=;
-        b=BpOSrZyXfA3ZFzRbG4gyS9qpj95rGQCuzEd4Wl2y7ChpOkXEm+5Un3RhDuFfmrZNwvJiXo
-        WrPNtCfto+l2jIBQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0E8B413AA7;
-        Mon, 14 Feb 2022 10:51:25 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id gZnBAS00CmLLUAAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Mon, 14 Feb 2022 10:51:25 +0000
-Date:   Mon, 14 Feb 2022 11:51:23 +0100
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>
-Subject: Re: [PATCH] i2c: i801: Add support for Intel Raptor Lake PCH-S
-Message-ID: <20220214115123.1b16e1d8@endymion.delvare>
-In-Reply-To: <20220211150001.1004004-1-jarkko.nikula@linux.intel.com>
-References: <20220211150001.1004004-1-jarkko.nikula@linux.intel.com>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        with ESMTP id S1351226AbiBNLX7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Feb 2022 06:23:59 -0500
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6AAC7E0AA;
+        Mon, 14 Feb 2022 02:59:32 -0800 (PST)
+Received: by mail-qv1-f50.google.com with SMTP id a19so14432712qvm.4;
+        Mon, 14 Feb 2022 02:59:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=3zUaM8opKL0LG20PPLjLO0sGhx6OMEFs8RjHjfjsiY4=;
+        b=tzYW5L5xOK2xjgIhwKD7wo4utCRQktTYnmyF5KtC7nyd4QwxINuVYG0oZDuj2UWxgT
+         v/aCYx8fYJ460CRM8cqFGhvZWVTV32Txdva7EilCtR5KuJUaUdqVVS7A7bSNU3h32VJ+
+         2pJ2Y3tGDfNi2ZOUy2aWpZT0nVb7NeQpDeHk76U1HFWgRfZgnwSl3z8nfQ4JYELBC7w+
+         anK5B90Xh4HPCL5PMFl7xyPXyFTTOvibl637EXBhEt2cmJo4/fZJ0Y71K7/l41QRDnHU
+         eA/djqj4anfQA78O8QEI0s/RYo5qs13hiZUR71hMLnibfSqINLjWfOOnZb42aq7YUf4q
+         CRrQ==
+X-Gm-Message-State: AOAM531hvoqH7tmhpaGYLCsoe+Zw1pr4CRNoNkqjMA02M0yksh9tEj9K
+        nnVGq0KJ/mQRARxLUWcaA+SwQIlmvrkhXw==
+X-Google-Smtp-Source: ABdhPJwrRq7LQh4v5o0CPVNGHtwumDUPKtYShp4qDGuprC6H2gTwWZ7lqh2fqI8sviBIFGzuhsrVZw==
+X-Received: by 2002:a1f:9092:: with SMTP id s140mr849683vkd.38.1644829287597;
+        Mon, 14 Feb 2022 01:01:27 -0800 (PST)
+Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com. [209.85.221.171])
+        by smtp.gmail.com with ESMTPSA id o2sm1719696vke.47.2022.02.14.01.01.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 14 Feb 2022 01:01:27 -0800 (PST)
+Received: by mail-vk1-f171.google.com with SMTP id bj24so2718190vkb.8;
+        Mon, 14 Feb 2022 01:01:26 -0800 (PST)
+X-Received: by 2002:a1f:7307:: with SMTP id o7mr818150vkc.0.1644829286141;
+ Mon, 14 Feb 2022 01:01:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20220212201631.12648-1-s.shtylyov@omp.ru> <20220212201631.12648-2-s.shtylyov@omp.ru>
+ <20220214071351.pcvstrzkwqyrg536@pengutronix.de>
+In-Reply-To: <20220214071351.pcvstrzkwqyrg536@pengutronix.de>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 14 Feb 2022 10:01:14 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdWi8gno_FBbc=AwsdRtDJik8_bANjQrrRtUOOBRjFN=KA@mail.gmail.com>
+Message-ID: <CAMuHMdWi8gno_FBbc=AwsdRtDJik8_bANjQrrRtUOOBRjFN=KA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] platform: make platform_get_irq_optional() optional
+To:     =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Jiri Slaby <jirislaby@kernel.org>, linux-iio@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>, alsa-devel@alsa-project.org,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        linux-phy@lists.infradead.org,
+        Thierry Reding <thierry.reding@gmail.com>,
+        linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org,
+        linux-gpio@vger.kernel.org,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Guenter Roeck <groeck@chromium.org>, linux-spi@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>,
+        openipmi-developer@lists.sourceforge.net,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        kvm@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-serial@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        platform-driver-x86@vger.kernel.org, linux-pwm@vger.kernel.org,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        Corey Minyard <minyard@acm.org>, linux-pm@vger.kernel.org,
+        John Garry <john.garry@huawei.com>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Mark Gross <markgross@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        linux-mediatek@lists.infradead.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Takashi Iwai <tiwai@suse.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Mun Yew Tham <mun.yew.tham@intel.com>,
+        Eric Auger <eric.auger@redhat.com>, netdev@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Cornelia Huck <cohuck@redhat.com>, linux-mmc@vger.kernel.org,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Oleksij Rempel <linux@rempel-privat.de>,
+        linux-renesas-soc@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
+        Brian Norris <computersforpeace@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, 11 Feb 2022 17:00:01 +0200, Jarkko Nikula wrote:
-> Add SMBus PCI ID on Intel Raptor Lake PCH-S.
-> 
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
->  Documentation/i2c/busses/i2c-i801.rst | 1 +
->  drivers/i2c/busses/Kconfig            | 1 +
->  drivers/i2c/busses/i2c-i801.c         | 3 +++
->  3 files changed, 5 insertions(+)
-> 
-> diff --git a/Documentation/i2c/busses/i2c-i801.rst b/Documentation/i2c/busses/i2c-i801.rst
-> index 42bbdd6e7fd8..cad59170b2ad 100644
-> --- a/Documentation/i2c/busses/i2c-i801.rst
-> +++ b/Documentation/i2c/busses/i2c-i801.rst
-> @@ -45,6 +45,7 @@ Supported adapters:
->    * Intel Jasper Lake (SOC)
->    * Intel Emmitsburg (PCH)
->    * Intel Alder Lake (PCH)
-> +  * Intel Raptor Lake (PCH)
->  
->     Datasheets: Publicly available at the Intel website
->  
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 42da31c1ab70..bce0dbb6fd86 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -148,6 +148,7 @@ config I2C_I801
->  	    Jasper Lake (SOC)
->  	    Emmitsburg (PCH)
->  	    Alder Lake (PCH)
-> +	    Raptor Lake (PCH)
->  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-i801.
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 7428cc6af5cc..36b086ef1378 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -75,6 +75,7 @@
->   * Alder Lake-S (PCH)		0x7aa3	32	hard	yes	yes	yes
->   * Alder Lake-P (PCH)		0x51a3	32	hard	yes	yes	yes
->   * Alder Lake-M (PCH)		0x54a3	32	hard	yes	yes	yes
-> + * Raptor Lake-S (PCH)		0x7a23	32	hard	yes	yes	yes
->   *
->   * Features supported by this driver:
->   * Software PEC				no
-> @@ -228,6 +229,7 @@
->  #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_P_SMBUS		0x51a3
->  #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_M_SMBUS		0x54a3
->  #define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
-> +#define PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_S_SMBUS		0x7a23
->  #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_S_SMBUS		0x7aa3
->  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS		0x8c22
->  #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS		0x8ca2
-> @@ -1041,6 +1043,7 @@ static const struct pci_device_id i801_ids[] = {
->  	{ PCI_DEVICE_DATA(INTEL, ALDER_LAKE_S_SMBUS,	FEATURES_ICH5 | FEATURE_TCO_CNL) },
->  	{ PCI_DEVICE_DATA(INTEL, ALDER_LAKE_P_SMBUS,	FEATURES_ICH5 | FEATURE_TCO_CNL) },
->  	{ PCI_DEVICE_DATA(INTEL, ALDER_LAKE_M_SMBUS,	FEATURES_ICH5 | FEATURE_TCO_CNL) },
-> +	{ PCI_DEVICE_DATA(INTEL, RAPTOR_LAKE_S_SMBUS,	FEATURES_ICH5 | FEATURE_TCO_CNL) },
->  	{ 0, }
->  };
->  
+Hi Uwe,
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+On Mon, Feb 14, 2022 at 8:29 AM Uwe Kleine-König
+<u.kleine-koenig@pengutronix.de> wrote:
+> On Sat, Feb 12, 2022 at 11:16:30PM +0300, Sergey Shtylyov wrote:
+> > This patch is based on the former Andy Shevchenko's patch:
+> >
+> > https://lore.kernel.org/lkml/20210331144526.19439-1-andriy.shevchenko@linux.intel.com/
+> >
+> > Currently platform_get_irq_optional() returns an error code even if IRQ
+> > resource simply has not been found.  It prevents the callers from being
+> > error code agnostic in their error handling:
+> >
+> >       ret = platform_get_irq_optional(...);
+> >       if (ret < 0 && ret != -ENXIO)
+> >               return ret; // respect deferred probe
+> >       if (ret > 0)
+> >               ...we get an IRQ...
+> >
+> > All other *_optional() APIs seem to return 0 or NULL in case an optional
+> > resource is not available.  Let's follow this good example, so that the
+> > callers would look like:
+> >
+> >       ret = platform_get_irq_optional(...);
+> >       if (ret < 0)
+> >               return ret;
+> >       if (ret > 0)
+> >               ...we get an IRQ...
+> >
+> > Reported-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+> > Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+>
+> While this patch is better than v1, I still don't like it for the
+> reasons discussed for v1. (i.e. 0 isn't usable as a dummy value which I
+> consider the real advantage for the other _get_optional() functions.)
 
--- 
-Jean Delvare
-SUSE L3 Support
+IMHO the real advantage is the simplified error handling, which is the
+area where most of the current bugs are. So I applaud the core change.
+
+Also IMHO, the dummy value handling is a red herring.  Contrary to
+optional clocks and resets, a missing optional interrupt does not
+always mean there is nothing to do: in case of polling, something
+else must definitely be done.  So even if request_irq() would accept
+a dummy interrupt zero and just do nothing, it would give the false
+impression that that is all there is to do, while an actual check
+for zero with polling code handling may still need to be present,
+thus leading to more not less bugs.
+
+> Apart from that, I think the subject is badly chosen. With "Make
+> somefunc() optional" I would expect that you introduce a Kconfig symbol
+> that results in the function not being available when disabled.
+
+Agreed.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
