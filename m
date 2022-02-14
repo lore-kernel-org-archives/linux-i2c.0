@@ -2,179 +2,71 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 023DEC433FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 11:24:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 398CCC4332F
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 11:36:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350923AbiBNLYt convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Feb 2022 06:24:49 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52632 "EHLO
+        id S234225AbiBNLgq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Feb 2022 06:36:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351226AbiBNLX7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Feb 2022 06:23:59 -0500
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6AAC7E0AA;
-        Mon, 14 Feb 2022 02:59:32 -0800 (PST)
-Received: by mail-qv1-f50.google.com with SMTP id a19so14432712qvm.4;
-        Mon, 14 Feb 2022 02:59:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=3zUaM8opKL0LG20PPLjLO0sGhx6OMEFs8RjHjfjsiY4=;
-        b=tzYW5L5xOK2xjgIhwKD7wo4utCRQktTYnmyF5KtC7nyd4QwxINuVYG0oZDuj2UWxgT
-         v/aCYx8fYJ460CRM8cqFGhvZWVTV32Txdva7EilCtR5KuJUaUdqVVS7A7bSNU3h32VJ+
-         2pJ2Y3tGDfNi2ZOUy2aWpZT0nVb7NeQpDeHk76U1HFWgRfZgnwSl3z8nfQ4JYELBC7w+
-         anK5B90Xh4HPCL5PMFl7xyPXyFTTOvibl637EXBhEt2cmJo4/fZJ0Y71K7/l41QRDnHU
-         eA/djqj4anfQA78O8QEI0s/RYo5qs13hiZUR71hMLnibfSqINLjWfOOnZb42aq7YUf4q
-         CRrQ==
-X-Gm-Message-State: AOAM531hvoqH7tmhpaGYLCsoe+Zw1pr4CRNoNkqjMA02M0yksh9tEj9K
-        nnVGq0KJ/mQRARxLUWcaA+SwQIlmvrkhXw==
-X-Google-Smtp-Source: ABdhPJwrRq7LQh4v5o0CPVNGHtwumDUPKtYShp4qDGuprC6H2gTwWZ7lqh2fqI8sviBIFGzuhsrVZw==
-X-Received: by 2002:a1f:9092:: with SMTP id s140mr849683vkd.38.1644829287597;
-        Mon, 14 Feb 2022 01:01:27 -0800 (PST)
-Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com. [209.85.221.171])
-        by smtp.gmail.com with ESMTPSA id o2sm1719696vke.47.2022.02.14.01.01.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Feb 2022 01:01:27 -0800 (PST)
-Received: by mail-vk1-f171.google.com with SMTP id bj24so2718190vkb.8;
-        Mon, 14 Feb 2022 01:01:26 -0800 (PST)
-X-Received: by 2002:a1f:7307:: with SMTP id o7mr818150vkc.0.1644829286141;
- Mon, 14 Feb 2022 01:01:26 -0800 (PST)
+        with ESMTP id S1352861AbiBNLge (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Feb 2022 06:36:34 -0500
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [46.235.227.227])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA27A1AF;
+        Mon, 14 Feb 2022 03:26:34 -0800 (PST)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: kholk11)
+        with ESMTPSA id 0278C1F437D2
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1644837993;
+        bh=t/N665+WR5R/ceAfV5H1Q99rJzuoHYq//Yss6JdQBYw=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=U+Hv/s7dC/VlWPmUuJ6aTeD8OzAff/2f2nhgBbLNqCclgaaxF0wYJTNwYb9BUOrST
+         39XzbaDCutqyM6AimY+ADpVo8KI1scrwB1DWPqoOJLEd02JwXuLMeOtQTd0hPqJ1FR
+         5wIp1TzMBFdJsIbiPwFDOeSc2oPLJ7sYatJkX7/OOmD1y+O9VX+mP22rs4hEcK37p8
+         pDiy5LO8tagy68r8x9gIci65rdFqf6byt59VEPZwR03CygyKe85lwJ7eI6k3tnngnr
+         ip1WilSJaxsSqZe0E6TVtx7EMj5/CUHn600JfoYYYr4CEgmWldO0ONC5aEjdJS5odG
+         gIb2a20EpHA8g==
+Message-ID: <8725a111-0ee2-8935-86b5-01c61774a628@collabora.com>
+Date:   Mon, 14 Feb 2022 12:26:30 +0100
 MIME-Version: 1.0
-References: <20220212201631.12648-1-s.shtylyov@omp.ru> <20220212201631.12648-2-s.shtylyov@omp.ru>
- <20220214071351.pcvstrzkwqyrg536@pengutronix.de>
-In-Reply-To: <20220214071351.pcvstrzkwqyrg536@pengutronix.de>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 14 Feb 2022 10:01:14 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdWi8gno_FBbc=AwsdRtDJik8_bANjQrrRtUOOBRjFN=KA@mail.gmail.com>
-Message-ID: <CAMuHMdWi8gno_FBbc=AwsdRtDJik8_bANjQrrRtUOOBRjFN=KA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] platform: make platform_get_irq_optional() optional
-To:     =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Jiri Slaby <jirislaby@kernel.org>, linux-iio@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>, alsa-devel@alsa-project.org,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux-phy@lists.infradead.org,
-        Thierry Reding <thierry.reding@gmail.com>,
-        linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org,
-        linux-gpio@vger.kernel.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Guenter Roeck <groeck@chromium.org>, linux-spi@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        openipmi-developer@lists.sourceforge.net,
-        Peter Korsgaard <peter@korsgaard.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        kvm@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
-        Richard Weinberger <richard@nod.at>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-serial@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        platform-driver-x86@vger.kernel.org, linux-pwm@vger.kernel.org,
-        Zha Qipeng <qipeng.zha@intel.com>,
-        Corey Minyard <minyard@acm.org>, linux-pm@vger.kernel.org,
-        John Garry <john.garry@huawei.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Mark Gross <markgross@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
-        linux-mediatek@lists.infradead.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Takashi Iwai <tiwai@suse.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Benson Leung <bleung@chromium.org>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.1
+Subject: Re: [PATCH] i2c: busses: i2c-mt65xx: Simplify with clk-bulk
+Content-Language: en-US
+To:     qii.wang@mediatek.com
+Cc:     matthias.bgg@gmail.com, linux-i2c@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
-        Mun Yew Tham <mun.yew.tham@intel.com>,
-        Eric Auger <eric.auger@redhat.com>, netdev@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Cornelia Huck <cohuck@redhat.com>, linux-mmc@vger.kernel.org,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        linux-renesas-soc@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
-        Brian Norris <computersforpeace@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        kernel@collabora.com
+References: <20220118133358.111886-1-angelogioacchino.delregno@collabora.com>
+From:   AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>
+In-Reply-To: <20220118133358.111886-1-angelogioacchino.delregno@collabora.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Uwe,
+Il 18/01/22 14:33, AngeloGioacchino Del Regno ha scritto:
+> Since depending on the SoC or specific bus functionality some clocks
+> may be optional, we cannot get the benefit of using devm_clk_bulk_get()
+> but, by migrating to clk-bulk, we are able to remove the custom functions
+> mtk_i2c_clock_enable() and mtk_i2c_clock_disable(), increasing common
+> APIs usage, hence (lightly) decreasing kernel footprint.
+> 
+> Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+> ---
+>   drivers/i2c/busses/i2c-mt65xx.c | 127 +++++++++++++-------------------
+>   1 file changed, 51 insertions(+), 76 deletions(-)
+> 
 
-On Mon, Feb 14, 2022 at 8:29 AM Uwe Kleine-König
-<u.kleine-koenig@pengutronix.de> wrote:
-> On Sat, Feb 12, 2022 at 11:16:30PM +0300, Sergey Shtylyov wrote:
-> > This patch is based on the former Andy Shevchenko's patch:
-> >
-> > https://lore.kernel.org/lkml/20210331144526.19439-1-andriy.shevchenko@linux.intel.com/
-> >
-> > Currently platform_get_irq_optional() returns an error code even if IRQ
-> > resource simply has not been found.  It prevents the callers from being
-> > error code agnostic in their error handling:
-> >
-> >       ret = platform_get_irq_optional(...);
-> >       if (ret < 0 && ret != -ENXIO)
-> >               return ret; // respect deferred probe
-> >       if (ret > 0)
-> >               ...we get an IRQ...
-> >
-> > All other *_optional() APIs seem to return 0 or NULL in case an optional
-> > resource is not available.  Let's follow this good example, so that the
-> > callers would look like:
-> >
-> >       ret = platform_get_irq_optional(...);
-> >       if (ret < 0)
-> >               return ret;
-> >       if (ret > 0)
-> >               ...we get an IRQ...
-> >
-> > Reported-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-> > Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
->
-> While this patch is better than v1, I still don't like it for the
-> reasons discussed for v1. (i.e. 0 isn't usable as a dummy value which I
-> consider the real advantage for the other _get_optional() functions.)
+Hello,
+this is a friendly ping to request review on this patch as to avoid forgetting it.
 
-IMHO the real advantage is the simplified error handling, which is the
-area where most of the current bugs are. So I applaud the core change.
+Adding context, I have tested this patch on multiple (older/newer) MediaTek
+platforms.
 
-Also IMHO, the dummy value handling is a red herring.  Contrary to
-optional clocks and resets, a missing optional interrupt does not
-always mean there is nothing to do: in case of polling, something
-else must definitely be done.  So even if request_irq() would accept
-a dummy interrupt zero and just do nothing, it would give the false
-impression that that is all there is to do, while an actual check
-for zero with polling code handling may still need to be present,
-thus leading to more not less bugs.
-
-> Apart from that, I think the subject is badly chosen. With "Make
-> somefunc() optional" I would expect that you introduce a Kconfig symbol
-> that results in the function not being available when disabled.
-
-Agreed.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Thanks,
+Angelo
