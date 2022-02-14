@@ -2,238 +2,169 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31B9DC433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 04:51:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BC53C4332F
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 07:15:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240391AbiBNEvP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 13 Feb 2022 23:51:15 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39632 "EHLO
+        id S241284AbiBNHPt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Feb 2022 02:15:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233318AbiBNEvP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 13 Feb 2022 23:51:15 -0500
-X-Greylist: delayed 563 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 13 Feb 2022 20:51:07 PST
-Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B5CE50469;
-        Sun, 13 Feb 2022 20:51:07 -0800 (PST)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 65D4B32003C0;
-        Sun, 13 Feb 2022 23:41:43 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Sun, 13 Feb 2022 23:41:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        cc:cc:content-transfer-encoding:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm2; bh=hMSfqQqkZrtVpI
-        9iLRc/m5fhQ1A+earhsgZZG+w4a1A=; b=QZ6TZ169n22gAPWqllYPmeUiu+fUtZ
-        vYoGS4mDGXNEklhlVk88MG56Wv+1wTzqru+nn76Lvh7TfuljlvUmTrRjl1Gn0lcB
-        WfkUFi69CTnVrQgci//5IbJ55jl8iY43EzGWGzLwI9FoCRBQrLIAii9FRnQ1cKs3
-        ZKwnwwLlY/AICOPQjn9o1/20TzyRN+1zeLxDkVVbM3sM52DRIVSSiEIhYGs8NpQL
-        HN5sc5yA2eHYJj9XoNhpTrKowGlIEmNy1rpXqV8qRUke+vb66oMYTxecJRILA1uX
-        boRB7FoIX7wL8MLASrx5JX7ZgnLFoKXTsk783Zs+8JyKaTt9w1ZYJ4RA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=hMSfqQqkZrtVpI9iLRc/m5fhQ1A+earhsgZZG+w4a
-        1A=; b=SjSjLEnMAzrxFanQ1T7qMkek5S6UwXFhankMgcVqYxfaLWZfRFNrmQ3U4
-        f0tiCSTkE6+hhwtobLo9y/n2N6vVfI0MP3eQSy7u1F+DGHlzwxMjd43HDSZ1hjaE
-        XP10knRiR5jmPu3CCQkqr8O3UCngo7+UVH2LT21XJDGUjF30p5oLgBeX5e1vWO10
-        Qmz84WMcudJ76BMj4MJkjTEkQZ2qh++GR3xn+bZhNLZ0LI9vpsj6JFjQpbLvv3Dx
-        mPfr9vsSpg98vAd0z4D4EW1zrLsHIt6cbuFMVWpXOF6ylRPYRJ8Jj319WXKupSCT
-        d97bPg83iQ3MoawzQUr3qqxgDe+Aw==
-X-ME-Sender: <xms:ht0JYtWgR62DovYvIf9nH4qE_WKfno3juCLznfs_NpJoIo9zXFVgbQ>
-    <xme:ht0JYtn0UGT82f4MP1wb8eNblqxbAJGi3cuXAYWWAktBKQEw1LwO2jDrcAgKtqZL2
-    p6JNNPURua6LH8e5w>
-X-ME-Received: <xmr:ht0JYpaO308rrhFPTP4egbhVTT60qTYissQapPe4kCQsxOkoFTO1IwuDPoBbi0l-jgiIulIlVBvtGU6OtWUs4yq6GuTOuLtWJSH5penfYGDg5C3QoxhierCssg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrjedugdejgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefuvfhfhffkffgfgggjtgfgsehtjeertddtfeejnecuhfhrohhmpefurghmuhgv
-    lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtf
-    frrghtthgvrhhnpeffiefgledvgfdtteeludevvefguddtiedutdevtedvhfffjeelhfeh
-    teejtedvleenucffohhmrghinhepuggvvhhitggvthhrvggvrdhorhhgnecuvehluhhsth
-    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhho
-    lhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:ht0JYgXmdadH_roct5AIBMv1I89O59PFl_5Xzyd5pZDZmWlIfHVG8A>
-    <xmx:ht0JYnkyu9iFn25IagIcrlFs61AT2fowA2oUi8G--X_gzPqbbdEbfw>
-    <xmx:ht0JYtfPf23YB7CUus-1aKr9jN0RJS3IyagTt_LLN8HjxXB97_XX6g>
-    <xmx:ht0JYlVnNV8KJMfbmiKJ9apLIghyNPyrpjEb6lwYxSHSwf2Yj36NQw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Feb 2022 23:41:42 -0500 (EST)
-Subject: Re: [PATCH 1/5] dt-bindings: input: Add the PinePhone keyboard
- binding
-To:     Rob Herring <robh@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Wolfram Sang <wsa@kernel.org>, Ondrej Jirman <x@xff.cz>,
-        Olof Johansson <olof@lixom.net>
-References: <20220129230043.12422-1-samuel@sholland.org>
- <20220129230043.12422-2-samuel@sholland.org>
- <YgZjWh6dQQJEK21K@robh.at.kernel.org>
-From:   Samuel Holland <samuel@sholland.org>
-Message-ID: <49428899-5940-0e32-f29f-d8bc74ee7aff@sholland.org>
-Date:   Sun, 13 Feb 2022 22:41:41 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        with ESMTP id S241226AbiBNHPm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Feb 2022 02:15:42 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DABF58E73
+        for <linux-i2c@vger.kernel.org>; Sun, 13 Feb 2022 23:15:35 -0800 (PST)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1nJVZ0-0006l6-Nq; Mon, 14 Feb 2022 08:14:22 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1nJVYf-00GV12-4n; Mon, 14 Feb 2022 08:14:00 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1nJVYd-002oWn-E1; Mon, 14 Feb 2022 08:13:59 +0100
+Date:   Mon, 14 Feb 2022 08:13:51 +0100
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Sergey Shtylyov <s.shtylyov@omp.ru>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Jiri Slaby <jirislaby@kernel.org>, linux-iio@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>, alsa-devel@alsa-project.org,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        linux-phy@lists.infradead.org,
+        Thierry Reding <thierry.reding@gmail.com>,
+        linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org,
+        linux-gpio@vger.kernel.org,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Guenter Roeck <groeck@chromium.org>, linux-spi@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>,
+        openipmi-developer@lists.sourceforge.net,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        kvm@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-serial@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        platform-driver-x86@vger.kernel.org, linux-pwm@vger.kernel.org,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        Corey Minyard <minyard@acm.org>, linux-pm@vger.kernel.org,
+        John Garry <john.garry@huawei.com>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Mark Gross <markgross@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        linux-mediatek@lists.infradead.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Takashi Iwai <tiwai@suse.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Mun Yew Tham <mun.yew.tham@intel.com>,
+        Eric Auger <eric.auger@redhat.com>, netdev@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Cornelia Huck <cohuck@redhat.com>, linux-mmc@vger.kernel.org,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Oleksij Rempel <linux@rempel-privat.de>,
+        linux-renesas-soc@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
+        Brian Norris <computersforpeace@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v2 1/2] platform: make platform_get_irq_optional()
+ optional
+Message-ID: <20220214071351.pcvstrzkwqyrg536@pengutronix.de>
+References: <20220212201631.12648-1-s.shtylyov@omp.ru>
+ <20220212201631.12648-2-s.shtylyov@omp.ru>
 MIME-Version: 1.0
-In-Reply-To: <YgZjWh6dQQJEK21K@robh.at.kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="r3c6abkz2rpak4yl"
+Content-Disposition: inline
+In-Reply-To: <20220212201631.12648-2-s.shtylyov@omp.ru>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 2/11/22 7:23 AM, Rob Herring wrote:
-> On Sat, Jan 29, 2022 at 05:00:38PM -0600, Samuel Holland wrote:
->> Add devicetree support for the PinePhone keyboard case, which provides a
->> matrix keyboard interface and a proxied I2C bus.
->>
->> Signed-off-by: Samuel Holland <samuel@sholland.org>
->> ---
->>
->>  .../input/pine64,pinephone-keyboard.yaml      | 90 +++++++++++++++++++
->>  1 file changed, 90 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
->>
->> diff --git a/Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml b/Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
->> new file mode 100644
->> index 000000000000..00f084b263f0
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
->> @@ -0,0 +1,90 @@
->> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
->> +%YAML 1.2
->> +---
->> +$id: http://devicetree.org/schemas/input/pine64,pinephone-keyboard.yaml#
->> +$schema: http://devicetree.org/meta-schemas/core.yaml#
->> +
->> +title: Pine64 PinePhone keyboard device tree bindings
->> +
->> +maintainers:
->> +  - Samuel Holland <samuel@sholland.org>
->> +
->> +description:
->> +  A keyboard accessory is available for the Pine64 PinePhone and PinePhone Pro.
->> +  It connects via I2C, providing a raw scan matrix, a flashing interface, and a
->> +  subordinate I2C bus for communication with a battery charger IC.
->> +
->> +allOf:
->> +  - $ref: /schemas/input/matrix-keymap.yaml#
->> +
->> +properties:
->> +  compatible:
->> +    const: pine64,pinephone-keyboard
->> +
->> +  reg:
->> +    const: 0x15
->> +
->> +  interrupts:
->> +    maxItems: 1
->> +
->> +  linux,fn-keymap:
-> 
-> This should be handled in a common way. Not sure if there's anything 
-> existing for alternate key maps. Child nodes of alternate maps would 
-> scale better than new property name for every alternate map. Or you 
-> could make linux,keymap contain multiple maps (e.g. 2x XxY entries) 
 
-matrix-keymap.yaml proposes doing exactly what I do here:
+--r3c6abkz2rpak4yl
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  Some users of this binding might choose to specify secondary keymaps for
-  cases where there is a modifier key such as a Fn key. Proposed names
-  for said properties are "linux,fn-keymap" or with another descriptive
-  word for the modifier other from "Fn".
+On Sat, Feb 12, 2022 at 11:16:30PM +0300, Sergey Shtylyov wrote:
+> This patch is based on the former Andy Shevchenko's patch:
+>=20
+> https://lore.kernel.org/lkml/20210331144526.19439-1-andriy.shevchenko@lin=
+ux.intel.com/
+>=20
+> Currently platform_get_irq_optional() returns an error code even if IRQ
+> resource simply has not been found.  It prevents the callers from being
+> error code agnostic in their error handling:
+>=20
+> 	ret =3D platform_get_irq_optional(...);
+> 	if (ret < 0 && ret !=3D -ENXIO)
+> 		return ret; // respect deferred probe
+> 	if (ret > 0)
+> 		...we get an IRQ...
+>=20
+> All other *_optional() APIs seem to return 0 or NULL in case an optional
+> resource is not available.  Let's follow this good example, so that the
+> callers would look like:
+>=20
+> 	ret =3D platform_get_irq_optional(...);
+> 	if (ret < 0)
+> 		return ret;
+> 	if (ret > 0)
+> 		...we get an IRQ...
+>=20
+> Reported-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+> Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-The only other reference to linux,fn-keymap is in the nvidia,tegra20-kbc
-binding, even though that driver doesn't use this property. Instead, what the
-tegra-kbc.c code does is double the number of rows to include the Fn layer:
+While this patch is better than v1, I still don't like it for the
+reasons discussed for v1. (i.e. 0 isn't usable as a dummy value which I
+consider the real advantage for the other _get_optional() functions.)
 
-   if (kbc->keymap_data && kbc->use_fn_map)
-           keymap_rows *= 2;
+Apart from that, I think the subject is badly chosen. With "Make
+somefunc() optional" I would expect that you introduce a Kconfig symbol
+that results in the function not being available when disabled.
 
-(except that use_fn_map is set nowhere, so this is dead code). Using extra rows
-for the Fn layer seems a bit magic to me, but if it is documented, I suppose it
-is fine.
+Best regards
+Uwe
 
-So there is not much in the way of prior art.
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
 
-> Or if the map doesn't change, just put it in the driver.
+--r3c6abkz2rpak4yl
+Content-Type: application/pgp-signature; name="signature.asc"
 
-The keys are removable, so technically it can change, but maybe that's better
-handled by userspace than in the DTB? On the other hand, from Dmitry's comment,
-it sounds like he would prefer leaving the map out of the driver.
+-----BEGIN PGP SIGNATURE-----
 
-Regards,
-Samuel
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmIKASwACgkQwfwUeK3K
+7Ak1DAf/fgLBIz9p8Vx2hzG+I8aYoNMAmPLmUfMeIR1DWaBc26HTbyTBn6pFRiPZ
+rztM2uc+royoY44/mp4H89WkPzZ0/v3AlRkdqI8UBny0ZKRbNtMfzL6f7wyVik5C
+rxqc7EgXLRk2/0IxTohA6bwj7Vczei9NwYndm+QrxDHjmY5Dq95rdvxv9+8iaa9y
+gLQ2x91x4bybaKnKVe36f5JfLeMhS9kLuCx82Wi1yqPK4UQQ6R/+QEE0zGS8QNHP
+vMasmLHge9XqVx/c0SuPcLVZ/uRatkzzuqf1rY75peyQp4YpDDdkhkTws4kcVC22
+lVFz9FjvbtVS4nxvPxNwZAnvq9sPaQ==
+=UfDO
+-----END PGP SIGNATURE-----
 
->> +    $ref: /schemas/input/matrix-keymap.yaml#/properties/linux,keymap
-> 
-> Referencing individual properties should be avoided.
-> 
->> +    description: keymap used when the Fn key is pressed
->> +
->> +  wakeup-source: true
->> +
->> +  i2c-bus:
->> +    $ref: /schemas/i2c/i2c-controller.yaml#
->> +
->> +dependencies:
->> +  linux,fn-keymap: [ 'keypad,num-columns', 'keypad,num-rows' ]
->> +  linux,keymap: [ 'keypad,num-columns', 'keypad,num-rows' ]
->> +
->> +required:
->> +  - compatible
->> +  - reg
->> +  - interrupts
->> +
->> +unevaluatedProperties: false
->> +
->> +examples:
->> +  - |
->> +    #include <dt-bindings/input/input.h>
->> +    #include <dt-bindings/interrupt-controller/irq.h>
->> +
->> +    i2c {
->> +      #address-cells = <1>;
->> +      #size-cells = <0>;
->> +
->> +      keyboard@15 {
->> +        compatible = "pine64,pinephone-keyboard";
->> +        reg = <0x15>;
->> +        interrupt-parent = <&r_pio>;
->> +        interrupts = <0 12 IRQ_TYPE_EDGE_FALLING>; /* PL12 */
->> +        keypad,num-rows = <6>;
->> +        keypad,num-columns = <12>;
->> +        linux,fn-keymap = <MATRIX_KEY(0,  0, KEY_FN_ESC)
->> +                           MATRIX_KEY(0,  1, KEY_F1)
->> +                           MATRIX_KEY(0,  2, KEY_F2)
->> +                           /* ... */
->> +                           MATRIX_KEY(5,  2, KEY_FN)
->> +                           MATRIX_KEY(5,  3, KEY_LEFTALT)
->> +                           MATRIX_KEY(5,  5, KEY_RIGHTALT)>;
->> +        linux,keymap = <MATRIX_KEY(0,  0, KEY_ESC)
->> +                        MATRIX_KEY(0,  1, KEY_1)
->> +                        MATRIX_KEY(0,  2, KEY_2)
->> +                        /* ... */
->> +                        MATRIX_KEY(5,  2, KEY_FN)
->> +                        MATRIX_KEY(5,  3, KEY_LEFTALT)
->> +                        MATRIX_KEY(5,  5, KEY_RIGHTALT)>;
->> +
->> +        i2c-bus {
->> +          #address-cells = <1>;
->> +          #size-cells = <0>;
->> +
->> +          charger@75 {
->> +            reg = <0x75>;
->> +          };
->> +        };
->> +      };
->> +    };
->> -- 
->> 2.33.1
->>
->>
-
+--r3c6abkz2rpak4yl--
