@@ -2,60 +2,58 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE801C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 11:04:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3D29C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 11:04:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349861AbiBNLEo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Feb 2022 06:04:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34960 "EHLO
+        id S1349807AbiBNLEr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Feb 2022 06:04:47 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349896AbiBNLEQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Feb 2022 06:04:16 -0500
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48C099BF42
-        for <linux-i2c@vger.kernel.org>; Mon, 14 Feb 2022 02:32:24 -0800 (PST)
-Received: by mail-ej1-x62b.google.com with SMTP id p9so13525260ejd.6
-        for <linux-i2c@vger.kernel.org>; Mon, 14 Feb 2022 02:32:24 -0800 (PST)
+        with ESMTP id S1349952AbiBNLET (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Feb 2022 06:04:19 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A52452AFC
+        for <linux-i2c@vger.kernel.org>; Mon, 14 Feb 2022 02:32:28 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id u18so26239735edt.6
+        for <linux-i2c@vger.kernel.org>; Mon, 14 Feb 2022 02:32:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=9elements.com; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=bo43NL5WgxumOcYzft9YAYcZtXZd3PhX1zRfnI8bjDk=;
-        b=PwKUejzP04bJB9L/Xde/ppijUOqMNVBq9vZlUz8ZRPTY1pYD15Qe45sYIb0L4FtYjb
-         IyHnd2MnK/h2O2Tgfk/gptsiXpiVPFmpyOiMIYZ3h3GbbMT/zThfR804PQhY1IP7zIdJ
-         aMQnJLR8dJcolWGL9V1jh44yloHcNd2XxkIMe4SSC2qDHeTUVItjzrlvlA7Au4Vgr7cU
-         Zato8b5lzV8arQ0jk1QCL32j3v8TLC6ia37OUo60O5jGLZj5GiSQCyrH4oAjLMK42LG+
-         n4E4U7nK62f6MkYa12GS9HsWkddfGsrl5IgLk6bOn73UlNxOHunebmRMBirlqw7M/v83
-         2AfA==
+        bh=UXFVdha6mdWIMpTuHA+4tNIC4aJVupleztPzYIr+WPI=;
+        b=I7At3oMdPup7wbHPzTD4p91kx9RZF33ZicvN6qyKhF8FgVHcF/XjWK60kE8i/18t/D
+         hKzdoTAdQpZ858vM1aqy3u444vLxTXbX8pwQufaoOPupaKJvsle9wAOhflXtLBz09W9p
+         0ciQ/Y5SNnIYddiSceKzMtYvYe8VvrLjI/XHwy4V4mbbXgShwuEfWlFNJIX+1Vadd3Rr
+         XkmuJLzRc2N3S0ZLN1p0h3hqvq8qikaobE97MBnWQbM62BfheAE7zNIj2Tps7pdAClLj
+         sks7cpHtLsEuMci+DdcAciCYQMN0tj6X8utiSR1c+fLEHl0/71M4XFSUqj/JBgeNs/z8
+         XxlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=bo43NL5WgxumOcYzft9YAYcZtXZd3PhX1zRfnI8bjDk=;
-        b=K3vacvBn+Y99GetUnpnTPTEK7b3oAyk/e7JuU4zgmmYl9BU8RtIVRglBZv+p7GSvUs
-         zlhDmg+az2eobIwgvqMh9tYxzD7Wi7mR9NyK+NWvSPgtgU2spUrcmcmNbuFVlhTCwuyy
-         KalYbmRv9WhUO6nbuSY1LTb0laoE4yBzuX2Sb+b8y09spSpEzprAFjhdXL9CVCnEqi99
-         SHSV9XNcSstu7GSDTeX9rJrA2YiBtTceGHXQByXdKh5oSgpMYvaUjpFhNaGUJNBLK0ss
-         3wLEH7hfA8b1OCZNeIqKH4nPjMES3Ck2Bk07dh3cmhTkPuWXViOFjfLUvp2T0zjc3AKp
-         TjDQ==
-X-Gm-Message-State: AOAM533r5m/YWFzVLg2mM3FepVhQQlDYp9l14m9bouFkUo+BkwI82SjJ
-        aSL33KkitCCiLPXRrGc/TRwxSg==
-X-Google-Smtp-Source: ABdhPJzudq88kL+Iol19BJzjrgl1fm4cOkIenjo5ffzfo2Cq+RmmG6+GIBXvUdT1/FwGqrO8PNu6hA==
-X-Received: by 2002:a17:907:a42a:: with SMTP id sg42mr11159538ejc.723.1644834742774;
-        Mon, 14 Feb 2022 02:32:22 -0800 (PST)
+        bh=UXFVdha6mdWIMpTuHA+4tNIC4aJVupleztPzYIr+WPI=;
+        b=VDBJym5BXsNl1QgtrqI6fFg1KZQ70njcd2T8U+MpPH1D2qU0k4D9Vc7dZLsEhWButZ
+         eBb45aBY20cZoiIBXz/OcaRe/vozGsQ0Xp215rfe/t3lQv0A1hewbVQUhgaxoV0sLHqf
+         YCExB68S+uEsIFlOyyD2X7sBD/Ehro6+jmw/s1L1o9h7uUCKPrDFf8ZaO4cq2tsqeu+b
+         Z4rrqodmKa1EW4vs9HXgEJfubdrEfrabOhYp863tDK9VU6YOi50p+lDtUg9YOD+K0nSP
+         A97Qk2ZEG6TUeceuMEplIst2QbCYM0p0lOx8WnYz1qMNp2J6aZBHijKr5/c58v8GLeWj
+         wYkg==
+X-Gm-Message-State: AOAM53330ks/YLl09jWDezSSPU2A9xG7ELIo0QFbU0B3xr9U3RCTeADy
+        9fUZNor7ixlH86Ye4M1NawO3OA0LEHFqTw==
+X-Google-Smtp-Source: ABdhPJzD5nvFKd1Dvw1B4oitBAMAX+1avm4qT6z5dihr5dJiuH11VWW/zmw0n+tZaRQuqEEr4mrvPw==
+X-Received: by 2002:a05:6402:520e:: with SMTP id s14mr14645822edd.401.1644834746954;
+        Mon, 14 Feb 2022 02:32:26 -0800 (PST)
 Received: from fedora.lab.9e.network (ip-078-094-000-051.um19.pools.vodafone-ip.de. [78.94.0.51])
-        by smtp.gmail.com with ESMTPSA id b19sm1857940ede.37.2022.02.14.02.32.21
+        by smtp.gmail.com with ESMTPSA id b19sm1857940ede.37.2022.02.14.02.32.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Feb 2022 02:32:22 -0800 (PST)
+        Mon, 14 Feb 2022 02:32:26 -0800 (PST)
 From:   Patrick Rudolph <patrick.rudolph@9elements.com>
-To:     Peter Rosin <peda@axentia.se>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Peter Rosin <peda@axentia.se>
 Cc:     Patrick Rudolph <patrick.rudolph@9elements.com>,
-        Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [v5 1/3] dt-bindings: i2c: Add Maxim MAX735x/MAX736x variants
-Date:   Mon, 14 Feb 2022 11:31:14 +0100
-Message-Id: <20220214103116.68472-2-patrick.rudolph@9elements.com>
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [v5 3/3] i2c: muxes: pca954x: Add regulator support
+Date:   Mon, 14 Feb 2022 11:31:16 +0100
+Message-Id: <20220214103116.68472-4-patrick.rudolph@9elements.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220214103116.68472-1-patrick.rudolph@9elements.com>
 References: <20220214103116.68472-1-patrick.rudolph@9elements.com>
@@ -65,109 +63,108 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Update the pca954x bindings to add support for the Maxim MAX735x/MAX736x
-chips. The functionality will be provided by the exisintg pca954x driver.
-
-While on it make the interrupts support conditionally as not all of the
-existing chips have interrupts.
-
-For chips that are powered off by default add an optional regulator
-called vdd-supply.
+Add a vdd regulator and enable it for boards that have the
+mux powered off by default.
 
 Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
 ---
- .../bindings/i2c/i2c-mux-pca954x.yaml         | 44 ++++++++++++++-----
- 1 file changed, 34 insertions(+), 10 deletions(-)
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 34 ++++++++++++++++++++++++-----
+ 1 file changed, 29 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-index 9f1726d0356b..8d90127b06ce 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-@@ -4,21 +4,48 @@
- $id: http://devicetree.org/schemas/i2c/i2c-mux-pca954x.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 33b9a6a1fffa..e25383752616 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -49,6 +49,7 @@
+ #include <linux/module.h>
+ #include <linux/pm.h>
+ #include <linux/property.h>
++#include <linux/regulator/consumer.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <dt-bindings/mux/mux.h>
+@@ -119,6 +120,7 @@ struct pca954x {
+ 	struct irq_domain *irq;
+ 	unsigned int irq_mask;
+ 	raw_spinlock_t lock;
++	struct regulator *supply;
+ };
  
--title: NXP PCA954x I2C bus switch
-+title: NXP PCA954x I2C and compatible bus switches
+ /* Provide specs for the PCA954x and MAX735x types we know about */
+@@ -459,6 +461,9 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
+ 	struct pca954x *data = i2c_mux_priv(muxc);
+ 	int c, irq;
  
- maintainers:
-   - Laurent Pinchart <laurent.pinchart@ideasonboard.com>
- 
- description:
--  The binding supports NXP PCA954x and PCA984x I2C mux/switch devices.
-+  The binding supports NXP PCA954x and PCA984x I2C mux/switch devices,
-+  and the Maxim MAX735x and MAX736x I2C mux/switch devices.
- 
- allOf:
-   - $ref: /schemas/i2c/i2c-mux.yaml#
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - maxim,max7367
-+              - maxim,max7369
-+              - nxp,pca9542
-+              - nxp,pca9543
-+              - nxp,pca9544
-+              - nxp,pca9545
-+    then:
-+      properties:
-+        interrupts:
-+          maxitems: 1
++	if (!IS_ERR_OR_NULL(data->supply))
++		regulator_disable(data->supply);
 +
-+        "#interrupt-cells":
-+          const: 2
+ 	if (data->irq) {
+ 		for (c = 0; c < data->chip->nchans; c++) {
+ 			irq = irq_find_mapping(data->irq, c);
+@@ -513,15 +518,32 @@ static int pca954x_probe(struct i2c_client *client,
+ 			     pca954x_select_chan, pca954x_deselect_mux);
+ 	if (!muxc)
+ 		return -ENOMEM;
 +
-+        interrupt-controller: true
+ 	data = i2c_mux_priv(muxc);
  
- properties:
-   compatible:
-     oneOf:
-       - enum:
-+          - maxim,max7356
-+          - maxim,max7357
-+          - maxim,max7358
-+          - maxim,max7367
-+          - maxim,max7368
-+          - maxim,max7369
-           - nxp,pca9540
-           - nxp,pca9542
-           - nxp,pca9543
-@@ -38,14 +65,6 @@ properties:
-   reg:
-     maxItems: 1
+ 	i2c_set_clientdata(client, muxc);
+ 	data->client = client;
  
--  interrupts:
--    maxItems: 1
--
--  "#interrupt-cells":
--    const: 2
--
--  interrupt-controller: true
--
-   reset-gpios:
-     maxItems: 1
- 
-@@ -59,6 +78,9 @@ properties:
-     description: if present, overrides i2c-mux-idle-disconnect
-     $ref: /schemas/mux/mux-controller.yaml#/properties/idle-state
- 
-+  vdd-supply:
-+    description: A voltage regulator supplying power to the chip.
++	data->supply = devm_regulator_get(dev, "vdd");
++	if (IS_ERR(data->supply)) {
++		ret = PTR_ERR(data->supply);
++		if (ret != -EPROBE_DEFER)
++			dev_err(dev, "Failed to request regulator: %d\n", ret);
++		return ret;
++	}
 +
- required:
-   - compatible
-   - reg
-@@ -79,6 +101,8 @@ examples:
-             #size-cells = <0>;
-             reg = <0x74>;
- 
-+            vdd-supply = <&p3v3>;
++	ret = regulator_enable(data->supply);
++	if (ret) {
++		dev_err(dev, "Failed to enable regulator: %d\n", ret);
++		return ret;
++	}
 +
-             interrupt-parent = <&ipic>;
-             interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
-             interrupt-controller;
+ 	/* Reset the mux if a reset GPIO is specified. */
+ 	gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+-	if (IS_ERR(gpio))
+-		return PTR_ERR(gpio);
++	if (IS_ERR(gpio)) {
++		ret = PTR_ERR(gpio);
++		goto fail_cleanup;
++	}
+ 	if (gpio) {
+ 		udelay(1);
+ 		gpiod_set_value_cansleep(gpio, 0);
+@@ -538,7 +560,7 @@ static int pca954x_probe(struct i2c_client *client,
+ 
+ 		ret = i2c_get_device_id(client, &id);
+ 		if (ret && ret != -EOPNOTSUPP)
+-			return ret;
++			goto fail_cleanup;
+ 
+ 		if (!ret &&
+ 		    (id.manufacturer_id != data->chip->id.manufacturer_id ||
+@@ -546,7 +568,8 @@ static int pca954x_probe(struct i2c_client *client,
+ 			dev_warn(dev, "unexpected device id %03x-%03x-%x\n",
+ 				 id.manufacturer_id, id.part_id,
+ 				 id.die_revision);
+-			return -ENODEV;
++			ret = -ENODEV;
++			goto fail_cleanup;
+ 		}
+ 	}
+ 
+@@ -565,7 +588,8 @@ static int pca954x_probe(struct i2c_client *client,
+ 	ret = pca954x_init(client, data);
+ 	if (ret < 0) {
+ 		dev_warn(dev, "probe failed\n");
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto fail_cleanup;
+ 	}
+ 
+ 	ret = pca954x_irq_setup(muxc);
 -- 
 2.34.1
 
