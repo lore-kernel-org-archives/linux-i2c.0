@@ -2,270 +2,248 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC9A8C433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 11:04:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BD71C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Feb 2022 11:14:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349822AbiBNLE6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Feb 2022 06:04:58 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38494 "EHLO
+        id S1350396AbiBNLOU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Feb 2022 06:14:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349916AbiBNLER (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Feb 2022 06:04:17 -0500
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5A0A9BF51
-        for <linux-i2c@vger.kernel.org>; Mon, 14 Feb 2022 02:32:26 -0800 (PST)
-Received: by mail-ej1-x62a.google.com with SMTP id p9so13525460ejd.6
-        for <linux-i2c@vger.kernel.org>; Mon, 14 Feb 2022 02:32:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=9elements.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=O0k8KhFMdBtBZFFVKWcjCSCyxGIr4s4QCXxRmW6v5O8=;
-        b=hh537IpuHjN++zw9cPdTPn8wUTX2b96zFwYpgrp9m6KaUzicbSbTROJb2dskmvtOf0
-         RsP5HRXXTdqCCC7o1xFFwcYCmgS3OXmgaJ+TYzH+tjkYB8sQ63TY+wh3GUdmeDZsLWcl
-         pTHx5x7ASVJuHo/yGdaTUJPA0WXWElvmEde7hi4MJ61mc9YRR7rsdi5zJCtjSdzGCaVK
-         7vI/AVUr4JEQRLMfd3Ju3n6BE4ouVMPvjXKaNBYXrmWHfMR5SY3uc8fiGTp2kG2w4SKM
-         0rqPIE0ztVxG2dCYK3Sz5UWt2O8LXNFa+4wfN2XEZpt/I7yAzbxduCAVmT8mGR46tDH+
-         /bxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=O0k8KhFMdBtBZFFVKWcjCSCyxGIr4s4QCXxRmW6v5O8=;
-        b=FvsZ8kGGMkpmRBKGH9Df3Q82VwXwkv+HPYqVDXE0eN4jtk/0FR/MuaxiUGrXOoIa1P
-         hGR40+rYAvhTmKB/3B4bdBTlYZBKiwSqGx46rjrh/MpjG3Iw7WhMoqUT/jDjiIXu83oJ
-         KOvWR9vDEaSQkM0lIr+BGvl9mDg/bCzpbKrnMncODjKbf0fSTfUE+eC70ybe8lqPUhhX
-         j3ZdP74PL+h+4uRy+ISfIMUemEsavAG7gB6suB77O/IBiVjkTxN0w9OgoGHLi7+JDBzi
-         xzUjs6FhZ4NoGGPTfSahJBZ07Z1W+kqzhfJfA5sPCr3yOtpDIv5KLaYKtkYOclyjiVdF
-         omCg==
-X-Gm-Message-State: AOAM531xz6a5W8fxrBoz+Aqqp4ZwxbppUd3eLk06Lpp6PkLpuG3rUw6I
-        GTOSCS4x8DsqXlb+UNDmezurGw==
-X-Google-Smtp-Source: ABdhPJzVKzbuuVuEekf3tvi5C/XTfYg2tA9s0mzsdDxjSRK7jm4B59aw4SSlQFo/RfSvRhnR4PcaSw==
-X-Received: by 2002:a17:907:7f8b:: with SMTP id qk11mr10882967ejc.72.1644834745195;
-        Mon, 14 Feb 2022 02:32:25 -0800 (PST)
-Received: from fedora.lab.9e.network (ip-078-094-000-051.um19.pools.vodafone-ip.de. [78.94.0.51])
-        by smtp.gmail.com with ESMTPSA id b19sm1857940ede.37.2022.02.14.02.32.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Feb 2022 02:32:24 -0800 (PST)
-From:   Patrick Rudolph <patrick.rudolph@9elements.com>
-To:     Peter Rosin <peda@axentia.se>
-Cc:     Patrick Rudolph <patrick.rudolph@9elements.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [v5 2/3] i2c: muxes: pca954x: Add MAX735x/MAX736x support
-Date:   Mon, 14 Feb 2022 11:31:15 +0100
-Message-Id: <20220214103116.68472-3-patrick.rudolph@9elements.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220214103116.68472-1-patrick.rudolph@9elements.com>
-References: <20220214103116.68472-1-patrick.rudolph@9elements.com>
+        with ESMTP id S1350291AbiBNLOF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Feb 2022 06:14:05 -0500
+Received: from mxout02.lancloud.ru (mxout02.lancloud.ru [45.84.86.82])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2337ECC71;
+        Mon, 14 Feb 2022 02:43:26 -0800 (PST)
+Received: from LanCloud
+DKIM-Filter: OpenDKIM Filter v2.11.0 mxout02.lancloud.ru 5B93A232DBED
+Received: from LanCloud
+Received: from LanCloud
+Received: from LanCloud
+Subject: Re: [PATCH v2 1/2] platform: make platform_get_irq_optional()
+ optional
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Corey Minyard <minyard@acm.org>,
+        "Oleksij Rempel" <linux@rempel-privat.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        "Mun Yew Tham" <mun.yew.tham@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        "Kamal Dasu" <kdasu.kdev@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        <bcm-kernel-feedback-list@broadcom.com>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        "Miquel Raynal" <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Benson Leung <bleung@chromium.org>,
+        "Guenter Roeck" <groeck@chromium.org>,
+        Zha Qipeng <qipeng.zha@intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        John Garry <john.garry@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        =?UTF-8?Q?Niklas_S=c3=b6derlund?= <niklas.soderlund@ragnatech.se>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        "Liam Girdwood" <lgirdwood@gmail.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        "Takashi Iwai" <tiwai@suse.com>,
+        <openipmi-developer@lists.sourceforge.net>,
+        <linux-iio@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+        <linux-pwm@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mmc@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
+        <netdev@vger.kernel.org>, <linux-renesas-soc@vger.kernel.org>,
+        <linux-phy@lists.infradead.org>,
+        <platform-driver-x86@vger.kernel.org>, <linux-spi@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>, <linux-pm@vger.kernel.org>,
+        <linux-serial@vger.kernel.org>, <kvm@vger.kernel.org>,
+        <alsa-devel@alsa-project.org>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+References: <20220212201631.12648-1-s.shtylyov@omp.ru>
+ <20220212201631.12648-2-s.shtylyov@omp.ru>
+ <CAMuHMdUPxX7Tja6BCjEb4KDobNFPMcM66Fk7Z+VsO7pgb8JnjA@mail.gmail.com>
+From:   Sergey Shtylyov <s.shtylyov@omp.ru>
+Organization: Open Mobile Platform
+Message-ID: <41b49828-e0bc-3e7a-32d7-5ee41c778206@omp.ru>
+Date:   Mon, 14 Feb 2022 13:43:11 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAMuHMdUPxX7Tja6BCjEb4KDobNFPMcM66Fk7Z+VsO7pgb8JnjA@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [192.168.11.198]
+X-ClientProxiedBy: LFEXT02.lancloud.ru (fd00:f066::142) To
+ LFEX1907.lancloud.ru (fd00:f066::207)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add support for the following Maxim chips using the existing PCA954x
-driver:
-- MAX7356
-- MAX7357
-- MAX7358
-- MAX7367
-- MAX7368
-- MAX7369
+Hello!
 
-All added Maxim chips behave like the PCA954x, where a single SMBUS byte
-write selects up to 8 channels to be bridged to the primary bus.
+On 2/14/22 11:54 AM, Geert Uytterhoeven wrote:
 
-The MAX7357 exposes 6 additional registers at Power-On-Reset and is
-configured to:
- - Disabled interrupts on bus locked up detection
- - Enable bus locked-up clearing
- - Disconnect only locked bus instead of all channels
+[...]
 
-While the MAX7357/MAX7358 have interrupt support, they don't act as
-interrupt controller like the PCA9545 does. Thus don't enable IRQ support
-and handle them like the PCA9548.
+>> This patch is based on the former Andy Shevchenko's patch:
+>>
+>> https://lore.kernel.org/lkml/20210331144526.19439-1-andriy.shevchenko@linux.intel.com/
+>>
+>> Currently platform_get_irq_optional() returns an error code even if IRQ
+>> resource simply has not been found.  It prevents the callers from being
+>> error code agnostic in their error handling:
+>>
+>>         ret = platform_get_irq_optional(...);
+>>         if (ret < 0 && ret != -ENXIO)
+>>                 return ret; // respect deferred probe
+>>         if (ret > 0)
+>>                 ...we get an IRQ...
+>>
+>> All other *_optional() APIs seem to return 0 or NULL in case an optional
+>> resource is not available.  Let's follow this good example, so that the
+>> callers would look like:
+>>
+>>         ret = platform_get_irq_optional(...);
+>>         if (ret < 0)
+>>                 return ret;
+>>         if (ret > 0)
+>>                 ...we get an IRQ...
+>>
+>> Reported-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+>> Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+>> ---
+>> Changes in version 2:
+> 
+> Thanks for the update!
+> 
+>>  drivers/base/platform.c                  | 60 +++++++++++++++---------
+> 
+> The core change LGTM.
 
-Tested using the MAX7357 and verified that the stalled bus is disconnected
-while the other channels remain operational.
+   Thanx! :-)
 
-Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
----
- drivers/i2c/muxes/Kconfig           |  4 +-
- drivers/i2c/muxes/i2c-mux-pca954x.c | 92 +++++++++++++++++++++++++++--
- 2 files changed, 90 insertions(+), 6 deletions(-)
+> I'm only looking at Renesas drivers below...
+> 
+>> --- a/drivers/mmc/host/sh_mmcif.c
+>> +++ b/drivers/mmc/host/sh_mmcif.c
+>> @@ -1465,14 +1465,14 @@ static int sh_mmcif_probe(struct platform_device *pdev)
+>>         sh_mmcif_sync_reset(host);
+>>         sh_mmcif_writel(host->addr, MMCIF_CE_INT_MASK, MASK_ALL);
+>>
+>> -       name = irq[1] < 0 ? dev_name(dev) : "sh_mmc:error";
+>> +       name = irq[1] <= 0 ? dev_name(dev) : "sh_mmc:error";
+> 
+> "== 0" should be sufficient here, if the code above would bail out
+> on errors returned by platform_get_irq_optional(), which it currently
+> doesn't do.
+> As this adds missing error handling, this is to be fixed by a separate
+> patch later?
 
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index 1708b1a82da2..2ac99d044199 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -65,11 +65,11 @@ config I2C_MUX_PCA9541
- 	  will be called i2c-mux-pca9541.
- 
- config I2C_MUX_PCA954x
--	tristate "NXP PCA954x and PCA984x I2C Mux/switches"
-+	tristate "NXP PCA954x/PCA984x and Maxim MAX735x/MAX736x I2C Mux/switches"
- 	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  If you say yes here you get support for the NXP PCA954x
--	  and PCA984x I2C mux/switch devices.
-+	  and PCA984x and Maxim MAX735x/MAX736x I2C mux/switch devices.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-pca954x.
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 4ad665757dd8..33b9a6a1fffa 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -4,6 +4,7 @@
-  *
-  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
-  * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
-+ * Copyright (c) 2022 Patrick Rudolph <patrick.rudolph@9elements.com>
-  *
-  * This module supports the PCA954x and PCA984x series of I2C multiplexer/switch
-  * chips made by NXP Semiconductors.
-@@ -11,6 +12,12 @@
-  *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
-  *	 PCA9548, PCA9846, PCA9847, PCA9848 and PCA9849.
-  *
-+ * It's also compatible to Maxims MAX735x I2C switch chips, which are controlled
-+ * as the NXP PCA9548 and the MAX736x chips that act like the PCA9544.
-+ *
-+ * This includes the:
-+ *	 MAX7356, MAX7357, MAX7358, MAX7367, MAX7368 and MAX7369
-+ *
-  * These chips are all controlled via the I2C bus itself, and all have a
-  * single 8-bit register. The upstream "parent" bus fans out to two,
-  * four, or eight downstream busses or channels; which of these
-@@ -50,7 +57,30 @@
- 
- #define PCA954X_IRQ_OFFSET 4
- 
-+/*
-+ * MAX7357 exposes 7 registers on POR which allow to configure additional
-+ * features. Disable interrupts, enable bus locked-up clearing,
-+ * isolate only the locked channel instead of all channels.
-+ */
-+#define MAX7357_CONF_INT_ENABLE			BIT(0)
-+#define MAX7357_CONF_FLUSH_OUT			BIT(1)
-+#define MAX7357_CONF_RELEASE_INT		BIT(2)
-+#define MAX7357_CONF_LOCK_UP_CLEAR		BIT(3)
-+#define MAX7357_CONF_DISCON_SINGLE_CHAN		BIT(4)
-+#define MAX7357_CONF_BUS_LOCKUP_DETECTION	BIT(5)
-+#define MAX7357_CONF_ENABLE_BASIC_MODE		BIT(6)
-+#define MAX7357_CONF_PRECONNECT_TEST		BIT(7)
-+
-+#define MAX7357_CONF_DEFAULTS (MAX7357_CONF_FLUSH_OUT | \
-+	 MAX7357_CONF_DISCON_SINGLE_CHAN)
-+
- enum pca_type {
-+	max_7367,
-+	max_7368,
-+	max_7369,
-+	max_7356,
-+	max_7357,
-+	max_7358,
- 	pca_9540,
- 	pca_9542,
- 	pca_9543,
-@@ -69,6 +99,7 @@ struct chip_desc {
- 	u8 nchans;
- 	u8 enable;	/* used for muxes only */
- 	u8 has_irq;
-+	u8 max7357;
- 	enum muxtype {
- 		pca954x_ismux = 0,
- 		pca954x_isswi
-@@ -90,8 +121,42 @@ struct pca954x {
- 	raw_spinlock_t lock;
- };
- 
--/* Provide specs for the PCA954x types we know about */
-+/* Provide specs for the PCA954x and MAX735x types we know about */
- static const struct chip_desc chips[] = {
-+	[max_7356] = {
-+		.nchans = 8,
-+		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
-+	},
-+	[max_7357] = {
-+		.nchans = 8,
-+		.muxtype = pca954x_isswi,
-+		.max7357 = 1,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
-+	},
-+	[max_7358] = {
-+		.nchans = 8,
-+		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
-+	},
-+	[max_7367] = {
-+		.nchans = 4,
-+		.muxtype = pca954x_isswi,
-+		.has_irq = 1,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
-+	},
-+	[max_7368] = {
-+		.nchans = 4,
-+		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
-+	},
-+	[max_7369] = {
-+		.nchans = 4,
-+		.enable = 0x4,
-+		.muxtype = pca954x_ismux,
-+		.has_irq = 1,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
-+	},
- 	[pca_9540] = {
- 		.nchans = 2,
- 		.enable = 0x4,
-@@ -177,6 +242,12 @@ static const struct chip_desc chips[] = {
- };
- 
- static const struct i2c_device_id pca954x_id[] = {
-+	{ "max7356", max_7356 },
-+	{ "max7357", max_7357 },
-+	{ "max7358", max_7358 },
-+	{ "max7367", max_7367 },
-+	{ "max7368", max_7368 },
-+	{ "max7369", max_7369 },
- 	{ "pca9540", pca_9540 },
- 	{ "pca9542", pca_9542 },
- 	{ "pca9543", pca_9543 },
-@@ -194,6 +265,12 @@ static const struct i2c_device_id pca954x_id[] = {
- MODULE_DEVICE_TABLE(i2c, pca954x_id);
- 
- static const struct of_device_id pca954x_of_match[] = {
-+	{ .compatible = "maxim,max7356", .data = &chips[max_7356] },
-+	{ .compatible = "maxim,max7357", .data = &chips[max_7357] },
-+	{ .compatible = "maxim,max7358", .data = &chips[max_7358] },
-+	{ .compatible = "maxim,max7367", .data = &chips[max_7367] },
-+	{ .compatible = "maxim,max7368", .data = &chips[max_7368] },
-+	{ .compatible = "maxim,max7369", .data = &chips[max_7369] },
- 	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
- 	{ .compatible = "nxp,pca9542", .data = &chips[pca_9542] },
- 	{ .compatible = "nxp,pca9543", .data = &chips[pca_9543] },
-@@ -401,9 +478,16 @@ static int pca954x_init(struct i2c_client *client, struct pca954x *data)
- 	else
- 		data->last_chan = 0; /* Disconnect multiplexer */
- 
--	ret = i2c_smbus_write_byte(client, data->last_chan);
--	if (ret < 0)
--		data->last_chan = 0;
-+	if (data->chip->max7357) {
-+		ret = i2c_smbus_write_byte_data(client, data->last_chan,
-+						MAX7357_CONF_DEFAULTS);
-+		if (ret < 0)
-+			data->last_chan = 0;
-+	} else {
-+		ret = i2c_smbus_write_byte(client, data->last_chan);
-+		if (ret < 0)
-+			data->last_chan = 0;
-+	}
- 
- 	return ret;
- }
--- 
-2.34.1
+   Yes.
 
+[...]
+>>                 ret = devm_request_threaded_irq(dev, irq[1],
+>>                                                 sh_mmcif_intr, sh_mmcif_irqt,
+>>                                                 0, "sh_mmc:int", host);
+> 
+>> --- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
+>> +++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
+>> @@ -439,7 +439,7 @@ static int rcar_gen3_phy_usb2_init(struct phy *p)
+>>         u32 val;
+>>         int ret;
+>>
+>> -       if (!rcar_gen3_is_any_rphy_initialized(channel) && channel->irq >= 0) {
+>> +       if (!rcar_gen3_is_any_rphy_initialized(channel) && channel->irq > 0) {
+>>                 INIT_WORK(&channel->work, rcar_gen3_phy_usb2_work);
+>>                 ret = request_irq(channel->irq, rcar_gen3_phy_usb2_irq,
+>>                                   IRQF_SHARED, dev_name(channel->dev), channel);
+>> @@ -486,7 +486,7 @@ static int rcar_gen3_phy_usb2_exit(struct phy *p)
+>>                 val &= ~USB2_INT_ENABLE_UCOM_INTEN;
+>>         writel(val, usb2_base + USB2_INT_ENABLE);
+>>
+>> -       if (channel->irq >= 0 && !rcar_gen3_is_any_rphy_initialized(channel))
+>> +       if (channel->irq > 0 && !rcar_gen3_is_any_rphy_initialized(channel))
+>>                 free_irq(channel->irq, channel);
+>>
+>>         return 0;
+> 
+> LGTM, but note that all errors returned by platform_get_irq_optional()
+> are currently ignored, even real errors, which should be propagated
+> up.
+> As this adds missing error handling, this is to be fixed by a separate
+> patch later?
+
+   Yes.
+
+>> --- a/drivers/thermal/rcar_gen3_thermal.c
+>> +++ b/drivers/thermal/rcar_gen3_thermal.c
+>> @@ -432,6 +432,8 @@ static int rcar_gen3_thermal_request_irqs(struct rcar_gen3_thermal_priv *priv,
+>>                 irq = platform_get_irq_optional(pdev, i);
+>>                 if (irq < 0)
+>>                         return irq;
+>> +               if (!irq)
+>> +                       return -ENXIO;
+> 
+> While correct, and preserving existing behavior, this looks strange
+> to me.  Probably this should return zero instead (i.e. the check
+> above should be changed to "<= 0"), and the caller should start caring
+> about and propagating up real errors.
+
+   Hm, you're right... should be <= 0 there, it seems.
+
+> As this adds missing error handling, this is to be fixed by a separate
+> patch later?
+
+   Propagating errors from the probe() method is a matter of separate patch, yes.
+
+>>
+>>                 irqname = devm_kasprintf(dev, GFP_KERNEL, "%s:ch%d",
+>>                                          dev_name(dev), i);
+>> diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
+>> index fb65dc601b23..328ab074fd89 100644
+> 
+>> --- a/drivers/tty/serial/sh-sci.c
+>> +++ b/drivers/tty/serial/sh-sci.c
+> 
+> I think you missed
+> 
+>     #define SCIx_IRQ_IS_MUXED(port)                 \
+>             ((port)->irqs[SCIx_ERI_IRQ] ==  \
+>              (port)->irqs[SCIx_RXI_IRQ]) || \
+>             ((port)->irqs[SCIx_ERI_IRQ] &&  \
+>              ((port)->irqs[SCIx_RXI_IRQ] < 0))
+> 
+> above? The last condition should become "<= 0".
+
+   Yes, probably... TY!
+
+> Gr{oetje,eeting}s,
+> 
+>                         Geert
+
+MBR, Sergey
