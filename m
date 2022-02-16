@@ -2,245 +2,124 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6146EC433EF
-	for <linux-i2c@archiver.kernel.org>; Wed, 16 Feb 2022 08:40:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49F56C433F5
+	for <linux-i2c@archiver.kernel.org>; Wed, 16 Feb 2022 15:55:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231330AbiBPIkf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 16 Feb 2022 03:40:35 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:39628 "EHLO
+        id S235727AbiBPPzP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 16 Feb 2022 10:55:15 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbiBPIke (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Feb 2022 03:40:34 -0500
-Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 768B31C8847;
-        Wed, 16 Feb 2022 00:40:22 -0800 (PST)
-Received: from host-79-2-93-196.business.telecomitalia.it ([79.2.93.196]:33352 helo=[192.168.101.73])
-        by hostingweb31.netsons.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94.2)
-        (envelope-from <luca@lucaceresoli.net>)
-        id 1nKFrH-0005i7-NY; Wed, 16 Feb 2022 09:40:19 +0100
-Message-ID: <f412980a-4e41-54c7-f000-f826e015f6d2@lucaceresoli.net>
-Date:   Wed, 16 Feb 2022 09:40:18 +0100
+        with ESMTP id S235747AbiBPPzO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Feb 2022 10:55:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F4D9295FE6;
+        Wed, 16 Feb 2022 07:55:02 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB97B61A5A;
+        Wed, 16 Feb 2022 15:55:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3390C004E1;
+        Wed, 16 Feb 2022 15:55:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645026901;
+        bh=eE1+ZOG+o56GVBrCD53cuQ0ru/sUiq3uQkgLPoUhz1w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vPR17qhqgiXT9d/mA/vVROVXEvcaOdNU2jYiED4+XYWO4YWvqlDpBs3ektG2BKQ22
+         W0jitEPCFWpGcxdGObCRU3IJyzxSE1qoE9AIIN6qmej72SEVsVke9nj7U39vxg3VjR
+         AYKbhIOOGT9YCTd5Wpu+sUjeV8S+5iJaO67pKfia6RpeBqS7GwGStPzypOYYdYjW20
+         307hpDvq/Bh1PvQM/bnJ6vQILwNnaSN6WGR71fk4SndK58an360cyUYnvCp+fhdrik
+         Qc8GeS9IB8CGEoxTlSVJPdxleADPNzpJGr1PNrxwq/pEKsYR+JbgOzFLdboXsV7y+y
+         A5YhejyNAovww==
+Date:   Wed, 16 Feb 2022 16:54:54 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Matt Johnston <matt@codeconstruct.com.au>
+Cc:     "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
+        Zev Weiss <zev@bewilderbeest.net>,
+        Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH net-next v5 1/2] dt-bindings: net: New binding
+ mctp-i2c-controller
+Message-ID: <Yg0eTtiChnmfJeqX@ninjato>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Matt Johnston <matt@codeconstruct.com.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jeremy Kerr <jk@codeconstruct.com.au>, linux-i2c@vger.kernel.org,
+        netdev@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
+        Rob Herring <robh@kernel.org>
+References: <20220210063651.798007-1-matt@codeconstruct.com.au>
+ <20220210063651.798007-2-matt@codeconstruct.com.au>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-From:   Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [RFCv3 2/6] i2c: add I2C Address Translator (ATR) support
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Linux Media Mailing List <linux-media@vger.kernel.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Jacopo Mondi <jacopo@jmondi.org>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Peter Rosin <peda@axentia.se>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-References: <20220206115939.3091265-1-luca@lucaceresoli.net>
- <20220206115939.3091265-3-luca@lucaceresoli.net>
- <CAHp75Vejw86kLUJfwXR_kUn+=UCaixbcy=epO8Foe=9S2LqXTQ@mail.gmail.com>
-Content-Language: en-US
-In-Reply-To: <CAHp75Vejw86kLUJfwXR_kUn+=UCaixbcy=epO8Foe=9S2LqXTQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - lucaceresoli.net
-X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca+lucaceresoli.net/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="u2d3AB3C5u+1/++1"
+Content-Disposition: inline
+In-Reply-To: <20220210063651.798007-2-matt@codeconstruct.com.au>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Andy,
 
-thank you for the _very_ detailed review and apologies for not having
-found the time to reply until now.
+--u2d3AB3C5u+1/++1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm OK with most of your comments, so I'm not commenting on them for
-brevity. Below my comments on the remaining topics.
+On Thu, Feb 10, 2022 at 02:36:50PM +0800, Matt Johnston wrote:
+> Used to define a local endpoint to communicate with MCTP peripherals
+> attached to an I2C bus. This I2C endpoint can communicate with remote
+> MCTP devices on the I2C bus.
+>=20
+> In the example I2C topology below (matching the second yaml example) we
+> have MCTP devices on busses i2c1 and i2c6. MCTP-supporting busses are
+> indicated by the 'mctp-controller' DT property on an I2C bus node.
+>=20
+> A mctp-i2c-controller I2C client DT node is placed at the top of the
+> mux topology, since only the root I2C adapter will support I2C slave
+> functionality.
+>                                                .-------.
+>                                                |eeprom |
+>     .------------.     .------.               /'-------'
+>     | adapter    |     | mux  --@0,i2c5------'
+>     | i2c1       ----.*|      --@1,i2c6--.--.
+>     |............|    \'------'           \  \  .........
+>     | mctp-i2c-  |     \                   \  \ .mctpB  .
+>     | controller |      \                   \  '.0x30   .
+>     |            |       \  .........        \  '.......'
+>     | 0x50       |        \ .mctpA  .         \ .........
+>     '------------'         '.0x1d   .          '.mctpC  .
+>                             '.......'          '.0x31   .
+>                                                 '.......'
+> (mctpX boxes above are remote MCTP devices not included in the DT at
+> present, they can be hotplugged/probed at runtime. A DT binding for
+> specific fixed MCTP devices could be added later if required)
+>=20
+> Signed-off-by: Matt Johnston <matt@codeconstruct.com.au>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-On 08/02/22 12:16, Andy Shevchenko wrote:
-> On Mon, Feb 7, 2022 at 7:55 PM Luca Ceresoli <luca@lucaceresoli.net> wrote:
->>
->> An ATR is a device that looks similar to an i2c-mux: it has an I2C
->> slave "upstream" port and N master "downstream" ports, and forwards
->> transactions from upstream to the appropriate downstream port. But is
->> is different in that the forwarded transaction has a different slave
->> address. The address used on the upstream bus is called the "alias"
->> and is (potentially) different from the physical slave address of the
->> downstream chip.
->>
->> Add a helper file (just like i2c-mux.c for a mux or switch) to allow
->> implementing ATR features in a device driver. The helper takes care or
->> adapter creation/destruction and translates addresses at each transaction.
-> 
-> Why I2C mux driver can't be updated to support this feature?
+Acked-by: Wolfram Sang <wsa@kernel.org>
 
-My first version did that. But it was very complex to shoehorn the ATR
-features in the i2c-mux code which already handles various [corner]
-cases. If memory serves, code reuse was limited to the trivial code:
-allocations, cleanups and the like.
 
-The root reason is that an atr and a mux have a similar electric
-topology, but they do very different things. An mux need to be commanded
-to switch from one downstream bus to another, an atr does not. An atr
-modifies the transaction, including the speed, a mux does not.
+--u2d3AB3C5u+1/++1
+Content-Type: application/pgp-signature; name="signature.asc"
 
->>  RFCv1 was implemented inside i2c-mux.c and added yet more complexity
->>  there. RFCv2 creates a new file on its own, i2c-atr.c. Since many ATR
->>  features are not in a MUX and vice versa, the overlapping is low. This was
->>  almost a complete rewrite, but for the records here are the main
->>  differences from the old implementation:
-> 
-> While this is from a code perspective, maybe i2c mux and this one can
-> still share some parts?
+-----BEGIN PGP SIGNATURE-----
 
-Possibly. I'd have to look into that in more detail.
-I must say having a separate file allowed me to be free to implement
-whatever is best for atr. With that done I would certainly make sense to
-check whether there are still enough commonalities to share code, maybe
-in a .c file with shared functions.
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmINHkkACgkQFA3kzBSg
+KbYWQQ//T0o6sAFYpqHYgqQJC9nytNVfRU3yp4Q8LKKpkVW7gZJetq7TtiGYTb4g
+iSydYQGckhPUVt2f7xsdvkEhm3fXtlD5T/T83pgB8nNIkCxlpzIOouv+jE+WG42x
+zFVUutvUV536WsXdYQ7COEasoa+k3W3kBZemOfvh0QcDbubswuSdf3yMezI9BE4y
+mpovo/lBXQEG5NTzQDBUJ5jg0UzHl0P/jc2OU0gQ/tLP1H8nC6JG4KlPbF/E0A2r
+I+iy9NgaI1nRka/3e7ylB8ejmNsrv1LWNtP5TFmEB/L3pV/IJ+/Sd639oyUN2+OY
+WvdItszZHOWa1X6rlft9/IJudrev3XA9QzHm+2lksjJAozhXkUXHQTD1etPZLFZM
+J1bcVHhqwiy2zzgRcOfJ6113FDlMWR7DkG9ocoQ0n/ic6xyS1YNktJBFEdmNKeBD
+SinABwdhIbsPDfAHx/X0n0K9yAZemoJu2ZeLMsivuoTIDpSKuVH7js1SzQuBhqgR
+hvfJjg9AW4YUW/uatwBRX1TP5vBuxCJEzVjsCophVLlIPAkASrFoAeXf47xa/N3S
+StC1EJlF52wI+iSJ9441Xds7kpk45nza+vXJ1h1nA8P76dn6zbwssp+S8oWhbVZd
+coC8Tc2m02xdzRHjieuqSiPT5pv68f0rdE6Xg5Qg4VfcfGRDkU4=
+=8P1o
+-----END PGP SIGNATURE-----
 
->> +config I2C_ATR
->> +       tristate "I2C Address Translator (ATR) support"
->> +       help
->> +         Enable support for I2C Address Translator (ATR) chips.
->> +
->> +         An ATR allows accessing multiple I2C busses from a single
->> +         physical bus via address translation instead of bus selection as
->> +         i2c-muxes do.
-> 
-> What would be the module name?
-
-Isn't the module name written in Kconfig files just to avoid checkpatch
-complain about "too few doc lines"? :) Oook, it's i2s-atr anyway.
-
->> +/**
-> 
-> Is this a kernel doc formatted documentation?
-> Haven't you got a warning?
-
-Not from checkpatch, but I got one from the kernel test robot. Will fix.
-
-[...]
-
->> + *
->> + * An I2C Address Translator (ATR) is a device with an I2C slave parent
->> + * ("upstream") port and N I2C master child ("downstream") ports, and
->> + * forwards transactions from upstream to the appropriate downstream port
->> + * with a modified slave address. The address used on the parent bus is
->> + * called the "alias" and is (potentially) different from the physical
->> + * slave address of the child bus. Address translation is done by the
->> + * hardware.
->> + *
->> + * An ATR looks similar to an i2c-mux except:
->> + * - the address on the parent and child busses can be different
->> + * - there is normally no need to select the child port; the alias used on
->> + *   the parent bus implies it
->> + *
->> + * The ATR functionality can be provided by a chip with many other
->> + * features. This file provides a helper to implement an ATR within your
->> + * driver.
->> + *
->> + * The ATR creates a new I2C "child" adapter on each child bus. Adding
->> + * devices on the child bus ends up in invoking the driver code to select
->> + * an available alias. Maintaining an appropriate pool of available aliases
->> + * and picking one for each new device is up to the driver implementer. The
->> + * ATR maintains an table of currently assigned alias and uses it to modify
->> + * all I2C transactions directed to devices on the child buses.
->> + *
->> + * A typical example follows.
->> + *
->> + * Topology:
->> + *
->> + *                       Slave X @ 0x10
->> + *               .-----.   |
->> + *   .-----.     |     |---+---- B
->> + *   | CPU |--A--| ATR |
->> + *   `-----'     |     |---+---- C
->> + *               `-----'   |
->> + *                       Slave Y @ 0x10
->> + *
->> + * Alias table:
->> + *
->> + *   Client  Alias
->> + *   -------------
->> + *      X    0x20
->> + *      Y    0x30
->> + *
->> + * Transaction:
->> + *
->> + *  - Slave X driver sends a transaction (on adapter B), slave address 0x10
->> + *  - ATR driver rewrites messages with address 0x20, forwards to adapter A
->> + *  - Physical I2C transaction on bus A, slave address 0x20
->> + *  - ATR chip propagates transaction on bus B with address translated to 0x10
->> + *  - Slave X chip replies on bus B
->> + *  - ATR chip forwards reply on bus A
->> + *  - ATR driver rewrites messages with address 0x10
->> + *  - Slave X driver gets back the msgs[], with reply and address 0x10
->> + *
->> + * Usage:
->> + *
->> + *  1. In your driver (typically in the probe function) add an ATR by
->> + *     calling i2c_atr_new() passing your attach/detach callbacks
->> + *  2. When the attach callback is called pick an appropriate alias,
->> + *     configure it in your chip and return the chosen alias in the
->> + *     alias_id parameter
->> + *  3. When the detach callback is called, deconfigure the alias from
->> + *     your chip and put it back in the pool for later usage
->> + *
->> + * Originally based on i2c-mux.c
->> + */
-> 
-> Shouldn't this comment be somewhere under Documentation/ ?
-
-Uhm, yes, I agree it's a good idea to move this entire comment there.
-
->> +       if (dev->of_node) {
-> 
-> This check can be dropped, also please use device property and fwnode
-> APIs. No good of having OF-centric generic modules nowadays.
-
-Sure! This code was written in another decade and I didn't update it...
-As you noticed elsewhere it also honors the old, strict 80-chars per
-line limit in various places where it makes no sense anymore.
-
->> +       WARN(sysfs_create_link(&chan->adap.dev.kobj, &dev->kobj, "atr_device"),
->> +            "can't create symlink to atr device\n");
->> +       snprintf(symlink_name, sizeof(symlink_name), "channel-%u", chan_id);
->> +       WARN(sysfs_create_link(&dev->kobj, &chan->adap.dev.kobj, symlink_name),
->> +            "can't create symlink for channel %u\n", chan_id);
-> 
-> Doesn't sysfs already has a warning when it's really needed?
-
-I have to check that. I usually don't add unnecessary log messages.
-
-[...]
-
->> +#include <linux/i2c.h>
->> +#include <linux/mutex.h>
-> 
-> Missed types.h
-> 
-> Missed struct device;
-
-Not sure I got your point here. This file has some 'struct device *',
-which do not need a declaration, and has zero non-pointer uses of
-'struct device'.
-
--- 
-Luca
+--u2d3AB3C5u+1/++1--
