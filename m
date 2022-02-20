@@ -2,50 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BD9AC433F5
-	for <linux-i2c@archiver.kernel.org>; Sun, 20 Feb 2022 03:57:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97973C4332F
+	for <linux-i2c@archiver.kernel.org>; Sun, 20 Feb 2022 03:57:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243451AbiBTD5l (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 19 Feb 2022 22:57:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58124 "EHLO
+        id S243447AbiBTD5n (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 19 Feb 2022 22:57:43 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242489AbiBTD5f (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 19 Feb 2022 22:57:35 -0500
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90DDF51E50;
-        Sat, 19 Feb 2022 19:57:14 -0800 (PST)
-Received: by mail-pj1-x1032.google.com with SMTP id v8-20020a17090a634800b001bb78857ccdso13508674pjs.1;
-        Sat, 19 Feb 2022 19:57:14 -0800 (PST)
+        with ESMTP id S243449AbiBTD5k (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 19 Feb 2022 22:57:40 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46BD441FAC;
+        Sat, 19 Feb 2022 19:57:19 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id q11-20020a17090a304b00b001b94d25eaecso12139754pjl.4;
+        Sat, 19 Feb 2022 19:57:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=z9lZGtb8cFLHmXYWpgnPlQ7M1L50cRGAk9IcCvdjsP8=;
-        b=YN+Kd6rE4uJcnrXwSFKrFOhJvAT1AxzyAZOmWxSP44CsIjlcP1d+NMtG6qE5pvWy0m
-         eqrVCTcgcpgJnaZvnZOOckCaPcOPVCoepZfrUVPbEGqky4HPDCkiK7wO6wIoPnCVHODQ
-         mS+yFIiMsHnLx9shj/lEI0pep6RloMCGebATEEq+qXibp1iPMsCOsvcwZkl0dFZAT83z
-         WawiDjZxjEBWSWqJO5IbHCnEPL6/PdLHWSjqHhDJGirvKkTeMleQZmSdANywKDMsvNCq
-         L1HtsvFbukeKFzTvKaEbvEbw0ZP8hsW44C+K/OQLjgBPMg292NisP3KfE5puZq3U/K0R
-         PPBQ==
+        bh=2tmnTcD52LG4gJnvsrOpevEsC/cYqDPXBT54iZq1tqA=;
+        b=Qg59jRUN1ABRuiUYE6VpQvBs5j+vkngwJBnJF8KWwKzqY60FoVK/SbwpAIsuiv/OXj
+         6PnQMp8j7rraXPa4QPJKarJBtfjv25eJWGcowwK4eotvlwoO439cQoLX0wurXCE2VsFO
+         784p3rZFnNYRir3H9DeWwn5aWKX9TjUhSq6YOxdRTVQlzv546miPMbVnbCIqADElqywq
+         2ZP1IVP1CvOjCrq1iPO5WlHTj2E0cnXnTZ8IPJFqKgWBRUGLdO4x2q+v3s8gfdTselgR
+         LnTOtO/NL6u8HfpDeikXvjbReZ9JWHqt7W/7vDDZW2xPF9iSUAGZXVq+If1OFWcRrnM+
+         P+Tw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=z9lZGtb8cFLHmXYWpgnPlQ7M1L50cRGAk9IcCvdjsP8=;
-        b=Q7+HUL3kiuuUJNX+lllckkJiu3textWXKHxbljINFZpHsObfa9KVxPZIDhdPtZ7HbN
-         ikEW7HXCP60HTZHhe/9TTivMuM291rMvZ19rUFJVXYvJb198DFBB6kgkBdD+/cntzafU
-         nGNXP22soQtscnk2rLWLiEQriHCnqUfy/9BS9WxT0SFEAZgZdDZG2ZxusxfNQ7/gHoi5
-         evzgCWBXTeuUjfiu9rj/lLMk6fV3WA6xQsq8AVzw8qkFJALqgM65Mw2Q+p2zqI7RBBvr
-         4hFUKpwhrOD/DeEkIWG0G+2Mbw+ZgA3v8E83+AU6bz7TsGVAbN5Z3Kq3jtwXigvaPgJ1
-         gISg==
-X-Gm-Message-State: AOAM531Uufl1izuUS8ljV0KyxCTxA1pTnuqQf4l5NPPVGSa4Km5c5d3j
-        CSWFanU/1LZB0yXjJdrIFQ==
-X-Google-Smtp-Source: ABdhPJzhOQoXseYyF3hYCk4WIgcQp5Y8MuKzDj2R4zdZgzqfwFtNnB1cBghRkA35TttX/k58tiBOAw==
-X-Received: by 2002:a17:902:6b0c:b0:14f:3a39:ad3d with SMTP id o12-20020a1709026b0c00b0014f3a39ad3dmr13674261plk.113.1645329434011;
-        Sat, 19 Feb 2022 19:57:14 -0800 (PST)
+        bh=2tmnTcD52LG4gJnvsrOpevEsC/cYqDPXBT54iZq1tqA=;
+        b=cd/AiHDIU2DOLIl75qnioZM0eonk/Ww6g0JODlsrQ3rbFMbziQfEXI3qfMySAOajN3
+         yWjXKOkizg1SbnedKIXdzlJfBcUlBuVWn6Vlp4M5adEbjSLQ0xtA61BH1wqhNhsFFFdt
+         uZTSgnjnJsRBBMTB5AyTglic9WgKhAXGozBEu1Kex6uPRIlIg/W/23EUzLDIiSHnH08+
+         GsfxALiYSNvo1438yiZ/20XA1Ar13zY/6wQNxdeBkivd3ZaJNnKYwV9y25R3HlF0bAqi
+         hYJ41xwVsvkuTtjloS4ab/8lNITAB3lWBc6pkUDKXxb7M5H8rFomKTWKO7VlU1MzWBbo
+         9Qjg==
+X-Gm-Message-State: AOAM533Qm9ir5VUUuJgvuIV7U5Vpzrmr8TpgT+JxlM9AQsj1eMnMMrzo
+        y1JRNsvvXF92mOhwuK135w==
+X-Google-Smtp-Source: ABdhPJzFdJh2f7Pk+vzmchfosK0MBtO3bXVZVtmCM2acPgLBEajbVl3dTSX3Vb8WrxcqvT/Ng0Oo7Q==
+X-Received: by 2002:a17:90b:1e11:b0:1b9:d23:bc3c with SMTP id pg17-20020a17090b1e1100b001b90d23bc3cmr19556274pjb.77.1645329438739;
+        Sat, 19 Feb 2022 19:57:18 -0800 (PST)
 Received: from localhost ([2401:e180:8842:e799:9593:a6f2:788b:a48c])
-        by smtp.gmail.com with ESMTPSA id h16sm7910793pfh.40.2022.02.19.19.57.13
+        by smtp.gmail.com with ESMTPSA id q1sm7678024pfs.112.2022.02.19.19.57.18
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sat, 19 Feb 2022 19:57:13 -0800 (PST)
+        Sat, 19 Feb 2022 19:57:18 -0800 (PST)
 From:   Tyrone Ting <warp5tw@gmail.com>
 To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         venture@google.com, yuenn@google.com, benjaminfair@google.com,
@@ -60,9 +60,9 @@ To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         kfting@nuvoton.com
 Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 06/11] i2c: npcm: Fix timeout calculation
-Date:   Sun, 20 Feb 2022 11:53:16 +0800
-Message-Id: <20220220035321.3870-7-warp5tw@gmail.com>
+Subject: [PATCH v2 08/11] i2c: npcm: Correct register access width
+Date:   Sun, 20 Feb 2022 11:53:18 +0800
+Message-Id: <20220220035321.3870-9-warp5tw@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220220035321.3870-1-warp5tw@gmail.com>
 References: <20220220035321.3870-1-warp5tw@gmail.com>
@@ -70,57 +70,39 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Tali Perry <tali.perry1@gmail.com>
+From: Tyrone Ting <kfting@nuvoton.com>
 
-Use adap.timeout for timeout calculation instead of hard-coded
-value of 35ms.
+Use ioread8 instead of ioread32 to access the SMBnCTL3 register since
+the register is only 8-bit wide.
 
 Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
 Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
-Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
 ---
- drivers/i2c/busses/i2c-npcm7xx.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-npcm7xx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index 9ccb9958945e..1e6e3f7f59a3 100644
+index ee4757eff4b3..4715afcf9ac4 100644
 --- a/drivers/i2c/busses/i2c-npcm7xx.c
 +++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -2047,7 +2047,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	u16 nwrite, nread;
- 	u8 *write_data, *read_data;
- 	u8 slave_addr;
--	int timeout;
-+	unsigned long timeout;
- 	int ret = 0;
- 	bool read_block = false;
- 	bool read_PEC = false;
-@@ -2099,13 +2099,13 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	 * 9: bits per transaction (including the ack/nack)
- 	 */
- 	timeout_usec = (2 * 9 * USEC_PER_SEC / bus->bus_freq) * (2 + nread + nwrite);
--	timeout = max(msecs_to_jiffies(35), usecs_to_jiffies(timeout_usec));
-+	timeout = max_t(unsigned long, bus->adap.timeout, usecs_to_jiffies(timeout_usec));
- 	if (nwrite >= 32 * 1024 || nread >= 32 * 1024) {
- 		dev_err(bus->dev, "i2c%d buffer too big\n", bus->num);
- 		return -EINVAL;
- 	}
+@@ -360,14 +360,14 @@ static int npcm_i2c_get_SCL(struct i2c_adapter *_adap)
+ {
+ 	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
  
--	time_left = jiffies + msecs_to_jiffies(DEFAULT_STALL_COUNT) + 1;
-+	time_left = jiffies + timeout + 1;
- 	do {
- 		/*
- 		 * we must clear slave address immediately when the bus is not
-@@ -2265,7 +2265,7 @@ static int npcm_i2c_probe_bus(struct platform_device *pdev)
- 	adap = &bus->adap;
- 	adap->owner = THIS_MODULE;
- 	adap->retries = 3;
--	adap->timeout = HZ;
-+	adap->timeout = msecs_to_jiffies(35);
- 	adap->algo = &npcm_i2c_algo;
- 	adap->quirks = &npcm_i2c_quirks;
- 	adap->algo_data = bus;
+-	return !!(I2CCTL3_SCL_LVL & ioread32(bus->reg + NPCM_I2CCTL3));
++	return !!(I2CCTL3_SCL_LVL & ioread8(bus->reg + NPCM_I2CCTL3));
+ }
+ 
+ static int npcm_i2c_get_SDA(struct i2c_adapter *_adap)
+ {
+ 	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
+ 
+-	return !!(I2CCTL3_SDA_LVL & ioread32(bus->reg + NPCM_I2CCTL3));
++	return !!(I2CCTL3_SDA_LVL & ioread8(bus->reg + NPCM_I2CCTL3));
+ }
+ 
+ static inline u16 npcm_i2c_get_index(struct npcm_i2c *bus)
 -- 
 2.17.1
 
