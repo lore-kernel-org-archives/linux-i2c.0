@@ -2,36 +2,36 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DB61C4167D
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Feb 2022 16:39:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF352C4167E
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Feb 2022 16:39:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380882AbiBUQjX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Feb 2022 11:39:23 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49602 "EHLO
+        id S1380896AbiBUQjY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 21 Feb 2022 11:39:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380803AbiBUQjK (ORCPT
+        with ESMTP id S1380788AbiBUQjK (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Feb 2022 11:39:10 -0500
 Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 262612408B;
-        Mon, 21 Feb 2022 08:38:40 -0800 (PST)
-Received: from relay9-d.mail.gandi.net (unknown [IPv6:2001:4b98:dc4:8::229])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id BE46CD264A;
-        Mon, 21 Feb 2022 16:30:03 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AE2022BE8;
+        Mon, 21 Feb 2022 08:38:37 -0800 (PST)
+Received: from relay9-d.mail.gandi.net (unknown [217.70.183.199])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id F103FC2458;
+        Mon, 21 Feb 2022 16:29:16 +0000 (UTC)
 Received: (Authenticated sender: clement.leger@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 1B18BFF811;
-        Mon, 21 Feb 2022 16:29:22 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 8A417FF815;
+        Mon, 21 Feb 2022 16:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1645460963;
+        t=1645460956;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ocoul7ljnoZTu5D9WXKfAGT93AKe2N6I6+O6VziLVXM=;
-        b=GAlclXPXVSGlWfer2ykk3URw3VhDeJ7r2IeffYChhxQoPQAxRI919CYsW5yen8aODmGYyD
-        qinWr8T9DMf9HwBxvnRZbt7hJ+KpQDVOsF+n5+K8uqwkqE4bfID/RkZcl0G+7fbW5boyLe
-        crags0YEaxVRYwGPqYtBdQ8C2wfDXKvFGmWuK+Ot3JJ2F/K2p3Hh4JspEf49/0Ok8ycNbE
-        1yVCnRhXAtfz5EhN4VxmEC8kg2y54D0Cy3B9KrY/DXOCSUlyUIADiuZbTo2alSlJJ5gDUI
-        jmUHVP8K0CFx1zdYdp1vnTwHctW0NwN2NZqecly3POy6MAbISz1bTYBy1qscLg==
+        bh=w8VXJLW2FAIIFmTtYZLQHDFFw7si1/w4sSkhBjrOQnI=;
+        b=pEzyFYzNzHAqzU266UJ1CEeViLXPnqIXs7PsoQwbDM3DfG20pTF/W/4ida1KoDfZEkd7/U
+        ZhQBjh8pOzwuy+oIGXzUT632IAZLLf1uy13+beH/oW53pSzIjYq3xayNS0I7aJpabVcqWu
+        YBaJxLKsChgwMMlYpwbyYephOlCn51B00BSX7E7t8JIcUTEEKGiV7V4l6ReAiruQ7mqdvb
+        EOL/id9lbhV31J57324G09Bug277sdAPHBYX9Wrq4WrPB1lN7kZH4ZCcnMYcwOMsrherii
+        tx6iGY0V8d+sJ2t6EajUmurjr2T7ieZ4EWja7cqe06jSUz1XL+Ak049/gIAQSw==
 From:   =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Daniel Scally <djrscally@gmail.com>,
@@ -50,9 +50,9 @@ Cc:     linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>
-Subject: [RFC 09/10] i2c: mux: add support for fwnode
-Date:   Mon, 21 Feb 2022 17:26:51 +0100
-Message-Id: <20220221162652.103834-10-clement.leger@bootlin.com>
+Subject: [RFC 05/10] property: add fwnode_property_read_string_index()
+Date:   Mon, 21 Feb 2022 17:26:47 +0100
+Message-Id: <20220221162652.103834-6-clement.leger@bootlin.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220221162652.103834-1-clement.leger@bootlin.com>
 References: <20220221162652.103834-1-clement.leger@bootlin.com>
@@ -63,109 +63,89 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Modify i2c_mux_add_adapter() to use with fwnode API to allow creating
-mux adapters with fwnode based devices. This allows to have a node
-independent support for i2c muxes.
+Add fwnode_property_read_string_index() function which allows to
+retrieve a string from an array by its index. This function is the
+equivalent of of_property_read_string_index() but for fwnode support.
 
 Signed-off-by: Clément Léger <clement.leger@bootlin.com>
 ---
- drivers/i2c/i2c-mux.c | 39 ++++++++++++++++++---------------------
- 1 file changed, 18 insertions(+), 21 deletions(-)
+ drivers/base/property.c  | 48 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/property.h |  3 +++
+ 2 files changed, 51 insertions(+)
 
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 774507b54b57..93c916220da5 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -24,7 +24,7 @@
- #include <linux/i2c-mux.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
--#include <linux/of.h>
-+#include <linux/property.h>
- #include <linux/slab.h>
- #include <linux/sysfs.h>
- 
-@@ -347,38 +347,35 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
- 	else
- 		priv->adap.class = class;
- 
--	/*
--	 * Try to populate the mux adapter's of_node, expands to
--	 * nothing if !CONFIG_OF.
--	 */
--	if (muxc->dev->of_node) {
--		struct device_node *dev_node = muxc->dev->of_node;
--		struct device_node *mux_node, *child = NULL;
-+	/* Try to populate the mux adapter's device node */
-+	if (dev_fwnode(muxc->dev) && !has_acpi_companion(muxc->dev)) {
-+		struct fwnode_handle *dev_node = dev_fwnode(muxc->dev);
-+		struct fwnode_handle *mux_node, *child = NULL;
- 		u32 reg;
- 
- 		if (muxc->arbitrator)
--			mux_node = of_get_child_by_name(dev_node, "i2c-arb");
-+			mux_node = fwnode_get_named_child_node(dev_node, "i2c-arb");
- 		else if (muxc->gate)
--			mux_node = of_get_child_by_name(dev_node, "i2c-gate");
-+			mux_node = fwnode_get_named_child_node(dev_node, "i2c-gate");
- 		else
--			mux_node = of_get_child_by_name(dev_node, "i2c-mux");
-+			mux_node = fwnode_get_named_child_node(dev_node, "i2c-mux");
- 
- 		if (mux_node) {
- 			/* A "reg" property indicates an old-style DT entry */
--			if (!of_property_read_u32(mux_node, "reg", &reg)) {
--				of_node_put(mux_node);
-+			if (!fwnode_property_read_u32(mux_node, "reg", &reg)) {
-+				fwnode_handle_put(mux_node);
- 				mux_node = NULL;
- 			}
- 		}
- 
- 		if (!mux_node)
--			mux_node = of_node_get(dev_node);
-+			mux_node = fwnode_handle_get(dev_node);
- 		else if (muxc->arbitrator || muxc->gate)
--			child = of_node_get(mux_node);
-+			child = fwnode_handle_get(mux_node);
- 
- 		if (!child) {
--			for_each_child_of_node(mux_node, child) {
--				ret = of_property_read_u32(child, "reg", &reg);
-+			fwnode_for_each_child_node(mux_node, child) {
-+				ret = fwnode_property_read_u32(child, "reg", &reg);
- 				if (ret)
- 					continue;
- 				if (chan_id == reg)
-@@ -386,8 +383,8 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
- 			}
- 		}
- 
--		priv->adap.dev.of_node = child;
--		of_node_put(mux_node);
-+		device_set_node(&priv->adap.dev, child);
-+		fwnode_handle_put(mux_node);
- 	}
- 
- 	/*
-@@ -444,7 +441,7 @@ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
- 	while (muxc->num_adapters) {
- 		struct i2c_adapter *adap = muxc->adapter[--muxc->num_adapters];
- 		struct i2c_mux_priv *priv = adap->algo_data;
--		struct device_node *np = adap->dev.of_node;
-+		struct fwnode_handle *np = dev_fwnode(&adap->dev);
- 
- 		muxc->adapter[muxc->num_adapters] = NULL;
- 
-@@ -454,7 +451,7 @@ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
- 
- 		sysfs_remove_link(&priv->adap.dev.kobj, "mux_device");
- 		i2c_del_adapter(adap);
--		of_node_put(np);
-+		fwnode_handle_put(np);
- 		kfree(priv);
- 	}
+diff --git a/drivers/base/property.c b/drivers/base/property.c
+index cd1c30999fd9..00d9f171329c 100644
+--- a/drivers/base/property.c
++++ b/drivers/base/property.c
+@@ -487,6 +487,54 @@ int fwnode_property_match_string(const struct fwnode_handle *fwnode,
  }
+ EXPORT_SYMBOL_GPL(fwnode_property_match_string);
+ 
++struct read_index_data {
++	const char **string;
++	int index;
++};
++
++static int read_string_index(const char **values, int nval, void *data)
++{
++	struct read_index_data *cb_data = data;
++
++	if (cb_data->index >= nval)
++		return -EINVAL;
++
++	*cb_data->string = values[cb_data->index];
++
++	return 0;
++}
++
++/**
++ * fwnode_property_read_string_index - read a string in an array using an index
++ * and return a pointer to the string
++ * @fwnode: Firmware node to get the property of
++ * @propname: Name of the property holding the array
++ * @index: Index of the string to look for
++ * @string: Pointer to the string if found
++ *
++ * Find a string by a given index in a string array and if it is found return
++ * the string value in @string.
++ *
++ * Return: %0 if the property was found (success),
++ *	   %-EINVAL if given arguments are not valid,
++ *	   %-ENODATA if the property does not have a value,
++ *	   %-EPROTO if the property is not an array of strings,
++ *	   %-ENXIO if no suitable firmware interface is present.
++ */
++int fwnode_property_read_string_index(const struct fwnode_handle *fwnode,
++				      const char *propname, int index,
++				      const char **string)
++{
++	struct read_index_data cb_data;
++
++	cb_data.index = index;
++	cb_data.string = string;
++
++	return fwnode_property_string_match(fwnode, propname, read_string_index,
++					    &cb_data);
++}
++EXPORT_SYMBOL_GPL(fwnode_property_read_string_index);
++
+ /**
+  * fwnode_property_get_reference_args() - Find a reference with arguments
+  * @fwnode:	Firmware node where to look for the reference
+diff --git a/include/linux/property.h b/include/linux/property.h
+index 7f727c492602..f6ede3840c40 100644
+--- a/include/linux/property.h
++++ b/include/linux/property.h
+@@ -70,6 +70,9 @@ int fwnode_property_read_string_array(const struct fwnode_handle *fwnode,
+ 				      size_t nval);
+ int fwnode_property_read_string(const struct fwnode_handle *fwnode,
+ 				const char *propname, const char **val);
++int fwnode_property_read_string_index(const struct fwnode_handle *fwnode,
++				      const char *propname, int index,
++				      const char **string);
+ int fwnode_property_match_string(const struct fwnode_handle *fwnode,
+ 				 const char *propname, const char *string);
+ int fwnode_property_get_reference_args(const struct fwnode_handle *fwnode,
 -- 
 2.34.1
 
