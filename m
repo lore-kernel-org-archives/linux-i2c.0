@@ -2,125 +2,109 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B542C43217
-	for <linux-i2c@archiver.kernel.org>; Tue, 22 Feb 2022 17:57:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51606C433F5
+	for <linux-i2c@archiver.kernel.org>; Tue, 22 Feb 2022 20:49:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234745AbiBVR53 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 22 Feb 2022 12:57:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36638 "EHLO
+        id S233839AbiBVUtn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 22 Feb 2022 15:49:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234726AbiBVR52 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 12:57:28 -0500
-Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0463E9F3AB;
-        Tue, 22 Feb 2022 09:56:48 -0800 (PST)
-Received: by mail-oo1-f53.google.com with SMTP id i10-20020a4aab0a000000b002fccf890d5fso18694899oon.5;
-        Tue, 22 Feb 2022 09:56:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=d0c5eaekgCsd/2MB/A2s3Yr0/x87WiLkg0ydsvjSbdg=;
-        b=X5ln7daP7x36ZsQwdFB3GPGWMZbyrSw1tImIzf0EpnnNkjrt1zBa4+uwoixGuyE8Ko
-         bgEhFZvEVl2Czxutg1OAhZv3S8fqJUs/N4onWCRB64yda9IFuA51xoRfmvpjOStBZJRX
-         WpvqmsJ6KjKYrq6kCllipG9O0s0wU3cyM+WJIzkW/fJv/gQzTa9x/kIPaidKAUdVRytm
-         ktqCiORrcA4/2xPE44Lc7tKu0jZAPLxKM8f+5F7qbMiBmLhdqjmQ4WacS2HzKqEOqqp7
-         P2nJtXHWoHTLNwiPlgV7ufu5whS81R+jvaKHMkDzgLl4kEa19v4Dt0tig5u8IOvquaip
-         z1Iw==
-X-Gm-Message-State: AOAM531G135hW3DBrg/Gjr7+0Jfvy9GGgzveZRGjOgN0qEZI+tkLFVVT
-        n0tOMbBMxyrShGVHpdKgDw==
-X-Google-Smtp-Source: ABdhPJzyCoIdb4zb2XlsBbH2K09wgxaBCtYwIdcE2Yqsud2oVcKlTNvKGVY6PBPFKAl9JjY+BPTX8g==
-X-Received: by 2002:a05:6870:790c:b0:d2:8591:d4a5 with SMTP id hg12-20020a056870790c00b000d28591d4a5mr2255509oab.265.1645552607973;
-        Tue, 22 Feb 2022 09:56:47 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id o15sm6387844ooi.31.2022.02.22.09.56.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Feb 2022 09:56:47 -0800 (PST)
-Received: (nullmailer pid 3307024 invoked by uid 1000);
-        Tue, 22 Feb 2022 17:56:46 -0000
-Date:   Tue, 22 Feb 2022 11:56:46 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Tyrone Ting <warp5tw@gmail.com>
-Cc:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
-        venture@google.com, yuenn@google.com, benjaminfair@google.com,
-        krzysztof.kozlowski@canonical.com, semen.protsenko@linaro.org,
-        yangyicong@hisilicon.com, wsa@kernel.org, jie.deng@intel.com,
-        sven@svenpeter.dev, bence98@sch.bme.hu,
-        christophe.leroy@csgroup.eu, lukas.bulwahn@gmail.com,
-        olof@lixom.net, arnd@arndb.de, digetx@gmail.com,
-        andriy.shevchenko@linux.intel.com, tali.perry@nuvoton.com,
-        Avi.Fishman@nuvoton.com, tomer.maimon@nuvoton.com,
-        KWLIU@nuvoton.com, JJLIU0@nuvoton.com, kfting@nuvoton.com,
-        openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 02/11] dt-bindings: i2c: npcm: support NPCM845
-Message-ID: <YhUj3uRQinOVF4eM@robh.at.kernel.org>
-References: <20220220035321.3870-1-warp5tw@gmail.com>
- <20220220035321.3870-3-warp5tw@gmail.com>
+        with ESMTP id S234129AbiBVUtm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 15:49:42 -0500
+Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A95A6440;
+        Tue, 22 Feb 2022 12:49:13 -0800 (PST)
+Received: from relay6-d.mail.gandi.net (unknown [217.70.183.198])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 555FBDA0A5;
+        Tue, 22 Feb 2022 20:31:15 +0000 (UTC)
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 25F99C0006;
+        Tue, 22 Feb 2022 20:31:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1645561868;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FtuFfP7bf62RQnyfTs94b0RuonH4es1pIRqKW4UPqno=;
+        b=KCS9BQw4EXM0r3F6Qy8PQwVvNQ7vVbSfScLUDd5qlj9L6xFHzNeMytBYDdtUjLp+NLf/7D
+        eB8BUUvhuSGyVXvKMYFZ4QS3U3H8wlPwnad/Rdab87Tm7xHx7TpJsbvZsqPsDHwT/txt2Q
+        8ke/vmD66aEzhetPa3uJ3NfiVR0rzVGNBjb9Vnv2x7dwHTQjMZbe0G7uQevL2YGrwzMl8J
+        K/467CqeyGs/wzEZ0k3pq+5VH7LiKpGrLu9YgDIVwkExgTBBWGbxi6emu/tEfmHRLVobpM
+        ovVFE8ZsZ+mQfrW3VnYXDnwA189qF6QshKy8Ou/MaMCoTs2dxbbwSSPSmWmxcQ==
+Date:   Tue, 22 Feb 2022 21:31:03 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Andrew Lunn <andrew@lunn.ch>
+Cc:     =?iso-8859-1?Q?Cl=E9ment_L=E9ger?= <clement.leger@bootlin.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Daniel Scally <djrscally@gmail.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>,
+        Russell King <linux@armlinux.org.uk>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
+        netdev@vger.kernel.org,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [RFC 09/10] i2c: mux: add support for fwnode
+Message-ID: <YhVIB2VTFHyQ4yqx@piout.net>
+References: <20220221162652.103834-1-clement.leger@bootlin.com>
+ <20220221162652.103834-10-clement.leger@bootlin.com>
+ <YhPSDTAPiTvEESnO@smile.fi.intel.com>
+ <20220222095325.52419021@fixe.home>
+ <YhTBo03f5pY+J/R6@lunn.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20220220035321.3870-3-warp5tw@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YhTBo03f5pY+J/R6@lunn.ch>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Sun, Feb 20, 2022 at 11:53:12AM +0800, Tyrone Ting wrote:
-> From: Tyrone Ting <kfting@nuvoton.com>
+On 22/02/2022 11:57:39+0100, Andrew Lunn wrote:
+> On Tue, Feb 22, 2022 at 09:53:25AM +0100, Clément Léger wrote:
+> > Le Mon, 21 Feb 2022 19:55:25 +0200,
+> > Andy Shevchenko <andriy.shevchenko@linux.intel.com> a écrit :
+> > 
+> > > On Mon, Feb 21, 2022 at 05:26:51PM +0100, Clément Léger wrote:
+> > > > Modify i2c_mux_add_adapter() to use with fwnode API to allow creating
+> > > > mux adapters with fwnode based devices. This allows to have a node
+> > > > independent support for i2c muxes.  
+> > > 
+> > > I^2C muxes have their own description for DT and ACPI platforms, I'm not sure
+> > > swnode should be used here at all. Just upload a corresponding SSDT overlay or
+> > > DT overlay depending on the platform. Can it be achieved?
+> > > 
+> > 
+> > Problem is that this PCIe card can be plugged either in a X86 platform
+> > using ACPI or on a ARM one with device-tree. So it means I should have
+> > two "identical" descriptions for each platforms.
 > 
-> Add compatible and nuvoton,sys-mgr description for NPCM i2c module.
+> ACPI != DT.
 > 
-> Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
-> Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-> ---
->  .../bindings/i2c/nuvoton,npcm7xx-i2c.yaml       | 17 ++++++++++++-----
->  1 file changed, 12 insertions(+), 5 deletions(-)
+> I know people like stuffing DT properties into ACPI tables, when ACPI
+> does not have a binding. But in this case, there is a well defined
+> ACPI mechanism for I2C muxes. You cannot ignore it because it is
+> different to DT. So you need to handle the muxes in both the ACPI way
+> and the DT way.
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml b/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
-> index 128444942aec..809c51ac32fe 100644
-> --- a/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
-> @@ -7,17 +7,18 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
->  title: nuvoton NPCM7XX I2C Controller Device Tree Bindings
->  
->  description: |
-> -  The NPCM750x includes sixteen I2C bus controllers. All Controllers support
-> -  both master and slave mode. Each controller can switch between master and slave
-> -  at run time (i.e. IPMB mode). Each controller has two 16 byte HW FIFO for TX and
-> -  RX.
-> +  I2C bus controllers of the NPCM series support both master and
-> +  slave mode. Each controller can switch between master and slave at run time
-> +  (i.e. IPMB mode). HW FIFO for TX and RX are supported.
->  
->  maintainers:
->    - Tali Perry <tali.perry1@gmail.com>
->  
->  properties:
->    compatible:
-> -    const: nuvoton,npcm750-i2c
-> +     enum:
-> +      - nuvoton,npcm750-i2c
-> +      - nuvoton,npcm845-i2c
->  
->    reg:
->      maxItems: 1
-> @@ -36,11 +37,16 @@ properties:
->      default: 100000
->      enum: [100000, 400000, 1000000]
->  
-> +  nuvoton,sys-mgr:
-> +    $ref: "/schemas/types.yaml#/definitions/phandle"
-> +    description: The phandle of system manager register node.
-> +
->  required:
->    - compatible
->    - reg
->    - interrupts
->    - clocks
-> +  - nuvoton,sys-mgr
+> For other parts of what you are doing, you might be able to get away
+> by just stuffing DT properties into ACPI tables. But that is not for
+> me to decide, that is up to the ACPI maintainers.
+> 
 
-You can't make nuvoton,sys-mgr required for existing users. You can add 
-an if/then schema for nuvoton,npcm845-i2c if you want to make it 
-required in that case.
+What I'm wondering is why you would have to stuff anything in ACPI when
+plugging any PCIe card in a PC. Wouldn't that be a first?
 
-Rob
+I don't have to do so when plugging an Intel network card, I don't
+expect to have to do it when plugging any other network card...
+
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
