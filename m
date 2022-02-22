@@ -2,37 +2,35 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFD61C433FE
-	for <linux-i2c@archiver.kernel.org>; Tue, 22 Feb 2022 08:38:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15566C4332F
+	for <linux-i2c@archiver.kernel.org>; Tue, 22 Feb 2022 08:43:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229704AbiBVIiu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 22 Feb 2022 03:38:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53526 "EHLO
+        id S229503AbiBVIna (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 22 Feb 2022 03:43:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbiBVIit (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 03:38:49 -0500
-Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F163F931A4;
-        Tue, 22 Feb 2022 00:38:21 -0800 (PST)
-Received: from relay1-d.mail.gandi.net (unknown [IPv6:2001:4b98:dc4:8::221])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 53506D5FE5;
-        Tue, 22 Feb 2022 08:16:15 +0000 (UTC)
+        with ESMTP id S229449AbiBVIna (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 03:43:30 -0500
+X-Greylist: delayed 58434 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 22 Feb 2022 00:43:04 PST
+Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30858D21DF;
+        Tue, 22 Feb 2022 00:43:04 -0800 (PST)
 Received: (Authenticated sender: clement.leger@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 9F63524000E;
-        Tue, 22 Feb 2022 08:16:06 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id BE0B8240034;
+        Tue, 22 Feb 2022 08:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1645517768;
+        t=1645519382;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Natz2NWgWvho24fzbCnusdUGHKptahSa6WvIBwYrqSQ=;
-        b=VFqnw5A4k32g9vv1hZ1WxHt+0LScib2vaHxuNFrVQIzAbiNQvi9w9aozpXKFol2lRZqOVF
-        95IeseqOVi5x429kyWRL3YziWtD4op8InbwsyCh22H1/S+qxJAAQzfSnAqnO7yh9RiQMCh
-        dfcoOFtLIT6xK/3ZZdXAboxypJh81/YGzAKPdQ7WfrdEmAWrErp931dGktpL9wkV6aBF7Y
-        NAkjIKRKrcpclQvSdkMlhORlS5hdyAFJNQx2ktDQWdvHcnFI6GReL7Fp4fUVBeHjGpZAFj
-        7YV4vP2R0KG2+wv2089hfUC+xiBahzcZR5T0UpD7rEKQUg18k7/YjQ0c6ae6Ig==
-Date:   Tue, 22 Feb 2022 09:14:47 +0100
+        bh=PddXUx732JNHTzqQ0bj6q31D8bPvLWiNmf2xat3g8s0=;
+        b=BR/FXbmmnDB44ixuH+theQDBMOsPiSFiDqb3xAjzI3bbNcCUQYk83Mihl4hlrlY/K5miV6
+        ukVkxcib0JIicnkgyTappdwrzHCRO18X0IYGj7ZPUHuLeI3a7jGlpX3aR/jUyiGyGswFii
+        9i82k13mo96iKCBJENXrt5hsCNL5lxmiejylk7zwLTwoqw+Sn7x34KxIrt5w0nOzYkEPO/
+        54KARCzyfiMrT0cZH/3Dr3cmPPCKsQEnig85nqKj8WgDLdlRCdf5+tffL8/5gKHGmOywZG
+        AFr0tQuDC4YySRgDzZcCr1yHvsIPgg9Zy+dJsQcOWGm3yysb2tct5u6c7NaqLA==
+Date:   Tue, 22 Feb 2022 09:39:21 +0100
 From:   =?UTF-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc:     Daniel Scally <djrscally@gmail.com>,
@@ -50,12 +48,12 @@ Cc:     Daniel Scally <djrscally@gmail.com>,
         netdev@vger.kernel.org,
         Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [RFC 01/10] property: add fwnode_match_node()
-Message-ID: <20220222091447.4afa940a@fixe.home>
-In-Reply-To: <YhPPlFZGFvbNs+ZJ@smile.fi.intel.com>
+Subject: Re: [RFC 03/10] base: swnode: use fwnode_get_match_data()
+Message-ID: <20220222093921.24878bae@fixe.home>
+In-Reply-To: <YhPQUPzz5vPvHUAy@smile.fi.intel.com>
 References: <20220221162652.103834-1-clement.leger@bootlin.com>
-        <20220221162652.103834-2-clement.leger@bootlin.com>
-        <YhPPlFZGFvbNs+ZJ@smile.fi.intel.com>
+        <20220221162652.103834-4-clement.leger@bootlin.com>
+        <YhPQUPzz5vPvHUAy@smile.fi.intel.com>
 Organization: Bootlin
 X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.31; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
@@ -65,25 +63,38 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Le Mon, 21 Feb 2022 19:44:52 +0200,
+Le Mon, 21 Feb 2022 19:48:00 +0200,
 Andy Shevchenko <andriy.shevchenko@linux.intel.com> a =C3=A9crit :
 
-> On Mon, Feb 21, 2022 at 05:26:43PM +0100, Cl=C3=A9ment L=C3=A9ger wrote:
-> > Add a function equivalent to of_match_node() which is usable for
-> > fwnode support. Matching is based on the compatible property and it
-> > returns the best matches for the node according to the compatible
-> > list ordering. =20
+> On Mon, Feb 21, 2022 at 05:26:45PM +0100, Cl=C3=A9ment L=C3=A9ger wrote:
+> > In order to allow matching devices with software node with
+> > device_get_match_data(), use fwnode_get_match_data() for
+> > .device_get_match_data operation. =20
 >=20
-> Not sure I understand the purpose of this API.
-> We have device_get_match_data(), maybe you want similar for fwnode?
+> ...
+>=20
+> > +	.device_get_match_data =3D fwnode_get_match_data, =20
+>=20
+> Huh? It should be other way around, no?
+> I mean that each of the resource providers may (or may not) provide a
+> method for the specific fwnode abstraction.
 >=20
 
-Hi Andy,
+Indeed, it should be the other way. But since this function is generic
+and uses only fwnode API I guessed it would be more convenient to
+define it in the fwnode generic part and use it for specific
+implementation. I could have modified device_get_match_data to call it
+if there was no .device_get_match_data operation like this:
 
-Actually device_get_match_data() is calling the .device_get_match_data
-callback of the dev fwnode. This function is meant to be used by the
-next patch (fwnode_get_match_data()) to be used as a generic fwnode
-operation and thus be usable with software_node.
+const void *device_get_match_data(struct device *dev)
+{
+	if (!fwnode_has_op(fwnode, device_get_match_data)
+		return fwnode_get_match_data(dev);
+	return fwnode_call_ptr_op(dev_fwnode(dev),device_get_match_data, dev);
+}
+
+But I thought it was more convenient to do it by setting the
+.device_get_match_data field of software_node operations.
 
 --=20
 Cl=C3=A9ment L=C3=A9ger,
