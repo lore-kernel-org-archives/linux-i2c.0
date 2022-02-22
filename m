@@ -2,60 +2,40 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 205C3C433F5
-	for <linux-i2c@archiver.kernel.org>; Tue, 22 Feb 2022 08:34:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFD61C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue, 22 Feb 2022 08:38:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229808AbiBVIee (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 22 Feb 2022 03:34:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38368 "EHLO
+        id S229704AbiBVIiu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 22 Feb 2022 03:38:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbiBVIee (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 03:34:34 -0500
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 831DC11861D;
-        Tue, 22 Feb 2022 00:34:09 -0800 (PST)
-Received: by mail-ed1-x52c.google.com with SMTP id i11so33367244eda.9;
-        Tue, 22 Feb 2022 00:34:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=hYbx+gdquJpIZCDFWgwiF4xRFSxpas93/Jikv460mKM=;
-        b=Pt/XAPq6qzHk+wKbePJHCOC9i+hjBUaBhB1iekoGU6gFncZFOWKHeiKjGXch3J9p36
-         p9Y8y+ZiFByNt3pUIH7JXfYlGYvAOrxbI3Icbj93/pJwSt/di9u6eXlmGq0c60RtstHQ
-         dZfgcZNZO3VqPecaVqmM11Yq2KXhSr0yfEmfh0JZ/grsnt3mTqEx0gBKD+GaKj3i6MSa
-         hG7K+/IYfzKDIc3yNsiCbPs/sEEgNWq7GpTa9VWYoUZbwIWYA7TNVjIEGe3rR8FSnacH
-         0mtU9Sckpy0lAgIK5hINEvV7LjkiWNDaBvspOmdS2SliQ6E49SUskUytRLkX3CBCcULc
-         IYuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=hYbx+gdquJpIZCDFWgwiF4xRFSxpas93/Jikv460mKM=;
-        b=bJbTwWXxRrozY6kjZfgy4WRjSs2QoC7CSGVRbTc92GwSLd9BJviNNYs+jZc5MdZEu+
-         739UD+hQu8aGct4uVqkgcIOw5tHZqj88tLuP4mCwgbYkHRSeqge2AtAG3ItgqSlAzsbO
-         csgnqCZ+BL+udLRk+rhCCjTy4WqSh3kfB3IyktfSJ+uVxCvyahxDYTPSrmzdVlsoiMbW
-         62nXlaAN/MmLVFCSUOtjHOiJ+rYpcqzJssk9VBJ2uh+wlzAFMFMfdfHwbxf25p/L9GbV
-         RVetCJ08SlAckvibnhDM4l+/+N/RvnSYrACFvPlv22MKc1fqtHGOO6Kz2DagUASLDWIn
-         reBQ==
-X-Gm-Message-State: AOAM531Bd9QWNlGC1ivp13iM715ps3WS7XVf8S17cohp5wgf191bOaIp
-        5ttErYIcaNO4I2TvM0hHD5fyK8Ls52GmD9CtEiE=
-X-Google-Smtp-Source: ABdhPJw7nQb/of5N3dJaJiBbGCi6mzlWkLmNzq2AC+PT3ndg7W30Pm7djZfunvkjFDWOlbuegqsmLwRygCkvaSCh4Uw=
-X-Received: by 2002:a05:6402:2553:b0:412:8684:bd34 with SMTP id
- l19-20020a056402255300b004128684bd34mr25590743edb.436.1645518848047; Tue, 22
- Feb 2022 00:34:08 -0800 (PST)
-MIME-Version: 1.0
-References: <20220221162652.103834-1-clement.leger@bootlin.com>
- <20220221162652.103834-3-clement.leger@bootlin.com> <YhPP5GWt7XEv5xx8@smile.fi.intel.com>
- <20220222091902.198ce809@fixe.home>
-In-Reply-To: <20220222091902.198ce809@fixe.home>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Tue, 22 Feb 2022 09:33:32 +0100
-Message-ID: <CAHp75VdwfhGKOiGhJ1JsiG+R2ZdHa3N4hz6tyy5BmyFLripV5A@mail.gmail.com>
-Subject: Re: [RFC 02/10] property: add fwnode_get_match_data()
-To:     =?UTF-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
+        with ESMTP id S229515AbiBVIit (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 03:38:49 -0500
+Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F163F931A4;
+        Tue, 22 Feb 2022 00:38:21 -0800 (PST)
+Received: from relay1-d.mail.gandi.net (unknown [IPv6:2001:4b98:dc4:8::221])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 53506D5FE5;
+        Tue, 22 Feb 2022 08:16:15 +0000 (UTC)
+Received: (Authenticated sender: clement.leger@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 9F63524000E;
+        Tue, 22 Feb 2022 08:16:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1645517768;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Natz2NWgWvho24fzbCnusdUGHKptahSa6WvIBwYrqSQ=;
+        b=VFqnw5A4k32g9vv1hZ1WxHt+0LScib2vaHxuNFrVQIzAbiNQvi9w9aozpXKFol2lRZqOVF
+        95IeseqOVi5x429kyWRL3YziWtD4op8InbwsyCh22H1/S+qxJAAQzfSnAqnO7yh9RiQMCh
+        dfcoOFtLIT6xK/3ZZdXAboxypJh81/YGzAKPdQ7WfrdEmAWrErp931dGktpL9wkV6aBF7Y
+        NAkjIKRKrcpclQvSdkMlhORlS5hdyAFJNQx2ktDQWdvHcnFI6GReL7Fp4fUVBeHjGpZAFj
+        7YV4vP2R0KG2+wv2089hfUC+xiBahzcZR5T0UpD7rEKQUg18k7/YjQ0c6ae6Ig==
+Date:   Tue, 22 Feb 2022 09:14:47 +0100
+From:   =?UTF-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Daniel Scally <djrscally@gmail.com>,
         Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -65,46 +45,47 @@ Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Andrew Lunn <andrew@lunn.ch>,
         Heiner Kallweit <hkallweit1@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        netdev <netdev@vger.kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
+        netdev@vger.kernel.org,
         Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [RFC 01/10] property: add fwnode_match_node()
+Message-ID: <20220222091447.4afa940a@fixe.home>
+In-Reply-To: <YhPPlFZGFvbNs+ZJ@smile.fi.intel.com>
+References: <20220221162652.103834-1-clement.leger@bootlin.com>
+        <20220221162652.103834-2-clement.leger@bootlin.com>
+        <YhPPlFZGFvbNs+ZJ@smile.fi.intel.com>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.31; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Feb 22, 2022 at 9:24 AM Cl=C3=A9ment L=C3=A9ger <clement.leger@boot=
-lin.com> wrote:
-> Le Mon, 21 Feb 2022 19:46:12 +0200,
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com> a =C3=A9crit :
-> > On Mon, Feb 21, 2022 at 05:26:44PM +0100, Cl=C3=A9ment L=C3=A9ger wrote=
-:
+Le Mon, 21 Feb 2022 19:44:52 +0200,
+Andy Shevchenko <andriy.shevchenko@linux.intel.com> a =C3=A9crit :
 
-...
+> On Mon, Feb 21, 2022 at 05:26:43PM +0100, Cl=C3=A9ment L=C3=A9ger wrote:
+> > Add a function equivalent to of_match_node() which is usable for
+> > fwnode support. Matching is based on the compatible property and it
+> > returns the best matches for the node according to the compatible
+> > list ordering. =20
+>=20
+> Not sure I understand the purpose of this API.
+> We have device_get_match_data(), maybe you want similar for fwnode?
+>=20
 
-> > It's OF-centric API, why it has fwnode prefix? Can it leave in drivers/=
-of instead?
->
-> The idea is to allow device with a software_node description to match
-> with the content of the of_match_table. Without this, we would need a
-> new type of match table that would probably duplicates part of the
-> of_match_table to be able to match software_node against a driver.
-> I did not found an other way to do it without modifying drivers
-> individually to support software_nodes.
+Hi Andy,
 
-software nodes should not be used as a replacement of the real
-firmware nodes. The idea behind is to fill the gaps in the cases when
-firmware doesn't provide enough information to the OS. I think Heikki
-can confirm or correct me.
-
-If you want to use the device on an ACPI based platform, you need to
-describe it in ACPI as much as possible. The rest we may discuss.
+Actually device_get_match_data() is calling the .device_get_match_data
+callback of the dev fwnode. This function is meant to be used by the
+next patch (fwnode_get_match_data()) to be used as a generic fwnode
+operation and thus be usable with software_node.
 
 --=20
-With Best Regards,
-Andy Shevchenko
+Cl=C3=A9ment L=C3=A9ger,
+Embedded Linux and Kernel engineer at Bootlin
+https://bootlin.com
