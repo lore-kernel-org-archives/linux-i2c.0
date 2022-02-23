@@ -2,106 +2,116 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C68CC433F5
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Feb 2022 02:39:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D647C433EF
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Feb 2022 03:39:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237565AbiBWCjx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 22 Feb 2022 21:39:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56188 "EHLO
+        id S236435AbiBWDja (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 22 Feb 2022 22:39:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237842AbiBWCiX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 21:38:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71DAF5EDF3;
-        Tue, 22 Feb 2022 18:33:09 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 529DB614D3;
-        Wed, 23 Feb 2022 02:33:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 447D4C340E8;
-        Wed, 23 Feb 2022 02:33:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583588;
-        bh=0J4jcFKw6gaKR0MPzB8D3qoZdK16pSHJvlNpqL7WFAE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hKjhbzAMYJ2u58WEyfxI5D4sFnFSHHXxFVnuTmcp4+9c2U8v8odEUB1k6NiShHqv/
-         1bSRtcI6I46kM293F0zE4erMdKQZA3NUwBUKzQ8xu9cD/PzxbHbY+jqJZHVTgqVxRZ
-         qjFomkUz1es8uc0EV5v5m41EWsaI2TsFE8EDWxRiytSi479m7M6d/LFSk5GBx4PA2c
-         3A9QWSNwKB07+VNBFZzNNyrNDvbxR5Q5J73kztcQifRlEwHZLH2Zx5Yw1ckyKHSk1u
-         NpKbfyFQ0B0Sga23byVNol0mirb6C84aanNqT4G86mM1L23diitaxR/pJY2EC9wULG
-         oMR0B7rd+4KyQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Anholt <eric@anholt.net>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        nsaenz@kernel.org, f.fainelli@gmail.com, rjui@broadcom.com,
-        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
-        prabhakar.mahadev-lad.rj@bp.renesas.com, linux-i2c@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 3/9] i2c: bcm2835: Avoid clock stretching timeouts
-Date:   Tue, 22 Feb 2022 21:32:54 -0500
-Message-Id: <20220223023300.242616-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220223023300.242616-1-sashal@kernel.org>
-References: <20220223023300.242616-1-sashal@kernel.org>
+        with ESMTP id S236199AbiBWDj3 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 22:39:29 -0500
+Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D8903D4AC;
+        Tue, 22 Feb 2022 19:39:01 -0800 (PST)
+Received: by mail-vs1-xe29.google.com with SMTP id j3so1774106vsi.7;
+        Tue, 22 Feb 2022 19:39:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=LvRpWJinftwqb1VQH9ytrPGNaXqDypv0JPsj78l9+FY=;
+        b=eyOfnPKtUVgM0Mz7hg2JjW4Pk/cOsbb3Md/CMGUoOB6YmvT4mWNt+HKzTz4ai5IMj4
+         NnyWY5PzJxHtn1xXyW2OPkEgSG7DYn+zaC9ZWRwjK2jqiJN8Yugp+oKw+re8Q/0Lfr+q
+         /aB+Lz0oBq9VJvVBsKnlUhFITt66Pm4TQgrAD6o5HJm98Lbe/iRriGEiN+vZvfTLMlQf
+         3P53F77Zyl3kNK4bGdYDdawYfykRZcz0M7zYJSi6sMGRcKEyuQMqN3+SydppMRGUmwL+
+         d6KCoMSQX+abiZ7sWPWU29QNTpYf0uobYQSCeABP5bxxfvMytyScizk4f+vb8nMa2+5S
+         mnZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=LvRpWJinftwqb1VQH9ytrPGNaXqDypv0JPsj78l9+FY=;
+        b=D4Dp6yVvsBXegekXzLtD/16MDNnar5Z81rtE5EaiQH3uHa0HLM40jDVWgp9wjfmXAn
+         G760GD1pJ44tA4vEjOX4vWh1jjLcTrWP1hlDzSjCfkACpJcQ+kZeioWRoZybrXiWlKc1
+         mYmei8HZ+sXUFOUzvujVSoCHiqWhWCr4BBaEAzUHRvMYRUYvWHwL2ZbrxEeTpJnUK2l4
+         1qhx74hohEbrKuMqG6p1ghm8ozgG5zwMdsh2tewYsjU4rbZKJNgcvuBWveQwYdnHOKal
+         uhXOwh19LQyKFPYbzwOOscWXw47Z3AqyaPkTybtWeWCA6hirT+YXFUOPzVkuSQ6ym/0q
+         Idyg==
+X-Gm-Message-State: AOAM532AvV0twYSW4nxaaDI3f88K2Vaz2ROrkfa51yUFGvog8kqgAb+P
+        bKwtibF+8v1x0tE4xArlYoNsXbZ+TiicUIFFXw==
+X-Google-Smtp-Source: ABdhPJz9tQfelHz+P+qJV477ABXt4WJYhC7UjoC/2gG4A4NNsfZVAU8hDEjpRLH19nxzc+D6GfYbeIYfdqQfZmCrLpk=
+X-Received: by 2002:a05:6102:370f:b0:31b:60dc:4f76 with SMTP id
+ s15-20020a056102370f00b0031b60dc4f76mr12203672vst.2.1645587540488; Tue, 22
+ Feb 2022 19:39:00 -0800 (PST)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20220220035321.3870-1-warp5tw@gmail.com> <20220220035321.3870-6-warp5tw@gmail.com>
+ <YhN8OGIR9eSCus8E@latitude> <CACD3sJbMZ-CT4htPUBqyswghAC+j8PgJ_z-VdA38yC+6HFrF+w@mail.gmail.com>
+ <YhUIP4pvoGBUohCE@latitude>
+In-Reply-To: <YhUIP4pvoGBUohCE@latitude>
+From:   Tyrone Ting <warp5tw@gmail.com>
+Date:   Wed, 23 Feb 2022 11:38:47 +0800
+Message-ID: <CACD3sJZtJ_vrd=xQQ5P1c1L8dZ9LgjZhE2-76SFyQ+jX9NPNVg@mail.gmail.com>
+Subject: Re: [PATCH v2 05/11] i2c: npcm: Remove unused clock node
+To:     =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+Cc:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
+        venture@google.com, yuenn@google.com, benjaminfair@google.com,
+        robh+dt@kernel.org, krzysztof.kozlowski@canonical.com,
+        semen.protsenko@linaro.org, yangyicong@hisilicon.com,
+        wsa@kernel.org, jie.deng@intel.com, sven@svenpeter.dev,
+        bence98@sch.bme.hu, christophe.leroy@csgroup.eu,
+        lukas.bulwahn@gmail.com, olof@lixom.net, arnd@arndb.de,
+        digetx@gmail.com, andriy.shevchenko@linux.intel.com,
+        tali.perry@nuvoton.com, Avi.Fishman@nuvoton.com,
+        tomer.maimon@nuvoton.com, KWLIU@nuvoton.com, JJLIU0@nuvoton.com,
+        kfting@nuvoton.com, devicetree@vger.kernel.org,
+        openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Eric Anholt <eric@anholt.net>
+Hi Jonathan:
 
-[ Upstream commit 9495b9b31abe525ebd93da58de2c88b9f66d3a0e ]
+Got it and thank you.
 
-The CLKT register contains at poweron 0x40, which at our typical 100kHz
-bus rate means .64ms. But there is no specified limit to how long devices
-should be able to stretch the clocks, so just disable the timeout. We
-still have a timeout wrapping the entire transfer.
+Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net> =E6=96=BC 2022=E5=B9=B42=
+=E6=9C=8822=E6=97=A5 =E9=80=B1=E4=BA=8C =E4=B8=8B=E5=8D=8811:59=E5=AF=AB=E9=
+=81=93=EF=BC=9A
+>
+> On Tue, Feb 22, 2022 at 10:15:04AM +0800, Tyrone Ting wrote:
+> > Hi Jonathan:
+> >
+> > Thank you for your comments and please find my reply next to your comme=
+nts.
+> >
+> > Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net> =E6=96=BC 2022=E5=B9=
+=B42=E6=9C=8821=E6=97=A5 =E9=80=B1=E4=B8=80 =E4=B8=8B=E5=8D=887:49=E5=AF=AB=
+=E9=81=93=EF=BC=9A
+> > >
+> > > On Sun, Feb 20, 2022 at 11:53:15AM +0800, Tyrone Ting wrote:
+> > > > From: Tali Perry <tali.perry1@gmail.com>
+> > > >
+> > > > Remove unused npcm750-clk node.
+> > >
+> > > You're not actually removing a node, for example in the sense of remo=
+ving a
+> > > devicetree node from a devicetree.
+> > >
+> > > So, I think "Remove unused variable clk_regmap." would be a better
+> > > description.
+> > >
+> >
+> > May I modify the description according to your input and attach
+> > "Reviewed-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>"
+> > onto this commit in the next version of the patch set?
+>
+> Yes!
+>
+>
+> Jonathan
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-BugLink: https://github.com/raspberrypi/linux/issues/3064
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 7ed09865cb4b9..4729c14b75017 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -28,6 +28,11 @@
- #define BCM2835_I2C_FIFO	0x10
- #define BCM2835_I2C_DIV		0x14
- #define BCM2835_I2C_DEL		0x18
-+/*
-+ * 16-bit field for the number of SCL cycles to wait after rising SCL
-+ * before deciding the slave is not responding. 0 disables the
-+ * timeout detection.
-+ */
- #define BCM2835_I2C_CLKT	0x1c
- 
- #define BCM2835_I2C_C_READ	BIT(0)
-@@ -313,6 +318,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	adap->dev.of_node = pdev->dev.of_node;
- 	adap->quirks = &bcm2835_i2c_quirks;
- 
-+	/*
-+	 * Disable the hardware clock stretching timeout. SMBUS
-+	 * specifies a limit for how long the device can stretch the
-+	 * clock, but core I2C doesn't.
-+	 */
-+	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
- 
- 	ret = i2c_add_adapter(adap);
--- 
-2.34.1
-
+Best regards,
+Tyrone
