@@ -2,46 +2,48 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19C3EC433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80716C4167D
 	for <linux-i2c@archiver.kernel.org>; Wed, 23 Feb 2022 02:38:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237280AbiBWCi7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S237980AbiBWCi7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Tue, 22 Feb 2022 21:38:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58850 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237733AbiBWCh6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 21:37:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804D45DE55;
+        with ESMTP id S237741AbiBWCiA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 21:38:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB9F5DE7C;
         Tue, 22 Feb 2022 18:32:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C29B61516;
-        Wed, 23 Feb 2022 02:32:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C0B3C340E8;
-        Wed, 23 Feb 2022 02:32:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E66CB81E01;
+        Wed, 23 Feb 2022 02:32:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4514CC340E8;
+        Wed, 23 Feb 2022 02:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583578;
-        bh=nB+IriusxrNw8RVnFBG5j8tEtcqp3hdPm/KX5tASSSg=;
+        s=k20201202; t=1645583561;
+        bh=p3NpOOloCl+up0CATJ/0J6lmGf3pYfYwJI3ux1MhqfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t31+p8xXtloEkaEpUSrZfl004AVdolZd555EBlaHF2khO/cNqfNXw4kAEyYoks/Rd
-         HsL4nL+mC0+xZHznEwDxH39Hb2luQpDSwzNKb+6EjJjr/uGMN9I8KFhQd8Jnh4lKZd
-         tErMEZzVmg+f8HCTKZmOYKl/wkMICcF5cD7WsLC2QxuaHiU7DWxj2uCMyHjTeydAOr
-         3+O3yUTpm7x+uLeJVd/mtP2ahR3sj3Y2uxWMku5o5Ujl2l9JNSkSiowjEyNXYdq2qW
-         w9qXX2xq96Cm0NkKhAhgU8KMV1XPYS1iBOLVvWBznefIDMte64y9AyOuhgwFVyG14K
-         04U9TaX9KflKQ==
+        b=a/Roze0u7XsorpaiXZJk500RKk4DMig+cXtx51Sac+VNX/5SnekYyAhH/sstxdX89
+         IVJyTp+1VQaTqGvTYD2BwkY74c8pkn0Y6iYTkqLfGmc4yoRhzGrWsAjB+XJvY0uOnv
+         /vburDZRQ1nxHLf5mh310Ql+z/ndIf/5iwRqVgnMnKBub7Uqv9jJ45efQiZtb83+vQ
+         XG0OHJKe/Wu8acMoca80tnaQptXUsHwUqVHWNtH+LKqnvfp7MMqlYTSY5zP76SaqIO
+         aiQ0hGzfrsVBlm8u9PgQg3KsbV1CEmcZLl6MSBNf0DYPl3QG24/4DDP1zk4bfMRuW5
+         DX2u9okNHgixg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        krzysztof.kozlowski@canonical.com, robh@kernel.org,
-        yangyicong@hisilicon.com, semen.protsenko@linaro.org,
-        christophe.leroy@csgroup.eu, jie.deng@intel.com,
-        sven@svenpeter.dev, bence98@sch.bme.hu, lukas.bulwahn@gmail.com,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/10] i2c: qup: allow COMPILE_TEST
-Date:   Tue, 22 Feb 2022 21:32:32 -0500
-Message-Id: <20220223023233.242468-9-sashal@kernel.org>
+Cc:     Eric Anholt <eric@anholt.net>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        nsaenz@kernel.org, f.fainelli@gmail.com, rjui@broadcom.com,
+        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+        prabhakar.mahadev-lad.rj@bp.renesas.com, linux-i2c@vger.kernel.org,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 03/10] i2c: bcm2835: Avoid clock stretching timeouts
+Date:   Tue, 22 Feb 2022 21:32:26 -0500
+Message-Id: <20220223023233.242468-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023233.242468-1-sashal@kernel.org>
 References: <20220223023233.242468-1-sashal@kernel.org>
@@ -53,32 +55,53 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa@kernel.org>
+From: Eric Anholt <eric@anholt.net>
 
-[ Upstream commit 5de717974005fcad2502281e9f82e139ca91f4bb ]
+[ Upstream commit 9495b9b31abe525ebd93da58de2c88b9f66d3a0e ]
 
-Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
-and easier maintenance.
+The CLKT register contains at poweron 0x40, which at our typical 100kHz
+bus rate means .64ms. But there is no specified limit to how long devices
+should be able to stretch the clocks, so just disable the timeout. We
+still have a timeout wrapping the entire transfer.
 
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+BugLink: https://github.com/raspberrypi/linux/issues/3064
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index ab9c7f2f1f79b..2619f1dc095aa 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -836,7 +836,7 @@ config I2C_PXA_SLAVE
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 4d19254f78c8a..db1ab9ccc30e7 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -28,6 +28,11 @@
+ #define BCM2835_I2C_FIFO	0x10
+ #define BCM2835_I2C_DIV		0x14
+ #define BCM2835_I2C_DEL		0x18
++/*
++ * 16-bit field for the number of SCL cycles to wait after rising SCL
++ * before deciding the slave is not responding. 0 disables the
++ * timeout detection.
++ */
+ #define BCM2835_I2C_CLKT	0x1c
  
- config I2C_QUP
- 	tristate "Qualcomm QUP based I2C controller"
--	depends on ARCH_QCOM
-+	depends on ARCH_QCOM || COMPILE_TEST
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  built-in I2C interface on the Qualcomm SoCs.
+ #define BCM2835_I2C_C_READ	BIT(0)
+@@ -398,6 +403,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 	adap->quirks = &bcm2835_i2c_quirks;
+ 
++	/*
++	 * Disable the hardware clock stretching timeout. SMBUS
++	 * specifies a limit for how long the device can stretch the
++	 * clock, but core I2C doesn't.
++	 */
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
+ 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+ 
+ 	ret = i2c_add_adapter(adap);
 -- 
 2.34.1
 
