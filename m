@@ -2,48 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0414C433EF
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Feb 2022 02:39:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 134F1C433FE
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Feb 2022 02:39:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237697AbiBWCjW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 22 Feb 2022 21:39:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57936 "EHLO
+        id S237311AbiBWCjw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 22 Feb 2022 21:39:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238000AbiBWCik (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 21:38:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAFCE65795;
-        Tue, 22 Feb 2022 18:33:24 -0800 (PST)
+        with ESMTP id S237813AbiBWCiG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 21:38:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E3522BF6;
+        Tue, 22 Feb 2022 18:33:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6612B81E0D;
-        Wed, 23 Feb 2022 02:33:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35473C340E8;
-        Wed, 23 Feb 2022 02:33:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B20CB81E0D;
+        Wed, 23 Feb 2022 02:32:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 951FCC340E8;
+        Wed, 23 Feb 2022 02:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583601;
-        bh=+HjWtkyg5blV/CSVSQ1sFF66D+smH/UPn9Xx4gaydoE=;
+        s=k20201202; t=1645583574;
+        bh=94F1j0DiZ7qJpTyWsfI+MmjhV156Q0ciHj/koAEnTgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r1Fr9jr6StkJDozyri4ShusheSDPuN8IVWuPaXse2SYJNTjhN3HInFoJ1CWxpD1/d
-         Jv5rEgMC6LOzkEp7QCTs6PpC4mcp1xYextOHlAMDCVtAQE7m8G4xNYAeBThIuDzQBx
-         EWJBJoXLlHkcJqLDhhM4iWBxpm59zBs7jIItNNabIEZJMxtew9o3fkCJiUii/nFBcY
-         93z5sLMJGSh9WlZSmLemsmQpfpV49osCveSM4PCCAKYoK5tINz9Ba/J25UM5UzDphs
-         OUGDOQIbU6ikwviPOTZHkBaN18nRiA7m5ez9KsiW+tfwbCqvHHHvt1HMoaCsk4url1
-         CwJN3lfOa3kfA==
+        b=eWLZ2d7oxK+MBn7U0dGpsBzbGxHBUPooNDBcU5CiE0doiwBOjBGYOg7w97/P1L4EE
+         ZTpmXME1TmRTmeCBm7i92NvvdeQ6XG+LCRkSoWhC+AklU5aia0PrXCA0iVXox3vIQU
+         OU/CTri8nABv02cjsJCKEy/Rln8v8EtoSW+Jiey8rIUwfFnICcE6kFArjhse7pWOeq
+         /FSc4sRrZNf1IouKEQW9OJP3MOgfLABKGFHkI+JkF2m6qCdZjWq34bgRCdDYRGyoP3
+         NHUNsZ1iWEQPdTFLTK52BXckprK093euqNGFIEuKr3zJcPOnwsXqD1E1gf3EYs9xgv
+         Oc3hEICWoRngA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+Cc:     Wolfram Sang <wsa@kernel.org>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sasha Levin <sashal@kernel.org>,
         krzysztof.kozlowski@canonical.com, robh@kernel.org,
-        semen.protsenko@linaro.org, yangyicong@hisilicon.com,
+        yangyicong@hisilicon.com, semen.protsenko@linaro.org,
         sven@svenpeter.dev, jie.deng@intel.com, bence98@sch.bme.hu,
         lukas.bulwahn@gmail.com, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 8/9] i2c: qup: allow COMPILE_TEST
-Date:   Tue, 22 Feb 2022 21:32:59 -0500
-Message-Id: <20220223023300.242616-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 08/10] i2c: cadence: allow COMPILE_TEST
+Date:   Tue, 22 Feb 2022 21:32:31 -0500
+Message-Id: <20220223023233.242468-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220223023300.242616-1-sashal@kernel.org>
-References: <20220223023300.242616-1-sashal@kernel.org>
+In-Reply-To: <20220223023233.242468-1-sashal@kernel.org>
+References: <20220223023233.242468-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -54,30 +56,31 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa@kernel.org>
 
-[ Upstream commit 5de717974005fcad2502281e9f82e139ca91f4bb ]
+[ Upstream commit 0b0dcb3882c8f08bdeafa03adb4487e104d26050 ]
 
 Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
 and easier maintenance.
 
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  drivers/i2c/busses/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 759c621a860a9..be4b7b1ad39b6 100644
+index c457f65136f83..ab9c7f2f1f79b 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -783,7 +783,7 @@ config I2C_PXA_SLAVE
+@@ -459,7 +459,7 @@ config I2C_BLACKFIN_TWI_CLK_KHZ
  
- config I2C_QUP
- 	tristate "Qualcomm QUP based I2C controller"
--	depends on ARCH_QCOM
-+	depends on ARCH_QCOM || COMPILE_TEST
+ config I2C_CADENCE
+ 	tristate "Cadence I2C Controller"
+-	depends on ARCH_ZYNQ || ARM64 || XTENSA
++	depends on ARCH_ZYNQ || ARM64 || XTENSA || COMPILE_TEST
  	help
- 	  If you say yes to this option, support will be included for the
- 	  built-in I2C interface on the Qualcomm SoCs.
+ 	  Say yes here to select Cadence I2C Host Controller. This controller is
+ 	  e.g. used by Xilinx Zynq.
 -- 
 2.34.1
 
