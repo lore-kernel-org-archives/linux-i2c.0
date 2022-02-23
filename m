@@ -2,48 +2,49 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 081C9C4167B
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Feb 2022 02:38:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19C3EC433F5
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Feb 2022 02:38:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237745AbiBWCi6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 22 Feb 2022 21:38:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57906 "EHLO
+        id S237280AbiBWCi7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 22 Feb 2022 21:38:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237690AbiBWCh4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 21:37:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FDE45C66D;
-        Tue, 22 Feb 2022 18:32:53 -0800 (PST)
+        with ESMTP id S237733AbiBWCh6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 21:37:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804D45DE55;
+        Tue, 22 Feb 2022 18:32:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C229F61558;
-        Wed, 23 Feb 2022 02:32:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1285C340F0;
-        Wed, 23 Feb 2022 02:32:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C29B61516;
+        Wed, 23 Feb 2022 02:32:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C0B3C340E8;
+        Wed, 23 Feb 2022 02:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583551;
-        bh=faKb8S+dj0AamNTJtP4wWkYFDzropf0AlV3qAJECMQ4=;
+        s=k20201202; t=1645583578;
+        bh=nB+IriusxrNw8RVnFBG5j8tEtcqp3hdPm/KX5tASSSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6O5sM8QjUlLA9030bHNMP+z+uOEJkDPbjY0XcJtmfN3gspjLIzxLigELCrDL4XBR
-         Y/WfuFNh6MfbUjEOZLgT97ID/EpW0IMz3KSrB7lnu0EF7Y2RFEjg3KB/1yA5vRrTAu
-         +tYiOQNHa3CS25KaIG0NznH/QERdcMJB6nBmFnyGglgrQM9z/FjrPgLwQMwDCq1P7X
-         Z5XXK0WM19EvE2l1sN2uqws/iC0c5mdP0THQU8M3sm3RE7Dzl7IxPGs7SLBNY0DvYT
-         A9TW/SMYSW/9Rly3ZRfB79oQhq5cfMQTnsqayoc30vKzSofkhZWGkn9MpxkmpGfuCC
-         Imrt4kVFbSyZA==
+        b=t31+p8xXtloEkaEpUSrZfl004AVdolZd555EBlaHF2khO/cNqfNXw4kAEyYoks/Rd
+         HsL4nL+mC0+xZHznEwDxH39Hb2luQpDSwzNKb+6EjJjr/uGMN9I8KFhQd8Jnh4lKZd
+         tErMEZzVmg+f8HCTKZmOYKl/wkMICcF5cD7WsLC2QxuaHiU7DWxj2uCMyHjTeydAOr
+         3+O3yUTpm7x+uLeJVd/mtP2ahR3sj3Y2uxWMku5o5Ujl2l9JNSkSiowjEyNXYdq2qW
+         w9qXX2xq96Cm0NkKhAhgU8KMV1XPYS1iBOLVvWBznefIDMte64y9AyOuhgwFVyG14K
+         04U9TaX9KflKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        krzysztof.kozlowski@canonical.com, semen.protsenko@linaro.org,
-        robh@kernel.org, yangyicong@hisilicon.com, geert+renesas@glider.be,
-        sven@svenpeter.dev, jie.deng@intel.com, bence98@sch.bme.hu,
-        lukas.bulwahn@gmail.com, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/13] i2c: qup: allow COMPILE_TEST
-Date:   Tue, 22 Feb 2022 21:31:51 -0500
-Message-Id: <20220223023152.242065-12-sashal@kernel.org>
+        krzysztof.kozlowski@canonical.com, robh@kernel.org,
+        yangyicong@hisilicon.com, semen.protsenko@linaro.org,
+        christophe.leroy@csgroup.eu, jie.deng@intel.com,
+        sven@svenpeter.dev, bence98@sch.bme.hu, lukas.bulwahn@gmail.com,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 09/10] i2c: qup: allow COMPILE_TEST
+Date:   Tue, 22 Feb 2022 21:32:32 -0500
+Message-Id: <20220223023233.242468-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220223023152.242065-1-sashal@kernel.org>
-References: <20220223023152.242065-1-sashal@kernel.org>
+In-Reply-To: <20220223023233.242468-1-sashal@kernel.org>
+References: <20220223023233.242468-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -66,10 +67,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 3a2f85d811f75..165c112bc5b9a 100644
+index ab9c7f2f1f79b..2619f1dc095aa 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -849,7 +849,7 @@ config I2C_QCOM_GENI
+@@ -836,7 +836,7 @@ config I2C_PXA_SLAVE
  
  config I2C_QUP
  	tristate "Qualcomm QUP based I2C controller"
