@@ -2,51 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4563C4332F
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Feb 2022 02:33:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F15F2C41535
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Feb 2022 02:33:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232789AbiBWCdh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S237174AbiBWCdh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Tue, 22 Feb 2022 21:33:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42652 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237234AbiBWCcl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 21:32:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E6C5AEDC;
-        Tue, 22 Feb 2022 18:30:40 -0800 (PST)
+        with ESMTP id S237668AbiBWCdU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Feb 2022 21:33:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72737CF0;
+        Tue, 22 Feb 2022 18:31:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFCDBB81E18;
-        Wed, 23 Feb 2022 02:30:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14FE2C340F6;
-        Wed, 23 Feb 2022 02:30:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 481DC6152A;
+        Wed, 23 Feb 2022 02:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 697A4C340F0;
+        Wed, 23 Feb 2022 02:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583426;
-        bh=iiiU8DN3ENwStLSi/sYPdqOZyIuha6jES6Cbw9b1hww=;
+        s=k20201202; t=1645583470;
+        bh=C61B4YqZLuPfUtAJA5XNOFg/InlbWVrwKeMTqahBgjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ibsFWho/8JI5E2vtC2uDQqBl4xWg8w2hUgo/jlZnZR/oqb1sqMRaqKscfR9c/Cq1e
-         a4f9JVR+XOEp0FUeZYTszTsXDeFj8QC9QPYBBBpB/X3AeURqjxW/z1z+LHBF20rWGH
-         llxSQOnxRqaUu7QfBukPb8LRmItab3+uj85pZTsJ/P0NPcw+Ger9DVV+EPGCCqF7zt
-         RzGl0bFrMAgGGxPMPq4/OsGVEWGzBhFsMcSUx5dz5DHt47nrPEnY1GMx0nxKHNFrZE
-         59aAZ4QJe8y0iTle2DlnEaFwHQWlrd0BuQaRARLH8KSqsLRF8M5ElUKEh+G5Ju2nPE
-         IH/62CmiGiX0A==
+        b=loscU46DXj5H2qNzjpa599QzYNMxlsYLfmYMvhMlPy/Fsv5cSZ7vJXnTs7BsER4Pq
+         Xg5gciM6mUxQR1Oqw3Ka8U0vnkg7fvS3a1NWQaQ4CUHlpBSzQiDIsYQ8lHGNKEmbKe
+         UAt2OYiDbnUroagS/MKZzok5WnhDlZL/dsVtpfPg4cDOTOe3Zo9fTzYRN9DKzJqhaz
+         Mz7yYDRNEZoyBnElEJu/Kgg4rCwDKxdf/7Xiu/ZZMHLcuo2tNEviuIHyrGGESNZUzt
+         y6WHF0BfhioDrsq1mnqEF/uCo/Uybj6VOlJsgkh9DxTmE1cicMUsChdnF9ttpt++DZ
+         80L1OXFCBnMQg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wolfram Sang <wsa@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Michal Simek <michal.simek@xilinx.com>,
         Sasha Levin <sashal@kernel.org>,
         krzysztof.kozlowski@canonical.com, yangyicong@hisilicon.com,
-        semen.protsenko@linaro.org, robh@kernel.org,
-        geert+renesas@glider.be, jie.deng@intel.com, sven@svenpeter.dev,
-        bence98@sch.bme.hu, lukas.bulwahn@gmail.com,
+        semen.protsenko@linaro.org, robh@kernel.org, bence98@sch.bme.hu,
+        sven@svenpeter.dev, jie.deng@intel.com, lukas.bulwahn@gmail.com,
         linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 24/28] i2c: imx: allow COMPILE_TEST
-Date:   Tue, 22 Feb 2022 21:29:25 -0500
-Message-Id: <20220223022929.241127-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 15/18] i2c: cadence: allow COMPILE_TEST
+Date:   Tue, 22 Feb 2022 21:30:32 -0500
+Message-Id: <20220223023035.241551-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220223022929.241127-1-sashal@kernel.org>
-References: <20220223022929.241127-1-sashal@kernel.org>
+In-Reply-To: <20220223023035.241551-1-sashal@kernel.org>
+References: <20220223023035.241551-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,31 +56,31 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa@kernel.org>
 
-[ Upstream commit 2ce4462f2724d1b3cedccea441c6d18bb360629a ]
+[ Upstream commit 0b0dcb3882c8f08bdeafa03adb4487e104d26050 ]
 
 Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
 and easier maintenance.
 
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  drivers/i2c/busses/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 652b754a66db0..f76aaf9559365 100644
+index 7e693dcbdd196..d5fc8ec025020 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -677,7 +677,7 @@ config I2C_IMG
+@@ -488,7 +488,7 @@ config I2C_BRCMSTB
  
- config I2C_IMX
- 	tristate "IMX I2C interface"
--	depends on ARCH_MXC || ARCH_LAYERSCAPE || COLDFIRE
-+	depends on ARCH_MXC || ARCH_LAYERSCAPE || COLDFIRE || COMPILE_TEST
- 	select I2C_SLAVE
+ config I2C_CADENCE
+ 	tristate "Cadence I2C Controller"
+-	depends on ARCH_ZYNQ || ARM64 || XTENSA
++	depends on ARCH_ZYNQ || ARM64 || XTENSA || COMPILE_TEST
  	help
- 	  Say Y here if you want to use the IIC bus controller on
+ 	  Say yes here to select Cadence I2C Host Controller. This controller is
+ 	  e.g. used by Xilinx Zynq.
 -- 
 2.34.1
 
