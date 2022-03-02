@@ -2,113 +2,79 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABB07C433F5
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Mar 2022 21:45:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72494C433F5
+	for <linux-i2c@archiver.kernel.org>; Wed,  2 Mar 2022 08:11:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234533AbiCAVpu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 1 Mar 2022 16:45:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34372 "EHLO
+        id S234530AbiCBILw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 2 Mar 2022 03:11:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230285AbiCAVpt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Mar 2022 16:45:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 883194F463;
-        Tue,  1 Mar 2022 13:45:07 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 445D6B81B0A;
-        Tue,  1 Mar 2022 21:45:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7968DC340EE;
-        Tue,  1 Mar 2022 21:45:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646171105;
-        bh=3uwjHBi4Kpijzi8jIbSYaOoMSYmXzyJTEeVMSIbESIA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=koZS6u1JYkyQ/AsymFmTevOBEDEPaaFBGL6bIbEiw+654IcjZt5RiF8dHOJISRbT/
-         JFeksndmw6/gr35h37+vXWL3eYm92pB4aIsercuDesP+jF+/RmkXOJHDAyXHkg4yMK
-         UfnXJzS7je8f7jq1gI/FLooe0RYJjB29hB/b8J9fcwPZZHFuuJ9IjYmeSJsxR8/GfB
-         kEGrJF2ElSyM3+7jZGYMOqG77Dk5BwPnvW7l1KPdsBKbLJeEjGJAfKbUQNp1d8GNWh
-         biDlTh2kCDPfqMrxpWQ6nucjhgujHZpMRDGdhVjOuPyIHv1GvAt8iV6lmYyzc7EFzu
-         ubgflTWfhuiMQ==
-Date:   Tue, 1 Mar 2022 22:45:01 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-Cc:     qii.wang@mediatek.com, matthias.bgg@gmail.com,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel@collabora.com
-Subject: Re: [PATCH] i2c: busses: i2c-mt65xx: Simplify with clk-bulk
-Message-ID: <Yh6T3RSfvcXCi4sb@ninjato>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-        qii.wang@mediatek.com, matthias.bgg@gmail.com,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel@collabora.com
-References: <20220118133358.111886-1-angelogioacchino.delregno@collabora.com>
- <8725a111-0ee2-8935-86b5-01c61774a628@collabora.com>
+        with ESMTP id S229518AbiCBILu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Mar 2022 03:11:50 -0500
+X-Greylist: delayed 440 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 02 Mar 2022 00:11:07 PST
+Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AAEBD7D008
+        for <linux-i2c@vger.kernel.org>; Wed,  2 Mar 2022 00:11:07 -0800 (PST)
+Received: from localhost.localdomain (unknown [124.16.138.126])
+        by APP-01 (Coremail) with SMTP id qwCowADX3fHgJB9iOU0FAg--.4995S2;
+        Wed, 02 Mar 2022 16:03:45 +0800 (CST)
+From:   Jiasheng Jiang <jiasheng@iscas.ac.cn>
+To:     wsa+renesas@sang-engineering.com, peda@axentia.se
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Subject: [PATCH] i2c: mux: demux-pinctrl: Handle error for devm_kstrdup
+Date:   Wed,  2 Mar 2022 16:03:42 +0800
+Message-Id: <20220302080342.71803-1-jiasheng@iscas.ac.cn>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="RuPdci4FI09i3u+P"
-Content-Disposition: inline
-In-Reply-To: <8725a111-0ee2-8935-86b5-01c61774a628@collabora.com>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: qwCowADX3fHgJB9iOU0FAg--.4995S2
+X-Coremail-Antispam: 1UD129KBjvdXoWrKr15uFW3Kw1DtryrtrW3GFg_yoWDXrXEka
+        98Z3W7Xr1UCFnYyw12yFZayFyFkrWjvF40vF1vg3s5AFyYqw13WrWUXw4fG3y8W3yDKF98
+        A34vqrWfZw17GjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUbz8FF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+        6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+        A2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
+        Cr1l84ACjcxK6I8E87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
+        0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
+        jxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr
+        1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxAIw28IcxkI7VAKI48J
+        MxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwV
+        AFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjxv2
+        0xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4
+        v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E
+        14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfU5WlkUUUUU
+X-Originating-IP: [124.16.138.126]
+X-CM-SenderInfo: pmld2xxhqjqxpvfd2hldfou0/
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+As the potential failure of the devm_kstrdup(),
+it should be better to check it and return error
+if fails.
 
---RuPdci4FI09i3u+P
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: e35478eac030 ("i2c: mux: demux-pinctrl: run properly with multiple instances")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+---
+ drivers/i2c/muxes/i2c-demux-pinctrl.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-On Mon, Feb 14, 2022 at 12:26:30PM +0100, AngeloGioacchino Del Regno wrote:
-> Il 18/01/22 14:33, AngeloGioacchino Del Regno ha scritto:
-> > Since depending on the SoC or specific bus functionality some clocks
-> > may be optional, we cannot get the benefit of using devm_clk_bulk_get()
-> > but, by migrating to clk-bulk, we are able to remove the custom functio=
-ns
-> > mtk_i2c_clock_enable() and mtk_i2c_clock_disable(), increasing common
-> > APIs usage, hence (lightly) decreasing kernel footprint.
-> >=20
-> > Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@co=
-llabora.com>
-> > ---
-> >   drivers/i2c/busses/i2c-mt65xx.c | 127 +++++++++++++-------------------
-> >   1 file changed, 51 insertions(+), 76 deletions(-)
-> >=20
->=20
-> Hello,
-> this is a friendly ping to request review on this patch as to avoid forge=
-tting it.
->=20
-> Adding context, I have tested this patch on multiple (older/newer) MediaT=
-ek
-> platforms.
+diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+index 5365199a31f4..3203361b00f2 100644
+--- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+@@ -243,6 +243,10 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+ 
+ 		props[i].name = devm_kstrdup(&pdev->dev, "status", GFP_KERNEL);
+ 		props[i].value = devm_kstrdup(&pdev->dev, "ok", GFP_KERNEL);
++		if (!props[i].name || !props[i].value) {
++			err = -ENOMEM;
++			goto err_rollback;
++		}
+ 		props[i].length = 3;
+ 
+ 		of_changeset_init(&priv->chan[i].chgset);
+-- 
+2.25.1
 
-Qii Wang, what do you think about this patch?
-
-
---RuPdci4FI09i3u+P
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmIek90ACgkQFA3kzBSg
-KbafGw/9GFenif8e7sf8WDjqoiTJ19bnc5EA2wFP1yuCOK3ITglAu9Yya8tTY/3J
-phPYTkQlqYXpth6+AndEsBGv2g4sDb8T7MkcNCi6rZYper8oyS6Xro7qkprCvzqZ
-Nj6ltSANZqjsmKsQGNQjiZtXYG+uYzXMKGzbuf4SF9tSJ1GiC43usBv7KKW3wZie
-n9iP2Ii76q0nqJ5v44a2E1AIxQkyn1DQOotD4F+TFZEgpUSIIWctq2Ez3G6LpjjW
-YtERdPi5nCNB90V55nn13ksUKLv5pertnc4elqEbsFT6ZOtYUvUDYOo1oA/5sLIP
-rlLVSM2kZyRbomIPFW4n3AAX+Ag60eDc/VtBOj9rR2ZpRTe1GZCfCokk03/UIqiq
-CeWAEJPQ3kd1eqY2Hp46uNUMgS/zt5Xuc7uKNqZmSs9KIs6NUKi5ydH6/9AW1hrV
-f4xP9pm+CyZv+2/qrcMG3INfL4QRAmRgaVCIThN5n0Rapr7PELa+0bpnXND1a/AL
-SkRJUIX8r5nOMbeKGBkccTBnHr+asXr7FqY2EjO9fdzCj9CY7HaP/QXTjYzHdOsT
-Dnpz6clEeaUPmdG2zeNeS+nmjnWFpJhdQPt6Ac9CBJ6mGTXYH1tJR4C960YBQ5wF
-Tm92kQCkYCQDQE90ftGoq5AZVseXlmnPKXYiAndBXkX/9TmlUTU=
-=cpdN
------END PGP SIGNATURE-----
-
---RuPdci4FI09i3u+P--
