@@ -2,219 +2,132 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66013C433F5
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Mar 2022 08:32:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1A9AC433FE
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Mar 2022 08:50:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbiCCIdX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Mar 2022 03:33:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58460 "EHLO
+        id S231674AbiCCIu5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Mar 2022 03:50:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231518AbiCCIdC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Mar 2022 03:33:02 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2107172E56;
-        Thu,  3 Mar 2022 00:32:12 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id c1so3883900pgk.11;
-        Thu, 03 Mar 2022 00:32:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=0GWB2R2tj9cQyYxYQpEaLLWh5AYJ8mREWRMwTFH1ZY8=;
-        b=FxYLMMbzHjZCUkl3rR5/1QqA3E5oRmGNjHjq8lKNFEWtkeoeiYSKqHlTAOt45cD38/
-         Aab+jquT9cH6O5GsfmZXWEK0tj4oHkou1bktYoKw+06HyL3eWSiw+oLWPMs7mn3Z0tSF
-         nqK+gVxCgNwvee4xhJiyp/dvUvYiYB2dx1CC0W8bOAzRULUkVs2fSqUbZZfLo4ZMsqfg
-         j8RFPX82yJhBeBIgf3BF8Z2d+MtgDEtJqHVZN46F7zFat9OilnoPAPRedyE3A1yu77J9
-         m02OHGSoNGALvVsunzaxX4YW4hQxotzY7fLFoWy94NA6KfUtH+l84Hkg1L6DRSvijUvW
-         YYuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=0GWB2R2tj9cQyYxYQpEaLLWh5AYJ8mREWRMwTFH1ZY8=;
-        b=gc08AR00BB4pFTrjAzkDexIAyU/J7zQhcVZYLGDiYQb56NNWPl7jGiCOdqhZddzaX6
-         erAgNLEg33iz8tb6VxyMQVN4s5c/8nZv/FiF3BIpSP0Aa2nWQZv6h4jt9t4g+06Fv+xZ
-         9vVZrHL+qhxg9GnUAH6/PmtW9IioOpEflByOJ3+0I3sApKxiAEGou11T21UkhUCcDeBD
-         LprpzWQNjwIdkDmpbizktmAyjxqLynVD3daZiAI0Nl0hFIVijYXVmXobEdz4unMaMGKm
-         FBbMlMEjoNPoOWnImqviopETvfuzb9bw3nNzvwNimaVxTWGs8YFs6HK7ZESMHD3gSN7R
-         BCkQ==
-X-Gm-Message-State: AOAM531lOcimMEWtIlnPpo54d8w4+NVg0AvGjiTwYYM7ZjrzDNYaD/Yf
-        t7THNB9l0FEPibAgb+Y/4Np+rAKLeK4e
-X-Google-Smtp-Source: ABdhPJzFFn5ZMGXbHeUPbEODBqzFHOZcSd58iz5bXuoRLOWpK1iT8DJtw91DEDG0+vDmmU1yS56Tng==
-X-Received: by 2002:a05:6a00:134c:b0:4bc:9423:96b2 with SMTP id k12-20020a056a00134c00b004bc942396b2mr37102122pfu.45.1646296332298;
-        Thu, 03 Mar 2022 00:32:12 -0800 (PST)
-Received: from localhost ([2401:e180:8860:3b30:e4a0:392a:996e:c525])
-        by smtp.gmail.com with ESMTPSA id d3-20020a056a00244300b004bc9397d3d0sm1578143pfj.103.2022.03.03.00.32.11
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 03 Mar 2022 00:32:12 -0800 (PST)
-From:   Tyrone Ting <warp5tw@gmail.com>
-To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
-        venture@google.com, yuenn@google.com, benjaminfair@google.com,
-        robh+dt@kernel.org, krzysztof.kozlowski@canonical.com,
-        yangyicong@hisilicon.com, semen.protsenko@linaro.org,
-        wsa@kernel.org, jie.deng@intel.com, sven@svenpeter.dev,
-        bence98@sch.bme.hu, lukas.bulwahn@gmail.com, arnd@arndb.de,
-        olof@lixom.net, andriy.shevchenko@linux.intel.com,
-        warp5tw@gmail.com, tali.perry@nuvoton.com, Avi.Fishman@nuvoton.com,
-        tomer.maimon@nuvoton.com, KWLIU@nuvoton.com, JJLIU0@nuvoton.com,
-        kfting@nuvoton.com
-Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 10/11] i2c: npcm: Remove own slave addresses 2:10
-Date:   Thu,  3 Mar 2022 16:31:40 +0800
-Message-Id: <20220303083141.8742-11-warp5tw@gmail.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220303083141.8742-1-warp5tw@gmail.com>
-References: <20220303083141.8742-1-warp5tw@gmail.com>
+        with ESMTP id S231686AbiCCIuz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Mar 2022 03:50:55 -0500
+Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEAEF175866;
+        Thu,  3 Mar 2022 00:50:08 -0800 (PST)
+Received: (Authenticated sender: clement.leger@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id A7171FF808;
+        Thu,  3 Mar 2022 08:50:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1646297407;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5UW3cjbm8xQStGhB2RvIfU4jnFusyu8R3w5M3pRZH24=;
+        b=dANPvPfz8FfZs3WYqIq9bl4LlaLJLTAlJ5KjEa5/oSz4t4sxrd/UksWc73/lSCGG+nrHCd
+        mQIxG3Ur43o8TMewlH30a6KsQHToz3ai9gTjVkLYOfs1J0ysL1HCB5xUmtUX3PGTynenxc
+        C9JR86pqix6ZdzHmr4NC1Xi/zegZdOfIZIewOvdoXVb8ro7spl0+Vg6PcWaqO+k2QU+Zyr
+        IZ/nAzMfgna+2fCIn63SCZP9bEOTTG/pLhMuc694mgQVT8ubQa8/cmDsgN7/OandstlQoA
+        RwRHGSWNGI6ycsn7veJsYuVOW0Xp94gZ89qONjeyTS3SL9/Y9UjVGSN76TCcQA==
+Date:   Thu, 3 Mar 2022 09:48:40 +0100
+From:   =?UTF-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Daniel Scally <djrscally@gmail.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>,
+        Russell King <linux@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
+        netdev@vger.kernel.org,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: Re: [RFC 00/10] add support for fwnode in i2c mux system and sfp
+Message-ID: <20220303094840.3b75c4c9@fixe.home>
+In-Reply-To: <Yhe/qhFNNiGVHSW1@sirena.org.uk>
+References: <20220221162652.103834-1-clement.leger@bootlin.com>
+        <20220224154040.2633a4e4@fixe.home>
+        <2d3278ef-0126-7b93-319b-543b17bccdc2@redhat.com>
+        <20220224174205.43814f3f@fixe.home>
+        <Yhe/qhFNNiGVHSW1@sirena.org.uk>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.31; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Tali Perry <tali.perry1@gmail.com>
+Le Thu, 24 Feb 2022 17:26:02 +0000,
+Mark Brown <broonie@kernel.org> a =C3=A9crit :
 
-NPCM can support up to 10 own slave addresses.
-In practice, only one address is actually being used.
-In order to access addresses 2 and above, need to switch
-register banks. The switch needs spinlock.
-To avoid using spinlock for this useless feature
-removed support of SA >= 2.
+> On Thu, Feb 24, 2022 at 05:42:05PM +0100, Cl=C3=A9ment L=C3=A9ger wrote:
+> > Hans de Goede <hdegoede@redhat.com> a =C3=A9crit : =20
+>=20
+> > > As Mark already mentioned the regulator subsystem has shown to
+> > > be a bit problematic here, but you don't seem to need that? =20
+>=20
+> > Indeed, I don't need this subsystem. However, I'm still not clear why
+> > this subsystem in particular is problematic. Just so that I can
+> > recognize the other subsystems with the same pattern, could you explain
+> > me why it is problematic ?  =20
+>=20
+> ACPI has a strong concept of how power supply (and general critical
+> resources) for devices should be described by firmware which is very
+> different to that which DT as it is used in Linux has, confusing that
+> model would make it much harder for generic OSs to work with generic
+> ACPI systems, and makes it much easier to create unfortunate interactions
+> between bits of software expecting ACPI models and bits of software
+> expecting DT models for dealing with a device.  Potentially we could
+> even run into issues with new versions of Linux if there's timing or
+> other changes.  If Linux starts parsing the core DT bindings for
+> regulators on ACPI systems then that makes it more likely that system
+> integrators who are primarily interested in Linux will produce firmwares
+> that run into these issues, perhaps unintentionally through a "this just
+> happens to work" process.
 
-Also fix returned slave event enum.
+Ok that's way more clear.
 
-Remove some comment since the bank selection is not
-required. The bank selection is not required since
-the supported slave addresses are reduced.
+>=20
+> As a result of this we very much do not want to have the regulator code
+> parsing DT bindings using the fwnode APIs since that makes it much
+> easier for us to end up with a situation where we are interpreting _DSD
+> versions of regulator bindings and ending up with people making systems
+> that rely on that.  Instead the regulator API is intentional about which
+> platform description interfaces it is using.  We could potentially have
+> something that is specific to swnode and won't work with general fwnode
+> but it's hard to see any advantages for this over the board file based
+> mechanism we have already, swnode offers less error detection (typoing
+> field names is harder to spot) and the data marshalling takes more code.
 
-Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
----
- drivers/i2c/busses/i2c-npcm7xx.c | 46 ++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 23 deletions(-)
+Instead of making it specific for swnode, could we make it instead non
+working for acpi nodes ? Thus, the parsing would work only for swnode
+and device_node, not allowing to use the fwnode support with acpi for
+such subsystems (not talking about regulators here).
 
-diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index 73cef76127c9..5c0bbc134f9d 100644
---- a/drivers/i2c/busses/i2c-npcm7xx.c
-+++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -124,6 +124,8 @@ enum i2c_addr {
-  * use this array to get the address or each register.
-  */
- #define I2C_NUM_OWN_ADDR 10
-+#define I2C_NUM_OWN_ADDR_SUPPORTED 2
-+
- static const int npcm_i2caddr[I2C_NUM_OWN_ADDR] = {
- 	NPCM_I2CADDR1, NPCM_I2CADDR2, NPCM_I2CADDR3, NPCM_I2CADDR4,
- 	NPCM_I2CADDR5, NPCM_I2CADDR6, NPCM_I2CADDR7, NPCM_I2CADDR8,
-@@ -392,14 +394,10 @@ static void npcm_i2c_disable(struct npcm_i2c *bus)
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	int i;
- 
--	/* select bank 0 for I2C addresses */
--	npcm_i2c_select_bank(bus, I2C_BANK_0);
--
- 	/* Slave addresses removal */
--	for (i = I2C_SLAVE_ADDR1; i < I2C_NUM_OWN_ADDR; i++)
-+	for (i = I2C_SLAVE_ADDR1; i < I2C_NUM_OWN_ADDR_SUPPORTED; i++)
- 		iowrite8(0, bus->reg + npcm_i2caddr[i]);
- 
--	npcm_i2c_select_bank(bus, I2C_BANK_1);
- #endif
- 	/* Disable module */
- 	i2cctl2 = ioread8(bus->reg + NPCM_I2CCTL2);
-@@ -604,8 +602,7 @@ static int npcm_i2c_slave_enable(struct npcm_i2c *bus, enum i2c_addr addr_type,
- 			i2cctl1 &= ~NPCM_I2CCTL1_GCMEN;
- 		iowrite8(i2cctl1, bus->reg + NPCM_I2CCTL1);
- 		return 0;
--	}
--	if (addr_type == I2C_ARP_ADDR) {
-+	} else if (addr_type == I2C_ARP_ADDR) {
- 		i2cctl3 = ioread8(bus->reg + NPCM_I2CCTL3);
- 		if (enable)
- 			i2cctl3 |= I2CCTL3_ARPMEN;
-@@ -614,16 +611,18 @@ static int npcm_i2c_slave_enable(struct npcm_i2c *bus, enum i2c_addr addr_type,
- 		iowrite8(i2cctl3, bus->reg + NPCM_I2CCTL3);
- 		return 0;
- 	}
-+	if (addr_type > I2C_SLAVE_ADDR2 && addr_type <= I2C_SLAVE_ADDR10) {
-+		dev_err(bus->dev,
-+			"try to enable more then 2 SA not supported\n");
-+	}
- 	if (addr_type >= I2C_ARP_ADDR)
- 		return -EFAULT;
- 	/* select bank 0 for address 3 to 10 */
--	if (addr_type > I2C_SLAVE_ADDR2)
--		npcm_i2c_select_bank(bus, I2C_BANK_0);
-+
- 	/* Set and enable the address */
- 	iowrite8(sa_reg, bus->reg + npcm_i2caddr[addr_type]);
- 	npcm_i2c_slave_int_enable(bus, enable);
--	if (addr_type > I2C_SLAVE_ADDR2)
--		npcm_i2c_select_bank(bus, I2C_BANK_1);
-+
- 	return 0;
- }
- #endif
-@@ -846,15 +845,13 @@ static u8 npcm_i2c_get_slave_addr(struct npcm_i2c *bus, enum i2c_addr addr_type)
- {
- 	u8 slave_add;
- 
--	/* select bank 0 for address 3 to 10 */
--	if (addr_type > I2C_SLAVE_ADDR2)
--		npcm_i2c_select_bank(bus, I2C_BANK_0);
-+	if (addr_type > I2C_SLAVE_ADDR2 && addr_type <= I2C_SLAVE_ADDR10) {
-+		dev_err(bus->dev,
-+			"get slave: try to use more then 2 slave addresses not supported\n");
-+	}
- 
- 	slave_add = ioread8(bus->reg + npcm_i2caddr[(int)addr_type]);
- 
--	if (addr_type > I2C_SLAVE_ADDR2)
--		npcm_i2c_select_bank(bus, I2C_BANK_1);
--
- 	return slave_add;
- }
- 
-@@ -864,12 +861,12 @@ static int npcm_i2c_remove_slave_addr(struct npcm_i2c *bus, u8 slave_add)
- 
- 	/* Set the enable bit */
- 	slave_add |= 0x80;
--	npcm_i2c_select_bank(bus, I2C_BANK_0);
--	for (i = I2C_SLAVE_ADDR1; i < I2C_NUM_OWN_ADDR; i++) {
-+
-+	for (i = I2C_SLAVE_ADDR1; i < I2C_NUM_OWN_ADDR_SUPPORTED; i++) {
- 		if (ioread8(bus->reg + npcm_i2caddr[i]) == slave_add)
- 			iowrite8(0, bus->reg + npcm_i2caddr[i]);
- 	}
--	npcm_i2c_select_bank(bus, I2C_BANK_1);
-+
- 	return 0;
- }
- 
-@@ -924,11 +921,15 @@ static int npcm_i2c_slave_get_wr_buf(struct npcm_i2c *bus)
- 	for (i = 0; i < I2C_HW_FIFO_SIZE; i++) {
- 		if (bus->slv_wr_size >= I2C_HW_FIFO_SIZE)
- 			break;
--		i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
-+		if (bus->state == I2C_SLAVE_MATCH) {
-+			i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
-+			bus->state = I2C_OPER_STARTED;
-+		} else {
-+			i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
-+		}
- 		ind = (bus->slv_wr_ind + bus->slv_wr_size) % I2C_HW_FIFO_SIZE;
- 		bus->slv_wr_buf[ind] = value;
- 		bus->slv_wr_size++;
--		i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
- 	}
- 	return I2C_HW_FIFO_SIZE - ret;
- }
-@@ -976,7 +977,6 @@ static void npcm_i2c_slave_xmit(struct npcm_i2c *bus, u16 nwrite,
- 	if (nwrite == 0)
- 		return;
- 
--	bus->state = I2C_OPER_STARTED;
- 	bus->operation = I2C_WRITE_OPER;
- 
- 	/* get the next buffer */
--- 
-2.17.1
+If switching to board file based mechanism, this means that all drivers
+that are used by the PCIe card will have to be modified to support this
+mechanism.
 
+>=20
+> fwnode is great for things like properties for leaf devices since those
+> are basically a free for all on ACPI systems, it allows us to quickly
+> and simply apply the work done defining bindings for DT to ACPI systems
+> in a way that's compatible with how APCI wants to work.  It's also good
+> for cross device bindings that are considered out of scope for ACPI,
+> though a bit of caution is needed determining when that's the case.
+
+Ok got it, thanks for the in-depth explanations.
+
+--=20
+Cl=C3=A9ment L=C3=A9ger,
+Embedded Linux and Kernel engineer at Bootlin
+https://bootlin.com
