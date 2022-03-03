@@ -2,50 +2,51 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46AE6C433FE
-	for <linux-i2c@archiver.kernel.org>; Thu,  3 Mar 2022 08:32:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06121C43217
+	for <linux-i2c@archiver.kernel.org>; Thu,  3 Mar 2022 08:32:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231431AbiCCIcs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 3 Mar 2022 03:32:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58078 "EHLO
+        id S231440AbiCCIct (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 3 Mar 2022 03:32:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231433AbiCCIcl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Mar 2022 03:32:41 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33A7417225F;
-        Thu,  3 Mar 2022 00:31:55 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id ay5so3903742plb.1;
-        Thu, 03 Mar 2022 00:31:55 -0800 (PST)
+        with ESMTP id S231452AbiCCIcr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Mar 2022 03:32:47 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C20C017288C;
+        Thu,  3 Mar 2022 00:32:00 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id ay5so3903926plb.1;
+        Thu, 03 Mar 2022 00:32:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=VHaRDl/NeA/sk1ew9ZkQ6wgAVfjZxhVj9/cWGyaZpno=;
-        b=AJBqM8KINeoSRfWd9e1yx+VHrQVOEYrRFBl3cJiRuwIUKEbKVendgOQ7Xy46sdKU3k
-         glEwJj3KfpKi4Qm2qhlqxhpUjd5S5v/Dy1R3NBpp3YS0QBY6+cuKJcFcMgZaRQSkhs+B
-         1fONo7ec+hBHBOMcreST8AMQeepSlkLBe5XAgpIGa62HQECMIDO8gzkwiDvDmlUGNOUU
-         QZND0Vv/NyOhr/Rq3dQObQ0poDmRxzIXO+xzOyr4Mk0NS8QLXeCwhm+dZIcXgq8PJnLh
-         kccjPPScsJCao6pDfscVLkAg2Mgk+b0VmqdnPVdO5vqApQrDdvuC0Yc+dvcs9zp2Ff6D
-         8IIg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Gemv/m3fy5mH7vN3z4SfVeW61ie6+SbsNCmd1e66iDM=;
+        b=qOb/GhQmaW5qzuMbeq6CVTbF0XKcUkXoSq4Tw0lrE9tI0NC8uGOjn1c2iX8uEZQvTh
+         pifD0Ac3NjO/Dpy2XMMqyAJAL3c6WU0M2xfF6aU9ZF5efYgwxsseDauE5znM44M+W3M1
+         hDcyd/jmAaWOXymcIryXBoYtA3W4GRoWQ/JgyYDMhaWLPcYzsHErv4KFWX/VfSvW/ygz
+         tLxOB5FNrgLsCC8EQjMeLi5UiimRZ6Be87GJEwkQMJqUm3O7G0A35Ym8SxidfWLynZrs
+         08sQL0ddLlyjD5SOw3ggGouUNXxhL23ibonAsWxuLLXb9dZankXlQdLjphwOxhv23ODC
+         4zYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=VHaRDl/NeA/sk1ew9ZkQ6wgAVfjZxhVj9/cWGyaZpno=;
-        b=ekXjHIzr2Of//1Lc8rBKVzVGZFX3qH6Q9Uo8x/YAB4DwYg7i9uyECjSJdwcxX3NSQx
-         UzlYczeKE3A6o92W9RrtH7achWrFgBojKnI/HxTV5b26afXQBPc6aLnpeDvhAYSweMSL
-         ZMjdHKjgdd+k38cCjebeyIg8+Ei8nIFzLWgn9Vaiz+tArnYf1hKGJnE3hfLI6Cv5TAFt
-         lgl94ztdN5Mlcwpm+QINSNw2niIelEpVKDzci9ZJA89RT+4FgbSJPPVPRVfV3z4CiptO
-         VZgQnDnRaMBtc7weYQFg/PUMDcxR3OOlu+Qj7w6DCR1VXJ4xIDKL5tiKkh84FIbmNCDy
-         QERA==
-X-Gm-Message-State: AOAM533XRy6HDeYhJac0oej3uoZuTy87LEEQ2+v9wyBxqLXwoem2kN77
-        a9VUrZLX5WHdoV/AmMpK8g==
-X-Google-Smtp-Source: ABdhPJzZrSthr04PXHtErJjKuzAkidzKO32y5t0cJZbCPeiqz0iaSN6WVOgZ7Iqc0ZrnKM+EKsrtIA==
-X-Received: by 2002:a17:902:d643:b0:151:6f2c:cfb4 with SMTP id y3-20020a170902d64300b001516f2ccfb4mr17463091plh.120.1646296314590;
-        Thu, 03 Mar 2022 00:31:54 -0800 (PST)
+         :references:mime-version:content-transfer-encoding;
+        bh=Gemv/m3fy5mH7vN3z4SfVeW61ie6+SbsNCmd1e66iDM=;
+        b=m7+egBQED2rZXQ9VXzWy6O194PPih4LWfSvDocxZ+UnXun+QPWTCg8s+vDWfhqUb29
+         +vVcAzXsqbFIY8abtVTfMtX1jjda2Xs2FpgnRxE3IsXaOupiXVTpSvJSnqT5D9tI/A7K
+         AfY/iTazQnQPuMP6xtVIxS0uICPTFaXoZwBFBGHGqL7aPEDZAYAj3j4Epr0MWUGprj8R
+         duumt0ubUgLn90Om0DfdiXlMf5069e1mvsfsPbq3PZZ7dPpH57NHzJZNTqvbjQ2ggvQL
+         bqLnzn7o0nFUq/tZYiC5SnR1TEahcuSyofn2UVKjahmNsLgpkQ+lXuSPZoveJSsfnIVv
+         yCWw==
+X-Gm-Message-State: AOAM532pTmwynhsPzaW6BbbszjXn5zH8cYBO+JkQdzAZ3/z7NGzvnh/p
+        z2T+ZqDP+k6Nr9fRBZqm7A==
+X-Google-Smtp-Source: ABdhPJw7csZ9mmUKOrvkTmQLtl79hsqW2wKR7aaJgSWlydcfx7rL96BlJq+OKUTqLzAq+G0r+Yq5Yw==
+X-Received: by 2002:a17:90a:ba8e:b0:1bc:202b:8657 with SMTP id t14-20020a17090aba8e00b001bc202b8657mr4190100pjr.16.1646296320231;
+        Thu, 03 Mar 2022 00:32:00 -0800 (PST)
 Received: from localhost ([2401:e180:8860:3b30:e4a0:392a:996e:c525])
-        by smtp.gmail.com with ESMTPSA id ng11-20020a17090b1a8b00b001beefe9a1cbsm1488852pjb.31.2022.03.03.00.31.53
+        by smtp.gmail.com with ESMTPSA id t5-20020a17090ae50500b001bc4ec15949sm7330431pjy.2.2022.03.03.00.31.59
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 03 Mar 2022 00:31:54 -0800 (PST)
+        Thu, 03 Mar 2022 00:31:59 -0800 (PST)
 From:   Tyrone Ting <warp5tw@gmail.com>
 To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         venture@google.com, yuenn@google.com, benjaminfair@google.com,
@@ -59,41 +60,54 @@ To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         kfting@nuvoton.com
 Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 03/11] i2c: npcm: Fix client address calculation
-Date:   Thu,  3 Mar 2022 16:31:33 +0800
-Message-Id: <20220303083141.8742-4-warp5tw@gmail.com>
+Subject: [PATCH v3 05/11] i2c: npcm: Remove unused variable clk_regmap
+Date:   Thu,  3 Mar 2022 16:31:35 +0800
+Message-Id: <20220303083141.8742-6-warp5tw@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220303083141.8742-1-warp5tw@gmail.com>
 References: <20220303083141.8742-1-warp5tw@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Tali Perry <tali.perry1@gmail.com>
 
-Fix i2c client address by left-shifting 1 bit before
-applying it to the data register.
+Remove unused variable clk_regmap.
 
 Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
 Signed-off-by: Tali Perry <tali.perry1@gmail.com>
 Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
+Reviewed-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 ---
- drivers/i2c/busses/i2c-npcm7xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-npcm7xx.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index 2ad166355ec9..4c225e1a058f 100644
+index fa12212b2428..c41de3afcf38 100644
 --- a/drivers/i2c/busses/i2c-npcm7xx.c
 +++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -2131,7 +2131,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	}
+@@ -2233,7 +2233,6 @@ static int npcm_i2c_probe_bus(struct platform_device *pdev)
+ 	struct i2c_adapter *adap;
+ 	struct clk *i2c_clk;
+ 	static struct regmap *gcr_regmap;
+-	static struct regmap *clk_regmap;
+ 	int irq;
+ 	int ret;
+ 	struct device_node *np = pdev->dev.of_node;
+@@ -2259,10 +2258,6 @@ static int npcm_i2c_probe_bus(struct platform_device *pdev)
+ 		return PTR_ERR(gcr_regmap);
+ 	regmap_write(gcr_regmap, NPCM_I2CSEGCTL, NPCM_I2CSEGCTL_INIT_VAL);
  
- 	npcm_i2c_init_params(bus);
--	bus->dest_addr = slave_addr;
-+	bus->dest_addr = slave_addr << 1;
- 	bus->msgs = msgs;
- 	bus->msgs_num = num;
- 	bus->cmd_err = 0;
+-	clk_regmap = syscon_regmap_lookup_by_compatible("nuvoton,npcm750-clk");
+-	if (IS_ERR(clk_regmap))
+-		return PTR_ERR(clk_regmap);
+-
+ 	bus->reg = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(bus->reg))
+ 		return PTR_ERR(bus->reg);
 -- 
 2.17.1
 
