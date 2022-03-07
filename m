@@ -2,74 +2,91 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16181C433FE
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Mar 2022 03:37:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 512A1C433F5
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Mar 2022 08:13:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235073AbiCGDiE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 6 Mar 2022 22:38:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52976 "EHLO
+        id S229925AbiCGIOv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Mar 2022 03:14:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235057AbiCGDiD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Mar 2022 22:38:03 -0500
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 019425E767;
-        Sun,  6 Mar 2022 19:37:03 -0800 (PST)
-X-UUID: c0745527d7b04b8fb70c2fe646137abe-20220307
-X-UUID: c0745527d7b04b8fb70c2fe646137abe-20220307
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <kewei.xu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1801139011; Mon, 07 Mar 2022 11:36:55 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Mon, 7 Mar 2022 11:36:54 +0800
-Received: from localhost.localdomain (10.17.3.154) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 7 Mar 2022 11:36:53 +0800
-From:   Kewei Xu <kewei.xu@mediatek.com>
-To:     <wsa@the-dreams.de>
-CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
-        <qii.wang@mediatek.com>, <liguo.zhang@mediatek.com>,
-        <caiyu.chen@mediatek.com>, <housong.zhang@mediatek.com>,
-        <yuhan.wei@mediatek.com>, <kewei.xu@mediatek.com>
-Subject: [PATCH v1 1/2] dt-bindings: i2c: update bindings for MT8168 SoC
-Date:   Mon, 7 Mar 2022 11:36:48 +0800
-Message-ID: <20220307033649.11564-2-kewei.xu@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20220307033649.11564-1-kewei.xu@mediatek.com>
-References: <20220307033649.11564-1-kewei.xu@mediatek.com>
+        with ESMTP id S229824AbiCGIOu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Mar 2022 03:14:50 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF0185A09C
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Mar 2022 00:13:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1646640835; x=1678176835;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=HzAu/XSoEig5fPmfl1zNC0iKX8Pqh5h4XbWbRhQpAH8=;
+  b=PZpn+OzTTpKszEY2BPkTyA1GsZqG/mr/hJ0KWY+4ppq3yX7DZ0/Yz743
+   tn7w1uLwDUtSqwMccbKnurXHneTqSjIRGfLv9vBSgFKSYVz3KZ2PiJQh6
+   Ge3I3A/Aoa2s0iHQtKLw3M4o5fguejfeiwFpfgKj6Wi3G0R/tBlTPAxGV
+   iwxCNtUnmYInEtPxMmuOmQPRjyZQqW97dDA758X8XP9hg10Qvf7rBl3Ou
+   0fHvFapnggBlP27H+fQz+FEmkfdRYaUUWz4rGxxfqwxlCPJJI/jKM5VhP
+   75/zmIhDKm4jlW2ZF83n/w0AQIYPpmdFUrJvu82IjIn2vVIOesvmtYneU
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10278"; a="340764812"
+X-IronPort-AV: E=Sophos;i="5.90,161,1643702400"; 
+   d="scan'208";a="340764812"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2022 00:13:55 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,161,1643702400"; 
+   d="scan'208";a="512595135"
+Received: from mylly.fi.intel.com (HELO [10.237.72.156]) ([10.237.72.156])
+  by orsmga006.jf.intel.com with ESMTP; 07 Mar 2022 00:13:53 -0800
+Message-ID: <58dc14d2-969e-256b-077c-2147827e5a86@linux.intel.com>
+Date:   Mon, 7 Mar 2022 10:13:52 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Firefox/91.0 Thunderbird/91.6.1
+Subject: Re: [PATCH -next] i2c: designware: Mark
+ dw_i2c_plat_{suspend,resume}() as __maybe_unused
+Content-Language: en-US
+To:     Hans de Goede <hdegoede@redhat.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Jan Dabros <jsd@semihalf.com>, linux-i2c@vger.kernel.org,
+        patches@lists.linux.dev
+References: <20220303191713.2402461-1-nathan@kernel.org>
+ <b7f8ad61-4dcd-a7cd-94f5-2a37aa57fd6a@redhat.com>
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+In-Reply-To: <b7f8ad61-4dcd-a7cd-94f5-2a37aa57fd6a@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add a DT binding documentation for the MT8168 soc.
-
-Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
----
- Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
-index 88f74a3c81ec..026985b8f61a 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
-@@ -12,6 +12,7 @@ Required properties:
-       "mediatek,mt7622-i2c": for MediaTek MT7622
-       "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for MediaTek MT7623
-       "mediatek,mt7629-i2c", "mediatek,mt2712-i2c": for MediaTek MT7629
-+      "mediatek,mt8168-i2c": for MediaTek MT8168
-       "mediatek,mt8173-i2c": for MediaTek MT8173
-       "mediatek,mt8183-i2c": for MediaTek MT8183
-       "mediatek,mt8186-i2c": for MediaTek MT8186
--- 
-2.18.0
-
+On 3/4/22 13:46, Hans de Goede wrote:
+> Hi,
+> 
+> On 3/3/22 20:17, Nathan Chancellor wrote:
+>> When CONFIG_PM is set but CONFIG_PM_SLEEP is not, two compiler warnings
+>> appear:
+>>
+>>    drivers/i2c/busses/i2c-designware-platdrv.c:444:12: error: unused function 'dw_i2c_plat_suspend' [-Werror,-Wunused-function]
+>>    static int dw_i2c_plat_suspend(struct device *dev)
+>>               ^
+>>    drivers/i2c/busses/i2c-designware-platdrv.c:465:12: error: unused function 'dw_i2c_plat_resume' [-Werror,-Wunused-function]
+>>    static int dw_i2c_plat_resume(struct device *dev)
+>>               ^
+>>    2 errors generated.
+>>
+>> These functions are only used in SET_LATE_SYSTEM_SLEEP_PM_OPS(), which
+>> is defined as empty when CONFIG_PM_SLEEP is not defined. Mark the
+>> functions as __maybe_unused to make it clear that these functions might
+>> be unused in this configuration.
+>>
+>> Fixes: c57813b8b288 ("i2c: designware: Lock the adapter while setting the suspended flag")
+>> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> 
+> Thanks, patch looks good to me:
+> 
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+> 
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
