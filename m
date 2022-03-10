@@ -2,25 +2,25 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAE80C433EF
-	for <linux-i2c@archiver.kernel.org>; Thu, 10 Mar 2022 11:42:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7BFDC433F5
+	for <linux-i2c@archiver.kernel.org>; Thu, 10 Mar 2022 11:42:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241717AbiCJLnM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 10 Mar 2022 06:43:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40962 "EHLO
+        id S241700AbiCJLnO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 10 Mar 2022 06:43:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241692AbiCJLnE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Mar 2022 06:43:04 -0500
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2137.outbound.protection.outlook.com [40.107.243.137])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02FE71451EE;
-        Thu, 10 Mar 2022 03:42:03 -0800 (PST)
+        with ESMTP id S241727AbiCJLnM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Mar 2022 06:43:12 -0500
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1anam02on2117.outbound.protection.outlook.com [40.107.96.117])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1D2145ACE;
+        Thu, 10 Mar 2022 03:42:12 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MQVesjGnqlnAQUk8lx58VCw/+IvocxTbs4TCZlfc65MLzRvwRWHwL37KG0ZOL04w+o88dyvRDsgm7KCtC1BdmHK0aJzXs0y4dJDoNHXmfSi485xv4dlZnclH4InALyGb1rpyTwfDeDSXo8krp0JDSxvimBKNZ+8spe5ZD6JOk/tQiq2B99WgmJQtb83EWUYZChbfNBevpCMlr099G2n2pVsC3iz6vQaHJBQ5J/kckRox7go26MbP13MBiNS5TGEQFMfIs/obDF7CLYi1UuQ468owhr/yTwsDv9wDWvldtm5IkTUmY8/FSFdF5LnL0bVIFOqk0dYDA0Cn0gQzj4N1sg==
+ b=bROqIM85hNjZKBI1R+PG28XaePZGzk0Msr3KhVgapg+Hs9ctfeO+iNWiETXoyKjE5fzOafpMsJK2ZVUZVh2iDz/taFfcMGDIdB5HXi3mJ+0qLhmm0/zCCGImTZeZctXyBObLYmVydQl8uUQurZ6mMhl2BZ0ktFTT5QpVEckfkflRGqD409n5gpehExL4iKobxkh4jd6cVMm776hXMk7D12L76ewQL7uSN93pVf/r8xaWiJiRYvbqehmVDi6fuSxXm74mfcJRFUWOnHKy7FG8B+XSAC7ACGUKiejZvPkcW9sNjLPZb+CSqSxfUHEtV6BrN/3I2rQ7hdPIVfBZwOWcug==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=E0opcG/Cvy0b1rf9v+7qbFb1Q7nos6/NCRqgdqSinto=;
- b=gn90lo98cnU6MdnGnN0JWPmjHeI6JoWOA0XmZnhRRqEs2ZuBoV7T91VUTQk6n2OTvMzvQ/MccfAAn2tUAEoy1cw1uzXfSDQgml+7aSVqLvoiuKcfT4fZzI38zyqnsTdMCMN7ONDVlSWMFBDtquQmeHlGe+iiJCyzuwQF/023qfxhDDw5m1S5QkZvfyOId6GR46PXEH9vNuPoonWZXIopLDhyhJipV7QbThwa0hE7p0MHiD5lmpbKgBn0c5w0G7dJUUj9xhH3pkSEY2seLK10T7b/O5xnZveCLWpioMNd4wK54dK9MFeyo0vCCO4UpVjaSxqZWaOHITClCclpkReT+g==
+ bh=KU1ZJg5C+nGqp4Oe4CPdv7Z+79jbTyAJc3DLyeLAnNw=;
+ b=JeyJgbalw3Hye4adjthIGTcUL0z/AEda92JfU+PDzMh/NrAQ1gJPWqQ+hJlEH6W5iY21hcJ1K/mXArESzxL+lPpvSvJ8rOzzYhDI3c1GdPO4qNZM4TKVrxGOtYZCh9iqV7Ej8nCOVkGov9yEHXl6dKX1R2gt9z+ItEagRiO7ZdqtAfBEUJT2bLLogy8X47RKTKTti5dmgVxmKA9Gg/M8v0aX3ZHJgpLmFwt+rl6tg8/Z6eTQa07ZB/UNhLrJ07WuMN8f5jgdp0DZcB93TyLPnS15RSGMZGhTEtDTwK4CFH6z38jvxKLADz7Yy9V7X4I1bziqC9AkzPwGIn+gqfJatw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
  header.from=os.amperecomputing.com; dkim=pass
@@ -28,18 +28,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=os.amperecomputing.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=E0opcG/Cvy0b1rf9v+7qbFb1Q7nos6/NCRqgdqSinto=;
- b=UXnkCesS2kkNeM9fSVaCddRCRj+0YREUKyopqQd3e/J5gg2OBf7L6NZDtGlK4BcL/Uv+5uEBHNUuCuRHkF8DA3ac1xhLvl5Na3JmCGCsIoQ0K6wdSsFM2fEIfTuf9Hj7QAk8chCh0CSmFAC+M136L5MU/HPbNRkAOuTEO5xu1Kc=
+ bh=KU1ZJg5C+nGqp4Oe4CPdv7Z+79jbTyAJc3DLyeLAnNw=;
+ b=ZDKyUgwS0Gso3yz7MibbdpXvKLofLCB5EEZ3Q8Ibk7xXmjwE2aMS/zSCYTBm6zzng3PErha9dPYcUS4BD8HR7zlRY5GJVLbISI6yL4Exiu9/OYvuqx8NwAv1VS3jjYIIw0idsmqUPyJj3mOFmEWppmeSuzBi2pp0bHGK3ddhv8M=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
 Received: from SJ0PR01MB7282.prod.exchangelabs.com (2603:10b6:a03:3f2::24) by
- BL0PR01MB4305.prod.exchangelabs.com (2603:10b6:208:4d::23) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5061.22; Thu, 10 Mar 2022 11:41:59 +0000
+ DM6PR01MB3771.prod.exchangelabs.com (2603:10b6:5:82::24) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5038.16; Thu, 10 Mar 2022 11:42:09 +0000
 Received: from SJ0PR01MB7282.prod.exchangelabs.com
  ([fe80::cd24:39ed:7042:46d6]) by SJ0PR01MB7282.prod.exchangelabs.com
  ([fe80::cd24:39ed:7042:46d6%6]) with mapi id 15.20.5038.027; Thu, 10 Mar 2022
- 11:41:59 +0000
+ 11:42:09 +0000
 From:   Quan Nguyen <quan@os.amperecomputing.com>
 To:     Corey Minyard <minyard@acm.org>, Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
@@ -55,9 +55,9 @@ To:     Corey Minyard <minyard@acm.org>, Rob Herring <robh+dt@kernel.org>,
 Cc:     Open Source Submission <patches@amperecomputing.com>,
         Phong Vo <phong@os.amperecomputing.com>,
         "Thang Q . Nguyen" <thang@os.amperecomputing.com>
-Subject: [PATCH v6 2/4] bindings: ipmi: Add binding for SSIF BMC driver
-Date:   Thu, 10 Mar 2022 18:41:17 +0700
-Message-Id: <20220310114119.13736-3-quan@os.amperecomputing.com>
+Subject: [PATCH v6 4/4] i2c: aspeed: Assert NAK when slave is busy
+Date:   Thu, 10 Mar 2022 18:41:19 +0700
+Message-Id: <20220310114119.13736-5-quan@os.amperecomputing.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220310114119.13736-1-quan@os.amperecomputing.com>
 References: <20220310114119.13736-1-quan@os.amperecomputing.com>
@@ -68,127 +68,94 @@ X-ClientProxiedBy: SG2PR02CA0125.apcprd02.prod.outlook.com
  (2603:10b6:a03:3f2::24)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 587551bb-3583-4c1e-9629-08da028afbfb
-X-MS-TrafficTypeDiagnostic: BL0PR01MB4305:EE_
-X-Microsoft-Antispam-PRVS: <BL0PR01MB4305FC322644F48517309C2AF20B9@BL0PR01MB4305.prod.exchangelabs.com>
+X-MS-Office365-Filtering-Correlation-Id: b3a4c552-b099-4a0f-ef2b-08da028b0246
+X-MS-TrafficTypeDiagnostic: DM6PR01MB3771:EE_
+X-Microsoft-Antispam-PRVS: <DM6PR01MB377144B46DCED636056DA583F20B9@DM6PR01MB3771.prod.exchangelabs.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: kTsMVvrOXmQPYBk/166e48jMo87stUMFgfb648/Tm42k5tTvyYYdjbULMrv4Nuv4NxtaVccDATgtGZwwATXSfyNBvsr7TfIDHkx+j/HulMUph76gNExtNNeiIBNxOPiaPOUfj5pNBV2A+P8RTOLak6Jh6xa40T6eLnj2mT6y6/RaBd+1ggvlEbKC5O49Sz09W0CtCKrqTP3DjkuV+SAINtAD2fChlPtQI8Im39qQ3/wuG+LKP2o5ChjKrox1+HOBO/lTWGBJvaDU4f84Uw/F+L9RFuOivjNi5/pXKjseAaacAHdYDxYc3tnms4JD2oll319tbCA69SE54unSKAdOiftOl+3JdikFjpDog42p5+0+RsoVRVQQ7ZBkoxO1d+GIelNLAf2A8Sq7NcG8sdVXk3phhZZLHB5+mpKEWprpcvDdSKnc0kqf11EEBNZYx/rADi+MObPkVy3QH56f4yTvd3R2JD6am1iCHJbs/b1Pdth/Z2PS+DmxNtmT/A7b0jsvQYDmxAcz6XY/1OnrXqe3UZUTMlATxD3B4ksUw4C26rXT2nZjddUnnV07TcmPD3KUuzAnkel2DSFK8ME5BMIKKut5F23pWARH8vM781Z/Cv3FuWNBcaboYHwoX7MKeRbzjlEF2affMyjvkJVLVI0cKABo+PNfddDx32vVri/9BE3r6jz9dMXJOTpSbd3G4eBha/COVR/kAzfd78SlF2H5A4MLEJM+JgiIpaPkx42nGRrVnAG32vUFmGIoMGjKskmszDWYTgdMrzy7cuGEdfAYrJj6NQbA8nWXC+hAnZNetD9yDZg3VWy52qS/zGHNkzfx
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR01MB7282.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(107886003)(6666004)(66556008)(66476007)(66946007)(1076003)(5660300002)(2616005)(7416002)(316002)(38350700002)(38100700002)(86362001)(4326008)(8676002)(8936002)(83380400001)(26005)(186003)(921005)(2906002)(52116002)(6512007)(508600001)(110136005)(6506007)(6486002)(966005)(54906003);DIR:OUT;SFP:1102;
+X-Microsoft-Antispam-Message-Info: 4C/LvfNyNMDHEA4bt2d2du3FQxLZhbxWEvj4d3FiOymfYvoK3R7rwYO1zQhB+cSSNhCp0duJFLSdjgPcPC2jzKHtm46eDSkx7oAd9G1bHKMF7MNitQ6Jd0pWvR9kLJ0HwFnXiJxhM4uI2//lUXHkpou1glCvSJW+1JiejTrZQFFaUd1XfXRJIy9vPWjuCVkejWV3snabknZv1ndQOuBtgKJKZHGPjhqmIEfWPStMTTj08p9xxwk/Qm7Hg3vW35wG5YzCetz9Q+NzqxtZiOx5zLQUFBQmSuXiPkgVCUvqJLezjYjiWJoEGsQd9lESA04g5jc9D/izH/ayRGvLNLmkdiT9ac0Yo6k0ILjdsrad2o29y5AmbUPOTrns4uEuI1Oqk42OAHj4ZwUXACF7lQpbvPuxqrM8bX1c0kogEdypyA/TVU9ynWoEpP8A2pxCsM9fEwyTAr8sgH6MB8WAm7ISLZmRJagKRpZbCM0f56z3EbRsQ6t5ed7JqD8sHnvTmX6jklZVzrpQJF1jJlKlS2UBqZTgoiPIumpF2pbNTxKmDtrj9voh4RNJPvQRPJYX4p1bU/wfc4UtH0RSeDUZiBTN+dy7tTYzmf0jTnkHpH6NLxy8EthA5OG4dLbxu/ezY210kxundCtG+8ba/cp3crP/3wgXgsTviN+9vwQqNkLhd6MFQnXOC46e+FDtScy/imAUHXSB+B/nQ2tax5NEmchGlFyHdqMLl5QJf1DvPJgBoIQ=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR01MB7282.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(38100700002)(38350700002)(83380400001)(186003)(26005)(107886003)(921005)(54906003)(66946007)(110136005)(2616005)(316002)(6512007)(1076003)(52116002)(2906002)(6506007)(6666004)(86362001)(66476007)(66556008)(8936002)(7416002)(5660300002)(6486002)(508600001)(4326008)(8676002);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?zcyFbJhktMmJffr9g+3/Uo5ZAovBi8uoIgh1IPBWecK4s6LN4CeFaAyU78NO?=
- =?us-ascii?Q?n45IsLAL7PtTO2ZAKEUHrEL6pjmHEMaLJaTKOmFgpPdSZKqT4UzfNrylhUfv?=
- =?us-ascii?Q?Ty2wZ+okPIk55p3Cl6+TfCHjpwazqgDth93W3UNriJHMi0ZaaJ46AVQJ1Lxi?=
- =?us-ascii?Q?C7net86KxzKxej1pjaCEbP0wRkFYKqi4T5RqbofEZNW2l+3bbGqEAnFKWLUz?=
- =?us-ascii?Q?pVcRHL3Pk2anbqW0K+mcRQWYsbfmgXmG0IHfGAHDGNq4qPLwKGefvWToiq2E?=
- =?us-ascii?Q?Rl6I7Ch5Qvh73wayviyyoDZbhZmyclZwH2Tg7pD/0+Y0pO0g/dwiHktghSaG?=
- =?us-ascii?Q?pV9qPNPZ/zIdHsxDBv0UQcNJlvtFQ9zXv38DoeiHgHlqGhU6KF2HMQH7V5O8?=
- =?us-ascii?Q?taZ7Xss9dVVrNud0G3jOlmcZk1gsIS+PhZtG6H6zMM3ejfFFCvH1+eyvZE1/?=
- =?us-ascii?Q?tyUkjhLH1Ffw38yejZVaCCuHx3HlD760f0Efm2fGav6o3HlCwVLJ2rqESpMa?=
- =?us-ascii?Q?xbgftoVf4qcIIBe7WiT+T9dGZ6NbKR0peibKKHCoUSolRMNxjg1CiSx8sCqT?=
- =?us-ascii?Q?Old9Lx6b07SAepIbiJ19JWDjDw1y5fDlGti1QoJn6RE6OtU+9Mq0U8bJuFxa?=
- =?us-ascii?Q?oChaRBrit5E/DwVoViKCMMr0/Fcqfe8azDhf/bWqeUNWY5IBIOHs6cxEwKzz?=
- =?us-ascii?Q?xbWnsvv+VO0nETwOjE9AZdWeOxJoPXq/jibKtm8kJBB0mVnpFvs6tCq3ix1T?=
- =?us-ascii?Q?peyLxf9pGMk1QtXxOuPIUXvbZdp6ExipoDrYcQMaxJsBTQZ4ntZsVvi3QVGH?=
- =?us-ascii?Q?HVurUVPgn8tEV3qi8A1CIddJ6CHjwWaHRJF4j3RtmGBZ8OO1cdxF3LPtjaxf?=
- =?us-ascii?Q?Sd1kifievdShdDW67mA8E/i5wwAvIWYkbhpxeb4c7vIabRWaNjNl6zmXqXym?=
- =?us-ascii?Q?JkKjL7Tcbcr42SBrNIt+3F7dh3mhImMW5408ZbBlTlwOomh9kasdIqZpcRvf?=
- =?us-ascii?Q?0hpZpOnkALuUprOYHSSIu3UZ0vx7y77/4cU97kIW70UP29RjICIJcD/C16Am?=
- =?us-ascii?Q?mTN03w8BlD6JxfOQFxOS+ZUaau4eeCAlF6Wg7VVFEqgB4Wisdklfdy5qWW4f?=
- =?us-ascii?Q?sGuawo9WeJ9TKy+Fd3FI0zXEZ08RZDP4WArcvzXT82aWHp4tr2vLUsgsoZoh?=
- =?us-ascii?Q?HoFKs91wr7LFsnQMFKerAnAvnzbCZinyKgnH/46CItc+K5FS5Q/p5yZbHMDy?=
- =?us-ascii?Q?jAwqxkxFHk3TgVUbX+lwkSAd+mLUO36UYVEwbsiJLVgG5fc5cP3B1Y2YPSKc?=
- =?us-ascii?Q?2ioZZIxyS8mJQzh3eG3ftfno+kmbI7ZkodQQwKxaKTHP7gRYfPP+J51rM2Vk?=
- =?us-ascii?Q?S59YupC5HUYO3YwlN8EoY8NC2VMUAlKxnmjZORfQzuRlnvPV8Nf5Qhjw49g/?=
- =?us-ascii?Q?HWbXltUkyS1Aqr9YLJ20BMGfg4hevmLa3SRQADndbBoyp1kn/7hcCUnYSJ0h?=
- =?us-ascii?Q?lcyRhjrpNTR31f0=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?YCK5nNdfEgjTUJpSJLnrsIRImQjNGPDjcxhudtZ8+q5m7JmS4HfARUsh/I6Z?=
+ =?us-ascii?Q?IaM5aPwHLUyo41ESx7qWC4yS0gozSXgDGky4vCl0OzsDRh8HhOBlZUv0LVxy?=
+ =?us-ascii?Q?EYD35dshvcUfBQ+kGSl9nHNPMyDNy/wHA6pTiWTZm2qx1JwMtwdpSvIHrGk1?=
+ =?us-ascii?Q?UnIDj2ACd3UfiEjnt8DWPeZHxTy67tRH3Q52RZGP6eypx0icxs6hJAKM0GkR?=
+ =?us-ascii?Q?juZ4PjdCBhNZCQZ6TxgufZbhH4xCIpE6kcwkI80HYnPRIArbUGXqPiSxsTkI?=
+ =?us-ascii?Q?ZY5IEDGeUAA7wHWu1gBxWuVp3swpkwLcrO/0kzymmFzkBrxUwd509gZlq2Dt?=
+ =?us-ascii?Q?E9kwTQlZUPMyK6z05waB0MDMTlJLLmyoGDmKvc5JOnGEOx+z+8s88rMXrLvt?=
+ =?us-ascii?Q?BZrIbwsr0ZbplkzniazNaupdo9L4m8p7hiw9qhf2RlENBenCE6YYHAYaFTmn?=
+ =?us-ascii?Q?na8wQXB6faDyMXlPk+vTnxSrCvIqGR+GHcuMdxOwnTaSX0uoARLCEkVeNqVH?=
+ =?us-ascii?Q?2S/frLghaRcvzWWZFqPtNsa2KX9kNmwVNHnVwT4Hz4v7YuveiaxkpeHBGAPa?=
+ =?us-ascii?Q?0HP0dn8LP0vsDpzy/QAB2QGK+4xxETH4PmWsmNcl6uq5d+25CBPZjA10CckK?=
+ =?us-ascii?Q?4/kLEkKRVfYd0tfXMmTZmrmagbIXc98yJPtM35jgd1PyVwe9zPXFXLvOdchJ?=
+ =?us-ascii?Q?9RKyH8e7dWrarm6DxEOCHy3hVtGbjc/iQVXhwN3lrOSWvlzOSac95CqZBoV1?=
+ =?us-ascii?Q?QajqXQLoV8P6AOT4ljdujePvfoJ+/Gm0gO2kucqCZBLOtK9090BHbGWAYR2i?=
+ =?us-ascii?Q?VI417/4yQ31lI/v1X3bxOvybvLY35JlnQaB4oVcqEK/9eAq6/6r7ISyybp1f?=
+ =?us-ascii?Q?smdRqlXHLsSZKZmYx3GdPAcBZI1GdNeSaChQwa5lFbNjv4+6U/sPq0E/laoT?=
+ =?us-ascii?Q?Y5hXEZBs4MH+MuxLLDlUk/12tca6m8IbugOvSwjZrBKVOz+BTJAnOJlORAJJ?=
+ =?us-ascii?Q?CJIzBx9m3Fv/O4Ah81uIPOZx9dxv/khCSjFLDNe0lpBhd+OJNq1OWsGV4llg?=
+ =?us-ascii?Q?1RAgDvLN/stQSNsJfcOiI3abdcasGq+ypA1asuRIpIUtE1X+URl9ZDvOCDUb?=
+ =?us-ascii?Q?a4NswJI74SdAz4wbemEFojWt+T3s+n9BQZduN5RFL6sbfFh61M3aI/2HROkw?=
+ =?us-ascii?Q?ZKyN0/xGB+HwoAFqU+YakzYa8S+q/JEHuv0tmn7t6SZnHRJHNZcHm+rw0Gx2?=
+ =?us-ascii?Q?wCmDtUS0abNQh65fyAivkzJ1MPq2IdYYx8kg/NTMMxlJMdE8ofeveLT90nVf?=
+ =?us-ascii?Q?imQA41bXFEnNZw11uhzEbpgSxyIH2coEwb7fSqJHeiV1izc/G+mp68ewMTL9?=
+ =?us-ascii?Q?eHaFq4c2OD+w7D79jmd2kbMjFV6yrz7m27FIJqDWFlfPL4twg4Ov3A13qkES?=
+ =?us-ascii?Q?0E9iWcePqxdkWA6JnyhYTkTt/gbH4cLlkAlHupOTedvgy/wr8SYEtYzXbbW1?=
+ =?us-ascii?Q?Si6sVD7udXZjFZQ5WGt/aRrj/RdsD26MkeFVLGR4Gf0zKf8nDFrNz07VRHN1?=
+ =?us-ascii?Q?9f2yRJRpbCRuBMwhUI1Mkr12jOSFatuQyiXIjRz0bGcBAAaQdXBYnmhTkEAI?=
+ =?us-ascii?Q?QWVzVJxv6fGJmyc33ZGil4tdEJ/M371/p8VchntmdONMZ3mGwfwOnbPE2ki/?=
+ =?us-ascii?Q?BUQUyxQr4w2FuFnQB7u9VMFvd4g=3D?=
 X-OriginatorOrg: os.amperecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 587551bb-3583-4c1e-9629-08da028afbfb
+X-MS-Exchange-CrossTenant-Network-Message-Id: b3a4c552-b099-4a0f-ef2b-08da028b0246
 X-MS-Exchange-CrossTenant-AuthSource: SJ0PR01MB7282.prod.exchangelabs.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2022 11:41:58.9531
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2022 11:42:09.3414
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +1EgMWXFDPcSqkch2J7VSIo/Ln3J3k5+OrUGyy33tADGOXtFx0tRHXrgKyy7qGkvYp1SbkYXJo4VNEiFGaH7o3LzUkKfy9bV7Yl7Cuyo0vU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR01MB4305
+X-MS-Exchange-CrossTenant-UserPrincipalName: X4spJGlTI+MK/043WYpvFUs/UU6XQr2C6lEdlrBeSh0RD5CWobXFoHMFp8G+suBegiA7riOnKpNzjy+CfW6jZvczFDsdQy7rBw2Ti+pWHzE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR01MB3771
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add device tree binding document for the SSIF BMC driver.
+When processing I2C_SLAVE_WRITE_REQUESTED event, if slave returns
+-EBUSY, i2c controller should issue RxCmdLast command to assert NAK
+on the bus.
 
 Signed-off-by: Quan Nguyen <quan@os.amperecomputing.com>
-Message-Id: <20210714033833.11640-4-quan@os.amperecomputing.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
 ---
 v6:
-  + None
+  + New introduced in v6                      [Quan]
 
-v5:
-  + None
+ drivers/i2c/busses/i2c-aspeed.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-v4:
-  + Fix warning with dt_binding_check [Rob]
-  + Change aspeed-ssif-bmc.yaml to ssif-bmc.yaml [Quan]
-
-v3:
-  + Switched to use DT schema format [Rob]
-
-v2:
-  + None
-
- .../devicetree/bindings/ipmi/ssif-bmc.yaml    | 38 +++++++++++++++++++
- 1 file changed, 38 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/ipmi/ssif-bmc.yaml
-
-diff --git a/Documentation/devicetree/bindings/ipmi/ssif-bmc.yaml b/Documentation/devicetree/bindings/ipmi/ssif-bmc.yaml
-new file mode 100644
-index 000000000000..917a577c2f29
---- /dev/null
-+++ b/Documentation/devicetree/bindings/ipmi/ssif-bmc.yaml
-@@ -0,0 +1,38 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/ipmi/ssif-bmc.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: SSIF IPMI BMC interface
-+
-+description: SSIF IPMI BMC device bindings
-+
-+maintainers:
-+  - Quan Nguyen <quan@os.amperecomputing.com>
-+
-+properties:
-+  compatible:
-+    enum:
-+      - ampere,ssif-bmc
-+
-+  reg:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        ssif-bmc@10 {
-+            compatible = "ampere,ssif-bmc";
-+            reg = <0x10>;
-+        };
-+    };
+diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+index 771e53d3d197..ebc2b92656c8 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -244,6 +244,7 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
+ 	u32 command, irq_handled = 0;
+ 	struct i2c_client *slave = bus->slave;
+ 	u8 value;
++	int ret;
+ 
+ 	if (!slave)
+ 		return 0;
+@@ -311,7 +312,9 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
+ 		break;
+ 	case ASPEED_I2C_SLAVE_WRITE_REQUESTED:
+ 		bus->slave_state = ASPEED_I2C_SLAVE_WRITE_RECEIVED;
+-		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
++		ret = i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
++		if (ret == -EBUSY)
++			writel(ASPEED_I2CD_M_S_RX_CMD_LAST, bus->base + ASPEED_I2C_CMD_REG);
+ 		break;
+ 	case ASPEED_I2C_SLAVE_WRITE_RECEIVED:
+ 		i2c_slave_event(slave, I2C_SLAVE_WRITE_RECEIVED, &value);
 -- 
 2.35.1
 
