@@ -2,45 +2,45 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A911C433F5
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Mar 2022 16:29:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96A9CC433F5
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Mar 2022 16:33:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239190AbiCRQbO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Mar 2022 12:31:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48050 "EHLO
+        id S232842AbiCRQeZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Mar 2022 12:34:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239226AbiCRQa6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Mar 2022 12:30:58 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 771D119455D;
-        Fri, 18 Mar 2022 09:29:30 -0700 (PDT)
+        with ESMTP id S229838AbiCRQeZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Mar 2022 12:34:25 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A033C2274D7;
+        Fri, 18 Mar 2022 09:33:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1647620970; x=1679156970;
+  t=1647621185; x=1679157185;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:content-transfer-encoding:in-reply-to;
-  bh=xBTcRJLtKt62fcWPwLWQXbKps2DSAsxac8MlWJab0nU=;
-  b=Url5dC5A1prXyEu4rKVHgUd+PhobBZ2KavK0KqB4z9WjcPGEUIj2YOEb
-   VxLfrIzfPGOiRwBL+KHhBOe/yfKmCI3KhRq+Fc9sh/nmmXXFauX3BSaky
-   WWiwrYA10Llt4db7LRGEcZhf/Ya4VecE/Y5xVRH5Mbb+YP3xrN9fe2Cqu
-   hlMG5WMCCOTvxDdlT/81Yn/nlJ5eU6k6oECAW6yuasfZW+eh2O7DcUYsR
-   P8etR8AUEPvYWkpS0jyruM8K3VGNZQYU/hTebyvgk0W3nTiVcKqXrEty+
-   eG36hVV1cYsX72YVDA+nGKonicrQ9NYV8NwKd1btgPrw5oal5XaHIEhdX
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10290"; a="257356961"
+  bh=3fSyc4Om/f1qBKQ2VmW5hQXw8+AXsDQPbICnqW/FgR0=;
+  b=SQYRr4wrWgQ6XVcfwOPFv9wvNsxbX5FYw9cBThf+WG1+/OJHR1EF27RZ
+   QwmN8JNoxFCeLjP9eVCllQFT82JZG9q4U09FVzW4F/1Qh1QLGou/H/jHM
+   PoPDI+Fg/h4x/C6EhjBqf2+wu80z931apdivkqk3yQlzmxLmBBqWBZQHT
+   DsJTwjCt+ivv/2N3ZahCESP75UGG+iSuO+A3X6sslZpfb24OXWwCjpRp3
+   zyrjJ5UoQtw9L+lh0cUobyNWlnme3enQ6qd6SVB5XdBYOvQNgFxRHrGDP
+   Iu7ug8XlfC9dELV8gHawI7ddA1f2MFHeZqGWPQJIJeaiZCzF8tkKvsVLf
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10290"; a="320379302"
 X-IronPort-AV: E=Sophos;i="5.90,192,1643702400"; 
-   d="scan'208";a="257356961"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2022 09:29:30 -0700
+   d="scan'208";a="320379302"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2022 09:33:02 -0700
 X-IronPort-AV: E=Sophos;i="5.90,192,1643702400"; 
-   d="scan'208";a="550798759"
+   d="scan'208";a="635813087"
 Received: from smile.fi.intel.com ([10.237.72.59])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2022 09:29:25 -0700
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2022 09:32:56 -0700
 Received: from andy by smile.fi.intel.com with local (Exim 4.95)
         (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1nVFT3-002KEd-Qt;
-        Fri, 18 Mar 2022 18:28:45 +0200
-Date:   Fri, 18 Mar 2022 18:28:45 +0200
+        id 1nVFWT-002KJ7-A0;
+        Fri, 18 Mar 2022 18:32:17 +0200
+Date:   Fri, 18 Mar 2022 18:32:17 +0200
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     =?iso-8859-1?Q?Cl=E9ment_L=E9ger?= <clement.leger@bootlin.com>
 Cc:     Daniel Scally <djrscally@gmail.com>,
@@ -61,30 +61,32 @@ Cc:     Daniel Scally <djrscally@gmail.com>,
         Allan Nielsen <allan.nielsen@microchip.com>,
         linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-i2c@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 4/6] i2c: mux: pinctrl: remove CONFIG_OF dependency and
- use fwnode API
-Message-ID: <YjSzPeWpcR/SSX1a@smile.fi.intel.com>
+Subject: Re: [PATCH 6/6] net: sfp: add support for fwnode
+Message-ID: <YjS0EbKOUb4Q++mF@smile.fi.intel.com>
 References: <20220318160059.328208-1-clement.leger@bootlin.com>
- <20220318160059.328208-5-clement.leger@bootlin.com>
+ <20220318160059.328208-7-clement.leger@bootlin.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220318160059.328208-5-clement.leger@bootlin.com>
+In-Reply-To: <20220318160059.328208-7-clement.leger@bootlin.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, Mar 18, 2022 at 05:00:50PM +0100, Clément Léger wrote:
-> In order to use i2c muxes with software_node when added with a struct
-> mfd_cell, switch to fwnode API. The fwnode layer will allow to use this
-> with both device_node and software_node.
+On Fri, Mar 18, 2022 at 05:00:52PM +0100, Clément Léger wrote:
+> Add support to retrieve a i2c bus in sfp with a fwnode. This support
+> is using the fwnode API which also works with device-tree and ACPI.
+> For this purpose, the device-tree and ACPI code handling the i2c
+> adapter retrieval was factorized with the new code. This also allows
+> i2c devices using a software_node description to be used by sfp code.
 
-> -	struct device_node *np = dev->of_node;
-> +	struct fwnode_handle *np = dev_fwnode(dev);
+> +		i2c = fwnode_find_i2c_adapter_by_node(np);
 
-np is now a misleading name. Use fwnode.
+Despite using this, I believe you may split this patch to at least two where
+first one is preparatory (converting whatever parts is possible to fwnode
+(looks like ACPI case may be optimized) followed by this change.
 
 -- 
 With Best Regards,
