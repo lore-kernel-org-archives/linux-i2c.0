@@ -2,33 +2,33 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B59BCC433EF
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Mar 2022 16:04:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 715BFC43219
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Mar 2022 16:04:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238458AbiCRQFk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S238548AbiCRQFk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Fri, 18 Mar 2022 12:05:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33386 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238459AbiCRQFQ (ORCPT
+        with ESMTP id S238460AbiCRQFQ (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Mar 2022 12:05:16 -0400
 Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::222])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6238023176;
-        Fri, 18 Mar 2022 09:03:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A31F6E343;
+        Fri, 18 Mar 2022 09:03:28 -0700 (PDT)
 Received: (Authenticated sender: clement.leger@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 9FCA84001B;
-        Fri, 18 Mar 2022 16:03:30 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id A212E40016;
+        Fri, 18 Mar 2022 16:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1647619412;
+        t=1647619407;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=hkT3kxdBeyWxML9PLamI62loW/3vgqU0z8FJV3BD28o=;
-        b=DlSGFO6ocXxIy4P2AuMLmIX3891P/wqW4A/NcskG+EpEg4XIiZPz8PrLNbpRl1s+8KNtVB
-        MYah4JuPhkLy7LNbO4zxYObxBD9zdakUshn82am3BAhwGUDS92SkLec5OxeYiIb/i6rnSR
-        i9i5t8A0kuqL+f5obIw7gShqFOWqKxRD7AZ/ken/DbdZnVCDfFncPjPHTYXb4tu3OB9JTX
-        q2qV0eosuo9ACYzLUPPvrrKic0T9RpMSQxo1hGmZY5eN6tHln/DJDaL6uo1dYJsD0uqQZH
-        obXZMCagrOTN/aSiyKme6LLCLW4j0OFfq1U6SD647PEwPQpTtAQA/l5wPd/T9w==
+        bh=URJAXhlDauk/l4yfi8v6pFwWxIgQSIBOv7Iyc/z2WsI=;
+        b=PuSLV2U/eML0/+TY8F0LZDcV2qRml+UAjglHHoVHJZ9/CE5MqUkS+pG5MuhK8lemQt+2yb
+        WesPVE74eKzy0VxrF+hDOyv08GJL0+7NJ9nsa8tmSEccbIUpVBBPeOX3juTOCCjBHJlc8A
+        d/r0FZfFrmktxQwkdud+hEFs2NJ5II2F54XpZFXxqrEwldrtd0bHCBClIEbjtx+hw1KMmF
+        q0cVg2BDcI+6YtbFlZ7oGaV3s1Atyk4pOVr89uAJhh826VxzY7gmPuoghJuhgM4R3wtb01
+        wULeM9wd4RgJ2TkR2OLzh197RsErSrDy1yfveTyq8Sw6tvx0t9Guxr4oyUg98g==
 From:   =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Daniel Scally <djrscally@gmail.com>,
@@ -50,9 +50,9 @@ Cc:     Hans de Goede <hdegoede@redhat.com>,
         linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
         =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>
-Subject: [PATCH 6/6] net: sfp: add support for fwnode
-Date:   Fri, 18 Mar 2022 17:00:59 +0100
-Message-Id: <20220318160059.328208-14-clement.leger@bootlin.com>
+Subject: [PATCH 3/6] i2c: of: use fwnode_get_i2c_adapter_by_node()
+Date:   Fri, 18 Mar 2022 17:00:56 +0100
+Message-Id: <20220318160059.328208-11-clement.leger@bootlin.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220318160059.328208-1-clement.leger@bootlin.com>
 References: <20220318160059.328208-1-clement.leger@bootlin.com>
@@ -63,87 +63,79 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add support to retrieve a i2c bus in sfp with a fwnode. This support
-is using the fwnode API which also works with device-tree and ACPI.
-For this purpose, the device-tree and ACPI code handling the i2c
-adapter retrieval was factorized with the new code. This also allows
-i2c devices using a software_node description to be used by sfp code.
+Since the new fwnode function does the same check that was done by
+of_get_i2c_adapter_by_node(), call this one to avoid code duplication.
 
 Signed-off-by: Clément Léger <clement.leger@bootlin.com>
 ---
- drivers/net/phy/sfp.c | 46 +++++++++++++------------------------------
- 1 file changed, 14 insertions(+), 32 deletions(-)
+ drivers/i2c/i2c-core-of.c | 30 ------------------------------
+ include/linux/i2c.h       |  5 ++++-
+ 2 files changed, 4 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
-index 4720b24ca51b..3f57b1fbf413 100644
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -2483,7 +2483,7 @@ static void sfp_cleanup(void *data)
- static int sfp_probe(struct platform_device *pdev)
+diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+index 3ed74aa4b44b..be7d66aa0f49 100644
+--- a/drivers/i2c/i2c-core-of.c
++++ b/drivers/i2c/i2c-core-of.c
+@@ -113,17 +113,6 @@ void of_i2c_register_devices(struct i2c_adapter *adap)
+ 	of_node_put(bus);
+ }
+ 
+-static int of_dev_or_parent_node_match(struct device *dev, const void *data)
+-{
+-	if (dev->of_node == data)
+-		return 1;
+-
+-	if (dev->parent)
+-		return dev->parent->of_node == data;
+-
+-	return 0;
+-}
+-
+ /* must call put_device() when done with returned i2c_client device */
+ struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
  {
- 	const struct sff_data *sff;
--	struct i2c_adapter *i2c;
-+	struct i2c_adapter *i2c = NULL;
- 	char *sfp_irq_name;
- 	struct sfp *sfp;
- 	int err, i;
-@@ -2499,43 +2499,25 @@ static int sfp_probe(struct platform_device *pdev)
- 		return err;
+@@ -142,25 +131,6 @@ struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+ }
+ EXPORT_SYMBOL(of_find_i2c_device_by_node);
  
- 	sff = sfp->type = &sfp_data;
-+	if (dev_fwnode(&pdev->dev)) {
-+		struct fwnode_handle *fwnode = dev_fwnode(&pdev->dev);
-+		struct fwnode_handle *np;
- 
--	if (pdev->dev.of_node) {
--		struct device_node *node = pdev->dev.of_node;
--		const struct of_device_id *id;
--		struct device_node *np;
+-/* must call put_device() when done with returned i2c_adapter device */
+-struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+-{
+-	struct device *dev;
+-	struct i2c_adapter *adapter;
 -
--		id = of_match_node(sfp_of_match, node);
--		if (WARN_ON(!id))
--			return -EINVAL;
-+		if (!is_acpi_device_node(fwnode)) {
-+			sff = device_get_match_data(&pdev->dev);
-+			if (WARN_ON(!sff))
-+				return -EINVAL;
- 
--		sff = sfp->type = id->data;
+-	dev = bus_find_device(&i2c_bus_type, NULL, node,
+-			      of_dev_or_parent_node_match);
+-	if (!dev)
+-		return NULL;
 -
--		np = of_parse_phandle(node, "i2c-bus", 0);
--		if (!np) {
--			dev_err(sfp->dev, "missing 'i2c-bus' property\n");
--			return -ENODEV;
-+			sfp->type = sff;
- 		}
- 
--		i2c = of_find_i2c_adapter_by_node(np);
--		of_node_put(np);
--	} else if (has_acpi_companion(&pdev->dev)) {
--		struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
--		struct fwnode_handle *fw = acpi_fwnode_handle(adev);
--		struct fwnode_reference_args args;
--		struct acpi_handle *acpi_handle;
--		int ret;
+-	adapter = i2c_verify_adapter(dev);
+-	if (!adapter)
+-		put_device(dev);
 -
--		ret = acpi_node_get_property_reference(fw, "i2c-bus", 0, &args);
--		if (ret || !is_acpi_device_node(args.fwnode)) {
--			dev_err(&pdev->dev, "missing 'i2c-bus' property\n");
-+		np = fwnode_find_reference(fwnode, "i2c-bus", 0);
-+		if (!np) {
-+			dev_err(&pdev->dev, "Cannot parse i2c-bus\n");
- 			return -ENODEV;
- 		}
+-	return adapter;
+-}
+-EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
 -
--		acpi_handle = ACPI_HANDLE_FWNODE(args.fwnode);
--		i2c = i2c_acpi_find_adapter_by_handle(acpi_handle);
--	} else {
--		return -EINVAL;
-+		i2c = fwnode_find_i2c_adapter_by_node(np);
-+		fwnode_handle_put(np);
- 	}
+ /* must call i2c_put_adapter() when done with returned i2c_adapter device */
+ struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node)
+ {
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 9b480a8b0a76..d1f384b805ad 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -974,7 +974,10 @@ struct i2c_adapter *fwnode_find_i2c_adapter_by_node(struct fwnode_handle *node);
+ struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
  
- 	if (!i2c)
+ /* must call put_device() when done with returned i2c_adapter device */
+-struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node);
++static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
++{
++	return fwnode_find_i2c_adapter_by_node(of_fwnode_handle(node));
++}
+ 
+ /* must call i2c_put_adapter() when done with returned i2c_adapter device */
+ struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node);
 -- 
 2.34.1
 
