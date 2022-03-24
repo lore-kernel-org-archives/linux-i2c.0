@@ -2,258 +2,79 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF0E1C433FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Mar 2022 22:00:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 940F4C433FE
+	for <linux-i2c@archiver.kernel.org>; Thu, 24 Mar 2022 23:26:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345070AbiCWWBo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 23 Mar 2022 18:01:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55972 "EHLO
+        id S1345524AbiCXX1c (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 24 Mar 2022 19:27:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229908AbiCWWBn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Mar 2022 18:01:43 -0400
-X-Greylist: delayed 454 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 23 Mar 2022 15:00:11 PDT
-Received: from smtp1.de.adit-jv.com (smtp1.de.adit-jv.com [93.241.18.167])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CFE593A2;
-        Wed, 23 Mar 2022 15:00:11 -0700 (PDT)
-Received: from hi2exch02.adit-jv.com (hi2exch02.adit-jv.com [10.72.92.28])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 483E13C003B;
-        Wed, 23 Mar 2022 22:52:35 +0100 (CET)
-Received: from lxhi-065 (10.72.94.3) by hi2exch02.adit-jv.com (10.72.92.28)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2308.21; Wed, 23 Mar
- 2022 22:52:34 +0100
-Date:   Wed, 23 Mar 2022 22:52:29 +0100
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-CC:     Eugeniu Rosca <erosca@de.adit-jv.com>,
-        <linux-renesas-soc@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Bhuvanesh Surachari <bhuvanesh_surachari@mentor.com>,
-        Eugeniu Rosca <roscaeugeniu@gmail.com>
-Subject: Re: [PATCH v2] i2c: rcar: add SMBus block read support
-Message-ID: <20220323215229.GA9403@lxhi-065>
-References: <20210922160649.28449-1-andrew_gabbasov@mentor.com>
- <CAMuHMdVVDpBAQR+H1TAnpf65aVbAL0Mm0km7Z9L7+1JuF6n1gQ@mail.gmail.com>
- <000001d7badd$a8512d30$f8f38790$@mentor.com>
- <20211006182314.10585-1-andrew_gabbasov@mentor.com>
- <Yg6ls0zyTDe7LQbK@kunai>
+        with ESMTP id S235762AbiCXX1c (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2022 19:27:32 -0400
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8876A9955;
+        Thu, 24 Mar 2022 16:25:59 -0700 (PDT)
+Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 9860659E;
+        Fri, 25 Mar 2022 00:25:57 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1648164357;
+        bh=7MlZmGOM4m0TaAfCbi0FQLVMapWDI73df16HdwL9rf8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aFf2+797gOj0PUOHjNHjar/MCVZZdPr1Q+dDM0TnrK91NNFKJCjAUWcs6ZEdn3WfJ
+         owpchdp4jMFfTgHJd1RzuZnXgiQx2ynbRFByB1Jg8SDKnphs7OhjfjmNqHtXJ0dtXV
+         6cRM5WgRGr+xel+6MGnmTXseHOadUc7oLecRMe5o=
+Date:   Fri, 25 Mar 2022 01:25:55 +0200
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Sean Nyekjaer <sean@geanix.com>, devicetree@vger.kernel.org,
+        Jose Cazarin <joseespiriki@gmail.com>,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v1.1 2/2] iio: dac: dac5571: Fix chip id detection for OF
+ devices
+Message-ID: <Yjz+A74H+l9RiDAR@pendragon.ideasonboard.com>
+References: <20210723183114.26017-3-laurent.pinchart@ideasonboard.com>
+ <20210724000654.23168-1-laurent.pinchart@ideasonboard.com>
+ <20210724154308.55afb03c@jic23-huawei>
+ <YRwfpOuyVEstwsza@kunai>
+ <YRwhej9Hz00qnvlQ@pendragon.ideasonboard.com>
+ <YRwi62E4xYcMyyFi@kunai>
+ <YRwoAgie/mDDunn9@pendragon.ideasonboard.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <Yg6ls0zyTDe7LQbK@kunai>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Originating-IP: [10.72.94.3]
-X-ClientProxiedBy: hi2exch02.adit-jv.com (10.72.92.28) To
- hi2exch02.adit-jv.com (10.72.92.28)
+In-Reply-To: <YRwoAgie/mDDunn9@pendragon.ideasonboard.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Dear Wolfram,
-Dear Andrew,
-Dear Geert,
+Hi Wolfram,
 
-A couple of questions and test results below.
-
-On Thu, Feb 17, 2022 at 08:44:51PM +0100, Wolfram Sang wrote:
-> Hi Andrew,
+On Wed, Aug 18, 2021 at 12:20:03AM +0300, Laurent Pinchart wrote:
+> On Tue, Aug 17, 2021 at 10:58:19PM +0200, Wolfram Sang wrote:
+> > 
+> > > > Couldn't you use the "new" probe_new() callback instead which will drop
+> > > > the i2c_device_id? Kieran was interested in such conversions IIRC.
+> > > 
+> > > It's a bit unrelated to this patch, but I can add another patch to the
+> > > series.
+> > > 
+> > > While I have your attention, there's a question for you in the cover
+> > > letter :-) Could you please have a look ?
+> > 
+> > ? This was the answer to that question. Unless I misunderstood.
 > 
-> first sorry that it took so long. The reason here is that my original
-> plan was to add 256-byte support to RECV_LEN in the I2C core and enable
-> it on R-Car afterwards. Sadly, I never found the time to drive this
-> forward. So, all RECV_LEN things got stuck for a while :(
-> 
-> > This patch (adapted) was tested with v4.14, but due to lack of real
-> > hardware with SMBus block read operations support, using "simulation",
-> > that is manual analysis of data, read from plain I2C devices with
-> > SMBus block read request.
-> 
-> You could wire up two R-Car I2C instances, set up one as an I2C slave
-> handled by the I2C testunit and then use the other instance with
-> SMBUS_BLOCK_PROC_CALL which also needs RECV_LEN. Check
-> Documentation/i2c/slave-testunit-backend.rst for details.
+> My point is that this patch shouldn't be needed. I'd like if the I2C
+> core could get the driver data from the i2c_device_id table instead of
+> duplicating it in the of_device_id. This isn't possible today as
+> i2c_match_id() doesn't have the fallback mechanism that OF matching has.
 
-I am obviously not an SMBus expert, but I wonder if simply testing the
-PCA9654 I/O Expander with SMBus support on the H3-Salvator-X target
-could be acceptable as a test procedure? See some test results below.
+Any thought on this ?
 
-> 
-> I wonder a bit about the complexity of your patch. In my WIP-branch for
-> 256-byte transfers, I have the following patch. It is only missing the
-> range check for the received byte, but that it easy to add. Do you see
-> anything else missing? If not, I prefer this simpler version because it
-> is less intrusive and the state machine is a bit fragile (due to HW
-> issues with old HW).
-> 
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Date: Sun, 2 Aug 2020 00:24:52 +0200
-> Subject: [PATCH] i2c: rcar: add support for I2C_M_RECV_LEN
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  drivers/i2c/busses/i2c-rcar.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> index 217def2d7cb4..e473f5c0a708 100644
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-> @@ -528,6 +528,7 @@ static void rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
->  static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
->  {
->  	struct i2c_msg *msg = priv->msg;
-> +	bool recv_len_init = priv->pos == 0 && msg->flags & I2C_M_RECV_LEN;
->  
->  	/* FIXME: sometimes, unknown interrupt happened. Do nothing */
->  	if (!(msr & MDR))
-> @@ -542,11 +543,13 @@ static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
->  	} else if (priv->pos < msg->len) {
->  		/* get received data */
->  		msg->buf[priv->pos] = rcar_i2c_read(priv, ICRXTX);
-> +		if (recv_len_init)
-> +			msg->len += msg->buf[0];
->  		priv->pos++;
->  	}
->  
->  	/* If next received data is the _LAST_, go to new phase. */
-> -	if (priv->pos + 1 == msg->len) {
-> +	if (priv->pos + 1 == msg->len && !recv_len_init) {
->  		if (priv->flags & ID_LAST_MSG) {
->  			rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
->  		} else {
-> @@ -889,7 +892,7 @@ static u32 rcar_i2c_func(struct i2c_adapter *adap)
->  	 * I2C_M_IGNORE_NAK (automatically sends STOP after NAK)
->  	 */
->  	u32 func = I2C_FUNC_I2C | I2C_FUNC_SLAVE |
-> -		   (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
-> +		   (I2C_FUNC_SMBUS_EMUL_ALL & ~I2C_FUNC_SMBUS_QUICK);
->  
->  	if (priv->flags & ID_P_HOST_NOTIFY)
->  		func |= I2C_FUNC_SMBUS_HOST_NOTIFY;
-> 
+-- 
+Regards,
 
-############################################################
-################# PATCH-INDEPENDENT OUTPUT #################
-############################################################
-
-## .config: https://gist.github.com/erosca/690c3e6065b55546e511f9ef8ba59625
-## i2c-tools: https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/commit/?id=cf3541b8a7
-
-root@rcar-gen3:# uname -r
-5.17.0+
-
-root@rcar-gen3:# cat /sys/firmware/devicetree/base/model 
-Renesas Salvator-X board based on r8a77951
-
-root@rcar-gen3:# i2cdetect -l     
-i2c-7   i2c             e60b0000.i2c                            I2C adapter
-i2c-2   i2c             e6510000.i2c                            I2C adapter
-i2c-4   i2c             e66d8000.i2c                            I2C adapter
-    ^
-     ` i2c-4 is the PCA9654 I/O Expander with SMBus protocol support
-
-root@rcar-gen3:# i2cdetect -y -r 4
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:                         -- -- -- -- -- -- -- -- 
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-20: UU -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-60: UU UU UU UU UU UU -- -- 68 -- UU -- -- -- -- -- 
-70: UU UU UU UU UU UU -- --      
-
-############################################################
-###################### VANILLA v5.17 #######################
-############################################################
-
-root@rcar-gen3:# i2cdetect -F 4
-Functionalities implemented by /dev/i2c-4:
-I2C                              yes
-SMBus Quick Command              no
-SMBus Send Byte                  yes
-SMBus Receive Byte               yes
-SMBus Write Byte                 yes
-SMBus Read Byte                  yes
-SMBus Write Word                 yes
-SMBus Read Word                  yes
-SMBus Process Call               yes
-SMBus Block Write                yes
-SMBus Block Read                 no	<<<--- We aim to enable this
-SMBus Block Process Call         no
-SMBus PEC                        yes
-I2C Block Write                  yes
-I2C Block Read                   yes
-
-root@rcar-gen3:# i2cget -y 4 0x68 0 i 8
-0x08 0xff 0x06 0xff 0x5f 0xff 0x11 0x08
-
-root@rcar-gen3:# i2cget -y 4 0x68 0 s
-Error: Adapter does not have SMBus block read capability
-
-############################################################
-#################### ANDREW'S V2 PATCH #####################
-############################################################
-
-root@rcar-gen3:# i2cdetect -F 4
-Functionalities implemented by /dev/i2c-4:
-I2C                              yes
-SMBus Quick Command              no
-SMBus Send Byte                  yes
-SMBus Receive Byte               yes
-SMBus Write Byte                 yes
-SMBus Read Byte                  yes
-SMBus Write Word                 yes
-SMBus Read Word                  yes
-SMBus Process Call               yes
-SMBus Block Write                yes
-SMBus Block Read                 yes 	<<<--- Enabled (tested below)
-SMBus Block Process Call         no
-SMBus PEC                        yes
-I2C Block Write                  yes
-I2C Block Read                   yes
-
-root@rcar-gen3:# i2cget -y 4 0x68 0 i 8
-0x08 0xff 0x06 0xff 0x5f 0xff 0x11 0x08
-
-root@rcar-gen3:# i2cget -y 4 0x68 0 s
-0x08 0xff 0x06 0xff 0x5f 0xff 0x11 0x08
-
-############################################################
-##################### WOLFRAM'S PATCH ######################
-############################################################
-
-root@rcar-gen3:# i2cdetect -F 4
-Functionalities implemented by /dev/i2c-4:
-I2C                              yes
-SMBus Quick Command              no
-SMBus Send Byte                  yes
-SMBus Receive Byte               yes
-SMBus Write Byte                 yes
-SMBus Read Byte                  yes
-SMBus Write Word                 yes
-SMBus Read Word                  yes
-SMBus Process Call               yes
-SMBus Block Write                yes
-SMBus Block Read                 yes	<<<--- Enabled (tested)
-SMBus Block Process Call         yes	<<<--- Enabled (not tested)
-SMBus PEC                        yes
-I2C Block Write                  yes
-I2C Block Read                   yes
-
-root@rcar-gen3:# i2cget -y 4 0x68 0 i 8
-0x08 0xff 0x06 0xff 0x5f 0xff 0x11 0x08
-
-root@rcar-gen3:# i2cget -y 4 0x68 0 s
-0xff 0x06 0xff 0x5f 0xff 0x11 0x08 0x08
-
-############################################################
-
-Any comments?
-
-Best regards,
-Eugeniu
+Laurent Pinchart
