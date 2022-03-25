@@ -2,33 +2,33 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94AFAC433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 25 Mar 2022 11:34:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EDA5C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 25 Mar 2022 11:34:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353022AbiCYLfl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 25 Mar 2022 07:35:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
+        id S1356467AbiCYLfr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 25 Mar 2022 07:35:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232143AbiCYLfk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Mar 2022 07:35:40 -0400
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06998A995C;
-        Fri, 25 Mar 2022 04:34:05 -0700 (PDT)
+        with ESMTP id S1356159AbiCYLfm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Mar 2022 07:35:42 -0400
+Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [217.70.183.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6628A9956;
+        Fri, 25 Mar 2022 04:34:07 -0700 (PDT)
 Received: (Authenticated sender: clement.leger@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id CD46820012;
-        Fri, 25 Mar 2022 11:34:02 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 7BC6120004;
+        Fri, 25 Mar 2022 11:34:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1648208044;
+        t=1648208046;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=7h5U+Wv/MCPvlMQZC9RddFjnnGvegr7ExkBEVjPAZkg=;
-        b=oUisZjuRnZzAKfKfHS3IZA9SPvSHB+yh+uf4+RJ97ZHAowKVOSJ0hubxoeLZB177rqgqtJ
-        3AIHilOvwZEFzWDXX6IFKmLhGoX5qdlQ07raXrZN6wJTL/R9o5S5coNj7/rZ8tdtITlAQf
-        kZWjmyBB+xoqe3030lR5tMhQGA5/ZkXOTUhbDpGLuqZBdlTedzhdua5Hlt6b7DDM71LjDo
-        pAGggGuXsZWc+3FSJEzws13t4D0r71RBAUn6BakSWIpwvou3TCP3yXieLqhXQLlieS0cP6
-        /jqqJc8yU2M75s5Z5WjmYypBsdjKJ3TjFD7q+UUzMJwal/WetMDeHyFbbc061A==
+        bh=t7jG696msxIP+uipvIAwEjfKw2CtLhwybjn43oZI2Bk=;
+        b=E3Y78V/6ViYdGor+Zi7veNZ75Wfj/6aczWRtwfYm5OXuROosQ4A/pbVfUSZKKK5GRycOtL
+        qaHuoPi6N4oMqcCXh673Ct+qZIcMuKPfXZ7Qq/ZNaZM9k+JFbtptl4R7PrruN+4O57muPg
+        usFJ2JhCQOpfUN7s5Qgzy3/jIyoamSeUWpMs8UWGOfOfGF9x04bO1sbf4aNHWrYghDoIC0
+        J2+lGqph+k5iIxjZKiawakTGONCrAGeBX3opz5XnujJa79N92j1kw41AvbN95KEIOZa4Td
+        mD7gCqP4DmV6Fng7+x4MxpHihzGnAyH3Keea2diZ8rYx7d6UHPvvs8+us945wg==
 From:   =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Daniel Scally <djrscally@gmail.com>,
@@ -47,9 +47,9 @@ Cc:     Hans de Goede <hdegoede@redhat.com>,
         linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>
-Subject: [PATCH v3 1/9] of: add of_property_read_string_array_index()
-Date:   Fri, 25 Mar 2022 12:31:40 +0100
-Message-Id: <20220325113148.588163-2-clement.leger@bootlin.com>
+Subject: [PATCH v3 2/9] of: unittests: add tests for of_property_read_string_array_index()
+Date:   Fri, 25 Mar 2022 12:31:41 +0100
+Message-Id: <20220325113148.588163-3-clement.leger@bootlin.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220325113148.588163-1-clement.leger@bootlin.com>
 References: <20220325113148.588163-1-clement.leger@bootlin.com>
@@ -60,47 +60,46 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add of_property_read_string_array_index() which allows to read a string
-array starting at a specific index.
+Add testing for of_property_read_string_array_index() function which
+allows to retrieve a string array starting at a specified offset. These
+tests are testing some basic use-case for this function.
 
 Signed-off-by: Clément Léger <clement.leger@bootlin.com>
 ---
- include/linux/of.h | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/of/unittest.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/include/linux/of.h b/include/linux/of.h
-index 2dc77430a91a..93f04c530bd1 100644
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -1115,6 +1115,28 @@ static inline int of_property_read_string_array(const struct device_node *np,
- 	return of_property_read_string_helper(np, propname, out_strs, sz, 0);
+diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
+index 2c2fb161b572..d39ec2f5d2c5 100644
+--- a/drivers/of/unittest.c
++++ b/drivers/of/unittest.c
+@@ -759,6 +759,26 @@ static void __init of_unittest_property_string(void)
+ 	strings[1] = NULL;
+ 	rc = of_property_read_string_array(np, "phandle-list-names", strings, 1);
+ 	unittest(rc == 1 && strings[1] == NULL, "Overwrote end of string array; rc=%i, str='%s'\n", rc, strings[1]);
++
++	/* of_property_read_string_array_index() tests */
++	rc = of_property_read_string_array_index(np, "string-property", strings, 4, 0);
++	unittest(rc == 1, "Incorrect string count; rc=%i\n", rc);
++	rc = of_property_read_string_array_index(np, "string-property", strings, 4, 1);
++	unittest(rc == -ENODATA, "Incorrect return value; rc=%i\n", rc);
++	rc = of_property_read_string_array_index(np, "phandle-list-names", strings, 2, 0);
++	unittest(rc == 2 && !strcmp(strings[0], "first") && !strcmp(strings[1], "second"),
++		 "of_property_read_string_array_index() failure; rc=%i\n", rc);
++	rc = of_property_read_string_array_index(np, "phandle-list-names", strings, 2, 1);
++	unittest(rc == 2 && !strcmp(strings[0], "second") && !strcmp(strings[1], "third"),
++		 "of_property_read_string_array_index() failure; rc=%i\n", rc);
++	rc = of_property_read_string_array_index(np, "phandle-list-names", strings, 4, 1);
++	unittest(rc == 2 && !strcmp(strings[0], "second") && !strcmp(strings[1], "third"),
++		 "of_property_read_string_array_index() failure; rc=%i\n", rc);
++	rc = of_property_read_string_array_index(np, "phandle-list-names", strings, 1, 2);
++	unittest(rc == 1 && !strcmp(strings[0], "third"),
++		 "of_property_read_string_array_index() failure; rc=%i\n", rc);
++	rc = of_property_read_string_array_index(np, "phandle-list-names", strings, 1, 3);
++	unittest(rc == -ENODATA, "Incorrect return value; rc=%i\n", rc);
  }
  
-+/**
-+ * of_property_read_string_array_index() - Read an array of strings from a
-+ * multiple strings property starting at a specified index
-+ * @np:		device node from which the property value is to be read.
-+ * @propname:	name of the property to be searched.
-+ * @out_strs:	output array of string pointers.
-+ * @sz:		number of array elements to read.
-+ * @index:	index to start reading from
-+ *
-+ * Search for a property in a device tree node and retrieve a list of
-+ * terminated string values (pointer to data, not a copy) in that property
-+ * starting at specified index.
-+ *
-+ * Return: If @out_strs is NULL, the number of strings in the property is returned.
-+ */
-+static inline int of_property_read_string_array_index(const struct device_node *np,
-+						      const char *propname,
-+						      const char **out_strs,
-+						      size_t sz, int index)
-+{
-+	return of_property_read_string_helper(np, propname, out_strs, sz, index);
-+}
- /**
-  * of_property_count_strings() - Find and return the number of strings from a
-  * multiple strings property.
+ #define propcmp(p1, p2) (((p1)->length == (p2)->length) && \
 -- 
 2.34.1
 
