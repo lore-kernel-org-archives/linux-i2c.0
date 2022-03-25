@@ -2,33 +2,33 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75E27C433EF
-	for <linux-i2c@archiver.kernel.org>; Fri, 25 Mar 2022 11:34:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50A86C433EF
+	for <linux-i2c@archiver.kernel.org>; Fri, 25 Mar 2022 11:34:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356996AbiCYLf6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 25 Mar 2022 07:35:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54986 "EHLO
+        id S1356921AbiCYLgB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 25 Mar 2022 07:36:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356834AbiCYLfu (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Mar 2022 07:35:50 -0400
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [217.70.183.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81986D0AA0;
-        Fri, 25 Mar 2022 04:34:14 -0700 (PDT)
+        with ESMTP id S1356299AbiCYLf7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Mar 2022 07:35:59 -0400
+Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::227])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F6CD444C;
+        Fri, 25 Mar 2022 04:34:18 -0700 (PDT)
 Received: (Authenticated sender: clement.leger@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 1B7B82000A;
-        Fri, 25 Mar 2022 11:34:11 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 9B3052000D;
+        Fri, 25 Mar 2022 11:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1648208053;
+        t=1648208057;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=MDm4YP1sE29344rf2R0COIQGSk7+i5VU29q/DiQVbuo=;
-        b=fQumbr94pjkHijI+6zW+z78A41y+IOIUv0R9PUVZdKcQ+vXD5q0X9vEBQwhLZnbp7nuXR0
-        4PwC6uqutz4MMEHFBFM/MHCYm4ocKnV9T7is0W7K7HwdoG2qazPDvh2JpM9KCoPg9084pp
-        2EizFc+ySBSg4DQ5pezyrwFmSKyMwcOx5ZxnzlVh2LYgoFJqvSfXuK0OPAGQdtGF7AoBHk
-        kDiiCAk3MSFsH+dtzhB9z8OSq/VEuWEQDWJfM5TYrIlfQT4U4xvUW/85LotXAkcUWiWb2Y
-        umuSa2kv89CEHynCm5XDB5eO5KXXAoM4Lczj0Qpm4srEzl2XRUGdyW3BmGbXBQ==
+        bh=IdtHSEns/kbR1RODo7rJJZ+DXlhGmh7K4+UmBU92PnA=;
+        b=e4PCD8Ju0RNF87b3BW82QPiUv9PS6gexdvFliyb9NOwHje8H8EiJXVSZsYYuMVquOhe2k/
+        9U2UM7Ifk38vQ5aRGIw0FlxSyivf+Z3zgac7TWMByfxz9OVKpw8S46AI0df+0Hto90seey
+        jqhO26BBezbEumafoKKn0L4+4u1jyrpUcEMHeZz6+8gP6/wefNlc4HOHmLLlc3BSyEult8
+        sAfXDSCd+bnVkY9ouLjgDx1q/H76Hyp5vbjZwIV1JGJCkxYBSv0mGYOSNXGmhRPxj3Y17h
+        9lnUDBsWFCQEVOxY5Efisq91zRCjuFQURV8ooufRWKBmxymyrvGrB/bi0HbZYQ==
 From:   =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Daniel Scally <djrscally@gmail.com>,
@@ -47,9 +47,9 @@ Cc:     Hans de Goede <hdegoede@redhat.com>,
         linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
         linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>
-Subject: [PATCH v3 6/9] i2c: fwnode: add fwnode_find_i2c_adapter_by_node()
-Date:   Fri, 25 Mar 2022 12:31:45 +0100
-Message-Id: <20220325113148.588163-7-clement.leger@bootlin.com>
+Subject: [PATCH v3 8/9] i2c: mux: pinctrl: remove CONFIG_OF dependency and use fwnode API
+Date:   Fri, 25 Mar 2022 12:31:47 +0100
+Message-Id: <20220325113148.588163-9-clement.leger@bootlin.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220325113148.588163-1-clement.leger@bootlin.com>
 References: <20220325113148.588163-1-clement.leger@bootlin.com>
@@ -60,99 +60,92 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add fwnode_find_i2c_adapter_by_node() which allows to retrieve a i2c
-adapter using a fwnode. Since dev_fwnode() uses the fwnode provided by
-the of_node member of the device, this will also work for devices were
-the of_node has been set and not the fwnode field.
-For acpi nodes, the check for parent node is skipped since
-i2c_acpi_find_adapter_by_handle() does not check it and we don't want
-to change this behavior.
+In order to use i2c muxes with all types of nodes, switch to fwnode
+API. The fwnode layer will allow to use this with both device_node and
+software_node.
+
+This commits is simply replacing the use of "of_" prefixed functions
+with there fwnode equivalent.
 
 Signed-off-by: Clément Léger <clement.leger@bootlin.com>
 ---
- drivers/i2c/Makefile          |  1 +
- drivers/i2c/i2c-core-fwnode.c | 45 +++++++++++++++++++++++++++++++++++
- include/linux/i2c.h           |  3 +++
- 3 files changed, 49 insertions(+)
- create mode 100644 drivers/i2c/i2c-core-fwnode.c
+ drivers/i2c/muxes/Kconfig           |  1 -
+ drivers/i2c/muxes/i2c-mux-pinctrl.c | 23 ++++++++++++-----------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-index c1d493dc9bac..c9c97675163e 100644
---- a/drivers/i2c/Makefile
-+++ b/drivers/i2c/Makefile
-@@ -6,6 +6,7 @@
- obj-$(CONFIG_I2C_BOARDINFO)	+= i2c-boardinfo.o
- obj-$(CONFIG_I2C)		+= i2c-core.o
- i2c-core-objs 			:= i2c-core-base.o i2c-core-smbus.o
-+i2c-core-objs			+= i2c-core-fwnode.o
- i2c-core-$(CONFIG_ACPI)		+= i2c-core-acpi.o
- i2c-core-$(CONFIG_I2C_SLAVE) 	+= i2c-core-slave.o
- i2c-core-$(CONFIG_OF) 		+= i2c-core-of.o
-diff --git a/drivers/i2c/i2c-core-fwnode.c b/drivers/i2c/i2c-core-fwnode.c
-new file mode 100644
-index 000000000000..fb1c820b686e
---- /dev/null
-+++ b/drivers/i2c/i2c-core-fwnode.c
-@@ -0,0 +1,45 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Linux I2C core fwnode support code
-+ *
-+ * Copyright (C) 2022 Microchip
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/i2c.h>
-+
-+#include "i2c-core.h"
-+
-+static int fwnode_dev_or_parent_node_match(struct device *dev, const void *data)
-+{
-+	if (device_match_fwnode(dev, data))
-+		return 1;
-+
-+	/*
-+	 * For ACPI device node, the behavior is to not match the parent (see
-+	 * i2c_acpi_find_adapter_by_handle())
-+	 */
-+	if (!is_acpi_device_node(dev_fwnode(dev)) && dev->parent)
-+		return device_match_fwnode(dev->parent, data);
-+
-+	return 0;
-+}
-+
-+struct i2c_adapter *
-+fwnode_find_i2c_adapter_by_node(struct fwnode_handle *fwnode)
-+{
-+	struct device *dev;
-+	struct i2c_adapter *adapter;
-+
-+	dev = bus_find_device(&i2c_bus_type, NULL, fwnode,
-+			      fwnode_dev_or_parent_node_match);
-+	if (!dev)
-+		return NULL;
-+
-+	adapter = i2c_verify_adapter(dev);
-+	if (!adapter)
-+		put_device(dev);
-+
-+	return adapter;
-+}
-+EXPORT_SYMBOL(fwnode_find_i2c_adapter_by_node);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 7d4f52ceb7b5..8dadf8c89fd9 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -967,6 +967,9 @@ int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 1708b1a82da2..d9cb15cfba3e 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -77,7 +77,6 @@ config I2C_MUX_PCA954x
+ config I2C_MUX_PINCTRL
+ 	tristate "pinctrl-based I2C multiplexer"
+ 	depends on PINCTRL
+-	depends on OF || COMPILE_TEST
+ 	help
+ 	  If you say yes to this option, support will be included for an I2C
+ 	  multiplexer that uses the pinctrl subsystem, i.e. pin multiplexing.
+diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+index f1bb00a11ad6..d9c0241e8790 100644
+--- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+@@ -53,19 +53,20 @@ static struct i2c_adapter *i2c_mux_pinctrl_root_adapter(
  
- #endif /* I2C */
+ static struct i2c_adapter *i2c_mux_pinctrl_parent_adapter(struct device *dev)
+ {
+-	struct device_node *np = dev->of_node;
+-	struct device_node *parent_np;
++	struct fwnode_handle *fwnode = dev_fwnode(dev);
++	struct fwnode_handle *parent_fwnode;
+ 	struct i2c_adapter *parent;
  
-+struct i2c_adapter *
-+fwnode_find_i2c_adapter_by_node(struct fwnode_handle *fwnode);
-+
- #if IS_ENABLED(CONFIG_OF)
- /* must call put_device() when done with returned i2c_client device */
- struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
+-	parent_np = of_parse_phandle(np, "i2c-parent", 0);
+-	if (!parent_np) {
++	parent_fwnode = fwnode_find_reference(fwnode, "i2c-parent", 0);
++	if (!parent_fwnode) {
+ 		dev_err(dev, "Cannot parse i2c-parent\n");
+ 		return ERR_PTR(-ENODEV);
+ 	}
+-	parent = of_find_i2c_adapter_by_node(parent_np);
+-	of_node_put(parent_np);
+-	if (!parent)
++	parent = fwnode_find_i2c_adapter_by_node(parent_fwnode);
++	if (!parent) {
++		dev_err(dev, "Cannot find i2c-parent\n");
+ 		return ERR_PTR(-EPROBE_DEFER);
++	}
+ 
+ 	return parent;
+ }
+@@ -73,7 +74,7 @@ static struct i2c_adapter *i2c_mux_pinctrl_parent_adapter(struct device *dev)
+ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+-	struct device_node *np = dev->of_node;
++	struct fwnode_handle *fwnode = dev_fwnode(dev);
+ 	struct i2c_mux_core *muxc;
+ 	struct i2c_mux_pinctrl *mux;
+ 	struct i2c_adapter *parent;
+@@ -81,7 +82,7 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
+ 	int num_names, i, ret;
+ 	const char *name;
+ 
+-	num_names = of_property_count_strings(np, "pinctrl-names");
++	num_names = fwnode_property_string_array_count(fwnode, "pinctrl-names");
+ 	if (num_names < 0) {
+ 		dev_err(dev, "Cannot parse pinctrl-names: %d\n",
+ 			num_names);
+@@ -111,8 +112,8 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	for (i = 0; i < num_names; i++) {
+-		ret = of_property_read_string_index(np, "pinctrl-names", i,
+-						    &name);
++		ret = fwnode_property_read_string_index(fwnode, "pinctrl-names", i,
++							&name);
+ 		if (ret < 0) {
+ 			dev_err(dev, "Cannot parse pinctrl-names: %d\n", ret);
+ 			goto err_put_parent;
 -- 
 2.34.1
 
