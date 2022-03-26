@@ -2,94 +2,74 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9950C433EF
-	for <linux-i2c@archiver.kernel.org>; Fri, 25 Mar 2022 21:08:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EBC6C433F5
+	for <linux-i2c@archiver.kernel.org>; Sat, 26 Mar 2022 10:22:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233062AbiCYVJs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 25 Mar 2022 17:09:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46516 "EHLO
+        id S232404AbiCZKYL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 26 Mar 2022 06:24:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233059AbiCYVJr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Mar 2022 17:09:47 -0400
-X-Greylist: delayed 16201 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 25 Mar 2022 14:08:12 PDT
-Received: from 15.mo584.mail-out.ovh.net (15.mo584.mail-out.ovh.net [91.121.62.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 974EA17ECDB
-        for <linux-i2c@vger.kernel.org>; Fri, 25 Mar 2022 14:08:12 -0700 (PDT)
-Received: from player695.ha.ovh.net (unknown [10.110.115.188])
-        by mo584.mail-out.ovh.net (Postfix) with ESMTP id 31CE722182
-        for <linux-i2c@vger.kernel.org>; Fri, 25 Mar 2022 16:19:27 +0000 (UTC)
-Received: from sk2.org (82-65-25-201.subs.proxad.net [82.65.25.201])
-        (Authenticated sender: steve@sk2.org)
-        by player695.ha.ovh.net (Postfix) with ESMTPSA id C9F4628AAD10E;
-        Fri, 25 Mar 2022 16:19:23 +0000 (UTC)
-Authentication-Results: garm.ovh; auth=pass (GARM-102R004ceb7d065-e90c-401e-ab9e-18557b73c586,
-                    1702D5D0C6B5DF16716081994498F990499A02DA) smtp.auth=steve@sk2.org
-X-OVh-ClientIp: 82.65.25.201
-From:   Stephen Kitt <steve@sk2.org>
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Stephen Kitt <steve@sk2.org>
-Subject: [PATCH] docs: i2c: reference simple probes
-Date:   Fri, 25 Mar 2022 17:19:10 +0100
-Message-Id: <20220325161910.1202539-1-steve@sk2.org>
-X-Mailer: git-send-email 2.27.0
+        with ESMTP id S232395AbiCZKYL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 26 Mar 2022 06:24:11 -0400
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 546D916BCD9;
+        Sat, 26 Mar 2022 03:22:34 -0700 (PDT)
+Received: by mail-wr1-f47.google.com with SMTP id h23so13804592wrb.8;
+        Sat, 26 Mar 2022 03:22:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=d3ncUlwyfN23LAHneA+x8RC86+EtUpdCtRwDExYqA3A=;
+        b=eumcFiw9W2vFL0tlWQF4whfsQk4CfpQ+ALZihxL4HnnBYwPaKX4KoFg2i/q0jQxsVV
+         iEcCmx7F7KIpxvQSm2YdE3boOiGi7BWoUTPJJMvZ00jmuruVtt/Ld/N3hsoZc0sh9d3E
+         Hqujj/m0kpmr4MvF/LdsbxbZdD7RagWvl5fKX7eMsv4EMK+ueQGmRfr9e9Kr9nSH69ia
+         0go9aMsCQm1NSK+mdnWZ4MLsxseJqMfWCp9xltdJNgQRthVYh4smXSz5M206QuplyZ7W
+         yXEFZWJCoHnXQn1Dmnn3TrObxOfDdDXjWsAv+M9aQy0Y1G5L7qkqa6o+Br0yAvdpUYsb
+         7c+A==
+X-Gm-Message-State: AOAM53214iIKW6J1JVuH/OykKdKnUsey7fNNe5BaO+H+pu/vPQiqNR+h
+        6zkj4Jql/ksBUab4ddceQqs=
+X-Google-Smtp-Source: ABdhPJzdOmzoCWz7kkm5nG90337ILbCEmW8zPe4Ns407o7zoP4CeAmc5ADHNH6TPDEncX+twTvWSYQ==
+X-Received: by 2002:a5d:5189:0:b0:205:9c7b:d374 with SMTP id k9-20020a5d5189000000b002059c7bd374mr9465343wrv.551.1648290152787;
+        Sat, 26 Mar 2022 03:22:32 -0700 (PDT)
+Received: from aryzen.lan (cpc87451-finc19-2-0-cust61.4-2.cable.virginm.net. [82.11.51.62])
+        by smtp.googlemail.com with ESMTPSA id l15-20020a05600c1d0f00b0038c8ff8e708sm6683057wms.13.2022.03.26.03.22.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Mar 2022 03:22:32 -0700 (PDT)
+From:   Lucas Tanure <tanure@linux.com>
+To:     Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Lucas Tanure <tanure@linux.com>
+Subject: [PATCH 0/3] Ensure Low period of SCL is correct
+Date:   Sat, 26 Mar 2022 10:22:26 +0000
+Message-Id: <20220326102229.421718-1-tanure@linux.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 16973785521511499398
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvvddrudehuddgkeeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefuthgvphhhvghnucfmihhtthcuoehsthgvvhgvsehskhdvrdhorhhgqeenucggtffrrghtthgvrhhnpeetgedugfelkeeikeetgeegteevfeeufeetuefgudeiiedthfehtdeffeekvdeffeenucfkpheptddrtddrtddrtddpkedvrdeihedrvdehrddvtddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmohguvgepshhmthhpohhuthdphhgvlhhopehplhgrhigvrheileehrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepshhtvghvvgesshhkvddrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Instead of documenting old-style probes, reference "simple probes" and
-document the i2c_match_id function. This might help reduce the use of
-two-argument probes in new code.
+The default duty cycle of 33% is less than the required
+by the I2C specs for the LOW period of the SCL clock.
 
-Signed-off-by: Stephen Kitt <steve@sk2.org>
----
- Documentation/i2c/writing-clients.rst | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+So, for 100Khz or less, use 50%H/50%L duty cycle, and
+for the clock above 100Khz, use 40%H/60%L duty cycle.
+That ensures the low period of SCL is always more than
+the minimum required by the specs at any given frequency.
 
-diff --git a/Documentation/i2c/writing-clients.rst b/Documentation/i2c/writing-clients.rst
-index 978cc8210bf3..e3b126cf4a3b 100644
---- a/Documentation/i2c/writing-clients.rst
-+++ b/Documentation/i2c/writing-clients.rst
-@@ -46,7 +46,7 @@ driver model device node, and its I2C address.
- 	},
- 
- 	.id_table	= foo_idtable,
--	.probe		= foo_probe,
-+	.probe_new	= foo_probe,
- 	.remove		= foo_remove,
- 	/* if device autodetection is needed: */
- 	.class		= I2C_CLASS_SOMETHING,
-@@ -155,8 +155,7 @@ those devices, and a remove() method to unbind.
- 
- ::
- 
--	static int foo_probe(struct i2c_client *client,
--			     const struct i2c_device_id *id);
-+	static int foo_probe(struct i2c_client *client);
- 	static int foo_remove(struct i2c_client *client);
- 
- Remember that the i2c_driver does not create those client handles.  The
-@@ -165,8 +164,12 @@ handle may be used during foo_probe().  If foo_probe() reports success
- foo_remove() returns.  That binding model is used by most Linux drivers.
- 
- The probe function is called when an entry in the id_table name field
--matches the device's name. It is passed the entry that was matched so
--the driver knows which one in the table matched.
-+matches the device's name. If the probe function needs that entry, it
-+can retrieve it using
-+
-+::
-+
-+	const struct i2c_device_id *id = i2c_match_id(foo_idtable, client);
- 
- 
- Device Creation
+Lucas Tanure (3):
+  i2c: meson: Use _SHIFT and _MASK for register definitions
+  i2c: meson: Use 50% duty cycle for I2C clock
+  i2c: meson: Remove meson_i2c_data
+
+ drivers/i2c/busses/i2c-meson.c | 104 ++++++++++++++++++---------------
+ 1 file changed, 56 insertions(+), 48 deletions(-)
+
 -- 
-2.27.0
+2.35.1
 
