@@ -2,87 +2,95 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26E9DC433F5
-	for <linux-i2c@archiver.kernel.org>; Mon, 28 Mar 2022 20:37:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D25AC433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 28 Mar 2022 22:31:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345231AbiC1Ujg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 28 Mar 2022 16:39:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60180 "EHLO
+        id S229818AbiC1WdD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 28 Mar 2022 18:33:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343629AbiC1Ujf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 28 Mar 2022 16:39:35 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D529C4926D
-        for <linux-i2c@vger.kernel.org>; Mon, 28 Mar 2022 13:37:53 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id a16-20020a17090a6d9000b001c7d6c1bb13so588498pjk.4
-        for <linux-i2c@vger.kernel.org>; Mon, 28 Mar 2022 13:37:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:in-reply-to:references:date:message-id
-         :mime-version;
-        bh=ftOkaLxffUNn0UIvFFh85pkRel4UoC8QUOBNdj53Afs=;
-        b=CMKKR3lFgackfgTVVWESREwEUx3E+WL7J+TqfQNMRECiHz71yj/VeH6JyZYk0NyDhB
-         vToP+xlnxA+ZmPYrusmxo9mH+CT2sh54WumswxVGETHc5hOC70yn6vIL+tl34Pla5K9J
-         UN73/vaQJ3lQBFWlX45mH1p1lBRPThJeb2Lp9ZTteOUkLjj591CSWSNdmuU+LnB5lCmU
-         4ELWEWErqKVc4wX3Jl1eaa7VO8RIMfZLO1+r6SZA875hDgJTQIsCtExjdExUlVgi3Qtf
-         oIn5Hbb5LqIrQPOfcznXNOuCZcEMeSRhuAopNt3mAZR1y9YhzlR8HpVqNBncZSoNoeJD
-         9szw==
+        with ESMTP id S229821AbiC1WdD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 28 Mar 2022 18:33:03 -0400
+Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com [209.85.222.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1D8247049;
+        Mon, 28 Mar 2022 15:31:21 -0700 (PDT)
+Received: by mail-ua1-f52.google.com with SMTP id m42so6942911uae.0;
+        Mon, 28 Mar 2022 15:31:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
-         :message-id:mime-version;
-        bh=ftOkaLxffUNn0UIvFFh85pkRel4UoC8QUOBNdj53Afs=;
-        b=7IK3q/Wt0CgSugrjoHbE+J/MShtVsB6sb1RK4iVrgLPcmFq7pnANWC7Q6ygiHdIVgG
-         pESfGyGgUq0ZthXvebaQs4DUBda5/Y9789C1lZnRv15clLI9AXMf9P+tclAsMmYExxL/
-         jlt5No52f7sEd+CvULeVcv5TRnhZTPNx5phhW6u7MJVzIwT620uryWCqqg/ndooI2HZM
-         oqWcFtm3FSx5PmTZF2nKPgbeWDsMIahiZt70Z+/VISCPf/a20/HpZoNLC6f3B9rQoHcR
-         vD42V7/+P+f0q51ZjZCzp265o9wNUFl5BTd4eO/AaJMQlbNchb0yf3Jc2dgB7ZipEwDB
-         +doQ==
-X-Gm-Message-State: AOAM530K8LVLo9RRxGDFv5SeiR1OmyBkV0f8u06LPpJqUgHvR736LLak
-        5zGp6mAswYyYuSEYb/+LfMKoxg==
-X-Google-Smtp-Source: ABdhPJzbfjVSjIhRJrOwAxFCzWkGeHwmUnsNPA04svo6SzEJbPLyKsboopfOVOQ9GMFz58BrWkcXQw==
-X-Received: by 2002:a17:90b:1d0e:b0:1c9:b74e:494 with SMTP id on14-20020a17090b1d0e00b001c9b74e0494mr921905pjb.238.1648499873342;
-        Mon, 28 Mar 2022 13:37:53 -0700 (PDT)
-Received: from localhost (c-71-197-186-152.hsd1.wa.comcast.net. [71.197.186.152])
-        by smtp.gmail.com with ESMTPSA id k137-20020a633d8f000000b0039800918b00sm10033798pga.77.2022.03.28.13.37.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Mar 2022 13:37:52 -0700 (PDT)
-From:   Kevin Hilman <khilman@baylibre.com>
-To:     Lucas Tanure <tanure@linux.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Lucas Tanure <tanure@linux.com>
-Subject: Re: [PATCH 0/3] Ensure Low period of SCL is correct
-In-Reply-To: <20220326102229.421718-1-tanure@linux.com>
-References: <20220326102229.421718-1-tanure@linux.com>
-Date:   Mon, 28 Mar 2022 13:37:52 -0700
-Message-ID: <7hee2lu82n.fsf@baylibre.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=CmZ698zi6YOmaGXJq+4D519v38GWNIw39PDssju4nkQ=;
+        b=1roScc6jAZ+y9U38kH2Vqxgbdd6LUeSQlwalwv0l2uhDUBkTa6e4B3XtPkh2nvpCtV
+         y9wxyYeb/rUm83+00UElyerh2AMSdUy7e+9VmoqHQQYKCmm97kVXGB6v6arvXmnjdjJD
+         ecG4/eW19kJEWgbRsOt/I1zEpsJbX2XVjr/b+p/6BmyzKx/pQ+3iM3i9AW6AagggUdG/
+         mYOuBkGMtGvGS3zOIis/vfp7w67L5Y19v19MucNcoE7OoUjDNA7Wtw47kiGgHq3XXXG/
+         fUpvH9skUPVqQZqLP1Rd/Jb6Ao5wYqQmIQ1ZKssQyStAqfjFAG7tQhPdBNqaMFDDPxbr
+         1Taw==
+X-Gm-Message-State: AOAM532wPPiRTEu+ON6lbZR5Hrg4QZWqLnKV+x2V+YnbQnsASQ/PwnJO
+        kAD6Na4WsO+hXL01r+y/SpoinMgbhWyOMg==
+X-Google-Smtp-Source: ABdhPJzWE5xRPjrLSBB9GUTXgKNAIRwOyZjbdunHFJRs04gSwP/p9orLNULbwcDVvPX7z49qml2/Lg==
+X-Received: by 2002:ab0:7411:0:b0:359:6321:5805 with SMTP id r17-20020ab07411000000b0035963215805mr14124678uap.6.1648506680691;
+        Mon, 28 Mar 2022 15:31:20 -0700 (PDT)
+Received: from mail-vk1-f180.google.com (mail-vk1-f180.google.com. [209.85.221.180])
+        by smtp.gmail.com with ESMTPSA id s68-20020a1fdb47000000b0033f4b515116sm1766124vkg.55.2022.03.28.15.31.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Mar 2022 15:31:20 -0700 (PDT)
+Received: by mail-vk1-f180.google.com with SMTP id w189so8804597vke.10;
+        Mon, 28 Mar 2022 15:31:20 -0700 (PDT)
+X-Received: by 2002:a05:6122:1310:b0:343:2ca9:2e11 with SMTP id
+ e16-20020a056122131000b003432ca92e11mr6469975vkp.5.1648506679815; Mon, 28 Mar
+ 2022 15:31:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <20220326102229.421718-1-tanure@linux.com> <7hee2lu82n.fsf@baylibre.com>
+In-Reply-To: <7hee2lu82n.fsf@baylibre.com>
+Reply-To: tanure@linux.com
+From:   Lucas Tanure <tanure@linux.com>
+Date:   Mon, 28 Mar 2022 18:31:24 -0400
+X-Gmail-Original-Message-ID: <CAJX_Q+1tz7BYL+CvXnc=zAamPiZDEFAASv9a7YoWGmzqYL+cUg@mail.gmail.com>
+Message-ID: <CAJX_Q+1tz7BYL+CvXnc=zAamPiZDEFAASv9a7YoWGmzqYL+cUg@mail.gmail.com>
+Subject: Re: [PATCH 0/3] Ensure Low period of SCL is correct
+To:     Kevin Hilman <khilman@baylibre.com>
+Cc:     Neil Armstrong <narmstrong@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Lucas,
-
-Lucas Tanure <tanure@linux.com> writes:
-
-> The default duty cycle of 33% is less than the required
-> by the I2C specs for the LOW period of the SCL clock.
+On Mon, 28 Mar 2022, 21:37 Kevin Hilman, <khilman@baylibre.com> wrote:
 >
-> So, for 100Khz or less, use 50%H/50%L duty cycle, and
-> for the clock above 100Khz, use 40%H/60%L duty cycle.
-> That ensures the low period of SCL is always more than
-> the minimum required by the specs at any given frequency.
+> Hi Lucas,
+>
+> Lucas Tanure <tanure@linux.com> writes:
+>
+> > The default duty cycle of 33% is less than the required
+> > by the I2C specs for the LOW period of the SCL clock.
+> >
+> > So, for 100Khz or less, use 50%H/50%L duty cycle, and
+> > for the clock above 100Khz, use 40%H/60%L duty cycle.
+> > That ensures the low period of SCL is always more than
+> > the minimum required by the specs at any given frequency.
+>
+> Thanks for the fixes!
+>
+> This is going to affect all SoCs, so ould you please summarize how your
+> changes were tested, and on which SoCs & boards?
+>
+> Thanks,
+>
+> Kevin
 
-Thanks for the fixes!
+Hi,
 
-This is going to affect all SoCs, so ould you please summarize how your
-changes were tested, and on which SoCs & boards?
+I only tested against the vim3 board, measured the bus with a Saleae
+logic pro 16.
+The measurements were with 100k, 400k, and a few in-between frequencies.
 
-Thanks,
+Is that enough?
 
-Kevin
+Thanks
+Lucas
