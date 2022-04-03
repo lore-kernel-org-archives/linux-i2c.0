@@ -2,134 +2,131 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 779E5C433FE
-	for <linux-i2c@archiver.kernel.org>; Sat,  2 Apr 2022 21:01:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4193C433EF
+	for <linux-i2c@archiver.kernel.org>; Sun,  3 Apr 2022 06:33:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230460AbiDBVCz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 2 Apr 2022 17:02:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51428 "EHLO
+        id S232511AbiDCGfL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 3 Apr 2022 02:35:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230163AbiDBVCz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Apr 2022 17:02:55 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94DF0654B3;
-        Sat,  2 Apr 2022 14:01:02 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id nt14-20020a17090b248e00b001ca601046a4so1535439pjb.0;
-        Sat, 02 Apr 2022 14:01:02 -0700 (PDT)
+        with ESMTP id S229608AbiDCGfK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 3 Apr 2022 02:35:10 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3008B850;
+        Sat,  2 Apr 2022 23:33:17 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id ku13-20020a17090b218d00b001ca8fcd3adeso226790pjb.2;
+        Sat, 02 Apr 2022 23:33:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=ep31zfzXgtGPRrK4JzjcT4OsqwVUibu1oi7iQV6wMvk=;
-        b=omQXM9rtM1ebTOd9z8Ztav/WBoT+BCHziqEXwKWAlkioz9DLMeAftY4UcrbPRF9dvo
-         iMHIqhBJ9HMNXG//Hjyk0XTZSaeCqnlM2A5aofHxAibbOUdnvHBjxiXOGuQ5tYYhIyO1
-         SoXc5o5jQ0DrsbD4yjkJKCSXvYG4amJfPA2Kl0VW5lUg4Ji/H072psVjvLOq6Wyy1tRq
-         OINubE8bnpoZEu78zYfE05TRpk/YnxYkPzAbOMIat9Dv63xoS16Tkya1xAs9dogtMaQW
-         BNpctb9fvWMaxbp4kOsrdI33JWavTeVRlusI9oeNfS4484++uizErQPu/8lBwlZB9K7w
-         TX9A==
+        h=from:to:subject:date:message-id;
+        bh=nNYh9c9ygtGkMhE+lF3e5BAb42jdUgtNB+p2T9trf0I=;
+        b=mRV6cSFU9vw/UoccggTlBWnVGV11ANuzMiDrnND6Yc6MUJk9/+jx2VqYYc0qGiCFL9
+         GSn5ryg0/sjuqWs0f2qewkN7bXrfoafSlu4WRDLtj4KyDXr8WFwEmOky6RG5r3pCptA8
+         yHiE5D6LypYVFAVf9AOeIFlT/MZ8KMmn+IH4sH7d+RQhwCfiQ1q/8OumQDq7KDzjef1t
+         aW1dr5ZlR9J4IjR9oWLFrn8Lpzz7+jGTxYh3bJOI52ruEc9gdMMjw2JMiJR4iyirQ3Zr
+         zm6WXShSDzyIHshPfNlMl/NEPduLdjSAj0A9yG9kRkWZ4KnXD+LAtYQDPmVUjPG6zi2E
+         Ca2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ep31zfzXgtGPRrK4JzjcT4OsqwVUibu1oi7iQV6wMvk=;
-        b=pS+aCfcY64YNuluT25mIeNvPiwO1FvhYmZRJf04esUAYUJNRGO+Fb20feZgXrVLJEU
-         6Uq0XA3W+IQhVBS8DR/sO95liNb+4LrXjJhSO054kFgq+qrMexwTez2/GJmIvdXF5FIP
-         8J5xmxbjdM7gCPIDIrntKOYs7WFpLsxmrNve9yJ3Wl9prSlAzwEIJSsrlrJkCZ/NfkIJ
-         lxMu7vB0+z0YRDp05b1OWZvsJvnnecfXVQxDNWlLxAbeA8KJMuraeRDJVtpfNJYdVEqU
-         +IF+4ioLDJO9b2iSdM59WM6Ia8ET+I71+gN6yjzWfuz5aQ+dcjX59QLEl5lHUGl3jS7D
-         8GlA==
-X-Gm-Message-State: AOAM531i0021svKiu1G/hS/byACrDxNz8ZG8BY0srKPoLHUMAI6u0W7e
-        7Rgc4e4u6p9r1M0OghOWMPMYZd2fU4E=
-X-Google-Smtp-Source: ABdhPJxj78ez9xkFhutTGi0ECjYCluuCwbPoK7lVzjaR9HcfVHQxlmELJUaq1hfN74k4vofie6i9Kg==
-X-Received: by 2002:a17:902:bb92:b0:153:4eae:c77e with SMTP id m18-20020a170902bb9200b001534eaec77emr51730419pls.93.1648933261795;
-        Sat, 02 Apr 2022 14:01:01 -0700 (PDT)
-Received: from 9a2d8922b8f1 ([122.161.51.18])
-        by smtp.gmail.com with ESMTPSA id f15-20020a056a001acf00b004fb2ad05521sm7259339pfv.215.2022.04.02.14.00.57
+        h=x-gm-message-state:from:to:subject:date:message-id;
+        bh=nNYh9c9ygtGkMhE+lF3e5BAb42jdUgtNB+p2T9trf0I=;
+        b=GUL0oVZGEZL1m7bCuQ8Gn1epaYRbqsC5kp7XpaDOntd+KKOcgamLdy6XgSYLJfqXk5
+         jou//X8XmU21Mn2BIQCyrXQl12bUoK7GHl0w1+EVEWhOfm6z5Ry8eycRw0wJKGvjKIOi
+         XTo3LKGmIPDDzLieqK1/ziZVQ8WQ8auQqDOLAYhDpljUdZp3ffPVWoUaa6zYniCtMpmP
+         NJJG6IXxBfOOnWCd4AU3v/Q8diFHB6D1vdwrVdBrZ3o/wKWA/fIHDAz9CLerSO4Kg4LZ
+         6uceILjE5uEuJ98XkizpaXbRqOaS7JxOKlHzLcT1xkyqiV55sF1XobrSiWxUmLSBeDCs
+         F5Hg==
+X-Gm-Message-State: AOAM531Q+4gAH2N+bkin1Lsw6OxqFH8vihQJr8kn4x/rxrSkcr7gGr2b
+        P4CkHqE5zHfOehFSozmciJU=
+X-Google-Smtp-Source: ABdhPJwsbh4L7YbRKVYTF/NUFII2EoYJhc6Wa9Z9B+I5SrdL7yC1/KX2hAnVliW3fx3GG5py2lk7jw==
+X-Received: by 2002:a17:90b:4a01:b0:1c9:a552:f487 with SMTP id kk1-20020a17090b4a0100b001c9a552f487mr20443830pjb.68.1648967597114;
+        Sat, 02 Apr 2022 23:33:17 -0700 (PDT)
+Received: from localhost.localdomain ([159.226.95.43])
+        by smtp.googlemail.com with ESMTPSA id u25-20020a62ed19000000b004f140515d56sm8128049pfh.46.2022.04.02.23.33.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 Apr 2022 14:01:01 -0700 (PDT)
-Date:   Sun, 3 Apr 2022 02:30:54 +0530
-From:   Kuldeep Singh <singh.kuldeep87k@gmail.com>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org
-Subject: Re: [PATCH v3 9/9] dt-bindings: qcom: qcom,gsbi: convert to dtschema
-Message-ID: <20220402210054.GA36286@9a2d8922b8f1>
-References: <20220402184011.132465-1-krzysztof.kozlowski@linaro.org>
- <20220402184011.132465-10-krzysztof.kozlowski@linaro.org>
- <20220402202917.GA36054@9a2d8922b8f1>
- <9a584eac-6ac9-e4ed-ef90-49569f4a4baa@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a584eac-6ac9-e4ed-ef90-49569f4a4baa@linaro.org>
+        Sat, 02 Apr 2022 23:33:16 -0700 (PDT)
+From:   Miaoqian Lin <linmq006@gmail.com>
+To:     Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Miaoqian Lin <linmq006@gmail.com>,
+        Eric Anholt <eric@anholt.net>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Annaliese McDermond <nh6z@nh6z.net>, linux-i2c@vger.kernel.org,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: bcm2835: Fix error handling in bcm2835_i2c_probe
+Date:   Sun,  3 Apr 2022 06:33:08 +0000
+Message-Id: <20220403063310.7525-1-linmq006@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Sat, Apr 02, 2022 at 10:38:23PM +0200, Krzysztof Kozlowski wrote:
-> On 02/04/2022 22:29, Kuldeep Singh wrote:
-> > On Sat, Apr 02, 2022 at 08:40:11PM +0200, Krzysztof Kozlowski wrote:
-> >> Convert the Qualcomm General Serial Bus Interface (GSBI) to DT
-> >> Schema.
-> >>
-> >> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> >> ---
-> >>  .../bindings/soc/qcom/qcom,gsbi.txt           |  87 ------------
-> >>  .../bindings/soc/qcom/qcom,gsbi.yaml          | 133 ++++++++++++++++++
-> >>  2 files changed, 133 insertions(+), 87 deletions(-)
-> >>  delete mode 100644 Documentation/devicetree/bindings/soc/qcom/qcom,gsbi.txt
-> >>  create mode 100644 Documentation/devicetree/bindings/soc/qcom/qcom,gsbi.yaml
-> > 
-> > Great initiative to convert everything in one go!
-> > 
-> > [...]
-> > 
-> >> diff --git a/Documentation/devicetree/bindings/soc/qcom/qcom,gsbi.yaml b/Documentation/devicetree/bindings/soc/qcom/qcom,gsbi.yaml
-> >> new file mode 100644
-> >> index 000000000000..b97e359f3f90
-> >> --- /dev/null
-> >> +++ b/Documentation/devicetree/bindings/soc/qcom/qcom,gsbi.yaml
-> >> @@ -0,0 +1,133 @@
-> >> +# SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
-> >> +%YAML 1.2
-> >> +---
-> >> +$id: http://devicetree.org/schemas/soc/qcom/qcom,gsbi.yaml#
-> >> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> >> +
-> >> +title: Qualcomm General Serial Bus Interface (GSBI)
-> >> +
-> >> +maintainers:
-> >> +  - Andy Gross <agross@kernel.org>
-> >> +  - Bjorn Andersson <bjorn.andersson@linaro.org>
-> >> +  - Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> >> +
-> >> +description:
-> >> +  The GSBI controller is modeled as a node with zero or more child nodes, each
-> >> +  representing a serial sub-node device that is mux'd as part of the GSBI
-> >> +  configuration settings.  The mode setting will govern the input/output mode
-> >> +  of the 4 GSBI IOs.
-> >> +
-> >> +  A GSBI controller node can contain 0 or more child nodes representing serial
-> >> +  devices.  These serial devices can be a QCOM UART, I2C controller, spi
-> >> +  controller, or some combination of aforementioned devices.
-> >> +
-> >> +properties:
-> >> +  compatible:
-> >> +    enum:
-> >> +      - qcom,gsbi-v1.0.0
-> > 
-> > Only 1 entry? const.
-> 
-> v1.0.0 looks like there could be some more, although they did not reach
-> mainline. The GSBI seems to be replaced by different blocks, so maybe
-> there will be no new entries here.
+In the error handling path, the clk_prepare_enable() function
+call should be balanced by a corresponding 'clk_disable_unprepare()'
+call. And clk_set_rate_exclusive calls clk_rate_exclusive_get(),
+it should be balanced with call to clk_rate_exclusive_put().
+, as already done in the remove function.
 
-Yes, GSBI seems pretty old and only v1 rolled out.
-Don't think there are more revisions on the cards. Still can't say so.
+Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+---
+ drivers/i2c/busses/i2c-bcm2835.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 5149454eef4a..d794448866a7 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -454,18 +454,21 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(i2c_dev->bus_clk);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Couldn't prepare clock");
+-		return ret;
++		goto err_put_clk;
+ 	}
+ 
+ 	i2c_dev->irq = platform_get_irq(pdev, 0);
+-	if (i2c_dev->irq < 0)
+-		return i2c_dev->irq;
++	if (i2c_dev->irq < 0) {
++		ret =  i2c_dev->irq;
++		goto err_disable_clk;
++	}
+ 
+ 	ret = request_irq(i2c_dev->irq, bcm2835_i2c_isr, IRQF_SHARED,
+ 			  dev_name(&pdev->dev), i2c_dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Could not request IRQ\n");
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto err_disable_clk;
+ 	}
+ 
+ 	adap = &i2c_dev->adapter;
+@@ -489,8 +492,16 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 
+ 	ret = i2c_add_adapter(adap);
+ 	if (ret)
+-		free_irq(i2c_dev->irq, i2c_dev);
++		goto err_free_irq;
++
++	return ret;
+ 
++err_free_irq:
++	free_irq(i2c_dev->irq, i2c_dev);
++err_disable_clk:
++	clk_disable_unprepare(i2c_dev->bus_clk);
++err_put_clk:
++	clk_rate_exclusive_put(i2c_dev->bus_clk);
+ 	return ret;
+ }
+ 
+-- 
+2.17.1
+
