@@ -2,170 +2,116 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A04B8C4332F
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 14:07:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32160C4707E
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 21:53:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236989AbiDEOI5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Apr 2022 10:08:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42850 "EHLO
+        id S238045AbiDEVvn convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 Apr 2022 17:51:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345632AbiDENFW (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 09:05:22 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2558F72E27
-        for <linux-i2c@vger.kernel.org>; Tue,  5 Apr 2022 05:06:36 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id k124-20020a1ca182000000b0038c9cf6e2a6so1524413wme.0
-        for <linux-i2c@vger.kernel.org>; Tue, 05 Apr 2022 05:06:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=9elements.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=CentrNXKSQFtoskGJlxUqU8zX0zrZiDPIjJai3Ha6oE=;
-        b=JmMomELaLQFDRItpcNtWH4QI1Qx1ZxwUSJLdZaS7o5PZzEfGUekaCpJog3I6Pf7x68
-         u1ttd3GXCmjQvb58QxZs3mzVCW278ksuVf0JyetGiL34x6FWoBGPtJpWXVgADop9TImV
-         x4IWpSoFQU1Htkiswy51NyZz7U0ysrWeLVpl4sGhgIURBoUH0WAE6hy9L2ZydY5U4Wqw
-         WmDel6vDij5ahXrhPZ5PqCM96GvIqBQHUnxReC2Rjf7w3CwY/ceih+4Lj+VTYZ3GpISm
-         x4iPt88wo8To81qjCfKZ+Nc1KITCgI1JNig/8p6WE/M+21Mum4GEu2fMKtsm40cyvh5M
-         GE3A==
+        with ESMTP id S1357841AbiDEO5D (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 10:57:03 -0400
+Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC343169B0C;
+        Tue,  5 Apr 2022 06:23:02 -0700 (PDT)
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-2eafabbc80aso135119877b3.11;
+        Tue, 05 Apr 2022 06:23:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=CentrNXKSQFtoskGJlxUqU8zX0zrZiDPIjJai3Ha6oE=;
-        b=6A6f9Vnp2QND1nrWwwzWCwqq7t4Ynr0PW086VzKSp8p371LxOLYTZzbhEv3IRYW5by
-         ndp6ACO3zehamJNWU047JWBgQ7k6FrSkqvue6qzUCce90UkDCitNq2FCv2JQ+24veO+U
-         NoUVqgLgPulMSaeR0J8IJ5y5tmMN0h8byfZnwlhNBp9eQGdcQQNS8b512iqRb3m8fgch
-         NCLcHl8f5d65paIlR4JJ62YYN/RJ8JQZbK2n65rxKNfH1KuarltJOh4pmoezS/bSxTts
-         165QiGdsgpzl+jihzOfsi6R5M60S3q7U+pjf/W1zCStQQuy1PKLeBP4KIS1ZXOM6A7fm
-         Dhvw==
-X-Gm-Message-State: AOAM531z2w9dSIIOH13WNXwjnDc94zrYDCTKx9axDS6of4ZxbODg421w
-        BJ7/Mq2ZpR57EaEofA3m4r0DkA==
-X-Google-Smtp-Source: ABdhPJx2k1D7CsQNKEUVWDyrt4BFPfX//w90p69nAAXHPbmb5DKwSS7nBMnD3/+TZifT+S4HANNBEA==
-X-Received: by 2002:a05:600c:3ba5:b0:38c:b19e:253c with SMTP id n37-20020a05600c3ba500b0038cb19e253cmr2839990wms.35.1649160394659;
-        Tue, 05 Apr 2022 05:06:34 -0700 (PDT)
-Received: from fedora.lab.9e.network (ip-078-094-000-051.um19.pools.vodafone-ip.de. [78.94.0.51])
-        by smtp.gmail.com with ESMTPSA id r16-20020a7bc090000000b0038e73023334sm1994323wmh.2.2022.04.05.05.06.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 05:06:34 -0700 (PDT)
-From:   Patrick Rudolph <patrick.rudolph@9elements.com>
-To:     Peter Rosin <peda@axentia.se>
-Cc:     Patrick Rudolph <patrick.rudolph@9elements.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [v7 3/3] i2c: muxes: pca954x: Add regulator support
-Date:   Tue,  5 Apr 2022 14:05:51 +0200
-Message-Id: <20220405120552.433415-4-patrick.rudolph@9elements.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405120552.433415-1-patrick.rudolph@9elements.com>
-References: <20220405120552.433415-1-patrick.rudolph@9elements.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=7A4P9kn8lX4sQ7Htb6dVWHUymvJRsd1UwLVgcXfrzcY=;
+        b=1JeLcq/jxTDd964pW6ogdHlJxVr8MMS8irQgftGCWQtbPADDPFzk1Z/QbLuVHlihbk
+         ov066ahR8eT3FdyBQkof0Y53tBUrVRp/p7tYyrxW7uYz+YaTJ9hlPzrHdKYf6R2rF8V+
+         bS+2QrKOKwwu9ND7KOu5jxVMk+UvdRoKrnNG6JceRWXPTPGST+PyquTZPKBz6i5r4iIV
+         BieZpy7L97IPcd9fi+s8ba/M2iARklmDVYgSg6zlZsGyUbrkVUCqoCID2J/4pxec+clr
+         lCPF8CRghx21zTKzzrK94warG0/3MEFep0Tp07sRq2/Fv+ssX9q/ugFdSkakDqSixCTP
+         9zEA==
+X-Gm-Message-State: AOAM531TtsjghQFB6YL53glCVsv7OgjrTJcKMcPscZb1VFkKyQ0/bBsF
+        nWKHxxRy7bJO6a/EATko2KqghU9yoRg3CHOMdV0=
+X-Google-Smtp-Source: ABdhPJycfqaQNd811FMhkXgQfDqevZ83CiXYssxwULKvsQGRHFOOAMwuLYDGOU9KcjHSXp7vTAqGzq/4etcE7UXaUuo=
+X-Received: by 2002:a81:36cf:0:b0:2e5:2597:a026 with SMTP id
+ d198-20020a8136cf000000b002e52597a026mr2616210ywa.301.1649164981760; Tue, 05
+ Apr 2022 06:23:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220325113148.588163-1-clement.leger@bootlin.com>
+ <20220325113148.588163-4-clement.leger@bootlin.com> <Yj3SFYdUQ4r7GXqs@smile.fi.intel.com>
+ <20220328162812.16deac92@fixe.home>
+In-Reply-To: <20220328162812.16deac92@fixe.home>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 5 Apr 2022 15:22:51 +0200
+Message-ID: <CAJZ5v0hOjaOCUxbFzKG90Db0bgfdb3q988oAvLB4kmD3-HS8sQ@mail.gmail.com>
+Subject: Re: [PATCH v3 3/9] device property: add index argument to
+ property_read_string_array() callback
+To:     =?UTF-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Daniel Scally <djrscally@gmail.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Len Brown <lenb@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Allan Nielsen <allan.nielsen@microchip.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add a vdd regulator and enable it for boards that have the
-mux powered off by default.
+On Mon, Mar 28, 2022 at 4:29 PM Clément Léger <clement.leger@bootlin.com> wrote:
+>
+> Le Fri, 25 Mar 2022 16:30:45 +0200,
+> Andy Shevchenko <andriy.shevchenko@linux.intel.com> a écrit :
+>
+> > >     pointer = property_entry_find(props, propname, length);
+> > >     if (IS_ERR(pointer))
+> > >             return PTR_ERR(pointer);
+> >
+> > > +   if (index >= array_len)
+> > > +           return -ENODATA;
+> >
+> > I was about to ask if we can check this before the
+> > property_entry_find() call, but realized that in such case it will
+> > shadow possible errors due to wrong or absent property.
+>
+> I think you are actually right, the check can be done after
+> property_entry_count_elems_of_size() since it already checks for the
+> property to be present. I'll move that check.
+>
+> >
+> > ...
+> >
+> > > -           of_property_read_string_array(node, propname, val,
+> > > nval) :
+> > > +           of_property_read_string_array_index(node,
+> > > propname, val, nval,
+> > > +                                               index) :
+> >
+> > Dunno about the style there, but I think it can be one line.
+>
+> Seems like the complete file is strictly applying the 80 columns rules
+> so I thought it was better to keep it like this. However, I think the
+> ternary oeprator is not really readable with such split.
 
-Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
-Reviewed-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 34 ++++++++++++++++++++++++-----
- 1 file changed, 29 insertions(+), 5 deletions(-)
+So FWIW I would entirely change it to
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 122b7a28fc60..6c43d420e349 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -49,6 +49,7 @@
- #include <linux/module.h>
- #include <linux/pm.h>
- #include <linux/property.h>
-+#include <linux/regulator/consumer.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
- #include <dt-bindings/mux/mux.h>
-@@ -119,6 +120,7 @@ struct pca954x {
- 	struct irq_domain *irq;
- 	unsigned int irq_mask;
- 	raw_spinlock_t lock;
-+	struct regulator *supply;
- };
- 
- /* Provide specs for the PCA954x and MAX735x types we know about */
-@@ -459,6 +461,9 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
- 	struct pca954x *data = i2c_mux_priv(muxc);
- 	int c, irq;
- 
-+	if (!IS_ERR_OR_NULL(data->supply))
-+		regulator_disable(data->supply);
-+
- 	if (data->irq) {
- 		for (c = 0; c < data->chip->nchans; c++) {
- 			irq = irq_find_mapping(data->irq, c);
-@@ -513,15 +518,32 @@ static int pca954x_probe(struct i2c_client *client,
- 			     pca954x_select_chan, pca954x_deselect_mux);
- 	if (!muxc)
- 		return -ENOMEM;
-+
- 	data = i2c_mux_priv(muxc);
- 
- 	i2c_set_clientdata(client, muxc);
- 	data->client = client;
- 
-+	data->supply = devm_regulator_get(dev, "vdd");
-+	if (IS_ERR(data->supply)) {
-+		ret = PTR_ERR(data->supply);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(dev, "Failed to request regulator: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = regulator_enable(data->supply);
-+	if (ret) {
-+		dev_err(dev, "Failed to enable regulator: %d\n", ret);
-+		return ret;
-+	}
-+
- 	/* Reset the mux if a reset GPIO is specified. */
- 	gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
--	if (IS_ERR(gpio))
--		return PTR_ERR(gpio);
-+	if (IS_ERR(gpio)) {
-+		ret = PTR_ERR(gpio);
-+		goto fail_cleanup;
-+	}
- 	if (gpio) {
- 		udelay(1);
- 		gpiod_set_value_cansleep(gpio, 0);
-@@ -538,7 +560,7 @@ static int pca954x_probe(struct i2c_client *client,
- 
- 		ret = i2c_get_device_id(client, &id);
- 		if (ret && ret != -EOPNOTSUPP)
--			return ret;
-+			goto fail_cleanup;
- 
- 		if (!ret &&
- 		    (id.manufacturer_id != data->chip->id.manufacturer_id ||
-@@ -546,7 +568,8 @@ static int pca954x_probe(struct i2c_client *client,
- 			dev_warn(dev, "unexpected device id %03x-%03x-%x\n",
- 				 id.manufacturer_id, id.part_id,
- 				 id.die_revision);
--			return -ENODEV;
-+			ret = -ENODEV;
-+			goto fail_cleanup;
- 		}
- 	}
- 
-@@ -565,7 +588,8 @@ static int pca954x_probe(struct i2c_client *client,
- 	ret = pca954x_init(client, data);
- 	if (ret < 0) {
- 		dev_warn(dev, "probe failed\n");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto fail_cleanup;
- 	}
- 
- 	ret = pca954x_irq_setup(muxc);
--- 
-2.35.1
+if (!val)
+        return of_property_count_strings(node, propname);
 
+return of_property_read_string_array_index(node, propname, val,
+
+nval, index);
+
+which IMO would be way easier to read.
