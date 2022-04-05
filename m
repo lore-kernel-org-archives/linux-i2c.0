@@ -2,160 +2,87 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42E22C433FE
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 07:14:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64DBBC4332F
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 09:08:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231664AbiDEHQy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Apr 2022 03:16:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55752 "EHLO
+        id S235070AbiDEJBF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 Apr 2022 05:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231433AbiDEHPz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 03:15:55 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BD11140;
-        Tue,  5 Apr 2022 00:13:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1649142829; x=1680678829;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=gVevFzET9ycXC2k6vi+6fMLZJPIT3zjfXlIjZtaxpYQ=;
-  b=AEF9oBQuzYCNFUjyz9UMl4Q7vfdSLJNzbbzzaAKwajkSNuzZrqYXG6W7
-   3fdDJq8qKFY9MBqT+LGIwYXWhKNlqmVjE5n799Em7ou5B0gOWDE0sHM4c
-   dbPIqvpOk+i6i2Tmo4xZueG/JjKVL+orA4oYyQe4ZkD8Nrymh3sLw+Mjy
-   XQ141iT3j0mDq3BwYxqecnzxYB6YLh9REXfE55Eg3XSZKTx3VDMzs4kaC
-   QEfLHbqN+gS5M4cFSlylj4cBgdwTA+obhpkWDKxBA+Wj+a5HbwfYrXLMt
-   eEPMtxndMC/dBg0XMzuSj+t4EpkJj1d3lwZ/27Gmlx2pDRJcl8CQ1m9cn
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10307"; a="241268903"
-X-IronPort-AV: E=Sophos;i="5.90,236,1643702400"; 
-   d="scan'208";a="241268903"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2022 00:13:49 -0700
-X-IronPort-AV: E=Sophos;i="5.90,236,1643702400"; 
-   d="scan'208";a="641500699"
-Received: from smile.fi.intel.com ([10.237.72.59])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2022 00:13:43 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.95)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1nbdNH-00DBjy-VC;
-        Tue, 05 Apr 2022 10:13:11 +0300
-Date:   Tue, 5 Apr 2022 10:13:11 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Avi Fishman <avifishman70@gmail.com>
-Cc:     Tali Perry <tali.perry1@gmail.com>,
-        Tyrone Ting <warp5tw@gmail.com>,
-        Tomer Maimon <tmaimon77@gmail.com>,
-        Patrick Venture <venture@google.com>,
-        Nancy Yuen <yuenn@google.com>,
-        Benjamin Fair <benjaminfair@google.com>,
+        with ESMTP id S237435AbiDEImT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 04:42:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B296DFD8;
+        Tue,  5 Apr 2022 01:34:51 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05FB7B81C69;
+        Tue,  5 Apr 2022 08:34:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF981C385A2;
+        Tue,  5 Apr 2022 08:34:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1649147688;
+        bh=4XsjaIc65o36nenn0M0g05jKOtk3s8zw5Dx3i80XzDo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nIMkJh4F1Ru2uHOWTdk3Ub7ZnC8ciPaZrykmVJ1I2q2sP0X3j9CXFus3/DK0ps8os
+         XAZxRHDV+f6AJF64ebXoyE+zjeT2GRp4y1XwpohWsUCkwryWwUG4Okv+RKQOrzQhwT
+         V0rA/NVSwMhYlnZpb7u8/DxImyVTJuNwvWOleJFuySCn7OiZcxKpLIN24EQWoReB5A
+         INzwg/wDG7ZIP8de6D4V1oht/N4bofoYtIbc424bu83hDPOM9n4Mpdwoo/W13/Kt3l
+         SI+opvrXRPgTXGyEDyLybZBV9ZlF9Z9VfXikE4dDNBb2NM4C2gQ8izOWd6Esl5VgOR
+         g9J1xHFBWt3UA==
+Date:   Tue, 5 Apr 2022 09:34:42 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        yangyicong@hisilicon.com, semen.protsenko@linaro.org,
-        Wolfram Sang <wsa@kernel.org>, jie.deng@intel.com,
-        sven@svenpeter.dev, bence98@sch.bme.hu,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, olof@lixom.net,
-        Tali Perry <tali.perry@nuvoton.com>,
-        Avi Fishman <Avi.Fishman@nuvoton.com>,
-        Tomer Maimon <tomer.maimon@nuvoton.com>, KWLIU@nuvoton.com,
-        JJLIU0@nuvoton.com, kfting@nuvoton.com,
-        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3 09/11] i2c: npcm: Handle spurious interrupts
-Message-ID: <YkvsB27Oj0kSmJRG@smile.fi.intel.com>
-References: <20220303083141.8742-1-warp5tw@gmail.com>
- <20220303083141.8742-10-warp5tw@gmail.com>
- <YiCaSSbbszm3qYIQ@smile.fi.intel.com>
- <CAHb3i=sStqdSpLKtF_UGmTsOssR_swssTd3pv6c2-z_kiUPTTA@mail.gmail.com>
- <YiDNDsPWKyaIUlQR@smile.fi.intel.com>
- <CAKKbWA5FyCKTjEUw8rqtkoL7aw6f7Fa_QzcAkgaRnnUMTe0SKg@mail.gmail.com>
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
+        Kuldeep Singh <singh.kuldeep87k@gmail.com>,
+        Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4 6/9] spi: dt-bindings: qcom,spi-qup: convert to
+ dtschema
+Message-ID: <Ykv/Ij0vfa522U1F@sirena.org.uk>
+References: <20220405063451.12011-1-krzysztof.kozlowski@linaro.org>
+ <20220405063451.12011-7-krzysztof.kozlowski@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="31zrrUV1FaGH1h1x"
 Content-Disposition: inline
-In-Reply-To: <CAKKbWA5FyCKTjEUw8rqtkoL7aw6f7Fa_QzcAkgaRnnUMTe0SKg@mail.gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <20220405063451.12011-7-krzysztof.kozlowski@linaro.org>
+X-Cookie: diplomacy, n:
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Apr 04, 2022 at 08:03:44PM +0300, Avi Fishman wrote:
-> On Thu, Mar 3, 2022 at 4:14 PM Andy Shevchenko
-> <andriy.shevchenko@linux.intel.com> wrote:
-> > On Thu, Mar 03, 2022 at 02:48:20PM +0200, Tali Perry wrote:
-> > > > On Thu, Mar 3, 2022 at 12:37 PM Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
-> > > > > On Thu, Mar 03, 2022 at 04:31:39PM +0800, Tyrone Ting wrote:
-> > > > > > From: Tali Perry <tali.perry1@gmail.com>
-> > > > > >
-> > > > > > In order to better handle spurious interrupts:
-> > > > > > 1. Disable incoming interrupts in master only mode.
-> > > > > > 2. Clear end of busy (EOB) after every interrupt.
-> > > > > > 3. Return correct status during interrupt.
-> > > > >
-> > > > > This is bad commit message, it doesn't explain "why" you are doing these.
-> >
-> > ...
-> >
-> > > BMC users connect a huge tree of i2c devices and muxes.
-> > > This tree suffers from spikes, noise and double clocks.
-> > > All these may cause spurious interrupts to the BMC.
 
-(1)
+--31zrrUV1FaGH1h1x
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > > If the driver gets an IRQ which was not expected and was not handled
-> > > by the IRQ handler,
-> > > there is nothing left to do but to clear the interrupt and move on.
-> >
-> > Yes, the problem is what "move on" means in your case.
-> > If you get a spurious interrupts there are possibilities what's wrong:
-> > 1) HW bug(s)
-> > 2) FW bug(s)
-> > 3) Missed IRQ mask in the driver
-> > 4) Improper IRQ mask in the driver
-> >
-> > The below approach seems incorrect to me.
-> 
-> Andy, What about this explanation:
-> On rare cases the i2c gets a spurious interrupt which means that we
-> enter an interrupt but in
-> the interrupt handler we don't find any status bit that points to the
-> reason we got this interrupt.
-> This may be a rare case of HW issue that is still under investigation.
-> In order to overcome this we are doing the following:
-> 1. Disable incoming interrupts in master mode only when slave mode is
-> not enabled.
-> 2. Clear end of busy (EOB) after every interrupt.
-> 3. Clear other status bits (just in case since we found them cleared)
-> 4. Return correct status during the interrupt that will finish the transaction.
-> On next xmit transaction if the bus is still busy the master will
-> issue a recovery process before issuing the new transaction.
+On Tue, Apr 05, 2022 at 08:34:48AM +0200, Krzysztof Kozlowski wrote:
+> Convert the Qualcomm Universal Peripheral (QUP) Serial Peripheral
+> Interface (SPI) bindings to DT Schema.
 
-This sounds better, thanks.
+Acked-by: Mark Brown <broonie@kernel.org>
 
-One thing to clarify, the (1) states that the HW "issue" is known and becomes a
-PCB level one, i.e. noisy environment that has not been properly shielded.
-So, if it is known, please put the reason in the commit message.
+--31zrrUV1FaGH1h1x
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Also would be good to see numbers of "rare". Is it 0.1%?
+-----BEGIN PGP SIGNATURE-----
 
-> > > If the transaction failed, driver has a recovery function.
-> > > After that, user may retry to send the message.
-> > >
-> > > Indeed the commit message doesn't explain all this.
-> > > We will fix and add to the next patchset.
-> > >
-> > > > > > +     /*
-> > > > > > +      * if irq is not one of the above, make sure EOB is disabled and all
-> > > > > > +      * status bits are cleared.
-> > > > >
-> > > > > This does not explain why you hide the spurious interrupt.
-> > > > >
-> > > > > > +      */
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmJL/yEACgkQJNaLcl1U
+h9A/MQf/dR244fROGWKBmRdYoln9hA1KEb35uCYhV3HjDJrtwjBsM66RevDfdbvW
+6uTpWmRQCr0pbF4p6p2f+aMGqITTilSymfiEqaKEX5aqdM0ZBKdbEUYBW/mem7h5
+b/U0H2fHPKtn0nsUvT/BrRM6UFwryGxhncAbPROve+vMJSK61FcgqsnNXpFvvIAj
+BA+gDo0v8fhh3aehenqkcu0Utwnb0cgxejKtpzQI3sR8WfQVBMHiVVMBzkFt1wsl
+lipVXiYscO5DA3iVJ1J5rIJVqRR4Ht/9NwmP51OO61l7UODTzOlqt57jhrNZEdxk
++DqWMnawtWvfQdhAUgw/RolGENMqfA==
+=T9IF
+-----END PGP SIGNATURE-----
 
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+--31zrrUV1FaGH1h1x--
