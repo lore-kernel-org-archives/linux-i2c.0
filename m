@@ -2,100 +2,106 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C345DC4332F
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 14:06:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D180C43217
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 14:06:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237927AbiDEOIW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Apr 2022 10:08:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51608 "EHLO
+        id S234356AbiDEOIV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 Apr 2022 10:08:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343586AbiDENEx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 09:04:53 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E6AE11F795
-        for <linux-i2c@vger.kernel.org>; Tue,  5 Apr 2022 05:06:27 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id z1so6661516wrg.4
-        for <linux-i2c@vger.kernel.org>; Tue, 05 Apr 2022 05:06:27 -0700 (PDT)
+        with ESMTP id S1380317AbiDENOB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 09:14:01 -0400
+Received: from smtp2.axis.com (smtp2.axis.com [195.60.68.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54880123BE5;
+        Tue,  5 Apr 2022 05:16:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=9elements.com; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=z46lGhLfI6ugeu1P3zjJF0oXFB21fasaHhYIlRjoeMU=;
-        b=c/SA4frMQAMHJXuDb0VyOfv2BeFzsflHSheqcsZper5NrOSCQcDkjHGkxYhD4uNF1C
-         I+Xyo11kF6QE1iNzQI+lBBNtJBJlEw/7qjhL9zW8sCmr6cjvigCUy4IPjhJCB5vSpU94
-         9dfv3K/TYdm865KWJVTxotArxbpGIJW+TdPaCTIMUmJW1PQAD6LS4ywWbwzBHQ7eeKu+
-         +jmxW9ZK/GZp36hKFxCgGgwc1Qsp6IIjZTNUulESiraVoRjdGe8BJ2ZPyEN0UqrFAEND
-         G/xGtqqj7CdZj9tqiScMA7VXvzoLTSrcZ3FGc/BH8vD8+90EyfHcd31cemhdem4NlzJt
-         Grug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=z46lGhLfI6ugeu1P3zjJF0oXFB21fasaHhYIlRjoeMU=;
-        b=4T4Bq2CkByeGQVw0cC4YfryhwUFlkHCsoYnDA8686cvpKKjYDW0JDOHHI+qr9myNLN
-         zFOP3tv5BhWvtjMqZPO7BY4kn08AfE6VTYWuC2RRkyomioeKhvaXSykjS03+DbPcGjfd
-         J+WallCFDmrtkW+tSyAr3dVip0SYaS4zf+HTYa+u89757o+t9nBvZU0sIlRA4FuhYHSF
-         d0rcdlk11alycODTwdkg2AfcZYhGX2I0/vO/tnr/I0hW7y0kmcgDOaeP0IaO9o2Z2DAy
-         9cRVDmuOOXJ4w/lOTXITk/upSVX9m2cqgEsRSiX8ImEE0cBW6QPrkA954mGFocgz2Pmk
-         ttyA==
-X-Gm-Message-State: AOAM533CrKfK2Z9flcpWtA7P8L9PaY7QxEiTea/IG8cR0TWTsGFGX6PC
-        VU1aPGlpy6hqy+c4aB2OF087Fw==
-X-Google-Smtp-Source: ABdhPJyqTOFEOFeAFt/2YcX1+9+RtfO1i6wtivOXlQ7O002sz/pWInKXqVkJNxQ9hZqMYs1r9BBdQQ==
-X-Received: by 2002:adf:8066:0:b0:206:1563:8b2b with SMTP id 93-20020adf8066000000b0020615638b2bmr2518784wrk.582.1649160385937;
-        Tue, 05 Apr 2022 05:06:25 -0700 (PDT)
-Received: from fedora.lab.9e.network (ip-078-094-000-051.um19.pools.vodafone-ip.de. [78.94.0.51])
-        by smtp.gmail.com with ESMTPSA id r16-20020a7bc090000000b0038e73023334sm1994323wmh.2.2022.04.05.05.06.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 05:06:25 -0700 (PDT)
-From:   Patrick Rudolph <patrick.rudolph@9elements.com>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        linux-i2c@vger.kernel.org
-Cc:     Patrick Rudolph <patrick.rudolph@9elements.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [v7 0/3] Add support for Maxim MAX735x/MAX736x variants
-Date:   Tue,  5 Apr 2022 14:05:48 +0200
-Message-Id: <20220405120552.433415-1-patrick.rudolph@9elements.com>
-X-Mailer: git-send-email 2.35.1
+  d=axis.com; q=dns/txt; s=axis-central1; t=1649161001;
+  x=1680697001;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=x4YcHLziIrEggw9HG5I5fbaW8iCdF7u9wJBMUjziEm8=;
+  b=meQxV9f1p1HxnA3LmMRvs8ovRZ0drYp0I+KKJAUcs7eP7q68kAO9jRvG
+   5xgBBynyHeSrU7SC+XYDy/gOfaOKCoOMUwNmTum1YmqLNFA/tDU1wNG0Z
+   fKawQ0pdr4asecovTbrHWQE7JdFkJUI8dpn60dfWZXB5pY789qCwPJxbZ
+   ctjRS89ABOnJilYZeMhLr4HxnA1XPBXRDCJS+lZF6iyuCH6nP8Cn+qkBD
+   ONmlhg8GdVyC8ip3m1a5cQfJf+j7yBDSyKxykIETTWeFKKkXiOaXC98cF
+   BWAO6Sr1S1y0r2wLxBnfjegIeqJXA4gA+j6MctVnwViaHh7A0LoFMPJU4
+   w==;
+From:   Vincent Whitchurch <vincent.whitchurch@axis.com>
+To:     <wsa@kernel.org>
+CC:     <kernel@axis.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <krzk+dt@kernel.org>, <robh+dt@kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/2] i2c: core: support no-detect property
+Date:   Tue, 5 Apr 2022 14:16:27 +0200
+Message-ID: <20220405121627.1560949-3-vincent.whitchurch@axis.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220405121627.1560949-1-vincent.whitchurch@axis.com>
+References: <20220405121627.1560949-1-vincent.whitchurch@axis.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-v7:
-- Reworked the commit message, comments and renamed a struct
-  field. No functional change.
+If the devicetree specifies the no-detect property, we can avoid calling
+drivers' detect callback and wasting time probing for devices which do
+not exist.
 
-v6:
-- Fix typo in dt-bindings
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+---
+ drivers/i2c/i2c-core-base.c | 8 +++++++-
+ include/linux/i2c.h         | 1 +
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-v5:
-- Remove optional and make vdd-supply mandatory
-
-v4:
-- Add missing maxitems dt-bindings property
-
-v3:
-- Merge dt-bindings into i2c-mux-pca954x.yaml
-
-v2:
-- Move dt-bindings to separate file
-- Added support for MAX736x as they are very similar
-- Fixed an issue found by kernel test robot
-- Dropped max735x property and custom IRQ check
-- Added MAX7357 config register defines instead of magic values
-- Renamed vcc-supply to vdd-supply
-
-Patrick Rudolph (3):
-  dt-bindings: i2c: Add Maxim MAX735x/MAX736x variants
-  i2c: muxes: pca954x: Add MAX735x/MAX736x support
-  i2c: muxes: pca954x: Add regulator support
-
- .../bindings/i2c/i2c-mux-pca954x.yaml         |  44 ++++--
- drivers/i2c/muxes/Kconfig                     |   4 +-
- drivers/i2c/muxes/i2c-mux-pca954x.c           | 126 ++++++++++++++++--
- 3 files changed, 153 insertions(+), 21 deletions(-)
-
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index d43db2c3876e..d43025b84546 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1341,7 +1341,8 @@ static int i2c_do_add_adapter(struct i2c_driver *driver,
+ 			      struct i2c_adapter *adap)
+ {
+ 	/* Detect supported devices on that bus, and instantiate them */
+-	i2c_detect(adap, driver);
++	if (adap->detect)
++		i2c_detect(adap, driver);
+ 
+ 	return 0;
+ }
+@@ -1432,6 +1433,7 @@ EXPORT_SYMBOL_GPL(i2c_handle_smbus_host_notify);
+ 
+ static int i2c_register_adapter(struct i2c_adapter *adap)
+ {
++	struct device_node *np = adap->dev.of_node;
+ 	int res = -EINVAL;
+ 
+ 	/* Can't register until after driver model init */
+@@ -1502,6 +1504,10 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 			 "Failed to create compatibility class link\n");
+ #endif
+ 
++	adap->detect = true;
++	if (np && of_property_read_bool(np, "no-detect"))
++		adap->detect = false;
++
+ 	/* create pre-declared device nodes */
+ 	of_i2c_register_devices(adap);
+ 	i2c_acpi_install_space_handler(adap);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index fbda5ada2afc..8fad5fe85685 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -728,6 +728,7 @@ struct i2c_adapter {
+ 	struct rt_mutex bus_lock;
+ 	struct rt_mutex mux_lock;
+ 
++	bool detect;
+ 	int timeout;			/* in jiffies */
+ 	int retries;
+ 	struct device dev;		/* the adapter device */
 -- 
 2.34.1
 
