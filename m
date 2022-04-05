@@ -2,87 +2,113 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64DBBC4332F
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 09:08:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E480FC4707A
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 10:30:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235070AbiDEJBF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Apr 2022 05:01:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
+        id S231241AbiDEKcF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 Apr 2022 06:32:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237435AbiDEImT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 04:42:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B296DFD8;
-        Tue,  5 Apr 2022 01:34:51 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S1346544AbiDEJpK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 05:45:10 -0400
+Received: from smtp1.de.adit-jv.com (smtp1.de.adit-jv.com [93.241.18.167])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295FFDA6F7;
+        Tue,  5 Apr 2022 02:30:55 -0700 (PDT)
+Received: from hi2exch02.adit-jv.com (hi2exch02.adit-jv.com [10.72.92.28])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05FB7B81C69;
-        Tue,  5 Apr 2022 08:34:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF981C385A2;
-        Tue,  5 Apr 2022 08:34:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649147688;
-        bh=4XsjaIc65o36nenn0M0g05jKOtk3s8zw5Dx3i80XzDo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nIMkJh4F1Ru2uHOWTdk3Ub7ZnC8ciPaZrykmVJ1I2q2sP0X3j9CXFus3/DK0ps8os
-         XAZxRHDV+f6AJF64ebXoyE+zjeT2GRp4y1XwpohWsUCkwryWwUG4Okv+RKQOrzQhwT
-         V0rA/NVSwMhYlnZpb7u8/DxImyVTJuNwvWOleJFuySCn7OiZcxKpLIN24EQWoReB5A
-         INzwg/wDG7ZIP8de6D4V1oht/N4bofoYtIbc424bu83hDPOM9n4Mpdwoo/W13/Kt3l
-         SI+opvrXRPgTXGyEDyLybZBV9ZlF9Z9VfXikE4dDNBb2NM4C2gQ8izOWd6Esl5VgOR
-         g9J1xHFBWt3UA==
-Date:   Tue, 5 Apr 2022 09:34:42 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
-        Kuldeep Singh <singh.kuldeep87k@gmail.com>,
-        Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 6/9] spi: dt-bindings: qcom,spi-qup: convert to
- dtschema
-Message-ID: <Ykv/Ij0vfa522U1F@sirena.org.uk>
-References: <20220405063451.12011-1-krzysztof.kozlowski@linaro.org>
- <20220405063451.12011-7-krzysztof.kozlowski@linaro.org>
+        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 77B6D3C0582;
+        Tue,  5 Apr 2022 11:30:53 +0200 (CEST)
+Received: from lxhi-065 (10.72.94.37) by hi2exch02.adit-jv.com (10.72.92.28)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2308.27; Tue, 5 Apr
+ 2022 11:30:53 +0200
+Date:   Tue, 5 Apr 2022 11:30:48 +0200
+From:   Eugeniu Rosca <erosca@de.adit-jv.com>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+CC:     Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        <linux-renesas-soc@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Bhuvanesh Surachari <bhuvanesh_surachari@mentor.com>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>
+Subject: Re: [PATCH v2] i2c: rcar: add SMBus block read support
+Message-ID: <20220405093048.GA7151@lxhi-065>
+References: <20210922160649.28449-1-andrew_gabbasov@mentor.com>
+ <CAMuHMdVVDpBAQR+H1TAnpf65aVbAL0Mm0km7Z9L7+1JuF6n1gQ@mail.gmail.com>
+ <000001d7badd$a8512d30$f8f38790$@mentor.com>
+ <20211006182314.10585-1-andrew_gabbasov@mentor.com>
+ <Yg6ls0zyTDe7LQbK@kunai>
+ <20220323215229.GA9403@lxhi-065>
+ <YkQ31VMqj1MXqBd3@shikoro>
+ <YkQ6XRITOFZ7hLXV@shikoro>
+ <20220331160207.GA27757@lxhi-065>
+ <YkcqoIMF2uw4FSZh@ninjato>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="31zrrUV1FaGH1h1x"
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20220405063451.12011-7-krzysztof.kozlowski@linaro.org>
-X-Cookie: diplomacy, n:
+In-Reply-To: <YkcqoIMF2uw4FSZh@ninjato>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Originating-IP: [10.72.94.37]
+X-ClientProxiedBy: hi2exch02.adit-jv.com (10.72.92.28) To
+ hi2exch02.adit-jv.com (10.72.92.28)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---31zrrUV1FaGH1h1x
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Fri, Apr 01, 2022 at 06:38:56PM +0200, Wolfram Sang wrote:
+> > BTW, thanks to Bhuvanesh, we've got another patch [*] which tries
+> > to combine the best of both worlds:
+> > 
+> > * DMA support in the v1/v2 patches from Andrew/Bhuvanesh
+> > * Simplicity of your proposal in https://lore.kernel.org/lkml/Yg6ls0zyTDe7LQbK@kunai/
+> 
+> This was nice to see. But where does it come from? I don't see it on
+> this list and I also couldn't find it in the regular BSP?
 
-On Tue, Apr 05, 2022 at 08:34:48AM +0200, Krzysztof Kozlowski wrote:
-> Convert the Qualcomm Universal Peripheral (QUP) Serial Peripheral
-> Interface (SPI) bindings to DT Schema.
+The patch was worked on and tested collaboratively w/o submission.
+The idea was to push it to LKML, once/after you are happy with it.
 
-Acked-by: Mark Brown <broonie@kernel.org>
+> > Unfortunately, this patch has a dependency to the rcar_i2c_is_pio()
+> > in https://github.com/renesas-rcar/linux-bsp/commit/55d2d2fb8b0 
+> > (which should be resolvable by extracting the function).
+> 
+> This patch is obsolete since March 2019. It has been properly fixed with
+> 94e290b0e9a6 ("i2c: rcar: wait for data empty before starting DMA"). I
+> am still trying to feed this information back.
 
---31zrrUV1FaGH1h1x
-Content-Type: application/pgp-signature; name="signature.asc"
+Thanks for the precious feedback. We've requested Renesas to revert the
+obsolete BSP commit, based on your recommendation.
 
------BEGIN PGP SIGNATURE-----
+In general, the Renesas kernel always carries a set of patches with
+non-mainlined changes, Fortunately, for i2c specifically (as opposed
+to other subsystems), it is narrow enough to not raise major concerns:
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmJL/yEACgkQJNaLcl1U
-h9A/MQf/dR244fROGWKBmRdYoln9hA1KEb35uCYhV3HjDJrtwjBsM66RevDfdbvW
-6uTpWmRQCr0pbF4p6p2f+aMGqITTilSymfiEqaKEX5aqdM0ZBKdbEUYBW/mem7h5
-b/U0H2fHPKtn0nsUvT/BrRM6UFwryGxhncAbPROve+vMJSK61FcgqsnNXpFvvIAj
-BA+gDo0v8fhh3aehenqkcu0Utwnb0cgxejKtpzQI3sR8WfQVBMHiVVMBzkFt1wsl
-lipVXiYscO5DA3iVJ1J5rIJVqRR4Ht/9NwmP51OO61l7UODTzOlqt57jhrNZEdxk
-+DqWMnawtWvfQdhAUgw/RolGENMqfA==
-=T9IF
------END PGP SIGNATURE-----
+$ git log --oneline v5.10.41..rcar-5.1.2 -- drivers/i2c/busses/i2c-rcar.c
+6745303b2bfa i2c: rcar: Add support for r8a77961 (R-Car M3-W+)
+3422d3131700 i2c: rcar: Support the suspend/resume
+5680e77f2427 i2c: rcar: Tidy up the register order for hardware specification ver1.00.
+41394ab7420f i2c: rcar: Fix I2C DMA transmission by setting sequence
 
---31zrrUV1FaGH1h1x--
+> 
+> > Do you think we are on the right track with this new approach or do
+> > you feel the implementation is still overly complicated?
+> 
+> The approach is much better but there are still things I don't like. The
+> use of 'goto next_txn' is bad. I hope it could be done better with
+> refactoring the code, so DMA will be tried at one place (with two
+> conditions then). Not sure yet, I am still working on refactoring the
+> one-byte transfer which is broken with my patch. What we surely can use
+> from this patch is the -EPROTO handling because I have given up on
+> converting the max read block size first. We can still remove it from
+> this driver if that gets implemented somewhen.
+
+Thank you for the review comments. We are still working on a cleaner
+solution. In case it comes from you first, we are very much keen to
+give it a try on the target and report the results.
+
+Best regards,
+Eugeniu
