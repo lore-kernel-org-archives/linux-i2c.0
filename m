@@ -2,116 +2,90 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32160C4707E
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 21:53:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3AA0C433EF
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 21:57:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238045AbiDEVvn convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Apr 2022 17:51:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51852 "EHLO
+        id S230395AbiDEVzl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 Apr 2022 17:55:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357841AbiDEO5D (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 10:57:03 -0400
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC343169B0C;
-        Tue,  5 Apr 2022 06:23:02 -0700 (PDT)
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-2eafabbc80aso135119877b3.11;
-        Tue, 05 Apr 2022 06:23:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=7A4P9kn8lX4sQ7Htb6dVWHUymvJRsd1UwLVgcXfrzcY=;
-        b=1JeLcq/jxTDd964pW6ogdHlJxVr8MMS8irQgftGCWQtbPADDPFzk1Z/QbLuVHlihbk
-         ov066ahR8eT3FdyBQkof0Y53tBUrVRp/p7tYyrxW7uYz+YaTJ9hlPzrHdKYf6R2rF8V+
-         bS+2QrKOKwwu9ND7KOu5jxVMk+UvdRoKrnNG6JceRWXPTPGST+PyquTZPKBz6i5r4iIV
-         BieZpy7L97IPcd9fi+s8ba/M2iARklmDVYgSg6zlZsGyUbrkVUCqoCID2J/4pxec+clr
-         lCPF8CRghx21zTKzzrK94warG0/3MEFep0Tp07sRq2/Fv+ssX9q/ugFdSkakDqSixCTP
-         9zEA==
-X-Gm-Message-State: AOAM531TtsjghQFB6YL53glCVsv7OgjrTJcKMcPscZb1VFkKyQ0/bBsF
-        nWKHxxRy7bJO6a/EATko2KqghU9yoRg3CHOMdV0=
-X-Google-Smtp-Source: ABdhPJycfqaQNd811FMhkXgQfDqevZ83CiXYssxwULKvsQGRHFOOAMwuLYDGOU9KcjHSXp7vTAqGzq/4etcE7UXaUuo=
-X-Received: by 2002:a81:36cf:0:b0:2e5:2597:a026 with SMTP id
- d198-20020a8136cf000000b002e52597a026mr2616210ywa.301.1649164981760; Tue, 05
- Apr 2022 06:23:01 -0700 (PDT)
+        with ESMTP id S1455481AbiDEQAF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 12:00:05 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E94F1400B;
+        Tue,  5 Apr 2022 08:15:52 -0700 (PDT)
+Received: from zn.tnic (p2e55dff8.dip0.t-ipconnect.de [46.85.223.248])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 4A8E11EC0535;
+        Tue,  5 Apr 2022 17:15:47 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1649171747;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7LpwbTRZSZl3UcUUxK/gc+JLeRFgEvrqb5/MIf7cLWA=;
+        b=UliPEgQUaAlMXoOHtohjpWYugorgyctYyvye+BbeTMhPLfH3wh33PXgF0F95VjaFyiY4sT
+        dLx2BXmJC/1kxtwqOS5ZtrTBw0T22l+dKjSpkyO3hOoHkVPb1WlfcYQD3whjXnIr6DA9AH
+        MoJu5CL9vF/fVEoGvN5VLRXgThEIeD4=
+From:   Borislav Petkov <bp@alien8.de>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Seth Heasley <seth.heasley@intel.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH 05/11] i2c: ismt: Fix undefined behavior due to shift overflowing the constant
+Date:   Tue,  5 Apr 2022 17:15:11 +0200
+Message-Id: <20220405151517.29753-6-bp@alien8.de>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220405151517.29753-1-bp@alien8.de>
+References: <20220405151517.29753-1-bp@alien8.de>
 MIME-Version: 1.0
-References: <20220325113148.588163-1-clement.leger@bootlin.com>
- <20220325113148.588163-4-clement.leger@bootlin.com> <Yj3SFYdUQ4r7GXqs@smile.fi.intel.com>
- <20220328162812.16deac92@fixe.home>
-In-Reply-To: <20220328162812.16deac92@fixe.home>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 5 Apr 2022 15:22:51 +0200
-Message-ID: <CAJZ5v0hOjaOCUxbFzKG90Db0bgfdb3q988oAvLB4kmD3-HS8sQ@mail.gmail.com>
-Subject: Re: [PATCH v3 3/9] device property: add index argument to
- property_read_string_array() callback
-To:     =?UTF-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Len Brown <lenb@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Allan Nielsen <allan.nielsen@microchip.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Mar 28, 2022 at 4:29 PM Clément Léger <clement.leger@bootlin.com> wrote:
->
-> Le Fri, 25 Mar 2022 16:30:45 +0200,
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com> a écrit :
->
-> > >     pointer = property_entry_find(props, propname, length);
-> > >     if (IS_ERR(pointer))
-> > >             return PTR_ERR(pointer);
-> >
-> > > +   if (index >= array_len)
-> > > +           return -ENODATA;
-> >
-> > I was about to ask if we can check this before the
-> > property_entry_find() call, but realized that in such case it will
-> > shadow possible errors due to wrong or absent property.
->
-> I think you are actually right, the check can be done after
-> property_entry_count_elems_of_size() since it already checks for the
-> property to be present. I'll move that check.
->
-> >
-> > ...
-> >
-> > > -           of_property_read_string_array(node, propname, val,
-> > > nval) :
-> > > +           of_property_read_string_array_index(node,
-> > > propname, val, nval,
-> > > +                                               index) :
-> >
-> > Dunno about the style there, but I think it can be one line.
->
-> Seems like the complete file is strictly applying the 80 columns rules
-> so I thought it was better to keep it like this. However, I think the
-> ternary oeprator is not really readable with such split.
+From: Borislav Petkov <bp@suse.de>
 
-So FWIW I would entirely change it to
+Fix:
 
-if (!val)
-        return of_property_count_strings(node, propname);
+  drivers/i2c/busses/i2c-ismt.c: In function ‘ismt_hw_init’:
+  drivers/i2c/busses/i2c-ismt.c:770:2: error: case label does not reduce to an integer constant
+    case ISMT_SPGT_SPD_400K:
+    ^~~~
+  drivers/i2c/busses/i2c-ismt.c:773:2: error: case label does not reduce to an integer constant
+    case ISMT_SPGT_SPD_1M:
+    ^~~~
 
-return of_property_read_string_array_index(node, propname, val,
+See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+details as to why it triggers with older gccs only.
 
-nval, index);
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Seth Heasley <seth.heasley@intel.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Wolfram Sang <wsa@kernel.org>
+Cc: linux-i2c@vger.kernel.org
+---
+ drivers/i2c/busses/i2c-ismt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-which IMO would be way easier to read.
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index f4820fd3dc13..c0364314877e 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -145,8 +145,8 @@
+ #define ISMT_SPGT_SPD_MASK	0xc0000000	/* SMBus Speed mask */
+ #define ISMT_SPGT_SPD_80K	0x00		/* 80 kHz */
+ #define ISMT_SPGT_SPD_100K	(0x1 << 30)	/* 100 kHz */
+-#define ISMT_SPGT_SPD_400K	(0x2 << 30)	/* 400 kHz */
+-#define ISMT_SPGT_SPD_1M	(0x3 << 30)	/* 1 MHz */
++#define ISMT_SPGT_SPD_400K	(0x2U << 30)	/* 400 kHz */
++#define ISMT_SPGT_SPD_1M	(0x3U << 30)	/* 1 MHz */
+ 
+ 
+ /* MSI Control Register (MSICTL) bit definitions */
+-- 
+2.35.1
+
