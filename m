@@ -2,105 +2,107 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EEBCC433EF
-	for <linux-i2c@archiver.kernel.org>; Wed,  6 Apr 2022 16:11:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D89F7C433F5
+	for <linux-i2c@archiver.kernel.org>; Wed,  6 Apr 2022 16:13:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237259AbiDFQNd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 6 Apr 2022 12:13:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51470 "EHLO
+        id S237147AbiDFQPb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 6 Apr 2022 12:15:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237906AbiDFQMo (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Apr 2022 12:12:44 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 138D910DA62
-        for <linux-i2c@vger.kernel.org>; Tue,  5 Apr 2022 20:23:11 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id kw18so1310440pjb.5
-        for <linux-i2c@vger.kernel.org>; Tue, 05 Apr 2022 20:23:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=matician-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nl7SX+b5OGaSDzvlaBhcoDYJhu7qvmloOq719EKVN4w=;
-        b=D0wLjV2hKK8FhkyDepiJad1TNZ7sISTXvrWpTNkxvS5eOnAZZtLOtmlCA98mC1Fj2V
-         AMKj9ttDNkzQqKWmulPBZksk/OpBF+mhDohEMZhe3FqBP6tmTzVCNmyzmUtX2ugiuHtV
-         KnR0muml6VPYoAG+6yskjbXagoSuGG6ScvZ/9DCZPmVWPRVRcsSZMyqbJTqwro6podjY
-         Ft2f6WP3rYAxTMnaapOTK4B90It21X8I00OD52uXusmIuNE+/4LharriC2+5lBiXdJmj
-         YQlMBp7dGc7JNF5c+sU6deJl1BQTZ7YtVScxQZgib070UY9mlJ9zDg11ap7OxpfhSFmz
-         Tz5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nl7SX+b5OGaSDzvlaBhcoDYJhu7qvmloOq719EKVN4w=;
-        b=46eE4EI8dndfzkRAM6w66y9FuSxYinrj2L0Qak8Hh3TeWxsHJFg1t9hL+8QSD4V6Et
-         LSfGRrxnOsAbnRATosvCAK8TOtFN06LFj4UbKqQZlPTARP+XvtihcL5y4kZzCdeevqT7
-         vsvKs8T89G8xE6fJ7B+7xr1aUSPLqgvhmifAN43l2j6g1gzzCSFiCQW3+SzNwxgiWAI6
-         2cN8OAMp1Dv0c/6oKD39oUAgAOlgvCYJQMk0/hysT8v/VSvDjuZ+Ed9SBQ3RNCxoCi4Z
-         7wwOBZbK0C6NRUrUXF8Ffc/JTHziu1XYqLeqD/QLOh4XXl3IMvLu9lstX5Ya2TbREkFT
-         xTLQ==
-X-Gm-Message-State: AOAM532ZT68G+Zc9SrOiJPsybxtA/EyUvlNZ3+OD4cJXZrRus7Lc0ZJQ
-        mCR81mPsxX1EW1MeE6EpawsH1A==
-X-Google-Smtp-Source: ABdhPJz7dqGTm0vgSVyF1U6dobg0vqBl1Pe6bW1rGXJzjrXAwC2GElpy5iI+dXkjITJfkLjEnPX+cw==
-X-Received: by 2002:a17:902:e746:b0:156:9eed:d2d6 with SMTP id p6-20020a170902e74600b001569eedd2d6mr6522503plf.144.1649215390419;
-        Tue, 05 Apr 2022 20:23:10 -0700 (PDT)
-Received: from mtgav.corp.matician.com ([38.88.246.146])
-        by smtp.gmail.com with ESMTPSA id b16-20020a056a000cd000b004fadb6f0290sm17973786pfv.11.2022.04.05.20.23.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 20:23:09 -0700 (PDT)
-From:   gavin@matician.com
-To:     Rishi Gupta <gupt21@gmail.com>
-Cc:     linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        Gavin Li <gavin@matician.com>
-Subject: [PATCH] HID: mcp2221: fix hang on probe while setting up gpiochip
-Date:   Tue,  5 Apr 2022 20:23:07 -0700
-Message-Id: <20220406032307.4001281-1-gavin@matician.com>
-X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S237236AbiDFQPP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Apr 2022 12:15:15 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CABA3E37FB;
+        Tue,  5 Apr 2022 21:11:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1649218307; x=1680754307;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=cR9iKxrz/8HA3dd1/jwZRF3XG6WX3t9oScAc0DPOnW8=;
+  b=Qhr3ZgcT6AghAGdmMiC42Yq+xjXtn3ha0USfQQjyMEydVBDv0FC4Afip
+   QdNUZQ5q7U+avhoyBYeNyTjKoqHwy+n23gZMIHzRPszfWR/i5RRVn9FAA
+   ivTGW0i/EvCYdBLPQvqQOYItX+SyA2zvCLZ/mNieoxs8FT4MbVJm9nC/C
+   a9ayqykO7f69eBEIwUcKcPSD+CVQsymH20Nr3ySz9Zj6Ag6I/EYxD7+A4
+   m/MYFj82grrvtlc+Q/5JvURh0DZ0wzaeJArpjZFZUwgo4zPIIwuEOqryq
+   l+kWxm2bsTJyg/7HHWH44kRAvhEqy+H1bV212Gk/aG7KTZUvU9SM7g5uW
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10308"; a="241530382"
+X-IronPort-AV: E=Sophos;i="5.90,239,1643702400"; 
+   d="scan'208";a="241530382"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2022 21:11:46 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,239,1643702400"; 
+   d="scan'208";a="524294591"
+Received: from unknown (HELO localhost.localdomain) ([10.23.185.145])
+  by orsmga006.jf.intel.com with ESMTP; 05 Apr 2022 21:11:44 -0700
+Message-ID: <f3b6524f899f2775e630dee2ad1cc4c4c389b2fe.camel@intel.com>
+Subject: Re: [PATCH] i2c: ismt: Remove useless DMA-32 fallback configuration
+From:   Seth Heasley <seth.heasley@intel.com>
+To:     Wolfram Sang <wsa@kernel.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc:     Neil Horman <nhorman@tuxdriver.com>, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org,
+        seth.heasley@intel.com
+Date:   Tue, 05 Apr 2022 14:13:04 -0700
+In-Reply-To: <YgEtUT7Dhntmidxy@shikoro>
+References: <853d9f9d746864435abf93dfc822fccac5b04f37.1641731339.git.christophe.jaillet@wanadoo.fr>
+         <YgEtUT7Dhntmidxy@shikoro>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-8.el7) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Gavin Li <gavin@matician.com>
+On Mon, 2022-02-07 at 15:31 +0100, Wolfram Sang wrote:
+> On Sun, Jan 09, 2022 at 01:29:45PM +0100, Christophe JAILLET wrote:
+> > As stated in [1], dma_set_mask() with a 64-bit mask never fails if
+> > dev->dma_mask is non-NULL.
+> > So, if it fails, the 32 bits case will also fail for the same
+> > reason.
+> > 
+> > 
+> > Simplify code and remove some dead code accordingly.
+> > 
+> > [1]: https://lkml.org/lkml/2021/6/7/398
+> > 
+> > Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Seth Heasley <seth.heasley@intel.com>
+> 
+> Seth, Neil, do you agree?
 
-The driver expects HID events to be delivered to it during probe()
-because the devm_gpiochip_add_data() call indirectly calls
-get_direction(), which fires an HID command that expects an HID
-response. Without this patch, the get_direction() would timeout (of 4
-seconds) once per pin, leading to a 16 second delay before the device is
-usable.
+Yes, I agree this change makes sense.
 
-This patch adds calls to hid_device_io_start() and hid_device_io_stop()
-to notify the HID subsystem that the driver is ready to receive events
-before the probe() finishes.
-
-Signed-off-by: Gavin Li <gavin@matician.com>
----
- drivers/hid/hid-mcp2221.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 4211b9839209b..567ef8b93376d 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -877,6 +877,9 @@ static int mcp2221_probe(struct hid_device *hdev,
- 	}
- 	i2c_set_adapdata(&mcp->adapter, mcp);
- 
-+	/* gpiolib calls get_direction(), so become ready to process events */
-+	hid_device_io_start(hdev);
-+
- 	/* Setup GPIO chip */
- 	mcp->gc = devm_kzalloc(&hdev->dev, sizeof(*mcp->gc), GFP_KERNEL);
- 	if (!mcp->gc) {
-@@ -902,6 +905,7 @@ static int mcp2221_probe(struct hid_device *hdev,
- 	return 0;
- 
- err_gc:
-+	hid_device_io_stop(hdev);
- 	i2c_del_adapter(&mcp->adapter);
- err_i2c:
- 	hid_hw_close(mcp->hdev);
--- 
-2.34.1
+> 
+> > ---
+> >  drivers/i2c/busses/i2c-ismt.c | 7 ++-----
+> >  1 file changed, 2 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-ismt.c
+> > b/drivers/i2c/busses/i2c-ismt.c
+> > index f4820fd3dc13..951f3511afaa 100644
+> > --- a/drivers/i2c/busses/i2c-ismt.c
+> > +++ b/drivers/i2c/busses/i2c-ismt.c
+> > @@ -920,11 +920,8 @@ ismt_probe(struct pci_dev *pdev, const struct
+> > pci_device_id *id)
+> >  
+> >  	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+> >  	if (err) {
+> > -		err = dma_set_mask_and_coherent(&pdev->dev,
+> > DMA_BIT_MASK(32));
+> > -		if (err) {
+> > -			dev_err(&pdev->dev, "dma_set_mask fail\n");
+> > -			return -ENODEV;
+> > -		}
+> > +		dev_err(&pdev->dev, "dma_set_mask fail\n");
+> > +		return -ENODEV;
+> >  	}
+> >  
+> >  	err = ismt_dev_init(priv);
+> > -- 
+> > 2.32.0
+> > 
 
