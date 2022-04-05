@@ -2,174 +2,104 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE827C433F5
-	for <linux-i2c@archiver.kernel.org>; Wed,  6 Apr 2022 14:53:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18014C433EF
+	for <linux-i2c@archiver.kernel.org>; Wed,  6 Apr 2022 16:07:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235047AbiDFOzF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 6 Apr 2022 10:55:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58218 "EHLO
+        id S237094AbiDFQIz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 6 Apr 2022 12:08:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235318AbiDFOy2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Apr 2022 10:54:28 -0400
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0BE1542778
-        for <linux-i2c@vger.kernel.org>; Wed,  6 Apr 2022 04:31:25 -0700 (PDT)
-Received: by mail-wm1-x336.google.com with SMTP id l7-20020a05600c1d0700b0038c99618859so3434949wms.2
-        for <linux-i2c@vger.kernel.org>; Wed, 06 Apr 2022 04:31:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=5XbRU+VxgtJAsYJu2rQYo8tuqHFMuZ1T/xaK9fUrdH0=;
-        b=eR5rUlVSnTFQlvGrccqjvN39M+LeViWxotz7T8MGCPbprNA8KYhbn/yw6G+dwvbAyK
-         mxXLeQggdQLJvCfjEdJz1V45cbfp1g3qf2mP6hTjQ0jauNDwJw/0skDi7X4qzk70kShg
-         xTWeyaXzLpEhIappmAnDK8gVxdrAaQxznxoLwhp1xkZM/wCBTQE+2EW1jX+i85riQPyl
-         WxogHEwc5ZehS7LFL8tJMaR7hBZmSxT9d7+2y+6IIE5Gg/Hh11kb01LTUTO5FUVUUzu0
-         zZEXGR5B7R/AO+i1J3O7BWkkqCV0AY00roN3cmRkjgq1laaz+jiP+NkI21eF0pWV6/fm
-         A20Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=5XbRU+VxgtJAsYJu2rQYo8tuqHFMuZ1T/xaK9fUrdH0=;
-        b=RlMvSPSQ7APMVKf4X6AiZ1AOVX1UhHJ9JF31POgOuC13uK3wkgzDghUzL+Y0Aoag0f
-         tBABA5GG0+yRygv0vH+4WhdR6e03sBjMoF7xg1OQ1gsP3GvakXd91eb+A7lQ9PBsC/uW
-         Q5Fjq25KFfPbAaEnymRJ6RdtlcV1aiwyNzG20izpcCRrICqOXsbQ9x0FTKOgL6w4BJyt
-         z/agjekYC0hUei8R+NCDqcX0/m10HMFyDPuUBTEtHUEmSGzvW2lMChU1qqMFGzFJqDTg
-         VeHG/Yto0elzuOYCFt5T2P1XIZYBfoJI24h6eU3mDxuav0Y/lDdj4h1F7fDtU9IbSnZu
-         eR9A==
-X-Gm-Message-State: AOAM5312CA6yViB1PCg+0CHrqMBYSnOgmZ19plo1mxa3O4NgUvGy1vwE
-        pBnnbxHytyBmLx81YBgNa3ipOA==
-X-Google-Smtp-Source: ABdhPJz5ePGx/VXESvKKA0BSxhKgDc52BTcCoXDqPlrAPdNxYzxZyJaRj9rQ1myoM+kbqb4a3CQTqQ==
-X-Received: by 2002:a05:600c:2652:b0:38e:72da:7992 with SMTP id 18-20020a05600c265200b0038e72da7992mr7034652wmy.111.1649244683953;
-        Wed, 06 Apr 2022 04:31:23 -0700 (PDT)
-Received: from ?IPV6:2001:861:44c0:66c0:d960:ec5e:e421:9c9e? ([2001:861:44c0:66c0:d960:ec5e:e421:9c9e])
-        by smtp.gmail.com with ESMTPSA id a2-20020a5d53c2000000b0020604b2667asm16014136wrw.81.2022.04.06.04.31.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Apr 2022 04:31:23 -0700 (PDT)
-Message-ID: <c789adcd-d072-bec2-a823-5f5993704365@baylibre.com>
-Date:   Wed, 6 Apr 2022 13:31:22 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 2/3] i2c: meson: Use 50% duty cycle for I2C clock
-Content-Language: en-US
-To:     Lucas Tanure <tanure@linux.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20220326102229.421718-1-tanure@linux.com>
- <20220326102229.421718-3-tanure@linux.com>
-From:   Neil Armstrong <narmstrong@baylibre.com>
-Organization: Baylibre
-In-Reply-To: <20220326102229.421718-3-tanure@linux.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S238367AbiDFQIl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Apr 2022 12:08:41 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48DB22B4A4B;
+        Tue,  5 Apr 2022 21:17:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1649218623; x=1680754623;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=mqH7z+67UJ3aSBQZLGAzbRcUX3Z7J38wJRCxzX1Fenw=;
+  b=J6vThwtFB7uovOqnw7Zf5NqGQJVcUDQQfAZ8pCyJKM4ZodYS9gUQJ3Ds
+   6r6pJVDdYmgYOXBHYdu2eyq5uITiTG5lE+dWHTPKf/TWuwzEd2yFIFn/m
+   ONm9vdT1sgTggDXmuyR2KNgI/Ju4QXxkSrfhSRM096/zF1QsAsij6em6w
+   LEkNPVuVVIabnNNtVnFT/77il7Fn2GZL7JdMpG+SfRXjqpjetgL9BI0yM
+   Ul9c3R/SyZ9OC/wWjbc2i7XTmhpxS9CxlprD6kI7LFk9zR0c9pvzySVQ1
+   N6nFyY//rjvXkMbNq4R5ohO5pWPo5VYUuY+TLJG8p8UhWVEBqpj9FdvbF
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10308"; a="240879261"
+X-IronPort-AV: E=Sophos;i="5.90,239,1643702400"; 
+   d="scan'208";a="240879261"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2022 21:17:02 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,239,1643702400"; 
+   d="scan'208";a="790198741"
+Received: from unknown (HELO localhost.localdomain) ([10.23.185.145])
+  by fmsmga006.fm.intel.com with ESMTP; 05 Apr 2022 21:17:01 -0700
+Message-ID: <fadc2b7d4ab98755413218872e04c0ef7afe64db.camel@intel.com>
+Subject: Re: [PATCH 05/11] i2c: ismt: Fix undefined behavior due to shift
+ overflowing the constant
+From:   Seth Heasley <seth.heasley@intel.com>
+To:     Borislav Petkov <bp@alien8.de>, LKML <linux-kernel@vger.kernel.org>
+Cc:     Neil Horman <nhorman@tuxdriver.com>, Wolfram Sang <wsa@kernel.org>,
+        linux-i2c@vger.kernel.org, seth.heasley@intel.com
+Date:   Tue, 05 Apr 2022 14:18:21 -0700
+In-Reply-To: <20220405151517.29753-6-bp@alien8.de>
+References: <20220405151517.29753-1-bp@alien8.de>
+         <20220405151517.29753-6-bp@alien8.de>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-8.el7) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+On Tue, 2022-04-05 at 17:15 +0200, Borislav Petkov wrote:
+> From: Borislav Petkov <bp@suse.de>
+> 
+> Fix:
+> 
+>   drivers/i2c/busses/i2c-ismt.c: In function ‘ismt_hw_init’:
+>   drivers/i2c/busses/i2c-ismt.c:770:2: error: case label does not
+> reduce to an integer constant
+>     case ISMT_SPGT_SPD_400K:
+>     ^~~~
+>   drivers/i2c/busses/i2c-ismt.c:773:2: error: case label does not
+> reduce to an integer constant
+>     case ISMT_SPGT_SPD_1M:
+>     ^~~~
+> 
+> See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+> details as to why it triggers with older gccs only.
+> 
+> Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Seth Heasley <seth.heasley@intel.com>
 
-On 26/03/2022 11:22, Lucas Tanure wrote:
-> The duty cycle of 33% is less than the required
-> by the I2C specs for the LOW period of the SCL
-> clock.
-> 
-> Move the duty cyle to 50% for 100Khz or lower
-> clocks, and (40% High SCL / 60% Low SCL) duty
-> cycle for clocks above 100Khz.
-> 
-> Signed-off-by: Lucas Tanure <tanure@linux.com>
+> Cc: Seth Heasley <seth.heasley@intel.com>
+> Cc: Neil Horman <nhorman@tuxdriver.com>
+> Cc: Wolfram Sang <wsa@kernel.org>
+> Cc: linux-i2c@vger.kernel.org
 > ---
->   drivers/i2c/busses/i2c-meson.c | 45 +++++++++++++++++++++++++---------
->   1 file changed, 33 insertions(+), 12 deletions(-)
+>  drivers/i2c/busses/i2c-ismt.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-> index 4b4a5b2d77ab..b913ba20f06e 100644
-> --- a/drivers/i2c/busses/i2c-meson.c
-> +++ b/drivers/i2c/busses/i2c-meson.c
-> @@ -140,29 +140,50 @@ static void meson_i2c_add_token(struct meson_i2c *i2c, int token)
->   static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
->   {
->   	unsigned long clk_rate = clk_get_rate(i2c->clk);
-> -	unsigned int div;
-> +	unsigned int div_h, div_l;
->   
-> -	div = DIV_ROUND_UP(clk_rate, freq);
-> -	div -= FILTER_DELAY;
-> -	div = DIV_ROUND_UP(div, i2c->data->div_factor);
-> +	if (freq <= 100000) {
-
-You should use I2C_MAX_STANDARD_MODE_FREQ instead here
-
-> +		div_h = DIV_ROUND_UP(clk_rate, freq);
-> +		div_l = DIV_ROUND_UP(div_h, 4);
-> +		div_h = DIV_ROUND_UP(div_h, 2) - FILTER_DELAY;
-> +	} else {
-> +	/* According to I2C-BUS Spec 2.1, in FAST-MODE, the minimum LOW period is 1.3uS, and
-> +	 * minimum HIGH is least 0.6us.
-> +	 * For 400000 freq, the period is 2.5us. To keep within the specs, give 40% of period to
-> +	 * HIGH and 60% to LOW. This means HIGH at 1.0us and LOW 1.5us.
-> +	 * The same applies for Fast-mode plus, where LOW is 0.5us and HIGH is 0.26us.
-> +	 * Duty = H/(H + L) = 2/5
-> +	 */
-
-Please move the comment before the if()
-
-> +		div_h = DIV_ROUND_UP(clk_rate * 2, freq * 5) - FILTER_DELAY;
-> +		div_l = DIV_ROUND_UP(clk_rate * 3, freq * 5 * 2);
-> +	}
->   
->   	/* clock divider has 12 bits */
-> -	if (div > GENMASK(11, 0)) {
-> +	if (div_h > GENMASK(11, 0)) {
->   		dev_err(i2c->dev, "requested bus frequency too low\n");
-> -		div = GENMASK(11, 0);
-> +		div_h = GENMASK(11, 0);
-> +	}
-> +	if (div_l > GENMASK(11, 0)) {
-> +		dev_err(i2c->dev, "requested bus frequency too low\n");
-> +		div_l = GENMASK(11, 0);
->   	}
->   
->   	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
-> -			   FIELD_PREP(REG_CTRL_CLKDIV_MASK, div & GENMASK(9, 0)));
-> +			   FIELD_PREP(REG_CTRL_CLKDIV_MASK, div_h & GENMASK(9, 0)));
->   
->   	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT_MASK,
-> -			   FIELD_PREP(REG_CTRL_CLKDIVEXT_MASK, div >> 10));
-> +			   FIELD_PREP(REG_CTRL_CLKDIVEXT_MASK, div_h >> 10));
-> +
-> +
-> +	/* set SCL low delay */
-> +	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_SCL_LOW_MASK,
-> +			   (div_l << REG_SLV_SCL_LOW_SHIFT) & REG_SLV_SCL_LOW_MASK);
-
-You could use FIELD_PREP() here
-
->   
-> -	/* Disable HIGH/LOW mode */
-> -	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_SCL_LOW_EN, 0);
-> +	/* Enable HIGH/LOW mode */
-> +	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_SCL_LOW_EN, REG_SLV_SCL_LOW_EN);
->   
-> -	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
-> -		clk_rate, freq, div);
-> +	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, divh %u, divl %u\n", __func__,
-> +		clk_rate, freq, div_h, div_l);
->   }
->   
->   static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
-
-I looked at different amlogic downstream sources, and those match the recommended
-calculations.
-
-So with the legacy back for Meson6, it will be OK.
-
-Neil
+> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-
+> ismt.c
+> index f4820fd3dc13..c0364314877e 100644
+> --- a/drivers/i2c/busses/i2c-ismt.c
+> +++ b/drivers/i2c/busses/i2c-ismt.c
+> @@ -145,8 +145,8 @@
+>  #define ISMT_SPGT_SPD_MASK	0xc0000000	/* SMBus Speed mask
+> */
+>  #define ISMT_SPGT_SPD_80K	0x00		/* 80 kHz */
+>  #define ISMT_SPGT_SPD_100K	(0x1 << 30)	/* 100 kHz */
+> -#define ISMT_SPGT_SPD_400K	(0x2 << 30)	/* 400 kHz */
+> -#define ISMT_SPGT_SPD_1M	(0x3 << 30)	/* 1 MHz */
+> +#define ISMT_SPGT_SPD_400K	(0x2U << 30)	/* 400 kHz */
+> +#define ISMT_SPGT_SPD_1M	(0x3U << 30)	/* 1 MHz */
+>  
+>  
+>  /* MSI Control Register (MSICTL) bit definitions */
 
