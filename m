@@ -2,290 +2,160 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1B58C433FE
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 06:36:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42E22C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 07:14:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230317AbiDEGiX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Apr 2022 02:38:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49472 "EHLO
+        id S231664AbiDEHQy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 Apr 2022 03:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230326AbiDEGhY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 02:37:24 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEB0B19005
-        for <linux-i2c@vger.kernel.org>; Mon,  4 Apr 2022 23:35:18 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id ot30so14596037ejb.12
-        for <linux-i2c@vger.kernel.org>; Mon, 04 Apr 2022 23:35:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=4aRapulVleACHaRVpaRemPKR+at6Oa4NBeEZ+s+WImo=;
-        b=sxY1JQ+pX73S1Bwlv3xrdFu/cmB3MqveCA78+V9LgccrAJi76NfLA7HVbtygTtSE1Z
-         Wz2z7Sn85AiCsElpF3qtwk8+6v5/SdT4IMyxNerOcYeaSQYV2EZzHDZOH/ZVGCn5sq4e
-         hoJilmgzv+kNBIfcBVwh0KpoN2L/2CREp53CUJZzucYnJv1DpviSZvXY5GBqywgGC0gS
-         THKDxRkHnIuPr+j6afCkQ6vXuidor91dtksLB5AjbDmIbVu20Af3nFZqPpA33zwnOX4F
-         b071/mGLhSMtiG46sSXLExekcHx/9f+1C7M9ZZgbCi2XR5mg1fFeYN3lzZKxkrSWEGey
-         rxiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=4aRapulVleACHaRVpaRemPKR+at6Oa4NBeEZ+s+WImo=;
-        b=fLynHg/yb7K0Soseq9wCTbJ9uUeoRPaf03kFRDwoODeMlAABpyoSPKstJkKmXBXaHw
-         BnOsuWdTv4JmA4Q6+vXKhh26YE3187n7MBwBo44AsO8H31Bg4McmQzngadc39pX9h8kK
-         4IRUsNWMsV2oHbmMxHHNhJ4tcfXZmerULo3zjY4obLybsrYHKpuZ3i+/sIAe+xPS7QoO
-         i4hUWEXCHX+tZ38ifGs5JvrFUleYR3rur8xbIHpIXb11oThXJ+hPx1K0hWS8YUAECcSf
-         0E0BD8VedQixzQVZLIq/EwSKi7JlGCqlYZP/Ic23FoksdqDYnrYrBZEW29YCbeaAiO1v
-         3uEg==
-X-Gm-Message-State: AOAM533XqsMYiFGsqlr+wwbXdOvx2rL4t1awifrHgt2lygOjMhuxkhlb
-        SogHAPvmjVX2Jse4e427S7hDiw==
-X-Google-Smtp-Source: ABdhPJwjK52iLr3z/j3CSrDW9cArzWMU7Uadld+yfwG2I1BCADlrbG+s4oWwtM/f3FsI0tyMDLEQ2Q==
-X-Received: by 2002:a17:907:7f04:b0:6e1:39b8:d1a5 with SMTP id qf4-20020a1709077f0400b006e139b8d1a5mr2012819ejc.83.1649140516637;
-        Mon, 04 Apr 2022 23:35:16 -0700 (PDT)
-Received: from localhost.localdomain (xdsl-188-155-201-27.adslplus.ch. [188.155.201.27])
-        by smtp.gmail.com with ESMTPSA id bs7-20020a056402304700b004197e5d2350sm6086543edb.54.2022.04.04.23.35.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Apr 2022 23:35:16 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        with ESMTP id S231433AbiDEHPz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 03:15:55 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BD11140;
+        Tue,  5 Apr 2022 00:13:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1649142829; x=1680678829;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=gVevFzET9ycXC2k6vi+6fMLZJPIT3zjfXlIjZtaxpYQ=;
+  b=AEF9oBQuzYCNFUjyz9UMl4Q7vfdSLJNzbbzzaAKwajkSNuzZrqYXG6W7
+   3fdDJq8qKFY9MBqT+LGIwYXWhKNlqmVjE5n799Em7ou5B0gOWDE0sHM4c
+   dbPIqvpOk+i6i2Tmo4xZueG/JjKVL+orA4oYyQe4ZkD8Nrymh3sLw+Mjy
+   XQ141iT3j0mDq3BwYxqecnzxYB6YLh9REXfE55Eg3XSZKTx3VDMzs4kaC
+   QEfLHbqN+gS5M4cFSlylj4cBgdwTA+obhpkWDKxBA+Wj+a5HbwfYrXLMt
+   eEPMtxndMC/dBg0XMzuSj+t4EpkJj1d3lwZ/27Gmlx2pDRJcl8CQ1m9cn
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10307"; a="241268903"
+X-IronPort-AV: E=Sophos;i="5.90,236,1643702400"; 
+   d="scan'208";a="241268903"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2022 00:13:49 -0700
+X-IronPort-AV: E=Sophos;i="5.90,236,1643702400"; 
+   d="scan'208";a="641500699"
+Received: from smile.fi.intel.com ([10.237.72.59])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2022 00:13:43 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1nbdNH-00DBjy-VC;
+        Tue, 05 Apr 2022 10:13:11 +0300
+Date:   Tue, 5 Apr 2022 10:13:11 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Avi Fishman <avifishman70@gmail.com>
+Cc:     Tali Perry <tali.perry1@gmail.com>,
+        Tyrone Ting <warp5tw@gmail.com>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Patrick Venture <venture@google.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Benjamin Fair <benjaminfair@google.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org
-Cc:     Kuldeep Singh <singh.kuldeep87k@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v4 7/9] dt-bindings: serial: qcom,msm-uartdm: convert to dtschema
-Date:   Tue,  5 Apr 2022 08:34:49 +0200
-Message-Id: <20220405063451.12011-8-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220405063451.12011-1-krzysztof.kozlowski@linaro.org>
-References: <20220405063451.12011-1-krzysztof.kozlowski@linaro.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        yangyicong@hisilicon.com, semen.protsenko@linaro.org,
+        Wolfram Sang <wsa@kernel.org>, jie.deng@intel.com,
+        sven@svenpeter.dev, bence98@sch.bme.hu,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, olof@lixom.net,
+        Tali Perry <tali.perry@nuvoton.com>,
+        Avi Fishman <Avi.Fishman@nuvoton.com>,
+        Tomer Maimon <tomer.maimon@nuvoton.com>, KWLIU@nuvoton.com,
+        JJLIU0@nuvoton.com, kfting@nuvoton.com,
+        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3 09/11] i2c: npcm: Handle spurious interrupts
+Message-ID: <YkvsB27Oj0kSmJRG@smile.fi.intel.com>
+References: <20220303083141.8742-1-warp5tw@gmail.com>
+ <20220303083141.8742-10-warp5tw@gmail.com>
+ <YiCaSSbbszm3qYIQ@smile.fi.intel.com>
+ <CAHb3i=sStqdSpLKtF_UGmTsOssR_swssTd3pv6c2-z_kiUPTTA@mail.gmail.com>
+ <YiDNDsPWKyaIUlQR@smile.fi.intel.com>
+ <CAKKbWA5FyCKTjEUw8rqtkoL7aw6f7Fa_QzcAkgaRnnUMTe0SKg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKKbWA5FyCKTjEUw8rqtkoL7aw6f7Fa_QzcAkgaRnnUMTe0SKg@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Convert the Qualcomm MSM Serial UARTDM bindings to DT Schema.
+On Mon, Apr 04, 2022 at 08:03:44PM +0300, Avi Fishman wrote:
+> On Thu, Mar 3, 2022 at 4:14 PM Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+> > On Thu, Mar 03, 2022 at 02:48:20PM +0200, Tali Perry wrote:
+> > > > On Thu, Mar 3, 2022 at 12:37 PM Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
+> > > > > On Thu, Mar 03, 2022 at 04:31:39PM +0800, Tyrone Ting wrote:
+> > > > > > From: Tali Perry <tali.perry1@gmail.com>
+> > > > > >
+> > > > > > In order to better handle spurious interrupts:
+> > > > > > 1. Disable incoming interrupts in master only mode.
+> > > > > > 2. Clear end of busy (EOB) after every interrupt.
+> > > > > > 3. Return correct status during interrupt.
+> > > > >
+> > > > > This is bad commit message, it doesn't explain "why" you are doing these.
+> >
+> > ...
+> >
+> > > BMC users connect a huge tree of i2c devices and muxes.
+> > > This tree suffers from spikes, noise and double clocks.
+> > > All these may cause spurious interrupts to the BMC.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- .../bindings/serial/qcom,msm-uartdm.txt       |  81 -------------
- .../bindings/serial/qcom,msm-uartdm.yaml      | 112 ++++++++++++++++++
- 2 files changed, 112 insertions(+), 81 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/serial/qcom,msm-uartdm.txt
- create mode 100644 Documentation/devicetree/bindings/serial/qcom,msm-uartdm.yaml
+(1)
 
-diff --git a/Documentation/devicetree/bindings/serial/qcom,msm-uartdm.txt b/Documentation/devicetree/bindings/serial/qcom,msm-uartdm.txt
-deleted file mode 100644
-index 9d098cf73b53..000000000000
---- a/Documentation/devicetree/bindings/serial/qcom,msm-uartdm.txt
-+++ /dev/null
-@@ -1,81 +0,0 @@
--* MSM Serial UARTDM
--
--The MSM serial UARTDM hardware is designed for high-speed use cases where the
--transmit and/or receive channels can be offloaded to a dma-engine. From a
--software perspective it's mostly compatible with the MSM serial UART except
--that it supports reading and writing multiple characters at a time.
--
--Required properties:
--- compatible: Should contain at least "qcom,msm-uartdm".
--              A more specific property should be specified as follows depending
--	      on the version:
--		"qcom,msm-uartdm-v1.1"
--		"qcom,msm-uartdm-v1.2"
--		"qcom,msm-uartdm-v1.3"
--		"qcom,msm-uartdm-v1.4"
--- reg: Should contain UART register locations and lengths. The first
--       register shall specify the main control registers. An optional second
--       register location shall specify the GSBI control region.
--       "qcom,msm-uartdm-v1.3" is the only compatible value that might
--       need the GSBI control region.
--- interrupts: Should contain UART interrupt.
--- clocks: Should contain the core clock and the AHB clock.
--- clock-names: Should be "core" for the core clock and "iface" for the
--	       AHB clock.
--
--Optional properties:
--- dmas: Should contain dma specifiers for transmit and receive channels
--- dma-names: Should contain "tx" for transmit and "rx" for receive channels
--- qcom,tx-crci: Identificator <u32> for Client Rate Control Interface to be
--           used with TX DMA channel. Required when using DMA for transmission
--           with UARTDM v1.3 and below.
--- qcom,rx-crci: Identificator <u32> for Client Rate Control Interface to be
--           used with RX DMA channel. Required when using DMA for reception
--           with UARTDM v1.3 and below.
--
--Note: Aliases may be defined to ensure the correct ordering of the UARTs.
--The alias serialN will result in the UART being assigned port N.  If any
--serialN alias exists, then an alias must exist for each enabled UART.  The
--serialN aliases should be in a .dts file instead of in a .dtsi file.
--
--Examples:
--
--- A uartdm v1.4 device with dma capabilities.
--
--	serial@f991e000 {
--		compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
--		reg = <0xf991e000 0x1000>;
--		interrupts = <0 108 0x0>;
--		clocks = <&blsp1_uart2_apps_cxc>, <&blsp1_ahb_cxc>;
--		clock-names = "core", "iface";
--		dmas = <&dma0 0>, <&dma0 1>;
--		dma-names = "tx", "rx";
--	};
--
--- A uartdm v1.3 device without dma capabilities and part of a GSBI complex.
--
--	serial@19c40000 {
--		compatible = "qcom,msm-uartdm-v1.3", "qcom,msm-uartdm";
--		reg = <0x19c40000 0x1000>,
--		<0x19c00000 0x1000>;
--		interrupts = <0 195 0x0>;
--		clocks = <&gsbi5_uart_cxc>, <&gsbi5_ahb_cxc>;
--		clock-names = "core", "iface";
--	};
--
--- serialN alias.
--
--	aliases {
--		serial0 = &uarta;
--		serial1 = &uartc;
--		serial2 = &uartb;
--	};
--
--	uarta: serial@12490000 {
--	};
--
--	uartb: serial@16340000 {
--	};
--
--	uartc: serial@1a240000 {
--	};
-diff --git a/Documentation/devicetree/bindings/serial/qcom,msm-uartdm.yaml b/Documentation/devicetree/bindings/serial/qcom,msm-uartdm.yaml
-new file mode 100644
-index 000000000000..484b9a51f6a9
---- /dev/null
-+++ b/Documentation/devicetree/bindings/serial/qcom,msm-uartdm.yaml
-@@ -0,0 +1,112 @@
-+# SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/serial/qcom,msm-uartdm.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Qualcomm MSM Serial UARTDM
-+
-+maintainers:
-+  - Andy Gross <agross@kernel.org>
-+  - Bjorn Andersson <bjorn.andersson@linaro.org>
-+  - Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-+
-+description: |
-+  The MSM serial UARTDM hardware is designed for high-speed use cases where the
-+  transmit and/or receive channels can be offloaded to a dma-engine. From a
-+  software perspective it's mostly compatible with the MSM serial UART except
-+  that it supports reading and writing multiple characters at a time.
-+
-+  Note:: Aliases may be defined to ensure the correct ordering of the UARTs.
-+  The alias serialN will result in the UART being assigned port N.  If any
-+  serialN alias exists, then an alias must exist for each enabled UART.  The
-+  serialN aliases should be in a .dts file instead of in a .dtsi file.
-+
-+properties:
-+  compatible:
-+    items:
-+      - enum:
-+          - qcom,msm-uartdm-v1.1
-+          - qcom,msm-uartdm-v1.2
-+          - qcom,msm-uartdm-v1.3
-+          - qcom,msm-uartdm-v1.4
-+      - const: qcom,msm-uartdm
-+
-+  clocks:
-+    maxItems: 2
-+
-+  clock-names:
-+    items:
-+      - const: core
-+      - const: iface
-+
-+  dmas:
-+    maxItems: 2
-+
-+  dma-names:
-+    items:
-+      - const: tx
-+      - const: rx
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  qcom,rx-crci:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    description:
-+      Identificator for Client Rate Control Interface to be used with RX DMA
-+      channel. Required when using DMA for reception with UARTDM v1.3 and
-+      below.
-+
-+  qcom,tx-crci:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    description:
-+      Identificator for Client Rate Control Interface to be used with TX DMA
-+      channel. Required when using DMA for transmission with UARTDM v1.3 and
-+      below.
-+
-+  reg:
-+    minItems: 1
-+    items:
-+      - description: Main control registers
-+      - description: An optional second register location shall specify the GSBI control region.
-+
-+required:
-+  - compatible
-+  - clock-names
-+  - clocks
-+  - interrupts
-+  - reg
-+
-+unevaluatedProperties: false
-+
-+allOf:
-+  - $ref: /schemas/serial/serial.yaml#
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: qcom,msm-uartdm-v1.3
-+    then:
-+      properties:
-+        reg:
-+          minItems: 2
-+    else:
-+      properties:
-+        reg:
-+          maxItems: 1
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+
-+    serial@f991e000 {
-+        compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
-+        reg = <0xf991e000 0x1000>;
-+        interrupts = <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
-+        clocks = <&blsp1_uart2_apps_cxc>, <&blsp1_ahb_cxc>;
-+        clock-names = "core", "iface";
-+        dmas = <&dma0 0>, <&dma0 1>;
-+        dma-names = "tx", "rx";
-+    };
+> > > If the driver gets an IRQ which was not expected and was not handled
+> > > by the IRQ handler,
+> > > there is nothing left to do but to clear the interrupt and move on.
+> >
+> > Yes, the problem is what "move on" means in your case.
+> > If you get a spurious interrupts there are possibilities what's wrong:
+> > 1) HW bug(s)
+> > 2) FW bug(s)
+> > 3) Missed IRQ mask in the driver
+> > 4) Improper IRQ mask in the driver
+> >
+> > The below approach seems incorrect to me.
+> 
+> Andy, What about this explanation:
+> On rare cases the i2c gets a spurious interrupt which means that we
+> enter an interrupt but in
+> the interrupt handler we don't find any status bit that points to the
+> reason we got this interrupt.
+> This may be a rare case of HW issue that is still under investigation.
+> In order to overcome this we are doing the following:
+> 1. Disable incoming interrupts in master mode only when slave mode is
+> not enabled.
+> 2. Clear end of busy (EOB) after every interrupt.
+> 3. Clear other status bits (just in case since we found them cleared)
+> 4. Return correct status during the interrupt that will finish the transaction.
+> On next xmit transaction if the bus is still busy the master will
+> issue a recovery process before issuing the new transaction.
+
+This sounds better, thanks.
+
+One thing to clarify, the (1) states that the HW "issue" is known and becomes a
+PCB level one, i.e. noisy environment that has not been properly shielded.
+So, if it is known, please put the reason in the commit message.
+
+Also would be good to see numbers of "rare". Is it 0.1%?
+
+> > > If the transaction failed, driver has a recovery function.
+> > > After that, user may retry to send the message.
+> > >
+> > > Indeed the commit message doesn't explain all this.
+> > > We will fix and add to the next patchset.
+> > >
+> > > > > > +     /*
+> > > > > > +      * if irq is not one of the above, make sure EOB is disabled and all
+> > > > > > +      * status bits are cleared.
+> > > > >
+> > > > > This does not explain why you hide the spurious interrupt.
+> > > > >
+> > > > > > +      */
+
 -- 
-2.32.0
+With Best Regards,
+Andy Shevchenko
+
 
