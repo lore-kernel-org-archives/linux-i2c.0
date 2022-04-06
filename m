@@ -2,150 +2,141 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14F0BC4167D
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Apr 2022 21:57:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B473FC433EF
+	for <linux-i2c@archiver.kernel.org>; Wed,  6 Apr 2022 11:56:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377059AbiDEV4g (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Apr 2022 17:56:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34304 "EHLO
+        id S229911AbiDFL6X (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 6 Apr 2022 07:58:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1455144AbiDEP7l (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Apr 2022 11:59:41 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C568C108BD6
-        for <linux-i2c@vger.kernel.org>; Tue,  5 Apr 2022 08:11:25 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id b17so16136123lfv.3
-        for <linux-i2c@vger.kernel.org>; Tue, 05 Apr 2022 08:11:25 -0700 (PDT)
+        with ESMTP id S232251AbiDFL5o (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Apr 2022 07:57:44 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F27CA5255D6
+        for <linux-i2c@vger.kernel.org>; Wed,  6 Apr 2022 00:26:54 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id bg10so2413787ejb.4
+        for <linux-i2c@vger.kernel.org>; Wed, 06 Apr 2022 00:26:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
+        d=linaro.org; s=google;
         h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=knadBC5/9Dlj8rbZddGyUUv9/Z5ol7Dtv9U1ioqP9jA=;
-        b=4WXxBwXx7EL1bnbBadqVFwnRXzEoKBnMCPyQY1ZoY51R3YnPyJSrpchjfB6SICDwsJ
-         5alKgXGkZ0+I2dyFvgJGXRqq9S7J0CWijdEsqtbZyqcsb9/kzsafqkVrI8xVxcY72nkg
-         UGCEDmkItzRH77RJhiDAiVZmPMq9iBdIfg9uaN8BHGlPsTQynByp4OpSEyaEevxlFS77
-         Qef8G+zninZ7IFRAGP9u/2MlkCD19bQzY1o2vc3fSvDaAeHrUE7NH83wxI08mKsTZK7G
-         sJ5I+oQd+gn/b/mCW4Ct/uXiaXcZ1hOSLpsU3SjMOep+xv/JHCQbkqq7/lg9kEhzrpAK
-         li0Q==
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=yuM6R8v8TiPq5FdXnzgHGP6cxLXx2tfXvc1fPQGyPBI=;
+        b=p6Pc0ixT7qxKXk+mxDu2v4XYCIZeEosUb3J0LRs+z66/uFVsXJwBQcIHLeAJCLEZqm
+         BDP+rEgxhCs10j5/OzaNq75QgoD5JDu54ZWzYoVZGhIEObUWPAbMNWX0eSeBAkgR9QUh
+         HmwNWIexmyxLuiIXhCIcls/oPEWhm6QUWRaIefiArso7wXQJT7x9S1c755ixecS9fAZW
+         Nb56Ykvbmf3dAY/A8PtcXLpyBHu3vy/jboCZEMr++Db2ISpbG7ZILEf4iyLuOqbz9Cgh
+         cfpuxhjQMP26bNGNhfJRM1N1Y+frlLWH7WpI2sGqvy6bqioT9sItLEM9UyNKOafhwh6d
+         NJxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=knadBC5/9Dlj8rbZddGyUUv9/Z5ol7Dtv9U1ioqP9jA=;
-        b=aP60CSIDh4ZvrfbywO2+uenkf/RJZDQk/bofa9ZnSsOq4TJQk5l52GILrHqU+aYsBp
-         2t0az3bf0tZekLwPl6Z/GapN8ZtZYFeXnoLfjAKQV8QvIXFMPeywIiFJw/N6MQBKkIWo
-         E3z8CTVt4vwp+XLdJ6dz1/jp2UL8shF805pwgL6pP6NqVNZJqZAPOtFRK35DaBL7O6hn
-         PsoiPSc3MYh5GX7dvZrRQhLrPuhJ58VaM4sPOwYNbDw5CIDFgjf2lrVJdwBZl21QW8ki
-         1dyvDEcy1sfpYgQRSFdMJD093ItnkBJRpmgodcKGp6JQ+FWKhnwrh57XjyIamSSVmnfa
-         dOeg==
-X-Gm-Message-State: AOAM531PpfiUAOZL1Cst5hePpxVa6q7Zgb0X7KsgT4Pz1CEZtCLWwTJd
-        5pHthMN9YkXAxqm43Y3e9mAzjA==
-X-Google-Smtp-Source: ABdhPJzACQiDfI4qUdkgsvTX0RPVvPl+IFhGVEeH45oKkhd6o7WfMVVtWugGdQVsuaBLCEHNpE0Tsw==
-X-Received: by 2002:a05:6512:3a83:b0:44a:5878:24d6 with SMTP id q3-20020a0565123a8300b0044a587824d6mr2899935lfu.426.1649171480237;
-        Tue, 05 Apr 2022 08:11:20 -0700 (PDT)
-Received: from ?IPV6:2001:861:44c0:66c0:5cd5:d9c8:ef4:b0ed? ([2001:861:44c0:66c0:5cd5:d9c8:ef4:b0ed])
-        by smtp.gmail.com with ESMTPSA id x23-20020a056512047700b0044a3c53e12dsm1533643lfd.169.2022.04.05.08.11.19
+        bh=yuM6R8v8TiPq5FdXnzgHGP6cxLXx2tfXvc1fPQGyPBI=;
+        b=Wyui4XEeanjsdyx81V4kDGnE9jGtZvWOETC1tFQM+NMzqjBcEDo4lImDd6hsxyJJLb
+         iLz1JJ2DLQkSb3jRvafFU5FUub3OLf+NV/RXVT7VRdd/AX6jFrp0ga8exRcMoTRULD1S
+         yIeGKhOZLgsjOZItIXWLYiKS39KPp8VZ1SiS/z5RebFl3g/aekzdNgYYdN+ZMvdw+DNw
+         I/ipAET6c+oHPSw3q12K9QGv+TD9OooiwcjjaGPkwSLx7L9Bo2Wstp1L25tCXK3Pt6Yq
+         vgKoyR3O9SC4/DwIJpYW2BRJECyHwVahTH4n14UuuMkI4XrjBamQT5BvwOzav7XYnJkT
+         W8vg==
+X-Gm-Message-State: AOAM533MDk6Z/8YRpFDzF4Qq6JAmMOt874GYlSscOmOL9kktyzoTHOwX
+        wNbS4yorOou1fStteUPoJnW7ZWfaP0S1FwBZ
+X-Google-Smtp-Source: ABdhPJwkyCtsJH2vwIdQXVVX2u6O4ZU+EN9y3XsOqCwJVzVWy6LcXdfv65/APnX6lC9vhfF9bwaN9Q==
+X-Received: by 2002:a17:907:c16:b0:6db:682:c8c9 with SMTP id ga22-20020a1709070c1600b006db0682c8c9mr7206485ejc.153.1649230013464;
+        Wed, 06 Apr 2022 00:26:53 -0700 (PDT)
+Received: from [192.168.0.182] (xdsl-188-155-201-27.adslplus.ch. [188.155.201.27])
+        by smtp.gmail.com with ESMTPSA id o12-20020a50c90c000000b0041907e62024sm7510979edh.85.2022.04.06.00.26.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Apr 2022 08:11:19 -0700 (PDT)
-Message-ID: <a27da359-3922-e4ee-16d2-b4cb6fc06ca8@baylibre.com>
-Date:   Tue, 5 Apr 2022 17:11:18 +0200
+        Wed, 06 Apr 2022 00:26:53 -0700 (PDT)
+Message-ID: <315c957b-8d22-dcef-a5b8-36e92f0897be@linaro.org>
+Date:   Wed, 6 Apr 2022 09:26:52 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 0/3] Ensure Low period of SCL is correct
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 1/2] i2c: add binding to prevent device detection
 Content-Language: en-US
-To:     tanure@linux.com, Kevin Hilman <khilman@baylibre.com>
-Cc:     Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20220326102229.421718-1-tanure@linux.com>
- <7hee2lu82n.fsf@baylibre.com>
- <CAJX_Q+1Y5pO_AGaFSXfo-J3EdGQeM2XYXzvsUtjtAFEXdwKEdQ@mail.gmail.com>
-From:   Neil Armstrong <narmstrong@baylibre.com>
-Organization: Baylibre
-In-Reply-To: <CAJX_Q+1Y5pO_AGaFSXfo-J3EdGQeM2XYXzvsUtjtAFEXdwKEdQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+To:     Vincent Whitchurch <vincent.whitchurch@axis.com>
+Cc:     "wsa@kernel.org" <wsa@kernel.org>, kernel <kernel@axis.com>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "krzk+dt@kernel.org" <krzk+dt@kernel.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20220405121627.1560949-1-vincent.whitchurch@axis.com>
+ <20220405121627.1560949-2-vincent.whitchurch@axis.com>
+ <e3247f0f-5d3d-d981-699e-7dcedb30f881@linaro.org>
+ <20220405141255.GD28574@axis.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20220405141255.GD28574@axis.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+On 05/04/2022 16:12, Vincent Whitchurch wrote:
+> On Tue, Apr 05, 2022 at 03:57:16PM +0200, Krzysztof Kozlowski wrote:
+>> On 05/04/2022 14:16, Vincent Whitchurch wrote:
+>>>  Documentation/devicetree/bindings/i2c/i2c.txt | 4 ++++
+>>
+>> Use the subject matching the subsystem (git log --oneline -- .......).
+> 
+> I did look at the git log when writing the subject, but there's a bunch
+> of variation there so I went for the subject prefix which Wolfram
+> himself used since I assumed he would be the one applying these patches.
+> 
+> $ git log -n5 --oneline origin/master -- Documentation/devicetree/bindings/i2c/i2c.txt
+> 6881e493b08f dt-bindings: net: New binding mctp-i2c-controller
+> 168290fb2675 i2c: add binding to mark a bus as supporting SMBus-Alert
+> e6277308ac21 i2c: add binding to mark a bus as SMBus
+> db36e827d876 dt-bindings: i2c: add generic properties for GPIO bus recovery
+> fad5972a1eca i2c: add 'single-master' property to generic bindings
 
-On 28/03/2022 23:51, Lucas Tanure wrote:
-> 
-> 
-> On Mon, 28 Mar 2022, 21:37 Kevin Hilman, <khilman@baylibre.com <mailto:khilman@baylibre.com>> wrote:
-> 
->     Hi Lucas,
-> 
->     Lucas Tanure <tanure@linux.com <mailto:tanure@linux.com>> writes:
-> 
->      > The default duty cycle of 33% is less than the required
->      > by the I2C specs for the LOW period of the SCL clock.
->      >
->      > So, for 100Khz or less, use 50%H/50%L duty cycle, and
->      > for the clock above 100Khz, use 40%H/60%L duty cycle.
->      > That ensures the low period of SCL is always more than
->      > the minimum required by the specs at any given frequency.
-> 
->     Thanks for the fixes!
-> 
->     This is going to affect all SoCs, so ould you please summarize how your
->     changes were tested, and on which SoCs & boards?
-> 
->     Thanks,
-> 
->     Kevin
-> 
-> 
-> Hi,
-> 
-> I only tested against vim3 board, measured the bus with an saleae logic pro 16.
-> The measurements were with 100k, 400k and a few in between frequencies.
-> 
-> Is that enough?
+The proper command for a subsystem is:
+git log --oneline -- Documentation/devicetree/bindings/i2c/
 
-I did a few measures on the Libre Computer Le Potato S905X board:
+and then you see mostly different pattern.
 
-i2c_AO:
+Other way, like for example Mark Brown prefers, is:
+i2c: dt-bindings:
+It would be fine as well, but the point is that you did not include the
+dt-bindings prefix here at all and almost always I ignore all such emails.
 
-Before the patchset, I got:
-- 100KHz: 1.66uS HIGH, 6.75uS LOW, 20%/80%, Freq 118KHz /!\
-- 400KHz: Unable to decode, clock line is invalid, Data line is also invalid
-
-With the patchset
-- 100KHz: 4.25uS HIGH, 6.58uS LOW, 40%/60%, Freq 92KHz
-- 400KHz: 0.33uS HIGH, 3.00uS LOW, 10%/90%, Freq 300KHz
-
-i2c_B:
-
-Before the patchset, I got:
-- 100KHz: 2.25uS HIGH, 5.41uS LOW, 29%/71%, Freq 130KHz /!\
-- 400KHz: 0.42uS HIGH, 1.66uS LOW, 20%/80%, Freq 480KHz /!\
-
-With the patchset
-- 100KHz: 4.75uS HIGH, 5.42uS LOW, 46%/54%, Freq 98KHz
-- 400KHz: 0.66uS HIGH, 2.00uS LOW, 24%/75%, Freq 375KHz
-
-
-So this fixes the frequency, before they were invalid.
-And it fixes 400KHz on i2c_AO...
-
-I do not understand why behavior is different between i2c_AO & i2c_B, they
-are feed with the same clock so it should be the same.
-
-Did you check on both i2c interfaces ? can you share your results ?
-
-Neil
-
+>>>  1 file changed, 4 insertions(+)
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+>>> index fc3dd7ec0445..5f7bdf4851e8 100644
+>>> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+>>> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+>>> @@ -72,6 +72,10 @@ wants to support one of the below features, it should adapt these bindings.
+>>>  	this information to adapt power management to keep the arbitration awake
+>>>  	all the time, for example. Can not be combined with 'single-master'.
+>>>  
+>>> +- no-detect
+>>> +	states that the system should not attempt to automatically detect
+>>> +	devices which are not explicitly specified as child nodes.
+>>
+>> Focus on the hardware, not on system and behavior. The hardware property
+>> is that bus is completely described in Devicetree or detection does not
+>> work correctly. I guess the property name could stay like this, but the
+>> description could be rephrased.
 > 
-> Thanks
-> Lucas
-> 
-> 
-> 
+> I'm having a hard time drawing the line between hardware and the
+> "system" here.  The bus being completely described in devicetree doesn't
+> sound like a hardware property to me, but, yes, I can change the
+> description to say that.
 
+Then you need to come up with better description. :) By system I
+understood here Operating System, therefore a Software piece or pieces.
+Bindings should not rather focus on hardware instead of referencing
+software. Software actually not matter for the bindings... There is
+quite clear distinction between hardware and operating system...
+
+Can you explain why do you think "bus being completely described" is not
+a hardware description? Bindings and DTS describe hardware, so one of
+parts of such description is whether nodes and other properties are
+present. If all child nodes are present in DT - no-detect - and this is
+a purely hardware point of view. No software here.
+
+Best regards,
+Krzysztof
