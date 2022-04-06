@@ -2,107 +2,257 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D89F7C433F5
-	for <linux-i2c@archiver.kernel.org>; Wed,  6 Apr 2022 16:13:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A20ACC433F5
+	for <linux-i2c@archiver.kernel.org>; Wed,  6 Apr 2022 17:26:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237147AbiDFQPb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 6 Apr 2022 12:15:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60118 "EHLO
+        id S238875AbiDFR2a (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 6 Apr 2022 13:28:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237236AbiDFQPP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Apr 2022 12:15:15 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CABA3E37FB;
-        Tue,  5 Apr 2022 21:11:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1649218307; x=1680754307;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=cR9iKxrz/8HA3dd1/jwZRF3XG6WX3t9oScAc0DPOnW8=;
-  b=Qhr3ZgcT6AghAGdmMiC42Yq+xjXtn3ha0USfQQjyMEydVBDv0FC4Afip
-   QdNUZQ5q7U+avhoyBYeNyTjKoqHwy+n23gZMIHzRPszfWR/i5RRVn9FAA
-   ivTGW0i/EvCYdBLPQvqQOYItX+SyA2zvCLZ/mNieoxs8FT4MbVJm9nC/C
-   a9ayqykO7f69eBEIwUcKcPSD+CVQsymH20Nr3ySz9Zj6Ag6I/EYxD7+A4
-   m/MYFj82grrvtlc+Q/5JvURh0DZ0wzaeJArpjZFZUwgo4zPIIwuEOqryq
-   l+kWxm2bsTJyg/7HHWH44kRAvhEqy+H1bV212Gk/aG7KTZUvU9SM7g5uW
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10308"; a="241530382"
-X-IronPort-AV: E=Sophos;i="5.90,239,1643702400"; 
-   d="scan'208";a="241530382"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2022 21:11:46 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,239,1643702400"; 
-   d="scan'208";a="524294591"
-Received: from unknown (HELO localhost.localdomain) ([10.23.185.145])
-  by orsmga006.jf.intel.com with ESMTP; 05 Apr 2022 21:11:44 -0700
-Message-ID: <f3b6524f899f2775e630dee2ad1cc4c4c389b2fe.camel@intel.com>
-Subject: Re: [PATCH] i2c: ismt: Remove useless DMA-32 fallback configuration
-From:   Seth Heasley <seth.heasley@intel.com>
-To:     Wolfram Sang <wsa@kernel.org>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc:     Neil Horman <nhorman@tuxdriver.com>, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org,
-        seth.heasley@intel.com
-Date:   Tue, 05 Apr 2022 14:13:04 -0700
-In-Reply-To: <YgEtUT7Dhntmidxy@shikoro>
-References: <853d9f9d746864435abf93dfc822fccac5b04f37.1641731339.git.christophe.jaillet@wanadoo.fr>
-         <YgEtUT7Dhntmidxy@shikoro>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-8.el7) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S239679AbiDFR2M (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Apr 2022 13:28:12 -0400
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C95CC90D9;
+        Wed,  6 Apr 2022 08:29:45 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: kholk11)
+        with ESMTPSA id 85B8A1F4136D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1649258984;
+        bh=1NhAchyfhmSmpQJUfImxIt/WQmIDi6gHQsa7Fft+Rks=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OQDpeJ1CvB/HRIMKBLggLHHm4RAqWhHYwby3rUsfvR/bfVO5vAKJnmfn+oetuspeA
+         440NJiHS1nRDY07b8iuW/cgnQ86eDw/Ep1UI7RrYdICUUUbnsUbD5O9bf2+fmI+q5u
+         1MeOw3e4oce3zdG5Q8JpghmoV2KJ52Mmn7EzvBeNK6kGFB2lfDVqG8wyP+ny1F+qXv
+         fTi264g+xqUm+bT+LBUSkuGpshloy4JN3SfdmWV2yJKNYPDiTZDMDpctL5WU1/OVc4
+         nJEerUftYKTv3EKDQBivUgtjHy3JS1J6Q9r0/WcAWVX9KK2EJteMRcYhLSHSttOQV3
+         Qp6xHefrUW6aw==
+From:   AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>
+To:     robh+dt@kernel.org
+Cc:     krzk+dt@kernel.org, matthias.bgg@gmail.com, qii.wang@mediatek.com,
+        wsa@kernel.org, kewei.xu@mediatek.com,
+        angelogioacchino.delregno@collabora.com, hsinyi@chromium.org,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] dt-bindings: i2c: convert i2c-mt65xx to json-schema
+Date:   Wed,  6 Apr 2022 17:29:40 +0200
+Message-Id: <20220406152940.140224-1-angelogioacchino.delregno@collabora.com>
+X-Mailer: git-send-email 2.35.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, 2022-02-07 at 15:31 +0100, Wolfram Sang wrote:
-> On Sun, Jan 09, 2022 at 01:29:45PM +0100, Christophe JAILLET wrote:
-> > As stated in [1], dma_set_mask() with a 64-bit mask never fails if
-> > dev->dma_mask is non-NULL.
-> > So, if it fails, the 32 bits case will also fail for the same
-> > reason.
-> > 
-> > 
-> > Simplify code and remove some dead code accordingly.
-> > 
-> > [1]: https://lkml.org/lkml/2021/6/7/398
-> > 
-> > Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Seth Heasley <seth.heasley@intel.com>
-> 
-> Seth, Neil, do you agree?
+Convert I2C binding for MediaTek SoCs to Devicetree schema.
 
-Yes, I agree this change makes sense.
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+---
+ .../devicetree/bindings/i2c/i2c-mt65xx.txt    |  53 --------
+ .../devicetree/bindings/i2c/i2c-mt65xx.yaml   | 118 ++++++++++++++++++
+ MAINTAINERS                                   |   2 +-
+ 3 files changed, 119 insertions(+), 54 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
 
-> 
-> > ---
-> >  drivers/i2c/busses/i2c-ismt.c | 7 ++-----
-> >  1 file changed, 2 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-ismt.c
-> > b/drivers/i2c/busses/i2c-ismt.c
-> > index f4820fd3dc13..951f3511afaa 100644
-> > --- a/drivers/i2c/busses/i2c-ismt.c
-> > +++ b/drivers/i2c/busses/i2c-ismt.c
-> > @@ -920,11 +920,8 @@ ismt_probe(struct pci_dev *pdev, const struct
-> > pci_device_id *id)
-> >  
-> >  	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
-> >  	if (err) {
-> > -		err = dma_set_mask_and_coherent(&pdev->dev,
-> > DMA_BIT_MASK(32));
-> > -		if (err) {
-> > -			dev_err(&pdev->dev, "dma_set_mask fail\n");
-> > -			return -ENODEV;
-> > -		}
-> > +		dev_err(&pdev->dev, "dma_set_mask fail\n");
-> > +		return -ENODEV;
-> >  	}
-> >  
-> >  	err = ismt_dev_init(priv);
-> > -- 
-> > 2.32.0
-> > 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
+deleted file mode 100644
+index 026985b8f61a..000000000000
+--- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
++++ /dev/null
+@@ -1,53 +0,0 @@
+-* MediaTek's I2C controller
+-
+-The MediaTek's I2C controller is used to interface with I2C devices.
+-
+-Required properties:
+-  - compatible: value should be either of the following.
+-      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for MediaTek MT2701
+-      "mediatek,mt2712-i2c": for MediaTek MT2712
+-      "mediatek,mt6577-i2c": for MediaTek MT6577
+-      "mediatek,mt6589-i2c": for MediaTek MT6589
+-      "mediatek,mt6797-i2c", "mediatek,mt6577-i2c": for MediaTek MT6797
+-      "mediatek,mt7622-i2c": for MediaTek MT7622
+-      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for MediaTek MT7623
+-      "mediatek,mt7629-i2c", "mediatek,mt2712-i2c": for MediaTek MT7629
+-      "mediatek,mt8168-i2c": for MediaTek MT8168
+-      "mediatek,mt8173-i2c": for MediaTek MT8173
+-      "mediatek,mt8183-i2c": for MediaTek MT8183
+-      "mediatek,mt8186-i2c": for MediaTek MT8186
+-      "mediatek,mt8192-i2c": for MediaTek MT8192
+-      "mediatek,mt8195-i2c", "mediatek,mt8192-i2c": for MediaTek MT8195
+-      "mediatek,mt8516-i2c", "mediatek,mt2712-i2c": for MediaTek MT8516
+-  - reg: physical base address of the controller and dma base, length of memory
+-    mapped region.
+-  - interrupts: interrupt number to the cpu.
+-  - clock-div: the fixed value for frequency divider of clock source in i2c
+-    module. Each IC may be different.
+-  - clocks: clock name from clock manager
+-  - clock-names: Must include "main" and "dma", "arb" is for multi-master that
+-    one bus has more than two i2c controllers, if enable have-pmic need include
+-    "pmic" extra.
+-
+-Optional properties:
+-  - clock-frequency: Frequency in Hz of the bus when transfer, the default value
+-    is 100000.
+-  - mediatek,have-pmic: platform can control i2c form special pmic side.
+-    Only mt6589 and mt8135 support this feature.
+-  - mediatek,use-push-pull: IO config use push-pull mode.
+-  - vbus-supply: phandle to the regulator that provides power to SCL/SDA.
+-
+-Example:
+-
+-	i2c0: i2c@1100d000 {
+-			compatible = "mediatek,mt6577-i2c";
+-			reg = <0x1100d000 0x70>,
+-			      <0x11000300 0x80>;
+-			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
+-			clock-frequency = <400000>;
+-			mediatek,have-pmic;
+-			clock-div = <16>;
+-			clocks = <&i2c0_ck>, <&ap_dma_ck>;
+-			clock-names = "main", "dma";
+-	};
+-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+new file mode 100644
+index 000000000000..889064f24a8c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+@@ -0,0 +1,118 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/i2c-mt65xx.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: MediaTek I2C controller
++
++description:
++  This driver interfaces with the native I2C controller present in
++  various MediaTek SoCs.
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++maintainers:
++  - Qii Wang <qii.wang@mediatek.com>
++
++properties:
++  compatible:
++    oneOf:
++      - const: mediatek,mt2712-i2c
++      - const: mediatek,mt6577-i2c
++      - const: mediatek,mt6589-i2c
++      - const: mediatek,mt7622-i2c
++      - const: mediatek,mt8168-i2c
++      - const: mediatek,mt8173-i2c
++      - const: mediatek,mt8183-i2c
++      - const: mediatek,mt8186-i2c
++      - const: mediatek,mt8192-i2c
++      - items:
++          - enum:
++              - mediatek,mt7629-i2c
++              - mediatek,mt8516-i2c
++          - const: mediatek,mt2712-i2c
++      - items:
++          - enum:
++              - mediatek,mt2701-i2c
++              - mediatek,mt6797-i2c
++              - mediatek,mt7623-i2c
++          - const: mediatek,mt6577-i2c
++      - items:
++          - enum:
++              - mediatek,mt8195-i2c
++          - const: mediatek,mt8192-i2c
++
++  reg:
++    items:
++      - description: Physical base address
++      - description: DMA base address
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    minItems: 1
++    items:
++      - description: Main clock for I2C bus
++      - description: Clock for I2C via DMA
++      - description: Bus arbitrator clock
++      - description: Clock for I2C from PMIC
++
++  clock-names:
++    minItems: 1
++    items:
++      - const: main
++      - const: dma
++      - const: arb
++      - const: pmic
++
++  clock-div:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description: Frequency divider of clock source in I2C module
++
++  clock-frequency:
++    default: 100000
++    description:
++      SCL frequency to use (in Hz). If omitted, 100kHz is used.
++
++  mediatek,have-pmic:
++    description: Platform controls I2C from PMIC side
++    type: boolean
++
++  mediatek,use-push-pull:
++    description: Use push-pull mode I/O config
++    type: boolean
++
++  vbus-supply:
++    description: Phandle to the regulator providing power to SCL/SDA
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - clock-div
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c0: i2c@1100d000 {
++      compatible = "mediatek,mt6577-i2c";
++      reg = <0x1100d000 0x70>, <0x11000300 0x80>;
++      interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
++      clocks = <&i2c0_ck>, <&ap_dma_ck>;
++      clock-names = "main", "dma";
++      clock-div = <16>;
++      clock-frequency = <400000>;
++      mediatek,have-pmic;
++
++      #address-cells = <1>;
++      #size-cells = <0>;
++    };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ee0b5a70aff1..28a17d4c8d12 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -12361,7 +12361,7 @@ MEDIATEK I2C CONTROLLER DRIVER
+ M:	Qii Wang <qii.wang@mediatek.com>
+ L:	linux-i2c@vger.kernel.org
+ S:	Maintained
+-F:	Documentation/devicetree/bindings/i2c/i2c-mt65xx.txt
++F:	Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+ F:	drivers/i2c/busses/i2c-mt65xx.c
+ 
+ MEDIATEK IOMMU DRIVER
+-- 
+2.35.1
 
