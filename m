@@ -2,44 +2,54 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF4C3C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 11 Apr 2022 13:21:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E99B0C433EF
+	for <linux-i2c@archiver.kernel.org>; Mon, 11 Apr 2022 18:08:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244119AbiDKNXk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 11 Apr 2022 09:23:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53938 "EHLO
+        id S1349050AbiDKSKP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 11 Apr 2022 14:10:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240292AbiDKNXj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Apr 2022 09:23:39 -0400
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA91C2DDD;
-        Mon, 11 Apr 2022 06:21:23 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: kholk11)
-        with ESMTPSA id AA1D01F43EE0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1649683282;
-        bh=2XhjOAxBOcasYg+yweGriOPt9i9ytqipWQNUM8ynUvs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=GlHY/c+UwUUnZic1hLXNOsUXuJA7JdhWK31rInpVFJM7ADsSviC67DbQh/KeHNaNu
-         04t0wWurRsxs+2JQKNd7i14Q4sd4/uHkz3zJDavOOz4Syu/ZJNXtxmIEY/ZWMlJFho
-         /v6ZSEMXjXaJ9f9j4DzFyJ7ma2hvTrw8WwCCcrZkpBTnheUvTnSmUiEAWAKZcUaoO4
-         /4v+p19Rrq/ymrpCOB/TcVhjEoJRPS0Ab46NJJWzP4L260hXYpUWho5k8OztDZijD0
-         Hwutt+gMqvqWurwlMKub8zVji6VZGmZqXtHAj69Kf9zZj0hnAxxcRtET80mtOvTjNd
-         QzflcQIQFOzFw==
-From:   AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-To:     qii.wang@mediatek.com
-Cc:     matthias.bgg@gmail.com, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        wsa@kernel.org, nfraprado@collabora.com, kernel@collabora.com,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH v2] i2c: mediatek: Optimize master_xfer() and avoid circular locking
-Date:   Mon, 11 Apr 2022 15:21:07 +0200
-Message-Id: <20220411132107.136369-1-angelogioacchino.delregno@collabora.com>
+        with ESMTP id S232992AbiDKSKO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Apr 2022 14:10:14 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C80EF2B183;
+        Mon, 11 Apr 2022 11:07:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1649700479; x=1681236479;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=etbDmp0HEg236kvaE9ytGyeBfa0w1hXztgiz7DlpaKU=;
+  b=ANvNFgXqy8WLjtEnQt6k1gOTt5eMr5il26p7+7VESMIlRAxZWaNHkekd
+   pFzLfBGLeCJdrisrkqGwZ6MIZAFwzaWfRApRmPnfN4fopF4DORarcm/I6
+   Tq+pIw0Aa5diYRNZuraft8+QX3VcWIoggGnrQ6eK9P2untOwy4YebsnDx
+   fLgYeW3FnXxUENLI2AYMh3dQ6pytwNCbLT78Zj6oDfkx5D5qf0fcsXy9s
+   Y8SWAFHrdnqfHDJoam3CCELWM/+TCoi656THQ6CJ+3N5zIS3anuGTA0fX
+   YwSi2P4zPK3lj3ZcrlINWOQrxLGHZttgLh9cWCps8ujrCqsDV/x+nSsPp
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10314"; a="322625775"
+X-IronPort-AV: E=Sophos;i="5.90,252,1643702400"; 
+   d="scan'208";a="322625775"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Apr 2022 11:07:59 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,252,1643702400"; 
+   d="scan'208";a="572321674"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga008.jf.intel.com with ESMTP; 11 Apr 2022 11:07:57 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 3E15C120; Mon, 11 Apr 2022 21:07:57 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Jakub Kicinski <kuba@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 2/2] i2c: dev: Force case user pointers in compat_i2cdev_ioctl()
+Date:   Mon, 11 Apr 2022 21:07:52 +0300
+Message-Id: <20220411180752.36920-2-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220411180752.36920-1-andriy.shevchenko@linux.intel.com>
+References: <20220411180752.36920-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,100 +57,35 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Especially (but not only) during probe, it may happen that multiple
-devices are communicating via i2c (or multiple i2c busses) and
-sometimes while others are probing asynchronously.
-For example, a Cr50 TPM may be filling entropy (or userspace may be
-reading random data) while the rt5682 (i2c) codec driver reads/sets
-some registers, like while getting/setting a clock's rate, which
-happens both during probe and during system operation.
+Sparse has warned us about wrong address space for user pointers:
 
-In this driver, the mtk_i2c_transfer() function (which is the i2c
-.master_xfer() callback) was granularly managing the clocks by
-performing a clk_bulk_prepare_enable() to start them and its inverse.
-This is not only creating possible circular locking dependencies in
-the some cases (like former explanation), but it's also suboptimal,
-as clk_core prepare/unprepare operations are using mutex locking,
-which creates a bit of unwanted overhead (for example, i2c trackpads
-will call master_xfer() every few milliseconds!).
+  i2c-dev.c:561:50: warning: incorrect type in initializer (different address spaces)
+  i2c-dev.c:561:50:    expected unsigned char [usertype] *buf
+  i2c-dev.c:561:50:    got void [noderef] __user *
 
-With this commit, we avoid both the circular locking and additional
-overhead by changing how we handle the clocks in this driver:
-- Prepare the clocks during probe (and PM resume)
-- Enable/disable clocks in mtk_i2c_transfer()
-- Unprepare the clocks only for driver removal (and PM suspend)
+Force cast the pointer to (__u8 *) that is used by I²C core code.
 
-For the sake of providing a full explanation: during probe, the
-clocks are not only prepared but also enabled, as this is needed
-for some hardware initialization but, after that, we are disabling
-but not unpreparing them, leaving an expected state for the
-aforementioned clock handling strategy.
+Note, this is an additional fix to the previously addressed similar issue
+in the I2C_RDWR case in the same function.
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Fixes: 3265a7e6b41b ("i2c: dev: Add __user annotation")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
+ drivers/i2c/i2c-dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-v2: Fixed typos in commit description
-
- drivers/i2c/busses/i2c-mt65xx.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index f651d3e124d6..bdecb78bfc26 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -1177,7 +1177,7 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
- 	int left_num = num;
- 	struct mtk_i2c *i2c = i2c_get_adapdata(adap);
- 
--	ret = clk_bulk_prepare_enable(I2C_MT65XX_CLK_MAX, i2c->clocks);
-+	ret = clk_bulk_enable(I2C_MT65XX_CLK_MAX, i2c->clocks);
- 	if (ret)
- 		return ret;
- 
-@@ -1231,7 +1231,7 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
- 	ret = num;
- 
- err_exit:
--	clk_bulk_disable_unprepare(I2C_MT65XX_CLK_MAX, i2c->clocks);
-+	clk_bulk_disable(I2C_MT65XX_CLK_MAX, i2c->clocks);
- 	return ret;
- }
- 
-@@ -1412,7 +1412,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 	mtk_i2c_init_hw(i2c);
--	clk_bulk_disable_unprepare(I2C_MT65XX_CLK_MAX, i2c->clocks);
-+	clk_bulk_disable(I2C_MT65XX_CLK_MAX, i2c->clocks);
- 
- 	ret = devm_request_irq(&pdev->dev, irq, mtk_i2c_irq,
- 			       IRQF_NO_SUSPEND | IRQF_TRIGGER_NONE,
-@@ -1439,6 +1439,8 @@ static int mtk_i2c_remove(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&i2c->adap);
- 
-+	clk_bulk_unprepare(I2C_MT65XX_CLK_MAX, i2c->clocks);
-+
- 	return 0;
- }
- 
-@@ -1448,6 +1450,7 @@ static int mtk_i2c_suspend_noirq(struct device *dev)
- 	struct mtk_i2c *i2c = dev_get_drvdata(dev);
- 
- 	i2c_mark_adapter_suspended(&i2c->adap);
-+	clk_bulk_unprepare(I2C_MT65XX_CLK_MAX, i2c->clocks);
- 
- 	return 0;
- }
-@@ -1465,7 +1468,7 @@ static int mtk_i2c_resume_noirq(struct device *dev)
- 
- 	mtk_i2c_init_hw(i2c);
- 
--	clk_bulk_disable_unprepare(I2C_MT65XX_CLK_MAX, i2c->clocks);
-+	clk_bulk_disable(I2C_MT65XX_CLK_MAX, i2c->clocks);
- 
- 	i2c_mark_adapter_resumed(&i2c->adap);
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 6fd2b6718b08..ab0adaa130da 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -557,7 +557,7 @@ static long compat_i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned lo
+ 				.addr = umsg.addr,
+ 				.flags = umsg.flags,
+ 				.len = umsg.len,
+-				.buf = compat_ptr(umsg.buf)
++				.buf = (__force __u8 *)compat_ptr(umsg.buf),
+ 			};
+ 		}
  
 -- 
 2.35.1
