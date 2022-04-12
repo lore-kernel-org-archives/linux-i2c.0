@@ -2,88 +2,92 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A9D5C433F5
-	for <linux-i2c@archiver.kernel.org>; Tue, 12 Apr 2022 10:13:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 761C1C4332F
+	for <linux-i2c@archiver.kernel.org>; Tue, 12 Apr 2022 10:13:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232141AbiDLKPY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 12 Apr 2022 06:15:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39346 "EHLO
+        id S236797AbiDLKP2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 12 Apr 2022 06:15:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351898AbiDLJmd (ORCPT
+        with ESMTP id S1352101AbiDLJmd (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Tue, 12 Apr 2022 05:42:33 -0400
-Received: from smtp1.axis.com (smtp1.axis.com [195.60.68.17])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 760465548E;
-        Tue, 12 Apr 2022 01:50:56 -0700 (PDT)
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31ABA13E98
+        for <linux-i2c@vger.kernel.org>; Tue, 12 Apr 2022 01:52:29 -0700 (PDT)
+Received: by mail-ed1-x531.google.com with SMTP id z12so8936301edl.2
+        for <linux-i2c@vger.kernel.org>; Tue, 12 Apr 2022 01:52:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=axis.com; q=dns/txt; s=axis-central1; t=1649753457;
-  x=1681289457;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=qPE0cAEK4Wc/D+HUkql/yGqGenPvs1X2rgbcrD3CHyo=;
-  b=Sc8gyDZtRU4/xVNmwqKCzXG4HyM4qvQO6BdHfl4xJbPMlYgGpx865gB1
-   O5jLQfpE9mTCtMfFGeua4vWx866foXTULMIAW//5S6QYOpD0k6woTP9Ez
-   htF8SzsIu2vwQ57lAYcDgMvIDkP1wixqhZjl4uDNjaUNhmLU0O75ljpCX
-   iK14B7ElyAO3mNzsbpjWAqZk9BVjriw0UlZFip8Nqwa70xVAfTNl7dNJe
-   /uclWPIzEGVLUHSnq1DJw0uxbXRDAb9GIqhiZGof2daliJHOfgi9yj9x9
-   8rSCewopVHGd4Nw84SJFBCRmZ4QiZ0zHQpMGE56UcAtaRKzsuy0xyrgbq
-   g==;
-From:   Vincent Whitchurch <vincent.whitchurch@axis.com>
-To:     <wsa@kernel.org>
-CC:     <kernel@axis.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <krzk+dt@kernel.org>, <robh+dt@kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2 1/2] dt-bindings: i2c: add property to avoid device detection
-Date:   Tue, 12 Apr 2022 10:50:45 +0200
-Message-ID: <20220412085046.1110127-2-vincent.whitchurch@axis.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220412085046.1110127-1-vincent.whitchurch@axis.com>
-References: <20220412085046.1110127-1-vincent.whitchurch@axis.com>
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=pB+1JohUx/AAEa/eALR+9ZzJFy4+pwowrpjWY0TEY6s=;
+        b=g8oMWg7WaTEuIIf7SFur7baOsKDy1aiy27S3Ckz9bAm+8KujIwQkIc97hAPh+AzqEG
+         mRg9Bfu3IHa23w/tuKemvpsGngozqjFtft+1gPnxeCG62HCahLmUnOYOVcAbH89MfTxY
+         7fHOBXbcyyY/XF+IKx9M8npbHXSzHuVJMCELMOUqW10ce4TIO3+YH4TGsuCvQBbxu68j
+         ZgS3euFwXmfjbjBEBQ7Zsk7g2xSHQBFsFPJA8PePYO2Fo6kyKrvP3z+Y00eOAIjZ9YGu
+         6So0c3+Qu1ou28750cgLq/BEK/grwoiv+BLMSNzX1J1Q3T9I+rNLqPLoXpJs5fSE2X5N
+         i9Rw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=pB+1JohUx/AAEa/eALR+9ZzJFy4+pwowrpjWY0TEY6s=;
+        b=F4mAn6WxRuuuY2p63grdtNwctj65VTx/H5DSS3w4N8NXVsEufXzVdzjKUnqQjSf0wt
+         v8zIPTftl2Lp9CXLkMwdXnjbXqmF9UzvbT4KvIJA+BzbZbm870D4BOrPxLk9qqbkWlXy
+         Q3umWtxFmuCMGRbu0DV1OkHIp6z/SJClFais+L/1BQHsPNReOoDcpnMYaaPCPaFvdIrh
+         W8CIDQkrCutOq8KHmNMMzZ4Kmt9PZ0+Lf+47EhDBmQVJdQNFYsROEvZdLGppuYg+Lulh
+         PF0QaSRLEE2x9KLpDajeXElIWcju6S6euF/8xmVTVqZglUkaG02Mr2MO1cVqcPGVgKsD
+         pzLw==
+X-Gm-Message-State: AOAM530h1UbYZgG8INfeym2ODHIx94CVcur9L0M04HlZ0GLvEWaP69ZS
+        WhOwhyLTpOUlXPGv99ryGlhTCg==
+X-Google-Smtp-Source: ABdhPJxFhtwpTL4eKhml6vgwWIqP+H4DWUDHQoZAIyaHwztXfad7VbrscMEEk+gBT3gfSXKH703Byw==
+X-Received: by 2002:a05:6402:42d4:b0:412:c26b:789 with SMTP id i20-20020a05640242d400b00412c26b0789mr37519085edc.232.1649753547814;
+        Tue, 12 Apr 2022 01:52:27 -0700 (PDT)
+Received: from [192.168.0.194] (xdsl-188-155-201-27.adslplus.ch. [188.155.201.27])
+        by smtp.gmail.com with ESMTPSA id p15-20020a170906228f00b006e86ff7db33sm3894546eja.68.2022.04.12.01.52.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Apr 2022 01:52:27 -0700 (PDT)
+Message-ID: <ab2252b6-a986-6f3b-0b5a-eb1cad3f28ae@linaro.org>
+Date:   Tue, 12 Apr 2022 10:52:26 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: add property to avoid device
+ detection
+Content-Language: en-US
+To:     Vincent Whitchurch <vincent.whitchurch@axis.com>, wsa@kernel.org
+Cc:     kernel@axis.com, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, krzk+dt@kernel.org, robh+dt@kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220412085046.1110127-1-vincent.whitchurch@axis.com>
+ <20220412085046.1110127-2-vincent.whitchurch@axis.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20220412085046.1110127-2-vincent.whitchurch@axis.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-When drivers with ->detect callbacks are loaded, the I2C core does a
-bunch of transactions to try to probe for these devices, regardless of
-whether they are specified in the devicetree or not.  (This only happens
-on I2C controllers whose drivers enable the I2C_CLASS* flags, but this
-is the case for generic drivers like i2c-gpio.)
+On 12/04/2022 10:50, Vincent Whitchurch wrote:
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+> index fc3dd7ec0445..960d1d5c9362 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+> @@ -72,6 +72,10 @@ wants to support one of the below features, it should adapt these bindings.
+>  	this information to adapt power management to keep the arbitration awake
+>  	all the time, for example. Can not be combined with 'single-master'.
+>  
+> +- no-detect
+> +	states that no other devices are present on this bus other than the
+> +	ones listed in the devicetree.
 
-These kinds of transactions are unnecessary on systems where the
-devicetree specifies all the devices on the I2C bus, so add a property
-to indicate that the devicetree description of the hardware is complete
-and thus allow this discovery to be disabled.
 
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
----
+Looks good to me.
 
-Notes:
-    v2:
-    - Change subject prefix
-    - Reword description of property
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
- Documentation/devicetree/bindings/i2c/i2c.txt | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-index fc3dd7ec0445..960d1d5c9362 100644
---- a/Documentation/devicetree/bindings/i2c/i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-@@ -72,6 +72,10 @@ wants to support one of the below features, it should adapt these bindings.
- 	this information to adapt power management to keep the arbitration awake
- 	all the time, for example. Can not be combined with 'single-master'.
- 
-+- no-detect
-+	states that no other devices are present on this bus other than the
-+	ones listed in the devicetree.
-+
- - pinctrl
- 	add extra pinctrl to configure SCL/SDA pins to GPIO function for bus
- 	recovery, call it "gpio" or "recovery" (deprecated) state
--- 
-2.34.1
-
+Best regards,
+Krzysztof
