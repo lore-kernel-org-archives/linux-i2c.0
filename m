@@ -2,131 +2,85 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1E38C433F5
-	for <linux-i2c@archiver.kernel.org>; Fri, 15 Apr 2022 13:37:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED17CC433EF
+	for <linux-i2c@archiver.kernel.org>; Fri, 15 Apr 2022 16:53:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354077AbiDONkO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 15 Apr 2022 09:40:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47050 "EHLO
+        id S1355861AbiDOQ4E (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 15 Apr 2022 12:56:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354093AbiDONkG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Apr 2022 09:40:06 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43199BB0B5;
-        Fri, 15 Apr 2022 06:36:15 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id g18so15379925ejc.10;
-        Fri, 15 Apr 2022 06:36:15 -0700 (PDT)
+        with ESMTP id S234466AbiDOQ4E (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Apr 2022 12:56:04 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14C259728B
+        for <linux-i2c@vger.kernel.org>; Fri, 15 Apr 2022 09:53:35 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id s25so10043615edi.13
+        for <linux-i2c@vger.kernel.org>; Fri, 15 Apr 2022 09:53:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language
-         :from:to:cc:references:in-reply-to:content-transfer-encoding;
-        bh=A4+ktht6E+aZpM5+3dwvgdmbjTzQMA5x6Q4uDTO6/dw=;
-        b=KxEg9DTb7iIdGxmQkVo9U9yeKuk9RXZw5PHHTWvONV3+EsXrNviKmOLwuzdKCgNmKB
-         8J0V1sA7b8EmcVEOpJQRtD2UokXGhRrUpgqJR0wvFzJLd/6nkB7REv0gbmr+ghGebyZc
-         dWvopDgnFilTD7DFYZdcCmQBeniYNAtA5rLJnbrGQyFCa+TMmqsTJBI3G8uDTQhZhbTW
-         55bSSVf65cR8PsAnfqYIEA/ATeV0t1JcW3+HQ9v4MD9a1V8hZ/WiOOsQTWg6QmOyVgZX
-         rOL0aJhCHDYTpG5rcLQyuaNZex97qCB7M1YzRWlCyn9L9pmXW4FJ/0o0yUF6YItywQlZ
-         orqQ==
+        h=message-id:date:mime-version:user-agent:content-language:to:cc:from
+         :subject:content-transfer-encoding;
+        bh=6LpYU4N//QjLB0vLS7ZLbmqjiPwib6o+qQNX7EGbHmQ=;
+        b=jit544Ky4NcT15BzcYq4YZAyWTAdDb9L7hXzVBAi30OwSv6YWiLiGC0hXX8kDM7g43
+         34vaW4PKID1PuDjyhahrKnF5I61K9HRtES2obvAsiffBwNaCX4NEnAtZdY4Jh++uS/+8
+         X+We46yPJso5TRwzj5ukf1wTSrsUA+q3SY3o8dg51kFe7zWe6FAaYFZ4pdT5ZRiM8iiZ
+         /QSX8jvUMQmHbZA+QeHkk8p4lFBkRCAC8TIyJXTYE8yvFX7QgCKlpwED7iwvCOut7+e+
+         jYEII9hroFaW+xky/jB3vTFBzLBADXchJ+gAeE+wyRN5ujPN/DZ72MJDn/m4/P4qlGGl
+         Ncjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:from:to:cc:references:in-reply-to
-         :content-transfer-encoding;
-        bh=A4+ktht6E+aZpM5+3dwvgdmbjTzQMA5x6Q4uDTO6/dw=;
-        b=57MigH5LOzipnsjBdPg1bEeXr3IGOdg0PhrpPyOkODxYsMISJuVnGnms7Svo4tmd4y
-         9hbdCi2kt1V6TkUHPdGcefB8KcElEHJBx9JTzsiMjAw5UlC3j49onoIP+hT/xBxri0Jx
-         TeO0lGC4bDzfYfvJRbaGGiQ5AlTP99UWnZBf1gzTITtoxtR6Tat6hgNcBeW4sftm15wQ
-         v5/ntLnoEyFCrEiLTe+nUssbCgk5h5VbbH35tZyYJYZX05pOQj4bEUzxeFM3tN6mL7mb
-         OEKgmQyCxWkECqZLNOo9EF9z76AdddwLhDMk1gvPuKDbdXhuH6aabFp4Ul9+IYbVckqX
-         sQhw==
-X-Gm-Message-State: AOAM530HFyO79ZkAwhjUMQuZF071r1p9d9AdlqhfGoO5Wn96bYjLvvgW
-        9F1QGy59wXOvnylOsTYodCNzbL30PRg=
-X-Google-Smtp-Source: ABdhPJzMwGjucRNSX+j1ngzeaTs7uxauWEXkMF3RrVSWt9xgXcKBo9tH3Yo1o4HtX5e7ubW0huu6sw==
-X-Received: by 2002:a17:907:168a:b0:6da:9177:9fdd with SMTP id hc10-20020a170907168a00b006da91779fddmr6321517ejc.757.1650029773734;
-        Fri, 15 Apr 2022 06:36:13 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:from:subject:content-transfer-encoding;
+        bh=6LpYU4N//QjLB0vLS7ZLbmqjiPwib6o+qQNX7EGbHmQ=;
+        b=CJ3BW/aJSTvE0feC3hRydh8RR8dxM8uYLh3npWEOgMsBG59s12FZLE6Yi8/HyRysAQ
+         HgYIN5My+Me6lggWWWiNyXgsRIVgj4j3Jed1kYgjVuoIrZ2qiyOIEyUKfnhflqeX3ojJ
+         /SabS6htQ3VM2Gqj+M3H1tXTPQLloipH+g+QOEIZzeTY1YkqYJ8yxLtz5eF4WOrMn8eM
+         2MdLWJnAuJDo+YpTCIk0Oex7N2CcdEwikmEPJc6yqcOJC6nNqkgRL3nxep+o6U2SxFIn
+         1xS7PfrGhSjyWwTnLw/+/rqa9J9cbRxdQPoghOyklEQ+NJ3Wz32y2d/vorb4rq34cdZP
+         g6mQ==
+X-Gm-Message-State: AOAM532XeAVS0wuxn3k1Pv74dy3c8IM47erIoVzL7gNsxbiA6U3vHdrq
+        8I8BdkBqpy9H2krxW9J9aZWD8djdSG8=
+X-Google-Smtp-Source: ABdhPJynAL5PGH05jHjrjIkpycL/iD7MP69YJQAEnFIauNHZNqN7EVKtoGByURNz6gw2JFTJ5kzXBA==
+X-Received: by 2002:aa7:db0f:0:b0:41d:7b44:2613 with SMTP id t15-20020aa7db0f000000b0041d7b442613mr163350eds.126.1650041613539;
+        Fri, 15 Apr 2022 09:53:33 -0700 (PDT)
 Received: from ?IPV6:2a01:c22:6faa:ed00:b906:e23f:946b:b9f7? (dynamic-2a01-0c22-6faa-ed00-b906-e23f-946b-b9f7.c22.pool.telefonica.de. [2a01:c22:6faa:ed00:b906:e23f:946b:b9f7])
-        by smtp.googlemail.com with ESMTPSA id f5-20020a17090624c500b006cee6661b6esm1728070ejb.10.2022.04.15.06.36.12
+        by smtp.googlemail.com with ESMTPSA id el14-20020a056402360e00b0042121aee887sm2373587edb.77.2022.04.15.09.53.32
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Apr 2022 06:36:12 -0700 (PDT)
-Message-ID: <15e6fe6d-1ec4-09c0-a804-fb2760d1d033@gmail.com>
-Date:   Fri, 15 Apr 2022 15:33:33 +0200
+        Fri, 15 Apr 2022 09:53:32 -0700 (PDT)
+Message-ID: <4125f9ce-ce5f-fbcf-7d6f-9bc586ac43e0@gmail.com>
+Date:   Fri, 15 Apr 2022 18:53:04 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.0
-Subject: [PATCH 2/3] i2c: algo: bit: allow getsda to be NULL
 Content-Language: en-US
+To:     Jean Delvare <jdelvare@suse.com>
+Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 From:   Heiner Kallweit <hkallweit1@gmail.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-References: <bc229e73-52aa-9f5d-c6fd-e84b64a589ba@gmail.com>
-In-Reply-To: <bc229e73-52aa-9f5d-c6fd-e84b64a589ba@gmail.com>
+Subject: [PATCH 0/8] i2c: i801: Series with minor improvements
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This is in preparation of supporting write-only SDA in i2c-gpio.
+This series includes a number of minor improvements, partially it's
+a re-send of patches submitted in December last year already.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
- drivers/i2c/algos/i2c-algo-bit.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+Heiner Kallweit (8):
+  i2c: i801: improve interrupt handler
+  i2c: i801: make FEATURE_HOST_NOTIFY dependent on FEATURE_IRQ
+  i2c: i801: make FEATURE_BLOCK_PROC dependent on FEATURE_BLOCK_BUFFER
+  i2c: i801: enable FEATURE_IRQ and FEATURE_I2C_BLOCK_READ on all chip
+    versions
+  i2c: i801: add helper i801_set_hstadd
+  i2c: i801: add i801_single_transaction(), complementing
+    i801_block_transaction()
+  i2c: i801: call i801_check_pre() from i801_access()
+  i2c: i801: call i801_check_post() from i801_access()
 
-diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
-index fc90293af..ab5a73e90 100644
---- a/drivers/i2c/algos/i2c-algo-bit.c
-+++ b/drivers/i2c/algos/i2c-algo-bit.c
-@@ -184,8 +184,9 @@ static int i2c_outb(struct i2c_adapter *i2c_adap, unsigned char c)
- 
- 	/* read ack: SDA should be pulled down by slave, or it may
- 	 * NAK (usually to report problems with the data we wrote).
-+	 * Report ACK if SDA is write-only.
- 	 */
--	ack = !getsda(adap);    /* ack: sda is pulled low -> success */
-+	ack = !adap->getsda || !getsda(adap);    /* ack: sda is pulled low -> success */
- 	bit_dbg(2, &i2c_adap->dev, "i2c_outb: 0x%02x %s\n", (int)c,
- 		ack ? "A" : "NA");
- 
-@@ -203,6 +204,9 @@ static int i2c_inb(struct i2c_adapter *i2c_adap)
- 	unsigned char indata = 0;
- 	struct i2c_algo_bit_data *adap = i2c_adap->algo_data;
- 
-+	if (!adap->getsda)
-+		return -EOPNOTSUPP;
-+
- 	/* assert: scl is low */
- 	sdahi(adap);
- 	for (i = 0; i < 8; i++) {
-@@ -232,6 +236,10 @@ static int test_bus(struct i2c_adapter *i2c_adap)
- 	const char *name = i2c_adap->name;
- 	int scl, sda, ret;
- 
-+	/* Testing not possible if both pins are write-only. */
-+	if (adap->getscl == NULL && adap->getsda == NULL)
-+		return 0;
-+
- 	if (adap->pre_xfer) {
- 		ret = adap->pre_xfer(i2c_adap);
- 		if (ret < 0)
-@@ -670,8 +678,10 @@ static int __i2c_bit_add_bus(struct i2c_adapter *adap,
- 	if (ret < 0)
- 		return ret;
- 
--	/* Complain if SCL can't be read */
--	if (bit_adap->getscl == NULL) {
-+	if (bit_adap->getscl == NULL && bit_adap->getsda == NULL)
-+		dev_info(&adap->dev, "I2C-like interface, SDA and SCL are write-only\n");
-+	else if (bit_adap->getscl == NULL) {
-+		/* Complain if SCL can't be read */
- 		dev_warn(&adap->dev, "Not I2C compliant: can't read SCL\n");
- 		dev_warn(&adap->dev, "Bus may be unreliable\n");
- 	}
+ drivers/i2c/busses/i2c-i801.c | 339 ++++++++++++++++++----------------
+ 1 file changed, 175 insertions(+), 164 deletions(-)
+
 -- 
 2.35.3
-
 
