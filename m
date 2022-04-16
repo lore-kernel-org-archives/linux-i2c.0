@@ -2,103 +2,75 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B167AC433F5
-	for <linux-i2c@archiver.kernel.org>; Fri, 15 Apr 2022 21:45:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E262C433F5
+	for <linux-i2c@archiver.kernel.org>; Sat, 16 Apr 2022 15:16:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355512AbiDOVr5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 15 Apr 2022 17:47:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57548 "EHLO
+        id S231328AbiDPPTM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 16 Apr 2022 11:19:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231153AbiDOVr5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Apr 2022 17:47:57 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B4CFD3D;
-        Fri, 15 Apr 2022 14:45:27 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 16B97CE3148;
-        Fri, 15 Apr 2022 21:45:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AA9DC385A4;
-        Fri, 15 Apr 2022 21:45:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650059124;
-        bh=V5KT44zPHxdCxuNBGuMKnFW9ZbwhdDrnA6iBRSGQ7vQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DS7sMqDhP6BN4P+4XoZIfUGbu/o3sR3fZ+6iL0ZMl+Im6dYDzvRdBGCiiuO9RNylS
-         +eLZYgVvsuSpgPob6xXc+N0gQrD9YuIzUpWd56w9kCU9ojhPBWdFzHUFDTCrZEmTxx
-         BtqW1viPUPx8drlUAJGe5Y0w/gtzk/rTpD2zzT7aX/7i/MEsjNq68GDhHIbTVnZOMk
-         VYEf6Ii9ejLP4+K8Soth9DGY8Zvdee3vVmWL6zkmRLV5Fzr3lppRo/cjdIxdzu8NVW
-         +yxWQWqG0ipsAt5Qil34ObZLuEfJr426IZwaCCrZy8+ctQYMJCY7SrPYmBFE2BTnHh
-         EHREuVLdHy/ag==
-Date:   Fri, 15 Apr 2022 23:45:20 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Lucas Tanure <tanure@linux.com>
-Cc:     Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] i2c: meson: Use 50% duty cycle for I2C clock
-Message-ID: <YlnncKoQwr8iW9Ji@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Lucas Tanure <tanure@linux.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20220409164334.157664-1-tanure@linux.com>
- <20220409164334.157664-3-tanure@linux.com>
+        with ESMTP id S232406AbiDPPTG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 16 Apr 2022 11:19:06 -0400
+X-Greylist: delayed 341 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 16 Apr 2022 08:16:33 PDT
+Received: from eu-shark1.inbox.eu (eu-shark1.inbox.eu [195.216.236.81])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1725FDB9
+        for <linux-i2c@vger.kernel.org>; Sat, 16 Apr 2022 08:16:32 -0700 (PDT)
+Received: from eu-shark1.inbox.eu (localhost [127.0.0.1])
+        by eu-shark1-out.inbox.eu (Postfix) with ESMTP id 35DD06C006BD;
+        Sat, 16 Apr 2022 18:10:48 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mail.ee; s=20150108;
+        t=1650121848; x=1650123648;
+        bh=KK9C41l79QaB3TJiC3RV4T0lUXme7J8u5KVG2q+8QHw=;
+        h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+         Content-Type:X-ESPOL:From:Date:To:Cc:Message-ID:Subject:Reply-To;
+        b=xTU201XbBCuHBaMi53sGK3esB55DOtLIPvaHFo22pPPWz2qZSznD+rEVYMWNc+b7L
+         Q83hIyigv8kkN4aQ9KGne/eiHNvXE9L3d61rQzI1fMrnCe3fWim4FU30ceXatdCK1h
+         Plm6r52aJ7zINqDq7DfUPiYQoYqNMLmP8vn4HtQ0=
+Received: from localhost (localhost [127.0.0.1])
+        by eu-shark1-in.inbox.eu (Postfix) with ESMTP id 254D86C006BE;
+        Sat, 16 Apr 2022 18:10:48 +0300 (EEST)
+Received: from eu-shark1.inbox.eu ([127.0.0.1])
+        by localhost (eu-shark1.inbox.eu [127.0.0.1]) (spamfilter, port 35)
+        with ESMTP id DgtGkDb-qW45; Sat, 16 Apr 2022 18:10:48 +0300 (EEST)
+Received: from mail.inbox.eu (eu-pop1 [127.0.0.1])
+        by eu-shark1-in.inbox.eu (Postfix) with ESMTP id E05746C006BD;
+        Sat, 16 Apr 2022 18:10:47 +0300 (EEST)
+Date:   Sat, 16 Apr 2022 18:10:41 +0300
+From:   Boris Lysov <arzamas-16@mail.ee>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, qii.wang@mediatek.com
+Subject: Re: [PATCH 0/2] i2c: mediatek: remove mt6577 support
+Message-ID: <20220416181041.31ec5f65@pc>
+In-Reply-To: <YjRodtoWRhlNUg14@shikoro>
+References: <20220120185853.24266-1-arzamas-16@mail.ee>
+        <Yh45nDwqnLInrzzE@ninjato>
+        <YjRodtoWRhlNUg14@shikoro>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="f8SdR9ouA5qGgT1k"
-Content-Disposition: inline
-In-Reply-To: <20220409164334.157664-3-tanure@linux.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: OK
+X-ESPOL: 885mlYNLBD+si0CgRH7ABAc3s1k3Ua26u/vYoxBcgBmOPC+Bd04PWBSzmW9qPg+1ykoX
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Fri, 18 Mar 2022 12:09:42 +0100
+Wolfram Sang <wsa@kernel.org> wrote:
 
---f8SdR9ouA5qGgT1k
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Tue, Mar 01, 2022 at 04:19:56PM +0100, Wolfram Sang wrote:
+> > On Thu, Jan 20, 2022 at 09:58:51PM +0300, Boris Lysov wrote:
+> > > This small patch series removes mt6577 support from the i2c-mt65xx driver
+> > > and devicectree binding documentation.
+> > > 
+> > > The existing i2c-mt65xx driver relies on DMA since it was first
+> > > introduced. mt6577 does not support DMA [1] for I2C and SoC's Generic DMA
+> > > engine cannot be used for this purpose, too, which makes this particular
+> > > driver incompatible with mt6577 and other similar SoCs with same I2C IP.
+> > 
+> > Qii Wang, what do you think about this series?
+> 
+> This series makes sense to me. If you do not disagree, Qii Wang, I will
+> apply it soon. All the best, everyone.
 
-On Sat, Apr 09, 2022 at 05:43:34PM +0100, Lucas Tanure wrote:
-> The duty cycle of 33% is less than the required
-> by the I2C specs for the LOW period of the SCL
-> clock.
->=20
-> Move the duty cyle to 50% for 100Khz or lower
-> clocks, and (40% High SCL / 60% Low SCL) duty
-> cycle for clocks above 100Khz.
->=20
-> Signed-off-by: Lucas Tanure <tanure@linux.com>
-
-Applied to for-next, thanks!
-
-
---f8SdR9ouA5qGgT1k
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmJZ53AACgkQFA3kzBSg
-KbYB8w//TfKL6kiAHSRUAnceU4+7jlUM7PgdROR9z3QJ0PWVi+1QMa1Hf8MoPJk9
-UeU2k0S9tqR8Ax6NvO9mGaWcMv5sU9pw8q3tOuz2YEyQm4AEpS/duZAU36ZW7enx
-cnoeYaRMZe5S5tmfrselpZGOfO6UbYWUyZdolfT6CV0rTu0ntRtwKPpsd0QtuzqL
-cOO8qJiIThFlg6dApp7TfWSkzBwu2MjuvaafK3TsGOy5x5r8IrHGss40S4w+Ztm4
-f/iOUSLBTn72UBK/qCInPAii3mzESaY2IF73WLjTm+WLP1uEVIBab5/3QRDn3GHL
-k7dekQirjv2DQ/g8uDODRls/xQ1jNQtGhZR1hj9mb21EjWCl7HjOCJYgCu9eO8LO
-/wQLBGRc2YYlk/msXKVjLHjkZ3dvpXd3xMQVT6z9YDT4EUjI+Ev7B5jYVCZAqoDs
-voAtULPzZlE542xXnoz7RQestfpyteDuTpon+bFGALWkKd21jpx3SqalPbgMiLfK
-yxi8P9FPU5noCd8vjzjcqla9sAQDDL/YbHoIArst/9hrc4bEBGlLfKuJfnmbsLwN
-bUkK32ZiekTg1r1ob05AaLQkinDRNb+vtIzgUdKFDGzzVXzKgeX/Jlxf+wUI7mkh
-+LKs98hoaOsAcUhYI6Xxbhl7vloO1edXZLkS9y1zOWqzfRZ64Xw=
-=gtuO
------END PGP SIGNATURE-----
-
---f8SdR9ouA5qGgT1k--
+Hello! I'm kindly pinging you on this series. Has it been applied?
