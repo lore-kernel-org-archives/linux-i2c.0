@@ -2,142 +2,103 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F33BC433FE
-	for <linux-i2c@archiver.kernel.org>; Sun, 17 Apr 2022 03:01:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56507C433F5
+	for <linux-i2c@archiver.kernel.org>; Sun, 17 Apr 2022 09:09:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233387AbiDQDDz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 16 Apr 2022 23:03:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48836 "EHLO
+        id S233771AbiDQJM3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 17 Apr 2022 05:12:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233373AbiDQDDn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 16 Apr 2022 23:03:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B66A8222A2;
-        Sat, 16 Apr 2022 20:01:08 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB62FB80835;
-        Sun, 17 Apr 2022 03:01:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB9DEC385A1;
-        Sun, 17 Apr 2022 03:01:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650164465;
-        bh=lUFkJLDBY6NZ/dlERmsGK/M1rsZz04lLDTPMRsMyWsc=;
-        h=Date:From:To:Cc:Subject:From;
-        b=WoCQ7IoBa8yT0C13PQp3NBcP/9GQAt9xpZX5RPB8GJHMSmXgjCFhKttxf3ESdd/v2
-         pQwvb8dCuPjBaqvtz+3PLxW2CktBvOeOqGu8rp0O0rI/0qTC7niCdkKQwieWkGiuNu
-         uBbel5pkRISyVV4b56dFQ/ye51RC7yl+r7nuKDwPSqrfhuKuRtlBGAY/ICcNZsakpY
-         1pgdY+olO14wN9Ubj/Qjs0IHA3H8jQhf0cXzKzPTtTdVSzxTlnY74rX4VdbmsSzcXM
-         aL8lTKWH+ePVwjILzbj/NMcKYJn/P9AgBs1E1+VjW8B2D0UI30eH8wJS2/CfAiSSMP
-         QKPHVZ+nJ3jCg==
-Date:   Sun, 17 Apr 2022 05:01:02 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Rosin <peda@axentia.se>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PULL REQUEST] i2c for v5.18
-Message-ID: <YluC7rAj5syHOYWi@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+        with ESMTP id S233750AbiDQJM1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Apr 2022 05:12:27 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C8FD140C8
+        for <linux-i2c@vger.kernel.org>; Sun, 17 Apr 2022 02:09:52 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id t25so14560176edt.9
+        for <linux-i2c@vger.kernel.org>; Sun, 17 Apr 2022 02:09:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :references:from:in-reply-to:content-transfer-encoding;
+        bh=GiPK6NF7dA83/ZSlJ194lqXCRBkv0Amy9M4fkRNGgTQ=;
+        b=KK9reSaYWMJkb2LTAcRu4vnFrWuMGSD5uZkIQOaEn8Dgr/cikkKCse0sxICtqJJo3v
+         3fREWJM+QjRtZjoCw9OHRhcMDoUYIEhZO3M4Pudcq3FDzPhUEVNdUy2RM/M/LWjXitKc
+         upd+hwELrFPG9BfJnWvch5KEi6BWi2bheu3Qkb4x9Eq3efeLND1Ix3gt1GuY0zjyMz1x
+         /EZcKY2zulqHCUccb/SHM5mViwBudOep0EiC4woamZTK9o0hoLrfPhCQtYjD5/FPu/kv
+         MbipPhRpsuMxIz+KUqSqQxqEtyErCBJ53bGUBVl3sh36++NBmtYUggR+rPf6+L7tHQqG
+         soLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=GiPK6NF7dA83/ZSlJ194lqXCRBkv0Amy9M4fkRNGgTQ=;
+        b=ND9jUDZB69kjSN0N3I470pk1vuLo2iEa8RxnNfNSeog8xT27yKNgn8h8Q6OiBl49An
+         erPzqG/4G04RV84QmB8C7Tpz4w6qLjK3elfkwdW54mVXPFNUU1zFUXHbebPCvoo7djQn
+         zaZtoYrXhPu4QNWPUmBKm1P4FV3Rq+1cVD+igwlwAazpOExw7YTa8U5tKV5baTbRk7Lg
+         UnkFwaCjiUHcLkG/QjRmpO5YrBCumsEWM28U2jMHAk6Btt6v6lkt5ZquRNjWUTj243j3
+         T7xcebjwYYYNyYCTuuhCfpk5AIdV5iSGie9E6x6ypYsVCR5oN+kwLUfPx0F4A6sx7Z3l
+         jKPQ==
+X-Gm-Message-State: AOAM531zNFyh8Km7Ev+IP299SWsoJXTBoq44x5VSWewZ0niWUiBxz+Bn
+        gqHbES30xE58w0TRyZEfYJk=
+X-Google-Smtp-Source: ABdhPJz+4gwwvieJlAKdiyeJO2Ifconzfizf5JA++SGAb7FCwB87ruChvTjQpSFRhRm8iOAWBfA+9A==
+X-Received: by 2002:a05:6402:4499:b0:41d:7e83:8565 with SMTP id er25-20020a056402449900b0041d7e838565mr7158005edb.332.1650186591066;
+        Sun, 17 Apr 2022 02:09:51 -0700 (PDT)
+Received: from ?IPV6:2a01:c23:c4c8:500:7d1f:a75a:cedd:d1a2? (dynamic-2a01-0c23-c4c8-0500-7d1f-a75a-cedd-d1a2.c23.pool.telefonica.de. [2a01:c23:c4c8:500:7d1f:a75a:cedd:d1a2])
+        by smtp.googlemail.com with ESMTPSA id jw12-20020a17090776ac00b006e87137194esm3354417ejc.150.2022.04.17.02.09.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 17 Apr 2022 02:09:50 -0700 (PDT)
+Message-ID: <16a7db3c-6caa-6738-e5d8-aab665912542@gmail.com>
+Date:   Sun, 17 Apr 2022 11:09:44 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="K1b8b/K9oM98zgqc"
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: i801: I2C block read should be usable also on
+ ICH/ICH0/ICH2/ICH3/ICH4
+Content-Language: en-US
+To:     Wolfram Sang <wsa@kernel.org>, Jean Delvare <jdelvare@suse.com>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+References: <b4cb50db-7226-282f-e04a-02fbe0b605a0@gmail.com>
+ <Ylt7FU/3TTvvcNx7@shikoro>
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+In-Reply-To: <Ylt7FU/3TTvvcNx7@shikoro>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-
---K1b8b/K9oM98zgqc
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Linus,
-
-I2C has a quite regular set of fixes for drivers and the dev-interface.
-
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit ce522ba9ef7e2d9fb22a39eb3371c0c64e2a433e:
-
-  Linux 5.18-rc2 (2022-04-10 14:21:36 -1000)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-curre=
-nt
-
-for you to fetch changes up to e35c93695c742b88f5fe32063674551440c63d08:
-
-  i2c: ismt: Fix undefined behavior due to shift overflowing the constant (=
-2022-04-15 23:49:02 +0200)
-
-----------------------------------------------------------------
-Andy Shevchenko (2):
-      i2c: dev: check return value when calling dev_set_name()
-      i2c: dev: Force case user pointers in compat_i2cdev_ioctl()
-
-Bjorn Andersson (1):
-      i2c: qcom-geni: Use dev_err_probe() for GPI DMA error
-
-Borislav Petkov (1):
-      i2c: ismt: Fix undefined behavior due to shift overflowing the consta=
-nt
-
-Marek Vasut (1):
-      i2c: imx: Implement errata ERR007805 or e7805 bus frequency limit
-
-Martin Povi=C5=A1er (1):
-      i2c: pasemi: Wait for write xfers to finish
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Seth Heasley (1):
-      (Rev.) i2c: ismt: Fix undefined behavior due to shift overflowing the=
- constant
-
-Sven Peter (1):
-      (Rev.) i2c: pasemi: Wait for write xfers to finish
-
-Vinod Koul (1):
-      (Rev.) i2c: qcom-geni: Use dev_err_probe() for GPI DMA error
-
- drivers/i2c/busses/i2c-imx.c         | 33 +++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-ismt.c        |  4 ++--
- drivers/i2c/busses/i2c-pasemi-core.c |  6 ++++++
- drivers/i2c/busses/i2c-qcom-geni.c   |  6 ++----
- drivers/i2c/i2c-dev.c                | 17 +++++++++++------
- 5 files changed, 54 insertions(+), 12 deletions(-)
-
---K1b8b/K9oM98zgqc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmJbgukACgkQFA3kzBSg
-KbZbqhAArzYscKt3nDsd5QT1v+szQtV9azuSIK1drUDpAf7A51PduRbik6HQjHhQ
-CcmLRZwyORMJzoIUoxq47FaZSgW0rPbb0h5yIlpre3amiBAx55gtCasTwV9WTBNS
-Scrn7cQixr8CKlSOyuCcrRTC5s0uQwGrzxuKZfNrIexhnhppJy0h4W2zhjS1GnES
-VB9AIvAQlCgNq5Bjg/GgF7CbsFSD1OU0ieGW/kVl0ygjpj6/tdq0bNqT8udPYPX6
-8vd86qL1OicyQQvNkTwM5rysbP10qeLyU6Fv4123HKFbcKFfxEpDLs3z2PHWjdY8
-ib+uHsNakYzeAq10QXLIR0cO7tqdWF1nNdaAJTJPJgyQvmtRvARygTYJuvkr+QA0
-Gi6Pyb2PZvkI+mcPhHqAeKsU/OwYDZm3IPSh72QwPla9Abahn1SlwIMrvXq7rWmh
-WbQBDfpvsEJYcveLs47CbHA91dwBdJPmtgxKKLLwGb4scxly2Uj2DXYdxaNmtXLj
-aGRlutTmE52qYTEUP2psziTjEYoRjKR4Re7+oGUm5wDRG9rJFQIDVZ5pqnvsKjDM
-dOfAUqCin8VKcPNliuep6v8fgd0dY8yPx1C5kZAoeXn0TjORaPLHcwnSWL/yVJ81
-2PVlg5a0OtD/JiClGmbZvpjp3BxdsW107YRFxeujocgo7eE99W4=
-=Zqhk
------END PGP SIGNATURE-----
-
---K1b8b/K9oM98zgqc--
+On 17.04.2022 04:27, Wolfram Sang wrote:
+> On Mon, Dec 06, 2021 at 10:18:49PM +0100, Heiner Kallweit wrote:
+>> Currently we use the following feature definitions. However, according to
+>> the respective datasheets, also ICH/ICH0/ICH2/ICH3/ICH4 support I2C block
+>> read. The implementation we have should work also on these chip versions.
+>>
+>> The commit message of 6342064cad7a ("i2c-i801: Implement I2C block read
+>> support") states that i2c block read is supported from ICH5 only.
+>> This doesn't seem to be true. Or is this feature broken on older chip
+>> versions? 
+>>
+>> To me it seems we could remove FEATURE_I2C_BLOCK_READ because all chip
+>> versions support this feature. Below is an experimental patch, for the
+>> ones with test hw. A test case could be to use decode-dimms that
+>> uses i2c block read to read the EEPROM content.
+>>
+>> * Supports the following Intel I/O Controller Hubs (ICH):
+>>  *
+>>  *					I/O			Block	I2C
+>>  *					region	SMBus	Block	proc.	block
+>>  * Chip name			PCI ID	size	PEC	buffer	call	read
+>>  * ---------------------------------------------------------------------------
+>>  * 82801AA (ICH)		0x2413	16	no	no	no	no
+>>  * 82801AB (ICH0)		0x2423	16	no	no	no	no
+>>  * 82801BA (ICH2)		0x2443	16	no	no	no	no
+>>  * 82801CA (ICH3)		0x2483	32	soft	no	no	no
+>>  * 82801DB (ICH4)		0x24c3	32	hard	yes	no	no
+>>  * 82801E (ICH5)		0x24d3	32	hard	yes	yes	yes
+> 
+> Any reason you skipped this patch in your latest series?
+> 
+Supporting I2C block read on all chip versions is part of patch 4 in the
+series. I didn't remove feature flag FEATURE_I2C_BLOCK_READ yet to give users
+the chance to disable the feature via module parameter in case of problems.
