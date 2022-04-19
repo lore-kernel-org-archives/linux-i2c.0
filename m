@@ -2,148 +2,75 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1D3CC433FE
-	for <linux-i2c@archiver.kernel.org>; Tue, 19 Apr 2022 12:46:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00A1CC433EF
+	for <linux-i2c@archiver.kernel.org>; Tue, 19 Apr 2022 22:52:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352397AbiDSMs4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 19 Apr 2022 08:48:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40320 "EHLO
+        id S1354414AbiDSWzV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 19 Apr 2022 18:55:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350314AbiDSMsz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Apr 2022 08:48:55 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09AC736328;
-        Tue, 19 Apr 2022 05:46:11 -0700 (PDT)
-Received: from pendragon.ideasonboard.com (85-76-11-253-nat.elisa-mobile.fi [85.76.11.253])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 0EC4A25B;
-        Tue, 19 Apr 2022 14:46:08 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1650372369;
-        bh=O+gH+rTCR/vvHYsgAZ5AlKxyNWOnO0lDWJVxpTLeLQ0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OBZ77c4rUjk70vfBC5jVk7sWJnpcXHOBzlSOp07F+yaM9+gKNo4PI/TNnGOAPXRO9
-         6KY/E2ufhUe6u+rSOAkGAEboHosSqwECgNS1pUwyZ7JUjRk63L7KiRv1nWSPoQwLGC
-         yqLwdgRv3/kLkb65l5+2lrEE+Dn1WF/bZM+U0mA0=
-Date:   Tue, 19 Apr 2022 15:46:07 +0300
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Patrick Rudolph <patrick.rudolph@9elements.com>
-Cc:     Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [v8 1/3] dt-bindings: i2c: Add Maxim MAX735x/MAX736x variants
-Message-ID: <Yl6vD1tu1U24AuFB@pendragon.ideasonboard.com>
-References: <20220419124025.1733230-1-patrick.rudolph@9elements.com>
- <20220419124025.1733230-2-patrick.rudolph@9elements.com>
+        with ESMTP id S231476AbiDSWzU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Apr 2022 18:55:20 -0400
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD11C289A1
+        for <linux-i2c@vger.kernel.org>; Tue, 19 Apr 2022 15:52:36 -0700 (PDT)
+Received: by mail-yb1-xb34.google.com with SMTP id t67so33759172ybi.2
+        for <linux-i2c@vger.kernel.org>; Tue, 19 Apr 2022 15:52:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=dGxEPoSmeIiVN+kWljOoFUiaxfdNkmXv2+VPeoexn/w=;
+        b=tLO1vkuyKGUcdIGMRyqZPIO+6Fs0Rt8QeQ7ExLtvOHs5wEaTl37TJYbK6zmfS/YBKn
+         6LNlNNePHFM3X5wx0v0ciGBBVCNE07I6dL5tVEn4c0Xzu1jeUTlHhvtrwPamCBgt6YEz
+         0zgKS84hV+mFniAnhe1MDszKaKbVUPBG0Zjw6dOiZiguUA0gXQOC2YOsMKTIT3zLhRo+
+         4tTbEWC13mFVP1rIfPX7ZZtYaUSn0Nd9pKF7lZvMVD3EnI+OthLQIdy74bqzDzjuRQyb
+         UGvxnDETSUCE9S1Or5u6RhuIokP3lEE3EyYF2uSil640/kBW7m1s87/G/7lvNIykBSyq
+         0tIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=dGxEPoSmeIiVN+kWljOoFUiaxfdNkmXv2+VPeoexn/w=;
+        b=RtVHKMNDC1330YkqbSV28DB1dZBl11Yu+VF5KZ3RLJLPr4QzHOvPCoxbvVZLq8D149
+         SR7intV9PBXyOhlnVT5lP7bU4kl1ekTnOk1HP4DK2cP17EcYkG1kEhosrjkmyUxzNry4
+         14D8HzJ//DU5eJl+ZB9oRc99SViOiNMRYo+b0cHcDiC7RHgT385BJvmC68qN1xuUGZHx
+         gdhfU9FFHwRKRnhbzPpJbww/hatGWtBDrIWtbM8OvU6NSQfSTEYtHxwulmXUmoZiBHbr
+         y7tsz/OXimdxN56Ib26xXnP9hSXbxBrlnqc3YV1QLR3L4pF3SL2oExl/XM1MxdMQ/CgP
+         OatQ==
+X-Gm-Message-State: AOAM533i7XIzmS8vjheFkUyKsx899WSyMEDT5fCUGucqO2PgNfaaFl1/
+        rfDp6OtdDqfMDi20k1gW6j8flYELpOOY3zO7Zs4aSg==
+X-Google-Smtp-Source: ABdhPJyJrXEZ2TUGlRwB5uW/Zc+cwpXk4Rq+ww8H648TL0zPn9ZcG1qzvHfQBTBZn7txEdFekcEnbQbza7oUOPpNlPs=
+X-Received: by 2002:a25:a12a:0:b0:644:e94e:5844 with SMTP id
+ z39-20020a25a12a000000b00644e94e5844mr12696268ybh.492.1650408756081; Tue, 19
+ Apr 2022 15:52:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220419124025.1733230-2-patrick.rudolph@9elements.com>
+References: <20220401023306.79532-1-frank@zago.net> <20220401023306.79532-3-frank@zago.net>
+In-Reply-To: <20220401023306.79532-3-frank@zago.net>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Wed, 20 Apr 2022 00:52:24 +0200
+Message-ID: <CACRpkdZFQtPkWWNFZEDVKtoGYEL9+g5iEZVozWxuQmVpx4+8Ag@mail.gmail.com>
+Subject: Re: [PATCH v5 2/3] gpio: ch341: add GPIO MFD cell driver for the CH341
+To:     frank@zago.net
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Wolfram Sang <wsa@kernel.org>, Johan Hovold <johan@kernel.org>,
+        linux-usb@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Patrick,
+On Fri, Apr 1, 2022 at 4:33 AM frank zago <frank@zago.net> wrote:
 
-Thank you for the patch.
+> The GPIO interface offers 16 GPIOs. 6 are read/write, and 10 are
+> read-only.
+>
+> Signed-off-by: frank zago <frank@zago.net>
 
-On Tue, Apr 19, 2022 at 02:40:22PM +0200, Patrick Rudolph wrote:
-> Update the pca954x bindings to add support for the Maxim MAX735x/MAX736x
-> chips. The functionality will be provided by the exisintg pca954x driver.
-> 
-> While on it make the interrupts support conditionally as not all of the
-> existing chips have interrupts.
-> 
-> For chips that are powered off by default add an optional regulator
-> called vdd-supply.
-> 
-> Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
-
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-
-> ---
->  .../bindings/i2c/i2c-mux-pca954x.yaml         | 39 ++++++++++++++++---
->  1 file changed, 34 insertions(+), 5 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-> index 9f1726d0356b..21ab286c74f2 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-> @@ -4,21 +4,25 @@
->  $id: http://devicetree.org/schemas/i2c/i2c-mux-pca954x.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: NXP PCA954x I2C bus switch
-> +title: NXP PCA954x I2C and compatible bus switches
->  
->  maintainers:
->    - Laurent Pinchart <laurent.pinchart@ideasonboard.com>
->  
->  description:
-> -  The binding supports NXP PCA954x and PCA984x I2C mux/switch devices.
-> -
-> -allOf:
-> -  - $ref: /schemas/i2c/i2c-mux.yaml#
-> +  The binding supports NXP PCA954x and PCA984x I2C mux/switch devices,
-> +  and the Maxim MAX735x and MAX736x I2C mux/switch devices.
->  
->  properties:
->    compatible:
->      oneOf:
->        - enum:
-> +          - maxim,max7356
-> +          - maxim,max7357
-> +          - maxim,max7358
-> +          - maxim,max7367
-> +          - maxim,max7368
-> +          - maxim,max7369
->            - nxp,pca9540
->            - nxp,pca9542
->            - nxp,pca9543
-> @@ -59,10 +63,33 @@ properties:
->      description: if present, overrides i2c-mux-idle-disconnect
->      $ref: /schemas/mux/mux-controller.yaml#/properties/idle-state
->  
-> +  vdd-supply:
-> +    description: A voltage regulator supplying power to the chip.
-> +
->  required:
->    - compatible
->    - reg
->  
-> +allOf:
-> +  - $ref: /schemas/i2c/i2c-mux.yaml#
-> +  - if:
-> +      not:
-> +        properties:
-> +          compatible:
-> +            contains:
-> +              enum:
-> +                - maxim,max7367
-> +                - maxim,max7369
-> +                - nxp,pca9542
-> +                - nxp,pca9543
-> +                - nxp,pca9544
-> +                - nxp,pca9545
-> +      then:
-> +        properties:
-> +          interrupts: false
-> +          "#interrupt-cells": false
-> +          interrupt-controller: false
-> +
->  unevaluatedProperties: false
->  
->  examples:
-> @@ -79,6 +106,8 @@ examples:
->              #size-cells = <0>;
->              reg = <0x74>;
->  
-> +            vdd-supply = <&p3v3>;
-> +
->              interrupt-parent = <&ipic>;
->              interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
->              interrupt-controller;
-
--- 
-Regards,
-
-Laurent Pinchart
+Looks good to me:
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Yours,
+Linus Walleij
