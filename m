@@ -2,187 +2,101 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0EDAC433F5
-	for <linux-i2c@archiver.kernel.org>; Thu, 21 Apr 2022 08:52:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98E5DC433F5
+	for <linux-i2c@archiver.kernel.org>; Thu, 21 Apr 2022 10:04:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243092AbiDUIyu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 21 Apr 2022 04:54:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36000 "EHLO
+        id S1388095AbiDUKHq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 21 Apr 2022 06:07:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386992AbiDUIyo (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Apr 2022 04:54:44 -0400
-Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam08on2041.outbound.protection.outlook.com [40.107.102.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7701EAE8
-        for <linux-i2c@vger.kernel.org>; Thu, 21 Apr 2022 01:51:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=k6kXG4aWMW8aPhLe5nT/4WohvT4Bwzt+wgXb2I1t+kpd4oyKwgpGIEg6uN0wubdkH+qFbVxkAouXyOcdWABC453RxAftRk0zQ+mIgKjCQkA9chTbnX3wAcdkZSvAHluRWHr2ED/Y3nv7HKGzIjfASDDOHQwW0VbYV7mpf7KbcIawRIKvNyNR4ZufDjIvQh+5EzDHUYpxYFcRPv/gSiY12mKu1a9UrYDkSCUC57INAUE5gGn2fHqgD8sLSgt5/f8JGge8f38UmgY/7v0UpBEiXDWG5viJxoQej77DIdAUpg84HDozWUO+l6KAi5XXmm+yP2uzuf53sl8buQ9Q0d72aQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jPwnyOYNLQZIxqve7JKDYTjWDqB5THt3g9ILciIpGHU=;
- b=GShrVgqy/632a8Xag1dL0RrAB2HqeqfjR019G/zp8HgJiWIG6wZdDT3dSyeq2N8rA5JZsiB89SB7xoEdtR+wROk8SJiRz6WnL7thdyOb43BhiSVRBkYAKzYuB7HinNHqmAqCuK3BeoMhgLUeGvBkk2kfSfpmyR5zUB2hsZpCA/cjMrZ687hncjAF2/BCXLiRSKX3HdlZQYYFVvtVfCSZWg2uSSKauIoW162jCdODK8N9EnJDMlhyZ1f6534lYH9GOg9r0GK7/oCBb0+1Erp7cPgIdrClDraAx/0DNypYLUBJ2VetRCSKiN1uW9a9NnasF0wEnK2g5Rl5m0mE/t+n9A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 149.199.62.198) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=xilinx.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=xilinx.com;
- dkim=none (message not signed); arc=none
+        with ESMTP id S1388097AbiDUKHo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Apr 2022 06:07:44 -0400
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74492111E
+        for <linux-i2c@vger.kernel.org>; Thu, 21 Apr 2022 03:04:54 -0700 (PDT)
+Received: by mail-wr1-x42e.google.com with SMTP id b19so5898397wrh.11
+        for <linux-i2c@vger.kernel.org>; Thu, 21 Apr 2022 03:04:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jPwnyOYNLQZIxqve7JKDYTjWDqB5THt3g9ILciIpGHU=;
- b=oRfyTg+QhqcJKKheXQTX4Cr9Jf6lpDFquvM++HTDpwoRFbtkGhLx2vXFoQwbszSXAnjPwLeop054y4DMXlH8kvfO98zSqWAcWIrcl/5PttW3uK9fgP4VpdBXfFKE2SZhBD+w8VZZSH1jprP11v1L+D8DGg5N3Nbm6OcM9eh/A5g=
-Received: from BN8PR12CA0018.namprd12.prod.outlook.com (2603:10b6:408:60::31)
- by MW4PR02MB7105.namprd02.prod.outlook.com (2603:10b6:303:70::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.14; Thu, 21 Apr
- 2022 08:51:51 +0000
-Received: from BN1NAM02FT021.eop-nam02.prod.protection.outlook.com
- (2603:10b6:408:60:cafe::5e) by BN8PR12CA0018.outlook.office365.com
- (2603:10b6:408:60::31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.15 via Frontend
- Transport; Thu, 21 Apr 2022 08:51:51 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 149.199.62.198)
- smtp.mailfrom=xilinx.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=xilinx.com;
-Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
- 149.199.62.198 as permitted sender) receiver=protection.outlook.com;
- client-ip=149.199.62.198; helo=xsj-pvapexch01.xlnx.xilinx.com;
-Received: from xsj-pvapexch01.xlnx.xilinx.com (149.199.62.198) by
- BN1NAM02FT021.mail.protection.outlook.com (10.13.2.73) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5186.14 via Frontend Transport; Thu, 21 Apr 2022 08:51:51 +0000
-Received: from xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) by
- xsj-pvapexch01.xlnx.xilinx.com (172.19.86.40) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.14; Thu, 21 Apr 2022 01:51:49 -0700
-Received: from smtp.xilinx.com (172.19.127.96) by
- xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server id
- 15.1.2176.14 via Frontend Transport; Thu, 21 Apr 2022 01:51:49 -0700
-Envelope-to: git@xilinx.com,
- linux-i2c@vger.kernel.org
-Received: from [10.254.241.50] (port=42914)
-        by smtp.xilinx.com with esmtp (Exim 4.90)
-        (envelope-from <michal.simek@xilinx.com>)
-        id 1nhSXV-000Esb-4W; Thu, 21 Apr 2022 01:51:49 -0700
-Message-ID: <cb06daeb-507f-d094-dcc2-4a37fde98241@xilinx.com>
-Date:   Thu, 21 Apr 2022 10:51:47 +0200
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=3F324L+2J98n+Lan1RyT/eWUeM6GkGX/RXQR6LB0/4k=;
+        b=oZScCh8tKhUHn5IqyR7GetNckEnYLsAay36jS+dQX5N4WkKbSHqHnAUndORk3Wdv21
+         c0tVl1PkJXKqOwZJYB6taoPSsfczNdpWaRAUKLP5jTWp0kLb7jpPHwje5iZSLWVQ78Wa
+         aUETFfwp2F58i5av3tKbzNeF14/0N04ld0d/IEgEANj3DWimHAasAU2Mab1fm9WL/RvY
+         g4uSoxn4RwesXTnD6Dd2wicyrLmQViYv5zU/11EeXnJjbwCw9QkmlESsvKTRkZ5hh/gm
+         gwL8AYVVYMUlnlX0mXVn6Fz1bABeGyyr31dYdeVy9SQPLHdbO7acyEqccGtX7seQAspK
+         kdoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=3F324L+2J98n+Lan1RyT/eWUeM6GkGX/RXQR6LB0/4k=;
+        b=vvWS3RpZNnFpvQUNp0mLooR0wqp96c8fS9t8eSJ2mLofNEg4E7k/nDBLUyoAeWojWQ
+         i96914ecR7SX1/wsFwDQ/ll64OWG5peAtZJCaRYsBkKhFQxksMQ8tmSLJ3gpHvNR/42m
+         lbgD4bhi/MroVyDxtc0+JbIkFxVn4l2eTooWUI3K0/cr6bMoEGoldaNyrCn0R0c0wfW5
+         2R8f/fB+BsGW2RnrMhOhcodEX+TpSTfWfT21pUoiATN5MdTzuxAS/zc3kgh8hKa0ua89
+         H4k8Wr7Aq0ud1u0JnTKSKoJBMQSSR6zDGgqxusWVTlshiNK7zZ3Z7MbJgMaZLm2swsJQ
+         cDYg==
+X-Gm-Message-State: AOAM533e9jKrE/qreeEqrfFc3PbbQ9jnn6Gk+hPl9uWcEneageiE1b2H
+        Ch9XhOqjuANABNU/TcUuloHADQ==
+X-Google-Smtp-Source: ABdhPJzPcTNEggQIdZUTB+ITMSuLWsBKyApCBNUoQNpjDvesu8eXr2DyijjlfhOx5peSt7JVHgLyQA==
+X-Received: by 2002:a05:6000:178a:b0:20a:b841:e245 with SMTP id e10-20020a056000178a00b0020ab841e245mr2445214wrg.480.1650535492968;
+        Thu, 21 Apr 2022 03:04:52 -0700 (PDT)
+Received: from ?IPV6:2001:861:44c0:66c0:35ba:2677:956:980d? ([2001:861:44c0:66c0:35ba:2677:956:980d])
+        by smtp.gmail.com with ESMTPSA id u20-20020a05600c19d400b003929c4bf23asm1770295wmq.44.2022.04.21.03.04.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 21 Apr 2022 03:04:52 -0700 (PDT)
+Message-ID: <e524328e-5e91-a550-45a6-053ac73cc8e5@baylibre.com>
+Date:   Thu, 21 Apr 2022 12:04:51 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH 4/4] i2c: xiic: Fix Tx Interrupt path for grouped messages
+ Thunderbird/91.7.0
+Subject: Re: [PATCH -next] i2c: meson: fix missing clk_disable_unprepare() on
+ error in meson_i2c_probe()
 Content-Language: en-US
-To:     Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
-        <linux-i2c@vger.kernel.org>
-CC:     <michal.simek@xilinx.com>, <git@xilinx.com>,
-        Raviteja Narayanam <raviteja.narayanam@xilinx.com>
-References: <20220420075924.14546-1-shubhrajyoti.datta@xilinx.com>
- <20220420075924.14546-5-shubhrajyoti.datta@xilinx.com>
-From:   Michal Simek <michal.simek@xilinx.com>
-In-Reply-To: <20220420075924.14546-5-shubhrajyoti.datta@xilinx.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: bd2e858c-b293-4087-022a-08da23742d92
-X-MS-TrafficTypeDiagnostic: MW4PR02MB7105:EE_
-X-Microsoft-Antispam-PRVS: <MW4PR02MB7105FE9A9BFBB3485F272338C6F49@MW4PR02MB7105.namprd02.prod.outlook.com>
-X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: oJ8n30rQw29cBrCjJ0xSiWzhcTRSoc4Hng/r/N+1yNG+XDN16MXsmi4s8a4OdjGcMCxAt+CVnCCkyCDk/PhE3v3bGPNKxNoG02maiQ4sbgLW7C8j0/Llllur06z/O5QtZqXT1/H8uLC0eQaSsRzGiRIWxtHS/SA+pXfw5iotsYx7jhpqZZNpVwc8AtBVwWpwa6HwCk1F4R2EyDuUbvj8MwVzJeC6TrsBHcPEhXTvWk0/VSgsnUmAnB1eUq47p7Gw3euJHyXRMMbbNLqy94vUts4eg1pvuecjpP332JUwUgUjeCj/X2tghjFe8NvNID2DG1QMJITUsDGyOGuXMGOnVtvN4hmsuXtEz5QyrwQGRvBFJIUwZOzTX7lucZljR0pJU4rlNVbBEnPCpdr6ofetCz2fBPa+2B5PmWK+yCzYWwORn2vw6lGlIuWRLJ0RIxb/a9mUpYJicCiIN2l2f8U/0HQzDBepRQ3bLyYv8/8+G9ffCHnPE5VlQBiQJ/r9or99p7a7Cl33BkMgoz8i3ebYdbXjxJ2WlLt2Ry7FSouRVJ9Re0NL0nS5iUZUjCTJSB6FpzLRGH5EjwaSJC7WmTx6PGH0++4OqKumFV1GYwtmgP/FNj70KYkdt6sIigRpQ4kf57YPn6s6OJ7EzeOXAo6xlMBk4xAQkq77MCXZPquOHn4AuCHtphjTzsEX8WfIUloRhTLYncxo+KDna4VIPRxqBH/PKBsxEFu+VWtX3mCp+7Q=
-X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch01.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(13230001)(4636009)(36840700001)(40470700004)(46966006)(83380400001)(26005)(186003)(47076005)(426003)(336012)(31696002)(53546011)(2616005)(107886003)(7636003)(356005)(36860700001)(9786002)(8936002)(5660300002)(44832011)(8676002)(4326008)(70586007)(70206006)(31686004)(36756003)(82310400005)(2906002)(15650500001)(316002)(54906003)(110136005)(40460700003)(508600001)(50156003)(43740500002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: xilinx.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Apr 2022 08:51:51.2506
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: bd2e858c-b293-4087-022a-08da23742d92
-X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch01.xlnx.xilinx.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN1NAM02FT021.eop-nam02.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR02MB7105
+To:     Yang Yingliang <yangyingliang@huawei.com>,
+        linux-kernel@vger.kernel.org, linux-amlogic@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Cc:     wsa@kernel.org, tanure@linux.com
+References: <20220421090042.2278081-1-yangyingliang@huawei.com>
+From:   Neil Armstrong <narmstrong@baylibre.com>
+Organization: Baylibre
+In-Reply-To: <20220421090042.2278081-1-yangyingliang@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-
-
-On 4/20/22 09:59, Shubhrajyoti Datta wrote:
-> From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+On 21/04/2022 11:00, Yang Yingliang wrote:
+> Fix the missing clk_disable_unprepare() before return
+> from meson_i2c_probe() in the error handling case.
 > 
-> When a group of messages are sent from user space as a set, if
-> the last message has less than Tx FIFO DEPTH number of bytes
-> to transfer, Tx half empty interrupt is triggered continuously
-> from the hardware. It is due to Bus not busy interrupt coming
-> along with Tx half empty and tx empty.
-> 
-> Hence, service the Tx interrupts before Bus not busy interrupt
-> to update the i2c message status correctly.
-> 
-> Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
-> Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+> Fixes: a57f9b4dd6f5 ("i2c: meson: Use 50% duty cycle for I2C clock")
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 > ---
->   drivers/i2c/busses/i2c-xiic.c | 38 ++++++++++++++++++-----------------
->   1 file changed, 20 insertions(+), 18 deletions(-)
+>   drivers/i2c/busses/i2c-meson.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-> index eb4d34e7c0fe..953f7cffe0d8 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -468,24 +468,6 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
->   			}
->   		}
->   	}
-> -	if (pend & XIIC_INTR_BNB_MASK) {
-> -		/* IIC bus has transitioned to not busy */
-> -		clr |= XIIC_INTR_BNB_MASK;
-> -
-> -		/* The bus is not busy, disable BusNotBusy interrupt */
-> -		xiic_irq_dis(i2c, XIIC_INTR_BNB_MASK);
-> -
-> -		if (!i2c->tx_msg)
-> -			goto out;
-> -
-> -		wakeup_req = 1;
-> -
-> -		if (i2c->nmsgs == 1 && !i2c->rx_msg &&
-> -		    xiic_tx_space(i2c) == 0)
-> -			wakeup_code = STATE_DONE;
-> -		else
-> -			wakeup_code = STATE_ERROR;
-> -	}
->   	if (pend & (XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_HALF_MASK)) {
->   		/* Transmit register/FIFO is empty or ½ empty */
+> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+> index 50dab123380a..195a9716da31 100644
+> --- a/drivers/i2c/busses/i2c-meson.c
+> +++ b/drivers/i2c/busses/i2c-meson.c
+> @@ -520,8 +520,10 @@ static int meson_i2c_probe(struct platform_device *pdev)
+>   	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR,
+>   			   REG_SLV_SDA_FILTER_MASK | REG_SLV_SCL_FILTER_MASK, 0);
 >   
-> @@ -522,6 +504,26 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
->   			 */
->   			xiic_irq_dis(i2c, XIIC_INTR_TX_HALF_MASK);
->   	}
-> +
-> +	if (pend & XIIC_INTR_BNB_MASK) {
-> +		/* IIC bus has transitioned to not busy */
-> +		clr |= XIIC_INTR_BNB_MASK;
-> +
-> +		/* The bus is not busy, disable BusNotBusy interrupt */
-> +		xiic_irq_dis(i2c, XIIC_INTR_BNB_MASK);
-> +
-> +		if (!i2c->tx_msg)
-> +			goto out;
-> +
-> +		wakeup_req = 1;
-> +
-> +		if (i2c->nmsgs == 1 && !i2c->rx_msg &&
-> +		    xiic_tx_space(i2c) == 0)
-> +			wakeup_code = STATE_DONE;
-> +		else
-> +			wakeup_code = STATE_ERROR;
+> -	if (!i2c->data->set_clk_div)
+> +	if (!i2c->data->set_clk_div) {
+> +		clk_disable_unprepare(i2c->clk);
+>   		return -EINVAL;
 > +	}
-> +
->   out:
->   	dev_dbg(i2c->adap.dev.parent, "%s clr: 0x%x\n", __func__, clr);
+>   	i2c->data->set_clk_div(i2c, timings.bus_freq_hz);
 >   
+>   	ret = i2c_add_adapter(&i2c->adap);
 
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-
-Thanks,
-Michal
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
