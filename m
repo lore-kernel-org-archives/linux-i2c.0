@@ -2,84 +2,83 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36728C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 25 Apr 2022 13:32:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD23EC433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 25 Apr 2022 20:21:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237187AbiDYNfH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 25 Apr 2022 09:35:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56148 "EHLO
+        id S245184AbiDYUYE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 25 Apr 2022 16:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242111AbiDYNfE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Apr 2022 09:35:04 -0400
-Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 306BEBA8;
-        Mon, 25 Apr 2022 06:32:00 -0700 (PDT)
-X-IronPort-AV: E=Sophos;i="5.90,288,1643641200"; 
-   d="scan'208";a="119093272"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie6.idc.renesas.com with ESMTP; 25 Apr 2022 22:31:59 +0900
-Received: from localhost.localdomain (unknown [10.226.93.95])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 90EEC40065CF;
-        Mon, 25 Apr 2022 22:31:55 +0900 (JST)
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Chris Brandt <chris.brandt@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        with ESMTP id S245175AbiDYUYC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Apr 2022 16:24:02 -0400
+Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89DE3B8239;
+        Mon, 25 Apr 2022 13:20:57 -0700 (PDT)
+Received: by mail-oi1-f171.google.com with SMTP id a10so18415825oif.9;
+        Mon, 25 Apr 2022 13:20:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=UYl3ObxUa/9hCeHQvInTEkQcuPIci9FGY8v4Ht1FoWE=;
+        b=zkuOokXLExIuiaS0e+Murh+5MyrK+DUf6j0IgY+rr+IclSHQLFipB/0YPWX10QNGsH
+         fMNAEx1kXC3VGOJoohi6IBDu7xR39fyyu1hmTQeX8pnrPv6e0aSonE5Eflthgk8/u66P
+         bE2EmrlZGkZW9u7DlsGiA3ig6csw8YQhWMt5giJG3B0HxrbsKt73QVAfhxOUolPHiQ61
+         hFq7QsjOEI21RXq75RB71OGU0Q5FOUlqCRfWbz9kjuBt8xteI9TloF4kJ+61Acd6ATH8
+         b4zX0IJ3ZtY4p8D+0T95ngC4FRY+8IIfUIJGxzeGXRA4mOWV3sesEB8QuQk7xsVH52St
+         YGqg==
+X-Gm-Message-State: AOAM5329GnMk7HsAEXK8+J8tfgofHPiAKOpizNpLamDfi0vgzEJO+RQU
+        CODpxKq/4cuQRpyWgCVeFg==
+X-Google-Smtp-Source: ABdhPJxsTlIu73Fj0yj3q/bfw/wS9Og8lsPiGy3ZLKu+7xWkQKarNY1lHbTfOUL9QIgAkSN3ScMzMA==
+X-Received: by 2002:aca:3587:0:b0:2ec:a23c:e197 with SMTP id c129-20020aca3587000000b002eca23ce197mr8995317oia.47.1650918056772;
+        Mon, 25 Apr 2022 13:20:56 -0700 (PDT)
+Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
+        by smtp.gmail.com with ESMTPSA id a37-20020a9d2628000000b0060563c52952sm4179146otb.8.2022.04.25.13.20.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Apr 2022 13:20:56 -0700 (PDT)
+Received: (nullmailer pid 203303 invoked by uid 1000);
+        Mon, 25 Apr 2022 20:20:55 -0000
+Date:   Mon, 25 Apr 2022 15:20:55 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Biju Das <biju.das.jz@bp.renesas.com>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        linux-renesas-soc@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         devicetree@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Chris Paterson <Chris.Paterson2@renesas.com>,
-        Biju Das <biju.das@bp.renesas.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org,
+        Chris Brandt <chris.brandt@renesas.com>,
         Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v2] dt-bindings: i2c: renesas,riic: Document RZ/G2UL SoC
-Date:   Mon, 25 Apr 2022 14:31:52 +0100
-Message-Id: <20220425133152.176949-1-biju.das.jz@bp.renesas.com>
-X-Mailer: git-send-email 2.25.1
+        Biju Das <biju.das@bp.renesas.com>
+Subject: Re: [PATCH v2] dt-bindings: i2c: renesas,riic: Document RZ/G2UL SoC
+Message-ID: <YmcCp2b73bw4AYe/@robh.at.kernel.org>
+References: <20220425133152.176949-1-biju.das.jz@bp.renesas.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220425133152.176949-1-biju.das.jz@bp.renesas.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Document RZ/G2UL I2C bindings. RZ/G2UL I2C is identical to one found on
-the RZ/G2L SoC. No driver changes are required as RZ/G2L compatible
-string "renesas,riic-rz" will be used as a fallback.
+On Mon, 25 Apr 2022 14:31:52 +0100, Biju Das wrote:
+> Document RZ/G2UL I2C bindings. RZ/G2UL I2C is identical to one found on
+> the RZ/G2L SoC. No driver changes are required as RZ/G2L compatible
+> string "renesas,riic-rz" will be used as a fallback.
+> 
+> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+> v1->v2:
+>  * Added Reset property required on RZ/G2UL SoC
+>  * Added Ack from Krzysztof Kozlowski
+>  * Added Rb tag from Geert
+> ---
+>  Documentation/devicetree/bindings/i2c/renesas,riic.yaml | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
 
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
-v1->v2:
- * Added Reset property required on RZ/G2UL SoC
- * Added Ack from Krzysztof Kozlowski
- * Added Rb tag from Geert
----
- Documentation/devicetree/bindings/i2c/renesas,riic.yaml | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/i2c/renesas,riic.yaml b/Documentation/devicetree/bindings/i2c/renesas,riic.yaml
-index f4b235a87ac6..2f315489aaae 100644
---- a/Documentation/devicetree/bindings/i2c/renesas,riic.yaml
-+++ b/Documentation/devicetree/bindings/i2c/renesas,riic.yaml
-@@ -19,6 +19,7 @@ properties:
-       - enum:
-           - renesas,riic-r7s72100   # RZ/A1H
-           - renesas,riic-r7s9210    # RZ/A2M
-+          - renesas,riic-r9a07g043  # RZ/G2UL
-           - renesas,riic-r9a07g044  # RZ/G2{L,LC}
-           - renesas,riic-r9a07g054  # RZ/V2L
-       - const: renesas,riic-rz      # RZ/A or RZ/G2L
-@@ -75,6 +76,7 @@ if:
-     compatible:
-       contains:
-         enum:
-+          - renesas,riic-r9a07g043
-           - renesas,riic-r9a07g044
-           - renesas,riic-r9a07g054
- then:
--- 
-2.25.1
-
+Applied, thanks!
