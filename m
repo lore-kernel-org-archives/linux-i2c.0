@@ -2,55 +2,134 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D432C433EF
-	for <linux-i2c@archiver.kernel.org>; Wed, 27 Apr 2022 07:28:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23C98C433EF
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 Apr 2022 10:47:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234795AbiD0Hbi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 27 Apr 2022 03:31:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46278 "EHLO
+        id S230143AbiD0KuX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 27 Apr 2022 06:50:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237934AbiD0Hbh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Apr 2022 03:31:37 -0400
-Received: from mail.fixingbiz.pl (mail.fixingbiz.pl [217.61.22.139])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53AF16E8CE
-        for <linux-i2c@vger.kernel.org>; Wed, 27 Apr 2022 00:28:27 -0700 (PDT)
-Received: by mail.fixingbiz.pl (Postfix, from userid 1001)
-        id 1A03BA4D57; Wed, 27 Apr 2022 08:28:18 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=fixingbiz.pl; s=mail;
-        t=1651044505; bh=FDuFY3XQoq0gMX1b2gxgT7Py2p4Sxl0PJZYZ4NVaPho=;
-        h=Date:From:To:Subject:From;
-        b=whLgfW5bG/y2LTlDMje03NDeMYJRGUaByvt0kJrVEgDlG00MKM5neV3GNmBWaRSLq
-         En2u8dpWsFC41R6PgmMkiT0C5IvPZhVUqHGyd0I+qo5reDDv6j8bD4wwNY2vbZJiFI
-         V2WXYerxzkOOpsKjOX1SovLpBJokRPftGwZBJ4Ty3q3W2Jsfvpq11ovdm9kueVXf8U
-         P+xtfVfbb3CK5pfL3+tz5dHYbRNwOYuEAnJujaZelVVByTMim8I5LQb7QOHVfEvA8/
-         YJhUricuKrCRN8Wf56VDWvK1XnExGAw07sBmf9wCgsUZ0DUaQ7AF3hsBWgFa3POqZu
-         l2vbhQOW3i59g==
-Received: by mail.fixingbiz.pl for <linux-i2c@vger.kernel.org>; Wed, 27 Apr 2022 07:28:09 GMT
-Message-ID: <20220427073002-0.1.22.ahzd.0.s3kuhf5jcg@fixingbiz.pl>
-Date:   Wed, 27 Apr 2022 07:28:09 GMT
-From:   =?UTF-8?Q? "Przemys=C5=82aw_Wr=C3=B3blewski" ?= 
-        <przemyslaw.wroblewski@fixingbiz.pl>
-To:     <linux-i2c@vger.kernel.org>
-Subject: Wycena paneli fotowoltaicznych
-X-Mailer: mail.fixingbiz.pl
+        with ESMTP id S229964AbiD0KuV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Apr 2022 06:50:21 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83D5A3D7040
+        for <linux-i2c@vger.kernel.org>; Wed, 27 Apr 2022 03:21:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1651054876; x=1682590876;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=KzlCG6Pj+HOWnIkvaHQ6dSVV1UWpwXf5ZQyKMWidT7Q=;
+  b=B2leo88QzEYWegQpdAzglAO7cfQA8gOr2+4/5UuY/EqsZBzETkkzHp5z
+   8cLhX+clF0+KDvm7YfQo0cfaApFd07r/+wjirST0/zCFL228nGrtjDnlL
+   utDs8r2o0NTGyCSj3EGkGAys7+e/isvqoJAhTS6o9k6OOin8IDO9eboLM
+   +cbf8A9LP27lPG2Uo8RELxstG4f0i346y61HQjgp7XeOUZ6iLf0YKeTvL
+   EGhKb/sRNTmlwzizFcQesxhn0WzxdyYraP9Xbswe5X6HRAJ2Gn+KqVu+G
+   RUw5N6v5MsOllCD4XIT86SobCg0GnXl6G+PejmUBPi2SOvXmZGQkWlV4P
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10329"; a="263474120"
+X-IronPort-AV: E=Sophos;i="5.90,292,1643702400"; 
+   d="scan'208";a="263474120"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Apr 2022 03:19:12 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,292,1643702400"; 
+   d="scan'208";a="596215766"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga001.jf.intel.com with ESMTP; 27 Apr 2022 03:19:10 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1001)
+        id A672414F; Wed, 27 Apr 2022 13:19:10 +0300 (EEST)
+From:   Mika Westerberg <mika.westerberg@linux.intel.com>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     Seth Heasley <seth.heasley@intel.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH] i2c: ismt: Provide a DMA buffer for Interrupt Cause Logging
+Date:   Wed, 27 Apr 2022 13:19:10 +0300
+Message-Id: <20220427101910.47438-1-mika.westerberg@linux.intel.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Dzie=C5=84 dobry,
+Before sending a MSI the hardware writes information pertinent to the
+interrupt cause to a memory location pointed by SMTICL register. This
+memory holds three double words where the least significant bit tells
+whether the interrupt cause of master/target/error is valid. The driver
+does not use this but we need to set it up because otherwise it will
+perform DMA write to the default address (0) and this will cause an
+IOMMU fault such as below:
 
-dostrzegam mo=C5=BCliwo=C5=9B=C4=87 wsp=C3=B3=C5=82pracy z Pa=C5=84stwa f=
-irm=C4=85.
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Write] Request device [00:12.0] PASID ffffffff fault addr 0
+        [fault reason 05] PTE Write access is not set
 
-=C5=9Awiadczymy kompleksow=C4=85 obs=C5=82ug=C4=99 inwestycji w fotowolta=
-ik=C4=99, kt=C3=B3ra obni=C5=BCa koszty energii elektrycznej nawet o 90%.
+To prevent this from happening, provide a proper DMA buffer for this
+that then gets mapped by the IOMMU accordingly.
 
-Czy s=C4=85 Pa=C5=84stwo zainteresowani weryfikacj=C4=85 wst=C4=99pnych p=
-ropozycji?
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-ismt.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index c0364314877e..c16157ee8c52 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -82,6 +82,7 @@
+ 
+ #define ISMT_DESC_ENTRIES	2	/* number of descriptor entries */
+ #define ISMT_MAX_RETRIES	3	/* number of SMBus retries to attempt */
++#define ISMT_LOG_ENTRIES	3	/* number of interrupt cause log entries */
+ 
+ /* Hardware Descriptor Constants - Control Field */
+ #define ISMT_DESC_CWRL	0x01	/* Command/Write Length */
+@@ -175,6 +176,8 @@ struct ismt_priv {
+ 	u8 head;				/* ring buffer head pointer */
+ 	struct completion cmp;			/* interrupt completion */
+ 	u8 buffer[I2C_SMBUS_BLOCK_MAX + 16];	/* temp R/W data buffer */
++	dma_addr_t log_dma;
++	u32 *log;
+ };
+ 
+ static const struct pci_device_id ismt_ids[] = {
+@@ -411,6 +414,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 	memset(desc, 0, sizeof(struct ismt_desc));
+ 	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
+ 
++	/* Always clear the log entries */
++	memset(priv->log, 0, ISMT_LOG_ENTRIES * sizeof(u32));
++
+ 	/* Initialize common control bits */
+ 	if (likely(pci_dev_msi_enabled(priv->pci_dev)))
+ 		desc->control = ISMT_DESC_INT | ISMT_DESC_FAIR;
+@@ -708,6 +714,8 @@ static void ismt_hw_init(struct ismt_priv *priv)
+ 	/* initialize the Master Descriptor Base Address (MDBA) */
+ 	writeq(priv->io_rng_dma, priv->smba + ISMT_MSTR_MDBA);
+ 
++	writeq(priv->log_dma, priv->smba + ISMT_GR_SMTICL);
++
+ 	/* initialize the Master Control Register (MCTRL) */
+ 	writel(ISMT_MCTRL_MEIE, priv->smba + ISMT_MSTR_MCTRL);
+ 
+@@ -795,6 +803,12 @@ static int ismt_dev_init(struct ismt_priv *priv)
+ 	priv->head = 0;
+ 	init_completion(&priv->cmp);
+ 
++	priv->log = dmam_alloc_coherent(&priv->pci_dev->dev,
++					ISMT_LOG_ENTRIES * sizeof(u32),
++					&priv->log_dma, GFP_KERNEL);
++	if (!priv->log)
++		return -ENOMEM;
++
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
 
-Pozdrawiam,
-Przemys=C5=82aw Wr=C3=B3blewski
