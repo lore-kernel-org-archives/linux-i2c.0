@@ -2,247 +2,119 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B376AC4321E
-	for <linux-i2c@archiver.kernel.org>; Fri, 29 Apr 2022 13:52:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31808C433F5
+	for <linux-i2c@archiver.kernel.org>; Mon,  2 May 2022 12:02:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376481AbiD2NzT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 29 Apr 2022 09:55:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51146 "EHLO
+        id S1384840AbiEBMFq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 2 May 2022 08:05:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376468AbiD2Ny5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 29 Apr 2022 09:54:57 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 765055BE76;
-        Fri, 29 Apr 2022 06:51:31 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23TBZSqY029789;
-        Fri, 29 Apr 2022 13:51:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=0YZGzId6ewK9csYggsw+WYYFHpmL7P8ZiGT1L6Q4FQ8=;
- b=XF5hMqjcp6gG3yWzqOpB4ZzbVA0EfDOTaipeqXb2pdrJe633p9X9gpWFgODWLrcQHmOv
- yH/S8RDQXGBnkzKSgVH1hvu82FhbDVdSgL+xujKc30JKFoW97InYQPuqltGd7s0BBNfl
- D44E8+tTgYD/GBIGUxOIsCNFx75k0Jyy7fAc5R4rnMV1by2HUNwZDLBrz8U8EycznXFQ
- OUHT/wuq2npwrn85+MLexlizHvNf3tCDGy/HXOPbwIBEty5dctCF8a5jOBYRMWR6L5c/
- hTdfRia3KLhwf0VPdGh/ohnLzYIRHZMhRGfQOVG+ma6lIQrR5LGyKlCWUHqw0dQV7zU3 MQ== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqv5rjk2r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 13:51:26 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23TDQmHf014253;
-        Fri, 29 Apr 2022 13:51:24 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3fm93916wa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 13:51:24 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23TDpMTR48169240
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 29 Apr 2022 13:51:22 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 153D44C044;
-        Fri, 29 Apr 2022 13:51:22 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C9F544C040;
-        Fri, 29 Apr 2022 13:51:21 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 29 Apr 2022 13:51:21 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-pci@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        linux-i2c@vger.kernel.org (open list:I2C SUBSYSTEM HOST DRIVERS)
-Subject: [RFC v2 12/39] i2c: add HAS_IOPORT dependencies
-Date:   Fri, 29 Apr 2022 15:50:19 +0200
-Message-Id: <20220429135108.2781579-22-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220429135108.2781579-1-schnelle@linux.ibm.com>
-References: <20220429135108.2781579-1-schnelle@linux.ibm.com>
+        with ESMTP id S233285AbiEBMFp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 2 May 2022 08:05:45 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C8B13E9C
+        for <linux-i2c@vger.kernel.org>; Mon,  2 May 2022 05:02:16 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id k23so27359840ejd.3
+        for <linux-i2c@vger.kernel.org>; Mon, 02 May 2022 05:02:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=N75s0zlZ/grfCnjSSDgj4JMBZsdJ4ACb/MkzbjrMPK0=;
+        b=2C8SNpetrT95gaXxl4PKvpcPFXCNt7hD8Rkw5YSjWw75sN7WvDyWUE20xLW3aAc9JO
+         +Rpd1A4w/6YR6qfkgsBfZMH0F6RQdHGgbiN23YkPJE/o5615Hk1kScxhk67aaEydZvQx
+         gUr3gQznUpZQ8WULmMVrW9fmeTdhAmf3QZcN3dS3QMCCegj8D/mHFiyimgwqKQTXly2R
+         y9MfZ6hTC+1JrGkjf6Sm2dpq2JKqkbm1fjpGeLhulBvJZ+PnCzOMN926eNiC6p12WCZf
+         ppEczvZ3ho5OKyefWPj3empmDu2x4QGZClpsgJq5zBH85WlWvFaKr7hDQ4OpyfNpFc93
+         tt7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=N75s0zlZ/grfCnjSSDgj4JMBZsdJ4ACb/MkzbjrMPK0=;
+        b=f+PyH0yEZMSBSRjc2IShHa4I4zRW4Fy1eFtOu3zMbYAaKuXwguwfOlnZF901nZUQh0
+         ljXDGYI7mMFsgUEVxDqyls3rpKbOOhPBTSUxy9jppaCWOWtbVcTCvkxu0ULoprHE8P+t
+         +R2AFOu/0sBaaAE2V1XChpZlvLn6WcNXfSvJxIz9csvm2V26ScTQfpHv+tPDYCts1sJW
+         51oeCpAoZq+0BfVfMTVh5KQQBidlr0bPSzDdFlrgvKc1aRxOHb6O5TE7LU9+LPzTQF71
+         YzhgVC3yTm29+M8Y+TdCdjMjBZnSpjrLVNvX8QesVdkIc4LOowbXmRbDyMY1z0b+ip0y
+         Kmig==
+X-Gm-Message-State: AOAM533196l+c5HiT0DRYp21lY7byTGOyBcgRhPrYP26Ulermbw0IZzs
+        2BTNwICGmN+ZCxewMeMWovZjpANMp8ebxmGoNwvlLg==
+X-Google-Smtp-Source: ABdhPJy3H4B9Xv6DMwPGyJFAVkCyL7HSoolYUgy9O4RpHeAO8P+IrocSLqSxIuMS7CSVBa8yNk/VwwJ8+38L2DDuuOo=
+X-Received: by 2002:a17:907:9490:b0:6f4:5606:d98b with SMTP id
+ dm16-20020a170907949000b006f45606d98bmr3892736ejc.734.1651492934588; Mon, 02
+ May 2022 05:02:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HkJYotdJgbUNqVRdMHjYEmWTr-xVYKOD
-X-Proofpoint-ORIG-GUID: HkJYotdJgbUNqVRdMHjYEmWTr-xVYKOD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-29_06,2022-04-28_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- clxscore=1011 malwarescore=0 impostorscore=0 bulkscore=0
- lowpriorityscore=0 priorityscore=1501 mlxscore=0 adultscore=0 spamscore=0
- mlxlogscore=824 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204290078
+References: <20220426175938.2262966-1-robh@kernel.org>
+In-Reply-To: <20220426175938.2262966-1-robh@kernel.org>
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+Date:   Mon, 2 May 2022 14:02:03 +0200
+Message-ID: <CAMRc=MfrvUn8w_aPL0_kej83-tf06GTUcJJ3bC0p8O8rd2Ae0Q@mail.gmail.com>
+Subject: Re: [PATCH v2] dt-bindings: eeprom/at24: Add samsung,s524ad0xd1 compatible
+To:     Rob Herring <robh@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-i2c <linux-i2c@vger.kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-samsung-soc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-In a future patch HAS_IOPORT=n will result in inb()/outb() and friends
-not being declared. We thus need to add HAS_IOPORT as dependency for
-those drivers using them.
+On Tue, Apr 26, 2022 at 8:00 PM Rob Herring <robh@kernel.org> wrote:
+>
+> The samsung,s524ad0xd1 compatible is in use, but not documented. According
+> to arch/arm/mach-s3c/mach-smdk6410.c, the samsung,s524ad0xd1 is compatible
+> with the 24c128. As the schema requires a fallback compatible to the
+> corresponding Atmel compatible, 'atmel,24c128' is added as a fallback.
+>
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> ---
+> v2:
+>  - Fix the example in samsung,s3c2410-i2c.yaml
+>
+>  Documentation/devicetree/bindings/eeprom/at24.yaml            | 4 +++-
 
-Co-developed-by: Arnd Bergmann <arnd@kernel.org>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- drivers/i2c/busses/Kconfig | 31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+For at24 part:
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index a1bae59208e3..d1d97420cf10 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -18,7 +18,7 @@ config I2C_CCGX_UCSI
- 
- config I2C_ALI1535
- 	tristate "ALI 1535"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the SMB
- 	  Host controller on Acer Labs Inc. (ALI) M1535 South Bridges.  The SMB
-@@ -30,7 +30,7 @@ config I2C_ALI1535
- 
- config I2C_ALI1563
- 	tristate "ALI 1563"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the SMB
- 	  Host controller on Acer Labs Inc. (ALI) M1563 South Bridges.  The SMB
-@@ -42,7 +42,7 @@ config I2C_ALI1563
- 
- config I2C_ALI15X3
- 	tristate "ALI 15x3"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  Acer Labs Inc. (ALI) M1514 and M1543 motherboard I2C interfaces.
-@@ -52,7 +52,7 @@ config I2C_ALI15X3
- 
- config I2C_AMD756
- 	tristate "AMD 756/766/768/8111 and nVidia nForce"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the AMD
- 	  756/766/768 mainboard I2C interfaces.  The driver also includes
-@@ -77,7 +77,7 @@ config I2C_AMD756_S4882
- 
- config I2C_AMD8111
- 	tristate "AMD 8111"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  second (SMBus 2.0) AMD 8111 mainboard I2C interface.
-@@ -107,7 +107,7 @@ config I2C_HIX5HD2
- 
- config I2C_I801
- 	tristate "Intel 82801 (ICH/PCH)"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	select CHECK_SIGNATURE if X86 && DMI
- 	select I2C_SMBUS
- 	help
-@@ -162,7 +162,7 @@ config I2C_I801
- 
- config I2C_ISCH
- 	tristate "Intel SCH SMBus 1.0"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	select LPC_SCH
- 	help
- 	  Say Y here if you want to use SMBus controller on the Intel SCH
-@@ -183,7 +183,7 @@ config I2C_ISMT
- 
- config I2C_PIIX4
- 	tristate "Intel PIIX4 and compatible (ATI/AMD/Serverworks/Broadcom/SMSC)"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the Intel
- 	  PIIX4 family of mainboard I2C interfaces.  Specifically, the following
-@@ -229,7 +229,7 @@ config I2C_CHT_WC
- 
- config I2C_NFORCE2
- 	tristate "Nvidia nForce2, nForce3 and nForce4"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the Nvidia
- 	  nForce2, nForce3 and nForce4 families of mainboard I2C interfaces.
-@@ -262,7 +262,7 @@ config I2C_NVIDIA_GPU
- 
- config I2C_SIS5595
- 	tristate "SiS 5595"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  SiS5595 SMBus (a subset of I2C) interface.
-@@ -272,7 +272,7 @@ config I2C_SIS5595
- 
- config I2C_SIS630
- 	tristate "SiS 630/730/964"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  SiS630, SiS730 and SiS964 SMBus (a subset of I2C) interface.
-@@ -282,7 +282,7 @@ config I2C_SIS630
- 
- config I2C_SIS96X
- 	tristate "SiS 96x"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the SiS
- 	  96x SMBus (a subset of I2C) interfaces.  Specifically, the following
-@@ -300,7 +300,7 @@ config I2C_SIS96X
- 
- config I2C_VIA
- 	tristate "VIA VT82C586B"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	select I2C_ALGOBIT
- 	help
- 	  If you say yes to this option, support will be included for the VIA
-@@ -311,7 +311,7 @@ config I2C_VIA
- 
- config I2C_VIAPRO
- 	tristate "VIA VT82C596/82C686/82xx and CX700/VX8xx/VX900"
--	depends on PCI
-+	depends on PCI && HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the VIA
- 	  VT82C596 and later SMBus interface.  Specifically, the following
-@@ -849,6 +849,7 @@ config I2C_NPCM7XX
- 
- config I2C_OCORES
- 	tristate "OpenCores I2C Controller"
-+	depends on HAS_IOPORT
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  OpenCores I2C controller. For details see
-@@ -1232,6 +1233,7 @@ config I2C_CP2615
- config I2C_PARPORT
- 	tristate "Parallel port adapter"
- 	depends on PARPORT
-+	depends on HAS_IOPORT
- 	select I2C_ALGOBIT
- 	select I2C_SMBUS
- 	help
-@@ -1330,6 +1332,7 @@ config I2C_ICY
- config I2C_MLXCPLD
- 	tristate "Mellanox I2C driver"
- 	depends on X86_64 || COMPILE_TEST
-+	depends on HAS_IOPORT
- 	help
- 	  This exposes the Mellanox platform I2C busses to the linux I2C layer
- 	  for X86 based systems.
--- 
-2.32.0
+Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
 
+>  .../devicetree/bindings/i2c/samsung,s3c2410-i2c.yaml          | 2 +-
+>  2 files changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/eeprom/at24.yaml b/Documentation/devicetree/bindings/eeprom/at24.yaml
+> index 6b61a8cf6137..d14e0accbda8 100644
+> --- a/Documentation/devicetree/bindings/eeprom/at24.yaml
+> +++ b/Documentation/devicetree/bindings/eeprom/at24.yaml
+> @@ -120,7 +120,9 @@ properties:
+>            - const: giantec,gt24c32a
+>            - const: atmel,24c32
+>        - items:
+> -          - const: renesas,r1ex24128
+> +          - enum:
+> +              - renesas,r1ex24128
+> +              - samsung,s524ad0xd1
+>            - const: atmel,24c128
+>
+>    label:
+> diff --git a/Documentation/devicetree/bindings/i2c/samsung,s3c2410-i2c.yaml b/Documentation/devicetree/bindings/i2c/samsung,s3c2410-i2c.yaml
+> index c26230518957..3d5782deb97d 100644
+> --- a/Documentation/devicetree/bindings/i2c/samsung,s3c2410-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/samsung,s3c2410-i2c.yaml
+> @@ -123,7 +123,7 @@ examples:
+>          samsung,i2c-slave-addr = <0x66>;
+>
+>          eeprom@50 {
+> -            compatible = "samsung,s524ad0xd1";
+> +            compatible = "samsung,s524ad0xd1", "atmel,24c128";
+>              reg = <0x50>;
+>          };
+>      };
+> --
+> 2.34.1
+>
