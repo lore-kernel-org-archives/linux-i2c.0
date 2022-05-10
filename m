@@ -2,43 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38DECC4332F
-	for <linux-i2c@archiver.kernel.org>; Tue, 10 May 2022 15:26:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E7BDC433F5
+	for <linux-i2c@archiver.kernel.org>; Tue, 10 May 2022 15:26:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344368AbiEJPaM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 10 May 2022 11:30:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36060 "EHLO
+        id S1345738AbiEJPaj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 10 May 2022 11:30:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345765AbiEJP3E (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2022 11:29:04 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E1E5005E;
-        Tue, 10 May 2022 08:19:36 -0700 (PDT)
+        with ESMTP id S1345771AbiEJP36 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2022 11:29:58 -0400
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA9C41622;
+        Tue, 10 May 2022 08:20:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652195976; x=1683731976;
+  t=1652196050; x=1683732050;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=1omZw5dmtXzXRoaAGkEEyclQDmdsq5BTpI3E6oMJveY=;
-  b=AS7C+Syq3WxVnNl3Nq13k4gqqEJSi9m7poPr+15V/wEARiDtLzTs99S0
-   GfJiUzKshs7HV2nv4jM5a9tSzvWdDX2z4VMkfrfs40N1/nwtQ36W8rkFK
-   MZKTEzxc3OJh89Kuno84rnHsgSD7J5mfHswd0L8GhUuZDbBDlnHJJTy5X
-   Co+DKk2KPY9qEP9a+l7pp8wIUqEYAIDNkTNyoa5r2CUEqiTCPgfkfk/a/
-   tnmehNevPJRwEGCRPUAqpFALtZYNZgCNZ38itJvadlfVAEAfAnCmiZ48c
-   xs9Evw9t/FB/AFgof5SSXpdTUmsP32eIRucA0+vwCt9APjaFLm8R0scav
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10342"; a="330001640"
+  bh=s12LKUkRjEyJoTFx4dcKh5X4R2ffOhieOmXwYajE27s=;
+  b=QDe+2dCTQ5QHUYnh5Q+ouxAEDc4kUd4yFaHmkt51Ghdb8DCoEQlA0cqy
+   gWHu+Dc/+325856ucE/ARnQ1wZ8cQkKedHHqi0OifVf2Mn8ZHqu98OGed
+   HDskCczX82uT4ukElCnPONt80+jsAY+5F56APich37vgflA5SxpxAI67O
+   ROnO8ggFCKnvhygP0h+/sIDpGgSbhuVwJMHFbTq1Qa9PWEQInfBYY8iJM
+   bSbX+bNVDLkNVKAAQvjqK19nEnquik5BAa5PonnZ8H5vmJkOLfhsqbCb+
+   6OSOQKWe/BQXLD3cCprwgEh8BUld0L53ERcvvm7s/3/0LOCB+H9RG9h29
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10342"; a="294638475"
 X-IronPort-AV: E=Sophos;i="5.91,214,1647327600"; 
-   d="scan'208";a="330001640"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2022 08:17:44 -0700
+   d="scan'208";a="294638475"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2022 08:17:45 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.91,214,1647327600"; 
-   d="scan'208";a="894912638"
+   d="scan'208";a="541817752"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga005.fm.intel.com with ESMTP; 10 May 2022 08:17:38 -0700
+  by orsmga006.jf.intel.com with ESMTP; 10 May 2022 08:17:38 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id CFC10646; Tue, 10 May 2022 18:15:16 +0300 (EEST)
+        id AAF285C1; Tue, 10 May 2022 18:15:16 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Tony Luck <tony.luck@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -61,10 +61,11 @@ Cc:     Borislav Petkov <bp@alien8.de>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
         Andy Shevchenko <andy@kernel.org>,
         Mark Gross <markgross@kernel.org>,
+        Tan Jui Nee <jui.nee.tan@intel.com>,
         Henning Schild <henning.schild@siemens.com>
-Subject: [PATCH v5 8/8] EDAC, pnd2: convert to use common P2SB accessor
-Date:   Tue, 10 May 2022 18:14:51 +0300
-Message-Id: <20220510151451.85561-9-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 5/8] mfd: lpc_ich: Add support for pinctrl in non-ACPI system
+Date:   Tue, 10 May 2022 18:14:48 +0300
+Message-Id: <20220510151451.85561-6-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220510151451.85561-1-andriy.shevchenko@linux.intel.com>
 References: <20220510151451.85561-1-andriy.shevchenko@linux.intel.com>
@@ -74,122 +75,170 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Since we have a common P2SB accessor in tree we may use it instead of
-open coded variants.
+From: Tan Jui Nee <jui.nee.tan@intel.com>
 
-Replace custom code by p2sb_bar() call.
+Add support for non-ACPI systems, such as system that uses
+Advanced Boot Loader (ABL) whereby a platform device has to be created
+in order to bind with pin control and GPIO.
 
+At the moment, Intel Apollo Lake In-Vehicle Infotainment (IVI) system
+requires a driver to hide and unhide P2SB to lookup P2SB BAR and pass
+the PCI BAR address to GPIO.
+
+Signed-off-by: Tan Jui Nee <jui.nee.tan@intel.com>
+Co-developed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Tested-by: Henning Schild <henning.schild@siemens.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/edac/Kconfig     |  1 +
- drivers/edac/pnd2_edac.c | 55 ++++++++++++----------------------------
- 2 files changed, 17 insertions(+), 39 deletions(-)
+ drivers/mfd/lpc_ich.c | 105 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 104 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/edac/Kconfig b/drivers/edac/Kconfig
-index d3e2477948c8..17562cf1fe97 100644
---- a/drivers/edac/Kconfig
-+++ b/drivers/edac/Kconfig
-@@ -263,6 +263,7 @@ config EDAC_I10NM
- config EDAC_PND2
- 	tristate "Intel Pondicherry2"
- 	depends on PCI && X86_64 && X86_MCE_INTEL
-+	select P2SB if X86
- 	help
- 	  Support for error detection and correction on the Intel
- 	  Pondicherry2 Integrated Memory Controller. This SoC IP is
-diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
-index 7d1df120e24c..a20b299f1202 100644
---- a/drivers/edac/pnd2_edac.c
-+++ b/drivers/edac/pnd2_edac.c
-@@ -28,6 +28,8 @@
- #include <linux/bitmap.h>
- #include <linux/math64.h>
- #include <linux/mod_devicetable.h>
-+#include <linux/platform_data/x86/p2sb.h>
+diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
+index e360651c5406..650951f89f1c 100644
+--- a/drivers/mfd/lpc_ich.c
++++ b/drivers/mfd/lpc_ich.c
+@@ -8,7 +8,8 @@
+  *  Configuration Registers.
+  *
+  *  This driver is derived from lpc_sch.
+-
++ *
++ *  Copyright (c) 2017, 2021-2022 Intel Corporation
+  *  Copyright (c) 2011 Extreme Engineering Solution, Inc.
+  *  Author: Aaron Sierra <asierra@xes-inc.com>
+  *
+@@ -42,6 +43,7 @@
+ #include <linux/errno.h>
+ #include <linux/acpi.h>
+ #include <linux/pci.h>
++#include <linux/pinctrl/pinctrl.h>
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/lpc_ich.h>
+ #include <linux/platform_data/itco_wdt.h>
+@@ -142,6 +144,73 @@ static struct mfd_cell lpc_ich_gpio_cell = {
+ 	.ignore_resource_conflicts = true,
+ };
+ 
++#define APL_GPIO_NORTH		0
++#define APL_GPIO_NORTHWEST	1
++#define APL_GPIO_WEST		2
++#define APL_GPIO_SOUTHWEST	3
++#define APL_GPIO_NR_DEVICES	4
 +
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
- #include <asm/processor.h>
-@@ -232,42 +234,14 @@ static u64 get_mem_ctrl_hub_base_addr(void)
- 	return U64_LSHIFT(hi.base, 32) | U64_LSHIFT(lo.base, 15);
++/* Offset data for Apollo Lake GPIO controllers */
++static resource_size_t apl_gpio_offsets[APL_GPIO_NR_DEVICES] = {
++	[APL_GPIO_NORTH]	= 0xc50000,
++	[APL_GPIO_NORTHWEST]	= 0xc40000,
++	[APL_GPIO_WEST]		= 0xc70000,
++	[APL_GPIO_SOUTHWEST]	= 0xc00000,
++};
++
++#define APL_GPIO_RESOURCE_SIZE		0x1000
++
++#define APL_GPIO_IRQ			14
++
++static struct resource apl_gpio_resources[APL_GPIO_NR_DEVICES][2] = {
++	[APL_GPIO_NORTH] = {
++		DEFINE_RES_MEM(0, 0),
++		DEFINE_RES_IRQ(APL_GPIO_IRQ),
++	},
++	[APL_GPIO_NORTHWEST] = {
++		DEFINE_RES_MEM(0, 0),
++		DEFINE_RES_IRQ(APL_GPIO_IRQ),
++	},
++	[APL_GPIO_WEST] = {
++		DEFINE_RES_MEM(0, 0),
++		DEFINE_RES_IRQ(APL_GPIO_IRQ),
++	},
++	[APL_GPIO_SOUTHWEST] = {
++		DEFINE_RES_MEM(0, 0),
++		DEFINE_RES_IRQ(APL_GPIO_IRQ),
++	},
++};
++
++static const struct mfd_cell apl_gpio_devices[APL_GPIO_NR_DEVICES] = {
++	[APL_GPIO_NORTH] = {
++		.name = "apollolake-pinctrl",
++		.id = APL_GPIO_NORTH,
++		.num_resources = ARRAY_SIZE(apl_gpio_resources[APL_GPIO_NORTH]),
++		.resources = apl_gpio_resources[APL_GPIO_NORTH],
++		.ignore_resource_conflicts = true,
++	},
++	[APL_GPIO_NORTHWEST] = {
++		.name = "apollolake-pinctrl",
++		.id = APL_GPIO_NORTHWEST,
++		.num_resources = ARRAY_SIZE(apl_gpio_resources[APL_GPIO_NORTHWEST]),
++		.resources = apl_gpio_resources[APL_GPIO_NORTHWEST],
++		.ignore_resource_conflicts = true,
++	},
++	[APL_GPIO_WEST] = {
++		.name = "apollolake-pinctrl",
++		.id = APL_GPIO_WEST,
++		.num_resources = ARRAY_SIZE(apl_gpio_resources[APL_GPIO_WEST]),
++		.resources = apl_gpio_resources[APL_GPIO_WEST],
++		.ignore_resource_conflicts = true,
++	},
++	[APL_GPIO_SOUTHWEST] = {
++		.name = "apollolake-pinctrl",
++		.id = APL_GPIO_SOUTHWEST,
++		.num_resources = ARRAY_SIZE(apl_gpio_resources[APL_GPIO_SOUTHWEST]),
++		.resources = apl_gpio_resources[APL_GPIO_SOUTHWEST],
++		.ignore_resource_conflicts = true,
++	},
++};
+ 
+ static struct mfd_cell lpc_ich_spi_cell = {
+ 	.name = "intel-spi",
+@@ -1085,6 +1154,34 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
+ 	return ret;
  }
  
--static u64 get_sideband_reg_base_addr(void)
--{
--	struct pci_dev *pdev;
--	u32 hi, lo;
--	u8 hidden;
--
--	pdev = pci_get_device(PCI_VENDOR_ID_INTEL, 0x19dd, NULL);
--	if (pdev) {
--		/* Unhide the P2SB device, if it's hidden */
--		pci_read_config_byte(pdev, 0xe1, &hidden);
--		if (hidden)
--			pci_write_config_byte(pdev, 0xe1, 0);
--
--		pci_read_config_dword(pdev, 0x10, &lo);
--		pci_read_config_dword(pdev, 0x14, &hi);
--		lo &= 0xfffffff0;
--
--		/* Hide the P2SB device, if it was hidden before */
--		if (hidden)
--			pci_write_config_byte(pdev, 0xe1, hidden);
--
--		pci_dev_put(pdev);
--		return (U64_LSHIFT(hi, 32) | U64_LSHIFT(lo, 0));
--	} else {
--		return 0xfd000000;
--	}
--}
--
- #define DNV_MCHBAR_SIZE  0x8000
- #define DNV_SB_PORT_SIZE 0x10000
- static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *name)
- {
- 	struct pci_dev *pdev;
- 	void __iomem *base;
--	u64 addr;
--	unsigned long size;
-+	struct resource r;
++static int lpc_ich_init_pinctrl(struct pci_dev *dev)
++{
++	struct resource base;
++	unsigned int i;
 +	int ret;
- 
- 	if (op == 4) {
- 		pdev = pci_get_device(PCI_VENDOR_ID_INTEL, 0x1980, NULL);
-@@ -279,20 +253,23 @@ static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *na
- 	} else {
- 		/* MMIO via memory controller hub base address */
- 		if (op == 0 && port == 0x4c) {
--			addr = get_mem_ctrl_hub_base_addr();
--			if (!addr)
-+			memset(&r, 0, sizeof(r));
 +
-+			r.start = get_mem_ctrl_hub_base_addr();
-+			if (!r.start)
- 				return -ENODEV;
--			size = DNV_MCHBAR_SIZE;
-+			r.end = r.start + DNV_MCHBAR_SIZE - 1;
- 		} else {
- 			/* MMIO via sideband register base address */
--			addr = get_sideband_reg_base_addr();
--			if (!addr)
--				return -ENODEV;
--			addr += (port << 16);
--			size = DNV_SB_PORT_SIZE;
-+			ret = p2sb_bar(NULL, 0, &r);
-+			if (ret)
-+				return ret;
++	/* Check, if GPIO has been exported as an ACPI device */
++	if (acpi_dev_present("INT3452", NULL, -1))
++		return -EEXIST;
 +
-+			r.start += (port << 16);
-+			r.end = r.start + DNV_SB_PORT_SIZE - 1;
- 		}
++	ret = p2sb_bar(dev->bus, 0, &base);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < ARRAY_SIZE(apl_gpio_devices); i++) {
++		struct resource *mem = &apl_gpio_resources[i][0];
++		resource_size_t offset = apl_gpio_offsets[i];
++
++		/* Fill MEM resource */
++		mem->start = base.start + offset;
++		mem->end = base.start + offset + APL_GPIO_RESOURCE_SIZE - 1;
++		mem->flags = base.flags;
++	}
++
++	return mfd_add_devices(&dev->dev, 0, apl_gpio_devices,
++			       ARRAY_SIZE(apl_gpio_devices), NULL, 0, NULL);
++}
++
+ static bool lpc_ich_byt_set_writeable(void __iomem *base, void *data)
+ {
+ 	u32 val;
+@@ -1235,6 +1332,12 @@ static int lpc_ich_probe(struct pci_dev *dev,
+ 			cell_added = true;
+ 	}
  
--		base = ioremap((resource_size_t)addr, size);
-+		base = ioremap(r.start, resource_size(&r));
- 		if (!base)
- 			return -ENODEV;
- 
++	if (priv->chipset == LPC_APL) {
++		ret = lpc_ich_init_pinctrl(dev);
++		if (!ret)
++			cell_added = true;
++	}
++
+ 	if (lpc_chipset_info[priv->chipset].spi_type) {
+ 		ret = lpc_ich_init_spi(dev);
+ 		if (!ret)
 -- 
 2.35.1
 
