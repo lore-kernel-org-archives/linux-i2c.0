@@ -2,86 +2,78 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3A55C433F5
-	for <linux-i2c@archiver.kernel.org>; Wed, 11 May 2022 13:37:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA070C433EF
+	for <linux-i2c@archiver.kernel.org>; Wed, 11 May 2022 15:24:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243174AbiEKNh1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 11 May 2022 09:37:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54718 "EHLO
+        id S1343615AbiEKPYc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 11 May 2022 11:24:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243888AbiEKNh0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2022 09:37:26 -0400
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A5A666BD;
-        Wed, 11 May 2022 06:37:24 -0700 (PDT)
-Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
-        by mx0b-0016f401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24B9kBLM020873;
-        Wed, 11 May 2022 06:37:22 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=pfpt0220;
- bh=Cuxao/Cs7zjSSejDLbRlnXlWLx6Anw6Uo7EA8Lvp4rA=;
- b=PHTO4bLNCMkFm+hWrtWinA0x53gB2NgUzNY8/1L3HOiS/vmmI0Ea6FfEmQqYlyiAI1qe
- APRnZvwtOnm9vDCYpxkXUtP9UIJ/b/tNQlXtrpdQ5oeeobo5aZIBpLClYvyZKv6ovAIj
- T7rbijZeKayDIyVgbM6ZE3g3kUdfNZZOTfKdE4MZeLT/Vk2nODut6ZZbtAHwdTposHJe
- rjPiK7K9bNJN7jeb4utNZ8Nao7fc2ncYPWOrvnj6r+SjC6miSGkzwInkZduewxhULSVl
- wzwH4pGGvJ3hW+nfIfnCifUeLYyL6JmxQL1irtGEI1S+zU7PMsDlJ04aozonJFduUTRE JQ== 
-Received: from dc5-exch01.marvell.com ([199.233.59.181])
-        by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 3g0at20uaf-3
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Wed, 11 May 2022 06:37:22 -0700
-Received: from DC5-EXCH01.marvell.com (10.69.176.38) by DC5-EXCH01.marvell.com
- (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 11 May
- 2022 06:37:20 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH01.marvell.com
- (10.69.176.38) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 11 May 2022 06:37:20 -0700
-Received: from localhost.localdomain (unknown [10.110.150.250])
-        by maili.marvell.com (Postfix) with ESMTP id 540A63F7095;
-        Wed, 11 May 2022 06:37:20 -0700 (PDT)
-From:   Piyush Malgujar <pmalgujar@marvell.com>
-To:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <sgarapati@marvell.com>, <sbalcerak@marvell.com>,
-        <cchavva@marvell.com>, Piyush Malgujar <pmalgujar@marvell.com>
-Subject: [PATCH 3/3] drivers: i2c: thunderx: Allow driver to work with ACPI defined TWSI controllers
-Date:   Wed, 11 May 2022 06:36:59 -0700
-Message-ID: <20220511133659.29176-4-pmalgujar@marvell.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220511133659.29176-1-pmalgujar@marvell.com>
-References: <20220511133659.29176-1-pmalgujar@marvell.com>
+        with ESMTP id S1343607AbiEKPY1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2022 11:24:27 -0400
+Received: from mail-ot1-f52.google.com (mail-ot1-f52.google.com [209.85.210.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB54C227831;
+        Wed, 11 May 2022 08:24:25 -0700 (PDT)
+Received: by mail-ot1-f52.google.com with SMTP id 31-20020a9d0822000000b00605f1807664so690990oty.3;
+        Wed, 11 May 2022 08:24:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/YW/NabRNlqlFBWgGilu1Fwu61bxFXT4UrNqhtMuKug=;
+        b=7kbhuQV5fm7djNPeL34dLhVs/CrjVYvHV07Szsy3FTbiFw6F25GGDKWCPTvhV+LtBI
+         O7dtzmfA5jxDtbiLallWKx7Kt12h0lR37jLyUCbxxCaXqL11QBIzEOpA9Q3SZ4t+kmCJ
+         y5RYDMCSTYZ5PJST0UYqGVYnTIu9J0V/XUllYwoSaWs5rh1L5fSyzQqR5U7UW4fPhAq3
+         +Fz1ERsp6wQ2317EXq7dYfPNpLOjI5aiWfsT4NOq7K+DhRUuCkEhn7KoDjeJO68KwvRd
+         +GNiapaMmXozkerMr5EZu6xJLXlWCQs6Td6q195SRen4UacOvbaVNlLbWfl+U0j2GqkC
+         tmZw==
+X-Gm-Message-State: AOAM531GYnPpSucUuWqbYQzLc36hXY3sGTpQ9XJ+KLkoW2ri4jCAveeh
+        yvuZH/nvXiM6ETZ2NRno7g==
+X-Google-Smtp-Source: ABdhPJwW6W24dzq/fhBeIZjPgBInHoKIcnuL7XRJyzp48a8Nt/eKYf23URC2W2inbDtmAxg7YeSoLA==
+X-Received: by 2002:a9d:674f:0:b0:606:5b6:b76e with SMTP id w15-20020a9d674f000000b0060605b6b76emr10106810otm.12.1652282664955;
+        Wed, 11 May 2022 08:24:24 -0700 (PDT)
+Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
+        by smtp.gmail.com with ESMTPSA id t13-20020a4aadcd000000b0035eb4e5a6c9sm1014996oon.31.2022.05.11.08.24.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 May 2022 08:24:24 -0700 (PDT)
+Received: (nullmailer pid 339802 invoked by uid 1000);
+        Wed, 11 May 2022 15:24:22 -0000
+Date:   Wed, 11 May 2022 10:24:22 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Tyrone Ting <warp5tw@gmail.com>
+Cc:     sven@svenpeter.dev, JJLIU0@nuvoton.com,
+        linux-kernel@vger.kernel.org, jie.deng@intel.com, olof@lixom.net,
+        lukas.bulwahn@gmail.com, jarkko.nikula@linux.intel.com,
+        yuenn@google.com, arnd@arndb.de, tali.perry1@gmail.com,
+        openbmc@lists.ozlabs.org, krzysztof.kozlowski@canonical.com,
+        robh+dt@kernel.org, linux-i2c@vger.kernel.org, tmaimon77@gmail.com,
+        benjaminfair@google.com, tomer.maimon@nuvoton.com,
+        kfting@nuvoton.com, semen.protsenko@linaro.org,
+        Avi.Fishman@nuvoton.com, jsd@semihalf.com, wsa@kernel.org,
+        devicetree@vger.kernel.org, andriy.shevchenko@linux.intel.com,
+        KWLIU@nuvoton.com, tali.perry@nuvoton.com, avifishman70@gmail.com,
+        venture@google.com
+Subject: Re: [PATCH v4 1/9] dt-bindings: i2c: npcm: support NPCM845
+Message-ID: <20220511152422.GA339769-robh@kernel.org>
+References: <20220510091654.8498-1-warp5tw@gmail.com>
+ <20220510091654.8498-2-warp5tw@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: J1j3R9mGARKXaQ6nv0-gWUftY3zAhRvZ
-X-Proofpoint-GUID: J1j3R9mGARKXaQ6nv0-gWUftY3zAhRvZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-11_05,2022-05-11_01,2022-02-23_01
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220510091654.8498-2-warp5tw@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Due to i2c->adap.dev.fwnode not being set, ACPI_COMPANION() wasn't properly
-found for TWSI controllers.
+On Tue, 10 May 2022 17:16:46 +0800, Tyrone Ting wrote:
+> From: Tyrone Ting <kfting@nuvoton.com>
+> 
+> Add compatible and nuvoton,sys-mgr description for NPCM i2c module.
+> 
+> Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
+> ---
+>  .../bindings/i2c/nuvoton,npcm7xx-i2c.yaml     | 25 +++++++++++++++----
+>  1 file changed, 20 insertions(+), 5 deletions(-)
+> 
 
-Signed-off-by: Szymon Balcerak <sbalcerak@marvell.com>
-Signed-off-by: Piyush Malgujar <pmalgujar@marvell.com>
----
- drivers/i2c/busses/i2c-thunderx-pcidrv.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-index 5621e983406b0bebf9c5c9e30921e45f3f15909b..3dd5a4d798f99e9b5282360cf9d5840042fc8dcc 100644
---- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-@@ -220,6 +220,7 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 	i2c->adap.bus_recovery_info = &octeon_i2c_recovery_info;
- 	i2c->adap.dev.parent = dev;
- 	i2c->adap.dev.of_node = pdev->dev.of_node;
-+	i2c->adap.dev.fwnode = dev->fwnode;
- 	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
- 		 "Cavium ThunderX i2c adapter at %s", dev_name(dev));
- 	i2c_set_adapdata(&i2c->adap, i2c);
--- 
-2.17.1
-
+Reviewed-by: Rob Herring <robh@kernel.org>
