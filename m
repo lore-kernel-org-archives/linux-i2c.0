@@ -2,117 +2,71 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E900C4332F
-	for <linux-i2c@archiver.kernel.org>; Mon, 16 May 2022 08:36:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0AACC43217
+	for <linux-i2c@archiver.kernel.org>; Mon, 16 May 2022 11:31:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241874AbiEPIgf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 16 May 2022 04:36:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32934 "EHLO
+        id S243160AbiEPLbb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 16 May 2022 07:31:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241840AbiEPIgZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 May 2022 04:36:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D698EE0C0;
-        Mon, 16 May 2022 01:36:23 -0700 (PDT)
+        with ESMTP id S243193AbiEPLbK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 May 2022 07:31:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B88270E;
+        Mon, 16 May 2022 04:31:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71E1861208;
-        Mon, 16 May 2022 08:36:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E280C385AA;
-        Mon, 16 May 2022 08:36:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AB2660FEB;
+        Mon, 16 May 2022 11:31:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FD1DC385B8;
+        Mon, 16 May 2022 11:31:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652690182;
-        bh=RFUuu65dv4iB6/1sFh3kQ42iMYe1058D2q5TSspj+KQ=;
+        s=k20201202; t=1652700668;
+        bh=ZUEmliErSd51RiMCP41XFunKKxEzgbyR6TU1VDmqeFg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HCs+nExO5LAGap7FHBM6v6Y/qei7u0YxCf3vO7U2Ls5jqFYpJu/pjJnXbyaRktQzm
-         ekjlVdA80nimsoZ3w+NktSIZWPYl+c4QyNrczLChwpmnzqV9xg0MddiGPZLamsgs80
-         C8qC2jM8ic0nsrZ0f0FpcVB79cvU5jQuiWYHJtFHvuH2VV5iYaNgQgUXE4ZCPbdFfC
-         xp18ez6uMQiNPjVJJRuTDm15mVtxjb7PMui1BYGMc4ckN5OyycvawXozw2KwkC2lbk
-         S7nuDWGLlsKPU2r/HKN6jFs/FkGdPNcqIUOxOPxvyKF1/IcjrGlIU0DO3/7K6XNsqG
-         UoMfoKcewCgBA==
-Date:   Mon, 16 May 2022 10:36:15 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     =?utf-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>
-Cc:     Peter Rosin <peda@axentia.se>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        b=OwHwwzsfSzLP0Uce40JHWVOXb60biukmdN90zMYRkS5G9tzrnmYjYUW7T9kRkPIAI
+         vE2lIUrrlFNJBG4JrjnEs55gi5D5ycBEEl7YRix30Qqlkn23RtPftT0VwGey/IeNfm
+         6eF2mgsVxQNwdNmLgkUGQiqhOVJHKmuLiX5pOE39dh3A6GVdOluffWB8cQ4ouVoRvu
+         AEOtc5EOeJMvYJRv1hts3L6KpcRf8bvFSkhQSMRN2Qyb12RUUmQyB1YXEd1UpULbe6
+         XV4wn3zHRRFRRhw4WaNrUhlB5Z4NhDLcL4mQe4tCWp2TCLvbS8IXNVfOsws8kkTZis
+         L66BD/UsAC+jw==
+Date:   Mon, 16 May 2022 17:01:04 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Len Brown <lenb@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Allan Nielsen <allan.nielsen@microchip.com>,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v3 0/9] introduce fwnode in the I2C subsystem
-Message-ID: <YoIM/4O4UPaLRVjg@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        =?utf-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>,
-        Peter Rosin <peda@axentia.se>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>, Len Brown <lenb@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Allan Nielsen <allan.nielsen@microchip.com>,
-        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
-References: <20220325113148.588163-1-clement.leger@bootlin.com>
- <Yn/BFKwzVLwrjF/F@shikoro>
- <12be48dc-b5d1-063c-87a0-050886cc2505@axentia.se>
- <20220516093418.0038845c@fixe.home>
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        devicetree@vger.kernel.org, dmaengine@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org,
+        linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 4/7] dt-bindings: renesas,rcar-dmac: R-Car V3U is R-Car
+ Gen4
+Message-ID: <YoI1+HDb9Sr4mWmB@matsya>
+References: <cover.1651497024.git.geert+renesas@glider.be>
+ <e6e4cf701f3a43b061b9c3f7f0adc4d6addd4722.1651497024.git.geert+renesas@glider.be>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="WFP/yrmed1NCLdav"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220516093418.0038845c@fixe.home>
+In-Reply-To: <e6e4cf701f3a43b061b9c3f7f0adc4d6addd4722.1651497024.git.geert+renesas@glider.be>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On 02-05-22, 15:34, Geert Uytterhoeven wrote:
+> Despite the name, R-Car V3U is the first member of the R-Car Gen4
+> family.  Hence move its compatible value to the R-Car Gen4 section.
 
---WFP/yrmed1NCLdav
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Applied, thanks
 
-
-> While doing the same conversion on the reset subsystem, Rob Herring
-> stepped in and mention the fact that this could be done using
-> device-tree overlay (even on system with ACPI) .
-
-Thanks for the heads up, I'll drop this series then.
-
-
---WFP/yrmed1NCLdav
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmKCDPsACgkQFA3kzBSg
-KbbHbw/+PGfOkObnz8N94i8/XJkTK5uDekSlAaYlBWilWLLcLzLa4PZX1xu4L9m3
-PZWQbl6zFCI+EmEXoNuUXuHtXTBn28TQ8Qp4e5GYmr+3A260AiuWvDc7pxBuhH8D
-BQGzLYeUUPdvbv81f52Abl3br8l2Kuzd2G4S3ozirjZhaTyWz/20+S5C9ngriIu6
-i9djDWgdhBEFM9/bxOYjAudAU4O7VEnlK9cBzijJv4lvQgXITc1G5x4smbXIooCk
-1t7ldL+Mis2J0Yl0IjfuKjKSuSocFKjhssZ6hssil8T2sVgA19WywSNeZdn1ND/x
-x+ttsX6OqRtVpyZRI3IekHgq4jEnAsW7d4AbrkmWGlS8Sfgt6xGEQGallp7wF/+F
-pMIEQzOGw929+SzRhBdxLa+fz9+0a6Edxz5SH4VaOLnSm9sXKqlFZzbRW4n9cDWZ
-zRFDNwYSqBVbTr5XgBW8Cv63CWcsot6DuCI74GZTi3+Hdb5/VXUZWBNl7Wr0Dvnr
-/Z7ZojFWM8Asgod6FIbZr7Qco/u+CRo3CWpbAaMnRJvko5ib622x3ngAiT/7vFw3
-EytV8+0DUFPYYEqHlhOU80r6Xlf8Wzmni54QpRqzM6BvnzDoF9mVi2NxjkD7EUym
-bCKTzRQM2aHyTJ1n2WjpSVMzrw93AtURknOcMatejClcDSFEdxM=
-=kMPE
------END PGP SIGNATURE-----
-
---WFP/yrmed1NCLdav--
+-- 
+~Vinod
