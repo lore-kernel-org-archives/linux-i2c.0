@@ -2,50 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80EEDC43217
-	for <linux-i2c@archiver.kernel.org>; Tue, 17 May 2022 10:14:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72D08C433F5
+	for <linux-i2c@archiver.kernel.org>; Tue, 17 May 2022 10:14:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343905AbiEQKOB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 17 May 2022 06:14:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44468 "EHLO
+        id S1344002AbiEQKOC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 17 May 2022 06:14:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343900AbiEQKMw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2022 06:12:52 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C88FF1D331;
-        Tue, 17 May 2022 03:12:10 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id n8so16915449plh.1;
-        Tue, 17 May 2022 03:12:10 -0700 (PDT)
+        with ESMTP id S1343920AbiEQKMy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2022 06:12:54 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194E21E3F1;
+        Tue, 17 May 2022 03:12:14 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id l11so16505476pgt.13;
+        Tue, 17 May 2022 03:12:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=RIGSmdJeUWUk9ww1S0t3EkB8CmRkroCvFd+vm4c7BjY=;
-        b=gMBQaU2fD+ZA5lzPjHY29ZXw4cA4rqt52oT2CCUVzgHE/p4JOvjJMzBgg/Ay89GW74
-         FeorbsdbBUcIMcSCIgH5Uq3vKxg5zG3ERs11Ed8duJlX/UPh6KkRcF6NnwKgYX9wqUUM
-         /8BB/qnBn2txG98uXvDfgY0vg8HQ831kLNpPEg2NfrBRh598QpbMwwhrUwnQ6oW+AB0p
-         dgjJWyPl2gGQN/OXXHERvO4M6WF8WpaqQhG3KHA/Ojxi52f/d9YFz0I26s/HzrS8utai
-         zLbIP2mRW7cAZFghuj4NLn0fN3o4SVReBnWx4xDMdvSfDleFKBscNvVe1VInP/F1hn6E
-         S1oQ==
+        bh=aMBOI9YkUSIsWIlQdfz41gQk4nmmHQa5UOI2C/hBUEU=;
+        b=JtkF5r+oqYFZIyXuBu6cPFpvbyE/I3CGuS9xPWbrbxa9FneoN4paYaudwt+RBnSDrO
+         5X/79Ll2Fd2qonqa1Ubkk8KYhES4DpT+4h84wXNtok9qDHh8bQu8GZSbIOvL4yA4wuf4
+         OoJ8gGM4111xYPvCHRJnRsNHrbuYOHYiiktovHa3QNmVOx0c56bReuTjaCFxSWJkLFaD
+         G1Gkdi3E26J5Zl/wYf34rDekFek+EXo83nUupgPXvRzI1k6OjJ9wD1T9y+3nQqjiGUAb
+         4uNnjrVFNDHvhMoI50zu0hbHX+DAg2UNqiSbHC01MZi7lHk23i1hcVyFZN5sAgCCA5AH
+         qk8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=RIGSmdJeUWUk9ww1S0t3EkB8CmRkroCvFd+vm4c7BjY=;
-        b=NXg9V/RPnM2lmgyTAR8BJeqQ7TlVXMQhMhB1p6DCT6VL6tLZ5TNAKUUBuMSP5kcnpi
-         4wixtbTIJixVqB9I5mTiD2QqH24o1HLDvlxjsgtPiq3tQ6Pi7ahsBleEPI5EeDz2k1Hu
-         mrmn1DuIoIpdTksC+UAc8uYsTXak1E+Mt5Wx7kqGq0SzbmhDPsf7c+D7atMOB2QjjK8h
-         z8ybXw/Em6iMyK2Wy0HOpNY38iTGfYaqrrc6ZW1Dib1t2qhNvAW9C18oVWIR451STs2/
-         Lr3JGxMq5Z6jNf4Lq395pvGnZpoKLGAIOfIfHLk3j5I3DEPzhimte/F79iXjCqcXrXm5
-         3P9Q==
-X-Gm-Message-State: AOAM5300UmRCXzz2vONwTLFq0LjSwcnDNf2Ac5XMtU/AuZomfXVTw7KN
-        Sm/buw8E2FEbuZno1DgMXQ==
-X-Google-Smtp-Source: ABdhPJxOqWyy6YyrVWSw1Ra7ZoXGuuRUZ+TKNL51SOIuOslgeZhFUFKkd+3/ujkllsyrX2g4kri6zA==
-X-Received: by 2002:a17:90b:3e84:b0:1dc:5942:af0e with SMTP id rj4-20020a17090b3e8400b001dc5942af0emr24076312pjb.61.1652782330081;
-        Tue, 17 May 2022 03:12:10 -0700 (PDT)
+        bh=aMBOI9YkUSIsWIlQdfz41gQk4nmmHQa5UOI2C/hBUEU=;
+        b=EAVuv3wzqX7l8G0VremnzYv+q0Lg1a+TG2ujBRC9jjD7hzZPiYW6F1mwKQQT0OEKQr
+         vEp2qsA6UhdA+6b6TKeFutuDx2td94Wx5HdI8vU54hqH06WPQ3Jk0vyr0SwpyovDYNBX
+         uK+Shx2MvCBh95fKiq03Pt/BqDmmWFWwcynN7vFkMNtVZ6FMBKjnknEyyrD0N+3EKhx3
+         Q30bRsz9PchwEhGng/XsLIXVZ6fLFxs63EPNmZwMncyAcjH30yqJ6saygrbhMltV7ELT
+         2AW+oQHQGBN42N3OV7fiCt2u9Izfvaoutz1po6iDrD4C/DcbR0kqQdRv5xLBuhh1VKLf
+         c5JQ==
+X-Gm-Message-State: AOAM532DRtStbsEF95uY7bxMJaDobiYAww1cawUYsXyaj8fMVUBWpLZ4
+        3z15DPWGg324gYW+9125qw==
+X-Google-Smtp-Source: ABdhPJzTg9eea+BcxaCZFzMBUKvm4hvmH7A1NnWXwh2q1t9VyhA+uHTXLd3jc55tn++kghtu5gGqVQ==
+X-Received: by 2002:a05:6a00:2408:b0:4f7:a8cb:9b63 with SMTP id z8-20020a056a00240800b004f7a8cb9b63mr21900585pfh.33.1652782333486;
+        Tue, 17 May 2022 03:12:13 -0700 (PDT)
 Received: from localhost (220-133-130-217.hinet-ip.hinet.net. [220.133.130.217])
-        by smtp.gmail.com with ESMTPSA id a12-20020a170902710c00b0015f2b3bc97asm6232708pll.13.2022.05.17.03.12.09
+        by smtp.gmail.com with ESMTPSA id z4-20020a62d104000000b0050dc7628184sm8751369pfg.94.2022.05.17.03.12.13
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 17 May 2022 03:12:09 -0700 (PDT)
+        Tue, 17 May 2022 03:12:13 -0700 (PDT)
 From:   Tyrone Ting <warp5tw@gmail.com>
 To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         venture@google.com, yuenn@google.com, benjaminfair@google.com,
@@ -59,9 +59,9 @@ To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         KWLIU@nuvoton.com, JJLIU0@nuvoton.com, kfting@nuvoton.com
 Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v5 08/10] i2c: npcm: Remove own slave addresses 2:10
-Date:   Tue, 17 May 2022 18:11:40 +0800
-Message-Id: <20220517101142.28421-9-warp5tw@gmail.com>
+Subject: [PATCH v5 10/10] i2c: npcm: Capitalize the one-line comment
+Date:   Tue, 17 May 2022 18:11:42 +0800
+Message-Id: <20220517101142.28421-11-warp5tw@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220517101142.28421-1-warp5tw@gmail.com>
 References: <20220517101142.28421-1-warp5tw@gmail.com>
@@ -69,145 +69,75 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Tali Perry <tali.perry1@gmail.com>
+From: Tyrone Ting <kfting@nuvoton.com>
 
-NPCM can support up to 10 own slave addresses. In practice, only one
-address is actually being used. In order to access addresses 2 and above,
-need to switch register banks. The switch needs spinlock.
-To avoid using spinlock for this useless feature removed support of SA >=
-2. Also fix returned slave event enum.
-
-Remove some comment since the bank selection is not required. The bank
-selection is not required since the supported slave addresses are reduced.
+Make the one-line comments capital in the driver to get the comment style
+consistent.
 
 Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
 Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
 ---
- drivers/i2c/busses/i2c-npcm7xx.c | 43 +++++++++++++++-----------------
- 1 file changed, 20 insertions(+), 23 deletions(-)
+ drivers/i2c/busses/i2c-npcm7xx.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index 5960ccde6574..3f86895f5e64 100644
+index a032b407f104..a60e392dda50 100644
 --- a/drivers/i2c/busses/i2c-npcm7xx.c
 +++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -124,6 +124,8 @@ enum i2c_addr {
-  * use this array to get the address or each register.
-  */
- #define I2C_NUM_OWN_ADDR 10
-+#define I2C_NUM_OWN_ADDR_SUPPORTED 2
-+
- static const int npcm_i2caddr[I2C_NUM_OWN_ADDR] = {
- 	NPCM_I2CADDR1, NPCM_I2CADDR2, NPCM_I2CADDR3, NPCM_I2CADDR4,
- 	NPCM_I2CADDR5, NPCM_I2CADDR6, NPCM_I2CADDR7, NPCM_I2CADDR8,
-@@ -392,14 +394,10 @@ static void npcm_i2c_disable(struct npcm_i2c *bus)
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	int i;
- 
--	/* select bank 0 for I2C addresses */
--	npcm_i2c_select_bank(bus, I2C_BANK_0);
--
- 	/* Slave addresses removal */
--	for (i = I2C_SLAVE_ADDR1; i < I2C_NUM_OWN_ADDR; i++)
-+	for (i = I2C_SLAVE_ADDR1; i < I2C_NUM_OWN_ADDR_SUPPORTED; i++)
- 		iowrite8(0, bus->reg + npcm_i2caddr[i]);
- 
--	npcm_i2c_select_bank(bus, I2C_BANK_1);
+@@ -683,7 +683,7 @@ static void npcm_i2c_reset(struct npcm_i2c *bus)
+ 	}
  #endif
- 	/* Disable module */
- 	i2cctl2 = ioread8(bus->reg + NPCM_I2CCTL2);
-@@ -604,8 +602,7 @@ static int npcm_i2c_slave_enable(struct npcm_i2c *bus, enum i2c_addr addr_type,
- 			i2cctl1 &= ~NPCM_I2CCTL1_GCMEN;
- 		iowrite8(i2cctl1, bus->reg + NPCM_I2CCTL1);
- 		return 0;
--	}
--	if (addr_type == I2C_ARP_ADDR) {
-+	} else if (addr_type == I2C_ARP_ADDR) {
- 		i2cctl3 = ioread8(bus->reg + NPCM_I2CCTL3);
- 		if (enable)
- 			i2cctl3 |= I2CCTL3_ARPMEN;
-@@ -614,16 +611,17 @@ static int npcm_i2c_slave_enable(struct npcm_i2c *bus, enum i2c_addr addr_type,
- 		iowrite8(i2cctl3, bus->reg + NPCM_I2CCTL3);
- 		return 0;
+ 
+-	/* clear status bits for spurious interrupts */
++	/* Clear status bits for spurious interrupts */
+ 	npcm_i2c_clear_master_status(bus);
+ 
+ 	bus->state = I2C_IDLE;
+@@ -1255,7 +1255,7 @@ static irqreturn_t npcm_i2c_int_slave_handler(struct npcm_i2c *bus)
+ 	} /* SDAST */
+ 
+ 	/*
+-	 * if irq is not one of the above, make sure EOB is disabled and all
++	 * If irq is not one of the above, make sure EOB is disabled and all
+ 	 * status bits are cleared.
+ 	 */
+ 	if (ret == IRQ_NONE) {
+@@ -1509,7 +1509,7 @@ static void npcm_i2c_irq_handle_nack(struct npcm_i2c *bus)
+ 		npcm_i2c_clear_master_status(bus);
+ 		readx_poll_timeout_atomic(ioread8, bus->reg + NPCM_I2CCST, val,
+ 					  !(val & NPCM_I2CCST_BUSY), 10, 200);
+-		/* verify no status bits are still set after bus is released */
++		/* Verify no status bits are still set after bus is released */
+ 		npcm_i2c_clear_master_status(bus);
  	}
-+	if (addr_type > I2C_SLAVE_ADDR2 && addr_type <= I2C_SLAVE_ADDR10)
-+		dev_err(bus->dev, "try to enable more than 2 SA not supported\n");
-+
- 	if (addr_type >= I2C_ARP_ADDR)
- 		return -EFAULT;
- 	/* select bank 0 for address 3 to 10 */
--	if (addr_type > I2C_SLAVE_ADDR2)
--		npcm_i2c_select_bank(bus, I2C_BANK_0);
-+
- 	/* Set and enable the address */
- 	iowrite8(sa_reg, bus->reg + npcm_i2caddr[addr_type]);
- 	npcm_i2c_slave_int_enable(bus, enable);
--	if (addr_type > I2C_SLAVE_ADDR2)
--		npcm_i2c_select_bank(bus, I2C_BANK_1);
-+
- 	return 0;
- }
+ 	bus->state = I2C_IDLE;
+@@ -1977,7 +1977,7 @@ static int npcm_i2c_init_module(struct npcm_i2c *bus, enum i2c_mode mode,
+ 
+ 	npcm_i2c_reset(bus);
+ 
+-	/* check HW is OK: SDA and SCL should be high at this point. */
++	/* Check HW is OK: SDA and SCL should be high at this point. */
+ 	if ((npcm_i2c_get_SDA(&bus->adap) == 0) || (npcm_i2c_get_SCL(&bus->adap) == 0)) {
+ 		dev_err(bus->dev, "I2C%d init fail: lines are low\n", bus->num);
+ 		dev_err(bus->dev, "SDA=%d SCL=%d\n", npcm_i2c_get_SDA(&bus->adap),
+@@ -2037,7 +2037,7 @@ static irqreturn_t npcm_i2c_bus_irq(int irq, void *dev_id)
+ 			return IRQ_HANDLED;
+ 	}
  #endif
-@@ -846,15 +844,11 @@ static u8 npcm_i2c_get_slave_addr(struct npcm_i2c *bus, enum i2c_addr addr_type)
- {
- 	u8 slave_add;
+-	/* clear status bits for spurious interrupts */
++	/* Clear status bits for spurious interrupts */
+ 	npcm_i2c_clear_master_status(bus);
  
--	/* select bank 0 for address 3 to 10 */
--	if (addr_type > I2C_SLAVE_ADDR2)
--		npcm_i2c_select_bank(bus, I2C_BANK_0);
-+	if (addr_type > I2C_SLAVE_ADDR2 && addr_type <= I2C_SLAVE_ADDR10)
-+		dev_err(bus->dev, "get slave: try to use more than 2 SA not supported\n");
+ 	return IRQ_HANDLED;
+@@ -2219,7 +2219,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		 (bus->data->rxf_ctl_last_pec & ioread8(bus->reg + NPCM_I2CRXF_CTL)))
+ 		npcm_i2c_reset(bus);
  
- 	slave_add = ioread8(bus->reg + npcm_i2caddr[(int)addr_type]);
+-	/* after any xfer, successful or not, stall and EOB must be disabled */
++	/* After any xfer, successful or not, stall and EOB must be disabled */
+ 	npcm_i2c_stall_after_start(bus, false);
+ 	npcm_i2c_eob_int(bus, false);
  
--	if (addr_type > I2C_SLAVE_ADDR2)
--		npcm_i2c_select_bank(bus, I2C_BANK_1);
--
- 	return slave_add;
- }
- 
-@@ -864,12 +858,12 @@ static int npcm_i2c_remove_slave_addr(struct npcm_i2c *bus, u8 slave_add)
- 
- 	/* Set the enable bit */
- 	slave_add |= 0x80;
--	npcm_i2c_select_bank(bus, I2C_BANK_0);
--	for (i = I2C_SLAVE_ADDR1; i < I2C_NUM_OWN_ADDR; i++) {
-+
-+	for (i = I2C_SLAVE_ADDR1; i < I2C_NUM_OWN_ADDR_SUPPORTED; i++) {
- 		if (ioread8(bus->reg + npcm_i2caddr[i]) == slave_add)
- 			iowrite8(0, bus->reg + npcm_i2caddr[i]);
- 	}
--	npcm_i2c_select_bank(bus, I2C_BANK_1);
-+
- 	return 0;
- }
- 
-@@ -924,11 +918,15 @@ static int npcm_i2c_slave_get_wr_buf(struct npcm_i2c *bus)
- 	for (i = 0; i < I2C_HW_FIFO_SIZE; i++) {
- 		if (bus->slv_wr_size >= I2C_HW_FIFO_SIZE)
- 			break;
--		i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
-+		if (bus->state == I2C_SLAVE_MATCH) {
-+			i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
-+			bus->state = I2C_OPER_STARTED;
-+		} else {
-+			i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
-+		}
- 		ind = (bus->slv_wr_ind + bus->slv_wr_size) % I2C_HW_FIFO_SIZE;
- 		bus->slv_wr_buf[ind] = value;
- 		bus->slv_wr_size++;
--		i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
- 	}
- 	return I2C_HW_FIFO_SIZE - ret;
- }
-@@ -976,7 +974,6 @@ static void npcm_i2c_slave_xmit(struct npcm_i2c *bus, u16 nwrite,
- 	if (nwrite == 0)
- 		return;
- 
--	bus->state = I2C_OPER_STARTED;
- 	bus->operation = I2C_WRITE_OPER;
- 
- 	/* get the next buffer */
 -- 
 2.17.1
 
