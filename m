@@ -2,50 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67AD4C433EF
-	for <linux-i2c@archiver.kernel.org>; Tue, 17 May 2022 10:13:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC6BBC433EF
+	for <linux-i2c@archiver.kernel.org>; Tue, 17 May 2022 10:13:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343936AbiEQKM6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 17 May 2022 06:12:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47128 "EHLO
+        id S1343775AbiEQKNA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 17 May 2022 06:13:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343865AbiEQKMl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2022 06:12:41 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F1211C11F;
-        Tue, 17 May 2022 03:11:58 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id bo5so16461949pfb.4;
-        Tue, 17 May 2022 03:11:58 -0700 (PDT)
+        with ESMTP id S1343782AbiEQKMp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2022 06:12:45 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5894F1CB1B;
+        Tue, 17 May 2022 03:12:04 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id q7so5497232plx.3;
+        Tue, 17 May 2022 03:12:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=MM5thYIrVi5i+cbkS2jxRX5IeuN8MkqxSCa5bh/mFUY=;
-        b=pFloAIsahv1LwGSPVFyN6dinFSmhbMza4Vj8W2MJNhWmxS2b9/L6hWtqpbRrWkaTVI
-         /KJ7EX8tq2oiwEpZA1GT1FCRreo8J8rZ57OjbOk+r2oIV0tJozfD2UGqQ9MVFBbxMv4u
-         pat9rZAwUgwEnR3M7OIzK2z1LI3trsh6u5wHkGtla9OnrTpzuHkAPQS/2ilDPm2+vcnt
-         pkx+fL20/OuALewWgpgaB00fxyLRIWvAwtLpkMDMC3sE3OehpYT3IgTiS/GchsV0rg5S
-         QsniY+nwgp56xJGCMdHNzAZiF/rlqsYysxJAt2D3FP98kCwzem8qI8XzLIk2+vDmcZPl
-         B6HQ==
+        bh=U1ZOSVbfziWWzBVab8oIymA4zFffiNgJBszalmSIU3k=;
+        b=akU7xpusbKsA9jTmK+AAyLyo3rt7dAfD4QOXvkQKPbsihQBY5zGhMZ77fsPR0iyYP7
+         6/4OvwldWiQMbhtwJAG32VI5vOlsoUSB4g5cWOuAL8OBAqWbEjNIH40ScuxOFjNTX6CU
+         vQU8KAuxOuUoo3TsPQmU57J6Fdb1rGZ4TIa8W+l/8Aq8yWCu3FXcYWrIjpwaAh59Gytm
+         EEfvCFYQ74mOupaWH0bsBWliZJCU4NqxwhvJ+sw7jI5Lts4ji6fUTn9gDhVXnQiHYbWM
+         7V1WFejCLCVSIf70vJZbmnO1ozfHreF4+5JDU8m9wtryATaFVf7viwUkgukCDLnbhUBE
+         X15g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=MM5thYIrVi5i+cbkS2jxRX5IeuN8MkqxSCa5bh/mFUY=;
-        b=lFpRxsoKRjfska6D+jHLGvLjnULd0pOvp3x41C21P9/o+4DcBu6MTLncr9cCq1mm50
-         hn5x9SQw//Ug5NTkbd+k3DiRdhkqEqGBgtbyQVFi1nCPZRmg0RzTbXFchQc7lX16TA5U
-         sDoE6mLL+0FoAzBPaIg0ec/rsx5EdvWBqSJ5IngOf8RdoUDViZwUMbM/5ClE2KuAhKTV
-         4z6beICtv1hxLnymJiJZPhubzi4KWvoQLa5BXkPlFuZPSt2Nsi1RuaHBOZlqa4qP/TiA
-         jhBGwQ+QEdJ6B1/bNS+7sornspasIYn4IQu9YlkyI/znmTfApb7+Pkedr2Vd9Vw17SNk
-         AG/w==
-X-Gm-Message-State: AOAM531I25CVgPdCV9OVaQdb03TRkYliTQ5TFyNMnQ2KyO+Pm3dyGhU3
-        hz5IGEJTTQkDb5tqaux3iw==
-X-Google-Smtp-Source: ABdhPJzxvdrgUgkR++3q5wIQdY+NCisWO/v8qM2lIGnIGECEDfN/2e7awdGf+ibdbfFc5k3MyvQKrg==
-X-Received: by 2002:a05:6a00:996:b0:505:b6d2:abc8 with SMTP id u22-20020a056a00099600b00505b6d2abc8mr21562749pfg.11.1652782317854;
-        Tue, 17 May 2022 03:11:57 -0700 (PDT)
+        bh=U1ZOSVbfziWWzBVab8oIymA4zFffiNgJBszalmSIU3k=;
+        b=LSazOE84waKCzPYywts24sJnCez2ZicrrdCBKkLjDr4cuh9+VcOX+YV5ov/Omzg7F8
+         veIzIqNJ+0RMdTOUi6jjJ6SZddrPU7P4LcWTpJ3FKPEY8IJTd6d1LBYWFBoiMQQKTJEy
+         mhxvkvz+o5pdxAFSNuli18ZFGMNwq5jORiXn5ms0kQgcRasGdpGLbbmlm16UAHJRPwWw
+         Jh+FhN9X3c/2thKFciy4ob/oeIFM9rRsIUfsNaeGmHaUvctZolLEe0BINON/X3KhdDqP
+         wRuqiE57V+YTkW430SPHk0JG/PaaXjFFjtZ6jmnbT5Yr0uw5no8l3S2aBqSRYeHcROLR
+         jLAg==
+X-Gm-Message-State: AOAM533fEFRPq8dGJ0If5RJRTLBLJgLpbnSt2mD5+LytmvOrQrcVbLyx
+        6jOZzPYUqgLv47W4YdrB9g==
+X-Google-Smtp-Source: ABdhPJyAXOqyldvFMK3vjOTZD00Ehx7QEsZQs96nfoiU0wOGfteyQdSkh+t/73y31GLrpaARikiIig==
+X-Received: by 2002:a17:90a:8807:b0:1df:78c7:c215 with SMTP id s7-20020a17090a880700b001df78c7c215mr5295386pjn.234.1652782323316;
+        Tue, 17 May 2022 03:12:03 -0700 (PDT)
 Received: from localhost (220-133-130-217.hinet-ip.hinet.net. [220.133.130.217])
-        by smtp.gmail.com with ESMTPSA id br22-20020a17090b0f1600b001df82551cf2sm1225548pjb.44.2022.05.17.03.11.57
+        by smtp.gmail.com with ESMTPSA id b12-20020a17090a5a0c00b001ded49491basm1909954pjd.2.2022.05.17.03.12.02
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 17 May 2022 03:11:57 -0700 (PDT)
+        Tue, 17 May 2022 03:12:03 -0700 (PDT)
 From:   Tyrone Ting <warp5tw@gmail.com>
 To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         venture@google.com, yuenn@google.com, benjaminfair@google.com,
@@ -59,9 +59,9 @@ To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         KWLIU@nuvoton.com, JJLIU0@nuvoton.com, kfting@nuvoton.com
 Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v5 01/10] dt-bindings: i2c: npcm: support NPCM845
-Date:   Tue, 17 May 2022 18:11:33 +0800
-Message-Id: <20220517101142.28421-2-warp5tw@gmail.com>
+Subject: [PATCH v5 04/10] i2c: npcm: Fix timeout calculation
+Date:   Tue, 17 May 2022 18:11:36 +0800
+Message-Id: <20220517101142.28421-5-warp5tw@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220517101142.28421-1-warp5tw@gmail.com>
 References: <20220517101142.28421-1-warp5tw@gmail.com>
@@ -69,80 +69,57 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Tyrone Ting <kfting@nuvoton.com>
+From: Tali Perry <tali.perry1@gmail.com>
 
-Add compatible and nuvoton,sys-mgr description for NPCM i2c module.
+Use adap.timeout for timeout calculation instead of hard-coded
+value of 35ms.
 
+Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
 Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
 ---
- .../bindings/i2c/nuvoton,npcm7xx-i2c.yaml     | 25 +++++++++++++++----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-npcm7xx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml b/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
-index 128444942aec..09d2591e1fa3 100644
---- a/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/nuvoton,npcm7xx-i2c.yaml
-@@ -7,17 +7,18 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
- title: nuvoton NPCM7XX I2C Controller Device Tree Bindings
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index 550e4a4d1e01..489b4c8ad0ee 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -2047,7 +2047,7 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	u16 nwrite, nread;
+ 	u8 *write_data, *read_data;
+ 	u8 slave_addr;
+-	int timeout;
++	unsigned long timeout;
+ 	int ret = 0;
+ 	bool read_block = false;
+ 	bool read_PEC = false;
+@@ -2099,13 +2099,13 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	 * 9: bits per transaction (including the ack/nack)
+ 	 */
+ 	timeout_usec = (2 * 9 * USEC_PER_SEC / bus->bus_freq) * (2 + nread + nwrite);
+-	timeout = max(msecs_to_jiffies(35), usecs_to_jiffies(timeout_usec));
++	timeout = max_t(unsigned long, bus->adap.timeout, usecs_to_jiffies(timeout_usec));
+ 	if (nwrite >= 32 * 1024 || nread >= 32 * 1024) {
+ 		dev_err(bus->dev, "i2c%d buffer too big\n", bus->num);
+ 		return -EINVAL;
+ 	}
  
- description: |
--  The NPCM750x includes sixteen I2C bus controllers. All Controllers support
--  both master and slave mode. Each controller can switch between master and slave
--  at run time (i.e. IPMB mode). Each controller has two 16 byte HW FIFO for TX and
--  RX.
-+  I2C bus controllers of the NPCM series support both master and
-+  slave mode. Each controller can switch between master and slave at run time
-+  (i.e. IPMB mode). HW FIFO for TX and RX are supported.
- 
- maintainers:
-   - Tali Perry <tali.perry1@gmail.com>
- 
- properties:
-   compatible:
--    const: nuvoton,npcm750-i2c
-+    enum:
-+      - nuvoton,npcm750-i2c
-+      - nuvoton,npcm845-i2c
- 
-   reg:
-     maxItems: 1
-@@ -36,6 +37,10 @@ properties:
-     default: 100000
-     enum: [100000, 400000, 1000000]
- 
-+  nuvoton,sys-mgr:
-+    $ref: /schemas/types.yaml#/definitions/phandle
-+    description: The phandle of system manager register node.
-+
- required:
-   - compatible
-   - reg
-@@ -44,6 +49,15 @@ required:
- 
- allOf:
-   - $ref: /schemas/i2c/i2c-controller.yaml#
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: nuvoton,npcm845-i2c
-+
-+    then:
-+      required:
-+        - nuvoton,sys-mgr
- 
- unevaluatedProperties: false
- 
-@@ -57,6 +71,7 @@ examples:
-         clock-frequency = <100000>;
-         interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
-         compatible = "nuvoton,npcm750-i2c";
-+        nuvoton,sys-mgr = <&gcr>;
-     };
- 
- ...
+-	time_left = jiffies + msecs_to_jiffies(DEFAULT_STALL_COUNT) + 1;
++	time_left = jiffies + timeout + 1;
+ 	do {
+ 		/*
+ 		 * we must clear slave address immediately when the bus is not
+@@ -2268,7 +2268,7 @@ static int npcm_i2c_probe_bus(struct platform_device *pdev)
+ 	adap = &bus->adap;
+ 	adap->owner = THIS_MODULE;
+ 	adap->retries = 3;
+-	adap->timeout = HZ;
++	adap->timeout = msecs_to_jiffies(35);
+ 	adap->algo = &npcm_i2c_algo;
+ 	adap->quirks = &npcm_i2c_quirks;
+ 	adap->algo_data = bus;
 -- 
 2.17.1
 
