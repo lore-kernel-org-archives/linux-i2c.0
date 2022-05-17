@@ -2,51 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03131C433F5
-	for <linux-i2c@archiver.kernel.org>; Tue, 17 May 2022 10:13:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96B4BC433EF
+	for <linux-i2c@archiver.kernel.org>; Tue, 17 May 2022 10:13:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343831AbiEQKNO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 17 May 2022 06:13:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44664 "EHLO
+        id S1343897AbiEQKNx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 17 May 2022 06:13:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343605AbiEQKMl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2022 06:12:41 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81C1F1BEA2;
-        Tue, 17 May 2022 03:11:56 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id f10so5017162pjs.3;
-        Tue, 17 May 2022 03:11:56 -0700 (PDT)
+        with ESMTP id S1343523AbiEQKMu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2022 06:12:50 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AEEC1D0F2;
+        Tue, 17 May 2022 03:12:09 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id i8so2971046plr.13;
+        Tue, 17 May 2022 03:12:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ZkTRZ6J4nz1IazWIkYQ8lrxwI0vxdTjV3HhYpyhKWHk=;
-        b=DjYDgjgcSC/bcNm05ZGmpgYxI0LcM5bYtSjVab3ShHtq8kCLyIAUC5zpE5oxW9DYiO
-         Sm9NQK4zBAQFEVsBx7Sy3EQkIEBk4N3m7o48lKFLkeUXNyJIIhqCmZOfnCkU91NSV5Zs
-         Rop/S1ljOInPtxQ5b0WW16IsivGyhNRTBuT7tJtZHkTH1LT98OC8vNmuuocKufipHX+k
-         JI8t0Yhdc3Tb8zbfj+JWu/B7zm90p4bds5D0w4VgMG+kynpUeC/T8dnwCbE38Oe4GpCy
-         WxH+Sx7NU2XQbRuI+c5dl6eO9HsTT/Nsn9jGAer2Qp0Ra+UQcUNJVg01nEsZH/N/SrHl
-         9VdA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=DpH1r47zBu9XBaEC3XzpZc30x8PoKwhY90v7CcNTZ9k=;
+        b=Z5ItwttS8X2v/ZAv+sn2UBs+rUbd8mpv9njPTkkk+9XHTBvBT/an/BBmnhowIj9251
+         zxKzu73pAWChdo5f2Dnbbf8J35VpLQSPMFBdKZuOrgifVHKCdvrLy6l7x45TZ+qw0O9L
+         OwGq3gtzCoTA89I8HnfrHnw97QsA/4yAwES6ixo884qdpoaAQ25aZPbHAhwRREu1qqVA
+         KSwOUyPikl5/UyWc8Zga0AcA44miLDoxuEbPI7i4S2QCq7SVdMhAV6WKrMb+T1Mky5LL
+         u/G40oB/WIR8UcNvK0lRobW82WKOI6/0yoCLdDFGvTjLby/DeYkgiOLVyU9TLdvxLlTa
+         Z22Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ZkTRZ6J4nz1IazWIkYQ8lrxwI0vxdTjV3HhYpyhKWHk=;
-        b=zC25wME6rkbmpKJ5b4POm6Q8W64nrAW/aUxiEPlVcjw7gZ6BtrfV5QRFpK6ivpV+ag
-         2KHP5pqKn1LF6mWCY1WWESLEF+KPKxJSyJB2Ad/Cpjj8UYBgN9GERaMTe1GBHijpGBhX
-         ssuuidmyxhYQWlKPOWlCmXuHywimFOjys4XO5xUpa+huIIvIxX45ec7RW15lP8SQKQXV
-         VtWimBS/NS0RcI3zSvf5FO4feC2J0AztubmhTNslwmzOjOrsNxsnywHx6cNM/INP1WOW
-         qHF9F42pZ0GvmhtIAANh6SwHclwqlzCpBED1U7/3qyl1eVUIOXdcw/NQWTqH2NAMrh+o
-         BIaw==
-X-Gm-Message-State: AOAM533hLni6Z8uMaEou1e7G5Qget1DuQv4J7P6FVsQhH5Rcd/pjo2xm
-        nKbS4OW1zyhPMdyjtiVtlQ==
-X-Google-Smtp-Source: ABdhPJz/YlKbVfMuxNEm3/Q/9AoIqoclOeyZ0WODTabygG6G1k89loa6G3yO1f/dYGhlI60zatr2Kg==
-X-Received: by 2002:a17:902:b58b:b0:15f:4421:ba5e with SMTP id a11-20020a170902b58b00b0015f4421ba5emr21280278pls.103.1652782315720;
-        Tue, 17 May 2022 03:11:55 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=DpH1r47zBu9XBaEC3XzpZc30x8PoKwhY90v7CcNTZ9k=;
+        b=N/uoQUlhcybtUiTndKH5FA4YAvuwwhBRxMbxv+m+Lx+R7rJ/R7h7K3ZpmF4yqg2Wba
+         5Y+Ggsq7MGh+hninWI9P0tTC/9yILQ6KNKw7uTpQpHGfe46MXFxTEu847OdWlS7ylJRu
+         LYda0xo1XrtcF68/tYzU9qgSkhFuMYO37tB9pMqewFBXIgBPN9s77b6Obvh2TFLeG4Sg
+         cbhM5QDwKnklYorw8vJkjGc6MFUXmgk3WMBeT6NAZ+5DEirzoU4vfhW2ObxKeU4lXvws
+         vv7x8WgmbGNbi/7j9Njsk8BeznrtRkMHMIUTmdF0/YzDDlMT3/xmi0ZTeWP7bYLltR32
+         4XaQ==
+X-Gm-Message-State: AOAM53071Ae+p8L1slEDTfSNjmWSKsmWSC25K5wM2/E/elsWuZ2g1Si0
+        I1UjRpJe8o3WtgQnyyLeLw==
+X-Google-Smtp-Source: ABdhPJxPxClHtFUL8QSVd7yGdwvvruXuS0eYZlJDOPgIV/8pqauSl6GgGxWOdG9omaAx+nJtsF5BPA==
+X-Received: by 2002:a17:903:2411:b0:161:39ef:57f7 with SMTP id e17-20020a170903241100b0016139ef57f7mr18597146plo.136.1652782328365;
+        Tue, 17 May 2022 03:12:08 -0700 (PDT)
 Received: from localhost (220-133-130-217.hinet-ip.hinet.net. [220.133.130.217])
-        by smtp.gmail.com with ESMTPSA id h188-20020a62dec5000000b0050dc762816esm8478832pfg.72.2022.05.17.03.11.55
+        by smtp.gmail.com with ESMTPSA id a29-20020a62d41d000000b0050dc7628154sm8571992pfh.46.2022.05.17.03.12.07
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 17 May 2022 03:11:55 -0700 (PDT)
+        Tue, 17 May 2022 03:12:08 -0700 (PDT)
 From:   Tyrone Ting <warp5tw@gmail.com>
 To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         venture@google.com, yuenn@google.com, benjaminfair@google.com,
@@ -60,104 +59,259 @@ To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         KWLIU@nuvoton.com, JJLIU0@nuvoton.com, kfting@nuvoton.com
 Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v5 00/10] i2c: npcm: Bug fixes timeout, spurious interrupts
-Date:   Tue, 17 May 2022 18:11:32 +0800
-Message-Id: <20220517101142.28421-1-warp5tw@gmail.com>
+Subject: [PATCH v5 07/10] i2c: npcm: Handle spurious interrupts
+Date:   Tue, 17 May 2022 18:11:39 +0800
+Message-Id: <20220517101142.28421-8-warp5tw@gmail.com>
 X-Mailer: git-send-email 2.17.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220517101142.28421-1-warp5tw@gmail.com>
+References: <20220517101142.28421-1-warp5tw@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Tyrone Ting <kfting@nuvoton.com>
+From: Tali Perry <tali.perry1@gmail.com>
 
-This patchset includes the following fixes:
+On some platforms in rare cases (1 to 100,000 transactions),
+the i2c gets a spurious interrupt which means that we enter an interrupt
+but in the interrupt handler we don't find any status bit that points to
+the reason we got this interrupt.
 
-- Add dt-bindings description for NPCM845.
-- Bug fix for timeout calculation.
-- Better handling of spurious interrupts.
-- Fix for event type in slave mode.
-- Removal of own slave addresses [2:10].
-- Support for next gen BMC (NPCM845).
+This may be a case of a rare HW issue or signal integrity issue that is
+still under investigation.
 
-The NPCM I2C driver is tested on NPCM750 and NPCM845 evaluation boards.
+In order to overcome this we are doing the following:
+1. Disable incoming interrupts in master mode only when slave mode is not
+   enabled.
+2. Clear end of busy (EOB) after every interrupt.
+3. Clear other status bits (just in case since we found them cleared)
+4. Return correct status during the interrupt that will finish the
+   transaction.
 
-Addressed comments from:
- - Krzysztof Kozlowski : https://www.spinics.net/lists/linux-i2c/
-   msg56795.html
- - Andy Shevchenko : https://lkml.org/lkml/2022/5/10/297
- - Wolfram Sang : https://lkml.org/lkml/2022/5/17/38
- - Andy Shevchenko : https://lkml.org/lkml/2022/5/10/306
- - Andy Shevchenko : https://lkml.org/lkml/2022/5/10/309
+On next xmit transaction if the bus is still busy the master will issue a
+recovery process before issuing the new transaction.
 
-Changes since version 4:
- - Remove quotes around ref handle to nuvoton,sys-mgr in i2c binding
-   document.
- - Keep the "longer line first" order.
- - Correct the SoB chain.
- - Modify the if statement in one line and add new line characters.
- - Modify the commit message format in the patch Remove own slave
-   addresses 2:10. Correct the if statement in one line and shorten the
-   debug messages.
- - Create a new patch to capitalize the one-line comment in the driver.
+Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
+---
+ drivers/i2c/busses/i2c-npcm7xx.c | 91 ++++++++++++++++++++++----------
+ 1 file changed, 62 insertions(+), 29 deletions(-)
 
-Changes since version 3:
- - Correct the const format in if condition in i2c binding document.
- - Add the oops message statement and register information in register
-   access width patch.
- - Add the occurring rate of the i2c spurious interrupt issue and more
-   details in driver's behavior to overcome this issue.
- - Address Andy's comments in the patch to support NPCM845.
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index 58d7175f0362..5960ccde6574 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -564,6 +564,15 @@ static inline void npcm_i2c_nack(struct npcm_i2c *bus)
+ 	iowrite8(val, bus->reg + NPCM_I2CCTL1);
+ }
  
-Changes since version 2:
- - Keep old code as fallback, if getting nuvoton,sys-mgr property fails.
- - Fix the error reported by running 'make DT_CHECKER_FLAGS=-m 
-   dt_binding_check'.
- - Make nuvoton,sys-mgr required for nuvoton,npcm845-i2c.
- - Correct the patch's subject about changing the way of getting GCR
-   regmap and add the description about keeping old code as fallback
-   if getting nuvoton,sys-mgr property fails.
- - Correct the patch title and description about removing the unused 
-   variable clk_regmap.
- - Use the data field directly instead of the macros since macros are
-   not constants anymore in this patch.
++static inline void npcm_i2c_clear_master_status(struct npcm_i2c *bus)
++{
++	u8 val;
++
++	/* Clear NEGACK, STASTR and BER bits */
++	val = NPCM_I2CST_BER | NPCM_I2CST_NEGACK | NPCM_I2CST_STASTR;
++	iowrite8(val, bus->reg + NPCM_I2CST);
++}
++
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
+ static void npcm_i2c_slave_int_enable(struct npcm_i2c *bus, bool enable)
+ {
+@@ -643,8 +652,8 @@ static void npcm_i2c_reset(struct npcm_i2c *bus)
+ 	iowrite8(NPCM_I2CCST_BB, bus->reg + NPCM_I2CCST);
+ 	iowrite8(0xFF, bus->reg + NPCM_I2CST);
  
-Changes since version 1:
- - Add nuvoton,sys-mgr property in NPCM devicetree.
- - Describe the commit message in imperative mood.
- - Modify the description in i2c binding document to cover NPCM series.
- - Add new property in i2c binding document.
- - Create a new patch for client address calculation.
- - Create a new patch for updating gcr property name.
- - Create a new patch for removing unused clock node.
- - Explain EOB in the commit description.
- - Create a new patch for correcting NPCM register access width.
- - Remove some comment since the corresponding logic no longer exists.
- - Remove fixes tag while the patch adds an additional feature.
- - Use devicetree data field to support NPCM845.
-
-Tali Perry (6):
-  i2c: npcm: Change the way of getting GCR regmap
-  i2c: npcm: Remove unused variable clk_regmap
-  i2c: npcm: Fix timeout calculation
-  i2c: npcm: Add tx complete counter
-  i2c: npcm: Handle spurious interrupts
-  i2c: npcm: Remove own slave addresses 2:10
-
-Tyrone Ting (4):
-  dt-bindings: i2c: npcm: support NPCM845
-  i2c: npcm: Correct register access width
-  i2c: npcm: Support NPCM845
-  i2c: npcm: Capitalize the one-line comment
-
- .../bindings/i2c/nuvoton,npcm7xx-i2c.yaml     |  25 +-
- drivers/i2c/busses/Kconfig                    |   8 +-
- drivers/i2c/busses/Makefile                   |   2 +-
- drivers/i2c/busses/i2c-npcm7xx.c              | 277 +++++++++++-------
- 4 files changed, 194 insertions(+), 118 deletions(-)
-
+-	/* Clear EOB bit */
+-	iowrite8(NPCM_I2CCST3_EO_BUSY, bus->reg + NPCM_I2CCST3);
++	/* Clear and disable EOB */
++	npcm_i2c_eob_int(bus, false);
+ 
+ 	/* Clear all fifo bits: */
+ 	iowrite8(NPCM_I2CFIF_CTS_CLR_FIFO, bus->reg + NPCM_I2CFIF_CTS);
+@@ -656,6 +665,9 @@ static void npcm_i2c_reset(struct npcm_i2c *bus)
+ 	}
+ #endif
+ 
++	/* clear status bits for spurious interrupts */
++	npcm_i2c_clear_master_status(bus);
++
+ 	bus->state = I2C_IDLE;
+ }
+ 
+@@ -818,15 +830,6 @@ static void npcm_i2c_read_fifo(struct npcm_i2c *bus, u8 bytes_in_fifo)
+ 	}
+ }
+ 
+-static inline void npcm_i2c_clear_master_status(struct npcm_i2c *bus)
+-{
+-	u8 val;
+-
+-	/* Clear NEGACK, STASTR and BER bits */
+-	val = NPCM_I2CST_BER | NPCM_I2CST_NEGACK | NPCM_I2CST_STASTR;
+-	iowrite8(val, bus->reg + NPCM_I2CST);
+-}
+-
+ static void npcm_i2c_master_abort(struct npcm_i2c *bus)
+ {
+ 	/* Only current master is allowed to issue a stop condition */
+@@ -1234,7 +1237,16 @@ static irqreturn_t npcm_i2c_int_slave_handler(struct npcm_i2c *bus)
+ 		ret = IRQ_HANDLED;
+ 	} /* SDAST */
+ 
+-	return ret;
++	/*
++	 * if irq is not one of the above, make sure EOB is disabled and all
++	 * status bits are cleared.
++	 */
++	if (ret == IRQ_NONE) {
++		npcm_i2c_eob_int(bus, false);
++		npcm_i2c_clear_master_status(bus);
++	}
++
++	return IRQ_HANDLED;
+ }
+ 
+ static int npcm_i2c_reg_slave(struct i2c_client *client)
+@@ -1470,6 +1482,9 @@ static void npcm_i2c_irq_handle_nack(struct npcm_i2c *bus)
+ 		npcm_i2c_eob_int(bus, false);
+ 		npcm_i2c_master_stop(bus);
+ 
++		/* Clear SDA Status bit (by reading dummy byte) */
++		npcm_i2c_rd_byte(bus);
++
+ 		/*
+ 		 * The bus is released from stall only after the SW clears
+ 		 * NEGACK bit. Then a Stop condition is sent.
+@@ -1477,6 +1492,8 @@ static void npcm_i2c_irq_handle_nack(struct npcm_i2c *bus)
+ 		npcm_i2c_clear_master_status(bus);
+ 		readx_poll_timeout_atomic(ioread8, bus->reg + NPCM_I2CCST, val,
+ 					  !(val & NPCM_I2CCST_BUSY), 10, 200);
++		/* verify no status bits are still set after bus is released */
++		npcm_i2c_clear_master_status(bus);
+ 	}
+ 	bus->state = I2C_IDLE;
+ 
+@@ -1675,10 +1692,10 @@ static int npcm_i2c_recovery_tgclk(struct i2c_adapter *_adap)
+ 	int              iter = 27;
+ 
+ 	if ((npcm_i2c_get_SDA(_adap) == 1) && (npcm_i2c_get_SCL(_adap) == 1)) {
+-		dev_dbg(bus->dev, "bus%d recovery skipped, bus not stuck",
+-			bus->num);
++		dev_dbg(bus->dev, "bus%d-0x%x recovery skipped, bus not stuck",
++			bus->num, bus->dest_addr);
+ 		npcm_i2c_reset(bus);
+-		return status;
++		return 0;
+ 	}
+ 
+ 	npcm_i2c_int_enable(bus, false);
+@@ -1912,6 +1929,7 @@ static int npcm_i2c_init_module(struct npcm_i2c *bus, enum i2c_mode mode,
+ 	    bus_freq_hz < I2C_FREQ_MIN_HZ || bus_freq_hz > I2C_FREQ_MAX_HZ)
+ 		return -EINVAL;
+ 
++	npcm_i2c_int_enable(bus, false);
+ 	npcm_i2c_disable(bus);
+ 
+ 	/* Configure FIFO mode : */
+@@ -1940,10 +1958,17 @@ static int npcm_i2c_init_module(struct npcm_i2c *bus, enum i2c_mode mode,
+ 	val = (val | NPCM_I2CCTL1_NMINTE) & ~NPCM_I2CCTL1_RWS;
+ 	iowrite8(val, bus->reg + NPCM_I2CCTL1);
+ 
+-	npcm_i2c_int_enable(bus, true);
+-
+ 	npcm_i2c_reset(bus);
+ 
++	/* check HW is OK: SDA and SCL should be high at this point. */
++	if ((npcm_i2c_get_SDA(&bus->adap) == 0) || (npcm_i2c_get_SCL(&bus->adap) == 0)) {
++		dev_err(bus->dev, "I2C%d init fail: lines are low\n", bus->num);
++		dev_err(bus->dev, "SDA=%d SCL=%d\n", npcm_i2c_get_SDA(&bus->adap),
++			npcm_i2c_get_SCL(&bus->adap));
++		return -ENXIO;
++	}
++
++	npcm_i2c_int_enable(bus, true);
+ 	return 0;
+ }
+ 
+@@ -1991,10 +2016,14 @@ static irqreturn_t npcm_i2c_bus_irq(int irq, void *dev_id)
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
+ 	if (bus->slave) {
+ 		bus->master_or_slave = I2C_SLAVE;
+-		return npcm_i2c_int_slave_handler(bus);
++		if (npcm_i2c_int_slave_handler(bus))
++			return IRQ_HANDLED;
+ 	}
+ #endif
+-	return IRQ_NONE;
++	/* clear status bits for spurious interrupts */
++	npcm_i2c_clear_master_status(bus);
++
++	return IRQ_HANDLED;
+ }
+ 
+ static bool npcm_i2c_master_start_xmit(struct npcm_i2c *bus,
+@@ -2051,7 +2080,6 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	u8 *write_data, *read_data;
+ 	u8 slave_addr;
+ 	unsigned long timeout;
+-	int ret = 0;
+ 	bool read_block = false;
+ 	bool read_PEC = false;
+ 	u8 bus_busy;
+@@ -2141,12 +2169,12 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	bus->read_block_use = read_block;
+ 
+ 	reinit_completion(&bus->cmd_complete);
+-	if (!npcm_i2c_master_start_xmit(bus, slave_addr, nwrite, nread,
+-					write_data, read_data, read_PEC,
+-					read_block))
+-		ret = -EBUSY;
+ 
+-	if (ret != -EBUSY) {
++	npcm_i2c_int_enable(bus, true);
++
++	if (npcm_i2c_master_start_xmit(bus, slave_addr, nwrite, nread,
++				       write_data, read_data, read_PEC,
++				       read_block)) {
+ 		time_left = wait_for_completion_timeout(&bus->cmd_complete,
+ 							timeout);
+ 
+@@ -2160,26 +2188,31 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			}
+ 		}
+ 	}
+-	ret = bus->cmd_err;
+ 
+ 	/* if there was BER, check if need to recover the bus: */
+ 	if (bus->cmd_err == -EAGAIN)
+-		ret = i2c_recover_bus(adap);
++		bus->cmd_err = i2c_recover_bus(adap);
+ 
+ 	/*
+ 	 * After any type of error, check if LAST bit is still set,
+ 	 * due to a HW issue.
+ 	 * It cannot be cleared without resetting the module.
+ 	 */
+-	if (bus->cmd_err &&
+-	    (NPCM_I2CRXF_CTL_LAST_PEC & ioread8(bus->reg + NPCM_I2CRXF_CTL)))
++	else if (bus->cmd_err &&
++		 (NPCM_I2CRXF_CTL_LAST_PEC & ioread8(bus->reg + NPCM_I2CRXF_CTL)))
+ 		npcm_i2c_reset(bus);
+ 
++	/* after any xfer, successful or not, stall and EOB must be disabled */
++	npcm_i2c_stall_after_start(bus, false);
++	npcm_i2c_eob_int(bus, false);
++
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
+ 	/* reenable slave if it was enabled */
+ 	if (bus->slave)
+ 		iowrite8((bus->slave->addr & 0x7F) | NPCM_I2CADDR_SAEN,
+ 			 bus->reg + NPCM_I2CADDR1);
++#else
++	npcm_i2c_int_enable(bus, false);
+ #endif
+ 	return bus->cmd_err;
+ }
 -- 
 2.17.1
 
