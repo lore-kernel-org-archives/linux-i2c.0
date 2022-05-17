@@ -2,51 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 280A0C433EF
-	for <linux-i2c@archiver.kernel.org>; Tue, 17 May 2022 10:13:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E74D6C433EF
+	for <linux-i2c@archiver.kernel.org>; Tue, 17 May 2022 10:13:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243887AbiEQKNJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 17 May 2022 06:13:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47236 "EHLO
+        id S235136AbiEQKNL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 17 May 2022 06:13:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343769AbiEQKMp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2022 06:12:45 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35FBD1CFF2;
-        Tue, 17 May 2022 03:12:07 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id x23so16459920pff.9;
-        Tue, 17 May 2022 03:12:07 -0700 (PDT)
+        with ESMTP id S1343887AbiEQKMm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2022 06:12:42 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABD91C133;
+        Tue, 17 May 2022 03:12:00 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id l14so6025960pjk.2;
+        Tue, 17 May 2022 03:12:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=zomvFyKwvw6sl1NdObv6Lxmz7g2O8ob0ad1FOsoR+M0=;
-        b=QGDr7GlpRtohqnEqHu9NzhS/DN2bjl9VDao1H9pGnSW7NQ1+ZU/kvpuuszSkLE/XS/
-         vgXfS5vpbQHyvDVgyjeewc1ALxm1roslp4B6HUnfwqmEApI6g7mJ3bywifFn8ufCTgIn
-         bRdvyg2BFue0am5FIkv+cjwQdelM7ANsNh+Y1L20fOy0SWwoV/bCKotMfL+tgGRV2mIf
-         ugzf4KUSSjWl3KKmDUEjErxGBmEi6H+8kTpPei8cCM7k7YLf/0SPQgg89eMUR70siRFp
-         Ej/NFy+rCGg4VH5ZiwjCXbIsAGPGIBfEhC2/+QoOMqIsxN4sqU9jSnRoWS0rLZtdtiiv
-         kj4Q==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=oBrUS4cUnYCukBR9QE9N3XBr+fjKNffpl/fgC0cqOiw=;
+        b=U4TUEDQdH7GITaysYyldEdGwlpv6UEzDB5eXkMk+C/CuL4/H0IMXqID1CQghmGhXBZ
+         tOhdwuPM5FuRUGd+cwETTJA+HuuxxWheGPzqkyaJwnS9H1Q6MGLiJ6kw0ZP0u/sB/HcF
+         AmmzSNBe8g5HcxIMtyUlVg7KSamG2zQ03qfiJtGm0e334EOm8zpR/h4gS86mu1hv7ptG
+         6TtY0+LM2jXYoidXplKAAx49o7iVt2clz2lghoiLmyBbgN0+JBawh/IzdcsunMu7cHaH
+         vsJ7aPM64E1rtimGzMqWCO1dkVMMIin+FyiumV5iQppsXcIeFeoauf+M9iHDrE4WDOkT
+         7fgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=zomvFyKwvw6sl1NdObv6Lxmz7g2O8ob0ad1FOsoR+M0=;
-        b=vF2Vtqx42Ewa3UXGXAnZz6/yY5CIra2FszGapilfIuMHYXW6kMB1mIhkORA1n704ES
-         w1ktOJGfGruC3pTpzpnydI0/s4VlBveC0LyRdyyBzbTgqygppfpdX/1w4hCl583W3W1b
-         /PBxcG9AYPlfq/2DQBfjyGMVdTlekTowWBmOnjwAhdtf0OMeVGuMWQWaixgUaVAP1ZMX
-         XiZEYDCFtJfrgEb3yiea2AuHM9vH51gfpdsuSNPnqTfnIXJe5jyc4Hbe10dB6AXQuZXA
-         0re/7tKMy9EsdtyQm/xCIt3o0Ff/BFf0dMP1ZNEgvfuCLhxqJJ6GEo/DBQuYhjkhWqzP
-         S34w==
-X-Gm-Message-State: AOAM531zh3QnQNOKrdykR6Ywy3AaGko2Z/K3izjlgP6w25wutErtlc0q
-        TQ+8qwGqP5yh3VDL660Ccg==
-X-Google-Smtp-Source: ABdhPJyEh0IIwPL85FUQMFt25TSsOVEFYpJ+H5cN9UppcTkM+ikonG1TwLiLRF3hTllzsaIHCB7DiA==
-X-Received: by 2002:a65:4007:0:b0:3c6:c6e2:1ccc with SMTP id f7-20020a654007000000b003c6c6e21cccmr18499757pgp.500.1652782326658;
-        Tue, 17 May 2022 03:12:06 -0700 (PDT)
+         :references;
+        bh=oBrUS4cUnYCukBR9QE9N3XBr+fjKNffpl/fgC0cqOiw=;
+        b=VHuyIhOzoomAQAnn3Ziuyz6/V0JHt1uRalowZqa5JQuSQJZh6XOc+lAuX1g0bIrVCM
+         ZMo360YpNPUQfWEOyGTl3pNKrKaVOCENI//duyFAKR2zF7ULe34HkaLi+q2aefRYc1zf
+         4khU4P2wI8XISBVi9mXBkg9Hf1DwPGxQfKTtvoeqTwZQsvhAqIs8A5YIl//oG42+w+FX
+         q6jqlHnb1HZy96D8xeN+laIetmbSsM8hKBYQrUTYNO70Y8XQjJJ9yXtQCG50C+/YmeIT
+         GxZtFoWzT+ZlVTgSE7cvhtLzKmRUxWZBoMAatk08oyGkf6U1+SdEs8EFwVG+KqGDGC2K
+         Z51A==
+X-Gm-Message-State: AOAM531YUh53ra28kJoPkyaqnFwTte/wZ0DoBNF/MkJxAVuqC72h42rk
+        y27F7+Uaow4mhoFDo8M+xQ==
+X-Google-Smtp-Source: ABdhPJwyHdOXXr1USDm5VHABkdGunFN0dkddP7cfCZyjpdaZzp/TBVc6dDq5QHZCZLtB6IsZoWphwA==
+X-Received: by 2002:a17:902:cf0a:b0:156:39c9:4c44 with SMTP id i10-20020a170902cf0a00b0015639c94c44mr21528650plg.124.1652782319470;
+        Tue, 17 May 2022 03:11:59 -0700 (PDT)
 Received: from localhost (220-133-130-217.hinet-ip.hinet.net. [220.133.130.217])
-        by smtp.gmail.com with ESMTPSA id b1-20020a056a000a8100b0050dc76281c1sm8628069pfl.155.2022.05.17.03.12.06
+        by smtp.gmail.com with ESMTPSA id 193-20020a6214ca000000b0050dc76281ecsm902465pfu.198.2022.05.17.03.11.59
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 17 May 2022 03:12:06 -0700 (PDT)
+        Tue, 17 May 2022 03:11:59 -0700 (PDT)
 From:   Tyrone Ting <warp5tw@gmail.com>
 To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         venture@google.com, yuenn@google.com, benjaminfair@google.com,
@@ -60,58 +59,63 @@ To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
         KWLIU@nuvoton.com, JJLIU0@nuvoton.com, kfting@nuvoton.com
 Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v5 06/10] i2c: npcm: Correct register access width
-Date:   Tue, 17 May 2022 18:11:38 +0800
-Message-Id: <20220517101142.28421-7-warp5tw@gmail.com>
+Subject: [PATCH v5 02/10] i2c: npcm: Change the way of getting GCR regmap
+Date:   Tue, 17 May 2022 18:11:34 +0800
+Message-Id: <20220517101142.28421-3-warp5tw@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220517101142.28421-1-warp5tw@gmail.com>
 References: <20220517101142.28421-1-warp5tw@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Tyrone Ting <kfting@nuvoton.com>
+From: Tali Perry <tali.perry1@gmail.com>
 
-The SMBnCTL3 register is 8-bit wide and the 32-bit access was always
-incorrect, but simply didn't cause a visible error on the 32-bit machine.
-
-On the 64-bit machine, the kernel message reports that ESR value is
-0x96000021. Checking Arm Architecture Reference Manual Armv8 suggests that
-it's the alignment fault.
-
-SMBnCTL3's address is 0xE.
+Change the way of getting NPCM system manager reigster (GCR)
+and still maintain the old mechanism as a fallback if getting
+nuvoton,sys-mgr fails while working with the legacy devicetree
+file.
 
 Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
 Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
-Reviewed-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 ---
- drivers/i2c/busses/i2c-npcm7xx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-npcm7xx.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index 36f8aa7ab106..58d7175f0362 100644
+index 71aad029425d..de4e5f2f3e5a 100644
 --- a/drivers/i2c/busses/i2c-npcm7xx.c
 +++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -360,14 +360,14 @@ static int npcm_i2c_get_SCL(struct i2c_adapter *_adap)
+@@ -2229,11 +2229,12 @@ static void npcm_i2c_init_debugfs(struct platform_device *pdev,
+ 
+ static int npcm_i2c_probe_bus(struct platform_device *pdev)
  {
- 	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
+-	struct npcm_i2c *bus;
+-	struct i2c_adapter *adap;
+-	struct clk *i2c_clk;
++	struct device_node *np = pdev->dev.of_node;
+ 	static struct regmap *gcr_regmap;
+ 	static struct regmap *clk_regmap;
++	struct i2c_adapter *adap;
++	struct npcm_i2c *bus;
++	struct clk *i2c_clk;
+ 	int irq;
+ 	int ret;
  
--	return !!(I2CCTL3_SCL_LVL & ioread32(bus->reg + NPCM_I2CCTL3));
-+	return !!(I2CCTL3_SCL_LVL & ioread8(bus->reg + NPCM_I2CCTL3));
- }
+@@ -2250,7 +2251,10 @@ static int npcm_i2c_probe_bus(struct platform_device *pdev)
+ 		return PTR_ERR(i2c_clk);
+ 	bus->apb_clk = clk_get_rate(i2c_clk);
  
- static int npcm_i2c_get_SDA(struct i2c_adapter *_adap)
- {
- 	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
- 
--	return !!(I2CCTL3_SDA_LVL & ioread32(bus->reg + NPCM_I2CCTL3));
-+	return !!(I2CCTL3_SDA_LVL & ioread8(bus->reg + NPCM_I2CCTL3));
- }
- 
- static inline u16 npcm_i2c_get_index(struct npcm_i2c *bus)
+-	gcr_regmap = syscon_regmap_lookup_by_compatible("nuvoton,npcm750-gcr");
++	gcr_regmap = syscon_regmap_lookup_by_phandle(np, "nuvoton,sys-mgr");
++	if (IS_ERR(gcr_regmap))
++		gcr_regmap = syscon_regmap_lookup_by_compatible("nuvoton,npcm750-gcr");
++
+ 	if (IS_ERR(gcr_regmap))
+ 		return PTR_ERR(gcr_regmap);
+ 	regmap_write(gcr_regmap, NPCM_I2CSEGCTL, NPCM_I2CSEGCTL_INIT_VAL);
 -- 
 2.17.1
 
