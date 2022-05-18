@@ -2,134 +2,100 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 496F2C433FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 18 May 2022 20:22:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 909C3C433F5
+	for <linux-i2c@archiver.kernel.org>; Wed, 18 May 2022 20:41:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242531AbiERUWj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 18 May 2022 16:22:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38100 "EHLO
+        id S242706AbiERUlo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 18 May 2022 16:41:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242520AbiERUW3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 May 2022 16:22:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A18CDEBA9D;
-        Wed, 18 May 2022 13:22:28 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D3DBB820BF;
-        Wed, 18 May 2022 20:22:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AFCBC385A9;
-        Wed, 18 May 2022 20:22:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652905346;
-        bh=hLHKO7qKN+i0jdECk57N3nCVEGIJesNQBGUeRkLQTrg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=VWFxt0ChnONpIORLUPrOsDgokdX6XJ0Xl6IYDhrDqfY3CUFz+1iWrX1LrvC1T1vqv
-         2ZcFQLAmTPagIPJgoyk19yirlUorPByNN6hEzCKRotliwUJrvQdRxY0OxbP2l2KyYG
-         2JK267/LEIb13lanePjToO+EMGAThE6q+nYw8A7SSLwGSpQGlGNLvEU/UVgrMqQscR
-         K9tOuBqobzrLCo+TDFT7MP1vPRORTAoHw8E7OEHDh97MOmUXekCOR1I03wcz+2Z40k
-         g9OJOggQ7sSEFiF1HgMHzRjbKrm8shxyX5Uih3zvO1FhksBi8+orBbZcidxmKW7FDQ
-         Brdx2LQwcQ50A==
-From:   Dinh Nguyen <dinguyen@kernel.org>
-To:     jarkko.nikula@linux.intel.com
-Cc:     dinguyen@kernel.org, andriy.shevchenko@linux.intel.com,
-        mika.westerberg@linux.intel.com, robh+dt@kernel.org,
-        krzk+dt@kernel.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH 1/2] i2c: designware: introduce a custom scl recovery for SoCFPGA platforms
-Date:   Wed, 18 May 2022 15:22:16 -0500
-Message-Id: <20220518202217.85803-1-dinguyen@kernel.org>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S242694AbiERUln (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 May 2022 16:41:43 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105166E8EE;
+        Wed, 18 May 2022 13:41:41 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24IJOkO9008508;
+        Wed, 18 May 2022 20:41:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=4UonT80lvmkz00sXipHvDDJWcEyXpjZqCzZcHJL6C4I=;
+ b=Ngo7HLUUNDFfPCrWZPVOR7vZtgaSBkdJ18WJk7a0RETXXF058HcbO24glgglC5+4tB6f
+ zhVcS9OnMwluenB69p1rPugCRI3Uvr+jWabYGS6JnCa+Lfq+kRB+k1apnwQrt+D0xUn0
+ ixM5V/i9SZZCXGVB3+gqshkymtsTfPBjXCivTJoFSZ9OfGzkwug3jnt0qaqrtLhQfKwt
+ Rv5MteFcbJyTFHjN/knm+/Lws4rfMpBCQsntM0h3t701UUYfILbfyPjpbLFZlOrfKWEH
+ q+tKWBUPBekXxAUKpYYHxWIW0iZ3zttW6oinOK+GCpKH+rJhR99Q+i5830M/nkXf/sw5 Xw== 
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g56x5sgky-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 May 2022 20:41:24 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24IKbauZ030855;
+        Wed, 18 May 2022 20:41:23 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma02wdc.us.ibm.com with ESMTP id 3g2429y1t6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 May 2022 20:41:23 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24IKfMaB30867956
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 18 May 2022 20:41:22 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C0311C605D;
+        Wed, 18 May 2022 20:41:22 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 481BDC605B;
+        Wed, 18 May 2022 20:41:22 +0000 (GMT)
+Received: from v0005c16.aus.stglabs.ibm.com (unknown [9.163.6.139])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Wed, 18 May 2022 20:41:22 +0000 (GMT)
+From:   Eddie James <eajames@linux.ibm.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
+        jic23@kernel.org, lars@metafoo.de, wsa@kernel.org,
+        milton@us.ibm.com, peda@axentia.se,
+        Eddie James <eajames@linux.ibm.com>
+Subject: [RFC 0/2] i2c: core and si7020: Add adapter transfer callback
+Date:   Wed, 18 May 2022 15:41:17 -0500
+Message-Id: <20220518204119.38943-1-eajames@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: FHuP_YkgLd0JCH8ixA0a6Ua6It7DkdOT
+X-Proofpoint-GUID: FHuP_YkgLd0JCH8ixA0a6Ua6It7DkdOT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-18_06,2022-05-17_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 phishscore=0 spamscore=0 clxscore=1011 mlxlogscore=917
+ mlxscore=0 suspectscore=0 malwarescore=0 impostorscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205180119
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The I2C pins on the SoCFPGA platforms do not go through a GPIO module,
-thus cannot be recovered by the default method of by doing a GPIO access.
-Only a reset of the I2C IP block can a recovery be successful.
+This series adds a callback function pointer to be executed after the
+adapter performs a transfer. The purpose of such a callback is for a
+client to execute some code while "owning" the bus entirely. Holding the
+adapter lock is insufficient in the case where the client is behind a
+mux, as the mux driver could perform mux selection operations on the
+bus while locked. The only use case for now is the SI7020 driver. While
+the SI7020 is starting up after power on or reset, any I2C commands on the
+bus can potentially upset the startup sequence. Since the SI7020 may be
+behind a mux, the driver needs to use the new transfer callback to sleep
+while the chip starts up.
 
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
----
- drivers/i2c/busses/i2c-designware-core.h    |  3 ++-
- drivers/i2c/busses/i2c-designware-master.c  | 19 +++++++++++++++++--
- drivers/i2c/busses/i2c-designware-platdrv.c |  2 ++
- 3 files changed, 21 insertions(+), 3 deletions(-)
+Eddie James (2):
+  i2c: core: Add adapter transfer callback
+  iio: humidity: si7020: Use core transfer callback to sleep after reset
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 70b80e710990..4e997e381fb6 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -303,7 +303,8 @@ struct dw_i2c_dev {
- #define MODEL_MSCC_OCELOT	BIT(8)
- #define MODEL_BAIKAL_BT1	BIT(9)
- #define MODEL_AMD_NAVI_GPU	BIT(10)
--#define MODEL_MASK		GENMASK(11, 8)
-+#define MODEL_SOCFPGA		BIT(11)
-+#define MODEL_MASK		GENMASK(12, 8)
- 
- /*
-  * Enable UCSI interrupt by writing 0xd at register
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 44a94b225ed8..333ad17b967d 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -813,12 +813,29 @@ static void i2c_dw_unprepare_recovery(struct i2c_adapter *adap)
- 	i2c_dw_init_master(dev);
- }
- 
-+static int i2c_custom_scl_recovery(struct i2c_adapter *adap)
-+{
-+	i2c_dw_prepare_recovery(adap);
-+	i2c_dw_unprepare_recovery(adap);
-+	return 0;
-+}
-+
- static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
- {
- 	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
- 	struct i2c_adapter *adap = &dev->adapter;
- 	struct gpio_desc *gpio;
- 
-+	switch (dev->flags & MODEL_MASK) {
-+	case MODEL_SOCFPGA:
-+		rinfo->recover_bus = i2c_custom_scl_recovery;
-+		break;
-+	default:
-+		rinfo->recover_bus = i2c_generic_scl_recovery;
-+		break;
-+	}
-+	adap->bus_recovery_info = rinfo;
-+
- 	gpio = devm_gpiod_get_optional(dev->dev, "scl", GPIOD_OUT_HIGH);
- 	if (IS_ERR_OR_NULL(gpio))
- 		return PTR_ERR_OR_ZERO(gpio);
-@@ -830,10 +847,8 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
- 		return PTR_ERR(gpio);
- 	rinfo->sda_gpiod = gpio;
- 
--	rinfo->recover_bus = i2c_generic_scl_recovery;
- 	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
- 	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
--	adap->bus_recovery_info = rinfo;
- 
- 	dev_info(dev->dev, "running with gpio recovery mode! scl%s",
- 		 rinfo->sda_gpiod ? ",sda" : "");
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 70ade5306e45..92dfe3456ca7 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -153,6 +153,8 @@ static const struct of_device_id dw_i2c_of_match[] = {
- 	{ .compatible = "snps,designware-i2c", },
- 	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
- 	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
-+	{ .compatible = "intel,socfpga-i2c", .data = (void *)MODEL_SOCFPGA },
-+
- 	{},
- };
- MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+ drivers/i2c/i2c-core-base.c   |  3 +++
+ drivers/iio/humidity/si7020.c | 12 ++++++++++--
+ include/linux/i2c.h           | 25 +++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+), 2 deletions(-)
+
 -- 
-2.25.1
+2.27.0
 
