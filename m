@@ -2,36 +2,35 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01201C43219
-	for <linux-i2c@archiver.kernel.org>; Fri, 20 May 2022 20:29:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F9A9C4167B
+	for <linux-i2c@archiver.kernel.org>; Fri, 20 May 2022 20:29:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241803AbiETU3b (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 20 May 2022 16:29:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51036 "EHLO
+        id S241913AbiETU3c (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 20 May 2022 16:29:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353446AbiETU3a (ORCPT
+        with ESMTP id S1353444AbiETU3a (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 May 2022 16:29:30 -0400
 Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35430186286
-        for <linux-i2c@vger.kernel.org>; Fri, 20 May 2022 13:29:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 170BB18540E
+        for <linux-i2c@vger.kernel.org>; Fri, 20 May 2022 13:29:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
         from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=k1; bh=rHfBZDV61v2cgd
-        nDCsDQmTlJBFkrE/duuOMKhNkhQbI=; b=dVu79n/uWLd+hEO/yCPp+yCRc5Zjra
-        wvITFVBZyMPQcTL4TJ6k6RKtyA/gjILztgvzmkVZRLA5+R3OVw2JTvZNNgYBeeVx
-        93pYoQoSZAIcw5gXJQ6V9JMlvSHpmuPwp2ME+vGX92h+xzXrGJMNq+Fz7DPREh5P
-        acdPLwiop5BRU=
-Received: (qmail 3917320 invoked from network); 20 May 2022 22:29:26 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 May 2022 22:29:26 +0200
-X-UD-Smtp-Session: l3s3148p1@b9OxWHffiOsgAwDtxwyXAGMY7IbT6g6m
+        :mime-version:content-transfer-encoding; s=k1; bh=0cklkvq9it+QBY
+        JmC7XZH0UQTVqQNLzhlX7tQ1zmjzo=; b=kzDjT9li219djEUe3sWEzT0RVhcIQ0
+        hlddROh8KP1GgDU5MnnVlN+QLfqqLnegxdAZ7DI2C2Qv7HAs1+1e5UL2Xx2dRk6B
+        RB7VG7YHwZTLEv1Zc4mNjevAcuLWfQhGjWlvMq3v3UHm1zkSLSm/DMyaF6AT04RD
+        e60yJ1r0FH+5U=
+Received: (qmail 3917270 invoked from network); 20 May 2022 22:29:24 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 May 2022 22:29:24 +0200
+X-UD-Smtp-Session: l3s3148p1@Qe2aWHffhOsgAwDtxwyXAGMY7IbT6g6m
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     linux-renesas-soc@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 3/3] i2c: rcar: use flags instead of atomic_xfer
-Date:   Fri, 20 May 2022 22:29:18 +0200
-Message-Id: <20220520202918.17889-4-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/3] i2c: rcar: use BIT macro consistently
+Date:   Fri, 20 May 2022 22:29:16 +0200
+Message-Id: <20220520202918.17889-2-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220520202918.17889-1-wsa+renesas@sang-engineering.com>
 References: <20220520202918.17889-1-wsa+renesas@sang-engineering.com>
@@ -41,116 +40,109 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Easier to read and ensures proper types.
 
-i2c-rcar already has priv->flags. This patch adds a new persistent flag
-ID_P_NOT_ATOMIC and uses it to save the extra variable. The negation of
-the logic was done to make the code more readable.
-
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-[wsa: negated the logic, rebased, updated the commit message]
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 70 +++++++++++++++++------------------
+ 1 file changed, 35 insertions(+), 35 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 034d1ec64cf0..6e7be9d9f504 100644
+index 6e932f948293..88d060725301 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -104,10 +104,11 @@
- #define ID_NACK			BIT(4)
- #define ID_EPROTO		BIT(5)
+@@ -45,44 +45,44 @@
+ #define ICDMAER	0x3c	/* DMA enable (Gen3) */
+ 
+ /* ICSCR */
+-#define SDBS	(1 << 3)	/* slave data buffer select */
+-#define SIE	(1 << 2)	/* slave interface enable */
+-#define GCAE	(1 << 1)	/* general call address enable */
+-#define FNA	(1 << 0)	/* forced non acknowledgment */
++#define SDBS	BIT(3)	/* slave data buffer select */
++#define SIE	BIT(2)	/* slave interface enable */
++#define GCAE	BIT(1)	/* general call address enable */
++#define FNA	BIT(0)	/* forced non acknowledgment */
+ 
+ /* ICMCR */
+-#define MDBS	(1 << 7)	/* non-fifo mode switch */
+-#define FSCL	(1 << 6)	/* override SCL pin */
+-#define FSDA	(1 << 5)	/* override SDA pin */
+-#define OBPC	(1 << 4)	/* override pins */
+-#define MIE	(1 << 3)	/* master if enable */
+-#define TSBE	(1 << 2)
+-#define FSB	(1 << 1)	/* force stop bit */
+-#define ESG	(1 << 0)	/* enable start bit gen */
++#define MDBS	BIT(7)	/* non-fifo mode switch */
++#define FSCL	BIT(6)	/* override SCL pin */
++#define FSDA	BIT(5)	/* override SDA pin */
++#define OBPC	BIT(4)	/* override pins */
++#define MIE	BIT(3)	/* master if enable */
++#define TSBE	BIT(2)
++#define FSB	BIT(1)	/* force stop bit */
++#define ESG	BIT(0)	/* enable start bit gen */
+ 
+ /* ICSSR (also for ICSIER) */
+-#define GCAR	(1 << 6)	/* general call received */
+-#define STM	(1 << 5)	/* slave transmit mode */
+-#define SSR	(1 << 4)	/* stop received */
+-#define SDE	(1 << 3)	/* slave data empty */
+-#define SDT	(1 << 2)	/* slave data transmitted */
+-#define SDR	(1 << 1)	/* slave data received */
+-#define SAR	(1 << 0)	/* slave addr received */
++#define GCAR	BIT(6)	/* general call received */
++#define STM	BIT(5)	/* slave transmit mode */
++#define SSR	BIT(4)	/* stop received */
++#define SDE	BIT(3)	/* slave data empty */
++#define SDT	BIT(2)	/* slave data transmitted */
++#define SDR	BIT(1)	/* slave data received */
++#define SAR	BIT(0)	/* slave addr received */
+ 
+ /* ICMSR (also for ICMIE) */
+-#define MNR	(1 << 6)	/* nack received */
+-#define MAL	(1 << 5)	/* arbitration lost */
+-#define MST	(1 << 4)	/* sent a stop */
+-#define MDE	(1 << 3)
+-#define MDT	(1 << 2)
+-#define MDR	(1 << 1)
+-#define MAT	(1 << 0)	/* slave addr xfer done */
++#define MNR	BIT(6)	/* nack received */
++#define MAL	BIT(5)	/* arbitration lost */
++#define MST	BIT(4)	/* sent a stop */
++#define MDE	BIT(3)
++#define MDT	BIT(2)
++#define MDR	BIT(1)
++#define MAT	BIT(0)	/* slave addr xfer done */
+ 
+ /* ICDMAER */
+-#define RSDMAE	(1 << 3)	/* DMA Slave Received Enable */
+-#define TSDMAE	(1 << 2)	/* DMA Slave Transmitted Enable */
+-#define RMDMAE	(1 << 1)	/* DMA Master Received Enable */
+-#define TMDMAE	(1 << 0)	/* DMA Master Transmitted Enable */
++#define RSDMAE	BIT(3)	/* DMA Slave Received Enable */
++#define TSDMAE	BIT(2)	/* DMA Slave Transmitted Enable */
++#define RMDMAE	BIT(1)	/* DMA Master Received Enable */
++#define TMDMAE	BIT(0)	/* DMA Master Transmitted Enable */
+ 
+ /* ICFBSCR */
+ #define TCYC17	0x0f		/* 17*Tcyc delay 1st bit between SDA and SCL */
+@@ -97,11 +97,11 @@
+ #define RCAR_IRQ_RECV	(MNR | MAL | MST | MAT | MDR)
+ #define RCAR_IRQ_STOP	(MST)
+ 
+-#define ID_LAST_MSG	(1 << 0)
+-#define ID_DONE		(1 << 2)
+-#define ID_ARBLOST	(1 << 3)
+-#define ID_NACK		(1 << 4)
+-#define ID_EPROTO	(1 << 5)
++#define ID_LAST_MSG		BIT(0)
++#define ID_DONE			BIT(2)
++#define ID_ARBLOST		BIT(3)
++#define ID_NACK			BIT(4)
++#define ID_EPROTO		BIT(5)
  /* persistent flags */
-+#define ID_P_NOT_ATOMIC		BIT(28)
- #define ID_P_HOST_NOTIFY	BIT(29)
- #define ID_P_NO_RXDMA		BIT(30) /* HW forbids RXDMA sometimes */
- #define ID_P_PM_BLOCKED		BIT(31)
--#define ID_P_MASK		GENMASK(31, 29)
-+#define ID_P_MASK		GENMASK(31, 28)
- 
- enum rcar_i2c_type {
- 	I2C_RCAR_GEN1,
-@@ -138,7 +139,6 @@ struct rcar_i2c_priv {
- 	enum dma_data_direction dma_direction;
- 
- 	struct reset_control *rstc;
--	bool atomic_xfer;
- 	int irq;
- 
- 	struct i2c_client *host_notify_client;
-@@ -350,7 +350,7 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
- 		priv->flags |= ID_LAST_MSG;
- 
- 	rcar_i2c_write(priv, ICMAR, i2c_8bit_addr_from_msg(priv->msg));
--	if (!priv->atomic_xfer)
-+	if (priv->flags & ID_P_NOT_ATOMIC)
- 		rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
- 
- 	if (rep_start)
-@@ -420,7 +420,7 @@ static bool rcar_i2c_dma(struct rcar_i2c_priv *priv)
- 	int len;
- 
- 	/* Do various checks to see if DMA is feasible at all */
--	if (priv->atomic_xfer || IS_ERR(chan) || msg->len < RCAR_MIN_DMA_LEN ||
-+	if (!(priv->flags & ID_P_NOT_ATOMIC) || IS_ERR(chan) || msg->len < RCAR_MIN_DMA_LEN ||
- 	    !(msg->flags & I2C_M_DMA_SAFE) || (read && priv->flags & ID_P_NO_RXDMA))
- 		return false;
- 
-@@ -670,7 +670,7 @@ static irqreturn_t rcar_i2c_irq(int irq, struct rcar_i2c_priv *priv, u32 msr)
- 	/* Nack */
- 	if (msr & MNR) {
- 		/* HW automatically sends STOP after received NACK */
--		if (!priv->atomic_xfer)
-+		if (priv->flags & ID_P_NOT_ATOMIC)
- 			rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
- 		priv->flags |= ID_NACK;
- 		goto out;
-@@ -692,7 +692,7 @@ static irqreturn_t rcar_i2c_irq(int irq, struct rcar_i2c_priv *priv, u32 msr)
- 	if (priv->flags & ID_DONE) {
- 		rcar_i2c_write(priv, ICMIER, 0);
- 		rcar_i2c_write(priv, ICMSR, 0);
--		if (!priv->atomic_xfer)
-+		if (priv->flags & ID_P_NOT_ATOMIC)
- 			wake_up(&priv->wait);
- 	}
- 
-@@ -710,7 +710,7 @@ static irqreturn_t rcar_i2c_gen2_irq(int irq, void *ptr)
- 
- 	/* Only handle interrupts that are currently enabled */
- 	msr = rcar_i2c_read(priv, ICMSR);
--	if (!priv->atomic_xfer)
-+	if (priv->flags & ID_P_NOT_ATOMIC)
- 		msr &= rcar_i2c_read(priv, ICMIER);
- 
- 	return rcar_i2c_irq(irq, priv, msr);
-@@ -723,7 +723,7 @@ static irqreturn_t rcar_i2c_gen3_irq(int irq, void *ptr)
- 
- 	/* Only handle interrupts that are currently enabled */
- 	msr = rcar_i2c_read(priv, ICMSR);
--	if (!priv->atomic_xfer)
-+	if (priv->flags & ID_P_NOT_ATOMIC)
- 		msr &= rcar_i2c_read(priv, ICMIER);
- 
- 	/*
-@@ -832,7 +832,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 	int i, ret;
- 	long time_left;
- 
--	priv->atomic_xfer = false;
-+	priv->flags |= ID_P_NOT_ATOMIC;
- 
- 	pm_runtime_get_sync(dev);
- 
-@@ -896,7 +896,7 @@ static int rcar_i2c_master_xfer_atomic(struct i2c_adapter *adap,
- 	bool time_left;
- 	int ret;
- 
--	priv->atomic_xfer = true;
-+	priv->flags &= ~ID_P_NOT_ATOMIC;
- 
- 	pm_runtime_get_sync(dev);
- 
+ #define ID_P_HOST_NOTIFY	BIT(28)
+ #define ID_P_REP_AFTER_RD	BIT(29)
 -- 
 2.35.1
 
