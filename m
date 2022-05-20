@@ -2,102 +2,122 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB794C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 20 May 2022 17:21:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 191E4C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 20 May 2022 20:29:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352126AbiETRVl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 20 May 2022 13:21:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55370 "EHLO
+        id S1353453AbiETU3b (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 20 May 2022 16:29:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352124AbiETRVg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 May 2022 13:21:36 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6343B3917C
-        for <linux-i2c@vger.kernel.org>; Fri, 20 May 2022 10:21:33 -0700 (PDT)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ns6JN-0006KE-25; Fri, 20 May 2022 19:21:13 +0200
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ns6JM-003Wcq-7W; Fri, 20 May 2022 19:21:10 +0200
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ns6JK-00B114-3B; Fri, 20 May 2022 19:21:10 +0200
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        linux-crypto@vger.kernel.org, kernel@pengutronix.de,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: [PATCH] crypto: atmel-ecc - Remove duplicated error reporting in .remove()
-Date:   Fri, 20 May 2022 19:21:00 +0200
-Message-Id: <20220520172100.773730-1-u.kleine-koenig@pengutronix.de>
+        with ESMTP id S1347363AbiETU3a (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 May 2022 16:29:30 -0400
+Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37FEF185C87
+        for <linux-i2c@vger.kernel.org>; Fri, 20 May 2022 13:29:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=k1; bh=U29WYmQyVQCYUu
+        V8AWl6uqxuHoxGbWuriGBrCNSHgRs=; b=mEazvjZqGGpMBb6NFCskHYFKKePDvY
+        eZi9krVXQjaWWxFweSANE3eBZcq5CX2tVOnAhuWFe/PJmsPNbx9lcE4O1t4TQazw
+        6Nwe7W+lQFzgeqIcKCcj8LTOpp9CpVDbW2OoR+Q/w+fFOWCpYLyjWTATSG5ygNOF
+        ZOake1cEYjbc0=
+Received: (qmail 3917295 invoked from network); 20 May 2022 22:29:25 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 May 2022 22:29:25 +0200
+X-UD-Smtp-Session: l3s3148p1@YZinWHffhusgAwDtxwyXAGMY7IbT6g6m
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 2/3] i2c: rcar: REP_AFTER_RD is not a persistent flag
+Date:   Fri, 20 May 2022 22:29:17 +0200
+Message-Id: <20220520202918.17889-3-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <7ffd4d35-938a-3e82-b39b-92e76819fa92@microchip.com>
-References: <7ffd4d35-938a-3e82-b39b-92e76819fa92@microchip.com>
+In-Reply-To: <20220520202918.17889-1-wsa+renesas@sang-engineering.com>
+References: <20220520202918.17889-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1834; h=from:subject; bh=gA8wq0ZCl1/fS/XbCP60/5QOOg3haX5yuDKAvNbEKLg=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBih831UtGTMJeJU/pnRA/AxHGP6a1bWuonNka+UeSG LhmyPICJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCYofN9QAKCRDB/BR4rcrsCa0XCA CfmVKb2YMsH0Zl7PCCsNGIGjn1yetCEEIOcvzLGt6QAurwKlyzsYUulVuxtYPNAqQKRGk1In7wntKx Vc8Zw8ej+Uisk4/E/nOi7k8OKj31KUzqRN8Yyy0SqiEdp7G4KEv19Xlozmn1VMXNAjPg6/qo6IxLO+ GIKxaWjbo/hvr1/5VeaN2BWrLM2W7JGLQihQW5SJ6PR5bSTQxylR+Dm6Mbd/ofFUQs29ixzFce9nk0 R4XlGsc8cBZxtn7NftKmlmXNbJUK31hHyFMbTslWKrdt9UVWQGqhqa5rcV8kPULFbAhYKBTW5UVB0F ayk0yVrLx8Vge0by5NiGGmEmKDYDjY
-X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Returning an error value in an i2c remove callback results in an error
-message being emitted by the i2c core, but otherwise it doesn't make a
-difference. The device goes away anyhow and the devm cleanups are
-called.
+Previous refactoring makes it easy now to convert the above flag to a
+non-persistent one. This is more apropriate and easier to maintain.
 
-As atmel_ecc_remove() already emits an error message on failure and the
-additional error message by the i2c core doesn't add any useful
-information, change the return value to zero to suppress this message.
-
-Also make the error message a bit more drastical because when the device
-is still busy on remove, it's likely that it will access freed memory
-soon.
-
-This patch is a preparation for making i2c remove callbacks return void.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/crypto/atmel-ecc.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/crypto/atmel-ecc.c b/drivers/crypto/atmel-ecc.c
-index 333fbefbbccb..6ba38275de8c 100644
---- a/drivers/crypto/atmel-ecc.c
-+++ b/drivers/crypto/atmel-ecc.c
-@@ -349,8 +349,16 @@ static int atmel_ecc_remove(struct i2c_client *client)
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 88d060725301..034d1ec64cf0 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -98,16 +98,16 @@
+ #define RCAR_IRQ_STOP	(MST)
  
- 	/* Return EBUSY if i2c client already allocated. */
- 	if (atomic_read(&i2c_priv->tfm_count)) {
--		dev_err(&client->dev, "Device is busy\n");
--		return -EBUSY;
-+		/*
-+		 * After we return here, the memory backing the device is freed.
-+		 * That happens no matter what the return value of this function
-+		 * is because in the Linux device model there is no error
-+		 * handling for unbinding a driver.
-+		 * If there is still some action pending, it probably involves
-+		 * accessing the freed memory.
-+		 */
-+		dev_emerg(&client->dev, "Device is busy, expect memory corruption.\n");
-+		return 0;
+ #define ID_LAST_MSG		BIT(0)
++#define ID_REP_AFTER_RD		BIT(1)
+ #define ID_DONE			BIT(2)
+ #define ID_ARBLOST		BIT(3)
+ #define ID_NACK			BIT(4)
+ #define ID_EPROTO		BIT(5)
+ /* persistent flags */
+-#define ID_P_HOST_NOTIFY	BIT(28)
+-#define ID_P_REP_AFTER_RD	BIT(29)
++#define ID_P_HOST_NOTIFY	BIT(29)
+ #define ID_P_NO_RXDMA		BIT(30) /* HW forbids RXDMA sometimes */
+ #define ID_P_PM_BLOCKED		BIT(31)
+-#define ID_P_MASK		GENMASK(31, 28)
++#define ID_P_MASK		GENMASK(31, 29)
+ 
+ enum rcar_i2c_type {
+ 	I2C_RCAR_GEN1,
+@@ -341,6 +341,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv)
+ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
+ {
+ 	int read = !!rcar_i2c_is_recv(priv);
++	bool rep_start = !(priv->flags & ID_REP_AFTER_RD);
+ 
+ 	priv->pos = 0;
+ 	priv->flags &= ID_P_MASK;
+@@ -352,9 +353,7 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
+ 	if (!priv->atomic_xfer)
+ 		rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
+ 
+-	if (priv->flags & ID_P_REP_AFTER_RD)
+-		priv->flags &= ~ID_P_REP_AFTER_RD;
+-	else
++	if (rep_start)
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
+ }
+ 
+@@ -575,7 +574,7 @@ static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ 			rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+ 		} else {
+ 			rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
+-			priv->flags |= ID_P_REP_AFTER_RD;
++			priv->flags |= ID_REP_AFTER_RD;
+ 		}
  	}
  
- 	crypto_unregister_kpp(&atmel_ecdh_nist_p256);
-
-base-commit: 3123109284176b1532874591f7c81f3837bbdc17
+@@ -706,7 +705,7 @@ static irqreturn_t rcar_i2c_gen2_irq(int irq, void *ptr)
+ 	u32 msr;
+ 
+ 	/* Clear START or STOP immediately, except for REPSTART after read */
+-	if (likely(!(priv->flags & ID_P_REP_AFTER_RD)))
++	if (likely(!(priv->flags & ID_REP_AFTER_RD)))
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	/* Only handle interrupts that are currently enabled */
+@@ -731,7 +730,7 @@ static irqreturn_t rcar_i2c_gen3_irq(int irq, void *ptr)
+ 	 * Clear START or STOP immediately, except for REPSTART after read or
+ 	 * if a spurious interrupt was detected.
+ 	 */
+-	if (likely(!(priv->flags & ID_P_REP_AFTER_RD) && msr))
++	if (likely(!(priv->flags & ID_REP_AFTER_RD) && msr))
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	return rcar_i2c_irq(irq, priv, msr);
 -- 
 2.35.1
 
