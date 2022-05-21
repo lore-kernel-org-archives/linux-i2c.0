@@ -2,147 +2,118 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F9A9C4167B
-	for <linux-i2c@archiver.kernel.org>; Fri, 20 May 2022 20:29:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9244C433F5
+	for <linux-i2c@archiver.kernel.org>; Sat, 21 May 2022 05:51:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241913AbiETU3c (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 20 May 2022 16:29:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51038 "EHLO
+        id S1354537AbiEUFvS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 21 May 2022 01:51:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353444AbiETU3a (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 May 2022 16:29:30 -0400
-Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 170BB18540E
-        for <linux-i2c@vger.kernel.org>; Fri, 20 May 2022 13:29:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=k1; bh=0cklkvq9it+QBY
-        JmC7XZH0UQTVqQNLzhlX7tQ1zmjzo=; b=kzDjT9li219djEUe3sWEzT0RVhcIQ0
-        hlddROh8KP1GgDU5MnnVlN+QLfqqLnegxdAZ7DI2C2Qv7HAs1+1e5UL2Xx2dRk6B
-        RB7VG7YHwZTLEv1Zc4mNjevAcuLWfQhGjWlvMq3v3UHm1zkSLSm/DMyaF6AT04RD
-        e60yJ1r0FH+5U=
-Received: (qmail 3917270 invoked from network); 20 May 2022 22:29:24 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 May 2022 22:29:24 +0200
-X-UD-Smtp-Session: l3s3148p1@Qe2aWHffhOsgAwDtxwyXAGMY7IbT6g6m
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 1/3] i2c: rcar: use BIT macro consistently
-Date:   Fri, 20 May 2022 22:29:16 +0200
-Message-Id: <20220520202918.17889-2-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220520202918.17889-1-wsa+renesas@sang-engineering.com>
-References: <20220520202918.17889-1-wsa+renesas@sang-engineering.com>
+        with ESMTP id S236916AbiEUFvR (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 21 May 2022 01:51:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 030C32494A;
+        Fri, 20 May 2022 22:51:17 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6197B82E2A;
+        Sat, 21 May 2022 05:51:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5025BC385A9;
+        Sat, 21 May 2022 05:51:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653112274;
+        bh=syXKG/z57TefV3dMopN2xDPnPMufkfCpN2UdITig8I8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fKlxLsCpPFrgL+hGnGSsFBVl6YxGuipv50DqYFBNrKLSbzlSE4Rh+D3haMIj43RNB
+         7mLisnbdjcJawdwSQYsxeF3ig4WA9k9jWAJ6TCnmpUnCuGT2LppvV2QsTn1sRc6+Do
+         eVkjt21acwZfOKnv4nYU2w7wG8ZLobzKGob8a5BuLO3uqkf3pM1R/0xxVF7c+fRmIt
+         cOSnWbePAS15odZCJwnhApyNinTX//gLa2+TNJBMTl/Y78Zu+7uwNsQi52tZcawiEc
+         FrTt8HLCjrW5UF8VMRzQXtYdGgnBjbMWmnlpBwX6Qc2qHtUhBKkqC9C7KzXyRykzoh
+         YJropIMthyqGg==
+Date:   Sat, 21 May 2022 07:51:04 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Tyrone Ting <warp5tw@gmail.com>
+Cc:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
+        venture@google.com, yuenn@google.com, benjaminfair@google.com,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com,
+        semen.protsenko@linaro.org, rafal@milecki.pl, sven@svenpeter.dev,
+        jsd@semihalf.com, jie.deng@intel.com, lukas.bulwahn@gmail.com,
+        arnd@arndb.de, olof@lixom.net, tali.perry@nuvoton.com,
+        Avi.Fishman@nuvoton.com, tomer.maimon@nuvoton.com,
+        KWLIU@nuvoton.com, JJLIU0@nuvoton.com, kfting@nuvoton.com,
+        openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5 02/10] i2c: npcm: Change the way of getting GCR regmap
+Message-ID: <Yoh9yL1FO7aXme69@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Tyrone Ting <warp5tw@gmail.com>, avifishman70@gmail.com,
+        tmaimon77@gmail.com, tali.perry1@gmail.com, venture@google.com,
+        yuenn@google.com, benjaminfair@google.com, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org,
+        andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com,
+        semen.protsenko@linaro.org, rafal@milecki.pl, sven@svenpeter.dev,
+        jsd@semihalf.com, jie.deng@intel.com, lukas.bulwahn@gmail.com,
+        arnd@arndb.de, olof@lixom.net, tali.perry@nuvoton.com,
+        Avi.Fishman@nuvoton.com, tomer.maimon@nuvoton.com,
+        KWLIU@nuvoton.com, JJLIU0@nuvoton.com, kfting@nuvoton.com,
+        openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20220517101142.28421-1-warp5tw@gmail.com>
+ <20220517101142.28421-3-warp5tw@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="bU2gdkY5QlUi4qSW"
+Content-Disposition: inline
+In-Reply-To: <20220517101142.28421-3-warp5tw@gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Easier to read and ensures proper types.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 70 +++++++++++++++++------------------
- 1 file changed, 35 insertions(+), 35 deletions(-)
+--bU2gdkY5QlUi4qSW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 6e932f948293..88d060725301 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -45,44 +45,44 @@
- #define ICDMAER	0x3c	/* DMA enable (Gen3) */
- 
- /* ICSCR */
--#define SDBS	(1 << 3)	/* slave data buffer select */
--#define SIE	(1 << 2)	/* slave interface enable */
--#define GCAE	(1 << 1)	/* general call address enable */
--#define FNA	(1 << 0)	/* forced non acknowledgment */
-+#define SDBS	BIT(3)	/* slave data buffer select */
-+#define SIE	BIT(2)	/* slave interface enable */
-+#define GCAE	BIT(1)	/* general call address enable */
-+#define FNA	BIT(0)	/* forced non acknowledgment */
- 
- /* ICMCR */
--#define MDBS	(1 << 7)	/* non-fifo mode switch */
--#define FSCL	(1 << 6)	/* override SCL pin */
--#define FSDA	(1 << 5)	/* override SDA pin */
--#define OBPC	(1 << 4)	/* override pins */
--#define MIE	(1 << 3)	/* master if enable */
--#define TSBE	(1 << 2)
--#define FSB	(1 << 1)	/* force stop bit */
--#define ESG	(1 << 0)	/* enable start bit gen */
-+#define MDBS	BIT(7)	/* non-fifo mode switch */
-+#define FSCL	BIT(6)	/* override SCL pin */
-+#define FSDA	BIT(5)	/* override SDA pin */
-+#define OBPC	BIT(4)	/* override pins */
-+#define MIE	BIT(3)	/* master if enable */
-+#define TSBE	BIT(2)
-+#define FSB	BIT(1)	/* force stop bit */
-+#define ESG	BIT(0)	/* enable start bit gen */
- 
- /* ICSSR (also for ICSIER) */
--#define GCAR	(1 << 6)	/* general call received */
--#define STM	(1 << 5)	/* slave transmit mode */
--#define SSR	(1 << 4)	/* stop received */
--#define SDE	(1 << 3)	/* slave data empty */
--#define SDT	(1 << 2)	/* slave data transmitted */
--#define SDR	(1 << 1)	/* slave data received */
--#define SAR	(1 << 0)	/* slave addr received */
-+#define GCAR	BIT(6)	/* general call received */
-+#define STM	BIT(5)	/* slave transmit mode */
-+#define SSR	BIT(4)	/* stop received */
-+#define SDE	BIT(3)	/* slave data empty */
-+#define SDT	BIT(2)	/* slave data transmitted */
-+#define SDR	BIT(1)	/* slave data received */
-+#define SAR	BIT(0)	/* slave addr received */
- 
- /* ICMSR (also for ICMIE) */
--#define MNR	(1 << 6)	/* nack received */
--#define MAL	(1 << 5)	/* arbitration lost */
--#define MST	(1 << 4)	/* sent a stop */
--#define MDE	(1 << 3)
--#define MDT	(1 << 2)
--#define MDR	(1 << 1)
--#define MAT	(1 << 0)	/* slave addr xfer done */
-+#define MNR	BIT(6)	/* nack received */
-+#define MAL	BIT(5)	/* arbitration lost */
-+#define MST	BIT(4)	/* sent a stop */
-+#define MDE	BIT(3)
-+#define MDT	BIT(2)
-+#define MDR	BIT(1)
-+#define MAT	BIT(0)	/* slave addr xfer done */
- 
- /* ICDMAER */
--#define RSDMAE	(1 << 3)	/* DMA Slave Received Enable */
--#define TSDMAE	(1 << 2)	/* DMA Slave Transmitted Enable */
--#define RMDMAE	(1 << 1)	/* DMA Master Received Enable */
--#define TMDMAE	(1 << 0)	/* DMA Master Transmitted Enable */
-+#define RSDMAE	BIT(3)	/* DMA Slave Received Enable */
-+#define TSDMAE	BIT(2)	/* DMA Slave Transmitted Enable */
-+#define RMDMAE	BIT(1)	/* DMA Master Received Enable */
-+#define TMDMAE	BIT(0)	/* DMA Master Transmitted Enable */
- 
- /* ICFBSCR */
- #define TCYC17	0x0f		/* 17*Tcyc delay 1st bit between SDA and SCL */
-@@ -97,11 +97,11 @@
- #define RCAR_IRQ_RECV	(MNR | MAL | MST | MAT | MDR)
- #define RCAR_IRQ_STOP	(MST)
- 
--#define ID_LAST_MSG	(1 << 0)
--#define ID_DONE		(1 << 2)
--#define ID_ARBLOST	(1 << 3)
--#define ID_NACK		(1 << 4)
--#define ID_EPROTO	(1 << 5)
-+#define ID_LAST_MSG		BIT(0)
-+#define ID_DONE			BIT(2)
-+#define ID_ARBLOST		BIT(3)
-+#define ID_NACK			BIT(4)
-+#define ID_EPROTO		BIT(5)
- /* persistent flags */
- #define ID_P_HOST_NOTIFY	BIT(28)
- #define ID_P_REP_AFTER_RD	BIT(29)
--- 
-2.35.1
+On Tue, May 17, 2022 at 06:11:34PM +0800, Tyrone Ting wrote:
+> From: Tali Perry <tali.perry1@gmail.com>
+>=20
+> Change the way of getting NPCM system manager reigster (GCR)
+> and still maintain the old mechanism as a fallback if getting
+> nuvoton,sys-mgr fails while working with the legacy devicetree
+> file.
+>=20
+> Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller drive=
+r")
+> Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+> Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
+> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
+Applied to for-next, thanks!
+
+I dropped the Fixes tag, doesn't look like a bugfix to me.
+
+
+--bU2gdkY5QlUi4qSW
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmKIfcQACgkQFA3kzBSg
+KbbwHg//aibCgLXqkGBT2Upx69gKMShfagM3lEA6Sff27ZwpXdP7ztW+j45lPo7y
+TNMXqItjUhFfuSRObT6t481Cx+Oy3ZvNb8g8TjKhWA0lmB+F9CnFPzXczUXAfkXU
+fXC00Hq3uumu9cPn7EeeY+ppolW5FR8d1tcOA4e7O3mI2a8ILUcn4ssQFvG0BPQi
+2/j7bs88QvaKW+3+UGZuw2CGyiusvlFW9o9LWQJnHtF7QxQM0DjHQC49qOaBjMiC
+fB+d7Z3iK0+QEZbPjnvQlD7DPKlwe+LJiCSpCHMaWLHZoQI68GRMQf6VsheYuJ/J
+KHTQWHpeyxyIsJJ2fHXv/Vge4SKBuP6jNmMDr8e7opxeqC4/co8Vade9sKSuePLN
+z0CceGU07ByyGVMNudf0sFmxOWZYVBHqbi7r/oFYCxVN9q4avwuGwKGCp1HJcLwn
+/jF63EKhvjI/Z9BUid4BYYpX2MorRXZvMO8gchW4P1RhlFOsqs4vLLtx7OAo+ug+
+LpJr/GvmIP5Vj7cRbx+Mr61APABNvK9XjPD+itP+pVhtNaGft+hjUgXIkSLt88BN
+Yqaq6d++odaSZz1oGMshaokD51PUYME+BKQB78E6SgoQC7PYmSxqU/JrvZIbghFY
+Ilqav4BK6V504QMSH4l0ssChktkXjTHQn8cOEMzRHy9UtAbWX+c=
+=wrpy
+-----END PGP SIGNATURE-----
+
+--bU2gdkY5QlUi4qSW--
