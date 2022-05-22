@@ -2,27 +2,27 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40B51C433EF
-	for <linux-i2c@archiver.kernel.org>; Sun, 22 May 2022 16:30:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FD0DC43219
+	for <linux-i2c@archiver.kernel.org>; Sun, 22 May 2022 16:30:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349798AbiEVQaA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 22 May 2022 12:30:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38446 "EHLO
+        id S1349801AbiEVQaF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 22 May 2022 12:30:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349919AbiEVQ3N (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 May 2022 12:29:13 -0400
+        with ESMTP id S1349889AbiEVQ3I (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 May 2022 12:29:08 -0400
 Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1BE43BBC2;
-        Sun, 22 May 2022 09:29:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14753BA54;
+        Sun, 22 May 2022 09:28:54 -0700 (PDT)
 Received: from g550jk.arnhem.chello.nl (a246182.upc-a.chello.nl [62.163.246.182])
-        by mail.z3ntu.xyz (Postfix) with ESMTPSA id C260BCCD4C;
-        Sun, 22 May 2022 16:28:19 +0000 (UTC)
+        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 18F5ACCD46;
+        Sun, 22 May 2022 16:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1653236900; bh=IgPmeXh7eVwr5HxZ2OomHFKNX8KpazVLkhoxxY0pExM=;
+        t=1653236898; bh=u1MZC2pnHpWAI6AtgxHiNKZYOM6dKJrEx8uX2bfSBSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=c4i9i5n8jBgfDVKePplF1mJyCQ/ynI+kLQKvgP50y5sbU9Z1GPJ4G7mLcnnM7GTgB
-         PpLG8h4PsyQxOiB4gL3hf4OMzvaZO3xtwgQEKbWVbnuvdRH3wE9xgAOtWoQUdEoIdk
-         oDSbNoV9vWuSFXT1oSqjBubD2zua86FWq4HVTLlw=
+        b=rFmkBXx0WlcC2JCL2QT04mcGu4/M3hH+NLStUSVk6M8v2FhZwr9jXUpoz7oibl3rq
+         +ETKPF6Cm7MbFZ+4vHi9pWklXp2p8nhULI4VecVxZiBzkjaCPx+MLae36YQfvxFCQi
+         98Qym7d7h+7UK/iIq2keSzz4ysuXC4w+9/CVqcjk=
 From:   Luca Weiss <luca@z3ntu.xyz>
 To:     linux-arm-msm@vger.kernel.org
 Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
@@ -37,122 +37,231 @@ Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
         linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
         matti.lehtimaki@gmail.com, Luca Weiss <luca@z3ntu.xyz>
-Subject: [RFC PATCH 13/14] ARM: dts: qcom: msm8974-FP2: Add OV8865 rear camera
-Date:   Sun, 22 May 2022 18:28:01 +0200
-Message-Id: <20220522162802.208275-14-luca@z3ntu.xyz>
+Subject: [RFC PATCH 08/14] media: camss: Add 8x74 resources
+Date:   Sun, 22 May 2022 18:27:56 +0200
+Message-Id: <20220522162802.208275-9-luca@z3ntu.xyz>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220522162802.208275-1-luca@z3ntu.xyz>
 References: <20220522162802.208275-1-luca@z3ntu.xyz>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Configure the rear camera found in the 8MP camera module for
-Fairphone 2. There's also a AD5823 autofocus coil and an EEPROM present
-on the module but currently not included.
+From: Matti Lehtimäki <matti.lehtimaki@gmail.com>
 
+Add structs with 8x74 resources. The number of CSIPHY, CSID
+and VFE hardware modules is the same as 8x96 but the support
+is otherwise different.
+
+Signed-off-by: Matti Lehtimäki <matti.lehtimaki@gmail.com>
 Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
 ---
- .../dts/qcom-msm8974pro-fairphone-fp2.dts     | 70 +++++++++++++++++++
- 1 file changed, 70 insertions(+)
+ drivers/media/platform/qcom/camss/camss.c | 161 ++++++++++++++++++++++
+ 1 file changed, 161 insertions(+)
 
-diff --git a/arch/arm/boot/dts/qcom-msm8974pro-fairphone-fp2.dts b/arch/arm/boot/dts/qcom-msm8974pro-fairphone-fp2.dts
-index 0fad82fc9e03..9a2c3a9177de 100644
---- a/arch/arm/boot/dts/qcom-msm8974pro-fairphone-fp2.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974pro-fairphone-fp2.dts
-@@ -77,6 +77,60 @@ &blsp1_uart2 {
- 	status = "okay";
+diff --git a/drivers/media/platform/qcom/camss/camss.c b/drivers/media/platform/qcom/camss/camss.c
+index 79ad82e233cb..5a69ce48c792 100644
+--- a/drivers/media/platform/qcom/camss/camss.c
++++ b/drivers/media/platform/qcom/camss/camss.c
+@@ -126,6 +126,154 @@ static const struct resources vfe_res_8x16[] = {
+ 	}
  };
  
-+&camss {
-+	status = "okay";
++static const struct resources csiphy_res_8974[] = {
++	/* CSIPHY0 */
++	{
++		.regulators = { NULL },
++		.clock = { "top_ahb", "ispif_ahb", "csiphy0_timer" },
++		.clock_rate = { { 0 },
++				{ 0 },
++				{ 100000000, 200000000 } },
++		.reg = { "csiphy0", "csiphy0_clk_mux" },
++		.interrupt = { "csiphy0" }
++	},
 +
-+	vdda-supply = <&pm8941_l12>;
++	/* CSIPHY1 */
++	{
++		.regulators = { NULL },
++		.clock = { "top_ahb", "ispif_ahb", "csiphy1_timer" },
++		.clock_rate = { { 0 },
++				{ 0 },
++				{ 100000000, 200000000 } },
++		.reg = { "csiphy1", "csiphy1_clk_mux" },
++		.interrupt = { "csiphy1" }
++	},
 +
-+	ports {
-+		port@0 {
-+			reg = <0>;
-+			csiphy0_ep: endpoint {
-+				clock-lanes = <1>;
-+				data-lanes = <0 2 3 4>;
-+				link-frequencies = /bits/ 64 <360000000>;
-+				remote-endpoint = <&ov8865_ep>;
-+			};
-+		};
-+	};
++	/* CSIPHY2 */
++	{
++		.regulators = { NULL },
++		.clock = { "top_ahb", "ispif_ahb", "csiphy2_timer" },
++		.clock_rate = { { 0 },
++				{ 0 },
++				{ 100000000, 200000000 } },
++		.reg = { "csiphy2", "csiphy2_clk_mux" },
++		.interrupt = { "csiphy2" }
++	}
 +};
 +
-+&cci {
-+	status = "okay";
++static const struct resources csid_res_8974[] = {
++	/* CSID0 */
++	{
++		.regulators = { "vdda" },
++		.clock = { "top_ahb", "ispif_ahb", "csi0_ahb",
++			   "csi0", "csi0_phy", "csi0_pix", "csi0_rdi" },
++		.clock_rate = { { 0 },
++				{ 0 },
++				{ 0 },
++				{ 100000000, 200000000 },
++				{ 0 },
++				{ 0 },
++				{ 0 } },
++		.reg = { "csid0" },
++		.interrupt = { "csid0" }
++	},
++
++	/* CSID1 */
++	{
++		.regulators = { "vdda" },
++		.clock = { "top_ahb", "ispif_ahb", "csi1_ahb",
++			   "csi1", "csi1_phy", "csi1_pix", "csi1_rdi" },
++		.clock_rate = { { 0 },
++				{ 0 },
++				{ 0 },
++				{ 100000000, 200000000 },
++				{ 0 },
++				{ 0 },
++				{ 0 } },
++		.reg = { "csid1" },
++		.interrupt = { "csid1" }
++	},
++
++	/* CSID2 */
++	{
++		.regulators = { "vdda" },
++		.clock = { "top_ahb", "ispif_ahb", "csi2_ahb",
++			   "csi2", "csi2_phy", "csi2_pix", "csi2_rdi" },
++		.clock_rate = { { 0 },
++				{ 0 },
++				{ 0 },
++				{ 100000000, 200000000 },
++				{ 0 },
++				{ 0 },
++				{ 0 } },
++		.reg = { "csid2" },
++		.interrupt = { "csid2" }
++	},
++
++	/* CSID3 */
++	{
++		.regulators = { "vdda" },
++		.clock = { "top_ahb", "ispif_ahb", "csi3_ahb",
++			   "csi3", "csi3_phy", "csi3_pix", "csi3_rdi" },
++		.clock_rate = { { 0 },
++				{ 0 },
++				{ 0 },
++				{ 100000000, 200000000 },
++				{ 0 },
++				{ 0 },
++				{ 0 } },
++		.reg = { "csid3" },
++		.interrupt = { "csid3" }
++	}
 +};
 +
-+&cci_i2c0 {
-+	ov8865: camera-sensor@10 {
-+		compatible = "ovti,ov8865";
-+		reg = <0x10>;
++static const struct resources_ispif ispif_res_8974 = {
++	/* ISPIF */
++	.clock = { "top_ahb", "ispif_ahb",
++		   "csi0", "csi0_pix", "csi0_rdi",
++		   "csi1", "csi1_pix", "csi1_rdi",
++		   "csi2", "csi2_pix", "csi2_rdi",
++		   "csi3", "csi3_pix", "csi3_rdi" },
++	.clock_for_reset = { "vfe0", "csi_vfe0",
++		   "vfe1", "csi_vfe1" },
++	.reg = { "ispif", "csi_clk_mux" },
++	.interrupt = "ispif"
 +
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&mclk0_pin_a>;
-+
-+		clocks = <&mmcc CAMSS_MCLK0_CLK>;
-+
-+		avdd-supply = <&pm8941_l17>;
-+		dovdd-supply = <&pm8941_lvs3>;
-+		dvdd-supply = <&pm8941_l3>;
-+
-+		powerdown-gpios = <&tlmm 89 GPIO_ACTIVE_LOW>;
-+		reset-gpios = <&tlmm 90 GPIO_ACTIVE_LOW>;
-+
-+		/* Rear camera */
-+		orientation = <1>;
-+		rotation = <90>;
-+
-+		port {
-+			ov8865_ep: endpoint {
-+				clock-lanes = <1>;
-+				data-lanes = <0 2 3 4>;
-+				link-frequencies = /bits/ 64 <360000000>;
-+				remote-endpoint = <&csiphy0_ep>;
-+			};
-+		};
-+	};
 +};
 +
- &dsi0 {
- 	status = "okay";
- 
-@@ -413,6 +467,15 @@ pm8941_l24: l24 {
- 			regulator-max-microvolt = <3075000>;
- 			regulator-boot-on;
- 		};
++static const struct resources vfe_res_8974[] = {
++	/* VFE0 */
++	{
++		.regulators = { NULL },
++		.clock = { "top_ahb", "vfe0", "csi_vfe0",
++			   "iface", "bus" },
++		.clock_rate = { { 0 },
++				{ 50000000, 80000000, 100000000, 160000000,
++				  177780000, 200000000, 266670000, 320000000,
++				  400000000, 400000000 },
++				{ 0 },
++				{ 0 },
++				{ 0 } },
++		.reg = { "vfe0" },
++		.interrupt = { "vfe0" }
++	},
++	/* VFE1 */
++	{
++		.regulators = { NULL },
++		.clock = { "top_ahb", "vfe1", "csi_vfe1",
++			   "iface", "bus" },
++		.clock_rate = { { 0 },
++				{ 50000000, 80000000, 100000000, 160000000,
++				  177780000, 200000000, 266670000, 320000000,
++				  400000000, 400000000 },
++				{ 0 },
++				{ 0 },
++				{ 0 } },
++		.reg = { "vfe1" },
++		.interrupt = { "vfe1" }
++	}
++};
 +
-+		pm8941_lvs3: lvs3 {
-+			/*
-+			 * TODO: Used as CCI0 and CCI1 pull-up.
-+			 * Replace with vbus-supply or similar once this lands
-+			 * upstream!
-+			 */
-+			regulator-always-on;
-+		};
- 	};
- };
+ static const struct resources csiphy_res_8x96[] = {
+ 	/* CSIPHY0 */
+ 	{
+@@ -1132,6 +1280,11 @@ static int camss_init_subdevices(struct camss *camss)
+ 		csid_res = csid_res_8x16;
+ 		ispif_res = &ispif_res_8x16;
+ 		vfe_res = vfe_res_8x16;
++	} else if (camss->version == CAMSS_8x74) {
++		csiphy_res = csiphy_res_8974;
++		csid_res = csid_res_8974;
++		ispif_res = &ispif_res_8974;
++		vfe_res = vfe_res_8974;
+ 	} else if (camss->version == CAMSS_8x96) {
+ 		csiphy_res = csiphy_res_8x96;
+ 		csid_res = csid_res_8x96;
+@@ -1542,6 +1695,12 @@ static int camss_probe(struct platform_device *pdev)
+ 		camss->csiphy_num = 2;
+ 		camss->csid_num = 2;
+ 		camss->vfe_num = 1;
++	} else if (of_device_is_compatible(dev->of_node,
++					   "qcom,msm8974-camss")) {
++		camss->version = CAMSS_8x74;
++		camss->csiphy_num = 3;
++		camss->csid_num = 4;
++		camss->vfe_num = 2;
+ 	} else if (of_device_is_compatible(dev->of_node,
+ 					   "qcom,msm8996-camss")) {
+ 		camss->version = CAMSS_8x96;
+@@ -1586,6 +1745,7 @@ static int camss_probe(struct platform_device *pdev)
+ 	}
  
-@@ -449,6 +512,13 @@ &smbb {
- };
+ 	if (camss->version == CAMSS_8x16 ||
++	    camss->version == CAMSS_8x74 ||
+ 	    camss->version == CAMSS_8x96) {
+ 		camss->ispif = devm_kcalloc(dev, 1, sizeof(*camss->ispif), GFP_KERNEL);
+ 		if (!camss->ispif) {
+@@ -1735,6 +1895,7 @@ static int camss_remove(struct platform_device *pdev)
  
- &tlmm {
-+	mclk0_pin_a: mclk0-pin-active {
-+		pins = "gpio15";
-+		function = "cam_mclk0";
-+		drive-strength = <2>;
-+		bias-disable;
-+	};
-+
- 	panel_pin: panel {
- 		te {
- 			pins = "gpio12";
+ static const struct of_device_id camss_dt_match[] = {
+ 	{ .compatible = "qcom,msm8916-camss" },
++	{ .compatible = "qcom,msm8974-camss" },
+ 	{ .compatible = "qcom,msm8996-camss" },
+ 	{ .compatible = "qcom,sdm660-camss" },
+ 	{ .compatible = "qcom,sdm845-camss" },
 -- 
 2.36.0
 
