@@ -2,27 +2,27 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1450BC4321E
-	for <linux-i2c@archiver.kernel.org>; Sun, 22 May 2022 16:28:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 067F2C38A2B
+	for <linux-i2c@archiver.kernel.org>; Sun, 22 May 2022 16:28:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230260AbiEVQ2d (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 22 May 2022 12:28:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37614 "EHLO
+        id S1349000AbiEVQ2c (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 22 May 2022 12:28:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343882AbiEVQ20 (ORCPT
+        with ESMTP id S1344271AbiEVQ20 (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 May 2022 12:28:26 -0400
 Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63E4F14087;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8BBC1408A;
         Sun, 22 May 2022 09:28:24 -0700 (PDT)
 Received: from g550jk.arnhem.chello.nl (a246182.upc-a.chello.nl [62.163.246.182])
-        by mail.z3ntu.xyz (Postfix) with ESMTPSA id C34B1CCD45;
-        Sun, 22 May 2022 16:28:17 +0000 (UTC)
+        by mail.z3ntu.xyz (Postfix) with ESMTPSA id F06CDCCD4A;
+        Sun, 22 May 2022 16:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1653236898; bh=Ja6UJLLoY69ioz4GOQEi4TAltPn6idOtLA6g2qiKj2s=;
+        t=1653236899; bh=4jjVuNpN2waSexMIPI/UK5ASkvRcWOM8+vg3R0n1bME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=nQoPo+kWMh0sTGmyO7oSZmqILT/AjkkuNi3n2lxcFAXIu3edlnOSlZT5pubOWZd7p
-         7lL8ud7CFI9ZEmbZE36V8dYniEY7beFcqkw7tU4VKzdd/Cz6v5khZmgI8yeOT1CImk
-         AeWU1y4ZbKSvjOPtlOh3oCg9uCLyqM1c2SzdEfpk=
+        b=qk/znrqUl0dRNRrN37oWkvW+SmgwDzcJka9D6MVR/bOqhfiPWkpkKoc7hX6kybh+/
+         reJR/aOuWCzi7YGc0WFo9PseyzrbUA2wit0EZexBkPimudCU0ontFGHUVyTRImYcFl
+         SpsHynJWihwSqPtlTDd3bzPrlgOUgDhGFeK1pA3I=
 From:   Luca Weiss <luca@z3ntu.xyz>
 To:     linux-arm-msm@vger.kernel.org
 Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
@@ -37,51 +37,105 @@ Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
         linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
         matti.lehtimaki@gmail.com, Luca Weiss <luca@z3ntu.xyz>
-Subject: [RFC PATCH 07/14] media: camss: csiphy: Add support for 8x74
-Date:   Sun, 22 May 2022 18:27:55 +0200
-Message-Id: <20220522162802.208275-8-luca@z3ntu.xyz>
+Subject: [RFC PATCH 11/14] ARM: dts: qcom: msm8974: add CCI bus
+Date:   Sun, 22 May 2022 18:27:59 +0200
+Message-Id: <20220522162802.208275-12-luca@z3ntu.xyz>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220522162802.208275-1-luca@z3ntu.xyz>
 References: <20220522162802.208275-1-luca@z3ntu.xyz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Matti Lehtimäki <matti.lehtimaki@gmail.com>
+Add a node for the camera-specific i2c bus found on msm8974.
 
-CSIPHY hardware modules in 8x74 and 8x16 are similar.
-
-Signed-off-by: Matti Lehtimäki <matti.lehtimaki@gmail.com>
 Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
 ---
- drivers/media/platform/qcom/camss/camss-csiphy.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-msm8974.dtsi | 62 +++++++++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
 
-diff --git a/drivers/media/platform/qcom/camss/camss-csiphy.c b/drivers/media/platform/qcom/camss/camss-csiphy.c
-index 75fcfc627400..a0122705a874 100644
---- a/drivers/media/platform/qcom/camss/camss-csiphy.c
-+++ b/drivers/media/platform/qcom/camss/camss-csiphy.c
-@@ -557,7 +557,8 @@ int msm_csiphy_subdev_init(struct camss *camss,
- 	csiphy->id = id;
- 	csiphy->cfg.combo_mode = 0;
+diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
+index ffa6f874917a..a80b4ae71745 100644
+--- a/arch/arm/boot/dts/qcom-msm8974.dtsi
++++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
+@@ -1434,6 +1434,34 @@ blsp2_i2c5_sleep: blsp2-i2c5-sleep {
  
--	if (camss->version == CAMSS_8x16) {
-+	if (camss->version == CAMSS_8x16 ||
-+		   camss->version == CAMSS_8x74) {
- 		csiphy->ops = &csiphy_ops_2ph_1_0;
- 		csiphy->formats = csiphy_formats_8x16;
- 		csiphy->nformats = ARRAY_SIZE(csiphy_formats_8x16);
-@@ -582,6 +583,7 @@ int msm_csiphy_subdev_init(struct camss *camss,
- 		return PTR_ERR(csiphy->base);
+ 			/* BLSP2_I2C6 info is missing - nobody uses it though? */
  
- 	if (camss->version == CAMSS_8x16 ||
-+	    camss->version == CAMSS_8x74 ||
- 	    camss->version == CAMSS_8x96) {
- 		csiphy->base_clk_mux =
- 			devm_platform_ioremap_resource_byname(pdev, res->reg[1]);
++			cci0_default: cci0-default {
++				pins = "gpio19", "gpio20";
++				function = "cci_i2c0";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			cci0_sleep: cci0-sleep {
++				pins = "gpio19", "gpio20";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			cci1_default: cci1-default {
++				pins = "gpio21", "gpio22";
++				function = "cci_i2c1";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			cci1_sleep: cci1-sleep {
++				pins = "gpio21", "gpio22";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
+ 			spi8_default: spi8_default {
+ 				mosi {
+ 					pins = "gpio45";
+@@ -1587,6 +1615,40 @@ dsi0_phy: dsi-phy@fd922a00 {
+ 			};
+ 		};
+ 
++		cci: cci@fda0c000 {
++			compatible = "qcom,msm8974-cci";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0xfda0c000 0x1000>;
++			interrupts = <GIC_SPI 50 IRQ_TYPE_EDGE_RISING>;
++			clocks = <&mmcc CAMSS_TOP_AHB_CLK>,
++				 <&mmcc CAMSS_CCI_CCI_AHB_CLK>,
++				 <&mmcc CAMSS_CCI_CCI_CLK>;
++			clock-names = "camss_top_ahb",
++				      "cci_ahb",
++				      "cci";
++
++			pinctrl-names = "default", "sleep";
++			pinctrl-0 = <&cci0_default &cci1_default>;
++			pinctrl-1 = <&cci0_sleep &cci1_sleep>;
++
++			status = "disabled";
++
++			cci_i2c0: i2c-bus@0 {
++				reg = <0>;
++				clock-frequency = <400000>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
++
++			cci_i2c1: i2c-bus@1 {
++				reg = <1>;
++				clock-frequency = <400000>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
++		};
++
+ 		gpu: adreno@fdb00000 {
+ 			compatible = "qcom,adreno-330.1", "qcom,adreno";
+ 			reg = <0xfdb00000 0x10000>;
 -- 
 2.36.0
 
