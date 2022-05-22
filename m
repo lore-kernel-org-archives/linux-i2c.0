@@ -2,85 +2,180 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A64E1C433EF
-	for <linux-i2c@archiver.kernel.org>; Sat, 21 May 2022 15:16:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DADCDC433F5
+	for <linux-i2c@archiver.kernel.org>; Sun, 22 May 2022 06:56:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235113AbiEUPQe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 21 May 2022 11:16:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40808 "EHLO
+        id S231407AbiEVG4w (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 22 May 2022 02:56:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232553AbiEUPQd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 21 May 2022 11:16:33 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCB8849694
-        for <linux-i2c@vger.kernel.org>; Sat, 21 May 2022 08:16:31 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id q1so2836107ljb.5
-        for <linux-i2c@vger.kernel.org>; Sat, 21 May 2022 08:16:31 -0700 (PDT)
+        with ESMTP id S231375AbiEVG4v (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 May 2022 02:56:51 -0400
+Received: from mail-vk1-xa30.google.com (mail-vk1-xa30.google.com [IPv6:2607:f8b0:4864:20::a30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422B03A734;
+        Sat, 21 May 2022 23:56:48 -0700 (PDT)
+Received: by mail-vk1-xa30.google.com with SMTP id t12so5797009vkt.5;
+        Sat, 21 May 2022 23:56:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=OwTRfuiq4wbJs1UPblU1Ai6E4P1iaPJzr05lyZ6KhnI=;
-        b=oSgokVp5OlVIODHY5N5GNj0wUk+aJ5aYIiEMK3jeSa+VyDPVQNPcGj9CwvZ3ttExBk
-         DnXHylAt4l9zFP9k/nKa7EzFR2XqSNZ/zX7ImH22xypOxLN92StlP+AUW1y4grUbGAAK
-         /iJweiiavumFe+PwqcI1jYGK/p/34sBU48dydF66oMBPSuV5QA9Y2bsbAsn20rPkkP6n
-         h5ngZPcrMnhYKE7CxHm6MuiTeQYK5J7j0mgvF1eoHXcL6V3IYPReaBH1qCJ+tldIjDeG
-         Zc6jVW/bKcRdUpdO6geFDs//HieMORaZjeTsiRAmCfgDQ1KY2KS4eJyoMsZ0vjltH/cE
-         Ydmg==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=qDo9UUCdw4SMj2aM3ERRiVJpDYvO4JgoJi8WdLoZ0lU=;
+        b=dl7Ft5A/2X6nUPIBbpqjdW58KNi+xMUoc3zBFTctHHzVONK2CleyYzTWzBi/tDqjiU
+         ngBC6pjX9j2B8a4/cHW3x51cqt96agpMOEbL25qEyOhW8WoeaIi4CaqNhxFMoknQqmgX
+         Hb92DxvrvrrhyWTQvtBtnpikiCAPoxZYtU0r1Er+KQ7pW9Di4NzF3qO/EB3Fgv6DRroc
+         tdToxaiNPp9FWXeYERnMhDVYlPxaO29Q4rdHUVWACuFXi7QauT/ZgeUE6UXika1MryAS
+         w+yaEXyIB1vEU7MFvH4ifImAxayMZvQFqJ3jRsn1yM+6XxwcfZA/t9Iad9SzKx1Ftvt4
+         aMmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=OwTRfuiq4wbJs1UPblU1Ai6E4P1iaPJzr05lyZ6KhnI=;
-        b=ZSvlAIFA9/ITMXeQsYwYtdSBYY6DNrXCvQawq1Zjjw2flxuUpJnuXZOV04ZyhGFCLV
-         S/734FoyKOwFoxB322gB/pcQlx0JTYebqrrU+yCCMbKgGSOvlPrnm6caYA5IovvHeLGa
-         pMbT0cPxR5akPtjELLjldOryv6uwQRQovoL9FBE8FN0XhIDXQS6dMBBN51o1LHNA432D
-         R1K1GBKEpBrHyllGFYVzPmA1iy1CaBPoa7LmR4jSwvpj3vodz4xh9+p4k+dASDVFRnvy
-         OHvRQxzXBjGUMNbBiTX50QQmUVPaTtAIzLLc7g3dE/KxASapl+iXOzmn3kvtYPAHHbwf
-         rMpw==
-X-Gm-Message-State: AOAM530Pmk+/r2aALXj+AzE7bfhotjnZyxcr56RWmaw7h4eG4EIMtCd6
-        t1/02WADwLF38IFlDEAC6bFZ7Q==
-X-Google-Smtp-Source: ABdhPJwTyVrUjRiZ6MmJtbI7Lw6764FySyF8c9QDeEnIXPLaSPyiRXtIVNCOVwYB8VU/JErfNiPF7g==
-X-Received: by 2002:a2e:a4a6:0:b0:253:dfb7:d9 with SMTP id g6-20020a2ea4a6000000b00253dfb700d9mr3701379ljm.399.1653146190266;
-        Sat, 21 May 2022 08:16:30 -0700 (PDT)
-Received: from [192.168.0.17] (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.gmail.com with ESMTPSA id dt8-20020a0565122a8800b00477cdd53190sm834182lfb.74.2022.05.21.08.16.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 21 May 2022 08:16:29 -0700 (PDT)
-Message-ID: <f960933d-b19b-2ce2-f9a6-6610119fa56e@linaro.org>
-Date:   Sat, 21 May 2022 17:16:28 +0200
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=qDo9UUCdw4SMj2aM3ERRiVJpDYvO4JgoJi8WdLoZ0lU=;
+        b=MPvx5bkpKzBmO5MdmKrPE5RGFFaqBrguKM/JpaxoJqVkUJc3gAqEe9mk5OCRBN8VLE
+         PSDWJ6U9QPE8+y0QdoRNJp9dhNcQdd4rvIFUqf6QxfVc9FTlxlkYM4zcxDh5/1my8tQw
+         6MvWajGXrfjW0xnGXhaC0ThFixZPi279kGN/Nlsa4ugK0RyptzVolNQXfHKhQd2SEM0B
+         /sGqvLBcCbMshFphtUkfxaEv3f58WPNzczAg2gOIAOqlJCTnuq0nzpOoZqVlTci0ADyD
+         RDXYGVlSIBDGYbFmKQD0DqnenxJnKy2O/dTzVXX1lgXN7Kcb4G9TMgCGnd4e8/sMTKam
+         p9yw==
+X-Gm-Message-State: AOAM5339TDhVZDsfUPzFJS7jXu9phK4brhqpF3CjeKGMY6wzuupz6NVr
+        D9F48KHuRwpuAL+TZJZWXgcCdIpteCa+CWD1fgch65Yghyp/OA==
+X-Google-Smtp-Source: ABdhPJzSFsR0sEXSSM5qtNrvyCk4BshQuchdzAr1Kwogd9LEeS00mSfb8t/DqERH2KTXWr8GoqbKL8OpiYoYlSFsncY=
+X-Received: by 2002:a1f:1d11:0:b0:357:733d:a6d with SMTP id
+ d17-20020a1f1d11000000b00357733d0a6dmr1374013vkd.26.1653202607265; Sat, 21
+ May 2022 23:56:47 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH 2/2] dt-bindings: i2c: dw: Add Intel's SoCFPGA I2C
- controller
-Content-Language: en-US
-To:     Dinh Nguyen <dinguyen@kernel.org>, jarkko.nikula@linux.intel.com
-Cc:     andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
-        robh+dt@kernel.org, krzk+dt@kernel.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-References: <20220518202217.85803-1-dinguyen@kernel.org>
- <20220518202217.85803-2-dinguyen@kernel.org>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220518202217.85803-2-dinguyen@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20220517101142.28421-1-warp5tw@gmail.com> <20220517101142.28421-9-warp5tw@gmail.com>
+ <Yoh/nEYPu++LZSvb@shikoro>
+In-Reply-To: <Yoh/nEYPu++LZSvb@shikoro>
+From:   Tali Perry <tali.perry1@gmail.com>
+Date:   Sun, 22 May 2022 09:56:36 +0300
+Message-ID: <CAHb3i=uKwe1RdvzQA=oO6zNmEvyA_awx09+C2w8kbRq_NGi54w@mail.gmail.com>
+Subject: Re: [PATCH v5 08/10] i2c: npcm: Remove own slave addresses 2:10
+To:     Wolfram Sang <wsa@kernel.org>, Tyrone Ting <warp5tw@gmail.com>,
+        avifishman70@gmail.com, Tomer Maimon <tmaimon77@gmail.com>,
+        Tali Perry <tali.perry1@gmail.com>,
+        Patrick Venture <venture@google.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Benjamin Fair <benjaminfair@google.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        krzysztof.kozlowski+dt@linaro.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        jarkko.nikula@linux.intel.com, semen.protsenko@linaro.org,
+        rafal@milecki.pl, sven@svenpeter.dev, jsd@semihalf.com,
+        jie.deng@intel.com, lukas.bulwahn@gmail.com, arnd@arndb.de,
+        olof@lixom.net, Tali Perry <tali.perry@nuvoton.com>,
+        Avi Fishman <Avi.Fishman@nuvoton.com>,
+        tomer.maimon@nuvoton.com, KWLIU@nuvoton.com, JJLIU0@nuvoton.com,
+        kfting@nuvoton.com, OpenBMC Maillist <openbmc@lists.ozlabs.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 18/05/2022 22:22, Dinh Nguyen wrote:
-> The I2C pins on Intel's SoCFPGA platform are not connected to GPIOs and
-> thus cannot be recovered by the standard GPIO method.
-> 
-> Document the "intel,socfpga-i2c" binding.
-> 
-> Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+> On Sat, May 21, 2022 at 8:58 AM Wolfram Sang <wsa@kernel.org> wrote:
+>
+> > NPCM can support up to 10 own slave addresses. In practice, only one
+> > address is actually being used. In order to access addresses 2 and above,
+> > need to switch register banks. The switch needs spinlock.
+> > To avoid using spinlock for this useless feature removed support of SA >=
+> > 2. Also fix returned slave event enum.
+>
+> Is the spinlock contention so high? The code paths do not really look
+> like hot paths to me. A bit sad to see this feature go.
+>
 
+The module has two seperate banks, accessible with a bit change. The
+first one is used
+for most of the runtime operations. Second bank is used mostly during init.
+Unfortunetly, the first two own slave addresses are in the first bank
+and the other
+8 are in the second bank.
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Every time the module switchs from master to slave mode, those
+registers are accessed.
+In theory, a spinlock can be used to protect those registers.
+In practice, none of our customers use the extra addresses.
+In fact they only need one.
 
+The driver also does not allow you to register more then one slave per bus,
+so this HW feature was not fully available to begin with.
 
-Best regards,
-Krzysztof
+So when we encounter a deadlock with this spinlock we decided to get rid of this
+unused feature and get both a stable fix for the issue + performance benefits.
+We work closely with all our customers so we know that this HW
+feature is useless to them.
+
+> >  static const int npcm_i2caddr[I2C_NUM_OWN_ADDR] = {
+> >       NPCM_I2CADDR1, NPCM_I2CADDR2, NPCM_I2CADDR3, NPCM_I2CADDR4,
+> >       NPCM_I2CADDR5, NPCM_I2CADDR6, NPCM_I2CADDR7, NPCM_I2CADDR8,
+>
+> Why do we keep this array if we drop the support?
+>
+This array represents the HW so we left it as-is. But I agree it can
+be shortened to one\two.
+
+> > @@ -604,8 +602,7 @@ static int npcm_i2c_slave_enable(struct npcm_i2c *bus, enum i2c_addr addr_type,
+> >                       i2cctl1 &= ~NPCM_I2CCTL1_GCMEN;
+> >               iowrite8(i2cctl1, bus->reg + NPCM_I2CCTL1);
+> >               return 0;
+> > -     }
+> > -     if (addr_type == I2C_ARP_ADDR) {
+> > +     } else if (addr_type == I2C_ARP_ADDR) {
+>
+
+addr_type type can be one of several options.
+The code was
+if (addr_type is 1st option)
+...
+if (addr_type is 2st option)
+...
+etc.
+
+Adding that else is more accurate, but ommiting this change works as well.
+
+> I might be wrong but this looks like a seperate change?
+>
+> > @@ -924,11 +918,15 @@ static int npcm_i2c_slave_get_wr_buf(struct npcm_i2c *bus)
+> >       for (i = 0; i < I2C_HW_FIFO_SIZE; i++) {
+> >               if (bus->slv_wr_size >= I2C_HW_FIFO_SIZE)
+> >                       break;
+> > -             i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
+> > +             if (bus->state == I2C_SLAVE_MATCH) {
+> > +                     i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
+> > +                     bus->state = I2C_OPER_STARTED;
+> > +             } else {
+> > +                     i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
+> > +             }
+> >               ind = (bus->slv_wr_ind + bus->slv_wr_size) % I2C_HW_FIFO_SIZE;
+> >               bus->slv_wr_buf[ind] = value;
+> >               bus->slv_wr_size++;
+> > -             i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
+> >       }
+> >       return I2C_HW_FIFO_SIZE - ret;
+> >  }
+> > @@ -976,7 +974,6 @@ static void npcm_i2c_slave_xmit(struct npcm_i2c *bus, u16 nwrite,
+> >       if (nwrite == 0)
+> >               return;
+> >
+> > -     bus->state = I2C_OPER_STARTED;
+> >       bus->operation = I2C_WRITE_OPER;
+>
+> This is definately a seperate change!
+>
+
+OK, we will move the last two to a separate patch. BTW, this change
+appears in the title as well.
+
+But now I'm not sure: if you already apply for-next patches [1:7], and
+we change patch [8:10]
+do we need to re-submit [1:7]?
+
+> All the best!
+
+Thanks, Wolfram, for your review!
+Much appreciated
+
+Tali
