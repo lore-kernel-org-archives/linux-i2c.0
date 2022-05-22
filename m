@@ -2,27 +2,27 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53A09C433FE
-	for <linux-i2c@archiver.kernel.org>; Sun, 22 May 2022 16:29:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98804C433F5
+	for <linux-i2c@archiver.kernel.org>; Sun, 22 May 2022 16:29:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349845AbiEVQ3R (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 22 May 2022 12:29:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38158 "EHLO
+        id S1350079AbiEVQ3T (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 22 May 2022 12:29:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349493AbiEVQ3L (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 May 2022 12:29:11 -0400
+        with ESMTP id S1349890AbiEVQ3I (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 22 May 2022 12:29:08 -0400
 Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B12813BA52;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11E73BA50;
         Sun, 22 May 2022 09:28:54 -0700 (PDT)
 Received: from g550jk.arnhem.chello.nl (a246182.upc-a.chello.nl [62.163.246.182])
-        by mail.z3ntu.xyz (Postfix) with ESMTPSA id ABE17CCD48;
-        Sun, 22 May 2022 16:28:18 +0000 (UTC)
+        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 7BC2DCCD43;
+        Sun, 22 May 2022 16:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1653236898; bh=NwhpmevNUU2gq+eDnD+yz+ZmjE9TKPUK+80uSILSa24=;
+        t=1653236897; bh=2At8G2q3LHuRykZ6Y668fVjVpNTLR5aUfkn/gQ8Jpec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=EtlqUowxpcRSB7A+wmr/ig8CW8R3ymUErisirN1xMvfb2w+UIfk6zIaQozo3mXtu5
-         HKGpfvkhdKw7yy1omR93Nt88DpyAUX3dGPeDcYGVdvcd8wxuJC83fjmYVe6pM8xNB1
-         aK4eqqiPIHPIQdYbR9QNi9HPMsC6w5vVGa6kXtBE=
+        b=BEBA6g/LXIN+5tIcPMB5cMQt77OxEOqeMiQzg5+O0rOb9J4ykcmSvIw+CT84syKf9
+         hlX/Vs+I+GXwrQdsC/jru8SykuClGTV5In1DBqDilc/7AnkflkKZjwWHJ2O0iZnlB2
+         KJHogfMDDQjJl3gFHzLnjk8oSGZGy3Ojr29BwD0g=
 From:   Luca Weiss <luca@z3ntu.xyz>
 To:     linux-arm-msm@vger.kernel.org
 Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
@@ -37,9 +37,9 @@ Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
         linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
         matti.lehtimaki@gmail.com, Luca Weiss <luca@z3ntu.xyz>
-Subject: [RFC PATCH 10/14] i2c: qcom-cci: add msm8974 compatible
-Date:   Sun, 22 May 2022 18:27:58 +0200
-Message-Id: <20220522162802.208275-11-luca@z3ntu.xyz>
+Subject: [RFC PATCH 06/14] media: camss: ispif: Add support for 8x74
+Date:   Sun, 22 May 2022 18:27:54 +0200
+Message-Id: <20220522162802.208275-7-luca@z3ntu.xyz>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220522162802.208275-1-luca@z3ntu.xyz>
 References: <20220522162802.208275-1-luca@z3ntu.xyz>
@@ -52,71 +52,46 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Matti Lehtimäki <matti.lehtimaki@gmail.com>
 
-MSM8974 CCI is the same as MSM8916 except it has two masters.
+ISPIF hardware modules on 8x74, 8x16 and 8x96 are similar. However on
+8x74 the ISPIF routes data to two VFE hardware modules like 8x96 but
+formats are similar to 8x16.
 
 Signed-off-by: Matti Lehtimäki <matti.lehtimaki@gmail.com>
 Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
 ---
-To note, the cci_v1_5_data variable name is just a bit arbitrary and
-isn't meant to reflect IP version "1.5". I'd be happy to change the
-variable name to something else.
+ drivers/media/platform/qcom/camss/camss-ispif.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
- drivers/i2c/busses/i2c-qcom-cci.c | 35 +++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index 5c7cc862f08f..a68f17eb9dd0 100644
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -725,6 +725,40 @@ static const struct cci_data cci_v1_data = {
- 	},
- };
+diff --git a/drivers/media/platform/qcom/camss/camss-ispif.c b/drivers/media/platform/qcom/camss/camss-ispif.c
+index 4ee11bb979cd..693807bf3c6b 100644
+--- a/drivers/media/platform/qcom/camss/camss-ispif.c
++++ b/drivers/media/platform/qcom/camss/camss-ispif.c
+@@ -1112,6 +1112,7 @@ int msm_ispif_subdev_init(struct camss *camss,
+ 	if (camss->version == CAMSS_8x16)
+ 		ispif->line_num = 2;
+ 	else if (camss->version == CAMSS_8x96 ||
++		 camss->version == CAMSS_8x74 ||
+ 		 camss->version == CAMSS_660)
+ 		ispif->line_num = 4;
+ 	else
+@@ -1126,7 +1127,8 @@ int msm_ispif_subdev_init(struct camss *camss,
+ 		ispif->line[i].ispif = ispif;
+ 		ispif->line[i].id = i;
  
-+static const struct cci_data cci_v1_5_data = {
-+	.num_masters = 2,
-+	.queue_size = { 64, 16 },
-+	.quirks = {
-+		.max_write_len = 10,
-+		.max_read_len = 12,
-+	},
-+	.cci_clk_rate =  19200000,
-+	.params[I2C_MODE_STANDARD] = {
-+		.thigh = 78,
-+		.tlow = 114,
-+		.tsu_sto = 28,
-+		.tsu_sta = 28,
-+		.thd_dat = 10,
-+		.thd_sta = 77,
-+		.tbuf = 118,
-+		.scl_stretch_en = 0,
-+		.trdhld = 6,
-+		.tsp = 1
-+	},
-+	.params[I2C_MODE_FAST] = {
-+		.thigh = 20,
-+		.tlow = 28,
-+		.tsu_sto = 21,
-+		.tsu_sta = 21,
-+		.thd_dat = 13,
-+		.thd_sta = 18,
-+		.tbuf = 32,
-+		.scl_stretch_en = 0,
-+		.trdhld = 6,
-+		.tsp = 3
-+	},
-+};
-+
- static const struct cci_data cci_v2_data = {
- 	.num_masters = 2,
- 	.queue_size = { 64, 16 },
-@@ -773,6 +807,7 @@ static const struct cci_data cci_v2_data = {
- 
- static const struct of_device_id cci_dt_match[] = {
- 	{ .compatible = "qcom,msm8916-cci", .data = &cci_v1_data},
-+	{ .compatible = "qcom,msm8974-cci", .data = &cci_v1_5_data},
- 	{ .compatible = "qcom,msm8996-cci", .data = &cci_v2_data},
- 	{ .compatible = "qcom,sdm845-cci", .data = &cci_v2_data},
- 	{ .compatible = "qcom,sm8250-cci", .data = &cci_v2_data},
+-		if (camss->version == CAMSS_8x16) {
++		if (camss->version == CAMSS_8x16 ||
++			   camss->version == CAMSS_8x74) {
+ 			ispif->line[i].formats = ispif_formats_8x16;
+ 			ispif->line[i].nformats =
+ 					ARRAY_SIZE(ispif_formats_8x16);
+@@ -1163,6 +1165,7 @@ int msm_ispif_subdev_init(struct camss *camss,
+ 		ret = devm_request_irq(dev, ispif->irq, ispif_isr_8x16,
+ 			       IRQF_TRIGGER_RISING, ispif->irq_name, ispif);
+ 	else if (camss->version == CAMSS_8x96 ||
++		 camss->version == CAMSS_8x74 ||
+ 		 camss->version == CAMSS_660)
+ 		ret = devm_request_irq(dev, ispif->irq, ispif_isr_8x96,
+ 			       IRQF_TRIGGER_RISING, ispif->irq_name, ispif);
 -- 
 2.36.0
 
