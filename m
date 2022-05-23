@@ -2,60 +2,67 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5C89C433FE
-	for <linux-i2c@archiver.kernel.org>; Mon, 23 May 2022 08:29:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0C90C433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 May 2022 08:41:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231820AbiEWI32 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 23 May 2022 04:29:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45078 "EHLO
+        id S231906AbiEWIlq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 23 May 2022 04:41:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231852AbiEWI31 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 May 2022 04:29:27 -0400
-X-Greylist: delayed 792 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 23 May 2022 01:29:26 PDT
-Received: from mail.tireplot.pl (mail.tireplot.pl [46.183.184.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FFAF3153D
-        for <linux-i2c@vger.kernel.org>; Mon, 23 May 2022 01:29:26 -0700 (PDT)
-Received: by mail.tireplot.pl (Postfix, from userid 1001)
-        id 28A424A343; Mon, 23 May 2022 10:06:31 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tireplot.pl; s=mail;
-        t=1653293303; bh=Rfzvu4C+yJ1wyuJ4V+t/udh6cgYEQVnY6S5ltO4wdNg=;
-        h=Date:From:To:Subject:From;
-        b=IEcx7gfpzK5C6CJzbObAjnPmavR5vPtN2Q4NXtDOvo61y/+23/EzKWDcZPeJiGtPS
-         nvpLk17UMstpe6q4aQaWewX4f2GzyBeN6wV873hZsnXemPFfG2E/mIafqjCe2fJbtb
-         QNnt0YFLIGIXsD8itBn8FelcIksIoQ6a+JNXcj90wAECxcpVkETMiS7PP9t7lsMiw1
-         KeVqsMfUJQUkm2Q1zUTO6fq3Yur3PphCeGmhFakiDuGuyiCl46MlMu5rsOzRHkZCfK
-         chTdJqG9/NuvWhn+Z7f89g2VliAqPNLPilYrMIeUUQc/XYiRcr+ELartkcksUXQ0f1
-         oKKMgxEb0t2ng==
-Received: by mail.tireplot.pl for <linux-i2c@vger.kernel.org>; Mon, 23 May 2022 08:05:32 GMT
-Message-ID: <20220523084501-0.1.2k.fy5s.0.aai7fzp76o@tireplot.pl>
-Date:   Mon, 23 May 2022 08:05:32 GMT
-From:   =?UTF-8?Q? "Arkadiusz_Soko=C5=82owski" ?= 
-        <arkadiusz.sokolowski@tireplot.pl>
-To:     <linux-i2c@vger.kernel.org>
-Subject: Koszty instalacji fotowoltaicznej
-X-Mailer: mail.tireplot.pl
+        with ESMTP id S232005AbiEWIlp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 May 2022 04:41:45 -0400
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [46.235.227.227])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9960F18E0D;
+        Mon, 23 May 2022 01:41:41 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: kholk11)
+        with ESMTPSA id D76C31F42CC6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1653295300;
+        bh=0P46duBDuz2b5CE/o2n56812oMHke0Ez/vRylcz7E8w=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=DnbM3Sz+hSQk0SLXivU4I4uVTqNsW6Afi3aXHedtSkumaqlwPyJt63SeARySgkWhU
+         V0bX58p4FClZRwXaMagpvPdcnexlvyUQzwHcdoyDM9FP3wzGJy8BSKlBOBnLr5j+Gc
+         vynWi3U5cSwtRMtT621qLvUSJIvzp0Mz+HUtOvZzxCokHVmSohEjaK84FkDEZNZA+L
+         Is5i9p8pDEBkr+jWHCQO4ezFkWE+OohHFCF/KWproX8j2MYcLIlDABfAc+FcE1acjB
+         c+W92jSNmEJ59Rgudk99ODg8/JxxqS0oiXqcyNjkj99WoSvmpvE5iTbFtg9zvrO4KW
+         xnPVw4t4ABqUA==
+Message-ID: <e6d5bf20-4ed2-2d98-438e-315a9ed6b71a@collabora.com>
+Date:   Mon, 23 May 2022 10:41:37 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH] i2c: mediatek: Fix an error handling path in
+ mtk_i2c_probe()
+Content-Language: en-US
+To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        dan.carpenter@oracle.com, Qii Wang <qii.wang@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+References: <8001bcdbee9f8afc85118c99b8166eb6473dcba5.1653222111.git.christophe.jaillet@wanadoo.fr>
+From:   AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>
+In-Reply-To: <8001bcdbee9f8afc85118c99b8166eb6473dcba5.1653222111.git.christophe.jaillet@wanadoo.fr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Dzie=C5=84 dobry,
+Il 22/05/22 14:22, Christophe JAILLET ha scritto:
+> The clsk are prepared, enabled, then disabled. So if an error occurs after
+> the disable step, they are still prepared.
+> 
+> Add an error handling path to unprepare the clks in such a case, as already
+> done in the .remove function.
+> 
+> Fixes: 8b4fc246c3ff ("i2c: mediatek: Optimize master_xfer() and avoid circular locking")
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-stworzyli=C5=9Bmy specjaln=C4=85 ofert=C4=99 dla firm, na kompleksow=C4=85=
- obs=C5=82ug=C4=99 inwestycji w fotowoltaik=C4=99. =20
+Thanks!
 
-Specjalizujemy si=C4=99 w zakresie doboru, monta=C5=BCu i serwisie instal=
-acji fotowoltaicznych, dysponujemy najnowocze=C5=9Bniejszymi rozwi=C4=85z=
-ania, kt=C3=B3re zapewni=C4=85 Pa=C5=84stwu oczekiwane rezultaty.
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-Mo=C5=BCemy przygotowa=C4=87 dla Pa=C5=84stwa wst=C4=99pn=C4=85 kalkulacj=
-=C4=99 i przeanalizowa=C4=87 efekty mo=C5=BCliwe do osi=C4=85gni=C4=99cia=
-=2E
-
-Czy s=C4=85 Pa=C5=84stwo otwarci na wst=C4=99pn=C4=85 rozmow=C4=99 w tym =
-temacie?
-
-Pozdrawiam
-Arkadiusz Soko=C5=82owski
