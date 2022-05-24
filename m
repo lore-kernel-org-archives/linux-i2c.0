@@ -2,134 +2,134 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3427DC433F5
-	for <linux-i2c@archiver.kernel.org>; Tue, 24 May 2022 09:45:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F914C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue, 24 May 2022 13:54:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235859AbiEXJpD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 24 May 2022 05:45:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34944 "EHLO
+        id S236993AbiEXNyt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 24 May 2022 09:54:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235848AbiEXJpC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 May 2022 05:45:02 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5933B5522C
-        for <linux-i2c@vger.kernel.org>; Tue, 24 May 2022 02:45:01 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S236290AbiEXNyt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 May 2022 09:54:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E85B95DC1;
+        Tue, 24 May 2022 06:54:48 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 15D441F8A8;
-        Tue, 24 May 2022 09:45:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1653385500; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=yUiLavxjVwyrKgG3j+xKVFA5puTzj5Xiy8cBaHWy9bQ=;
-        b=oVjcLYCptC7aB5hJo5Iq0bmZEUXkOxEoTQDuav4loW1qBsQ0fJD6vRlEfNe/4AEhyEdiVm
-        e1/PgAploqG2wVWonumviB65WYhFC4H63YC6ETRRZeVp7ritWCF69wSEN/xTYpuqtAAhDT
-        UHQZ13KAvHLAPR5t8HXj1oy8EM5h5zc=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1653385500;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=yUiLavxjVwyrKgG3j+xKVFA5puTzj5Xiy8cBaHWy9bQ=;
-        b=OgZLXhW1HE3JjrfWwfRyKDpzewQaXcFLMol3cUjfyNhPSfp24X7w2xGS1SbM0Dx7/NUU6R
-        8us0nncdFuLD6JAw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id EBD0413ADF;
-        Tue, 24 May 2022 09:44:59 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id AsrQNxupjGKmDAAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Tue, 24 May 2022 09:44:59 +0000
-Date:   Tue, 24 May 2022 11:44:57 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Linux I2C <linux-i2c@vger.kernel.org>
-Cc:     Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH] i2ctransfer: Drop redundant variable arg_idx
-Message-ID: <20220524114457.1c78c552@endymion.delvare>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1E60615AD;
+        Tue, 24 May 2022 13:54:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52BA6C385AA;
+        Tue, 24 May 2022 13:54:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653400487;
+        bh=u5EmhhjVWPHe+QKXcXFA8uj/2wXqkYugmdUHptvAmmY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=c2WHa5t4vBSwboxZwhqf2PB+Hq5e8SJ7+7LZC/lkBVwU4EPPaq/rNlBlqQZjlOyQ1
+         /AhhJDfkDrgqoeBVHbXkDvY4aTzRsginP2H4kFPAhvcPaaP8PV530/AmlDFiArier4
+         gP0i+JQbwcyXXJSaGWJgES8KAm8r8+9T7GE3n2iCg1VgtjZ5cmmOkS65dM7X5ZgyC9
+         WBUOeDikHCPJVYxAKMAU/lZ7ENwX4yaU6r8hkbCYR4MXA14KcRHbVnSIZmKfY0Gpfk
+         X2ZwpXv0BD3e0qzmFYk/gqgIIeX61grEGvl0jfG3Io/uT/eeKXeuTPs8o5TEsWHt//
+         g30x+nGpkv7zQ==
+From:   Dinh Nguyen <dinguyen@kernel.org>
+To:     jarkko.nikula@linux.intel.com
+Cc:     dinguyen@kernel.org, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, robh+dt@kernel.org,
+        krzk+dt@kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCHv2 1/2] i2c: designware: introduce a custom scl recovery for SoCFPGA platforms
+Date:   Tue, 24 May 2022 08:54:40 -0500
+Message-Id: <20220524135441.420600-1-dinguyen@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-arg_idx has the same meaning as getopt's optind global variable, so
-drop the former and use the latter. Once getopt() is done parsing the
-options, there should be no problem using it for ourselves.
+The I2C pins on the SoCFPGA platforms do not go through a GPIO module,
+thus cannot be recovered by the default method of by doing a GPIO access.
+Only a reset of the I2C IP block can a recovery be successful.
 
-Sigend-off-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 ---
-I can't easily test this, Wolfram can you please do it?
+v2: remove change to MODEL_MASK
+    s/i2c_custom_scl_recovery/i2c_socfpga_scl_recovery
+---
+ drivers/i2c/busses/i2c-designware-core.h    |  1 +
+ drivers/i2c/busses/i2c-designware-master.c  | 19 +++++++++++++++++--
+ drivers/i2c/busses/i2c-designware-platdrv.c |  1 +
+ 3 files changed, 19 insertions(+), 2 deletions(-)
 
- tools/i2ctransfer.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
-
---- i2c-tools.orig/tools/i2ctransfer.c	2022-05-24 11:34:48.901029181 +0200
-+++ i2c-tools/tools/i2ctransfer.c	2022-05-24 11:38:35.637104513 +0200
-@@ -131,7 +131,7 @@ static int confirm(const char *filename,
- int main(int argc, char *argv[])
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 70b80e710990..7b22ec1d6a96 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -303,6 +303,7 @@ struct dw_i2c_dev {
+ #define MODEL_MSCC_OCELOT	BIT(8)
+ #define MODEL_BAIKAL_BT1	BIT(9)
+ #define MODEL_AMD_NAVI_GPU	BIT(10)
++#define MODEL_SOCFPGA		BIT(11)
+ #define MODEL_MASK		GENMASK(11, 8)
+ 
+ /*
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 44a94b225ed8..843d4bbab9cc 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -813,12 +813,29 @@ static void i2c_dw_unprepare_recovery(struct i2c_adapter *adap)
+ 	i2c_dw_init_master(dev);
+ }
+ 
++static int i2c_socfpga_scl_recovery(struct i2c_adapter *adap)
++{
++	i2c_dw_prepare_recovery(adap);
++	i2c_dw_unprepare_recovery(adap);
++	return 0;
++}
++
+ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
  {
- 	char filename[20];
--	int i2cbus, address = -1, file, opt, arg_idx, nmsgs = 0, nmsgs_sent, i;
-+	int i2cbus, address = -1, file, opt, nmsgs = 0, nmsgs_sent, i;
- 	int force = 0, yes = 0, version = 0, verbose = 0, all_addrs = 0;
- 	struct i2c_msg msgs[I2C_RDRW_IOCTL_MAX_MSGS];
- 	enum parse_state state = PARSE_GET_DESC;
-@@ -160,13 +160,12 @@ int main(int argc, char *argv[])
- 		exit(0);
- 	}
+ 	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+ 	struct i2c_adapter *adap = &dev->adapter;
+ 	struct gpio_desc *gpio;
  
--	arg_idx = optind;
--	if (arg_idx == argc) {
-+	if (optind == argc) {
- 		help();
- 		exit(1);
- 	}
++	switch (dev->flags & MODEL_MASK) {
++	case MODEL_SOCFPGA:
++		rinfo->recover_bus = i2c_socfpga_scl_recovery;
++		break;
++	default:
++		rinfo->recover_bus = i2c_generic_scl_recovery;
++		break;
++	}
++	adap->bus_recovery_info = rinfo;
++
+ 	gpio = devm_gpiod_get_optional(dev->dev, "scl", GPIOD_OUT_HIGH);
+ 	if (IS_ERR_OR_NULL(gpio))
+ 		return PTR_ERR_OR_ZERO(gpio);
+@@ -830,10 +847,8 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
+ 		return PTR_ERR(gpio);
+ 	rinfo->sda_gpiod = gpio;
  
--	i2cbus = lookup_i2c_bus(argv[arg_idx++]);
-+	i2cbus = lookup_i2c_bus(argv[optind++]);
- 	if (i2cbus < 0)
- 		exit(1);
+-	rinfo->recover_bus = i2c_generic_scl_recovery;
+ 	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
+ 	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
+-	adap->bus_recovery_info = rinfo;
  
-@@ -174,8 +173,8 @@ int main(int argc, char *argv[])
- 	if (file < 0 || check_funcs(file))
- 		exit(1);
- 
--	while (arg_idx < argc) {
--		char *arg_ptr = argv[arg_idx];
-+	while (optind < argc) {
-+		char *arg_ptr = argv[optind];
- 		unsigned long len, raw_data;
- 		__u16 flags;
- 		__u8 data, *buf;
-@@ -310,7 +309,7 @@ int main(int argc, char *argv[])
- 			goto err_out;
- 		}
- 
--		arg_idx++;
-+		optind++;
- 	}
- 
- 	if (state != PARSE_GET_DESC || nmsgs == 0) {
-@@ -342,7 +341,7 @@ int main(int argc, char *argv[])
- 	exit(0);
- 
-  err_out_with_arg:
--	fprintf(stderr, "Error: faulty argument is '%s'\n", argv[arg_idx]);
-+	fprintf(stderr, "Error: faulty argument is '%s'\n", argv[optind]);
-  err_out:
- 	close(file);
- 
-
-
+ 	dev_info(dev->dev, "running with gpio recovery mode! scl%s",
+ 		 rinfo->sda_gpiod ? ",sda" : "");
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 70ade5306e45..b33e015e6732 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -153,6 +153,7 @@ static const struct of_device_id dw_i2c_of_match[] = {
+ 	{ .compatible = "snps,designware-i2c", },
+ 	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
+ 	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
++	{ .compatible = "intel,socfpga-i2c", .data = (void *)MODEL_SOCFPGA },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
 -- 
-Jean Delvare
-SUSE L3 Support
+2.25.1
+
