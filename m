@@ -2,115 +2,81 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7FEFC433FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 25 May 2022 03:24:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE223C433EF
+	for <linux-i2c@archiver.kernel.org>; Wed, 25 May 2022 07:48:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241848AbiEYDYg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 24 May 2022 23:24:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39080 "EHLO
+        id S229905AbiEYHsl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 25 May 2022 03:48:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241178AbiEYDYY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 May 2022 23:24:24 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA372719E3;
-        Tue, 24 May 2022 20:24:22 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id gk22so88285pjb.1;
-        Tue, 24 May 2022 20:24:22 -0700 (PDT)
+        with ESMTP id S235342AbiEYHsk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 May 2022 03:48:40 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F60C79388;
+        Wed, 25 May 2022 00:48:38 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id ck4so35693617ejb.8;
+        Wed, 25 May 2022 00:48:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=0rffUNaGY9JVFcRgt64Xz6CcZdQ3YWgSvvOXYBNVtz8=;
-        b=jKuli6//St0+LziZumcEVU9gK0gJSh/AzpWH/KvZOrjGADjGd6q9QqwOD441webjpK
-         gilAjG+LuVOpD5IOFK/83ezJe7pJ1xqeoRB4UvizS6FSRJdbXVn2SzPhhAsakxycJwyn
-         7GpFGlNuuN9u8cwWO24d/KKSp0P81EbToYQUryYUC6uqU2aEmdYMj935T+wh9nVI7KZm
-         phcqaebLfwXYhPlJYL2KvrRvV/iV6MH4KGFT7f2eaDjIIdP/B4tUYjWXq9CoX2quPY3w
-         CTPyYOnMOliR0s4mXNMyyGCBhUjg/CB3CecF3CxL995slIZGw57pNDs5Qnw+edU1DIPT
-         j8xw==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2AYrAMF95CPo8AD2JvS7RbUi+CKSBPj2EiLmCaRwAeU=;
+        b=BWrP+3mdMfbeAHYIP3Sm1ueeCOYZkJi2DdsdtEqe7VEClk6tx4qgmKNVskLquoMlz5
+         q7llWA87EWTgd/oMUn7f+829MNufvs2HEvi0CzhAzZqW8sObJnKfEbD2ZPkAOYV4UWwa
+         pS581PB9rI7iZqMMpbIiUy0r8Hk3tXbRyvXXWo5gUzsP23x1by3FHtQ69m/a92k7PMF6
+         pjP+LNPwCFfDYMLOzq2yQBOwSwncZo7W5k3Qwan6cdfAWFkQyyonB0+UalA1tWExSAtX
+         OFXleX79ZnI7aOMufS4hjPljZ/tqXudMDEB6cnFbeGHRHGDFr5MpA5+jMMKeB84QGYZt
+         w1ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=0rffUNaGY9JVFcRgt64Xz6CcZdQ3YWgSvvOXYBNVtz8=;
-        b=KvxhFifVnRS6fIQVEkAGYA+qa2PNDTyMbkhOp3T8d39b8nQiC98Uqtyat1NTHjUDfP
-         j6WDBuZuPDDx4u+Ax08535w5fO2DUQxFm5wv5UVCAiic+oWJfviF/V3TGoNuMROJeLBX
-         BT5DcE2wrbzSjwvcnvh6A9QEscCSZZgf07Gt+oEiG8/pnhiP1H9Iz7/Fbf4RQU7uzcS9
-         jUSt93Bf914PofBPFUJxBRxrDRd0hPDfL0LI2xiw0BCpcT6N3Xrw0QZpeTSyR3331J1K
-         2KqA7ejuLfcDB+zuwsGSAdt/g25L+1j7JZudG4c2qxheB9Cqu0FpXkqt0K+RqRkEtzKV
-         RmoA==
-X-Gm-Message-State: AOAM530J329K4HfNdEZM3PuwDksF6ZIw2+BPVYSRS+yRbEnpc7vGORo2
-        jGfOLJKFH6S5e8tM3x61sg==
-X-Google-Smtp-Source: ABdhPJwAu5NH9jyXsBMmzbw6/e/vdCqMz64XE5Xk0CvUDXMx3MBbQxxY2jDtg1yuSX72ujd35ZM00Q==
-X-Received: by 2002:a17:90a:8807:b0:1df:78c7:c215 with SMTP id s7-20020a17090a880700b001df78c7c215mr7941634pjn.234.1653449061947;
-        Tue, 24 May 2022 20:24:21 -0700 (PDT)
-Received: from localhost (220-133-130-217.hinet-ip.hinet.net. [220.133.130.217])
-        by smtp.gmail.com with ESMTPSA id c21-20020a62e815000000b00518e3256022sm711553pfi.104.2022.05.24.20.24.21
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 24 May 2022 20:24:21 -0700 (PDT)
-From:   Tyrone Ting <warp5tw@gmail.com>
-To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
-        venture@google.com, yuenn@google.com, benjaminfair@google.com,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        wsa@kernel.org, andriy.shevchenko@linux.intel.com,
-        jarkko.nikula@linux.intel.com, semen.protsenko@linaro.org,
-        jie.deng@intel.com, jsd@semihalf.com, sven@svenpeter.dev,
-        lukas.bulwahn@gmail.com, olof@lixom.net, arnd@arndb.de,
-        warp5tw@gmail.com, tali.perry@nuvoton.com, Avi.Fishman@nuvoton.com,
-        tomer.maimon@nuvoton.com, KWLIU@nuvoton.com, JJLIU0@nuvoton.com,
-        kfting@nuvoton.com
-Cc:     openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v6 3/5] i2c: npcm: Correct slave role behavior
-Date:   Wed, 25 May 2022 11:23:39 +0800
-Message-Id: <20220525032341.3182-4-warp5tw@gmail.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220525032341.3182-1-warp5tw@gmail.com>
-References: <20220525032341.3182-1-warp5tw@gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2AYrAMF95CPo8AD2JvS7RbUi+CKSBPj2EiLmCaRwAeU=;
+        b=E9TnADONFaCF518Pgetp8nlBcVgB19ZT+cDjtc07Pi3iXOntCs8bZnrGbz3DFCR07Q
+         yppx7KoMLVlUXlUEVQq+fAvZ7gMxt4OqzpdclFE9n18/3VspX96tmqio2bq0+HGYm1rH
+         QDtmR6qdmE9xCVGLpMSxG0M91rcCpJtbtsdt5VJdpNu2iPAhoKj0y1DZ68x8gley6xA7
+         0P0HrqpAVA+Kc2TpRH26dewqxiw0jDU//vMOzFkWyhqkJkgHVPqfMwsod8I/07jHEk4j
+         RTeCu7D3AwSv68+JKTv50dvkk4MaMrRDAjw2jGcJMAjKj4guZ+ykHxiYObOw2Ki3WU88
+         ELnw==
+X-Gm-Message-State: AOAM533Gkio2pxyaCNKa7J62+YcfWV2PTn3u9x2pxN2ZDYxRK3foHHez
+        QuE7ZAJ64WtlPcExMU1eR7A=
+X-Google-Smtp-Source: ABdhPJyy3txtTKRLcUJIJN/8lquQLBSMMuP+BaaBzmN7fVBmrLIOQvA6THIWfe8l1dUw1vcw+5BxfQ==
+X-Received: by 2002:a17:907:7b9b:b0:6fe:dedf:6414 with SMTP id ne27-20020a1709077b9b00b006fededf6414mr12921201ejc.88.1653464917491;
+        Wed, 25 May 2022 00:48:37 -0700 (PDT)
+Received: from localhost.localdomain (109-186-136-71.bb.netvision.net.il. [109.186.136.71])
+        by smtp.googlemail.com with ESMTPSA id v1-20020aa7d641000000b0042acd78014esm10230533edr.11.2022.05.25.00.48.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 May 2022 00:48:37 -0700 (PDT)
+From:   Michael Zaidman <michael.zaidman@gmail.com>
+To:     jikos@kernel.org, benjamin.tissoires@redhat.com, wsa@kernel.org
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-i2c@vger.kernel.org, champagne.guillaume.c@gmail.com,
+        mathieu.gallichand@sonatest.com,
+        Michael Zaidman <michael.zaidman@gmail.com>
+Subject: [PATCH v1 0/5] HID: ft260: fixes and performance improvements
+Date:   Wed, 25 May 2022 10:47:52 +0300
+Message-Id: <20220525074757.7519-1-michael.zaidman@gmail.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Tali Perry <tali.perry1@gmail.com>
+This patchset contains fixes and performance improvements to the
+hid-ft260 driver posted for review and feedback on the GitHub
+https://github.com/MichaelZaidman/hid-ft260 about three months ago.
 
-Correct the slave transaction logic to be compatible with the generic
-slave backend driver.
+Michael Zaidman (5):
+  HID: ft260: ft260_xfer_status routine cleanup
+  HID: ft260: improve i2c write performance
+  HID: ft260: support i2c writes larger than HID report size
+  HID: ft260: support i2c reads greater than HID report size
+  HID: ft260: improve i2c large reads performance
 
-Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
----
- drivers/i2c/busses/i2c-npcm7xx.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/hid/hid-ft260.c | 230 +++++++++++++++++++++-------------------
+ 1 file changed, 120 insertions(+), 110 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index b5cc83e51029..b4d218c6c8fb 100644
---- a/drivers/i2c/busses/i2c-npcm7xx.c
-+++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -915,11 +915,15 @@ static int npcm_i2c_slave_get_wr_buf(struct npcm_i2c *bus)
- 	for (i = 0; i < I2C_HW_FIFO_SIZE; i++) {
- 		if (bus->slv_wr_size >= I2C_HW_FIFO_SIZE)
- 			break;
--		i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
-+		if (bus->state == I2C_SLAVE_MATCH) {
-+			i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
-+			bus->state = I2C_OPER_STARTED;
-+		} else {
-+			i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
-+		}
- 		ind = (bus->slv_wr_ind + bus->slv_wr_size) % I2C_HW_FIFO_SIZE;
- 		bus->slv_wr_buf[ind] = value;
- 		bus->slv_wr_size++;
--		i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
- 	}
- 	return I2C_HW_FIFO_SIZE - ret;
- }
-@@ -967,7 +971,6 @@ static void npcm_i2c_slave_xmit(struct npcm_i2c *bus, u16 nwrite,
- 	if (nwrite == 0)
- 		return;
- 
--	bus->state = I2C_OPER_STARTED;
- 	bus->operation = I2C_WRITE_OPER;
- 
- 	/* get the next buffer */
 -- 
-2.17.1
+2.25.1
 
