@@ -2,181 +2,97 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3282C433F5
-	for <linux-i2c@archiver.kernel.org>; Fri, 27 May 2022 00:31:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C92FC433EF
+	for <linux-i2c@archiver.kernel.org>; Fri, 27 May 2022 16:50:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232296AbiE0AbP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 26 May 2022 20:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48968 "EHLO
+        id S1351569AbiE0Qus (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 27 May 2022 12:50:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231130AbiE0AbP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 26 May 2022 20:31:15 -0400
-Received: from mail-vs1-xe2c.google.com (mail-vs1-xe2c.google.com [IPv6:2607:f8b0:4864:20::e2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A3B5B0B;
-        Thu, 26 May 2022 17:31:13 -0700 (PDT)
-Received: by mail-vs1-xe2c.google.com with SMTP id c62so2913309vsc.10;
-        Thu, 26 May 2022 17:31:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=bx0K5msFh3pNmzh8X+2nPnmbDmrzr93sWsFhFuKypb8=;
-        b=crvQFxy2kETdBwme1u+UE2SJEU3y4X9qCP5+LitHocqZ0XGaNcg6o5EEXugaczwjLW
-         +usd3vggxutmLaSOc7RLyOglDpt3IpzRxkfM4UbU1i2LU8mz9iLFMHpVLI+/9t63pd3v
-         4WiJ7YRnmhS7lg9EO2OiEcK2C29rAvUbwETU91nOQ6d5xDqHEdYYhJYgcyimUmY0LMFJ
-         XuHIHlGE8+mjOFS9xnDI6xQF6kR8eHxHSjkdn2Ob0UF/m3xMCplPMyOdj02nJk1G/eV4
-         u1G9SltfMDPNkY+RgnvfGDUJRWbY0Qu5N7vdFyudAkVwS7JxGBYRK0oqZwIdQ/w+LeEi
-         rCiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=bx0K5msFh3pNmzh8X+2nPnmbDmrzr93sWsFhFuKypb8=;
-        b=7ycCu4ocOTidIaEmtztwY1KCrFFOFonlm4oWU7WT1aETuG/O8LuDeq6FOnyz5ro95L
-         5lI772GkCciMpe+Q9qltXDR5Js4HPQmOxYOk3fIJFd7KUWoq5qm1yp1lTV6IMjI0Rhoa
-         O92ydbkwrOoG1QPAp2oCq/d87eOzsow4X5o1qh61GA+jZFKD+FoDFbn5ZDoOn/EaSIaz
-         1nThn74I2Jx6w1STByluWmydioquchGc6Zy3+pNgWyHebjmnjQec3cTK2lxWOREUPQgc
-         qSD19MrxG3pJ7UsomOGwQEMxgHDyRVXmQNecz90bdlDd61LnBJVhz79LLcfGa9NwkBgT
-         T2/w==
-X-Gm-Message-State: AOAM532XduddaswA50uBKrPBuZCGKDDMmT7tP69nm0PisxDs8WP18MAd
-        PPA5ixXj6UG1fI/AoYk8RZ0euvABct3BMFIULw==
-X-Google-Smtp-Source: ABdhPJxrv6RK04WOkAO9q9nyChrsL5sj/q/zMxHju9rv19w0OEl+GqzkgGRkR3ymujYxGl7/0mc9r5puVDakCE4dApA=
-X-Received: by 2002:a67:1787:0:b0:337:d8cd:35b2 with SMTP id
- 129-20020a671787000000b00337d8cd35b2mr6646742vsx.29.1653611472541; Thu, 26
- May 2022 17:31:12 -0700 (PDT)
+        with ESMTP id S1350778AbiE0Qus (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 27 May 2022 12:50:48 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B28F527E0;
+        Fri, 27 May 2022 09:50:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1653670247; x=1685206247;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=5Zd5oXs4G2DMNG/uRxSGRYwoT2gZG7cDj4UtN+8pWG8=;
+  b=IMoFM3dbkm2L5vdmkAIqR/7wtRdH1tFMREH/Z9N7X81NWLBuEdlwNKlM
+   AWpaULE+LAwoUaIxscQsCkm7sp67v3FNfeN4KP/zrimXEdeklw6Lo5Q9b
+   zS5YjZ9EdG0PmQYOV2g/cEftv2oNnCA8uE2E110uqPjR8eAQS/T7YODnW
+   4XFe2MjqcFAox17RM9nSXcG4GuyxdfcqmAjuJklVrun/jpCOSs4clvRnU
+   6hEqtaFPrzbr/0LA9IWDC7dktOFdRv8f2HloMCkFnxYIeJjxAfvyJCs8N
+   K+brPJH/dUVov2iDgzJyzbTA48wGHEE/DsZSXJYGsswVDTRYnU9a5LkOO
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10360"; a="274253961"
+X-IronPort-AV: E=Sophos;i="5.91,256,1647327600"; 
+   d="scan'208";a="274253961"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2022 09:50:46 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,256,1647327600"; 
+   d="scan'208";a="902635036"
+Received: from lkp-server01.sh.intel.com (HELO db63a1be7222) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 27 May 2022 09:50:43 -0700
+Received: from kbuild by db63a1be7222 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1nudAh-0004wH-7T;
+        Fri, 27 May 2022 16:50:43 +0000
+Date:   Sat, 28 May 2022 00:50:39 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Eddie James <eajames@linux.ibm.com>, linux-i2c@vger.kernel.org
+Cc:     kbuild-all@lists.01.org, linux-iio@vger.kernel.org,
+        linux-kernel@vger.kernel.org, wsa@kernel.org, peda@axentia.se,
+        jic23@kernel.org, lars@metafoo.de, eajames@linux.ibm.com,
+        miltonm@us.ibm.com, joel@jms.id.au
+Subject: Re: [PATCH 1/2] i2c: core: Add mux root adapter operations
+Message-ID: <202205280002.xJm7ad0Z-lkp@intel.com>
+References: <20220526205334.64114-2-eajames@linux.ibm.com>
 MIME-Version: 1.0
-References: <20220525032341.3182-1-warp5tw@gmail.com> <Yo5ijJ9mqXRNB7d8@smile.fi.intel.com>
-In-Reply-To: <Yo5ijJ9mqXRNB7d8@smile.fi.intel.com>
-From:   Tyrone Ting <warp5tw@gmail.com>
-Date:   Fri, 27 May 2022 08:31:01 +0800
-Message-ID: <CACD3sJbGxJMks02qB2uWTivtMvBFhxe9Chq4B4Wyk1UtmqnTUg@mail.gmail.com>
-Subject: Re: [PATCH v6 0/5] i2c: npcm: Bug fixes timeout, spurious interrupts
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
-        venture@google.com, yuenn@google.com, benjaminfair@google.com,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        wsa@kernel.org, jarkko.nikula@linux.intel.com,
-        semen.protsenko@linaro.org, jsd@semihalf.com, sven@svenpeter.dev,
-        lukas.bulwahn@gmail.com, olof@lixom.net, arnd@arndb.de,
-        tali.perry@nuvoton.com, Avi.Fishman@nuvoton.com,
-        tomer.maimon@nuvoton.com, KWLIU@nuvoton.com, JJLIU0@nuvoton.com,
-        kfting@nuvoton.com, openbmc@lists.ozlabs.org,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220526205334.64114-2-eajames@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Andy:
+Hi Eddie,
 
-Thank you for your review.
+I love your patch! Perhaps something to improve:
 
-Much appreciated.
+[auto build test WARNING on wsa/i2c/for-next]
+[also build test WARNING on jic23-iio/togreg linux/master linus/master v5.18 next-20220527]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com> =E6=96=BC 2022=E5=B9=B4=
-5=E6=9C=8826=E6=97=A5 =E9=80=B1=E5=9B=9B =E4=B8=8A=E5=8D=881:32=E5=AF=AB=E9=
-=81=93=EF=BC=9A
->
-> On Wed, May 25, 2022 at 11:23:36AM +0800, Tyrone Ting wrote:
-> > From: Tyrone Ting <kfting@nuvoton.com>
-> >
-> > This patchset includes the following fixes:
-> >
-> > - Add dt-bindings description for NPCM845.
-> > - Bug fix for timeout calculation.
-> > - Better handling of spurious interrupts.
-> > - Fix for event type in slave mode.
-> > - Removal of own slave addresses [2:10].
-> > - Support for next gen BMC (NPCM845).
-> >
-> > The NPCM I2C driver is tested on NPCM750 and NPCM845 evaluation boards.
->
-> LGTM,
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->
-> > Addressed comments from:
-> >  - Wolfram Sang : https://lkml.org/lkml/2022/5/21/51
-> >
-> > Changes since version 5:
-> >  - Shorten npcm_i2caddr array since the number of supported i2c slave
-> >    addresses is reduced.
-> >  - Create a new patch from the original PATCH v5 08/10 to modify the sl=
-ave
-> >    transaction logic.
-> >
-> > Changes since version 4:
-> >  - Remove quotes around ref handle to nuvoton,sys-mgr in i2c binding
-> >    document.
-> >  - Keep the "longer line first" order.
-> >  - Correct the SoB chain.
-> >  - Modify the if statement in one line and add new line characters.
-> >  - Modify the commit message format in the patch Remove own slave
-> >    addresses 2:10. Correct the if statement in one line and shorten the
-> >    debug messages.
-> >  - Create a new patch to capitalize the one-line comment in the driver.
-> >
-> > Changes since version 3:
-> >  - Correct the const format in if condition in i2c binding document.
-> >  - Add the oops message statement and register information in register
-> >    access width patch.
-> >  - Add the occurring rate of the i2c spurious interrupt issue and more
-> >    details in driver's behavior to overcome this issue.
-> >  - Address Andy's comments in the patch to support NPCM845.
-> >
-> > Changes since version 2:
-> >  - Keep old code as fallback, if getting nuvoton,sys-mgr property fails=
-.
-> >  - Fix the error reported by running 'make DT_CHECKER_FLAGS=3D-m
-> >    dt_binding_check'.
-> >  - Make nuvoton,sys-mgr required for nuvoton,npcm845-i2c.
-> >  - Correct the patch's subject about changing the way of getting GCR
-> >    regmap and add the description about keeping old code as fallback
-> >    if getting nuvoton,sys-mgr property fails.
-> >  - Correct the patch title and description about removing the unused
-> >    variable clk_regmap.
-> >  - Use the data field directly instead of the macros since macros are
-> >    not constants anymore in this patch.
-> >
-> > Changes since version 1:
-> >  - Add nuvoton,sys-mgr property in NPCM devicetree.
-> >  - Describe the commit message in imperative mood.
-> >  - Modify the description in i2c binding document to cover NPCM series.
-> >  - Add new property in i2c binding document.
-> >  - Create a new patch for client address calculation.
-> >  - Create a new patch for updating gcr property name.
-> >  - Create a new patch for removing unused clock node.
-> >  - Explain EOB in the commit description.
-> >  - Create a new patch for correcting NPCM register access width.
-> >  - Remove some comment since the corresponding logic no longer exists.
-> >  - Remove fixes tag while the patch adds an additional feature.
-> >  - Use devicetree data field to support NPCM845.
-> >
-> > Tali Perry (2):
-> >   i2c: npcm: Remove own slave addresses 2:10
-> >   i2c: npcm: Correct slave role behavior
-> >
-> > Tyrone Ting (3):
-> >   dt-bindings: i2c: npcm: support NPCM845
-> >   i2c: npcm: Support NPCM845
-> >   i2c: npcm: Capitalize the one-line comment
-> >
-> >  .../bindings/i2c/nuvoton,npcm7xx-i2c.yaml     |  25 ++-
-> >  drivers/i2c/busses/Kconfig                    |   8 +-
-> >  drivers/i2c/busses/Makefile                   |   2 +-
-> >  drivers/i2c/busses/i2c-npcm7xx.c              | 176 ++++++++++--------
-> >  4 files changed, 124 insertions(+), 87 deletions(-)
-> >
-> > --
-> > 2.17.1
-> >
->
-> --
-> With Best Regards,
-> Andy Shevchenko
->
->
+url:    https://github.com/intel-lab-lkp/linux/commits/Eddie-James/i2c-core-Add-mux-root-adapter-operations/20220527-050852
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+reproduce: make htmldocs
 
-Best Regards,
-Tyrone
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
+
+All warnings (new ones prefixed by >>):
+
+>> include/linux/i2c.h:858: warning: expecting prototype for i2c_unlock_deslect_bus(). Prototype was for i2c_unlock_deselect_bus() instead
+
+vim +858 include/linux/i2c.h
+
+   852	
+   853	/**
+   854	 * i2c_unlock_deslect_bus - Release exclusive access to the root I2C bus
+   855	 * @adapter: Target I2C bus
+   856	 */
+   857	static inline void i2c_unlock_deselect_bus(struct i2c_adapter *adapter)
+ > 858	{
+   859		adapter->mux_root_ops->unlock_deselect(adapter);
+   860	}
+   861	
+
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
