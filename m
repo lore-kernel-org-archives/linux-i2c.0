@@ -2,82 +2,80 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08ED3C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 30 May 2022 12:40:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A4DDC433F5
+	for <linux-i2c@archiver.kernel.org>; Tue, 31 May 2022 08:20:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232599AbiE3Mku (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 30 May 2022 08:40:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41752 "EHLO
+        id S236304AbiEaIUZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 31 May 2022 04:20:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229841AbiE3Mku (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 May 2022 08:40:50 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB9C7DE09;
-        Mon, 30 May 2022 05:40:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1653914449; x=1685450449;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=BbByahY1nfmcJEgPBRh3UpjJMSql/8lYm9tvLU4hTs0=;
-  b=dMa8KfUSRvWsh0RzfnvldZAmkuOln7v7I2PO97m2gXAZF4+t0IZntUnf
-   5mkQ6sgMt4yyiW/L8hJunIFAfqZvmotgmXeyRYfLpSoHOTUfVXZjDNZn4
-   tpzS5QihTyaNoFFDIHElgxY0YAgamHJ6qmTymwYf5fVv9hosgJYjC0fG6
-   Uyc/L39jnWlKhoZ7ffpl4c0jfIiRuAtc2HpnTZiIzfiS+ftQAGvmkmeyx
-   naQ9VpQM87lDYGqML7w83oK+XpAI+5BB38/TrPCygCdpeCYBR37Q38+7y
-   csHaw++k28x+ZRSgTUha13mvn7kRm412H+vBW22A2LpeSTvxZXz8k3+h7
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10362"; a="274708112"
-X-IronPort-AV: E=Sophos;i="5.91,262,1647327600"; 
-   d="scan'208";a="274708112"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 May 2022 05:40:49 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,262,1647327600"; 
-   d="scan'208";a="644611148"
-Received: from mylly.fi.intel.com (HELO [10.237.72.161]) ([10.237.72.161])
-  by fmsmga004.fm.intel.com with ESMTP; 30 May 2022 05:40:47 -0700
-Message-ID: <178d6b21-ef29-0790-1470-3324efa76def@linux.intel.com>
-Date:   Mon, 30 May 2022 15:40:46 +0300
+        with ESMTP id S232875AbiEaIUY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 May 2022 04:20:24 -0400
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F423691551;
+        Tue, 31 May 2022 01:20:22 -0700 (PDT)
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+        by mx0b-0016f401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24V3YPPV004646;
+        Tue, 31 May 2022 01:20:20 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=pfpt0220; bh=8nxNsVGiL8Mk+63bqzVvln6mjStvrA/6MNl4uuUs9GE=;
+ b=Xhx2c2XqoqoPBTQlyrJT7hDMd296SCNAHJWNPsHbCPp4bbI1+pMbcC1qpBla1tKD+ZSc
+ 8MaU0RS/VD6mCD3dBX/C3Tek7jhN/0tfWocUuoGTHlMGDCQc7XxO5Y6MUo4VS4RgUX7l
+ cGOKZKy2YhqyZnAiv9ElymIEcWtTAi6AQAsKCPO1vq11ia5RGBmjqOn6kO5dCOgMKlws
+ p+fNF16KR54/mLPFD3UGUu/tcOirYTZbVsE3Pl2FRWp4IggWu9IZDmYoSsweFEU0wbiw
+ bnoc7oJdjS/4PulT6UnXXo9lNPt5YMfXX/QQ/14c8kmLdc+IAimdvYtskbjZqSzGYgGB 4A== 
+Received: from dc5-exch02.marvell.com ([199.233.59.182])
+        by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 3gbk8n8cav-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Tue, 31 May 2022 01:20:20 -0700
+Received: from DC5-EXCH02.marvell.com (10.69.176.39) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 31 May
+ 2022 01:20:18 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.18 via Frontend
+ Transport; Tue, 31 May 2022 01:20:18 -0700
+Received: from localhost.localdomain (unknown [10.110.150.250])
+        by maili.marvell.com (Postfix) with ESMTP id D01AB3F7095;
+        Tue, 31 May 2022 01:20:16 -0700 (PDT)
+From:   Piyush Malgujar <pmalgujar@marvell.com>
+To:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     <rric@kernel.org>, <wsa@kernel.org>, <sgarapati@marvell.com>,
+        <cchavva@marvell.com>, Piyush Malgujar <pmalgujar@marvell.com>
+Subject: [PATCH v2 0/2] drivers: i2c: thunderx: Marvell thunderx i2c changes
+Date:   Tue, 31 May 2022 01:19:32 -0700
+Message-ID: <20220531081934.29238-1-pmalgujar@marvell.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Firefox/91.0 Thunderbird/91.9.0
-Subject: Re: [PATCH v1 1/1] MAINTAINERS: Update Synopsys DesingWare I2C to
- Supported
-Content-Language: en-US
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc:     Wolfram Sang <wsa@kernel.org>, dave.hansen@linux.intel.com
-References: <20220530120247.70582-1-andriy.shevchenko@linux.intel.com>
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-In-Reply-To: <20220530120247.70582-1-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-ORIG-GUID: mqoAx37F0uG81wfBYwxBpJNNAz0rirNH
+X-Proofpoint-GUID: mqoAx37F0uG81wfBYwxBpJNNAz0rirNH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-05-31_02,2022-05-30_03,2022-02-23_01
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 5/30/22 15:02, Andy Shevchenko wrote:
-> The actual status of the code is Supported (from x86 perspective).
-> 
-> Reported-by: dave.hansen@linux.intel.com
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->   MAINTAINERS | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 56dd473d5d59..f8ff2b523498 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -19066,7 +19066,7 @@ R:	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->   R:	Mika Westerberg <mika.westerberg@linux.intel.com>
->   R:	Jan Dabros <jsd@semihalf.com>
->   L:	linux-i2c@vger.kernel.org
-> -S:	Maintained
-> +S:	Supported
->   F:	drivers/i2c/busses/i2c-designware-*
->   
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+These patches includes the following changes:
+
+- Handling clock divisor logic for Octeon SoC family using subsytem ID
+- Support for high speed mode
+
+Changes since V1:
+* Fixed the build issue "incomplete definition of type 'struct pci_dev'"
+Reported-by: kernel test robot <lkp@intel.com>
+
+Piyush Malgujar (2):
+  drivers: i2c: thunderx: octeontx2 clock divisor logic changes
+  drivers: i2c: thunderx: Add support for High speed mode
+
+ drivers/i2c/busses/i2c-octeon-core.c     | 84 +++++++++++++++++-------
+ drivers/i2c/busses/i2c-octeon-core.h     | 18 +++++
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c |  7 ++
+ 3 files changed, 85 insertions(+), 24 deletions(-)
+
+-- 
+2.17.1
 
