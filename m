@@ -2,300 +2,215 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1EA1C43334
-	for <linux-i2c@archiver.kernel.org>; Fri,  3 Jun 2022 08:01:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A17AC433EF
+	for <linux-i2c@archiver.kernel.org>; Fri,  3 Jun 2022 21:19:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242693AbiFCIB4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 3 Jun 2022 04:01:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
+        id S1344615AbiFCVTY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 3 Jun 2022 17:19:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242024AbiFCIBz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Jun 2022 04:01:55 -0400
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD7E1F1;
-        Fri,  3 Jun 2022 01:01:53 -0700 (PDT)
-Received: by mail-wm1-x32c.google.com with SMTP id d5-20020a05600c34c500b0039776acee62so4429472wmq.1;
-        Fri, 03 Jun 2022 01:01:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jms.id.au; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ZWqxINbJ7iFdxIil6If2SDWq69slkShlezEpSvrr7HU=;
-        b=TQs+moXeRsZ/FkStEHbgDBpJC0N/FN8q/6qSlEDcv3zzEAU9eysVlE6oYun4aHrL6W
-         ftzC6fPUl5re+nDMO5nYPsP8W1vyjt+uYGh8C74UUS8m2i5MA1SxTDMNht5rDc3eXSPg
-         VVRg7N4wwAkjlfUTkv01e1ijJ8gE7eO8ic7Kc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ZWqxINbJ7iFdxIil6If2SDWq69slkShlezEpSvrr7HU=;
-        b=dmcQTneTmYw28UtfKHGX5FpYrtkMVvgZDVhJg23eYxcXw+Mrl1K2BjvOX0AogtAHLS
-         l5+QSbve/b0FvMSVTXk18ztDCiyM1KkvBuMBKOjqftXCrCxaxsOT6k8pTalJFzdAZQJo
-         BQiy0qhtHCYymc72i0Dliwm3wCOgANG77SmHfhIVTF05R0MSo9AcIu8yazGLPw7G8xWk
-         j+u1f1MQFr5GIEWGqitFEa6pN40kh2X4DAsgPyf5+e6uSyH99JM6KAIt6wPna/zM3pDO
-         ns/yxvDJ1Yed2H2toinCr5WyOSIu6pmH0trvFLjz/0+H558qoVdEChzIkn8fLed2kkvM
-         zZVQ==
-X-Gm-Message-State: AOAM530jFKh5L7LuG9kja1HeFT+fA/loK4Jj/tgzPUvuJRDHVR2msKxD
-        FqniUvRaDlWUofJd9N+37x56IeL4FjRT00V8R+k=
-X-Google-Smtp-Source: ABdhPJxWxPCyIsUwcgWRlEoQ7nKS/RgnrjI7HT05hNJpTqQEnGEqr5saaTLSVlhfa1OuH0YgZY1r3EIr0RW4oumEiE8=
-X-Received: by 2002:a05:600c:3cc:b0:397:337e:14ca with SMTP id
- z12-20020a05600c03cc00b00397337e14camr37002619wmd.10.1654243311469; Fri, 03
- Jun 2022 01:01:51 -0700 (PDT)
+        with ESMTP id S1344430AbiFCVTX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Jun 2022 17:19:23 -0400
+X-Greylist: delayed 1534 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 03 Jun 2022 14:19:21 PDT
+Received: from mx0c-0054df01.pphosted.com (mx0c-0054df01.pphosted.com [67.231.159.91])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986F128734
+        for <linux-i2c@vger.kernel.org>; Fri,  3 Jun 2022 14:19:20 -0700 (PDT)
+Received: from pps.filterd (m0208999.ppops.net [127.0.0.1])
+        by mx0c-0054df01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 253IscJ3019305;
+        Fri, 3 Jun 2022 16:53:46 -0400
+Received: from can01-yt3-obe.outbound.protection.outlook.com (mail-yt3can01lp2176.outbound.protection.outlook.com [104.47.75.176])
+        by mx0c-0054df01.pphosted.com (PPS) with ESMTPS id 3gbeux537v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Jun 2022 16:53:45 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OHZ/dHDRgg61xzMbOclDqIQUE+zv5eWIigavfatYma2yvsP6h589V2bgBwypY2uyeDEjEV2M+gxU7G2BjO+rq9xwT+89BaCa354QrOqgPEPYDpAyTW7C8MJshhhIPx6Upio1gjgPefT7LLzX30LhpUUh4J6/sWPG5YfZBVZCTqsxK/VLFxklZM5AX/6lp0yUlh5zWfEoCcGUizaQSwuFbXCNHGq0hxl0jR1/NO5rLx7Sz76a/ErXuRwoYmTIEhd9URRXIAzcZOljJbtB//LOy+7MybPM2vb7221sltsL4g+6ekyVrX0T8GAw6gr85thFbLVcX79hWA5XWg4b7JhOCA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=poqyhlVhIAMZS19D7wiGIK2wEMMiXL1EtiTR/8Qzgyk=;
+ b=K5doiQdFWJjrqFa3d8OJl465N4shzef8xsRxFDhOOlsG6Xrpy4kOnCltxC4nnXAEcQ9+YCWOE6SoU+x3IvyMBbAVj82R1QXxUQyEuw0AukvCYq+B+JMY2xnBH1lTi5OCC+AhNfbL6Htuz3KSh6PCdbJvyVmxkDa3achDDVaMOdMX/9Vo9Ej4MJZL2IjEDhcw1paGzdnTpiXIqHKryuPcTOxhjlub1Caj42SKVlmFPiuVx22R5gRjwc/2KzWfV9QJNwii06SyLFn7+gor+zXkoomQOz1Dm/54Q65ADQVdrTAWhI0tGYX0oEzcy575WbXpeAuRLxmkgwzgh9PTrAIbcQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=calian.com; dmarc=pass action=none header.from=calian.com;
+ dkim=pass header.d=calian.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=calian.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=poqyhlVhIAMZS19D7wiGIK2wEMMiXL1EtiTR/8Qzgyk=;
+ b=ZASInojEl0n+EONO9Ol6TgjnwapGO3vCBUMEFqaEUbFLyo5Wk5nbSOWni7fsy4PSbmh2cyGko0JZKvTxltMFDqCxZCFQ3xA9LK7llvQboDYo881aAEiVdqPIG0TAnfBpkTaazAijpbjd6uSJkDaqVQ/km5z8vwOG8gj257jG3eM=
+Received: from YT2PR01MB8838.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:b9::6)
+ by YQXPR01MB6025.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:c01:3e::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13; Fri, 3 Jun
+ 2022 20:53:43 +0000
+Received: from YT2PR01MB8838.CANPRD01.PROD.OUTLOOK.COM
+ ([fe80::9552:28a6:f4b6:31cc]) by YT2PR01MB8838.CANPRD01.PROD.OUTLOOK.COM
+ ([fe80::9552:28a6:f4b6:31cc%4]) with mapi id 15.20.5314.016; Fri, 3 Jun 2022
+ 20:53:43 +0000
+From:   Robert Hancock <robert.hancock@calian.com>
+To:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+CC:     "michal.simek@xilinx.com" <michal.simek@xilinx.com>,
+        "raviteja.narayanam@xilinx.com" <raviteja.narayanam@xilinx.com>
+Subject: Issues with large reads on Cadence I2C on ZynqMP
+Thread-Topic: Issues with large reads on Cadence I2C on ZynqMP
+Thread-Index: AQHYd4wDbhdutL/zP0mnwYXT8vXIAA==
+Date:   Fri, 3 Jun 2022 20:53:43 +0000
+Message-ID: <6ec42093c3caaadc96462f892003266fad2dd12a.camel@calian.com>
+Accept-Language: en-CA, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: c6da4a22-6896-41a1-42d0-08da45a3258f
+x-ms-traffictypediagnostic: YQXPR01MB6025:EE_
+x-microsoft-antispam-prvs: <YQXPR01MB60253676C2FAD2DCE64D8A46ECA19@YQXPR01MB6025.CANPRD01.PROD.OUTLOOK.COM>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 3Fi2vXDqOQx903apw4Es15Bk3FWD3N64e2esFi7s1QcvNbRbqmg82NeekB7rW5fCMSTwx2bgEXBbXzUW0Dql54Y6DeIkq3fpmWyLqNyAP7Dx/mu8Hqzxg/hj9p2VLGweF7g+4XYoDtOwRlAF8W57e1YsEXqTHUhMzB0x0ZJOHlLuzZIl7YNh4MF+koq7yk4iIaOIaPl8/eMiRt2waA4rjLI//svTL3vaHZr0grNrbKQqgIGZwHmF54JGNPMhqQasrIsd4yrYN/O46h+2GLcBuQowYdIzq4zUaf7LU14F/ev7ybkk9zrZi1sSZPOIAJBORe4bSTLY2x0T5h+dX/ZHzpdIxDpgRTvp6EP8jLmi3s9hYWhMotqHkXEvcsC5LLZRcbNjLf7XpuJ4qTvMYrBlW9ZvT04giz3RgesPZp4b4icVQXEImv2A1Mevl8Q4GLylRV+5F5M1DVRwvkPbe72Q6gEpFraxb4Q6/iNhFEJMOAQGDaT+g9++O7IhadWrcTQaFy5B+pWzG7a6WYDYYvt0ry8vzWNdymKIciHRWyKten0MHfvnfEThPlDW9D4+POlM6zYteMQ3cA2HlICzCgAyoR59U68yWZlZMkhhygdAupZpGjLqOG1sdLvO4mg0NRg+ilB1HnA2Yl39cJdLBekR+VFfrP8OFeu5TOgJJamJHO0bGW2KdKIhBdaMePWKg2aROvgumqltcs+TMHAlz8YEnVCYgCovkkhU+Er5KdryECOZkr1JBXICZdQGuqFTg4mbw4LaH8JAeOX/BJT6H6fuy8JTHJcKydQSI+8yVTQNJj9E3KIsa/0vtxfWmHIj7HIXqNDXzlipj8mE2Fp7BOE0dB9WqG7mxHtUIfX0GaVnJ+o=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:YT2PR01MB8838.CANPRD01.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6512007)(26005)(5660300002)(38070700005)(508600001)(8936002)(44832011)(2906002)(6506007)(122000001)(83380400001)(2616005)(15974865002)(86362001)(186003)(6486002)(54906003)(6916009)(38100700002)(76116006)(71200400001)(66946007)(316002)(36756003)(4326008)(8676002)(66556008)(66446008)(64756008)(66476007)(99106002)(18886075002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?UzEwOFZMd0loYS9xUHlVUnJCY1RyK1cwQjFzVlhuL0laR3JqRDZhSEphZmgy?=
+ =?utf-8?B?eERVT2JSdXJTcEpLVVJ3RW5ZeVc2NUtTUXAxcTQ5WStIdVZuRytEOS9Rd0RR?=
+ =?utf-8?B?WDNiRHNNc3lLT3JXR0hXVUJobTBnakNjVFZDVmw2c0VXTTR6S05KdHc4TFVx?=
+ =?utf-8?B?bWdzNU0yK2ZwYUdSelh3L3lxMFdHTHNEeW9OZzQ5VGNtc1ZCV1FOZmlMQXcz?=
+ =?utf-8?B?cEU5cmZrM2dER3ZZblc4QjN2NzdjUGt1Wlk3ZW5hc0lUekxiMFNXVXFyYnl1?=
+ =?utf-8?B?ZXM5ZGxIRkdsZzBvOTY1ZVNGNFpnRS9mUEpsQzY0RlRVUjNOeWpmTnZmSm9i?=
+ =?utf-8?B?cG9xZGJQV3cwWGVjL0FBYUZ1dFphL2Y1anFWanBNdCtSRjdkRnpXNUJjeVhL?=
+ =?utf-8?B?UDJ6emFaeFBESTcvRzBIK1EzSkt2WWRRbzBFeHNyZGY1VFBiZkxOZlJ1WU5U?=
+ =?utf-8?B?ZGh2bVVxZk1Kbzg5clgxb0ZDS0RPTjcxYWFSSmxYeERNRFRoKzhPT056aVFw?=
+ =?utf-8?B?Tnh4V2JjTjdLZk9Ec0JPQ3VSWVZrL3FOY1dRRThYdzRLWk1SVk5EbWNoaHhv?=
+ =?utf-8?B?UzNGQXFnRkJjbHBKV2k1elY3ZUVGYTNuMGhVT0djV1g1ZzdLekZyRFE4bmRH?=
+ =?utf-8?B?TERna09YamN3dkV2a0dObk84TEorL0FJdnNSZWFOL3lPSmp1U1I1QW5qTGZ6?=
+ =?utf-8?B?YlpnQU5QTHBVUEVDWmIvYlljdGlOdFFGR2s4Z1lVMEpsTzNQWGJlaDA2bkp6?=
+ =?utf-8?B?UldadjZZSjdqQnpWS1MrekRnUnZPcU9DZy94ZXFDeHNJUGY5OGJhVmM2ekNV?=
+ =?utf-8?B?SEcxL1VsakpWUC9aL1lhK1dKUmxCNGpsYmFvQXlneURTOTh6bjBBbytLRTA3?=
+ =?utf-8?B?VXBPNmZUTU1xRzBuUmh4bnlZYWNjS2p6aXRFM1ozMUFvT1VSRUI0SFZqZmJW?=
+ =?utf-8?B?ZG1sVHMzQ0FJSldvVndvYXVPM09URXJCQWlsRmFmd0pxNFhXSkdHSVlVUXk1?=
+ =?utf-8?B?M0RvUE54SC9EMFMvanpEUWNvUEljWUNkNDE4Q0lNRGk2TzFIVVBFemxJU2c5?=
+ =?utf-8?B?QW9jNkJ6NTFkcDdpVVMrT0QvKzFpems2Z0RGKzFzMHd1emV5blZHYlJNMmRs?=
+ =?utf-8?B?RzdtR3BCL001a1d0ajlNcmRSbWt2aHNhVFZtZVNlTENuankweTA2VGJHcDdx?=
+ =?utf-8?B?c09ob0h5RHIxMWNSdkZ1ais0alZFRlpkQm83d09lRGFnbHpmSy9tdE1pR3JO?=
+ =?utf-8?B?RFJGb0JNTldVSmZnRzU5V3d2c2MzL2J1eHFYa090d1FieDkxZEQvaVo4N0M5?=
+ =?utf-8?B?aTZEankvZTN2MVR2dkRWU1orWWp3RVk4REpXZFhRWTFiM21lbzJaZFJDRFpz?=
+ =?utf-8?B?d3JmTUFYZkRBT2x4eGRONEhkckVVbG9rUEVHSUVMa3AvdmxpY2ZQMzhGRHpN?=
+ =?utf-8?B?a2V6aG9BVVArVW9JRk9vUUJuM0tqZmEvTDBlZ2tEd2FhNWROemhtWWxyUEho?=
+ =?utf-8?B?TVFUWGdSNDZSOUd3dHNQdzF4cVpLSWlkejV0VlVrcUNyU21Ldm5Lb1BDWXh3?=
+ =?utf-8?B?Zmxta3BENEZBNGVvY2VYMllRZml0WENTQ2VUUFFLY3NhQU52clVVaGRHYWFW?=
+ =?utf-8?B?M09XdHF3NWRtYWZURTFTTTg3akNTZ1R2U3E2VFJaTUQ3bUtmcm9xK05nNzVp?=
+ =?utf-8?B?NlB6Z2RqU1RJN0hEVW5QNWlpbnNCa0xLNXFYTS9WMFMwM280ZEJKaWc4SXBS?=
+ =?utf-8?B?WDVqRGZHamw4VlcyZVdNaCtBYzBWRXphMXIxc2s4QlZDYW5Yck1JanQ3TjRY?=
+ =?utf-8?B?NFk1VFBMSGc3alJ2TUQvT3lTZHFDeVZZTy9RZzZtdzhJRlBNWTRoZy9SRCsw?=
+ =?utf-8?B?SVZ1bUk2T2I2TzVteGxvYjRqOXNsbEJZRUozZDBLM0pJZmlkKzVkY1JlekRC?=
+ =?utf-8?B?cGs4dEVvMnVKSUM2U2RSSWNlbno5R1RPUGp0QmhnM2p2VzRjQW9FZ0FXbWFW?=
+ =?utf-8?B?SFFtdFpzS0thREZaSy9VMTJjakhad1RMKytBTG9VMkthM1VUb29CVVlXV0ZM?=
+ =?utf-8?B?QUhseHVhMEtqMktuMmlKd2lZZDU5Mzc0WVBQWTdiWWFLTjlHZ01KaVRJd2Na?=
+ =?utf-8?B?UjRlMmdTTXpYYUlZKzBYLys1akcvV3RONUlhRmpsc0cxczRMb2p3Nlg5Y29F?=
+ =?utf-8?B?SmtvM01oaGdoeUcrMUhaSFYrOGpJa2FZdlh4ZnNySHNJcUdBMU1JdWFqeVEy?=
+ =?utf-8?B?VUdIdTRUT2dadnAxcVZOUi9raWZFVzUveWp5Zy9waFFwUDViRTFEdFZJcXlC?=
+ =?utf-8?B?SFJCUFdlU1RXc3Zwa09VQTFwNjdvMDRQazh4VjV1R1BjZmVSQ1BRL1BXN3NE?=
+ =?utf-8?Q?yLxei7tFuI6cvoePBxGvOy3Jh97RaHVsWnBel?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <C151E592C7DF104CA3243FF093F2E80E@CANPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20220526205334.64114-1-eajames@linux.ibm.com> <20220526205334.64114-2-eajames@linux.ibm.com>
-In-Reply-To: <20220526205334.64114-2-eajames@linux.ibm.com>
-From:   Joel Stanley <joel@jms.id.au>
-Date:   Fri, 3 Jun 2022 08:01:38 +0000
-Message-ID: <CACPK8XdVF0qMtkPsk5SEJycLfBVOnk3eo6FBk_75pP+itx2rkw@mail.gmail.com>
-Subject: Re: [PATCH 1/2] i2c: core: Add mux root adapter operations
-To:     Eddie James <eajames@linux.ibm.com>
-Cc:     "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>,
-        linux-iio@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Milton Miller II <miltonm@us.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: calian.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: YT2PR01MB8838.CANPRD01.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: c6da4a22-6896-41a1-42d0-08da45a3258f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Jun 2022 20:53:43.8321
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 23b57807-562f-49ad-92c4-3bb0f07a1fdf
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: UUNCOjjLnpd9nWGJE3ngtgBZPyxfe/EPrSR/xdQeRMGLdCKezKXT4zbNi9DG9ZUuV9ZoVHMVDa2CcUYQjrVe6v9EVAagmMGaw1SfnADcerA=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: YQXPR01MB6025
+X-Proofpoint-GUID: s4blUsBwSjxuX8bjaEKlTcGNYj7DMYpw
+X-Proofpoint-ORIG-GUID: s4blUsBwSjxuX8bjaEKlTcGNYj7DMYpw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-03_07,2022-06-03_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 mlxscore=0 lowpriorityscore=0 phishscore=0
+ suspectscore=0 bulkscore=0 adultscore=0 spamscore=0 clxscore=1011
+ mlxlogscore=792 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2204290000 definitions=main-2206030081
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, 26 May 2022 at 20:53, Eddie James <eajames@linux.ibm.com> wrote:
->
-> Some I2C clients need the ability to control the root I2C bus even if the
-> endpoint device is behind a mux. For example, a driver for a chip that
-> can't handle any I2C traffic on the bus while coming out of reset
-> (including an I2C-driven mux switching channels) may need to lock the root
-> bus with the mux selection fixed for the entire time the device is in
-> reset.
-> For this purpose, add a new structure containing two function pointers to
-> the adapter structure. These functions pointers should be defined for
-> every adapter. The lock_select operation, for a mux adapter, locks the
-> parent adpaters up to the root and selects the adapter's channel. The
-> unlock_deselect operation deselects the mux channel and unlocks all the
-> adapters. For a non-mux adapter, the operations lock and unlock the
-> adapters up to the root. This scheme should work with multiple levels of
-> muxes and regular adapters in between.
->
-> Signed-off-by: Eddie James <eajames@linux.ibm.com>
-
-I think this looks okay. It was hard to understand at first, but makes
-more sense with the context of the existing bus locking code.
-
-There's a typo in one of your comments that the 0day bot found.
-
-Have you tested with CONFIG_DEBUG_MUTEXES?
-
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-
-> ---
->  drivers/i2c/i2c-core-base.c | 38 ++++++++++++++++++++++++++++
->  drivers/i2c/i2c-mux.c       | 50 +++++++++++++++++++++++++++++++++++++
->  include/linux/i2c.h         | 42 +++++++++++++++++++++++++++++++
->  3 files changed, 130 insertions(+)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index d43db2c3876e..e2c365348e1f 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -1357,6 +1357,41 @@ static const struct i2c_lock_operations i2c_adapter_lock_ops = {
->         .unlock_bus =  i2c_adapter_unlock_bus,
->  };
->
-> +/*
-> + * For a non-mux adapter, the lock_select operation locks the chain of
-> + * adapters upwards, returning the root. If there's a mux above this adapter
-> + * somehow, it should also get locked and the desired channel selected.
-> + */
-
-Recursive lock the set of adaptors.
-
-> +static struct i2c_adapter *i2c_adapter_lock_select(struct i2c_adapter *adapter)
-> +{
-> +       struct i2c_adapter *ret = adapter;
-> +       struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
-> +
-> +       if (parent) {
-> +               ret = parent->mux_root_ops->lock_select(parent);
-> +               if (IS_ERR(ret))
-> +                       return ret;
-> +       }
-> +
-> +       adapter->lock_ops->lock_bus(adapter, I2C_LOCK_ROOT_ADAPTER);
-> +       return ret;
-> +}
-> +
-> +static void i2c_adapter_unlock_deselect(struct i2c_adapter *adapter)
-> +{
-> +       struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
-> +
-> +       adapter->lock_ops->unlock_bus(adapter, I2C_LOCK_ROOT_ADAPTER);
-> +
-> +       if (parent)
-> +               parent->mux_root_ops->unlock_deselect(parent);
-> +}
-> +
-> +static const struct i2c_mux_root_operations i2c_adapter_mux_root_ops = {
-> +       .lock_select = i2c_adapter_lock_select,
-> +       .unlock_deselect = i2c_adapter_unlock_deselect,
-> +};
-> +
->  static void i2c_host_notify_irq_teardown(struct i2c_adapter *adap)
->  {
->         struct irq_domain *domain = adap->host_notify_domain;
-> @@ -1452,6 +1487,9 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
->         if (!adap->lock_ops)
->                 adap->lock_ops = &i2c_adapter_lock_ops;
->
-> +       if (!adap->mux_root_ops)
-> +               adap->mux_root_ops = &i2c_adapter_mux_root_ops;
-> +
->         adap->locked_flags = 0;
->         rt_mutex_init(&adap->bus_lock);
->         rt_mutex_init(&adap->mux_lock);
-> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-> index 774507b54b57..c7db770e4198 100644
-> --- a/drivers/i2c/i2c-mux.c
-> +++ b/drivers/i2c/i2c-mux.c
-> @@ -210,6 +210,49 @@ static void i2c_parent_unlock_bus(struct i2c_adapter *adapter,
->         rt_mutex_unlock(&parent->mux_lock);
->  }
->
-> +/*
-> + * For a mux adapter, the lock_select operation first locks just like the
-> + * lock_bus operation. Then it selects the channel for this adapter and
-> + * returns the root adapter. If there is another mux above this one, calling
-> + * the parent lock_select should ensure that the channel is correctly
-> + * selected.
-> + */
-> +static struct i2c_adapter *i2c_mux_lock_select(struct i2c_adapter *adapter)
-> +{
-> +       int ret;
-> +       struct i2c_mux_priv *priv = adapter->algo_data;
-> +       struct i2c_mux_core *muxc = priv->muxc;
-> +       struct i2c_adapter *parent = muxc->parent;
-> +
-> +       rt_mutex_lock_nested(&parent->mux_lock, i2c_adapter_depth(adapter));
-> +
-> +       adapter = parent->mux_root_ops->lock_select(parent);
-> +       if (IS_ERR(adapter))
-> +               return adapter;
-> +
-> +       ret = muxc->select(muxc, priv->chan_id);
-> +       if (ret < 0) {
-> +               parent->mux_root_ops->unlock_deselect(parent);
-> +               rt_mutex_unlock(&parent->mux_lock);
-> +               return ERR_PTR(ret);
-> +       }
-> +
-> +       return adapter;
-> +}
-> +
-> +static void i2c_mux_unlock_deselect(struct i2c_adapter *adapter)
-> +{
-> +       struct i2c_mux_priv *priv = adapter->algo_data;
-> +       struct i2c_mux_core *muxc = priv->muxc;
-> +       struct i2c_adapter *parent = muxc->parent;
-> +
-> +       if (muxc->deselect)
-> +               muxc->deselect(muxc, priv->chan_id);
-> +
-> +       parent->mux_root_ops->unlock_deselect(parent);
-> +       rt_mutex_unlock(&parent->mux_lock);
-> +}
-> +
->  struct i2c_adapter *i2c_root_adapter(struct device *dev)
->  {
->         struct device *i2c;
-> @@ -279,6 +322,11 @@ static const struct i2c_lock_operations i2c_parent_lock_ops = {
->         .unlock_bus =  i2c_parent_unlock_bus,
->  };
->
-> +static const struct i2c_mux_root_operations i2c_mux_root_ops = {
-> +       .lock_select = i2c_mux_lock_select,
-> +       .unlock_deselect = i2c_mux_unlock_deselect,
-> +};
-> +
->  int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
->                         u32 force_nr, u32 chan_id,
->                         unsigned int class)
-> @@ -339,6 +387,8 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
->         else
->                 priv->adap.lock_ops = &i2c_parent_lock_ops;
->
-> +       priv->adap.mux_root_ops = &i2c_mux_root_ops;
-> +
->         /* Sanity check on class */
->         if (i2c_mux_parent_classes(parent) & class)
->                 dev_err(&parent->dev,
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index fbda5ada2afc..a3596f61b417 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -583,6 +583,26 @@ struct i2c_lock_operations {
->         void (*unlock_bus)(struct i2c_adapter *adapter, unsigned int flags);
->  };
->
-> +/**
-> + * struct i2c_mux_root_operations - represent operations to lock and select
-> + * the adapter's mux channel (if a mux is present)
-> + * @lock_select: Get exclusive access to the root I2C bus adapter with the
-> + *   correct mux channel selected for the adapter
-> + * @unlock_deslect: Release exclusive access to the root I2C bus adapter and
-> + *   deselect the mux channel for the adapter
-> + *
-> + * Some I2C clients need the ability to control the root I2C bus even if the
-> + * endpoint device is behind a mux. For example, a driver for a chip that
-> + * can't handle any I2C traffic on the bus while coming out of reset (including
-> + * an I2C-driven mux switching channels) may need to lock the root bus with
-> + * the mux selection fixed for the entire time the device is in reset.
-> + * These operations are for such a purpose.
-> + */
-> +struct i2c_mux_root_operations {
-> +       struct i2c_adapter *(*lock_select)(struct i2c_adapter *adapter);
-> +       void (*unlock_deselect)(struct i2c_adapter *adapter);
-> +};
-> +
->  /**
->   * struct i2c_timings - I2C timing information
->   * @bus_freq_hz: the bus frequency in Hz
-> @@ -725,6 +745,7 @@ struct i2c_adapter {
->
->         /* data fields that are valid for all devices   */
->         const struct i2c_lock_operations *lock_ops;
-> +       const struct i2c_mux_root_operations *mux_root_ops;
->         struct rt_mutex bus_lock;
->         struct rt_mutex mux_lock;
->
-> @@ -817,6 +838,27 @@ i2c_unlock_bus(struct i2c_adapter *adapter, unsigned int flags)
->         adapter->lock_ops->unlock_bus(adapter, flags);
->  }
->
-> +/**
-> + * i2c_lock_select_bus - Get exclusive access to the root I2C bus with the
-> + *   target's mux channel (if a mux is present) selected.
-> + * @adapter: Target I2C bus
-> + *
-> + * Return the root I2C bus if mux selection succeeds, an ERR_PTR otherwise
-> + */
-> +static inline struct i2c_adapter *i2c_lock_select_bus(struct i2c_adapter *adapter)
-> +{
-> +       return adapter->mux_root_ops->lock_select(adapter);
-> +}
-> +
-> +/**
-> + * i2c_unlock_deslect_bus - Release exclusive access to the root I2C bus
-> + * @adapter: Target I2C bus
-> + */
-> +static inline void i2c_unlock_deselect_bus(struct i2c_adapter *adapter)
-> +{
-> +       adapter->mux_root_ops->unlock_deselect(adapter);
-> +}
-> +
->  /**
->   * i2c_mark_adapter_suspended - Report suspended state of the adapter to the core
->   * @adap: Adapter to mark as suspended
-> --
-> 2.27.0
->
+V2UgaGF2ZSBydW4gaW50byBzb21lIHByb2JsZW1zIG9uIGEgWGlsaW54IFp5bnFNUCBwbGF0Zm9y
+bSB3aGVuIGFjY2Vzc2luZyBhbg0KSW5maW5lb24gT3B0aWdhIFRydXN0LU0gSFNNIGRldmljZSBv
+dmVyIEkyQyB1c2luZyB0aGUgUFMgSTJDIGludGVyZmFjZSB3aGljaA0KdXNlcyB0aGUgQ2FkZW5j
+ZSBJMkMgZHJpdmVyLiBUaGUgdXNlcnNwYWNlIGludGVyZmFjZSBsaWJyYXJ5IGZvciB0aGlzIGRl
+dmljZQ0Kc29tZXRpbWVzIGRvZXMgZmFpcmx5IGxhcmdlIHJlYWRzLCB1cCB0byAyNzcgYnl0ZXMu
+IFdoZW4gdGhpcyBoYXBwZW5zLCB0aGUNCmJlaGF2aW9yIG9uIHRoZSBJMkMgYnVzIGlzIHRoYXQg
+dGhlIGNvbnRyb2xsZXIgTkFLcyB0aGUgcmVhZCBhZnRlciAyNTIgYnl0ZXMNCmFyZSByZWFkLCBh
+bmQgYW4gRU5YSU8gZXJyb3IgaXMgcmV0dXJuZWQgdG8gdXNlcnNwYWNlLiBUaGUgbGlicmFyeSBj
+b2RlIHRyZWF0cw0KdGhpcyBhcyBhIHRyYW5zZmVyIE5BS2VkIGJ5IHRoZSBkZXZpY2UgKHdoaWNo
+IGlzIHdoYXQgdGhhdCByZXR1cm4gY29kZSBzaG91bGQNCm1lYW4pLCBub3QgYSBwcmVtYXR1cmUg
+dGVybWluYXRpb24gYnkgdGhlIGNvbnRyb2xsZXIsIGFuZCB0aHVzIGtlZXBzIHJldHJ5aW5nDQp0
+aGUgdHJhbnNmZXIgd2l0aCB0aGUgc2FtZSByZXN1bHQgdW50aWwgYSB0aW1lb3V0IGlzIHJlYWNo
+ZWQuDQoNCkl0IGxvb2tzIGxpa2UgdGhpcyBiZWhhdmlvciBpcyBleGFjdGx5IHdoYXQgdGhpcyBw
+YXRjaCBiYWNrIGluIDIwMTQgd2FzDQpvcmlnaW5hbGx5IGFkZHJlc3Npbmc6DQoNCmNvbW1pdCA5
+ZmFlODJlMWFjZGE4ZDRhNjg4MWJlNjNjYzM4NTIxYjg0MDA3YmE5DQpBdXRob3I6IEhhcmluaSBL
+YXRha2FtIDxoYXJpbmlrQHhpbGlueC5jb20+DQpEYXRlOiAgIEZyaSBEZWMgMTIgMDk6NDg6MjYg
+MjAxNCArMDUzMA0KDQogICAgaTJjOiBjYWRlbmNlOiBIYW5kbGUgPiAyNTIgYnl0ZSB0cmFuc2Zl
+cnMNCiAgICANCiAgICBUaGUgSTJDIGNvbnRyb2xsZXIgc2VuZHMgYSBOQUNLIHRvIHRoZSBzbGF2
+ZSB3aGVuIHRyYW5zZmVyIHNpemUgcmVnaXN0ZXINCiAgICByZWFjaGVzIHplcm8sIGlycmVzcGVj
+dGl2ZSBvZiB0aGUgaG9sZCBiaXQuIFNvLCBpbiBvcmRlciB0byBoYW5kbGUNCnRyYW5zZmVycw0K
+ICAgIGdyZWF0ZXIgdGhhbiAyNTIgYnl0ZXMsIHRoZSB0cmFuc2ZlciBzaXplIHJlZ2lzdGVyIGhh
+cyB0byBiZSBtYWludGFpbmVkIGF0DQphDQogICAgdmFsdWUgPj0gMS4gVGhpcyBwYXRjaCBpbXBs
+ZW1lbnRzIHRoZSBzYW1lLg0KICAgIFRoZSBpbnRlcnJ1cHQgc3RhdHVzIGlzIGNsZWFyZWQgYXQg
+dGhlIGJlZ2lubmluZyBvZiB0aGUgaXNyIGluc3RlYWQgb2YNCiAgICB0aGUgZW5kLCB0byBhdm9p
+ZCBtaXNzaW5nIGFueSBpbnRlcnJ1cHRzLg0KICAgIA0KICAgIFNpZ25lZC1vZmYtYnk6IEhhcmlu
+aSBLYXRha2FtIDxoYXJpbmlrQHhpbGlueC5jb20+DQogICAgW3dzYTogYWRkZWQgYnJhY2VzIGFy
+b3VuZCBlbHNlIGJyYW5jaF0NCiAgICBTaWduZWQtb2ZmLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYUB0
+aGUtZHJlYW1zLmRlPg0KDQpIb3dldmVyLCB3aGVuIFp5bnFNUCBzdXBwb3J0IHdhcyBpbnRyb2R1
+Y2VkLCBpdCB3YXMgYXBwYXJlbnRseSB0aG91Z2h0IHRoYXQNCnRoaXMgd2Fzbid0IG5lZWRlZDoN
+Cg0KY29tbWl0IDYzY2FiMTk1YmY0OTg2NzY2MTk5NTFlODFhZDU3OTFlOWQ0N2M0MjANCkF1dGhv
+cjogQW51cmFnIEt1bWFyIFZ1bGlzaGEgPGFudXJhZy5rdW1hci52dWxpc2hhQHhpbGlueC5jb20+
+DQpEYXRlOiAgIEZyaSBKdWwgMTAgMjA6MTA6MTQgMjAxNSArMDUzMA0KDQogICAgaTJjOiByZW1v
+dmVkIHdvcmsgYXJvdW5kcyBpbiBpMmMgZHJpdmVyIGZvciBaeW5xIFVsdHJhc2NhbGUrIE1QU29D
+DQogICAgDQogICAgQ2FkZW5jZSAxLjAgdmVyc2lvbiBoYXMgYnVncyB3aGljaCBoYXZlIGJlZW4g
+Zml4ZWQgaW4gdGhlIGNhZGVuY2UgMS40DQp2ZXJzaW9uLg0KICAgIFRoaXMgcGF0Y2ggcmVtb3Zl
+cyB0aGUgcXVpcmtzIHByZXNlbnQgaW4gdGhlIGRyaXZlciBmb3IgY2FkZW5jZSAxLjQNCnZlcnNp
+b24uDQogICAgDQogICAgU2lnbmVkLW9mZi1ieTogQW51cmFnIEt1bWFyIFZ1bGlzaGEgPGFudXJh
+Z2t1QHhpbGlueC5jb20+DQogICAgW3dzYTogZml4ZWQgaW5kZW50YXRpb24gaXNzdWVzIGluIHIx
+cDEwX2kyY19kZWZdDQogICAgU2lnbmVkLW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRy
+ZWFtcy5kZT4NCg0KSXQgc2VlbXMgbGlrZSB0aGVyZSBtYXkgYmUgbXVsdGlwbGUgaXNzdWVzIHRo
+YXQgdGhpcyAiYnJva2VuIGhvbGQgYml0IiBxdWlyaw0Kd2FzIGludGVuZGVkIHRvIGFkZHJlc3M6
+DQoNCi1uZWVkIHRvIGNsZWFyIEhPTEQgYml0IGJlZm9yZSB0cmFuc2ZlciBzaXplIHJlYWNoZXMg
+MA0KLWxhY2sgb2YgY29tcGxldGlvbiBpbnRlcnJ1cHQgYWZ0ZXIgbWFzdGVyIHJlY2VpdmUgaWYg
+SE9MRCBiaXQgaXMgc2V0DQotbmVlZCB0byBwcmV2ZW50IHRyYW5zZmVyIHNpemUgcmVhY2hpbmcg
+MCBpbiB0aGUgbWlkZGxlIG9mIGEgbG9uZyAob3ZlciAyNTINCmJ5dGUgdHJhbnNmZXIpDQoNCkkg
+YW0gZ3Vlc3NpbmcgdGhlIGJlaGF2aW9yIGZvciB0aGUgZmlyc3QgdHdvIGlzc3VlcyBtYXkgYmUg
+ZGlmZmVyZW50IGJldHdlZW4NCnRoZSAxLjAgYW5kIDEuNCB2ZXJzaW9ucyBvZiB0aGUgY29yZSwg
+YnV0IHRoZSB0aGlyZCBpc3N1ZSBtYXkgYmUgdW5jaGFuZ2VkLiBJdA0KaXMgaGFyZCBmb3IgbWUg
+dG8gc2F5IGZvciBzdXJlIHdpdGhvdXQga25vd2luZyBleGFjdGx5IHdoYXQgd2FzIGNoYW5nZWQg
+YmV0d2Vlbg0KdGhlc2UgdmVyc2lvbnMgKGFzIGZhciBhcyBJIGtub3csIHRoZXNlIGRvY3VtZW50
+cyBhcmUgbm90IHB1YmxpYykuIEhvd2V2ZXIsIGl0DQphcHBlYXJzIHRoYXQgY2hhbmdpbmcgdGhl
+IGNvZGUgaW4gY2Ruc19pMmNfbWFzdGVyX2lzciBzbyB0aGF0IHRoaXMgYmVoYXZpb3IgaXMNCm5v
+dCBjb25kaXRpb25hbCBvbiB0aGUgQ0ROU19JMkNfQlJPS0VOX0hPTERfQklULCBidXQgbGVhdmlu
+ZyB0aGUgY2hlY2tzIG9uIHRoYXQNCmJpdCBpbiBvdGhlciBwbGFjZXMgaW4gdGhlIGRyaXZlciwg
+ZG9lcyBmaXggdGhlIHByb2JsZW0uDQoNCkxvb2tpbmcgYXQgd2hhdCB0aGUgY29kZSBmb3IgdGhh
+dCBxdWlyayBpcyBkb2luZywgSSBhbSBub3Qgc3VyZSB0aGUgbmVlZCB0byBkbw0KdGhpcyBjYW4g
+ZXZlbiBiZSBjb25zaWRlcmVkIGEgYnVnIGluIHRoZSBjb3JlIC0gYXMgdGhlIHRyYW5zZmVyIHNp
+emUgcmVnaXN0ZXINCmlzIG9ubHkgOCBiaXRzLCBpdCBzZWVtcyBsaWtlbHkgaXQgd2Fzbid0IHJl
+YWxseSBkZXNpZ25lZCB0byB3b3JrIHdpdGgNCnRyYW5zZmVycyBvdmVyIDI1NiBieXRlcywgYW5k
+IHRoaXMgbWV0aG9kIG9mIGFjaGlldmluZyB0aGF0ICh3YWl0aW5nIHVudGlsIHRoZQ0KY29yZSBp
+cyBpZGxlLCBkdWUgdG8gdGhlIEZJRk8gYmVpbmcgZnVsbCwgYmVmb3JlIHRoZSB0cmFuc2ZlciBs
+ZW5ndGggaXMNCmV4aGF1c3RlZCwgYW5kIHRoZW4gcmVwbGVuaXNoaW5nIHRoZSB0cmFuc2ZlciBs
+ZW5ndGggYmVmb3JlIGNvbnRpbnVpbmcgdGhlDQp0cmFuc2ZlcikgaXMgYmFzaWNhbGx5IGEgd29y
+a2Fyb3VuZCBmb3IgdGhhdCBsaW1pdGF0aW9uLiBTbyBJIGFtIG5vdCBzdXJlIGl0DQptYWtlcyBz
+ZW5zZSB0aGF0IHRoaXMgd291bGQgaGF2ZSBiZWVuIHNvbWVob3cgZml4ZWQgaW4gdGhlIDEuNCB2
+ZXJzaW9uLiBGcm9tDQp0aGUgY29kZSB0aGF0IGV4ZWN1dGVzIHdoZW4gImJyb2tlbiBIT0xEIiBp
+cyBub3Qgc2V0IGluIHRoaXMgZnVuY3Rpb24sIGl0IHNlZW1zDQp0byBqdXN0IGV4cGVjdCB0aGF0
+IHJlc2V0dGluZyB0aGUgc2xhdmUgYWRkcmVzcyBhbmQgdHJhbnNmZXIgc2l6ZSB3aWxsIGJlIGFi
+bGUNCnRvIGNvbnRpbnVlIHRoZSB0cmFuc2ZlciBhZnRlciB0aGUgY29udHJvbGxlciB0aGlua3Mg
+aXQgaXMgZG9uZSwgd2hpY2ggbWF5IG5vdA0KYmUgcmVhc29uYWJsZS4NCg0KRG9lcyB0aGlzIGNo
+YW5nZSwgdG8gbWFrZSB0aGUgdHJhbnNmZXIgbGVuZ3RoIHJlc2V0IGJlaGF2aW9yIHVuY29uZGl0
+aW9uYWwsDQpzZWVtIGxpa2UgYSByZWFzb25hYmxlIGFwcHJvYWNoPyBJZiBzbyBJIGNhbiBzdWJt
+aXQgYSBwYXRjaCBpbXBsZW1lbnRpbmcgdGhpcy4NCg0KLS0gDQpSb2JlcnQgSGFuY29jaw0KU2Vu
+aW9yIEhhcmR3YXJlIERlc2lnbmVyLCBDYWxpYW4gQWR2YW5jZWQgVGVjaG5vbG9naWVzDQp3d3cu
+Y2FsaWFuLmNvbQ0K
