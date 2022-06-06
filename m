@@ -2,155 +2,109 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DFC1CCA47E
-	for <linux-i2c@archiver.kernel.org>; Sun,  5 Jun 2022 21:47:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18F8CC433EF
+	for <linux-i2c@archiver.kernel.org>; Mon,  6 Jun 2022 07:27:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347892AbiFEVrK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 5 Jun 2022 17:47:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59222 "EHLO
+        id S230464AbiFFH07 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 6 Jun 2022 03:26:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347933AbiFEVrK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 5 Jun 2022 17:47:10 -0400
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CFD110FA;
-        Sun,  5 Jun 2022 14:47:05 -0700 (PDT)
-Received: by mail-qk1-f178.google.com with SMTP id a184so6197908qkg.5;
-        Sun, 05 Jun 2022 14:47:05 -0700 (PDT)
+        with ESMTP id S230448AbiFFH05 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Jun 2022 03:26:57 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C9C12D1E6
+        for <linux-i2c@vger.kernel.org>; Mon,  6 Jun 2022 00:26:53 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id q21so27224674ejm.1
+        for <linux-i2c@vger.kernel.org>; Mon, 06 Jun 2022 00:26:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=doPwBdHFWD14a2kAbTYFYO985iNgcJ4U7efAsJ68WJg=;
+        b=e9Eet/rubQ1dAldMT20UZNWIystnpXrq8GRJof9k8RTdLUW/jUD1HGfhgGnHs8wFb6
+         6igYDyujxRcRJlFuCntlt6LFyW90aNpU5MgTf2jUnPhMUXCvNEB7vjGPA060WmEVc2ZG
+         RFCMMx0G5Jtbm5wiY4pevkJ0S0Vw27VLsB5eEt8hmtHuin/eRDB1K9qxhrqlTwWw8JQ6
+         kqWStISJcQYsPBm4bx0ziF6Xtmx5/g5h7E3PzbwH6r9zYyWBoEH1TrozbZ4YOiiC3+K2
+         gluHBMjK50vEvuW8nrFl9OTgbx07KXDG/UKG44iHxftwXkGAL+KvHW5fKdaPsKMTb1kY
+         mRzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=eEvBqpfDNp1gDkv6Nzdk7QI2mfC3GLl4R5QP+lrMbvA=;
-        b=BK+Dz9K9PX7OOh5HU+9u3ENGR+uIEOx0rSMGqOxtIXtt/wqgjiPJ8K73j3Ga/XoDji
-         feCVVgEAZ3DIXmygMg3AE3j+z6lVL+zq4oSaeImbKCNsK3kh8retiKHglyUxiz9Bu6n9
-         sca42g3DeI5hKXdGAd7hhrbp/VIVJvR1dfdh4A+HTewpKSwr8u+5o2Emw94dZFTke4on
-         lv2RKHUi96TgfEPmbJdRAfQhrtPo6c+fi1aJoolnWKYqXymaRXZ5qlaOkTCce5QXpvpl
-         qDz011Eej1i2MBsr1mdwfXyWntU2e1UWBuH0hR2NIOBjGv3gqE4su1r+chSxNZ7DrLTk
-         mL/A==
-X-Gm-Message-State: AOAM531OsWhlWqkUpPzIcKJVGnDHCq69Ppv14NUz2D3PTEOCfbX9t9mA
-        w5dBI4Xk+dViEeKUd+kqhTqmNCjVDg==
-X-Google-Smtp-Source: ABdhPJyC7nsRGp7r9R2CQWA/Cgx5aIH6CBASg7KC9/6/3ZpnQ/Ef21Dng8wLb0+nHlIU5qgGVTTGBQ==
-X-Received: by 2002:a37:315:0:b0:6a6:a90c:9072 with SMTP id 21-20020a370315000000b006a6a90c9072mr6703509qkd.256.1654465624964;
-        Sun, 05 Jun 2022 14:47:04 -0700 (PDT)
-Received: from robh.at.kernel.org ([2607:fb90:ac97:ac63:b5fd:aa9:8d74:9989])
-        by smtp.gmail.com with ESMTPSA id u16-20020a05620a455000b006a6b1c11235sm3207461qkp.84.2022.06.05.14.47.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Jun 2022 14:47:04 -0700 (PDT)
-Received: (nullmailer pid 3577933 invoked by uid 1000);
-        Sun, 05 Jun 2022 21:47:00 -0000
-Date:   Sun, 5 Jun 2022 16:47:00 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Potin Lai <potin.lai.pt@gmail.com>
-Cc:     Brendan Higgins <brendanhiggins@google.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Rayn Chen <rayn_chen@aspeedtech.com>,
-        Patrick Williams <patrick@stwcx.xyz>,
-        Potin Lai <potin.lai@quantatw.com>, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] dt-bindings: aspeed-i2c: add properties for
- manual clock setting
-Message-ID: <20220605214700.GA3558088-robh@kernel.org>
-References: <20220601041512.21484-1-potin.lai.pt@gmail.com>
- <20220601041512.21484-3-potin.lai.pt@gmail.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=doPwBdHFWD14a2kAbTYFYO985iNgcJ4U7efAsJ68WJg=;
+        b=0/vwA0ksjlzLC6BldPM1copy+Ei1C57W/lP1hs3XGwlrNFaYImk9x1v0V9wI9KM/cn
+         s/GD+qQI6Qi/L10f2rIKESJLNGxua4BVH4IilkfTDdgzN3KdKASLyZ+sfdHlU8JfUYvf
+         ApP+4I3GIA2ZBRsZARf5Urr57cunmaZ+IPrMPNRhN9ld3iLOmHyO3IcepdXQh2IYMoFQ
+         AuJc9F3Je8EUFYlRRxPt2IIBMBjlMyekqqg0wDnHin+VQXctBoNCMNUiKRXA2Si4Thky
+         1D4qTTl945u06u2jwBjhmuvyUW56Nf2RMLOjyCwMrRaBKjt0zzOkTQxQBILFfTWngcYm
+         hDXg==
+X-Gm-Message-State: AOAM531HqauznEUWAvDctSNv7gec6MNxcqnGwxtXRDdPq+8xNrpf5TNn
+        NrdHo6Z05Tkgib6s6dDCOv4HTw==
+X-Google-Smtp-Source: ABdhPJyJOokEt0kcEBw3sSkPy6hMeFJoYm8dpZ17WrM50ttC3tQnAGNRQ3bcqQ/3RbnokzCBKZFsGQ==
+X-Received: by 2002:a17:906:b18e:b0:710:26db:7a53 with SMTP id w14-20020a170906b18e00b0071026db7a53mr11557189ejy.290.1654500411748;
+        Mon, 06 Jun 2022 00:26:51 -0700 (PDT)
+Received: from [192.168.0.181] (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
+        by smtp.gmail.com with ESMTPSA id d7-20020a056402400700b0042e15364d14sm6332688eda.8.2022.06.06.00.26.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Jun 2022 00:26:51 -0700 (PDT)
+Message-ID: <14eeab94-8344-2c8d-9437-ddc8e367cfde@linaro.org>
+Date:   Mon, 6 Jun 2022 09:26:50 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220601041512.21484-3-potin.lai.pt@gmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH] dt-bindings: i2c: qcom,i2c-qup: convert to dtschema
+Content-Language: en-US
+To:     Robert Marko <robimarko@gmail.com>, Rob Herring <robh@kernel.org>
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        krzysztof.kozlowski+dt@linaro.org,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        linux-i2c@vger.kernel.org,
+        Devicetree List <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20220604164653.79284-1-robimarko@gmail.com>
+ <20220605140744.GA3416078-robh@kernel.org>
+ <CAOX2RU7PHpzKUNvuv=-MyqGtgcz30qKkvx2MHNV=ehtCZGBYEA@mail.gmail.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <CAOX2RU7PHpzKUNvuv=-MyqGtgcz30qKkvx2MHNV=ehtCZGBYEA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Jun 01, 2022 at 12:15:12PM +0800, Potin Lai wrote:
-> Add following properties for manual tuning clock divisor and cycle of
-> hign/low pulse witdh.
+On 05/06/2022 18:09, Robert Marko wrote:
+> On Sun, 5 Jun 2022 at 16:07, Rob Herring <robh@kernel.org> wrote:
+>>
+>> On Sat, Jun 04, 2022 at 06:46:53PM +0200, Robert Marko wrote:
+>>> Convert DT bindings for Qualcomm QUP I2C controller to DT schema format.
+>>>
+>>> Old text bindings were missing usage of DMA so that was documented, as
+>>> well as the max clock-frequency.
+>>>
+>>> Signed-off-by: Robert Marko <robimarko@gmail.com>
+>>> ---
+>>>  .../devicetree/bindings/i2c/qcom,i2c-qup.txt  | 40 ---------
+>>>  .../devicetree/bindings/i2c/qcom,i2c-qup.yaml | 83 +++++++++++++++++++
+>>>  2 files changed, 83 insertions(+), 40 deletions(-)
+>>>  delete mode 100644 Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+>>>  create mode 100644 Documentation/devicetree/bindings/i2c/qcom,i2c-qup.yaml
+>>
+>> This one is already done.
 > 
-> * aspeed,i2c-manual-clk: Enable aspeed i2c clock manual setting
-> * aspeed,i2c-base-clk-div: Base Clock divisor (tBaseClk)
-> * aspeed,i2c-clk-high-cycle: Cycles of clock-high pulse (tClkHigh)
-> * aspeed,i2c-clk-low-cycle: Cycles of clock-low pulse (tClkLow)
-> 
-> Signed-off-by: Potin Lai <potin.lai.pt@gmail.com>
-> ---
->  .../devicetree/bindings/i2c/aspeed,i2c.yaml   | 44 +++++++++++++++++++
->  1 file changed, 44 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml b/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml
-> index ea643e6c3ef5..e2f67fe2aa0c 100644
-> --- a/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml
-> @@ -12,6 +12,28 @@ maintainers:
->  allOf:
->    - $ref: /schemas/i2c/i2c-controller.yaml#
->  
-> +  - if:
-> +      properties:
-> +        compatible:
-> +          const: st,stm32-uart
+> Yeah, I did not check linux-next before doing the conversion.
+> Sorry for the noise.
 
-stm32 uart?
+Hi Robert,
 
-> +
-> +    then:
-> +      properties:
-> +        aspeed,i2c-clk-high-cycle:
-> +          maximum: 8
-> +        aspeed,i2c-clk-low-cycle:
-> +          maximum: 8
-> +
-> +  - if:
-> +      required:
-> +        - aspeed,i2c-manual-clk
-> +
-> +    then:
-> +      required:
-> +        - aspeed,i2c-base-clk-div
-> +        - aspeed,i2c-clk-high-cycle
-> +        - aspeed,i2c-clk-low-cycle
+Thanks for the patch. Several people are working on the bindings, so the
+best is to:
+1. rebase always on linux-next,
+2. check if anyone else posted the patches thus the work is in progress
+- use dfn keyword, like:
+https://lore.kernel.org/all/?q=dfn%3Aqcom%2Ci2c-qup.txt
 
-'dependencies' can better express this than an if/then.
 
-However, I think this should all be done in a common way.
-
-> +
->  properties:
->    compatible:
->      enum:
-> @@ -49,6 +71,28 @@ properties:
->      description:
->        states that there is another master active on this bus
->  
-> +  aspeed,i2c-manual-clk:
-> +    type: boolean
-> +    description: enable manual clock setting
-
-No need for this as presence of the other properties can determine this.
-
-> +
-> +  aspeed,i2c-base-clk-div:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    enum: [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192,
-> +           16384, 32768]
-> +    description: base clock divisor
-
-Specify the i2c bus frequency and calculate the divider.
-
-> +
-> +  aspeed,i2c-clk-high-cycle:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    minimum: 1
-> +    maximum: 16
-> +    description: cycles of master clock-high pulse width
-> +
-> +  aspeed,i2c-clk-low-cycle:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    minimum: 1
-> +    maximum: 16
-> +    description: cycles of master clock-low pulse width
-
-These 2 should be common. I think you just need a single property 
-expressing duty cycle.
-
-Rob
+Best regards,
+Krzysztof
