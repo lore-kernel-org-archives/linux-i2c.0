@@ -2,57 +2,119 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8E4ACCA47E
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jun 2022 09:59:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88338CCA47E
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jun 2022 10:51:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235699AbiFHJ7z (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 8 Jun 2022 05:59:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54100 "EHLO
+        id S236989AbiFHKv0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 8 Jun 2022 06:51:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235476AbiFHJ7k (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jun 2022 05:59:40 -0400
-X-Greylist: delayed 2399 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 08 Jun 2022 02:33:24 PDT
-Received: from mail.puregrowthonline.pl (mail.puregrowthonline.pl [51.38.124.91])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAE966F4A3
-        for <linux-i2c@vger.kernel.org>; Wed,  8 Jun 2022 02:33:20 -0700 (PDT)
-Received: by mail.puregrowthonline.pl (Postfix, from userid 1002)
-        id 97DE8A2B60; Wed,  8 Jun 2022 08:15:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=puregrowthonline.pl;
-        s=mail; t=1654676123;
-        bh=CSKXLMgcdpWkXuTgJn5+jsCVobtU9JEF4vCnS5z6McM=;
-        h=Date:From:To:Subject:From;
-        b=qLulyXvvlTvoUcYOGNxdR7hMJChbVlaBF0TJWZ25FL1tve8jYO8lQGt3bzDeg5Se6
-         J/5J1oYeOKahXcTmga+PYPABT0oZ9oxPLjHZy8scLNzawXdzY6zl0bqLDShl/wGXs0
-         NZJbSeaIBAyybMD68YXo2sG5tiXQl3iN5b6B52mP6ct/eFG7l90jdb+blH3zudTF/3
-         7G+1kUiMvjxqLqVopctO/7YO1yIxXUd6s7chOUT8Y9RgYcxuqiegY7ZAxpCXhbJfNO
-         HjNl2/Pgolly9tHmw6UiKYYSlw4SLLiuGAVz7NLrcuRJMBnYvchSTNgu2ivzWpc+u+
-         qVD+KZK8W/8XQ==
-Received: by mail.puregrowthonline.pl for <linux-i2c@vger.kernel.org>; Wed,  8 Jun 2022 08:15:09 GMT
-Message-ID: <20220608064500-0.1.41.cz67.0.3ao2q1d62a@puregrowthonline.pl>
-Date:   Wed,  8 Jun 2022 08:15:09 GMT
-From:   "Wiktor Nurek" <wiktor.nurek@puregrowthonline.pl>
-To:     <linux-i2c@vger.kernel.org>
-Subject: =?UTF-8?Q?Nap=C5=82yw_Klient=C3=B3w_ze_strony?=
-X-Mailer: mail.puregrowthonline.pl
+        with ESMTP id S236971AbiFHKvZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jun 2022 06:51:25 -0400
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145041E7AF8;
+        Wed,  8 Jun 2022 03:51:21 -0700 (PDT)
+Received: by mail-ed1-x531.google.com with SMTP id d14so965517eda.12;
+        Wed, 08 Jun 2022 03:51:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=J6hYfUhU7mRYwVUWV1xGzdqXXNAttpIl10AtMQCOSgI=;
+        b=DRmwxIkZoL4DqetzrcoZfZzVNax4JPN3514EUieQo+WYusBkzmwNoM3bIyiy/eO2oD
+         2RPdMoJv5i17WqdhHNx0ygl6WDG0VOkLBNCcVFxlgvFfl9HHDOEl0qtK8cxzKqc0NgxQ
+         MmL5Ijv2vFv/2k3DSxKoPr7l2PZ11uuUTj/O3uWMZN+AYIddD9Sonwc6SgJJV/tqfv05
+         vJMtDRmsgBLpOcO13EL88pFXx+MHFmCowiXkadU/u4fWHcGLmEMvTETyl+ZECY40wF7i
+         VDTndhEBm+eWs9JQfuvWvSQwuPIi1nG0gMZ/5gjKtJJu3IO0leqswYYz8aJ/mTjxiKwj
+         UASQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=J6hYfUhU7mRYwVUWV1xGzdqXXNAttpIl10AtMQCOSgI=;
+        b=G7u7CuCglQSdZP6Y5BCrT07j4hKmDuXnYuWaJxmEETh6tA3uujYNTGcvMp4TDDGs56
+         oJSU/ahMpMfguoUboc3FPnNKbdZC18By3Mw3TtqofSQX5VI+gp5nGYT42C6v4U/GVWM1
+         KWdUYkFIJ1YWVq5bhlUvQlC6boarvF89VnA98kP/J4PcmmmCQ9YY7/zg9/41n7kdKNgL
+         CKcgORry5oWYgorcY3WUDYoODRQq0SyleLdkUdjnGVjbGlYsQ0bxb0cYD9eJz84WcZUa
+         cO9TACIxq/V4CocSkwrUpQ6N0RSUSKM0i65Y7zSvPitpf6oe8igdxWD6pvZRDSJvx47s
+         Y5dQ==
+X-Gm-Message-State: AOAM532AhR6SRxkPY39nVxk9sAfPBWK2x79vl8iGB8sx0ZjTWB9HVOo5
+        kZonTd+YUBTm4pi+pi0DFhm2FSYpTtsA4f8THCs=
+X-Google-Smtp-Source: ABdhPJyT27iK6nu3n1SZGfqncYVgcfI2rm+neMbh7OrIHWE8u3KQraEwyLH1GjS9Y+7iJb+hRPt8Qu3n7OBk775xVRw=
+X-Received: by 2002:aa7:c396:0:b0:42d:8b86:a8dc with SMTP id
+ k22-20020aa7c396000000b0042d8b86a8dcmr37783861edq.54.1654685480497; Wed, 08
+ Jun 2022 03:51:20 -0700 (PDT)
 MIME-Version: 1.0
+References: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com> <YqBS8I62YBPFC9iS@google.com>
+In-Reply-To: <YqBS8I62YBPFC9iS@google.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Wed, 8 Jun 2022 12:50:44 +0200
+Message-ID: <CAHp75Ve9Lju8AEQd5huz1aYGg4sOu-ae7tTdyDWCXPCBR=wXbQ@mail.gmail.com>
+Subject: Re: [PATCH v6 00/12] platform/x86: introduce p2sb_bar() helper
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>, Wolfram Sang <wsa@kernel.org>,
+        Jean Delvare <jdelvare@suse.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Henning Schild <henning.schild@siemens.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-edac@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>,
+        Linux LED Subsystem <linux-leds@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>, Pavel Machek <pavel@ucw.cz>,
+        Peter Tyser <ptyser@xes-inc.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mark Gross <markgross@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Dzie=C5=84 dobry,
+On Wed, Jun 8, 2022 at 9:42 AM Lee Jones <lee.jones@linaro.org> wrote:
+>
+> On Mon, 06 Jun 2022, Andy Shevchenko wrote:
+>
+> > There are a few users that would like to utilize P2SB mechanism of hiding
+> > and unhiding a device from the PCI configuration space.
+> >
+> > Here is the series to consolidate p2sb handling code for existing users
+> > and to provide a generic way for new comer(s).
+> >
+> > It also includes a patch to enable GPIO controllers on Apollo Lake
+> > when it's used with ABL bootloader w/o ACPI support.
+> >
+> > The patch that brings the helper ("platform/x86/intel: Add Primary to
+> > Sideband (P2SB) bridge support") has a commit message that sheds a light
+> > on what the P2SB is and why this is needed.
+> >
+> > I have tested this on Apollo Lake platform (I'm able to see SPI NOR and
+> > since we have an ACPI device for GPIO I do not see any attempts to recreate
+> > one).
+> >
+> > The series is ready to be merged via MFD tree, but see below.
+> >
+> > The series also includes updates for Simatic IPC drivers that partially
+> > tagged by respective maintainers (the main question is if Pavel is okay
+> > with the last three patches, since I believe Hans is okay with removing
+> > some code under PDx86). Hence the first 8 patches can be merged right
+> > away and the rest when Pavel does his review.
+>
+> Can we just wait for Pavel's review, then merge them all at once?
 
-chcia=C5=82bym poinformowa=C4=87 Pa=C5=84stwa o mo=C5=BCliwo=C5=9Bci pozy=
-skania nowych zlece=C5=84 ze strony www.
+Sure, it would be the best course of action.
 
-Widzimy zainteresowanie potencjalnych Klient=C3=B3w Pa=C5=84stwa firm=C4=85=
-, dlatego ch=C4=99tnie pomo=C5=BCemy Pa=C5=84stwu dotrze=C4=87 z ofert=C4=
-=85 do wi=C4=99kszego grona odbiorc=C3=B3w poprzez efektywne metody pozyc=
-jonowania strony w Google.
-
-Czy m=C3=B3g=C5=82bym liczy=C4=87 na kontakt zwrotny?
-
-
-Pozdrawiam serdecznie,
-Wiktor Nurek
+-- 
+With Best Regards,
+Andy Shevchenko
