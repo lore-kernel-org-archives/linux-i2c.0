@@ -2,51 +2,51 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 591A9CCA47E
-	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jun 2022 23:40:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD9DFC433EF
+	for <linux-i2c@archiver.kernel.org>; Wed,  8 Jun 2022 23:40:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233790AbiFHXkI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 8 Jun 2022 19:40:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33340 "EHLO
+        id S233869AbiFHXkK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 8 Jun 2022 19:40:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233855AbiFHXj6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jun 2022 19:39:58 -0400
-Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCC9516B2ED
-        for <linux-i2c@vger.kernel.org>; Wed,  8 Jun 2022 16:39:50 -0700 (PDT)
-Received: by mail-qt1-x834.google.com with SMTP id k4so9463802qth.8
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Jun 2022 16:39:50 -0700 (PDT)
+        with ESMTP id S233876AbiFHXj7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jun 2022 19:39:59 -0400
+Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9032E169DF5
+        for <linux-i2c@vger.kernel.org>; Wed,  8 Jun 2022 16:39:35 -0700 (PDT)
+Received: by mail-qk1-x72a.google.com with SMTP id k6so13623842qkf.4
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Jun 2022 16:39:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:from:date:message-id:subject:to:cc;
-        bh=qQ2RizqshOjzvB3iH/wwzC+NVOLya1wNYtoVU7GxDvM=;
-        b=UAUcZUkiV3VZQTR71Swi9iSLP2iNUgDgdZHzGDfJ1q/EFyU2zOn3EEmie/e/d8eyrk
-         BCOb4HzXqzi46EUby2v8egnyivPyJ7IOpkpbUgurwodmXHMd2jq472sLIjoalYSwQxJO
-         4YxfrIRcr9xYU16fuugZ8uiVRNZdTkZQ5gpERziLKwu4cAfIa2ye+Iq/EB/Upc+nwD/b
-         Qr8CG2/CjIe6vW19WYbiVvTvibQB/Nc9ON1c0nmBWGmLiB5d0N8DNXHJeZLE4sJmxDqx
-         uOIBbgt+OPOL5bndMn27FUTwT/Qh0ZyJHEztS4IoOPqfcby1uaM4OWWT+HBGl4wCGOtN
-         ReaA==
+        bh=kc8hDtKnDcjkjtnpKv99miwrNZ1mscnVCOSjHJGhRR0=;
+        b=TGdTe8ftgW2E2QSXLDATWBAXq3sauk3KYSj6BMlJLGO6AIyIfhb5n1gjvAikC5sfj1
+         pnF2q+aa3J49SlWeHoe8utIJbft2tfdvJWfSA/DWdGmQ81xwpFbbShsO99rjEfX37VOJ
+         O7nf0OOCHhgW59XOZB2AYutoUpxS75uohsXNuBYCQ74OZWV0IkfqStkyQpIXIgp5Yu/X
+         /b47CaBvS9tF2RvKGzD2OXWMoCKHHF/JqW3mtCMGdzWVyYoNxEJonBGyxomdCDOnzKP5
+         Wm0OipG0BCiWNN5Q3OyAx5VK7fAStBf4WuoirjR9Gnpdd0r+CJ+NosZexvzLXB8JwqtT
+         YXTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=qQ2RizqshOjzvB3iH/wwzC+NVOLya1wNYtoVU7GxDvM=;
-        b=WKuSKVA1XN0zZ51NFn8wMJofutxjYSd9aR6taiZD1DVzcpBUX1cKPUBYEaRq+MQK90
-         XxqJPTD+GEcq7ahE1O6KbFuDT7yzpebH15FmO5W0OeAow63g0jRZkZM7g+tApewkwkJx
-         Btk+pOXrA3mtNHbGKe1WWvBOvjSHRC2Dy74uZdGiqf1yvdXSi4OOFyuNlk00sHIQoFlm
-         J19IuX2SMaSqxl3ona0FY8vlMKKeWz7j5tXWUG+I3e7tjyGyz9kdEqVQzrW/g44jYeF+
-         MXvznj0NRxQpB15y+wlTIesu9hitSXLne21Fd4y2GIB7OU2ZlmzgG55zLJ5HjolGQCPr
-         z1rQ==
-X-Gm-Message-State: AOAM531uF7Jfzy9tVmZEUBII91Ixq7c+7QNq9IfHxr6FjoCsLkFspVtX
-        tHLflsD7dwYoATTY/FtH0POxHAzyCHNnj5TZk9KgfA==
-X-Google-Smtp-Source: ABdhPJwtH2lhtilN1G9Xw/rEf0VpiHf/XCVrIWgDPfCF0plfDp6bJ/WTYHxyxCYLxZFEeB0dzqn7AnVcRfYOD7c28rY=
-X-Received: by 2002:a05:622a:5ce:b0:304:c37f:e7c5 with SMTP id
- d14-20020a05622a05ce00b00304c37fe7c5mr29342704qtb.398.1654731589495; Wed, 08
- Jun 2022 16:39:49 -0700 (PDT)
+        bh=kc8hDtKnDcjkjtnpKv99miwrNZ1mscnVCOSjHJGhRR0=;
+        b=avNVl+gusKx4rgq8O+bVe/kytAl+tT+DE54OB1naZElHRUvwmZNA0EvmvykEgIePZC
+         cI/VAOP3j2Lm9WU6cIaKEtvvlFA7irWgJjaoxkyxWefIreoqsQF2c5JyGb6z0GFnDYYZ
+         akaAhmTN6/KUM9m4PVNHzWox4V9G6pVDDSGadiUPxytfeMG4huJEtn7Lo9QInoXDybFW
+         Np1YBcDNOmvhf41J3fYF/x0owafigs4i4gMR+jVHNtuj0Urt1D/EoMqyDtYdKswBzi5z
+         uEDxQCe/5N4r0NCPg5dkmcsKIPuFaW9vJ/0tyFAQIl3Nxlfg4dQsQzXFIQX7gNVejHoM
+         sCOg==
+X-Gm-Message-State: AOAM533RPc4UlHF22n4TqtlYQihpFu4+84/i1Vmcbf7NdnnccvYZXn4z
+        TTbVU2DIe3nDqAM461OzWjmh8cXsFKqk5tJBr3ORW8twoeMY+ABYOq4=
+X-Google-Smtp-Source: ABdhPJwwoi0drQjkYJ1j2Qdt6XiU3x2RVVqapgseeDGRMrMmyQCzzXLwavj3DbqQ68d+IFyAWbxsz4ReHsk+ofIZ0q4=
+X-Received: by 2002:a05:620a:1911:b0:6a6:e8e9:70cd with SMTP id
+ bj17-20020a05620a191100b006a6e8e970cdmr6816152qkb.627.1654731574196; Wed, 08
+ Jun 2022 16:39:34 -0700 (PDT)
 MIME-Version: 1.0
 From:   Atul Khare <atulkhare@rivosinc.com>
-Date:   Wed, 8 Jun 2022 16:39:39 -0700
-Message-ID: <CABMhjYp4ChJ3KfP=jQmA5nnv7YB=Kkanjb2KwDEVWSS+Sn5m1g@mail.gmail.com>
-Subject: [PATCH v2 2/2] dt-bindings: sifive: add gpio-line-names
+Date:   Wed, 8 Jun 2022 16:39:23 -0700
+Message-ID: <CABMhjYp3xUyQ9q6nXHvEA2zuzhYi0ETn6UETeH1apWf2n2eP7A@mail.gmail.com>
+Subject: [PATCH v2 0/2] dt-bindings: sifive: fix dt-schema errors
 To:     Palmer Dabbelt <palmer@rivosinc.com>,
         Atul Khare <atulkhare@rivosinc.com>
 Cc:     Conor Dooley <conor.dooley@microchip.com>,
@@ -58,36 +58,20 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Fixes device tree schema validation messages like 'gpio-line-names'
-does not match any of the regexes: 'pinctrl-[0-9]+' From schema: ...
-sifive,gpio.yaml'.
+The patch series fixes dt-schema validation errors that can be reproduced
+using the following: make ARCH=riscv defconfig; make ARCH=riscv
+dt_binding_check dtbs_check
 
-The bindings were missing the gpio-line-names element, which was
-causing the dt-schema checker to trip-up.
+This is a rebased version of https://tinyurl.com/yvdvmsjd, and excludes
+two patches that are now redundant.
 
-Signed-off-by: Atul Khare <atulkhare@rivosinc.com>
----
-Changes since v1 [1]: Rebased on latest version
-[1]: https://tinyurl.com/yvdvmsjd
----
----
- Documentation/devicetree/bindings/gpio/sifive,gpio.yaml | 3 +++
- 1 file changed, 3 insertions(+)
+Atul Khare (2):
+  dt-bindings: sifive: add cache-set value of 2048
+  dt-bindings: sifive: add gpio-line-names
 
-diff --git a/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
-b/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
-index 939e31c48081..787ce7300118 100644
---- a/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
-+++ b/Documentation/devicetree/bindings/gpio/sifive,gpio.yaml
-@@ -47,6 +47,9 @@ properties:
-     default: 16
+ Documentation/devicetree/bindings/gpio/sifive,gpio.yaml      | 3 +++
+ Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml | 4 +++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-   gpio-controller: true
-+  gpio-line-names:
-+    minItems: 1
-+    maxItems: 32
-
- required:
-   - compatible
 --
 2.34.1
