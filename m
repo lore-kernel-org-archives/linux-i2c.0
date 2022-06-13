@@ -2,99 +2,116 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 142ABC43334
-	for <linux-i2c@archiver.kernel.org>; Mon, 13 Jun 2022 18:39:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5242CCA47B
+	for <linux-i2c@archiver.kernel.org>; Mon, 13 Jun 2022 19:10:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242035AbiFMSjD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 13 Jun 2022 14:39:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43590 "EHLO
+        id S1348473AbiFMTKt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 13 Jun 2022 15:10:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343691AbiFMSiW (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 13 Jun 2022 14:38:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA584EF4B;
-        Mon, 13 Jun 2022 07:58:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S1351557AbiFMTKJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 13 Jun 2022 15:10:09 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A699C95B4
+        for <linux-i2c@vger.kernel.org>; Mon, 13 Jun 2022 10:08:45 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D44DBB81058;
-        Mon, 13 Jun 2022 14:58:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFE5EC34114;
-        Mon, 13 Jun 2022 14:58:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655132324;
-        bh=AtniC0eJkDR5/lLb+bWQNBve4k7kz60lS+Lip7itflA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nDFMY9QYfPxcap0I7w9dv1UnAtXFCEkntc8tqkQ+Q7XX615OrKZnE/y2xbFFGmT+m
-         dDMRgrkJrtnBXDBCxnytqfdd/8EjVuFLxl5u0nLulRP8enviTFhN/ZdPw13DL9LDih
-         9Gnp7+t9s/it9oXt/uEOLsYqEawr0pyBufjguQnUPaaZTiSKRWR+GdxHa+oX5r9Z/0
-         aDRvnX2vthNldQ5OqUFFVwiKp80z+k5ZPxaX4VzcUGUyjqtqQon5hNaiZgHc8NVUDR
-         MYgEQIB9sngtbbqGOpavFkJbe2tkDHUK1u4fjyhSE4MU01r07GwbsqpZaYD4uh9v3E
-         WEumYYTd+NwnA==
-Date:   Mon, 13 Jun 2022 16:58:40 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Codrin.Ciubotariu@microchip.com
-Cc:     peda@axentia.se, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, Ludovic.Desroches@microchip.com,
-        Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com,
-        robh+dt@kernel.org, kamel.bouhara@bootlin.com
-Subject: Re: Regression: at24 eeprom writing times out on sama5d3
-Message-ID: <YqdQoJbsgwjQ9PYh@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Codrin.Ciubotariu@microchip.com, peda@axentia.se,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        Ludovic.Desroches@microchip.com, Nicolas.Ferre@microchip.com,
-        alexandre.belloni@bootlin.com, robh+dt@kernel.org,
-        kamel.bouhara@bootlin.com
-References: <074b39c5-55fc-2bc1-072d-aef1070e284d@axentia.se>
- <2bb4868b-90ab-887e-bf13-9de8b79231bd@microchip.com>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 677271F8FA;
+        Mon, 13 Jun 2022 17:08:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1655140124; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SfZX2FHGKi9VSNT0iKL2Q5zQqSswNSWEESfWx2oGllQ=;
+        b=Cug00id4eAwOFvwDhHzgQxID9X+3ACBlpT2Q8zZEH69itK63b8asltJeequJSHNnDmpNYa
+        EG9ZjgCq5ZiXw5Kr9Qz2P1Yk3ZiXDT2bK3Z2KRUqngxzpvEAHNAgO2GsdMcGik+MYSgmCR
+        SDsa7slL3W2Ld/xeUoCl0jzgI1eDCP8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1655140124;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SfZX2FHGKi9VSNT0iKL2Q5zQqSswNSWEESfWx2oGllQ=;
+        b=SeABXjvYEBxG+PW7tEewvfGqafsdFbXYhc74gX+v537cmIMGFMsciZKN7xxZCiMncsHFZt
+        QD+ezZ/NR1ivMWBQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 44EA413443;
+        Mon, 13 Jun 2022 17:08:44 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 6K/sDhxvp2LmAgAAMHmgww
+        (envelope-from <jdelvare@suse.de>); Mon, 13 Jun 2022 17:08:44 +0000
+Date:   Mon, 13 Jun 2022 19:08:41 +0200
+From:   Jean Delvare <jdelvare@suse.de>
+To:     Heiner Kallweit <hkallweit1@gmail.com>
+Cc:     linux-i2c@vger.kernel.org
+Subject: Re: [PATCH 4/8] i2c: i801: enable FEATURE_IRQ and
+ FEATURE_I2C_BLOCK_READ on all chip versions
+Message-ID: <20220613190841.653709e7@endymion.delvare>
+In-Reply-To: <20220607162442.7b618cca@endymion.delvare>
+References: <4125f9ce-ce5f-fbcf-7d6f-9bc586ac43e0@gmail.com>
+        <1f81a126-11b4-aa22-1e2c-9824e0ad730c@gmail.com>
+        <20220607162442.7b618cca@endymion.delvare>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4y9tLbk2+pC88VOo"
-Content-Disposition: inline
-In-Reply-To: <2bb4868b-90ab-887e-bf13-9de8b79231bd@microchip.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi Heiner,
 
---4y9tLbk2+pC88VOo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I was able to resurrect my Sony Vaio GR214EP laptop to test this patch
+on an Intel 82801CAM (ICH3-M) chipset. And as I suspected, it does not
+work. I get the following error in the kernel log:
 
-Hi Codrin,
+[13563.411101] i801_smbus 0000:00:1f.3: SMBus using PCI interrupt
+[13565.434712] irq 9: nobody cared (try booting with the "irqpoll" option)
+[13565.434728] Pid: 321, comm: udevd Tainted: G           O 3.4.63-2.44-default #1
+[13565.434734] Call Trace:
+[13565.434773]  [<c0205349>] try_stack_unwind+0x199/0x1b0
+[13565.434793]  [<c02041c7>] dump_trace+0x47/0xf0
+[13565.434808]  [<c02053ab>] show_trace_log_lvl+0x4b/0x60
+[13565.434820]  [<c02053d8>] show_trace+0x18/0x20
+[13565.434837]  [<c0682e81>] dump_stack+0x6d/0x72
+[13565.434855]  [<c02adad1>] __report_bad_irq+0x21/0xc0
+[13565.434870]  [<c02adef1>] note_interrupt+0x181/0x1d0
+[13565.434887]  [<c02abe9e>] handle_irq_event_percpu+0x9e/0x1d0
+[13565.434901]  [<c02abffe>] handle_irq_event+0x2e/0x50
+[13565.434915]  [<c02ae3e6>] handle_level_irq+0x56/0x90
+[13565.434928]  [<c0204168>] handle_irq+0x88/0xa0
+[13565.434939] handlers:
+[13565.434949] [<c04bbf6c>] acpi_irq
+[13565.435027] [<e0baad00>] usb_hcd_irq
+[13565.435054] [<e0baad00>] usb_hcd_irq
+[13565.435079] [<e0baad00>] usb_hcd_irq
+[13565.435193] [<e0d6fb80>] radeon_driver_irq_handler_kms
+[13565.435206] [<e0af5c60>] yenta_interrupt
+[13565.435214] [<e0af5c60>] yenta_interrupt
+[13565.435227] [<e0b514c0>] irq_handler
+[13565.435238] [<e0aeec90>] snd_intel8x0m_interrupt
+[13565.435251] [<e0c514a0>] snd_intel8x0_interrupt
+[13565.435264] [<e0ab4060>] e100_intr
+[13565.435278] [<e09465d0>] i801_isr
+[13565.435283] Disabling IRQ #9
+[13565.437114] i801_smbus 0000:00:1f.3: Transaction timeout
+[13565.437125] i801_smbus 0000:00:1f.3: Terminating the current operation
+[13565.439189] i801_smbus 0000:00:1f.3: Failed terminating the transaction
 
-> could you please apply this patch-set [1] and let us know if it=20
-> addresses your issue?
-
-Any comments to the comments I gave to [1]? :)
-
-Happy hacking,
-
-   Wolfram
+If it matters, and as seen in the list of handlers above, IRQ9 is
+heavily shared on this laptop (ACPI, USB, graphics, PCMCIA, sound,
+network and SMBus).
 
 
---4y9tLbk2+pC88VOo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmKnUKAACgkQFA3kzBSg
-KbbfLBAAmTZMUsDejonz6ghBqRZNjxQUHOkBjzcun2R358W/QmpabM3JhLWxoYF8
-7d8BQDy28IrRYXgWvAdqZ7X9GzrO4J8+cP7ZnfafKWTlhUJDqFqeJSl0ZnJ0GsZk
-O/+LB0snGoP//zos2d30AdBeTL5OvVIDYNSlrXn0TjQ3SMGibvvaXzbcS/+9oNNS
-MqynO44hsKdeToTxE3PHsRIzCez03PXdhWQ1YiKxxMvuZW+1DRZwlS4/5cygEiKQ
-9AGL/Hq25VGkzVhypCLJBG8YVj8NZ+yZDKsSHe7297XGKURUC3rAmob6diviB7VH
-UX9DDZNpLer+umAE9mFIuL0cXM5QQR6Vj2HVFffpy1oQJqlNA6K7Zu9sxbUFs/jl
-meih4rLEMeSgcV8OKmUhcp3LT9hkd6kTUPWwIWML5xE+x+04gMfuenzebUUI/62H
-VDRapubhMOYCMRIWDs10T7293//q12QAJtiXWfPqMAr1zkNGPGte8y8snMpYs//S
-7FawMiCp/FEr25dT5DgF1YQveg9HALh5SQ+YIlWNVapdRCsJxXERGhCFnsUS6Wja
-kCJqVK2Vyn+Za/uGd4Ejt6vJ8LRrbrS4ZAlrVT7UwGv7S8qvwbTAXz0zYRnTVozj
-pMHJxXSi57O7EV3XSA2uFWrj4qIy7c/3/0sey87hAcGe46BYSqQ=
-=GnAC
------END PGP SIGNATURE-----
-
---4y9tLbk2+pC88VOo--
+-- 
+Jean Delvare
+SUSE L3 Support
