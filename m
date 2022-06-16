@@ -2,149 +2,210 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 106BFC433EF
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jun 2022 05:17:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AAA02C433EF
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jun 2022 07:16:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbiFPFR5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Jun 2022 01:17:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43996 "EHLO
+        id S1359126AbiFPHQh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Jun 2022 03:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347612AbiFPFR4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jun 2022 01:17:56 -0400
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1anam02on2063.outbound.protection.outlook.com [40.107.96.63])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BD01E01C
-        for <linux-i2c@vger.kernel.org>; Wed, 15 Jun 2022 22:17:55 -0700 (PDT)
+        with ESMTP id S1358996AbiFPHQg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jun 2022 03:16:36 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2103.outbound.protection.outlook.com [40.107.236.103])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D41F5BE74;
+        Thu, 16 Jun 2022 00:16:35 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QZ9tif2NYAX3o/jBbd1ZAvOw+b4bNUp2XMSyCH0NhFDjES7XipjlfxuJ6icvpLqffsoWJnthcKY3qyzMVP+pHu25/H9qqE1FS0A4jhW7ms1l/UTFdF/ud3Rhu2htpEWOwGy748bH185g03ysayL7l4kSFKQsbh0bpHrcjyQmAP9+hRDGKu3Qnnd6e4Edw6AUWGNMDNfKFLURj6Q03cwL1t8KjsjANMGULP4dU84OpnfvywVJH53qlVWQZSJgAIWOCjJ7shWl3zdcFWtZObJq1+lcnUbS4XkK9q64UyhKrr+gT2uc+5EeVLzDlev488JWndkaUgdxh5HMwPKG4wETWw==
+ b=Z7+dVamcgaCWszspU9ak+cBVoVFZxZpWd5GDQFgtwWtmaPp4JsUCQOFMvoI21Vrd4B5JuzKf49zZFaGLwBnPCVKxAxK/z9Of4bjpT6kpq7INI3zNa+Syd9YOG4b+OtWlP/3Ysw0UKaqFrt2lX5xE1n5lnrkYVaF2p/tdh429t6WcCgSMSihmrunIApmKwoGj7XVCpkmyiwfY72EnCX8NEy5FY3Ep8yiq41oCVLdpSvBzhICE2i+DRwwZ+Vecwlok2MwJux2oLvn5HgCf+lghbEtEKayCWgN4ct7seyiDmjnV41OYLogiiEXSlLkIirNqVml7fKk/gWgC9d+jE6w4pA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=vHENdNjwXTENRbTnduY1SqAiCN2hbdxMgPJmloj5rsI=;
- b=ZMn2T7KwEOnRYdY/vWDAtDNdiuYBQDac2ik6PxuGGAQZOPNgdRpiKSNoky4B1+CJcwo/vXzUvgZi953CsFv5a8YU+djNp3n8hVvGdV84tEGYHkHkZpLeveAFwYt+Whbjqxkpum2xo6tr6JXlZyv+8rYtTo0+d7w7Njka4FvdJanyfC1OEy/FI2wFs68YQL0J+pHvfktDwRcvCKswDFsJBQopUECVlmKOY2L1ClLnan31jnPzgFcFJdfp6HAtKgyV/rlvSxc/VQm0E3K9hNkf5p4RtpB4CZqDcskasOEPmzZWgOjBWuTCTGe5X4ijcwrpguw6OBzmDwyTiNJdlqW+4g==
+ bh=XtNVyT0ovF3YBqo+91OxMnyr8ptcmtkZjbbNLv8oQWk=;
+ b=Nf8nqTxWUI+MFWKhKe3i8fvYOd6OpqWpHNH2BuB6E8YjEgnHSsv7crkU9GiMBPHPtL4b2Ru8TKMfoWX6HNQ8hTdDiJxXQ7v1IYME0atUkjklTBQ1hPbdchg6b9Ej14hmzxl2cCo7JxV/YXUBcFbFkhkC1hHYSKiefLHCBMEz93xNoME/g7CjswjE+WTFdK6j3T9IT6+g8w5CtF3LXL5Y4N3hJ9Cgmj8GnXwsMUZCkHO9gXjhbV4u2Dfwb/lQxwqbqgki9NZYN/EH8zynUkUUHRS+zkdBsj6oNuN2LEYo77D7EjXtN1vOs4rhuZVYvgIlyMCqxJL8L5FhVgAWlVxoQg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
+ header.from=os.amperecomputing.com; dkim=pass
+ header.d=os.amperecomputing.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=os.amperecomputing.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vHENdNjwXTENRbTnduY1SqAiCN2hbdxMgPJmloj5rsI=;
- b=EAS8OfqONgjX7KK6uUs0EHAsrogqF1W2eyiHq+Yfl/CUsqHTbnzYC0ojG88/GjZ7F0QzrKtb7QB5w4dhKvGlHKr6H7rs9B4yxeH+zAJZPM7vt5edi/Becu4TpSM/RzS62+0W0rfeprxuKjoy3GbvhL8V4M7zJXLQPWSXE5O4RCc=
-Received: from BY5PR12MB4902.namprd12.prod.outlook.com (2603:10b6:a03:1dd::9)
- by SA0PR12MB4495.namprd12.prod.outlook.com (2603:10b6:806:70::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.14; Thu, 16 Jun
- 2022 05:17:53 +0000
-Received: from BY5PR12MB4902.namprd12.prod.outlook.com
- ([fe80::59c7:d947:6370:7de6]) by BY5PR12MB4902.namprd12.prod.outlook.com
- ([fe80::59c7:d947:6370:7de6%7]) with mapi id 15.20.5332.022; Thu, 16 Jun 2022
- 05:17:53 +0000
-From:   "Datta, Shubhrajyoti" <shubhrajyoti.datta@amd.com>
-To:     Robert Hancock <robert.hancock@calian.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-CC:     Raviteja Narayanam <rna@xlnx.xilinx.com>,
-        "Simek, Michal" <michal.simek@amd.com>,
-        Anurag Kumar Vulisha <anuragku@xilinx.com>,
-        "wsa@kernel.org" <wsa@kernel.org>,
-        Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: RE: [PATCH] i2c: cadence: Change large transfer count reset logic to
- be unconditional
-Thread-Topic: [PATCH] i2c: cadence: Change large transfer count reset logic to
- be unconditional
-Thread-Index: AQHYgEanRCYPJhqiyU+Wzyb/dW4Wqa1Rf8hQ
-Date:   Thu, 16 Jun 2022 05:17:52 +0000
-Message-ID: <BY5PR12MB4902C8591DE77D38B5C3F09581AC9@BY5PR12MB4902.namprd12.prod.outlook.com>
-References: <20220614232919.1372621-1-robert.hancock@calian.com>
-In-Reply-To: <20220614232919.1372621-1-robert.hancock@calian.com>
-Accept-Language: en-US
+ bh=XtNVyT0ovF3YBqo+91OxMnyr8ptcmtkZjbbNLv8oQWk=;
+ b=r+n5ubxxPUFblqxVqLMqIOM+zqN+4tje/K/7ow1emuz6wkmnbLy04wGnHJjoXJRfx4s2of5Or1yLpW3UySj3QPgZ0SqXg+DK9nqFAxB49hr0Cp4rYGQzT6IUpAkXg6xP1WcNRh8arci24iq1aeDfLxPw1IvaufXQBttQ5kXnng8=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
+Received: from SJ0PR01MB7282.prod.exchangelabs.com (2603:10b6:a03:3f2::24) by
+ SA0PR01MB6249.prod.exchangelabs.com (2603:10b6:806:e3::5) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5332.13; Thu, 16 Jun 2022 07:16:32 +0000
+Received: from SJ0PR01MB7282.prod.exchangelabs.com
+ ([fe80::7535:773:f979:893e]) by SJ0PR01MB7282.prod.exchangelabs.com
+ ([fe80::7535:773:f979:893e%7]) with mapi id 15.20.5332.020; Thu, 16 Jun 2022
+ 07:16:32 +0000
+Message-ID: <bf001ece-e981-3a06-53fe-6a8b637d69fe@os.amperecomputing.com>
+Date:   Thu, 16 Jun 2022 14:16:14 +0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.10.0
+Subject: Re: [PATCH v7 3/3] i2c: aspeed: Assert NAK when slave is busy
 Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_Enabled=true;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_SetDate=2022-06-16T05:17:46Z;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_Method=Standard;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_Name=General;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_ActionId=aed0efef-a4ca-4f93-9cee-521261c964c6;
- MSIP_Label_4342314e-0df4-4b58-84bf-38bed6170a0f_ContentBits=1
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 55d9e22b-f5d2-410f-380e-08da4f579066
-x-ms-traffictypediagnostic: SA0PR12MB4495:EE_
-x-microsoft-antispam-prvs: <SA0PR12MB449550C4729B697BD290932281AC9@SA0PR12MB4495.namprd12.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: oIrra7z53wQD5spGsX+Ec1XLJzVVFRKOgchUIFlnC0cji73QAr8GxpYMSF8WhU+aCVbRmhS2gDWpWFrmCFrpyEJL131gTL+GizfGkeWEHpwE48vEb/lX0kUxSt5eayIwZ/y6qwVPwMx+NoKQBtJuwpBOeDrP4TFweXsucDscV8HST6Em/zqqFjtBv3O2UuUWTIaO5TGRrsOKm63vwemesaLC0yefkSOZs8tkSxxzTI+HenqDxDA/YhYYph33sCHKzxlgdb4JGw3yzG0aA8VZR6cQY2IUB08JxFx38/01lVlF+a4wpRKZXnKyt+30NDkTJ1ovt9eybTgZivrt9KxY1lcg1pJwH0XNmyYHNFq2eeQDZPyCCW9mbff0uS9oDCq4HlgdJjTEmMNnzqRur8uLW8WbZW9ZixkRJkg9Qc6Gh7qsw8tLd6P6qyVH9+e0svrN/DJrM01dASfnKFho2g745rGKKhwJEsJ33A5/T7nlia1nnYL9sy1pA5mdcIrIwOYrbej+3Us9i5aCJ1X2rLF2DGDbG835UdUnAEaPGrEYoyjbCBjGlb6pbtx2VCKAWP5JZDNJolJE7PmEz+yJ7Imxcd+4NJigwce6cbnRWCFqQxwtAJqg91btnMXoFTOffiDw3mzTrKeEGiB194VxLFezc31pMjdzzqOgBfyqCrbLd+e47hAmEXekKJjmJDcUZPeoSXXO6krUHljUPC9pY8ZQsA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR12MB4902.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(84040400005)(186003)(4744005)(2906002)(83380400001)(316002)(71200400001)(508600001)(110136005)(54906003)(5660300002)(53546011)(66946007)(7696005)(66556008)(66476007)(66446008)(64756008)(8676002)(4326008)(76116006)(6506007)(9686003)(26005)(38070700005)(122000001)(33656002)(86362001)(55016003)(38100700002)(8936002)(52536014);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ka2BF4oZP80lZpgBZT0LJ2glyXYCrFlVuomU8a5nTkuQezuMe6jmMQwnRvCy?=
- =?us-ascii?Q?D/P1h9iv3QXUff08KnR9VOKYfRfcvJ6LSn8pC0Q7I+TI3/gqfBlsm6ww3OVq?=
- =?us-ascii?Q?ezsteIFBuNwT5+VK/LWkm9+/8+wN6ShH3k26ou2ln/PKNNR4bL6M1SEvKPdU?=
- =?us-ascii?Q?rEYcTfz1uqE366CuluR+WGCNTH2OYGEH/mf3lfHvbrQ7Us52bL/yMAWfB2Zv?=
- =?us-ascii?Q?c1lU6RBpvpSBpeJ8gSOeM/ucEBdp7XDGn6GDN48ACIpGbGtbO17SHXAf2mOC?=
- =?us-ascii?Q?07USC3JynHYXGbIetjVWGtU0gkmZvn94ru5cXSqTovBrQ8my9MxnVs8pS8nN?=
- =?us-ascii?Q?2Nig0VdeShKkTfHL5SPaK1Vc8T7Glf347Tq+po2amIQWvb5DEFq4GWuQ9YMm?=
- =?us-ascii?Q?spRtNM73GyVrMwCHPdJErtEvlDBOhYFRxCBT+TNuzQQvBCV4/sPID/mqjZBy?=
- =?us-ascii?Q?9PkL4m6f9nTAlIMZbhdEVnaqczvugTRD9jEnDjM/0fchfCi/gFuMDKtOWZgE?=
- =?us-ascii?Q?8tik/65ymPrbTFkEJxxY8YgATAAf+uuWgAzFVKbS8JXoTbgYlRJ9fGy+/jk5?=
- =?us-ascii?Q?pNISi3AIMHyRttIbBJ/Z6QAyW2llwRuDxZchUTQuXw7F5izuPbW5afEqBsGw?=
- =?us-ascii?Q?s/BB4CHun4NESSmHWshzo33U+4Bhp1MRSCXVrj8UFAokbKXaQ0473htKbaU6?=
- =?us-ascii?Q?hQbsOfuoGZOARFykNtom/cxR85SPrczoHk7N0tU3+FWL7qhyI6+csyA6HhWW?=
- =?us-ascii?Q?GoK1Te6/fd+4fkUHWwc3so8NBpInDs4koVHWDcsb9zbbDPLLSOax63KRu6lx?=
- =?us-ascii?Q?Mju+1ws4WtcnhLk9jPX6Rkrg3CEGazYgtSBDWyR4yzGt1DSAUeR8MpvB85+M?=
- =?us-ascii?Q?ApXF65VRF3YSRbGqhaAPL/VQXrr0o2/2TidjFnt+HbjMV0C8RIyI1N8puICn?=
- =?us-ascii?Q?w6ICyWJnIJ4n3xPcmkvRfrkF3v4AxAj89YVdZsy6KbTz06R3iUBj38MAMIgj?=
- =?us-ascii?Q?PJuXZo97/ywOoPpjSUDgzPF78z1AdjcZAiZxRRJCbHjvvfHRaJrv/zAw8U5+?=
- =?us-ascii?Q?9vqC1Qi2X+REtiSxg9ALwNdUSUUJbIw8uVjmj2bQNTWQDI32RB5uDNUHx/JV?=
- =?us-ascii?Q?8YtPbdYvPrwy9EreMC3zHp5KMB6ChiNb71Tk1RyGXEq8tDKdQPv5q+1unEL1?=
- =?us-ascii?Q?5Cq6vwAcBbCWeaPJdbE8xcy4EMH0gnCT0T2xqVTfnnXMgohyrDYXAIyapmO+?=
- =?us-ascii?Q?PZ3+ebK9fOUJIOidLOpyMBp4PpcjENVo1Ft5L/FGP/3pyDf2xxhAkz4ORDMN?=
- =?us-ascii?Q?+XBXvjBW8rPnEt1hticoUiSjCOXUnJvxuoOKrx8MegKo67Yjt2rM9zaTV+lK?=
- =?us-ascii?Q?i92q2QxcMsGESqAueij8xOdHKk94t1tn2AfK+1VEGdU7mxyvP2zJd/nLk6O7?=
- =?us-ascii?Q?qCdbsE8X/eDmyDxDGCjLKz7EaSYj+llGPgzIywPb1VrHU6n/kdDwmkzBVmti?=
- =?us-ascii?Q?/r+LquPSmeFIX2PjFgKlJDorWj4FDu3jaacbuBYLmUX5eqG0aphBZTrFPPpC?=
- =?us-ascii?Q?bGE4+aSLhQW8++oe6lIwfFw3eNN55uT7aTKGbdVJNiflPe9T1DQD9S0Z8yQ5?=
- =?us-ascii?Q?UElHEjJbEEVU6JqJrSlhfQa/4do2hBfmhAiwMyoOmqOLaoMP5rAWfy4Ma/Dw?=
- =?us-ascii?Q?Hh7gzYlEykFy2DBdG9hdPg5+4uWqJSGNuMXWzwa1DitWJndF?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+To:     Wolfram Sang <wsa@kernel.org>, Corey Minyard <minyard@acm.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        openipmi-developer@lists.sourceforge.net,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org,
+        Open Source Submission <patches@amperecomputing.com>,
+        Phong Vo <phong@os.amperecomputing.com>,
+        "Thang Q . Nguyen" <thang@os.amperecomputing.com>
+References: <20220422040803.2524940-1-quan@os.amperecomputing.com>
+ <20220422040803.2524940-4-quan@os.amperecomputing.com>
+ <Yn+9QBoPdH8fMm/m@shikoro>
+ <fc422a06-c035-f6e5-231b-74ea6afe8467@os.amperecomputing.com>
+ <YqpB8A2uBi+4epHM@shikoro>
+From:   Quan Nguyen <quan@os.amperecomputing.com>
+In-Reply-To: <YqpB8A2uBi+4epHM@shikoro>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SG2PR02CA0036.apcprd02.prod.outlook.com
+ (2603:1096:3:18::24) To SJ0PR01MB7282.prod.exchangelabs.com
+ (2603:10b6:a03:3f2::24)
 MIME-Version: 1.0
-X-OriginatorOrg: amd.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a29dedac-f596-4d0b-a003-08da4f6823de
+X-MS-TrafficTypeDiagnostic: SA0PR01MB6249:EE_
+X-Microsoft-Antispam-PRVS: <SA0PR01MB62496AF83C6EE3177F1F6F97F2AC9@SA0PR01MB6249.prod.exchangelabs.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: /N4pF3OjUxDyjseV7YQhrryMVCRfeaHkQ36T3YRUgECAk9c2S1/zPRJlMRsELDYAa4xyzh5ZdJNsQtD3agVv/SuK6/TNn3sF+a9ehL6XiYGOziFimwCcmwzO1hPfdGFEKerjKvyX0666rf0vy9FVjQpHmD9FlrAZ84roRyVM3eICVqsRd7g62VrzkMwJ1fMxuDIYz9FopL0urR1y9GC4Yduy+bQMFRwRqzusksHoW58hW5OQSAq+g1ot+jgFQogfyKrVlrQnEI/I1vJRh3FCQ/WFY3mPPvtjBO9ZXdbpdz10C2OF3F7ahvlEZtTpWFlEMZqeg1Z937cs/SSi63jbioGXXsEred7/tYRqriV8yu6XvbUnsla+jhKx8uFTuRIBcgiQ6hDAsh7hvvczHwipFNkTSJNLRhWJaZ2Y5CUo1qL+BO+D3Y8f7ZdusUjr12jp8iDamNEao8lVh6YSf/OgItXc56lA3DMsUSNDAJjOKC5xmitTXyPVOqRpoOWJR4ZrKNYSChisVfXC+08TBRK9BOfDui7muJbqYA+2IkI0hyowWm2SligNwi5hTRtdMH18w68xJeMiS59IGQ0QPZiea3pYjnNjyAJSBUwMOSBpMEVR+Nytd1uaw0SUFq0UQBOT1jyXSgV6fTwBmnI8jJR2YX08wYuRrOeL9OMBbmZankMGRAVWafSAnbdQErPGWqReNfOH6Czn8repb0wiNfpULYvtJeuR1i4SAYfTpEtPJqNgjx/NS//z/Hydj9XCBca2
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR01MB7282.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(316002)(6636002)(186003)(6486002)(508600001)(6506007)(110136005)(83380400001)(38350700002)(38100700002)(2906002)(6512007)(2616005)(31686004)(52116002)(8676002)(66556008)(86362001)(6666004)(53546011)(5660300002)(31696002)(66476007)(921005)(26005)(7416002)(8936002)(66946007)(43740500002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cHFwV3JXUFUrSDIyelg3QmR2eEdwUlJia3ZYYzJ3T21ROUllay9tTU9hMmpw?=
+ =?utf-8?B?N0IzL1M3Mmg3QVludXRPRittUmFDUmdzYU02WmZKNW1PQWZEaFh0c2lrdW1v?=
+ =?utf-8?B?VGNRKzBJT2ViRythSkdROHJjalUzYVBRVGZVVU8vMXNnaGhBNDhJWXpvNnpz?=
+ =?utf-8?B?Y0UrZm9iTEdrNmZTY1dhWUlPdCsrWGpaRVFodTB3aVl0cEJNelE0L2lZQ0V3?=
+ =?utf-8?B?Q09JSFJnb251ZTkzOWUzbnl0Z1J2L0h6Y1FDR1FUVUtIWXArTXgzNmJRUUE1?=
+ =?utf-8?B?WjNtbTJFRHJjbXIvTGgxWTFQZ09tcUhMNHgzdUROWmFUdnFpRWtIMUpDL2gr?=
+ =?utf-8?B?Y1g3Q01zWFdONG95MWRyNjFDd3FQeTI3eE9IUFVrWVMyaTNseUk5OXV6TTd3?=
+ =?utf-8?B?aS80MmxOZnBuVjhXNEJBbjkrTXdsdzRpNmxGZzZIYXZ1ZzZkOEJpZUFHS0Jy?=
+ =?utf-8?B?NlErVWFncDVHK05uZnRORE5nOXZXOTBpMTU1YXg2b2RDeDc5WDllUS9lKzZK?=
+ =?utf-8?B?WnoyekI2VGRMU0Joa25xV0d4NFk3eGk3U0FYaVJhZjdITnk5OWxBN3JweGly?=
+ =?utf-8?B?d3Y2WUh1U2F6Z3VuQ3ZyVHl0RjRzaEdZNTE5djI1R1g2Y0dzNGJhU28xejgr?=
+ =?utf-8?B?TmRUOE93Z09pZjZxNEZYUHVEZXllMXVId3VvdG4rZi9tOG54ZENPdk40MUtF?=
+ =?utf-8?B?R0FWTUVPN0tQUklqTDN6VVBKaEg4N1BuTHFkOWJqOGdwb2RDTSs1YW5WQlJ0?=
+ =?utf-8?B?NTlRRW9wOWtFWFJxT1lGdW9SSjVJTXR6OFRWWlNmY1B2R3h1a0Y0NDhMMzBW?=
+ =?utf-8?B?YUVGVXBjRFlaQllQaEF0T1ZSSlhnVUxhSzR3Y3ZhVUNoZ0ZLM2M3R0I2cWl3?=
+ =?utf-8?B?czBubEtyTlMweVZtTDlyQi85Umt0c21GYnFhSmQxRkc1NGtyQVVVVnJpYW5j?=
+ =?utf-8?B?THd6YU1VelorRm5ya2lTQ0R3MmtzWktIcGdNMzkrdEFodzdqUlJ4RE1aM3dE?=
+ =?utf-8?B?NjZDUDBycWJLSXprR1A0eS9VMmRzZzE0RThQakVpTlRhcklEZDkvdVZhelUx?=
+ =?utf-8?B?T1I0S2ZyWVpHVjRZRFFwUGRsb0Y1Q3VDcHRaVnRjUThXcklCdnZxRVBOVFo1?=
+ =?utf-8?B?NFMvbWFXeUVScWgvZFBJYm5DNUFoblNuL0dWbnhQUlZhazcwVWc5cTV3KzZq?=
+ =?utf-8?B?ZllyTkRUZ0RUM2I4bW9xemZDa1dZTnBaZ0J4ejlBaGR4bEpGdU1HU2g0am50?=
+ =?utf-8?B?SFNvMk9kenhjQzI2dysvVFh5MTBjWjNjV1hQYmR5c3hzQkZOVFhlK3p5VGFV?=
+ =?utf-8?B?RzJHaHE5Q1lXaTRkNHlHeU5EenI0ejM2c0NKb2RyMXpweWdkVEI3QVhvOG9H?=
+ =?utf-8?B?V0RYZFVXTHN5TXhGc3RONlk3S1lSWFVOSm5xUXd4cUtXUXE2NG5MTS9GOVBR?=
+ =?utf-8?B?angvSnRhOXFRZVZqQU1mTTJvRFVmNEdGZ3RrVER2bXFaMTdPa2lib09Jb0dL?=
+ =?utf-8?B?WWlnV0JaRi9LVStQT0hxM3Q3S2h2RWhOVG5ZRUs2YTZwWmFCVThTTTdNTUJW?=
+ =?utf-8?B?TnlUczVTbUFSN1FjZWRwa0RxaU0vMUU5VUZLSkFYSEhGM25SL1RWa21RMWxO?=
+ =?utf-8?B?UDVTYzhaeUhmQ1l2YUtJbm1ic29NZVRqdFRZdGlFRktZRG5tNGo0MW9PYUxR?=
+ =?utf-8?B?QjlLR21HSnZoTlNpY2REb1VXWnVoN04ybDE4Qm5jUlpONlZNT2YrVVdHZGMy?=
+ =?utf-8?B?TWxHejJLRUw5ZU1HaW1Zd0E1NkhzTzM0TzBINno5S09WdWVNR3dDQkNXN090?=
+ =?utf-8?B?cW50Q3U1TWY5SDRLdHhGUVRHbzJGNG05VE54Y29lblREOS9BVUtSQm5tbVFE?=
+ =?utf-8?B?bnU4OTdRZjBSSHpqeWUzTUp4ekRndU12WmVsbXMvY1FCNC9sa0oyaVhyZWNF?=
+ =?utf-8?B?UlU2ZFBoTHVBbGJxRFEySlZZUzViVjZkNDNWN3JBRks0dnMySnBDK1QzaXha?=
+ =?utf-8?B?MExBMFlaMGJBS0xaWksySmZFVzQ1VGRMMTcwZ2xGWGtrcXljVTZKdEQ1NHNx?=
+ =?utf-8?B?d1lybXNkcUwwRTBrSVZBeXVSY0s5djJhTDA3VFBXMWZieUhzcjl2ZmdxaFRE?=
+ =?utf-8?B?bm9kRjZFTDhiaXBBQmRXb2U4eFhQaGVtYkFCZk9hRmhsamlrRDQza3Z5RXo0?=
+ =?utf-8?B?T1U3SDhhYWlXYk9CNG4zOWVqUkNFL2FuS1R2SCsxaWRaTlVoSkhzSi8xYTZH?=
+ =?utf-8?B?cEx0dEx5WUVyMWZoL0lBREJrTmF4NEdzNnJLOFFWSlA2eXlBbkx5RkRSVGNw?=
+ =?utf-8?B?bDdFdWc1eTUwL2prRlpmcjU2TXFyNFcwQkd2Sm41VjhZMFB0UGlZemJHaWo0?=
+ =?utf-8?Q?NrVUc/9m772Lk8GtWMbGeu0m2utop/AvJY+Kk?=
+X-OriginatorOrg: os.amperecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a29dedac-f596-4d0b-a003-08da4f6823de
+X-MS-Exchange-CrossTenant-AuthSource: SJ0PR01MB7282.prod.exchangelabs.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR12MB4902.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 55d9e22b-f5d2-410f-380e-08da4f579066
-X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Jun 2022 05:17:52.9401
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2022 07:16:32.5987
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 6Y0+35ntLeLZ6ZVdGCaM4SyGJplI/l0u6U0Q6Y/Pn380ahmkfNyK6AW3bJaa9wcyqSBoQR08tcoIAQJuQvoPVA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4495
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: qxqhRmebMX/AC/0Fn1mI+ZzAYZlnhubG8y7iDSbhxg/c181s9WJpHwd34HSmDmeg6VaywWNPKKJqJMkCbr/D8zi8Nx1mxfgvqwqlLpOkoRk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR01MB6249
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-[AMD Official Use Only - General]
+On 16/06/2022 03:32, Wolfram Sang wrote:
+> Hi Quan,
+> 
+>> When tested with ast2500, it is observed that there's always a
+>> I2C_SLAVE_WRITE_REQUESTED comes first then other I2C_SLAVE_WRITE_RECEIVED's
+>> follow for all transactions.
+> 
+> Yes, that's the design of the interface :)
+> 
+>> In case slave is busy, the NAK will be asserted on the first occurrence of
+>> I2C_SLAVE_WRITE_REQUESTED make host to stop the current transaction (host
+>> later will retry with other transaction) until slave ready.
+>>
+>> This behavior is expected as we want host to drop all transactions while
+>> slave is busy on working on the response. That is why we choose to assert
+>> NAK on the first I2C_SLAVE_WRITE_REQUESTED of the transaction instead of
+>> I2C_SLAVE_WRITE_RECEIVED.
+> 
+>  From Documentation/i2c/slave-interface.rst:
+> 
+> ===
+> 
+> About ACK/NACK
+> --------------
+> 
+> It is good behaviour to always ACK the address phase, so the master knows if a
+> device is basically present or if it mysteriously disappeared. Using NACK to
+> state being busy is troublesome. SMBus demands to always ACK the address phase,
+> while the I2C specification is more loose on that. Most I2C controllers also
+> automatically ACK when detecting their slave addresses, so there is no option
+> to NACK them. For those reasons, this API does not support NACK in the address
+> phase.
+> 
+> ===
+> 
+> So, the proper design is to NACK on the first received byte. All EEPROMs
+> do it this way when they are busy because of erasing a page.
+> 
 
-Hi ,
-Thanks for the patch=20
-> -----Original Message-----
-> From: Robert Hancock <robert.hancock@calian.com>
-> Sent: Wednesday, June 15, 2022 4:59 AM
-> To: linux-i2c@vger.kernel.org
-> Cc: Raviteja Narayanam <rna@xlnx.xilinx.com>; Michal Simek
-> <michals@xilinx.com>; Anurag Kumar Vulisha <anuragku@xilinx.com>;
-> wsa@kernel.org; Shubhrajyoti Datta <shubhraj@xilinx.com>; Robert
-> Hancock <robert.hancock@calian.com>
-> Subject: [PATCH] i2c: cadence: Change large transfer count reset logic to=
- be
-> unconditional
->=20
-> Problems were observed on the Xilinx ZynqMP platform with large I2C reads=
-.
-> When a read of 277 bytes was performed, the controller NAKed the transfer
-> after only 252 bytes were transferred and returned an ENXIO error on the
-> transfer.
->=20
-Can you help me reproduce the issue what is the command that you used to ge=
-t the failure.
+Thanks Wolfram for the review.
+
+On the first occurrence of I2C_SLAVE_WRITE_REQUESTED, the address is 
+already received with ACK. So if slave return -EBUSY, the NAK will occur 
+on the next Rx byte (on I2C_SLAVE_WRITE_RECEIVED event).
+
+Tested this patch and capture using Saleae tool, it always shows ACK on 
+the address and NAK on the first byte follow when slave return -EBUSY, 
+ie: the byte follow the address, which is single part read command 
+(0x03) in my case.
+
++ When slave return -EBUSY:
+   S-> Aw(ACK)-> RxD(NAK)-> P
+       0x10      0x03 (Singlepart read)
+
++ When slave ready:
+   S-> Aw(ACK)-> RxD(ACK)-> Sr-> Ar-> TxD(ACK)-> ... -> TxD(NAK)-> P
+       0x10      0x03                 0x07       ...    0xDE
+
+Using the Logic 2 (with Saleae tool) to capture, we could see the log as 
+below:
+
+write to 0x10 ack data: 0x03    <= when slave return -EBUSY
+write to 0x10 ack data: 0x03    <= when slave return -EBUSY
+write to 0x10 ack data: 0x03    <= when slave return -EBUSY
+...
+write to 0x10 ack data: 0x03    <= when slave return -EBUSY
+write to 0x10 ack data: 0x03    <= when slave is ready
+read to 0x10 ack data: 0x07 0xF4 0x1D 0x00 0x01 0x00 0x00 0x00 0xDE
+
+Thanks,
+- Quan
