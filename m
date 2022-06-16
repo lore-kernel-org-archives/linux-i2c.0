@@ -2,71 +2,106 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02940C433EF
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jun 2022 14:53:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9C5BC43334
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Jun 2022 15:03:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377047AbiFPOxj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Jun 2022 10:53:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32834 "EHLO
+        id S1377594AbiFPPDM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Jun 2022 11:03:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233993AbiFPOxj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jun 2022 10:53:39 -0400
-Received: from mail-io1-f51.google.com (mail-io1-f51.google.com [209.85.166.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C825220BF0;
-        Thu, 16 Jun 2022 07:53:36 -0700 (PDT)
-Received: by mail-io1-f51.google.com with SMTP id p69so1759394iod.0;
-        Thu, 16 Jun 2022 07:53:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=noJzuG2EgYsSXIT61u1YIsPaCEjRt5ye3SQVTsSN4U8=;
-        b=CIZ8a77SDwweUBOGNgII2b8y5/WfszC4zHsGvXE+zftomD+nN0gq1qFR2HzWFRYN5K
-         hpEhbGBopNmx3GlEh+glZLRXJhwIx2SwESaYp/7c+H2+x3MzsIKty7bImMbRMF0YGCVU
-         1z2PqX5O9AXmPnmNjgtHV+aWq+wFLluDGmmhi1+Jz3ENEavDVQ0CtNTzm0FJHR4i4kmd
-         atBUlGU2CMspcvvacCVvdsGjTNV8klc5bzSEOKuZPXH65L3o11x3SvSYMjXpebTbL4fH
-         0CIFIjl4J8623xiCo87jPzcp2eMQvYi42rfVp3Iotoy4uj0kVgKAcnFkkVXFnFJdJUfM
-         TyYg==
-X-Gm-Message-State: AJIora+9uXk2JQmNy0lexMmXsK1v/xndKTvgaXHL0rYRA5gKZ9I8QfbP
-        OlBqmRynoRuRZ6sPt8yzckIoCfYc7g==
-X-Google-Smtp-Source: AGRyM1u4nGZS+8jkLQspL8OqMilFtD1URp8KZikaKmVKIUBkw4uX4MYV01kHev1qyBWkrdJm6b53vw==
-X-Received: by 2002:a05:6602:2f0d:b0:669:e058:9a18 with SMTP id q13-20020a0566022f0d00b00669e0589a18mr2721297iow.26.1655391216014;
-        Thu, 16 Jun 2022 07:53:36 -0700 (PDT)
-Received: from robh.at.kernel.org ([64.188.179.251])
-        by smtp.gmail.com with ESMTPSA id y8-20020a056e020f4800b002d658a34081sm1052037ilj.86.2022.06.16.07.53.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jun 2022 07:53:35 -0700 (PDT)
-Received: (nullmailer pid 3459426 invoked by uid 1000);
-        Thu, 16 Jun 2022 14:53:34 -0000
-Date:   Thu, 16 Jun 2022 08:53:34 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Jean Delvare <jdelvare@suse.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: hwmon: move ibm,p8-occ bindings to proper
- folder
-Message-ID: <20220616145334.GA3458950-robh@kernel.org>
-References: <20220615211619.6742-1-wsa@kernel.org>
+        with ESMTP id S236304AbiFPPDL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jun 2022 11:03:11 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82686B4A1;
+        Thu, 16 Jun 2022 08:03:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:Content-Type
+        :In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:
+        Sender:Reply-To:Content-ID:Content-Description;
+        bh=eXP8JImYusYVmz1XFgz6F/idOIpZUqokxeO9uXWtnWI=; b=KRUEUBUyuLXtfTp3+c4njGOSw9
+        vEDot6VYfqIJ01TjLkccAS9FePTHekgVapd/ZzYWPmXEXA+RSFIUCXgcE4i50W6m4fCnG86csGQyX
+        2fPfw/RqUdF4HEmx4JlxDoLwTB0EWagiVnntZpQaqWknDkJxM4E1QP0tjaadRQit0B1awN3dL+OZu
+        ZsZePFuAxZdy2RY5zt1kIpOlK2HQCMVQRqiaBTPCUQZRHL01dW8Ib9Xq+0BcfW1mwxgzWyFa88QqN
+        FSAPYfcU9mx5op4/SWDy3jKI0BU4lwAqlSxpSWdiQOCvm8mzCemKd14GlH1PVzlSGikdp93WSV3Ok
+        ZbnXZCJA==;
+Received: from [2601:1c0:6280:3f0::aa0b]
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1o1r0x-008RS8-4P; Thu, 16 Jun 2022 15:02:32 +0000
+Message-ID: <fb8e7e35-7f26-15bc-9fbb-2949fc80a18b@infradead.org>
+Date:   Thu, 16 Jun 2022 08:02:22 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220615211619.6742-1-wsa@kernel.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH v8 1/3] ipmi: ssif_bmc: Add SSIF BMC driver
+Content-Language: en-US
+To:     Quan Nguyen <quan@os.amperecomputing.com>,
+        Corey Minyard <minyard@acm.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Wolfram Sang <wsa@kernel.org>,
+        openipmi-developer@lists.sourceforge.net,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
+Cc:     Open Source Submission <patches@amperecomputing.com>,
+        Phong Vo <phong@os.amperecomputing.com>,
+        "Thang Q . Nguyen" <thang@os.amperecomputing.com>
+References: <20220615090259.1121405-1-quan@os.amperecomputing.com>
+ <20220615090259.1121405-2-quan@os.amperecomputing.com>
+ <8b7841a9-9313-b1d5-8a80-a65cfa8e7b4d@infradead.org>
+ <74f94464-a095-f539-746a-853b8f1d52ca@os.amperecomputing.com>
+From:   Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <74f94464-a095-f539-746a-853b8f1d52ca@os.amperecomputing.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, 15 Jun 2022 23:16:19 +0200, Wolfram Sang wrote:
-> It accidently ended up in i2c, but it should be in the hwmon folder.
-> 
-> Signed-off-by: Wolfram Sang <wsa@kernel.org>
-> ---
->  .../devicetree/bindings/{i2c => hwmon}/ibm,p8-occ-hwmon.txt       | 0
->  1 file changed, 0 insertions(+), 0 deletions(-)
->  rename Documentation/devicetree/bindings/{i2c => hwmon}/ibm,p8-occ-hwmon.txt (100%)
-> 
 
-Applied, thanks!
+
+On 6/16/22 00:25, Quan Nguyen wrote:
+> On 15/06/2022 23:06, Randy Dunlap wrote:
+>>
+>>
+>> On 6/15/22 02:02, Quan Nguyen wrote:
+>>> diff --git a/drivers/char/ipmi/Kconfig b/drivers/char/ipmi/Kconfig
+>>> index b061e6b513ed..18a89093d64e 100644
+>>> --- a/drivers/char/ipmi/Kconfig
+>>> +++ b/drivers/char/ipmi/Kconfig
+>>> @@ -169,6 +169,17 @@ config ASPEED_BT_IPMI_BMC
+>>>         found on Aspeed SOCs (AST2400 and AST2500). The driver
+>>>         implements the BMC side of the BT interface.
+>>>   +config SSIF_IPMI_BMC
+>>> +    tristate "SSIF IPMI BMC driver"
+>>> +    select I2C
+>>
+>> No. That should be:
+>>     depends on I2C
+>>
+>> We don't select an entire subsystem just to satisfy one driver.
+>>
+>>> +    select I2C_SLAVE
+>>> +    help
+>>> +      This enables the IPMI SMBus system interface (SSIF) at the
+>>> +      management (BMC) side.
+>>> +
+>>> +      The driver implements the BMC side of the SMBus system
+>>> +      interface (SSIF).
+>>> +
+>>
+>> Thanks.
+> 
+> Thanks Randy,
+> it should be change to "depends on I2C && I2C_SLAVE"
+
+Either way is OK for I2C_SLAVE AFAIK.
+
+thanks.
+
+-- 
+~Randy
