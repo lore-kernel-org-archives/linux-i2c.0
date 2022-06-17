@@ -2,147 +2,85 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 475C1C43334
-	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jun 2022 13:33:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8714C43334
+	for <linux-i2c@archiver.kernel.org>; Fri, 17 Jun 2022 16:51:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381663AbiFQNde (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 17 Jun 2022 09:33:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45132 "EHLO
+        id S234049AbiFQQvC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 17 Jun 2022 12:51:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381281AbiFQNde (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Jun 2022 09:33:34 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 398CF2A24D
-        for <linux-i2c@vger.kernel.org>; Fri, 17 Jun 2022 06:33:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655472812;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=5y7AngLUXh6Dj+wpNiSOVbOW64hCp3maZMWiNDddgAA=;
-        b=GNVbj+9u6kMzc7ae3Gcda9pkVSECEgjiTQH/8wieN0KZOb7PFkUXNUHrYYD9kH41DPUJA7
-        VaLbk+aKtMzmJzU4Urg7J24v1PHZ6xRfNzrMU5zTZ//oNyBENHEaPXLTGa8KWqHJtBtTLs
-        dl375AURuvcFIyH3gv/sMrXS8fJWO+4=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-593-hyFxgYeuOsGbjjB4SuK5SA-1; Fri, 17 Jun 2022 09:33:31 -0400
-X-MC-Unique: hyFxgYeuOsGbjjB4SuK5SA-1
-Received: by mail-pg1-f200.google.com with SMTP id 78-20020a630051000000b003fe25580679so2302628pga.9
-        for <linux-i2c@vger.kernel.org>; Fri, 17 Jun 2022 06:33:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=5y7AngLUXh6Dj+wpNiSOVbOW64hCp3maZMWiNDddgAA=;
-        b=P3s+162Mz7aGqpLHPMQiRHjhL3tkzRWFERTsIWBHpPl1FhyXHEagOj1d1rrCDaeiQs
-         iA/gmZOXhpzecHJmjiDKxwVqbxqCBuTKaQkyB2dv0pnpvjvSsLmfGCri/uRzEs3Gb1+q
-         UC8kL+H7wlSlI+CDDGkEEjxMqwPD61WCzu1MbaP/Rw0uQZ9lIQjQn03HxNBmHLvEeOU5
-         hEmFz6Dar9DhD8avbKElIBNMqQGygTy5Tf0u2EBUPqwVh+/H8yWd18l3rTYtuRGDFAb5
-         18LWZMq9WYk9Lyc7yqCPaLdDAgjeEL/g1ktD9WX98cGxUDC86hwq0WminjIyZsjaq/4O
-         9m5w==
-X-Gm-Message-State: AJIora+VWnArSSKVFuqL/UkSKfhftYWiqZg0okuEeCZ4Uvko6fBiDAMA
-        cblVpHKXGd+HvhM0mH9Sp8IFkqkEaaq3ZBILPuwn44dBIboDnMDB4MS6NvwyeYzci/UWpeZSu8q
-        5EMWMi3TIJVg758LnHG0M0cWB08wXAODhgayO
-X-Received: by 2002:a17:90b:1e4e:b0:1e3:47e4:92b6 with SMTP id pi14-20020a17090b1e4e00b001e347e492b6mr21598321pjb.47.1655472809900;
-        Fri, 17 Jun 2022 06:33:29 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uONCj/ILrJOto8KFMpmX9i4tL/S7b2MyoxZUrVNJJsbRvaZ/QGCUzZMqhXN5SHeOp6MZVfYadwNuJEVbfraDo=
-X-Received: by 2002:a17:90b:1e4e:b0:1e3:47e4:92b6 with SMTP id
- pi14-20020a17090b1e4e00b001e347e492b6mr21598292pjb.47.1655472809541; Fri, 17
- Jun 2022 06:33:29 -0700 (PDT)
+        with ESMTP id S234704AbiFQQue (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Jun 2022 12:50:34 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92D256779;
+        Fri, 17 Jun 2022 09:49:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1655484594; x=1687020594;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=WMJ5d5awbKL0dMnI96913C+jxgBE/ZRcvA/34CvVE3E=;
+  b=NW7OJacWFoymg3duGIfdRNcjgsEVANxgsiMDzt/J+fkJ2s7iZ/oWUNxr
+   SxUgXC4NFKhD7tueIa809rj+uV/J4xvmQ+kOMMLM0z6AFp+z0GdWV3re4
+   3z5YlBM7uS8P89e8v0+1h6lo1Enh+DhinUrxTmg3POKfTIyOywA8WevZf
+   nmYbW2OiwwVu+HHa2r8f5m2qXXngGhzDsHrdpk87pSqW+w1DvGa4DglBk
+   eLsSuzh8sJ62N27mDriHVw9DcbMLe7ee/N5GYk0HcMHulbcfon2A5tFah
+   T4SSxrvpZUPPHuDqauI670LJrnOZHDjVz/CyX/gd2S6opEf2uWMdsmhrx
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10380"; a="259938390"
+X-IronPort-AV: E=Sophos;i="5.92,306,1650956400"; 
+   d="scan'208";a="259938390"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jun 2022 05:59:45 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,306,1650956400"; 
+   d="scan'208";a="675475753"
+Received: from mylly.fi.intel.com (HELO [10.237.72.55]) ([10.237.72.55])
+  by FMSMGA003.fm.intel.com with ESMTP; 17 Jun 2022 05:59:43 -0700
+Message-ID: <f8647bec-eca7-b318-4f79-bc4bae721004@linux.intel.com>
+Date:   Fri, 17 Jun 2022 15:59:42 +0300
 MIME-Version: 1.0
-References: <CAHj4cs_NnJLYwhxPvDGnu4QFwS_XbgeJ7b2jOcDvBM3F+w7z0w@mail.gmail.com>
- <20220617093818.37a721a3@endymion.delvare>
-In-Reply-To: <20220617093818.37a721a3@endymion.delvare>
-From:   Yi Zhang <yi.zhang@redhat.com>
-Date:   Fri, 17 Jun 2022 21:33:16 +0800
-Message-ID: <CAHj4cs9d+j-Dc+wKK-gat3E0McZ5+2DqQhESYitSrS8Wr4s2YA@mail.gmail.com>
-Subject: Re: [bug report] kmemleak from driver i2c_piix4
-To:     Jean Delvare <jdelvare@suse.de>
-Cc:     linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Firefox/91.0 Thunderbird/91.10.0
+Subject: Re: [PATCHv5 1/2] i2c: designware: introduce a custom scl recovery
+ for SoCFPGA platforms
+Content-Language: en-US
+To:     Dinh Nguyen <dinguyen@kernel.org>
+Cc:     andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
+        robh+dt@kernel.org, krzk+dt@kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+References: <20220616141230.858409-1-dinguyen@kernel.org>
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+In-Reply-To: <20220616141230.858409-1-dinguyen@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, Jun 17, 2022 at 3:48 PM Jean Delvare <jdelvare@suse.de> wrote:
->
-> Hi Yi Zhang,
->
-> On Sat, 11 Jun 2022 17:08:20 +0800, Yi Zhang wrote:
-> > I found this kmemleak from dmesg, pls help check it, thanks.
-> >
-> > unreferenced object 0xffff8882be7fa500 (size 64):
-> >   comm "systemd-udevd", pid 851, jiffies 4294724190 (age 1880.031s)
-> >   hex dump (first 32 bytes):
-> >     00 03 d8 fe 00 00 00 00 07 03 d8 fe 00 00 00 00  ................
-> >     20 95 85 c0 ff ff ff ff 00 02 40 80 00 00 00 00   .........@.....
-> >   backtrace:
-> >     [<00000000ee7a7c0d>] __request_region+0x4f/0xc0
-> >     [<000000000a0d9a20>] piix4_sb800_region_request+0x69/0x150 [i2c_piix4]
-> >     [<00000000bbbc5f63>] piix4_setup_sb800.constprop.0+0xfd/0x4a0 [i2c_piix4]
-> >     [<0000000060da9710>] piix4_probe+0x111/0x780 [i2c_piix4]
-> >     [<0000000061a2fccd>] local_pci_probe+0xdf/0x170
-> >     [<00000000f879d262>] pci_call_probe+0x15f/0x4b0
-> >     [<00000000b1b4235f>] pci_device_probe+0xee/0x230
-> >     [<000000007b0612f3>] really_probe+0x3d7/0xa10
-> >     [<0000000016a94cde>] __driver_probe_device+0x2ab/0x460
-> >     [<00000000fc08f31f>] driver_probe_device+0x49/0x120
-> >     [<00000000c7600ea6>] __driver_attach+0x1c1/0x420
-> >     [<00000000d075fad5>] bus_for_each_dev+0x121/0x1a0
-> >     [<000000003a0c2b72>] bus_add_driver+0x39f/0x570
-> >     [<00000000389c6619>] driver_register+0x20f/0x390
-> >     [<00000000e1871c0e>] do_one_initcall+0xfc/0x560
-> >     [<00000000899e6968>] do_init_module+0x190/0x620
->
-> Thanks for reporting.
->
-> Which kernel version are you running? Are there patches applied to the
-> i2c-piix4 driver?
-The latest linux tree
+Hi
 
->
-> Which line of the source code does
-> piix4_sb800_region_request+0x69/0x150 resolve to?
+On 6/16/22 17:12, Dinh Nguyen wrote:
+> The I2C pins on the SoCFPGA platforms do not go through a GPIO module,
+> thus cannot be recovered by the default method of by doing a GPIO access.
+> Only a reset of the I2C IP block can a recovery be successful.
+> 
+One thing what is unclear to me how does this release the I2C slave that 
+potentially keeps the SDA stuck low. Does platform specific reset 
+sequence send 9 SCL pulses, toggle HW reset of the clients or cycle 
+power of them?
 
-(gdb) l *(piix4_sb800_region_request+0x69)
-0x2b9 is in piix4_sb800_region_request (drivers/i2c/busses/i2c-piix4.c:185).
-180 {
-181 if (mmio_cfg->use_mmio) {
-182 struct resource *res;
-183 void __iomem *addr;
-184
-185 res = request_mem_region_muxed(SB800_PIIX4_FCH_PM_ADDR,
-186        SB800_PIIX4_FCH_PM_SIZE,
-187        "sb800_piix4_smb");
-188 if (!res) {
-189 dev_err(dev,
+If recovery is only controller point of view then worth to emphasis it 
+in the commit log and perhaps add a comment too into 
+i2c_socfpga_scl_recovery(). Some might hit an issue that I2C client is 
+stuck and wonder why recovery won't work.
 
->
-> Which PCI device does the driver bind to? "lspci -nn | grep" SMBus
-> should tell.
-# lspci -nn | grep SMBus
-00:14.0 SMBus [0c05]: Advanced Micro Devices, Inc. [AMD] FCH SMBus
-Controller [1022:790b] (rev 61)
->
-> Which messages are printed to the kernel log when you load and unload
-> the i2c-piix4 driver?
+> The assignment of the recover_bus needs to get done before the call to
+> devm_gpiod_get_optional(), otherwise, the assignment is not taking place
+> because of an error after returning from devm_gpiod_get_optional().
+> 
+This sentence no longer true after v3?
 
-[ 1400.379156] piix4_smbus 0000:00:14.0: SMBus Host Controller at
-0xb00, revision 0
-[ 1400.379164] piix4_smbus 0000:00:14.0: Using register 0x02 for SMBus
-port selection
-[ 1400.381759] piix4_smbus 0000:00:14.0: Auxiliary SMBus Host
-Controller at 0xb20
+Otherwise code looks good to me.
 
->
-> --
-> Jean Delvare
-> SUSE L3 Support
->
-
-
--- 
-Best Regards,
-  Yi Zhang
-
+Jarkko
