@@ -2,44 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7768C43334
-	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jun 2022 10:56:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47486CCA47F
+	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jun 2022 10:56:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240153AbiFTK4n (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S240864AbiFTK4n (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 20 Jun 2022 06:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47424 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231657AbiFTK4m (ORCPT
+        with ESMTP id S234120AbiFTK4m (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Jun 2022 06:56:42 -0400
 Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 202D4140E1;
-        Mon, 20 Jun 2022 03:56:40 -0700 (PDT)
-Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25K9Do45018607;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1108F140CF;
+        Mon, 20 Jun 2022 03:56:41 -0700 (PDT)
+Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25K8uEj5025763;
         Mon, 20 Jun 2022 12:56:18 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=selector1;
- bh=/27zQWoEehvonrwk1M+eautT9fqPRtVSLLEq3FnQ5SQ=;
- b=c/h1IZEwCONGsD/qmUWVYx6Hko9r5a+FlBhl0Ijr+bFygQgyU+xCzx8kbrpJ2ukOKfCw
- Cgm+uEHqh/m+p7uq2NsWjc3Wsip3Y9gCh62KOJyBgZnQG5DO519PglEApSzr8dtqZBTa
- 8qi5vkPRCfbMQM4dm0auhSCmOTbFDDrxWiXOTw0gNLUnc4coO6qB1mhIGma0RnQKCtJa
- V9tDhSzzj0b9U9Jyl8di30nIFJveM8iM946sILwERtGfScW+8wtwdAKwHp4VoKi+G5iK
- HRysClq9Y+jOLZNDqH3IZClpt49y/x62HV7JVUTObZw83J0UYpnZ5oxjctVYtn9rHSSP Lg== 
+ subject : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=selector1;
+ bh=TgKmrf9wxKkQaazvxz3DbIcJts9iFusl9pgYYdjJWD0=;
+ b=bYpiaJnA2GjrShUhsH7wRKK1uapYBtpfdt34/fWN2scEpo4zjHghC+DM9VBf8AWOmeke
+ KTYdRVOqDAPdcuh6XDlUMyS5Gg6ilGy4znRvcwSOscSdRQ9x1tvrQfQwT9iBcCi+op+H
+ OFASW0sS10A5D88hNvXE59ISnmX2mbCK39jyTQbwaniZ4qBWWUtwG9d2uKtIiXrQnFDS
+ Y/vnWTXOJx+vH0cbcNKrY+iXH8ouQfQ4mmMt5ktfN8yNSljO/HGfwv5Law2OcoVQJLi8
+ g15cmGpxkWSR23Tk1sVISJOtXrLjiDge9uWPh/vtlZo7XWUwoKdDsZZH/p/ZJQxW3tuw Fg== 
 Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3gtp31rmrb-1
+        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3gtntu0rbx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 20 Jun 2022 12:56:18 +0200
 Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id B85DA100038;
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 4686A10002A;
         Mon, 20 Jun 2022 12:56:16 +0200 (CEST)
 Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id B3B3D21D380;
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 1E87C21BF7E;
         Mon, 20 Jun 2022 12:56:16 +0200 (CEST)
-Received: from localhost (10.75.127.51) by SHFDAG1NODE1.st.com (10.75.129.69)
+Received: from localhost (10.75.127.48) by SHFDAG1NODE1.st.com (10.75.129.69)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.2308.20; Mon, 20 Jun
- 2022 12:56:16 +0200
+ 2022 12:56:15 +0200
 From:   Alain Volmat <alain.volmat@foss.st.com>
 To:     <wsa@kernel.org>, <robh+dt@kernel.org>
 CC:     <mark.rutland@arm.com>, <pierre-yves.mordret@foss.st.com>,
@@ -49,16 +49,14 @@ CC:     <mark.rutland@arm.com>, <pierre-yves.mordret@foss.st.com>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, <fabrice.gasnier@foss.st.com>,
         <amelie.delaunay@foss.st.com>, <alain.volmat@foss.st.com>
-Subject: [PATCH 2/4] i2c: stm32: only perform a reset if there is a reset property
-Date:   Mon, 20 Jun 2022 12:54:03 +0200
-Message-ID: <20220620105405.145959-3-alain.volmat@foss.st.com>
+Subject: [PATCH 0/4] i2c: stm32: addition of STM32MP13 support
+Date:   Mon, 20 Jun 2022 12:54:01 +0200
+Message-ID: <20220620105405.145959-1-alain.volmat@foss.st.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220620105405.145959-1-alain.volmat@foss.st.com>
-References: <20220620105405.145959-1-alain.volmat@foss.st.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Originating-IP: [10.75.127.51]
+X-Originating-IP: [10.75.127.48]
 X-ClientProxiedBy: SFHDAG2NODE3.st.com (10.75.127.6) To SHFDAG1NODE1.st.com
  (10.75.129.69)
 X-Proofpoint-Virus-Version: vendor=baseguard
@@ -68,40 +66,18 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Allow the driver to properly initialize even if there is no reset
-property given.  In such case reset control is not done and
-initialization proceed.
+This series adds the support for the stm32mp13.
 
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
----
- drivers/i2c/busses/i2c-stm32f7.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+Alain Volmat (4):
+  dt-bindings: i2c: st,stm32-i2c: don't mandate a reset line
+  i2c: stm32: only perform a reset if there is a reset property
+  dt-bindings: i2c: st,stm32-i2c: add entry for stm32mp13
+  i2c: stm32: add support for the STM32MP13 soc
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 6d4aa64b195d..b29d8e476342 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -2138,13 +2138,14 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 
- 	rst = devm_reset_control_get(&pdev->dev, NULL);
- 	if (IS_ERR(rst)) {
--		ret = dev_err_probe(&pdev->dev, PTR_ERR(rst),
--				    "Error: Missing reset ctrl\n");
--		goto clk_free;
-+		ret = PTR_ERR(rst);
-+		if (ret == -EPROBE_DEFER)
-+			goto clk_free;
-+	} else {
-+		reset_control_assert(rst);
-+		udelay(2);
-+		reset_control_deassert(rst);
- 	}
--	reset_control_assert(rst);
--	udelay(2);
--	reset_control_deassert(rst);
- 
- 	i2c_dev->dev = &pdev->dev;
- 
+ .../devicetree/bindings/i2c/st,stm32-i2c.yaml |  3 ++-
+ drivers/i2c/busses/i2c-stm32f7.c              | 20 +++++++++++++------
+ 2 files changed, 16 insertions(+), 7 deletions(-)
+
 -- 
 2.25.1
 
