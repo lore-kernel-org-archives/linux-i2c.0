@@ -2,86 +2,84 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1387FC433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jun 2022 22:41:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D426CCA47C
+	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jun 2022 23:01:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238834AbiFTWlJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 20 Jun 2022 18:41:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47588 "EHLO
+        id S1344823AbiFTXBf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 20 Jun 2022 19:01:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233825AbiFTWlI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Jun 2022 18:41:08 -0400
+        with ESMTP id S1344873AbiFTXBU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Jun 2022 19:01:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A572A1208A;
-        Mon, 20 Jun 2022 15:41:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4D7021263;
+        Mon, 20 Jun 2022 16:01:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 427606132A;
-        Mon, 20 Jun 2022 22:41:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 975DAC3411B;
-        Mon, 20 Jun 2022 22:41:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 387A4614DB;
+        Mon, 20 Jun 2022 23:01:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A25DFC3411C;
+        Mon, 20 Jun 2022 23:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655764863;
-        bh=nZWufb/2NK+PuNUs4fGkoUzOuk6Ahii+9n03Nug/AVk=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=IGPEgoOaPENQItD1VXLoQGdJOD5tp17KAY43++lGTW9VTaTmFrM0sAlcp1gPtlf52
-         iKB8gi8czTY/B9LN4Yc4VjVdX35yXet9Vx0yVqO+H7AFpaqBViIZR/hNLYziB3pzzl
-         QHziamEjBI07YKx1B3sqDsdeeFIMSXnYOM/SCbWsRQ69avOmApWDA4ZhX1K/q0MmNY
-         aS6W6C8AlCZH1Kq3OnTqB5Wv6EFbeJ6RhqISj7E35EXZ2c+V6U77FuNqZuORm+q9Ki
-         wDMJiBPoYskI0DWkHMWurAKxhO/XY8Y1ScOT9kVxsKJK7m0Za8wytMJzOBHsjai237
-         VNmrHcmiucakA==
-Message-ID: <b4fb0c7f-2fd9-35ff-1d09-8940e3b66455@kernel.org>
-Date:   Mon, 20 Jun 2022 17:41:01 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCHv5 1/2] i2c: designware: introduce a custom scl recovery
- for SoCFPGA platforms
-Content-Language: en-US
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
-        robh+dt@kernel.org, krzk+dt@kernel.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-References: <20220616141230.858409-1-dinguyen@kernel.org>
- <f8647bec-eca7-b318-4f79-bc4bae721004@linux.intel.com>
+        s=k20201202; t=1655766078;
+        bh=qtAlTGYG35KObNBX4bA5SMGxiGB4jAp/BEJx1e1sI3w=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=reP4tGnn03T01ZfIZb14y+3vf/o5lIsm9EnJ9fsMnD52Jwh7H5gpqhLs6kugCB3pM
+         gN7C6d6u8yiD9CYei2ZNLKZLzzyGAoj/jWFelcswTRG+rVn7U8OkJcD7cyIFwkLA8i
+         EW4ofXfxt+zG/Jxa0ZxhwdWbXnZPftfgaoNeCAZLfmkrm25uoDFSlIkepoXkM5xowd
+         Payr9/CoZwizXJgjW37F08lrNwAeQ/9TQY8Q5+VHvJo/f2DimGsVFnJIC9HmnlBMAK
+         gxErNVC66QrPovOUJD3vjix+rBNr3h8xBFJ8SphVqnmy4f4N+i8/R3BplQeeFuzT1X
+         jDMw3lRN++UWg==
 From:   Dinh Nguyen <dinguyen@kernel.org>
-In-Reply-To: <f8647bec-eca7-b318-4f79-bc4bae721004@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To:     jarkko.nikula@linux.intel.com
+Cc:     dinguyen@kernel.org, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, robh+dt@kernel.org,
+        krzk+dt@kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCHv6 2/2] dt-bindings: i2c: dw: Add Intel's SoCFPGA I2C controller
+Date:   Mon, 20 Jun 2022 18:01:09 -0500
+Message-Id: <20220620230109.986298-2-dinguyen@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220620230109.986298-1-dinguyen@kernel.org>
+References: <20220620230109.986298-1-dinguyen@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+The I2C pins on Intel's SoCFPGA platform are not connected to GPIOs and
+thus cannot be recovered by the standard GPIO method.
 
+Document the "intel,socfpga-i2c" binding.
 
-On 6/17/22 07:59, Jarkko Nikula wrote:
-> Hi
-> 
-> On 6/16/22 17:12, Dinh Nguyen wrote:
->> The I2C pins on the SoCFPGA platforms do not go through a GPIO module,
->> thus cannot be recovered by the default method of by doing a GPIO access.
->> Only a reset of the I2C IP block can a recovery be successful.
->>
-> One thing what is unclear to me how does this release the I2C slave that 
-> potentially keeps the SDA stuck low. Does platform specific reset 
-> sequence send 9 SCL pulses, toggle HW reset of the clients or cycle 
-> power of them?
-> 
-> If recovery is only controller point of view then worth to emphasis it 
-> in the commit log and perhaps add a comment too into 
-> i2c_socfpga_scl_recovery(). Some might hit an issue that I2C client is 
-> stuck and wonder why recovery won't work.
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+---
+v6: no changes
+v5: no changes
+v4: no changes
+v3: no changes
+v2: Added Acked-by
+---
+ Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-The recovery is only resetting the controller itself and not the client. 
-I'll add a comment in v6 to highlight this.
-> 
->> The assignment of the recover_bus needs to get done before the call to
->> devm_gpiod_get_optional(), otherwise, the assignment is not taking place
->> because of an error after returning from devm_gpiod_get_optional().
->>
-> This sentence no longer true after v3?
+diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+index d9293c57f573..a130059e97ab 100644
+--- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+@@ -33,6 +33,8 @@ properties:
+           - const: snps,designware-i2c
+       - description: Baikal-T1 SoC System I2C controller
+         const: baikal,bt1-sys-i2c
++      - description: Intel's SoCFPGA I2C controller
++        const: intel,socfpga-i2c
+ 
+   reg:
+     minItems: 1
+-- 
+2.25.1
 
-Correct...will update.
-
-Dinh
