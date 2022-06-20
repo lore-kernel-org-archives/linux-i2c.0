@@ -2,411 +2,106 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA6A2C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jun 2022 10:25:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7768C43334
+	for <linux-i2c@archiver.kernel.org>; Mon, 20 Jun 2022 10:56:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239358AbiFTKZi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 20 Jun 2022 06:25:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52534 "EHLO
+        id S240153AbiFTK4n (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 20 Jun 2022 06:56:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239255AbiFTKZi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Jun 2022 06:25:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1A4DE027;
-        Mon, 20 Jun 2022 03:25:36 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E4F6B80FEA;
-        Mon, 20 Jun 2022 10:25:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3E31C3411C;
-        Mon, 20 Jun 2022 10:25:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655720734;
-        bh=TALh6YaxoFwAOs0mabuCsruXhRKNt0t30b757wW+AR8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=E4qAbXVEaj+txKOqcdQRLsT4L6Iqu6mZHXxEcodJMOVZw5zS8Bw/NZOpmca9SfWrj
-         KpgCGYoK03TomGrkM2sjrffboS8sIsumQ5HB7pjQRlYEsXaB1K/Jt+HcN6avhoc/oY
-         byTigLllp2UwS7OHqgT0XSysCIkmBNhG7A0Ztg00gA4zzKzCPuw035SDjl45HEHJCU
-         0aXOrmLZAWrUYBuDOGaUKiIk8gAn8rpNqbvGPeerNL2VJz4bhTtcqXhr0U2fmx5tw9
-         t4O1yIgx4Z/8tFTaSP1dt01Xb+5a2+61BF0yx24xt2dI1oEYbW8EGeunf1d8a2S/1f
-         8I+rMdmajFOEA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1o3Eb2-0008N5-Ba; Mon, 20 Jun 2022 12:25:29 +0200
-Date:   Mon, 20 Jun 2022 12:25:28 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     frank zago <frank@zago.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-usb@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v6 2/4] gpio: ch341: add GPIO MFD cell driver for the
- CH341
-Message-ID: <YrBLGMD/Gzfv0W6F@hovoldconsulting.com>
-References: <20220616013747.126051-1-frank@zago.net>
- <20220616013747.126051-3-frank@zago.net>
+        with ESMTP id S231657AbiFTK4m (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Jun 2022 06:56:42 -0400
+Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 202D4140E1;
+        Mon, 20 Jun 2022 03:56:40 -0700 (PDT)
+Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 25K9Do45018607;
+        Mon, 20 Jun 2022 12:56:18 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding : content-type; s=selector1;
+ bh=/27zQWoEehvonrwk1M+eautT9fqPRtVSLLEq3FnQ5SQ=;
+ b=c/h1IZEwCONGsD/qmUWVYx6Hko9r5a+FlBhl0Ijr+bFygQgyU+xCzx8kbrpJ2ukOKfCw
+ Cgm+uEHqh/m+p7uq2NsWjc3Wsip3Y9gCh62KOJyBgZnQG5DO519PglEApSzr8dtqZBTa
+ 8qi5vkPRCfbMQM4dm0auhSCmOTbFDDrxWiXOTw0gNLUnc4coO6qB1mhIGma0RnQKCtJa
+ V9tDhSzzj0b9U9Jyl8di30nIFJveM8iM946sILwERtGfScW+8wtwdAKwHp4VoKi+G5iK
+ HRysClq9Y+jOLZNDqH3IZClpt49y/x62HV7JVUTObZw83J0UYpnZ5oxjctVYtn9rHSSP Lg== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3gtp31rmrb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Jun 2022 12:56:18 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id B85DA100038;
+        Mon, 20 Jun 2022 12:56:16 +0200 (CEST)
+Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id B3B3D21D380;
+        Mon, 20 Jun 2022 12:56:16 +0200 (CEST)
+Received: from localhost (10.75.127.51) by SHFDAG1NODE1.st.com (10.75.129.69)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.2308.20; Mon, 20 Jun
+ 2022 12:56:16 +0200
+From:   Alain Volmat <alain.volmat@foss.st.com>
+To:     <wsa@kernel.org>, <robh+dt@kernel.org>
+CC:     <mark.rutland@arm.com>, <pierre-yves.mordret@foss.st.com>,
+        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@foss.st.com>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@foss.st.com>,
+        <amelie.delaunay@foss.st.com>, <alain.volmat@foss.st.com>
+Subject: [PATCH 2/4] i2c: stm32: only perform a reset if there is a reset property
+Date:   Mon, 20 Jun 2022 12:54:03 +0200
+Message-ID: <20220620105405.145959-3-alain.volmat@foss.st.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220620105405.145959-1-alain.volmat@foss.st.com>
+References: <20220620105405.145959-1-alain.volmat@foss.st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220616013747.126051-3-frank@zago.net>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.51]
+X-ClientProxiedBy: SFHDAG2NODE3.st.com (10.75.127.6) To SHFDAG1NODE1.st.com
+ (10.75.129.69)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.64.514
+ definitions=2022-06-20_05,2022-06-17_01,2022-02-23_01
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 08:37:45PM -0500, frank zago wrote:
-> The GPIO interface offers 16 GPIOs. 6 are read/write, and 10 are
-> read-only.
+Allow the driver to properly initialize even if there is no reset
+property given.  In such case reset control is not done and
+initialization proceed.
 
-Please mention the single interrupt line here too.
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-> Signed-off-by: frank zago <frank@zago.net>
-> ---
->  MAINTAINERS               |   1 +
->  drivers/gpio/Kconfig      |  10 +
->  drivers/gpio/Makefile     |   1 +
->  drivers/gpio/gpio-ch341.c | 385 ++++++++++++++++++++++++++++++++++++++
->  include/linux/mfd/ch341.h |   8 +
->  5 files changed, 405 insertions(+)
->  create mode 100644 drivers/gpio/gpio-ch341.c
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 628eeaa9bf68..8b93f6192704 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -21479,6 +21479,7 @@ WINCHIPHEAD CH341 I2C/GPIO MFD DRIVER
->  M:	Frank Zago <frank@zago.net>
->  L:	linux-usb@vger.kernel.org
->  S:	Maintained
-> +F:	drivers/gpio/gpio-ch341.c
->  F:	drivers/mfd/ch341-core.c
->  F:	include/linux/mfd/ch341.h
->  
-> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-> index b01961999ced..473b6e7226ca 100644
-> --- a/drivers/gpio/Kconfig
-> +++ b/drivers/gpio/Kconfig
-> @@ -1653,6 +1653,16 @@ endmenu
->  menu "USB GPIO expanders"
->  	depends on USB
->  
-> +config GPIO_CH341
-> +	tristate "CH341 USB to GPIO support"
-> +	select MFD_CH341
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 6d4aa64b195d..b29d8e476342 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -2138,13 +2138,14 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ 
+ 	rst = devm_reset_control_get(&pdev->dev, NULL);
+ 	if (IS_ERR(rst)) {
+-		ret = dev_err_probe(&pdev->dev, PTR_ERR(rst),
+-				    "Error: Missing reset ctrl\n");
+-		goto clk_free;
++		ret = PTR_ERR(rst);
++		if (ret == -EPROBE_DEFER)
++			goto clk_free;
++	} else {
++		reset_control_assert(rst);
++		udelay(2);
++		reset_control_deassert(rst);
+ 	}
+-	reset_control_assert(rst);
+-	udelay(2);
+-	reset_control_deassert(rst);
+ 
+ 	i2c_dev->dev = &pdev->dev;
+ 
+-- 
+2.25.1
 
-This should be "depends" (for all subdrivers).
-
-> +	help
-> +	  If you say yes to this option, GPIO support will be included for the
-> +	  WCH CH341, a USB to I2C/SPI/GPIO interface.
-> +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called gpio-ch341.
-> +
->  config GPIO_VIPERBOARD
->  	tristate "Viperboard GPIO a & b support"
->  	depends on MFD_VIPERBOARD
-
-[ and other MFD drivers as you see here ]
-
-> diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-> index 14352f6dfe8e..beef802cbfb1 100644
-> --- a/drivers/gpio/Makefile
-> +++ b/drivers/gpio/Makefile
-> @@ -44,6 +44,7 @@ obj-$(CONFIG_GPIO_BD9571MWV)		+= gpio-bd9571mwv.o
->  obj-$(CONFIG_GPIO_BRCMSTB)		+= gpio-brcmstb.o
->  obj-$(CONFIG_GPIO_BT8XX)		+= gpio-bt8xx.o
->  obj-$(CONFIG_GPIO_CADENCE)		+= gpio-cadence.o
-> +obj-$(CONFIG_GPIO_CH341)		+= gpio-ch341.o
->  obj-$(CONFIG_GPIO_CLPS711X)		+= gpio-clps711x.o
->  obj-$(CONFIG_GPIO_SNPS_CREG)		+= gpio-creg-snps.o
->  obj-$(CONFIG_GPIO_CRYSTAL_COVE)		+= gpio-crystalcove.o
-> diff --git a/drivers/gpio/gpio-ch341.c b/drivers/gpio/gpio-ch341.c
-> new file mode 100644
-> index 000000000000..233dfe1f2ae8
-> --- /dev/null
-> +++ b/drivers/gpio/gpio-ch341.c
-> @@ -0,0 +1,385 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * GPIO cell driver for the CH341A and CH341B chips.
-> + *
-> + * Copyright 2022, Frank Zago
-
-How about using a unified format for these lines?
-
-> + * Copyright (c) 2017 Gunar Schorcht (gunar@schorcht.net)
-> + * Copyright (c) 2016 Tse Lun Bien
-> + * Copyright (c) 2014 Marco Gittler
-> + * Copyright (c) 2006-2007 Till Harbaum (Till@Harbaum.org)
-> + */
-> +
-> +/*
-> + * Notes.
-> + *
-> + * For the CH341, 0=IN, 1=OUT, but for the GPIO subsystem, 1=IN and
-> + * 0=OUT. Translation happens in a couple places.
-> + */
-> +
-> +#include <linux/gpio/driver.h>
-> +#include <linux/kernel.h>
-> +#include <linux/mfd/ch341.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/types.h>
-> +#include <linux/usb.h>
-> +
-> +#define CH341_GPIO_NUM_PINS         16    /* Number of GPIO pins */
-> +
-> +/* GPIO chip commands */
-> +#define CH341_PARA_CMD_STS          0xA0  /* Get pins status */
-> +#define CH341_CMD_UIO_STREAM        0xAB  /* pin IO stream command */
-> +
-> +#define CH341_CMD_UIO_STM_OUT       0x80  /* pin IO interface OUT command (D0~D5) */
-> +#define CH341_CMD_UIO_STM_DIR       0x40  /* pin IO interface DIR command (D0~D5) */
-> +#define CH341_CMD_UIO_STM_END       0x20  /* pin IO interface END command */
-> +
-> +#define CH341_USB_MAX_INTR_SIZE 8
-> +
-> +struct ch341_gpio {
-> +	struct gpio_chip gpio;
-> +	struct mutex gpio_lock;
-> +	u16 gpio_dir;		/* 1 bit per pin, 0=IN, 1=OUT. */
-> +	u16 gpio_last_read;	/* last GPIO values read */
-> +	u16 gpio_last_written;	/* last GPIO values written */
-> +	union {
-> +		u8 gpio_buf[SEG_SIZE];
-> +		__le16 gpio_buf_status;
-> +	};
-
-This one should be allocated separately from the containing structure
-since it may be mapped for DMA.
-
-> +
-> +	struct urb *irq_urb;
-> +	struct usb_anchor irq_urb_out;
-> +	u8 irq_buf[CH341_USB_MAX_INTR_SIZE];
-
-Same here.
-
-You may need to check other drivers too.
-
-> +	struct irq_chip irq_chip;
-> +
-> +	struct ch341_ddata *ddata;
-> +};
-> +
-> +/*
-> + * Masks to describe the 16 GPIOs. Pins D0 to D5 (mapped to GPIOs 0 to
-> + * 5) can do input/output, but the other pins are input-only.
-> + */
-> +static const u16 pin_can_output = 0b111111;
-> +
-> +/* Only GPIO 10 (INT# line) has hardware interrupt */
-> +#define CH341_GPIO_INT_LINE 10
-> +
-> +/* Send a command and get a reply if requested */
-> +static int gpio_transfer(struct ch341_gpio *dev, int out_len, int in_len)
-> +{
-> +	struct ch341_ddata *ddata = dev->ddata;
-> +	int actual;
-> +	int ret;
-> +
-> +	mutex_lock(&ddata->usb_lock);
-> +
-> +	ret = usb_bulk_msg(ddata->usb_dev,
-> +			   usb_sndbulkpipe(ddata->usb_dev, ddata->ep_out),
-> +			   dev->gpio_buf, out_len,
-> +			   &actual, DEFAULT_TIMEOUT_MS);
-> +	if (ret < 0)
-> +		goto out_unlock;
-> +
-> +	if (in_len == 0)
-> +		goto out_unlock;
-> +
-> +	ret = usb_bulk_msg(ddata->usb_dev,
-> +			   usb_rcvbulkpipe(ddata->usb_dev, ddata->ep_in),
-> +			   dev->gpio_buf, SEG_SIZE, &actual, DEFAULT_TIMEOUT_MS);
-> +
-> +out_unlock:
-> +	mutex_unlock(&ddata->usb_lock);
-> +
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return actual;
-> +}
-
-> +static void ch341_complete_intr_urb(struct urb *urb)
-> +{
-> +	struct ch341_gpio *dev = urb->context;
-> +	int ret;
-> +
-> +	if (urb->status) {
-> +		usb_unanchor_urb(dev->irq_urb);
-
-Again, why is this here?
-
-> +	} else {
-> +		/*
-> +		 * Data is 8 bytes. Byte 0 might be the length of
-> +		 * significant data, which is 3 more bytes. Bytes 1
-> +		 * and 2, and possibly 3, are the pin status. The byte
-> +		 * order is different than for the GET_STATUS
-> +		 * command. Byte 1 is GPIOs 8 to 15, and byte 2 is
-> +		 * GPIOs 0 to 7.
-> +		 */
-> +
-> +		handle_nested_irq(irq_find_mapping(dev->gpio.irq.domain,
-> +						   CH341_GPIO_INT_LINE));
-> +
-> +		ret = usb_submit_urb(dev->irq_urb, GFP_ATOMIC);
-> +		if (ret)
-> +			usb_unanchor_urb(dev->irq_urb);
-
-Ditto. This isn't how anchors are used.
-
-> +	}
-> +}
-> +
-> +static int ch341_gpio_irq_set_type(struct irq_data *data, unsigned int flow_type)
-> +{
-> +	const unsigned long offset = irqd_to_hwirq(data);
-> +
-> +	if (offset != CH341_GPIO_INT_LINE || flow_type != IRQ_TYPE_EDGE_RISING)
-> +		return -EINVAL;
-
-Ok, I missed this check before, sorry. So you do have a single interrupt
-line.
-
-You should probably add a comment in the enable() callback since this is
-easy to miss.
-
-> +
-> +	return 0;
-> +}
-> +
-> +static void ch341_gpio_irq_enable(struct irq_data *data)
-> +{
-> +	struct ch341_gpio *dev = irq_data_get_irq_chip_data(data);
-> +	int ret;
-> +
-> +	/*
-> +	 * The URB might have just been unlinked in
-> +	 * ch341_gpio_irq_disable, but the completion handler hasn't
-> +	 * been called yet.
-> +	 */
-> +	if (!usb_wait_anchor_empty_timeout(&dev->irq_urb_out, 5000))
-> +		usb_kill_anchored_urbs(&dev->irq_urb_out);
-
-You cannot sleep in this function.
-
-> +
-> +	usb_anchor_urb(dev->irq_urb, &dev->irq_urb_out);
-> +	ret = usb_submit_urb(dev->irq_urb, GFP_KERNEL);
-> +	if (ret)
-> +		usb_unanchor_urb(dev->irq_urb);
-> +}
-> +
-> +static void ch341_gpio_irq_disable(struct irq_data *data)
-> +{
-> +	struct ch341_gpio *dev = irq_data_get_irq_chip_data(data);
-> +
-> +	usb_unlink_urb(dev->irq_urb);
-> +}
-> +
-> +static int ch341_gpio_remove(struct platform_device *pdev)
-> +{
-> +	struct ch341_gpio *dev = platform_get_drvdata(pdev);
-> +
-> +	usb_kill_anchored_urbs(&dev->irq_urb_out);
-
-Again, this is racy as the gpio chip is still registered. And you don't
-need an anchor to stop a single URB.
-
-> +	gpiochip_remove(&dev->gpio);
-> +	usb_free_urb(dev->irq_urb);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct irq_chip ch341_irqchip = {
-> +	.name = "CH341",
-> +	.irq_set_type = ch341_gpio_irq_set_type,
-> +	.irq_enable = ch341_gpio_irq_enable,
-> +	.irq_disable = ch341_gpio_irq_disable,
-> +	.flags = IRQCHIP_IMMUTABLE,
-> +	GPIOCHIP_IRQ_RESOURCE_HELPERS,
-> +};
-> +
-> +static int ch341_gpio_probe(struct platform_device *pdev)
-> +{
-> +	struct ch341_ddata *ddata = dev_get_drvdata(pdev->dev.parent);
-> +	struct gpio_irq_chip *girq;
-> +	struct ch341_gpio *dev;
-> +	struct gpio_chip *gpio;
-> +	int ret;
-> +
-> +	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
-> +	if (dev == NULL)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, dev);
-> +	dev->ddata = ddata;
-> +	mutex_init(&dev->gpio_lock);
-> +
-> +	gpio = &dev->gpio;
-> +	gpio->label = dev_name(&pdev->dev);
-> +	gpio->parent = &pdev->dev;
-> +	gpio->owner = THIS_MODULE;
-> +	gpio->get_direction = ch341_gpio_get_direction;
-> +	gpio->direction_input = ch341_gpio_direction_input;
-> +	gpio->direction_output = ch341_gpio_direction_output;
-> +	gpio->get = ch341_gpio_get;
-> +	gpio->get_multiple = ch341_gpio_get_multiple;
-> +	gpio->set = ch341_gpio_set;
-> +	gpio->set_multiple = ch341_gpio_set_multiple;
-> +	gpio->base = -1;
-> +	gpio->ngpio = CH341_GPIO_NUM_PINS;
-> +	gpio->can_sleep = true;
-> +
-> +	girq = &gpio->irq;
-> +	gpio_irq_chip_set_chip(girq, &ch341_irqchip);
-> +	girq->handler = handle_simple_irq;
-> +	girq->default_type = IRQ_TYPE_NONE;
-> +
-> +	/* Create an URB for handling interrupt */
-> +	dev->irq_urb = usb_alloc_urb(0, GFP_KERNEL);
-> +	if (!dev->irq_urb)
-> +		return dev_err_probe(&pdev->dev, -ENOMEM, "Cannot allocate the int URB\n");
-
-This isn't how dev_err_probe() is used.
-
-And allocation failures are already logged so just return -ENOMEM here.
-
-> +
-> +	usb_fill_int_urb(dev->irq_urb, ddata->usb_dev,
-> +			 usb_rcvintpipe(ddata->usb_dev, ddata->ep_intr),
-> +			 dev->irq_buf, CH341_USB_MAX_INTR_SIZE,
-> +			 ch341_complete_intr_urb, dev, ddata->ep_intr_interval);
-> +
-> +	init_usb_anchor(&dev->irq_urb_out);
-> +
-> +	ret = gpiochip_add_data(gpio, dev);
-> +	if (ret) {
-> +		ret = dev_err_probe(&pdev->dev, ret, "Could not add GPIO\n");
-> +		goto release_urb;
-> +	}
-> +
-> +	return 0;
-> +
-> +release_urb:
-> +	usb_free_urb(dev->irq_urb);
-> +
-> +	return ret;
-> +}
-
-Johan
