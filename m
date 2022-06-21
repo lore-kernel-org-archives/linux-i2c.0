@@ -2,91 +2,85 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19AEEC43334
-	for <linux-i2c@archiver.kernel.org>; Tue, 21 Jun 2022 06:57:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76A16C43334
+	for <linux-i2c@archiver.kernel.org>; Tue, 21 Jun 2022 07:45:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346297AbiFUG5q (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 21 Jun 2022 02:57:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35316 "EHLO
+        id S1346353AbiFUHop (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 21 Jun 2022 03:44:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231830AbiFUG5p (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Jun 2022 02:57:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BF8B1CFE4;
-        Mon, 20 Jun 2022 23:57:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D705B81699;
-        Tue, 21 Jun 2022 06:57:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAE58C341C0;
-        Tue, 21 Jun 2022 06:57:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655794661;
-        bh=+kaDe/Oc1bAbXeDpkUaPaEqe5MkYjktUVSkOvw2ENsA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NL/Cr1TLFu3AZMGTVjKIQwKYHYVCEyrdjwzWY2iZTV9roW4HiOSgspUkaKbDUEg6i
-         0owWKTefExYoOqnTNKpDIsrmn6nz8Cglc/h1ag6r4+ubpDmjrIorxv0TNmb+Tyr6RM
-         pf8rwjCz/wqwqCmHdEigjZkM9TDFLzOFPN889sJnXbtOEVy4aWwS/oM840gTr4CDOd
-         6O9j7Ry+ZbF1Xua5ybSoMEgzqy/uX90WUa2QQ9iSTsYLXTJ2KDEqjElm2aTY7VV4V1
-         rWoMFxXQ0AkyqO/6khHEeAKJ2yidCyp9GioqezwVzaZxbnA38TAs1koHgmoaUtIoKI
-         IR9n2DSGh7ITA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1o3XpO-0002OK-JE; Tue, 21 Jun 2022 08:57:35 +0200
-Date:   Tue, 21 Jun 2022 08:57:34 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     frank zago <frank@zago.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Wolfram Sang <wsa@kernel.org>, USB <linux-usb@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH v6 2/4] gpio: ch341: add GPIO MFD cell driver for the
- CH341
-Message-ID: <YrFr3s50ZMD1Et9W@hovoldconsulting.com>
-References: <20220616013747.126051-1-frank@zago.net>
- <20220616013747.126051-3-frank@zago.net>
- <YrBLGMD/Gzfv0W6F@hovoldconsulting.com>
- <CAHp75VfWbC2fbKenuzx6LXjUTApcUKyX6gXd-3Pe31cvrbT7kQ@mail.gmail.com>
+        with ESMTP id S1347477AbiFUHo2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Jun 2022 03:44:28 -0400
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA67223BEA;
+        Tue, 21 Jun 2022 00:44:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1655797467; x=1687333467;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=ga0yI8b3nFUJ/A1nAFDaHWb+WYFb6o6Ncf2niaqtUg8=;
+  b=pgxHedHjqanp+mm9guBT3gqsqzXv2jXJQ3qVuO1hj8z5qYwjWM8I8SJy
+   S24qQslAWKhBYdOkGycP7eOOc5VecESMyzfptgnwOW7r8jJq9EndMUujF
+   a84/kdmYxRHTDEPxZS2mQtU7+njxapC8/9BgpL6dEMG2iAFJfAqurkQL+
+   LTSMcz4Ucn5Ec3NTCChxC2b10u+qz71Bh9FFAJV8YiHrjHXFtO1BOwQKM
+   pdFhytuGOkSRnspHbi8mHPVmfETAGluvtMxX+IpSaL8MUhjt6pVqLmGUz
+   C6hpWqY7WhofW3hfbKAMaMGDoll8xWCsEQTUkVxAfIHa/EhfG3vr+sFmI
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.92,209,1650956400"; 
+   d="scan'208";a="164318494"
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 21 Jun 2022 00:44:23 -0700
+Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.17; Tue, 21 Jun 2022 00:44:23 -0700
+Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex01.mchp-main.com
+ (10.10.85.143) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
+ Transport; Tue, 21 Jun 2022 00:44:21 -0700
+From:   Conor Dooley <conor.dooley@microchip.com>
+To:     <wsa@kernel.org>, <linux-i2c@vger.kernel.org>
+CC:     <ben.dooks@codethink.co.uk>, <linux-kernel@vger.kernel.org>,
+        <linux-riscv@lists.infradead.org>, <daire.mcnamara@microchip.com>,
+        <conor.dooley@microchip.com>
+Subject: [PATCH v6 2/2] MAINTAINERS: add the polarfire soc's i2c driver
+Date:   Tue, 21 Jun 2022 08:42:39 +0100
+Message-ID: <20220621074238.957177-2-conor.dooley@microchip.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220621074238.957177-1-conor.dooley@microchip.com>
+References: <20220621074238.957177-1-conor.dooley@microchip.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHp75VfWbC2fbKenuzx6LXjUTApcUKyX6gXd-3Pe31cvrbT7kQ@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Jun 20, 2022 at 06:08:19PM +0200, Andy Shevchenko wrote:
-> On Mon, Jun 20, 2022 at 12:26 PM Johan Hovold <johan@kernel.org> wrote:
-> > On Wed, Jun 15, 2022 at 08:37:45PM -0500, frank zago wrote:
-> 
-> ...
-> 
-> > > +     /* Create an URB for handling interrupt */
-> > > +     dev->irq_urb = usb_alloc_urb(0, GFP_KERNEL);
-> > > +     if (!dev->irq_urb)
-> > > +             return dev_err_probe(&pdev->dev, -ENOMEM, "Cannot allocate the int URB\n");
-> >
-> > This isn't how dev_err_probe() is used.
-> 
-> While I agree on the below comment, what does this imply?
+Add the newly added i2c controller driver to the existing entry for
+PolarFire SoC.
 
-That you should only use dev_err_probe() to handle -EPROBE_DEFER. That's
-what it is was added for, documented as, and it is what the
-implementation still tells you.
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+---
+New in v6.
+FYI: I have several maintainers updates in flight - usb, pwm, spi
+of which some will be in 5.20 & clk/hwrng/pci that are likely to
+go into 5.19-rcN.
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-I see now that there has recently been some mission creep:
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a6d3bd9d2a8d..90de65041863 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -17141,6 +17141,7 @@ M:	Conor Dooley <conor.dooley@microchip.com>
+ L:	linux-riscv@lists.infradead.org
+ S:	Supported
+ F:	arch/riscv/boot/dts/microchip/
++F:	drivers/i2c/busses/i2c-microchip-core.c
+ F:	drivers/mailbox/mailbox-mpfs.c
+ F:	drivers/soc/microchip/
+ F:	include/soc/microchip/mpfs.h
+-- 
+2.36.1
 
-	7065f92255bb ("driver core: Clarify that dev_err_probe() is OK even w/out -EPROBE_DEFER")
-
-I'm not sure I agree with that, but fortunately we don't need to have
-that debate in this case due to the below.
- 
-> > And allocation failures are already logged so just return -ENOMEM here.
-
-Johan
