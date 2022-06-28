@@ -2,86 +2,80 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAA5FC433EF
-	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jun 2022 19:42:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CED98C43334
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Jun 2022 19:49:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231758AbiF1TmA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 28 Jun 2022 15:42:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32900 "EHLO
+        id S231791AbiF1Ttp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 28 Jun 2022 15:49:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231584AbiF1Tlf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Jun 2022 15:41:35 -0400
-X-Greylist: delayed 1159 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 28 Jun 2022 12:33:15 PDT
-Received: from www381.your-server.de (www381.your-server.de [78.46.137.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C22AC3AA7F;
-        Tue, 28 Jun 2022 12:33:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=metafoo.de;
-         s=default2002; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID;
-        bh=1D+m0J17+AOFZu/sjCxpjPd9WVInKbq2xNS5/rhbdKM=; b=d9+mYUPpF8akd6kIrdxjM9Ca+I
-        0lSLAjt5JEInLiHH0NBLtwVI7ryCOfI7iV30IOaPYTemJ9x0WEQRQQnE5KmfQeFyjomfyRKYmuNzi
-        izruzrUUqhQaW8x2i+t3uOdv7ZEKH+Y9hbT/RcBVyedEU5bNuC0edurzjQdh6oPQiJBDWIylnG7T/
-        HF0AoPc43dv0grj+dtD+tR+Guajl7MonTi10ACuk1KVoMRWdobOts7VreIp1zLlmaVLxaXGuPKObj
-        pI3DenwbP3zhA0ebKP7/MyhyMYWnr90+AVa7yf2UQGy4qeV0eO1INy3STK5+47CRxyRwC0SEZf/+3
-        GUmnWvJQ==;
-Received: from sslproxy06.your-server.de ([78.46.172.3])
-        by www381.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92.3)
-        (envelope-from <lars@metafoo.de>)
-        id 1o6Geo-0005Mm-4C; Tue, 28 Jun 2022 21:13:54 +0200
-Received: from [2001:a61:2a49:8301:9e5c:8eff:fe01:8578]
-        by sslproxy06.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <lars@metafoo.de>)
-        id 1o6Gen-000TYv-VP; Tue, 28 Jun 2022 21:13:53 +0200
-Message-ID: <66134443-a400-15ca-ea92-691e3c269b5c@metafoo.de>
-Date:   Tue, 28 Jun 2022 21:13:53 +0200
+        with ESMTP id S230039AbiF1Tt0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Jun 2022 15:49:26 -0400
+Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 62D282F38C;
+        Tue, 28 Jun 2022 12:45:50 -0700 (PDT)
+X-IronPort-AV: E=Sophos;i="5.92,229,1650898800"; 
+   d="scan'208";a="125967111"
+Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
+  by relmlie6.idc.renesas.com with ESMTP; 29 Jun 2022 04:45:49 +0900
+Received: from localhost.localdomain (unknown [10.226.92.14])
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 2ADFC400D4E5;
+        Wed, 29 Jun 2022 04:45:43 +0900 (JST)
+From:   Phil Edworthy <phil.edworthy@renesas.com>
+To:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Phil Edworthy <phil.edworthy@renesas.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Sven Peter <sven@svenpeter.dev>, Jan Dabros <jsd@semihalf.com>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Tyrone Ting <kfting@nuvoton.com>,
+        Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        devicetree@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH v2 0/2] i2c: Add new driver for Renesas RZ/V2M controller
+Date:   Tue, 28 Jun 2022 20:45:24 +0100
+Message-Id: <20220628194526.111501-1-phil.edworthy@renesas.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH] i2c: cadence: Unregister the clk notifier in error path
-Content-Language: en-US
-To:     Satish Nagireddy <satish.nagireddy@getcruise.com>, wsa@kernel.org
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        michal.simek@xilinx.com
-References: <20220628191216.39459-1-satish.nagireddy@getcruise.com>
-From:   Lars-Peter Clausen <lars@metafoo.de>
-In-Reply-To: <20220628191216.39459-1-satish.nagireddy@getcruise.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: lars@metafoo.de
-X-Virus-Scanned: Clear (ClamAV 0.103.6/26587/Tue Jun 28 10:07:12 2022)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 6/28/22 21:12, Satish Nagireddy wrote:
-> This patch ensures that the clock notifier is unregistered
-> when driver probe is returning error.
->
-> Signed-off-by: Satish Nagireddy <satish.nagireddy@getcruise.com>
+Hi,
 
-Thanks! Looks good.
+The Renesas RZ/V2M SoC (r9a09g011) has a new i2c controller. This series
+add the driver. One annoying problem is that the SoC uses a single reset
+line for two i2c controllers, and unfortunately one of the controllers
+is managed by some firmware, not by Linux. Therefore, the driver just
+deasserts the reset.
 
-Tested-by: Lars-Peter Clausen <lars@metafoo.de>
+v2:
+  dt-binding:
+  - Use an enum and set the default for clock-frequency
+  - Add resets property
+  driver:
+  - Use the new NOIRQ_SYSTEM_SLEEP_PM_OPS() as suggested by Arnd
+  - Lots of small fixes based on Geert's review
 
-> ---
->   drivers/i2c/busses/i2c-cadence.c | 1 +
->   1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-> index b4c1ad19cdae..3d6f8ee355bf 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -1338,6 +1338,7 @@ static int cdns_i2c_probe(struct platform_device *pdev)
->   	return 0;
->   
->   err_clk_dis:
-> +	clk_notifier_unregister(id->clk, &id->clk_rate_change_nb);
->   	clk_disable_unprepare(id->clk);
->   	pm_runtime_disable(&pdev->dev);
->   	pm_runtime_set_suspended(&pdev->dev);
+Phil Edworthy (2):
+  dt-bindings: i2c: Document RZ/V2M I2C controller
+  i2c: Add Renesas RZ/V2M controller
 
+ .../bindings/i2c/renesas,rzv2m.yaml           |  80 +++
+ drivers/i2c/busses/Kconfig                    |  10 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-rzv2m.c                | 530 ++++++++++++++++++
+ 4 files changed, 621 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/renesas,rzv2m.yaml
+ create mode 100644 drivers/i2c/busses/i2c-rzv2m.c
+
+-- 
+2.34.1
 
