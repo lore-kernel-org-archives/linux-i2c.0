@@ -2,114 +2,139 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B52FCCA482
-	for <linux-i2c@archiver.kernel.org>; Wed, 29 Jun 2022 06:59:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3820CCA47C
+	for <linux-i2c@archiver.kernel.org>; Wed, 29 Jun 2022 07:24:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232774AbiF2G7F (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 29 Jun 2022 02:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38290 "EHLO
+        id S231682AbiF2HYD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 29 Jun 2022 03:24:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232016AbiF2G6M (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Jun 2022 02:58:12 -0400
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B10E533890;
-        Tue, 28 Jun 2022 23:57:49 -0700 (PDT)
-Received: by mail-qv1-f41.google.com with SMTP id 2so8563906qvc.0;
-        Tue, 28 Jun 2022 23:57:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ZAl0DXeEP1iLPwgoXgupmgF0KTbHxLpZfpaYD3ShJsE=;
-        b=OTxVhQ/ZEvmc31F6e1vp0os8oMrLc60IMhgr21uxW+1GEg3U8S4ZcMaDu+6JxmCWXU
-         At4JDqbcjeP+wS2xjcVqaM8bG6FUloFe6yjGarcf739UUvVexWjCmhzbLBx+JGyAnh8v
-         fjXt30Rv7VzP2q9i7hMVLM+y5OY9RALts9xPmnl4TEirFXfroFjNUivUS/xjC7UupKhd
-         DQ4mbKpd+/B/xWIX1crGbmXshqcVfkLKegSEr72+SFf7OtvsaLGdU/VZkutMJQ4ZnC1L
-         s11GlmU55Jm209HqPuLh48426gjM+cYXWczL2sM8OaKaEdkfQIvszscMF8ADZkEnbmNp
-         qKPA==
-X-Gm-Message-State: AJIora8Y9dmDWARgXmpovCgLl/D5bWl7YHGd70sbUv/5my4/ZGqal3tG
-        puTLJwE/zF1FDpKu4Vi0vopvx/mfzRwwgQ==
-X-Google-Smtp-Source: AGRyM1u1RVeuTga1wg8IdQGfk9J+YZtYhxkRrNqimPW/6kREgHPaRqBzykiMYturPbUOesG62dL8+Q==
-X-Received: by 2002:a05:6214:410c:b0:470:46e6:bbbf with SMTP id kc12-20020a056214410c00b0047046e6bbbfmr6609302qvb.42.1656485868593;
-        Tue, 28 Jun 2022 23:57:48 -0700 (PDT)
-Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com. [209.85.219.174])
-        by smtp.gmail.com with ESMTPSA id a20-20020ac84d94000000b0030515120916sm10149793qtw.44.2022.06.28.23.57.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Jun 2022 23:57:48 -0700 (PDT)
-Received: by mail-yb1-f174.google.com with SMTP id i15so26355535ybp.1;
-        Tue, 28 Jun 2022 23:57:48 -0700 (PDT)
-X-Received: by 2002:a05:6902:905:b0:64a:2089:f487 with SMTP id
- bu5-20020a056902090500b0064a2089f487mr1809912ybb.202.1656485560287; Tue, 28
- Jun 2022 23:52:40 -0700 (PDT)
+        with ESMTP id S230290AbiF2HYC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Jun 2022 03:24:02 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB2C51928E
+        for <linux-i2c@vger.kernel.org>; Wed, 29 Jun 2022 00:24:01 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1o6S2d-0005UO-4V; Wed, 29 Jun 2022 09:23:15 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1o6S2S-003M3c-Vk; Wed, 29 Jun 2022 09:23:08 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1o6S2V-001qeU-Nu; Wed, 29 Jun 2022 09:23:07 +0200
+Date:   Wed, 29 Jun 2022 09:23:04 +0200
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Jeremy Kerr <jk@codeconstruct.com.au>
+Cc:     Wolfram Sang <wsa@kernel.org>, dri-devel@lists.freedesktop.org,
+        linux-serial@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-mtd@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-crypto@vger.kernel.org,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        acpi4asus-user@lists.sourceforge.net,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-integrity@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-rtc@vger.kernel.org, netdev@vger.kernel.org,
+        Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        chrome-platform@lists.linux.dev, linux-input@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-media@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net,
+        linux-hwmon@vger.kernel.org,
+        Support Opensource <support.opensource@diasemi.com>,
+        linux-fbdev@vger.kernel.org, patches@opensource.cirrus.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-pwm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        kasan-dev@googlegroups.com, linux-staging@lists.linux.dev
+Subject: Re: [PATCH 6/6] i2c: Make remove callback return void
+Message-ID: <20220629072304.qazmloqdi5h5kdre@pengutronix.de>
+References: <20220628140313.74984-1-u.kleine-koenig@pengutronix.de>
+ <20220628140313.74984-7-u.kleine-koenig@pengutronix.de>
+ <60cc6796236f23c028a9ae76dbe00d1917df82a5.camel@codeconstruct.com.au>
 MIME-Version: 1.0
-References: <20220628194526.111501-1-phil.edworthy@renesas.com>
- <20220628194526.111501-3-phil.edworthy@renesas.com> <YrttwplV9zEgCFji@smile.fi.intel.com>
-In-Reply-To: <YrttwplV9zEgCFji@smile.fi.intel.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 29 Jun 2022 08:52:27 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdV1xkCvico_f359xBzkwU5pG3VVJV7O3dHRyy5a9QvyGw@mail.gmail.com>
-Message-ID: <CAMuHMdV1xkCvico_f359xBzkwU5pG3VVJV7O3dHRyy5a9QvyGw@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] i2c: Add Renesas RZ/V2M controller
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Phil Edworthy <phil.edworthy@renesas.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Rob Herring <robh@kernel.org>, Sven Peter <sven@svenpeter.dev>,
-        Jan Dabros <jsd@semihalf.com>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Tyrone Ting <kfting@nuvoton.com>,
-        Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="3yzpq2rgg2xm7tqn"
+Content-Disposition: inline
+In-Reply-To: <60cc6796236f23c028a9ae76dbe00d1917df82a5.camel@codeconstruct.com.au>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Andy,
 
-On Tue, Jun 28, 2022 at 11:08 PM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> On Tue, Jun 28, 2022 at 08:45:26PM +0100, Phil Edworthy wrote:
-> > Yet another i2c controller from Renesas that is found on the RZ/V2M
-> > (r9a09g011) SoC. It can support only 100kHz and 400KHz operation.
+--3yzpq2rgg2xm7tqn
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > +static int rzv2m_i2c_send(struct rzv2m_i2c_priv *priv, struct i2c_msg *msg,
-> > +                       unsigned int *count)
-> > +{
-> > +     unsigned int i;
-> > +     int ret = 0;
->
-> Redundant assignment, you may return 0 directly.
+Hello,
 
-Can you prove msg->len is never zero, and the loop below is always
-executed at least once?
-The driver does set I2C_AQ_NO_ZERO_LEN, but I don't think the static
-checkers know ;-)
+[I dropped nearly all individuals from the Cc: list because various
+bounces reported to be unhappy about the long (logical) line.]
 
->
-> > +     for (i = 0; i < msg->len; i++) {
-> > +             ret = rzv2m_i2c_write_with_ack(priv, msg->buf[i]);
-> > +             if (ret < 0)
-> > +                     return ret;
-> > +     }
-> > +     *count = i;
-> > +
-> > +     return ret;
-> > +}
+On Wed, Jun 29, 2022 at 03:03:54PM +0800, Jeremy Kerr wrote:
+> Looks good - just one minor change for the mctp-i2c driver, but only
+> worthwhile if you end up re-rolling this series for other reasons:
+>=20
+> > -static int mctp_i2c_remove(struct i2c_client *client)
+> > +static void mctp_i2c_remove(struct i2c_client *client)
+> > =A0{
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct mctp_i2c_client *mcli =3D i2c_get_client=
+data(client);
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct mctp_i2c_dev *midev =3D NULL, *tmp =3D N=
+ULL;
+> > @@ -1000,7 +1000,6 @@ static int mctp_i2c_remove(struct i2c_client *cli=
+ent)
+> > =A0=A0=A0=A0=A0=A0=A0=A0mctp_i2c_free_client(mcli);
+> > =A0=A0=A0=A0=A0=A0=A0=A0mutex_unlock(&driver_clients_lock);
+> > =A0=A0=A0=A0=A0=A0=A0=A0/* Callers ignore return code */
+> > -=A0=A0=A0=A0=A0=A0=A0return 0;
+> > =A0}
+>=20
+> The comment there no longer makes much sense, I'd suggest removing that
+> too.
 
-Gr{oetje,eeting}s,
+Yeah, that was already pointed out to me in a private reply. It's
+already fixed in
 
-                        Geert
+	https://git.pengutronix.de/cgit/ukl/linux/log/?h=3Di2c-remove-void
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> Either way:
+>=20
+> Reviewed-by: Jeremy Kerr <jk@codeconstruct.com.au>
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Added to my tree, too.
+
+Thanks
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--3yzpq2rgg2xm7tqn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmK7/dUACgkQwfwUeK3K
+7AnTJgf9GW2H7fk9/Je11PRlCnUOSZ1sz/49RHAm4xj66pI/hdRP++D8L5o7ntEU
+Hl5hKosR36cUyX12ie+YQtiCRkjhLqUoJnPzJOtcXQNV7mlMt6ds2INSO4iHYtMa
+b2UH+lLQ6K/DO0+1KquElKJhfBOKucYY1WQAVK4cfasBKMR4MtukcHAgcYClRYdj
+Nvvy6bCjqr8M1+uqDTJUUR/d0rWYHxFKygYRUfK7YPpz57gaVgaR9Js9GDGkVFB4
+qVL5x23NzgB/Djr1Ls1F6Z5eFMjbtVb+S1HDRsU+HJOYD6v1LkT2OFx9iFpme+8m
++4HHNR5pxKogz59u4YpP1pIb0MejhA==
+=ibah
+-----END PGP SIGNATURE-----
+
+--3yzpq2rgg2xm7tqn--
