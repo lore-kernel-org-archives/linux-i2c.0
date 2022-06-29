@@ -2,60 +2,108 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6739BC43334
-	for <linux-i2c@archiver.kernel.org>; Wed, 29 Jun 2022 06:10:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C4F4CCA47C
+	for <linux-i2c@archiver.kernel.org>; Wed, 29 Jun 2022 06:54:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231799AbiF2GKB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 29 Jun 2022 02:10:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51236 "EHLO
+        id S232145AbiF2GyN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 29 Jun 2022 02:54:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231826AbiF2GKB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Jun 2022 02:10:01 -0400
-Received: from mail.nfschina.com (unknown [IPv6:2400:dd01:100f:2:72e2:84ff:fe10:5f45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C16F0186F6;
-        Tue, 28 Jun 2022 23:10:00 -0700 (PDT)
-Received: from localhost (unknown [127.0.0.1])
-        by mail.nfschina.com (Postfix) with ESMTP id 0553C1E80D66;
-        Wed, 29 Jun 2022 14:08:50 +0800 (CST)
-X-Virus-Scanned: amavisd-new at test.com
-Received: from mail.nfschina.com ([127.0.0.1])
-        by localhost (mail.nfschina.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 85IvQHgd06Qr; Wed, 29 Jun 2022 14:08:47 +0800 (CST)
-Received: from localhost.localdomain.localdomain (unknown [219.141.250.2])
-        (Authenticated sender: xupengfei@nfschina.com)
-        by mail.nfschina.com (Postfix) with ESMTPA id 5EAF51E80D50;
-        Wed, 29 Jun 2022 14:08:47 +0800 (CST)
-From:   XU pengfei <xupengfei@nfschina.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, XU pengfei <xupengfei@nfschina.com>
-Subject: [PATCH 1/1] drivers: remove unnecessary (void*) conversions.
-Date:   Wed, 29 Jun 2022 14:09:52 +0800
-Message-Id: <20220629060952.4749-1-xupengfei@nfschina.com>
-X-Mailer: git-send-email 2.18.2
+        with ESMTP id S230088AbiF2GyM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Jun 2022 02:54:12 -0400
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5EF2A247;
+        Tue, 28 Jun 2022 23:54:11 -0700 (PDT)
+Received: by mail-qv1-f41.google.com with SMTP id q4so23457060qvq.8;
+        Tue, 28 Jun 2022 23:54:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PpuEtshrQZzm75lWu/UuoW2nHSJByVf/uoUWMyeBAMw=;
+        b=7iSyfDBfVp5ma4BxAW4Lfr6rivish4kK7/Vo8uZ+umBZe3Pa6nP73UGR8XdiDNqQY/
+         1BlGxCE/HNyVurynmRa6xvtmjr2U3n5PAv6cWFLnp7CBgM7Xi4qwEB/W0fRAm2SWxIAJ
+         F0RiGUz7MBg3uCLwYyVCzTTICy49SH4ERxbST7BKrLnyofHTMos0uoCyXIiKRvjjHjQ5
+         J7lSpnslb/Izr8iSrW69A0bXNj4nUWdjucmAPSPJNBx6GjsvSejBRIfzURB4+kHo7I01
+         N/N3hIKBx/AdoVfLVI0oOJS0AbUQJzzc0dDhsqc/c6A38lL6mHRZyGYikyjfQk+1LAnn
+         NPpQ==
+X-Gm-Message-State: AJIora/H5bdqMqSAiioa+CVrOBt2wIR2IuYcmxj/z07aFVkH9PuhQZFm
+        UXn/54KTo3jXiUZzay2MS2pmQwXMpt6e9w==
+X-Google-Smtp-Source: AGRyM1s5qZzR84urO5FpKepSH/mHpp2Fyt2U0ZcuYBfPXOxqd2Oaiv+4OXKgKtV2zSoGzAC72XH/Tg==
+X-Received: by 2002:ac8:7fc6:0:b0:31b:940a:fb02 with SMTP id b6-20020ac87fc6000000b0031b940afb02mr1192834qtk.663.1656485650681;
+        Tue, 28 Jun 2022 23:54:10 -0700 (PDT)
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com. [209.85.219.180])
+        by smtp.gmail.com with ESMTPSA id bz19-20020a05622a1e9300b0031bba2e05aesm3721424qtb.58.2022.06.28.23.54.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Jun 2022 23:54:09 -0700 (PDT)
+Received: by mail-yb1-f180.google.com with SMTP id q132so26219774ybg.10;
+        Tue, 28 Jun 2022 23:54:09 -0700 (PDT)
+X-Received: by 2002:a25:2b48:0:b0:668:3b7d:326c with SMTP id
+ r69-20020a252b48000000b006683b7d326cmr1695809ybr.380.1656485649369; Tue, 28
+ Jun 2022 23:54:09 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220628194526.111501-1-phil.edworthy@renesas.com>
+ <20220628194526.111501-2-phil.edworthy@renesas.com> <1656468579.925440.1403681.nullmailer@robh.at.kernel.org>
+In-Reply-To: <1656468579.925440.1403681.nullmailer@robh.at.kernel.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 29 Jun 2022 08:53:57 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdVsdh1YpVtq7570_kNOWUm5sMb=Fm=Dv_8qOS=hg3iuKA@mail.gmail.com>
+Message-ID: <CAMuHMdVsdh1YpVtq7570_kNOWUm5sMb=Fm=Dv_8qOS=hg3iuKA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: Document RZ/V2M I2C controller
+To:     Rob Herring <robh@kernel.org>
+Cc:     Phil Edworthy <phil.edworthy@renesas.com>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-remove unnecessary void* type casting.
+Hi Rob,
 
-Signed-off-by: XU pengfei <xupengfei@nfschina.com>
----
- drivers/i2c/busses/i2c-img-scb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, Jun 29, 2022 at 4:09 AM Rob Herring <robh@kernel.org> wrote:
+> On Tue, 28 Jun 2022 20:45:25 +0100, Phil Edworthy wrote:
+> > Document Renesas RZ/V2M (r9a09g011) I2C controller bindings.
+> >
+> > Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
+> > Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
+> > ---
+> > v2:
+> >  - Use an enum and set the default for clock-frequency
+> >  - Add resets property
+> > ---
+> >  .../bindings/i2c/renesas,rzv2m.yaml           | 80 +++++++++++++++++++
+> >  1 file changed, 80 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/i2c/renesas,rzv2m.yaml
+> >
+>
+> My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
+> on your patch (DT_CHECKER_FLAGS is new in v5.13):
+>
+> yamllint warnings/errors:
+>
+> dtschema/dtc warnings/errors:
+> /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/iio/temperature/adi,ltc2983.yaml: patternProperties:^thermistor@:properties:adi,excitation-current-nanoamp: '$ref' should not be valid under {'const': '$ref'}
+>         hint: Standard unit suffix properties don't need a type $ref
+>         from schema $id: http://devicetree.org/meta-schemas/core.yaml#
+> /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/iio/temperature/adi,ltc2983.yaml: ignoring, error in schema: patternProperties: ^thermistor@: properties: adi,excitation-current-nanoamp
+> Documentation/devicetree/bindings/iio/temperature/adi,ltc2983.example.dtb:0:0: /example-0/spi/ltc2983@0: failed to match any schema with compatible: ['adi,ltc2983']
 
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 8e987945ed45..d72211cfda03 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -913,7 +913,7 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
- 
- static irqreturn_t img_i2c_isr(int irq, void *dev_id)
- {
--	struct img_i2c *i2c = (struct img_i2c *)dev_id;
-+	struct img_i2c *i2c = dev_id;
- 	u32 int_status, line_status;
- 	/* We handle transaction completion AFTER accessing registers */
- 	unsigned int hret;
--- 
-2.18.2
+All of these look like false-positives, i.e. not related to this patch?
 
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
