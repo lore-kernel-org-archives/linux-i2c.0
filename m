@@ -2,82 +2,91 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C057C433EF
-	for <linux-i2c@archiver.kernel.org>; Thu, 30 Jun 2022 19:56:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D919CCA473
+	for <linux-i2c@archiver.kernel.org>; Thu, 30 Jun 2022 21:28:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230362AbiF3T4M (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 30 Jun 2022 15:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55114 "EHLO
+        id S237552AbiF3V2j (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 30 Jun 2022 17:28:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230148AbiF3T4M (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Jun 2022 15:56:12 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566D544760;
-        Thu, 30 Jun 2022 12:56:11 -0700 (PDT)
+        with ESMTP id S237557AbiF3V23 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Jun 2022 17:28:29 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D702F443D3;
+        Thu, 30 Jun 2022 14:28:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656618971; x=1688154971;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=9bDKDU8l215gnZyJhkGFvAKmvgqtGJH9XwdqGBQl7BU=;
-  b=G53+EcSzk1a9R0pPplebcW+rQRG60QcMNK6oec2wJ2xBconVTnL4aIPd
-   IeWCWF9LmIBMgxwYzOpilh4NPIGiJP+fJ8nZUjMjo0lSkfNsnLnF5PY7P
-   JUBSryAosUZeavfzqaSvQIfi6wqJX0ziD1VighA+NTj20lODoAh7RTFXs
-   SndoM30UUrlbW0+z+Gxo5HxRM7qZyChQtYJLZP3G4DYkFezn0HoGoUfMT
-   tyPrV0cKK1saL5SOP1iQlMPNoR0MlttMxK+4IxIai76vKB9VOPBrLtT1x
-   67FrxI/GEDWKIhWEJHAqbjFDqeeyp5s/ejsTWutDVHvVFDzYMviggroOY
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10394"; a="344137990"
+  t=1656624508; x=1688160508;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=jdYxOV2rC4m5qbz+X1x7eTSjCsv8/obXsOi7V/f8hhY=;
+  b=h/xtQaWNAVZawetWJKstFUzls7srfPBlKHmkrK3MMk4CPaAPecnOZI06
+   zJ+qzCDHxFff+B9nABx7QoH8YYrq9QPnYG01qeLbG2hRdbx8uK4dZACJo
+   CeYx8E0FPyRQlrcJCemYvxGowDG/fxxfJbMVdXk1Yrk9xYnbdohp9E4Uh
+   +UHAZKzLrI4cMLUfon9xdCXX8aKvS+SONnEPDt2uauchGQoPv2JWSYMkv
+   60OG1leYy88FaxRWY1ors4IQ3KgXUNYKmcIXDx5s4K4gEh7YRP8r2QWm/
+   V0JVgozbmC0jpk7rKVwfpJy05RJh9zfeSxJTTnYnSL3oqtVVolWXSZhJU
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10394"; a="282506504"
 X-IronPort-AV: E=Sophos;i="5.92,235,1650956400"; 
-   d="scan'208";a="344137990"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jun 2022 12:55:40 -0700
+   d="scan'208";a="282506504"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jun 2022 14:28:28 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.92,235,1650956400"; 
-   d="scan'208";a="591376536"
+   d="scan'208";a="648065571"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga002.jf.intel.com with ESMTP; 30 Jun 2022 12:55:38 -0700
+  by fmsmga008.fm.intel.com with ESMTP; 30 Jun 2022 14:28:24 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 39B2911E; Thu, 30 Jun 2022 22:55:43 +0300 (EEST)
+        id 2E4871E8; Fri,  1 Jul 2022 00:28:31 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH v1 1/1] i2c: scmi: Replace open coded acpi_match_device()
-Date:   Thu, 30 Jun 2022 22:55:41 +0300
-Message-Id: <20220630195541.4368-1-andriy.shevchenko@linux.intel.com>
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-pci@vger.kernel.org, ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <lenb@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
+        Mark Gross <markgross@kernel.org>
+Subject: [PATCH v1 4/5] PCI/VGA: Convert to use acpi_match_video_device_handle() helper
+Date:   Fri,  1 Jul 2022 00:28:18 +0300
+Message-Id: <20220630212819.42958-4-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220630212819.42958-1-andriy.shevchenko@linux.intel.com>
+References: <20220630212819.42958-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Replace open coded acpi_match_device() in acpi_smbus_cmi_add().
+Replace open coded variant of acpi_match_video_device_handle() helper.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-scmi.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/pci/vgaarb.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
-index 6746aa46d96c..ba20f6c60e06 100644
---- a/drivers/i2c/busses/i2c-scmi.c
-+++ b/drivers/i2c/busses/i2c-scmi.c
-@@ -376,10 +376,9 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
- 	smbus_cmi->cap_read = 0;
- 	smbus_cmi->cap_write = 0;
- 
--	for (id = acpi_smbus_cmi_ids; id->id[0]; id++)
--		if (!strcmp(id->id, acpi_device_hid(device)))
--			smbus_cmi->methods =
--				(struct smbus_methods_t *) id->driver_data;
-+	id = acpi_match_device(device, acpi_smbus_cmi_ids);
-+	if (id)
-+		smbus_cmi->methods = (struct smbus_methods_t *)id->driver_data;
- 
- 	acpi_walk_namespace(ACPI_TYPE_METHOD, smbus_cmi->handle, 1,
- 			    acpi_smbus_cmi_query_methods, NULL, smbus_cmi, NULL);
+diff --git a/drivers/pci/vgaarb.c b/drivers/pci/vgaarb.c
+index f80b6ec88dc3..47058f70c2c9 100644
+--- a/drivers/pci/vgaarb.c
++++ b/drivers/pci/vgaarb.c
+@@ -585,9 +585,7 @@ static bool vga_is_firmware_default(struct pci_dev *pdev)
+ static bool vga_arb_integrated_gpu(struct device *dev)
+ {
+ #if defined(CONFIG_ACPI)
+-	struct acpi_device *adev = ACPI_COMPANION(dev);
+-
+-	return adev && !strcmp(acpi_device_hid(adev), ACPI_VIDEO_HID);
++	return acpi_match_video_device_handle(ACPI_HANDLE(dev));
+ #else
+ 	return false;
+ #endif
 -- 
 2.35.1
 
