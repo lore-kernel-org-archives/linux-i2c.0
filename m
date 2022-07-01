@@ -2,121 +2,78 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2BA3C43334
-	for <linux-i2c@archiver.kernel.org>; Thu, 30 Jun 2022 21:29:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1311C43334
+	for <linux-i2c@archiver.kernel.org>; Fri,  1 Jul 2022 05:47:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237535AbiF3V3G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 30 Jun 2022 17:29:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48200 "EHLO
+        id S234398AbiGAFrk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 1 Jul 2022 01:47:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237582AbiF3V2k (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Jun 2022 17:28:40 -0400
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 164843700E;
-        Thu, 30 Jun 2022 14:28:40 -0700 (PDT)
+        with ESMTP id S234423AbiGAFrh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Jul 2022 01:47:37 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43CFD68A38;
+        Thu, 30 Jun 2022 22:47:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656624520; x=1688160520;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=vov2D8XGLh7l4fzlqjW0FYaJ1gTowtT9oIai97+IhHY=;
-  b=lqc0a5cbBr/XdEfiZALSXhOhQpaT3KpFm4M8usVu2M16Y3M59+x7Ix6f
-   WvD4pWHxR/xWnm3VylAAlPYLTR+4Vptd+CydB0+GPSXPc1hSTuURp8kjR
-   qI56do2P/aC2Mjwgc1dkPG6UNnAjKQDN6YKv0S33VlUIzwd4UMU84c71T
-   c4hGz4GF17AC/sZwUi3c2/BLkI9kPRQQgqUs36ZLq2cMrx2H+UC9k6287
-   mMzAZlsPnZgw5Z3EoNOJXMhuiVdlb1as5JnbXf6zxLJimB7xLBkXV+TyQ
-   k33omhVDZcebYMs+EQxMu+7EarIHZIWtAIO/I8sGRtGqL5DQqE8XpsLrJ
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10394"; a="280021839"
-X-IronPort-AV: E=Sophos;i="5.92,235,1650956400"; 
-   d="scan'208";a="280021839"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jun 2022 14:28:29 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,235,1650956400"; 
-   d="scan'208";a="588945471"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga007.jf.intel.com with ESMTP; 30 Jun 2022 14:28:24 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 0B8D111E; Fri,  1 Jul 2022 00:28:30 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+  t=1656654456; x=1688190456;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Isy2vf1MMMuyEw6FjN6hYjOB38jJmfhpCIoqFRQ0Z2M=;
+  b=BoyWNACy3TkB8QM/8y8DnC53BjKZaoJOJfotMhiVKUzWI5imZkDoJ/dW
+   C7O1ti+Eo1gKk9JykXt7M12TQcVcxA1PjlHWDUO3Vs/xP52J0kqEAN7j4
+   hJ/NBIfIvPVYZZv4ufmwVQuMg55+vWbiCDmZf1pvrWDm12NqP9MZGGQCk
+   oJ9FeH1mFbfI+oCP3BJqFNj7uF14FtysuXhyC9iDLTFAjBmUS+a6l4bIs
+   rtELxh0LGJqtfQPyVUQV3JkY4fZw8sQAfZTXxV1KI8WgVeGMKpVqDsGKO
+   ORu9j4BhFFLGq7+9oPz4wZvNlIEqIm6S9LIOPIVtm5x8pndi8NdlPHcS2
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10394"; a="281322763"
+X-IronPort-AV: E=Sophos;i="5.92,236,1650956400"; 
+   d="scan'208";a="281322763"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jun 2022 22:47:36 -0700
+X-IronPort-AV: E=Sophos;i="5.92,236,1650956400"; 
+   d="scan'208";a="566121503"
+Received: from lahna.fi.intel.com (HELO lahna) ([10.237.72.162])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jun 2022 22:47:31 -0700
+Received: by lahna (sSMTP sendmail emulation); Fri, 01 Jul 2022 08:47:28 +0300
+Date:   Fri, 1 Jul 2022 08:47:28 +0300
+From:   Mika Westerberg <mika.westerberg@linux.intel.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Wolfram Sang <wsa@kernel.org>, linux-acpi@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
         linux-pci@vger.kernel.org, ibm-acpi-devel@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
         Len Brown <lenb@kernel.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
         Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
         Mark Gross <markgross@kernel.org>
-Subject: [PATCH v1 1/5] ACPI: utils: Introduce acpi_match_video_device_handle() helper
-Date:   Fri,  1 Jul 2022 00:28:15 +0300
-Message-Id: <20220630212819.42958-1-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.35.1
+Subject: Re: [PATCH v1 1/5] ACPI: utils: Introduce
+ acpi_match_video_device_handle() helper
+Message-ID: <Yr6KcPlC/3rYAtKE@lahna>
+References: <20220630212819.42958-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220630212819.42958-1-andriy.shevchenko@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-There are a couple of users that open code functionality of matching
-a given handle against ACPI video device IDs. The current approach
-duplicates ID table along with the matching code. Consolidate it
-under the acpi_match_video_device_handle() helper's hood.
+Hi Andy,
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/acpi/utils.c | 19 +++++++++++++++++++
- include/linux/acpi.h |  2 ++
- 2 files changed, 21 insertions(+)
+On Fri, Jul 01, 2022 at 12:28:15AM +0300, Andy Shevchenko wrote:
+>  extern long acpi_is_video_device(acpi_handle handle);
+> +extern bool acpi_match_video_device_handle(acpi_handle handle);
 
-diff --git a/drivers/acpi/utils.c b/drivers/acpi/utils.c
-index 3a9773a09e19..4800aba3b99c 100644
---- a/drivers/acpi/utils.c
-+++ b/drivers/acpi/utils.c
-@@ -929,6 +929,25 @@ static int __init acpi_backlight(char *str)
- }
- __setup("acpi_backlight=", acpi_backlight);
- 
-+static const struct acpi_device_id video_device_ids[] = {
-+	{ACPI_VIDEO_HID, 0},
-+	{}
-+};
-+
-+/**
-+ * acpi_match_video_device_handle - match handle against ACPI video device IDs
-+ * @handle: ACPI handle to match
-+ *
-+ * Return: true when matches, otherwise false.
-+ */
-+bool acpi_match_video_device_handle(acpi_handle handle)
-+{
-+	struct acpi_device *adev = acpi_fetch_acpi_dev(handle);
-+
-+	return adev && !acpi_match_device_ids(adev, video_device_ids);
-+}
-+EXPORT_SYMBOL(acpi_match_video_device_handle);
-+
- /**
-  * acpi_match_platform_list - Check if the system matches with a given list
-  * @plat: pointer to acpi_platform_list table terminated by a NULL entry
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 7b96a8bff6d2..c48e8a0df0cc 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -439,6 +439,8 @@ extern char *wmi_get_acpi_device_uid(const char *guid);
- 
- extern char acpi_video_backlight_string[];
- extern long acpi_is_video_device(acpi_handle handle);
-+extern bool acpi_match_video_device_handle(acpi_handle handle);
-+
- extern int acpi_blacklisted(void);
- extern void acpi_osi_setup(char *str);
- extern bool acpi_osi_is_win8(void);
--- 
-2.35.1
+I think we can do slightly better here. The only caller of
+acpi_is_video_device() is in drivers/acpi/video_detect.c so we can move
+it there and make it static (is_video_device()).
 
+Then we can name this one acpi_is_video_device() instead and in addition
+make it take struct acpi_device as parameter instead of acpi_handle (I
+think we should not use acpi_handles in drivers if possible).
