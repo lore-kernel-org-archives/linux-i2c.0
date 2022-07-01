@@ -2,91 +2,97 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EB58C43334
-	for <linux-i2c@archiver.kernel.org>; Fri,  1 Jul 2022 22:43:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7422C43334
+	for <linux-i2c@archiver.kernel.org>; Fri,  1 Jul 2022 22:54:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230359AbiGAWns (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 1 Jul 2022 18:43:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43152 "EHLO
+        id S231602AbiGAWys (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 1 Jul 2022 18:54:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229681AbiGAWnr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Jul 2022 18:43:47 -0400
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A0033A733
-        for <linux-i2c@vger.kernel.org>; Fri,  1 Jul 2022 15:43:46 -0700 (PDT)
-Received: by mail-lf1-x12d.google.com with SMTP id t24so6129630lfr.4
-        for <linux-i2c@vger.kernel.org>; Fri, 01 Jul 2022 15:43:46 -0700 (PDT)
+        with ESMTP id S229496AbiGAWys (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Jul 2022 18:54:48 -0400
+Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB602E9C1
+        for <linux-i2c@vger.kernel.org>; Fri,  1 Jul 2022 15:54:47 -0700 (PDT)
+Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-3177f4ce3e2so36771897b3.5
+        for <linux-i2c@vger.kernel.org>; Fri, 01 Jul 2022 15:54:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=5c6Bd7wOMhGjYwTIFZ4ddcT+zxuo4R5A80uRvI59m7k=;
-        b=l8xtFeB3oHG7LlmKTVaYJMDTEY7gIxgNzS0Ow4y+hwoQiDCmibUBm68k3hqco7Q5J6
-         tmQIFVb8hW+cQgnrMTOFpDkI3cZEEtwAVFCoRzWPKkwQom1sb26ePgupZ/PK97nmmxth
-         VsfdX8kVHAaUZg+8UwvZG3MgY+OqesR9ieXIJ2+pw0gUlD7bC972l+3MF19bwGJCm+5Q
-         P8Nbaq+UydzWc4GbWRf3r0PmiC9F8MkdstcZrdJVutQHHXqqhOWqSlowcKzNKLrornSd
-         qGvjG3IKsdS0oRxnt+kjXqCDzX1EpPr4AIcpyH7Ojs5sFiJVFR8cIpN6P1SbQhx5T0YV
-         xj8A==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=2Kt/08iyf+kylRHoIf7NE1bKHV8wItkIjASWeXHEu1E=;
+        b=C8Jbki7P+C8sFtdRv/71Qrc5TOUlTQ2v6EM2YthFlNKEMLJ2kz+q+Qwc7QC63510V+
+         Zj6pGVrlaYpR7Ld3FAMf97i8joQCvO6ld0kdbIOPSeFxO/vxWany2bcS6YRh+TIx2TI5
+         K6LOuQy2JXh5gkya6gk9R6X3JvOG69ZV4Xf+7r0I4aOLmjhnz4Tr+w6045/GQGHwYeXI
+         YWUcEGIr9SebwlUa2iCuzevJ3Ddy4fiiylaanZ2V258g9psVpLlqTnsl9s+tKXn4MsPW
+         t9R25qhb+Fhmn5yH9xyB8IEI4pC751A3KhC2TsnuOvGXZ8/j9F147wGcrEgA8razyNEH
+         EHBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=5c6Bd7wOMhGjYwTIFZ4ddcT+zxuo4R5A80uRvI59m7k=;
-        b=vB1LHCxaYe61ZqiR0EcyhQxXv/M+u1Ndr4LWK7K2G3odivZzRTJX5POLuiKGjVdFdw
-         Z9UoFtCkJvNu2N10aOhRUm4EaiULSmn7RcUmLCbHCvUJdeZNDfojNXxMxKJWan8zPEiD
-         OcmWmNk7PNmyFz1iFCuuWoW0cmKnl+fTBlDl2MBCDr8eJGFEClzGIyUg+gSkdMQRAVK5
-         7ddoZu9Cf/2FyL4ShrRYHSsHiQ/0lgbRIdhlAeULlrOR3kBeyCiI2mbF9wJWynMsGK6Z
-         Cj8UZLSNxvFAo0N2FNJFnEX5oEN7wQRawngGlXNO8e2YiPo3I1zFVT4T4JdwzKZ52OSe
-         15qQ==
-X-Gm-Message-State: AJIora/PRa/XOoPeshZEEIL7bTyZdIxO1FiYH8Kk8FbE3bYbKJyqoBTD
-        L892T2xfIGbyEl2mBSPTzV6anDKTX2Wsog==
-X-Google-Smtp-Source: AGRyM1uhGB79A/jRJW6AE0rWsCbCJViPRCi2qE5wABhQCy1i22Xrrcu7Yin04Qc5F5FsAszAeNDyDw==
-X-Received: by 2002:a05:6512:3b2:b0:47f:9ffb:e7a0 with SMTP id v18-20020a05651203b200b0047f9ffbe7a0mr10321923lfp.208.1656715424754;
-        Fri, 01 Jul 2022 15:43:44 -0700 (PDT)
-Received: from localhost.localdomain (c-fdcc225c.014-348-6c756e10.bbcust.telenor.se. [92.34.204.253])
-        by smtp.gmail.com with ESMTPSA id r7-20020ac25f87000000b00479307e4a1bsm3782658lfe.135.2022.07.01.15.43.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Jul 2022 15:43:43 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH] dt-bindings: i2c: Drop unused voltage supply from example
-Date:   Sat,  2 Jul 2022 00:41:36 +0200
-Message-Id: <20220701224136.808991-1-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.36.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2Kt/08iyf+kylRHoIf7NE1bKHV8wItkIjASWeXHEu1E=;
+        b=5W/oG9Hi4Fgr8pOy6oK6iTalFOG+B7MIpqzXhOVkrBsKSwAaab/xYmS762tLzVX6Vu
+         d5dPXOP7UjKnDIRNsXHTRxjDqWmHV/UxeKjGn2vjewc1kebrwFeVN/DCD4D+nAM4V5MB
+         HG8Xe48I/bTKsL6RbaMEDZE/6Ojy7zOzQ4rFPJlRuLucfyMTg3Hp6X1WiYTAKpMBhL8C
+         Zc9M+LhyD+M3GKd9xORugPYwnkRA2wSfxh/+B83LYhbfud+Uxzz/Zrnk1P9fCFudfpeI
+         vqefBDZ6mU2PHSc6XFclmVrkmbsE3E59eUz5qLoAMzRCAkjZL71mybDrxT+YIRlXkDpz
+         obxg==
+X-Gm-Message-State: AJIora/dW7erXAVFOL2XXWnFz7TJcZ2z9ZQwkLNMgpVFdS7BSqrysJUr
+        4KLvxWmsBM2Dvw4CtOoM2e9/XIs+gH2T81QD79o/Jg==
+X-Google-Smtp-Source: AGRyM1tc/YCQzLSvEbPHHoP9ffiiTik+L9CV/2a/Pz75Svi3hh3KRTunL0xlLwuFNAlN2aryqHY78zreWgUrFNJIyiA=
+X-Received: by 2002:a0d:cc54:0:b0:317:752c:bcf3 with SMTP id
+ o81-20020a0dcc54000000b00317752cbcf3mr19601452ywd.437.1656716086867; Fri, 01
+ Jul 2022 15:54:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220526211046.367938-1-linus.walleij@linaro.org>
+ <20220605142540.GA3448684-robh@kernel.org> <CAL_JsqKRK5Oxz+PfJXZ9NYBYWmMdYGfRo-q=SOKnkDbr_QO6xg@mail.gmail.com>
+In-Reply-To: <CAL_JsqKRK5Oxz+PfJXZ9NYBYWmMdYGfRo-q=SOKnkDbr_QO6xg@mail.gmail.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Sat, 2 Jul 2022 00:54:35 +0200
+Message-ID: <CACRpkdZ7dkYYtjyv_hSLbTCs27grgea4ng7mRrijJ1E5V2AyJQ@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: i2c: Rewrite Nomadik I2C bindings in YAML
+To:     Rob Herring <robh@kernel.org>
+Cc:     Linux I2C <linux-i2c@vger.kernel.org>,
+        Wolfram Sang <wsa@kernel.org>, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This drops the pointless v-i2c-supply from the Nomadik I2C
-example. This is a leftover from before the use of power
-domains when the power domain voltage was attached to a
-regulator.
+On Fri, Jul 1, 2022 at 11:54 PM Rob Herring <robh@kernel.org> wrote:
+> On Sun, Jun 5, 2022 at 8:26 AM Rob Herring <robh@kernel.org> wrote:
+> >
+> > On Thu, 26 May 2022 23:10:46 +0200, Linus Walleij wrote:
+> > > This rewrites the Nomadik I2C bindings in YAML, some extra
+> > > tweaks were needed because of the way the original nomadik
+> > > names the compatible with two compatibles and the DB8500
+> > > with three, and the two main variants use a different clock
+> > > name.
+> > >
+> > > Cc: devicetree@vger.kernel.org
+> > > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> > > ---
+> > >  .../devicetree/bindings/i2c/i2c-nomadik.txt   |  23 ----
+> > >  .../bindings/i2c/st,nomadik-i2c.yaml          | 113 ++++++++++++++++++
+> > >  MAINTAINERS                                   |   2 +-
+> > >  3 files changed, 114 insertions(+), 24 deletions(-)
+> > >  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-nomadik.txt
+> > >  create mode 100644 Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
+> > >
+> >
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+>
+> Due to partially broken 'unevaluatedProperties' implementation, this
+> error is going to show up when fixed.
+>
+> Documentation/devicetree/bindings/i2c/st,nomadik-i2c.example.dtb:
+> i2c@80004000: Unevaluated properties are not allowed ('v-i2c-supply',
+> 'power-domains' were unexpected)
+>         From schema:
+> /home/rob/proj/git/linux-dt/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
 
-The unused property in the device trees will be removed
-in a separate patch.
+Ooops. Sent some fixup patches.
 
-Reported-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
- Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
-index eec502c57047..41623bd0306c 100644
---- a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
-@@ -89,7 +89,6 @@ examples:
- 
-       #address-cells = <1>;
-       #size-cells = <0>;
--      v-i2c-supply = <&db8500_vape_reg>;
- 
-       clock-frequency = <400000>;
-       clocks = <&prcc_kclk 3 3>, <&prcc_pclk 3 3>;
--- 
-2.36.1
-
+Yours,
+Linus Walleij
