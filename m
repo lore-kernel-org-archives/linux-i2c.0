@@ -2,67 +2,104 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31272C433EF
-	for <linux-i2c@archiver.kernel.org>; Fri,  1 Jul 2022 11:51:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C7A4C433EF
+	for <linux-i2c@archiver.kernel.org>; Fri,  1 Jul 2022 15:40:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235360AbiGALv1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 1 Jul 2022 07:51:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51418 "EHLO
+        id S229620AbiGAPks convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 1 Jul 2022 11:40:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229808AbiGALv0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Jul 2022 07:51:26 -0400
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9978C7B357;
-        Fri,  1 Jul 2022 04:51:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656676285; x=1688212285;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=v6Eq39sB20EiGC0wrMRgHxbWYwWP29XyaO6nAPbLTOY=;
-  b=KXzrQHNPFTW6gR4P+2k2IwTkw3Z1c4jSCwHrTJAWqVQswlFm0lzt1PNF
-   EqAnRXEA4VdAokmWBB7qPeoWG5oDHPK043juuF6v01Into7fPH8wLr/Yy
-   vRLYJzHEzQkuy6RM3af/fus4C+7URTrgr8v0Vs5E2t2Y/QjQ5rjUUYMX8
-   dZICFRtqac96GrCbUn3khqDi1oJnoWplc4lCFU/r9StElq3EYQqWIhJLN
-   cYxHqndlhlKii0H+6fDu07fhJfOmnjDiFwhqVzHEgu88SY7iupnay5OlA
-   yg6VXpZh/THz7JMoPgF/HafTnSNOjLyErvzq+MmQHoSzDAsAvfUqhZYob
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10394"; a="280185299"
-X-IronPort-AV: E=Sophos;i="5.92,236,1650956400"; 
-   d="scan'208";a="280185299"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2022 04:51:25 -0700
-X-IronPort-AV: E=Sophos;i="5.92,236,1650956400"; 
-   d="scan'208";a="618384895"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2022 04:51:24 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.95)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1o7FBB-000zKC-Hu;
-        Fri, 01 Jul 2022 14:51:21 +0300
-Date:   Fri, 1 Jul 2022 14:51:21 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Wolfram Sang <wsa@kernel.org>
-Subject: Re: [PATCH v1 1/1] i2c: scmi: Replace open coded acpi_match_device()
-Message-ID: <Yr7fuWADLhJSeYdZ@smile.fi.intel.com>
-References: <20220630195541.4368-1-andriy.shevchenko@linux.intel.com>
+        with ESMTP id S229491AbiGAPkr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Jul 2022 11:40:47 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFB8D3FBDA
+        for <linux-i2c@vger.kernel.org>; Fri,  1 Jul 2022 08:40:46 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1o7Ikg-00007D-92; Fri, 01 Jul 2022 17:40:14 +0200
+Received: from [2a0a:edc0:0:900:1d::4e] (helo=lupine)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1o7Ikb-003oL0-QT; Fri, 01 Jul 2022 17:40:13 +0200
+Received: from pza by lupine with local (Exim 4.94.2)
+        (envelope-from <p.zabel@pengutronix.de>)
+        id 1o7Ike-000AJX-H5; Fri, 01 Jul 2022 17:40:12 +0200
+Message-ID: <eb92e73d1fdbdc7e056173526b54d2d6417dff9e.camel@pengutronix.de>
+Subject: Re: [PATCH v2 0/2] i2c: Add new driver for Renesas RZ/V2M controller
+From:   Philipp Zabel <p.zabel@pengutronix.de>
+To:     Phil Edworthy <phil.edworthy@renesas.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Sven Peter <sven@svenpeter.dev>, Jan Dabros <jsd@semihalf.com>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Tyrone Ting <kfting@nuvoton.com>,
+        Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Date:   Fri, 01 Jul 2022 17:40:12 +0200
+In-Reply-To: <TYYPR01MB70864F60A6F0ED029045E071F5BA9@TYYPR01MB7086.jpnprd01.prod.outlook.com>
+References: <20220628194526.111501-1-phil.edworthy@renesas.com>
+         <c168df990e1187bf44a5c46be53aa6b20d30d14d.camel@pengutronix.de>
+         <CAMuHMdXV72_BWOpU=O13Fa3-t001YSRdsFePSHBS=Xvh1jY1EQ@mail.gmail.com>
+         <TYYPR01MB7086706381CDCEF4F582690CF5BA9@TYYPR01MB7086.jpnprd01.prod.outlook.com>
+         <be61be2446998c40b51a33453dda4d0b5f1518c3.camel@pengutronix.de>
+         <TYYPR01MB70864F60A6F0ED029045E071F5BA9@TYYPR01MB7086.jpnprd01.prod.outlook.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.38.3-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220630195541.4368-1-andriy.shevchenko@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: p.zabel@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Jun 30, 2022 at 10:55:41PM +0300, Andy Shevchenko wrote:
-> Replace open coded acpi_match_device() in acpi_smbus_cmi_add().
+On Do, 2022-06-30 at 15:16 +0000, Phil Edworthy wrote:
+[...]
+> > Which reset driver is handling the reset for this i2c module?
+> drivers/clk/renesas/rzg2l-cpg.c 
+> See rzg2l_cpg_assert() and rzg2l_cpg_deassert()
+> Note this driver handles a few different SoCs, the SoC using this i2c
+> driver is specified in drivers/clk/renesas/r9a09g011-cpg.c
 
-Discard this, a last minute change that makes it not buildable.
+Thank you.
 
--- 
-With Best Regards,
-Andy Shevchenko
+[...]
+> 
+> 
+> In order for drivers to work on lots of platforms, should all drivers
+> use devm_reset_control_get_shared() instead of devm_reset_control_get(),
+> unless there is a need to reset the hardware at a specific time after
+> boot (e.g. watchdog with no way out)?
 
+Nobody should use devm_reset_control_get(). Those drivers that require
+direct control should use devm_reset_control_get_exclusive(). All
+others probably should use the _shared() variant, if it works for them.
 
+> So where do we go with this for this i2c driver?
+
+In this specific case letting the driver deassert the reset seems to be
+safe, so I'm fine with the way it is.
+
+You could also let the i2c driver call reset_control_assert() during
+remove() and modify the rzg2l-cpg.c driver to ignore it. That doesn't
+seem very useful on its own, but it would have the positive effect of
+documenting the shared-with-firmware reset in the reset controller
+driver.
+
+regards
+Philipp
