@@ -2,122 +2,182 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 887B5C43334
-	for <linux-i2c@archiver.kernel.org>; Sat,  2 Jul 2022 05:25:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 768D3CCA47B
+	for <linux-i2c@archiver.kernel.org>; Sat,  2 Jul 2022 11:51:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbiGBFZu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 2 Jul 2022 01:25:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33032 "EHLO
+        id S232235AbiGBLvs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 2 Jul 2022 07:51:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229951AbiGBFZt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Jul 2022 01:25:49 -0400
-Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D2452C673;
-        Fri,  1 Jul 2022 22:25:48 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0AA685C0195;
-        Sat,  2 Jul 2022 01:25:46 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Sat, 02 Jul 2022 01:25:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :message-id:mime-version:reply-to:sender:subject:subject:to:to;
-         s=fm3; t=1656739546; x=1656825946; bh=ZDVhLQRWt4nVJ5OST5kNBSRBh
-        F8l/TWZdl9kfqTRWzI=; b=mIbeZnXFq0Rs6r+UoMXOGz25PnMMgtnD8SvbMSpBB
-        aGWj8+hY6AD9fRzW3cl0iqrLhGC3k0+DiILkLuzB3VJ3quyitNDNIPfUR1Op9U3r
-        C0sjBHqG2z3FEL6zVX4X/AE13KiNPf4wI4RfaX29ckzu6ox4Ib9nMP+6ajfnteSZ
-        hKHbd/N90oho/qgBmqkCjcjCQvIAKvPF5H139EQq5EkNODFVkQW3lGNIravAOKEd
-        hTHjCDyh6DtJDuU/AqkYEQK+FjrNCte4VxrcBJ1ihAJFnOfxk5LfXb2uHUy9nupJ
-        ckLLVq4AADxJBvKmDpFD8ugr2FlvLNo+qZnYqHUJqzy1A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-        1656739546; x=1656825946; bh=ZDVhLQRWt4nVJ5OST5kNBSRBhF8l/TWZdl9
-        kfqTRWzI=; b=l4sZcQ2rtRuAky8TOo1V5MnEsIFU4de9DrmGsml10Gd3V3cJziF
-        IKRWJPLZhhj+8rvUfzaLSfXjZ8MQOvEpzrFz3hGSyvpU99ysPKhLHDqt0O7Go3wc
-        hAG0FSAPabdOkj85H+OMgkL1EFyG3bZaoApKAOaNKcWNzEWQqU9vUuig7QEDSn30
-        iIozUddiIMQ7ImxbGzR9HaeQKs+8Qq3dMs8NJRZRdU4BATIi8CMJhbhHzMGgMaQq
-        myjt/137qpudzM8zJC8WMZugUhCcMtNtRLUB4/+1e3VKM+RN+llfWXv7BD10EsTx
-        +3w3WAQwib9E63qHa0KCZCbSLe9E+6gS3Fw==
-X-ME-Sender: <xms:2da_YnbURUi1iyulsI8R0PTakitGEyWvGJ5VL7jpU3-TqnJfJma9hQ>
-    <xme:2da_YmaWW_sAX8EWpqY1XyzrnGB4Rkp3w5ceJ3Nd2zeX1NdX476kGk4AFdTQruqcC
-    y2lUdYHqbBGkkJjBg>
-X-ME-Received: <xmr:2da_Yp8Fh2A6eh2pUIFds3kLes4VWHCfQeRmg-bOvdVk4Eg6bH4rzcR0nb97wOn6idcsiASChG0EEh7SkWqrDQYD6mf5asASuJLEuZSshfCa1ClJmRpX7UbcjIbbbkLRp8pDvw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudehgedgleehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghl
-    ucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrf
-    grthhtvghrnhepkeevlefhjeeuleeltedvjedvfeefteegleehueejffehgffffeekhefh
-    hfekkeegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:2da_YtqqAb7OH2GygbqbbuYrhsN7f6TAXTXsUqpFwrpc2jzKSlVDDw>
-    <xmx:2da_YipfcS8qtiuoqxbzBkqb3mza8GJiVFVZphrIZOj_1ETiNMAbHQ>
-    <xmx:2da_YjTdY7aNktkzFgJkuTSKSwVRPdoJLB4GJhfPwimtCTC9eov32g>
-    <xmx:2ta_Yh02n4mcx_MbuXT0oJAIF8cfWaTEr5LHHgEsYOKWSl1jB3j89Q>
-Feedback-ID: i0ad843c9:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 2 Jul 2022 01:25:45 -0400 (EDT)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>
-Cc:     Andre Przywara <andre.przywara@arm.com>,
+        with ESMTP id S229592AbiGBLvr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Jul 2022 07:51:47 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB7612747;
+        Sat,  2 Jul 2022 04:51:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656762707; x=1688298707;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=DUWQkgDXSBjXInTNrTsnLHeuwATTU2HaurRnr7VRUTo=;
+  b=IHrU393rk+acoa/CEbEdni6xE83Ws/lWyT/9X0n4a/6GfpQkAlXtrPP3
+   2xFtvtiaGCdyBHhuZdrrkESTfWZzHkcrKW+rZI8rDKN9gA5iaXImUerli
+   e7ZADf32B483k/HOA8+DeA7EAajA1vCuucDrKW9ZfiBKT7kcRGNydhrYo
+   EggvcqWLTm7W/P4So25Qd4xjQGu/bURYKrvxhdOYAEcgiHkdBBsiBO+jC
+   RIMwMOXC0lKp8dKjPZtHI30RjSAbnWst4geHbcSsaUljVp7L4kc7QvWHK
+   V3LQ8tdRifV/6Uzgo0D0p9wg8EETdv4QUf+vNPrL7t536atz6M0VP/ryD
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10395"; a="265854144"
+X-IronPort-AV: E=Sophos;i="5.92,239,1650956400"; 
+   d="scan'208";a="265854144"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2022 04:51:46 -0700
+X-IronPort-AV: E=Sophos;i="5.92,239,1650956400"; 
+   d="scan'208";a="734337677"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2022 04:51:42 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1o7bf1-0013aN-06;
+        Sat, 02 Jul 2022 14:51:39 +0300
+Date:   Sat, 2 Jul 2022 14:51:38 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Phil Edworthy <phil.edworthy@renesas.com>
+Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
         Wolfram Sang <wsa@kernel.org>,
-        Samuel Holland <samuel@sholland.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] dt-bindings: i2c: mv64xxx: Add variants with offload support
-Date:   Sat,  2 Jul 2022 00:25:42 -0500
-Message-Id: <20220702052544.31443-1-samuel@sholland.org>
-X-Mailer: git-send-email 2.35.1
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Rob Herring <robh@kernel.org>, Sven Peter <sven@svenpeter.dev>,
+        Jan Dabros <jsd@semihalf.com>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Tyrone Ting <kfting@nuvoton.com>,
+        Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH v3 2/2] i2c: Add Renesas RZ/V2M controller
+Message-ID: <YsAxSrcAk4jtRYx4@smile.fi.intel.com>
+References: <20220701163916.111435-1-phil.edworthy@renesas.com>
+ <20220701163916.111435-3-phil.edworthy@renesas.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220701163916.111435-3-phil.edworthy@renesas.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-V536 and newer Allwinner SoCs contain an updated I2C controller which
-includes an offload engine for master mode. The controller retains the
-existing register interface, so the A31 compatible still applies.
+On Fri, Jul 01, 2022 at 05:39:16PM +0100, Phil Edworthy wrote:
+> Yet another i2c controller from Renesas that is found on the RZ/V2M
+> (r9a09g011) SoC. It can support only 100kHz and 400KHz operation.
 
-Add the V536 compatible and use it as a fallback for other SoCs with the
-updated hardware. This includes two SoCs that were already documented
-(H616 and A100) and two new SoCs (R329 and D1).
+...
 
-Signed-off-by: Samuel Holland <samuel@sholland.org>
----
+> +		/* 10-bit address
+> +		 *   addr_1: 5'b11110 | addr[9:8] | (R/nW)
+> +		 *   addr_2: addr[7:0]
+> +		 */
 
- .../devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml   | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+/*
+ * Multi-line comments should be
+ * formatted like in this example.
+ * (Of course use as much space up
+ * to 80 as possible.)
+ */
 
-diff --git a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-index f771c09aabfc..0ec033e48830 100644
---- a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-@@ -21,10 +21,18 @@ properties:
-           - enum:
-               - allwinner,sun8i-a23-i2c
-               - allwinner,sun8i-a83t-i2c
-+              - allwinner,sun8i-v536-i2c
-               - allwinner,sun50i-a64-i2c
--              - allwinner,sun50i-a100-i2c
-               - allwinner,sun50i-h6-i2c
-+          - const: allwinner,sun6i-a31-i2c
-+      - description: Allwinner SoCs with offload support
-+        items:
-+          - enum:
-+              - allwinner,sun20i-d1-i2c
-+              - allwinner,sun50i-a100-i2c
-               - allwinner,sun50i-h616-i2c
-+              - allwinner,sun50i-r329-i2c
-+          - const: allwinner,sun8i-v536-i2c
-           - const: allwinner,sun6i-a31-i2c
-       - const: marvell,mv64xxx-i2c
-       - const: marvell,mv78230-i2c
+Ditto for other done in similar way, if any.
+
+...
+
+> +		addr = 0xf0 | ((msg->addr >> 7) & 0x06);
+
+GENMASK() ?
+
+...
+
+> +	if (!ret) {
+> +		if (read)
+> +			ret = rzv2m_i2c_receive(priv, msg, &count);
+> +		else
+> +			ret = rzv2m_i2c_send(priv, msg, &count);
+
+> +		if ((!ret) && stop)
+
+Too many parentheses.
+
+> +			ret = rzv2m_i2c_stop_condition(priv);
+> +	}
+
+...
+
+> +		ret = rzv2m_i2c_master_xfer1(priv, &msgs[i], (i == (num - 1)));
+
+Too many parentheses.
+
+> +		if (ret < 0)
+> +			goto out;
+
+...
+
+> +static const struct of_device_id rzv2m_i2c_ids[] = {
+> +	{ .compatible = "renesas,rzv2m-i2c" },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, rzv2m_i2c_ids);
+
+This can be moved after the ->probe() closer to the actual user of the table.
+
+...
+
+> +	priv = devm_kzalloc(dev, sizeof(struct rzv2m_i2c_priv), GFP_KERNEL);
+
+sizeof(*priv)
+
+> +	if (!priv)
+> +		return -ENOMEM;
+
+...
+
+> +static int rzv2m_i2c_suspend(struct device *dev)
+> +{
+> +	struct rzv2m_i2c_priv *priv = dev_get_drvdata(dev);
+
+> +	pm_runtime_get_sync(dev);
+
+Isn't guaranteed by the runtime PM that device is runtime powered on the system
+suspend?
+
+> +	bit_clrl(priv->base + IICB0CTL0, IICB0IICE);
+> +	pm_runtime_put(dev);
+> +
+> +	return 0;
+> +}
+
+...
+
+> +static int rzv2m_i2c_resume(struct device *dev)
+> +{
+> +	struct rzv2m_i2c_priv *priv = dev_get_drvdata(dev);
+> +	int ret;
+> +
+> +	ret = rzv2m_i2c_clock_calculate(dev, priv);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	pm_runtime_get_sync(dev);
+
+I'm not sure how it's suppose to work. Isn't it a no-op here?
+
+> +	rzv2m_i2c_init(priv);
+> +	pm_runtime_put(dev);
+> +
+> +	return 0;
+> +}
+
 -- 
-2.35.1
+With Best Regards,
+Andy Shevchenko
+
 
