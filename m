@@ -2,82 +2,122 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 938F4CCA47F
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Jul 2022 05:46:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74C53C43334
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Jul 2022 06:38:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233305AbiGGFqg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 7 Jul 2022 01:46:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33632 "EHLO
+        id S230148AbiGGGil (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 7 Jul 2022 02:38:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232901AbiGGFqd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Jul 2022 01:46:33 -0400
-Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D40B03139F;
-        Wed,  6 Jul 2022 22:46:32 -0700 (PDT)
-X-UUID: 325c50e0cdf04af1b73fd155d898424b-20220707
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.8,REQID:885cf4f0-48e3-4476-a3cd-eacdb9d3dad1,OB:0,LO
-        B:0,IP:0,URL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACT
-        ION:release,TS:-5
-X-CID-META: VersionHash:0f94e32,CLOUDID:a384a463-0b3f-4b2c-b3a6-ed5c044366a0,C
-        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,IP:nil,URL:0,File:nil
-        ,QS:nil,BEC:nil,COL:0
-X-UUID: 325c50e0cdf04af1b73fd155d898424b-20220707
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw02.mediatek.com
-        (envelope-from <kewei.xu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 688955489; Thu, 07 Jul 2022 13:46:24 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs11n1.mediatek.inc (172.21.101.185) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Thu, 7 Jul 2022 13:46:23 +0800
-Received: from localhost.localdomain (10.17.3.154) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 7 Jul 2022 13:46:21 +0800
-From:   Kewei Xu <kewei.xu@mediatek.com>
-To:     <wsa@the-dreams.de>
-CC:     <matthias.bgg@gmail.com>, <robh+dt@kernel.org>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        with ESMTP id S230124AbiGGGij (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Jul 2022 02:38:39 -0400
+Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31AA227FF4;
+        Wed,  6 Jul 2022 23:38:38 -0700 (PDT)
+Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26715pJ4025688;
+        Thu, 7 Jul 2022 08:38:20 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=date : from : to :
+ cc : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=selector1; bh=zVSoqRqzuyLq0LopHTrb8YdEclj7FIl5rpVJUrthI2k=;
+ b=w+uiFBF0FBVSp44RBV9b1Kcfs3BdqUZ74D9ShD5VGMkXXK0mYTb9Arap/KCgCGIifmWI
+ rtdiT0iWPg8Vyyh4Nqo9U29dp9QAyeIzaTSI+DqR2Fb2jm7ykJgjknkPN4voXBu9PkG+
+ FDOzzLYb2JDKTg+t2meV++Sg1eUAQ4Ea7Gj9mGEPFs9NC3RwXkUMIIh04LuGNbAKy5jV
+ X1NbnD2ju33Gx4yMCguebN2TgG/M+zmKeEIziaciSOOcmIztE8XraC8AZsrGQ99QN7T+
+ YH9a4vBLKTDi+cwFJE3xmNb5fe9asU7Chmc1uW9mLV+hs2uYcoR/IMG5Mp+jUEDOPxGa rg== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3h58bp6h7c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Jul 2022 08:38:20 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id D979810002A;
+        Thu,  7 Jul 2022 08:38:18 +0200 (CEST)
+Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id B5B6420F570;
+        Thu,  7 Jul 2022 08:38:18 +0200 (CEST)
+Received: from gnbcxd0016.gnb.st.com (10.75.127.49) by SHFDAG1NODE1.st.com
+ (10.75.129.69) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.2308.20; Thu, 7 Jul
+ 2022 08:38:18 +0200
+Date:   Thu, 7 Jul 2022 08:38:13 +0200
+From:   Alain Volmat <alain.volmat@foss.st.com>
+To:     Rob Herring <robh@kernel.org>
+CC:     <wsa@kernel.org>, <mark.rutland@arm.com>,
+        <pierre-yves.mordret@foss.st.com>, <mcoquelin.stm32@gmail.com>,
+        <alexandre.torgue@foss.st.com>, <linux-i2c@vger.kernel.org>,
+        <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, <leilk.liu@mediatek.com>,
-        <qii.wang@mediatek.com>, <liguo.zhang@mediatek.com>,
-        <caiyu.chen@mediatek.com>, <housong.zhang@mediatek.com>,
-        <yuhan.wei@mediatek.com>, <kewei.xu@mediatek.com>,
-        <david-yh.chiu@mediatek.com>, <liju-clr.chen@mediatek.com>
-Subject: [PATCH V1 1/2] dt-bindings: i2c: update bindings for MT8188 SoC
-Date:   Thu, 7 Jul 2022 13:46:16 +0800
-Message-ID: <20220707054617.13583-2-kewei.xu@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20220707054617.13583-1-kewei.xu@mediatek.com>
-References: <20220707054617.13583-1-kewei.xu@mediatek.com>
+        <linux-kernel@vger.kernel.org>, <fabrice.gasnier@foss.st.com>,
+        <amelie.delaunay@foss.st.com>
+Subject: Re: [PATCH 1/4] dt-bindings: i2c: st,stm32-i2c: don't mandate a
+ reset line
+Message-ID: <20220707063813.GA2428347@gnbcxd0016.gnb.st.com>
+Mail-Followup-To: Rob Herring <robh@kernel.org>, wsa@kernel.org,
+        mark.rutland@arm.com, pierre-yves.mordret@foss.st.com,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        fabrice.gasnier@foss.st.com, amelie.delaunay@foss.st.com
+References: <20220620105405.145959-1-alain.volmat@foss.st.com>
+ <20220620105405.145959-2-alain.volmat@foss.st.com>
+ <20220628134115.GA345270-robh@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20220628134115.GA345270-robh@kernel.org>
+X-Disclaimer: ce message est personnel / this message is private
+X-Originating-IP: [10.75.127.49]
+X-ClientProxiedBy: SFHDAG2NODE3.st.com (10.75.127.6) To SHFDAG1NODE1.st.com
+ (10.75.129.69)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-07_04,2022-06-28_01,2022-06-22_01
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add a DT binding documentation for the MT8188 soc.
+Hi Rob,
 
-Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
----
- Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml | 1 +
- 1 file changed, 1 insertion(+)
+On Tue, Jun 28, 2022 at 07:41:15AM -0600, Rob Herring wrote:
+> On Mon, Jun 20, 2022 at 12:54:02PM +0200, Alain Volmat wrote:
+> > Update the dt-bindings of the i2c-stm32 drivers to avoid the
+> > needs for a reset property in the device-tree.
+> 
+> That is clear from the diff, but why. Some chips don't have a reset? 
+> If so, this should be combined with patch 2 as part of changes needed 
+> for a new version.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
-index 16a1a3118204..4e730fb7be56 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
-@@ -27,6 +27,7 @@ properties:
-       - const: mediatek,mt8173-i2c
-       - const: mediatek,mt8183-i2c
-       - const: mediatek,mt8186-i2c
-+      - const: mediatek,mt8188-i2c
-       - const: mediatek,mt8192-i2c
-       - items:
-           - enum:
--- 
-2.18.0
+Alexandre has just pushed a pull-request enabling support for the
+clock/reset [1] so I will shortly push a v2 of the serie dropping the
+first 2 patches.
 
+Thanks
+Alain
+
+[1] https://lore.kernel.org/all/a250f32b-f67c-2922-0748-e39dc791e95c@foss.st.com/
+
+> 
+> > 
+> > Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml | 1 -
+> >  1 file changed, 1 deletion(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+> > index dccbb18b6dc0..8879144fbbfb 100644
+> > --- a/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+> > +++ b/Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+> > @@ -94,7 +94,6 @@ required:
+> >    - compatible
+> >    - reg
+> >    - interrupts
+> > -  - resets
+> >    - clocks
+> >  
+> >  unevaluatedProperties: false
+> > -- 
+> > 2.25.1
+> > 
+> > 
