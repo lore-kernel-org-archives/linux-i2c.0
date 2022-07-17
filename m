@@ -2,92 +2,100 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AD48CCA48A
-	for <linux-i2c@archiver.kernel.org>; Sun, 17 Jul 2022 03:48:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AAB3CCA480
+	for <linux-i2c@archiver.kernel.org>; Sun, 17 Jul 2022 10:27:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232888AbiGQDsR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 16 Jul 2022 23:48:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58914 "EHLO
+        id S229836AbiGQK1t (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 17 Jul 2022 06:27:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232796AbiGQDsJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 16 Jul 2022 23:48:09 -0400
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2141717E3D
-        for <linux-i2c@vger.kernel.org>; Sat, 16 Jul 2022 20:48:08 -0700 (PDT)
-Received: by mail-ot1-x32f.google.com with SMTP id br15-20020a056830390f00b0061c9d73b8bdso576142otb.6
-        for <linux-i2c@vger.kernel.org>; Sat, 16 Jul 2022 20:48:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Yi8AkrlIqU4lv5oV/rNtUh5JaYHyOIwQpcON7vVHGsA=;
-        b=zr9iL6oISXOb1as1eSfmmqY3qOK3BV9grw3z5lf/C/WPw4ac1n1v8ar0WGrTWVBhVi
-         vIGNlI8SxWlKUK85JILoOVAnX4f4uK9Ua6tVeWX12b/1yc2RcCI5LS7WJikmdUPEOEOR
-         wCRaTAnWuwj46FQLcvRtEW0iqFszCpJmRj2EtpuTF4iq3AWA2/8caHFN+nNsrgpvFyab
-         lG+ApzwU4ZSCEPjX9MLHrocKe8TZObRh45ble4Zi78SlEssrh6q4IAwwyyK6QVEKtIK2
-         xAq6Nfo64ioTQi+hVFLXsWbVL6i2H8iYxYwE4try/xt9QZsSSuCLPL22RSTGFRWhX0iM
-         vUWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Yi8AkrlIqU4lv5oV/rNtUh5JaYHyOIwQpcON7vVHGsA=;
-        b=fiNIDSOAkPoCON732t6/WFC3htps5o+3KWpTfoDx/RpaE7wuBsBcJ8RBLZTdQn6JiM
-         4dJimJoC+UCURpdt46qE34BeGPugqyjh02OuwlYx+045SBa4zpdpuo5koYOkDigY7s9B
-         kHeZWo6uvFURZq6zfSqFat3kzojxDYl6T+GemG69yoEZHck/4J6i8YwsE+FTvMBGE/zT
-         Hvtc1Xhfb1s2lcgTobGdrFoG/2JBPU+7bj1oGDNdrLcTNKXX/WN76DlCvWL9qYy9iquV
-         RX1oWr6I7AhJ3TuKB4+6vfGzW7ZBQOEJacSgxikjTXCJOHH4gMYQdjMCjzjKwN8NXQ0M
-         AUew==
-X-Gm-Message-State: AJIora/sYC9J/O49qpKqW1QSFOb9zfVUGz49tLIq5pABDDcAL4EcF+Ob
-        MaywaQ6FOPNtRdYcBiFGWM9hclyULAkYfg==
-X-Google-Smtp-Source: AGRyM1uUNBzlqa+eRg79c4zphI886hA7vGx8j8GA62jnmV2U5UdRidnlfYZUfKxTntxitQF3Ies2VQ==
-X-Received: by 2002:a9d:198c:0:b0:60c:7ecc:5c19 with SMTP id k12-20020a9d198c000000b0060c7ecc5c19mr8638762otk.160.1658029687487;
-        Sat, 16 Jul 2022 20:48:07 -0700 (PDT)
-Received: from ripper.. (104-57-184-186.lightspeed.austtx.sbcglobal.net. [104.57.184.186])
-        by smtp.gmail.com with ESMTPSA id e65-20020aca3744000000b0033a169f9282sm3004515oia.52.2022.07.16.20.48.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 16 Jul 2022 20:48:07 -0700 (PDT)
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Vinod Koul <vkoul@kernel.org>, Wolfram Sang <wsa@kernel.org>
-Cc:     linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] i2c: qcom-geni: Use the correct return value
-Date:   Sat, 16 Jul 2022 20:50:25 -0700
-Message-Id: <20220717035027.2135106-2-bjorn.andersson@linaro.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220717035027.2135106-1-bjorn.andersson@linaro.org>
-References: <20220717035027.2135106-1-bjorn.andersson@linaro.org>
+        with ESMTP id S229731AbiGQK1s (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Jul 2022 06:27:48 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E29E013F6C;
+        Sun, 17 Jul 2022 03:27:46 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 7278C1C0003; Sun, 17 Jul 2022 12:27:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ucw.cz; s=gen1;
+        t=1658053665;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3MVHf1qHPbwU04QPrugrK9rKDYYcr5uqSuRuIBZh6RU=;
+        b=E1wd2mR5U0P3hGWzxsehSHmMQgRyWJTSAWmvHc26G/G5mkxAEtvEy4BVpQYub/YXK0hYbL
+        gmW9mhrDbGEHoVivVOofSu0a+HUqTkuMdgM76XcH8SZq2pXnNX8d9RZSiwmbZcTmslAn0D
+        KJbRBbX8TLTBo1MJdd6AFEC9ra/P6L0=
+Date:   Sun, 17 Jul 2022 12:27:44 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>, Wolfram Sang <wsa@kernel.org>,
+        Jean Delvare <jdelvare@suse.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Henning Schild <henning.schild@siemens.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Yong <jonathan.yong@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        linux-kernel@vger.kernel.org, linux-edac@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-gpio@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Peter Tyser <ptyser@xes-inc.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mark Gross <markgross@kernel.org>
+Subject: Re: [PATCH v6 00/12] platform/x86: introduce p2sb_bar() helper
+Message-ID: <20220717102744.GD14285@duo.ucw.cz>
+References: <20220606164138.66535-1-andriy.shevchenko@linux.intel.com>
+ <YqBS8I62YBPFC9iS@google.com>
+ <20220714112656.GB16407@duo.ucw.cz>
+ <YtAHyZ5WHDRbgOZe@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ZARJHfwaSJQLOEUz"
+Content-Disposition: inline
+In-Reply-To: <YtAHyZ5WHDRbgOZe@google.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The introduction of GPI support moved things around and instead of
-returning the result from geni_i2c_xfer() the number of messages in the
-request was returned, ignoring the actual result. Fix this.
 
-Fixes: d8703554f4de ("i2c: qcom-geni: Add support for GPI DMA")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
----
- drivers/i2c/busses/i2c-qcom-geni.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--ZARJHfwaSJQLOEUz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 6ac402ea58fb..3bec7c782824 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -688,7 +688,7 @@ static int geni_i2c_xfer(struct i2c_adapter *adap,
- 	pm_runtime_put_autosuspend(gi2c->se.dev);
- 	gi2c->cur = NULL;
- 	gi2c->err = 0;
--	return num;
-+	return ret;
- }
- 
- static u32 geni_i2c_func(struct i2c_adapter *adap)
--- 
-2.35.1
+Hi!
 
+> > > Can we just wait for Pavel's review, then merge them all at once?
+> >=20
+> > 10,12: Acked-by: Pavel Machek <pavel@ucw.cz>
+>=20
+> Thanks Pavel.  I'll get that added.
+
+Thank you, sorry for the delays.
+
+Best regards,
+							Pavel
+
+--=20
+People of Russia, stop Putin before his war on Ukraine escalates.
+
+--ZARJHfwaSJQLOEUz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYtPkIAAKCRAw5/Bqldv6
+8shAAJ9XaR038+0wsZQKvKNF4Tgr3zzktwCcCU+9rZjRQhe2EMoVQr1ueJ71gO0=
+=4aTK
+-----END PGP SIGNATURE-----
+
+--ZARJHfwaSJQLOEUz--
