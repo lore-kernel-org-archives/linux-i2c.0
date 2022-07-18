@@ -2,153 +2,120 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC4A9C433EF
-	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jul 2022 15:35:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BF62CCA479
+	for <linux-i2c@archiver.kernel.org>; Mon, 18 Jul 2022 22:28:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235306AbiGRPfS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 18 Jul 2022 11:35:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48562 "EHLO
+        id S234908AbiGRW2r (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 18 Jul 2022 18:28:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbiGRPfR (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Jul 2022 11:35:17 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8509A19A
-        for <linux-i2c@vger.kernel.org>; Mon, 18 Jul 2022 08:35:16 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id k30so15818299edk.8
-        for <linux-i2c@vger.kernel.org>; Mon, 18 Jul 2022 08:35:16 -0700 (PDT)
+        with ESMTP id S234877AbiGRW2q (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Jul 2022 18:28:46 -0400
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A321B286D7
+        for <linux-i2c@vger.kernel.org>; Mon, 18 Jul 2022 15:28:41 -0700 (PDT)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-10c0430e27dso27750188fac.4
+        for <linux-i2c@vger.kernel.org>; Mon, 18 Jul 2022 15:28:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=R+54tAgSF3cGTDz61HzqamFdcjLpGh+UYoWywfQYoS4=;
-        b=gKGAbUrp2i1o6fHKC7fTKkfa9px/8vS3N+z1xnJ0B5uJbu3njts3gkG+U+ojFVg1Uc
-         jyLO1OZ+AKEsZNU0wEEaKgFurji306xPnY9Px8OfC2zPRER8CkLBkgawJMEc96dDmGWR
-         3WwTPjsDzEDzIEqPFuy0V9tuqfVmjwNYGl1bll1Y/Gst9acmoCMp7lCqp4A23+LhN2fQ
-         tTusY8Y4lTfM31CLnnXup88W7IfIqe3E4ItvAmBncFIQiSp2dIuCROKsXSa0S74YUeWV
-         LWJkrpu2gpwChSecEkmA74icGMl4s1uJdbf3oVCPXAu1mGykIA4MVVUPUTkw/cYoH4GV
-         2Zjg==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=CM+L+F29IjkyytSgiUJ9L1anz4s5cjBnkaXschPxT+s=;
+        b=Yq+Uz2UfmII9HsrH9h2DcdOQOcBpvQWk4eGZIG76Nm98EAHedcqcyuNAfAsNGU5wnS
+         LBfYbf7o2RvpXaly6M22s2nyQ0ugJJqli+6xTfusfX5eDw/5Biz17R25ooPX8/RGqFe6
+         OhV5B4sZZFKnCfWKZHTTvnAslOt4t+I6ricgU1JoXJwNm6omRCV9Fq2vQpnJRFf7cBUU
+         5xgKP/GqmnHWela1juasxpglmhsEAHiS5Jzx4um2HEd+pUW9hAEK2VoeQEAz6GA9zF7c
+         OA9Y0yqapLTCWBLRlmqrWwOGdnTrfeKDVBup2BqP9eIerIjg9AOe0PdhrQnZh498afur
+         ps4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=R+54tAgSF3cGTDz61HzqamFdcjLpGh+UYoWywfQYoS4=;
-        b=UQeREyl3ezg7Y02PmjlTdUhi2o/GeIHo57r7v83sAGGBBbiYIVYV0ojlXr1IbE8uND
-         5ryZJAiEbLFfZNFfjLx5PABylNmNZ41QvrqMmaoZbYRhHg7Lp15WkPDuUDlQpWvT+xz1
-         w7MoFh0PKCZClOrQDQ8lyU9QWJYDlrZjOfzKjzZaAikBH0B4iqd/JKyskatj1L9F25DR
-         S3CblyJUw7WUAASADIDJLcqbUU8ffmidgkcNXJNwaE7MYlefFQGWcbdupdHRbFyjlqmb
-         5Fte/fYejBmallNvod/MTDhQPOGSJQOuj2T4+12Nfeovi5GeKv3e6811zLCLJKKb32Sj
-         3wVA==
-X-Gm-Message-State: AJIora8qPS9FNct93Y5UUDCa2MYI/r6sj/mMMNa8/YnhHYA2Huw90O//
-        /MFk63th9Ohf883fHc1+8jWFa6DLWqLkaw==
-X-Google-Smtp-Source: AGRyM1t84HI8BLHyG/lWgDoDGBA6ooSq2M5or23euRZgVn0XXIZfSlzcjvNwAdWTdJrS2uMpYU91Lw==
-X-Received: by 2002:a05:6402:51cb:b0:43a:e94c:a841 with SMTP id r11-20020a05640251cb00b0043ae94ca841mr37999796edd.212.1658158514962;
-        Mon, 18 Jul 2022 08:35:14 -0700 (PDT)
-Received: from localhost.localdomain (75-164-183-54.ptld.qwest.net. [75.164.183.54])
-        by smtp.gmail.com with ESMTPSA id s12-20020a1709064d8c00b006feec47dae9sm5629822eju.157.2022.07.18.08.35.08
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=CM+L+F29IjkyytSgiUJ9L1anz4s5cjBnkaXschPxT+s=;
+        b=REdHpgtKM3FJnngPXTgYh5bZZhTNtQb4rNIHHT9v6WKfdXqaiqAQTwAkVuOThT2S9G
+         FRCreJDL/IB5/K/mUtu5Q5nhms0aEgtXiuWEgJHuznTzLdDTGs0w5FvOaMnUUzfrUgtk
+         Vmfxdft2zu3p4sJ8NXwrOhx6LcrDsZH45mCm2v/2jgIRCxkUPKJ+y0LgcbXa/JA97oO4
+         l8y464jTktt2C3qFb82sF/7O26KEm1OIRmcx9RZwgV6QH0bl26lSr3H3Tg0HPv2mHgNS
+         cn4oCeQvgYt7C90hxCwzYUymVu02DyLd0OLIyM735g0MST08naaRPMuBBD7o2rLXTQtb
+         3TwQ==
+X-Gm-Message-State: AJIora8pkC6qzOj+BJrmczCyM+AZe5VRaBK7PNSzh8hKEw8wyXEikhfk
+        AMrGmerOK5FILbSuYG248UbyBw==
+X-Google-Smtp-Source: AGRyM1vPyGVktBCtcTaxH8G86pSgyCdxCEPnpid+y/LK/LtOaq0k5UVTTe7VlXBijDZQo/uwJ6aRSQ==
+X-Received: by 2002:a05:6870:c5a0:b0:10c:5a7f:1e1c with SMTP id ba32-20020a056870c5a000b0010c5a7f1e1cmr16718133oab.250.1658183320998;
+        Mon, 18 Jul 2022 15:28:40 -0700 (PDT)
+Received: from baldur ([2600:380:7819:4216:5926:b852:ebc3:8111])
+        by smtp.gmail.com with ESMTPSA id e11-20020a4ada0b000000b0042568efdaccsm5388483oou.15.2022.07.18.15.28.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Jul 2022 08:35:14 -0700 (PDT)
-From:   Jason Gerecke <killertofu@gmail.com>
-X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
-To:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>
-Cc:     Ping Cheng <pinglinux@gmail.com>,
-        "Tobita, Tatsunosuke" <tatsunosuke.tobita@wacom.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>
-Subject: [PATCH] i2c: Use u8 type in i2c transfer calls
-Date:   Mon, 18 Jul 2022 08:34:48 -0700
-Message-Id: <20220718153448.173652-1-jason.gerecke@wacom.com>
-X-Mailer: git-send-email 2.37.1
+        Mon, 18 Jul 2022 15:28:40 -0700 (PDT)
+Date:   Mon, 18 Jul 2022 17:28:24 -0500
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Vinod Koul <vkoul@kernel.org>
+Cc:     Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Wolfram Sang <wsa@kernel.org>, linux-arm-msm@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] i2c: qcom-geni: Use the correct return value
+Message-ID: <YtXeiKWhFtldI2eE@baldur>
+References: <20220717035027.2135106-1-bjorn.andersson@linaro.org>
+ <20220717035027.2135106-2-bjorn.andersson@linaro.org>
+ <YtTxR/X5+UZW9pZZ@matsya>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YtTxR/X5+UZW9pZZ@matsya>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The 'i2c_transfer_buffer_flags' function (and related inlines) defines its
-'buf' argument to be of type 'char*'. This is a poor choice of type given
-that most callers actually pass a 'u8*' and that the function itself ends
-up just storing the variable to a 'u8*'-typed member of 'struct i2c_msg'
-anyway.
+On Mon 18 Jul 00:36 CDT 2022, Vinod Koul wrote:
 
-Changing the type of the 'buf' argument to 'u8*' vastly reduces the number
-of (admittedly usually-silent) Wpointer-sign warnings that are generated
-as the types get needlessly juggled back and forth.
+> On 16-07-22, 20:50, Bjorn Andersson wrote:
+> > The introduction of GPI support moved things around and instead of
+> > returning the result from geni_i2c_xfer() the number of messages in the
+> > request was returned, ignoring the actual result. Fix this.
+> 
+> Thanks for the fix, looking at master_xfer() it does expect error
+> return, so look good with one nit:
+> 
+> > 
+> > Fixes: d8703554f4de ("i2c: qcom-geni: Add support for GPI DMA")
+> > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> > ---
+> >  drivers/i2c/busses/i2c-qcom-geni.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> > index 6ac402ea58fb..3bec7c782824 100644
+> > --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> > +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> > @@ -688,7 +688,7 @@ static int geni_i2c_xfer(struct i2c_adapter *adap,
+> >  	pm_runtime_put_autosuspend(gi2c->se.dev);
+> >  	gi2c->cur = NULL;
+> >  	gi2c->err = 0;
+> 
+> Unrelated, should gi2c->err be set to ret here..?
+> 
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
----
- drivers/i2c/i2c-core-base.c |  2 +-
- include/linux/i2c.h         | 14 +++++++-------
- 2 files changed, 8 insertions(+), 8 deletions(-)
+When we reach this point we have concluded the current transfer
+(successfully or not...), so I believe that the purpose of this line is
+to clear the "error state" that might have occurred during that transfer.
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 10f35f942066..2925507e8626 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -2184,7 +2184,7 @@ EXPORT_SYMBOL(i2c_transfer);
-  *
-  * Returns negative errno, or else the number of bytes transferred.
-  */
--int i2c_transfer_buffer_flags(const struct i2c_client *client, char *buf,
-+int i2c_transfer_buffer_flags(const struct i2c_client *client, u8 *buf,
- 			      int count, u16 flags)
- {
- 	int ret;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index fbda5ada2afc..65c46df51c51 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -64,7 +64,7 @@ const char *i2c_freq_mode_string(u32 bus_freq_hz);
-  * @count must be less than 64k since msg.len is u16.
-  */
- int i2c_transfer_buffer_flags(const struct i2c_client *client,
--			      char *buf, int count, u16 flags);
-+			      u8 *buf, int count, u16 flags);
- 
- /**
-  * i2c_master_recv - issue a single I2C message in master receive mode
-@@ -75,7 +75,7 @@ int i2c_transfer_buffer_flags(const struct i2c_client *client,
-  * Returns negative errno, or else the number of bytes read.
-  */
- static inline int i2c_master_recv(const struct i2c_client *client,
--				  char *buf, int count)
-+				  u8 *buf, int count)
- {
- 	return i2c_transfer_buffer_flags(client, buf, count, I2C_M_RD);
- };
-@@ -90,7 +90,7 @@ static inline int i2c_master_recv(const struct i2c_client *client,
-  * Returns negative errno, or else the number of bytes read.
-  */
- static inline int i2c_master_recv_dmasafe(const struct i2c_client *client,
--					  char *buf, int count)
-+					  u8 *buf, int count)
- {
- 	return i2c_transfer_buffer_flags(client, buf, count,
- 					 I2C_M_RD | I2C_M_DMA_SAFE);
-@@ -105,9 +105,9 @@ static inline int i2c_master_recv_dmasafe(const struct i2c_client *client,
-  * Returns negative errno, or else the number of bytes written.
-  */
- static inline int i2c_master_send(const struct i2c_client *client,
--				  const char *buf, int count)
-+				  const u8 *buf, int count)
- {
--	return i2c_transfer_buffer_flags(client, (char *)buf, count, 0);
-+	return i2c_transfer_buffer_flags(client, (u8 *)buf, count, 0);
- };
- 
- /**
-@@ -120,9 +120,9 @@ static inline int i2c_master_send(const struct i2c_client *client,
-  * Returns negative errno, or else the number of bytes written.
-  */
- static inline int i2c_master_send_dmasafe(const struct i2c_client *client,
--					  const char *buf, int count)
-+					  const u8 *buf, int count)
- {
--	return i2c_transfer_buffer_flags(client, (char *)buf, count,
-+	return i2c_transfer_buffer_flags(client, (u8 *)buf, count,
- 					 I2C_M_DMA_SAFE);
- };
- 
--- 
-2.37.1
+I believe this line could be removed, as the first step in a transfer is
+to clear the error state again. But as you suggest this is separate to
+the proposed change.
 
+
+May I have a R-b?
+
+Regards,
+Bjorn
+
+> > -	return num;
+> > +	return ret;
+> >  }
+> >  
+> >  static u32 geni_i2c_func(struct i2c_adapter *adap)
+> > -- 
+> > 2.35.1
+> 
+> -- 
+> ~Vinod
