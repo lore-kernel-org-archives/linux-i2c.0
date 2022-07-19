@@ -2,115 +2,103 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADF96C433EF
-	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jul 2022 08:57:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E79FFCCA47F
+	for <linux-i2c@archiver.kernel.org>; Tue, 19 Jul 2022 20:36:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236614AbiGSI5H (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 19 Jul 2022 04:57:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33852 "EHLO
+        id S239310AbiGSUgX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 19 Jul 2022 16:36:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230263AbiGSI5H (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jul 2022 04:57:07 -0400
-Received: from www381.your-server.de (www381.your-server.de [78.46.137.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654F41F603
-        for <linux-i2c@vger.kernel.org>; Tue, 19 Jul 2022 01:57:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=metafoo.de;
-         s=default2002; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID;
-        bh=Cu01Vg/dPrN6s3KAyngzKf1u6/mHgU32NkWcBVxKytY=; b=Vl5TMQvTpbNkGVi63pwZIIau0f
-        iS7Pe9RQ1Vc0jdJvUTXsBluMmwHOyiE3H/5PGgAol6+bOJx29pQHq0f3CLUoM7r9TUyb+OOiDYI1E
-        Y3yZ5CEibEJ+B5u8p4JZRnxmkySladcuwadqSHXTGKTpGZS9drKwCkEGB7wF0Kn4Pp+505PcHmCYn
-        byx+cxyfOksaK7Lxg6tYcLrVReJmBmMZkIai9DRiR+DfbuP5a3frEw0QuVeS9H+jfiE1B1a12oDcr
-        2Oz6tb2cdACPU2yWi7+sL8i67I98lzNlRUtP5dCz0+ksubB3b03GnJQtFb0K7Qst9ypgkzn5SsG1n
-        ktI3SVvA==;
-Received: from sslproxy02.your-server.de ([78.47.166.47])
-        by www381.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92.3)
-        (envelope-from <lars@metafoo.de>)
-        id 1oDj2O-000Av1-D8; Tue, 19 Jul 2022 10:57:04 +0200
-Received: from [2001:a61:2a04:b01:9e5c:8eff:fe01:8578]
-        by sslproxy02.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <lars@metafoo.de>)
-        id 1oDj2O-00012g-8I; Tue, 19 Jul 2022 10:57:04 +0200
-Message-ID: <e5a63b48-5a09-cbe8-b173-a9c7b7abedc7@metafoo.de>
-Date:   Tue, 19 Jul 2022 10:57:03 +0200
+        with ESMTP id S239767AbiGSUgN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jul 2022 16:36:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 038AA45F6E
+        for <linux-i2c@vger.kernel.org>; Tue, 19 Jul 2022 13:36:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1658262968;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=takPyX+c7DxSDI8v9MKZPYo25db1qJMbIDQOmjpNFXE=;
+        b=QoRT9x+nfd9JbqwTqdK9evOLRCZeTp8uj95X5SN3/r46vnU2csL7I1XeIfVN/4Kp/C5Y4G
+        wiDD7FDKY8S0uwkJWlPcdqWEamPIBDFfCscl3PYQSCikZvBaz5pEmiMG5CaEgABCaq42bN
+        OAs3uhlaWRg9iVM/fYmpShpOx54LohQ=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-648-czvWj22SNPuASsNRs2e2ug-1; Tue, 19 Jul 2022 16:36:07 -0400
+X-MC-Unique: czvWj22SNPuASsNRs2e2ug-1
+Received: by mail-qt1-f198.google.com with SMTP id n14-20020ac8674e000000b0031ede6b9526so8020917qtp.3
+        for <linux-i2c@vger.kernel.org>; Tue, 19 Jul 2022 13:36:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=takPyX+c7DxSDI8v9MKZPYo25db1qJMbIDQOmjpNFXE=;
+        b=tg7YCP1TJnbwnXoylXSHCeWYsjQFHb6Sev3PjoIBFJHtcBnRdDhbxZWOnzA8fR8xTx
+         X2zm/tb+5FpABjVnqPoO0RH5dB9HtzolTV3DjPeoAt5jAdwk+Hj7LI5hLIbk8JRAxuwT
+         23ZNekCg7soRZ8lUrrOCv1RCOBLfwRBVfJZJXPY/qyAj9aI3Ne/jegWkpmSO7QClOcmd
+         VJhviyixPtfhUOXqE7alYkfZy4twHKasPz3s78IZnQh95FDgaotGEIfpC0IdtnuJ8Ywm
+         2aqyjXbcDySQOZZNSRhAnsINFWtMuQz7VOnHWlQnwspm6i8SrfDF/Q4DXzGbhYnZCLLA
+         NexQ==
+X-Gm-Message-State: AJIora9zA/lsenRxI3xOhZ3wR5g36chV/GFWJ5skZj3lj9ZCj56e56y8
+        31pEX6MsKfaA1/1nT9Y5ZVpoQc/EzSp+O3gG1FnOyLnC0EY6mywglDPG8/Odyy/BxwcoJiXjfpp
+        JkLJo4R5NRU5XwVV6N/Xg
+X-Received: by 2002:a37:ccb:0:b0:6b5:e1ad:75b9 with SMTP id 194-20020a370ccb000000b006b5e1ad75b9mr9931094qkm.601.1658262967068;
+        Tue, 19 Jul 2022 13:36:07 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1tAzt2tTk4tcnbDcqODkuX1qe3mjaBF2On6EHRapv2Dkf+sudVlRQyXpLaaNySdqvHYRb1c+w==
+X-Received: by 2002:a37:ccb:0:b0:6b5:e1ad:75b9 with SMTP id 194-20020a370ccb000000b006b5e1ad75b9mr9931079qkm.601.1658262966858;
+        Tue, 19 Jul 2022 13:36:06 -0700 (PDT)
+Received: from halaneylaptop ([2600:1700:1ff0:d0e0::2e])
+        by smtp.gmail.com with ESMTPSA id y13-20020a05620a25cd00b006af20edff0csm15339630qko.58.2022.07.19.13.36.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Jul 2022 13:36:06 -0700 (PDT)
+Date:   Tue, 19 Jul 2022 15:36:03 -0500
+From:   Andrew Halaney <ahalaney@redhat.com>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Vinod Koul <vkoul@kernel.org>, Wolfram Sang <wsa@kernel.org>,
+        linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] i2c: qcom-geni: Use the correct return value
+Message-ID: <20220719203603.o7bdp4vionxvcy2z@halaneylaptop>
+References: <20220717035027.2135106-1-bjorn.andersson@linaro.org>
+ <20220717035027.2135106-2-bjorn.andersson@linaro.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH] i2c: cadence: Support PEC for SMBus block read
-Content-Language: en-US
-To:     Michal Simek <michal.simek@amd.com>, Wolfram Sang <wsa@kernel.org>,
-        Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
-Cc:     linux-i2c@vger.kernel.org, git <git@xilinx.com>
-References: <20220717145244.652278-1-lars@metafoo.de>
- <768b56a8-df1c-e24d-7879-328512598549@amd.com>
-From:   Lars-Peter Clausen <lars@metafoo.de>
-In-Reply-To: <768b56a8-df1c-e24d-7879-328512598549@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Authenticated-Sender: lars@metafoo.de
-X-Virus-Scanned: Clear (ClamAV 0.103.6/26606/Tue Jul 19 09:57:30 2022)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220717035027.2135106-2-bjorn.andersson@linaro.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 7/18/22 11:25, Michal Simek wrote:
->
->
-> On 7/17/22 16:52, Lars-Peter Clausen wrote:
->> SMBus packet error checking (PEC) is implemented by appending one
->> additional byte of checksum data at the end of the message. This 
->> provides
->> additional protection and allows to detect data corruption on the I2C 
->> bus.
->>
->> SMBus block reads support variable length reads. The first byte in 
->> the read
->> message is the number of available data bytes.
->>
->> The combination of PEC and block read is currently not supported by the
->> Cadence I2C driver.
->>   * When PEC is enabled the maximum transfer length for block reads
->>     increases from 33 to 34 bytes.
->>   * The I2C core smbus emulation layer relies on the driver updating the
->>     `i2c_msg` `len` field with the number of received bytes. The updated
->>     length is used when checking the PEC.
->>
->> Add support to the Cadence I2C driver for handling SMBus block reads 
->> with
->> PEC. To determine the maximum transfer length uses the initial `len` 
->> value
->> of the `i2c_msg`. When PEC is enabled this will be 2, when it is 
->> disabled
->> it will be 1.
->>
->> Once a read transfer is done also increment the `len` field by the 
->> amount
->> of received data bytes.
->>
->> This change has been tested with a UCM90320 PMBus power monitor, which
->> requires block reads to access certain data fields, but also has PEC
->> enabled by default.
->>
->> Fixes: df8eb5691c48 ("i2c: Add driver for Cadence I2C controller")
->
-> Subject is saying that you adding support for PEC and here you are 
-> saying that it is fixing initial commit.
->
-> If this is adding new support I think Fixes tag shouldn't be here.
->
-> If it is fixing issue subject should be updated and this Fixes tag 
-> kept here.
+On Sat, Jul 16, 2022 at 08:50:25PM -0700, Bjorn Andersson wrote:
+> The introduction of GPI support moved things around and instead of
+> returning the result from geni_i2c_xfer() the number of messages in the
+> request was returned, ignoring the actual result. Fix this.
+> 
+> Fixes: d8703554f4de ("i2c: qcom-geni: Add support for GPI DMA")
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> ---
+>  drivers/i2c/busses/i2c-qcom-geni.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> index 6ac402ea58fb..3bec7c782824 100644
+> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> @@ -688,7 +688,7 @@ static int geni_i2c_xfer(struct i2c_adapter *adap,
+>  	pm_runtime_put_autosuspend(gi2c->se.dev);
+>  	gi2c->cur = NULL;
+>  	gi2c->err = 0;
+> -	return num;
+> +	return ret;
+>  }
+>  
+>  static u32 geni_i2c_func(struct i2c_adapter *adap)
+> -- 
+> 2.35.1
+> 
 
-I added it because I was afraid Wolfram would ask where is the fixes tag.
-
-This change arguably somewhere between new feature and fix. The driver 
-reports that it supports SMBus block read, but it does not work under 
-the case that PEC is enabled. You can argue that it is a new feature 
-because it never worked, but you can also argue it is a fix because the 
-current implementation is broken. I'm fine either way with or without 
-Fixes tag. I'll let Wolfram make the decision what he prefers.
+Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
 
