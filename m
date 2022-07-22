@@ -2,148 +2,102 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E696C433EF
-	for <linux-i2c@archiver.kernel.org>; Fri, 22 Jul 2022 03:15:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FE99CCA473
+	for <linux-i2c@archiver.kernel.org>; Fri, 22 Jul 2022 16:07:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234151AbiGVDPx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 21 Jul 2022 23:15:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
+        id S235178AbiGVQHr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 22 Jul 2022 12:07:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231274AbiGVDPr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Jul 2022 23:15:47 -0400
-X-Greylist: delayed 436 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 21 Jul 2022 20:15:45 PDT
-Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C0982AE0A;
-        Thu, 21 Jul 2022 20:15:44 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 412B2580E19;
-        Thu, 21 Jul 2022 23:08:28 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Thu, 21 Jul 2022 23:08:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pjd.dev; h=cc:cc
-        :content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1658459308; x=1658462908; bh=uG2Rb1C0Ih
-        Z7yNKCi2bEM3jWfHG2vQqfIOk05YbeD9M=; b=ogDLl2oDCCPHk3XNtlhynR8Zjk
-        TDPmvhYleBdslcmUW/nckL9llYKjnYFGMPaWypTc5FNV6yurPxvTAEvqdC//bmtL
-        z39ubYj+NoYOqP5Li6Xz8CTOP852Rf/8vVpMgHJEskQMpKxDb54vA4KeiqRoZXE4
-        HI0ShzQYBdYlhxEzWdq3lsOToCBL0SI0OTnJCdhLm7uwaJzZWAmM8ltySw6eQH+5
-        1CVy+YK29/M+u2plbMR8irXREM6sNgjYcZyQQsGl8uvoP0qtAyOHg0jZAmb3U4QW
-        Kf4rbd5b+CAQ+ksp1pDEatCFLC51H7wibEdJLDkvz0povmJYV2rXV6FiEFqQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; t=1658459308; x=1658462908; bh=uG2Rb1C0IhZ7yNKCi2bEM3jWfHG2
-        vQqfIOk05YbeD9M=; b=MolbHctsNv9+0mlUjQfoD9ynCHqeDnP1/IY1PIt31Rb4
-        VNqFSWAqbmldv57MoU2na54NhgE0Ci4GsUUBGxZBZN602VYdcJCKKYDNOyZgDZP+
-        ZSQ2D7IRtw6/JaBZxMd1nLV0eUdW6wMminPPBvAeC210pIKQFuWCi1Rv5qTMsjt7
-        DSrnaNkrHlsWpDWfxKr5ZF3T5gqVihuJ9xJMInQyjgzVDngdwRbGYCAD6WPXJm4U
-        2UyvTWVzTVX/YAqXPCtRtE9G1ENOwYnnk0WW8mdK11/iMHVDe/b84VE3io/l7oU+
-        t1TkIAdqSTJXxDEGRNkwvzjECfLr1p/xSrOtUh48AQ==
-X-ME-Sender: <xms:qxTaYuT3ELuogtUlMWehkn7wiokqvJR0eq8qIan_AB77XF-QufXeZA>
-    <xme:qxTaYjyAFms7oc4WejYcPugxA2a5aaom-4ihM7xLDoZIz6Vk8ZSJdoCrRtHoomcSA
-    jr0t5l6RyC38AAmDxk>
-X-ME-Received: <xmr:qxTaYr3ZegZfhPf4nQXK_A3KSYGMPAGKhW10MMQvTLsMmx2UqbdS1xxYJg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvddtuddgjedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvvefukfhfgggtuggjsehttd
-    ertddttddvnecuhfhrohhmpefrvghtvghrucffvghlvghvohhrhigrshcuoehpvghtvghr
-    sehpjhgurdguvghvqeenucggtffrrghtthgvrhhnpeduteeihfffleeuveekgedugfeffe
-    ehtdeguefffffhleehgfduueejjeekfeeukeenucevlhhushhtvghrufhiiigvpedtnecu
-    rfgrrhgrmhepmhgrihhlfhhrohhmpehpvghtvghrsehpjhgurdguvghv
-X-ME-Proxy: <xmx:qxTaYqDvDQcx5MFaWwBennRuNTDQC3CzvRDK2OAj_wD_inTErMdRRQ>
-    <xmx:qxTaYniL_GlzhC6WZ9lz_bobQ5iVDstqi1EivBClVJbJmd7LCeJOkg>
-    <xmx:qxTaYmrOWymW8h5IpOXYCiVeNW4NermOusi1M-KSAxMpxxj8LR7yRw>
-    <xmx:rBTaYoWrN1zmWnQBKL2krLcIkgqjlktgel9L6_pN9WDjHEDXhnkZQ_AH_G4>
-Feedback-ID: i9e814621:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 21 Jul 2022 23:08:26 -0400 (EDT)
-Date:   Thu, 21 Jul 2022 20:08:24 -0700
-From:   Peter Delevoryas <peter@pjd.dev>
-To:     ryan_chen <ryan_chen@aspeedtech.com>
-Cc:     brendanhiggins@google.com, benh@kernel.crashing.org,
-        joel@jms.id.au, andrew@aj.id.au, linux-i2c@vger.kernel.org,
-        openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org,
-        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: aspeed: Fix slave mode unexpected irq handler
-Message-ID: <YtoUqH6uSNEKBbt5@pdel-mbp>
-References: <20220531093140.28770-1-ryan_chen@aspeedtech.com>
+        with ESMTP id S235645AbiGVQHd (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Jul 2022 12:07:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB03E2C11A;
+        Fri, 22 Jul 2022 09:07:30 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BCAFB82965;
+        Fri, 22 Jul 2022 16:07:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028A5C341C6;
+        Fri, 22 Jul 2022 16:07:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1658506048;
+        bh=5yJocOcL05K+d32MD68eU+SES1IoxYGjQASgo+upaTE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cCJThHET412NCDTUriBUl6zNGXCxuoWBYvJdB+zQBM+Uz6TLiGskh3DQdzjmSQxVO
+         4CA+JXCAY7zb/RQLnhMaiQVKVnLYV+xfUKx/62Fveyrpt7K2w4dut36LMtHi/0ZR3W
+         87sIh9E8Zp1ymJZAS5WyCZiwR7u3jfu8T823qV8I8pHeApC/Fy6mXE4/cjM5sj+Hch
+         dcpZQSx93ZAr01IlHQyil/qbtBgva/3rZQYefcgVtKit0zXlcqWskIQ92zG4lmqdL+
+         OC6YwoHYmoEDcocR+tTD+jwgEKHPq5SgEirRs7yy94G1TGt0WA5x/TxsHL3ZUf2Aij
+         NCeZax9dYNoEA==
+Date:   Fri, 22 Jul 2022 18:07:14 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Phil Edworthy <phil.edworthy@renesas.com>
+Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Rob Herring <robh@kernel.org>, Sven Peter <sven@svenpeter.dev>,
+        Jan Dabros <jsd@semihalf.com>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Tyrone Ting <kfting@nuvoton.com>,
+        Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH v4 2/2] i2c: Add Renesas RZ/V2M controller
+Message-ID: <YtrLMr0UeSSKxTFP@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Phil Edworthy <phil.edworthy@renesas.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Rob Herring <robh@kernel.org>, Sven Peter <sven@svenpeter.dev>,
+        Jan Dabros <jsd@semihalf.com>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Tyrone Ting <kfting@nuvoton.com>, Arnd Bergmann <arnd@arndb.de>,
+        Olof Johansson <olof@lixom.net>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+References: <20220708100350.12523-1-phil.edworthy@renesas.com>
+ <20220708100350.12523-3-phil.edworthy@renesas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220531093140.28770-1-ryan_chen@aspeedtech.com>
+In-Reply-To: <20220708100350.12523-3-phil.edworthy@renesas.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, May 31, 2022 at 05:31:40PM +0800, ryan_chen wrote:
-> When i2c master send the new i2c transfer immediately
-> after stop. the i2c slave will see the stop and new
-> address match stage together. And it needs handle the
-> stop first. otherwise will occur unexpected handle
-> isr.
+Hi Phil,
 
-I think it would be helpful if you could include some driver trace messages to
-indicate the sequence of events that lead you to make this change, like an
-example of the problem happening.
+> Yet another i2c controller from Renesas that is found on the RZ/V2M
+> (r9a09g011) SoC. It can support only 100kHz and 400KHz operation.
 
-> 
-> Fixes: f327c686d3ba ("i2c: aspeed: added drover for Aspeed I2C)
+Geez, you are right with "yet another". One wonders why the 5 others are
+not enough?
 
-Typo on "drover"? Actually, slave support wasn't included in this commit. I
-think it should be:
+> +static int rzv2m_i2c_master_xfer1(struct rzv2m_i2c_priv *priv,
+> +				  struct i2c_msg *msg, int stop)
 
-Fixes: f9eb91350bb2 ("i2c: aspeed: added slave support for Aspeed I2C driver")
+I'd prefer "rzv2m_i2c_master_xfer_msg" for this function.s
 
-> Signed-off-by: ryan_chen <ryan_chen@aspeedtech.com>
-> ---
->  drivers/i2c/busses/i2c-aspeed.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index 771e53d3d197..9f21e090ce47 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -252,6 +252,12 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->  
->  	/* Slave was requested, restart state machine. */
->  	if (irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH) {
-> +		if (irq_status & ASPEED_I2CD_INTR_NORMAL_STOP &&
-> +			bus->slave_state == ASPEED_I2C_SLAVE_WRITE_RECEIVED) {
-> +			irq_handled |= ASPEED_I2CD_INTR_NORMAL_STOP;
-> +			irq_status &= ~ASPEED_I2CD_INTR_NORMAL_STOP;
-> +			i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
-> +		}
+> +	adap->class = I2C_CLASS_DEPRECATED;
 
-Ok, we might receive the STOP and START signals at the same time.
+You don't need to set the class to deprecated because there can't be a
+previous version which now loses this functionality and needs to inform
+userspace about it. .class can be 0 here.
 
-So, we need to make sure that we handle the STOP first. [1]
+Reset looks looks, good thanks!
 
-Why is this within the START case then? Can't we untangle this from the START
-handling?
+I can fix up these minor things when applying if you don't mind.
 
-irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH means SLAVE START, right?
+Happy hacking,
 
-We know we're in slave mode already because this is the slave IRQ handler.
+   Wolfram
 
-And we can access the state of the bus through bus->slave_state, to see if it's
-a spurious STOP or an expected one.
-
-It would also be nice to unify the STOP handling code too, to make sure this
-matches the normal STOP path that already exists below here.
-
-[1] Although if that's the case, it seems like we might need to handle the
-START first sometimes, depending on the current state, right?
-
-Can we have the reverse case, where we see a START and the matching STOP
-simultaneously? Perhaps that's already handled properly by the code since
-it's structured chronologically.
-
->  		irq_handled |= ASPEED_I2CD_INTR_SLAVE_MATCH;
->  		bus->slave_state = ASPEED_I2C_SLAVE_START;
->  	}
-> -- 
-> 2.17.1
-> 
