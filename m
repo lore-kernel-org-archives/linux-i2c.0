@@ -2,79 +2,75 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46BEAC19F29
-	for <linux-i2c@archiver.kernel.org>; Tue, 26 Jul 2022 21:14:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 818DDC00144
+	for <linux-i2c@archiver.kernel.org>; Tue, 26 Jul 2022 21:29:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232166AbiGZVOx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 26 Jul 2022 17:14:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60642 "EHLO
+        id S229603AbiGZV3X (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 26 Jul 2022 17:29:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231972AbiGZVOw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Jul 2022 17:14:52 -0400
-Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3009E2A723
-        for <linux-i2c@vger.kernel.org>; Tue, 26 Jul 2022 14:14:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=sang-engineering.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=k1; bh=6M3GcDQJnJjT8wRbNVIe0s9/boPZ
-        /i8a4uUlWicMqr4=; b=u+yIzi0+MlikxGlA8T6kvS8BV0657UxpkgG3Yz/wv0+Q
-        DRi4QzvH7ly3J5mrOd9bccs4BRTTaIAX+k5/EQjawTenLx3LYcn0u6tEiK+AKPOr
-        QLfb541AM04JP8V8yTTW3I3AY6jSiNwA/PLoiLQDSbzeIe4X7Z8DTfIudTWB5OU=
-Received: (qmail 2813781 invoked from network); 26 Jul 2022 23:14:49 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 Jul 2022 23:14:49 +0200
-X-UD-Smtp-Session: l3s3148p1@FkVbyrvkpAhZzIts
-Date:   Tue, 26 Jul 2022 23:14:45 +0200
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH] i2c: extend documentation about retvals of master_xfer
- functions
-Message-ID: <YuBZRUSObpSeeTP/@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-References: <20220724184628.2752-1-wsa+renesas@sang-engineering.com>
+        with ESMTP id S229480AbiGZV3W (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Jul 2022 17:29:22 -0400
+X-Greylist: delayed 600 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 26 Jul 2022 14:29:19 PDT
+Received: from pokefinder.org (pokefinder.org [135.181.139.117])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ABC4C32BA4;
+        Tue, 26 Jul 2022 14:29:19 -0700 (PDT)
+Received: from localhost (dynamic-089-204-139-108.89.204.139.pool.telefonica.de [89.204.139.108])
+        by pokefinder.org (Postfix) with ESMTPSA id C85A9A40D9D;
+        Tue, 26 Jul 2022 23:13:09 +0200 (CEST)
+Date:   Tue, 26 Jul 2022 23:13:08 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Xu Wang <vulab@iscas.ac.cn>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] i2c: Fix a potential use after free
+Message-ID: <YuBY5K9n/mRfeuzz@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
+        Xu Wang <vulab@iscas.ac.cn>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1577439272-10362-1-git-send-email-vulab@iscas.ac.cn>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="aMKHlSRqF2b1E2EK"
+        protocol="application/pgp-signature"; boundary="iiUYzZUHPi8reSBH"
 Content-Disposition: inline
-In-Reply-To: <20220724184628.2752-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <1577439272-10362-1-git-send-email-vulab@iscas.ac.cn>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---aMKHlSRqF2b1E2EK
+--iiUYzZUHPi8reSBH
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jul 24, 2022 at 08:46:28PM +0200, Wolfram Sang wrote:
-> It was stated how the error codes should be. It was not stated what the
-> regular case should return. Add this.
+On Fri, Dec 27, 2019 at 09:34:32AM +0000, Xu Wang wrote:
+> Free the adap structure only after we are done using it.
+> This patch just moves the put_device() down a bit to avoid the
+> use after free.
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Xu Wang <vulab@iscas.ac.cn>
 
 Applied to for-next, thanks!
 
 
---aMKHlSRqF2b1E2EK
+--iiUYzZUHPi8reSBH
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmLgWUUACgkQFA3kzBSg
-KbYz0A//WZIynw1YJ8YnIdfUsY4RttvwVeRWVcjL/NvHBwcJhHxjO5mYX875h9dK
-g0VJINjcPtXF56NHOFhMTBhKH/B+KFmw5G4OlbPekqfZ4RM2suArFyietYeNN3X/
-GjjqwN/2WY5bDiucZcXvYfwG1tfULq3FF8UOqZyWL1kexLwAeN3Skm5yHm/Ar4lE
-8sbe2o+YSwnm302oQAIg1v5CUG38A17xd7kep8i6FOMi1zWITODGBgamjRxeO0BJ
-m07/654BaxBfVlVPhEmVuYxs6aZj8CF4D0tndd8+8viLW87k3RM2dPOpTj+Vwlrz
-ODitGR1T1GGH0SxF/uXlHWZJ+6EcWVf5Pl0SrVF5apmHRV3EgK/Hj7HkChNf2nM0
-Tacw6dBQAXbS66srnVmnDaeNQUWLlqgYZgNz3l0NwPQcqnr05AVRziG8hzpgl3yY
-Q8y0xh8cu7w59AN2OrUQCeHtZzgRmIvNipwNmqmuezbgXYMvdWmxfAmralu5QDFW
-4FgiGvI76DW8brpajDF8vnGJc7v9DfW8/TfkiSSkKFEPdd83IRKgssOuApToiKfV
-4jLGcwkzQmRf9kQzY/Lb+WF7ngD6D2Y5LTAVUEw1rUhqPxeBSqR+42kOzZ29FmiM
-+4ZakJSWR4WmJkdZjaa4uwMhL+hs0tgGwvY6yqs0NWWf8I10O/w=
-=YyGH
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmLgWOQACgkQFA3kzBSg
+KbZbtg//ePaYx2QwCxG4EjHTERcnAmpuPHra/o50Mww+g5pS52KhFLDTv+VyMAOy
+Yi+2RA0/mgQ6ZCWtVAOwHdbGJU5JU/fbsPwUfxPl9ZL5gwbWILURRhKFfW6FEWXM
+MEyICRudH74takwQ8wz9ZUdFQ//7OPe8cVMP0CFXVk8ijmM3VN4TGtv7UrOIF4P4
+pDvSIZYR++d66NY9VznFzwnqOrLoQBjbUPc/N85sXhhH53rTuw6fK9Mp0wz/BAX3
+3SB4JOtyw+Sdz1GJCyilVNLcMHwGjvAuHovVEyOtCJUSYMOyBVKcgzzigwTQfWZp
+6YybbZH3KY2xizu1dutj/0VrojsEtGRvLWU5ppjqLZSiWZG44SvNMLdLya7xoB7i
+JLMMPTe8EkIwMOcgyJeKSSSFSkevspXImAbF0sRng7syJO8Z4pSIeJs4CrrO+Wd1
+ur2dgXnWlqeaQs0f56fKhxWC+x6+Q5fCJOVvoQTfOEKmboFt1L1SJF4K7TK7Z8eK
+K+B2gr0uRwcDxfjxIe8VtkdMuqsW7irrPEBHHVVIrDNLZMkcEIXLFLRvAb81lvuY
+qXfoGYrim/QT0tP83iyRqo5+WZPmlVEJ94zWkw8T3TsXabmO0z/5rNEE+Kk/UKwa
+W0K8/eAq03+h6gN63EuElwXY0xjaP+3StgToBCNQgCQO9UgnWRo=
+=rsWM
 -----END PGP SIGNATURE-----
 
---aMKHlSRqF2b1E2EK--
+--iiUYzZUHPi8reSBH--
