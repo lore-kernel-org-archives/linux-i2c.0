@@ -2,75 +2,60 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 818DDC00144
-	for <linux-i2c@archiver.kernel.org>; Tue, 26 Jul 2022 21:29:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 827B6C04A68
+	for <linux-i2c@archiver.kernel.org>; Wed, 27 Jul 2022 08:32:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229603AbiGZV3X (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 26 Jul 2022 17:29:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39878 "EHLO
+        id S229767AbiG0Icw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 27 Jul 2022 04:32:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229480AbiGZV3W (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Jul 2022 17:29:22 -0400
-X-Greylist: delayed 600 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 26 Jul 2022 14:29:19 PDT
-Received: from pokefinder.org (pokefinder.org [135.181.139.117])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ABC4C32BA4;
-        Tue, 26 Jul 2022 14:29:19 -0700 (PDT)
-Received: from localhost (dynamic-089-204-139-108.89.204.139.pool.telefonica.de [89.204.139.108])
-        by pokefinder.org (Postfix) with ESMTPSA id C85A9A40D9D;
-        Tue, 26 Jul 2022 23:13:09 +0200 (CEST)
-Date:   Tue, 26 Jul 2022 23:13:08 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Xu Wang <vulab@iscas.ac.cn>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] i2c: Fix a potential use after free
-Message-ID: <YuBY5K9n/mRfeuzz@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
-        Xu Wang <vulab@iscas.ac.cn>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1577439272-10362-1-git-send-email-vulab@iscas.ac.cn>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="iiUYzZUHPi8reSBH"
-Content-Disposition: inline
-In-Reply-To: <1577439272-10362-1-git-send-email-vulab@iscas.ac.cn>
+        with ESMTP id S229633AbiG0Icv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Jul 2022 04:32:51 -0400
+Received: from mail.nfschina.com (unknown [IPv6:2400:dd01:100f:2:72e2:84ff:fe10:5f45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 58ED71F2ED;
+        Wed, 27 Jul 2022 01:32:49 -0700 (PDT)
+Received: from localhost (unknown [127.0.0.1])
+        by mail.nfschina.com (Postfix) with ESMTP id 5AB2F1E80D89;
+        Wed, 27 Jul 2022 16:32:56 +0800 (CST)
+X-Virus-Scanned: amavisd-new at test.com
+Received: from mail.nfschina.com ([127.0.0.1])
+        by localhost (mail.nfschina.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id IVxWMSiBoFAM; Wed, 27 Jul 2022 16:32:53 +0800 (CST)
+Received: from localhost.localdomain (unknown [219.141.250.2])
+        (Authenticated sender: zeming@nfschina.com)
+        by mail.nfschina.com (Postfix) with ESMTPA id BC7991E80D05;
+        Wed, 27 Jul 2022 16:32:53 +0800 (CST)
+From:   Li zeming <zeming@nfschina.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, Li zeming <zeming@nfschina.com>
+Subject: [PATCH] i2c/busses/drivers/img: Remove unnecessary (void*) conversions
+Date:   Wed, 27 Jul 2022 16:32:39 +0800
+Message-Id: <20220727083239.5396-1-zeming@nfschina.com>
+X-Mailer: git-send-email 2.18.2
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Remove unnecessary void* type castings.
 
---iiUYzZUHPi8reSBH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Li zeming <zeming@nfschina.com>
+---
+ drivers/i2c/busses/i2c-img-scb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Fri, Dec 27, 2019 at 09:34:32AM +0000, Xu Wang wrote:
-> Free the adap structure only after we are done using it.
-> This patch just moves the put_device() down a bit to avoid the
-> use after free.
->=20
-> Signed-off-by: Xu Wang <vulab@iscas.ac.cn>
+diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
+index 8e987945ed45..d72211cfda03 100644
+--- a/drivers/i2c/busses/i2c-img-scb.c
++++ b/drivers/i2c/busses/i2c-img-scb.c
+@@ -913,7 +913,7 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
+ 
+ static irqreturn_t img_i2c_isr(int irq, void *dev_id)
+ {
+-	struct img_i2c *i2c = (struct img_i2c *)dev_id;
++	struct img_i2c *i2c = dev_id;
+ 	u32 int_status, line_status;
+ 	/* We handle transaction completion AFTER accessing registers */
+ 	unsigned int hret;
+-- 
+2.18.2
 
-Applied to for-next, thanks!
-
-
---iiUYzZUHPi8reSBH
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmLgWOQACgkQFA3kzBSg
-KbZbtg//ePaYx2QwCxG4EjHTERcnAmpuPHra/o50Mww+g5pS52KhFLDTv+VyMAOy
-Yi+2RA0/mgQ6ZCWtVAOwHdbGJU5JU/fbsPwUfxPl9ZL5gwbWILURRhKFfW6FEWXM
-MEyICRudH74takwQ8wz9ZUdFQ//7OPe8cVMP0CFXVk8ijmM3VN4TGtv7UrOIF4P4
-pDvSIZYR++d66NY9VznFzwnqOrLoQBjbUPc/N85sXhhH53rTuw6fK9Mp0wz/BAX3
-3SB4JOtyw+Sdz1GJCyilVNLcMHwGjvAuHovVEyOtCJUSYMOyBVKcgzzigwTQfWZp
-6YybbZH3KY2xizu1dutj/0VrojsEtGRvLWU5ppjqLZSiWZG44SvNMLdLya7xoB7i
-JLMMPTe8EkIwMOcgyJeKSSSFSkevspXImAbF0sRng7syJO8Z4pSIeJs4CrrO+Wd1
-ur2dgXnWlqeaQs0f56fKhxWC+x6+Q5fCJOVvoQTfOEKmboFt1L1SJF4K7TK7Z8eK
-K+B2gr0uRwcDxfjxIe8VtkdMuqsW7irrPEBHHVVIrDNLZMkcEIXLFLRvAb81lvuY
-qXfoGYrim/QT0tP83iyRqo5+WZPmlVEJ94zWkw8T3TsXabmO0z/5rNEE+Kk/UKwa
-W0K8/eAq03+h6gN63EuElwXY0xjaP+3StgToBCNQgCQO9UgnWRo=
-=rsWM
------END PGP SIGNATURE-----
-
---iiUYzZUHPi8reSBH--
