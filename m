@@ -2,78 +2,65 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA944C3F6B0
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 Aug 2022 13:02:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 421C2C25B0E
+	for <linux-i2c@archiver.kernel.org>; Tue, 16 Aug 2022 23:01:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235230AbiHPNCe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 Aug 2022 09:02:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38050 "EHLO
+        id S229524AbiHPXBQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 16 Aug 2022 19:01:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235347AbiHPNAx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Aug 2022 09:00:53 -0400
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B8423159;
-        Tue, 16 Aug 2022 06:00:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1660654835; x=1692190835;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=jHPC2zTw9GX1JcaXvC06Z3Dgu5ahzNZrFzD7f6iBujM=;
-  b=tg3Gq2ZpGakj6zVYWtMKvVx04qbE09BOpm+NfKNLxYn2tkpcLFOLWc3o
-   sABClH9Yx9R+ERCsNYswwzTmInhYmLArb006hLOAYittacA1eyim6ppFJ
-   sBdKF/1WfO4d4rOaLDukVwxxlF8nYA9aUvX2yu/hamBo3R2Pko+Oz/jua
-   U=;
-X-IronPort-AV: E=Sophos;i="5.93,241,1654560000"; 
-   d="scan'208";a="249403253"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-pdx-2b-22c2b493.us-west-2.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2022 13:00:09 +0000
-Received: from EX13MTAUEB002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-pdx-2b-22c2b493.us-west-2.amazon.com (Postfix) with ESMTPS id DE7FC44965;
-        Tue, 16 Aug 2022 13:00:06 +0000 (UTC)
-Received: from EX13D08UEB003.ant.amazon.com (10.43.60.11) by
- EX13MTAUEB002.ant.amazon.com (10.43.60.12) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Tue, 16 Aug 2022 13:00:04 +0000
-Received: from EX13MTAUEB002.ant.amazon.com (10.43.60.12) by
- EX13D08UEB003.ant.amazon.com (10.43.60.11) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Tue, 16 Aug 2022 13:00:03 +0000
-Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
- (172.19.116.181) by mail-relay.amazon.com (10.43.60.234) with Microsoft SMTP
- Server id 15.0.1497.38 via Frontend Transport; Tue, 16 Aug 2022 13:00:03
- +0000
-Received: by dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com (Postfix, from userid 14301484)
-        id 4604F4ABE; Tue, 16 Aug 2022 13:00:02 +0000 (UTC)
-From:   Eliav Farber <farbere@amazon.com>
-To:     <brgl@bgdev.pl>, <robh+dt@kernel.org>, <mark.rutland@arm.com>,
-        <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <farbere@amazon.com>, <talel@amazon.com>, <hhhawa@amazon.com>,
-        <jonnyc@amazon.com>, <hanochu@amazon.com>, <ronenk@amazon.com>,
-        <itamark@amazon.com>, <shellykz@amazon.com>, <shorer@amazon.com>,
-        <amitlavi@amazon.com>, <almogbs@amazon.com>, <dwmw@amazon.co.uk>
-Subject: [PATCH 0/2] add enable gpio support for a24 eeprom driver
-Date:   Tue, 16 Aug 2022 13:00:00 +0000
-Message-ID: <20220816130002.41450-1-farbere@amazon.com>
-X-Mailer: git-send-email 2.37.1
+        with ESMTP id S236851AbiHPXBI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Aug 2022 19:01:08 -0400
+X-Greylist: delayed 399 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 16 Aug 2022 16:01:06 PDT
+Received: from mellanox.co.il (mail-il-dmz.mellanox.com [193.47.165.129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 13FFE7E03E
+        for <linux-i2c@vger.kernel.org>; Tue, 16 Aug 2022 16:01:05 -0700 (PDT)
+Received: from Internal Mail-Server by MTLPINE1 (envelope-from asmaa@mellanox.com)
+        with SMTP; 17 Aug 2022 01:54:25 +0300
+Received: from bu-vnc02.mtbu.labs.mlnx (bu-vnc02.mtbu.labs.mlnx [10.15.2.65])
+        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 27GMsLim022536;
+        Tue, 16 Aug 2022 18:54:21 -0400
+Received: (from asmaa@localhost)
+        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 27GMsLB3009241;
+        Tue, 16 Aug 2022 18:54:21 -0400
+From:   Asmaa Mnebhi <asmaa@nvidia.com>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Asmaa Mnebhi <asmaa@nvidia.com>,
+        Khalil Blaiech <kblaiech@nvidia.com>
+Subject: [PATCH v1 2/7] i2c-mlxbf.c: remove IRQF_ONESHOT
+Date:   Tue, 16 Aug 2022 18:54:07 -0400
+Message-Id: <20220816225412.9095-3-asmaa@nvidia.com>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20220816225412.9095-1-asmaa@nvidia.com>
+References: <20220816225412.9095-1-asmaa@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-First patch describes the new binding property.
-Second patch adds the functionality to the driver.
+IRQF_ONESHOT is not needed so remove it.
 
-Eliav Farber (2):
-  dt-bindings: at24: new optional property - enable-gpios
-  eeprom: at24: add enable gpio support
+Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
+Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
+---
+ drivers/i2c/busses/i2c-mlxbf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Documentation/devicetree/bindings/eeprom/at24.txt | 3 +++
- drivers/misc/eeprom/at24.c                        | 5 +++++
- 2 files changed, 8 insertions(+)
-
+diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
+index 2e2ac45d9ca0..087a70981283 100644
+--- a/drivers/i2c/busses/i2c-mlxbf.c
++++ b/drivers/i2c/busses/i2c-mlxbf.c
+@@ -2356,7 +2356,7 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
+ 	if (irq < 0)
+ 		return irq;
+ 	ret = devm_request_irq(dev, irq, mlxbf_smbus_irq,
+-			       IRQF_ONESHOT | IRQF_SHARED | IRQF_PROBE_SHARED,
++			       IRQF_SHARED | IRQF_PROBE_SHARED,
+ 			       dev_name(dev), priv);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Cannot get irq %d\n", irq);
 -- 
-2.37.1
+2.30.1
 
