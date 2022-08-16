@@ -2,90 +2,94 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59770C25B0E
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 Aug 2022 11:01:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44E26C25B0E
+	for <linux-i2c@archiver.kernel.org>; Tue, 16 Aug 2022 11:03:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235024AbiHPLBh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 Aug 2022 07:01:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60864 "EHLO
+        id S235166AbiHPLDK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 16 Aug 2022 07:03:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235044AbiHPLBO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Aug 2022 07:01:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521B2B4EBF
-        for <linux-i2c@vger.kernel.org>; Tue, 16 Aug 2022 03:27:31 -0700 (PDT)
+        with ESMTP id S235170AbiHPLCg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Aug 2022 07:02:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68DAEF4F
+        for <linux-i2c@vger.kernel.org>; Tue, 16 Aug 2022 03:18:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6532601BF
-        for <linux-i2c@vger.kernel.org>; Tue, 16 Aug 2022 10:27:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72EFBC433C1;
-        Tue, 16 Aug 2022 10:27:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE7CDB8169C
+        for <linux-i2c@vger.kernel.org>; Tue, 16 Aug 2022 10:18:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5EC0C433C1;
+        Tue, 16 Aug 2022 10:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660645650;
-        bh=4Kb3EFpqcdj26uu4PQBcAvMjO4JInPNv4wna2e1jrrk=;
+        s=k20201202; t=1660645089;
+        bh=lFT0prABNhAWLIrVWKkSc681WWTywJQ5GltxrRFHYuY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ntc9aZ0WLZ0G4JXFyDROy7JRvqR/gh6LQ4PruxMEreEYtBLRJ+6xJPU909zeiO/sc
-         kE1nk6TfE6Gj9aUR7l6tu6/5hPrBqF4WXPUeW5/k7DfhLgeygpD/g8iW06SojkaH11
-         VwKVppOsL6DAmrsMKlaM6T80GE7oyY3bgehqcNpg4aiMXlKbqVPK8nEuzkeWQMn13F
-         hAqRp/XFIsjG1bD5iXDu93uKjNZK8rAyySaeyyzxV+I+xOf+Csi66tX7ihxXs9UOt0
-         mjWbQO8dHHjs6lRzFRKX6O05sjOobPeHBsBQNtkLnSPLXXxBGotyvzTqbmuO3kGCLe
-         2qaueFgabLXqw==
-Date:   Tue, 16 Aug 2022 12:27:25 +0200
+        b=giE+7SrgDv4Sy5iwNYGcaD/4nhDFMEEfMLXLlQS2EMf/Sp3QW/+1UzCLZNJ58SnGW
+         30CWfj016rBo7tGJG6clQgDVi48uabITKWDNcZP7epkJEKNmL1kL1q4sSwXhr8z+4R
+         DOOIqo35vz2gdvvCQaNpzjFXCUTNHLwzML5CKfrvOREyGQDu/DiDLTzP64bTknlguP
+         np6jlNYH2rWa4o77aPEB/GHKNufok3WVw2VqjGE0i8+aUUeS/sWkTd985J6KfAqcmF
+         YhZnLxScUBDUJ+IT6RyqK34e1eTp395sMcUwoBqnYTKFOTtpkhqBW4M6gzExNGw28B
+         gxcnG5zT0s4wQ==
+Date:   Tue, 16 Aug 2022 12:18:03 +0200
 From:   Wolfram Sang <wsa@kernel.org>
 To:     Josef Johansson <josef@oderland.se>
 Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-i2c@vger.kernel.org
 Subject: Re: [PATCH v3 1/1] i2c: scmi: Replace open coded
  device_get_match_data()
-Message-ID: <YvtxDQ5svDFqUaxN@shikoro>
+Message-ID: <Yvtu29D/LkoMzubP@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
         Josef Johansson <josef@oderland.se>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-i2c@vger.kernel.org
 References: <20220708120958.74034-1-andriy.shevchenkolinux!intel!com>
  <4d2d5b04-0b6c-1cb1-a63f-dc06dfe1b5da@oderland.se>
- <Yvtu29D/LkoMzubP@shikoro>
- <3877967c-5bea-d930-be36-23cc42613e34@oderland.se>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="OWqYqnucUYswJ7A1"
+        protocol="application/pgp-signature"; boundary="558ZjsR7iDbjYhiw"
 Content-Disposition: inline
-In-Reply-To: <3877967c-5bea-d930-be36-23cc42613e34@oderland.se>
+In-Reply-To: <4d2d5b04-0b6c-1cb1-a63f-dc06dfe1b5da@oderland.se>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---OWqYqnucUYswJ7A1
+--558ZjsR7iDbjYhiw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+Hi,
 
-> Not verified by anyone but me so it could be me just having odd kernel
-> config.
+> I tried build Linux 6.0 and run under Xen 4.14.5. I got a kernel null pointer dereferenced while booting. Reverting this commit allowed the system to boot.
 
-I also love odd kernel configs to find bugs :)
+Thank you for the report and the provided information. I will give Andy
+a bit of time to come up with a fix. If a fix is not easily possible,
+this will get reverted for rc2.
+
+Thanks again,
+
+   Wolfram
 
 
---OWqYqnucUYswJ7A1
+--558ZjsR7iDbjYhiw
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmL7cQ0ACgkQFA3kzBSg
-KbYlLxAAmkM/jro+wwSllbx0Zliex6KrFEUUyXuk4KrpYmcObeyn+r+VCbVJRbak
-od4Hnyfxu+c0x0P9jfb60ZFFtV6sVXtRyk93PyBec7ZfsFyr8S4GqFW3jmUFMv7K
-gvq0aOL29XFEQ+lrhI/bGqIv3bpklDC/3K3Aej6fG8R+dVCDK7jzzLqqN1IRHcE9
-4Z3t3AgTdgxWm2lmNFbEDnB3ToBGlf3x7KuLubs9v9ag0kmQX+vAjRVBpbB8Su2v
-ZaoWx2w53EGv3oX0BrniuHcy+EEuoOKLgDJxCqhsTaiKk+3RzhC60dSLr7knqw7c
-K/x/3VcZRnoQRZfGGCVUpdCnID5tUUVMw22FunSuaW+KqjEQPD1nGTTXKrEi7zNG
-vhCOHzQPw+UubPXi6KkwPfysoP2RjzsrZNTSz/0aHURgTwN3MD4doa4I7740/Bl6
-SVOaTtjBbO1hF4h0n6MYLj1/tRlPIrlxQCJDxRj777pA6VmjhvTRbfo/5SVONgNE
-9ev7ePGY3jNAxpDMSEqmFI8lVrQmOA4BRkh74IMWEBc6npxeRFZbhk83rel0LUx1
-CQZtW6C1JP7/43tqRUBx2Y450dMP+d5/2EHjZVuFpjvhgP4hJGsbJI8KJ4KklF+A
-kMLv3NDXj547TF2hQIlazZz0mGq8Oi8VXXBKboqcFciWVDj3LVE=
-=iYfi
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmL7btcACgkQFA3kzBSg
+KbZMNg//WnTjAyEA3i48hSWyVREBcFAOFlQYyGg90/JkRPSmCblfW2qCgrOTwlnt
+dM/wk1C2CNMzuc4OSyaFFzevWjl1q1MWUu2PrKatd/jYLSweddFqL4vJUpSKrzhG
+bpjX1GIYJZMIIUukVBieyF3k9gxVEc2Hv6/H1G+IxhiFm8bkA3cQ/clwjRmCkOFZ
+r3CWa8YL1Gl+u4vIyD8KUfZufAFxDhvzbsRL25On3YuOsuOzXQK3djOrDzBkLAgV
+zE9VrjO2/g5ViH22P9b7STV2UBkBN4YlZIWlrHvQTsbeYJ4SOr9TjF9kFt/PrCBz
+wUbSWC7Ave7qLUAawnK6UKBkZPfSV2rBXQLVC0IMAD+ealpVF+IuJuTqP5Kwi3l5
+WqOuRvHekB8+/f6ecvwXUVa6ho0g1C9RUYHOPQX5u1WRfG0aip4q6ZsmcJ7W9v0W
+Hh6MA2uoAcN7w/WeftNyfVW6ZaQgeuprWVsaQv2jgMepQGqIZt20ZFGqwnQXOD5i
+9lwM19ajUbndOw6QSPITzQ1US38OihaEBQvqiLJtd5Cih6zj7RFvgyoFQZ1H4GzE
+ADopRloJk2chvdGaSTem3MHvje6hufTpB5GDm5FMRN47cFLGUijEbVcL6DHk76hz
+RAD1CHlODCORbq39qCPM1itT1/PIgvxkkveOtwEAoIwganj97Qs=
+=XWEZ
 -----END PGP SIGNATURE-----
 
---OWqYqnucUYswJ7A1--
+--558ZjsR7iDbjYhiw--
