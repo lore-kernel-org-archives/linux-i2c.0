@@ -2,34 +2,34 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EDA8C2BB41
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 Aug 2022 23:01:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE4A3C25B0E
+	for <linux-i2c@archiver.kernel.org>; Tue, 16 Aug 2022 23:01:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237318AbiHPXBR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 Aug 2022 19:01:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59996 "EHLO
+        id S237417AbiHPXBS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 16 Aug 2022 19:01:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237611AbiHPXBK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Aug 2022 19:01:10 -0400
+        with ESMTP id S237706AbiHPXBL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Aug 2022 19:01:11 -0400
 Received: from mellanox.co.il (mail-il-dmz.mellanox.com [193.47.165.129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E68EE8B9BB
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B57E17FE58
         for <linux-i2c@vger.kernel.org>; Tue, 16 Aug 2022 16:01:05 -0700 (PDT)
 Received: from Internal Mail-Server by MTLPINE1 (envelope-from asmaa@mellanox.com)
         with SMTP; 17 Aug 2022 01:54:25 +0300
 Received: from bu-vnc02.mtbu.labs.mlnx (bu-vnc02.mtbu.labs.mlnx [10.15.2.65])
-        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 27GMsKAJ022533;
-        Tue, 16 Aug 2022 18:54:20 -0400
+        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 27GMsMkN022539;
+        Tue, 16 Aug 2022 18:54:22 -0400
 Received: (from asmaa@localhost)
-        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 27GMsKeM009232;
-        Tue, 16 Aug 2022 18:54:20 -0400
+        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 27GMsMhY009242;
+        Tue, 16 Aug 2022 18:54:22 -0400
 From:   Asmaa Mnebhi <asmaa@nvidia.com>
 To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Asmaa Mnebhi <asmaa@nvidia.com>,
         Khalil Blaiech <kblaiech@nvidia.com>
-Subject: [PATCH v1 1/7] i2c-mlxbf.c: Fix frequency calculation
-Date:   Tue, 16 Aug 2022 18:54:06 -0400
-Message-Id: <20220816225412.9095-2-asmaa@nvidia.com>
+Subject: [PATCH v1 3/7] i2c-mlxbf: add multi slave functionality
+Date:   Tue, 16 Aug 2022 18:54:08 -0400
+Message-Id: <20220816225412.9095-4-asmaa@nvidia.com>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20220816225412.9095-1-asmaa@nvidia.com>
 References: <20220816225412.9095-1-asmaa@nvidia.com>
@@ -39,162 +39,551 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The i2c-mlxbf.c driver is currently broken because there is a bug
-in the calculation of the frequency. core_f, core_r and core_od
-are components read from hardware registers and are used to
-compute the frequency used to compute different timing parameters.
-The shifting mechanism used to get core_f, core_r and core_od is
-wrong. Use FIELD_GET to mask and shift the bitfields properly.
+Support the multi slave functionality which enables the BlueField
+to be registered at up to 16 i2c slave addresses.
 
 Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
 Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
 ---
- drivers/i2c/busses/i2c-mlxbf.c | 59 ++++++++++++----------------------
- 1 file changed, 21 insertions(+), 38 deletions(-)
+ drivers/i2c/busses/i2c-mlxbf.c | 328 +++++++++++++++------------------
+ 1 file changed, 151 insertions(+), 177 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index 8716032f030a..2e2ac45d9ca0 100644
+index 087a70981283..39051c4a6db2 100644
 --- a/drivers/i2c/busses/i2c-mlxbf.c
 +++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -6,6 +6,7 @@
-  */
+@@ -1,9 +1,5 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- *  Mellanox BlueField I2C bus driver
+- *
+- *  Copyright (C) 2020 Mellanox Technologies, Ltd.
+- */
++// SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause
++/*  Copyright (c) 2020 NVIDIA CORPORATION. All rights reserved. */
  
  #include <linux/acpi.h>
-+#include <linux/bitfield.h>
- #include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/interrupt.h>
-@@ -63,13 +64,14 @@
-  */
- #define MLXBF_I2C_TYU_PLL_OUT_FREQ  (400 * 1000 * 1000)
- /* Reference clock for Bluefield - 156 MHz. */
--#define MLXBF_I2C_PLL_IN_FREQ       (156 * 1000 * 1000)
-+#define MLXBF_I2C_PLL_IN_FREQ       156250000ULL
+ #include <linux/bitfield.h>
+@@ -298,9 +294,6 @@ static u64 mlxbf_i2c_corepll_frequency;
+ #define MLXBF_I2C_SMBUS_SLAVE_ADDR_EN_BIT     7
+ #define MLXBF_I2C_SMBUS_SLAVE_ADDR_MASK       GENMASK(6, 0)
  
- /* Constant used to determine the PLL frequency. */
--#define MLNXBF_I2C_COREPLL_CONST    16384
-+#define MLNXBF_I2C_COREPLL_CONST    16384ULL
-+
-+#define MLXBF_I2C_FREQUENCY_1GHZ  1000000000ULL
- 
- /* PLL registers. */
--#define MLXBF_I2C_CORE_PLL_REG0         0x0
- #define MLXBF_I2C_CORE_PLL_REG1         0x4
- #define MLXBF_I2C_CORE_PLL_REG2         0x8
- 
-@@ -181,22 +183,15 @@
- #define MLXBF_I2C_COREPLL_FREQ          MLXBF_I2C_TYU_PLL_OUT_FREQ
- 
- /* Core PLL TYU configuration. */
--#define MLXBF_I2C_COREPLL_CORE_F_TYU_MASK   GENMASK(12, 0)
--#define MLXBF_I2C_COREPLL_CORE_OD_TYU_MASK  GENMASK(3, 0)
--#define MLXBF_I2C_COREPLL_CORE_R_TYU_MASK   GENMASK(5, 0)
--
--#define MLXBF_I2C_COREPLL_CORE_F_TYU_SHIFT  3
--#define MLXBF_I2C_COREPLL_CORE_OD_TYU_SHIFT 16
--#define MLXBF_I2C_COREPLL_CORE_R_TYU_SHIFT  20
-+#define MLXBF_I2C_COREPLL_CORE_F_TYU_MASK   GENMASK(15, 3)
-+#define MLXBF_I2C_COREPLL_CORE_OD_TYU_MASK  GENMASK(19, 16)
-+#define MLXBF_I2C_COREPLL_CORE_R_TYU_MASK   GENMASK(25, 20)
- 
- /* Core PLL YU configuration. */
- #define MLXBF_I2C_COREPLL_CORE_F_YU_MASK    GENMASK(25, 0)
- #define MLXBF_I2C_COREPLL_CORE_OD_YU_MASK   GENMASK(3, 0)
--#define MLXBF_I2C_COREPLL_CORE_R_YU_MASK    GENMASK(5, 0)
-+#define MLXBF_I2C_COREPLL_CORE_R_YU_MASK    GENMASK(31, 26)
- 
--#define MLXBF_I2C_COREPLL_CORE_F_YU_SHIFT   0
--#define MLXBF_I2C_COREPLL_CORE_OD_YU_SHIFT  1
--#define MLXBF_I2C_COREPLL_CORE_R_YU_SHIFT   26
- 
- /* Core PLL frequency. */
- static u64 mlxbf_i2c_corepll_frequency;
-@@ -479,8 +474,6 @@ static struct mutex mlxbf_i2c_bus_lock;
- #define MLXBF_I2C_MASK_8    GENMASK(7, 0)
- #define MLXBF_I2C_MASK_16   GENMASK(15, 0)
- 
--#define MLXBF_I2C_FREQUENCY_1GHZ  1000000000
+-#define MLXBF_I2C_SLAVE_ADDR_ENABLED(addr) \
+-	((addr) & (1 << MLXBF_I2C_SMBUS_SLAVE_ADDR_EN_BIT))
 -
  /*
-  * Function to poll a set of bits at a specific address; it checks whether
-  * the bits are equal to zero when eq_zero is set to 'true', and not equal
-@@ -1407,24 +1400,19 @@ static int mlxbf_i2c_init_master(struct platform_device *pdev,
+  * Timeout is given in microsends. Note also that timeout handling is not
+  * exact.
+@@ -425,7 +418,7 @@ struct mlxbf_i2c_priv {
+ 	u64 frequency; /* Core frequency in Hz. */
+ 	int bus; /* Physical bus identifier. */
+ 	int irq;
+-	struct i2c_client *slave;
++	struct i2c_client *slave[MLXBF_I2C_SMBUS_SLAVE_ADDR_CNT];
+ };
+ 
+ static struct mlxbf_i2c_resource mlxbf_i2c_coalesce_res[] = {
+@@ -1506,25 +1499,23 @@ static int mlxbf_i2c_calculate_corepll_freq(struct platform_device *pdev,
  	return 0;
  }
  
--static u64 mlxbf_calculate_freq_from_tyu(struct mlxbf_i2c_resource *corepll_res)
-+static u64 mlxbf_i2c_calculate_freq_from_tyu(struct mlxbf_i2c_resource *corepll_res)
+-static int mlxbf_slave_enable(struct mlxbf_i2c_priv *priv, u8 addr)
++static int mlxbf_i2c_slave_enable(struct mlxbf_i2c_priv *priv,
++			      struct i2c_client *slave)
  {
--	u64 core_frequency, pad_frequency;
-+	u64 core_frequency;
- 	u8 core_od, core_r;
- 	u32 corepll_val;
- 	u16 core_f;
- 
--	pad_frequency = MLXBF_I2C_PLL_IN_FREQ;
+-	u32 slave_reg, slave_reg_tmp, slave_reg_avail, slave_addr_mask;
+-	u8 reg, reg_cnt, byte, addr_tmp, reg_avail, byte_avail;
+-	bool avail, disabled;
 -
- 	corepll_val = readl(corepll_res->io + MLXBF_I2C_CORE_PLL_REG1);
+-	disabled = false;
+-	avail = false;
++	u8 reg, reg_cnt, byte, addr_tmp;
++	u32 slave_reg, slave_reg_tmp;
  
- 	/* Get Core PLL configuration bits. */
--	core_f = rol32(corepll_val, MLXBF_I2C_COREPLL_CORE_F_TYU_SHIFT) &
--			MLXBF_I2C_COREPLL_CORE_F_TYU_MASK;
--	core_od = rol32(corepll_val, MLXBF_I2C_COREPLL_CORE_OD_TYU_SHIFT) &
--			MLXBF_I2C_COREPLL_CORE_OD_TYU_MASK;
--	core_r = rol32(corepll_val, MLXBF_I2C_COREPLL_CORE_R_TYU_SHIFT) &
--			MLXBF_I2C_COREPLL_CORE_R_TYU_MASK;
-+	core_f = FIELD_GET(MLXBF_I2C_COREPLL_CORE_F_TYU_MASK, corepll_val);
-+	core_od = FIELD_GET(MLXBF_I2C_COREPLL_CORE_OD_TYU_MASK, corepll_val);
-+	core_r = FIELD_GET(MLXBF_I2C_COREPLL_CORE_R_TYU_MASK, corepll_val);
+ 	if (!priv)
+ 		return -EPERM;
+ 
+ 	reg_cnt = MLXBF_I2C_SMBUS_SLAVE_ADDR_CNT >> 2;
+-	slave_addr_mask = MLXBF_I2C_SMBUS_SLAVE_ADDR_MASK;
  
  	/*
- 	 * Compute PLL output frequency as follow:
-@@ -1436,31 +1424,26 @@ static u64 mlxbf_calculate_freq_from_tyu(struct mlxbf_i2c_resource *corepll_res)
- 	 * Where PLL_OUT_FREQ and PLL_IN_FREQ refer to CoreFrequency
- 	 * and PadFrequency, respectively.
+ 	 * Read the slave registers. There are 4 * 32-bit slave registers.
+-	 * Each slave register can hold up to 4 * 8-bit slave configuration
+-	 * (7-bit address, 1 status bit (1 if enabled, 0 if not)).
++	 * Each slave register can hold up to 4 * 8-bit slave configuration:
++	 * 1) A 7-bit address
++	 * 2) And a status bit (1 if enabled, 0 if not).
++	 * Look for the next available slave register slot.
  	 */
--	core_frequency = pad_frequency * (++core_f);
-+	core_frequency = MLXBF_I2C_PLL_IN_FREQ * (++core_f);
- 	core_frequency /= (++core_r) * (++core_od);
+ 	for (reg = 0; reg < reg_cnt; reg++) {
+ 		slave_reg = readl(priv->smbus->io +
+@@ -1539,121 +1530,87 @@ static int mlxbf_slave_enable(struct mlxbf_i2c_priv *priv, u8 addr)
+ 			addr_tmp = slave_reg_tmp & GENMASK(7, 0);
  
- 	return core_frequency;
+ 			/*
+-			 * Mark the first available slave address slot, i.e. its
+-			 * enabled bit should be unset. This slot might be used
+-			 * later on to register our slave.
+-			 */
+-			if (!avail && !MLXBF_I2C_SLAVE_ADDR_ENABLED(addr_tmp)) {
+-				avail = true;
+-				reg_avail = reg;
+-				byte_avail = byte;
+-				slave_reg_avail = slave_reg;
+-			}
+-
+-			/*
+-			 * Parse slave address bytes and check whether the
+-			 * slave address already exists and it's enabled,
+-			 * i.e. most significant bit is set.
++			 * If an enable bit is not set in the
++			 * MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG register, then the
++			 * slave address slot associated with that bit is
++			 * free. So set the enable bit and write the
++			 * slave address bits.
+ 			 */
+-			if ((addr_tmp & slave_addr_mask) == addr) {
+-				if (MLXBF_I2C_SLAVE_ADDR_ENABLED(addr_tmp))
+-					return 0;
+-				disabled = true;
+-				break;
++			if (!(addr_tmp & MLXBF_I2C_SMBUS_SLAVE_ADDR_EN_BIT)) {
++				slave_reg &= ~(MLXBF_I2C_SMBUS_SLAVE_ADDR_MASK << (byte * 8));
++				slave_reg |= (slave->addr << (byte * 8));
++				slave_reg |= MLXBF_I2C_SMBUS_SLAVE_ADDR_EN_BIT << (byte * 8);
++				writel(slave_reg, priv->smbus->io +
++					MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG +
++					(reg * 0x4));
++
++				/*
++				 * Set the slave at the corresponding index.
++				 */
++				priv->slave[(reg * 4) + byte] = slave;
++
++				return 0;
+ 			}
+ 
+ 			/* Parse next byte. */
+ 			slave_reg_tmp >>= 8;
+ 		}
+-
+-		/* Exit the loop if the slave address is found. */
+-		if (disabled)
+-			break;
+-	}
+-
+-	if (!avail && !disabled)
+-		return -EINVAL; /* No room for a new slave address. */
+-
+-	if (avail && !disabled) {
+-		reg = reg_avail;
+-		byte = byte_avail;
+-		/* Set the slave address. */
+-		slave_reg_avail &= ~(slave_addr_mask << (byte * 8));
+-		slave_reg_avail |= addr << (byte * 8);
+-		slave_reg = slave_reg_avail;
+ 	}
+ 
+-	/* Enable the slave address and update the register. */
+-	slave_reg |= (1 << MLXBF_I2C_SMBUS_SLAVE_ADDR_EN_BIT) << (byte * 8);
+-	writel(slave_reg, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG +
+-		reg * 0x4);
+-
+-	return 0;
++	return -EBUSY;
  }
  
--static u64 mlxbf_calculate_freq_from_yu(struct mlxbf_i2c_resource *corepll_res)
-+static u64 mlxbf_i2c_calculate_freq_from_yu(struct mlxbf_i2c_resource *corepll_res)
+-static int mlxbf_slave_disable(struct mlxbf_i2c_priv *priv)
++static int mlxbf_i2c_slave_disable(struct mlxbf_i2c_priv *priv, u8 addr)
  {
- 	u32 corepll_reg1_val, corepll_reg2_val;
--	u64 corepll_frequency, pad_frequency;
-+	u64 corepll_frequency;
- 	u8 core_od, core_r;
- 	u32 core_f;
+-	u32 slave_reg, slave_reg_tmp, slave_addr_mask;
+-	u8 addr, addr_tmp, reg, reg_cnt, slave_byte;
+-	struct i2c_client *client = priv->slave;
+-	bool exist;
++	u8 addr_tmp, reg, reg_cnt, byte;
++	u32 slave_reg, slave_reg_tmp;
  
--	pad_frequency = MLXBF_I2C_PLL_IN_FREQ;
+-	exist = false;
 -
- 	corepll_reg1_val = readl(corepll_res->io + MLXBF_I2C_CORE_PLL_REG1);
- 	corepll_reg2_val = readl(corepll_res->io + MLXBF_I2C_CORE_PLL_REG2);
- 
- 	/* Get Core PLL configuration bits */
--	core_f = rol32(corepll_reg1_val, MLXBF_I2C_COREPLL_CORE_F_YU_SHIFT) &
--			MLXBF_I2C_COREPLL_CORE_F_YU_MASK;
--	core_r = rol32(corepll_reg1_val, MLXBF_I2C_COREPLL_CORE_R_YU_SHIFT) &
--			MLXBF_I2C_COREPLL_CORE_R_YU_MASK;
--	core_od = rol32(corepll_reg2_val,  MLXBF_I2C_COREPLL_CORE_OD_YU_SHIFT) &
--			MLXBF_I2C_COREPLL_CORE_OD_YU_MASK;
-+	core_f = FIELD_GET(MLXBF_I2C_COREPLL_CORE_F_YU_MASK, corepll_reg1_val);
-+	core_r = FIELD_GET(MLXBF_I2C_COREPLL_CORE_R_YU_MASK, corepll_reg1_val);
-+	core_od = FIELD_GET(MLXBF_I2C_COREPLL_CORE_OD_YU_MASK, corepll_reg2_val);
+-	addr = client->addr;
+ 	reg_cnt = MLXBF_I2C_SMBUS_SLAVE_ADDR_CNT >> 2;
+-	slave_addr_mask = MLXBF_I2C_SMBUS_SLAVE_ADDR_MASK;
  
  	/*
- 	 * Compute PLL output frequency as follow:
-@@ -1472,7 +1455,7 @@ static u64 mlxbf_calculate_freq_from_yu(struct mlxbf_i2c_resource *corepll_res)
- 	 * Where PLL_OUT_FREQ and PLL_IN_FREQ refer to CoreFrequency
- 	 * and PadFrequency, respectively.
+ 	 * Read the slave registers. There are 4 * 32-bit slave registers.
+-	 * Each slave register can hold up to 4 * 8-bit slave configuration
+-	 * (7-bit address, 1 status bit (1 if enabled, 0 if not)).
++	 * Each slave register can hold up to 4 * 8-bit slave configuration:
++	 * 1) A 7-bit address
++	 * 2) And a status bit (1 if enabled, 0 if not).
++	 * Check if addr is present in the registers.
  	 */
--	corepll_frequency = (pad_frequency * core_f) / MLNXBF_I2C_COREPLL_CONST;
-+	corepll_frequency = (MLXBF_I2C_PLL_IN_FREQ * core_f) / MLNXBF_I2C_COREPLL_CONST;
- 	corepll_frequency /= (++core_r) * (++core_od);
+ 	for (reg = 0; reg < reg_cnt; reg++) {
+ 		slave_reg = readl(priv->smbus->io +
+ 				MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG + reg * 0x4);
  
- 	return corepll_frequency;
+ 		/* Check whether the address slots are empty. */
+-		if (slave_reg == 0)
++		if (!slave_reg)
+ 			continue;
+ 
+ 		/*
+-		 * Each register holds 4 slave addresses. So, we have to keep
+-		 * the byte order consistent with the value read in order to
+-		 * update the register correctly, if needed.
++		 * Check if addr matches any of the 4 slave addresses
++		 * in the register.
+ 		 */
+ 		slave_reg_tmp = slave_reg;
+-		slave_byte = 0;
+-		while (slave_reg_tmp != 0) {
+-			addr_tmp = slave_reg_tmp & slave_addr_mask;
++		for (byte = 0; byte < 4; byte++) {
++			addr_tmp = slave_reg_tmp & MLXBF_I2C_SMBUS_SLAVE_ADDR_MASK;
+ 			/*
+ 			 * Parse slave address bytes and check whether the
+ 			 * slave address already exists.
+ 			 */
+ 			if (addr_tmp == addr) {
+-				exist = true;
+-				break;
++				/* Clear the slave address slot. */
++				slave_reg &= ~(GENMASK(7, 0) << (byte * 8));
++				writel(slave_reg, priv->smbus->io +
++					MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG +
++					(reg * 0x4));
++				/* Free slave at the corresponding index */
++				priv->slave[(reg * 4) + byte] = NULL;
++
++				return 0;
+ 			}
+ 
+ 			/* Parse next byte. */
+ 			slave_reg_tmp >>= 8;
+-			slave_byte += 1;
+ 		}
+-
+-		/* Exit the loop if the slave address is found. */
+-		if (exist)
+-			break;
+ 	}
+ 
+-	if (!exist)
+-		return 0; /* Slave is not registered, nothing to do. */
+-
+-	/* Cleanup the slave address slot. */
+-	slave_reg &= ~(GENMASK(7, 0) << (slave_byte * 8));
+-	writel(slave_reg, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG +
+-		reg * 0x4);
+-
+-	return 0;
++	return -ENXIO;
+ }
+ 
+ static int mlxbf_i2c_init_coalesce(struct platform_device *pdev,
+@@ -1815,72 +1772,81 @@ static bool mlxbf_smbus_slave_wait_for_idle(struct mlxbf_i2c_priv *priv,
+ 	return false;
+ }
+ 
+-/* Send byte to 'external' smbus master. */
+-static int mlxbf_smbus_irq_send(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
++static struct i2c_client *mlxbf_i2c_get_slave_from_addr(
++			struct mlxbf_i2c_priv *priv, u8 addr)
+ {
+-	u8 data_desc[MLXBF_I2C_SLAVE_DATA_DESC_SIZE] = { 0 };
+-	u8 write_size, pec_en, addr, byte, value, byte_cnt, desc_size;
+-	struct i2c_client *slave = priv->slave;
+-	u32 control32, data32;
+-	int ret;
++	int i;
+ 
+-	if (!slave)
+-		return -EINVAL;
++	for (i = 0; i < MLXBF_I2C_SMBUS_SLAVE_ADDR_CNT; i++) {
++		if (!priv->slave[i])
++			continue;
++
++		if (priv->slave[i]->addr == addr)
++			return priv->slave[i];
++	}
+ 
+-	addr = 0;
+-	byte = 0;
+-	desc_size = MLXBF_I2C_SLAVE_DATA_DESC_SIZE;
++	return NULL;
++}
++
++/*
++ * Send byte to 'external' smbus master. This function is executed when
++ * an external smbus master wants to read data from the BlueField.
++ */
++static int mlxbf_i2c_irq_send(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
++{
++	u8 data_desc[MLXBF_I2C_SLAVE_DATA_DESC_SIZE] = { 0 };
++	u8 write_size, pec_en, addr, value, byte_cnt;
++	struct i2c_client *slave;
++	u32 control32, data32;
++	int ret = 0;
+ 
+ 	/*
+-	 * Read bytes received from the external master. These bytes should
+-	 * be located in the first data descriptor register of the slave GW.
+-	 * These bytes are the slave address byte and the internal register
+-	 * address, if supplied.
++	 * Read the first byte received from the external master to
++	 * determine the slave address. This byte is located in the
++	 * first data descriptor register of the slave GW.
+ 	 */
+-	if (recv_bytes > 0) {
+-		data32 = ioread32be(priv->smbus->io +
+-					MLXBF_I2C_SLAVE_DATA_DESC_ADDR);
+-
+-		/* Parse the received bytes. */
+-		switch (recv_bytes) {
+-		case 2:
+-			byte = (data32 >> 8) & GENMASK(7, 0);
+-			fallthrough;
+-		case 1:
+-			addr = (data32 & GENMASK(7, 0)) >> 1;
+-		}
++	data32 = ioread32be(priv->smbus->io +
++				MLXBF_I2C_SLAVE_DATA_DESC_ADDR);
++	addr = (data32 & GENMASK(7, 0)) >> 1;
+ 
+-		/* Check whether it's our slave address. */
+-		if (slave->addr != addr)
+-			return -EINVAL;
++	/*
++	 * Check if the slave address received in the data descriptor register
++	 * matches any of the slave addresses registered. If there is a match,
++	 * set the slave.
++	 */
++	slave = mlxbf_i2c_get_slave_from_addr(priv, addr);
++	if (!slave) {
++		ret = -ENXIO;
++		goto clear_csr;
+ 	}
+ 
+ 	/*
+-	 * I2C read transactions may start by a WRITE followed by a READ.
+-	 * Indeed, most slave devices would expect the internal address
+-	 * following the slave address byte. So, write that byte first,
+-	 * and then, send the requested data bytes to the master.
++	 * An I2C read can consist of a WRITE bit transaction followed by
++	 * a READ bit transaction. Indeed, slave devices often expect
++	 * the slave address to be followed by the internal address.
++	 * So, write the internal address byte first, and then, send the
++	 * requested data to the master.
+ 	 */
+ 	if (recv_bytes > 1) {
+ 		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
+-		value = byte;
++		value = (data32 >> 8) & GENMASK(7, 0);
+ 		ret = i2c_slave_event(slave, I2C_SLAVE_WRITE_RECEIVED,
+ 				      &value);
+ 		i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
+ 
+ 		if (ret < 0)
+-			return ret;
++			goto clear_csr;
+ 	}
+ 
+ 	/*
+-	 * Now, send data to the master; currently, the driver supports
+-	 * READ_BYTE, READ_WORD and BLOCK READ protocols. Note that the
+-	 * hardware can send up to 128 bytes per transfer. That is the
+-	 * size of its data registers.
++	 * Send data to the master. Currently, the driver supports
++	 * READ_BYTE, READ_WORD and BLOCK READ protocols. The
++	 * hardware can send up to 128 bytes per transfer which is
++	 * the total size of the data registers.
+ 	 */
+ 	i2c_slave_event(slave, I2C_SLAVE_READ_REQUESTED, &value);
+ 
+-	for (byte_cnt = 0; byte_cnt < desc_size; byte_cnt++) {
++	for (byte_cnt = 0; byte_cnt < MLXBF_I2C_SLAVE_DATA_DESC_SIZE; byte_cnt++) {
+ 		data_desc[byte_cnt] = value;
+ 		i2c_slave_event(slave, I2C_SLAVE_READ_PROCESSED, &value);
+ 	}
+@@ -1888,8 +1854,6 @@ static int mlxbf_smbus_irq_send(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
+ 	/* Send a stop condition to the backend. */
+ 	i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
+ 
+-	/* Handle the actual transfer. */
+-
+ 	/* Set the number of bytes to write to master. */
+ 	write_size = (byte_cnt - 1) & 0x7f;
+ 
+@@ -1912,38 +1876,44 @@ static int mlxbf_smbus_irq_send(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
+ 	 */
+ 	mlxbf_smbus_slave_wait_for_idle(priv, MLXBF_I2C_SMBUS_TIMEOUT);
+ 
++clear_csr:
+ 	/* Release the Slave GW. */
+ 	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_RS_MASTER_BYTES);
+ 	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_PEC);
+ 	writel(0x1, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_READY);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+-/* Receive bytes from 'external' smbus master. */
+-static int mlxbf_smbus_irq_recv(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
++/*
++ * Receive bytes from 'external' smbus master. This function is executed when
++ * an external smbus master wants to write data to the BlueField.
++ */
++static int mlxbf_i2c_irq_recv(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
+ {
+ 	u8 data_desc[MLXBF_I2C_SLAVE_DATA_DESC_SIZE] = { 0 };
+-	struct i2c_client *slave = priv->slave;
++	struct i2c_client *slave;
+ 	u8 value, byte, addr;
+ 	int ret = 0;
+ 
+-	if (!slave)
+-		return -EINVAL;
+-
+ 	/* Read data from Slave GW data descriptor. */
+ 	mlxbf_i2c_smbus_read_data(priv, data_desc, recv_bytes,
+ 				  MLXBF_I2C_SLAVE_DATA_DESC_ADDR);
+-
+-	/* Check whether its our slave address. */
+ 	addr = data_desc[0] >> 1;
+-	if (slave->addr != addr)
+-		return -EINVAL;
+ 
+ 	/*
+-	 * Notify the slave backend; another I2C master wants to write data
+-	 * to us. This event is sent once the slave address and the write bit
+-	 * is detected.
++	 * Check if the slave address received in the data descriptor register
++	 * matches any of the slave addresses registered.
++	 */
++	slave = mlxbf_i2c_get_slave_from_addr(priv, addr);
++	if (!slave) {
++		ret = -EINVAL;
++		goto clear_csr;
++	}
++
++	/*
++	 * Notify the slave backend that an smbus master wants to write data
++	 * to the BlueField.
+ 	 */
+ 	i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
+ 
+@@ -1956,9 +1926,13 @@ static int mlxbf_smbus_irq_recv(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
+ 			break;
+ 	}
+ 
+-	/* Send a stop condition to the backend. */
++	/*
++	 * Send a stop event to the slave backend, to signal
++	 * the end of the write transactions.
++	 */
+ 	i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
+ 
++clear_csr:
+ 	/* Release the Slave GW. */
+ 	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_RS_MASTER_BYTES);
+ 	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_PEC);
+@@ -1967,7 +1941,7 @@ static int mlxbf_smbus_irq_recv(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
+ 	return ret;
+ }
+ 
+-static irqreturn_t mlxbf_smbus_irq(int irq, void *ptr)
++static irqreturn_t mlxbf_i2c_irq(int irq, void *ptr)
+ {
+ 	struct mlxbf_i2c_priv *priv = ptr;
+ 	bool read, write, irq_is_set;
+@@ -2015,9 +1989,9 @@ static irqreturn_t mlxbf_smbus_irq(int irq, void *ptr)
+ 		MLXBF_I2C_SLAVE_DATA_DESC_SIZE : recv_bytes;
+ 
+ 	if (read)
+-		mlxbf_smbus_irq_send(priv, recv_bytes);
++		mlxbf_i2c_irq_send(priv, recv_bytes);
+ 	else
+-		mlxbf_smbus_irq_recv(priv, recv_bytes);
++		mlxbf_i2c_irq_recv(priv, recv_bytes);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -2112,23 +2086,21 @@ static s32 mlxbf_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ static int mlxbf_i2c_reg_slave(struct i2c_client *slave)
+ {
+ 	struct mlxbf_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
++	struct device *dev = &slave->dev;
+ 	int ret;
+ 
+-	if (priv->slave)
+-		return -EBUSY;
+-
+ 	/*
+ 	 * Do not support ten bit chip address and do not use Packet Error
+ 	 * Checking (PEC).
+ 	 */
+-	if (slave->flags & (I2C_CLIENT_TEN | I2C_CLIENT_PEC))
++	if (slave->flags & (I2C_CLIENT_TEN | I2C_CLIENT_PEC)) {
++		dev_err(dev, "SMBus PEC and 10 bit address not supported\n");
+ 		return -EAFNOSUPPORT;
++	}
+ 
+-	ret = mlxbf_slave_enable(priv, slave->addr);
+-	if (ret < 0)
+-		return ret;
+-
+-	priv->slave = slave;
++	ret = mlxbf_i2c_slave_enable(priv, slave);
++	if (ret)
++		dev_err(dev, "Surpassed max number of registered slaves allowed\n");
+ 
+ 	return 0;
+ }
+@@ -2136,18 +2108,19 @@ static int mlxbf_i2c_reg_slave(struct i2c_client *slave)
+ static int mlxbf_i2c_unreg_slave(struct i2c_client *slave)
+ {
+ 	struct mlxbf_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
++	struct device *dev = &slave->dev;
+ 	int ret;
+ 
+-	WARN_ON(!priv->slave);
+-
+-	/* Unregister slave, i.e. disable the slave address in hardware. */
+-	ret = mlxbf_slave_disable(priv);
+-	if (ret < 0)
+-		return ret;
+-
+-	priv->slave = NULL;
++	/*
++	 * Unregister slave by:
++	 * 1) Disabling the slave address in hardware
++	 * 2) Freeing priv->slave at the corresponding index
++	 */
++	ret = mlxbf_i2c_slave_disable(priv, slave->addr);
++	if (ret)
++		dev_err(dev, "Unable to find slave 0x%x\n", slave->addr);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static u32 mlxbf_i2c_functionality(struct i2c_adapter *adap)
+@@ -2355,7 +2328,7 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0)
+ 		return irq;
+-	ret = devm_request_irq(dev, irq, mlxbf_smbus_irq,
++	ret = devm_request_irq(dev, irq, mlxbf_i2c_irq,
+ 			       IRQF_SHARED | IRQF_PROBE_SHARED,
+ 			       dev_name(dev), priv);
+ 	if (ret < 0) {
+@@ -2450,4 +2423,5 @@ module_exit(mlxbf_i2c_exit);
+ 
+ MODULE_DESCRIPTION("Mellanox BlueField I2C bus driver");
+ MODULE_AUTHOR("Khalil Blaiech <kblaiech@nvidia.com>");
++MODULE_AUTHOR("Asmaa Mnebhi <asmaa@nvidia.com>");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.30.1
 
