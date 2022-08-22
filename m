@@ -2,94 +2,156 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9035C28D13
-	for <linux-i2c@archiver.kernel.org>; Mon, 22 Aug 2022 10:36:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CDAFC28D13
+	for <linux-i2c@archiver.kernel.org>; Mon, 22 Aug 2022 10:58:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233217AbiHVKgF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 22 Aug 2022 06:36:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58566 "EHLO
+        id S233706AbiHVK6x (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 22 Aug 2022 06:58:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230414AbiHVKgE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Aug 2022 06:36:04 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1C230F73
-        for <linux-i2c@vger.kernel.org>; Mon, 22 Aug 2022 03:36:01 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id x63-20020a17090a6c4500b001fabbf8debfso10780412pjj.4
-        for <linux-i2c@vger.kernel.org>; Mon, 22 Aug 2022 03:36:01 -0700 (PDT)
+        with ESMTP id S230107AbiHVK6w (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Aug 2022 06:58:52 -0400
+Received: from smtp-fw-2101.amazon.com (smtp-fw-2101.amazon.com [72.21.196.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D3031230;
+        Mon, 22 Aug 2022 03:58:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf.com; s=google;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc;
-        bh=nG5cok1QPdhwgOd/fGPOrpOpdg7Z3WhBB1mOKBv5Fpo=;
-        b=quXugk55Ne0wGuoSR333VhDnDjpLcGold1fym5jNCA/m8WAQoA2xpBORPVWTju6Jhl
-         i8UlH+ao2OtrGRQH97FtoVBurfanJl9J0twl2f/ovvD2iC7SlmWVIp3PFz32CXTWu43f
-         vaprIWzWj6d/ZRkwOIR6hADB2HFRH/G7aitNAmdC3Xcx8khePprrAwRbFIg2LycAy31Z
-         VK9+ZaDk6lCQm5oHTVwLjR3e4SFLOS1Tq/Ujz479LTWCgYNTASuLzOZVt1Uq4Y2v3+rX
-         MMQ2KrvIF/BnMwjXUyqLTKrxzSA/o99Z2uaBVbg9/IKOF5DKPB6e9LeKyO7JBknu1NvS
-         RRbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
-        bh=nG5cok1QPdhwgOd/fGPOrpOpdg7Z3WhBB1mOKBv5Fpo=;
-        b=To2RDUgruTELoZseXLIDE6YxYUJz4zmej/5uQ3ADNuGbJ+cqf1iobiUSHpzrsOiHZ1
-         bY7bVQ3bipBj91HM+4u3QAOJhSYPuJALZU/5BSBt+8BCGaXDpZIsVejXbhzvSOTQNTN/
-         QzLMDP2LlfSkwqHWgFMgeftq4xnDktnDJKxe7gQ4VIaCwqJ6VBjt0MGwdCvRD/6VKO9D
-         fDKmoyRbT1OSi70OtZA92LgZhPcPLgB5TCbLMRw802jblyMvrDTfbNVdWbTWzOBzgOiP
-         BSaKvgJspeu05vEh4n8JVpqA5zkTffbrnkWRQFnmWOrZNTZjIEJnRD+bGbb25Rb7taET
-         pxXw==
-X-Gm-Message-State: ACgBeo11wHGPVaRJiJIIj9Vtz1VU/1syHsfTYJSRbwE63SwjrrGEOwg7
-        z9f4VMGIh/geZXDAIcwVb46rRHlrsh+3brPGhm4dDIRC6C8=
-X-Google-Smtp-Source: AA6agR7BxTBuWzfu3tg263op/3bMmcPuFH4fqcAvnn05v7nq16Dw+WAx7QuiyNFiCFQaO8KLW+YvxUt+NWpsPB7N2j8=
-X-Received: by 2002:a17:90a:4e07:b0:1fb:1253:475b with SMTP id
- n7-20020a17090a4e0700b001fb1253475bmr9006629pjh.0.1661164560580; Mon, 22 Aug
- 2022 03:36:00 -0700 (PDT)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1661165932; x=1692701932;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=jBeEiHk1ILwd7T0QguL62OOtCR2zHUCuW2NIEn5oMQM=;
+  b=K307zDWhyzdo8JNbGA+pMVXol3u123UB0ucPRp3rJwGXlBI+v/yRce8v
+   QmhOGiiVFtWRf2mk5iJ8z29KDJ7LWQ4unDPBekjowEujOMBkZ8W15FC7B
+   kZgV7R56KIAvScLktwL0ClLZvgGV8w8uZIQ7Ol4Kc5iaU6mbjAB9qofrk
+   I=;
+X-IronPort-AV: E=Sophos;i="5.93,254,1654560000"; 
+   d="scan'208";a="232563806"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-iad-1e-7dac3c4d.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-2101.iad2.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Aug 2022 10:58:40 +0000
+Received: from EX13MTAUEB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-iad-1e-7dac3c4d.us-east-1.amazon.com (Postfix) with ESMTPS id 89DBC3E00E8;
+        Mon, 22 Aug 2022 10:58:38 +0000 (UTC)
+Received: from EX13D08UEB002.ant.amazon.com (10.43.60.107) by
+ EX13MTAUEB001.ant.amazon.com (10.43.60.129) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.38; Mon, 22 Aug 2022 10:58:32 +0000
+Received: from EX13MTAUEA001.ant.amazon.com (10.43.61.82) by
+ EX13D08UEB002.ant.amazon.com (10.43.60.107) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.38; Mon, 22 Aug 2022 10:58:32 +0000
+Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
+ (172.19.116.181) by mail-relay.amazon.com (10.43.61.243) with Microsoft SMTP
+ Server id 15.0.1497.38 via Frontend Transport; Mon, 22 Aug 2022 10:58:31
+ +0000
+Received: by dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com (Postfix, from userid 14301484)
+        id A2EA64C68; Mon, 22 Aug 2022 10:58:30 +0000 (UTC)
+From:   Eliav Farber <farbere@amazon.com>
+To:     <brgl@bgdev.pl>, <robh+dt@kernel.org>, <mark.rutland@arm.com>,
+        <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <farbere@amazon.com>, <talel@amazon.com>, <hhhawa@amazon.com>,
+        <jonnyc@amazon.com>, <hanochu@amazon.com>, <ronenk@amazon.com>,
+        <itamark@amazon.com>, <shellykz@amazon.com>, <shorer@amazon.com>,
+        <amitlavi@amazon.com>, <almogbs@amazon.com>, <dkl@amazon.com>,
+        <dwmw@amazon.co.uk>
+Subject: [PATCH v2 2/2] eeprom: at24: add support for power-supply control
+Date:   Mon, 22 Aug 2022 10:58:30 +0000
+Message-ID: <20220822105830.22790-3-farbere@amazon.com>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <20220822105830.22790-1-farbere@amazon.com>
+References: <20220822105830.22790-1-farbere@amazon.com>
 MIME-Version: 1.0
-References: <20220812071526.414285-1-jsd@semihalf.com> <YwB/aWRxyemPay58@shikoro>
-In-Reply-To: <YwB/aWRxyemPay58@shikoro>
-From:   =?UTF-8?B?SmFuIETEhWJyb8Wb?= <jsd@semihalf.com>
-Date:   Mon, 22 Aug 2022 12:35:49 +0200
-Message-ID: <CAOtMz3Ptx-xoGUUtAbssJsggmKrD+rX3nv6KMo3LJOE3ip0RYw@mail.gmail.com>
-Subject: Re: [PATCH v2] i2c: designware: Introduce semaphore reservation timer
- to AMDPSP driver
-To:     Wolfram Sang <wsa@kernel.org>, Jan Dabros <jsd@semihalf.com>,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        mika.westerberg@linux.intel.com, rrangel@chromium.org,
-        mw@semihalf.com, upstream@semihalf.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-sob., 20 sie 2022 o 08:30 Wolfram Sang <wsa@kernel.org> napisa=C5=82(a):
->
-> On Fri, Aug 12, 2022 at 09:15:26AM +0200, Jan Dabros wrote:
-> > In order to optimize performance, limit amount of back and forth
-> > transactions between x86 and PSP. This is done by introduction of
-> > semaphore reservation period - that is window in which x86 isn't
-> > releasing the bus immediately after each I2C transaction.
-> >
-> > In order to protect PSP from being starved while waiting for
-> > arbitration, after a programmed time bus is automatically released by a
-> > deferred function.
-> >
-> > Signed-off-by: Jan Dabros <jsd@semihalf.com>
->
-> Fixed this checkpatch check:
->
-> CHECK: Blank lines aren't necessary after an open brace '{'
-> #60: FILE: drivers/i2c/busses/i2c-designware-amdpsp.c:265:
+Add an optional gpio regulator to support a power-supply control.
+If a gpio power-supply regulator is supplied in the device tree, the
+gpio is enabled during probe, and disabled on remove.
 
-Are you using the default checkpatch.pl script available on the top of
-tree kernel baseline? For some reason my checkpatch.pl hasn't reported
-this, but (due to operational error) I used the version of script from
-5.10 stabilize branch..
+Signed-off-by: Eliav Farber <farbere@amazon.com>
+---
+V1 -> V2:
+Change pointed out by Rob Herring:
+- Use a gpio regulator for power-supply control.
 
-> and applied to for-next, thanks!
+ drivers/misc/eeprom/at24.c | 41 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
 
-Thanks!
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index dc3537651b80..a5e3fe1403d9 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -25,6 +25,7 @@
+ #include <linux/platform_data/at24.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/gpio/consumer.h>
++#include <linux/regulator/consumer.h>
+ 
+ /*
+  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
+@@ -78,6 +79,8 @@ struct at24_data {
+ 
+ 	struct gpio_desc *wp_gpio;
+ 
++	struct regulator *supply;
++
+ 	/*
+ 	 * Some chips tie up multiple I2C addresses; dummy devices reserve
+ 	 * them for us, and we'll use them with SMBus calls.
+@@ -615,6 +618,13 @@ static unsigned int at24_get_offset_adj(u8 flags, unsigned int byte_len)
+ 	}
+ }
+ 
++static void devm_at24_regulator_disable(void *data)
++{
++	struct at24_data *at24 = data;
++
++	regulator_disable(at24->supply);
++}
++
+ static int at24_probe(struct i2c_client *client)
+ {
+ 	struct regmap_config regmap_config = { };
+@@ -674,6 +684,37 @@ static int at24_probe(struct i2c_client *client)
+ 	if (!at24)
+ 		return -ENOMEM;
+ 
++	at24->supply = devm_regulator_get_optional(dev, "power");
++	if (IS_ERR(at24->supply)) {
++		err = PTR_ERR(at24->supply);
++		if (err == -ENODEV)
++			at24->supply = NULL;
++		else
++			return dev_err_probe(dev, err,
++					     "failed to get power-supply regulator\n");
++	}
++
++	if (at24->supply) {
++		err = regulator_enable(at24->supply);
++		if (err < 0) {
++			dev_err(dev,
++				"failed to enable power-supply regulator: %d\n",
++				err);
++			return err;
++		}
++
++		err = devm_add_action_or_reset(dev, devm_at24_regulator_disable,
++					       at24);
++		if (err < 0) {
++			dev_err(dev,
++				"failed to adction to disable power-supply regulator: %d\n",
++				err);
++			return err;
++		}
++
++		usleep_range(2000, 3000);
++	}
++
+ 	mutex_init(&at24->lock);
+ 	at24->byte_len = pdata.byte_len;
+ 	at24->page_size = pdata.page_size;
+-- 
+2.37.1
 
-Best Regards,
-Jan
