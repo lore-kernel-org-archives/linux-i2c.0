@@ -2,83 +2,94 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A15AC38147
-	for <linux-i2c@archiver.kernel.org>; Mon, 22 Aug 2022 10:59:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 385C8C28D13
+	for <linux-i2c@archiver.kernel.org>; Mon, 22 Aug 2022 11:02:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234253AbiHVK7F (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 22 Aug 2022 06:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50090 "EHLO
+        id S234237AbiHVLCp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 22 Aug 2022 07:02:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234249AbiHVK67 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Aug 2022 06:58:59 -0400
-Received: from smtp-fw-9103.amazon.com (smtp-fw-9103.amazon.com [207.171.188.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9278C3123A;
-        Mon, 22 Aug 2022 03:58:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1661165937; x=1692701937;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=7s4PF8RXbYEqzbeQRRYuac3gOnJi1NGTK0dQaORCsDM=;
-  b=Riw5dd7lqsS6ee91GmGMLqcdtTahtBKnneBP1Gte6mTIBgsRwkXXAucU
-   1WDP2pNsnz+U03havLObtz6LkXCJ7IlnSBq8jAbq+E/X9oHnzu7aZzV32
-   SOapGBCYgxy3hX3+J0/lLnOH+HSwA8eEINh1GSurG2Z+h0nrpVu9Lcfzu
-   w=;
-X-IronPort-AV: E=Sophos;i="5.93,254,1654560000"; 
-   d="scan'208";a="1046875127"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-iad-1a-b09d0114.us-east-1.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-9103.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Aug 2022 10:58:35 +0000
-Received: from EX13MTAUWA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1a-b09d0114.us-east-1.amazon.com (Postfix) with ESMTPS id 27E6D8150F;
-        Mon, 22 Aug 2022 10:58:32 +0000 (UTC)
-Received: from EX19D013UWA003.ant.amazon.com (10.13.138.202) by
- EX13MTAUWA001.ant.amazon.com (10.43.160.118) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Mon, 22 Aug 2022 10:58:32 +0000
-Received: from EX13MTAUWA001.ant.amazon.com (10.43.160.58) by
- EX19D013UWA003.ant.amazon.com (10.13.138.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.12;
- Mon, 22 Aug 2022 10:58:32 +0000
-Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
- (172.19.116.181) by mail-relay.amazon.com (10.43.160.118) with Microsoft SMTP
- Server id 15.0.1497.38 via Frontend Transport; Mon, 22 Aug 2022 10:58:32
- +0000
-Received: by dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com (Postfix, from userid 14301484)
-        id A00FD4C8B; Mon, 22 Aug 2022 10:58:30 +0000 (UTC)
-From:   Eliav Farber <farbere@amazon.com>
-To:     <brgl@bgdev.pl>, <robh+dt@kernel.org>, <mark.rutland@arm.com>,
-        <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <farbere@amazon.com>, <talel@amazon.com>, <hhhawa@amazon.com>,
-        <jonnyc@amazon.com>, <hanochu@amazon.com>, <ronenk@amazon.com>,
-        <itamark@amazon.com>, <shellykz@amazon.com>, <shorer@amazon.com>,
-        <amitlavi@amazon.com>, <almogbs@amazon.com>, <dkl@amazon.com>,
-        <dwmw@amazon.co.uk>
-Subject: [PATCH v2 0/2] add power-supply control to enable eeprom usage
-Date:   Mon, 22 Aug 2022 10:58:28 +0000
-Message-ID: <20220822105830.22790-1-farbere@amazon.com>
-X-Mailer: git-send-email 2.37.1
+        with ESMTP id S234284AbiHVLCo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Aug 2022 07:02:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3439332071;
+        Mon, 22 Aug 2022 04:02:44 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1FFB60FF9;
+        Mon, 22 Aug 2022 11:02:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5A4FC433C1;
+        Mon, 22 Aug 2022 11:02:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1661166163;
+        bh=m+ZMpxsNeNvW9siwBQLP54G38rMpvfF7BKiiR4KlvbY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qPcTJ25n6UY55oo5evrEd5jcIFPrxseEuuweRZxznTg1KY/zRYW+B1+u2W2Z+zxmR
+         nW6weTaGAqXI43lsLnPXxTmuiZN/tKd/dE4EL+ovoKSthU2nUznxnbsHTKdHCIWPJl
+         HlAivGwMDubsfClGlZZWJzoS8gi/xa/9CVqzMgozQeZ6LpXkrYMKnmSlhGD0mR3KXf
+         kHD/DMgcrPJXAMVKDIAKMrQJQY+0ccRED/YS3x/b5XJuPDIMdfVIEVumWhBguo7lpj
+         Og8fNgioPqZ59jI7Ik9Hp8uPBNL8Uf9vgjwhqPywR2fGHG/Pdo2ht1MFtU5QCevzrg
+         FDB09qIXOhFKg==
+Date:   Mon, 22 Aug 2022 13:02:40 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Jan =?utf-8?B?RMSFYnJvxZs=?= <jsd@semihalf.com>
+Cc:     linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, rrangel@chromium.org,
+        mw@semihalf.com, upstream@semihalf.com
+Subject: Re: [PATCH v2] i2c: designware: Introduce semaphore reservation
+ timer to AMDPSP driver
+Message-ID: <YwNiUILH+mou1Ao5@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Jan =?utf-8?B?RMSFYnJvxZs=?= <jsd@semihalf.com>,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, rrangel@chromium.org,
+        mw@semihalf.com, upstream@semihalf.com
+References: <20220812071526.414285-1-jsd@semihalf.com>
+ <YwB/aWRxyemPay58@shikoro>
+ <CAOtMz3Ptx-xoGUUtAbssJsggmKrD+rX3nv6KMo3LJOE3ip0RYw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="MfQrOj6WdXou/nPB"
+Content-Disposition: inline
+In-Reply-To: <CAOtMz3Ptx-xoGUUtAbssJsggmKrD+rX3nv6KMo3LJOE3ip0RYw@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-First patch describes the new binding property.
-Second patch adds the functionality to the driver.
 
-Change between v2 and v1:
-- Use a gpio regulator for power-supply control.
+--MfQrOj6WdXou/nPB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Eliav Farber (2):
-  dt-bindings: at24: add new optional power-supply property
-  eeprom: at24: add support for power-supply control
 
- .../devicetree/bindings/eeprom/at24.txt       |  3 ++
- drivers/misc/eeprom/at24.c                    | 41 +++++++++++++++++++
- 2 files changed, 44 insertions(+)
+> Are you using the default checkpatch.pl script available on the top of
+> tree kernel baseline?
 
--- 
-2.37.1
+Well, the one from what I base my branches on. Currently, this is
+v6.0-rc1.
 
+
+--MfQrOj6WdXou/nPB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmMDYkwACgkQFA3kzBSg
+KbbkwQ/+KE+NGIVWHo4erKISEA/TuOhY5xkrPhmBCx7ZCpg1UxpyP3MZh9jHYmLO
+K0SfsFk8MQJIzr6d2V7PUnzTZmTTbPES/1W+p+mxg9OpYNjIFklXiC8jxNFzDv2d
+MXMaQbB3o8VN0Er/yShyAtLOrLun6ZTBq2V1mLV1djcShyXs7ZyiLP7vP+7wFRmv
+aA90p0NIhKI0+tJJT5GHpMqSAe6tbPSJh9MS3J3mMaQQrtYT32enf4P7kIVbnEZa
+l09Ffp+5cfL7MvGm3wGh8zBp8FWdFL6t8xI/F8p9aBfveRURMUiqIdJxc7OayDS6
+abCqTzvXYEXFUwkn5V+3kmuq2Gv19gRtUSgWAM2rITby5oOlyGzZ635CVhgDsenn
+SPTlNb0G1+H1wXmHObFDjVcjjFi0jqiRB2Ytxw2i4j99sgizCPju3XS54aLLL9we
+S9AJVRyZtAa89NXYMfMOXLCk/kvd1Z9HWFVW5yT359qmXeLyIFttvEznhDXxK59V
+nm4A6eTR1SJqf5XSJEI5U+cp7W7DPuTN7KpOrdWGjqq2IO2SlCv3FcXpA4DZrBgv
+0SfUsLr1/AsJcduguhwHu7wZ+wElsC/tZjNKJF+gEPNVfJ/wUMM5Vk/gkuLAzBEf
+2lsY8uMEelc9xu+4cSBodWvIMBP9Q3qNzdBBOYS4a05DII1BZD0=
+=aT4r
+-----END PGP SIGNATURE-----
+
+--MfQrOj6WdXou/nPB--
