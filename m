@@ -2,144 +2,265 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61113C32772
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Aug 2022 17:02:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9595FC32772
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Aug 2022 17:28:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343647AbiHWRB5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 23 Aug 2022 13:01:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35744 "EHLO
+        id S231516AbiHWR2u (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 23 Aug 2022 13:28:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344367AbiHWRBO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Aug 2022 13:01:14 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4EAD14E13B;
-        Tue, 23 Aug 2022 06:32:18 -0700 (PDT)
-Received: from [192.168.2.145] (unknown [109.252.119.13])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: dmitry.osipenko)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 0D8946601DD8;
-        Tue, 23 Aug 2022 14:32:15 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1661261536;
-        bh=qYAbuLUkpYt+uM+/fl7m986bAwBm8xRYbN9/9PNiiyg=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=awhbsSUN/KwnvxfssZE3JauPUbX717ylMppTYN5OSSg5EkcgTbcPNTgq3FRIPUyju
-         JngJpWUg14TdAeOVtnuLsUOT8eN/5C1B1cCcpyVZV9qknSbauELUkEI7vFuQPDwSyS
-         Tz+6Q6oTRFK4rGZal8a54PCHxC8fGyqJMF3k5PWOPAgXkAkgeXT295N0U0FmDU/hYB
-         P0/TYvcNkqrXpZ0eCrqCr267op1TsInXIXr624UPHHhR47lIYf5wD+VUvz7Ve74Qle
-         EsjwpmQgN3+1gNKqBBXWDZu2tFd7m1gIczOD5rKy4MOTergFbk1nPXdw1CyJ81QQuY
-         7kKKttATwI1/w==
-Message-ID: <4f791065-e0dd-6ed5-f152-86d7be683490@collabora.com>
-Date:   Tue, 23 Aug 2022 16:32:11 +0300
+        with ESMTP id S231565AbiHWR0x (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Aug 2022 13:26:53 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C850B7E02F;
+        Tue, 23 Aug 2022 08:05:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1661267107; x=1692803107;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=rF5eoaSIGYmn4QFAPCwYIkB4658jTD+/02hldzxJt6Y=;
+  b=ni/JD5MZoJjObhdtXr/d4Bx7kO9WxhX2APqfpoNT5P1zb/48ssg0QofT
+   9vFGdzqx2mxLHSDImSbcO/0CW+QcDJ8zlms7C1fztR3cUtaIP+BU3T/o2
+   dwx/OtSjEPVXdaEOgO4ZW4h93gNqleOWuyw7vEbbKINGdf1qtDT6idT0m
+   hsUF4s+iUZZ/gscE8UG88DoYWCWsDmBWBtEElipnYbQ0mioxSJ1Hh93RK
+   gZtGzaElGyW1ehrJJ0scxKjonAt6CNiipb94dNre+N8l7K2+NrbO+bBeD
+   2l0GE2D/dwEJzwVun021CsEHZC9br/817coFu7xS/jAinSjDjTJTRZBGY
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10448"; a="292457136"
+X-IronPort-AV: E=Sophos;i="5.93,258,1654585200"; 
+   d="scan'208";a="292457136"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2022 08:05:07 -0700
+X-IronPort-AV: E=Sophos;i="5.93,258,1654585200"; 
+   d="scan'208";a="751714934"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2022 08:05:04 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1oQVSe-002UKx-28;
+        Tue, 23 Aug 2022 18:05:00 +0300
+Date:   Tue, 23 Aug 2022 18:05:00 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        wsa@kernel.org, krzk@kernel.org, jarkko.nikula@linux.intel.com,
+        robh@kernel.org, semen.protsenko@linaro.org, sven@svenpeter.dev,
+        jsd@semihalf.com, rafal@milecki.pl, olof@lixom.net, arnd@arndb.de,
+        UNGLinuxDriver@microchip.com
+Subject: Re: [PATCH RFC i2c-master] i2c: microchip: pci1xxxx: Add driver for
+ I2C host controller in multifunction endpoint of pci1xxxx switch
+Message-ID: <YwTsnCdxM5I6BoJu@smile.fi.intel.com>
+References: <20220823145603.2606475-1-tharunkumar.pasumarthi@microchip.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: [PATCH RESEND 1/2] i2c: tegra: Add GPCDMA support
-Content-Language: en-US
-To:     Akhil R <akhilrajeev@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        "wsa@kernel.org" <wsa@kernel.org>
-Cc:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "christian.koenig@amd.com" <christian.koenig@amd.com>,
-        "sumit.semwal@linaro.org" <sumit.semwal@linaro.org>,
-        "Kartik ." <kkartik@nvidia.com>
-References: <20220819122313.40445-1-akhilrajeev@nvidia.com>
- <20220819122313.40445-2-akhilrajeev@nvidia.com>
- <20281ca7-e597-7030-4861-5f9a3594726d@gmail.com>
- <89a746fd-a98e-3147-7811-33c5051c2b6d@gmail.com>
- <SJ1PR12MB6339FC1F82EB1BB7417E533BC0719@SJ1PR12MB6339.namprd12.prod.outlook.com>
- <ebb0764f-db92-d69d-49ac-151f4e3e0b8a@collabora.com>
- <SJ1PR12MB63396DC508F63807F1CE9901C0719@SJ1PR12MB6339.namprd12.prod.outlook.com>
- <fac10841-1682-845f-3e4a-5668f59caed0@gmail.com>
- <cd0374f1-2c05-7e61-7187-cfc9c42edf63@gmail.com>
- <SJ1PR12MB63397BBD4EF314A742680F2CC0709@SJ1PR12MB6339.namprd12.prod.outlook.com>
- <a7ba27c4-992b-28d1-f6c2-3937b4f275ce@collabora.com>
- <c9ba2629-fc81-cefd-0d6d-991084781ec3@collabora.com>
- <SJ1PR12MB63393F51E29BA1F85AD249DBC0709@SJ1PR12MB6339.namprd12.prod.outlook.com>
-From:   Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <SJ1PR12MB63393F51E29BA1F85AD249DBC0709@SJ1PR12MB6339.namprd12.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220823145603.2606475-1-tharunkumar.pasumarthi@microchip.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 8/23/22 15:55, Akhil R wrote:
+On Tue, Aug 23, 2022 at 08:26:03PM +0530, Tharun Kumar P wrote:
+> Microchip PCI1XXXX is an unmanaged PCIe3.1a Switch for Consumer,
+> Industrial and Automotive applications. This switch has multiple
+> downstream ports. In one of the Switch's Downstream port, there
+> is a multifunction endpoint for peripherals which includes an I2C
+> host controller. The I2C function in the endpoint operates at 100KHz,
+> 400KHz and 1 MHz and has buffer depth of 128 bytes.
+> This patch provides the I2C controller driver for the I2C endpoint
+> of the switch.
+
 ...
->>>> What I am trying for is to have a mechanism that doesn't halt the i2c
->> transfers
->>>> till DMA is available. Also, I do not want to drop DMA because it was
->> unavailable
->>>> during probe().
->>>
->>> Why is it unavailable? Sounds like you're not packaging kernel properly.
-> Unavailable until initramfs or systemd is started since the module has to be
-> loaded from either of it.
-> 
->>>
->>>> This situation is sure to hit if we have I2C driver as built in and DMA driver as a
->>>> module. In such cases, I2C will never be able to use the DMA.
->>>
->>> For Tegra I2C built-in + DMA driver module you should add the dma.ko to
->>> initramfs and then it will work. This is a common practice for many
->>> kernel drivers.
->>>
->>> It's also similar to a problem with firmware files that must be
->>> available to drivers during boot,
-> 
-> Isn't the initramfs loaded after the driver initcalls? Wasn't very much clear for me
-> from the code and docs. We did try adding the module in initramfs initially, but
-> couldn't find much of a difference from when it is loaded by systemd in rootfs.
-> Will explore more on this if this really helps.
 
-It doesn't matter when initramfs is loaded. Tegra I2C should be
-re-probed once DMA driver is ready, that's the point of deferred
-probing. I'd assume that your DMA driver module isn't loading.
+> @@ -1290,6 +1290,16 @@ config I2C_VIPERBOARD
+>  	  River Tech's viperboard.h for detailed meaning
+>  	  of the module parameters.
+>  
+> +config I2C_PCI1XXXX
 
->>>> Another option I thought about was to request and free DMA channel for
->> each
->>>> transfer, which many serial drivers already do. But I am a bit anxious if that
->> will
->>>> increase the latency of transfer.
->>>
->>> Perhaps all you need to do is to add MODULE_SOFTDEP to Tegra I2C driver
->>> like we did it for the EMC driver [1].
->>>
->>> [1]
->>> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-
->> next.git/commit/?id=14b43c20c283de36131da0cb44f3170b9ffa7630
->>>
->>
->> Although, probably MODULE_SOFTDEP won't work for a built-in driver. In
->> that case, change Tegra I2C kconfig to depend on the DMA driver.
-> 
-> Since I2C can work without DMA, wouldn't it limit the flexibility of I2C driver.
+Looks unsorted.
 
-There are kernel configurations that are not worthwhile to support
-because nobody use them in practice. I think this is exactly the case
-here. The TEGRA20_APB_DMA driver dependency created troubles for a long
-time.
+> +	tristate "PCI1XXXX I2C Host Adapter support"
+> +	depends on PCI
+> +	help
+> +	  Say yes here to enable the I2C Host adapter support for the PCI1xxxx card
+> +	  This is a PCI to I2C adapter
+> +
+> +	  This driver can be built as a module. If so, the module will be
+> +	  called as i2c-mchp-pci1xxxx
 
-If DMA driver is enabled in kernel config, then you should provide the
-driver module to kernel and it will work.
+English grammar and punctuation while keeping lines shorter (~76) please.
 
-If DMA driver is disabled in kernel config, then Tegra I2C driver should
-take that into account. I'm now recalling that this was the reason of
-"!IS_ENABLED(CONFIG_TEGRA20_APB_DMA)" in the code.
+...
 
-Since all h/w gens now provide DMA support for Tegra I2C, then should be
-better and easier to make DMA a dependency for Tegra I2C and don't
-maintain kernel build configurations that nobody cares about.
+>  obj-$(CONFIG_I2C_VIPERBOARD)	+= i2c-viperboard.o
+> +obj-$(CONFIG_I2C_PCI1XXXX)	+= i2c-mchp-pci1xxxx.o
+
+Why unsorted?
+
+...
+
+> + * Author: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
+> + *         Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>
+
+Single or many?
+
+...
+
+> +/*SMB register space*/
+
+Style.
+
+...
+
+> +#define SMB_CORE_CTRL_ESO	0x40
+> +#define SMB_CORE_CTRL_FW_ACK	0x10
+
+Are they bits or numbers?
+
+...
+
+> +#define SMB_CORE_CMD_READM		0x10
+> +#define SMB_CORE_CMD_STOP		0x04
+> +#define SMB_CORE_CMD_START		0x01
+
+Ditto.
+
+...
+
+> +#define SMB_CORE_CMD_M_PROCEED	0x02
+> +#define SMB_CORE_CMD_M_RUN		0x01
+
+Ditto.
+
+...
+
+> +#define SR_HOLD_TIME_100KHZ		0x85
+> +#define SR_HOLD_TIME_400KHZ		0x14
+> +#define SR_HOLD_TIME_1000KHZ	0x0B
+
+These has to be decimal, and why the ACPI / DT does not provide them?
+
+Also, do they have units or are they proportional coefficients?
+
+...
+
+> +#define COMPLETION_MDONE	0x40
+> +#define COMPLETION_IDLE		0x20
+> +#define COMPLETION_MNAKX	0x01
+
+Bits? Same Q for the rest similar stuff.
+
+...
+
+> +#define SMB_IDLE_SCALING_100KHZ		0x03E803C9
+> +#define SMB_IDLE_SCALING_400KHZ		0x01F4009D
+> +#define SMB_IDLE_SCALING_1000KHZ	0x01F4009D
+
+Shouldn't these magics be decimals?
+Ditto for the rest similar stuff.
+
+...
+
+> +#define I2C_DIR_WRITE		0
+> +#define I2C_DIR_READ		1
+
+Namespace collision. Doesn't I²C core provide these?
+
+...
+
+> +#define PCI1XXXX_I2C_TIMEOUT	1000
+
+Units? Same to the rest similar cases.
+
+...
+
+> +#define SMBUS_PERI_LOCK		BIT(3)
+
+BIT() out of a sudden. See above.
+
+...
+
+> +/*
+> + * struct pci1xxxx_i2c - private structure for the I2C controller
+
+> + *
+
+Redundant blank line.
+
+> + * @adap:	I2C adapter instance
+> + * @dev:	pointer to device struct
+> + * @i2c_base:	pci base address of the I2C ctrler
+> + * @i2c_xfer_done: used for synchronisation between foreground & isr
+> + * @freq:	frequency of I2C transfer
+> + * @flags:	internal flags to store transfer conditions
+> + * @irq:	irq number
+> + */
+
+> +
+
+Ditt.
+
+> +struct pci1xxxx_i2c {
+> +	struct completion i2c_xfer_done;
+> +	bool i2c_xfer_in_progress;
+> +	struct i2c_adapter adap;
+> +	void __iomem *i2c_base;
+> +	u32 freq;
+> +	u32 flags;
+> +};
+
+I have lack of time to finish review, but you already have enough for the next
+version.
+
+...
+
+> +			transferlen = min((u16)(SMBUS_MAST_BUF_MAX_SIZE - 1),
+> +					  remainingbytes);
+
+min_t()
+
+...
+
+> +		if (remainingbytes <= transferlen && (i2c->flags &
+> +							I2C_FLAGS_STOP))
+
+Strange indentation.
+
+...
+
+> +		/*
+> +		 * wait for the DMA_TERM interrupt and if the timer expires, it means
+> +		 * the transaction has failed due to some bus lock as we dint get
+> +		 * the interrupt
+> +		 */
+
+You really have to go through all comments and fix grammar, etc.
+
+...
+
+> +		time_left = wait_for_completion_timeout
+> +				(&i2c->i2c_xfer_done, msecs_to_jiffies(PCI1XXXX_I2C_TIMEOUT));
+
+Strange indentation.
+
+...
+
+> +	i2c_del_adapter(&i2c->adap);
+
+Can't you use devm_ variant?
+
+...
+
+> +	pci1xxxx_i2c_shutdown(i2c);
+
+Do you really need this in ->remove()? I would expect something in
+the ->suspend() / ->shutdown().
 
 -- 
-Best regards,
-Dmitry
+With Best Regards,
+Andy Shevchenko
+
+
