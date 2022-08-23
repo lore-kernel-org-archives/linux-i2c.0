@@ -2,1260 +2,446 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4813C32772
-	for <linux-i2c@archiver.kernel.org>; Tue, 23 Aug 2022 11:27:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF9E4C32774
+	for <linux-i2c@archiver.kernel.org>; Tue, 23 Aug 2022 11:35:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241843AbiHWL1y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 23 Aug 2022 07:27:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37918 "EHLO
+        id S1344264AbiHWLfT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 23 Aug 2022 07:35:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358139AbiHWL1Z (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Aug 2022 07:27:25 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC35175CED;
-        Tue, 23 Aug 2022 02:24:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1661246700; x=1692782700;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=Sb8lhazZGMUW99FKsvaGlcPvdD8K+xrxOEW1jbBN230=;
-  b=1Ww65RN1Y3vN7k+p6GGVB4Kry4WLicGm+aPBsaI1LhmErcssfG/8/lhW
-   7sUY130VZoxwyX+QFbb5pqFC3YmoflVM2HqY6jftY3QCsom5RIIrImlTY
-   HlaYYTFaWIAExfWvtxBZA1C+JRlrMU8ZLZ/fvfgelsH2Cqrq6YT1YK5Gl
-   oDBHOCMn8M2MkcLPr26H5ne7EvEXVweoa0p7Lli4/lOwzaiF89G3eMQhu
-   kqxhXvRtAo3YjK4xkk8LkNpvbnozwkCcsbrHS30YLgGK+7QgUjZ2Hdkal
-   xA9UkdXW2TZkjMbbF8inc4qoamR0Oh2SbExtKENv6M8q7399NrQ18HUyF
-   A==;
-X-IronPort-AV: E=Sophos;i="5.93,257,1654585200"; 
-   d="scan'208";a="110265603"
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 23 Aug 2022 02:24:57 -0700
-Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.12; Tue, 23 Aug 2022 02:24:53 -0700
-Received: from CHE-LT-UNGSOFTWARE.microchip.com (10.10.115.15) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server id
- 15.1.2507.12 via Frontend Transport; Tue, 23 Aug 2022 02:24:49 -0700
-From:   Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
-To:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <wsa@kernel.org>
-CC:     <andriy.shevchenko@linux.intel.com>, <krzk@kernel.org>,
-        <jarkko.nikula@linux.intel.com>, <robh@kernel.org>,
-        <semen.protsenko@linaro.org>, <sven@svenpeter.dev>,
-        <jsd@semihalf.com>, <rafal@milecki.pl>, <olof@lixom.net>,
-        <arnd@arndb.de>, <UNGLinuxDriver@microchip.com>
-Subject: [PATCH RFC i2c-master] i2c: microchip: pci1xxxx: Add driver for I2C host controller in multifunction endpoint of pci1xxxx switch
-Date:   Tue, 23 Aug 2022 20:26:03 +0530
-Message-ID: <20220823145603.2606475-1-tharunkumar.pasumarthi@microchip.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S1346222AbiHWLdR (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Aug 2022 07:33:17 -0400
+Received: from EUR02-AM5-obe.outbound.protection.outlook.com (mail-eopbgr00113.outbound.protection.outlook.com [40.107.0.113])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B6C9C6B6F;
+        Tue, 23 Aug 2022 02:26:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gTbm5nJJu5Neub5SMZzKs1GtN/6cNMiqG80nV5dedA1UaB0lWkU0PJeZ7DvyVs3RHqwX5m6N6hsin9TkjOGMSUJdKN8Z4VHXGJQ11XyI9hRDj+LvZpeOajFnQRhCxXAMjaa13vz/NUGkeVXcjyJC9vOLMmslLD1fQCttpq+Wk+EaRkNniS2medM82N8wVn2u9j5vZk8Kqp9c5Ghd6Ty2UbVQm2UWojlGJ+WdBCTdiEaMzhvxU4Oq0AMH6d1XQt8yAKpgMuwVz0Tyz4RBrvWO21FEW82d4SPyzJD+XQD5yOw8tetdZEGu5Kbk+XRLjQ85BQXg+fRxBg/03quJBr9xoQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Udy5dhfC5//KzSPXIdB1v0Yr951HIpZCe2N9LmwDUXE=;
+ b=lCicIQ6qY8xqYg2pwtGhWyrLi181/KUf0TzoSHwzDHsNOZOVoWhL0DRvUeco0tPUrn/qqcbqIkcBCUT6mfIe6ehnW22mA96biH+jd6YlOpkEwju0uz719u5d+zDCd8sf9Cx1VDDsZF5hXkVgqDzmwIpyXt5Y1pBx+3AEzl6mu0riWp4jHdiDTNUB0kuxoMlyQljKVqR39m55AlNus1rOrbCbeOZ8ufhtmuLwUmZ85RECArRjJMCG6NPB7WVosdHNsaFi74tmgR1uqS97/ptjsge2GjDhyzl59mEcC7exz+GNycuZPMaX46/GD/dUbWiJH5HwXOlgpT+EWH3tb1OQmg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=axentia.se; dmarc=pass action=none header.from=axentia.se;
+ dkim=pass header.d=axentia.se; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axentia.se;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Udy5dhfC5//KzSPXIdB1v0Yr951HIpZCe2N9LmwDUXE=;
+ b=pNNP/ukKqVN+M4U4593ZcJfk+zyqYtrvg+Js4sl2uwbS8nPHfqGWZR0CEZUlU+n32awI085oCFVonCvX2EtamJFIR74lnVqYzgrAhwYlLWOgOEyfK6aXKXfCYV0H1vBf3xdstxKVZZ3NuULDuzNZ0r3+QUhVp3dZS2sDRDRisEk=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=axentia.se;
+Received: from AM0PR02MB4436.eurprd02.prod.outlook.com (2603:10a6:208:ed::15)
+ by AS8PR02MB7078.eurprd02.prod.outlook.com (2603:10a6:20b:2e5::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.14; Tue, 23 Aug
+ 2022 09:26:53 +0000
+Received: from AM0PR02MB4436.eurprd02.prod.outlook.com
+ ([fe80::1d88:3306:c280:3179]) by AM0PR02MB4436.eurprd02.prod.outlook.com
+ ([fe80::1d88:3306:c280:3179%6]) with mapi id 15.20.5546.022; Tue, 23 Aug 2022
+ 09:26:53 +0000
+Message-ID: <19a22449-c9fb-1eba-9a47-3e3d340a13a1@axentia.se>
+Date:   Tue, 23 Aug 2022 11:26:51 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Subject: Re: [PATCH v2 2/3] docs: i2c: i2c-topology: reorder sections more
+ logically
+Content-Language: en-US
+To:     luca.ceresoli@bootlin.com, linux-doc@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org
+References: <20220822091050.47099-1-luca.ceresoli@bootlin.com>
+ <20220822091050.47099-3-luca.ceresoli@bootlin.com>
+From:   Peter Rosin <peda@axentia.se>
+In-Reply-To: <20220822091050.47099-3-luca.ceresoli@bootlin.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: BE0P281CA0005.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:a::15) To AM0PR02MB4436.eurprd02.prod.outlook.com
+ (2603:10a6:208:ed::15)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 323ab08a-de52-46f1-ebe6-08da84e99d76
+X-MS-TrafficTypeDiagnostic: AS8PR02MB7078:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: vzenU13wT6Lo57SYtHkRc27ojLvz/37ddaceDg/SWRG+VWQRfBMKETywqTOompg6fDtMPDA8xiW4sCnvZe6nDNonUO7WHYMY8skaUJJBRNvsWnuNpM8J6N76Fhz+51usVRclNN77aAvPdSdc+2/7PJBgInRj4XCSbQu+oWn0e6+WCcKbPrtZK+1D7kkiC2cGP7rBd3IxgosrlMTAzV+nYCFKN2wa4482G50BEqZUJ9uhw66rD7jW2Ezq3a7MUrWX4XIH+aI9xPP9jd0GylxSBxGOpe4AK0Yi9JeK7/jJiEVXi/cwYMSSK7XmCK6UfpQg/ggBxKiBve4QXldPgMyV7obOPeekznoAsU1uAiFYzQT7HfBXRsem1A3I6u3J5Ehl5nJMRk3X1URlZ1z64eSvc8I27Rb9grLySFsn69Zx+Yi6dCZamFcCbcOaa0ANfggojIDXfsFgMHOb3+uRF2+40Xh21mX5MQoGseasuZ0y4xb7+BII7b0MhIeILeeDQ4lGWsDIY+77mxUogkVoByPxvz3i+oqB4YVGymruV4DiSiUhvPf6AP7kFHJKtTTcy3GTA8GCyPKNBVAaMEh5yRlF446o/gfF+Whmg2z8LrFGxdvIdIHq5D1l7nLdbTuEkg3CzeDoqVrmOgz00dHJyJZziD9zxXyd7CHvnH/0iPjnKbLuv+MfTFOsRHMHZv7QT6H5n771rY2gJuuxxPqwplK9C4o2y7fO53l31Thcg7ieH1agm2+0LKtM7szTPPjfJalu8osdqpf0sjB3BCpU92SRwM3T3IewGxHa7Bv1yYLENaU=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR02MB4436.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(366004)(136003)(376002)(346002)(39840400004)(396003)(478600001)(6486002)(316002)(186003)(2616005)(83380400001)(6506007)(41300700001)(38100700002)(26005)(6512007)(2906002)(5660300002)(86362001)(8936002)(30864003)(31696002)(66946007)(31686004)(36756003)(66556008)(4326008)(66476007)(8676002)(43740500002)(45980500001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?L2xjL05tYnFJdDYyUWUvbm44ekZmVk9KcDhXRFhva3BoVGN2WnpnKzlpcHlU?=
+ =?utf-8?B?WVBYQWZNY1VvQnlqNklpZ1laQ2hCL3R5NnlCVE9FRnJ4KzNoZ2FOMExQOVlZ?=
+ =?utf-8?B?SjBEcnlSdWhrbkVQR2lQUDNpMWNoUzJDeTltY0JHa0tIaGQ5RUVZcVFaRXVQ?=
+ =?utf-8?B?V0dibitVQWdiUytOa2krMmN3SlY3OU5WU0RTcERwNTcrMm5kWi9JYTg5dXlx?=
+ =?utf-8?B?QTk2Z3RTWm9ibzBvV05jaW13RVVGK056bG5NazgzM1U0aHFTZUM1ck95WERo?=
+ =?utf-8?B?eGRFcWdiMlozMTlmVXRKNzRUWmtLUGZDS2w3Mjlrck9lckhSRStGSmxDMFI1?=
+ =?utf-8?B?U2VoSktUL0ppRGRONTR5MWdLSnR6UmpxOXMwWm9aazFibnMvNm5lTzFqakRF?=
+ =?utf-8?B?NlV4OXMzWWtTcGQxWEhZN2NoaE9tMUhBdGdVbVdnL0dFQTFmQllSZFhUZ0x3?=
+ =?utf-8?B?TjVYaGRxSWVMaUV4V0hGY0ZJaDlsZTZ5dUlWVkhoWWxKdXU1VnFtNGhnbkY0?=
+ =?utf-8?B?d2VsUCtTYmhVUURhejhMd1cvZHhlcEUzQXU0b1JPQ2IydElDL1hVaGNMRmFk?=
+ =?utf-8?B?MWhsOWhsZURISFpXRjQzYVRtd1NrQjllZlBWVnc4QzhjQkhQYlBOaUdLTmlh?=
+ =?utf-8?B?RWZPZWlOd0RHRm9aZW9PelRWem50VTVaU2p4bmRKUksycGdxeFJMZEhxMHhy?=
+ =?utf-8?B?MXUraGdoajZMY3poM09NTmxRZ0xaaG5FQWEwQUtZTThSS1NCZThxOGNRRTlV?=
+ =?utf-8?B?SGtzUzdheXJxOEplQnZzdUJ3Q01ld2R3RzBYZGUzbGVhcmJOMjVRY05kd0RF?=
+ =?utf-8?B?L1hIM0M3WlR6eU1scWpjbjVMODJkeWRxNE9FOGJWQjk4YlhYbncxTTdTUlFh?=
+ =?utf-8?B?dTBjV05rbE9lQlg4SmNnWGJ4MDU1dHhnQzZjNytPNVNWY1dIRFowQ3RyNGdl?=
+ =?utf-8?B?Q21EaWtvR1ltMjArR2d1dERRT0tsVHVCVS9XRVV2YmdDc0dvQVFFYThyTkV6?=
+ =?utf-8?B?d0lsY2lWUjhrYTJRWFlpWFRhVEpXOW12OXl2WXEvV1l5UFZjNUJYNkx4ZktR?=
+ =?utf-8?B?YytPcElNRjVlSVBQdUpUUmZUT3hheExMM0k5UFVOQzRGYnpLcGtud09uZkw3?=
+ =?utf-8?B?NTZ2RVduQ2NneUhIcWY5VWdzS2ZQL2RrOVZyYncyVERLQ0lydkgyd1ZpMmVO?=
+ =?utf-8?B?WmNOWVJ4MzdNVmFQMzFzZDIyNy9sWTZkNDhqaEdTYkdqbndWY25QUWZjVmFM?=
+ =?utf-8?B?MnRuS3N1NjRicnRsbnp6YTBRTTI5MWgvalNFSmFxa3BQbUliMUhYWW90Zkp1?=
+ =?utf-8?B?WHZMZ09YbXlwbHJDNUZuSVFIdFZHWkVjaldyZmU2c1ZWelI1ZlhoM0Vyalo5?=
+ =?utf-8?B?WUxiYXFOM3E5R3lPSWR6SFJabmJMTW9pNFJZRkQ4ZmJaTUEvN3h5bC8rdWgv?=
+ =?utf-8?B?Qzc0Si9uZGxzVlVhZWJQMjFzSXd1alkyU2l2VlQxRUZSdUtMSTZKaUttTXlI?=
+ =?utf-8?B?L3dRK29jWkR2SHNRMUdrZE84ak9LVXF2S1pES21vVE1KTVF5cElvUDA0L0Zt?=
+ =?utf-8?B?cVZwTG9IVkxNRGpPVDZCWGlKYjQ5RU9VMm82NVFyTExrY1pZZVF3RE1Ja2ZF?=
+ =?utf-8?B?MHFoaUJDSWlDREYzM2ZrdnY2TFR3LzM2UW9tbmxsNk5oNmQxYkpyTDZWVElm?=
+ =?utf-8?B?SGVNV3o4OVVQTUJFN3pJcDFsOEN3a2pJR1VhMDRQSjNnOHg5WUhPZ3l1eVdG?=
+ =?utf-8?B?b1pBS3MrKzFjQ01wQkcwamZTeUM3bDRDWVVXc09kc0NlamovUHF2SHFFSkZQ?=
+ =?utf-8?B?a1EyRzNXV2d5M3EyM3daVEphRG5Oc042ZkdiSC8yQnUzK05uLzVrc3FnN09L?=
+ =?utf-8?B?M2NReHQ2aE14dDVQdkxwR0dvZHgrdHRWcWpJVjdzTGtOMUNPdHVXZ21JQk1y?=
+ =?utf-8?B?MG9sQWo1SEtnMm94WEFKVDgvT1kyWlRna3pHK2ZvS0xxQ1RrcnRoaFRqYlpw?=
+ =?utf-8?B?c24wRCt4RUpnbWVORWFSckdaQlFqamg0aXFCWkFlYXhSVE9xUlJkV1R3bDI5?=
+ =?utf-8?B?S2tjWi9oRkk5YmdBa2VpYlV6SjArWGcySE9vaytuNXhySzYxbnFNR0ozamxx?=
+ =?utf-8?Q?1FZkGyMCKyityy+oIoinCOqq4?=
+X-OriginatorOrg: axentia.se
+X-MS-Exchange-CrossTenant-Network-Message-Id: 323ab08a-de52-46f1-ebe6-08da84e99d76
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR02MB4436.eurprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Aug 2022 09:26:53.1659
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4ee68585-03e1-4785-942a-df9c1871a234
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2zxEmWvDI9JgZgyw/iFNfqkDoujxMb6UrUg+6CfBPuqOAgm01M8Ap9THIplZFEta
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR02MB7078
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Microchip PCI1XXXX is an unmanaged PCIe3.1a Switch for Consumer,
-Industrial and Automotive applications. This switch has multiple
-downstream ports. In one of the Switch's Downstream port, there
-is a multifunction endpoint for peripherals which includes an I2C
-host controller. The I2C function in the endpoint operates at 100KHz,
-400KHz and 1 MHz and has buffer depth of 128 bytes.
-This patch provides the I2C controller driver for the I2C endpoint
-of the switch.
 
-Signed-off-by: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
----
- MAINTAINERS                            |    8 +
- drivers/i2c/busses/Kconfig             |   10 +
- drivers/i2c/busses/Makefile            |    1 +
- drivers/i2c/busses/i2c-mchp-pci1xxxx.c | 1123 ++++++++++++++++++++++++
- 4 files changed, 1142 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-mchp-pci1xxxx.c
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3cf9842d9233..204885ab5200 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -13110,6 +13110,14 @@ S:	Supported
- F:	Documentation/devicetree/bindings/mtd/atmel-nand.txt
- F:	drivers/mtd/nand/raw/atmel/*
- 
-+MICROCHIP PCI1XXXX I2C DRIVER
-+M:	Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
-+M:	Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>
-+M:	Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
-+L:	linux-i2c@vger.kernel.org
-+S:	Maintained
-+F:	drivers/i2c/busses/i2c-mchp-pci1xxxx.c
-+
- MICROCHIP PWM DRIVER
- M:	Claudiu Beznea <claudiu.beznea@microchip.com>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index a1bae59208e3..2baeb1bf05e8 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1290,6 +1290,16 @@ config I2C_VIPERBOARD
- 	  River Tech's viperboard.h for detailed meaning
- 	  of the module parameters.
- 
-+config I2C_PCI1XXXX
-+	tristate "PCI1XXXX I2C Host Adapter support"
-+	depends on PCI
-+	help
-+	  Say yes here to enable the I2C Host adapter support for the PCI1xxxx card
-+	  This is a PCI to I2C adapter
-+
-+	  This driver can be built as a module. If so, the module will be
-+	  called as i2c-mchp-pci1xxxx
-+
- comment "Other I2C/SMBus bus drivers"
- 
- config I2C_ACORN
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 479f60e4ee3d..f5eaa737d8ee 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -135,6 +135,7 @@ obj-$(CONFIG_I2C_ROBOTFUZZ_OSIF)	+= i2c-robotfuzz-osif.o
- obj-$(CONFIG_I2C_TAOS_EVM)	+= i2c-taos-evm.o
- obj-$(CONFIG_I2C_TINY_USB)	+= i2c-tiny-usb.o
- obj-$(CONFIG_I2C_VIPERBOARD)	+= i2c-viperboard.o
-+obj-$(CONFIG_I2C_PCI1XXXX)	+= i2c-mchp-pci1xxxx.o
- 
- # Other I2C/SMBus bus drivers
- obj-$(CONFIG_I2C_ACORN)		+= i2c-acorn.o
-diff --git a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
-new file mode 100644
-index 000000000000..b519fae8b78a
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
-@@ -0,0 +1,1123 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Microchip PCI1XXXX I2C adapter driver for PCIe Switch
-+ * which has I2C controller in one of its downstream functions
-+ *
-+ * Copyright (C) 2021 - 2022 Microchip Technology Inc.
-+ *
-+ * Author: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
-+ *         Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+
-+#define SMBUS_MAST_CORE_ADDR_BASE		0x00000
-+#define SMBUS_MAST_SYS_REG_ADDR_BASE	0x01000
-+
-+#define PCI1XXXX_IRQ_FLAGS 0
-+
-+/*SMB register space*/
-+#define SMB_CORE_CTRL_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x00)
-+
-+#define SMB_CORE_CTRL_ESO	0x40
-+#define SMB_CORE_CTRL_FW_ACK	0x10
-+
-+#define SMB_CORE_CMD_REG_OFF3	(SMBUS_MAST_CORE_ADDR_BASE + 0x0F)
-+#define SMB_CORE_CMD_REG_OFF2	(SMBUS_MAST_CORE_ADDR_BASE + 0x0E)
-+#define SMB_CORE_CMD_REG_OFF1	(SMBUS_MAST_CORE_ADDR_BASE + 0x0D)
-+
-+#define SMB_CORE_CMD_READM		0x10
-+#define SMB_CORE_CMD_STOP		0x04
-+#define SMB_CORE_CMD_START		0x01
-+
-+#define SMB_CORE_CMD_REG_OFF0	(SMBUS_MAST_CORE_ADDR_BASE + 0x0C)
-+
-+#define SMB_CORE_CMD_M_PROCEED	0x02
-+#define SMB_CORE_CMD_M_RUN		0x01
-+
-+#define SMB_CORE_SR_HOLD_TIME_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x18)
-+
-+#define SR_HOLD_TIME_100KHZ		0x85
-+#define SR_HOLD_TIME_400KHZ		0x14
-+#define SR_HOLD_TIME_1000KHZ	0x0B
-+
-+#define SMB_CORE_COMPLETION_REG_OFF3	(SMBUS_MAST_CORE_ADDR_BASE + 0x23)
-+
-+#define COMPLETION_MDONE	0x40
-+#define COMPLETION_IDLE		0x20
-+#define COMPLETION_MNAKX	0x01
-+
-+#define SMB_CORE_IDLE_SCALING_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x24)
-+
-+#define SMB_IDLE_SCALING_100KHZ		0x03E803C9
-+#define SMB_IDLE_SCALING_400KHZ		0x01F4009D
-+#define SMB_IDLE_SCALING_1000KHZ	0x01F4009D
-+
-+#define SMB_CORE_CONFIG_REG3		(SMBUS_MAST_CORE_ADDR_BASE + 0x2B)
-+
-+#define SMB_CONFIG3_ENMI	0x40
-+#define SMB_CONFIG3_ENIDI	0x20
-+
-+#define SMB_CORE_CONFIG_REG2		(SMBUS_MAST_CORE_ADDR_BASE + 0x2A)
-+#define SMB_CORE_CONFIG_REG1		(SMBUS_MAST_CORE_ADDR_BASE + 0x29)
-+
-+#define SMB_CONFIG1_ASR		0x80
-+#define SMB_CONFIG1_ENAB	0x04
-+#define SMB_CONFIG1_RESET	0x02
-+#define SMB_CONFIG1_FEN		0x01
-+
-+#define SMB_CORE_BUS_CLK_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x2C)
-+
-+#define BUS_CLK_100KHZ		0x9A9C
-+#define BUS_CLK_400KHZ		0x2329
-+#define BUS_CLK_1000KHZ		0x0E0F
-+
-+#define SMB_CORE_CLK_SYNC_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x3C)
-+
-+#define CLK_SYNC_100KHZ		0x04
-+#define CLK_SYNC_400KHZ		0x04
-+#define CLK_SYNC_1000KHZ	0x04
-+
-+#define SMB_CORE_DATA_TIMING_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x40)
-+
-+#define DATA_TIMING_100KHZ	0x169D9D01
-+#define DATA_TIMING_400KHZ	0x10141401
-+#define DATA_TIMING_1000KHZ	0x060C0C01
-+
-+#define SMB_CORE_TO_SCALING_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x44)
-+
-+#define TO_SCALING_100KHZ	0xA79FC7CC
-+#define TO_SCALING_400KHZ	0x8B9FC7CC
-+#define TO_SCALING_1000KHZ	0x859FC7CC
-+
-+#define I2C_SCL_PAD_CTRL_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x100)
-+#define I2C_SDA_PAD_CTRL_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x101)
-+
-+#define I2C_FOD_EN		0x10
-+#define I2C_PULL_UP_EN		0x08
-+#define I2C_PULL_DOWN_EN	0x04
-+#define I2C_INPUT_EN		0x02
-+#define I2C_OUTPUT_EN		0x01
-+
-+#define SMBUS_CONTROL_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x200)
-+
-+#define CTL_RESET_COUNTERS	0x08
-+#define CTL_TRANSFER_DIR	0x04
-+#define CTL_HOST_FIFO_ENTRY	0x02
-+#define CTL_RUN			0x01
-+
-+#define I2C_DIR_WRITE		0
-+#define I2C_DIR_READ		1
-+
-+#define SMBUS_STATUS_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x204)
-+
-+#define STA_DMA_TERM	0x80
-+#define STA_DMA_REQ		0x40
-+#define STA_THRESHOLD	0x04
-+#define STA_BUF_FULL	0x02
-+#define STA_BUF_EMPTY	0x01
-+
-+#define SMBUS_INTR_STAT_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x208)
-+
-+#define INTR_STAT_DMA_TERM	0x80
-+#define INTR_STAT_THRESHOLD	0x04
-+#define INTR_STAT_BUF_FULL	0x02
-+#define INTR_STAT_BUF_EMPTY	0x01
-+
-+#define SMBUS_INTR_MSK_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x20C)
-+
-+#define INTR_MSK_DMA_TERM	0x80
-+#define INTR_MSK_THRESHOLD	0x04
-+#define INTR_MSK_BUF_FULL	0x02
-+#define INTR_MSK_BUF_EMPTY	0x01
-+
-+#define ALL_NW_LAYER_INTERRUPTS  (INTR_MSK_DMA_TERM | INTR_MSK_THRESHOLD |\
-+				INTR_MSK_BUF_FULL | INTR_MSK_BUF_EMPTY)
-+
-+#define SMBUS_MCU_COUNTER_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x214)
-+
-+#define SMBALERT_MST_PAD_CTRL_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x230)
-+
-+#define SMBALERT_MST_PU		0x01
-+
-+#define SMBUS_GEN_INT_STAT_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x23C)
-+
-+#define SMBUS_GEN_INT_MASK_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x240)
-+
-+#define SMBALERT_INTR_MASK		0x0400
-+#define I2C_BUF_MSTR_INTR_MASK	0x0200
-+#define I2C_INTR_MASK			0x0100
-+#define SMBALERT_WAKE_INTR_MASK	0x0004
-+#define I2C_BUF_MSTR_WAKE_INTR_MASK	0x0002
-+#define I2C_WAKE_INTR_MASK		0x0001
-+
-+#define ALL_HIGH_LAYER_INTR     (SMBALERT_INTR_MASK | I2C_BUF_MSTR_INTR_MASK | \
-+				I2C_INTR_MASK | SMBALERT_WAKE_INTR_MASK | \
-+				I2C_BUF_MSTR_WAKE_INTR_MASK | \
-+				I2C_WAKE_INTR_MASK)
-+
-+#define SMBUS_RESET_REG		(SMBUS_MAST_CORE_ADDR_BASE + 0x248)
-+
-+#define PERI_SMBUS_D3_RESET_DIS	0x10000
-+
-+#define SMBUS_MST_BUF		(SMBUS_MAST_CORE_ADDR_BASE + 0x280)
-+
-+#define SMBUS_MAST_BUF_MAX_SIZE	0x80
-+
-+#define I2C_FLAGS_DIRECT_MODE	0x80
-+#define I2C_FLAGS_POLLING_MODE	0x40
-+#define I2C_FLAGS_STOP			0x20
-+#define I2C_FLAGS_SMB_BLK_READ	0x10
-+
-+#define PCI1XXXX_I2C_TIMEOUT	1000
-+
-+/* General Purpose Register */
-+#define SMB_GPR_REG		(SMBUS_MAST_CORE_ADDR_BASE + 0x1000 + 0x0c00 + 0x00)
-+
-+/* Lock Register */
-+#define SMB_GPR_LOCK_REG	(SMBUS_MAST_CORE_ADDR_BASE + 0x1000 + 0x0000 + 0x00A0)
-+
-+#define SMBUS_PERI_LOCK		BIT(3)
-+
-+/*
-+ * struct pci1xxxx_i2c - private structure for the I2C controller
-+ *
-+ * @adap:	I2C adapter instance
-+ * @dev:	pointer to device struct
-+ * @i2c_base:	pci base address of the I2C ctrler
-+ * @i2c_xfer_done: used for synchronisation between foreground & isr
-+ * @freq:	frequency of I2C transfer
-+ * @flags:	internal flags to store transfer conditions
-+ * @irq:	irq number
-+ */
-+
-+struct pci1xxxx_i2c {
-+	struct completion i2c_xfer_done;
-+	bool i2c_xfer_in_progress;
-+	struct i2c_adapter adap;
-+	void __iomem *i2c_base;
-+	u32 freq;
-+	u32 flags;
-+};
-+
-+static int set_sys_lock(void __iomem *addr)
-+{
-+	u8 data;
-+
-+	writel(SMBUS_PERI_LOCK, addr);
-+	data = readl(addr);
-+	if (data != SMBUS_PERI_LOCK)
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
-+static int release_sys_lock(void __iomem *addr)
-+{
-+	u8 data;
-+
-+	data = readl(addr);
-+	if (data != SMBUS_PERI_LOCK)
-+		return 0;
-+
-+	writel(0, addr);
-+	data = readl(addr);
-+	if (data & SMBUS_PERI_LOCK)
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
-+static void pci1xxxx_ack_high_level_intr(struct pci1xxxx_i2c *i2c, u16 intr_msk)
-+{
-+	writew(intr_msk, i2c->i2c_base + SMBUS_GEN_INT_STAT_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_configure_smbalert_pin(struct pci1xxxx_i2c *i2c,
-+						bool enable)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMBALERT_MST_PAD_CTRL_REG_OFF);
-+
-+	if (enable)
-+		regval |= SMBALERT_MST_PU;
-+	else
-+		regval &= ~SMBALERT_MST_PU;
-+
-+	writeb(regval, i2c->i2c_base + SMBALERT_MST_PAD_CTRL_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_send_start_stop(struct pci1xxxx_i2c *i2c, bool start)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMB_CORE_CMD_REG_OFF1);
-+
-+	if (start)
-+		regval |= SMB_CORE_CMD_START;
-+	else
-+		regval |= SMB_CORE_CMD_STOP;
-+
-+	writeb(regval, i2c->i2c_base + SMB_CORE_CMD_REG_OFF1);
-+}
-+
-+/*when accessing the core control reg, we should not do a read modified write
-+ * as there are write '1' to clear bits. Hence do a write with the specific
-+ * bits that needs to be set
-+ */
-+static void pci1xxxx_i2c_set_clear_FW_ACK(struct pci1xxxx_i2c *i2c, bool set)
-+{
-+	u8 regval;
-+
-+	if (set)
-+		regval = SMB_CORE_CTRL_FW_ACK | SMB_CORE_CTRL_ESO;
-+	else
-+		regval = SMB_CORE_CTRL_ESO;
-+
-+	writeb(regval, i2c->i2c_base + SMB_CORE_CTRL_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_buffer_write(struct pci1xxxx_i2c *i2c, u8 slaveaddr,
-+				      u8 transferlen, unsigned char *buf)
-+{
-+	if (slaveaddr) {
-+		writeb(slaveaddr, i2c->i2c_base + SMBUS_MST_BUF);
-+		if (buf)
-+			memcpy_toio((i2c->i2c_base + SMBUS_MST_BUF + 1), buf, transferlen);
-+	} else {
-+		if (buf)
-+			memcpy_toio((i2c->i2c_base + SMBUS_MST_BUF), buf, transferlen);
-+	}
-+}
-+
-+/*
-+ *when accessing the core control reg, we should not do a read modified write
-+ *as there are write '1' to clear bits. Hence do a write with the
-+ *specific bits that needs to be set
-+ */
-+static void pci1xxxx_i2c_enable_ESO(struct pci1xxxx_i2c *i2c)
-+{
-+	writeb(SMB_CORE_CTRL_ESO, i2c->i2c_base + SMB_CORE_CTRL_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_reset_counters(struct pci1xxxx_i2c *i2c)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMBUS_CONTROL_REG_OFF);
-+	regval |= CTL_RESET_COUNTERS;
-+	writeb(regval, i2c->i2c_base + SMBUS_CONTROL_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_set_transfer_dir(struct pci1xxxx_i2c *i2c, u8 direction)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMBUS_CONTROL_REG_OFF);
-+	if (direction == I2C_DIR_WRITE)
-+		regval &= ~CTL_TRANSFER_DIR;
-+	else
-+		regval |= CTL_TRANSFER_DIR;
-+
-+	writeb(regval, i2c->i2c_base + SMBUS_CONTROL_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_set_mcu_count(struct pci1xxxx_i2c *i2c, u8 count)
-+{
-+	writeb(count, i2c->i2c_base + SMBUS_MCU_COUNTER_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_set_read_count(struct pci1xxxx_i2c *i2c, u8 readcount)
-+{
-+	writeb(readcount, i2c->i2c_base + SMB_CORE_CMD_REG_OFF3);
-+}
-+
-+static void pci1xxxx_i2c_set_write_count(struct pci1xxxx_i2c *i2c, u8 writecount)
-+{
-+	writeb(writecount, i2c->i2c_base + SMB_CORE_CMD_REG_OFF2);
-+}
-+
-+static void pci1xxxx_i2c_set_DMA_run(struct pci1xxxx_i2c *i2c)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMBUS_CONTROL_REG_OFF);
-+	regval |= CTL_RUN;
-+	writeb(regval, i2c->i2c_base + SMBUS_CONTROL_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_set_mrun_proceed(struct pci1xxxx_i2c *i2c)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMB_CORE_CMD_REG_OFF0);
-+	regval |= SMB_CORE_CMD_M_RUN;
-+	regval |= SMB_CORE_CMD_M_PROCEED;
-+	writeb(regval, i2c->i2c_base + SMB_CORE_CMD_REG_OFF0);
-+}
-+
-+static void pci1xxxx_i2c_start_DMA(struct pci1xxxx_i2c *i2c)
-+{
-+	pci1xxxx_i2c_set_DMA_run(i2c);
-+	pci1xxxx_i2c_set_mrun_proceed(i2c);
-+}
-+
-+static void pci1xxxx_i2c_config_asr(struct pci1xxxx_i2c *i2c, bool enable)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMB_CORE_CONFIG_REG1);
-+	if (enable)
-+		regval |= SMB_CONFIG1_ASR;
-+	else
-+		regval &= ~SMB_CONFIG1_ASR;
-+	writeb(regval, i2c->i2c_base + SMB_CORE_CONFIG_REG1);
-+}
-+
-+static irqreturn_t pci1xxxx_i2c_isr(int irq, void *dev)
-+{
-+	irqreturn_t intr_handled = IRQ_NONE;
-+	struct pci1xxxx_i2c *i2c = dev;
-+	u16 reg1;
-+	u8 reg3;
-+
-+	/*  Read the SMBus interrupt status register to see if the
-+	 *  DMA_TERM interrupt has caused this callback
-+	 */
-+	reg1 = readw(i2c->i2c_base + SMBUS_GEN_INT_STAT_REG_OFF);
-+
-+	if (reg1 & I2C_BUF_MSTR_INTR_MASK) {
-+		reg3 = readb(i2c->i2c_base + SMBUS_INTR_STAT_REG_OFF);
-+		if (reg3 & INTR_STAT_DMA_TERM) {
-+			complete(&i2c->i2c_xfer_done);
-+			intr_handled = IRQ_HANDLED;
-+			writeb(INTR_STAT_DMA_TERM,
-+			       i2c->i2c_base + SMBUS_INTR_STAT_REG_OFF);
-+		}
-+		pci1xxxx_ack_high_level_intr(i2c, I2C_BUF_MSTR_INTR_MASK);
-+	}
-+
-+	if (reg1 & SMBALERT_INTR_MASK) {
-+		intr_handled = IRQ_HANDLED;
-+		/*ACK the interrupt*/
-+		pci1xxxx_ack_high_level_intr(i2c, SMBALERT_INTR_MASK);
-+	}
-+
-+	return intr_handled;
-+}
-+
-+static void pci1xxxx_i2c_set_count(struct pci1xxxx_i2c *i2c, u8 mcucount,
-+				   u8 writecount, u8 readcount)
-+{
-+	pci1xxxx_i2c_set_mcu_count(i2c, mcucount);
-+	pci1xxxx_i2c_set_write_count(i2c, writecount);
-+	pci1xxxx_i2c_set_read_count(i2c, readcount);
-+}
-+
-+static void pci1xxxx_i2c_set_readm(struct pci1xxxx_i2c *i2c, bool enable)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMB_CORE_CMD_REG_OFF1);
-+	if (enable)
-+		regval |= SMB_CORE_CMD_READM;
-+	else
-+		regval &= ~SMB_CORE_CMD_READM;
-+
-+	writeb(regval, i2c->i2c_base + SMB_CORE_CMD_REG_OFF1);
-+}
-+
-+static void pci1xxxx_ack_nw_layer_intr(struct pci1xxxx_i2c *i2c,
-+				       u8 ack_intr_msk)
-+{
-+	writeb(ack_intr_msk, i2c->i2c_base + SMBUS_INTR_STAT_REG_OFF);
-+}
-+
-+static void pci1xxxx_config_nw_layer_intr(struct pci1xxxx_i2c *i2c,
-+					  u8 intr_msk, bool enable)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMBUS_INTR_MSK_REG_OFF);
-+	if (enable)
-+		regval &= ~(intr_msk);
-+	else
-+		regval |= intr_msk;
-+
-+	writeb(regval, i2c->i2c_base + SMBUS_INTR_MSK_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_config_padctrl(struct pci1xxxx_i2c *i2c, bool enable)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + I2C_SCL_PAD_CTRL_REG_OFF);
-+	if (enable)
-+		regval |= (I2C_INPUT_EN | I2C_OUTPUT_EN);
-+	else
-+		regval &=  ~(I2C_INPUT_EN | I2C_OUTPUT_EN);
-+
-+	writeb(regval, i2c->i2c_base + I2C_SCL_PAD_CTRL_REG_OFF);
-+
-+	regval = readb(i2c->i2c_base + I2C_SDA_PAD_CTRL_REG_OFF);
-+	if (enable)
-+		regval |= (I2C_INPUT_EN | I2C_OUTPUT_EN);
-+	else
-+		regval &=  ~(I2C_INPUT_EN | I2C_OUTPUT_EN);
-+
-+	writeb(regval, i2c->i2c_base + I2C_SDA_PAD_CTRL_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_set_mode(struct pci1xxxx_i2c *i2c)
-+{
-+	u8 regval;
-+
-+	regval = readb(i2c->i2c_base + SMBUS_CONTROL_REG_OFF);
-+	if (i2c->flags & I2C_FLAGS_DIRECT_MODE)
-+		regval &= ~CTL_HOST_FIFO_ENTRY;
-+	else
-+		regval |= CTL_HOST_FIFO_ENTRY;
-+
-+	writeb(regval, i2c->i2c_base + SMBUS_CONTROL_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_config_high_level_intr(struct pci1xxxx_i2c *i2c,
-+						u16 intr_msk, bool enable)
-+{
-+	u16 regval;
-+
-+	regval = readw(i2c->i2c_base + SMBUS_GEN_INT_MASK_REG_OFF);
-+	if (enable)
-+		regval &= ~(intr_msk);
-+	else
-+		regval |= intr_msk;
-+	writew(regval, i2c->i2c_base + SMBUS_GEN_INT_MASK_REG_OFF);
-+}
-+
-+static void pci1xxxx_i2c_configure_core_reg(struct pci1xxxx_i2c *i2c, bool enable)
-+{
-+	u8 reg1;
-+	u8 reg3;
-+
-+	reg1 = readb(i2c->i2c_base + SMB_CORE_CONFIG_REG1);
-+	reg3 = readb(i2c->i2c_base + SMB_CORE_CONFIG_REG3);
-+	if (enable) {
-+		reg1 |= (SMB_CONFIG1_ENAB | SMB_CONFIG1_FEN);
-+		reg3 |= (SMB_CONFIG3_ENMI | SMB_CONFIG3_ENIDI);
-+	} else {
-+		reg1 &= ~(SMB_CONFIG1_ENAB | SMB_CONFIG1_FEN);
-+		reg3 &= ~(SMB_CONFIG3_ENMI | SMB_CONFIG3_ENIDI);
-+	}
-+
-+	writeb(reg1, i2c->i2c_base + SMB_CORE_CONFIG_REG1);
-+	writeb(reg3, i2c->i2c_base + SMB_CORE_CONFIG_REG3);
-+}
-+
-+static void pci1xxxx_i2c_set_freq(struct pci1xxxx_i2c *i2c)
-+{
-+	/* The SMB core needs specific values to be set in the BUS_CLK register for the
-+	 * corresponding frequency
-+	 */
-+	switch (i2c->freq) {
-+	case I2C_MAX_STANDARD_MODE_FREQ:
-+		writeb(SR_HOLD_TIME_100KHZ,
-+		       i2c->i2c_base + SMB_CORE_SR_HOLD_TIME_REG_OFF);
-+		writel(SMB_IDLE_SCALING_100KHZ,
-+		       i2c->i2c_base + SMB_CORE_IDLE_SCALING_REG_OFF);
-+		writew(BUS_CLK_100KHZ,
-+		       i2c->i2c_base + SMB_CORE_BUS_CLK_REG_OFF);
-+		writel(CLK_SYNC_100KHZ,
-+		       i2c->i2c_base + SMB_CORE_CLK_SYNC_REG_OFF);
-+		writel(DATA_TIMING_100KHZ,
-+		       i2c->i2c_base + SMB_CORE_DATA_TIMING_REG_OFF);
-+		writel(TO_SCALING_100KHZ,
-+		       i2c->i2c_base + SMB_CORE_TO_SCALING_REG_OFF);
-+		break;
-+
-+	case I2C_MAX_FAST_MODE_PLUS_FREQ:
-+		writeb(SR_HOLD_TIME_1000KHZ,
-+		       i2c->i2c_base + SMB_CORE_SR_HOLD_TIME_REG_OFF);
-+		writel(SMB_IDLE_SCALING_1000KHZ,
-+		       i2c->i2c_base + SMB_CORE_IDLE_SCALING_REG_OFF);
-+		writew(BUS_CLK_1000KHZ,
-+		       i2c->i2c_base + SMB_CORE_BUS_CLK_REG_OFF);
-+		writel(CLK_SYNC_1000KHZ,
-+		       i2c->i2c_base + SMB_CORE_CLK_SYNC_REG_OFF);
-+		writel(DATA_TIMING_1000KHZ,
-+		       i2c->i2c_base + SMB_CORE_DATA_TIMING_REG_OFF);
-+		writel(TO_SCALING_1000KHZ,
-+		       i2c->i2c_base + SMB_CORE_TO_SCALING_REG_OFF);
-+		break;
-+
-+	case I2C_MAX_FAST_MODE_FREQ:
-+	default:
-+		writeb(SR_HOLD_TIME_400KHZ,
-+		       i2c->i2c_base + SMB_CORE_SR_HOLD_TIME_REG_OFF);
-+		writel(SMB_IDLE_SCALING_400KHZ,
-+		       i2c->i2c_base + SMB_CORE_IDLE_SCALING_REG_OFF);
-+		writew(BUS_CLK_400KHZ,
-+		       i2c->i2c_base + SMB_CORE_BUS_CLK_REG_OFF);
-+		writel(CLK_SYNC_400KHZ,
-+		       i2c->i2c_base + SMB_CORE_CLK_SYNC_REG_OFF);
-+		writel(DATA_TIMING_400KHZ,
-+		       i2c->i2c_base + SMB_CORE_DATA_TIMING_REG_OFF);
-+		writel(TO_SCALING_400KHZ,
-+		       i2c->i2c_base + SMB_CORE_TO_SCALING_REG_OFF);
-+		break;
-+	}
-+}
-+
-+static void pci1xxxx_i2c_init(struct pci1xxxx_i2c *i2c)
-+{
-+	u8 regval;
-+	u8 ret;
-+
-+	ret = set_sys_lock(i2c->i2c_base + SMB_GPR_LOCK_REG);
-+	if (ret != -EPERM) {
-+		regval = readl(i2c->i2c_base + SMB_GPR_REG);
-+		release_sys_lock(i2c->i2c_base + SMB_GPR_LOCK_REG);
-+	} else {
-+		/*
-+		 * Configure I2C Fast Mode as default frequency if unable
-+		 * to acquire sys lock
-+		 */
-+		regval = 0;
-+	}
-+
-+	switch (regval) {
-+	case 0:
-+		i2c->freq = I2C_MAX_FAST_MODE_FREQ;
-+		pci1xxxx_i2c_set_freq(i2c);
-+		break;
-+	case 1:
-+		i2c->freq = I2C_MAX_STANDARD_MODE_FREQ;
-+		pci1xxxx_i2c_set_freq(i2c);
-+		break;
-+	case 2:
-+		i2c->freq = I2C_MAX_FAST_MODE_PLUS_FREQ;
-+		pci1xxxx_i2c_set_freq(i2c);
-+		break;
-+	case 3:
-+	default:
-+		break;
-+	}
-+
-+	pci1xxxx_i2c_config_padctrl(i2c, true);
-+	i2c->flags |= I2C_FLAGS_DIRECT_MODE;
-+	pci1xxxx_i2c_set_mode(i2c);
-+
-+	/*added as a precaution since BUF_EMPTY in status register
-+	 *also trigered an Interrupt
-+	 */
-+	writeb(STA_BUF_EMPTY, i2c->i2c_base + SMBUS_STATUS_REG_OFF);
-+
-+	/*Configure core I2c control registers*/
-+	pci1xxxx_i2c_configure_core_reg(i2c, true);
-+
-+	/*Enable Pullup for the SMB alert pin which is just used for
-+	 *wakeup right now
-+	 */
-+	pci1xxxx_i2c_configure_smbalert_pin(i2c, true);
-+}
-+
-+static void pci1xxxx_i2c_clear_flags(struct pci1xxxx_i2c *i2c)
-+{
-+	u8 regval;
-+
-+	/*Reset the internal buffer counters*/
-+	pci1xxxx_i2c_reset_counters(i2c);
-+
-+	/*Clear low level interrupts*/
-+	regval = (COMPLETION_MNAKX | COMPLETION_IDLE | COMPLETION_MDONE);
-+	writeb(regval, i2c->i2c_base + SMB_CORE_COMPLETION_REG_OFF3);
-+
-+	reinit_completion(&i2c->i2c_xfer_done);
-+	pci1xxxx_ack_nw_layer_intr(i2c, ALL_NW_LAYER_INTERRUPTS);
-+
-+	pci1xxxx_ack_high_level_intr(i2c, ALL_HIGH_LAYER_INTR);
-+}
-+
-+static int pci1xxxx_i2c_read(struct pci1xxxx_i2c *i2c, u8 slaveaddr,
-+			     unsigned char *buf, u16 total_len)
-+{
-+	unsigned long time_left;
-+	u16 remainingbytes;
-+	u8 transferlen;
-+	int retval = 0;
-+	u8 read_count;
-+	u32 regval;
-+	u16 count;
-+
-+	/*Enable I2C host controller by setting the ESO bit in the CONTROL REG*/
-+	pci1xxxx_i2c_enable_ESO(i2c);
-+
-+	pci1xxxx_i2c_clear_flags(i2c);
-+
-+	pci1xxxx_config_nw_layer_intr(i2c, INTR_MSK_DMA_TERM, true);
-+
-+	pci1xxxx_i2c_config_high_level_intr(i2c, (I2C_BUF_MSTR_INTR_MASK),
-+					    true);
-+
-+	/* The i2c transfer could be for more than 128 bytes. Our Core is
-+	 * capable of only sending 128 at a time.
-+	 * As for as the I2C read is concerned, initailly send the
-+	 * read slave address along with the number of bytes to read in
-+	 * ReadCount. After sending the slave address the interrupt
-+	 * is generated. On seeing the ACK for the slave address, reverse the
-+	 * buffer direction and run the DMA to initiate Read from slave
-+	 */
-+	for (count = 0; count < total_len; count += transferlen) {
-+		/*before start of any transaction clear the existing
-+		 * START/STOP conditions
-+		 */
-+		writeb(0x00, i2c->i2c_base + SMB_CORE_CMD_REG_OFF1);
-+
-+		remainingbytes = total_len - count;
-+
-+		transferlen = min(remainingbytes, (u16)(SMBUS_MAST_BUF_MAX_SIZE));
-+
-+		/* See if this is last chunk in the transaction. IN that case
-+		 * send a STOP at the end.
-+		 * Also in case of reads > BUF_SIZE, for the first read,
-+		 * we should not send NACK for the last byte.
-+		 * Hence a bit FW_ACK is set for those.
-+		 * For the last chunk NACK should be sent.
-+		 * Hence FW_ACK is cleared for that.
-+		 * Send STOP only when I2C_FLAGS_STOP bit is set in the flags
-+		 * and  only for the last transaction.
-+		 */
-+
-+		if ((count + transferlen >= total_len) && (i2c->flags & I2C_FLAGS_STOP)) {
-+			pci1xxxx_i2c_set_clear_FW_ACK(i2c, false);
-+			pci1xxxx_i2c_send_start_stop(i2c, 0);
-+		} else {
-+			pci1xxxx_i2c_set_clear_FW_ACK(i2c, true);
-+		}
-+
-+		/*if it is the starting of the transaction send START*/
-+		if (count == 0) {
-+			pci1xxxx_i2c_set_transfer_dir(i2c, I2C_DIR_WRITE);
-+
-+			pci1xxxx_i2c_send_start_stop(i2c, 1);
-+
-+			/*write I2c buffer with just the slave addr*/
-+			pci1xxxx_i2c_buffer_write(i2c, slaveaddr, 0, NULL);
-+
-+			/*Set the count. Readcount is the transfer bytes*/
-+			pci1xxxx_i2c_set_count(i2c, 1, 1, transferlen);
-+
-+			/*Set the Auto_start_read bit so that the HW itself
-+			 *will take care of the read phase.
-+			 */
-+
-+			pci1xxxx_i2c_config_asr(i2c, true);
-+
-+			if (i2c->flags & I2C_FLAGS_SMB_BLK_READ)
-+				pci1xxxx_i2c_set_readm(i2c, true);
-+
-+		} else {
-+			pci1xxxx_i2c_set_count(i2c, 0, 0, transferlen);
-+
-+			pci1xxxx_i2c_config_asr(i2c, false);
-+
-+			pci1xxxx_i2c_clear_flags(i2c);
-+
-+			pci1xxxx_i2c_set_transfer_dir(i2c, I2C_DIR_READ);
-+		}
-+
-+		/*Start the DMA*/
-+		pci1xxxx_i2c_start_DMA(i2c);
-+
-+		/*wait for the DMA_TERM interrupt*/
-+		time_left = wait_for_completion_timeout
-+				(&i2c->i2c_xfer_done,
-+				msecs_to_jiffies(PCI1XXXX_I2C_TIMEOUT));
-+		if (time_left == 0) {
-+			/*Reset the I2C core to release the bus lock*/
-+			pci1xxxx_i2c_init(i2c);
-+			retval = -ETIMEDOUT;
-+			goto cleanup;
-+		}
-+
-+		/*Read the completion reg to know the reason for DMA_TERM*/
-+		regval = readb(i2c->i2c_base + SMB_CORE_COMPLETION_REG_OFF3);
-+		/*Slave did not respond*/
-+		if (regval & COMPLETION_MNAKX) {
-+			writeb(COMPLETION_MNAKX, i2c->i2c_base +
-+					SMB_CORE_COMPLETION_REG_OFF3);
-+			retval = -ETIMEDOUT;
-+			goto cleanup;
-+		}
-+
-+		if (i2c->flags & I2C_FLAGS_SMB_BLK_READ) {
-+			buf[0] = readb(i2c->i2c_base +
-+				      SMBUS_MST_BUF);
-+			read_count = buf[0];
-+			memcpy_fromio(&buf[1], (i2c->i2c_base +
-+						SMBUS_MST_BUF + 1),
-+						read_count);
-+		} else {
-+			memcpy_fromio(&buf[count], (i2c->i2c_base +
-+						SMBUS_MST_BUF), transferlen);
-+		}
-+	}
-+
-+cleanup:
-+	/*Disable all the interrupts*/
-+	pci1xxxx_config_nw_layer_intr(i2c, INTR_MSK_DMA_TERM, false);
-+	pci1xxxx_i2c_config_high_level_intr(i2c, (I2C_BUF_MSTR_INTR_MASK),
-+					    false);
-+	pci1xxxx_i2c_config_asr(i2c, false);
-+	return retval;
-+}
-+
-+static int pci1xxxx_i2c_write(struct pci1xxxx_i2c *i2c, u8 slaveaddr,
-+			      unsigned char *buf, u16 total_len)
-+{
-+	unsigned long time_left;
-+	u16 remainingbytes;
-+	u8 actualwritelen;
-+	u8 transferlen;
-+	int retval = 0;
-+	u32 regval;
-+	u16 count;
-+
-+	/*Enable I2C host controller by setting the ESO bit in the CONTROL REG*/
-+	pci1xxxx_i2c_enable_ESO(i2c);
-+
-+	/*Set the Buffer direction.*/
-+	pci1xxxx_i2c_set_transfer_dir(i2c, I2C_DIR_WRITE);
-+
-+	pci1xxxx_config_nw_layer_intr(i2c, INTR_MSK_DMA_TERM, true);
-+
-+	pci1xxxx_i2c_config_high_level_intr(i2c, (I2C_BUF_MSTR_INTR_MASK),
-+					    true);
-+
-+	/*The i2c transfer could be for more thatn 128 bytes. Our Core is
-+	 * capable of only sending 128 at a time.
-+	 */
-+	for (count = 0; count < total_len; count += transferlen) {
-+		/*before start of any transaction clear the existing
-+		 *START/STOP conditions
-+		 */
-+		writeb(0x00, i2c->i2c_base + SMB_CORE_CMD_REG_OFF1);
-+
-+		pci1xxxx_i2c_clear_flags(i2c);
-+
-+		remainingbytes = total_len - count;
-+		/*if it is the starting of the transaction send START*/
-+		if (count == 0) {
-+			pci1xxxx_i2c_send_start_stop(i2c, 1);
-+
-+			/* -1 for the slave address.*/
-+			transferlen = min((u16)(SMBUS_MAST_BUF_MAX_SIZE - 1),
-+					  remainingbytes);
-+			pci1xxxx_i2c_buffer_write(i2c, slaveaddr,
-+						  transferlen, &buf[count]);
-+
-+			/* the actual number of bytes written on the I2C bus
-+			 * is including the slave address
-+			 */
-+			actualwritelen = transferlen + 1;
-+
-+		} else {
-+			transferlen = min((u16)(SMBUS_MAST_BUF_MAX_SIZE),
-+					  remainingbytes);
-+			pci1xxxx_i2c_buffer_write(i2c, 0x00, transferlen,
-+						  &buf[count]);
-+			actualwritelen = transferlen;
-+		}
-+
-+		pci1xxxx_i2c_set_count(i2c, actualwritelen,
-+				       actualwritelen, 0x00);
-+
-+		/*
-+		 * Send STOP only when I2C_FLAGS_STOP bit is set in the flags and
-+		 * only for the last transaction.
-+		 */
-+
-+		if (remainingbytes <= transferlen && (i2c->flags &
-+							I2C_FLAGS_STOP))
-+			pci1xxxx_i2c_send_start_stop(i2c, 0);
-+
-+		pci1xxxx_i2c_start_DMA(i2c);
-+
-+		/*
-+		 * wait for the DMA_TERM interrupt and if the timer expires, it means
-+		 * the transaction has failed due to some bus lock as we dint get
-+		 * the interrupt
-+		 */
-+		time_left = wait_for_completion_timeout
-+				(&i2c->i2c_xfer_done, msecs_to_jiffies(PCI1XXXX_I2C_TIMEOUT));
-+
-+		if (time_left == 0) {
-+			/*Reset the I2C core to release the bus lock */
-+			pci1xxxx_i2c_init(i2c);
-+			retval = -ETIMEDOUT;
-+			goto cleanup;
-+		}
-+
-+		regval = readb(i2c->i2c_base + SMB_CORE_COMPLETION_REG_OFF3);
-+		if (regval & COMPLETION_MNAKX) {
-+			writeb(COMPLETION_MNAKX, i2c->i2c_base +
-+						SMB_CORE_COMPLETION_REG_OFF3);
-+			retval = -ETIMEDOUT;
-+			goto cleanup;
-+		}
-+	}
-+cleanup:
-+	/*Disable all the interrupts*/
-+	pci1xxxx_config_nw_layer_intr(i2c, INTR_MSK_DMA_TERM, false);
-+	pci1xxxx_i2c_config_high_level_intr(i2c, (I2C_BUF_MSTR_INTR_MASK),
-+					    false);
-+
-+	return retval;
-+}
-+
-+static int pci1xxxx_i2c_xfer(struct i2c_adapter *adap,
-+			     struct i2c_msg *msgs, int num)
-+{
-+	struct pci1xxxx_i2c *i2c = i2c_get_adapdata(adap);
-+	u8 slaveaddr;
-+	int retval;
-+	u32 i;
-+
-+	i2c->i2c_xfer_in_progress = true;
-+	for (i = 0; i < num; i++) {
-+		slaveaddr = i2c_8bit_addr_from_msg(&msgs[i]);
-+
-+		/*Send STOP if it is the Last of the transfer or
-+		 *if the I2C_M_STOP flag is set
-+		 */
-+		if ((i == (num - 1)) || (msgs[i].flags & I2C_M_STOP))
-+			i2c->flags |= I2C_FLAGS_STOP;
-+		else
-+			i2c->flags &= ~I2C_FLAGS_STOP;
-+
-+		/*When the command is a block read command*/
-+		if (msgs[i].flags & I2C_M_RECV_LEN)
-+			i2c->flags |= I2C_FLAGS_SMB_BLK_READ;
-+		else
-+			i2c->flags &= ~I2C_FLAGS_SMB_BLK_READ;
-+
-+		if (msgs[i].flags & I2C_M_RD)
-+			retval = pci1xxxx_i2c_read(i2c, slaveaddr,
-+						   msgs[i].buf, msgs[i].len);
-+		else
-+			retval = pci1xxxx_i2c_write(i2c, slaveaddr,
-+						    msgs[i].buf, msgs[i].len);
-+
-+		if (retval < 0)
-+			break;
-+	}
-+	i2c->i2c_xfer_in_progress = false;
-+
-+	if (retval < 0)
-+		return retval;
-+
-+	return num;
-+}
-+
-+/*
-+ * We could have used I2C_FUNC_SMBUS_EMUL but that includes
-+ * SMBUS_QUICK as well.We dnt support SMBUS_QUICK hence the
-+ * need for a lengthy funcs callback
-+ */
-+
-+static u32 pci1xxxx_i2c_get_funcs(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_PROTOCOL_MANGLING |
-+		I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
-+		I2C_FUNC_SMBUS_READ_BYTE | I2C_FUNC_SMBUS_WRITE_BYTE |
-+		I2C_FUNC_SMBUS_READ_BYTE_DATA |
-+		I2C_FUNC_SMBUS_WRITE_BYTE_DATA |
-+		I2C_FUNC_SMBUS_READ_WORD_DATA |
-+		I2C_FUNC_SMBUS_WRITE_WORD_DATA |
-+		I2C_FUNC_SMBUS_PROC_CALL | I2C_FUNC_SMBUS_READ_BLOCK_DATA |
-+		I2C_FUNC_SMBUS_WRITE_BLOCK_DATA;
-+}
-+
-+static const struct i2c_algorithm pci1xxxx_i2c_algo = {
-+	.master_xfer = pci1xxxx_i2c_xfer,
-+	.functionality = pci1xxxx_i2c_get_funcs,
-+};
-+
-+static const struct i2c_adapter pci1xxxx_i2c_ops = {
-+	.owner	= THIS_MODULE,
-+	.name	= "Pci1xxxx I2C Adapter",
-+	.algo	= &pci1xxxx_i2c_algo,
-+};
-+
-+static int pci1xxxx_i2c_suspend(struct device *dev)
-+{
-+	struct pci1xxxx_i2c *i2c = dev_get_drvdata(dev);
-+	struct pci_dev *pdev = to_pci_dev(dev);
-+	u32 regval;
-+
-+	i2c_mark_adapter_suspended(&i2c->adap);
-+
-+	while ((i2c->i2c_xfer_in_progress))
-+		msleep(20);
-+
-+	pci1xxxx_i2c_config_high_level_intr(i2c,
-+					    SMBALERT_WAKE_INTR_MASK,
-+					    true);
-+
-+	/*Enable the PERST_DIS bit to mask the PERST from
-+	 *resetting the core regs
-+	 */
-+	regval = readl(i2c->i2c_base + SMBUS_RESET_REG);
-+	regval |= PERI_SMBUS_D3_RESET_DIS;
-+	writel(regval, i2c->i2c_base + SMBUS_RESET_REG);
-+	/*Enable PCI wake in the PMCSR register*/
-+	device_set_wakeup_enable(dev, TRUE);
-+	pci_wake_from_d3(pdev, TRUE);
-+
-+	return 0;
-+}
-+
-+static int pci1xxxx_i2c_resume(struct device *dev)
-+{
-+	struct pci1xxxx_i2c *i2c = dev_get_drvdata(dev);
-+	struct pci_dev *pdev = to_pci_dev(dev);
-+	u32 regval;
-+
-+	/* Read the Interrupt register to know if the wakeup is due to the
-+	 * SMB_ALERT pin being pulled low. If that's the case then handle that.
-+	 * else this could be a wakeup due to system wide event
-+	 */
-+
-+	regval = readw(i2c->i2c_base + SMBUS_GEN_INT_STAT_REG_OFF);
-+	writew(regval, i2c->i2c_base + SMBUS_GEN_INT_STAT_REG_OFF);
-+	pci1xxxx_i2c_config_high_level_intr(i2c, SMBALERT_WAKE_INTR_MASK,
-+					    false);
-+	regval = readl(i2c->i2c_base + SMBUS_RESET_REG);
-+	regval &= ~PERI_SMBUS_D3_RESET_DIS;
-+	writel(regval, i2c->i2c_base + SMBUS_RESET_REG);
-+
-+	i2c_mark_adapter_resumed(&i2c->adap);
-+
-+	pci_wake_from_d3(pdev, FALSE);
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(pci1xxxx_i2c_pm_ops, pci1xxxx_i2c_suspend,
-+			 pci1xxxx_i2c_resume);
-+
-+static void pci1xxxx_i2c_shutdown(struct pci1xxxx_i2c *i2c)
-+{
-+	pci1xxxx_i2c_config_padctrl(i2c, false);
-+	pci1xxxx_i2c_configure_core_reg(i2c, false);
-+}
-+
-+static int pci1xxxx_i2c_probe_pci(struct pci_dev *pdev,
-+				  const struct pci_device_id *ent)
-+{
-+	struct pci1xxxx_i2c *i2c;
-+	int ret;
-+
-+	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	pci_set_drvdata(pdev, i2c);
-+
-+	i2c->i2c_xfer_in_progress = false;
-+
-+	ret = pcim_enable_device(pdev);
-+	if (ret)
-+		return ret;
-+
-+	pci_set_master(pdev);
-+
-+	/* we are getting the base address of the SMB core. SMB core uses
-+	 * BAR0 and 32K is the size here pci_resource_len returns 32K by
-+	 * reading BAR0
-+	 */
-+
-+	ret = pcim_iomap_regions(pdev, BIT(0), pci_name(pdev));
-+	if (ret < 0)
-+		return -ENOMEM;
-+
-+	i2c->i2c_base =	pcim_iomap_table(pdev)[0];
-+
-+	init_completion(&i2c->i2c_xfer_done);
-+
-+	pci1xxxx_i2c_init(i2c);
-+
-+	dev_info(&pdev->dev, "i2c clock freq: %d\n", i2c->freq);
-+
-+	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
-+	if (ret < 0)
-+		return ret;
-+
-+	/*Register the isr. we are not using any isr flags here.*/
-+	ret = devm_request_irq(&pdev->dev, pci_irq_vector(pdev, 0),
-+			       pci1xxxx_i2c_isr, PCI1XXXX_IRQ_FLAGS,
-+			       pci_name(pdev), i2c);
-+	if (ret)
-+		goto err_free_region;
-+
-+	i2c->adap = pci1xxxx_i2c_ops;
-+	i2c->adap.class = I2C_CLASS_SPD;
-+	i2c->adap.dev.parent = &pdev->dev;
-+
-+	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
-+		 "MCHP PCI1xxxx i2c adapter at %s", pci_name(pdev));
-+
-+	i2c_set_adapdata(&i2c->adap, i2c);
-+
-+	ret = i2c_add_adapter(&i2c->adap);
-+	if (ret) {
-+		dev_err(&pdev->dev, "i2c add adapter failed = %d\n", ret);
-+		pci1xxxx_i2c_shutdown(i2c);
-+		goto err_free_region;
-+	}
-+
-+	return 0;
-+
-+err_free_region:
-+	pci_free_irq_vectors(pdev);
-+	return ret;
-+}
-+
-+static void pci1xxxx_i2c_remove_pci(struct pci_dev *pdev)
-+{
-+	struct pci1xxxx_i2c *i2c = pci_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&i2c->adap);
-+	pci1xxxx_i2c_shutdown(i2c);
-+}
-+
-+static const struct pci_device_id pci1xxxx_i2c_pci_id_table[] = {
-+	{ PCI_VDEVICE(EFAR, 0xA003) },
-+	{ PCI_VDEVICE(EFAR, 0xA013) },
-+	{ PCI_VDEVICE(EFAR, 0xA023) },
-+	{ PCI_VDEVICE(EFAR, 0xA033) },
-+	{ PCI_VDEVICE(EFAR, 0xA043) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(pci, pci1xxxx_i2c_pci_id_table);
-+
-+static struct pci_driver pci1xxxx_i2c_pci_driver = {
-+	.name		= "i2c-mchp-pci1xxxx",
-+	.id_table	= pci1xxxx_i2c_pci_id_table,
-+	.probe		= pci1xxxx_i2c_probe_pci,
-+	.remove		= pci1xxxx_i2c_remove_pci,
-+	.driver = {
-+		.pm = &pci1xxxx_i2c_pm_ops,
-+	},
-+};
-+module_pci_driver(pci1xxxx_i2c_pci_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Tharun Kumar P<tharunkumar.pasumarthi@microchip.com>");
-+MODULE_AUTHOR("Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>");
-+MODULE_DESCRIPTION("Microchip Technology Inc. pci1xxxx I2C bus driver");
--- 
-2.25.1
+2022-08-22 at 11:10, luca.ceresoli@bootlin.com wrote:
+> From: Luca Ceresoli <luca.ceresoli@bootlin.com>
+> 
+> The sequence of sections is a bit confusing here:
+> 
+>  * we list the mux locking scheme for existing drivers before introducing
+>    what mux locking schemes are
+>  * we list the caveats for each locking scheme (which are tricky) before
+>    the example of the simple use case
+> 
+> Restructure it entirely with the following logic:
+> 
+>  * Intro ("I2C muxes and complex topologies")
+>  * Locking
+>    - mux-locked
+>      - example
+>      - caveats
+>    - parent-locked
+>      - example
+>      - caveats
+>  * Complex examples
+>  * Mux type of existing device drivers
+> 
+> While there, also apply some other improvements:
+> 
+>  * convert the caveat list from a table (with only one column carrying
+>    content) to a bullet list.
 
+I want to be able to refer to a specific caveat if/when someone has
+questions, so I prefer to have the caveats "named". Not that this is
+very frequent, but if we do remove the tags now I'm sure I'm going
+to need them a few minutes later...
+
+>  * add a small introductory text to bridge the gap from listing the use
+>    cases to telling about the hardware components to handle them and then
+>    the device drivers that implement those.
+>  * make empty lines usage more uniform
+> 
+> Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+> 
+> ---
+> 
+> Changed in v2: none
+> ---
+>  Documentation/i2c/i2c-topology.rst | 206 +++++++++++++++--------------
+>  1 file changed, 109 insertions(+), 97 deletions(-)
+> 
+> diff --git a/Documentation/i2c/i2c-topology.rst b/Documentation/i2c/i2c-topology.rst
+> index 1b11535c8946..6f2da7f386fd 100644
+> --- a/Documentation/i2c/i2c-topology.rst
+> +++ b/Documentation/i2c/i2c-topology.rst
+> @@ -16,7 +16,10 @@ Some example use cases are:
+>     from the I2C bus, at least most of the time, and sits behind a gate
+>     that has to be operated before the device can be accessed.
+>  
+> -These constructs are represented as I2C adapter trees by Linux, where
+> +Several types of hardware components such as I2C muxes, I2C gates and I2C
+> +arbitrators allow to handle such needs.
+> +
+> +These components are represented as I2C adapter trees by Linux, where
+>  each adapter has a parent adapter (except the root adapter) and zero or
+>  more child adapters. The root adapter is the actual adapter that issues
+>  I2C transfers, and all adapters with a parent are part of an "i2c-mux"
+> @@ -34,46 +37,7 @@ Locking
+>  =======
+>  
+>  There are two variants of locking available to I2C muxes, they can be
+> -mux-locked or parent-locked muxes. As is evident from below, it can be
+> -useful to know if a mux is mux-locked or if it is parent-locked. The
+> -following list was correct at the time of writing:
+> -
+> -In drivers/i2c/muxes/:
+> -
+> -======================    =============================================
+> -i2c-arb-gpio-challenge    Parent-locked
+> -i2c-mux-gpio              Normally parent-locked, mux-locked iff
+> -                          all involved gpio pins are controlled by the
+> -                          same I2C root adapter that they mux.
+> -i2c-mux-gpmux             Normally parent-locked, mux-locked iff
+> -                          specified in device-tree.
+> -i2c-mux-ltc4306           Mux-locked
+> -i2c-mux-mlxcpld           Parent-locked
+> -i2c-mux-pca9541           Parent-locked
+> -i2c-mux-pca954x           Parent-locked
+> -i2c-mux-pinctrl           Normally parent-locked, mux-locked iff
+> -                          all involved pinctrl devices are controlled
+> -                          by the same I2C root adapter that they mux.
+> -i2c-mux-reg               Parent-locked
+> -======================    =============================================
+> -
+> -In drivers/iio/:
+> -
+> -======================    =============================================
+> -gyro/mpu3050              Mux-locked
+> -imu/inv_mpu6050/          Mux-locked
+> -======================    =============================================
+> -
+> -In drivers/media/:
+> -
+> -=======================   =============================================
+> -dvb-frontends/lgdt3306a   Mux-locked
+> -dvb-frontends/m88ds3103   Parent-locked
+> -dvb-frontends/rtl2830     Parent-locked
+> -dvb-frontends/rtl2832     Mux-locked
+> -dvb-frontends/si2168      Mux-locked
+> -usb/cx231xx/              Parent-locked
+> -=======================   =============================================
+> +mux-locked or parent-locked muxes.
+>  
+>  
+>  Mux-locked muxes
+> @@ -88,40 +52,8 @@ full transaction, unrelated I2C transfers may interleave the different
+>  stages of the transaction. This has the benefit that the mux driver
+>  may be easier and cleaner to implement, but it has some caveats.
+>  
+> -==== =====================================================================
+> -ML1. If you build a topology with a mux-locked mux being the parent
+> -     of a parent-locked mux, this might break the expectation from the
+> -     parent-locked mux that the root adapter is locked during the
+> -     transaction.
+> -
+> -ML2. It is not safe to build arbitrary topologies with two (or more)
+> -     mux-locked muxes that are not siblings, when there are address
+> -     collisions between the devices on the child adapters of these
+> -     non-sibling muxes.
+> -
+> -     I.e. the select-transfer-deselect transaction targeting e.g. device
+> -     address 0x42 behind mux-one may be interleaved with a similar
+> -     operation targeting device address 0x42 behind mux-two. The
+> -     intension with such a topology would in this hypothetical example
+> -     be that mux-one and mux-two should not be selected simultaneously,
+> -     but mux-locked muxes do not guarantee that in all topologies.
+> -
+> -ML3. A mux-locked mux cannot be used by a driver for auto-closing
+> -     gates/muxes, i.e. something that closes automatically after a given
+> -     number (one, in most cases) of I2C transfers. Unrelated I2C transfers
+> -     may creep in and close prematurely.
+> -
+> -ML4. If any non-I2C operation in the mux driver changes the I2C mux state,
+> -     the driver has to lock the root adapter during that operation.
+> -     Otherwise garbage may appear on the bus as seen from devices
+> -     behind the mux, when an unrelated I2C transfer is in flight during
+> -     the non-I2C mux-changing operation.
+> -==== =====================================================================
+> -
+> -
+>  Mux-locked Example
+> -------------------
+> -
+> +~~~~~~~~~~~~~~~~~~
+>  
+>  ::
+>  
+> @@ -152,6 +84,39 @@ This means that accesses to D2 are lockout out for the full duration
+>  of the entire operation. But accesses to D3 are possibly interleaved
+>  at any point.
+>  
+> +Mux-locked caveats
+> +~~~~~~~~~~~~~~~~~~
+> +
+> +When using a mux-locked mux, be aware of the following restrictions:
+> +
+> +* If you build a topology with a mux-locked mux being the parent
+> +  of a parent-locked mux, this might break the expectation from the
+> +  parent-locked mux that the root adapter is locked during the
+> +  transaction.
+> +
+> +* It is not safe to build arbitrary topologies with two (or more)
+> +  mux-locked muxes that are not siblings, when there are address
+> +  collisions between the devices on the child adapters of these
+> +  non-sibling muxes.
+> +
+> +  I.e. the select-transfer-deselect transaction targeting e.g. device
+> +  address 0x42 behind mux-one may be interleaved with a similar
+> +  operation targeting device address 0x42 behind mux-two. The
+> +  intension with such a topology would in this hypothetical example
+> +  be that mux-one and mux-two should not be selected simultaneously,
+> +  but mux-locked muxes do not guarantee that in all topologies.
+> +
+> +* A mux-locked mux cannot be used by a driver for auto-closing
+> +  gates/muxes, i.e. something that closes automatically after a given
+> +  number (one, in most cases) of I2C transfers. Unrelated I2C transfers
+> +  may creep in and close prematurely.
+> +
+> +* If any non-I2C operation in the mux driver changes the I2C mux state,
+> +  the driver has to lock the root adapter during that operation.
+> +  Otherwise garbage may appear on the bus as seen from devices
+> +  behind the mux, when an unrelated I2C transfer is in flight during
+> +  the non-I2C mux-changing operation.
+> +
+>  
+>  Parent-locked muxes
+>  -------------------
+> @@ -160,28 +125,10 @@ Parent-locked muxes lock the parent adapter during the full select-
+>  transfer-deselect transaction. The implication is that the mux driver
+>  has to ensure that any and all I2C transfers through that parent
+>  adapter during the transaction are unlocked I2C transfers (using e.g.
+> -__i2c_transfer), or a deadlock will follow. There are a couple of
+> -caveats.
+> -
+> -==== ====================================================================
+> -PL1. If you build a topology with a parent-locked mux being the child
+> -     of another mux, this might break a possible assumption from the
+> -     child mux that the root adapter is unused between its select op
+> -     and the actual transfer (e.g. if the child mux is auto-closing
+> -     and the parent mux issues I2C transfers as part of its select).
+> -     This is especially the case if the parent mux is mux-locked, but
+> -     it may also happen if the parent mux is parent-locked.
+> -
+> -PL2. If select/deselect calls out to other subsystems such as gpio,
+> -     pinctrl, regmap or iio, it is essential that any I2C transfers
+> -     caused by these subsystems are unlocked. This can be convoluted to
+> -     accomplish, maybe even impossible if an acceptably clean solution
+> -     is sought.
+> -==== ====================================================================
+> -
+> +__i2c_transfer), or a deadlock will follow.
+>  
+>  Parent-locked Example
+> ----------------------
+> +~~~~~~~~~~~~~~~~~~~~~
+>  
+>  ::
+>  
+> @@ -211,10 +158,29 @@ When there is an access to D1, this happens:
+>   9.  M1 unlocks its parent adapter.
+>   10. M1 unlocks muxes on its parent.
+>  
+> -
+>  This means that accesses to both D2 and D3 are locked out for the full
+>  duration of the entire operation.
+>  
+> +Parent-locked Caveats
+> +~~~~~~~~~~~~~~~~~~~~~
+> +
+> +When using a parent-locked mux, be aware of the following restrictions:
+> +
+> +* If you build a topology with a parent-locked mux being the child
+> +  of another mux, this might break a possible assumption from the
+> +  child mux that the root adapter is unused between its select op
+> +  and the actual transfer (e.g. if the child mux is auto-closing
+> +  and the parent mux issues I2C transfers as part of its select).
+> +  This is especially the case if the parent mux is mux-locked, but
+> +  it may also happen if the parent mux is parent-locked.
+> +
+> +* If select/deselect calls out to other subsystems such as gpio,
+> +  pinctrl, regmap or iio, it is essential that any I2C transfers
+> +  caused by these subsystems are unlocked. This can be convoluted to
+> +  accomplish, maybe even impossible if an acceptably clean solution
+> +  is sought.
+> +
+> +
+>  
+
+Three empty lines is excessive and inconsistent with the other two
+===-headers.
+
+Cheers,
+Peter
+
+>  Complex Examples
+>  ================
+> @@ -260,8 +226,10 @@ This is a good topology::
+>  When device D1 is accessed, accesses to D2 are locked out for the
+>  full duration of the operation (muxes on the top child adapter of M1
+>  are locked). But accesses to D3 and D4 are possibly interleaved at
+> -any point. Accesses to D3 locks out D1 and D2, but accesses to D4
+> -are still possibly interleaved.
+> +any point.
+> +
+> +Accesses to D3 locks out D1 and D2, but accesses to D4 are still possibly
+> +interleaved.
+>  
+>  
+>  Mux-locked mux as parent of parent-locked mux
+> @@ -393,3 +361,47 @@ This is a good topology::
+>  When D1 or D2 are accessed, accesses to D3 and D4 are locked out while
+>  accesses to D5 may interleave. When D3 or D4 are accessed, accesses to
+>  all other devices are locked out.
+> +
+> +
+> +Mux type of existing device drivers
+> +===================================
+> +
+> +Whether a device is mux-locked or parent-locked depends on its
+> +implementation. The following list was correct at the time of writing:
+> +
+> +In drivers/i2c/muxes/:
+> +
+> +======================    =============================================
+> +i2c-arb-gpio-challenge    Parent-locked
+> +i2c-mux-gpio              Normally parent-locked, mux-locked iff
+> +                          all involved gpio pins are controlled by the
+> +                          same I2C root adapter that they mux.
+> +i2c-mux-gpmux             Normally parent-locked, mux-locked iff
+> +                          specified in device-tree.
+> +i2c-mux-ltc4306           Mux-locked
+> +i2c-mux-mlxcpld           Parent-locked
+> +i2c-mux-pca9541           Parent-locked
+> +i2c-mux-pca954x           Parent-locked
+> +i2c-mux-pinctrl           Normally parent-locked, mux-locked iff
+> +                          all involved pinctrl devices are controlled
+> +                          by the same I2C root adapter that they mux.
+> +i2c-mux-reg               Parent-locked
+> +======================    =============================================
+> +
+> +In drivers/iio/:
+> +
+> +======================    =============================================
+> +gyro/mpu3050              Mux-locked
+> +imu/inv_mpu6050/          Mux-locked
+> +======================    =============================================
+> +
+> +In drivers/media/:
+> +
+> +=======================   =============================================
+> +dvb-frontends/lgdt3306a   Mux-locked
+> +dvb-frontends/m88ds3103   Parent-locked
+> +dvb-frontends/rtl2830     Parent-locked
+> +dvb-frontends/rtl2832     Mux-locked
+> +dvb-frontends/si2168      Mux-locked
+> +usb/cx231xx/              Parent-locked
+> +=======================   =============================================
