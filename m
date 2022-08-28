@@ -2,87 +2,103 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D1FEC0502A
-	for <linux-i2c@archiver.kernel.org>; Sun, 28 Aug 2022 15:48:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0382EECAAD2
+	for <linux-i2c@archiver.kernel.org>; Sun, 28 Aug 2022 15:49:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229905AbiH1PsE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 28 Aug 2022 11:48:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
+        id S229973AbiH1PtL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 28 Aug 2022 11:49:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229527AbiH1PsC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 28 Aug 2022 11:48:02 -0400
+        with ESMTP id S229527AbiH1PtL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 28 Aug 2022 11:49:11 -0400
 Received: from smtp-fw-80007.amazon.com (smtp-fw-80007.amazon.com [99.78.197.218])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D6031359;
-        Sun, 28 Aug 2022 08:48:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CBE832EDC;
+        Sun, 28 Aug 2022 08:49:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1661701683; x=1693237683;
-  h=message-id:date:mime-version:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:subject;
-  bh=nqgVR00aUYDLWTP3wm5UWnkn9F78DI5RteK2ryVTELc=;
-  b=FnbXL6DJEnJOPsSWCtYlQQHpukTMuF4C8nDnKgk0DI8hBkfJoettOqmz
-   F5iMejGQMcrsVdnWmOsJHE4Uht4wnksOYB+32fTf/MRvcHq51b1ogpYn4
-   +jSvzlIGhnjTyT83eRMEG4XR9mIk+WQVZpHXc10qSrz+sT7IbMEK7kPiE
+  t=1661701751; x=1693237751;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=zU4xJPlhx9313yKXJ3gXwqC/qnSgv3tm1Z0eW7nbiHA=;
+  b=jw5SzcPKKHZFFuQWemfNmEb2ugYUBD5m0JEUr9EFz6LpC+4Kaa8VmTMy
+   gn0PhbjIA17kozQpg+cclfNENjKJhsl1Y/Cn5Xk6l/hdsrFgpD8G9RZfa
+   TlC8QgVQC1V3XdtzhhZAR8sO7Wvp2PZmtm/HpvLGGiIIrrEqbo6gRyPFE
    I=;
 X-IronPort-AV: E=Sophos;i="5.93,270,1654560000"; 
-   d="scan'208";a="124170858"
-Subject: Re: [PATCH v2 2/2] eeprom: at24: add support for power-supply control
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-iad-1a-b09d0114.us-east-1.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-80007.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Aug 2022 15:47:46 +0000
-Received: from EX13MTAUEE002.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1a-b09d0114.us-east-1.amazon.com (Postfix) with ESMTPS id A3871810BC;
-        Sun, 28 Aug 2022 15:47:43 +0000 (UTC)
-Received: from EX13D08UEE002.ant.amazon.com (10.43.62.92) by
- EX13MTAUEE002.ant.amazon.com (10.43.62.24) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Sun, 28 Aug 2022 15:47:43 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (10.43.161.207) by
- EX13D08UEE002.ant.amazon.com (10.43.62.92) with Microsoft SMTP Server (TLS)
- id 15.0.1497.38; Sun, 28 Aug 2022 15:47:42 +0000
-Received: from [192.168.93.8] (10.85.143.173) by mail-relay.amazon.com
- (10.43.161.249) with Microsoft SMTP Server id 15.0.1497.38 via Frontend
- Transport; Sun, 28 Aug 2022 15:47:36 +0000
-Message-ID: <82d89984-d7fb-479c-3a71-be668d408652@amazon.com>
-Date:   Sun, 28 Aug 2022 18:47:36 +0300
+   d="scan'208";a="124170975"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-iad-1e-26daedd8.us-east-1.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-80007.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Aug 2022 15:49:10 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1e-26daedd8.us-east-1.amazon.com (Postfix) with ESMTPS id DC311E110B;
+        Sun, 28 Aug 2022 15:49:06 +0000 (UTC)
+Received: from EX19D013UWA001.ant.amazon.com (10.13.138.253) by
+ EX13MTAUWA001.ant.amazon.com (10.43.160.58) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.38; Sun, 28 Aug 2022 15:49:05 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (10.43.160.58) by
+ EX19D013UWA001.ant.amazon.com (10.13.138.253) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.12;
+ Sun, 28 Aug 2022 15:49:05 +0000
+Received: from dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com
+ (172.19.116.181) by mail-relay.amazon.com (10.43.160.118) with Microsoft SMTP
+ Server id 15.0.1497.38 via Frontend Transport; Sun, 28 Aug 2022 15:49:05
+ +0000
+Received: by dev-dsk-farbere-1a-46ecabed.eu-west-1.amazon.com (Postfix, from userid 14301484)
+        id DAA244B91; Sun, 28 Aug 2022 15:49:04 +0000 (UTC)
+From:   Eliav Farber <farbere@amazon.com>
+To:     <brgl@bgdev.pl>, <robh+dt@kernel.org>, <mark.rutland@arm.com>,
+        <arnd@arndb.de>, <gregkh@linuxfoundation.org>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <farbere@amazon.com>, <talel@amazon.com>, <hhhawa@amazon.com>,
+        <jonnyc@amazon.com>, <hanochu@amazon.com>, <ronenk@amazon.com>,
+        <itamark@amazon.com>, <shellykz@amazon.com>, <shorer@amazon.com>,
+        <amitlavi@amazon.com>, <almogbs@amazon.com>, <dkl@amazon.com>,
+        <dwmw@amazon.co.uk>
+Subject: [PATCH v3 1/2] dt-bindings: at24: add new optional power-supply property
+Date:   Sun, 28 Aug 2022 15:49:03 +0000
+Message-ID: <20220828154904.20477-2-farbere@amazon.com>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <20220828154904.20477-1-farbere@amazon.com>
+References: <20220828154904.20477-1-farbere@amazon.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Content-Language: en-US
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-CC:     Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-i2c <linux-i2c@vger.kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <talel@amazon.com>, <hhhawa@amazon.com>, <jonnyc@amazon.com>,
-        <hanochu@amazon.com>, <ronenk@amazon.com>, <itamark@amazon.com>,
-        <shellykz@amazon.com>, <shorer@amazon.com>, <amitlavi@amazon.com>,
-        <almogbs@amazon.com>, <dkl@amazon.com>, <dwmw@amazon.co.uk>,
-        "Farber, Eliav" <farbere@amazon.com>
-References: <20220822105830.22790-1-farbere@amazon.com>
- <20220822105830.22790-3-farbere@amazon.com>
- <CAMRc=Metu8+zdf101-NVRtbeu-tZiKhPJBiEjYLEsf51d4tj4Q@mail.gmail.com>
-From:   "Farber, Eliav" <farbere@amazon.com>
-In-Reply-To: <CAMRc=Metu8+zdf101-NVRtbeu-tZiKhPJBiEjYLEsf51d4tj4Q@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 8/28/2022 5:28 PM, Bartosz Golaszewski wrote:
-> On Mon, Aug 22, 2022 at 12:58 PM Eliav Farber <farbere@amazon.com> wrote:
->>
->> Add an optional gpio regulator to support a power-supply control.
->> If a gpio power-supply regulator is supplied in the device tree, the
->> gpio is enabled during probe, and disabled on remove.
->>
->> Signed-off-by: Eliav Farber <farbere@amazon.com>
->
-> This doesn't apply on top of v6.0-rc1.
-I applied the change on top of v6.0-rc1.
-Will be part of v3 I will send soon.
+Boards using the AT24 EEPROMs might have a GPIO that controls the power
+supply of the chip, and it must be set to enable the usage of it.
 
---
-Thanks, Eliav
+Add a new optional property to the device tree binding document, which
+allows to specify a GPIO regulator for the pin that controls the power.
+
+On Linux this means that we need to enable the GPIO at the beginning of
+probe function, before trying to access the chip.
+
+Signed-off-by: Eliav Farber <farbere@amazon.com>
+---
+V2 -> V3:
+Apply on top of v6.0-rc1
+
+ Documentation/devicetree/bindings/eeprom/at24.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/eeprom/at24.yaml b/Documentation/devicetree/bindings/eeprom/at24.yaml
+index d14e0accbda8..82f0046f67a9 100644
+--- a/Documentation/devicetree/bindings/eeprom/at24.yaml
++++ b/Documentation/devicetree/bindings/eeprom/at24.yaml
+@@ -179,6 +179,10 @@ properties:
+     description:
+       phandle of the regulator that provides the supply voltage.
+ 
++  power-supply:
++    description:
++      phandle of the gpio regulator that provides the supply voltage.
++
+ required:
+   - compatible
+   - reg
+-- 
+2.37.1
+
