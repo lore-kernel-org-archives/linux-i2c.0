@@ -2,127 +2,96 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FA41ECAAD2
-	for <linux-i2c@archiver.kernel.org>; Tue, 30 Aug 2022 02:08:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99CB9C0502A
+	for <linux-i2c@archiver.kernel.org>; Tue, 30 Aug 2022 07:10:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229889AbiH3CIh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 29 Aug 2022 22:08:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50134 "EHLO
+        id S230449AbiH3HKN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 30 Aug 2022 03:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229697AbiH3CIb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Aug 2022 22:08:31 -0400
-Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16EE86046;
-        Mon, 29 Aug 2022 19:08:29 -0700 (PDT)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0ED665C01C6;
-        Mon, 29 Aug 2022 22:08:29 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 29 Aug 2022 22:08:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm2; t=1661825309; x=1661911709; bh=aq
-        ERgIMNt16j+SVHZUcamE4zlhsBe0bcYHWFUyOTwKw=; b=VWBoq6yWkw5+41nvWS
-        gslhd2UCl6nA5gZ0g9XNpFDCSgdYhobxIrmuKjtyz0qy17DY0Zp4swsla//wqDbl
-        ylSrOUE23m/B7mCxduoGNq6wjbZk0nYrWcOO0SU263+YPm7s8s+1vxLrEnEO6mHI
-        S14dOs4/Qxbsxgs2T8zWLr9P3thI0XRZDGZb63Ob3yaDUoVXPGy+N3iWXL7QRH06
-        jEr6UlmrjoTaR58LEsxor1uHOCgROgoLfunOLU2xRFX9npn+ghKu4TTVSFCBjnl9
-        wQJuX5CmpgVD5ST2LzryV4r7wN+VbgCXjr+6DBK3xiWa1mF/YOVyR4i79z1hXtc9
-        iZmA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; t=1661825309; x=1661911709; bh=aqERgIMNt16j+
-        SVHZUcamE4zlhsBe0bcYHWFUyOTwKw=; b=1VynNZDBXvRgC1E9/8dEzFjirj2bq
-        j1Fg0hGu1ya+CjICj24ZMGWhqmdXofL+5mEWMazaKNlcc1d87juyD4YioyFdh1k/
-        GX7upmmiAz3A5UD2xLyahQ5dQxQSMsO367y7t0Fr6tl9lBj56pnRaRJDOQ+hMfhR
-        EkRPBDLtRPtnP5JE0UnTS5bkv1rYRpt8zUbPyxFBYv0j9XoQCV0V2rHiTFcEW3fz
-        DWeZq1KKRUmihF7/XqUiSLRMUnhdah1hNcavm12OuRzn+BVtl6tUU7qjKgserQHE
-        g+Xb+e1K426Y6ZdNyofnEAXscMo+K6XGN8aNMqRmlz8cQTTFolYAiGosA==
-X-ME-Sender: <xms:HHENYw1HRG8PRZgKgsnvvCQbogcsTJgwIo-EOiRUSpHvUmO2fUsS6Q>
-    <xme:HHENY7EK2sUq7mpVWKwqAthEkoLi-ezDbCZ-yYzs1fbdnhCincpkbGkjwyOEounuz
-    cpbaCetfkhoS4P5UQ>
-X-ME-Received: <xmr:HHENY47r_XN08hQgJqgqhPMfBzZVYr_tV--K1ua8sJghZImQdHBcINojUySFLGAEfmDEtaYpWt1ynR-2m3eq8jjMM72w62mxY2pmK1EEwHPgXrtrMbq-2S7wCQ75-G1cc6TdMw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvdekvddgheehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomhepufgrmhhu
-    vghlucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecugg
-    ftrfgrthhtvghrnhepudekteeuudehtdelteevgfduvddvjefhfedulefgudevgeeghefg
-    udefiedtveetnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrh
-    homhepshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:HHENY51LihSeKfazJIpGQjNlVfEndWU11WX_XN3OBApS-M7YYF6ebg>
-    <xmx:HHENYzEE0RUB-no0Qtk_ksuYbmGde1UeY7u47-7ZwytBHkisJKn0LA>
-    <xmx:HHENYy9r1e_7iHng42qIvLGIwwEQsukhj_zczRJwIHvFAh6iQ58Dog>
-    <xmx:HXENY78EtQLfOO0uXujxTgehkzo2i_jIvm_ct667VgpQUq04tu_Uew>
-Feedback-ID: i0ad843c9:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 29 Aug 2022 22:08:28 -0400 (EDT)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>
-Cc:     Samuel Holland <samuel@sholland.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        Yangtao Li <frank@allwinnertech.com>
-Subject: [PATCH 2/3] arm64: dts: allwinner: a100: Add device node for DMA controller
-Date:   Mon, 29 Aug 2022 21:08:23 -0500
-Message-Id: <20220830020824.62288-3-samuel@sholland.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220830020824.62288-1-samuel@sholland.org>
-References: <20220830020824.62288-1-samuel@sholland.org>
+        with ESMTP id S231131AbiH3HJz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 Aug 2022 03:09:55 -0400
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83E76E4E;
+        Tue, 30 Aug 2022 00:09:47 -0700 (PDT)
+Received: by mail-qt1-f172.google.com with SMTP id r6so7880139qtx.6;
+        Tue, 30 Aug 2022 00:09:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=kvehLYa8RckdOHZiyCr1n+0fIpZ/1DX6g3S67QojAKk=;
+        b=LUyB9UaH3iN+wPpx6xBh/pOFCnPLE9bSgaOb0/z33lotPOGDueMWq8qIfCq0NOO25e
+         MOEmF4ZDLiu9sp+8tF35G8OsxiG4/JzETvaGvVuYnPZQQ5GnCIOPP5mzTRQD5GG9oLFM
+         VmZTBY5KGsLDMmKDAET8cUZ67uxSamKnYZgCC9Uh0z0rIjbpfuGpGrsAv0quiv1NE7mp
+         O0SSucQnKFC5tFeemof2hJTcmsg4RfjMXCDhQDfikCFtXqrIyVtwRbu9iRKiCKpKdT9r
+         58OpRLBKzl0lcyS/TV36qzEBNld2iDmTDz6dXTQRpJjbDt6zKhaWEYjj2ZqMIl9kfhJ9
+         tgtw==
+X-Gm-Message-State: ACgBeo33rnRyxP9Itw2yhAQI+f5jvHqZZLLqJWtHtBrl2aGhKTVEeXzF
+        /3+p5piJAMKfnc3J2ZtRT4eCrXLrTPmb8w==
+X-Google-Smtp-Source: AA6agR7OzLQymi4nFNOzzqioDGvDod9M3yrbunBtTzTOPOhQJ5gO4g7ikkDyUbBHWYLpmMH6psZjfg==
+X-Received: by 2002:ac8:6b18:0:b0:343:6b3:60ff with SMTP id w24-20020ac86b18000000b0034306b360ffmr13695593qts.176.1661843385968;
+        Tue, 30 Aug 2022 00:09:45 -0700 (PDT)
+Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com. [209.85.128.177])
+        by smtp.gmail.com with ESMTPSA id v13-20020a05620a440d00b006bb29d932e1sm8037817qkp.105.2022.08.30.00.09.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 30 Aug 2022 00:09:45 -0700 (PDT)
+Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-333a4a5d495so250799757b3.10;
+        Tue, 30 Aug 2022 00:09:45 -0700 (PDT)
+X-Received: by 2002:a0d:e895:0:b0:340:ab79:3285 with SMTP id
+ r143-20020a0de895000000b00340ab793285mr12995245ywe.358.1661843385104; Tue, 30
+ Aug 2022 00:09:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220829214730.5752-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20220829214730.5752-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 30 Aug 2022 09:09:33 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdW92V6R2f97sEO9phBqDTDywXkjbjURv3Ntj_YczCQ05Q@mail.gmail.com>
+Message-ID: <CAMuHMdW92V6R2f97sEO9phBqDTDywXkjbjURv3Ntj_YczCQ05Q@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: i2c: renesas,riic: Fix 'unevaluatedProperties'
+ warnings
+To:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc:     Chris Brandt <chris.brandt@renesas.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Prabhakar <prabhakar.csengg@gmail.com>,
+        Biju Das <biju.das.jz@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Yangtao Li <frank@allwinnertech.com>
+On Mon, Aug 29, 2022 at 11:47 PM Lad Prabhakar
+<prabhakar.mahadev-lad.rj@bp.renesas.com> wrote:
+> With 'unevaluatedProperties' support implemented, there's a number of
+> warnings when running dtbs_check:
+>
+> arch/arm64/boot/dts/renesas/r9a07g043u11-smarc.dtb: i2c@10058000: Unevaluated properties are not allowed ('resets' was unexpected)
+>         From schema: Documentation/devicetree/bindings/i2c/renesas,riic.yaml
+>
+> The main problem is that bindings schema marks resets as a required
+> property for RZ/G2L (and alike) SoC's but resets property is not part
+> of schema. So to fix this just add a resets property with maxItems
+> set to 1.
+>
+> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-The A100 SoC has a DMA controller that supports 8 DMA channels
-to and from various peripherals.
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Add a device node for it.
+Gr{oetje,eeting}s,
 
-Signed-off-by: Yangtao Li <frank@allwinnertech.com>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
----
+                        Geert
 
-Changes in v1:
- - From previous submission: fixed off-by-one in dma-requests property
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
- arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
-index 548539c93ab0..5453a3bb7d81 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
-@@ -101,6 +101,18 @@ ccu: clock@3001000 {
- 			#reset-cells = <1>;
- 		};
- 
-+		dma: dma-controller@3002000 {
-+			compatible = "allwinner,sun50i-a100-dma";
-+			reg = <0x03002000 0x1000>;
-+			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&ccu CLK_BUS_DMA>, <&ccu CLK_MBUS_DMA>;
-+			clock-names = "bus", "mbus";
-+			resets = <&ccu RST_BUS_DMA>;
-+			dma-channels = <8>;
-+			dma-requests = <52>;
-+			#dma-cells = <1>;
-+		};
-+
- 		gic: interrupt-controller@3021000 {
- 			compatible = "arm,gic-400";
- 			reg = <0x03021000 0x1000>, <0x03022000 0x2000>,
--- 
-2.35.1
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
