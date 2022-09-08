@@ -2,983 +2,123 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F453C38145
-	for <linux-i2c@archiver.kernel.org>; Thu,  8 Sep 2022 17:36:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68106C38145
+	for <linux-i2c@archiver.kernel.org>; Thu,  8 Sep 2022 17:39:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231974AbiIHRgJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 8 Sep 2022 13:36:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56918 "EHLO
+        id S230181AbiIHRjA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 8 Sep 2022 13:39:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231952AbiIHRgG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Sep 2022 13:36:06 -0400
-Received: from mellanox.co.il (mail-il-dmz.mellanox.com [193.47.165.129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C3847BF34B
-        for <linux-i2c@vger.kernel.org>; Thu,  8 Sep 2022 10:36:01 -0700 (PDT)
-Received: from Internal Mail-Server by MTLPINE1 (envelope-from asmaa@mellanox.com)
-        with SMTP; 8 Sep 2022 20:35:55 +0300
-Received: from bu-vnc02.mtbu.labs.mlnx (bu-vnc02.mtbu.labs.mlnx [10.15.2.65])
-        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 288HZsPh026083;
-        Thu, 8 Sep 2022 13:35:54 -0400
-Received: (from asmaa@localhost)
-        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 288HZsFH032729;
-        Thu, 8 Sep 2022 13:35:54 -0400
+        with ESMTP id S232206AbiIHRim (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Sep 2022 13:38:42 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2062.outbound.protection.outlook.com [40.107.220.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49966EE525;
+        Thu,  8 Sep 2022 10:38:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cBLUouyCK1W1YvZy7PI3UCrsdSs2SAHMYR8Aw74NH7BOrWUdzul9t5G9Of1PFZ9hSfs0q3z8UuahEyn0PxfMYlzKJax3f/dAGpLzIUJpRNuJATvlx05AipjiNs1Gt+VDWj5/orYeXNUt2vAwT6UwNcVtJzN+4dJotdUUqM2Ow6no3VnOb7jfBEnq2JQOvVyB4YRKYbB4vaEuJm2bPCmHY6mknQMJCPTJhQtnqih5K2RHyANXONJlU7ShuPXeYa3Y1mPUtulrfAWVlMrwq6IbvchUWOGcwarmzzqi8NUTowoSv6Dad9znQxKi2gzEJadII6GzoX8qQROaY8jMP+BJsg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=asK73GYopg5oTfd70A4cI5Udab22JqaYesg603VVpIw=;
+ b=mhsl/o9yMmmfrqeE1V9ruC3HLq6pXTgJIS6Qj0l+Z5diIY5dhgepzErLHxG24kPOKxBtiohDDdvTY9qTtNomK5tOktjBInLa+1Z0Sf76GFP8/3lq90pVGIWn1TA5k3ux4PbS2c4bubdZ1emuMQAB05+plgTZ9fyANWoMtTd9nJbL6CBeccNHTCR59yWwHAy4i8AAxDtmB8XGUevnA0lzOlDAbjk+KB6A0GajOna6hrNZ3BbkfDXG+ZlgzpCDEhuI20LLjFPOdUcswjg6it3vzIJhDSkeIA11kZPFplHrKjC1fuXVPlrpyraGQjl9mU8wKWw2WJE30W4Xbx4XKbQLBw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=asK73GYopg5oTfd70A4cI5Udab22JqaYesg603VVpIw=;
+ b=DIzjzhWTTezYkNPzUxdWygWImFv0OkkNvJBzqfuRSveviU7GNupWqmn+125BFJs4hDcdTXfZXFZVpuDC3cCAF740Q5glVgS54DeWs066Fde0UIg6pAkv1JoZHtt7ainaUFb9I2TTFonSnwlNf+hrPTNDH/yNPU8XTiNR+hsG7wKMu7fgRA4LMm/rJIigDxUn/UEcBhzIhL6UVFW8wmmfqU5CrZaPJJPPvaXpHxcNqxVSERjBg5H2tW903Ezt2RZQMZYp1Uool22glCTwTH3l8ISMSTd/yt+5kwVgNLq8oMaZRpxxZ+RbF2l6SmMJEqp33qLiSjkuYWRcIKSN9i1UUQ==
+Received: from CH2PR12MB3895.namprd12.prod.outlook.com (2603:10b6:610:2a::13)
+ by MN0PR12MB6197.namprd12.prod.outlook.com (2603:10b6:208:3c6::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.18; Thu, 8 Sep
+ 2022 17:38:11 +0000
+Received: from CH2PR12MB3895.namprd12.prod.outlook.com
+ ([fe80::25d3:32f3:4be5:da11]) by CH2PR12MB3895.namprd12.prod.outlook.com
+ ([fe80::25d3:32f3:4be5:da11%7]) with mapi id 15.20.5588.018; Thu, 8 Sep 2022
+ 17:38:11 +0000
 From:   Asmaa Mnebhi <asmaa@nvidia.com>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Asmaa Mnebhi <asmaa@nvidia.com>,
-        Khalil Blaiech <kblaiech@nvidia.com>
-Subject: [PATCH v3 8/9] i2c-mlxbf.c: support BlueField-3 SoC
-Date:   Thu,  8 Sep 2022 13:35:43 -0400
-Message-Id: <20220908173544.32615-9-asmaa@nvidia.com>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20220908173544.32615-1-asmaa@nvidia.com>
-References: <20220908173544.32615-1-asmaa@nvidia.com>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+CC:     "robh@kernel.org" <robh@kernel.org>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH v2 0/9] i2c-mlxbf.c: bug fixes and new feature support
+Thread-Topic: [PATCH v2 0/9] i2c-mlxbf.c: bug fixes and new feature support
+Thread-Index: AQHYtmFspLN7eEXzUE2AAJMrZ0F9+63GXGUAgAAEL0CADjbMAIAAAHDQgAAE0wCAAUn6YA==
+Date:   Thu, 8 Sep 2022 17:38:10 +0000
+Message-ID: <CH2PR12MB38951C8AFD5780A2728CD910D7409@CH2PR12MB3895.namprd12.prod.outlook.com>
+References: <20220822195725.12656-1-asmaa@nvidia.com>
+ <Yw0fNuOWtJbe/OT1@shikoro>
+ <CH2PR12MB38951B9B8F189E1B991A7950D7769@CH2PR12MB3895.namprd12.prod.outlook.com>
+ <YxkPKpPNXg8wEIDf@shikoro>
+ <CH2PR12MB38951D3E64BCF82A2A0F3FFBD7419@CH2PR12MB3895.namprd12.prod.outlook.com>
+ <YxkTlIJFczsEaL4w@shikoro>
+In-Reply-To: <YxkTlIJFczsEaL4w@shikoro>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 75e847f0-bcb9-4d91-afa2-08da91c0e652
+x-ms-traffictypediagnostic: MN0PR12MB6197:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ub3g15QASiL7QIZIXu/3mpNAfZOe9PctMiSv8W+6uG/dTZ2nRAbmjwKsbI9isffWaPYfawuwfAft7gNJQOv1kjGUzTnazl3FnTJ0kx4K+HfRRywo/onOrYlm04B82IqxRvamqQmjNA6B+wxscV3lrbQNBtBnWhd2AgMxoAnYPec5Slj0Bx5nihCzjC63TjG8xENLXB/2ve0nSWsJgbRJyTDLbkygiAAXmiPcGiK8kRCDCjqYyev9N9y2pMZh3lD03rNSTjRwCRsT4sawLmZ6/bT+6dngtedqcN3t2IY5CaHNfi97ngQxB80e6ySyct7+atB6wqZ/RrbsYIar/LqqBz6wpXjkCgjFNyjRUDXAKOWbBa+5pKSxediIw+NmZ8RKluY5GrD8rI8nmTBPd/h7hk7Mi4Zn6gGjSqQ9qpLAjdCNlU2mCF9VeNy8u8cXdMv2u2skR/xlL9apbBxWc2l3weh0N+SX30zNxfh0iEDkA5xxjNGTBvq7fyZdcthlxexnVDmNFVhbLpr/1Y9uVMTzho62zZd7X1dUHpcIn8aO0jCYADbyW55fL0l0L7zoyirvtqnrp/tTKPZPn2NrJKL+R9qH06zZ+6RlLiRi1B0on8zxHPSBtUZCPGNe/DRl8JheLn52Ixpa6Z2DU6spkC+fOe1o21xYXsk1tsv3igpbGn93cg/gGvjE8cXPFKIQVMZE+6dOIfh1UIBSy6vpmZxYsr4poagW+hPkT1PZ5OPGYk/JgtQ6vF4JDMKQ+8/TK46EPNbwFxEbucfEJdWRk2N23w==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR12MB3895.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(366004)(346002)(39860400002)(376002)(136003)(396003)(54906003)(7696005)(38070700005)(38100700002)(55016003)(122000001)(66476007)(316002)(66556008)(76116006)(4326008)(66446008)(8676002)(66946007)(64756008)(2906002)(9686003)(8936002)(52536014)(6506007)(186003)(5660300002)(33656002)(478600001)(41300700001)(71200400001)(558084003)(86362001)(26005);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ALZF9/fVKMVepo/Z/yPPtw/b6Q/vI99v+6HhcZEOAhgDCs4BHrJU9P5H5JJX?=
+ =?us-ascii?Q?tAh3K+8WKtm4RmMDOTUvcHRPXc5ZR80moJ6YeEcrVop/uli5VPZKafe7OqRJ?=
+ =?us-ascii?Q?/4dN59kfy93ZOLEFFA5AqmLAV2tdlvjaQCpkmd7iOXI6cOTVn7igUK65qJbK?=
+ =?us-ascii?Q?LkEt+O08XsZIqYlAIIkPNsnINCgD4GTMWNL/VsopCbVwj6SCK+vMk2Umfk+b?=
+ =?us-ascii?Q?UgNwx3RxOD+/Wk4p+eCWzsyIUcGC/KsLskcvFtF1fF2oLV5hcfaU8V69tFXK?=
+ =?us-ascii?Q?bBN4aOg42oiMZXkgLdpiEDD2ctkedOSeNwReiFI6nuGgcAlF11U/K+4yJIBq?=
+ =?us-ascii?Q?gZn8UbajaKFV6KIQYW/yHOyx2Zxlvce0vMpeWgrPsLaL6agM6TfktqsaGnD8?=
+ =?us-ascii?Q?0r5Imw4v0gen5hOnOBzv1qCuE6fnlNeqaitNZQzhBr5EF0oACuoISEgGE5EC?=
+ =?us-ascii?Q?iLgvnrs3qum+3Lv4JK/LAOCCrEUXm08p3zjReipTfC6IseutJ4fgdonzH6da?=
+ =?us-ascii?Q?FFHRPLUThkAyONjLSUXz7cq9ulHAGZOvOEPN/mNv8omwnGO9Urnf8dj1dHmu?=
+ =?us-ascii?Q?GH6wGxwKowpMdBykW3KGom5EztmYqK7nsadneCpMpfyjkCX1WDgisnRnnNHV?=
+ =?us-ascii?Q?T9eVlLgeARosxIjWZdXye12qZuAUDTayTWtIx2gOcM1daAAUJys9pwVP9T2M?=
+ =?us-ascii?Q?jnx9GjGwtY3bfcCkJltnVh6fcVg1meJbLL76CrbLPVGnkK9cEc/vRU+GzlWR?=
+ =?us-ascii?Q?g3bBzwk0fWiU/81LM1a5+A7plWoEh7wrMVEE/X+kbg3W1L8fXaedU0m2nZdJ?=
+ =?us-ascii?Q?D3okXmfo+Yq0kpPD8GZNzAsQZ8awdZk1HOxLrnCpRYU4dyrrFLxGHbu3zPsB?=
+ =?us-ascii?Q?J1HgTTpMgrU1jnvHZptlk/U5D/x9njLN6Bfufi6wRH3O9dbSXojTk5D+t33Z?=
+ =?us-ascii?Q?NCxyWLs8IiAono7Tqgmp4uR/S2NySFMCOBOcKMrMzO88sHAjJ7lUwdIYZi0H?=
+ =?us-ascii?Q?I4C0IbLNsFTr2DR3eKsvW7CkaHT5CJwkp4tqV0Xuiyr6zH51yAO8/thlZwLw?=
+ =?us-ascii?Q?pZ600HBBC56qZxU3vmxN0h7p1JmZ4wc0+cVFQ9ThPglovu+2YUlU+RP4J+3Z?=
+ =?us-ascii?Q?T56Dn6c8+Zh6tehtscXWvMqCdF3FLH8Cq7zkR0bxVDQvtxHJ/J9qhdg6Q8T3?=
+ =?us-ascii?Q?wNyPHWqvcM/13GlooiDIxnbs/A2y0gjFzioOirx1+3jpfxwBUSI44cTy8xho?=
+ =?us-ascii?Q?lITboqnh04w5t9u9PFVE4Ecyt6xKUHpQ1iCG2IC3xmiz+Sw2+w7YDIabvSPO?=
+ =?us-ascii?Q?gGy5lPlha1r5qx5G19McyJLywmQTOE/0+h5H7w6S1JqKYzYE5vUomYEGt8y2?=
+ =?us-ascii?Q?IO5yhIwC1Yrjy57klC7NkbfS/bNMeumB9fU5DuwwkD12fCNmwRhLxM1lw/eg?=
+ =?us-ascii?Q?CoqT/no3z6ZOEO817BsXZAlIea7luKD5EzH/aa9e9FYgHovX9j7NA9lmb9zD?=
+ =?us-ascii?Q?vD/Sg3EqkI08wuRcY7J/aBoELzofbbqCMeQDWi/F8lEH2+PgL2+eYcFCO+YM?=
+ =?us-ascii?Q?sK6dp/EeU4cJCAgQgqY=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CH2PR12MB3895.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 75e847f0-bcb9-4d91-afa2-08da91c0e652
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Sep 2022 17:38:11.0117
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 0jIf9eSQfDKpsfu0K1oKWQwZ2bH8BPttDBzOExSQ8NW+sG6itGzUe58DqobvYIYU9XQD9t6YWGhMmGuEJ1JeJg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB6197
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-BlueField-3 SoC has the same I2C IP logic as previous
-BlueField-1 and 2 SoCs but it has different registers' addresses.
-This is an effort to keep this driver generic accross all
-BlueField generations.
-This patch breaks down the "smbus" resource into 3 separate
-resources to enable us to use common registers' offsets for all
-BlueField SoCs:
-struct mlxbf_i2c_resource *timer;
-struct mlxbf_i2c_resource *mst;
-struct mlxbf_i2c_resource *slv;
+> I was going to send a v3 patch after I get some feedback on the other=20
+> patches unless you'd prefer I send it now?
 
-Of course, all offsets had to be adjusted accordingly, and we took
-this chance to reorganize the macros depending on the register block
-they target.
+Your choice. You can wait for some more comments if you want. But frankly, =
+I don't really expect more comments.
 
-There are only 2 registers' offsets that do not fit within this
-schema so their offsets are passed as SoC-specific parameters:
-smbus_master_rs_bytes_off
-smbus_master_fsm_off
-
-Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
-Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
----
- MAINTAINERS                    |   1 +
- drivers/i2c/busses/i2c-mlxbf.c | 450 ++++++++++++++++++++-------------
- 2 files changed, 280 insertions(+), 171 deletions(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f512b430c7cb..9f03c945bedd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12978,6 +12978,7 @@ F:	drivers/input/touchscreen/melfas_mip4.c
- 
- MELLANOX BLUEFIELD I2C DRIVER
- M:	Khalil Blaiech <kblaiech@nvidia.com>
-+M:	Asmaa Mnebhi <asmaa@nvidia.com>
- L:	linux-i2c@vger.kernel.org
- S:	Supported
- F:	Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml
-diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index da9caaa7b6df..cbe64d9ecd77 100644
---- a/drivers/i2c/busses/i2c-mlxbf.c
-+++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -28,8 +28,6 @@
- 	(MLXBF_I2C_FUNC_SMBUS_DEFAULT | MLXBF_I2C_FUNC_SMBUS_BLOCK | \
- 	 I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SLAVE)
- 
--#define MLXBF_I2C_SMBUS_MAX        3
--
- /* Shared resources info in BlueField platforms. */
- 
- #define MLXBF_I2C_COALESCE_TYU_ADDR    0x02801300
-@@ -44,6 +42,9 @@
- #define MLXBF_I2C_COREPLL_YU_ADDR      0x02800c30
- #define MLXBF_I2C_COREPLL_YU_SIZE      0x00c
- 
-+#define MLXBF_I2C_COREPLL_RSH_YU_ADDR  0x13409824
-+#define MLXBF_I2C_COREPLL_RSH_YU_SIZE  0x00c
-+
- #define MLXBF_I2C_SHARED_RES_MAX       3
- 
- /*
-@@ -127,14 +128,10 @@
- /* Slave busy bit reset. */
- #define MLXBF_I2C_CAUSE_S_GW_BUSY_FALL        BIT(18)
- 
--#define MLXBF_I2C_CAUSE_SLAVE_ARBITER_BITS_MASK     GENMASK(20, 0)
--
- /* Cause coalesce registers. */
- #define MLXBF_I2C_CAUSE_COALESCE_0        0x00
--#define MLXBF_I2C_CAUSE_COALESCE_1        0x04
--#define MLXBF_I2C_CAUSE_COALESCE_2        0x08
- 
--#define MLXBF_I2C_CAUSE_TYU_SLAVE_BIT   MLXBF_I2C_SMBUS_MAX
-+#define MLXBF_I2C_CAUSE_TYU_SLAVE_BIT   3
- #define MLXBF_I2C_CAUSE_YU_SLAVE_BIT    1
- 
- /* Functional enable register. */
-@@ -161,15 +158,6 @@
- #define MLXBF_I2C_GPIO_SMBUS_GW_ASSERT_PINS(num, val) \
- 	((val) | (0x3 << MLXBF_I2C_GPIO_SMBUS_GW_PINS(num)))
- 
--/* SMBus timing parameters. */
--#define MLXBF_I2C_SMBUS_TIMER_SCL_LOW_SCL_HIGH    0x00
--#define MLXBF_I2C_SMBUS_TIMER_FALL_RISE_SPIKE     0x04
--#define MLXBF_I2C_SMBUS_TIMER_THOLD               0x08
--#define MLXBF_I2C_SMBUS_TIMER_TSETUP_START_STOP   0x0c
--#define MLXBF_I2C_SMBUS_TIMER_TSETUP_DATA         0x10
--#define MLXBF_I2C_SMBUS_THIGH_MAX_TBUF            0x14
--#define MLXBF_I2C_SMBUS_SCL_LOW_TIMEOUT           0x18
--
- /*
-  * Defines SMBus operating frequency and core clock frequency.
-  * According to ADB files, default values are compliant to 100KHz SMBus
-@@ -188,26 +176,37 @@
- #define MLXBF_I2C_COREPLL_CORE_OD_YU_MASK   GENMASK(3, 0)
- #define MLXBF_I2C_COREPLL_CORE_R_YU_MASK    GENMASK(31, 26)
- 
-+/* SMBus timing parameters. */
-+#define MLXBF_I2C_SMBUS_TIMER_SCL_LOW_SCL_HIGH    0x00
-+#define MLXBF_I2C_SMBUS_TIMER_FALL_RISE_SPIKE     0x04
-+#define MLXBF_I2C_SMBUS_TIMER_THOLD               0x08
-+#define MLXBF_I2C_SMBUS_TIMER_TSETUP_START_STOP   0x0c
-+#define MLXBF_I2C_SMBUS_TIMER_TSETUP_DATA         0x10
-+#define MLXBF_I2C_SMBUS_THIGH_MAX_TBUF            0x14
-+#define MLXBF_I2C_SMBUS_SCL_LOW_TIMEOUT           0x18
- 
--/* Core PLL frequency. */
--static u64 mlxbf_i2c_corepll_frequency;
-+#define MLXBF_I2C_SHIFT_0   0
-+#define MLXBF_I2C_SHIFT_8   8
-+#define MLXBF_I2C_SHIFT_16  16
-+#define MLXBF_I2C_SHIFT_24  24
-+
-+#define MLXBF_I2C_MASK_8    GENMASK(7, 0)
-+#define MLXBF_I2C_MASK_16   GENMASK(15, 0)
-+
-+#define MLXBF_I2C_MST_ADDR_OFFSET         0x200
- 
- /* SMBus Master GW. */
--#define MLXBF_I2C_SMBUS_MASTER_GW     0x200
-+#define MLXBF_I2C_SMBUS_MASTER_GW         0x0
- /* Number of bytes received and sent. */
--#define MLXBF_I2C_SMBUS_RS_BYTES      0x300
-+#define MLXBF_I2C_YU_SMBUS_RS_BYTES       0x100
-+#define MLXBF_I2C_RSH_YU_SMBUS_RS_BYTES   0x10c
- /* Packet error check (PEC) value. */
--#define MLXBF_I2C_SMBUS_MASTER_PEC    0x304
-+#define MLXBF_I2C_SMBUS_MASTER_PEC        0x104
- /* Status bits (ACK/NACK/FW Timeout). */
--#define MLXBF_I2C_SMBUS_MASTER_STATUS 0x308
-+#define MLXBF_I2C_SMBUS_MASTER_STATUS     0x108
- /* SMbus Master Finite State Machine. */
--#define MLXBF_I2C_SMBUS_MASTER_FSM    0x310
--
--/*
-- * When enabled, the master will issue a stop condition in case of
-- * timeout while waiting for FW response.
-- */
--#define MLXBF_I2C_SMBUS_EN_FW_TIMEOUT 0x31c
-+#define MLXBF_I2C_YU_SMBUS_MASTER_FSM     0x110
-+#define MLXBF_I2C_RSH_YU_SMBUS_MASTER_FSM 0x100
- 
- /* SMBus master GW control bits offset in MLXBF_I2C_SMBUS_MASTER_GW[31:3]. */
- #define MLXBF_I2C_MASTER_LOCK_BIT         BIT(31) /* Lock bit. */
-@@ -227,14 +226,14 @@ static u64 mlxbf_i2c_corepll_frequency;
- #define MLXBF_I2C_MASTER_ENABLE_READ \
- 	(MLXBF_I2C_MASTER_ENABLE | MLXBF_I2C_MASTER_CTL_READ_BIT)
- 
--#define MLXBF_I2C_MASTER_SLV_ADDR_SHIFT   12 /* Slave address shift. */
--#define MLXBF_I2C_MASTER_WRITE_SHIFT      21 /* Control write bytes shift. */
--#define MLXBF_I2C_MASTER_SEND_PEC_SHIFT   20 /* Send PEC byte shift. */
--#define MLXBF_I2C_MASTER_PARSE_EXP_SHIFT  11 /* Parse expected bytes shift. */
--#define MLXBF_I2C_MASTER_READ_SHIFT       4  /* Control read bytes shift. */
-+#define MLXBF_I2C_MASTER_WRITE_SHIFT      21 /* Control write bytes */
-+#define MLXBF_I2C_MASTER_SEND_PEC_SHIFT   20 /* Send PEC byte when set to 1 */
-+#define MLXBF_I2C_MASTER_PARSE_EXP_SHIFT  11 /* Control parse expected bytes */
-+#define MLXBF_I2C_MASTER_SLV_ADDR_SHIFT   12 /* Slave address */
-+#define MLXBF_I2C_MASTER_READ_SHIFT       4  /* Control read bytes */
- 
- /* SMBus master GW Data descriptor. */
--#define MLXBF_I2C_MASTER_DATA_DESC_ADDR   0x280
-+#define MLXBF_I2C_MASTER_DATA_DESC_ADDR   0x80
- #define MLXBF_I2C_MASTER_DATA_DESC_SIZE   0x80 /* Size in bytes. */
- 
- /* Maximum bytes to read/write per SMBus transaction. */
-@@ -260,19 +259,21 @@ static u64 mlxbf_i2c_corepll_frequency;
- #define MLXBF_I2C_SMBUS_MASTER_FSM_STOP_MASK      BIT(31)
- #define MLXBF_I2C_SMBUS_MASTER_FSM_PS_STATE_MASK  BIT(15)
- 
-+#define MLXBF_I2C_SLV_ADDR_OFFSET             0x400
-+
- /* SMBus slave GW. */
--#define MLXBF_I2C_SMBUS_SLAVE_GW              0x400
-+#define MLXBF_I2C_SMBUS_SLAVE_GW              0x0
- /* Number of bytes received and sent from/to master. */
--#define MLXBF_I2C_SMBUS_SLAVE_RS_MASTER_BYTES 0x500
-+#define MLXBF_I2C_SMBUS_SLAVE_RS_MASTER_BYTES 0x100
- /* Packet error check (PEC) value. */
--#define MLXBF_I2C_SMBUS_SLAVE_PEC             0x504
-+#define MLXBF_I2C_SMBUS_SLAVE_PEC             0x104
- /* SMBus slave Finite State Machine (FSM). */
--#define MLXBF_I2C_SMBUS_SLAVE_FSM             0x510
-+#define MLXBF_I2C_SMBUS_SLAVE_FSM             0x110
- /*
-  * Should be set when all raised causes handled, and cleared by HW on
-  * every new cause.
-  */
--#define MLXBF_I2C_SMBUS_SLAVE_READY           0x52c
-+#define MLXBF_I2C_SMBUS_SLAVE_READY           0x12c
- 
- /* SMBus slave GW control bits offset in MLXBF_I2C_SMBUS_SLAVE_GW[31:19]. */
- #define MLXBF_I2C_SLAVE_BUSY_BIT         BIT(30) /* Busy bit. */
-@@ -285,13 +286,13 @@ static u64 mlxbf_i2c_corepll_frequency;
- #define MLXBF_I2C_SLAVE_SEND_PEC_SHIFT    21 /* Send PEC byte shift. */
- 
- /* SMBus slave GW Data descriptor. */
--#define MLXBF_I2C_SLAVE_DATA_DESC_ADDR   0x480
-+#define MLXBF_I2C_SLAVE_DATA_DESC_ADDR   0x80
- #define MLXBF_I2C_SLAVE_DATA_DESC_SIZE   0x80 /* Size in bytes. */
- 
- /* SMbus slave configuration registers. */
--#define MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG        0x514
-+#define MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG        0x114
- #define MLXBF_I2C_SMBUS_SLAVE_ADDR_CNT        16
--#define MLXBF_I2C_SMBUS_SLAVE_ADDR_EN_BIT     7
-+#define MLXBF_I2C_SMBUS_SLAVE_ADDR_EN_BIT     BIT(7)
- #define MLXBF_I2C_SMBUS_SLAVE_ADDR_MASK       GENMASK(6, 0)
- 
- /*
-@@ -301,6 +302,59 @@ static u64 mlxbf_i2c_corepll_frequency;
- #define MLXBF_I2C_SMBUS_TIMEOUT   (300 * 1000) /* 300ms */
- #define MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT (300 * 1000) /* 300ms */
- 
-+/* Polling frequency in microseconds. */
-+#define MLXBF_I2C_POLL_FREQ_IN_USEC        200
-+
-+#define MLXBF_I2C_SMBUS_OP_CNT_1   1
-+#define MLXBF_I2C_SMBUS_OP_CNT_2   2
-+#define MLXBF_I2C_SMBUS_OP_CNT_3   3
-+#define MLXBF_I2C_SMBUS_MAX_OP_CNT MLXBF_I2C_SMBUS_OP_CNT_3
-+
-+/* Helper macro to define an I2C resource parameters. */
-+#define MLXBF_I2C_RES_PARAMS(addr, size, str) \
-+	{ \
-+		.start = (addr), \
-+		.end = (addr) + (size) - 1, \
-+		.name = (str) \
-+	}
-+
-+enum {
-+	MLXBF_I2C_TIMING_100KHZ = 100000,
-+	MLXBF_I2C_TIMING_400KHZ = 400000,
-+	MLXBF_I2C_TIMING_1000KHZ = 1000000,
-+};
-+
-+enum {
-+	MLXBF_I2C_F_READ = BIT(0),
-+	MLXBF_I2C_F_WRITE = BIT(1),
-+	MLXBF_I2C_F_NORESTART = BIT(3),
-+	MLXBF_I2C_F_SMBUS_OPERATION = BIT(4),
-+	MLXBF_I2C_F_SMBUS_BLOCK = BIT(5),
-+	MLXBF_I2C_F_SMBUS_PEC = BIT(6),
-+	MLXBF_I2C_F_SMBUS_PROCESS_CALL = BIT(7),
-+};
-+
-+/* Mellanox BlueField chip type. */
-+enum mlxbf_i2c_chip_type {
-+	MLXBF_I2C_CHIP_TYPE_1, /* Mellanox BlueField-1 chip. */
-+	MLXBF_I2C_CHIP_TYPE_2, /* Mellanox BlueField-2 chip. */
-+	MLXBF_I2C_CHIP_TYPE_3 /* Mellanox BlueField-3 chip. */
-+};
-+
-+/* List of chip resources that are being accessed by the driver. */
-+enum {
-+	MLXBF_I2C_SMBUS_RES,
-+	MLXBF_I2C_MST_CAUSE_RES,
-+	MLXBF_I2C_SLV_CAUSE_RES,
-+	MLXBF_I2C_COALESCE_RES,
-+	MLXBF_I2C_SMBUS_TIMER_RES,
-+	MLXBF_I2C_SMBUS_MST_RES,
-+	MLXBF_I2C_SMBUS_SLV_RES,
-+	MLXBF_I2C_COREPLL_RES,
-+	MLXBF_I2C_GPIO_RES,
-+	MLXBF_I2C_END_RES
-+};
-+
- /* Encapsulates timing parameters. */
- struct mlxbf_i2c_timings {
- 	u16 scl_high;		/* Clock high period. */
-@@ -320,27 +374,12 @@ struct mlxbf_i2c_timings {
- 	u32 timeout;		/* Detect clock low timeout. */
- };
- 
--enum {
--	MLXBF_I2C_F_READ = BIT(0),
--	MLXBF_I2C_F_WRITE = BIT(1),
--	MLXBF_I2C_F_NORESTART = BIT(3),
--	MLXBF_I2C_F_SMBUS_OPERATION = BIT(4),
--	MLXBF_I2C_F_SMBUS_BLOCK = BIT(5),
--	MLXBF_I2C_F_SMBUS_PEC = BIT(6),
--	MLXBF_I2C_F_SMBUS_PROCESS_CALL = BIT(7),
--};
--
- struct mlxbf_i2c_smbus_operation {
- 	u32 flags;
- 	u32 length; /* Buffer length in bytes. */
- 	u8 *buffer;
- };
- 
--#define MLXBF_I2C_SMBUS_OP_CNT_1	1
--#define MLXBF_I2C_SMBUS_OP_CNT_2	2
--#define MLXBF_I2C_SMBUS_OP_CNT_3	3
--#define MLXBF_I2C_SMBUS_MAX_OP_CNT	MLXBF_I2C_SMBUS_OP_CNT_3
--
- struct mlxbf_i2c_smbus_request {
- 	u8 slave;
- 	u8 operation_cnt;
-@@ -354,24 +393,38 @@ struct mlxbf_i2c_resource {
- 	u8 type;
- };
- 
--/* List of chip resources that are being accessed by the driver. */
--enum {
--	MLXBF_I2C_SMBUS_RES,
--	MLXBF_I2C_MST_CAUSE_RES,
--	MLXBF_I2C_SLV_CAUSE_RES,
--	MLXBF_I2C_COALESCE_RES,
--	MLXBF_I2C_COREPLL_RES,
--	MLXBF_I2C_GPIO_RES,
--	MLXBF_I2C_END_RES,
-+struct mlxbf_i2c_chip_info {
-+	enum mlxbf_i2c_chip_type type;
-+	/* Chip shared resources that are being used by the I2C controller. */
-+	struct mlxbf_i2c_resource *shared_res[MLXBF_I2C_SHARED_RES_MAX];
-+
-+	/* Callback to calculate the core PLL frequency. */
-+	u64 (*calculate_freq)(struct mlxbf_i2c_resource *corepll_res);
-+
-+	/* Registers' address offset */
-+	u32 smbus_master_rs_bytes_off;
-+	u32 smbus_master_fsm_off;
- };
- 
--/* Helper macro to define an I2C resource parameters. */
--#define MLXBF_I2C_RES_PARAMS(addr, size, str) \
--	{ \
--		.start = (addr), \
--		.end = (addr) + (size) - 1, \
--		.name = (str) \
--	}
-+struct mlxbf_i2c_priv {
-+	const struct mlxbf_i2c_chip_info *chip;
-+	struct i2c_adapter adap;
-+	struct mlxbf_i2c_resource *smbus;
-+	struct mlxbf_i2c_resource *timer;
-+	struct mlxbf_i2c_resource *mst;
-+	struct mlxbf_i2c_resource *slv;
-+	struct mlxbf_i2c_resource *mst_cause;
-+	struct mlxbf_i2c_resource *slv_cause;
-+	struct mlxbf_i2c_resource *coalesce;
-+	u64 frequency; /* Core frequency in Hz. */
-+	int bus; /* Physical bus identifier. */
-+	int irq;
-+	struct i2c_client *slave[MLXBF_I2C_SMBUS_SLAVE_ADDR_CNT];
-+	u32 resource_version;
-+};
-+
-+/* Core PLL frequency. */
-+static u64 mlxbf_i2c_corepll_frequency;
- 
- static struct resource mlxbf_i2c_coalesce_tyu_params =
- 		MLXBF_I2C_RES_PARAMS(MLXBF_I2C_COALESCE_TYU_ADDR,
-@@ -385,6 +438,10 @@ static struct resource mlxbf_i2c_corepll_yu_params =
- 		MLXBF_I2C_RES_PARAMS(MLXBF_I2C_COREPLL_YU_ADDR,
- 				     MLXBF_I2C_COREPLL_YU_SIZE,
- 				     "COREPLL_MEM");
-+static struct resource mlxbf_i2c_corepll_rsh_yu_params =
-+		MLXBF_I2C_RES_PARAMS(MLXBF_I2C_COREPLL_RSH_YU_ADDR,
-+				     MLXBF_I2C_COREPLL_RSH_YU_SIZE,
-+				     "COREPLL_MEM");
- static struct resource mlxbf_i2c_gpio_tyu_params =
- 		MLXBF_I2C_RES_PARAMS(MLXBF_I2C_GPIO_TYU_ADDR,
- 				     MLXBF_I2C_GPIO_TYU_SIZE,
-@@ -394,34 +451,6 @@ static struct mutex mlxbf_i2c_coalesce_lock;
- static struct mutex mlxbf_i2c_corepll_lock;
- static struct mutex mlxbf_i2c_gpio_lock;
- 
--/* Mellanox BlueField chip type. */
--enum mlxbf_i2c_chip_type {
--	MLXBF_I2C_CHIP_TYPE_1, /* Mellanox BlueField-1 chip. */
--	MLXBF_I2C_CHIP_TYPE_2, /* Mallanox BlueField-2 chip. */
--};
--
--struct mlxbf_i2c_chip_info {
--	enum mlxbf_i2c_chip_type type;
--	/* Chip shared resources that are being used by the I2C controller. */
--	struct mlxbf_i2c_resource *shared_res[MLXBF_I2C_SHARED_RES_MAX];
--
--	/* Callback to calculate the core PLL frequency. */
--	u64 (*calculate_freq)(struct mlxbf_i2c_resource *corepll_res);
--};
--
--struct mlxbf_i2c_priv {
--	const struct mlxbf_i2c_chip_info *chip;
--	struct i2c_adapter adap;
--	struct mlxbf_i2c_resource *smbus;
--	struct mlxbf_i2c_resource *mst_cause;
--	struct mlxbf_i2c_resource *slv_cause;
--	struct mlxbf_i2c_resource *coalesce;
--	u64 frequency; /* Core frequency in Hz. */
--	int bus; /* Physical bus identifier. */
--	int irq;
--	struct i2c_client *slave[MLXBF_I2C_SMBUS_SLAVE_ADDR_CNT];
--};
--
- static struct mlxbf_i2c_resource mlxbf_i2c_coalesce_res[] = {
- 	[MLXBF_I2C_CHIP_TYPE_1] = {
- 		.params = &mlxbf_i2c_coalesce_tyu_params,
-@@ -441,6 +470,11 @@ static struct mlxbf_i2c_resource mlxbf_i2c_corepll_res[] = {
- 		.params = &mlxbf_i2c_corepll_yu_params,
- 		.lock = &mlxbf_i2c_corepll_lock,
- 		.type = MLXBF_I2C_COREPLL_RES,
-+	},
-+	[MLXBF_I2C_CHIP_TYPE_3] = {
-+		.params = &mlxbf_i2c_corepll_rsh_yu_params,
-+		.lock = &mlxbf_i2c_corepll_lock,
-+		.type = MLXBF_I2C_COREPLL_RES,
- 	}
- };
- 
-@@ -457,24 +491,13 @@ static u8 mlxbf_i2c_bus_count;
- 
- static struct mutex mlxbf_i2c_bus_lock;
- 
--/* Polling frequency in microseconds. */
--#define MLXBF_I2C_POLL_FREQ_IN_USEC        200
--
--#define MLXBF_I2C_SHIFT_0   0
--#define MLXBF_I2C_SHIFT_8   8
--#define MLXBF_I2C_SHIFT_16  16
--#define MLXBF_I2C_SHIFT_24  24
--
--#define MLXBF_I2C_MASK_8    GENMASK(7, 0)
--#define MLXBF_I2C_MASK_16   GENMASK(15, 0)
--
- /*
-  * Function to poll a set of bits at a specific address; it checks whether
-  * the bits are equal to zero when eq_zero is set to 'true', and not equal
-  * to zero when eq_zero is set to 'false'.
-  * Note that the timeout is given in microseconds.
-  */
--static u32 mlxbf_smbus_poll(void __iomem *io, u32 addr, u32 mask,
-+static u32 mlxbf_i2c_poll(void __iomem *io, u32 addr, u32 mask,
- 			    bool eq_zero, u32  timeout)
- {
- 	u32 bits;
-@@ -496,13 +519,13 @@ static u32 mlxbf_smbus_poll(void __iomem *io, u32 addr, u32 mask,
-  * a transaction. Accordingly, this function polls the Master FSM stop
-  * bit; it returns false when the bit is asserted, true if not.
-  */
--static bool mlxbf_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
-+static bool mlxbf_i2c_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
- {
- 	u32 mask = MLXBF_I2C_SMBUS_MASTER_FSM_STOP_MASK;
--	u32 addr = MLXBF_I2C_SMBUS_MASTER_FSM;
-+	u32 addr = priv->chip->smbus_master_fsm_off;
- 	u32 timeout = MLXBF_I2C_SMBUS_TIMEOUT;
- 
--	if (mlxbf_smbus_poll(priv->smbus->io, addr, mask, true, timeout))
-+	if (mlxbf_i2c_poll(priv->mst->io, addr, mask, true, timeout))
- 		return true;
- 
- 	return false;
-@@ -513,7 +536,7 @@ static bool mlxbf_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
-  */
- static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
- {
--	if (mlxbf_smbus_poll(priv->smbus->io, MLXBF_I2C_SMBUS_MASTER_GW,
-+	if (mlxbf_i2c_poll(priv->mst->io, MLXBF_I2C_SMBUS_MASTER_GW,
- 			   MLXBF_I2C_MASTER_LOCK_BIT, true,
- 			   MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT))
- 		return true;
-@@ -524,7 +547,7 @@ static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
- static void mlxbf_i2c_smbus_master_unlock(struct mlxbf_i2c_priv *priv)
- {
- 	/* Clear the gw to clear the lock */
--	writel(0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_GW);
-+	writel(0, priv->mst->io + MLXBF_I2C_SMBUS_MASTER_GW);
- }
- 
- static bool mlxbf_i2c_smbus_transaction_success(u32 master_status,
-@@ -564,7 +587,7 @@ static int mlxbf_i2c_smbus_check_status(struct mlxbf_i2c_priv *priv)
- 	 * then read the cause and master status bits to determine if
- 	 * errors occurred during the transaction.
- 	 */
--	mlxbf_smbus_poll(priv->smbus->io, MLXBF_I2C_SMBUS_MASTER_GW,
-+	mlxbf_i2c_poll(priv->mst->io, MLXBF_I2C_SMBUS_MASTER_GW,
- 			 MLXBF_I2C_MASTER_BUSY_BIT, true,
- 			 MLXBF_I2C_SMBUS_TIMEOUT);
- 
-@@ -577,7 +600,7 @@ static int mlxbf_i2c_smbus_check_status(struct mlxbf_i2c_priv *priv)
- 	 * Parse both Cause and Master GW bits, then return transaction status.
- 	 */
- 
--	master_status_bits = readl(priv->smbus->io +
-+	master_status_bits = readl(priv->mst->io +
- 					MLXBF_I2C_SMBUS_MASTER_STATUS);
- 	master_status_bits &= MLXBF_I2C_SMBUS_MASTER_STATUS_MASK;
- 
-@@ -602,7 +625,8 @@ static int mlxbf_i2c_smbus_check_status(struct mlxbf_i2c_priv *priv)
- }
- 
- static void mlxbf_i2c_smbus_write_data(struct mlxbf_i2c_priv *priv,
--				       const u8 *data, u8 length, u32 addr)
-+				       const u8 *data, u8 length, u32 addr,
-+				       bool is_master)
- {
- 	u8 offset, aligned_length;
- 	u32 data32;
-@@ -619,12 +643,16 @@ static void mlxbf_i2c_smbus_write_data(struct mlxbf_i2c_priv *priv,
- 	 */
- 	for (offset = 0; offset < aligned_length; offset += sizeof(u32)) {
- 		data32 = *((u32 *)(data + offset));
--		iowrite32be(data32, priv->smbus->io + addr + offset);
-+		if (is_master)
-+			iowrite32be(data32, priv->mst->io + addr + offset);
-+		else
-+			iowrite32be(data32, priv->slv->io + addr + offset);
- 	}
- }
- 
- static void mlxbf_i2c_smbus_read_data(struct mlxbf_i2c_priv *priv,
--				      u8 *data, u8 length, u32 addr)
-+				      u8 *data, u8 length, u32 addr,
-+				      bool is_master)
- {
- 	u32 data32, mask;
- 	u8 byte, offset;
-@@ -640,14 +668,20 @@ static void mlxbf_i2c_smbus_read_data(struct mlxbf_i2c_priv *priv,
- 	 */
- 
- 	for (offset = 0; offset < (length & ~mask); offset += sizeof(u32)) {
--		data32 = ioread32be(priv->smbus->io + addr + offset);
-+		if (is_master)
-+			data32 = ioread32be(priv->mst->io + addr + offset);
-+		else
-+			data32 = ioread32be(priv->slv->io + addr + offset);
- 		*((u32 *)(data + offset)) = data32;
- 	}
- 
- 	if (!(length & mask))
- 		return;
- 
--	data32 = ioread32be(priv->smbus->io + addr + offset);
-+	if (is_master)
-+		data32 = ioread32be(priv->mst->io + addr + offset);
-+	else
-+		data32 = ioread32be(priv->slv->io + addr + offset);
- 
- 	for (byte = 0; byte < (length & mask); byte++) {
- 		data[offset + byte] = data32 & GENMASK(7, 0);
-@@ -673,16 +707,16 @@ static int mlxbf_i2c_smbus_enable(struct mlxbf_i2c_priv *priv, u8 slave,
- 	command |= rol32(pec_en, MLXBF_I2C_MASTER_SEND_PEC_SHIFT);
- 
- 	/* Clear status bits. */
--	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_STATUS);
-+	writel(0x0, priv->mst->io + MLXBF_I2C_SMBUS_MASTER_STATUS);
- 	/* Set the cause data. */
- 	writel(~0x0, priv->mst_cause->io + MLXBF_I2C_CAUSE_OR_CLEAR);
- 	/* Zero PEC byte. */
--	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_PEC);
-+	writel(0x0, priv->mst->io + MLXBF_I2C_SMBUS_MASTER_PEC);
- 	/* Zero byte count. */
--	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_RS_BYTES);
-+	writel(0x0, priv->mst->io + priv->chip->smbus_master_rs_bytes_off);
- 
- 	/* GW activation. */
--	writel(command, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_GW);
-+	writel(command, priv->mst->io + MLXBF_I2C_SMBUS_MASTER_GW);
- 
- 	/*
- 	 * Poll master status and check status bits. An ACK is sent when
-@@ -725,7 +759,7 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 		return -EBUSY;
- 
- 	/* Check whether the HW is idle */
--	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv))) {
-+	if (WARN_ON(!mlxbf_i2c_smbus_master_wait_for_idle(priv))) {
- 		mlxbf_i2c_smbus_master_unlock(priv);
- 		return -EBUSY;
- 	}
-@@ -782,7 +816,7 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 	 * must be written to the data registers.
- 	 */
- 	mlxbf_i2c_smbus_write_data(priv, (const u8 *)data_desc, data_len,
--				   MLXBF_I2C_MASTER_DATA_DESC_ADDR);
-+				   MLXBF_I2C_MASTER_DATA_DESC_ADDR, true);
- 
- 	if (write_en) {
- 		ret = mlxbf_i2c_smbus_enable(priv, slave, write_len, block_en,
-@@ -796,13 +830,13 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 	if (read_en) {
- 		/* Write slave address to Master GW data descriptor. */
- 		mlxbf_i2c_smbus_write_data(priv, (const u8 *)&addr, 1,
--					   MLXBF_I2C_MASTER_DATA_DESC_ADDR);
-+					   MLXBF_I2C_MASTER_DATA_DESC_ADDR, true);
- 		ret = mlxbf_i2c_smbus_enable(priv, slave, read_len, block_en,
- 					 pec_en, 1);
- 		if (!ret) {
- 			/* Get Master GW data descriptor. */
- 			mlxbf_i2c_smbus_read_data(priv, data_desc, read_len + 1,
--					     MLXBF_I2C_MASTER_DATA_DESC_ADDR);
-+					     MLXBF_I2C_MASTER_DATA_DESC_ADDR, true);
- 
- 			/* Get data from Master GW data descriptor. */
- 			memcpy(read_buf, data_desc, read_len + 1);
-@@ -814,7 +848,7 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 		 * next tag integration.
- 		 */
- 		writel(MLXBF_I2C_SMBUS_MASTER_FSM_PS_STATE_MASK,
--			priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_FSM);
-+			priv->mst->io + priv->chip->smbus_master_fsm_off);
- 	}
- 
- 	mlxbf_i2c_smbus_master_unlock(priv);
-@@ -1105,7 +1139,7 @@ static void mlxbf_i2c_set_timings(struct mlxbf_i2c_priv *priv,
- 	timer |= mlxbf_i2c_set_timer(priv, timings->scl_low,
- 				     false, MLXBF_I2C_MASK_16,
- 				     MLXBF_I2C_SHIFT_16);
--	writel(timer, priv->smbus->io +
-+	writel(timer, priv->timer->io +
- 		MLXBF_I2C_SMBUS_TIMER_SCL_LOW_SCL_HIGH);
- 
- 	timer = mlxbf_i2c_set_timer(priv, timings->sda_rise, false,
-@@ -1116,34 +1150,34 @@ static void mlxbf_i2c_set_timings(struct mlxbf_i2c_priv *priv,
- 				     MLXBF_I2C_MASK_8, MLXBF_I2C_SHIFT_16);
- 	timer |= mlxbf_i2c_set_timer(priv, timings->scl_fall, false,
- 				     MLXBF_I2C_MASK_8, MLXBF_I2C_SHIFT_24);
--	writel(timer, priv->smbus->io +
-+	writel(timer, priv->timer->io +
- 		MLXBF_I2C_SMBUS_TIMER_FALL_RISE_SPIKE);
- 
- 	timer = mlxbf_i2c_set_timer(priv, timings->hold_start, true,
- 				    MLXBF_I2C_MASK_16, MLXBF_I2C_SHIFT_0);
- 	timer |= mlxbf_i2c_set_timer(priv, timings->hold_data, true,
- 				     MLXBF_I2C_MASK_16, MLXBF_I2C_SHIFT_16);
--	writel(timer, priv->smbus->io + MLXBF_I2C_SMBUS_TIMER_THOLD);
-+	writel(timer, priv->timer->io + MLXBF_I2C_SMBUS_TIMER_THOLD);
- 
- 	timer = mlxbf_i2c_set_timer(priv, timings->setup_start, true,
- 				    MLXBF_I2C_MASK_16, MLXBF_I2C_SHIFT_0);
- 	timer |= mlxbf_i2c_set_timer(priv, timings->setup_stop, true,
- 				     MLXBF_I2C_MASK_16, MLXBF_I2C_SHIFT_16);
--	writel(timer, priv->smbus->io +
-+	writel(timer, priv->timer->io +
- 		MLXBF_I2C_SMBUS_TIMER_TSETUP_START_STOP);
- 
- 	timer = mlxbf_i2c_set_timer(priv, timings->setup_data, true,
- 				    MLXBF_I2C_MASK_16, MLXBF_I2C_SHIFT_0);
--	writel(timer, priv->smbus->io + MLXBF_I2C_SMBUS_TIMER_TSETUP_DATA);
-+	writel(timer, priv->timer->io + MLXBF_I2C_SMBUS_TIMER_TSETUP_DATA);
- 
- 	timer = mlxbf_i2c_set_timer(priv, timings->buf, false,
- 				    MLXBF_I2C_MASK_16, MLXBF_I2C_SHIFT_0);
- 	timer |= mlxbf_i2c_set_timer(priv, timings->thigh_max, false,
- 				     MLXBF_I2C_MASK_16, MLXBF_I2C_SHIFT_16);
--	writel(timer, priv->smbus->io + MLXBF_I2C_SMBUS_THIGH_MAX_TBUF);
-+	writel(timer, priv->timer->io + MLXBF_I2C_SMBUS_THIGH_MAX_TBUF);
- 
- 	timer = timings->timeout;
--	writel(timer, priv->smbus->io + MLXBF_I2C_SMBUS_SCL_LOW_TIMEOUT);
-+	writel(timer, priv->timer->io + MLXBF_I2C_SMBUS_SCL_LOW_TIMEOUT);
- }
- 
- enum mlxbf_i2c_timings_config {
-@@ -1555,7 +1589,7 @@ static int mlxbf_i2c_slave_enable(struct mlxbf_i2c_priv *priv,
- 	 * Look for the next available slave register slot.
- 	 */
- 	for (reg = 0; reg < reg_cnt; reg++) {
--		slave_reg = readl(priv->smbus->io +
-+		slave_reg = readl(priv->slv->io +
- 				MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG + reg * 0x4);
- 		/*
- 		 * Each register holds 4 slave addresses. So, we have to keep
-@@ -1577,7 +1611,7 @@ static int mlxbf_i2c_slave_enable(struct mlxbf_i2c_priv *priv,
- 				slave_reg &= ~(MLXBF_I2C_SMBUS_SLAVE_ADDR_MASK << (byte * 8));
- 				slave_reg |= (slave->addr << (byte * 8));
- 				slave_reg |= MLXBF_I2C_SMBUS_SLAVE_ADDR_EN_BIT << (byte * 8);
--				writel(slave_reg, priv->smbus->io +
-+				writel(slave_reg, priv->slv->io +
- 					MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG +
- 					(reg * 0x4));
- 
-@@ -1612,7 +1646,7 @@ static int mlxbf_i2c_slave_disable(struct mlxbf_i2c_priv *priv, u8 addr)
- 	 * Check if addr is present in the registers.
- 	 */
- 	for (reg = 0; reg < reg_cnt; reg++) {
--		slave_reg = readl(priv->smbus->io +
-+		slave_reg = readl(priv->slv->io +
- 				MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG + reg * 0x4);
- 
- 		/* Check whether the address slots are empty. */
-@@ -1633,7 +1667,7 @@ static int mlxbf_i2c_slave_disable(struct mlxbf_i2c_priv *priv, u8 addr)
- 			if (addr_tmp == addr) {
- 				/* Clear the slave address slot. */
- 				slave_reg &= ~(GENMASK(7, 0) << (byte * 8));
--				writel(slave_reg, priv->smbus->io +
-+				writel(slave_reg, priv->slv->io +
- 					MLXBF_I2C_SMBUS_SLAVE_ADDR_CFG +
- 					(reg * 0x4));
- 				/* Free slave at the corresponding index */
-@@ -1737,7 +1771,7 @@ static int mlxbf_i2c_init_slave(struct platform_device *pdev,
- 	int ret;
- 
- 	/* Reset FSM. */
--	writel(0, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_FSM);
-+	writel(0, priv->slv->io + MLXBF_I2C_SMBUS_SLAVE_FSM);
- 
- 	/*
- 	 * Enable slave cause interrupt bits. Drive
-@@ -1752,7 +1786,7 @@ static int mlxbf_i2c_init_slave(struct platform_device *pdev,
- 	writel(int_reg, priv->slv_cause->io + MLXBF_I2C_CAUSE_OR_EVTEN0);
- 
- 	/* Finally, set the 'ready' bit to start handling transactions. */
--	writel(0x1, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_READY);
-+	writel(0x1, priv->slv->io + MLXBF_I2C_SMBUS_SLAVE_READY);
- 
- 	/* Initialize the cause coalesce resource. */
- 	ret = mlxbf_i2c_init_coalesce(pdev, priv);
-@@ -1797,13 +1831,13 @@ static bool mlxbf_i2c_has_coalesce(struct mlxbf_i2c_priv *priv, bool *read,
- 	return true;
- }
- 
--static bool mlxbf_smbus_slave_wait_for_idle(struct mlxbf_i2c_priv *priv,
-+static bool mlxbf_i2c_slave_wait_for_idle(struct mlxbf_i2c_priv *priv,
- 					    u32 timeout)
- {
- 	u32 mask = MLXBF_I2C_CAUSE_S_GW_BUSY_FALL;
- 	u32 addr = MLXBF_I2C_CAUSE_ARBITER;
- 
--	if (mlxbf_smbus_poll(priv->slv_cause->io, addr, mask, false, timeout))
-+	if (mlxbf_i2c_poll(priv->slv_cause->io, addr, mask, false, timeout))
- 		return true;
- 
- 	return false;
-@@ -1842,7 +1876,7 @@ static int mlxbf_i2c_irq_send(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
- 	 * determine the slave address. This byte is located in the
- 	 * first data descriptor register of the slave GW.
- 	 */
--	data32 = ioread32be(priv->smbus->io +
-+	data32 = ioread32be(priv->slv->io +
- 				MLXBF_I2C_SLAVE_DATA_DESC_ADDR);
- 	addr = (data32 & GENMASK(7, 0)) >> 1;
- 
-@@ -1896,7 +1930,7 @@ static int mlxbf_i2c_irq_send(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
- 
- 	/* Write data to Slave GW data descriptor. */
- 	mlxbf_i2c_smbus_write_data(priv, data_desc, byte_cnt,
--				   MLXBF_I2C_SLAVE_DATA_DESC_ADDR);
-+				   MLXBF_I2C_SLAVE_DATA_DESC_ADDR, false);
- 
- 	pec_en = 0; /* Disable PEC since it is not supported. */
- 
-@@ -1905,19 +1939,19 @@ static int mlxbf_i2c_irq_send(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
- 	control32 |= rol32(write_size, MLXBF_I2C_SLAVE_WRITE_BYTES_SHIFT);
- 	control32 |= rol32(pec_en, MLXBF_I2C_SLAVE_SEND_PEC_SHIFT);
- 
--	writel(control32, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_GW);
-+	writel(control32, priv->slv->io + MLXBF_I2C_SMBUS_SLAVE_GW);
- 
- 	/*
- 	 * Wait until the transfer is completed; the driver will wait
- 	 * until the GW is idle, a cause will rise on fall of GW busy.
- 	 */
--	mlxbf_smbus_slave_wait_for_idle(priv, MLXBF_I2C_SMBUS_TIMEOUT);
-+	mlxbf_i2c_slave_wait_for_idle(priv, MLXBF_I2C_SMBUS_TIMEOUT);
- 
- clear_csr:
- 	/* Release the Slave GW. */
--	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_RS_MASTER_BYTES);
--	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_PEC);
--	writel(0x1, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_READY);
-+	writel(0x0, priv->slv->io + MLXBF_I2C_SMBUS_SLAVE_RS_MASTER_BYTES);
-+	writel(0x0, priv->slv->io + MLXBF_I2C_SMBUS_SLAVE_PEC);
-+	writel(0x1, priv->slv->io + MLXBF_I2C_SMBUS_SLAVE_READY);
- 
- 	return ret;
- }
-@@ -1935,7 +1969,7 @@ static int mlxbf_i2c_irq_recv(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
- 
- 	/* Read data from Slave GW data descriptor. */
- 	mlxbf_i2c_smbus_read_data(priv, data_desc, recv_bytes,
--				  MLXBF_I2C_SLAVE_DATA_DESC_ADDR);
-+				  MLXBF_I2C_SLAVE_DATA_DESC_ADDR, false);
- 	addr = data_desc[0] >> 1;
- 
- 	/*
-@@ -1971,9 +2005,9 @@ static int mlxbf_i2c_irq_recv(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
- 
- clear_csr:
- 	/* Release the Slave GW. */
--	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_RS_MASTER_BYTES);
--	writel(0x0, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_PEC);
--	writel(0x1, priv->smbus->io + MLXBF_I2C_SMBUS_SLAVE_READY);
-+	writel(0x0, priv->slv->io + MLXBF_I2C_SMBUS_SLAVE_RS_MASTER_BYTES);
-+	writel(0x0, priv->slv->io + MLXBF_I2C_SMBUS_SLAVE_PEC);
-+	writel(0x1, priv->slv->io + MLXBF_I2C_SMBUS_SLAVE_READY);
- 
- 	return ret;
- }
-@@ -2008,7 +2042,7 @@ static irqreturn_t mlxbf_i2c_irq(int irq, void *ptr)
- 	 * slave, if the higher 8 bits are sent then the slave expect N bytes
- 	 * from the master.
- 	 */
--	rw_bytes_reg = readl(priv->smbus->io +
-+	rw_bytes_reg = readl(priv->slv->io +
- 				MLXBF_I2C_SMBUS_SLAVE_RS_MASTER_BYTES);
- 	recv_bytes = (rw_bytes_reg >> 8) & GENMASK(7, 0);
- 
-@@ -2173,14 +2207,27 @@ static struct mlxbf_i2c_chip_info mlxbf_i2c_chip[] = {
- 			[1] = &mlxbf_i2c_corepll_res[MLXBF_I2C_CHIP_TYPE_1],
- 			[2] = &mlxbf_i2c_gpio_res[MLXBF_I2C_CHIP_TYPE_1]
- 		},
--		.calculate_freq = mlxbf_calculate_freq_from_tyu
-+		.calculate_freq = mlxbf_i2c_calculate_freq_from_tyu,
-+		.smbus_master_rs_bytes_off = MLXBF_I2C_YU_SMBUS_RS_BYTES,
-+		.smbus_master_fsm_off = MLXBF_I2C_YU_SMBUS_MASTER_FSM
- 	},
- 	[MLXBF_I2C_CHIP_TYPE_2] = {
- 		.type = MLXBF_I2C_CHIP_TYPE_2,
- 		.shared_res = {
- 			[0] = &mlxbf_i2c_corepll_res[MLXBF_I2C_CHIP_TYPE_2]
- 		},
--		.calculate_freq = mlxbf_calculate_freq_from_yu
-+		.calculate_freq = mlxbf_i2c_calculate_freq_from_yu,
-+		.smbus_master_rs_bytes_off = MLXBF_I2C_YU_SMBUS_RS_BYTES,
-+		.smbus_master_fsm_off = MLXBF_I2C_YU_SMBUS_MASTER_FSM
-+	},
-+	[MLXBF_I2C_CHIP_TYPE_3] = {
-+		.type = MLXBF_I2C_CHIP_TYPE_3,
-+		.shared_res = {
-+			[0] = &mlxbf_i2c_corepll_res[MLXBF_I2C_CHIP_TYPE_3]
-+		},
-+		.calculate_freq = mlxbf_i2c_calculate_freq_from_yu,
-+		.smbus_master_rs_bytes_off = MLXBF_I2C_RSH_YU_SMBUS_RS_BYTES,
-+		.smbus_master_fsm_off = MLXBF_I2C_RSH_YU_SMBUS_MASTER_FSM
- 	}
- };
- 
-@@ -2205,6 +2252,10 @@ static const struct of_device_id mlxbf_i2c_dt_ids[] = {
- 		.compatible = "mellanox,i2c-mlxbf2",
- 		.data = &mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_2]
- 	},
-+	{
-+		.compatible = "mellanox,i2c-mlxbf3",
-+		.data = &mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_3]
-+	},
- 	{},
- };
- 
-@@ -2214,6 +2265,7 @@ MODULE_DEVICE_TABLE(of, mlxbf_i2c_dt_ids);
- static const struct acpi_device_id mlxbf_i2c_acpi_ids[] = {
- 	{ "MLNXBF03", (kernel_ulong_t)&mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_1] },
- 	{ "MLNXBF23", (kernel_ulong_t)&mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_2] },
-+	{ "MLNXBF31", (kernel_ulong_t)&mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_3] },
- 	{},
- };
- 
-@@ -2289,6 +2341,7 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct mlxbf_i2c_priv *priv;
- 	struct i2c_adapter *adap;
-+	u32 resource_version;
- 	int irq, ret;
- 
- 	priv = devm_kzalloc(dev, sizeof(struct mlxbf_i2c_priv), GFP_KERNEL);
-@@ -2302,11 +2355,55 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = mlxbf_i2c_init_resource(pdev, &priv->smbus,
--				      MLXBF_I2C_SMBUS_RES);
--	if (ret < 0) {
--		dev_err(dev, "Cannot fetch smbus resource info");
--		return ret;
-+	/* This property allows the driver to stay backward compatible with older
-+	 * ACPI table and device trees versions.
-+	 * Starting BlueField-3 SoC, the "smbus" resource was broken down into 3
-+	 * separate resources "timer", "master" and "slave".
-+	 */
-+	if (device_property_read_u32(dev, "resource_version", &resource_version))
-+		resource_version = 0;
-+
-+	priv->resource_version = resource_version;
-+
-+	if (priv->chip->type < MLXBF_I2C_CHIP_TYPE_3 && resource_version == 0) {
-+		priv->timer = devm_kzalloc(dev, sizeof(struct mlxbf_i2c_resource), GFP_KERNEL);
-+		if (!priv->timer)
-+			return -ENOMEM;
-+
-+		priv->mst = devm_kzalloc(dev, sizeof(struct mlxbf_i2c_resource), GFP_KERNEL);
-+		if (!priv->mst)
-+			return -ENOMEM;
-+
-+		priv->slv = devm_kzalloc(dev, sizeof(struct mlxbf_i2c_resource), GFP_KERNEL);
-+		if (!priv->slv)
-+			return -ENOMEM;
-+
-+		ret = mlxbf_i2c_init_resource(pdev, &priv->smbus,
-+					      MLXBF_I2C_SMBUS_RES);
-+		priv->timer->io = priv->smbus->io;
-+		priv->mst->io = priv->smbus->io + MLXBF_I2C_MST_ADDR_OFFSET;
-+		priv->slv->io = priv->smbus->io + MLXBF_I2C_SLV_ADDR_OFFSET;
-+	} else {
-+		ret = mlxbf_i2c_init_resource(pdev, &priv->timer,
-+					      MLXBF_I2C_SMBUS_TIMER_RES);
-+		if (ret < 0) {
-+			dev_err(dev, "Cannot fetch timer resource info");
-+			return ret;
-+		}
-+
-+		ret = mlxbf_i2c_init_resource(pdev, &priv->mst,
-+					      MLXBF_I2C_SMBUS_MST_RES);
-+		if (ret < 0) {
-+			dev_err(dev, "Cannot fetch master resource info");
-+			return ret;
-+		}
-+
-+		ret = mlxbf_i2c_init_resource(pdev, &priv->slv,
-+					      MLXBF_I2C_SMBUS_SLV_RES);
-+		if (ret < 0) {
-+			dev_err(dev, "Cannot fetch slave resource info");
-+			return ret;
-+		}
- 	}
- 
- 	ret = mlxbf_i2c_init_resource(pdev, &priv->mst_cause,
-@@ -2394,8 +2491,19 @@ static int mlxbf_i2c_remove(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct resource *params;
- 
--	params = priv->smbus->params;
--	devm_release_mem_region(dev, params->start, resource_size(params));
-+	if (priv->chip->type < MLXBF_I2C_CHIP_TYPE_3 && priv->resource_version == 0) {
-+		params = priv->smbus->params;
-+		devm_release_mem_region(dev, params->start, resource_size(params));
-+	} else {
-+		params = priv->timer->params;
-+		devm_release_mem_region(dev, params->start, resource_size(params));
-+
-+		params = priv->mst->params;
-+		devm_release_mem_region(dev, params->start, resource_size(params));
-+
-+		params = priv->slv->params;
-+		devm_release_mem_region(dev, params->start, resource_size(params));
-+	}
- 
- 	params = priv->mst_cause->params;
- 	devm_release_mem_region(dev, params->start, resource_size(params));
--- 
-2.30.1
-
+Ok! Sent v3!
