@@ -2,34 +2,34 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 990B4C6FA8B
-	for <linux-i2c@archiver.kernel.org>; Thu,  8 Sep 2022 17:36:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A938C6FA86
+	for <linux-i2c@archiver.kernel.org>; Thu,  8 Sep 2022 17:36:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231812AbiIHRgE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S231634AbiIHRgE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Thu, 8 Sep 2022 13:36:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56778 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231634AbiIHRgC (ORCPT
+        with ESMTP id S231869AbiIHRgC (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Sep 2022 13:36:02 -0400
 Received: from mellanox.co.il (mail-il-dmz.mellanox.com [193.47.165.129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 67C21BB01D
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8268ABF343
         for <linux-i2c@vger.kernel.org>; Thu,  8 Sep 2022 10:35:56 -0700 (PDT)
 Received: from Internal Mail-Server by MTLPINE1 (envelope-from asmaa@mellanox.com)
         with SMTP; 8 Sep 2022 20:35:54 +0300
 Received: from bu-vnc02.mtbu.labs.mlnx (bu-vnc02.mtbu.labs.mlnx [10.15.2.65])
-        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 288HZoTR026063;
-        Thu, 8 Sep 2022 13:35:50 -0400
+        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 288HZqKI026074;
+        Thu, 8 Sep 2022 13:35:52 -0400
 Received: (from asmaa@localhost)
-        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 288HZokb032705;
-        Thu, 8 Sep 2022 13:35:50 -0400
+        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 288HZqUu032718;
+        Thu, 8 Sep 2022 13:35:52 -0400
 From:   Asmaa Mnebhi <asmaa@nvidia.com>
 To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Asmaa Mnebhi <asmaa@nvidia.com>,
         Khalil Blaiech <kblaiech@nvidia.com>
-Subject: [PATCH v3 2/9] i2c-mlxbf.c: remove IRQF_ONESHOT
-Date:   Thu,  8 Sep 2022 13:35:37 -0400
-Message-Id: <20220908173544.32615-3-asmaa@nvidia.com>
+Subject: [PATCH v3 5/9] i2c-mlxbf.c: support lock mechanism
+Date:   Thu,  8 Sep 2022 13:35:40 -0400
+Message-Id: <20220908173544.32615-6-asmaa@nvidia.com>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20220908173544.32615-1-asmaa@nvidia.com>
 References: <20220908173544.32615-1-asmaa@nvidia.com>
@@ -39,28 +39,113 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-IRQF_ONESHOT is not needed so remove it.
+Linux is not the only entity using the BlueField I2C busses so
+support a lock mechanism provided by hardware to avoid issues
+when multiple entities are trying to access the same bus.
+
+The lock is acquired whenever written explicitely or the lock
+register is read. So make sure it is always released at the end
+of a successful or failed transaction.
 
 Fixes: b5b5b32081cd206b (i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC)
 Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
 Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
 ---
- drivers/i2c/busses/i2c-mlxbf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mlxbf.c | 42 ++++++++++++++++++++++++++++++----
+ 1 file changed, 38 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index 2e2ac45d9ca0..087a70981283 100644
+index a8c5fef3f1cd..b54019b4b01b 100644
 --- a/drivers/i2c/busses/i2c-mlxbf.c
 +++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -2356,7 +2356,7 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
- 	if (irq < 0)
- 		return irq;
- 	ret = devm_request_irq(dev, irq, mlxbf_smbus_irq,
--			       IRQF_ONESHOT | IRQF_SHARED | IRQF_PROBE_SHARED,
-+			       IRQF_SHARED | IRQF_PROBE_SHARED,
- 			       dev_name(dev), priv);
- 	if (ret < 0) {
- 		dev_err(dev, "Cannot get irq %d\n", irq);
+@@ -306,6 +306,7 @@ static u64 mlxbf_i2c_corepll_frequency;
+  * exact.
+  */
+ #define MLXBF_I2C_SMBUS_TIMEOUT   (300 * 1000) /* 300ms */
++#define MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT (300 * 1000) /* 300ms */
+ 
+ /* Encapsulates timing parameters. */
+ struct mlxbf_i2c_timings {
+@@ -514,6 +515,25 @@ static bool mlxbf_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
+ 	return false;
+ }
+ 
++/*
++ * wait for the lock to be released before acquiring it.
++ */
++static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
++{
++	if (mlxbf_smbus_poll(priv->smbus->io, MLXBF_I2C_SMBUS_MASTER_GW,
++			   MLXBF_I2C_MASTER_LOCK_BIT, true,
++			   MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT))
++		return true;
++
++	return false;
++}
++
++static void mlxbf_i2c_smbus_master_unlock(struct mlxbf_i2c_priv *priv)
++{
++	/* Clear the gw to clear the lock */
++	writel(0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_GW);
++}
++
+ static bool mlxbf_i2c_smbus_transaction_success(u32 master_status,
+ 						u32 cause_status)
+ {
+@@ -705,10 +725,18 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 	slave = request->slave & GENMASK(6, 0);
+ 	addr = slave << 1;
+ 
+-	/* First of all, check whether the HW is idle. */
+-	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv)))
++	/* Try to acquire the smbus gw lock before any reads of the GW register since
++	 * a read sets the lock.
++	 */
++	if (WARN_ON(!mlxbf_i2c_smbus_master_lock(priv)))
+ 		return -EBUSY;
+ 
++	/* Check whether the HW is idle */
++	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv))) {
++		mlxbf_i2c_smbus_master_unlock(priv);
++		return -EBUSY;
++	}
++
+ 	/* Set first byte. */
+ 	data_desc[data_idx++] = addr;
+ 
+@@ -732,8 +760,10 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 			write_en = 1;
+ 			write_len += operation->length;
+ 			if (data_idx + operation->length >
+-					MLXBF_I2C_MASTER_DATA_DESC_SIZE)
++					MLXBF_I2C_MASTER_DATA_DESC_SIZE) {
++				mlxbf_i2c_smbus_master_unlock(priv);
+ 				return -ENOBUFS;
++			}
+ 			memcpy(data_desc + data_idx,
+ 			       operation->buffer, operation->length);
+ 			data_idx += operation->length;
+@@ -764,8 +794,10 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 	if (write_en) {
+ 		ret = mlxbf_i2c_smbus_enable(priv, slave, write_len, block_en,
+ 					 pec_en, 0);
+-		if (ret)
++		if (ret) {
++			mlxbf_i2c_smbus_master_unlock(priv);
+ 			return ret;
++		}
+ 	}
+ 
+ 	if (read_en) {
+@@ -792,6 +824,8 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 			priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_FSM);
+ 	}
+ 
++	mlxbf_i2c_smbus_master_unlock(priv);
++
+ 	return ret;
+ }
+ 
 -- 
 2.30.1
 
