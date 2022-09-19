@@ -2,79 +2,129 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C81B7C6FA90
-	for <linux-i2c@archiver.kernel.org>; Mon, 19 Sep 2022 13:59:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 648B8C54EE9
+	for <linux-i2c@archiver.kernel.org>; Mon, 19 Sep 2022 14:00:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230239AbiISN7w (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 19 Sep 2022 09:59:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44404 "EHLO
+        id S231159AbiISOAA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 19 Sep 2022 10:00:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229693AbiISN7v (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Sep 2022 09:59:51 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2DD4BC29;
-        Mon, 19 Sep 2022 06:59:49 -0700 (PDT)
+        with ESMTP id S231162AbiISN75 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Sep 2022 09:59:57 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B36E86408;
+        Mon, 19 Sep 2022 06:59:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1663595990; x=1695131990;
+  t=1663595995; x=1695131995;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=LObPCrhSUDySWX6QzG2c16oJevpOjDMo1OzHkkYwhMU=;
-  b=mbnQiiVXl9OQ9JvDBqGJz9lOgDL1DxNBTRf4MA79K5ZDjNT9CCz0vyzD
-   9htEfknRjM7mnb/NHaaWuVGgzI5ba1q5rKeuynUo6uNWuYJeXPMIudUtc
-   yIlX3tipJyy9KJOpny7XzTnlO3S4se7s1D+1NqztnQIY3O78crcJKfXyg
-   A/V0UN6TbpDNQzhhQ/zxh8jpJvSvPWHIRZjnNyQ8RNqjbS3cNovobwRlw
-   +s7lR6zSGxKNZXa2KwFgBU/ZUv4ETPdPRxRJzKBSvgcBXdti9ThzgwGTx
-   wdWEnIWhrIt/of7S9GotRoLYO6BIkFqAug9FfgQ3OInofznJZmRuOp5mM
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10475"; a="279786854"
+  bh=2SgwOQ6c0lZzyjffabkbJLhqyM0oDKwkJsc3X8zO6rQ=;
+  b=iOf8I7B1MFV/sVptqzxEN33O+wTj9aYMTAviYpN+34bGc6Q1ZbkDkt+w
+   s0lHUcaJcdzW1ierqOC8LVjbXgDkSubj1F9wKZPiLQr3nnceVuBNX/FHq
+   S1qTvhFjTYCs/BDp7DXGyMOdX5hz8j5wLd7VUIg8YEtgfH/KaxtJrcP4e
+   AOsjJb1BfjgwT54zqsAQumK0ld3WFMZdUIGcio2MPtRDfnIGw04G4rjfG
+   eu4EF+umLywGCuMxkWoTwcSuXb14L1JIwLTDATJhC7V7JIGAqRemPGGNh
+   fgG9Bu731/JipV2XAHgVHn7IK6HogtD1KKXXqfDsFyFdhdFpcWPxZO3lz
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10475"; a="298131837"
 X-IronPort-AV: E=Sophos;i="5.93,327,1654585200"; 
-   d="scan'208";a="279786854"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Sep 2022 06:59:34 -0700
+   d="scan'208";a="298131837"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Sep 2022 06:59:55 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.93,327,1654585200"; 
-   d="scan'208";a="569660016"
+   d="scan'208";a="793865203"
 Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga003.jf.intel.com with ESMTP; 19 Sep 2022 06:59:32 -0700
+  by orsmga005.jf.intel.com with ESMTP; 19 Sep 2022 06:59:53 -0700
 Received: from andy by smile.fi.intel.com with local (Exim 4.96)
         (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1oaHJ4-004a5q-1V;
-        Mon, 19 Sep 2022 16:59:30 +0300
-Date:   Mon, 19 Sep 2022 16:59:30 +0300
+        id 1oaHJP-004a76-1P;
+        Mon, 19 Sep 2022 16:59:51 +0300
+Date:   Mon, 19 Sep 2022 16:59:51 +0300
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Jan Dabros <jsd@semihalf.com>
 Cc:     linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
         jarkko.nikula@linux.intel.com, wsa@kernel.org,
         rrangel@chromium.org, upstream@semihalf.com,
         mario.limonciello@amd.com
-Subject: Re: [PATCH -next 0/2] Add i2c arbitration support for new SoCs
-Message-ID: <YySbfN2b6UDf9/Bp@smile.fi.intel.com>
+Subject: Re: [PATCH -next 2/2] i2c: designware: Add support for new SoCs in
+ AMDPSP driver
+Message-ID: <YySdjEXHqvTL8mEl@smile.fi.intel.com>
 References: <20220916131854.687371-1-jsd@semihalf.com>
+ <20220916131854.687371-3-jsd@semihalf.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220916131854.687371-1-jsd@semihalf.com>
+In-Reply-To: <20220916131854.687371-3-jsd@semihalf.com>
 Received: from andy by smile.fi.intel.com with local (Exim 4.96)
- (envelope-from <andriy.shevchenko@linux.intel.com>) id 1oZDci-003IRy-2k;
- Fri, 16 Sep 2022 18:51:24 +0300
+ (envelope-from <andriy.shevchenko@linux.intel.com>) id 1oZDlE-003Ig1-2X;
+ Fri, 16 Sep 2022 19:00:12 +0300
 Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, Sep 16, 2022 at 03:18:52PM +0200, Jan Dabros wrote:
-> This patchset comprises changes into i2c-designware-amdpsp.c module
-> which aims to add support for new SoCs, while keep backward
-> compatibility with Cezanne platforms.
+On Fri, Sep 16, 2022 at 03:18:54PM +0200, Jan Dabros wrote:
+> New AMD SoCs are using different algorithm for x86-PSP communication,
+> thus need to modify I2C arbitration driver. Since possible future
+> revisions should have follow new approach, mark functions used only for
+> Cezanne with "czn_" prefix.
 > 
-> Beside new algorithm introduced for the PSP-x86 communication, it also
-> switches from MSR/MMIO access to SMN (System Management Network) since
-> only the latter is working on both old new revisions of SoCs.
+> While at it, remove redundant check by modifying psp_wait_cmd() to only
+> check for MBOX_READY bit, since MBOX_CMD field being zero is verified by
+> czn_psp_check_mbox_sts() later on in the sequence.
 
-Which one is better performance/energy/etc wise? If it's not the SMN,
-can we keep better in place?
+...
+
+> -#define PSP_MBOX_CMD_OFFSET		0x3810570
+> -#define PSP_MBOX_BUFFER_L_OFFSET	0x3810574
+> -#define PSP_MBOX_BUFFER_H_OFFSET	0x3810578
+> +#define CZN_PSP_MBOX_CMD_OFFSET		0x3810570
+> +#define CZN_PSP_MBOX_BUFFER_L_OFFSET	0x3810574
+> +#define CZN_PSP_MBOX_BUFFER_H_OFFSET	0x3810578
+
+Can we avoid this renaming noise by putting the proper names in the first place
+(in the first patch)? Respectively move the corresponding commit message piece
+to there.
+
+Or looking into the below maybe even split the renaming to a separate
+non-functional change?
+
+...
+
+> +	if (req)
+> +		ret = czn_psp_send_cmd(req);
+> +	else
+> +		ret = psp_send_cmd(i2c_req_type);
+
+> +
+
+Unnecessary blank line.
+
+> +	if (ret)
+>  		return -EIO;
+
+Why you can't return the actual error code here?
+
+...
+
+>  	start = jiffies;
+>  	ret = read_poll_timeout(psp_send_check_i2c_req, status,
+>  				(status != -EBUSY),
+>  				PSP_I2C_REQ_RETRY_DELAY_US,
+>  				PSP_I2C_REQ_RETRY_CNT * PSP_I2C_REQ_RETRY_DELAY_US,
+> -				0, req);
+> +				0, req, i2c_req_type);
+
+> +
+
+Stray blank line addition.
+
+>  	if (ret) {
+>  		dev_err(psp_i2c_dev, "Timed out waiting for PSP to %s I2C bus\n",
+>  			(i2c_req_type == PSP_I2C_REQ_ACQUIRE) ?
 
 -- 
 With Best Regards,
