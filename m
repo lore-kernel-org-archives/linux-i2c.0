@@ -2,34 +2,35 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28DE6C6FA92
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3771C6FA91
 	for <linux-i2c@archiver.kernel.org>; Tue, 20 Sep 2022 17:48:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229713AbiITRr7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 20 Sep 2022 13:47:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44514 "EHLO
+        id S231190AbiITRsA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 20 Sep 2022 13:48:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230522AbiITRrz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Sep 2022 13:47:55 -0400
+        with ESMTP id S230102AbiITRr4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Sep 2022 13:47:56 -0400
 Received: from mellanox.co.il (mail-il-dmz.mellanox.com [193.47.165.129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 925E56E8A8
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CC3AA6EF0F
         for <linux-i2c@vger.kernel.org>; Tue, 20 Sep 2022 10:47:53 -0700 (PDT)
 Received: from Internal Mail-Server by MTLPINE1 (envelope-from asmaa@mellanox.com)
-        with SMTP; 20 Sep 2022 20:47:47 +0300
+        with SMTP; 20 Sep 2022 20:47:49 +0300
 Received: from bu-vnc02.mtbu.labs.mlnx (bu-vnc02.mtbu.labs.mlnx [10.15.2.65])
-        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 28KHlk1h015196;
-        Tue, 20 Sep 2022 13:47:46 -0400
+        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 28KHlm84015205;
+        Tue, 20 Sep 2022 13:47:48 -0400
 Received: (from asmaa@localhost)
-        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 28KHlk7f009990;
-        Tue, 20 Sep 2022 13:47:46 -0400
+        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 28KHlmLC010006;
+        Tue, 20 Sep 2022 13:47:48 -0400
 From:   Asmaa Mnebhi <asmaa@nvidia.com>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>, robh@kernel.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org
 Cc:     Asmaa Mnebhi <asmaa@nvidia.com>,
         Khalil Blaiech <kblaiech@nvidia.com>
-Subject: [PATCH v5 5/8] i2c: i2c-mlxbf.c: support lock mechanism
-Date:   Tue, 20 Sep 2022 13:47:33 -0400
-Message-Id: <20220920174736.9766-6-asmaa@nvidia.com>
+Subject: [PATCH v5 8/8] i2c: i2c-mlxbf.c: Update binding devicetree
+Date:   Tue, 20 Sep 2022 13:47:36 -0400
+Message-Id: <20220920174736.9766-9-asmaa@nvidia.com>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20220920174736.9766-1-asmaa@nvidia.com>
 References: <20220920174736.9766-1-asmaa@nvidia.com>
@@ -39,113 +40,120 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Linux is not the only entity using the BlueField I2C busses so
-support a lock mechanism provided by hardware to avoid issues
-when multiple entities are trying to access the same bus.
+In the latest version of the i2c-mlxbf.c driver, the "Smbus block"
+resource was broken down to 3 separate resources "Smbus timer",
+"Smbus master" and "Smbus slave" to accommodate for BlueField-3
+SoC registers' changes.
 
-The lock is acquired whenever written explicitely or the lock
-register is read. So make sure it is always released at the end
-of a successful or failed transaction.
-
-Fixes: b5b5b32081cd206b (i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC)
 Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
 Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
 ---
- drivers/i2c/busses/i2c-mlxbf.c | 44 ++++++++++++++++++++++++++++++----
- 1 file changed, 39 insertions(+), 5 deletions(-)
+ .../bindings/i2c/mellanox,i2c-mlxbf.yaml      | 48 ++++++++++++++-----
+ 1 file changed, 36 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index 1a0fc9640c23..78b2bc9b0a34 100644
---- a/drivers/i2c/busses/i2c-mlxbf.c
-+++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -306,6 +306,7 @@ static u64 mlxbf_i2c_corepll_frequency;
-  * exact.
-  */
- #define MLXBF_I2C_SMBUS_TIMEOUT   (300 * 1000) /* 300ms */
-+#define MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT (300 * 1000) /* 300ms */
+diff --git a/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml b/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml
+index 93198d5d43a6..24ab70c987fe 100644
+--- a/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml
++++ b/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml
+@@ -8,6 +8,7 @@ title: Mellanox I2C SMBus on BlueField SoCs
  
- /* Encapsulates timing parameters. */
- struct mlxbf_i2c_timings {
-@@ -514,6 +515,25 @@ static bool mlxbf_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
- 	return false;
- }
+ maintainers:
+   - Khalil Blaiech <kblaiech@nvidia.com>
++  - Asmaa Mnebhi <asmaa@nvidia.com>
  
-+/*
-+ * wait for the lock to be released before acquiring it.
-+ */
-+static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
-+{
-+	if (mlxbf_smbus_poll(priv->smbus->io, MLXBF_I2C_SMBUS_MASTER_GW,
-+			   MLXBF_I2C_MASTER_LOCK_BIT, true,
-+			   MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT))
-+		return true;
+ allOf:
+   - $ref: /schemas/i2c/i2c-controller.yaml#
+@@ -17,6 +18,7 @@ properties:
+     enum:
+       - mellanox,i2c-mlxbf1
+       - mellanox,i2c-mlxbf2
++      - mellanox,i2c-mlxbf3
+ 
+   reg:
+     minItems: 3
+@@ -25,6 +27,9 @@ properties:
+       - description: Cause master registers
+       - description: Cause slave registers
+       - description: Cause coalesce registers
++      - description: Smbus timer registers
++      - description: Smbus master registers
++      - description: Smbus slave registers
+ 
+   interrupts:
+     maxItems: 1
+@@ -35,6 +40,13 @@ properties:
+       bus frequency used to configure timing registers;
+       The frequency is expressed in Hz. Default is 100000.
+ 
++  resource_version:
++    enum: [ 0, 1 ]
++    description:
++      Version of the device tree. resource_version = 0 when the driver uses
++      Smbus block resource. resource_version = 1 when the driver uses Smbus
++      timer, Smbus master and Smbus slave resources.
 +
-+	return false;
-+}
+ required:
+   - compatible
+   - reg
+@@ -42,18 +54,6 @@ required:
+ 
+ unevaluatedProperties: false
+ 
+-if:
+-  properties:
+-    compatible:
+-      contains:
+-        enum:
+-          - mellanox,i2c-mlxbf1
+-
+-then:
+-  properties:
+-    reg:
+-      maxItems: 3
+-
+ examples:
+   - |
+     i2c@2804000 {
+@@ -61,8 +61,13 @@ examples:
+         reg = <0x02804000 0x800>,
+               <0x02801200 0x020>,
+               <0x02801260 0x020>;
++              <0x00000001 0x1>;
++              <0x02804000 0x40>,
++              <0x02804200 0x200>,
++              <0x02804400 0x200>,
+         interrupts = <57>;
+         clock-frequency = <100000>;
++        resource_version = <1>;
+     };
+ 
+   - |
+@@ -72,6 +77,25 @@ examples:
+               <0x02808e00 0x020>,
+               <0x02808e20 0x020>,
+               <0x02808e40 0x010>;
++              <0x02808800 0x040>;
++              <0x02808a00 0x200>,
++              <0x02808c00 0x200>,
+         interrupts = <57>;
+         clock-frequency = <400000>;
++        resource_version = <1>;
++    };
 +
-+static void mlxbf_i2c_smbus_master_unlock(struct mlxbf_i2c_priv *priv)
-+{
-+	/* Clear the gw to clear the lock */
-+	writel(0, priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_GW);
-+}
-+
- static bool mlxbf_i2c_smbus_transaction_success(u32 master_status,
- 						u32 cause_status)
- {
-@@ -705,10 +725,19 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 	slave = request->slave & GENMASK(6, 0);
- 	addr = slave << 1;
- 
--	/* First of all, check whether the HW is idle. */
--	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv)))
-+	/*
-+	 * Try to acquire the smbus gw lock before any reads of the GW register since
-+	 * a read sets the lock.
-+	 */
-+	if (WARN_ON(!mlxbf_i2c_smbus_master_lock(priv)))
- 		return -EBUSY;
- 
-+	/* Check whether the HW is idle */
-+	if (WARN_ON(!mlxbf_smbus_master_wait_for_idle(priv))) {
-+		ret = -EBUSY;
-+		goto out_unlock;
-+	}
-+
- 	/* Set first byte. */
- 	data_desc[data_idx++] = addr;
- 
-@@ -732,8 +761,10 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 			write_en = 1;
- 			write_len += operation->length;
- 			if (data_idx + operation->length >
--					MLXBF_I2C_MASTER_DATA_DESC_SIZE)
--				return -ENOBUFS;
-+					MLXBF_I2C_MASTER_DATA_DESC_SIZE) {
-+				ret = -ENOBUFS;
-+				goto out_unlock;
-+			}
- 			memcpy(data_desc + data_idx,
- 			       operation->buffer, operation->length);
- 			data_idx += operation->length;
-@@ -765,7 +796,7 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 		ret = mlxbf_i2c_smbus_enable(priv, slave, write_len, block_en,
- 					 pec_en, 0);
- 		if (ret)
--			return ret;
-+			goto out_unlock;
- 	}
- 
- 	if (read_en) {
-@@ -792,6 +823,9 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 			priv->smbus->io + MLXBF_I2C_SMBUS_MASTER_FSM);
- 	}
- 
-+out_unlock:
-+	mlxbf_i2c_smbus_master_unlock(priv);
-+
- 	return ret;
- }
- 
++  - |
++    i2c@2808800 {
++        compatible = "mellanox,i2c-mlxbf3";
++        reg = <0x00000001 0x1>,
++              <0x13404400 0x020>,
++              <0x13404420 0x020>,
++              <0x13404440 0x010>;
++              <0x13404480 0x40>,
++              <0x13404200 0x200>,
++              <0x13404000 0x200>,
++        interrupts = <35>;
++        clock-frequency = <400000>;
++        resource_version = <1>;
+     };
 -- 
 2.30.1
 
