@@ -2,238 +2,65 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 623EDC54EE9
-	for <linux-i2c@archiver.kernel.org>; Tue, 27 Sep 2022 20:39:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F40E7C07E9D
+	for <linux-i2c@archiver.kernel.org>; Tue, 27 Sep 2022 20:39:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230364AbiI0Ujk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 27 Sep 2022 16:39:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45178 "EHLO
+        id S232626AbiI0Ujl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 27 Sep 2022 16:39:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232201AbiI0Uji (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Sep 2022 16:39:38 -0400
+        with ESMTP id S230514AbiI0Ujk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Sep 2022 16:39:40 -0400
 Received: from mellanox.co.il (mail-il-dmz.mellanox.com [193.47.165.129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F407EBCAD
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8A790DF89
         for <linux-i2c@vger.kernel.org>; Tue, 27 Sep 2022 13:39:34 -0700 (PDT)
 Received: from Internal Mail-Server by MTLPINE1 (envelope-from asmaa@mellanox.com)
         with SMTP; 27 Sep 2022 23:39:29 +0300
 Received: from bu-vnc02.mtbu.labs.mlnx (bu-vnc02.mtbu.labs.mlnx [10.15.2.65])
-        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 28RKdS3O026482;
-        Tue, 27 Sep 2022 16:39:28 -0400
+        by mtbu-labmailer.labs.mlnx (8.14.4/8.14.4) with ESMTP id 28RKdQcx026476;
+        Tue, 27 Sep 2022 16:39:26 -0400
 Received: (from asmaa@localhost)
-        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 28RKdSe1022719;
-        Tue, 27 Sep 2022 16:39:28 -0400
+        by bu-vnc02.mtbu.labs.mlnx (8.14.7/8.13.8/Submit) id 28RKdQ0v022709;
+        Tue, 27 Sep 2022 16:39:26 -0400
 From:   Asmaa Mnebhi <asmaa@nvidia.com>
-To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>, robh@kernel.org,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        robh@kernel.org
-Cc:     Asmaa Mnebhi <asmaa@nvidia.com>,
-        Khalil Blaiech <kblaiech@nvidia.com>
-Subject: [PATCH v7 2/2] i2c: mlxbf: remove device tree support
-Date:   Tue, 27 Sep 2022 16:39:24 -0400
-Message-Id: <20220927203924.22644-3-asmaa@nvidia.com>
+        devicetree@vger.kernel.org
+Cc:     Asmaa Mnebhi <asmaa@nvidia.com>
+Subject: [PATCH v7 0/2] i2c: i2c-mlxbf.c: bug fixes and new feature support
+Date:   Tue, 27 Sep 2022 16:39:22 -0400
+Message-Id: <20220927203924.22644-1-asmaa@nvidia.com>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20220927203924.22644-1-asmaa@nvidia.com>
-References: <20220927203924.22644-1-asmaa@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-BlueField customers have to use the the BlueField firmware with
-UEFI ACPI tables so there is no need to have device tree
-support in the i2c-mlxbf.c driver. Remove the device tree
-binding documentation as well.
+Support BlueField-3 SoC in the first patch of this series and remove
+the device tree support in the second patch.
 
-Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
-Reviewed-by: Khalil Blaiech <kblaiech@nvidia.com>
----
- .../bindings/i2c/mellanox,i2c-mlxbf.yaml      | 77 -------------------
- MAINTAINERS                                   |  1 -
- drivers/i2c/busses/i2c-mlxbf.c                | 49 +-----------
- 3 files changed, 1 insertion(+), 126 deletions(-)
+What has changed from v6->v7:
+- the following patches were applied to for-next so they are removed
+  from this series:
+  1) Support lock mechanism to avoid race condition between entities
+     using the i2c bus
+  2) remove IRQF_ONESHOT flag as it is no longer needed.
+  3) Support multi slave functionality
+- Fixed the $subject tag to "i2c: mlxbf"
+- added missing check for 'ret' after allocating resources
+- removed the DT binding file from the MAINTAINERS file
+
+Asmaa Mnebhi (2):
+  i2c: mlxbf: support BlueField-3 SoC
+  i2c: mlxbf: remove device tree support
+
+ .../bindings/i2c/mellanox,i2c-mlxbf.yaml      |  77 ---
+ MAINTAINERS                                   |   2 +-
+ drivers/i2c/busses/i2c-mlxbf.c                | 494 ++++++++++--------
+ 3 files changed, 281 insertions(+), 292 deletions(-)
  delete mode 100644 Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml
 
-diff --git a/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml b/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml
-deleted file mode 100644
-index 93198d5d43a6..000000000000
---- a/Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml
-+++ /dev/null
-@@ -1,77 +0,0 @@
--# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
--%YAML 1.2
-----
--$id: http://devicetree.org/schemas/i2c/mellanox,i2c-mlxbf.yaml#
--$schema: http://devicetree.org/meta-schemas/core.yaml#
--
--title: Mellanox I2C SMBus on BlueField SoCs
--
--maintainers:
--  - Khalil Blaiech <kblaiech@nvidia.com>
--
--allOf:
--  - $ref: /schemas/i2c/i2c-controller.yaml#
--
--properties:
--  compatible:
--    enum:
--      - mellanox,i2c-mlxbf1
--      - mellanox,i2c-mlxbf2
--
--  reg:
--    minItems: 3
--    items:
--      - description: Smbus block registers
--      - description: Cause master registers
--      - description: Cause slave registers
--      - description: Cause coalesce registers
--
--  interrupts:
--    maxItems: 1
--
--  clock-frequency:
--    enum: [ 100000, 400000, 1000000 ]
--    description:
--      bus frequency used to configure timing registers;
--      The frequency is expressed in Hz. Default is 100000.
--
--required:
--  - compatible
--  - reg
--  - interrupts
--
--unevaluatedProperties: false
--
--if:
--  properties:
--    compatible:
--      contains:
--        enum:
--          - mellanox,i2c-mlxbf1
--
--then:
--  properties:
--    reg:
--      maxItems: 3
--
--examples:
--  - |
--    i2c@2804000 {
--        compatible = "mellanox,i2c-mlxbf1";
--        reg = <0x02804000 0x800>,
--              <0x02801200 0x020>,
--              <0x02801260 0x020>;
--        interrupts = <57>;
--        clock-frequency = <100000>;
--    };
--
--  - |
--    i2c@2808800 {
--        compatible = "mellanox,i2c-mlxbf2";
--        reg = <0x02808800 0x600>,
--              <0x02808e00 0x020>,
--              <0x02808e20 0x020>,
--              <0x02808e40 0x010>;
--        interrupts = <57>;
--        clock-frequency = <400000>;
--    };
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 74af5b789d45..a3f380f15ff5 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12987,7 +12987,6 @@ M:	Khalil Blaiech <kblaiech@nvidia.com>
- M:	Asmaa Mnebhi <asmaa@nvidia.com>
- L:	linux-i2c@vger.kernel.org
- S:	Supported
--F:	Documentation/devicetree/bindings/i2c/mellanox,i2c-mlxbf.yaml
- F:	drivers/i2c/busses/i2c-mlxbf.c
- 
- MELLANOX ETHERNET DRIVER (mlx4_en)
-diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index db65d4235658..cb91a38cfebf 100644
---- a/drivers/i2c/busses/i2c-mlxbf.c
-+++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -2247,24 +2247,6 @@ static struct i2c_adapter_quirks mlxbf_i2c_quirks = {
- 	.max_write_len = MLXBF_I2C_MASTER_DATA_W_LENGTH,
- };
- 
--static const struct of_device_id mlxbf_i2c_dt_ids[] = {
--	{
--		.compatible = "mellanox,i2c-mlxbf1",
--		.data = &mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_1]
--	},
--	{
--		.compatible = "mellanox,i2c-mlxbf2",
--		.data = &mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_2]
--	},
--	{
--		.compatible = "mellanox,i2c-mlxbf3",
--		.data = &mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_3]
--	},
--	{},
--};
--
--MODULE_DEVICE_TABLE(of, mlxbf_i2c_dt_ids);
--
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id mlxbf_i2c_acpi_ids[] = {
- 	{ "MLNXBF03", (kernel_ulong_t)&mlxbf_i2c_chip[MLXBF_I2C_CHIP_TYPE_1] },
-@@ -2315,31 +2297,6 @@ static int mlxbf_i2c_acpi_probe(struct device *dev, struct mlxbf_i2c_priv *priv)
- }
- #endif /* CONFIG_ACPI */
- 
--static int mlxbf_i2c_of_probe(struct device *dev, struct mlxbf_i2c_priv *priv)
--{
--	const struct of_device_id *oid;
--	int bus_id = -1;
--
--	if (IS_ENABLED(CONFIG_OF) && dev->of_node) {
--		oid = of_match_node(mlxbf_i2c_dt_ids, dev->of_node);
--		if (!oid)
--			return -ENODEV;
--
--		priv->chip = oid->data;
--
--		bus_id = of_alias_get_id(dev->of_node, "i2c");
--		if (bus_id >= 0)
--			priv->bus = bus_id;
--	}
--
--	if (bus_id < 0) {
--		dev_err(dev, "Cannot get bus id");
--		return bus_id;
--	}
--
--	return 0;
--}
--
- static int mlxbf_i2c_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -2353,14 +2310,11 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	ret = mlxbf_i2c_acpi_probe(dev, priv);
--	if (ret < 0 && ret != -ENOENT && ret != -ENXIO)
--		ret = mlxbf_i2c_of_probe(dev, priv);
--
- 	if (ret < 0)
- 		return ret;
- 
- 	/* This property allows the driver to stay backward compatible with older
--	 * ACPI table and device trees versions.
-+	 * ACPI tables.
- 	 * Starting BlueField-3 SoC, the "smbus" resource was broken down into 3
- 	 * separate resources "timer", "master" and "slave".
- 	 */
-@@ -2544,7 +2498,6 @@ static struct platform_driver mlxbf_i2c_driver = {
- 	.remove = mlxbf_i2c_remove,
- 	.driver = {
- 		.name = "i2c-mlxbf",
--		.of_match_table = mlxbf_i2c_dt_ids,
- #ifdef CONFIG_ACPI
- 		.acpi_match_table = ACPI_PTR(mlxbf_i2c_acpi_ids),
- #endif /* CONFIG_ACPI  */
 -- 
 2.30.1
 
