@@ -2,96 +2,101 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAD53C32771
-	for <linux-i2c@archiver.kernel.org>; Wed, 28 Sep 2022 19:16:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE2A3C32771
+	for <linux-i2c@archiver.kernel.org>; Wed, 28 Sep 2022 19:41:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232218AbiI1TQa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 28 Sep 2022 15:16:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53538 "EHLO
+        id S231301AbiI1Tlg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 28 Sep 2022 15:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232599AbiI1TQ3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Sep 2022 15:16:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12943D4DF3
-        for <linux-i2c@vger.kernel.org>; Wed, 28 Sep 2022 12:16:29 -0700 (PDT)
+        with ESMTP id S230340AbiI1Tlf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Sep 2022 15:41:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98DC6CF72;
+        Wed, 28 Sep 2022 12:41:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF376B821D3
-        for <linux-i2c@vger.kernel.org>; Wed, 28 Sep 2022 19:16:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5573C433D6;
-        Wed, 28 Sep 2022 19:16:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6817861FA2;
+        Wed, 28 Sep 2022 19:41:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 514D7C433C1;
+        Wed, 28 Sep 2022 19:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1664392586;
-        bh=is99oyr81D57vTuTcFPFKQnBEYBIAteghrnsMIIucOI=;
+        s=k20201202; t=1664394092;
+        bh=L4wI/Iy/Hvy1t+mxDGgavHpOXBY/G6XJ2sDt9HOV5C4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rQW+5WJxdkjpW7aYtOA4o64OuBOAnAEVxeLVd3rHb4OCQe6DvoPjyjwC/tj4G6qIh
-         sRAIcBcKwWaTPx6OR6a/3T8ooenisBAnJvMWqSaG1PpHCkqUMIjIgQzbvRMm45+wrB
-         JVChlUBPKNVLE74c50dy6e5CEUUcdOagdZbEfTaBQ44jAuljRZ4z9WDAPTeo1OG/RY
-         SGPT4q5FWMsksArfekDQjJ/CguHZNSuV1Q8nrPw7UztAKJ7U8M2fq4Jf36hBT4Y1ta
-         72tmXVqyd3ZRm2WX3J//Wqzr/806TDz7g96jzRoZpAwDF4K0dT6t/jcr3HwMwmYfOZ
-         m1LtIscCjwfhw==
-Date:   Wed, 28 Sep 2022 21:16:20 +0200
+        b=TNXnkh+xvtBRP0FGyVrF+6QJFYr4PhrbUtWevAm51PhB/TczXKbvkctqdor4kleWi
+         IZ7O8eHZQkvHI27VASX8ey+amepdoi31PbLf8WjszGlxrrBqs/2dHBmB1+qU8nANsP
+         9ROm1vxFD0M05nbbzyDi0XTwlnuiR23CCuL735FbW+2wVN4hCbsNH8OFXB1MItis5O
+         ybNXutXTzndrREknPNGnD+8Bqiep+fEXLElHiu9p3M3qj1uQ2hWxG2CNQKYb92yuug
+         p36JQT7mS55PbGbjFESaSxUD/xnsnwBy3/N6EYSxe6PiDfyc4K2QrG89Zkm43f3o4c
+         nh3gLRyLcRdoQ==
+Date:   Wed, 28 Sep 2022 21:41:29 +0200
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Sanford Rockowitz <rockowitz@minsoft.com>
-Cc:     linux-i2c@vger.kernel.org
-Subject: Re: i2c-dev mismatch with proprietary nvidia driver
-Message-ID: <YzSdhCrwjPwMr4DI@shikoro>
+To:     Quan Nguyen <quan@os.amperecomputing.com>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Open Source Submission <patches@amperecomputing.com>,
+        Phong Vo <phong@os.amperecomputing.com>,
+        Thang Nguyen <thang@os.amperecomputing.com>
+Subject: Re: [PATCH] docs: i2c: slave-interface: return errno when handle
+ I2C_SLAVE_WRITE_REQUESTED
+Message-ID: <YzSjaVQUm/B4Jtwf@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Sanford Rockowitz <rockowitz@minsoft.com>,
-        linux-i2c@vger.kernel.org
-References: <6330FC96.5030908@minsoft.com>
+        Quan Nguyen <quan@os.amperecomputing.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Open Source Submission <patches@amperecomputing.com>,
+        Phong Vo <phong@os.amperecomputing.com>,
+        Thang Nguyen <thang@os.amperecomputing.com>
+References: <20220915035440.2862532-1-quan@os.amperecomputing.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="tprFTxN6i959L7Aa"
+        protocol="application/pgp-signature"; boundary="o0g4JCU6qqmLJtFX"
 Content-Disposition: inline
-In-Reply-To: <6330FC96.5030908@minsoft.com>
+In-Reply-To: <20220915035440.2862532-1-quan@os.amperecomputing.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---tprFTxN6i959L7Aa
+--o0g4JCU6qqmLJtFX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Thu, Sep 15, 2022 at 10:54:40AM +0700, Quan Nguyen wrote:
+> In case backend is not ready, ie: fail to wakeup or initialization, on
+> the returning of the I2C_SLAVE_WRITE_REQUESTED event, bus driver should
+> aware the backend status and might auto sending NACK on the next
+> incoming bytes for I2C master to retry.
+>=20
+> Signed-off-by: Quan Nguyen <quan@os.amperecomputing.com>
+> Links:https://lore.kernel.org/linux-arm-kernel/556fa9e1-c54b-8370-4de7-c2=
+d3ec7d6906@os.amperecomputing.com/
 
-> At approximately line 41 of nvidia driver file nv-i2c.c, in function
-> nv_i2c_algo_master_transfer(), there's an if-test for symbol I2C_M_DMA_SAFE.
-> If the symbol is not defined, a call to the function with the bit set fails
-> with error -EINVAL. The file includes "linux/i2c.h", so apparently there are
-> versions of I2c.h in which the flag is undefined.
+Sorry for the delay. I made some wording more precise and applied it to
+for-next. So, we can use it right for next merge window, if needed.
 
-I2C_M_DMA_SAFE is a hint for controller drivers that the buffer is DMA
-capable. It is not something the controller driver needs to support
-actively. Bailing out on this flag is wrong. Do I need to mention that
-such misconceptions are the super-downside of out-of-tree drivers? (I
-know that you are only a user of this driver, so not your fault)
-
-Happy hacking,
-
-   Wolfram
+Thank you for suggesting this and for your patience!
 
 
---tprFTxN6i959L7Aa
+--o0g4JCU6qqmLJtFX
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmM0nYAACgkQFA3kzBSg
-Kba5wA/+IER/h4+cw2xHrp5VrD8cbU51+0XzXK5xVxDq0yqb/zk3vtUkIxdMzMWx
-vIObW8Lbslrcslz7gVpHTqk6s+4N1L4M/q0P9km8fnA/ERcyChBk/uBWKeAitr++
-avV6iuuNdG6/fQViPdB80s02WcFgvtK+bTs+mLAf87rGwYr2oHYEVy9N6sL5CfZT
-vO2RWsEBQ6DhLP9czsGYMvBgmmlAhHZME4gdM0vffd/bLki/aLHqUEh69aMgzk6C
-6xII6++TYAUxXwrRyR7Y3AP2eX9cjx4EN7YAnH1aeTPR2qhqq3jUeHucHsZBi6Bj
-AblB8vaJV3Umo8Xdjv0qRU8wIg+Fvt0181/f5MlhPGUHzb1Gli2YTdUn8nqkNI44
-xdB4U0U8P2VH333QT6IUO0J4XohFTgEK8H/MqGvJhg4U6oC01QL7/8XY5Z/orbZm
-hNU9EgAwrRXD39MF7UE7WQ43y9/jKuitbZ5bb7phf7ANpp5JVqlDoaP1Fkix0Y2j
-Qv8YX9ciNwBQaEMHdUqOW824ulF/4DuwJMbs/Rb2tCN1CAVA2rerV0TwKKxz6U1F
-ZvwGtK4OsjVDmT2m+uwHkJhqTndiQs8j+7dmJK7E4567svjA7R7V7BNcQRR5+MKP
-0JynWB2SDedyCVgmk6kI64kLQTehE0EEMBMKKPGLK2kqcKbbVu0=
-=48Oo
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmM0o2kACgkQFA3kzBSg
+KbY+mA/9Gq0SHrWiB960zD9EjwY3wrcum5yFzEgTnsKuHuDtalMvKog4bPY+JhfS
+W2MPyYrx889UuKZnoFtYlE0DHL/PLsuNw/g747xdszBxmmr5pjUY3GbAdlex7nuc
+70BkWOy6Znk4j1h9/cX5bTILGiVgU7/uZvW55ysXJ24N4rcvVQ80lOp5zktOYTqH
+joF4cqZfgZ8jfAQstyox//TpnpZEEQ3utYrZwcLNjtiXXYPZhm92UFMIYIY8w4XF
+YhThuEnn0uivW4z+mdLkvlyg5wc3kuTMiwjUSv0up7YVTnuKs32GbK1ucS9XL4Xt
+eVf8PemU2vHmnR2r/QE8Efc/vBoCz1wHUaTBGnn2t0+BznG/N0KqNA/r6q3T5CMn
+q5CQKlSaNQJ55Ssa9PNeu6I67uC6aA/pNAOLkdI3bk17CydIRuO9znm41NoF4Rjn
+eIbzuKMYi3Xfa0QcsZTePk3Pvvusz95TA+vykRL2n4nrcrse15ks214gaDd9ZNCI
+R4tKzPoSZfG8Ob9XzxjIZRv6wtL29L4gcdEmzcdLnfdOi6yM9NqxcUInZllF27Mp
+TYhQQTyXpZb/nhXPLV4Nho2KOfeu9XbNPa4ttWHWh5aM/Lg7C6YyuwbFO0Pi0FZD
+daqIvCxRgqNW51ziUBO8TqJmxw+RL6p9qTy69xgavaEfc5gbB2o=
+=yx0h
 -----END PGP SIGNATURE-----
 
---tprFTxN6i959L7Aa--
+--o0g4JCU6qqmLJtFX--
