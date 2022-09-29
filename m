@@ -2,74 +2,62 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47305C04A95
-	for <linux-i2c@archiver.kernel.org>; Thu, 29 Sep 2022 05:52:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00906C04A95
+	for <linux-i2c@archiver.kernel.org>; Thu, 29 Sep 2022 06:24:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234834AbiI2FwZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 29 Sep 2022 01:52:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50750 "EHLO
+        id S234666AbiI2GYl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 29 Sep 2022 02:24:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233992AbiI2FwX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Sep 2022 01:52:23 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 875F412B5FA;
-        Wed, 28 Sep 2022 22:52:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664430741; x=1695966741;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=VjJBWVH0h7YcbVPe1L+QM0XMYaWxsTRckBYNk36i0mQ=;
-  b=hBtqd1/zHbYaRSOdHbRCN+DHFCarKxI0VwpuGVRFBqfQHN4P4TL9sC42
-   wLE1taCR9bJylVoNLlyHsnG2PdE7Gm1MY33Cn1VT9tu4L+91zR2WlgGVY
-   mjL90WBOLzyMUzLkH62KCzRoGICTeFUnxzK/XLFyxTNkIUqSaNyzaa8Th
-   nPhPf6clVKR5TsKKw+5zSdQwTaTJCuRGGOruS3afGwGP3oLyg/N06tE8o
-   Gj+Xc0o+4cZLQdaq/VPyGFx36VlWXjGHhUOqW+PYuQfZiCXlv1VuuPEK2
-   KNq6t+Y6K+ez3afQ7VU51yBWW8yQs5GXitJcIoq43Fzgql/AZJzDoP+/6
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10484"; a="301776273"
-X-IronPort-AV: E=Sophos;i="5.93,354,1654585200"; 
-   d="scan'208";a="301776273"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2022 22:52:21 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10484"; a="764584218"
-X-IronPort-AV: E=Sophos;i="5.93,354,1654585200"; 
-   d="scan'208";a="764584218"
-Received: from mylly.fi.intel.com (HELO [10.237.72.51]) ([10.237.72.51])
-  by fmsmga001.fm.intel.com with ESMTP; 28 Sep 2022 22:52:19 -0700
-Message-ID: <20b11371-a6cc-5d75-904d-1c1666437572@linux.intel.com>
-Date:   Thu, 29 Sep 2022 08:52:18 +0300
+        with ESMTP id S234023AbiI2GYk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Sep 2022 02:24:40 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87BB326F0;
+        Wed, 28 Sep 2022 23:24:35 -0700 (PDT)
+Received: from canpemm500004.china.huawei.com (unknown [172.30.72.55])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4MdNWh5SHlz1P6wN;
+        Thu, 29 Sep 2022 14:20:16 +0800 (CST)
+Received: from [10.174.179.106] (10.174.179.106) by
+ canpemm500004.china.huawei.com (7.192.104.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Thu, 29 Sep 2022 14:24:33 +0800
+Subject: Re: [PATCH next v3] i2c: hisi: Add support to get clock frequency
+ from clock property
+To:     Wolfram Sang <wsa@kernel.org>, <yangyicong@hisilicon.com>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+References: <20220926091503.199474-1-chenweilong@huawei.com>
+ <YzSl5Dm15ZDCxf15@shikoro>
+From:   chenweilong <chenweilong@huawei.com>
+Message-ID: <d17e461b-b59b-41c3-3f98-016f25e83818@huawei.com>
+Date:   Thu, 29 Sep 2022 14:24:33 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.3.0
-Subject: Re: [PATCH v1 2/2] i2c: designware-pci: Use standard pattern for
- memory allocation
-Content-Language: en-US
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jan Dabros <jsd@semihalf.com>
-References: <20220928162116.66724-1-andriy.shevchenko@linux.intel.com>
- <20220928162116.66724-2-andriy.shevchenko@linux.intel.com>
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-In-Reply-To: <20220928162116.66724-2-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <YzSl5Dm15ZDCxf15@shikoro>
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Originating-IP: [10.174.179.106]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ canpemm500004.china.huawei.com (7.192.104.92)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 9/28/22 19:21, Andy Shevchenko wrote:
-> The pattern
-> 	foo = kmalloc(sizeof(*foo), GFP_KERNEL);
-> has an advantage when foo type is changed. Since we are planning a such,
-> better to be prepared by using standard pattern for memory allocation.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->   drivers/i2c/busses/i2c-designware-pcidrv.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+On 2022/9/29 3:52, Wolfram Sang wrote:
+> On Mon, Sep 26, 2022 at 05:15:03PM +0800, Weilong Chen wrote:
+>> Support the driver to obtain clock information by clk_rate or
+>> clock property. Find clock first, if not, fall back to clk_rate.
+> This commit message describes what the patch does. But it misses the
+> explanation why this needs to be done. Could you add this information,
+> please? Patch itself looks also good to me.
+
+OK, I'll update it.
+
+Thanks.
+
+>> Signed-off-by: Weilong Chen <chenweilong@huawei.com>
+>> Acked-by: Yicong Yang <yangyicong@hisilicon.com>
+
+
