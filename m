@@ -2,43 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D0C0C43219
-	for <linux-i2c@archiver.kernel.org>; Fri, 21 Oct 2022 07:39:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11E35C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 21 Oct 2022 07:39:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229585AbiJUHjx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S229697AbiJUHjx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Fri, 21 Oct 2022 03:39:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53334 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229697AbiJUHjt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Oct 2022 03:39:49 -0400
+        with ESMTP id S229765AbiJUHju (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Oct 2022 03:39:50 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7A32CCBF
-        for <linux-i2c@vger.kernel.org>; Fri, 21 Oct 2022 00:39:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A9421F9E5
+        for <linux-i2c@vger.kernel.org>; Fri, 21 Oct 2022 00:39:47 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1olmd6-0006Mg-8i; Fri, 21 Oct 2022 09:39:44 +0200
+        id 1olmd7-0006Mw-3z; Fri, 21 Oct 2022 09:39:45 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1olmd3-000TRK-26; Fri, 21 Oct 2022 09:39:43 +0200
+        id 1olmd3-000TRa-T5; Fri, 21 Oct 2022 09:39:44 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1olmd4-009WBD-Ns; Fri, 21 Oct 2022 09:39:42 +0200
+        id 1olmd5-009WBJ-4w; Fri, 21 Oct 2022 09:39:43 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
-To:     Wolfram Sang <wsa@kernel.org>
+To:     Guenter Roeck <linux@roeck-us.net>, Peter Rosin <peda@axentia.se>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH v1 2/5] i2c: slave eeprom: Convert to .probe_new()
-Date:   Fri, 21 Oct 2022 09:39:32 +0200
-Message-Id: <20221021073935.165158-3-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH v1 4/5] i2c: mux: pca9541: Convert to .probe_new()
+Date:   Fri, 21 Oct 2022 09:39:34 +0200
+Message-Id: <20221021073935.165158-5-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20221021073935.165158-1-u.kleine-koenig@pengutronix.de>
 References: <20221021073935.165158-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3169; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=cGxD5LI6RpVRvkuUReTvWQ8ZC84cttB4FAhdlcluDOQ=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBjUkyk4/PnCDv5S/Zi1/vyo6/bqBbPn8uc/VMDpWD9 hK1XMVCJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY1JMpAAKCRDB/BR4rcrsCQ++CA CC1yjHYODnmQo8ujhFqd6EZ/hTu4FMEQhRFg9pjREKCUTfhqJq5w50vMk4639OyytaWwLv87Xa3HFP 8qshYzckJBthxZgBGGnfEN7R64kTf2M1HceXposHx9EJmRyudyylgGtlcK3WaDXvTNKm7veDiGeNRG NTsLVMy5SlgMuhC7gkqW4VkCeTOaeec7QW4uTOL2qsoS3hhY/BopkB992CKfaq3RhyMZnh3VT3ruiP YmpFjoRXJvAD90HGmgKlEn+fIDyih5mXkM50j5pSFcAOkZ29k0ebrFpxdhoYxUYbOAD9p3ZreuGHsB wEoN6AnHRZWuKM08zfhZh23r7oNBcT
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1149; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=bCp6vTLy4fOgzko1zHynMiRUdoC5QcYiSr8cpMUoFFo=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBjUkyrPNWGTHQX2VhAkWISPMJwmYhh7kRaygjTnuRq 4M8BjAGJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY1JMqwAKCRDB/BR4rcrsCYHGB/ 94UDOAoQMA07dSjvysLyGpzDyFxZKC0b4kPHHkSeidgvVt9OB+iftmJnZXE/8vRDHphP27b3sESn7p eYp2fZ8/qttpft/1Q/jZGY92o21eHicY+y0MCiP70/WCMbi8eKX6OzAqeah8Me6EXUh4qoYOTE66yV zFNEwbnmDMIAQr3WhqRez5gJB4Tez2a6X2Yk/rvVDCltljuMQ/g6McRKognvwFoy2zlIPNqluZZsp9 Wxqu++q9X9H6alZRTGUZFBNaKX/wsEoPfeBEGVl5GoA2g6izp09lL2onUL7gmjhf6vxGGD026ZhIUz vvD1l1z4nPX4HwxHoivZu8t5uE6ogp
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -49,70 +49,36 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in .probe(). The device_id array has to move up for that
-to work.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/i2c/i2c-slave-eeprom.c | 31 ++++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ drivers/i2c/muxes/i2c-mux-pca9541.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
-index 4abc2d919881..44c14bfd1fda 100644
---- a/drivers/i2c/i2c-slave-eeprom.c
-+++ b/drivers/i2c/i2c-slave-eeprom.c
-@@ -140,10 +140,24 @@ static int i2c_slave_init_eeprom_data(struct eeprom_data *eeprom, struct i2c_cli
- 	return 0;
- }
- 
--static int i2c_slave_eeprom_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static const struct i2c_device_id i2c_slave_eeprom_id[] = {
-+	{ "slave-24c02", I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  0) },
-+	{ "slave-24c02ro", I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  I2C_SLAVE_FLAG_RO) },
-+	{ "slave-24c32", I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16) },
-+	{ "slave-24c32ro", I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
-+	{ "slave-24c64", I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16) },
-+	{ "slave-24c64ro", I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
-+	{ "slave-24c512", I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16) },
-+	{ "slave-24c512ro", I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, i2c_slave_eeprom_id);
-+
-+static int i2c_slave_eeprom_probe(struct i2c_client *client)
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index ea83de78f52d..09d1d9e67e31 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -283,8 +283,7 @@ static int pca9541_release_chan(struct i2c_mux_core *muxc, u32 chan)
+ /*
+  * I2C init/probing/exit functions
+  */
+-static int pca9541_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *id)
++static int pca9541_probe(struct i2c_client *client)
  {
- 	struct eeprom_data *eeprom;
- 	int ret;
-+	const struct i2c_device_id *id = i2c_match_id(i2c_slave_eeprom_id, client);
- 	unsigned int size = FIELD_GET(I2C_SLAVE_BYTELEN, id->driver_data) + 1;
- 	unsigned int flag_addr16 = FIELD_GET(I2C_SLAVE_FLAG_ADDR16, id->driver_data);
- 
-@@ -189,24 +203,11 @@ static void i2c_slave_eeprom_remove(struct i2c_client *client)
- 	sysfs_remove_bin_file(&client->dev.kobj, &eeprom->bin);
- }
- 
--static const struct i2c_device_id i2c_slave_eeprom_id[] = {
--	{ "slave-24c02", I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  0) },
--	{ "slave-24c02ro", I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  I2C_SLAVE_FLAG_RO) },
--	{ "slave-24c32", I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16) },
--	{ "slave-24c32ro", I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
--	{ "slave-24c64", I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16) },
--	{ "slave-24c64ro", I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
--	{ "slave-24c512", I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16) },
--	{ "slave-24c512ro", I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
--	{ }
--};
--MODULE_DEVICE_TABLE(i2c, i2c_slave_eeprom_id);
--
- static struct i2c_driver i2c_slave_eeprom_driver = {
- 	.driver = {
- 		.name = "i2c-slave-eeprom",
- 	},
--	.probe = i2c_slave_eeprom_probe,
-+	.probe_new = i2c_slave_eeprom_probe,
- 	.remove = i2c_slave_eeprom_remove,
- 	.id_table = i2c_slave_eeprom_id,
+ 	struct i2c_adapter *adap = client->adapter;
+ 	struct i2c_mux_core *muxc;
+@@ -337,7 +336,7 @@ static struct i2c_driver pca9541_driver = {
+ 		   .name = "pca9541",
+ 		   .of_match_table = of_match_ptr(pca9541_of_match),
+ 		   },
+-	.probe = pca9541_probe,
++	.probe_new = pca9541_probe,
+ 	.remove = pca9541_remove,
+ 	.id_table = pca9541_id,
  };
 -- 
 2.37.2
