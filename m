@@ -2,127 +2,101 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC137C433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 21 Oct 2022 09:50:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58A82C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 21 Oct 2022 10:52:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229978AbiJUJun (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 21 Oct 2022 05:50:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53292 "EHLO
+        id S230219AbiJUKwq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 21 Oct 2022 06:52:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229872AbiJUJuk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Oct 2022 05:50:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34FF1885A4;
-        Fri, 21 Oct 2022 02:50:38 -0700 (PDT)
+        with ESMTP id S229711AbiJUKwp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Oct 2022 06:52:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00E771885A6;
+        Fri, 21 Oct 2022 03:52:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80ED561E00;
-        Fri, 21 Oct 2022 09:50:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F5E7C433D6;
-        Fri, 21 Oct 2022 09:50:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666345837;
-        bh=LeQMdSwbtJuXOi2FuwUwd5vVFwEoPYoelUlHATZ33bc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oD+ZpDeeHOAYGH98EjgSF/NQcTjpdu0Piz+tOuBHVfbR9F1OgvnuGpsx3/ELuKpCE
-         0AydlaozEN7cI1UknkZnbVJbubxW8bwijBVPs3VWvotIiqu/uGjC+Hmds9wRYQ2usA
-         YLN9Tq2Wj6bHnZR+0wGpyCehUGEDFxLlQnNtOIM9uFfjcTlEgUDtLpUBM2gl8k1zhR
-         +VnGEoxA0khRJq9mpwacSyKHNVGH8KNeYO6u2YMLh4zxalWRkIK7QGGZPCQuw60o0H
-         ozb+eUKtzLJ/eLKOEx2zuI4536P69mKpeo0oJ9Dmy/nWXZ8aFAZ//YfZDRHZtV1hVh
-         apsNSQmOjXkbw==
-Date:   Fri, 21 Oct 2022 10:50:30 +0100
-From:   Lee Jones <lee@kernel.org>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>, linux-omap@vger.kernel.org,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-usb@vger.kernel.org
-Subject: Re: [PATCH 13/17] ARM: omap1: remove unused board files
-Message-ID: <Y1JrZu8iC9fobX0E@google.com>
-References: <20221019144119.3848027-1-arnd@kernel.org>
- <20221019150410.3851944-1-arnd@kernel.org>
- <20221019150410.3851944-13-arnd@kernel.org>
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1B0EB82B8F;
+        Fri, 21 Oct 2022 10:52:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AC6DC433D6;
+        Fri, 21 Oct 2022 10:52:33 +0000 (UTC)
+Date:   Fri, 21 Oct 2022 11:52:30 +0100
+From:   Mark Brown <broonie@debian.org>
+To:     Adam Borowski <kilobyte@angband.pl>
+Cc:     linux-kernel@lists.debian.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Jiaxin Yu <jiaxin.yu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        linux-mediatek@lists.infradead.org, alsa-devel@alsa-project.org,
+        David Howells <dhowells@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>, keyrings@vger.kernel.org,
+        linux-crypto@vger.kernel.org,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org, linux-spi@vger.kernel.org,
+        Yong Zhi <yong.zhi@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Dan Scally <djrscally@gmail.com>,
+        Tianshu Qiu <tian.shu.qiu@intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-media@vger.kernel.org, Khalil Blaiech <kblaiech@nvidia.com>,
+        Asmaa Mnebhi <asmaa@nvidia.com>, linux-i2c@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, Brent Lu <brent.lu@intel.com>
+Subject: Re: [PATCH 0/6] a pile of randconfig fixes
+Message-ID: <Y1J57jJ1+FTG7U9O@sirena.org.uk>
+References: <20221020221749.33746-1-kilobyte@angband.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="wWcrkmaG6Bl+vyW8"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221019150410.3851944-13-arnd@kernel.org>
+In-Reply-To: <20221020221749.33746-1-kilobyte@angband.pl>
+X-Cookie: On the eighth day, God created FORTRAN.
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, 19 Oct 2022, Arnd Bergmann wrote:
 
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> All board support that was marked as 'unused' earlier can
-> now be removed, leaving the five machines that that still
-> had someone using them in 2022, or that are supported in
-> qemu.
-> 
-> Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-> Cc: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-> Cc: Tony Lindgren <tony@atomide.com>
-> Cc: linux-omap@vger.kernel.org
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  MAINTAINERS                             |   2 -
->  arch/arm/Kconfig.debug                  |  36 +-
->  arch/arm/configs/omap1_defconfig        |   2 -
->  arch/arm/mach-omap1/Kconfig             |  93 +---
->  arch/arm/mach-omap1/Makefile            |  18 -
->  arch/arm/mach-omap1/board-fsample.c     | 366 ---------------
->  arch/arm/mach-omap1/board-generic.c     |  85 ----
->  arch/arm/mach-omap1/board-h2-mmc.c      |  74 ---
->  arch/arm/mach-omap1/board-h2.c          | 448 ------------------
->  arch/arm/mach-omap1/board-h2.h          |  38 --
->  arch/arm/mach-omap1/board-h3-mmc.c      |  64 ---
->  arch/arm/mach-omap1/board-h3.c          | 455 ------------------
->  arch/arm/mach-omap1/board-h3.h          |  35 --
->  arch/arm/mach-omap1/board-htcherald.c   | 585 ------------------------
->  arch/arm/mach-omap1/board-innovator.c   | 481 -------------------
->  arch/arm/mach-omap1/board-nand.c        |  33 --
->  arch/arm/mach-omap1/board-palmtt.c      | 285 ------------
->  arch/arm/mach-omap1/board-palmz71.c     | 300 ------------
->  arch/arm/mach-omap1/board-perseus2.c    | 333 --------------
->  arch/arm/mach-omap1/fpga.c              | 186 --------
->  arch/arm/mach-omap1/fpga.h              |  49 --
->  arch/arm/mach-omap1/gpio7xx.c           | 272 -----------
->  drivers/i2c/busses/Kconfig              |   2 +-
->  drivers/mfd/Kconfig                     |   2 +-
+--wWcrkmaG6Bl+vyW8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Acked-by: Lee Jones <lee@kernel.org>
+On Fri, Oct 21, 2022 at 12:17:49AM +0200, Adam Borowski wrote:
 
->  drivers/mmc/host/Kconfig                |   2 +-
->  drivers/usb/gadget/udc/Kconfig          |   2 +-
->  drivers/usb/host/Kconfig                |   2 +-
->  include/linux/platform_data/leds-omap.h |  19 -
->  28 files changed, 12 insertions(+), 4257 deletions(-)
->  delete mode 100644 arch/arm/mach-omap1/board-fsample.c
->  delete mode 100644 arch/arm/mach-omap1/board-generic.c
->  delete mode 100644 arch/arm/mach-omap1/board-h2-mmc.c
->  delete mode 100644 arch/arm/mach-omap1/board-h2.c
->  delete mode 100644 arch/arm/mach-omap1/board-h2.h
->  delete mode 100644 arch/arm/mach-omap1/board-h3-mmc.c
->  delete mode 100644 arch/arm/mach-omap1/board-h3.c
->  delete mode 100644 arch/arm/mach-omap1/board-h3.h
->  delete mode 100644 arch/arm/mach-omap1/board-htcherald.c
->  delete mode 100644 arch/arm/mach-omap1/board-innovator.c
->  delete mode 100644 arch/arm/mach-omap1/board-nand.c
->  delete mode 100644 arch/arm/mach-omap1/board-palmtt.c
->  delete mode 100644 arch/arm/mach-omap1/board-palmz71.c
->  delete mode 100644 arch/arm/mach-omap1/board-perseus2.c
->  delete mode 100644 arch/arm/mach-omap1/fpga.c
->  delete mode 100644 arch/arm/mach-omap1/fpga.h
->  delete mode 100644 arch/arm/mach-omap1/gpio7xx.c
->  delete mode 100644 include/linux/platform_data/leds-omap.h
+> I've been doing randconfig build tests for quite a while, here's a pile of
+> fixes.  I'm not sure what's the best way to submit these: do you folks
+> prefer a series like this, or a number of individual submissions?
 
--- 
-Lee Jones [李琼斯]
+Individual submissions would cut down on the noise from the enormous CC
+list.  If you were going to send as a patch series it should be a single
+message per patch as covered in sumbitting-patches.rst.
+
+--wWcrkmaG6Bl+vyW8
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmNSee4ACgkQJNaLcl1U
+h9BDwgf+IkbiCFyXzVrO3F8yBx883iUJM3R8A5LPsrxScBUzS3Nu7PgzWmko3Bfa
+wm/rXizNrMQPDqUakrtR8duh+w/eL6Lz3YrZEQEaM2fd8+MayJt9tXB4o/qfcrBc
+B3o7lbqL9Hp0yqRKKG8orcvyiJDpOh2Z+zLAYqy+LuFLuiv6kSKu8h7c2vm7DKCw
++wGkRN5blfrYPHGOoU/r6oqjT2qx6BFUsXpnILPw2XRtXlkYv37BLu4rRgZ7qc+D
+Afo+DwE5y6d9t9ebOL0UjvgveEysSY3VksxCcjtWru+wN/bjPbET1VFJUrfbMyGf
+y+JN6EsaYWeKmGsk5T5pZ5XczMBC+A==
+=kG7z
+-----END PGP SIGNATURE-----
+
+--wWcrkmaG6Bl+vyW8--
