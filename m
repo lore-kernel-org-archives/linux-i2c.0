@@ -2,42 +2,41 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB9B1C433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 21 Oct 2022 07:40:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42D3FC43217
+	for <linux-i2c@archiver.kernel.org>; Fri, 21 Oct 2022 07:56:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbiJUHkA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 21 Oct 2022 03:40:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54578 "EHLO
+        id S229731AbiJUH4I (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 21 Oct 2022 03:56:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229817AbiJUHj7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Oct 2022 03:39:59 -0400
+        with ESMTP id S229729AbiJUH4G (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Oct 2022 03:56:06 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF1421818
-        for <linux-i2c@vger.kernel.org>; Fri, 21 Oct 2022 00:39:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3022198443
+        for <linux-i2c@vger.kernel.org>; Fri, 21 Oct 2022 00:56:05 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1olmd7-0006Mh-3v; Fri, 21 Oct 2022 09:39:45 +0200
+        id 1olmsu-0000CN-0E; Fri, 21 Oct 2022 09:56:04 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1olmd3-000TRO-5K; Fri, 21 Oct 2022 09:39:43 +0200
+        id 1olmsr-000TTW-0e; Fri, 21 Oct 2022 09:56:03 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1olmd4-009WB7-Bu; Fri, 21 Oct 2022 09:39:42 +0200
+        id 1olmss-009WDY-KA; Fri, 21 Oct 2022 09:56:02 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
-To:     Wolfram Sang <wsa@kernel.org>, Guenter Roeck <linux@roeck-us.net>,
-        Peter Rosin <peda@axentia.se>
-Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH v1 0/5] i2c: Convert drivers below drivers/i2c to .probe_new()
-Date:   Fri, 21 Oct 2022 09:39:30 +0200
-Message-Id: <20221021073935.165158-1-u.kleine-koenig@pengutronix.de>
+To:     Thierry Reding <thierry.reding@gmail.com>
+Cc:     linux-pwm@vger.kernel.org, linux-i2c@vger.kernel.org
+Subject: [PATCH] pwm: pca9685: Convert to .probe_new()
+Date:   Fri, 21 Oct 2022 09:55:51 +0200
+Message-Id: <20221021075551.168897-1-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=759; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=LbyrI41No4LHbXq82DyIsHgZMdN0qCpVyeGlYF5GddI=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBjUkydtEo9fla/u4cXixW2kSnH4Lbijk47uFTIw2D5 7d0223SJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY1JMnQAKCRDB/BR4rcrsCbMzB/ 9B9C8gcZYqar78VtjB8l4zuvVQWcIlXzPsNY6YDBVOOO+WnGLTiraSohzVitb6m4HQn5NBqxEbY6Q9 Zb2zESn8rpCoXEG+EBtin6w27zJ+2gj66tRuFoP5w6KHzwWSulBj8y03fjDt1UapFrhSARUUOKSF1G JbGhQXbSkwhMretPHFyTcsxrH1mbUMgwOQ40nGDbqni0ANH/IXxuv7ZMVnpYrSvIa3RgAEqtDd/saD ylDOKp5t9S5xv0XsoQ3vZjL4P/3XMudGRVhJb2q/nAPsrwj65qDmSGRPWDwJ4sFwbbk7Lxyj9N+GKO ynE1ID6DzzLqCGybShh9sYY3Ukzkod
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1139; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=Xk1N0WK9qWt0LwnjhpXwrz4Y6dF05EHtbWaHG1PwhxI=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBjUlCE1qhna2aB0I0Icb1AJ2sKSG+OaCF1EqAm7y5p qEN5Q9WJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY1JQhAAKCRDB/BR4rcrsCSN0CA CdoSYjaeYgY6fbSjgTpmoe7Sk4LAfLKNuya5BZxhbUaZBANOlNZvQOS0G/nqblh7KxuGjZSK1KKVNS zRN+6hfBUkHK2SZOdf5WxYwK08joY7WDg0ZZTOFU94MWJqITLJla0rvIjH3vWp53HFqZnvAJY4Q/hF 8p0OM2TCuuub/Y901+8r0dpZfrX7bCU/Iu1ULgULOifqAQlHY8wwkQZvt+Kt7fvaiuCrooQPzk2GgX GmJ3VB0jiMDusO92XA/90ddO/q36AD1V2lFUsS3hGD7GsRNCFWBeQKmQOA+KtpOUrGhE1JLf58Wt9T u6ESV217VzYxTZv3Z26ngK5sCeFoVC
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -48,27 +47,37 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hello,
+The probe function doesn't make use of the id parameter, so the driver
+can be converted trivially to .probe_new().
 
-A set of 5 simple patches to get a bit forward in conversion to .probe_new().
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/pwm/pwm-pca9685.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Best regards
-Uwe
-
-Uwe Kleine-König (5):
-  i2c: Convert the dummy_driver to .probe_new()
-  i2c: slave eeprom: Convert to .probe_new()
-  i2c: smbus: Convert to .probe_new()
-  i2c: mux: pca9541: Convert to .probe_new()
-  i2c: mux: pca954x: Convert to .probe_new()
-
- drivers/i2c/i2c-core-base.c         |  5 ++---
- drivers/i2c/i2c-slave-eeprom.c      | 31 +++++++++++++++--------------
- drivers/i2c/i2c-smbus.c             |  5 ++---
- drivers/i2c/muxes/i2c-mux-pca9541.c |  5 ++---
- drivers/i2c/muxes/i2c-mux-pca954x.c |  6 +++---
- 5 files changed, 25 insertions(+), 27 deletions(-)
-
+diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
+index f230c10d28bb..e00152257cbe 100644
+--- a/drivers/pwm/pwm-pca9685.c
++++ b/drivers/pwm/pwm-pca9685.c
+@@ -513,8 +513,7 @@ static const struct regmap_config pca9685_regmap_i2c_config = {
+ 	.cache_type = REGCACHE_NONE,
+ };
+ 
+-static int pca9685_pwm_probe(struct i2c_client *client,
+-				const struct i2c_device_id *id)
++static int pca9685_pwm_probe(struct i2c_client *client)
+ {
+ 	struct pca9685 *pca;
+ 	unsigned int reg;
+@@ -664,7 +663,7 @@ static struct i2c_driver pca9685_i2c_driver = {
+ 		.of_match_table = of_match_ptr(pca9685_dt_ids),
+ 		.pm = &pca9685_pwm_pm,
+ 	},
+-	.probe = pca9685_pwm_probe,
++	.probe_new = pca9685_pwm_probe,
+ 	.remove = pca9685_pwm_remove,
+ 	.id_table = pca9685_id,
+ };
 
 base-commit: 9abf2313adc1ca1b6180c508c25f22f9395cc780
 -- 
