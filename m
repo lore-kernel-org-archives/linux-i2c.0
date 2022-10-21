@@ -2,136 +2,83 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E0A5C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 21 Oct 2022 06:52:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2E27C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 21 Oct 2022 07:39:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229606AbiJUGwg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 21 Oct 2022 02:52:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47732 "EHLO
+        id S229815AbiJUHjv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 21 Oct 2022 03:39:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230106AbiJUGwe (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Oct 2022 02:52:34 -0400
-Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 729BD22E8DE;
-        Thu, 20 Oct 2022 23:52:32 -0700 (PDT)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6C5815C007F;
-        Fri, 21 Oct 2022 02:52:31 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute3.internal (MEProxy); Fri, 21 Oct 2022 02:52:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1666335151; x=1666421551; bh=asFMH01gIy
-        FuLLt84XhpsavdGbikk/Zr70yYHFNA5r4=; b=tmmE+zyWqZsaV1HNHXmexsKCRZ
-        cTGaKpie3Ix8/C9msO3j7jjW6V++ZSgrCc/D8wECWflD2w77EVwUT4ZDJI4/qcDa
-        AE+VHQAznpHOe3oxin/wy0H7Jo04+zv8pXMIZDRqNYKa7QklC3Cl0vigmK7m0AEx
-        jx4A+td7c0SMHEJZVt6BhAUTnDzWRhZ9MfDQtZxrfpDQrShjDhD3SXdwd+IKTxAI
-        ZlRdzDXxtI9oe5QhZuvE6Vh3SgZNQgA+Thl0nO742KhzJJmNXR4asTqNJtVzEXKw
-        nLbhugd9XR3xVQIgR9sNyfKv+DM6ICYPVRj+7tuFLcBrlxWvHEZtTmiUJv3A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; t=1666335151; x=1666421551; bh=asFMH01gIyFuLLt84XhpsavdGbik
-        k/Zr70yYHFNA5r4=; b=kCOatloKYNVOBJC3olA9k9hCbIwlxdKz89aA/Z58vRei
-        9lF6wbuChyuHTmzK1sc/5zb1M9ITUeNuFi1Qnmt8Ylcp3S8LtMToKa47i81KnVUn
-        pKaYJSDOMcqY5XM1uIM8a19oVoZvqIfhzU1X2pRzpCooHtDS9LFbVzR7GEcdGtHL
-        AklcoevJjyfziK/7t/uavCUXSXqEEVMLG/OrSxEbgY3S5JVdkTlRp0Z4RJitL/+e
-        0ERI0xWyGGrXd2+d5YSKUTWnNw4Arew5r/fl7dC/5kvsW4oQj/ac1iCAQLFRY1/q
-        XMZ34TsU+xO6zNgCM1pN8wwV1egVuBvELVnsf+ph8Q==
-X-ME-Sender: <xms:rkFSY7b52o4SSS29ii51024C6Tx9E3noQFHWuRk6VKm_aOR-UZKzQA>
-    <xme:rkFSY6byU9_2HIcQmGIOp1DUsd0lSnFXIvrb605VOlHM0RkwJGbTS-mIbt6ZO5aIY
-    0gt_IjGFwCVawZFB94>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfeeljedgudduhecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdet
-    rhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrg
-    htthgvrhhnpeevhfffledtgeehfeffhfdtgedvheejtdfgkeeuvefgudffteettdekkeeu
-    feehudenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivg
-    eptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:rkFSY9_MJx9tKvhvQ5lwCt0Zb3IV3YOYY3pCycDfPWnv71sUpdgg3w>
-    <xmx:rkFSYxoBeoqaIgsY93umf4TjZTfSZAS5scg5cHiLigOO9T8BZHkFJw>
-    <xmx:rkFSY2qYK18DaISpgzqWb_yvcq_kGLQgKvWFftU45cRPvZmabuJJrQ>
-    <xmx:r0FSYzQVLjlAZPdjc9KdCUd8H-_UiL5nj-YrhWIpq4YNRLBe_QmjzA>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id A2DA1B60086; Fri, 21 Oct 2022 02:52:30 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.7.0-alpha0-1047-g9e4af4ada4-fm-20221005.001-g9e4af4ad
-Mime-Version: 1.0
-Message-Id: <de36ec6b-2e7c-48eb-9682-f60d8e4011da@app.fastmail.com>
-In-Reply-To: <20221020193511.GB3019@t60.musicnaut.iki.fi>
-References: <20221019144119.3848027-1-arnd@kernel.org>
- <20221019150410.3851944-1-arnd@kernel.org>
- <20221019150410.3851944-13-arnd@kernel.org>
- <20221019171541.GA41568@darkstar.musicnaut.iki.fi>
- <1b632df1-7e3c-456d-8629-dc36efd9fe15@app.fastmail.com>
- <20221020193511.GB3019@t60.musicnaut.iki.fi>
-Date:   Fri, 21 Oct 2022 08:52:10 +0200
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Aaro Koskinen" <aaro.koskinen@iki.fi>
-Cc:     "Arnd Bergmann" <arnd@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        "Janusz Krzysztofik" <jmkrzyszt@gmail.com>,
-        "Tony Lindgren" <tony@atomide.com>, linux-kernel@vger.kernel.org,
-        Linux-OMAP <linux-omap@vger.kernel.org>,
-        "Lee Jones" <lee@kernel.org>,
-        "Ulf Hansson" <ulf.hansson@linaro.org>,
-        "Felipe Balbi" <balbi@kernel.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        linux-i2c@vger.kernel.org,
-        "linux-mmc @ vger . kernel . org" <linux-mmc@vger.kernel.org>,
-        linux-usb@vger.kernel.org
-Subject: Re: [PATCH 13/17] ARM: omap1: remove unused board files
-Content-Type: text/plain
+        with ESMTP id S229602AbiJUHjt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Oct 2022 03:39:49 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C68F2CC9E
+        for <linux-i2c@vger.kernel.org>; Fri, 21 Oct 2022 00:39:46 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1olmd6-0006Mj-AN; Fri, 21 Oct 2022 09:39:44 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1olmd3-000TRU-Ae; Fri, 21 Oct 2022 09:39:43 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1olmd4-009WBA-Ho; Fri, 21 Oct 2022 09:39:42 +0200
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH v1 1/5] i2c: Convert the dummy_driver to .probe_new()
+Date:   Fri, 21 Oct 2022 09:39:31 +0200
+Message-Id: <20221021073935.165158-2-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20221021073935.165158-1-u.kleine-koenig@pengutronix.de>
+References: <20221021073935.165158-1-u.kleine-koenig@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=899; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=udjqYNrFRO88QYK+CXBlmrarRiTbAOE8271jzyrA3GQ=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBjUkyhZMCnj5mz91InCVKNxfW0h7K8iV0li+KqPQnl +7eRK5OJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY1JMoQAKCRDB/BR4rcrsCarJB/ 4oNEH1/tqaC53pKGxaJZv56+vXHY7Pip9jpPmX1mGjCHb6ctMi8tHZctENdUTF8GUDwXijq8bMQBrx k0GuOJL5dv8gzZheQF1JXVjR4GP7e7S98xJ1TjD/BYL3itgGFOyrgNqYtuI/uvb1sHXkkYl3fVw99j qtLYc6+Pkn822D61/OEsJWOiwPmmBu1WqgGqReB8maD3bUbvvSTOTYK+i90RmEPOoZRKPGJsYNM5/x U0D5OqPxsFWCnfWbhJdy5dRMLSVWCsT+zuinIz9szcrx6QOZoZSl6KTm26/0P+xTK2XTATo2FRsn7n 4XMnLu1HZpy3WRgWU9h/jeir1EhqwR
+X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Oct 20, 2022, at 21:35, Aaro Koskinen wrote:
-> On Thu, Oct 20, 2022 at 09:11:11AM +0200, Arnd Bergmann wrote:
->> On Wed, Oct 19, 2022, at 19:15, Aaro Koskinen wrote:
->> > On Wed, Oct 19, 2022 at 05:03:35PM +0200, Arnd Bergmann wrote:
->> >> All board support that was marked as 'unused' earlier can
->> >> now be removed, leaving the five machines that that still
->> >> had someone using them in 2022, or that are supported in
->> >> qemu.
->> > [...]
->> >>  config OMAP_OSK_MISTRAL
->> >>  	bool "Mistral QVGA board Support"
->> >>  	depends on MACH_OMAP_OSK
->> >> -	depends on UNUSED_BOARD_FILES
->> >>  	help
->> >>  	  The OSK supports an optional add-on board with a Quarter-VGA
->> >>  	  touchscreen, PDA-ish buttons, a resume button, bicolor LED,
->> >>  	  and camera connector.  Say Y here if you have this board.
->> >
->> > Shouldn't this go away as well?
->> 
->> No, this one was incorrectly annotated, it's not actually
->> a board but it's an option for the OSK board that is not
->> getting removed. I considered making a separate patch
->> for removing the dependency, but that didn't seem worth it.
->
-> OK. For the record, I don't think anyone has this add-on board anymore,
-> and it has probably never been tested with the mainline kernel, so
-> it's likely in the "dead code" category... Maybe it could be changed to
-> "BROKEN", then the related OSK LCD panel stuff could be deleted later
-> on too.
+The probe function doesn't make use of the id parameter, so the driver
+can be converted trivially to .probe_new().
 
-Ok, good to know. I left it in place for now because Tony originally
-listed it as a likely used machine along with NOKIA770 and
-AMS_DELTA [1], but I don't have anyone listed specifically as a
-user for it.
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/i2c/i2c-core-base.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-It's not too late to revisit this list if you think it helps to
-get rid of it. I can see that drivers/mtd/tps65010.c and
-drivers/pcmcia/omap_cf.c become orphaned without it and can
-probably get removed as well then.
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index b4edf10e8fd0..f786917a7f44 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1017,15 +1017,14 @@ static const struct i2c_device_id dummy_id[] = {
+ 	{ },
+ };
+ 
+-static int dummy_probe(struct i2c_client *client,
+-		       const struct i2c_device_id *id)
++static int dummy_probe(struct i2c_client *client)
+ {
+ 	return 0;
+ }
+ 
+ static struct i2c_driver dummy_driver = {
+ 	.driver.name	= "dummy",
+-	.probe		= dummy_probe,
++	.probe_new	= dummy_probe,
+ 	.id_table	= dummy_id,
+ };
+ 
+-- 
+2.37.2
 
-      Arnd
-
-[1] https://lore.kernel.org/linux-arm-kernel/20220721150320.GA9385@macbook.musicnaut.iki.fi/
