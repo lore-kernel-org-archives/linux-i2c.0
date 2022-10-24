@@ -2,114 +2,326 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3812BECAAA1
-	for <linux-i2c@archiver.kernel.org>; Mon, 24 Oct 2022 15:09:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 922C6ECAAA1
+	for <linux-i2c@archiver.kernel.org>; Mon, 24 Oct 2022 16:05:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231352AbiJXPJy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 24 Oct 2022 11:09:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52074 "EHLO
+        id S232911AbiJXQFf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 24 Oct 2022 12:05:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235293AbiJXPJe (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Oct 2022 11:09:34 -0400
-Received: from mail-vs1-xe2e.google.com (mail-vs1-xe2e.google.com [IPv6:2607:f8b0:4864:20::e2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45E415A8CD
-        for <linux-i2c@vger.kernel.org>; Mon, 24 Oct 2022 06:46:03 -0700 (PDT)
-Received: by mail-vs1-xe2e.google.com with SMTP id k67so7888850vsk.2
-        for <linux-i2c@vger.kernel.org>; Mon, 24 Oct 2022 06:46:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Jh8UQ4JmTZN9hL0/8CXAkNYRnuwMy/n4/v6mITjc4KY=;
-        b=y0W+zUyiBftSd0JgAGoPOqPtmV13guRpqzbMHskUNvLCEuQ6pihIc7oGP6TuC3oQt5
-         NjC6zT2GBgFpwt3TaO3sCktoTg2zHU1fTtWzfcwSmh6ykgmIp95Eot8a0sqsecpFyW7x
-         1HT6dR9s6lU9w8AQMYPhYLXd1Gu3x1edoP1WhBwFF/jIaERMSCG6bAABteTZbOS+Taz8
-         m7SCCh9de8RQXNTOTCxekuN5wUYGpUE+af/pdLsiLsH9H7ozUi1IJplIrGjD7sC4Tf7t
-         s+A+OHtLvPIWSHgE+4xzSs5FzW53+pzJ7Liv/i1SA0R2VvOs5lkPyZK2zhrwcwhQeqwz
-         cUfg==
+        with ESMTP id S233907AbiJXQFK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Oct 2022 12:05:10 -0400
+Received: from mail-oa1-x29.google.com (mail-oa1-x29.google.com [IPv6:2001:4860:4864:20::29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC271357D1;
+        Mon, 24 Oct 2022 07:58:00 -0700 (PDT)
+Received: by mail-oa1-x29.google.com with SMTP id 586e51a60fabf-1322d768ba7so12132578fac.5;
+        Mon, 24 Oct 2022 07:58:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Jh8UQ4JmTZN9hL0/8CXAkNYRnuwMy/n4/v6mITjc4KY=;
-        b=sV3Aa+oAYke5AeDU5ZmHDcw4rrjn6K/SxkIMjqmt9aKKhZIuOVoJQWSnitAabK/iqE
-         WIafXl9nBXlZ/SwhPEEY9LA5cAW1AHFXgoH6aPes1UzJyZ3WK40bnI87BFXcjeWFzoBF
-         FhCZbyUn0fUki6GRIUkjAjKvGR9J6WZ/MmLZzxqoAsWfPR+cpmgPIIK2M4YEvxDkmsvQ
-         L+DCRD4k/1vaAh9d6O6g8jB7c5NanGYtmopABZhp8eEXGEf/h64nFGm3mbSrTI7+ea1K
-         DcKs3limS4CFp1KGrur+Fs/xihsIcJm7vguModd5E04QThiPmsrtNcrqgWVVCMTMA0n+
-         xAIQ==
-X-Gm-Message-State: ACrzQf1dpgLIJIde6KuRjxNk5QAbmkI/X4JFD9ZlBvIkxx8mjTLkxkqc
-        CmyWw8r0y9g52PunZQchjyHZOX760rxlQA==
-X-Google-Smtp-Source: AMsMyM64HS96JA+t5NegWTBhGoXrPmUTvN8S9j1oIuC6j5JnhVzd28Edhbio8VxlddWIvdR7T0/thQ==
-X-Received: by 2002:a0c:8ccc:0:b0:4b2:382e:ddaa with SMTP id q12-20020a0c8ccc000000b004b2382eddaamr27200510qvb.33.1666614368794;
-        Mon, 24 Oct 2022 05:26:08 -0700 (PDT)
-Received: from [192.168.1.8] ([64.57.193.93])
-        by smtp.gmail.com with ESMTPSA id u30-20020a37ab1e000000b006ef0350db8asm9109052qke.128.2022.10.24.05.26.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Oct 2022 05:26:08 -0700 (PDT)
-Message-ID: <a354c24d-0355-7c9d-ad05-4c21561af4dc@linaro.org>
-Date:   Mon, 24 Oct 2022 08:26:05 -0400
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gezVBAneqrs7XaH/fdMxwAK/2YWaqmP9HW9vTh1Ptis=;
+        b=5ck8jY3wn3g1GFZCemkmlqIbMU53/OmH2UaNVLjAoQJ0Vh/rqxGdpBRaHln4B0Ahap
+         CDMUmPHXHDEEhCbr8G3g8cRV6mw+YhC2gErSqQMkYy3EaqycwhqgaYBfBbujWB1zblg/
+         4ubADQdf0GL76Zzuo9+Ad+xF6AgG9LgH8Z1uaXF9ov0WKfpgTNvHoHOgdLxb6lZaHM7X
+         weMa0M7ts3sxzLCDMsSStJKPW2TQDUZx30zgueQ/r0roFF+6sgW9KBikuRn6JQHlux3K
+         4aEGo+dzttL2f9QR5BTgI0MFvaT05YHamKUVgeBXbDA0lFkC6UNFKC7UPdAti2TMNJiG
+         NACA==
+X-Gm-Message-State: ACrzQf3qeeFsSTuHCBKDIJVauoEU9xs1IgJnfEC92j04p5HqqijCCVYy
+        A1QKBAhSG+1SmAemKBN9qA==
+X-Google-Smtp-Source: AMsMyM42Jg3r8Ewtmh0Qc3jpN13ZbUDnPdjYyras8m0IwxfR0o9ZvqlFWkFA5v9EIKywV/cIiznewg==
+X-Received: by 2002:a05:6870:d389:b0:13b:a0cd:5fcd with SMTP id k9-20020a056870d38900b0013ba0cd5fcdmr3731915oag.260.1666623286325;
+        Mon, 24 Oct 2022 07:54:46 -0700 (PDT)
+Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
+        by smtp.gmail.com with ESMTPSA id t19-20020a056871055300b0013b1301ce42sm5474921oal.47.2022.10.24.07.54.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Oct 2022 07:54:45 -0700 (PDT)
+Received: (nullmailer pid 1774935 invoked by uid 1000);
+        Mon, 24 Oct 2022 14:54:46 -0000
+Date:   Mon, 24 Oct 2022 09:54:46 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Wayne Chang <waynec@nvidia.com>
+Cc:     gregkh@linuxfoundation.org, krzysztof.kozlowski+dt@linaro.org,
+        treding@nvidia.com, jonathanh@nvidia.com, thierry.reding@gmail.com,
+        heikki.krogerus@linux.intel.com, ajayg@nvidia.com, kishon@ti.com,
+        vkoul@kernel.org, p.zabel@pengutronix.de, balbi@kernel.org,
+        mathias.nyman@intel.com, jckuo@nvidia.com,
+        linux-usb@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, singhanc@nvidia.com,
+        linux-i2c@vger.kernel.org, linux-phy@lists.infradead.org,
+        linux-tegra@vger.kernel.org
+Subject: Re: [PATCH 02/11] dt-bindings: usb: Add NVIDIA Tegra XUSB host
+ controller binding
+Message-ID: <20221024145446.GA1763588-robh@kernel.org>
+References: <20221024074128.1113554-1-waynec@nvidia.com>
+ <20221024074128.1113554-3-waynec@nvidia.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH 02/21] ARM: s3c: remove s3c24xx specific hacks
-Content-Language: en-US
-To:     Arnd Bergmann <arnd@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Cc:     linux-kernel@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>,
-        Simtec Linux Team <linux@simtec.co.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Sylwester Nawrocki <sylvester.nawrocki@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org
-References: <20221021202254.4142411-1-arnd@kernel.org>
- <20221021203329.4143397-2-arnd@kernel.org>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20221021203329.4143397-2-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221024074128.1113554-3-waynec@nvidia.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 21/10/2022 16:27, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Mon, Oct 24, 2022 at 03:41:19PM +0800, Wayne Chang wrote:
+> Add device-tree binding documentation for the XUSB host controller present
+> on Tegra194 and Tegra234 SoC. This controller supports the USB 3.1
+> specification.
 > 
-> A number of device drivers reference CONFIG_ARM_S3C24XX_CPUFREQ or
-> similar symbols that are no longer available with the platform gone,
-> though the drivers themselves are still used on newer platforms,
-> so remove these hacks.
+> Signed-off-by: Wayne Chang <waynec@nvidia.com>
+> ---
+>  .../bindings/usb/nvidia,tegra-xhci.yaml       | 213 ++++++++++++++++++
+>  1 file changed, 213 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/usb/nvidia,tegra-xhci.yaml
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> diff --git a/Documentation/devicetree/bindings/usb/nvidia,tegra-xhci.yaml b/Documentation/devicetree/bindings/usb/nvidia,tegra-xhci.yaml
+> new file mode 100644
+> index 000000000000..d261a419a04f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/usb/nvidia,tegra-xhci.yaml
+> @@ -0,0 +1,213 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: "http://devicetree.org/schemas/usb/nvidia,tegra-xhci.yaml#"
+> +$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+> +
+> +title: Device tree binding for NVIDIA Tegra XUSB host controller
 
+Drop 'Device tree binding for '
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> +
+> +description:
+> +  The Tegra XHCI controller supports both USB 2.0 HighSpeed/FullSpeed and
+> +  USB 3.1 SuperSpeed protocols.
+> +
+> +maintainers:
+> +  - Wayne Chang <waynec@nvidia.com>
+> +
 
-Best regards,
-Krzysztof
+Ref to usb-xhci.yaml? Or usb-hcd.yaml.
 
+> +properties:
+> +  compatible:
+> +    items:
+> +      - enum:
+> +          - nvidia,tegra194-xusb # For Tegra194
+> +          - nvidia,tegra234-xusb # For Tegra234
+
+The comment is kind of redundant.
+
+> +
+> +  reg:
+> +    minItems: 2
+> +    items:
+> +      - description: XUSB host controller registers
+> +      - description: XUSB host PCI Config registers
+> +      - description: XUSB host bar2 registers
+
+Drop 'XUSB host '
+
+> +
+> +  reg-names:
+> +    minItems: 2
+> +    items:
+> +      - const: hcd
+> +      - const: fpci
+> +      - const: bar2
+> +
+> +  interrupts:
+> +    items:
+> +      - description: Must contain the XUSB host interrupt.
+> +      - description: Must contain the XUSB mbox interrupt.
+
+Drop 'Must contain the '
+
+> +
+> +  clocks:
+> +    items:
+> +      - description: Clock to enable core XUSB host clock.
+> +      - description: Clock to enable XUSB falcon clock.
+> +      - description: Clock to enable XUSB super speed clock.
+> +      - description: Clock to enable XUSB super speed dev clock.
+> +      - description: Clock to enable XUSB high speed dev clock.
+> +      - description: Clock to enable XUSB full speed dev clock.
+> +      - description: Clock to enable XUSB UTMI PLL clock.
+> +      - description: Clock to enable core XUSB dev clock.
+> +      - description: Clock to enable XUSB PLLE clock.
+
+Drop 'Clock to enable '
+
+> +
+> +  clock-names:
+> +    items:
+> +      - const: xusb_host
+> +      - const: xusb_falcon_src
+> +      - const: xusb_ss
+> +      - const: xusb_ss_src
+> +      - const: xusb_hs_src
+> +      - const: xusb_fs_src
+> +      - const: pll_u_480m
+> +      - const: clk_m
+> +      - const: pll_e
+> +
+> +  interconnects:
+> +    items:
+> +      - description: memory read client
+> +      - description: memory write client
+> +
+> +  interconnect-names:
+> +    items:
+> +      - const: dma-mem # read
+> +      - const: write
+> +
+> +  iommus:
+> +    maxItems: 1
+> +
+> +  power-domains:
+> +    items:
+> +      - description: XUSBC(host) power-domain
+> +      - description: XUSBA(superspeed) power-domain
+> +
+> +  power-domain-names:
+> +    items:
+> +      - const: xusb_host
+> +      - const: xusb_ss
+
+Drop 'xusb_'.
+
+> +
+> +  nvidia,xusb-padctl:
+> +    $ref: /schemas/types.yaml#/definitions/phandle
+> +    description:
+> +      phandle to the XUSB pad controller that is used to configure the USB pads
+> +      used by the XUDC controller.
+> +
+> +  phys:
+> +    minItems: 1
+> +    maxItems: 8
+> +    description:
+> +      Must contain an entry for each entry in phy-names.
+> +      See ../phy/phy-bindings.txt for details.
+
+Drop description.
+
+> +
+> +  phy-names:
+> +    minItems: 1
+> +    maxItems: 8
+> +    items:
+> +      anyOf:
+> +        - const: usb2-0
+> +        - const: usb2-1
+> +        - const: usb2-2
+> +        - const: usb2-3
+> +        - const: usb3-0
+> +        - const: usb3-1
+> +        - const: usb3-2
+> +        - const: usb3-3
+> +
+> +  dma-coherent:
+> +    type: boolean
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - reg-names
+> +  - interrupts
+> +  - clocks
+> +  - clock-names
+> +  - power-domains
+> +  - power-domain-names
+> +  - nvidia,xusb-padctl
+> +  - phys
+> +  - phy-names
+> +
+> +allOf:
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            enum:
+> +              - nvidia,tegra194-xusb
+> +    then:
+> +      properties:
+> +        reg:
+> +          minItems: 2
+> +        reg-names:
+> +          minItems: 2
+> +        clocks:
+> +          minItems: 9
+> +        clock-names:
+> +          minItems: 9
+> +
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            enum:
+> +              - nvidia,tegra234-xusb
+> +    then:
+> +      properties:
+> +        reg:
+> +          minItems: 3
+> +        reg-names:
+> +          minItems: 3
+> +        clocks:
+> +          minItems: 9
+> +        clock-names:
+> +          minItems: 9
+
+Same number of items, why are clocks in the if/then?
+
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/gpio/tegra234-gpio.h>
+> +    #include <dt-bindings/clock/tegra234-clock.h>
+> +    #include <dt-bindings/memory/tegra234-mc.h>
+> +    #include <dt-bindings/power/tegra234-powergate.h>
+> +    #include <dt-bindings/interrupt-controller/arm-gic.h>
+> +    usb@3610000 {
+> +      compatible = "nvidia,tegra234-xusb";
+> +      reg = <0x03610000 0x40000>,
+> +            <0x03600000 0x10000>,
+> +            <0x03650000 0x10000>;
+> +      reg-names = "hcd", "fpci", "bar2";
+> +
+> +      interrupts = <GIC_SPI 163 IRQ_TYPE_LEVEL_HIGH>,
+> +             <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
+> +
+> +      clocks = <&bpmp TEGRA234_CLK_XUSB_CORE_HOST>,
+> +         <&bpmp TEGRA234_CLK_XUSB_FALCON>,
+> +         <&bpmp TEGRA234_CLK_XUSB_CORE_SS>,
+> +         <&bpmp TEGRA234_CLK_XUSB_SS>,
+> +         <&bpmp TEGRA234_CLK_CLK_M>,
+> +         <&bpmp TEGRA234_CLK_XUSB_FS>,
+> +         <&bpmp TEGRA234_CLK_UTMIP_PLL>,
+> +         <&bpmp TEGRA234_CLK_CLK_M>,
+> +         <&bpmp TEGRA234_CLK_PLLE>;
+> +      clock-names = "xusb_host", "xusb_falcon_src",
+> +              "xusb_ss", "xusb_ss_src", "xusb_hs_src",
+> +              "xusb_fs_src", "pll_u_480m", "clk_m",
+> +              "pll_e";
+> +      interconnects = <&mc TEGRA234_MEMORY_CLIENT_XUSB_HOSTR &emc>,
+> +          <&mc TEGRA234_MEMORY_CLIENT_XUSB_HOSTW &emc>;
+> +      interconnect-names = "dma-mem", "write";
+> +      iommus = <&smmu_niso1 TEGRA234_SID_XUSB_HOST>;
+> +
+> +      power-domains = <&bpmp TEGRA234_POWER_DOMAIN_XUSBC>,
+> +          <&bpmp TEGRA234_POWER_DOMAIN_XUSBA>;
+> +      power-domain-names = "xusb_host", "xusb_ss";
+> +
+> +      nvidia,xusb-padctl = <&xusb_padctl>;
+> +
+> +      phys =  <&pad_lanes_usb2_0>;
+> +      phy-names = "usb2-0";
+> +
+> +    };
+> -- 
+> 2.25.1
+> 
+> 
