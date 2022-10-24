@@ -2,123 +2,53 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A105CFA373F
-	for <linux-i2c@archiver.kernel.org>; Mon, 24 Oct 2022 01:44:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA76BFA373F
+	for <linux-i2c@archiver.kernel.org>; Mon, 24 Oct 2022 05:45:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229914AbiJXBoK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 23 Oct 2022 21:44:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45960 "EHLO
+        id S229910AbiJXFpr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 24 Oct 2022 01:45:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229667AbiJXBoJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 23 Oct 2022 21:44:09 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0178C6D9FD;
-        Sun, 23 Oct 2022 18:44:07 -0700 (PDT)
-Received: from canpemm500004.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Mwd616nRgzVj1C;
-        Mon, 24 Oct 2022 09:39:21 +0800 (CST)
-Received: from localhost (10.175.101.6) by canpemm500004.china.huawei.com
- (7.192.104.92) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Mon, 24 Oct
- 2022 09:44:05 +0800
-From:   Weilong Chen <chenweilong@huawei.com>
-To:     <chenweilong@huawei.com>, <yangyicong@hisilicon.com>,
-        <xuwei5@huawei.com>, <wsa@kernel.org>, <robh+dt@kernel.org>,
-        <robh@kernel.org>
-CC:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <devicetree@vger.kernel.org>
-Subject: [PATCH next v8 1/2] i2c: hisi: Add initial device tree support
-Date:   Mon, 24 Oct 2022 09:51:50 +0800
-Message-ID: <20221024015151.342651-1-chenweilong@huawei.com>
-X-Mailer: git-send-email 2.31.GIT
+        with ESMTP id S229908AbiJXFpq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Oct 2022 01:45:46 -0400
+Received: from muru.com (muru.com [72.249.23.125])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 43CA664FE;
+        Sun, 23 Oct 2022 22:45:45 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by muru.com (Postfix) with ESMTPS id DCA15822A;
+        Mon, 24 Oct 2022 05:36:30 +0000 (UTC)
+Date:   Mon, 24 Oct 2022 08:45:43 +0300
+From:   Tony Lindgren <tony@atomide.com>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        linux-omap@vger.kernel.org, Lee Jones <lee@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: Re: [PATCH 13/17] ARM: omap1: remove unused board files
+Message-ID: <Y1YmhwPeekQ/OSWL@atomide.com>
+References: <20221019144119.3848027-1-arnd@kernel.org>
+ <20221019150410.3851944-1-arnd@kernel.org>
+ <20221019150410.3851944-13-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.101.6]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- canpemm500004.china.huawei.com (7.192.104.92)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221019150410.3851944-13-arnd@kernel.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The HiSilicon I2C controller can be used on embedded platform, which
-boot from devicetree.
+* Arnd Bergmann <arnd@kernel.org> [221019 15:08]:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> All board support that was marked as 'unused' earlier can
+> now be removed, leaving the five machines that that still
+> had someone using them in 2022, or that are supported in
+> qemu.
 
-Signed-off-by: Weilong Chen <chenweilong@huawei.com>
-Acked-by: Yicong Yang <yangyicong@hisilicon.com>
----
-Change since v7:
-- No change
-Link: https://lore.kernel.org/all/20221021035638.203929-1-chenweilong@huawei.com/
-
- drivers/i2c/busses/Kconfig    |  2 +-
- drivers/i2c/busses/i2c-hisi.c | 15 ++++++++++++++-
- 2 files changed, 15 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 264e780ae32e..a2081c03f3c4 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -673,7 +673,7 @@ config I2C_HIGHLANDER
- 
- config I2C_HISI
- 	tristate "HiSilicon I2C controller"
--	depends on (ARM64 && ACPI) || COMPILE_TEST
-+	depends on ARM64 || COMPILE_TEST
- 	help
- 	  Say Y here if you want to have Hisilicon I2C controller support
- 	  available on the Kunpeng Server.
-diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
-index 76c3d8f6fc3c..d58a6d2f1bc6 100644
---- a/drivers/i2c/busses/i2c-hisi.c
-+++ b/drivers/i2c/busses/i2c-hisi.c
-@@ -5,6 +5,7 @@
-  * Copyright (c) 2021 HiSilicon Technologies Co., Ltd.
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/bits.h>
- #include <linux/bitfield.h>
- #include <linux/completion.h>
-@@ -13,6 +14,7 @@
- #include <linux/io.h>
- #include <linux/module.h>
- #include <linux/mod_devicetable.h>
-+#include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/property.h>
- #include <linux/units.h>
-@@ -483,17 +485,28 @@ static int hisi_i2c_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_ACPI
- static const struct acpi_device_id hisi_i2c_acpi_ids[] = {
- 	{ "HISI03D1", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, hisi_i2c_acpi_ids);
-+#endif
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id hisi_i2c_dts_ids[] = {
-+	{ .compatible = "hisilicon,i2c-ascend910", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, hisi_i2c_dts_ids);
-+#endif
- 
- static struct platform_driver hisi_i2c_driver = {
- 	.probe		= hisi_i2c_probe,
- 	.driver		= {
- 		.name	= "hisi-i2c",
--		.acpi_match_table = hisi_i2c_acpi_ids,
-+		.acpi_match_table = ACPI_PTR(hisi_i2c_acpi_ids),
-+		.of_match_table = of_match_ptr(hisi_i2c_dts_ids),
- 	},
- };
- module_platform_driver(hisi_i2c_driver);
--- 
-2.31.GIT
-
+Acked-by: Tony Lindgren <tony@atomide.com>
