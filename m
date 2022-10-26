@@ -2,42 +2,42 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8570C38A2D
-	for <linux-i2c@archiver.kernel.org>; Wed, 26 Oct 2022 12:40:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 916CAC38A2D
+	for <linux-i2c@archiver.kernel.org>; Wed, 26 Oct 2022 12:40:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbiJZMkK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 26 Oct 2022 08:40:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55620 "EHLO
+        id S233885AbiJZMkP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 26 Oct 2022 08:40:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233874AbiJZMjn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Oct 2022 08:39:43 -0400
+        with ESMTP id S233693AbiJZMjo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Oct 2022 08:39:44 -0400
 Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18636EE27
-        for <linux-i2c@vger.kernel.org>; Wed, 26 Oct 2022 05:39:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050661A21D
+        for <linux-i2c@vger.kernel.org>; Wed, 26 Oct 2022 05:39:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666787973; x=1698323973;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=RaBnxfMBfcpqXLK3EOjdo2cpz5a9PVwJCLVsFWs+tJw=;
-  b=fDQJj5zLc603gylvLj/HBxNQLKO3NPK8yX5AmA0Www5Tn95hJtI3534Y
-   XImHLiVoLp67/AlEGPUJI42vJg8KN0AA6iTibbYYzkKQV5OBciQFBNmsw
-   L6AJc/z9u+2qZuBixTqRnaieUQ/JMqAkT9WgN7HqlWppV0vvtrkEiIq+I
-   0NHjYdzBbA2ZB/XrPmmEdSXIgoWM23A/awbb58qQVps+hBsRXRALvQsCB
-   IeP521Gya86hhcDjD/HBOgHP6kKIIc0Yp/1c+RpUAI6bPaFUejl3R6fR3
-   QSuscRUNMHrqVdgFU6xJsgWnRwtRZnJDq/jIVt722/5APR5fd8ZNOFASI
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10512"; a="309625006"
+  t=1666787979; x=1698323979;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=x5Jtv6AbdPPWg+BucsjrEwBTpIlqdJd0eCHPlqZ5yV8=;
+  b=mH/9u1l8paR1HYKOiJ7AMIMzq8QQwrjxH6qi/i1fjIHzhDqKKjgT9g5d
+   EPtRQ0kMJfzRteqfyePESUADBX3NjjcMUkEgZ8MyAcHQ8KhXF4Q7tld/z
+   f7ylvRnEXqe1+oINaJTTzhLQXmp10Gtl6MIh8BGm6oV99YUz6zBTqbw1F
+   Zlua5VyIm6+x5pqWQ67g0Xt25mB/mK6UJ26FL1bWsemumRSFa+QcQrRI3
+   GCcAuc8LUBEqlcEI8Vsjh8ybTMQy+XqOePV3JgZCXo4K5eLX1wRXISxif
+   rcpIMlcZrWHlh0Z57o3kCgQTPTRNZ20IiwLu5mKQaYqE8iKPGczMud9Py
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10512"; a="309625017"
 X-IronPort-AV: E=Sophos;i="5.95,214,1661842800"; 
-   d="scan'208";a="309625006"
+   d="scan'208";a="309625017"
 Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Oct 2022 05:39:32 -0700
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Oct 2022 05:39:37 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10512"; a="700908617"
+X-IronPort-AV: E=McAfee;i="6500,9779,10512"; a="700908630"
 X-IronPort-AV: E=Sophos;i="5.95,214,1661842800"; 
-   d="scan'208";a="700908617"
+   d="scan'208";a="700908630"
 Received: from mylly.fi.intel.com (HELO mylly.fi.intel.com.) ([10.237.72.55])
-  by fmsmga004.fm.intel.com with ESMTP; 26 Oct 2022 05:39:29 -0700
+  by fmsmga004.fm.intel.com with ESMTP; 26 Oct 2022 05:39:34 -0700
 From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     Wolfram Sang <wsa@kernel.org>,
@@ -47,60 +47,124 @@ Cc:     Wolfram Sang <wsa@kernel.org>,
         Michael Wu <michael.wu@vatics.com>, Tian Ye <tianye@sugon.com>,
         Luis Oliveira <luis.oliveira@synopsys.com>,
         Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH 00/11] i2c: designware: Slave fixes and generic cleanups
-Date:   Wed, 26 Oct 2022 15:39:01 +0300
-Message-Id: <20221026123912.2833271-1-jarkko.nikula@linux.intel.com>
+Subject: [PATCH 02/11] i2c: designware: Empty receive FIFO in slave interrupt handler
+Date:   Wed, 26 Oct 2022 15:39:03 +0300
+Message-Id: <20221026123912.2833271-3-jarkko.nikula@linux.intel.com>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221026123912.2833271-1-jarkko.nikula@linux.intel.com>
+References: <20221026123912.2833271-1-jarkko.nikula@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi
+Writes from I2C bus often fail when testing the i2c-designware-slave.c
+with the slave-eeprom backend. The same writes work correctly when
+testing with a real 24c02 EEPROM chip.
 
-I discovered recently while doing other cleanups.that reads and writes
-from I2C bus to i2c-designware-slave.c don't work correctly.
+In the tests below an i2c-designware-slave.c instance with the
+slave-eeprom backend is configured to act as a simulated 24c02 at
+address 0x65 on an I2C host bus 6.
 
-First two patches are fixes to slave code and meant for normal development
-cycle since it looks these issues have been always here.
+1. i2cset -y 6 0x65 0x00 0x55
 
-I Cc'ed Michael Wu <michael.wu@vatics.com> who has fixed
-i2c-designware-slave.c before and Tian Ye <tianye@sugon.com> who recently
-reported a write issue.
+Single byte 0x55 write into address 0x00. No data goes into simulated
+EEPROM. Debug prints from the i2c_dw_irq_handler_slave():
 
-Could you test first two patches (or the whole set) that my patches won't
-cause regressions to your existing test cases or does the 2nd patch fix
-the write issue?
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x714 : INTR_STAT=0x204
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
 
-Rest of patches are minor changes and cleanups to both master and slave
-parts.
+2. i2ctransfer -y 6 w9@0x65 0x00 0xff-
 
-Patchset is done on top of commit fd142e074e89 ("Merge branch
-'i2c/for-current-fixed' into i2c/for-next") but may apply on top of
-v6.1-rc1 too.
+Write 8 bytes with decrementing value starting from 0xff at address 0x00
+and forward. Only some of the data goes into arbitrary addresses.
+Content is something like below but varies:
 
-Jarkko Nikula (11):
-  i2c: designware: Fix slave state machine for sequential reads
-  i2c: designware: Empty receive FIFO in slave interrupt handler
-  i2c: designware: Define software status flags with BIT()
-  i2c: designware: Remove needless initializations from
-    i2c_dw_reg_slave()
-  i2c: designware: Remove unused completion code from
-    i2c-designware-slave
-  i2c: designware: Simplify slave interrupt handler nesting
-  i2c: designware: Do not process interrupt when device is suspended
-  i2c: designware: Move debug print in i2c_dw_isr()
-  i2c: designware: Simplify master interrupt handler nesting
-  i2c: designware: Remove common i2c_dw_disable_int()
-  i2c: designware: Align defines in i2c-designware-core.h
+00000000  f9 f8 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000050  00 00 00 00 00 00 ff fe  00 00 00 00 00 00 00 00  |................|
+000000f0  00 00 00 00 00 00 00 00  00 00 00 00 00 fc fb fa  |................|
 
- drivers/i2c/busses/i2c-designware-common.c |   5 -
- drivers/i2c/busses/i2c-designware-core.h   | 235 ++++++++++-----------
- drivers/i2c/busses/i2c-designware-master.c |  44 ++--
- drivers/i2c/busses/i2c-designware-slave.c  |  77 +++----
- 4 files changed, 164 insertions(+), 197 deletions(-)
+In this case debug prints were:
 
+0x1 STATUS SLAVE_ACTIVITY=0x1 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+0x1 STATUS SLAVE_ACTIVITY=0x1 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x714 : INTR_STAT=0x204
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x514 : INTR_STAT=0x4
+0x1 STATUS SLAVE_ACTIVITY=0x0 : RAW_INTR_STAT=0x510 : INTR_STAT=0x0
+
+Both cases show there is more data coming from the receive FIFO still
+after detecting the STOP condition. This can be seen from interrupt
+status bits DW_IC_INTR_STOP_DET (0x200) and DW_IC_INTR_RX_FULL (0x4).
+
+Perhaps due interrupt latencies the receive FIFO is not read fast
+enough, STOP detection happens synchronously when it occurs on the I2C
+bus and the DW_IC_INTR_RX_FULL keeps coming as long as there are more
+bytes in the receive FIFO.
+
+Fix this by reading the receive FIFO completely empty whenever
+DW_IC_INTR_RX_FULL occurs. Use RFNE, Receive FIFO Not Empty bit in the
+DW_IC_STATUS register to loop through bytes in the FIFO.
+
+While at it do not test the return code from i2c_slave_event() for the
+I2C_SLAVE_WRITE_RECEIVED since to my understanding this hardware cannot
+generate NACK to incoming bytes and debug print itself does not have
+much value.
+
+Reported-by: Tian Ye <tianye@sugon.com>
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+Hi Tian Ye. I've been testing the i2c-designware-slave.c recently and
+discovered these write issues. Your recent patch gave an idea what might
+cause them. In my solution I went testing DW_IC_STATUS_RFNE since
+according to datasheet it's equivalent to RX_FULL interrupt in case
+interrupts are masked. Seems to work here too.
+Does this fix the issue you were seeing?
+---
+ drivers/i2c/busses/i2c-designware-core.h  |  1 +
+ drivers/i2c/busses/i2c-designware-slave.c | 12 +++++++-----
+ 2 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index dbf6bdc5f01b..6d1df28dd93b 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -108,6 +108,7 @@
+ 
+ #define DW_IC_STATUS_ACTIVITY		BIT(0)
+ #define DW_IC_STATUS_TFE		BIT(2)
++#define DW_IC_STATUS_RFNE		BIT(3)
+ #define DW_IC_STATUS_MASTER_ACTIVITY	BIT(5)
+ #define DW_IC_STATUS_SLAVE_ACTIVITY	BIT(6)
+ 
+diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+index 1eac4f4d5573..295774a69b67 100644
+--- a/drivers/i2c/busses/i2c-designware-slave.c
++++ b/drivers/i2c/busses/i2c-designware-slave.c
+@@ -180,11 +180,13 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
+ 					&val);
+ 		}
+ 
+-		regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
+-		val = tmp;
+-		if (!i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_RECEIVED,
+-				     &val))
+-			dev_vdbg(dev->dev, "Byte %X acked!", val);
++		do {
++			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
++			val = tmp;
++			i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_RECEIVED,
++					&val);
++			regmap_read(dev->map, DW_IC_STATUS, &tmp);
++		} while (tmp & DW_IC_STATUS_RFNE);
+ 	}
+ 
+ 	if (stat & DW_IC_INTR_RD_REQ) {
 -- 
 2.35.1
 
