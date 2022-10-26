@@ -2,42 +2,42 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DA48C433FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 26 Oct 2022 12:40:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 388D5FA373E
+	for <linux-i2c@archiver.kernel.org>; Wed, 26 Oct 2022 12:40:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233896AbiJZMkW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 26 Oct 2022 08:40:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54474 "EHLO
+        id S233894AbiJZMkX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 26 Oct 2022 08:40:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233894AbiJZMjp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Oct 2022 08:39:45 -0400
+        with ESMTP id S233835AbiJZMjr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Oct 2022 08:39:47 -0400
 Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682F918372
-        for <linux-i2c@vger.kernel.org>; Wed, 26 Oct 2022 05:39:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 492B22228A
+        for <linux-i2c@vger.kernel.org>; Wed, 26 Oct 2022 05:39:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666787975; x=1698323975;
+  t=1666787981; x=1698323981;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=jqWQGUKsERpQrqWACrIe9vmdrDspVk+y9eKu2WGcb3I=;
-  b=YBmxdSC0z3Dgb3HLup+pKukeHYLdPklstC0iRACMso+nKybXPv097mLD
-   Tv6UbPzTX6R4s+x7y9wIH1JI1l8z+EP7wcAL/3Z6eadBhJSbzfmujS67W
-   NW/jLHHeGyG2WnTjLrfLmyUSD1je7kX2JGQOTedvFr/E8kIyEU5o1zy9r
-   2AQu44lL3KKQXp3Dfe99jzW8tjBjEyERCx3Rr/jTRJZryjqz1ryn90eeC
-   6yUtMzq7EidIkXQ7whf9bV4nj0BOIVCqyx0rjoYNHjRsCo2hbkyc7MxdB
-   RTfbcV3/6qE1ZbmRN69hDS6XY3f9I8dpTwZW82Q9+5BHt0jET/bUdTg0W
+  bh=U+WP8cv9IFqhjJKZWPS1nEznzAEpajKg9fd+T0IjFcQ=;
+  b=NNZOOBouADwVcPfM4ZaKiuoIKs/6xP2iEEq557YrrDQEEvkCfwQxspcZ
+   rd1hILCc0ZcbEwLsycoYvToNm56RiQWXABAAk8t7iiI85GRy9xZSAEykM
+   KXgh0LECZDqs6Am3Dr/qXnCB/38Ra2GW1NCsyfpBZGDHo2OeRwf5LUdT4
+   1Pox3LBkrog338RMi+jbSXFcdMtgIN/7EoSB49cLttskwGxrc0IboPxRD
+   6Rj/s8r1P2gFNdMP1oEXowpy0fGKFfuQNFoij1kPTp9VSyZPDZhjcADDA
+   LLWX1I6vk30+g8D7rP3bSNaWiAPSs+hFMOc0GeSIGvSOh4ZzodzR2XIfx
    A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10512"; a="309625009"
+X-IronPort-AV: E=McAfee;i="6500,9779,10512"; a="309625022"
 X-IronPort-AV: E=Sophos;i="5.95,214,1661842800"; 
-   d="scan'208";a="309625009"
+   d="scan'208";a="309625022"
 Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Oct 2022 05:39:34 -0700
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Oct 2022 05:39:40 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10512"; a="700908627"
+X-IronPort-AV: E=McAfee;i="6500,9779,10512"; a="700908641"
 X-IronPort-AV: E=Sophos;i="5.95,214,1661842800"; 
-   d="scan'208";a="700908627"
+   d="scan'208";a="700908641"
 Received: from mylly.fi.intel.com (HELO mylly.fi.intel.com.) ([10.237.72.55])
-  by fmsmga004.fm.intel.com with ESMTP; 26 Oct 2022 05:39:31 -0700
+  by fmsmga004.fm.intel.com with ESMTP; 26 Oct 2022 05:39:37 -0700
 From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     Wolfram Sang <wsa@kernel.org>,
@@ -47,9 +47,9 @@ Cc:     Wolfram Sang <wsa@kernel.org>,
         Michael Wu <michael.wu@vatics.com>, Tian Ye <tianye@sugon.com>,
         Luis Oliveira <luis.oliveira@synopsys.com>,
         Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH 01/11] i2c: designware: Fix slave state machine for sequential reads
-Date:   Wed, 26 Oct 2022 15:39:02 +0300
-Message-Id: <20221026123912.2833271-2-jarkko.nikula@linux.intel.com>
+Subject: [PATCH 03/11] i2c: designware: Define software status flags with BIT()
+Date:   Wed, 26 Oct 2022 15:39:04 +0300
+Message-Id: <20221026123912.2833271-4-jarkko.nikula@linux.intel.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221026123912.2833271-1-jarkko.nikula@linux.intel.com>
 References: <20221026123912.2833271-1-jarkko.nikula@linux.intel.com>
@@ -59,142 +59,75 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Some read types from I2C bus don't work correctly when testing the
-i2c-designware-slave.c with the slave-eeprom backend. The same reads
-work correctly when testing with a real 24c02 EEPROM chip.
+Define software status flags with a BIT() macro. While at it remove
+STATUS_IDLE and replace its use with zero initialization and status
+flags clearing with a mask.
 
-In the following tests an i2c-designware-slave.c instance with the
-slave-eeprom backend is configured to act as a simulated 24c02 at
-address 0x65 on an I2C host bus 6:
-
-1. i2cdump -y 6 0x65 b (OK)
-   Random read. Each byte are read using a byte address write with a
-   current address read in a same message.
-2. i2cdump -y 6 0x65 c (OK, was NOK before commit 3b5f7f10ff6e when it
-                        was repeating the 1st byte)
-   Repeated current address read. One byte address write message
-   followed by repeated current address read messages.
-3. i2cdump -y 6 0x65 i (NOK, each 32 byte block repeats the 1st byte of
-                        block)
-   Sequential read using SMBus Block Read. For each 32 byte block a byte
-   address write followed by 32 sequental reads in a same message.
-
-These findings are explained because the implementation has had a
-mismatch between hardware interrupts and what I2C slave events should be
-sent after those interrupts. Despite that the case 1 happened to have
-always the I2C slave events sent to a right order with a right data
-between backend and the I2C bus.
-
-Hardware generates the DW_IC_INTR_RD_REQ interrupt when another host is
-attempting to read and for sequential reads after. DW_IC_INTR_RX_DONE
-occurs when host does not acknowledge a transmitted byte which is an
-indication the end of transmission.
-
-Those interrupts do not match directly with I2C_SLAVE_READ_REQUESTED and
-I2C_SLAVE_READ_PROCESSED events which is how the code was and is
-practically using them. The slave-eeprom backend increases the buffer
-index with the I2C_SLAVE_READ_PROCESSED event and returns the data from
-current index when receiving only the I2C_SLAVE_READ_REQUESTED event.
-
-That explains the repeated bytes in case 3 and also case 2 before
-commit 3b5f7f10ff6e ("i2c: designware: slave should do WRITE_REQUESTED
-before WRITE_RECEIVED").
-
-Patch fixes the case 3 while keep cases 1 and 2 working with following
-changes:
-
-- First DW_IC_INTR_RD_REQ interrupt will change the state machine to
-  read in progress state, send I2C_SLAVE_READ_REQUESTED event and
-  transmit the first byte from backend
-- Subsequent DW_IC_INTR_RD_REQ interrupts will send
-  I2C_SLAVE_READ_PROCESSED events and transmit next bytes from backend
-- STOP won't change the state machine. Otherwise case 2 won't work since
-  we cannot distinguish current address read from sequentiel read
-- DW_IC_INTR_RX_DONE interrupt is needless since there is no mechanism
-  to inform it to a backend. It cannot be used to change state machine
-  at the end of read either due the same reason than above
-- Next host write to us will change the state machine from read to write
-  in progress state
-- STATUS_WRITE_IN_PROGRESS and STATUS_READ_IN_PROGRESS are considered
-  now to be status flags not the state of the driver. This is how we
-  treat them in i2c-designware-master.c
-
-While at it do not test the return code from i2c_slave_event() for
-I2C_SLAVE_READ_REQUESTED and I2C_SLAVE_READ_PROCESSED since it returns
-always 0.
-
+Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.h  |  1 -
- drivers/i2c/busses/i2c-designware-slave.c | 32 +++++++++++------------
- 2 files changed, 16 insertions(+), 17 deletions(-)
+ drivers/i2c/busses/i2c-designware-core.h   | 10 +++++-----
+ drivers/i2c/busses/i2c-designware-master.c |  4 ++--
+ drivers/i2c/busses/i2c-designware-slave.c  |  2 +-
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 4d3a3b464ecd..dbf6bdc5f01b 100644
+index 6d1df28dd93b..457e6966f85e 100644
 --- a/drivers/i2c/busses/i2c-designware-core.h
 +++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -103,7 +103,6 @@
- #define DW_IC_INTR_MASTER_MASK		(DW_IC_INTR_DEFAULT_MASK | \
- 					 DW_IC_INTR_TX_EMPTY)
- #define DW_IC_INTR_SLAVE_MASK		(DW_IC_INTR_DEFAULT_MASK | \
--					 DW_IC_INTR_RX_DONE | \
- 					 DW_IC_INTR_RX_UNDER | \
- 					 DW_IC_INTR_RD_REQ)
+@@ -123,12 +123,12 @@
+ #define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK	GENMASK(3, 2)
  
+ /*
+- * status codes
++ * Sofware status flags
+  */
+-#define STATUS_IDLE			0x0
+-#define STATUS_ACTIVE			0x1
+-#define STATUS_WRITE_IN_PROGRESS	0x2
+-#define STATUS_READ_IN_PROGRESS		0x4
++#define STATUS_ACTIVE			BIT(0)
++#define STATUS_WRITE_IN_PROGRESS	BIT(1)
++#define STATUS_READ_IN_PROGRESS		BIT(2)
++#define STATUS_MASK			GENMASK(2, 0)
+ 
+ /*
+  * operation modes
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index dc3c5a15a95b..1b7db2b58f31 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -574,7 +574,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	dev->msg_write_idx = 0;
+ 	dev->msg_read_idx = 0;
+ 	dev->msg_err = 0;
+-	dev->status = STATUS_IDLE;
++	dev->status = 0;
+ 	dev->abort_source = 0;
+ 	dev->rx_outstanding = 0;
+ 
+@@ -731,7 +731,7 @@ static int i2c_dw_irq_handler_master(struct dw_i2c_dev *dev)
+ 
+ 	if (stat & DW_IC_INTR_TX_ABRT) {
+ 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
+-		dev->status = STATUS_IDLE;
++		dev->status &= ~STATUS_MASK;
+ 		dev->rx_outstanding = 0;
+ 
+ 		/*
 diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index 0d15f4c1e9f7..1eac4f4d5573 100644
+index 295774a69b67..84eb0bec70fa 100644
 --- a/drivers/i2c/busses/i2c-designware-slave.c
 +++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -173,8 +173,9 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
- 		enabled, slave_activity, raw_stat, stat);
+@@ -82,7 +82,7 @@ static int i2c_dw_reg_slave(struct i2c_client *slave)
+ 	dev->msg_write_idx = 0;
+ 	dev->msg_read_idx = 0;
+ 	dev->msg_err = 0;
+-	dev->status = STATUS_IDLE;
++	dev->status = 0;
+ 	dev->abort_source = 0;
+ 	dev->rx_outstanding = 0;
  
- 	if (stat & DW_IC_INTR_RX_FULL) {
--		if (dev->status != STATUS_WRITE_IN_PROGRESS) {
--			dev->status = STATUS_WRITE_IN_PROGRESS;
-+		if (!(dev->status & STATUS_WRITE_IN_PROGRESS)) {
-+			dev->status |= STATUS_WRITE_IN_PROGRESS;
-+			dev->status &= ~STATUS_READ_IN_PROGRESS;
- 			i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_REQUESTED,
- 					&val);
- 		}
-@@ -190,24 +191,23 @@ static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
- 		if (slave_activity) {
- 			regmap_read(dev->map, DW_IC_CLR_RD_REQ, &tmp);
- 
--			dev->status = STATUS_READ_IN_PROGRESS;
--			if (!i2c_slave_event(dev->slave,
--					     I2C_SLAVE_READ_REQUESTED,
--					     &val))
--				regmap_write(dev->map, DW_IC_DATA_CMD, val);
-+			if (!(dev->status & STATUS_READ_IN_PROGRESS)) {
-+				i2c_slave_event(dev->slave,
-+						I2C_SLAVE_READ_REQUESTED,
-+						&val);
-+				dev->status |= STATUS_READ_IN_PROGRESS;
-+				dev->status &= ~STATUS_WRITE_IN_PROGRESS;
-+			} else {
-+				i2c_slave_event(dev->slave,
-+						I2C_SLAVE_READ_PROCESSED,
-+						&val);
-+			}
-+			regmap_write(dev->map, DW_IC_DATA_CMD, val);
- 		}
- 	}
- 
--	if (stat & DW_IC_INTR_RX_DONE) {
--		if (!i2c_slave_event(dev->slave, I2C_SLAVE_READ_PROCESSED,
--				     &val))
--			regmap_read(dev->map, DW_IC_CLR_RX_DONE, &tmp);
--	}
--
--	if (stat & DW_IC_INTR_STOP_DET) {
--		dev->status = STATUS_IDLE;
-+	if (stat & DW_IC_INTR_STOP_DET)
- 		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
--	}
- 
- 	return 1;
- }
 -- 
 2.35.1
 
