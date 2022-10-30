@@ -2,157 +2,100 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EAD8C433FE
-	for <linux-i2c@archiver.kernel.org>; Sat, 29 Oct 2022 11:53:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B316BECAAA1
+	for <linux-i2c@archiver.kernel.org>; Sun, 30 Oct 2022 17:52:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229515AbiJ2Lx3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 29 Oct 2022 07:53:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48714 "EHLO
+        id S229556AbiJ3RwO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 30 Oct 2022 13:52:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbiJ2Lx2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 29 Oct 2022 07:53:28 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B693B6C138;
-        Sat, 29 Oct 2022 04:53:27 -0700 (PDT)
-Received: from canpemm500004.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MzyNX6TcgzmVXh;
-        Sat, 29 Oct 2022 19:48:28 +0800 (CST)
-Received: from [10.174.179.106] (10.174.179.106) by
- canpemm500004.china.huawei.com (7.192.104.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Sat, 29 Oct 2022 19:53:25 +0800
-Subject: Re: [PATCH next v7 2/2] dt-bindings: i2c: add entry for
- hisilicon,i2c-ascend910
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        <yangyicong@hisilicon.com>, <xuwei5@huawei.com>, <wsa@kernel.org>,
-        <robh+dt@kernel.org>, <robh@kernel.org>
-CC:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <devicetree@vger.kernel.org>
-References: <20221021035638.203929-1-chenweilong@huawei.com>
- <20221021035638.203929-2-chenweilong@huawei.com>
- <491837d1-4e81-496c-8442-7c1cae670907@linaro.org>
-From:   chenweilong <chenweilong@huawei.com>
-Message-ID: <4b6256e6-6f06-5d6e-6cc3-d3f3649f0ac6@huawei.com>
-Date:   Sat, 29 Oct 2022 19:53:25 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
+        with ESMTP id S229531AbiJ3RwO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 30 Oct 2022 13:52:14 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E483C14;
+        Sun, 30 Oct 2022 10:52:12 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id h9so13132971wrt.0;
+        Sun, 30 Oct 2022 10:52:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=iRGQwiJyyZtZTz3TByj9KEqkFvLoG13HbwyG6xbLJsA=;
+        b=FAckUJwd6EZu55q7Mb7vIO0E3XAFW3dHy41sLo7QgJxjCpa26PyWWGGAMN/XFJpbQd
+         59Np4n5e/+Loxc9ipdU4d2YPhh1U78AhhqNjeG7W8p43DsGTnVtFhwW0Hl3CVfmkkWaU
+         lApgSmjrooGqN/MavVzATDssXOtnoiiu2/7OalPsQzgJ9QV+RVUrqBJ0xAKYg3EldGPF
+         lmfA4TnGFSlbcgwfGqHw4SL2+wJllxXz90zxMhbRQzJkm/UW5pZK3InndwZF2C0TJHsg
+         CwCXwlMV/LEOJn0RtXBzlzevVxU0Etq06wr5ihtsbFlzeGyza6Nht3WE/6OxSE85cJEX
+         XkHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=iRGQwiJyyZtZTz3TByj9KEqkFvLoG13HbwyG6xbLJsA=;
+        b=VnROlqCvwH4lcCTwnyS28dvAano9ThlIwk4+u/tUVskX7LNwkJY/RQsA1SfQYMwFYp
+         y8R+mhB92a/vrtrMHxHywVCSgfvnDxFs6AO15NaBoGU8go/mJ5pGT/bTVYFwl8GvPwJs
+         PvY0iNpfm/8ETOUN+6GF7p9p3iSsp5eSbpV6QT0nf0+AZ5mc9DIXg8PnjqSU9IIQogwN
+         Y3oZswqs+gEZ9hc0yTvJvmMrMXJ8IrRY6vt7pVAX2AXB2ZfAKTAXUINOvdU2nAyQCF/B
+         pQpKF7o17eoKNfGFY1odepTVMVaPSqLyVDUhFQrntRmqfGQJ9GArWoieTGNnqUDrXAB+
+         Bnuw==
+X-Gm-Message-State: ACrzQf0S3+q6A6uqUjz0kLw7Ocx/V7THrYnll7sx273gEZxwR6BBUStN
+        hNDXic++VBk3hn1z9OPEMZTlAlcg0r4=
+X-Google-Smtp-Source: AMsMyM73of4rrJBvNGNFrBktk0USXeaiq8Tc6F3xRszlQKFvkJ49nlq3Ihmp7Qf5Nr6JjGaCivjPvQ==
+X-Received: by 2002:a05:6000:10ce:b0:236:54c8:e040 with SMTP id b14-20020a05600010ce00b0023654c8e040mr5660243wrx.290.1667152330891;
+        Sun, 30 Oct 2022 10:52:10 -0700 (PDT)
+Received: from localhost.localdomain (188.red-83-35-57.dynamicip.rima-tde.net. [83.35.57.188])
+        by smtp.gmail.com with ESMTPSA id q1-20020a05600c040100b003c4ecff4e25sm5419229wmb.9.2022.10.30.10.52.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 30 Oct 2022 10:52:10 -0700 (PDT)
+From:   Angel Iglesias <ang.iglesiasg@gmail.com>
+To:     linux-iio@vger.kernel.org
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <noname.nuno@gmail.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Angel Iglesias <ang.iglesiasg@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [RFC PATCH 0/2] i2c: core: Introduce i2c_client_get_device_id helper
+Date:   Sun, 30 Oct 2022 18:51:06 +0100
+Message-Id: <cover.1667151588.git.ang.iglesiasg@gmail.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-In-Reply-To: <491837d1-4e81-496c-8442-7c1cae670907@linaro.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Originating-IP: [10.174.179.106]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- canpemm500004.china.huawei.com (7.192.104.92)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 2022/10/29 7:45, Krzysztof Kozlowski wrote:
-> On 20/10/2022 23:56, Weilong Chen wrote:
->> Add the new compatible for HiSilicon i2c.
->>
->> Signed-off-by: Weilong Chen <chenweilong@huawei.com>
->> ---
->> Change since v6:
->> - Rename to hisilicon,i2c-ascend910.yaml
->> - Change all IIC to I2C
->> - Add maintainer name
->> Link: https://lore.kernel.org/lkml/7520818b-de40-7f2a-1b03-b1dcd29a2023@huawei.com/T/#ma89d78cef45e7ac6f2c6251ed958e8658e5c1eb5
->>
-> Please use scripts/get_maintainers.pl to get a list of necessary people
-> and lists to CC.  It might happen, that command when run on an older
-> kernel, gives you outdated entries.  Therefore please be sure you base
-> your patches on recent Linux kernel.
+Hello,
 
-Thanks for review, I'll fix this.
+I don't want to step anyone's work here, so I'm sending this RFC to the
+devs involved in the original discussion. I read on Uwe Kleine-König's
+patchset submission thread the necessity for an i2c helper to aid with the
+migration to the new i2c_driver .probe_new callback. Following the
+suggestions made there, I wrote this small patchset implementing the
+suggested helper function and ported the bmp280 IIO i2c probe to the new
+probe using that helper.
 
->
->
->>  .../bindings/i2c/hisilicon,i2c-ascend910.yaml | 70 +++++++++++++++++++
->>  MAINTAINERS                                   |  1 +
->>  2 files changed, 71 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/i2c/hisilicon,i2c-ascend910.yaml
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/hisilicon,i2c-ascend910.yaml b/Documentation/devicetree/bindings/i2c/hisilicon,i2c-ascend910.yaml
->> new file mode 100644
->> index 000000000000..f4f532d69670
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/i2c/hisilicon,i2c-ascend910.yaml
->> @@ -0,0 +1,70 @@
->> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
->> +%YAML 1.2
->> +---
->> +$id: "http://devicetree.org/schemas/i2c/hisilicon,i2c-xxx.yaml#"
->> +$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-> Drop quotes
->
->> +
->> +title: HiSilicon common I2C controller Device Tree Bindings
-> Drop "Device Tree bindings"
->
->> +
->> +maintainers:
->> +  - Yicong Yang <yangyicong@hisilicon.com>
->> +
->> +allOf:
->> +  - $ref: /schemas/i2c/i2c-controller.yaml#
->> +
->> +properties:
->> +  compatible:
->> +    const: hisilicon,i2c-ascend910
->> +    description:
->> +      The HiSilicon common I2C controller can be used for many different
->> +      types of SoC such as Huawei Ascend AI series chips.
-> Description goes to top level description.
->
->> +
->> +  reg:
->> +    maxItems: 1
->> +
->> +  interrupts:
->> +    maxItems: 1
->> +
->> +  clocks:
->> +    maxItems: 1
->> +
->> +  clock-frequency:
->> +    default: 400000
->> +
->> +  i2c-sda-falling-time-ns:
->> +    default: 343
->> +
->> +  i2c-scl-falling-time-ns:
->> +    default: 203
->> +
->> +  i2c-sda-hold-time-ns:
->> +    default: 830
->> +
->> +  i2c-scl-rising-time-ns:
->> +    default: 365
->> +
->> +  i2c-digital-filter-width-ns:
->> +    default: 0
->> +
->> +required:
->> +  - compatible
->> +  - reg
->> +  - interrupts
->> +
->> +unevaluatedProperties: false
->> +
->> +examples:
->> +  - |
->> +    i2c@5038b0000 {
->> +      compatible = "hisilicon,i2c-ascend910";
->> +      reg = <0x38b0000 0x10000>;
->> +      interrupts = <0x0 120 0x4>;
-> Use defines for constants.
->
-> Best regards,
-> Krzysztof
->
-> .
+Thanks for your time!
+Angel
 
+Original discussion thread for additional context:
+https://lore.kernel.org/all/20221023132302.911644-11-u.kleine-koenig@pengutronix.de/
+
+Angel Iglesias (2):
+  i2c: core: Introduce i2c_client_get_device_id helper function
+  iio: pressure: bmp280: convert to i2c's .probe_new()
+
+ drivers/i2c/i2c-core-base.c       | 15 +++++++++++++++
+ drivers/iio/pressure/bmp280-i2c.c |  8 ++++----
+ include/linux/i2c.h               |  1 +
+ 3 files changed, 20 insertions(+), 4 deletions(-)
+
+
+base-commit: c32793afc6976e170f6ab11ca3750fe94fb3454d
+-- 
+2.38.1
 
