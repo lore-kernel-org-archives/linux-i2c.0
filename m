@@ -2,104 +2,107 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ECE5ECAAA1
-	for <linux-i2c@archiver.kernel.org>; Sun, 30 Oct 2022 20:35:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02F06C38A02
+	for <linux-i2c@archiver.kernel.org>; Sun, 30 Oct 2022 22:02:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229948AbiJ3UfV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 30 Oct 2022 16:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
+        id S229918AbiJ3WCB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 30 Oct 2022 18:02:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229909AbiJ3UfJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 30 Oct 2022 16:35:09 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3DF7BC0C;
-        Sun, 30 Oct 2022 13:34:43 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id f16-20020a05600c491000b003cf66a2e7c0so2311329wmp.5;
-        Sun, 30 Oct 2022 13:34:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ITcMCaKfMZfpT5FNI3zHkV64gyDtL5X1yd5OeMk6v78=;
-        b=ZXKYgW2OmUN+mOeH+tEszk3tevmdmmSH8NV6DLpJ8vDP//0HHJC6J/EuFOsCjnlWmv
-         kWknIQTJL5wfogjwX9ZxA2adFQQkVUfARYye1syIM+QUqfKuuixvoZE4oGZ2MH3Z37IT
-         5fCrl34VpUmzFHMzuklsoWg45dAxmh//WAmgPbFfsKzR4Vn3Vf8BjRp7dYU06p+sjsAj
-         dP/7yzJJfYVi0pS+KznAD/OiG+G3nGrxXzoWL4TbvchSHPwH8kRCSsglyCe2opMsh2l/
-         FJadjV9UVYbzdwbS+Dv+w4G6+PrPmNzeWviB4GwLHsDyETI5zcDjxO2w6i5Jj6WILS9T
-         dUFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ITcMCaKfMZfpT5FNI3zHkV64gyDtL5X1yd5OeMk6v78=;
-        b=QUTihgeS5nyu8Mpi5UcrOtptnK4dpkYDdYvAXu7ReUhMyVIta3+u8wrQsdIEAoF6aq
-         bzdXE1FCrlZs1qEEtpReQ+NAUI+P24IXBJzFehG1p4ZnAuKrnp8R5qSrnCsEpMknMBPJ
-         nNR63f1Pb4kSPOIP+6txTV8gtSsCYZJaAte+DpYxQqFZqnQBCulHby1Yo5kQZKxfKJIC
-         9+hZJrJpXaFvYqCNtL8SZGWipHduIO9trxRaUD1AlwFkWYfya8Q1ofzHpDL99wi2rD9Q
-         Ylgp8OtuZW9SDtHvl63bp5djN/asNM3nG/CJRzAsuXFDt4RvOpv0jdbKZNhot+OiYiKq
-         8PPg==
-X-Gm-Message-State: ACrzQf0fG5bJddaBDR6aTA6ovpQlmyT4w+0Kr5KmLvWLzC1KO69WgjLp
-        UHoxE3AkVbqeiTsp+IBx748=
-X-Google-Smtp-Source: AMsMyM5cS1XXi9FhT0S9YX0QH41H8184CWU4WzeFAJo5pztK7u4CONZRIZbxMTaeIhc1ZvzukelhSQ==
-X-Received: by 2002:a05:600c:5486:b0:3b4:7e47:e19 with SMTP id iv6-20020a05600c548600b003b47e470e19mr5929744wmb.12.1667162082460;
-        Sun, 30 Oct 2022 13:34:42 -0700 (PDT)
-Received: from michael-VirtualBox.. (89-139-44-91.bb.netvision.net.il. [89.139.44.91])
-        by smtp.googlemail.com with ESMTPSA id n25-20020a05600c181900b003b95ed78275sm4939385wmp.20.2022.10.30.13.34.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 30 Oct 2022 13:34:42 -0700 (PDT)
-From:   Michael Zaidman <michael.zaidman@gmail.com>
-To:     jikos@kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-i2c@vger.kernel.org, germain.hebert@ca.abb.com,
-        Enrik.Berkhan@inka.de, Michael Zaidman <michael.zaidman@gmail.com>
-Subject: [PATCH v3 11/12] HID: ft260: fix a NULL pointer dereference in ft260_i2c_write
-Date:   Sun, 30 Oct 2022 22:34:02 +0200
-Message-Id: <20221030203403.4637-12-michael.zaidman@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221030203403.4637-1-michael.zaidman@gmail.com>
-References: <20221030203403.4637-1-michael.zaidman@gmail.com>
+        with ESMTP id S229874AbiJ3WB6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 30 Oct 2022 18:01:58 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88473617D;
+        Sun, 30 Oct 2022 15:01:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1667167317; x=1698703317;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Sg5G1FwIeTvWisFkxxykHY8fZl7hdfoO90oAJycg4mU=;
+  b=kvv+9rzG4Vwjy3QnP/u21UW+gTi1Cbb3MwXggJ+imBdoD4EKviQ4qH0F
+   U/TfcWfc06/m3VPc0QQ/GiyhqgJA7jK3vqyLwpBa12WKjoHxcGUwxhhZP
+   AoqtudpFJtu5na6TFqXlCh9W5AzFjZfqvEOe9hgaKcEO/ZbO8lVmRd8u/
+   2d6UUv48I8eG0QI2R+n5CFwcqOhqN5q/rlNGArtxKkK87B/5rQYquRg8A
+   /0B/3n0JljLEmI3CCDEPqbx16yaJ8xWiGYeuujRCdZgLE0M3/rBNCElAU
+   ncVNVVjb9bNqHbr8cxFaIKUjrPfMYZy1RrWSXjMHZ+eVrVInvdc9Motj8
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10516"; a="289172815"
+X-IronPort-AV: E=Sophos;i="5.95,226,1661842800"; 
+   d="scan'208";a="289172815"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2022 15:01:57 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10516"; a="758643523"
+X-IronPort-AV: E=Sophos;i="5.95,226,1661842800"; 
+   d="scan'208";a="758643523"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by orsmga004.jf.intel.com with ESMTP; 30 Oct 2022 15:01:52 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1opGNJ-004pcC-2F;
+        Mon, 31 Oct 2022 00:01:49 +0200
+Date:   Mon, 31 Oct 2022 00:01:49 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Weilong Chen <chenweilong@huawei.com>
+Cc:     yangyicong@hisilicon.com, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, wsa@kernel.org,
+        f.fainelli@gmail.com, jarkko.nikula@linux.intel.com,
+        jdelvare@suse.de, william.zhang@broadcom.com, jsd@semihalf.com,
+        conor.dooley@microchip.com, phil.edworthy@renesas.com,
+        tharunkumar.pasumarthi@microchip.com, semen.protsenko@linaro.org,
+        kfting@nuvoton.com, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH next v9 1/4] i2c: hisi: Add initial device tree support
+Message-ID: <Y170TZoIp1WBIwU4@smile.fi.intel.com>
+References: <20221029115937.179788-1-chenweilong@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221029115937.179788-1-chenweilong@huawei.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The len=0 passed into the ft260_i2c_write() triggered the NULL
-pointer dereference in the debug message on access to data[0].
-Since a Write without data makes little sense in this context,
-do not allow it.
+On Sat, Oct 29, 2022 at 07:59:36PM +0800, Weilong Chen wrote:
+> The HiSilicon I2C controller can be used on embedded platform, which
+> boot from devicetree.
 
-Before:
+...
 
-$ sudo i2ctransfer -y 13 w0@0x51
-Killed
+> +#include <linux/acpi.h>
+> +#include <linux/of.h>
 
-After:
+Why?
 
-$ sudo i2ctransfer -y 13 w0@0x51
-Error: Sending messages failed: Invalid argument
+...
 
-Reported-by: Enrik Berkhan <Enrik.Berkhan@inka.de>
-Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
----
- drivers/hid/hid-ft260.c | 2 ++
- 1 file changed, 2 insertions(+)
+> +#ifdef CONFIG_ACPI
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 00cbe7693ba0..b3f715f6ea86 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -395,6 +395,8 @@ static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *data,
- 	struct ft260_i2c_write_request_report *rep =
- 		(struct ft260_i2c_write_request_report *)dev->write_buf;
- 
-+	if (len < 1)
-+		return -EINVAL;
- 
- 	if (time_is_before_jiffies(dev->need_wakeup_at)) {
- 		(void)ft260_xfer_status(dev);
+Why?
+
+...
+
+> +#ifdef CONFIG_OF
+
+Why?
+
+...
+
+> -		.acpi_match_table = hisi_i2c_acpi_ids,
+> +		.acpi_match_table = ACPI_PTR(hisi_i2c_acpi_ids),
+
+Why?
+
+...
+
+> +		.of_match_table = of_match_ptr(hisi_i2c_dts_ids),
+
+Why of_match_ptr()?
+
 -- 
-2.34.1
+With Best Regards,
+Andy Shevchenko
+
 
