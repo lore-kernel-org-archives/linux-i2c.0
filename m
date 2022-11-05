@@ -2,62 +2,61 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7353DC4167B
-	for <linux-i2c@archiver.kernel.org>; Sat,  5 Nov 2022 21:14:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01B0EC4167B
+	for <linux-i2c@archiver.kernel.org>; Sat,  5 Nov 2022 21:14:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230162AbiKEVOP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 5 Nov 2022 17:14:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57046 "EHLO
+        id S230115AbiKEVOS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 5 Nov 2022 17:14:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230193AbiKEVN4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 5 Nov 2022 17:13:56 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1292A11812;
-        Sat,  5 Nov 2022 14:13:55 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id v17so12242450edc.8;
-        Sat, 05 Nov 2022 14:13:55 -0700 (PDT)
+        with ESMTP id S230208AbiKEVNs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 5 Nov 2022 17:13:48 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D1B1408C;
+        Sat,  5 Nov 2022 14:13:43 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id b2so21347788eja.6;
+        Sat, 05 Nov 2022 14:13:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JQsmdApmFfLSOhvFZKZk9s/wKfo/oplrqMZ6WuKFAxM=;
-        b=qHV+i9ppycFF19PrlgqXEzYpHXjowxqFainZsFDues9Piz5mGJ5/JluCulEB4UnPLf
-         a5hpPxochXoCZhpyJ3Y+Jp6QxJ30nxAa8Ff4HuE9yG0TxxtTXOYpd0toNTfxY/ZTzICM
-         CX8YkCpwUUmETtgkqAKYvQzaGlAOA2Spp42GyvQPE+wPBUIqOTdu3ZGrHaBB7W6jXOVD
-         7WOGs1BNuYSGAQ7gmz8nKomHFPHbQwf6iLXpxl0QbBzuAhx87PL4PdRzz/2eMty2s3fx
-         P6pdCgvx58owxpVebpLboJ8UhFsrR5aNPKPVkFcCCvOGXwzwG7KFpsP14N2lJEulxn2g
-         dOpA==
+        bh=LiMUaNhBUJOR9OA8ZtBEVhMz3WyIU1kHl60F6lstO3A=;
+        b=H8kCc5kNdiDaLwfV1szOsGC3FQvFMahJRrhpAgTYfawIDxtKT+Xp8X8ToVoz3iouul
+         q8Ojdb5ihW44WlIpYghJ8qKS2JT56hkBcBrKUHRUj/+jdqxzPp19jj9uJ0IGMjCVYRdV
+         syjVZD2dH4UlAHF0SwuBJ4mzggx8/W5ab5Ht+PXqyy6SRiT1kpEWRe9nTwSanzOTgxhK
+         5tGmUSApfw2l8WIm0VoJoxib7NY7/R+mIzIka3YXX7xF/eUCsLywnyego0qC5OEftt1l
+         vfLVfjjFrJlITzfVIMitnJm5/SJeiorgI2Ih0OuunsYZAlgV5+Ed0XauXRQeK3l+tm6r
+         RErQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JQsmdApmFfLSOhvFZKZk9s/wKfo/oplrqMZ6WuKFAxM=;
-        b=bi4xlFDbWzUwKlZBI3PIqeij6hZlPzw9xz3elkwjqtwT18DqKNRl05CvRY50/y++RN
-         OyxIAxKlc//fXX7DglDI3YbJHNal6OVsm2ZdK1v2W0Y+ou85b+sB7I0oAo2CBX55kD99
-         ZLOS0PiQXuixwSEwAfVGk6UsPm/eHPEisB12VGNbYwcQBce6GkpEfMZlabAPiaGgu5P6
-         SgXSbBpjE0vaTmyxFCznxhKhQpNwZDnHebQPpkduDqsHpR6HmP7Bi7oKsIo6zcygZbqo
-         G3xFijH0Da8mTSXLLOkE1jSdubaqXi1eL19NEts4HqVB4SSLfMW9HszjC3a6lT0CqDXP
-         3v2g==
-X-Gm-Message-State: ACrzQf3EPdJdiv4JvV7t4PmfdAic7rjvfz1uYkWgcc9Yam0WtnmpJkVq
-        9cJdCtgzIj2jJaltRAn3CKc=
-X-Google-Smtp-Source: AMsMyM4eXv50yEdjZrMsJ80HF6rYXQVEiu55y1+8Uv9nafkP3gIdol/r7Rc7zflN7yEE71WP5T6KlQ==
-X-Received: by 2002:a05:6402:174f:b0:463:12ed:3f8f with SMTP id v15-20020a056402174f00b0046312ed3f8fmr40338429edx.67.1667682833558;
-        Sat, 05 Nov 2022 14:13:53 -0700 (PDT)
+        bh=LiMUaNhBUJOR9OA8ZtBEVhMz3WyIU1kHl60F6lstO3A=;
+        b=8C4igtjOtQXqWz1A+l3YWyXphrai7GYTwzq1MhiquFFRsEnxuTS7gS2eEpvwNa+8xV
+         Rpt9QYmCXGMkFLHSjAHeHkYTYYTBtveYIq7/01PvX7PmvG58vh1i+eH9fNjwqPXRe6Po
+         fye05EXJYz2RakHd78aq3/5Enx3nGUWSrtUqUQszp6IfuC8HhZQi4darPoYbFSxMS/qp
+         8M7xGf+XFlmSjMPLbhNfkUZAoQckEOHBFh9tvaDUQmyMOA3oCVPKYTWmOxGW8OSNV7SY
+         pRTFQpT6jrPfJB4CT1xhGoKcHYiIh0cfbypeCFFWTCXLRMDE8bw2gIoePjNqHCCesiHL
+         TWGw==
+X-Gm-Message-State: ACrzQf2Xgn3mygNQir76pyWgXnrXAZyqTm1Uy4ZcYhxA/E1hwfhuOmH+
+        iw743D3KMIAsXOwVY/4TKoM=
+X-Google-Smtp-Source: AMsMyM69yMUlPdhKEZ6i72kZbwHaYLHE1s+ekv6urYeBcIDN6iBabY25Cammr8rJFVnO69ZY4zbZ4w==
+X-Received: by 2002:a17:906:8a6c:b0:7a8:2f09:d88d with SMTP id hy12-20020a1709068a6c00b007a82f09d88dmr40191568ejc.49.1667682821568;
+        Sat, 05 Nov 2022 14:13:41 -0700 (PDT)
 Received: from michael-VirtualBox.. (89-138-220-136.bb.netvision.net.il. [89.138.220.136])
-        by smtp.googlemail.com with ESMTPSA id ta19-20020a1709078c1300b0073d796a1043sm1323502ejc.123.2022.11.05.14.13.52
+        by smtp.googlemail.com with ESMTPSA id ta19-20020a1709078c1300b0073d796a1043sm1323502ejc.123.2022.11.05.14.13.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Nov 2022 14:13:53 -0700 (PDT)
+        Sat, 05 Nov 2022 14:13:41 -0700 (PDT)
 From:   Michael Zaidman <michael.zaidman@gmail.com>
 To:     jikos@kernel.org
 Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         linux-i2c@vger.kernel.org, Enrik.Berkhan@inka.de,
-        Michael Zaidman <michael.zaidman@gmail.com>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH v4 13/13] HID: ft260: fix 'cast to restricted' kernel CI bot warnings
-Date:   Sat,  5 Nov 2022 23:11:51 +0200
-Message-Id: <20221105211151.7094-14-michael.zaidman@gmail.com>
+        Michael Zaidman <michael.zaidman@gmail.com>
+Subject: [PATCH v4 11/13] HID: ft260: fix a NULL pointer dereference in ft260_i2c_write
+Date:   Sat,  5 Nov 2022 23:11:49 +0200
+Message-Id: <20221105211151.7094-12-michael.zaidman@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221105211151.7094-1-michael.zaidman@gmail.com>
 References: <20221105211151.7094-1-michael.zaidman@gmail.com>
@@ -67,72 +66,41 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Fix 'cast to restricted' sparse warnings reported by kernel test robot
-in https://lore.kernel.org/all/202211021607.ssjymlKi-lkp@intel.com/
+The zero-length passed into the ft260_i2c_write() triggered the
+NULL pointer dereference in the debug message on data[0] access.
+Since the controller does not support a write of zero length,
+let's not allow it.
 
-Reported-by: kernel test robot <lkp@intel.com>
+Before:
+
+$ sudo i2ctransfer -y 13 w0@0x51
+Killed
+
+After:
+
+$ sudo i2ctransfer -y 13 w0@0x51
+Error: Sending messages failed: Invalid argument
+
+Reported-by: Enrik Berkhan <Enrik.Berkhan@inka.de>
 Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
 ---
- drivers/hid/hid-ft260.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/hid/hid-ft260.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index d5b092b85d7f..333341e80b0e 100644
+index ac133980dfe9..b4f180c8750a 100644
 --- a/drivers/hid/hid-ft260.c
 +++ b/drivers/hid/hid-ft260.c
-@@ -588,7 +588,7 @@ static int ft260_i2c_write_read(struct ft260_device *dev, struct i2c_msg *msgs)
+@@ -409,6 +409,9 @@ static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *data,
+ 	struct ft260_i2c_write_request_report *rep =
+ 		(struct ft260_i2c_write_request_report *)dev->write_buf;
  
- 	if (ft260_debug) {
- 		if (wr_len == 2)
--			read_off = be16_to_cpu(*(u16 *)msgs[0].buf);
-+			read_off = be16_to_cpu(*(__be16 *)msgs[0].buf);
- 		else
- 			read_off = *msgs[0].buf;
++	if (len < 1)
++		return -EINVAL;
++
+ 	rep->flag = FT260_FLAG_START;
  
-@@ -830,7 +830,7 @@ static int ft260_byte_show(struct hid_device *hdev, int id, u8 *cfg, int len,
- }
- 
- static int ft260_word_show(struct hid_device *hdev, int id, u8 *cfg, int len,
--			   u16 *field, u8 *buf)
-+			   __le16 *field, u8 *buf)
- {
- 	int ret;
- 
-@@ -859,9 +859,9 @@ static int ft260_word_show(struct hid_device *hdev, int id, u8 *cfg, int len,
- 
- #define FT260_I2CST_ATTR_SHOW(name)					       \
- 		FT260_ATTR_SHOW(name, ft260_get_i2c_status_report,	       \
--				FT260_I2C_STATUS, u16, ft260_word_show)
-+				FT260_I2C_STATUS, __le16, ft260_word_show)
- 
--#define FT260_ATTR_STORE(name, reptype, id, req, type, func)		       \
-+#define FT260_ATTR_STORE(name, reptype, id, req, type, ctype, func)	       \
- 	static ssize_t name##_store(struct device *kdev,		       \
- 				    struct device_attribute *attr,	       \
- 				    const char *buf, size_t count)	       \
-@@ -871,7 +871,7 @@ static int ft260_word_show(struct hid_device *hdev, int id, u8 *cfg, int len,
- 		type name;						       \
- 		int ret;						       \
- 									       \
--		if (!func(buf, 10, &name)) {				       \
-+		if (!func(buf, 10, (ctype *)&name)) {			       \
- 			rep.name = name;				       \
- 			rep.report = id;				       \
- 			rep.request = req;				       \
-@@ -887,11 +887,11 @@ static int ft260_word_show(struct hid_device *hdev, int id, u8 *cfg, int len,
- 
- #define FT260_BYTE_ATTR_STORE(name, reptype, req)			       \
- 		FT260_ATTR_STORE(name, reptype, FT260_SYSTEM_SETTINGS, req,    \
--				 u8, kstrtou8)
-+				 u8, u8, kstrtou8)
- 
- #define FT260_WORD_ATTR_STORE(name, reptype, req)			       \
- 		FT260_ATTR_STORE(name, reptype, FT260_SYSTEM_SETTINGS, req,    \
--				 u16, kstrtou16)
-+				 __le16, u16, kstrtou16)
- 
- FT260_SSTAT_ATTR_SHOW(chip_mode);
- static DEVICE_ATTR_RO(chip_mode);
+ 	do {
 -- 
 2.34.1
 
