@@ -2,1493 +2,314 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 472EFC4332F
-	for <linux-i2c@archiver.kernel.org>; Mon,  7 Nov 2022 09:11:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 542A2C43219
+	for <linux-i2c@archiver.kernel.org>; Mon,  7 Nov 2022 10:36:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbiKGJLo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 7 Nov 2022 04:11:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39468 "EHLO
+        id S230516AbiKGKgQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 7 Nov 2022 05:36:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231678AbiKGJLi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Nov 2022 04:11:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AC2717078;
-        Mon,  7 Nov 2022 01:11:34 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9075B60F61;
-        Mon,  7 Nov 2022 09:11:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37BDDC433B5;
-        Mon,  7 Nov 2022 09:11:31 +0000 (UTC)
-Message-ID: <66518e88-5193-cf21-f2b9-869ee6a1024f@xs4all.nl>
-Date:   Mon, 7 Nov 2022 10:11:29 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
+        with ESMTP id S231286AbiKGKgL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Nov 2022 05:36:11 -0500
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2045.outbound.protection.outlook.com [40.107.100.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10BFBB86B;
+        Mon,  7 Nov 2022 02:36:07 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SsRY+fQ6lV9Cu0cSjdhtDumhGN/1FzdNtCFwquIZEgVStwP1ELcZt34BD2+6T23eCeh26p0f/kkxr8N5fTLzsMKDps/MmqfxPACLnlfoGzo3yNfgItN3YOB6/CTbx1wwK1fCxCaYY7Nf6iE5Sh0TIMdWfXGqgga7oehC8/hdrjkPcrlXOoxlccgNwOLNeIvv3Kh9SjZ4oQt4XlGtpr0TEn+4aAnpLT/dsyX2bYiAc+78okrS/GC+PCXK+rOXLzSq5ktmsDcdC1srNCr3fC49YzXZej7Tfvylg4t2lTQa/d/hbJMWmJcx2gq06e2YEXwBAHOuLrFHHefBqTcg5Bcc+A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ixiEc8JC9t4KoX0i+Yicd7zdg0d8loOZQfVqmNwyl48=;
+ b=AAQijj8Fxipo0wmL362WpjBFMk89ZWiQfzwfDWNbY/5daJUf+zeyLriU4oJ7b2DItdN5dAB9hFC9iaPf51NkBvTH8cvfYQ6rRdurXQt/pSRDCFEwRUh5p3jUwmB65688qqsHCJ85StuQDGco8hRY4iUPnqUPveYYp6zyn0HPG+r1FqwpwROADdpzJxpsldqiDFkFY8pLR0yTLTRYID0Ty/DJm+4+FZzffbvZncZ8j1oGsPidghs3EuBSfZCxhANeggS3ogTjz0quba00B602YQkUQWdxFuHyMpiATIlhZItJWMH38j0/ZQSeryCcgacbP1OjgsSa8XsQHLtkxvDtXg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ixiEc8JC9t4KoX0i+Yicd7zdg0d8loOZQfVqmNwyl48=;
+ b=MKGu2tR+Z+Nw7tN326v2quYHG0S04QuyWI4ughch/Ayt78ZqE4Fd/N5z3FmdU6cZqhChywePKBvbade3YXQfW6dRKiHOdIpTEqdsmxnAikx0clYGRX2yWzWKN+u7Xpb2NUn0jd2JNH+s756QFfH7cQn2utt+aXtZhDxeQ2FMBnC7ljEyiSSffG7MBTN12GjFrp0z4zhwgor8KWDqL/DTo2ISYBGgm63W8oqwYJlKHAPDPE99yLyLXXt63n84JRSlJcj3O356wqoJBRpO3cY0R65k50nl+bhqrZQIMDuHF3HxfNPFNAzy3nWfKPTfqymL7L/x8AKLrJwslvbFsXZqJA==
+Received: from PH0PR12MB5500.namprd12.prod.outlook.com (2603:10b6:510:ef::8)
+ by DM4PR12MB5309.namprd12.prod.outlook.com (2603:10b6:5:390::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.26; Mon, 7 Nov
+ 2022 10:36:05 +0000
+Received: from PH0PR12MB5500.namprd12.prod.outlook.com
+ ([fe80::ac8c:eada:77a0:e2f0]) by PH0PR12MB5500.namprd12.prod.outlook.com
+ ([fe80::ac8c:eada:77a0:e2f0%2]) with mapi id 15.20.5791.026; Mon, 7 Nov 2022
+ 10:36:05 +0000
+From:   Wayne Chang <waynec@nvidia.com>
+To:     Vinod Koul <vkoul@kernel.org>
+CC:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "krzysztof.kozlowski+dt@linaro.org" 
+        <krzysztof.kozlowski+dt@linaro.org>,
+        Thierry Reding <treding@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+        "heikki.krogerus@linux.intel.com" <heikki.krogerus@linux.intel.com>,
+        Ajay Gupta <ajayg@nvidia.com>, "kishon@ti.com" <kishon@ti.com>,
+        "p.zabel@pengutronix.de" <p.zabel@pengutronix.de>,
+        "balbi@kernel.org" <balbi@kernel.org>,
+        "mathias.nyman@intel.com" <mathias.nyman@intel.com>,
+        Jui Chang Kuo <jckuo@nvidia.com>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Sing-Han Chen <singhanc@nvidia.com>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-phy@lists.infradead.org" <linux-phy@lists.infradead.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 09/11] phy: tegra: xusb: Add Tegra234 support
+Thread-Topic: [PATCH 09/11] phy: tegra: xusb: Add Tegra234 support
+Thread-Index: AQHY53wnn6Y1wFaZgEa22emDiBKXH64wgBKAgALabgA=
+Date:   Mon, 7 Nov 2022 10:36:05 +0000
+Message-ID: <57209c2c-0b1e-ffa5-4a09-ccb03136ab95@nvidia.com>
+References: <20221024074128.1113554-1-waynec@nvidia.com>
+ <20221024074128.1113554-10-waynec@nvidia.com> <Y2Z62Ua1DDWx9YwS@matsya>
+In-Reply-To: <Y2Z62Ua1DDWx9YwS@matsya>
+Accept-Language: en-US, zh-TW
 Content-Language: en-US
-To:     =?UTF-8?Q?Martin_T=c5=afma?= <tumic@gpxsee.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Michal Simek <michal.simek@xilinx.com>
-Cc:     linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, Lizhi Hou <lizhi.hou@amd.com>,
-        =?UTF-8?Q?Martin_T=c5=afma?= <martin.tuma@digiteqautomotive.com>
-References: <20221018140338.7080-1-tumic@gpxsee.org>
- <20221018140338.7080-3-tumic@gpxsee.org>
- <4ec93bdd-8b3d-2e3c-a7d7-7f3cd12520e7@xs4all.nl>
- <8023f2f5-638d-e83f-ea27-d135202725f3@gpxsee.org>
-From:   Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v3 2/2] Added Digiteq Automotive MGB4 driver
-In-Reply-To: <8023f2f5-638d-e83f-ea27-d135202725f3@gpxsee.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PH0PR12MB5500:EE_|DM4PR12MB5309:EE_
+x-ms-office365-filtering-correlation-id: e56ed162-bb96-4371-e70d-08dac0abdfd2
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: RyFptRpktxl9TdSzDsc/fik77guEVQGkuT7xORzqCq8cjdXKYARwvfRER7nvVSZFbPRZduPPreGP56Qsu/oNaEQjpRiFSjklESis5ND2ndp+zYbUnz67UW3xW7GdrpW6ZkYTj6YNIG5mHZIHLW+NB6/fXd+eCn9EBz9nsZu0eGmt6/jviRJR2gBeCn36venq6aMaH8W7bnLqvHJj37sOIlQ6+NUVPhKBZNrlVatLnKX69/hXgSwgbFCKbhQ64/k6LWKbUcNFYbDt4RgSPkMGVR9DXDnwE/EUtS6tVHX00sUAt3EucSdzRVjFvFyThkt0YWsTussEu7Qvn7JFgiqn6AyYRjB0RXL879FhwS2LAXhmhS02GXwrrdvK+PAbvayxMO1gKE74RCZEjmQ+m8eb0JXg+yLAxcUQvgFUuOQDuc+dBiGjV3ZfkjpNtNPQVzFBBp27qJATUM5ZI9m1Gm+SQeA5Nstt2tFXcbQ+a24z9gmrkm6LJZt0rmzg7v0iieF2dzaRMXXkgvs5GEO1qtTGNGmuVmqNabEPJR8aJvP59tiR4hKTMSM5+jiMf4CzGEmxJNo41VCWEQ/5IRnQVV+ZIu9deSeOnnYpD/wTlVMS9NkjnfMJ6Sa6BZApq8WqZOIX8HTWM7pw9EJ0iR10lTbyVY5ZuI0M8nJGPjciyZbUP2a+vS0qaDvKo0jx5juPnbEps5L+mYCG/nASYkWDeb7hCP5ph3V7IgHBIq82QUv2OF39PNtuW45aB2j/9r5piGSNcR/ikQumwdWeVBRl+zRgoNOv7R0iqe+hM6eI1cvH2uS+TCYBpf85Gf1MFvZEMVLAuc7qvcq1pUXhR6KJJ6R7yA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB5500.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(376002)(346002)(396003)(366004)(39860400002)(451199015)(36756003)(31686004)(86362001)(31696002)(38070700005)(2906002)(2616005)(53546011)(186003)(6512007)(26005)(122000001)(83380400001)(6506007)(4326008)(66476007)(66946007)(66556008)(66446008)(8676002)(64756008)(54906003)(6916009)(478600001)(316002)(7416002)(91956017)(8936002)(76116006)(71200400001)(6486002)(5660300002)(41300700001)(38100700002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?RHNXTTNLNDdaTDNraWhaMkVVVTAzZ2hxRmMySm5BNkFweEt2Y2VlTHVadzJl?=
+ =?utf-8?B?UEdLZ1RrNDVTUm4rUWU5Qmt2QmhMdzBxV3lwYWUxc0hzRE9BTVZJSXFKWTBs?=
+ =?utf-8?B?Z3BVL3U4UUFCdW1LN0l3SVg5NlNyTXNvbjRDOG9iYzdyR0dzRUJ4NzdHS1VR?=
+ =?utf-8?B?NnlrSUN6VFBIOWUvVkMyWk9DOVEvN2pyQ3ZqRjRIRWtPM0pWV0YydXliYlh2?=
+ =?utf-8?B?MlRTQWxnTDlQbWhvT2tCUXJUdk4vNmFVeitpbDBmVmFaYkszblVNZjZ2M3hP?=
+ =?utf-8?B?NTJIeWhxS3ZQQytXcXpWanJmTmF1eVErb1hGSmZ1RE9aSVI3Y0VqeG5mNE1q?=
+ =?utf-8?B?cFZkNC8wbGhjVG9HSEJGVy9Tc2FoOTIvZTR3QlFwdFRGbThVQ1oyOEhudTBl?=
+ =?utf-8?B?WkhncUFSM2w5Vk1Qdi81emZESi9zNDlNcmUvb0ZFRFJrVmhZY1kxenRna0JT?=
+ =?utf-8?B?ditGcXl4TU5hcGE3VG41MlVvUjRrZ0NPdWdDbzAzL2l2VFVBQ0R1aXI0NEZN?=
+ =?utf-8?B?VFZkRTA4YjBqSFkvb2VNUGhrV0Zaak80eGxQUFMyMlR2dnRhZFdnNEVxRGxQ?=
+ =?utf-8?B?OW8zNlhocnVnZWFIY0JtM2V4ZWp0RGlsSS9HbW4vVHNWenNnVmRVWllUR1dG?=
+ =?utf-8?B?SEU1WEhHQzAwYkFKeEp6OUtESXg4WVAvWEJnU09IcjhiaURJRUkzbzBrTHBD?=
+ =?utf-8?B?aDlJRUsxMmk4U284UlNXcStrMjRTMUgvalRUT0NXclpIUml2TlVFaDhGQ2VK?=
+ =?utf-8?B?d0dWSTUrd0FtcHdSQ2lldFhrK3hzRFpFUVJDWFhpOUNDa0VpS1hwSnZkOXc4?=
+ =?utf-8?B?Q09wcXRRUzNLWDV3ZjY5S0hwZWNhN3g0N0JGdUltaE56aU81NTJQSUlsdDUy?=
+ =?utf-8?B?eTg4TXc3eWJNRkptdVRQVndIeFRxbUtSakpSRDdzUm5kNHFUVngzZU51MGVy?=
+ =?utf-8?B?TnEycmlCVTlIaUlGbHFadjYxa0M5UmgrT21aRTFPcXZMYUsyMUFaV1lFaWdG?=
+ =?utf-8?B?YUVaYUJ1czFwdFRTa3E3NkU0Vm5lb0Q3NmxNS3NWYlNkbGJYdC9KbjJGekd1?=
+ =?utf-8?B?V2g5ZzJQMTEwQzliVVRrcWd2dlRNSWlzbFZVU3dEencwMXVJMHZZTlpKK2py?=
+ =?utf-8?B?NlVIQVVCN3pLdVUzYWJhcVRVd0Z0WlB3OFBPVGN3Y3k3MytVemJGM3drT0p2?=
+ =?utf-8?B?Sjg4cXY0WGx5WjA1RFFrVzF3L2UvU3hiQ3FJQk9xc0VXZFZyV1JxTk80WVc0?=
+ =?utf-8?B?VjBKSUFSTkFPK1VxK0pyVTlvWmxOSWZtbjhRUWZwV3VvaWJlS0taS2tJQmxx?=
+ =?utf-8?B?SXdoM2pqbEVyOG80VlYvS3BiTVFLSzh3MDUzQzh6Q0RkODRTamx2ME8waVZF?=
+ =?utf-8?B?WGh0QW5mVVUyVkk5ZWx3ejFHVk5VdDg3RlRiWGNxVlVYaTlpM0Y5UkVCWkFh?=
+ =?utf-8?B?enBIWDV4dDg3djdsdXNSZ0VMWktDQ2FzSy9RRlVSN0thMk14b2NrS0FSTDZk?=
+ =?utf-8?B?Lzd1bHNKSzEwcFAzVEFiOEkzWG8walNodXk4WlFpOGJ6VWhRdFRIUm1WY2Fq?=
+ =?utf-8?B?ejRRMDNLd0tDUlp3ODlpWG51eTZkMjlkRE44cDQzQjlRZzUyZFN2NlFTMGFZ?=
+ =?utf-8?B?ZDA2RytMdjAvQUp4bmJtOG5rdnZsYjRUWElwZ09PSkNBS3RFdG1kOURBMkdI?=
+ =?utf-8?B?a25OWkx6T1lOZ2c4R2RrU1ovMnhsayswM2U2ZVgwZnUwZzQ0bjNHL1BCY1BP?=
+ =?utf-8?B?QlVSS2laS29Md0F3cHozNjMweUxqRmJoVXQ1NTJ1N216NDNBYzBrdEN4RlhX?=
+ =?utf-8?B?QmQrRmQ0emJBV2dmK3F3TzIxSXh6YWJ3eUtMeHZMVUtieGtWeWF3RGlLRkd0?=
+ =?utf-8?B?Yy9vYWhOdVRSZGJvRVR2dzlIclR2UGY5b2QvU1lMVjBSSkhMbHFXdSt5eHJx?=
+ =?utf-8?B?THZNS255VkpPRnRXUkROM202SkJ4alN6TU5NU0hBeSt4RlhEVUFMM29hTmk0?=
+ =?utf-8?B?RktDV0tsS3ZUc243NlhsL2xkRi82TjBlODFrYlJsU3hoaXBqUmd3VGVPUXpm?=
+ =?utf-8?B?OVcvNDRaeDdpVmVJNWlpSmo5U1FDQzlaT0R1SHZwZWxCajZZaThLR24vVXBl?=
+ =?utf-8?Q?XJISLkIuF7ondlGF1C+RqXvnR?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <7B4DEFD1351915488D233AB2E77AD68F@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5500.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e56ed162-bb96-4371-e70d-08dac0abdfd2
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Nov 2022 10:36:05.2803
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: GWvTX+vFUFMjHYXp+JuTQmZutuA/Z9uUqL/8ckHnTu5ZkiatEFnwYxFKA2fGL+nLAIj3B4NI7Vc9AS8AKUlHSQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5309
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Martin,
-
-On 04/11/2022 15:41, Martin Tůma wrote:
-> On 04. 11. 22 12:14, Hans Verkuil wrote:
->> On 18/10/2022 16:03, tumic@gpxsee.org wrote:
->>> From: Martin Tůma <martin.tuma@digiteqautomotive.com>
->>>
->>> Digiteq Automotive MGB4 is a modular frame grabber PCIe card for automotive
->>> video interfaces. As for now, two modules - FPD-Link and GMSL - are
->>> available and supported by the driver. The card has two inputs and two
->>> outputs (FPD-Link only).
->>>
->>> In addition to the video interfaces it also provides a trigger signal
->>> interface and a MTD interface for FPGA firmware upload.
->>>
->>> Signed-off-by: Martin Tůma <martin.tuma@digiteqautomotive.com>
->>> ---
->>>   Documentation/admin-guide/media/mgb4.rst      | 342 ++++++++
->>>   .../admin-guide/media/pci-cardlist.rst        |   1 +
->>>   .../admin-guide/media/v4l-drivers.rst         |   1 +
->>>   MAINTAINERS                                   |   7 +
->>>   drivers/media/pci/Kconfig                     |   1 +
->>>   drivers/media/pci/Makefile                    |   1 +
->>>   drivers/media/pci/mgb4/Kconfig                |  17 +
->>>   drivers/media/pci/mgb4/Makefile               |   6 +
->>>   drivers/media/pci/mgb4/mgb4_cmt.c             | 243 ++++++
->>>   drivers/media/pci/mgb4/mgb4_cmt.h             |  16 +
->>>   drivers/media/pci/mgb4/mgb4_core.c            | 628 +++++++++++++++
->>>   drivers/media/pci/mgb4/mgb4_core.h            |  65 ++
->>>   drivers/media/pci/mgb4/mgb4_dma.c             | 120 +++
->>>   drivers/media/pci/mgb4/mgb4_dma.h             |  18 +
->>>   drivers/media/pci/mgb4/mgb4_i2c.c             | 139 ++++
->>>   drivers/media/pci/mgb4/mgb4_i2c.h             |  35 +
->>>   drivers/media/pci/mgb4/mgb4_io.h              |  36 +
->>>   drivers/media/pci/mgb4/mgb4_regs.c            |  30 +
->>>   drivers/media/pci/mgb4/mgb4_regs.h            |  35 +
->>>   drivers/media/pci/mgb4/mgb4_sysfs.h           |  18 +
->>>   drivers/media/pci/mgb4/mgb4_sysfs_in.c        | 750 ++++++++++++++++++
->>>   drivers/media/pci/mgb4/mgb4_sysfs_out.c       | 734 +++++++++++++++++
->>>   drivers/media/pci/mgb4/mgb4_sysfs_pci.c       |  83 ++
->>>   drivers/media/pci/mgb4/mgb4_trigger.c         | 203 +++++
->>>   drivers/media/pci/mgb4/mgb4_trigger.h         |   8 +
->>>   drivers/media/pci/mgb4/mgb4_vin.c             | 665 ++++++++++++++++
->>>   drivers/media/pci/mgb4/mgb4_vin.h             |  64 ++
->>>   drivers/media/pci/mgb4/mgb4_vout.c            | 507 ++++++++++++
->>>   drivers/media/pci/mgb4/mgb4_vout.h            |  58 ++
->>>   29 files changed, 4831 insertions(+)
->>>   create mode 100644 Documentation/admin-guide/media/mgb4.rst
->>>   create mode 100644 drivers/media/pci/mgb4/Kconfig
->>>   create mode 100644 drivers/media/pci/mgb4/Makefile
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_cmt.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_cmt.h
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_core.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_core.h
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_dma.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_dma.h
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_i2c.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_i2c.h
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_io.h
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_regs.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_regs.h
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_sysfs.h
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_sysfs_in.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_sysfs_out.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_sysfs_pci.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_trigger.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_trigger.h
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_vin.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_vin.h
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_vout.c
->>>   create mode 100644 drivers/media/pci/mgb4/mgb4_vout.h
->>>
-
-<snip>
-
->>> diff --git a/drivers/media/pci/mgb4/mgb4_cmt.c b/drivers/media/pci/mgb4/mgb4_cmt.c
->>> new file mode 100644
->>> index 000000000000..3ec394e46bd0
->>> --- /dev/null
->>> +++ b/drivers/media/pci/mgb4/mgb4_cmt.c
->>> @@ -0,0 +1,243 @@
->>> +// SPDX-License-Identifier: GPL-2.0-only
->>> +/*
->>> + * Copyright (C) 2021-2022 Digiteq Automotive
->>> + *     author: Martin Tuma <martin.tuma@digiteqautomotive.com>
->>> + */
->>> +
->>> +#include <linux/types.h>
->>> +#include <linux/kernel.h>
->>> +#include "mgb4_core.h"
->>> +#include "mgb4_cmt.h"
->>> +
->>
->> Erm, what is CMT and where do the values in the tables below come from?
->>
-> 
-> The CMT table is used to set up some FPGA PLL related registers. For different video signal frequencies (FPGA input signal frequencies), the FPGA PLL stuff needs to be adjusted to work properly. The
-> values are precomputed based on some formulas given by Xilinx in their FPGA documentation and those formulas are in turn full of some magic values/tables. So the answer to your question is that no one
-> (not even our HW engineer writing the VHDL code...) really knows where these values exactly come from, but they have to be set for the FPGA to work properly with the given video signal.
-
-OK, that will be good to document. And what does the abbreviation 'CMT' stand for?
-
-<snip>
-
->>> +u32 mgb4_cmt_set_vout(struct mgb4_vout_dev *voutdev, unsigned int freq)
->>> +{
->>> +    const uint16_t *reg_set;
->>> +    const uint32_t *addr;
->>> +    u32 config;
->>> +    size_t i, index;
->>> +
->>> +    index = freq_srch(freq, cmt_freq, ARRAY_SIZE(cmt_freq));
->>> +    addr = cmt_addrs_out[voutdev->config->id];
->>> +    reg_set = cmt_vals_out[index];
->>> +
->>> +    config = mgb4_read_reg(&voutdev->mgbdev->video, voutdev->config->regs.config);
->>> +
->>> +    mgb4_write_reg(&voutdev->mgbdev->video, voutdev->config->regs.config,
->>> +      0x1 | (config & ~0x3));
->>> +
->>> +    for (i = 0; i < ARRAY_SIZE(cmt_addrs_out[0]); i++)
->>> +        mgb4_write_reg(&voutdev->mgbdev->cmt, addr[i], reg_set[i]);
->>> +
->>> +    mgb4_mask_reg(&voutdev->mgbdev->video, voutdev->config->regs.config,
->>> +      0x100, 0x100);
->>> +    mgb4_mask_reg(&voutdev->mgbdev->video, voutdev->config->regs.config,
->>> +      0x100, 0x0);
->>> +
->>> +    mgb4_write_reg(&voutdev->mgbdev->video, voutdev->config->regs.config,
->>> +      config & ~0x1);
->>> +
->>> +    return cmt_freq[index];
->>> +}
->>
->> I'm pretty certain that you didn't run 'checkpatch.pl --strict' over this patch.
->> Please do so for v4!
->>
-> 
-> I have run 'checkpatch.pl' without '--strict' over this patch and ignored all the "too long lines" warnings on the tables as I think they are more clear this way, and all the "change name suggestion"
-> warnings as they are IMHO wrong in this case. Other warnings did not come up. I will try it with '--strict' when I post v4 patch.
-
-Yes please, the media subsystem uses the --strict option.
-
-> 
->>> +
->>> +void mgb4_cmt_set_vin(struct mgb4_vin_dev *vindev, unsigned int freq_range)
->>> +{
->>> +    const uint16_t *reg_set;
->>> +    const uint32_t *addr;
->>> +    u32 config;
->>> +    size_t i;
->>> +
->>> +    addr = cmt_addrs_in[vindev->config->id];
->>> +    reg_set = cmt_vals_in[freq_range];
->>> +
->>> +    config = mgb4_read_reg(&vindev->mgbdev->video, vindev->config->regs.config);
->>> +
->>> +    mgb4_write_reg(&vindev->mgbdev->video, vindev->config->regs.config,
->>> +      0x1 | (config & ~0x3));
->>> +
->>> +    for (i = 0; i < ARRAY_SIZE(cmt_addrs_in[0]); i++)
->>> +        mgb4_write_reg(&vindev->mgbdev->cmt, addr[i], reg_set[i]);
->>> +
->>> +    mgb4_mask_reg(&vindev->mgbdev->video, vindev->config->regs.config,
->>> +      0x1000, 0x1000);
->>> +    mgb4_mask_reg(&vindev->mgbdev->video, vindev->config->regs.config,
->>> +      0x1000, 0x0);
->>> +
->>> +    mgb4_write_reg(&vindev->mgbdev->video, vindev->config->regs.config,
->>> +      config & ~0x1);
->>> +}
-
-<snip>
-
->>> +static int fh_open(struct file *file)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = video_drvdata(file);
->>> +    struct mgb4_regs *video = &vindev->mgbdev->video;
->>> +    u32 resolution, padding;
->>> +    int ret, irq;
->>> +
->>> +    ret = v4l2_fh_open(file);
->>> +    if (ret)
->>> +        return ret;
->>> +
->>> +    resolution = mgb4_read_reg(video, vindev->config->regs.resolution);
->>> +    if (resolution >= ERR_NO_REG)
->>> +        goto error;
->>> +
->>> +    vindev->width = resolution >> 16;
->>> +    vindev->height = resolution & 0xFFFF;
->>> +    if (!vindev->width || !vindev->height)
->>> +        goto error;
->>> +
->>> +    irq = xdma_get_user_irq(vindev->mgbdev->xdev, vindev->config->err_irq);
->>> +    xdma_enable_user_irq(vindev->mgbdev->xdev, irq);
->>> +
->>> +    vindev->period = mgb4_read_reg(video, vindev->config->regs.frame_period);
->>> +
->>> +    padding = PADDING(vindev->width, vindev->alignment);
->>> +    mgb4_write_reg(video, vindev->config->regs.padding, padding);
->>> +    set_loopback_padding(vindev, padding);
->>
->> This doesn't look right. Just opening a video device shouldn't cause
->> any state changes, and that's what it looks is happening here.
->>
->> I.e., if I just want to query the device (v4l2-ctl --all), then that
->> shouldn't not change anything.
->>
-> 
-> The MGB4 card is quiet special in this case. Unlike in "normal" cameras, the video signal may change over time as the user can connect different video sources to the card. This is why I set up some
-> video signal related stuff in the open() call. When you open the device, you "configure" it for the current video signal and the signal is then expected not to change until the device is closed (such
-> change will not break the driver, but will break the image). Additionally, the open() call must fail, when there is no signal connected to the card.
-> 
-> If you have some suggestions how to handle this "dynamic" behaviour in a different way (properly?) then I'm open to them. But the fact, that even the video resolution can change at any arbitrary time
-> will IMHO always lead to some "workarounds" like this one in the open() call.
-
-This is not special. We support HDMI receivers today as well which have exactly the same behavior.
-
-Typically the way this works is that such drivers support the Digital Video Timings ioctls
-(VIDIOC_ENUM_DV_TIMINGS, VIDIOC_DV_TIMINGS_CAP, VIDIOC_G/S/QUERY_DV_TIMINGS). The driver
-stores the current timings as set by userspace (and initialized to something at probe() time
-by the driver), but typically userspace will query the actual detected timings, then set them.
-
-Next it will allocate buffers, which will fix the timings. E.g. an attempt to set new timings
-will fail with -EBUSY. If the hardware detects a format change, then it will raise the
-V4L2_EVENT_SOURCE_CHANGE event and call vb2_queue_error() to stop streaming.
-
-Userspace detects that, stops streaming, frees buffers, and calls QUERY_DV_TIMINGS again to
-get the new timings.
-
-Key here is that the timings are locked when you allocate buffers (vb2_is_busy() will return
-true at that time). Buffers are allocated based on the framesize, which is based on the timings,
-so if timings change, then buffers typically need to be reallocated.
-
-Search for these ioctls to see how other drivers do this.
-
-> 
->>> +
->>> +    return 0;
->>> +
->>> +error:
->>> +    v4l2_fh_release(file);
->>> +    return -EIO;
->>> +}
->>> +
->>> +static int fh_release(struct file *file)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = video_drvdata(file);
->>> +    struct mgb4_regs *video = &vindev->mgbdev->video;
->>> +    int irq = xdma_get_user_irq(vindev->mgbdev->xdev, vindev->config->err_irq);
->>> +
->>> +    xdma_disable_user_irq(vindev->mgbdev->xdev, irq);
->>> +
->>> +    mgb4_write_reg(video, vindev->config->regs.padding, 0);
->>> +    set_loopback_padding(vindev, 0);
->>> +
->>> +    return vb2_fop_release(file);
->>> +}
->>
->> This looks wrong too: if I am streaming video, then in another shell
->> I call 'v4l2-ctl -D' then when v4l2-ctl closes the video device this will disable
->> the user irq, presumably stopping the video streaming.
->>
-> 
-> Maybe there is some "is_streaming()" check missing. I will rethink the open/close logic. There may be some better solution, but due to the "dynamic" video signal, there will IMHO still be some
-> constrains...
-> 
->>> +
->>> +static const struct v4l2_file_operations video_fops = {
->>> +    .owner = THIS_MODULE,
->>> +    .open = fh_open,
->>> +    .release = fh_release,
->>> +    .unlocked_ioctl = video_ioctl2,
->>> +    .read = vb2_fop_read,
->>> +    .mmap = vb2_fop_mmap,
->>> +    .poll = vb2_fop_poll,
->>> +};
->>> +
->>> +static int vidioc_querycap(struct file *file, void *priv,
->>> +               struct v4l2_capability *cap)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = video_drvdata(file);
->>> +
->>> +    strscpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
->>> +    strscpy(cap->card, "MGB4 PCIe Card", sizeof(cap->card));
->>> +    snprintf(cap->bus_info, sizeof(cap->bus_info), "PCI:%s",
->>> +      pci_name(vindev->mgbdev->pdev));
->>
->> No need to set bus_info, recently the v4l2-core added support for
->> that. See v4l_querycap in v4l2-ioctl.c.
->>
-> 
-> Ok.
-> 
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_enum_fmt(struct file *file, void *priv,
->>> +               struct v4l2_fmtdesc *f)
->>> +{
->>> +    if (f->index != 0)
->>> +        return -EINVAL;
->>> +
->>> +    f->pixelformat = V4L2_PIX_FMT_ABGR32;
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_enum_frameintervals(struct file *file, void *priv,
->>> +                      struct v4l2_frmivalenum *ival)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = video_drvdata(file);
->>> +
->>> +    if (ival->index != 0)
->>> +        return -EINVAL;
->>> +    if (ival->pixel_format != V4L2_PIX_FMT_ABGR32)
->>> +        return -EINVAL;
->>> +    if (ival->width != vindev->width || ival->height != vindev->height)
->>> +        return -EINVAL;
->>> +
->>> +    ival->type = V4L2_FRMIVAL_TYPE_DISCRETE;
->>> +    ival->discrete.numerator = vindev->period;
->>> +    ival->discrete.denominator = 125000000;
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_fmt(struct file *file, void *priv, struct v4l2_format *f)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = video_drvdata(file);
->>> +
->>> +    f->fmt.pix.pixelformat = V4L2_PIX_FMT_ABGR32;
->>> +    f->fmt.pix.width = vindev->width;
->>> +    f->fmt.pix.height = vindev->height;
->>> +    f->fmt.pix.field = V4L2_FIELD_NONE;
->>> +    f->fmt.pix.colorspace = V4L2_COLORSPACE_RAW;
->>> +    f->fmt.pix.bytesperline = BYTESPERLINE(vindev->width, vindev->alignment);
->>> +    f->fmt.pix.sizeimage = f->fmt.pix.bytesperline * f->fmt.pix.height;
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_enum_input(struct file *file, void *priv,
->>> +                 struct v4l2_input *i)
->>> +{
->>> +    if (i->index != 0)
->>> +        return -EINVAL;
->>> +
->>> +    i->type = V4L2_INPUT_TYPE_CAMERA;
->>> +    strscpy(i->name, "MGB4", sizeof(i->name));
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_enum_framesizes(struct file *file, void *fh,
->>> +                  struct v4l2_frmsizeenum *fsize)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = video_drvdata(file);
->>> +
->>> +    if (fsize->index != 0 || fsize->pixel_format != V4L2_PIX_FMT_ABGR32)
->>> +        return -EINVAL;
->>> +
->>> +    fsize->discrete.width = vindev->width;
->>> +    fsize->discrete.height = vindev->height;
->>> +    fsize->type = V4L2_FRMSIZE_TYPE_DISCRETE;
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_s_input(struct file *file, void *priv, unsigned int i)
->>> +{
->>> +    return (i == 0) ? 0 : -EINVAL;
->>> +}
->>> +
->>> +static int vidioc_g_input(struct file *file, void *priv, unsigned int *i)
->>> +{
->>> +    *i = 0;
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_queryctrl(struct file *file, void *priv,
->>> +                struct v4l2_queryctrl *qc)
->>> +{
->>> +    return -EINVAL;
->>> +}
->>
->> Huh? Why is this needed?
->>
-> 
-> I think this was required to "silence" some v4l2-compliance tool warnings/errors. I will recheck this.
-
-If there are warnings/errors with the latest v4l2-compliance, then let me know.
-It would be a bug in the compliance tool.
-
-> 
->>> +
->>> +static int vidioc_parm(struct file *file, void *priv,
->>> +             struct v4l2_streamparm *parm)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = video_drvdata(file);
->>> +    struct v4l2_fract timeperframe = {
->>> +        .numerator = vindev->period,
->>> +        .denominator = 125000000,
->>> +    };
->>> +
->>> +    if (parm->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
->>> +        return -EINVAL;
->>> +
->>> +    parm->parm.capture.readbuffers = 2;
->>> +    parm->parm.capture.capability = V4L2_CAP_TIMEPERFRAME;
->>> +    parm->parm.capture.timeperframe = timeperframe;
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static const struct v4l2_ioctl_ops video_ioctl_ops = {
->>> +    .vidioc_querycap = vidioc_querycap,
->>> +    .vidioc_enum_fmt_vid_cap = vidioc_enum_fmt,
->>> +    .vidioc_try_fmt_vid_cap = vidioc_fmt,
->>> +    .vidioc_s_fmt_vid_cap = vidioc_fmt,
->>> +    .vidioc_g_fmt_vid_cap = vidioc_fmt,
->>> +    .vidioc_enum_framesizes = vidioc_enum_framesizes,
->>> +    .vidioc_enum_frameintervals = vidioc_enum_frameintervals,
->>> +    .vidioc_enum_input = vidioc_enum_input,
->>> +    .vidioc_g_input = vidioc_g_input,
->>> +    .vidioc_s_input = vidioc_s_input,
->>> +    .vidioc_queryctrl = vidioc_queryctrl,
->>> +    .vidioc_reqbufs = vb2_ioctl_reqbufs,
->>> +    .vidioc_create_bufs = vb2_ioctl_create_bufs,
->>> +    .vidioc_querybuf = vb2_ioctl_querybuf,
->>> +    .vidioc_qbuf = vb2_ioctl_qbuf,
->>> +    .vidioc_dqbuf = vb2_ioctl_dqbuf,
->>
->> I'm missing vidioc_prepare_buf.
->>
-> 
-> Ok, will add it.
-> 
->>> +    .vidioc_expbuf = vb2_ioctl_expbuf,
->>> +    .vidioc_streamon = vb2_ioctl_streamon,
->>> +    .vidioc_streamoff = vb2_ioctl_streamoff,
->>> +    .vidioc_g_parm = vidioc_parm,
->>> +    .vidioc_s_parm = vidioc_parm
->>> +};
->>> +
->>> +static void dma_transfer(struct work_struct *work)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = container_of(work, struct mgb4_vin_dev, dma_work);
->>> +    struct device *dev = &vindev->mgbdev->pdev->dev;
->>> +    struct frame_buffer *buf = 0;
->>> +    unsigned long flags;
->>> +    u32 addr;
->>> +
->>> +
->>> +    spin_lock_irqsave(&vindev->qlock, flags);
->>> +    if (!list_empty(&vindev->buf_list)) {
->>> +        buf = list_first_entry(&vindev->buf_list, struct frame_buffer, list);
->>> +        list_del_init(vindev->buf_list.next);
->>> +    }
->>> +    spin_unlock_irqrestore(&vindev->qlock, flags);
->>> +
->>> +    if (!buf)
->>> +        return;
->>> +
->>> +
->>> +    addr = mgb4_read_reg(&vindev->mgbdev->video, vindev->config->regs.address);
->>> +    if (addr >= ERR_QUEUE_FULL) {
->>> +        dev_warn(dev, "frame queue error (%d)\n", (int)addr);
->>> +        vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
->>> +        return;
->>> +    }
->>> +
->>> +    if (mgb4_dma_transfer(vindev->mgbdev, vindev->config->dma_channel,
->>> +      false, addr, vb2_dma_sg_plane_desc(&buf->vb.vb2_buf, 0)) < 0) {
->>> +        dev_warn(dev, "DMA transfer error\n");
->>> +        vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
->>> +    } else {
->>> +        buf->vb.vb2_buf.timestamp = ktime_get_ns();
->>> +        buf->vb.sequence = vindev->sequence++;
->>> +        buf->vb.field = V4L2_FIELD_NONE;
->>> +        vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_DONE);
->>> +    }
->>> +}
->>> +
->>> +static irqreturn_t vin_handler(int irq, void *ctx)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = (struct mgb4_vin_dev *)ctx;
->>> +
->>> +    schedule_work(&vindev->dma_work);
->>> +
->>> +    mgb4_write_reg(&vindev->mgbdev->video, 0xB4, 1U<<vindev->config->vin_irq);
->>> +
->>> +    return IRQ_HANDLED;
->>> +}
->>> +
->>> +static irqreturn_t err_handler(int irq, void *ctx)
->>> +{
->>> +    struct mgb4_vin_dev *vindev = (struct mgb4_vin_dev *)ctx;
->>> +    struct device *dev = &vindev->mgbdev->pdev->dev;
->>> +    struct vb2_queue *vq = &(vindev->queue);
->>> +
->>> +    u32 resolution = mgb4_read_reg(&vindev->mgbdev->video,
->>> +      vindev->config->regs.resolution);
->>> +
->>> +    if ((vindev->width != (resolution >> 16))
->>> +      || (vindev->height != (resolution & 0xFFFF))) {
->>> +        dev_warn(dev, "stream changed (%ux%u -> %ux%u)\n",
->>> +             vindev->width, vindev->height, resolution>>16,
->>> +             resolution & 0xFFFF);
->>> +
->>> +        if (vb2_is_streaming(vq)) {
->>> +            return_all_buffers(vindev, VB2_BUF_STATE_ERROR);
->>> +            vb2_queue_error(vq);
->>> +        }
->>> +    }
->>> +
->>> +    mgb4_write_reg(&vindev->mgbdev->video, 0xB4, 1U<<vindev->config->err_irq);
->>> +
->>> +    return IRQ_HANDLED;
->>> +}
->>> +
->>> +static int deser_init(struct mgb4_vin_dev *vindev, int id)
->>> +{
->>> +    int rv, addr_size;
->>> +    size_t values_count;
->>> +    const struct mgb4_i2c_kv *values;
->>> +    const struct i2c_board_info *info;
->>> +    struct device *dev = &vindev->mgbdev->pdev->dev;
->>> +
->>> +
->>> +    if (MGB4_IS_GMSL(vindev->mgbdev)) {
->>> +        info = &gmsl_deser_info[id];
->>> +        addr_size = 16;
->>> +        values = gmsl_i2c;
->>> +        values_count = ARRAY_SIZE(gmsl_i2c);
->>> +    } else {
->>> +        info = &fpdl3_deser_info[id];
->>> +        addr_size = 8;
->>> +        values = fpdl3_i2c;
->>> +        values_count = ARRAY_SIZE(fpdl3_i2c);
->>> +    }
->>> +
->>> +    rv = mgb4_i2c_init(&vindev->deser, vindev->mgbdev->i2c_adap, info, addr_size);
->>> +    if (rv < 0) {
->>> +        dev_err(dev, "failed to create deserializer\n");
->>> +        return rv;
->>> +    }
->>> +    rv = mgb4_i2c_configure(&vindev->deser, values, values_count);
->>> +    if (rv < 0) {
->>> +        dev_err(dev, "failed to configure deserializer\n");
->>> +        goto err_i2c_dev;
->>> +    }
->>> +
->>> +    return 0;
->>> +
->>> +err_i2c_dev:
->>> +    mgb4_i2c_free(&vindev->deser);
->>> +
->>> +    return rv;
->>> +}
->>> +
->>> +struct mgb4_vin_dev *mgb4_vin_create(struct mgb4_dev *mgbdev, int id)
->>> +{
->>> +    int rv;
->>> +    struct device_attribute **attr, **module_attr;
->>> +    struct mgb4_vin_dev *vindev;
->>> +    struct pci_dev *pdev = mgbdev->pdev;
->>> +    struct device *dev = &pdev->dev;
->>> +    int vin_irq, err_irq;
->>> +
->>> +    vindev = kzalloc(sizeof(struct mgb4_vin_dev), GFP_KERNEL);
->>> +    if (!vindev)
->>> +        return NULL;
->>> +
->>> +    vindev->mgbdev = mgbdev;
->>> +    vindev->config = &(vin_cfg[id]);
->>> +
->>> +    /* Frame queue*/
->>> +    INIT_LIST_HEAD(&vindev->buf_list);
->>> +    spin_lock_init(&vindev->qlock);
->>> +
->>> +    /* DMA transfer stuff */
->>> +    INIT_WORK(&vindev->dma_work, dma_transfer);
->>> +
->>> +    /* IRQ callback */
->>> +    vin_irq = xdma_get_user_irq(mgbdev->xdev, vindev->config->vin_irq);
->>> +    rv = request_irq(vin_irq, vin_handler, 0, "mgb4-vin", vindev);
->>> +    if (rv) {
->>> +        dev_err(dev, "failed to register vin irq handler\n");
->>> +        goto err_alloc;
->>> +    }
->>> +    /* Error IRQ callback */
->>> +    err_irq = xdma_get_user_irq(mgbdev->xdev, vindev->config->err_irq);
->>> +    rv = request_irq(err_irq, err_handler, 0, "mgb4-err", vindev);
->>> +    if (rv) {
->>> +        dev_err(dev, "failed to register err irq handler\n");
->>> +        goto err_vin_irq;
->>> +    }
->>> +
->>> +    /* V4L2 */
->>> +    rv = v4l2_device_register(dev, &vindev->v4l2dev);
->>> +    if (rv) {
->>> +        dev_err(dev, "failed to register v4l2 device\n");
->>> +        goto err_err_irq;
->>> +    }
->>> +
->>> +    mutex_init(&vindev->lock);
->>> +
->>> +    vindev->queue.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
->>> +    vindev->queue.io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF | VB2_READ;
->>
->> Please drop USERPTR: it's not something modern drivers should enable.
-> 
-> Ok.
-> 
->>
->>> +    vindev->queue.buf_struct_size = sizeof(struct frame_buffer);
->>> +    vindev->queue.ops = &queue_ops;
->>> +    vindev->queue.mem_ops = &vb2_dma_sg_memops;
->>> +    vindev->queue.gfp_flags = GFP_DMA32;
->>
->> Is the DMA indeed only 32 bits? It's a bit unexpected.
->>
-> 
-> The addresses used by the card are 32b. But maybe this is not what this constraint means and it can be removed. I will check this.
-
-Most modern hardware has either 64 bit DMA support or an iommu. If it is
-truly 32 bit DMA only, then this is OK.
-
-> 
->>> +    vindev->queue.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
->>> +    vindev->queue.min_buffers_needed = 2;
->>> +    vindev->queue.drv_priv = vindev;
->>> +    vindev->queue.lock = &vindev->lock;
->>> +    vindev->queue.dev = dev;
->>> +    rv = vb2_queue_init(&vindev->queue);
->>> +    if (rv) {
->>> +        dev_err(dev, "failed to initialize vb2 queue\n");
->>> +        goto err_v4l2_dev;
->>> +    }
->>> +
->>> +    snprintf(vindev->vdev.name, sizeof(vindev->vdev.name), "mgb4-in%d", id+1);
->>> +    vindev->vdev.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE
->>> +      | V4L2_CAP_STREAMING;
->>> +    vindev->vdev.fops = &video_fops;
->>> +    vindev->vdev.ioctl_ops = &video_ioctl_ops;
->>> +    vindev->vdev.release = video_device_release_empty;
->>> +    vindev->vdev.v4l2_dev = &vindev->v4l2dev;
->>> +    vindev->vdev.lock = &vindev->lock;
->>> +    vindev->vdev.queue = &vindev->queue;
->>> +    video_set_drvdata(&vindev->vdev, vindev);
->>> +
->>> +    rv = video_register_device(&vindev->vdev, VFL_TYPE_GRABBER, -1);
->>> +    if (rv) {
->>> +        dev_err(dev, "failed to register video device\n");
->>> +        goto err_v4l2_dev;
->>> +    }
->>> +
->>> +    /* Deserializer */
->>> +    rv = deser_init(vindev, id);
->>> +    if (rv)
->>> +        goto err_video_dev;
->>> +
->>> +    /* Set FPGA regs to comply with the deserializer state */
->>> +    mgb4_mask_reg(&vindev->mgbdev->video, vindev->config->regs.config,
->>> +      1U<<9, 1U<<9);
->>> +
->>> +    /* Module sysfs attributes */
->>> +    vindev->alignment = 1;
->>> +    module_attr = MGB4_IS_GMSL(mgbdev)
->>> +      ? mgb4_gmsl_in_attrs : mgb4_fpdl3_in_attrs;
->>> +    for (attr = module_attr; *attr; attr++)
->>> +        device_create_file(&vindev->vdev.dev, *attr);
->>> +
->>> +    return vindev;
->>> +
->>> +err_video_dev:
->>> +    video_unregister_device(&vindev->vdev);
->>> +err_v4l2_dev:
->>> +    v4l2_device_unregister(&vindev->v4l2dev);
->>> +err_err_irq:
->>> +    free_irq(err_irq, vindev);
->>> +err_vin_irq:
->>> +    free_irq(vin_irq, vindev);
->>> +err_alloc:
->>> +    kfree(vindev);
->>> +
->>> +    return NULL;
->>> +}
->>> +
->>> +void mgb4_vin_free(struct mgb4_vin_dev *vindev)
->>> +{
->>> +    struct device_attribute **attr, **module_attr;
->>> +    int vin_irq = xdma_get_user_irq(vindev->mgbdev->xdev,
->>> +                    vindev->config->vin_irq);
->>> +    int err_irq = xdma_get_user_irq(vindev->mgbdev->xdev,
->>> +                    vindev->config->err_irq);
->>> +
->>> +    free_irq(vin_irq, vindev);
->>> +    free_irq(err_irq, vindev);
->>> +
->>> +    module_attr = MGB4_IS_GMSL(vindev->mgbdev)
->>> +      ? mgb4_gmsl_in_attrs : mgb4_fpdl3_in_attrs;
->>> +    for (attr = module_attr; *attr; attr++)
->>> +        device_remove_file(&vindev->vdev.dev, *attr);
->>> +
->>> +    mgb4_i2c_free(&vindev->deser);
->>> +    video_unregister_device(&vindev->vdev);
->>> +    v4l2_device_unregister(&vindev->v4l2dev);
->>> +
->>> +    kfree(vindev);
->>> +}
->>> diff --git a/drivers/media/pci/mgb4/mgb4_vin.h b/drivers/media/pci/mgb4/mgb4_vin.h
->>> new file mode 100644
->>> index 000000000000..4b01b61c3f90
->>> --- /dev/null
->>> +++ b/drivers/media/pci/mgb4/mgb4_vin.h
->>> @@ -0,0 +1,64 @@
->>> +/* SPDX-License-Identifier: GPL-2.0-only */
->>> +/*
->>> + * Copyright (C) 2021-2022 Digiteq Automotive
->>> + *     author: Martin Tuma <martin.tuma@digiteqautomotive.com>
->>> + */
->>> +
->>> +#ifndef __MGB4_VIN_H__
->>> +#define __MGB4_VIN_H__
->>> +
->>> +#include <media/v4l2-device.h>
->>> +#include <media/v4l2-dev.h>
->>> +#include <media/v4l2-ctrls.h>
->>> +#include <media/videobuf2-core.h>
->>> +#include "mgb4_i2c.h"
->>> +
->>> +struct mgb4_vin_regs {
->>> +    u32 address;
->>> +    u32 config;
->>> +    u32 status;
->>> +    u32 resolution;
->>> +    u32 frame_period;
->>> +    u32 sync;
->>> +    u32 pclk;
->>> +    u32 signal;
->>> +    u32 signal2;
->>> +    u32 padding;
->>> +};
->>> +
->>> +struct mgb4_vin_config {
->>> +    int id;
->>> +    int dma_channel;
->>> +    int vin_irq;
->>> +    int err_irq;
->>> +    struct mgb4_vin_regs regs;
->>> +};
->>> +
->>> +struct mgb4_vin_dev {
->>> +    struct mgb4_dev *mgbdev;
->>> +    struct v4l2_device v4l2dev;
->>> +    struct video_device vdev;
->>> +    struct vb2_queue queue;
->>> +    struct mutex lock;
->>> +
->>> +    spinlock_t qlock;
->>> +    struct list_head buf_list;
->>> +    struct work_struct dma_work;
->>> +
->>> +    unsigned int sequence;
->>> +
->>> +    u32 width;
->>> +    u32 height;
->>> +    u32 period;
->>> +    u32 freq_range;
->>> +    u32 alignment;
->>> +
->>> +    struct mgb4_i2c_client deser;
->>> +
->>> +    const struct mgb4_vin_config *config;
->>> +};
->>> +
->>> +extern struct mgb4_vin_dev *mgb4_vin_create(struct mgb4_dev *mgbdev, int id);
->>> +extern void mgb4_vin_free(struct mgb4_vin_dev *vindev);
->>> +
->>> +#endif
->>> diff --git a/drivers/media/pci/mgb4/mgb4_vout.c b/drivers/media/pci/mgb4/mgb4_vout.c
->>> new file mode 100644
->>> index 000000000000..542ff059c67f
->>> --- /dev/null
->>> +++ b/drivers/media/pci/mgb4/mgb4_vout.c
->>> @@ -0,0 +1,507 @@
->>> +// SPDX-License-Identifier: GPL-2.0-only
->>> +/*
->>> + * Copyright (C) 2021-2022 Digiteq Automotive
->>> + *     author: Martin Tuma <martin.tuma@digiteqautomotive.com>
->>> + */
->>> +
->>> +#include <linux/pci.h>
->>> +#include <media/v4l2-ioctl.h>
->>> +#include <media/videobuf2-v4l2.h>
->>> +#include <media/videobuf2-dma-sg.h>
->>> +#include <linux/dma/amd_xdma.h>
->>> +#include "mgb4_core.h"
->>> +#include "mgb4_dma.h"
->>> +#include "mgb4_sysfs.h"
->>> +#include "mgb4_io.h"
->>> +#include "mgb4_vout.h"
->>> +
->>> +#define DEFAULT_WIDTH     1280
->>> +#define DEFAULT_HEIGHT    640
->>> +#define DEFAULT_PERIOD    (125000000 / 60)
->>> +
->>> +static const struct mgb4_vout_config vout_cfg[] = {
->>> +    {0, 0, 8, {0x78, 0x60, 0x64, 0x68, 0x74, 0x6C, 0x70, 0x7c}},
->>> +    {1, 1, 9, {0x98, 0x80, 0x84, 0x88, 0x94, 0x8c, 0x90, 0x9c}}
->>> +};
->>> +
->>> +static const struct i2c_board_info fpdl3_ser_info[] = {
->>> +    {I2C_BOARD_INFO("serializer1", 0x14)},
->>> +    {I2C_BOARD_INFO("serializer2", 0x16)},
->>> +};
->>> +
->>> +static const struct mgb4_i2c_kv fpdl3_i2c[] = {
->>> +    {0x05, 0xFF, 0x04}, {0x06, 0xFF, 0x01}, {0xC2, 0xFF, 0x80}
->>> +};
->>> +
->>> +static int queue_setup(struct vb2_queue *q, unsigned int *nbuffers,
->>> +               unsigned int *nplanes, unsigned int sizes[],
->>> +               struct device *alloc_devs[])
->>> +{
->>> +    struct mgb4_vout_dev *voutdev = vb2_get_drv_priv(q);
->>> +    unsigned long size = BYTESPERLINE(voutdev->width, voutdev->alignment)
->>> +      * voutdev->height;
->>> +
->>> +    if (*nbuffers < 2)
->>> +        *nbuffers = 2;
->>> +
->>> +    if (*nplanes)
->>> +        return sizes[0] < size ? -EINVAL : 0;
->>> +    *nplanes = 1;
->>> +    sizes[0] = size;
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int buffer_init(struct vb2_buffer *vb)
->>> +{
->>> +    struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
->>> +    struct frame_buffer *buf = to_frame_buffer(vbuf);
->>> +
->>> +    INIT_LIST_HEAD(&buf->list);
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int buffer_prepare(struct vb2_buffer *vb)
->>> +{
->>> +    struct mgb4_vout_dev *voutdev = vb2_get_drv_priv(vb->vb2_queue);
->>> +    struct device *dev = &voutdev->mgbdev->pdev->dev;
->>> +    unsigned long size = BYTESPERLINE(voutdev->width, voutdev->alignment)
->>> +      * voutdev->height;
->>> +
->>> +    if (vb2_plane_size(vb, 0) < size) {
->>> +        dev_err(dev, "buffer too small (%lu < %lu)\n",
->>> +            vb2_plane_size(vb, 0), size);
->>> +        return -EINVAL;
->>> +    }
->>> +
->>> +    vb2_set_plane_payload(vb, 0, size);
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static void buffer_queue(struct vb2_buffer *vb)
->>> +{
->>> +    struct mgb4_vout_dev *vindev = vb2_get_drv_priv(vb->vb2_queue);
->>> +    struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
->>> +    struct frame_buffer *buf = to_frame_buffer(vbuf);
->>> +    unsigned long flags;
->>> +
->>> +    spin_lock_irqsave(&vindev->qlock, flags);
->>> +    list_add_tail(&buf->list, &vindev->buf_list);
->>> +    spin_unlock_irqrestore(&vindev->qlock, flags);
->>> +}
->>> +
->>> +static void stop_streaming(struct vb2_queue *vq)
->>> +{
->>> +    struct mgb4_vout_dev *voutdev = vb2_get_drv_priv(vq);
->>> +    struct frame_buffer *buf, *node;
->>> +    int irq = xdma_get_user_irq(voutdev->mgbdev->xdev, voutdev->config->irq);
->>> +    unsigned long flags;
->>> +
->>> +    xdma_disable_user_irq(voutdev->mgbdev->xdev, irq);
->>> +
->>> +    cancel_work_sync(&voutdev->dma_work);
->>> +
->>> +    mgb4_mask_reg(&voutdev->mgbdev->video, voutdev->config->regs.config,
->>> +      0x2, 0x0);
->>> +
->>> +    spin_lock_irqsave(&voutdev->qlock, flags);
->>> +    list_for_each_entry_safe(buf, node, &voutdev->buf_list, list) {
->>> +        vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
->>> +        list_del(&buf->list);
->>> +    }
->>> +    spin_unlock_irqrestore(&voutdev->qlock, flags);
->>> +}
->>> +
->>> +static int start_streaming(struct vb2_queue *vq, unsigned int count)
->>> +{
->>> +    struct mgb4_vout_dev *voutdev = vb2_get_drv_priv(vq);
->>> +    struct device *dev = &voutdev->mgbdev->pdev->dev;
->>> +    struct frame_buffer *buf = 0;
->>> +    struct mgb4_regs *video = &voutdev->mgbdev->video;
->>> +    int irq = xdma_get_user_irq(voutdev->mgbdev->xdev, voutdev->config->irq);
->>> +    u32 addr;
->>> +
->>> +    mgb4_mask_reg(video, voutdev->config->regs.config, 0x2, 0x2);
->>> +
->>> +    addr = mgb4_read_reg(video, voutdev->config->regs.address);
->>> +    if (addr >= ERR_QUEUE_FULL) {
->>> +        dev_err(dev, "frame queue error (%d)\n", (int)addr);
->>
->> You must return queued buffers with STATE_QUEUED on error in start_streaming().
->> Same as for the capture devices.
->>
-> 
-> Ok.
-> 
->>> +        return -EIO;
->>> +    }
->>> +
->>> +    if (!list_empty(&voutdev->buf_list)) {
->>> +        buf = list_first_entry(&voutdev->buf_list, struct frame_buffer, list);
->>> +        list_del_init(voutdev->buf_list.next);
->>> +    }
->>> +    if (!buf) {
->>> +        dev_err(dev, "empty v4l2 queue\n");
->>
->> You can set min_buffers_needed to 1 if you need at least one buffer before
->> start_streaming should be called.
-> 
-> It is set to 2.
-> 
->>
->>> +        return -EIO;
->>> +    }
->>> +
->>> +    if (mgb4_dma_transfer(voutdev->mgbdev, voutdev->config->dma_channel,
->>> +      true, addr, vb2_dma_sg_plane_desc(&buf->vb.vb2_buf, 0)) < 0) {
->>> +        dev_warn(dev, "DMA transfer error\n");
->>> +        vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
->>> +    } else {
->>> +        vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_DONE);
->>> +    }
->>> +
->>> +    xdma_enable_user_irq(voutdev->mgbdev->xdev, irq);
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static const struct vb2_ops queue_ops = {
->>> +    .queue_setup = queue_setup,
->>> +    .buf_init = buffer_init,
->>> +    .buf_prepare = buffer_prepare,
->>> +    .buf_queue = buffer_queue,
->>> +    .start_streaming = start_streaming,
->>> +    .stop_streaming = stop_streaming,
->>> +    .wait_prepare = vb2_ops_wait_prepare,
->>> +    .wait_finish = vb2_ops_wait_finish
->>> +};
->>> +
->>> +
->>> +static int vidioc_querycap(struct file *file, void *priv,
->>> +               struct v4l2_capability *cap)
->>> +{
->>> +    struct mgb4_vout_dev *voutdev = video_drvdata(file);
->>> +
->>> +    strscpy(cap->driver, KBUILD_MODNAME, sizeof(cap->driver));
->>> +    strscpy(cap->card, "MGB4 PCIe Card", sizeof(cap->card));
->>> +    snprintf(cap->bus_info, sizeof(cap->bus_info), "PCI:%s",
->>> +      pci_name(voutdev->mgbdev->pdev));
->>
->> Can be dropped.
->>
-> 
-> Ok.
-> 
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +
->>> +static int vidioc_enum_fmt(struct file *file, void *priv,
->>> +               struct v4l2_fmtdesc *f)
->>> +{
->>> +    if (f->index != 0)
->>> +        return -EINVAL;
->>> +
->>> +    f->pixelformat = V4L2_PIX_FMT_ABGR32;
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_fmt(struct file *file, void *priv, struct v4l2_format *f)
->>> +{
->>> +    struct mgb4_vout_dev *voutdev = video_drvdata(file);
->>> +
->>> +    f->fmt.pix.pixelformat = V4L2_PIX_FMT_ABGR32;
->>> +    f->fmt.pix.width = voutdev->width;
->>> +    f->fmt.pix.height = voutdev->height;
->>> +    f->fmt.pix.field = V4L2_FIELD_NONE;
->>> +    f->fmt.pix.colorspace = V4L2_COLORSPACE_RAW;
->>> +    f->fmt.pix.bytesperline = BYTESPERLINE(voutdev->width, voutdev->alignment);
->>> +    f->fmt.pix.sizeimage = f->fmt.pix.width * 4 * f->fmt.pix.height;
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_g_output(struct file *file, void *priv, unsigned int *i)
->>> +{
->>> +    *i = 0;
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_s_output(struct file *file, void *priv, unsigned int i)
->>> +{
->>> +    return i ? -EINVAL : 0;
->>> +}
->>> +
->>> +static int vidioc_enum_output(struct file *file, void *priv, struct v4l2_output *out)
->>> +{
->>> +    if (out->index != 0)
->>> +        return -EINVAL;
->>> +
->>> +    out->type = V4L2_OUTPUT_TYPE_ANALOG;
->>> +    strscpy(out->name, "MGB4", sizeof(out->name));
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int vidioc_queryctrl(struct file *file, void *priv,
->>> +                struct v4l2_queryctrl *qc)
->>> +{
->>> +    return -EINVAL;
->>> +}
->>
->> Huh?
->>
-> 
-> This is the same story as in the INPUT case.
-> 
->>> +
->>> +static const struct v4l2_ioctl_ops video_ioctl_ops = {
->>> +    .vidioc_querycap = vidioc_querycap,
->>> +    .vidioc_enum_fmt_vid_out = vidioc_enum_fmt,
->>> +    .vidioc_try_fmt_vid_out = vidioc_fmt,
->>> +    .vidioc_s_fmt_vid_out = vidioc_fmt,
->>> +    .vidioc_g_fmt_vid_out = vidioc_fmt,
->>> +    .vidioc_enum_output = vidioc_enum_output,
->>> +    .vidioc_g_output = vidioc_g_output,
->>> +    .vidioc_s_output = vidioc_s_output,
->>> +    .vidioc_queryctrl = vidioc_queryctrl,
->>> +    .vidioc_reqbufs = vb2_ioctl_reqbufs,
->>> +    .vidioc_create_bufs = vb2_ioctl_create_bufs,
->>> +    .vidioc_querybuf = vb2_ioctl_querybuf,
->>> +    .vidioc_qbuf = vb2_ioctl_qbuf,
->>> +    .vidioc_dqbuf = vb2_ioctl_dqbuf,
->>
->> Missing vidioc_prepare_buf.
->>
->>> +    .vidioc_expbuf = vb2_ioctl_expbuf,
->>> +    .vidioc_streamon = vb2_ioctl_streamon,
->>> +    .vidioc_streamoff = vb2_ioctl_streamoff,
->>> +};
->>> +
->>> +static int fh_open(struct file *file)
->>> +{
->>> +    struct mgb4_vout_dev *voutdev = video_drvdata(file);
->>> +    struct mgb4_regs *video = &voutdev->mgbdev->video;
->>> +    u32 config, resolution;
->>> +    int ret;
->>> +
->>> +    ret = v4l2_fh_open(file);
->>> +    if (ret)
->>> +        return ret;
->>> +
->>> +    config = mgb4_read_reg(video, voutdev->config->regs.config);
->>> +    if ((config & 0xc) >> 2 != voutdev->config->id + MGB4_VIN_DEVICES)
->>> +        goto error;
->>> +
->>> +    resolution = mgb4_read_reg(video, voutdev->config->regs.resolution);
->>> +    voutdev->width = resolution >> 16;
->>> +    voutdev->height = resolution & 0xFFFF;
->>> +
->>> +    mgb4_write_reg(video, voutdev->config->regs.padding,
->>> +      PADDING(voutdev->width, voutdev->alignment));
->>
->> Same as for input: opening a video device appears to have a side-effect.
->>
-> 
-> The same reason as in the input case. You can have different displays with completely different video signals (even resolutions) connected to the output at any arbitrary time.
-
-It's similar to the input side: use the DV timings ioctls. Except there won't be a
-QUERY_DV_TIMINGS, since it is an output.
-
-But how do you know what the display supports? Is it using an EDID? In that case you
-need to support VIDIOC_G_EDID as well, and probably some of the DV controls:
-
-https://linuxtv.org/downloads/v4l-dvb-apis-new/userspace-api/v4l/ext-ctrls-dv.html
-
-> 
->>> +
->>> +    return 0;
->>> +
->>> +error:
->>> +    v4l2_fh_release(file);
->>> +    return -EBUSY;
->>> +}
->>> +
->>> +static const struct v4l2_file_operations video_fops = {
->>> +    .owner = THIS_MODULE,
->>> +    .open = fh_open,
->>> +    .release = vb2_fop_release,
->>> +    .unlocked_ioctl = video_ioctl2,
->>> +    .write = vb2_fop_write,
->>> +    .mmap = vb2_fop_mmap,
->>> +    .poll = vb2_fop_poll,
->>> +};
->>> +
->>> +static void dma_transfer(struct work_struct *work)
->>> +{
->>> +    struct mgb4_vout_dev *voutdev = container_of(work, struct mgb4_vout_dev,
->>> +      dma_work);
->>> +    struct device *dev = &voutdev->mgbdev->pdev->dev;
->>> +    struct frame_buffer *buf = 0;
->>> +    unsigned long flags;
->>> +    u32 addr;
->>> +
->>> +    spin_lock_irqsave(&voutdev->qlock, flags);
->>> +    if (!list_empty(&voutdev->buf_list)) {
->>> +        buf = list_first_entry(&voutdev->buf_list, struct frame_buffer, list);
->>> +        list_del_init(voutdev->buf_list.next);
->>> +    }
->>> +    spin_unlock_irqrestore(&voutdev->qlock, flags);
->>> +
->>> +    if (!buf)
->>> +        return;
->>> +
->>> +    addr = mgb4_read_reg(&voutdev->mgbdev->video, voutdev->config->regs.address);
->>> +    if (addr >= ERR_QUEUE_FULL) {
->>> +        dev_warn(dev, "frame queue error (%d)\n", (int)addr);
->>> +        vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
->>> +        return;
->>> +    }
->>> +
->>> +    if (mgb4_dma_transfer(voutdev->mgbdev, voutdev->config->dma_channel,
->>> +      true, addr, vb2_dma_sg_plane_desc(&buf->vb.vb2_buf, 0)) < 0) {
->>> +        dev_warn(dev, "DMA transfer error\n");
->>> +        vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
->>> +    } else {
->>> +        vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_DONE);
->>> +    }
->>> +}
->>> +
->>> +static irqreturn_t handler(int irq, void *ctx)
->>> +{
->>> +    struct mgb4_vout_dev *voutdev = (struct mgb4_vout_dev *)ctx;
->>> +
->>> +    schedule_work(&voutdev->dma_work);
->>> +
->>> +    mgb4_write_reg(&voutdev->mgbdev->video, 0xB4, 1U<<voutdev->config->irq);
->>> +
->>> +    return IRQ_HANDLED;
->>> +}
->>> +
->>> +static int ser_init(struct mgb4_vout_dev *voutdev, int id)
->>> +{
->>> +    int rv, addr_size;
->>> +    size_t values_count;
->>> +    const struct mgb4_i2c_kv *values;
->>> +    const struct i2c_board_info *info;
->>> +    struct device *dev = &voutdev->mgbdev->pdev->dev;
->>> +
->>> +
->>> +    if (MGB4_IS_GMSL(voutdev->mgbdev))
->>> +        return 0;
->>> +
->>> +    info = &fpdl3_ser_info[id];
->>> +    addr_size = 8;
->>> +    values = fpdl3_i2c;
->>> +    values_count = ARRAY_SIZE(fpdl3_i2c);
->>> +
->>> +    rv = mgb4_i2c_init(&voutdev->ser, voutdev->mgbdev->i2c_adap, info, addr_size);
->>> +    if (rv < 0) {
->>> +        dev_err(dev, "failed to create serializer\n");
->>> +        return rv;
->>> +    }
->>> +    rv = mgb4_i2c_configure(&voutdev->ser, values, values_count);
->>> +    if (rv < 0) {
->>> +        dev_err(dev, "failed to configure serializer\n");
->>> +        goto err_i2c_dev;
->>> +    }
->>> +
->>> +    return 0;
->>> +
->>> +err_i2c_dev:
->>> +    mgb4_i2c_free(&voutdev->ser);
->>> +
->>> +    return rv;
->>> +}
->>> +
->>> +struct mgb4_vout_dev *mgb4_vout_create(struct mgb4_dev *mgbdev, int id)
->>> +{
->>> +    int rv, irq;
->>> +    struct device_attribute **attr, **module_attr;
->>> +    struct mgb4_vout_dev *voutdev;
->>> +    struct mgb4_regs *video;
->>> +    struct pci_dev *pdev = mgbdev->pdev;
->>> +    struct device *dev = &pdev->dev;
->>> +
->>> +    voutdev = kzalloc(sizeof(struct mgb4_vout_dev), GFP_KERNEL);
->>> +    if (!voutdev)
->>> +        return NULL;
->>> +
->>> +    voutdev->mgbdev = mgbdev;
->>> +    voutdev->config = &(vout_cfg[id]);
->>> +    video = &voutdev->mgbdev->video;
->>> +
->>> +    /* Frame queue*/
->>> +    INIT_LIST_HEAD(&voutdev->buf_list);
->>> +    spin_lock_init(&voutdev->qlock);
->>> +
->>> +    /* DMA transfer stuff */
->>> +    INIT_WORK(&voutdev->dma_work, dma_transfer);
->>> +
->>> +    /* IRQ callback */
->>> +    irq = xdma_get_user_irq(mgbdev->xdev, voutdev->config->irq);
->>> +    rv = request_irq(irq, handler, 0, "mgb4-vout", voutdev);
->>> +    if (rv) {
->>> +        dev_err(dev, "failed to register irq handler\n");
->>> +        goto err_alloc;
->>> +    }
->>> +
->>> +    /* V4L2 */
->>> +    rv = v4l2_device_register(dev, &voutdev->v4l2dev);
->>> +    if (rv) {
->>> +        dev_err(dev, "failed to register v4l2 device\n");
->>> +        goto err_irq;
->>> +    }
->>> +
->>> +    mutex_init(&voutdev->lock);
->>> +
->>> +    voutdev->queue.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
->>> +    voutdev->queue.io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF | VB2_WRITE;
->>
->> Drop USERPTR.
->>
-> 
-> Ok.
-> 
->> General note (both for video capture and output): while it does doesn't hurt to
->> support read() or write(), it is unusual in modern drivers, and since read/write
->> support involves a memcpy for each buffer, it is also quite inefficient.
->>
->> You might want to drop support for that.
->>
-> 
-> I would let it there as I have seen code using it...
-> 
->>> +    voutdev->queue.buf_struct_size = sizeof(struct frame_buffer);
->>> +    voutdev->queue.ops = &queue_ops;
->>> +    voutdev->queue.mem_ops = &vb2_dma_sg_memops;
->>> +    voutdev->queue.gfp_flags = GFP_DMA32;
->>> +    voutdev->queue.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
->>> +    voutdev->queue.min_buffers_needed = 2;
->>
->> Ah, you set this already. Then the check in start_streaming of whether there
->> is a buffer queued can be dropped.
-> 
-> Ok.
-> 
->>
->>> +    voutdev->queue.drv_priv = voutdev;
->>> +    voutdev->queue.lock = &voutdev->lock;
->>> +    voutdev->queue.dev = dev;
->>> +    rv = vb2_queue_init(&voutdev->queue);
->>> +    if (rv) {
->>> +        dev_err(dev, "failed to initialize vb2 queue\n");
->>> +        goto err_v4l2_dev;
->>> +    }
->>> +
->>> +    snprintf(voutdev->vdev.name, sizeof(voutdev->vdev.name), "mgb4-out%d", id+1);
->>> +    voutdev->vdev.device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_READWRITE
->>> +      | V4L2_CAP_STREAMING;
->>> +    voutdev->vdev.vfl_dir = VFL_DIR_TX;
->>> +    voutdev->vdev.fops = &video_fops;
->>> +    voutdev->vdev.ioctl_ops = &video_ioctl_ops;
->>> +    voutdev->vdev.release = video_device_release_empty;
->>> +    voutdev->vdev.v4l2_dev = &voutdev->v4l2dev;
->>> +    voutdev->vdev.lock = &voutdev->lock;
->>> +    voutdev->vdev.queue = &voutdev->queue;
->>> +    video_set_drvdata(&voutdev->vdev, voutdev);
->>> +
->>> +    rv = video_register_device(&voutdev->vdev, VFL_TYPE_GRABBER, -1);
->>> +    if (rv) {
->>> +        dev_err(dev, "failed to register video device\n");
->>> +        goto err_v4l2_dev;
->>> +    }
->>> +
->>> +    /* Serializer */
->>> +    rv = ser_init(voutdev, id);
->>> +    if (rv)
->>> +        goto err_video_dev;
->>> +
->>> +    /* Set the FPGA registers default values */
->>> +    mgb4_mask_reg(video, voutdev->config->regs.config, 0xc,
->>> +      (voutdev->config->id + MGB4_VIN_DEVICES) << 2);
->>> +    mgb4_write_reg(video, voutdev->config->regs.resolution,
->>> +      (DEFAULT_WIDTH << 16) | DEFAULT_HEIGHT);
->>> +    mgb4_write_reg(video, voutdev->config->regs.frame_period,
->>> +      DEFAULT_PERIOD);
->>> +
->>> +    /* Module sysfs attributes */
->>> +    voutdev->alignment = 1;
->>> +    module_attr = MGB4_IS_GMSL(mgbdev)
->>> +      ? mgb4_gmsl_out_attrs : mgb4_fpdl3_out_attrs;
->>> +    for (attr = module_attr; *attr; attr++)
->>> +        device_create_file(&voutdev->vdev.dev, *attr);
->>> +
->>> +    /* Set the output frequency according to the FPGA defaults */
->>> +    voutdev->freq = 70000;
->>> +
->>> +    return voutdev;
->>> +
->>> +err_video_dev:
->>> +    video_unregister_device(&voutdev->vdev);
->>> +err_v4l2_dev:
->>> +    v4l2_device_unregister(&voutdev->v4l2dev);
->>> +err_irq:
->>> +    free_irq(irq, voutdev);
->>> +err_alloc:
->>> +    kfree(voutdev);
->>> +
->>> +    return NULL;
->>> +}
->>> +
->>> +void mgb4_vout_free(struct mgb4_vout_dev *voutdev)
->>> +{
->>> +    struct device_attribute **attr, **module_attr;
->>> +    int irq = xdma_get_user_irq(voutdev->mgbdev->xdev, voutdev->config->irq);
->>> +
->>> +    free_irq(irq, voutdev);
->>> +
->>> +    module_attr = MGB4_IS_GMSL(voutdev->mgbdev)
->>> +      ? mgb4_gmsl_out_attrs : mgb4_fpdl3_out_attrs;
->>> +    for (attr = module_attr; *attr; attr++)
->>> +        device_remove_file(&voutdev->vdev.dev, *attr);
->>> +
->>> +    mgb4_i2c_free(&voutdev->ser);
->>> +    video_unregister_device(&voutdev->vdev);
->>> +    v4l2_device_unregister(&voutdev->v4l2dev);
->>> +
->>> +    kfree(voutdev);
->>> +}
->>> diff --git a/drivers/media/pci/mgb4/mgb4_vout.h b/drivers/media/pci/mgb4/mgb4_vout.h
->>> new file mode 100644
->>> index 000000000000..902b6b8deb21
->>> --- /dev/null
->>> +++ b/drivers/media/pci/mgb4/mgb4_vout.h
->>> @@ -0,0 +1,58 @@
->>> +/* SPDX-License-Identifier: GPL-2.0-only */
->>> +/*
->>> + * Copyright (C) 2021-2022 Digiteq Automotive
->>> + *     author: Martin Tuma <martin.tuma@digiteqautomotive.com>
->>> + */
->>> +
->>> +#ifndef __MGB4_VOUT_H__
->>> +#define __MGB4_VOUT_H__
->>> +
->>> +#include <media/v4l2-device.h>
->>> +#include <media/v4l2-dev.h>
->>> +#include <media/v4l2-ctrls.h>
->>> +#include <media/videobuf2-core.h>
->>> +#include "mgb4_i2c.h"
->>> +
->>> +struct mgb4_vout_regs {
->>> +    u32 address;
->>> +    u32 config;
->>> +    u32 status;
->>> +    u32 resolution;
->>> +    u32 frame_period;
->>> +    u32 hsync;
->>> +    u32 vsync;
->>> +    u32 padding;
->>> +};
->>> +
->>> +struct mgb4_vout_config {
->>> +    int id;
->>> +    int dma_channel;
->>> +    int irq;
->>> +    struct mgb4_vout_regs regs;
->>> +};
->>> +
->>> +struct mgb4_vout_dev {
->>> +    struct mgb4_dev *mgbdev;
->>> +    struct v4l2_device v4l2dev;
->>> +    struct video_device vdev;
->>> +    struct vb2_queue queue;
->>> +    struct mutex lock;
->>> +
->>> +    spinlock_t qlock;
->>> +    struct list_head buf_list;
->>> +    struct work_struct dma_work;
->>> +
->>> +    u32 width;
->>> +    u32 height;
->>> +    u32 freq;
->>> +    u32 alignment;
->>> +
->>> +    struct mgb4_i2c_client ser;
->>> +
->>> +    const struct mgb4_vout_config *config;
->>> +};
->>> +
->>> +extern struct mgb4_vout_dev *mgb4_vout_create(struct mgb4_dev *mgbdev, int id);
->>> +extern void mgb4_vout_free(struct mgb4_vout_dev *voutdev);
->>> +
->>> +#endif
->>
->> General note: add some comments at the top of each source explaining what
->> it does.
->>
-> 
-> I will do that, but except of the CMT module (where even I do not know what exactly it does ;-) ) it should be clear from the source name. But maybe in some cases some info that is clear to me can
-> help to others.
-> 
->> Regards,
->>
->>     Hans
-> 
-> Thanks's for your time to review the driver. I will prepare a v4 soon with the changes. Except the open/close logic it does not look as much work to me at the moment.
-> 
-> M.
-
-Regards,
-
-	Hans
+DQoNCk9uIDExLzUvMjIgMjM6MDEsIFZpbm9kIEtvdWwgd3JvdGU6DQo+IEV4dGVybmFsIGVtYWls
+OiBVc2UgY2F1dGlvbiBvcGVuaW5nIGxpbmtzIG9yIGF0dGFjaG1lbnRzDQo+IA0KPiANCj4gT24g
+MjQtMTAtMjIsIDE1OjQxLCBXYXluZSBDaGFuZyB3cm90ZToNCj4+IEZyb206IFNpbmctSGFuIENo
+ZW4gPHNpbmdoYW5jQG52aWRpYS5jb20+DQo+Pg0KPj4gQWRkIHN1cHBvcnQgZm9yIHRoZSBYVVNC
+IHBhZCBjb250cm9sbGVyIGZvdW5kIG9uIFRlZ3JhMjM0IFNvQ3MuIEl0IGlzDQo+PiBtb3N0bHkg
+c2ltaWxhciB0byB0aGUgc2FtZSBJUCBmb3VuZCBvbiBUZWdyYTE5NCwgYmVjYXVzZSBtb3N0IG9m
+DQo+PiB0aGUgVGVncmEyMzQgWFVTQiBQQURDVEwgcmVnaXN0ZXJzIGRlZmluaXRpb24gYW5kIHBy
+b2dyYW1taW5nIHNlcXVlbmNlDQo+PiBhcmUgdGhlIHNhbWUgYXMgVGVncmExOTQsIFRlZ3JhMjM0
+IFhVU0IgUEFEQ1RMIGNhbiBzaGFyZSB0aGUgc2FtZQ0KPj4gZHJpdmVyIHdpdGggVGVncmExODYg
+YW5kIFRlZ3JhMTk0IFhVU0IgUEFEQ1RMLg0KPj4NCj4+IEludHJvZHVjZSBhIG5ldyBmZWF0dXJl
+LCBVU0IyIEhXIHRyYWNraW5nLCBmb3IgVGVncmEyMzQuDQo+PiBUaGUgZmVhdHVyZSBpcyB0byBl
+bmFibGUgSFcgcGVyaW9kaWNhbCBQQUQgdHJhY2tpbmcgd2hpY2ggbWVhc3VyZQ0KPj4gYW5kIGNh
+cHR1cmUgdGhlIGVsZWN0cmljIHBhcmFtZXRlcnMgb2YgVVNCMi4wIFBBRC4NCj4gDQo+IHdoeSBj
+YW50IHRoaXMgcGF0Y2ggYmUgc2VudCBzZXBhcmF0ZWx5LCBhcmUgcGh5IHBhdGNoZXMgZGVwZW5k
+ZW50IG9uDQo+IHJlc3QuLj8gSWYgbm90IGNvbnNpZGVyIHNwbGl0dGluZyBwZXIgc3Vic3lzdGVt
+IGFuZCBzZW5kaW5nDQo+IGluZGVwZW5kZW50bHkuLg0KPiANCg0KVGhhbmtzIGZvciB0aGUgcmV2
+aWV3Lg0KWWVzLCB0ZWdyYTIzNF94dXNiX3BhZGN0bF9zb2MgaXMgYWRkZWQgdG8gZW5hYmxlIFRl
+Z3JhMjM0IGZlYXR1cmVzLg0KSWYgd2UgZG8gbm90IGVuYWJsZSBVU0IyIEhXIHRyYWNraW5nLCB0
+aGVuIHdlIHNoYWxsIG5vdCBoYXZlIHRoaXMgY2hhbmdlIA0KYW5kIHJldXNlIHRlZ3JhMTk0X3h1
+c2JfcGFkY3RsX3NvYyBhcyB3ZWxsLg0KDQpUaGUgZmVhdHVyZSBpcyBuZXcgYWRkZWQgZm9yIFRl
+Z3JhMjM0IHBhZCBjb250cm9sIGFnYWluc3QgVGVncmExOTQuDQoNCj4+DQo+PiBTaWduZWQtb2Zm
+LWJ5OiBTaW5nLUhhbiBDaGVuIDxzaW5naGFuY0BudmlkaWEuY29tPg0KPj4gQ28tZGV2ZWxvcGVk
+LWJ5OiBXYXluZSBDaGFuZyA8d2F5bmVjQG52aWRpYS5jb20+DQo+PiBTaWduZWQtb2ZmLWJ5OiBX
+YXluZSBDaGFuZyA8d2F5bmVjQG52aWRpYS5jb20+DQo+PiAtLS0NCj4+ICAgZHJpdmVycy9waHkv
+dGVncmEvTWFrZWZpbGUgICAgICAgIHwgIDEgKw0KPj4gICBkcml2ZXJzL3BoeS90ZWdyYS94dXNi
+LXRlZ3JhMTg2LmMgfCA2NSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tDQo+PiAgIGRy
+aXZlcnMvcGh5L3RlZ3JhL3h1c2IuYyAgICAgICAgICB8ICA2ICsrKw0KPj4gICBkcml2ZXJzL3Bo
+eS90ZWdyYS94dXNiLmggICAgICAgICAgfCAyMyArKysrKysrKysrKw0KPj4gICA0IGZpbGVzIGNo
+YW5nZWQsIDkyIGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pDQo+Pg0KPj4gZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvcGh5L3RlZ3JhL01ha2VmaWxlIGIvZHJpdmVycy9waHkvdGVncmEvTWFrZWZp
+bGUNCj4+IGluZGV4IDg5Yjg0MDY3Y2I0Yy4uZWVlZWE3MmRlMTE3IDEwMDY0NA0KPj4gLS0tIGEv
+ZHJpdmVycy9waHkvdGVncmEvTWFrZWZpbGUNCj4+ICsrKyBiL2RyaXZlcnMvcGh5L3RlZ3JhL01h
+a2VmaWxlDQo+PiBAQCAtNyw0ICs3LDUgQEAgcGh5LXRlZ3JhLXh1c2ItJChDT05GSUdfQVJDSF9U
+RUdSQV8xMzJfU09DKSArPSB4dXNiLXRlZ3JhMTI0Lm8NCj4+ICAgcGh5LXRlZ3JhLXh1c2ItJChD
+T05GSUdfQVJDSF9URUdSQV8yMTBfU09DKSArPSB4dXNiLXRlZ3JhMjEwLm8NCj4+ICAgcGh5LXRl
+Z3JhLXh1c2ItJChDT05GSUdfQVJDSF9URUdSQV8xODZfU09DKSArPSB4dXNiLXRlZ3JhMTg2Lm8N
+Cj4+ICAgcGh5LXRlZ3JhLXh1c2ItJChDT05GSUdfQVJDSF9URUdSQV8xOTRfU09DKSArPSB4dXNi
+LXRlZ3JhMTg2Lm8NCj4+ICtwaHktdGVncmEteHVzYi0kKENPTkZJR19BUkNIX1RFR1JBXzIzNF9T
+T0MpICs9IHh1c2ItdGVncmExODYubw0KPj4gICBvYmotJChDT05GSUdfUEhZX1RFR1JBMTk0X1Ay
+VSkgKz0gcGh5LXRlZ3JhMTk0LXAydS5vDQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9waHkvdGVn
+cmEveHVzYi10ZWdyYTE4Ni5jIGIvZHJpdmVycy9waHkvdGVncmEveHVzYi10ZWdyYTE4Ni5jDQo+
+PiBpbmRleCBmMTIxYjRmZmJiZmQuLmNjMDJjZWE2NWEyMSAxMDA2NDQNCj4+IC0tLSBhL2RyaXZl
+cnMvcGh5L3RlZ3JhL3h1c2ItdGVncmExODYuYw0KPj4gKysrIGIvZHJpdmVycy9waHkvdGVncmEv
+eHVzYi10ZWdyYTE4Ni5jDQo+PiBAQCAtODksNiArODksMTEgQEANCj4+ICAgI2RlZmluZSAgVVNC
+Ml9UUktfU1RBUlRfVElNRVIoeCkgICAgICAgICAgICAgKCgoeCkgJiAweDdmKSA8PCAxMikNCj4+
+ICAgI2RlZmluZSAgVVNCMl9UUktfRE9ORV9SRVNFVF9USU1FUih4KSAgICAgICAgICAgICAgICAo
+KCh4KSAmIDB4N2YpIDw8IDE5KQ0KPj4gICAjZGVmaW5lICBVU0IyX1BEX1RSSyAgICAgICAgICAg
+ICAgICAgICAgICAgICBCSVQoMjYpDQo+PiArI2RlZmluZSAgVVNCMl9UUktfQ09NUExFVEVEICAg
+ICAgICAgICAgICAgICAgQklUKDMxKQ0KPj4gKw0KPj4gKyNkZWZpbmUgWFVTQl9QQURDVExfVVNC
+Ml9CSUFTX1BBRF9DVEwyICAgICAgICAgICAgICAgMHgyOGMNCj4+ICsjZGVmaW5lICBVU0IyX1RS
+S19IV19NT0RFICAgICAgICAgICAgICAgICAgICBCSVQoMCkNCj4+ICsjZGVmaW5lICBDWUFfVFJL
+X0NPREVfVVBEQVRFX09OX0lETEUgICAgICAgICBCSVQoMzEpDQo+Pg0KPj4gICAjZGVmaW5lIFhV
+U0JfUEFEQ1RMX0hTSUNfUEFEWF9DVEwwKHgpICAgICAgICAgICAgICAgICgweDMwMCArICh4KSAq
+IDB4MjApDQo+PiAgICNkZWZpbmUgIEhTSUNfUERfVFhfREFUQTAgICAgICAgICAgICAgICAgICAg
+IEJJVCgxKQ0KPj4gQEAgLTYwOSw5ICs2MTQsMzIgQEAgc3RhdGljIHZvaWQgdGVncmExODZfdXRt
+aV9iaWFzX3BhZF9wb3dlcl9vbihzdHJ1Y3QgdGVncmFfeHVzYl9wYWRjdGwgKnBhZGN0bCkNCj4+
+ICAgICAgICB2YWx1ZSAmPSB+VVNCMl9QRF9UUks7DQo+PiAgICAgICAgcGFkY3RsX3dyaXRlbChw
+YWRjdGwsIHZhbHVlLCBYVVNCX1BBRENUTF9VU0IyX0JJQVNfUEFEX0NUTDEpOw0KPj4NCj4+IC0g
+ICAgIHVkZWxheSgxMDApOw0KPj4gKyAgICAgaWYgKHBhZGN0bC0+c29jLT5wb2xsX3Rya19jb21w
+bGV0ZWQpIHsNCj4+ICsgICAgICAgICAgICAgZXJyID0gcGFkY3RsX3JlYWRsX3BvbGwocGFkY3Rs
+LCBYVVNCX1BBRENUTF9VU0IyX0JJQVNfUEFEX0NUTDEsDQo+PiArICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIFVTQjJfVFJLX0NPTVBMRVRFRCwgVVNCMl9UUktfQ09NUExFVEVE
+LCAxMDApOw0KPj4gKyAgICAgICAgICAgICBpZiAoZXJyKSB7DQo+PiArICAgICAgICAgICAgICAg
+ICAgICAgLyogVGhlIGZhaWx1cmUgd2l0aCBwb2xsaW5nIG9uIHRyayBjb21wbGV0ZSB3aWxsIG5v
+dA0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAqIGNhdXNlIHRoZSBmYWlsdXJlIG9mIHBvd2Vy
+aW5nIG9uIHRoZSBiaWFzIHBhZC4NCj4+ICsgICAgICAgICAgICAgICAgICAgICAgKi8NCj4+ICsg
+ICAgICAgICAgICAgICAgICAgICBkZXZfd2FybihkZXYsICJmYWlsZWQgdG8gcG9sbCBVU0IyIHRy
+ayBjb21wbGV0ZWQ6ICVkXG4iLA0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZXJy
+KTsNCj4gDQo+IFNpbmdsZSBsaW5lLi4gc2hvdWxkIHRoaXMgYmUgZGV2X2Vycg0KVGhhbmtzLCBJ
+J2xsIG1ha2UgaXQgYSBzaW5nbGUgbGluZS4NClRoZSBmYWlsdXJlIHdpdGggcG9sbGluZyBvbiB0
+cmsgY29tcGxldGUgd2lsbCBub3QgY2F1c2UgdGhlIGZhaWx1cmUgb2YgDQpwb3dlcmluZyBvbiB0
+aGUgYmlhcyBwYWQgYW5kIHRodXMgd2UgcHV0IGl0IHdhcm5pbmcgaGVyZS4NCg0KdGhhbmtzLA0K
+V2F5bmUuDQoNCj4gDQo+PiArICAgICAgICAgICAgIH0NCj4+DQo+PiAtICAgICBjbGtfZGlzYWJs
+ZV91bnByZXBhcmUocHJpdi0+dXNiMl90cmtfY2xrKTsNCj4+ICsgICAgICAgICAgICAgdmFsdWUg
+PSBwYWRjdGxfcmVhZGwocGFkY3RsLCBYVVNCX1BBRENUTF9VU0IyX0JJQVNfUEFEX0NUTDEpOw0K
+Pj4gKyAgICAgICAgICAgICB2YWx1ZSB8PSBVU0IyX1RSS19DT01QTEVURUQ7DQo+PiArICAgICAg
+ICAgICAgIHBhZGN0bF93cml0ZWwocGFkY3RsLCB2YWx1ZSwgWFVTQl9QQURDVExfVVNCMl9CSUFT
+X1BBRF9DVEwxKTsNCj4+ICsgICAgIH0gZWxzZSB7DQo+PiArICAgICAgICAgICAgIHVkZWxheSgx
+MDApOw0KPj4gKyAgICAgfQ0KPj4gKw0KPj4gKyAgICAgaWYgKHBhZGN0bC0+c29jLT50cmtfaHdf
+bW9kZSkgew0KPj4gKyAgICAgICAgICAgICB2YWx1ZSA9IHBhZGN0bF9yZWFkbChwYWRjdGwsIFhV
+U0JfUEFEQ1RMX1VTQjJfQklBU19QQURfQ1RMMik7DQo+PiArICAgICAgICAgICAgIHZhbHVlIHw9
+IFVTQjJfVFJLX0hXX01PREU7DQo+PiArICAgICAgICAgICAgIHZhbHVlICY9IH5DWUFfVFJLX0NP
+REVfVVBEQVRFX09OX0lETEU7DQo+PiArICAgICAgICAgICAgIHBhZGN0bF93cml0ZWwocGFkY3Rs
+LCB2YWx1ZSwgWFVTQl9QQURDVExfVVNCMl9CSUFTX1BBRF9DVEwyKTsNCj4+ICsgICAgIH0gZWxz
+ZSB7DQo+PiArICAgICAgICAgICAgIGNsa19kaXNhYmxlX3VucHJlcGFyZShwcml2LT51c2IyX3Ry
+a19jbGspOw0KPj4gKyAgICAgfQ0KPj4NCj4+ICAgICAgICBtdXRleF91bmxvY2soJnBhZGN0bC0+
+bG9jayk7DQo+PiAgIH0NCj4+IEBAIC02MzcsNiArNjY1LDEzIEBAIHN0YXRpYyB2b2lkIHRlZ3Jh
+MTg2X3V0bWlfYmlhc19wYWRfcG93ZXJfb2ZmKHN0cnVjdCB0ZWdyYV94dXNiX3BhZGN0bCAqcGFk
+Y3RsKQ0KPj4gICAgICAgIHZhbHVlIHw9IFVTQjJfUERfVFJLOw0KPj4gICAgICAgIHBhZGN0bF93
+cml0ZWwocGFkY3RsLCB2YWx1ZSwgWFVTQl9QQURDVExfVVNCMl9CSUFTX1BBRF9DVEwxKTsNCj4+
+DQo+PiArICAgICBpZiAocGFkY3RsLT5zb2MtPnRya19od19tb2RlKSB7DQo+PiArICAgICAgICAg
+ICAgIHZhbHVlID0gcGFkY3RsX3JlYWRsKHBhZGN0bCwgWFVTQl9QQURDVExfVVNCMl9CSUFTX1BB
+RF9DVEwyKTsNCj4+ICsgICAgICAgICAgICAgdmFsdWUgJj0gflVTQjJfVFJLX0hXX01PREU7DQo+
+PiArICAgICAgICAgICAgIHBhZGN0bF93cml0ZWwocGFkY3RsLCB2YWx1ZSwgWFVTQl9QQURDVExf
+VVNCMl9CSUFTX1BBRF9DVEwyKTsNCj4+ICsgICAgICAgICAgICAgY2xrX2Rpc2FibGVfdW5wcmVw
+YXJlKHByaXYtPnVzYjJfdHJrX2Nsayk7DQo+PiArICAgICB9DQo+PiArDQo+PiAgICAgICAgbXV0
+ZXhfdW5sb2NrKCZwYWRjdGwtPmxvY2spOw0KPj4gICB9DQo+Pg0KPj4gQEAgLTE1NjAsNyArMTU5
+NSw4IEBAIGNvbnN0IHN0cnVjdCB0ZWdyYV94dXNiX3BhZGN0bF9zb2MgdGVncmExODZfeHVzYl9w
+YWRjdGxfc29jID0gew0KPj4gICBFWFBPUlRfU1lNQk9MX0dQTCh0ZWdyYTE4Nl94dXNiX3BhZGN0
+bF9zb2MpOw0KPj4gICAjZW5kaWYNCj4+DQo+PiAtI2lmIElTX0VOQUJMRUQoQ09ORklHX0FSQ0hf
+VEVHUkFfMTk0X1NPQykNCj4+ICsjaWYgSVNfRU5BQkxFRChDT05GSUdfQVJDSF9URUdSQV8xOTRf
+U09DKSB8fCBcDQo+PiArICAgICBJU19FTkFCTEVEKENPTkZJR19BUkNIX1RFR1JBXzIzNF9TT0Mp
+DQo+PiAgIHN0YXRpYyBjb25zdCBjaGFyICogY29uc3QgdGVncmExOTRfeHVzYl9wYWRjdGxfc3Vw
+cGx5X25hbWVzW10gPSB7DQo+PiAgICAgICAgImF2ZGQtdXNiIiwNCj4+ICAgICAgICAidmNsYW1w
+LXVzYiIsDQo+PiBAQCAtMTYxNiw4ICsxNjUyLDMxIEBAIGNvbnN0IHN0cnVjdCB0ZWdyYV94dXNi
+X3BhZGN0bF9zb2MgdGVncmExOTRfeHVzYl9wYWRjdGxfc29jID0gew0KPj4gICAgICAgIC5zdXBw
+bHlfbmFtZXMgPSB0ZWdyYTE5NF94dXNiX3BhZGN0bF9zdXBwbHlfbmFtZXMsDQo+PiAgICAgICAg
+Lm51bV9zdXBwbGllcyA9IEFSUkFZX1NJWkUodGVncmExOTRfeHVzYl9wYWRjdGxfc3VwcGx5X25h
+bWVzKSwNCj4+ICAgICAgICAuc3VwcG9ydHNfZ2VuMiA9IHRydWUsDQo+PiArICAgICAucG9sbF90
+cmtfY29tcGxldGVkID0gdHJ1ZSwNCj4+ICAgfTsNCj4+ICAgRVhQT1JUX1NZTUJPTF9HUEwodGVn
+cmExOTRfeHVzYl9wYWRjdGxfc29jKTsNCj4+ICsNCj4+ICtjb25zdCBzdHJ1Y3QgdGVncmFfeHVz
+Yl9wYWRjdGxfc29jIHRlZ3JhMjM0X3h1c2JfcGFkY3RsX3NvYyA9IHsNCj4+ICsgICAgIC5udW1f
+cGFkcyA9IEFSUkFZX1NJWkUodGVncmExOTRfcGFkcyksDQo+PiArICAgICAucGFkcyA9IHRlZ3Jh
+MTk0X3BhZHMsDQo+PiArICAgICAucG9ydHMgPSB7DQo+PiArICAgICAgICAgICAgIC51c2IyID0g
+ew0KPj4gKyAgICAgICAgICAgICAgICAgICAgIC5vcHMgPSAmdGVncmExODZfdXNiMl9wb3J0X29w
+cywNCj4+ICsgICAgICAgICAgICAgICAgICAgICAuY291bnQgPSA0LA0KPj4gKyAgICAgICAgICAg
+ICB9LA0KPj4gKyAgICAgICAgICAgICAudXNiMyA9IHsNCj4+ICsgICAgICAgICAgICAgICAgICAg
+ICAub3BzID0gJnRlZ3JhMTg2X3VzYjNfcG9ydF9vcHMsDQo+PiArICAgICAgICAgICAgICAgICAg
+ICAgLmNvdW50ID0gNCwNCj4+ICsgICAgICAgICAgICAgfSwNCj4+ICsgICAgIH0sDQo+PiArICAg
+ICAub3BzID0gJnRlZ3JhMTg2X3h1c2JfcGFkY3RsX29wcywNCj4+ICsgICAgIC5zdXBwbHlfbmFt
+ZXMgPSB0ZWdyYTE5NF94dXNiX3BhZGN0bF9zdXBwbHlfbmFtZXMsDQo+PiArICAgICAubnVtX3N1
+cHBsaWVzID0gQVJSQVlfU0laRSh0ZWdyYTE5NF94dXNiX3BhZGN0bF9zdXBwbHlfbmFtZXMpLA0K
+Pj4gKyAgICAgLnN1cHBvcnRzX2dlbjIgPSB0cnVlLA0KPj4gKyAgICAgLnBvbGxfdHJrX2NvbXBs
+ZXRlZCA9IHRydWUsDQo+PiArICAgICAudHJrX2h3X21vZGUgPSB0cnVlLA0KPj4gK307DQo+PiAr
+RVhQT1JUX1NZTUJPTF9HUEwodGVncmEyMzRfeHVzYl9wYWRjdGxfc29jKTsNCj4+ICAgI2VuZGlm
+DQo+Pg0KPj4gICBNT0RVTEVfQVVUSE9SKCJKQyBLdW8gPGpja3VvQG52aWRpYS5jb20+Iik7DQo+
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9waHkvdGVncmEveHVzYi5jIGIvZHJpdmVycy9waHkvdGVn
+cmEveHVzYi5jDQo+PiBpbmRleCA5NTA5MTg3NmM0MjIuLjIzZDE3OWIxYTViNSAxMDA2NDQNCj4+
+IC0tLSBhL2RyaXZlcnMvcGh5L3RlZ3JhL3h1c2IuYw0KPj4gKysrIGIvZHJpdmVycy9waHkvdGVn
+cmEveHVzYi5jDQo+PiBAQCAtNzEsNiArNzEsMTIgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBvZl9k
+ZXZpY2VfaWQgdGVncmFfeHVzYl9wYWRjdGxfb2ZfbWF0Y2hbXSA9IHsNCj4+ICAgICAgICAgICAg
+ICAgIC5jb21wYXRpYmxlID0gIm52aWRpYSx0ZWdyYTE5NC14dXNiLXBhZGN0bCIsDQo+PiAgICAg
+ICAgICAgICAgICAuZGF0YSA9ICZ0ZWdyYTE5NF94dXNiX3BhZGN0bF9zb2MsDQo+PiAgICAgICAg
+fSwNCj4+ICsjZW5kaWYNCj4+ICsjaWYgZGVmaW5lZChDT05GSUdfQVJDSF9URUdSQV8yMzRfU09D
+KQ0KPj4gKyAgICAgew0KPj4gKyAgICAgICAgICAgICAuY29tcGF0aWJsZSA9ICJudmlkaWEsdGVn
+cmEyMzQteHVzYi1wYWRjdGwiLA0KPj4gKyAgICAgICAgICAgICAuZGF0YSA9ICZ0ZWdyYTIzNF94
+dXNiX3BhZGN0bF9zb2MsDQo+PiArICAgICB9LA0KPj4gICAjZW5kaWYNCj4+ICAgICAgICB7IH0N
+Cj4+ICAgfTsNCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3BoeS90ZWdyYS94dXNiLmggYi9kcml2
+ZXJzL3BoeS90ZWdyYS94dXNiLmgNCj4+IGluZGV4IDhjZmJiZGJkNmUwYy4uZWMwYjViMDIzYWQx
+IDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy9waHkvdGVncmEveHVzYi5oDQo+PiArKysgYi9kcml2
+ZXJzL3BoeS90ZWdyYS94dXNiLmgNCj4+IEBAIC04LDYgKzgsNyBAQA0KPj4gICAjZGVmaW5lIF9f
+UEhZX1RFR1JBX1hVU0JfSA0KPj4NCj4+ICAgI2luY2x1ZGUgPGxpbnV4L2lvLmg+DQo+PiArI2lu
+Y2x1ZGUgPGxpbnV4L2lvcG9sbC5oPg0KPj4gICAjaW5jbHVkZSA8bGludXgvbXV0ZXguaD4NCj4+
+ICAgI2luY2x1ZGUgPGxpbnV4L3dvcmtxdWV1ZS5oPg0KPj4NCj4+IEBAIC00MzMsNiArNDM0LDgg
+QEAgc3RydWN0IHRlZ3JhX3h1c2JfcGFkY3RsX3NvYyB7DQo+PiAgICAgICAgdW5zaWduZWQgaW50
+IG51bV9zdXBwbGllczsNCj4+ICAgICAgICBib29sIHN1cHBvcnRzX2dlbjI7DQo+PiAgICAgICAg
+Ym9vbCBuZWVkX2Zha2VfdXNiM19wb3J0Ow0KPj4gKyAgICAgYm9vbCBwb2xsX3Rya19jb21wbGV0
+ZWQ7DQo+PiArICAgICBib29sIHRya19od19tb2RlOw0KPj4gICB9Ow0KPj4NCj4+ICAgc3RydWN0
+IHRlZ3JhX3h1c2JfcGFkY3RsIHsNCj4+IEBAIC00NzUsNiArNDc4LDIzIEBAIHN0YXRpYyBpbmxp
+bmUgdTMyIHBhZGN0bF9yZWFkbChzdHJ1Y3QgdGVncmFfeHVzYl9wYWRjdGwgKnBhZGN0bCwNCj4+
+ICAgICAgICByZXR1cm4gdmFsdWU7DQo+PiAgIH0NCj4+DQo+PiArc3RhdGljIGlubGluZSB1MzIg
+cGFkY3RsX3JlYWRsX3BvbGwoc3RydWN0IHRlZ3JhX3h1c2JfcGFkY3RsICpwYWRjdGwsDQo+PiAr
+ICAgICB1bnNpZ25lZCBsb25nIG9mZnNldCwgdTMyIHZhbCwgdTMyIG1hc2ssIGludCB1cykNCj4+
+ICt7DQo+PiArICAgICB1MzIgcmVndmFsOw0KPj4gKyAgICAgaW50IGVycjsNCj4+ICsNCj4+ICsg
+ICAgIGVyciA9IHJlYWRsX3BvbGxfdGltZW91dF9hdG9taWMocGFkY3RsLT5yZWdzICsgb2Zmc2V0
+LCByZWd2YWwsDQo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAocmVn
+dmFsICYgbWFzaykgPT0gdmFsLCAxLCB1cyk7DQo+PiArICAgICBkZXZfZGJnKHBhZGN0bC0+ZGV2
+LCAiJTA4bHggcG9sbCA+ICUwOHhcbiIsIG9mZnNldCwgcmVndmFsKTsNCj4+ICsgICAgIGlmIChl
+cnIpIHsNCj4+ICsgICAgICAgICAgICAgZGV2X2VycihwYWRjdGwtPmRldiwgIiUwOGx4IHBvbGwg
+dGltZW91dCA+ICUwOHhcbiIsIG9mZnNldCwNCj4+ICsgICAgICAgICAgICAgICAgICAgICByZWd2
+YWwpOw0KPj4gKyAgICAgfQ0KPj4gKw0KPj4gKyAgICAgcmV0dXJuIGVycjsNCj4+ICt9DQo+PiAr
+DQo+PiAgIHN0cnVjdCB0ZWdyYV94dXNiX2xhbmUgKnRlZ3JhX3h1c2JfZmluZF9sYW5lKHN0cnVj
+dCB0ZWdyYV94dXNiX3BhZGN0bCAqcGFkY3RsLA0KPj4gICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICBjb25zdCBjaGFyICpuYW1lLA0KPj4gICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBpbnQgaW5kZXgpOw0KPj4gQEAg
+LTQ5MSw1ICs1MTEsOCBAQCBleHRlcm4gY29uc3Qgc3RydWN0IHRlZ3JhX3h1c2JfcGFkY3RsX3Nv
+YyB0ZWdyYTE4Nl94dXNiX3BhZGN0bF9zb2M7DQo+PiAgICNpZiBkZWZpbmVkKENPTkZJR19BUkNI
+X1RFR1JBXzE5NF9TT0MpDQo+PiAgIGV4dGVybiBjb25zdCBzdHJ1Y3QgdGVncmFfeHVzYl9wYWRj
+dGxfc29jIHRlZ3JhMTk0X3h1c2JfcGFkY3RsX3NvYzsNCj4+ICAgI2VuZGlmDQo+PiArI2lmIGRl
+ZmluZWQoQ09ORklHX0FSQ0hfVEVHUkFfMjM0X1NPQykNCj4+ICtleHRlcm4gY29uc3Qgc3RydWN0
+IHRlZ3JhX3h1c2JfcGFkY3RsX3NvYyB0ZWdyYTIzNF94dXNiX3BhZGN0bF9zb2M7DQo+PiArI2Vu
+ZGlmDQo+Pg0KPj4gICAjZW5kaWYgLyogX19QSFlfVEVHUkFfWFVTQl9IICovDQo+PiAtLQ0KPj4g
+Mi4yNS4xDQo+IA0KPiAtLQ0KPiB+Vmlub2Q=
