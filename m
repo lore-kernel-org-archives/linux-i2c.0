@@ -2,124 +2,95 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1679C43219
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Nov 2022 10:49:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37FDFC433FE
+	for <linux-i2c@archiver.kernel.org>; Wed,  9 Nov 2022 11:24:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233708AbiKHKtg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 8 Nov 2022 05:49:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37296 "EHLO
+        id S229879AbiKILYc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 9 Nov 2022 06:24:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233969AbiKHKs6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Nov 2022 05:48:58 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA3EC101FF;
-        Tue,  8 Nov 2022 02:48:54 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 7BE911F88B;
-        Tue,  8 Nov 2022 10:48:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1667904533; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zSI2NTbS+XdsimuqF+drbRNdrmDPUdPcKKkDDnTK4+4=;
-        b=fl97OFHmDEqv9FfvncX8vUr17T2NnGUpng/euvxXI7gRYUNN7xR8C2W3uAmUQT0VMZOII2
-        Jey0hR5ZteFUEjkoMPmHMZP0AOidLtDRXUgMmvonpcLOUhxfhukdm6A6CbcEB299gb8wy1
-        jDhApY1kZCf9VK/q++2/PGsWXN057CY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1667904533;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zSI2NTbS+XdsimuqF+drbRNdrmDPUdPcKKkDDnTK4+4=;
-        b=WslxQq9BmflLTOGSUBFqnZzftqqOha2WlhXNYXKV83g0tBUM3TAh64dY5VUHm06PNxIhxF
-        PJpm9ov6pOJPDPCA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4F8AD139F1;
-        Tue,  8 Nov 2022 10:48:53 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id FL/JERU0amP8IgAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Tue, 08 Nov 2022 10:48:53 +0000
-Date:   Tue, 8 Nov 2022 11:48:51 +0100
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Corentin Labbe <clabbe@baylibre.com>
-Cc:     wsa@kernel.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: smbus: support new RAM variant for SPD
-Message-ID: <20221108114851.4436c3cb@endymion.delvare>
-In-Reply-To: <20221107160602.1912225-1-clabbe@baylibre.com>
-References: <20221107160602.1912225-1-clabbe@baylibre.com>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        with ESMTP id S229666AbiKILY3 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Nov 2022 06:24:29 -0500
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61BD19021
+        for <linux-i2c@vger.kernel.org>; Wed,  9 Nov 2022 03:24:27 -0800 (PST)
+Received: from dggpeml500024.china.huawei.com (unknown [172.30.72.57])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4N6jGC3d78zJnWM;
+        Wed,  9 Nov 2022 19:21:23 +0800 (CST)
+Received: from huawei.com (10.175.112.208) by dggpeml500024.china.huawei.com
+ (7.185.36.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Wed, 9 Nov
+ 2022 19:24:24 +0800
+From:   Yuan Can <yuancan@huawei.com>
+To:     <avifishman70@gmail.com>, <tmaimon77@gmail.com>,
+        <tali.perry1@gmail.com>, <venture@google.com>, <yuenn@google.com>,
+        <benjaminfair@google.com>, <wsa@kernel.org>,
+        <andriy.shevchenko@linux.intel.com>, <openbmc@lists.ozlabs.org>,
+        <linux-i2c@vger.kernel.org>
+CC:     <yuancan@huawei.com>
+Subject: [PATCH] i2c: npcm7xx: Fix error handling in npcm_i2c_init()
+Date:   Wed, 9 Nov 2022 11:22:50 +0000
+Message-ID: <20221109112250.124829-1-yuancan@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Originating-IP: [10.175.112.208]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpeml500024.china.huawei.com (7.185.36.10)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Corentin,
+A problem about i2c-npcm7xx create debugfs failed is triggered with the
+following log given:
 
-On Mon,  7 Nov 2022 16:06:02 +0000, Corentin Labbe wrote:
-> On my x05 laptop I got:
-> Memory type 0x12 not supported yet, not instantiating SPD
+ [  173.827310] debugfs: Directory 'npcm_i2c' with parent '/' already present!
 
+The reason is that npcm_i2c_init() returns platform_driver_register()
+directly without checking its return value, if platform_driver_register()
+failed, it returns without destroy the newly created debugfs, resulting
+the debugfs of npcm_i2c can never be created later.
 
-Oh, that one must be old.
+ npcm_i2c_init()
+   debugfs_create_dir() # create debugfs directory
+   platform_driver_register()
+     driver_register()
+       bus_add_driver()
+         priv = kzalloc(...) # OOM happened
+   # return without destroy debugfs directory
 
-> Adding the 0x12 case lead to a successful instantiated SPD AT24 EEPROM.
-> i801_smbus 0000:00:1f.3: SMBus using polling
-> i2c i2c-6: 2/2 memory slots populated (from DMI)
-> at24 6-0050: 256 byte spd EEPROM, read-only
-> i2c i2c-6: Successfully instantiated SPD at 0x50
-> at24 6-0051: 256 byte spd EEPROM, read-only
-> i2c i2c-6: Successfully instantiated SPD at 0x51
->=20
-> And then, I decoded it successfully via decode-dimms.
->=20
-> Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-> ---
-> The result of decode-dimms could be found at http://kernel.montjoie.ovh/z=
-oo/x05/decode-dimms.txt
-> Since RAM is DDR, I wanted to add '/* DDR */' comment, but I didnt find a=
-ny document with
-> proof that this 0x12 is for DDR.
+Fix by removing debugfs when platform_driver_register() returns error.
 
-It is. The document you are looking for is:
-https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.6.0.=
-pdf
+Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+---
+ drivers/i2c/busses/i2c-npcm7xx.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-and specifically section 7.18.2 (Memory Device =E2=80=94 Type), table 78
-(Memory Device: Type).
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index 0c365b57d957..83457359ec45 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -2393,8 +2393,17 @@ static struct platform_driver npcm_i2c_bus_driver = {
+ 
+ static int __init npcm_i2c_init(void)
+ {
++	int ret;
++
+ 	npcm_i2c_debugfs_dir = debugfs_create_dir("npcm_i2c", NULL);
+-	return platform_driver_register(&npcm_i2c_bus_driver);
++
++	ret = platform_driver_register(&npcm_i2c_bus_driver);
++	if (ret) {
++		debugfs_remove_recursive(npcm_i2c_debugfs_dir);
++		return ret;
++	}
++
++	return 0;
+ }
+ module_init(npcm_i2c_init);
+ 
+-- 
+2.17.1
 
->=20
->  drivers/i2c/i2c-smbus.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> index 07c92c8495a3..6dca19c994db 100644
-> --- a/drivers/i2c/i2c-smbus.c
-> +++ b/drivers/i2c/i2c-smbus.c
-> @@ -362,6 +362,7 @@ void i2c_register_spd(struct i2c_adapter *adap)
->  	}
-> =20
->  	switch (common_mem_type) {
-> +	case 0x12:
->  	case 0x13:	/* DDR2 */
->  	case 0x18:	/* DDR3 */
->  	case 0x1C:	/* LPDDR2 */
-
-Please also add LPDDR (0x1B) for consistency.
-
-Thanks,
---=20
-Jean Delvare
-SUSE L3 Support
