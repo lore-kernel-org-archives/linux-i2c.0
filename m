@@ -2,93 +2,138 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEB58C4332F
-	for <linux-i2c@archiver.kernel.org>; Sat, 12 Nov 2022 06:57:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BE7BC4332F
+	for <linux-i2c@archiver.kernel.org>; Sat, 12 Nov 2022 20:10:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234769AbiKLG5d (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 12 Nov 2022 01:57:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
+        id S234889AbiKLUKc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 12 Nov 2022 15:10:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230257AbiKLG5c (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 12 Nov 2022 01:57:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F0961BBD
-        for <linux-i2c@vger.kernel.org>; Fri, 11 Nov 2022 22:57:31 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62ACDB8286F
-        for <linux-i2c@vger.kernel.org>; Sat, 12 Nov 2022 06:57:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D3ECC433D6;
-        Sat, 12 Nov 2022 06:57:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668236249;
-        bh=mEXGeVkGKj/4iSCfDDvuEVU/OxzlB962tiktRQJtuyg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=onsC1+7utSvQ9TMywoypDRwVkPXHCSkL6Gm/njgzlax+0cX9xJ23q87gztGrjd2bz
-         XQ7NE1T0/hncVY5iOFzbnCm88Hoq7LRZVtljO183uJUg19+GK+ziCjPTGpAh6cGj9G
-         ItSOuIIn1YWkhawBWcbLzfo4a9ONmfvlkYf+HfqdzXchZHhON+XL2iI/Zk+ce3U8Gr
-         P90HswsqKbrjz4Vxng+Fpp4m7qeyYmEG64A9uiU0InUFkRtLe8Y22KRuFS1t3vhXTJ
-         PmgnXYByU/9DIzJyEo0pj6Pq12ijXcu953HffpaaSG27+esBvRbmiXx1jhL4iWYTC6
-         XiegGfvvSZsXg==
-Date:   Sat, 12 Nov 2022 07:57:26 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     linux-i2c@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jan Dabros <jsd@semihalf.com>,
-        Michael Wu <michael.wu@vatics.com>, Tian Ye <tianye@sugon.com>
-Subject: Re: [PATCH v3 00/12] i2c: designware: Slave fixes and generic
- cleanups
-Message-ID: <Y29D1it8tciozt7x@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        linux-i2c@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jan Dabros <jsd@semihalf.com>, Michael Wu <michael.wu@vatics.com>,
-        Tian Ye <tianye@sugon.com>
-References: <20221107134248.864890-1-jarkko.nikula@linux.intel.com>
+        with ESMTP id S234728AbiKLUKa (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 12 Nov 2022 15:10:30 -0500
+X-Greylist: delayed 186 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 12 Nov 2022 12:10:28 PST
+Received: from mx-out.tlen.pl (mx-out.tlen.pl [193.222.135.145])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748265FDD
+        for <linux-i2c@vger.kernel.org>; Sat, 12 Nov 2022 12:10:28 -0800 (PST)
+Received: (wp-smtpd smtp.tlen.pl 18112 invoked from network); 12 Nov 2022 21:10:25 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
+          t=1668283825; bh=uqtOYyBZaSxTk6vFnxq67IjlDkClKoEOAUnHV1aUrT0=;
+          h=From:To:Cc:Subject;
+          b=FhnxMZy8l4sI4n3JMwI9GDByfbqZg8//i211z5MahGRACd3DKqmVMBsZ0BONJt2f0
+           yVX3tA8CGJkpBIwigre1BPdvyv0QNZjklYcsL4AQ+QWmqV6TMSGR69EBT7U/TZdPK+
+           s9iLLuzykfJTf1/yGZEw8R8eByS06fyS1Rhz330c=
+Received: from aaey149.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.4.128.149])
+          (envelope-sender <mat.jonczyk@o2.pl>)
+          by smtp.tlen.pl (WP-SMTPD) with SMTP
+          for <linux-kernel@vger.kernel.org>; 12 Nov 2022 21:10:25 +0100
+From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
+To:     linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <lenb@kernel.org>, Borislav Petkov <bp@suse.de>,
+        Jean Delvare <jdelvare@suse.com>
+Subject: [PATCH] acpi,pci: warn about duplicate IRQ routing entries returned from _PRT
+Date:   Sat, 12 Nov 2022 21:09:27 +0100
+Message-Id: <20221112200927.7255-1-mat.jonczyk@o2.pl>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <35cfe433-bafa-9aeb-20ad-2f275f585b6c@o2.pl>
+References: <35cfe433-bafa-9aeb-20ad-2f275f585b6c@o2.pl>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ZA1ZVr/fA0QxF7+I"
-Content-Disposition: inline
-In-Reply-To: <20221107134248.864890-1-jarkko.nikula@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-WP-MailID: 72f4d30cf4d363848074315d888fad29
+X-WP-AV: skaner antywirusowy Poczty o2
+X-WP-SPAM: NO 0000000 [UVOU]                               
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On some platforms, the ACPI _PRT function returns duplicate interrupt
+routing entries. Linux uses the first matching entry, but sometimes the
+second matching entry contains the correct interrupt vector.
 
---ZA1ZVr/fA0QxF7+I
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+To check how widespread this problem is, print a warning to dmesg if
+this is the case.
 
+This happens on a Dell Latitude E6500 laptop with the i2c-i801 Intel
+SMBus controller. This controller was nonfunctional unless its interrupt
+usage was disabled (using the "disable_features=0x10" module parameter).
 
-> Version 3 of the patchset I sent last week:
-> https://www.spinics.net/lists/linux-i2c/msg59046.html
+After investigation, it turned out that the driver was using an
+incorrect interrupt vector: in lspci output for this device there was:
+        Interrupt: pin B routed to IRQ 19
+but after running i2cdetect (without using any i2c-i801 module
+parameters) the following was logged to dmesg:
 
-Applied to for-next, thanks!
+	[...]
+        i801_smbus 0000:00:1f.3: Timeout waiting for interrupt!
+        i801_smbus 0000:00:1f.3: Transaction timeout
+        irq 17: nobody cared (try booting with the "irqpoll" option)
 
+Existence of duplicate entries in the table returned by the _PRT method
+was confirmed by disassembling the ACPI DSDT table.
 
---ZA1ZVr/fA0QxF7+I
-Content-Type: application/pgp-signature; name="signature.asc"
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Jean Delvare <jdelvare@suse.com>
+---
+ drivers/acpi/pci_irq.c | 25 ++++++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
 
------BEGIN PGP SIGNATURE-----
+diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
+index 08e15774fb9f..c3168927446c 100644
+--- a/drivers/acpi/pci_irq.c
++++ b/drivers/acpi/pci_irq.c
+@@ -203,6 +203,8 @@ static int acpi_pci_irq_find_prt_entry(struct pci_dev *dev,
+ 	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+ 	struct acpi_pci_routing_table *entry;
+ 	acpi_handle handle = NULL;
++	struct acpi_prt_entry *match = NULL;
++	const char *match_int_source = NULL;
+ 
+ 	if (dev->bus->bridge)
+ 		handle = ACPI_HANDLE(dev->bus->bridge);
+@@ -219,13 +221,30 @@ static int acpi_pci_irq_find_prt_entry(struct pci_dev *dev,
+ 
+ 	entry = buffer.pointer;
+ 	while (entry && (entry->length > 0)) {
+-		if (!acpi_pci_irq_check_entry(handle, dev, pin,
+-						 entry, entry_ptr))
+-			break;
++		struct acpi_prt_entry *curr;
++
++		if (!acpi_pci_irq_check_entry(handle, dev, pin, entry, &curr)) {
++			if (match == NULL) {
++				match = curr;
++				match_int_source = entry->source;
++			} else {
++				pr_warn(FW_BUG
++				"ACPI _PRT returned duplicate IRQ routing entries for device "
++					"%04x:%02x:%02x[INT%c]: %s[%d] and %s[%d]. ",
++					curr->id.segment, curr->id.bus, curr->id.device,
++					pin_name(curr->pin),
++					match_int_source, match->index,
++					entry->source, curr->index);
++				// we use the first matching entry nonetheless
++			}
++		}
++
+ 		entry = (struct acpi_pci_routing_table *)
+ 		    ((unsigned long)entry + entry->length);
+ 	}
+ 
++	*entry_ptr = match;
++
+ 	kfree(buffer.pointer);
+ 	return 0;
+ }
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmNvQ9YACgkQFA3kzBSg
-KbbrQhAAoUGzhU7kh7UfDZXMa0+pOR2cdZ1mH4e27tUEdpPUvk6dsYcCRYvWhDdV
-Yj4gNjpWg+9+E5wYLFDNrPsv7O9DfhB4QMDOry0QHxnyqXBJNMcN08VKWnIbfBuX
-eo5ccZ2m9oy4jei9l3wodOPJNTLagzvBOvsJaNAv+Y/Gg41yyr9oEWMCQV57p+QS
-ooa9YIrnTdYwD+mSnFDEjMwiYv+hwQ8W0hwQd2Hdj435bmXlagw8uRMnUivF63cv
-tJ0R3Ke+yYrW3JqF5cYyBZzSagCJWyC6Jw+zv2eR6rJYKW8ioOQoq94/JqvbGSfd
-fMZB9p2YfePl5LuLqFrjw7d3CN16Ct5nJvq1acQJyPHrcFFhpm+ClxoFMxTWGkvB
-HXdcFImYZe1e+3TRxh1DtNx1dGHUPN1AV/MBgRoH2yBB1fjcl7D1A8PL+mXPCei8
-F85dDhGVJaSHLAWPsMH3qtLJXM8ExyAgVLBEj7tmnn/HjqlPXTqkIrqbFCrLEEwZ
-BuzRqHTAG67DmOMIE6sQZA298IOD21iRgC45Ek5s/Hjd08HWk8Envzc9cSkbIop8
-+Rtsh8iZ5WHEKS245EMla7qQxAUar26qYszGBsysoae925kYFZvNP2pYsgweAs0v
-4ey6G0dD9wbHUMdO2GnD2QWy1VRXZ7M5tVBVXULQmSjn/S+GRjs=
-=CZyR
------END PGP SIGNATURE-----
+base-commit: f0c4d9fc9cc9462659728d168387191387e903cc
+-- 
+2.25.1
 
---ZA1ZVr/fA0QxF7+I--
