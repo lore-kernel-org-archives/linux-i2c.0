@@ -2,118 +2,119 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB6BFC4332F
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Nov 2022 19:43:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4AF4C433FE
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Nov 2022 19:48:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235709AbiKNTnL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Nov 2022 14:43:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44832 "EHLO
+        id S237390AbiKNTsZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Nov 2022 14:48:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230030AbiKNTnK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Nov 2022 14:43:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76FD1C134;
-        Mon, 14 Nov 2022 11:43:08 -0800 (PST)
+        with ESMTP id S237393AbiKNTsQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Nov 2022 14:48:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE6A22503;
+        Mon, 14 Nov 2022 11:47:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 738C7B81212;
-        Mon, 14 Nov 2022 19:43:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98C1DC433C1;
-        Mon, 14 Nov 2022 19:43:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82959B8121C;
+        Mon, 14 Nov 2022 19:47:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D2B1C433D6;
+        Mon, 14 Nov 2022 19:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668454986;
-        bh=URpbibhhEWl0uu+a+Kz/vax545HiRA1R4KMIR2BNtvM=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=ptPFYoqwflN6Nf+Jm6wAJpK6Fg9uE3Sz9VD3x4oTf2utaJpkBBjZ8FtqE0nenXTO8
-         rrjDQYHC+i139siJ5l60K+D1OUoiYiAeywso+v/AWKIf7nI4D34qrfiF3gG8sJ923O
-         Z8J/5pfaSB0MpX8ZRc45kKu5raiVrbYM32Fx6LLPz2mUcM7bXQ48MhZXC0F0gPlJcu
-         hOrcMifAim5sxqtuu4LQ8CZXkSxOHa7/G1LeI10OzyoS86hCaSokDnCJOjj8xqyInK
-         FTCB4CJfLl8BwqjlRCNbRDrgMt60xNRXfATNwV6UDQcrp4YFmrKkVB62w+PuqNbmo9
-         jZvoddmx0Ii6Q==
-Date:   Mon, 14 Nov 2022 19:55:23 +0000
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Angel Iglesias <ang.iglesiasg@gmail.com>
-Cc:     linux-iio@vger.kernel.org,
-        Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= 
-        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org,
-        Nuno =?UTF-8?B?U8Oh?= <noname.nuno@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] i2c: core: Introduce i2c_client_get_device_id
- helper function
-Message-ID: <20221114195523.6fb2d064@jic23-huawei>
-In-Reply-To: <a844cc7c85898b40abbdcb1f068338619c6010eb.1668361368.git.ang.iglesiasg@gmail.com>
-References: <cover.1668361368.git.ang.iglesiasg@gmail.com>
-        <a844cc7c85898b40abbdcb1f068338619c6010eb.1668361368.git.ang.iglesiasg@gmail.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-pc-linux-gnu)
+        s=k20201202; t=1668455270;
+        bh=gc9A5nj2R6mNJZ7b2bJwX609pNXszLURKRE2NYuQFt8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vQuxY3uXHey+wBOxJUaZ9NdOn71uWj81VuEkhVHuiZO4Lxne7uFgFYu2Y2X/s33su
+         gGjJGmACuLypkOM85cmLs3VES85A9gglMIXxlGo4O7rCKZL2X57KUdB1Dk89B9E0bT
+         vnaqrICHk9mS+vX9uS/Ejdpa2H4ZQbEigJxLuJ+Xvd8vohEOE/TybROmx9Vk91lYlm
+         KZjUsg7R1QbDt+DvFcWkutCNml3R4vKhnXpPHPOqgZUd5Hg2k4D7YZjgHW1vb/MR3Q
+         4ct388zDi2owQbqpg91TmpUtaquW0BVEwc4ytilBZhPce5Bwx3XWjKHgd4yKRoEspD
+         9o6lIyp2idQjQ==
+Date:   Mon, 14 Nov 2022 20:47:44 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Ricardo Ribalda <ribalda@chromium.org>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hidenori Kobayashi <hidenorik@chromium.org>,
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        linux-kernel@vger.kernel.org,
+        Hidenori Kobayashi <hidenorik@google.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v6 1/1] i2c: Restore initial power state if probe fails
+Message-ID: <Y3KbYLSFLUuVnSIa@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hidenori Kobayashi <hidenorik@chromium.org>, stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        linux-kernel@vger.kernel.org,
+        Hidenori Kobayashi <hidenorik@google.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+References: <20221109-i2c-waive-v6-0-bc059fb7e8fa@chromium.org>
+ <20221109-i2c-waive-v6-1-bc059fb7e8fa@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="qv6denHYt0WD4nxL"
+Content-Disposition: inline
+In-Reply-To: <20221109-i2c-waive-v6-1-bc059fb7e8fa@chromium.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Sun, 13 Nov 2022 18:46:30 +0100
-Angel Iglesias <ang.iglesiasg@gmail.com> wrote:
 
-> Introduces new helper function to aid in .probe_new() refactors. In order
-> to use existing i2c_get_device_id() on the probe callback, the device
-> match table needs to be accessible in that function, which would require
-> bigger refactors in some drivers using the deprecated .probe callback.
->=20
-> This issue was discussed in more detail in the IIO mailing list.
->=20
-> Link: https://lore.kernel.org/all/20221023132302.911644-11-u.kleine-koeni=
-g@pengutronix.de/
-> Suggested-by: Nuno S=C3=A1 <noname.nuno@gmail.com>
-> Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Suggested-by: Jonathan Cameron <jic23@kernel.org>
-> Signed-off-by: Angel Iglesias <ang.iglesiasg@gmail.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+--qv6denHYt0WD4nxL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+wOn Mon, Nov 14, 2022 at 01:20:34PM +0100, Ricardo Ribalda wrote:
+> A driver that supports I2C_DRV_ACPI_WAIVE_D0_PROBE is not expected to
+> power off a device that it has not powered on previously.
 >=20
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index b4edf10e8fd0..9aa7b9d9a485 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -2236,6 +2236,20 @@ int i2c_get_device_id(const struct i2c_client *cli=
-ent,
->  }
->  EXPORT_SYMBOL_GPL(i2c_get_device_id);
-> =20
-> +/**
-> + * i2c_client_get_device_id - get the driver match table entry of a devi=
-ce
-> + * @client: the device to query. The device must be bound to a driver
-> + *
-> + * Returns a pointer to the matching entry if found, NULL otherwise.
-> + */
-> +const struct i2c_device_id *i2c_client_get_device_id(const struct i2c_cl=
-ient *client)
-> +{
-> +	const struct i2c_driver *drv =3D to_i2c_driver(client->dev.driver);
-> +
-> +	return i2c_match_id(drv->id_table, client);
-> +}
-> +EXPORT_SYMBOL_GPL(i2c_client_get_device_id);
-> +
->  /* ----------------------------------------------------
->   * the i2c address scanning function
->   * Will not work for 10-bit addresses!
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index f7c49bbdb8a1..d84e0e99f084 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -189,6 +189,7 @@ s32 i2c_smbus_read_i2c_block_data_or_emulated(const s=
-truct i2c_client *client,
->  					      u8 *values);
->  int i2c_get_device_id(const struct i2c_client *client,
->  		      struct i2c_device_identity *id);
-> +const struct i2c_device_id *i2c_client_get_device_id(const struct i2c_cl=
-ient *client);
->  #endif /* I2C */
-> =20
->  /**
+> For devices operating in "full_power" mode, the first call to
+> `i2c_acpi_waive_d0_probe` will return 0, which means that the device
+> will be turned on with `dev_pm_domain_attach`.
+>=20
+> If probe fails the second call to `i2c_acpi_waive_d0_probe` will
+> return 1, which means that the device will not be turned off.
+> This is, it will be left in a different power state. Lets fix it.
+>=20
+> Reviewed-by: Hidenori Kobayashi <hidenorik@chromium.org>
+> Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+> Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> Cc: stable@vger.kernel.org
+> Fixes: b18c1ad685d9 ("i2c: Allow an ACPI driver to manage the device's po=
+wer state during probe")
+> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 
+Applied to for-current, thanks!
+
+
+--qv6denHYt0WD4nxL
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmNym1wACgkQFA3kzBSg
+KbYxLxAAmxOGLCEUVGi4wIh35Mh/wHx3+QiIhPMBmv4OOoAh5iVxbeW01GOdSXYf
+BwuyzxaiuQHsnl1JWnn9RDEnSjeSM2xKIdk3nA9HXpUGt42W5OzV2+HaDOee/7tg
+oWD2gV5ikgNCqvTl8usOgCrxZTW6RFtYPVNFDgI8a38LAPdDfyhda5v1Mq7vGJBi
+RIuNLRbHErZB70X0gzBV6YFbm8LBRHkWRTMQVHoOQgN3208BRtCjlkIafKnDbh6j
+Ws+7l3g83Epe7M+ExEK/RhStAxYmpayTu/Jv52SjHE/i8cUF0ipntrGrnuAmqnxb
+FYExcs9jhCp8AuyN6UwvIlYS4hi0bch/YV9utG4ZMMiBsrvP2z1wjRc+b1mnxhb2
+YjzvLKlzqN84ZtoeqrC7F0wrwR5ZJg781cULsIskEpi7l+2DvbMXCHBpwH+1rwLk
+gKc30l4JsarA6S5eCyA57ESdB5PuQ9w/6c6wD5KSKFVuF5/wksLyVrm3l75Q/HfL
+JCQhUNc9ka4BpFtXpHxHs+UZnYn3aDAobnhzDa0bl1HDS93b1IRr8ETKiMFALgTo
+cTMcajw+JU6BBNnaiRlhVxlfKSb/H/fz632R93slQU7+Av0p9SC5/xnUuvL/BSto
+VpsepytfbcVTUVy4c4Sjk5Ccw0Kb7RF4XeMmowF9fTt3RBt5gUg=
+=wZMu
+-----END PGP SIGNATURE-----
+
+--qv6denHYt0WD4nxL--
