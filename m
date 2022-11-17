@@ -2,211 +2,150 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71CF2C43217
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Nov 2022 07:58:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13297C4332F
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Nov 2022 07:59:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239205AbiKQH62 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 17 Nov 2022 02:58:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47948 "EHLO
+        id S234782AbiKQH7s (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 17 Nov 2022 02:59:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238951AbiKQH61 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Nov 2022 02:58:27 -0500
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1464D91
-        for <linux-i2c@vger.kernel.org>; Wed, 16 Nov 2022 23:58:24 -0800 (PST)
-Received: by mail-wr1-x42a.google.com with SMTP id bs21so2314679wrb.4
-        for <linux-i2c@vger.kernel.org>; Wed, 16 Nov 2022 23:58:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
-         :content-language:subject:reply-to:from:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=hM8BQcdwBxLXfEtfq7sGjS/dHJrVj14bOfYseYvsWQI=;
-        b=SmNykQahRoLaPjhrzoF43A9aDFrnnM4l4LWYdgyrnMNGh2ld3eAQDkzDZoUfyB66yn
-         vG+8P4Nuew4u7D7Fd5bgRSjzhaEzfa8FwvgFtBWyEovuuWp6C4X7PoUYXvNHXm9L4+M/
-         OJTRebB26s0Nh8Z+y9P4BPdH3u7dhd9/vYGOwZLb/IIiMKgQiLlG8dwzgB3uJiXvT6xW
-         rVhb8h78hcM0wDny2bOMbrVQ2FXY7O8Mo6cX8r48HYAODmNoBMcKqUyla1yha8iDWRPC
-         xlSjCu0QZ1PdcxmUGbi/J1uDRHMlQToSa1F+QK8k6RiQvgMCNzumdJL8BFRPTkR3rhQ4
-         8ajQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
-         :content-language:subject:reply-to:from:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hM8BQcdwBxLXfEtfq7sGjS/dHJrVj14bOfYseYvsWQI=;
-        b=F6z5siYSdbLFX130ecy3yRV7ukN2ikI49E3dy0jtaIb7e1B7cwT55+1/lEiodqFGeZ
-         i+Efm5tfLclvnNRTTAxBuS6GvGhhrFY2MHzMqpUXPlXRGHi/RK6uXgDC4a0isJ0UHhpO
-         iG6211ukHP5wsmQ6lIXLvI5UMP1feqyykbU5tNyr59mWtyLYTU41cjokey/fByKQcCnf
-         r5sLZ9zW4AVr8B19RPhUBjmChHDK2A4lLwZe08zNGu+O8OxFTtvC3FUVYUF8rXDya15e
-         dvq9Z6efID8Qlkc8mB8doR4Mp5T+Um7PLQm98YZC/B3LjgrKvj7EhlEldpXwGS0MdtcZ
-         94AQ==
-X-Gm-Message-State: ANoB5pm51bwYv+qIjtrzzV58m9lgBJCfNNF8IwGtoi7touGPRphK7yVI
-        59UN6foJNPGYTml63ES6yrOv4g==
-X-Google-Smtp-Source: AA0mqf7z8wquf9ieqUd+81O3fKI2FalZ/xqrNkQArMkHhTZfk0bCbAt5a8xqA+HuYrnqMzbo5td7Cw==
-X-Received: by 2002:adf:fe52:0:b0:236:6ab6:a51c with SMTP id m18-20020adffe52000000b002366ab6a51cmr725698wrs.54.1668671903315;
-        Wed, 16 Nov 2022 23:58:23 -0800 (PST)
-Received: from ?IPV6:2a01:e0a:982:cbb0:aad5:8d14:a22f:2e8b? ([2a01:e0a:982:cbb0:aad5:8d14:a22f:2e8b])
-        by smtp.gmail.com with ESMTPSA id d9-20020adfe889000000b0024166413a4fsm227398wrm.37.2022.11.16.23.58.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Nov 2022 23:58:22 -0800 (PST)
-Message-ID: <ddb4cb6b-538e-0c56-679d-7ec7fdf5d041@linaro.org>
-Date:   Thu, 17 Nov 2022 08:58:22 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.3
-From:   Neil Armstrong <neil.armstrong@linaro.org>
-Reply-To: neil.armstrong@linaro.org
-Subject: Re: [PATCH 3/6] soc: qcom: geni-se: add desc struct to specify clocks
- from device match data
-Content-Language: en-US
-To:     Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Andy Gross <agross@kernel.org>,
+        with ESMTP id S234510AbiKQH7s (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Nov 2022 02:59:48 -0500
+Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E342214013;
+        Wed, 16 Nov 2022 23:59:45 -0800 (PST)
+Received: from loongson.cn (unknown [10.180.13.64])
+        by gateway (Coremail) with SMTP id _____8Dxfbfw6XVj7DYIAA--.18414S3;
+        Thu, 17 Nov 2022 15:59:44 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.180.13.64])
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxtuPr6XVjnc4VAA--.57405S3;
+        Thu, 17 Nov 2022 15:59:43 +0800 (CST)
+From:   Yinbo Zhu <zhuyinbo@loongson.cn>
+To:     Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Cc:     linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-References: <20221114-narmstrong-sm8550-upstream-i2c-master-hub-v1-0-64449106a148@linaro.org>
- <20221114-narmstrong-sm8550-upstream-i2c-master-hub-v1-3-64449106a148@linaro.org>
- <16d6c50b-f7da-a2b3-0b95-726b843e50c0@linaro.org>
-Organization: Linaro Developer Services
-In-Reply-To: <16d6c50b-f7da-a2b3-0b95-726b843e50c0@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        William Zhang <william.zhang@broadcom.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Jan Dabros <jsd@semihalf.com>,
+        Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>,
+        Phil Edworthy <phil.edworthy@renesas.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Tyrone Ting <kfting@nuvoton.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Yinbo Zhu <zhuyinbo@loongson.cn>
+Subject: [PATCH v1 2/2] dt-bindings: i2c: add loongson i2c
+Date:   Thu, 17 Nov 2022 15:59:38 +0800
+Message-Id: <20221117075938.23379-2-zhuyinbo@loongson.cn>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20221117075938.23379-1-zhuyinbo@loongson.cn>
+References: <20221117075938.23379-1-zhuyinbo@loongson.cn>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AQAAf8BxtuPr6XVjnc4VAA--.57405S3
+X-CM-SenderInfo: 52kx5xhqerqz5rrqw2lrqou0/
+X-Coremail-Antispam: 1Uk129KBjvJXoW7uF15Xw48ZF4rtF48uF4UArb_yoW8uryUp3
+        ZrCrsxGF1IqF12939xKFyUC3W5Zwn5CFnruFsFqw1DKF98G3Z8Zw4akFn8Za13ury8XFW7
+        XFZ29r4j93Wvyw7anT9S1TB71UUUUbDqnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
+        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
+        bS8Fc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3wAFIxvE14AKwVWUAVWUZwA2ocxC64
+        kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28E
+        F7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIE14v26F4UJVW0ow
+        A2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdM2kKe7AKxVWUtVW8ZwAS0I0E0xvYzxvE
+        52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I
+        80ewAv7VC0I7IYx2IY67AKxVWUtVWrXwAv7VC2z280aVAFwI0_Cr0_Gr1UMcvjeVCFs4IE
+        7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262kKe7AKxVWUtVW8ZwCF04k20xvY0x
+        0EwIxGrwCF04k20xvE74AGY7Cv6cx26rWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xF
+        xVAFwI0_Jw0_GFylx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWw
+        C2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Xr0_
+        Ar1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJV
+        WUCwCI42IY6I8E87Iv67AKxVWxJVW8Jr1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1U
+        YxBIdaVFxhVjvjDU0xZFpf9x07jY2NtUUUUU=
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 16/11/2022 11:32, Konrad Dybcio wrote:
-> 
-> 
-> On 16/11/2022 11:21, Neil Armstrong wrote:
->> The I2C Master Hub is a stripped down version of the GENI Serial Engine
->> QUP Wrapper Controller but only supporting I2C serial engines without
->> DMA support.
->>
->> This prepares support for the I2C Master Hub variant, by moving
->> the required clocks list to a new desc struct then passing it through the
->> compatible match data.
->>
->> Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
->> ---
->>   drivers/soc/qcom/qcom-geni-se.c | 57 +++++++++++++++++++++++++++++++----------
->>   1 file changed, 43 insertions(+), 14 deletions(-)
->>
->> diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
->> index a0ceeede450f..f4f54d92a01a 100644
->> --- a/drivers/soc/qcom/qcom-geni-se.c
->> +++ b/drivers/soc/qcom/qcom-geni-se.c
->> @@ -81,19 +81,31 @@
->>    */
->>   #define MAX_CLK_PERF_LEVEL 32
->> -#define NUM_AHB_CLKS 2
->> +#define MAX_CLKS 2
->>   /**
->>    * struct geni_wrapper - Data structure to represent the QUP Wrapper Core
->>    * @dev:        Device pointer of the QUP wrapper core
->>    * @base:        Base address of this instance of QUP wrapper core
->> - * @ahb_clks:        Handle to the primary & secondary AHB clocks
->> + * @clks:        Handle to the primary & optional secondary AHB clocks
->> + * @num_clks:        Count of clocks
->>    * @to_core:        Core ICC path
->>    */
->>   struct geni_wrapper {
->>       struct device *dev;
->>       void __iomem *base;
->> -    struct clk_bulk_data ahb_clks[NUM_AHB_CLKS];
->> +    struct clk_bulk_data clks[MAX_CLKS];
->> +    unsigned int num_clks;
->> +};
->> +
->> +/**
->> + * struct geni_se_desc - Data structure to represent the QUP Wrapper resources
->> + * @clks:        Name of the primary & optional secondary AHB clocks
->> + * @num_clks:        Count of clock names
->> + */
->> +struct geni_se_desc {
->> +    unsigned int num_clks;
->> +    const char * const *clks;
->>   };
->>   static const char * const icc_path_names[] = {"qup-core", "qup-config",
->> @@ -496,8 +508,7 @@ static void geni_se_clks_off(struct geni_se *se)
->>       struct geni_wrapper *wrapper = se->wrapper;
->>       clk_disable_unprepare(se->clk);
->> -    clk_bulk_disable_unprepare(ARRAY_SIZE(wrapper->ahb_clks),
->> -                        wrapper->ahb_clks);
->> +    clk_bulk_disable_unprepare(wrapper->num_clks, wrapper->clks);
->>   }
->>   /**
->> @@ -528,15 +539,13 @@ static int geni_se_clks_on(struct geni_se *se)
->>       int ret;
->>       struct geni_wrapper *wrapper = se->wrapper;
->> -    ret = clk_bulk_prepare_enable(ARRAY_SIZE(wrapper->ahb_clks),
->> -                        wrapper->ahb_clks);
->> +    ret = clk_bulk_prepare_enable(wrapper->num_clks, wrapper->clks);
->>       if (ret)
->>           return ret;
->>       ret = clk_prepare_enable(se->clk);
->>       if (ret)
->> -        clk_bulk_disable_unprepare(ARRAY_SIZE(wrapper->ahb_clks),
->> -                            wrapper->ahb_clks);
->> +        clk_bulk_disable_unprepare(wrapper->num_clks, wrapper->clks);
->>       return ret;
->>   }
->> @@ -887,11 +896,21 @@ static int geni_se_probe(struct platform_device *pdev)
->>           return PTR_ERR(wrapper->base);
->>       if (!has_acpi_companion(&pdev->dev)) {
->> -        wrapper->ahb_clks[0].id = "m-ahb";
->> -        wrapper->ahb_clks[1].id = "s-ahb";
->> -        ret = devm_clk_bulk_get(dev, NUM_AHB_CLKS, wrapper->ahb_clks);
->> +        const struct geni_se_desc *desc;
->> +        int i;
->> +
->> +        desc = device_get_match_data(&pdev->dev);
->> +        if (!desc)
->> +            return -EINVAL;
->> +
->> +        wrapper->num_clks = min_t(unsigned int, desc->num_clks, MAX_CLKS);
-> Maybe a warning would be suitable if num mismatch happens?
+Add the Loongson platform i2c binding with DT schema format using
+json-schema.
 
-Indeed, will add that, thx.
+Signed-off-by: Yinbo Zhu <zhuyinbo@loongson.cn>
+---
+ .../bindings/i2c/loongson,ls-i2c.yaml         | 49 +++++++++++++++++++
+ MAINTAINERS                                   |  1 +
+ 2 files changed, 50 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/loongson,ls-i2c.yaml
 
-> 
-> Other than that,
-> Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-> 
-> 
-> Konrad
->> +
->> +        for (i = 0; i < wrapper->num_clks; ++i)
->> +            wrapper->clks[i].id = desc->clks[i];
->> +
->> +        ret = devm_clk_bulk_get(dev, wrapper->num_clks, wrapper->clks);
->>           if (ret) {
->> -            dev_err(dev, "Err getting AHB clks %d\n", ret);
->> +            dev_err(dev, "Err getting clks %d\n", ret);
->>               return ret;
->>           }
->>       }
->> @@ -901,8 +920,18 @@ static int geni_se_probe(struct platform_device *pdev)
->>       return devm_of_platform_populate(dev);
->>   }
->> +static const char * const qup_clks[] = {
->> +    "m-ahb",
->> +    "s-ahb",
->> +};
->> +
->> +static const struct geni_se_desc qup_desc = {
->> +    .clks = qup_clks,
->> +    .num_clks = ARRAY_SIZE(qup_clks),
->> +};
->> +
->>   static const struct of_device_id geni_se_dt_match[] = {
->> -    { .compatible = "qcom,geni-se-qup", },
->> +    { .compatible = "qcom,geni-se-qup", .data = &qup_desc },
->>       {}
->>   };
->>   MODULE_DEVICE_TABLE(of, geni_se_dt_match);
->>
+diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls-i2c.yaml b/Documentation/devicetree/bindings/i2c/loongson,ls-i2c.yaml
+new file mode 100644
+index 000000000000..275afe8c8483
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/loongson,ls-i2c.yaml
+@@ -0,0 +1,49 @@
++# SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/loongson,ls-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Loongson I2C controller
++
++maintainers:
++  - Yinbo Zhu <zhuyinbo@loongson.cn>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    enum:
++      - loongson,ls2k-i2c
++      - loongson,ls7a-i2c
++
++  interrupts:
++    maxItems: 1
++
++  reg:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - "#address-cells"
++  - "#size-cells"
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c0: i2c@1fe21000 {
++        compatible = "loongson,ls2k-i2c";
++        reg = <0x1fe21000 0x8>;
++        interrupt-parent = <&liointc0>;
++        interrupts = <22 IRQ_TYPE_LEVEL_LOW>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++        pinctrl-names = "default";
++        pinctrl-0 = <&i2c0_pins_default>;
++    };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e45c678eb40e..b956d5e2d9e0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -12064,6 +12064,7 @@ LOONGSON SERIES I2C DRIVER
+ M:	Yinbo Zhu <zhuyinbo@loongson.cn>
+ L:	linux-i2c@vger.kernel.org
+ S:	Maintained
++F:	Documentation/devicetree/bindings/i2c/loongson,ls-i2c.yaml
+ F:	drivers/i2c/busses/i2c-loongson.c
+ 
+ LSILOGIC MPT FUSION DRIVERS (FC/SAS/SPI)
+-- 
+2.20.1
 
