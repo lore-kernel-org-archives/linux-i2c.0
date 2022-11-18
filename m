@@ -2,47 +2,51 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9775C433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB5CAC4167B
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231880AbiKRWqn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:46:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36608 "EHLO
+        id S231877AbiKRWqo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:46:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231877AbiKRWq3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:29 -0500
+        with ESMTP id S231891AbiKRWqa (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:30 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16FE197084
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8506F9DBA1
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:28 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7e-0007NL-Gf; Fri, 18 Nov 2022 23:46:10 +0100
+        id 1owA7j-0007XU-3a; Fri, 18 Nov 2022 23:46:15 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7c-00587r-AR; Fri, 18 Nov 2022 23:46:09 +0100
+        id 1owA7g-00589D-9g; Fri, 18 Nov 2022 23:46:13 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7c-00Hav4-HB; Fri, 18 Nov 2022 23:46:08 +0100
+        id 1owA7f-00Haw5-G1; Fri, 18 Nov 2022 23:46:11 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>
+        Wolfram Sang <wsa@kernel.org>,
+        Jagan Teki <jagan@amarulasolutions.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Jason Gunthorpe <jgg@ziepe.ca>,
-        linux-integrity@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 002/606] tpm: tpm_i2c_atmel: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:35:36 +0100
-Message-Id: <20221118224540.619276-3-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 018/606] drm/bridge: icn6211: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:35:52 +0100
+Message-Id: <20221118224540.619276-19-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -64,32 +68,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/char/tpm/tpm_i2c_atmel.c | 5 ++---
+ drivers/gpu/drm/bridge/chipone-icn6211.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm_i2c_atmel.c b/drivers/char/tpm/tpm_i2c_atmel.c
-index 4be3677c1463..8f77154e0550 100644
---- a/drivers/char/tpm/tpm_i2c_atmel.c
-+++ b/drivers/char/tpm/tpm_i2c_atmel.c
-@@ -146,8 +146,7 @@ static const struct tpm_class_ops i2c_atmel = {
- 	.req_canceled = i2c_atmel_req_canceled,
- };
+diff --git a/drivers/gpu/drm/bridge/chipone-icn6211.c b/drivers/gpu/drm/bridge/chipone-icn6211.c
+index bf920c3503aa..0e37840cd7a8 100644
+--- a/drivers/gpu/drm/bridge/chipone-icn6211.c
++++ b/drivers/gpu/drm/bridge/chipone-icn6211.c
+@@ -740,8 +740,7 @@ static int chipone_dsi_probe(struct mipi_dsi_device *dsi)
+ 	return ret;
+ }
  
--static int i2c_atmel_probe(struct i2c_client *client,
--			   const struct i2c_device_id *id)
-+static int i2c_atmel_probe(struct i2c_client *client)
+-static int chipone_i2c_probe(struct i2c_client *client,
+-			     const struct i2c_device_id *id)
++static int chipone_i2c_probe(struct i2c_client *client)
  {
- 	struct tpm_chip *chip;
  	struct device *dev = &client->dev;
-@@ -204,7 +203,7 @@ static SIMPLE_DEV_PM_OPS(i2c_atmel_pm_ops, tpm_pm_suspend, tpm_pm_resume);
+ 	struct chipone *icn;
+@@ -796,7 +795,7 @@ static struct i2c_device_id chipone_i2c_id[] = {
+ MODULE_DEVICE_TABLE(i2c, chipone_i2c_id);
  
- static struct i2c_driver i2c_atmel_driver = {
- 	.id_table = i2c_atmel_id,
--	.probe = i2c_atmel_probe,
-+	.probe_new = i2c_atmel_probe,
- 	.remove = i2c_atmel_remove,
+ static struct i2c_driver chipone_i2c_driver = {
+-	.probe = chipone_i2c_probe,
++	.probe_new = chipone_i2c_probe,
+ 	.id_table = chipone_i2c_id,
  	.driver = {
- 		.name = I2C_DRIVER_NAME,
+ 		.name = "chipone-icn6211-i2c",
 -- 
 2.38.1
 
