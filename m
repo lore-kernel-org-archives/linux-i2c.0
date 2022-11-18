@@ -2,50 +2,46 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1D85C4167B
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:29:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4549C4321E
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:29:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235839AbiKRX3X (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:29:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48244 "EHLO
+        id S235785AbiKRX3Y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:29:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235782AbiKRX2o (ORCPT
+        with ESMTP id S235787AbiKRX2o (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:28:44 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C148757B
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:16:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8365CA8D45
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:16:43 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8b-0002Nr-3c; Fri, 18 Nov 2022 23:47:09 +0100
+        id 1owA8B-0000po-Co; Fri, 18 Nov 2022 23:46:43 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8Y-0058SL-E2; Fri, 18 Nov 2022 23:47:07 +0100
+        id 1owA86-0058Iy-QU; Fri, 18 Nov 2022 23:46:39 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8Y-00008W-Ht; Fri, 18 Nov 2022 23:47:06 +0100
+        id 1owA84-00Hb3a-F3; Fri, 18 Nov 2022 23:46:36 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Zheng Yongjun <zhengyongjun3@huawei.com>
+        Jonathan Cameron <jic23@kernel.org>,
+        Benjamin Mugnier <benjamin.mugnier@foss.st.com>,
+        Miguel Ojeda <ojeda@kernel.org>, Peter Rosin <peda@axentia.se>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 260/606] Input: stmfts - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:54 +0100
-Message-Id: <20221118224540.619276-261-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 135/606] iio: light: pa12203001: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:37:49 +0100
+Message-Id: <20221118224540.619276-136-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -67,32 +63,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/stmfts.c | 5 ++---
+ drivers/iio/light/pa12203001.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index d5bd170808fb..d092e89d40e8 100644
---- a/drivers/input/touchscreen/stmfts.c
-+++ b/drivers/input/touchscreen/stmfts.c
-@@ -624,8 +624,7 @@ static int stmfts_enable_led(struct stmfts_data *sdata)
- 	return 0;
+diff --git a/drivers/iio/light/pa12203001.c b/drivers/iio/light/pa12203001.c
+index 3cb2de51f4aa..15a666f15c27 100644
+--- a/drivers/iio/light/pa12203001.c
++++ b/drivers/iio/light/pa12203001.c
+@@ -338,8 +338,7 @@ static int pa12203001_power_chip(struct iio_dev *indio_dev, u8 state)
+ 	return ret;
  }
  
--static int stmfts_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int stmfts_probe(struct i2c_client *client)
+-static int pa12203001_probe(struct i2c_client *client,
+-			    const struct i2c_device_id *id)
++static int pa12203001_probe(struct i2c_client *client)
  {
- 	int err;
- 	struct stmfts_data *sdata;
-@@ -809,7 +808,7 @@ static struct i2c_driver stmfts_driver = {
- 		.pm = &stmfts_pm_ops,
- 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+ 	struct pa12203001_data *data;
+ 	struct iio_dev *indio_dev;
+@@ -475,7 +474,7 @@ static struct i2c_driver pa12203001_driver = {
+ 		.pm = &pa12203001_pm_ops,
+ 		.acpi_match_table = ACPI_PTR(pa12203001_acpi_match),
  	},
--	.probe = stmfts_probe,
-+	.probe_new = stmfts_probe,
- 	.remove = stmfts_remove,
- 	.id_table = stmfts_id,
- };
+-	.probe = pa12203001_probe,
++	.probe_new = pa12203001_probe,
+ 	.remove = pa12203001_remove,
+ 	.id_table = pa12203001_id,
+ 
 -- 
 2.38.1
 
