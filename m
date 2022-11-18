@@ -2,44 +2,46 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8108EC4321E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E01A8C433FE
 	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:53:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234361AbiKRWxa (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:53:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51696 "EHLO
+        id S234247AbiKRWxb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:53:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234247AbiKRWwy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:52:54 -0500
+        with ESMTP id S234161AbiKRWwz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:52:55 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 823C2B8F86
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA8FB7EAB
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:46 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8Y-0002GJ-47; Fri, 18 Nov 2022 23:47:06 +0100
+        id 1owA8N-0001cD-CJ; Fri, 18 Nov 2022 23:46:55 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8V-0058RP-Fn; Fri, 18 Nov 2022 23:47:04 +0100
+        id 1owA8J-0058NN-NJ; Fri, 18 Nov 2022 23:46:52 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8V-00007j-NL; Fri, 18 Nov 2022 23:47:03 +0100
+        id 1owA8J-00Hb7f-LH; Fri, 18 Nov 2022 23:46:51 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jeff LaBundy <jeff@labundy.com>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Peter Rosin <peda@axentia.se>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 247/606] Input: iqs5xx - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:41 +0100
-Message-Id: <20221118224540.619276-248-uwe@kleine-koenig.org>
+Subject: [PATCH 197/606] Input: lm8333 - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:38:51 +0100
+Message-Id: <20221118224540.619276-198-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,32 +63,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/iqs5xx.c | 5 ++---
+ drivers/input/keyboard/lm8333.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/iqs5xx.c b/drivers/input/touchscreen/iqs5xx.c
-index 34c4cca57d13..dc3137a34f35 100644
---- a/drivers/input/touchscreen/iqs5xx.c
-+++ b/drivers/input/touchscreen/iqs5xx.c
-@@ -1019,8 +1019,7 @@ static int __maybe_unused iqs5xx_resume(struct device *dev)
+diff --git a/drivers/input/keyboard/lm8333.c b/drivers/input/keyboard/lm8333.c
+index 3052cd6dedac..7457c3220f90 100644
+--- a/drivers/input/keyboard/lm8333.c
++++ b/drivers/input/keyboard/lm8333.c
+@@ -125,8 +125,7 @@ static irqreturn_t lm8333_irq_thread(int irq, void *data)
+ 	return IRQ_HANDLED;
+ }
  
- static SIMPLE_DEV_PM_OPS(iqs5xx_pm, iqs5xx_suspend, iqs5xx_resume);
- 
--static int iqs5xx_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int iqs5xx_probe(struct i2c_client *client)
+-static int lm8333_probe(struct i2c_client *client,
+-				  const struct i2c_device_id *id)
++static int lm8333_probe(struct i2c_client *client)
  {
- 	struct iqs5xx_private *iqs5xx;
- 	int error;
-@@ -1094,7 +1093,7 @@ static struct i2c_driver iqs5xx_i2c_driver = {
- 		.pm		= &iqs5xx_pm,
+ 	const struct lm8333_platform_data *pdata =
+ 			dev_get_platdata(&client->dev);
+@@ -219,7 +218,7 @@ static struct i2c_driver lm8333_driver = {
+ 	.driver = {
+ 		.name		= "lm8333",
  	},
- 	.id_table	= iqs5xx_id,
--	.probe		= iqs5xx_probe,
-+	.probe_new	= iqs5xx_probe,
+-	.probe		= lm8333_probe,
++	.probe_new	= lm8333_probe,
+ 	.remove		= lm8333_remove,
+ 	.id_table	= lm8333_id,
  };
- module_i2c_driver(iqs5xx_i2c_driver);
- 
 -- 
 2.38.1
 
