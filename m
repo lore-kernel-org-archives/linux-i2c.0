@@ -2,50 +2,41 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 120D5C433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:47:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D95D3C43217
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:47:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbiKRWre (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:47:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37630 "EHLO
+        id S232303AbiKRWrf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:47:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232303AbiKRWqv (ORCPT
+        with ESMTP id S232306AbiKRWqv (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:51 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 601F2B7E8A
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF34B7E8C
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:38 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7o-0007jU-9J; Fri, 18 Nov 2022 23:46:20 +0100
+        id 1owA7s-0007yP-LM; Fri, 18 Nov 2022 23:46:24 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7l-0058B4-Np; Fri, 18 Nov 2022 23:46:18 +0100
+        id 1owA7o-0058CH-Qa; Fri, 18 Nov 2022 23:46:21 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7k-00HaxZ-90; Fri, 18 Nov 2022 23:46:16 +0100
+        id 1owA7l-00Haxs-CG; Fri, 18 Nov 2022 23:46:17 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>
+        Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sam Ravnborg <sam@ravnborg.org>,
-        Broadcom internal kernel review list 
-        <bcm-kernel-feedback-list@broadcom.com>,
-        dri-devel@lists.freedesktop.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 043/606] drm/panel: raspberrypi-touchscreen: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:36:17 +0100
-Message-Id: <20221118224540.619276-44-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH 048/606] i2c: mux: pca954x: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:36:22 +0100
+Message-Id: <20221118224540.619276-49-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -62,37 +53,39 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-index 79f852465a84..1ef1cfd01c77 100644
---- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-+++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-@@ -362,8 +362,7 @@ static const struct drm_panel_funcs rpi_touchscreen_funcs = {
- 	.get_modes = rpi_touchscreen_get_modes,
- };
- 
--static int rpi_touchscreen_probe(struct i2c_client *i2c,
--				 const struct i2c_device_id *id)
-+static int rpi_touchscreen_probe(struct i2c_client *i2c)
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index a5f458b635df..3639e6d7304c 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -411,9 +411,9 @@ static int pca954x_init(struct i2c_client *client, struct pca954x *data)
+ /*
+  * I2C init/probing/exit functions
+  */
+-static int pca954x_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *id)
++static int pca954x_probe(struct i2c_client *client)
  {
- 	struct device *dev = &i2c->dev;
- 	struct rpi_touchscreen *ts;
-@@ -491,7 +490,7 @@ static struct i2c_driver rpi_touchscreen_driver = {
- 		.name = "rpi_touchscreen",
- 		.of_match_table = rpi_touchscreen_of_ids,
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct i2c_adapter *adap = client->adapter;
+ 	struct device *dev = &client->dev;
+ 	struct gpio_desc *gpio;
+@@ -554,7 +554,7 @@ static struct i2c_driver pca954x_driver = {
+ 		.pm	= &pca954x_pm,
+ 		.of_match_table = pca954x_of_match,
  	},
--	.probe = rpi_touchscreen_probe,
-+	.probe_new = rpi_touchscreen_probe,
- 	.remove = rpi_touchscreen_remove,
+-	.probe		= pca954x_probe,
++	.probe_new	= pca954x_probe,
+ 	.remove		= pca954x_remove,
+ 	.id_table	= pca954x_id,
  };
- 
 -- 
 2.38.1
 
