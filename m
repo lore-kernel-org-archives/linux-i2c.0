@@ -2,44 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65840C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:38:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1E40C43217
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:38:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236422AbiKRXie (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:38:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48382 "EHLO
+        id S236430AbiKRXif (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:38:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236754AbiKRXhu (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:37:50 -0500
+        with ESMTP id S236779AbiKRXhx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:37:53 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 998436D965
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:22:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B70D06D976
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:22:32 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8R-0001vh-Em; Fri, 18 Nov 2022 23:46:59 +0100
+        id 1owA9V-0004la-29; Fri, 18 Nov 2022 23:48:05 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8O-0058Oy-M4; Fri, 18 Nov 2022 23:46:57 +0100
+        id 1owA9S-0058n0-CQ; Fri, 18 Nov 2022 23:48:03 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8O-00005e-NN; Fri, 18 Nov 2022 23:46:56 +0100
+        id 1owA9S-0000Q7-7d; Fri, 18 Nov 2022 23:48:02 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Eddie James <eajames@linux.ibm.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        Michael Hennerich <Michael.Hennerich@analog.com>,
+        Sebastian Reichel <sre@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linux-pm@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 216/606] Input: ibm-panel - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:10 +0100
-Message-Id: <20221118224540.619276-217-uwe@kleine-koenig.org>
+Subject: [PATCH 513/606] power: supply: adp5061: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:44:07 +0100
+Message-Id: <20221118224540.619276-514-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,32 +61,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/misc/ibm-panel.c | 5 ++---
+ drivers/power/supply/adp5061.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/misc/ibm-panel.c b/drivers/input/misc/ibm-panel.c
-index a8fba0054719..3969ffc1bc8d 100644
---- a/drivers/input/misc/ibm-panel.c
-+++ b/drivers/input/misc/ibm-panel.c
-@@ -119,8 +119,7 @@ static int ibm_panel_i2c_slave_cb(struct i2c_client *client,
- 	return 0;
- }
- 
--static int ibm_panel_probe(struct i2c_client *client,
--			   const struct i2c_device_id *id)
-+static int ibm_panel_probe(struct i2c_client *client)
- {
- 	struct ibm_panel *panel;
- 	int i;
-@@ -190,7 +189,7 @@ static struct i2c_driver ibm_panel_driver = {
- 		.name = DEVICE_NAME,
- 		.of_match_table = ibm_panel_match,
- 	},
--	.probe = ibm_panel_probe,
-+	.probe_new = ibm_panel_probe,
- 	.remove = ibm_panel_remove,
+diff --git a/drivers/power/supply/adp5061.c b/drivers/power/supply/adp5061.c
+index fcf8ff0bc974..840db629a46c 100644
+--- a/drivers/power/supply/adp5061.c
++++ b/drivers/power/supply/adp5061.c
+@@ -694,8 +694,7 @@ static const struct power_supply_desc adp5061_desc = {
+ 	.num_properties		= ARRAY_SIZE(adp5061_props),
  };
- module_i2c_driver(ibm_panel_driver);
+ 
+-static int adp5061_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *id)
++static int adp5061_probe(struct i2c_client *client)
+ {
+ 	struct power_supply_config psy_cfg = {};
+ 	struct adp5061_state *st;
+@@ -737,7 +736,7 @@ static struct i2c_driver adp5061_driver = {
+ 	.driver = {
+ 		.name = KBUILD_MODNAME,
+ 	},
+-	.probe = adp5061_probe,
++	.probe_new = adp5061_probe,
+ 	.id_table = adp5061_id,
+ };
+ module_i2c_driver(adp5061_driver);
 -- 
 2.38.1
 
