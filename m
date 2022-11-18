@@ -2,43 +2,48 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 918D0C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:55:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FAD8C43217
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:55:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235011AbiKRWy7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S235021AbiKRWy7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Fri, 18 Nov 2022 17:54:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50742 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234814AbiKRWyK (ORCPT
+        with ESMTP id S234820AbiKRWyK (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:54:10 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE4FFBEB54
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:48:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54395BEB5B
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:48:05 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8m-0002pm-2m; Fri, 18 Nov 2022 23:47:20 +0100
+        id 1owA8k-0002j0-BZ; Fri, 18 Nov 2022 23:47:18 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8j-0058WK-SU; Fri, 18 Nov 2022 23:47:18 +0100
+        id 1owA8h-0058VN-6C; Fri, 18 Nov 2022 23:47:16 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8k-0000Bg-4d; Fri, 18 Nov 2022 23:47:18 +0100
+        id 1owA8g-0000Aq-Tx; Fri, 18 Nov 2022 23:47:14 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Antti Palosaari <crope@iki.fi>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
+        Wolfram Sang <wsa@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Adrien Grassein <adrien.grassein@gmail.com>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        Benjamin Mugnier <benjamin.mugnier@foss.st.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linuxppc-dev@lists.ozlabs.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 308/606] media: dvb-frontends/m88ds3103: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:40:42 +0100
-Message-Id: <20221118224540.619276-309-uwe@kleine-koenig.org>
+Subject: [PATCH 295/606] macintosh: windfarm_lm87_sensor: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:40:29 +0100
+Message-Id: <20221118224540.619276-296-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -55,38 +60,36 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/media/dvb-frontends/m88ds3103.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/macintosh/windfarm_lm87_sensor.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/m88ds3103.c b/drivers/media/dvb-frontends/m88ds3103.c
-index 4e844b2ef597..f26508b217ee 100644
---- a/drivers/media/dvb-frontends/m88ds3103.c
-+++ b/drivers/media/dvb-frontends/m88ds3103.c
-@@ -1760,9 +1760,9 @@ static struct i2c_adapter *m88ds3103_get_i2c_adapter(struct i2c_client *client)
- 	return dev->muxc->adapter[0];
- }
+diff --git a/drivers/macintosh/windfarm_lm87_sensor.c b/drivers/macintosh/windfarm_lm87_sensor.c
+index 40d25463346e..f37a32c2070c 100644
+--- a/drivers/macintosh/windfarm_lm87_sensor.c
++++ b/drivers/macintosh/windfarm_lm87_sensor.c
+@@ -95,8 +95,7 @@ static const struct wf_sensor_ops wf_lm87_ops = {
+ 	.owner		= THIS_MODULE,
+ };
  
--static int m88ds3103_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int m88ds3103_probe(struct i2c_client *client)
- {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct m88ds3103_dev *dev;
- 	struct m88ds3103_platform_data *pdata = client->dev.platform_data;
- 	int ret;
-@@ -1941,7 +1941,7 @@ static struct i2c_driver m88ds3103_driver = {
- 		.name	= "m88ds3103",
- 		.suppress_bind_attrs = true,
+-static int wf_lm87_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *id)
++static int wf_lm87_probe(struct i2c_client *client)
+ {	
+ 	struct wf_lm87_sensor *lm;
+ 	const char *name = NULL, *loc;
+@@ -173,7 +172,7 @@ static struct i2c_driver wf_lm87_driver = {
+ 		.name	= "wf_lm87",
+ 		.of_match_table = wf_lm87_of_id,
  	},
--	.probe		= m88ds3103_probe,
-+	.probe_new	= m88ds3103_probe,
- 	.remove		= m88ds3103_remove,
- 	.id_table	= m88ds3103_id_table,
+-	.probe		= wf_lm87_probe,
++	.probe_new	= wf_lm87_probe,
+ 	.remove		= wf_lm87_remove,
+ 	.id_table	= wf_lm87_id,
  };
 -- 
 2.38.1
