@@ -2,47 +2,45 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F131DC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:53:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C10DFC433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:53:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234477AbiKRWxj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:53:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50914 "EHLO
+        id S234220AbiKRWxm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:53:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234485AbiKRWw5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:52:57 -0500
+        with ESMTP id S234045AbiKRWxA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:53:00 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 139A7BCE48
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7822EBE252
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:48 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8R-0001yA-S7; Fri, 18 Nov 2022 23:46:59 +0100
+        id 1owA7w-0008DB-E0; Fri, 18 Nov 2022 23:46:28 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8P-0058PC-Ah; Fri, 18 Nov 2022 23:46:58 +0100
+        id 1owA7r-0058DD-NL; Fri, 18 Nov 2022 23:46:24 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8P-00005r-Fe; Fri, 18 Nov 2022 23:46:57 +0100
+        id 1owA7q-00HazQ-I1; Fri, 18 Nov 2022 23:46:22 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Crt Mori <cmo@melexis.com>
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Michael Hennerich <Michael.Hennerich@analog.com>,
+        Jonathan Cameron <jic23@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linux-iio@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 219/606] Input: pcf8574_keypad - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:13 +0100
-Message-Id: <20221118224540.619276-220-uwe@kleine-koenig.org>
+Subject: [PATCH 071/606] iio: cdc: ad7150: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:36:45 +0100
+Message-Id: <20221118224540.619276-72-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -59,36 +57,39 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/misc/pcf8574_keypad.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/cdc/ad7150.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
-index cfd6640e4f82..fd1ff3f1cd92 100644
---- a/drivers/input/misc/pcf8574_keypad.c
-+++ b/drivers/input/misc/pcf8574_keypad.c
-@@ -80,7 +80,7 @@ static irqreturn_t pcf8574_kp_irq_handler(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int pcf8574_kp_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static int pcf8574_kp_probe(struct i2c_client *client)
- {
- 	int i, ret;
- 	struct input_dev *idev;
-@@ -209,7 +209,7 @@ static struct i2c_driver pcf8574_kp_driver = {
- 		.pm = &pcf8574_kp_pm_ops,
- #endif
- 	},
--	.probe    = pcf8574_kp_probe,
-+	.probe_new = pcf8574_kp_probe,
- 	.remove   = pcf8574_kp_remove,
- 	.id_table = pcf8574_kp_id,
+diff --git a/drivers/iio/cdc/ad7150.c b/drivers/iio/cdc/ad7150.c
+index 1113745890ca..79aeb0aaea67 100644
+--- a/drivers/iio/cdc/ad7150.c
++++ b/drivers/iio/cdc/ad7150.c
+@@ -536,9 +536,9 @@ static const struct iio_info ad7150_info_no_irq = {
+ 	.read_raw = &ad7150_read_raw,
  };
+ 
+-static int ad7150_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int ad7150_probe(struct i2c_client *client)
+ {
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct ad7150_chip_info *chip;
+ 	struct iio_dev *indio_dev;
+ 	int ret;
+@@ -647,7 +647,7 @@ static struct i2c_driver ad7150_driver = {
+ 		.name = "ad7150",
+ 		.of_match_table = ad7150_of_match,
+ 	},
+-	.probe = ad7150_probe,
++	.probe_new = ad7150_probe,
+ 	.id_table = ad7150_id,
+ };
+ module_i2c_driver(ad7150_driver);
 -- 
 2.38.1
 
