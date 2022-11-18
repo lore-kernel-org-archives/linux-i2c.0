@@ -2,48 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 223DBC433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:21:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AAF79C4167D
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:22:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231179AbiKRXVx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:21:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57944 "EHLO
+        id S229920AbiKRXWq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:22:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235260AbiKRXVK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:21:10 -0500
+        with ESMTP id S230453AbiKRXVO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:21:14 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [85.220.165.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1314B52155
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:12:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B688452170
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:12:32 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8p-0002xX-Vo; Fri, 18 Nov 2022 23:47:24 +0100
+        id 1owA9I-0004BS-9P; Fri, 18 Nov 2022 23:47:52 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8n-0058XN-6y; Fri, 18 Nov 2022 23:47:22 +0100
+        id 1owA9F-0058hR-Hn; Fri, 18 Nov 2022 23:47:50 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8n-0000CT-AQ; Fri, 18 Nov 2022 23:47:21 +0100
+        id 1owA9F-0000Ln-C6; Fri, 18 Nov 2022 23:47:49 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Akihiro Tsukada <tskd08@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Petr Machata <petrm@nvidia.com>,
-        =?utf-8?q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jean Delvare <jdelvare@suse.de>
+        Tony Lindgren <tony@atomide.com>, Lee Jones <lee@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linux-omap@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 320/606] media: dvb-frontends/tc90522: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:40:54 +0100
-Message-Id: <20221118224540.619276-321-uwe@kleine-koenig.org>
+Subject: [PATCH 447/606] mfd: menelaus: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:43:01 +0100
+Message-Id: <20221118224540.619276-448-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -60,38 +55,36 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/media/dvb-frontends/tc90522.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/mfd/menelaus.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/tc90522.c b/drivers/media/dvb-frontends/tc90522.c
-index c22d2a2b2a45..77a991bf4713 100644
---- a/drivers/media/dvb-frontends/tc90522.c
-+++ b/drivers/media/dvb-frontends/tc90522.c
-@@ -779,9 +779,9 @@ static const struct dvb_frontend_ops tc90522_ops_ter = {
- };
+diff --git a/drivers/mfd/menelaus.c b/drivers/mfd/menelaus.c
+index eb08f69001f9..c2866a11c1d2 100644
+--- a/drivers/mfd/menelaus.c
++++ b/drivers/mfd/menelaus.c
+@@ -1142,8 +1142,7 @@ static inline void menelaus_rtc_init(struct menelaus_chip *m)
  
+ static struct i2c_driver menelaus_i2c_driver;
  
--static int tc90522_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int tc90522_probe(struct i2c_client *client)
+-static int menelaus_probe(struct i2c_client *client,
+-			  const struct i2c_device_id *id)
++static int menelaus_probe(struct i2c_client *client)
  {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct tc90522_state *state;
- 	struct tc90522_config *cfg;
- 	const struct dvb_frontend_ops *ops;
-@@ -840,7 +840,7 @@ static struct i2c_driver tc90522_driver = {
+ 	struct menelaus_chip	*menelaus;
+ 	int			rev = 0;
+@@ -1241,7 +1240,7 @@ static struct i2c_driver menelaus_i2c_driver = {
  	.driver = {
- 		.name	= "tc90522",
+ 		.name		= DRIVER_NAME,
  	},
--	.probe		= tc90522_probe,
-+	.probe_new	= tc90522_probe,
- 	.remove		= tc90522_remove,
- 	.id_table	= tc90522_id,
+-	.probe		= menelaus_probe,
++	.probe_new	= menelaus_probe,
+ 	.remove		= menelaus_remove,
+ 	.id_table	= menelaus_id,
  };
 -- 
 2.38.1
