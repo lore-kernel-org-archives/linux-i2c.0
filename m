@@ -2,44 +2,46 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63A21C433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:52:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E4C4C4321E
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:52:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234073AbiKRWwO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:52:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50984 "EHLO
+        id S234153AbiKRWwQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:52:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232547AbiKRWvp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:51:45 -0500
+        with ESMTP id S233913AbiKRWvq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:51:46 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C15BB474
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8FBDBB479
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:15 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8E-00011J-E4; Fri, 18 Nov 2022 23:46:46 +0100
+        id 1owA82-0000Cf-MC; Fri, 18 Nov 2022 23:46:34 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA89-0058KI-Va; Fri, 18 Nov 2022 23:46:42 +0100
+        id 1owA7x-0058Fg-Ii; Fri, 18 Nov 2022 23:46:30 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8A-00Hb5N-5b; Fri, 18 Nov 2022 23:46:42 +0100
+        id 1owA7x-00Hb1R-85; Fri, 18 Nov 2022 23:46:29 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>
+        Jonathan Cameron <jic23@kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
         Lars-Peter Clausen <lars@metafoo.de>,
         linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 162/606] iio: potentiometer: max5432: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:38:16 +0100
-Message-Id: <20221118224540.619276-163-uwe@kleine-koenig.org>
+Subject: [PATCH 101/606] iio: humidity: hdc100x: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:37:15 +0100
+Message-Id: <20221118224540.619276-102-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,32 +63,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/potentiometer/max5432.c | 5 ++---
+ drivers/iio/humidity/hdc100x.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/potentiometer/max5432.c b/drivers/iio/potentiometer/max5432.c
-index aed3b6ab82a2..94ef27ef3fb5 100644
---- a/drivers/iio/potentiometer/max5432.c
-+++ b/drivers/iio/potentiometer/max5432.c
-@@ -85,8 +85,7 @@ static const struct iio_info max5432_info = {
- 	.write_raw = max5432_write_raw,
+diff --git a/drivers/iio/humidity/hdc100x.c b/drivers/iio/humidity/hdc100x.c
+index 47f8e8ef56d6..49a950d739e4 100644
+--- a/drivers/iio/humidity/hdc100x.c
++++ b/drivers/iio/humidity/hdc100x.c
+@@ -351,8 +351,7 @@ static const struct iio_info hdc100x_info = {
+ 	.attrs = &hdc100x_attribute_group,
  };
  
--static int max5432_probe(struct i2c_client *client,
--		const struct i2c_device_id *id)
-+static int max5432_probe(struct i2c_client *client)
+-static int hdc100x_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *id)
++static int hdc100x_probe(struct i2c_client *client)
  {
- 	struct device *dev = &client->dev;
  	struct iio_dev *indio_dev;
-@@ -124,7 +123,7 @@ static struct i2c_driver max5432_driver = {
- 		.name = "max5432",
- 		.of_match_table = max5432_dt_ids,
+ 	struct hdc100x_data *data;
+@@ -429,7 +428,7 @@ static struct i2c_driver hdc100x_driver = {
+ 		.of_match_table = hdc100x_dt_ids,
+ 		.acpi_match_table = hdc100x_acpi_match,
  	},
--	.probe = max5432_probe,
-+	.probe_new = max5432_probe,
+-	.probe = hdc100x_probe,
++	.probe_new = hdc100x_probe,
+ 	.id_table = hdc100x_id,
  };
- 
- module_i2c_driver(max5432_driver);
+ module_i2c_driver(hdc100x_driver);
 -- 
 2.38.1
 
