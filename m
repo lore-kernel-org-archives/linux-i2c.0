@@ -2,50 +2,45 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 939D5C43217
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2F52C4167B
 	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:47:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbiKRWrS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:47:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37510 "EHLO
+        id S231912AbiKRWrU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:47:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232244AbiKRWqt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:49 -0500
+        with ESMTP id S231490AbiKRWqu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:50 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94FB2B7384
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19865B738F
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:36 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7k-0007e1-Bl; Fri, 18 Nov 2022 23:46:16 +0100
+        id 1owA7p-0007or-JP; Fri, 18 Nov 2022 23:46:21 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7i-00589m-Cs; Fri, 18 Nov 2022 23:46:15 +0100
+        id 1owA7m-0058Ba-VI; Fri, 18 Nov 2022 23:46:19 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7g-00HawV-Px; Fri, 18 Nov 2022 23:46:12 +0100
+        id 1owA7m-00HayC-GV; Fri, 18 Nov 2022 23:46:18 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Robert Foss <robert.foss@linaro.org>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>
+        Jonathan Cameron <jic23@kernel.org>,
+        Paul Cercueil <paul@crapouillou.net>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 024/606] drm/bridge: lt9611: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:35:58 +0100
-Message-Id: <20221118224540.619276-25-uwe@kleine-koenig.org>
+        Lars-Peter Clausen <lars@metafoo.de>,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 053/606] iio: accel: da280: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:36:27 +0100
+Message-Id: <20221118224540.619276-54-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -62,37 +57,39 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/iio/accel/da280.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
-index 7c0a99173b39..ffcdc8dba379 100644
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -1108,8 +1108,7 @@ static void lt9611_audio_exit(struct lt9611 *lt9611)
- 	}
+diff --git a/drivers/iio/accel/da280.c b/drivers/iio/accel/da280.c
+index 04e9c5678964..38a7d811610e 100644
+--- a/drivers/iio/accel/da280.c
++++ b/drivers/iio/accel/da280.c
+@@ -105,9 +105,9 @@ static void da280_disable(void *client)
+ 	da280_enable(client, false);
  }
  
--static int lt9611_probe(struct i2c_client *client,
+-static int da280_probe(struct i2c_client *client,
 -			const struct i2c_device_id *id)
-+static int lt9611_probe(struct i2c_client *client)
++static int da280_probe(struct i2c_client *client)
  {
- 	struct lt9611 *lt9611;
- 	struct device *dev = &client->dev;
-@@ -1248,7 +1247,7 @@ static struct i2c_driver lt9611_driver = {
- 		.name = "lt9611",
- 		.of_match_table = lt9611_match_table,
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	int ret;
+ 	struct iio_dev *indio_dev;
+ 	struct da280_data *data;
+@@ -184,7 +184,7 @@ static struct i2c_driver da280_driver = {
+ 		.acpi_match_table = ACPI_PTR(da280_acpi_match),
+ 		.pm = pm_sleep_ptr(&da280_pm_ops),
  	},
--	.probe = lt9611_probe,
-+	.probe_new = lt9611_probe,
- 	.remove = lt9611_remove,
- 	.id_table = lt9611_id,
+-	.probe		= da280_probe,
++	.probe_new	= da280_probe,
+ 	.id_table	= da280_i2c_id,
  };
+ 
 -- 
 2.38.1
 
