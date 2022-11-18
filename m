@@ -2,46 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB2FDC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:53:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31238C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:53:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233639AbiKRWxU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:53:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53570 "EHLO
+        id S234269AbiKRWxX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:53:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234071AbiKRWws (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:52:48 -0500
+        with ESMTP id S234181AbiKRWww (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:52:52 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61E73B8546
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09D22BCDEB
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:41 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8F-00014y-KK; Fri, 18 Nov 2022 23:46:47 +0100
+        id 1owA8V-00029C-EM; Fri, 18 Nov 2022 23:47:03 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8B-0058Ko-7b; Fri, 18 Nov 2022 23:46:44 +0100
+        id 1owA8S-0058QK-Jt; Fri, 18 Nov 2022 23:47:01 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8B-00Hb5h-E3; Fri, 18 Nov 2022 23:46:43 +0100
+        id 1owA8R-00006S-F0; Fri, 18 Nov 2022 23:46:59 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 167/606] iio: pressure: dlhl60d: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:38:21 +0100
-Message-Id: <20221118224540.619276-168-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 228/606] Input: auo-pixcir-ts - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:39:22 +0100
+Message-Id: <20221118224540.619276-229-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -58,39 +56,37 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/pressure/dlhl60d.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/auo-pixcir-ts.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/pressure/dlhl60d.c b/drivers/iio/pressure/dlhl60d.c
-index f0b0d198c6d4..43650b048d62 100644
---- a/drivers/iio/pressure/dlhl60d.c
-+++ b/drivers/iio/pressure/dlhl60d.c
-@@ -282,9 +282,9 @@ static irqreturn_t dlh_interrupt(int irq, void *private)
- 	return IRQ_HANDLED;
+diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
+index 2deae5a6823a..a4a1d58aeeac 100644
+--- a/drivers/input/touchscreen/auo-pixcir-ts.c
++++ b/drivers/input/touchscreen/auo-pixcir-ts.c
+@@ -482,8 +482,7 @@ static void auo_pixcir_reset(void *data)
+ 	gpiod_set_value_cansleep(ts->gpio_rst, 1);
+ }
+ 
+-static int auo_pixcir_probe(struct i2c_client *client,
+-			    const struct i2c_device_id *id)
++static int auo_pixcir_probe(struct i2c_client *client)
+ {
+ 	struct auo_pixcir_ts *ts;
+ 	struct input_dev *input_dev;
+@@ -637,7 +636,7 @@ static struct i2c_driver auo_pixcir_driver = {
+ 		.pm	= &auo_pixcir_pm_ops,
+ 		.of_match_table	= of_match_ptr(auo_pixcir_ts_dt_idtable),
+ 	},
+-	.probe		= auo_pixcir_probe,
++	.probe_new	= auo_pixcir_probe,
+ 	.id_table	= auo_pixcir_idtable,
  };
  
--static int dlh_probe(struct i2c_client *client,
--	const struct i2c_device_id *id)
-+static int dlh_probe(struct i2c_client *client)
- {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct dlh_state *st;
- 	struct iio_dev *indio_dev;
- 	int ret;
-@@ -362,7 +362,7 @@ static struct i2c_driver dlh_driver = {
- 		.name = "dlhl60d",
- 		.of_match_table = dlh_of_match,
- 	},
--	.probe = dlh_probe,
-+	.probe_new = dlh_probe,
- 	.id_table = dlh_id,
- };
- module_i2c_driver(dlh_driver);
 -- 
 2.38.1
 
