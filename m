@@ -2,30 +2,30 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FC1FC433FE
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:24:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 360D0C433FE
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:24:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237918AbiKSAYV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:24:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43412 "EHLO
+        id S230126AbiKSAYh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:24:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237927AbiKSAXk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:23:40 -0500
+        with ESMTP id S232579AbiKSAYG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:24:06 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A6EE6D957
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:38:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F3D5950F0
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:38:08 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8p-0002yA-W9; Fri, 18 Nov 2022 23:47:24 +0100
+        id 1owA99-0003ox-Mb; Fri, 18 Nov 2022 23:47:43 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8n-0058XT-Db; Fri, 18 Nov 2022 23:47:22 +0100
+        id 1owA97-0058eM-Nk; Fri, 18 Nov 2022 23:47:42 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8n-0000CW-HA; Fri, 18 Nov 2022 23:47:21 +0100
+        id 1owA97-0000JE-Bt; Fri, 18 Nov 2022 23:47:41 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
@@ -36,9 +36,9 @@ Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 321/606] media: dvb-frontends/tda10071: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:40:55 +0100
-Message-Id: <20221118224540.619276-322-uwe@kleine-koenig.org>
+Subject: [PATCH 407/606] media: tuners/si2157: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:42:21 +0100
+Message-Id: <20221118224540.619276-408-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -55,36 +55,38 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/media/dvb-frontends/tda10071.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/media/tuners/si2157.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/tda10071.c b/drivers/media/dvb-frontends/tda10071.c
-index d1098ef20a8b..c8e5617d08c0 100644
---- a/drivers/media/dvb-frontends/tda10071.c
-+++ b/drivers/media/dvb-frontends/tda10071.c
-@@ -1145,8 +1145,7 @@ static struct dvb_frontend *tda10071_get_dvb_frontend(struct i2c_client *client)
- 	return &dev->fe;
+diff --git a/drivers/media/tuners/si2157.c b/drivers/media/tuners/si2157.c
+index 476b32c04c20..3fa3dcda917a 100644
+--- a/drivers/media/tuners/si2157.c
++++ b/drivers/media/tuners/si2157.c
+@@ -875,9 +875,9 @@ static void si2157_stat_work(struct work_struct *work)
+ 	dev_dbg(&client->dev, "failed=%d\n", ret);
  }
  
--static int tda10071_probe(struct i2c_client *client,
+-static int si2157_probe(struct i2c_client *client,
 -			const struct i2c_device_id *id)
-+static int tda10071_probe(struct i2c_client *client)
++static int si2157_probe(struct i2c_client *client)
  {
- 	struct tda10071_dev *dev;
- 	struct tda10071_platform_data *pdata = client->dev.platform_data;
-@@ -1241,7 +1240,7 @@ static struct i2c_driver tda10071_driver = {
- 		.name	= "tda10071",
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct si2157_config *cfg = client->dev.platform_data;
+ 	struct dvb_frontend *fe = cfg->fe;
+ 	struct si2157_dev *dev;
+@@ -990,7 +990,7 @@ static struct i2c_driver si2157_driver = {
+ 		.name		     = "si2157",
  		.suppress_bind_attrs = true,
  	},
--	.probe		= tda10071_probe,
-+	.probe_new	= tda10071_probe,
- 	.remove		= tda10071_remove,
- 	.id_table	= tda10071_id_table,
+-	.probe		= si2157_probe,
++	.probe_new	= si2157_probe,
+ 	.remove		= si2157_remove,
+ 	.id_table	= si2157_id_table,
  };
 -- 
 2.38.1
