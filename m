@@ -2,46 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADAA6C4321E
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:52:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FCF1C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:53:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237010AbiKRXw5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:52:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45022 "EHLO
+        id S237043AbiKRXxJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:53:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236909AbiKRXvh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:51:37 -0500
+        with ESMTP id S237078AbiKRXwP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:52:15 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCFE0BAE88
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:27:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD8E6C7595
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:27:29 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7t-000816-OL; Fri, 18 Nov 2022 23:46:25 +0100
+        id 1owA9c-00056X-My; Fri, 18 Nov 2022 23:48:12 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7p-0058CU-E7; Fri, 18 Nov 2022 23:46:22 +0100
+        id 1owA9a-0058pq-0o; Fri, 18 Nov 2022 23:48:10 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7p-00Haz5-Cy; Fri, 18 Nov 2022 23:46:21 +0100
+        id 1owA9Z-0000SR-OT; Fri, 18 Nov 2022 23:48:09 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
-        Matti Vaittinen <mazziesaccount@gmail.com>
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 066/606] iio: adc: max1363: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:36:40 +0100
-Message-Id: <20221118224540.619276-67-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH 548/606] regulator: max8649: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:44:42 +0100
+Message-Id: <20221118224540.619276-549-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -58,39 +55,37 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/adc/max1363.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/regulator/max8649.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/adc/max1363.c b/drivers/iio/adc/max1363.c
-index 42d3479cefb7..73b783b430d7 100644
---- a/drivers/iio/adc/max1363.c
-+++ b/drivers/iio/adc/max1363.c
-@@ -1579,9 +1579,9 @@ static void max1363_reg_disable(void *reg)
- 	regulator_disable(reg);
- }
- 
--static int max1363_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int max1363_probe(struct i2c_client *client)
- {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	int ret;
- 	struct max1363_state *st;
- 	struct iio_dev *indio_dev;
-@@ -1718,7 +1718,7 @@ static struct i2c_driver max1363_driver = {
- 		.name = "max1363",
- 		.of_match_table = max1363_of_match,
- 	},
--	.probe = max1363_probe,
-+	.probe_new = max1363_probe,
- 	.id_table = max1363_id,
+diff --git a/drivers/regulator/max8649.c b/drivers/regulator/max8649.c
+index e86d8bd25fdc..aed5443d88e1 100644
+--- a/drivers/regulator/max8649.c
++++ b/drivers/regulator/max8649.c
+@@ -145,8 +145,7 @@ static const struct regmap_config max8649_regmap_config = {
+ 	.val_bits = 8,
  };
- module_i2c_driver(max1363_driver);
+ 
+-static int max8649_regulator_probe(struct i2c_client *client,
+-					     const struct i2c_device_id *id)
++static int max8649_regulator_probe(struct i2c_client *client)
+ {
+ 	struct max8649_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct max8649_regulator_info *info = NULL;
+@@ -247,7 +246,7 @@ static const struct i2c_device_id max8649_id[] = {
+ MODULE_DEVICE_TABLE(i2c, max8649_id);
+ 
+ static struct i2c_driver max8649_driver = {
+-	.probe		= max8649_regulator_probe,
++	.probe_new	= max8649_regulator_probe,
+ 	.driver		= {
+ 		.name	= "max8649",
+ 	},
 -- 
 2.38.1
 
