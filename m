@@ -2,43 +2,47 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E786BC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:30:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A040C43219
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:30:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235987AbiKRXac (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:30:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51842 "EHLO
+        id S232651AbiKRXae (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:30:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232651AbiKRX3m (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:29:42 -0500
+        with ESMTP id S235817AbiKRX3n (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:29:43 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B246DFF6
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79FF86DFF7
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:17:56 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8U-00025t-Ji; Fri, 18 Nov 2022 23:47:02 +0100
+        id 1owA98-0003m8-SL; Fri, 18 Nov 2022 23:47:42 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8R-0058Py-Lx; Fri, 18 Nov 2022 23:47:00 +0100
+        id 1owA96-0058dz-Lf; Fri, 18 Nov 2022 23:47:41 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8R-00006a-RO; Fri, 18 Nov 2022 23:46:59 +0100
+        id 1owA96-0000Iz-E5; Fri, 18 Nov 2022 23:47:40 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 230/606] Input: bu21029_ts - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:24 +0100
-Message-Id: <20221118224540.619276-231-uwe@kleine-koenig.org>
+Subject: [PATCH 402/606] media: tuners/m88rs6000t: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:42:16 +0100
+Message-Id: <20221118224540.619276-403-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -60,32 +64,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/bu21029_ts.c | 5 ++---
+ drivers/media/tuners/m88rs6000t.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/bu21029_ts.c b/drivers/input/touchscreen/bu21029_ts.c
-index 392950aa7856..215f4dc5105d 100644
---- a/drivers/input/touchscreen/bu21029_ts.c
-+++ b/drivers/input/touchscreen/bu21029_ts.c
-@@ -331,8 +331,7 @@ static void bu21029_stop_chip(struct input_dev *dev)
- 	regulator_disable(bu21029->vdd);
- }
- 
--static int bu21029_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int bu21029_probe(struct i2c_client *client)
- {
- 	struct bu21029_ts_data *bu21029;
- 	struct input_dev *in_dev;
-@@ -475,7 +474,7 @@ static struct i2c_driver bu21029_driver = {
- 		.pm		= &bu21029_pm_ops,
- 	},
- 	.id_table	= bu21029_ids,
--	.probe		= bu21029_probe,
-+	.probe_new	= bu21029_probe,
+diff --git a/drivers/media/tuners/m88rs6000t.c b/drivers/media/tuners/m88rs6000t.c
+index e32e3e9daa15..7d172a5a66d9 100644
+--- a/drivers/media/tuners/m88rs6000t.c
++++ b/drivers/media/tuners/m88rs6000t.c
+@@ -573,8 +573,7 @@ static const struct dvb_tuner_ops m88rs6000t_tuner_ops = {
+ 	.get_rf_strength = m88rs6000t_get_rf_strength,
  };
- module_i2c_driver(bu21029_driver);
  
+-static int m88rs6000t_probe(struct i2c_client *client,
+-		const struct i2c_device_id *id)
++static int m88rs6000t_probe(struct i2c_client *client)
+ {
+ 	struct m88rs6000t_config *cfg = client->dev.platform_data;
+ 	struct dvb_frontend *fe = cfg->fe;
+@@ -719,7 +718,7 @@ static struct i2c_driver m88rs6000t_driver = {
+ 	.driver = {
+ 		.name	= "m88rs6000t",
+ 	},
+-	.probe		= m88rs6000t_probe,
++	.probe_new	= m88rs6000t_probe,
+ 	.remove		= m88rs6000t_remove,
+ 	.id_table	= m88rs6000t_id,
+ };
 -- 
 2.38.1
 
