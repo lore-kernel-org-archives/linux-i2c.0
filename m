@@ -2,41 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C15E7C43217
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D064EC433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231308AbiKRWqj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:46:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36466 "EHLO
+        id S232106AbiKRWqk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:46:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230461AbiKRWq3 (ORCPT
+        with ESMTP id S231834AbiKRWq3 (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:29 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6286970AF
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB0494A5D
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:27 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7n-0007jZ-LN; Fri, 18 Nov 2022 23:46:19 +0100
+        id 1owA7j-0007Vg-3a; Fri, 18 Nov 2022 23:46:15 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7l-0058BB-T3; Fri, 18 Nov 2022 23:46:18 +0100
+        id 1owA7f-00588y-Fo; Fri, 18 Nov 2022 23:46:12 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7k-00Haxh-Mq; Fri, 18 Nov 2022 23:46:16 +0100
+        id 1owA7f-00Haw8-MN; Fri, 18 Nov 2022 23:46:11 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>
+        Wolfram Sang <wsa@kernel.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 045/606] i2c: slave-eeprom: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:36:19 +0100
-Message-Id: <20221118224540.619276-46-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 019/606] drm/bridge: chrontel-ch7033: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:35:53 +0100
+Message-Id: <20221118224540.619276-20-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -53,38 +62,37 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/i2c/i2c-slave-eeprom.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/chrontel-ch7033.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
-index 4abc2d919881..5f25f23c4ff8 100644
---- a/drivers/i2c/i2c-slave-eeprom.c
-+++ b/drivers/i2c/i2c-slave-eeprom.c
-@@ -140,8 +140,9 @@ static int i2c_slave_init_eeprom_data(struct eeprom_data *eeprom, struct i2c_cli
- 	return 0;
- }
- 
--static int i2c_slave_eeprom_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static int i2c_slave_eeprom_probe(struct i2c_client *client)
- {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct eeprom_data *eeprom;
- 	int ret;
- 	unsigned int size = FIELD_GET(I2C_SLAVE_BYTELEN, id->driver_data) + 1;
-@@ -206,7 +207,7 @@ static struct i2c_driver i2c_slave_eeprom_driver = {
- 	.driver = {
- 		.name = "i2c-slave-eeprom",
- 	},
--	.probe = i2c_slave_eeprom_probe,
-+	.probe_new = i2c_slave_eeprom_probe,
- 	.remove = i2c_slave_eeprom_remove,
- 	.id_table = i2c_slave_eeprom_id,
+diff --git a/drivers/gpu/drm/bridge/chrontel-ch7033.c b/drivers/gpu/drm/bridge/chrontel-ch7033.c
+index b94f39a86846..339b759e4c81 100644
+--- a/drivers/gpu/drm/bridge/chrontel-ch7033.c
++++ b/drivers/gpu/drm/bridge/chrontel-ch7033.c
+@@ -528,8 +528,7 @@ static const struct regmap_config ch7033_regmap_config = {
+ 	.max_register = 0x7f,
  };
+ 
+-static int ch7033_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int ch7033_probe(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+ 	struct ch7033_priv *priv;
+@@ -604,7 +603,7 @@ static const struct i2c_device_id ch7033_ids[] = {
+ MODULE_DEVICE_TABLE(i2c, ch7033_ids);
+ 
+ static struct i2c_driver ch7033_driver = {
+-	.probe = ch7033_probe,
++	.probe_new = ch7033_probe,
+ 	.remove = ch7033_remove,
+ 	.driver = {
+ 		.name = "ch7033",
 -- 
 2.38.1
 
