@@ -2,45 +2,45 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71A7BC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:22:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D07ABC43217
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:22:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230187AbiKRXWr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:22:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57836 "EHLO
+        id S231355AbiKRXWs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:22:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235453AbiKRXV1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:21:27 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56F0B6D94C
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:12:53 -0800 (PST)
+        with ESMTP id S233792AbiKRXVM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:21:12 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [85.220.165.71])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925A452161
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:12:27 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8A-0000lB-8P; Fri, 18 Nov 2022 23:46:42 +0100
+        id 1owA8H-0001FU-PM; Fri, 18 Nov 2022 23:46:49 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA85-0058IV-Gw; Fri, 18 Nov 2022 23:46:38 +0100
+        id 1owA8D-0058Lc-QR; Fri, 18 Nov 2022 23:46:46 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA85-00Hb3r-CY; Fri, 18 Nov 2022 23:46:37 +0100
+        id 1owA8D-00Hb6J-V2; Fri, 18 Nov 2022 23:46:45 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
         Jonathan Cameron <jic23@kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
+        Martyn Welch <martyn.welch@collabora.co.uk>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
         Lars-Peter Clausen <lars@metafoo.de>,
         linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 139/606] iio: light: st_uvis25_i2c: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:37:53 +0100
-Message-Id: <20221118224540.619276-140-uwe@kleine-koenig.org>
+Subject: [PATCH 176/606] iio: pressure: st_pressure_i2c: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:38:30 +0100
+Message-Id: <20221118224540.619276-177-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -62,32 +62,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/light/st_uvis25_i2c.c | 5 ++---
+ drivers/iio/pressure/st_pressure_i2c.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/light/st_uvis25_i2c.c b/drivers/iio/light/st_uvis25_i2c.c
-index c982b0b255cf..2160e87bb498 100644
---- a/drivers/iio/light/st_uvis25_i2c.c
-+++ b/drivers/iio/light/st_uvis25_i2c.c
-@@ -25,8 +25,7 @@ static const struct regmap_config st_uvis25_i2c_regmap_config = {
- 	.read_flag_mask = UVIS25_I2C_AUTO_INCREMENT,
+diff --git a/drivers/iio/pressure/st_pressure_i2c.c b/drivers/iio/pressure/st_pressure_i2c.c
+index 58fede861891..f2c3bb568d16 100644
+--- a/drivers/iio/pressure/st_pressure_i2c.c
++++ b/drivers/iio/pressure/st_pressure_i2c.c
+@@ -76,8 +76,7 @@ static const struct i2c_device_id st_press_id_table[] = {
  };
+ MODULE_DEVICE_TABLE(i2c, st_press_id_table);
  
--static int st_uvis25_i2c_probe(struct i2c_client *client,
--			       const struct i2c_device_id *id)
-+static int st_uvis25_i2c_probe(struct i2c_client *client)
+-static int st_press_i2c_probe(struct i2c_client *client,
+-			      const struct i2c_device_id *id)
++static int st_press_i2c_probe(struct i2c_client *client)
  {
- 	struct regmap *regmap;
- 
-@@ -58,7 +57,7 @@ static struct i2c_driver st_uvis25_driver = {
- 		.pm = pm_sleep_ptr(&st_uvis25_pm_ops),
- 		.of_match_table = st_uvis25_i2c_of_match,
+ 	const struct st_sensor_settings *settings;
+ 	struct st_sensor_data *press_data;
+@@ -117,7 +116,7 @@ static struct i2c_driver st_press_driver = {
+ 		.of_match_table = st_press_of_match,
+ 		.acpi_match_table = ACPI_PTR(st_press_acpi_match),
  	},
--	.probe = st_uvis25_i2c_probe,
-+	.probe_new = st_uvis25_i2c_probe,
- 	.id_table = st_uvis25_i2c_id_table,
+-	.probe = st_press_i2c_probe,
++	.probe_new = st_press_i2c_probe,
+ 	.id_table = st_press_id_table,
  };
- module_i2c_driver(st_uvis25_driver);
+ module_i2c_driver(st_press_driver);
 -- 
 2.38.1
 
