@@ -2,30 +2,30 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7503C433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:21:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A9B9C43219
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:21:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230171AbiKRXVk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:21:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57916 "EHLO
+        id S231877AbiKRXVn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:21:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232445AbiKRXVI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:21:08 -0500
+        with ESMTP id S230361AbiKRXVK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:21:10 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [85.220.165.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAAA55214F
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:12:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E330D52152
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:12:21 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9K-0004JT-Pt; Fri, 18 Nov 2022 23:47:54 +0100
+        id 1owA9O-0004SK-5A; Fri, 18 Nov 2022 23:47:58 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9I-0058io-9B; Fri, 18 Nov 2022 23:47:53 +0100
+        id 1owA9L-0058kC-E8; Fri, 18 Nov 2022 23:47:56 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9I-0000Mt-Gf; Fri, 18 Nov 2022 23:47:52 +0100
+        id 1owA9L-0000Nt-ES; Fri, 18 Nov 2022 23:47:55 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
@@ -33,10 +33,11 @@ To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 463/606] mfd: stw481x: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:43:17 +0100
-Message-Id: <20221118224540.619276-464-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, patches@opensource.cirrus.com,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 478/606] mfd: wm831x-i2c: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:43:32 +0100
+Message-Id: <20221118224540.619276-479-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -53,35 +54,37 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/mfd/stw481x.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/mfd/wm831x-i2c.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/stw481x.c b/drivers/mfd/stw481x.c
-index 7478f03ccbae..2a8fc9d1c806 100644
---- a/drivers/mfd/stw481x.c
-+++ b/drivers/mfd/stw481x.c
-@@ -173,8 +173,7 @@ static const struct regmap_config stw481x_regmap_config = {
- 	.val_bits = 8,
- };
+diff --git a/drivers/mfd/wm831x-i2c.c b/drivers/mfd/wm831x-i2c.c
+index daa1ad036595..9dbe96e2d46a 100644
+--- a/drivers/mfd/wm831x-i2c.c
++++ b/drivers/mfd/wm831x-i2c.c
+@@ -21,9 +21,9 @@
+ #include <linux/mfd/wm831x/core.h>
+ #include <linux/mfd/wm831x/pdata.h>
  
--static int stw481x_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int stw481x_probe(struct i2c_client *client)
+-static int wm831x_i2c_probe(struct i2c_client *i2c,
+-			    const struct i2c_device_id *id)
++static int wm831x_i2c_probe(struct i2c_client *i2c)
  {
- 	struct stw481x			*stw481x;
- 	int ret;
-@@ -240,7 +239,7 @@ static struct i2c_driver stw481x_driver = {
- 		.name	= "stw481x",
- 		.of_match_table = stw481x_match,
++	const struct i2c_device_id *id = i2c_client_get_device_id(i2c);
+ 	struct wm831x_pdata *pdata = dev_get_platdata(&i2c->dev);
+ 	const struct of_device_id *of_id;
+ 	struct wm831x *wm831x;
+@@ -102,7 +102,7 @@ static struct i2c_driver wm831x_i2c_driver = {
+ 		.of_match_table = of_match_ptr(wm831x_of_match),
+ 		.suppress_bind_attrs = true,
  	},
--	.probe		= stw481x_probe,
-+	.probe_new	= stw481x_probe,
- 	.id_table	= stw481x_id,
+-	.probe = wm831x_i2c_probe,
++	.probe_new = wm831x_i2c_probe,
+ 	.id_table = wm831x_i2c_id,
  };
  
 -- 
