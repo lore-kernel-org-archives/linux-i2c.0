@@ -2,43 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 698ECC4332F
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:16:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9059C43217
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:18:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229978AbiKSAQu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:16:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54278 "EHLO
+        id S237852AbiKSAQv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:16:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237852AbiKSAQ0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:16:26 -0500
+        with ESMTP id S237860AbiKSAQg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:16:36 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DE5F8859
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:35:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1CACB7024
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:35:40 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9U-0004iz-0C; Fri, 18 Nov 2022 23:48:04 +0100
+        id 1owA9a-00051h-J9; Fri, 18 Nov 2022 23:48:10 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9R-0058mW-DM; Fri, 18 Nov 2022 23:48:02 +0100
+        id 1owA9Y-0058p8-6E; Fri, 18 Nov 2022 23:48:09 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9R-0000Pu-Mr; Fri, 18 Nov 2022 23:48:01 +0100
+        id 1owA9Y-0000Ry-Bj; Fri, 18 Nov 2022 23:48:08 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-gpio@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 510/606] pinctrl: mcp23s08: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:44:04 +0100
-Message-Id: <20221118224540.619276-511-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH 541/606] regulator: fan53555: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:44:35 +0100
+Message-Id: <20221118224540.619276-542-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -60,31 +60,32 @@ that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/pinctrl/pinctrl-mcp23s08_i2c.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/regulator/fan53555.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-mcp23s08_i2c.c b/drivers/pinctrl/pinctrl-mcp23s08_i2c.c
-index e0b001c8c08c..b635c5737e0c 100644
---- a/drivers/pinctrl/pinctrl-mcp23s08_i2c.c
-+++ b/drivers/pinctrl/pinctrl-mcp23s08_i2c.c
-@@ -8,8 +8,9 @@
+diff --git a/drivers/regulator/fan53555.c b/drivers/regulator/fan53555.c
+index dac1fb584fa3..529963a7e4f5 100644
+--- a/drivers/regulator/fan53555.c
++++ b/drivers/regulator/fan53555.c
+@@ -549,9 +549,9 @@ static const struct of_device_id __maybe_unused fan53555_dt_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(of, fan53555_dt_ids);
  
- #include "pinctrl-mcp23s08.h"
- 
--static int mcp230xx_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static int mcp230xx_probe(struct i2c_client *client)
+-static int fan53555_regulator_probe(struct i2c_client *client,
+-				const struct i2c_device_id *id)
++static int fan53555_regulator_probe(struct i2c_client *client)
  {
 +	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct device *dev = &client->dev;
- 	unsigned int type = id->driver_data;
- 	struct mcp23s08 *mcp;
-@@ -100,7 +101,7 @@ static struct i2c_driver mcp230xx_driver = {
- 		.name	= "mcp230xx",
- 		.of_match_table = mcp23s08_i2c_of_match,
+ 	struct device_node *np = client->dev.of_node;
+ 	struct fan53555_device_info *di;
+ 	struct fan53555_platform_data *pdata;
+@@ -665,7 +665,7 @@ static struct i2c_driver fan53555_regulator_driver = {
+ 		.name = "fan53555-regulator",
+ 		.of_match_table = of_match_ptr(fan53555_dt_ids),
  	},
--	.probe		= mcp230xx_probe,
-+	.probe_new	= mcp230xx_probe,
- 	.id_table	= mcp230xx_id,
+-	.probe = fan53555_regulator_probe,
++	.probe_new = fan53555_regulator_probe,
+ 	.id_table = fan53555_id,
  };
  
 -- 
