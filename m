@@ -2,47 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BEE2C4332F
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:22:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3FCAC4332F
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:23:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235202AbiKSAWv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:22:51 -0500
+        id S233833AbiKSAXI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:23:08 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235027AbiKSAWZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:22:25 -0500
+        with ESMTP id S237941AbiKSAWs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:22:48 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6694102E4D
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:37:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF020102E70
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:37:29 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA96-0003dq-QS; Fri, 18 Nov 2022 23:47:40 +0100
+        id 1owA9l-0005Qb-0D; Fri, 18 Nov 2022 23:48:21 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA93-0058cs-PJ; Fri, 18 Nov 2022 23:47:38 +0100
+        id 1owA9i-0058tL-79; Fri, 18 Nov 2022 23:48:19 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA93-0000Hz-Je; Fri, 18 Nov 2022 23:47:37 +0100
+        id 1owA9h-0000VG-Nl; Fri, 18 Nov 2022 23:48:17 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Peter Senna Tschudin <peter.senna@gmail.com>
+        Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 387/606] media: i2c/uda1342: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:42:01 +0100
-Message-Id: <20221118224540.619276-388-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 591/606] backlight: lp855x: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:45:25 +0100
+Message-Id: <20221118224540.619276-592-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -59,36 +56,37 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/media/i2c/uda1342.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/video/backlight/lp855x_bl.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/uda1342.c b/drivers/media/i2c/uda1342.c
-index d0659c4392f2..b6873d866272 100644
---- a/drivers/media/i2c/uda1342.c
-+++ b/drivers/media/i2c/uda1342.c
-@@ -45,8 +45,7 @@ static const struct v4l2_subdev_ops uda1342_ops = {
- 	.audio = &uda1342_audio_ops,
- };
+diff --git a/drivers/video/backlight/lp855x_bl.c b/drivers/video/backlight/lp855x_bl.c
+index bd0bdeae23a4..81012bf29baf 100644
+--- a/drivers/video/backlight/lp855x_bl.c
++++ b/drivers/video/backlight/lp855x_bl.c
+@@ -394,8 +394,9 @@ static int lp855x_parse_acpi(struct lp855x *lp)
+ 	return 0;
+ }
  
--static int uda1342_probe(struct i2c_client *client,
--			     const struct i2c_device_id *id)
-+static int uda1342_probe(struct i2c_client *client)
+-static int lp855x_probe(struct i2c_client *cl, const struct i2c_device_id *id)
++static int lp855x_probe(struct i2c_client *cl)
  {
- 	struct i2c_adapter *adapter = client->adapter;
- 	struct v4l2_subdev *sd;
-@@ -89,7 +88,7 @@ static struct i2c_driver uda1342_driver = {
- 	.driver = {
- 		.name	= "uda1342",
- 	},
--	.probe		= uda1342_probe,
-+	.probe_new	= uda1342_probe,
- 	.remove		= uda1342_remove,
- 	.id_table	= uda1342_id,
++	const struct i2c_device_id *id = i2c_client_get_device_id(cl);
+ 	const struct acpi_device_id *acpi_id = NULL;
+ 	struct device *dev = &cl->dev;
+ 	struct lp855x *lp;
+@@ -586,7 +587,7 @@ static struct i2c_driver lp855x_driver = {
+ 		   .of_match_table = of_match_ptr(lp855x_dt_ids),
+ 		   .acpi_match_table = ACPI_PTR(lp855x_acpi_match),
+ 		   },
+-	.probe = lp855x_probe,
++	.probe_new = lp855x_probe,
+ 	.remove = lp855x_remove,
+ 	.id_table = lp855x_ids,
  };
 -- 
 2.38.1
