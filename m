@@ -2,47 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE6EAC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:55:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2ECECC43217
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:55:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235120AbiKRWz0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:55:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50294 "EHLO
+        id S235134AbiKRWz2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:55:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235010AbiKRWyw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:54:52 -0500
+        with ESMTP id S232630AbiKRWy4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:54:56 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9D8FBFF69
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:48:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 355A4BFF7F
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:48:13 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8n-0002eo-9u; Fri, 18 Nov 2022 23:47:21 +0100
+        id 1owA8z-0003Mq-Px; Fri, 18 Nov 2022 23:47:33 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8f-0058Up-Cw; Fri, 18 Nov 2022 23:47:14 +0100
+        id 1owA8x-0058ak-Hw; Fri, 18 Nov 2022 23:47:32 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8f-0000AS-GR; Fri, 18 Nov 2022 23:47:13 +0100
+        id 1owA8x-0000G7-GT; Fri, 18 Nov 2022 23:47:31 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Minghao Chi <chi.minghao@zte.com.cn>
+        Petr Cvek <petrcvekcz@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linuxppc-dev@lists.ozlabs.org,
+        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 289/606] macintosh: ams/ams-i2c: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:40:23 +0100
-Message-Id: <20221118224540.619276-290-uwe@kleine-koenig.org>
+Subject: [PATCH 361/606] media: i2c/ov9640: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:41:35 +0100
+Message-Id: <20221118224540.619276-362-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -64,42 +61,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/macintosh/ams/ams-i2c.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/media/i2c/ov9640.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/macintosh/ams/ams-i2c.c b/drivers/macintosh/ams/ams-i2c.c
-index 3ded340699fb..a4a1035eb412 100644
---- a/drivers/macintosh/ams/ams-i2c.c
-+++ b/drivers/macintosh/ams/ams-i2c.c
-@@ -56,8 +56,7 @@ enum ams_i2c_cmd {
- 	AMS_CMD_START,
- };
- 
--static int ams_i2c_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id);
-+static int ams_i2c_probe(struct i2c_client *client);
- static void ams_i2c_remove(struct i2c_client *client);
- 
- static const struct i2c_device_id ams_id[] = {
-@@ -70,7 +69,7 @@ static struct i2c_driver ams_i2c_driver = {
- 	.driver = {
- 		.name   = "ams",
- 	},
--	.probe          = ams_i2c_probe,
-+	.probe_new      = ams_i2c_probe,
- 	.remove         = ams_i2c_remove,
- 	.id_table       = ams_id,
- };
-@@ -155,8 +154,7 @@ static void ams_i2c_get_xyz(s8 *x, s8 *y, s8 *z)
- 	*z = ams_i2c_read(AMS_DATAZ);
- }
- 
--static int ams_i2c_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int ams_i2c_probe(struct i2c_client *client)
+diff --git a/drivers/media/i2c/ov9640.c b/drivers/media/i2c/ov9640.c
+index 8b80be33c5f4..a80fa59bf2ae 100644
+--- a/drivers/media/i2c/ov9640.c
++++ b/drivers/media/i2c/ov9640.c
+@@ -682,8 +682,7 @@ static const struct v4l2_subdev_ops ov9640_subdev_ops = {
+ /*
+  * i2c_driver function
+  */
+-static int ov9640_probe(struct i2c_client *client,
+-			const struct i2c_device_id *did)
++static int ov9640_probe(struct i2c_client *client)
  {
- 	int vmaj, vmin;
- 	int result;
+ 	struct ov9640_priv *priv;
+ 	int ret;
+@@ -763,7 +762,7 @@ static struct i2c_driver ov9640_i2c_driver = {
+ 	.driver = {
+ 		.name = "ov9640",
+ 	},
+-	.probe    = ov9640_probe,
++	.probe_new = ov9640_probe,
+ 	.remove   = ov9640_remove,
+ 	.id_table = ov9640_id,
+ };
 -- 
 2.38.1
 
