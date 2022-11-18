@@ -2,44 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B37D3C433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:33:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB74DC433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:33:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235983AbiKRXbx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:31:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
+        id S235831AbiKRXd0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:33:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235990AbiKRXah (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:30:37 -0500
+        with ESMTP id S236439AbiKRXdA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:33:00 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB662DFE7
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:18:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF45881A5
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:20:59 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8X-0002EF-Li; Fri, 18 Nov 2022 23:47:05 +0100
+        id 1owA8V-0002Ax-LQ; Fri, 18 Nov 2022 23:47:03 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8U-0058RA-M1; Fri, 18 Nov 2022 23:47:03 +0100
+        id 1owA8T-0058Qa-A9; Fri, 18 Nov 2022 23:47:02 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8U-00007U-UQ; Fri, 18 Nov 2022 23:47:02 +0100
+        id 1owA8S-00006x-Vc; Fri, 18 Nov 2022 23:47:01 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Giulio Benetti <giulio.benetti@benettiengineering.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 244/606] Input: hycon-hy46xx - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:38 +0100
-Message-Id: <20221118224540.619276-245-uwe@kleine-koenig.org>
+Subject: [PATCH 236/606] Input: cyttsp_i2c - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:39:30 +0100
+Message-Id: <20221118224540.619276-237-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,32 +61,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/hycon-hy46xx.c | 5 ++---
+ drivers/input/touchscreen/cyttsp_i2c.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/hycon-hy46xx.c b/drivers/input/touchscreen/hycon-hy46xx.c
-index 891d0430083e..8f4989aba9a4 100644
---- a/drivers/input/touchscreen/hycon-hy46xx.c
-+++ b/drivers/input/touchscreen/hycon-hy46xx.c
-@@ -439,8 +439,7 @@ static void hycon_hy46xx_disable_regulator(void *arg)
- 	regulator_disable(data->vcc);
- }
- 
--static int hycon_hy46xx_probe(struct i2c_client *client,
--					 const struct i2c_device_id *id)
-+static int hycon_hy46xx_probe(struct i2c_client *client)
- {
- 	struct hycon_hy46xx_data *tsdata;
- 	struct input_dev *input;
-@@ -581,7 +580,7 @@ static struct i2c_driver hycon_hy46xx_driver = {
- 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
- 	},
- 	.id_table = hycon_hy46xx_id,
--	.probe    = hycon_hy46xx_probe,
-+	.probe_new = hycon_hy46xx_probe,
+diff --git a/drivers/input/touchscreen/cyttsp_i2c.c b/drivers/input/touchscreen/cyttsp_i2c.c
+index 4c8473d327ab..0155a1626adf 100644
+--- a/drivers/input/touchscreen/cyttsp_i2c.c
++++ b/drivers/input/touchscreen/cyttsp_i2c.c
+@@ -28,8 +28,7 @@ static const struct cyttsp_bus_ops cyttsp_i2c_bus_ops = {
+ 	.read           = cyttsp_i2c_read_block_data,
  };
  
- module_i2c_driver(hycon_hy46xx_driver);
+-static int cyttsp_i2c_probe(struct i2c_client *client,
+-				      const struct i2c_device_id *id)
++static int cyttsp_i2c_probe(struct i2c_client *client)
+ {
+ 	struct cyttsp *ts;
+ 
+@@ -67,7 +66,7 @@ static struct i2c_driver cyttsp_i2c_driver = {
+ 		.pm	= &cyttsp_pm_ops,
+ 		.of_match_table = cyttsp_of_i2c_match,
+ 	},
+-	.probe		= cyttsp_i2c_probe,
++	.probe_new	= cyttsp_i2c_probe,
+ 	.id_table	= cyttsp_i2c_id,
+ };
+ 
 -- 
 2.38.1
 
