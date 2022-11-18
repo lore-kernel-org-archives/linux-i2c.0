@@ -2,45 +2,41 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 713EAC4167B
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:31:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9079CC4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:31:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236075AbiKRXbn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:31:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55884 "EHLO
+        id S236077AbiKRXbo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:31:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235845AbiKRXa1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:30:27 -0500
+        with ESMTP id S235855AbiKRXa2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:30:28 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC81675DAC
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:18:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042CBD70
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:18:25 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9G-00047E-9p; Fri, 18 Nov 2022 23:47:50 +0100
+        id 1owA9L-0004Kq-Ia; Fri, 18 Nov 2022 23:47:55 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9E-0058gm-0k; Fri, 18 Nov 2022 23:47:48 +0100
+        id 1owA9I-0058j4-SZ; Fri, 18 Nov 2022 23:47:53 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9D-0000L8-AP; Fri, 18 Nov 2022 23:47:47 +0100
+        id 1owA9I-0000N3-Sf; Fri, 18 Nov 2022 23:47:52 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Lee Jones <lee@kernel.org>
+        Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, alsa-devel@alsa-project.org,
-        patches@opensource.cirrus.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 437/606] mfd: madera-i2c: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:42:51 +0100
-Message-Id: <20221118224540.619276-438-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH 465/606] mfd: ti-lmu: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:43:19 +0100
+Message-Id: <20221118224540.619276-466-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -62,34 +58,33 @@ that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/mfd/madera-i2c.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/mfd/ti-lmu.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/madera-i2c.c b/drivers/mfd/madera-i2c.c
-index 915d2f95bad3..47e65d88feb0 100644
---- a/drivers/mfd/madera-i2c.c
-+++ b/drivers/mfd/madera-i2c.c
-@@ -17,9 +17,9 @@
+diff --git a/drivers/mfd/ti-lmu.c b/drivers/mfd/ti-lmu.c
+index fd6e8c417baa..9921320be255 100644
+--- a/drivers/mfd/ti-lmu.c
++++ b/drivers/mfd/ti-lmu.c
+@@ -133,8 +133,9 @@ TI_LMU_DATA(lm3633, LM3633_MAX_REG);
+ TI_LMU_DATA(lm3695, LM3695_MAX_REG);
+ TI_LMU_DATA(lm36274, LM36274_MAX_REG);
  
- #include "madera.h"
- 
--static int madera_i2c_probe(struct i2c_client *i2c,
--			    const struct i2c_device_id *id)
-+static int madera_i2c_probe(struct i2c_client *i2c)
+-static int ti_lmu_probe(struct i2c_client *cl, const struct i2c_device_id *id)
++static int ti_lmu_probe(struct i2c_client *cl)
  {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(i2c);
- 	struct madera *madera;
- 	const struct regmap_config *regmap_16bit_config = NULL;
- 	const struct regmap_config *regmap_32bit_config = NULL;
-@@ -139,7 +139,7 @@ static struct i2c_driver madera_i2c_driver = {
- 		.pm	= &madera_pm_ops,
- 		.of_match_table	= of_match_ptr(madera_of_match),
- 	},
--	.probe		= madera_i2c_probe,
-+	.probe_new	= madera_i2c_probe,
- 	.remove		= madera_i2c_remove,
- 	.id_table	= madera_i2c_id,
- };
++	const struct i2c_device_id *id = i2c_client_get_device_id(cl);
+ 	struct device *dev = &cl->dev;
+ 	const struct ti_lmu_data *data;
+ 	struct regmap_config regmap_cfg;
+@@ -216,7 +217,7 @@ static const struct i2c_device_id ti_lmu_ids[] = {
+ MODULE_DEVICE_TABLE(i2c, ti_lmu_ids);
+ 
+ static struct i2c_driver ti_lmu_driver = {
+-	.probe = ti_lmu_probe,
++	.probe_new = ti_lmu_probe,
+ 	.driver = {
+ 		.name = "ti-lmu",
+ 		.of_match_table = ti_lmu_of_match,
 -- 
 2.38.1
 
