@@ -2,30 +2,30 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2E8BC43219
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:47:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0768C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:47:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232030AbiKRWrH (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:47:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36954 "EHLO
+        id S232024AbiKRWrI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:47:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232024AbiKRWqh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:37 -0500
+        with ESMTP id S232022AbiKRWqg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:36 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 169DFA3179
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E701A3178
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:30 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7j-0007dO-Sl; Fri, 18 Nov 2022 23:46:15 +0100
+        id 1owA7k-0007fJ-Ue; Fri, 18 Nov 2022 23:46:16 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7i-00589b-0n; Fri, 18 Nov 2022 23:46:14 +0100
+        id 1owA7j-0058A3-1T; Fri, 18 Nov 2022 23:46:15 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7h-00HawY-0X; Fri, 18 Nov 2022 23:46:13 +0100
+        id 1owA7i-00Hax4-MD; Fri, 18 Nov 2022 23:46:14 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
@@ -43,9 +43,9 @@ Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         Jonas Karlman <jonas@kwiboo.se>,
         Jernej Skrabec <jernej.skrabec@gmail.com>,
         dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 025/606] drm/bridge: lt9611uxc: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:35:59 +0100
-Message-Id: <20221118224540.619276-26-uwe@kleine-koenig.org>
+Subject: [PATCH 034/606] drm/bridge/tc358775: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:36:08 +0100
+Message-Id: <20221118224540.619276-35-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -67,32 +67,31 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611uxc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/tc358775.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/lontium-lt9611uxc.c b/drivers/gpu/drm/bridge/lontium-lt9611uxc.c
-index fa1ee6264d92..583daacf3705 100644
---- a/drivers/gpu/drm/bridge/lontium-lt9611uxc.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611uxc.c
-@@ -844,8 +844,7 @@ static const struct attribute_group *lt9611uxc_attr_groups[] = {
- 	NULL,
- };
+diff --git a/drivers/gpu/drm/bridge/tc358775.c b/drivers/gpu/drm/bridge/tc358775.c
+index 3ceb0e9f9bdc..91b5e1207c47 100644
+--- a/drivers/gpu/drm/bridge/tc358775.c
++++ b/drivers/gpu/drm/bridge/tc358775.c
+@@ -637,7 +637,7 @@ static int tc_attach_host(struct tc_data *tc)
+ 	return 0;
+ }
  
--static int lt9611uxc_probe(struct i2c_client *client,
--			   const struct i2c_device_id *id)
-+static int lt9611uxc_probe(struct i2c_client *client)
+-static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
++static int tc_probe(struct i2c_client *client)
  {
- 	struct lt9611uxc *lt9611uxc;
  	struct device *dev = &client->dev;
-@@ -1012,7 +1011,7 @@ static struct i2c_driver lt9611uxc_driver = {
- 		.of_match_table = lt9611uxc_match_table,
- 		.dev_groups = lt9611uxc_attr_groups,
+ 	struct tc_data *tc;
+@@ -729,7 +729,7 @@ static struct i2c_driver tc358775_driver = {
+ 		.of_match_table = tc358775_of_ids,
  	},
--	.probe = lt9611uxc_probe,
-+	.probe_new = lt9611uxc_probe,
- 	.remove = lt9611uxc_remove,
- 	.id_table = lt9611uxc_id,
+ 	.id_table = tc358775_i2c_ids,
+-	.probe = tc_probe,
++	.probe_new = tc_probe,
+ 	.remove	= tc_remove,
  };
+ module_i2c_driver(tc358775_driver);
 -- 
 2.38.1
 
