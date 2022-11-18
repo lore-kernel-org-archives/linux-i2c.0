@@ -2,35 +2,38 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A132EC43217
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:47:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AEADC4321E
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:47:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232591AbiKRWrG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S231768AbiKRWrG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Fri, 18 Nov 2022 17:47:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36838 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232006AbiKRWqe (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:34 -0500
+        with ESMTP id S232030AbiKRWqh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:37 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBDD8A3172
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2113FA317C
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:31 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7l-0007fo-AA; Fri, 18 Nov 2022 23:46:17 +0100
+        id 1owA7m-0007fQ-7F; Fri, 18 Nov 2022 23:46:18 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7j-0058AE-Ex; Fri, 18 Nov 2022 23:46:16 +0100
+        id 1owA7j-0058A9-6h; Fri, 18 Nov 2022 23:46:16 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7j-00HaxA-10; Fri, 18 Nov 2022 23:46:15 +0100
+        id 1owA7h-00Hawb-65; Fri, 18 Nov 2022 23:46:13 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
+        Peter Senna Tschudin <peter.senna@gmail.com>,
+        Martin Donnelly <martin.donnelly@ge.com>,
+        Martyn Welch <martyn.welch@collabora.co.uk>,
         Andrzej Hajda <andrzej.hajda@intel.com>,
         Neil Armstrong <neil.armstrong@linaro.org>,
         Robert Foss <robert.foss@linaro.org>,
@@ -39,14 +42,13 @@ To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
-        Douglas Anderson <dianders@chromium.org>,
         Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
         Jonas Karlman <jonas@kwiboo.se>,
         Jernej Skrabec <jernej.skrabec@gmail.com>,
         dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 036/606] drm/bridge: ti-sn65dsi86: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:36:10 +0100
-Message-Id: <20221118224540.619276-37-uwe@kleine-koenig.org>
+Subject: [PATCH 026/606] drm/bridge: megachips: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:36:00 +0100
+Message-Id: <20221118224540.619276-27-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -68,32 +70,51 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/gpu/drm/bridge/ti-sn65dsi86.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ .../gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c   | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-index 3c3561942eb6..856d28dec4bf 100644
---- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-+++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-@@ -1850,8 +1850,7 @@ static int ti_sn65dsi86_parse_regulators(struct ti_sn65dsi86 *pdata)
- 				       pdata->supplies);
+diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+index 97359f807bfc..4ee4a825a936 100644
+--- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
++++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+@@ -336,8 +336,7 @@ static int ge_b850v3_register(void)
+ 			"ge-b850v3-lvds-dp", ge_b850v3_lvds_ptr);
  }
  
--static int ti_sn65dsi86_probe(struct i2c_client *client,
--			      const struct i2c_device_id *id)
-+static int ti_sn65dsi86_probe(struct i2c_client *client)
+-static int stdp4028_ge_b850v3_fw_probe(struct i2c_client *stdp4028_i2c,
+-				       const struct i2c_device_id *id)
++static int stdp4028_ge_b850v3_fw_probe(struct i2c_client *stdp4028_i2c)
  {
- 	struct device *dev = &client->dev;
- 	struct ti_sn65dsi86 *pdata;
-@@ -1950,7 +1949,7 @@ static struct i2c_driver ti_sn65dsi86_driver = {
- 		.of_match_table = ti_sn65dsi86_match_table,
- 		.pm = &ti_sn65dsi86_pm_ops,
+ 	struct device *dev = &stdp4028_i2c->dev;
+ 	int ret;
+@@ -376,7 +375,7 @@ MODULE_DEVICE_TABLE(of, stdp4028_ge_b850v3_fw_match);
+ 
+ static struct i2c_driver stdp4028_ge_b850v3_fw_driver = {
+ 	.id_table	= stdp4028_ge_b850v3_fw_i2c_table,
+-	.probe		= stdp4028_ge_b850v3_fw_probe,
++	.probe_new	= stdp4028_ge_b850v3_fw_probe,
+ 	.remove		= stdp4028_ge_b850v3_fw_remove,
+ 	.driver		= {
+ 		.name		= "stdp4028-ge-b850v3-fw",
+@@ -384,8 +383,7 @@ static struct i2c_driver stdp4028_ge_b850v3_fw_driver = {
  	},
--	.probe = ti_sn65dsi86_probe,
-+	.probe_new = ti_sn65dsi86_probe,
- 	.id_table = ti_sn65dsi86_id,
  };
  
+-static int stdp2690_ge_b850v3_fw_probe(struct i2c_client *stdp2690_i2c,
+-				       const struct i2c_device_id *id)
++static int stdp2690_ge_b850v3_fw_probe(struct i2c_client *stdp2690_i2c)
+ {
+ 	struct device *dev = &stdp2690_i2c->dev;
+ 	int ret;
+@@ -424,7 +422,7 @@ MODULE_DEVICE_TABLE(of, stdp2690_ge_b850v3_fw_match);
+ 
+ static struct i2c_driver stdp2690_ge_b850v3_fw_driver = {
+ 	.id_table	= stdp2690_ge_b850v3_fw_i2c_table,
+-	.probe		= stdp2690_ge_b850v3_fw_probe,
++	.probe_new	= stdp2690_ge_b850v3_fw_probe,
+ 	.remove		= stdp2690_ge_b850v3_fw_remove,
+ 	.driver		= {
+ 		.name		= "stdp2690-ge-b850v3-fw",
 -- 
 2.38.1
 
