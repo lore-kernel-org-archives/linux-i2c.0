@@ -2,43 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CB6EC4167E
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:33:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 780AEC4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:33:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235434AbiKRXdk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:33:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55724 "EHLO
+        id S234404AbiKRXdl (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:33:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236378AbiKRXcu (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:32:50 -0500
+        with ESMTP id S236147AbiKRXcG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:32:06 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A109065867
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:20:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4840497EFB
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:19:46 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8X-0002Dg-1o; Fri, 18 Nov 2022 23:47:05 +0100
+        id 1owA9Y-0004tj-7W; Fri, 18 Nov 2022 23:48:08 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8U-0058R2-Cn; Fri, 18 Nov 2022 23:47:03 +0100
+        id 1owA9V-0058o7-GA; Fri, 18 Nov 2022 23:48:06 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8U-00007M-FF; Fri, 18 Nov 2022 23:47:02 +0100
+        id 1owA9V-0000R5-L9; Fri, 18 Nov 2022 23:48:05 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        Sebastian Reichel <sre@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linux-pm@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 242/606] Input: hideep - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:36 +0100
-Message-Id: <20221118224540.619276-243-uwe@kleine-koenig.org>
+Subject: [PATCH 527/606] power: supply: max14656: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:44:21 +0100
+Message-Id: <20221118224540.619276-528-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -60,32 +60,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/hideep.c | 5 ++---
+ drivers/power/supply/max14656_charger_detector.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/hideep.c b/drivers/input/touchscreen/hideep.c
-index e9547ee29756..ff4bb4c14898 100644
---- a/drivers/input/touchscreen/hideep.c
-+++ b/drivers/input/touchscreen/hideep.c
-@@ -997,8 +997,7 @@ static const struct regmap_config hideep_regmap_config = {
- 	.max_register = 0xffff,
+diff --git a/drivers/power/supply/max14656_charger_detector.c b/drivers/power/supply/max14656_charger_detector.c
+index fc36828895bf..0d0180fcfa63 100644
+--- a/drivers/power/supply/max14656_charger_detector.c
++++ b/drivers/power/supply/max14656_charger_detector.c
+@@ -234,8 +234,7 @@ static enum power_supply_property max14656_battery_props[] = {
+ 	POWER_SUPPLY_PROP_MANUFACTURER,
  };
  
--static int hideep_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int hideep_probe(struct i2c_client *client)
+-static int max14656_probe(struct i2c_client *client,
+-			  const struct i2c_device_id *id)
++static int max14656_probe(struct i2c_client *client)
  {
- 	struct hideep_ts *ts;
- 	int error;
-@@ -1112,7 +1111,7 @@ static struct i2c_driver hideep_driver = {
- 		.pm			= &hideep_pm_ops,
+ 	struct i2c_adapter *adapter = client->adapter;
+ 	struct device *dev = &client->dev;
+@@ -317,7 +316,7 @@ static struct i2c_driver max14656_i2c_driver = {
+ 		.name	= "max14656",
+ 		.of_match_table = max14656_match_table,
  	},
- 	.id_table	= hideep_i2c_id,
--	.probe		= hideep_probe,
-+	.probe_new	= hideep_probe,
+-	.probe		= max14656_probe,
++	.probe_new	= max14656_probe,
+ 	.id_table	= max14656_id,
  };
- 
- module_i2c_driver(hideep_driver);
+ module_i2c_driver(max14656_i2c_driver);
 -- 
 2.38.1
 
