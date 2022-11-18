@@ -2,47 +2,46 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C61FC43217
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87311C43219
 	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:34:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236187AbiKRXeT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:34:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51738 "EHLO
+        id S236263AbiKRXeV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:34:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236317AbiKRXch (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:32:37 -0500
+        with ESMTP id S236072AbiKRXbn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:31:43 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9580AA8C2F
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:20:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 020D3FF6
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:19:13 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8N-0001cp-BN; Fri, 18 Nov 2022 23:46:55 +0100
+        id 1owA9g-0005EN-0c; Fri, 18 Nov 2022 23:48:16 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8J-0058NU-Rb; Fri, 18 Nov 2022 23:46:52 +0100
+        id 1owA9d-0058rP-Bu; Fri, 18 Nov 2022 23:48:14 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8K-00Hb7n-5m; Fri, 18 Nov 2022 23:46:52 +0100
+        id 1owA9d-0000Tr-Ha; Fri, 18 Nov 2022 23:48:13 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>
+        Petr Machata <petrm@nvidia.com>, Peter Rosin <peda@axentia.se>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Peter Senna Tschudin <peter.senna@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linux-staging@lists.linux.dev,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 199/606] Input: mcs_touchkey - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:38:53 +0100
-Message-Id: <20221118224540.619276-200-uwe@kleine-koenig.org>
+Subject: [PATCH 569/606] staging: most: i2c: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:45:03 +0100
+Message-Id: <20221118224540.619276-570-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -59,39 +58,36 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/keyboard/mcs_touchkey.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/most/i2c/i2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
-index ac1637a3389e..34683458524c 100644
---- a/drivers/input/keyboard/mcs_touchkey.c
-+++ b/drivers/input/keyboard/mcs_touchkey.c
-@@ -92,9 +92,9 @@ static irqreturn_t mcs_touchkey_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int mcs_touchkey_probe(struct i2c_client *client,
--		const struct i2c_device_id *id)
-+static int mcs_touchkey_probe(struct i2c_client *client)
+diff --git a/drivers/staging/most/i2c/i2c.c b/drivers/staging/most/i2c/i2c.c
+index 285a071f02be..df53a4c4f850 100644
+--- a/drivers/staging/most/i2c/i2c.c
++++ b/drivers/staging/most/i2c/i2c.c
+@@ -284,7 +284,7 @@ static irqreturn_t most_irq_handler(int irq, void *_dev)
+  *
+  * Register the i2c client device as a MOST interface
+  */
+-static int i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
++static int i2c_probe(struct i2c_client *client)
  {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	const struct mcs_platform_data *pdata;
- 	struct mcs_touchkey_data *data;
- 	struct input_dev *input_dev;
-@@ -260,7 +260,7 @@ static struct i2c_driver mcs_touchkey_driver = {
- 		.name	= "mcs_touchkey",
- 		.pm	= &mcs_touchkey_pm_ops,
+ 	struct hdm_i2c *dev;
+ 	int ret, i;
+@@ -359,7 +359,7 @@ static struct i2c_driver i2c_driver = {
+ 	.driver = {
+ 		.name = "hdm_i2c",
  	},
--	.probe		= mcs_touchkey_probe,
-+	.probe_new	= mcs_touchkey_probe,
- 	.remove		= mcs_touchkey_remove,
- 	.shutdown       = mcs_touchkey_shutdown,
- 	.id_table	= mcs_touchkey_id,
+-	.probe = i2c_probe,
++	.probe_new = i2c_probe,
+ 	.remove = i2c_remove,
+ 	.id_table = i2c_id,
+ };
 -- 
 2.38.1
 
