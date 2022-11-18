@@ -2,44 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A05EDC43219
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:34:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 849A7C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:34:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236094AbiKRXeW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:34:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52792 "EHLO
+        id S234908AbiKRXeZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:34:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236480AbiKRXdF (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:33:05 -0500
+        with ESMTP id S236167AbiKRXcJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:32:09 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF0214F18F
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:21:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 183EA97EF7
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:19:49 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8M-0001ZL-Ea; Fri, 18 Nov 2022 23:46:54 +0100
+        id 1owA8q-0002zw-9s; Fri, 18 Nov 2022 23:47:24 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8I-0058NA-RI; Fri, 18 Nov 2022 23:46:51 +0100
+        id 1owA8o-0058Xh-AX; Fri, 18 Nov 2022 23:47:23 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8J-00Hb7V-3M; Fri, 18 Nov 2022 23:46:51 +0100
+        id 1owA8o-0000Co-Ew; Fri, 18 Nov 2022 23:47:22 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 195/606] Input: dlink-dir685-touchkeys - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:38:49 +0100
-Message-Id: <20221118224540.619276-196-uwe@kleine-koenig.org>
+Subject: [PATCH 325/606] media: i2c/adp1653: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:40:59 +0100
+Message-Id: <20221118224540.619276-326-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,32 +61,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/keyboard/dlink-dir685-touchkeys.c | 5 ++---
+ drivers/media/i2c/adp1653.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/dlink-dir685-touchkeys.c b/drivers/input/keyboard/dlink-dir685-touchkeys.c
-index 3b674001cd15..ddba2bc861da 100644
---- a/drivers/input/keyboard/dlink-dir685-touchkeys.c
-+++ b/drivers/input/keyboard/dlink-dir685-touchkeys.c
-@@ -59,8 +59,7 @@ static irqreturn_t dir685_tk_irq_thread(int irq, void *data)
- 	return IRQ_HANDLED;
+diff --git a/drivers/media/i2c/adp1653.c b/drivers/media/i2c/adp1653.c
+index 1f353157df07..a61a77de6eee 100644
+--- a/drivers/media/i2c/adp1653.c
++++ b/drivers/media/i2c/adp1653.c
+@@ -463,8 +463,7 @@ static int adp1653_of_init(struct i2c_client *client,
  }
  
--static int dir685_tk_probe(struct i2c_client *client,
--			   const struct i2c_device_id *id)
-+static int dir685_tk_probe(struct i2c_client *client)
+ 
+-static int adp1653_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *devid)
++static int adp1653_probe(struct i2c_client *client)
  {
- 	static const u8 bl_data[] = { 0xa7, 0x40 };
- 	struct device *dev = &client->dev;
-@@ -146,7 +145,7 @@ static struct i2c_driver dir685_tk_i2c_driver = {
- 		.name	= "dlink-dir685-touchkeys",
- 		.of_match_table = of_match_ptr(dir685_tk_of_match),
+ 	struct adp1653_flash *flash;
+ 	int ret;
+@@ -536,7 +535,7 @@ static struct i2c_driver adp1653_i2c_driver = {
+ 		.name	= ADP1653_NAME,
+ 		.pm	= &adp1653_pm_ops,
  	},
--	.probe		= dir685_tk_probe,
-+	.probe_new	= dir685_tk_probe,
- 	.id_table	= dir685_tk_id,
+-	.probe		= adp1653_probe,
++	.probe_new	= adp1653_probe,
+ 	.remove		= adp1653_remove,
+ 	.id_table	= adp1653_id_table,
  };
- module_i2c_driver(dir685_tk_i2c_driver);
 -- 
 2.38.1
 
