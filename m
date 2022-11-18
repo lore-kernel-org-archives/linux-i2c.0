@@ -2,45 +2,46 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FF7DC43217
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:34:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5B66C4332F
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:34:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbiKSAe1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:34:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58880 "EHLO
+        id S234627AbiKSAek (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:34:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234343AbiKSAeG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:34:06 -0500
+        with ESMTP id S233271AbiKSAeP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:34:15 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 027CD12638
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:42:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F95B114B93
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:42:48 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8C-0000ua-M9; Fri, 18 Nov 2022 23:46:44 +0100
+        id 1owA9h-0005GX-7Q; Fri, 18 Nov 2022 23:48:17 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA88-0058Ja-53; Fri, 18 Nov 2022 23:46:41 +0100
+        id 1owA9e-0058rp-Cb; Fri, 18 Nov 2022 23:48:15 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA88-00Hb4k-3T; Fri, 18 Nov 2022 23:46:40 +0100
+        id 1owA9e-0000UF-Lg; Fri, 18 Nov 2022 23:48:14 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <jic23@kernel.org>
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 153/606] iio: magnetometer: ak8974: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:38:07 +0100
-Message-Id: <20221118224540.619276-154-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-usb@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 575/606] usb: isp1301-omap: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:45:09 +0100
+Message-Id: <20221118224540.619276-576-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -62,31 +63,30 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/magnetometer/ak8974.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/phy/phy-isp1301-omap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/ak8974.c b/drivers/iio/magnetometer/ak8974.c
-index 7ec9ab3beb45..45abdcce6bc0 100644
---- a/drivers/iio/magnetometer/ak8974.c
-+++ b/drivers/iio/magnetometer/ak8974.c
-@@ -814,8 +814,7 @@ static const struct regmap_config ak8974_regmap_config = {
- 	.precious_reg = ak8974_precious_reg,
- };
+diff --git a/drivers/usb/phy/phy-isp1301-omap.c b/drivers/usb/phy/phy-isp1301-omap.c
+index e5d3f206097c..931610b76f3d 100644
+--- a/drivers/usb/phy/phy-isp1301-omap.c
++++ b/drivers/usb/phy/phy-isp1301-omap.c
+@@ -1471,7 +1471,7 @@ isp1301_start_hnp(struct usb_otg *otg)
+ /*-------------------------------------------------------------------------*/
  
--static int ak8974_probe(struct i2c_client *i2c,
--			const struct i2c_device_id *id)
-+static int ak8974_probe(struct i2c_client *i2c)
+ static int
+-isp1301_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
++isp1301_probe(struct i2c_client *i2c)
  {
- 	struct iio_dev *indio_dev;
- 	struct ak8974 *ak8974;
-@@ -1047,7 +1046,7 @@ static struct i2c_driver ak8974_driver = {
- 		.pm = pm_ptr(&ak8974_dev_pm_ops),
- 		.of_match_table = ak8974_of_match,
+ 	int			status;
+ 	struct isp1301		*isp;
+@@ -1616,7 +1616,7 @@ static struct i2c_driver isp1301_driver = {
+ 	.driver = {
+ 		.name	= "isp1301_omap",
  	},
--	.probe	  = ak8974_probe,
-+	.probe_new = ak8974_probe,
- 	.remove	  = ak8974_remove,
- 	.id_table = ak8974_id,
+-	.probe		= isp1301_probe,
++	.probe_new	= isp1301_probe,
+ 	.remove		= isp1301_remove,
+ 	.id_table	= isp1301_id,
  };
 -- 
 2.38.1
