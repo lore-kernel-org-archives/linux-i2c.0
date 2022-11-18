@@ -2,47 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFE6DC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:55:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FDC8C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:55:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234432AbiKRXzY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:55:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56454 "EHLO
+        id S234956AbiKRXzj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:55:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237132AbiKRXyF (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:54:05 -0500
+        with ESMTP id S237066AbiKRXyO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:54:14 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0109EBCE69
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:27:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C313D2DFF
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:27:52 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9Q-0004YZ-I4; Fri, 18 Nov 2022 23:48:00 +0100
+        id 1owA9Z-0004yb-RH; Fri, 18 Nov 2022 23:48:09 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9N-0058l4-RV; Fri, 18 Nov 2022 23:47:58 +0100
+        id 1owA9X-0058oh-4L; Fri, 18 Nov 2022 23:48:08 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9N-0000OX-C3; Fri, 18 Nov 2022 23:47:57 +0100
+        id 1owA9W-0000RT-QW; Fri, 18 Nov 2022 23:48:06 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Justin Stitt <justinstitt@google.com>,
-        Dan Carpenter <error27@gmail.com>
+        Wolfram Sang <wsa@kernel.org>,
+        Sebastian Reichel <sre@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 488/606] misc: eeprom/idt_89hpesx: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:43:42 +0100
-Message-Id: <20221118224540.619276-489-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 533/606] power: supply: sbs-manager: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:44:27 +0100
+Message-Id: <20221118224540.619276-534-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -59,35 +55,38 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/misc/eeprom/idt_89hpesx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/supply/sbs-manager.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/misc/eeprom/idt_89hpesx.c b/drivers/misc/eeprom/idt_89hpesx.c
-index bb3ed352b95f..4e07ee9cb500 100644
---- a/drivers/misc/eeprom/idt_89hpesx.c
-+++ b/drivers/misc/eeprom/idt_89hpesx.c
-@@ -1366,7 +1366,7 @@ static void idt_remove_dbgfs_files(struct idt_89hpesx_dev *pdev)
- /*
-  * idt_probe() - IDT 89HPESx driver probe() callback method
-  */
--static int idt_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static int idt_probe(struct i2c_client *client)
+diff --git a/drivers/power/supply/sbs-manager.c b/drivers/power/supply/sbs-manager.c
+index 71ec8f74f835..bde977391fd4 100644
+--- a/drivers/power/supply/sbs-manager.c
++++ b/drivers/power/supply/sbs-manager.c
+@@ -315,9 +315,9 @@ static void sbsm_del_mux_adapter(void *data)
+ 	i2c_mux_del_adapters(sbsm->muxc);
+ }
+ 
+-static int sbsm_probe(struct i2c_client *client,
+-		      const struct i2c_device_id *id)
++static int sbsm_probe(struct i2c_client *client)
  {
- 	struct idt_89hpesx_dev *pdev;
- 	int ret;
-@@ -1556,7 +1556,7 @@ static struct i2c_driver idt_driver = {
- 		.name = IDT_NAME,
- 		.of_match_table = idt_of_match,
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct i2c_adapter *adapter = client->adapter;
+ 	struct sbsm_data *data;
+ 	struct device *dev = &client->dev;
+@@ -409,7 +409,7 @@ static struct i2c_driver sbsm_driver = {
+ 		.name = "sbsm",
+ 		.of_match_table = of_match_ptr(sbsm_dt_ids),
  	},
--	.probe = idt_probe,
-+	.probe_new = idt_probe,
- 	.remove = idt_remove,
- 	.id_table = idt_ids,
+-	.probe		= sbsm_probe,
++	.probe_new	= sbsm_probe,
+ 	.alert		= sbsm_alert,
+ 	.id_table	= sbsm_ids
  };
 -- 
 2.38.1
