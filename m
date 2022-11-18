@@ -2,108 +2,88 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA4BDC433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:18:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96735C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:19:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233752AbiKRXST (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:18:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56402 "EHLO
+        id S229533AbiKRXTV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:19:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229488AbiKRXRy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:17:54 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE22378B27
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:01:12 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id g10so5799966plo.11
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:01:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=flatmax-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Jeg5OPbcU8Um2n3zzZ8ZeF9Qwca653OFnBoiSDNreoU=;
-        b=jCNJD4bxBXoCXfG8DydsvITI5IlXvVpTpnrkGNFZawmCwvS2ZrwWB4Wf6zb+WDzMeX
-         xcvnxHhjYt/XM0EvmLuFLhsQ4wJCuEQwA3QkYC4uCLRBWz6Yn0VakY0fSUUEu42Roovz
-         FztGlZfDJjISJmGtoaknWeACdznB9bKZeNbo3W0+7eQmxPmSQszj+p9rVR1uuqamXj7x
-         L2I6/5A8WKwo4LXOFXskapC6KygVCKGe7jLeANfnLKlTksH6JCmkuan0R3MHH9bJfTUE
-         MHwl0hXqnvg0MetsN2GRsff/sQBkup8vsN3dGmx6oszthoWzPqi59uf6vvp1nvb5Rhw1
-         tgPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Jeg5OPbcU8Um2n3zzZ8ZeF9Qwca653OFnBoiSDNreoU=;
-        b=2jlenI3q9iMguCVRVkRWVUfupLyINjbPkESUc7EMuib1S44J9gUw76UR5OwYI9xVYN
-         8T52YrvT1CL1pQrELhHBAGBbcxyWPGBzPxe0EWCKIUdAHuqA2u00OH0GfKc1E5f7PuU2
-         WbF8GboA7bcKU9kf/FcraGvkkZ76nQLEpvCwTvPjq+IJbMpfxudRdi7+gPIb6u34KbbG
-         h/WkbdrY+5TsnmHm2ySIO/53TJYFTHXQdEBRk86PIkCq/shdI3D3TIyYrsoHQdk+FK/l
-         C/Pf6olnLekI8dSKCDSa7W+J4rWMasTf+6GkxlnraTgYAuyYNTGPeQcBNdMxxRpAKlCx
-         tnaw==
-X-Gm-Message-State: ANoB5plb5i3jyjwZzKejbSgGFUFWa4k7Aw03d7TXFohTKBUKOtfjPzcL
-        an0ddwZW1df/BNZ+bBoma+yN026FY1wDKw==
-X-Google-Smtp-Source: AA0mqf7ynBarcnD4LPeA+XPoRO3UNn4nstk3Sm2a7p0+99ICAzmWZ1OZ9laAvn2SyrvJ4EOFWN101g==
-X-Received: by 2002:a17:90b:4d0b:b0:214:1329:dec7 with SMTP id mw11-20020a17090b4d0b00b002141329dec7mr15978573pjb.91.1668812472181;
-        Fri, 18 Nov 2022 15:01:12 -0800 (PST)
-Received: from ?IPV6:2406:3400:213:70c0:9df6:7e57:88ce:1bea? ([2406:3400:213:70c0:9df6:7e57:88ce:1bea])
-        by smtp.gmail.com with ESMTPSA id u71-20020a62794a000000b00562019b961asm3696850pfc.188.2022.11.18.15.01.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Nov 2022 15:01:11 -0800 (PST)
-Message-ID: <6f431abb-356c-b057-2784-6b5f165a2a2d@flatmax.com>
-Date:   Sat, 19 Nov 2022 10:01:07 +1100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 603/606] ASoC: codecs: src4xxx-i2c: Convert to i2c's
- .probe_new()
-To:     =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <uwe@kleine-koenig.org>,
-        Mark Brown <broonie@kernel.org>
+        with ESMTP id S234215AbiKRXTE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:19:04 -0500
+Received: from algol.kleine-koenig.org (algol.kleine-koenig.org [162.55.41.232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91EF597ED1;
+        Fri, 18 Nov 2022 15:04:23 -0800 (PST)
+Received: by algol.kleine-koenig.org (Postfix, from userid 1000)
+        id 5F70968F731; Fri, 18 Nov 2022 23:46:15 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kleine-koenig.org;
+        s=2022; t=1668811575;
+        bh=LlspP/CA3mDLhx5AvEkQCfgDBdtUPqlu+K6RNIoku6U=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=KuKVH8ytJVbCJPPfClkVqVK/dVOGGWU+fk6eowX6oJJfczzpxGgC3Wv9NCrA79VCu
+         PjpMMMixcBbeLppwKyYjjSWahr2tlIrPk+O2AT6OqPZ6TpiTUPMOqLDLfefieggdd1
+         jAGbGJ7dbzYJCEVPoG2a7l3wPR9Q8EYXB6P40m6Kvaxks407PlFze8XWz44WGIWyPO
+         b1bOrpwmJnFrEE+9HbCOutdTPdzp/pn0W1G7EJzclTU40X9JYohKFu5OZkL4mYHym5
+         C9Mr4ocS6IZeufXFM/Xn8n6EdRDpHUPP33C8kzFRUbv9Z9l1ezF5YnG2fGfbEDNUbg
+         mla6R1S0pjflQ==
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Grant Likely <grant.likely@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Ajay Gupta <ajayg@nvidia.com>,
+        Benjamin Mugnier <benjamin.mugnier@foss.st.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
-        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 038/606] drm/i2c/ch7006: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:36:12 +0100
+Message-Id: <20221118224540.619276-39-uwe@kleine-koenig.org>
+X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
- <20221118224540.619276-604-uwe@kleine-koenig.org>
-Content-Language: en-AU
-From:   Matt Flax <flatmax@flatmax.com>
-In-Reply-To: <20221118224540.619276-604-uwe@kleine-koenig.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Reviewed-by: Matt Flax <flatmax@flatmax.com>
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
-On 19/11/22 09:45, Uwe Kleine-König wrote:
-> From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
->
-> The probe function doesn't make use of the i2c_device_id * parameter so it
-> can be trivially converted.
->
-> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> ---
->   sound/soc/codecs/src4xxx-i2c.c | 5 ++---
->   1 file changed, 2 insertions(+), 3 deletions(-)
->
-> diff --git a/sound/soc/codecs/src4xxx-i2c.c b/sound/soc/codecs/src4xxx-i2c.c
-> index 43daa9dc8ab5..27026030704a 100644
-> --- a/sound/soc/codecs/src4xxx-i2c.c
-> +++ b/sound/soc/codecs/src4xxx-i2c.c
-> @@ -12,8 +12,7 @@
->   
->   #include "src4xxx.h"
->   
-> -static int src4xxx_i2c_probe(struct i2c_client *i2c,
-> -			const struct i2c_device_id *id)
-> +static int src4xxx_i2c_probe(struct i2c_client *i2c)
->   {
->   	return src4xxx_probe(&i2c->dev,
->   		devm_regmap_init_i2c(i2c, &src4xxx_regmap_config), NULL);
-> @@ -37,7 +36,7 @@ static struct i2c_driver src4xxx_i2c_driver = {
->   		.name = "src4xxx",
->   		.of_match_table = of_match_ptr(src4xxx_of_match),
->   	},
-> -	.probe = src4xxx_i2c_probe,
-> +	.probe_new = src4xxx_i2c_probe,
->   	.id_table = src4xxx_i2c_ids,
->   };
->   module_i2c_driver(src4xxx_i2c_driver);
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/gpu/drm/i2c/ch7006_drv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/i2c/ch7006_drv.c b/drivers/gpu/drm/i2c/ch7006_drv.c
+index 578b738859b9..e0476a5bf84c 100644
+--- a/drivers/gpu/drm/i2c/ch7006_drv.c
++++ b/drivers/gpu/drm/i2c/ch7006_drv.c
+@@ -386,7 +386,7 @@ static const struct drm_encoder_slave_funcs ch7006_encoder_funcs = {
+ 
+ /* I2C driver functions */
+ 
+-static int ch7006_probe(struct i2c_client *client, const struct i2c_device_id *id)
++static int ch7006_probe(struct i2c_client *client)
+ {
+ 	uint8_t addr = CH7006_VERSION_ID;
+ 	uint8_t val;
+@@ -495,7 +495,7 @@ static const struct dev_pm_ops ch7006_pm_ops = {
+ 
+ static struct drm_i2c_encoder_driver ch7006_driver = {
+ 	.i2c_driver = {
+-		.probe = ch7006_probe,
++		.probe_new = ch7006_probe,
+ 		.remove = ch7006_remove,
+ 
+ 		.driver = {
+-- 
+2.38.1
+
