@@ -2,43 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01298C433FE
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:15:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F14BC433FE
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:15:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237765AbiKSAPo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:15:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54310 "EHLO
+        id S237864AbiKSAPs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:15:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237466AbiKSAP1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:15:27 -0500
+        with ESMTP id S237846AbiKSAPc (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:15:32 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D52E9F608A
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:35:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87327F6840
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:35:03 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9V-0004mo-Go; Fri, 18 Nov 2022 23:48:05 +0100
+        id 1owA9E-00042y-R3; Fri, 18 Nov 2022 23:47:48 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9S-0058n9-Sm; Fri, 18 Nov 2022 23:48:03 +0100
+        id 1owA9C-0058gD-Pj; Fri, 18 Nov 2022 23:47:47 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9S-0000QL-S4; Fri, 18 Nov 2022 23:48:02 +0100
+        id 1owA9B-0000KY-Bq; Fri, 18 Nov 2022 23:47:45 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Sebastian Reichel <sre@kernel.org>
+        Support Opensource <support.opensource@diasemi.com>,
+        Lee Jones <lee@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 516/606] power: supply: bq24257: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:44:10 +0100
-Message-Id: <20221118224540.619276-517-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH 427/606] mfd: da9055-i2c: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:42:41 +0100
+Message-Id: <20221118224540.619276-428-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -55,39 +55,37 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/power/supply/bq24257_charger.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/mfd/da9055-i2c.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/bq24257_charger.c b/drivers/power/supply/bq24257_charger.c
-index a309bbedfe52..ab4c49788c58 100644
---- a/drivers/power/supply/bq24257_charger.c
-+++ b/drivers/power/supply/bq24257_charger.c
-@@ -947,9 +947,9 @@ static int bq24257_fw_probe(struct bq24257_device *bq)
- 	return 0;
- }
+diff --git a/drivers/mfd/da9055-i2c.c b/drivers/mfd/da9055-i2c.c
+index 276c7d1c509e..702abff506a1 100644
+--- a/drivers/mfd/da9055-i2c.c
++++ b/drivers/mfd/da9055-i2c.c
+@@ -15,8 +15,7 @@
  
--static int bq24257_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int bq24257_probe(struct i2c_client *client)
+ #include <linux/mfd/da9055/core.h>
+ 
+-static int da9055_i2c_probe(struct i2c_client *i2c,
+-				      const struct i2c_device_id *id)
++static int da9055_i2c_probe(struct i2c_client *i2c)
  {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct i2c_adapter *adapter = client->adapter;
- 	struct device *dev = &client->dev;
- 	const struct acpi_device_id *acpi_id;
-@@ -1167,7 +1167,7 @@ static struct i2c_driver bq24257_driver = {
- 		.acpi_match_table = ACPI_PTR(bq24257_acpi_match),
- 		.pm = &bq24257_pm,
- 	},
--	.probe = bq24257_probe,
-+	.probe_new = bq24257_probe,
- 	.remove = bq24257_remove,
- 	.id_table = bq24257_i2c_ids,
+ 	struct da9055 *da9055;
+ 	int ret;
+@@ -67,7 +66,7 @@ static const struct of_device_id da9055_of_match[] = {
  };
+ 
+ static struct i2c_driver da9055_i2c_driver = {
+-	.probe = da9055_i2c_probe,
++	.probe_new = da9055_i2c_probe,
+ 	.remove = da9055_i2c_remove,
+ 	.id_table = da9055_i2c_id,
+ 	.driver = {
 -- 
 2.38.1
 
