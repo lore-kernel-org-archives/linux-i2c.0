@@ -2,44 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B559EC433FE
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:38:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56086C4332F
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:39:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235618AbiKSAis (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:38:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58982 "EHLO
+        id S235961AbiKSAjY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:39:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235367AbiKSAiV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:38:21 -0500
+        with ESMTP id S234813AbiKSAij (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:38:39 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 106B224082
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:44:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 054001181EC
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:44:13 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9a-0004zh-5o; Fri, 18 Nov 2022 23:48:10 +0100
+        id 1owA8q-0002zN-KR; Fri, 18 Nov 2022 23:47:24 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9X-0058ow-JO; Fri, 18 Nov 2022 23:48:08 +0100
+        id 1owA8o-0058Xd-0C; Fri, 18 Nov 2022 23:47:22 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9X-0000Rp-RV; Fri, 18 Nov 2022 23:48:07 +0100
+        id 1owA8o-0000Cj-63; Fri, 18 Nov 2022 23:47:22 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 539/606] regulator: ad5398: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:44:33 +0100
-Message-Id: <20221118224540.619276-540-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 324/606] media: i2c/ad9389b: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:40:58 +0100
+Message-Id: <20221118224540.619276-325-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -56,39 +56,36 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/regulator/ad5398.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/i2c/ad9389b.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/ad5398.c b/drivers/regulator/ad5398.c
-index 75f432f61e91..2ba8ac1773d1 100644
---- a/drivers/regulator/ad5398.c
-+++ b/drivers/regulator/ad5398.c
-@@ -212,9 +212,9 @@ static const struct i2c_device_id ad5398_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, ad5398_id);
- 
--static int ad5398_probe(struct i2c_client *client,
--				const struct i2c_device_id *id)
-+static int ad5398_probe(struct i2c_client *client)
- {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct regulator_init_data *init_data = dev_get_platdata(&client->dev);
- 	struct regulator_config config = { };
- 	struct ad5398_chip_info *chip;
-@@ -254,7 +254,7 @@ static int ad5398_probe(struct i2c_client *client,
+diff --git a/drivers/media/i2c/ad9389b.c b/drivers/media/i2c/ad9389b.c
+index 4a255a492918..ad17097a2d25 100644
+--- a/drivers/media/i2c/ad9389b.c
++++ b/drivers/media/i2c/ad9389b.c
+@@ -1080,7 +1080,7 @@ static void ad9389b_init_setup(struct v4l2_subdev *sd)
+ 	ad9389b_set_isr(sd, false);
  }
  
- static struct i2c_driver ad5398_driver = {
--	.probe = ad5398_probe,
-+	.probe_new = ad5398_probe,
- 	.driver		= {
- 		.name	= "ad5398",
+-static int ad9389b_probe(struct i2c_client *client, const struct i2c_device_id *id)
++static int ad9389b_probe(struct i2c_client *client)
+ {
+ 	const struct v4l2_dv_timings dv1080p60 = V4L2_DV_BT_CEA_1920X1080P60;
+ 	struct ad9389b_state *state;
+@@ -1207,7 +1207,7 @@ static struct i2c_driver ad9389b_driver = {
+ 	.driver = {
+ 		.name = "ad9389b",
  	},
+-	.probe = ad9389b_probe,
++	.probe_new = ad9389b_probe,
+ 	.remove = ad9389b_remove,
+ 	.id_table = ad9389b_id,
+ };
 -- 
 2.38.1
 
