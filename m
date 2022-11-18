@@ -2,43 +2,47 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE309C433FE
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:22:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BEE2C4332F
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:22:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229611AbiKSAWR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:22:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36586 "EHLO
+        id S235202AbiKSAWv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:22:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232761AbiKSAVR (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:21:17 -0500
+        with ESMTP id S235027AbiKSAWZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:22:25 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D72B100B28
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:37:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6694102E4D
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:37:18 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8Y-0002Dm-RY; Fri, 18 Nov 2022 23:47:06 +0100
+        id 1owA96-0003dq-QS; Fri, 18 Nov 2022 23:47:40 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8U-0058R5-Ez; Fri, 18 Nov 2022 23:47:03 +0100
+        id 1owA93-0058cs-PJ; Fri, 18 Nov 2022 23:47:38 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8U-00007Q-MO; Fri, 18 Nov 2022 23:47:02 +0100
+        id 1owA93-0000Hz-Je; Fri, 18 Nov 2022 23:47:37 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Job Noorman <job@noorman.info>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        Wolfram Sang <wsa@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Peter Senna Tschudin <peter.senna@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 243/606] Input: hx83112b: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:37 +0100
-Message-Id: <20221118224540.619276-244-uwe@kleine-koenig.org>
+Subject: [PATCH 387/606] media: i2c/uda1342: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:42:01 +0100
+Message-Id: <20221118224540.619276-388-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -60,32 +64,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/himax_hx83112b.c | 5 ++---
+ drivers/media/i2c/uda1342.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
-index 737cc134e8f9..e96150d80a48 100644
---- a/drivers/input/touchscreen/himax_hx83112b.c
-+++ b/drivers/input/touchscreen/himax_hx83112b.c
-@@ -265,8 +265,7 @@ static irqreturn_t himax_irq_handler(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
+diff --git a/drivers/media/i2c/uda1342.c b/drivers/media/i2c/uda1342.c
+index d0659c4392f2..b6873d866272 100644
+--- a/drivers/media/i2c/uda1342.c
++++ b/drivers/media/i2c/uda1342.c
+@@ -45,8 +45,7 @@ static const struct v4l2_subdev_ops uda1342_ops = {
+ 	.audio = &uda1342_audio_ops,
+ };
  
--static int himax_probe(struct i2c_client *client,
--		       const struct i2c_device_id *id)
-+static int himax_probe(struct i2c_client *client)
+-static int uda1342_probe(struct i2c_client *client,
+-			     const struct i2c_device_id *id)
++static int uda1342_probe(struct i2c_client *client)
  {
- 	int error;
- 	struct device *dev = &client->dev;
-@@ -350,7 +349,7 @@ MODULE_DEVICE_TABLE(of, himax_of_match);
- #endif
- 
- static struct i2c_driver himax_ts_driver = {
--	.probe = himax_probe,
-+	.probe_new = himax_probe,
- 	.id_table = himax_ts_id,
+ 	struct i2c_adapter *adapter = client->adapter;
+ 	struct v4l2_subdev *sd;
+@@ -89,7 +88,7 @@ static struct i2c_driver uda1342_driver = {
  	.driver = {
- 		.name = "Himax-hx83112b-TS",
+ 		.name	= "uda1342",
+ 	},
+-	.probe		= uda1342_probe,
++	.probe_new	= uda1342_probe,
+ 	.remove		= uda1342_remove,
+ 	.id_table	= uda1342_id,
+ };
 -- 
 2.38.1
 
