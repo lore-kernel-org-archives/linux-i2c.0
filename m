@@ -2,43 +2,48 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DBA4C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:34:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC249C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:34:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235906AbiKRXeR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:34:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51718 "EHLO
+        id S236261AbiKRXeS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:34:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236412AbiKRXcz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:32:55 -0500
+        with ESMTP id S236187AbiKRXcL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:32:11 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB781A839
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:20:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEAA9B7F5
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:19:53 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9U-0004kF-F6; Fri, 18 Nov 2022 23:48:04 +0100
+        id 1owA9Y-0004uG-R7; Fri, 18 Nov 2022 23:48:08 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9R-0058mj-PB; Fri, 18 Nov 2022 23:48:02 +0100
+        id 1owA9V-0058oB-NL; Fri, 18 Nov 2022 23:48:06 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9R-0000Q1-SW; Fri, 18 Nov 2022 23:48:01 +0100
+        id 1owA9W-0000RC-10; Fri, 18 Nov 2022 23:48:06 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>
+        Sebastian Reichel <sre@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-gpio@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 511/606] pinctrl: sx150x: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:44:05 +0100
-Message-Id: <20221118224540.619276-512-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Purism Kernel Team <kernel@puri.sm>,
+        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 529/606] power: supply: max17042_battery: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:44:23 +0100
+Message-Id: <20221118224540.619276-530-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -60,34 +65,34 @@ that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/pinctrl/pinctrl-sx150x.c | 6 +++---
+ drivers/power/supply/max17042_battery.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-sx150x.c b/drivers/pinctrl/pinctrl-sx150x.c
-index a87ea3b95cf4..0b5ff99641e1 100644
---- a/drivers/pinctrl/pinctrl-sx150x.c
-+++ b/drivers/pinctrl/pinctrl-sx150x.c
-@@ -1094,9 +1094,9 @@ static const struct regmap_config sx150x_regmap_config = {
- 	.volatile_reg = sx150x_reg_volatile,
+diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
+index ab031bbfbe78..89cabe8ed3b0 100644
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -1031,9 +1031,9 @@ static const struct power_supply_desc max17042_no_current_sense_psy_desc = {
+ 	.num_properties	= ARRAY_SIZE(max17042_battery_props) - 2,
  };
  
--static int sx150x_probe(struct i2c_client *client,
+-static int max17042_probe(struct i2c_client *client,
 -			const struct i2c_device_id *id)
-+static int sx150x_probe(struct i2c_client *client)
++static int max17042_probe(struct i2c_client *client)
  {
 +	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	static const u32 i2c_funcs = I2C_FUNC_SMBUS_BYTE_DATA |
- 				     I2C_FUNC_SMBUS_WRITE_WORD_DATA;
- 	struct device *dev = &client->dev;
-@@ -1252,7 +1252,7 @@ static struct i2c_driver sx150x_driver = {
- 		.name = "sx150x-pinctrl",
- 		.of_match_table = of_match_ptr(sx150x_of_match),
+ 	struct i2c_adapter *adapter = client->adapter;
+ 	const struct power_supply_desc *max17042_desc = &max17042_psy_desc;
+ 	struct power_supply_config psy_cfg = {};
+@@ -1220,7 +1220,7 @@ static struct i2c_driver max17042_i2c_driver = {
+ 		.of_match_table = of_match_ptr(max17042_dt_match),
+ 		.pm	= &max17042_pm_ops,
  	},
--	.probe    = sx150x_probe,
-+	.probe_new = sx150x_probe,
- 	.id_table = sx150x_id,
+-	.probe		= max17042_probe,
++	.probe_new	= max17042_probe,
+ 	.id_table	= max17042_id,
  };
- 
+ module_i2c_driver(max17042_i2c_driver);
 -- 
 2.38.1
 
