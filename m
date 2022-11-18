@@ -2,45 +2,46 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B247C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED368C43217
 	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:10:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237609AbiKSAKQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:10:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39706 "EHLO
+        id S237263AbiKSAKS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:10:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237458AbiKSAJs (ORCPT
+        with ESMTP id S237472AbiKSAJs (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:09:48 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAFA4A659B
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB06DA659C
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:33:02 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9i-0005JC-73; Fri, 18 Nov 2022 23:48:18 +0100
+        id 1owA9T-0004h6-BL; Fri, 18 Nov 2022 23:48:03 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9f-0058sH-Dw; Fri, 18 Nov 2022 23:48:16 +0100
+        id 1owA9Q-0058mE-OB; Fri, 18 Nov 2022 23:48:01 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9f-0000Ua-N3; Fri, 18 Nov 2022 23:48:15 +0100
+        id 1owA9Q-0000PW-CP; Fri, 18 Nov 2022 23:48:00 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Michael Walle <michael@walle.cc>,
+        "David S. Miller" <davem@davemloft.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-usb@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 580/606] usb: typec: tcpm/tcpci: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:45:14 +0100
-Message-Id: <20221118224540.619276-581-uwe@kleine-koenig.org>
+Subject: [PATCH 503/606] NFC: nxp-nci: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:43:57 +0100
+Message-Id: <20221118224540.619276-504-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -62,31 +63,31 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/usb/typec/tcpm/tcpci.c | 5 ++---
+ drivers/nfc/nxp-nci/i2c.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
-index b2bfcebe218f..d3efb9665901 100644
---- a/drivers/usb/typec/tcpm/tcpci.c
-+++ b/drivers/usb/typec/tcpm/tcpci.c
-@@ -807,8 +807,7 @@ void tcpci_unregister_port(struct tcpci *tcpci)
- }
- EXPORT_SYMBOL_GPL(tcpci_unregister_port);
+diff --git a/drivers/nfc/nxp-nci/i2c.c b/drivers/nfc/nxp-nci/i2c.c
+index ec6446511984..d4c299be7949 100644
+--- a/drivers/nfc/nxp-nci/i2c.c
++++ b/drivers/nfc/nxp-nci/i2c.c
+@@ -263,8 +263,7 @@ static const struct acpi_gpio_mapping acpi_nxp_nci_gpios[] = {
+ 	{ }
+ };
  
--static int tcpci_probe(struct i2c_client *client,
--		       const struct i2c_device_id *i2c_id)
-+static int tcpci_probe(struct i2c_client *client)
+-static int nxp_nci_i2c_probe(struct i2c_client *client,
+-			    const struct i2c_device_id *id)
++static int nxp_nci_i2c_probe(struct i2c_client *client)
  {
- 	struct tcpci_chip *chip;
- 	int err;
-@@ -878,7 +877,7 @@ static struct i2c_driver tcpci_i2c_driver = {
- 		.name = "tcpci",
- 		.of_match_table = of_match_ptr(tcpci_of_match),
- 	},
--	.probe = tcpci_probe,
-+	.probe_new = tcpci_probe,
- 	.remove = tcpci_remove,
- 	.id_table = tcpci_id,
+ 	struct device *dev = &client->dev;
+ 	struct nxp_nci_i2c_phy *phy;
+@@ -349,7 +348,7 @@ static struct i2c_driver nxp_nci_i2c_driver = {
+ 		   .acpi_match_table = ACPI_PTR(acpi_id),
+ 		   .of_match_table = of_nxp_nci_i2c_match,
+ 		  },
+-	.probe = nxp_nci_i2c_probe,
++	.probe_new = nxp_nci_i2c_probe,
+ 	.id_table = nxp_nci_i2c_id_table,
+ 	.remove = nxp_nci_i2c_remove,
  };
 -- 
 2.38.1
