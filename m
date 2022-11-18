@@ -2,48 +2,56 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 568D6C433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2AE8C4332F
 	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:48:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233099AbiKRWsZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:48:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36738 "EHLO
+        id S232584AbiKRWs0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:48:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232089AbiKRWrB (ORCPT
+        with ESMTP id S232036AbiKRWrB (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:47:01 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE093B949E
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C68DB9493
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:43 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7r-0007vO-OO; Fri, 18 Nov 2022 23:46:23 +0100
+        id 1owA7p-0007RG-0O; Fri, 18 Nov 2022 23:46:21 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7o-0058C3-8R; Fri, 18 Nov 2022 23:46:21 +0100
+        id 1owA7e-00588f-Ms; Fri, 18 Nov 2022 23:46:11 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7n-00HayY-Kd; Fri, 18 Nov 2022 23:46:19 +0100
+        id 1owA7e-00Havq-OE; Fri, 18 Nov 2022 23:46:10 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Miaoqian Lin <linmq006@gmail.com>,
-        Benjamin Mugnier <benjamin.mugnier@foss.st.com>,
-        Antoniu Miclaus <antoniu.miclaus@analog.com>
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        =?utf-8?q?Alvin_=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        Jagan Teki <jagan@amarulasolutions.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 058/606] iio: accel: mma9553: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:36:32 +0100
-Message-Id: <20221118224540.619276-59-uwe@kleine-koenig.org>
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 014/606] drm/bridge: adv7511: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:35:48 +0100
+Message-Id: <20221118224540.619276-15-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -65,34 +73,33 @@ that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/accel/mma9553.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/accel/mma9553.c b/drivers/iio/accel/mma9553.c
-index 2da0e005b13e..0af578ef9d3d 100644
---- a/drivers/iio/accel/mma9553.c
-+++ b/drivers/iio/accel/mma9553.c
-@@ -1073,9 +1073,9 @@ static const char *mma9553_match_acpi_device(struct device *dev)
- 	return dev_name(dev);
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index e7a6e456ed0d..ddceafa7b637 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -1185,8 +1185,9 @@ static int adv7511_parse_dt(struct device_node *np,
+ 	return 0;
  }
  
--static int mma9553_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int mma9553_probe(struct i2c_client *client)
+-static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
++static int adv7511_probe(struct i2c_client *i2c)
  {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct mma9553_data *data;
- 	struct iio_dev *indio_dev;
- 	const char *name = NULL;
-@@ -1246,7 +1246,7 @@ static struct i2c_driver mma9553_driver = {
- 		   .acpi_match_table = ACPI_PTR(mma9553_acpi_match),
- 		   .pm = pm_ptr(&mma9553_pm_ops),
- 		   },
--	.probe = mma9553_probe,
-+	.probe_new = mma9553_probe,
- 	.remove = mma9553_remove,
- 	.id_table = mma9553_id,
++	const struct i2c_device_id *id = i2c_client_get_device_id(i2c);
+ 	struct adv7511_link_config link_config;
+ 	struct adv7511 *adv7511;
+ 	struct device *dev = &i2c->dev;
+@@ -1392,7 +1393,7 @@ static struct i2c_driver adv7511_driver = {
+ 		.of_match_table = adv7511_of_ids,
+ 	},
+ 	.id_table = adv7511_i2c_ids,
+-	.probe = adv7511_probe,
++	.probe_new = adv7511_probe,
+ 	.remove = adv7511_remove,
  };
+ 
 -- 
 2.38.1
 
