@@ -2,43 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 557EBC4332F
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:14:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F119C4332F
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:15:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237788AbiKSAOh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:14:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54318 "EHLO
+        id S237891AbiKSAPE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:15:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237832AbiKSAOH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:14:07 -0500
+        with ESMTP id S237863AbiKSAOZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:14:25 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65FC7F4CEB
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:34:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50C17B6B27
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:34:51 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9n-0005XP-VF; Fri, 18 Nov 2022 23:48:24 +0100
+        id 1owA8k-0002kv-A1; Fri, 18 Nov 2022 23:47:18 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9k-0058u8-Ng; Fri, 18 Nov 2022 23:48:21 +0100
+        id 1owA8h-0058Vd-Vz; Fri, 18 Nov 2022 23:47:16 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9k-0000W8-7X; Fri, 18 Nov 2022 23:48:20 +0100
+        id 1owA8h-0000B6-S6; Fri, 18 Nov 2022 23:47:15 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Corey Minyard <minyard@acm.org>
+        Wolfram Sang <wsa@kernel.org>, Antti Palosaari <crope@iki.fi>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        openipmi-developer@lists.sourceforge.net,
+        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 605/606] ipmi: ssif_bmc: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:45:39 +0100
-Message-Id: <20221118224540.619276-606-uwe@kleine-koenig.org>
+Subject: [PATCH 299/606] media: dvb-frontends/af9013: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:40:33 +0100
+Message-Id: <20221118224540.619276-300-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -60,30 +60,31 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/char/ipmi/ssif_bmc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/dvb-frontends/af9013.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/char/ipmi/ssif_bmc.c b/drivers/char/ipmi/ssif_bmc.c
-index 2d8069386398..caee848261e9 100644
---- a/drivers/char/ipmi/ssif_bmc.c
-+++ b/drivers/char/ipmi/ssif_bmc.c
-@@ -797,7 +797,7 @@ static int ssif_bmc_cb(struct i2c_client *client, enum i2c_slave_event event, u8
+diff --git a/drivers/media/dvb-frontends/af9013.c b/drivers/media/dvb-frontends/af9013.c
+index d85929582c3f..206758a73ae2 100644
+--- a/drivers/media/dvb-frontends/af9013.c
++++ b/drivers/media/dvb-frontends/af9013.c
+@@ -1430,8 +1430,7 @@ static int af9013_regmap_read(void *context, const void *reg_buf,
  	return ret;
  }
  
--static int ssif_bmc_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static int ssif_bmc_probe(struct i2c_client *client)
+-static int af9013_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int af9013_probe(struct i2c_client *client)
  {
- 	struct ssif_bmc_ctx *ssif_bmc;
- 	int ret;
-@@ -860,7 +860,7 @@ static struct i2c_driver ssif_bmc_driver = {
- 		.name           = DEVICE_NAME,
- 		.of_match_table = ssif_bmc_match,
+ 	struct af9013_state *state;
+ 	struct af9013_platform_data *pdata = client->dev.platform_data;
+@@ -1564,7 +1563,7 @@ static struct i2c_driver af9013_driver = {
+ 		.name	= "af9013",
+ 		.suppress_bind_attrs = true,
  	},
--	.probe          = ssif_bmc_probe,
-+	.probe_new      = ssif_bmc_probe,
- 	.remove         = ssif_bmc_remove,
- 	.id_table       = ssif_bmc_id,
+-	.probe		= af9013_probe,
++	.probe_new	= af9013_probe,
+ 	.remove		= af9013_remove,
+ 	.id_table	= af9013_id_table,
  };
 -- 
 2.38.1
