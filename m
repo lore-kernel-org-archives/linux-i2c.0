@@ -2,47 +2,47 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C37FC433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:59:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9794CC43217
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:59:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237037AbiKRX7A (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:59:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58198 "EHLO
+        id S236962AbiKRX7B (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:59:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236962AbiKRXz5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:55:57 -0500
+        with ESMTP id S237534AbiKRX6U (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:58:20 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8926CB69F
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:28:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 066F2CEBA0
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:29:19 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8j-0002jO-U0; Fri, 18 Nov 2022 23:47:17 +0100
+        id 1owA8F-000147-Co; Fri, 18 Nov 2022 23:46:47 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8h-0058VV-Bc; Fri, 18 Nov 2022 23:47:16 +0100
+        id 1owA8A-0058Ki-VH; Fri, 18 Nov 2022 23:46:43 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8h-0000Av-4o; Fri, 18 Nov 2022 23:47:15 +0100
+        id 1owA8B-00Hb5d-4P; Fri, 18 Nov 2022 23:46:43 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+        Jonathan Cameron <jic23@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Paul Cercueil <paul@crapouillou.net>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linuxppc-dev@lists.ozlabs.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 296/606] macintosh: windfarm_max6690_sensor: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:40:30 +0100
-Message-Id: <20221118224540.619276-297-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 166/606] iio: pressure: bmp280-i2c: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:38:20 +0100
+Message-Id: <20221118224540.619276-167-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -59,37 +59,26 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/macintosh/windfarm_max6690_sensor.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/iio/pressure/bmp280-i2c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/macintosh/windfarm_max6690_sensor.c b/drivers/macintosh/windfarm_max6690_sensor.c
-index c0d404ebc792..6c5ab657b6b3 100644
---- a/drivers/macintosh/windfarm_max6690_sensor.c
-+++ b/drivers/macintosh/windfarm_max6690_sensor.c
-@@ -60,8 +60,7 @@ static const struct wf_sensor_ops wf_max6690_ops = {
- 	.owner		= THIS_MODULE,
- };
+diff --git a/drivers/iio/pressure/bmp280-i2c.c b/drivers/iio/pressure/bmp280-i2c.c
+index 14eab086d24a..4da014b158c8 100644
+--- a/drivers/iio/pressure/bmp280-i2c.c
++++ b/drivers/iio/pressure/bmp280-i2c.c
+@@ -7,6 +7,7 @@
  
--static int wf_max6690_probe(struct i2c_client *client,
--			    const struct i2c_device_id *id)
-+static int wf_max6690_probe(struct i2c_client *client)
+ static int bmp280_i2c_probe(struct i2c_client *client)
  {
- 	const char *name, *loc;
- 	struct wf_6690_sensor *max;
-@@ -129,7 +128,7 @@ static struct i2c_driver wf_max6690_driver = {
- 		.name		= "wf_max6690",
- 		.of_match_table = wf_max6690_of_id,
- 	},
--	.probe		= wf_max6690_probe,
-+	.probe_new	= wf_max6690_probe,
- 	.remove		= wf_max6690_remove,
- 	.id_table	= wf_max6690_id,
- };
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct regmap *regmap;
+ 	const struct regmap_config *regmap_config;
+ 	const struct i2c_device_id *id = i2c_client_get_device_id(client);
 -- 
 2.38.1
 
