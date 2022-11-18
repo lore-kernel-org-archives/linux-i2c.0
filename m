@@ -2,103 +2,108 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51039C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:16:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA4BDC433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:18:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235420AbiKRXQO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:16:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51448 "EHLO
+        id S233752AbiKRXST (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:18:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231148AbiKRXPy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:15:54 -0500
-X-Greylist: delayed 551 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 18 Nov 2022 14:58:53 PST
-Received: from algol.kleine-koenig.org (algol.kleine-koenig.org [162.55.41.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B038C486;
-        Fri, 18 Nov 2022 14:58:53 -0800 (PST)
-Received: by algol.kleine-koenig.org (Postfix, from userid 1000)
-        id 7140168F8F6; Fri, 18 Nov 2022 23:48:20 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kleine-koenig.org;
-        s=2022; t=1668811700;
-        bh=auu/jJNDFmqvsBa6XqTdE07i+TqxWdW5DZkhYNgSbX0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LovzqvlfM+vRFD/6Vxs2We1j8mrGPgNB+mJb8s1nOxA26WkTY1JvkJke0+Lwag4iL
-         DanqcQu7db/rcDuefEamPB8T4aP9OfpD8aaqT8/nZT6FzNNRUDnK2UET0z3Mb45yrN
-         SUOdYCJ8XgizZarbo3AeYQo5YIzKHONdbJ/B0M4O2p0EHH31YJNosb0DszuO03WJS7
-         bOXuBJRr2JD1Bo7MuK7SS8+A02HW57jpBtnly65Zr+Ome7qb3b1UTCzXjOHxY6+/mK
-         7OFV/pn93t6I5cDfNNgyq3xj9Sw8zil0I0UF6gWGFS9wbWdSmi/sId0SGgVmtt3lJw
-         HNe+Jnhv+x8XQ==
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>
-Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 606/606] [DON'T APPLY] i2c: Switch .probe() to not take an id parameter
-Date:   Fri, 18 Nov 2022 23:45:40 +0100
-Message-Id: <20221118224540.619276-607-uwe@kleine-koenig.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
-References: <20221118224540.619276-1-uwe@kleine-koenig.org>
+        with ESMTP id S229488AbiKRXRy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:17:54 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE22378B27
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:01:12 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id g10so5799966plo.11
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:01:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=flatmax-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Jeg5OPbcU8Um2n3zzZ8ZeF9Qwca653OFnBoiSDNreoU=;
+        b=jCNJD4bxBXoCXfG8DydsvITI5IlXvVpTpnrkGNFZawmCwvS2ZrwWB4Wf6zb+WDzMeX
+         xcvnxHhjYt/XM0EvmLuFLhsQ4wJCuEQwA3QkYC4uCLRBWz6Yn0VakY0fSUUEu42Roovz
+         FztGlZfDJjISJmGtoaknWeACdznB9bKZeNbo3W0+7eQmxPmSQszj+p9rVR1uuqamXj7x
+         L2I6/5A8WKwo4LXOFXskapC6KygVCKGe7jLeANfnLKlTksH6JCmkuan0R3MHH9bJfTUE
+         MHwl0hXqnvg0MetsN2GRsff/sQBkup8vsN3dGmx6oszthoWzPqi59uf6vvp1nvb5Rhw1
+         tgPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Jeg5OPbcU8Um2n3zzZ8ZeF9Qwca653OFnBoiSDNreoU=;
+        b=2jlenI3q9iMguCVRVkRWVUfupLyINjbPkESUc7EMuib1S44J9gUw76UR5OwYI9xVYN
+         8T52YrvT1CL1pQrELhHBAGBbcxyWPGBzPxe0EWCKIUdAHuqA2u00OH0GfKc1E5f7PuU2
+         WbF8GboA7bcKU9kf/FcraGvkkZ76nQLEpvCwTvPjq+IJbMpfxudRdi7+gPIb6u34KbbG
+         h/WkbdrY+5TsnmHm2ySIO/53TJYFTHXQdEBRk86PIkCq/shdI3D3TIyYrsoHQdk+FK/l
+         C/Pf6olnLekI8dSKCDSa7W+J4rWMasTf+6GkxlnraTgYAuyYNTGPeQcBNdMxxRpAKlCx
+         tnaw==
+X-Gm-Message-State: ANoB5plb5i3jyjwZzKejbSgGFUFWa4k7Aw03d7TXFohTKBUKOtfjPzcL
+        an0ddwZW1df/BNZ+bBoma+yN026FY1wDKw==
+X-Google-Smtp-Source: AA0mqf7ynBarcnD4LPeA+XPoRO3UNn4nstk3Sm2a7p0+99ICAzmWZ1OZ9laAvn2SyrvJ4EOFWN101g==
+X-Received: by 2002:a17:90b:4d0b:b0:214:1329:dec7 with SMTP id mw11-20020a17090b4d0b00b002141329dec7mr15978573pjb.91.1668812472181;
+        Fri, 18 Nov 2022 15:01:12 -0800 (PST)
+Received: from ?IPV6:2406:3400:213:70c0:9df6:7e57:88ce:1bea? ([2406:3400:213:70c0:9df6:7e57:88ce:1bea])
+        by smtp.gmail.com with ESMTPSA id u71-20020a62794a000000b00562019b961asm3696850pfc.188.2022.11.18.15.01.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 18 Nov 2022 15:01:11 -0800 (PST)
+Message-ID: <6f431abb-356c-b057-2784-6b5f165a2a2d@flatmax.com>
+Date:   Sat, 19 Nov 2022 10:01:07 +1100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 603/606] ASoC: codecs: src4xxx-i2c: Convert to i2c's
+ .probe_new()
+To:     =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <uwe@kleine-koenig.org>,
+        Mark Brown <broonie@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
+        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+References: <20221118224540.619276-1-uwe@kleine-koenig.org>
+ <20221118224540.619276-604-uwe@kleine-koenig.org>
+Content-Language: en-AU
+From:   Matt Flax <flatmax@flatmax.com>
+In-Reply-To: <20221118224540.619276-604-uwe@kleine-koenig.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
----
- drivers/i2c/i2c-core-base.c | 11 ++---------
- include/linux/i2c.h         | 12 +++++++-----
- 2 files changed, 9 insertions(+), 14 deletions(-)
+Reviewed-by: Matt Flax <flatmax@flatmax.com>
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 087e480b624c..1fbe16221085 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -558,15 +558,8 @@ static int i2c_device_probe(struct device *dev)
- 		goto err_detach_pm_domain;
- 	}
- 
--	/*
--	 * When there are no more users of probe(),
--	 * rename probe_new to probe.
--	 */
--	if (driver->probe_new)
--		status = driver->probe_new(client);
--	else if (driver->probe)
--		status = driver->probe(client,
--				       i2c_match_id(driver->id_table, client));
-+	if (driver->probe)
-+		status = driver->probe(client);
- 	else
- 		status = -EINVAL;
- 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index d84e0e99f084..7414ec3ba858 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -272,14 +272,16 @@ enum i2c_driver_flags {
- struct i2c_driver {
- 	unsigned int class;
- 
-+	union {
- 	/* Standard driver model interfaces */
--	int (*probe)(struct i2c_client *client, const struct i2c_device_id *id);
-+		int (*probe)(struct i2c_client *client);
-+		/* New driver model interface to aid the seamless removal of the
-+		 * current probe()'s, more commonly unused than used second parameter.
-+		 */
-+		int (*probe_new)(struct i2c_client *client);
-+	};
- 	void (*remove)(struct i2c_client *client);
- 
--	/* New driver model interface to aid the seamless removal of the
--	 * current probe()'s, more commonly unused than used second parameter.
--	 */
--	int (*probe_new)(struct i2c_client *client);
- 
- 	/* driver model interfaces that don't relate to enumeration  */
- 	void (*shutdown)(struct i2c_client *client);
--- 
-2.38.1
-
+On 19/11/22 09:45, Uwe Kleine-König wrote:
+> From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+>
+> The probe function doesn't make use of the i2c_device_id * parameter so it
+> can be trivially converted.
+>
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> ---
+>   sound/soc/codecs/src4xxx-i2c.c | 5 ++---
+>   1 file changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/sound/soc/codecs/src4xxx-i2c.c b/sound/soc/codecs/src4xxx-i2c.c
+> index 43daa9dc8ab5..27026030704a 100644
+> --- a/sound/soc/codecs/src4xxx-i2c.c
+> +++ b/sound/soc/codecs/src4xxx-i2c.c
+> @@ -12,8 +12,7 @@
+>   
+>   #include "src4xxx.h"
+>   
+> -static int src4xxx_i2c_probe(struct i2c_client *i2c,
+> -			const struct i2c_device_id *id)
+> +static int src4xxx_i2c_probe(struct i2c_client *i2c)
+>   {
+>   	return src4xxx_probe(&i2c->dev,
+>   		devm_regmap_init_i2c(i2c, &src4xxx_regmap_config), NULL);
+> @@ -37,7 +36,7 @@ static struct i2c_driver src4xxx_i2c_driver = {
+>   		.name = "src4xxx",
+>   		.of_match_table = of_match_ptr(src4xxx_of_match),
+>   	},
+> -	.probe = src4xxx_i2c_probe,
+> +	.probe_new = src4xxx_i2c_probe,
+>   	.id_table = src4xxx_i2c_ids,
+>   };
+>   module_i2c_driver(src4xxx_i2c_driver);
