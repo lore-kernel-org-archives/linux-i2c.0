@@ -2,46 +2,42 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D71BEC433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:34:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68AA5C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:34:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236112AbiKRXd4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:33:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
+        id S236102AbiKRXd7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:33:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236453AbiKRXdB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:33:01 -0500
+        with ESMTP id S236058AbiKRXbk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:31:40 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEBA5FD2
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:21:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A39978B32
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:19:02 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8q-00030E-Oi; Fri, 18 Nov 2022 23:47:24 +0100
+        id 1owA9R-0004ax-Dd; Fri, 18 Nov 2022 23:48:01 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8o-0058Xm-Dx; Fri, 18 Nov 2022 23:47:23 +0100
+        id 1owA9O-0058lS-Lr; Fri, 18 Nov 2022 23:47:59 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8n-0000CZ-ON; Fri, 18 Nov 2022 23:47:21 +0100
+        id 1owA9O-0000Ow-MU; Fri, 18 Nov 2022 23:47:58 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Jeremy Kerr <jk@codeconstruct.com.au>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Adrien Grassein <adrien.grassein@gmail.com>
+        Wolfram Sang <wsa@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 322/606] media: dvb-frontends/ts2020: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:40:56 +0100
-Message-Id: <20221118224540.619276-323-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH 495/606] misc: tsl2550: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:43:49 +0100
+Message-Id: <20221118224540.619276-496-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -63,31 +59,31 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/media/dvb-frontends/ts2020.c | 5 ++---
+ drivers/misc/tsl2550.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/ts2020.c b/drivers/media/dvb-frontends/ts2020.c
-index 02338256b974..c28fee7509cd 100644
---- a/drivers/media/dvb-frontends/ts2020.c
-+++ b/drivers/media/dvb-frontends/ts2020.c
-@@ -550,8 +550,7 @@ static void ts2020_regmap_unlock(void *__dev)
- 	mutex_unlock(&dev->regmap_mutex);
- }
+diff --git a/drivers/misc/tsl2550.c b/drivers/misc/tsl2550.c
+index 1652fb9b3856..6c62b94e0acd 100644
+--- a/drivers/misc/tsl2550.c
++++ b/drivers/misc/tsl2550.c
+@@ -331,8 +331,7 @@ static int tsl2550_init_client(struct i2c_client *client)
+  */
  
--static int ts2020_probe(struct i2c_client *client,
--		const struct i2c_device_id *id)
-+static int ts2020_probe(struct i2c_client *client)
+ static struct i2c_driver tsl2550_driver;
+-static int tsl2550_probe(struct i2c_client *client,
+-				   const struct i2c_device_id *id)
++static int tsl2550_probe(struct i2c_client *client)
  {
- 	struct ts2020_config *pdata = client->dev.platform_data;
- 	struct dvb_frontend *fe = pdata->fe;
-@@ -721,7 +720,7 @@ static struct i2c_driver ts2020_driver = {
- 	.driver = {
- 		.name	= "ts2020",
+ 	struct i2c_adapter *adapter = client->adapter;
+ 	struct tsl2550_data *data;
+@@ -438,7 +437,7 @@ static struct i2c_driver tsl2550_driver = {
+ 		.of_match_table = tsl2550_of_match,
+ 		.pm	= TSL2550_PM_OPS,
  	},
--	.probe		= ts2020_probe,
-+	.probe_new	= ts2020_probe,
- 	.remove		= ts2020_remove,
- 	.id_table	= ts2020_id_table,
+-	.probe	= tsl2550_probe,
++	.probe_new = tsl2550_probe,
+ 	.remove	= tsl2550_remove,
+ 	.id_table = tsl2550_id,
  };
 -- 
 2.38.1
