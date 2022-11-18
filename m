@@ -2,30 +2,30 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29B30C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8B6AC433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231593AbiKRWq1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:46:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36406 "EHLO
+        id S231757AbiKRWq2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:46:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbiKRWqX (ORCPT
+        with ESMTP id S230494AbiKRWqX (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:23 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35A8494A53
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E0094A6B
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:22 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7f-0007Qc-Sn; Fri, 18 Nov 2022 23:46:11 +0100
+        id 1owA7f-0007QB-Sr; Fri, 18 Nov 2022 23:46:11 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7d-00588R-Q7; Fri, 18 Nov 2022 23:46:10 +0100
+        id 1owA7d-00588F-FJ; Fri, 18 Nov 2022 23:46:10 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7d-00Hava-W9; Fri, 18 Nov 2022 23:46:10 +0100
+        id 1owA7d-00HavS-Ln; Fri, 18 Nov 2022 23:46:09 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
@@ -36,9 +36,9 @@ To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 010/606] extcon: usbc-tusb320: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:35:44 +0100
-Message-Id: <20221118224540.619276-11-uwe@kleine-koenig.org>
+Subject: [PATCH 008/606] extcon: fsa9480: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:35:42 +0100
+Message-Id: <20221118224540.619276-9-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -60,32 +60,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/extcon/extcon-usbc-tusb320.c | 5 ++---
+ drivers/extcon/extcon-fsa9480.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/extcon/extcon-usbc-tusb320.c b/drivers/extcon/extcon-usbc-tusb320.c
-index 2a120d8d3c27..396a026e0c90 100644
---- a/drivers/extcon/extcon-usbc-tusb320.c
-+++ b/drivers/extcon/extcon-usbc-tusb320.c
-@@ -421,8 +421,7 @@ static int tusb320_typec_probe(struct i2c_client *client,
- 	return 0;
+diff --git a/drivers/extcon/extcon-fsa9480.c b/drivers/extcon/extcon-fsa9480.c
+index 7cff66c29907..e8b2671eb29b 100644
+--- a/drivers/extcon/extcon-fsa9480.c
++++ b/drivers/extcon/extcon-fsa9480.c
+@@ -257,8 +257,7 @@ static irqreturn_t fsa9480_irq_handler(int irq, void *data)
+ 	return IRQ_HANDLED;
  }
  
--static int tusb320_probe(struct i2c_client *client,
+-static int fsa9480_probe(struct i2c_client *client,
 -			 const struct i2c_device_id *id)
-+static int tusb320_probe(struct i2c_client *client)
++static int fsa9480_probe(struct i2c_client *client)
  {
- 	struct tusb320_priv *priv;
- 	const void *match_data;
-@@ -495,7 +494,7 @@ static const struct of_device_id tusb320_extcon_dt_match[] = {
- MODULE_DEVICE_TABLE(of, tusb320_extcon_dt_match);
+ 	struct fsa9480_usbsw *info;
+ 	int ret;
+@@ -370,7 +369,7 @@ static struct i2c_driver fsa9480_i2c_driver = {
+ 		.pm		= &fsa9480_pm_ops,
+ 		.of_match_table = fsa9480_of_match,
+ 	},
+-	.probe			= fsa9480_probe,
++	.probe_new		= fsa9480_probe,
+ 	.id_table		= fsa9480_id,
+ };
  
- static struct i2c_driver tusb320_extcon_driver = {
--	.probe		= tusb320_probe,
-+	.probe_new	= tusb320_probe,
- 	.driver		= {
- 		.name	= "extcon-tusb320",
- 		.of_match_table = tusb320_extcon_dt_match,
 -- 
 2.38.1
 
