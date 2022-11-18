@@ -2,41 +2,47 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9079CC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:31:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DB58C4167D
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:31:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236077AbiKRXbo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S236081AbiKRXbo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Fri, 18 Nov 2022 18:31:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51414 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235855AbiKRXa2 (ORCPT
+        with ESMTP id S235577AbiKRXa2 (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:30:28 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042CBD70
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:18:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF4AA75D9E
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:18:23 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9L-0004Kq-Ia; Fri, 18 Nov 2022 23:47:55 +0100
+        id 1owA8D-0000wj-7e; Fri, 18 Nov 2022 23:46:45 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9I-0058j4-SZ; Fri, 18 Nov 2022 23:47:53 +0100
+        id 1owA88-0058Js-Kk; Fri, 18 Nov 2022 23:46:41 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9I-0000N3-Sf; Fri, 18 Nov 2022 23:47:52 +0100
+        id 1owA88-00Hb4x-RO; Fri, 18 Nov 2022 23:46:40 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>
+        Wolfram Sang <wsa@kernel.org>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Benjamin Mugnier <benjamin.mugnier@foss.st.com>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 465/606] mfd: ti-lmu: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:43:19 +0100
-Message-Id: <20221118224540.619276-466-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 156/606] iio: magnetometer: hmc5843: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:38:10 +0100
+Message-Id: <20221118224540.619276-157-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -58,33 +64,34 @@ that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/mfd/ti-lmu.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/iio/magnetometer/hmc5843_i2c.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/ti-lmu.c b/drivers/mfd/ti-lmu.c
-index fd6e8c417baa..9921320be255 100644
---- a/drivers/mfd/ti-lmu.c
-+++ b/drivers/mfd/ti-lmu.c
-@@ -133,8 +133,9 @@ TI_LMU_DATA(lm3633, LM3633_MAX_REG);
- TI_LMU_DATA(lm3695, LM3695_MAX_REG);
- TI_LMU_DATA(lm36274, LM36274_MAX_REG);
+diff --git a/drivers/iio/magnetometer/hmc5843_i2c.c b/drivers/iio/magnetometer/hmc5843_i2c.c
+index 18a13dd51296..7ef2b1d56289 100644
+--- a/drivers/iio/magnetometer/hmc5843_i2c.c
++++ b/drivers/iio/magnetometer/hmc5843_i2c.c
+@@ -52,9 +52,9 @@ static const struct regmap_config hmc5843_i2c_regmap_config = {
+ 	.cache_type = REGCACHE_RBTREE,
+ };
  
--static int ti_lmu_probe(struct i2c_client *cl, const struct i2c_device_id *id)
-+static int ti_lmu_probe(struct i2c_client *cl)
+-static int hmc5843_i2c_probe(struct i2c_client *cli,
+-			     const struct i2c_device_id *id)
++static int hmc5843_i2c_probe(struct i2c_client *cli)
  {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(cl);
- 	struct device *dev = &cl->dev;
- 	const struct ti_lmu_data *data;
- 	struct regmap_config regmap_cfg;
-@@ -216,7 +217,7 @@ static const struct i2c_device_id ti_lmu_ids[] = {
- MODULE_DEVICE_TABLE(i2c, ti_lmu_ids);
- 
- static struct i2c_driver ti_lmu_driver = {
--	.probe = ti_lmu_probe,
-+	.probe_new = ti_lmu_probe,
- 	.driver = {
- 		.name = "ti-lmu",
- 		.of_match_table = ti_lmu_of_match,
++	const struct i2c_device_id *id = i2c_client_get_device_id(cli);
+ 	struct regmap *regmap = devm_regmap_init_i2c(cli,
+ 			&hmc5843_i2c_regmap_config);
+ 	if (IS_ERR(regmap))
+@@ -95,7 +95,7 @@ static struct i2c_driver hmc5843_driver = {
+ 		.of_match_table = hmc5843_of_match,
+ 	},
+ 	.id_table	= hmc5843_id,
+-	.probe		= hmc5843_i2c_probe,
++	.probe_new	= hmc5843_i2c_probe,
+ 	.remove		= hmc5843_i2c_remove,
+ };
+ module_i2c_driver(hmc5843_driver);
 -- 
 2.38.1
 
