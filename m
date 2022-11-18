@@ -2,47 +2,48 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50866C433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:52:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CD19C4167D
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:52:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234235AbiKRWwV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S234268AbiKRWwV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Fri, 18 Nov 2022 17:52:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51332 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234154AbiKRWvx (ORCPT
+        with ESMTP id S234161AbiKRWvx (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:51:53 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EAF3BB5F2
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5897CBB5F7
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:20 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8D-0000wo-K2; Fri, 18 Nov 2022 23:46:45 +0100
+        id 1owA82-0000Ah-1y; Fri, 18 Nov 2022 23:46:34 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA88-0058Ju-Ll; Fri, 18 Nov 2022 23:46:41 +0100
+        id 1owA7x-0058FQ-5E; Fri, 18 Nov 2022 23:46:30 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA87-00Hb4O-3j; Fri, 18 Nov 2022 23:46:39 +0100
+        id 1owA7x-00Hb1U-FC; Fri, 18 Nov 2022 23:46:29 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
         Jonathan Cameron <jic23@kernel.org>,
-        =?utf-8?q?M=C3=A5rten_Lindahl?= <marten.lindahl@axis.com>,
-        Crt Mori <cmo@melexis.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>
+        Jean Delvare <jdelvare@suse.de>,
+        Corey Minyard <cminyard@mvista.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Peter Senna Tschudin <peter.senna@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
         Lars-Peter Clausen <lars@metafoo.de>,
         linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 148/606] iio: light: vcnl4000: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:38:02 +0100
-Message-Id: <20221118224540.619276-149-uwe@kleine-koenig.org>
+Subject: [PATCH 102/606] iio: humidity: hdc2010: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:37:16 +0100
+Message-Id: <20221118224540.619276-103-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -59,38 +60,36 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/light/vcnl4000.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/humidity/hdc2010.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
-index fdb3922ae4ac..cc1a2062e76d 100644
---- a/drivers/iio/light/vcnl4000.c
-+++ b/drivers/iio/light/vcnl4000.c
-@@ -1180,9 +1180,9 @@ static int vcnl4010_probe_trigger(struct iio_dev *indio_dev)
- 	return devm_iio_trigger_register(&client->dev, trigger);
- }
+diff --git a/drivers/iio/humidity/hdc2010.c b/drivers/iio/humidity/hdc2010.c
+index d6858ccb056e..c8fddd612e06 100644
+--- a/drivers/iio/humidity/hdc2010.c
++++ b/drivers/iio/humidity/hdc2010.c
+@@ -251,8 +251,7 @@ static const struct iio_info hdc2010_info = {
+ 	.attrs = &hdc2010_attribute_group,
+ };
  
--static int vcnl4000_probe(struct i2c_client *client,
--			  const struct i2c_device_id *id)
-+static int vcnl4000_probe(struct i2c_client *client)
+-static int hdc2010_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *id)
++static int hdc2010_probe(struct i2c_client *client)
  {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct vcnl4000_data *data;
  	struct iio_dev *indio_dev;
- 	int ret;
-@@ -1326,7 +1326,7 @@ static struct i2c_driver vcnl4000_driver = {
- 		.pm	= pm_ptr(&vcnl4000_pm_ops),
- 		.of_match_table = vcnl_4000_of_match,
+ 	struct hdc2010_data *data;
+@@ -339,7 +338,7 @@ static struct i2c_driver hdc2010_driver = {
+ 		.name	= "hdc2010",
+ 		.of_match_table = hdc2010_dt_ids,
  	},
--	.probe  = vcnl4000_probe,
-+	.probe_new = vcnl4000_probe,
- 	.id_table = vcnl4000_id,
- 	.remove	= vcnl4000_remove,
+-	.probe = hdc2010_probe,
++	.probe_new = hdc2010_probe,
+ 	.remove = hdc2010_remove,
+ 	.id_table = hdc2010_id,
  };
 -- 
 2.38.1
