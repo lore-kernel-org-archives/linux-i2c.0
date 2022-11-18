@@ -2,46 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74986C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:50:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7604C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:50:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbiKRWuh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:50:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36470 "EHLO
+        id S232462AbiKRWui (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:50:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233325AbiKRWsx (ORCPT
+        with ESMTP id S233313AbiKRWsx (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:48:53 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86093A3178
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1420394A7B
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:50 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA86-0000UX-7q; Fri, 18 Nov 2022 23:46:38 +0100
+        id 1owA80-0008W1-TP; Fri, 18 Nov 2022 23:46:32 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA81-0058H0-BU; Fri, 18 Nov 2022 23:46:34 +0100
+        id 1owA7v-0058Ew-Pt; Fri, 18 Nov 2022 23:46:28 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA80-00Hb2N-FB; Fri, 18 Nov 2022 23:46:32 +0100
+        id 1owA7w-00Hb13-3Z; Fri, 18 Nov 2022 23:46:28 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Crt Mori <cmo@melexis.com>, Jean Delvare <jdelvare@suse.de>,
-        Paul Cercueil <paul@crapouillou.net>
+        Jonathan Cameron <jic23@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
         Lars-Peter Clausen <lars@metafoo.de>,
         linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 116/606] iio: light: apds9300: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:37:30 +0100
-Message-Id: <20221118224540.619276-117-uwe@kleine-koenig.org>
+Subject: [PATCH 096/606] iio: gyro: st_gyro_i2c: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:37:10 +0100
+Message-Id: <20221118224540.619276-97-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -63,32 +61,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/light/apds9300.c | 5 ++---
+ drivers/iio/gyro/st_gyro_i2c.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/light/apds9300.c b/drivers/iio/light/apds9300.c
-index b70f2681bcb3..15dfb753734f 100644
---- a/drivers/iio/light/apds9300.c
-+++ b/drivers/iio/light/apds9300.c
-@@ -398,8 +398,7 @@ static irqreturn_t apds9300_interrupt_handler(int irq, void *private)
- 	return IRQ_HANDLED;
- }
- 
--static int apds9300_probe(struct i2c_client *client,
--		const struct i2c_device_id *id)
-+static int apds9300_probe(struct i2c_client *client)
- {
- 	struct apds9300_data *data;
- 	struct iio_dev *indio_dev;
-@@ -505,7 +504,7 @@ static struct i2c_driver apds9300_driver = {
- 		.name	= APDS9300_DRV_NAME,
- 		.pm	= pm_sleep_ptr(&apds9300_pm_ops),
- 	},
--	.probe		= apds9300_probe,
-+	.probe_new	= apds9300_probe,
- 	.remove		= apds9300_remove,
- 	.id_table	= apds9300_id,
+diff --git a/drivers/iio/gyro/st_gyro_i2c.c b/drivers/iio/gyro/st_gyro_i2c.c
+index 8c7af42b6558..797a1c6a0402 100644
+--- a/drivers/iio/gyro/st_gyro_i2c.c
++++ b/drivers/iio/gyro/st_gyro_i2c.c
+@@ -58,8 +58,7 @@ static const struct of_device_id st_gyro_of_match[] = {
  };
+ MODULE_DEVICE_TABLE(of, st_gyro_of_match);
+ 
+-static int st_gyro_i2c_probe(struct i2c_client *client,
+-			     const struct i2c_device_id *id)
++static int st_gyro_i2c_probe(struct i2c_client *client)
+ {
+ 	const struct st_sensor_settings *settings;
+ 	struct st_sensor_data *gdata;
+@@ -112,7 +111,7 @@ static struct i2c_driver st_gyro_driver = {
+ 		.name = "st-gyro-i2c",
+ 		.of_match_table = st_gyro_of_match,
+ 	},
+-	.probe = st_gyro_i2c_probe,
++	.probe_new = st_gyro_i2c_probe,
+ 	.id_table = st_gyro_id_table,
+ };
+ module_i2c_driver(st_gyro_driver);
 -- 
 2.38.1
 
