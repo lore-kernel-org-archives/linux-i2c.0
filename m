@@ -2,44 +2,41 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 060B5C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:45:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2F91C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:45:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236830AbiKRXpF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:45:05 -0500
+        id S236648AbiKRXpb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:45:31 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236717AbiKRXo3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:44:29 -0500
+        with ESMTP id S236684AbiKRXpE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:45:04 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F42DC78CC
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:24:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6CAD02D8
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:24:41 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9a-00051k-L1; Fri, 18 Nov 2022 23:48:10 +0100
+        id 1owA9I-0004EV-Hf; Fri, 18 Nov 2022 23:47:52 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9Y-0058p9-76; Fri, 18 Nov 2022 23:48:09 +0100
+        id 1owA9G-0058hq-EU; Fri, 18 Nov 2022 23:47:51 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9Y-0000Rs-3K; Fri, 18 Nov 2022 23:48:08 +0100
+        id 1owA9G-0000M6-C4; Fri, 18 Nov 2022 23:47:50 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Support Opensource <support.opensource@diasemi.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>
+        Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 540/606] regulator: da9121-regulator: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:44:34 +0100
-Message-Id: <20221118224540.619276-541-uwe@kleine-koenig.org>
+Subject: [PATCH 452/606] mfd: retu-mfd: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:43:06 +0100
+Message-Id: <20221118224540.619276-453-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,31 +58,30 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/regulator/da9121-regulator.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/mfd/retu-mfd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/da9121-regulator.c b/drivers/regulator/da9121-regulator.c
-index e4c753b83088..d016e049d264 100644
---- a/drivers/regulator/da9121-regulator.c
-+++ b/drivers/regulator/da9121-regulator.c
-@@ -1128,8 +1128,7 @@ static inline int da9121_of_get_id(struct device *dev)
- 	return (uintptr_t)id->data;
- }
+diff --git a/drivers/mfd/retu-mfd.c b/drivers/mfd/retu-mfd.c
+index 3b5acf7ca39c..d71483859e2e 100644
+--- a/drivers/mfd/retu-mfd.c
++++ b/drivers/mfd/retu-mfd.c
+@@ -227,7 +227,7 @@ static const struct regmap_config retu_config = {
+ 	.val_bits = 16,
+ };
  
--static int da9121_i2c_probe(struct i2c_client *i2c,
--			    const struct i2c_device_id *id)
-+static int da9121_i2c_probe(struct i2c_client *i2c)
+-static int retu_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
++static int retu_probe(struct i2c_client *i2c)
  {
- 	struct da9121 *chip;
- 	const int mask_all[4] = { 0xFF, 0xFF, 0xFF, 0xFF };
-@@ -1197,7 +1196,7 @@ static struct i2c_driver da9121_regulator_driver = {
- 		.name = "da9121",
- 		.of_match_table = of_match_ptr(da9121_dt_ids),
+ 	struct retu_data const *rdat;
+ 	struct retu_dev *rdev;
+@@ -318,7 +318,7 @@ static struct i2c_driver retu_driver = {
+ 		.name = "retu-mfd",
+ 		.of_match_table = retu_of_match,
  	},
--	.probe = da9121_i2c_probe,
-+	.probe_new = da9121_i2c_probe,
- 	.remove = da9121_i2c_remove,
- 	.id_table = da9121_i2c_id,
+-	.probe		= retu_probe,
++	.probe_new	= retu_probe,
+ 	.remove		= retu_remove,
+ 	.id_table	= retu_id,
  };
 -- 
 2.38.1
