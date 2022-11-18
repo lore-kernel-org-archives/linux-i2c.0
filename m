@@ -2,44 +2,42 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBBAAC43217
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:55:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6F45C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:55:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234091AbiKRXzE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:55:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60642 "EHLO
+        id S237024AbiKRXzN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:55:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237064AbiKRXx1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:53:27 -0500
+        with ESMTP id S237110AbiKRXxo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:53:44 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 177F6D2DDE
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:27:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA4FBCDDE
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:27:47 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7v-0008AD-PF; Fri, 18 Nov 2022 23:46:27 +0100
+        id 1owA8g-0002ai-Q9; Fri, 18 Nov 2022 23:47:14 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7r-0058D6-3C; Fri, 18 Nov 2022 23:46:24 +0100
+        id 1owA8d-0058UJ-Si; Fri, 18 Nov 2022 23:47:12 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7q-00HazH-3j; Fri, 18 Nov 2022 23:46:22 +0100
+        id 1owA8d-00009m-AL; Fri, 18 Nov 2022 23:47:11 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>
+        Wolfram Sang <wsa@kernel.org>, Pavel Machek <pavel@ucw.cz>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 069/606] iio: adc: ti-adc081c: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:36:43 +0100
-Message-Id: <20221118224540.619276-70-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-leds@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 279/606] leds: lp5521: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:40:13 +0100
+Message-Id: <20221118224540.619276-280-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,34 +59,34 @@ that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/adc/ti-adc081c.c | 6 +++---
+ drivers/leds/leds-lp5521.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/adc/ti-adc081c.c b/drivers/iio/adc/ti-adc081c.c
-index bd48b073e720..c663dc59d459 100644
---- a/drivers/iio/adc/ti-adc081c.c
-+++ b/drivers/iio/adc/ti-adc081c.c
-@@ -152,9 +152,9 @@ static void adc081c_reg_disable(void *reg)
- 	regulator_disable(reg);
- }
+diff --git a/drivers/leds/leds-lp5521.c b/drivers/leds/leds-lp5521.c
+index 7ff20c260504..6faf7b10a593 100644
+--- a/drivers/leds/leds-lp5521.c
++++ b/drivers/leds/leds-lp5521.c
+@@ -516,9 +516,9 @@ static struct lp55xx_device_config lp5521_cfg = {
+ 	.dev_attr_group     = &lp5521_group,
+ };
  
--static int adc081c_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int adc081c_probe(struct i2c_client *client)
+-static int lp5521_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int lp5521_probe(struct i2c_client *client)
  {
 +	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct iio_dev *iio;
- 	struct adc081c *adc;
- 	const struct adcxx1c_model *model;
-@@ -235,7 +235,7 @@ static struct i2c_driver adc081c_driver = {
- 		.of_match_table = adc081c_of_match,
- 		.acpi_match_table = adc081c_acpi_match,
+ 	int ret;
+ 	struct lp55xx_chip *chip;
+ 	struct lp55xx_led *led;
+@@ -608,7 +608,7 @@ static struct i2c_driver lp5521_driver = {
+ 		.name	= "lp5521",
+ 		.of_match_table = of_match_ptr(of_lp5521_leds_match),
  	},
--	.probe = adc081c_probe,
-+	.probe_new = adc081c_probe,
- 	.id_table = adc081c_id,
+-	.probe		= lp5521_probe,
++	.probe_new	= lp5521_probe,
+ 	.remove		= lp5521_remove,
+ 	.id_table	= lp5521_id,
  };
- module_i2c_driver(adc081c_driver);
 -- 
 2.38.1
 
