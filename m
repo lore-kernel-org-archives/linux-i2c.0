@@ -2,95 +2,117 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB5ADC43219
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:59:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 757D4C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:10:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235264AbiKRW67 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:58:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37870 "EHLO
+        id S235349AbiKRXKy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:10:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235521AbiKRW5a (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:57:30 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6E04C68AC
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:49:04 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1owA8l-0002n9-90; Fri, 18 Nov 2022 23:47:19 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1owA8i-0058Vn-U4; Fri, 18 Nov 2022 23:47:17 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1owA8j-0000BQ-21; Fri, 18 Nov 2022 23:47:17 +0100
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
+        with ESMTP id S234697AbiKRXKe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:10:34 -0500
+Received: from mail-vs1-xe31.google.com (mail-vs1-xe31.google.com [IPv6:2607:f8b0:4864:20::e31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C9D152151
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:56:12 -0800 (PST)
+Received: by mail-vs1-xe31.google.com with SMTP id p4so6141263vsa.11
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:56:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UmKsoJxhwH4Zh+3ZRgMkGn8gHiF62zNOvvsc+BHVWu8=;
+        b=gv5F7ldhqfhIsH8rj3kBab8j3pSGRlztT61uH5evDl+HD5sgZtbydI6mpzpUVuzG8w
+         YxQXSM6U8nVYzRJVQKm7Ef/Kq8/0ykjLifVJZvy5lZxJpUnT68gXHvyT+AfjHJ8ss63h
+         fg36VGWZ4unUYwmA1GNCLHmzGCV9c9ZhCPoCp9p2IBaOIFkxcwqSK1MwPat+bRDUwt81
+         NWo540av9xzkf4Y2CYpuUGM7d5GSWhMxR8KvQ4euz7RoF87hnX9CqCsIveMPn7tfq8Ms
+         luYfJv3E9eCXO9HoCcu8z+dRooFHGSnqf/CwwXE7ORqCQKnnc+O08v/oxgxCpfa8ffFE
+         W3yQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UmKsoJxhwH4Zh+3ZRgMkGn8gHiF62zNOvvsc+BHVWu8=;
+        b=FrEXmy+bqKtzgfv7yWBkW1/3eS5SYEprerofEk5rnQKAnB7uOdsNRXJilVMbsGR5RN
+         hWgt5ey5Uc1maPONmg0LKkI9F5ObxzTWt6iKwCbZW8gxeOqZVUMXDPi15pvieTWbXPxf
+         neYopC1euNdceB31/g3ninCDvWzcyOR9KXJlsGVoamZKkY+Nv/ASf9zHcAIv+5XsGe/p
+         Yns1fUkfTICmm9vQS51sAZM0hbcIYvvskaeJ26bHAdAqDFHuQoIQNa6M6m9FZBb1w6aj
+         P99CXtFC3bP4rjr9u3tX2z27mMD3Dmzmy/r60YzEsY8IfKec0dOwWs9BvO/vU0V14eU+
+         I5ew==
+X-Gm-Message-State: ANoB5pmV+TjrD9viQfUGN/QN1cE+KNV1IvAvYPRnDX7qg+UV5coOcPSG
+        B6i9rLjFpParGMGmHC71dkdnOjZhv1eEDnrl4oWkpg==
+X-Google-Smtp-Source: AA0mqf4qDmbgKxpR2oFN7ECgll96czI8S2WtEpfjmw8jRjheJPJwoxDQZr632xe+zCiiTlcR9Xb4LznOsV0wW5aR7/c=
+X-Received: by 2002:a05:6102:502:b0:3ad:94ed:2ab5 with SMTP id
+ l2-20020a056102050200b003ad94ed2ab5mr5590845vsa.45.1668812143450; Fri, 18 Nov
+ 2022 14:55:43 -0800 (PST)
+MIME-Version: 1.0
+References: <20221118224540.619276-1-uwe@kleine-koenig.org> <20221118224540.619276-513-uwe@kleine-koenig.org>
+In-Reply-To: <20221118224540.619276-513-uwe@kleine-koenig.org>
+From:   Guenter Roeck <groeck@google.com>
+Date:   Fri, 18 Nov 2022 14:55:32 -0800
+Message-ID: <CABXOdTftnYoj+_3+u47PYdenThn17NMBP2C6q2mDGkeCudur9w@mail.gmail.com>
+Subject: Re: [PATCH 512/606] platform/chrome: cros_ec: Convert to i2c's .probe_new()
+To:     =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <uwe@kleine-koenig.org>
+Cc:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Vladimir Oltean <olteanv@gmail.com>
-Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 304/606] media: dvb-frontends/dvb-pll: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:40:38 +0100
-Message-Id: <20221118224540.619276-305-uwe@kleine-koenig.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
-References: <20221118224540.619276-1-uwe@kleine-koenig.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+        Benson Leung <bleung@chromium.org>, linux-i2c@vger.kernel.org,
+        kernel@pengutronix.de,
+        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Guenter Roeck <groeck@chromium.org>,
+        chrome-platform@lists.linux.dev, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+On Fri, Nov 18, 2022 at 2:48 PM Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.or=
+g> wrote:
+>
+> From: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+>
+> The probe function doesn't make use of the i2c_device_id * parameter so i=
+t
+> can be trivially converted.
+>
+> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/media/dvb-frontends/dvb-pll.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
 
-diff --git a/drivers/media/dvb-frontends/dvb-pll.c b/drivers/media/dvb-frontends/dvb-pll.c
-index baf2a378e565..e35e00db7dbb 100644
---- a/drivers/media/dvb-frontends/dvb-pll.c
-+++ b/drivers/media/dvb-frontends/dvb-pll.c
-@@ -870,8 +870,9 @@ EXPORT_SYMBOL(dvb_pll_attach);
- 
- 
- static int
--dvb_pll_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+dvb_pll_probe(struct i2c_client *client)
- {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct dvb_pll_config *cfg;
- 	struct dvb_frontend *fe;
- 	unsigned int desc_id;
-@@ -941,7 +942,7 @@ static struct i2c_driver dvb_pll_driver = {
- 	.driver = {
- 		.name = "dvb_pll",
- 	},
--	.probe    = dvb_pll_probe,
-+	.probe_new = dvb_pll_probe,
- 	.remove   = dvb_pll_remove,
- 	.id_table = dvb_pll_id,
- };
--- 
-2.38.1
-
+> ---
+>  drivers/platform/chrome/cros_ec_i2c.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/platform/chrome/cros_ec_i2c.c b/drivers/platform/chr=
+ome/cros_ec_i2c.c
+> index b6823c654c3f..dbe698f33128 100644
+> --- a/drivers/platform/chrome/cros_ec_i2c.c
+> +++ b/drivers/platform/chrome/cros_ec_i2c.c
+> @@ -286,8 +286,7 @@ static int cros_ec_cmd_xfer_i2c(struct cros_ec_device=
+ *ec_dev,
+>         return ret;
+>  }
+>
+> -static int cros_ec_i2c_probe(struct i2c_client *client,
+> -                            const struct i2c_device_id *dev_id)
+> +static int cros_ec_i2c_probe(struct i2c_client *client)
+>  {
+>         struct device *dev =3D &client->dev;
+>         struct cros_ec_device *ec_dev =3D NULL;
+> @@ -373,7 +372,7 @@ static struct i2c_driver cros_ec_driver =3D {
+>                 .of_match_table =3D of_match_ptr(cros_ec_i2c_of_match),
+>                 .pm     =3D &cros_ec_i2c_pm_ops,
+>         },
+> -       .probe          =3D cros_ec_i2c_probe,
+> +       .probe_new      =3D cros_ec_i2c_probe,
+>         .remove         =3D cros_ec_i2c_remove,
+>         .id_table       =3D cros_ec_i2c_id,
+>  };
+> --
+> 2.38.1
+>
