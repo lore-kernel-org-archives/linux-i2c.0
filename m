@@ -2,43 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78236C433FE
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:03:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70595C43217
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:04:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230398AbiKSAD6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:03:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59430 "EHLO
+        id S236682AbiKSAD7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:03:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237528AbiKSACY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:02:24 -0500
+        with ESMTP id S237774AbiKSADO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:03:14 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB97E5B11
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:30:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E8A6DFE3
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:30:32 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9d-00057N-4V; Fri, 18 Nov 2022 23:48:13 +0100
+        id 1owA8a-0002MF-8r; Fri, 18 Nov 2022 23:47:08 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9a-0058py-EG; Fri, 18 Nov 2022 23:48:11 +0100
+        id 1owA8X-0058S8-Q3; Fri, 18 Nov 2022 23:47:06 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9a-0000SZ-3H; Fri, 18 Nov 2022 23:48:10 +0100
+        id 1owA8W-000085-VX; Fri, 18 Nov 2022 23:47:04 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 550/606] regulator: max8952: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:44:44 +0100
-Message-Id: <20221118224540.619276-551-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 253/606] Input: pixcir_i2c_ts - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:39:47 +0100
+Message-Id: <20221118224540.619276-254-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -55,37 +55,39 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/regulator/max8952.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/regulator/max8952.c b/drivers/regulator/max8952.c
-index ccd5da63cdf2..360a33ecc093 100644
---- a/drivers/regulator/max8952.c
-+++ b/drivers/regulator/max8952.c
-@@ -171,8 +171,7 @@ static struct max8952_platform_data *max8952_parse_dt(struct device *dev)
- }
- #endif
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index dc148b4bed74..7959947a3458 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -462,9 +462,9 @@ static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
+ 			 pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
  
--static int max8952_pmic_probe(struct i2c_client *client,
--		const struct i2c_device_id *i2c_id)
-+static int max8952_pmic_probe(struct i2c_client *client)
+-static int pixcir_i2c_ts_probe(struct i2c_client *client,
+-			       const struct i2c_device_id *id)
++static int pixcir_i2c_ts_probe(struct i2c_client *client)
  {
- 	struct i2c_adapter *adapter = client->adapter;
- 	struct max8952_platform_data *pdata = dev_get_platdata(&client->dev);
-@@ -314,7 +313,7 @@ static const struct i2c_device_id max8952_ids[] = {
- MODULE_DEVICE_TABLE(i2c, max8952_ids);
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct device *dev = &client->dev;
+ 	struct pixcir_i2c_ts_data *tsdata;
+ 	struct input_dev *input;
+@@ -617,7 +617,7 @@ static struct i2c_driver pixcir_i2c_ts_driver = {
+ 		.pm	= &pixcir_dev_pm_ops,
+ 		.of_match_table = of_match_ptr(pixcir_of_match),
+ 	},
+-	.probe		= pixcir_i2c_ts_probe,
++	.probe_new	= pixcir_i2c_ts_probe,
+ 	.id_table	= pixcir_i2c_ts_id,
+ };
  
- static struct i2c_driver max8952_pmic_driver = {
--	.probe		= max8952_pmic_probe,
-+	.probe_new	= max8952_pmic_probe,
- 	.driver		= {
- 		.name	= "max8952",
- 		.of_match_table = of_match_ptr(max8952_dt_match),
 -- 
 2.38.1
 
