@@ -2,44 +2,45 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1E40C43217
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:38:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C3C8C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:38:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236430AbiKRXif (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:38:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45426 "EHLO
+        id S236438AbiKRXig (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:38:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236779AbiKRXhx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:37:53 -0500
+        with ESMTP id S236822AbiKRXh6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:37:58 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B70D06D976
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:22:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7DDA6A0E
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:22:49 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9V-0004la-29; Fri, 18 Nov 2022 23:48:05 +0100
+        id 1owA8G-0001A8-H4; Fri, 18 Nov 2022 23:46:48 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9S-0058n0-CQ; Fri, 18 Nov 2022 23:48:03 +0100
+        id 1owA8C-0058LB-BD; Fri, 18 Nov 2022 23:46:45 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9S-0000Q7-7d; Fri, 18 Nov 2022 23:48:02 +0100
+        id 1owA8C-00Hb5z-GZ; Fri, 18 Nov 2022 23:46:44 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Michael Hennerich <Michael.Hennerich@analog.com>,
-        Sebastian Reichel <sre@kernel.org>
+        Jonathan Cameron <jic23@kernel.org>,
+        Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 513/606] power: supply: adp5061: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:44:07 +0100
-Message-Id: <20221118224540.619276-514-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 171/606] iio: pressure: icp10100: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:38:25 +0100
+Message-Id: <20221118224540.619276-172-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,32 +62,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/power/supply/adp5061.c | 5 ++---
+ drivers/iio/pressure/icp10100.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/adp5061.c b/drivers/power/supply/adp5061.c
-index fcf8ff0bc974..840db629a46c 100644
---- a/drivers/power/supply/adp5061.c
-+++ b/drivers/power/supply/adp5061.c
-@@ -694,8 +694,7 @@ static const struct power_supply_desc adp5061_desc = {
- 	.num_properties		= ARRAY_SIZE(adp5061_props),
- };
+diff --git a/drivers/iio/pressure/icp10100.c b/drivers/iio/pressure/icp10100.c
+index b62f28585db5..407cf25ea0e3 100644
+--- a/drivers/iio/pressure/icp10100.c
++++ b/drivers/iio/pressure/icp10100.c
+@@ -530,8 +530,7 @@ static void icp10100_pm_disable(void *data)
+ 	pm_runtime_disable(dev);
+ }
  
--static int adp5061_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int adp5061_probe(struct i2c_client *client)
+-static int icp10100_probe(struct i2c_client *client,
+-			  const struct i2c_device_id *id)
++static int icp10100_probe(struct i2c_client *client)
  {
- 	struct power_supply_config psy_cfg = {};
- 	struct adp5061_state *st;
-@@ -737,7 +736,7 @@ static struct i2c_driver adp5061_driver = {
- 	.driver = {
- 		.name = KBUILD_MODNAME,
+ 	struct iio_dev *indio_dev;
+ 	struct icp10100_state *st;
+@@ -649,7 +648,7 @@ static struct i2c_driver icp10100_driver = {
+ 		.pm = pm_ptr(&icp10100_pm),
+ 		.of_match_table = icp10100_of_match,
  	},
--	.probe = adp5061_probe,
-+	.probe_new = adp5061_probe,
- 	.id_table = adp5061_id,
+-	.probe = icp10100_probe,
++	.probe_new = icp10100_probe,
+ 	.id_table = icp10100_id,
  };
- module_i2c_driver(adp5061_driver);
+ module_i2c_driver(icp10100_driver);
 -- 
 2.38.1
 
