@@ -2,47 +2,44 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DF84C4332F
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:08:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44A2DC4332F
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:08:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237464AbiKSAIm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:08:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39694 "EHLO
+        id S237390AbiKSAIu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:08:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237963AbiKSAIB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:08:01 -0500
+        with ESMTP id S237391AbiKSAGo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:06:44 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E152E97EEE
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:32:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9A5286FD3
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:31:48 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9T-0004hG-6L; Fri, 18 Nov 2022 23:48:03 +0100
+        id 1owA9m-0005TF-5N; Fri, 18 Nov 2022 23:48:22 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9Q-0058mG-Pe; Fri, 18 Nov 2022 23:48:01 +0100
+        id 1owA9j-0058tc-3c; Fri, 18 Nov 2022 23:48:20 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9Q-0000PZ-Kx; Fri, 18 Nov 2022 23:48:00 +0100
+        id 1owA9h-0000VD-Hd; Fri, 18 Nov 2022 23:48:17 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        =?utf-8?q?Marek_Beh=C3=BAn?= <kabel@kernel.org>
+        Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 504/606] nfc: pn533: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:43:58 +0100
-Message-Id: <20221118224540.619276-505-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 590/606] backlight: lm3639: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:45:24 +0100
+Message-Id: <20221118224540.619276-591-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -64,31 +61,31 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/nfc/pn533/i2c.c | 5 ++---
+ drivers/video/backlight/lm3639_bl.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nfc/pn533/i2c.c b/drivers/nfc/pn533/i2c.c
-index ddf3db286bad..1503a98f0405 100644
---- a/drivers/nfc/pn533/i2c.c
-+++ b/drivers/nfc/pn533/i2c.c
-@@ -163,8 +163,7 @@ static const struct pn533_phy_ops i2c_phy_ops = {
+diff --git a/drivers/video/backlight/lm3639_bl.c b/drivers/video/backlight/lm3639_bl.c
+index 6580911671a3..a836628ce06e 100644
+--- a/drivers/video/backlight/lm3639_bl.c
++++ b/drivers/video/backlight/lm3639_bl.c
+@@ -296,8 +296,7 @@ static const struct regmap_config lm3639_regmap = {
+ 	.max_register = REG_MAX,
  };
  
- 
--static int pn533_i2c_probe(struct i2c_client *client,
--			       const struct i2c_device_id *id)
-+static int pn533_i2c_probe(struct i2c_client *client)
+-static int lm3639_probe(struct i2c_client *client,
+-				  const struct i2c_device_id *id)
++static int lm3639_probe(struct i2c_client *client)
  {
- 	struct pn533_i2c_phy *phy;
- 	struct pn533 *priv;
-@@ -260,7 +259,7 @@ static struct i2c_driver pn533_i2c_driver = {
- 		   .name = PN533_I2C_DRIVER_NAME,
- 		   .of_match_table = of_match_ptr(of_pn533_i2c_match),
- 		  },
--	.probe = pn533_i2c_probe,
-+	.probe_new = pn533_i2c_probe,
- 	.id_table = pn533_i2c_id_table,
- 	.remove = pn533_i2c_remove,
+ 	int ret;
+ 	struct lm3639_chip_data *pchip;
+@@ -412,7 +411,7 @@ static struct i2c_driver lm3639_i2c_driver = {
+ 	.driver = {
+ 		   .name = LM3639_NAME,
+ 		   },
+-	.probe = lm3639_probe,
++	.probe_new = lm3639_probe,
+ 	.remove = lm3639_remove,
+ 	.id_table = lm3639_id,
  };
 -- 
 2.38.1
