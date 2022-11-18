@@ -2,41 +2,43 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95E8FC43219
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B38DC433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231462AbiKRWqb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:46:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36464 "EHLO
+        id S231991AbiKRWqc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:46:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231490AbiKRWqZ (ORCPT
+        with ESMTP id S231543AbiKRWqZ (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:25 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A17994A7B
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20C4197097
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:23 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7n-0007jM-7e; Fri, 18 Nov 2022 23:46:19 +0100
+        id 1owA7e-0007Pf-Hj; Fri, 18 Nov 2022 23:46:10 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7l-0058B1-K2; Fri, 18 Nov 2022 23:46:18 +0100
+        id 1owA7c-005883-Ti; Fri, 18 Nov 2022 23:46:09 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7k-00Haxd-GF; Fri, 18 Nov 2022 23:46:16 +0100
+        id 1owA7d-00HavD-3K; Fri, 18 Nov 2022 23:46:09 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>
+        Wolfram Sang <wsa@kernel.org>, Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 044/606] i2c: core: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:36:18 +0100
-Message-Id: <20221118224540.619276-45-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, Jason Gunthorpe <jgg@ziepe.ca>,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 005/606] tpm: tis_i2c: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:35:39 +0100
+Message-Id: <20221118224540.619276-6-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -58,31 +60,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/i2c/i2c-core-base.c | 5 ++---
+ drivers/char/tpm/tpm_tis_i2c.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 13fafb74bab8..087e480b624c 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1018,15 +1018,14 @@ static const struct i2c_device_id dummy_id[] = {
- 	{ },
+diff --git a/drivers/char/tpm/tpm_tis_i2c.c b/drivers/char/tpm/tpm_tis_i2c.c
+index 0692510dfcab..18fa8b4672a8 100644
+--- a/drivers/char/tpm/tpm_tis_i2c.c
++++ b/drivers/char/tpm/tpm_tis_i2c.c
+@@ -312,8 +312,7 @@ static const struct tpm_tis_phy_ops tpm_i2c_phy_ops = {
+ 	.verify_crc = tpm_tis_i2c_verify_crc,
  };
  
--static int dummy_probe(struct i2c_client *client,
--		       const struct i2c_device_id *id)
-+static int dummy_probe(struct i2c_client *client)
+-static int tpm_tis_i2c_probe(struct i2c_client *dev,
+-			     const struct i2c_device_id *id)
++static int tpm_tis_i2c_probe(struct i2c_client *dev)
  {
- 	return 0;
- }
- 
- static struct i2c_driver dummy_driver = {
- 	.driver.name	= "dummy",
--	.probe		= dummy_probe,
-+	.probe_new	= dummy_probe,
- 	.id_table	= dummy_id,
+ 	struct tpm_tis_i2c_phy *phy;
+ 	const u8 crc_enable = 1;
+@@ -379,7 +378,7 @@ static struct i2c_driver tpm_tis_i2c_driver = {
+ 		.pm = &tpm_tis_pm,
+ 		.of_match_table = of_match_ptr(of_tis_i2c_match),
+ 	},
+-	.probe = tpm_tis_i2c_probe,
++	.probe_new = tpm_tis_i2c_probe,
+ 	.remove = tpm_tis_i2c_remove,
+ 	.id_table = tpm_tis_i2c_id,
  };
- 
 -- 
 2.38.1
 
