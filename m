@@ -2,44 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 136B1C43219
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99FDDC4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:46:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232231AbiKRWqt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:46:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36526 "EHLO
+        id S232005AbiKRWqv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:46:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231954AbiKRWqb (ORCPT
+        with ESMTP id S231959AbiKRWqb (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:46:31 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6263EA3164
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80EEEA3168
         for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:46:29 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7n-0007jc-Td; Fri, 18 Nov 2022 23:46:19 +0100
+        id 1owA7l-0007gS-Ji; Fri, 18 Nov 2022 23:46:17 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7m-0058BD-0J; Fri, 18 Nov 2022 23:46:18 +0100
+        id 1owA7j-0058AL-Oa; Fri, 18 Nov 2022 23:46:16 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA7j-00HaxI-HI; Fri, 18 Nov 2022 23:46:15 +0100
+        id 1owA7h-00Hawk-Ig; Fri, 18 Nov 2022 23:46:13 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
         David Airlie <airlied@gmail.com>,
         Daniel Vetter <daniel@ffwll.ch>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 039/606] drm/i2c/sil164: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:36:13 +0100
-Message-Id: <20221118224540.619276-40-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 028/606] drm/bridge: parade-ps8622: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:36:02 +0100
+Message-Id: <20221118224540.619276-29-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -56,36 +62,39 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/gpu/drm/i2c/sil164_drv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/parade-ps8622.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/i2c/sil164_drv.c b/drivers/gpu/drm/i2c/sil164_drv.c
-index 1bc0b5de4499..f57f9a807542 100644
---- a/drivers/gpu/drm/i2c/sil164_drv.c
-+++ b/drivers/gpu/drm/i2c/sil164_drv.c
-@@ -350,7 +350,7 @@ static const struct drm_encoder_slave_funcs sil164_encoder_funcs = {
- /* I2C driver functions */
+diff --git a/drivers/gpu/drm/bridge/parade-ps8622.c b/drivers/gpu/drm/bridge/parade-ps8622.c
+index 309de802863d..530ee6a19e7e 100644
+--- a/drivers/gpu/drm/bridge/parade-ps8622.c
++++ b/drivers/gpu/drm/bridge/parade-ps8622.c
+@@ -442,9 +442,9 @@ static const struct of_device_id ps8622_devices[] = {
+ };
+ MODULE_DEVICE_TABLE(of, ps8622_devices);
  
- static int
--sil164_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+sil164_probe(struct i2c_client *client)
+-static int ps8622_probe(struct i2c_client *client,
+-					const struct i2c_device_id *id)
++static int ps8622_probe(struct i2c_client *client)
  {
- 	int vendor = sil164_read(client, SIL164_VENDOR_HI) << 8 |
- 		sil164_read(client, SIL164_VENDOR_LO);
-@@ -420,7 +420,7 @@ MODULE_DEVICE_TABLE(i2c, sil164_ids);
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct device *dev = &client->dev;
+ 	struct ps8622_bridge *ps8622;
+ 	struct drm_bridge *panel_bridge;
+@@ -538,7 +538,7 @@ MODULE_DEVICE_TABLE(i2c, ps8622_i2c_table);
  
- static struct drm_i2c_encoder_driver sil164_driver = {
- 	.i2c_driver = {
--		.probe = sil164_probe,
-+		.probe_new = sil164_probe,
- 		.driver = {
- 			.name = "sil164",
- 		},
+ static struct i2c_driver ps8622_driver = {
+ 	.id_table	= ps8622_i2c_table,
+-	.probe		= ps8622_probe,
++	.probe_new	= ps8622_probe,
+ 	.remove		= ps8622_remove,
+ 	.driver		= {
+ 		.name	= "ps8622",
 -- 
 2.38.1
 
