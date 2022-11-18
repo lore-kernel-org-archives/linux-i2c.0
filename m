@@ -2,46 +2,42 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1ED9C433FE
-	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:04:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF9C5C4321E
+	for <linux-i2c@archiver.kernel.org>; Sat, 19 Nov 2022 00:04:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237138AbiKSAEA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:04:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43322 "EHLO
+        id S237174AbiKSAEB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:04:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237370AbiKSAB0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:01:26 -0500
+        with ESMTP id S237527AbiKSACY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 19:02:24 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D5DACEFF1
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:29:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73BFDE5B0E
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:30:12 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9n-0005WP-3u; Fri, 18 Nov 2022 23:48:23 +0100
+        id 1owA9O-0004S1-2O; Fri, 18 Nov 2022 23:47:58 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9k-0058tw-7b; Fri, 18 Nov 2022 23:48:21 +0100
+        id 1owA9L-0058k8-Au; Fri, 18 Nov 2022 23:47:56 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA9i-0000VQ-8D; Fri, 18 Nov 2022 23:48:18 +0100
+        id 1owA9L-0000Nw-KS; Fri, 18 Nov 2022 23:47:55 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Helge Deller <deller@gmx.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Adrien Grassein <adrien.grassein@gmail.com>,
-        =?utf-8?q?Krzysztof_Ha=C5=82asa?= <khalasa@piap.pl>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+        Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 594/606] video: fbdev: matrox: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:45:28 +0100
-Message-Id: <20221118224540.619276-595-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, patches@opensource.cirrus.com,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 479/606] mfd: wm8350-i2c: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:43:33 +0100
+Message-Id: <20221118224540.619276-480-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -63,32 +59,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/video/fbdev/matrox/matroxfb_maven.c | 5 ++---
+ drivers/mfd/wm8350-i2c.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/video/fbdev/matrox/matroxfb_maven.c b/drivers/video/fbdev/matrox/matroxfb_maven.c
-index f2e02958673d..727a10a59811 100644
---- a/drivers/video/fbdev/matrox/matroxfb_maven.c
-+++ b/drivers/video/fbdev/matrox/matroxfb_maven.c
-@@ -1249,8 +1249,7 @@ static int maven_shutdown_client(struct i2c_client* clnt) {
- 	return 0;
- }
+diff --git a/drivers/mfd/wm8350-i2c.c b/drivers/mfd/wm8350-i2c.c
+index 48fd46800c28..1fa1dfbc9e31 100644
+--- a/drivers/mfd/wm8350-i2c.c
++++ b/drivers/mfd/wm8350-i2c.c
+@@ -16,8 +16,7 @@
+ #include <linux/regmap.h>
+ #include <linux/slab.h>
  
--static int maven_probe(struct i2c_client *client,
--		       const struct i2c_device_id *id)
-+static int maven_probe(struct i2c_client *client)
+-static int wm8350_i2c_probe(struct i2c_client *i2c,
+-			    const struct i2c_device_id *id)
++static int wm8350_i2c_probe(struct i2c_client *i2c)
  {
- 	struct i2c_adapter *adapter = client->adapter;
- 	int err = -ENODEV;
-@@ -1292,7 +1291,7 @@ static struct i2c_driver maven_driver={
- 	.driver = {
- 		.name	= "maven",
+ 	struct wm8350 *wm8350;
+ 	struct wm8350_platform_data *pdata = dev_get_platdata(&i2c->dev);
+@@ -53,7 +52,7 @@ static struct i2c_driver wm8350_i2c_driver = {
+ 		   .name = "wm8350",
+ 		   .suppress_bind_attrs = true,
  	},
--	.probe		= maven_probe,
-+	.probe_new	= maven_probe,
- 	.remove		= maven_remove,
- 	.id_table	= maven_id,
+-	.probe = wm8350_i2c_probe,
++	.probe_new = wm8350_i2c_probe,
+ 	.id_table = wm8350_i2c_id,
  };
+ 
 -- 
 2.38.1
 
