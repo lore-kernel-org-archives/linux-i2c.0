@@ -2,47 +2,47 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77D0CC43219
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:38:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FEE2C433FE
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:38:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236389AbiKRXib (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:38:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46222 "EHLO
+        id S236394AbiKRXid (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:38:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236788AbiKRXhz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:37:55 -0500
+        with ESMTP id S236817AbiKRXh5 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:37:57 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128EC90593
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:22:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EC12A6A0F
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:22:46 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA94-0003Zs-HK; Fri, 18 Nov 2022 23:47:38 +0100
+        id 1owA9h-0005Gw-DA; Fri, 18 Nov 2022 23:48:17 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA92-0058cI-8u; Fri, 18 Nov 2022 23:47:37 +0100
+        id 1owA9e-0058ry-JI; Fri, 18 Nov 2022 23:48:15 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA92-0000Hc-BY; Fri, 18 Nov 2022 23:47:36 +0100
+        id 1owA9e-0000UI-R3; Fri, 18 Nov 2022 23:48:14 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Adrien Grassein <adrien.grassein@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Crt Mori <cmo@melexis.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ajay Gupta <ajayg@nvidia.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Benjamin Mugnier <benjamin.mugnier@foss.st.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-media@vger.kernel.org,
+        <u.kleine-koenig@pengutronix.de>, linux-usb@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 381/606] media: i2c/tvaudio: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:41:55 +0100
-Message-Id: <20221118224540.619276-382-uwe@kleine-koenig.org>
+Subject: [PATCH 576/606] usb: phy: isp1301: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:45:10 +0100
+Message-Id: <20221118224540.619276-577-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -59,37 +59,36 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/media/i2c/tvaudio.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/phy/phy-isp1301.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/tvaudio.c b/drivers/media/i2c/tvaudio.c
-index 9f1ed078b661..a54c76d9e23b 100644
---- a/drivers/media/i2c/tvaudio.c
-+++ b/drivers/media/i2c/tvaudio.c
-@@ -1934,8 +1934,9 @@ static const struct v4l2_subdev_ops tvaudio_ops = {
+diff --git a/drivers/usb/phy/phy-isp1301.c b/drivers/usb/phy/phy-isp1301.c
+index c2777a5c1f4e..f4ee14d98585 100644
+--- a/drivers/usb/phy/phy-isp1301.c
++++ b/drivers/usb/phy/phy-isp1301.c
+@@ -92,8 +92,7 @@ static int isp1301_phy_set_vbus(struct usb_phy *phy, int on)
+ 	return 0;
+ }
  
- /* i2c registration                                                       */
- 
--static int tvaudio_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static int tvaudio_probe(struct i2c_client *client)
+-static int isp1301_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *i2c_id)
++static int isp1301_probe(struct i2c_client *client)
  {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct CHIPSTATE *chip;
- 	struct CHIPDESC  *desc;
- 	struct v4l2_subdev *sd;
-@@ -2094,7 +2095,7 @@ static struct i2c_driver tvaudio_driver = {
- 	.driver = {
- 		.name	= "tvaudio",
+ 	struct isp1301 *isp;
+ 	struct usb_phy *phy;
+@@ -133,7 +132,7 @@ static struct i2c_driver isp1301_driver = {
+ 		.name = DRV_NAME,
+ 		.of_match_table = isp1301_of_match,
  	},
--	.probe		= tvaudio_probe,
-+	.probe_new	= tvaudio_probe,
- 	.remove		= tvaudio_remove,
- 	.id_table	= tvaudio_id,
+-	.probe = isp1301_probe,
++	.probe_new = isp1301_probe,
+ 	.remove = isp1301_remove,
+ 	.id_table = isp1301_id,
  };
 -- 
 2.38.1
