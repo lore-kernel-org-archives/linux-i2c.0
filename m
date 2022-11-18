@@ -2,42 +2,42 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91438C433FE
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:29:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4D2EC4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 23:29:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235876AbiKRX3j (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:29:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51490 "EHLO
+        id S235885AbiKRX3m (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:29:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235770AbiKRX2t (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:28:49 -0500
+        with ESMTP id S235812AbiKRX25 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 18:28:57 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABFBEB9623
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:16:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17DDAB9729
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 15:17:01 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8f-0002YV-Fh; Fri, 18 Nov 2022 23:47:13 +0100
+        id 1owA9P-0004Vf-EZ; Fri, 18 Nov 2022 23:47:59 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8c-0058Tv-RX; Fri, 18 Nov 2022 23:47:11 +0100
+        id 1owA9M-0058kl-QE; Fri, 18 Nov 2022 23:47:57 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8d-00009i-3U; Fri, 18 Nov 2022 23:47:11 +0100
+        id 1owA9M-0000OK-NP; Fri, 18 Nov 2022 23:47:56 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Pavel Machek <pavel@ucw.cz>
+        Wolfram Sang <wsa@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-leds@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 278/606] leds: lp3952: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:40:12 +0100
-Message-Id: <20221118224540.619276-279-uwe@kleine-koenig.org>
+        <u.kleine-koenig@pengutronix.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH 485/606] misc: bh1770glc: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:43:39 +0100
+Message-Id: <20221118224540.619276-486-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -59,31 +59,31 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/leds/leds-lp3952.c | 5 ++---
+ drivers/misc/bh1770glc.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/leds/leds-lp3952.c b/drivers/leds/leds-lp3952.c
-index bf0ad1b5ce24..24b2e0f9080d 100644
---- a/drivers/leds/leds-lp3952.c
-+++ b/drivers/leds/leds-lp3952.c
-@@ -207,8 +207,7 @@ static const struct regmap_config lp3952_regmap = {
- 	.cache_type = REGCACHE_RBTREE,
+diff --git a/drivers/misc/bh1770glc.c b/drivers/misc/bh1770glc.c
+index d0dfa674414c..bedbe0efb330 100644
+--- a/drivers/misc/bh1770glc.c
++++ b/drivers/misc/bh1770glc.c
+@@ -1162,8 +1162,7 @@ static const struct attribute_group bh1770_attribute_group = {
+ 	.attrs = sysfs_attrs
  };
  
--static int lp3952_probe(struct i2c_client *client,
--			const struct i2c_device_id *id)
-+static int lp3952_probe(struct i2c_client *client)
+-static int bh1770_probe(struct i2c_client *client,
+-				const struct i2c_device_id *id)
++static int bh1770_probe(struct i2c_client *client)
  {
- 	int status;
- 	struct lp3952_led_array *priv;
-@@ -274,7 +273,7 @@ static struct i2c_driver lp3952_i2c_driver = {
- 	.driver = {
- 			.name = LP3952_NAME,
+ 	struct bh1770_chip *chip;
+ 	int err;
+@@ -1379,7 +1378,7 @@ static struct i2c_driver bh1770_driver = {
+ 		.name	= "bh1770glc",
+ 		.pm	= &bh1770_pm_ops,
  	},
--	.probe = lp3952_probe,
-+	.probe_new = lp3952_probe,
- 	.remove = lp3952_remove,
- 	.id_table = lp3952_id,
+-	.probe	  = bh1770_probe,
++	.probe_new = bh1770_probe,
+ 	.remove	  = bh1770_remove,
+ 	.id_table = bh1770_id,
  };
 -- 
 2.38.1
