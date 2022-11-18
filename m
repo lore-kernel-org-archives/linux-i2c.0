@@ -2,46 +2,47 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 204EFC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:52:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2923AC4167B
+	for <linux-i2c@archiver.kernel.org>; Fri, 18 Nov 2022 22:52:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234351AbiKRWwI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:52:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37666 "EHLO
+        id S234358AbiKRWwJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:52:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232516AbiKRWvn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:51:43 -0500
+        with ESMTP id S234059AbiKRWvo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2022 17:51:44 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF5BBB45F
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28454BB46C
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2022 14:47:15 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8C-0000uC-Fb; Fri, 18 Nov 2022 23:46:44 +0100
+        id 1owA8B-0000p7-6J; Fri, 18 Nov 2022 23:46:43 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA88-0058JW-2o; Fri, 18 Nov 2022 23:46:41 +0100
+        id 1owA86-0058Iq-Ke; Fri, 18 Nov 2022 23:46:39 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA87-00Hb4V-Fq; Fri, 18 Nov 2022 23:46:39 +0100
+        id 1owA84-00Hb3W-8b; Fri, 18 Nov 2022 23:46:36 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
         Jonathan Cameron <jic23@kernel.org>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Rishi Gupta <gupt21@gmail.com>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?utf-8?q?Marek_Beh=C3=BAn?= <kabel@kernel.org>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
         Lars-Peter Clausen <lars@metafoo.de>,
         linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 150/606] iio: light: veml6030: Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:38:04 +0100
-Message-Id: <20221118224540.619276-151-uwe@kleine-koenig.org>
+Subject: [PATCH 134/606] iio: light: opt3001: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:37:48 +0100
+Message-Id: <20221118224540.619276-135-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -63,32 +64,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/light/veml6030.c | 5 ++---
+ drivers/iio/light/opt3001.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/light/veml6030.c b/drivers/iio/light/veml6030.c
-index 9a7800cdfee2..e7d2d5d177d4 100644
---- a/drivers/iio/light/veml6030.c
-+++ b/drivers/iio/light/veml6030.c
-@@ -786,8 +786,7 @@ static int veml6030_hw_init(struct iio_dev *indio_dev)
- 	return ret;
+diff --git a/drivers/iio/light/opt3001.c b/drivers/iio/light/opt3001.c
+index a26d1c3f9543..ec4f5c2369c4 100644
+--- a/drivers/iio/light/opt3001.c
++++ b/drivers/iio/light/opt3001.c
+@@ -735,8 +735,7 @@ static irqreturn_t opt3001_irq(int irq, void *_iio)
+ 	return IRQ_HANDLED;
  }
  
--static int veml6030_probe(struct i2c_client *client,
--			  const struct i2c_device_id *id)
-+static int veml6030_probe(struct i2c_client *client)
+-static int opt3001_probe(struct i2c_client *client,
+-		const struct i2c_device_id *id)
++static int opt3001_probe(struct i2c_client *client)
  {
- 	int ret;
- 	struct veml6030_data *data;
-@@ -893,7 +892,7 @@ static struct i2c_driver veml6030_driver = {
- 		.of_match_table = veml6030_of_match,
- 		.pm = pm_ptr(&veml6030_pm_ops),
- 	},
--	.probe = veml6030_probe,
-+	.probe_new = veml6030_probe,
- 	.id_table = veml6030_id,
- };
- module_i2c_driver(veml6030_driver);
+ 	struct device *dev = &client->dev;
+ 
+@@ -835,7 +834,7 @@ static const struct of_device_id opt3001_of_match[] = {
+ MODULE_DEVICE_TABLE(of, opt3001_of_match);
+ 
+ static struct i2c_driver opt3001_driver = {
+-	.probe = opt3001_probe,
++	.probe_new = opt3001_probe,
+ 	.remove = opt3001_remove,
+ 	.id_table = opt3001_id,
+ 
 -- 
 2.38.1
 
