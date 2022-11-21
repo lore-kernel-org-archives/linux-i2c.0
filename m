@@ -2,120 +2,88 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C189DC43217
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Nov 2022 10:16:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D9B8C43219
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Nov 2022 10:22:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231318AbiKUKQr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Nov 2022 05:16:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54364 "EHLO
+        id S231346AbiKUKWt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 21 Nov 2022 05:22:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231292AbiKUKQp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Nov 2022 05:16:45 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3866F9E09C
-        for <linux-i2c@vger.kernel.org>; Mon, 21 Nov 2022 02:16:44 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ox3qd-0007SP-E5; Mon, 21 Nov 2022 11:16:19 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ox3qa-005dO4-AS; Mon, 21 Nov 2022 11:16:17 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ox3qa-000YEj-92; Mon, 21 Nov 2022 11:16:16 +0100
-Date:   Mon, 21 Nov 2022 11:16:16 +0100
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+        with ESMTP id S231327AbiKUKWr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Nov 2022 05:22:47 -0500
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50F4413E8C
+        for <linux-i2c@vger.kernel.org>; Mon, 21 Nov 2022 02:22:45 -0800 (PST)
+Received: by mail-wr1-x430.google.com with SMTP id e11so6196817wru.8
+        for <linux-i2c@vger.kernel.org>; Mon, 21 Nov 2022 02:22:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=iTOHRzceQYVbSDGQhGLsG3F76+dMRPGYLu5KqgSSAiM=;
+        b=LZ0IPSCDo80aHrpFHT2RbRfDhrEM8HzMSN1EyZP/Tb3gPrJ1qucGYmhr3Z97MBwJjb
+         HLcUq7b56VOCopXtILEmmsotshAJyTeCJJwPKS7hOww4zyhg+xtCOHWeWSMfDdQhVW67
+         s2KdqyT//VhTNhG7F2lytEKXx2jdITXPZ/PNxsUB3CxAT9XDTwPfXifiIhMzMeOF83eM
+         ciiGNI7r+7dUNzjZNsHTwlfzaLLMXr+fjalYsSXpK039uMO59MGK1gm8HO1A56vkpW/2
+         465WplN1OHOw2pmtawR0/RLuJsQlBhyMwVa16+njzup3ADQkjT6UkkSaXFblRxWJZmzI
+         Q4LA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=iTOHRzceQYVbSDGQhGLsG3F76+dMRPGYLu5KqgSSAiM=;
+        b=lHdP/Im1cwQTnGp2lgn9QCRUSoQViryaocowJ+LmnWhg5UEtDyKvbrjV8fFrh58ILp
+         mt31V5b8ocOWLwTUuALSgHuZUCV6TQQjWFxXlf5AMvX6UqLHSdd0c2dewr1Kvk5x+HOi
+         d3yN1xOLp360G1YKjWtZIEF0Y0k/HPBUgYCJdMJmUCdODls/ttpmt2cvREY2OW792AGP
+         BMGLzmdtbT3GdRlC9/doUtoiwldwNlUtLOIo3xN4idlPirY5yaN8wBF9r0dI/C+3JnHF
+         u3xjuUzh3Eg3KM75v0/q3bZgphQeug6tudAoVdeeSEOaM8lYmOyl41Y+HYugiRTtc/5i
+         F1Ow==
+X-Gm-Message-State: ANoB5pnb3EsB2AObH3dPWGGAHzYqq1Nqi1yV6XvK7uWMx9AogrMkfsBj
+        qEVzJVMXVr8wlmo22W/fw0Q3Lg==
+X-Google-Smtp-Source: AA0mqf67/fMDHSu3j27cQjDIa1ZpZopwDRvpBD/uQs/oea0QTn+saXwNsfAKQLZBdoagr1e7hek2Bw==
+X-Received: by 2002:adf:e347:0:b0:236:76de:7280 with SMTP id n7-20020adfe347000000b0023676de7280mr10897544wrj.194.1669026163781;
+        Mon, 21 Nov 2022 02:22:43 -0800 (PST)
+Received: from maple.lan (cpc141216-aztw34-2-0-cust174.18-1.cable.virginm.net. [80.7.220.175])
+        by smtp.gmail.com with ESMTPSA id a6-20020adffb86000000b0022cdeba3f83sm10864175wrr.84.2022.11.21.02.22.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Nov 2022 02:22:43 -0800 (PST)
+Date:   Mon, 21 Nov 2022 10:22:41 +0000
+From:   Daniel Thompson <daniel.thompson@linaro.org>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
 Cc:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: [PATCH 166/606] iio: pressure: bmp280-i2c: Convert to i2c's
- .probe_new()
-Message-ID: <20221121101616.bdiufw4inflvee5s@pengutronix.de>
+        Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>,
+        Jingoo Han <jingoohan1@gmail.com>,
+        Helge Deller <deller@gmx.de>, linux-i2c@vger.kernel.org,
+        kernel@pengutronix.de,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 587/606] backlight: arcxcnn: Convert to i2c's .probe_new()
+Message-ID: <Y3tRcRJoURo/NTgt@maple.lan>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
- <20221118224540.619276-167-uwe@kleine-koenig.org>
+ <20221118224540.619276-588-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="zqml5kqykog6t3x7"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20221118224540.619276-167-uwe@kleine-koenig.org>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221118224540.619276-588-uwe@kleine-koenig.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Fri, Nov 18, 2022 at 11:45:21PM +0100, Uwe Kleine-König wrote:
+> From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+>
+> The probe function doesn't make use of the i2c_device_id * parameter so it
+> can be trivially converted.
+>
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
---zqml5kqykog6t3x7
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
 
-Hello,
 
-On Fri, Nov 18, 2022 at 11:38:20PM +0100, Uwe Kleine-K=F6nig wrote:
-> From: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
->=20
-> .probe_new() doesn't get the i2c_device_id * parameter, so determine
-> that explicitly in the probe function.
->=20
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> ---
->  drivers/iio/pressure/bmp280-i2c.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/iio/pressure/bmp280-i2c.c b/drivers/iio/pressure/bmp=
-280-i2c.c
-> index 14eab086d24a..4da014b158c8 100644
-> --- a/drivers/iio/pressure/bmp280-i2c.c
-> +++ b/drivers/iio/pressure/bmp280-i2c.c
-> @@ -7,6 +7,7 @@
-> =20
->  static int bmp280_i2c_probe(struct i2c_client *client)
->  {
-> +	const struct i2c_device_id *id =3D i2c_client_get_device_id(client);
->  	struct regmap *regmap;
->  	const struct regmap_config *regmap_config;
->  	const struct i2c_device_id *id =3D i2c_client_get_device_id(client);
-
-This patch is bogus, it degraded by rebasing on top of Angel Iglesias's
-conversion (021882de1a48cffaa405aa8014bd1d48ca6d5c19 in today's next).
-
-I dropped it from my queue, please don't apply.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---zqml5kqykog6t3x7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmN7T+0ACgkQwfwUeK3K
-7AnBgwgAjHrQRMd25irDTEifnbsKDLWp71dfzJck/YvStil4SygA0j4gpUpDafL6
-cK44nNFkhAhwm0wyYq6h4l4yvhjf2g5v/2EVILPO0BuqBfPYc4Exog//835Wgs1z
-1vZamb59YzbfFatawRxhgGPgMZ2ZCcUwsc9v9VX9OWQ0hICM17oMK56YyCdTvw1K
-Ji7e1Y8BYe1mjKja79Q1/P5mo2GHF5xDfOmdt9ffi6E3CwruVVshP46aVgPO93/O
-fj2N/ZbpMDycjfefB8knuhBj9pGCQLrN6jgOyMfdk9b+06AHXSkcpcuMrBirp9Ew
-bd69sPAoZobcKGcHBRCW+I4+m8RBbw==
-=k5Rx
------END PGP SIGNATURE-----
-
---zqml5kqykog6t3x7--
+Daniel.
