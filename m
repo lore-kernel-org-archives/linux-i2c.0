@@ -2,68 +2,89 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59F51C4332F
-	for <linux-i2c@archiver.kernel.org>; Mon, 21 Nov 2022 09:57:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE945C4332F
+	for <linux-i2c@archiver.kernel.org>; Mon, 21 Nov 2022 10:14:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231177AbiKUJ5u (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 21 Nov 2022 04:57:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38856 "EHLO
+        id S230255AbiKUKOc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 21 Nov 2022 05:14:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231159AbiKUJ5t (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Nov 2022 04:57:49 -0500
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DADF1E738;
-        Mon, 21 Nov 2022 01:57:47 -0800 (PST)
-Received: from canpemm500010.china.huawei.com (unknown [172.30.72.54])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4NG2mR018CzFqS7;
-        Mon, 21 Nov 2022 17:54:30 +0800 (CST)
-Received: from localhost.localdomain (10.175.112.70) by
- canpemm500010.china.huawei.com (7.192.105.118) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Mon, 21 Nov 2022 17:57:39 +0800
-From:   Wang Yufen <wangyufen@huawei.com>
-To:     <agross@kernel.org>, <andersson@kernel.org>,
-        <konrad.dybcio@somainline.org>, <sumit.semwal@linaro.org>,
-        <christian.koenig@amd.com>
-CC:     <vkoul@kernel.org>, <linux-arm-msm@vger.kernel.org>,
-        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-media@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
-        <linaro-mm-sig@lists.linaro.org>, Wang Yufen <wangyufen@huawei.com>
-Subject: [PATCH] i2c: qcom-geni: fix error return code in geni_i2c_gpi_xfer
-Date:   Mon, 21 Nov 2022 18:17:52 +0800
-Message-ID: <1669025872-44226-1-git-send-email-wangyufen@huawei.com>
-X-Mailer: git-send-email 1.8.3.1
+        with ESMTP id S230265AbiKUKOb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Nov 2022 05:14:31 -0500
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71D52F397
+        for <linux-i2c@vger.kernel.org>; Mon, 21 Nov 2022 02:14:23 -0800 (PST)
+Received: by mail-wm1-x334.google.com with SMTP id l39-20020a05600c1d2700b003cf93c8156dso8624578wms.4
+        for <linux-i2c@vger.kernel.org>; Mon, 21 Nov 2022 02:14:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=5Dzbdx+YB/boCMO64dCfkzauhQz7NXTFwUFa4JU5m/I=;
+        b=qhVVdWUoLbDIiuG/gwGKsCTx8p5RpzzYtUJp/Bg6xnf6S9Oe2ocd9NEPLVpdpfy9tu
+         e4XdLEF6ETSp4sCmqb2KeFldyhvQC9EYRzjzA858QRJWFpgygD5RHYzPcbhgFpemPm4P
+         xDPvVr6uctICfBhmjJwJMYBqHiqoDsSJijAZiwaSd6ORt5tckHuXqS2Gf6BKNnHtg8CD
+         VOA8mLAF7A7HUrKwAqLU2DV4TEE60NJw4WjryhHuAcqqzkmG0EJlhRBUnxqIOjsPDNn7
+         c/poaTMOgAaW9uceXs/2Tcgp22Fa7kyat5nUOuzyIFI5SJll8Kngx2ztNjHwWWUHOukk
+         L4Jw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=5Dzbdx+YB/boCMO64dCfkzauhQz7NXTFwUFa4JU5m/I=;
+        b=k/+DxABEH9GyIn87KRyjA7NhFS1ilFHGgD0dIH818CluRdEEpMY5VtBH5GshrwgaNh
+         PFP88iWDkcH0YbRH38XEXprDpmRZP1DzWcOjw9yf1ZVwTPYq4OEWj6THKvb+jjIhS0++
+         eVSoEKiL3WEf0vpWvNW3VLy0JD2F79AVSUGiEdPz1nkKtMkwyMJS1zNaXxIbaYRxgvvy
+         NbnN9uzV2N/r5/PBGl07LHxIAxAfknWksPAWGJ+6Ci8MgugGqG1NSQqYOhgcc415hRzi
+         7WIEtUkxtFhKZo8lGR5WREcdN4U2J+hFYw+hg0mplFtzWF5jkB1q/e747eGiTK+FJ387
+         /9mA==
+X-Gm-Message-State: ANoB5plbbDNgivrO3Q1HNkbTldlfhvR3sbjrRuHfykEZkItpScJej7TN
+        EsIAeKJMnMTchV1/mlpkDFf2IA==
+X-Google-Smtp-Source: AA0mqf4mZ3vHBYk5iRMjwVfb91H1TAzjZF28Di5vZlwZDO5WrJ4yqKAzbSCZU0JmtUpvWsi6sqMjZQ==
+X-Received: by 2002:a1c:c918:0:b0:3cf:f2aa:3dc2 with SMTP id f24-20020a1cc918000000b003cff2aa3dc2mr2879921wmb.175.1669025662121;
+        Mon, 21 Nov 2022 02:14:22 -0800 (PST)
+Received: from maple.lan (cpc141216-aztw34-2-0-cust174.18-1.cable.virginm.net. [80.7.220.175])
+        by smtp.gmail.com with ESMTPSA id l32-20020a05600c1d2000b003cfbbd54178sm27381570wms.2.2022.11.21.02.14.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Nov 2022 02:14:21 -0800 (PST)
+Date:   Mon, 21 Nov 2022 10:14:19 +0000
+From:   Daniel Thompson <daniel.thompson@linaro.org>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
+Cc:     Angel Iglesias <ang.iglesiasg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Grant Likely <grant.likely@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Lee Jones <lee@kernel.org>, Jingoo Han <jingoohan1@gmail.com>,
+        Helge Deller <deller@gmx.de>, linux-i2c@vger.kernel.org,
+        kernel@pengutronix.de,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 585/606] backlight: adp8860: Convert to i2c's .probe_new()
+Message-ID: <Y3tPe9mAnT9aGnGL@maple.lan>
+References: <20221118224540.619276-1-uwe@kleine-koenig.org>
+ <20221118224540.619276-586-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.112.70]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- canpemm500010.china.huawei.com (7.192.105.118)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221118224540.619276-586-uwe@kleine-koenig.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Fix to return a negative error code from the gi2c->err instead of
-0.
+On Fri, Nov 18, 2022 at 11:45:19PM +0100, Uwe Kleine-König wrote:
+> From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+>
+> .probe_new() doesn't get the i2c_device_id * parameter, so determine
+> that explicitly in the probe function.
+>
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-Fixes: d8703554f4de ("i2c: qcom-geni: Add support for GPI DMA")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
----
- drivers/i2c/busses/i2c-qcom-geni.c | 1 -
- 1 file changed, 1 deletion(-)
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 84a7751..8fce98b 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -626,7 +626,6 @@ static int geni_i2c_gpi_xfer(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[], i
- 			dev_err(gi2c->se.dev, "I2C timeout gpi flags:%d addr:0x%x\n",
- 				gi2c->cur->flags, gi2c->cur->addr);
- 			gi2c->err = -ETIMEDOUT;
--			goto err;
- 		}
- 
- 		if (gi2c->err) {
--- 
-1.8.3.1
 
+Daniel.
