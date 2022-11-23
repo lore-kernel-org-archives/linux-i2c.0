@@ -2,109 +2,101 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF7FAC433FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Nov 2022 06:36:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5375CC4332F
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Nov 2022 07:29:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236063AbiKWGg6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 23 Nov 2022 01:36:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38956 "EHLO
+        id S235505AbiKWH3X (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 23 Nov 2022 02:29:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236097AbiKWGg4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Nov 2022 01:36:56 -0500
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D30BF41A0;
-        Tue, 22 Nov 2022 22:36:55 -0800 (PST)
-Received: by mail-ed1-f52.google.com with SMTP id l24so10990257edj.8;
-        Tue, 22 Nov 2022 22:36:55 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ulv6edlYlCjp0LG54r+aLHzcPkGe6DtDqBoJOOcicbo=;
-        b=NhTXm2m2X1WHmRD5ZDw5SHZ9UcCAHRoV1HhA6UgYo05HR130SHyTpXs/S+xheeo067
-         YTrDiQt82nsvRJ2FU6v8yyFyXaTv1p6aGEm6Tv1IH/nhT2z+uX2cbaGsWg2TPfL/U7f6
-         QaQCJc98t0eH1CH6Sge6xlm8TitYP/GIhxAensekjotvJZC/ZIE15ug8VB3aLg9tGYDl
-         cuHHf+ghiS6tZHgn+qv4mygjF4JTlzHzzEOEWIkloBy+ee0xgBQ8IA1OzQjHwB37EhWS
-         QNXBccnyG5ZHQdGWAGzdBTBrtXZC1/7SpOslmQWLxMIwF7WpuQitstARxbpUI30ZxDUl
-         uIPA==
-X-Gm-Message-State: ANoB5pnxHyzeyRfUaPXiiGOhC3a1DWQW33utkDRhBJVc9ByGi4nuMNx7
-        XUULh2GZEUpoH4DLuEib+io=
-X-Google-Smtp-Source: AA0mqf4Dg8TPFknBTb46nP+hZVU9dnIIVJmPfq9gDz6Bkbp7NPi0+V6eg4HjVS0LNkQbEVYv61QXhA==
-X-Received: by 2002:a05:6402:520a:b0:459:4c7b:e852 with SMTP id s10-20020a056402520a00b004594c7be852mr11384046edd.347.1669185414237;
-        Tue, 22 Nov 2022 22:36:54 -0800 (PST)
-Received: from ?IPV6:2a0b:e7c0:0:107::aaaa:49? ([2a0b:e7c0:0:107::aaaa:49])
-        by smtp.gmail.com with ESMTPSA id up30-20020a170907cc9e00b007ae0fde7a9asm6828545ejc.201.2022.11.22.22.36.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Nov 2022 22:36:53 -0800 (PST)
-Message-ID: <0bfea903-5efd-a76d-5944-16a2c9362adb@kernel.org>
-Date:   Wed, 23 Nov 2022 07:36:52 +0100
+        with ESMTP id S235343AbiKWH3W (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Nov 2022 02:29:22 -0500
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30476532E3;
+        Tue, 22 Nov 2022 23:29:19 -0800 (PST)
+Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NHCMQ0XB8zqSVt;
+        Wed, 23 Nov 2022 15:25:22 +0800 (CST)
+Received: from huawei.com (10.67.175.21) by kwepemi500012.china.huawei.com
+ (7.221.188.12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Wed, 23 Nov
+ 2022 15:29:16 +0800
+From:   Li Zetao <lizetao1@huawei.com>
+To:     <wsa@kernel.org>, <gregkh@suse.de>, <khali@linux-fr.org>
+CC:     <lizetao1@huawei.com>, <linux-i2c@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i2c: core: Fix possible memleak in i2c_register_adapter()
+Date:   Wed, 23 Nov 2022 16:16:43 +0800
+Message-ID: <20221123081643.713184-1-lizetao1@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: [PATCH 571/606] serial: sc16is7xx: Convert to i2c's .probe_new()
-Content-Language: en-US
-To:     =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
-Cc:     =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <uwe@kleine-koenig.org>,
-        Angel Iglesias <ang.iglesiasg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-i2c@vger.kernel.org, kernel@pengutronix.de
-References: <20221118224540.619276-1-uwe@kleine-koenig.org>
- <20221118224540.619276-572-uwe@kleine-koenig.org>
- <536ac08e-bdbd-b4d6-8309-8f6763f8db12@kernel.org>
- <20221121070757.cqiybt5uk4qiczmr@pengutronix.de>
-From:   Jiri Slaby <jirislaby@kernel.org>
-In-Reply-To: <20221121070757.cqiybt5uk4qiczmr@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.175.21]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ kwepemi500012.china.huawei.com (7.221.188.12)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+I got memory leak as follows when doing fault injection test:
 
-On 21. 11. 22, 8:07, Uwe Kleine-König wrote:
-> Hello Jiri,
-> 
-> On Mon, Nov 21, 2022 at 07:03:41AM +0100, Jiri Slaby wrote:
->> On 18. 11. 22, 23:45, Uwe Kleine-König wrote:
->>> From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
->>>
->>> .probe_new() doesn't get the i2c_device_id * parameter, so determine
->>> that explicitly in the probe function.
->>
->> I wonder why -- is this a new approach to probe functions? Or is only i2c
->> affected? And why? Could you point to the commit introducing and describing
->> the change in the i2c core?
-> 
-> I didn't sent the cover letter to all recipents of the individual
-> patches, so flow of information is a bit rough. Sorry about that.
-> 
-> You can find it at
-> https://lore.kernel.org/lkml/20221118224540.619276-1-uwe@kleine-koenig.org/,
-> it should answer your question.
+unreferenced object 0xffff88818be6dcb8 (size 8):
+  comm "modprobe", pid 1022129, jiffies 4363911608 (age 43.838s)
+    hex dump (first 8 bytes):
+      69 32 63 2d 30 00 6b a5                          i2c-0.k.
+    backtrace:
+      [<ffffffff812f588f>] __kmem_cache_alloc_node+0x2cf/0x4b0
+      [<ffffffff81283c43>] __kmalloc_node_track_caller+0x53/0x140
+      [<ffffffff81604b0a>] kvasprintf+0x6a/0xd0
+      [<ffffffff81604be7>] kvasprintf_const+0x77/0xa0
+      [<ffffffff81a00173>] kobject_set_name_vargs+0x23/0x90
+      [<ffffffff817bf743>] dev_set_name+0x53/0x70
+      [<ffffffffa023ebb2>] i2c_register_adapter+0x112/0x6c0 [i2c_core]
+      [<ffffffffa023f268>] i2c_add_adapter+0x78/0xc0 [i2c_core]
+      [<ffffffffa0300182>] piix4_add_adapter+0x132/0x210 [i2c_piix4]
+      [<ffffffffa0300535>] piix4_probe+0x2d5/0x5f4 [i2c_piix4]
+      [<ffffffff816c5da2>] pci_device_probe+0xb2/0x180
+      [<ffffffff817c769f>] really_probe+0xff/0x380
+      [<ffffffff817c79aa>] __driver_probe_device+0x8a/0x190
+      [<ffffffff817c7b33>] driver_probe_device+0x23/0xb0
+      [<ffffffff817c80a3>] __driver_attach+0xd3/0x1b0
+      [<ffffffff817c4ede>] bus_for_each_dev+0x7e/0xd0
 
-Yes, I looked up that beforehand, but was no more clever after reading it.
+The root cause was traced to an error handing path in
+i2c_register_adapter() when device_register() fails. After
+calling dev_set_name() which called by i2c_register_adapter(),
+the put_device() should be used to give up the device reference
+in error handling path in order to free "kobj->name" alloced
+in dev_set_name().
 
-> The short version is: The i2c framework does a more or less expensive
-> lookup for each call to .probe() to provide the id parameter. A relevant
-> part of the drivers however doesn't use this parameter, so the idea is
-> to let the drivers who actually need it, determine it themselves.
-> 
-> Statistics for the current state of this series in my tree:
-> Among the 602 converted drivers, 404 don't make use of the parameter.
+Fix it by calling put_device() when device_register() fails in
+i2c_register_adapter(). In addition, when i2c_adapter device
+is released, i2c_adapter_dev_release() is called, in which
+"dev_released" must be initialized, otherwise a kernel bug
+will be triggered.
 
-So doesn't it make sense to provide both probe with no id and "probe_id" 
-then? 200 is quite a few (a third to be precise).
+Fixes: b119c6c952a0 ("i2c: __must_check fixes (core drivers)")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+---
+ drivers/i2c/i2c-core-base.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-BTW is this a performance issue? I.e. does it slow down the boot?
-
-thanks,
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 5dcea9f1deab..ef85e58533e2 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1472,6 +1472,9 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 	res = device_register(&adap->dev);
+ 	if (res) {
+ 		pr_err("adapter '%s': can't register device (%d)\n", adap->name, res);
++		init_completion(&adap->dev_released);
++		put_device(&adap->dev);
++		wait_for_completion(&adap->dev_released);
+ 		goto out_list;
+ 	}
+ 
 -- 
-js
-suse labs
+2.25.1
 
