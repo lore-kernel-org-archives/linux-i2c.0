@@ -2,24 +2,24 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA12CC4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 25 Nov 2022 08:56:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F459C47089
+	for <linux-i2c@archiver.kernel.org>; Fri, 25 Nov 2022 08:56:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbiKYI4y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 25 Nov 2022 03:56:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41512 "EHLO
+        id S229748AbiKYI46 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 25 Nov 2022 03:56:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229581AbiKYI4w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Nov 2022 03:56:52 -0500
+        with ESMTP id S229753AbiKYI4x (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Nov 2022 03:56:53 -0500
 Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2D27431EEB;
-        Fri, 25 Nov 2022 00:56:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 370D631ED6;
+        Fri, 25 Nov 2022 00:56:52 -0800 (PST)
 Received: from loongson.cn (unknown [112.20.109.110])
-        by gateway (Coremail) with SMTP id _____8Axz+tRg4BjbOIAAA--.2297S3;
-        Fri, 25 Nov 2022 16:56:49 +0800 (CST)
+        by gateway (Coremail) with SMTP id _____8AxxvBTg4BjfOIAAA--.2268S3;
+        Fri, 25 Nov 2022 16:56:51 +0800 (CST)
 Received: from localhost.localdomain (unknown [112.20.109.110])
-        by localhost.localdomain (Coremail) with SMTP id AQAAf8AxBldOg4BjghMaAA--.49336S3;
-        Fri, 25 Nov 2022 16:56:48 +0800 (CST)
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8AxBldOg4BjghMaAA--.49336S5;
+        Fri, 25 Nov 2022 16:56:50 +0800 (CST)
 From:   Binbin Zhou <zhoubinbin@loongson.cn>
 To:     Wolfram Sang <wsa@kernel.org>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -34,72 +34,100 @@ Cc:     loongarch@lists.linux.dev, devicetree@vger.kernel.org,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Jianmin Lv <lvjianmin@loongson.cn>,
         Binbin Zhou <zhoubinbin@loongson.cn>
-Subject: [PATCH V3 1/5] i2c: gpio: Fix potential unused warning for 'i2c_gpio_dt_ids'
-Date:   Fri, 25 Nov 2022 16:54:11 +0800
-Message-Id: <4ace98785f900bf1a818d006ae5906f6b51edf7e.1669359515.git.zhoubinbin@loongson.cn>
+Subject: [PATCH V3 3/5] dt-bindings: i2c: add bindings for Loongson LS2X I2C
+Date:   Fri, 25 Nov 2022 16:54:13 +0800
+Message-Id: <57339e73b6c0bfe446e19a7f55a48b7ca640b9ec.1669359515.git.zhoubinbin@loongson.cn>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1669359515.git.zhoubinbin@loongson.cn>
 References: <cover.1669359515.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AQAAf8AxBldOg4BjghMaAA--.49336S3
+X-CM-TRANSID: AQAAf8AxBldOg4BjghMaAA--.49336S5
 X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
-X-Coremail-Antispam: 1Uk129KBjvdXoW7GF4kJw4kGFWkXrW8Xr1rtFb_yoWDZFg_A3
-        4rXwsrZr18Crn8ZF1Yqr4avFWDK3Z0gF1rXF10yaya9w15Xw45JF4DAFs3J398urWxGF1q
-        9a1DXFWfCa42qjkaLaAFLSUrUUUUnb8apTn2vfkv8UJUUUU8wcxFpf9Il3svdxBIdaVrn0
-        xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUY
-        C7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3w
-        AFIxvE14AKwVWUXVWUAwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK
-        6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7
-        xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAa
-        w2AFwI0_JF0_Jw1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44
-        I27wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jw0_WrylYx0Ex4A2
-        jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262
-        kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km
-        07C267AKxVWUAVWUtwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r
-        1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVW8
-        JVW5JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r
-        1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1U
-        YxBIdaVFxhVjvjDU0xZFpf9x07jz5lbUUUUU=
+X-Coremail-Antispam: 1Uk129KBjvJXoW7WFW5WFW8CFWxXF4xurW3Wrg_yoW8Wr4xp3
+        ZrCr9rGr40vF17u39xGFy8G3W3Zr95AasrGFZFyw1UKFyDG3Wqvw4akr15Xa13WFy0gFW7
+        XFZ29r4jkas7Cr7anT9S1TB71UUUUjDqnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
+        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
+        bSxYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
+        1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
+        wVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4
+        x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l
+        n4kS14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6x
+        ACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q6rW5McIj6I8E
+        87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxV
+        Aaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxY
+        O2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGV
+        WUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_
+        Xr0_Ar1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rV
+        WUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4U
+        JbIYCTnIWIevJa73UjIFyTuYvjxU4Xo7DUUUU
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-of_match_ptr() compiles into NULL if CONFIG_OF is disabled.
-Fix warning by dropping of_match_ptr().
-
-Suggested by Andy Shevchenko, thanks.
+Add device tree bindings for the i2c controller on the Loongson-2K Soc
+or Loongosn LS7A bridge.
 
 Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
 ---
- drivers/i2c/busses/i2c-gpio.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ .../bindings/i2c/loongson,ls2x-i2c.yaml       | 48 +++++++++++++++++++
+ 1 file changed, 48 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
 
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index b1985c1667e1..0e4385a9bcf7 100644
---- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -482,19 +482,17 @@ static int i2c_gpio_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--#if defined(CONFIG_OF)
- static const struct of_device_id i2c_gpio_dt_ids[] = {
- 	{ .compatible = "i2c-gpio", },
- 	{ /* sentinel */ }
- };
- 
- MODULE_DEVICE_TABLE(of, i2c_gpio_dt_ids);
--#endif
- 
- static struct platform_driver i2c_gpio_driver = {
- 	.driver		= {
- 		.name	= "i2c-gpio",
--		.of_match_table	= of_match_ptr(i2c_gpio_dt_ids),
-+		.of_match_table	= i2c_gpio_dt_ids,
- 	},
- 	.probe		= i2c_gpio_probe,
- 	.remove		= i2c_gpio_remove,
+diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+new file mode 100644
+index 000000000000..8c785f329d2f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+@@ -0,0 +1,48 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/i2c/loongson,ls2x-i2c.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
++
++title: Loongson LS2X I2C Controller
++
++maintainers:
++  - Binbin Zhou <zhoubinbin@loongson.cn>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    enum:
++      - loongson,ls2k-i2c # Loongson-2K SoCs
++      - loongson,ls7a-i2c # Loongson LS7A Bridge
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c@1fe21000 {
++        compatible = "loongson,ls2k-i2c";
++        reg = <0 0x1fe21000 0 0x8>;
++        interrupts = <22>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        eeprom@57{
++            compatible = "atmel,24c16";
++            reg = <0x57>;
++            pagesize = <16>;
++        };
++    };
 -- 
 2.31.1
 
