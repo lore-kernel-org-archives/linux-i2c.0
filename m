@@ -2,134 +2,149 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B73CC43217
-	for <linux-i2c@archiver.kernel.org>; Sun, 27 Nov 2022 18:24:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 014D0C4321E
+	for <linux-i2c@archiver.kernel.org>; Sun, 27 Nov 2022 20:49:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229625AbiK0SY2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 27 Nov 2022 13:24:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35866 "EHLO
+        id S229509AbiK0UtJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 27 Nov 2022 15:49:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229626AbiK0SYV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 27 Nov 2022 13:24:21 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22BAC63B3
-        for <linux-i2c@vger.kernel.org>; Sun, 27 Nov 2022 10:23:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669573398;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SXx0cfDGf4zqnICsNky1w2M79w0a2NmEGAvIq2j1/rc=;
-        b=UPvEvWlCjWDSXLBXr66FFzaNz7r3vaKeJRHzhEXKed6XHrQF702G0bzejShIImUSGZ1P15
-        kW+wnoQmp5feC8ZSjC8Yy15h1e8HEa4kMw1d2018YCLd/nY1vz2yuaUiaDQBUxGydDWABN
-        zJ1xJ+18CETE9s59+CWrfbnBerdOJ30=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-389-0vOp5uyqNIKVlk_6Fu1Avg-1; Sun, 27 Nov 2022 13:23:12 -0500
-X-MC-Unique: 0vOp5uyqNIKVlk_6Fu1Avg-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BADAE811E67;
-        Sun, 27 Nov 2022 18:23:11 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.39.192.80])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B7ACC49BB61;
-        Sun, 27 Nov 2022 18:23:10 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Wolfram Sang <wsa@kernel.org>, Lee Jones <lee.jones@linaro.org>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 2/3] i2c: cht-wc: Add charger-chip info for the Lenovo Yoga Tab 3 YT3-X90F
-Date:   Sun, 27 Nov 2022 19:22:56 +0100
-Message-Id: <20221127182257.104410-3-hdegoede@redhat.com>
-In-Reply-To: <20221127182257.104410-1-hdegoede@redhat.com>
-References: <20221127182257.104410-1-hdegoede@redhat.com>
+        with ESMTP id S229586AbiK0UtH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 27 Nov 2022 15:49:07 -0500
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5683BDEFC
+        for <linux-i2c@vger.kernel.org>; Sun, 27 Nov 2022 12:49:04 -0800 (PST)
+Received: by mail-lf1-x132.google.com with SMTP id u27so3549893lfc.9
+        for <linux-i2c@vger.kernel.org>; Sun, 27 Nov 2022 12:49:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vR4hvjFZqcJcK9D7nIBiS7pXR2h8XNS5XvEnHFUhGDE=;
+        b=mLpVT2EoF2YuKbsQrmK0Up8tniXVmqelZ/a04ghqJhHsC1N4FbhcF6+uNOzeiYLud+
+         NJk6n15Ea8qZ4y8VR+iQmweBVzanYTs2Ha4mkSOhwlFf3K9ZuUIxdw3mLW8G0Gt0BZ45
+         Sjo0Mrv8dSAjRgpMBriUULmX7mlwkm1b60LvQ+I8lElxEa6EX/u1RaIdMaHq4nBBXkNj
+         ww2YHxcuIUncjEtylGaqEi37xBi7ZCYa5E6bCwkLMvAJixQkgrkc+Lhn69+aWzPLNy6d
+         iJAiwGjYhmY6hvLyGNd7CEb1xHbi44nU+l2sZvUp86muQr+hebJJQiVoryXU4IIxB614
+         ejGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=vR4hvjFZqcJcK9D7nIBiS7pXR2h8XNS5XvEnHFUhGDE=;
+        b=hQdK4bqn01Qtl+ewPm0PPLhXtcFZN0OT0THTjPA49zouydBb5UIXG8Z/jN1/gNrIgh
+         /Wt7uwoDJNnQoC1ePXEds9trWUlk7s21AD/hA+L1ANG1XQmolmyFqSG9iR4m/oo+Tr+p
+         QO7ZYEazc4StJnmgVxZjCYHhsbgKs2/kf4TF1cvMCuuoZqwmCrM1nyKXNjlFcZF3/38N
+         wWxEA/iLe2qcgIdkW9UL7/syo7cz6n337K4Ggvw/oGGHjmK+Fd0MQg1HUHWP11a2rAhn
+         H5vn1UCvJ+/ANHOb1ngqMcxC7tIQ215ZO7LuF13tbzHS27qHDbAEMGWsCg9RiQuM5/DN
+         Q99g==
+X-Gm-Message-State: ANoB5pmiT9aV+VIRFqlgs9pgIcK287IPM/MpEm8VCEy+L7it2Wwc/L6f
+        Y2bW3mp0q37TjBX68PSXwYz48+cd2xvcqAJ7
+X-Google-Smtp-Source: AA0mqf47uMAlT8JMFOyJOqlqu4YKZATtET8jVj4qm5LqbktsNhciwtvw8kt3U1yFZtbUdXSXBVmREQ==
+X-Received: by 2002:a05:6512:6d:b0:4a8:ebec:7143 with SMTP id i13-20020a056512006d00b004a8ebec7143mr16016485lfo.493.1669582142700;
+        Sun, 27 Nov 2022 12:49:02 -0800 (PST)
+Received: from [192.168.0.20] (088156142067.dynamic-2-waw-k-3-2-0.vectranet.pl. [88.156.142.67])
+        by smtp.gmail.com with ESMTPSA id n11-20020a05651203eb00b00497aa190523sm1421668lfq.248.2022.11.27.12.49.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 27 Nov 2022 12:49:02 -0800 (PST)
+Message-ID: <61541d15-fbfd-3f99-fc05-663ebf4a2b54@linaro.org>
+Date:   Sun, 27 Nov 2022 21:49:01 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [PATCH V3 3/5] dt-bindings: i2c: add bindings for Loongson LS2X
+ I2C
+Content-Language: en-US
+To:     Binbin Zhou <zhoubinbin@loongson.cn>,
+        Wolfram Sang <wsa@kernel.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+Cc:     loongarch@lists.linux.dev, devicetree@vger.kernel.org,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Jianmin Lv <lvjianmin@loongson.cn>
+References: <cover.1669359515.git.zhoubinbin@loongson.cn>
+ <57339e73b6c0bfe446e19a7f55a48b7ca640b9ec.1669359515.git.zhoubinbin@loongson.cn>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <57339e73b6c0bfe446e19a7f55a48b7ca640b9ec.1669359515.git.zhoubinbin@loongson.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On x86 devices with a CHT Whiskey Cove PMIC the driver for
-the I2C bus coming from the PMIC is responsible for instantiating
-the i2c_client for the charger chip.
+On 25/11/2022 09:54, Binbin Zhou wrote:
+> Add device tree bindings for the i2c controller on the Loongson-2K Soc
+> or Loongosn LS7A bridge.
 
-Add the necessary i2c_board_info for this.
+It's a v3 which is for the first time sent to DT maintainers...
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/i2c/busses/i2c-cht-wc.c | 46 +++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+Subject: drop second, redundant "bindings for".
 
-diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
-index 190abdc46dd3..2b2c3d090089 100644
---- a/drivers/i2c/busses/i2c-cht-wc.c
-+++ b/drivers/i2c/busses/i2c-cht-wc.c
-@@ -380,6 +380,49 @@ static struct i2c_board_info lenovo_yogabook1_board_info = {
- 	.platform_data = &bq2589x_pdata,
- };
- 
-+/********** Lenovo Yogabook YT3-X90F charger settings **********/
-+static const char * const lenovo_yt3_bq25892_1_suppliers[] = { "cht_wcove_pwrsrc" };
-+
-+/*
-+ * bq25892 charger settings for the round li-ion cells in the hinge,
-+ * this is the main / biggest battery.
-+ */
-+static const struct property_entry lenovo_yt3_bq25892_1_props[] = {
-+	PROPERTY_ENTRY_STRING_ARRAY("supplied-from", lenovo_yt3_bq25892_1_suppliers),
-+	PROPERTY_ENTRY_STRING("linux,secondary-charger-name", "bq25890-charger-0"),
-+	PROPERTY_ENTRY_U32("linux,iinlim-percentage", 60),
-+	PROPERTY_ENTRY_U32("linux,pump-express-vbus-max", 12000000),
-+	PROPERTY_ENTRY_BOOL("linux,skip-reset"),
-+	/*
-+	 * The firmware sets everything to the defaults, leading to a low(ish)
-+	 * charge-current and battery-voltage of 2048mA resp 4.2V. Use the
-+	 * Android values instead of "linux,read-back-settings" to fix this.
-+	 */
-+	PROPERTY_ENTRY_U32("ti,charge-current", 3072000),
-+	PROPERTY_ENTRY_U32("ti,battery-regulation-voltage", 4352000),
-+	PROPERTY_ENTRY_U32("ti,termination-current", 128000),
-+	PROPERTY_ENTRY_U32("ti,precharge-current", 128000),
-+	PROPERTY_ENTRY_U32("ti,minimum-sys-voltage", 3700000),
-+	PROPERTY_ENTRY_BOOL("ti,use-ilim-pin"),
-+	/* Set 5V boost current-limit to 1.2A (MAX/POR values are 2.45A/1.4A) */
-+	PROPERTY_ENTRY_U32("ti,boost-voltage", 4998000),
-+	PROPERTY_ENTRY_U32("ti,boost-max-current", 1200000),
-+	{ }
-+};
-+
-+static const struct software_node lenovo_yt3_bq25892_1_node = {
-+	.properties = lenovo_yt3_bq25892_1_props,
-+};
-+
-+/* bq25892 charger for the round li-ion cells in the hinge */
-+static struct i2c_board_info lenovo_yoga_tab3_board_info = {
-+	.type = "bq25892",
-+	.addr = 0x6b,
-+	.dev_name = "bq25892_1",
-+	.swnode = &lenovo_yt3_bq25892_1_node,
-+	.platform_data = &bq2589x_pdata,
-+};
-+
- static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
- {
- 	struct intel_soc_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
-@@ -459,6 +502,9 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
- 	case INTEL_CHT_WC_LENOVO_YOGABOOK1:
- 		board_info = &lenovo_yogabook1_board_info;
- 		break;
-+	case INTEL_CHT_WC_LENOVO_YT3_X90:
-+		board_info = &lenovo_yoga_tab3_board_info;
-+		break;
- 	default:
- 		dev_warn(&pdev->dev, "Unknown model, not instantiating charger device\n");
- 		break;
--- 
-2.38.1
+> 
+> Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+> ---
+>  .../bindings/i2c/loongson,ls2x-i2c.yaml       | 48 +++++++++++++++++++
+>  1 file changed, 48 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+> new file mode 100644
+> index 000000000000..8c785f329d2f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+> @@ -0,0 +1,48 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: "http://devicetree.org/schemas/i2c/loongson,ls2x-i2c.yaml#"
+> +$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+
+Drop quotes form both.
+
+> +
+> +title: Loongson LS2X I2C Controller
+> +
+> +maintainers:
+> +  - Binbin Zhou <zhoubinbin@loongson.cn>
+> +
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - loongson,ls2k-i2c # Loongson-2K SoCs
+> +      - loongson,ls7a-i2c # Loongson LS7A Bridge
+
+Isn't your comment exactly the same as compatible? Where is the
+difference? I propose to drop the comment entirely, unless it explains
+something.
+
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+
+No clocks? I2C controller without clocks? Are you sure the binding is
+complete?
+
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +
+
+Best regards,
+Krzysztof
 
