@@ -2,50 +2,50 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C618AC43217
-	for <linux-i2c@archiver.kernel.org>; Sun, 27 Nov 2022 18:24:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AB94C43217
+	for <linux-i2c@archiver.kernel.org>; Sun, 27 Nov 2022 18:24:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229469AbiK0SYI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 27 Nov 2022 13:24:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35808 "EHLO
+        id S229580AbiK0SYO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 27 Nov 2022 13:24:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbiK0SYH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 27 Nov 2022 13:24:07 -0500
+        with ESMTP id S229504AbiK0SYN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 27 Nov 2022 13:24:13 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 597C362C3
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0932267C
         for <linux-i2c@vger.kernel.org>; Sun, 27 Nov 2022 10:23:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669573394;
+        s=mimecast20190719; t=1669573395;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=SspE+TBwWSr9TCW1N3as9/TtY9hK2M85GwILDRXgC3E=;
-        b=WPREulSUC4V4eX+VQN4oLftMzYoWF+jFEZ89HUFygCrFvLg1R+/lV5jipgmhMu890iAno0
-        zmh6DxVMC0rMYLCa/aHU/19sDDMmnK3WYmJTjuwWr3YjZQfPIuHNm1OqFWAqEjajzyOKr3
-        VwlU0XcW4F+wB2khHBZfWOl1jdoynuc=
+        bh=oUUOOM+io2yL6/ixiTAeA+s/v26tWSqdvBE3wNHNXLY=;
+        b=cbfNslrnz8MaBGkFcY+mgSSutn9fsJ+FeayYp5Uc/XD0SvtlQlMBth4n//ZQmWKT9JJA1A
+        9BvdyL6RHUPPPUQPOF02JXbrXMmR0sONDp96WOI4T89cJy82sYRiGVwtlQ+T7n0Wk7EZCU
+        3DOOw6o/x9/PFaC0cB6sOZxkrkdNqjU=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-375-NPVO82XUNsek8f9bZ6Bryw-1; Sun, 27 Nov 2022 13:23:11 -0500
-X-MC-Unique: NPVO82XUNsek8f9bZ6Bryw-1
+ us-mta-575-awcEhEt8N0W9NCSnDDNNQg-1; Sun, 27 Nov 2022 13:23:13 -0500
+X-MC-Unique: awcEhEt8N0W9NCSnDDNNQg-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8201D185A78F;
-        Sun, 27 Nov 2022 18:23:10 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F061D185A78F;
+        Sun, 27 Nov 2022 18:23:12 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.39.192.80])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7BDF849BB61;
-        Sun, 27 Nov 2022 18:23:09 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id EE99349BB61;
+        Sun, 27 Nov 2022 18:23:11 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Wolfram Sang <wsa@kernel.org>, Lee Jones <lee.jones@linaro.org>,
         MyungJoo Ham <myungjoo.ham@samsung.com>,
         Chanwoo Choi <cw00.choi@samsung.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] mfd: intel_soc_pmic_chtwc: Add Lenovo Yoga Tab 3 X90F to intel_cht_wc_models
-Date:   Sun, 27 Nov 2022 19:22:55 +0100
-Message-Id: <20221127182257.104410-2-hdegoede@redhat.com>
+Subject: [PATCH 3/3] extcon: intel-cht-wc: Add support for Lenovo Yoga Tab 3 Pro YT3-X90F
+Date:   Sun, 27 Nov 2022 19:22:57 +0100
+Message-Id: <20221127182257.104410-4-hdegoede@redhat.com>
 In-Reply-To: <20221127182257.104410-1-hdegoede@redhat.com>
 References: <20221127182257.104410-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -55,51 +55,31 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The drivers for various CHT Whiskey Cove PMIC child-devices need to know
-the model, since they have model specific behavior. The DMI match table
-for this is shared between the child-device-drivers inside the MFD driver.
+The Lenovo Yoga Tab 3 Pro YT3-X90F needs the same handling as
+the Lenovo Yogabook models. That is it needs the extcon code to:
 
-Add the Lenovo Yoga Tab 3 X90F, which is a previously unknown tablet
-model with a CHT Whiskey Cove PMIC, to the intel_cht_wc_models enum and
-to the DMI match table.
+1. Control the Vbus regulator and USB-role-switch for the micro-USB
+   port's host/device mode switching.
+2. Register a power_supply device so that the charger-chip driver can
+   see what sort of charger (SDP/CDP/DCP) is connected.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/mfd/intel_soc_pmic_chtwc.c | 8 ++++++++
- include/linux/mfd/intel_soc_pmic.h | 1 +
- 2 files changed, 9 insertions(+)
+ drivers/extcon/extcon-intel-cht-wc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/intel_soc_pmic_chtwc.c b/drivers/mfd/intel_soc_pmic_chtwc.c
-index 9216f0d34206..d53dae255490 100644
---- a/drivers/mfd/intel_soc_pmic_chtwc.c
-+++ b/drivers/mfd/intel_soc_pmic_chtwc.c
-@@ -165,6 +165,14 @@ static const struct dmi_system_id cht_wc_model_dmi_ids[] = {
- 			/* Non exact match to match all versions */
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X9"),
- 		},
-+	}, {
-+		/* Lenovo Yoga Tab 3 Pro YT3-X90F */
-+		.driver_data = (void *)(long)INTEL_CHT_WC_LENOVO_YT3_X90,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "Blade3-10A-001"),
-+		},
- 	},
- 	{ }
- };
-diff --git a/include/linux/mfd/intel_soc_pmic.h b/include/linux/mfd/intel_soc_pmic.h
-index 945bde1fe55c..9ba2c1a8d836 100644
---- a/include/linux/mfd/intel_soc_pmic.h
-+++ b/include/linux/mfd/intel_soc_pmic.h
-@@ -18,6 +18,7 @@ enum intel_cht_wc_models {
- 	INTEL_CHT_WC_GPD_WIN_POCKET,
- 	INTEL_CHT_WC_XIAOMI_MIPAD2,
- 	INTEL_CHT_WC_LENOVO_YOGABOOK1,
-+	INTEL_CHT_WC_LENOVO_YT3_X90,
- };
- 
- /**
+diff --git a/drivers/extcon/extcon-intel-cht-wc.c b/drivers/extcon/extcon-intel-cht-wc.c
+index c45d7ff6cc61..323ab8731284 100644
+--- a/drivers/extcon/extcon-intel-cht-wc.c
++++ b/drivers/extcon/extcon-intel-cht-wc.c
+@@ -539,6 +539,7 @@ static int cht_wc_extcon_probe(struct platform_device *pdev)
+ 		cht_wc_extcon_set_gpio(ext, CHT_WC_VBUS_GPIO_CTLO, false);
+ 		break;
+ 	case INTEL_CHT_WC_LENOVO_YOGABOOK1:
++	case INTEL_CHT_WC_LENOVO_YT3_X90:
+ 		/* Do this first, as it may very well return -EPROBE_DEFER. */
+ 		ret = cht_wc_extcon_get_role_sw_and_regulator(ext);
+ 		if (ret)
 -- 
 2.38.1
 
