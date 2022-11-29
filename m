@@ -2,94 +2,107 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63E72C433FE
-	for <linux-i2c@archiver.kernel.org>; Tue, 29 Nov 2022 15:39:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4919C433FE
+	for <linux-i2c@archiver.kernel.org>; Tue, 29 Nov 2022 21:37:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234781AbiK2Pji (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 29 Nov 2022 10:39:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38308 "EHLO
+        id S236900AbiK2VhI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 29 Nov 2022 16:37:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234931AbiK2Pjg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 29 Nov 2022 10:39:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 507981CB0C;
-        Tue, 29 Nov 2022 07:39:36 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1930617A5;
-        Tue, 29 Nov 2022 15:39:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B46DC433C1;
-        Tue, 29 Nov 2022 15:39:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669736375;
-        bh=3WvpfKAMMBXTqgD9OElc2LMfZiGvyFTgYTlwBSpfPUA=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=c9q1ApteullDnEXtba85UEGzFJ5a/cjyrIbSsgP3eENCfn7eovuS5qxLAvcB+bVBE
-         rJ4wTjQKWkiemyXd0GXENy+T1bg6BaqE5yvNaafX/JiCrby6WAkFdVA5Ky4haHXMTL
-         u9QbnI3J60WuMxrPVAunA0oUt84VwSPgz3blJKYvTP0i8TUamEIxm31NbJhOyOL1OH
-         7FTefHvFJYHOiS4Q3AgaixZh5zbSf5cWSqdzXVpU24tmvUZZ31zz0lg/QYeL1/HYIe
-         8naJaG677gMStMZtpR6NuTOgWB5Itn3oXOWIV5NPJRjnfOpAE9rAuQVpN9cw/WKCBa
-         KjXkzNw2i3dLA==
-Date:   Tue, 29 Nov 2022 09:39:33 -0600
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Lars Povlsen <lars.povlsen@microchip.com>
-Cc:     Rishi Gupta <gupt21@gmail.com>, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        UNGLinuxDriver <UNGLinuxDriver@microchip.com>,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Takayuki 'January June' Suwa <jjsuwa_sys3175@yahoo.co.jp>
-Subject: Re: [PATCH] HID: mcp2221: Fix GPIO output handling
-Message-ID: <20221129153933.GA716319@bhelgaas>
+        with ESMTP id S229512AbiK2VhI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 29 Nov 2022 16:37:08 -0500
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F001E5CD38
+        for <linux-i2c@vger.kernel.org>; Tue, 29 Nov 2022 13:37:06 -0800 (PST)
+Received: by mail-ej1-x635.google.com with SMTP id ml11so12066924ejb.6
+        for <linux-i2c@vger.kernel.org>; Tue, 29 Nov 2022 13:37:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pWF9gOd/OY/hKO0R1X+AR0OfRDJ2mDFKtPhWMv/Y0Hg=;
+        b=C3cqCKNZvB+oxs2Z7PiDFvl3m4uH+qKJOwduAl71kmF3MfYto97m5S60Fz47UIGVVE
+         kTnLFuPBp8XqzvmLdO2DhSNSd+/QRot4t0KXV7WJ9AAzeTkf/suAR3qs6xkayDF5L3T2
+         b8ycGwfFGvOZxsfqaidTxUR3UbGtV59MiZFj4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=pWF9gOd/OY/hKO0R1X+AR0OfRDJ2mDFKtPhWMv/Y0Hg=;
+        b=dbTKe0riZa272hU9H2vJX180dBHUk/sDlU/VBg241XWx6PnNQ6wK4pTfU05trsEB6z
+         aGGqQ8JBfb/vuFHVkU5wNh2PIk1FVrtERE73JOseyAoDVxwP+UR7bFddfQ8AhpPWiuao
+         JdjEbP7WT/GkVBu3fbK18cz5S1HaXqJ8XJYI9tj1Kuc/DO5NeekWRiIlZ9811Ua6i+2Z
+         QfQIFTZhQPAUUpYdzYVZUkTgpuOFBtgSsSVfAZvNQijd4AWq3VaQl3Qry8MBDJ1zTSXk
+         gNc1rmY5BYm/Q3tGJcDNeI2Grd3q1J9YJre04FQcZYFx/q0pS27aox46tXJhkV9t06m+
+         SpAQ==
+X-Gm-Message-State: ANoB5pk602CgNV03vKTeJFJSAOPjHzlTSUsduASOHZbboPRiivqJ6pua
+        6lgOA93bJwe2XGPebAjTyeRJCZjV1gPaLeJp
+X-Google-Smtp-Source: AA0mqf4GV7nku/q/Ai9YH87sjpBOCP+zTeTD5u07Bdfb7hc7JPjBUUwDYZA5a64+igOnnH1UJvd7cQ==
+X-Received: by 2002:a17:906:d7ad:b0:7bc:e98e:2d50 with SMTP id pk13-20020a170906d7ad00b007bce98e2d50mr19832726ejb.743.1669757825067;
+        Tue, 29 Nov 2022 13:37:05 -0800 (PST)
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com. [209.85.221.41])
+        by smtp.gmail.com with ESMTPSA id p23-20020a17090635d700b00780b1979adesm6600090ejb.218.2022.11.29.13.37.02
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 29 Nov 2022 13:37:03 -0800 (PST)
+Received: by mail-wr1-f41.google.com with SMTP id bx10so12110546wrb.0
+        for <linux-i2c@vger.kernel.org>; Tue, 29 Nov 2022 13:37:02 -0800 (PST)
+X-Received: by 2002:adf:fd89:0:b0:242:1f81:7034 with SMTP id
+ d9-20020adffd89000000b002421f817034mr4218482wrr.617.1669757822248; Tue, 29
+ Nov 2022 13:37:02 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201104220223.293253-1-lars.povlsen@microchip.com>
+References: <20221118224540.619276-1-uwe@kleine-koenig.org> <20221118224540.619276-37-uwe@kleine-koenig.org>
+In-Reply-To: <20221118224540.619276-37-uwe@kleine-koenig.org>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Tue, 29 Nov 2022 13:36:50 -0800
+X-Gmail-Original-Message-ID: <CAD=FV=VFuDRpkGPazE+xqwAj=0J8GO4EDU_fu+W72E+HQchLsQ@mail.gmail.com>
+Message-ID: <CAD=FV=VFuDRpkGPazE+xqwAj=0J8GO4EDU_fu+W72E+HQchLsQ@mail.gmail.com>
+Subject: Re: [PATCH 036/606] drm/bridge: ti-sn65dsi86: Convert to i2c's .probe_new()
+To:     =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <uwe@kleine-koenig.org>
+Cc:     Angel Iglesias <ang.iglesiasg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Grant Likely <grant.likely@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>, linux-i2c@vger.kernel.org,
+        kernel@pengutronix.de,
+        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-[+cc Takayuki, thanks for your report!]
+Hi,
 
-On Wed, Nov 04, 2020 at 11:02:23PM +0100, Lars Povlsen wrote:
-> The mcp2221 driver GPIO output handling has has several issues.
-> 
-> * A wrong value is used for the GPIO direction.
-> 
-> * Wrong offsets are calculated for some GPIO set value/set direction
->   operations, when offset is larger than 0.
-> 
-> This has been fixed by introducing proper manifest constants for the
-> direction encoding, and using 'offsetof' when calculating GPIO
-> register offsets.
-> 
-> The updated driver has been tested with the Sparx5 pcb134/pcb135
-> board, which has the mcp2221 device with several (output) GPIO's.
-> 
-> Signed-off-by: Lars Povlsen <lars.povlsen@microchip.com>
+On Fri, Nov 18, 2022 at 2:46 PM Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.or=
+g> wrote:
+>
+> From: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+>
+> The probe function doesn't make use of the i2c_device_id * parameter so i=
+t
+> can be trivially converted.
+>
+> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
 > ---
->  drivers/hid/hid-mcp2221.c | 48 +++++++++++++++++++++++++++++++--------
->  1 file changed, 39 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-> index 0d27ccb55dd9..4211b9839209 100644
-> --- a/drivers/hid/hid-mcp2221.c
-> +++ b/drivers/hid/hid-mcp2221.c
+>  drivers/gpu/drm/bridge/ti-sn65dsi86.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
 
-> +/* MCP GPIO get command layout */
-> +struct mcp_get_gpio {
-> +	u8 cmd;
-> +	u8 dummy;
-> +	struct {
-> +		u8 direction;
-> +		u8 value;
-> +	} gpio[MCP_NGPIO];
-> +} __packed;
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
 
-This bug report: https://bugzilla.kernel.org/show_bug.cgi?id=216736
-suggests that direction and value may be reversed here.
+As per request in the cover letter (and no countermands in the replies
+to the cover), I'm landing this myself. Pushed to
+drm-misc/drm-misc-next with my review and Laurent's.
 
-Mentioning here in case nobody actively monitors the bugzilla.
-
-Bjorn
+de86815b3730 drm/bridge: ti-sn65dsi86: Convert to i2c's .probe_new()
