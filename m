@@ -2,24 +2,24 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1979C433FE
-	for <linux-i2c@archiver.kernel.org>; Wed, 30 Nov 2022 05:59:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 795FAC433FE
+	for <linux-i2c@archiver.kernel.org>; Wed, 30 Nov 2022 05:59:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233856AbiK3F7K (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 30 Nov 2022 00:59:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57722 "EHLO
+        id S233789AbiK3F7R (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 30 Nov 2022 00:59:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233983AbiK3F6w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Nov 2022 00:58:52 -0500
+        with ESMTP id S233824AbiK3F7G (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Nov 2022 00:59:06 -0500
 Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 43F243722A;
-        Tue, 29 Nov 2022 21:58:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0AC801DA58;
+        Tue, 29 Nov 2022 21:59:03 -0800 (PST)
 Received: from loongson.cn (unknown [112.20.109.110])
-        by gateway (Coremail) with SMTP id _____8Bx1vAX8YZj_0cCAA--.5238S3;
-        Wed, 30 Nov 2022 13:58:47 +0800 (CST)
+        by gateway (Coremail) with SMTP id _____8BxlfAn8YZjM0gCAA--.5106S3;
+        Wed, 30 Nov 2022 13:59:03 +0800 (CST)
 Received: from localhost.localdomain (unknown [112.20.109.110])
-        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxTuAR8YZjnUwiAA--.19574S5;
-        Wed, 30 Nov 2022 13:58:46 +0800 (CST)
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8Dxd1cj8YZj1kwiAA--.1548S3;
+        Wed, 30 Nov 2022 13:59:01 +0800 (CST)
 From:   Binbin Zhou <zhoubinbin@loongson.cn>
 To:     Wolfram Sang <wsa@kernel.org>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -34,101 +34,57 @@ Cc:     loongarch@lists.linux.dev, devicetree@vger.kernel.org,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Jianmin Lv <lvjianmin@loongson.cn>,
         Binbin Zhou <zhoubinbin@loongson.cn>
-Subject: [PATCH V4 3/5] dt-bindings: i2c: add bindings for Loongson LS2X I2C
-Date:   Wed, 30 Nov 2022 13:55:53 +0800
-Message-Id: <8503ed054d5b4984b5d6e18891767cace2d36a31.1669777792.git.zhoubinbin@loongson.cn>
+Subject: [PATCH V4 5/5] LoongArch: Enable LS2X I2C in loongson3_defconfig
+Date:   Wed, 30 Nov 2022 13:56:21 +0800
+Message-Id: <3520dd15ff922456aa070a7189b153aada6cc0f2.1669777792.git.zhoubinbin@loongson.cn>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1669777792.git.zhoubinbin@loongson.cn>
 References: <cover.1669777792.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AQAAf8BxTuAR8YZjnUwiAA--.19574S5
+X-CM-TRANSID: AQAAf8Dxd1cj8YZj1kwiAA--.1548S3
 X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
-X-Coremail-Antispam: 1Uk129KBjvJXoW7Cw47WF48Xw47uFWUZF1kZrb_yoW8Wr4fp3
-        ZrCryDGr40qF17u39xKFy8C3W5Xr93AF9rWFZFyr1UKFyDG3Z0vw4akr15Z3W3Wry0gFW7
-        XFZ2gr1jkas7Ar7anT9S1TB71UUUUjDqnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
-        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
-        bSxYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
-        1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
-        wVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4
+X-Coremail-Antispam: 1Uk129KBjvdXoW7Jry5XrWkuF48uF15Ww1fXrb_yoWxKFX_Ja
+        47Kw1kWr48JFZ7W3WIqw4rC3yDCa47X3WSkrnrAw1xX3Waqr13trWDA3W7C3Z0ga4DWrW3
+        ZaykJF9F9F18tjkaLaAFLSUrUUUUnb8apTn2vfkv8UJUUUU8wcxFpf9Il3svdxBIdaVrn0
+        xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUY
+        u7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3w
+        AFIxvE14AKwVWUGVWUXwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK
+        6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4
         x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l
         n4kS14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6x
-        ACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q6rW5McIj6I8E
+        ACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26rWY6Fy7McIj6I8E
         87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxV
         Aaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxY
         O2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGV
         WUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_
-        Xr0_Ar1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rV
-        WUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4U
-        JbIYCTnIWIevJa73UjIFyTuYvjxU4Xo7DUUUU
+        Ar0_tr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCI42IY6xAIw20EY4v20xvaj4
+        0_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8
+        JrUvcSsGvfC2KfnxnUUI43ZEXa7IU0No7tUUUUU==
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add Loongson LS2X I2C controller binding with DT schema format using
-json-schema.
+This is now supported, enable for Loongson-3 systems.
+Other systems are unaffected.
 
 Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
 ---
- .../bindings/i2c/loongson,ls2x-i2c.yaml       | 49 +++++++++++++++++++
- 1 file changed, 49 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+ arch/loongarch/configs/loongson3_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
-new file mode 100644
-index 000000000000..5f36871e272f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
-@@ -0,0 +1,49 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/loongson,ls2x-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Loongson LS2X I2C Controller
-+
-+maintainers:
-+  - Binbin Zhou <zhoubinbin@loongson.cn>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - loongson,ls2k-i2c
-+      - loongson,ls7a-i2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c0: i2c@1fe21000 {
-+        compatible = "loongson,ls2k-i2c";
-+        reg = <0x1fe21000 0x8>;
-+        interrupt-parent = <&extioiic>;
-+        interrupts = <22 IRQ_TYPE_LEVEL_LOW>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        eeprom@57 {
-+            compatible = "atmel,24c16";
-+            reg = <0x57>;
-+            pagesize = <16>;
-+        };
-+    };
+diff --git a/arch/loongarch/configs/loongson3_defconfig b/arch/loongarch/configs/loongson3_defconfig
+index cd8e003d885e..017eb0e36738 100644
+--- a/arch/loongarch/configs/loongson3_defconfig
++++ b/arch/loongarch/configs/loongson3_defconfig
+@@ -600,6 +600,7 @@ CONFIG_HW_RANDOM_VIRTIO=m
+ CONFIG_I2C_CHARDEV=y
+ CONFIG_I2C_PIIX4=y
+ CONFIG_I2C_GPIO=y
++CONFIG_I2C_LS2X=y
+ CONFIG_SPI=y
+ CONFIG_GPIO_SYSFS=y
+ CONFIG_GPIO_LOONGSON=y
 -- 
 2.31.1
 
