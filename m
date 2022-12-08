@@ -2,28 +2,28 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD503C6370A
-	for <linux-i2c@archiver.kernel.org>; Thu,  8 Dec 2022 10:43:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 887DAC4332F
+	for <linux-i2c@archiver.kernel.org>; Thu,  8 Dec 2022 10:43:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230246AbiLHKno (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 8 Dec 2022 05:43:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49582 "EHLO
+        id S230273AbiLHKnq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 8 Dec 2022 05:43:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230096AbiLHKnT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Dec 2022 05:43:19 -0500
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DD9BD4A;
-        Thu,  8 Dec 2022 02:40:27 -0800 (PST)
+        with ESMTP id S230103AbiLHKnW (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Dec 2022 05:43:22 -0500
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36436DEE;
+        Thu,  8 Dec 2022 02:40:30 -0800 (PST)
 Received: from desky.lan (91-154-32-225.elisa-laajakaista.fi [91.154.32.225])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id EE32B9D9;
-        Thu,  8 Dec 2022 11:40:23 +0100 (CET)
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id D7AA5A39;
+        Thu,  8 Dec 2022 11:40:26 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1670496025;
-        bh=qqlP9y4CxrbgrpwUUQtSV2m4Q9RgrkWSjW1olrXBJFA=;
+        s=mail; t=1670496028;
+        bh=9p9S7paQq4eRGHKfzZHvkOA0duFpHL18ejIVpU4zXkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQkedEqPUuFFPv87Gd/8wD85ZblpiG5JbFMhLP9siK7EJ62KJmi7fMpz1mdGnqrZz
-         2kAWJltrhhHX5saJ8Kssqb/hB7dO1dlU5qS0FObnh+StI6kxHYXQ/6XN3wP4JuBmft
-         vf+lkBlx+mfWiMrqu0Y4nZq5pfeqIyfkI0SlrHE4=
+        b=CI5rZ3bkC21Msx+bVRzSTGCRC6fx5qLtr1U8yudERF8h9qb9XiQ7XKmK/IjqPKDIi
+         bBMdVMa43BMUCFLadhIVEte+4CqbQoos+cb9qsnRjAkGyYluu3aszx6zwVfqR+Z/VN
+         /SY/UGnymDGX6UIgW5Cw7vrzf9tt/Ko7vD3MUJw0=
 From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 To:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -45,11 +45,10 @@ Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
         Mike Pagano <mpagano@gentoo.org>,
         =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
         Marek Vasut <marex@denx.de>,
-        Luca Ceresoli <luca@lucaceresoli.net>,
         Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Subject: [PATCH v5 1/8] i2c: core: let adapters be notified of client attach/detach
-Date:   Thu,  8 Dec 2022 12:39:59 +0200
-Message-Id: <20221208104006.316606-2-tomi.valkeinen@ideasonboard.com>
+Subject: [PATCH v5 3/8] dt-bindings: media: add bindings for TI DS90UB913
+Date:   Thu,  8 Dec 2022 12:40:01 +0200
+Message-Id: <20221208104006.316606-4-tomi.valkeinen@ideasonboard.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221208104006.316606-1-tomi.valkeinen@ideasonboard.com>
 References: <20221208104006.316606-1-tomi.valkeinen@ideasonboard.com>
@@ -59,106 +58,141 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Luca Ceresoli <luca@lucaceresoli.net>
+Add DT bindings for TI DS90UB913 FPDLink-3 Serializer.
 
-An adapter might need to know when a new device is about to be
-added. This will soon bee needed to implement an "I2C address
-translator" (ATR for short), a device that propagates I2C transactions
-with a different slave address (an "alias" address). An ATR driver
-needs to know when a slave is being added to find a suitable alias and
-program the device translation map.
-
-Add an attach/detach callback pair to allow adapter drivers to be
-notified of clients being added and removed.
-
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 ---
- drivers/i2c/i2c-core-base.c | 18 +++++++++++++++++-
- include/linux/i2c.h         | 16 ++++++++++++++++
- 2 files changed, 33 insertions(+), 1 deletion(-)
+ .../bindings/media/i2c/ti,ds90ub913.yaml      | 121 ++++++++++++++++++
+ 1 file changed, 121 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/media/i2c/ti,ds90ub913.yaml
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index b4edf10e8fd0..c8bc71b1db82 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -966,15 +966,23 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
- 		}
- 	}
- 
-+	if (adap->attach_ops &&
-+	    adap->attach_ops->attach_client &&
-+	    adap->attach_ops->attach_client(adap, info, client) != 0)
-+		goto out_remove_swnode;
+diff --git a/Documentation/devicetree/bindings/media/i2c/ti,ds90ub913.yaml b/Documentation/devicetree/bindings/media/i2c/ti,ds90ub913.yaml
+new file mode 100644
+index 000000000000..3a5b34c6bb64
+--- /dev/null
++++ b/Documentation/devicetree/bindings/media/i2c/ti,ds90ub913.yaml
+@@ -0,0 +1,121 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/media/i2c/ti,ds90ub913.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- 	status = device_register(&client->dev);
- 	if (status)
--		goto out_remove_swnode;
-+		goto out_detach_client;
- 
- 	dev_dbg(&adap->dev, "client [%s] registered with bus id %s\n",
- 		client->name, dev_name(&client->dev));
- 
- 	return client;
- 
-+out_detach_client:
-+	if (adap->attach_ops && adap->attach_ops->detach_client)
-+		adap->attach_ops->detach_client(adap, client);
- out_remove_swnode:
- 	device_remove_software_node(&client->dev);
- out_err_put_of_node:
-@@ -996,9 +1004,17 @@ EXPORT_SYMBOL_GPL(i2c_new_client_device);
-  */
- void i2c_unregister_device(struct i2c_client *client)
- {
-+	struct i2c_adapter *adap;
++title: Texas Instruments DS90UB913 FPD-Link 3 Serializer
 +
- 	if (IS_ERR_OR_NULL(client))
- 		return;
- 
-+	adap = client->adapter;
++maintainers:
++  - Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 +
-+	if (adap->attach_ops &&
-+	    adap->attach_ops->detach_client)
-+		adap->attach_ops->detach_client(adap, client);
++description:
++  The TI DS90UB913 is an FPD-Link 3 video serializer for parallel video.
 +
- 	if (client->dev.of_node) {
- 		of_node_clear_flag(client->dev.of_node, OF_POPULATED);
- 		of_node_put(client->dev.of_node);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index f7c49bbdb8a1..9a385b6de388 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -584,6 +584,21 @@ struct i2c_lock_operations {
- 	void (*unlock_bus)(struct i2c_adapter *adapter, unsigned int flags);
- };
- 
-+/**
-+ * struct i2c_attach_operations - callbacks to notify client attach/detach
-+ * @attach_client: Notify of new client being attached
-+ * @detach_client: Notify of new client being detached
-+ *
-+ * Both ops are optional.
-+ */
-+struct i2c_attach_operations {
-+	int  (*attach_client)(struct i2c_adapter *adapter,
-+			      const struct i2c_board_info *info,
-+			      const struct i2c_client *client);
-+	void (*detach_client)(struct i2c_adapter *adapter,
-+			      const struct i2c_client *client);
-+};
++properties:
++  compatible:
++    enum:
++      - ti,ds90ub913a-q1
 +
- /**
-  * struct i2c_timings - I2C timing information
-  * @bus_freq_hz: the bus frequency in Hz
-@@ -726,6 +741,7 @@ struct i2c_adapter {
- 
- 	/* data fields that are valid for all devices	*/
- 	const struct i2c_lock_operations *lock_ops;
-+	const struct i2c_attach_operations *attach_ops;
- 	struct rt_mutex bus_lock;
- 	struct rt_mutex mux_lock;
- 
++  '#gpio-cells':
++    const: 2
++
++  gpio-controller: true
++
++  clocks:
++    maxItems: 1
++    description:
++      Reference clock connected to the CLKIN pin.
++
++  clock-names:
++    items:
++      - const: clkin
++
++  '#clock-cells':
++    const: 0
++
++  ports:
++    $ref: /schemas/graph.yaml#/properties/ports
++
++    properties:
++      port@0:
++        $ref: /schemas/graph.yaml#/$defs/port-base
++        unevaluatedProperties: false
++        description: CSI-2 input port
++
++        properties:
++          endpoint:
++            $ref: /schemas/media/video-interfaces.yaml#
++            unevaluatedProperties: false
++
++      port@1:
++        $ref: /schemas/graph.yaml#/properties/port
++        unevaluatedProperties: false
++        description: FPD-Link 3 output port
++
++  i2c:
++    $ref: /schemas/i2c/i2c-controller.yaml#
++    unevaluatedProperties: false
++
++required:
++  - compatible
++  - '#gpio-cells'
++  - gpio-controller
++  - '#clock-cells'
++  - ports
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++
++    serializer {
++      compatible = "ti,ds90ub913a-q1";
++
++      gpio-controller;
++      #gpio-cells = <2>;
++
++      clocks = <&clk_cam_48M>;
++      clock-names = "clkin";
++
++      #clock-cells = <0>;
++
++      ports {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        port@0 {
++          reg = <0>;
++          ub913_in: endpoint {
++            remote-endpoint = <&sensor_out>;
++          };
++        };
++
++        port@1 {
++          reg = <1>;
++          endpoint {
++            remote-endpoint = <&deser_fpd_in>;
++          };
++        };
++      };
++
++      i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        sensor@48 {
++          compatible = "aptina,mt9v111";
++          reg = <0x48>;
++
++          clocks = <&fixed_clock>;
++
++          port {
++            sensor_out: endpoint {
++              remote-endpoint = <&ub913_in>;
++            };
++          };
++        };
++      };
++    };
++...
 -- 
 2.34.1
 
