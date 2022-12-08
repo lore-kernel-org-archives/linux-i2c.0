@@ -2,36 +2,49 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EDEBC4332F
-	for <linux-i2c@archiver.kernel.org>; Thu,  8 Dec 2022 14:41:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAEB9C3A5A7
+	for <linux-i2c@archiver.kernel.org>; Thu,  8 Dec 2022 15:58:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229807AbiLHOlI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 8 Dec 2022 09:41:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34506 "EHLO
+        id S229621AbiLHP60 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 8 Dec 2022 10:58:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229661AbiLHOlH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Dec 2022 09:41:07 -0500
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76D54299F;
-        Thu,  8 Dec 2022 06:41:04 -0800 (PST)
-Received: from [192.168.1.15] (91-154-32-225.elisa-laajakaista.fi [91.154.32.225])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 2861B25B;
-        Thu,  8 Dec 2022 15:41:01 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1670510462;
-        bh=7JK1mcWK7ctuZSJVmKN+aaMKQHCYvzcv6b0fzVlOa7Y=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=SOVBFZ+wXPdn7+spHkeH8ZjDrQuWrS5pt1BYvt9XDf23vR2xJQAueCdTSSLw+dTGn
-         BngW/zXk3AU/gsukA0kDYr4P5l9NPojFmc0Dex+HG0b9r7bojvsndmes0tyXolB7Q2
-         GRu2R8TPjEWovcG5OOOEw4JQPXyZSxLk1SsUJK24=
-Message-ID: <0340d15c-be0a-cd28-4149-7976896f8eb1@ideasonboard.com>
-Date:   Thu, 8 Dec 2022 16:40:58 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH v5 0/8] i2c-atr and FPDLink
-Content-Language: en-US
-To:     Andy Shevchenko <andriy.shevchenko@intel.com>
+        with ESMTP id S229532AbiLHP6Z (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Dec 2022 10:58:25 -0500
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE4BD4A581;
+        Thu,  8 Dec 2022 07:58:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1670515104; x=1702051104;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=HFHvTj2UxyZTR/3t9cajOIIUSSoBJRn2X/zqMgVxw4E=;
+  b=T2yxe8iA3iP6ksojfo5i3dDAD5pFJ1AV73nuRcirw0oajr5XtfphoNo7
+   1kISGWJOm/3TI4Nw6WkaYIyJOqJMWTkGBvZDfFvufxBjQ2l0RGOUzHnO4
+   kwhi7s7gUuu/oDhBsXIhf36a2IIQflr89hoG1YtzP9hQtA4WPs1LGJGBO
+   UGeZ4PwzyeTNLXvFpSFN49lqQqcs20NOIdxEjSKRLG0Dgdtco56fF7EA5
+   1MW+o6cRQQjmm6gbnI6yxhOsh5DDBlWbpZYgGqJMApYrK0LZDVIbEf5jr
+   FXorunn38gUpVUI+kHpFSWiXueTYxwKF+f7WP4eQFl8EzzA7pwi7vDGLO
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10555"; a="344250837"
+X-IronPort-AV: E=Sophos;i="5.96,227,1665471600"; 
+   d="scan'208";a="344250837"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2022 07:58:24 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10555"; a="715655563"
+X-IronPort-AV: E=Sophos;i="5.96,227,1665471600"; 
+   d="scan'208";a="715655563"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmsmga004.fm.intel.com with ESMTP; 08 Dec 2022 07:58:18 -0800
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@intel.com>)
+        id 1p3JHr-006QgJ-0K;
+        Thu, 08 Dec 2022 17:58:15 +0200
+Date:   Thu, 8 Dec 2022 17:58:14 +0200
+From:   Andy Shevchenko <andriy.shevchenko@intel.com>
+To:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 Cc:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
         Rob Herring <robh+dt@kernel.org>,
@@ -49,102 +62,58 @@ Cc:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
         Shawn Tu <shawnx.tu@intel.com>,
         Hans Verkuil <hverkuil@xs4all.nl>,
         Mike Pagano <mpagano@gentoo.org>,
-        =?UTF-8?Q?Krzysztof_Ha=c5=82asa?= <khalasa@piap.pl>,
+        Krzysztof =?utf-8?Q?Ha=C5=82asa?= <khalasa@piap.pl>,
         Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH v5 0/8] i2c-atr and FPDLink
+Message-ID: <Y5IJlpWlngrvZemy@smile.fi.intel.com>
 References: <20221208104006.316606-1-tomi.valkeinen@ideasonboard.com>
  <c5eac6a6-f44b-ddd0-d27b-ccbe01498ae9@ideasonboard.com>
  <Y5HYBzZlkTrsdjfX@smile.fi.intel.com>
-From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-In-Reply-To: <Y5HYBzZlkTrsdjfX@smile.fi.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ <0340d15c-be0a-cd28-4149-7976896f8eb1@ideasonboard.com>
+ <Y5IJY2nUkt/6BoKm@smile.fi.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y5IJY2nUkt/6BoKm@smile.fi.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Andy,
+On Thu, Dec 08, 2022 at 05:57:23PM +0200, Andy Shevchenko wrote:
+> On Thu, Dec 08, 2022 at 04:40:58PM +0200, Tomi Valkeinen wrote:
+> > On 08/12/2022 14:26, Andy Shevchenko wrote:
+> > > On Thu, Dec 08, 2022 at 12:42:13PM +0200, Tomi Valkeinen wrote:
+> > > > On 08/12/2022 12:39, Tomi Valkeinen wrote:
 
-On 08/12/2022 14:26, Andy Shevchenko wrote:
-> On Thu, Dec 08, 2022 at 12:42:13PM +0200, Tomi Valkeinen wrote:
->> On 08/12/2022 12:39, Tomi Valkeinen wrote:
+...
+
+> > > >   /**
+> > > > - * Helper to add I2C ATR features to a device driver.
+> > > > + * struct i2c_atr - Represents the I2C ATR instance
+> > > >    */
+> > > 
+> > > This is incomplete. Have you run kernel doc validator against this file?
+> > 
+> > What's kernel doc validator? Do you mean that it's incomplete and kernel doc
+> > doesn't work correctly, or that there should be more information here?
+> > 
+> > I don't get any errors/warnings from any tool I have used. But I agree it
+> > looks a bit odd with only the name of the struct in the doc.
 > 
 > ...
 > 
->> +#include <linux/fwnode.h>
->>   #include <linux/i2c-atr.h>
->>   #include <linux/i2c.h>
->>   #include <linux/kernel.h>
->>   #include <linux/module.h>
->>   #include <linux/mutex.h>
->> -#include <linux/of.h>
->>   #include <linux/slab.h>
-> 
-> + Blank line here?
-> 
+> $ scripts/kernel-doc -none -v include/linux/i2c.h
+> include/linux/i2c.h:79: warning: No description found for return value of 'i2c_master_recv'
+> include/linux/i2c.h:94: warning: No description found for return value of 'i2c_master_recv_dmasafe'
+> include/linux/i2c.h:109: warning: No description found for return value of 'i2c_master_send'
+> include/linux/i2c.h:124: warning: No description found for return value of 'i2c_master_send_dmasafe'
+> 4 warnings
 
-There is a blank line there.
+Note, this is just example against existing file, not your case.
 
->> +#define ATR_MAX_ADAPTERS 99	/* Just a sanity limit */
->> +#define ATR_MAX_SYMLINK_LEN 16	/* Longest name is 10 chars: "channel-99" */
-> 
-> ...
-> 
->> +		u16 *new_buf;
->> +
->> +		new_buf = kmalloc_array(num, sizeof(chan->orig_addrs[0]),
->> +					GFP_KERNEL);
-> 
-> 		new_buf = kmalloc_array(num, sizeof(*new_buf), GFP_KERNEL);
-> 
-> ?
+-- 
+With Best Regards,
+Andy Shevchenko
 
-Yes, I think that looks better here.
-
->> +		if (!new_buf)
->>   			return -ENOMEM;
-> 
-> ...
-> 
->>   	struct i2c_atr_cli2alias_pair *c2a;
->> -	u16 alias_id = 0;
->> -	int ret = 0;
->> +	u16 alias_id;
->> +	int ret;
-> 
-> Is it mangled or it's missing blank line here?
-
-Also here there is a blank line. Is the mail somehow mangled on your 
-side? On lore it looks fine:
-
-https://lore.kernel.org/all/c5eac6a6-f44b-ddd0-d27b-ccbe01498ae9@ideasonboard.com/
-
->>   	c2a = kzalloc(sizeof(*c2a), GFP_KERNEL);
->>   	if (!c2a)
-> 
-> ...
-> 
->>   struct device;
->>   struct i2c_atr;
->> +struct fwnode_handle;
-> 
-> Order?
-
-Yep, I'll fix.
-
-> ...
-> 
->>   /**
->> - * Helper to add I2C ATR features to a device driver.
->> + * struct i2c_atr - Represents the I2C ATR instance
->>    */
-> 
-> This is incomplete. Have you run kernel doc validator against this file?
-
-What's kernel doc validator? Do you mean that it's incomplete and kernel 
-doc doesn't work correctly, or that there should be more information here?
-
-I don't get any errors/warnings from any tool I have used. But I agree 
-it looks a bit odd with only the name of the struct in the doc.
-
-  Tomi
 
