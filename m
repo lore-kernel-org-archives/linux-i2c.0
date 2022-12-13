@@ -2,122 +2,497 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BBF6C4332F
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Dec 2022 16:39:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFE39C4332F
+	for <linux-i2c@archiver.kernel.org>; Tue, 13 Dec 2022 08:29:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232868AbiLLQjp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 12 Dec 2022 11:39:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40910 "EHLO
+        id S234800AbiLMI3l (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 13 Dec 2022 03:29:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232876AbiLLQjI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Dec 2022 11:39:08 -0500
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA5E15705
-        for <linux-i2c@vger.kernel.org>; Mon, 12 Dec 2022 08:37:20 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id c66so13667770edf.5
-        for <linux-i2c@vger.kernel.org>; Mon, 12 Dec 2022 08:37:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lvYON1Uq6UT3Qph7OPPr0NH47G6rUYR8O1BO9MFwJow=;
-        b=lIFXcScE+1mmzH1SBNLfPzmU2yyZ22FDa7zo6/O0Bw9aIOxDeXxYkEVfus52JWuhda
-         4ouELocZnEhmnwFppolEYq4c3c7RHYAqD4pax4M3unQDLONiM/9+ejXSM9E2FE+Z0v02
-         plxbNMhSLCExfq6g58BwEJLatQLzpt/xLWOhKWfMwSgaHbhPuPfGnoShEU2Q/8V0GhBe
-         I8mO/6POKEHTvHhiQrSmT3i/DlcfyH1o4pAMtSuNXvNoHj+mOy3GKKCsRTSQGVPFd3Z7
-         AQYI0FN6wamo3RnZf0VXDCwVvMRjPWjYDkKYXDeP5o/vQIFIn9FanCQzU/XNFNQHrfWF
-         2geA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lvYON1Uq6UT3Qph7OPPr0NH47G6rUYR8O1BO9MFwJow=;
-        b=oX6S9Duxb4Afx/WV7BqM0LLzYo5Enol5qGsiq5ODVDWdv2UrGznX+1V90TGfwr+8ya
-         idGMGp9c58yiJkxVFaQrfYtq0BGbwheVx/qR5umwkQiaJnF9DyhVx6fsQyZoxaBcohLH
-         5gi+d+3XGVgBR+7HIW0i+hGzKvhSEYWHS6L0buP+qkqpRIKjwSNh1z77IeAbCfvKGKp3
-         Q9pG+S8UvfOl4eIHWRgu5BMwosztGcy5QMtloggrCIemgU4QEBzew8CoRXdeEpz2ZZS4
-         tIynmMvkKpJhH6wGW8pD7A/bkOpZPxnhzadOQ5JBWEsv7wH/lUiI9Fx+h86lhd5fxWBO
-         8iww==
-X-Gm-Message-State: ANoB5pkOXDiX7ofzuz0bMfrV7+GE7nH3Nqlgvr38gBYdE0jCUvISBhBA
-        2PwIY6vtcsMX8YUwhPt7obmouQ7mVGEf/aMf
-X-Google-Smtp-Source: AA0mqf5ppTTyM6N0bPOAfBX//eKXVRPakyRimeYdkY/8NocUbAvjnOSiYLmQOcD2W7tmhBu2XO410g==
-X-Received: by 2002:a05:6402:702:b0:46f:68d0:76 with SMTP id w2-20020a056402070200b0046f68d00076mr10093614edx.34.1670863020790;
-        Mon, 12 Dec 2022 08:37:00 -0800 (PST)
-Received: from prec5560.. ([2001:bf7:830:a7a8:ff97:7d8d:1f2e:ffaa])
-        by smtp.gmail.com with ESMTPSA id m15-20020a50930f000000b00463597d2c25sm4051979eda.74.2022.12.12.08.36.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Dec 2022 08:37:00 -0800 (PST)
-From:   Robert Foss <robert.foss@linaro.org>
-To:     Lee Jones <lee.jones@linaro.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
-        Angel Iglesias <ang.iglesiasg@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Grant Likely <grant.likely@linaro.org>
-Cc:     Robert Foss <robert.foss@linaro.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-actions@lists.infradead.org,
-        linux-spi@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-media@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-crypto@vger.kernel.org, chrome-platform@lists.linux.dev,
-        Broadcom internal kernel review list 
-        <bcm-kernel-feedback-list@broadcom.com>,
-        linux-input@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-integrity@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-serial@vger.kernel.org, Purism Kernel Team <kernel@puri.sm>,
-        linux-staging@lists.linux.dev, alsa-devel@alsa-project.org,
-        linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-pm@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, patches@opensource.cirrus.com,
-        linux-mtd@lists.infradead.org, linux-renesas-soc@vger.kernel.org,
-        linux-amlogic@lists.infradead.org, linux-pwm@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
-        kernel@pengutronix.de, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        openipmi-developer@lists.sourceforge.net,
-        linux-fbdev@vger.kernel.org
-Subject: Re: (subset) [PATCH 000/606] i2c: Complete conversion to i2c_probe_new
-Date:   Mon, 12 Dec 2022 17:36:51 +0100
-Message-Id: <167086288411.3041259.17824406556561546642.b4-ty@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
-References: <20221118224540.619276-1-uwe@kleine-koenig.org>
+        with ESMTP id S234801AbiLMI3N (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Dec 2022 03:29:13 -0500
+Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 64A1EB4B4;
+        Tue, 13 Dec 2022 00:27:09 -0800 (PST)
+Received: from loongson.cn (unknown [112.20.108.31])
+        by gateway (Coremail) with SMTP id _____8CxKek6N5hjtjQFAA--.8536S3;
+        Tue, 13 Dec 2022 16:26:34 +0800 (CST)
+Received: from localhost.localdomain (unknown [112.20.108.31])
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxoOI1N5hjkdEtAA--.45851S5;
+        Tue, 13 Dec 2022 16:26:34 +0800 (CST)
+From:   Binbin Zhou <zhoubinbin@loongson.cn>
+To:     Wolfram Sang <wsa@kernel.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+Cc:     loongarch@lists.linux.dev, devicetree@vger.kernel.org,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Jianmin Lv <lvjianmin@loongson.cn>,
+        Binbin Zhou <zhoubinbin@loongson.cn>
+Subject: [PATCH V6 3/4] i2c: ls2x: Add driver for Loongson-2K/LS7A I2C controller
+Date:   Tue, 13 Dec 2022 16:26:57 +0800
+Message-Id: <bf55d05a50dc1e9453d124033ff368e9500ed4ed.1670897253.git.zhoubinbin@loongson.cn>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <cover.1670897253.git.zhoubinbin@loongson.cn>
+References: <cover.1670897253.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AQAAf8BxoOI1N5hjkdEtAA--.45851S5
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
+X-Coremail-Antispam: 1Uk129KBjvAXoW3CryfKrWfZFW3ur4Uuw13CFg_yoW8Jr13Xo
+        WxXFsxXr48JFyUC3y0kr12qFW7Z39Y9ry3Kwn3Zr97ZFyjyF15tFyvkw15G3W2grW5KrWr
+        urn3ta1fXF4fA34Un29KB7ZKAUJUUUU3529EdanIXcx71UUUUU7KY7ZEXasCq-sGcSsGvf
+        J3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnRJU
+        UUBab4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2IYs7xG6rWj6s
+        0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
+        Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM2
+        8EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4U
+        JwAaw2AFwI0_JF0_Jw1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4
+        CE44I27wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jw0_WrylYx0E
+        x4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x
+        0262kKe7AKxVWUtVW8ZwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCF
+        I7km07C267AKxVWUAVWUtwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r
+        106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AK
+        xVW5JVW7JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7
+        xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_
+        Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07jr9NsUUUUU=
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Fri, 18 Nov 2022 23:35:34 +0100, Uwe Kleine-König wrote:
-> since commit b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new()
-> call-back type") from 2016 there is a "temporary" alternative probe
-> callback for i2c drivers.
-> 
-> This series completes all drivers to this new callback (unless I missed
-> something). It's based on current next/master.
-> A part of the patches depend on commit 662233731d66 ("i2c: core:
-> Introduce i2c_client_get_device_id helper function"), there is a branch that
-> you can pull into your tree to get it:
-> 
-> [...]
+This I2C module is integrated into the Loongson-2K SoCs and Loongson
+LS7A bridge chip.
 
-Applied, thanks!
+Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+---
+ drivers/i2c/busses/Kconfig    |  11 +
+ drivers/i2c/busses/Makefile   |   1 +
+ drivers/i2c/busses/i2c-ls2x.c | 376 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 388 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-ls2x.c
 
-Repo: https://cgit.freedesktop.org/drm/drm-misc/
-
-
-[014/606] drm/bridge: adv7511: Convert to i2c's .probe_new()
-          commit: 1c546894ff82f8b7c070998c03f9b15a3499f326
-[028/606] drm/bridge: parade-ps8622: Convert to i2c's .probe_new()
-          commit: d6b522e9bbb0cca1aeae4ef6188800534794836f
-[035/606] drm/bridge: ti-sn65dsi83: Convert to i2c's .probe_new()
-          commit: 0f6548807fa77e87bbc37964c6b1ed9ba6e1155d
-
-
-
-rob
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index e50f9603d189..908096a762ca 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -888,6 +888,17 @@ config I2C_OWL
+ 	  Say Y here if you want to use the I2C bus controller on
+ 	  the Actions Semiconductor Owl SoC's.
+ 
++config I2C_LS2X
++	tristate "Loongson LS2X I2C adapter"
++	depends on MACH_LOONGSON64 || COMPILE_TEST
++	help
++	  If you say yes to this option, support will be included for the
++	  I2C interface on the Loongson-2K SoCs and Loongson LS7A bridge
++	  chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called i2c-ls2x.
++
+ config I2C_PASEMI
+ 	tristate "PA Semi SMBus interface"
+ 	depends on PPC_PASEMI && PCI
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index e73cdb1d2b5a..df332ec3c489 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -86,6 +86,7 @@ obj-$(CONFIG_I2C_MV64XXX)	+= i2c-mv64xxx.o
+ obj-$(CONFIG_I2C_MXS)		+= i2c-mxs.o
+ obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
+ obj-$(CONFIG_I2C_NPCM)		+= i2c-npcm7xx.o
++obj-$(CONFIG_I2C_LS2X)		+= i2c-ls2x.o
+ obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
+ obj-$(CONFIG_I2C_OMAP)		+= i2c-omap.o
+ obj-$(CONFIG_I2C_OWL)		+= i2c-owl.o
+diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.c
+new file mode 100644
+index 000000000000..ed51001fa237
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-ls2x.c
+@@ -0,0 +1,376 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Loongson-2K/Loongson LS7A I2C master mode driver
++ *
++ * Copyright (C) 2013 Loongson Technology Corporation Limited.
++ * Copyright (C) 2014-2017 Lemote, Inc.
++ * Copyright (C) 2018-2022 Loongson Technology Corporation Limited.
++ *
++ * Originally written by liushaozong
++ *
++ * Rewritten for mainline by Binbin Zhou <zhoubinbin@loongson.cn>
++ */
++
++#include <linux/bits.h>
++#include <linux/completion.h>
++#include <linux/device.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/pm_runtime.h>
++#include <linux/platform_device.h>
++#include <linux/units.h>
++
++/* I2C Registers */
++#define I2C_LS2X_PRER_LO	0x0 /* Freq Division Low Byte Register */
++#define I2C_LS2X_PRER_HI	0x1 /* Freq Division High Byte Register */
++#define I2C_LS2X_CTR		0x2 /* Control Register */
++#define I2C_LS2X_TXR		0x3 /* Transport Data Register */
++#define I2C_LS2X_RXR		0x3 /* Receive Data Register */
++#define I2C_LS2X_CR		0x4 /* Command Control Register */
++#define I2C_LS2X_SR		0x4 /* State Register */
++
++/* Command Control Register Bit */
++#define LS2X_CR_START		BIT(7) /* Start signal */
++#define LS2X_CR_STOP		BIT(6) /* Stop signal */
++#define LS2X_CR_READ		BIT(5) /* Read signal */
++#define LS2X_CR_WRITE		BIT(4) /* Write signal */
++#define LS2X_CR_ACK		BIT(3) /* Response signal */
++#define LS2X_CR_IACK		BIT(0) /* Interrupt response signal */
++
++/* State Register Bit */
++#define LS2X_SR_NOACK		BIT(7) /* Receive NACK */
++#define LS2X_SR_BUSY		BIT(6) /* Bus busy state */
++#define LS2X_SR_AL		BIT(5) /* Arbitration lost */
++#define LS2X_SR_TIP		BIT(1) /* Transmission state */
++#define LS2X_SR_IF		BIT(0) /* Interrupt flag */
++
++/* Control Register Bit */
++#define LS2X_CTR_EN		BIT(7) /* 0: I2c frequency setting 1: Normal */
++#define LS2X_CTR_IEN		BIT(6) /* Enable i2c interrupt */
++#define LS2X_CTR_MST		BIT(5) /* 0: Slave mode 1: Master mode */
++
++/* The PCLK clock frequency input from the LPB bus */
++#define LS2X_I2C_PCLK_FREQ	(50 * HZ_PER_MHZ)
++
++/* The default bus frequency, which is an empirical value */
++#define LS2X_I2C_FREQ_STD	(33 * HZ_PER_KHZ)
++
++struct ls2x_i2c_priv {
++	struct i2c_adapter	adapter;
++	struct device		*dev;
++	void __iomem		*base;
++	struct i2c_timings	i2c_t;
++	struct completion	cmd_complete;
++};
++
++static int ls2x_i2c_xfer_byte(struct i2c_adapter *adap, u8 txdata, u8 *rxdatap)
++{
++	u8 rxdata;
++	unsigned long time_left;
++	struct ls2x_i2c_priv *priv = i2c_get_adapdata(adap);
++
++	writeb(txdata, priv->base + I2C_LS2X_CR);
++
++	time_left = wait_for_completion_timeout(&priv->cmd_complete,
++						adap->timeout);
++	if (!time_left) {
++		dev_err(&adap->dev, "transaction timeout\n");
++		return -ETIMEDOUT;
++	}
++
++	rxdata = readb(priv->base + I2C_LS2X_SR);
++	if (rxdatap)
++		*rxdatap = rxdata;
++
++	return 0;
++}
++
++static int ls2x_i2c_send_byte(struct i2c_adapter *adap, u8 txdata)
++{
++	int ret;
++	u8 rxdata;
++
++	ret = ls2x_i2c_xfer_byte(adap, txdata, &rxdata);
++	if (ret)
++		return ret;
++
++	if (rxdata & LS2X_SR_NOACK)
++		return -ENXIO;
++
++	return 0;
++}
++
++static int ls2x_i2c_stop(struct i2c_adapter *adap)
++{
++	int ret = ls2x_i2c_send_byte(adap, LS2X_CR_STOP);
++
++	return (ret == -ENXIO) ? 0 : ret;
++}
++
++static int ls2x_i2c_start(struct i2c_adapter *adap, struct i2c_msg *msgs)
++{
++	struct ls2x_i2c_priv *priv = i2c_get_adapdata(adap);
++
++	reinit_completion(&priv->cmd_complete);
++
++	writeb(i2c_8bit_addr_from_msg(msgs), priv->base + I2C_LS2X_TXR);
++	return ls2x_i2c_send_byte(adap, (LS2X_CR_START | LS2X_CR_WRITE));
++}
++
++static int ls2x_i2c_rx(struct i2c_adapter *adap, u8 *buf, u16 len)
++{
++	unsigned long time_left;
++	int cmd = LS2X_CR_READ;
++	struct ls2x_i2c_priv *priv = i2c_get_adapdata(adap);
++
++	while (len--) {
++		writeb(cmd | (len ? 0 : LS2X_CR_ACK), priv->base + I2C_LS2X_CR);
++
++		time_left = wait_for_completion_timeout(&priv->cmd_complete,
++							adap->timeout);
++		if (unlikely(!time_left)) {
++			dev_err(priv->dev, "transaction timeout\n");
++			return -ETIMEDOUT;
++		}
++
++		*buf++ = readb(priv->base + I2C_LS2X_RXR);
++	}
++
++	return 0;
++}
++
++static int ls2x_i2c_tx(struct i2c_adapter *adap, u8 *buf, u16 len)
++{
++	int ret;
++	struct ls2x_i2c_priv *priv = i2c_get_adapdata(adap);
++
++	while (len--) {
++		writeb(*buf++, priv->base + I2C_LS2X_TXR);
++
++		ret = ls2x_i2c_send_byte(adap, LS2X_CR_WRITE);
++		if (ret)
++			return ret;
++	}
++
++	return 0;
++}
++
++static int ls2x_i2c_xfer_one(struct i2c_adapter *adap,
++			     struct i2c_msg *msg, bool stop)
++{
++	int ret;
++	bool is_read = msg->flags & I2C_M_RD;
++
++	/* Contains steps to send start condition and address */
++	ret = ls2x_i2c_start(adap, msg);
++	if (ret)
++		return ret;
++
++	if (is_read)
++		ret = ls2x_i2c_rx(adap, msg->buf, msg->len);
++	else
++		ret = ls2x_i2c_tx(adap, msg->buf, msg->len);
++
++	/* could not acquire bus. bail out without STOP */
++	if (ret == -EAGAIN)
++		return ret;
++
++	if (stop)
++		ret = ls2x_i2c_stop(adap);
++
++	return ret;
++}
++
++static int ls2x_i2c_master_xfer(struct i2c_adapter *adap,
++				struct i2c_msg *msgs, int num)
++{
++	int ret;
++	struct i2c_msg *msg, *emsg = msgs + num;
++
++	for (msg = msgs; msg < emsg; msg++) {
++		/* Emit STOP if it is the last message or I2C_M_STOP is set */
++		bool stop = (msg + 1 == emsg) || (msg->flags & I2C_M_STOP);
++
++		ret = ls2x_i2c_xfer_one(adap, msg, stop);
++		if (ret)
++			return ret;
++	}
++
++	return num;
++}
++
++static unsigned int ls2x_i2c_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static const struct i2c_algorithm ls2x_i2c_algo = {
++	.master_xfer	= ls2x_i2c_master_xfer,
++	.functionality	= ls2x_i2c_func,
++};
++
++/*
++ * Interrupt service routine.
++ * This gets called whenever an I2C interrupt occurs.
++ */
++static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev_id)
++{
++	struct ls2x_i2c_priv *priv = dev_id;
++
++	if (!(readb(priv->base + I2C_LS2X_SR) & LS2X_SR_IF))
++		return IRQ_NONE;
++
++	writeb(LS2X_CR_IACK, priv->base + I2C_LS2X_CR);
++	complete(&priv->cmd_complete);
++	return IRQ_HANDLED;
++}
++
++/*
++ * The LS2X I2C controller supports standard mode and fast mode,
++ * so the maximum bus frequency is '400kHz'.
++ * The bus frequency is set to the empirical value of '33KHz' by default,
++ * but it can also be taken from ACPI or FDT for compatibility with more
++ * devices.
++ */
++static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
++{
++	struct i2c_timings *t = &priv->i2c_t;
++	u32 acpi_speed = i2c_acpi_find_bus_speed(priv->dev);
++
++	i2c_parse_fw_timings(priv->dev, t, false);
++
++	if (acpi_speed || t->bus_freq_hz)
++		t->bus_freq_hz = max(t->bus_freq_hz, acpi_speed);
++	else
++		t->bus_freq_hz = LS2X_I2C_FREQ_STD;
++
++	/* Calculate and set LS2X I2C frequency */
++	writel(LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1,
++	       priv->base + I2C_LS2X_PRER_LO);
++}
++
++static void ls2x_i2c_reginit(struct ls2x_i2c_priv *priv)
++{
++	u8 data;
++
++	/* Enable operations about frequency divider register */
++	data = readb(priv->base + I2C_LS2X_CTR);
++	writeb(data & ~LS2X_CTR_EN, priv->base + I2C_LS2X_CTR);
++
++	ls2x_i2c_adjust_bus_speed(priv);
++
++	/* Set to normal I2C operating mode and enable interrupts */
++	data = readb(priv->base + I2C_LS2X_CTR);
++	writeb(data | LS2X_CTR_EN | LS2X_CTR_IEN | LS2X_CTR_MST,
++	       priv->base + I2C_LS2X_CTR);
++}
++
++static int ls2x_i2c_probe(struct platform_device *pdev)
++{
++	int r, irq;
++	struct i2c_adapter *adap;
++	struct ls2x_i2c_priv *priv;
++	struct device *dev = &pdev->dev;
++
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->dev = dev;
++	platform_set_drvdata(pdev, priv);
++	init_completion(&priv->cmd_complete);
++
++	/* Map hardware registers */
++	priv->base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(priv->base))
++		return PTR_ERR(priv->base);
++
++	ls2x_i2c_reginit(priv);
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return irq;
++
++	r = devm_request_irq(dev, irq, ls2x_i2c_isr,
++			     IRQF_SHARED, "ls2x-i2c", priv);
++	if (r < 0)
++		return dev_err_probe(dev, r, "Unable to request irq %d\n", irq);
++
++	/* Add the i2c adapter */
++	adap = &priv->adapter;
++	adap->nr = pdev->id;
++	adap->owner = THIS_MODULE;
++	adap->retries = 5;
++	adap->algo = &ls2x_i2c_algo;
++	adap->dev.parent = dev;
++	device_set_node(&adap->dev, dev_fwnode(dev));
++	i2c_set_adapdata(adap, priv);
++	strscpy(adap->name, pdev->name, sizeof(adap->name));
++
++	return devm_i2c_add_adapter(dev, adap);
++}
++
++static int ls2x_i2c_suspend(struct device *dev)
++{
++	struct ls2x_i2c_priv *priv = dev_get_drvdata(dev);
++
++	/* Disable I2C interrupt */
++	writeb(readb(priv->base + I2C_LS2X_CTR) & ~LS2X_CTR_IEN,
++	       priv->base + I2C_LS2X_CTR);
++
++	return 0;
++}
++
++static int ls2x_i2c_resume(struct device *dev)
++{
++	struct ls2x_i2c_priv *priv = dev_get_drvdata(dev);
++
++	ls2x_i2c_reginit(priv);
++	return 0;
++}
++
++static DEFINE_RUNTIME_DEV_PM_OPS(ls2x_i2c_pm_ops,
++				 ls2x_i2c_suspend, ls2x_i2c_resume, NULL);
++
++static const struct of_device_id ls2x_i2c_id_table[] = {
++	{ .compatible = "loongson,ls2k-i2c" },
++	{ .compatible = "loongson,ls7a-i2c" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, ls2x_i2c_id_table);
++
++static const struct acpi_device_id ls2x_i2c_acpi_match[] = {
++	{ "LOON0004" }, /* Loongson LS7A */
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, ls2x_i2c_acpi_match);
++
++static struct platform_driver ls2x_i2c_driver = {
++	.probe		= ls2x_i2c_probe,
++	.driver		= {
++		.name	= "ls2x-i2c",
++		.pm	= pm_sleep_ptr(&ls2x_i2c_pm_ops),
++		.of_match_table = ls2x_i2c_id_table,
++		.acpi_match_table = ls2x_i2c_acpi_match,
++	},
++};
++
++static int __init ls2x_i2c_init_driver(void)
++{
++	return platform_driver_register(&ls2x_i2c_driver);
++}
++subsys_initcall(ls2x_i2c_init_driver);
++
++static void __exit ls2x_i2c_exit_driver(void)
++{
++	platform_driver_unregister(&ls2x_i2c_driver);
++}
++module_exit(ls2x_i2c_exit_driver);
++
++MODULE_DESCRIPTION("Loongson LS2X I2C Bus driver");
++MODULE_AUTHOR("Loongson Technology Corporation Limited");
++MODULE_LICENSE("GPL");
+-- 
+2.31.1
 
