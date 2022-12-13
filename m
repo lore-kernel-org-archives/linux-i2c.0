@@ -2,217 +2,78 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDBF3C4332F
-	for <linux-i2c@archiver.kernel.org>; Tue, 13 Dec 2022 14:58:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A651C10F1D
+	for <linux-i2c@archiver.kernel.org>; Tue, 13 Dec 2022 15:10:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235511AbiLMO6R (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 13 Dec 2022 09:58:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43060 "EHLO
+        id S235998AbiLMPK3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 13 Dec 2022 10:10:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236021AbiLMO6R (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Dec 2022 09:58:17 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C91F2209BC;
-        Tue, 13 Dec 2022 06:58:15 -0800 (PST)
-X-IronPort-AV: E=McAfee;i="6500,9779,10559"; a="319289491"
-X-IronPort-AV: E=Sophos;i="5.96,241,1665471600"; 
-   d="scan'208";a="319289491"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2022 06:58:14 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10559"; a="598822601"
-X-IronPort-AV: E=Sophos;i="5.96,241,1665471600"; 
-   d="scan'208";a="598822601"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga003.jf.intel.com with ESMTP; 13 Dec 2022 06:58:10 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andy@kernel.org>)
-        id 1p56jN-009KZE-2N;
-        Tue, 13 Dec 2022 16:58:05 +0200
-Date:   Tue, 13 Dec 2022 16:58:05 +0200
-From:   Andy Shevchenko <andy@kernel.org>
-To:     Binbin Zhou <zhoubinbin@loongson.cn>
-Cc:     Wolfram Sang <wsa@kernel.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        linux-i2c@vger.kernel.org, loongarch@lists.linux.dev,
-        devicetree@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
-        WANG Xuerui <kernel@xen0n.name>, Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Jianmin Lv <lvjianmin@loongson.cn>
-Subject: Re: [PATCH V6 3/4] i2c: ls2x: Add driver for Loongson-2K/LS7A I2C
- controller
-Message-ID: <Y5iS/ReDrO3B4Ksl@smile.fi.intel.com>
-References: <cover.1670897253.git.zhoubinbin@loongson.cn>
- <bf55d05a50dc1e9453d124033ff368e9500ed4ed.1670897253.git.zhoubinbin@loongson.cn>
+        with ESMTP id S236065AbiLMPKQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Dec 2022 10:10:16 -0500
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2628D5FCC
+        for <linux-i2c@vger.kernel.org>; Tue, 13 Dec 2022 07:10:13 -0800 (PST)
+Received: by mail-ed1-x52b.google.com with SMTP id a16so18126255edb.9
+        for <linux-i2c@vger.kernel.org>; Tue, 13 Dec 2022 07:10:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=sigma-star.at; s=google;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UyLx1VEox9TK82M7WluU2orGwyoAS17PD8gbkH1/ebo=;
+        b=H5mYasErDPvFeyI1U99p0dShmX4Z9px12caVBozHtDVORuEbZWk+fm3X3YuW9WQYB/
+         tXUUnXE6hinBNdDg6F5yB6f6ROkbi/SB8JeGvHfhWkgo1dYyH37WEy5+KbAs3vBw11N5
+         xPS36eaKvCq5RGJ+YBHmnRzzP8yXEDfCpQoBhIZiMZ1iRGIUxU9l2AVS2NGzdEwScXoo
+         v3itPKEECx1ntsLdLnqwQPUVY2ZKvitK/U3pl4eqpq36rmDal0eAdK2jkylTUed/fVy/
+         FT/KUjwvrvYJvtaiQcKlyxeAjov3qE42SGx/2r4erOhDYGj5wMdDb4W9O4didHgVTWMD
+         IV1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=UyLx1VEox9TK82M7WluU2orGwyoAS17PD8gbkH1/ebo=;
+        b=B9WjFkC3GERQX11QWFQlRB1hFNw0xda0xlHaWu4ptF0yDeOErTBlsow949F0m6ks2q
+         E6quSzsx/kZXoq4LbC8T/AqU4G7VPDH+gTGQbGyd2xEDMZy3h66UPagUPQCnFdtS1vpU
+         eFgwh8mzNzLWJdXQodZ1Jd6O0Alyn/Cp/p1WDInsWNRLlwuQz5phBEBICZ5ACWVYvylR
+         /oIh3mwXvaYaz6hdiIMEO6+P4p3Eae2onmyYZxCrwV+5t266HNQ2DGtQlbcMXuSXaS8Z
+         EXmIKBJapcmZhhyqWxXAhTlMY3pUOZgxbvBJLweno+xF1jutMxMSU3H8HVw/oHy7e/oS
+         56lQ==
+X-Gm-Message-State: ANoB5pmQZKRx9xnucghreYVT1VsMF4JHtHQ1OSmo9Q+C7bnQOwF6d56/
+        xZmwCtGsxhZ1KfwEJeyyhS83z4Esv1GLHBttp2Y=
+X-Google-Smtp-Source: AA0mqf51WjOfzPuD7w90vfjdlhl21ZMg+wy41vV9dE9JjFaEI/6myAwL+tMc0jJVDz1WXCsGpyJpeQ==
+X-Received: by 2002:a50:ec8d:0:b0:46c:a3c1:2057 with SMTP id e13-20020a50ec8d000000b0046ca3c12057mr17491633edr.29.1670944211735;
+        Tue, 13 Dec 2022 07:10:11 -0800 (PST)
+Received: from [10.115.254.166] ([82.150.214.1])
+        by smtp.gmail.com with ESMTPSA id a9-20020a17090640c900b0077205dd15basm4643738ejk.66.2022.12.13.07.10.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Dec 2022 07:10:11 -0800 (PST)
+Message-ID: <4cab66eb-dcc7-0109-c18c-3bcadda77554@sigma-star.at>
+Date:   Tue, 13 Dec 2022 16:10:10 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bf55d05a50dc1e9453d124033ff368e9500ed4ed.1670897253.git.zhoubinbin@loongson.cn>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Content-Language: en-US
+To:     linux-i2c@vger.kernel.org
+Cc:     jdelvare@suse.de, hkallweit1@gmail.com, marcan@marcan.st,
+        wsa@kernel.org
+From:   David Oberhollenzer <david.oberhollenzer@sigma-star.at>
+Subject: Re: [PATCH v3] i2c: i801: Safely share SMBus with BIOS/ACPI
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Dec 13, 2022 at 04:26:57PM +0800, Binbin Zhou wrote:
-> This I2C module is integrated into the Loongson-2K SoCs and Loongson
-> LS7A bridge chip.
+Friendly ping. Are there still plans to get this merged? Any unresolved issues?
 
-...
+I tested this on an Intel Atom E3827 based embedded board.
 
-> +// SPDX-License-Identifier: GPL-2.0
+I also get this line in the kernel log and everything seems to work as expected:
+[   13.095291] i801_smbus 0000:00:1f.3: SMBus controller is shared with ACPI AML. This seems safe so far.
 
-GPL-2.0-only
+Tested with an application that accesses custom I2C hardware attached to the SMBus.
 
-> +/*
-> + * Loongson-2K/Loongson LS7A I2C master mode driver
-> + *
-> + * Copyright (C) 2013 Loongson Technology Corporation Limited.
-> + * Copyright (C) 2014-2017 Lemote, Inc.
-> + * Copyright (C) 2018-2022 Loongson Technology Corporation Limited.
-> + *
-> + * Originally written by liushaozong
-
-> + *
-
-No need to have this blank line.
-
-> + * Rewritten for mainline by Binbin Zhou <zhoubinbin@loongson.cn>
-> + */
-
-...
-
-> +#include <linux/bits.h>
-> +#include <linux/completion.h>
-> +#include <linux/device.h>
-> +#include <linux/i2c.h>
-> +#include <linux/init.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/io.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/pm_runtime.h>
-> +#include <linux/platform_device.h>
-
-+ property.h at least for dev_fwnode().
-
-> +#include <linux/units.h>
-
-...
-
-> +#define I2C_LS2X_PRER_LO	0x0 /* Freq Division Low Byte Register */
-> +#define I2C_LS2X_PRER_HI	0x1 /* Freq Division High Byte Register */
-
-_HI is not used, can we just drop the suffix?
-
-...
-
-> +struct ls2x_i2c_priv {
-
-> +	struct i2c_adapter	adapter;
-
-> +	struct device		*dev;
-
-In some cases you are using adapter.dev, in some this one.
-Also isn't it the dev is the same as adapter.dev.parent?
-
-Hence, why do you need this one?
-
-> +	void __iomem		*base;
-> +	struct i2c_timings	i2c_t;
-> +	struct completion	cmd_complete;
-> +};
-
-...
-
-> +	return ls2x_i2c_send_byte(adap, (LS2X_CR_START | LS2X_CR_WRITE));
-
-Too many parentheses.
-
-...
-
-> +static int ls2x_i2c_xfer_one(struct i2c_adapter *adap,
-> +			     struct i2c_msg *msg, bool stop)
-> +{
-> +	int ret;
-> +	bool is_read = msg->flags & I2C_M_RD;
-> +
-> +	/* Contains steps to send start condition and address */
-> +	ret = ls2x_i2c_start(adap, msg);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (is_read)
-> +		ret = ls2x_i2c_rx(adap, msg->buf, msg->len);
-> +	else
-> +		ret = ls2x_i2c_tx(adap, msg->buf, msg->len);
-> +
-> +	/* could not acquire bus. bail out without STOP */
-> +	if (ret == -EAGAIN)
-> +		return ret;
-
-So, if ret is *not* 0 and *not* --EAGAIN, why don't we bail out here? It needs
-at least a comment.
-
-> +	if (stop)
-> +		ret = ls2x_i2c_stop(adap);
-> +
-> +	return ret;
-> +}
-
-...
-
-> +static int ls2x_i2c_master_xfer(struct i2c_adapter *adap,
-> +				struct i2c_msg *msgs, int num)
-> +{
-> +	int ret;
-> +	struct i2c_msg *msg, *emsg = msgs + num;
-> +
-> +	for (msg = msgs; msg < emsg; msg++) {
-> +		/* Emit STOP if it is the last message or I2C_M_STOP is set */
-
-> +		bool stop = (msg + 1 == emsg) || (msg->flags & I2C_M_STOP);
-
-I'm wondering if we can always set the _STOP bit in the flags of the last
-message before entering this loop. In such case you can reduce to one part
-and supply as a parameter directly.
-
-> +
-> +		ret = ls2x_i2c_xfer_one(adap, msg, stop);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	return num;
-> +}
-
-...
-
-> +	/* Calculate and set LS2X I2C frequency */
-> +	writel(LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1,
-> +	       priv->base + I2C_LS2X_PRER_LO);
-
-writel()?! Shouldn't be writew()?
-
-...
-
-> +	r = devm_request_irq(dev, irq, ls2x_i2c_isr,
-> +			     IRQF_SHARED, "ls2x-i2c", priv);
-
-There is a room on the previous line for at least one more argument.
-
-> +	if (r < 0)
-> +		return dev_err_probe(dev, r, "Unable to request irq %d\n", irq);
-
-...
-
-> +subsys_initcall(ls2x_i2c_init_driver);
-
-Non-standard init calls should be commented.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
+Tested-by: David Oberhollenzer <david.oberhollenzer@sigma-star.at>
 
