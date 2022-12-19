@@ -2,218 +2,149 @@ Return-Path: <linux-i2c-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C1E8C10F1B
-	for <linux-i2c@archiver.kernel.org>; Mon, 19 Dec 2022 18:23:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77C3AC10F1B
+	for <linux-i2c@archiver.kernel.org>; Mon, 19 Dec 2022 19:33:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231670AbiLSSXJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 19 Dec 2022 13:23:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41066 "EHLO
+        id S232124AbiLSTc7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 19 Dec 2022 14:32:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232245AbiLSSXF (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Dec 2022 13:23:05 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A15C1614D
-        for <linux-i2c@vger.kernel.org>; Mon, 19 Dec 2022 10:23:02 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id d20so14207332edn.0
-        for <linux-i2c@vger.kernel.org>; Mon, 19 Dec 2022 10:23:02 -0800 (PST)
+        with ESMTP id S231531AbiLSTc5 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Dec 2022 14:32:57 -0500
+Received: from smtp-fw-2101.amazon.com (smtp-fw-2101.amazon.com [72.21.196.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3F5312ABC;
+        Mon, 19 Dec 2022 11:32:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=SS8F1eybluXikfga57LpXk9XR7mh2jagKkWcoJ9oiAc=;
-        b=TKM+/gw99y1/S2Z9/idq5l0mDuLtKJe47xObG4PEiFzu/OnEo3XvDVqqDeXnTeb5SB
-         /Eb9OQIN4OaAp9He6CmZuHIGELR2L/AcwNLox0Bdlapmq1uhyYgG8yHkt62wOA5Yj1qp
-         3EopDC7xDleNmv/aoYDWky52dAV+1K16iih9VnrH+g1Xgh8mQAdOjw1qYKQjObeov6ab
-         yh1kgluXHQ2/fhE8QJKAvC5UMPTCbzDjXeP/9swJg/gKS+ZHXYZMhuDGh6B+s/j8f82r
-         99/Pw1TKcFI36+QM6ZUB+qhHHYK+5IyMXCXn4ZFfeS5+9gfKJ9WRFajhYb/CPa61MzDn
-         9u/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SS8F1eybluXikfga57LpXk9XR7mh2jagKkWcoJ9oiAc=;
-        b=gDzDWEdXFHBJC7tEbTTSqr8n9n5T62vT5lQASJpe7NVwdDvnmJGlVHPC8KIf3ILgCc
-         b49+loMjG9TAJhEUH1kxZUmWnZw/0Vqx/uYjd59829SAFNFXgouGAP9A9vDPRgMlDlq7
-         v9uVu3kFR/0AKdeC0J/a8yddYsiAMnqMnwM76hVOLHXjT0mUSGK8GbsgQZ+AWN+sryYP
-         p5KcLOfiSuqunpWryFpRn9nMQYjtsdhazWmKDWABeB6/YAA8Vo9/SvTeCdLLX71QxeWu
-         b9dQBbMZe+5Ji+QfzVClz/P2FWY6SMQmkh0VKU5DVGs6nfJWVjbIu5xTqUD1ggDqD4rX
-         87Gw==
-X-Gm-Message-State: ANoB5pkEsp9ccsBf818FSxseQcBP6mPz88ytAeqpV6liYcFsRHyJv328
-        VeCpg8qsJ12wMoqNXbTicXdBLq7GxPY=
-X-Google-Smtp-Source: AA0mqf7R7JY3viUROQbCyPcI6cHrFgKRK4QBLpIs7XVxNKQKkHqNhZCv6SfDwOm+ptaIoOwn8IBAmA==
-X-Received: by 2002:a05:6402:2b8b:b0:468:58d4:a0f2 with SMTP id fj11-20020a0564022b8b00b0046858d4a0f2mr32835779edb.23.1671474181221;
-        Mon, 19 Dec 2022 10:23:01 -0800 (PST)
-Received: from ?IPV6:2a01:c23:c0aa:f200:2422:8cf4:48af:d322? (dynamic-2a01-0c23-c0aa-f200-2422-8cf4-48af-d322.c23.pool.telefonica.de. [2a01:c23:c0aa:f200:2422:8cf4:48af:d322])
-        by smtp.googlemail.com with ESMTPSA id f4-20020a17090631c400b007adf2e4c6f7sm4674920ejf.195.2022.12.19.10.23.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Dec 2022 10:23:00 -0800 (PST)
-Message-ID: <83fd2bd5-1f49-4943-ca67-e774f98905cb@gmail.com>
-Date:   Mon, 19 Dec 2022 19:21:33 +0100
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1671478377; x=1703014377;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=XMs52eEwrpr6t8/OSw+Ha1zLO68AAU5IDolZMANPZLg=;
+  b=rlBmxt9ksRLT4sO5l1DifhKTLRf4y9JZEtnCcNxSPt1Gso6VPOw/7e9J
+   uV6MPmMTIjWflUq5ttOm4ExFc3fOHyvCvj5MSxfUqvu+qAMJ2iiqVDkDv
+   j6xahN3Ijr9t1IwbGtF73cSqAZOjOXlprv91hL8AMKQ4R4AvvqiM1rM6F
+   0=;
+X-IronPort-AV: E=Sophos;i="5.96,257,1665446400"; 
+   d="scan'208";a="275020458"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-pdx-2a-m6i4x-3ef535ca.us-west-2.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-2101.iad2.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Dec 2022 19:32:54 +0000
+Received: from EX13D21EUA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-pdx-2a-m6i4x-3ef535ca.us-west-2.amazon.com (Postfix) with ESMTPS id 49DFB60A0E;
+        Mon, 19 Dec 2022 19:32:51 +0000 (UTC)
+Received: from EX19D019EUA002.ant.amazon.com (10.252.50.84) by
+ EX13D21EUA001.ant.amazon.com (10.43.165.41) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.42; Mon, 19 Dec 2022 19:32:50 +0000
+Received: from dev-dsk-hhhawa-1b-84e0d7ff.eu-west-1.amazon.com (10.43.160.83)
+ by EX19D019EUA002.ant.amazon.com (10.252.50.84) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.1118.20; Mon, 19 Dec 2022 19:32:45 +0000
+From:   Hanna Hawa <hhhawa@amazon.com>
+To:     <wsa@kernel.org>, <linus.walleij@linaro.org>,
+        <andriy.shevchenko@linux.intel.com>, <linux-i2c@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>
+CC:     <dwmw@amazon.co.uk>, <benh@amazon.com>, <ronenk@amazon.com>,
+        <talel@amazon.com>, <jonnyc@amazon.com>, <hanochu@amazon.com>,
+        <farbere@amazon.com>, <itamark@amazon.com>, <hhhawa@amazon.com>
+Subject: [PATCH v3 1/1] i2c: Set pinctrl recovery info to device pinctrl
+Date:   Mon, 19 Dec 2022 19:32:28 +0000
+Message-ID: <20221219193228.35078-1-hhhawa@amazon.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: [PATCH v2 08/10] i2c: i801: centralize configuring block commands in
- i801_block_transaction
-Content-Language: en-US
-From:   Heiner Kallweit <hkallweit1@gmail.com>
-To:     Jean Delvare <jdelvare@suse.com>
-Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-References: <8db86d89-d083-2a65-76a1-6db34f433604@gmail.com>
-In-Reply-To: <8db86d89-d083-2a65-76a1-6db34f433604@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.43.160.83]
+X-ClientProxiedBy: EX13D28UWC003.ant.amazon.com (10.43.162.48) To
+ EX19D019EUA002.ant.amazon.com (10.252.50.84)
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Similar to the patch for non-block commands, centralize block command
-register settings in i801_block_transaction().
+Currently the i2c subsystem rely on the controller device tree to
+initialize the pinctrl recovery information, part of the drivers does
+not set this field (rinfo->pinctrl), for example i2c designware driver.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+The pins information is saved part of the device structure before probe
+and it's done on pinctrl_bind_pins().
+
+Make the i2c init recovery to get the device pins if it's not
+initialized by the driver from the device pins.
+
+Added new API to get the device pinctrl.
+
+Signed-off-by: Hanna Hawa <hhhawa@amazon.com>
+
+Change Log v2->v3:
+- Add API to get the device pinctrl
+- Make the i2c init recovery to get the device pins
+
+Change Log v1->v2:
+- set the rinfo->pinctrl to dev->pins->p instead calling
+  devm_pinctrl_get()
 ---
- drivers/i2c/busses/i2c-i801.c | 85 +++++++++++++++--------------------
- 1 file changed, 36 insertions(+), 49 deletions(-)
+ drivers/i2c/i2c-core-base.c     |  7 ++++++-
+ include/linux/pinctrl/devinfo.h | 11 +++++++++++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 0d49e9587..78663d8df 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -803,7 +803,7 @@ static int i801_simple_transaction(struct i801_priv *priv, union i2c_smbus_data
- 
- /* Block transaction function */
- static int i801_block_transaction(struct i801_priv *priv, union i2c_smbus_data *data,
--				  char read_write, int command)
-+				  u8 addr, u8 hstcmd, char read_write, int command)
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 7539b0740351..17eecdcf1cb2 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -34,6 +34,7 @@
+ #include <linux/of.h>
+ #include <linux/of_irq.h>
+ #include <linux/pinctrl/consumer.h>
++#include <linux/pinctrl/devinfo.h>
+ #include <linux/pm_domain.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/pm_wakeirq.h>
+@@ -282,7 +283,11 @@ static void i2c_gpio_init_pinctrl_recovery(struct i2c_adapter *adap)
  {
- 	int result = 0;
- 	unsigned char hostc;
-@@ -813,7 +813,29 @@ static int i801_block_transaction(struct i801_priv *priv, union i2c_smbus_data *
- 	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
- 		return -EPROTO;
- 
--	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
-+	switch (command) {
-+	case I2C_SMBUS_BLOCK_DATA:
-+		i801_set_hstadd(priv, addr, read_write);
-+		outb_p(hstcmd, SMBHSTCMD(priv));
-+		break;
-+	case I2C_SMBUS_I2C_BLOCK_DATA:
-+		/*
-+		 * NB: page 240 of ICH5 datasheet shows that the R/#W
-+		 * bit should be cleared here, even when reading.
-+		 * However if SPD Write Disable is set (Lynx Point and later),
-+		 * the read will fail if we don't set the R/#W bit.
-+		 */
-+		i801_set_hstadd(priv, addr,
-+				priv->original_hstcfg & SMBHSTCFG_SPD_WD ?
-+				read_write : I2C_SMBUS_WRITE);
-+		if (read_write == I2C_SMBUS_READ) {
-+			/* NB: page 240 of ICH5 datasheet also shows
-+			 * that DATA1 is the cmd field when reading
-+			 */
-+			outb_p(hstcmd, SMBHSTDAT1(priv));
-+		} else
-+			outb_p(hstcmd, SMBHSTCMD(priv));
+ 	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
+ 	struct device *dev = &adap->dev;
+-	struct pinctrl *p = bri->pinctrl;
++	struct pinctrl *p;
 +
- 		if (read_write == I2C_SMBUS_WRITE) {
- 			/* set I2C_EN bit in configuration register */
- 			pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &hostc);
-@@ -824,6 +846,13 @@ static int i801_block_transaction(struct i801_priv *priv, union i2c_smbus_data *
- 				"I2C block read is unsupported!\n");
- 			return -EOPNOTSUPP;
- 		}
-+
-+		break;
-+	case I2C_SMBUS_BLOCK_PROC_CALL:
-+		/* Needs to be flagged as write transaction */
-+		i801_set_hstadd(priv, addr, I2C_SMBUS_WRITE);
-+		outb_p(hstcmd, SMBHSTCMD(priv));
-+		break;
- 	}
++	if (!bri->pinctrl)
++		bri->pinctrl = dev_pinctrl(dev->parent);
++	p = bri->pinctrl;
  
- 	/* Experience has shown that the block buffer can only be used for
-@@ -852,7 +881,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 		       unsigned short flags, char read_write, u8 command,
- 		       int size, union i2c_smbus_data *data)
- {
--	int hwpec, ret, block = 0;
-+	int hwpec, ret;
- 	struct i801_priv *priv = i2c_get_adapdata(adap);
- 
- 	mutex_lock(&priv->acpi_lock);
-@@ -867,57 +896,16 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 		&& size != I2C_SMBUS_QUICK
- 		&& size != I2C_SMBUS_I2C_BLOCK_DATA;
- 
--	switch (size) {
--	case I2C_SMBUS_QUICK:
--	case I2C_SMBUS_BYTE:
--	case I2C_SMBUS_BYTE_DATA:
--	case I2C_SMBUS_WORD_DATA:
--	case I2C_SMBUS_PROC_CALL:
--		break;
--	case I2C_SMBUS_BLOCK_DATA:
--		i801_set_hstadd(priv, addr, read_write);
--		outb_p(command, SMBHSTCMD(priv));
--		block = 1;
--		break;
--	case I2C_SMBUS_I2C_BLOCK_DATA:
--		/*
--		 * NB: page 240 of ICH5 datasheet shows that the R/#W
--		 * bit should be cleared here, even when reading.
--		 * However if SPD Write Disable is set (Lynx Point and later),
--		 * the read will fail if we don't set the R/#W bit.
--		 */
--		i801_set_hstadd(priv, addr,
--				priv->original_hstcfg & SMBHSTCFG_SPD_WD ?
--				read_write : I2C_SMBUS_WRITE);
--		if (read_write == I2C_SMBUS_READ) {
--			/* NB: page 240 of ICH5 datasheet also shows
--			 * that DATA1 is the cmd field when reading */
--			outb_p(command, SMBHSTDAT1(priv));
--		} else
--			outb_p(command, SMBHSTCMD(priv));
--		block = 1;
--		break;
--	case I2C_SMBUS_BLOCK_PROC_CALL:
--		/* Needs to be flagged as write transaction */
--		i801_set_hstadd(priv, addr, I2C_SMBUS_WRITE);
--		outb_p(command, SMBHSTCMD(priv));
--		block = 1;
--		break;
--	default:
--		dev_err(&priv->pci_dev->dev, "Unsupported transaction %d\n",
--			size);
--		ret = -EOPNOTSUPP;
--		goto out;
--	}
--
- 	if (hwpec)	/* enable/disable hardware PEC */
- 		outb_p(inb_p(SMBAUXCTL(priv)) | SMBAUXCTL_CRC, SMBAUXCTL(priv));
- 	else
- 		outb_p(inb_p(SMBAUXCTL(priv)) & (~SMBAUXCTL_CRC),
- 		       SMBAUXCTL(priv));
- 
--	if (block)
--		ret = i801_block_transaction(priv, data, read_write, size);
-+	if (size == I2C_SMBUS_BLOCK_DATA ||
-+	    size == I2C_SMBUS_I2C_BLOCK_DATA ||
-+	    size == I2C_SMBUS_BLOCK_PROC_CALL)
-+		ret = i801_block_transaction(priv, data, addr, command, read_write, size);
- 	else
- 		ret = i801_simple_transaction(priv, data, addr, command, read_write, size);
- 
-@@ -926,7 +914,6 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	 */
- 	if (hwpec)
- 		outb_p(inb_p(SMBAUXCTL(priv)) & ~SMBAUXCTL_CRC, SMBAUXCTL(priv));
--out:
  	/*
- 	 * Unlock the SMBus device for use by BIOS/ACPI,
- 	 * and clear status flags if not done already.
+ 	 * we can't change states without pinctrl, so remove the states if
+diff --git a/include/linux/pinctrl/devinfo.h b/include/linux/pinctrl/devinfo.h
+index a48ff69acddd..5c00ee115528 100644
+--- a/include/linux/pinctrl/devinfo.h
++++ b/include/linux/pinctrl/devinfo.h
+@@ -17,6 +17,7 @@
+ #ifdef CONFIG_PINCTRL
+ 
+ /* The device core acts as a consumer toward pinctrl */
++#include <linux/device.h>
+ #include <linux/pinctrl/consumer.h>
+ 
+ /**
+@@ -40,6 +41,11 @@ struct dev_pin_info {
+ extern int pinctrl_bind_pins(struct device *dev);
+ extern int pinctrl_init_done(struct device *dev);
+ 
++static inline struct pinctrl *dev_pinctrl(struct device *dev)
++{
++	return dev->pins && dev->pins->p ? dev->pins->p : NULL;
++}
++
+ #else
+ 
+ struct device;
+@@ -56,5 +62,10 @@ static inline int pinctrl_init_done(struct device *dev)
+ 	return 0;
+ }
+ 
++static inline struct pinctrl *get_device_pinctrl(struct device *dev)
++{
++	return NULL;
++}
++
+ #endif /* CONFIG_PINCTRL */
+ #endif /* PINCTRL_DEVINFO_H */
 -- 
-2.39.0
-
+2.38.1
 
