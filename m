@@ -2,97 +2,154 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDA06C3DA7A
-	for <linux-i2c@archiver.kernel.org>; Mon,  2 Jan 2023 17:29:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24EE8C54EBC
+	for <linux-i2c@archiver.kernel.org>; Tue,  3 Jan 2023 07:00:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232151AbjABR3f (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 2 Jan 2023 12:29:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36030 "EHLO
+        id S236884AbjACHAt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 3 Jan 2023 02:00:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232796AbjABR3e (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 2 Jan 2023 12:29:34 -0500
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A2919F
-        for <linux-i2c@vger.kernel.org>; Mon,  2 Jan 2023 09:29:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1672680574; x=1704216574;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=WFCCMx8FvNAGXuSRcuCSuaBNBjgj22vg2q/AhwDPIWU=;
-  b=j4hNTjaHPCfXgkgxP0B7cYoiXc1h0dj3Qw9mObFOnPVXmhO+FEkVdKRH
-   NoEbNogVknduqE5h6woOOXrx8Leg+K0hKwQk7eoeXT+wBHOP7Ld+cIoeK
-   +U9F4UX7d2jJakfPVHDIJuGLP5v2g7Li7UZXISbC7E3JoGCJ5hGmlAUZi
-   6/V7MLoxtKWPqKmXD5+t2twb+6e5xt2jS7xmoW3cboebYnI82msEmo0FI
-   9GdhAZ+dpnlowo7TO0qPt2KmQWewltmPuXafAI0jbmZmQnuc0pPRMW8MS
-   3Hj1h5i8emg6GM2XJWD72n+COCswspXBzYfosDD1AxxGMOKuqg6c0/6wN
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10578"; a="319219353"
-X-IronPort-AV: E=Sophos;i="5.96,294,1665471600"; 
-   d="scan'208";a="319219353"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jan 2023 09:29:33 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10578"; a="647957060"
-X-IronPort-AV: E=Sophos;i="5.96,294,1665471600"; 
-   d="scan'208";a="647957060"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga007.jf.intel.com with ESMTP; 02 Jan 2023 09:29:31 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1pCOcr-003WaQ-2Z;
-        Mon, 02 Jan 2023 19:29:29 +0200
-Date:   Mon, 2 Jan 2023 19:29:29 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Cc:     jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com,
-        jsd@semihalf.com, linux-i2c@vger.kernel.org, Rajesh1.Kumar@amd.com,
-        Sanath S <Sanath.S@amd.com>
-Subject: Re: [PATCH] i2c: designware-pci: Add new PCI IDs for AMD NAVI GPU
-Message-ID: <Y7MUeRqYJ6peB3eh@smile.fi.intel.com>
-References: <20230102170955.1750734-1-Basavaraj.Natikar@amd.com>
+        with ESMTP id S236875AbjACHAp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 3 Jan 2023 02:00:45 -0500
+Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B0860D2F6;
+        Mon,  2 Jan 2023 23:00:42 -0800 (PST)
+Received: from loongson.cn (unknown [112.20.108.31])
+        by gateway (Coremail) with SMTP id _____8Cx5vCZ0rNjbxEKAA--.21521S3;
+        Tue, 03 Jan 2023 15:00:41 +0800 (CST)
+Received: from localhost.localdomain (unknown [112.20.108.31])
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8DxTuSV0rNjSb0SAA--.59328S3;
+        Tue, 03 Jan 2023 15:00:41 +0800 (CST)
+From:   Binbin Zhou <zhoubinbin@loongson.cn>
+To:     Wolfram Sang <wsa@kernel.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+Cc:     loongarch@lists.linux.dev, devicetree@vger.kernel.org,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Jianmin Lv <lvjianmin@loongson.cn>,
+        Binbin Zhou <zhoubinbin@loongson.cn>
+Subject: [PATCH V9 1/4] i2c: gpio: Add support on ACPI-based system
+Date:   Tue,  3 Jan 2023 15:00:45 +0800
+Message-Id: <0bc1a9883885ef6a218ab548fbcc57a6a0fe05a7.1672714138.git.zhoubinbin@loongson.cn>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <cover.1672714138.git.zhoubinbin@loongson.cn>
+References: <cover.1672714138.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230102170955.1750734-1-Basavaraj.Natikar@amd.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AQAAf8DxTuSV0rNjSb0SAA--.59328S3
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
+X-Coremail-Antispam: 1Uk129KBjvJXoWxZFWxXry8AFyxXr48ZFWDurg_yoW5Zr13pF
+        WY9FZxtFWjgF42grnrXw1kZw1Skwn2q3yIgw47G3sY9w4qqrn8XFy8tFyI9F15ZFW8Gw13
+        tw1UtFW3CFsrZaUanT9S1TB71UUUUjDqnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
+        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
+        bSxYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
+        1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
+        wVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4
+        x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l
+        n4kS14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6x
+        ACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q6rW5McIj6I8E
+        87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxV
+        Aaw2AFwI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxY
+        O2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGV
+        WUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_
+        Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rV
+        WUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4U
+        JbIYCTnIWIevJa73UjIFyTuYvjxU4YLvDUUUU
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Jan 02, 2023 at 10:39:55PM +0530, Basavaraj Natikar wrote:
-> Add additional supported PCI IDs for latest AMD NAVI GPU card which
-> has an integrated Type-C controller and designware I2C with PCI
-> interface.
+Add support for the ACPI-based device registration, so that the driver
+can be also enabled through ACPI table.
 
-Obviously looks correct from the code and style perspectives.
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andy@kernel.org>
+Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+---
+ drivers/i2c/busses/i2c-gpio.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
-> Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-> Tested-by: Sanath S <Sanath.S@amd.com>
-> ---
->  drivers/i2c/busses/i2c-designware-pcidrv.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> index e499f96506c5..782fe1ef3ca1 100644
-> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> @@ -396,6 +396,8 @@ static const struct pci_device_id i2_designware_pci_ids[] = {
->  	{ PCI_VDEVICE(ATI,  0x73a4), navi_amd },
->  	{ PCI_VDEVICE(ATI,  0x73e4), navi_amd },
->  	{ PCI_VDEVICE(ATI,  0x73c4), navi_amd },
-> +	{ PCI_VDEVICE(ATI,  0x7444), navi_amd },
-> +	{ PCI_VDEVICE(ATI,  0x7464), navi_amd },
->  	{ 0,}
->  };
->  MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
-> -- 
-> 2.25.1
-> 
-
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index 0e4385a9bcf7..680936234ef8 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -13,9 +13,9 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+-#include <linux/of.h>
+ #include <linux/platform_data/i2c-gpio.h>
+ #include <linux/platform_device.h>
++#include <linux/property.h>
+ #include <linux/slab.h>
+ 
+ struct i2c_gpio_private_data {
+@@ -300,22 +300,23 @@ static inline void i2c_gpio_fault_injector_init(struct platform_device *pdev) {}
+ static inline void i2c_gpio_fault_injector_exit(struct platform_device *pdev) {}
+ #endif /* CONFIG_I2C_GPIO_FAULT_INJECTOR*/
+ 
+-static void of_i2c_gpio_get_props(struct device_node *np,
+-				  struct i2c_gpio_platform_data *pdata)
++/* Get i2c-gpio properties from DT or ACPI table */
++static void i2c_gpio_get_properties(struct device *dev,
++				     struct i2c_gpio_platform_data *pdata)
+ {
+ 	u32 reg;
+ 
+-	of_property_read_u32(np, "i2c-gpio,delay-us", &pdata->udelay);
++	device_property_read_u32(dev, "i2c-gpio,delay-us", &pdata->udelay);
+ 
+-	if (!of_property_read_u32(np, "i2c-gpio,timeout-ms", &reg))
++	if (!device_property_read_u32(dev, "i2c-gpio,timeout-ms", &reg))
+ 		pdata->timeout = msecs_to_jiffies(reg);
+ 
+ 	pdata->sda_is_open_drain =
+-		of_property_read_bool(np, "i2c-gpio,sda-open-drain");
++		device_property_read_bool(dev, "i2c-gpio,sda-open-drain");
+ 	pdata->scl_is_open_drain =
+-		of_property_read_bool(np, "i2c-gpio,scl-open-drain");
++		device_property_read_bool(dev, "i2c-gpio,scl-open-drain");
+ 	pdata->scl_is_output_only =
+-		of_property_read_bool(np, "i2c-gpio,scl-output-only");
++		device_property_read_bool(dev, "i2c-gpio,scl-output-only");
+ }
+ 
+ static struct gpio_desc *i2c_gpio_get_desc(struct device *dev,
+@@ -373,8 +374,8 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	bit_data = &priv->bit_data;
+ 	pdata = &priv->pdata;
+ 
+-	if (np) {
+-		of_i2c_gpio_get_props(np, pdata);
++	if (dev_fwnode(dev)) {
++		i2c_gpio_get_properties(dev, pdata);
+ 	} else {
+ 		/*
+ 		 * If all platform data settings are zero it is OK
+@@ -489,10 +490,17 @@ static const struct of_device_id i2c_gpio_dt_ids[] = {
+ 
+ MODULE_DEVICE_TABLE(of, i2c_gpio_dt_ids);
+ 
++static const struct acpi_device_id i2c_gpio_acpi_match[] = {
++	{ "LOON0005" }, /* LoongArch */
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, i2c_gpio_acpi_match);
++
+ static struct platform_driver i2c_gpio_driver = {
+ 	.driver		= {
+ 		.name	= "i2c-gpio",
+ 		.of_match_table	= i2c_gpio_dt_ids,
++		.acpi_match_table = i2c_gpio_acpi_match,
+ 	},
+ 	.probe		= i2c_gpio_probe,
+ 	.remove		= i2c_gpio_remove,
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.31.1
 
