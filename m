@@ -2,29 +2,29 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7B32C4332F
-	for <linux-i2c@archiver.kernel.org>; Wed,  4 Jan 2023 12:52:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60F85C4332F
+	for <linux-i2c@archiver.kernel.org>; Wed,  4 Jan 2023 12:58:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229739AbjADMwT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 4 Jan 2023 07:52:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34220 "EHLO
+        id S234735AbjADM6E (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 4 Jan 2023 07:58:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbjADMwS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Jan 2023 07:52:18 -0500
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 618BFE0C7;
-        Wed,  4 Jan 2023 04:52:17 -0800 (PST)
+        with ESMTP id S233120AbjADM6A (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Jan 2023 07:58:00 -0500
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F6451005E;
+        Wed,  4 Jan 2023 04:57:57 -0800 (PST)
 Received: from pendragon.ideasonboard.com (213-243-189-158.bb.dnainternet.fi [213.243.189.158])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 4412F6C7;
-        Wed,  4 Jan 2023 13:52:15 +0100 (CET)
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 57C846C7;
+        Wed,  4 Jan 2023 13:57:55 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1672836735;
-        bh=E+GISIlhtKFdj1sA5m2mXHjVITKbo1mQu//d67qDoCI=;
+        s=mail; t=1672837075;
+        bh=VTNS7QDnr1NzCOVm1/WKHyxx+ojieV+imYWEKHXOxvs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CX/8cPgF3VbbeOoJ0RxLUW8vEaJjf175SW9Se6N3Hj1Qq2L5qEPaK3poVwc0ujKpe
-         pypeE0OOsB8PpEd6GusZZUcK77fz2FMsHiP4E+YZpgf4/1ETIH3chuFCv9EjfLmKHm
-         pMsefxsibJGtg5mvVSdWt1NdBgIzpust1PUObZbI=
-Date:   Wed, 4 Jan 2023 14:52:11 +0200
+        b=DQkXLov07OF/jxumdChpF62wTacgriJmYpmycs8J8h0yClkYe+Z3f5/PW3p316f6B
+         OAF+RZUaYgpKv7kF7a6AiPckALO64aj6ibIv/V51NrXwLEJrqpiqmuHyb00YshA248
+         rf6PD4psuRYrg0BWskHj23qZO7o8dOfFcaSA1nh0=
+Date:   Wed, 4 Jan 2023 14:57:51 +0200
 From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 To:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 Cc:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
@@ -46,200 +46,238 @@ Cc:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
         Mike Pagano <mpagano@gentoo.org>,
         Krzysztof =?utf-8?Q?Ha=C5=82asa?= <khalasa@piap.pl>,
         Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH v5 3/8] dt-bindings: media: add bindings for TI DS90UB913
-Message-ID: <Y7V2ezUbywVoG25y@pendragon.ideasonboard.com>
+Subject: Re: [PATCH v5 5/8] dt-bindings: media: add bindings for TI DS90UB960
+Message-ID: <Y7V3z9Pf4OB3UR7l@pendragon.ideasonboard.com>
 References: <20221208104006.316606-1-tomi.valkeinen@ideasonboard.com>
- <20221208104006.316606-4-tomi.valkeinen@ideasonboard.com>
- <Y5YPpGVJxAhkNJmC@pendragon.ideasonboard.com>
- <Y5YRj8emzJsB1BgK@pendragon.ideasonboard.com>
- <d39841c6-868c-408b-4142-5f9a4bd4e3c6@ideasonboard.com>
- <Y6nP8CDhR1idHyNl@pendragon.ideasonboard.com>
- <37dd92da-7194-432a-7a97-ec378478f00c@ideasonboard.com>
+ <20221208104006.316606-6-tomi.valkeinen@ideasonboard.com>
+ <Y5YaMpbj1WTTIp3B@pendragon.ideasonboard.com>
+ <99372b9d-2050-2040-6b29-a1939c2e0c95@ideasonboard.com>
+ <Y6nRWpWvWZ++V1KP@pendragon.ideasonboard.com>
+ <67f2998e-131f-a4f9-1434-8e0f5bd90bd7@ideasonboard.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <37dd92da-7194-432a-7a97-ec378478f00c@ideasonboard.com>
+In-Reply-To: <67f2998e-131f-a4f9-1434-8e0f5bd90bd7@ideasonboard.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 Hi Tomi,
 
-On Wed, Jan 04, 2023 at 10:12:56AM +0200, Tomi Valkeinen wrote:
-> On 26/12/2022 18:46, Laurent Pinchart wrote:
-> > On Tue, Dec 13, 2022 at 03:36:49PM +0200, Tomi Valkeinen wrote:
-> >> On 11/12/2022 19:21, Laurent Pinchart wrote:
-> >>> On Sun, Dec 11, 2022 at 07:13:10PM +0200, Laurent Pinchart wrote:
-> >>>> On Thu, Dec 08, 2022 at 12:40:01PM +0200, Tomi Valkeinen wrote:
-> >>>>> Add DT bindings for TI DS90UB913 FPDLink-3 Serializer.
-> >>>>>
-> >>>>> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-> >>>>> ---
-> >>>>>    .../bindings/media/i2c/ti,ds90ub913.yaml      | 121 ++++++++++++++++++
-> >>>>>    1 file changed, 121 insertions(+)
-> >>>>>    create mode 100644 Documentation/devicetree/bindings/media/i2c/ti,ds90ub913.yaml
-> >>>>>
-> >>>>> diff --git a/Documentation/devicetree/bindings/media/i2c/ti,ds90ub913.yaml b/Documentation/devicetree/bindings/media/i2c/ti,ds90ub913.yaml
-> >>>>> new file mode 100644
-> >>>>> index 000000000000..3a5b34c6bb64
-> >>>>> --- /dev/null
-> >>>>> +++ b/Documentation/devicetree/bindings/media/i2c/ti,ds90ub913.yaml
-> >>>>> @@ -0,0 +1,121 @@
-> >>>>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> >>>>> +%YAML 1.2
-> >>>>> +---
-> >>>>> +$id: http://devicetree.org/schemas/media/i2c/ti,ds90ub913.yaml#
-> >>>>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> >>>>> +
-> >>>>> +title: Texas Instruments DS90UB913 FPD-Link 3 Serializer
+On Wed, Jan 04, 2023 at 10:59:00AM +0200, Tomi Valkeinen wrote:
+> On 26/12/2022 18:52, Laurent Pinchart wrote:
+> > On Tue, Dec 13, 2022 at 04:25:46PM +0200, Tomi Valkeinen wrote:
+> >> On 11/12/2022 19:58, Laurent Pinchart wrote:
+> >>> On Thu, Dec 08, 2022 at 12:40:03PM +0200, Tomi Valkeinen wrote:
+> >>>> Add DT bindings for TI DS90UB960 FPDLink-3 Deserializer.
 > >>>>
-> >>>> I think TI consistently writes it "FPD-Link III". If you rename it,
-> >>>> please do so through the whole series.
+> >>>> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+> >>>> ---
+> >>>>    .../bindings/media/i2c/ti,ds90ub960.yaml      | 358 ++++++++++++++++++
+> >>>>    1 file changed, 358 insertions(+)
+> >>>>    create mode 100644 Documentation/devicetree/bindings/media/i2c/ti,ds90ub960.yaml
 > >>>>
-> >>>>> +
-> >>>>> +maintainers:
-> >>>>> +  - Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-> >>>>> +
-> >>>>> +description:
-> >>>>> +  The TI DS90UB913 is an FPD-Link 3 video serializer for parallel video.
-> >>>>> +
-> >>>>> +properties:
-> >>>>> +  compatible:
-> >>>>> +    enum:
-> >>>>> +      - ti,ds90ub913a-q1
-> >>>>
-> >>>> Is the -q1 suffix needed, are there other variants ?
-> >>>>
-> >>>>> +
-> >>>>> +  '#gpio-cells':
-> >>>>> +    const: 2
-> >>>>> +
-> >>>>> +  gpio-controller: true
-> >>>>> +
-> >>>>> +  clocks:
-> >>>>> +    maxItems: 1
-> >>>>> +    description:
-> >>>>> +      Reference clock connected to the CLKIN pin.
-> >>>>> +
-> >>>>> +  clock-names:
-> >>>>> +    items:
-> >>>>> +      - const: clkin
-> >>>>> +
-> >>>>> +  '#clock-cells':
-> >>>>> +    const: 0
-> >>>>> +
-> >>>>> +  ports:
-> >>>>> +    $ref: /schemas/graph.yaml#/properties/ports
-> >>>>> +
-> >>>>> +    properties:
-> >>>>> +      port@0:
-> >>>>> +        $ref: /schemas/graph.yaml#/$defs/port-base
-> >>>>> +        unevaluatedProperties: false
-> >>>>> +        description: CSI-2 input port
+> >>>> diff --git a/Documentation/devicetree/bindings/media/i2c/ti,ds90ub960.yaml b/Documentation/devicetree/bindings/media/i2c/ti,ds90ub960.yaml
+> >>>> new file mode 100644
+> >>>> index 000000000000..d8b5e219d420
+> >>>> --- /dev/null
+> >>>> +++ b/Documentation/devicetree/bindings/media/i2c/ti,ds90ub960.yaml
+> >>>> @@ -0,0 +1,358 @@
+> >>>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> >>>> +%YAML 1.2
+> >>>> +---
+> >>>> +$id: http://devicetree.org/schemas/media/i2c/ti,ds90ub960.yaml#
+> >>>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> >>>> +
+> >>>> +title: Texas Instruments DS90UB9XX Family FPD-Link Deserializer Hubs
+> >>>> +
+> >>>> +maintainers:
+> >>>> +  - Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+> >>>> +
+> >>>> +description:
+> >>>> +  The TI DS90UB9XX devices are FPD-Link video deserializers with I2C and GPIO
+> >>>> +  forwarding.
+> >>>> +
+> >>>> +properties:
+> >>>> +  compatible:
+> >>>> +    enum:
+> >>>> +      - ti,ds90ub960-q1
+> >>>> +      - ti,ds90ub9702-q1
+> >>>> +
+> >>>> +  reg:
+> >>>> +    maxItems: 1
+> >>>> +    description:
+> >>>> +      i2c addresses for the deserializer and the serializers
 > >>>
-> >>> This should be "Parallel input port".
-> >>
-> >> Oops...
-> >>
-> >>>>> +
-> >>>>> +        properties:
-> >>>>> +          endpoint:
-> >>>>> +            $ref: /schemas/media/video-interfaces.yaml#
-> >>>>> +            unevaluatedProperties: false
+> >>> s/i2c/I2C/
 > >>>
-> >>> Should at least the bus-width property be mandatory, as the device
-> >>> supports both 10- and 12-bit inputs ?
+> >>> Same below.
+> >>>
+> >>> A bit more details would be nice, for instance the order in which
+> >>> addresses should be specified should be documented. The example below
+> >>> has one address only, so it's quite unclear. Or is this a left-over,
+> >>> from before the i2c-alias-pool ?
 > >>
-> >> Hmm... It supports 10-bit, 12-bit HF and 12-bit LF modes. If we need to
-> >> configure the mode based on DT, we need one more property for the HF/LF.
-> >> Then again, the HF/LF is separate from the input port, it's more about
-> >> internal operation and the link to the deserializer.
+> >> That's a left over, but not related to i2c-alias-pool but the i2c-alias
+> >> for the serializers. It already says above 'maxItems: 1', so now it only
+> >> contains the deserializer address. I'll drop the desc.
+> > 
+> > Looks good to me.
+> > 
+> >>>> +
+> >>>> +  clocks:
+> >>>> +    maxItems: 1
+> >>>> +    description:
+> >>>> +      Reference clock connected to the REFCLK pin.
+> >>>> +
+> >>>> +  clock-names:
+> >>>> +    items:
+> >>>> +      - const: refclk
+> >>>> +
+> >>>> +  powerdown-gpios:
+> >>>> +    maxItems: 1
+> >>>> +    description:
+> >>>> +      Specifier for the GPIO connected to the PDB pin.
+> >>>> +
+> >>>> +  i2c-alias-pool:
+> >>>> +    $ref: /schemas/types.yaml#/definitions/uint16-array
+> >>>> +    description:
+> >>>> +      i2c alias pool is a pool of i2c addresses on the main i2c bus that can be
+> >>>> +      used to access the remote peripherals. The addresses must be available,
+> >>>> +      not used by any other peripheral. Each remote peripheral is assigned an
+> >>>> +      alias from the pool, and transactions to that address will be forwarded
+> >>>> +      to the remote peripheral, with the address translated to the remote
+> >>>> +      peripheral's real address.
+> >>>
+> >>> As this property is optional, should you describe what happens when it's
+> >>> not specified ?
+> >>>
+> >>> I would also indicate that the pool doesn't cover the serializers, only
+> >>> the devices behind them.
 > >>
-> >> However, this (the mode) should always be set in the HW via the MODE
-> >> pins. And the driver can read the HW's MODE from the registers. Only in
-> >> some very odd circumstances should the mode be configured by hand (and
-> >> then carefully, as the link to the deserializer will drop).
+> >> Yep, I'll clarify these.
+> >>
+> >>>> +
+> >>>> +  links:
+> >>>> +    type: object
+> >>>> +    additionalProperties: false
+> >>>> +
+> >>>> +    properties:
+> >>>> +      '#address-cells':
+> >>>> +        const: 1
+> >>>> +
+> >>>> +      '#size-cells':
+> >>>> +        const: 0
+> >>>> +
+> >>>> +      ti,manual-strobe:
+> >>>> +        type: boolean
+> >>>> +        description:
+> >>>> +          Enable manual strobe position and EQ level
+> >>>> +
+> >>>> +    patternProperties:
+> >>>> +      '^link@[0-9a-f]+$':
+> >>>
+> >>> There can be up to 4 links only, right ? I would then use
+> >>>
+> >>>         '^link@[0-3]$':
+> >>
+> >> Yes, I'll change that.
+> >>
+> >>>> +        type: object
+> >>>> +        additionalProperties: false
+> >>>> +        properties:
+> >>>> +          reg:
+> >>>> +            description: The link number
+> >>>> +            maxItems: 1
+> >>>> +
+> >>>> +          i2c-alias:
+> >>>> +            description:
+> >>>> +              The i2c address used for the serializer. Transactions to this
+> >>>> +              address on the i2c bus where the deserializer resides are
+> >>>> +              forwarded to the serializer.
+> >>>> +
+> >>>> +          ti,rx-mode:
+> >>>> +            $ref: /schemas/types.yaml#/definitions/uint32
+> >>>> +            enum:
+> >>>> +              - 0 # RAW10
+> >>>> +              - 1 # RAW12 HF
+> >>>> +              - 2 # RAW12 LF
+> >>>> +              - 3 # CSI2 SYNC
+> >>>> +              - 4 # CSI2 NON-SYNC
+> >>>> +            description: FPD-Link Input Mode
+> >>>
+> >>> Are there use cases for controlling this dynamically (in particular the
+> >>> sync/non-sync modes) ? Is there anything that could be queried at
+> >>> runtime from the serializers instead of being specified in DT ?
+> >>
+> >> We need a link to the serializer before we can query anything from the
+> >> serializer.
 > > 
-> > Both the DS90UB913A and DS90UB913Q datasheets state that the MODE pin on
-> > the serializer only selects between PCLK and external oscillator modes.
+> > I meant querying it from the serializer driver, not the serializer
+> > hardware. This being said, it would likely be difficult to do so, as the
+> > serializer driver would need to probe first. I think I'm thus fine
+> > selecting the mode in DT on the deserializer side.
 > > 
-> > The DS90UB913A datasheet seems to hint in documentation of the mode
-> > select register (0x05) that the mode is selected on the deserializer and
-> > transmitted to the serializer through the back-channel, as the
-> > MODE_OVERRIDE bit is documented as "Allows overriding mode select bits
-> > coming from back-channel" and the MODE_UP_TO_DATE bit as "Status of mode
-> > select from Deserializer is up-to- date". Bits 2 and 3 are however named
-> > "Pin_MODE_12-bit High Frequency" and "Pin_MODE_10-bit mode", which hint
-> > that their value could come from a mode pin, but I see no trace of that
-> > anywhere.
+> >> To have a link, we need the mode... So, as I mentioned in
+> >> the other reply, we could define these in some way in the serializer's
+> >> properties instead of here, but I'm not sure if that's a good change.
+> >>
+> >> The driver can change the mode at runtime (say, from sync to non-sync
+> >> mode, if the HW supports that). But I think this property should reflect
+> >> the HW strapped configuration of the serializer.
 > > 
-> > The DS90UB913Q datasheet is similar, with a notable difference in that
-> > it documents bits 1 and 0 as reserved, where the DS90UB913A datasheet
-> > documents them as mode override selection. In the same document, the
-> > DS90UB914Q MODE pin is documented as selecting the 10-bit, 12-bit LF or
-> > 12-bit HF operation mode. The datasheet also states that "The
-> > deserializer automatically configures the serializer to correct mode
-> > through the back-channel".
-> > 
-> > Th DS90UB953 datasheet also hints in the documentation of the
-> > BC_MODE_SELECT register (0x04) that the mode is configured automatically
-> > for backward-compatible DVP mode. For CSI-2 mode, I assume the mode is
-> > strapped from the MODE pin and not configured through the back-channel.
-> > 
-> > The DS90UB960 datasheet documents how to configure the mode on the
-> > deserializer side, but doesn't state whether the serializer is then
-> > automatically configured through the back-channel (in RAW/DVP mode). I
-> > assume it is, do you have any information about this ?
+> > That would possibly work for the DS90UB953, but the DS90UB913 has no
+> > strapped mode selected at boot time but is instead configured
+> > automatically through the back-channel (see my last reply to patch 3/8).
 > 
-> I have to admit I had missed the mode management of the RAW mode while 
-> going through all this. I had mostly looked at the UB953's CSI mode.
+> Indeed.
 > 
-> I don't have more information, but your analysis looks correct to me. So 
-> the whole mode thing is an interesting mix of serializer & deserializer 
-> HW straps, deserializer sending the (RAW) mode to the serializer, and 
-> then the override registers on the serializer side.
+> > When connecting a DS90UB913 to a DS90UB914 deserializer, we can probably
+> > start without mode selection in software, as the MODE pin is meant to
+> > bootstrap that to a correct value which is then automatically
+> > transmitted to the serializer (hardware designs where the mode would
+> > need to be overridden should be rate). However, when connecting multiple
 > 
-> As to the original question, should we have mandatory bus-width for 
-> ub913... I don't think it would be useful, even after the updated 
-> understanding about modes. Do you agree?
+> I don't know if that's true. I guess it depends on how you see the deser 
+> and the camera module. Are they part of the same HW design or not? In my 
+> setups they are quite separate, and I connect different kinds of camera 
+> modules to my deserializers. But I can see that if you create a, say, 
+> car, you'd have both sides known at design time and would never change.
+> 
+> > DS90UB913 to a DS90UB960, I can imagine connecting different types of
+> > cameras on the four input ports, so the need to specify the mode
+> > per-port in DT would be more common.
+> 
+> Right, and even with UB914, you might well design the deserializer side 
+> with, say, RAW10 sensors, but later in the cycle you'd need to change to 
+> a RAW12 sensor. Depending on the deser mode strap would require you to 
+> do a HW change on the deser side too.
+> 
+> As I said in the other mail, I don't like the deser's strap, and I think 
+> we should just basically ignore it as we can provide the necessary data 
+> in the DT.
 
-Yes, as far as I understand, the mode is configured from the
-deserializer side for parallel serializers. While it can be overridden
-on the serializer side through I2C, this would be an exception rather
-than a rule, so I don't think there's a need to make bus-width mandatory
-in DT.
+What I meant is that, given that the UB914 is meant to be used with a
+single camera, using a RAW mode, there's a much higher chance that
+hardware strapping will work as intended there. We could thus start
+without support for overrides in a UB914 driver (but as far as I
+understand we're not planning to work on such a driver in the near
+future, so it's hypothetical only), while in the UB960 driver we
+probably need override support from the beginning.
 
-> >> So the bus-width is not something that the driver would normally use. If
-> >> we would need to define the bus-width and HF/LF in the DT for some
-> >> reason in the future, I think an "old" DT without those specified should
-> >> continue working fine, as the mode can be read from a register.
-> >>
-> >> That said, to complicate matters, the deserializer needs to know the
-> >> serializer's mode before it can communicate with it (and thus, before we
-> >> can read the mode). This is set with the deserializer's "ti,rx-mode"
-> >> property, where you find RAW10, RAW12LF and RAW12HF modes (and for
-> >> ub953, CSI-2 sync and non-sync modes).
-> >>
-> >> So if we would define the bus-width and HF/LF in ub913's properties, the
-> >> deserializer could go peeking the mode from there. But is that a good
-> >> idea... I'm not so sure.
-> > 
-> > Peeking into another device's DT node isn't great. It looks like the
-> > best option for the DS90UB913 is to specify the mode on the
-> > deserializer's side (either through the MODE strap or with a software
-> > override through DT). In case the serializer mode would need to be
-> > manually overridden in the future, we could add an optional DT property.
+> > For these reasons, I don't think the ti,rx-mode property can be defined
+> > as reflecting the hardware MODE strap with the DS90UB913. I also think
+> > it would be quite confusing to define it as the desired runtime
+> > configuration for the DS90UB913 and as the hardware MODE strap for the
+> > DS90UB953. Could it be (explicitly) defined as the desired runtime
+> > configuration in all cases ?
 > 
-> I don't like the mode strap on UB960 side, as it's for all ports. It 
-> works in certain cases, of course, but if we anyway need the mode in DT 
-> to allow port-specific configuration, I think it's just easier to always 
-> require the DT mode and always use that, overriding the strap mode.
+> That sounds bad in a DT context =). You're right that the rx-mode can't 
+> be defined as reflecting the serializer mode strap, but I think we can 
+> define it as reflecting the default operation mode of the serializer 
+> hardware (or maybe rather the camera module).
 
-I wonder if there could be systems where the strap could be configurable
-through a DIP switch or a jumper, depending on what cameras are
-connected. It could then be convenient to not have to modify the device
-tree. And just as I write this, I realize we have to specify the cameras
-in DT anyway, so I suppose we could as well specify the mode too.
+What do you mean by "default operation mode" in this case ?
 
 -- 
 Regards,
