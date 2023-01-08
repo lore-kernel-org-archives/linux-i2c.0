@@ -2,97 +2,88 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92BAFC54EBE
-	for <linux-i2c@archiver.kernel.org>; Sun,  8 Jan 2023 09:25:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A95DC54EBD
+	for <linux-i2c@archiver.kernel.org>; Sun,  8 Jan 2023 22:02:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232364AbjAHJZK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 8 Jan 2023 04:25:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49670 "EHLO
+        id S233409AbjAHWCB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 8 Jan 2023 17:02:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229520AbjAHJZJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 8 Jan 2023 04:25:09 -0500
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFFF4101CB;
-        Sun,  8 Jan 2023 01:25:06 -0800 (PST)
-Received: from [192.168.1.15] (91-154-32-225.elisa-laajakaista.fi [91.154.32.225])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 88EB36CF;
-        Sun,  8 Jan 2023 10:25:02 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1673169903;
-        bh=sJs7Ppbi3G3hierAzEkA9g+MrKJHmMhM9EkUX5dPlbo=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=COiQYSvTDJ4eI66dEg8pn830E3GipuNZ9pv5wWRYbwyFD6o59MmCRcAeT/a51d951
-         ZeEzxCPdLVEmnto3g3C+0boWZ1uFQrlrjlq7Ij3km5HZOCRklTBEe+ii0ARPAhI5+x
-         mnFpgElC0+Uab2/r/m3spRX/L+X316krgOCFRyAc=
-Message-ID: <90bc0464-fa49-bd57-5460-d7d2a4bb6b65@ideasonboard.com>
-Date:   Sun, 8 Jan 2023 11:24:59 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH v6 1/8] i2c: core: let adapters be notified of client
- attach/detach
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
+        with ESMTP id S231410AbjAHWBb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 8 Jan 2023 17:01:31 -0500
+Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86997DFB6;
+        Sun,  8 Jan 2023 14:01:30 -0800 (PST)
+Received: by mail-qt1-f176.google.com with SMTP id v14so6577297qtq.3;
+        Sun, 08 Jan 2023 14:01:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Tqvkg+sv6uRRogNZ+vALt28IuW9OZ+Dw5Ea/2cbdCrM=;
+        b=kRppF5io3Vm493Ib2882zSWV9u2yDH/lZ8Jt37B1hAJnTyptcVU3sjBMj/F04hZqTw
+         uoS3xwgwnODV3msGtpH+Cakic96k80vpyNvvNOtYOSb0oJ20A7GaYvFLcNzYXSbj5FC9
+         dTM/AA26xwDIWfUvfnc5qakHFkOei221WyIawyJEdmyvap+utpwFX1lT1oAfQDmQqu4K
+         rawfqJDuzcMsV88ysQEcZ0b9RIyYs5ic39lGi2gTTKiRFZcFsEW93kExUx3rpif/Xs+d
+         Fg1sQQI1pX8hpihf9sp+pcqmoThh0us5VtCxx2GtLgj93ulZ32ASS3dnpLXwJUGYn4X7
+         iY1Q==
+X-Gm-Message-State: AFqh2krrMG4TCz1ZNKI0rDpRIxNMqWMFB8rwwwJAstdjCNQ7/+Dr0uj6
+        s5NKf0mAGieHj6+vhFOpVg==
+X-Google-Smtp-Source: AMrXdXssWVIkNhWI3KyO4Hgm/UiCqGRkmY9NOyHK5Nu3I/UZWQ9ZJyq3F5UOKdWBGal2v67GNFFU8Q==
+X-Received: by 2002:ac8:5401:0:b0:3ac:aef8:bcaa with SMTP id b1-20020ac85401000000b003acaef8bcaamr3661547qtq.18.1673215289669;
+        Sun, 08 Jan 2023 14:01:29 -0800 (PST)
+Received: from robh_at_kernel.org ([2605:ef80:80a5:9b51:39ae:24d1:33f3:811e])
+        by smtp.gmail.com with ESMTPSA id b3-20020ac86bc3000000b003ab7aee56a0sm3718441qtt.39.2023.01.08.14.01.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 Jan 2023 14:01:29 -0800 (PST)
+Received: (nullmailer pid 338823 invoked by uid 1000);
+        Sun, 08 Jan 2023 22:01:24 -0000
+Date:   Sun, 8 Jan 2023 16:01:24 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Cc:     Liam Girdwood <lgirdwood@gmail.com>,
+        Krzysztof =?utf-8?Q?Ha=C5=82asa?= <khalasa@piap.pl>,
+        devicetree@vger.kernel.org,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
         Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Matti Vaittinen <Matti.Vaittinen@fi.rohmeurope.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Peter Rosin <peda@axentia.se>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Michael Tretter <m.tretter@pengutronix.de>,
-        Shawn Tu <shawnx.tu@intel.com>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Mike Pagano <mpagano@gentoo.org>,
-        =?UTF-8?Q?Krzysztof_Ha=c5=82asa?= <khalasa@piap.pl>,
+        Rob Herring <robh+dt@kernel.org>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
         Marek Vasut <marex@denx.de>,
-        Luca Ceresoli <luca@lucaceresoli.net>
+        Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Michael Tretter <m.tretter@pengutronix.de>,
+        Mark Brown <broonie@kernel.org>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        linux-media@vger.kernel.org,
+        Matti Vaittinen <Matti.Vaittinen@fi.rohmeurope.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Shawn Tu <shawnx.tu@intel.com>,
+        Mike Pagano <mpagano@gentoo.org>
+Subject: Re: [PATCH v6 3/8] dt-bindings: media: add TI DS90UB913 FPD-Link III
+ Serializer
+Message-ID: <167321528352.338760.2086491919796597688.robh@kernel.org>
 References: <20230105140307.272052-1-tomi.valkeinen@ideasonboard.com>
- <20230105140307.272052-2-tomi.valkeinen@ideasonboard.com>
- <Y7o0zn9WdsLr15r9@pendragon.ideasonboard.com>
-Content-Language: en-US
-From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-In-Reply-To: <Y7o0zn9WdsLr15r9@pendragon.ideasonboard.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ <20230105140307.272052-4-tomi.valkeinen@ideasonboard.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230105140307.272052-4-tomi.valkeinen@ideasonboard.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 08/01/2023 05:13, Laurent Pinchart wrote:
-> Hi Tomi,
+
+On Thu, 05 Jan 2023 16:03:02 +0200, Tomi Valkeinen wrote:
+> Add DT bindings for TI DS90UB913 FPD-Link III Serializer.
 > 
-> Thank you for the patch.
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+> ---
+>  .../bindings/media/i2c/ti,ds90ub913.yaml      | 133 ++++++++++++++++++
+>  1 file changed, 133 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/media/i2c/ti,ds90ub913.yaml
 > 
-> On Thu, Jan 05, 2023 at 04:03:00PM +0200, Tomi Valkeinen wrote:
->> From: Luca Ceresoli <luca@lucaceresoli.net>
->>
->> An adapter might need to know when a new device is about to be
->> added. This will soon bee needed to implement an "I2C address
->> translator" (ATR for short), a device that propagates I2C transactions
->> with a different slave address (an "alias" address). An ATR driver
->> needs to know when a slave is being added to find a suitable alias and
->> program the device translation map.
->>
->> Add an attach/detach callback pair to allow adapter drivers to be
->> notified of clients being added and removed.
-> 
-> I've asked in the review of v6 if we could instead use the
-> BUS_NOTIFY_ADD_DEVICE and BUS_NOTIFY_DEL_DEVICE bus notifiers. There's
-> been a follow up discussion with Andy, but no reply from you AFAICS.
-> Have you given this a try ? It's not a mandatory requirement, but if it
-> can't be done (or shouldn't be done), I'd like to know why.
 
-Sorry, I meant to mention this in the cover letter, but forgot:
-
-I haven't looked at the bus notifiers yet, but will have a look. I 
-wanted to send a new revision due to the large amount of changes already 
-done.
-
-  Tomi
-
+Reviewed-by: Rob Herring <robh@kernel.org>
