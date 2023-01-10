@@ -2,80 +2,139 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CB4FC54EBC
-	for <linux-i2c@archiver.kernel.org>; Tue, 10 Jan 2023 13:02:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62C14C54EBC
+	for <linux-i2c@archiver.kernel.org>; Tue, 10 Jan 2023 13:04:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232657AbjAJNCz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 10 Jan 2023 08:02:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36000 "EHLO
+        id S233083AbjAJNEF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 10 Jan 2023 08:04:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238560AbjAJNCv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Jan 2023 08:02:51 -0500
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FAE1517FD;
-        Tue, 10 Jan 2023 05:02:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=7ngEhhirOfjyfMGAj9SQ4AJKD7e1pf8Qix91Trpp+M8=; b=fkMbI38a1MwWJWeVotlhK/AsbV
-        TTZLsKbdHWq6RlX43v2MFIVnNSOkzHYFpt2rIQ5XpMUM260wwls8KfRSo3WJy/969bXSyfSKYcCdo
-        JrSSKr6mtKY2gpsj+0CbS6q1heP5oX5E3zPY/cjARULUzLJwu5/W6mo8udtdRGWaAJU5I6BgzuvNI
-        XYmc8H1mhwHvgPgCSE3JCwVDwnPpq5DknWjcjRFylG46wQc2eari5xDgCcpLDBI9PfY4zcJ+NB98W
-        XuPST6UktxAVqs7/N8lyKntcxcrxoeB9ep9wJ8r6mpb8kQ7Ir9SAXvwlgfniOx9N/BcAMwN3mZiUC
-        wuGguA1g==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:36036)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1pFEH1-0003y3-TK; Tue, 10 Jan 2023 13:02:40 +0000
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1pFEGy-0000Jz-K4; Tue, 10 Jan 2023 13:02:36 +0000
-Date:   Tue, 10 Jan 2023 13:02:36 +0000
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
+        with ESMTP id S238586AbjAJND4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Jan 2023 08:03:56 -0500
+Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E6DA653706;
+        Tue, 10 Jan 2023 05:03:53 -0800 (PST)
+Received: from loongson.cn (unknown [112.20.112.33])
+        by gateway (Coremail) with SMTP id _____8CxOuo3Yr1jYr4AAA--.2271S3;
+        Tue, 10 Jan 2023 21:03:51 +0800 (CST)
+Received: from localhost.localdomain (unknown [112.20.112.33])
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8Cxnb4wYr1j8W4XAA--.45936S4;
+        Tue, 10 Jan 2023 21:03:49 +0800 (CST)
+From:   Binbin Zhou <zhoubinbin@loongson.cn>
 To:     Wolfram Sang <wsa@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc:     linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
-        netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Eric Dumazet <edumazet@google.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH RFC v2 0/2] Add I2C fwnode lookup/get interfaces
-Message-ID: <Y71h7OF6ydo2A0dw@shell.armlinux.org.uk>
-References: <Y6Az235wsnRWFYWA@shell.armlinux.org.uk>
- <Y7v/FWpjt1MFLafG@ninjato>
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Andy Shevchenko <andy@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+Cc:     loongarch@lists.linux.dev, devicetree@vger.kernel.org,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Jianmin Lv <lvjianmin@loongson.cn>,
+        Peibao Liu <liupeibao@loongson.cn>,
+        Binbin Zhou <zhoubinbin@loongson.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH V10 2/4] dt-bindings: i2c: Add Loongson LS2X I2C controller
+Date:   Tue, 10 Jan 2023 21:03:54 +0800
+Message-Id: <b621f652d0f47dc0b7bd45e86cea2b6ca06924d6.1673340642.git.zhoubinbin@loongson.cn>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <cover.1673340642.git.zhoubinbin@loongson.cn>
+References: <cover.1673340642.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y7v/FWpjt1MFLafG@ninjato>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AQAAf8Cxnb4wYr1j8W4XAA--.45936S4
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
+X-Coremail-Antispam: 1Uk129KBjvJXoW7CF4ftF4DCr1rtF17uFy7GFg_yoW8Arykp3
+        ZrC3srGr40vF17u398KFy8CF15Xwn3A3ZrWFZFyw1UKFWDG3WYvw4akrn8Z3WfWry0qFW7
+        XFZ2gr4jkas7Ar7anT9S1TB71UUUUjDqnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
+        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
+        bSxYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
+        1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
+        wVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4
+        x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l
+        n4kS14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6x
+        ACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q6rW5McIj6I8E
+        87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxV
+        Aaw2AFwI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxY
+        O2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGV
+        WUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_
+        Xr0_Ar1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rV
+        WUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4U
+        JbIYCTnIWIevJa73UjIFyTuYvjxU4YLvDUUUU
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Jan 09, 2023 at 12:48:37PM +0100, Wolfram Sang wrote:
-> > This RFC series is intended for the next merge window, but we will need
-> > to decide how to merge it as it is split across two subsystems. These
-> > patches have been generated against the net-next, since patch 2 depends
-> > on a recently merged patch in that tree (which is now in mainline.)
-> 
-> I'd prefer to apply it all to my I2C tree then. I can also provide an
-> immutable branch for net if that is helpful.
+Add Loongson LS2X I2C controller binding with DT schema format using
+json-schema.
 
-If we go for the immutable branch, then patch 2 might as well be
-merged via the net tree, if net-next is willing to pull your
-immutable branch.
+Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ .../bindings/i2c/loongson,ls2x-i2c.yaml       | 51 +++++++++++++++++++
+ 1 file changed, 51 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
 
-Dave? Jakub? Paolo? Do you have any preferences how you'd like to
-handle this?
-
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+new file mode 100644
+index 000000000000..67882ec6e06a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+@@ -0,0 +1,51 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/loongson,ls2x-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Loongson LS2X I2C Controller
++
++maintainers:
++  - Binbin Zhou <zhoubinbin@loongson.cn>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    enum:
++      - loongson,ls2k-i2c
++      - loongson,ls7a-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c0: i2c@1fe21000 {
++        compatible = "loongson,ls2k-i2c";
++        reg = <0x1fe21000 0x8>;
++        interrupt-parent = <&extioiic>;
++        interrupts = <22 IRQ_TYPE_LEVEL_LOW>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        eeprom@57 {
++            compatible = "atmel,24c16";
++            reg = <0x57>;
++            pagesize = <16>;
++        };
++    };
 -- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+2.31.1
+
