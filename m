@@ -2,31 +2,31 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0E0CC54EBD
-	for <linux-i2c@archiver.kernel.org>; Fri, 13 Jan 2023 06:30:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9DA0C61DB3
+	for <linux-i2c@archiver.kernel.org>; Fri, 13 Jan 2023 06:30:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240129AbjAMGah (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 13 Jan 2023 01:30:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36742 "EHLO
+        id S241378AbjAMGak (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 13 Jan 2023 01:30:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240696AbjAMG0G (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 13 Jan 2023 01:26:06 -0500
+        with ESMTP id S240759AbjAMG0u (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 13 Jan 2023 01:26:50 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 681155A880;
-        Thu, 12 Jan 2023 22:24:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2B55BA16;
+        Thu, 12 Jan 2023 22:24:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=brkgyM1hhrmjLwT1BCvS491OM9ZvmSvWuQcY6ZdmaEQ=; b=rclg5IcyZx3hAYAW2A82gKgG/R
-        9h9Oe/wM1Koo+NmcZ4yMIJIFj+qyIun0yWyAuormOj2yAyWxmpqiP2tOTjglLnHiXw+LO8ETgIdA+
-        5Svhx7nVkyRr8shQSGKZC980O+hinT+yIkJMia9iivbaAqpxScAjdfS1ylAfFTuFfEpPajKlizKuC
-        x920Cmh9IN6hilV+vdW649ilBNPtNcRIhR92SLyVFpjckwWhuUlUQEzckeqR1pXS3MdV0ZyVfntjY
-        4ZjNun8OKq1jiBsWb6I8b5g9mXdhx5n98DESlAo/jfRw7Kht5JW4J78GkDbW2pZIH+YhQxqch531J
-        NCRDTDXw==;
+        bh=UA3Wx2g8+e+Fb1QaXEWK5OP24rFFtFCQfYxWGC/7x1s=; b=NgPhSrF34f2zcVzS0tgAL6SgbE
+        zRtNJPHFDmvbOdI3GA8GgIGbclB1ExF6UYx3/DOow16PdNqNFgArlB6/7DeVG8QXv9klWNTE8z76X
+        RxDxcxbzx1a5/02Maj5eBCzCASpahQtLWA2keIRijYtli8Z/MLfSY9hHS0VU+LPEPmMxQpGIWA7ec
+        3SfxmuGWVMyYB1NxTK6cbQ94YpmydUsc9sm9uGHn71o4BEIUZobj8AWNqdv6668P1fZZLhJM/SiY9
+        6mtAfE5wns/6VQmwdJIZFuUB6Mw5tHauSYYU3JYD4h2ywkt/BsuHr9keJXWSSnIiIpSqtpoa6ATWh
+        Wd4bfZDA==;
 Received: from [2001:4bb8:181:656b:9509:7d20:8d39:f895] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pGDUT-000lua-TT; Fri, 13 Jan 2023 06:24:38 +0000
+        id 1pGDUc-000m1U-Nf; Fri, 13 Jan 2023 06:24:47 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Yoshinori Sato <ysato@users.sourceforge.jp>,
         Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
@@ -45,9 +45,9 @@ Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
         linux-sh@vger.kernel.org
-Subject: [PATCH 15/22] spi: remove spi-sh
-Date:   Fri, 13 Jan 2023 07:23:32 +0100
-Message-Id: <20230113062339.1909087-16-hch@lst.de>
+Subject: [PATCH 18/22] usb: remove ehci-sh
+Date:   Fri, 13 Jan 2023 07:23:35 +0100
+Message-Id: <20230113062339.1909087-19-hch@lst.de>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230113062339.1909087-1-hch@lst.de>
 References: <20230113062339.1909087-1-hch@lst.de>
@@ -62,521 +62,243 @@ Now that arch/sh is removed this driver is dead code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/spi/Kconfig  |   6 -
- drivers/spi/Makefile |   1 -
- drivers/spi/spi-sh.c | 474 -------------------------------------------
- 3 files changed, 481 deletions(-)
- delete mode 100644 drivers/spi/spi-sh.c
+ drivers/usb/host/Kconfig    |   7 --
+ drivers/usb/host/ehci-hcd.c |   7 --
+ drivers/usb/host/ehci-sh.c  | 182 ------------------------------------
+ 3 files changed, 196 deletions(-)
+ delete mode 100644 drivers/usb/host/ehci-sh.c
 
-diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-index 2c5226adf5e1d3..7508dcef909c78 100644
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -882,12 +882,6 @@ config SPI_SH_MSIOF
- 	help
- 	  SPI driver for SuperH and SH Mobile MSIOF blocks.
+diff --git a/drivers/usb/host/Kconfig b/drivers/usb/host/Kconfig
+index ca5f657c092cf4..ddd8b798626caf 100644
+--- a/drivers/usb/host/Kconfig
++++ b/drivers/usb/host/Kconfig
+@@ -279,13 +279,6 @@ config USB_EHCI_HCD_PPC_OF
+ 	  Enables support for the USB controller present on the PowerPC
+ 	  OpenFirmware platform bus.
  
--config SPI_SH
--	tristate "SuperH SPI controller"
+-config USB_EHCI_SH
+-	bool "EHCI support for SuperH USB controller"
 -	depends on SUPERH || COMPILE_TEST
 -	help
--	  SPI driver for SuperH SPI blocks.
+-	  Enables support for the on-chip EHCI controller on the SuperH.
+-	  If you use the PCI EHCI controller, this option is not necessary.
 -
- config SPI_SH_SCI
- 	tristate "SuperH SCI SPI controller"
- 	depends on SUPERH
-diff --git a/drivers/spi/Makefile b/drivers/spi/Makefile
-index be9ba40ef8d03d..342a7eb5181c9b 100644
---- a/drivers/spi/Makefile
-+++ b/drivers/spi/Makefile
-@@ -116,7 +116,6 @@ obj-$(CONFIG_SPI_S3C24XX)		+= spi-s3c24xx-hw.o
- spi-s3c24xx-hw-y			:= spi-s3c24xx.o
- obj-$(CONFIG_SPI_S3C64XX)		+= spi-s3c64xx.o
- obj-$(CONFIG_SPI_SC18IS602)		+= spi-sc18is602.o
--obj-$(CONFIG_SPI_SH)			+= spi-sh.o
- obj-$(CONFIG_SPI_SH_HSPI)		+= spi-sh-hspi.o
- obj-$(CONFIG_SPI_SH_MSIOF)		+= spi-sh-msiof.o
- obj-$(CONFIG_SPI_SH_SCI)		+= spi-sh-sci.o
-diff --git a/drivers/spi/spi-sh.c b/drivers/spi/spi-sh.c
+ config USB_EHCI_EXYNOS
+ 	tristate "EHCI support for Samsung S5P/Exynos SoC Series"
+ 	depends on ARCH_S5PV210 || ARCH_EXYNOS || COMPILE_TEST
+diff --git a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
+index a1930db0da1c3c..e6dfef3492aabe 100644
+--- a/drivers/usb/host/ehci-hcd.c
++++ b/drivers/usb/host/ehci-hcd.c
+@@ -1309,10 +1309,6 @@ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_AUTHOR (DRIVER_AUTHOR);
+ MODULE_LICENSE ("GPL");
+ 
+-#ifdef CONFIG_USB_EHCI_SH
+-#include "ehci-sh.c"
+-#endif
+-
+ #ifdef CONFIG_PPC_PS3
+ #include "ehci-ps3.c"
+ #endif
+@@ -1330,9 +1326,6 @@ MODULE_LICENSE ("GPL");
+ #endif
+ 
+ static struct platform_driver * const platform_drivers[] = {
+-#ifdef CONFIG_USB_EHCI_SH
+-	&ehci_hcd_sh_driver,
+-#endif
+ #ifdef CONFIG_USB_EHCI_HCD_PPC_OF
+ 	&ehci_hcd_ppc_of_driver,
+ #endif
+diff --git a/drivers/usb/host/ehci-sh.c b/drivers/usb/host/ehci-sh.c
 deleted file mode 100644
-index 3e72fad99adfd4..00000000000000
---- a/drivers/spi/spi-sh.c
+index c25c51d26f2603..00000000000000
+--- a/drivers/usb/host/ehci-sh.c
 +++ /dev/null
-@@ -1,474 +0,0 @@
+@@ -1,182 +0,0 @@
 -// SPDX-License-Identifier: GPL-2.0
 -/*
-- * SH SPI bus driver
+- * SuperH EHCI host controller driver
 - *
-- * Copyright (C) 2011  Renesas Solutions Corp.
+- * Copyright (C) 2010  Paul Mundt
 - *
-- * Based on pxa2xx_spi.c:
-- * Copyright (C) 2005 Stephen Street / StreetFire Sound Labs
+- * Based on ohci-sh.c and ehci-atmel.c.
 - */
--
--#include <linux/module.h>
--#include <linux/kernel.h>
--#include <linux/sched.h>
--#include <linux/errno.h>
--#include <linux/timer.h>
--#include <linux/delay.h>
--#include <linux/list.h>
--#include <linux/workqueue.h>
--#include <linux/interrupt.h>
 -#include <linux/platform_device.h>
--#include <linux/io.h>
--#include <linux/spi/spi.h>
+-#include <linux/clk.h>
 -
--#define SPI_SH_TBR		0x00
--#define SPI_SH_RBR		0x00
--#define SPI_SH_CR1		0x08
--#define SPI_SH_CR2		0x10
--#define SPI_SH_CR3		0x18
--#define SPI_SH_CR4		0x20
--#define SPI_SH_CR5		0x28
--
--/* CR1 */
--#define SPI_SH_TBE		0x80
--#define SPI_SH_TBF		0x40
--#define SPI_SH_RBE		0x20
--#define SPI_SH_RBF		0x10
--#define SPI_SH_PFONRD		0x08
--#define SPI_SH_SSDB		0x04
--#define SPI_SH_SSD		0x02
--#define SPI_SH_SSA		0x01
--
--/* CR2 */
--#define SPI_SH_RSTF		0x80
--#define SPI_SH_LOOPBK		0x40
--#define SPI_SH_CPOL		0x20
--#define SPI_SH_CPHA		0x10
--#define SPI_SH_L1M0		0x08
--
--/* CR3 */
--#define SPI_SH_MAX_BYTE		0xFF
--
--/* CR4 */
--#define SPI_SH_TBEI		0x80
--#define SPI_SH_TBFI		0x40
--#define SPI_SH_RBEI		0x20
--#define SPI_SH_RBFI		0x10
--#define SPI_SH_WPABRT		0x04
--#define SPI_SH_SSS		0x01
--
--/* CR8 */
--#define SPI_SH_P1L0		0x80
--#define SPI_SH_PP1L0		0x40
--#define SPI_SH_MUXI		0x20
--#define SPI_SH_MUXIRQ		0x10
--
--#define SPI_SH_FIFO_SIZE	32
--#define SPI_SH_SEND_TIMEOUT	(3 * HZ)
--#define SPI_SH_RECEIVE_TIMEOUT	(HZ >> 3)
--
--#undef DEBUG
--
--struct spi_sh_data {
--	void __iomem *addr;
--	int irq;
--	struct spi_master *master;
--	unsigned long cr1;
--	wait_queue_head_t wait;
--	int width;
+-struct ehci_sh_priv {
+-	struct clk *iclk, *fclk;
+-	struct usb_hcd *hcd;
 -};
 -
--static void spi_sh_write(struct spi_sh_data *ss, unsigned long data,
--			     unsigned long offset)
+-static int ehci_sh_reset(struct usb_hcd *hcd)
 -{
--	if (ss->width == 8)
--		iowrite8(data, ss->addr + (offset >> 2));
--	else if (ss->width == 32)
--		iowrite32(data, ss->addr + offset);
+-	struct ehci_hcd	*ehci = hcd_to_ehci(hcd);
+-
+-	ehci->caps = hcd->regs;
+-
+-	return ehci_setup(hcd);
 -}
 -
--static unsigned long spi_sh_read(struct spi_sh_data *ss, unsigned long offset)
--{
--	if (ss->width == 8)
--		return ioread8(ss->addr + (offset >> 2));
--	else if (ss->width == 32)
--		return ioread32(ss->addr + offset);
--	else
--		return 0;
--}
+-static const struct hc_driver ehci_sh_hc_driver = {
+-	.description			= hcd_name,
+-	.product_desc			= "SuperH EHCI",
+-	.hcd_priv_size			= sizeof(struct ehci_hcd),
 -
--static void spi_sh_set_bit(struct spi_sh_data *ss, unsigned long val,
--				unsigned long offset)
--{
--	unsigned long tmp;
+-	/*
+-	 * generic hardware linkage
+-	 */
+-	.irq				= ehci_irq,
+-	.flags				= HCD_USB2 | HCD_DMA | HCD_MEMORY | HCD_BH,
 -
--	tmp = spi_sh_read(ss, offset);
--	tmp |= val;
--	spi_sh_write(ss, tmp, offset);
--}
+-	/*
+-	 * basic lifecycle operations
+-	 */
+-	.reset				= ehci_sh_reset,
+-	.start				= ehci_run,
+-	.stop				= ehci_stop,
+-	.shutdown			= ehci_shutdown,
 -
--static void spi_sh_clear_bit(struct spi_sh_data *ss, unsigned long val,
--				unsigned long offset)
--{
--	unsigned long tmp;
+-	/*
+-	 * managing i/o requests and associated device resources
+-	 */
+-	.urb_enqueue			= ehci_urb_enqueue,
+-	.urb_dequeue			= ehci_urb_dequeue,
+-	.endpoint_disable		= ehci_endpoint_disable,
+-	.endpoint_reset			= ehci_endpoint_reset,
 -
--	tmp = spi_sh_read(ss, offset);
--	tmp &= ~val;
--	spi_sh_write(ss, tmp, offset);
--}
+-	/*
+-	 * scheduling support
+-	 */
+-	.get_frame_number		= ehci_get_frame,
 -
--static void clear_fifo(struct spi_sh_data *ss)
--{
--	spi_sh_set_bit(ss, SPI_SH_RSTF, SPI_SH_CR2);
--	spi_sh_clear_bit(ss, SPI_SH_RSTF, SPI_SH_CR2);
--}
+-	/*
+-	 * root hub support
+-	 */
+-	.hub_status_data		= ehci_hub_status_data,
+-	.hub_control			= ehci_hub_control,
 -
--static int spi_sh_wait_receive_buffer(struct spi_sh_data *ss)
--{
--	int timeout = 100000;
+-#ifdef CONFIG_PM
+-	.bus_suspend			= ehci_bus_suspend,
+-	.bus_resume			= ehci_bus_resume,
+-#endif
 -
--	while (spi_sh_read(ss, SPI_SH_CR1) & SPI_SH_RBE) {
--		udelay(10);
--		if (timeout-- < 0)
--			return -ETIMEDOUT;
--	}
--	return 0;
--}
+-	.relinquish_port		= ehci_relinquish_port,
+-	.port_handed_over		= ehci_port_handed_over,
+-	.clear_tt_buffer_complete	= ehci_clear_tt_buffer_complete,
+-};
 -
--static int spi_sh_wait_write_buffer_empty(struct spi_sh_data *ss)
--{
--	int timeout = 100000;
--
--	while (!(spi_sh_read(ss, SPI_SH_CR1) & SPI_SH_TBE)) {
--		udelay(10);
--		if (timeout-- < 0)
--			return -ETIMEDOUT;
--	}
--	return 0;
--}
--
--static int spi_sh_send(struct spi_sh_data *ss, struct spi_message *mesg,
--			struct spi_transfer *t)
--{
--	int i, retval = 0;
--	int remain = t->len;
--	int cur_len;
--	unsigned char *data;
--	long ret;
--
--	if (t->len)
--		spi_sh_set_bit(ss, SPI_SH_SSA, SPI_SH_CR1);
--
--	data = (unsigned char *)t->tx_buf;
--	while (remain > 0) {
--		cur_len = min(SPI_SH_FIFO_SIZE, remain);
--		for (i = 0; i < cur_len &&
--				!(spi_sh_read(ss, SPI_SH_CR4) &
--							SPI_SH_WPABRT) &&
--				!(spi_sh_read(ss, SPI_SH_CR1) & SPI_SH_TBF);
--				i++)
--			spi_sh_write(ss, (unsigned long)data[i], SPI_SH_TBR);
--
--		if (spi_sh_read(ss, SPI_SH_CR4) & SPI_SH_WPABRT) {
--			/* Abort SPI operation */
--			spi_sh_set_bit(ss, SPI_SH_WPABRT, SPI_SH_CR4);
--			retval = -EIO;
--			break;
--		}
--
--		cur_len = i;
--
--		remain -= cur_len;
--		data += cur_len;
--
--		if (remain > 0) {
--			ss->cr1 &= ~SPI_SH_TBE;
--			spi_sh_set_bit(ss, SPI_SH_TBE, SPI_SH_CR4);
--			ret = wait_event_interruptible_timeout(ss->wait,
--						 ss->cr1 & SPI_SH_TBE,
--						 SPI_SH_SEND_TIMEOUT);
--			if (ret == 0 && !(ss->cr1 & SPI_SH_TBE)) {
--				printk(KERN_ERR "%s: timeout\n", __func__);
--				return -ETIMEDOUT;
--			}
--		}
--	}
--
--	if (list_is_last(&t->transfer_list, &mesg->transfers)) {
--		spi_sh_clear_bit(ss, SPI_SH_SSD | SPI_SH_SSDB, SPI_SH_CR1);
--		spi_sh_set_bit(ss, SPI_SH_SSA, SPI_SH_CR1);
--
--		ss->cr1 &= ~SPI_SH_TBE;
--		spi_sh_set_bit(ss, SPI_SH_TBE, SPI_SH_CR4);
--		ret = wait_event_interruptible_timeout(ss->wait,
--					 ss->cr1 & SPI_SH_TBE,
--					 SPI_SH_SEND_TIMEOUT);
--		if (ret == 0 && (ss->cr1 & SPI_SH_TBE)) {
--			printk(KERN_ERR "%s: timeout\n", __func__);
--			return -ETIMEDOUT;
--		}
--	}
--
--	return retval;
--}
--
--static int spi_sh_receive(struct spi_sh_data *ss, struct spi_message *mesg,
--			  struct spi_transfer *t)
--{
--	int i;
--	int remain = t->len;
--	int cur_len;
--	unsigned char *data;
--	long ret;
--
--	if (t->len > SPI_SH_MAX_BYTE)
--		spi_sh_write(ss, SPI_SH_MAX_BYTE, SPI_SH_CR3);
--	else
--		spi_sh_write(ss, t->len, SPI_SH_CR3);
--
--	spi_sh_clear_bit(ss, SPI_SH_SSD | SPI_SH_SSDB, SPI_SH_CR1);
--	spi_sh_set_bit(ss, SPI_SH_SSA, SPI_SH_CR1);
--
--	spi_sh_wait_write_buffer_empty(ss);
--
--	data = (unsigned char *)t->rx_buf;
--	while (remain > 0) {
--		if (remain >= SPI_SH_FIFO_SIZE) {
--			ss->cr1 &= ~SPI_SH_RBF;
--			spi_sh_set_bit(ss, SPI_SH_RBF, SPI_SH_CR4);
--			ret = wait_event_interruptible_timeout(ss->wait,
--						 ss->cr1 & SPI_SH_RBF,
--						 SPI_SH_RECEIVE_TIMEOUT);
--			if (ret == 0 &&
--			    spi_sh_read(ss, SPI_SH_CR1) & SPI_SH_RBE) {
--				printk(KERN_ERR "%s: timeout\n", __func__);
--				return -ETIMEDOUT;
--			}
--		}
--
--		cur_len = min(SPI_SH_FIFO_SIZE, remain);
--		for (i = 0; i < cur_len; i++) {
--			if (spi_sh_wait_receive_buffer(ss))
--				break;
--			data[i] = (unsigned char)spi_sh_read(ss, SPI_SH_RBR);
--		}
--
--		remain -= cur_len;
--		data += cur_len;
--	}
--
--	/* deassert CS when SPI is receiving. */
--	if (t->len > SPI_SH_MAX_BYTE) {
--		clear_fifo(ss);
--		spi_sh_write(ss, 1, SPI_SH_CR3);
--	} else {
--		spi_sh_write(ss, 0, SPI_SH_CR3);
--	}
--
--	return 0;
--}
--
--static int spi_sh_transfer_one_message(struct spi_controller *ctlr,
--					struct spi_message *mesg)
--{
--	struct spi_sh_data *ss = spi_controller_get_devdata(ctlr);
--	struct spi_transfer *t;
--	int ret;
--
--	pr_debug("%s: enter\n", __func__);
--
--	spi_sh_clear_bit(ss, SPI_SH_SSA, SPI_SH_CR1);
--
--	list_for_each_entry(t, &mesg->transfers, transfer_list) {
--		pr_debug("tx_buf = %p, rx_buf = %p\n",
--			 t->tx_buf, t->rx_buf);
--		pr_debug("len = %d, delay.value = %d\n",
--			 t->len, t->delay.value);
--
--		if (t->tx_buf) {
--			ret = spi_sh_send(ss, mesg, t);
--			if (ret < 0)
--				goto error;
--		}
--		if (t->rx_buf) {
--			ret = spi_sh_receive(ss, mesg, t);
--			if (ret < 0)
--				goto error;
--		}
--		mesg->actual_length += t->len;
--	}
--
--	mesg->status = 0;
--	spi_finalize_current_message(ctlr);
--
--	clear_fifo(ss);
--	spi_sh_set_bit(ss, SPI_SH_SSD, SPI_SH_CR1);
--	udelay(100);
--
--	spi_sh_clear_bit(ss, SPI_SH_SSA | SPI_SH_SSDB | SPI_SH_SSD,
--			 SPI_SH_CR1);
--
--	clear_fifo(ss);
--
--	return 0;
--
-- error:
--	mesg->status = ret;
--	spi_finalize_current_message(ctlr);
--	if (mesg->complete)
--		mesg->complete(mesg->context);
--
--	spi_sh_clear_bit(ss, SPI_SH_SSA | SPI_SH_SSDB | SPI_SH_SSD,
--			 SPI_SH_CR1);
--	clear_fifo(ss);
--
--	return ret;
--}
--
--static int spi_sh_setup(struct spi_device *spi)
--{
--	struct spi_sh_data *ss = spi_master_get_devdata(spi->master);
--
--	pr_debug("%s: enter\n", __func__);
--
--	spi_sh_write(ss, 0xfe, SPI_SH_CR1);	/* SPI sycle stop */
--	spi_sh_write(ss, 0x00, SPI_SH_CR1);	/* CR1 init */
--	spi_sh_write(ss, 0x00, SPI_SH_CR3);	/* CR3 init */
--
--	clear_fifo(ss);
--
--	/* 1/8 clock */
--	spi_sh_write(ss, spi_sh_read(ss, SPI_SH_CR2) | 0x07, SPI_SH_CR2);
--	udelay(10);
--
--	return 0;
--}
--
--static void spi_sh_cleanup(struct spi_device *spi)
--{
--	struct spi_sh_data *ss = spi_master_get_devdata(spi->master);
--
--	pr_debug("%s: enter\n", __func__);
--
--	spi_sh_clear_bit(ss, SPI_SH_SSA | SPI_SH_SSDB | SPI_SH_SSD,
--			 SPI_SH_CR1);
--}
--
--static irqreturn_t spi_sh_irq(int irq, void *_ss)
--{
--	struct spi_sh_data *ss = (struct spi_sh_data *)_ss;
--	unsigned long cr1;
--
--	cr1 = spi_sh_read(ss, SPI_SH_CR1);
--	if (cr1 & SPI_SH_TBE)
--		ss->cr1 |= SPI_SH_TBE;
--	if (cr1 & SPI_SH_TBF)
--		ss->cr1 |= SPI_SH_TBF;
--	if (cr1 & SPI_SH_RBE)
--		ss->cr1 |= SPI_SH_RBE;
--	if (cr1 & SPI_SH_RBF)
--		ss->cr1 |= SPI_SH_RBF;
--
--	if (ss->cr1) {
--		spi_sh_clear_bit(ss, ss->cr1, SPI_SH_CR4);
--		wake_up(&ss->wait);
--	}
--
--	return IRQ_HANDLED;
--}
--
--static int spi_sh_remove(struct platform_device *pdev)
--{
--	struct spi_sh_data *ss = platform_get_drvdata(pdev);
--
--	spi_unregister_master(ss->master);
--	free_irq(ss->irq, ss);
--
--	return 0;
--}
--
--static int spi_sh_probe(struct platform_device *pdev)
+-static int ehci_hcd_sh_probe(struct platform_device *pdev)
 -{
 -	struct resource *res;
--	struct spi_master *master;
--	struct spi_sh_data *ss;
--	int ret, irq;
+-	struct ehci_sh_priv *priv;
+-	struct usb_hcd *hcd;
+-	int irq, ret;
 -
--	/* get base addr */
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (unlikely(res == NULL)) {
--		dev_err(&pdev->dev, "invalid resource\n");
--		return -EINVAL;
--	}
+-	if (usb_disabled())
+-		return -ENODEV;
 -
 -	irq = platform_get_irq(pdev, 0);
--	if (irq < 0)
--		return irq;
--
--	master = devm_spi_alloc_master(&pdev->dev, sizeof(struct spi_sh_data));
--	if (master == NULL) {
--		dev_err(&pdev->dev, "spi_alloc_master error.\n");
--		return -ENOMEM;
+-	if (irq <= 0) {
+-		ret = -ENODEV;
+-		goto fail_create_hcd;
 -	}
 -
--	ss = spi_master_get_devdata(master);
--	platform_set_drvdata(pdev, ss);
--
--	switch (res->flags & IORESOURCE_MEM_TYPE_MASK) {
--	case IORESOURCE_MEM_8BIT:
--		ss->width = 8;
--		break;
--	case IORESOURCE_MEM_32BIT:
--		ss->width = 32;
--		break;
--	default:
--		dev_err(&pdev->dev, "No support width\n");
--		return -ENODEV;
--	}
--	ss->irq = irq;
--	ss->master = master;
--	ss->addr = devm_ioremap(&pdev->dev, res->start, resource_size(res));
--	if (ss->addr == NULL) {
--		dev_err(&pdev->dev, "ioremap error.\n");
--		return -ENOMEM;
--	}
--	init_waitqueue_head(&ss->wait);
--
--	ret = request_irq(irq, spi_sh_irq, 0, "spi_sh", ss);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "request_irq error\n");
--		return ret;
+-	/* initialize hcd */
+-	hcd = usb_create_hcd(&ehci_sh_hc_driver, &pdev->dev,
+-			     dev_name(&pdev->dev));
+-	if (!hcd) {
+-		ret = -ENOMEM;
+-		goto fail_create_hcd;
 -	}
 -
--	master->num_chipselect = 2;
--	master->bus_num = pdev->id;
--	master->setup = spi_sh_setup;
--	master->transfer_one_message = spi_sh_transfer_one_message;
--	master->cleanup = spi_sh_cleanup;
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	hcd->regs = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(hcd->regs)) {
+-		ret = PTR_ERR(hcd->regs);
+-		goto fail_request_resource;
+-	}
+-	hcd->rsrc_start = res->start;
+-	hcd->rsrc_len = resource_size(res);
 -
--	ret = spi_register_master(master);
--	if (ret < 0) {
--		printk(KERN_ERR "spi_register_master error.\n");
--		goto error3;
+-	priv = devm_kzalloc(&pdev->dev, sizeof(struct ehci_sh_priv),
+-			    GFP_KERNEL);
+-	if (!priv) {
+-		ret = -ENOMEM;
+-		goto fail_request_resource;
 -	}
 -
--	return 0;
+-	/* These are optional, we don't care if they fail */
+-	priv->fclk = devm_clk_get(&pdev->dev, "usb_fck");
+-	if (IS_ERR(priv->fclk))
+-		priv->fclk = NULL;
 -
-- error3:
--	free_irq(irq, ss);
+-	priv->iclk = devm_clk_get(&pdev->dev, "usb_ick");
+-	if (IS_ERR(priv->iclk))
+-		priv->iclk = NULL;
+-
+-	clk_enable(priv->fclk);
+-	clk_enable(priv->iclk);
+-
+-	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
+-	if (ret != 0) {
+-		dev_err(&pdev->dev, "Failed to add hcd");
+-		goto fail_add_hcd;
+-	}
+-	device_wakeup_enable(hcd->self.controller);
+-
+-	priv->hcd = hcd;
+-	platform_set_drvdata(pdev, priv);
+-
+-	return ret;
+-
+-fail_add_hcd:
+-	clk_disable(priv->iclk);
+-	clk_disable(priv->fclk);
+-
+-fail_request_resource:
+-	usb_put_hcd(hcd);
+-fail_create_hcd:
+-	dev_err(&pdev->dev, "init %s fail, %d\n", dev_name(&pdev->dev), ret);
+-
 -	return ret;
 -}
 -
--static struct platform_driver spi_sh_driver = {
--	.probe = spi_sh_probe,
--	.remove = spi_sh_remove,
--	.driver = {
--		.name = "sh_spi",
+-static int ehci_hcd_sh_remove(struct platform_device *pdev)
+-{
+-	struct ehci_sh_priv *priv = platform_get_drvdata(pdev);
+-	struct usb_hcd *hcd = priv->hcd;
+-
+-	usb_remove_hcd(hcd);
+-	usb_put_hcd(hcd);
+-
+-	clk_disable(priv->fclk);
+-	clk_disable(priv->iclk);
+-
+-	return 0;
+-}
+-
+-static void ehci_hcd_sh_shutdown(struct platform_device *pdev)
+-{
+-	struct ehci_sh_priv *priv = platform_get_drvdata(pdev);
+-	struct usb_hcd *hcd = priv->hcd;
+-
+-	if (hcd->driver->shutdown)
+-		hcd->driver->shutdown(hcd);
+-}
+-
+-static struct platform_driver ehci_hcd_sh_driver = {
+-	.probe		= ehci_hcd_sh_probe,
+-	.remove		= ehci_hcd_sh_remove,
+-	.shutdown	= ehci_hcd_sh_shutdown,
+-	.driver		= {
+-		.name	= "sh_ehci",
 -	},
 -};
--module_platform_driver(spi_sh_driver);
 -
--MODULE_DESCRIPTION("SH SPI bus driver");
--MODULE_LICENSE("GPL v2");
--MODULE_AUTHOR("Yoshihiro Shimoda");
--MODULE_ALIAS("platform:sh_spi");
+-MODULE_ALIAS("platform:sh_ehci");
 -- 
 2.39.0
 
