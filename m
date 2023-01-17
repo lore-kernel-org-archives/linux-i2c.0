@@ -2,66 +2,68 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 607FAC3DA71
-	for <linux-i2c@archiver.kernel.org>; Tue, 17 Jan 2023 21:58:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2684DC3DA71
+	for <linux-i2c@archiver.kernel.org>; Tue, 17 Jan 2023 21:59:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229575AbjAQV6b (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 17 Jan 2023 16:58:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41142 "EHLO
+        id S229646AbjAQV7V (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 17 Jan 2023 16:59:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229707AbjAQV5T (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2023 16:57:19 -0500
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1943542DDC;
-        Tue, 17 Jan 2023 12:34:47 -0800 (PST)
-Received: by mail-ej1-x62a.google.com with SMTP id kt14so19305466ejc.3;
-        Tue, 17 Jan 2023 12:34:47 -0800 (PST)
+        with ESMTP id S229696AbjAQV6e (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2023 16:58:34 -0500
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 104064B1BC;
+        Tue, 17 Jan 2023 12:39:52 -0800 (PST)
+Received: by mail-ej1-x62f.google.com with SMTP id mg12so5901510ejc.5;
+        Tue, 17 Jan 2023 12:39:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:content-language:cc:to:subject:from
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6lc4VaJLAvuEtHfl2rD1jPE4f8tuwKTBgnejphTOXUQ=;
-        b=mRyKI2JkPtnpMXw9D7sqrpbj38NJE3CW1qcB8CzGKUFEyhG8Sh0/npHhqNmpi9vjtX
-         l3qPWTGwnqMnzvc1sIt6AJyk6GjNWrNmL0lg19/wuxIWUg3cm73j8VNg3fXOlVdV/TdY
-         Rf1qw2ZJ4tadHqg2LokTQiU336cVMVVJcB8o1GZqIFEmLxhcWsdkqJLT3iABNVwbcV5d
-         tOxlziXkre6a+prdtacrD2ARyhEbAG88QLRZ7KzBcC1hDQjn2TDkbcl32/M1G+Fe6J6M
-         FUg/9K9uAR57IwP1OX/VQXqFuLMu7t6A1pDd/I432A3Vyx64yVcXgjC6JN9Bsex+BrZr
-         1ztA==
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Qhuunm12DEUADeX8dZ1+bPKvTYYCnKP/G5wxRkVG32M=;
+        b=C0R6/YwzfY0T7pWfj1KfzrJMC5SROY64WVHpv9q03vsb1sWMnmpnyJDkQ0577A527Y
+         Q5JvKbM4xbjkk5TBLmzKZ4CjUefEXu/yLdSOpk1kYGHKw0+/XNX1ZJqwtq8vGcJJjBlc
+         X1Z+VDPZ9J8ZAl6Kpr+5M8JhAocBRGc1Kz0r741kDFmONPvYv9/fhuoyZploNhkjIDBd
+         eyqhOE8oqXhzQjD6Jgd1521qa32Ftw6L9XqDt1N/9b0o0lWzhYSySg+Ym7wmdDo4iy2s
+         YONXrK7yRsIcJjYXuXQj+ta8z2iWkfSY+ibhge3MTdDDnsklxzkRt0wo+XdFXBnxSSO/
+         yhzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:content-language:cc:to:subject:from
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=6lc4VaJLAvuEtHfl2rD1jPE4f8tuwKTBgnejphTOXUQ=;
-        b=0ATv9loQrODRiYevQ+/0K7RQhPYckcyv/MCD+Prt9G4+mfx9dB9BXPbuEG6/EcWdSf
-         g7rsovFooskPm9RY4LEXCQwnpWE+/A1jirT9I4Es8ZbE8SPbYIc0Ks1qzxiukpTgHi+Z
-         n9e6daEIHU6ulm5AmhaoAZqBgZd1Xxirk9YDmGaQsusG8k6FTH4ow5vCarHBqrulQf4Q
-         lAPwDNlbUUFMoXQffj4BoG3ORM+oq9BMcD6zD9lnxlRUQo6v4dauYjRJe9QJXf3Q+a5z
-         viP1MoGsuQfHCL1FcNkRxalpb0JA8dJVT6TwI7lOXFdLhGSRVoD/oSK0c1C7TQO5BdH1
-         b6Pg==
-X-Gm-Message-State: AFqh2kpI3hVJTOuHgoCEb7D8XLSHIr7Gtk7+SQEKx/SfowVmVNsRFAL1
-        9ZnMKZy3koGMrzIp4efZKqnzQJFRe2g=
-X-Google-Smtp-Source: AMrXdXs/xlziqN0dvRwkiF02V9asrBCGA9MOHc2E+7DTtCGq05sZuluClUf4cJ39cngzMhMn8wWBwA==
-X-Received: by 2002:a17:906:848e:b0:7c4:fa17:7202 with SMTP id m14-20020a170906848e00b007c4fa177202mr4234545ejx.33.1673987685401;
-        Tue, 17 Jan 2023 12:34:45 -0800 (PST)
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Qhuunm12DEUADeX8dZ1+bPKvTYYCnKP/G5wxRkVG32M=;
+        b=KUJsCX9WhItOrWCyi4RoGaeMUlUeU97G68a/txU/ieY804ojEEWT7KnEhaBzn0VZFG
+         3EH/s39FlZPRHANEH2iQPTOHaDjEf4JDBVeJZpj/uwuuDeVRU7m0kVstfUI+OdMJOF33
+         h3v5eYiFxFEVGBipvS5307x+AKSeaBfO4ZdvIK9UNmot7X+0EJ7k+3HNCx7/CwkjAEjp
+         c6q3Lgxy2zGrFMYGswB+F6E49klhmFkFLckw9fVczZw4VxQom+tXFbxIK47PoDTkNdhV
+         nFEz3lxefpmX1Tcsl2Ki0XOyxMu1zMBTxeOlmS88tZlqCxc38J8ykHKEww/szAi0kF6m
+         sZJA==
+X-Gm-Message-State: AFqh2kqOKPGRmSF+Zt5vWF0MOqSvN/9UU5W6/Uh/tWMMQZ9g2GXO9sSv
+        ncqiG7vIYstVSgh/CNuPu1JwzO1SX00=
+X-Google-Smtp-Source: AMrXdXuVeW6YLq5/ciKW4vskN7m/dm4j3ksM0yiEaslkEmcfX81qP4Hul8QfbtJ5HXmPY4q3blbKow==
+X-Received: by 2002:a17:906:6b03:b0:86e:26d8:52ff with SMTP id q3-20020a1709066b0300b0086e26d852ffmr5452018ejr.2.1673987990514;
+        Tue, 17 Jan 2023 12:39:50 -0800 (PST)
 Received: from ?IPV6:2a01:c22:7346:8100:11fa:3b53:e36a:9e73? (dynamic-2a01-0c22-7346-8100-11fa-3b53-e36a-9e73.c22.pool.telefonica.de. [2a01:c22:7346:8100:11fa:3b53:e36a:9e73])
-        by smtp.googlemail.com with ESMTPSA id gk8-20020a17090790c800b0084d35ffbc20sm12555382ejb.68.2023.01.17.12.34.43
+        by smtp.googlemail.com with ESMTPSA id p14-20020a17090653ce00b0085ea718a81bsm8213416ejo.198.2023.01.17.12.39.49
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Jan 2023 12:34:43 -0800 (PST)
-Message-ID: <57666b4f-4c12-7feb-caf1-5bd38908bfc7@gmail.com>
-Date:   Tue, 17 Jan 2023 21:34:37 +0100
+        Tue, 17 Jan 2023 12:39:50 -0800 (PST)
+Message-ID: <b2b52a43-0dff-d363-fc2b-deb20c1097a2@gmail.com>
+Date:   Tue, 17 Jan 2023 21:39:23 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.6.1
+Subject: [PATCH v4 3/3] i2c: gpio: support write-only sda/scl w/o pull-up
+Content-Language: en-US
 From:   Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v4 0/3] i2c: gpio: support write-only sda
 To:     Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>
 Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
         "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Content-Language: en-US
+References: <57666b4f-4c12-7feb-caf1-5bd38908bfc7@gmail.com>
+In-Reply-To: <57666b4f-4c12-7feb-caf1-5bd38908bfc7@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -71,34 +73,101 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 There are slave devices that understand I2C but have read-only SDA and
 SCL. Examples are FD650 7-segment LED controller and its derivatives.
 Typical board designs don't even have a pull-up for both pins.
-Therefore add properties for not using open-drain. For write-only SCL
-we have a property already, add one for write-only SDA.
+Handle the new attributes for write-only SDA and missing pull-up on
+SDA/SCL.
 
-v2:
-- improve commit message for patch 1
+For either pin the open-drain and has-no-pullup properties are
+mutually-exclusive, what is documented in the DT property documentation.
+We don't add an extra warning here because the open-drain properties
+are marked deprecated anyway.
 
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
 v3:
-- patch 2: check for adap->getsda in readbytes()
-- patch 2: align warning message level for info on missing getscl/getsda
-- patch 3: improve description of attribute sda_is_output_only
-
+- improve description of attribute sda_is_output_only
 v4:
-- patch 1: add no-pullup properties
-- patch 2: handle SDA and SCL independently
-- patch 2: properly handle case that SDA is NULL but SCL not
-- patch 3: handle new no-pullup attributes
+- handle new no-pullup attributes
+---
+ drivers/i2c/busses/i2c-gpio.c          | 13 ++++++++++---
+ include/linux/platform_data/i2c-gpio.h |  9 +++++++++
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
-Heiner Kallweit (3):
-  dt-bindings: i2c-gpio: Add properties for dealing with write-only SDA/SCL w/o pullup
-  i2c: algo: bit: allow getsda to be NULL
-  i2c: gpio: support write-only sda/scl w/o pull-up
-
- .../devicetree/bindings/i2c/i2c-gpio.yaml     | 16 ++++
- drivers/i2c/algos/i2c-algo-bit.c              | 77 +++++++++----------
- drivers/i2c/busses/i2c-gpio.c                 | 13 +++-
- include/linux/platform_data/i2c-gpio.h        |  9 +++
- 4 files changed, 70 insertions(+), 45 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index 0e4385a9b..85b3beb20 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -316,6 +316,12 @@ static void of_i2c_gpio_get_props(struct device_node *np,
+ 		of_property_read_bool(np, "i2c-gpio,scl-open-drain");
+ 	pdata->scl_is_output_only =
+ 		of_property_read_bool(np, "i2c-gpio,scl-output-only");
++	pdata->sda_is_output_only =
++		of_property_read_bool(np, "i2c-gpio,sda-output-only");
++	pdata->sda_has_no_pullup =
++		of_property_read_bool(np, "i2c-gpio,sda-has-no-pullup");
++	pdata->scl_has_no_pullup =
++		of_property_read_bool(np, "i2c-gpio,scl-has-no-pullup");
+ }
+ 
+ static struct gpio_desc *i2c_gpio_get_desc(struct device *dev,
+@@ -392,7 +398,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	 * handle them as we handle any other output. Else we enforce open
+ 	 * drain as this is required for an I2C bus.
+ 	 */
+-	if (pdata->sda_is_open_drain)
++	if (pdata->sda_is_open_drain || pdata->sda_has_no_pullup)
+ 		gflags = GPIOD_OUT_HIGH;
+ 	else
+ 		gflags = GPIOD_OUT_HIGH_OPEN_DRAIN;
+@@ -400,7 +406,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->sda))
+ 		return PTR_ERR(priv->sda);
+ 
+-	if (pdata->scl_is_open_drain)
++	if (pdata->scl_is_open_drain || pdata->scl_has_no_pullup)
+ 		gflags = GPIOD_OUT_HIGH;
+ 	else
+ 		gflags = GPIOD_OUT_HIGH_OPEN_DRAIN;
+@@ -418,7 +424,8 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 
+ 	if (!pdata->scl_is_output_only)
+ 		bit_data->getscl = i2c_gpio_getscl;
+-	bit_data->getsda = i2c_gpio_getsda;
++	if (!pdata->sda_is_output_only)
++		bit_data->getsda = i2c_gpio_getsda;
+ 
+ 	if (pdata->udelay)
+ 		bit_data->udelay = pdata->udelay;
+diff --git a/include/linux/platform_data/i2c-gpio.h b/include/linux/platform_data/i2c-gpio.h
+index a907774fd..545639bcc 100644
+--- a/include/linux/platform_data/i2c-gpio.h
++++ b/include/linux/platform_data/i2c-gpio.h
+@@ -16,16 +16,25 @@
+  *	isn't actively driven high when setting the output value high.
+  *	gpio_get_value() must return the actual pin state even if the
+  *	pin is configured as an output.
++ * @sda_is_output_only: SDA output drivers can't be turned off.
++ *	This is for clients that can only read SDA/SCL.
++ * @sda_has_no_pullup: SDA is used in a non-compliant way and has no pull-up.
++ *	Therefore disable open-drain.
+  * @scl_is_open_drain: SCL is set up as open drain. Same requirements
+  *	as for sda_is_open_drain apply.
+  * @scl_is_output_only: SCL output drivers cannot be turned off.
++ * @scl_has_no_pullup: SCL is used in a non-compliant way and has no pull-up.
++ *	Therefore disable open-drain.
+  */
+ struct i2c_gpio_platform_data {
+ 	int		udelay;
+ 	int		timeout;
+ 	unsigned int	sda_is_open_drain:1;
++	unsigned int	sda_is_output_only:1;
++	unsigned int	sda_has_no_pullup:1;
+ 	unsigned int	scl_is_open_drain:1;
+ 	unsigned int	scl_is_output_only:1;
++	unsigned int	scl_has_no_pullup:1;
+ };
+ 
+ #endif /* _LINUX_I2C_GPIO_H */
 -- 
 2.39.0
+
 
