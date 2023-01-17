@@ -2,137 +2,103 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3E7FC54E76
-	for <linux-i2c@archiver.kernel.org>; Tue, 17 Jan 2023 20:10:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 607FAC3DA71
+	for <linux-i2c@archiver.kernel.org>; Tue, 17 Jan 2023 21:58:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234634AbjAQUKK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 17 Jan 2023 15:10:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44000 "EHLO
+        id S229575AbjAQV6b (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 17 Jan 2023 16:58:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234525AbjAQUHS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2023 15:07:18 -0500
-Received: from mail-oa1-x29.google.com (mail-oa1-x29.google.com [IPv6:2001:4860:4864:20::29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FB934520E
-        for <linux-i2c@vger.kernel.org>; Tue, 17 Jan 2023 11:01:24 -0800 (PST)
-Received: by mail-oa1-x29.google.com with SMTP id 586e51a60fabf-15f64f2791dso2691146fac.7
-        for <linux-i2c@vger.kernel.org>; Tue, 17 Jan 2023 11:01:24 -0800 (PST)
+        with ESMTP id S229707AbjAQV5T (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2023 16:57:19 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1943542DDC;
+        Tue, 17 Jan 2023 12:34:47 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id kt14so19305466ejc.3;
+        Tue, 17 Jan 2023 12:34:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=landley-net.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=OgaymgAXi9Z6g6pYwBOzM02/P477EqWitgDVTE3LFbU=;
-        b=7UFMvbpKkJyjWVLlq6ctk0nXiLL3RrLgvGqk+/g8pD0wAzMEFNodkoMNXxSPAzvJye
-         T4nqVDpRCF5Pkw4fe0ROrd1BjE8DZbycDcUSRlgnihtqJaZkkqELJ7TzEZYyPHojRNxM
-         MBh6YZCgcmJgLXwboxe3bvrjmez4qHhfCRIxGuc2G0+QOOJ/eKT38XBZ7MfSSmNLVm7z
-         gDt6C3Ymsnj+eKLcMZ0dj5q2KFKnZutgcY/1C6+IgeLmT5DwAU4QsUhG6TCQdnlD6nEb
-         fYtWfawIuB6wYahQA/cq89ISwAR2GZXbrrCFpCVxRJqHc9Mn337ID3jg/QgfKjbyHIu6
-         BObQ==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6lc4VaJLAvuEtHfl2rD1jPE4f8tuwKTBgnejphTOXUQ=;
+        b=mRyKI2JkPtnpMXw9D7sqrpbj38NJE3CW1qcB8CzGKUFEyhG8Sh0/npHhqNmpi9vjtX
+         l3qPWTGwnqMnzvc1sIt6AJyk6GjNWrNmL0lg19/wuxIWUg3cm73j8VNg3fXOlVdV/TdY
+         Rf1qw2ZJ4tadHqg2LokTQiU336cVMVVJcB8o1GZqIFEmLxhcWsdkqJLT3iABNVwbcV5d
+         tOxlziXkre6a+prdtacrD2ARyhEbAG88QLRZ7KzBcC1hDQjn2TDkbcl32/M1G+Fe6J6M
+         FUg/9K9uAR57IwP1OX/VQXqFuLMu7t6A1pDd/I432A3Vyx64yVcXgjC6JN9Bsex+BrZr
+         1ztA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=OgaymgAXi9Z6g6pYwBOzM02/P477EqWitgDVTE3LFbU=;
-        b=ku+k2VsraCQuouHAQu94pJLVKDaWM95o+VmoWzBD0Mc/BGY5LLaxJKeHqFlpsFa7op
-         YoLKr8V41S1CzYvuoGynrRbIalyAolxJdZALkBi5MI5otPqmnxnwoG0YwuwGg3UQWuWz
-         9kksFwjApy85xlv4OmvusBvdLsQJ2mjVkS6QwWKtQyYIqtPRsUk8t7n0U2Ou8mhFtFqi
-         5v9eYyK1eZawpGPnPaSgBPukMIETfca+Yl9i/bIXVRdHM/il56p3u+ke68Ou0ha2NHN4
-         Zdg7LLn08N4FbhZdKRpV7uClbOafjlVDwN0eLLeuo8KlLkIuG4nnBWcBxRtAFE6QZJSJ
-         Ob2w==
-X-Gm-Message-State: AFqh2kpVjdrg4+dNOD2ODxRQAdJPf30rSHp7me6xkzrZjsHM9GDmcv1X
-        264G6SFpPcuQHAlqb9U4W47qGw==
-X-Google-Smtp-Source: AMrXdXsgzCxMhqm+bb3il7EsJjEv0NbGPCzT1qf9VREFYRxVllxrk/YEzaFAyrBdtefAaDgGfnk/UQ==
-X-Received: by 2002:a05:6870:c190:b0:15e:cfca:b312 with SMTP id h16-20020a056870c19000b0015ecfcab312mr2807015oad.52.1673982083592;
-        Tue, 17 Jan 2023 11:01:23 -0800 (PST)
-Received: from [192.168.86.224] ([136.62.38.22])
-        by smtp.gmail.com with ESMTPSA id r18-20020a05687080d200b0012763819bcasm16664335oab.50.2023.01.17.11.01.21
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=6lc4VaJLAvuEtHfl2rD1jPE4f8tuwKTBgnejphTOXUQ=;
+        b=0ATv9loQrODRiYevQ+/0K7RQhPYckcyv/MCD+Prt9G4+mfx9dB9BXPbuEG6/EcWdSf
+         g7rsovFooskPm9RY4LEXCQwnpWE+/A1jirT9I4Es8ZbE8SPbYIc0Ks1qzxiukpTgHi+Z
+         n9e6daEIHU6ulm5AmhaoAZqBgZd1Xxirk9YDmGaQsusG8k6FTH4ow5vCarHBqrulQf4Q
+         lAPwDNlbUUFMoXQffj4BoG3ORM+oq9BMcD6zD9lnxlRUQo6v4dauYjRJe9QJXf3Q+a5z
+         viP1MoGsuQfHCL1FcNkRxalpb0JA8dJVT6TwI7lOXFdLhGSRVoD/oSK0c1C7TQO5BdH1
+         b6Pg==
+X-Gm-Message-State: AFqh2kpI3hVJTOuHgoCEb7D8XLSHIr7Gtk7+SQEKx/SfowVmVNsRFAL1
+        9ZnMKZy3koGMrzIp4efZKqnzQJFRe2g=
+X-Google-Smtp-Source: AMrXdXs/xlziqN0dvRwkiF02V9asrBCGA9MOHc2E+7DTtCGq05sZuluClUf4cJ39cngzMhMn8wWBwA==
+X-Received: by 2002:a17:906:848e:b0:7c4:fa17:7202 with SMTP id m14-20020a170906848e00b007c4fa177202mr4234545ejx.33.1673987685401;
+        Tue, 17 Jan 2023 12:34:45 -0800 (PST)
+Received: from ?IPV6:2a01:c22:7346:8100:11fa:3b53:e36a:9e73? (dynamic-2a01-0c22-7346-8100-11fa-3b53-e36a-9e73.c22.pool.telefonica.de. [2a01:c22:7346:8100:11fa:3b53:e36a:9e73])
+        by smtp.googlemail.com with ESMTPSA id gk8-20020a17090790c800b0084d35ffbc20sm12555382ejb.68.2023.01.17.12.34.43
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Jan 2023 11:01:22 -0800 (PST)
-Message-ID: <9325a949-8d19-435a-50bd-9ebe0a432012@landley.net>
-Date:   Tue, 17 Jan 2023 13:13:38 -0600
+        Tue, 17 Jan 2023 12:34:43 -0800 (PST)
+Message-ID: <57666b4f-4c12-7feb-caf1-5bd38908bfc7@gmail.com>
+Date:   Tue, 17 Jan 2023 21:34:37 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: remove arch/sh
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v4 0/3] i2c: gpio: support write-only sda
+To:     Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>, Peter Rosin <peda@axentia.se>
+Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc:     Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arch@vger.kernel.org,
-        dmaengine@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        netdev@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
-        linux-sh@vger.kernel.org
-References: <20230113062339.1909087-1-hch@lst.de>
- <11e2e0a8-eabe-2d8c-d612-9cdd4bcc3648@physik.fu-berlin.de>
- <20230116071306.GA15848@lst.de>
-From:   Rob Landley <rob@landley.net>
-In-Reply-To: <20230116071306.GA15848@lst.de>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 1/16/23 01:13, Christoph Hellwig wrote:
-> On Fri, Jan 13, 2023 at 09:09:52AM +0100, John Paul Adrian Glaubitz wrote:
->> I'm still maintaining and using this port in Debian.
->>
->> It's a bit disappointing that people keep hammering on it. It works fine for me.
-> 
-> What platforms do you (or your users) use it on?
+There are slave devices that understand I2C but have read-only SDA and
+SCL. Examples are FD650 7-segment LED controller and its derivatives.
+Typical board designs don't even have a pull-up for both pins.
+Therefore add properties for not using open-drain. For write-only SCL
+we have a property already, add one for write-only SDA.
 
-3 j-core boards, two sh4 boards (the sh7760 one I patched the kernel of), and an
-sh4 emulator.
+v2:
+- improve commit message for patch 1
 
-I have multiple j-core systems (sh2 compatible with extensions, nommu, 3
-different kinds of boards running it here). There's an existing mmu version of
-j-core that's sh3 flavored but they want to redo it so it hasn't been publicly
-released yet, I have yet to get that to run Linux because the mmu code would
-need adapting, but the most recent customer projects were on the existing nommu
-SOC, as was last year's ASIC work via sky130.
+v3:
+- patch 2: check for adap->getsda in readbytes()
+- patch 2: align warning message level for info on missing getscl/getsda
+- patch 3: improve description of attribute sda_is_output_only
 
-My physical sh4 boards are a Johnson Controls N40 (sh7760 chipset) and the
-little blue one is... sh4a I think? (It can run the same userspace, I haven't
-replaced that board's kernel since I got it, I think it's the type Glaubitz is
-using? It's mostly in case he had an issue I couldn't reproduce on different
-hardware, or if I spill something on my N40.)
+v4:
+- patch 1: add no-pullup properties
+- patch 2: handle SDA and SCL independently
+- patch 2: properly handle case that SDA is NULL but SCL not
+- patch 3: handle new no-pullup attributes
 
-I also have a physical sh2 board on the shelf which I haven't touched in years
-(used to comparison test during j2 development, and then the j2 boards replaced it).
+Heiner Kallweit (3):
+  dt-bindings: i2c-gpio: Add properties for dealing with write-only SDA/SCL w/o pullup
+  i2c: algo: bit: allow getsda to be NULL
+  i2c: gpio: support write-only sda/scl w/o pull-up
 
-I'm lazy and mostly test each new sh4 build under qemu -M r2d because it's
-really convenient: neither of my physical boards boot from SD card so replacing
-the kernel requires reflashing soldered in flash. (They'll net mount userspace
-but I haven't gotten either bootloader to net-boot a kernel.)
+ .../devicetree/bindings/i2c/i2c-gpio.yaml     | 16 ++++
+ drivers/i2c/algos/i2c-algo-bit.c              | 77 +++++++++----------
+ drivers/i2c/busses/i2c-gpio.c                 | 13 +++-
+ include/linux/platform_data/i2c-gpio.h        |  9 +++
+ 4 files changed, 70 insertions(+), 45 deletions(-)
 
-I include sh4 in the my mkroot builds each toybox release, I have a ~300 line
-bash script that builds bootable toybox systems for a dozen-ish architectures,
-including building a kernel configured to run under qemu:
+-- 
+2.39.0
 
-  https://github.com/landley/toybox/blob/master/scripts/mkroot.sh
-
-And I ship the resulting bootable system images, most recent release is at:
-
-  https://landley.net/toybox/downloads/binaries/mkroot/0.8.9/
-
-As described at:
-
-  http://landley.net/toybox/faq.html#mkroot
-
-Various people in Japan have more hardware, but I haven't made it physically
-back there since 2020. (My residency card expired during the pandemic.)
-
-Rob
