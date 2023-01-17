@@ -2,60 +2,60 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD359C678D4
-	for <linux-i2c@archiver.kernel.org>; Tue, 17 Jan 2023 08:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0491AC6379F
+	for <linux-i2c@archiver.kernel.org>; Tue, 17 Jan 2023 08:50:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236291AbjAQIuI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 17 Jan 2023 03:50:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
+        id S236201AbjAQIuQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 17 Jan 2023 03:50:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236228AbjAQIt6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2023 03:49:58 -0500
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23911A4B9
-        for <linux-i2c@vger.kernel.org>; Tue, 17 Jan 2023 00:49:54 -0800 (PST)
-Received: by mail-wm1-x332.google.com with SMTP id g10so21643815wmo.1
-        for <linux-i2c@vger.kernel.org>; Tue, 17 Jan 2023 00:49:54 -0800 (PST)
+        with ESMTP id S236252AbjAQIt7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2023 03:49:59 -0500
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC92C23677
+        for <linux-i2c@vger.kernel.org>; Tue, 17 Jan 2023 00:49:57 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id f25-20020a1c6a19000000b003da221fbf48so7542518wmc.1
+        for <linux-i2c@vger.kernel.org>; Tue, 17 Jan 2023 00:49:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Km72Ozc/Vyrr+VItW0cIHsd+mEJlhUZtzVcHQEBHbFs=;
-        b=n4vNbGfK5yIRIrJ7BDPqX63H6uYWeoZyYRGtVklWvA9PhGfM3w7Ee+JhxK/Sl4zc6H
-         HPN04G4R0M0gvg8RWqPkTL+gXCRONRFd/JnKiZDKyTSuE8ZK8d5ezCL+0Ls4OEtmrw3t
-         EtJsvGVvlfYftDXeQAZWOpNFdEjMQgFdOPaiT1BQrm38mQaaRbWutoC0M5vxmFEAkaqB
-         o8r8OhRTqZ3q0YLTeJVAiWaOQQif5AOLtyPFJ5Nzqtj3/QkfWGmCshaLmZZ7yx/eoFoa
-         raojrixCerAWcnK6YqR8KQA+liKnjfrzDE9dkqjQHSHfaYseHsjeh45hDUJh1/RZa3pK
-         rqhA==
+        bh=GnntDb2wSxyksznyUK9vORluc24yy6XtA4jjRHLcBuk=;
+        b=LYUV60VqALvvzk6MilzChbMVqyD/B0GIA7z7QQD9RC9k/FTRraa9aq3o9DhdmmF3iq
+         bEZxLJ/EPaEukjPDguwckMzwT4iZWzklaDDCcm8uvmRbfgEzQZ6BypnK+5qR13RDCnuo
+         g/NoNBxqzf6YLnbLdMwkvsPYPgpfMg1IVWEfSQM4dsbIHLnsghP853ZEx8x80OXMesKO
+         Gu6CisBcCKzX5DE471QmgAykmNMIdj+swGJPBP7wSz0pf8//+a8SQFDGZUzGW+MnbWQ+
+         84Q0DSLD8KCf7zQKe08zeZA1GxLvcYKM7P0/3YWWTFKmdYhwcXPB8+J9/t/YfUwb6Dp9
+         NQvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Km72Ozc/Vyrr+VItW0cIHsd+mEJlhUZtzVcHQEBHbFs=;
-        b=FUvzitx5C3/sXkRY2t6Tum3go+BbfFSF5O7nXG6Y2D4OTmHlpzLKQLFgmVQl2fwbaj
-         ms4vm8mhmy6A2jQ/LzS4GJAI7MOSCGH4JuUt553OGhWkILrM3D6quWCdYiCWX681qPBa
-         +iypZjeCbWkXOT9y5NN20kl49VGhmNa9+vKblkUZYNB75di8TPaLS3DizoRCcuSaKzA/
-         MG3+VIyrGl6KS3nUSkP2v/GhDjDlbi1W3KPsKUaQ6Y6q6bUZFXoEQ/XONKMAx7FNFoOy
-         ZeZNPLRgEBGdNHT63iU2fhKvMMI7Cz8NUyPXNrzo5jDlxp5IZ45OJJ/3bhqPErRRNF7b
-         mQ6A==
-X-Gm-Message-State: AFqh2kpdu5tJxR/jwW5DAcBp8XCOe0k//5fn92EQicn8edj/Eh9OfmU3
-        /XL4RYthHTuP8msj98t+ZZ2B6LmErsRTPgMO
-X-Google-Smtp-Source: AMrXdXu9bt+xPzypGl/F+mIIgonOm1sPTgpGAOgsT1pbkfhhzXESU+etGoaF9tltTxf7OMxdMv8YSA==
-X-Received: by 2002:a05:600c:4b9a:b0:3da:fcdc:cafd with SMTP id e26-20020a05600c4b9a00b003dafcdccafdmr2228805wmp.13.1673945393232;
-        Tue, 17 Jan 2023 00:49:53 -0800 (PST)
+        bh=GnntDb2wSxyksznyUK9vORluc24yy6XtA4jjRHLcBuk=;
+        b=IFpt4+1UkcEfv5UEwB+4vq1iya9id+ke7pR/qddyp0s5eZ/DcVjDAOh0sU6ruuhiSX
+         XqVb2rTeApAC3/l5FKuGaF+5dsKQCx7H8DPsxhQU55Q/NsI8ySpI7flJNEXqTdLGGpEr
+         qWcDO6FmQ1HmlhnFNpydVOhlJmBCO1DnfEM9Mx7BouB1RfFO3PWmkl+AI5JPo+40ksO9
+         hTSs26sp4BdJWJA2cwPY5x7jsKoe8zBMC+ziu0VdBSab+njDq4FHcLAUJPptGK4yMRRK
+         OaL2asYlYqyuOnVnW6jY5GM5LoYZijkVoLwCYaIapQBKBKp/BO1uFjC/BFuTGM+8gW1Z
+         U0hw==
+X-Gm-Message-State: AFqh2koFnCujIPPb2R/7P4Tar8oCS64z9ifvD5KR1Xryq4gK5UryAj8J
+        3DIV0aCR3xeFhCPDS0ImouVCF0x8bkhvtetT
+X-Google-Smtp-Source: AMrXdXvVghYU3f6f4pnX+urBDdE5Tc0O9C8WHHbtOL7Y9xI3DWYl8EiIm5gXNSp4H0aKqqrXqdqEMg==
+X-Received: by 2002:a05:600c:920:b0:3da:22a6:7b6b with SMTP id m32-20020a05600c092000b003da22a67b6bmr2225151wmp.13.1673945396215;
+        Tue, 17 Jan 2023 00:49:56 -0800 (PST)
 Received: from [127.0.1.1] (laubervilliers-658-1-213-31.w90-63.abo.wanadoo.fr. [90.63.244.31])
-        by smtp.googlemail.com with ESMTPSA id i14-20020a05600c354e00b003d1d5a83b2esm45040928wmq.35.2023.01.17.00.49.52
+        by smtp.googlemail.com with ESMTPSA id i14-20020a05600c354e00b003d1d5a83b2esm45040928wmq.35.2023.01.17.00.49.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Jan 2023 00:49:52 -0800 (PST)
+        Tue, 17 Jan 2023 00:49:55 -0800 (PST)
 From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Tue, 17 Jan 2023 09:49:39 +0100
-Subject: [PATCH 1/4] dt-bindings: i2c: i2c-mt65xx: add binding for MT8365 SoC
+Date:   Tue, 17 Jan 2023 09:49:42 +0100
+Subject: [PATCH 4/4] i2c: i2c-mt65xx: add MT8365 SoC support
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221122-mt8365-i2c-support-v1-1-4aeb7c54c67b@baylibre.com>
+Message-Id: <20221122-mt8365-i2c-support-v1-4-4aeb7c54c67b@baylibre.com>
 References: <20221122-mt8365-i2c-support-v1-0-4aeb7c54c67b@baylibre.com>
 In-Reply-To: <20221122-mt8365-i2c-support-v1-0-4aeb7c54c67b@baylibre.com>
 To:     Rob Herring <robh+dt@kernel.org>, Qii Wang <qii.wang@mediatek.com>,
@@ -69,19 +69,19 @@ Cc:     linux-i2c@vger.kernel.org, Rob Herring <robh@kernel.org>,
         linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org,
         devicetree@vger.kernel.org
 X-Mailer: b4 0.10.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=964; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=0qPQE4yGfoxCGQFTIge9uLlrCOrdE3u8zE/R7eutZWA=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjxmEuhQT6QRyWEmit8/G/GCW6H47F2HxOTGT1ZSuo
- cCY6uaaJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY8ZhLgAKCRArRkmdfjHURfVYD/
- wPXcEZODLRlSW4k/1YFHhTcK/f/a+xBbyKmw7B+fxBkQshi6gAAca4Vx1oQP8hItEnTBMh1H0MjQrk
- cuom0S7kl6s2OSi99RSu0Jm6lNzfEYsuqy0goln16eaBQWfHegUSut6ijRDixWoR0dI2qspXDlTGwE
- D4+A2ziNmP6ZWD1b8Io0wn7Zj+jOobK0ua+K4QJamBy607Ud5yIDdujnxd49aByRs2M6vq3+VFNGK2
- w2hR7m/kcjOFKJBaTKPRH2qqy8q4g6XnBlywN3UddrYZd3AX78aili1D2Nz5iRQfxbS4QUyuIhOi/h
- STjL9hoD7IFDAVHme3rCR1pivB3P6yJ4MeTD8Qq1abKY9EVn8IqGClDKkUt5kwdepHbNKT5HZeEXVM
- AJsd0f58rNZ9a9Z7Ch5oLrfEHfAl+w4huIGNe7gOxG+C+hubVq5wC5ITKA3DzYM/WC5s9d54L9TN9i
- JQvddXyndMunjjA5QHEH/MP3m2tqQ8/Yaawx2MjJzHLdRnUZ6nqPrSHOYsNdI/5+doCYK15T2Hn+JZ
- Vwlw4tj2pzfCBfOveUX2c3cGCQ0UJnZ4yaS6d8X8kiEw4hQlrtoZIQn0DFNsliEde1L8nkk0pcHvPU
- jDsePkJb43AtoIavas5keLUwk9oe26laD4onZtjTszzuuJZyntve4KFxoeMQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1454; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=TWV0BAft8RkOG5xbYhjbDPUS/3D2IDzrN9QH/A7cKxU=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjxmEuVzYMtofJIUJ5oFTa3W0oKUDkqaKLoTvfJXnh
+ 0IBK/E2JAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY8ZhLgAKCRArRkmdfjHURcOQEA
+ DBqTEdZxCLimcj4ODKJJMfctwwdA7ZiAVFTtdGMWA71M/U79w8cFUVxFHSXnTn47gSHeFVcpiyFjaI
+ DM0uhFv5NDrZdV3SvNjHSaHSCDFeQE+N5c9Uzhc431ttuJryYIry72+ioFiUOTnA+U/JDGaD1M7a9m
+ 7tL5AJP/pd6FzUpK/mV+KL/oRcSU45dHzjB2WbXsafsVh0yoMAoH2ONYHbYsE9VACpkQs8w11L7I6f
+ MgM+zhIRh9TzyVGZ4uL9mRIOgiVqSkRJgNyPnFKCVgpa89Dv+rxu0+Uc7ZJ9OaOXnAAw6+GIvFrF7B
+ FMDPiQ89s5gm9KpDwc9Mq/QcKfGm6J9gpPGiMo8mMOx6Jjwl2Pe4PFrbj/CH7lGxINvxSdbUcOkZTL
+ 1kUybTF+GoV300oW3Vfqd36rJNPg5T4A2obypuNuBiZ3UTueo+NATNKkWnJc+MxMy92nY4enQJ4TP2
+ JKVX1z0A1FPrgtwj1B9IsKKaaK30kPyFuVZSIgLNpXQ5FqeHn9VQAypE9CUnNJdzDZBnOCaLYMeRmu
+ XVLDdGgM/IsiHN6asVJvJMCpLe2H9voep8GpiI6rPdNcDDd9IQkkdOMROkZRyRto73sWYT2RlbZTwD
+ GFFhgWu5qafDgyJWt1h1f8uSQDUo7fjIA0XyiyGP/zssH+KUXbMKkrEWIf/A==
 X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
  fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
@@ -90,30 +90,46 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Fabien Parent <fparent@baylibre.com>
 
-Add binding documentation for the MT8365 I2C controllers.
+Add support for I2C on MT8365 SoCs.
 
 Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-mt65xx.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
-index 421563bf576c..72ae2e01cf22 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
-@@ -41,6 +41,10 @@ properties:
-               - mediatek,mt6797-i2c
-               - mediatek,mt7623-i2c
-           - const: mediatek,mt6577-i2c
-+      - items:
-+          - enum:
-+              - mediatek,mt8365-i2c
-+          - const: mediatek,mt8168-i2c
-       - items:
-           - enum:
-               - mediatek,mt8195-i2c
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index d80e59340d97..2c9dbb42861a 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -511,6 +511,19 @@ static const struct mtk_i2c_compatible mt8192_compat = {
+ 	.max_dma_support = 36,
+ };
+ 
++static const struct mtk_i2c_compatible mt8365_compat = {
++	.regs = mt_i2c_regs_v1,
++	.pmic_i2c = 0,
++	.dcm = 1,
++	.auto_restart = 1,
++	.aux_len_reg = 1,
++	.timing_adjust = 1,
++	.dma_sync = 1,
++	.ltiming_adjust = 0,
++	.apdma_sync = 0,
++	.max_dma_support = 33,
++};
++
+ static const struct of_device_id mtk_i2c_of_match[] = {
+ 	{ .compatible = "mediatek,mt2712-i2c", .data = &mt2712_compat },
+ 	{ .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
+@@ -523,6 +536,7 @@ static const struct of_device_id mtk_i2c_of_match[] = {
+ 	{ .compatible = "mediatek,mt8186-i2c", .data = &mt8186_compat },
+ 	{ .compatible = "mediatek,mt8188-i2c", .data = &mt8188_compat },
+ 	{ .compatible = "mediatek,mt8192-i2c", .data = &mt8192_compat },
++	{ .compatible = "mediatek,mt8365-i2c", .data = &mt8365_compat },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, mtk_i2c_of_match);
 
 -- 
 b4 0.10.1
