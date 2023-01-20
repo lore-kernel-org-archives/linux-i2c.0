@@ -2,99 +2,108 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12E10C25B4E
-	for <linux-i2c@archiver.kernel.org>; Fri, 20 Jan 2023 12:39:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2893CC52D11
+	for <linux-i2c@archiver.kernel.org>; Fri, 20 Jan 2023 13:18:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229534AbjATMj2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 20 Jan 2023 07:39:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        id S231132AbjATNSj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 20 Jan 2023 08:18:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229460AbjATMj1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Jan 2023 07:39:27 -0500
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 872407E6A6
-        for <linux-i2c@vger.kernel.org>; Fri, 20 Jan 2023 04:39:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674218340; x=1705754340;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=MDdLi3Y3JKfCq5MiyBmvXN88MLQyindjtDXnotcM8w4=;
-  b=SAs4FI15y/7pzPapTsp9Yl9/Hl4kdA5upk3rXiYBrdJSKyq0pVT/3TFq
-   GJiaaoySZ7FMM6MH0n12Gcvx8n64ZC232xsXykNvFlmHzEvA6CIJsdP82
-   3zIlbN+dxIBBPCWXs4NWcoxBjoRqcJCX7V0tyyjGhbVrcd4vACZrPgAXW
-   cfvWldDC87cuUNSl3LUDXlp4wXjULgVXdat5cmCqCFCABRaLk1ZG3NH9A
-   GVuZCMTe4GZiZqOaDg/PktJydISuLGz7zeBD84Y0CAodKaLeY4gAKLeK3
-   ehUXMfIYBvI7/nkGeqewTElNpBx0Q4fBOD2ZixkZPOeW/kswIe7SVCT57
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="313455479"
-X-IronPort-AV: E=Sophos;i="5.97,232,1669104000"; 
-   d="scan'208";a="313455479"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2023 04:35:58 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="784496324"
-X-IronPort-AV: E=Sophos;i="5.97,232,1669104000"; 
-   d="scan'208";a="784496324"
-Received: from mylly.fi.intel.com (HELO [10.237.72.56]) ([10.237.72.56])
-  by orsmga004.jf.intel.com with ESMTP; 20 Jan 2023 04:35:56 -0800
-Message-ID: <fbd2cd7e-ebb9-1e2b-da93-6904e1ade84f@linux.intel.com>
-Date:   Fri, 20 Jan 2023 14:35:55 +0200
+        with ESMTP id S230512AbjATNSf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Jan 2023 08:18:35 -0500
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433E1C41E3
+        for <linux-i2c@vger.kernel.org>; Fri, 20 Jan 2023 05:14:54 -0800 (PST)
+Received: by mail-ej1-x62c.google.com with SMTP id qx13so13768567ejb.13
+        for <linux-i2c@vger.kernel.org>; Fri, 20 Jan 2023 05:14:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fairphone.com; s=fair;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ySBpf/g54h4mieeOX1iTHn4nbDJmcd4e2yinCvFCp5c=;
+        b=LQoXIY51ocKZoiJFhh/AKSvIacV/F1db3r+IWRBBO5CRnSUd4/y6t+JPN0hZcOZC4j
+         5g67O4XNBTR/+4FcVFML8g5LzcxfzWKtB9YbLXV3o/Db+9DuJBVvgDmf6VRweZz9QhDU
+         bV1mIusIhlsezQ+F7aqLrpXr/4I4jyYEmNI8gosKdTeftWaoFn1xi/3E81QKglReGzWm
+         TGMHSuUcV+YZiR5D5WDxbZsbn3viFZ1oQNXG1fdq0+VPKfTaNemr1mbtrXs9xNrEEgw4
+         7JVC9CibLH/pdTT/Po5D4c3F3Oiyy4xXwS3aNWAxEZNeXLTRFj386RA7xlUos4xg0BOx
+         gGBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ySBpf/g54h4mieeOX1iTHn4nbDJmcd4e2yinCvFCp5c=;
+        b=Uskpl9krywEHH5NyikYBOK6VxWh+6Q39KTAZN+twTTuIxsftqmoQzfglKzg6kFp+A3
+         +OUtCaStWuN44TkHqFOnxw1D8rIMMS2f/IW0av3oQY4YT2AxcX5NiM1XvURtlMo7dt6K
+         lx7VOXmNT5ClrdprUKsaJBMyh3pecg2YZdYfaNsBujiEwOj0KGjzXUMFaaWmllqXgVCl
+         WJuIm1EPifqfiDeZiaNmDdjbaZM7HsctGQy4kN2n6CVHMtln5HaOvUiqawrvFPGjqvUr
+         P5wqzLwqFJ16ax10DWXb+1o1fjEJ41jxaKrgyX/IDfoSgCnmQgiGbEtGExBUO5Vmo1N+
+         VRkQ==
+X-Gm-Message-State: AFqh2koMb2w5+fDVEQdZAqBQCqYzgjq069zd+PYzx9Wj5eBM7X73zZU4
+        Nr4F9yhex/XSeW3Rz3Cv9SqJfQ==
+X-Google-Smtp-Source: AMrXdXvwTGSr0VTfDAVxv+4egpg34iuffH5U0RjzGKJRCWUe2ybZYxw/9OuLWcE4dBOerhoopk/deA==
+X-Received: by 2002:a17:906:c7cc:b0:7ae:bfec:74c7 with SMTP id dc12-20020a170906c7cc00b007aebfec74c7mr14237590ejb.72.1674220492599;
+        Fri, 20 Jan 2023 05:14:52 -0800 (PST)
+Received: from [172.16.220.87] (144-178-202-138.static.ef-service.nl. [144.178.202.138])
+        by smtp.gmail.com with ESMTPSA id t1-20020a1709061be100b0086f40238403sm8063276ejg.223.2023.01.20.05.14.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Jan 2023 05:14:52 -0800 (PST)
+From:   Luca Weiss <luca.weiss@fairphone.com>
+Date:   Fri, 20 Jan 2023 14:13:45 +0100
+Subject: [PATCH v2 2/4] arm64: dts: qcom: sm6350: Add camera clock
+ controller
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.6.0
-Subject: Re: [PATCH v2] i2c: designware: add a new bit check for IC_CON
- control
-Content-Language: en-US
-To:     Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jan Dabros <jsd@semihalf.com>, linux-i2c@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-References: <20230117122801.1605176-1-Shyam-sundar.S-k@amd.com>
- <Y8a54u1ipywtTIlH@smile.fi.intel.com>
- <dbdc2d2a-8fcd-8667-3088-ca730212c162@amd.com>
- <Y8gDcaPT+WcsGRRA@smile.fi.intel.com>
- <ad005c44-4a69-1cf4-0e0e-e30e42c76d5c@amd.com>
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-In-Reply-To: <ad005c44-4a69-1cf4-0e0e-e30e42c76d5c@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20221213-sm6350-cci-v2-2-15c2c14c34bb@fairphone.com>
+References: <20221213-sm6350-cci-v2-0-15c2c14c34bb@fairphone.com>
+In-Reply-To: <20221213-sm6350-cci-v2-0-15c2c14c34bb@fairphone.com>
+To:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Robert Foss <rfoss@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Luca Weiss <luca.weiss@fairphone.com>
+X-Mailer: b4 0.12-dev-78462
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 1/19/23 05:44, Shyam Sundar S K wrote:
-> 
-> 
-> On 1/18/2023 8:04 PM, Andy Shevchenko wrote:
->> On Wed, Jan 18, 2023 at 07:27:06PM +0530, Shyam Sundar S K wrote:
->>> On 1/17/2023 8:38 PM, Andy Shevchenko wrote:
->>>> On Tue, Jan 17, 2023 at 05:58:01PM +0530, Shyam Sundar S K wrote:
->>> In order to use regmap_read() instead of ioread32() in this case, we
->>> have to defer calling i2c_dw_configure()
->>
-Comment to change in your previous mail: Moving i2c_dw_configure() after 
-i2c_dw_probe() will cause regression to high speed mode since 
-DW_IC_CON_SPEED_HIGH is not set when i2c_dw_set_timings_master() is called.
+Add a node for the camcc found on SM6350 SoC.
 
->> I think we need to try to be consistent with IO accessors across the driver
->> which means to try hard to have regmap being initialised beforehand or other
->> functions being moved accordingly. However, it seems a bit non-trivial
->> ordering case and I leave this to you, I²C maintainers and this driver
->> maintainer to decide how to proceed.
->>
-Yeah, we don't want to potentially cause a regression on those machines 
-that use swapped or word accessors by reading and writing a wrong bit in 
-the DW_IC_CON.
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+---
+ arch/arm64/boot/dts/qcom/sm6350.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-> 
-> Jarkko, How would you like me to proceed? Would you be OK to pull this
-> change without regmap_read() or do you like me to submit a patch for
-> reordering the _configure_* call ?
-> 
-I think safe place to do this is between i2c_dw_init_regmap() and 
-dev->init() calls in i2c_dw_probe_master(). Then regmap is initialized 
-and the DW_IC_CON is not yet written.
+diff --git a/arch/arm64/boot/dts/qcom/sm6350.dtsi b/arch/arm64/boot/dts/qcom/sm6350.dtsi
+index 8224adb99948..300ced5cda57 100644
+--- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
+@@ -1435,6 +1435,15 @@ usb_1_dwc3: usb@a600000 {
+ 			};
+ 		};
+ 
++		camcc: clock-controller@ad00000 {
++			compatible = "qcom,sm6350-camcc";
++			reg = <0 0x0ad00000 0 0x16000>;
++			clocks = <&rpmhcc RPMH_CXO_CLK>;
++			#clock-cells = <1>;
++			#reset-cells = <1>;
++			#power-domain-cells = <1>;
++		};
++
+ 		pdc: interrupt-controller@b220000 {
+ 			compatible = "qcom,sm6350-pdc", "qcom,pdc";
+ 			reg = <0 0x0b220000 0 0x30000>, <0 0x17c000f0 0 0x64>;
 
-Not sure would reading DW_IC_CON require 
-i2c_dw_acquire_lock()/i2c_dw_release_lock() but I would play safe.
+-- 
+2.39.1
+
