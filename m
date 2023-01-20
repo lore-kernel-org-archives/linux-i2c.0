@@ -2,98 +2,104 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44B6AC27C7C
-	for <linux-i2c@archiver.kernel.org>; Fri, 20 Jan 2023 16:49:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7E46C25B50
+	for <linux-i2c@archiver.kernel.org>; Fri, 20 Jan 2023 19:04:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230487AbjATQto (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 20 Jan 2023 11:49:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60094 "EHLO
+        id S229484AbjATTEV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 20 Jan 2023 14:04:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230488AbjATQtn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Jan 2023 11:49:43 -0500
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B372070297
-        for <linux-i2c@vger.kernel.org>; Fri, 20 Jan 2023 08:49:41 -0800 (PST)
-Received: by mail-wr1-x430.google.com with SMTP id r2so5368778wrv.7
-        for <linux-i2c@vger.kernel.org>; Fri, 20 Jan 2023 08:49:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ReqL3/KdTtoMI5gOn47wEfy8Brch/hDuTRzHxmxqXLI=;
-        b=HrWAbzIu1bfu5+Ce6Jw2FEMPVasYO23fFdoUKI+s2D5dbd/iFNqYGuO1NWjYcusFKy
-         fP9liXt78VZOHABtZOIYTAWWAAwkkrz7GVp/N10X76oFvPrJmDlHk+4Fgwv8rjCKwuus
-         tFouDnkYAVUa4IIcvCYAQxzY/2uIqD/2hPonHIq4+yuN/6kQgGsnpArb/o55+WXIgbEB
-         tRn0xd4tH8ozAowgLV/G7pe9Hr7HEcWabeLEvmDCDJNMCpwGvWH2rIokvMONX8B9UE5M
-         pQuSJnDvLsfG3xLeUvaKGtLV2rDhWCWwojOJBeUj/zyGuO6T4FPiweqaOlj1sZm9tP9y
-         mvEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ReqL3/KdTtoMI5gOn47wEfy8Brch/hDuTRzHxmxqXLI=;
-        b=LVJnPOrZsKwiDrpBSCz2UncPLMG25rQGw92nWTOa/jO6dipfoiQQqbr6mCC+UvflNL
-         FYO92ZsoWF7tZyI2iCSadlShghUVwwLQR+a27k30jss0bDaHm2cq5N0A398Ghluu8NSx
-         wyVhtrz+oJayUTPChIQ0exeTxaSwyE0WAZVK64N0QXv23sHz8gRtQ0IwuxxZ4KTlRMAS
-         cK4CodBa7ipxkEafihvXV+xEYCqQOyDv2l8zGLj7GW1zMZR80+IKuYVrQYs+xeTW6jZU
-         PcPWjF9DOeOy7GIm2kYgT8u7A60yW0bcwtmuYkBDvt1jbjzyNeNiNAVjFF1E2CVARu6t
-         7ftw==
-X-Gm-Message-State: AFqh2kpNXiQLOnihmTAwaEmt/hRbP2ApiJSJg3SGJAhqgK9EC/oQLMbu
-        V0YBsjZvnvtYOvAy5UzlWX2Jog==
-X-Google-Smtp-Source: AMrXdXtEWQc0BoNfAHarjgxoITnBqOmzi3Fm+XNUr6JyoaeecEc3V7G+XJtcFtNOp9ktTOsRs0d5CQ==
-X-Received: by 2002:a5d:4e84:0:b0:2be:c94c:ebff with SMTP id e4-20020a5d4e84000000b002bec94cebffmr1852291wru.56.1674233380271;
-        Fri, 20 Jan 2023 08:49:40 -0800 (PST)
-Received: from [192.168.0.162] (188-141-3-169.dynamic.upc.ie. [188.141.3.169])
-        by smtp.gmail.com with ESMTPSA id y18-20020a5d6152000000b002425be3c9e2sm35581781wrt.60.2023.01.20.08.49.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 20 Jan 2023 08:49:39 -0800 (PST)
-Message-ID: <e5ff49d4-45c7-8c4a-d624-d8f7cc9ce2cb@linaro.org>
-Date:   Fri, 20 Jan 2023 16:49:38 +0000
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH v2 2/4] arm64: dts: qcom: sm6350: Add camera clock
- controller
-Content-Language: en-US
-To:     Luca Weiss <luca.weiss@fairphone.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Robert Foss <rfoss@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20221213-sm6350-cci-v2-0-15c2c14c34bb@fairphone.com>
- <20221213-sm6350-cci-v2-2-15c2c14c34bb@fairphone.com>
-From:   Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-In-Reply-To: <20221213-sm6350-cci-v2-2-15c2c14c34bb@fairphone.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S229562AbjATTET (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Jan 2023 14:04:19 -0500
+Received: from mx0a-002e3701.pphosted.com (mx0a-002e3701.pphosted.com [148.163.147.86])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A46312116;
+        Fri, 20 Jan 2023 11:04:18 -0800 (PST)
+Received: from pps.filterd (m0134420.ppops.net [127.0.0.1])
+        by mx0b-002e3701.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30KIN2L2019036;
+        Fri, 20 Jan 2023 19:03:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=from : to : subject :
+ date : message-id : in-reply-to : references; s=pps0720;
+ bh=ENbmNuKIYItdK9UTXDTdObxMpOfVOI6WyB02s3vxXRI=;
+ b=Bs9KXXnG4mU/h/Hwx+LgxKy2SX8VCnuvTPFmlRJQ8igyRSeGf/6j+Y8hqcub6Uvf4q8r
+ 1ZoMGZkTc0rnwO5qys5HrA5O19NGBT1B0hPiN+43zGwKEaPo8u9RRehrNIwV1xQCZKq1
+ Dz7pIWmQcIWHIN/tZJrsvu8TwCi1VAnzfDPbGJ+yrtRAXc1gGCg1RQj8A/UM36MQCSKh
+ Y99ko82Q6gXYN1b4tVDl67QqmIyTeButvvi35thRBzoDPHWiPXl/oWDrITfYifuyYfhg
+ +Iye87UhmXaRRd+2Zi7Qgh2/dFnqcn1JA86733Xj2A1QYchv0bSNCF8ohs2phZX6P6oM ug== 
+Received: from p1lg14878.it.hpe.com (p1lg14878.it.hpe.com [16.230.97.204])
+        by mx0b-002e3701.pphosted.com (PPS) with ESMTPS id 3n7upv383e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Jan 2023 19:03:57 +0000
+Received: from p1lg14886.dc01.its.hpecorp.net (unknown [10.119.18.237])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by p1lg14878.it.hpe.com (Postfix) with ESMTPS id 96184301AF;
+        Fri, 20 Jan 2023 19:03:57 +0000 (UTC)
+Received: from hpe.com (unknown [16.231.227.36])
+        by p1lg14886.dc01.its.hpecorp.net (Postfix) with ESMTP id 247DD802F29;
+        Fri, 20 Jan 2023 19:03:57 +0000 (UTC)
+From:   nick.hawkins@hpe.com
+To:     verdun@hpe.com, nick.hawkins@hpe.com, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, joel@jms.id.au,
+        linux@armlinux.org.uk, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v3 5/5] MAINTAINERS: Add HPE GXP I2C Support
+Date:   Fri, 20 Jan 2023 13:01:59 -0600
+Message-Id: <20230120190159.23459-6-nick.hawkins@hpe.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230120190159.23459-1-nick.hawkins@hpe.com>
+References: <20230120190159.23459-1-nick.hawkins@hpe.com>
+X-Proofpoint-GUID: kB1sNSjZwK09un9MS5dDuxv7pC32N_mI
+X-Proofpoint-ORIG-GUID: kB1sNSjZwK09un9MS5dDuxv7pC32N_mI
+X-HPE-SCL: -1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-20_10,2023-01-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 adultscore=0 malwarescore=0 phishscore=0
+ mlxlogscore=999 spamscore=0 mlxscore=0 clxscore=1015 suspectscore=0
+ lowpriorityscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2301200180
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 20/01/2023 13:13, Luca Weiss wrote:
-> +		camcc: clock-controller@ad00000 {
-> +			compatible = "qcom,sm6350-camcc";
-> +			reg = <0 0x0ad00000 0 0x16000>;
-> +			clocks = <&rpmhcc RPMH_CXO_CLK>;
-> +			#clock-cells = <1>;
-> +			#reset-cells = <1>;
-> +			#power-domain-cells = <1>;
-> +		};
+From: Nick Hawkins <nick.hawkins@hpe.com>
 
-Should you include
+Add the I2C controller source and bindings.
 
-required-opps = <&rpmhpd_opp_low_svs>;
-
-?
+Signed-off-by: Nick Hawkins <nick.hawkins@hpe.com>
 
 ---
-bod
+
+v3:
+ *No change
+v2:
+ *No change
+---
+ MAINTAINERS | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 1daadaa4d48b..d671a8b6968e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2217,12 +2217,14 @@ M:	Jean-Marie Verdun <verdun@hpe.com>
+ M:	Nick Hawkins <nick.hawkins@hpe.com>
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/arm/hpe,gxp.yaml
++F:	Documentation/devicetree/bindings/i2c/hpe,gxp-i2c.yaml
+ F:	Documentation/devicetree/bindings/spi/hpe,gxp-spifi.yaml
+ F:	Documentation/devicetree/bindings/timer/hpe,gxp-timer.yaml
+ F:	arch/arm/boot/dts/hpe-bmc*
+ F:	arch/arm/boot/dts/hpe-gxp*
+ F:	arch/arm/mach-hpe/
+ F:	drivers/clocksource/timer-gxp.c
++F:	drivers/i2c/busses/i2c-gxp.c
+ F:	drivers/spi/spi-gxp.c
+ F:	drivers/watchdog/gxp-wdt.c
+ 
+-- 
+2.17.1
 
