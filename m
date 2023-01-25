@@ -2,49 +2,52 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3F2DC27C76
-	for <linux-i2c@archiver.kernel.org>; Wed, 25 Jan 2023 11:13:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03DBAC61D9D
+	for <linux-i2c@archiver.kernel.org>; Wed, 25 Jan 2023 11:13:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235432AbjAYLNV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 25 Jan 2023 06:13:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37724 "EHLO
+        id S235204AbjAYLN0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 25 Jan 2023 06:13:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235222AbjAYLNI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Jan 2023 06:13:08 -0500
+        with ESMTP id S235303AbjAYLNM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Jan 2023 06:13:12 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A561518E0
-        for <linux-i2c@vger.kernel.org>; Wed, 25 Jan 2023 03:12:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB5158297
+        for <linux-i2c@vger.kernel.org>; Wed, 25 Jan 2023 03:12:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1674645136;
+        s=mimecast20190719; t=1674645138;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=rInxY6e4WJZKCJha8/ifXWlTKhRv/ygfUfV+8czg03k=;
-        b=F40bl/nE7sJaeymiD67yahPPO8lOYPkoBUshSBvzkFMJdKDwD5N/CuYooBLemuDLXh1BVn
-        EmDeXqnDdn3cmmAv282n+IlVdE1saTHzN2qHlokaXgeYdPgUDUHliokrf1HUsR6QecjUfI
-        7qYhVg7Q8lpKNysWWm7YSV5TJJjm4XA=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xu2Ks1Oyc6eAEybGJDnJPNvc/nQTbBhirvgxNSCpiG0=;
+        b=KP/+416WtNocpYZS7z6b5UvVjwASjncsg5Xor1G7SM30kEEsllq4ME5d/tNPTW6wMIWNtY
+        pjry68ksSdQ6iIfOfTR/auNs0GIl3dY/T1VitMWRlQKugEJDfvAOZNbHPe+dKt0z046q2f
+        qEy6R9J0QNPAI9NhhrFBSmhqIOvGJjk=
 Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
  [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-515-kz7XUeDqPo2y1GraayLAig-1; Wed, 25 Jan 2023 06:12:12 -0500
-X-MC-Unique: kz7XUeDqPo2y1GraayLAig-1
+ us-mta-569-DkW878q_PruVnr-Qqhgahw-1; Wed, 25 Jan 2023 06:12:14 -0500
+X-MC-Unique: DkW878q_PruVnr-Qqhgahw-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F3EF229AB3EE;
-        Wed, 25 Jan 2023 11:12:11 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 64A29380390B;
+        Wed, 25 Jan 2023 11:12:14 +0000 (UTC)
 Received: from shalem.redhat.com (unknown [10.39.193.104])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CBE962026D76;
-        Wed, 25 Jan 2023 11:12:09 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 670E92026D4B;
+        Wed, 25 Jan 2023 11:12:13 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Wolfram Sang <wsa@kernel.org>,
         MyungJoo Ham <myungjoo.ham@samsung.com>,
         Chanwoo Choi <cw00.choi@samsung.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH resend 0/2] i2c/extcon: intel-cht-wc: Lenovo Yoga Tab 3 Pro YT3-X90F support
-Date:   Wed, 25 Jan 2023 12:12:07 +0100
-Message-Id: <20230125111209.18343-1-hdegoede@redhat.com>
+Subject: [PATCH resend 2/2] extcon: intel-cht-wc: Add support for Lenovo Yoga Tab 3 Pro YT3-X90F
+Date:   Wed, 25 Jan 2023 12:12:09 +0100
+Message-Id: <20230125111209.18343-3-hdegoede@redhat.com>
+In-Reply-To: <20230125111209.18343-1-hdegoede@redhat.com>
+References: <20230125111209.18343-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
@@ -52,24 +55,32 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi All,
+The Lenovo Yoga Tab 3 Pro YT3-X90F needs the same handling as
+the Lenovo Yogabook models. That is it needs the extcon code to:
 
-I'm resending these 2 patches since they seem to have fallen through
-the cracks.
+1. Control the Vbus regulator and USB-role-switch for the micro-USB
+   port's host/device mode switching.
+2. Register a power_supply device so that the charger-chip driver can
+   see what sort of charger (SDP/CDP/DCP) is connected.
 
-Regards,
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/extcon/extcon-intel-cht-wc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Hans
-
-
-Hans de Goede (2):
-  i2c: cht-wc: Add charger-chip info for the Lenovo Yoga Tab 3 YT3-X90F
-  extcon: intel-cht-wc: Add support for Lenovo Yoga Tab 3 Pro YT3-X90F
-
- drivers/extcon/extcon-intel-cht-wc.c |  1 +
- drivers/i2c/busses/i2c-cht-wc.c      | 46 ++++++++++++++++++++++++++++
- 2 files changed, 47 insertions(+)
-
+diff --git a/drivers/extcon/extcon-intel-cht-wc.c b/drivers/extcon/extcon-intel-cht-wc.c
+index c45d7ff6cc61..323ab8731284 100644
+--- a/drivers/extcon/extcon-intel-cht-wc.c
++++ b/drivers/extcon/extcon-intel-cht-wc.c
+@@ -539,6 +539,7 @@ static int cht_wc_extcon_probe(struct platform_device *pdev)
+ 		cht_wc_extcon_set_gpio(ext, CHT_WC_VBUS_GPIO_CTLO, false);
+ 		break;
+ 	case INTEL_CHT_WC_LENOVO_YOGABOOK1:
++	case INTEL_CHT_WC_LENOVO_YT3_X90:
+ 		/* Do this first, as it may very well return -EPROBE_DEFER. */
+ 		ret = cht_wc_extcon_get_role_sw_and_regulator(ext);
+ 		if (ret)
 -- 
 2.39.0
 
