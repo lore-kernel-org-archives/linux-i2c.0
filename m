@@ -2,242 +2,343 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 746B3C54E94
-	for <linux-i2c@archiver.kernel.org>; Wed, 25 Jan 2023 15:28:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83789C27C76
+	for <linux-i2c@archiver.kernel.org>; Wed, 25 Jan 2023 18:47:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236028AbjAYP17 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 25 Jan 2023 10:27:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49954 "EHLO
+        id S235174AbjAYSrG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 25 Jan 2023 13:47:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234913AbjAYP17 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Jan 2023 10:27:59 -0500
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE57BE394;
-        Wed, 25 Jan 2023 07:27:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674660475; x=1706196475;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=MhIuUNx9z28qVaLvlB986dpfICFybCjatufmu7Wo/d4=;
-  b=AA/PP2SqwmdvtqJmLQLRqriGiboFxJnb73tSgVnono5I4PAz19fJE2fV
-   sLB/s7gpBEYvYf68R1EfbI36oYCuqjXOxwR7CGojkU4fZq/ZL9HSw4Bnu
-   safxEN4HMbOizGv62FpP4UdWwWKha55pPqOk2wLGq27jf5rjzHW8kGkFf
-   LC3/0/bbLRdRbshwLYR3GgG2dJS0PnTile+gHf5O6VN1rX/LVc61GSfvg
-   N0c6HtJz/v6yZkHbP2wgXu3IhUOSdDte+WO8xARxRn7ajsDHJj5ggrGey
-   jvtMCnRV9w6ISWgDAVSL9mUi3XccOXXxDMrPVMn+wxkX+xvUy/87dBqrz
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10601"; a="306241980"
-X-IronPort-AV: E=Sophos;i="5.97,245,1669104000"; 
-   d="scan'208";a="306241980"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2023 07:27:54 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10601"; a="725896466"
-X-IronPort-AV: E=Sophos;i="5.97,245,1669104000"; 
-   d="scan'208";a="725896466"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmsmga008.fm.intel.com with ESMTP; 25 Jan 2023 07:27:49 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@intel.com>)
-        id 1pKhgg-00Euyy-2v;
-        Wed, 25 Jan 2023 17:27:46 +0200
-Date:   Wed, 25 Jan 2023 17:27:46 +0200
-From:   Andy Shevchenko <andriy.shevchenko@intel.com>
-To:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Cc:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Matti Vaittinen <Matti.Vaittinen@fi.rohmeurope.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Peter Rosin <peda@axentia.se>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Michael Tretter <m.tretter@pengutronix.de>,
-        Shawn Tu <shawnx.tu@intel.com>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Mike Pagano <mpagano@gentoo.org>,
-        Krzysztof =?utf-8?Q?Ha=C5=82asa?= <khalasa@piap.pl>,
-        Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH v7 5/7] media: i2c: add DS90UB960 driver
-Message-ID: <Y9FKcoVlgUWR4rhn@smile.fi.intel.com>
-References: <20230118124031.788940-1-tomi.valkeinen@ideasonboard.com>
- <20230118124031.788940-6-tomi.valkeinen@ideasonboard.com>
- <Y8gUuqLBXsXQoNUC@smile.fi.intel.com>
- <aba49d82-c76f-7ff2-751c-d1be7b8f3bca@ideasonboard.com>
- <Y8rFh6zO7Hp9mLxE@smile.fi.intel.com>
- <4286abe2-f23f-d4c9-ef18-f351af7a3a8b@ideasonboard.com>
- <Y9EcRlooHwIjOqiZ@smile.fi.intel.com>
- <cad92dbb-43ef-fa8c-1962-13c4a8578899@ideasonboard.com>
- <Y9FBlMl4b3l1zVck@smile.fi.intel.com>
- <5d208710-f284-e6e9-18dc-f5ef63a9ea44@ideasonboard.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5d208710-f284-e6e9-18dc-f5ef63a9ea44@ideasonboard.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+        with ESMTP id S235146AbjAYSrF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Jan 2023 13:47:05 -0500
+Received: from mx0a-002e3701.pphosted.com (mx0a-002e3701.pphosted.com [148.163.147.86])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6131A5AB45;
+        Wed, 25 Jan 2023 10:47:04 -0800 (PST)
+Received: from pps.filterd (m0150241.ppops.net [127.0.0.1])
+        by mx0a-002e3701.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30PIAgCE022262;
+        Wed, 25 Jan 2023 18:46:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hpe.com; h=from : to : subject :
+ date : message-id : in-reply-to : references; s=pps0720;
+ bh=zUv5cGxhVVveNiC1A11McLiomC1Eyx/71fL2STxGZds=;
+ b=LorROGLrI7V3hyiV07/AgLaILL7StXXK9T21L4nk0yX9Qx/pjLD/95+r9e7btqcfqbrr
+ nHjbnRUr3bFWMT4FyulkKWxOxp6C0t9QdGxbk+JToq5bmrXjKAmAkRpXGlQGXnuAZhcu
+ v5DlvViTiejiQJ6fTa4d5+WWctglKvrNfk9o1lSt9dB3xzRu0mHm8rVX0gBB5iQ1G0NF
+ JrqxoCMzWAP26wWTxW+gXaotFIxqzmemdxZvrKhP/2DTYiUGSQ1wWUTATTwH+0V3E54n
+ FD8g3JA8uG20FosNJF+do49Fbi3Y3cP7mpwBHsmDbz+z0KJGh29gdcRyNWXDiRm510Zq 5A== 
+Received: from p1lg14880.it.hpe.com (p1lg14880.it.hpe.com [16.230.97.201])
+        by mx0a-002e3701.pphosted.com (PPS) with ESMTPS id 3nb7m8hpsj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Jan 2023 18:46:45 +0000
+Received: from p1lg14885.dc01.its.hpecorp.net (unknown [10.119.18.236])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by p1lg14880.it.hpe.com (Postfix) with ESMTPS id DD5D6807EF8;
+        Wed, 25 Jan 2023 18:46:44 +0000 (UTC)
+Received: from hpe.com (unknown [16.231.227.36])
+        by p1lg14885.dc01.its.hpecorp.net (Postfix) with ESMTP id 69492808DBD;
+        Wed, 25 Jan 2023 18:46:44 +0000 (UTC)
+From:   nick.hawkins@hpe.com
+To:     verdun@hpe.com, nick.hawkins@hpe.com, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, linux@armlinux.org.uk,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        joel@jms.id.au
+Subject: [PATCH v4 3/5] ARM: dts: hpe: Add I2C Topology
+Date:   Wed, 25 Jan 2023 12:44:36 -0600
+Message-Id: <20230125184438.28483-4-nick.hawkins@hpe.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230125184438.28483-1-nick.hawkins@hpe.com>
+References: <20230125184438.28483-1-nick.hawkins@hpe.com>
+X-Proofpoint-GUID: SH2EhfnQskDmXth1OHRTl9HLlIxlf5UN
+X-Proofpoint-ORIG-GUID: SH2EhfnQskDmXth1OHRTl9HLlIxlf5UN
+X-HPE-SCL: -1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-25_11,2023-01-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ lowpriorityscore=0 clxscore=1015 malwarescore=0 mlxscore=0 phishscore=0
+ mlxlogscore=735 spamscore=0 suspectscore=0 priorityscore=1501 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2301250165
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Jan 25, 2023 at 05:14:59PM +0200, Tomi Valkeinen wrote:
-> On 25/01/2023 16:49, Andy Shevchenko wrote:
-> > On Wed, Jan 25, 2023 at 03:33:35PM +0200, Tomi Valkeinen wrote:
-> > > On 25/01/2023 14:10, Andy Shevchenko wrote:
-> > > > On Wed, Jan 25, 2023 at 01:15:34PM +0200, Tomi Valkeinen wrote:
-> > > > > On 20/01/2023 18:47, Andy Shevchenko wrote:
+From: Nick Hawkins <nick.hawkins@hpe.com>
 
-...
+Add 9 I2C Engines, 2 MUXs, and a EEPROM to the device tree.
 
-> > > > > > > > > +	ret = fwnode_property_read_u32(link_fwnode, "ti,eq-level", &eq_level);
-> > > > > > > > > +	if (ret) {
-> > > > > > > > > +		if (ret != -EINVAL) {
-> > > > > > > > > +			dev_err(dev, "rx%u: failed to read 'ti,eq-level': %d\n",
-> > > > > > > > > +				nport, ret);
-> > > > > > > > > +			return ret;
-> > > > > > > > > +		}
-> > > > > > 
-> > > > > > This seems like trying to handle special cases, if you want it to be optional,
-> > > > > > why not ignoring all errors?
-> > > > > 
-> > > > > I don't follow. Why would we ignore all errors even if the property is
-> > > > > optional? If there's a failure in reading the property, or checking if it
-> > > > > exists or not, surely that's an actual error to be handled, not to be
-> > > > > ignored?
-> > > > 
-> > > > What the problem to ignore them?
-> > > 
-> > > Well, probably nothing will explode if we just ignore them. But... Why would
-> > > we ignore them?
-> > > 
-> > > > But if you are really pedantic about it, perhaps the proper way is to add
-> > > > 
-> > > > fwnode_property_*_optional()
-> > > > 
-> > > > APIs to the set where you take default and return 0 in case default had been
-> > > > used for the absent property.
-> > > 
-> > > Perhaps, but I don't have a default value here.
-> > 
-> > It's impossible. You have one. 0 is also can be default.
-> 
-> No, I either have the value ("eq-level"), or it's undefined, not used,
-> doesn't exist. There's no default eq-level.
-> 
-> > > In any case, I'm not quite sure what you are arguing here. Is it just that
-> > > you don't think the error check is necessary and should be dropped?
-> > 
-> > Yes, I do not see the value of these complex error checking.
-> > Dropping that makes it KISS. I.o.w. why do we care about errors
-> > if the property is optional? Make it mandatory otherwise.
-> 
-> If the call fails, there's an error somewhere. Maybe the user tried to
-> define eq-level, but something is wrong. Isn't it better to catch that
-> error, rather than ignoring it, leaving the user wonder why things don't
-> work as he expects?
+Signed-off-by: Nick Hawkins <nick.hawkins@hpe.com>
 
-I expressed my opinion, if you and maintainers think otherwise, fine.
-I don't won't spend more time on this :-)
+---
 
-> > > > > > > > > +	} else if (eq_level > UB960_MAX_EQ_LEVEL) {
-> > > > > > > > > +		dev_err(dev, "rx%u: illegal 'ti,eq-level' value: %d\n", nport,
-> > > > > > > > > +			eq_level);
-> > > > > > 
-> > > > > > This part is a validation of DT again, but we discussed above this.
-> > > > > > 
-> > > > > > > > > +	} else {
-> > > > > > > > > +		rxport->eq.manual_eq = true;
-> > > > > > > > > +		rxport->eq.manual.eq_level = eq_level;
-> > > > > > > > > +	}
+v4:
+ *No change
+v3:
+ *No change
+v2:
+ *Made i2cX a generic node name i2c in the dts
+ *Added status field to dtsi and dts for i2c bus
+---
+ arch/arm/boot/dts/hpe-bmc-dl360gen10.dts | 109 ++++++++++++++++++++
+ arch/arm/boot/dts/hpe-gxp.dtsi           | 125 +++++++++++++++++++++++
+ 2 files changed, 234 insertions(+)
 
-...
-
-> > > > > > > > > +struct ds90ub9xx_platform_data {
-> > > > > > > > > +	u32 port;
-> > > > > > > > > +	struct i2c_atr *atr;
-> > > > > > > > > +	unsigned long bc_rate;
-> > > > > > > > 
-> > > > > > > > Not sure why we need this to be public except, probably, atr...
-> > > > > > > 
-> > > > > > > The port and atr are used by the serializers, for atr. The bc_rate is used
-> > > > > > > by the serializers to figure out the clocking (they may use the FPD-Link's
-> > > > > > > frequency internally).
-> > > > > > 
-> > > > > > The plain numbers can be passed as device properties. That's why the question
-> > > > > > about platform data. Platform data in general is discouraged to be used in a
-> > > > > > new code.
-> > > > > 
-> > > > > Device properties, as in, coming from DT?
-> > > > 
-> > > >   From anywhere.
-> > > > 
-> > > > > The port could be in the DT, but
-> > > > > the others are not hardware properties.
-> > > > 
-> > > > Why do we need them? For example, bc_rate.
-> > > 
-> > > The atr pointer is needed so that the serializers (ub913, ub953) can add
-> > > their i2c adapter to the deserializer's i2c-atr. The port is also needed for
-> > > that.
-> > > 
-> > > The bc rate (back-channel rate) is the FPD-Link back-channel rate which the
-> > > serializers use for various functionalities. At the moment only the ub953
-> > > uses it for calculating an output clock rate.
-> > > 
-> > > The bc-rate could be implemented using the clock framework, even if it's not
-> > > quite a plain clock. I had that code at some point, but it felt a bit off
-> > > and as we needed the pdata for the ATR, I added the bc-rate there.
-> > 
-> > And I don't see why it is not a property of the device.
-> 
-> It with a "property of the device" you mean a hardware property, it's not
-> because we don't know it, it can be changed at runtime. It's not supposed to
-> change after probing the serializer, but up to that point it can change.
-
-Yes, which is still property of the device, isn't it?
-
-> > > > > Yes, I don't like using platform data. We need some way to pass information
-> > > > > between the drivers.
-> > > > 
-> > > > Device properties allow that and targeting to remove the legacy platform data
-> > > > in zillions of the drivers.
-> > > 
-> > > Do you have any pointers to guide me into the right direction? I couldn't
-> > > find anything with some grepping and googling.
-> > > 
-> > > If you mean "device properties" as in ACPI, and so similar to DT properties,
-> > > aren't those hardware properties? Only the port here is about the hardware.
-> > 
-> > About hardware, or PCB, or as quirks for missing DT/ACPI/any FW properties,
-> > like clock rates.
-> > 
-> > The Linux kernel layer for that is called software nodes. The rough
-> > approximation to see where and how it's being used can be achieved
-> > by grepping for specific macros:
-> > 
-> > 	git grep -lw PROPERTY_ENTRY_.*
-> > 
-> > E.g. arch/arm/mach-tegra/board-paz00.c tegra_paz00_wifikill_init()
-> > implementation.
-> 
-> Thanks, I'll have a look. But I presume we can only pass "plain" values, so
-> it won't work for the ATR pointer anyway.
-
-Yes, that's what I have told at the very beginning when answering to your
-patch.
-
-But I probably don't understand the ATR structure and what exactly we need to
-pass to it, perhaps it also can be replaced with properties (note, that we have
-some interesting ones that called references, which is an alternative to DT
-phandle).
-
+diff --git a/arch/arm/boot/dts/hpe-bmc-dl360gen10.dts b/arch/arm/boot/dts/hpe-bmc-dl360gen10.dts
+index 3a7382ce40ef..1f2547fe9ae3 100644
+--- a/arch/arm/boot/dts/hpe-bmc-dl360gen10.dts
++++ b/arch/arm/boot/dts/hpe-bmc-dl360gen10.dts
+@@ -23,4 +23,113 @@
+ 		device_type = "memory";
+ 		reg = <0x40000000 0x20000000>;
+ 	};
++
++	i2cmux@4 {
++		compatible = "i2c-mux-reg";
++		i2c-parent = <&i2c4>;
++		reg = <0xd1000074 0x1>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		i2c@1 {
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c@4 {
++			reg = <4>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
++
++	i2cmux@6 {
++		compatible = "i2c-mux-reg";
++		i2c-parent = <&i2c6>;
++		reg = <0xd1000076 0x1>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		i2c@1 {
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c@2 {
++			reg = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c@4 {
++			reg = <4>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c@5 {
++			reg = <5>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
++};
++
++&i2c0 {
++	status = "okay";
++};
++
++&i2c1 {
++	status = "okay";
++};
++
++&i2c2 {
++	status = "okay";
++	eeprom@50 {
++		compatible = "atmel,24c02";
++		pagesize = <8>;
++		reg = <0x50>;
++	};
++};
++
++&i2c3 {
++	status = "okay";
++};
++
++&i2c4 {
++	status = "okay";
++};
++
++&i2c5 {
++	status = "okay";
++};
++
++&i2c6 {
++	status = "okay";
++};
++
++&i2c7 {
++	status = "okay";
++};
++
++&i2c8 {
++	status = "okay";
++};
++
++&i2c9 {
++	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/hpe-gxp.dtsi b/arch/arm/boot/dts/hpe-gxp.dtsi
+index cf735b3c4f35..3bc071149bae 100644
+--- a/arch/arm/boot/dts/hpe-gxp.dtsi
++++ b/arch/arm/boot/dts/hpe-gxp.dtsi
+@@ -122,6 +122,131 @@
+ 				interrupts = <6>;
+ 				interrupt-parent = <&vic0>;
+ 			};
++
++			sysreg_system_controller: syscon@f8 {
++				compatible = "hpe,gxp-sysreg", "syscon";
++				reg = <0xf8 0x8>;
++			};
++
++			i2c0: i2c@2000 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2000 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
++
++			i2c1: i2c@2100 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2100 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
++
++			i2c2: i2c@2200 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2200 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
++
++			i2c3: i2c@2300 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2300 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
++
++			i2c4: i2c@2400 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2400 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
++
++			i2c5: i2c@2500 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2500 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
++
++			i2c6: i2c@2600 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2600 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
++
++			i2c7: i2c@2700 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2700 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
++
++			i2c8: i2c@2800 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2800 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
++
++			i2c9: i2c@2900 {
++				compatible = "hpe,gxp-i2c";
++				reg = <0x2900 0x70>;
++				interrupts = <9>;
++				interrupt-parent = <&vic0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				status = "disabled";
++				hpe,sysreg = <&sysreg_system_controller>;
++				clock-frequency = <100000>;
++			};
+ 		};
+ 	};
+ };
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.17.1
 
