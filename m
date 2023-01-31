@@ -2,24 +2,24 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6E19C38142
-	for <linux-i2c@archiver.kernel.org>; Tue, 31 Jan 2023 12:37:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16EC9C636D7
+	for <linux-i2c@archiver.kernel.org>; Tue, 31 Jan 2023 12:37:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231431AbjAaMhg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S231234AbjAaMhg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Tue, 31 Jan 2023 07:37:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49772 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231224AbjAaMhd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Jan 2023 07:37:33 -0500
+        with ESMTP id S231715AbjAaMhe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Jan 2023 07:37:34 -0500
 Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C6BDD4B483;
-        Tue, 31 Jan 2023 04:37:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 72DA44DCE8;
+        Tue, 31 Jan 2023 04:37:28 -0800 (PST)
 Received: from loongson.cn (unknown [112.20.108.204])
-        by gateway (Coremail) with SMTP id _____8AxX+uEC9ljjIkKAA--.21685S3;
-        Tue, 31 Jan 2023 20:37:24 +0800 (CST)
+        by gateway (Coremail) with SMTP id _____8DxzOqHC9ljpIkKAA--.21700S3;
+        Tue, 31 Jan 2023 20:37:27 +0800 (CST)
 Received: from localhost.localdomain (unknown [112.20.108.204])
-        by localhost.localdomain (Coremail) with SMTP id AQAAf8CxWL2BC9ljNH4lAA--.8399S2;
-        Tue, 31 Jan 2023 20:37:22 +0800 (CST)
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8CxWL2BC9ljNH4lAA--.8399S5;
+        Tue, 31 Jan 2023 20:37:26 +0800 (CST)
 From:   Binbin Zhou <zhoubinbin@loongson.cn>
 To:     Wolfram Sang <wsa@kernel.org>,
         Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -36,170 +36,57 @@ Cc:     loongarch@lists.linux.dev, devicetree@vger.kernel.org,
         Jianmin Lv <lvjianmin@loongson.cn>,
         Peibao Liu <liupeibao@loongson.cn>,
         Binbin Zhou <zhoubinbin@loongson.cn>
-Subject: [PATCH V11 0/3] i2c: ls2x: Add support for the Loongson-2K/LS7A I2C controller
-Date:   Tue, 31 Jan 2023 20:37:29 +0800
-Message-Id: <cover.1675167975.git.zhoubinbin@loongson.cn>
+Subject: [PATCH V11 3/3] LoongArch: Enable LS2X I2C in loongson3_defconfig
+Date:   Tue, 31 Jan 2023 20:37:32 +0800
+Message-Id: <b6c2968999e42697f64f1b0b917bc38780d2dbb9.1675167975.git.zhoubinbin@loongson.cn>
 X-Mailer: git-send-email 2.39.0
+In-Reply-To: <cover.1675167975.git.zhoubinbin@loongson.cn>
+References: <cover.1675167975.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AQAAf8CxWL2BC9ljNH4lAA--.8399S2
+X-CM-TRANSID: AQAAf8CxWL2BC9ljNH4lAA--.8399S5
 X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
-X-Coremail-Antispam: 1Uk129KBjvJXoWxXrW3uw4UXr1DJr13Gry3Jwb_yoWrtw15pa
-        98u398Kr4DJr17GF93JF1ruFyF9an3Jayjgr43Kw13WanrWr18Aw4fKa429r17CrZ8Gayj
-        qFZ0gFs8uFyDArJanT9S1TB71UUUUj7qnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
-        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
-        bfkYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
-        1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
-        wVC0I7IYx2IY67AKxVWUCVW8JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4
-        x0Y4vEx4A2jsIE14v26F4UJVW0owA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdM2kK
-        e7AKxVWUAVWUtwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI
-        0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUAVWUtwAv7VC2z280
-        aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxkF7I0En4
-        kS14v26r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMxCIbckI
-        1I0E14v26r126r1DMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_Jr
-        Wlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1I
-        6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr
-        0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIY
-        CTnIWIevJa73UjIFyTuYvjxU4SoGDUUUU
+X-Coremail-Antispam: 1Uk129KBjvdXoW7Jry5XrWkuF48uF15Ww1fXrb_yoWxKFX_JF
+        y7Kw1kWr48JFZ7W3WIqw4rGw4DA3W7X3WFkr17Zw1xX3Waqr13JrWDAw17C3Z0ga4DWr43
+        ZaykJF9F9r18tjkaLaAFLSUrUUUUnb8apTn2vfkv8UJUUUU8wcxFpf9Il3svdxBIdaVrn0
+        xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUY
+        W7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3w
+        AFIxvE14AKwVWUXVWUAwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK
+        6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7
+        xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWln4kS
+        14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+        1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q6rW5McIj6I8E87Iv
+        67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxVAaw2
+        AFwI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xF
+        xVAFwI0_JF0_Jw1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWw
+        C2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Xr0_
+        Ar1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJV
+        WUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIY
+        CTnIWIevJa73UjIFyTuYvjxU4YLvDUUUU
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi all:
+This is now supported, enable for Loongson-3 systems. Other systems are
+unaffected.
 
-This patch series adds support for the I2C module found on various
-Loongson systems with the Loongson-2K SoC or the Loongson LS7A bridge chip.
+Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+---
+ arch/loongarch/configs/loongson3_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-For now, the I2C driver is suitable for DT-based or ACPI-based systems.
-
-I have tested on Loongson-3A5000LA+LS7A1000/LS7A2000, Loongson-2K1000LA
-and Loongson-2K0500.
-
-Thanks.
-
-Changes since V10:
-- Drop patch #1 "i2c: gpio: Add support on ACPI-based system",
-  since it has been applied yet.
-- patch(2/3)
-  - module_platform_driver() replaces subsys_initcall().
-
-Changes since V9:
-- patch (1/4)
-  - dev->of_node replaced by dev_fwnode() in i2c_gpio_probe();
-  - Add device_set_node();
-  - Add Tested-by tag.
-- patch (3/4)
-  - Add Reviewed-by tag.
-
-Changes since V8:
-- patch (3/4)
-  - Refactor the error handling process of the ls2x_i2c_xfer_one();
-  - Split comment and code.
-
-Changes since V7:
-- patch (3/4)
-  - I2C_LS2X should be added to the Kconfig/Makefile in Latin
-    alphabetical order.
-  - To avoid repeated type conversions, 'struct ls2x_i2c_priv *priv'
-    replaces 'struct i2c_adapter *adap' as a function parameter, e.g.
-    ls2x_i2c_start();
-  - Refactor ls2x_i2c_stop() with readb_poll_timeout(), mainly with
-    LS2X_SR_BUSY to indicate the status (success/timeout) of the stop
-    command;
-  - Remove extra parentheses;
-  - For consistency, the variable 'r' in ls2x_i2c_probe() is renamed to
-    'ret'.
-
-Changes since V6:
-- patch (1/4)
-  - Add Reviewed-by tag.
-- patch (3/4)
-  - GPL-2.0 -> GPL-2.0-only;
-  - Add property.h;
-  - writew() should be used to operate I2C_LS2X_PRER, and drop the
-    suffix of I2C_LS2X_PRER_LO/I2C_LS2X_PRER_HI;
-  - Drop ls2x_i2c_priv->dev, for it can be completely replaced by
-    'adapter.dev.parent';
-  - Reasonable return value handling in ls2x_i2c_xfer_one();
-  - Dropping the I2C_M_STOP flag judgment, the stop parameter of
-    ls2x_i2c_xfer_one() represents the last msg;
-  - Add comments for subsys_initcall();
-  - Code formatting, such as dropping unnecessary blank lines.
-
-Changes since V5:
-- patch (1/4)
-  - Add property.h.
-- patch (3/4)
-  - Put the ls2x_i2c_reginit() in front of irq requst;
-  - Refact ls2x_i2c_adjust_bus_speed: discard the magic value of
-    the divider register and LS2X_I2C_FREQ_STD is used to calculate
-    the frequency;
-  - Drop useless parameters: priv->suspended, and also disable I2C
-    interrupts during suspend;
-  - Drop ls2x_i2c_remove(), for the adapter will be auto deleted on
-    driver detach;
-  - Drop MODULE_ALIAS;
-  - Code formatting, such as alignment.
-
-Thanks Andy for your comments.
-
-Changes since V4:
-- patch (1/4)
-  - Drop unneeded headers: of.h;
-  - xxx_props -> xxx_properties.
-- patch (2/4)
-  - Add interrupt headers to fix syntax error found by Rob.
-- patch (3/4)
-  - Drop atmoic loop in ls2x_i2c_master_xfer(), I have tested it on the
-    appropriate environment with no problems;
-  - Define the corresponding bits in I2C_LS2X_CTR to avoid magic
-    numbers;
-  - dev_get_drvdata() is used to get ls2x_i2c_priv() in
-    ls2x_i2c_suspend();
-  - i2c_add_adapter() -> devm_i2c_add_adapter();
-  - SET_SYSTEM_SLEEP_PM_OPS() -> DEFINE_RUNTIME_DEV_PM_OPS();
-  - Code formatting, such as alignment.
-
-    Details: https://lore.kernel.org/all/Y4e%2F6KewuHjAluSZ@smile.fi.intel.com/
-
-Changes since V3:
-- Addressed all review comments from v3
-  - Change the changelog text to make it clearer (1/5);
-  - Fix some minor bugs, such as formatting issues (2/5);
-  - Fix some formatting issues (3/5);
-  - Deep refactoring of code for clarity (4/5).
-     Details: https://lore.kernel.org/all/Y4S2cnlAm3YYvZ8E@smile.fi.intel.com/
-
-Thanks to all for their suggestions.
-
-Changes since V2:
-- Addressed all review comments from v2
-  - Drop of_match_ptr() in i2c-gpio to avoid potential unused warnings
-    (1/5);
-  - Introduce i2c_gpio_get_props() function as the generic interface
-    to get i2c-gpio props from DT or ACPI table (2/5);
-  - Refact ls2x i2c code, similar to removing excessive goto tags (4/5).
-
-Thanks to Andy and Mika for their suggestions.
-
-Changes since V1:
-- Remove the function of getting the static i2c bus number from ACPI "_UID";
-- Fix build warning from kernel test robot.
-
-Binbin Zhou (3):
-  dt-bindings: i2c: Add Loongson LS2X I2C controller
-  i2c: ls2x: Add driver for Loongson-2K/LS7A I2C controller
-  LoongArch: Enable LS2X I2C in loongson3_defconfig
-
- .../bindings/i2c/loongson,ls2x-i2c.yaml       |  51 +++
- arch/loongarch/configs/loongson3_defconfig    |   1 +
- drivers/i2c/busses/Kconfig                    |  11 +
- drivers/i2c/busses/Makefile                   |   1 +
- drivers/i2c/busses/i2c-ls2x.c                 | 370 ++++++++++++++++++
- 5 files changed, 434 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
- create mode 100644 drivers/i2c/busses/i2c-ls2x.c
-
+diff --git a/arch/loongarch/configs/loongson3_defconfig b/arch/loongarch/configs/loongson3_defconfig
+index cb52774c80e8..5677c4f8576e 100644
+--- a/arch/loongarch/configs/loongson3_defconfig
++++ b/arch/loongarch/configs/loongson3_defconfig
+@@ -602,6 +602,7 @@ CONFIG_HW_RANDOM_VIRTIO=m
+ CONFIG_I2C_CHARDEV=y
+ CONFIG_I2C_PIIX4=y
+ CONFIG_I2C_GPIO=y
++CONFIG_I2C_LS2X=y
+ CONFIG_SPI=y
+ CONFIG_GPIO_SYSFS=y
+ CONFIG_GPIO_LOONGSON=y
 -- 
 2.39.0
 
