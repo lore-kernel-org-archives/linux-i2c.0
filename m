@@ -2,25 +2,25 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63DE4C63797
-	for <linux-i2c@archiver.kernel.org>; Thu,  2 Feb 2023 09:44:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA2E3C05027
+	for <linux-i2c@archiver.kernel.org>; Thu,  2 Feb 2023 09:44:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232315AbjBBJoS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 2 Feb 2023 04:44:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53994 "EHLO
+        id S232524AbjBBJol (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 2 Feb 2023 04:44:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232282AbjBBJoR (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Feb 2023 04:44:17 -0500
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46B3669B2F;
-        Thu,  2 Feb 2023 01:43:43 -0800 (PST)
+        with ESMTP id S231956AbjBBJoj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Feb 2023 04:44:39 -0500
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2C2A241E6;
+        Thu,  2 Feb 2023 01:44:06 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Be21h2HQM7NjvUWIeApEWrOBR8YLGMQIUc/r+zxC1wFa1AsljX5NOrP0gjUYvdPAH4Jjgm6sYbwjy98OaxgZI5+uk+uz588omUITkd7MztQ95maK/WxUm5OgOA3WTPhHbXzx3KKwhw8Wj66bB2aXxtMPftlPqkqowtJudvFd10WemJSY0nzcK8LwLS0LywhWl3jGi8HdP14HBDy+rp46BDOE9EryUNkq2cC9B8+QuFp76w70XkM92a6wxEY+pFlizaDfXGvqqAkVEQbjwCpcvddiYNL4pFZJr2V2nz59Dos0Tc0fHthvgMpg5DaAuI55DheevZ/JO0qr/n1LcjAj9A==
+ b=OWrHMKk34GfECyHv3FK7hUHgYe8ByL5a17RX2Hue/NZ6JLzb4xhCXRjYVR/U0p+kwm1zs7tQaRXr41JKotPXFqF5uw5s2G531bwUO8Flp2a9nSjn+SPCt7y5jrCiYMtTrRqAzuLuF537yiNtXQyEZOWJI1PVkK3xPukW5hzpz6EAgtRb6+JCO61zn9b/vaaCi8e/70huudF6psqpjaOI8WoVFaKf0ACgmrg1NBJLAwVrd8xziIRuB+FreWhMeybDtMctD550Vqfswd2+qLTNjcVzgwWR/xabamI/YJfXKS4Dp/8IFMKfS2ZZe4oOz5zjToJfv+vef7BfWQVrBm97yQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=SsyUwEc5NXppls5c9t0BMvF/KAxjebhTOEd9VuxXDJE=;
- b=C6uINQA85qXnwWH4HqKCucBRgWYbSg+p4iVpOXeAeP+rj0AO+DAHemHhfTZbThPkxYgMv40u10YEHuK2TGfwsJnfpuS6CkiuOCoZTR8P0EYUA1m79mTpPZfeeGZ4cayIP+r6lDWCcThlPBsIwRoI0ySLSEkJnMx74fO09PC7P29hyO+4STSb7+Nfu8nO9QWodykQNfHo3RyTQi2YNJXWYoxe+RCdXs69fsu/RdmV2jXZxmpWpYLcF1ZOy3f8KKRh1uQZBkSgyUx4iHHdMm7nP2r99Hcgw53O3LDu2TpTVrGLS64YvtPgHsiNnfO+cy4CcggYS9Ue5zyOEB3oRXCFbA==
+ bh=rCZLKqSFYYHdOKQrTutofbhVjZsqbIE+qYtqLXWGyPo=;
+ b=hRdH1Ick+aSADzUD5yaPDGy7+yfhWhbTo5I+AuFsMMbWUi0RYVL6y60qxGR2kNCYK+tQ5+q59iantC3Fjor64ZYrWHcsJUmwubde47H1P20TzBBTi0+cAqcxS87pR1qwtOtOtz41sbbMCTMhbdZqfRwFPGc9tvYp3b5XzMab4czat9qfBgMCMJ5pCbi9z+DaCHLfVSF3fGCoQuxuadeF11RK3ypyQAPWy3G6A4+Yq1RkMBFhdix0SHY6xPP4cocb/t4US9+xojBrAM4vQ7GGDgGrz5r3r52z7abTblDanqLyoLDHgaBf7c0jUgzxwpuxWKi21AoZo3gZfe7/jHaW9Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  149.199.62.198) smtp.rcpttodomain=amd.com smtp.mailfrom=xilinx.com;
  dmarc=fail (p=quarantine sp=quarantine pct=100) action=quarantine
@@ -28,35 +28,35 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SsyUwEc5NXppls5c9t0BMvF/KAxjebhTOEd9VuxXDJE=;
- b=N5jgJMS4xoC/ppQFUQBlg61NWO6kR6c3HJPwm9JitNenbhA3Er91XDPqOyLdo6putvHSO9Aih0nP0prBT4ESa1RpAiRTY/XIH/fYWsxXKCthTgBxGvGc6I81wIXclOcvE8wJmZ4YAjHvd38jlUO9toMTaqvhHD4aH25xZ95qCcs=
-Received: from BN8PR07CA0012.namprd07.prod.outlook.com (2603:10b6:408:ac::25)
- by MW4PR02MB7364.namprd02.prod.outlook.com (2603:10b6:303:64::23) with
+ bh=rCZLKqSFYYHdOKQrTutofbhVjZsqbIE+qYtqLXWGyPo=;
+ b=nR1UHb26uF9M5ePStiofOG8WiTO8usrH9a7mpXd5sNkdI487qQgtyMNpWulh6vM22kZFsryedOmEzCh5XyTq+W/Ys9yZtfn+LH1uyR8nw3z5pROQU8vs45rZm3znqugFrprme6EHLXJuLUobi3N2PeTwOS6Ek33NxnOP5v72Nec=
+Received: from SN7PR04CA0167.namprd04.prod.outlook.com (2603:10b6:806:125::22)
+ by DM4PR02MB9240.namprd02.prod.outlook.com (2603:10b6:8:104::11) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6064.27; Thu, 2 Feb
- 2023 09:43:09 +0000
-Received: from BN1NAM02FT045.eop-nam02.prod.protection.outlook.com
- (2603:10b6:408:ac:cafe::43) by BN8PR07CA0012.outlook.office365.com
- (2603:10b6:408:ac::25) with Microsoft SMTP Server (version=TLS1_2,
+ 2023 09:43:29 +0000
+Received: from SN1NAM02FT0060.eop-nam02.prod.protection.outlook.com
+ (2603:10b6:806:125:cafe::1c) by SN7PR04CA0167.outlook.office365.com
+ (2603:10b6:806:125::22) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6064.27 via Frontend
- Transport; Thu, 2 Feb 2023 09:43:09 +0000
+ Transport; Thu, 2 Feb 2023 09:43:29 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 149.199.62.198)
  smtp.mailfrom=xilinx.com; dkim=none (message not signed)
  header.d=none;dmarc=fail action=quarantine header.from=amd.com;
 Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
  149.199.62.198 as permitted sender) receiver=protection.outlook.com;
- client-ip=149.199.62.198; helo=xsj-pvapexch02.xlnx.xilinx.com; pr=C
-Received: from xsj-pvapexch02.xlnx.xilinx.com (149.199.62.198) by
- BN1NAM02FT045.mail.protection.outlook.com (10.13.2.156) with Microsoft SMTP
+ client-ip=149.199.62.198; helo=xsj-pvapexch01.xlnx.xilinx.com; pr=C
+Received: from xsj-pvapexch01.xlnx.xilinx.com (149.199.62.198) by
+ SN1NAM02FT0060.mail.protection.outlook.com (10.97.4.134) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6064.27 via Frontend Transport; Thu, 2 Feb 2023 09:43:09 +0000
+ 15.20.6064.27 via Frontend Transport; Thu, 2 Feb 2023 09:43:29 +0000
 Received: from xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) by
- xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server
+ xsj-pvapexch01.xlnx.xilinx.com (172.19.86.40) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Thu, 2 Feb 2023 01:43:00 -0800
+ 15.1.2375.28; Thu, 2 Feb 2023 01:43:26 -0800
 Received: from smtp.xilinx.com (172.19.127.96) by
  xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server id
- 15.1.2507.16 via Frontend Transport; Thu, 2 Feb 2023 01:43:00 -0800
+ 15.1.2507.16 via Frontend Transport; Thu, 2 Feb 2023 01:43:26 -0800
 Envelope-to: git@amd.com,
  manikanta.guntupalli@amd.com,
  michal.simek@amd.com,
@@ -70,12 +70,12 @@ Envelope-to: git@amd.com,
  devicetree@vger.kernel.org,
  linux-i2c@vger.kernel.org,
  linux-kernel@vger.kernel.org
-Received: from [172.23.64.3] (port=36996 helo=xhdvnc103.xilinx.com)
+Received: from [172.23.64.3] (port=37000 helo=xhdvnc103.xilinx.com)
         by smtp.xilinx.com with esmtp (Exim 4.90)
         (envelope-from <manikanta.guntupalli@xilinx.com>)
-        id 1pNW7P-0003Nt-M3; Thu, 02 Feb 2023 01:43:00 -0800
+        id 1pNW7q-0003Sh-4J; Thu, 02 Feb 2023 01:43:26 -0800
 Received: by xhdvnc103.xilinx.com (Postfix, from userid 90444)
-        id 7158A1055BC; Thu,  2 Feb 2023 15:12:23 +0530 (IST)
+        id 3FFE91055BE; Thu,  2 Feb 2023 15:12:25 +0530 (IST)
 From:   Manikanta Guntupalli <manikanta.guntupalli@amd.com>
 To:     <michal.simek@xilinx.com>, <michal.simek@amd.com>,
         <devicetree@vger.kernel.org>, <andrew@lunn.ch>,
@@ -86,9 +86,9 @@ CC:     <git@amd.com>, <manikanta.guntupalli@amd.com>,
         <srinivas.goud@amd.com>, <shubhrajyoti.datta@amd.com>,
         <manion05gk@gmail.com>,
         Raviteja Narayanam <raviteja.narayanam@xilinx.com>
-Subject: [PATCH V4 3/9] i2c: xiic: Switch to Xiic standard mode for i2c-read
-Date:   Thu, 2 Feb 2023 15:11:32 +0530
-Message-ID: <1675330898-563-4-git-send-email-manikanta.guntupalli@amd.com>
+Subject: [PATCH V4 5/9] i2c: xiic: Add smbus_block_read functionality
+Date:   Thu, 2 Feb 2023 15:11:34 +0530
+Message-ID: <1675330898-563-6-git-send-email-manikanta.guntupalli@amd.com>
 X-Mailer: git-send-email 2.1.1
 In-Reply-To: <1675330898-563-1-git-send-email-manikanta.guntupalli@amd.com>
 References: <1675330898-563-1-git-send-email-manikanta.guntupalli@amd.com>
@@ -96,218 +96,185 @@ MIME-Version: 1.0
 Content-Type: text/plain
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN1NAM02FT045:EE_|MW4PR02MB7364:EE_
-X-MS-Office365-Filtering-Correlation-Id: eafe6e2c-80ba-46dd-872c-08db0501e49d
+X-MS-TrafficTypeDiagnostic: SN1NAM02FT0060:EE_|DM4PR02MB9240:EE_
+X-MS-Office365-Filtering-Correlation-Id: 67da98fd-bebb-4043-b7bb-08db0501f0b2
 X-MS-Exchange-SenderADCheck: 0
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: WFJP+ia65MQJFali6Wsp0jkk5tTzBBAoTa37jbnk34plvASlgqJGW9h1naJg7Ow/Ngd7dn7oAhJ0vkczQ9HSqB84N3tW1upzP/x9FVBTa4b5eCnvh/Y3Rnu+ZmeKpoHWTZUOtGntM7Jsa3z7XwqwBvSoOrUIgqH1WYmBP30/HK2SGBYAY/RTsTpCXROt4Mgz9NJKk9wQTZaaVTRwzYNXS5dcLjKC7azIdHTFwnQTY9jYuahXe2TX3/FWIc1B0QEowH8Gb6AtId7nijE7xgWALTk0J7hgu8XbfSosUhCHgH3oBLAXiJCkTfFe8XekCABqTrsTUogsTXxf2IN7jZe111ReGLEzy95qXhijbaetT3KJge116A6PEMkLFkx2EVAjUMis8NrFSIaQVJS1oJBMZtItUe84JYLs0a/ySPSs6o2cU5JDti+RskFPmU7eN/J1cdryasr1M+lkccT75GeQmWAVCikduqDTmOMEr/p/kwiqMjUYZxpBgzO6kgsrglp4gI+78iuiOBYkoYd/ueKvO0hobQxNyGHtksbHgEWCSVafVFSykB8urSh0nGq9gdf1gj0b+fuxxVWEWZo7SAvouR+yfoS/nnKifLgcYujQ4JTDpDZSc2KGg2iJ/VAM8XwLnPaPj+dHYuIKvr7UcFp3n/JujauA+MKy5VpUkLPGnHklG5gQO6RJyuNwNOMOk2lXXK1zt5Jvg46lJGCN0WsIvFOE/HCvzUjyzXntxtoI5DmoJ2h3lv/gjvIGxJV63Y4d
-X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch02.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(13230025)(376002)(346002)(136003)(39860400002)(396003)(451199018)(36840700001)(40470700004)(46966006)(42882007)(36860700001)(7636003)(82310400005)(82740400003)(316002)(5660300002)(54906003)(110136005)(42186006)(7416002)(83380400001)(336012)(2616005)(47076005)(40460700003)(36756003)(83170400001)(40480700001)(356005)(6266002)(26005)(2906002)(186003)(478600001)(44832011)(4326008)(70586007)(70206006)(107886003)(6666004)(8936002)(8676002)(41300700001)(102446001)(2101003);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: EgFCxRhLh+htVKAWIjvjP8pJys9Wd+4R0QoHxzazBTqSIBgdnwApLwBE2Jb79Fph3xMTFj44OD07h5Qc/Yf086hZu8BbJFLuRoBEpWctEZCGzgrBaK/cQRFis9nwm8k2Qv9Ssl1WWnlw2X2Rz3Ao3eHYPIoxduSQFiUom7duYw+2C2OUz2hEmxcj0Jsy3Xv2IXHTavTKbHy2XDqApmO/Fv+SsYoF89LQF90bRROBo9pqVFV917TqC0/Z+CKMHhZRX42EZvo3Cn2Jjekn2O1MXUuredlpXcCRJEyZh1xZ9ST04B7ATC5Y6N6egXvA9qlqEb57+t+PChtuW+6VVz2BOz1ksEGh960nG5iRAmqeRnnbG2hefW7Z8mknG3LaI/a5+wFTp8yIqPjLBtF/U8CGosFkqQrzbSTAhz2W0hQQDsaXwXfacD11QzDjNTy/6VxYtE1KJ+IxUWqZbFQtQXk2Xow1yAHwmP/cNeIOuEtS4fIQE2oe2yRc3nb6JrYrHVHhDuC/5m6J7F4s0gqQIasqtMAwytuq4QkS0PvHJAjM6alXCH05VveSPhd1FRzcD//QwCwFGjSaC0aO5gAQb6YpFjeJbHUsTevIgXPZ4CkuPN/QkCK+cyQ967ZZ3SAD+3VNymCVbkBOe+CqbCSfO2Gu1CUU+qzcV7qAD0X/qbeqv7cYSuC+Do9ZRSypUqj5IxjMvx+yXZaaTeRtcoxSVuHvT6ZClcJeceGvox6U18+TAShQSz5L2nvUdTMcGB+dH+MualrkGaYPnzkwF+MzcUAICd2ofO+MtP3FkYzw5ttKobc=
+X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch01.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(13230025)(396003)(39860400002)(346002)(136003)(376002)(451199018)(36840700001)(40470700004)(46966006)(36756003)(70586007)(47076005)(70206006)(83170400001)(4326008)(82310400005)(83380400001)(8676002)(36860700001)(110136005)(54906003)(7636003)(42186006)(316002)(82740400003)(478600001)(26005)(186003)(6266002)(107886003)(40460700003)(44832011)(6666004)(7416002)(5660300002)(41300700001)(356005)(40480700001)(2616005)(8936002)(336012)(43170500006)(42882007)(2906002)(102446001)(2101003);DIR:OUT;SFP:1101;
 X-OriginatorOrg: xilinx.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2023 09:43:09.0129
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2023 09:43:29.3470
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: eafe6e2c-80ba-46dd-872c-08db0501e49d
+X-MS-Exchange-CrossTenant-Network-Message-Id: 67da98fd-bebb-4043-b7bb-08db0501f0b2
 X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch02.xlnx.xilinx.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN1NAM02FT045.eop-nam02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch01.xlnx.xilinx.com]
+X-MS-Exchange-CrossTenant-AuthSource: SN1NAM02FT0060.eop-nam02.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR02MB7364
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR02MB9240
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
 
-Xilinx I2C IP has two modes of operation, both of which implement
-I2C transactions. The only difference from sw perspective is the
-programming sequence for these modes.
-Dynamic mode  -> Simple to program, less number of steps in sequence.
-Standard mode -> Gives flexibility, more number of steps in sequence.
-
-In dynamic mode, during the i2c-read transactions, if there is a
-delay(> 200us) between the register writes (address & byte count),
-read transaction fails. On a system with load, this scenario is
-occurring frequently.
-To avoid this, switch to standard mode if there is a read request.
-
-Added a quirk to identify the IP version effected by this and follow
-the standard mode.
+smbus_block_read is added to xiic driver to read from few sensors
+which support this command. Since the number of bytes to read is not
+known prior to transfer, xiic standard mode is being used for low level
+control of IP.
 
 Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
 Signed-off-by: Manikanta Guntupalli <manikanta.guntupalli@amd.com>
 Acked-by: Michal Simek <michal.simek@amd.com>
 ---
- drivers/i2c/busses/i2c-xiic.c | 96 +++++++++++++++++++++--------------
- 1 file changed, 57 insertions(+), 39 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 82 +++++++++++++++++++++++++++++++++--
+ 1 file changed, 78 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 86da622e060c..edc64b79e293 100644
+index 57084696429c..554f83e34a2a 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -32,6 +32,7 @@
- #include <linux/pm_runtime.h>
+@@ -33,6 +33,7 @@
  
  #define DRIVER_NAME "xiic-i2c"
-+#define DYNAMIC_MODE_READ_BROKEN_BIT	BIT(0)
+ #define DYNAMIC_MODE_READ_BROKEN_BIT	BIT(0)
++#define SMBUS_BLOCK_READ_MIN_LEN	3
  
  enum xilinx_i2c_state {
  	STATE_DONE,
-@@ -62,6 +63,7 @@ enum xiic_endian {
-  * @singlemaster: Indicates bus is single master
+@@ -64,6 +65,7 @@ enum xiic_endian {
   * @dynamic: Mode of controller
   * @prev_msg_tx: Previous message is Tx
-+ * @quirks: To hold platform specific bug info
+  * @quirks: To hold platform specific bug info
++ * @smbus_block_read: Flag to handle block read
   */
  struct xiic_i2c {
  	struct device *dev;
-@@ -80,6 +82,11 @@ struct xiic_i2c {
- 	bool singlemaster;
+@@ -83,6 +85,7 @@ struct xiic_i2c {
  	bool dynamic;
  	bool prev_msg_tx;
-+	u32 quirks;
-+};
-+
-+struct xiic_version_data {
-+	u32 quirks;
+ 	u32 quirks;
++	bool smbus_block_read;
  };
  
- #define XIIC_MSB_OFFSET 0
-@@ -878,7 +885,8 @@ static void __xiic_start_xfer(struct xiic_i2c *i2c)
- 
- static int xiic_start_xfer(struct xiic_i2c *i2c, struct i2c_msg *msgs, int num)
- {
--	int ret;
-+	bool broken_read, max_read_len, smbus_blk_read;
-+	int ret, count;
- 
- 	mutex_lock(&i2c->lock);
- 
-@@ -891,6 +899,34 @@ static int xiic_start_xfer(struct xiic_i2c *i2c, struct i2c_msg *msgs, int num)
- 	i2c->nmsgs = num;
- 	init_completion(&i2c->completion);
- 
-+	/* Decide standard mode or Dynamic mode */
-+	i2c->dynamic = true;
-+
-+	/* Initialize prev message type */
-+	i2c->prev_msg_tx = false;
-+
-+	/*
-+	 * Scan through nmsgs, use dynamic mode when none of the below three
-+	 * conditions occur. We need standard mode even if one condition holds
-+	 * true in the entire array of messages in a single transfer.
-+	 * If read transaction as dynamic mode is broken for delayed reads
-+	 * in xlnx,axi-iic-2.0 / xlnx,xps-iic-2.00.a IP versions.
-+	 * If read length is > 255 bytes.
-+	 * If smbus_block_read transaction.
-+	 */
-+	for (count = 0; count < i2c->nmsgs; count++) {
-+		broken_read = (i2c->quirks & DYNAMIC_MODE_READ_BROKEN_BIT) &&
-+				(i2c->tx_msg[count].flags & I2C_M_RD);
-+		max_read_len = (i2c->tx_msg[count].flags & I2C_M_RD) &&
-+				(i2c->tx_msg[count].len > MAX_READ_LENGTH_DYNAMIC);
-+		smbus_blk_read = (i2c->tx_msg[count].flags & I2C_M_RECV_LEN);
-+
-+		if (broken_read || max_read_len || smbus_blk_read) {
-+			i2c->dynamic = false;
-+			break;
-+		}
-+	}
-+
- 	ret = xiic_reinit(i2c);
- 	if (!ret)
- 		__xiic_start_xfer(i2c);
-@@ -913,36 +949,6 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	if (err < 0)
- 		return err;
- 
--	/* Decide standard mode or Dynamic mode */
--	i2c->dynamic = true;
--
--	/* Initialize prev message type */
--	i2c->prev_msg_tx = false;
--
--	/*
--	 * If number of messages is 1 and read length is > 255 bytes,
--	 * enter standard mode
--	 */
--
--	if (i2c->nmsgs == 1 && (i2c->tx_msg->flags & I2C_M_RD) &&
--	    i2c->tx_msg->len > MAX_READ_LENGTH_DYNAMIC) {
--		i2c->dynamic = false;
--	} else if (i2c->nmsgs > 1) {
--		int count;
--
--		/*
--		 * If number of messages is more than 1 and one of them is
--		 * a read message, enter standard mode. Since repeated start
--		 * operation in dynamic mode read is not happenning
--		 */
--		for (count = 0; count < i2c->nmsgs; count++) {
--			if (i2c->tx_msg[count].flags & I2C_M_RD) {
--				i2c->dynamic = false;
--				break;
--			}
--		}
--	}
--
- 	err = xiic_start_xfer(i2c, msgs, num);
- 	if (err < 0) {
- 		dev_err(adap->dev.parent, "Error xiic_start_xfer\n");
-@@ -985,10 +991,23 @@ static const struct i2c_adapter xiic_adapter = {
- 	.algo = &xiic_algorithm,
- };
- 
-+static const struct xiic_version_data xiic_2_00 = {
-+	.quirks = DYNAMIC_MODE_READ_BROKEN_BIT,
-+};
-+
-+#if defined(CONFIG_OF)
-+static const struct of_device_id xiic_of_match[] = {
-+	{ .compatible = "xlnx,xps-iic-2.00.a", .data = &xiic_2_00 },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, xiic_of_match);
-+#endif
-+
- static int xiic_i2c_probe(struct platform_device *pdev)
- {
- 	struct xiic_i2c *i2c;
- 	struct xiic_i2c_platform_data *pdata;
-+	const struct of_device_id *match;
- 	struct resource *res;
- 	int ret, irq;
- 	u8 i;
-@@ -998,6 +1017,13 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
-+	match = of_match_node(xiic_of_match, pdev->dev.of_node);
-+	if (match && match->data) {
-+		const struct xiic_version_data *data = match->data;
-+
-+		i2c->quirks = data->quirks;
-+	}
-+
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	i2c->base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(i2c->base))
-@@ -1112,14 +1138,6 @@ static int xiic_i2c_remove(struct platform_device *pdev)
- 	return 0;
+ struct xiic_version_data {
+@@ -346,6 +349,62 @@ static void xiic_deinit(struct xiic_i2c *i2c)
+ 	xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, cr & ~XIIC_CR_ENABLE_DEVICE_MASK);
  }
  
--#if defined(CONFIG_OF)
--static const struct of_device_id xiic_of_match[] = {
--	{ .compatible = "xlnx,xps-iic-2.00.a", },
--	{},
--};
--MODULE_DEVICE_TABLE(of, xiic_of_match);
--#endif
--
- static int __maybe_unused xiic_i2c_runtime_suspend(struct device *dev)
++static void xiic_smbus_block_read_setup(struct xiic_i2c *i2c)
++{
++	u8 rxmsg_len, rfd_set = 0;
++
++	/*
++	 * Clear the I2C_M_RECV_LEN flag to avoid setting
++	 * message length again
++	 */
++	i2c->rx_msg->flags &= ~I2C_M_RECV_LEN;
++
++	/* Set smbus_block_read flag to identify in isr */
++	i2c->smbus_block_read = true;
++
++	/* Read byte from rx fifo and set message length */
++	rxmsg_len = xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
++
++	i2c->rx_msg->buf[i2c->rx_pos++] = rxmsg_len;
++
++	/* Check if received length is valid */
++	if (rxmsg_len <= I2C_SMBUS_BLOCK_MAX) {
++		/* Set Receive fifo depth */
++		if (rxmsg_len > IIC_RX_FIFO_DEPTH) {
++			/*
++			 * When Rx msg len greater than or equal to Rx fifo capacity
++			 * Receive fifo depth should set to Rx fifo capacity minus 1
++			 */
++			rfd_set = IIC_RX_FIFO_DEPTH - 1;
++			i2c->rx_msg->len = rxmsg_len + 1;
++		} else if ((rxmsg_len == 1) ||
++			(rxmsg_len == 0)) {
++			/*
++			 * Minimum of 3 bytes required to exit cleanly. 1 byte
++			 * already received, Second byte is being received. Have
++			 * to set NACK in read_rx before receiving the last byte
++			 */
++			rfd_set = 0;
++			i2c->rx_msg->len = SMBUS_BLOCK_READ_MIN_LEN;
++		} else {
++			/*
++			 * When Rx msg len less than Rx fifo capacity
++			 * Receive fifo depth should set to Rx msg len minus 2
++			 */
++			rfd_set = rxmsg_len - 2;
++			i2c->rx_msg->len = rxmsg_len + 1;
++		}
++		xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rfd_set);
++
++		return;
++	}
++
++	/* Invalid message length, trigger STATE_ERROR with tx_msg_len in ISR */
++	i2c->tx_msg->len = 3;
++	i2c->smbus_block_read = false;
++	dev_err(i2c->adap.dev.parent, "smbus_block_read Invalid msg length\n");
++}
++
+ static void xiic_read_rx(struct xiic_i2c *i2c)
  {
- 	struct xiic_i2c *i2c = dev_get_drvdata(dev);
+ 	u8 bytes_in_fifo, cr = 0, bytes_to_read = 0;
+@@ -368,6 +427,12 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
+ 	if (!i2c->dynamic) {
+ 		bytes_rem = xiic_rx_space(i2c) - bytes_in_fifo;
+ 
++		/* Set msg length if smbus_block_read */
++		if (i2c->rx_msg->flags & I2C_M_RECV_LEN) {
++			xiic_smbus_block_read_setup(i2c);
++			return;
++		}
++
+ 		if (bytes_rem > IIC_RX_FIFO_DEPTH) {
+ 			bytes_to_read = bytes_in_fifo;
+ 		} else if (bytes_rem > 1) {
+@@ -601,6 +666,12 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
+ 		/* The bus is not busy, disable BusNotBusy interrupt */
+ 		xiic_irq_dis(i2c, XIIC_INTR_BNB_MASK);
+ 
++		if (i2c->tx_msg && i2c->smbus_block_read) {
++			i2c->smbus_block_read = false;
++			/* Set requested message len=1 to indicate STATE_DONE */
++			i2c->tx_msg->len = 1;
++		}
++
+ 		if (!i2c->tx_msg)
+ 			goto out;
+ 
+@@ -741,11 +812,14 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
+ 			rfd_set = IIC_RX_FIFO_DEPTH - 1;
+ 		} else if (rx_watermark == 1) {
+ 			rfd_set = rx_watermark - 1;
+-			/* Handle single byte transfer separately */
+-			cr |= XIIC_CR_NO_ACK_MASK;
++
++			/* Set No_ACK, except for smbus_block_read */
++			if (!(i2c->rx_msg->flags & I2C_M_RECV_LEN)) {
++				/* Handle single byte transfer separately */
++				cr |= XIIC_CR_NO_ACK_MASK;
++			}
+ 		} else if (rx_watermark == 0) {
+ 			rfd_set = rx_watermark;
+-			cr |= XIIC_CR_NO_ACK_MASK;
+ 		} else {
+ 			rfd_set = rx_watermark - 2;
+ 		}
+@@ -984,7 +1058,7 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 
+ static u32 xiic_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
+ }
+ 
+ static const struct i2c_algorithm xiic_algorithm = {
 -- 
 2.25.1
 
