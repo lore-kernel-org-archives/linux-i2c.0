@@ -2,69 +2,71 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 491ECC61DA4
-	for <linux-i2c@archiver.kernel.org>; Sat,  4 Feb 2023 13:05:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E94DCC61DA4
+	for <linux-i2c@archiver.kernel.org>; Sat,  4 Feb 2023 13:07:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbjBDNFe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 4 Feb 2023 08:05:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56824 "EHLO
+        id S233294AbjBDNHL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 4 Feb 2023 08:07:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229516AbjBDNFc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 4 Feb 2023 08:05:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2577E28846;
-        Sat,  4 Feb 2023 05:05:31 -0800 (PST)
+        with ESMTP id S233393AbjBDNHK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 4 Feb 2023 08:07:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9F928D3C;
+        Sat,  4 Feb 2023 05:07:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5BDAB80ABC;
-        Sat,  4 Feb 2023 13:05:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16718C433D2;
-        Sat,  4 Feb 2023 13:05:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EAA660C15;
+        Sat,  4 Feb 2023 13:07:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2F58C433D2;
+        Sat,  4 Feb 2023 13:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675515928;
-        bh=R4PDFyhXzALhU42OYRxTlSyScyDxwgiQwzTEaL/GtOg=;
+        s=k20201202; t=1675516019;
+        bh=ycQA6TIVYWT6T7kideY47GtSB5IFpufQSUfh98aM9hw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kxNfnUh/+jMB8HmBkQ+FOlEtxcAMyIOi82Q0PX8Q/o9V4RMsdggtiJgSGN7dBuznM
-         HDxzVtCkTTUUngwkyQ4ZeYrowP62derk+6azHXEu6VHke5MOjVpjZsHe6ySe+5crFd
-         N6kk+6ZLeTu8fEJQHyrzBWIMCtFuXazOZPKDrXFt8xECXCgskWT3hlnuGom4rd1JxK
-         5G/PMvxzuBS5vmxG3CNhBu9OgVhFZKfn54wrO2D8GusLriI9IYOrNq2VWJoDyb9pSf
-         es4lG3GxjMhD2DtzrOMQbyGBXSTd2T5M/LfGzTWQHePae2JH4Y3V9iZzXnyVIa/68q
-         Qv4BRWNHJY6bw==
-Date:   Sat, 4 Feb 2023 13:05:12 +0000
+        b=rzUsH9nKp1nOGLMGMQF+eNjzEedbO76CjC9ynoF5PNbdybYWJWhM2nVxKDNLsz82o
+         1b1Zi9HdA+skKqjSxs6JIkXf+BJozvkSXJwvPmsCa92Y8yHN+RYEC2IKl4YLIl2c/h
+         Njui6+17FU6bfjUZEh69BZ6s+3lx27xwvbHgmePW6D+jeXaRXRL0Om+UPexHfEQfFr
+         Cl53qObvs16vRyTuXEJwy1IZX7pI/P3wFl96pfRId8RAs+w/isRFJDNlQGakyZMaLI
+         zO5AHqg43SubuxP7jEOkW5ITnuqFdtJw/TTAevkAe9uXbF9WAQpUiwZHJekZ/APLCA
+         9YIxnpKn6IrMw==
+Date:   Sat, 4 Feb 2023 13:06:04 +0000
 From:   Lee Jones <lee@kernel.org>
 To:     Hans de Goede <hdegoede@redhat.com>
 Cc:     Wolfram Sang <wsa@kernel.org>,
         MyungJoo Ham <myungjoo.ham@samsung.com>,
         Chanwoo Choi <cw00.choi@samsung.com>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 resend 2/3] i2c: cht-wc: Add charger-chip info for the
- Lenovo Yoga Tab 3 YT3-X90F
-Message-ID: <Y95YCCwtJHtNBtrX@google.com>
+Subject: Re: [PATCH v2 resend 3/3] extcon: intel-cht-wc: Add support for
+ Lenovo Yoga Tab 3 Pro YT3-X90F
+Message-ID: <Y95YPH/MqAQdVL7T@google.com>
 References: <20230126153823.22146-1-hdegoede@redhat.com>
- <20230126153823.22146-3-hdegoede@redhat.com>
+ <20230126153823.22146-4-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230126153823.22146-3-hdegoede@redhat.com>
+In-Reply-To: <20230126153823.22146-4-hdegoede@redhat.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 On Thu, 26 Jan 2023, Hans de Goede wrote:
 
-> On x86 devices with a CHT Whiskey Cove PMIC the driver for
-> the I2C bus coming from the PMIC is responsible for instantiating
-> the i2c_client for the charger chip.
+> The Lenovo Yoga Tab 3 Pro YT3-X90F needs the same handling as
+> the Lenovo Yogabook models. That is it needs the extcon code to:
 > 
-> Add the necessary i2c_board_info for this.
+> 1. Control the Vbus regulator and USB-role-switch for the micro-USB
+>    port's host/device mode switching.
+> 2. Register a power_supply device so that the charger-chip driver can
+>    see what sort of charger (SDP/CDP/DCP) is connected.
 > 
-> Acked-by: Wolfram Sang <wsa@kernel.org>
+> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
->  drivers/i2c/busses/i2c-cht-wc.c | 46 +++++++++++++++++++++++++++++++++
->  1 file changed, 46 insertions(+)
+>  drivers/extcon/extcon-intel-cht-wc.c | 1 +
+>  1 file changed, 1 insertion(+)
 
 Applied, thanks
 
