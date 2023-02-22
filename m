@@ -2,134 +2,57 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79CB2C61DA3
-	for <linux-i2c@archiver.kernel.org>; Tue, 21 Feb 2023 17:48:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D4E4C61DA4
+	for <linux-i2c@archiver.kernel.org>; Wed, 22 Feb 2023 09:11:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233709AbjBURsX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 21 Feb 2023 12:48:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
+        id S231610AbjBVJLK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 22 Feb 2023 04:11:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233620AbjBURsV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Feb 2023 12:48:21 -0500
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D2A972B9;
-        Tue, 21 Feb 2023 09:48:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1677001697; x=1708537697;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=tQ65TR6GL53BpWNiudggJWeeHh9e4Jy+6Xr7G8niexM=;
-  b=RmAmSI4sqqsfZu0WaybAbRW/nWpvHI2IGqfB5uYXrsDAcHyjpUe6bFe+
-   ISJghtpc8zzEGn8eQsIJuWM6MzXvWLk55PY6gTDoMiXMxMVPs/5k/i0PY
-   9c7VvVRHsY2n1B5VcE2y3uD0OO7Wibc2OKFQazzJkpO7/j3d4QI3+RdeK
-   L4P2g3W2bCZD4mplgWYeWi7vOA1RoDpeYroFAtK16kHBHM9ypGsWNcVki
-   GiihpGEjiuYp7QT2UWqZGQDxL5Q9+ofWM4hLt/c9WrRpGYfK5xGkEqZBS
-   ewttqcGJ+7Qv4km8rwPa0nJjjqgT26SdjHVTc+Hho6A5j223mBVv+7AXb
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10628"; a="312330590"
-X-IronPort-AV: E=Sophos;i="5.97,315,1669104000"; 
-   d="scan'208";a="312330590"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Feb 2023 09:48:17 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10628"; a="845772354"
-X-IronPort-AV: E=Sophos;i="5.97,315,1669104000"; 
-   d="scan'208";a="845772354"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga005.jf.intel.com with ESMTP; 21 Feb 2023 09:48:14 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1pUWkO-00A3i3-26;
-        Tue, 21 Feb 2023 19:48:12 +0200
-Date:   Tue, 21 Feb 2023 19:48:12 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Robin van der Gracht <robin@protonic.nl>
-Cc:     "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v1 2/3] auxdisplay: ht16k33: Make use of
- device_get_match_data()
-Message-ID: <Y/UD3HWNy8uKYShC@smile.fi.intel.com>
-References: <20230221133307.20287-1-andriy.shevchenko@linux.intel.com>
- <20230221133307.20287-3-andriy.shevchenko@linux.intel.com>
- <Y/TJs+Arban0ats8@smile.fi.intel.com>
- <be203dfd290e67c8ce74d11c5c9478a4@protonic.nl>
+        with ESMTP id S231616AbjBVJLH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Feb 2023 04:11:07 -0500
+Received: from mail.corrib.pl (mail.corrib.pl [185.58.226.145])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B209437B57
+        for <linux-i2c@vger.kernel.org>; Wed, 22 Feb 2023 01:11:05 -0800 (PST)
+Received: by mail.corrib.pl (Postfix, from userid 1001)
+        id B4F5DA3BC8; Wed, 22 Feb 2023 09:10:56 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=corrib.pl; s=mail;
+        t=1677057069; bh=X6IEpSISwJiYlJ3uA866lskXve3r+4o2hf4z7VM6m5o=;
+        h=Date:From:To:Subject:From;
+        b=Pm3PF1a/uO/UWEaAuabo7dB2sScD/Cz1dMtP68mzKzm2M6leW+H7KeMMdnFpZjJBh
+         vgc9rqwTTIaeUrBTpCIyTzUuKrart3CfI3mtwbifd+9qJRV8VYnS3Jy0AAd0TEpvhm
+         6ebYmN7KZz1SL09NRrxzj4NHBYVO/57dKqHbII7sL5E1m52F9POVdVpVUMizVq00QP
+         xA88u5EraxFB2RnDjPZxx93EqStfZwEOhxVRVJVwBbBivh82VQLjcHxUi+iLsVtVXU
+         uNLweKFW130zidLVH3DqF7f6pm4g4PzonmuPF91g7jQJhnXZk0lJzTAdmbk26bpzM9
+         YDdlcavlQRR2A==
+Received: by mail.corrib.pl for <linux-i2c@vger.kernel.org>; Wed, 22 Feb 2023 09:10:40 GMT
+Message-ID: <20230222074502-0.1.5n.hd0r.0.imbc9bzbm4@corrib.pl>
+Date:   Wed, 22 Feb 2023 09:10:40 GMT
+From:   =?UTF-8?Q? "Szczepan_Kie=C5=82basa" ?= 
+        <szczepan.kielbasa@corrib.pl>
+To:     <linux-i2c@vger.kernel.org>
+Subject: Faktoring
+X-Mailer: mail.corrib.pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <be203dfd290e67c8ce74d11c5c9478a4@protonic.nl>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Feb 21, 2023 at 05:10:00PM +0100, Robin van der Gracht wrote:
-> On 2023-02-21 14:40, Andy Shevchenko wrote:
-> > On Tue, Feb 21, 2023 at 03:33:06PM +0200, Andy Shevchenko wrote:
-> > > Switching to use device_get_match_data() helps getting of
-> > > i2c_of_match_device() API.
+Dzie=C5=84 dobry,
 
-...
+rozwa=C5=BCali Pa=C5=84stwo wyb=C3=B3r finansowania, kt=C3=B3re spe=C5=82=
+ni potrzeby firmy, zapewniaj=C4=85c natychmiastowy dost=C4=99p do got=C3=B3=
+wki, bez zb=C4=99dnych przestoj=C3=B3w?=20
 
-> > > -	id = i2c_of_match_device(dev->driver->of_match_table, client);
-> > > -	if (id)
-> > > -		priv->type = (uintptr_t)id->data;
-> > > +	priv->type = (uintptr_t)device_get_match_data(dev);
-> > 
-> > Looking closer the I²C ID table should provide DISP_MATRIX to keep
-> > default and this needs to be not dropped.
-> > 
-> > So, the question is what to do with unknown type then, return -EINVAL
-> > from probe()?
-> 
-> If you leave out your addition of the DISP_UNKNOWN type, the default type
-> will be DISP_MATRIX if no match is found, which is as it is now.
-> 
-> In that case the following change should suffice:
-> 
-> @@ -713,7 +715,6 @@ static int ht16k33_seg_probe(struct device *dev, struct
-> ht16k33_priv *priv,
->  static int ht16k33_probe(struct i2c_client *client)
->  {
->      struct device *dev = &client->dev;
-> -    const struct of_device_id *id;
->      struct ht16k33_priv *priv;
->      uint32_t dft_brightness;
->      int err;
-> @@ -728,9 +729,8 @@ static int ht16k33_probe(struct i2c_client *client)
->          return -ENOMEM;
-> 
->      priv->client = client;
-> -    id = i2c_of_match_device(dev->driver->of_match_table, client);
-> -    if (id)
-> -        priv->type = (uintptr_t)id->data;
-> +    priv->type = (uintptr_t)device_get_match_data(dev);
-> +
->      i2c_set_clientdata(client, priv);
-> 
->      err = ht16k33_initialize(priv);
-> 
-> Or do you think falling back to DISP_MATRIX if no match is found is wrong?
-
-First of all, the I²C ID table should actually use DISP_MATRIX.
-
-Second, there are two points:
-
-- It would be nice to check if the OF ID table doesn't provide a setting
-  (shouldn't we try I²C ID table and then, if still nothing, bail out?)
-
-- The I²C ID table can be extended in the future with another entry which
-  may want to have different default
+Przygotowali=C5=9Bmy rozwi=C4=85zania faktoringowe dopasowane do Pa=C5=84=
+stwa bran=C5=BCy i wielko=C5=9Bci firmy, dzi=C4=99ki kt=C3=B3rym, nie mus=
+z=C4=85 Pa=C5=84stwo martwi=C4=87 si=C4=99 o niewyp=C5=82acalno=C5=9B=C4=87=
+ kontrahent=C3=B3w, poniewa=C5=BC transakcje s=C4=85 zabezpieczone i posi=
+adaj=C4=85 gwarancj=C4=99 sp=C5=82aty.=20
+Chc=C4=85 Pa=C5=84stwo przeanalizowa=C4=87 dost=C4=99pne opcje?
 
 
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+Pozdrawiam
+Szczepan Kie=C5=82basa
