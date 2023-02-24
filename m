@@ -2,44 +2,44 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F3ECC61DA3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39D57C61DA4
 	for <linux-i2c@archiver.kernel.org>; Fri, 24 Feb 2023 12:06:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229736AbjBXMGR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S229701AbjBXMGR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Fri, 24 Feb 2023 07:06:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33798 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229701AbjBXMGQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Feb 2023 07:06:16 -0500
+        with ESMTP id S229464AbjBXMGP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Feb 2023 07:06:15 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BFC65330
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 822CF65332
         for <linux-i2c@vger.kernel.org>; Fri, 24 Feb 2023 04:06:14 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pVWq4-0000eR-TY; Fri, 24 Feb 2023 13:06:12 +0100
+        id 1pVWq4-0000eJ-RL; Fri, 24 Feb 2023 13:06:12 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pVWq3-007B05-2n; Fri, 24 Feb 2023 13:06:12 +0100
+        id 1pVWq2-007B02-SE; Fri, 24 Feb 2023 13:06:12 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pVWq3-006EZD-7M; Fri, 24 Feb 2023 13:06:11 +0100
+        id 1pVWq2-006EZ6-R5; Fri, 24 Feb 2023 13:06:10 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Wolfram Sang <wsa@kernel.org>
 Cc:     kernel@pengutronix.de, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 9/9] i2c: Convert drivers to new .probe() callback
-Date:   Fri, 24 Feb 2023 13:06:00 +0100
-Message-Id: <20230224120600.1681685-10-u.kleine-koenig@pengutronix.de>
+        linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 7/9] i2c: Switch .probe() to not take an id parameter
+Date:   Fri, 24 Feb 2023 13:05:58 +0100
+Message-Id: <20230224120600.1681685-8-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230224120600.1681685-1-u.kleine-koenig@pengutronix.de>
 References: <20230224120600.1681685-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2320; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=8cexTMV14qFlDVuIXD7jYIZgWUBN5i6f1Hvt7C9j40g=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBj+KgiKyLe6sNlsuZiFmGT83SWbvpE+de+Dztv1 qKkLYWIl5eJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY/ioIgAKCRDB/BR4rcrs CR6qB/94FBVBPf+3KRfvfUbSDM6suyp+EVRroDASxcnN0Z774uBmKRE/pZgYshSSaswCHhKbjMB j1A1xI2hIyKYKptGGUKF7rtcG12KbqTz1GwxWO393ybbdyPsJ8wX4EAlkLIfXbduT3KdJCeO1po pA2EHsbqQmADgwlYC8VwwySVUZ7kwy/8T209s99QyefUW09oiHqi17RXy1hppm/m4FGD/lrZ0Gc /pJ2t1/J2Sdcol6vhr6yiX7vMwp3GZB0N6gSOk7wuS+oS/P8gRWu+0c5HRuQ9FIGlKzDlP2VNKj cQOE7dzelvl5omBeJM3kagwYiDvXrrM9X1cu6lSh5nj974fi
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2393; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=+71wz5skFwCbbBFUgxFsdJ/u5S/S5H9btbK8684v6tg=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBj+KgbOSV8eecJXtOE/I8vpmKMer7YYUfbvTfuh 4KIf3VbH3CJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY/ioGwAKCRDB/BR4rcrs Cd/hB/0QzSnaB2XApeqnwGVmjBbn1JKEt8p2M1ZjndmWBEcd6p9MNhUpiTNnfFu4F0hI+E/2Kz/ jdIypObLyi6RXzZFRQkCrVCMd+4v2cLcgzFDbsH3ATwLcDsuSR5qv2gJp8WOnpNlSS3RDem5sUr 0H07bF0xOdXztWWbaWhsJOX1YzNnk74lel98uHQ7RhRk62AAfO2BZ7TvaLImJQ63HvTlmEQ8Jht lomnKcSA+nFKH/PxTX9laKHiCJFS608+fUeEJVfn1xDVFpcajsrWkHlPjfCM5k2KcEjEax3uhFg pvdawi8s275N/SCAav1LQKCmOIzAyXmHG3dNpp8VXNdlzZce
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -50,71 +50,72 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Now that .probe() was changed not to get the id parameter, drivers can
-be converted back to that with the eventual goal to drop .probe_new().
+Commit b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new() call-back
+type") introduced a new probe callback to convert i2c init routines to
+not take an i2c_device_id parameter. Now that all in-tree drivers are
+converted to the temporary .probe_new() callback, .probe() can be
+modified to match the desired prototype.
 
-Implement that for the i2c drivers that are part of the i2c core.
+Now that .probe() and .probe_new() have the same semantic, they can be
+defined as members of an anonymous union to save some memory and
+simplify the core code a bit.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/i2c/i2c-core-base.c      | 2 +-
- drivers/i2c/i2c-slave-eeprom.c   | 2 +-
- drivers/i2c/i2c-slave-testunit.c | 2 +-
- drivers/i2c/i2c-smbus.c          | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/i2c-core-base.c | 11 ++---------
+ include/linux/i2c.h         | 14 +++++++++-----
+ 2 files changed, 11 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 1fbe16221085..1e38bdaf6ec1 100644
+index 087e480b624c..1fbe16221085 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -1018,7 +1018,7 @@ static int dummy_probe(struct i2c_client *client)
+@@ -558,15 +558,8 @@ static int i2c_device_probe(struct device *dev)
+ 		goto err_detach_pm_domain;
+ 	}
  
- static struct i2c_driver dummy_driver = {
- 	.driver.name	= "dummy",
--	.probe_new	= dummy_probe,
-+	.probe		= dummy_probe,
- 	.id_table	= dummy_id,
- };
+-	/*
+-	 * When there are no more users of probe(),
+-	 * rename probe_new to probe.
+-	 */
+-	if (driver->probe_new)
+-		status = driver->probe_new(client);
+-	else if (driver->probe)
+-		status = driver->probe(client,
+-				       i2c_match_id(driver->id_table, client));
++	if (driver->probe)
++		status = driver->probe(client);
+ 	else
+ 		status = -EINVAL;
  
-diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
-index 5f25f23c4ff8..5946c0d0aef9 100644
---- a/drivers/i2c/i2c-slave-eeprom.c
-+++ b/drivers/i2c/i2c-slave-eeprom.c
-@@ -207,7 +207,7 @@ static struct i2c_driver i2c_slave_eeprom_driver = {
- 	.driver = {
- 		.name = "i2c-slave-eeprom",
- 	},
--	.probe_new = i2c_slave_eeprom_probe,
-+	.probe = i2c_slave_eeprom_probe,
- 	.remove = i2c_slave_eeprom_remove,
- 	.id_table = i2c_slave_eeprom_id,
- };
-diff --git a/drivers/i2c/i2c-slave-testunit.c b/drivers/i2c/i2c-slave-testunit.c
-index 75ee7ebdb614..a49642bbae4b 100644
---- a/drivers/i2c/i2c-slave-testunit.c
-+++ b/drivers/i2c/i2c-slave-testunit.c
-@@ -171,7 +171,7 @@ static struct i2c_driver i2c_slave_testunit_driver = {
- 	.driver = {
- 		.name = "i2c-slave-testunit",
- 	},
--	.probe_new = i2c_slave_testunit_probe,
-+	.probe = i2c_slave_testunit_probe,
- 	.remove = i2c_slave_testunit_remove,
- 	.id_table = i2c_slave_testunit_id,
- };
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index cd19546d31fc..138c3f5e0093 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -169,7 +169,7 @@ static struct i2c_driver smbalert_driver = {
- 	.driver = {
- 		.name	= "smbus_alert",
- 	},
--	.probe_new	= smbalert_probe,
-+	.probe		= smbalert_probe,
- 	.remove		= smbalert_remove,
- 	.id_table	= smbalert_ids,
- };
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index d84e0e99f084..c3e022d53182 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -272,14 +272,18 @@ enum i2c_driver_flags {
+ struct i2c_driver {
+ 	unsigned int class;
+ 
++	union {
+ 	/* Standard driver model interfaces */
+-	int (*probe)(struct i2c_client *client, const struct i2c_device_id *id);
++		int (*probe)(struct i2c_client *client);
++		/*
++		 * Legacy callback that was part of a conversion of .probe().
++		 * Today it has the same semantic as .probe(). Don't use for new
++		 * code.
++		 */
++		int (*probe_new)(struct i2c_client *client);
++	};
+ 	void (*remove)(struct i2c_client *client);
+ 
+-	/* New driver model interface to aid the seamless removal of the
+-	 * current probe()'s, more commonly unused than used second parameter.
+-	 */
+-	int (*probe_new)(struct i2c_client *client);
+ 
+ 	/* driver model interfaces that don't relate to enumeration  */
+ 	void (*shutdown)(struct i2c_client *client);
 -- 
 2.39.1
 
