@@ -2,137 +2,131 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D92AC64ED6
-	for <linux-i2c@archiver.kernel.org>; Sun, 26 Feb 2023 07:04:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F155C7EE2D
+	for <linux-i2c@archiver.kernel.org>; Sun, 26 Feb 2023 22:27:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229524AbjBZHE2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 26 Feb 2023 02:04:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43920 "EHLO
+        id S229605AbjBZW1G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 26 Feb 2023 17:27:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbjBZHE1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 26 Feb 2023 02:04:27 -0500
-Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87A80E06D;
-        Sat, 25 Feb 2023 23:04:25 -0800 (PST)
-Received: from sparky.lan (unknown [159.196.93.152])
-        by mail.codeconstruct.com.au (Postfix) with ESMTPSA id 1BD3A2022A;
-        Sun, 26 Feb 2023 15:04:17 +0800 (AWST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=codeconstruct.com.au; s=2022a; t=1677395063;
-        bh=Y7NTv+s/hWLeamtCbWmhn/7LKRoNqR/n38OfE9hBxlM=;
-        h=Subject:From:To:Date:In-Reply-To:References;
-        b=eRUwOOoHuKdrRpkN6k32TqeYuPJ2qpo8OHbVCzKlNi0EcrDheEyrUr7y8e7GJXNED
-         PQwzOSmmsOInezLa2c5lLpi0j0qRe3tda/GrHsp2InsAdUhXEerdjAFXxWoH3gbzHx
-         dDYrnKPJZbqCtAng1kR86tfWvHG2oOa/oQ++PKP+19xVZuawP0azjT98V5dNiTSadq
-         8v3A5ynMhOdk7FvEZgoSv2pABRqqkeW8E9fVYdE31uRXt2MdT0XYrVjXoNgBFxY/g5
-         m8O0EWEC04qfEIQ3kBcIl0LGlDNYvh+ThCamAIPZWrpyTkS307I3ZcU/ECJeppcfGd
-         6BwTzPiVu4NkQ==
-Message-ID: <8999ef4a57b035a81b086d8732d119638d46968c.camel@codeconstruct.com.au>
-Subject: Re: [PATCH v6 1/2] dt-bindings: i2c: aspeed: support for
- AST2600-i2cv2
-From:   Jeremy Kerr <jk@codeconstruct.com.au>
-To:     Ryan Chen <ryan_chen@aspeedtech.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Brendan Higgins <brendan.higgins@linux.dev>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Joel Stanley <joel@jms.id.au>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Date:   Sun, 26 Feb 2023 15:04:16 +0800
-In-Reply-To: <20230226031321.3126756-2-ryan_chen@aspeedtech.com>
-References: <20230226031321.3126756-1-ryan_chen@aspeedtech.com>
-         <20230226031321.3126756-2-ryan_chen@aspeedtech.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4-1 
+        with ESMTP id S229547AbjBZW1F (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 26 Feb 2023 17:27:05 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9239F12589
+        for <linux-i2c@vger.kernel.org>; Sun, 26 Feb 2023 14:27:03 -0800 (PST)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pWPTx-0000vL-SG; Sun, 26 Feb 2023 23:27:01 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pWPTx-000Ubo-0c; Sun, 26 Feb 2023 23:27:01 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pWPTw-000YPz-4i; Sun, 26 Feb 2023 23:27:00 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH v2 7/9] i2c: Switch .probe() to not take an id parameter
+Date:   Sun, 26 Feb 2023 23:26:52 +0100
+Message-Id: <20230226222654.1741900-8-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230226222654.1741900-1-u.kleine-koenig@pengutronix.de>
+References: <20230226222654.1741900-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2954; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=CGs1waPXyH+zFPqAHQV2oj9jU9r+cYpTC2JoFW5f31U=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBj+9yilC3ENzyV5owVcV5oOynKUfMYW0YAtEKlU TkXAAfjYieJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY/vcogAKCRDB/BR4rcrs CVZ6CACGOi8BL9+KAudAYKf3+k3pjp57A90O/bpEst7yIi23GU+DH1xQQu7zxu+3c7Ru/AyizHn oB9IfuaJP8WXIz1Jmte+i82ukcFz1oGMQTdT5ibRqUH4SpjH/0pbS/W8UCeeJRN+FWsSccJ3ApH X7HRD+Awij2JGyDDo+zrBVWXDTzg0nRIw1/kaG/HR5wj8NWprmAwsLqRBz4OE7hcUxC6igKCW/I vtn2FWOQZlWeVcfmGIf8ezNPxWUdXBbQs5TNYwEdwYR1fFvzX+jnN4yp7A/M8wn12P0unF3/EjD 5qqJ7ptN9U89PgxOF5k/TsanlVwuJYGldRTUUxfibV2JptG6
+X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Ryan,
+Commit b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new() call-back
+type") introduced a new probe callback to convert i2c init routines to
+not take an i2c_device_id parameter. Now that all in-tree drivers are
+converted to the temporary .probe_new() callback, .probe() can be
+modified to match the desired prototype.
 
-> --- a/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml
-> @@ -49,6 +49,25 @@ properties:
-> =C2=A0=C2=A0=C2=A0=C2=A0 description:
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 states that there is another master =
-active on this bus
-> =C2=A0
-> +=C2=A0 aspeed,timeout:
-> +=C2=A0=C2=A0=C2=A0 type: boolean
-> +=C2=A0=C2=A0=C2=A0 description: I2C bus timeout enable for master/slave =
-mode
-> +
-> +=C2=A0 aspeed,xfer-mode:
-> +=C2=A0=C2=A0=C2=A0 description: |
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 I2C bus transfer mode selection.
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - "byte": I2C bus byte transfer mode.
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - "buffered": I2C bus buffer register tra=
-nsfer mode.
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - "dma": I2C bus dma transfer mode (defau=
-lt)
-> +=C2=A0=C2=A0=C2=A0 items:
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 enum: [byte, buffered, dma]
-> +=C2=A0=C2=A0=C2=A0 maxItems: 1
-> +=C2=A0=C2=A0=C2=A0 $ref: /schemas/types.yaml#/definitions/non-unique-str=
-ing-array
+Now that .probe() and .probe_new() have the same semantic, they can be
+defined as members of an anonymous union to save some memory and
+simplify the core code a bit.
 
-There are still unresolved questions about this xfer-mode property from
-previous submissions of this binding. We don't yet have a justification
-on why the mode configuration is needed in the device tree rather than
-something that is specified in a driver implementation.
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/i2c/i2c-core-base.c | 11 ++---------
+ include/linux/i2c.h         | 18 +++++++++++-------
+ 2 files changed, 13 insertions(+), 16 deletions(-)
 
-By now, I think we well understand what the modes are, and how a driver
-implementation might configure them, but none of that has (so far)
-provided sufficient rationale on why this belongs in the device tree.
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index cb5fa971d67e..63253e2b2c1f 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -561,15 +561,8 @@ static int i2c_device_probe(struct device *dev)
+ 		goto err_detach_pm_domain;
+ 	}
+ 
+-	/*
+-	 * When there are no more users of probe(),
+-	 * rename probe_new to probe.
+-	 */
+-	if (driver->probe_new)
+-		status = driver->probe_new(client);
+-	else if (driver->probe)
+-		status = driver->probe(client,
+-				       i2c_match_id(driver->id_table, client));
++	if (driver->probe)
++		status = driver->probe(client);
+ 	else
+ 		status = -EINVAL;
+ 
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 500404d85141..5ba89663ea86 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -236,8 +236,8 @@ enum i2c_driver_flags {
+ /**
+  * struct i2c_driver - represent an I2C device driver
+  * @class: What kind of i2c device we instantiate (for detect)
+- * @probe: Callback for device binding - soon to be deprecated
+- * @probe_new: New callback for device binding
++ * @probe: Callback for device binding
++ * @probe_new: Transitional callback for device binding - do not use
+  * @remove: Callback for device unbinding
+  * @shutdown: Callback for device shutdown
+  * @alert: Alert callback, for example for the SMBus alert protocol
+@@ -272,14 +272,18 @@ enum i2c_driver_flags {
+ struct i2c_driver {
+ 	unsigned int class;
+ 
++	union {
+ 	/* Standard driver model interfaces */
+-	int (*probe)(struct i2c_client *client, const struct i2c_device_id *id);
++		int (*probe)(struct i2c_client *client);
++		/*
++		 * Legacy callback that was part of a conversion of .probe().
++		 * Today it has the same semantic as .probe(). Don't use for new
++		 * code.
++		 */
++		int (*probe_new)(struct i2c_client *client);
++	};
+ 	void (*remove)(struct i2c_client *client);
+ 
+-	/* New driver model interface to aid the seamless removal of the
+-	 * current probe()'s, more commonly unused than used second parameter.
+-	 */
+-	int (*probe_new)(struct i2c_client *client);
+ 
+ 	/* driver model interfaces that don't relate to enumeration  */
+ 	void (*shutdown)(struct i2c_client *client);
+-- 
+2.39.1
 
-The previous threads had a couple of pending discussions, following up on
-those here:
-
-A) You mentioned in [1] that the DMA controller is shared between all i3c
-devices, does that have any consequence on which modes individual
-devices might want to choose?
-
-B) You implied in [2] that the different transfer modes might be related
-to whether there are other masters present on the bus, but the logic
-behind that is not clear.
-
-C) In [3] you mentioned that there might be some DRAM savings by using a
-particular mode.
-
-and, most importantly:
-
-D) unanswered from [4] and [5]: what are the hardware-specified reasons
-why a DT author would chose one mode over another?
-
-If you can write this out in some format like:
-
- - in hardware situation X, you should use DMA mode
- - in hardware situation Y, you should use byte mode
- - [...]
-
-that might help us to understand where this configuration belongs, or
-what a reasonable DT representation should look like, or even if
-existing DT schema can already provide the information required to
-decide.
-
-Cheers,
-
-
-Jeremy
-
-[1]: https://lists.ozlabs.org/pipermail/linux-aspeed/2023-February/009876.h=
-tml
-[2]: https://lists.ozlabs.org/pipermail/linux-aspeed/2023-February/009892.h=
-tml
-[3]: https://lists.ozlabs.org/pipermail/linux-aspeed/2023-February/009880.h=
-tml
-[4]: https://lists.ozlabs.org/pipermail/linux-aspeed/2023-February/009871.h=
-tml
-[5]: https://lists.ozlabs.org/pipermail/linux-aspeed/2023-February/009884.h=
-tml
