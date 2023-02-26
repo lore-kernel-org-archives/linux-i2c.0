@@ -2,43 +2,45 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47DF3C64ED6
-	for <linux-i2c@archiver.kernel.org>; Sun, 26 Feb 2023 22:27:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6491C7EE2E
+	for <linux-i2c@archiver.kernel.org>; Sun, 26 Feb 2023 22:27:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229547AbjBZW1G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 26 Feb 2023 17:27:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41442 "EHLO
+        id S229728AbjBZW1K (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 26 Feb 2023 17:27:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229549AbjBZW1F (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 26 Feb 2023 17:27:05 -0500
+        with ESMTP id S229723AbjBZW1J (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 26 Feb 2023 17:27:09 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92941125A7
-        for <linux-i2c@vger.kernel.org>; Sun, 26 Feb 2023 14:27:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87BD112589
+        for <linux-i2c@vger.kernel.org>; Sun, 26 Feb 2023 14:27:08 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pWPTx-0000vM-QE; Sun, 26 Feb 2023 23:27:01 +0100
+        id 1pWPTw-0000v5-RD; Sun, 26 Feb 2023 23:27:00 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pWPTx-000Ubs-6N; Sun, 26 Feb 2023 23:27:01 +0100
+        id 1pWPTv-000UbO-ES; Sun, 26 Feb 2023 23:26:59 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pWPTw-000YQ9-Il; Sun, 26 Feb 2023 23:27:00 +0100
+        id 1pWPTu-000YPf-PA; Sun, 26 Feb 2023 23:26:58 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Wolfram Sang <wsa@kernel.org>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 9/9] i2c: Convert drivers to new .probe() callback
-Date:   Sun, 26 Feb 2023 23:26:54 +0100
-Message-Id: <20230226222654.1741900-10-u.kleine-koenig@pengutronix.de>
+Cc:     linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 1/9] misc: ad525x_dpot-i2c: Convert to i2c's .probe_new()
+Date:   Sun, 26 Feb 2023 23:26:46 +0100
+Message-Id: <20230226222654.1741900-2-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230226222654.1741900-1-u.kleine-koenig@pengutronix.de>
 References: <20230226222654.1741900-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2320; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=fHXbcu5PGfTBceGcii9O45Co+f4bxyrcH4ebuqLJvyY=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBj+9ypCnRo5areYvsAcw81hYYkfDTuc5tikSN90 Ab3udoASEeJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY/vcqQAKCRDB/BR4rcrs CSkXB/wOqO7ICtslmsyIrE6bBcBeza91BHEUQhkWaZdi+fRraU4msnf25kLpMaPXrGGP07EwSeT NoHYwJtTAW3dSLcoDMZd4f8JQh+nV4G0ZqjJ6HgTknyBoRpUywsaeeXIzfre4T5jG54AkGlA7yJ LGISNc0Z8mvG/U0WWWao2RI8kS9rCJUZk85/ykBwel9W1sp+DAouPmuT/sdd03Ibi6ARqc0N9+x O8SmBDNPgC1JN/Wk9XVMNGTVh3m1MCZbmnGT4vNCXp2PVZOvXnyCkblYjv/pEjBU5Uvf5u43IYE MAbUkrhsssCMkspEJ8VZb4ZNFRpNidMz+jlk6VLM1vlvWvRx
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1292; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=mZMy4fIoX9VoX671/ujh3l6dvR2sZ0vFBfJ5QYZaI/k=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBj+9yNWYZ8keqte4NLP53S5uCaMlHf1ql5crSHa pOrSxDbA+KJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY/vcjQAKCRDB/BR4rcrs CRNrB/9xJRsxeCe2WhSDMmQXgiUB1D1+t6w6SNAKPQOGWwb2DN5wszUF6TT9xlpet/QX612sXab FaeqgQCm7d6h6zkNBdRhHePJJsL/WyoG0EQ6N1ImvY29MLm6X55wTonCVdjfBl9VxS8Y4bij+Jv DBMNTB7karGOnjav7IURRMuPARTdTv0X+3BP7IDeDdSUHj3s5+UGRNUe3Z/x/6PxapCEZwCqeFU FFKEFMONORXgK9WYhtBckPa+8JPMbqolL9G5Q3ZiG5qaZP7SRC7c868KVlOKFFpTIzJ+jGV0gUp 7LucODTt6Z7nuooZwbWzH5A2/WBpBSh9Tx1VziSi/W5sH/ji
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -49,70 +51,40 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Now that .probe() was changed not to get the id parameter, drivers can
-be converted back to that with the eventual goal to drop .probe_new().
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
-Implement that for the i2c drivers that are part of the i2c core.
-
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/lkml/20221118224540.619276-483-uwe@kleine-koenig.org
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/i2c/i2c-core-base.c      | 2 +-
- drivers/i2c/i2c-slave-eeprom.c   | 2 +-
- drivers/i2c/i2c-slave-testunit.c | 2 +-
- drivers/i2c/i2c-smbus.c          | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/misc/ad525x_dpot-i2c.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 63253e2b2c1f..ae3af738b03f 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1050,7 +1050,7 @@ static int dummy_probe(struct i2c_client *client)
- 
- static struct i2c_driver dummy_driver = {
- 	.driver.name	= "dummy",
--	.probe_new	= dummy_probe,
-+	.probe		= dummy_probe,
- 	.id_table	= dummy_id,
+diff --git a/drivers/misc/ad525x_dpot-i2c.c b/drivers/misc/ad525x_dpot-i2c.c
+index 28ffb4377d98..3856d5c04c5f 100644
+--- a/drivers/misc/ad525x_dpot-i2c.c
++++ b/drivers/misc/ad525x_dpot-i2c.c
+@@ -50,9 +50,9 @@ static const struct ad_dpot_bus_ops bops = {
+ 	.write_r8d16	= write_r8d16,
  };
  
-diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
-index 5f25f23c4ff8..5946c0d0aef9 100644
---- a/drivers/i2c/i2c-slave-eeprom.c
-+++ b/drivers/i2c/i2c-slave-eeprom.c
-@@ -207,7 +207,7 @@ static struct i2c_driver i2c_slave_eeprom_driver = {
+-static int ad_dpot_i2c_probe(struct i2c_client *client,
+-				      const struct i2c_device_id *id)
++static int ad_dpot_i2c_probe(struct i2c_client *client)
+ {
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct ad_dpot_bus_data bdata = {
+ 		.client = client,
+ 		.bops = &bops,
+@@ -106,7 +106,7 @@ static struct i2c_driver ad_dpot_i2c_driver = {
  	.driver = {
- 		.name = "i2c-slave-eeprom",
+ 		.name	= "ad_dpot",
  	},
--	.probe_new = i2c_slave_eeprom_probe,
-+	.probe = i2c_slave_eeprom_probe,
- 	.remove = i2c_slave_eeprom_remove,
- 	.id_table = i2c_slave_eeprom_id,
- };
-diff --git a/drivers/i2c/i2c-slave-testunit.c b/drivers/i2c/i2c-slave-testunit.c
-index 75ee7ebdb614..a49642bbae4b 100644
---- a/drivers/i2c/i2c-slave-testunit.c
-+++ b/drivers/i2c/i2c-slave-testunit.c
-@@ -171,7 +171,7 @@ static struct i2c_driver i2c_slave_testunit_driver = {
- 	.driver = {
- 		.name = "i2c-slave-testunit",
- 	},
--	.probe_new = i2c_slave_testunit_probe,
-+	.probe = i2c_slave_testunit_probe,
- 	.remove = i2c_slave_testunit_remove,
- 	.id_table = i2c_slave_testunit_id,
- };
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index cd19546d31fc..138c3f5e0093 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -169,7 +169,7 @@ static struct i2c_driver smbalert_driver = {
- 	.driver = {
- 		.name	= "smbus_alert",
- 	},
--	.probe_new	= smbalert_probe,
-+	.probe		= smbalert_probe,
- 	.remove		= smbalert_remove,
- 	.id_table	= smbalert_ids,
+-	.probe		= ad_dpot_i2c_probe,
++	.probe_new	= ad_dpot_i2c_probe,
+ 	.remove		= ad_dpot_i2c_remove,
+ 	.id_table	= ad_dpot_id,
  };
 -- 
 2.39.1
