@@ -2,125 +2,113 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DAC3C7EE2D
-	for <linux-i2c@archiver.kernel.org>; Sun, 26 Feb 2023 22:28:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E3F2C64ED6
+	for <linux-i2c@archiver.kernel.org>; Mon, 27 Feb 2023 03:55:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229738AbjBZW2R (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 26 Feb 2023 17:28:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43920 "EHLO
+        id S229615AbjB0DzA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 26 Feb 2023 22:55:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229516AbjBZW2Q (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 26 Feb 2023 17:28:16 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887541817E
-        for <linux-i2c@vger.kernel.org>; Sun, 26 Feb 2023 14:27:46 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pWPU0-0000v4-Cx; Sun, 26 Feb 2023 23:27:04 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pWPTv-000UbL-A7; Sun, 26 Feb 2023 23:26:59 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pWPTu-000YPc-Ii; Sun, 26 Feb 2023 23:26:58 +0100
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Ajay Gupta <ajayg@nvidia.com>,
-        Peter Senna Tschudin <peter.senna@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        linux-mtd@lists.infradead.org, Jiri Slaby <jirislaby@kernel.org>,
-        linux-serial@vger.kernel.org, Evgeniy Polyakov <zbr@ioremap.net>,
-        Crt Mori <cmo@melexis.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Shunqian Zheng <zhengsq@rock-chips.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Peter Rosin <peda@axentia.se>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v2 0/9] i2c: Switch .probe() to not take an id parameter
-Date:   Sun, 26 Feb 2023 23:26:45 +0100
-Message-Id: <20230226222654.1741900-1-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.39.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1991; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=EenKKdT6RETFmVGwF2CrYShLqN5ZYnH65OR4Oth2DhU=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBj+9yIsuD2BffFtVmTLqMLW9+LGg9CrL1S9JEyp A8isju5DgGJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY/vciAAKCRDB/BR4rcrs CVArCACf5Exs+Q2fpw9bhFprBhf8Jn0zdE1HAJWqKw9geHnrqn2c77H0nb4l6za7xknleFOdFjl vT1oJ/Hil7ZZHfjj0Q02CEsZqvCUoh/T4UAse77L1aYyUPrZ0RZsOyTquharTxDIKLoriggp8O7 oibgm8zSD2bY1eFXyPkExlGm+6FBBRW8p3Smjl0DhgJHra46+W71KaqBmYkG1IBl5lrINIPfwRv 3ktxNmDCAgv/OMRMRji9mRAtfbTNBB8fvk22YGZXKc7/Ja9bBtoyWYo0UPM2LwcfDAfOnqJXu0d 8S7iE11b92EW7g3eeBkHU339ye95YJ2KDZ7wmHd7p+WkiVWd
-X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+        with ESMTP id S229825AbjB0Dy7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 26 Feb 2023 22:54:59 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D2F018151
+        for <linux-i2c@vger.kernel.org>; Sun, 26 Feb 2023 19:54:47 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31R3NhA9026423;
+        Mon, 27 Feb 2023 03:54:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=V9BlT8isM4/It8yT2TBcpHa2vgK4FTgcVCPoesydvks=;
+ b=bwx9HIJ9JkKbmITk9SqriB5aCVkhNTRjIetFsV/YBvAt0/UIn+ZWBzxNWlkdjeySluZW
+ XPDrgO+gx+nC6F6phklrGvFKR/OsAMpp2clvndZufAtv63FnZie7Z65Vfzo9xukT4Ez4
+ 2kiGnv9yVXGamBh+VDYzXw6lTqI9A8AtDKVKf4mz1bZpCHMjyFdIiPA3yTXeHRCHtqMh
+ zlzNAtWfx9Pg7LDnMbkrnXBobHDUIsb8PdQsm34AlRl7Pv/fVvbvTe642GY+opXpdx5h
+ Ns17eBXv2UBQoKLb3VLBGQojD0e9EyS2Lzqvhu8xtZYQm+MB40N6AQ0QnVE/DSJLvLw/ IQ== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nyv9164ff-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Feb 2023 03:54:39 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31PKQkmw008599;
+        Mon, 27 Feb 2023 03:54:37 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3nybe2h3xu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Feb 2023 03:54:37 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31R3sZQQ18153738
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 27 Feb 2023 03:54:35 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3759020043;
+        Mon, 27 Feb 2023 03:54:35 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A944220040;
+        Mon, 27 Feb 2023 03:54:34 +0000 (GMT)
+Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 27 Feb 2023 03:54:34 +0000 (GMT)
+Received: from bgray-lenovo-p15.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id BC4F2600E5;
+        Mon, 27 Feb 2023 14:54:29 +1100 (AEDT)
+From:   Benjamin Gray <bgray@linux.ibm.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Sven Peter <sven@svenpeter.dev>, Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Gray <bgray@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH] i2c: Disable I2C_APPLE on PPC when COMPILE_TEST is set
+Date:   Mon, 27 Feb 2023 14:54:14 +1100
+Message-Id: <20230227035414.1461763-1-bgray@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: h0dF6QY3QPDR3A1jOrKYOwoeWQqLSnGY
+X-Proofpoint-GUID: h0dF6QY3QPDR3A1jOrKYOwoeWQqLSnGY
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-26_22,2023-02-24_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ spamscore=0 impostorscore=0 lowpriorityscore=0 malwarescore=0
+ clxscore=1011 bulkscore=0 suspectscore=0 mlxlogscore=486
+ priorityscore=1501 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2302270026
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hello,
+The ppc64le_allmodconfig sets I2C_PASEMI=y and leaves COMPILE_TEST to
+default to y and I2C_APPLE to default to m, running into a known
+incompatible configuration that breaks the build [1].
 
-this is v2 of the series. I send it a bit earlier than I planned to do that
-initially because I failed to send v1 completely to the linux-i2c list.
+Disable the I2C_APPLE build during PPC compile tests to prevent this.
 
-Changes since (implicit) v1:
- - Added Acks for patches #5, #6 and #8
- - Fixed kernel doc as pointed out by Luca Ceresoli (patch #7)
- - Send all patches to linux-i2c mailing list
- - Rebased to current Linus' tree.
-   This reduces the list of prerequisite patches to two.
+[1]: https://lore.kernel.org/all/202112061809.XT99aPrf-lkp@intel.com
 
-I updated
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Benjamin Gray <bgray@linux.ibm.com>
+---
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-	https://git.pengutronix.de/git/ukl/linux i2c-probe-new
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index d4975444a32d..3db56e446902 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -896,7 +896,7 @@ config I2C_PASEMI
 
-accordingly.
+ config I2C_APPLE
+ 	tristate "Apple SMBus platform driver"
+-	depends on ARCH_APPLE || COMPILE_TEST
++	depends on ARCH_APPLE || (COMPILE_TEST && !PPC)
+ 	default ARCH_APPLE
+ 	help
+ 	  Say Y here if you want to use the I2C controller present on Apple
 
-Best regards
-Uwe
-
-Uwe Kleine-König (9):
-  misc: ad525x_dpot-i2c: Convert to i2c's .probe_new()
-  mtd: maps: pismo: Convert to i2c's .probe_new()
-  serial: sc16is7xx: Convert to i2c's .probe_new()
-  w1: ds2482: Convert to i2c's .probe_new()
-  media: i2c: ov5695: convert to i2c's .probe_new()
-  media: i2c: ov2685: convert to i2c's .probe_new()
-  i2c: Switch .probe() to not take an id parameter
-  i2c: mux: Convert all drivers to new .probe() callback
-  i2c: Convert drivers to new .probe() callback
-
- drivers/i2c/i2c-core-base.c         | 13 +++----------
- drivers/i2c/i2c-slave-eeprom.c      |  2 +-
- drivers/i2c/i2c-slave-testunit.c    |  2 +-
- drivers/i2c/i2c-smbus.c             |  2 +-
- drivers/i2c/muxes/i2c-mux-ltc4306.c |  2 +-
- drivers/i2c/muxes/i2c-mux-pca9541.c |  2 +-
- drivers/i2c/muxes/i2c-mux-pca954x.c |  2 +-
- drivers/media/i2c/ov2685.c          |  5 ++---
- drivers/media/i2c/ov5695.c          |  5 ++---
- drivers/misc/ad525x_dpot-i2c.c      |  6 +++---
- drivers/mtd/maps/pismo.c            |  5 ++---
- drivers/tty/serial/sc16is7xx.c      |  6 +++---
- drivers/w1/masters/ds2482.c         |  5 ++---
- include/linux/i2c.h                 | 18 +++++++++++-------
- 14 files changed, 34 insertions(+), 41 deletions(-)
-
-
-base-commit: f3a2439f20d918930cc4ae8f76fe1c1afd26958f
-prerequisite-patch-id: 256857b4eee79540b271b8d4899b9ba0aa3c4c27
-prerequisite-patch-id: bb49c9c71311ac1f1056c562f20f26aa356c95a6
--- 
-2.39.1
-
+base-commit: ec0a1b360aec1ba0bdfad3dd69e300b028529c0d
+--
+2.39.2
