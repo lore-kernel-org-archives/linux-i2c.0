@@ -2,116 +2,107 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BE5CC64ED9
-	for <linux-i2c@archiver.kernel.org>; Mon, 27 Feb 2023 23:33:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B3F5C64EC7
+	for <linux-i2c@archiver.kernel.org>; Tue, 28 Feb 2023 03:50:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbjB0Xd5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 27 Feb 2023 18:33:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42064 "EHLO
+        id S229516AbjB1Du3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 27 Feb 2023 22:50:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229607AbjB0Xd4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Feb 2023 18:33:56 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F5C1E9E0
-        for <linux-i2c@vger.kernel.org>; Mon, 27 Feb 2023 15:33:54 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31RMrFSH023329;
-        Mon, 27 Feb 2023 23:33:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=QZroA+A019b9S7mP+rSh6gAq0WH3R1H9WM0SiZT0J7o=;
- b=Cao85OPbbIQIwycsZbLfpGvhF4+xx0akgum02s8ra0FcOiMScNQk1sEXGZrU0Qxzx04d
- nMJGJgztKQsEUZAXMuzxy3t6tCMz8B1PGy78aRkmjioaq/jENLjI0DGJPDmOXWE1SPCJ
- YoYPInhqHb/84YqsDbDMZusFuvEda7OseAWfWkpvFDIvJuZaV/ZGH45eCcxBKbgzFNXs
- Yc2/dlomI8602q21irISq9c/3iM7RJWlBzCQhlgzpxIygLv7gnz3d6s1xgpRq1BmS9I6
- f/8/8x09Z6LLFsdsuAqDLFyIKwevF1u/4Z1pSUU05niWY+yF7Brx54RNqoPdUgRGVnRP yw== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3p15ptrsuv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Feb 2023 23:33:48 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31RJhs3C014801;
-        Mon, 27 Feb 2023 23:33:46 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3nybcq2exw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Feb 2023 23:33:44 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31RNXf3A28050026
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 27 Feb 2023 23:33:41 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BC122004F;
-        Mon, 27 Feb 2023 23:33:41 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 17E712004B;
-        Mon, 27 Feb 2023 23:33:41 +0000 (GMT)
-Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 27 Feb 2023 23:33:41 +0000 (GMT)
-Received: from bgray-lenovo-p15.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id 3FC63600E5;
-        Tue, 28 Feb 2023 10:33:38 +1100 (AEDT)
-From:   Benjamin Gray <bgray@linux.ibm.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     arnd@arndb.de, Sven Peter <sven@svenpeter.dev>, mpe@ellerman.id.au,
+        with ESMTP id S229486AbjB1Du3 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Feb 2023 22:50:29 -0500
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A064C19
+        for <linux-i2c@vger.kernel.org>; Mon, 27 Feb 2023 19:50:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677556228; x=1709092228;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ipBT75Jjea5vt0rmR8K8faxZwFeHocSUgcvMb1mdyBY=;
+  b=XO1ppNBblFSVfq7a7D9JWS/zTYxpmkZVspDA3VeN8vRxrdRcGTOutUcu
+   +u0IzYyQojRZzx8a/rXZN09nR2wExy4agbzjb4MnO4sAdG8CQFS+4O+Nt
+   S6QvVwvatfoSCGGgdy8iE7wYiEToJSRFjLY+jlKcHlhm/a2wsbnM/kFTA
+   w2WF+2ql4UHk4JenO540mDsOsEu+9S+ofuYAe1c+1qYYven4WItSaB0Bw
+   zARMlT0ADijgc5swd20QUcgX3fdiRa/Fq+xTteIjRRvKD6PlEcq6BWshr
+   L+7y4SCRWQVCUQSACZ5cIoTKWFlBWAhjdBbUeCc/wetiBPYdcTVztS1TW
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="322288275"
+X-IronPort-AV: E=Sophos;i="5.98,220,1673942400"; 
+   d="scan'208";a="322288275"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Feb 2023 19:50:17 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="1003079203"
+X-IronPort-AV: E=Sophos;i="5.98,220,1673942400"; 
+   d="scan'208";a="1003079203"
+Received: from lkp-server01.sh.intel.com (HELO 3895f5c55ead) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 27 Feb 2023 19:50:15 -0800
+Received: from kbuild by 3895f5c55ead with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pWr0I-00053X-2x;
+        Tue, 28 Feb 2023 03:50:14 +0000
+Date:   Tue, 28 Feb 2023 11:50:13 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Benjamin Gray <bgray@linux.ibm.com>, linux-i2c@vger.kernel.org
+Cc:     oe-kbuild-all@lists.linux.dev, arnd@arndb.de,
+        Sven Peter <sven@svenpeter.dev>, mpe@ellerman.id.au,
         Benjamin Gray <bgray@linux.ibm.com>
-Subject: [PATCH v2 1/2] i2c: Disable I2C_APPLE when I2C_PASEMI is a builtin
-Date:   Tue, 28 Feb 2023 10:33:17 +1100
-Message-Id: <20230227233318.120415-1-bgray@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: fI_5SXMl-8HkInKQD1J2y3OGfiL5rnGH
-X-Proofpoint-GUID: fI_5SXMl-8HkInKQD1J2y3OGfiL5rnGH
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+Subject: Re: [PATCH v2 2/2] i2c: Build I2C_PASEMI with COMPILE_TEST
+Message-ID: <202302281135.KsarHDzl-lkp@intel.com>
+References: <20230227233318.120415-2-bgray@linux.ibm.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-27_17,2023-02-27_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 clxscore=1015 priorityscore=1501 spamscore=0 mlxscore=0
- mlxlogscore=682 adultscore=0 bulkscore=0 impostorscore=0 malwarescore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302270189
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230227233318.120415-2-bgray@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The ppc64le_allmodconfig sets I2C_PASEMI=y and leaves COMPILE_TEST to
-default to y and I2C_APPLE to default to m, running into a known
-incompatible configuration that breaks the build [1]. Specifically,
-a common dependency (i2c-pasemi-core.o in this case) cannot be used by
-both builtin and module consumers.
+Hi Benjamin,
 
-Disable I2C_APPLE when I2C_PASEMI is a builtin to prevent this.
+Thank you for the patch! Yet something to improve:
 
-[1]: https://lore.kernel.org/all/202112061809.XT99aPrf-lkp@intel.com
+[auto build test ERROR on ec0a1b360aec1ba0bdfad3dd69e300b028529c0d]
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Benjamin Gray <bgray@linux.ibm.com>
----
-v1: https://lore.kernel.org/linux-i2c/20230227035414.1461763-1-bgray@linux.ibm.com/
----
- drivers/i2c/busses/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+url:    https://github.com/intel-lab-lkp/linux/commits/Benjamin-Gray/i2c-Build-I2C_PASEMI-with-COMPILE_TEST/20230228-073442
+base:   ec0a1b360aec1ba0bdfad3dd69e300b028529c0d
+patch link:    https://lore.kernel.org/r/20230227233318.120415-2-bgray%40linux.ibm.com
+patch subject: [PATCH v2 2/2] i2c: Build I2C_PASEMI with COMPILE_TEST
+config: sh-allmodconfig (https://download.01.org/0day-ci/archive/20230228/202302281135.KsarHDzl-lkp@intel.com/config)
+compiler: sh4-linux-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/6f8f477a04ff9dcd1091aed71674b27c513b6b39
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Benjamin-Gray/i2c-Build-I2C_PASEMI-with-COMPILE_TEST/20230228-073442
+        git checkout 6f8f477a04ff9dcd1091aed71674b27c513b6b39
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=sh olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=sh SHELL=/bin/bash drivers/i2c/busses/
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d4975444a32d..c42109e972fe 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -896,6 +896,7 @@ config I2C_PASEMI
- 
- config I2C_APPLE
- 	tristate "Apple SMBus platform driver"
-+	depends on !I2C_PASEMI
- 	depends on ARCH_APPLE || COMPILE_TEST
- 	default ARCH_APPLE
- 	help
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202302281135.KsarHDzl-lkp@intel.com/
 
-base-commit: ec0a1b360aec1ba0bdfad3dd69e300b028529c0d
+All error/warnings (new ones prefixed by >>):
+
+>> drivers/i2c/busses/i2c-pasemi-pci.c:82:1: warning: data definition has no type or storage class
+      82 | module_pci_driver(pasemi_smb_pci_driver);
+         | ^~~~~~~~~~~~~~~~~
+>> drivers/i2c/busses/i2c-pasemi-pci.c:82:1: error: type defaults to 'int' in declaration of 'module_pci_driver' [-Werror=implicit-int]
+>> drivers/i2c/busses/i2c-pasemi-pci.c:82:1: warning: parameter names (without types) in function declaration
+   cc1: some warnings being treated as errors
+
+
+vim +82 drivers/i2c/busses/i2c-pasemi-pci.c
+
+9bc5f4f660ff3e Sven Peter 2021-10-08  81  
+9bc5f4f660ff3e Sven Peter 2021-10-08 @82  module_pci_driver(pasemi_smb_pci_driver);
+9bc5f4f660ff3e Sven Peter 2021-10-08  83  
+
 -- 
-2.39.2
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
