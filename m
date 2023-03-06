@@ -2,62 +2,62 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF8DCC6FD1D
-	for <linux-i2c@archiver.kernel.org>; Mon,  6 Mar 2023 13:47:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8639C6FD1E
+	for <linux-i2c@archiver.kernel.org>; Mon,  6 Mar 2023 13:48:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230037AbjCFNr6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 6 Mar 2023 08:47:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37944 "EHLO
+        id S230060AbjCFNr7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 6 Mar 2023 08:47:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229892AbjCFNry (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Mar 2023 08:47:54 -0500
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583E4104
-        for <linux-i2c@vger.kernel.org>; Mon,  6 Mar 2023 05:47:52 -0800 (PST)
-Received: by mail-ed1-x52b.google.com with SMTP id k10so14868733edk.13
-        for <linux-i2c@vger.kernel.org>; Mon, 06 Mar 2023 05:47:52 -0800 (PST)
+        with ESMTP id S229822AbjCFNr4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Mar 2023 08:47:56 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816BF173E
+        for <linux-i2c@vger.kernel.org>; Mon,  6 Mar 2023 05:47:54 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id j11so19236514edq.4
+        for <linux-i2c@vger.kernel.org>; Mon, 06 Mar 2023 05:47:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1678110471;
-        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
-         :subject:from:to:cc:subject:date:message-id:reply-to;
-        bh=7yqvjSJOfmMKr1X7pi/yKdN0p0WXNRNNDU8eJl008Xs=;
-        b=EB/+WfYhrgIpmSaPtWHbtJG4qfTEY783c5DFRkcwuTtmnIm74+gVpGfhg5c/CcBv4M
-         ij+SIQ7tWinDvhA9dSRCBGkq6WqqrpHmvKrh9mr6sWmx8bidqr2ihuRaJEiFpfFaAy+J
-         dgdjyeoNT+1SW8ibSvP9jz6DoHYM5TCelxmSBjDVIw//1VQ/HZN4KUOPFuI8Z3Jcl6B0
-         NbU97bB0BJazJRSiMpyDOLOlmhxLTjoA75/QW9iajVUzOdLdN/trOopEyBEmipcVJzbx
-         JC7yeRcl3EmPavvOfPwDYe4X8sPqyaxA+zSepCgAjvM1Z5+YNvwWZc0/oqx+grY1ul0N
-         TnYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678110471;
-        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
-         :subject:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1678110473;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=7yqvjSJOfmMKr1X7pi/yKdN0p0WXNRNNDU8eJl008Xs=;
-        b=Ybr7clA5P2UjjYPWVOtGK1HJP7kuqw/LNwI808HqsUDWYYTfD8yvj4HWSjuHsRrE83
-         SoDf8PxlWh66Qmu9ifqOu/Yd39NHItG52iy87LMVTH1uBoBtMp5uvIZujVTC9HYFCSZ1
-         7u2pWnkX00NT/RgYZex2QMmcAC5P6772sf0UZ+BpR7lUUZZQro6De1mMyW+cPVIwZFx+
-         XAxYqpo1kKmZqoKSTSBnMSqJFomGd+BeNPmCbi2dW2jEfMg9RnBvMJTS+HP4RsDFMlnp
-         ywRE+RiVOJ4U8aHk1zbSKEt1GlOgrVZRhpYEDbWsm4lcbiutQkbHX3B3W+PUFR9q+0om
-         x8MQ==
-X-Gm-Message-State: AO0yUKUPyUyMvQk9Tys0CoaFAZp/Nu0MJFSb0dD68dX0hCDPWEMnSZHP
-        I52g6p1kATEvTDQBbaMZN+mt1w==
-X-Google-Smtp-Source: AK7set8e1MakN8+Mg4z6v5F+hlOxZs6gMD33KgMLuFHNsgvVhZQnoSalhDio/qK13oweQwZTfLrIBg==
-X-Received: by 2002:a17:906:b15:b0:8b1:383d:cd50 with SMTP id u21-20020a1709060b1500b008b1383dcd50mr10556760ejg.48.1678110470773;
-        Mon, 06 Mar 2023 05:47:50 -0800 (PST)
+        bh=0y6TlObx8TNyu4QXIni+BBvzU+TNoBWWh1Z9MDExTMc=;
+        b=sj2UnyaIejnAXKuFsz8EaFtz4WLsRBgFxdUxB5Topo13/bxnscyMHaITs7rj/1RiPZ
+         SD5sHl6JRM7f4IXkB6xv1J4b68riHe12BKhaEKPlbLrrGj1mdRZ27OXdE+gpdaXkChTR
+         B9AhnjV5mQnvDs4yyw17cTJfAW5jtQXx+Nw4x/L6KnpdC+PjT1MYwtBnVlhp1s9ADgSk
+         d1L+bW0kVlGbTeeJ3/32NRppHnNsV2nAp6yCwOQG6LnOJ0dOGXGfXBLO0L3Xn+bzN958
+         7K5Ypvfd5K4G81BA8q7NgWkwhFrHYvGtm6nm2+VQQqgCy59MTXbIl+uo53a3S3uCo5Nq
+         QAYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678110473;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0y6TlObx8TNyu4QXIni+BBvzU+TNoBWWh1Z9MDExTMc=;
+        b=aDkK9KtGAsD8r8GUe4THJOONefUfNf9TA0eJ5xdFqL0nsI+aoV0LyUqVYc2/tLSX+W
+         Q8tn9AGTjM2zSrNoD1IFs2yzC+VoPhnYoObS1u1oVPyZpl5pFJxVOaRR3Jz7e9l5ftOL
+         FgL1unviRXx9ul/CGfMoY4wXtlTXu0DKyw0DILOlmGb446RpP2/VRCd9fqSMj3aLZegj
+         kElpYR+MEWRS539BKLt6H9ymea/EUawagxgeTBwCnWNSFn4Y+YUxsNjUXVEkXfd062qG
+         7g429/1ngKEv45NPj+1Gn5QGDGsN+2X/3eOHMqjv90ToYPpbMgJCaaCZD3RSZkBTmSIu
+         dgtQ==
+X-Gm-Message-State: AO0yUKUSKwibE567509pBtH4Jy2z8qjxzwuhtiu3ATZWxak21Ee4YCUX
+        YbZMZOCOOYlTVyuezMyNvHvkdw==
+X-Google-Smtp-Source: AK7set+pwajWmb43xttdc2wwPFuyjvx337opyoZpPHjSV3d+57Zghl6DvaaCsWpWY+xGL/neh2h1Kw==
+X-Received: by 2002:a17:907:8a22:b0:88d:697d:a3d2 with SMTP id sc34-20020a1709078a2200b0088d697da3d2mr12874655ejc.54.1678110473085;
+        Mon, 06 Mar 2023 05:47:53 -0800 (PST)
 Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
-        by smtp.googlemail.com with ESMTPSA id y64-20020a50bb46000000b004bc2d1c0fadsm5193293ede.32.2023.03.06.05.47.49
+        by smtp.googlemail.com with ESMTPSA id y64-20020a50bb46000000b004bc2d1c0fadsm5193293ede.32.2023.03.06.05.47.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Mar 2023 05:47:50 -0800 (PST)
-Subject: [PATCH v3 0/2] Add MediaTek MT8365 I2C support
+        Mon, 06 Mar 2023 05:47:52 -0800 (PST)
+From:   Alexandre Mergnat <amergnat@baylibre.com>
+Date:   Mon, 06 Mar 2023 14:47:44 +0100
+Subject: [PATCH v3 2/2] arm64: dts: mediatek: enable i2c0 for mt8365-evk board
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-b4-tracking: H4sIAP7uBWQC/4XNTQqDMBAF4KtI1p1ixvhDV71H6SKZTmtAjSQaEPHuHbrsol0N78H7ZleJo+ekLs
- WuImeffJgkVKdCUW+nF4N/SFZYImqNCOPSVU0NHgnSOs8hLvCk0nQPi41mq2TobGJw0U7Uy3Rah0HK
- 3qclxO3zKGs5t59m1lCCsexaqg01rbs6uw3eRT5TGNVdxIz/FRSFDQmiDbed/lKO43gDCL2l6gIBAA A=
-From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Mon, 06 Mar 2023 14:47:42 +0100
-Message-Id: <20221122-mt8365-i2c-support-v3-0-ad9bb1076d7f@baylibre.com>
+Message-Id: <20221122-mt8365-i2c-support-v3-2-ad9bb1076d7f@baylibre.com>
+References: <20221122-mt8365-i2c-support-v3-0-ad9bb1076d7f@baylibre.com>
+In-Reply-To: <20221122-mt8365-i2c-support-v3-0-ad9bb1076d7f@baylibre.com>
 To:     Qii Wang <qii.wang@mediatek.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -71,78 +71,73 @@ Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         Rob Herring <robh@kernel.org>,
         linux-mediatek@lists.infradead.org
 X-Mailer: b4 0.10.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2074; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=hfD5vVYRCGXPNMT+jA4ETz34GbWOZ3lcpTxfO3jv7sA=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBkBe8FVScw8Ldx5KbA53YVxKhr5MCW85i7oiiBmw53
- wzNoK4KJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZAXvBQAKCRArRkmdfjHURZyUD/
- 9VeQopiSWM4snlYxEIYa09+Hy208zhn2gfrnovTlsQ/bZCzi012GQTQJduLhrxCpmNrAAeiBoGahq7
- 4V36PBCzWKjos7BNgd6zrQaaYf6luco3Ry+jGBqkNj8RfiX5CcR8lcdMM+W3oNdadEZgw6/zJif2ll
- onQK5z5RVDW6itAwoTzdwCsmyVw2i9ET9BxdN47icX2YbKlHFcXqlaRqAdnCSLW0uAzD/wzIwKvwm8
- 1U1ZbCvj7nw7baGQIpGQqetOlyy7Kd0lqj/mL/vquIQjC4kc8BfFZsnGsa3jN8rydsPd3svqqOftcZ
- CQV9hcc11bFbvxnNUrE13MkuKfTj6KcBelJlzIhN+cIyEBSuBFPy/yrCQfGGhWUuqvZgK2zsVYCEy9
- H3eu4td4aIJyTZGvj+5amiEyrV3kczAfCEhhpOWLhQ4goD9FDPfUVa+3PrXbEVQq0dspD1VLTcdQCZ
- 33YqyuGOMFi5z1tTqdfszFCRWujMzgGy1ZOFxjBoTDpGi1gV9FdZnryK9HH2zScsLcLhKMrYaH08hr
- NbowGRcngZ5a8clCm/rprngS/ge9FKZQOK7egSz86321+TqnJt33XPqsehpUhdF2kH0+mMZMcdcM2S
- L3eH0t/jQrP/Y3C93CRS1zWD7GWNSJ718uoIYW93OCtkyIANIqJo9x5CpOhA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1341; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=57rouWYbJDpjGSrX0WaD+yWCM7skXPMNCc2QzK6z+hc=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBkBe8FGEDJjw8jCDD+pzfbtHy3Gqyg/CVb1SO5vcEX
+ gmsfOh+JAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZAXvBQAKCRArRkmdfjHURWcyD/
+ 4z4RX0Lxrn8tRX8IbLQW/N48Svs7bVH70g6E+YXnC6C9ssz3luDY0z71xfUToW3uHSPr9kDnHstie7
+ j0DZaYi1Bi55JgEnWgDVUTgwXuxHNgUaAuv6qYdy4QpzvcjlPJIDQyjvnkidoltKXn5cS8oFIfNJjq
+ 16TfmVrgsWWLNR9qVRCSS0QeLF1JmZ/x551NTgRHo8d1T/JNbat7vLAlnQLcM1SMYb9AKVLiaO7KVG
+ 8w+k3P9OegKSROlnvQP7qfay+WgFZ1XIgVCXudIa3KoRF5oBv+ib6SqJ7AK/wg573Os6zkv/CITh5u
+ dUZA6UJ6LlH1iXdVESJqR0y2RpVeuzyqUK78ObnAAuIEkggVy1+soI+cgk2uHoVsjXjMS/qYyCfIZr
+ INzJT/rZkWSRaa+6L3DccSnxL5Zgwvs/niCpSAAGrEa/KCxhA3hLh0XTQQ/fZK1VOpQdje/L92OcsH
+ zOsL6NezU4gs3EOhNG4eMEQgSxJEq7qDa6NiKWv6roZBzjVgkmqPnFzl1InWFwL8qBoVVJq20w+maW
+ DgSr+Y+e74nEk85GpJb8Ds10A+IxW0PvZzJ30HrY1Tl72/DHWDAwZaKX/yQREBY+22KT9ctbLhS4vC
+ 3UGqMnSkRQ54Sw1WEMCszYcWoH6PV6m0tpctS6laxJ2+oNXIcLFGjIeS4htw==
 X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
  fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
-This patch series adds I2C support for MT8365-EVK board.
-The I2C-0 is enabled, it can be used through the board pin header,
-as described directly on the PCB.
+Enable the I2C0 bus provides communication with:
+- The integrated RT9466 Switching Battery Charger.
+- The integrated MT6691 LP4X buck for VDDQ.
+- The integrated MT6691 LP4X buck for VDD2.
+- The pin header, to plug external I2C devices.
 
-This series depends to another one which add support for
-MT8365 SoC and EVK board. Link [1]
-
-One patch has been cherry-picked from [2], so I've addressed the comment
-and kept the trailer.
-
-Regards,
-Alex
-
-[1]: https://lore.kernel.org/linux-mediatek/20230101220149.3035048-1-bero@baylibre.com/
-[2]: https://lore.kernel.org/all/20220531135026.238475-2-fparent@baylibre.com/
-
-To: Qii Wang <qii.wang@mediatek.com>
-To: Rob Herring <robh+dt@kernel.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: linux-i2c@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-mediatek@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Fabien Parent <fparent@baylibre.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 ---
-Changes in v3:
-- Rebased to v6.3-rc1.
-- Move i2c3 node to be consistent with the SoC address order.
-- Link to v2: https://lore.kernel.org/r/20221122-mt8365-i2c-support-v2-0-e4c7c514e781@baylibre.com
+ arch/arm64/boot/dts/mediatek/mt8365-evk.dts | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-Changes in v2:
-- Drop the patch which do useless change in i2c-mt65xx.c driver.
-- Change 2 lines compatible/reg in oneline.
-- Link to v1: https://lore.kernel.org/r/20221122-mt8365-i2c-support-v1-0-4aeb7c54c67b@baylibre.com
+diff --git a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts b/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
+index 4683704ea235..b68aee8f229f 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
+@@ -87,6 +87,15 @@ optee_reserved: optee@43200000 {
+ 	};
+ };
+ 
++&i2c0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c0_pins>;
++	clock-frequency = <100000>;
++	status = "okay";
++	#address-cells = <1>;
++	#size-cells = <0>;
++};
++
+ &pio {
+ 	gpio_keys: gpio-keys-pins {
+ 		pins {
+@@ -96,6 +105,16 @@ pins {
+ 		};
+ 	};
+ 
++	i2c0_pins: i2c0-pins {
++		pins {
++			pinmux = <MT8365_PIN_57_SDA0__FUNC_SDA0_0>,
++				 <MT8365_PIN_58_SCL0__FUNC_SCL0_0>;
++			mediatek,pull-up-adv = <3>;
++			mediatek,drive-strength-adv = <00>;
++			bias-pull-up;
++		};
++	};
++
+ 	uart0_pins: uart0-pins {
+ 		pins {
+ 			pinmux = <MT8365_PIN_35_URXD0__FUNC_URXD0>,
 
----
-Alexandre Mergnat (2):
-      arm64: dts: mediatek: add i2c support for mt8365 SoC
-      arm64: dts: mediatek: enable i2c0 for mt8365-evk board
-
- arch/arm64/boot/dts/mediatek/mt8365-evk.dts | 19 +++++++++++
- arch/arm64/boot/dts/mediatek/mt8365.dtsi    | 52 +++++++++++++++++++++++++++++
- 2 files changed, 71 insertions(+)
----
-base-commit: 5c6b974d24c21a6aa5d8b524067d7d9bc7fcc4f2
-change-id: 20221122-mt8365-i2c-support-fc048da261ea
-
-Best regards,
 -- 
-Alexandre Mergnat <amergnat@baylibre.com>
+b4 0.10.1
