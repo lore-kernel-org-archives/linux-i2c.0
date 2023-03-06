@@ -2,101 +2,106 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C4AEC61DA4
-	for <linux-i2c@archiver.kernel.org>; Mon,  6 Mar 2023 09:27:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCEF0C6FD1A
+	for <linux-i2c@archiver.kernel.org>; Mon,  6 Mar 2023 11:37:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbjCFJ16 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 6 Mar 2023 04:27:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37628 "EHLO
+        id S230254AbjCFLhm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 6 Mar 2023 06:37:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229991AbjCFJ15 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Mar 2023 04:27:57 -0500
-Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B011FF4
-        for <linux-i2c@vger.kernel.org>; Mon,  6 Mar 2023 01:27:55 -0800 (PST)
-Received: by mail-vs1-xe29.google.com with SMTP id o6so8456950vsq.10
-        for <linux-i2c@vger.kernel.org>; Mon, 06 Mar 2023 01:27:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20210112.gappssmtp.com; s=20210112; t=1678094874;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=u23YGdtz08BtcxfyGtNAoD9JB3zMPixrGi2haHM+DPQ=;
-        b=O9WxhgaLFAaJgKfc9TwZLUBn2suBND7ZVszQ62VdCM9WMop+yAYsY5z8TaX+OVPxK6
-         9EnOBMOllcOfJsN+APm3f+fhNzBSuhBIRtUrRpllolb8tDi6N3cYdkVHn6nq6ya0X84X
-         g3iAM76zr5Ehv+A9SLpCB+snOTrNs1dO84FUbc2BFyOL88PVHz9hk4imkd8LPRALga++
-         zCswG3CH2xRnUq2Il5w6RtwFYBy/PsQzqUAViEcfAixTbfH+FmdmvxyEwVMoSwmrqTJt
-         NHP8hPlsQAeWfiDeNeFZgd0HY3FxPZmQ18l5D+hxrABh7frT+dA4EUtVmYh08WJnaXRO
-         oeJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678094874;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=u23YGdtz08BtcxfyGtNAoD9JB3zMPixrGi2haHM+DPQ=;
-        b=N9W+gcyzjq1Yx7J73sVOq2afijIa2DSN6kUGxRFN79AqjkyblMlnpB4tOj+tAEVyW4
-         kFOU3441y+oYoaAw22NScyN66ue0XtO/7pyzKrRsl4GAAl3QmAxt9B+U1n7U9JkF+c1c
-         gliqlKbFliOnl4mp083RefwRyB04uiYKN1DFKSUuXVxc+OMqSxXLrlvxG0WLPdl6h7vn
-         /PxBXgdLwe/L5Y/ASoZX/oYxwEfZVS0vFm5wWgUEdw6kr3T7GgutzMbK4K7/iORkG0GN
-         yAkiSSkqku+CYSTV7zvjPEWnO3F3DWMl+FKUHD9Tuc8b2wyeJ/P7a9H+4WizNuVu+r/b
-         OILQ==
-X-Gm-Message-State: AO0yUKV0b6EIXhsWn2J/ebrrOAjYZ3aHKTuk6iMjAkyTSuyQLYH5uUq1
-        TnjyGqizzTOxuz0wiuBf2fZQk+2/LbRHZ0zgGi85cjuAos8Wscg0D/k=
-X-Google-Smtp-Source: AK7set9nV4Thuk0m6NGIRlR+kPaMTUIh7loOPqYPe95SB7yEHfXOmLn+JdlcC2Vl0p4+97hrzlagMIdGIgtkhqHyjak=
-X-Received: by 2002:a67:e089:0:b0:411:f6d4:1be9 with SMTP id
- f9-20020a67e089000000b00411f6d41be9mr6647774vsl.5.1678094874626; Mon, 06 Mar
- 2023 01:27:54 -0800 (PST)
+        with ESMTP id S230214AbjCFLhl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Mar 2023 06:37:41 -0500
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B23C028D24;
+        Mon,  6 Mar 2023 03:37:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1678102659; x=1709638659;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=QC/BDLv62Qyo3q2kdtORu01ceJMJmAMax/5M3imOBgA=;
+  b=Qvcm6taPz6m/SUo2hfFOL6NWJH5qwIzZAWTPY9VeQW0bJb9a0J/uyPGi
+   Jjs31icBfewEXBy6eDbF4NFoZLoT3fuiGzyWYER+qjj+1S09fczK6uC6g
+   lM2Br7TYH9cc8iaDUBehjsv0KOi7ON072MvOkGaXpIRBKNZs95FRjyGTx
+   Bwa5YGwCynk4xM5698qhtckMpWnz75eEi/8645x4ghatRTtqNE7aIjyq0
+   MNwezRaZ2MHMKU6HqVHuTWrEdrPVhG4Xh8Y01cZ4+i5J6XHdbrQrL+2Ic
+   U5UdTrRFz7WyIGiDPDgV5oyY+YIM5usVHaVxjko+0RRduAG+k+Xos0zag
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10640"; a="333006416"
+X-IronPort-AV: E=Sophos;i="5.98,236,1673942400"; 
+   d="scan'208";a="333006416"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Mar 2023 03:37:39 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10640"; a="626129905"
+X-IronPort-AV: E=Sophos;i="5.98,236,1673942400"; 
+   d="scan'208";a="626129905"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by orsmga003.jf.intel.com with ESMTP; 06 Mar 2023 03:37:36 -0800
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1pZ99q-00GKLB-0y;
+        Mon, 06 Mar 2023 13:37:34 +0200
+Date:   Mon, 6 Mar 2023 13:37:33 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Cc:     Grzegorz Bernacki <gjb@semihalf.com>,
+        Jan =?utf-8?B?RMSFYnJvxZs=?= <jsd@semihalf.com>,
+        "Thomas, Rijo-john" <Rijo-john.Thomas@amd.com>,
+        "Lendacky, Thomas" <Thomas.Lendacky@amd.com>,
+        "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 8/9] i2c: designware: Add doorbell support for Skyrim
+Message-ID: <ZAXQffqGWJLm8vFQ@smile.fi.intel.com>
+References: <20230302194235.1724-1-mario.limonciello@amd.com>
+ <20230302194235.1724-9-mario.limonciello@amd.com>
+ <CAA2Cew5YyufrBZqAA4A5R=1vf_dn=c3ftwziTjzFSm8S5LJZGg@mail.gmail.com>
+ <MN0PR12MB61010A9EEBEC94330A7E9702E2B39@MN0PR12MB6101.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-References: <20230306024523.248216-1-dzm91@hust.edu.cn>
-In-Reply-To: <20230306024523.248216-1-dzm91@hust.edu.cn>
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-Date:   Mon, 6 Mar 2023 10:27:43 +0100
-Message-ID: <CAMRc=MdWn_XKZZp9cC056xi8O=ghrZnuX-GAWasWukzDjnM3ow@mail.gmail.com>
-Subject: Re: [PATCH] drivers: i2c: remove dead code in davinci_i2c_probe
-To:     Dongliang Mu <dzm91@hust.edu.cn>
-Cc:     Sekhar Nori <nsekhar@ti.com>, linux-arm-kernel@lists.infradead.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <MN0PR12MB61010A9EEBEC94330A7E9702E2B39@MN0PR12MB6101.namprd12.prod.outlook.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Mar 6, 2023 at 3:48=E2=80=AFAM Dongliang Mu <dzm91@hust.edu.cn> wro=
-te:
->
-> From the comment of platform_get_irq, it only returns non-zero IRQ
-> number and negative error number, other than zero.
->
-> Fix this by removing the if condition.
->
-> Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
-> ---
->  drivers/i2c/busses/i2c-davinci.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-da=
-vinci.c
-> index c836cf884185..9750310f2c96 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -764,11 +764,8 @@ static int davinci_i2c_probe(struct platform_device =
-*pdev)
->         int r, irq;
->
->         irq =3D platform_get_irq(pdev, 0);
-> -       if (irq <=3D 0) {
-> -               if (!irq)
-> -                       irq =3D -ENXIO;
-> +       if (irq < 0)
->                 return dev_err_probe(&pdev->dev, irq, "can't get irq reso=
-urce\n");
-> -       }
->
->         dev =3D devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
->                         GFP_KERNEL);
-> --
-> 2.39.2
->
+On Fri, Mar 03, 2023 at 03:00:55PM +0000, Limonciello, Mario wrote:
+> > -----Original Message-----
+> > From: Grzegorz Bernacki <gjb@semihalf.com>
+> > Sent: Friday, March 3, 2023 06:00
 
-Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+> > I am not sure if adding a new ACPI ID is a good idea. Actually we are
+> > talking about the same devices. The only difference is in the
+> > communication protocol between PSP and CPU. This could be easily
+> > detected at runtime by checking cpu id. There is no need to introduce
+> > a new id and create dependency on the FW version.
+> 
+> An ACPI ID seems more scalable to me to represent the difference in protocol.
+> Otherwise what happens when the follow on to Skyrim comes?  Do you add
+> a new ID/case to the code?  If it was an ACPI ID then it's a one line change
+> in the firmware to represent this.
+> 
+> What I'll do for v3 is do with a CPU ID in this patch, and then introduce an ACPI
+> ID in a new patch.  You can test it without the ACPI ID, and when it's working
+> patch the BIOS with the new ID and see if that continues to work.
+
+I don't think we need this complexity.
+
+Please, use just an ACPI ID and that's it. For testing one may apply additional
+(HACK) patch(es).
+
+As telling from my experience, to distinguish such things via CPU ID is a bad
+idea. Yes, we (used?) to have a PITA (find yourself what this stands for :)
+times with the (mixed) approach. So, no, please don't add CPU ID into the I²C
+platform driver (keyword: platform).
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
