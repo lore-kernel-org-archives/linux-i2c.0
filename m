@@ -2,161 +2,171 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10618C61DA4
-	for <linux-i2c@archiver.kernel.org>; Mon,  6 Mar 2023 13:12:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FDFDC678D4
+	for <linux-i2c@archiver.kernel.org>; Mon,  6 Mar 2023 13:47:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229651AbjCFNMA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 6 Mar 2023 08:12:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48048 "EHLO
+        id S230185AbjCFNr5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 6 Mar 2023 08:47:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230516AbjCFNL7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Mar 2023 08:11:59 -0500
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2050.outbound.protection.outlook.com [40.107.223.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B023B2940E;
-        Mon,  6 Mar 2023 05:11:49 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TnImKYJDzV8oF8xvLlpV2f38fWM5P5trmTLYeXyPJ0BZZfNm6HKrKdttWyIkAHBMitNs5SfBO0FumfnFkZgDnShwluBrgEiEEatU9sshmPqja2ukIk1nv/JasCigVCPDssWgwALTXUEXX4e8boQRtxvPctzDjaI0wsM6jP9MBB1FJ6duj/DzCfwJk1rEez08mBkvttWx9matbHXctsMym9qKCZ+Qb5BRDy9PdfysQE/nMG8004XhMaFj5VboeY3Jxdf1hbzqR/aWeWJfL7qbCkK/7xXwDZeFilvuHUS+Ag5LbCjPDiJ3aeiTw9KKD6MxSKdzncDY+T9gOB41DlOOvA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=QeIUNZrIFZWOnjx24gQqma7iCs7aUoOnOwRvnQ6k5iU=;
- b=bMvNS7nV3lmFLRaOz9uwCb69Rbbo5rPpSczAbpHXUb65Fe5SJJFpVbP7zKkBhGn7kRZelMUXdJbOk8utlAt82fVkcSv4pyx9nIvOjCpqhaSBj/S/JqeFpX1ELj1wBF0m1pnARFU6T6TC1sN/xCPmzEtsR10cPTBR/4FyOXNRKLMOjCkt3cPspJSoX83XQgTNWYhd/T1EWCSF+rsWcQnw3P1bv1q6VG0Jn7KHw4I4jA8PpAxS7RAK+DvZj60PlLXYBPhXuzfkuP/nydPbezsSOUg//K+QhSaYTN4GSm8om3sqbswv87KKqFsEPqSwvc6EuCaIkBJ4C2M+w03vXHMwOQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QeIUNZrIFZWOnjx24gQqma7iCs7aUoOnOwRvnQ6k5iU=;
- b=H7Ydt3IsL2fHL6ZGG0tjLpDW2bTVLbEZGt8lgiUa8w5nf90njgw8qxxcAMkgzTpZID2X40sUpjBnrFhXXRpoWpv4Si2yuLimGXVS3QSUKTlD3EQdLJUGAzEjCsqp1fT1h3/IidmnH9vZ6RHS7GtsA9OAJnP01wkWfWH1NfAR2Ng=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com (2603:10b6:208:3cb::10)
- by PH7PR12MB5999.namprd12.prod.outlook.com (2603:10b6:510:1db::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.28; Mon, 6 Mar
- 2023 13:11:44 +0000
-Received: from MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::a4e:62dd:d463:5614]) by MN0PR12MB6101.namprd12.prod.outlook.com
- ([fe80::a4e:62dd:d463:5614%9]) with mapi id 15.20.6156.028; Mon, 6 Mar 2023
- 13:11:43 +0000
-Message-ID: <f69f0dc1-6fe7-7aa3-4555-bdd5ec3f8f04@amd.com>
-Date:   Mon, 6 Mar 2023 07:11:41 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH v3 9/9] i2c: designware: Add support for AMDI0020 ACPI ID
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     =?UTF-8?B?SmFuIETEhWJyb8Wb?= <jsd@semihalf.com>,
-        Grzegorz Bernacki <gjb@semihalf.com>, Rijo-john.Thomas@amd.com,
-        Thomas.Lendacky@amd.com, herbert@gondor.apana.org.au,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230303165050.2918-1-mario.limonciello@amd.com>
- <20230303165050.2918-10-mario.limonciello@amd.com>
- <ZAXWzMFBjo57UUa+@smile.fi.intel.com>
- <0a872110-3f38-0744-17f1-74de3e78f84d@linux.intel.com>
- <ZAXiviOdddEK/Pak@smile.fi.intel.com>
-Content-Language: en-US
-From:   Mario Limonciello <mario.limonciello@amd.com>
-In-Reply-To: <ZAXiviOdddEK/Pak@smile.fi.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: DM5PR07CA0075.namprd07.prod.outlook.com
- (2603:10b6:4:ad::40) To MN0PR12MB6101.namprd12.prod.outlook.com
- (2603:10b6:208:3cb::10)
+        with ESMTP id S230037AbjCFNrz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Mar 2023 08:47:55 -0500
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7594810F9
+        for <linux-i2c@vger.kernel.org>; Mon,  6 Mar 2023 05:47:53 -0800 (PST)
+Received: by mail-ed1-x52d.google.com with SMTP id j11so19236337edq.4
+        for <linux-i2c@vger.kernel.org>; Mon, 06 Mar 2023 05:47:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1678110472;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vcK7h2xkUrxUohGfOB4HeHVOM4D/ccmRrqqf2D1YNtw=;
+        b=fW7ieA2VtbQSXR/suVGVtqo7MTfevxllSiYiFW5Zk89Q7MScV0OjCFgu4+Em1fsi/O
+         UzBw4m5Z992ZSVHDlW1lHBuKKeECpPTx05I5ov7UkY41H79F15Ao1YhlOr8DYaPsGKvg
+         FxbOzXkO95eLDBoIhg1aJ2C8vCngB1jpMEMbwveEcrsiGfBq9HAUeHh5iSjMlK8v4NlI
+         qDIyadEOSVjkmZTK1jim/teFzEiWGS6eRYYm2HI2+hcx2znmWEC5EBPKwxtgV9YfjSy0
+         lvqnMXEUz8G9BgDdxZEaofZW2g8IDq4G8z0b5BGxztiapbuEhv8g2GiC+SK0bz6n2+jF
+         ZQjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678110472;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vcK7h2xkUrxUohGfOB4HeHVOM4D/ccmRrqqf2D1YNtw=;
+        b=yP80R5c4sHORtRy0MOcni7T5YfGGiAB6TQHhQRcd3Rv6dskoz66DszLVE34rOwyhK8
+         PaK/XNBIJZpHuMh8vQIM/Scu7rxjAzfa+6W7/BSnuH7v/SrpNL0mCl9YPWTbFJX9wk5i
+         5MjZZry7Wpahb4RmrF6F4HhORwvSGUoR475Jv+4bqBES0bH6JOJWVt0A3x6sOQZC4Dxq
+         F+tFqYDA6nOsB/p5YtB/cXce5kKAJS0nVTaML8TGI5SvFbMO8ETk2l4y4i5STAiTRwKT
+         cxVwfashyBZrwYQnLEB7/BgEfBgdXAkImBnzNNX5XvuVXW42gTzYvv29/0UBDG5n7rLM
+         z3tQ==
+X-Gm-Message-State: AO0yUKWGvI4Xhcl4o/43F6c8qRcKcb2uy1Vz8UcSbiXzS5hwG1Xvguf7
+        yBM8fghSzeuOmYXPGjce/Y9kYdokJ7v/RKkkPzA=
+X-Google-Smtp-Source: AK7set/niWTx+/FkDBG0ezz53/7cuKUc9uzQRtbJoXySOD5FBDqrF1VJRvaSp12rekQmppglmalcFQ==
+X-Received: by 2002:a05:6402:31fb:b0:4ac:c3c0:24d7 with SMTP id dy27-20020a05640231fb00b004acc3c024d7mr11173837edb.42.1678110471955;
+        Mon, 06 Mar 2023 05:47:51 -0800 (PST)
+Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
+        by smtp.googlemail.com with ESMTPSA id y64-20020a50bb46000000b004bc2d1c0fadsm5193293ede.32.2023.03.06.05.47.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Mar 2023 05:47:51 -0800 (PST)
+From:   Alexandre Mergnat <amergnat@baylibre.com>
+Date:   Mon, 06 Mar 2023 14:47:43 +0100
+Subject: [PATCH v3 1/2] arm64: dts: mediatek: add i2c support for mt8365 SoC
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN0PR12MB6101:EE_|PH7PR12MB5999:EE_
-X-MS-Office365-Filtering-Correlation-Id: a8ae6b4b-0a5f-45ef-1a2e-08db1e4454e4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: H6xI5ASmwwwBvOYtyT39ZxIVUkj39h6C3xYPnAz9u5mzRYkhUzbdDTW3BZM2TwvgiBSn7xuh1/8zLQ4k8bPlYq4OStncMvJwyy6N1xk/C0SlJx5i+JIHbgJHKJfdUw63cf7213oFoPowSxjgeMS3807tQ+yDMyfEpxq6//SL/5wG6vjokQuA/uq0D+Bu4iVc9udwv1y+qxJ44Wd8zchIg1QDshmPdNmeqAjtqvbjmVBUZ6iAJT2NQQB38xPtMI5A+YhsvJSRuH0GEhNMMyfewTkOT0nJWQydWbBimAiiraSj8+1QMDJUwkCLEgAsQ4ogPNVI1iWVJ3XZq7dsDL5cnpABvScoZevBxjr3RNYhvTxn9EhkWNt0YeIND3xK71oqKhmSQR/+YTchZI7JGjZngzaHLS880/1acpa+cuReKKLOqcRLe8ORieMaPkE8g/7GTt5xw2WJwJcoZ8jWVR/iUui+I0Y5SUf7SzE0ADR7kFbO2WLSXaNweW82SBsMHa3N/6AcQzQ97QbALcnQumGJgzHBfugSOIPMd4v2gi1ptNUXCE3i9lUVaS+4Z8LnB+PmzLHU8UdhBqI+nobS+1GOFmpKuXzfbnNe4saQW3TBJgU/rNZiHDIEuByoiWaPQDLUMNETmp+bnXlK3N0I3ncjXlUQAUDmft03gFD0sI+GrpShY6v6nsQDukYbhlRIsDsdJ5Sm29hyYE8j4H9GI7HDKyVrf5YW1Ku7lqpUGYsiiUQ=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR12MB6101.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(366004)(39860400002)(396003)(346002)(136003)(376002)(451199018)(6512007)(6506007)(53546011)(6486002)(36756003)(31696002)(86362001)(38100700002)(186003)(2616005)(41300700001)(66946007)(66556008)(66476007)(8676002)(4326008)(2906002)(44832011)(31686004)(8936002)(5660300002)(478600001)(316002)(54906003)(110136005)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ZE9uQ2VZZU5nbVp0VTJnelMrVDFXUmNET1FxcS9vdWEvb0duZjFPRnQvbSts?=
- =?utf-8?B?Q2E5OTU3UysrVGJwZGFDcUQyMnlmZzhSZDFvY2k4NlRFS20xWm14aXNNL3NG?=
- =?utf-8?B?RVdWcVhMRHFodm1QTmFwM1FJSWxwbTBtcXVLRnFIa0FXOTRSOHI1UjJ0Z3pm?=
- =?utf-8?B?SnlVL3dwbXVaSzkxUkl6YW9BY0N2bXFNK1d0S1J4TzltTUU0RXpBU1Boblpi?=
- =?utf-8?B?TG54a3Q4UXpzT21VeHZJbVBDL3prc2RuLy9yK0pIVFkvaVQxY1RKb0lOQzhj?=
- =?utf-8?B?Znl6bWpDdDRoZFNQY1ZsS1gyRGppK2xzVVJMYW5QWEMxdVNOaVlLa2YvMlRn?=
- =?utf-8?B?MzdIS0hzNzJheTBDK0c0NDExN0JXd2FiSkNlTm9kcmc3b0NQQzg0YWVnUHpi?=
- =?utf-8?B?R3ZNYWRUYlkyaGxlQmVWdzJJMC9XTi9qREMrckJlSzlYdENYNFZFY29mUzVT?=
- =?utf-8?B?WW1FS3JoVXZhZHhKaE5XT3dKajc3UTJIaGRNZTNybHpCUnNpT2R4ejJ0TS9K?=
- =?utf-8?B?Njl6cXlzYnRDWjlLcHF4UUJzN1BQOWMrUU9SRkhBOFlrZ01sa2lFdVBXbWMw?=
- =?utf-8?B?RjFSTzRabTUxSXZqWmxoa2VOc3FPeFFzYzFsd0pvdXIySzFFNDczeHZ0dXkw?=
- =?utf-8?B?QjIrZ0RJQyt5YU5yVUpFQi9qYkZ0S0dUcUhKdkxWVHBqVlp3bVZyK2w2YWUy?=
- =?utf-8?B?RDVMejZ6czFYRGMzMkRLcmFHTEtrU3craXJrNlgyRzliZ1p4cjNKNlpPNGlE?=
- =?utf-8?B?RXgwSVNLSGo1ekYrMFpDY0tTL1BxbU5KWkJURkFpUTAzbDhuYXBHUGJpdzJZ?=
- =?utf-8?B?U0JoY0Rzdll2S01mSUFCZlUzaVM1eERmTG1NZGJoaXZ4TGRWNlpERFVEcXVO?=
- =?utf-8?B?SGp1cng1R0RSeFlUQyszYjczNi9BbWZ0blV5Q2VCZ3pTemJSa1ZUNEErQW9o?=
- =?utf-8?B?Q0NxcjVZMElrU1hDc3B4M1pKN09OL3NXQjM3ekV1OVNlOHI2eDJlR3VkWWR0?=
- =?utf-8?B?Y0kveFpHTWlCVXA0eHZmTXpyeFh0STBvVWQ3emd5ZThCWDJhQlR6cnZxQzlO?=
- =?utf-8?B?ZTBTekVaUURnK2xQVkVJdlhIVlFVd0xUT2U0eXI4Z3RoMmxVbFg2c1VicGI4?=
- =?utf-8?B?L2cwLzlWTWtkTktlZ0h1Z2NKSGU5N1AyNmVLUmZ0dnhFdEk4Y1VQNmRxL2Vp?=
- =?utf-8?B?T05OTG5UdExJV2pSRURsWDJjUWYrK2lkWm1ZSU5mWDAwOVVzbElsbGxYVGhs?=
- =?utf-8?B?NEpTanV3MEpMbHpDbTgydlpCZW5DcExQOHplQmtORXFQNk1INmh4anZVTWwv?=
- =?utf-8?B?NFBhRjBHS3R5Z0tBdmdNZ2pCTjhJVS90d3BIRXNTYUtiVXNJLzMxdU1Na1By?=
- =?utf-8?B?akF3dDAxTE8xcUdFamxmem9UR0VXSHlkRXNkVGZuOXd6b2lRN21Yb1c2RDM5?=
- =?utf-8?B?bVY2QzVWV1RaWFRHSW5XMk9DZ0F4ZTlVS2xEckVBWGlvMDN6ZW9FSi9xSFNQ?=
- =?utf-8?B?NVF4UU9VbzhySC85dlUyZVBndjdsV05nejJ0a2FiNEFSRjRMOTRIZ1JLdGYw?=
- =?utf-8?B?WnFGUmVZSDRBY29IZ1d2L3h1VktSQTBXSVdxZU9qcy9SSG5xdnhEek5jY0VD?=
- =?utf-8?B?bG5md0dsdlBjc3JkcDJ5VWowYXpNVmlUU0lkSjdEaWxZQnR3bmc3eFVrUXFV?=
- =?utf-8?B?djN5MCtVVC9RTm0rZDN6UWU4S21tdXZMaW9xWEwxQ1l5Z1p2QVpxUzdyTXZJ?=
- =?utf-8?B?UG9LZ3dFU3c0VERsbnhxKzdROERxcjF1aTUwM0RvSG9KT1NDQnBsV01wYXpj?=
- =?utf-8?B?bytBWGViQWFDZ1VnQUN3Y2dnTWtVRXMzTldjUUlwRllONFpyUnBPbUNJMC8w?=
- =?utf-8?B?dkplMTE0eUUwSHdacmt0NmF3Mzk1eUdpZTVMR1J3dlhVYStyZnVReW94b2tZ?=
- =?utf-8?B?VjFDNzd5NW12Y3hSUjhsT1dRcWJrVUxUYlBmei9SU1hJVHJDWndmTUpITU0v?=
- =?utf-8?B?ZStYd1o3R1hVb3pRODJwSTFTTkF2TWdsS1A5aXVReWM1OCtwdmhsSmJFWkZD?=
- =?utf-8?B?K3FOSzdseGdBZFVWZ0oxZFQ2QXFmME94cnJhT09OVFZDVjRMVTBUTlM1UFNh?=
- =?utf-8?B?Ykxvb2JGNGxvUEQ1T3puZ041YUFNeWVzVVRCN1dLS1N5MzMwd2M3c0FxdnVj?=
- =?utf-8?Q?ztqdCpTfjsnjKS2rsWRNg6/oh6mb9DnyYT80t3/JaMTS?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a8ae6b4b-0a5f-45ef-1a2e-08db1e4454e4
-X-MS-Exchange-CrossTenant-AuthSource: MN0PR12MB6101.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Mar 2023 13:11:43.5463
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 9zxHvK460J6iE9DHvTsUN45wlfgZN58dhFCF0DosAttBMDIqIRxRNd82w9+uGjVTtlsj+N2mppWgL0kxE86fTg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5999
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20221122-mt8365-i2c-support-v3-1-ad9bb1076d7f@baylibre.com>
+References: <20221122-mt8365-i2c-support-v3-0-ad9bb1076d7f@baylibre.com>
+In-Reply-To: <20221122-mt8365-i2c-support-v3-0-ad9bb1076d7f@baylibre.com>
+To:     Qii Wang <qii.wang@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-i2c@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
+        devicetree@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Alexandre Mergnat <amergnat@baylibre.com>,
+        Rob Herring <robh@kernel.org>,
+        linux-mediatek@lists.infradead.org
+X-Mailer: b4 0.10.1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2644; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=t815h3bcisWjGhNlfDMBygPs+0iQIdrU/JE4wcgy8+c=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBkBe8FtR5yhYovHKM8DPrMH2h8B0A5A/gAN/vk8uke
+ XNWXTH6JAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZAXvBQAKCRArRkmdfjHURdPIEA
+ Cbr9uvKwbizgB2J5nELpOhPwwOvYiyG8u+jIMewk8MlWhE7q29GmhNFWiXs201CGEtZXhsSLyeMp5R
+ Jd1HWGAdQBX+MvYQVccikUYnmhMOm+8ajzZvlj9LEAc4Glxe5GC2/OrQ0JJ1ejzvKzv78lpVgjGwOo
+ 85+6pMkCoA75p6w0FvojzGPFmjvApr6kMfn0CAxG5+3kP6XyHilKm4YfKLCTdAHYQmIo83bUcMAImp
+ TVsgXSFavb2xB9YL/4EUHTbzxdKmhL4fLCx0dHJ665lP/tzzJt5CpnsS8W/mCHW8HI6+hMx5QEb9Db
+ jBpI1jha2wSNVc2uEzGlswE9Tq3SIjHeWHGlLpOD5/kSDjf0y9dsYDcKh3P9Cn8na9sEb5YlzVQiie
+ uAn/F7VNwN3qXQJch1n/qjYJRak9pdWTlRXRo5vL3PSH1+ZnictdH7Eb3UnJ+266qlD/5h/bmMLfOD
+ EYvh8gTa32rYXyj1sol34fnLqx/fkkzqKtjpHuscpoICCEguHJhB7zf3ieZUcO1yDuNDASkdJMt4yM
+ OO1fsd8OAXqu55KsT4f/WfAyYf1m/kJkmGgolObXM9MrBQ2dzuG6RdNXP4fiPEyVvMSdlkpmwWIGUl
+ ODxAUEq6gNbvHEdnRu77Va3f2l9ts7mhC3/RKKtyfOE/KmEkDxHqea14IpoQ==
+X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
+ fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 3/6/23 06:55, Andy Shevchenko wrote:
-> On Mon, Mar 06, 2023 at 02:28:05PM +0200, Jarkko Nikula wrote:
->> On 3/6/23 14:04, Andy Shevchenko wrote:
->>> On Fri, Mar 03, 2023 at 10:50:47AM -0600, Mario Limonciello wrote:
->>>> Cezanne and Skyrim have the same PSP hardware but use a different
->>>> protocol to negotiate I2C arbitration. To disambiguate this going
->>>> forward introduce a new ACPI ID to represent the protocol that utilizes
->>>> a doorbell.
-> 
-> ...
-> 
->>>> -	if (boot_cpu_data.x86 == 25 && boot_cpu_data.x86_model == 80)
->>>
->>> Ah, in this form it's getting better than I thought!
->>>
->> These removed lines were added by previous patch. I think a bit too short
->> lived if the same patchset adds and then removes lines?
-> 
-> That what I have missed. Okay, coming to square 1, i.e. dropping CPU ID
-> completely from the series.
-> 
-> Note, for testing purposes you may always add a HACK patch at the end of the
-> series, marking it respectively. So, people may test it all and maintainer
-> apply w/o unneeded tail.
-> 
+There are four I2C master channels in MT8365 with a same HW architecture.
 
-If it still works then new ID can be reserved and patches 8 and 9 could 
-be squashed together either by subsystem maintainer when merging or for 
-v4.  My apologies if this wasn't obvious to reviewers.  My goal was to 
-separate the scalability and functionality for test purposes.
+Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+---
+ arch/arm64/boot/dts/mediatek/mt8365.dtsi | 52 ++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
-The way I did it was the series could be tested with patches 1-8 on both 
-Cezanne and Skyrim platforms and no BIOS changes.  If it works, BIOS for 
-Skyrim can be patched and patch 9 could be added to test kernel.
+diff --git a/arch/arm64/boot/dts/mediatek/mt8365.dtsi b/arch/arm64/boot/dts/mediatek/mt8365.dtsi
+index 15ac4c1f0966..553c7516406a 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8365.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8365.dtsi
+@@ -282,6 +282,45 @@ pwm: pwm@11006000 {
+ 			clock-names = "top", "main", "pwm1", "pwm2", "pwm3";
+ 		};
+ 
++		i2c0: i2c@11007000 {
++			compatible = "mediatek,mt8365-i2c", "mediatek,mt8168-i2c";
++			reg = <0 0x11007000 0 0xa0>, <0 0x11000080 0 0x80>;
++			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <1>;
++			clocks = <&infracfg CLK_IFR_I2C0_AXI>,
++				 <&infracfg CLK_IFR_AP_DMA>;
++			clock-names = "main", "dma";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c1: i2c@11008000 {
++			compatible = "mediatek,mt8365-i2c", "mediatek,mt8168-i2c";
++			reg = <0 0x11008000 0 0xa0>, <0 0x11000100 0 0x80>;
++			interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <1>;
++			clocks = <&infracfg CLK_IFR_I2C1_AXI>,
++				 <&infracfg CLK_IFR_AP_DMA>;
++			clock-names = "main", "dma";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c2: i2c@11009000 {
++			compatible = "mediatek,mt8365-i2c", "mediatek,mt8168-i2c";
++			reg = <0 0x11009000 0 0xa0>, <0 0x11000180 0 0x80>;
++			interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <1>;
++			clocks = <&infracfg CLK_IFR_I2C2_AXI>,
++				 <&infracfg CLK_IFR_AP_DMA>;
++			clock-names = "main", "dma";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		spi: spi@1100a000 {
+ 			compatible = "mediatek,mt8365-spi", "mediatek,mt7622-spi";
+ 			reg = <0 0x1100a000 0 0x100>;
+@@ -295,6 +334,19 @@ spi: spi@1100a000 {
+ 			status = "disabled";
+ 		};
+ 
++		i2c3: i2c@1100f000 {
++			compatible = "mediatek,mt8365-i2c", "mediatek,mt8168-i2c";
++			reg = <0 0x1100f000 0 0xa0>, <0 0x11000200 0 0x80>;
++			interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <1>;
++			clocks = <&infracfg CLK_IFR_I2C3_AXI>,
++				 <&infracfg CLK_IFR_AP_DMA>;
++			clock-names = "main", "dma";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		ssusb: usb@11201000 {
+ 			compatible = "mediatek,mt8365-mtu3", "mediatek,mtu3";
+ 			reg = <0 0x11201000 0 0x2e00>, <0 0x11203e00 0 0x0100>;
+
+-- 
+b4 0.10.1
