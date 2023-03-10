@@ -2,43 +2,43 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B74CAC74A4B
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Mar 2023 21:22:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5F32C6FD1E
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Mar 2023 21:22:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231469AbjCJVWg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 10 Mar 2023 16:22:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49686 "EHLO
+        id S231681AbjCJVWj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 10 Mar 2023 16:22:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231383AbjCJVWe (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Mar 2023 16:22:34 -0500
-Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2052.outbound.protection.outlook.com [40.107.102.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC6A212B7DA;
-        Fri, 10 Mar 2023 13:22:31 -0800 (PST)
+        with ESMTP id S231629AbjCJVWh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Mar 2023 16:22:37 -0500
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2073.outbound.protection.outlook.com [40.107.220.73])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE4212B3F0;
+        Fri, 10 Mar 2023 13:22:35 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=by/igJ5XMCXz8aQ5i7qejWGCEYR/vzA7vta1HkhuHSHy4OMpQvQnrZ1J81QrWYypkdxybRdBRUZUiw6B1BYdVwrqltdP7EtqZtELpno2v3FlmbE/9XCw1osDL7TubyYU2cLW3lL2zC3GetVhDaewOckYgLuCp4LYidZEojBRm2T8bbQhwwykHUv58hLXByGbumhdOJJe8zljkYeqKUmqcI72IWWblsszj3ozuMFVL6MWKA5h6PKZWbK2lGxL8HMyUZY9gJaMJB6egJjdQYoJe6V8KH/uGFbpzTfzy7lYuwhDjaupWOegr8QhU9wuGCAFuG5ZjOKDWaEpyf0puzjJXA==
+ b=UStir/59o3b8SfBANCkrZDpk4voxqc7gPW2U5+mv0cNB/A8i0XmLI1xeKAXBgaD31uqnH7o7aEBNoIZVAG1OlxeTF297Z2feJ9FjknbV1vxIdgQyQACsEozIf3hvF7LQiS3NtmzF4RJvmzgeY8QZUjIFRPHvxuvMHsizNwwpvPhP0CEOgfK0JTCifz+jYMhA9kojTs/SpIH9qGpE5yiau2RdOcZLxQZUNN0N4xI2dBUfHQjcDh0xWTGJG+iPefaKRNCTIIi0QvbY5s7e27gmgb5Q3hqXl9s9iGIZN1iXlZIT/RrSJvzLNkHK5tmbLLNAmYBDRzZEQ2pmNP4EHFtifQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nuFABClax6BVJFKjxf0andJaMVVcPdFZx4+m4olz05g=;
- b=PALYE61ZvNRS5WjNTJdB2tKqh18VYAuKuzxX6JrFwVbt4/2TweOjnEDH+aAKVKoopc4F58Kt5E38qC248yC550gJ5DS2LFjaR/nzX17mokAXrueVIgJZ2U4ouEDVgtC0f5emiVwjzUfmf3iOq5An9p7rQw1oc07EHre2/BQNY3iaZ5YjoIw7weFW8LHmlm5hB4xx6MNHhg5Jo6E93ukk4gdU9iBiGJjNAAD8PM1lz+hwsIh04zRnpejNg51JFWEnuEY+uHOywPL5OyJtSskI1UzRfLgOjOs8KIoinO3pXbXbEnfR7Q0wiDty44tWJXrdgQG18ne6wKY5m9BdVF8CpA==
+ bh=mdS6w+aukh3VCSO/pzBCBON98EhgpUf7eO4q4hmDRTw=;
+ b=H6jfJ3zjP/+TRgNgKvUexFnqZv1Mf+Wmz1izB7SWyHqirX7NlZGlUF36RzLVdFbveZT9D2jpPxZCTqT0I7Nv8hsL5H08gEVCmeJV1wepopsn+Nuwy4NkYV1Z0tTf90g2KqWd0HrB0kBoKkGuoAm8ltt2OSB84dZTj4ax9OQ0S/AMwxRr6qPDpH3OXFnGTQ67+7RsvX2DCRzWgzEIF1rJKFHDM7IcQXqbMdp9lubmFlW6GIqFOoE9ofUfCTqpW34VGAbTJ6mIDfEqidsOZQJoaqnXRHV1n9bSnT/fMd/57ITGoErXkGZohRqEpvp9cbA+mCO8rJiDLNlaL5s5qR78sQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=semihalf.com smtp.mailfrom=amd.com;
  dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
  header.from=amd.com; dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nuFABClax6BVJFKjxf0andJaMVVcPdFZx4+m4olz05g=;
- b=gHPRCVTD/ooroqEcJb8afFe1uufC4TMGlkgasW5H+GVXbb/YBLVQEbPy9u+H69QDvGX1KMgdHM6+Sim9C9ZVYlSuzlRJALgtuGBjDFXsCLq+Bqzyk8htM11zpkeopKNTd8DHEUoDGUmtitg5b7mkow0ImavobHn1XMBB04LBqWg=
-Received: from DS7PR05CA0027.namprd05.prod.outlook.com (2603:10b6:5:3b9::32)
- by LV2PR12MB5944.namprd12.prod.outlook.com (2603:10b6:408:14f::12) with
+ bh=mdS6w+aukh3VCSO/pzBCBON98EhgpUf7eO4q4hmDRTw=;
+ b=ohVQHuliSkfdTVKZo0R/1kuiznr3lMXQC/GPNhrBuzb9LCe9a5IC3HNvVs+f2www1TfOHqfDl8NcLJxuQQAgMGO7nIgM9Ag+ee9EyMhw1nN7D1NxeePloXpyR8WtjYFwwTjYnxDfcBEvharVybdK9Q68SQj/EizKh9qNS0H7VpU=
+Received: from DM6PR12CA0030.namprd12.prod.outlook.com (2603:10b6:5:1c0::43)
+ by IA1PR12MB8359.namprd12.prod.outlook.com (2603:10b6:208:3fc::15) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.19; Fri, 10 Mar
- 2023 21:22:26 +0000
-Received: from DM6NAM11FT075.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:3b9:cafe::b7) by DS7PR05CA0027.outlook.office365.com
- (2603:10b6:5:3b9::32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.19 via Frontend
- Transport; Fri, 10 Mar 2023 21:22:26 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.20; Fri, 10 Mar
+ 2023 21:22:32 +0000
+Received: from DM6NAM11FT070.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:1c0:cafe::d9) by DM6PR12CA0030.outlook.office365.com
+ (2603:10b6:5:1c0::43) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.20 via Frontend
+ Transport; Fri, 10 Mar 2023 21:22:32 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -46,41 +46,28 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DM6NAM11FT075.mail.protection.outlook.com (10.13.173.42) with Microsoft SMTP
+ DM6NAM11FT070.mail.protection.outlook.com (10.13.173.51) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6178.20 via Frontend Transport; Fri, 10 Mar 2023 21:22:26 +0000
+ 15.20.6178.20 via Frontend Transport; Fri, 10 Mar 2023 21:22:32 +0000
 Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Fri, 10 Mar
- 2023 15:22:24 -0600
+ 2023 15:22:31 -0600
 From:   Mario Limonciello <mario.limonciello@amd.com>
 To:     =?UTF-8?q?Jan=20D=C4=85bro=C5=9B?= <jsd@semihalf.com>,
         Grzegorz Bernacki <gjb@semihalf.com>,
         <Rijo-john.Thomas@amd.com>, <Thomas.Lendacky@amd.com>,
         <herbert@gondor.apana.org.au>,
-        Sean Christopherson <seanjc@google.com>,
-        "Paolo Bonzini" <pbonzini@redhat.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        "Tom Lendacky" <thomas.lendacky@amd.com>,
-        John Allen <john.allen@amd.com>,
-        "Jarkko Nikula" <jarkko.nikula@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>
 CC:     <Felix.Held@amd.com>,
         Mario Limonciello <mario.limonciello@amd.com>,
-        "Sumit Garg" <sumit.garg@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Ingo Molnar" <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        <kvm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-crypto@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <op-tee@lists.trustedfirmware.org>
-Subject: [PATCH v4 2/8] crypto: ccp: Add a header for multiple drivers to use `__psp_pa`
-Date:   Fri, 10 Mar 2023 15:19:45 -0600
-Message-ID: <20230310211954.2490-3-mario.limonciello@amd.com>
+        "Tom Lendacky" <thomas.lendacky@amd.com>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH v4 6/8] i2c: designware: Use PCI PSP driver for communication
+Date:   Fri, 10 Mar 2023 15:19:49 -0600
+Message-ID: <20230310211954.2490-7-mario.limonciello@amd.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230310211954.2490-1-mario.limonciello@amd.com>
 References: <20230310211954.2490-1-mario.limonciello@amd.com>
@@ -92,172 +79,318 @@ X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT075:EE_|LV2PR12MB5944:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5db611bd-8975-4bab-ae3e-08db21ad8bc4
+X-MS-TrafficTypeDiagnostic: DM6NAM11FT070:EE_|IA1PR12MB8359:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8bd8f7c2-2074-439e-b79b-08db21ad8fb3
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: eBNEFJ+QyQefx9AbDbTUifCFyQlm0ARnqK9CxDH/pnz6CGXMVFu1Ek0mPa1AXAJXa8a0RQiGI0QJwvdyqQNi/8WYOj8DVtF9OFXHX59jdUGiT/6CRnYdT7CQnO0WHrArGBkE7q6AZMLBtXV0P4Um4o78gBXH4/UQzYPM/dzI89+SNJSXvypWixbHxaWrtxZdTjmQrUENWVfOYUyortj54OOF3NBUjKSsRjUvsGeCz7dpSzOWLL1s/Lu+W53zjX7D0ZF9zZzeJ6xeAdLnda4tBe1XspQttMYkWeXFQGpACHAXbq8tK+RFCuVbxEmYDMY0rN1z8YpzlmYjMHV9ROYZwlY42ewSrN1P03gK0J+oL8ikQlmfkkMXrnzRXFcU0snqOIIFn1RWT8PLGGBIyzMFmGD8bvuGMQQCwRRxn5IviYhKZdV4N7S3if4BYr7/intbLWKSd4qcHB1LhAr7yMYLU841oj8FOqs86BasvrrwuwE0B92JvAn5e0RYnQz6nD4t9rrAWTQccL3G6s1hvShgvCrgjuudFvVD9qa7y+k5Vj0J9YZj5k60+Y/3dw+pPw0EOMwzjGNNZo25aGGKWd0YzSnh59JqcrBNkCpq8rU/wfBDK3W7oB4+Zq24WhXlu7Sfq0UZ53w5zgCDA1zy9er2HoxMNcsilhaEUwWvdJI0nP30ImUea1W5pb4n7IUuY0mGyiZnRxcLJeibhqM5i3b4A4J7M4aZMz2loH2oePlq0kcmAtSaM4GZRrMe7SSRS4h+X8uKTbv3NqKbtFuuMrhZgQ==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230025)(4636009)(376002)(346002)(136003)(39860400002)(396003)(451199018)(46966006)(40470700004)(36840700001)(82310400005)(1076003)(82740400003)(36860700001)(83380400001)(47076005)(426003)(36756003)(40480700001)(110136005)(54906003)(478600001)(921005)(316002)(356005)(41300700001)(7696005)(2616005)(81166007)(6666004)(186003)(26005)(16526019)(7416002)(70206006)(44832011)(40460700003)(336012)(5660300002)(8936002)(70586007)(4326008)(2906002)(86362001)(8676002)(81973001)(36900700001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: OtjDEb5ROKcwo1A7Z4mdbfuxri3kkt+lwaRysCUwXjs5zmu/MinjNa5CIwbvPqhksiuqcLI6Lupwnj8zklr9A78jb1SwAKuP+355y9BVjAnCKqdlUZOUTJD5cgiOcopAsPJmscTX2gtG2vCEPhvDYWmY12SAGoRVS3gbOu3lcIXYPVLNYvqsNhx3ctIRaQfEnrHuwWfqNaltHSzL0xxF7Rv6YrAbhkFO5xLbHmmxDggAO61+7B7rb/Tl/na/I+Hj7w4vy1/NxxvW8VgDKAa7e8Lbtp/8KNyL6aIKbMiislioJlXoxWadV5gLQIrEDDr33spXtLvxS//j6XFjLR9gd71WHTKAUJDkDgtjAs5D6InrJ9F6rCMV2wHPQrygphnmaiLrA/SNegnvZEvzjDKX7auUdzKXasCaQUf1A+RFF/ltCPfLcZPKB4ehe5IN5lCYERWc/MdLqeT8e/Vd9VJ/8tmJ//MWrqfOaEOqKafcChXuy2ePlatGMBCU0o/UzLeqz7obA/LAzJx35wIrBxjMhHhdG4Y9UfCugrjzffPxGktTRNhNt1OOMpZX5ygNepKqnXmlEhyRKR2B9TW3owKA8sXbCOFK62SYxg9LuAQpjMizPJ1bxcjKQZdyia6gHAWZSKAbhB1/vfm5SHYOv+6N1Xv8bo7L3w29uHgvEFVLJ6yD1aRsK0IGyXjAwC4WeHlnpoZMlQRwT0HAralQuMfsCvsLqCuiak9h3SJtFcTlkEo=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230025)(4636009)(39860400002)(376002)(136003)(396003)(346002)(451199018)(36840700001)(46966006)(40470700004)(82310400005)(82740400003)(36860700001)(6666004)(83380400001)(47076005)(426003)(36756003)(478600001)(110136005)(54906003)(81166007)(356005)(316002)(40460700003)(336012)(186003)(2616005)(26005)(40480700001)(1076003)(16526019)(7696005)(5660300002)(2906002)(44832011)(70206006)(41300700001)(8676002)(70586007)(8936002)(86362001)(4326008)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2023 21:22:26.0257
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2023 21:22:32.6254
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5db611bd-8975-4bab-ae3e-08db21ad8bc4
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8bd8f7c2-2074-439e-b79b-08db21ad8fb3
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT075.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT070.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5944
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB8359
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The TEE subdriver for CCP, the amdtee driver and the i2c-designware-amdpsp
-drivers all include `psp-sev.h` even though they don't use SEV
-functionality.
+Currently the PSP semaphore communication base address is discovered
+by using an MSR that is not architecturally guaranteed for future
+platforms.  Also the mailbox that is utilized for communication with
+the PSP may have other consumers in the kernel, so it's better to
+make all communication go through a single driver.
 
-Move the definition of `__psp_pa` into a common header to be included
-by all of these drivers.
-
-Reviewed-by: Jan Dabros <jsd@semihalf.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com> # For the drivers/i2c/busses/i2c-designware-amdpsp.c
-Acked-by: Sumit Garg <sumit.garg@linaro.org> # For TEE subsystem bits
 Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Acked-by: Sean Christopherson <seanjc@google.com> # KVM
 Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 ---
 v3->v4:
  * Pick up tags
 v1->v2:
- * Add tags
+ * Fix Kconfig to use imply
+ * Use IS_REACHABLE
 ---
- arch/x86/kvm/svm/sev.c                     |  1 +
- drivers/crypto/ccp/sev-dev.c               |  1 +
- drivers/crypto/ccp/tee-dev.c               |  2 +-
- drivers/i2c/busses/i2c-designware-amdpsp.c |  2 +-
- drivers/tee/amdtee/call.c                  |  2 +-
- drivers/tee/amdtee/shm_pool.c              |  2 +-
- include/linux/psp-sev.h                    |  8 --------
- include/linux/psp.h                        | 14 ++++++++++++++
- 8 files changed, 20 insertions(+), 12 deletions(-)
- create mode 100644 include/linux/psp.h
+ drivers/i2c/busses/Kconfig                  |   2 +-
+ drivers/i2c/busses/i2c-designware-amdpsp.c  | 142 ++------------------
+ drivers/i2c/busses/i2c-designware-core.h    |   1 -
+ drivers/i2c/busses/i2c-designware-platdrv.c |   1 -
+ include/linux/psp-platform-access.h         |   1 +
+ 5 files changed, 11 insertions(+), 136 deletions(-)
 
-diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-index c25aeb550cd9..ec18a756b7c9 100644
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -12,6 +12,7 @@
- #include <linux/kvm_host.h>
- #include <linux/kernel.h>
- #include <linux/highmem.h>
-+#include <linux/psp.h>
- #include <linux/psp-sev.h>
- #include <linux/pagemap.h>
- #include <linux/swap.h>
-diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index e2f25926eb51..28945ca7c856 100644
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -24,6 +24,7 @@
- #include <linux/cpufeature.h>
- #include <linux/fs.h>
- #include <linux/fs_struct.h>
-+#include <linux/psp.h>
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 25eb4e8fd22f..d53bf716f97d 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -566,9 +566,9 @@ config I2C_DESIGNWARE_PLATFORM
  
- #include <asm/smp.h>
- #include <asm/cacheflush.h>
-diff --git a/drivers/crypto/ccp/tee-dev.c b/drivers/crypto/ccp/tee-dev.c
-index 5c9d47f3be37..f24fc953718a 100644
---- a/drivers/crypto/ccp/tee-dev.c
-+++ b/drivers/crypto/ccp/tee-dev.c
-@@ -13,7 +13,7 @@
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/gfp.h>
--#include <linux/psp-sev.h>
-+#include <linux/psp.h>
- #include <linux/psp-tee.h>
- 
- #include "psp-dev.h"
+ config I2C_DESIGNWARE_AMDPSP
+ 	bool "AMD PSP I2C semaphore support"
+-	depends on X86_MSR
+ 	depends on ACPI
+ 	depends on I2C_DESIGNWARE_PLATFORM
++	imply CRYPTO_DEV_SP_PSP
+ 	help
+ 	  This driver enables managed host access to the selected I2C bus shared
+ 	  between AMD CPU and AMD PSP.
 diff --git a/drivers/i2c/busses/i2c-designware-amdpsp.c b/drivers/i2c/busses/i2c-designware-amdpsp.c
-index 8f36167bce62..80f28a1bbbef 100644
+index 652e6b64bd5f..105584abcf8f 100644
 --- a/drivers/i2c/busses/i2c-designware-amdpsp.c
 +++ b/drivers/i2c/busses/i2c-designware-amdpsp.c
-@@ -4,7 +4,7 @@
- #include <linux/bits.h>
+@@ -1,11 +1,8 @@
+ // SPDX-License-Identifier: GPL-2.0
+ 
+-#include <linux/bitfield.h>
+-#include <linux/bits.h>
  #include <linux/i2c.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
--#include <linux/psp-sev.h>
-+#include <linux/psp.h>
- #include <linux/types.h>
+-#include <linux/io-64-nonatomic-lo-hi.h>
++#include <linux/psp-platform-access.h>
+ #include <linux/psp.h>
+-#include <linux/types.h>
  #include <linux/workqueue.h>
  
-diff --git a/drivers/tee/amdtee/call.c b/drivers/tee/amdtee/call.c
-index cec6e70f0ac9..e8cd9aaa3467 100644
---- a/drivers/tee/amdtee/call.c
-+++ b/drivers/tee/amdtee/call.c
-@@ -8,7 +8,7 @@
- #include <linux/tee_drv.h>
- #include <linux/psp-tee.h>
- #include <linux/slab.h>
--#include <linux/psp-sev.h>
-+#include <linux/psp.h>
- #include "amdtee_if.h"
- #include "amdtee_private.h"
+ #include <asm/msr.h>
+@@ -13,23 +10,15 @@
+ #include "i2c-designware-core.h"
  
-diff --git a/drivers/tee/amdtee/shm_pool.c b/drivers/tee/amdtee/shm_pool.c
-index f87f96a291c9..f0303126f199 100644
---- a/drivers/tee/amdtee/shm_pool.c
-+++ b/drivers/tee/amdtee/shm_pool.c
-@@ -5,7 +5,7 @@
+ #define MSR_AMD_PSP_ADDR	0xc00110a2
+-#define PSP_MBOX_OFFSET		0x10570
+-#define PSP_CMD_TIMEOUT_US	(500 * USEC_PER_MSEC)
  
- #include <linux/slab.h>
- #include <linux/tee_drv.h>
--#include <linux/psp-sev.h>
-+#include <linux/psp.h>
- #include "amdtee_private.h"
+ #define PSP_I2C_RESERVATION_TIME_MS 100
  
- static int pool_op_alloc(struct tee_shm_pool *pool, struct tee_shm *shm,
-diff --git a/include/linux/psp-sev.h b/include/linux/psp-sev.h
-index 1595088c428b..7fd17e82bab4 100644
---- a/include/linux/psp-sev.h
-+++ b/include/linux/psp-sev.h
-@@ -14,14 +14,6 @@
+-#define PSP_I2C_REQ_BUS_CMD		0x64
+ #define PSP_I2C_REQ_RETRY_CNT		400
+ #define PSP_I2C_REQ_RETRY_DELAY_US	(25 * USEC_PER_MSEC)
+ #define PSP_I2C_REQ_STS_OK		0x0
+ #define PSP_I2C_REQ_STS_BUS_BUSY	0x1
+ #define PSP_I2C_REQ_STS_INV_PARAM	0x3
  
- #include <uapi/linux/psp-sev.h>
- 
--#ifdef CONFIG_X86
--#include <linux/mem_encrypt.h>
+-struct psp_req_buffer_hdr {
+-	u32 total_size;
+-	u32 status;
+-};
 -
--#define __psp_pa(x)	__sme_pa(x)
--#else
--#define __psp_pa(x)	__pa(x)
--#endif
--
- #define SEV_FW_BLOB_MAX_SIZE	0x4000	/* 16KB */
+ enum psp_i2c_req_type {
+ 	PSP_I2C_REQ_ACQUIRE,
+ 	PSP_I2C_REQ_RELEASE,
+@@ -41,119 +30,12 @@ struct psp_i2c_req {
+ 	enum psp_i2c_req_type type;
+ };
  
- /**
-diff --git a/include/linux/psp.h b/include/linux/psp.h
-new file mode 100644
-index 000000000000..202162487ec3
---- /dev/null
-+++ b/include/linux/psp.h
-@@ -0,0 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifndef __PSP_H
-+#define __PSP_H
-+
-+#ifdef CONFIG_X86
-+#include <linux/mem_encrypt.h>
-+
-+#define __psp_pa(x)	__sme_pa(x)
-+#else
-+#define __psp_pa(x)	__pa(x)
-+#endif
-+
-+#endif /* __PSP_H */
+-struct psp_mbox {
+-	u32 cmd_fields;
+-	u64 i2c_req_addr;
+-} __packed;
+-
+ static DEFINE_MUTEX(psp_i2c_access_mutex);
+ static unsigned long psp_i2c_sem_acquired;
+-static void __iomem *mbox_iomem;
+ static u32 psp_i2c_access_count;
+ static bool psp_i2c_mbox_fail;
+ static struct device *psp_i2c_dev;
+ 
+-/*
+- * Implementation of PSP-x86 i2c-arbitration mailbox introduced for AMD Cezanne
+- * family of SoCs.
+- */
+-
+-static int psp_get_mbox_addr(unsigned long *mbox_addr)
+-{
+-	unsigned long long psp_mmio;
+-
+-	if (rdmsrl_safe(MSR_AMD_PSP_ADDR, &psp_mmio))
+-		return -EIO;
+-
+-	*mbox_addr = (unsigned long)(psp_mmio + PSP_MBOX_OFFSET);
+-
+-	return 0;
+-}
+-
+-static int psp_mbox_probe(void)
+-{
+-	unsigned long mbox_addr;
+-	int ret;
+-
+-	ret = psp_get_mbox_addr(&mbox_addr);
+-	if (ret)
+-		return ret;
+-
+-	mbox_iomem = ioremap(mbox_addr, sizeof(struct psp_mbox));
+-	if (!mbox_iomem)
+-		return -ENOMEM;
+-
+-	return 0;
+-}
+-
+-/* Recovery field should be equal 0 to start sending commands */
+-static int psp_check_mbox_recovery(struct psp_mbox __iomem *mbox)
+-{
+-	u32 tmp;
+-
+-	tmp = readl(&mbox->cmd_fields);
+-
+-	return FIELD_GET(PSP_CMDRESP_RECOVERY, tmp);
+-}
+-
+-static int psp_wait_cmd(struct psp_mbox __iomem *mbox)
+-{
+-	u32 tmp, expected;
+-
+-	/* Expect mbox_cmd to be cleared and the response bit to be set by PSP */
+-	expected = FIELD_PREP(PSP_CMDRESP_RESP, 1);
+-
+-	/*
+-	 * Check for readiness of PSP mailbox in a tight loop in order to
+-	 * process further as soon as command was consumed.
+-	 */
+-	return readl_poll_timeout(&mbox->cmd_fields, tmp, (tmp == expected),
+-				  0, PSP_CMD_TIMEOUT_US);
+-}
+-
+-/* Status equal to 0 means that PSP succeed processing command */
+-static u32 psp_check_mbox_sts(struct psp_mbox __iomem *mbox)
+-{
+-	u32 cmd_reg;
+-
+-	cmd_reg = readl(&mbox->cmd_fields);
+-
+-	return FIELD_GET(PSP_CMDRESP_STS, cmd_reg);
+-}
+-
+-static int psp_send_cmd(struct psp_i2c_req *req)
+-{
+-	struct psp_mbox __iomem *mbox = mbox_iomem;
+-	phys_addr_t req_addr;
+-	u32 cmd_reg;
+-
+-	if (psp_check_mbox_recovery(mbox))
+-		return -EIO;
+-
+-	if (psp_wait_cmd(mbox))
+-		return -EBUSY;
+-
+-	/*
+-	 * Fill mailbox with address of command-response buffer, which will be
+-	 * used for sending i2c requests as well as reading status returned by
+-	 * PSP. Use physical address of buffer, since PSP will map this region.
+-	 */
+-	req_addr = __psp_pa((void *)req);
+-	writeq(req_addr, &mbox->i2c_req_addr);
+-
+-	/* Write command register to trigger processing */
+-	cmd_reg = FIELD_PREP(PSP_CMDRESP_CMD, PSP_I2C_REQ_BUS_CMD);
+-	writel(cmd_reg, &mbox->cmd_fields);
+-
+-	if (psp_wait_cmd(mbox))
+-		return -ETIMEDOUT;
+-
+-	if (psp_check_mbox_sts(mbox))
+-		return -EIO;
+-
+-	return 0;
+-}
+-
+ /* Helper to verify status returned by PSP */
+ static int check_i2c_req_sts(struct psp_i2c_req *req)
+ {
+@@ -182,10 +64,10 @@ static int psp_send_check_i2c_req(struct psp_i2c_req *req)
+ 	 * 2. i2c-requests - PSP refuses to grant i2c arbitration to x86 for too
+ 	 * long.
+ 	 * In order to distinguish between these two in error handling code, all
+-	 * errors on the first level (returned by psp_send_cmd) are shadowed by
++	 * errors on the first level (returned by psp_send_platform_access_msg) are shadowed by
+ 	 * -EIO.
+ 	 */
+-	if (psp_send_cmd(req))
++	if (psp_send_platform_access_msg(PSP_I2C_REQ_BUS_CMD, (struct psp_request *)req))
+ 		return -EIO;
+ 
+ 	return check_i2c_req_sts(req);
+@@ -202,7 +84,7 @@ static int psp_send_i2c_req(enum psp_i2c_req_type i2c_req_type)
+ 	if (!req)
+ 		return -ENOMEM;
+ 
+-	req->hdr.total_size = sizeof(*req);
++	req->hdr.payload_size = sizeof(*req);
+ 	req->type = i2c_req_type;
+ 
+ 	start = jiffies;
+@@ -381,7 +263,8 @@ static const struct i2c_lock_operations i2c_dw_psp_lock_ops = {
+ 
+ int i2c_dw_amdpsp_probe_lock_support(struct dw_i2c_dev *dev)
+ {
+-	int ret;
++	if (!IS_REACHABLE(CRYPTO_DEV_CCP_DD))
++		return -ENODEV;
+ 
+ 	if (!dev)
+ 		return -ENODEV;
+@@ -393,11 +276,10 @@ int i2c_dw_amdpsp_probe_lock_support(struct dw_i2c_dev *dev)
+ 	if (psp_i2c_dev)
+ 		return -EEXIST;
+ 
+-	psp_i2c_dev = dev->dev;
++	if (psp_check_platform_access_status())
++		return -EPROBE_DEFER;
+ 
+-	ret = psp_mbox_probe();
+-	if (ret)
+-		return ret;
++	psp_i2c_dev = dev->dev;
+ 
+ 	dev_info(psp_i2c_dev, "I2C bus managed by AMD PSP\n");
+ 
+@@ -411,9 +293,3 @@ int i2c_dw_amdpsp_probe_lock_support(struct dw_i2c_dev *dev)
+ 
+ 	return 0;
+ }
+-
+-/* Unmap area used as a mailbox with PSP */
+-void i2c_dw_amdpsp_remove_lock_support(struct dw_i2c_dev *dev)
+-{
+-	iounmap(mbox_iomem);
+-}
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 050d8c63ad3c..c5d87aae39c6 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -383,7 +383,6 @@ int i2c_dw_baytrail_probe_lock_support(struct dw_i2c_dev *dev);
+ 
+ #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_AMDPSP)
+ int i2c_dw_amdpsp_probe_lock_support(struct dw_i2c_dev *dev);
+-void i2c_dw_amdpsp_remove_lock_support(struct dw_i2c_dev *dev);
+ #endif
+ 
+ int i2c_dw_validate_speed(struct dw_i2c_dev *dev);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 74182db03a88..89ad88c54754 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -214,7 +214,6 @@ static const struct i2c_dw_semaphore_callbacks i2c_dw_semaphore_cb_table[] = {
+ #ifdef CONFIG_I2C_DESIGNWARE_AMDPSP
+ 	{
+ 		.probe = i2c_dw_amdpsp_probe_lock_support,
+-		.remove = i2c_dw_amdpsp_remove_lock_support,
+ 	},
+ #endif
+ 	{}
+diff --git a/include/linux/psp-platform-access.h b/include/linux/psp-platform-access.h
+index 977df5cfd494..f5a03cd11f10 100644
+--- a/include/linux/psp-platform-access.h
++++ b/include/linux/psp-platform-access.h
+@@ -7,6 +7,7 @@
+ 
+ enum psp_platform_access_msg {
+ 	PSP_CMD_NONE = 0x0,
++	PSP_I2C_REQ_BUS_CMD = 0x64,
+ };
+ 
+ struct psp_req_buffer_hdr {
 -- 
 2.34.1
 
