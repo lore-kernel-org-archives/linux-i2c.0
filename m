@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3741C6FD19
-	for <linux-i2c@archiver.kernel.org>; Sun, 12 Mar 2023 14:56:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21B0DC6FA99
+	for <linux-i2c@archiver.kernel.org>; Sun, 12 Mar 2023 14:56:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229672AbjCLO4U (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 12 Mar 2023 10:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60540 "EHLO
+        id S229837AbjCLO40 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 12 Mar 2023 10:56:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbjCLO4T (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 12 Mar 2023 10:56:19 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF08F367E2;
-        Sun, 12 Mar 2023 07:56:18 -0700 (PDT)
+        with ESMTP id S229543AbjCLO4X (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 12 Mar 2023 10:56:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F84148E07;
+        Sun, 12 Mar 2023 07:56:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4B6A0CE018B;
-        Sun, 12 Mar 2023 14:56:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 344B0C433D2;
-        Sun, 12 Mar 2023 14:56:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE94460F51;
+        Sun, 12 Mar 2023 14:56:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0694AC433EF;
+        Sun, 12 Mar 2023 14:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678632975;
-        bh=O9VyONJV8bXTAXAxdO735juF7mWGhqxueQgOPD3Zlm4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=TkhbKouQoYVY70rnKG1cvJ7droHy3VCb7v7YFdXd9jNqnliBVvH5cUWNv8yd9oJ2c
-         jDPIq1tLBWM0B3pzVqJL+rMgtxWjVipSbCRqojuOC6Vn2DqHJgkR51oFYQZU22leFl
-         KMUgn9yhIYHmDUOAqJc+RzV0/iU011B7fDqHuAKP2zNCMvD4ZYb8VfvWXulJIA4Jxr
-         Q8I3qcZ2qrlgPp3/SsY6aen6vbGU65eyeQDCr66sgOu43+sjHb3RSV0Gp6yHZ5HfOh
-         R3+mROzUfqKHGE3Z+bsyFAHvCmucaU/v+uhhfiQ71Fe+NKBdHGa6EkaSV7S1pdeWCy
-         8WUPijadr5unw==
+        s=k20201202; t=1678632981;
+        bh=wgu+IozaOTOe7y4MByQPBw6wOnEqP6STQSs//ZM1rZA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=n7zOYxnquvIRwVU3Pg9SA1ylBU93E73LafFKYVn9AHKRxamZhaV+zEB6K7nAAlmAP
+         C3sRaR5M6/mz1zNBHFM0qVF+XFF7XCB/CzvPLGnaVwc1okEZyAxEgsImznD8cePOsv
+         vxPlsMRH0kDT1IICy/ZEqEIf1bqMZnDVseVQQqTgPStpPSZbhCE1gb7fCVtE95PzlQ
+         bE3/EDqPu3rT1LXifBLX7TrkQImD1XmPl9hfaZa2O4f0Lq8PfnQLZXEI/Yb4hVvfft
+         oN3mka2PbqYcLYxyxBXG9s7EHYdvLl3E4gxL3ZdVkWRZ/amFh8kMM95T9tE0Z39c46
+         jaJ9kvVdan0xw==
 From:   Andi Shyti <andi.shyti@kernel.org>
 To:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org
@@ -39,52 +39,51 @@ Cc:     Wolfram Sang <wsa@kernel.org>, Rob Herring <robh+dt@kernel.org>,
         Chris Packham <chris.packham@alliedtelesis.co.nz>,
         Ryan Chen <ryan_chen@aspeedtech.com>,
         Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH v2 0/2] Add the clock stretching i2c property
-Date:   Sun, 12 Mar 2023 15:55:44 +0100
-Message-Id: <20230312145546.262492-1-andi.shyti@kernel.org>
+Subject: [PATCH v2 2/2] i2c: mpc: Use i2c-scl-clk-low-timeout-ms i2c property
+Date:   Sun, 12 Mar 2023 15:55:46 +0100
+Message-Id: <20230312145546.262492-3-andi.shyti@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230312145546.262492-1-andi.shyti@kernel.org>
+References: <20230312145546.262492-1-andi.shyti@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hello,
+"fsl,timeout" is marked as deprecated and replaced by the
+"i2c-scl-clk-low-timeout-ms" i2c property.
 
-fter a discussion between Krzysztof and Ryan[1], it has become
-apparent that the i2c binding is lacking the definition of a
-property that needs to be added at a more generic level. This
-property is also used by the mpc i2c controller, which has been
-updated in the second patch.
+Use this latter and, in case it is missing, for back
+compatibility, check whether we still have "fsl,timeout" defined.
 
-The DTS schema change has been sent as github pull reqest[2].
+Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+---
+ drivers/i2c/busses/i2c-mpc.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-Thanks Krzysztof for the review.
-
-Thank you,
-Andi
-
-[1] https://lore.kernel.org/all/c41ee6b5-ddb4-1253-de54-a295b3bab2cc@linaro.org/
-[2] https://github.com/devicetree-org/dt-schema/pull/102
-
-Changelog
-=========
-v1 -> v2:
- - Removed the binding patch and send through a different channel
- - To ensure back compatibility, which was broken in v1, the
-   legacy "fsl,timeout" has not been removed and marked as
-   deprecated. In the driver the that property is checked anyway
-   as a fallback in case the main i2c-scl-clk-low-timeout-ms is
-   missing.
-
-Andi Shyti (2):
-  dt-bindings: i2c: mpc: Mark "fsl,timeout" as deprecated
-  i2c: mpc: Use i2c-scl-clk-low-timeout-ms i2c property
-
- Documentation/devicetree/bindings/i2c/i2c-mpc.yaml |  3 ++-
- drivers/i2c/busses/i2c-mpc.c                       | 11 ++++++++++-
- 2 files changed, 12 insertions(+), 2 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 81ac92bb4f6f..fe6279a353c6 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -846,7 +846,16 @@ static int fsl_i2c_probe(struct platform_device *op)
+ 			mpc_i2c_setup_8xxx(op->dev.of_node, i2c, clock);
+ 	}
+ 
+-	prop = of_get_property(op->dev.of_node, "fsl,timeout", &plen);
++	prop = of_get_property(op->dev.of_node,
++			       "i2c-scl-clk-low-timeout-ms", &plen);
++
++	/*
++	 * ensuring back compatibility as
++	 * "fsl,timeout" is marked as deprecated
++	 */
++	if (!prop)
++		prop = of_get_property(op->dev.of_node, "fsl,timeout", &plen);
++
+ 	if (prop && plen == sizeof(u32)) {
+ 		mpc_ops.timeout = *prop * HZ / 1000000;
+ 		if (mpc_ops.timeout < 5)
 -- 
 2.39.2
 
