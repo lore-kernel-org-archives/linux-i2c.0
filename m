@@ -2,25 +2,25 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A1BEC61DA4
-	for <linux-i2c@archiver.kernel.org>; Tue, 14 Mar 2023 01:19:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01563C6FD19
+	for <linux-i2c@archiver.kernel.org>; Tue, 14 Mar 2023 01:21:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230096AbjCNBTs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 13 Mar 2023 21:19:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34730 "EHLO
+        id S229684AbjCNBUi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 13 Mar 2023 21:20:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229834AbjCNBTr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 13 Mar 2023 21:19:47 -0400
+        with ESMTP id S229880AbjCNBUh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 13 Mar 2023 21:20:37 -0400
 Received: from fudo.makrotopia.org (fudo.makrotopia.org [IPv6:2a07:2ec0:3002::71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F12131F484;
-        Mon, 13 Mar 2023 18:19:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA4C5A1BC;
+        Mon, 13 Mar 2023 18:20:37 -0700 (PDT)
 Received: from local
         by fudo.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256)
          (Exim 4.96)
         (envelope-from <daniel@makrotopia.org>)
-        id 1pbtKG-0005i3-2S;
-        Tue, 14 Mar 2023 02:19:40 +0100
-Date:   Tue, 14 Mar 2023 01:18:03 +0000
+        id 1pbtL7-0005j2-0i;
+        Tue, 14 Mar 2023 02:20:33 +0100
+Date:   Tue, 14 Mar 2023 01:18:55 +0000
 From:   Daniel Golle <daniel@makrotopia.org>
 To:     linux-i2c@vger.kernel.org, linux-mediatek@lists.infradead.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -30,27 +30,37 @@ To:     linux-i2c@vger.kernel.org, linux-mediatek@lists.infradead.org,
         Matthias Brugger <matthias.bgg@gmail.com>,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH 0/2] i2c: i2c-mt65xx: add support for MT7981
-Message-ID: <cover.1678756608.git.daniel@makrotopia.org>
+Subject: [PATCH 2/2] dt-bindings: i2c: i2c-mt65xx: add binding for MT7981 SoC
+Message-ID: <f4c351b344113434987b4ffe22db9b51d82a27ae.1678756608.git.daniel@makrotopia.org>
+References: <cover.1678756608.git.daniel@makrotopia.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <cover.1678756608.git.daniel@makrotopia.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add support for the I2C units found in the MT7981 SoC.
+Add binding documentation for the I2C controllers found in the
+MediaTek MT7981 SoC.
 
-Daniel Golle (2):
-  i2c: mediatek: add support for MT7981 SoC
-  dt-bindings: i2c: i2c-mt65xx: add binding for MT7981 SoC
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
- .../devicetree/bindings/i2c/i2c-mt65xx.yaml         |  1 +
- drivers/i2c/busses/i2c-mt65xx.c                     | 13 +++++++++++++
- 2 files changed, 14 insertions(+)
-
-
-base-commit: 24469a0e5052ba01a35a15f104717a82b7a4798b
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+index 72ae2e01cf22..5ae6769483d7 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
++++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+@@ -23,6 +23,7 @@ properties:
+       - const: mediatek,mt6577-i2c
+       - const: mediatek,mt6589-i2c
+       - const: mediatek,mt7622-i2c
++      - const: mediatek,mt7981-i2c
+       - const: mediatek,mt7986-i2c
+       - const: mediatek,mt8168-i2c
+       - const: mediatek,mt8173-i2c
 -- 
 2.39.2
 
