@@ -2,116 +2,98 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39A34C6FD1F
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Mar 2023 19:57:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17F35C7618A
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Mar 2023 20:07:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229542AbjCPT5v (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Mar 2023 15:57:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41248 "EHLO
+        id S229959AbjCPUHB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Mar 2023 16:07:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229678AbjCPT5u (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Mar 2023 15:57:50 -0400
+        with ESMTP id S229534AbjCPUHA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Mar 2023 16:07:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 722B6BD4D9;
-        Thu, 16 Mar 2023 12:57:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129612D16C
+        for <linux-i2c@vger.kernel.org>; Thu, 16 Mar 2023 13:06:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAEE462040;
-        Thu, 16 Mar 2023 19:56:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9986EC433EF;
-        Thu, 16 Mar 2023 19:56:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1ADB620F1
+        for <linux-i2c@vger.kernel.org>; Thu, 16 Mar 2023 20:06:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59152C433EF;
+        Thu, 16 Mar 2023 20:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678996576;
-        bh=PfUYV+9ZbNdnWPZGJkz3rVty4AE/q0+P1FyVLuVDiTE=;
+        s=k20201202; t=1678997209;
+        bh=8NqcTFn4siOXW1dpCo43lggCzIv7ucftQBCdDOvr7sg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UknZIvIYCaejql9hITewhMGmVoY3p/uDlBHS25lpySIMpMa69hr1OzfiivzcyaRnR
-         32cfYTtKa+07kLPidicqI+9As3sC1Iw5vs4QKSvAw4mLzxjqiWCCCcY8KaDe6AXiyc
-         7s8G6eIQ3BF31cyqhiGVD3qz/6PSi9eJfSNMDPA4hs76d3DN6dInc45lC/ithmu46N
-         9DW8Zecux1xihK/JeEy8D0TVDrXQXA+0f/Ymmr6p+GgjX5dcFK7KDKY7Qt22KI35mS
-         aNsB8fbblnOd7OTn47B7ZUUZ7BwQAgVlQ3nw9kOafdXUPJ7jPPXuEiCRgCHesH+3Jm
-         v9Lalxrg5vtHw==
-Date:   Thu, 16 Mar 2023 20:56:12 +0100
+        b=FGIjBRtZIQSfzo3BLdYRJKuIIjFPMphFZBCs2EPYWNTXYNkCi3ijorKU6cYgPWrb8
+         LmNKDiJ0X5oaXtxP1vd4WI30eBbdRH5hqc/Jt59q6mMNgTL7RXWiBbP+jQjsd4riGa
+         vELaQCRRL2kUghYa0F1A8rmr+i+CMu6qGmyZRuaKWWChfqV9CFrZGpMWjEV7hA+P4y
+         uV0tKSZEE5/3rMAhDNPVqCr+Ei0GmvIY5PnmLFrpM82j1M2JvzSac1v8eEV6HczWqR
+         vVI1zD/BxPO6HNmZ1XJWBm8NxXaUKoaSHUt+cf2yCT0Hfpjjt0sZJSQYS0FYtNys7h
+         e5uUJo8gKviUw==
+Date:   Thu, 16 Mar 2023 21:06:45 +0100
 From:   Wolfram Sang <wsa@kernel.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Benson Leung <bleung@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Qii Wang <qii.wang@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Andreas =?utf-8?Q?F=C3=A4rber?= <afaerber@suse.de>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Michal Simek <michal.simek@xilinx.com>,
-        linux-i2c@vger.kernel.org, chrome-platform@lists.linux.dev,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org,
-        linux-actions@lists.infradead.org
-Subject: Re: [PATCH 1/5] i2c: mt65xx: drop of_match_ptr for ID table
-Message-ID: <ZBN0XAp8jm095my/@shikoro>
+To:     Yicong Yang <yangyicong@huawei.com>
+Cc:     linux-i2c@vger.kernel.org, chenweilong@huawei.com,
+        f.fangjian@huawei.com, linuxarm@huawei.com, prime.zeng@huawei.com,
+        yangyicong@hisilicon.com, Sheng Feng <fengsheng5@huawei.com>
+Subject: Re: [PATCH 1/2] i2c: hisi: Avoid redundant interrupts
+Message-ID: <ZBN21SDwqNo2GG+7@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Benson Leung <bleung@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Qii Wang <qii.wang@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-        Andreas =?utf-8?Q?F=C3=A4rber?= <afaerber@suse.de>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Michal Simek <michal.simek@xilinx.com>, linux-i2c@vger.kernel.org,
-        chrome-platform@lists.linux.dev, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org,
-        linux-actions@lists.infradead.org
-References: <20230311111658.251951-1-krzysztof.kozlowski@linaro.org>
+        Yicong Yang <yangyicong@huawei.com>, linux-i2c@vger.kernel.org,
+        chenweilong@huawei.com, f.fangjian@huawei.com, linuxarm@huawei.com,
+        prime.zeng@huawei.com, yangyicong@hisilicon.com,
+        Sheng Feng <fengsheng5@huawei.com>
+References: <20230313074552.54457-1-yangyicong@huawei.com>
+ <20230313074552.54457-2-yangyicong@huawei.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="bKW2mF7l2ILB4D6Q"
+        protocol="application/pgp-signature"; boundary="u5US34qKMUZETIft"
 Content-Disposition: inline
-In-Reply-To: <20230311111658.251951-1-krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230313074552.54457-2-yangyicong@huawei.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---bKW2mF7l2ILB4D6Q
-Content-Type: text/plain; charset=utf-8
+--u5US34qKMUZETIft
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Mar 11, 2023 at 12:16:54PM +0100, Krzysztof Kozlowski wrote:
-> The driver can match only via the DT table so the table should be always
-> used and the of_match_ptr does not have any sense (this also allows ACPI
-> matching via PRP0001, even though it might not be relevant here).
+On Mon, Mar 13, 2023 at 03:45:51PM +0800, Yicong Yang wrote:
+> From: Yicong Yang <yangyicong@hisilicon.com>
 >=20
->   drivers/i2c/busses/i2c-mt65xx.c:514:34: error: =E2=80=98mtk_i2c_of_matc=
-h=E2=80=99 defined but not used [-Werror=3Dunused-const-variable=3D]
+> After issuing all the messages we can disable the TX_EMPTY interrupts
+> to avoid handling redundant interrupts. For doing a sinlge bus
+> detection (i2cdetect -y -r 0) we can reduce ~97% interrupts (before
+> ~12000 after ~400).
 >=20
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> Reported-by: Sheng Feng <fengsheng5@huawei.com>
+> Signed-off-by: Sheng Feng <fengsheng5@huawei.com>
+> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
 
-Applied to for-next, thanks!
+Applied to for-current, thanks!
 
 
---bKW2mF7l2ILB4D6Q
+--u5US34qKMUZETIft
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmQTdFwACgkQFA3kzBSg
-KbblQhAAhR2X5U38APPQWOy4gWDy7Xl2FMahiZoLJSZeabT1t8HHafaSSbQCKKbe
-FvGEcDNCkPxAYqpeUW7gUgWsjRL1JB03UMn3B6TygU/rMD5Ty5RpHQnc16i5KX5r
-Ebp+fhOo+BQhjJDld6bot7raM9ifyvq7tkzaiLjXeg1JIgEDklDRtTH6Yp7P3Rqr
-irJ20AAKQbUWCwJQ0iL3hraxY+y44Ce3ofqi1e/eUha+4EFaC7KyWdyxXZfY8Rzt
-+9G/ZZeBa71grd0nn6U4XjkkgLnA1cYg4o+UDPI//Q0LFl0puR6KM9wo7M4SOJ+1
-5m2HSyO0kxbxaWmcB82jZWOCv3yvU7gx5HtOZGLTikSpnlGQ3QiMENwjDVT0X842
-wis1bWmVcFq2hsx1XlJyX3jFY50icYw3M+A0pOYa0lWkk+l8Qkdn6LUI0ipq23IL
-PTcvRzcu0Wcqatt9TOG9+f9LoV49j+18st5S3/3sOswCN5gqYzDhYxI/p/aDzCXF
-cQh29BVe3nKmlANsGQxHDyn2gupsmNN1bCqk5Ny+lE22bMoR4vIcEFFmYVRAb1Ih
-jWOH7lw/SzdNkhFjSqD28IHbrWLN1pA0v27UxqTi5lZT52M9qQncJDipBdK5kcpt
-vNZa1plwLpOtPodH0cPEdj1xZIwSC/wWCCmbq5GGpoTCeSBb9rU=
-=P7Qe
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmQTdtEACgkQFA3kzBSg
+KbavHxAAit0rgx7MNUqtxThypi1TlF+gAIZrcHvCQ8ick/JpzHG+kdy3TInwtJH0
+kD83sqIPOjt9aBE0Pnq830y2zvqxnaMT05WZ0yRUD7e2c71RT8j9XmVqakgXnfHW
+iFkSNElYBdYAQCEtU/egTYcA5Pexyn6nB/gV2RGWMpMS2ea4yfpl0bOUepnyQEN9
+6jdcIVPPyqjjcs/ywcOnIZnsGS1B0Ocb1f7MmU1syiJO98XPv6FTWcHVFTP/M4sx
+flohSYYYvieAN4hsFoPMhG7D7zb1Ci3amA0EPaNXUCbQgXjmfqZM95WAJwmLg2jq
+0evvD4q2uJiZKEPCQjJkboeCcEs0dJ9vErPtKY0xauL1A8uDlvwcXkMOGjyqCttE
+EJl0P2gi2SJsS8Q9Fb4HV1XHEJ9ms91/8CHlfBqVBYrQxiXM7sTbqhR6WqHsbK3u
+brSXWyVXJkLgwhdCATdjEyJCQJhBOC0nGnBPu8awzVm1MhrqhY2juo908LlN8pB4
+k4yKIjqqCWNbD0SEGJDI88tPp0gys+4dkQiRxKO5AmxysXSFjSP5QnX4zovMqJJc
+uDN0FsBvtn06mm9hoo/RBC/LnbW5CWG80n4gajoLw1KgSGxL9XaOxAED+8Do6bij
+ZKtXD6joyZ0d5UQsDXDW1gIhwDLG7LY41YBZrsPolglzfaSGFp4=
+=XmJH
 -----END PGP SIGNATURE-----
 
---bKW2mF7l2ILB4D6Q--
+--u5US34qKMUZETIft--
