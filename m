@@ -2,77 +2,115 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9672AC6FD1F
-	for <linux-i2c@archiver.kernel.org>; Thu, 16 Mar 2023 11:15:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1777C6FD1F
+	for <linux-i2c@archiver.kernel.org>; Thu, 16 Mar 2023 19:19:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230196AbjCPLPJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 16 Mar 2023 07:15:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50384 "EHLO
+        id S229647AbjCPTTF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 16 Mar 2023 15:19:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230207AbjCPLPI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Mar 2023 07:15:08 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56F4B1AC;
-        Thu, 16 Mar 2023 04:15:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1678965307; x=1710501307;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=yf7ZJaTKSxrkhuNZwjaQtlBE1NFrRCOy0rji0qyweFQ=;
-  b=WFQJ0MYyF1ggzRUU+rWumExOSGe+KzkZYeQR7O95rJQ/Fksv8jeC3ux2
-   639LHymk/xFTbLPwNjrHvsvvGCakinJdaqRrLHZ4cmOwqIC2dmKHn2Xer
-   EAAtn0WTZ90rR3m6Aj5F3g0GPlXL82Fs97tbR4FzTQQkpbPhKIkWTbI3e
-   2I6AHFaiuQsW2u0qV4C6PmkW+IoqqhZZ/sHUthePh2wCeNmirv3E0txpo
-   NFqGuCrR8WQLV4+6AQa54AEsBstR2cTaBdVdBmHFaeb3G7kQUFfMUFCZc
-   ZEUiPqTMpYrI4BtypsTGSegkf3BVNtoqh+vqpPTYKggGTXlcr7MN2hSL2
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10650"; a="339484733"
-X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
-   d="scan'208";a="339484733"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2023 04:14:49 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10650"; a="748822253"
-X-IronPort-AV: E=Sophos;i="5.98,265,1673942400"; 
-   d="scan'208";a="748822253"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmsmga004.fm.intel.com with ESMTP; 16 Mar 2023 04:14:47 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1pclZG-004PrB-0F;
-        Thu, 16 Mar 2023 13:14:46 +0200
-Date:   Thu, 16 Mar 2023 13:14:45 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        wsa@kernel.org, UNGLinuxDriver@microchip.com
-Subject: Re: [PATCH i2c-master] i2c: microchip: pci1xxxx: Update Timing
- registers
-Message-ID: <ZBL6JWXKCLsLyNzn@smile.fi.intel.com>
-References: <20230316033223.2046359-1-tharunkumar.pasumarthi@microchip.com>
+        with ESMTP id S230006AbjCPTTC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Mar 2023 15:19:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AA19E4863;
+        Thu, 16 Mar 2023 12:18:20 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 207BC620F7;
+        Thu, 16 Mar 2023 19:18:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D0DC433D2;
+        Thu, 16 Mar 2023 19:18:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678994298;
+        bh=U6/3MAM8lEWJuAQad1Q+TVX2oTsNcl0STc3k5xy9Klg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lka3LA3zNxRuOKAFjjixGSIQqsYiL+s0wuBpCboYGUB+hn39p7r+N9ZHBasxkdnyb
+         4JSSvT96btScmpf0WgeEX29S62/0B301LF49slJPT5Z0XJEhHOrzXTm1hOQ03rtDP/
+         XbzEMb5/S1Rx3gdNkhmMaZ+5U/zWhgPN6skkB8J79ghJkpmb1htrW7LAOPrDYW5Ewc
+         uPHZPuIYSC8ya9qx8xt1HMHWoK3sd4uhVWfW0MtgXlmhOG+gwTy1XznsCAwW1V79lk
+         vMJix/0BhIo+9Dkjd2gLc+Kf36QBHmsmh4vWdWXtquzrQJWBE/zF5SdrR0PfkLyFod
+         QvYWz9NCaDZqw==
+Date:   Thu, 16 Mar 2023 20:18:15 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Conor Dooley <conor@kernel.org>
+Cc:     linux-riscv@lists.infradead.org,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        linux-clk@vger.kernel.org, Jassi Brar <jassisinghbrar@gmail.com>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, Bin Liu <b-liu@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-i2c@vger.kernel.org,
+        Daire McNamara <daire.mcnamara@microchip.com>
+Subject: Re: [PATCH v1 2/5] i2c: microchip-core: convert
+ SOC_MICROCHIP_POLARFIRE to ARCH_MICROCHIP_POLARFIRE
+Message-ID: <ZBNrd5ww9YD3xQTS@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Conor Dooley <conor@kernel.org>, linux-riscv@lists.infradead.org,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        linux-clk@vger.kernel.org, Jassi Brar <jassisinghbrar@gmail.com>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, Bin Liu <b-liu@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-i2c@vger.kernel.org,
+        Daire McNamara <daire.mcnamara@microchip.com>
+References: <20230309204452.969574-1-conor@kernel.org>
+ <20230309204452.969574-3-conor@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="TIODK/DyJw5FNTCf"
 Content-Disposition: inline
-In-Reply-To: <20230316033223.2046359-1-tharunkumar.pasumarthi@microchip.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <20230309204452.969574-3-conor@kernel.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Mar 16, 2023 at 09:02:23AM +0530, Tharun Kumar P wrote:
-> Update I2C timing registers based on latest hardware design.
 
-What about older designs?
+--TIODK/DyJw5FNTCf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Fixes: 361693697249 ("i2c: microchip: pci1xxxx: Add driver for I2C host controller in multifunction endpoint of pci1xxxx switch")
-> 
-> Signed-off-by: Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>
+On Thu, Mar 09, 2023 at 08:44:49PM +0000, Conor Dooley wrote:
+> From: Conor Dooley <conor.dooley@microchip.com>
+>=20
+> As part of converting RISC-V SOC_FOO symbols to ARCH_FOO to match the
+> use of such symbols on other architectures, convert the Microchip FPGA
+> i2c drivers to use the new symbol.
+>=20
+> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 
-Blank lines are not allowed in the tag block of the commit messages.
-
--- 
-With Best Regards,
-Andy Shevchenko
+Applied to for-next, thanks!
 
 
+--TIODK/DyJw5FNTCf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmQTa3YACgkQFA3kzBSg
+KbZWQRAArPUHPGdzaDCWZYxs1RoufYMPW3mLcn2mvcWqFmxkR89/yXReohhpb09D
+99smcOSUtpAXFkzmCoCc4KlsUQDmUqG8Zy8dJ70//YEbx1IZddE8OkDOu2WwMToX
+WY3AQ7Xkfa3Ror25SeitAVTnpP3XnFTR/jPl4d6Vz7ug5vGIcleqJRs5AOShZfdH
+nDRdXQfayeVeWfjA/zSp4XM4ahx5ZaLAyqyOQEUmx2IZDJGcaUZXc4K2SeHoeJ9e
+KYrhY+SHfwTSqNoPB7bUUfrz11Ub6use6WHLLZPMGUYzkuHyhpkFUxAInoZPpVgd
+dhpTUodP5iZHalX4Z2ZFCX1ciYuowOQN5fr5dFZBBM87cxE9OMd/eaGC3dVMe98U
+LqAmJzWg1+E38GswGLZdgRWtuhSwMxvSGm5bRxlZlyoOdBXEFlTjOB1WAKGyduzs
+raLno/7NRrdQvPzV9/DVXNQQ4ERA5hInN6Ax1bhqApMNouaxsTqv8leU+AVFL+Tg
+JVU1OFGedAfBYFHySpAEO3AeNV1hWKBMkccjWZHMwExC86r3dGFfc4KYo8/OEM//
+/yjIwK1DuOLfH7CoM/F/wsK4Ga8XmuIg7z1/34m5Z7iKfsz30zmlDxHHKeMLm5RF
+XoBHu7Mq3A0osybzaKLJWmXXYW9G3/kIIeXGZhQNoCb999t+8+I=
+=WGcd
+-----END PGP SIGNATURE-----
+
+--TIODK/DyJw5FNTCf--
