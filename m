@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09C3DC76195
-	for <linux-i2c@archiver.kernel.org>; Fri, 17 Mar 2023 23:34:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38E18C76196
+	for <linux-i2c@archiver.kernel.org>; Fri, 17 Mar 2023 23:34:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230015AbjCQXeC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 17 Mar 2023 19:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43812 "EHLO
+        id S230249AbjCQXeL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 17 Mar 2023 19:34:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230162AbjCQXeA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Mar 2023 19:34:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A50371689F;
-        Fri, 17 Mar 2023 16:33:59 -0700 (PDT)
+        with ESMTP id S230247AbjCQXeF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Mar 2023 19:34:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF9D05D882;
+        Fri, 17 Mar 2023 16:34:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67EC1B826E4;
-        Fri, 17 Mar 2023 23:33:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEB59C433D2;
-        Fri, 17 Mar 2023 23:33:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2532D60CD4;
+        Fri, 17 Mar 2023 23:34:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34C2AC433D2;
+        Fri, 17 Mar 2023 23:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679096037;
-        bh=aY0ALgTJbwlEVEL6SFHiKj3ExiEgeV4xhWNyVCp61gA=;
+        s=k20201202; t=1679096042;
+        bh=MMgl7BH2vYNW64S6J+FPvpa5ZVx8951MJKLTeJvEY9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVHl2rB/y2sifflrf3iNaORordYxXWFgXSHLcPkDut69XFa1deQyQQCYEkc+3XNXx
-         Ut50rSDCn0RAqv+oxnJyde8HgAppUPmsRcJ4C5OtowaJbCEL8VQgNABys30mVYwWaR
-         Haec9hKYB2I8jSMPWus2ngl6KNPX4Yq7sjr7bAPmGdHA0Hu7LH08y7XLsCG1WOJw5c
-         w5a7kR2v4KPz7T12MPsDFjofnqh9zr+n9UFFOiDzVGdlFbGOXBHJeYkUwX+rCS6kHT
-         6TkVPBIA6BoZ/JzLQa/xvGnIOKm7k9mQpRc4dk6dqvuk/c65pZsM6a3ku/jvgWkGmi
-         AUg0FNxVCVjvA==
+        b=hsRIucMcR17ozhb79cSGP8g6KI3zAA6XTphrCEwSwbyUS2QI1mbTkkCoo88ejyjpz
+         We7W+oyltMWv3HgymN+ocAQuUtLyNHfyWHpwkGkKGDnaVDxkhSVJ2W+waeDUiiXrTL
+         qQE7RJ3I+H1kfsg3Z3KuVX0/PZM2FsDSimVamCHsL0LiIItM7wSuLndc2cTAKOYgRd
+         /DkXc4QsmTOJYNsiEPrQIQfY3e2vvTsLINV+nYrDH725ZXHJ/3SGSXAF1M2u5f82ZY
+         AWXIKfTcqxF/tN2xFdbIzc+RZz2TCYOoUXzefJZfJ0HXUgPdHVkNm/pMz1FC3UE0Uh
+         FUe21nobSeAlg==
 From:   Andi Shyti <andi.shyti@kernel.org>
 To:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org
@@ -39,9 +39,9 @@ Cc:     Wolfram Sang <wsa@kernel.org>, Rob Herring <robh+dt@kernel.org>,
         Chris Packham <chris.packham@alliedtelesis.co.nz>,
         Ryan Chen <ryan_chen@aspeedtech.com>,
         Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH v5 1/3] dt-bindings: i2c: mpc: Mark "fsl,timeout" as deprecated
-Date:   Sat, 18 Mar 2023 00:33:36 +0100
-Message-Id: <20230317233338.424864-2-andi.shyti@kernel.org>
+Subject: [PATCH v5 3/3] i2c: mpc: Use i2c-scl-clk-low-timeout-us i2c property
+Date:   Sat, 18 Mar 2023 00:33:38 +0100
+Message-Id: <20230317233338.424864-4-andi.shyti@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230317233338.424864-1-andi.shyti@kernel.org>
 References: <20230317233338.424864-1-andi.shyti@kernel.org>
@@ -51,37 +51,44 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Now we have the i2c-scl-clk-low-timeout-us property defined in
-the i2c schema.
+"fsl,timeout" is marked as deprecated and replaced by the
+"i2c-scl-clk-low-timeout-us" i2c property.
 
-Mark "fsl,timeout" as deprecated and update the example.
+Use this latter and, in case it is missing, for back
+compatibility, check whether we still have "fsl,timeout" defined.
 
 Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Tested-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-mpc.yaml | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mpc.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mpc.yaml b/Documentation/devicetree/bindings/i2c/i2c-mpc.yaml
-index 018e1b9444248..70fb69b923c46 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mpc.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mpc.yaml
-@@ -43,6 +43,7 @@ properties:
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 02baba2284e27..cfd074ee6d547 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -843,8 +843,18 @@ static int fsl_i2c_probe(struct platform_device *op)
+ 			mpc_i2c_setup_8xxx(op->dev.of_node, i2c, clock);
+ 	}
  
-   fsl,timeout:
-     $ref: /schemas/types.yaml#/definitions/uint32
-+    deprecated: true
-     description: |
-       I2C bus timeout in microseconds
- 
-@@ -95,6 +96,6 @@ examples:
-         interrupts = <43 2>;
-         interrupt-parent = <&mpic>;
-         clock-frequency = <400000>;
--        fsl,timeout = <10000>;
-+        i2c-scl-clk-low-timeout-us = <10000>;
-     };
- ...
++	/*
++	 * "fsl,timeout" has been marked as deprecated and, to maintain
++	 * backward compatibility, we will only look for it if
++	 * "i2c-scl-clk-low-timeout-us" is not present.
++	 */
+ 	result = of_property_read_u32(op->dev.of_node,
+-				      "fsl,timeout", &mpc_ops.timeout);
++				      "i2c-scl-clk-low-timeout-us",
++				      &mpc_ops.timeout);
++	if (result == -EINVAL)
++		result = of_property_read_u32(op->dev.of_node,
++					      "fsl,timeout", &mpc_ops.timeout);
++
+ 	if (!result) {
+ 		mpc_ops.timeout *= HZ / 1000000;
+ 		if (mpc_ops.timeout < 5)
 -- 
 2.39.2
 
