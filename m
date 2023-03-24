@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1FB5C7619A
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Mar 2023 17:57:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A5A6C77B61
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Mar 2023 17:57:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231658AbjCXR5N (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 24 Mar 2023 13:57:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60074 "EHLO
+        id S231630AbjCXR5n (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 24 Mar 2023 13:57:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232255AbjCXR4n (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2023 13:56:43 -0400
+        with ESMTP id S231954AbjCXR5P (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2023 13:57:15 -0400
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F88A9034;
-        Fri, 24 Mar 2023 10:56:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B3C1CBD3;
+        Fri, 24 Mar 2023 10:56:51 -0700 (PDT)
 Received: from IcarusMOD.eternityproject.eu (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 997DF660313A;
-        Fri, 24 Mar 2023 17:55:11 +0000 (GMT)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 17F85660314B;
+        Fri, 24 Mar 2023 17:55:15 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1679680512;
-        bh=cWKkAzJmflHlylToMK1QImQEca35moH/Qy5BEXPVfYQ=;
+        s=mail; t=1679680515;
+        bh=7QwlmzO687lgIQQgZpeWHJxJZ30x74RVdHCWiqIGrHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9xkCyeWIsLtYEjjp94iVfDR4aC8F0rHjKCupNZfUdossrimrGdGe5MNC+DlYv3+L
-         nH//JL767JRXZyx8FxlyNjKbvy2LVwMNagkbC0aazJBVfiOFEAf32Aakwr9t+DOG6Z
-         bj6JfIpqtP0tR9sD1pn1midXV72TC7uMGP95TihQV5QwyZUGVA6KxaC3vqpZbLtszd
-         onXiuu8YE/gr0yD43danNu4JdPmim/GOdwiWgY0pn5voVxq4iqNw1aA64tZT4L9lgs
-         O/MNYGxiemM57/1oYT2PGfjukB+KhRzgk02nbF8sTt93DFblr5Qxxo0J0lIcE+K7Is
-         uQoZEgvOr1P/Q==
+        b=b3SeICoNVCF8VmX+gw0g9JPvjE+XkavnqV6IFsRoaY8RsW9cPWMaSBl81k6foPP6T
+         9i9CG4wJyxLkr/hyeF4ki7FYCDPdMWjPPoxdtXfoH+Zi7Ol1P/y0hrMZrNYy56xCtV
+         dUXAU1vsokiT5i6m76iRPWoulXeeoab4GJ5FzL9CzMulROxdcWwG5nZLGb+YJw0/W6
+         16s9R1uanDcGRoJ3JnlrxFDtqEB2OqcQpRga0mx4aRBA/tx7puwtqBl6u+yA+XphNZ
+         tH7vO+22UTf4pgMlCJQzGe+i+587patL+SgkeiwEVhw00tHpBH2k3YWIZxG3bZpRfY
+         R3uGyz5Td+5FA==
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
 To:     matthias.bgg@gmail.com
@@ -43,9 +43,9 @@ Cc:     qii.wang@mediatek.com, robh+dt@kernel.org,
         phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH v1 13/18] arm64: dts: mediatek: mt6795-xperia-m5: Enable I2C 0-3 busses
-Date:   Fri, 24 Mar 2023 18:54:51 +0100
-Message-Id: <20230324175456.219954-14-angelogioacchino.delregno@collabora.com>
+Subject: [PATCH v1 17/18] arm64: dts: mediatek: mt6795-xperia-m5: Add Sensortek STK3310 Proximity
+Date:   Fri, 24 Mar 2023 18:54:55 +0100
+Message-Id: <20230324175456.219954-18-angelogioacchino.delregno@collabora.com>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230324175456.219954-1-angelogioacchino.delregno@collabora.com>
 References: <20230324175456.219954-1-angelogioacchino.delregno@collabora.com>
@@ -55,90 +55,47 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Properly configure and enable the three i2c controllers that have
-devices attached on the Sony Xperia M5 smartphone.
+Add the STK3310 Proximity sensor and its pins.
 
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 ---
- .../dts/mediatek/mt6795-sony-xperia-m5.dts    | 64 +++++++++++++++++++
- 1 file changed, 64 insertions(+)
+ .../boot/dts/mediatek/mt6795-sony-xperia-m5.dts  | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts b/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
-index 52ce3284a46f..6df1c848e2d5 100644
+index bda14c74a8af..bff0760cc1c8 100644
 --- a/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
 +++ b/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
-@@ -55,7 +55,71 @@ &fhctl {
- 	status = "okay";
+@@ -111,6 +111,14 @@ magnetometer@0x12 {
+ 		compatible = "bosch,bmm150";
+ 		reg = <0x12>;
+ 	};
++
++	proximity@48 {
++		compatible = "sensortek,stk3310";
++		reg = <0x48>;
++		interrupts-extended = <&pio 8 IRQ_TYPE_EDGE_FALLING>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&proximity_pins>;
++	};
  };
  
-+&i2c0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c0_pins>;
-+	status = "okay";
-+};
-+
-+&i2c1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c1_pins>;
-+	status = "okay";
-+};
-+
-+&i2c2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c2_pins>;
-+	status = "okay";
-+};
-+
-+&i2c3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c3_pins>;
-+	status = "okay";
-+};
-+
  &pio {
-+	i2c0_pins: i2c0-pins {
-+		pins-bus {
-+			pinmux = <PINMUX_GPIO45__FUNC_SDA0>,
-+				 <PINMUX_GPIO46__FUNC_SCL0>;
+@@ -127,6 +135,14 @@ pins-rst {
+ 		};
+ 	};
+ 
++	proximity_pins: proximity-pins {
++		pins-irq {
++			pinmux = <PINMUX_GPIO8__FUNC_GPIO8>;
++			bias-pull-up;
 +			input-enable;
 +		};
 +	};
 +
-+	i2c1_pins: i2c1-pins {
-+		pins-bus {
-+			pinmux = <PINMUX_GPIO125__FUNC_SDA1>,
-+				 <PINMUX_GPIO126__FUNC_SCL1>;
-+			bias-disable;
-+		};
-+	};
-+
-+	i2c2_pins: i2c2-pins {
-+		pins-bus {
-+			pinmux = <PINMUX_GPIO43__FUNC_SDA2>,
-+				 <PINMUX_GPIO44__FUNC_SCL2>;
-+			bias-disable;
-+		};
-+	};
-+
-+	i2c3_pins: i2c3-pins {
-+		pins-bus {
-+			pinmux = <PINMUX_GPIO136__FUNC_SDA3>,
-+				 <PINMUX_GPIO137__FUNC_SCL3>;
-+			bias-disable;
-+		};
-+	};
-+
-+	i2c4_pins: i2c4-pins {
-+		pins-bus {
-+			pinmux = <PINMUX_GPIO100__FUNC_SDA4>,
-+				 <PINMUX_GPIO101__FUNC_SCL4>;
-+			bias-disable;
-+		};
-+	};
-+
- 	uart0_pins: uart0-pins {
- 		pins-rx {
- 			pinmux = <PINMUX_GPIO113__FUNC_URXD0>;
+ 	accel_pins: accelerometer-pins {
+ 		pins-irq {
+ 			pinmux = <PINMUX_GPIO12__FUNC_GPIO12>;
 -- 
 2.40.0
 
