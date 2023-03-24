@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB690C76196
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Mar 2023 17:56:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B698C7619A
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Mar 2023 17:56:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232102AbjCXR4X (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 24 Mar 2023 13:56:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59882 "EHLO
+        id S231852AbjCXR4c (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 24 Mar 2023 13:56:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232049AbjCXR4P (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2023 13:56:15 -0400
+        with ESMTP id S231860AbjCXR4W (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2023 13:56:22 -0400
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C8A1ACF6;
-        Fri, 24 Mar 2023 10:55:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E2841ADF6;
+        Fri, 24 Mar 2023 10:55:58 -0700 (PDT)
 Received: from IcarusMOD.eternityproject.eu (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id DCDCF6603130;
-        Fri, 24 Mar 2023 17:55:02 +0000 (GMT)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 9891D6603132;
+        Fri, 24 Mar 2023 17:55:04 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1679680503;
-        bh=WzRAN9wdA273tqZEI1XBRQYQ34kkvCmE+TRLQXkcUfI=;
+        s=mail; t=1679680505;
+        bh=+C19HY45yz9Sl0OrylkeSlqeTXjPBT2+I9ZB7T/mxXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ams36ojBJMVxIc5HvWzMXt7fadVAKmNvyNvXbDr1SIfjjcsxhR4/t1n+E4o1iFfdy
-         26HgPV3F0T6mZ4xOt2/mfaxLVmw7QYwVKWyIUtu2xvfaOt0nNaR2sL1ewdrA8WgIxC
-         6RTt244duGpb3yHRXLx2MEHWuBo+JFl53MfcueyylPi3jFZfp8aQ5N6QbEC1T406Ou
-         3LyK3q7E7S5Trc+zfmiqj4yE2MqC2GX50uUjEIsaxSUFugk7ogyNaVj5pbmebJh/Y3
-         PANgRk+LyR73AEPhxc2Xe7OypsHaWi7xWDB8UKtMFWyxsYK+0BnEvcoa53jn/3lDpm
-         BFqx4y3RzMdpQ==
+        b=mUyYmZkjPt15oypSkEsngDvZ/RDWtpwT5TLj3nZMFoVqYB8jeT/iiBLY6FSU6OZdn
+         sjm0jptoppCrpZoXxxlnSnL+GAlcox4Htxi/O0x7mW0l+HqiWow9G9+PkLnZXx/i3x
+         Csc6ViAtkayXowL6BhJVgcNYkn2O3a7ez5qt19rsz3TQXVcvw4TS6Osd3/Or1soxDf
+         kB/IFYh3CZX3hpm2OFo4GcAkOKe1n1vCSSklvwYdR3JTuGiSJUHShBoKIIDlx0zyrU
+         iYHIk93ZltXcbI76Xl+68CvJ8J8DRPn3nsR7/PA1WbnjmMIOx4ClC4SgAemIGn7M1M
+         +qPxtKdSsGsdw==
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
 To:     matthias.bgg@gmail.com
@@ -43,9 +43,9 @@ Cc:     qii.wang@mediatek.com, robh+dt@kernel.org,
         phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH v1 03/18] arm64: dts: mediatek: mt6795: xperia-m5: Enable Frequency Hopping
-Date:   Fri, 24 Mar 2023 18:54:41 +0100
-Message-Id: <20230324175456.219954-4-angelogioacchino.delregno@collabora.com>
+Subject: [PATCH v1 05/18] arm64: dts: mediatek: mt6795: Add nodes for I2C controllers
+Date:   Fri, 24 Mar 2023 18:54:43 +0100
+Message-Id: <20230324175456.219954-6-angelogioacchino.delregno@collabora.com>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230324175456.219954-1-angelogioacchino.delregno@collabora.com>
 References: <20230324175456.219954-1-angelogioacchino.delregno@collabora.com>
@@ -55,49 +55,85 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Enable FHCTL with Spread Spectrum for MAINPLL, MPLL and MSDCPLL
-as found on the downstream kernel for this smartphone.
-Which one to enable, and at what SSC percentage, was found by
-dumping the debugging data from a running downstream kernel and
-checking the downstream code.
-
-/proc/freqhopping # cat status
-FH status:
-===============================================
-id == fh_status == pll_status == setting_id == curr_freq == user_defined
- 0           0             1             0      1599000         0
- 1           0             1             0      1716000         0
- 2           1             1             2      1092000         0
- 3           1             1             2      2912000         0
- 4           1             0             2      1600000         0
- 5           0             0             0            0         0
- 6           0             1             0      1518002         0
- 7           0             0             0            0         0
- 8           0             0             0            0         0
+Add all four I2C controller nodes but keep them in disabled state as
+usage is board-dependant.
 
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 ---
- arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm64/boot/dts/mediatek/mt6795.dtsi | 60 ++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts b/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
-index d3415527d389..52ce3284a46f 100644
---- a/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
-@@ -48,6 +48,13 @@ bootloader-region@46000000 {
- 	};
- };
+diff --git a/arch/arm64/boot/dts/mediatek/mt6795.dtsi b/arch/arm64/boot/dts/mediatek/mt6795.dtsi
+index 26d640e1bfb6..ceb6fc948d8a 100644
+--- a/arch/arm64/boot/dts/mediatek/mt6795.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt6795.dtsi
+@@ -445,6 +445,66 @@ uart3: serial@11005000 {
+ 			status = "disabled";
+ 		};
  
-+&fhctl {
-+	clocks = <&apmixedsys CLK_APMIXED_MAINPLL>, <&apmixedsys CLK_APMIXED_MPLL>,
-+		 <&apmixedsys CLK_APMIXED_MSDCPLL>;
-+	mediatek,hopping-ssc-percent = <8>, <5>, <8>;
-+	status = "okay";
-+};
++		i2c0: i2c@11007000 {
++			compatible = "mediatek,mt6795-i2c", "mediatek,mt8173-i2c";
++			reg = <0 0x11007000 0 0x70>, <0 0x11000100 0 0x80>;
++			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg CLK_PERI_I2C0>, <&pericfg CLK_PERI_AP_DMA>;
++			clock-names = "main", "dma";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
 +
- &pio {
- 	uart0_pins: uart0-pins {
- 		pins-rx {
++		i2c1: i2c@11008000 {
++			compatible = "mediatek,mt6795-i2c", "mediatek,mt8173-i2c";
++			reg = <0 0x11008000 0 0x70>, <0 0x11000180 0 0x80>;
++			interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg CLK_PERI_I2C1>, <&pericfg CLK_PERI_AP_DMA>;
++			clock-names = "main", "dma";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c2: i2c@11009000 {
++			compatible = "mediatek,mt6795-i2c", "mediatek,mt8173-i2c";
++			reg = <0 0x11009000 0 0x70>, <0 0x11000200 0 0x80>;
++			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg CLK_PERI_I2C2>, <&pericfg CLK_PERI_AP_DMA>;
++			clock-names = "main", "dma";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c3: i2c@11010000 {
++			compatible = "mediatek,mt6795-i2c", "mediatek,mt8173-i2c";
++			reg = <0 0x11010000 0 0x70>, <0 0x11000280 0 0x80>;
++			interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg CLK_PERI_I2C3>, <&pericfg CLK_PERI_AP_DMA>;
++			clock-names = "main", "dma";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c4: i2c@11011000 {
++			compatible = "mediatek,mt6795-i2c", "mediatek,mt8173-i2c";
++			reg = <0 0x11011000 0 0x70>, <0 0x11000300 0 0x80>;
++			interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_LOW>;
++			clock-div = <16>;
++			clocks = <&pericfg CLK_PERI_I2C4>, <&pericfg CLK_PERI_AP_DMA>;
++			clock-names = "main", "dma";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		mmc0: mmc@11230000 {
+ 			compatible = "mediatek,mt6795-mmc";
+ 			reg = <0 0x11230000 0 0x1000>;
 -- 
 2.40.0
 
