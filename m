@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60FFEC76196
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Mar 2023 17:56:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92E2BC76195
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Mar 2023 17:56:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231861AbjCXR4a (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 24 Mar 2023 13:56:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59854 "EHLO
+        id S232168AbjCXR4u (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 24 Mar 2023 13:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231915AbjCXR4V (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2023 13:56:21 -0400
+        with ESMTP id S232137AbjCXR4k (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2023 13:56:40 -0400
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95E3019B0;
-        Fri, 24 Mar 2023 10:55:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62731CF50;
+        Fri, 24 Mar 2023 10:56:22 -0700 (PDT)
 Received: from IcarusMOD.eternityproject.eu (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 2E55F660312D;
-        Fri, 24 Mar 2023 17:55:01 +0000 (GMT)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 610DB6603135;
+        Fri, 24 Mar 2023 17:55:06 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1679680501;
-        bh=DtLoKecTBQhhvopNsM7M95mpXjvK5USiGMoYC7Oej4w=;
+        s=mail; t=1679680507;
+        bh=2enXSm0ptY4CwPbz2HSp5qKZ+sl1iJxLWmqzjB76U+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V8DDDrXvEKnJazhOMQErYVFVAxvOMaddLoM8wW/X9dN6hBqyE+olcCZFKEJAVJbkc
-         QCwPO9eUvaOSxoVzaBM6SY1n6pJ71VOsy6jP7c0mDxpxckh+PNFeB32VmgzZ8H14gD
-         eo0d6MVr1NejpLN1GuTpDW86G1vh+eXMPi+dfU8McKasvPIC1Pk/v+WFo/okTiPjl1
-         iFpFIe+42snwHpDGrtCE0i8xVS4HICIOB7w64eRGYvES7dS6+cPELcY4XydKmL060h
-         pqkxUe76Z+MCpR/iu2goQb7ZmmeTmAMrgo5Dz8S/OOzR64CUyPPc5Yh0EQ9QeXMVNG
-         ExclI8fLPPRIg==
+        b=JINiSdsrozBUJnWD6wki041qRowaEi6AaIVOYCGmgM4prCeWNheUAtTf7tTTSaPih
+         p+8jOc5mJHarcjC7wD3ybEOsC2NndascA+7efOlnrub7cY8OJZ517vOk8Xw06CsiIb
+         d31g6PMAhUYBBYeKE35mtLKusBHLQhUTkK8vd82lE6f4NiC46hYclYD3j9tewH/T/o
+         jIXLllVcCrmhoj8hpLrtEggwIH0WSqi4TG7S/fAjH1iyA6i+LlEG3FPTwuSE9R3FNV
+         PUVGLHoJ9tIu0r152qY/oFca4G8PVkV07CkWAVmxc0X5TfiW618/QyUPvY7F6OU76x
+         HkrSSSQ55yFXQ==
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
 To:     matthias.bgg@gmail.com
@@ -43,9 +43,9 @@ Cc:     qii.wang@mediatek.com, robh+dt@kernel.org,
         phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH v1 01/18] arm64: dts: mediatek: mt6795: Add Frequency Hopping Controller node
-Date:   Fri, 24 Mar 2023 18:54:39 +0100
-Message-Id: <20230324175456.219954-2-angelogioacchino.delregno@collabora.com>
+Subject: [PATCH v1 07/18] dt-bindings: mailbox: mediatek,gce-mailbox: Add compatible for MT6795
+Date:   Fri, 24 Mar 2023 18:54:45 +0100
+Message-Id: <20230324175456.219954-8-angelogioacchino.delregno@collabora.com>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230324175456.219954-1-angelogioacchino.delregno@collabora.com>
 References: <20230324175456.219954-1-angelogioacchino.delregno@collabora.com>
@@ -55,32 +55,45 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add FHCTL node but keep it disabled as the PLL clocks that should be
-handled through FHCTL and the Spread Spectrum Clocking parameters are
-board specific.
+Add a compatible string for the MT6795 Helio X10 SoC which: this SoC
+can use MT8173 bindings.
 
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 ---
- arch/arm64/boot/dts/mediatek/mt6795.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../mailbox/mediatek,gce-mailbox.yaml         | 20 +++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt6795.dtsi b/arch/arm64/boot/dts/mediatek/mt6795.dtsi
-index b3fc76d837a9..4d2119751572 100644
---- a/arch/arm64/boot/dts/mediatek/mt6795.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt6795.dtsi
-@@ -310,6 +310,12 @@ systimer: timer@10200670 {
- 			clock-names = "clk13m";
- 		};
+diff --git a/Documentation/devicetree/bindings/mailbox/mediatek,gce-mailbox.yaml b/Documentation/devicetree/bindings/mailbox/mediatek,gce-mailbox.yaml
+index d383b2ab3ce8..cef9d7601398 100644
+--- a/Documentation/devicetree/bindings/mailbox/mediatek,gce-mailbox.yaml
++++ b/Documentation/devicetree/bindings/mailbox/mediatek,gce-mailbox.yaml
+@@ -16,14 +16,18 @@ description:
  
-+		fhctl: clock-controller@10209f00 {
-+			compatible = "mediatek,mt6795-fhctl";
-+			reg = <0 0x10209f00 0 0x100>;
-+			status = "disabled";
-+		};
-+
- 		gic: interrupt-controller@10221000 {
- 			compatible = "arm,gic-400";
- 			#interrupt-cells = <3>;
+ properties:
+   compatible:
+-    enum:
+-      - mediatek,mt6779-gce
+-      - mediatek,mt8173-gce
+-      - mediatek,mt8183-gce
+-      - mediatek,mt8186-gce
+-      - mediatek,mt8188-gce
+-      - mediatek,mt8192-gce
+-      - mediatek,mt8195-gce
++    oneOf:
++      - enum:
++          - mediatek,mt6779-gce
++          - mediatek,mt8173-gce
++          - mediatek,mt8183-gce
++          - mediatek,mt8186-gce
++          - mediatek,mt8188-gce
++          - mediatek,mt8192-gce
++          - mediatek,mt8195-gce
++      - items:
++          - const: mediatek,mt6795-gce
++          - const: mediatek,mt8173-gce
+ 
+   "#mbox-cells":
+     const: 2
 -- 
 2.40.0
 
