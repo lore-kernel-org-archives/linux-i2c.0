@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 227BBC7619A
-	for <linux-i2c@archiver.kernel.org>; Fri, 24 Mar 2023 18:01:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 076E0C76195
+	for <linux-i2c@archiver.kernel.org>; Fri, 24 Mar 2023 18:04:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231772AbjCXSB0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 24 Mar 2023 14:01:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34486 "EHLO
+        id S232475AbjCXSD7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 24 Mar 2023 14:03:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231327AbjCXSBI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2023 14:01:08 -0400
+        with ESMTP id S231945AbjCXSC1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2023 14:02:27 -0400
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DC531B31A;
-        Fri, 24 Mar 2023 11:00:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2B5A18AAC;
+        Fri, 24 Mar 2023 11:02:08 -0700 (PDT)
 Received: from IcarusMOD.eternityproject.eu (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 080B9660312E;
-        Fri, 24 Mar 2023 17:55:01 +0000 (GMT)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 373046603149;
+        Fri, 24 Mar 2023 17:55:14 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1679680502;
-        bh=NomHwJjqmoIPLlLZ3+9R0/l6R9Kvr/DrQn2Y01kmsNU=;
+        s=mail; t=1679680514;
+        bh=/T9WmBbua2oCTw4GMfNhun8IUtdf0uXbZIh9+7jUzSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNCdXTlCQSbygKa8bt1a6+fRr9cXIJMI1RzddpaC2SeQ1dhDdLWz7t+1lNV3rnslQ
-         sIM9vnLojyWfMGTJwoT7dKZIdZuVUvKZkRZysI+G19+A/Na89JCH3bD2JwakIjKBlC
-         apJhP0S57fpmsmZqfIt2Ag4VJaSFPKt0ymwZ9Oto2TOL5L+NbqpaJ5TwP8MBjg5IxA
-         rumqZ0bF5olZBT1Mv9In8uVTGx3KbLxvw91qULm2abJ9XYaSFBv3qTQMpy/qlhx3OQ
-         IblCPscdHiBvHBb/WIzgX3t+mjH1sBGjeyLIrAld4VSYBMS3Ra+vwMNRGRwuRn9e3i
-         iMDKWMDOAoGFg==
+        b=KVERgUP5/zEPGkUnlFHSCczSQhqJ2ushyYTycvVgxC+XOUfV21uuNMTrh3HaQdIRU
+         il90KXUEy1Xufgx/Lm247MqI69OAeQDcxMSpVcRXRHT9zD56I2XPgTHWv+ew1owt5a
+         8CXGqHYeh1I1U7DN1VLXg8JIaWsrMBqdwoHVI/patj0FrcIJpBOFUMmjdtESo3IJMt
+         Coyl9SN+nFk+3y+5Bxs3Hr2DJOpOWBkJ9qX5+idJIZscBZ33mJhTEJgSQPSAZztSVz
+         n00zKTB1RrbanwEwOaYZPz08ypRPFtPtcTVEnYpGh2pk14tUN/u0QDog03BKMHRVn2
+         uK3ch3Kx85bxQ==
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
 To:     matthias.bgg@gmail.com
@@ -43,9 +43,9 @@ Cc:     qii.wang@mediatek.com, robh+dt@kernel.org,
         phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH v1 02/18] arm64: dts: mediatek: mt6795: Add apmixedsys syscon node
-Date:   Fri, 24 Mar 2023 18:54:40 +0100
-Message-Id: <20230324175456.219954-3-angelogioacchino.delregno@collabora.com>
+Subject: [PATCH v1 16/18] arm64: dts: mediatek: mt6795-xperia-m5: Add Bosch BMM050 Magnetometer
+Date:   Fri, 24 Mar 2023 18:54:54 +0100
+Message-Id: <20230324175456.219954-17-angelogioacchino.delregno@collabora.com>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230324175456.219954-1-angelogioacchino.delregno@collabora.com>
 References: <20230324175456.219954-1-angelogioacchino.delregno@collabora.com>
@@ -55,31 +55,32 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add the APMIXEDSYS node, providing a syscon to the APMIXED iospace and
-also providing PLLs.
+This smartphone features a Bosch BMM050 Magnetometer on I2C3: enable
+it with the BMM150 binding, as that driver supports BMM050 as well.
+For this sensor, there is no interrupt pin;
+readings were validated in sysfs.
 
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 ---
- arch/arm64/boot/dts/mediatek/mt6795.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt6795.dtsi b/arch/arm64/boot/dts/mediatek/mt6795.dtsi
-index 4d2119751572..26d640e1bfb6 100644
---- a/arch/arm64/boot/dts/mediatek/mt6795.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt6795.dtsi
-@@ -310,6 +310,12 @@ systimer: timer@10200670 {
- 			clock-names = "clk13m";
- 		};
- 
-+		apmixedsys: syscon@10209000 {
-+			compatible = "mediatek,mt6795-apmixedsys", "syscon";
-+			reg = <0 0x10209000 0 0x1000>;
-+			#clock-cells = <1>;
-+		};
+diff --git a/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts b/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
+index 54a1f7f306f7..bda14c74a8af 100644
+--- a/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
++++ b/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
+@@ -106,6 +106,11 @@ accelerometer@0x10 {
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&accel_pins>;
+ 	};
 +
- 		fhctl: clock-controller@10209f00 {
- 			compatible = "mediatek,mt6795-fhctl";
- 			reg = <0 0x10209f00 0 0x100>;
++	magnetometer@0x12 {
++		compatible = "bosch,bmm150";
++		reg = <0x12>;
++	};
+ };
+ 
+ &pio {
 -- 
 2.40.0
 
