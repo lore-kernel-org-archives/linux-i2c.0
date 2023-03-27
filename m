@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF2BCC77B62
-	for <linux-i2c@archiver.kernel.org>; Mon, 27 Mar 2023 08:40:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B03EC77B71
+	for <linux-i2c@archiver.kernel.org>; Mon, 27 Mar 2023 08:40:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233297AbjC0Iks (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 27 Mar 2023 04:40:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57164 "EHLO
+        id S233338AbjC0Ikt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 27 Mar 2023 04:40:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233066AbjC0Ikd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Mar 2023 04:40:33 -0400
+        with ESMTP id S233094AbjC0Ike (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Mar 2023 04:40:34 -0400
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7972E9;
-        Mon, 27 Mar 2023 01:36:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9328C97;
+        Mon, 27 Mar 2023 01:36:58 -0700 (PDT)
 Received: from IcarusMOD.eternityproject.eu (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 8D1D96601F5E;
-        Mon, 27 Mar 2023 09:36:52 +0100 (BST)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 9585D66030B4;
+        Mon, 27 Mar 2023 09:36:56 +0100 (BST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1679906213;
-        bh=ubB9ozQrHtmRAC/h3ra8X8vZIkv037PoS7C0Tn1POaQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Hq+VWeyIHZac38b5D8jvwU8JFH3CHhnwWviZEWONgG6Uruu8oMv1HfRHoPOpRYmSz
-         i+PWmyfzx78Pv68NqDyXOZGWRoSMDui9gyPlzE0YSZOgmOxzfFMTNe7fBiKVZRFjIC
-         P4KKZMkXf2pMROJHkheZoy0t3ay+OhA5lN7/UMDKo/7z54oztM8OxH3f2Z2G3jM/6U
-         V7Q12gZ0cBhjpW0dg23RiEEBuVK4e7pgWvI3DrEHPtEhy4ithm3thRSAHVWynr4BYe
-         v8m+fVHbRzgua6cxa2FOj8Ip0fYPvVlDaVwKXzIqtPztyllYm5cgKw5lmFXns+HQdV
-         YtK4cQH34us8A==
+        s=mail; t=1679906217;
+        bh=/m1OL7UsMbNu+kNMCfRtbpy2xlvb5EHGi2lUhT8JrpU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=LatL6xXd23iT/+dxp3yRnUFr1btzJX414Q9COH/8qxalSOFYNnD0YL7GSHZUgmJCI
+         EgSoHyTgPdr2aoM6Lke3roF3riLHZxxztopPljTNYWggdPmzp1xzrnaC/eLpOqVCDH
+         pvpmBUntRPgNxxyHWLVJXtoVdvp7MNZ9pmbE2qH4UZIe+ah4U4gkDRWkVgwCQtZNZs
+         2xMJ/Iyyo9IFWhyqmZmM77EKFAgE5tLorwp0wuGHZO30f92tmrONxnPAp15m1w+Ij1
+         hO0qX71X/x9BTXkqQj916ymZ5tPBypN6vASbQUiCGrEexs0LF3SvHu2MIkkXuhbKHU
+         24U8Qmuab1tAw==
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
 To:     matthias.bgg@gmail.com
@@ -42,80 +42,44 @@ Cc:     qii.wang@mediatek.com, robh+dt@kernel.org,
         linux-mediatek@lists.infradead.org, kernel@collabora.com,
         phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
         AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH v2 00/17] MT6795 Helio X10 and Sony Xperia M5: DT step 2!
-Date:   Mon, 27 Mar 2023 10:36:30 +0200
-Message-Id: <20230327083647.22017-1-angelogioacchino.delregno@collabora.com>
+        <angelogioacchino.delregno@collabora.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH v2 04/17] dt-bindings: i2c: i2c-mt65xx: Add compatible for MT6795 Helio X10
+Date:   Mon, 27 Mar 2023 10:36:34 +0200
+Message-Id: <20230327083647.22017-5-angelogioacchino.delregno@collabora.com>
 X-Mailer: git-send-email 2.40.0
+In-Reply-To: <20230327083647.22017-1-angelogioacchino.delregno@collabora.com>
+References: <20230327083647.22017-1-angelogioacchino.delregno@collabora.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Changes in v2:
- - Squashed the addition of mediatek,mt6795-gce.h header with the
-   commit adding the MT6795 GCE compatible.
+The MT6795 SoC uses the same I2C controller parameters as MT8173:
+add a new compatible string for it.
 
-This series further enhances the support for the MT6795 Helio X10 SoC
-and the Sony Xperia M5 smartphone.
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-In particular, for the SoC support, this adds:
- - Frequency Hopping support
- - I2C controllers
- - Power domains
- - IOMMU support and LARBs
- - GCE/CMDQ Mailbox
- - VDECSYS and VENCSYS clocks
- - MMSYS support
-
-...and, on the Xperia M5 smartphone, this adds:
- - Frequency Hopping with Spread Spectrum for MAINPLL, MPLL, MSDCPLL
- - Touchscreen support (Synaptics S2726, fw id: 1898977, RMI4 protocol)
- - Accelerometer
- - Magnetometer
- - Proximity sensor
- - NFC support
-
-...all of which was successfully tested on the Xperia M5 smartphone.
-
-This series depends on [1] for the MMSYS support.
-
-Plan for step 3 is to push upstream full display support, which does
-already work on my custom tree ;-)
-
-[1]: https://lore.kernel.org/all/20230309102618.114157-1-angelogioacchino.delregno@collabora.com/
-
-Cheers!
-
-AngeloGioacchino Del Regno (17):
-  arm64: dts: mediatek: mt6795: Add Frequency Hopping Controller node
-  arm64: dts: mediatek: mt6795: Add apmixedsys syscon node
-  arm64: dts: mediatek: mt6795: xperia-m5: Enable Frequency Hopping
-  dt-bindings: i2c: i2c-mt65xx: Add compatible for MT6795 Helio X10
-  arm64: dts: mediatek: mt6795: Add nodes for I2C controllers
-  arm64: dts: mediatek: mt6795: Add SoC power domains
-  dt-bindings: mailbox: mediatek,gce-mailbox: Add support for MT6795
-  arm64: dts: mediatek: mt6795: Add support for the CMDQ/GCE mailbox
-  arm64: dts: mediatek: mt6795: Add MMSYS node for multimedia clocks
-  arm64: dts: mediatek: mt6795: Add VDECSYS and VENCSYS clocks
-  arm64: dts: mediatek: mt6795: Add support for IOMMU and LARBs
-  arm64: dts: mediatek: mt6795-xperia-m5: Enable I2C 0-3 busses
-  arm64: dts: mediatek: mt6795-xperia-m5: Add Synaptics RMI4 Touchscreen
-  arm64: dts: mediatek: mt6795-xperia-m5: Add Bosch BMA255 Accelerometer
-  arm64: dts: mediatek: mt6795-xperia-m5: Add Bosch BMM050 Magnetometer
-  arm64: dts: mediatek: mt6795-xperia-m5: Add Sensortek STK3310
-    Proximity
-  arm64: dts: mediatek: mt6795-xperia-m5: Add NXP PN547 NFC on I2C3
-
- .../devicetree/bindings/i2c/i2c-mt65xx.yaml   |   4 +
- .../mailbox/mediatek,gce-mailbox.yaml         |  20 +-
- .../dts/mediatek/mt6795-sony-xperia-m5.dts    | 166 ++++++++++++
- arch/arm64/boot/dts/mediatek/mt6795.dtsi      | 245 ++++++++++++++++++
- include/dt-bindings/gce/mediatek,mt6795-gce.h | 123 +++++++++
- 5 files changed, 550 insertions(+), 8 deletions(-)
- create mode 100644 include/dt-bindings/gce/mediatek,mt6795-gce.h
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+index 72ae2e01cf22..685da4df688d 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
++++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+@@ -45,6 +45,10 @@ properties:
+           - enum:
+               - mediatek,mt8365-i2c
+           - const: mediatek,mt8168-i2c
++      - items:
++          - enum:
++              - mediatek,mt6795-i2c
++          - const: mediatek,mt8173-i2c
+       - items:
+           - enum:
+               - mediatek,mt8195-i2c
 -- 
 2.40.0
 
