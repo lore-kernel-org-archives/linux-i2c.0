@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC2B9C77B73
-	for <linux-i2c@archiver.kernel.org>; Mon, 27 Mar 2023 08:40:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E066C761AF
+	for <linux-i2c@archiver.kernel.org>; Mon, 27 Mar 2023 08:40:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233082AbjC0Ik4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 27 Mar 2023 04:40:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57220 "EHLO
+        id S232851AbjC0Ik5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 27 Mar 2023 04:40:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233165AbjC0Ikh (ORCPT
+        with ESMTP id S232496AbjC0Ikh (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Mar 2023 04:40:37 -0400
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B914223;
-        Mon, 27 Mar 2023 01:37:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C03D6A49;
+        Mon, 27 Mar 2023 01:37:08 -0700 (PDT)
 Received: from IcarusMOD.eternityproject.eu (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 0E0BC660313F;
-        Mon, 27 Mar 2023 09:37:08 +0100 (BST)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 232D866030E3;
+        Mon, 27 Mar 2023 09:37:06 +0100 (BST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1679906228;
-        bh=7QwlmzO687lgIQQgZpeWHJxJZ30x74RVdHCWiqIGrHY=;
+        s=mail; t=1679906226;
+        bh=M2x6XrfKatUDNCzi+SX1mFtgO/Okir8+l/Hd5u8MM30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QsI8K4n5cpOLQks7dZVx4i6uJ9HjWsEQAlKW+DbF9bo4EIcCe46FRybKyB9NWRis0
-         TXpfQhUcUlWnwzYQmiEr1xdo7gPgzjvusfzYqBmVIqy9HLoIPhlcmMrHmZgySKkv/X
-         SaNHe8bitzxIQ/J58yqQIVnmc0Xi20iNjpuhOPlfbvL6vb0Y3zjfAcPjFCAcU6Ifcw
-         pBq4daGqPdQGfUxOrJbc67Nwh4jdg426wykSzQPIEsoeZVjKcT3J3277ydztpb15O6
-         /LJZZq2Z4E5oY7c3N0CjX8Qgct9pNPucvXfS72KCwyurFDu2yCWMggXb9jCnu2JGO5
-         KbPuPiAgq0XuQ==
+        b=Euip6vBAt7XX/ExWE42LBSSpfsCWwWShcG+34Ee+U7pCYfVKBkIrHcLALBlWY888J
+         d/IIyUO8X4IpbPBW2NFW0SxI4K5TqgcEMOkM8o/PctPHE5BwJE/ugrtuLsChD6jcBx
+         by6w10s/Z0xmWYS1MEtW4OF8GzWrEFegVxo2jSpeZS+Gqdi0RAhrtXmBT31ckaMuEr
+         +PTRDKW2DDCGGt34A9X1+IWb+6sDTedWHfqGmYASK32O0ZS5/SIO3kVB5NzIw680WE
+         zcDeB7z9BHEFycJez4hooVXCwWzIMD265Zul0F+j5tFkSfqgKaDPTP3lFhOr89wotd
+         3RbFm3zYGaYBg==
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
 To:     matthias.bgg@gmail.com
@@ -43,9 +43,9 @@ Cc:     qii.wang@mediatek.com, robh+dt@kernel.org,
         phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH v2 16/17] arm64: dts: mediatek: mt6795-xperia-m5: Add Sensortek STK3310 Proximity
-Date:   Mon, 27 Mar 2023 10:36:46 +0200
-Message-Id: <20230327083647.22017-17-angelogioacchino.delregno@collabora.com>
+Subject: [PATCH v2 14/17] arm64: dts: mediatek: mt6795-xperia-m5: Add Bosch BMA255 Accelerometer
+Date:   Mon, 27 Mar 2023 10:36:44 +0200
+Message-Id: <20230327083647.22017-15-angelogioacchino.delregno@collabora.com>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230327083647.22017-1-angelogioacchino.delregno@collabora.com>
 References: <20230327083647.22017-1-angelogioacchino.delregno@collabora.com>
@@ -55,47 +55,46 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add the STK3310 Proximity sensor and its pins.
+Add the BMA255 Accelerometer on I2C3 and its pin definitions.
 
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 ---
- .../boot/dts/mediatek/mt6795-sony-xperia-m5.dts  | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ .../boot/dts/mediatek/mt6795-sony-xperia-m5.dts   | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts b/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
-index bda14c74a8af..bff0760cc1c8 100644
+index edab90f06a24..54a1f7f306f7 100644
 --- a/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
 +++ b/arch/arm64/boot/dts/mediatek/mt6795-sony-xperia-m5.dts
-@@ -111,6 +111,14 @@ magnetometer@0x12 {
- 		compatible = "bosch,bmm150";
- 		reg = <0x12>;
- 	};
+@@ -99,6 +99,13 @@ &i2c3 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c3_pins>;
+ 	status = "okay";
 +
-+	proximity@48 {
-+		compatible = "sensortek,stk3310";
-+		reg = <0x48>;
-+		interrupts-extended = <&pio 8 IRQ_TYPE_EDGE_FALLING>;
++	accelerometer@0x10 {
++		compatible = "bosch,bma255";
++		reg = <0x10>;
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&proximity_pins>;
++		pinctrl-0 = <&accel_pins>;
 +	};
  };
  
  &pio {
-@@ -127,6 +135,14 @@ pins-rst {
+@@ -115,6 +122,14 @@ pins-rst {
  		};
  	};
  
-+	proximity_pins: proximity-pins {
++	accel_pins: accelerometer-pins {
 +		pins-irq {
-+			pinmux = <PINMUX_GPIO8__FUNC_GPIO8>;
++			pinmux = <PINMUX_GPIO12__FUNC_GPIO12>;
 +			bias-pull-up;
 +			input-enable;
 +		};
 +	};
 +
- 	accel_pins: accelerometer-pins {
- 		pins-irq {
- 			pinmux = <PINMUX_GPIO12__FUNC_GPIO12>;
+ 	i2c0_pins: i2c0-pins {
+ 		pins-bus {
+ 			pinmux = <PINMUX_GPIO45__FUNC_SDA0>,
 -- 
 2.40.0
 
