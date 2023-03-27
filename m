@@ -2,93 +2,140 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29A7CC76195
-	for <linux-i2c@archiver.kernel.org>; Mon, 27 Mar 2023 08:28:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3A85C7619A
+	for <linux-i2c@archiver.kernel.org>; Mon, 27 Mar 2023 08:33:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233398AbjC0I2G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 27 Mar 2023 04:28:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33868 "EHLO
+        id S233283AbjC0Id5 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 27 Mar 2023 04:33:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233382AbjC0I1j (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Mar 2023 04:27:39 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE626EA8;
-        Mon, 27 Mar 2023 01:25:29 -0700 (PDT)
-Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id E40CB6602087;
-        Mon, 27 Mar 2023 09:25:00 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1679905502;
-        bh=/9QZ2Jz7ZuJXIYiAQSp0kMC91j8S/hZsSZYz2NRG6JI=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=OwoJesY8b989WtHjNl9UQ75G3lC4dZjgAMMO/0R9Y8KpWgV1gqq9J6DV1hvJw7TEh
-         0QCIbJ1XhSgM+SC1DHAF3RxYTKhYOs8z1W6PFgo5VPEfXJr4s6uIpGeRigQLhADsPV
-         ZoKrMJz1TuAfa1Y2LQeMOAU6hXnY4hey7+c/MAdDKHyaGEdEvkVifC4rbkPHS4OH9M
-         OL5UJU/7UfWZrluC5uC2kjwoXkZ3DNjTjmY777MyiX8JA38B68kqYxFU1ndKJYO0uV
-         nVHU1zDApj7cFlvd+OcA3Xhs6Og1/FNHDn/oAKFShM968ClqSE2098/svUN+yZiElR
-         ss02NvPMr+bNg==
-Message-ID: <85b215e9-e8e9-054d-455b-699a92c8553b@collabora.com>
-Date:   Mon, 27 Mar 2023 10:24:59 +0200
+        with ESMTP id S233247AbjC0Idg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Mar 2023 04:33:36 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DC7572A9
+        for <linux-i2c@vger.kernel.org>; Mon, 27 Mar 2023 01:29:20 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id l27so7770190wrb.2
+        for <linux-i2c@vger.kernel.org>; Mon, 27 Mar 2023 01:29:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1679905688;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MXySEw6VHHY4T8YUjW6WkiV2MVpH/15AZY9UsR+ehZA=;
+        b=PbdSxxfQSvfmaNR7ESQq4AVpCFq0z3EGuqRUt3geaqXZOFOFXUOZZzFLW5n8xnavtD
+         Mh1diY4TEudKvid5kklpGG3yIRWbYS+s5zDaZbi2aNaDDvoR5YApIy+pCrOIokNLFirm
+         PCIL8lrhFucIMvan7yh8S7XTYbp8zlk54oLfTmiZi+Fjxy9Wqx/FvaE7pBn8UIMWzExN
+         EkUAJlTY1nbw+IIUrnPthHgaLGNLnV/X0b6670ApH12mF7eAsnT97WZEdm4dGnqT86em
+         TA2pM/k8WaY4OjTtBDie0wneYvJxktADEZR2AX6LO16VjgLtkb3BTbr1zdx8O4rT6xie
+         t7HQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679905688;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=MXySEw6VHHY4T8YUjW6WkiV2MVpH/15AZY9UsR+ehZA=;
+        b=OTY9rbX+L+To04fYFSUt79hFisfDhylQlFlAaw0PeydWw971DTh9Jat35hgGCM1OYb
+         44ix1nw6QBVlPeIDokzFu/rDh9x13GHnND5MRqr4XP2ywhBQYwhvRK20fHmrEOIPY3JW
+         muPKsalxOKOaFePFkahmRQ1zT21nFQrlOPckXOYPwtqXZJztQqsgjQlELUylS3QhFWKK
+         Uo39hRRTpZW0XWyPWa0cgqkaWP/ogILcCJ2cn9R8VnMbNTzd/qeJobd1NxFEXluWkUZx
+         n1vLG47DQBPOYuk0akHaI/ZW81ifz2pHQEQk2WW2U3jptu+QarXddqcX6t96ShGoD/Xp
+         I2Ww==
+X-Gm-Message-State: AAQBX9cwBYILa9I1c3xbigcMXWDZ41DWbvGVU9RdzNCmgUn/Wgl7wDen
+        gHXK2nIMGsgpwHeXqIQT+4goDg==
+X-Google-Smtp-Source: AKy350ZPTGuHLzmCMgOTOYYL6zs44rzYzlU2HkPczYjzD9B7PvW6Z5Y1kyB+NTTXcTXgglVUth5Dhg==
+X-Received: by 2002:a5d:4e90:0:b0:2ce:a85d:5319 with SMTP id e16-20020a5d4e90000000b002cea85d5319mr9830086wru.39.1679905688659;
+        Mon, 27 Mar 2023 01:28:08 -0700 (PDT)
+Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
+        by smtp.googlemail.com with ESMTPSA id p5-20020adfce05000000b002d64fcb362dsm19192398wrn.111.2023.03.27.01.28.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Mar 2023 01:28:08 -0700 (PDT)
+From:   Alexandre Mergnat <amergnat@baylibre.com>
+Date:   Mon, 27 Mar 2023 10:27:58 +0200
+Subject: [PATCH v5 2/2] arm64: dts: mediatek: enable i2c0 for mt8365-evk
+ board
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH v1 08/18] dt-bindings: gce: Add header for MT6795's GCE
- mailbox
-Content-Language: en-US
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        matthias.bgg@gmail.com
-Cc:     qii.wang@mediatek.com, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, jassisinghbrar@gmail.com,
-        houlong.wei@mediatek.com, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, kernel@collabora.com,
-        phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht
-References: <20230324175456.219954-1-angelogioacchino.delregno@collabora.com>
- <20230324175456.219954-9-angelogioacchino.delregno@collabora.com>
- <488a6684-50aa-e78d-d704-7f59ed3f2c13@linaro.org>
-From:   AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-In-Reply-To: <488a6684-50aa-e78d-d704-7f59ed3f2c13@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20221122-mt8365-i2c-support-v5-2-6e4f3b54937f@baylibre.com>
+References: <20221122-mt8365-i2c-support-v5-0-6e4f3b54937f@baylibre.com>
+In-Reply-To: <20221122-mt8365-i2c-support-v5-0-6e4f3b54937f@baylibre.com>
+To:     Qii Wang <qii.wang@mediatek.com>, Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Cc:     linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Fabien Parent <fparent@baylibre.com>,
+        Rob Herring <robh@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Alexandre Mergnat <amergnat@baylibre.com>
+X-Mailer: b4 0.12.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1247; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=vLQRmdlf8w5DsX+xgQD+R1WqZbSZSTtE1/ylilkoFi8=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBkIVOV650DOqclHY8dCbK7OCEAXd7LbFA4eAKp8KZJ
+ HXoB5c2JAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZCFTlQAKCRArRkmdfjHURZ2iD/
+ 92hVpCiu0r88n6RohOPfuJYD4yr16TvX7ZAA3Vs6/nH427wt0ZbJjhWa8tPhBNWDQmb2pXcFKMpJE6
+ ZajYoJwnnT1gG32M0RQ+PY29O4nVhoGIoMJjvXB55zb0ywt6ZqUSkMPwKRTNd0xG9OQ/Mhi9HKn+6Z
+ OaATkPoVOovlf50O7rzZZRoY/v6phi2R1uCvVqh76M/7zTVUHBvXKXS6wy+3Wznlo8IymQj7a85J7H
+ 0rGNNLaRO5xWoICjtYcCXz+3dhIWGHHFtyNeTHkr65uHnG2u4sk4kpDbg38o1tZ01WVO/ht2it5A/H
+ LM/MuM0SLaiewdI79eO3bU/dvRjROm6ceQ037QN3tM+YOULWL+cIzSHahiPGunvTEZQa7Y65NFnv9k
+ ZvyDAa0yZ6ANuZuViPeJazPwM1F0lNnNjeuy6MUwhSQbh2sJ/LFbHl1IzGuMJTjNkbhKey/EaIL6Xa
+ f2Bf+bxsGjA3dsJScYIydGuDub+synek7xflQWdimmtl+yJjU75cRit/Xu3Ya0E4NtZJy74sKDSoC9
+ YnE6sD09o6fT/lfERGbHAXOVWSMzoHz/TL5Xfs8a4pAfZ+HNoBLV9oaqOhYUbxWNT6UsB/twxfwcyq
+ MkyCm9UYc75RoCQoDhnr4P6MCVFBhI9Y3okd162qrDlakKLHeJUZLhOpPp4g==
+X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
+ fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Il 25/03/23 12:12, Krzysztof Kozlowski ha scritto:
-> On 24/03/2023 18:54, AngeloGioacchino Del Regno wrote:
->> Add the GCE header file to define the GCE subsystem IDs, hardware
->> event IDs and thread priority IDs for the MT6795 Helio X10 SoC.
->>
->> Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
->> ---
->>   include/dt-bindings/gce/mediatek,mt6795-gce.h | 123 ++++++++++++++++++
->>   1 file changed, 123 insertions(+)
->>   create mode 100644 include/dt-bindings/gce/mediatek,mt6795-gce.h
->>
->> diff --git a/include/dt-bindings/gce/mediatek,mt6795-gce.h b/include/dt-bindings/gce/mediatek,mt6795-gce.h
->> new file mode 100644
->> index 000000000000..97d5ba2d2b44
->> --- /dev/null
->> +++ b/include/dt-bindings/gce/mediatek,mt6795-gce.h
->> @@ -0,0 +1,123 @@
->> +/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
-> 
-> This should be squashed with previous commit adding this compatible. It
-> is one logical change - bindings for mt6795 mailbox. There is no point
-> in splitting one change into two.
-> 
-> Best regards,
-> Krzysztof
-> 
-> 
+Enable the I2C0 bus provides communication with:
+- The integrated RT9466 Switching Battery Charger.
+- The integrated MT6691 LP4X buck for VDDQ.
+- The integrated MT6691 LP4X buck for VDD2.
+- The pin header, to plug external I2C devices.
 
-Sure, will do!
+Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+---
+ arch/arm64/boot/dts/mediatek/mt8365-evk.dts | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-Thanks,
-Angelo
+diff --git a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts b/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
+index 4683704ea235..35cb142004a4 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
+@@ -87,6 +87,13 @@ optee_reserved: optee@43200000 {
+ 	};
+ };
+ 
++&i2c0 {
++	clock-frequency = <100000>;
++	pinctrl-0 = <&i2c0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
+ &pio {
+ 	gpio_keys: gpio-keys-pins {
+ 		pins {
+@@ -96,6 +103,15 @@ pins {
+ 		};
+ 	};
+ 
++	i2c0_pins: i2c0-pins {
++		pins {
++			bias-pull-up;
++			mediatek,pull-up-adv = <3>;
++			pinmux = <MT8365_PIN_57_SDA0__FUNC_SDA0_0>,
++				 <MT8365_PIN_58_SCL0__FUNC_SCL0_0>;
++		};
++	};
++
+ 	uart0_pins: uart0-pins {
+ 		pins {
+ 			pinmux = <MT8365_PIN_35_URXD0__FUNC_URXD0>,
+
+-- 
+2.25.1
+
