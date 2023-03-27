@@ -2,115 +2,135 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D610C7619A
-	for <linux-i2c@archiver.kernel.org>; Mon, 27 Mar 2023 09:28:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B5C5C76195
+	for <linux-i2c@archiver.kernel.org>; Mon, 27 Mar 2023 10:56:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230017AbjC0J2P (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 27 Mar 2023 05:28:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
+        id S230229AbjC0K4u (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 27 Mar 2023 06:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232716AbjC0J2O (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Mar 2023 05:28:14 -0400
-X-Greylist: delayed 1811 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 27 Mar 2023 02:28:09 PDT
-Received: from mail.pr-group.ru (mail.pr-group.ru [178.18.215.3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 935E02707;
-        Mon, 27 Mar 2023 02:28:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-        d=metrotek.ru; s=mail;
-        h=from:subject:date:message-id:to:cc:mime-version:content-type:in-reply-to:
-         references;
-        bh=HcWg8teO8lRj5+fkRN/aU7d/uNN4yhTheMQkiD4xApM=;
-        b=KQ+S8jrBgKzWq5ysztQlVTE5vhmb8TDKsiJ4AO73EnQOimsNUYphLd5V2nwURWxND6CVI5o5OJ9i4
-         f5sPMyiqKaCSqOcaAlGJrttb8tGs3UU2qMTHoyTcRxw5c6aXIsf2Wyyn9buSofhf0WU1+uIKXSaO4V
-         PeHpQBWTSNaxq3G+jjpvXhw9rq5aV5521JIOi4v7FZhMcgT40Z9kjWtsWstNIL1jMO7vD6Lfm6fFFS
-         Nb9kiqeFKsoXPWBWOzx8mVoDn5qU4be6cb0TLPkmE7656dxzQe/oqJjPYiCCnOtZGpUtsoN5ItMSx3
-         7XgmsZelFzdYD08AsLEA9CtHvQfb1Xg==
-X-Kerio-Anti-Spam:  Build: [Engines: 2.17.2.1477, Stamp: 3], Multi: [Enabled, t: (0.000008,0.010549)], BW: [Enabled, t: (0.000023,0.000001)], RTDA: [Enabled, t: (0.088525), Hit: No, Details: v2.49.0; Id: 15.zxpjd.1gsh4j5iu.3nlts; mclb], total: 0(700)
-X-Footer: bWV0cm90ZWsucnU=
-Received: from h-e2.ddg ([85.143.252.66])
-        (authenticated user i.bornyakov@metrotek.ru)
-        by mail.pr-group.ru with ESMTPSA
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256 bits));
-        Mon, 27 Mar 2023 11:57:39 +0300
-Date:   Mon, 27 Mar 2023 11:54:01 +0300
-From:   Ivan Bornyakov <i.bornyakov@metrotek.ru>
-To:     Shawn Guo <shawnguo@kernel.org>
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Saravana Kannan <saravanak@google.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] treewide: Fix instantiation of devices in DT overlays
-Message-ID: <20230327085401.pgnira5btzbgehb3@h-e2.ddg>
-References: <240155f20aae47e9f7461e2b7416120ba6238886.1679650087.git.geert+renesas@glider.be>
- <20230327030213.GJ3364759@dragon>
+        with ESMTP id S229884AbjC0K4t (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Mar 2023 06:56:49 -0400
+Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F479110
+        for <linux-i2c@vger.kernel.org>; Mon, 27 Mar 2023 03:56:48 -0700 (PDT)
+Received: by mail-yb1-xb33.google.com with SMTP id r187so9949086ybr.6
+        for <linux-i2c@vger.kernel.org>; Mon, 27 Mar 2023 03:56:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1679914607;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/V3pA35xhVCbP9jkYQO9e9S5qEV2hgRETTuNLYG0J5I=;
+        b=q6NUh0GLhbSm+jdtm5u/zJSq9hxnLKIfoo86F6ho5smnjf34w4TPsj9OZwgJekDkfe
+         W+/E4fPYuxWqCcR0vFt/V5DtbFMv76+JyAmmnJ0wDwyX9VkezXK6dmfKe0lGXCkVV1nQ
+         punl2iTjp0SNLSPRDx0NFGQ5yRKS1RhOa+esRXcB0rDOTQMuv6QnlQ6J0w3XbombUITr
+         maO1C4mmuLpNd4Yky5AvLakgbvtYmCIuyXvMSstF73DGH90kUum/xdYY4Lvz/2gGcsF1
+         BKAD5nHXNHn0M7WGb+KgnAMiTaGScaC4MXH6KxkSk+tALMQm2DQxRv8i6rZRUoe1a891
+         pdyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1679914607;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/V3pA35xhVCbP9jkYQO9e9S5qEV2hgRETTuNLYG0J5I=;
+        b=FQNvWOa6wHd96q0n7ZAyaZVP3EccmDaQuai38+I6EFgXoQb0PY9hl4GsTGik0Wv0GQ
+         4ml3U0bDxqaAXS4WebHXFEcruOKQ2HVQYeTsi6m3rBrDHF2hpcpeosuQ0yXYrspuL4gP
+         J/9SmcYW9BemuxknATEQnXK5DMQ+UXNY74HNHy7EN4yjTtjkqXmMvkTVZtSXIKKlKsI2
+         o74U/UxUL9T9RHo+Hd8U38ilxPWN34WAU3L3EnbRRVaQGwOWZzwjqHP2Z9vz7wMMRB1v
+         NmYJ0V0eq1nCVNnNwPseiGdq7wp6yIwDVuhK5oQolOjt3rvqJO7RAGgTTvhiWleABu/r
+         LaMQ==
+X-Gm-Message-State: AAQBX9erL34pu2RXbW4I+KshBE4wJuqv9odyGif/oPX8wG+d+6ASeAm7
+        AwfnsPvbER8+MMKQ/t+zrvxuBHOkEFGKk2xNtmlFmQ==
+X-Google-Smtp-Source: AKy350YfvVDOEdafb4m5KIOnnCg2t8RAuLdF4lY57Kt2SzbDhA40QER8ozVCwQkqO3tcWU5y9O4EoOR4PmQqRw+iAnQ=
+X-Received: by 2002:a05:6902:1181:b0:b6c:2224:8a77 with SMTP id
+ m1-20020a056902118100b00b6c22248a77mr7052843ybu.1.1679914607297; Mon, 27 Mar
+ 2023 03:56:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230327030213.GJ3364759@dragon>
+References: <20221122-mt8365-i2c-support-v5-0-6e4f3b54937f@baylibre.com>
+ <20221122-mt8365-i2c-support-v5-2-6e4f3b54937f@baylibre.com> <2a1b1f66-970e-5adb-389e-b9c47a790712@collabora.com>
+In-Reply-To: <2a1b1f66-970e-5adb-389e-b9c47a790712@collabora.com>
+From:   Alexandre Mergnat <amergnat@baylibre.com>
+Date:   Mon, 27 Mar 2023 12:56:36 +0200
+Message-ID: <CAFGrd9pf+ojPDciF3Mtw-QT51LZCj+GNLHXurGx_vcC17GHA2A@mail.gmail.com>
+Subject: Re: [PATCH v5 2/2] arm64: dts: mediatek: enable i2c0 for mt8365-evk board
+To:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>
+Cc:     Qii Wang <qii.wang@mediatek.com>, Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Fabien Parent <fparent@baylibre.com>,
+        Rob Herring <robh@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi, Shawn!
+Hi Angelo,
 
-On Mon, Mar 27, 2023 at 11:02:13AM +0800, Shawn Guo wrote:
-> + Ivan
-> 
-> On Fri, Mar 24, 2023 at 10:30:39AM +0100, Geert Uytterhoeven wrote:
-> > When loading a DT overlay that creates a device, the device is not
-> > instantiated, unless the DT overlay is unloaded and reloaded again.
-> > 
-> > Saravana explains:
-> >   Basically for all overlays (I hope the function is only used for
-> >   overlays) we assume all nodes are NOT devices until they actually
-> >   get added as a device.
-> > 
-> > Based on a patch by Saravana Kannan, which covered only platform and spi
-> > devices.
-> > 
-> > Fixes: 4a032827daa89350 ("of: property: Simplify of_link_to_phandle()")
-> > Link: https://lore.kernel.org/r/CAGETcx_+rhHvaC_HJXGrr5_WAd2+k5f=rWYnkCZ6z5bGX-wj4w@mail.gmail.com
-> > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> > Acked-by: Mark Brown <broonie@kernel.org>
+Le lun. 27 mars 2023 =C3=A0 10:45, AngeloGioacchino Del Regno
+<angelogioacchino.delregno@collabora.com> a =C3=A9crit :
+>
+> Il 27/03/23 10:27, Alexandre Mergnat ha scritto:
+> > Enable the I2C0 bus provides communication with:
+> > - The integrated RT9466 Switching Battery Charger.
+> > - The integrated MT6691 LP4X buck for VDDQ.
+> > - The integrated MT6691 LP4X buck for VDD2.
+> > - The pin header, to plug external I2C devices.
+> >
+> > Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 > > ---
-> > v2:
-> >   - Add Acked-by,
-> >   - Drop RFC.
-> > ---
-> >  drivers/bus/imx-weim.c    | 1 +
-> >  drivers/i2c/i2c-core-of.c | 1 +
-> >  drivers/of/dynamic.c      | 1 +
-> >  drivers/of/platform.c     | 1 +
-> >  drivers/spi/spi.c         | 1 +
-> >  5 files changed, 5 insertions(+)
-> > 
-> > diff --git a/drivers/bus/imx-weim.c b/drivers/bus/imx-weim.c
-> > index 36d42484142aede2..898e23a4231400fa 100644
-> > --- a/drivers/bus/imx-weim.c
-> > +++ b/drivers/bus/imx-weim.c
-> > @@ -329,6 +329,7 @@ static int of_weim_notify(struct notifier_block *nb, unsigned long action,
-> >  				 "Failed to setup timing for '%pOF'\n", rd->dn);
-> >  
-> >  		if (!of_node_check_flag(rd->dn, OF_POPULATED)) {
-> > +			rd->dn->fwnode.flags &= ~FWNODE_FLAG_NOT_DEVICE;
-> >  			if (!of_platform_device_create(rd->dn, NULL, &pdev->dev)) {
-> >  				dev_err(&pdev->dev,
-> >  					"Failed to create child device '%pOF'\n",
-> 
-> Ivan, so you were aware of that the device is not instantiated before
-> this change?
-> 
+> >   arch/arm64/boot/dts/mediatek/mt8365-evk.dts | 16 ++++++++++++++++
+> >   1 file changed, 16 insertions(+)
+> >
+> > diff --git a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts b/arch/arm64/b=
+oot/dts/mediatek/mt8365-evk.dts
+> > index 4683704ea235..35cb142004a4 100644
+> > --- a/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
+> > +++ b/arch/arm64/boot/dts/mediatek/mt8365-evk.dts
+> > @@ -87,6 +87,13 @@ optee_reserved: optee@43200000 {
+> >       };
+> >   };
+> >
+> > +&i2c0 {
+> > +     clock-frequency =3D <100000>;
+> > +     pinctrl-0 =3D <&i2c0_pins>;
+> > +     pinctrl-names =3D "default";
+> > +     status =3D "okay";
+> > +};
+> > +
+> >   &pio {
+> >       gpio_keys: gpio-keys-pins {
+> >               pins {
+> > @@ -96,6 +103,15 @@ pins {
+> >               };
+> >       };
+> >
+> > +     i2c0_pins: i2c0-pins {
+> > +             pins {
+>                         pinmux =3D ...pins...
+>                         bias-pull-up =3D <your-pull-up-adv-value>;
+>                 };
+>
+> ...and please do *not* use the mediatek,pull-up-adv property: this is
+> supposed to be there only for older devicetrees and there's a replacement
+> for it.... unless you have any specific reason to do so (and if you do,
+> you should well explain that).
 
-I was not aware of that, thanks for warning me.
-Will test in the near future.
+bias-pull-up isn't necessary currently because MT8365 doesn't use MTK
+paris/moore drivers.
 
+> Besides, if you introduce the usage of that property in any 8365 devicetr=
+ee,
+> the previously proposed 8365 pinctrl cleanup will become a bit harder to =
+do.
+
+I'm thinking of deprecating the "mediatek,pull-up-adv",
+"mediatek,pull-down-adv" properties from mt8365 pinctrl binding too.
+
+Regards,
+Alex
