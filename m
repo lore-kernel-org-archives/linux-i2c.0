@@ -2,187 +2,118 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BB3CC77B60
-	for <linux-i2c@archiver.kernel.org>; Thu, 30 Mar 2023 13:26:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB384C761AF
+	for <linux-i2c@archiver.kernel.org>; Thu, 30 Mar 2023 13:43:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231969AbjC3N0n (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 30 Mar 2023 09:26:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59444 "EHLO
+        id S232132AbjC3Nnk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 30 Mar 2023 09:43:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231962AbjC3N0i (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Mar 2023 09:26:38 -0400
-Received: from xavier.telenet-ops.be (xavier.telenet-ops.be [IPv6:2a02:1800:120:4::f00:14])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A74AAD3B
-        for <linux-i2c@vger.kernel.org>; Thu, 30 Mar 2023 06:26:28 -0700 (PDT)
-Received: from ramsan.of.borg ([84.195.187.55])
-        by xavier.telenet-ops.be with bizsmtp
-        id edSF2900D1C8whw01dSFSm; Thu, 30 Mar 2023 15:26:25 +0200
-Received: from rox.of.borg ([192.168.97.57])
-        by ramsan.of.borg with esmtp (Exim 4.95)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1phsHS-00FKfy-71;
-        Thu, 30 Mar 2023 15:26:15 +0200
-Received: from geert by rox.of.borg with local (Exim 4.95)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1phsIB-007ycS-40;
-        Thu, 30 Mar 2023 15:26:15 +0200
-From:   Geert Uytterhoeven <geert+renesas@glider.be>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Saravana Kannan <saravanak@google.com>
-Cc:     Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Ivan Bornyakov <i.bornyakov@metrotek.ru>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH v3] treewide: Fix probing of devices in DT overlays
-Date:   Thu, 30 Mar 2023 15:26:13 +0200
-Message-Id: <e1fa546682ea4c8474ff997ab6244c5e11b6f8bc.1680182615.git.geert+renesas@glider.be>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S232181AbjC3Nnc (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Mar 2023 09:43:32 -0400
+Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D39DBDFD;
+        Thu, 30 Mar 2023 06:43:23 -0700 (PDT)
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+        by mx0a-0016f401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32UDAlfq014499;
+        Thu, 30 Mar 2023 06:43:21 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding : content-type; s=pfpt0220;
+ bh=Ssk0O0bXBPfhBKJenQvgeKoOFmkN+0GiqUnjxldS3ws=;
+ b=Z9UcGxhIQZFx6FuvYtJiiReWsTwhMauciJKUrm+0aMxm5oDf13jCqZSRX5Sq1vDeFonT
+ vBY1d51DTtZabjKezIHECiOnaz/rwSJr1vGgvsRbSyVkMv8eQEovO4E1lEIEWTSnxZ08
+ vLWIjUG3obG5Vf/YD0R7tGDzXxb9zjiQ0n//MPvBJOwGuFWAcBAQApSEDMLilXVfdfAh
+ WMkvZjozZakJa7CUF3hqgBoobL5OWc9psuMc+BO2Uql5ogMQo4YumV/g3+5r4KXu/Ubx
+ idiJ1MOlIV0Ql/dKX6LC9IjNBjKCsfFgg+LLDoycqk9ApyaOparATIxZp7Zz5zSaghcf rg== 
+Received: from dc5-exch02.marvell.com ([199.233.59.182])
+        by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3pn2ty2nvq-12
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Thu, 30 Mar 2023 06:43:21 -0700
+Received: from DC5-EXCH02.marvell.com (10.69.176.39) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Thu, 30 Mar
+ 2023 06:40:45 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.48 via Frontend
+ Transport; Thu, 30 Mar 2023 06:40:45 -0700
+Received: from localhost.localdomain (unknown [10.110.150.250])
+        by maili.marvell.com (Postfix) with ESMTP id C220F3F704A;
+        Thu, 30 Mar 2023 06:40:45 -0700 (PDT)
+From:   Piyush Malgujar <pmalgujar@marvell.com>
+To:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <wsa@kernel.org>, <rric@kernel.org>
+CC:     <jannadurai@marvell.com>, <cchavva@marvell.com>,
+        Suneel Garapati <sgarapati@marvell.com>,
+        Piyush Malgujar <pmalgujar@marvell.com>
+Subject: [PATCH 3/3] i2c: octeon: Handle watchdog timeout
+Date:   Thu, 30 Mar 2023 06:39:53 -0700
+Message-ID: <20230330133953.21074-4-pmalgujar@marvell.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230330133953.21074-1-pmalgujar@marvell.com>
+References: <20230330133953.21074-1-pmalgujar@marvell.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: 5yIs7O4U5wswzkYXU_QdDCdps8dWcBwJ
+X-Proofpoint-ORIG-GUID: 5yIs7O4U5wswzkYXU_QdDCdps8dWcBwJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-30_09,2023-03-30_03,2023-02-09_01
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-When loading a DT overlay that creates a device, the device is not
-probed, unless the DT overlay is unloaded and reloaded again.
+From: Suneel Garapati <sgarapati@marvell.com>
 
-After the recent refactoring to improve fw_devlink, it no longer depends
-on the "compatible" property to identify which device tree nodes will
-become struct devices.   fw_devlink now picks up dangling consumers
-(consumers pointing to descendent device tree nodes of a device that
-aren't converted to child devices) when a device is successfully bound
-to a driver.  See __fw_devlink_pickup_dangling_consumers().
+Status code 0xF0 refers to expiry of TWSI controller
+access watchdog and needs bus monitor reset using MODE
+register.
 
-However, during DT overlay, a device's device tree node can have
-sub-nodes added/removed without unbinding/rebinding the driver.  This
-difference in behavior between the normal device instantiation and
-probing flow vs. the DT overlay flow has a bunch of implications that
-are pointed out elsewhere[1].  One of them is that the fw_devlink logic
-to pick up dangling consumers is never exercised.
-
-This patch solves the fw_devlink issue by marking all DT nodes added by
-DT overlays with FWNODE_FLAG_NOT_DEVICE (fwnode that won't become
-device), and by clearing the flag when a struct device is actually
-created for the DT node.  This way, fw_devlink knows not to have
-consumers waiting on these newly added DT nodes, and to propagate the
-dependency to an ancestor DT node that has the corresponding struct
-device.
-
-Based on a patch by Saravana Kannan, which covered only platform and spi
-devices.
-
-[1] https://lore.kernel.org/r/CAGETcx_bkuFaLCiPrAWCPQz+w79ccDp6=9e881qmK=vx3hBMyg@mail.gmail.com
-
-Fixes: 4a032827daa89350 ("of: property: Simplify of_link_to_phandle()")
-Link: https://lore.kernel.org/r/CAGETcx_+rhHvaC_HJXGrr5_WAd2+k5f=rWYnkCZ6z5bGX-wj4w@mail.gmail.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Mark Brown <broonie@kernel.org>
-Acked-by: Wolfram Sang <wsa@kernel.org> # for I2C
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Signed-off-by: Piyush Malgujar <pmalgujar@marvell.com>
 ---
-v3:
-  - Add Acked-by,
-  - s/instantiate/probe/,
-  - Improve commit description,
-  - Add comment before clearing FWNODE_FLAG_NOT_DEVICE,
+ drivers/i2c/busses/i2c-octeon-core.c | 8 ++++++++
+ drivers/i2c/busses/i2c-octeon-core.h | 1 +
+ 2 files changed, 9 insertions(+)
 
-v2:
-  - Add Acked-by,
-  - Drop RFC.
----
- drivers/bus/imx-weim.c    | 6 ++++++
- drivers/i2c/i2c-core-of.c | 5 +++++
- drivers/of/dynamic.c      | 1 +
- drivers/of/platform.c     | 5 +++++
- drivers/spi/spi.c         | 5 +++++
- 5 files changed, 22 insertions(+)
-
-diff --git a/drivers/bus/imx-weim.c b/drivers/bus/imx-weim.c
-index 36d42484142aede2..cf463c1d2102c6fb 100644
---- a/drivers/bus/imx-weim.c
-+++ b/drivers/bus/imx-weim.c
-@@ -329,6 +329,12 @@ static int of_weim_notify(struct notifier_block *nb, unsigned long action,
- 				 "Failed to setup timing for '%pOF'\n", rd->dn);
+diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
+index 7c49dc8ccbd2ef05fec675d282193b98f2b69835..3482db7165f243232937e0af148fe996858e9f2e 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.c
++++ b/drivers/i2c/busses/i2c-octeon-core.c
+@@ -187,6 +187,7 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
+ static int octeon_i2c_check_status(struct octeon_i2c *i2c, int final_read)
+ {
+ 	u8 stat;
++	u64 mode;
  
- 		if (!of_node_check_flag(rd->dn, OF_POPULATED)) {
-+			/*
-+			 * Clear the flag before adding the device so that
-+			 * fw_devlink doesn't skip adding consumers to this
-+			 * device.
-+			 */
-+			rd->dn->fwnode.flags &= ~FWNODE_FLAG_NOT_DEVICE;
- 			if (!of_platform_device_create(rd->dn, NULL, &pdev->dev)) {
- 				dev_err(&pdev->dev,
- 					"Failed to create child device '%pOF'\n",
-diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-index aa93467784c29c89..5c137638689799c8 100644
---- a/drivers/i2c/i2c-core-of.c
-+++ b/drivers/i2c/i2c-core-of.c
-@@ -178,6 +178,11 @@ static int of_i2c_notify(struct notifier_block *nb, unsigned long action,
- 			return NOTIFY_OK;
- 		}
+ 	/*
+ 	 * This is ugly... in HLC mode the status is not in the status register
+@@ -249,6 +250,13 @@ static int octeon_i2c_check_status(struct octeon_i2c *i2c, int final_read)
+ 	case STAT_RXADDR_NAK:
+ 	case STAT_AD2W_NAK:
+ 		return -ENXIO;
++
++	case STAT_WDOG_TOUT:
++		mode = __raw_readq(i2c->twsi_base + MODE(i2c));
++		/* Set BUS_MON_RST to reset bus monitor */
++		mode |= BIT(3);
++		octeon_i2c_writeq_flush(mode, i2c->twsi_base + MODE(i2c));
++		return -EIO;
+ 	default:
+ 		dev_err(i2c->dev, "unhandled state: %d\n", stat);
+ 		return -EIO;
+diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
+index 89d7d3bb8e30bd5787978d17d5a9b20ab0d41e22..a8d1bf9e89b8b0d21f52ff9f77f0ecf5263b5843 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.h
++++ b/drivers/i2c/busses/i2c-octeon-core.h
+@@ -72,6 +72,7 @@
+ #define STAT_SLAVE_ACK		0xC8
+ #define STAT_AD2W_ACK		0xD0
+ #define STAT_AD2W_NAK		0xD8
++#define STAT_WDOG_TOUT		0xF0
+ #define STAT_IDLE		0xF8
  
-+		/*
-+		 * Clear the flag before adding the device so that fw_devlink
-+		 * doesn't skip adding consumers to this device.
-+		 */
-+		rd->dn->fwnode.flags &= ~FWNODE_FLAG_NOT_DEVICE;
- 		client = of_i2c_register_device(adap, rd->dn);
- 		if (IS_ERR(client)) {
- 			dev_err(&adap->dev, "failed to create client for '%pOF'\n",
-diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
-index 07d93753b12f5f4d..e311d406b1705306 100644
---- a/drivers/of/dynamic.c
-+++ b/drivers/of/dynamic.c
-@@ -226,6 +226,7 @@ static void __of_attach_node(struct device_node *np)
- 	np->sibling = np->parent->child;
- 	np->parent->child = np;
- 	of_node_clear_flag(np, OF_DETACHED);
-+	np->fwnode.flags |= FWNODE_FLAG_NOT_DEVICE;
- }
- 
- /**
-diff --git a/drivers/of/platform.c b/drivers/of/platform.c
-index b2bd2e783445dd78..78ae8418744905c9 100644
---- a/drivers/of/platform.c
-+++ b/drivers/of/platform.c
-@@ -737,6 +737,11 @@ static int of_platform_notify(struct notifier_block *nb,
- 		if (of_node_check_flag(rd->dn, OF_POPULATED))
- 			return NOTIFY_OK;
- 
-+		/*
-+		 * Clear the flag before adding the device so that fw_devlink
-+		 * doesn't skip adding consumers to this device.
-+		 */
-+		rd->dn->fwnode.flags &= ~FWNODE_FLAG_NOT_DEVICE;
- 		/* pdev_parent may be NULL when no bus platform device */
- 		pdev_parent = of_find_device_by_node(rd->dn->parent);
- 		pdev = of_platform_device_create(rd->dn, NULL,
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 37a7be6c5a44c8f9..a12420e28640bbd4 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -4504,6 +4504,11 @@ static int of_spi_notify(struct notifier_block *nb, unsigned long action,
- 			return NOTIFY_OK;
- 		}
- 
-+		/*
-+		 * Clear the flag before adding the device so that fw_devlink
-+		 * doesn't skip adding consumers to this device.
-+		 */
-+		rd->dn->fwnode.flags &= ~FWNODE_FLAG_NOT_DEVICE;
- 		spi = of_register_spi_device(ctlr, rd->dn);
- 		put_device(&ctlr->dev);
- 
+ /* TWSI_INT values */
 -- 
-2.34.1
+2.17.1
 
