@@ -2,79 +2,243 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54DF7C761A6
-	for <linux-i2c@archiver.kernel.org>; Thu, 30 Mar 2023 13:43:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 812FDC761A6
+	for <linux-i2c@archiver.kernel.org>; Thu, 30 Mar 2023 14:02:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232171AbjC3Nnm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 30 Mar 2023 09:43:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57152 "EHLO
+        id S232213AbjC3OCK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 30 Mar 2023 10:02:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232140AbjC3Nnd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Mar 2023 09:43:33 -0400
-Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF993B478;
-        Thu, 30 Mar 2023 06:43:23 -0700 (PDT)
-Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
-        by mx0a-0016f401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32UDAlfs014499;
-        Thu, 30 Mar 2023 06:43:22 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding :
- content-type; s=pfpt0220; bh=pb5YbcNoHH+axt8Jf0ON9Yqce8nZG/8Ncik7Xh+7464=;
- b=IjOnVZyASM9puyrwb6k5l/zHapglmZ016trqewTUFDXnSaMwvxfC3mom6d/pDRExSU3k
- THbahhkayKJSTiSkuJZ4d5+H0o2KdD9HgDhVDWufar8LBM5YZnxl2um8T7u/Bb9CI008
- aqS7wUWMXd7kGe453Mg9iZCpRM1vE4avNtFhv34+iRcaz3LCxUTmL+VlrbHm0kOdYeFS
- vUBXzcDObadMh52ayUvGsqQjFlZIRyh6GrOtgB8TNHDf84JpzxsXCKInXQ1zYyhk71HK
- UIako9M7n5Y5ws4YOpWG5WdHZK2wneGQegnyozKMsrJv87YgMavopJYSoryy6whkurcJ Kw== 
-Received: from dc5-exch01.marvell.com ([199.233.59.181])
-        by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3pn2ty2nw9-10
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Thu, 30 Mar 2023 06:43:22 -0700
-Received: from DC5-EXCH01.marvell.com (10.69.176.38) by DC5-EXCH01.marvell.com
- (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Thu, 30 Mar
- 2023 06:40:10 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH01.marvell.com
- (10.69.176.38) with Microsoft SMTP Server id 15.0.1497.48 via Frontend
- Transport; Thu, 30 Mar 2023 06:40:10 -0700
-Received: from localhost.localdomain (unknown [10.110.150.250])
-        by maili.marvell.com (Postfix) with ESMTP id A4E495C68E9;
-        Thu, 30 Mar 2023 06:40:10 -0700 (PDT)
-From:   Piyush Malgujar <pmalgujar@marvell.com>
-To:     <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <wsa@kernel.org>, <rric@kernel.org>
-CC:     <jannadurai@marvell.com>, <cchavva@marvell.com>,
-        Piyush Malgujar <pmalgujar@marvell.com>
-Subject: [PATCH 0/3] i2c: thunderx: Marvell thunderx i2c changes
-Date:   Thu, 30 Mar 2023 06:39:50 -0700
-Message-ID: <20230330133953.21074-1-pmalgujar@marvell.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S230035AbjC3OCI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Mar 2023 10:02:08 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C29C5259;
+        Thu, 30 Mar 2023 07:02:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1680184927; x=1711720927;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=kGqql32tY2qK8YOyl2Nxe92xv5mmZXxmhttRivAFbQY=;
+  b=ZnnCRmfAsvkr4rMJQqhaLcwuAGo38VwF3qpkQaENxf8oGNz2qtA+ocMH
+   XFQ7VARnvcN5LBWvcUQLg8yTptP0hsp6z0ztGywvoJXEpSYS5wpmSGsbS
+   G+0t8wsldEAnaz5cyrVqjmrIE5jR0IJL97BC+O9bfGV8z3BI6FDCLjD13
+   auJBPax9b3fh9TNRzsvVbF5AG7JSzBqxQ0NQzdDXpI4K2Xt/f7FMvUqy/
+   mhFk+Wjqbvlnmjddh5T8Tgz7H5wlVBlIjdDnABfwGUN/LEcSCKu/2ChHr
+   u8F4pfOgub7oCbBGoz4q6Okl6zrluR3BDeqPOTsSxlfMvtdc3/qYAsmQV
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="338672814"
+X-IronPort-AV: E=Sophos;i="5.98,303,1673942400"; 
+   d="scan'208";a="338672814"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2023 07:01:59 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10665"; a="1014430014"
+X-IronPort-AV: E=Sophos;i="5.98,303,1673942400"; 
+   d="scan'208";a="1014430014"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga005.fm.intel.com with ESMTP; 30 Mar 2023 07:01:28 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id D6A1313A; Thu, 30 Mar 2023 16:57:50 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Wolfram Sang <wsa@kernel.org>,
+        Khalil Blaiech <kblaiech@nvidia.com>,
+        Asmaa Mnebhi <asmaa@nvidia.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] i2c: mlxbf: Use readl_poll_timeout_atomic() for polling
+Date:   Thu, 30 Mar 2023 16:57:47 +0300
+Message-Id: <20230330135747.15684-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-GUID: MNUgYNyM6yOuFM4MxelWnZRDlYcykyyy
-X-Proofpoint-ORIG-GUID: MNUgYNyM6yOuFM4MxelWnZRDlYcykyyy
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-30_09,2023-03-30_03,2023-02-09_01
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The changes are for Marvell OcteonTX2 SOC family:
+Convert the usage of an open-coded custom tight poll while loop
+with the provided readl_poll_timeout_atomic() macro.
 
-- Handling clock divisor logic using subsytem ID
-- Support for high speed mode
-- Handle watchdog timeout
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-mlxbf.c | 106 ++++++++-------------------------
+ 1 file changed, 26 insertions(+), 80 deletions(-)
 
-Suneel Garapati (3):
-  i2c: thunderx: Clock divisor logic changes
-  i2c: thunderx: Add support for High speed mode
-  i2c: octeon: Handle watchdog timeout
-
- drivers/i2c/busses/i2c-octeon-core.c     | 113 +++++++++++++++++------
- drivers/i2c/busses/i2c-octeon-core.h     |  19 ++++
- drivers/i2c/busses/i2c-thunderx-pcidrv.c |   7 ++
- 3 files changed, 110 insertions(+), 29 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
+index 1810d5791b3d..8087c556694d 100644
+--- a/drivers/i2c/busses/i2c-mlxbf.c
++++ b/drivers/i2c/busses/i2c-mlxbf.c
+@@ -12,6 +12,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/i2c.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+@@ -495,65 +496,6 @@ static u8 mlxbf_i2c_bus_count;
+ 
+ static struct mutex mlxbf_i2c_bus_lock;
+ 
+-/*
+- * Function to poll a set of bits at a specific address; it checks whether
+- * the bits are equal to zero when eq_zero is set to 'true', and not equal
+- * to zero when eq_zero is set to 'false'.
+- * Note that the timeout is given in microseconds.
+- */
+-static u32 mlxbf_i2c_poll(void __iomem *io, u32 addr, u32 mask,
+-			    bool eq_zero, u32  timeout)
+-{
+-	u32 bits;
+-
+-	timeout = (timeout / MLXBF_I2C_POLL_FREQ_IN_USEC) + 1;
+-
+-	do {
+-		bits = readl(io + addr) & mask;
+-		if (eq_zero ? bits == 0 : bits != 0)
+-			return eq_zero ? 1 : bits;
+-		udelay(MLXBF_I2C_POLL_FREQ_IN_USEC);
+-	} while (timeout-- != 0);
+-
+-	return 0;
+-}
+-
+-/*
+- * SW must make sure that the SMBus Master GW is idle before starting
+- * a transaction. Accordingly, this function polls the Master FSM stop
+- * bit; it returns false when the bit is asserted, true if not.
+- */
+-static bool mlxbf_i2c_smbus_master_wait_for_idle(struct mlxbf_i2c_priv *priv)
+-{
+-	u32 mask = MLXBF_I2C_SMBUS_MASTER_FSM_STOP_MASK;
+-	u32 addr = priv->chip->smbus_master_fsm_off;
+-	u32 timeout = MLXBF_I2C_SMBUS_TIMEOUT;
+-
+-	if (mlxbf_i2c_poll(priv->mst->io, addr, mask, true, timeout))
+-		return true;
+-
+-	return false;
+-}
+-
+-/*
+- * wait for the lock to be released before acquiring it.
+- */
+-static bool mlxbf_i2c_smbus_master_lock(struct mlxbf_i2c_priv *priv)
+-{
+-	if (mlxbf_i2c_poll(priv->mst->io, MLXBF_I2C_SMBUS_MASTER_GW,
+-			   MLXBF_I2C_MASTER_LOCK_BIT, true,
+-			   MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT))
+-		return true;
+-
+-	return false;
+-}
+-
+-static void mlxbf_i2c_smbus_master_unlock(struct mlxbf_i2c_priv *priv)
+-{
+-	/* Clear the gw to clear the lock */
+-	writel(0, priv->mst->io + MLXBF_I2C_SMBUS_MASTER_GW);
+-}
+-
+ static bool mlxbf_i2c_smbus_transaction_success(u32 master_status,
+ 						u32 cause_status)
+ {
+@@ -583,6 +525,7 @@ static int mlxbf_i2c_smbus_check_status(struct mlxbf_i2c_priv *priv)
+ {
+ 	u32 master_status_bits;
+ 	u32 cause_status_bits;
++	u32 bits;
+ 
+ 	/*
+ 	 * GW busy bit is raised by the driver and cleared by the HW
+@@ -591,9 +534,9 @@ static int mlxbf_i2c_smbus_check_status(struct mlxbf_i2c_priv *priv)
+ 	 * then read the cause and master status bits to determine if
+ 	 * errors occurred during the transaction.
+ 	 */
+-	mlxbf_i2c_poll(priv->mst->io, MLXBF_I2C_SMBUS_MASTER_GW,
+-			 MLXBF_I2C_MASTER_BUSY_BIT, true,
+-			 MLXBF_I2C_SMBUS_TIMEOUT);
++	readl_poll_timeout_atomic(priv->mst->io + MLXBF_I2C_SMBUS_MASTER_GW,
++				  bits, !(bits & MLXBF_I2C_MASTER_BUSY_BIT),
++				  MLXBF_I2C_POLL_FREQ_IN_USEC, MLXBF_I2C_SMBUS_TIMEOUT);
+ 
+ 	/* Read cause status bits. */
+ 	cause_status_bits = readl(priv->mst_cause->io +
+@@ -740,7 +683,8 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 	u8 read_en, write_en, block_en, pec_en;
+ 	u8 slave, flags, addr;
+ 	u8 *read_buf;
+-	int ret = 0;
++	u32 bits;
++	int ret;
+ 
+ 	if (request->operation_cnt > MLXBF_I2C_SMBUS_MAX_OP_CNT)
+ 		return -EINVAL;
+@@ -760,11 +704,22 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 	 * Try to acquire the smbus gw lock before any reads of the GW register since
+ 	 * a read sets the lock.
+ 	 */
+-	if (WARN_ON(!mlxbf_i2c_smbus_master_lock(priv)))
++	ret = readl_poll_timeout_atomic(priv->mst->io + MLXBF_I2C_SMBUS_MASTER_GW,
++					bits, !(bits & MLXBF_I2C_MASTER_LOCK_BIT),
++					MLXBF_I2C_POLL_FREQ_IN_USEC,
++					MLXBF_I2C_SMBUS_LOCK_POLL_TIMEOUT);
++	if (WARN_ON(ret))
+ 		return -EBUSY;
+ 
+-	/* Check whether the HW is idle */
+-	if (WARN_ON(!mlxbf_i2c_smbus_master_wait_for_idle(priv))) {
++	/*
++	 * SW must make sure that the SMBus Master GW is idle before starting
++	 * a transaction. Accordingly, this call polls the Master FSM stop bit;
++	 * it returns 0 when the bit is asserted, -ETIMEDOUT if not.
++	 */
++	ret = readl_poll_timeout_atomic(priv->mst->io + priv->chip->smbus_master_fsm_off,
++					bits, !(bits & MLXBF_I2C_SMBUS_MASTER_FSM_STOP_MASK),
++					MLXBF_I2C_POLL_FREQ_IN_USEC, MLXBF_I2C_SMBUS_TIMEOUT);
++	if (WARN_ON(ret)) {
+ 		ret = -EBUSY;
+ 		goto out_unlock;
+ 	}
+@@ -855,7 +810,8 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
+ 	}
+ 
+ out_unlock:
+-	mlxbf_i2c_smbus_master_unlock(priv);
++	/* Clear the gw to clear the lock */
++	writel(0, priv->mst->io + MLXBF_I2C_SMBUS_MASTER_GW);
+ 
+ 	return ret;
+ }
+@@ -1835,18 +1791,6 @@ static bool mlxbf_i2c_has_coalesce(struct mlxbf_i2c_priv *priv, bool *read,
+ 	return true;
+ }
+ 
+-static bool mlxbf_i2c_slave_wait_for_idle(struct mlxbf_i2c_priv *priv,
+-					    u32 timeout)
+-{
+-	u32 mask = MLXBF_I2C_CAUSE_S_GW_BUSY_FALL;
+-	u32 addr = MLXBF_I2C_CAUSE_ARBITER;
+-
+-	if (mlxbf_i2c_poll(priv->slv_cause->io, addr, mask, false, timeout))
+-		return true;
+-
+-	return false;
+-}
+-
+ static struct i2c_client *mlxbf_i2c_get_slave_from_addr(
+ 			struct mlxbf_i2c_priv *priv, u8 addr)
+ {
+@@ -1949,7 +1893,9 @@ static int mlxbf_i2c_irq_send(struct mlxbf_i2c_priv *priv, u8 recv_bytes)
+ 	 * Wait until the transfer is completed; the driver will wait
+ 	 * until the GW is idle, a cause will rise on fall of GW busy.
+ 	 */
+-	mlxbf_i2c_slave_wait_for_idle(priv, MLXBF_I2C_SMBUS_TIMEOUT);
++	readl_poll_timeout_atomic(priv->slv_cause->io + MLXBF_I2C_CAUSE_ARBITER,
++				  data32, data32 & MLXBF_I2C_CAUSE_S_GW_BUSY_FALL,
++				  MLXBF_I2C_POLL_FREQ_IN_USEC, MLXBF_I2C_SMBUS_TIMEOUT);
+ 
+ clear_csr:
+ 	/* Release the Slave GW. */
 -- 
-2.17.1
+2.40.0.1.gaa8946217a0b
 
