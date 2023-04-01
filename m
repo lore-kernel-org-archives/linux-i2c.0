@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE534C761AF
-	for <linux-i2c@archiver.kernel.org>; Sat,  1 Apr 2023 01:59:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6B6AC761A6
+	for <linux-i2c@archiver.kernel.org>; Sat,  1 Apr 2023 01:59:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233249AbjDAB7w (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 31 Mar 2023 21:59:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52034 "EHLO
+        id S233879AbjDAB74 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 31 Mar 2023 21:59:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234059AbjDAB7h (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 31 Mar 2023 21:59:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B55FED52E;
-        Fri, 31 Mar 2023 18:58:22 -0700 (PDT)
+        with ESMTP id S233877AbjDAB7m (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 31 Mar 2023 21:59:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4158B1BF74;
+        Fri, 31 Mar 2023 18:58:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A00C962D17;
-        Sat,  1 Apr 2023 01:44:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F0C2C433D2;
-        Sat,  1 Apr 2023 01:44:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2AAA62D0B;
+        Sat,  1 Apr 2023 01:43:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46885C433A4;
+        Sat,  1 Apr 2023 01:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313497;
-        bh=OU6LrADSJFPUoD4Z7xbLPIIHonhmgwqmOMrgb7NVm/8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=iwbpvF1AOy8Oa+5mKf0UsHVxJ8OOFQta871svlGU6FNkgZd0TO9Q81NmEMV8wcWjr
-         iBMvs3nrCK8FaHBhQodh5+qPezByRdoGT1RZqAgxQ9DSRC7ViS2SmEmo9vadtfQXox
-         xadi4aTHBVSmV6Yx7SdLsyfbhn5kr8nzi5IK6EqGRTq8JSORqw4nD9WcOVStHZy4RY
-         0boreogJOl/UJgaZVyMHbHJz4YjRTNSXpop1kIncJYk2Kbf7L7ZNTlHGUn16ECQmp2
-         em1pQ1sYoRgWVZh9kQJT8ri0IafJ24Hgb7/SPiueKiU07cDiSHM0DZpq19oRpvAEP9
-         otM+phjBFUlYw==
+        s=k20201202; t=1680313438;
+        bh=U5HtpG+d0dVGhYPv5g+6ZximuYd5Po6rEhcReZqduq4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nndkt0lViDdfssyTGQrLxB4cZmJPSexeOA5jCz9m6v87vYQeMYZmB4UGOahF3f7Fs
+         0JEa6KfxgRWiVNl5lLloh5+XJ5GDQ2TWYi8AkOH2zROWxW9KUet2PX7pr6dS4YV2I+
+         axBD4iEiIWKaTFoPAypj9w3wTVW97OKKOBitS1rZBvKl0IxG1KkH4DHPkkspmUoxvv
+         sKMrARwb4gsyPBRvWq0gOtnFJlO31jlhov2KyS+fDslLZIhmg/rlfqY06qeAgIjw4t
+         EqDUOYLVRJ326PJKfLJujK0LMm7YK6qUpgAFWjDbOKlipO5tGEZGsrn8j6pcNtJaHZ
+         p28TWrYHxLpyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
@@ -39,10 +39,12 @@ Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
         aisheng.dong@nxp.com, shawnguo@kernel.org,
         linux-i2c@vger.kernel.org, linux-imx@nxp.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 1/3] i2c: imx-lpi2c: clean rx/tx buffers upon new message
-Date:   Fri, 31 Mar 2023 21:44:52 -0400
-Message-Id: <20230401014454.3357487-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 04/11] i2c: imx-lpi2c: clean rx/tx buffers upon new message
+Date:   Fri, 31 Mar 2023 21:43:42 -0400
+Message-Id: <20230401014350.3357107-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230401014350.3357107-1-sashal@kernel.org>
+References: <20230401014350.3357107-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -67,10 +69,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index e86801a631206..dc89d8049d0f5 100644
+index 2018dbcf241e9..d45ec26d51cb9 100644
 --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
 +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -475,6 +475,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+@@ -462,6 +462,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
  		if (num == 1 && msgs[0].len == 0)
  			goto stop;
  
