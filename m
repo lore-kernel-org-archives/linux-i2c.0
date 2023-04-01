@@ -2,35 +2,35 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8039AC761AF
-	for <linux-i2c@archiver.kernel.org>; Sat,  1 Apr 2023 01:46:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9088CC761A6
+	for <linux-i2c@archiver.kernel.org>; Sat,  1 Apr 2023 01:47:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233757AbjDABqb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 31 Mar 2023 21:46:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49636 "EHLO
+        id S233749AbjDABrM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 31 Mar 2023 21:47:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233758AbjDABp5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 31 Mar 2023 21:45:57 -0400
+        with ESMTP id S233851AbjDABqv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 31 Mar 2023 21:46:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CF8921A81;
-        Fri, 31 Mar 2023 18:44:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A04B825564;
+        Fri, 31 Mar 2023 18:44:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F309DB832F8;
-        Sat,  1 Apr 2023 01:44:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0110C4331F;
-        Sat,  1 Apr 2023 01:44:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42814B83329;
+        Sat,  1 Apr 2023 01:44:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DECC4C433A7;
+        Sat,  1 Apr 2023 01:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680313463;
-        bh=FIpb+IZTNrNmVRIthAOtH7jjIfVoGtFEcLKUdkY52Nw=;
+        s=k20201202; t=1680313489;
+        bh=JjqhrmssliB9UMb6aZhj/onWYIm2uhecqJn9FsHsqJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjsVOv9Fgd0VRk2ZuKv7GCPTTArMXr8NBusZ9Wzg7u+FdQp5MRHaGV0UGBEfDMGuJ
-         wCvRqdiSwm11dVoDZlKSYVfGP553Ej2DNfvKKA6wBKzVpYa+39O0JEUhiLYqkpgDt0
-         41AvdDtbqzAg10KYGljs4q/YMyDIK6wWCCZ7+DeIBPZxkJrfPwPbq4quiGliUl4pWz
-         AjLXL2RlzD977zHtqephfU3XnmCovhOKgH9xOmn+RTkoa9xDeFsarZvDvCRX1pUU+j
-         jPZvTl20LoLOkSjVKCZOC9/sqY9dksmMOl+oiWqdb4tGiPhnc/fKfdXmOQzEmnudL0
-         xV89iYvB19AJA==
+        b=T3T9Nn+jSFgM115ZnAbXFNGTCztxFlA9Jp3rBDXoRAuaBuYQlQEfyd5My5GfgWzX8
+         R5yCYvEE/EW+wUIAtgTaIwcHs/9xDCABnpOkGGnWHJRaWWHEJWp3YUmUhH1SNsvHUQ
+         uHdUzA3BRNkeG057/cex6Lo61RnMSj+n5e6wm2LSaQMTT84eTECOv+eoMZAHup1Aet
+         9mPY8eLgxTqfc+1X3hsbBRia6RRNfW28MWh6Kh01lPvIXQA/rI9JSZcBPm2tadIWKJ
+         zv5LVT3oIMDh21bg7MZHeaBhsFiZ4VRbplB7LhFZQjTZAYtMt5gpKXiFXsrA8D8SEd
+         lx7a3tCmJ/KeQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
@@ -39,12 +39,12 @@ Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
         aisheng.dong@nxp.com, shawnguo@kernel.org,
         linux-i2c@vger.kernel.org, linux-imx@nxp.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 3/7] i2c: imx-lpi2c: clean rx/tx buffers upon new message
-Date:   Fri, 31 Mar 2023 21:44:13 -0400
-Message-Id: <20230401014417.3357252-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 2/4] i2c: imx-lpi2c: clean rx/tx buffers upon new message
+Date:   Fri, 31 Mar 2023 21:44:42 -0400
+Message-Id: <20230401014444.3357427-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230401014417.3357252-1-sashal@kernel.org>
-References: <20230401014417.3357252-1-sashal@kernel.org>
+In-Reply-To: <20230401014444.3357427-1-sashal@kernel.org>
+References: <20230401014444.3357427-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -69,10 +69,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 8b9ba055c4186..aedd4150c25e5 100644
+index 06c4c767af322..a4bd49625fad8 100644
 --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
 +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -462,6 +462,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
+@@ -468,6 +468,8 @@ static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
  		if (num == 1 && msgs[0].len == 0)
  			goto stop;
  
