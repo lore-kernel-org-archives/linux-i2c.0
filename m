@@ -2,139 +2,98 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF800C761A6
-	for <linux-i2c@archiver.kernel.org>; Tue,  4 Apr 2023 12:22:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1F6BC77B62
+	for <linux-i2c@archiver.kernel.org>; Tue,  4 Apr 2023 14:07:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234347AbjDDMVb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 4 Apr 2023 08:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51042 "EHLO
+        id S234566AbjDDOH1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 4 Apr 2023 10:07:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234813AbjDDMUp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 4 Apr 2023 08:20:45 -0400
-Received: from smtpout140.security-mail.net (smtpout140.security-mail.net [85.31.212.148])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E161D3C12
-        for <linux-i2c@vger.kernel.org>; Tue,  4 Apr 2023 05:20:18 -0700 (PDT)
-Received: from localhost (fx408.security-mail.net [127.0.0.1])
-        by fx408.security-mail.net (Postfix) with ESMTP id 7EF4F322D90
-        for <linux-i2c@vger.kernel.org>; Tue,  4 Apr 2023 14:15:09 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kalrayinc.com;
-        s=sec-sig-email; t=1680610509;
-        bh=cRJuUuFpTiE+c+UdUo2BBI265v5oVI7Jg9MVvLEwhlU=;
-        h=Date:From:To:Cc:Subject;
-        b=ldPzJvKbwCMGtfk7+V1XbxF6t4YEe2U02r+5dhumRkC1hqXVDzz9NGqH5KF9RUGyR
-         6zFcQMtsoFltaWSy6d49jWwja0NBO6akYB6lQReuNwmaa+4P10Wfjqd9Wo3zfT/gx5
-         Z8LAGylkZH2X4/3RFh8Olls2nD9dwyN0Ki7Cl8SY=
-Received: from fx408 (fx408.security-mail.net [127.0.0.1]) by
- fx408.security-mail.net (Postfix) with ESMTP id C6684322D71; Tue,  4 Apr
- 2023 14:15:08 +0200 (CEST)
-Received: from FRA01-MR2-obe.outbound.protection.outlook.com
- (mail-mr2fra01lp0109.outbound.protection.outlook.com [104.47.25.109]) by
- fx408.security-mail.net (Postfix) with ESMTPS id 0965C322B04; Tue,  4 Apr
- 2023 14:15:07 +0200 (CEST)
-Received: from MR1P264MB1555.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:15::18)
- by MR1P264MB1732.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:13::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.34; Tue, 4 Apr
- 2023 12:15:06 +0000
-Received: from MR1P264MB1555.FRAP264.PROD.OUTLOOK.COM
- ([fe80::ce25:a152:1cab:d832]) by MR1P264MB1555.FRAP264.PROD.OUTLOOK.COM
- ([fe80::ce25:a152:1cab:d832%3]) with mapi id 15.20.6254.033; Tue, 4 Apr 2023
- 12:15:06 +0000
-X-Virus-Scanned: E-securemail
-Secumail-id: <12cce.642c14cb.8a53.0>
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=jcyvIm9RcPH2f2ZZHSlFieIwi/rN5Nxjuo0I7t9WW9F7ca0dzeKaU76EQ2jH8Cq0Wh0XzdN0xh1Jctbv07sh/DWUAES9EkSbecn1vX0kw6ZSaVEiVpiBHc5LOGA3AbgCk/0DnoCY6KsQ4XRZWIogiAD8lPTpeU6Vmg2RGA1LAHtWIJ4YbiFlTEq8I/WFl46CDCHHIn9EAooK/+PHRYrVPVwin7WcFJAdNxHqcHAacvVFv5vTxm6htOcMxoN0KtQUAnB1u/g2I1gOLmJ5qQZyRRqQu2vndT7THHqg6jNsxTjkohBEKG4V7wSkunZ+k79wHloNy8SbeoJu8x+eeXat6g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
- d=microsoft.com; s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=bq8gwvovBCf8yhaVCTXCkqdSilgTGYX9AwNtcF27ml0=;
- b=JrvHlmXmxvTkVU9rbiYfl+GOuz4zYTBEse/4/3i9aHJ48FLGxcXWACPUrXnX9Mnm/l90oloiyukuCUYSPhnNJY6CQKLANg6xRkuKRWqYxetaGhaM98LKn5/o7GuWr4rOmDEuh+3dKh0pPnuJZpGgV9fT1GNE9/lPfJEeIGvHELjht8xuwwqNmDl5JbSrzXWUPf5KCuElaBoZn1c2N/mYXW/2yN+IeyoM7J54JqY5DwEy0Zi18tM4UUFN0gs3oCotvd2M7Pjrt6Ydv7Ar62yqh33c24jcEJPfj0cwoE12yWlw9CaNY5r5LQmAp1WrmPWAiSgGLxNB2TA4GEjvCb5FsA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=kalrayinc.com; dmarc=pass action=none
- header.from=kalrayinc.com; dkim=pass header.d=kalrayinc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kalrayinc.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bq8gwvovBCf8yhaVCTXCkqdSilgTGYX9AwNtcF27ml0=;
- b=aF8dTzUihu2Bkr4473b8CcOkDicZPU1mgdfAmEgXgkLDJzdIi4B/E01oP7Keo+aPI1vy17yxDtK4HhbMctfZqI6EOYz0uajLC8Oh+jq9Xv3FYymOcO4WS0q7BPGgVI/LA5/MmTlnNQVfzBl6SyiYpghUM5HZiYnnqFLwk3ktTADlOccjWEjdCa4LY/7qb0UnbA9Rdz/9eq4A3qVHhUW4ninE/HoKgtYBSEjEyQYf/yu3i0NYiROjJr9S8V4kwQ8JnCOTeAUd6a80YVFrA3M44kKLd5BGZ2C0n7Ubbw5V0HlyqW7jf9+68eq6RazRa1eU6sGoSion6R8+XmeQ1pZSYg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=kalrayinc.com;
-Date:   Tue, 4 Apr 2023 14:14:58 +0200
-From:   Louis Morhet <lmorhet@kalrayinc.com>
-To:     gupt21@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc:     linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] Fixes for the mcp2221 gpiochip get_* calls
-Message-ID: <cover.1680602387.git.lmorhet@kalrayinc.com>
-Content-Disposition: inline
-X-ClientProxiedBy: LO4P123CA0250.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:1a7::21) To MR1P264MB1555.FRAP264.PROD.OUTLOOK.COM
- (2603:10a6:501:15::18)
+        with ESMTP id S234443AbjDDOH0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 4 Apr 2023 10:07:26 -0400
+Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFEA75258;
+        Tue,  4 Apr 2023 07:06:54 -0700 (PDT)
+Received: by mail-qt1-x832.google.com with SMTP id cn12so28255628qtb.8;
+        Tue, 04 Apr 2023 07:06:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1680617212;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mqA0aoKLpeVA32vIaHb9r/e2K6aw/oZkyeQELAebYPc=;
+        b=g3xNksrvYH2oPXKSdaktqR4E3st4g35PSLatf6tbVsOsXsDr1Sj1jLwbq1uBmULmIE
+         2bYTxUlI4/FlwuQOYE0GnEbxfUgPo0QQrM+tJctxP1xmdn9uW0jo5wEYy/xCngbBjmBp
+         B9jK6IABFElULF/1P5AZMjQ3RQqhR4a44SVLlnWCkQ62zdFGSCGbVgpB3BwEObhudPD6
+         0LEpddJETCcqlK4wCGZfMkCah4Srx4ZTc4FYPqpuZ892nFiO2UFl7FQYRXr8OzNlNlIJ
+         yAmvVNcKNJ23zojs+Lz5iHwJpJeeNnxjRRJqhIt6+eduGyx5D/r1Pkd3ok5Y7PebCij7
+         Y2TA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680617212;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mqA0aoKLpeVA32vIaHb9r/e2K6aw/oZkyeQELAebYPc=;
+        b=Ycwgll4X05++FudvdIktPbWKLoavgCSmZqP7p6859tfItrIKHVqm9ViXaJrJNiAq55
+         DY/w0I2mLTCJXOZkh9LW+Y+VBdqWLrn+QeENtd04crIdJaw5TrvmP1EC47LngSDZWTT9
+         3GtDgdeD2nXN9IBoKFLohx4Jws37zCPG51kuby3TugOncs9h1QlZi853DigYAkOFyk1M
+         kPnUZuulADbjz/OfeBcz+F8HDpuqIm47CHbrfc3PHJJX+CY1ZZVMiJ3GWBVbtVgjEFj3
+         as5c2EYFgp65/3cskLIMYyFP+4od7bsBZ0foXu5yOQUvDYkNtgzFNjM/CP3e3tre/awN
+         zsTA==
+X-Gm-Message-State: AAQBX9fSck+YGIJFHErmVqAo2rS73LmREqAxpmAZv64PneSZYLGED1sD
+        ixifssQ88Lwe+FjEsq6Qe3w=
+X-Google-Smtp-Source: AKy350aH2P68cMEab0T2UXtKUu4U0+HrVNWU2CbCXEjLk+vTfFkCPJ/GrvWomK4of+TgUI297Qjb6A==
+X-Received: by 2002:a05:622a:1313:b0:3d2:7f3b:c691 with SMTP id v19-20020a05622a131300b003d27f3bc691mr3470798qtk.47.1680617211741;
+        Tue, 04 Apr 2023 07:06:51 -0700 (PDT)
+Received: from PCBABN.skidata.net ([91.230.2.244])
+        by smtp.gmail.com with ESMTPSA id l22-20020ac848d6000000b003bfb0ea8094sm3230398qtr.83.2023.04.04.07.06.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Apr 2023 07:06:51 -0700 (PDT)
+From:   Benjamin Bara <bbara93@gmail.com>
+To:     peterz@infradead.org
+Cc:     bbara93@gmail.com, benjamin.bara@skidata.com,
+        dmitry.osipenko@collabora.com, jonathanh@nvidia.com,
+        lee@kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
+        rafael.j.wysocki@intel.com, richard.leitner@linux.dev,
+        stable@vger.kernel.org, treding@nvidia.com, wsa@kernel.org
+Subject: Re: [PATCH v3 2/4] i2c: core: run atomic i2c xfer when !preemptible
+Date:   Tue,  4 Apr 2023 16:06:42 +0200
+Message-Id: <20230404140642.550919-1-bbara93@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230404082255.GU4253@hirez.programming.kicks-ass.net>
+References: <20230404082255.GU4253@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MR1P264MB1555:EE_|MR1P264MB1732:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4ad6ec26-5671-4e89-0f6f-08db350639ca
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 0R3i7Msy3O1CYEsy+e/daNzYNgs1Yuwf/FieB27F6E41BdoQXXJIPmQVI11yzbIGjTX846XOMIrg02XF8XrBSDYn1kkLIqBSHn+iTHDDuBZmXpLQT/m0at1N5yfc++5tNQ4ZyfgmLY4xWeUyUPVOQExOnlGYJkjGjKFxImbB//65r+01tGzmepvRFJxi4BFqo1fCjanWWgKEj2LPdg2TZoWujEO3Ub2wORiMQuqwSDlWhQmQeAnuWG670Uu9OZcfXcNGUWsd9XnVW1VV4BJwk1zvFCotXR1ZFvpKi60Fwq1Ka8d6hOAdPlE+t2xk9q/5n0Yk3TQ06VwZY5XucNkA42CHteGFGex0zaVU1pt5yQlK2usAob2QekJhcAIVZJH3PUOqSsmwVpI8iBFN74SnZL6JgBwJaoF2QykNDrzbb8OM2+KJ2R9IVyQ0RFQ1Flsga29xbnw64dExuUW+TcDc9ZQdvFhLIAlYFHSYmnnuokMAPDq8UKJhlveDRZUbZiz7fb4fVBVBV898xMOrg5StGv92aP0xAnta7WvvM1L8lsA=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MR1P264MB1555.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(396003)(376002)(366004)(136003)(39850400004)(451199021)(2906002)(478600001)(2616005)(86362001)(6506007)(6666004)(26005)(6512007)(186003)(38100700002)(83380400001)(6486002)(36756003)(66556008)(5660300002)(41300700001)(66946007)(8936002)(66476007)(4326008)(316002)(8676002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: LYpFpyl0L2QYFtIVeyI/xGP+bQUMfkO3Tru/CHbMRAqjxWC3/fm80w7HD8govqJXUpyhMxsdlO2rMALVYz+aldiX17U3u7AnAlQ6o+P83T4mVm7/Tjp4usoeUmRzAwvEgnr/Oz97Poz4i0FkSFvVRwcNPKHDlwcMgzEIRndtMYUO9Bjo9rLXsiTWcq2d2DL/Opz55T2X38r6jbQfFwL7HDmmBdwTlspsaJOAZUQmRaDP2wVfb//9KhFPlosgZUROFulPZqJqf/noCihsziRD/rkWkrC1dNcZkCsI6F8u2JwHyYLcogFUuGwy+5RmLr7J0IHehpg8XvU3kxam9QkQ3swNkentc1nKY3iGAySSYNML2vrPdDaHc2T2IxNIhAkD9SHv+8uWXd2vRIOBcaNwNDa/1Kmml1hKjnow1CDiEdvYEJfZLtY/bsopFDNz2G5+iYSa3K2Dwd4KnaQsc94I8ZY8+4+9iueufbnpbUt4StEVdjgWkhcszjLv635BFHN+oIwCGuJB3wrH8FVe4iEsLftzhac9ljX2SSh6S7qOvIh9vTBHmtsyHe+A2eynGNt6IvbjP0quiIqt3vyPSXKaQBgdKkayabCTortNx5x/eCaDLXyrhIccsJqG1Qgi7qeB6Ed8NcY3EXEliALtWxWlqASVL+l8BSIEuW+bf7/Wi97GKaOputW5nl50gBLkv2Th+cXbQ78G3FQkn54gZGJAPyn1mTtJU7tkowAUyBDzSir1H1UmzoF83kwqishzyKFwEffn3ZF+Uqco6vWzpYqXewGv5OjIkABzy7tRfFTdOwO0eH2Xf9mX32rHK69Z5OwNAZEJq+enuVgsFIr3KzRtMA45nin732RjUm7h8wjoOgmlRNIlZv/5qN0qs5GGevrVlbFl1YZX4g2+fz96dsZqO7QfAEIHPpV2xHCrVSElEWm8A5T7FuACMENuiYboH3uF
- SFKrXXklgiWv72cSMDmXq+G9112Gv/Hc9w/BuRoC02IxFHt6p9oI8BVP8Q7CMtP5B4lOubdT+LoWyFlv1A5uRbFTcfF7b41eB9+pkz9+zTvZHQB0dyo7KrxxMjIDxIVde8alIuD48fZ7xYb1RmONuovqhgLYxfAe/8+B5Zx2ts60fyI/xfY+BDLrY6xdclQB1nZ63CJylyOwCNzqEuGaNfYBopybIkvWDXTU8KZNSxkc14LSNhdY8KARCH/u+yUv/41ptw24zMZ/R7YYiVsn7V9WVG90rFmvVxxGcuPnCXcKJeF2T0BpNPnyOPsXnv7ZLcdCoYFkMsyg7bRBH4wX7BtCKn1xCmqwTjsRgRCZ2zrJsPseweHu9yols9smo6JUSRQs/G7/pmUJuGB5eteb/JtBr1ZZ8Ukl7ftJlcHOebGdiv1yrXcq5cHCx/z9buym2FGRabchJjvSlCl6BRrunxT67Pm29ReCN0So1rkMzvnZ9uUXXSouyWm+N0H7z7ktOBBWsFZmHOQwDMCytJnBgBXZFCu46lKp4BNelt12PluaCIcaSUFqmYMGs+ceifhYX8WBZCuG9f6YogdSbJJoARi8+0sFhtq/LqpYyRvLW5cAe0al+y/vAcRBynogCP0huKlA5c4WJ756Prsq5wP+Hw==
-X-OriginatorOrg: kalrayinc.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4ad6ec26-5671-4e89-0f6f-08db350639ca
-X-MS-Exchange-CrossTenant-AuthSource: MR1P264MB1555.FRAP264.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Apr 2023 12:15:05.9691
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8931925d-7620-4a64-b7fe-20afd86363d3
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: eQnL84iL1kle1ehDFDawDXxaj1VLO5BqT/BzMdS0vN4eunKsbJQsrbPp5QQQe8y7Sp59h7g2fuwNin0d132EBw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MR1P264MB1732
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-X-ALTERMIMEV2_out: done
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The mcp2221 HID driver exposes a gpiochip device.
-While gpioset seemed to work fine, gpioget always returned 1 on all 4
-GPIOs of the component (0x01 for input in the field "direction",
-according to the documentation).
+On Tue, 4 Apr 2023 at 10:23, Peter Zijlstra <peterz@infradead.org> wrote:
+> You can mostly forget about CONFIG_PREEMPT=n (or more specifically
+> CONFIG_PREMPT_COUNT=n) things that work for PREEMPT typically also work
+> for !PREEMPT.
 
-This patch series addresses this issue by fixing the order of the fields
-in the driver's representation of the chip answer, and adding
-consistency to the way the callbacks prepare their command and the way
-the hid event handler gets these fields.
-The set callbacks use a similar mechanism, but work for now because
-setting a direction/value only requires gpio-specific positioning in the
-command preparation, and not in the raw_event handler.
+Thanks for the clarification!
 
-The core of this issue being a discrepancy in the way the command and
-the answer fetch their fields of interest, I would also like to ask if
-we should uniformize a bit the way this driver handles gpio, and how.
-I thought about several possible implementations for that:
-Use mcp->gp_idx as the base offset of the gpio for set too, and modify
-the raw_event handler to fetch all relevant data based on that; or set
-the buffers in the mcp structure as unions of the various commands
-handled and use gp_idx simply as the gpio index to access relevant data
-directly from the structured representation everywhere; or go back to ye
-old defines to ensure portability...
+> The question here seems to be if i2c_in_atomic_xfer_mode() should have
+> an in_atomic() / !preemptible() check, right? IIUC Wolfram doesn't like
+> it being used outside of extra special cicumstances?
 
-Louis Morhet (2):
-  HID: mcp2221: fix report layout for gpio get
-  HID: mcp2221: fix get and get_direction for gpio
+Sorry for expressing things more complicated than needed.
+Yes, exactly. Wolfram expressed considerations of adding preemptible() as
+check, as the now existing irq_disabled() check is lost with !PREEMPT. I tried
+to clarify that the check seems to be there for "performance reasons" and that
+the check essentially was !preemptible() before v5.2, so nothing should break.
 
- drivers/hid/hid-mcp2221.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
--- 
-2.17.1
-
-
-
-
-
+However, what came to my mind during my "research", is that it might make sense
+to handle all i2c transfers atomically when in a post RUNNING state (namely
+HALT, POWER_OFF, RESTART, SUSPEND). The outcome would basically be the same as
+with this patch series applied, but I guess the reasoning behind it would be
+simplified: If in a restart handler, the i2c transfer is atomic, independent of
+current IRQ or preemption state. Currently, the state depends on from where the
+handler is triggered. As you have stated, most of the i2c transfers in the
+mentioned states will just update single bits for power-off/sleep/suspend, so
+IMHO nothing where not using a DMA would matter from a performance point of
+view. But there might be other reasons for not doing so - I guess in this case
+the provided patch is fine (at least from my side).
