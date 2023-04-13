@@ -2,98 +2,116 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F118C77B73
-	for <linux-i2c@archiver.kernel.org>; Thu, 13 Apr 2023 07:40:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0DF4C77B76
+	for <linux-i2c@archiver.kernel.org>; Thu, 13 Apr 2023 07:47:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229689AbjDMHkd convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 13 Apr 2023 03:40:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52970 "EHLO
+        id S230137AbjDMHrM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 13 Apr 2023 03:47:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229998AbjDMHkb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 13 Apr 2023 03:40:31 -0400
-Received: from muru.com (muru.com [72.249.23.125])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8690183E5;
-        Thu, 13 Apr 2023 00:40:29 -0700 (PDT)
-Received: from localhost (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id 7F47080F0;
-        Thu, 13 Apr 2023 07:40:28 +0000 (UTC)
-Date:   Thu, 13 Apr 2023 10:40:27 +0300
-From:   Tony Lindgren <tony@atomide.com>
-To:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc:     Vignesh R <vigneshr@ti.com>, linux-pm@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        linux-i2c@vger.kernel.org, kernel@pengutronix.de,
-        Aaro Koskinen <aaro.koskinen@iki.fi>,
-        linux-omap@vger.kernel.org
-Subject: Re: [PATCH] i2c: omap: Improve error reporting for problems during
- .remove()
-Message-ID: <20230413074027.GC36234@atomide.com>
-References: <20230403054837.6lxyzznzntvw2drg@pengutronix.de>
- <20230403060404.GX7501@atomide.com>
- <ZC5qUU4JLI9Negyi@sai>
- <20230406082354.jwchbl5ir6p4gjw7@pengutronix.de>
- <20230413051222.GA9837@atomide.com>
- <20230413062440.yixne5wqed4zrva4@pengutronix.de>
- <20230413063915.GA36234@atomide.com>
- <20230413070745.mpcqpqokqspzavca@pengutronix.de>
- <20230413071124.GB36234@atomide.com>
- <20230413073716.usr2r7kzw52z5n5l@pengutronix.de>
+        with ESMTP id S230122AbjDMHrK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 13 Apr 2023 03:47:10 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2192C900D;
+        Thu, 13 Apr 2023 00:47:04 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id j17so25519715ejs.5;
+        Thu, 13 Apr 2023 00:47:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681372023; x=1683964023;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ClcmwgNB66OteygA0EuqrobbOiZGS0nq7YJHw1f4dDg=;
+        b=AjV+zXJEMNBunp6eQPdpjpUMGFi+BxNghu1MZ8+Vfc/09jHQ3bbpP2cbklQKhxkITv
+         zcAKoZsXYu7toqkZOPr7OGhPtadWXuUQ9eMBbxU7d4uSHn7xP0aPwlvGyofuCFJ02EuD
+         oVgVYhxicMPdRJJ+GngviwUkuvetX7r7jHP0LzzKGd74d4PBxpOxAp1vAgeVM2Q8LQZh
+         JFEd7fHwi9J/6SegvCRRrcqDZCJ6a4K1udQrrIt+yLjen2ZCxwBoq7R6qi0ftriNONVp
+         QOL+ZaxEx4KeCC+QLa94aONq3QUq9EXpIKfqwg3LR7nkZ25jiQWNUBHD4KuoXsY++gWU
+         gTXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681372023; x=1683964023;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ClcmwgNB66OteygA0EuqrobbOiZGS0nq7YJHw1f4dDg=;
+        b=L2q7hjsAv59Z5PJ+M9eoOnIumvwySg/gdG9UevBqhG8H3rQeAZsY7b3XyOSPIH2tvb
+         rSs1gXoVTaQ6QWZuyHE5RBC3KvllIHlAyQuAOhdpJnZidZcMtj3xuWsMzRBiAcl3BbaJ
+         +Nd7BMn05HDjucg8DyH7p+ylaDxeAExNE/Un88jB+G6492cFbZOmB60fsTfkX2AUepd/
+         8WwRDphjHX//JOSA2/i2ZRAGX4QeFq/dl9EGH0cYsZPpurzRnlsugHS2JXvucvg9BuL1
+         WZN6oB6g9Nsfi6TXngZ6DIOypcF8WIyHkyOaFghAY9Ar6ciie5qmdkWs9iuNhgq2W58/
+         EAyw==
+X-Gm-Message-State: AAQBX9dA6s0SX6r5J17iBJyMG7/bLbjm7UUBkunkLi+5CwtljEY68bPJ
+        eMuZux609M680LswXddU4DwDWjoKiPiWdg==
+X-Google-Smtp-Source: AKy350ZCJvHHcsvJfua+Fuuwrd/Mk2JeDg4EvWaPxTuZLD+ESaVwF3Du2cr0Ew2MTlxiq5x4YSIV8w==
+X-Received: by 2002:a17:906:5490:b0:94a:6897:88bd with SMTP id r16-20020a170906549000b0094a689788bdmr1551168ejo.60.1681372023246;
+        Thu, 13 Apr 2023 00:47:03 -0700 (PDT)
+Received: from [127.0.1.1] ([91.230.2.244])
+        by smtp.gmail.com with ESMTPSA id q16-20020a1709060f9000b0094e954fd015sm565620ejj.175.2023.04.13.00.47.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Apr 2023 00:47:03 -0700 (PDT)
+From:   Benjamin Bara <bbara93@gmail.com>
+Date:   Thu, 13 Apr 2023 09:46:39 +0200
+Subject: [PATCH v4 1/4] kernel/reboot: emergency_restart: set correct
+ system_state
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20230413073716.usr2r7kzw52z5n5l@pengutronix.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230327-tegra-pmic-reboot-v4-1-b24af219fb47@skidata.com>
+References: <20230327-tegra-pmic-reboot-v4-0-b24af219fb47@skidata.com>
+In-Reply-To: <20230327-tegra-pmic-reboot-v4-0-b24af219fb47@skidata.com>
+To:     Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>,
+        rafael.j.wysocki@intel.com
+Cc:     dmitry.osipenko@collabora.com, peterz@infradead.org,
+        jonathanh@nvidia.com, richard.leitner@linux.dev,
+        treding@nvidia.com, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        Benjamin Bara <benjamin.bara@skidata.com>,
+        stable@vger.kernel.org
+X-Mailer: b4 0.12.2
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-* Uwe Kleine-König <u.kleine-koenig@pengutronix.de> [230413 07:37]:
-> Hello Tony,
-> 
-> On Thu, Apr 13, 2023 at 10:11:24AM +0300, Tony Lindgren wrote:
-> > * Uwe Kleine-König <u.kleine-koenig@pengutronix.de> [230413 07:07]:
-> > > On Thu, Apr 13, 2023 at 09:39:15AM +0300, Tony Lindgren wrote:
-> > > > Oh OK. Care to clarify a bit why we are not allowed to return errors
-> > > > on remove though? Are we getting rid of the return value for remove?
-> > > > Sorry if I'm not following the cunning plan here :)
-> > > 
-> > > Yes, that's the plan. If you look at the caller of the remove functions
-> > > (before 5c5a7680e67ba6fbbb5f4d79fa41485450c1985c):
-> > > 
-> > > static void platform_remove(struct device *_dev)
-> > > {
-> > >         struct platform_driver *drv = to_platform_driver(_dev->driver);
-> > >         struct platform_device *dev = to_platform_device(_dev);
-> > > 
-> > >         if (drv->remove) {
-> > >                 int ret = drv->remove(dev);
-> > > 
-> > >                 if (ret)
-> > >                         dev_warn(_dev, "remove callback returned a non-zero value. This will be ignored.\n");
-> > >         }
-> > >         dev_pm_domain_detach(_dev, true);
-> > > }
-> > > 
-> > > you see it's pointless to return an error value. But the prototype
-> > > seduces driver authors to do it yielding to error that can easily
-> > > prevented if .remove returns void. See also
-> > > 5c5a7680e67ba6fbbb5f4d79fa41485450c1985c for some background and details
-> > > of the quest.
-> > 
-> > OK thanks. So maybe check the pm_runtime_get_sync() and on error do
-> > pm_runtime_put_noidle(), or pm_runtime_resume_and_get(). Both ways
-> > are fine for me, maybe you already figured it out.
-> 
-> Is this an Ack for my patch?
+From: Benjamin Bara <benjamin.bara@skidata.com>
 
-Yes looking at it again:
+As the emergency restart does not call kernel_restart_prepare(), the
+system_state stays in SYSTEM_RUNNING.
 
-Reviewed-by: Tony Lindgren <tony@atomide.com>
+Since bae1d3a05a8b, this hinders i2c_in_atomic_xfer_mode() from becoming
+active, and therefore might lead to avoidable warnings in the restart
+handlers, e.g.:
 
-Thanks,
+[   12.667612] WARNING: CPU: 1 PID: 1 at kernel/rcu/tree_plugin.h:318 rcu_note_context_switch+0x33c/0x6b0
+[   12.676926] Voluntary context switch within RCU read-side critical section!
+...
+[   12.742376]  schedule_timeout from wait_for_completion_timeout+0x90/0x114
+[   12.749179]  wait_for_completion_timeout from tegra_i2c_wait_completion+0x40/0x70
+...
+[   12.994527]  atomic_notifier_call_chain from machine_restart+0x34/0x58
+[   13.001050]  machine_restart from panic+0x2a8/0x32c
 
-Tony
+Avoid these by setting the correct system_state.
+
+Fixes: bae1d3a05a8b ("i2c: core: remove use of in_atomic()")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Benjamin Bara <benjamin.bara@skidata.com>
+---
+ kernel/reboot.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/kernel/reboot.c b/kernel/reboot.c
+index 3bba88c7ffc6..6ebef11c8876 100644
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -74,6 +74,7 @@ void __weak (*pm_power_off)(void);
+ void emergency_restart(void)
+ {
+ 	kmsg_dump(KMSG_DUMP_EMERG);
++	system_state = SYSTEM_RESTART;
+ 	machine_emergency_restart();
+ }
+ EXPORT_SYMBOL_GPL(emergency_restart);
+
+-- 
+2.34.1
+
