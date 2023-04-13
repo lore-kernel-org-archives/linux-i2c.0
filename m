@@ -2,58 +2,72 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 432F9C77B71
-	for <linux-i2c@archiver.kernel.org>; Thu, 13 Apr 2023 16:14:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BD7AC77B61
+	for <linux-i2c@archiver.kernel.org>; Thu, 13 Apr 2023 16:17:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229753AbjDMQOC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 13 Apr 2023 12:14:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53066 "EHLO
+        id S230084AbjDMQRS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 13 Apr 2023 12:17:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229591AbjDMQOB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 13 Apr 2023 12:14:01 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A37F869E;
-        Thu, 13 Apr 2023 09:14:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1681402440; x=1712938440;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=iAGgqsfkVCgnhVtMdEmX8hcxBQ/3qJLFMKe4cTfgjds=;
-  b=i4l2G58ctyfOtAGAcfEBtET1x31eoGKapviFnYyFGpkR4hrM9h/n6o95
-   lStVu0L0OhsewS8z89rhj08wdoZMa/fkkZ9i5FWgEPU87EY9x8AvaVDsv
-   kALGHk3lDtaKg45gMBpOSLnJavsv/s9DG3BhPqYEFNxRB+D6ZZ2TrstKp
-   3Pi9S1soexmEYQ74NSVuIj/HJQO30oimAkxgGJ5aoq7LXYytpvUuD44WO
-   DYLYPck8j26m1lMqT19Jtqb0lAezi3zlblD5Qs1/FBLmILptUoL9ozCnU
-   I595hw29qpHfnXjdgcR3h8YUvDwzNj4AvP006bGvQrKXHRjJ4qQ1yFGEo
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="332966823"
-X-IronPort-AV: E=Sophos;i="5.99,194,1677571200"; 
-   d="scan'208";a="332966823"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2023 09:11:06 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10679"; a="813506683"
-X-IronPort-AV: E=Sophos;i="5.99,194,1677571200"; 
-   d="scan'208";a="813506683"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga004.jf.intel.com with ESMTP; 13 Apr 2023 09:10:59 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1pmzXE-00GcfK-2T;
-        Thu, 13 Apr 2023 19:10:56 +0300
-Date:   Thu, 13 Apr 2023 19:10:56 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Ryan Chen <ryan_chen@aspeedtech.com>
-Cc:     Brendan Higgins <brendan.higgins@linux.dev>,
+        with ESMTP id S230151AbjDMQRP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 13 Apr 2023 12:17:15 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16EC89759
+        for <linux-i2c@vger.kernel.org>; Thu, 13 Apr 2023 09:17:13 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id rp27so1777462ejb.12
+        for <linux-i2c@vger.kernel.org>; Thu, 13 Apr 2023 09:17:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1681402631; x=1683994631;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ZEOFxKNy3U0Hgu4EBIZNIx+9mDifLsjK29cZX/KJbkA=;
+        b=K0rAxBszub74dCkhRGXZMGBJaRQlKup6HorTTNc5AbEVh92+AAOVjPcB4sEghRoSAx
+         MqSP4jfNxZI2LffWurhn8/y0fBzGzT4mRT+XzJVCDAvBjuR+tdMkfC9fiMz+1/rQOAkY
+         hKngEF6/jLVK8K43aw065epwWgILkqwbZ0ZaQ89+ojx8DlbE7kzuvSBopGOUK4A7idIc
+         8LLyn25iqgsK6ArjS3oPJbqf8LDkVtjRfkIqFmu/vUUamfnGGiEm+hTuzV6Tw22F2DQV
+         6yEF72MtFX+hmZ+So85NDphM2zUZnZfW8e1398WZpOBK+UfkRy0wIbKyEBHX0SYXpswn
+         Pi3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681402631; x=1683994631;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZEOFxKNy3U0Hgu4EBIZNIx+9mDifLsjK29cZX/KJbkA=;
+        b=KWA3LBWuT+E7wLHBcrstuK6q6FEyt4mOqIYux2AMMGn/IxvAxhvS9OIw7IOrGgUolb
+         8LrBzk4T+XTpgm5enX7L4s7IFQQ1YpvSvW+BXTg1sXniasf/HZLHm1cWJUbpTCnCWn4Q
+         cfNtXmzYHFxwHDSxT5HYSgrd/Dn9VMJBHwcU+3+/tL8Gg34/Cdw8MF1egQjHEpa46B0b
+         xUnA0zFDzn4Bg9A2wkE6lfo8+57DOF9ESRQYHryco3mFVQm6iuSOubNo/0pKv+fCaRYu
+         Toot030S8yp1481RglfCcDg6oa+UXUkqYSV/yOC9eCAh8sW9fxFR+5EShwFHKzn6r0Jw
+         6y4Q==
+X-Gm-Message-State: AAQBX9fn93rXjIMJwPaMxmgVDXWc4gn/FbCkN8GSm8Fjmd147LGAIgjU
+        jXL77AyLnLrrMSA/ZYoDFmEJqw==
+X-Google-Smtp-Source: AKy350Zeo4tNvuyj8lC6EBUYcdMn48Z6g3oSrpCwSIcWdbZYsDPng5J86Mqq3pWEbgJqhj5TZTigiw==
+X-Received: by 2002:a17:906:3cf2:b0:94a:74b7:43e4 with SMTP id d18-20020a1709063cf200b0094a74b743e4mr3151258ejh.69.1681402631579;
+        Thu, 13 Apr 2023 09:17:11 -0700 (PDT)
+Received: from ?IPV6:2a02:810d:15c0:828:5032:d2d4:ece5:b035? ([2a02:810d:15c0:828:5032:d2d4:ece5:b035])
+        by smtp.gmail.com with ESMTPSA id c1-20020a17090603c100b00882f9130eafsm1170488eja.26.2023.04.13.09.17.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 13 Apr 2023 09:17:11 -0700 (PDT)
+Message-ID: <653a9c34-7699-13d4-7599-f64e43345b14@linaro.org>
+Date:   Thu, 13 Apr 2023 18:17:09 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.1
+Subject: Re: [PATCH v9 1/2 RESEND] dt-bindings: i2c: aspeed: support for
+ AST2600-i2cv2
+Content-Language: en-US
+To:     Ryan Chen <ryan_chen@aspeedtech.com>,
+        Brendan Higgins <brendan.higgins@linux.dev>,
         Benjamin Herrenschmidt <benh@kernel.crashing.org>,
         Joel Stanley <joel@jms.id.au>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Andrew Jeffery <andrew@aj.id.au>,
         Philipp Zabel <p.zabel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-i2c@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         Jean Delvare <jdelvare@suse.de>,
         William Zhang <william.zhang@broadcom.com>,
         Tyrone Ting <kfting@nuvoton.com>,
@@ -63,34 +77,56 @@ Cc:     Brendan Higgins <brendan.higgins@linux.dev>,
         openbmc@lists.ozlabs.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v9 2/2 RESEND] i2c: aspeed: support ast2600 i2c new
- register mode driver
-Message-ID: <ZDgpkK/Dv3y1LUe2@smile.fi.intel.com>
 References: <20230413075327.1397306-1-ryan_chen@aspeedtech.com>
- <20230413075327.1397306-3-ryan_chen@aspeedtech.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230413075327.1397306-3-ryan_chen@aspeedtech.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+ <20230413075327.1397306-2-ryan_chen@aspeedtech.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230413075327.1397306-2-ryan_chen@aspeedtech.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Apr 13, 2023 at 03:53:27PM +0800, Ryan Chen wrote:
-> Add i2c new register mode driver to support AST2600 i2c
-> new register mode. AST2600 i2c controller have legacy and
-> new register mode. The new register mode have global register
-> support 4 base clock for scl clock selection, and new clock
-> divider mode. The i2c new register mode have separate register
-> set to control i2c master and slave.
+On 13/04/2023 09:53, Ryan Chen wrote:
+> Add ast2600-i2cv2 compatible and aspeed,global-regs, aspeed,enable-dma
+> and description for ast2600-i2cv2.
+> 
+> Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
 
-There is already i2c-aspeed.c in the kernel. Can you elaborate what's wrong
-with the extending existing driver? (It seems to me that so called "legacy"
-mode is exactly what is being serviced by that driver.)
+>  required:
+>    - reg
+>    - compatible
+> @@ -57,6 +73,26 @@ required:
+>  
+>  unevaluatedProperties: false
+>  
+> +allOf:
 
--- 
-With Best Regards,
-Andy Shevchenko
+allOf goes before unevaluatedProperties. Use example-schema.yaml as your
+template/guidance.
 
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            const: aspeed,ast2600-i2cv2
+> +
+> +    then:
+> +      properties:
+> +        reg:
+> +          minItems: 2
+> +      required:
+> +        - aspeed,global-regs
+> +    else:
+> +      properties:
+> +        aspeed,global-regs: false
+> +        aspeed,enable-dma: false
+> +
+> +
+
+Only one blank line.
+
+Best regards,
+Krzysztof
 
