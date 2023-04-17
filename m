@@ -2,126 +2,161 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF371C77B72
-	for <linux-i2c@archiver.kernel.org>; Mon, 17 Apr 2023 10:50:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00EA1C77B72
+	for <linux-i2c@archiver.kernel.org>; Mon, 17 Apr 2023 10:50:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230024AbjDQKu0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 17 Apr 2023 06:50:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50280 "EHLO
+        id S229727AbjDQKua (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 17 Apr 2023 06:50:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbjDQKuZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Apr 2023 06:50:25 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8D1C4EE6
-        for <linux-i2c@vger.kernel.org>; Mon, 17 Apr 2023 03:49:37 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id kt6so24729188ejb.0
-        for <linux-i2c@vger.kernel.org>; Mon, 17 Apr 2023 03:49:37 -0700 (PDT)
+        with ESMTP id S230089AbjDQKua (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Apr 2023 06:50:30 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E87C127
+        for <linux-i2c@vger.kernel.org>; Mon, 17 Apr 2023 03:49:42 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id q23so53427302ejz.3
+        for <linux-i2c@vger.kernel.org>; Mon, 17 Apr 2023 03:49:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=9elements.com; s=google; t=1681728495; x=1684320495;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=XVld+S5St6MGoNtw2Z0Re1+rcHuAmLcad2TIJO7KIg8=;
-        b=Q61PKRtPes2SjXBFvUFdqqmyo9LI/93dt8pcQkm3ztl+2HTsQWzk1lKFpty0toUdJe
-         wbuX3riv2STIwJ0PK4gaktkoD7M0xXhK0HgGmdErakyqZYug4N1l1A4/0mkxJwOwiHbv
-         s7CcQ8wNv9fI12bnWCad1mSPVjCGpCEuUlZnjz8tGWmKKGegCETimwMSl84r+Q8NSRxU
-         jpQ3WNo0N9cRftZ0cDqL29uQJB9qrmQVNJLIXWFTEjAlYl4uGu/AEo7XWs1bQD7BnqrA
-         szXYwibrapMo94yMv5SPfQxkxrlAmhfnuL2znKJATxyC0sWA9eqgAl0S5NE6jbH41gER
-         OUSg==
+        d=9elements.com; s=google; t=1681728500; x=1684320500;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gzocyBkoDyqwm37oXkPUZaJ33qZ0oiBEGhDhAvLR+GA=;
+        b=ONDVAteznHJNUzK4vdrIQaInV6Rul5h4OlVP5ZHcfS5vGjWMxoTFhClxk8je0WBJlu
+         yuJJbpWI85rxFZPec8wuUejziA9OUYTZ/z3VYgpoUxTRp/Wo2nZENQhi3n5cqC/bj4xD
+         BtSWUdu4ypZUPNiIGtwCLhslqLr+aKPiGC99iFP3FyYRq2KQorMpMo7gqhXtibyIWLEX
+         t1x4C/WEA+eNev2iep/Y+JUslqDtMMzING120brvzi4A6CKkhrYDa9jIJA9qNxZRrXFv
+         LfGO3UUA8qmx43kuLO05R81O1On6pZKa4pOUT9sGINVxZ4YyJqnxUv99m82Eg7TOo8Ze
+         g4rA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681728495; x=1684320495;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=XVld+S5St6MGoNtw2Z0Re1+rcHuAmLcad2TIJO7KIg8=;
-        b=Yxoh5QBdwqen0EjTBXx+JO16HwDwMJaYvtwgRuV1GplZKo0hccGnuADaGlx3GLCSKg
-         8znuKCHVh/WYhCJ50xp0KE0t1usKJaQZIonYUufnlRAcLc829ZZnvVfn2ZDZr8/WIzeF
-         mg+jRErgYtUeANPpk7QptmgpiTGgVI0Pu8MDJEDxLH58PByKci4vmeEt2l1qtlGOFpeK
-         qAFkw4Zqm9bPzOIyiPp54Jy88HbZDmW8sSbmUGT+ikztlaw/Y2orOuamcxpA8KttxgxP
-         FedS9uRCZ8ZTDAZ7AT7aw6VlMoSjVmHb1z3I307FL4ORQkfGtRCgQBES+MEUfu1hxxyr
-         m2wQ==
-X-Gm-Message-State: AAQBX9eCLtnrnmBqXrFMwLN8EVPiLNa0FoEYIOXBp6RObSyROyRvYA09
-        TYUv/yTHssuuzdwzOLhuhOZlJw==
-X-Google-Smtp-Source: AKy350aLdlnsMM9T2bJXBaovylQDBAXMxNjpndGEePpxQStukgMlskHsfguoBlY2uIn+xG6LINSktA==
-X-Received: by 2002:a17:906:240d:b0:94e:8556:f01c with SMTP id z13-20020a170906240d00b0094e8556f01cmr6945899eja.57.1681728494971;
-        Mon, 17 Apr 2023 03:48:14 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1681728500; x=1684320500;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gzocyBkoDyqwm37oXkPUZaJ33qZ0oiBEGhDhAvLR+GA=;
+        b=MV0/6QPEB74RuWwqLwHFDYPc51bkvvnihSZPfegzz+doHtYm3v39mrPhLMkHjXcRWE
+         oiED8szUl9bJsNREqqmQnDtEHUbBCEt7LHY4bt8ppf+fUaBWIRbTHmBEAz15Yd1TZlRk
+         WIWveQfazlL/Xvp2ECT4qhT1yy0xCtuicg6MLCXDlG9HPtWh9YLm1dfU2gFCc9aI/JJB
+         ix8DFd85OkoyS/K1uxZ51beETHPWZS0e97UcYrjMrtmuHPCXPJRyzLCwAbBGr3SfEHTK
+         ZiOC5JHeuCeEtGuTm1Mjdnx4FHHiQervPXJ7zcpEJLO3h36RgQfuWOvZdDz49Je9i0Aj
+         0k/Q==
+X-Gm-Message-State: AAQBX9caNUpVgo7trmfhxtR/7JcJKZKuEy/gi82SdfpklGfzuIZA+/VN
+        PHRc2P/BrtBgTz4pA25VYJoiFg==
+X-Google-Smtp-Source: AKy350aCkDn7QGCxsbVjiQOccqdB6SDA08vFOA1fuoFzPAqhVqAsI35s6zpAZzrZSz6EY3hXzVNM2Q==
+X-Received: by 2002:a17:906:3ce9:b0:94a:826c:df57 with SMTP id d9-20020a1709063ce900b0094a826cdf57mr8207127ejh.39.1681728499762;
+        Mon, 17 Apr 2023 03:48:19 -0700 (PDT)
 Received: from fedora.sec.9e.network (ip-095-222-150-251.um34.pools.vodafone-ip.de. [95.222.150.251])
-        by smtp.gmail.com with ESMTPSA id j25-20020a1709062a1900b0094f614e43d0sm1953842eje.8.2023.04.17.03.48.14
+        by smtp.gmail.com with ESMTPSA id j25-20020a1709062a1900b0094f614e43d0sm1953842eje.8.2023.04.17.03.48.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Apr 2023 03:48:14 -0700 (PDT)
+        Mon, 17 Apr 2023 03:48:19 -0700 (PDT)
 From:   Patrick Rudolph <patrick.rudolph@9elements.com>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        linux-i2c@vger.kernel.org
+To:     Peter Rosin <peda@axentia.se>
 Cc:     Patrick Rudolph <patrick.rudolph@9elements.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v12 0/4] Add support for Maxim MAX735x/MAX736x variants
-Date:   Mon, 17 Apr 2023 12:47:56 +0200
-Message-Id: <20230417104801.808972-1-patrick.rudolph@9elements.com>
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v12 4/4] i2c: muxes: pca954x: Add regulator support
+Date:   Mon, 17 Apr 2023 12:48:00 +0200
+Message-Id: <20230417104801.808972-5-patrick.rudolph@9elements.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230417104801.808972-1-patrick.rudolph@9elements.com>
+References: <20230417104801.808972-1-patrick.rudolph@9elements.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-v12:
-- Add separate patch correcting interrupt support in dt-binding
-- Fix typo in commit message
-- Make vdd-supply non optional
+Add a vdd regulator and enable it for boards that have the
+mux powered off by default.
 
-v11:
-- Fix dt-binding example
+Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 29 ++++++++++++++++++++++++-----
+ 1 file changed, 24 insertions(+), 5 deletions(-)
 
-v10:
-- Small updates to dt-bindings
-- Make vdd-supply optional
-- Drop MAX7357 enhanced mode configuration
-
-v9:
-- Fix 'then' not aligned with 'if' in dt-bindings
-- Split enhanced mode configuration into separate patch
-- Add MAX7357/MAX7358 register definitions
-- Rename config register defines
-- Update comments and explain non default config being applied on MAX7357
-- Check for I2C_FUNC_SMBUS_WRITE_BYTE_DATA functionality
-
-v8:
-- Move allOf in dt-binding and use double negation
-
-v7:
-- Reworked the commit message, comments and renamed a struct
-  field. No functional change.
-
-v6:
-- Fix typo in dt-bindings
-
-v5:
-- Remove optional and make vdd-supply mandatory
-
-v4:
-- Add missing maxitems dt-bindings property
-
-v3:
-- Merge dt-bindings into i2c-mux-pca954x.yaml
-
-v2:
-- Move dt-bindings to separate file
-- Added support for MAX736x as they are very similar
-- Fixed an issue found by kernel test robot
-- Dropped max735x property and custom IRQ check
-- Added MAX7357 config register defines instead of magic values
-- Renamed vcc-supply to vdd-supply
-
-Patrick Rudolph (4):
-  dt-bindings: i2c: Correct interrupt support
-  dt-bindings: i2c: Add Maxim MAX735x/MAX736x variants
-  i2c: muxes: pca954x: Add MAX735x/MAX736x support
-  i2c: muxes: pca954x: Add regulator support
-
- .../bindings/i2c/i2c-mux-pca954x.yaml         | 45 ++++++++--
- drivers/i2c/muxes/Kconfig                     |  6 +-
- drivers/i2c/muxes/i2c-mux-pca954x.c           | 89 +++++++++++++++++--
- 3 files changed, 125 insertions(+), 15 deletions(-)
-
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 39f313658b18..42f467dc7995 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -49,6 +49,7 @@
+ #include <linux/module.h>
+ #include <linux/pm.h>
+ #include <linux/property.h>
++#include <linux/regulator/consumer.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <dt-bindings/mux/mux.h>
+@@ -101,6 +102,7 @@ struct pca954x {
+ 	struct irq_domain *irq;
+ 	unsigned int irq_mask;
+ 	raw_spinlock_t lock;
++	struct regulator *supply;
+ };
+ 
+ /* Provide specs for the MAX735x, PCA954x and PCA984x types we know about */
+@@ -440,6 +442,8 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
+ 	struct pca954x *data = i2c_mux_priv(muxc);
+ 	int c, irq;
+ 
++	regulator_disable(data->supply);
++
+ 	if (data->irq) {
+ 		for (c = 0; c < data->chip->nchans; c++) {
+ 			irq = irq_find_mapping(data->irq, c);
+@@ -492,10 +496,23 @@ static int pca954x_probe(struct i2c_client *client)
+ 	i2c_set_clientdata(client, muxc);
+ 	data->client = client;
+ 
++	data->supply = devm_regulator_get(dev, "vdd");
++	if (IS_ERR(data->supply))
++		return dev_err_probe(dev, PTR_ERR(data->supply),
++				"Failed to request regulator\n");
++
++	ret = regulator_enable(data->supply);
++	if (ret) {
++		dev_err(dev, "Failed to enable vdd supply: %d\n", ret);
++		return ret;
++	}
++
+ 	/* Reset the mux if a reset GPIO is specified. */
+ 	gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+-	if (IS_ERR(gpio))
+-		return PTR_ERR(gpio);
++	if (IS_ERR(gpio)) {
++		ret = PTR_ERR(gpio);
++		goto fail_cleanup;
++	}
+ 	if (gpio) {
+ 		udelay(1);
+ 		gpiod_set_value_cansleep(gpio, 0);
+@@ -512,7 +529,7 @@ static int pca954x_probe(struct i2c_client *client)
+ 
+ 		ret = i2c_get_device_id(client, &id);
+ 		if (ret && ret != -EOPNOTSUPP)
+-			return ret;
++			goto fail_cleanup;
+ 
+ 		if (!ret &&
+ 		    (id.manufacturer_id != data->chip->id.manufacturer_id ||
+@@ -520,7 +537,8 @@ static int pca954x_probe(struct i2c_client *client)
+ 			dev_warn(dev, "unexpected device id %03x-%03x-%x\n",
+ 				 id.manufacturer_id, id.part_id,
+ 				 id.die_revision);
+-			return -ENODEV;
++			ret = -ENODEV;
++			goto fail_cleanup;
+ 		}
+ 	}
+ 
+@@ -539,7 +557,8 @@ static int pca954x_probe(struct i2c_client *client)
+ 	ret = pca954x_init(client, data);
+ 	if (ret < 0) {
+ 		dev_warn(dev, "probe failed\n");
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto fail_cleanup;
+ 	}
+ 
+ 	ret = pca954x_irq_setup(muxc);
 -- 
 2.39.2
 
