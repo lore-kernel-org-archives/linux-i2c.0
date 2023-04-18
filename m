@@ -2,53 +2,53 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90D4FC77B71
-	for <linux-i2c@archiver.kernel.org>; Tue, 18 Apr 2023 05:45:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC690C77B71
+	for <linux-i2c@archiver.kernel.org>; Tue, 18 Apr 2023 07:15:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229963AbjDRFp2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 18 Apr 2023 01:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39020 "EHLO
+        id S230477AbjDRHPQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 18 Apr 2023 03:15:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230042AbjDRFp1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Apr 2023 01:45:27 -0400
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA54A59EE;
-        Mon, 17 Apr 2023 22:45:25 -0700 (PDT)
-Received: by mail-wm1-x333.google.com with SMTP id n43-20020a05600c502b00b003f17466a9c1so2391445wmr.2;
-        Mon, 17 Apr 2023 22:45:25 -0700 (PDT)
+        with ESMTP id S231249AbjDRHPO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Apr 2023 03:15:14 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4640A526B;
+        Tue, 18 Apr 2023 00:15:09 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id ffacd0b85a97d-2efac435608so1975506f8f.3;
+        Tue, 18 Apr 2023 00:15:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681796724; x=1684388724;
+        d=gmail.com; s=20221208; t=1681802108; x=1684394108;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y1ADNshtuQim5hM1x1Shj3YAMTd37o0HS05k3ox15pY=;
-        b=j/wV1IjbG/zGIZLgwdqPONxBfoS4rX8ZyHZASdBQqXt5SkCDeJE8PAp2HorlBnI3V8
-         2jjSkkg+swSTN/W+GFXiNVzFXTAs6us28V+Z4Qoe2QXmXGSnbDHPQMncrSe/rh3qqqTn
-         Jp6v6S5LAPvGgVQ5SoFrERz0qRpMUzxkieFLM2M7MD4A5KLXYEdM5jO95+VfOM/f16Vi
-         hRqBHM4x/R8ODhubwWSToQCXb21KOCRt47nJer25Eb1mRe0WKZNzWYaFP8bZuTuOhnFC
-         9Z86o8i+whI7j/NThuKvdhAAEl0lb2Up+Qh/6QrPGtB2SM90TVj2V+KkNAjYJK0qHR4T
-         17Uw==
+        bh=uR6hKEgJ/WbooXR55JY0BMqZFHcSBU4o6FYOEGHRgyA=;
+        b=UP+TCCOU9uNmyeq3E7+qbnz0QLBtAzJP3W+naAwee8fuunB+fd/e0swWgFfCylWbTE
+         BqtR9NDkHhcLKV0YyvhQBcrw6nr6CGRVCJMS8XdRXcz9cyPv5s8usLUO00tCiLVbdNHf
+         AWaJ32mG9GZ5FyqaNAZym5vkVxi1g0ynwhF4UfMM8HKttAcbnVG2riJUlyc1/CRwpqsh
+         igY5hQrJoqRXaHWyN8Rm253P8ejaMyeJIl60GwvNfMltK/9T5WVjsZXMBbHYlF+baBvG
+         elD0wkODpPoNNLK4+Rp0ijR2qEoWXVN3UkFvK09y4B2iDtIg+j1mIqVQFyjkdonHnTRN
+         NxDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681796724; x=1684388724;
+        d=1e100.net; s=20221208; t=1681802108; x=1684394108;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Y1ADNshtuQim5hM1x1Shj3YAMTd37o0HS05k3ox15pY=;
-        b=UHzn5+eZ/bd9Lr5fGRicFl9IIjhjgVMZMNeQdea0zlVHErS6rxcz5pp7y8wsVb7g+Y
-         m2ry4OstlzyDxb8lrKzGMqJyZY02gtIxvm1CvAtb/4lbz+rI8TkN3I7yBOS373D4YaKx
-         u2ynOaRHOyGxNJPkWlWjlbXi+3u4qma8EcKwfLTlZNbGADGAQvG2hQTd3jhk6P+LCViS
-         dH8ETNwMlKqbDmrCtmMR8UOH5h1emTklS0SGa9XFscxbOYph+oGRRxNoDw2g7Gm2DU7c
-         7sL7hC9XxRVIYXyGjyVBLkvNIt/nzUWz1+Le+b51w1OQuBTEWm9psOWQZsvQ/OGB8vu9
-         1j2Q==
-X-Gm-Message-State: AAQBX9fdDApovRAgPO9bhtlqV63JD7i3tM8F6Q++eapsdtetTrWUUIlz
-        ViNFrOt9U4hIRr0MxK+6q6U=
-X-Google-Smtp-Source: AKy350b+hbdoOxoywzlVe09SIwc3UvFHktGNtx37Qwm9EE0F3sDcxFkrc8Es4m4VNSDe1XQpJFNaCg==
-X-Received: by 2002:a1c:cc1a:0:b0:3ef:6b97:f0c3 with SMTP id h26-20020a1ccc1a000000b003ef6b97f0c3mr13632497wmb.15.1681796724046;
-        Mon, 17 Apr 2023 22:45:24 -0700 (PDT)
+        bh=uR6hKEgJ/WbooXR55JY0BMqZFHcSBU4o6FYOEGHRgyA=;
+        b=dYD03oQyTh9qLptrrWK8TgztR8qmAMQ1HJaC7hx/xmztJCcaSpN7JybT8rwZCfq7Sk
+         BXkkk1FqOdchVudxoj5lLH+L2q3g++bcpsD0B/mvVO8Tl2o28G7eFQ63I2sCXXL6NSg7
+         fqOXK2+tcx8PSa6RHpcr3DMENFd2MP+/hetLeEC4XV1NGnYX61O0qUvRdLk3ffbJR134
+         l1DBATGdQkMiyxI8aDqwvUeryKGNKqqc6hi9lQ3WC+1AJsLPtLyvUIMnXiBdMJUXGRp6
+         HiPRsu32QevhoPsHMe/pMxYtdrzrimpoA9IVb3dmaN8Ph0AY/EFSIGG0r0Ex5GyJbis/
+         7O1Q==
+X-Gm-Message-State: AAQBX9e2qVh8LYAw82E0ZxcDZ8lqbjgd2VwgQ8QprhqKxxq+fXnzh05y
+        PdmcUDKjX5exYQ7Y+LD1xvoIcX1766zpy2+8
+X-Google-Smtp-Source: AKy350agm2Z0TfYvKA16znq7mVjHbhL6EwSRUsrHudxmt+CftfTF3FYC4p8xx6IIjCZhnp35hEzHvg==
+X-Received: by 2002:adf:f8d1:0:b0:2f3:ebff:396c with SMTP id f17-20020adff8d1000000b002f3ebff396cmr1032268wrq.34.1681802107643;
+        Tue, 18 Apr 2023 00:15:07 -0700 (PDT)
 Received: from localhost ([102.36.222.112])
-        by smtp.gmail.com with ESMTPSA id 8-20020a05600c22c800b003ef71d541cbsm13859069wmg.1.2023.04.17.22.45.22
+        by smtp.gmail.com with ESMTPSA id p14-20020a05600c468e00b003f16ed11cf5sm8252782wmo.37.2023.04.18.00.15.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Apr 2023 22:45:23 -0700 (PDT)
-Date:   Tue, 18 Apr 2023 08:45:20 +0300
+        Tue, 18 Apr 2023 00:15:07 -0700 (PDT)
+Date:   Tue, 18 Apr 2023 10:15:03 +0300
 From:   Dan Carpenter <error27@gmail.com>
 To:     Wang Zhang <silver_code@hust.edu.cn>
 Cc:     Peter Korsgaard <peter@korsgaard.com>,
@@ -57,37 +57,47 @@ Cc:     Peter Korsgaard <peter@korsgaard.com>,
         linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v3] i2c: ocores: add missing unwind goto in
  `ocores_i2c_probe`
-Message-ID: <82673cff-6571-43fc-9b64-3af2c72593c3@kili.mountain>
+Message-ID: <2bbc856b-c65a-4b42-8193-3a990e2155c0@kili.mountain>
 References: <20230418053814.117215-1-silver_code@hust.edu.cn>
+ <82673cff-6571-43fc-9b64-3af2c72593c3@kili.mountain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230418053814.117215-1-silver_code@hust.edu.cn>
+In-Reply-To: <82673cff-6571-43fc-9b64-3af2c72593c3@kili.mountain>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Apr 18, 2023 at 01:38:13PM +0800, Wang Zhang wrote:
-> Smatch Warns:
-> drivers/i2c/busses/i2c-ocores.c:701 ocores_i2c_probe() warn:
-> missing unwind goto?
+On Tue, Apr 18, 2023 at 08:45:20AM +0300, Dan Carpenter wrote:
+> On Tue, Apr 18, 2023 at 01:38:13PM +0800, Wang Zhang wrote:
+> > Smatch Warns:
+> > drivers/i2c/busses/i2c-ocores.c:701 ocores_i2c_probe() warn:
+> > missing unwind goto?
+> > 
+> > The error handling code after the err_clk label should be executed to
+> > release any resources that were allocated for the clock if a negative
+> > error code returned after platform_get_irq_optional.
+> > 
+> > Fix this by changing the direct return to `goto err_clk`. 
+> > 
+> > Signed-off-by: Wang Zhang <silver_code@hust.edu.cn>
+> > ---
+> > v2->v3: the first patch had issues. Just do a much simpler fix. No need 
+> > to add the check. clk_disable_unprepare() has checks for error pointer 
+> > and NULL already.
+> > v1->v2: change `ocores_i2c_of_probe` to use `devm_clk_get_enabled()`
 > 
-> The error handling code after the err_clk label should be executed to
-> release any resources that were allocated for the clock if a negative
-> error code returned after platform_get_irq_optional.
-> 
-> Fix this by changing the direct return to `goto err_clk`. 
-> 
-> Signed-off-by: Wang Zhang <silver_code@hust.edu.cn>
-> ---
-> v2->v3: the first patch had issues. Just do a much simpler fix. No need 
-> to add the check. clk_disable_unprepare() has checks for error pointer 
-> and NULL already.
-> v1->v2: change `ocores_i2c_of_probe` to use `devm_clk_get_enabled()`
+> I meant send it to the public mailing list.  Don't add the other
+> comments which are related to discussions on this list.  Just say that
+> the public 1 was buggy and the this new v2 patch is simpler.
 
-I meant send it to the public mailing list.  Don't add the other
-comments which are related to discussions on this list.  Just say that
-the public 1 was buggy and the this new v2 patch is simpler.
+Oh, sorry, this was to the public list.  Never mind.  (Technically both
+lists are public).
+
+Some of the notes in --- change log are probably confusing to the people
+who aren't on the hust-os-kernel-patches@googlegroups.com list...  Maybe
+it's only confusing to me...  LOL.  But the patch itself is straight
+forward.
 
 regards,
 dan carpenter
