@@ -2,61 +2,60 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8DA3C77B78
-	for <linux-i2c@archiver.kernel.org>; Tue, 18 Apr 2023 11:10:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A332C77B7D
+	for <linux-i2c@archiver.kernel.org>; Tue, 18 Apr 2023 11:10:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231241AbjDRLKm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 18 Apr 2023 07:10:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51688 "EHLO
+        id S231309AbjDRLKx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 18 Apr 2023 07:10:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231258AbjDRLKj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Apr 2023 07:10:39 -0400
+        with ESMTP id S231329AbjDRLKn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Apr 2023 07:10:43 -0400
 Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5232F26AD;
-        Tue, 18 Apr 2023 04:10:26 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id a5so15607855ejb.6;
-        Tue, 18 Apr 2023 04:10:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65DE27EE5;
+        Tue, 18 Apr 2023 04:10:28 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id u3so20144661ejj.12;
+        Tue, 18 Apr 2023 04:10:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681816224; x=1684408224;
+        d=gmail.com; s=20221208; t=1681816226; x=1684408226;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ClcmwgNB66OteygA0EuqrobbOiZGS0nq7YJHw1f4dDg=;
-        b=OOrwxdJ+TptltfgKD7mdKkIfYgYrnRqhR5f1CHF0y/M/cOfoGgcypaJxvFgBGWCyMJ
-         XiiKwzwdlRHbvaR9iZ9EL1Hr/bGOKMRXPsu+bnYu1VG1c1lEaphNWpAoEgtNWioZhElL
-         i9CnT9jfNk0Y+DriIrt/bagd6+bkUhFg+U/z2kqaWju2YLt4/4lvo1Copw6hb1sxddKW
-         QcuCU5vTjM5BsACMOz3PxcAT1swrk5VJ1eXCLnyJpcxGtExdTDJ2AzpFZkyCP2pQXRts
-         1tjDmmAlYVkNfhuGyoGlqXZBc70TgtmNWngQQ7x+Rww98Dyh9bwiCloZfg/hnCXq21sj
-         3A+Q==
+        bh=bX5R8Ja4/uQ1bZhivXwMqgCiLJVs+CVwud3ONCpJxg4=;
+        b=dEWUK2L/qiMDsvLULfsZ414bpwpYpTDmkHTWlleST4Bklyia1xTBu53xFuzjgyzmBD
+         Rx63//4AOelp6qS8ms7b8XbegUpcKFr8f1Rl1RPaxCcBK/toaVjoAMoojmJRsczndzUx
+         GDZPPOSRAeAKhFCszcWYxfQwYKU2CY+L7EfXaH72qAFdAuRSHl4OwBJYv5DqmTQh7NaT
+         UhVISvzH5ILgN18fJtWr4PJaBNSDdtR+XyKDpvy7rb1TbvE5mO4V0BU+dqV1hfk1HgFw
+         o2syFzneCf5xRlr2aqiF8peZnlIebzPsOWhDiRgcvkadPHN7w+aZHXan0q83MmVtEJbN
+         wJDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681816224; x=1684408224;
+        d=1e100.net; s=20221208; t=1681816226; x=1684408226;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ClcmwgNB66OteygA0EuqrobbOiZGS0nq7YJHw1f4dDg=;
-        b=AtQUxRBS+PL7CXK/9KnTUhC1PY+xtJjhzE8+Sw+a5ETgR+qtqs23DZLHvPMt7JK4Ew
-         mI+azvezqiK58+8DYlNfgmEDIQlqkhlTo71bwHGDzHPGaBTB5cfvxYGpRaqaJw8qVYh7
-         zpzFCgMhySi8JJT8/+Pl7O2OhJZmageDmfcH19qxjUrElbK2tY6MW33rZYnpMwyKQ3+W
-         TQW569LefCCQqRO+V4pW7/fTg1kjhYPIODmrm1V9AyZQNyae7fziArtBohc9h30OFudx
-         fdIBfKFM6omg54FdopLAjRlEq7YhqYnJyYgqZbvIUxgWxS4H37R5kn6GgpOGel+5wTOW
-         ItGQ==
-X-Gm-Message-State: AAQBX9d+qZ0XxjN9Szy5q6+7hsInmcmW2ZG64ObezJWVlpgw5kPH3KAw
-        GjlG5eRGS67Y7aIT7HYtxNs35D1OET8s4Rkt
-X-Google-Smtp-Source: AKy350YUcWUslAB83rGB1sJiMcb3ESb7iU6P49FaB2iONWpAlFBAnGQY6ghGDMjz1mpDQHpmzUgnJw==
-X-Received: by 2002:a17:906:1354:b0:94f:6d10:ad9f with SMTP id x20-20020a170906135400b0094f6d10ad9fmr6280009ejb.42.1681816224592;
-        Tue, 18 Apr 2023 04:10:24 -0700 (PDT)
+        bh=bX5R8Ja4/uQ1bZhivXwMqgCiLJVs+CVwud3ONCpJxg4=;
+        b=LjV7VqA5ZIdv6855NYpZg3tTT77X8qCvUd8HRwp1lPMh5SzvhQPM23WcO20E79prfV
+         RyN6Y6UGOxV6k6l82Y7cs/Ru7qHb2ogLPdaByrJs/C/GjsdcnPWiqQRDxavDR5IMXR1X
+         uVPAyOdGemlknXIwk5J5Stthb/FnycmP1YC7GwUqe3zAcWaYiJuDxQBslSntom+ZeoiX
+         4NihNoyabokmF39EJp9tmENnscfaYh4XuquWOTDHX6PJmYcg1/CUywkmJ7gAdDktrLUu
+         oM+cJKK0MIcxvHuxMEKUOaM8cxpN4A4AdulU/r4EBAYbvVFjba7AGebaxWxuaDfm625E
+         XUQw==
+X-Gm-Message-State: AAQBX9dkHnA7Y/RJLiQj+Z/HOZk7+DYru7sSzjTRr05QBu8pDIGMO3q+
+        uABic8LIWLHpmKAk2LgAp/FkwME02cvcVxln
+X-Google-Smtp-Source: AKy350ajtZ8vLoqucYqQMFTZaUzvE9MwMljTvcwfiUagc47PMCdndDAPNrFr2Cl7UkFSgr4HIrbePA==
+X-Received: by 2002:a17:907:78cd:b0:94e:5b0b:7bd1 with SMTP id kv13-20020a17090778cd00b0094e5b0b7bd1mr9561393ejc.74.1681816226432;
+        Tue, 18 Apr 2023 04:10:26 -0700 (PDT)
 Received: from [127.0.1.1] ([91.230.2.244])
-        by smtp.gmail.com with ESMTPSA id n26-20020a170906379a00b0094eef800850sm5954554ejc.204.2023.04.18.04.10.23
+        by smtp.gmail.com with ESMTPSA id n26-20020a170906379a00b0094eef800850sm5954554ejc.204.2023.04.18.04.10.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Apr 2023 04:10:24 -0700 (PDT)
+        Tue, 18 Apr 2023 04:10:26 -0700 (PDT)
 From:   Benjamin Bara <bbara93@gmail.com>
-Date:   Tue, 18 Apr 2023 13:10:00 +0200
-Subject: [PATCH v5 1/6] kernel/reboot: emergency_restart: set correct
- system_state
+Date:   Tue, 18 Apr 2023 13:10:02 +0200
+Subject: [PATCH v5 3/6] kernel/reboot: add device to sys_off_handler
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230327-tegra-pmic-reboot-v5-1-ab090e03284d@skidata.com>
+Message-Id: <20230327-tegra-pmic-reboot-v5-3-ab090e03284d@skidata.com>
 References: <20230327-tegra-pmic-reboot-v5-0-ab090e03284d@skidata.com>
 In-Reply-To: <20230327-tegra-pmic-reboot-v5-0-ab090e03284d@skidata.com>
 To:     Wolfram Sang <wsa@kernel.org>, Lee Jones <lee@kernel.org>,
@@ -65,8 +64,7 @@ Cc:     dmitry.osipenko@collabora.com, peterz@infradead.org,
         jonathanh@nvidia.com, richard.leitner@linux.dev,
         treding@nvidia.com, linux-kernel@vger.kernel.org,
         linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
-        Benjamin Bara <benjamin.bara@skidata.com>,
-        stable@vger.kernel.org
+        Benjamin Bara <benjamin.bara@skidata.com>
 X-Mailer: b4 0.12.2
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
@@ -74,43 +72,63 @@ X-Mailing-List: linux-i2c@vger.kernel.org
 
 From: Benjamin Bara <benjamin.bara@skidata.com>
 
-As the emergency restart does not call kernel_restart_prepare(), the
-system_state stays in SYSTEM_RUNNING.
+If the dev is known (e.g. a devm-based sys_off_handler is used), it can
+be passed to the handler's callback to have it available there.
+Otherwise, cb_data might be set to the dev in most of the cases.
 
-Since bae1d3a05a8b, this hinders i2c_in_atomic_xfer_mode() from becoming
-active, and therefore might lead to avoidable warnings in the restart
-handlers, e.g.:
-
-[   12.667612] WARNING: CPU: 1 PID: 1 at kernel/rcu/tree_plugin.h:318 rcu_note_context_switch+0x33c/0x6b0
-[   12.676926] Voluntary context switch within RCU read-side critical section!
-...
-[   12.742376]  schedule_timeout from wait_for_completion_timeout+0x90/0x114
-[   12.749179]  wait_for_completion_timeout from tegra_i2c_wait_completion+0x40/0x70
-...
-[   12.994527]  atomic_notifier_call_chain from machine_restart+0x34/0x58
-[   13.001050]  machine_restart from panic+0x2a8/0x32c
-
-Avoid these by setting the correct system_state.
-
-Fixes: bae1d3a05a8b ("i2c: core: remove use of in_atomic()")
-Cc: stable@vger.kernel.org # v5.2+
 Signed-off-by: Benjamin Bara <benjamin.bara@skidata.com>
 ---
- kernel/reboot.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/reboot.h | 3 +++
+ kernel/reboot.c        | 3 +++
+ 2 files changed, 6 insertions(+)
 
+diff --git a/include/linux/reboot.h b/include/linux/reboot.h
+index 2b6bb593be5b..c4cc3b89ced1 100644
+--- a/include/linux/reboot.h
++++ b/include/linux/reboot.h
+@@ -129,11 +129,14 @@ enum sys_off_mode {
+  * @cb_data: User's callback data.
+  * @cmd: Command string. Currently used only by the sys-off restart mode,
+  *       NULL otherwise.
++ * @dev: Device of the sys-off handler. Only if known (devm_register_*),
++ *       NULL otherwise.
+  */
+ struct sys_off_data {
+ 	int mode;
+ 	void *cb_data;
+ 	const char *cmd;
++	struct device *dev;
+ };
+ 
+ struct sys_off_handler *
 diff --git a/kernel/reboot.c b/kernel/reboot.c
-index 3bba88c7ffc6..6ebef11c8876 100644
+index 6ebef11c8876..395a0ea3c7a8 100644
 --- a/kernel/reboot.c
 +++ b/kernel/reboot.c
-@@ -74,6 +74,7 @@ void __weak (*pm_power_off)(void);
- void emergency_restart(void)
- {
- 	kmsg_dump(KMSG_DUMP_EMERG);
-+	system_state = SYSTEM_RESTART;
- 	machine_emergency_restart();
+@@ -55,6 +55,7 @@ struct sys_off_handler {
+ 	enum sys_off_mode mode;
+ 	bool blocking;
+ 	void *list;
++	struct device *dev;
+ };
+ 
+ /*
+@@ -324,6 +325,7 @@ static int sys_off_notify(struct notifier_block *nb,
+ 	data.cb_data = handler->cb_data;
+ 	data.mode = mode;
+ 	data.cmd = cmd;
++	data.dev = handler->dev;
+ 
+ 	return handler->sys_off_cb(&data);
  }
- EXPORT_SYMBOL_GPL(emergency_restart);
+@@ -511,6 +513,7 @@ int devm_register_sys_off_handler(struct device *dev,
+ 	handler = register_sys_off_handler(mode, priority, callback, cb_data);
+ 	if (IS_ERR(handler))
+ 		return PTR_ERR(handler);
++	handler->dev = dev;
+ 
+ 	return devm_add_action_or_reset(dev, devm_unregister_sys_off_handler,
+ 					handler);
 
 -- 
 2.34.1
