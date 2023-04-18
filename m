@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25856C77B75
-	for <linux-i2c@archiver.kernel.org>; Tue, 18 Apr 2023 13:29:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE3DEC77B75
+	for <linux-i2c@archiver.kernel.org>; Tue, 18 Apr 2023 13:58:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229972AbjDRN3W (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 18 Apr 2023 09:29:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48952 "EHLO
+        id S231235AbjDRN6T (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 18 Apr 2023 09:58:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231393AbjDRN3U (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Apr 2023 09:29:20 -0400
+        with ESMTP id S229756AbjDRN6S (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Apr 2023 09:58:18 -0400
 Received: from hust.edu.cn (unknown [202.114.0.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABF81444C;
-        Tue, 18 Apr 2023 06:29:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC13FC64E;
+        Tue, 18 Apr 2023 06:58:17 -0700 (PDT)
 Received: from localhost.localdomain ([172.16.0.254])
         (user=d202180596@hust.edu.cn mech=LOGIN bits=0)
-        by mx1.hust.edu.cn  with ESMTP id 33IDQtWh013039-33IDQtWi013039
+        by mx1.hust.edu.cn  with ESMTP id 33IDuFgt012244-33IDuFgu012244
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
-        Tue, 18 Apr 2023 21:26:55 +0800
+        Tue, 18 Apr 2023 21:56:15 +0800
 From:   Shuai Jiang <d202180596@hust.edu.cn>
 To:     Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
-        "Ivan T. Ivanov" <iivanov@mm-sol.com>,
         Wolfram Sang <wsa@kernel.org>,
-        Austin Christ <austinwc@codeaurora.org>,
+        "Ivan T. Ivanov" <iivanov@mm-sol.com>,
+        Sricharan R <sricharan@codeaurora.org>,
         Naveen Kaje <nkaje@codeaurora.org>,
-        Sricharan R <sricharan@codeaurora.org>
+        Austin Christ <austinwc@codeaurora.org>
 Cc:     hust-os-kernel-patches@googlegroups.com,
         Shuai Jiang <d202180596@hust.edu.cn>,
         Andy Gross <agross@codeaurora.org>,
         linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Subject: [PATCH] i2c: qup: Add missing unwind goto in qup_i2c_probe()
-Date:   Tue, 18 Apr 2023 21:26:42 +0800
-Message-Id: <20230418132642.16668-1-d202180596@hust.edu.cn>
+Date:   Tue, 18 Apr 2023 21:56:12 +0800
+Message-Id: <20230418135612.598-1-d202180596@hust.edu.cn>
 X-Mailer: git-send-email 2.17.1
 X-FEAS-AUTH-USER: d202180596@hust.edu.cn
 Precedence: bulk
