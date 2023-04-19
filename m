@@ -2,173 +2,111 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5B1AC77B78
-	for <linux-i2c@archiver.kernel.org>; Wed, 19 Apr 2023 08:31:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E14F5C77B75
+	for <linux-i2c@archiver.kernel.org>; Wed, 19 Apr 2023 13:19:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232396AbjDSIb3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 19 Apr 2023 04:31:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40906 "EHLO
+        id S233407AbjDSNTp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 19 Apr 2023 09:19:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232621AbjDSIbT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Apr 2023 04:31:19 -0400
-Received: from smtpbg151.qq.com (smtpbg151.qq.com [18.169.211.239])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8FAF13850;
-        Wed, 19 Apr 2023 01:31:00 -0700 (PDT)
-X-QQ-mid: bizesmtp68t1681892937t2sp517a
-Received: from wxdbg.localdomain.com ( [183.129.236.74])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Wed, 19 Apr 2023 16:28:56 +0800 (CST)
-X-QQ-SSF: 01400000000000I0Z000000A0000000
-X-QQ-FEAT: +ynUkgUhZJkkYNemyT7RdcnZJZZckYb3XQBLCTUNBoi2QsttCEP7STTpijkkU
-        ESZOqbAdqkAbDDJD1XqSEykhzcKrF7L/XqFgLSwaUCqfNQGirbUlBJZTb0vk8W/bBFH8nKT
-        9ockpQzxSMwmGscMjWslQLAsJ09oaglXzvcA2MMhzQeRu53fiJX1Vpzn7Lnrk2S6Q8Fw+0O
-        UymZ/bzC8FFr2hziYzzk/ZBs7de+vAzWub1ukX2Z3Qa9wkarUGlDgF+Vp32Lu3Wfrfin4nc
-        djTCCEusPSTfeciyvK/2GJAPSIGYGXrko0xLVahrufhcmwDZChe8m7nRHGLta+/KgyS1Ghf
-        aFz1Qm39IxBqNtWGkugJbDzHJXtBI7JJtWrwbr8oUydwJF5P09Or8Cb+3htfDVb7avGAdoE
-        9fFSwve1JvXWQv31r3zlzQ==
-X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 4816393218096079182
-From:   Jiawen Wu <jiawenwu@trustnetic.com>
-To:     netdev@vger.kernel.org, linux@armlinux.org.uk
-Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        olteanv@gmail.com, mengyuanlou@net-swift.com,
-        Jiawen Wu <jiawenwu@trustnetic.com>
-Subject: [PATCH net-next v3 3/8] net: txgbe: Register I2C platform device
-Date:   Wed, 19 Apr 2023 16:27:34 +0800
-Message-Id: <20230419082739.295180-4-jiawenwu@trustnetic.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20230419082739.295180-1-jiawenwu@trustnetic.com>
+        with ESMTP id S232553AbjDSNTo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Apr 2023 09:19:44 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDAFE146E5;
+        Wed, 19 Apr 2023 06:19:42 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id fy21so38616433ejb.9;
+        Wed, 19 Apr 2023 06:19:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681910381; x=1684502381;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=yagTkb97tOSUXUO/i6exQTb0DLsglQm8kN/R51CoLeM=;
+        b=DbTAYMvEn3V6b4ELhVhXKtZpsyLJCQqOzTlkzgZZ5CKABJ9YHPEQyWnXLNDjrNZA8F
+         OrMeCHM57zL6i9PqJ2EJWMOZXz4C66rRh7RXmfrmD2smi7cef2luVIxsUf8IAViZZMND
+         o+uJ3Yu9eEDiNYsSx+V/B2hEbJqR5cPXKstjgTtNdpO2ggsEod9ulXUc6MPN8ZybCjMx
+         QyPqxjeLFFVI9it6H5Ji/8TOIlvH83VnM48ZJBK3G+t3w4J4oKYUgH9QJVadzQpnQdC0
+         OTXFbDEFvD4hM17FYHU2Tz1Dt0uBMae7u2hom3TcdDCWj7ir44M75U1nYCkkjkTJmZA7
+         3ixQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681910381; x=1684502381;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yagTkb97tOSUXUO/i6exQTb0DLsglQm8kN/R51CoLeM=;
+        b=Fjk1i6dATGdaWhwYLX3YedGrQI/iIz7GwJhS2CqD3DWeXuNVzgMu2WUGThNY33Ne8c
+         TcMv7/Wm1qF5T+H0qxRPvGeemNcZCQDsFzax7RdR5qCAN6aQGHrvEZDNncTtHuJQ3xlJ
+         l9WQwpcqRsUKPQxkCujCz+rMkjZ87EjiGjAgZ+jF4RDOo7oAgboDuth8PHRPZOFqRbXZ
+         xgimZtLteRB1wffEoLlx+cWjeExrX5KGEGpFuRyuusf57Q4OQlBGhRHk8+NgHPJrDxwW
+         CytkWvDLcsQ1nf8ZLI5/Af3YlnAfY8M3NfB0C2tlmKH9entSOU/OkC9fhNADffjGrK9y
+         LzJw==
+X-Gm-Message-State: AAQBX9cSa2YVA5HUkiROydU68s9tr2w3FCI8kU5Nc+Smk/WcXvLqd95n
+        l1/dzFVbhqjFu9GrY1N6Jik=
+X-Google-Smtp-Source: AKy350Z1uvhTYg3923FLT4wTcoOrjylzfF1/2Ek+wyeLeIKqIC+Ry3JHCxOUkJEOK6fuEP3wCzbMoA==
+X-Received: by 2002:a17:907:a2cc:b0:953:603e:e939 with SMTP id re12-20020a170907a2cc00b00953603ee939mr1724194ejc.69.1681910381040;
+        Wed, 19 Apr 2023 06:19:41 -0700 (PDT)
+Received: from skbuf ([188.27.184.189])
+        by smtp.gmail.com with ESMTPSA id j25-20020a1709062a1900b0094f614e43d0sm4911174eje.8.2023.04.19.06.19.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Apr 2023 06:19:40 -0700 (PDT)
+Date:   Wed, 19 Apr 2023 16:19:38 +0300
+From:   Vladimir Oltean <olteanv@gmail.com>
+To:     Jiawen Wu <jiawenwu@trustnetic.com>
+Cc:     netdev@vger.kernel.org, linux@armlinux.org.uk,
+        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+        mengyuanlou@net-swift.com, Jose Abreu <Jose.Abreu@synopsys.com>
+Subject: Re: [PATCH net-next v3 6/8] net: pcs: Add 10GBASE-R mode for
+ Synopsys Designware XPCS
+Message-ID: <20230419131938.3k4kuqucvuuhxcrc@skbuf>
 References: <20230419082739.295180-1-jiawenwu@trustnetic.com>
+ <20230419082739.295180-1-jiawenwu@trustnetic.com>
+ <20230419082739.295180-7-jiawenwu@trustnetic.com>
+ <20230419082739.295180-7-jiawenwu@trustnetic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:trustnetic.com:qybglogicsvr:qybglogicsvr5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230419082739.295180-7-jiawenwu@trustnetic.com>
+ <20230419082739.295180-7-jiawenwu@trustnetic.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Register the platform device to use Designware I2C bus master driver.
+On Wed, Apr 19, 2023 at 04:27:37PM +0800, Jiawen Wu wrote:
+> Add basic support for XPCS using 10GBASE-R interface. This mode will
+> be extended to use interrupt, so set pcs.poll false. And avoid soft
+> reset so that the device using this mode is in the default configuration.
 
-Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
----
- drivers/net/ethernet/wangxun/Kconfig          |  1 +
- .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 50 +++++++++++++++++++
- .../net/ethernet/wangxun/txgbe/txgbe_type.h   |  4 ++
- 3 files changed, 55 insertions(+)
+I'm not clear why the xpcs_soft_reset() call is avoided. Isn't the
+out-of-reset configuration the "default" one?
 
-diff --git a/drivers/net/ethernet/wangxun/Kconfig b/drivers/net/ethernet/wangxun/Kconfig
-index c9d88673d306..8acd6a0d84dc 100644
---- a/drivers/net/ethernet/wangxun/Kconfig
-+++ b/drivers/net/ethernet/wangxun/Kconfig
-@@ -40,6 +40,7 @@ config NGBE
- config TXGBE
- 	tristate "Wangxun(R) 10GbE PCI Express adapters support"
- 	depends on PCI
-+	select I2C_DESIGNWARE_PLATFORM
- 	select LIBWX
- 	help
- 	  This driver supports Wangxun(R) 10GbE PCI Express family of
-diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-index 39762c7fc851..8bb7f1d9acc7 100644
---- a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-+++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-@@ -1,6 +1,8 @@
- // SPDX-License-Identifier: GPL-2.0
- /* Copyright (c) 2015 - 2023 Beijing WangXun Technology Co., Ltd. */
- 
-+#include <linux/platform_data/i2c-dw.h>
-+#include <linux/platform_device.h>
- #include <linux/gpio/property.h>
- #include <linux/i2c.h>
- #include <linux/pci.h>
-@@ -69,6 +71,40 @@ static int txgbe_swnodes_register(struct txgbe *txgbe)
- 	return software_node_register_node_group(nodes->group);
- }
- 
-+static int txgbe_i2c_register(struct txgbe *txgbe)
-+{
-+	struct pci_dev *pdev = txgbe->wx->pdev;
-+	struct dw_i2c_platform_data pdata = {};
-+	struct platform_device_info info = {};
-+	struct platform_device *i2c_dev;
-+	struct resource res = {};
-+
-+	pdata.base = txgbe->wx->hw_addr + TXGBE_I2C_BASE;
-+	pdata.flags = BIT(11); /* MODEL_WANGXUN_SP */
-+	pdata.ss_hcnt = 600;
-+	pdata.ss_lcnt = 600;
-+
-+	info.parent = &pdev->dev;
-+	info.fwnode = software_node_fwnode(txgbe->nodes.group[SWNODE_I2C]);
-+	info.name = "i2c_designware";
-+	info.id = (pdev->bus->number << 8) | pdev->devfn;
-+	info.data = &pdata;
-+	info.size_data = sizeof(pdata);
-+
-+	res.start = pdev->irq;
-+	res.end = pdev->irq;
-+	res.flags = IORESOURCE_IRQ;
-+	info.res = &res;
-+	info.num_res = 1;
-+	i2c_dev = platform_device_register_full(&info);
-+	if (IS_ERR(i2c_dev))
-+		return PTR_ERR(i2c_dev);
-+
-+	txgbe->i2c_dev = i2c_dev;
-+
-+	return 0;
-+}
-+
- int txgbe_init_phy(struct txgbe *txgbe)
- {
- 	int ret;
-@@ -79,10 +115,24 @@ int txgbe_init_phy(struct txgbe *txgbe)
- 		return ret;
- 	}
- 
-+	ret = txgbe_i2c_register(txgbe);
-+	if (ret) {
-+		wx_err(txgbe->wx, "failed to init i2c interface: %d\n", ret);
-+		goto err;
-+	}
-+
- 	return 0;
-+
-+err:
-+	txgbe_remove_phy(txgbe);
-+
-+	return ret;
- }
- 
- void txgbe_remove_phy(struct txgbe *txgbe)
- {
-+	if (txgbe->i2c_dev)
-+		platform_device_unregister(txgbe->i2c_dev);
-+
- 	software_node_unregister_node_group(txgbe->nodes.group);
- }
-diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-index 51bbecb28433..771aefbc7c80 100644
---- a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-+++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-@@ -55,6 +55,9 @@
- #define TXGBE_TS_CTL                            0x10300
- #define TXGBE_TS_CTL_EVAL_MD                    BIT(31)
- 
-+/* I2C registers */
-+#define TXGBE_I2C_BASE                          0x14900
-+
- /* Part Number String Length */
- #define TXGBE_PBANUM_LENGTH                     32
- 
-@@ -146,6 +149,7 @@ struct txgbe_nodes {
- struct txgbe {
- 	struct wx *wx;
- 	struct txgbe_nodes nodes;
-+	struct platform_device *i2c_dev;
- };
- 
- #endif /* _TXGBE_TYPE_H_ */
--- 
-2.27.0
+> +static int xpcs_get_state_10gbaser(struct dw_xpcs *xpcs,
+> +				   struct phylink_link_state *state)
+> +{
+> +	int ret;
+> +
+> +	state->link = false;
+> +
+> +	ret = xpcs_read(xpcs, MDIO_MMD_PCS, MDIO_STAT1);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (ret & MDIO_STAT1_LSTATUS)
+> +		state->link = true;
+> +
+> +	if (state->link) {
 
+It seems pointless to open a new "if" statement when this would have
+sufficed:
+
+	if (ret & MDIO_STAT1_LSTATUS) {
+		state->link = true;
+		state->pause = MLO_PAUSE_TX | MLO_PAUSE_RX;
+		...
+	}
+
+> +		state->pause = MLO_PAUSE_TX | MLO_PAUSE_RX;
+> +		state->duplex = DUPLEX_FULL;
+> +		state->speed = SPEED_10000;
+> +	}
+> +
+> +	return 0;
+> +}
