@@ -2,91 +2,68 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89EB9C77B73
-	for <linux-i2c@archiver.kernel.org>; Thu, 20 Apr 2023 09:32:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FEEAC77B78
+	for <linux-i2c@archiver.kernel.org>; Thu, 20 Apr 2023 10:24:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234099AbjDTJcu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 20 Apr 2023 05:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48880 "EHLO
+        id S234611AbjDTKYk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 20 Apr 2023 06:24:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234039AbjDTJct (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 Apr 2023 05:32:49 -0400
-Received: from smtpbg153.qq.com (smtpbg153.qq.com [13.245.218.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AC531702;
-        Thu, 20 Apr 2023 02:32:43 -0700 (PDT)
-X-QQ-mid: Yeas47t1681983130t003t38627
-Received: from 7082A6556EBF4E69829842272A565F7C (jiawenwu@trustnetic.com [183.129.236.74])
-X-QQ-SSF: 00400000000000F0FL9000000000000
-From:   =?utf-8?b?Smlhd2VuIFd1?= <jiawenwu@trustnetic.com>
-X-BIZMAIL-ID: 2844241341821674648
-To:     "'Vladimir Oltean'" <olteanv@gmail.com>
-Cc:     <netdev@vger.kernel.org>, <linux@armlinux.org.uk>,
-        <linux-i2c@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-        <mengyuanlou@net-swift.com>,
-        "'Jose Abreu'" <Jose.Abreu@synopsys.com>
-References: <20230420080312.6ai6yrm6gikljeto@skbuf> <20230419082739.295180-1-jiawenwu@trustnetic.com> <20230419082739.295180-1-jiawenwu@trustnetic.com> <20230419082739.295180-7-jiawenwu@trustnetic.com> <20230419082739.295180-7-jiawenwu@trustnetic.com> <20230419131938.3k4kuqucvuuhxcrc@skbuf> <037501d9732b$518048d0$f480da70$@trustnetic.com> <20230420080312.6ai6yrm6gikljeto@skbuf> <03d301d97363$874123d0$95c36b70$@trustnetic.com> <03d301d97363$874123d0$95c36b70$@trustnetic.com> <20230420085211.6kt2oj3k5k54mtuf@skbuf>
-In-Reply-To: <20230420085211.6kt2oj3k5k54mtuf@skbuf>
-Subject: RE: [PATCH net-next v3 6/8] net: pcs: Add 10GBASE-R mode for Synopsys Designware XPCS
-Date:   Thu, 20 Apr 2023 17:32:05 +0800
-Message-ID: <03d401d9736a$f880d2a0$e98277e0$@trustnetic.com>
+        with ESMTP id S234668AbjDTKYJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 Apr 2023 06:24:09 -0400
+Received: from 167-179-156-38.a7b39c.syd.nbn.aussiebb.net (167-179-156-38.a7b39c.syd.nbn.aussiebb.net [167.179.156.38])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B364C10;
+        Thu, 20 Apr 2023 03:23:10 -0700 (PDT)
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+        by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
+        id 1ppRRF-000Yfl-FJ; Thu, 20 Apr 2023 18:22:55 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Thu, 20 Apr 2023 18:22:54 +0800
+Date:   Thu, 20 Apr 2023 18:22:54 +0800
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     Mario Limonciello <mario.limonciello@amd.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Jan Dabros <jsd@semihalf.com>, linux-i2c@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v9 0/2] Use CCP driver to handle PSP I2C arbitration
+Message-ID: <ZEESfpbdwmjWWmYx@gondor.apana.org.au>
+References: <20230414144008.836-1-mario.limonciello@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Content-Language: zh-cn
-Thread-Index: AQILddcEM2VPF5H4GSvZ5UzGHBCY+AILBR3gAgsFHeABOmDyhAE6YPKEAhXaDNgCJUa00wILddcEAbTRLbkBtNEtuQIFposhrj3eybA=
-X-QQ-SENDSIZE: 520
-Feedback-ID: Yeas:trustnetic.com:qybglogicsvr:qybglogicsvr5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230414144008.836-1-mario.limonciello@amd.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thursday, April 20, 2023 4:52 PM, Vladimir Oltean wrote:
-> On Thu, Apr 20, 2023 at 04:38:48PM +0800, Jiawen Wu wrote:
-> > It needs to implement compat->pma_config, and add a flag in struct dw_xpcs
-> > to indicate board with specific pma configuration. For 10GBASE-R interface, it
-> > relatively simple, but a bit more complicate for 1000BASE-X since there are
-> > logic conflicts in xpcs_do_config(), I haven't resolved yet.
-> >
-> > In addition, reconfiguring XPCS will cause some known issues that I need to
-> > workaround in the ethernet driver. So I'd like to add configuration when I
-> > implement rate switching.
-> >
-> > There is a piece codes for my test:
+On Fri, Apr 14, 2023 at 09:40:06AM -0500, Mario Limonciello wrote:
+> The CCP driver now has symbols that can be used by i2c-designware-amdpsp
+> to handle the communication regarding i2c arbitration with the PSP for
+> both Cezanne and Mendocino based designs.
 > 
-> The PMA initialization procedure looks pretty clean to me (although I'm
-> not clear why it depends upon xpcs->flags & DW_MODEL_WANGXUN_SP when the
-> registers seem to be present in the common databook), and having it in
-> the XPCS driver seems much preferable to depending on an unknown previous
-> initialization stage.
-
-The values configured in PMA depend on the board signal quality, Synopsys once
-provided the values based on our board information, but we don't know the details
-of the computation. So I don't think it's universal.
-
+> Utilize those symbols.
 > 
-> Could you detail a bit the known issues and the 1000BASE-X conflicts in
-> xpcs_do_config()?
+> v8->v9:
+>  * Drop v8 patches 1-4 as they're merged now
+>  * Pick up tags for v8 patches 5-6
+>  * Repost to linux-crypto as this needs to merge through crypto tree.
 > 
+> Mario Limonciello (2):
+>   i2c: designware: Use PCI PSP driver for communication
+>   i2c: designware: Add doorbell support for Mendocino
+> 
+>  drivers/i2c/busses/Kconfig                  |   5 +-
+>  drivers/i2c/busses/i2c-designware-amdpsp.c  | 197 +++++---------------
+>  drivers/i2c/busses/i2c-designware-core.h    |   1 -
+>  drivers/i2c/busses/i2c-designware-platdrv.c |   1 -
+>  include/linux/psp-platform-access.h         |   1 +
+>  5 files changed, 53 insertions(+), 152 deletions(-)
+> 
+> -- 
+> 2.34.1
 
-Known issue is that traffic must be totally stopped while the PMA is being configured.
-And XPCS should add a judgment that PMA only need to be reconfigured when
-interface is changed.
-
-In 1000BASE-X interface, for my current testing, PMA configuration should precede
-AN configuration, and need to set PCS_DIG_CTRL1 reg? My test code for AN config:
-
-+static int xpcs_config_aneg_c37_1000basex_wx(struct dw_xpcs *xpcs, unsigned int mode,
-+					     const unsigned long *advertising)
-+{
-+
-+	xpcs_write(xpcs, MDIO_MMD_PCS, DW_VR_MII_DIG_CTRL1, 0x3002);
-+	xpcs_write(xpcs, MDIO_MMD_VEND2, DW_VR_MII_AN_CTRL, 0x0109);
-+	xpcs_write(xpcs, MDIO_MMD_VEND2, DW_VR_MII_DIG_CTRL1, 0x0200);
-+	ret = xpcs_read(xpcs, MDIO_MMD_VEND2, MDIO_CTRL1);
-+	ret |= BMCR_ANENABLE;
-+	xpcs_write(xpcs, MDIO_MMD_VEND2, MDIO_CTRL1, ret);
-+}
-
-
+All applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
