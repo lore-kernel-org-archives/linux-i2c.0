@@ -2,67 +2,76 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDD8CC77B61
-	for <linux-i2c@archiver.kernel.org>; Mon, 24 Apr 2023 13:28:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C389C77B61
+	for <linux-i2c@archiver.kernel.org>; Mon, 24 Apr 2023 13:50:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232319AbjDXN2r (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 24 Apr 2023 09:28:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55936 "EHLO
+        id S232041AbjDXNuY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 24 Apr 2023 09:50:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232225AbjDXN2n (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Apr 2023 09:28:43 -0400
-Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com [209.85.167.176])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4D656E8A;
-        Mon, 24 Apr 2023 06:28:28 -0700 (PDT)
-Received: by mail-oi1-f176.google.com with SMTP id 5614622812f47-38c35975545so3297060b6e.1;
-        Mon, 24 Apr 2023 06:28:28 -0700 (PDT)
+        with ESMTP id S231864AbjDXNt6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Apr 2023 09:49:58 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDE9293F8;
+        Mon, 24 Apr 2023 06:49:34 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id d9443c01a7336-1a9253d4551so36794275ad.0;
+        Mon, 24 Apr 2023 06:49:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682344173; x=1684936173;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=if+qLJBC6aei07h/TQBMVq0RtLZPNMknfuB7zM+rGdc=;
+        b=SkeEEfCHKLxhZdFgxLT9n810Zk1T2LbV240NhzxldIIJ3bU+Lx+LfDnAJMfuVUku2r
+         wqHrs99cOyFbZ1QVSiK4hTkAUXMMHg9++FI6XkMlzAs8LLRXnhEjKGAkuCu3qX6MpKNR
+         GlKkl/RFIdJeLGZJY/aa09/0M4aIJdMhufPGrWnt9GSbPKJi4ofDK14FIy1XV6Oti6tW
+         ktzeT67IBTChjIukzWZEYnpQzXuMpwRUB4VxsXZg0hVWlsYv94H4k3yVH6xhG+7JEswJ
+         yVWfJrQ6RgqDoRRPiMZ8Cn5fcpM4MeOqcVw0tMV8+HdcWwFGSsb1Y1wSYVgz7QM9VXL2
+         QwBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682342893; x=1684934893;
-        h=date:subject:message-id:references:in-reply-to:cc:to:from
-         :mime-version:content-transfer-encoding:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=gY8hrXNwbYgQ5hLI5h332CojeiGsOYICAo5dCroy2lQ=;
-        b=LVSupP1936OxcO0WiqfFbbw9lk4g8gntNmL/STtFIaMv+YS5Xs8V5u/VXlWudNwyas
-         5l9mV282gHs3Rpt0+R/azx41opR64NIlgVIqaNNgjqJ0Dbz+c9F8BYPXAGUW12lDuAyp
-         sTc+7bW6RxMCRB4seLVy+HkU1uTIW9Hbp6jgO82UoxP86ntZxuSG27wz0NkPkTAD3eLs
-         EePWWIrFoJry62LFqNRi43WuCQFr2Lz/Kn/I7qajWf0yfxEYAstXLVdDYeXUTHQNiIPs
-         dL8EpDPOpUevm12kDu9PGAQC1/YHiXNo7uFtYfHYf7UWgv8xuVGJM+GAqOH946svG9Rm
-         M5+w==
-X-Gm-Message-State: AAQBX9dySGSPdKacXm5rvqwnBdrW2GRXQpFSgFMF7rK+qzhe+JlVHgTi
-        S57dvLVNrcB0OPtoF0WPWw==
-X-Google-Smtp-Source: AKy350aHyMng2QoKCc18TU/ZFGYuy+IOUzcAsszb+A6bsy1fPX+RPEaIvQ8jI9zBld6hKtxYuqrW7g==
-X-Received: by 2002:a05:6808:17:b0:38e:8e21:d042 with SMTP id u23-20020a056808001700b0038e8e21d042mr5028866oic.58.1682342891865;
-        Mon, 24 Apr 2023 06:28:11 -0700 (PDT)
-Received: from robh_at_kernel.org ([2605:ef80:80e7:4387:ec9f:155:c2d2:6e82])
-        by smtp.gmail.com with ESMTPSA id i25-20020a056808031900b0038bf8c6151fsm4551118oie.6.2023.04.24.06.28.10
+        d=1e100.net; s=20221208; t=1682344173; x=1684936173;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=if+qLJBC6aei07h/TQBMVq0RtLZPNMknfuB7zM+rGdc=;
+        b=E4F4GTEtVRIqVLswU5vp05y3/H7s3vxii6giX44fGAhIH+PY/9xa7oSk46Pvkxy5W3
+         ZCX+A1JfNXbH41sY+MZuxM1dd7Hgv0bp4w9+Oo5uqo/N9k1MnyAp2odhNqU4nZAdmA6i
+         VddETwIpbBUKX76pWDlkcQHmPQiCjmnByVWQLxDk2oJ1Oqc3P46R06woKGTuPDxyrzdV
+         r2AaJPH5h/WLrJc3aB0DMadA81TEfY8boLseSgjTJ+7e6REIItPUlM7AY4XBV9mZMuaZ
+         JQtCE+tT+QpLgwrt6o5XHSOcbXLLbwr3a8YmCjArusnJFLkkbrQzFnkUujv97vhgNeAt
+         HR9w==
+X-Gm-Message-State: AAQBX9dr59SkTDH6skEovdwCMjEW0Nrcl7lAFNmCZpPWeULzLBOzbbTU
+        gqrotTzcsUJrs+VItfZqdiE=
+X-Google-Smtp-Source: AKy350aPI3/FpDsR41fVSeGjbJihBRzaLq/za4vCRNQPIQVZqsGsFiRSCRi1RVlBMM978oPwtGrMDQ==
+X-Received: by 2002:a17:903:64e:b0:1a6:a2df:4700 with SMTP id kh14-20020a170903064e00b001a6a2df4700mr13428967plb.9.1682344173112;
+        Mon, 24 Apr 2023 06:49:33 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id u11-20020a17090282cb00b0019fcece6847sm6629514plz.227.2023.04.24.06.49.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Apr 2023 06:28:11 -0700 (PDT)
-Received: (nullmailer pid 2494965 invoked by uid 1000);
-        Mon, 24 Apr 2023 13:28:08 -0000
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-From:   Rob Herring <robh@kernel.org>
+        Mon, 24 Apr 2023 06:49:32 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Mon, 24 Apr 2023 06:49:31 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
 To:     Delphine CC Chiu <Delphine_CC_Chiu@Wiwynn.com>
-Cc:     patrick@stwcx.xyz,
+Cc:     patrick@stwcx.xyz, Jean Delvare <jdelvare@suse.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Jean Delvare <jdelvare@suse.com>, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20230424101352.28117-2-Delphine_CC_Chiu@Wiwynn.com>
-References: <20230424101352.28117-1-Delphine_CC_Chiu@Wiwynn.com>
- <20230424101352.28117-2-Delphine_CC_Chiu@Wiwynn.com>
-Message-Id: <168234106840.2461053.15248983062211825110.robh@kernel.org>
+        linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v1 1/2] dt-bindings: hwmon: Add lltc ltc4286 driver
  bindings
-Date:   Mon, 24 Apr 2023 08:28:08 -0500
+Message-ID: <321a84c6-6d74-4042-a6ce-6229073c8d30@roeck-us.net>
+References: <20230424101352.28117-1-Delphine_CC_Chiu@Wiwynn.com>
+ <20230424101352.28117-2-Delphine_CC_Chiu@Wiwynn.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230424101352.28117-2-Delphine_CC_Chiu@Wiwynn.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-
-On Mon, 24 Apr 2023 18:13:49 +0800, Delphine CC Chiu wrote:
+On Mon, Apr 24, 2023 at 06:13:49PM +0800, Delphine CC Chiu wrote:
 > Add a device tree bindings for ltc4286 driver.
 > 
 > Signed-off-by: Delphine CC Chiu <Delphine_CC_Chiu@Wiwynn.com>
@@ -72,40 +81,91 @@ On Mon, 24 Apr 2023 18:13:49 +0800, Delphine CC Chiu wrote:
 >  2 files changed, 56 insertions(+)
 >  create mode 100644 Documentation/devicetree/bindings/hwmon/lltc,ltc4286.yaml
 > 
+> diff --git a/Documentation/devicetree/bindings/hwmon/lltc,ltc4286.yaml b/Documentation/devicetree/bindings/hwmon/lltc,ltc4286.yaml
+> new file mode 100644
+> index 000000000000..c1c8e310f9c4
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/hwmon/lltc,ltc4286.yaml
+> @@ -0,0 +1,47 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/hwmon/lltc,ltc4286.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: LTC4286 power monitors
+> +
+> +maintainers:
+> +  - Delphine CC Chiu <Delphine_CC_Chiu@Wiwynn.com>
+> +
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - lltc,ltc4286
+> +      - lltc,ltc4287
 
-My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
-on your patch (DT_CHECKER_FLAGS is new in v5.13):
+There is no LTC4287, at least according to the Analog website.
 
-yamllint warnings/errors:
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  vrange_select_25p6:
+> +    description:
+> +      This property is a bool parameter to represent the
+> +      voltage range is 25.6 or not for this chip.
 
-dtschema/dtc warnings/errors:
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dts:22.17-30: Warning (reg_format): /example-0/i2c/ltc4286@40:reg: property has invalid length (4 bytes) (#address-cells == 2, #size-cells == 1)
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dtb: Warning (pci_device_reg): Failed prerequisite 'reg_format'
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dtb: Warning (pci_device_bus_num): Failed prerequisite 'reg_format'
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dtb: Warning (simple_bus_reg): Failed prerequisite 'reg_format'
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dts:18.13-26.11: Warning (i2c_bus_bridge): /example-0/i2c: incorrect #address-cells for I2C bus
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dts:18.13-26.11: Warning (i2c_bus_bridge): /example-0/i2c: incorrect #size-cells for I2C bus
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dtb: Warning (i2c_bus_reg): Failed prerequisite 'reg_format'
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dtb: Warning (i2c_bus_reg): Failed prerequisite 'i2c_bus_bridge'
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dtb: Warning (spi_bus_reg): Failed prerequisite 'reg_format'
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dts:20.24-25.15: Warning (avoid_default_addr_size): /example-0/i2c/ltc4286@40: Relying on default #address-cells value
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dts:20.24-25.15: Warning (avoid_default_addr_size): /example-0/i2c/ltc4286@40: Relying on default #size-cells value
-Documentation/devicetree/bindings/hwmon/lltc,ltc4286.example.dtb: Warning (unique_unit_address_if_enabled): Failed prerequisite 'avoid_default_addr_size'
+Existing attributes are adi,vrange-high-enable, ti,extended-range-enable,
+ti,bus-range-microvolt, adi,range-double. I would suggest to use
+adi,vrange-high-enable.
 
-doc reference errors (make refcheckdocs):
+> +
+> +  rsense-micro-ohms:
+> +    description:
+> +      Resistor value in micro-Ohm
 
-See https://patchwork.ozlabs.org/project/devicetree-bindings/patch/20230424101352.28117-2-Delphine_CC_Chiu@Wiwynn.com
+I would suggest either shunt-resistor-micro-ohms or
+sense-resistor-micro-ohms as used by other bindings.
 
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
-
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - rsense-micro-ohms
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    i2c {
+> +        status = "okay";
+> +        ltc4286@40 {
+> +            compatible = "lltc,ltc4286";
+> +            reg = <0x40>;
+> +            vrange_select_25p6;
+> +            rsense-micro-ohms = <300>;
+> +        };
+> +    };
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index c6545eb54104..930bdba0f73c 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -12183,6 +12183,15 @@ S:	Maintained
+>  F:	Documentation/hwmon/ltc4261.rst
+>  F:	drivers/hwmon/ltc4261.c
+>  
+> +LTC4286 HARDWARE MONITOR DRIVER
+> +M:	Delphine CC Chiu <Delphine_CC_Chiu@Wiwynn.com>
+> +L:	linux-i2c@vger.kernel.org
+> +S:	Maintained
+> +F:	Documentation/devicetree/bindings/hwmon/lltc,ltc4286.yaml
+> +F:	drivers/hwmon/pmbus/Kconfig
+> +F:	drivers/hwmon/pmbus/Makefile
+> +F:	drivers/hwmon/pmbus/ltc4286.c
+> +
+>  LTC4306 I2C MULTIPLEXER DRIVER
+>  M:	Michael Hennerich <michael.hennerich@analog.com>
+>  L:	linux-i2c@vger.kernel.org
+> -- 
+> 2.17.1
+> 
