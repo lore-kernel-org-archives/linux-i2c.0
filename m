@@ -2,91 +2,94 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F3AFC77B61
-	for <linux-i2c@archiver.kernel.org>; Mon, 24 Apr 2023 10:52:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06F44C7618E
+	for <linux-i2c@archiver.kernel.org>; Mon, 24 Apr 2023 10:58:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231621AbjDXKwJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 24 Apr 2023 06:52:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38554 "EHLO
+        id S230185AbjDXK6I (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 24 Apr 2023 06:58:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231605AbjDXKv6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Apr 2023 06:51:58 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A5010D1;
-        Mon, 24 Apr 2023 03:51:53 -0700 (PDT)
-Received: from [192.168.88.20] (91-154-35-171.elisa-laajakaista.fi [91.154.35.171])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 88A289DE;
-        Mon, 24 Apr 2023 12:51:39 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1682333501;
-        bh=k41FYnFPuVa5kdvlRxv3/uNLC9gxaLBYMO4s1pcl8sc=;
-        h=Date:Subject:To:References:From:In-Reply-To:From;
-        b=SBhIRp0/AaG5awrt23WH7HYVNKSZdeYT+K1bFuzeLC3vEEKeAAwaFsdMQpPv1ijcO
-         Qs9ivefncmwybLmxqurAfGdZM1kvxaTEtd808dny/B+iJDRyzEzlhVA4/EGvje7Z8f
-         QHTXCdmjfMSiRvy5xNAHR1mtLyHdXVoqOHcSyzvw=
-Message-ID: <f9be2c5d-1303-1b91-c672-7e5a476277e7@ideasonboard.com>
-Date:   Mon, 24 Apr 2023 13:51:45 +0300
+        with ESMTP id S229625AbjDXK6I (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Apr 2023 06:58:08 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B362A212B
+        for <linux-i2c@vger.kernel.org>; Mon, 24 Apr 2023 03:58:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1682333885; x=1713869885;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=gvNUKEjojcPfzuaNJmCTw9X+yxGtu3o05gWMt12YX7Y=;
+  b=PiJNKX5aNjOyBsVTcogEOuilLd4IkqE41p1S6Dm2qfb8iaieWYx0ERJ0
+   PTzrsv85QPYD+cz7Koqkdh2cWBNpfuUZ6Mcljfu2q0hIdLP4wJ9PhGgPw
+   Wg9KU7dIA29LskHiSKPR6QclL52Kr3nMlNfELV3q515AC3aZtEmpuybwC
+   DZQNtPykFAcagBBndvWA+dk37dNDi6Jb0CDwFpJeCEKmtjapXrCLEohCD
+   I7WogbWUCfYa2XC6XU9ibTsLH5pcvtPogYXM0Nxs+CrT3TksQcjzqhXnW
+   5Wfe7B0y9ODVvqkUZjteKRXL4e8MLOROi8gtzZYZBpxcWu1OgZYtKxGtL
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10689"; a="326742200"
+X-IronPort-AV: E=Sophos;i="5.99,222,1677571200"; 
+   d="scan'208";a="326742200"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Apr 2023 03:58:05 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10689"; a="723544027"
+X-IronPort-AV: E=Sophos;i="5.99,222,1677571200"; 
+   d="scan'208";a="723544027"
+Received: from mylly.fi.intel.com (HELO mylly.fi.intel.com.) ([10.237.72.175])
+  by orsmga008.jf.intel.com with ESMTP; 24 Apr 2023 03:58:03 -0700
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@kernel.org>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [PATCH v2 1/2] i2c: i801: Add support for Intel Meteor Lake-S SoC
+Date:   Mon, 24 Apr 2023 13:57:56 +0300
+Message-Id: <20230424105757.732150-1-jarkko.nikula@linux.intel.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH v11 1/7] i2c: add I2C Address Translator (ATR) support
-To:     Wolfram Sang <wsa@kernel.org>, linux-media@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Matti Vaittinen <Matti.Vaittinen@fi.rohmeurope.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Peter Rosin <peda@axentia.se>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Michael Tretter <m.tretter@pengutronix.de>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Mike Pagano <mpagano@gentoo.org>,
-        =?UTF-8?Q?Krzysztof_Ha=c5=82asa?= <khalasa@piap.pl>,
-        Marek Vasut <marex@denx.de>,
-        Satish Nagireddy <satish.nagireddy@getcruise.com>,
-        Luca Ceresoli <luca@lucaceresoli.net>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-References: <20230421101833.345984-1-tomi.valkeinen@ideasonboard.com>
- <20230421101833.345984-2-tomi.valkeinen@ideasonboard.com>
- <ZEZafj6j+EurGWJ7@sai>
-Content-Language: en-US
-From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-In-Reply-To: <ZEZafj6j+EurGWJ7@sai>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 24/04/2023 13:31, Wolfram Sang wrote:
-> On Fri, Apr 21, 2023 at 01:18:27PM +0300, Tomi Valkeinen wrote:
->> From: Luca Ceresoli <luca@lucaceresoli.net>
->>
->> An ATR is a device that looks similar to an i2c-mux: it has an I2C
->> slave "upstream" port and N master "downstream" ports, and forwards
->> transactions from upstream to the appropriate downstream port. But it
->> is different in that the forwarded transaction has a different slave
->> address. The address used on the upstream bus is called the "alias"
->> and is (potentially) different from the physical slave address of the
->> downstream chip.
->>
->> Add a helper file (just like i2c-mux.c for a mux or switch) to allow
->> implementing ATR features in a device driver. The helper takes care or
->> adapter creation/destruction and translates addresses at each transaction.
->>
->> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
->> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
->> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> 
-> This looks good to me. Dunno if the DT folks want the binding as a
-> seperate patch, but this is good to go as far as I am concerned.
+Add SMBus PCI ID on Intel Meteor Lake-S SoC South.
 
-Ah, right. I'll resend with the DT bindings separate.
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+v2: Keep PCI ID define list sorted and define
+    PCI_DEVICE_ID_INTEL_METEOR_LAKE_S_SMBUS in correct place.
+---
+ drivers/i2c/busses/i2c-i801.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-  Tomi
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index ac5326747c51..86a1054ee9e4 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -77,6 +77,7 @@
+  * Alder Lake-M (PCH)		0x54a3	32	hard	yes	yes	yes
+  * Raptor Lake-S (PCH)		0x7a23	32	hard	yes	yes	yes
+  * Meteor Lake-P (SOC)		0x7e22	32	hard	yes	yes	yes
++ * Meteor Lake-S (SOC)		0xae22	32	hard	yes	yes	yes
+  *
+  * Features supported by this driver:
+  * Software PEC				no
+@@ -250,6 +251,7 @@
+ #define PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS	0xa2a3
+ #define PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS		0xa323
+ #define PCI_DEVICE_ID_INTEL_COMETLAKE_V_SMBUS		0xa3a3
++#define PCI_DEVICE_ID_INTEL_METEOR_LAKE_S_SMBUS		0xae22
+ 
+ struct i801_mux_config {
+ 	char *gpio_chip;
+@@ -1038,6 +1040,7 @@ static const struct pci_device_id i801_ids[] = {
+ 	{ PCI_DEVICE_DATA(INTEL, ALDER_LAKE_M_SMBUS,	FEATURES_ICH5 | FEATURE_TCO_CNL) },
+ 	{ PCI_DEVICE_DATA(INTEL, RAPTOR_LAKE_S_SMBUS,	FEATURES_ICH5 | FEATURE_TCO_CNL) },
+ 	{ PCI_DEVICE_DATA(INTEL, METEOR_LAKE_P_SMBUS,	FEATURES_ICH5 | FEATURE_TCO_CNL) },
++	{ PCI_DEVICE_DATA(INTEL, METEOR_LAKE_S_SMBUS,	FEATURES_ICH5 | FEATURE_TCO_CNL) },
+ 	{ 0, }
+ };
+ 
+-- 
+2.39.2
 
