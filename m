@@ -2,1072 +2,833 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4927C77B76
-	for <linux-i2c@archiver.kernel.org>; Tue, 25 Apr 2023 07:28:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8270C77B61
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 Apr 2023 07:57:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233214AbjDYH2V (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 25 Apr 2023 03:28:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39984 "EHLO
+        id S232430AbjDYH5U (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 25 Apr 2023 03:57:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233581AbjDYH1q (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Apr 2023 03:27:46 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959B2D32B;
-        Tue, 25 Apr 2023 00:27:06 -0700 (PDT)
-Received: from desky.lan (91-154-35-171.elisa-laajakaista.fi [91.154.35.171])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 92A7EAF2;
-        Tue, 25 Apr 2023 09:26:10 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1682407572;
-        bh=5XbWTiIe1Ks+IxM3P1FELGZRBPkzubBirGzQluAPLj4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=biEbscUdM0Koz0k2DtysrhVrGJrpmaNC2WSEDiwmou6dRtN0upns2ErFVELMKeMNd
-         rTOX/s3ZtPWio+sEqfFF/2iWiw9Rknt11Xsb+03psveG9wvWtb4xSr459wRZ/VIyiT
-         72n6sh3USiiKYLX+l+VLuuciDksaZc/mGqij6yvI=
-From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-To:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Matti Vaittinen <Matti.Vaittinen@fi.rohmeurope.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Peter Rosin <peda@axentia.se>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Michael Tretter <m.tretter@pengutronix.de>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Mike Pagano <mpagano@gentoo.org>,
-        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
-        Marek Vasut <marex@denx.de>,
-        Satish Nagireddy <satish.nagireddy@getcruise.com>,
-        Luca Ceresoli <luca@lucaceresoli.net>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v12 2/8] i2c: add I2C Address Translator (ATR) support
-Date:   Tue, 25 Apr 2023 10:25:55 +0300
-Message-Id: <20230425072601.51031-3-tomi.valkeinen@ideasonboard.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230425072601.51031-1-tomi.valkeinen@ideasonboard.com>
-References: <20230425072601.51031-1-tomi.valkeinen@ideasonboard.com>
+        with ESMTP id S229705AbjDYH5T (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Apr 2023 03:57:19 -0400
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com [185.132.182.106])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2843293;
+        Tue, 25 Apr 2023 00:57:14 -0700 (PDT)
+Received: from pps.filterd (m0241204.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33P6OTAD022623;
+        Tue, 25 Apr 2023 09:56:32 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=selector1;
+ bh=hdaBXsJgbQP2/aGkUlXeWBc2DwqHvn9brTrgvp+8UKU=;
+ b=6ynGTmcZFLSqobiHNMsJIyIdry7k2cdLeW+ErTk2A8pa8tcAOtcLyGcfxjTQ8/kvS3Wt
+ rzQC7TKb7XBoI9/JR+RHe9L3lMMGDPu1mEv0FyNGXLSlzuTGkEvHj5ibHey7NI4lNJ/W
+ BgAKFkVeoivlWPU0JTWKMETMoDuRorWrD8kMIFu2EssME7gkUhk2qRhGU1x/UrDIJ4ia
+ t/EiJMhQoNSzdNbxYnT9PvTlSvm1jOq2c9HjY2yCpQOfF5XNhVVJ651jJgMRR83EevJ5
+ S4Xegdkdq4arvcybj/Ijm7hoIRzEFFEZOaqN5MjeziFz3MTsk9T4QUtR8eDc9HoWO8fm Eg== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3q48evrd70-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Apr 2023 09:56:32 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 1C99F10002A;
+        Tue, 25 Apr 2023 09:56:27 +0200 (CEST)
+Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 8BD3E2171DF;
+        Tue, 25 Apr 2023 09:56:27 +0200 (CEST)
+Received: from [10.201.21.121] (10.201.21.121) by SHFDAG1NODE1.st.com
+ (10.75.129.69) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Tue, 25 Apr
+ 2023 09:56:26 +0200
+Message-ID: <f1fbf285-1b41-0d98-eea6-b352d3b3bd77@foss.st.com>
+Date:   Tue, 25 Apr 2023 09:56:19 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [Linux-stm32] [PATCH v3 6/6] ARM: dts: stm32: add ETZPC as a
+ system bus for STM32MP13x boards
+To:     Oleksii Moisieiev <Oleksii_Moisieiev@epam.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "krzysztof.kozlowski+dt@linaro.org" 
+        <krzysztof.kozlowski+dt@linaro.org>,
+        "alexandre.torgue@foss.st.com" <alexandre.torgue@foss.st.com>,
+        "vkoul@kernel.org" <vkoul@kernel.org>,
+        "jic23@kernel.org" <jic23@kernel.org>,
+        "olivier.moysan@foss.st.com" <olivier.moysan@foss.st.com>,
+        "arnaud.pouliquen@foss.st.com" <arnaud.pouliquen@foss.st.com>,
+        "mchehab@kernel.org" <mchehab@kernel.org>,
+        "fabrice.gasnier@foss.st.com" <fabrice.gasnier@foss.st.com>,
+        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
+        "edumazet@google.com" <edumazet@google.com>,
+        "kuba@kernel.org" <kuba@kernel.org>,
+        "pabeni@redhat.com" <pabeni@redhat.com>
+CC:     "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
+        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "dmaengine@vger.kernel.org" <dmaengine@vger.kernel.org>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+        "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+        "linux-phy@lists.infradead.org" <linux-phy@lists.infradead.org>,
+        "linux-stm32@st-md-mailman.stormreply.com" 
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Peng Fan <peng.fan@oss.nxp.com>
+References: <20230127164040.1047583-1-gatien.chevallier@foss.st.com>
+ <20230127164040.1047583-7-gatien.chevallier@foss.st.com>
+ <da51fd69-e3e8-510c-00b1-b5213d0696b1@pengutronix.de>
+ <64ac012e-e471-9093-b253-4798bbfa8cb4@pengutronix.de>
+ <837908e8-8ace-5c2e-f9fb-8b50054426f2@foss.st.com>
+ <b0049051-b571-79bf-1820-c0eb18e39dc2@pengutronix.de>
+ <f6b038d4-3524-f8eb-390f-11d90a8ac5b6@foss.st.com>
+ <a1ef17b0-1a8f-5633-de30-1d96130ccc66@epam.com>
+Content-Language: en-US
+From:   Gatien CHEVALLIER <gatien.chevallier@foss.st.com>
+In-Reply-To: <a1ef17b0-1a8f-5633-de30-1d96130ccc66@epam.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.201.21.121]
+X-ClientProxiedBy: SHFCAS1NODE2.st.com (10.75.129.73) To SHFDAG1NODE1.st.com
+ (10.75.129.69)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-25_03,2023-04-21_01,2023-02-09_01
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Luca Ceresoli <luca@lucaceresoli.net>
+On 4/21/23 12:19, Oleksii Moisieiev wrote:
+> Hello,
+> 
+> I'm just wandering what is the status of the Patch Series?
+> 
+> Cc'ed Peng Fang as he also has an interest in the domain-controller
+> bindings.
+> 
+> Oleksii.
+>
 
-An ATR is a device that looks similar to an i2c-mux: it has an I2C
-slave "upstream" port and N master "downstream" ports, and forwards
-transactions from upstream to the appropriate downstream port. But it
-is different in that the forwarded transaction has a different slave
-address. The address used on the upstream bus is called the "alias"
-and is (potentially) different from the physical slave address of the
-downstream chip.
+Hello Oleksii,
 
-Add a helper file (just like i2c-mux.c for a mux or switch) to allow
-implementing ATR features in a device driver. The helper takes care or
-adapter creation/destruction and translates addresses at each transaction.
+I need to rework this patch series before resubmitting it. I did not 
+forget it :) I'd like to provide a good use-case on how to property can 
+be used and maybe narrow down its perimeter/use-cases.
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Wolfram Sang <wsa@kernel.org>
----
- Documentation/i2c/i2c-address-translators.rst |  96 +++
- Documentation/i2c/index.rst                   |   1 +
- MAINTAINERS                                   |   8 +
- drivers/i2c/Kconfig                           |   9 +
- drivers/i2c/Makefile                          |   1 +
- drivers/i2c/i2c-atr.c                         | 684 ++++++++++++++++++
- include/linux/i2c-atr.h                       | 116 +++
- 7 files changed, 915 insertions(+)
- create mode 100644 Documentation/i2c/i2c-address-translators.rst
- create mode 100644 drivers/i2c/i2c-atr.c
- create mode 100644 include/linux/i2c-atr.h
+Peng, to which extent are you interested in this binding? What would be 
+your use-case?
 
-diff --git a/Documentation/i2c/i2c-address-translators.rst b/Documentation/i2c/i2c-address-translators.rst
-new file mode 100644
-index 000000000000..b22ce9f41ecf
---- /dev/null
-+++ b/Documentation/i2c/i2c-address-translators.rst
-@@ -0,0 +1,96 @@
-+.. SPDX-License-Identifier: GPL-2.0
-+
-+=======================
-+I2C Address Translators
-+=======================
-+
-+Author: Luca Ceresoli <luca@lucaceresoli.net>
-+Author: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-+
-+Description
-+-----------
-+
-+An I2C Address Translator (ATR) is a device with an I2C slave parent
-+("upstream") port and N I2C master child ("downstream") ports, and
-+forwards transactions from upstream to the appropriate downstream port
-+with a modified slave address. The address used on the parent bus is
-+called the "alias" and is (potentially) different from the physical
-+slave address of the child bus. Address translation is done by the
-+hardware.
-+
-+An ATR looks similar to an i2c-mux except:
-+ - the address on the parent and child busses can be different
-+ - there is normally no need to select the child port; the alias used on the
-+   parent bus implies it
-+
-+The ATR functionality can be provided by a chip with many other features.
-+The kernel i2c-atr provides a helper to implement an ATR within a driver.
-+
-+The ATR creates a new I2C "child" adapter on each child bus. Adding
-+devices on the child bus ends up in invoking the driver code to select
-+an available alias. Maintaining an appropriate pool of available aliases
-+and picking one for each new device is up to the driver implementer. The
-+ATR maintains a table of currently assigned alias and uses it to modify
-+all I2C transactions directed to devices on the child buses.
-+
-+A typical example follows.
-+
-+Topology::
-+
-+                      Slave X @ 0x10
-+              .-----.   |
-+  .-----.     |     |---+---- B
-+  | CPU |--A--| ATR |
-+  `-----'     |     |---+---- C
-+              `-----'   |
-+                      Slave Y @ 0x10
-+
-+Alias table:
-+
-+A, B and C are three physical I2C busses, electrically independent from
-+each other. The ATR receives the transactions initiated on bus A and
-+propagates them on bus B or bus C or none depending on the device address
-+in the transaction and based on the alias table.
-+
-+Alias table:
-+
-+.. table::
-+
-+   ===============   =====
-+   Client            Alias
-+   ===============   =====
-+   X (bus B, 0x10)   0x20
-+   Y (bus C, 0x10)   0x30
-+   ===============   =====
-+
-+Transaction:
-+
-+ - Slave X driver requests a transaction (on adapter B), slave address 0x10
-+ - ATR driver finds slave X is on bus B and has alias 0x20, rewrites
-+   messages with address 0x20, forwards to adapter A
-+ - Physical I2C transaction on bus A, slave address 0x20
-+ - ATR chip detects transaction on address 0x20, finds it in table,
-+   propagates transaction on bus B with address translated to 0x10,
-+   keeps clock streched on bus A waiting for reply
-+ - Slave X chip (on bus B) detects transaction at its own physical
-+   address 0x10 and replies normally
-+ - ATR chip stops clock stretching and forwards reply on bus A,
-+   with address translated back to 0x20
-+ - ATR driver receives the reply, rewrites messages with address 0x10
-+   as they were initially
-+ - Slave X driver gets back the msgs[], with reply and address 0x10
-+
-+Usage:
-+
-+ 1. In the driver (typically in the probe function) add an ATR by
-+    calling i2c_atr_new() passing attach/detach callbacks
-+ 2. When the attach callback is called pick an appropriate alias,
-+    configure it in the chip and return the chosen alias in the
-+    alias_id parameter
-+ 3. When the detach callback is called, deconfigure the alias from
-+    the chip and put the alias back in the pool for later usage
-+
-+I2C ATR functions and data structures
-+-------------------------------------
-+
-+.. kernel-doc:: include/linux/i2c-atr.h
-diff --git a/Documentation/i2c/index.rst b/Documentation/i2c/index.rst
-index 6270f1fd7d4e..2b213d4ce89c 100644
---- a/Documentation/i2c/index.rst
-+++ b/Documentation/i2c/index.rst
-@@ -18,6 +18,7 @@ Introduction
-    i2c-topology
-    muxes/i2c-mux-gpio
-    i2c-sysfs
-+   i2c-address-translators
- 
- Writing device drivers
- ======================
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e25ebb7c781b..348bc924a56f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9559,6 +9559,14 @@ L:	linux-acpi@vger.kernel.org
- S:	Maintained
- F:	drivers/i2c/i2c-core-acpi.c
- 
-+I2C ADDRESS TRANSLATOR (ATR)
-+M:	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-+R:	Luca Ceresoli <luca.ceresoli@bootlin.com>
-+L:	linux-i2c@vger.kernel.org
-+S:	Maintained
-+F:	drivers/i2c/i2c-atr.c
-+F:	include/linux/i2c-atr.h
-+
- I2C CONTROLLER DRIVER FOR NVIDIA GPU
- M:	Ajay Gupta <ajayg@nvidia.com>
- L:	linux-i2c@vger.kernel.org
-diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-index 438905e2a1d0..c6d1a345ea6d 100644
---- a/drivers/i2c/Kconfig
-+++ b/drivers/i2c/Kconfig
-@@ -71,6 +71,15 @@ config I2C_MUX
- 
- source "drivers/i2c/muxes/Kconfig"
- 
-+config I2C_ATR
-+	tristate "I2C Address Translator (ATR) support"
-+	help
-+	  Enable support for I2C Address Translator (ATR) chips.
-+
-+	  An ATR allows accessing multiple I2C busses from a single
-+	  physical bus via address translation instead of bus selection as
-+	  i2c-muxes do.
-+
- config I2C_HELPER_AUTO
- 	bool "Autoselect pertinent helper modules"
- 	default y
-diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-index c1d493dc9bac..3f71ce4711e3 100644
---- a/drivers/i2c/Makefile
-+++ b/drivers/i2c/Makefile
-@@ -13,6 +13,7 @@ i2c-core-$(CONFIG_OF) 		+= i2c-core-of.o
- obj-$(CONFIG_I2C_SMBUS)		+= i2c-smbus.o
- obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
- obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
-+obj-$(CONFIG_I2C_ATR)		+= i2c-atr.o
- obj-y				+= algos/ busses/ muxes/
- obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
- obj-$(CONFIG_I2C_SLAVE_EEPROM)	+= i2c-slave-eeprom.o
-diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
-new file mode 100644
-index 000000000000..402182a04efd
---- /dev/null
-+++ b/drivers/i2c/i2c-atr.c
-@@ -0,0 +1,684 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * I2C Address Translator
-+ *
-+ * Copyright (c) 2019,2022 Luca Ceresoli <luca@lucaceresoli.net>
-+ * Copyright (c) 2022,2023 Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-+ *
-+ * Originally based on i2c-mux.c
-+ */
-+
-+#include <linux/fwnode.h>
-+#include <linux/i2c-atr.h>
-+#include <linux/i2c.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+
-+#define ATR_MAX_ADAPTERS 100	/* Just a sanity limit */
-+#define ATR_MAX_SYMLINK_LEN 11	/* Longest name is 10 chars: "channel-99" */
-+
-+/**
-+ * struct i2c_atr_alias_pair - Holds the alias assigned to a client.
-+ * @node:   List node
-+ * @client: Pointer to the client on the child bus
-+ * @alias:  I2C alias address assigned by the driver.
-+ *          This is the address that will be used to issue I2C transactions
-+ *          on the parent (physical) bus.
-+ */
-+struct i2c_atr_alias_pair {
-+	struct list_head node;
-+	const struct i2c_client *client;
-+	u16 alias;
-+};
-+
-+/**
-+ * struct i2c_atr_chan - Data for a channel.
-+ * @adap:            The &struct i2c_adapter for the channel
-+ * @atr:             The parent I2C ATR
-+ * @chan_id:         The ID of this channel
-+ * @alias_list:      List of @struct i2c_atr_alias_pair containing the
-+ *                   assigned aliases
-+ * @orig_addrs_lock: Mutex protecting @orig_addrs
-+ * @orig_addrs:      Buffer used to store the original addresses during transmit
-+ * @orig_addrs_size: Size of @orig_addrs
-+ */
-+struct i2c_atr_chan {
-+	struct i2c_adapter adap;
-+	struct i2c_atr *atr;
-+	u32 chan_id;
-+
-+	struct list_head alias_list;
-+
-+	/* Lock orig_addrs during xfer */
-+	struct mutex orig_addrs_lock;
-+	u16 *orig_addrs;
-+	unsigned int orig_addrs_size;
-+};
-+
-+/**
-+ * struct i2c_atr - The I2C ATR instance
-+ * @parent:    The parent &struct i2c_adapter
-+ * @dev:       The device that owns the I2C ATR instance
-+ * @ops:       &struct i2c_atr_ops
-+ * @priv:      Private driver data, set with i2c_atr_set_driver_data()
-+ * @algo:      The &struct i2c_algorithm for adapters
-+ * @lock:      Lock for the I2C bus segment (see &struct i2c_lock_operations)
-+ * @max_adapters: Maximum number of adapters this I2C ATR can have
-+ * @num_aliases: Number of aliases in the aliases array
-+ * @aliases:   The aliases array
-+ * @alias_mask_lock: Lock protecting alias_use_mask
-+ * @alias_use_mask: Bitmask for used aliases in aliases array
-+ * @i2c_nb:    Notifier for remote client add & del events
-+ * @adapter:   Array of adapters
-+ */
-+struct i2c_atr {
-+	struct i2c_adapter *parent;
-+	struct device *dev;
-+	const struct i2c_atr_ops *ops;
-+
-+	void *priv;
-+
-+	struct i2c_algorithm algo;
-+	/* lock for the I2C bus segment (see struct i2c_lock_operations) */
-+	struct mutex lock;
-+	int max_adapters;
-+
-+	size_t num_aliases;
-+	const u16 *aliases;
-+	/* Protects alias_use_mask */
-+	spinlock_t alias_mask_lock;
-+	unsigned long *alias_use_mask;
-+
-+	struct notifier_block i2c_nb;
-+
-+	struct i2c_adapter *adapter[];
-+};
-+
-+static struct i2c_atr_alias_pair *
-+i2c_atr_find_mapping_by_client(const struct list_head *list,
-+			       const struct i2c_client *client)
-+{
-+	struct i2c_atr_alias_pair *c2a;
-+
-+	list_for_each_entry(c2a, list, node) {
-+		if (c2a->client == client)
-+			return c2a;
-+	}
-+
-+	return NULL;
-+}
-+
-+static struct i2c_atr_alias_pair *
-+i2c_atr_find_mapping_by_addr(const struct list_head *list, u16 phys_addr)
-+{
-+	struct i2c_atr_alias_pair *c2a;
-+
-+	list_for_each_entry(c2a, list, node) {
-+		if (c2a->client->addr == phys_addr)
-+			return c2a;
-+	}
-+
-+	return NULL;
-+}
-+
-+/*
-+ * Replace all message addresses with their aliases, saving the original
-+ * addresses.
-+ *
-+ * This function is internal for use in i2c_atr_master_xfer(). It must be
-+ * followed by i2c_atr_unmap_msgs() to restore the original addresses.
-+ */
-+static int i2c_atr_map_msgs(struct i2c_atr_chan *chan, struct i2c_msg *msgs,
-+			    int num)
-+{
-+	struct i2c_atr *atr = chan->atr;
-+	static struct i2c_atr_alias_pair *c2a;
-+	int i;
-+
-+	/* Ensure we have enough room to save the original addresses */
-+	if (unlikely(chan->orig_addrs_size < num)) {
-+		u16 *new_buf;
-+
-+		/* We don't care about old data, hence no realloc() */
-+		new_buf = kmalloc_array(num, sizeof(*new_buf), GFP_KERNEL);
-+		if (!new_buf)
-+			return -ENOMEM;
-+
-+		kfree(chan->orig_addrs);
-+		chan->orig_addrs = new_buf;
-+		chan->orig_addrs_size = num;
-+	}
-+
-+	for (i = 0; i < num; i++) {
-+		chan->orig_addrs[i] = msgs[i].addr;
-+
-+		c2a = i2c_atr_find_mapping_by_addr(&chan->alias_list,
-+						   msgs[i].addr);
-+		if (!c2a) {
-+			dev_err(atr->dev, "client 0x%02x not mapped!\n",
-+				msgs[i].addr);
-+
-+			while (i--)
-+				msgs[i].addr = chan->orig_addrs[i];
-+
-+			return -ENXIO;
-+		}
-+
-+		msgs[i].addr = c2a->alias;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Restore all message address aliases with the original addresses. This
-+ * function is internal for use in i2c_atr_master_xfer() and for this reason it
-+ * needs no null and size checks on orig_addr.
-+ *
-+ * @see i2c_atr_map_msgs()
-+ */
-+static void i2c_atr_unmap_msgs(struct i2c_atr_chan *chan, struct i2c_msg *msgs,
-+			       int num)
-+{
-+	int i;
-+
-+	for (i = 0; i < num; i++)
-+		msgs[i].addr = chan->orig_addrs[i];
-+}
-+
-+static int i2c_atr_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			       int num)
-+{
-+	struct i2c_atr_chan *chan = adap->algo_data;
-+	struct i2c_atr *atr = chan->atr;
-+	struct i2c_adapter *parent = atr->parent;
-+	int ret;
-+
-+	/* Translate addresses */
-+	mutex_lock(&chan->orig_addrs_lock);
-+
-+	ret = i2c_atr_map_msgs(chan, msgs, num);
-+	if (ret < 0)
-+		goto err_unlock;
-+
-+	/* Perform the transfer */
-+	ret = i2c_transfer(parent, msgs, num);
-+
-+	/* Restore addresses */
-+	i2c_atr_unmap_msgs(chan, msgs, num);
-+
-+err_unlock:
-+	mutex_unlock(&chan->orig_addrs_lock);
-+
-+	return ret;
-+}
-+
-+static int i2c_atr_smbus_xfer(struct i2c_adapter *adap, u16 addr,
-+			      unsigned short flags, char read_write, u8 command,
-+			      int size, union i2c_smbus_data *data)
-+{
-+	struct i2c_atr_chan *chan = adap->algo_data;
-+	struct i2c_atr *atr = chan->atr;
-+	struct i2c_adapter *parent = atr->parent;
-+	struct i2c_atr_alias_pair *c2a;
-+
-+	c2a = i2c_atr_find_mapping_by_addr(&chan->alias_list, addr);
-+	if (!c2a) {
-+		dev_err(atr->dev, "client 0x%02x not mapped!\n", addr);
-+		return -ENXIO;
-+	}
-+
-+	return i2c_smbus_xfer(parent, c2a->alias, flags, read_write, command,
-+			      size, data);
-+}
-+
-+static u32 i2c_atr_functionality(struct i2c_adapter *adap)
-+{
-+	struct i2c_atr_chan *chan = adap->algo_data;
-+	struct i2c_adapter *parent = chan->atr->parent;
-+
-+	return parent->algo->functionality(parent);
-+}
-+
-+static void i2c_atr_lock_bus(struct i2c_adapter *adapter, unsigned int flags)
-+{
-+	struct i2c_atr_chan *chan = adapter->algo_data;
-+	struct i2c_atr *atr = chan->atr;
-+
-+	mutex_lock(&atr->lock);
-+}
-+
-+static int i2c_atr_trylock_bus(struct i2c_adapter *adapter, unsigned int flags)
-+{
-+	struct i2c_atr_chan *chan = adapter->algo_data;
-+	struct i2c_atr *atr = chan->atr;
-+
-+	return mutex_trylock(&atr->lock);
-+}
-+
-+static void i2c_atr_unlock_bus(struct i2c_adapter *adapter, unsigned int flags)
-+{
-+	struct i2c_atr_chan *chan = adapter->algo_data;
-+	struct i2c_atr *atr = chan->atr;
-+
-+	mutex_unlock(&atr->lock);
-+}
-+
-+static const struct i2c_lock_operations i2c_atr_lock_ops = {
-+	.lock_bus =    i2c_atr_lock_bus,
-+	.trylock_bus = i2c_atr_trylock_bus,
-+	.unlock_bus =  i2c_atr_unlock_bus,
-+};
-+
-+static int i2c_atr_reserve_alias(struct i2c_atr *atr)
-+{
-+	unsigned long idx;
-+
-+	spin_lock(&atr->alias_mask_lock);
-+
-+	idx = find_first_zero_bit(atr->alias_use_mask, atr->num_aliases);
-+	if (idx >= atr->num_aliases) {
-+		spin_unlock(&atr->alias_mask_lock);
-+		dev_err(atr->dev, "failed to find a free alias\n");
-+		return -EBUSY;
-+	}
-+
-+	set_bit(idx, atr->alias_use_mask);
-+
-+	spin_unlock(&atr->alias_mask_lock);
-+
-+	return atr->aliases[idx];
-+}
-+
-+static void i2c_atr_release_alias(struct i2c_atr *atr, u16 alias)
-+{
-+	unsigned int idx;
-+
-+	spin_lock(&atr->alias_mask_lock);
-+
-+	for (idx = 0; idx < atr->num_aliases; ++idx) {
-+		if (atr->aliases[idx] == alias) {
-+			clear_bit(idx, atr->alias_use_mask);
-+			spin_unlock(&atr->alias_mask_lock);
-+			return;
-+		}
-+	}
-+
-+	spin_unlock(&atr->alias_mask_lock);
-+
-+	 /* This should never happen */
-+	dev_warn(atr->dev, "Unable to find mapped alias\n");
-+}
-+
-+static int i2c_atr_attach_client(struct i2c_adapter *adapter,
-+				 const struct i2c_client *client)
-+{
-+	struct i2c_atr_chan *chan = adapter->algo_data;
-+	struct i2c_atr *atr = chan->atr;
-+	struct i2c_atr_alias_pair *c2a;
-+	u16 alias;
-+	int ret;
-+
-+	ret = i2c_atr_reserve_alias(atr);
-+	if (ret < 0)
-+		return ret;
-+
-+	alias = ret;
-+
-+	c2a = kzalloc(sizeof(*c2a), GFP_KERNEL);
-+	if (!c2a) {
-+		ret = -ENOMEM;
-+		goto err_release_alias;
-+	}
-+
-+	ret = atr->ops->attach_client(atr, chan->chan_id, client, alias);
-+	if (ret)
-+		goto err_free;
-+
-+	dev_dbg(atr->dev, "chan%u: client 0x%02x mapped at alias 0x%02x (%s)\n",
-+		chan->chan_id, client->addr, alias, client->name);
-+
-+	c2a->client = client;
-+	c2a->alias = alias;
-+	list_add(&c2a->node, &chan->alias_list);
-+
-+	return 0;
-+
-+err_free:
-+	kfree(c2a);
-+err_release_alias:
-+	i2c_atr_release_alias(atr, alias);
-+
-+	return ret;
-+}
-+
-+static void i2c_atr_detach_client(struct i2c_adapter *adapter,
-+				  const struct i2c_client *client)
-+{
-+	struct i2c_atr_chan *chan = adapter->algo_data;
-+	struct i2c_atr *atr = chan->atr;
-+	struct i2c_atr_alias_pair *c2a;
-+
-+	atr->ops->detach_client(atr, chan->chan_id, client);
-+
-+	c2a = i2c_atr_find_mapping_by_client(&chan->alias_list, client);
-+	if (!c2a) {
-+		 /* This should never happen */
-+		dev_warn(atr->dev, "Unable to find address mapping\n");
-+		return;
-+	}
-+
-+	i2c_atr_release_alias(atr, c2a->alias);
-+
-+	dev_dbg(atr->dev,
-+		"chan%u: client 0x%02x unmapped from alias 0x%02x (%s)\n",
-+		chan->chan_id, client->addr, c2a->alias, client->name);
-+
-+	list_del(&c2a->node);
-+	kfree(c2a);
-+}
-+
-+static int i2c_atr_bus_notifier_call(struct notifier_block *nb,
-+				     unsigned long event, void *device)
-+{
-+	struct i2c_atr *atr = container_of(nb, struct i2c_atr, i2c_nb);
-+	struct device *dev = device;
-+	struct i2c_client *client;
-+	u32 chan_id;
-+	int ret;
-+
-+	client = i2c_verify_client(dev);
-+	if (!client)
-+		return NOTIFY_DONE;
-+
-+	/* Is the client in one of our adapters? */
-+	for (chan_id = 0; chan_id < atr->max_adapters; ++chan_id) {
-+		if (client->adapter == atr->adapter[chan_id])
-+			break;
-+	}
-+
-+	if (chan_id == atr->max_adapters)
-+		return NOTIFY_DONE;
-+
-+	switch (event) {
-+	case BUS_NOTIFY_ADD_DEVICE:
-+		ret = i2c_atr_attach_client(client->adapter, client);
-+		if (ret)
-+			dev_err(atr->dev,
-+				"Failed to attach remote client '%s': %d\n",
-+				dev_name(dev), ret);
-+		break;
-+
-+	case BUS_NOTIFY_DEL_DEVICE:
-+		i2c_atr_detach_client(client->adapter, client);
-+		break;
-+
-+	default:
-+		break;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static int i2c_atr_parse_alias_pool(struct i2c_atr *atr)
-+{
-+	struct device *dev = atr->dev;
-+	unsigned long *alias_use_mask;
-+	size_t num_aliases;
-+	u16 *aliases;
-+	int ret;
-+
-+	ret = fwnode_property_count_u16(dev_fwnode(dev), "i2c-alias-pool");
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to count 'i2c-alias-pool' property: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	num_aliases = ret;
-+
-+	if (!num_aliases)
-+		return 0;
-+
-+	aliases = kcalloc(num_aliases, sizeof(*aliases), GFP_KERNEL);
-+	if (!aliases)
-+		return -ENOMEM;
-+
-+	ret = fwnode_property_read_u16_array(dev_fwnode(dev), "i2c-alias-pool",
-+					     aliases, num_aliases);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to read 'i2c-alias-pool' property: %d\n",
-+			ret);
-+		kfree(aliases);
-+		return ret;
-+	}
-+
-+	alias_use_mask = bitmap_zalloc(num_aliases, GFP_KERNEL);
-+	if (!alias_use_mask) {
-+		kfree(aliases);
-+		return -ENOMEM;
-+	}
-+
-+	atr->num_aliases = num_aliases;
-+	atr->aliases = aliases;
-+	atr->alias_use_mask = alias_use_mask;
-+
-+	dev_dbg(dev, "i2c-alias-pool has %zu aliases", atr->num_aliases);
-+
-+	return 0;
-+}
-+
-+struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
-+			    const struct i2c_atr_ops *ops, int max_adapters)
-+{
-+	struct i2c_atr *atr;
-+	int ret;
-+
-+	if (max_adapters > ATR_MAX_ADAPTERS)
-+		return ERR_PTR(-EINVAL);
-+
-+	if (!ops || !ops->attach_client || !ops->detach_client)
-+		return ERR_PTR(-EINVAL);
-+
-+	atr = kzalloc(struct_size(atr, adapter, max_adapters), GFP_KERNEL);
-+	if (!atr)
-+		return ERR_PTR(-ENOMEM);
-+
-+	mutex_init(&atr->lock);
-+	spin_lock_init(&atr->alias_mask_lock);
-+
-+	atr->parent = parent;
-+	atr->dev = dev;
-+	atr->ops = ops;
-+	atr->max_adapters = max_adapters;
-+
-+	if (parent->algo->master_xfer)
-+		atr->algo.master_xfer = i2c_atr_master_xfer;
-+	if (parent->algo->smbus_xfer)
-+		atr->algo.smbus_xfer = i2c_atr_smbus_xfer;
-+	atr->algo.functionality = i2c_atr_functionality;
-+
-+	ret = i2c_atr_parse_alias_pool(atr);
-+	if (ret)
-+		goto err_destroy_mutex;
-+
-+	atr->i2c_nb.notifier_call = i2c_atr_bus_notifier_call;
-+	ret = bus_register_notifier(&i2c_bus_type, &atr->i2c_nb);
-+	if (ret)
-+		goto err_free_aliases;
-+
-+	return atr;
-+
-+err_free_aliases:
-+	bitmap_free(atr->alias_use_mask);
-+	kfree(atr->aliases);
-+err_destroy_mutex:
-+	mutex_destroy(&atr->lock);
-+	kfree(atr);
-+
-+	return ERR_PTR(ret);
-+}
-+EXPORT_SYMBOL_NS_GPL(i2c_atr_new, I2C_ATR);
-+
-+void i2c_atr_delete(struct i2c_atr *atr)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < atr->max_adapters; ++i)
-+		WARN_ON(atr->adapter[i]);
-+
-+	bus_unregister_notifier(&i2c_bus_type, &atr->i2c_nb);
-+	bitmap_free(atr->alias_use_mask);
-+	kfree(atr->aliases);
-+	mutex_destroy(&atr->lock);
-+	kfree(atr);
-+}
-+EXPORT_SYMBOL_NS_GPL(i2c_atr_delete, I2C_ATR);
-+
-+int i2c_atr_add_adapter(struct i2c_atr *atr, u32 chan_id,
-+			struct device *adapter_parent,
-+			struct fwnode_handle *bus_handle)
-+{
-+	struct i2c_adapter *parent = atr->parent;
-+	struct device *dev = atr->dev;
-+	struct i2c_atr_chan *chan;
-+	char symlink_name[ATR_MAX_SYMLINK_LEN];
-+	int ret;
-+
-+	if (chan_id >= atr->max_adapters) {
-+		dev_err(dev, "No room for more i2c-atr adapters\n");
-+		return -EINVAL;
-+	}
-+
-+	if (atr->adapter[chan_id]) {
-+		dev_err(dev, "Adapter %d already present\n", chan_id);
-+		return -EEXIST;
-+	}
-+
-+	chan = kzalloc(sizeof(*chan), GFP_KERNEL);
-+	if (!chan)
-+		return -ENOMEM;
-+
-+	if (!adapter_parent)
-+		adapter_parent = dev;
-+
-+	chan->atr = atr;
-+	chan->chan_id = chan_id;
-+	INIT_LIST_HEAD(&chan->alias_list);
-+	mutex_init(&chan->orig_addrs_lock);
-+
-+	snprintf(chan->adap.name, sizeof(chan->adap.name), "i2c-%d-atr-%d",
-+		 i2c_adapter_id(parent), chan_id);
-+	chan->adap.owner = THIS_MODULE;
-+	chan->adap.algo = &atr->algo;
-+	chan->adap.algo_data = chan;
-+	chan->adap.dev.parent = adapter_parent;
-+	chan->adap.retries = parent->retries;
-+	chan->adap.timeout = parent->timeout;
-+	chan->adap.quirks = parent->quirks;
-+	chan->adap.lock_ops = &i2c_atr_lock_ops;
-+
-+	if (bus_handle) {
-+		device_set_node(&chan->adap.dev, fwnode_handle_get(bus_handle));
-+	} else {
-+		struct fwnode_handle *atr_node;
-+		struct fwnode_handle *child;
-+		u32 reg;
-+
-+		atr_node = device_get_named_child_node(dev, "i2c-atr");
-+
-+		fwnode_for_each_child_node(atr_node, child) {
-+			ret = fwnode_property_read_u32(child, "reg", &reg);
-+			if (ret)
-+				continue;
-+			if (chan_id == reg)
-+				break;
-+		}
-+
-+		device_set_node(&chan->adap.dev, child);
-+		fwnode_handle_put(atr_node);
-+	}
-+
-+	atr->adapter[chan_id] = &chan->adap;
-+
-+	ret = i2c_add_adapter(&chan->adap);
-+	if (ret) {
-+		dev_err(dev, "failed to add atr-adapter %u (error=%d)\n",
-+			chan_id, ret);
-+		goto err_fwnode_put;
-+	}
-+
-+	snprintf(symlink_name, sizeof(symlink_name), "channel-%u",
-+		 chan->chan_id);
-+
-+	ret = sysfs_create_link(&chan->adap.dev.kobj, &dev->kobj, "atr_device");
-+	if (ret)
-+		dev_warn(dev, "can't create symlink to atr device\n");
-+	ret = sysfs_create_link(&dev->kobj, &chan->adap.dev.kobj, symlink_name);
-+	if (ret)
-+		dev_warn(dev, "can't create symlink for channel %u\n", chan_id);
-+
-+	dev_dbg(dev, "Added ATR child bus %d\n", i2c_adapter_id(&chan->adap));
-+
-+	return 0;
-+
-+err_fwnode_put:
-+	fwnode_handle_put(dev_fwnode(&chan->adap.dev));
-+	mutex_destroy(&chan->orig_addrs_lock);
-+	kfree(chan);
-+	return ret;
-+}
-+EXPORT_SYMBOL_NS_GPL(i2c_atr_add_adapter, I2C_ATR);
-+
-+void i2c_atr_del_adapter(struct i2c_atr *atr, u32 chan_id)
-+{
-+	char symlink_name[ATR_MAX_SYMLINK_LEN];
-+	struct i2c_adapter *adap;
-+	struct i2c_atr_chan *chan;
-+	struct fwnode_handle *fwnode;
-+	struct device *dev = atr->dev;
-+
-+	adap = atr->adapter[chan_id];
-+	if (!adap)
-+		return;
-+
-+	chan = adap->algo_data;
-+	fwnode = dev_fwnode(&adap->dev);
-+
-+	dev_dbg(dev, "Removing ATR child bus %d\n", i2c_adapter_id(adap));
-+
-+	snprintf(symlink_name, sizeof(symlink_name), "channel-%u",
-+		 chan->chan_id);
-+	sysfs_remove_link(&dev->kobj, symlink_name);
-+	sysfs_remove_link(&chan->adap.dev.kobj, "atr_device");
-+
-+	i2c_del_adapter(adap);
-+
-+	atr->adapter[chan_id] = NULL;
-+
-+	fwnode_handle_put(fwnode);
-+	mutex_destroy(&chan->orig_addrs_lock);
-+	kfree(chan->orig_addrs);
-+	kfree(chan);
-+}
-+EXPORT_SYMBOL_NS_GPL(i2c_atr_del_adapter, I2C_ATR);
-+
-+void i2c_atr_set_driver_data(struct i2c_atr *atr, void *data)
-+{
-+	atr->priv = data;
-+}
-+EXPORT_SYMBOL_NS_GPL(i2c_atr_set_driver_data, I2C_ATR);
-+
-+void *i2c_atr_get_driver_data(struct i2c_atr *atr)
-+{
-+	return atr->priv;
-+}
-+EXPORT_SYMBOL_NS_GPL(i2c_atr_get_driver_data, I2C_ATR);
-+
-+MODULE_AUTHOR("Luca Ceresoli <luca.ceresoli@bootlin.com>");
-+MODULE_AUTHOR("Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>");
-+MODULE_DESCRIPTION("I2C Address Translator");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/i2c-atr.h b/include/linux/i2c-atr.h
-new file mode 100644
-index 000000000000..4d5da161c225
---- /dev/null
-+++ b/include/linux/i2c-atr.h
-@@ -0,0 +1,116 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * I2C Address Translator
-+ *
-+ * Copyright (c) 2019,2022 Luca Ceresoli <luca@lucaceresoli.net>
-+ * Copyright (c) 2022,2023 Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-+ *
-+ * Based on i2c-mux.h
-+ */
-+
-+#ifndef _LINUX_I2C_ATR_H
-+#define _LINUX_I2C_ATR_H
-+
-+#include <linux/i2c.h>
-+#include <linux/types.h>
-+
-+struct device;
-+struct fwnode_handle;
-+struct i2c_atr;
-+
-+/**
-+ * struct i2c_atr_ops - Callbacks from ATR to the device driver.
-+ * @attach_client: Notify the driver of a new device connected on a child
-+ *                 bus, with the alias assigned to it. The driver must
-+ *                 configure the hardware to use the alias.
-+ * @detach_client: Notify the driver of a device getting disconnected. The
-+ *                 driver must configure the hardware to stop using the
-+ *                 alias.
-+ *
-+ * All these functions return 0 on success, a negative error code otherwise.
-+ */
-+struct i2c_atr_ops {
-+	int (*attach_client)(struct i2c_atr *atr, u32 chan_id,
-+			     const struct i2c_client *client, u16 alias);
-+	void (*detach_client)(struct i2c_atr *atr, u32 chan_id,
-+			      const struct i2c_client *client);
-+};
-+
-+/**
-+ * i2c_atr_new() - Allocate and initialize an I2C ATR helper.
-+ * @parent:       The parent (upstream) adapter
-+ * @dev:          The device acting as an ATR
-+ * @ops:          Driver-specific callbacks
-+ * @max_adapters: Maximum number of child adapters
-+ *
-+ * The new ATR helper is connected to the parent adapter but has no child
-+ * adapters. Call i2c_atr_add_adapter() to add some.
-+ *
-+ * Call i2c_atr_delete() to remove.
-+ *
-+ * Return: pointer to the new ATR helper object, or ERR_PTR
-+ */
-+struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
-+			    const struct i2c_atr_ops *ops, int max_adapters);
-+
-+/**
-+ * i2c_atr_delete - Delete an I2C ATR helper.
-+ * @atr: I2C ATR helper to be deleted.
-+ *
-+ * Precondition: all the adapters added with i2c_atr_add_adapter() must be
-+ * removed by calling i2c_atr_del_adapter().
-+ */
-+void i2c_atr_delete(struct i2c_atr *atr);
-+
-+/**
-+ * i2c_atr_add_adapter - Create a child ("downstream") I2C bus.
-+ * @atr:        The I2C ATR
-+ * @chan_id:    Index of the new adapter (0 .. max_adapters-1).  This value is
-+ *              passed to the callbacks in `struct i2c_atr_ops`.
-+ * @adapter_parent: The device used as the parent of the new i2c adapter, or NULL
-+ *                  to use the i2c-atr device as the parent.
-+ * @bus_handle: The fwnode handle that points to the adapter's i2c
-+ *              peripherals, or NULL.
-+ *
-+ * After calling this function a new i2c bus will appear. Adding and removing
-+ * devices on the downstream bus will result in calls to the
-+ * &i2c_atr_ops->attach_client and &i2c_atr_ops->detach_client callbacks for the
-+ * driver to assign an alias to the device.
-+ *
-+ * The adapter's fwnode is set to @bus_handle, or if @bus_handle is NULL the
-+ * function looks for a child node whose 'reg' property matches the chan_id
-+ * under the i2c-atr device's 'i2c-atr' node.
-+ *
-+ * Call i2c_atr_del_adapter() to remove the adapter.
-+ *
-+ * Return: 0 on success, a negative error code otherwise.
-+ */
-+int i2c_atr_add_adapter(struct i2c_atr *atr, u32 chan_id,
-+			struct device *adapter_parent,
-+			struct fwnode_handle *bus_handle);
-+
-+/**
-+ * i2c_atr_del_adapter - Remove a child ("downstream") I2C bus added by
-+ *                       i2c_atr_add_adapter(). If no I2C bus has been added
-+ *                       this function is a no-op.
-+ * @atr:     The I2C ATR
-+ * @chan_id: Index of the adapter to be removed (0 .. max_adapters-1)
-+ */
-+void i2c_atr_del_adapter(struct i2c_atr *atr, u32 chan_id);
-+
-+/**
-+ * i2c_atr_set_driver_data - Set private driver data to the i2c-atr instance.
-+ * @atr:  The I2C ATR
-+ * @data: Pointer to the data to store
-+ */
-+void i2c_atr_set_driver_data(struct i2c_atr *atr, void *data);
-+
-+/**
-+ * i2c_atr_get_driver_data - Get the stored drive data.
-+ * @atr:     The I2C ATR
-+ *
-+ * Return: Pointer to the stored data
-+ */
-+void *i2c_atr_get_driver_data(struct i2c_atr *atr);
-+
-+#endif /* _LINUX_I2C_ATR_H */
--- 
-2.34.1
+Best regards,
+Gatien
 
+> On 27.02.23 13:26, Gatien CHEVALLIER wrote:
+>> Hello Ahmad,
+>>
+>> Sorry for the delay :)
+>>
+>> On 2/13/23 12:27, Ahmad Fatoum wrote:
+>>> Hello Gatien,
+>>>
+>>> On 13.02.23 11:54, Gatien CHEVALLIER wrote:
+>>>> On 2/9/23 09:10, Ahmad Fatoum wrote:
+>>>>> On 09.02.23 08:46, Ahmad Fatoum wrote:
+>>>>>> Hello Gatien,
+>>>>>>
+>>>>>> On 27.01.23 17:40, Gatien Chevallier wrote:
+>>>>>>> The STM32 System Bus is an internal bus on which devices are
+>>>>>>> connected.
+>>>>>>> ETZPC is a peripheral overseeing the firewall bus that configures
+>>>>>>> and control access to the peripherals connected on it.
+>>>>>>>
+>>>>>>> For more information on which peripheral is securable, please read
+>>>>>>> the STM32MP13 reference manual.
+>>>>>>
+>>>>>> Diff is way too big. Please split up the alphabetic reordering
+>>>>>> into its
+>>>>>> own commit, so actual functional changes are apparent.
+>>>>>
+>>>>> Ah, I see now that you are moving securable peripherals into a new
+>>>>> bus.
+>>>>> I share Uwe's confusion of considering the ETZPC as bus.
+>>>>>
+>>>>> Does this configuration even change dynamically? Why can't you
+>>>>> implement
+>>>>> this binding in the bootloader and have Linux only see a DT where
+>>>>> unavailable
+>>>>> nodes are status = "disabled"; secure-status = "okay"?
+>>>>>
+>>>>> For inspiration, see barebox' device tree fixups when devices are
+>>>>> disabled
+>>>>> per fuse:
+>>>>>
+>>>>> https://urldefense.com/v3/__https://elixir.bootlin.com/barebox/v2023.01.0/source/drivers/base/featctrl.c*L122__;Iw!!GF_29dbcQIUBPA!2CT6VXNxfrLUg3mPkiAykgwwu8y8TVPaVa5FupuehHDyeuPvx4a2aNuMs-ayUCqP8q364P8u0GxYprlqwrvgvnXndYBmii57$
+>>>>> [elixir[.]bootlin[.]com]
+>>>>>
+>>>>> Cheers,
+>>>>> Ahmad
+>>>>
+>>>> This configuration can change dynamically. The binding will be
+>>>> implemented in the bootloader, where the ETZPC is already
+>>>> implemented as a bus in our downstream.
+>>>>
+>>>> I find the mentionned example valid.
+>>>>
+>>>> Now, why is it a bus? :D
+>>>>
+>>>> It is the result of the discussion on the previous submission by
+>>>> Benjamin (Sorry for the lack of link but I saw that you participated
+>>>> on these threads)+ we need the bus mechanism to control whether a
+>>>> subnode should be probed or not. You can see it as a firewall bus.
+>>>>
+>>>> The ETZPC relies on the ARM TrustZone extension to the AHB bus and
+>>>> propagation through bridges to the APB bus. Therefore, I find it
+>>>> relevant to consider it as a bus, what is your opinion?
+>>>>
+>>>> This patchset is a first step to the implementation of an API to
+>>>> control accesses dynamically.
+>>>
+>>> I still don't get what's dynamic about this. Either:
+>>>
+>>>     - Configuration _can_ change while Linux is running: You'll need
+>>> to do
+>>>       way more than what your current bus provides to somwhow
+>>> synchronize state
+>>>       with the secure monitor; otherwise a newly secured device will
+>>> cause the driver
+>>>       to trigger data aborts that you'll have to handle and unbind the
+>>> driver.
+>>>       (like if a USB drive is yanked out).
+>>>
+>>>     - Configuration _can't_ change while Linux is running: You can
+>>> have the bootloader
+>>>       fixup the device tree and Linux need not care at all about
+>>> devices that the
+>>>       ETZPC is securing.
+>>>
+>>> My understanding is that the latter is your use case, so I don't see
+>>> why we
+>>> even need the normal world to be aware of the partitioning.
+>>>
+>>> Cheers,
+>>> Ahmad
+>>>
+>> What about the case where we do not have a U-Boot/bootloader to fixup
+>> the device tree?
+>>
+>> On the other hand, ETZPC is a hardware firewall and is on the bus.
+>> Therefore, shouldn't it be represented as a bus in the file that
+>> describes the hardware?
+>>
+>> Best regards,
+>> Gatien
+>>
+>>>>
+>>>>>
+>>>>>>
+>>>>>> Thanks,
+>>>>>> Ahmad
+>>>>>>
+>>>>>>>
+>>>>>>> Signed-off-by: Gatien Chevallier <gatien.chevallier@foss.st.com>
+>>>>>>> ---
+>>>>>>>
+>>>>>>> No changes in V2.
+>>>>>>>
+>>>>>>> Changes in V3:
+>>>>>>>       -Use appriopriate node name: bus
+>>>>>>>
+>>>>>>>     arch/arm/boot/dts/stm32mp131.dtsi  | 407
+>>>>>>> +++++++++++++++--------------
+>>>>>>>     arch/arm/boot/dts/stm32mp133.dtsi  |  51 ++--
+>>>>>>>     arch/arm/boot/dts/stm32mp13xc.dtsi |  19 +-
+>>>>>>>     arch/arm/boot/dts/stm32mp13xf.dtsi |  18 +-
+>>>>>>>     4 files changed, 258 insertions(+), 237 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/arch/arm/boot/dts/stm32mp131.dtsi
+>>>>>>> b/arch/arm/boot/dts/stm32mp131.dtsi
+>>>>>>> index accc3824f7e9..24462a647101 100644
+>>>>>>> --- a/arch/arm/boot/dts/stm32mp131.dtsi
+>>>>>>> +++ b/arch/arm/boot/dts/stm32mp131.dtsi
+>>>>>>> @@ -253,148 +253,6 @@ dmamux1: dma-router@48002000 {
+>>>>>>>                 dma-channels = <16>;
+>>>>>>>             };
+>>>>>>>     -        adc_2: adc@48004000 {
+>>>>>>> -            compatible = "st,stm32mp13-adc-core";
+>>>>>>> -            reg = <0x48004000 0x400>;
+>>>>>>> -            interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc ADC2>, <&rcc ADC2_K>;
+>>>>>>> -            clock-names = "bus", "adc";
+>>>>>>> -            interrupt-controller;
+>>>>>>> -            #interrupt-cells = <1>;
+>>>>>>> -            #address-cells = <1>;
+>>>>>>> -            #size-cells = <0>;
+>>>>>>> -            status = "disabled";
+>>>>>>> -
+>>>>>>> -            adc2: adc@0 {
+>>>>>>> -                compatible = "st,stm32mp13-adc";
+>>>>>>> -                #io-channel-cells = <1>;
+>>>>>>> -                #address-cells = <1>;
+>>>>>>> -                #size-cells = <0>;
+>>>>>>> -                reg = <0x0>;
+>>>>>>> -                interrupt-parent = <&adc_2>;
+>>>>>>> -                interrupts = <0>;
+>>>>>>> -                dmas = <&dmamux1 10 0x400 0x80000001>;
+>>>>>>> -                dma-names = "rx";
+>>>>>>> -                status = "disabled";
+>>>>>>> -
+>>>>>>> -                channel@13 {
+>>>>>>> -                    reg = <13>;
+>>>>>>> -                    label = "vrefint";
+>>>>>>> -                };
+>>>>>>> -                channel@14 {
+>>>>>>> -                    reg = <14>;
+>>>>>>> -                    label = "vddcore";
+>>>>>>> -                };
+>>>>>>> -                channel@16 {
+>>>>>>> -                    reg = <16>;
+>>>>>>> -                    label = "vddcpu";
+>>>>>>> -                };
+>>>>>>> -                channel@17 {
+>>>>>>> -                    reg = <17>;
+>>>>>>> -                    label = "vddq_ddr";
+>>>>>>> -                };
+>>>>>>> -            };
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>> -        usbotg_hs: usb@49000000 {
+>>>>>>> -            compatible = "st,stm32mp15-hsotg", "snps,dwc2";
+>>>>>>> -            reg = <0x49000000 0x40000>;
+>>>>>>> -            clocks = <&rcc USBO_K>;
+>>>>>>> -            clock-names = "otg";
+>>>>>>> -            resets = <&rcc USBO_R>;
+>>>>>>> -            reset-names = "dwc2";
+>>>>>>> -            interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            g-rx-fifo-size = <512>;
+>>>>>>> -            g-np-tx-fifo-size = <32>;
+>>>>>>> -            g-tx-fifo-size = <256 16 16 16 16 16 16 16>;
+>>>>>>> -            dr_mode = "otg";
+>>>>>>> -            otg-rev = <0x200>;
+>>>>>>> -            usb33d-supply = <&usb33>;
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>> -        spi4: spi@4c002000 {
+>>>>>>> -            compatible = "st,stm32h7-spi";
+>>>>>>> -            reg = <0x4c002000 0x400>;
+>>>>>>> -            interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc SPI4_K>;
+>>>>>>> -            resets = <&rcc SPI4_R>;
+>>>>>>> -            #address-cells = <1>;
+>>>>>>> -            #size-cells = <0>;
+>>>>>>> -            dmas = <&dmamux1 83 0x400 0x01>,
+>>>>>>> -                   <&dmamux1 84 0x400 0x01>;
+>>>>>>> -            dma-names = "rx", "tx";
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>> -        spi5: spi@4c003000 {
+>>>>>>> -            compatible = "st,stm32h7-spi";
+>>>>>>> -            reg = <0x4c003000 0x400>;
+>>>>>>> -            interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc SPI5_K>;
+>>>>>>> -            resets = <&rcc SPI5_R>;
+>>>>>>> -            #address-cells = <1>;
+>>>>>>> -            #size-cells = <0>;
+>>>>>>> -            dmas = <&dmamux1 85 0x400 0x01>,
+>>>>>>> -                   <&dmamux1 86 0x400 0x01>;
+>>>>>>> -            dma-names = "rx", "tx";
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>> -        i2c3: i2c@4c004000 {
+>>>>>>> -            compatible = "st,stm32mp13-i2c";
+>>>>>>> -            reg = <0x4c004000 0x400>;
+>>>>>>> -            interrupt-names = "event", "error";
+>>>>>>> -            interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>,
+>>>>>>> -                     <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc I2C3_K>;
+>>>>>>> -            resets = <&rcc I2C3_R>;
+>>>>>>> -            #address-cells = <1>;
+>>>>>>> -            #size-cells = <0>;
+>>>>>>> -            dmas = <&dmamux1 73 0x400 0x1>,
+>>>>>>> -                   <&dmamux1 74 0x400 0x1>;
+>>>>>>> -            dma-names = "rx", "tx";
+>>>>>>> -            st,syscfg-fmp = <&syscfg 0x4 0x4>;
+>>>>>>> -            i2c-analog-filter;
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>> -        i2c4: i2c@4c005000 {
+>>>>>>> -            compatible = "st,stm32mp13-i2c";
+>>>>>>> -            reg = <0x4c005000 0x400>;
+>>>>>>> -            interrupt-names = "event", "error";
+>>>>>>> -            interrupts = <GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>,
+>>>>>>> -                     <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc I2C4_K>;
+>>>>>>> -            resets = <&rcc I2C4_R>;
+>>>>>>> -            #address-cells = <1>;
+>>>>>>> -            #size-cells = <0>;
+>>>>>>> -            dmas = <&dmamux1 75 0x400 0x1>,
+>>>>>>> -                   <&dmamux1 76 0x400 0x1>;
+>>>>>>> -            dma-names = "rx", "tx";
+>>>>>>> -            st,syscfg-fmp = <&syscfg 0x4 0x8>;
+>>>>>>> -            i2c-analog-filter;
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>> -        i2c5: i2c@4c006000 {
+>>>>>>> -            compatible = "st,stm32mp13-i2c";
+>>>>>>> -            reg = <0x4c006000 0x400>;
+>>>>>>> -            interrupt-names = "event", "error";
+>>>>>>> -            interrupts = <GIC_SPI 114 IRQ_TYPE_LEVEL_HIGH>,
+>>>>>>> -                     <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc I2C5_K>;
+>>>>>>> -            resets = <&rcc I2C5_R>;
+>>>>>>> -            #address-cells = <1>;
+>>>>>>> -            #size-cells = <0>;
+>>>>>>> -            dmas = <&dmamux1 115 0x400 0x1>,
+>>>>>>> -                   <&dmamux1 116 0x400 0x1>;
+>>>>>>> -            dma-names = "rx", "tx";
+>>>>>>> -            st,syscfg-fmp = <&syscfg 0x4 0x10>;
+>>>>>>> -            i2c-analog-filter;
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>>             rcc: rcc@50000000 {
+>>>>>>>                 compatible = "st,stm32mp13-rcc", "syscon";
+>>>>>>>                 reg = <0x50000000 0x1000>;
+>>>>>>> @@ -431,34 +289,6 @@ mdma: dma-controller@58000000 {
+>>>>>>>                 dma-requests = <48>;
+>>>>>>>             };
+>>>>>>>     -        sdmmc1: mmc@58005000 {
+>>>>>>> -            compatible = "st,stm32-sdmmc2", "arm,pl18x",
+>>>>>>> "arm,primecell";
+>>>>>>> -            arm,primecell-periphid = <0x20253180>;
+>>>>>>> -            reg = <0x58005000 0x1000>, <0x58006000 0x1000>;
+>>>>>>> -            interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc SDMMC1_K>;
+>>>>>>> -            clock-names = "apb_pclk";
+>>>>>>> -            resets = <&rcc SDMMC1_R>;
+>>>>>>> -            cap-sd-highspeed;
+>>>>>>> -            cap-mmc-highspeed;
+>>>>>>> -            max-frequency = <130000000>;
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>> -        sdmmc2: mmc@58007000 {
+>>>>>>> -            compatible = "st,stm32-sdmmc2", "arm,pl18x",
+>>>>>>> "arm,primecell";
+>>>>>>> -            arm,primecell-periphid = <0x20253180>;
+>>>>>>> -            reg = <0x58007000 0x1000>, <0x58008000 0x1000>;
+>>>>>>> -            interrupts = <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc SDMMC2_K>;
+>>>>>>> -            clock-names = "apb_pclk";
+>>>>>>> -            resets = <&rcc SDMMC2_R>;
+>>>>>>> -            cap-sd-highspeed;
+>>>>>>> -            cap-mmc-highspeed;
+>>>>>>> -            max-frequency = <130000000>;
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>>             usbh_ohci: usb@5800c000 {
+>>>>>>>                 compatible = "generic-ohci";
+>>>>>>>                 reg = <0x5800c000 0x1000>;
+>>>>>>> @@ -486,29 +316,6 @@ iwdg2: watchdog@5a002000 {
+>>>>>>>                 status = "disabled";
+>>>>>>>             };
+>>>>>>>     -        usbphyc: usbphyc@5a006000 {
+>>>>>>> -            #address-cells = <1>;
+>>>>>>> -            #size-cells = <0>;
+>>>>>>> -            #clock-cells = <0>;
+>>>>>>> -            compatible = "st,stm32mp1-usbphyc";
+>>>>>>> -            reg = <0x5a006000 0x1000>;
+>>>>>>> -            clocks = <&rcc USBPHY_K>;
+>>>>>>> -            resets = <&rcc USBPHY_R>;
+>>>>>>> -            vdda1v1-supply = <&reg11>;
+>>>>>>> -            vdda1v8-supply = <&reg18>;
+>>>>>>> -            status = "disabled";
+>>>>>>> -
+>>>>>>> -            usbphyc_port0: usb-phy@0 {
+>>>>>>> -                #phy-cells = <0>;
+>>>>>>> -                reg = <0>;
+>>>>>>> -            };
+>>>>>>> -
+>>>>>>> -            usbphyc_port1: usb-phy@1 {
+>>>>>>> -                #phy-cells = <1>;
+>>>>>>> -                reg = <1>;
+>>>>>>> -            };
+>>>>>>> -        };
+>>>>>>> -
+>>>>>>>             rtc: rtc@5c004000 {
+>>>>>>>                 compatible = "st,stm32mp1-rtc";
+>>>>>>>                 reg = <0x5c004000 0x400>;
+>>>>>>> @@ -536,6 +343,220 @@ ts_cal2: calib@5e {
+>>>>>>>                 };
+>>>>>>>             };
+>>>>>>>     +        etzpc: bus@5c007000 {
+>>>>>>> +            compatible = "st,stm32mp13-sys-bus";
+>>>>>>> +            reg = <0x5c007000 0x400>;
+>>>>>>> +            #address-cells = <1>;
+>>>>>>> +            #size-cells = <1>;
+>>>>>>> +            feature-domain-controller;
+>>>>>>> +            #feature-domain-cells = <1>;
+>>>>>>> +            ranges;
+>>>>>>> +
+>>>>>>> +            adc_2: adc@48004000 {
+>>>>>>> +                compatible = "st,stm32mp13-adc-core";
+>>>>>>> +                reg = <0x48004000 0x400>;
+>>>>>>> +                interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +                clocks = <&rcc ADC2>, <&rcc ADC2_K>;
+>>>>>>> +                clock-names = "bus", "adc";
+>>>>>>> +                interrupt-controller;
+>>>>>>> +                #interrupt-cells = <1>;
+>>>>>>> +                #address-cells = <1>;
+>>>>>>> +                #size-cells = <0>;
+>>>>>>> +                feature-domains = <&etzpc 33>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +
+>>>>>>> +                adc2: adc@0 {
+>>>>>>> +                    compatible = "st,stm32mp13-adc";
+>>>>>>> +                    #io-channel-cells = <1>;
+>>>>>>> +                    #address-cells = <1>;
+>>>>>>> +                    #size-cells = <0>;
+>>>>>>> +                    reg = <0x0>;
+>>>>>>> +                    interrupt-parent = <&adc_2>;
+>>>>>>> +                    interrupts = <0>;
+>>>>>>> +                    dmas = <&dmamux1 10 0x400 0x80000001>;
+>>>>>>> +                    dma-names = "rx";
+>>>>>>> +                    status = "disabled";
+>>>>>>> +
+>>>>>>> +                    channel@13 {
+>>>>>>> +                        reg = <13>;
+>>>>>>> +                        label = "vrefint";
+>>>>>>> +                    };
+>>>>>>> +                    channel@14 {
+>>>>>>> +                        reg = <14>;
+>>>>>>> +                        label = "vddcore";
+>>>>>>> +                    };
+>>>>>>> +                    channel@16 {
+>>>>>>> +                        reg = <16>;
+>>>>>>> +                        label = "vddcpu";
+>>>>>>> +                    };
+>>>>>>> +                    channel@17 {
+>>>>>>> +                        reg = <17>;
+>>>>>>> +                        label = "vddq_ddr";
+>>>>>>> +                    };
+>>>>>>> +                };
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +            usbotg_hs: usb@49000000 {
+>>>>>>> +                compatible = "st,stm32mp15-hsotg", "snps,dwc2";
+>>>>>>> +                reg = <0x49000000 0x40000>;
+>>>>>>> +                clocks = <&rcc USBO_K>;
+>>>>>>> +                clock-names = "otg";
+>>>>>>> +                resets = <&rcc USBO_R>;
+>>>>>>> +                reset-names = "dwc2";
+>>>>>>> +                interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +                g-rx-fifo-size = <512>;
+>>>>>>> +                g-np-tx-fifo-size = <32>;
+>>>>>>> +                g-tx-fifo-size = <256 16 16 16 16 16 16 16>;
+>>>>>>> +                dr_mode = "otg";
+>>>>>>> +                otg-rev = <0x200>;
+>>>>>>> +                usb33d-supply = <&usb33>;
+>>>>>>> +                feature-domains = <&etzpc 34>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +            spi4: spi@4c002000 {
+>>>>>>> +                compatible = "st,stm32h7-spi";
+>>>>>>> +                reg = <0x4c002000 0x400>;
+>>>>>>> +                interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +                clocks = <&rcc SPI4_K>;
+>>>>>>> +                resets = <&rcc SPI4_R>;
+>>>>>>> +                #address-cells = <1>;
+>>>>>>> +                #size-cells = <0>;
+>>>>>>> +                dmas = <&dmamux1 83 0x400 0x01>,
+>>>>>>> +                       <&dmamux1 84 0x400 0x01>;
+>>>>>>> +                dma-names = "rx", "tx";
+>>>>>>> +                feature-domains = <&etzpc 18>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +            spi5: spi@4c003000 {
+>>>>>>> +                compatible = "st,stm32h7-spi";
+>>>>>>> +                reg = <0x4c003000 0x400>;
+>>>>>>> +                interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +                clocks = <&rcc SPI5_K>;
+>>>>>>> +                resets = <&rcc SPI5_R>;
+>>>>>>> +                #address-cells = <1>;
+>>>>>>> +                #size-cells = <0>;
+>>>>>>> +                dmas = <&dmamux1 85 0x400 0x01>,
+>>>>>>> +                       <&dmamux1 86 0x400 0x01>;
+>>>>>>> +                dma-names = "rx", "tx";
+>>>>>>> +                feature-domains = <&etzpc 19>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +            i2c3: i2c@4c004000 {
+>>>>>>> +                compatible = "st,stm32mp13-i2c";
+>>>>>>> +                reg = <0x4c004000 0x400>;
+>>>>>>> +                interrupt-names = "event", "error";
+>>>>>>> +                interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>,
+>>>>>>> +                         <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +                clocks = <&rcc I2C3_K>;
+>>>>>>> +                resets = <&rcc I2C3_R>;
+>>>>>>> +                #address-cells = <1>;
+>>>>>>> +                #size-cells = <0>;
+>>>>>>> +                dmas = <&dmamux1 73 0x400 0x1>,
+>>>>>>> +                       <&dmamux1 74 0x400 0x1>;
+>>>>>>> +                dma-names = "rx", "tx";
+>>>>>>> +                st,syscfg-fmp = <&syscfg 0x4 0x4>;
+>>>>>>> +                i2c-analog-filter;
+>>>>>>> +                feature-domains = <&etzpc 20>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +            i2c4: i2c@4c005000 {
+>>>>>>> +                compatible = "st,stm32mp13-i2c";
+>>>>>>> +                reg = <0x4c005000 0x400>;
+>>>>>>> +                interrupt-names = "event", "error";
+>>>>>>> +                interrupts = <GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>,
+>>>>>>> +                         <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +                clocks = <&rcc I2C4_K>;
+>>>>>>> +                resets = <&rcc I2C4_R>;
+>>>>>>> +                #address-cells = <1>;
+>>>>>>> +                #size-cells = <0>;
+>>>>>>> +                dmas = <&dmamux1 75 0x400 0x1>,
+>>>>>>> +                       <&dmamux1 76 0x400 0x1>;
+>>>>>>> +                dma-names = "rx", "tx";
+>>>>>>> +                st,syscfg-fmp = <&syscfg 0x4 0x8>;
+>>>>>>> +                i2c-analog-filter;
+>>>>>>> +                feature-domains = <&etzpc 21>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +            i2c5: i2c@4c006000 {
+>>>>>>> +                compatible = "st,stm32mp13-i2c";
+>>>>>>> +                reg = <0x4c006000 0x400>;
+>>>>>>> +                interrupt-names = "event", "error";
+>>>>>>> +                interrupts = <GIC_SPI 114 IRQ_TYPE_LEVEL_HIGH>,
+>>>>>>> +                         <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +                clocks = <&rcc I2C5_K>;
+>>>>>>> +                resets = <&rcc I2C5_R>;
+>>>>>>> +                #address-cells = <1>;
+>>>>>>> +                #size-cells = <0>;
+>>>>>>> +                dmas = <&dmamux1 115 0x400 0x1>,
+>>>>>>> +                       <&dmamux1 116 0x400 0x1>;
+>>>>>>> +                dma-names = "rx", "tx";
+>>>>>>> +                st,syscfg-fmp = <&syscfg 0x4 0x10>;
+>>>>>>> +                i2c-analog-filter;
+>>>>>>> +                feature-domains = <&etzpc 22>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +            sdmmc1: mmc@58005000 {
+>>>>>>> +                compatible = "st,stm32-sdmmc2", "arm,pl18x",
+>>>>>>> "arm,primecell";
+>>>>>>> +                arm,primecell-periphid = <0x20253180>;
+>>>>>>> +                reg = <0x58005000 0x1000>, <0x58006000 0x1000>;
+>>>>>>> +                interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +                clocks = <&rcc SDMMC1_K>;
+>>>>>>> +                clock-names = "apb_pclk";
+>>>>>>> +                resets = <&rcc SDMMC1_R>;
+>>>>>>> +                cap-sd-highspeed;
+>>>>>>> +                cap-mmc-highspeed;
+>>>>>>> +                max-frequency = <130000000>;
+>>>>>>> +                feature-domains = <&etzpc 50>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +            sdmmc2: mmc@58007000 {
+>>>>>>> +                compatible = "st,stm32-sdmmc2", "arm,pl18x",
+>>>>>>> "arm,primecell";
+>>>>>>> +                arm,primecell-periphid = <0x20253180>;
+>>>>>>> +                reg = <0x58007000 0x1000>, <0x58008000 0x1000>;
+>>>>>>> +                interrupts = <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +                clocks = <&rcc SDMMC2_K>;
+>>>>>>> +                clock-names = "apb_pclk";
+>>>>>>> +                resets = <&rcc SDMMC2_R>;
+>>>>>>> +                cap-sd-highspeed;
+>>>>>>> +                cap-mmc-highspeed;
+>>>>>>> +                max-frequency = <130000000>;
+>>>>>>> +                feature-domains = <&etzpc 51>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +            usbphyc: usbphyc@5a006000 {
+>>>>>>> +                #address-cells = <1>;
+>>>>>>> +                #size-cells = <0>;
+>>>>>>> +                #clock-cells = <0>;
+>>>>>>> +                compatible = "st,stm32mp1-usbphyc";
+>>>>>>> +                reg = <0x5a006000 0x1000>;
+>>>>>>> +                clocks = <&rcc USBPHY_K>;
+>>>>>>> +                resets = <&rcc USBPHY_R>;
+>>>>>>> +                vdda1v1-supply = <&reg11>;
+>>>>>>> +                vdda1v8-supply = <&reg18>;
+>>>>>>> +                feature-domains = <&etzpc 5>;
+>>>>>>> +                status = "disabled";
+>>>>>>> +
+>>>>>>> +                usbphyc_port0: usb-phy@0 {
+>>>>>>> +                    #phy-cells = <0>;
+>>>>>>> +                    reg = <0>;
+>>>>>>> +                };
+>>>>>>> +
+>>>>>>> +                usbphyc_port1: usb-phy@1 {
+>>>>>>> +                    #phy-cells = <1>;
+>>>>>>> +                    reg = <1>;
+>>>>>>> +                };
+>>>>>>> +            };
+>>>>>>> +
+>>>>>>> +        };
+>>>>>>> +
+>>>>>>>             /*
+>>>>>>>              * Break node order to solve dependency probe issue
+>>>>>>> between
+>>>>>>>              * pinctrl and exti.
+>>>>>>> diff --git a/arch/arm/boot/dts/stm32mp133.dtsi
+>>>>>>> b/arch/arm/boot/dts/stm32mp133.dtsi
+>>>>>>> index df451c3c2a26..be6061552683 100644
+>>>>>>> --- a/arch/arm/boot/dts/stm32mp133.dtsi
+>>>>>>> +++ b/arch/arm/boot/dts/stm32mp133.dtsi
+>>>>>>> @@ -33,35 +33,38 @@ m_can2: can@4400f000 {
+>>>>>>>                 bosch,mram-cfg = <0x1400 0 0 32 0 0 2 2>;
+>>>>>>>                 status = "disabled";
+>>>>>>>             };
+>>>>>>> +    };
+>>>>>>> +};
+>>>>>>>     -        adc_1: adc@48003000 {
+>>>>>>> -            compatible = "st,stm32mp13-adc-core";
+>>>>>>> -            reg = <0x48003000 0x400>;
+>>>>>>> -            interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc ADC1>, <&rcc ADC1_K>;
+>>>>>>> -            clock-names = "bus", "adc";
+>>>>>>> -            interrupt-controller;
+>>>>>>> -            #interrupt-cells = <1>;
+>>>>>>> +&etzpc {
+>>>>>>> +    adc_1: adc@48003000 {
+>>>>>>> +        compatible = "st,stm32mp13-adc-core";
+>>>>>>> +        reg = <0x48003000 0x400>;
+>>>>>>> +        interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +        clocks = <&rcc ADC1>, <&rcc ADC1_K>;
+>>>>>>> +        clock-names = "bus", "adc";
+>>>>>>> +        interrupt-controller;
+>>>>>>> +        #interrupt-cells = <1>;
+>>>>>>> +        #address-cells = <1>;
+>>>>>>> +        #size-cells = <0>;
+>>>>>>> +        feature-domains = <&etzpc 32>;
+>>>>>>> +        status = "disabled";
+>>>>>>> +
+>>>>>>> +        adc1: adc@0 {
+>>>>>>> +            compatible = "st,stm32mp13-adc";
+>>>>>>> +            #io-channel-cells = <1>;
+>>>>>>>                 #address-cells = <1>;
+>>>>>>>                 #size-cells = <0>;
+>>>>>>> +            reg = <0x0>;
+>>>>>>> +            interrupt-parent = <&adc_1>;
+>>>>>>> +            interrupts = <0>;
+>>>>>>> +            dmas = <&dmamux1 9 0x400 0x80000001>;
+>>>>>>> +            dma-names = "rx";
+>>>>>>>                 status = "disabled";
+>>>>>>>     -            adc1: adc@0 {
+>>>>>>> -                compatible = "st,stm32mp13-adc";
+>>>>>>> -                #io-channel-cells = <1>;
+>>>>>>> -                #address-cells = <1>;
+>>>>>>> -                #size-cells = <0>;
+>>>>>>> -                reg = <0x0>;
+>>>>>>> -                interrupt-parent = <&adc_1>;
+>>>>>>> -                interrupts = <0>;
+>>>>>>> -                dmas = <&dmamux1 9 0x400 0x80000001>;
+>>>>>>> -                dma-names = "rx";
+>>>>>>> -                status = "disabled";
+>>>>>>> -
+>>>>>>> -                channel@18 {
+>>>>>>> -                    reg = <18>;
+>>>>>>> -                    label = "vrefint";
+>>>>>>> -             ��  };
+>>>>>>> +            channel@18 {
+>>>>>>> +                reg = <18>;
+>>>>>>> +                label = "vrefint";
+>>>>>>>                 };
+>>>>>>>             };
+>>>>>>>         };
+>>>>>>> diff --git a/arch/arm/boot/dts/stm32mp13xc.dtsi
+>>>>>>> b/arch/arm/boot/dts/stm32mp13xc.dtsi
+>>>>>>> index 4d00e7592882..a1a7a40c2a3e 100644
+>>>>>>> --- a/arch/arm/boot/dts/stm32mp13xc.dtsi
+>>>>>>> +++ b/arch/arm/boot/dts/stm32mp13xc.dtsi
+>>>>>>> @@ -4,15 +4,14 @@
+>>>>>>>      * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for
+>>>>>>> STMicroelectronics.
+>>>>>>>      */
+>>>>>>>     -/ {
+>>>>>>> -    soc {
+>>>>>>> -        cryp: crypto@54002000 {
+>>>>>>> -            compatible = "st,stm32mp1-cryp";
+>>>>>>> -            reg = <0x54002000 0x400>;
+>>>>>>> -            interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc CRYP1>;
+>>>>>>> -            resets = <&rcc CRYP1_R>;
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> +&etzpc {
+>>>>>>> +    cryp: crypto@54002000 {
+>>>>>>> +        compatible = "st,stm32mp1-cryp";
+>>>>>>> +        reg = <0x54002000 0x400>;
+>>>>>>> +        interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +        clocks = <&rcc CRYP1>;
+>>>>>>> +        resets = <&rcc CRYP1_R>;
+>>>>>>> +        feature-domains = <&etzpc 42>;
+>>>>>>> +        status = "disabled";
+>>>>>>>         };
+>>>>>>>     };
+>>>>>>> diff --git a/arch/arm/boot/dts/stm32mp13xf.dtsi
+>>>>>>> b/arch/arm/boot/dts/stm32mp13xf.dtsi
+>>>>>>> index 4d00e7592882..b9fb071a1471 100644
+>>>>>>> --- a/arch/arm/boot/dts/stm32mp13xf.dtsi
+>>>>>>> +++ b/arch/arm/boot/dts/stm32mp13xf.dtsi
+>>>>>>> @@ -4,15 +4,13 @@
+>>>>>>>      * Author: Alexandre Torgue <alexandre.torgue@foss.st.com> for
+>>>>>>> STMicroelectronics.
+>>>>>>>      */
+>>>>>>>     -/ {
+>>>>>>> -    soc {
+>>>>>>> -        cryp: crypto@54002000 {
+>>>>>>> -            compatible = "st,stm32mp1-cryp";
+>>>>>>> -            reg = <0x54002000 0x400>;
+>>>>>>> -            interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> -            clocks = <&rcc CRYP1>;
+>>>>>>> -            resets = <&rcc CRYP1_R>;
+>>>>>>> -            status = "disabled";
+>>>>>>> -        };
+>>>>>>> +&etzpc {
+>>>>>>> +    cryp: crypto@54002000 {
+>>>>>>> +        compatible = "st,stm32mp1-cryp";
+>>>>>>> +        reg = <0x54002000 0x400>;
+>>>>>>> +        interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+>>>>>>> +        clocks = <&rcc CRYP1>;
+>>>>>>> +        resets = <&rcc CRYP1_R>;
+>>>>>>> +        status = "disabled";
+>>>>>>>         };
+>>>>>>>     };
+>>>>>>
+>>>>>
+>>>>
+>>>> Regarding the patch itself, I can separate it in two patches.
+>>>> 1)Introduce ETZPC
+>>>> 2)Move peripherals under ETZPC
+>>>>
+>>>> Best regards,
+>>>> Gatien
+>>>>
+>> >
