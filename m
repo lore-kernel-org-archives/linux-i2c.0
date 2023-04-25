@@ -2,28 +2,28 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B8CCC6FD18
-	for <linux-i2c@archiver.kernel.org>; Tue, 25 Apr 2023 07:27:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4927C77B76
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 Apr 2023 07:28:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233506AbjDYH1w (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 25 Apr 2023 03:27:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40330 "EHLO
+        id S233214AbjDYH2V (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 25 Apr 2023 03:28:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233411AbjDYH1O (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Apr 2023 03:27:14 -0400
+        with ESMTP id S233581AbjDYH1q (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Apr 2023 03:27:46 -0400
 Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CD9CC3F;
-        Tue, 25 Apr 2023 00:26:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959B2D32B;
+        Tue, 25 Apr 2023 00:27:06 -0700 (PDT)
 Received: from desky.lan (91-154-35-171.elisa-laajakaista.fi [91.154.35.171])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id C5D8D619B;
-        Tue, 25 Apr 2023 09:26:22 +0200 (CEST)
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 92A7EAF2;
+        Tue, 25 Apr 2023 09:26:10 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1682407584;
-        bh=C3Ib9Bf6ne8SlIw143IqrZDxcgapScjIQ3pk93cQpR8=;
+        s=mail; t=1682407572;
+        bh=5XbWTiIe1Ks+IxM3P1FELGZRBPkzubBirGzQluAPLj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYNVNbayWsaxc3NT2YfEwxH8y4IIx7sVQTMBjENRyfo2zrweDxp/uAdpk7OXNbiJ2
-         w39YqbguQIylT5Jw4njxwf0wDC0exv5ZLSYEKc2tsy5nkS9buThQI8rXCyDtfjbmQg
-         1jmovX64etchZ41StMWJpV+ZoVsInVcLcn6Orp7A=
+        b=biEbscUdM0Koz0k2DtysrhVrGJrpmaNC2WSEDiwmou6dRtN0upns2ErFVELMKeMNd
+         rTOX/s3ZtPWio+sEqfFF/2iWiw9Rknt11Xsb+03psveG9wvWtb4xSr459wRZ/VIyiT
+         72n6sh3USiiKYLX+l+VLuuciDksaZc/mGqij6yvI=
 From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 To:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -45,12 +45,12 @@ Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
         =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
         Marek Vasut <marex@denx.de>,
         Satish Nagireddy <satish.nagireddy@getcruise.com>,
+        Luca Ceresoli <luca@lucaceresoli.net>,
         Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v12 8/8] media: i2c: add DS90UB953 driver
-Date:   Tue, 25 Apr 2023 10:26:01 +0300
-Message-Id: <20230425072601.51031-9-tomi.valkeinen@ideasonboard.com>
+Subject: [PATCH v12 2/8] i2c: add I2C Address Translator (ATR) support
+Date:   Tue, 25 Apr 2023 10:25:55 +0300
+Message-Id: <20230425072601.51031-3-tomi.valkeinen@ideasonboard.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230425072601.51031-1-tomi.valkeinen@ideasonboard.com>
 References: <20230425072601.51031-1-tomi.valkeinen@ideasonboard.com>
@@ -60,1460 +60,1014 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add driver for TI DS90UB953 FPD-Link III Serializer.
+From: Luca Ceresoli <luca@lucaceresoli.net>
 
+An ATR is a device that looks similar to an i2c-mux: it has an I2C
+slave "upstream" port and N master "downstream" ports, and forwards
+transactions from upstream to the appropriate downstream port. But it
+is different in that the forwarded transaction has a different slave
+address. The address used on the upstream bus is called the "alias"
+and is (potentially) different from the physical slave address of the
+downstream chip.
+
+Add a helper file (just like i2c-mux.c for a mux or switch) to allow
+implementing ATR features in a device driver. The helper takes care or
+adapter creation/destruction and translates addresses at each transaction.
+
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Wolfram Sang <wsa@kernel.org>
 ---
- drivers/media/i2c/Kconfig     |   13 +
- drivers/media/i2c/Makefile    |    1 +
- drivers/media/i2c/ds90ub953.c | 1400 +++++++++++++++++++++++++++++++++
- 3 files changed, 1414 insertions(+)
- create mode 100644 drivers/media/i2c/ds90ub953.c
+ Documentation/i2c/i2c-address-translators.rst |  96 +++
+ Documentation/i2c/index.rst                   |   1 +
+ MAINTAINERS                                   |   8 +
+ drivers/i2c/Kconfig                           |   9 +
+ drivers/i2c/Makefile                          |   1 +
+ drivers/i2c/i2c-atr.c                         | 684 ++++++++++++++++++
+ include/linux/i2c-atr.h                       | 116 +++
+ 7 files changed, 915 insertions(+)
+ create mode 100644 Documentation/i2c/i2c-address-translators.rst
+ create mode 100644 drivers/i2c/i2c-atr.c
+ create mode 100644 include/linux/i2c-atr.h
 
-diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index bbcbf599a3f8..461df425c163 100644
---- a/drivers/media/i2c/Kconfig
-+++ b/drivers/media/i2c/Kconfig
-@@ -1630,6 +1630,19 @@ config VIDEO_DS90UB913
- 	  Device driver for the Texas Instruments DS90UB913
- 	  FPD-Link III Serializer.
- 
-+config VIDEO_DS90UB953
-+	tristate "TI FPD-Link III/IV CSI-2 Serializers"
-+	depends on OF && I2C && VIDEO_DEV
-+	select I2C_ATR
-+	select MEDIA_CONTROLLER
-+	select OF_GPIO
-+	select REGMAP_I2C
-+	select V4L2_FWNODE
-+	select VIDEO_V4L2_SUBDEV_API
-+	help
-+	  Device driver for the Texas Instruments DS90UB953
-+	  FPD-Link III Serializer and DS90UB971 FPD-Link IV Serializer.
-+
- config VIDEO_DS90UB960
- 	tristate "TI FPD-Link III/IV Deserializers"
- 	depends on OF && I2C && VIDEO_DEV
-diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
-index 2ae5256bb585..88e5ba3e5c39 100644
---- a/drivers/media/i2c/Makefile
-+++ b/drivers/media/i2c/Makefile
-@@ -29,6 +29,7 @@ obj-$(CONFIG_VIDEO_CS5345) += cs5345.o
- obj-$(CONFIG_VIDEO_CS53L32A) += cs53l32a.o
- obj-$(CONFIG_VIDEO_CX25840) += cx25840/
- obj-$(CONFIG_VIDEO_DS90UB913) += ds90ub913.o
-+obj-$(CONFIG_VIDEO_DS90UB953) += ds90ub953.o
- obj-$(CONFIG_VIDEO_DS90UB960) += ds90ub960.o
- obj-$(CONFIG_VIDEO_DW9714) += dw9714.o
- obj-$(CONFIG_VIDEO_DW9768) += dw9768.o
-diff --git a/drivers/media/i2c/ds90ub953.c b/drivers/media/i2c/ds90ub953.c
+diff --git a/Documentation/i2c/i2c-address-translators.rst b/Documentation/i2c/i2c-address-translators.rst
 new file mode 100644
-index 000000000000..1e3827a60029
+index 000000000000..b22ce9f41ecf
 --- /dev/null
-+++ b/drivers/media/i2c/ds90ub953.c
-@@ -0,0 +1,1400 @@
++++ b/Documentation/i2c/i2c-address-translators.rst
+@@ -0,0 +1,96 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++=======================
++I2C Address Translators
++=======================
++
++Author: Luca Ceresoli <luca@lucaceresoli.net>
++Author: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
++
++Description
++-----------
++
++An I2C Address Translator (ATR) is a device with an I2C slave parent
++("upstream") port and N I2C master child ("downstream") ports, and
++forwards transactions from upstream to the appropriate downstream port
++with a modified slave address. The address used on the parent bus is
++called the "alias" and is (potentially) different from the physical
++slave address of the child bus. Address translation is done by the
++hardware.
++
++An ATR looks similar to an i2c-mux except:
++ - the address on the parent and child busses can be different
++ - there is normally no need to select the child port; the alias used on the
++   parent bus implies it
++
++The ATR functionality can be provided by a chip with many other features.
++The kernel i2c-atr provides a helper to implement an ATR within a driver.
++
++The ATR creates a new I2C "child" adapter on each child bus. Adding
++devices on the child bus ends up in invoking the driver code to select
++an available alias. Maintaining an appropriate pool of available aliases
++and picking one for each new device is up to the driver implementer. The
++ATR maintains a table of currently assigned alias and uses it to modify
++all I2C transactions directed to devices on the child buses.
++
++A typical example follows.
++
++Topology::
++
++                      Slave X @ 0x10
++              .-----.   |
++  .-----.     |     |---+---- B
++  | CPU |--A--| ATR |
++  `-----'     |     |---+---- C
++              `-----'   |
++                      Slave Y @ 0x10
++
++Alias table:
++
++A, B and C are three physical I2C busses, electrically independent from
++each other. The ATR receives the transactions initiated on bus A and
++propagates them on bus B or bus C or none depending on the device address
++in the transaction and based on the alias table.
++
++Alias table:
++
++.. table::
++
++   ===============   =====
++   Client            Alias
++   ===============   =====
++   X (bus B, 0x10)   0x20
++   Y (bus C, 0x10)   0x30
++   ===============   =====
++
++Transaction:
++
++ - Slave X driver requests a transaction (on adapter B), slave address 0x10
++ - ATR driver finds slave X is on bus B and has alias 0x20, rewrites
++   messages with address 0x20, forwards to adapter A
++ - Physical I2C transaction on bus A, slave address 0x20
++ - ATR chip detects transaction on address 0x20, finds it in table,
++   propagates transaction on bus B with address translated to 0x10,
++   keeps clock streched on bus A waiting for reply
++ - Slave X chip (on bus B) detects transaction at its own physical
++   address 0x10 and replies normally
++ - ATR chip stops clock stretching and forwards reply on bus A,
++   with address translated back to 0x20
++ - ATR driver receives the reply, rewrites messages with address 0x10
++   as they were initially
++ - Slave X driver gets back the msgs[], with reply and address 0x10
++
++Usage:
++
++ 1. In the driver (typically in the probe function) add an ATR by
++    calling i2c_atr_new() passing attach/detach callbacks
++ 2. When the attach callback is called pick an appropriate alias,
++    configure it in the chip and return the chosen alias in the
++    alias_id parameter
++ 3. When the detach callback is called, deconfigure the alias from
++    the chip and put the alias back in the pool for later usage
++
++I2C ATR functions and data structures
++-------------------------------------
++
++.. kernel-doc:: include/linux/i2c-atr.h
+diff --git a/Documentation/i2c/index.rst b/Documentation/i2c/index.rst
+index 6270f1fd7d4e..2b213d4ce89c 100644
+--- a/Documentation/i2c/index.rst
++++ b/Documentation/i2c/index.rst
+@@ -18,6 +18,7 @@ Introduction
+    i2c-topology
+    muxes/i2c-mux-gpio
+    i2c-sysfs
++   i2c-address-translators
+ 
+ Writing device drivers
+ ======================
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e25ebb7c781b..348bc924a56f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9559,6 +9559,14 @@ L:	linux-acpi@vger.kernel.org
+ S:	Maintained
+ F:	drivers/i2c/i2c-core-acpi.c
+ 
++I2C ADDRESS TRANSLATOR (ATR)
++M:	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
++R:	Luca Ceresoli <luca.ceresoli@bootlin.com>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++F:	drivers/i2c/i2c-atr.c
++F:	include/linux/i2c-atr.h
++
+ I2C CONTROLLER DRIVER FOR NVIDIA GPU
+ M:	Ajay Gupta <ajayg@nvidia.com>
+ L:	linux-i2c@vger.kernel.org
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index 438905e2a1d0..c6d1a345ea6d 100644
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -71,6 +71,15 @@ config I2C_MUX
+ 
+ source "drivers/i2c/muxes/Kconfig"
+ 
++config I2C_ATR
++	tristate "I2C Address Translator (ATR) support"
++	help
++	  Enable support for I2C Address Translator (ATR) chips.
++
++	  An ATR allows accessing multiple I2C busses from a single
++	  physical bus via address translation instead of bus selection as
++	  i2c-muxes do.
++
+ config I2C_HELPER_AUTO
+ 	bool "Autoselect pertinent helper modules"
+ 	default y
+diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+index c1d493dc9bac..3f71ce4711e3 100644
+--- a/drivers/i2c/Makefile
++++ b/drivers/i2c/Makefile
+@@ -13,6 +13,7 @@ i2c-core-$(CONFIG_OF) 		+= i2c-core-of.o
+ obj-$(CONFIG_I2C_SMBUS)		+= i2c-smbus.o
+ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
+ obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
++obj-$(CONFIG_I2C_ATR)		+= i2c-atr.o
+ obj-y				+= algos/ busses/ muxes/
+ obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
+ obj-$(CONFIG_I2C_SLAVE_EEPROM)	+= i2c-slave-eeprom.o
+diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
+new file mode 100644
+index 000000000000..402182a04efd
+--- /dev/null
++++ b/drivers/i2c/i2c-atr.c
+@@ -0,0 +1,684 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Driver for the Texas Instruments DS90UB953 video serializer
++ * I2C Address Translator
 + *
-+ * Based on a driver from Luca Ceresoli <luca@lucaceresoli.net>
++ * Copyright (c) 2019,2022 Luca Ceresoli <luca@lucaceresoli.net>
++ * Copyright (c) 2022,2023 Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 + *
-+ * Copyright (c) 2019 Luca Ceresoli <luca@lucaceresoli.net>
-+ * Copyright (c) 2023 Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
++ * Originally based on i2c-mux.c
 + */
 +
-+#include <linux/clk-provider.h>
-+#include <linux/clk.h>
-+#include <linux/delay.h>
 +#include <linux/fwnode.h>
-+#include <linux/gpio/driver.h>
 +#include <linux/i2c-atr.h>
 +#include <linux/i2c.h>
 +#include <linux/kernel.h>
-+#include <linux/math64.h>
 +#include <linux/module.h>
-+#include <linux/property.h>
-+#include <linux/rational.h>
-+#include <linux/regmap.h>
++#include <linux/mutex.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
 +
-+#include <media/i2c/ds90ub9xx.h>
-+#include <media/v4l2-ctrls.h>
-+#include <media/v4l2-event.h>
-+#include <media/v4l2-subdev.h>
++#define ATR_MAX_ADAPTERS 100	/* Just a sanity limit */
++#define ATR_MAX_SYMLINK_LEN 11	/* Longest name is 10 chars: "channel-99" */
 +
-+#define UB953_PAD_SINK			0
-+#define UB953_PAD_SOURCE		1
-+
-+#define UB953_NUM_GPIOS			4
-+
-+#define UB953_REG_RESET_CTL			0x01
-+#define UB953_REG_RESET_CTL_DIGITAL_RESET_1	BIT(1)
-+#define UB953_REG_RESET_CTL_DIGITAL_RESET_0	BIT(0)
-+
-+#define UB953_REG_GENERAL_CFG			0x02
-+#define UB953_REG_GENERAL_CFG_CONT_CLK		BIT(6)
-+#define UB953_REG_GENERAL_CFG_CSI_LANE_SEL_SHIFT	4
-+#define UB953_REG_GENERAL_CFG_CSI_LANE_SEL_MASK	GENMASK(5, 4)
-+#define UB953_REG_GENERAL_CFG_CRC_TX_GEN_ENABLE	BIT(1)
-+#define UB953_REG_GENERAL_CFG_I2C_STRAP_MODE	BIT(0)
-+
-+#define UB953_REG_MODE_SEL			0x03
-+#define UB953_REG_MODE_SEL_MODE_DONE		BIT(3)
-+#define UB953_REG_MODE_SEL_MODE_OVERRIDE	BIT(4)
-+#define UB953_REG_MODE_SEL_MODE_MASK		GENMASK(2, 0)
-+
-+#define UB953_REG_CLKOUT_CTRL0			0x06
-+#define UB953_REG_CLKOUT_CTRL1			0x07
-+
-+#define UB953_REG_SCL_HIGH_TIME			0x0b
-+#define UB953_REG_SCL_LOW_TIME			0x0c
-+
-+#define UB953_REG_LOCAL_GPIO_DATA		0x0d
-+#define UB953_REG_LOCAL_GPIO_DATA_GPIO_RMTEN(n)		BIT(4 + (n))
-+#define UB953_REG_LOCAL_GPIO_DATA_GPIO_OUT_SRC(n)	BIT(0 + (n))
-+
-+#define UB953_REG_GPIO_INPUT_CTRL		0x0e
-+#define UB953_REG_GPIO_INPUT_CTRL_OUT_EN(n)	BIT(4 + (n))
-+#define UB953_REG_GPIO_INPUT_CTRL_INPUT_EN(n)	BIT(0 + (n))
-+
-+#define UB953_REG_REV_MASK_ID			0x50
-+#define UB953_REG_GENERAL_STATUS		0x52
-+
-+#define UB953_REG_GPIO_PIN_STS			0x53
-+#define UB953_REG_GPIO_PIN_STS_GPIO_STS(n)	BIT(0 + (n))
-+
-+#define UB953_REG_BIST_ERR_CNT			0x54
-+#define UB953_REG_CRC_ERR_CNT1			0x55
-+#define UB953_REG_CRC_ERR_CNT2			0x56
-+
-+#define UB953_REG_CSI_ERR_CNT			0x5c
-+#define UB953_REG_CSI_ERR_STATUS		0x5d
-+#define UB953_REG_CSI_ERR_DLANE01		0x5e
-+#define UB953_REG_CSI_ERR_DLANE23		0x5f
-+#define UB953_REG_CSI_ERR_CLK_LANE		0x60
-+#define UB953_REG_CSI_PKT_HDR_VC_ID		0x61
-+#define UB953_REG_PKT_HDR_WC_LSB		0x62
-+#define UB953_REG_PKT_HDR_WC_MSB		0x63
-+#define UB953_REG_CSI_ECC			0x64
-+
-+#define UB953_REG_IND_ACC_CTL			0xb0
-+#define UB953_REG_IND_ACC_ADDR			0xb1
-+#define UB953_REG_IND_ACC_DATA			0xb2
-+
-+#define UB953_REG_FPD3_RX_ID(n)			(0xf0 + (n))
-+#define UB953_REG_FPD3_RX_ID_LEN		6
-+
-+/* Indirect register blocks */
-+#define UB953_IND_TARGET_PAT_GEN		0x00
-+#define UB953_IND_TARGET_FPD3_TX		0x01
-+#define UB953_IND_TARGET_DIE_ID			0x02
-+
-+#define UB953_IND_PGEN_CTL			0x01
-+#define UB953_IND_PGEN_CTL_PGEN_ENABLE		BIT(0)
-+#define UB953_IND_PGEN_CFG			0x02
-+#define UB953_IND_PGEN_CSI_DI			0x03
-+#define UB953_IND_PGEN_LINE_SIZE1		0x04
-+#define UB953_IND_PGEN_LINE_SIZE0		0x05
-+#define UB953_IND_PGEN_BAR_SIZE1		0x06
-+#define UB953_IND_PGEN_BAR_SIZE0		0x07
-+#define UB953_IND_PGEN_ACT_LPF1			0x08
-+#define UB953_IND_PGEN_ACT_LPF0			0x09
-+#define UB953_IND_PGEN_TOT_LPF1			0x0a
-+#define UB953_IND_PGEN_TOT_LPF0			0x0b
-+#define UB953_IND_PGEN_LINE_PD1			0x0c
-+#define UB953_IND_PGEN_LINE_PD0			0x0d
-+#define UB953_IND_PGEN_VBP			0x0e
-+#define UB953_IND_PGEN_VFP			0x0f
-+#define UB953_IND_PGEN_COLOR(n)			(0x10 + (n)) /* n <= 15 */
-+
-+/* Note: Only sync mode supported for now */
-+enum ub953_mode {
-+	/* FPD-Link III CSI-2 synchronous mode */
-+	UB953_MODE_SYNC,
-+	/* FPD-Link III CSI-2 non-synchronous mode, external ref clock */
-+	UB953_MODE_NONSYNC_EXT,
-+	/* FPD-Link III CSI-2 non-synchronous mode, internal ref clock */
-+	UB953_MODE_NONSYNC_INT,
-+	/* FPD-Link III DVP mode */
-+	UB953_MODE_DVP,
++/**
++ * struct i2c_atr_alias_pair - Holds the alias assigned to a client.
++ * @node:   List node
++ * @client: Pointer to the client on the child bus
++ * @alias:  I2C alias address assigned by the driver.
++ *          This is the address that will be used to issue I2C transactions
++ *          on the parent (physical) bus.
++ */
++struct i2c_atr_alias_pair {
++	struct list_head node;
++	const struct i2c_client *client;
++	u16 alias;
 +};
 +
-+struct ub953_hw_data {
-+	const char *model;
-+	bool is_ub971;
++/**
++ * struct i2c_atr_chan - Data for a channel.
++ * @adap:            The &struct i2c_adapter for the channel
++ * @atr:             The parent I2C ATR
++ * @chan_id:         The ID of this channel
++ * @alias_list:      List of @struct i2c_atr_alias_pair containing the
++ *                   assigned aliases
++ * @orig_addrs_lock: Mutex protecting @orig_addrs
++ * @orig_addrs:      Buffer used to store the original addresses during transmit
++ * @orig_addrs_size: Size of @orig_addrs
++ */
++struct i2c_atr_chan {
++	struct i2c_adapter adap;
++	struct i2c_atr *atr;
++	u32 chan_id;
++
++	struct list_head alias_list;
++
++	/* Lock orig_addrs during xfer */
++	struct mutex orig_addrs_lock;
++	u16 *orig_addrs;
++	unsigned int orig_addrs_size;
 +};
 +
-+struct ub953_data {
-+	const struct ub953_hw_data	*hw_data;
++/**
++ * struct i2c_atr - The I2C ATR instance
++ * @parent:    The parent &struct i2c_adapter
++ * @dev:       The device that owns the I2C ATR instance
++ * @ops:       &struct i2c_atr_ops
++ * @priv:      Private driver data, set with i2c_atr_set_driver_data()
++ * @algo:      The &struct i2c_algorithm for adapters
++ * @lock:      Lock for the I2C bus segment (see &struct i2c_lock_operations)
++ * @max_adapters: Maximum number of adapters this I2C ATR can have
++ * @num_aliases: Number of aliases in the aliases array
++ * @aliases:   The aliases array
++ * @alias_mask_lock: Lock protecting alias_use_mask
++ * @alias_use_mask: Bitmask for used aliases in aliases array
++ * @i2c_nb:    Notifier for remote client add & del events
++ * @adapter:   Array of adapters
++ */
++struct i2c_atr {
++	struct i2c_adapter *parent;
++	struct device *dev;
++	const struct i2c_atr_ops *ops;
 +
-+	struct i2c_client	*client;
-+	struct regmap		*regmap;
++	void *priv;
 +
-+	u32			num_data_lanes;
++	struct i2c_algorithm algo;
++	/* lock for the I2C bus segment (see struct i2c_lock_operations) */
++	struct mutex lock;
++	int max_adapters;
 +
-+	struct gpio_chip	gpio_chip;
++	size_t num_aliases;
++	const u16 *aliases;
++	/* Protects alias_use_mask */
++	spinlock_t alias_mask_lock;
++	unsigned long *alias_use_mask;
 +
-+	struct v4l2_subdev	sd;
-+	struct media_pad	pads[2];
++	struct notifier_block i2c_nb;
 +
-+	struct v4l2_async_notifier	notifier;
-+
-+	struct v4l2_subdev	*source_sd;
-+	u16			source_sd_pad;
-+
-+	u64			enabled_source_streams;
-+
-+	/* lock for register access */
-+	struct mutex		reg_lock;
-+
-+	u8			current_indirect_target;
-+
-+	struct clk_hw		clkout_clk_hw;
-+
-+	enum ub953_mode		mode;
-+
-+	const struct ds90ub9xx_platform_data	*plat_data;
++	struct i2c_adapter *adapter[];
 +};
 +
-+static inline struct ub953_data *sd_to_ub953(struct v4l2_subdev *sd)
++static struct i2c_atr_alias_pair *
++i2c_atr_find_mapping_by_client(const struct list_head *list,
++			       const struct i2c_client *client)
 +{
-+	return container_of(sd, struct ub953_data, sd);
++	struct i2c_atr_alias_pair *c2a;
++
++	list_for_each_entry(c2a, list, node) {
++		if (c2a->client == client)
++			return c2a;
++	}
++
++	return NULL;
++}
++
++static struct i2c_atr_alias_pair *
++i2c_atr_find_mapping_by_addr(const struct list_head *list, u16 phys_addr)
++{
++	struct i2c_atr_alias_pair *c2a;
++
++	list_for_each_entry(c2a, list, node) {
++		if (c2a->client->addr == phys_addr)
++			return c2a;
++	}
++
++	return NULL;
 +}
 +
 +/*
-+ * HW Access
++ * Replace all message addresses with their aliases, saving the original
++ * addresses.
++ *
++ * This function is internal for use in i2c_atr_master_xfer(). It must be
++ * followed by i2c_atr_unmap_msgs() to restore the original addresses.
 + */
-+
-+static int ub953_read(struct ub953_data *priv, u8 reg, u8 *val)
++static int i2c_atr_map_msgs(struct i2c_atr_chan *chan, struct i2c_msg *msgs,
++			    int num)
 +{
-+	unsigned int v;
-+	int ret;
++	struct i2c_atr *atr = chan->atr;
++	static struct i2c_atr_alias_pair *c2a;
++	int i;
 +
-+	mutex_lock(&priv->reg_lock);
++	/* Ensure we have enough room to save the original addresses */
++	if (unlikely(chan->orig_addrs_size < num)) {
++		u16 *new_buf;
 +
-+	ret = regmap_read(priv->regmap, reg, &v);
-+	if (ret) {
-+		dev_err(&priv->client->dev, "Cannot read register 0x%02x: %d\n",
-+			reg, ret);
-+		goto out_unlock;
++		/* We don't care about old data, hence no realloc() */
++		new_buf = kmalloc_array(num, sizeof(*new_buf), GFP_KERNEL);
++		if (!new_buf)
++			return -ENOMEM;
++
++		kfree(chan->orig_addrs);
++		chan->orig_addrs = new_buf;
++		chan->orig_addrs_size = num;
 +	}
 +
-+	*val = v;
-+
-+out_unlock:
-+	mutex_unlock(&priv->reg_lock);
-+
-+	return ret;
-+}
-+
-+static int ub953_write(struct ub953_data *priv, u8 reg, u8 val)
-+{
-+	int ret;
-+
-+	mutex_lock(&priv->reg_lock);
-+
-+	ret = regmap_write(priv->regmap, reg, val);
-+	if (ret)
-+		dev_err(&priv->client->dev,
-+			"Cannot write register 0x%02x: %d\n", reg, ret);
-+
-+	mutex_unlock(&priv->reg_lock);
-+
-+	return ret;
-+}
-+
-+static int ub953_select_ind_reg_block(struct ub953_data *priv, u8 block)
-+{
-+	struct device *dev = &priv->client->dev;
-+	int ret;
-+
-+	if (priv->current_indirect_target == block)
-+		return 0;
-+
-+	ret = regmap_write(priv->regmap, UB953_REG_IND_ACC_CTL, block << 2);
-+	if (ret) {
-+		dev_err(dev, "%s: cannot select indirect target %u (%d)\n",
-+			__func__, block, ret);
-+		return ret;
-+	}
-+
-+	priv->current_indirect_target = block;
-+
-+	return 0;
-+}
-+
-+__maybe_unused
-+static int ub953_read_ind(struct ub953_data *priv, u8 block, u8 reg, u8 *val)
-+{
-+	unsigned int v;
-+	int ret;
-+
-+	mutex_lock(&priv->reg_lock);
-+
-+	ret = ub953_select_ind_reg_block(priv, block);
-+	if (ret)
-+		goto out_unlock;
-+
-+	ret = regmap_write(priv->regmap, UB953_REG_IND_ACC_ADDR, reg);
-+	if (ret) {
-+		dev_err(&priv->client->dev,
-+			"Write to IND_ACC_ADDR failed when reading %u:%x02x: %d\n",
-+			block, reg, ret);
-+		goto out_unlock;
-+	}
-+
-+	ret = regmap_read(priv->regmap, UB953_REG_IND_ACC_DATA, &v);
-+	if (ret) {
-+		dev_err(&priv->client->dev,
-+			"Write to IND_ACC_DATA failed when reading %u:%x02x: %d\n",
-+			block, reg, ret);
-+		goto out_unlock;
-+	}
-+
-+	*val = v;
-+
-+out_unlock:
-+	mutex_unlock(&priv->reg_lock);
-+
-+	return ret;
-+}
-+
-+__maybe_unused
-+static int ub953_write_ind(struct ub953_data *priv, u8 block, u8 reg, u8 val)
-+{
-+	int ret;
-+
-+	mutex_lock(&priv->reg_lock);
-+
-+	ret = ub953_select_ind_reg_block(priv, block);
-+	if (ret)
-+		goto out_unlock;
-+
-+	ret = regmap_write(priv->regmap, UB953_REG_IND_ACC_ADDR, reg);
-+	if (ret) {
-+		dev_err(&priv->client->dev,
-+			"Write to IND_ACC_ADDR failed when writing %u:%x02x: %d\n",
-+			block, reg, ret);
-+		goto out_unlock;
-+	}
-+
-+	ret = regmap_write(priv->regmap, UB953_REG_IND_ACC_DATA, val);
-+	if (ret) {
-+		dev_err(&priv->client->dev,
-+			"Write to IND_ACC_DATA failed when writing %u:%x02x\n: %d\n",
-+			block, reg, ret);
-+	}
-+
-+out_unlock:
-+	mutex_unlock(&priv->reg_lock);
-+
-+	return ret;
-+}
-+
-+/*
-+ * GPIO chip
-+ */
-+static int ub953_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
-+{
-+	struct ub953_data *priv = gpiochip_get_data(gc);
-+	int ret;
-+	u8 v;
-+
-+	ret = ub953_read(priv, UB953_REG_GPIO_INPUT_CTRL, &v);
-+	if (ret)
-+		return ret;
-+
-+	if (v & UB953_REG_GPIO_INPUT_CTRL_INPUT_EN(offset))
-+		return GPIO_LINE_DIRECTION_IN;
-+	else
-+		return GPIO_LINE_DIRECTION_OUT;
-+}
-+
-+static int ub953_gpio_direction_in(struct gpio_chip *gc, unsigned int offset)
-+{
-+	struct ub953_data *priv = gpiochip_get_data(gc);
-+
-+	return regmap_update_bits(priv->regmap, UB953_REG_GPIO_INPUT_CTRL,
-+				  UB953_REG_GPIO_INPUT_CTRL_INPUT_EN(offset) |
-+					  UB953_REG_GPIO_INPUT_CTRL_OUT_EN(offset),
-+				  UB953_REG_GPIO_INPUT_CTRL_INPUT_EN(offset));
-+}
-+
-+static int ub953_gpio_direction_out(struct gpio_chip *gc, unsigned int offset,
-+				    int value)
-+{
-+	struct ub953_data *priv = gpiochip_get_data(gc);
-+	int ret;
-+
-+	ret = regmap_update_bits(priv->regmap, UB953_REG_LOCAL_GPIO_DATA,
-+				 UB953_REG_LOCAL_GPIO_DATA_GPIO_OUT_SRC(offset),
-+				 value ? UB953_REG_LOCAL_GPIO_DATA_GPIO_OUT_SRC(offset) :
-+					 0);
-+
-+	if (ret)
-+		return ret;
-+
-+	return regmap_update_bits(priv->regmap, UB953_REG_GPIO_INPUT_CTRL,
-+				  UB953_REG_GPIO_INPUT_CTRL_INPUT_EN(offset) |
-+					  UB953_REG_GPIO_INPUT_CTRL_OUT_EN(offset),
-+				  UB953_REG_GPIO_INPUT_CTRL_OUT_EN(offset));
-+}
-+
-+static int ub953_gpio_get(struct gpio_chip *gc, unsigned int offset)
-+{
-+	struct ub953_data *priv = gpiochip_get_data(gc);
-+	int ret;
-+	u8 v;
-+
-+	ret = ub953_read(priv, UB953_REG_GPIO_PIN_STS, &v);
-+	if (ret)
-+		return ret;
-+
-+	return !!(v & UB953_REG_GPIO_PIN_STS_GPIO_STS(offset));
-+}
-+
-+static void ub953_gpio_set(struct gpio_chip *gc, unsigned int offset, int value)
-+{
-+	struct ub953_data *priv = gpiochip_get_data(gc);
-+
-+	regmap_update_bits(priv->regmap, UB953_REG_LOCAL_GPIO_DATA,
-+			   UB953_REG_LOCAL_GPIO_DATA_GPIO_OUT_SRC(offset),
-+			   value ? UB953_REG_LOCAL_GPIO_DATA_GPIO_OUT_SRC(offset) :
-+				   0);
-+}
-+
-+static int ub953_gpio_of_xlate(struct gpio_chip *gc,
-+			       const struct of_phandle_args *gpiospec,
-+			       u32 *flags)
-+{
-+	if (flags)
-+		*flags = gpiospec->args[1];
-+
-+	return gpiospec->args[0];
-+}
-+
-+static int ub953_gpiochip_probe(struct ub953_data *priv)
-+{
-+	struct device *dev = &priv->client->dev;
-+	struct gpio_chip *gc = &priv->gpio_chip;
-+	int ret;
-+
-+	/* Set all GPIOs to local input mode */
-+	ub953_write(priv, UB953_REG_LOCAL_GPIO_DATA, 0);
-+	ub953_write(priv, UB953_REG_GPIO_INPUT_CTRL, 0xf);
-+
-+	gc->label = dev_name(dev);
-+	gc->parent = dev;
-+	gc->owner = THIS_MODULE;
-+	gc->base = -1;
-+	gc->can_sleep = true;
-+	gc->ngpio = UB953_NUM_GPIOS;
-+	gc->get_direction = ub953_gpio_get_direction;
-+	gc->direction_input = ub953_gpio_direction_in;
-+	gc->direction_output = ub953_gpio_direction_out;
-+	gc->get = ub953_gpio_get;
-+	gc->set = ub953_gpio_set;
-+	gc->of_xlate = ub953_gpio_of_xlate;
-+	gc->of_gpio_n_cells = 2;
-+
-+	ret = gpiochip_add_data(gc, priv);
-+	if (ret) {
-+		dev_err(dev, "Failed to add GPIOs: %d\n", ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static void ub953_gpiochip_remove(struct ub953_data *priv)
-+{
-+	gpiochip_remove(&priv->gpio_chip);
-+}
-+
-+/*
-+ * V4L2
-+ */
-+
-+static int _ub953_set_routing(struct v4l2_subdev *sd,
-+			      struct v4l2_subdev_state *state,
-+			      struct v4l2_subdev_krouting *routing)
-+{
-+	static const struct v4l2_mbus_framefmt format = {
-+		.width = 640,
-+		.height = 480,
-+		.code = MEDIA_BUS_FMT_UYVY8_1X16,
-+		.field = V4L2_FIELD_NONE,
-+		.colorspace = V4L2_COLORSPACE_SRGB,
-+		.ycbcr_enc = V4L2_YCBCR_ENC_601,
-+		.quantization = V4L2_QUANTIZATION_LIM_RANGE,
-+		.xfer_func = V4L2_XFER_FUNC_SRGB,
-+	};
-+	int ret;
-+
-+	/*
-+	 * Note: we can only support up to V4L2_FRAME_DESC_ENTRY_MAX, until
-+	 * frame desc is made dynamically allocated.
-+	 */
-+
-+	if (routing->num_routes > V4L2_FRAME_DESC_ENTRY_MAX)
-+		return -EINVAL;
-+
-+	ret = v4l2_subdev_routing_validate(sd, routing,
-+					   V4L2_SUBDEV_ROUTING_ONLY_1_TO_1);
-+	if (ret)
-+		return ret;
-+
-+	ret = v4l2_subdev_set_routing_with_fmt(sd, state, routing, &format);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int ub953_set_routing(struct v4l2_subdev *sd,
-+			     struct v4l2_subdev_state *state,
-+			     enum v4l2_subdev_format_whence which,
-+			     struct v4l2_subdev_krouting *routing)
-+{
-+	struct ub953_data *priv = sd_to_ub953(sd);
-+
-+	if (which == V4L2_SUBDEV_FORMAT_ACTIVE && priv->enabled_source_streams)
-+		return -EBUSY;
-+
-+	return _ub953_set_routing(sd, state, routing);
-+}
-+
-+static int ub953_get_frame_desc(struct v4l2_subdev *sd, unsigned int pad,
-+				struct v4l2_mbus_frame_desc *fd)
-+{
-+	struct ub953_data *priv = sd_to_ub953(sd);
-+	struct v4l2_mbus_frame_desc source_fd;
-+	struct v4l2_subdev_route *route;
-+	struct v4l2_subdev_state *state;
-+	int ret;
-+
-+	if (pad != UB953_PAD_SOURCE)
-+		return -EINVAL;
-+
-+	ret = v4l2_subdev_call(priv->source_sd, pad, get_frame_desc,
-+			       priv->source_sd_pad, &source_fd);
-+	if (ret)
-+		return ret;
-+
-+	memset(fd, 0, sizeof(*fd));
-+
-+	fd->type = V4L2_MBUS_FRAME_DESC_TYPE_CSI2;
-+
-+	state = v4l2_subdev_lock_and_get_active_state(sd);
-+
-+	for_each_active_route(&state->routing, route) {
-+		struct v4l2_mbus_frame_desc_entry *source_entry = NULL;
-+		unsigned int i;
-+
-+		if (route->source_pad != pad)
-+			continue;
-+
-+		for (i = 0; i < source_fd.num_entries; i++) {
-+			if (source_fd.entry[i].stream == route->sink_stream) {
-+				source_entry = &source_fd.entry[i];
-+				break;
-+			}
++	for (i = 0; i < num; i++) {
++		chan->orig_addrs[i] = msgs[i].addr;
++
++		c2a = i2c_atr_find_mapping_by_addr(&chan->alias_list,
++						   msgs[i].addr);
++		if (!c2a) {
++			dev_err(atr->dev, "client 0x%02x not mapped!\n",
++				msgs[i].addr);
++
++			while (i--)
++				msgs[i].addr = chan->orig_addrs[i];
++
++			return -ENXIO;
 +		}
 +
-+		if (!source_entry) {
-+			dev_err(&priv->client->dev,
-+				"Failed to find stream from source frame desc\n");
-+			ret = -EPIPE;
-+			goto out_unlock;
-+		}
-+
-+		fd->entry[fd->num_entries].stream = route->source_stream;
-+		fd->entry[fd->num_entries].flags = source_entry->flags;
-+		fd->entry[fd->num_entries].length = source_entry->length;
-+		fd->entry[fd->num_entries].pixelcode = source_entry->pixelcode;
-+		fd->entry[fd->num_entries].bus.csi2.vc =
-+			source_entry->bus.csi2.vc;
-+		fd->entry[fd->num_entries].bus.csi2.dt =
-+			source_entry->bus.csi2.dt;
-+
-+		fd->num_entries++;
-+	}
-+
-+out_unlock:
-+	v4l2_subdev_unlock_state(state);
-+
-+	return ret;
-+}
-+
-+static int ub953_set_fmt(struct v4l2_subdev *sd,
-+			 struct v4l2_subdev_state *state,
-+			 struct v4l2_subdev_format *format)
-+{
-+	struct ub953_data *priv = sd_to_ub953(sd);
-+	struct v4l2_mbus_framefmt *fmt;
-+
-+	if (format->which == V4L2_SUBDEV_FORMAT_ACTIVE &&
-+	    priv->enabled_source_streams)
-+		return -EBUSY;
-+
-+	/* No transcoding, source and sink formats must match. */
-+	if (format->pad == UB953_PAD_SOURCE)
-+		return v4l2_subdev_get_fmt(sd, state, format);
-+
-+	/* Set sink format */
-+	fmt = v4l2_subdev_state_get_stream_format(state, format->pad,
-+						  format->stream);
-+	if (!fmt)
-+		return -EINVAL;
-+
-+	*fmt = format->format;
-+
-+	/* Propagate to source format */
-+	fmt = v4l2_subdev_state_get_opposite_stream_format(state, format->pad,
-+							   format->stream);
-+	if (!fmt)
-+		return -EINVAL;
-+
-+	*fmt = format->format;
-+
-+	return 0;
-+}
-+
-+static int ub953_init_cfg(struct v4l2_subdev *sd,
-+			  struct v4l2_subdev_state *state)
-+{
-+	struct v4l2_subdev_route routes[] = {
-+		{
-+			.sink_pad = UB953_PAD_SINK,
-+			.sink_stream = 0,
-+			.source_pad = UB953_PAD_SOURCE,
-+			.source_stream = 0,
-+			.flags = V4L2_SUBDEV_ROUTE_FL_ACTIVE,
-+		},
-+	};
-+
-+	struct v4l2_subdev_krouting routing = {
-+		.num_routes = ARRAY_SIZE(routes),
-+		.routes = routes,
-+	};
-+
-+	return _ub953_set_routing(sd, state, &routing);
-+}
-+
-+static int ub953_log_status(struct v4l2_subdev *sd)
-+{
-+	struct ub953_data *priv = sd_to_ub953(sd);
-+	struct device *dev = &priv->client->dev;
-+	u8 v = 0, v1 = 0, v2 = 0;
-+	unsigned int i;
-+	char id[UB953_REG_FPD3_RX_ID_LEN];
-+	u8 gpio_local_data;
-+	u8 gpio_input_ctrl;
-+	u8 gpio_pin_sts;
-+
-+	for (i = 0; i < sizeof(id); i++)
-+		ub953_read(priv, UB953_REG_FPD3_RX_ID(i), &id[i]);
-+
-+	dev_info(dev, "ID '%.*s'\n", (int)sizeof(id), id);
-+
-+	ub953_read(priv, UB953_REG_GENERAL_STATUS, &v);
-+	dev_info(dev, "GENERAL_STATUS %#02x\n", v);
-+
-+	ub953_read(priv, UB953_REG_CRC_ERR_CNT1, &v1);
-+	ub953_read(priv, UB953_REG_CRC_ERR_CNT2, &v2);
-+	dev_info(dev, "CRC error count %u\n", v1 | (v2 << 8));
-+
-+	ub953_read(priv, UB953_REG_CSI_ERR_CNT, &v);
-+	dev_info(dev, "CSI error count %u\n", v);
-+
-+	ub953_read(priv, UB953_REG_CSI_ERR_STATUS, &v);
-+	dev_info(dev, "CSI_ERR_STATUS %#02x\n", v);
-+
-+	ub953_read(priv, UB953_REG_CSI_ERR_DLANE01, &v);
-+	dev_info(dev, "CSI_ERR_DLANE01 %#02x\n", v);
-+
-+	ub953_read(priv, UB953_REG_CSI_ERR_DLANE23, &v);
-+	dev_info(dev, "CSI_ERR_DLANE23 %#02x\n", v);
-+
-+	ub953_read(priv, UB953_REG_CSI_ERR_CLK_LANE, &v);
-+	dev_info(dev, "CSI_ERR_CLK_LANE %#02x\n", v);
-+
-+	ub953_read(priv, UB953_REG_CSI_PKT_HDR_VC_ID, &v);
-+	dev_info(dev, "CSI packet header VC %u ID %u\n", v >> 6, v & 0x3f);
-+
-+	ub953_read(priv, UB953_REG_PKT_HDR_WC_LSB, &v1);
-+	ub953_read(priv, UB953_REG_PKT_HDR_WC_MSB, &v2);
-+	dev_info(dev, "CSI packet header WC %u\n", (v2 << 8) | v1);
-+
-+	ub953_read(priv, UB953_REG_CSI_ECC, &v);
-+	dev_info(dev, "CSI ECC %#02x\n", v);
-+
-+	ub953_read(priv, UB953_REG_LOCAL_GPIO_DATA, &gpio_local_data);
-+	ub953_read(priv, UB953_REG_GPIO_INPUT_CTRL, &gpio_input_ctrl);
-+	ub953_read(priv, UB953_REG_GPIO_PIN_STS, &gpio_pin_sts);
-+
-+	for (i = 0; i < UB953_NUM_GPIOS; i++) {
-+		dev_info(dev,
-+			 "GPIO%u: remote: %u is_input: %u is_output: %u val: %u sts: %u\n",
-+			 i,
-+			 !!(gpio_local_data & UB953_REG_LOCAL_GPIO_DATA_GPIO_RMTEN(i)),
-+			 !!(gpio_input_ctrl & UB953_REG_GPIO_INPUT_CTRL_INPUT_EN(i)),
-+			 !!(gpio_input_ctrl & UB953_REG_GPIO_INPUT_CTRL_OUT_EN(i)),
-+			 !!(gpio_local_data & UB953_REG_LOCAL_GPIO_DATA_GPIO_OUT_SRC(i)),
-+			 !!(gpio_pin_sts & UB953_REG_GPIO_PIN_STS_GPIO_STS(i)));
++		msgs[i].addr = c2a->alias;
 +	}
 +
 +	return 0;
-+}
-+
-+static int ub953_enable_streams(struct v4l2_subdev *sd,
-+				struct v4l2_subdev_state *state, u32 pad,
-+				u64 streams_mask)
-+{
-+	struct ub953_data *priv = sd_to_ub953(sd);
-+	u64 sink_streams;
-+	int ret;
-+
-+	sink_streams = v4l2_subdev_state_xlate_streams(state, UB953_PAD_SOURCE,
-+						       UB953_PAD_SINK,
-+						       &streams_mask);
-+
-+	ret = v4l2_subdev_enable_streams(priv->source_sd, priv->source_sd_pad,
-+					 sink_streams);
-+	if (ret)
-+		return ret;
-+
-+	priv->enabled_source_streams |= streams_mask;
-+
-+	return 0;
-+}
-+
-+static int ub953_disable_streams(struct v4l2_subdev *sd,
-+				 struct v4l2_subdev_state *state, u32 pad,
-+				 u64 streams_mask)
-+{
-+	struct ub953_data *priv = sd_to_ub953(sd);
-+	u64 sink_streams;
-+	int ret;
-+
-+	sink_streams = v4l2_subdev_state_xlate_streams(state, UB953_PAD_SOURCE,
-+						       UB953_PAD_SINK,
-+						       &streams_mask);
-+
-+	ret = v4l2_subdev_disable_streams(priv->source_sd, priv->source_sd_pad,
-+					  sink_streams);
-+	if (ret)
-+		return ret;
-+
-+	priv->enabled_source_streams &= ~streams_mask;
-+
-+	return 0;
-+}
-+
-+static const struct v4l2_subdev_pad_ops ub953_pad_ops = {
-+	.enable_streams = ub953_enable_streams,
-+	.disable_streams = ub953_disable_streams,
-+	.set_routing = ub953_set_routing,
-+	.get_frame_desc = ub953_get_frame_desc,
-+	.get_fmt = v4l2_subdev_get_fmt,
-+	.set_fmt = ub953_set_fmt,
-+	.init_cfg = ub953_init_cfg,
-+};
-+
-+static const struct v4l2_subdev_core_ops ub953_subdev_core_ops = {
-+	.log_status = ub953_log_status,
-+	.subscribe_event = v4l2_ctrl_subdev_subscribe_event,
-+	.unsubscribe_event = v4l2_event_subdev_unsubscribe,
-+};
-+
-+static const struct v4l2_subdev_ops ub953_subdev_ops = {
-+	.core = &ub953_subdev_core_ops,
-+	.pad = &ub953_pad_ops,
-+};
-+
-+static const struct media_entity_operations ub953_entity_ops = {
-+	.link_validate = v4l2_subdev_link_validate,
-+};
-+
-+static int ub953_notify_bound(struct v4l2_async_notifier *notifier,
-+			      struct v4l2_subdev *source_subdev,
-+			      struct v4l2_async_subdev *asd)
-+{
-+	struct ub953_data *priv = sd_to_ub953(notifier->sd);
-+	struct device *dev = &priv->client->dev;
-+	int ret;
-+
-+	ret = media_entity_get_fwnode_pad(&source_subdev->entity,
-+					  source_subdev->fwnode,
-+					  MEDIA_PAD_FL_SOURCE);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to find pad for %s\n",
-+			source_subdev->name);
-+		return ret;
-+	}
-+
-+	priv->source_sd = source_subdev;
-+	priv->source_sd_pad = ret;
-+
-+	ret = media_create_pad_link(&source_subdev->entity, priv->source_sd_pad,
-+				    &priv->sd.entity, 0,
-+				    MEDIA_LNK_FL_ENABLED |
-+					    MEDIA_LNK_FL_IMMUTABLE);
-+	if (ret) {
-+		dev_err(dev, "Unable to link %s:%u -> %s:0\n",
-+			source_subdev->name, priv->source_sd_pad,
-+			priv->sd.name);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct v4l2_async_notifier_operations ub953_notify_ops = {
-+	.bound = ub953_notify_bound,
-+};
-+
-+static int ub953_v4l2_notifier_register(struct ub953_data *priv)
-+{
-+	struct device *dev = &priv->client->dev;
-+	struct v4l2_async_subdev *asd;
-+	struct fwnode_handle *ep_fwnode;
-+	int ret;
-+
-+	ep_fwnode = fwnode_graph_get_endpoint_by_id(dev_fwnode(dev),
-+						    UB953_PAD_SINK, 0, 0);
-+	if (!ep_fwnode) {
-+		dev_err(dev, "No graph endpoint\n");
-+		return -ENODEV;
-+	}
-+
-+	v4l2_async_nf_init(&priv->notifier);
-+
-+	asd = v4l2_async_nf_add_fwnode_remote(&priv->notifier, ep_fwnode,
-+					      struct v4l2_async_subdev);
-+
-+	fwnode_handle_put(ep_fwnode);
-+
-+	if (IS_ERR(asd)) {
-+		dev_err(dev, "Failed to add subdev: %ld", PTR_ERR(asd));
-+		v4l2_async_nf_cleanup(&priv->notifier);
-+		return PTR_ERR(asd);
-+	}
-+
-+	priv->notifier.ops = &ub953_notify_ops;
-+
-+	ret = v4l2_async_subdev_nf_register(&priv->sd, &priv->notifier);
-+	if (ret) {
-+		dev_err(dev, "Failed to register subdev_notifier");
-+		v4l2_async_nf_cleanup(&priv->notifier);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static void ub953_v4l2_notifier_unregister(struct ub953_data *priv)
-+{
-+	v4l2_async_nf_unregister(&priv->notifier);
-+	v4l2_async_nf_cleanup(&priv->notifier);
 +}
 +
 +/*
-+ * Probing
++ * Restore all message address aliases with the original addresses. This
++ * function is internal for use in i2c_atr_master_xfer() and for this reason it
++ * needs no null and size checks on orig_addr.
++ *
++ * @see i2c_atr_map_msgs()
 + */
-+
-+static int ub953_i2c_master_init(struct ub953_data *priv)
++static void i2c_atr_unmap_msgs(struct i2c_atr_chan *chan, struct i2c_msg *msgs,
++			       int num)
 +{
-+	/* i2c fast mode */
-+	u32 ref = 26250000;
-+	u32 scl_high = 915; /* ns */
-+	u32 scl_low = 1641; /* ns */
++	int i;
++
++	for (i = 0; i < num; i++)
++		msgs[i].addr = chan->orig_addrs[i];
++}
++
++static int i2c_atr_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
++			       int num)
++{
++	struct i2c_atr_chan *chan = adap->algo_data;
++	struct i2c_atr *atr = chan->atr;
++	struct i2c_adapter *parent = atr->parent;
 +	int ret;
 +
-+	scl_high = div64_u64((u64)scl_high * ref, 1000000000) - 5;
-+	scl_low = div64_u64((u64)scl_low * ref, 1000000000) - 5;
++	/* Translate addresses */
++	mutex_lock(&chan->orig_addrs_lock);
 +
-+	ret = ub953_write(priv, UB953_REG_SCL_HIGH_TIME, scl_high);
-+	if (ret)
-+		return ret;
-+
-+	ret = ub953_write(priv, UB953_REG_SCL_LOW_TIME, scl_low);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static u64 ub953_get_fc_rate(struct ub953_data *priv)
-+{
-+	if (priv->mode != UB953_MODE_SYNC) {
-+		/* Not supported */
-+		return 0;
-+	}
-+
-+	if (priv->hw_data->is_ub971)
-+		return priv->plat_data->bc_rate * 160ull;
-+	else
-+		return priv->plat_data->bc_rate / 2 * 160ull;
-+}
-+
-+static unsigned long ub953_calc_clkout_ub953(struct ub953_data *priv,
-+					     unsigned long target, u64 fc,
-+					     u8 *hs_div, u8 *m, u8 *n)
-+{
-+	/*
-+	 * We always use 4 as a pre-divider (HS_CLK_DIV = 2).
-+	 *
-+	 * According to the datasheet:
-+	 * - "HS_CLK_DIV typically should be set to either 16, 8, or 4 (default)."
-+	 * - "if it is not possible to have an integer ratio of N/M, it is best to
-+	 *    select a smaller value for HS_CLK_DIV.
-+	 *
-+	 * For above reasons the default HS_CLK_DIV seems the best in the average
-+	 * case. Use always that value to keep the code simple.
-+	 */
-+	static const unsigned long hs_clk_div = 4;
-+
-+	u64 fc_divided;
-+	unsigned long mul, div;
-+	unsigned long res;
-+
-+	/* clkout = fc / hs_clk_div * m / n */
-+
-+	fc_divided = div_u64(fc, hs_clk_div);
-+
-+	rational_best_approximation(target, fc_divided, (1 << 5) - 1,
-+				    (1 << 8) - 1, &mul, &div);
-+
-+	res = div_u64(fc_divided * mul, div);
-+
-+	*hs_div = hs_clk_div;
-+	*m = mul;
-+	*n = div;
-+
-+	return res;
-+}
-+
-+static unsigned long ub953_calc_clkout_ub971(struct ub953_data *priv,
-+					     unsigned long target, u64 fc,
-+					     u8 *m, u8 *n)
-+{
-+	u64 fc_divided;
-+	unsigned long mul, div;
-+	unsigned long res;
-+
-+	/* clkout = fc * m / (8 * n) */
-+
-+	fc_divided = div_u64(fc, 8);
-+
-+	rational_best_approximation(target, fc_divided, (1 << 5) - 1,
-+				    (1 << 8) - 1, &mul, &div);
-+
-+	res = div_u64(fc_divided * mul, div);
-+
-+	*m = mul;
-+	*n = div;
-+
-+	return res;
-+}
-+
-+static unsigned long ub953_clkout_recalc_rate(struct clk_hw *hw,
-+					      unsigned long parent_rate)
-+{
-+	struct ub953_data *priv = container_of(hw, struct ub953_data, clkout_clk_hw);
-+	struct device *dev = &priv->client->dev;
-+	u8 ctrl0, ctrl1;
-+	u32 mul, div;
-+	u64 fc_rate;
-+	u32 hs_clk_div;
-+	u64 rate;
-+	int ret;
-+
-+	ret = ub953_read(priv, UB953_REG_CLKOUT_CTRL0, &ctrl0);
-+	if (ret) {
-+		dev_err(dev, "Failed to read CLKOUT_CTRL0: %d\n", ret);
-+		return 0;
-+	}
-+
-+	ret = ub953_read(priv, UB953_REG_CLKOUT_CTRL1, &ctrl1);
-+	if (ret) {
-+		dev_err(dev, "Failed to read CLKOUT_CTRL1: %d\n", ret);
-+		return 0;
-+	}
-+
-+	fc_rate = ub953_get_fc_rate(priv);
-+
-+	if (priv->hw_data->is_ub971) {
-+		mul = ctrl0 & 0x1f;
-+		div = ctrl1;
-+
-+		if (div == 0)
-+			return 0;
-+
-+		rate = div_u64(fc_rate * mul, 8 * div);
-+
-+		dev_dbg(dev, "clkout: fc rate %llu, mul %u, div %u = %llu\n",
-+			fc_rate, mul, div, rate);
-+	} else {
-+		mul = ctrl0 & 0x1f;
-+		hs_clk_div = 1 << (ctrl0 >> 5);
-+		div = ctrl1;
-+
-+		if (div == 0)
-+			return 0;
-+
-+		rate = div_u64(div_u64(fc_rate, hs_clk_div) * mul, div);
-+
-+		dev_dbg(dev,
-+			"clkout: fc rate %llu, hs_clk_div %u, mul %u, div %u = %llu\n",
-+			fc_rate, hs_clk_div, mul, div, rate);
-+	}
-+
-+	return rate;
-+}
-+
-+static long ub953_clkout_round_rate(struct clk_hw *hw, unsigned long rate,
-+				    unsigned long *parent_rate)
-+{
-+	struct ub953_data *priv = container_of(hw, struct ub953_data, clkout_clk_hw);
-+	struct device *dev = &priv->client->dev;
-+	unsigned long res;
-+	u64 fc_rate;
-+	u8 hs_div, m, n;
-+
-+	fc_rate = ub953_get_fc_rate(priv);
-+
-+	if (priv->hw_data->is_ub971) {
-+		res = ub953_calc_clkout_ub971(priv, rate, fc_rate, &m, &n);
-+
-+		dev_dbg(dev, "%s %llu * %u / (8 * %u) = %lu (requested %lu)",
-+			__func__, fc_rate, m, n, res, rate);
-+	} else {
-+		res = ub953_calc_clkout_ub953(priv, rate, fc_rate, &hs_div, &m, &n);
-+
-+		dev_dbg(dev, "%s %llu / %u * %u / %u = %lu (requested %lu)",
-+			__func__, fc_rate, hs_div, m, n, res, rate);
-+	}
-+
-+	return res;
-+}
-+
-+static int ub953_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
-+				 unsigned long parent_rate)
-+{
-+	struct ub953_data *priv = container_of(hw, struct ub953_data, clkout_clk_hw);
-+	u64 fc_rate;
-+	u8 hs_div, m, n;
-+	unsigned long res;
-+
-+	fc_rate = ub953_get_fc_rate(priv);
-+
-+	if (priv->hw_data->is_ub971) {
-+		res = ub953_calc_clkout_ub971(priv, rate, fc_rate, &m, &n);
-+
-+		ub953_write(priv, UB953_REG_CLKOUT_CTRL0, m);
-+		ub953_write(priv, UB953_REG_CLKOUT_CTRL1, n);
-+	} else {
-+		res = ub953_calc_clkout_ub953(priv, rate, fc_rate, &hs_div, &m, &n);
-+
-+		ub953_write(priv, UB953_REG_CLKOUT_CTRL0, (__ffs(hs_div) << 5) | m);
-+		ub953_write(priv, UB953_REG_CLKOUT_CTRL1, n);
-+	}
-+
-+	dev_dbg(&priv->client->dev, "%s %lu (requested %lu)\n", __func__, res,
-+		rate);
-+
-+	return 0;
-+}
-+
-+static const struct clk_ops ub953_clkout_ops = {
-+	.recalc_rate	= ub953_clkout_recalc_rate,
-+	.round_rate	= ub953_clkout_round_rate,
-+	.set_rate	= ub953_clkout_set_rate,
-+};
-+
-+static void ub953_init_clkout_ub953(struct ub953_data *priv)
-+{
-+	u64 fc_rate;
-+	u8 hs_div, m, n;
-+
-+	fc_rate = ub953_get_fc_rate(priv);
-+
-+	ub953_calc_clkout_ub953(priv, 25000000, fc_rate, &hs_div, &m, &n);
-+
-+	ub953_write(priv, UB953_REG_CLKOUT_CTRL0, (__ffs(hs_div) << 5) | m);
-+	ub953_write(priv, UB953_REG_CLKOUT_CTRL1, n);
-+}
-+
-+static void ub953_init_clkout_ub971(struct ub953_data *priv)
-+{
-+	u64 fc_rate;
-+	u8 m, n;
-+
-+	fc_rate = ub953_get_fc_rate(priv);
-+
-+	ub953_calc_clkout_ub971(priv, 25000000, fc_rate, &m, &n);
-+
-+	ub953_write(priv, UB953_REG_CLKOUT_CTRL0, m);
-+	ub953_write(priv, UB953_REG_CLKOUT_CTRL1, n);
-+}
-+
-+static int ub953_register_clkout(struct ub953_data *priv)
-+{
-+	struct device *dev = &priv->client->dev;
-+	const struct clk_init_data init = {
-+		.name = kasprintf(GFP_KERNEL, "ds90%s.%s.clk_out",
-+				  priv->hw_data->model, dev_name(dev)),
-+		.ops = &ub953_clkout_ops,
-+	};
-+	int ret;
-+
-+	if (!init.name)
-+		return -ENOMEM;
-+
-+	/* Initialize clkout to 25MHz by default */
-+	if (priv->hw_data->is_ub971)
-+		ub953_init_clkout_ub971(priv);
-+	else
-+		ub953_init_clkout_ub953(priv);
-+
-+	priv->clkout_clk_hw.init = &init;
-+
-+	ret = devm_clk_hw_register(dev, &priv->clkout_clk_hw);
-+	kfree(init.name);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "Cannot register clock HW\n");
-+
-+	ret = devm_of_clk_add_hw_provider(dev, of_clk_hw_simple_get,
-+					  &priv->clkout_clk_hw);
-+	if (ret)
-+		return dev_err_probe(dev, ret,
-+				     "Cannot add OF clock provider\n");
-+
-+	return 0;
-+}
-+
-+static int ub953_add_i2c_adapter(struct ub953_data *priv)
-+{
-+	struct device *dev = &priv->client->dev;
-+	struct fwnode_handle *i2c_handle;
-+	int ret;
-+
-+	i2c_handle = device_get_named_child_node(dev, "i2c");
-+	if (!i2c_handle)
-+		return 0;
-+
-+	ret = i2c_atr_add_adapter(priv->plat_data->atr, priv->plat_data->port,
-+				  dev, i2c_handle);
-+
-+	fwnode_handle_put(i2c_handle);
-+
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static const struct regmap_config ub953_regmap_config = {
-+	.name = "ds90ub953",
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.reg_format_endian = REGMAP_ENDIAN_DEFAULT,
-+	.val_format_endian = REGMAP_ENDIAN_DEFAULT,
-+};
-+
-+static int ub953_parse_dt(struct ub953_data *priv)
-+{
-+	struct device *dev = &priv->client->dev;
-+	struct fwnode_handle *ep_fwnode;
-+	int ret;
-+
-+	ep_fwnode = fwnode_graph_get_endpoint_by_id(dev_fwnode(dev),
-+						    UB953_PAD_SINK, 0, 0);
-+	if (!ep_fwnode)
-+		return dev_err_probe(dev, -ENOENT, "no endpoint found\n");
-+
-+	ret = fwnode_property_count_u32(ep_fwnode, "data-lanes");
-+
-+	fwnode_handle_put(ep_fwnode);
-+
++	ret = i2c_atr_map_msgs(chan, msgs, num);
 +	if (ret < 0)
-+		return dev_err_probe(dev, ret,
-+				     "failed to parse property 'data-lanes'\n");
++		goto err_unlock;
 +
-+	if (ret != 1 && ret != 2 && ret != 4)
-+		return dev_err_probe(dev, -EINVAL,
-+				     "bad number of data-lanes: %d\n", ret);
++	/* Perform the transfer */
++	ret = i2c_transfer(parent, msgs, num);
 +
-+	priv->num_data_lanes = ret;
++	/* Restore addresses */
++	i2c_atr_unmap_msgs(chan, msgs, num);
 +
-+	return 0;
-+}
-+
-+static int ub953_hw_init(struct ub953_data *priv)
-+{
-+	struct device *dev = &priv->client->dev;
-+	bool mode_override;
-+	int ret;
-+	u8 v;
-+
-+	ret = ub953_read(priv, UB953_REG_MODE_SEL, &v);
-+	if (ret)
-+		return ret;
-+
-+	if (!(v & UB953_REG_MODE_SEL_MODE_DONE))
-+		return dev_err_probe(dev, -EIO, "Mode value not stabilized\n");
-+
-+	mode_override = v & UB953_REG_MODE_SEL_MODE_OVERRIDE;
-+
-+	switch (v & UB953_REG_MODE_SEL_MODE_MASK) {
-+	case 0:
-+		priv->mode = UB953_MODE_SYNC;
-+		break;
-+	case 2:
-+		priv->mode = UB953_MODE_NONSYNC_EXT;
-+		break;
-+	case 3:
-+		priv->mode = UB953_MODE_NONSYNC_INT;
-+		break;
-+	case 5:
-+		priv->mode = UB953_MODE_DVP;
-+		break;
-+	default:
-+		return dev_err_probe(dev, -EIO,
-+				     "Invalid mode in mode register\n");
-+	}
-+
-+	dev_dbg(dev, "mode from %s: %#x\n", mode_override ? "reg" : "strap",
-+		priv->mode);
-+
-+	if (priv->mode != UB953_MODE_SYNC)
-+		return dev_err_probe(dev, -ENODEV,
-+				     "Only synchronous mode supported\n");
-+
-+	ret = ub953_read(priv, UB953_REG_REV_MASK_ID, &v);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "Failed to read revision");
-+
-+	dev_info(dev, "Found %s rev/mask %#04x\n", priv->hw_data->model, v);
-+
-+	ret = ub953_read(priv, UB953_REG_GENERAL_CFG, &v);
-+	if (ret)
-+		return ret;
-+
-+	dev_dbg(dev, "i2c strap setting %s V\n",
-+		(v & UB953_REG_GENERAL_CFG_I2C_STRAP_MODE) ? "1.8" : "3.3");
-+
-+	ret = ub953_i2c_master_init(priv);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "i2c init failed\n");
-+
-+	ub953_write(priv, UB953_REG_GENERAL_CFG,
-+		    UB953_REG_GENERAL_CFG_CONT_CLK |
-+		    ((priv->num_data_lanes - 1) << UB953_REG_GENERAL_CFG_CSI_LANE_SEL_SHIFT) |
-+		    UB953_REG_GENERAL_CFG_CRC_TX_GEN_ENABLE);
-+
-+	return 0;
-+}
-+
-+static int ub953_subdev_init(struct ub953_data *priv)
-+{
-+	struct device *dev = &priv->client->dev;
-+	int ret;
-+
-+	v4l2_i2c_subdev_init(&priv->sd, priv->client, &ub953_subdev_ops);
-+
-+	priv->sd.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE |
-+			  V4L2_SUBDEV_FL_HAS_EVENTS | V4L2_SUBDEV_FL_STREAMS;
-+	priv->sd.entity.function = MEDIA_ENT_F_VID_IF_BRIDGE;
-+	priv->sd.entity.ops = &ub953_entity_ops;
-+
-+	priv->pads[0].flags = MEDIA_PAD_FL_SINK;
-+	priv->pads[1].flags = MEDIA_PAD_FL_SOURCE;
-+
-+	ret = media_entity_pads_init(&priv->sd.entity, 2, priv->pads);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "Failed to init pads\n");
-+
-+	priv->sd.fwnode = fwnode_graph_get_endpoint_by_id(dev_fwnode(dev),
-+							  UB953_PAD_SOURCE, 0,
-+							  0);
-+	if (!priv->sd.fwnode) {
-+		ret = -ENODEV;
-+		dev_err_probe(dev, ret, "Missing TX endpoint\n");
-+		goto err_entity_cleanup;
-+	}
-+
-+	ret = v4l2_subdev_init_finalize(&priv->sd);
-+	if (ret)
-+		goto err_fwnode_put;
-+
-+	ret = ub953_v4l2_notifier_register(priv);
-+	if (ret) {
-+		dev_err_probe(dev, ret,
-+			      "v4l2 subdev notifier register failed\n");
-+		goto err_free_state;
-+	}
-+
-+	ret = v4l2_async_register_subdev(&priv->sd);
-+	if (ret) {
-+		dev_err_probe(dev, ret, "v4l2_async_register_subdev error\n");
-+		goto err_unreg_notif;
-+	}
-+
-+	return 0;
-+
-+err_unreg_notif:
-+	ub953_v4l2_notifier_unregister(priv);
-+err_free_state:
-+	v4l2_subdev_cleanup(&priv->sd);
-+err_fwnode_put:
-+	fwnode_handle_put(priv->sd.fwnode);
-+err_entity_cleanup:
-+	media_entity_cleanup(&priv->sd.entity);
++err_unlock:
++	mutex_unlock(&chan->orig_addrs_lock);
 +
 +	return ret;
 +}
 +
-+static void ub953_subdev_uninit(struct ub953_data *priv)
++static int i2c_atr_smbus_xfer(struct i2c_adapter *adap, u16 addr,
++			      unsigned short flags, char read_write, u8 command,
++			      int size, union i2c_smbus_data *data)
 +{
-+	v4l2_async_unregister_subdev(&priv->sd);
-+	ub953_v4l2_notifier_unregister(priv);
-+	v4l2_subdev_cleanup(&priv->sd);
-+	fwnode_handle_put(priv->sd.fwnode);
-+	media_entity_cleanup(&priv->sd.entity);
++	struct i2c_atr_chan *chan = adap->algo_data;
++	struct i2c_atr *atr = chan->atr;
++	struct i2c_adapter *parent = atr->parent;
++	struct i2c_atr_alias_pair *c2a;
++
++	c2a = i2c_atr_find_mapping_by_addr(&chan->alias_list, addr);
++	if (!c2a) {
++		dev_err(atr->dev, "client 0x%02x not mapped!\n", addr);
++		return -ENXIO;
++	}
++
++	return i2c_smbus_xfer(parent, c2a->alias, flags, read_write, command,
++			      size, data);
 +}
 +
-+static int ub953_probe(struct i2c_client *client)
++static u32 i2c_atr_functionality(struct i2c_adapter *adap)
 +{
-+	struct device *dev = &client->dev;
-+	struct ub953_data *priv;
++	struct i2c_atr_chan *chan = adap->algo_data;
++	struct i2c_adapter *parent = chan->atr->parent;
++
++	return parent->algo->functionality(parent);
++}
++
++static void i2c_atr_lock_bus(struct i2c_adapter *adapter, unsigned int flags)
++{
++	struct i2c_atr_chan *chan = adapter->algo_data;
++	struct i2c_atr *atr = chan->atr;
++
++	mutex_lock(&atr->lock);
++}
++
++static int i2c_atr_trylock_bus(struct i2c_adapter *adapter, unsigned int flags)
++{
++	struct i2c_atr_chan *chan = adapter->algo_data;
++	struct i2c_atr *atr = chan->atr;
++
++	return mutex_trylock(&atr->lock);
++}
++
++static void i2c_atr_unlock_bus(struct i2c_adapter *adapter, unsigned int flags)
++{
++	struct i2c_atr_chan *chan = adapter->algo_data;
++	struct i2c_atr *atr = chan->atr;
++
++	mutex_unlock(&atr->lock);
++}
++
++static const struct i2c_lock_operations i2c_atr_lock_ops = {
++	.lock_bus =    i2c_atr_lock_bus,
++	.trylock_bus = i2c_atr_trylock_bus,
++	.unlock_bus =  i2c_atr_unlock_bus,
++};
++
++static int i2c_atr_reserve_alias(struct i2c_atr *atr)
++{
++	unsigned long idx;
++
++	spin_lock(&atr->alias_mask_lock);
++
++	idx = find_first_zero_bit(atr->alias_use_mask, atr->num_aliases);
++	if (idx >= atr->num_aliases) {
++		spin_unlock(&atr->alias_mask_lock);
++		dev_err(atr->dev, "failed to find a free alias\n");
++		return -EBUSY;
++	}
++
++	set_bit(idx, atr->alias_use_mask);
++
++	spin_unlock(&atr->alias_mask_lock);
++
++	return atr->aliases[idx];
++}
++
++static void i2c_atr_release_alias(struct i2c_atr *atr, u16 alias)
++{
++	unsigned int idx;
++
++	spin_lock(&atr->alias_mask_lock);
++
++	for (idx = 0; idx < atr->num_aliases; ++idx) {
++		if (atr->aliases[idx] == alias) {
++			clear_bit(idx, atr->alias_use_mask);
++			spin_unlock(&atr->alias_mask_lock);
++			return;
++		}
++	}
++
++	spin_unlock(&atr->alias_mask_lock);
++
++	 /* This should never happen */
++	dev_warn(atr->dev, "Unable to find mapped alias\n");
++}
++
++static int i2c_atr_attach_client(struct i2c_adapter *adapter,
++				 const struct i2c_client *client)
++{
++	struct i2c_atr_chan *chan = adapter->algo_data;
++	struct i2c_atr *atr = chan->atr;
++	struct i2c_atr_alias_pair *c2a;
++	u16 alias;
 +	int ret;
 +
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
++	ret = i2c_atr_reserve_alias(atr);
++	if (ret < 0)
++		return ret;
++
++	alias = ret;
++
++	c2a = kzalloc(sizeof(*c2a), GFP_KERNEL);
++	if (!c2a) {
++		ret = -ENOMEM;
++		goto err_release_alias;
++	}
++
++	ret = atr->ops->attach_client(atr, chan->chan_id, client, alias);
++	if (ret)
++		goto err_free;
++
++	dev_dbg(atr->dev, "chan%u: client 0x%02x mapped at alias 0x%02x (%s)\n",
++		chan->chan_id, client->addr, alias, client->name);
++
++	c2a->client = client;
++	c2a->alias = alias;
++	list_add(&c2a->node, &chan->alias_list);
++
++	return 0;
++
++err_free:
++	kfree(c2a);
++err_release_alias:
++	i2c_atr_release_alias(atr, alias);
++
++	return ret;
++}
++
++static void i2c_atr_detach_client(struct i2c_adapter *adapter,
++				  const struct i2c_client *client)
++{
++	struct i2c_atr_chan *chan = adapter->algo_data;
++	struct i2c_atr *atr = chan->atr;
++	struct i2c_atr_alias_pair *c2a;
++
++	atr->ops->detach_client(atr, chan->chan_id, client);
++
++	c2a = i2c_atr_find_mapping_by_client(&chan->alias_list, client);
++	if (!c2a) {
++		 /* This should never happen */
++		dev_warn(atr->dev, "Unable to find address mapping\n");
++		return;
++	}
++
++	i2c_atr_release_alias(atr, c2a->alias);
++
++	dev_dbg(atr->dev,
++		"chan%u: client 0x%02x unmapped from alias 0x%02x (%s)\n",
++		chan->chan_id, client->addr, c2a->alias, client->name);
++
++	list_del(&c2a->node);
++	kfree(c2a);
++}
++
++static int i2c_atr_bus_notifier_call(struct notifier_block *nb,
++				     unsigned long event, void *device)
++{
++	struct i2c_atr *atr = container_of(nb, struct i2c_atr, i2c_nb);
++	struct device *dev = device;
++	struct i2c_client *client;
++	u32 chan_id;
++	int ret;
++
++	client = i2c_verify_client(dev);
++	if (!client)
++		return NOTIFY_DONE;
++
++	/* Is the client in one of our adapters? */
++	for (chan_id = 0; chan_id < atr->max_adapters; ++chan_id) {
++		if (client->adapter == atr->adapter[chan_id])
++			break;
++	}
++
++	if (chan_id == atr->max_adapters)
++		return NOTIFY_DONE;
++
++	switch (event) {
++	case BUS_NOTIFY_ADD_DEVICE:
++		ret = i2c_atr_attach_client(client->adapter, client);
++		if (ret)
++			dev_err(atr->dev,
++				"Failed to attach remote client '%s': %d\n",
++				dev_name(dev), ret);
++		break;
++
++	case BUS_NOTIFY_DEL_DEVICE:
++		i2c_atr_detach_client(client->adapter, client);
++		break;
++
++	default:
++		break;
++	}
++
++	return NOTIFY_DONE;
++}
++
++static int i2c_atr_parse_alias_pool(struct i2c_atr *atr)
++{
++	struct device *dev = atr->dev;
++	unsigned long *alias_use_mask;
++	size_t num_aliases;
++	u16 *aliases;
++	int ret;
++
++	ret = fwnode_property_count_u16(dev_fwnode(dev), "i2c-alias-pool");
++	if (ret < 0) {
++		dev_err(dev, "Failed to count 'i2c-alias-pool' property: %d\n",
++			ret);
++		return ret;
++	}
++
++	num_aliases = ret;
++
++	if (!num_aliases)
++		return 0;
++
++	aliases = kcalloc(num_aliases, sizeof(*aliases), GFP_KERNEL);
++	if (!aliases)
 +		return -ENOMEM;
 +
-+	priv->client = client;
-+
-+	priv->hw_data = device_get_match_data(dev);
-+
-+	priv->plat_data = dev_get_platdata(&client->dev);
-+	if (!priv->plat_data)
-+		return dev_err_probe(dev, -ENODEV, "Platform data missing\n");
-+
-+	mutex_init(&priv->reg_lock);
-+
-+	/*
-+	 * Initialize to invalid values so that the first reg writes will
-+	 * configure the target.
-+	 */
-+	priv->current_indirect_target = 0xff;
-+
-+	priv->regmap = devm_regmap_init_i2c(client, &ub953_regmap_config);
-+	if (IS_ERR(priv->regmap)) {
-+		ret = PTR_ERR(priv->regmap);
-+		dev_err_probe(dev, ret, "Failed to init regmap\n");
-+		goto err_mutex_destroy;
++	ret = fwnode_property_read_u16_array(dev_fwnode(dev), "i2c-alias-pool",
++					     aliases, num_aliases);
++	if (ret < 0) {
++		dev_err(dev, "Failed to read 'i2c-alias-pool' property: %d\n",
++			ret);
++		kfree(aliases);
++		return ret;
 +	}
 +
-+	ret = ub953_parse_dt(priv);
++	alias_use_mask = bitmap_zalloc(num_aliases, GFP_KERNEL);
++	if (!alias_use_mask) {
++		kfree(aliases);
++		return -ENOMEM;
++	}
++
++	atr->num_aliases = num_aliases;
++	atr->aliases = aliases;
++	atr->alias_use_mask = alias_use_mask;
++
++	dev_dbg(dev, "i2c-alias-pool has %zu aliases", atr->num_aliases);
++
++	return 0;
++}
++
++struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
++			    const struct i2c_atr_ops *ops, int max_adapters)
++{
++	struct i2c_atr *atr;
++	int ret;
++
++	if (max_adapters > ATR_MAX_ADAPTERS)
++		return ERR_PTR(-EINVAL);
++
++	if (!ops || !ops->attach_client || !ops->detach_client)
++		return ERR_PTR(-EINVAL);
++
++	atr = kzalloc(struct_size(atr, adapter, max_adapters), GFP_KERNEL);
++	if (!atr)
++		return ERR_PTR(-ENOMEM);
++
++	mutex_init(&atr->lock);
++	spin_lock_init(&atr->alias_mask_lock);
++
++	atr->parent = parent;
++	atr->dev = dev;
++	atr->ops = ops;
++	atr->max_adapters = max_adapters;
++
++	if (parent->algo->master_xfer)
++		atr->algo.master_xfer = i2c_atr_master_xfer;
++	if (parent->algo->smbus_xfer)
++		atr->algo.smbus_xfer = i2c_atr_smbus_xfer;
++	atr->algo.functionality = i2c_atr_functionality;
++
++	ret = i2c_atr_parse_alias_pool(atr);
 +	if (ret)
-+		goto err_mutex_destroy;
++		goto err_destroy_mutex;
 +
-+	ret = ub953_hw_init(priv);
++	atr->i2c_nb.notifier_call = i2c_atr_bus_notifier_call;
++	ret = bus_register_notifier(&i2c_bus_type, &atr->i2c_nb);
 +	if (ret)
-+		goto err_mutex_destroy;
++		goto err_free_aliases;
 +
-+	ret = ub953_gpiochip_probe(priv);
-+	if (ret) {
-+		dev_err_probe(dev, ret, "Failed to init gpiochip\n");
-+		goto err_mutex_destroy;
++	return atr;
++
++err_free_aliases:
++	bitmap_free(atr->alias_use_mask);
++	kfree(atr->aliases);
++err_destroy_mutex:
++	mutex_destroy(&atr->lock);
++	kfree(atr);
++
++	return ERR_PTR(ret);
++}
++EXPORT_SYMBOL_NS_GPL(i2c_atr_new, I2C_ATR);
++
++void i2c_atr_delete(struct i2c_atr *atr)
++{
++	unsigned int i;
++
++	for (i = 0; i < atr->max_adapters; ++i)
++		WARN_ON(atr->adapter[i]);
++
++	bus_unregister_notifier(&i2c_bus_type, &atr->i2c_nb);
++	bitmap_free(atr->alias_use_mask);
++	kfree(atr->aliases);
++	mutex_destroy(&atr->lock);
++	kfree(atr);
++}
++EXPORT_SYMBOL_NS_GPL(i2c_atr_delete, I2C_ATR);
++
++int i2c_atr_add_adapter(struct i2c_atr *atr, u32 chan_id,
++			struct device *adapter_parent,
++			struct fwnode_handle *bus_handle)
++{
++	struct i2c_adapter *parent = atr->parent;
++	struct device *dev = atr->dev;
++	struct i2c_atr_chan *chan;
++	char symlink_name[ATR_MAX_SYMLINK_LEN];
++	int ret;
++
++	if (chan_id >= atr->max_adapters) {
++		dev_err(dev, "No room for more i2c-atr adapters\n");
++		return -EINVAL;
 +	}
 +
-+	ret = ub953_register_clkout(priv);
-+	if (ret) {
-+		dev_err_probe(dev, ret, "Failed to register clkout\n");
-+		goto err_gpiochip_remove;
++	if (atr->adapter[chan_id]) {
++		dev_err(dev, "Adapter %d already present\n", chan_id);
++		return -EEXIST;
 +	}
 +
-+	ret = ub953_subdev_init(priv);
++	chan = kzalloc(sizeof(*chan), GFP_KERNEL);
++	if (!chan)
++		return -ENOMEM;
++
++	if (!adapter_parent)
++		adapter_parent = dev;
++
++	chan->atr = atr;
++	chan->chan_id = chan_id;
++	INIT_LIST_HEAD(&chan->alias_list);
++	mutex_init(&chan->orig_addrs_lock);
++
++	snprintf(chan->adap.name, sizeof(chan->adap.name), "i2c-%d-atr-%d",
++		 i2c_adapter_id(parent), chan_id);
++	chan->adap.owner = THIS_MODULE;
++	chan->adap.algo = &atr->algo;
++	chan->adap.algo_data = chan;
++	chan->adap.dev.parent = adapter_parent;
++	chan->adap.retries = parent->retries;
++	chan->adap.timeout = parent->timeout;
++	chan->adap.quirks = parent->quirks;
++	chan->adap.lock_ops = &i2c_atr_lock_ops;
++
++	if (bus_handle) {
++		device_set_node(&chan->adap.dev, fwnode_handle_get(bus_handle));
++	} else {
++		struct fwnode_handle *atr_node;
++		struct fwnode_handle *child;
++		u32 reg;
++
++		atr_node = device_get_named_child_node(dev, "i2c-atr");
++
++		fwnode_for_each_child_node(atr_node, child) {
++			ret = fwnode_property_read_u32(child, "reg", &reg);
++			if (ret)
++				continue;
++			if (chan_id == reg)
++				break;
++		}
++
++		device_set_node(&chan->adap.dev, child);
++		fwnode_handle_put(atr_node);
++	}
++
++	atr->adapter[chan_id] = &chan->adap;
++
++	ret = i2c_add_adapter(&chan->adap);
++	if (ret) {
++		dev_err(dev, "failed to add atr-adapter %u (error=%d)\n",
++			chan_id, ret);
++		goto err_fwnode_put;
++	}
++
++	snprintf(symlink_name, sizeof(symlink_name), "channel-%u",
++		 chan->chan_id);
++
++	ret = sysfs_create_link(&chan->adap.dev.kobj, &dev->kobj, "atr_device");
 +	if (ret)
-+		goto err_gpiochip_remove;
++		dev_warn(dev, "can't create symlink to atr device\n");
++	ret = sysfs_create_link(&dev->kobj, &chan->adap.dev.kobj, symlink_name);
++	if (ret)
++		dev_warn(dev, "can't create symlink for channel %u\n", chan_id);
 +
-+	ret = ub953_add_i2c_adapter(priv);
-+	if (ret) {
-+		dev_err_probe(dev, ret, "failed to add remote i2c adapter\n");
-+		goto err_subdev_uninit;
-+	}
++	dev_dbg(dev, "Added ATR child bus %d\n", i2c_adapter_id(&chan->adap));
 +
 +	return 0;
 +
-+err_subdev_uninit:
-+	ub953_subdev_uninit(priv);
-+err_gpiochip_remove:
-+	ub953_gpiochip_remove(priv);
-+err_mutex_destroy:
-+	mutex_destroy(&priv->reg_lock);
-+
++err_fwnode_put:
++	fwnode_handle_put(dev_fwnode(&chan->adap.dev));
++	mutex_destroy(&chan->orig_addrs_lock);
++	kfree(chan);
 +	return ret;
 +}
++EXPORT_SYMBOL_NS_GPL(i2c_atr_add_adapter, I2C_ATR);
 +
-+static void ub953_remove(struct i2c_client *client)
++void i2c_atr_del_adapter(struct i2c_atr *atr, u32 chan_id)
 +{
-+	struct v4l2_subdev *sd = i2c_get_clientdata(client);
-+	struct ub953_data *priv = sd_to_ub953(sd);
++	char symlink_name[ATR_MAX_SYMLINK_LEN];
++	struct i2c_adapter *adap;
++	struct i2c_atr_chan *chan;
++	struct fwnode_handle *fwnode;
++	struct device *dev = atr->dev;
 +
-+	i2c_atr_del_adapter(priv->plat_data->atr, priv->plat_data->port);
++	adap = atr->adapter[chan_id];
++	if (!adap)
++		return;
 +
-+	ub953_subdev_uninit(priv);
++	chan = adap->algo_data;
++	fwnode = dev_fwnode(&adap->dev);
 +
-+	ub953_gpiochip_remove(priv);
-+	mutex_destroy(&priv->reg_lock);
++	dev_dbg(dev, "Removing ATR child bus %d\n", i2c_adapter_id(adap));
++
++	snprintf(symlink_name, sizeof(symlink_name), "channel-%u",
++		 chan->chan_id);
++	sysfs_remove_link(&dev->kobj, symlink_name);
++	sysfs_remove_link(&chan->adap.dev.kobj, "atr_device");
++
++	i2c_del_adapter(adap);
++
++	atr->adapter[chan_id] = NULL;
++
++	fwnode_handle_put(fwnode);
++	mutex_destroy(&chan->orig_addrs_lock);
++	kfree(chan->orig_addrs);
++	kfree(chan);
 +}
++EXPORT_SYMBOL_NS_GPL(i2c_atr_del_adapter, I2C_ATR);
 +
-+static const struct ub953_hw_data ds90ub953_hw = {
-+	.model = "ub953",
-+};
++void i2c_atr_set_driver_data(struct i2c_atr *atr, void *data)
++{
++	atr->priv = data;
++}
++EXPORT_SYMBOL_NS_GPL(i2c_atr_set_driver_data, I2C_ATR);
 +
-+static const struct ub953_hw_data ds90ub971_hw = {
-+	.model = "ub971",
-+	.is_ub971 = true,
-+};
++void *i2c_atr_get_driver_data(struct i2c_atr *atr)
++{
++	return atr->priv;
++}
++EXPORT_SYMBOL_NS_GPL(i2c_atr_get_driver_data, I2C_ATR);
 +
-+static const struct i2c_device_id ub953_id[] = {
-+	{ "ds90ub953-q1", (kernel_ulong_t)&ds90ub953_hw },
-+	{ "ds90ub971-q1", (kernel_ulong_t)&ds90ub971_hw },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(i2c, ub953_id);
-+
-+static const struct of_device_id ub953_dt_ids[] = {
-+	{ .compatible = "ti,ds90ub953-q1", .data = &ds90ub953_hw },
-+	{ .compatible = "ti,ds90ub971-q1", .data = &ds90ub971_hw },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, ub953_dt_ids);
-+
-+static struct i2c_driver ds90ub953_driver = {
-+	.probe_new	= ub953_probe,
-+	.remove		= ub953_remove,
-+	.id_table	= ub953_id,
-+	.driver = {
-+		.name	= "ds90ub953",
-+		.owner = THIS_MODULE,
-+		.of_match_table = ub953_dt_ids,
-+	},
-+};
-+module_i2c_driver(ds90ub953_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Texas Instruments FPD-Link III/IV CSI-2 Serializers Driver");
-+MODULE_AUTHOR("Luca Ceresoli <luca@lucaceresoli.net>");
++MODULE_AUTHOR("Luca Ceresoli <luca.ceresoli@bootlin.com>");
 +MODULE_AUTHOR("Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>");
-+MODULE_IMPORT_NS(I2C_ATR);
++MODULE_DESCRIPTION("I2C Address Translator");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c-atr.h b/include/linux/i2c-atr.h
+new file mode 100644
+index 000000000000..4d5da161c225
+--- /dev/null
++++ b/include/linux/i2c-atr.h
+@@ -0,0 +1,116 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * I2C Address Translator
++ *
++ * Copyright (c) 2019,2022 Luca Ceresoli <luca@lucaceresoli.net>
++ * Copyright (c) 2022,2023 Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
++ *
++ * Based on i2c-mux.h
++ */
++
++#ifndef _LINUX_I2C_ATR_H
++#define _LINUX_I2C_ATR_H
++
++#include <linux/i2c.h>
++#include <linux/types.h>
++
++struct device;
++struct fwnode_handle;
++struct i2c_atr;
++
++/**
++ * struct i2c_atr_ops - Callbacks from ATR to the device driver.
++ * @attach_client: Notify the driver of a new device connected on a child
++ *                 bus, with the alias assigned to it. The driver must
++ *                 configure the hardware to use the alias.
++ * @detach_client: Notify the driver of a device getting disconnected. The
++ *                 driver must configure the hardware to stop using the
++ *                 alias.
++ *
++ * All these functions return 0 on success, a negative error code otherwise.
++ */
++struct i2c_atr_ops {
++	int (*attach_client)(struct i2c_atr *atr, u32 chan_id,
++			     const struct i2c_client *client, u16 alias);
++	void (*detach_client)(struct i2c_atr *atr, u32 chan_id,
++			      const struct i2c_client *client);
++};
++
++/**
++ * i2c_atr_new() - Allocate and initialize an I2C ATR helper.
++ * @parent:       The parent (upstream) adapter
++ * @dev:          The device acting as an ATR
++ * @ops:          Driver-specific callbacks
++ * @max_adapters: Maximum number of child adapters
++ *
++ * The new ATR helper is connected to the parent adapter but has no child
++ * adapters. Call i2c_atr_add_adapter() to add some.
++ *
++ * Call i2c_atr_delete() to remove.
++ *
++ * Return: pointer to the new ATR helper object, or ERR_PTR
++ */
++struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
++			    const struct i2c_atr_ops *ops, int max_adapters);
++
++/**
++ * i2c_atr_delete - Delete an I2C ATR helper.
++ * @atr: I2C ATR helper to be deleted.
++ *
++ * Precondition: all the adapters added with i2c_atr_add_adapter() must be
++ * removed by calling i2c_atr_del_adapter().
++ */
++void i2c_atr_delete(struct i2c_atr *atr);
++
++/**
++ * i2c_atr_add_adapter - Create a child ("downstream") I2C bus.
++ * @atr:        The I2C ATR
++ * @chan_id:    Index of the new adapter (0 .. max_adapters-1).  This value is
++ *              passed to the callbacks in `struct i2c_atr_ops`.
++ * @adapter_parent: The device used as the parent of the new i2c adapter, or NULL
++ *                  to use the i2c-atr device as the parent.
++ * @bus_handle: The fwnode handle that points to the adapter's i2c
++ *              peripherals, or NULL.
++ *
++ * After calling this function a new i2c bus will appear. Adding and removing
++ * devices on the downstream bus will result in calls to the
++ * &i2c_atr_ops->attach_client and &i2c_atr_ops->detach_client callbacks for the
++ * driver to assign an alias to the device.
++ *
++ * The adapter's fwnode is set to @bus_handle, or if @bus_handle is NULL the
++ * function looks for a child node whose 'reg' property matches the chan_id
++ * under the i2c-atr device's 'i2c-atr' node.
++ *
++ * Call i2c_atr_del_adapter() to remove the adapter.
++ *
++ * Return: 0 on success, a negative error code otherwise.
++ */
++int i2c_atr_add_adapter(struct i2c_atr *atr, u32 chan_id,
++			struct device *adapter_parent,
++			struct fwnode_handle *bus_handle);
++
++/**
++ * i2c_atr_del_adapter - Remove a child ("downstream") I2C bus added by
++ *                       i2c_atr_add_adapter(). If no I2C bus has been added
++ *                       this function is a no-op.
++ * @atr:     The I2C ATR
++ * @chan_id: Index of the adapter to be removed (0 .. max_adapters-1)
++ */
++void i2c_atr_del_adapter(struct i2c_atr *atr, u32 chan_id);
++
++/**
++ * i2c_atr_set_driver_data - Set private driver data to the i2c-atr instance.
++ * @atr:  The I2C ATR
++ * @data: Pointer to the data to store
++ */
++void i2c_atr_set_driver_data(struct i2c_atr *atr, void *data);
++
++/**
++ * i2c_atr_get_driver_data - Get the stored drive data.
++ * @atr:     The I2C ATR
++ *
++ * Return: Pointer to the stored data
++ */
++void *i2c_atr_get_driver_data(struct i2c_atr *atr);
++
++#endif /* _LINUX_I2C_ATR_H */
 -- 
 2.34.1
 
