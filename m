@@ -2,32 +2,32 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE08EC77B78
-	for <linux-i2c@archiver.kernel.org>; Wed, 26 Apr 2023 07:18:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECBFEC77B60
+	for <linux-i2c@archiver.kernel.org>; Wed, 26 Apr 2023 07:18:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239987AbjDZHSY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 26 Apr 2023 03:18:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57832 "EHLO
+        id S239845AbjDZHSb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 26 Apr 2023 03:18:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239807AbjDZHSU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Apr 2023 03:18:20 -0400
-Received: from smtpbgeu2.qq.com (smtpbgeu2.qq.com [18.194.254.142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C5B640FF;
-        Wed, 26 Apr 2023 00:17:38 -0700 (PDT)
-X-QQ-mid: bizesmtp63t1682493367tpn2rkyx
+        with ESMTP id S239976AbjDZHSX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Apr 2023 03:18:23 -0400
+Received: from smtpbguseast1.qq.com (smtpbguseast1.qq.com [54.204.34.129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9042269E;
+        Wed, 26 Apr 2023 00:17:46 -0700 (PDT)
+X-QQ-mid: bizesmtp63t1682493383tybk2svy
 Received: from wxdbg.localdomain.com ( [183.129.236.74])
         by bizesmtp.qq.com (ESMTP) with 
-        id ; Wed, 26 Apr 2023 15:16:05 +0800 (CST)
+        id ; Wed, 26 Apr 2023 15:16:22 +0800 (CST)
 X-QQ-SSF: 01400000000000I0Z000000A0000000
-X-QQ-FEAT: 0vfWcIgh24z5EFGbD5Mgh0YxBqKzPiIUT71CmvHxv1egX9TaXMJeFjCTNEc6w
-        EFJZ9EU73zJzTprAYZwfDWy6QDb0hHJM57R18edVA1mHuv7h9wvUOsreFtwyVRNCeE0z2oN
-        9SCu5vQ8bHL+eSVdAk8kFzaES5VHk3h2WlqT+H6AtVnu9TrQUZ0e07uE7DIo7026bZE8eV6
-        kQJPDmzvb/sRFdtufJcaMzT8Q777Nza5u+XY2rUR3idzASzB+T77D0psJ8i9nQ4IMK+mTky
-        rf54+F5bO5OHYD7Y01uJ/TWIZJYntbps5VFXiauImwoB6KRE1eyUJCYV1LT4d3D9CQEbYu0
-        iuydHRfy4buwOiQz8V7pOdNpf66nj8hE84jwTF57loiQfQnQhPKZD7PyVEYU206EWOmOlT6
-        AuI72uX1MLQ=
+X-QQ-FEAT: +oIWmpEafD/JlCbKubHIk2QZmOe7ReP8x2LoxJYKY+dsaUitdtj1473wXWdkX
+        3IMnZdnmZYD4+2saxyjKSF88/F42cht6QcmmaB8CW6yC5PlvxRpC1n2m2Mrg2OCci6GHlk4
+        iNi4pCN8Nf7sRdPyWit4eu09kEKlM1DykgvdIZelhvNBfqrwbhidEYK++iMmZunuKs4rr4G
+        H/Nkv/42OZ9Zp19JBGIU5Nbsz9vS6EVd2n28UERae1H+l8B8x77QoGeh3beAo76Fv03JGBp
+        EVQ3oABeAa1ouMFZzMG+9BThb8sAviNtBn7B2b7g7eUPJ2fcsudLX/xAmjtHlFLjhPrc2Wy
+        S2k73IdB0KBb6N6rr/AS3x69HUICyfa6rMZUfiYDjGoxAnWQ9iFdoNWd+Cu7YNWLJ32rvH3
+        qlRiQ/H4nGc1B6ddfEoFZg==
 X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 9258252668174130001
+X-BIZMAIL-ID: 4029546959725946847
 From:   Jiawen Wu <jiawenwu@trustnetic.com>
 To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
@@ -35,9 +35,9 @@ To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         hkallweit1@gmail.com, linux@armlinux.org.uk
 Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
         mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>
-Subject: [RFC PATCH net-next v5 2/9] i2c: designware: Add driver support for Wangxun 10Gb NIC
-Date:   Wed, 26 Apr 2023 15:14:27 +0800
-Message-Id: <20230426071434.452717-3-jiawenwu@trustnetic.com>
+Subject: [RFC PATCH net-next v5 6/9] net: txgbe: Support GPIO to SFP socket
+Date:   Wed, 26 Apr 2023 15:14:31 +0800
+Message-Id: <20230426071434.452717-7-jiawenwu@trustnetic.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20230426071434.452717-1-jiawenwu@trustnetic.com>
 References: <20230426071434.452717-1-jiawenwu@trustnetic.com>
@@ -49,224 +49,409 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Wangxun 10Gb ethernet chip is connected to Designware I2C, to communicate
-with SFP.
-
-Introduce the property "i2c-dw-flags" to match device data for software
-node case. Since IO resource was mapped on the ethernet driver, add a model
-quirk to get resource from platform info.
-
-The exists IP limitations are dealt as workarounds:
-- IP does not support interrupt mode, it works on polling mode.
-- Additionally set FIFO depth address the chip issue.
+Register GPIO chip and handle GPIO IRQ for SFP socket.
 
 Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
 ---
- drivers/i2c/busses/i2c-designware-common.c  |  8 ++
- drivers/i2c/busses/i2c-designware-core.h    |  1 +
- drivers/i2c/busses/i2c-designware-master.c  | 84 ++++++++++++++++++++-
- drivers/i2c/busses/i2c-designware-platdrv.c | 20 +++++
- 4 files changed, 110 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/wangxun/Kconfig          |   2 +
+ drivers/net/ethernet/wangxun/libwx/wx_lib.c   |   3 +-
+ drivers/net/ethernet/wangxun/libwx/wx_type.h  |   2 +
+ .../net/ethernet/wangxun/txgbe/txgbe_main.c   |  20 +-
+ .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 228 ++++++++++++++++++
+ .../net/ethernet/wangxun/txgbe/txgbe_type.h   |  27 +++
+ 6 files changed, 263 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 0dc6b1ce663f..a7c2e67ccbf6 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -575,6 +575,14 @@ int i2c_dw_set_fifo_size(struct dw_i2c_dev *dev)
- 	unsigned int param;
- 	int ret;
- 
-+	/* DW_IC_COMP_PARAM_1 not implement for IP issue */
-+	if ((dev->flags & MODEL_MASK) == MODEL_WANGXUN_SP) {
-+		dev->tx_fifo_depth = 4;
-+		dev->rx_fifo_depth = 0;
-+
-+		return 0;
-+	}
-+
- 	/*
- 	 * Try to detect the FIFO depth if not set by interface driver,
- 	 * the depth could be from 2 to 256 from HW spec.
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 050d8c63ad3c..c686198e12d2 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -303,6 +303,7 @@ struct dw_i2c_dev {
- #define MODEL_MSCC_OCELOT			BIT(8)
- #define MODEL_BAIKAL_BT1			BIT(9)
- #define MODEL_AMD_NAVI_GPU			BIT(10)
-+#define MODEL_WANGXUN_SP			BIT(11)
- #define MODEL_MASK				GENMASK(11, 8)
- 
- /*
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 55ea91a63382..fe85c2ac79d7 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -354,6 +354,68 @@ static int amd_i2c_dw_xfer_quirk(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	return 0;
- }
- 
-+static int i2c_dw_poll_tx_empty(struct dw_i2c_dev *dev)
-+{
-+	u32 val;
-+
-+	return regmap_read_poll_timeout(dev->map, DW_IC_RAW_INTR_STAT, val,
-+					val & DW_IC_INTR_TX_EMPTY,
-+					100, 1000);
-+}
-+
-+static int i2c_dw_poll_rx_full(struct dw_i2c_dev *dev)
-+{
-+	u32 val;
-+
-+	return regmap_read_poll_timeout(dev->map, DW_IC_RAW_INTR_STAT, val,
-+					val & DW_IC_INTR_RX_FULL,
-+					100, 1000);
-+}
-+
-+static int txgbe_i2c_dw_xfer_quirk(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+				   int num_msgs)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+	int msg_idx, buf_len, data_idx, ret;
-+	unsigned int val, stop = 0;
-+	u8 *buf;
-+
-+	dev->msgs = msgs;
-+	dev->msgs_num = num_msgs;
-+	i2c_dw_xfer_init(dev);
-+	regmap_write(dev->map, DW_IC_INTR_MASK, 0);
-+
-+	for (msg_idx = 0; msg_idx < num_msgs; msg_idx++) {
-+		buf = msgs[msg_idx].buf;
-+		buf_len = msgs[msg_idx].len;
-+
-+		for (data_idx = 0; data_idx < buf_len; data_idx++) {
-+			if (msg_idx == num_msgs - 1 && data_idx == buf_len - 1)
-+				stop |= BIT(9);
-+
-+			if (msgs[msg_idx].flags & I2C_M_RD) {
-+				regmap_write(dev->map, DW_IC_DATA_CMD, 0x100 | stop);
-+
-+				ret = i2c_dw_poll_rx_full(dev);
-+				if (ret)
-+					return ret;
-+
-+				regmap_read(dev->map, DW_IC_DATA_CMD, &val);
-+				buf[data_idx] = val;
-+			} else {
-+				ret = i2c_dw_poll_tx_empty(dev);
-+				if (ret)
-+					return ret;
-+
-+				regmap_write(dev->map, DW_IC_DATA_CMD,
-+					     buf[data_idx] | stop);
-+			}
-+		}
-+	}
-+
-+	return num_msgs;
-+}
-+
- /*
-  * Initiate (and continue) low level master read/write transaction.
-  * This function is only called from i2c_dw_isr, and pumping i2c_msg
-@@ -568,6 +630,11 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 		goto done_nolock;
+diff --git a/drivers/net/ethernet/wangxun/Kconfig b/drivers/net/ethernet/wangxun/Kconfig
+index 3fd2bb2f4535..9212cef53f60 100644
+--- a/drivers/net/ethernet/wangxun/Kconfig
++++ b/drivers/net/ethernet/wangxun/Kconfig
+@@ -41,6 +41,8 @@ config TXGBE
+ 	tristate "Wangxun(R) 10GbE PCI Express adapters support"
+ 	depends on PCI
+ 	select I2C_DESIGNWARE_PLATFORM
++	select GPIOLIB_IRQCHIP
++	select GPIOLIB
+ 	select COMMON_CLK
+ 	select LIBWX
+ 	select SFP
+diff --git a/drivers/net/ethernet/wangxun/libwx/wx_lib.c b/drivers/net/ethernet/wangxun/libwx/wx_lib.c
+index 1e8d8b7b0c62..590215303d45 100644
+--- a/drivers/net/ethernet/wangxun/libwx/wx_lib.c
++++ b/drivers/net/ethernet/wangxun/libwx/wx_lib.c
+@@ -1348,7 +1348,8 @@ void wx_free_irq(struct wx *wx)
+ 		free_irq(entry->vector, q_vector);
  	}
  
-+	if ((dev->flags & MODEL_MASK) == MODEL_WANGXUN_SP) {
-+		ret = txgbe_i2c_dw_xfer_quirk(adap, msgs, num);
-+		goto done_nolock;
-+	}
+-	free_irq(wx->msix_entries[vector].vector, wx);
++	if (wx->mac.type == wx_mac_em)
++		free_irq(wx->msix_entries[vector].vector, wx);
+ }
+ EXPORT_SYMBOL(wx_free_irq);
+ 
+diff --git a/drivers/net/ethernet/wangxun/libwx/wx_type.h b/drivers/net/ethernet/wangxun/libwx/wx_type.h
+index 97bce855bc60..d151d6f79022 100644
+--- a/drivers/net/ethernet/wangxun/libwx/wx_type.h
++++ b/drivers/net/ethernet/wangxun/libwx/wx_type.h
+@@ -79,7 +79,9 @@
+ #define WX_GPIO_INTMASK              0x14834
+ #define WX_GPIO_INTTYPE_LEVEL        0x14838
+ #define WX_GPIO_POLARITY             0x1483C
++#define WX_GPIO_INTSTATUS            0x14844
+ #define WX_GPIO_EOI                  0x1484C
++#define WX_GPIO_EXT                  0x14850
+ 
+ /*********************** Transmit DMA registers **************************/
+ /* transmit global control */
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c
+index e6bec16a2199..608fbec55427 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c
+@@ -82,6 +82,8 @@ static int txgbe_enumerate_functions(struct wx *wx)
+  **/
+ static void txgbe_irq_enable(struct wx *wx, bool queues)
+ {
++	wr32(wx, WX_PX_MISC_IEN, TXGBE_PX_MISC_IEN_MASK);
 +
- 	reinit_completion(&dev->cmd_complete);
- 	dev->msgs = msgs;
- 	dev->msgs_num = num;
-@@ -848,7 +915,7 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
+ 	/* unmask interrupt */
+ 	wx_intr_enable(wx, TXGBE_INTR_MISC(wx));
+ 	if (queues)
+@@ -129,17 +131,6 @@ static irqreturn_t txgbe_intr(int __always_unused irq, void *data)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static irqreturn_t txgbe_msix_other(int __always_unused irq, void *data)
+-{
+-	struct wx *wx = data;
+-
+-	/* re-enable the original interrupt state */
+-	if (netif_running(wx->netdev))
+-		txgbe_irq_enable(wx, false);
+-
+-	return IRQ_HANDLED;
+-}
+-
+ /**
+  * txgbe_request_msix_irqs - Initialize MSI-X interrupts
+  * @wx: board private structure
+@@ -171,13 +162,6 @@ static int txgbe_request_msix_irqs(struct wx *wx)
+ 		}
+ 	}
+ 
+-	err = request_irq(wx->msix_entries[vector].vector,
+-			  txgbe_msix_other, 0, netdev->name, wx);
+-	if (err) {
+-		wx_err(wx, "request_irq for msix_other failed: %d\n", err);
+-		goto free_queue_irqs;
+-	}
+-
  	return 0;
+ 
+ free_queue_irqs:
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+index 9fd83894a3e7..4357f9853544 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+@@ -2,6 +2,9 @@
+ /* Copyright (c) 2015 - 2023 Beijing WangXun Technology Co., Ltd. */
+ 
+ #include <linux/platform_device.h>
++#include <linux/gpio/consumer.h>
++#include <linux/gpio/machine.h>
++#include <linux/gpio/driver.h>
+ #include <linux/gpio/property.h>
+ #include <linux/clkdev.h>
+ #include <linux/clk-provider.h>
+@@ -9,6 +12,7 @@
+ #include <linux/pci.h>
+ 
+ #include "../libwx/wx_type.h"
++#include "../libwx/wx_hw.h"
+ #include "txgbe_type.h"
+ #include "txgbe_phy.h"
+ 
+@@ -73,6 +77,224 @@ static int txgbe_swnodes_register(struct txgbe *txgbe)
+ 	return software_node_register_node_group(nodes->group);
  }
  
--static int amd_i2c_adap_quirk(struct dw_i2c_dev *dev)
-+static int i2c_dw_poll_adap_quirk(struct dw_i2c_dev *dev)
- {
- 	struct i2c_adapter *adap = &dev->adapter;
- 	int ret;
-@@ -862,6 +929,17 @@ static int amd_i2c_adap_quirk(struct dw_i2c_dev *dev)
- 	return ret;
- }
- 
-+static bool i2c_dw_is_model_poll(struct dw_i2c_dev *dev)
++static int txgbe_gpio_get(struct gpio_chip *chip, unsigned int offset)
 +{
-+	switch (dev->flags & MODEL_MASK) {
-+	case MODEL_AMD_NAVI_GPU:
-+	case MODEL_WANGXUN_SP:
-+		return true;
-+	default:
-+		return false;
-+	}
++	struct wx *wx = gpiochip_get_data(chip);
++	struct txgbe *txgbe = wx->priv;
++	int val;
++
++	val = rd32m(wx, WX_GPIO_EXT, BIT(offset));
++
++	txgbe->gpio_orig &= ~BIT(offset);
++	txgbe->gpio_orig |= val;
++
++	return !!(val & BIT(offset));
 +}
 +
- int i2c_dw_probe_master(struct dw_i2c_dev *dev)
- {
- 	struct i2c_adapter *adap = &dev->adapter;
-@@ -917,8 +995,8 @@ int i2c_dw_probe_master(struct dw_i2c_dev *dev)
- 	adap->dev.parent = dev->dev;
- 	i2c_set_adapdata(adap, dev);
- 
--	if ((dev->flags & MODEL_MASK) == MODEL_AMD_NAVI_GPU)
--		return amd_i2c_adap_quirk(dev);
-+	if (i2c_dw_is_model_poll(dev))
-+		return i2c_dw_poll_adap_quirk(dev);
- 
- 	if (dev->flags & ACCESS_NO_IRQ_SUSPEND) {
- 		irq_flags = IRQF_NO_SUSPEND;
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 74182db03a88..5504579cd622 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -168,6 +168,20 @@ static inline int dw_i2c_of_configure(struct platform_device *pdev)
- }
- #endif
- 
-+static int txgbe_i2c_request_regs(struct dw_i2c_dev *dev)
++static int txgbe_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
 +{
-+	struct platform_device *pdev = to_platform_device(dev->dev);
-+	struct resource *r;
++	struct wx *wx = gpiochip_get_data(chip);
++	u32 val;
 +
-+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!r)
-+		return -ENODEV;
++	val = rd32(wx, WX_GPIO_DDR);
++	if (BIT(offset) & val)
++		return GPIO_LINE_DIRECTION_OUT;
 +
-+	dev->base = devm_ioremap(&pdev->dev, r->start, resource_size(r));
-+
-+	return PTR_ERR_OR_ZERO(dev->base);
++	return GPIO_LINE_DIRECTION_IN;
 +}
 +
- static void dw_i2c_plat_pm_cleanup(struct dw_i2c_dev *dev)
- {
- 	pm_runtime_disable(dev->dev);
-@@ -185,6 +199,9 @@ static int dw_i2c_plat_request_regs(struct dw_i2c_dev *dev)
- 	case MODEL_BAIKAL_BT1:
- 		ret = bt1_i2c_request_regs(dev);
- 		break;
-+	case MODEL_WANGXUN_SP:
-+		ret = txgbe_i2c_request_regs(dev);
++static int txgbe_gpio_direction_in(struct gpio_chip *chip, unsigned int offset)
++{
++	struct wx *wx = gpiochip_get_data(chip);
++
++	wr32m(wx, WX_GPIO_DDR, BIT(offset), 0);
++
++	return 0;
++}
++
++static int txgbe_gpio_direction_out(struct gpio_chip *chip, unsigned int offset,
++				    int val)
++{
++	struct wx *wx = gpiochip_get_data(chip);
++	u32 mask;
++
++	mask = BIT(offset) | BIT(offset - 1);
++	if (val)
++		wr32m(wx, WX_GPIO_DR, mask, mask);
++	else
++		wr32m(wx, WX_GPIO_DR, mask, 0);
++
++	wr32m(wx, WX_GPIO_DDR, BIT(offset), BIT(offset));
++
++	return 0;
++}
++
++static void txgbe_gpio_irq_ack(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	irq_hw_number_t hwirq = irqd_to_hwirq(d);
++	struct wx *wx = gpiochip_get_data(gc);
++
++	wr32(wx, WX_GPIO_EOI, BIT(hwirq));
++}
++
++static void txgbe_gpio_irq_mask(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	irq_hw_number_t hwirq = irqd_to_hwirq(d);
++	struct wx *wx = gpiochip_get_data(gc);
++
++	gpiochip_disable_irq(gc, hwirq);
++
++	wr32m(wx, WX_GPIO_INTMASK, BIT(hwirq), BIT(hwirq));
++}
++
++static void txgbe_gpio_irq_unmask(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	irq_hw_number_t hwirq = irqd_to_hwirq(d);
++	struct wx *wx = gpiochip_get_data(gc);
++
++	gpiochip_enable_irq(gc, hwirq);
++
++	wr32m(wx, WX_GPIO_INTMASK, BIT(hwirq), 0);
++}
++
++static int txgbe_gpio_set_type(struct irq_data *d, unsigned int type)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	irq_hw_number_t hwirq = irqd_to_hwirq(d);
++	struct wx *wx = gpiochip_get_data(gc);
++	u32 level, polarity;
++
++	level = rd32(wx, WX_GPIO_INTTYPE_LEVEL);
++	polarity = rd32(wx, WX_GPIO_POLARITY);
++
++	switch (type) {
++	case IRQ_TYPE_EDGE_BOTH:
++		level |= BIT(hwirq);
 +		break;
- 	default:
- 		dev->base = devm_platform_ioremap_resource(pdev, 0);
- 		ret = PTR_ERR_OR_ZERO(dev->base);
-@@ -278,6 +295,9 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	dev->flags = (uintptr_t)device_get_match_data(&pdev->dev);
-+	if (!dev->flags)
-+		device_property_read_u32(&pdev->dev, "i2c-dw-flags", &dev->flags);
++	case IRQ_TYPE_EDGE_RISING:
++		level |= BIT(hwirq);
++		polarity |= BIT(hwirq);
++		break;
++	case IRQ_TYPE_EDGE_FALLING:
++		level |= BIT(hwirq);
++		polarity &= ~BIT(hwirq);
++		break;
++	case IRQ_TYPE_LEVEL_HIGH:
++		level &= ~BIT(hwirq);
++		polarity |= BIT(hwirq);
++		break;
++	case IRQ_TYPE_LEVEL_LOW:
++		level &= ~BIT(hwirq);
++		polarity &= ~BIT(hwirq);
++		break;
++	}
 +
- 	dev->dev = &pdev->dev;
- 	dev->irq = irq;
- 	platform_set_drvdata(pdev, dev);
++	if (type & IRQ_TYPE_LEVEL_MASK)
++		irq_set_handler_locked(d, handle_level_irq);
++	else if (type & IRQ_TYPE_EDGE_BOTH)
++		irq_set_handler_locked(d, handle_edge_irq);
++
++	wr32m(wx, WX_GPIO_INTEN, BIT(hwirq), BIT(hwirq));
++	wr32(wx, WX_GPIO_INTTYPE_LEVEL, level);
++	if (type != IRQ_TYPE_EDGE_BOTH)
++		wr32(wx, WX_GPIO_POLARITY, polarity);
++
++	return 0;
++}
++
++static const struct irq_chip txgbe_gpio_irq_chip = {
++	.name = "txgbe_gpio_irq",
++	.irq_ack = txgbe_gpio_irq_ack,
++	.irq_mask = txgbe_gpio_irq_mask,
++	.irq_unmask = txgbe_gpio_irq_unmask,
++	.irq_set_type = txgbe_gpio_set_type,
++	.flags = IRQCHIP_IMMUTABLE,
++	GPIOCHIP_IRQ_RESOURCE_HELPERS,
++};
++
++static void txgbe_irq_handler(struct irq_desc *desc)
++{
++	struct irq_chip *chip = irq_desc_get_chip(desc);
++	struct wx *wx = irq_desc_get_handler_data(desc);
++	struct txgbe *txgbe = wx->priv;
++	irq_hw_number_t hwirq;
++	unsigned long gpioirq;
++	struct gpio_chip *gc;
++	u32 gpio;
++
++	chained_irq_enter(chip, desc);
++
++	gpioirq = rd32(wx, WX_GPIO_INTSTATUS);
++
++	/* workaround for hysteretic gpio interrupts */
++	gpio = rd32(wx, WX_GPIO_EXT);
++	if (!gpioirq)
++		gpioirq = txgbe->gpio_orig ^ gpio;
++
++	gc = txgbe->gpio;
++	for_each_set_bit(hwirq, &gpioirq, gc->ngpio)
++		generic_handle_domain_irq(gc->irq.domain, hwirq);
++
++	chained_irq_exit(chip, desc);
++
++	/* unmask interrupt */
++	if (netif_running(wx->netdev))
++		wx_intr_enable(wx, TXGBE_INTR_MISC(wx));
++}
++
++static int txgbe_gpio_init(struct txgbe *txgbe)
++{
++	struct gpio_irq_chip *girq;
++	struct wx *wx = txgbe->wx;
++	struct pci_dev *pdev;
++	struct gpio_chip *gc;
++	int ret;
++
++	pdev = wx->pdev;
++	txgbe->gpio_orig = 0;
++
++	gc = devm_kzalloc(&pdev->dev, sizeof(*gc), GFP_KERNEL);
++	if (!gc)
++		return -ENOMEM;
++
++	gc->label = devm_kasprintf(&pdev->dev, GFP_KERNEL, "txgbe_gpio-%x",
++				   (pdev->bus->number << 8) | pdev->devfn);
++	gc->base = -1;
++	gc->ngpio = 6;
++	gc->owner = THIS_MODULE;
++	gc->parent = &pdev->dev;
++	gc->fwnode = software_node_fwnode(txgbe->nodes.group[SWNODE_GPIO]);
++	gc->get = txgbe_gpio_get;
++	gc->get_direction = txgbe_gpio_get_direction;
++	gc->direction_input = txgbe_gpio_direction_in;
++	gc->direction_output = txgbe_gpio_direction_out;
++	gc->can_sleep = false;
++
++	girq = &gc->irq;
++	gpio_irq_chip_set_chip(girq, &txgbe_gpio_irq_chip);
++	girq->parent_handler = txgbe_irq_handler;
++	girq->parent_handler_data = wx;
++	girq->num_parents = 1;
++	girq->parents = devm_kcalloc(&pdev->dev, 1, sizeof(*girq->parents),
++				     GFP_KERNEL);
++	if (!girq->parents)
++		return -ENOMEM;
++	girq->parents[0] = wx->msix_entries[wx->num_q_vectors].vector;
++	girq->default_type = IRQ_TYPE_NONE;
++	girq->handler = handle_bad_irq;
++
++	ret = devm_gpiochip_add_data(&pdev->dev, gc, wx);
++	if (ret)
++		return ret;
++
++	txgbe->gpio = gc;
++
++	return 0;
++}
++
+ static int txgbe_clock_register(struct txgbe *txgbe)
+ {
+ 	struct pci_dev *pdev = txgbe->wx->pdev;
+@@ -157,6 +379,12 @@ int txgbe_init_phy(struct txgbe *txgbe)
+ 		return ret;
+ 	}
+ 
++	ret = txgbe_gpio_init(txgbe);
++	if (ret) {
++		wx_err(txgbe->wx, "failed to init gpio\n");
++		goto err_unregister_swnode;
++	}
++
+ 	ret = txgbe_clock_register(txgbe);
+ 	if (ret) {
+ 		wx_err(txgbe->wx, "failed to register clock: %d\n", ret);
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+index fc91e0fc37a6..796f33fe3016 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+@@ -55,6 +55,31 @@
+ #define TXGBE_TS_CTL                            0x10300
+ #define TXGBE_TS_CTL_EVAL_MD                    BIT(31)
+ 
++/* GPIO register bit */
++#define TXGBE_GPIOBIT_0                         BIT(0) /* I:tx fault */
++#define TXGBE_GPIOBIT_1                         BIT(1) /* O:tx disabled */
++#define TXGBE_GPIOBIT_2                         BIT(2) /* I:sfp module absent */
++#define TXGBE_GPIOBIT_3                         BIT(3) /* I:rx signal lost */
++#define TXGBE_GPIOBIT_4                         BIT(4) /* O:rate select, 1G(0) 10G(1) */
++#define TXGBE_GPIOBIT_5                         BIT(5) /* O:rate select, 1G(0) 10G(1) */
++
++/* Extended Interrupt Enable Set */
++#define TXGBE_PX_MISC_ETH_LKDN                  BIT(8)
++#define TXGBE_PX_MISC_DEV_RST                   BIT(10)
++#define TXGBE_PX_MISC_ETH_EVENT                 BIT(17)
++#define TXGBE_PX_MISC_ETH_LK                    BIT(18)
++#define TXGBE_PX_MISC_ETH_AN                    BIT(19)
++#define TXGBE_PX_MISC_INT_ERR                   BIT(20)
++#define TXGBE_PX_MISC_GPIO                      BIT(26)
++#define TXGBE_PX_MISC_IEN_MASK ( \
++				TXGBE_PX_MISC_ETH_LKDN | \
++				TXGBE_PX_MISC_DEV_RST | \
++				TXGBE_PX_MISC_ETH_EVENT | \
++				TXGBE_PX_MISC_ETH_LK | \
++				TXGBE_PX_MISC_ETH_AN | \
++				TXGBE_PX_MISC_INT_ERR | \
++				TXGBE_PX_MISC_GPIO)
++
+ /* I2C registers */
+ #define TXGBE_I2C_BASE                          0x14900
+ 
+@@ -153,6 +178,8 @@ struct txgbe {
+ 	struct platform_device *i2c_dev;
+ 	struct clk_lookup *clock;
+ 	struct clk *clk;
++	struct gpio_chip *gpio;
++	u32 gpio_orig;
+ };
+ 
+ #endif /* _TXGBE_TYPE_H_ */
 -- 
 2.27.0
 
