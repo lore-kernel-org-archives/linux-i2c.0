@@ -2,86 +2,147 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3CF6C7EE22
-	for <linux-i2c@archiver.kernel.org>; Wed, 26 Apr 2023 19:50:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71CFAC77B60
+	for <linux-i2c@archiver.kernel.org>; Thu, 27 Apr 2023 02:18:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233980AbjDZTud (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 26 Apr 2023 15:50:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38684 "EHLO
+        id S242875AbjD0CSG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 26 Apr 2023 22:18:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233615AbjDZTuc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Apr 2023 15:50:32 -0400
-Received: from fllv0016.ext.ti.com (fllv0016.ext.ti.com [198.47.19.142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C3A1724;
-        Wed, 26 Apr 2023 12:50:27 -0700 (PDT)
-Received: from fllv0034.itg.ti.com ([10.64.40.246])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 33QJoDbg054373;
-        Wed, 26 Apr 2023 14:50:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1682538613;
-        bh=Wiv2S7gjejSKEt/wuagHsMCgQ8Xvj9Mat37+5l7d5k4=;
-        h=From:To:CC:Subject:Date;
-        b=idu2ipbLblnVVeIbR9IFwHHqoeoymtXpF1D6UeBttB3vOZ0CBOu1pWjm4leu9y4aY
-         1XkXuRXOGYDiF035TaeeQgWbcA5QSWXvtJQzmC+K7nd17OeyWj9z+oHgBun3XCSfJO
-         M4+RGHZRe1BjtBqyToUm5/kvvqQf7dIRvh5ORQa4=
-Received: from DFLE113.ent.ti.com (dfle113.ent.ti.com [10.64.6.34])
-        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 33QJoD2P048430
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 26 Apr 2023 14:50:13 -0500
-Received: from DFLE101.ent.ti.com (10.64.6.22) by DFLE113.ent.ti.com
- (10.64.6.34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.16; Wed, 26
- Apr 2023 14:50:13 -0500
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DFLE101.ent.ti.com
- (10.64.6.22) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.16 via
- Frontend Transport; Wed, 26 Apr 2023 14:50:12 -0500
-Received: from localhost (ileaxei01-snat.itg.ti.com [10.180.69.5])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 33QJoCuq019926;
-        Wed, 26 Apr 2023 14:50:12 -0500
-From:   Reid Tonking <reidt@ti.com>
-To:     <tony@atomide.com>, <aaro.koskinen@iki.fi>, <jmkrzyszt@gmail.com>,
-        <vigneshr@ti.com>
-CC:     <linux-omap@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <stable@vger.kernel.org>, Reid Tonking <reidt@ti.com>
-Subject: [PATCH v2] i2c: omap: Fix standard mode false ACK readings
-Date:   Wed, 26 Apr 2023 14:49:56 -0500
-Message-ID: <20230426194956.689756-1-reidt@ti.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S242709AbjD0CSF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 26 Apr 2023 22:18:05 -0400
+Received: from smtpbgbr2.qq.com (smtpbgbr2.qq.com [54.207.22.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0113F30EF;
+        Wed, 26 Apr 2023 19:18:02 -0700 (PDT)
+X-QQ-mid: Yeas51t1682561712t600t50125
+Received: from 7082A6556EBF4E69829842272A565F7C (jiawenwu@trustnetic.com [183.129.236.74])
+X-QQ-SSF: 00400000000000F0FM9000000000000
+From:   =?utf-8?b?Smlhd2VuIFd1?= <jiawenwu@trustnetic.com>
+X-BIZMAIL-ID: 10333517096435060835
+To:     <andy.shevchenko@gmail.com>
+Cc:     <netdev@vger.kernel.org>, <jarkko.nikula@linux.intel.com>,
+        <andriy.shevchenko@linux.intel.com>,
+        <mika.westerberg@linux.intel.com>, <jsd@semihalf.com>,
+        <andrew@lunn.ch>, <hkallweit1@gmail.com>, <linux@armlinux.org.uk>,
+        <linux-i2c@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+        <mengyuanlou@net-swift.com>
+References: <20230426071434.452717-1-jiawenwu@trustnetic.com> <20230426071434.452717-3-jiawenwu@trustnetic.com> <ZElCHGho-szyySGC@surfacebook>
+In-Reply-To: <ZElCHGho-szyySGC@surfacebook>
+Subject: RE: [RFC PATCH net-next v5 2/9] i2c: designware: Add driver support for Wangxun 10Gb NIC
+Date:   Thu, 27 Apr 2023 10:15:10 +0800
+Message-ID: <013a01d978ae$182104c0$48630e40$@trustnetic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: text/plain;
+        charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQImNz20YbZMzc6JsoYnjpKQN5RngQGupjOHAxyjlVSufoxyQA==
+Content-Language: zh-cn
+X-QQ-SENDSIZE: 520
+Feedback-ID: Yeas:trustnetic.com:qybglogicsvr:qybglogicsvr5
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Using standard mode, rare false ACK responses were appearing with
-i2cdetect tool. This was happening due to NACK interrupt triggering
-ISR thread before register access interrupt was ready. Removing the
-NACK interrupt's ability to trigger ISR thread lets register access
-ready interrupt do this instead.
+On Wednesday, April 26, 2023 11:45 PM, andy.shevchenko@gmail.com wrote:
+> Wed, Apr 26, 2023 at 03:14:27PM +0800, Jiawen Wu kirjoitti:
+> > Wangxun 10Gb ethernet chip is connected to Designware I2C, to communicate
+> > with SFP.
+> >
+> > Introduce the property "i2c-dw-flags" to match device data for software
+> > node case. Since IO resource was mapped on the ethernet driver, add a model
+> > quirk to get resource from platform info.
+> >
+> > The exists IP limitations are dealt as workarounds:
+> > - IP does not support interrupt mode, it works on polling mode.
+> > - Additionally set FIFO depth address the chip issue.
+> 
+> Thanks for an update, my comments below.
+> 
+> ...
+> 
+> >  		goto done_nolock;
+> >  	}
+> >
+> > +	if ((dev->flags & MODEL_MASK) == MODEL_WANGXUN_SP) {
+> > +		ret = txgbe_i2c_dw_xfer_quirk(adap, msgs, num);
+> > +		goto done_nolock;
+> > +	}
+> 
+> 	switch (dev->flags & MODEL_MASK) {
+> 	case AMD:
+> 		...
+> 	case WANGXUN:
+> 		...
+> 	default:
+> 		break;
+> 	}
+> 
+> ...
+> 
+> > +static int txgbe_i2c_request_regs(struct dw_i2c_dev *dev)
+> > +{
+> > +	struct platform_device *pdev = to_platform_device(dev->dev);
+> > +	struct resource *r;
+> > +
+> > +	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	if (!r)
+> > +		return -ENODEV;
+> > +
+> > +	dev->base = devm_ioremap(&pdev->dev, r->start, resource_size(r));
+> > +
+> > +	return PTR_ERR_OR_ZERO(dev->base);
+> > +}
+> 
+> Redundant. See below.
+> 
+> ...
+> 
+> >  	case MODEL_BAIKAL_BT1:
+> >  		ret = bt1_i2c_request_regs(dev);
+> >  		break;
+> > +	case MODEL_WANGXUN_SP:
+> > +		ret = txgbe_i2c_request_regs(dev);
+> 
+> How is it different to...
+> 
+> > +		break;
+> >  	default:
+> >  		dev->base = devm_platform_ioremap_resource(pdev, 0);
+> 
+> ...this one?
+> 
 
-Cc: <stable@vger.kernel.org> # v3.7+
-Fixes: 3b2f8f82dad7 ("i2c: omap: switch to threaded IRQ support")
-Signed-off-by: Reid Tonking <reidt@ti.com>
----
- drivers/i2c/busses/i2c-omap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+devm_platform_ioremap_resource() has one more devm_request_mem_region()
+operation than devm_ioremap(). By my test, this memory cannot be re-requested,
+only re-mapped.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 2b4e2be51318..4199f57a6bf2 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1058,7 +1058,7 @@ omap_i2c_isr(int irq, void *dev_id)
- 	u16 stat;
- 
- 	stat = omap_i2c_read_reg(omap, OMAP_I2C_STAT_REG);
--	mask = omap_i2c_read_reg(omap, OMAP_I2C_IE_REG);
-+	mask = omap_i2c_read_reg(omap, OMAP_I2C_IE_REG) & ~OMAP_I2C_STAT_NACK;
- 
- 	if (stat & mask)
- 		ret = IRQ_WAKE_THREAD;
--- 
-2.34.1
+> ...
+> 
+> >  	dev->flags = (uintptr_t)device_get_match_data(&pdev->dev);
+> 
+> > +	if (!dev->flags)
+> 
+> No need to check this. Just define priorities (I would go with above to be
+> higher priority).
+> 
+> > +		device_property_read_u32(&pdev->dev, "i2c-dw-flags", &dev->flags);
+> 
+> Needs to be added to the Device Tree bindings I believe.
+> 
+> But wait, don't we have other ways to detect your hardware at probe time and
+> initialize flags respectively?
+> 
+
+I2C is connected to our NIC chip with no PCI ID, so I register a platform device for it.
+Please see the 4/9 patch. Software nodes are used to pass the device structure but
+no DT and ACPI. I haven't found another way to initialize flags yet, other than the
+platform data used in the previous patch (it seems to be an obsolete way).
+
+> --
+> With Best Regards,
+> Andy Shevchenko
+> 
+> 
+> 
 
