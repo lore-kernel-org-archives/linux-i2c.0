@@ -2,91 +2,57 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92625C77B75
-	for <linux-i2c@archiver.kernel.org>; Fri,  5 May 2023 18:48:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 139B8C77B7D
+	for <linux-i2c@archiver.kernel.org>; Fri,  5 May 2023 20:10:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232204AbjEESsI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 5 May 2023 14:48:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55076 "EHLO
+        id S230483AbjEEUKk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 5 May 2023 16:10:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232167AbjEESsI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 5 May 2023 14:48:08 -0400
-Received: from fgw21-7.mail.saunalahti.fi (fgw21-7.mail.saunalahti.fi [62.142.5.82])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E74561D97E
-        for <linux-i2c@vger.kernel.org>; Fri,  5 May 2023 11:48:06 -0700 (PDT)
+        with ESMTP id S229570AbjEEUKj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 5 May 2023 16:10:39 -0400
+Received: from fgw22-7.mail.saunalahti.fi (fgw22-7.mail.saunalahti.fi [62.142.5.83])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1983DB1
+        for <linux-i2c@vger.kernel.org>; Fri,  5 May 2023 13:10:37 -0700 (PDT)
 Received: from localhost (88-113-26-95.elisa-laajakaista.fi [88.113.26.95])
-        by fgw21.mail.saunalahti.fi (Halon) with ESMTP
-        id 5c84b558-eb75-11ed-abf4-005056bdd08f;
-        Fri, 05 May 2023 21:48:03 +0300 (EEST)
+        by fgw22.mail.saunalahti.fi (Halon) with ESMTP
+        id e43ea10f-eb80-11ed-a9de-005056bdf889;
+        Fri, 05 May 2023 23:10:35 +0300 (EEST)
 From:   andy.shevchenko@gmail.com
-Date:   Fri, 5 May 2023 21:48:01 +0300
-To:     Jiawen Wu <jiawenwu@trustnetic.com>
-Cc:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
-        andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
-        jsd@semihalf.com, Jose.Abreu@synopsys.com, andrew@lunn.ch,
-        hkallweit1@gmail.com, linux@armlinux.org.uk,
-        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        mengyuanlou@net-swift.com
+Date:   Fri, 5 May 2023 23:10:33 +0300
+To:     andy.shevchenko@gmail.com
+Cc:     Jiawen Wu <jiawenwu@trustnetic.com>, netdev@vger.kernel.org,
+        jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, jsd@semihalf.com,
+        Jose.Abreu@synopsys.com, andrew@lunn.ch, hkallweit1@gmail.com,
+        linux@armlinux.org.uk, linux-i2c@vger.kernel.org,
+        linux-gpio@vger.kernel.org, mengyuanlou@net-swift.com
 Subject: Re: [RFC PATCH net-next v6 2/9] i2c: designware: Add driver support
  for Wangxun 10Gb NIC
-Message-ID: <ZFVPYSKfvQq3WeeO@surfacebook>
+Message-ID: <ZFViufP6qh79C1-T@surfacebook>
 References: <20230505074228.84679-1-jiawenwu@trustnetic.com>
  <20230505074228.84679-3-jiawenwu@trustnetic.com>
+ <ZFVPYSKfvQq3WeeO@surfacebook>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230505074228.84679-3-jiawenwu@trustnetic.com>
+In-Reply-To: <ZFVPYSKfvQq3WeeO@surfacebook>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Fri, May 05, 2023 at 03:42:21PM +0800, Jiawen Wu kirjoitti:
-> Wangxun 10Gb ethernet chip is connected to Designware I2C, to communicate
-> with SFP.
-> 
-> Introduce the property "wx,i2c-snps-model" to match device data for Wangxun
-> in software node case. Since IO resource was mapped on the ethernet driver,
-> add a model quirk to get regmap from parent device.
-> 
-> The exists IP limitations are dealt as workarounds:
-> - IP does not support interrupt mode, it works on polling mode.
-> - Additionally set FIFO depth address the chip issue.
-
-Thank you, almost there!
+Fri, May 05, 2023 at 09:48:01PM +0300, andy.shevchenko@gmail.com kirjoitti:
+> Fri, May 05, 2023 at 03:42:21PM +0800, Jiawen Wu kirjoitti:
 
 ...
 
-> +static int txgbe_i2c_request_regs(struct dw_i2c_dev *dev)
-> +{
+> > +	device_property_read_u32(&pdev->dev, "wx,i2c-snps-model", &dev->flags);
+> 
+> I believe in your case it should be named something like
+> "linux,i2c-synopsys-platform". But in any case this I leave
+> to the more experienced people.
 
-> +	struct platform_device *pdev = to_platform_device(dev->dev);
-> +
-> +	dev->map = dev_get_regmap(pdev->dev.parent, NULL);
-
-No need to jump to a platform device.
-
-	dev->map = dev_get_regmap(dev->dev.parent, NULL);
-
-should suffice.
-
-> +	if (!dev->map)
-> +		return -ENODEV;
-> +
-> +	return 0;
-> +}
-
-...
-
->  	dev->flags = (uintptr_t)device_get_match_data(&pdev->dev);
-> +	device_property_read_u32(&pdev->dev, "wx,i2c-snps-model", &dev->flags);
-
-I believe in your case it should be named something like
-"linux,i2c-synopsys-platform". But in any case this I leave
-to the more experienced people.
-
-Also I'm not sure this proprty should have a proority over
-driver data.
-
+Or "snps,i2c-platform", I dunno...
 
 -- 
 With Best Regards,
