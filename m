@@ -2,44 +2,46 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEFC3C77B7F
-	for <linux-i2c@archiver.kernel.org>; Mon,  8 May 2023 20:54:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B178C7EE25
+	for <linux-i2c@archiver.kernel.org>; Mon,  8 May 2023 20:54:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233811AbjEHUyU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 8 May 2023 16:54:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46262 "EHLO
+        id S233277AbjEHUyV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 8 May 2023 16:54:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233813AbjEHUyB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 16:54:01 -0400
+        with ESMTP id S233828AbjEHUyD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 16:54:03 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A88547693
-        for <linux-i2c@vger.kernel.org>; Mon,  8 May 2023 13:53:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF36872A0
+        for <linux-i2c@vger.kernel.org>; Mon,  8 May 2023 13:53:47 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pw7rS-00046R-F1; Mon, 08 May 2023 22:53:34 +0200
+        id 1pw7rQ-00041g-RE; Mon, 08 May 2023 22:53:32 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pw7rR-0024vY-Cf; Mon, 08 May 2023 22:53:33 +0200
+        id 1pw7rQ-0024v8-2N; Mon, 08 May 2023 22:53:32 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pw7rQ-002YZz-ML; Mon, 08 May 2023 22:53:32 +0200
+        id 1pw7rP-002YZe-Ap; Mon, 08 May 2023 22:53:31 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
-To:     Michal Simek <michal.simek@amd.com>, Wolfram Sang <wsa@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+To:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         kernel@pengutronix.de
-Subject: [PATCH 81/89] i2c: xiic: Convert to platform remove callback returning void
-Date:   Mon,  8 May 2023 22:52:58 +0200
-Message-Id: <20230508205306.1474415-82-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 76/89] i2c: uniphier: Convert to platform remove callback returning void
+Date:   Mon,  8 May 2023 22:52:53 +0200
+Message-Id: <20230508205306.1474415-77-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230508205306.1474415-1-u.kleine-koenig@pengutronix.de>
 References: <20230508205306.1474415-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1841; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=94a4K5zKxD8WSfsduf9U4KzJZaR/t1eF+I+F5YUNORQ=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBkWWESCx/Q2G1QFf/dlDQLQwHI9FLA1+r/H9vts yQ0aQKDUTmJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZFlhEgAKCRCPgPtYfRL+ Tp9RB/4/lYwLbNRkbuuoQ0Qeb4tNL7jlfQy28DVnrtxH91seEe8lFe73LboR+ksNDsFSM4hvvvj qJWDFJfwMIh5ZzmwZ/C2PoWUz0Vr4jw19SWzwmPfX0LgxQvnimia4IBY2IzLtvrNCFqnfcj5Nhs l3wayBwWrSwWHiGHLhJiHBv38QXRMLbUt1bHjHdMR5IZVqbOAGfSOeFk9ASTkl30zSPED+c7QrM S9htmj6ct9Yty/HpraRqbH+qdtaM/HLL5cwTIrW/LtxYMjj4F8cYkB9Xz8OUAhE8a3I8ImX/dcp 27bj8f3VaW/9L9oWEbyZJhjUBjLIxTAp3PdWg8vvxSzRrAcJ
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1733; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=Do02+OskPABT0EhegBqoAQRR15iQhMIyu5txr5nXieA=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBkWWEMrXEBRgNnvpS+KzwESHwb4PP+Yn8NsbnTz c5Z06yXrRiJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZFlhDAAKCRCPgPtYfRL+ TlpdB/9mpF6wqeGmNoCaP7kyn5T4RRsDgOd1AzBq8ark2Q4Zc4O/Qnd1uPZqnYKWEl+hx2twCPs v6AkblSEjj5hwjoJFxj8P5m43a1jvKfVkJ7WNLY7ftFseYnOXwEjb9dhRzOd5JrTLU9w67MzjrQ Efu6rfNFjkwWLAiOx1f0RioZYhsVT2Be9500SejKVYnL/mgBh7Yr/foo8O+eKs7D0PaG0NYtfpw 0p9qq1R95xqDIEU9gha1Yxiw97gqEaxe7a2FtCyheuDajfAEvmalygCmnBh8jrhRVotg8Zxrn5a /mHBccA0VqvsUDpGPXVQJkOr+UlOEu0UQDr1SKd6OGjOCjo7
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -63,40 +65,38 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/i2c/busses/i2c-xiic.c | 6 ++----
+ drivers/i2c/busses/i2c-uniphier.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 8a3d9817cb41..61288f8dd067 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -1335,7 +1335,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
+index e3ebae381f08..96b1eb7489a3 100644
+--- a/drivers/i2c/busses/i2c-uniphier.c
++++ b/drivers/i2c/busses/i2c-uniphier.c
+@@ -380,14 +380,12 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
  	return ret;
  }
  
--static int xiic_i2c_remove(struct platform_device *pdev)
-+static void xiic_i2c_remove(struct platform_device *pdev)
+-static int uniphier_i2c_remove(struct platform_device *pdev)
++static void uniphier_i2c_remove(struct platform_device *pdev)
  {
- 	struct xiic_i2c *i2c = platform_get_drvdata(pdev);
- 	int ret;
-@@ -1356,8 +1356,6 @@ static int xiic_i2c_remove(struct platform_device *pdev)
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+ 	struct uniphier_i2c_priv *priv = platform_get_drvdata(pdev);
+ 
+ 	i2c_del_adapter(&priv->adap);
+ 	clk_disable_unprepare(priv->clk);
 -
 -	return 0;
  }
  
- static int __maybe_unused xiic_i2c_runtime_suspend(struct device *dev)
-@@ -1390,7 +1388,7 @@ static const struct dev_pm_ops xiic_dev_pm_ops = {
+ static int __maybe_unused uniphier_i2c_suspend(struct device *dev)
+@@ -425,7 +423,7 @@ MODULE_DEVICE_TABLE(of, uniphier_i2c_match);
  
- static struct platform_driver xiic_i2c_driver = {
- 	.probe   = xiic_i2c_probe,
--	.remove  = xiic_i2c_remove,
-+	.remove_new = xiic_i2c_remove,
- 	.driver  = {
- 		.name = DRIVER_NAME,
- 		.of_match_table = of_match_ptr(xiic_of_match),
+ static struct platform_driver uniphier_i2c_drv = {
+ 	.probe  = uniphier_i2c_probe,
+-	.remove = uniphier_i2c_remove,
++	.remove_new = uniphier_i2c_remove,
+ 	.driver = {
+ 		.name  = "uniphier-i2c",
+ 		.of_match_table = uniphier_i2c_match,
 -- 
 2.39.2
 
