@@ -2,47 +2,44 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E265C7EE25
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0D45C7EE2D
 	for <linux-i2c@archiver.kernel.org>; Mon,  8 May 2023 20:53:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232167AbjEHUxY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S232527AbjEHUxY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 8 May 2023 16:53:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45052 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232527AbjEHUxU (ORCPT
+        with ESMTP id S229637AbjEHUxU (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 16:53:20 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3577959EB
-        for <linux-i2c@vger.kernel.org>; Mon,  8 May 2023 13:53:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0AE5FDB
+        for <linux-i2c@vger.kernel.org>; Mon,  8 May 2023 13:53:20 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pw7r8-00034L-Jg; Mon, 08 May 2023 22:53:14 +0200
+        id 1pw7rA-0003A8-V8; Mon, 08 May 2023 22:53:17 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pw7r7-0024q2-RJ; Mon, 08 May 2023 22:53:13 +0200
+        id 1pw7rA-0024qp-8r; Mon, 08 May 2023 22:53:16 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pw7r7-002YVh-76; Mon, 08 May 2023 22:53:13 +0200
+        id 1pw7r9-002YWD-KL; Mon, 08 May 2023 22:53:15 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
-To:     Benson Leung <bleung@chromium.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Wolfram Sang <wsa@kernel.org>
-Cc:     Guenter Roeck <groeck@chromium.org>, linux-i2c@vger.kernel.org,
-        chrome-platform@lists.linux.dev, kernel@pengutronix.de
-Subject: [PATCH 15/89] i2c: cros-ec-tunnel: Convert to platform remove callback returning void
-Date:   Mon,  8 May 2023 22:51:52 +0200
-Message-Id: <20230508205306.1474415-16-u.kleine-koenig@pengutronix.de>
+Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 23/89] i2c: gpio: Convert to platform remove callback returning void
+Date:   Mon,  8 May 2023 22:52:00 +0200
+Message-Id: <20230508205306.1474415-24-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230508205306.1474415-1-u.kleine-koenig@pengutronix.de>
 References: <20230508205306.1474415-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1727; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=8x9SNm7wC0nHnafZUA2i+WZqpxZes+tYc4Y8DP8Dkh4=; b=owGbwMvMwMXY3/A7olbonx/jabUkhpTIhFTbMqXGZ1MV/yvOKbou9HJ58HK3362rzC1P3quzs Pj7KOJuJ6MxCwMjF4OsmCKLfeOaTKsqucjOtf8uwwxiZQKZwsDFKQATkVRh/83Cm3lNZtmJuw98 bx/smvfnPpNsSGcso6zCy5j7d9p7rh/VeficX/nSaq9P3Lydvvff/Dr4s/dbi8X8ChtLi58bjFh /2K/wqiz0WHYzgr9fx1JQ7VFWTEu3VMbqwwE2th0q3Q6Xqi0NvxWKTfFREVL4Ml12+6yOG01Xnv ZmT837xiEvk3htodna3AinmZNOysgH3/bL7xOQkvN7YrLQgqdkeaVXc9DvxNQMQXd9Od30x8Grp 09Qtjy/RfZ4tKOOwLni2o3t+95XTl126oa8IuP5c2JbjoTIvri04PBMEfvU619yy4/vc2+sENN2 e+Rx7te0azs5drRpcjk+PvDHRUiq71fB8gMVXxy9Jcx4AQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1697; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=5gx1kGs0cESEpw/mNF1QYNXMsaYQc2ZOiBT03TQzQo8=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBkWWCRunh9YWocDgAZktXQbB7ec9yigM+kJHRcK Glerwgqm8iJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZFlgkQAKCRCPgPtYfRL+ To/1B/95ns1XlT1RcNJtX0ABqiHTRopPMxRqhl64EiZWfnW6peODKvQg3zaRrTteo0VWHXnvN9h ybCLQY5Qd3XQ3rm73oTsO0sJ2t3A2LCqD2ysTfBf+LuvKVDLvmAfYkq9eWD2HgPVkrORLRLvX2l di1aoRjIuW3IAUzCwG9DyMACljMuFbnuCpCZ2PGF/NeybkF93EFfabKq/3Aryvsj4Zno/0icXyL sLzyNoZkkAveGgnE9kMpFzxxGYmd/6C4YaMg6qmzxPIPWIS/52TeFn8a2bi1AZFP996MENXs8Fx jnFjMbv2KZkSk807BgasRB3IyDYiYAS1QNQLegW5NaHJsreb
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -66,37 +63,40 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/i2c/busses/i2c-cros-ec-tunnel.c | 6 ++----
+ drivers/i2c/busses/i2c-gpio.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-index 8b3ff5bb14d8..2737fd8abd32 100644
---- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-+++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-@@ -283,13 +283,11 @@ static int ec_i2c_probe(struct platform_device *pdev)
- 	return err;
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index 1794c0399f22..e5a5b9e8bf2c 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -475,7 +475,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	return 0;
  }
  
--static int ec_i2c_remove(struct platform_device *dev)
-+static void ec_i2c_remove(struct platform_device *dev)
+-static int i2c_gpio_remove(struct platform_device *pdev)
++static void i2c_gpio_remove(struct platform_device *pdev)
  {
- 	struct ec_i2c_device *bus = platform_get_drvdata(dev);
+ 	struct i2c_gpio_private_data *priv;
+ 	struct i2c_adapter *adap;
+@@ -486,8 +486,6 @@ static int i2c_gpio_remove(struct platform_device *pdev)
+ 	adap = &priv->adap;
  
- 	i2c_del_adapter(&bus->adap);
+ 	i2c_del_adapter(adap);
 -
 -	return 0;
  }
  
- static const struct of_device_id cros_ec_i2c_of_match[] __maybe_unused = {
-@@ -306,7 +304,7 @@ MODULE_DEVICE_TABLE(acpi, cros_ec_i2c_tunnel_acpi_id);
+ static const struct of_device_id i2c_gpio_dt_ids[] = {
+@@ -510,7 +508,7 @@ static struct platform_driver i2c_gpio_driver = {
+ 		.acpi_match_table = i2c_gpio_acpi_match,
+ 	},
+ 	.probe		= i2c_gpio_probe,
+-	.remove		= i2c_gpio_remove,
++	.remove_new	= i2c_gpio_remove,
+ };
  
- static struct platform_driver ec_i2c_tunnel_driver = {
- 	.probe = ec_i2c_probe,
--	.remove = ec_i2c_remove,
-+	.remove_new = ec_i2c_remove,
- 	.driver = {
- 		.name = "cros-ec-i2c-tunnel",
- 		.acpi_match_table = ACPI_PTR(cros_ec_i2c_tunnel_acpi_id),
+ static int __init i2c_gpio_init(void)
 -- 
 2.39.2
 
