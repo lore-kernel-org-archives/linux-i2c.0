@@ -2,83 +2,99 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3E51C7EE22
-	for <linux-i2c@archiver.kernel.org>; Mon,  8 May 2023 18:54:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7F78C77B7F
+	for <linux-i2c@archiver.kernel.org>; Mon,  8 May 2023 20:53:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229457AbjEHSyL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 8 May 2023 14:54:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40000 "EHLO
+        id S232525AbjEHUxU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 8 May 2023 16:53:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbjEHSyK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 14:54:10 -0400
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD6E25FE8;
-        Mon,  8 May 2023 11:54:09 -0700 (PDT)
-Received: by mail-pf1-x434.google.com with SMTP id d2e1a72fcca58-643465067d1so3664866b3a.0;
-        Mon, 08 May 2023 11:54:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683572049; x=1686164049;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JB4/cM8wctRX4JBzn3xFEBRRTxVKKD7sX/LFKhnjc5A=;
-        b=jS1F//qR37GdGIu/uwduy4jLEe4igueofer7yYAtGL5amQqqEegFqFoZki5KFdqt/K
-         lVSira9U37PkVlWIbVkO6MmddQ0+L5SADFdxwqBOyxKb409V+NlZSUWMSQ7CQtHytl1k
-         Pf78kdVIEQP1EWLoX9kh7EQ9r0mDTrQGyFOgsO8w65oeWCvBXUqKSFqYh46QNZHZkqqf
-         Y/vfrz6+vRinPkePvl68TqJE7Q6p/G7YiKxNAhGybWHMQBilZdRw+k9ZF4khMqogzAf1
-         pPiXu4DNv2P61xPdKGGbIuVAE8020r5ToBMqbSWNZRl45u0x8l29nLuudWVPBm3hrF9V
-         uvxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683572049; x=1686164049;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JB4/cM8wctRX4JBzn3xFEBRRTxVKKD7sX/LFKhnjc5A=;
-        b=ETndiTDjfAmQe7YdhWr3lv27owjcylyuiJDs0oS9Kqovkq3C3O5noOelWIM5hPof3q
-         AsaM6TgROAaCXUHl+iuj3wK/y1BaAGrY15FgxzsgxfgOf6v3vuqaPnMvEuzCPJ3XIF9r
-         ZeyQPct5zmA0BsUtkdVKu97df1EkfeXMVT8zzS4xHg2HDyvSb5gfOukzbBZUfF6rsroy
-         Y036THbG04I4kj+CG0wTuDkn66ouM0xrpFSeEXBN4eSD7DjkM9mgSXu8wBOmzkeEAYjI
-         /8/Mn3s5GS/3DwvjiskO8lkS2TtXZacN7OiZxvm1YnxLbzTlk9j71gUNvR0XES+tZYtO
-         VdNA==
-X-Gm-Message-State: AC+VfDwtHGawgidJCEQs5jKoN16laD9eQVLZpkYGJBm6ow9Oe2D+M7Sr
-        fsy8G5vJ88LU1Zr+H8EWXnw=
-X-Google-Smtp-Source: ACHHUZ5MjAVBufTEIWp//rkT1lh59X9n0OwnyCpH/xNkSpDx1DXOcgpibn2OkgbPtEWiOh2YDBZZNQ==
-X-Received: by 2002:a05:6a20:1445:b0:100:a4b2:d5e9 with SMTP id a5-20020a056a20144500b00100a4b2d5e9mr4107904pzi.18.1683572049168;
-        Mon, 08 May 2023 11:54:09 -0700 (PDT)
-Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id u24-20020a62ed18000000b0063b6fb4522esm327825pfh.20.2023.05.08.11.54.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 May 2023 11:54:08 -0700 (PDT)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     bcm-kernel-feedback-list@broadcom.com,
-        Stanislav Jakubek <stano.jakubek@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>
-Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] ARM: dts: bcm23550: Add SoC-specific I2C compatible
-Date:   Mon,  8 May 2023 11:54:06 -0700
-Message-Id: <20230508185406.1639539-1-f.fainelli@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <9875ec0211187e4f5e2a4379c63eacdb69b31d7a.1682252615.git.stano.jakubek@gmail.com>
-References: <9875ec0211187e4f5e2a4379c63eacdb69b31d7a.1682252615.git.stano.jakubek@gmail.com>
+        with ESMTP id S229637AbjEHUxR (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 16:53:17 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F7C59EB
+        for <linux-i2c@vger.kernel.org>; Mon,  8 May 2023 13:53:15 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pw7r7-00030m-0m; Mon, 08 May 2023 22:53:13 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pw7r6-0024pZ-70; Mon, 08 May 2023 22:53:12 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pw7r4-002YV6-Fu; Mon, 08 May 2023 22:53:10 +0200
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Krzysztof Adamski <krzysztof.adamski@nokia.com>,
+        Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 06/89] i2c: axxia: Convert to platform remove callback returning void
+Date:   Mon,  8 May 2023 22:51:43 +0200
+Message-Id: <20230508205306.1474415-7-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230508205306.1474415-1-u.kleine-koenig@pengutronix.de>
+References: <20230508205306.1474415-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1673; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=2YVZpyNvupdR7XF6cn+y15IKkTV3GVE3r4hoD6Yxy5c=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBkWWBLGpSxyCqlWwmtzQrvk2GPihQsHM1wBRKq3 NTvRnV5MwGJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZFlgSwAKCRCPgPtYfRL+ ThnbB/4rkl/T4IR20o6U7kUdopZQ5+c9D6fP+KZwsGHuqtnS56LuvHdIUXJu7U8yrxohOd3Q2Xa M4ELM272/x8rnMTkAUj686t/OShBZtOoP9e/2m153uVcUEkkLrCHiZ83Z67wEUPv7hjG+vKwz4v 5yVNmL5MQItio+HP5GWKKOiOI7bRI8jagbbz+PtqCHmE/59zBTT00+anDmneOJkv13H8exIhkoH 5OMz23l5Luq2Gqe38Egsu2XAqAKZQb/UgZYA81cV4v8vOdlya6BJSARJZ/lDOLLmGIWgcA2KBek XqxnEWfoTSqIH7AjvXC/Cq43sGpezKbwkGj879M5DKN9KcK4
+X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Sun, 23 Apr 2023 14:39:12 +0200, Stanislav Jakubek <stano.jakubek@gmail.com> wrote:
-> Add BCM23550-specific compatible for brcm,kona-i2c nodes. While not
-> currently used by the i2c-bcm-kona driver, they can serve for further
-> customization, if required.
-> Done in preparation for dt-binding coversion to DT schema.
-> 
-> Signed-off-by: Stanislav Jakubek <stano.jakubek@gmail.com>
-> ---
+The .remove() callback for a platform driver returns an int which makes
+many driver authors wrongly assume it's possible to do error handling by
+returning an error code. However the value returned is (mostly) ignored
+and this typically results in resource leaks. To improve here there is a
+quest to make the remove callback return void. In the first step of this
+quest all drivers are converted to .remove_new() which already returns
+void.
 
-Applied to https://github.com/Broadcom/stblinux/commits/devicetree/next, thanks!
---
-Florian
+Trivially convert this driver from always returning zero in the remove
+callback to the void returning variant.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/i2c/busses/i2c-axxia.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
+index c1c74ce08407..d7f1e98777ac 100644
+--- a/drivers/i2c/busses/i2c-axxia.c
++++ b/drivers/i2c/busses/i2c-axxia.c
+@@ -804,14 +804,12 @@ static int axxia_i2c_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
+-static int axxia_i2c_remove(struct platform_device *pdev)
++static void axxia_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct axxia_i2c_dev *idev = platform_get_drvdata(pdev);
+ 
+ 	clk_disable_unprepare(idev->i2c_clk);
+ 	i2c_del_adapter(&idev->adapter);
+-
+-	return 0;
+ }
+ 
+ /* Match table for of_platform binding */
+@@ -824,7 +822,7 @@ MODULE_DEVICE_TABLE(of, axxia_i2c_of_match);
+ 
+ static struct platform_driver axxia_i2c_driver = {
+ 	.probe = axxia_i2c_probe,
+-	.remove = axxia_i2c_remove,
++	.remove_new = axxia_i2c_remove,
+ 	.driver = {
+ 		.name = "axxia-i2c",
+ 		.of_match_table = axxia_i2c_of_match,
+-- 
+2.39.2
+
