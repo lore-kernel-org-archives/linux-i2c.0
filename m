@@ -2,103 +2,96 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17275C7EE22
-	for <linux-i2c@archiver.kernel.org>; Mon,  8 May 2023 20:54:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10BCAC7EE22
+	for <linux-i2c@archiver.kernel.org>; Mon,  8 May 2023 20:59:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233530AbjEHUy1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 8 May 2023 16:54:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45652 "EHLO
+        id S229969AbjEHU7L (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 8 May 2023 16:59:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233916AbjEHUyN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 16:54:13 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBB236E8C
-        for <linux-i2c@vger.kernel.org>; Mon,  8 May 2023 13:53:55 -0700 (PDT)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pw7rL-0003j9-EX; Mon, 08 May 2023 22:53:27 +0200
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pw7rJ-0024sy-Dq; Mon, 08 May 2023 22:53:25 +0200
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pw7rI-002YXz-DS; Mon, 08 May 2023 22:53:24 +0200
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Wolfram Sang <wsa@kernel.org>
-Cc:     Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-        "open list:LINUX FOR POWERPC" <linuxppc-dev@lists.ozlabs.org>,
-        linux-i2c@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 50/89] i2c: pasemi-platform: Convert to platform remove callback returning void
-Date:   Mon,  8 May 2023 22:52:27 +0200
-Message-Id: <20230508205306.1474415-51-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230508205306.1474415-1-u.kleine-koenig@pengutronix.de>
-References: <20230508205306.1474415-1-u.kleine-koenig@pengutronix.de>
+        with ESMTP id S232784AbjEHU7I (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 16:59:08 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9FC8171C
+        for <linux-i2c@vger.kernel.org>; Mon,  8 May 2023 13:59:06 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id d9443c01a7336-1ab0c697c84so38037825ad.3
+        for <linux-i2c@vger.kernel.org>; Mon, 08 May 2023 13:59:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1683579546; x=1686171546;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ynOyd6Hg89D78tR2kyoDL6UoW2jK18nV6B4gfEeggCk=;
+        b=XOuCkhajBUA7uxMFgCyBS3dYWwk2BogYarz/LbqToOg/e+xRiDR2Mn/YvNIQRXJ82U
+         D3JJDBHNu7h0tAwrugMTKdxswG0sL5tGB3rZGKc+qfPOZWUbNiOmlZSSpovkqVMrM46Z
+         zlXygr/JspSO9jR9b9qRsSCIT2KCTRu0h1MRiiknNJRaTlm24OpyfQyin47Rq72M4A8X
+         IoJkDIHCGL9bgNeLZEKKQqF2i0XyhRfpLhdodCA34by3MxGm1TofzPiRCfH8xPYKNkDT
+         CgPgSbN0G34oWvzjJMdC5/jG01A3KKIvw4y7c8SYllJj29fYbSDuzUEDqb2sGFekKSuL
+         RifA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683579546; x=1686171546;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ynOyd6Hg89D78tR2kyoDL6UoW2jK18nV6B4gfEeggCk=;
+        b=l6W8XgwmpVhy+/8MVdmjGHihUWTdhzXYLgcrAxS3cMct3Gq9g+OHQr0+sQ+72e4tFC
+         YZvSvsHc4HLMuufazdibyJXTcAwsi1pyCiAfVv2so6a70MARDC4SxhzDQGn/9oj0Vm8O
+         DvoIilCDx3jSWzZ6BAVHpKGVihrufWqdgZBwF4MBNjYS5mBAjlg5pZFPZg5LHuDs75wy
+         Fx1oxJr0dhYZf56sdXc2ASrePFuSHkbKo4J3+995K1MVv6sVMdhPZqMn+YCxpXTS9Prs
+         P4gqcRfvIEjJqOBW+IodFo8wUo1s1WkyG11Kh4ijl1NPDlG5o2/FArWclbGC3TG8i7YR
+         LgPg==
+X-Gm-Message-State: AC+VfDxZ5fIlBG1qVPAOGGHz7YQCokngRE36FrqRWq9YJ/2K39x9uLOy
+        AJXIEvwwmRDZW5Hs4B0t1rCbwTa7yAU=
+X-Google-Smtp-Source: ACHHUZ7AVBLABZLxt20WfKF7OOvp9GvI+duoMboMmEW4DdRIFiqG6vhtd7pv9a1lFmgFHqGQrN0j/g==
+X-Received: by 2002:a17:902:f54f:b0:1ac:750e:33ef with SMTP id h15-20020a170902f54f00b001ac750e33efmr6724303plf.3.1683579546382;
+        Mon, 08 May 2023 13:59:06 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id n17-20020a170902e55100b0019719f752c5sm7654190plf.59.2023.05.08.13.59.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 08 May 2023 13:59:05 -0700 (PDT)
+Message-ID: <70eb4357-a68e-24fd-5978-3e9e3a8fdb44@gmail.com>
+Date:   Mon, 8 May 2023 13:59:03 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1779; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=2g9yoEqKcX1X+3bMnRkdbIFFr/3mb5kycddtX0do9WQ=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBkWWDt06/aJyPJ7w1qMFqgybbieneo8p+eq3ZSZ yioD/fvqh2JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZFlg7QAKCRCPgPtYfRL+ TmR2B/9sZk2CXh0JtZGUzTaARFgkBdQjawgYBXSDgk/vvHXB1pWeZqEDKukqXR8yu2IlSUF6Un9 d0jFNAAjGCOSVUrteyazN1M6OxXbEV6gx3SrFRW3wupm4iKCnwlKfYITE/yJTrnI4snYjNoWau3 xck6pGrrI5U/oshOnxXTUS6L5aDIZZEMvUKVRroOf2zD86HaNm99Hj3BUIMXM9BhNX7AKyeaRhZ mMM134qC4U7HGRIqplWoxW4sRqBIn2ZmPX0/ZHAZvSGsOOnsZr2HtyjRvyAkjp9D6moPqDJEuZw AkI0LlkQJnDYzxvqz+TsKmImcZrh6pkDrU9oeZw1p2A+6t/6
-X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH 09/89] i2c: bcm2835: Convert to platform remove callback
+ returning void
+Content-Language: en-US
+To:     =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        ye xingchen <ye.xingchen@zte.com.cn>
+Cc:     Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>, linux-i2c@vger.kernel.org,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de
+References: <20230508205306.1474415-1-u.kleine-koenig@pengutronix.de>
+ <20230508205306.1474415-10-u.kleine-koenig@pengutronix.de>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20230508205306.1474415-10-u.kleine-koenig@pengutronix.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The .remove() callback for a platform driver returns an int which makes
-many driver authors wrongly assume it's possible to do error handling by
-returning an error code. However the value returned is (mostly) ignored
-and this typically results in resource leaks. To improve here there is a
-quest to make the remove callback return void. In the first step of this
-quest all drivers are converted to .remove_new() which already returns
-void.
+On 5/8/23 13:51, Uwe Kleine-König wrote:
+> The .remove() callback for a platform driver returns an int which makes
+> many driver authors wrongly assume it's possible to do error handling by
+> returning an error code. However the value returned is (mostly) ignored
+> and this typically results in resource leaks. To improve here there is a
+> quest to make the remove callback return void. In the first step of this
+> quest all drivers are converted to .remove_new() which already returns
+> void.
+> 
+> Trivially convert this driver from always returning zero in the remove
+> callback to the void returning variant.
+> 
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-Trivially convert this driver from always returning zero in the remove
-callback to the void returning variant.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/i2c/busses/i2c-pasemi-platform.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-pasemi-platform.c b/drivers/i2c/busses/i2c-pasemi-platform.c
-index e35945a91dbe..0a44f64897c7 100644
---- a/drivers/i2c/busses/i2c-pasemi-platform.c
-+++ b/drivers/i2c/busses/i2c-pasemi-platform.c
-@@ -98,12 +98,11 @@ static int pasemi_platform_i2c_probe(struct platform_device *pdev)
- 	return error;
- }
- 
--static int pasemi_platform_i2c_remove(struct platform_device *pdev)
-+static void pasemi_platform_i2c_remove(struct platform_device *pdev)
- {
- 	struct pasemi_platform_i2c_data *data = platform_get_drvdata(pdev);
- 
- 	clk_disable_unprepare(data->clk_ref);
--	return 0;
- }
- 
- static const struct of_device_id pasemi_platform_i2c_of_match[] = {
-@@ -119,7 +118,7 @@ static struct platform_driver pasemi_platform_i2c_driver = {
- 		.of_match_table		= pasemi_platform_i2c_of_match,
- 	},
- 	.probe	= pasemi_platform_i2c_probe,
--	.remove	= pasemi_platform_i2c_remove,
-+	.remove_new = pasemi_platform_i2c_remove,
- };
- module_platform_driver(pasemi_platform_i2c_driver);
- 
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.39.2
+Florian
 
