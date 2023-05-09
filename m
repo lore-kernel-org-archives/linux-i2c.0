@@ -2,32 +2,32 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15A1CC77B7F
-	for <linux-i2c@archiver.kernel.org>; Tue,  9 May 2023 02:30:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1CBBC77B7F
+	for <linux-i2c@archiver.kernel.org>; Tue,  9 May 2023 02:30:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234368AbjEICaZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 8 May 2023 22:30:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39440 "EHLO
+        id S234340AbjEICa2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 8 May 2023 22:30:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234304AbjEICaY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 22:30:24 -0400
-Received: from smtpbg153.qq.com (smtpbg153.qq.com [13.245.218.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E51D093EB;
-        Mon,  8 May 2023 19:30:18 -0700 (PDT)
-X-QQ-mid: bizesmtp78t1683599363th4a0iuw
+        with ESMTP id S233270AbjEICa1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 22:30:27 -0400
+Received: from smtpbgau1.qq.com (smtpbgau1.qq.com [54.206.16.166])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA2F49CF;
+        Mon,  8 May 2023 19:30:24 -0700 (PDT)
+X-QQ-mid: bizesmtp78t1683599370tns8qfgk
 Received: from wxdbg.localdomain.com ( [125.119.253.217])
         by bizesmtp.qq.com (ESMTP) with 
-        id ; Tue, 09 May 2023 10:29:22 +0800 (CST)
+        id ; Tue, 09 May 2023 10:29:29 +0800 (CST)
 X-QQ-SSF: 01400000000000I0Z000000A0000000
-X-QQ-FEAT: 239gR2IZrluXH4ewZ/jEdDFZ2mhiCj/FsuThKf9VcwReuyqtfr6+3DDXmo6ep
-        LKA1LIgis+XNkvlLP1+1nkM3x847SzqqL4MDtnc/6oCAYzm+W5Faw8T8JalWvg0RO8Qd2uG
-        kao13jGPOkXhM+TPUwQfOlVJlLQAGCqpyjOrT29ioM5RbyKGyQ+i0ZwoOa7O5zTAHsReWCl
-        UA77Vsv5ayCcvCWR8vR3iBMMSmHuBRnyE941EVi7TKA0Z3XLsIf5VALwgTSR8TvZ/BjR/Ig
-        vH8oQSwozFPA6+FJIeSjTNAw2j8LdoGK59CavV2rY+OhU9YUbYdoymgWRei7ZI5DHudE+CM
-        ooaJ434hyp5t7CF4w2SYimZhIkFABGGGX+o8lk0izWZ3TTdhvaE6SvFhKLTLUQR/ZUlPnjc
-        i/SFtwEOJUw2NM93zwXNYw==
+X-QQ-FEAT: eTp2eCgHrZl3YnRfsGfPMpzHtMjIVZwpJo0/0Wbpx+ARJ9hjmntKuN4nia8nP
+        wQNB06REXVAloo8wootUpxkt3t0h26/ro3aAIviIZdzh1ELyTQQIQugEqsQa3M4nqY41l7+
+        5ttcxVh93v+zRYCcraoAOXJ6gzSxLJ6CZLStgUxNQyOJpvL8gzQrYUWji8vpLAUD9RDkxvf
+        Tr35asRb4xALav6C16fp7g6duZVE/cg5CuVEzGmFlCrFP5rmaZ5qEAyipPigN9tkPzdM+ly
+        5uSgMLCq9USkZk5VqhTuJydtCZE1KXVsLxVhyfYszEHpTvQjgrjr3oKtP1GqVacDGzNAxNJ
+        3HE71tellzhxraN1vo9Ip53+Q+Cg6E/A7A3zL/2qmvkh+1wmoDU4DB0EhSe2HTtJpGUwgio
+        LBkKj1M6lhB/esiuqZTdpnHbFdcMiine
 X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 5223412395742533194
+X-BIZMAIL-ID: 2865250660286101631
 From:   Jiawen Wu <jiawenwu@trustnetic.com>
 To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
@@ -35,9 +35,9 @@ To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         hkallweit1@gmail.com, linux@armlinux.org.uk
 Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
         mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>
-Subject: [PATCH net-next v7 7/9] net: pcs: Add 10GBASE-R mode for Synopsys Designware XPCS
-Date:   Tue,  9 May 2023 10:27:32 +0800
-Message-Id: <20230509022734.148970-8-jiawenwu@trustnetic.com>
+Subject: [PATCH net-next v7 9/9] net: txgbe: Support phylink MAC layer
+Date:   Tue,  9 May 2023 10:27:34 +0800
+Message-Id: <20230509022734.148970-10-jiawenwu@trustnetic.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20230509022734.148970-1-jiawenwu@trustnetic.com>
 References: <20230509022734.148970-1-jiawenwu@trustnetic.com>
@@ -49,118 +49,347 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add basic support for XPCS using 10GBASE-R interface. This mode will
-be extended to use interrupt, so set pcs.poll false. And avoid soft
-reset so that the device using this mode is in the default configuration.
+Add phylink support to Wangxun 10Gb Ethernet controller for the 10GBASE-R
+interface.
 
 Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
 ---
- drivers/net/pcs/pcs-xpcs.c   | 30 ++++++++++++++++++++++++++++++
- include/linux/pcs/pcs-xpcs.h |  1 +
- 2 files changed, 31 insertions(+)
+ drivers/net/ethernet/wangxun/Kconfig          |   1 +
+ .../ethernet/wangxun/txgbe/txgbe_ethtool.c    |  28 +++++
+ .../net/ethernet/wangxun/txgbe/txgbe_main.c   |  23 ++--
+ .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 113 +++++++++++++++++-
+ .../net/ethernet/wangxun/txgbe/txgbe_type.h   |   5 +
+ 5 files changed, 154 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/pcs/pcs-xpcs.c b/drivers/net/pcs/pcs-xpcs.c
-index 539cd43eae8d..c7c8b8d1311f 100644
---- a/drivers/net/pcs/pcs-xpcs.c
-+++ b/drivers/net/pcs/pcs-xpcs.c
-@@ -64,6 +64,16 @@ static const int xpcs_xlgmii_features[] = {
- 	__ETHTOOL_LINK_MODE_MASK_NBITS,
+diff --git a/drivers/net/ethernet/wangxun/Kconfig b/drivers/net/ethernet/wangxun/Kconfig
+index f3fb273e6fd0..2ca163f07359 100644
+--- a/drivers/net/ethernet/wangxun/Kconfig
++++ b/drivers/net/ethernet/wangxun/Kconfig
+@@ -46,6 +46,7 @@ config TXGBE
+ 	select REGMAP
+ 	select COMMON_CLK
+ 	select PCS_XPCS
++	select PHYLINK
+ 	select LIBWX
+ 	select SFP
+ 	help
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_ethtool.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_ethtool.c
+index d914e9a05404..859da112586a 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_ethtool.c
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_ethtool.c
+@@ -6,11 +6,39 @@
+ #include <linux/netdevice.h>
+ 
+ #include "../libwx/wx_ethtool.h"
++#include "../libwx/wx_type.h"
++#include "txgbe_type.h"
+ #include "txgbe_ethtool.h"
+ 
++static int txgbe_nway_reset(struct net_device *netdev)
++{
++	struct txgbe *txgbe = netdev_to_txgbe(netdev);
++
++	return phylink_ethtool_nway_reset(txgbe->phylink);
++}
++
++static int txgbe_get_link_ksettings(struct net_device *netdev,
++				    struct ethtool_link_ksettings *cmd)
++{
++	struct txgbe *txgbe = netdev_to_txgbe(netdev);
++
++	return phylink_ethtool_ksettings_get(txgbe->phylink, cmd);
++}
++
++static int txgbe_set_link_ksettings(struct net_device *netdev,
++				    const struct ethtool_link_ksettings *cmd)
++{
++	struct txgbe *txgbe = netdev_to_txgbe(netdev);
++
++	return phylink_ethtool_ksettings_set(txgbe->phylink, cmd);
++}
++
+ static const struct ethtool_ops txgbe_ethtool_ops = {
+ 	.get_drvinfo		= wx_get_drvinfo,
++	.nway_reset		= txgbe_nway_reset,
+ 	.get_link		= ethtool_op_get_link,
++	.get_link_ksettings	= txgbe_get_link_ksettings,
++	.set_link_ksettings	= txgbe_set_link_ksettings,
  };
  
-+static const int xpcs_10gbaser_features[] = {
-+	ETHTOOL_LINK_MODE_Pause_BIT,
-+	ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-+	ETHTOOL_LINK_MODE_10000baseSR_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseLR_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseLRM_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseER_Full_BIT,
-+	__ETHTOOL_LINK_MODE_MASK_NBITS,
+ void txgbe_set_ethtool_ops(struct net_device *netdev)
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c
+index ded04e9e136f..bdf735e863eb 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c
+@@ -7,6 +7,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/string.h>
+ #include <linux/etherdevice.h>
++#include <linux/phylink.h>
+ #include <net/ip.h>
+ #include <linux/if_vlan.h>
+ 
+@@ -204,7 +205,8 @@ static int txgbe_request_irq(struct wx *wx)
+ 
+ static void txgbe_up_complete(struct wx *wx)
+ {
+-	u32 reg;
++	struct net_device *netdev = wx->netdev;
++	struct txgbe *txgbe = netdev_to_txgbe(netdev);
+ 
+ 	wx_control_hw(wx, true);
+ 	wx_configure_vectors(wx);
+@@ -213,24 +215,16 @@ static void txgbe_up_complete(struct wx *wx)
+ 	smp_mb__before_atomic();
+ 	wx_napi_enable_all(wx);
+ 
++	phylink_start(txgbe->phylink);
++
+ 	/* clear any pending interrupts, may auto mask */
+ 	rd32(wx, WX_PX_IC(0));
+ 	rd32(wx, WX_PX_IC(1));
+ 	rd32(wx, WX_PX_MISC_IC);
+ 	txgbe_irq_enable(wx, true);
+ 
+-	/* Configure MAC Rx and Tx when link is up */
+-	reg = rd32(wx, WX_MAC_RX_CFG);
+-	wr32(wx, WX_MAC_RX_CFG, reg);
+-	wr32(wx, WX_MAC_PKT_FLT, WX_MAC_PKT_FLT_PR);
+-	reg = rd32(wx, WX_MAC_WDG_TIMEOUT);
+-	wr32(wx, WX_MAC_WDG_TIMEOUT, reg);
+-	reg = rd32(wx, WX_MAC_TX_CFG);
+-	wr32(wx, WX_MAC_TX_CFG, (reg & ~WX_MAC_TX_CFG_SPEED_MASK) | WX_MAC_TX_CFG_SPEED_10G);
+-
+ 	/* enable transmits */
+-	netif_tx_start_all_queues(wx->netdev);
+-	netif_carrier_on(wx->netdev);
++	netif_tx_start_all_queues(netdev);
+ }
+ 
+ static void txgbe_reset(struct wx *wx)
+@@ -264,7 +258,6 @@ static void txgbe_disable_device(struct wx *wx)
+ 		wx_disable_rx_queue(wx, wx->rx_ring[i]);
+ 
+ 	netif_tx_stop_all_queues(netdev);
+-	netif_carrier_off(netdev);
+ 	netif_tx_disable(netdev);
+ 
+ 	wx_irq_disable(wx);
+@@ -295,8 +288,12 @@ static void txgbe_disable_device(struct wx *wx)
+ 
+ static void txgbe_down(struct wx *wx)
+ {
++	struct net_device *netdev = wx->netdev;
++	struct txgbe *txgbe = netdev_to_txgbe(netdev);
++
+ 	txgbe_disable_device(wx);
+ 	txgbe_reset(wx);
++	phylink_stop(txgbe->phylink);
+ 
+ 	wx_clean_all_tx_rings(wx);
+ 	wx_clean_all_rx_rings(wx);
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+index 0ab2898e764a..4eedb60e93af 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+@@ -10,11 +10,13 @@
+ #include <linux/clkdev.h>
+ #include <linux/clk-provider.h>
+ #include <linux/pcs/pcs-xpcs.h>
++#include <linux/phylink.h>
+ #include <linux/mdio.h>
+ #include <linux/i2c.h>
+ #include <linux/pci.h>
+ 
+ #include "../libwx/wx_type.h"
++#include "../libwx/wx_lib.h"
+ #include "../libwx/wx_hw.h"
+ #include "txgbe_type.h"
+ #include "txgbe_phy.h"
+@@ -156,6 +158,95 @@ static int txgbe_mdio_pcs_init(struct txgbe *txgbe)
+ 	return 0;
+ }
+ 
++static struct phylink_pcs *txgbe_phylink_mac_select(struct phylink_config *config,
++						    phy_interface_t interface)
++{
++	struct txgbe *txgbe = netdev_to_txgbe(to_net_dev(config->dev));
++
++	return &txgbe->xpcs->pcs;
++}
++
++static void txgbe_mac_config(struct phylink_config *config, unsigned int mode,
++			     const struct phylink_link_state *state)
++{
++}
++
++static void txgbe_mac_link_down(struct phylink_config *config,
++				unsigned int mode, phy_interface_t interface)
++{
++	struct wx *wx = netdev_priv(to_net_dev(config->dev));
++
++	wr32m(wx, WX_MAC_TX_CFG, WX_MAC_TX_CFG_TE, 0);
++}
++
++static void txgbe_mac_link_up(struct phylink_config *config,
++			      struct phy_device *phy,
++			      unsigned int mode, phy_interface_t interface,
++			      int speed, int duplex,
++			      bool tx_pause, bool rx_pause)
++{
++	struct wx *wx = netdev_priv(to_net_dev(config->dev));
++	u32 txcfg, wdg;
++
++	txcfg = rd32(wx, WX_MAC_TX_CFG);
++	txcfg &= ~WX_MAC_TX_CFG_SPEED_MASK;
++
++	switch (speed) {
++	case SPEED_10000:
++		txcfg |= WX_MAC_TX_CFG_SPEED_10G;
++		break;
++	case SPEED_1000:
++	case SPEED_100:
++	case SPEED_10:
++		txcfg |= WX_MAC_TX_CFG_SPEED_1G;
++		break;
++	default:
++		break;
++	}
++
++	wr32(wx, WX_MAC_TX_CFG, txcfg | WX_MAC_TX_CFG_TE);
++
++	/* Re configure MAC Rx */
++	wr32m(wx, WX_MAC_RX_CFG, WX_MAC_RX_CFG_RE, WX_MAC_RX_CFG_RE);
++	wr32(wx, WX_MAC_PKT_FLT, WX_MAC_PKT_FLT_PR);
++	wdg = rd32(wx, WX_MAC_WDG_TIMEOUT);
++	wr32(wx, WX_MAC_WDG_TIMEOUT, wdg);
++}
++
++static const struct phylink_mac_ops txgbe_mac_ops = {
++	.mac_select_pcs = txgbe_phylink_mac_select,
++	.mac_config = txgbe_mac_config,
++	.mac_link_down = txgbe_mac_link_down,
++	.mac_link_up = txgbe_mac_link_up,
 +};
 +
- static const int xpcs_sgmii_features[] = {
- 	ETHTOOL_LINK_MODE_Pause_BIT,
- 	ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-@@ -106,6 +116,10 @@ static const phy_interface_t xpcs_xlgmii_interfaces[] = {
- 	PHY_INTERFACE_MODE_XLGMII,
- };
- 
-+static const phy_interface_t xpcs_10gbaser_interfaces[] = {
-+	PHY_INTERFACE_MODE_10GBASER,
-+};
++static int txgbe_phylink_init(struct txgbe *txgbe)
++{
++	struct phylink_config *config;
++	struct fwnode_handle *fwnode;
++	struct wx *wx = txgbe->wx;
++	phy_interface_t phy_mode;
++	struct phylink *phylink;
 +
- static const phy_interface_t xpcs_sgmii_interfaces[] = {
- 	PHY_INTERFACE_MODE_SGMII,
- };
-@@ -123,6 +137,7 @@ enum {
- 	DW_XPCS_USXGMII,
- 	DW_XPCS_10GKR,
- 	DW_XPCS_XLGMII,
-+	DW_XPCS_10GBASER,
- 	DW_XPCS_SGMII,
- 	DW_XPCS_1000BASEX,
- 	DW_XPCS_2500BASEX,
-@@ -246,6 +261,7 @@ static int xpcs_soft_reset(struct dw_xpcs *xpcs,
- 
- 	switch (compat->an_mode) {
- 	case DW_AN_C73:
-+	case DW_10GBASER:
- 		dev = MDIO_MMD_PCS;
- 		break;
- 	case DW_AN_C37_SGMII:
-@@ -872,6 +888,8 @@ int xpcs_do_config(struct dw_xpcs *xpcs, phy_interface_t interface,
- 		return -ENODEV;
- 
- 	switch (compat->an_mode) {
-+	case DW_10GBASER:
-+		break;
- 	case DW_AN_C73:
- 		if (phylink_autoneg_inband(mode)) {
- 			ret = xpcs_config_aneg_c73(xpcs, compat);
-@@ -1033,6 +1051,9 @@ static void xpcs_get_state(struct phylink_pcs *pcs,
- 		return;
- 
- 	switch (compat->an_mode) {
-+	case DW_10GBASER:
-+		phylink_mii_c45_pcs_get_state(xpcs->mdiodev, state);
-+		break;
- 	case DW_AN_C73:
- 		ret = xpcs_get_state_c73(xpcs, state, compat);
- 		if (ret) {
-@@ -1188,6 +1209,12 @@ static const struct xpcs_compat synopsys_xpcs_compat[DW_XPCS_INTERFACE_MAX] = {
- 		.num_interfaces = ARRAY_SIZE(xpcs_xlgmii_interfaces),
- 		.an_mode = DW_AN_C73,
- 	},
-+	[DW_XPCS_10GBASER] = {
-+		.supported = xpcs_10gbaser_features,
-+		.interface = xpcs_10gbaser_interfaces,
-+		.num_interfaces = ARRAY_SIZE(xpcs_10gbaser_interfaces),
-+		.an_mode = DW_10GBASER,
-+	},
- 	[DW_XPCS_SGMII] = {
- 		.supported = xpcs_sgmii_features,
- 		.interface = xpcs_sgmii_interfaces,
-@@ -1290,6 +1317,9 @@ struct dw_xpcs *xpcs_create(struct mdio_device *mdiodev,
- 		}
- 
- 		xpcs->pcs.ops = &xpcs_phylink_ops;
-+		if (compat->an_mode == DW_10GBASER)
-+			return xpcs;
++	config = devm_kzalloc(&wx->pdev->dev, sizeof(*config), GFP_KERNEL);
++	if (!config)
++		return -ENOMEM;
 +
- 		xpcs->pcs.poll = true;
++	config->dev = &wx->netdev->dev;
++	config->type = PHYLINK_NETDEV;
++	config->mac_capabilities = MAC_10000FD | MAC_1000FD | MAC_SYM_PAUSE | MAC_ASYM_PAUSE;
++	phy_mode = PHY_INTERFACE_MODE_10GBASER;
++	__set_bit(PHY_INTERFACE_MODE_10GBASER, config->supported_interfaces);
++	fwnode = software_node_fwnode(txgbe->nodes.group[SWNODE_PHYLINK]);
++	phylink = phylink_create(config, fwnode, phy_mode, &txgbe_mac_ops);
++	if (IS_ERR(phylink))
++		return PTR_ERR(phylink);
++
++	txgbe->phylink = phylink;
++
++	return 0;
++}
++
+ static int txgbe_gpio_get(struct gpio_chip *chip, unsigned int offset)
+ {
+ 	struct wx *wx = gpiochip_get_data(chip);
+@@ -302,7 +393,9 @@ static void txgbe_irq_handler(struct irq_desc *desc)
+ 	irq_hw_number_t hwirq;
+ 	unsigned long gpioirq;
+ 	struct gpio_chip *gc;
+-	u32 gpio;
++	u32 gpio, eicr, reg;
++
++	eicr = wx_misc_isb(wx, WX_ISB_MISC);
  
- 		ret = xpcs_soft_reset(xpcs, compat);
-diff --git a/include/linux/pcs/pcs-xpcs.h b/include/linux/pcs/pcs-xpcs.h
-index d2da1e0b4a92..61df0c717a0e 100644
---- a/include/linux/pcs/pcs-xpcs.h
-+++ b/include/linux/pcs/pcs-xpcs.h
-@@ -18,6 +18,7 @@
- #define DW_AN_C37_SGMII			2
- #define DW_2500BASEX			3
- #define DW_AN_C37_1000BASEX		4
-+#define DW_10GBASER			5
+ 	chained_irq_enter(chip, desc);
  
- struct xpcs_id;
+@@ -319,6 +412,11 @@ static void txgbe_irq_handler(struct irq_desc *desc)
  
+ 	chained_irq_exit(chip, desc);
+ 
++	if (eicr & (TXGBE_PX_MISC_ETH_LK | TXGBE_PX_MISC_ETH_LKDN)) {
++		reg = rd32(wx, TXGBE_CFG_PORT_ST);
++		phylink_mac_change(txgbe->phylink, !!(reg & TXGBE_CFG_PORT_ST_LINK_UP));
++	}
++
+ 	/* unmask interrupt */
+ 	if (netif_running(wx->netdev))
+ 		wx_intr_enable(wx, TXGBE_INTR_MISC(wx));
+@@ -494,16 +592,22 @@ int txgbe_init_phy(struct txgbe *txgbe)
+ 		goto err_unregister_swnode;
+ 	}
+ 
++	ret = txgbe_phylink_init(txgbe);
++	if (ret) {
++		wx_err(txgbe->wx, "failed to init phylink\n");
++		goto err_destroy_xpcs;
++	}
++
+ 	ret = txgbe_gpio_init(txgbe);
+ 	if (ret) {
+ 		wx_err(txgbe->wx, "failed to init gpio\n");
+-		goto err_destroy_xpcs;
++		goto err_destroy_phylink;
+ 	}
+ 
+ 	ret = txgbe_clock_register(txgbe);
+ 	if (ret) {
+ 		wx_err(txgbe->wx, "failed to register clock: %d\n", ret);
+-		goto err_destroy_xpcs;
++		goto err_destroy_phylink;
+ 	}
+ 
+ 	ret = txgbe_i2c_register(txgbe);
+@@ -525,6 +629,8 @@ int txgbe_init_phy(struct txgbe *txgbe)
+ err_unregister_clk:
+ 	clkdev_drop(txgbe->clock);
+ 	clk_unregister(txgbe->clk);
++err_destroy_phylink:
++	phylink_destroy(txgbe->phylink);
+ err_destroy_xpcs:
+ 	xpcs_destroy(txgbe->xpcs);
+ err_unregister_swnode:
+@@ -539,6 +645,7 @@ void txgbe_remove_phy(struct txgbe *txgbe)
+ 	platform_device_unregister(txgbe->i2c_dev);
+ 	clkdev_drop(txgbe->clock);
+ 	clk_unregister(txgbe->clk);
++	phylink_destroy(txgbe->phylink);
+ 	xpcs_destroy(txgbe->xpcs);
+ 	software_node_unregister_node_group(txgbe->nodes.group);
+ }
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+index 75b9c7ae3c21..a889f340b14d 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+@@ -80,6 +80,10 @@
+ 				TXGBE_PX_MISC_INT_ERR | \
+ 				TXGBE_PX_MISC_GPIO)
+ 
++/* Port cfg registers */
++#define TXGBE_CFG_PORT_ST                       0x14404
++#define TXGBE_CFG_PORT_ST_LINK_UP               BIT(0)
++
+ /* I2C registers */
+ #define TXGBE_I2C_BASE                          0x14900
+ 
+@@ -180,6 +184,7 @@ struct txgbe {
+ 	struct txgbe_nodes nodes;
+ 	struct mdio_device *mdiodev;
+ 	struct dw_xpcs *xpcs;
++	struct phylink *phylink;
+ 	struct platform_device *sfp_dev;
+ 	struct platform_device *i2c_dev;
+ 	struct clk_lookup *clock;
 -- 
 2.27.0
 
