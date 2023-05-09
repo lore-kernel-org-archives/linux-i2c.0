@@ -2,32 +2,32 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C3C2C7EE2D
-	for <linux-i2c@archiver.kernel.org>; Tue,  9 May 2023 02:30:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E26EC7EE2E
+	for <linux-i2c@archiver.kernel.org>; Tue,  9 May 2023 02:30:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234284AbjEICaR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 8 May 2023 22:30:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39214 "EHLO
+        id S234319AbjEICaS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 8 May 2023 22:30:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234305AbjEICaQ (ORCPT
+        with ESMTP id S234355AbjEICaQ (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 22:30:16 -0400
-Received: from smtpbgeu2.qq.com (smtpbgeu2.qq.com [18.194.254.142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 502648692;
-        Mon,  8 May 2023 19:29:59 -0700 (PDT)
-X-QQ-mid: bizesmtp78t1683599345t2vhmbnp
+Received: from smtpbguseast2.qq.com (smtpbguseast2.qq.com [54.204.34.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D305683EC;
+        Mon,  8 May 2023 19:30:07 -0700 (PDT)
+X-QQ-mid: bizesmtp78t1683599366tkmkkysz
 Received: from wxdbg.localdomain.com ( [125.119.253.217])
         by bizesmtp.qq.com (ESMTP) with 
-        id ; Tue, 09 May 2023 10:29:04 +0800 (CST)
+        id ; Tue, 09 May 2023 10:29:25 +0800 (CST)
 X-QQ-SSF: 01400000000000I0Z000000A0000000
-X-QQ-FEAT: D2GZf6M6C/huOSQr8m83xSdGMjRv6kAoBuIX3KyUZU2WaBXsmfXwz25FIuyD6
-        Vr7lPEiMm/CCBeFWESuB47EAhyId6U/yrZlPuRGS1IOKW38c2uUyzFC5sAkbye+1XsD3VyY
-        zYFvJEAuBplTrz2P/K7/s6fKOnbGlCPrFGfhcVzYTXEA4M2imaL7AqXUuIczv5gU2n1UkHa
-        7XFllx7cz0AgsKHn9iQGiNXnBpEimNwk6Hg+LCuQb55YMFEsjxeugoe5f9UjAhqVA2pkjlM
-        xdv2Y4n4GXHmhmrGc3KDhexsVXn5pa8tYngr7Tl4WUz34dCRrKolHMgOS/KJ8x/VoiSQmjS
-        YXP/eWZFOzMqRg2W8ARMmrRy3mZ9Rg4eBYrp1+k94xoabW+sTnHIjjK7Q/kQPD+QU7f5M4d
-        lhySuqxreF8=
+X-QQ-FEAT: dcYQFNbI8vEQKyhGZeHVEPDr+1CP2vxPk4Nbk2dTDFcEJX3z6anEIEGsWnNSj
+        3npSZQeGk1v9hKAHOZWpM23yzDc08x7puPdYeSbPN6TC3QJTU3tTvVMLxT/ENJVkd4EYgvr
+        a/nTtr99rl6Uzu0pWYucy2n7W3cdTbPwBNEhZvl4kkn4HpB/4yFFZx1IZHb1Iht8gzxljyX
+        WvHBJoWJMGGs/fRWHEZOGY4Gs2OvHxJ0yuwplWPoNfuFgPEErKYjwpRSoF/w9XVvGOZ+0mn
+        Ejlrz60t9N+pW6q/WLs3CwPFp5s5fAA4Z3TvaUNJ8NU7WtgT53QwDydhNZgTxSZ1RQqrkG9
+        KxiIcaiNL+g8BRdAyvuxorimrHVzRfp7jyQzY9GB2ouffm2dmStqLl9JTNIX/CV47QveS1j
+        cNfA/fFjGnk=
 X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 2998703245170161589
+X-BIZMAIL-ID: 3264187204425161388
 From:   Jiawen Wu <jiawenwu@trustnetic.com>
 To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
@@ -35,9 +35,9 @@ To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         hkallweit1@gmail.com, linux@armlinux.org.uk
 Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
         mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>
-Subject: [PATCH net-next v7 2/9] i2c: designware: Add driver support for Wangxun 10Gb NIC
-Date:   Tue,  9 May 2023 10:27:27 +0800
-Message-Id: <20230509022734.148970-3-jiawenwu@trustnetic.com>
+Subject: [PATCH net-next v7 8/9] net: txgbe: Implement phylink pcs
+Date:   Tue,  9 May 2023 10:27:33 +0800
+Message-Id: <20230509022734.148970-9-jiawenwu@trustnetic.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20230509022734.148970-1-jiawenwu@trustnetic.com>
 References: <20230509022734.148970-1-jiawenwu@trustnetic.com>
@@ -49,229 +49,189 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Wangxun 10Gb ethernet chip is connected to Designware I2C, to communicate
-with SFP.
-
-Introduce the property "snps,i2c-platform" to match device data for Wangxun
-in software node case. Since IO resource was mapped on the ethernet driver,
-add a model quirk to get regmap from parent device.
-
-The exists IP limitations are dealt as workarounds:
-- IP does not support interrupt mode, it works on polling mode.
-- Additionally set FIFO depth address the chip issue.
+Register MDIO bus for PCS layer to use Synopsys designware XPCS, support
+10GBASE-R interface to the controller.
 
 Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
 ---
- drivers/i2c/busses/i2c-designware-common.c  |  8 ++
- drivers/i2c/busses/i2c-designware-core.h    |  1 +
- drivers/i2c/busses/i2c-designware-master.c  | 89 +++++++++++++++++++--
- drivers/i2c/busses/i2c-designware-platdrv.c | 15 ++++
- 4 files changed, 108 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/wangxun/Kconfig          |  1 +
+ .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 91 ++++++++++++++++++-
+ .../net/ethernet/wangxun/txgbe/txgbe_type.h   |  6 ++
+ 3 files changed, 96 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 0dc6b1ce663f..a7c2e67ccbf6 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -575,6 +575,14 @@ int i2c_dw_set_fifo_size(struct dw_i2c_dev *dev)
- 	unsigned int param;
- 	int ret;
+diff --git a/drivers/net/ethernet/wangxun/Kconfig b/drivers/net/ethernet/wangxun/Kconfig
+index 73f4492928c0..f3fb273e6fd0 100644
+--- a/drivers/net/ethernet/wangxun/Kconfig
++++ b/drivers/net/ethernet/wangxun/Kconfig
+@@ -45,6 +45,7 @@ config TXGBE
+ 	select GPIOLIB
+ 	select REGMAP
+ 	select COMMON_CLK
++	select PCS_XPCS
+ 	select LIBWX
+ 	select SFP
+ 	help
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+index 8085616a9146..0ab2898e764a 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+@@ -9,6 +9,8 @@
+ #include <linux/regmap.h>
+ #include <linux/clkdev.h>
+ #include <linux/clk-provider.h>
++#include <linux/pcs/pcs-xpcs.h>
++#include <linux/mdio.h>
+ #include <linux/i2c.h>
+ #include <linux/pci.h>
  
-+	/* DW_IC_COMP_PARAM_1 not implement for IP issue */
-+	if ((dev->flags & MODEL_MASK) == MODEL_WANGXUN_SP) {
-+		dev->tx_fifo_depth = 4;
-+		dev->rx_fifo_depth = 0;
-+
-+		return 0;
-+	}
-+
- 	/*
- 	 * Try to detect the FIFO depth if not set by interface driver,
- 	 * the depth could be from 2 to 256 from HW spec.
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index c5d87aae39c6..e2213b08d724 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -303,6 +303,7 @@ struct dw_i2c_dev {
- #define MODEL_MSCC_OCELOT			BIT(8)
- #define MODEL_BAIKAL_BT1			BIT(9)
- #define MODEL_AMD_NAVI_GPU			BIT(10)
-+#define MODEL_WANGXUN_SP			BIT(11)
- #define MODEL_MASK				GENMASK(11, 8)
- 
- /*
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 55ea91a63382..3bfd7a2232db 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -354,6 +354,68 @@ static int amd_i2c_dw_xfer_quirk(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	return 0;
+@@ -78,6 +80,82 @@ static int txgbe_swnodes_register(struct txgbe *txgbe)
+ 	return software_node_register_node_group(nodes->group);
  }
  
-+static int i2c_dw_poll_tx_empty(struct dw_i2c_dev *dev)
++static int txgbe_pcs_read(struct mii_bus *bus, int addr, int devnum, int regnum)
 +{
-+	u32 val;
++	struct wx *wx  = bus->priv;
++	u32 offset, val;
 +
-+	return regmap_read_poll_timeout(dev->map, DW_IC_RAW_INTR_STAT, val,
-+					val & DW_IC_INTR_TX_EMPTY,
-+					100, 1000);
++	offset = devnum << 16 | regnum;
++
++	/* Set the LAN port indicator to IDA_ADDR */
++	wr32(wx, TXGBE_XPCS_IDA_ADDR, offset);
++
++	/* Read the data from IDA_DATA register */
++	val = rd32(wx, TXGBE_XPCS_IDA_DATA);
++
++	return (u16)val;
 +}
 +
-+static int i2c_dw_poll_rx_full(struct dw_i2c_dev *dev)
++static int txgbe_pcs_write(struct mii_bus *bus, int addr, int devnum, int regnum, u16 val)
 +{
-+	u32 val;
++	struct wx *wx = bus->priv;
++	u32 offset;
 +
-+	return regmap_read_poll_timeout(dev->map, DW_IC_RAW_INTR_STAT, val,
-+					val & DW_IC_INTR_RX_FULL,
-+					100, 1000);
-+}
++	offset = devnum << 16 | regnum;
 +
-+static int txgbe_i2c_dw_xfer_quirk(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+				   int num_msgs)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+	int msg_idx, buf_len, data_idx, ret;
-+	unsigned int val, stop = 0;
-+	u8 *buf;
++	/* Set the LAN port indicator to IDA_ADDR */
++	wr32(wx, TXGBE_XPCS_IDA_ADDR, offset);
 +
-+	dev->msgs = msgs;
-+	dev->msgs_num = num_msgs;
-+	i2c_dw_xfer_init(dev);
-+	regmap_write(dev->map, DW_IC_INTR_MASK, 0);
-+
-+	for (msg_idx = 0; msg_idx < num_msgs; msg_idx++) {
-+		buf = msgs[msg_idx].buf;
-+		buf_len = msgs[msg_idx].len;
-+
-+		for (data_idx = 0; data_idx < buf_len; data_idx++) {
-+			if (msg_idx == num_msgs - 1 && data_idx == buf_len - 1)
-+				stop |= BIT(9);
-+
-+			if (msgs[msg_idx].flags & I2C_M_RD) {
-+				regmap_write(dev->map, DW_IC_DATA_CMD, 0x100 | stop);
-+
-+				ret = i2c_dw_poll_rx_full(dev);
-+				if (ret)
-+					return ret;
-+
-+				regmap_read(dev->map, DW_IC_DATA_CMD, &val);
-+				buf[data_idx] = val;
-+			} else {
-+				ret = i2c_dw_poll_tx_empty(dev);
-+				if (ret)
-+					return ret;
-+
-+				regmap_write(dev->map, DW_IC_DATA_CMD,
-+					     buf[data_idx] | stop);
-+			}
-+		}
-+	}
-+
-+	return num_msgs;
-+}
-+
- /*
-  * Initiate (and continue) low level master read/write transaction.
-  * This function is only called from i2c_dw_isr, and pumping i2c_msg
-@@ -559,13 +621,19 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	pm_runtime_get_sync(dev->dev);
- 
- 	/*
--	 * Initiate I2C message transfer when AMD NAVI GPU card is enabled,
-+	 * Initiate I2C message transfer when polling mode is enabled,
- 	 * As it is polling based transfer mechanism, which does not support
- 	 * interrupt based functionalities of existing DesignWare driver.
- 	 */
--	if ((dev->flags & MODEL_MASK) == MODEL_AMD_NAVI_GPU) {
-+	switch (dev->flags & MODEL_MASK) {
-+	case MODEL_AMD_NAVI_GPU:
- 		ret = amd_i2c_dw_xfer_quirk(adap, msgs, num);
- 		goto done_nolock;
-+	case MODEL_WANGXUN_SP:
-+		ret = txgbe_i2c_dw_xfer_quirk(adap, msgs, num);
-+		goto done_nolock;
-+	default:
-+		break;
- 	}
- 
- 	reinit_completion(&dev->cmd_complete);
-@@ -848,7 +916,7 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
- 	return 0;
- }
- 
--static int amd_i2c_adap_quirk(struct dw_i2c_dev *dev)
-+static int i2c_dw_poll_adap_quirk(struct dw_i2c_dev *dev)
- {
- 	struct i2c_adapter *adap = &dev->adapter;
- 	int ret;
-@@ -862,6 +930,17 @@ static int amd_i2c_adap_quirk(struct dw_i2c_dev *dev)
- 	return ret;
- }
- 
-+static bool i2c_dw_is_model_poll(struct dw_i2c_dev *dev)
-+{
-+	switch (dev->flags & MODEL_MASK) {
-+	case MODEL_AMD_NAVI_GPU:
-+	case MODEL_WANGXUN_SP:
-+		return true;
-+	default:
-+		return false;
-+	}
-+}
-+
- int i2c_dw_probe_master(struct dw_i2c_dev *dev)
- {
- 	struct i2c_adapter *adap = &dev->adapter;
-@@ -917,8 +996,8 @@ int i2c_dw_probe_master(struct dw_i2c_dev *dev)
- 	adap->dev.parent = dev->dev;
- 	i2c_set_adapdata(adap, dev);
- 
--	if ((dev->flags & MODEL_MASK) == MODEL_AMD_NAVI_GPU)
--		return amd_i2c_adap_quirk(dev);
-+	if (i2c_dw_is_model_poll(dev))
-+		return i2c_dw_poll_adap_quirk(dev);
- 
- 	if (dev->flags & ACCESS_NO_IRQ_SUSPEND) {
- 		irq_flags = IRQF_NO_SUSPEND;
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 89ad88c54754..1bf50150386d 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -168,6 +168,15 @@ static inline int dw_i2c_of_configure(struct platform_device *pdev)
- }
- #endif
- 
-+static int txgbe_i2c_request_regs(struct dw_i2c_dev *dev)
-+{
-+	dev->map = dev_get_regmap(dev->dev->parent, NULL);
-+	if (!dev->map)
-+		return -ENODEV;
++	/* Write the data to IDA_DATA register */
++	wr32(wx, TXGBE_XPCS_IDA_DATA, val);
 +
 +	return 0;
 +}
 +
- static void dw_i2c_plat_pm_cleanup(struct dw_i2c_dev *dev)
- {
- 	pm_runtime_disable(dev->dev);
-@@ -185,6 +194,9 @@ static int dw_i2c_plat_request_regs(struct dw_i2c_dev *dev)
- 	case MODEL_BAIKAL_BT1:
- 		ret = bt1_i2c_request_regs(dev);
- 		break;
-+	case MODEL_WANGXUN_SP:
-+		ret = txgbe_i2c_request_regs(dev);
-+		break;
- 	default:
- 		dev->base = devm_platform_ioremap_resource(pdev, 0);
- 		ret = PTR_ERR_OR_ZERO(dev->base);
-@@ -277,6 +289,9 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	dev->flags = (uintptr_t)device_get_match_data(&pdev->dev);
-+	if (device_property_present(&pdev->dev, "snps,i2c-platform"))
-+		dev->flags |= MODEL_WANGXUN_SP;
++static int txgbe_mdio_pcs_init(struct txgbe *txgbe)
++{
++	struct mdio_device *mdiodev;
++	struct wx *wx = txgbe->wx;
++	struct mii_bus *mii_bus;
++	struct dw_xpcs *xpcs;
++	struct pci_dev *pdev;
++	int ret = 0;
 +
- 	dev->dev = &pdev->dev;
- 	dev->irq = irq;
- 	platform_set_drvdata(pdev, dev);
++	pdev = wx->pdev;
++
++	mii_bus = devm_mdiobus_alloc(&pdev->dev);
++	if (!mii_bus)
++		return -ENOMEM;
++
++	mii_bus->name = "txgbe_pcs_mdio_bus";
++	mii_bus->read_c45 = &txgbe_pcs_read;
++	mii_bus->write_c45 = &txgbe_pcs_write;
++	mii_bus->parent = &pdev->dev;
++	mii_bus->phy_mask = ~0;
++	mii_bus->priv = wx;
++	snprintf(mii_bus->id, MII_BUS_ID_SIZE, "txgbe_pcs-%x",
++		 (pdev->bus->number << 8) | pdev->devfn);
++
++	ret = devm_mdiobus_register(&pdev->dev, mii_bus);
++	if (ret)
++		return ret;
++
++	mdiodev = mdio_device_create(mii_bus, 0);
++	if (IS_ERR(mdiodev))
++		return PTR_ERR(mdiodev);
++
++	xpcs = xpcs_create(mdiodev, PHY_INTERFACE_MODE_10GBASER);
++	if (IS_ERR_OR_NULL(xpcs)) {
++		mdio_device_free(mdiodev);
++		return PTR_ERR(xpcs);
++	}
++
++	txgbe->mdiodev = mdiodev;
++	txgbe->xpcs = xpcs;
++
++	return 0;
++}
++
+ static int txgbe_gpio_get(struct gpio_chip *chip, unsigned int offset)
+ {
+ 	struct wx *wx = gpiochip_get_data(chip);
+@@ -410,16 +488,22 @@ int txgbe_init_phy(struct txgbe *txgbe)
+ 		return ret;
+ 	}
+ 
++	ret = txgbe_mdio_pcs_init(txgbe);
++	if (ret) {
++		wx_err(txgbe->wx, "failed to init mdio pcs: %d\n", ret);
++		goto err_unregister_swnode;
++	}
++
+ 	ret = txgbe_gpio_init(txgbe);
+ 	if (ret) {
+ 		wx_err(txgbe->wx, "failed to init gpio\n");
+-		goto err_unregister_swnode;
++		goto err_destroy_xpcs;
+ 	}
+ 
+ 	ret = txgbe_clock_register(txgbe);
+ 	if (ret) {
+ 		wx_err(txgbe->wx, "failed to register clock: %d\n", ret);
+-		goto err_unregister_swnode;
++		goto err_destroy_xpcs;
+ 	}
+ 
+ 	ret = txgbe_i2c_register(txgbe);
+@@ -441,6 +525,8 @@ int txgbe_init_phy(struct txgbe *txgbe)
+ err_unregister_clk:
+ 	clkdev_drop(txgbe->clock);
+ 	clk_unregister(txgbe->clk);
++err_destroy_xpcs:
++	xpcs_destroy(txgbe->xpcs);
+ err_unregister_swnode:
+ 	software_node_unregister_node_group(txgbe->nodes.group);
+ 
+@@ -453,5 +539,6 @@ void txgbe_remove_phy(struct txgbe *txgbe)
+ 	platform_device_unregister(txgbe->i2c_dev);
+ 	clkdev_drop(txgbe->clock);
+ 	clk_unregister(txgbe->clk);
++	xpcs_destroy(txgbe->xpcs);
+ 	software_node_unregister_node_group(txgbe->nodes.group);
+ }
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+index 796f33fe3016..75b9c7ae3c21 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+@@ -83,6 +83,10 @@
+ /* I2C registers */
+ #define TXGBE_I2C_BASE                          0x14900
+ 
++/************************************** ETH PHY ******************************/
++#define TXGBE_XPCS_IDA_ADDR                     0x13000
++#define TXGBE_XPCS_IDA_DATA                     0x13004
++
+ /* Part Number String Length */
+ #define TXGBE_PBANUM_LENGTH                     32
+ 
+@@ -174,6 +178,8 @@ struct txgbe_nodes {
+ struct txgbe {
+ 	struct wx *wx;
+ 	struct txgbe_nodes nodes;
++	struct mdio_device *mdiodev;
++	struct dw_xpcs *xpcs;
+ 	struct platform_device *sfp_dev;
+ 	struct platform_device *i2c_dev;
+ 	struct clk_lookup *clock;
 -- 
 2.27.0
 
