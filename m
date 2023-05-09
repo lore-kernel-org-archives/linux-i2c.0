@@ -2,32 +2,32 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E26EC7EE2E
-	for <linux-i2c@archiver.kernel.org>; Tue,  9 May 2023 02:30:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE117C7EE26
+	for <linux-i2c@archiver.kernel.org>; Tue,  9 May 2023 02:30:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234319AbjEICaS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 8 May 2023 22:30:18 -0400
+        id S234025AbjEICaQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 8 May 2023 22:30:16 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234355AbjEICaQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 22:30:16 -0400
-Received: from smtpbguseast2.qq.com (smtpbguseast2.qq.com [54.204.34.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D305683EC;
-        Mon,  8 May 2023 19:30:07 -0700 (PDT)
-X-QQ-mid: bizesmtp78t1683599366tkmkkysz
+        with ESMTP id S234284AbjEICaP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 8 May 2023 22:30:15 -0400
+Received: from smtpbgau1.qq.com (smtpbgau1.qq.com [54.206.16.166])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D1C793EB;
+        Mon,  8 May 2023 19:30:01 -0700 (PDT)
+X-QQ-mid: bizesmtp78t1683599352tb5h0xep
 Received: from wxdbg.localdomain.com ( [125.119.253.217])
         by bizesmtp.qq.com (ESMTP) with 
-        id ; Tue, 09 May 2023 10:29:25 +0800 (CST)
+        id ; Tue, 09 May 2023 10:29:11 +0800 (CST)
 X-QQ-SSF: 01400000000000I0Z000000A0000000
-X-QQ-FEAT: dcYQFNbI8vEQKyhGZeHVEPDr+1CP2vxPk4Nbk2dTDFcEJX3z6anEIEGsWnNSj
-        3npSZQeGk1v9hKAHOZWpM23yzDc08x7puPdYeSbPN6TC3QJTU3tTvVMLxT/ENJVkd4EYgvr
-        a/nTtr99rl6Uzu0pWYucy2n7W3cdTbPwBNEhZvl4kkn4HpB/4yFFZx1IZHb1Iht8gzxljyX
-        WvHBJoWJMGGs/fRWHEZOGY4Gs2OvHxJ0yuwplWPoNfuFgPEErKYjwpRSoF/w9XVvGOZ+0mn
-        Ejlrz60t9N+pW6q/WLs3CwPFp5s5fAA4Z3TvaUNJ8NU7WtgT53QwDydhNZgTxSZ1RQqrkG9
-        KxiIcaiNL+g8BRdAyvuxorimrHVzRfp7jyQzY9GB2ouffm2dmStqLl9JTNIX/CV47QveS1j
-        cNfA/fFjGnk=
+X-QQ-FEAT: qOAV9bwDT/lhWQJ2ZrgPi2WI7gl3zUtPK8vQdD6mAslKGoSuxuHbNxYEK73jg
+        h+AzNCZAwGr3WZ0VNmXZb6vMShHCb1w0QS1hEY4IepNc/4GlJPGAfSTCY4d0+3MgipvSgw0
+        a9i7qupYGYj48Ten7ecMLBuj6irpaKYaHxWBetU59uHeowf8vkygmB4lHNLcTnUZDZGJdTr
+        mQfiPQK8li6XqFUxbz5gbaOauk21k3gELuceoUVW6wWi4xQxbRKt3ALAGOs3s9jYDE6r6q1
+        i9hU4rAfJfig+do8VAD1m9IwzTqFob/W9B3S9yv1gkGDbeeKx47HC1gWv3TetMV2hgrHXyq
+        dhASY7VT80MeQQCQ3S5TtSHFrjxTEVxZf6aonafmz74QHEThoWjzZlNP/2c+pP8H1UPG3v5
+        TTu3MIXS+GJROnw4Y5MCjho7nNFIjYIe
 X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 3264187204425161388
+X-BIZMAIL-ID: 15534940054776133587
 From:   Jiawen Wu <jiawenwu@trustnetic.com>
 To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
@@ -35,9 +35,9 @@ To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         hkallweit1@gmail.com, linux@armlinux.org.uk
 Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
         mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>
-Subject: [PATCH net-next v7 8/9] net: txgbe: Implement phylink pcs
-Date:   Tue,  9 May 2023 10:27:33 +0800
-Message-Id: <20230509022734.148970-9-jiawenwu@trustnetic.com>
+Subject: [PATCH net-next v7 4/9] net: txgbe: Register I2C platform device
+Date:   Tue,  9 May 2023 10:27:29 +0800
+Message-Id: <20230509022734.148970-5-jiawenwu@trustnetic.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20230509022734.148970-1-jiawenwu@trustnetic.com>
 References: <20230509022734.148970-1-jiawenwu@trustnetic.com>
@@ -49,189 +49,157 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Register MDIO bus for PCS layer to use Synopsys designware XPCS, support
-10GBASE-R interface to the controller.
+Register the platform device to use Designware I2C bus master driver.
+Use regmap to read/write I2C device region from given base offset.
 
 Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
 ---
- drivers/net/ethernet/wangxun/Kconfig          |  1 +
- .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 91 ++++++++++++++++++-
- .../net/ethernet/wangxun/txgbe/txgbe_type.h   |  6 ++
- 3 files changed, 96 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/wangxun/Kconfig          |  2 +
+ .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 71 +++++++++++++++++++
+ .../net/ethernet/wangxun/txgbe/txgbe_type.h   |  4 ++
+ 3 files changed, 77 insertions(+)
 
 diff --git a/drivers/net/ethernet/wangxun/Kconfig b/drivers/net/ethernet/wangxun/Kconfig
-index 73f4492928c0..f3fb273e6fd0 100644
+index a62614eeed2e..ec058a72afb6 100644
 --- a/drivers/net/ethernet/wangxun/Kconfig
 +++ b/drivers/net/ethernet/wangxun/Kconfig
-@@ -45,6 +45,7 @@ config TXGBE
- 	select GPIOLIB
- 	select REGMAP
+@@ -40,6 +40,8 @@ config NGBE
+ config TXGBE
+ 	tristate "Wangxun(R) 10GbE PCI Express adapters support"
+ 	depends on PCI
++	select I2C_DESIGNWARE_PLATFORM
++	select REGMAP
  	select COMMON_CLK
-+	select PCS_XPCS
  	select LIBWX
- 	select SFP
  	help
 diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-index 8085616a9146..0ab2898e764a 100644
+index 052354b650a5..7da497ebc4a8 100644
 --- a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
 +++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-@@ -9,6 +9,8 @@
- #include <linux/regmap.h>
+@@ -1,7 +1,9 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /* Copyright (c) 2015 - 2023 Beijing WangXun Technology Co., Ltd. */
+ 
++#include <linux/platform_device.h>
+ #include <linux/gpio/property.h>
++#include <linux/regmap.h>
  #include <linux/clkdev.h>
  #include <linux/clk-provider.h>
-+#include <linux/pcs/pcs-xpcs.h>
-+#include <linux/mdio.h>
  #include <linux/i2c.h>
- #include <linux/pci.h>
- 
-@@ -78,6 +80,82 @@ static int txgbe_swnodes_register(struct txgbe *txgbe)
- 	return software_node_register_node_group(nodes->group);
+@@ -98,6 +100,65 @@ static int txgbe_clock_register(struct txgbe *txgbe)
+ 	return 0;
  }
  
-+static int txgbe_pcs_read(struct mii_bus *bus, int addr, int devnum, int regnum)
++static int txgbe_i2c_read(void *context, unsigned int reg, unsigned int *val)
 +{
-+	struct wx *wx  = bus->priv;
-+	u32 offset, val;
++	struct wx *wx = context;
 +
-+	offset = devnum << 16 | regnum;
-+
-+	/* Set the LAN port indicator to IDA_ADDR */
-+	wr32(wx, TXGBE_XPCS_IDA_ADDR, offset);
-+
-+	/* Read the data from IDA_DATA register */
-+	val = rd32(wx, TXGBE_XPCS_IDA_DATA);
-+
-+	return (u16)val;
-+}
-+
-+static int txgbe_pcs_write(struct mii_bus *bus, int addr, int devnum, int regnum, u16 val)
-+{
-+	struct wx *wx = bus->priv;
-+	u32 offset;
-+
-+	offset = devnum << 16 | regnum;
-+
-+	/* Set the LAN port indicator to IDA_ADDR */
-+	wr32(wx, TXGBE_XPCS_IDA_ADDR, offset);
-+
-+	/* Write the data to IDA_DATA register */
-+	wr32(wx, TXGBE_XPCS_IDA_DATA, val);
++	*val = rd32(wx, reg + TXGBE_I2C_BASE);
 +
 +	return 0;
 +}
 +
-+static int txgbe_mdio_pcs_init(struct txgbe *txgbe)
++static int txgbe_i2c_write(void *context, unsigned int reg, unsigned int val)
 +{
-+	struct mdio_device *mdiodev;
++	struct wx *wx = context;
++
++	wr32(wx, reg + TXGBE_I2C_BASE, val);
++
++	return 0;
++}
++
++static const struct regmap_config i2c_regmap_config = {
++	.reg_bits = 32,
++	.val_bits = 32,
++	.reg_read = txgbe_i2c_read,
++	.reg_write = txgbe_i2c_write,
++};
++
++static int txgbe_i2c_register(struct txgbe *txgbe)
++{
++	struct platform_device_info info = {};
++	struct platform_device *i2c_dev;
 +	struct wx *wx = txgbe->wx;
-+	struct mii_bus *mii_bus;
-+	struct dw_xpcs *xpcs;
++	struct regmap *i2c_regmap;
++	struct resource res = {};
 +	struct pci_dev *pdev;
-+	int ret = 0;
 +
 +	pdev = wx->pdev;
-+
-+	mii_bus = devm_mdiobus_alloc(&pdev->dev);
-+	if (!mii_bus)
-+		return -ENOMEM;
-+
-+	mii_bus->name = "txgbe_pcs_mdio_bus";
-+	mii_bus->read_c45 = &txgbe_pcs_read;
-+	mii_bus->write_c45 = &txgbe_pcs_write;
-+	mii_bus->parent = &pdev->dev;
-+	mii_bus->phy_mask = ~0;
-+	mii_bus->priv = wx;
-+	snprintf(mii_bus->id, MII_BUS_ID_SIZE, "txgbe_pcs-%x",
-+		 (pdev->bus->number << 8) | pdev->devfn);
-+
-+	ret = devm_mdiobus_register(&pdev->dev, mii_bus);
-+	if (ret)
-+		return ret;
-+
-+	mdiodev = mdio_device_create(mii_bus, 0);
-+	if (IS_ERR(mdiodev))
-+		return PTR_ERR(mdiodev);
-+
-+	xpcs = xpcs_create(mdiodev, PHY_INTERFACE_MODE_10GBASER);
-+	if (IS_ERR_OR_NULL(xpcs)) {
-+		mdio_device_free(mdiodev);
-+		return PTR_ERR(xpcs);
++	i2c_regmap = devm_regmap_init(&pdev->dev, NULL, wx,
++				      &i2c_regmap_config);
++	if (IS_ERR(i2c_regmap)) {
++		wx_err(wx, "failed to init regmap\n");
++		return PTR_ERR(i2c_regmap);
 +	}
 +
-+	txgbe->mdiodev = mdiodev;
-+	txgbe->xpcs = xpcs;
++	info.parent = &pdev->dev;
++	info.fwnode = software_node_fwnode(txgbe->nodes.group[SWNODE_I2C]);
++	info.name = "i2c_designware";
++	info.id = (pdev->bus->number << 8) | pdev->devfn;
++
++	res = DEFINE_RES_IRQ(pdev->irq);
++	info.res = &res;
++	info.num_res = 1;
++	i2c_dev = platform_device_register_full(&info);
++	if (IS_ERR(i2c_dev))
++		return PTR_ERR(i2c_dev);
++
++	txgbe->i2c_dev = i2c_dev;
 +
 +	return 0;
 +}
 +
- static int txgbe_gpio_get(struct gpio_chip *chip, unsigned int offset)
+ int txgbe_init_phy(struct txgbe *txgbe)
  {
- 	struct wx *wx = gpiochip_get_data(chip);
-@@ -410,16 +488,22 @@ int txgbe_init_phy(struct txgbe *txgbe)
- 		return ret;
+ 	int ret;
+@@ -114,8 +175,17 @@ int txgbe_init_phy(struct txgbe *txgbe)
+ 		goto err_unregister_swnode;
  	}
  
-+	ret = txgbe_mdio_pcs_init(txgbe);
++	ret = txgbe_i2c_register(txgbe);
 +	if (ret) {
-+		wx_err(txgbe->wx, "failed to init mdio pcs: %d\n", ret);
-+		goto err_unregister_swnode;
++		wx_err(txgbe->wx, "failed to init i2c interface: %d\n", ret);
++		goto err_unregister_clk;
 +	}
 +
- 	ret = txgbe_gpio_init(txgbe);
- 	if (ret) {
- 		wx_err(txgbe->wx, "failed to init gpio\n");
--		goto err_unregister_swnode;
-+		goto err_destroy_xpcs;
- 	}
+ 	return 0;
  
- 	ret = txgbe_clock_register(txgbe);
- 	if (ret) {
- 		wx_err(txgbe->wx, "failed to register clock: %d\n", ret);
--		goto err_unregister_swnode;
-+		goto err_destroy_xpcs;
- 	}
- 
- 	ret = txgbe_i2c_register(txgbe);
-@@ -441,6 +525,8 @@ int txgbe_init_phy(struct txgbe *txgbe)
- err_unregister_clk:
- 	clkdev_drop(txgbe->clock);
- 	clk_unregister(txgbe->clk);
-+err_destroy_xpcs:
-+	xpcs_destroy(txgbe->xpcs);
++err_unregister_clk:
++	clkdev_drop(txgbe->clock);
++	clk_unregister(txgbe->clk);
  err_unregister_swnode:
  	software_node_unregister_node_group(txgbe->nodes.group);
  
-@@ -453,5 +539,6 @@ void txgbe_remove_phy(struct txgbe *txgbe)
- 	platform_device_unregister(txgbe->i2c_dev);
+@@ -124,6 +194,7 @@ int txgbe_init_phy(struct txgbe *txgbe)
+ 
+ void txgbe_remove_phy(struct txgbe *txgbe)
+ {
++	platform_device_unregister(txgbe->i2c_dev);
  	clkdev_drop(txgbe->clock);
  	clk_unregister(txgbe->clk);
-+	xpcs_destroy(txgbe->xpcs);
  	software_node_unregister_node_group(txgbe->nodes.group);
- }
 diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-index 796f33fe3016..75b9c7ae3c21 100644
+index cdbc4b37f832..55979abf01f2 100644
 --- a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
 +++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-@@ -83,6 +83,10 @@
- /* I2C registers */
- #define TXGBE_I2C_BASE                          0x14900
+@@ -55,6 +55,9 @@
+ #define TXGBE_TS_CTL                            0x10300
+ #define TXGBE_TS_CTL_EVAL_MD                    BIT(31)
  
-+/************************************** ETH PHY ******************************/
-+#define TXGBE_XPCS_IDA_ADDR                     0x13000
-+#define TXGBE_XPCS_IDA_DATA                     0x13004
++/* I2C registers */
++#define TXGBE_I2C_BASE                          0x14900
 +
  /* Part Number String Length */
  #define TXGBE_PBANUM_LENGTH                     32
  
-@@ -174,6 +178,8 @@ struct txgbe_nodes {
+@@ -146,6 +149,7 @@ struct txgbe_nodes {
  struct txgbe {
  	struct wx *wx;
  	struct txgbe_nodes nodes;
-+	struct mdio_device *mdiodev;
-+	struct dw_xpcs *xpcs;
- 	struct platform_device *sfp_dev;
- 	struct platform_device *i2c_dev;
++	struct platform_device *i2c_dev;
  	struct clk_lookup *clock;
+ 	struct clk *clk;
+ };
 -- 
 2.27.0
 
