@@ -2,61 +2,70 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DC97C7EE22
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 May 2023 09:07:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B9FFC77B7D
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 May 2023 09:24:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236315AbjEJJHL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 10 May 2023 05:07:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59032 "EHLO
+        id S235881AbjEJJY1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 10 May 2023 05:24:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236340AbjEJJHK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 May 2023 05:07:10 -0400
-X-Greylist: delayed 88203 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 10 May 2023 02:07:06 PDT
-Received: from mail.rawlinsfis.com (mail.rawlinsfis.com [89.40.118.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D23B30C7
-        for <linux-i2c@vger.kernel.org>; Wed, 10 May 2023 02:07:06 -0700 (PDT)
-Received: by mail.rawlinsfis.com (Postfix, from userid 1001)
-        id 1A99C81C95; Mon,  8 May 2023 08:41:09 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rawlinsfis.com;
-        s=mail; t=1683531675;
-        bh=lDo1OjfzzJ3sOfR9tSDg5RMmT4aDyBP45hIVJCLtIrE=;
-        h=Date:From:To:Subject:From;
-        b=bh5aS/CRzTbfYq3rCEoIWzfI+ml4kPElygc+z+mga5E2gTmQ7NROEDgGuGG7i7fg6
-         lPlbk82RTfPoGaWyBjPG03R4reMfyi1GQ1GguuO3Y/x17KHMPoZeso1DMrwDHfQL3m
-         t/2y6yTh6buoSqJBoUNhEzj578vBQHxCopLAe6zcxb+nLDFCYZjcEzxP3dRtUaoeQd
-         21w6XZ3raC6D03GAqnv/J/hSGIkqTJyOab2FcPrqoLPg0Qe9VydHDg8GC5wqFXsFAI
-         3ITxeSzAL30Y5oKLhRi1bNRrGHLpZ/RHGmRKCLkJfph2Of743U0STDUhUWdWbGoZkg
-         7/tgK3G3ks7nw==
-Received: by mail.rawlinsfis.com for <linux-i2c@vger.kernel.org>; Mon,  8 May 2023 07:41:00 GMT
-Message-ID: <20230508074500-0.1.3d.5m4p.0.exs7m19qfo@rawlinsfis.com>
-Date:   Mon,  8 May 2023 07:41:00 GMT
-From:   "Damian Hordych" <damian.hordych@rawlinsfis.com>
-To:     <linux-i2c@vger.kernel.org>
-Subject: =?UTF-8?Q?Pompy_ciep=C5=82a_-_nowe_warunki_?=
-X-Mailer: mail.rawlinsfis.com
+        with ESMTP id S236902AbjEJJXz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 May 2023 05:23:55 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF53D76A6;
+        Wed, 10 May 2023 02:23:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1683710616; x=1715246616;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Sa2pMLZS86n9O3EA5nbeZV1SzabxblnSiSLxM+zq2SM=;
+  b=YlY4NYDrMt3RJIQi6WU2bZufxufU7lz8DiUWj/dDaGK+KMsLSW8kw0yu
+   9fd3ZyT2SfcfcbGYRZAHYBYk243fgqWM7J/+4H2E4V2FSl84K9CTr3AC2
+   yvlQezcp4yDwByi9EyNhjmYZMNlPyYms9dHbSwOZ6R9bkPVZrLl/EZwoO
+   wkMNP4fvn6OoCsSF3dBnO3z9/IpxU701UQhBrW1jIPn77uB/yf+C/KlYO
+   qyI4jfyrR/ORjQnLngHb8PfQXWSq0mZFD7RcG8tgVbgmPCvy8skA/CtLi
+   RlNFjECef6fTrDR54MIsaF4cqluLQWMFFE/rXt7tS1DC2Z1Tt7Mk7Y/uq
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10705"; a="330534280"
+X-IronPort-AV: E=Sophos;i="5.99,264,1677571200"; 
+   d="scan'208";a="330534280"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2023 02:23:36 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10705"; a="823487961"
+X-IronPort-AV: E=Sophos;i="5.99,264,1677571200"; 
+   d="scan'208";a="823487961"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga004.jf.intel.com with ESMTP; 10 May 2023 02:23:34 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1001)
+        id 57ACB23E; Wed, 10 May 2023 12:23:44 +0300 (EEST)
+Date:   Wed, 10 May 2023 12:23:44 +0300
+From:   Mika Westerberg <mika.westerberg@linux.intel.com>
+To:     wangyouwan <wangyouwan@126.com>
+Cc:     jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        jsd@semihalf.com, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Re: [PATCH] i2c: fix crash with msgs is NULL points
+Message-ID: <20230510092344.GP66750@black.fi.intel.com>
+References: <20230510084057.17313-1-wangyouwan@126.com>
+ <20230510090241.GO66750@black.fi.intel.com>
+ <1943ca04.6ce1.18804f327f0.Coremail.wangyouwan@126.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1943ca04.6ce1.18804f327f0.Coremail.wangyouwan@126.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Dzie=C5=84 dobry,
 
-w ramach nowej edycji programu Czyste Powietrze dla klient=C3=B3w indywid=
-ualnych mog=C4=85 otrzyma=C4=87 Pa=C5=84stwo do 135 tys. z=C5=82 wsparcia=
- na zakup pompy ciep=C5=82a.
+On Wed, May 10, 2023 at 05:17:04PM +0800, wangyouwan wrote:
+> After waking up from sleep, 100% of the time it occurred. I suspected
+> that there was a firmware issue with the machine I was debugging, but
+> other machines did not notice it. Therefore, I attempted to make a
+> modification here to avoid it
 
-Pr=C3=B3cz wy=C5=BCszego dofinansowania program zak=C5=82ada m.in. podwy=C5=
-=BCszenie prog=C3=B3w dochodowych oraz mo=C5=BCliwo=C5=9B=C4=87 z=C5=82o=C5=
-=BCenia kolejnego wniosku o dofinansowanie dla tych, kt=C3=B3rzy ju=C5=BC=
- wcze=C5=9Bniej skorzystali z Programu.
-
-Jako firma specjalizuj=C4=85ca si=C4=99 w dostawie, monta=C5=BCu i serwis=
-ie pomp ciep=C5=82a pomo=C5=BCemy Pa=C5=84stwu w uzyskaniu dofinansowania=
- wraz z kompleksow=C4=85 realizacj=C4=85 ca=C5=82ego projektu.
-
-S=C4=85 Pa=C5=84stwo zainteresowani?
-
-Pozdrawiam
-Damian Hordych
+Okay then I suggest to investigate what causes the ->msgs to be NULL and
+fix that. When the transfer function is called we expect there to be
+something to be sent out so this should not happen.
