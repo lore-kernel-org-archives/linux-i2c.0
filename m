@@ -2,98 +2,81 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C3ADC7EE24
-	for <linux-i2c@archiver.kernel.org>; Wed, 10 May 2023 08:02:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C396C7EE22
+	for <linux-i2c@archiver.kernel.org>; Wed, 10 May 2023 08:42:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236517AbjEJICE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 10 May 2023 04:02:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53148 "EHLO
+        id S230335AbjEJImg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 10 May 2023 04:42:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235798AbjEJICD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 May 2023 04:02:03 -0400
-Received: from smtpbgbr2.qq.com (smtpbgbr2.qq.com [54.207.22.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 282DC1BC0;
-        Wed, 10 May 2023 01:01:57 -0700 (PDT)
-X-QQ-mid: Yeas51t1683705659t545t18989
-Received: from 3DB253DBDE8942B29385B9DFB0B7E889 (jiawenwu@trustnetic.com [125.119.253.217])
-X-QQ-SSF: 00400000000000F0FNF000000000000
-From:   =?utf-8?b?Smlhd2VuIFd1?= <jiawenwu@trustnetic.com>
-X-BIZMAIL-ID: 7245937968249303649
-To:     <andy.shevchenko@gmail.com>
-Cc:     "'Piotr Raczynski'" <piotr.raczynski@intel.com>,
-        <netdev@vger.kernel.org>, <jarkko.nikula@linux.intel.com>,
-        <andriy.shevchenko@linux.intel.com>,
-        <mika.westerberg@linux.intel.com>, <jsd@semihalf.com>,
-        <Jose.Abreu@synopsys.com>, <andrew@lunn.ch>,
-        <hkallweit1@gmail.com>, <linux@armlinux.org.uk>,
-        <linux-i2c@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-        <mengyuanlou@net-swift.com>
-References: <20230509022734.148970-1-jiawenwu@trustnetic.com> <20230509022734.148970-3-jiawenwu@trustnetic.com> <ZFpQF4hi0FciwQsj@nimitz> <009d01d9830a$c7c6dab0$57549010$@trustnetic.com> <ZFtMGTLiivnlrN1e@surfacebook>
-In-Reply-To: <ZFtMGTLiivnlrN1e@surfacebook>
-Subject: RE: [PATCH net-next v7 2/9] i2c: designware: Add driver support for Wangxun 10Gb NIC
-Date:   Wed, 10 May 2023 16:00:58 +0800
-Message-ID: <00a901d98315$8e388180$aaa98480$@trustnetic.com>
+        with ESMTP id S236751AbjEJIm1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 May 2023 04:42:27 -0400
+Received: from m126.mail.126.com (m126.mail.126.com [220.181.12.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 82AFC7EF7;
+        Wed, 10 May 2023 01:42:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
+        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=URGhC
+        Qs1rl6awSzpzIAKRNceZT9h15+rICvuMhdIDz8=; b=H/FclKemSkmFcCKcd/azD
+        1DDzqwlCFocj9qu6yKeAGIx+OKTFJANjWMEVtLzVHdzM2Ec9+FmUkwFl8IpGkv+h
+        uCwphwjB7uiMUNKfEKaWdMvg7DffmvtTMSce+b+rOr2MsKN17eE1kEdbtesvrtON
+        4nciLFozwk682eb3U66teg=
+Received: from king.lan (unknown [103.163.180.46])
+        by zwqz-smtp-mta-g3-0 (Coremail) with SMTP id _____wC39HCdWFtkpdYvAg--.4572S2;
+        Wed, 10 May 2023 16:41:01 +0800 (CST)
+From:   wangyouwan@126.com
+To:     jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, jsd@semihalf.com
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        youwan Wang <wangyouwan@126.com>
+Subject: [PATCH] i2c: fix crash with msgs is NULL points
+Date:   Wed, 10 May 2023 16:40:57 +0800
+Message-Id: <20230510084057.17313-1-wangyouwan@126.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AQJdw4zS3rpHMobUlf9gBLGLbLpYXQJZ55l3AhfCTYMCH7b03QEwDQEVrgyXMoA=
-Content-Language: zh-cn
-X-QQ-SENDSIZE: 520
-Feedback-ID: Yeas:trustnetic.com:qybglogicsvrgz:qybglogicsvrgz5a-1
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: _____wC39HCdWFtkpdYvAg--.4572S2
+X-Coremail-Antispam: 1Uf129KBjvdXoWruw1fKF48WrW5WryDZFWDArb_yoWDCFbE9r
+        n7Za92grW2yan3Gw13AFsxXrZ09r18Wa4xuF1xt393Cr1jyr1kAF4DAry3Zr1DXF47KFZ0
+        g3Wq9F1rAr43JjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUjUPEPUUUUU==
+X-Originating-IP: [103.163.180.46]
+X-CM-SenderInfo: 5zdqw5prxzt0a6rslhhfrp/1tbi3B9rFVpEFVGPZQAAsN
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wednesday, May 10, 2023 3:48 PM, andy.shevchenko@gmail.com wrote:
-> Wed, May 10, 2023 at 02:43:50PM +0800, Jiawen Wu kirjoitti:
-> > On Tuesday, May 9, 2023 9:52 PM, Piotr Raczynski wrote:
-> > > On Tue, May 09, 2023 at 10:27:27AM +0800, Jiawen Wu wrote:
-> 
-> ...
-> 
-> > > >  	/*
-> > > > -	 * Initiate I2C message transfer when AMD NAVI GPU card is enabled,
-> > > > +  * Initiate I2C message transfer when polling mode is enabled,
-> > > >  	 * As it is polling based transfer mechanism, which does not support
-> > > >  	 * interrupt based functionalities of existing DesignWare driver.
-> > > >  	 */
-> > > > -	if ((dev->flags & MODEL_MASK) == MODEL_AMD_NAVI_GPU) {
-> > > > +	switch (dev->flags & MODEL_MASK) {
-> > > > +	case MODEL_AMD_NAVI_GPU:
-> > > >  		ret = amd_i2c_dw_xfer_quirk(adap, msgs, num);
-> > > >  		goto done_nolock;
-> > > > +	case MODEL_WANGXUN_SP:
-> > > > +		ret = txgbe_i2c_dw_xfer_quirk(adap, msgs, num);
-> > > > +		goto done_nolock;
-> > > > +	default:
-> > > > +		break;
-> > > >  	}
-> > > Nit pick, when I first saw above code it looked a little weird,
-> > > maybe it would be a little clearer with:
-> > >
-> > > 	if (i2c_dw_is_model_poll(dev)) {
-> > > 		switch (dev->flags & MODEL_MASK) {
-> > > 		case MODEL_AMD_NAVI_GPU:
-> > > 			ret = amd_i2c_dw_xfer_quirk(adap, msgs, num);
-> > > 			break;
-> > > 		case MODEL_WANGXUN_SP:
-> > > 			ret = txgbe_i2c_dw_xfer_quirk(adap, msgs, num);
-> > > 			break;
-> > > 		default:
-> > > 			break;
-> > > 		}
-> > > 		goto done_nolock;
-> > > 	}
-> > >
-> > > I do not insist though.
-> >
-> > Sure, it looks more obvious as polling mode quirk.
-> 
-> I don't think we need a double checks. The i2c_dw_is_model_poll() will repeat
-> the switch. Please, leave it as is in your current version.
+From: youwan Wang <wangyouwan@126.com>
 
-Okay, thanks for all your comments.
+There is some probability that msgs is empty
 
+Signed-off-by: youwan Wang <wangyouwan@126.com>
+---
+ drivers/i2c/busses/i2c-designware-master.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 55ea91a63382..e11a73fd0a41 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -366,12 +366,17 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 	struct i2c_msg *msgs = dev->msgs;
+ 	u32 intr_mask;
+ 	int tx_limit, rx_limit;
+-	u32 addr = msgs[dev->msg_write_idx].addr;
++	u32 addr;
+ 	u32 buf_len = dev->tx_buf_len;
+ 	u8 *buf = dev->tx_buf;
+ 	bool need_restart = false;
+ 	unsigned int flr;
+ 
++	if (WARN_ON(!msgs))
++		return;
++
++	addr = msgs[dev->msg_write_idx].addr;
++
+ 	intr_mask = DW_IC_INTR_MASTER_MASK;
+ 
+ 	for (; dev->msg_write_idx < dev->msgs_num; dev->msg_write_idx++) {
+-- 
+2.25.1
 
