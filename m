@@ -2,166 +2,171 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EDE2C7EE22
-	for <linux-i2c@archiver.kernel.org>; Mon, 15 May 2023 06:36:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C799C77B7D
+	for <linux-i2c@archiver.kernel.org>; Mon, 15 May 2023 07:52:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239932AbjEOGgp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 15 May 2023 02:36:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37462 "EHLO
+        id S234659AbjEOHwb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 15 May 2023 03:52:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236330AbjEOGgo (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 15 May 2023 02:36:44 -0400
-Received: from smtpbguseast2.qq.com (smtpbguseast2.qq.com [54.204.34.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 674FD114;
-        Sun, 14 May 2023 23:36:42 -0700 (PDT)
-X-QQ-mid: bizesmtp69t1684132432tr1dcqvs
-Received: from wxdbg.localdomain.com ( [115.200.228.151])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Mon, 15 May 2023 14:33:51 +0800 (CST)
-X-QQ-SSF: 01400000000000I0Z000000A0000000
-X-QQ-FEAT: 7jw2iSiCazoWCiV9ioWjrGO7P21aFSNocHguYDo5Ji+vDNmyew5b4wwguN3sj
-        6PwZLw1lCP+/8oBU+5pf94Ea+FjmVtCgKnWFCA6lYJxc+fOWw/VWRRacT95sQnh1v4ADfp6
-        DyYR4h4FucZXH30Fms0FHFCDC3zneju6SbmyaF/NkaIor/bRjZ6AI7+SjyflW0iPgey7Ike
-        fylDwTvANh55F//9AHK8p1rLO/GX/XLBghkOhB3clKZQGb5Plme2D6c+hV/D18RMSXRbQY7
-        X17pxl30N95GUta70+7gupedt1QnwQb2QlgKCx41XSPm/+HWxEpyH+WWKH6cNaPShN7l8C2
-        2ddfyJqZqDVwhGYTVPJzY7g0seBr2aLvdRnhjrwlwjqcbB6YzMK6GNv0x/UQcC0QW6FoDNL
-        o6NM1c+XEkY=
-X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 6885424968939681113
-From:   Jiawen Wu <jiawenwu@trustnetic.com>
-To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
-        andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
-        jsd@semihalf.com, Jose.Abreu@synopsys.com, andrew@lunn.ch,
-        hkallweit1@gmail.com, linux@armlinux.org.uk
-Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>
-Subject: [PATCH net-next v8 7/9] net: pcs: Add 10GBASE-R mode for Synopsys Designware XPCS
-Date:   Mon, 15 May 2023 14:31:58 +0800
-Message-Id: <20230515063200.301026-8-jiawenwu@trustnetic.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20230515063200.301026-1-jiawenwu@trustnetic.com>
-References: <20230515063200.301026-1-jiawenwu@trustnetic.com>
+        with ESMTP id S239918AbjEOHwE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 15 May 2023 03:52:04 -0400
+Received: from EUR03-DBA-obe.outbound.protection.outlook.com (mail-dbaeur03on2123.outbound.protection.outlook.com [40.107.104.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 435CF10C6;
+        Mon, 15 May 2023 00:51:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SEZb/emQdcHpjBEkHEcggrY2jcelfJFMuCPbivdoGtbRpEENXNhlXL+AjKafOnc7lVrllGOeLUKKXZJxRj341XNQBld8lw1VisutdyVtUqHzaMpu0vWEqfN57QYUtx8JKdxP4aMlaLZWXqdebMZzVLK/X1qxTKrzUU1hpNwRwsnN2nXqQNAPP4eR9ryOGT+RBtvHWTqLszQQMoqmobnvzq/NjSu5VJ8QczS8J1OIelv13zf6Xc9qzKGiujAIMofyHsMRmcBPlWI11k4eB7t91nEVcgTrFapnoJUnl9HuHAFKK8/lvjZC/qHAmjmVBS2aBYGTVP/Kv3oGshn1YgO4Iw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wTv5VjshWkxZJX9E+FOKC3uUdwETXnYxlv9yfjeutJY=;
+ b=fhcFsqC7bPzhr+1TM1IOTsQ/XsPcoH87umvB+qz1mEAjIJtwnkedE+qmRq/G5jMDQTaXYaTOJPi1LJVhQ0xshsjljlZQbph5Gh/Dtzo54LJ3yLmi8RCUOxLkmE6osJKzFSvg1L1tgC+PRzinvrMtiwtRzCj/qRZ1BXIYgVofkn/aKqthrAnj3PCXYQwZ912k726zFVNths/6ZXuGCw6gBFb4kl/fQdbs0hri4Vq+jkg2ufFsg08myI3d+43OiAwitxoMRLlXvWlkZeQua0cLJ1C4cFOfrVN/9wE5PCxEqLK0/oo+TJ/xJjDraANmETmxoSR2xV7FuF6ZqCAaBCCs4w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=kontron.com; dmarc=pass action=none header.from=kontron.com;
+ dkim=pass header.d=kontron.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mysnt.onmicrosoft.com;
+ s=selector2-mysnt-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wTv5VjshWkxZJX9E+FOKC3uUdwETXnYxlv9yfjeutJY=;
+ b=RFwriIS0ExLtlnzVqWkdVqU3jwZXaRgMGYpcBq1L6KCPtx30mDcofA+6204budhUxrXVVU7d+xd5ivUyG56c4B+KXC9koTBVCyt7jaJ3JxRFMtK7R9HPsSEoDFwhJAOj8i2t29sRfZb5/8NbG03ltQhXFBXYjeVX6ljtcRcCcak=
+Received: from AS2PR10MB7551.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:591::19)
+ by AM7PR10MB3461.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:134::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.30; Mon, 15 May
+ 2023 07:51:55 +0000
+Received: from AS2PR10MB7551.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::90bf:46fc:e7bc:cf13]) by AS2PR10MB7551.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::90bf:46fc:e7bc:cf13%5]) with mapi id 15.20.6387.030; Mon, 15 May 2023
+ 07:51:55 +0000
+From:   Michael Brunner <michael.brunner@kontron.com>
+To:     "josef@oderland.se" <josef@oderland.se>,
+        "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>,
+        "hdegoede@redhat.com" <hdegoede@redhat.com>,
+        "wsa@kernel.org" <wsa@kernel.org>
+CC:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Ingmar Klein <Ingmar.Klein@kontron.com>
+Subject: Re: [PATCH v1 1/1] i2c: scmi: Convert to be a platform driver
+Thread-Topic: [PATCH v1 1/1] i2c: scmi: Convert to be a platform driver
+Thread-Index: AQHZhLPcdOnTkTPVbkq8yl7yK9h/ZK9a+tMA
+Date:   Mon, 15 May 2023 07:51:55 +0000
+Message-ID: <60c1756765b9a3f1eab0dcbd84f59f00fe1caf48.camel@kontron.com>
+References: <20220906155507.39483-1-andriy.shevchenko@linux.intel.com>
+         <Yxj1ZQjBfdG1u93d@shikoro>
+         <23c8fafe-af56-afb0-1257-222705bc36f3@oderland.se>
+         <b8eff79f-0be0-e6a5-64ba-e085b0ea52b2@oderland.se>
+         <Yxm9tlb4H7fspRMZ@smile.fi.intel.com>
+In-Reply-To: <Yxm9tlb4H7fspRMZ@smile.fi.intel.com>
+Accept-Language: de-DE, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.36.5-0ubuntu1 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=kontron.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AS2PR10MB7551:EE_|AM7PR10MB3461:EE_
+x-ms-office365-filtering-correlation-id: 2197a928-566c-4fd3-5679-08db551940ea
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: hCmSTjWXdwCoLOI2ydmekhXqI7yMs049lhJNjymSv2i3WUqBlUBgci9tOvNxDiSyN0/CcBnCldqbFczlA6wn1m72XXYcguKMOogfCHo4+394zf27IJbdAZu6UHaXor93HlFyfq2xoxdfX9rYEhZmN1sLWknjTBCUgRiI9p1s1xFYv7EWrIuoLsrvUctUoe+q9vpgRTDhbnwmt1ZvHUC3ROpMXD5+sx6VLT1dw0ku0XP5isCHIJ0n+5rjE6OFwfUTVfLbMbh0oedLj1qqv+YLrfDUNLFcxOTWTyxcL59QLSTcs1s6jKRbNAMp/1dKHvFxvlY02+9yISOYDrKrFZRLwneVr+rguuNG8PrOPUFCjFzc+voO5zWRt07cjGDJedJeKCOSKS98Fl9itaP+QZyZaJl04xTC3uNFNA9YvdOkTnYlV/epTZWKBSi2sGLbU/3pr0Yxl1YAH4tyOREp6J9gZRj+5urL3MOtuEevyXCHpxIM2Ej3lZipTBE8CspGKWWV/9a5lMaICbsaUD9dhFdrtCflPX5m6PtzLTch+brzjo5gKIH9dC98ZNh6mgrET060UDMcuye2A8nWIx1hI2HH8hxpNEF5EN+bPFpeXiTEM3jv1q+hWdcvukD1aLueTYDu
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS2PR10MB7551.EURPRD10.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(376002)(366004)(346002)(39850400004)(136003)(451199021)(66556008)(66446008)(64756008)(66946007)(66476007)(4326008)(478600001)(6486002)(76116006)(86362001)(91956017)(316002)(54906003)(110136005)(36756003)(83380400001)(26005)(107886003)(186003)(6512007)(2616005)(53546011)(6506007)(71200400001)(41300700001)(8936002)(8676002)(5660300002)(44832011)(2906002)(122000001)(38100700002)(38070700005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-15?Q?RDdEXGdYVun8uKjWSC4suXvqAIX8uTWeRALKb6/ncMipkGi0kGbViD0dz?=
+ =?iso-8859-15?Q?iXX96lPbMI94PIM/A2LEkEuIkMNPZR/rZry++B03P5il3R5otqr11mlZ5?=
+ =?iso-8859-15?Q?UAACS+4AICnBFIzcZFTp4Ijfc6S/NeNy42O2lwUFIpJ/H8moEQeOJkCHy?=
+ =?iso-8859-15?Q?J7GZyMOqYi++Ylab+tzxVK6FSomCm50+3SDp5MYTPfvtTZS6UKGD6thdP?=
+ =?iso-8859-15?Q?aPfLbxh5CNuIcxJ8TrE0rSWxNej1NQj9N/dR1dfy6dp29m1rtBSfAlyzX?=
+ =?iso-8859-15?Q?Swk9Hx/0LEtVy2UFibaozP0XF0Lc+SWnEB+XIxD3q8Q8+AGXmIBAQvaoI?=
+ =?iso-8859-15?Q?tuh5LCqsDqA39Obf/84Lh1nVwrsv9fiSDJQOiQ3JnbaanfVlLsJJY/XGR?=
+ =?iso-8859-15?Q?TY8cHdQDQA8CaFpto6+ISjkTYAWimqpwxkxUNMoRehvSEI78ujYCRbO+o?=
+ =?iso-8859-15?Q?uLObLG/JBBCsvSIY2WY71dvLZE9e+wmPn5pQ/IdH9AePTlQOvUVi+afVG?=
+ =?iso-8859-15?Q?bEirLXKp4ZeMyyqCliZhk9W36U1hqvhSqu/reqMHlZq2V++PIuR/Ftnjn?=
+ =?iso-8859-15?Q?HBwTjgLokyP8TkQZc779mrK4hBXASuXRUb+domNlUAJMl17QKhmmXRYj0?=
+ =?iso-8859-15?Q?ngpDP3Y4WT6TvUF87+o78cKblM4UmvRhxZcd/ojPxIYNK2uJCruMurbkw?=
+ =?iso-8859-15?Q?5H43Ou5pZTNDV/7gaZDFxnVTlX4ggtuGdELhysoLIXcB6OWnJxjUkKk6e?=
+ =?iso-8859-15?Q?Hw0nhgob0wtiIuYLsbFTtOWgSNE0PTAKuzyU6/bQ7UM6VuGK0haq9rY6W?=
+ =?iso-8859-15?Q?wwGz6oVJqxU0wAKd16XHpMMvYftWse+honqhoLR46d92USJ/LbIv8h70o?=
+ =?iso-8859-15?Q?UlrjSJAPdMP4H1hdszjz7sfFW4gYIe9B4OhmypdVJzM49ZlQeOmuHyzfL?=
+ =?iso-8859-15?Q?16Q+p2lGV+m9JUzbLo3emOqKN+CBCaKQhZG//OB3QzD32MMNCfn1XeO/3?=
+ =?iso-8859-15?Q?xxNqumnJH3e8W38NXHb6qR2bn//CCe3XXbl9BgLR7wD1PSyIWwsxlRK7x?=
+ =?iso-8859-15?Q?Olpt8PmZCIFdnMVd/P7C0sVhQBsMDRSUHAcZMwZMIoE1IcZlGmBWXah9+?=
+ =?iso-8859-15?Q?xpOmgxs9tipkUZrkjL0ZO+gYXZnoJveC5/ayCraATUDV579RdgJcJbrDz?=
+ =?iso-8859-15?Q?RciiqsvAMMHoRlM37Y60bCTd9hAHRpUoCCjdty3KvUaH6vIlwOZ4tlCvU?=
+ =?iso-8859-15?Q?Dp6rrY65qoJazggYwudnIVrE5SGrMi9YIEle7rIga82GlrbwmAMnqHIzX?=
+ =?iso-8859-15?Q?i2U7WzQfdLvarE+5U8ipASsMg41BEiwuRk0nF/HdyDJQvhOao14JKV4aP?=
+ =?iso-8859-15?Q?zhJjTjcBO9MMYGn+A0RdjP+v4xA/DUfF04tIvujpi9Jl5cIzh0+sjqzPh?=
+ =?iso-8859-15?Q?Lkc269l4cx+9ecwVIdYlw9asLSrvkq3LpfWTNloMBuzFwWkDC+/T+itmU?=
+ =?iso-8859-15?Q?aYkWPCxGKKZ7FbqyvJ3dMNPPiEiEvY+xFXwfJJSqHPq6TsY8X2imoUGAO?=
+ =?iso-8859-15?Q?vun3g7npv5pQjb1kfs8ZT2GWpIYFfR2Gl730yeyRvi+TVf+UQkP3kcF9B?=
+ =?iso-8859-15?Q?4TYchub3snW9S9+DCJTCcY2IhYJXeYvvg65RdZOjy2ryGPy92EGVYFAPa?=
+ =?iso-8859-15?Q?DWnI/QDzrj0WXXtB3SuBF0nLVnianiXNaXOSc0Ca6zQCNkM=3D?=
+Content-Type: text/plain; charset="iso-8859-15"
+Content-ID: <3F880A2B01CA5D448907C9CADCC21FCA@EURPRD10.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:trustnetic.com:qybglogicsvrgz:qybglogicsvrgz5a-1
+X-OriginatorOrg: kontron.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AS2PR10MB7551.EURPRD10.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2197a928-566c-4fd3-5679-08db551940ea
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 May 2023 07:51:55.4500
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 8c9d3c97-3fd9-41c8-a2b1-646f3942daf1
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Ug/r6Pc+89v1s+Fi269Q2x9txmnr+DMGBZP/H+J4GJfzPHv/aX4NIrYyombomkXPlq4RR3U7SsqS6AGUb34t88pw7HetJmIdNPCN4xt0nIY=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM7PR10MB3461
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add basic support for XPCS using 10GBASE-R interface. This mode will
-be extended to use interrupt, so set pcs.poll false. And avoid soft
-reset so that the device using this mode is in the default configuration.
+On Thu, 2022-09-08 at 13:02 +0300, Andy Shevchenko wrote:
+> On Thu, Sep 08, 2022 at 09:48:29AM +0200, Josef Johansson wrote:
+> > On 9/8/22 08:07, Josef Johansson wrote:
+> > > On 9/7/22 21:47, Wolfram Sang wrote:
+> > > > On Tue, Sep 06, 2022 at 06:55:07PM +0300, Andy Shevchenko
+> > > > wrote:
+> > > > > ACPI core in conjunction with platform driver core provides
+> > > > > an infrastructure to enumerate ACPI devices. Use it in order
+> > > > > to remove a lot of boilerplate code.
+> > > > >=20
+> > > > > Signed-off-by: Andy Shevchenko <
+> > > > > andriy.shevchenko@linux.intel.com>
+> > > > Josef, do you have resources to test this patch before I apply
+> > > > it?
+> > > >=20
+> > > Yes, I'll make that happen today.
+> > Hi,
+> >=20
+> > I compiled with linux-6.0.0-rc4 with your patch on top.
+> >=20
+> > Have been running flawless so far. Boot showed no problems.
+> >=20
+> > Thanks!
+>=20
+> Thank you!
+>=20
 
-Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
----
- drivers/net/pcs/pcs-xpcs.c   | 30 ++++++++++++++++++++++++++++++
- include/linux/pcs/pcs-xpcs.h |  1 +
- 2 files changed, 31 insertions(+)
+Hi,
 
-diff --git a/drivers/net/pcs/pcs-xpcs.c b/drivers/net/pcs/pcs-xpcs.c
-index 539cd43eae8d..c7c8b8d1311f 100644
---- a/drivers/net/pcs/pcs-xpcs.c
-+++ b/drivers/net/pcs/pcs-xpcs.c
-@@ -64,6 +64,16 @@ static const int xpcs_xlgmii_features[] = {
- 	__ETHTOOL_LINK_MODE_MASK_NBITS,
- };
- 
-+static const int xpcs_10gbaser_features[] = {
-+	ETHTOOL_LINK_MODE_Pause_BIT,
-+	ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-+	ETHTOOL_LINK_MODE_10000baseSR_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseLR_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseLRM_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseER_Full_BIT,
-+	__ETHTOOL_LINK_MODE_MASK_NBITS,
-+};
-+
- static const int xpcs_sgmii_features[] = {
- 	ETHTOOL_LINK_MODE_Pause_BIT,
- 	ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-@@ -106,6 +116,10 @@ static const phy_interface_t xpcs_xlgmii_interfaces[] = {
- 	PHY_INTERFACE_MODE_XLGMII,
- };
- 
-+static const phy_interface_t xpcs_10gbaser_interfaces[] = {
-+	PHY_INTERFACE_MODE_10GBASER,
-+};
-+
- static const phy_interface_t xpcs_sgmii_interfaces[] = {
- 	PHY_INTERFACE_MODE_SGMII,
- };
-@@ -123,6 +137,7 @@ enum {
- 	DW_XPCS_USXGMII,
- 	DW_XPCS_10GKR,
- 	DW_XPCS_XLGMII,
-+	DW_XPCS_10GBASER,
- 	DW_XPCS_SGMII,
- 	DW_XPCS_1000BASEX,
- 	DW_XPCS_2500BASEX,
-@@ -246,6 +261,7 @@ static int xpcs_soft_reset(struct dw_xpcs *xpcs,
- 
- 	switch (compat->an_mode) {
- 	case DW_AN_C73:
-+	case DW_10GBASER:
- 		dev = MDIO_MMD_PCS;
- 		break;
- 	case DW_AN_C37_SGMII:
-@@ -872,6 +888,8 @@ int xpcs_do_config(struct dw_xpcs *xpcs, phy_interface_t interface,
- 		return -ENODEV;
- 
- 	switch (compat->an_mode) {
-+	case DW_10GBASER:
-+		break;
- 	case DW_AN_C73:
- 		if (phylink_autoneg_inband(mode)) {
- 			ret = xpcs_config_aneg_c73(xpcs, compat);
-@@ -1033,6 +1051,9 @@ static void xpcs_get_state(struct phylink_pcs *pcs,
- 		return;
- 
- 	switch (compat->an_mode) {
-+	case DW_10GBASER:
-+		phylink_mii_c45_pcs_get_state(xpcs->mdiodev, state);
-+		break;
- 	case DW_AN_C73:
- 		ret = xpcs_get_state_c73(xpcs, state, compat);
- 		if (ret) {
-@@ -1188,6 +1209,12 @@ static const struct xpcs_compat synopsys_xpcs_compat[DW_XPCS_INTERFACE_MAX] = {
- 		.num_interfaces = ARRAY_SIZE(xpcs_xlgmii_interfaces),
- 		.an_mode = DW_AN_C73,
- 	},
-+	[DW_XPCS_10GBASER] = {
-+		.supported = xpcs_10gbaser_features,
-+		.interface = xpcs_10gbaser_interfaces,
-+		.num_interfaces = ARRAY_SIZE(xpcs_10gbaser_interfaces),
-+		.an_mode = DW_10GBASER,
-+	},
- 	[DW_XPCS_SGMII] = {
- 		.supported = xpcs_sgmii_features,
- 		.interface = xpcs_sgmii_interfaces,
-@@ -1290,6 +1317,9 @@ struct dw_xpcs *xpcs_create(struct mdio_device *mdiodev,
- 		}
- 
- 		xpcs->pcs.ops = &xpcs_phylink_ops;
-+		if (compat->an_mode == DW_10GBASER)
-+			return xpcs;
-+
- 		xpcs->pcs.poll = true;
- 
- 		ret = xpcs_soft_reset(xpcs, compat);
-diff --git a/include/linux/pcs/pcs-xpcs.h b/include/linux/pcs/pcs-xpcs.h
-index d2da1e0b4a92..61df0c717a0e 100644
---- a/include/linux/pcs/pcs-xpcs.h
-+++ b/include/linux/pcs/pcs-xpcs.h
-@@ -18,6 +18,7 @@
- #define DW_AN_C37_SGMII			2
- #define DW_2500BASEX			3
- #define DW_AN_C37_1000BASEX		4
-+#define DW_10GBASER			5
- 
- struct xpcs_id;
- 
--- 
-2.27.0
+We just noticed that this change prevents the usage of the i2c-scmi
+driver on basically all Kontron COMe based boards.
+The reason is the patch "ACPI / platform: Add SMB0001 HID to
+forbidden_id_list" submitted in November 2018 by Hans de Goede. The
+patch blacklists the SMB0001 HID that is also used by the COMe boards.
+This was due to issues with HP AMD based laptops according to the
+commit message.
+Ironically the commit message there states that it is OK to blacklist
+the HID as the device directly binds to the acpi_bus and therefore the
+platform_device is not needed anyway. This changed with this patch.
 
+As this affects all systems using this HID, applying a patch that
+whitelists specific boards again in the acpi-platform driver doesn't
+seem to be a good solution to me.
+Therefore I would request to remove this patch again, unless someone
+has a better idea.
+
+Thanks,
+  Michael Brunner
