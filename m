@@ -2,120 +2,227 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0BE3C7EE2D
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 May 2023 14:25:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54A94C7EE2A
+	for <linux-i2c@archiver.kernel.org>; Tue, 16 May 2023 14:32:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233533AbjEPOZq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 May 2023 10:25:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34564 "EHLO
+        id S233946AbjEPOcO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 16 May 2023 10:32:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233193AbjEPOZn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 May 2023 10:25:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A823772BD;
-        Tue, 16 May 2023 07:25:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S233913AbjEPOcM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 May 2023 10:32:12 -0400
+X-Greylist: delayed 3598 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 16 May 2023 07:32:02 PDT
+Received: from mx2.securetransport.de (mx2.securetransport.de [IPv6:2a03:4000:13:6c7::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6BC2C2738;
+        Tue, 16 May 2023 07:32:02 -0700 (PDT)
+Received: from mail.dh-electronics.com (unknown [77.24.89.57])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09A7D63AB8;
-        Tue, 16 May 2023 14:25:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3223DC4339B;
-        Tue, 16 May 2023 14:25:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684247138;
-        bh=56JVyKy+1Eo3iWQR1rFM2KRacIvVANlyt7QmXSsxXog=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Sw7ItSmQIbLslllD7oBOkdF9j/FlOj5dsXDqMdAVYTGXVePqgKGiqHLCWvHm2ORRr
-         6kGi23wPgbqtWH++GyKPDbfnOGJYRSItd42GnFFL9NiTCxbS5MlCYoaE7cja5CINAl
-         MBeAVXmYMLL0CaHOeAmMhwc3cfLmYm36VluT5zcF9NizSc+259zobJFUL5N3gEno4X
-         9u5F6216HG+frqCDI12sd/qoLpfPnHwDmm/KK8Xl+b3WsdT+JxGuGo+K5vAgHOJtRQ
-         LNksR965SsJyjo9psN0LiFLlQFkAsgnNiK5I91CtB8U03VZ1stI7eAzP3ggkislL7X
-         wgwUE3IVrbIFA==
-Date:   Tue, 16 May 2023 23:25:33 +0900
-From:   Mark Brown <broonie@kernel.org>
-To:     Michal Simek <michal.simek@amd.com>
-Cc:     piyush.mehta@amd.com, nava.kishore.manne@amd.com,
-        sai.krishna.potthuri@amd.com, shubhrajyoti.datta@amd.com,
-        vishal.sagar@amd.com, kalyani.akula@amd.com,
-        bharat.kumar.gogada@amd.com, linux-kernel@vger.kernel.org,
-        monstr@monstr.eu, michal.simek@xilinx.com, git@xilinx.com,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Damien Le Moal <dlemoal@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Jassi Brar <jassisinghbrar@gmail.com>,
-        Jolly Shah <jolly.shah@xilinx.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Manish Narani <manish.narani@xilinx.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Moritz Fischer <mdf@kernel.org>,
-        Rajan Vaja <rajan.vaja@xilinx.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Srinivas Neeli <srinivas.neeli@amd.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tom Rix <trix@redhat.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Wu Hao <hao.wu@intel.com>, Xu Yilun <yilun.xu@intel.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-ide@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: xilinx: Switch xilinx.com emails to amd.com
-Message-ID: <ZGOSXZs3H0wNxoOn@finisterre.sirena.org.uk>
-References: <f5b2bd1e78407e4128fc8f0b5874ba723e710a88.1684245058.git.michal.simek@amd.com>
+        by mx2.securetransport.de (Postfix) with ESMTPSA id 32C2E5EA7C;
+        Tue, 16 May 2023 14:37:01 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dh-electronics.com;
+        s=dhelectronicscom; t=1684240622;
+        bh=skp/axhNMcvbtQkJMBiWbGqy7uv3b/YrL4HOY83nmFg=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=J9G1+exx3Ap1T2ZF/zWX4gTsSvd1v/UswdOxtXxJ3oscDMJikayVQh1Osz5K2lcv2
+         IUsN+slIxXQ79d9mCRC/ALlHqalgMAdiPgiVAAb26U4H92hTDiUJ5C+Ikyi0mOqyT9
+         Y3SXTvwzIvbkpcovbPNcaKkuOhtNrU2N/Ll80bDTaGDA823UkBmz79aiZ9ATlyvb4a
+         m7Dv+LQfu648ZIQkKv/oLQWdHeHMF8Ns8inh3ao3RPTj0GEPoaJzObraNfxSy2hEaS
+         8YdmOJ+nKA4VQOuk9iOeG2tGnCWXinE3HreOJQw/X/ohwK7MXSllQegMoYniq4BOqL
+         vwzVecHQTGGzw==
+Received: from DHPWEX01.DH-ELECTRONICS.ORG (10.64.2.30) by
+ DHPWEX01.DH-ELECTRONICS.ORG (10.64.2.30) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.26; Tue, 16 May 2023 14:36:57 +0200
+Received: from localhost.localdomain (172.16.51.22) by
+ DHPWEX01.DH-ELECTRONICS.ORG (10.64.2.30) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.26 via Frontend Transport; Tue, 16 May 2023 14:36:56 +0200
+From:   Ludwig Zenz <lzenz@dh-electronics.com>
+To:     <tomi.valkeinen@ideasonboard.com>
+CC:     <Matti.Vaittinen@fi.rohmeurope.com>, <andriy.shevchenko@intel.com>,
+        <andriy.shevchenko@linux.intel.com>, <broonie@kernel.org>,
+        <devicetree@vger.kernel.org>, <hverkuil@xs4all.nl>,
+        <khalasa@piap.pl>, <krzysztof.kozlowski+dt@linaro.org>,
+        <laurent.pinchart+renesas@ideasonboard.com>, <lgirdwood@gmail.com>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-media@vger.kernel.org>, <luca.ceresoli@bootlin.com>,
+        <m.tretter@pengutronix.de>, <marex@denx.de>, <mchehab@kernel.org>,
+        <mpagano@gentoo.org>, <peda@axentia.se>, <robh+dt@kernel.org>,
+        <sakari.ailus@linux.intel.com>, <satish.nagireddy@getcruise.com>,
+        <wsa@kernel.org>
+Subject: Re: [PATCH v13 6/8] media: i2c: add DS90UB960 driver
+Date:   Tue, 16 May 2023 14:35:49 +0200
+Message-ID: <20230516123549.3120-1-lzenz@dh-electronics.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20230426115114.156696-7-tomi.valkeinen@ideasonboard.com>
+References: <20230426115114.156696-7-tomi.valkeinen@ideasonboard.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="fdGB4dh9xyA/RRNs"
-Content-Disposition: inline
-In-Reply-To: <f5b2bd1e78407e4128fc8f0b5874ba723e710a88.1684245058.git.michal.simek@amd.com>
-X-Cookie: Avoid contact with eyes.
+X-klartext: yes
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+On Wed, 26 Apr 2023 14:51:12 +0300, Tomi Valkeinen wrote:
 
---fdGB4dh9xyA/RRNs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+[...]
 
-On Tue, May 16, 2023 at 03:51:08PM +0200, Michal Simek wrote:
-> @xilinx.com is still working but better to switch to new amd.com after
-> AMD/Xilinx acquisition.
+>  +static int ub960_configure_ports_for_streaming(struct ub960_data *priv,
+>  +					       struct v4l2_subdev_state *state)
+>  +{
+>  +	u8 fwd_ctl;
+>  +	struct {
+>  +		u32 num_streams;
+>  +		u8 pixel_dt;
+>  +		u8 meta_dt;
+>  +		u32 meta_lines;
+>  +		u32 tx_port;
+>  +	} rx_data[UB960_MAX_RX_NPORTS] = {};
+>  +	u8 vc_map[UB960_MAX_RX_NPORTS] = {};
+>  +	struct v4l2_subdev_route *route;
+>  +	unsigned int nport;
+>  +	int ret;
+>  +
+>  +	ret = ub960_validate_stream_vcs(priv);
+>  +	if (ret)
+>  +		return ret;
+>  +
+>  +	ub960_get_vc_maps(priv, state, vc_map);
+>  +
+>  +	for_each_active_route(&state->routing, route) {
+>  +		struct ub960_rxport *rxport;
+>  +		struct ub960_txport *txport;
+>  +		struct v4l2_mbus_framefmt *fmt;
+>  +		const struct ub960_format_info *ub960_fmt;
+>  +		unsigned int nport;
+>  +
+>  +		nport = ub960_pad_to_port(priv, route->sink_pad);
+>  +
+>  +		rxport = priv->rxports[nport];
+>  +		if (!rxport)
+>  +			return -EINVAL;
+>  +
+>  +		txport = priv->txports[ub960_pad_to_port(priv, route->source_pad)];
+>  +		if (!txport)
+>  +			return -EINVAL;
+>  +
+>  +		rx_data[nport].tx_port = ub960_pad_to_port(priv, route->source_pad);
+>  +
+>  +		rx_data[nport].num_streams++;
+>  +
+>  +		/* For the rest, we are only interested in parallel busses */
+>  +		if (rxport->rx_mode == RXPORT_MODE_CSI2_SYNC ||
+>  +		    rxport->rx_mode == RXPORT_MODE_CSI2_ASYNC)
+>  +			continue;
+>  +
+>  +		if (rx_data[nport].num_streams > 2)
+>  +			return -EPIPE;
+>  +
+>  +		fmt = v4l2_subdev_state_get_stream_format(state,
+>  +							  route->sink_pad,
+>  +							  route->sink_stream);
+>  +		if (!fmt)
+>  +			return -EPIPE;
+>  +
+>  +		ub960_fmt = ub960_find_format(fmt->code);
+>  +		if (!ub960_fmt)
+>  +			return -EPIPE;
+>  +
+>  +		if (ub960_fmt->meta) {
+>  +			if (fmt->height > 3) {
+>  +				dev_err(&priv->client->dev,
+>  +					"rx%u: unsupported metadata height %u\n",
+>  +					nport, fmt->height);
+>  +				return -EPIPE;
+>  +			}
+>  +
+>  +			rx_data[nport].meta_dt = ub960_fmt->datatype;
+>  +			rx_data[nport].meta_lines = fmt->height;
+>  +		} else {
+>  +			rx_data[nport].pixel_dt = ub960_fmt->datatype;
+>  +		}
+>  +	}
+>  +
+>  +	/* Configure RX ports */
+>  +
+>  +	fwd_ctl = 0;
 
-Acked-by: Mark Brown <broonie@kernel.org>
+Hello, I have only used the first RX port in my setup (ds90ub933 to ds90ub964). The logic for activating/deactivating the Rx ports did not work for me. My suggestion is:
 
---fdGB4dh9xyA/RRNs
-Content-Type: application/pgp-signature; name="signature.asc"
+-	fwd_ctl = 0;
++	fwd_ctl = 0xF0; /* Default: Disable forwarding for all RX ports */
 
------BEGIN PGP SIGNATURE-----
+>  +
+>  +	for (nport = 0; nport < priv->hw_data->num_rxports; nport++) {
+>  +		struct ub960_rxport *rxport = priv->rxports[nport];
+>  +		u8 vc = vc_map[nport];
+>  +
+>  +		if (rx_data[nport].num_streams == 0)
+>  +			continue;
+>  +
+>  +		switch (rxport->rx_mode) {
+>  +		case RXPORT_MODE_RAW10:
+>  +			ub960_rxport_write(priv, nport, UB960_RR_RAW10_ID,
+>  +				rx_data[nport].pixel_dt | (vc << UB960_RR_RAW10_ID_VC_SHIFT));
+>  +
+>  +			ub960_rxport_write(priv, rxport->nport,
+>  +				UB960_RR_RAW_EMBED_DTYPE,
+>  +				(rx_data[nport].meta_lines << UB960_RR_RAW_EMBED_DTYPE_LINES_SHIFT) |
+>  +					rx_data[nport].meta_dt);
+>  +
+>  +			break;
+>  +
+>  +		case RXPORT_MODE_RAW12_HF:
+>  +		case RXPORT_MODE_RAW12_LF:
+>  +			/* Not implemented */
+>  +			break;
+>  +
+>  +		case RXPORT_MODE_CSI2_SYNC:
+>  +		case RXPORT_MODE_CSI2_ASYNC:
+>  +			if (!priv->hw_data->is_ub9702) {
+>  +				/* Map all VCs from this port to the same VC */
+>  +				ub960_rxport_write(priv, nport, UB960_RR_CSI_VC_MAP,
+>  +						   (vc << UB960_RR_CSI_VC_MAP_SHIFT(3)) |
+>  +						   (vc << UB960_RR_CSI_VC_MAP_SHIFT(2)) |
+>  +						   (vc << UB960_RR_CSI_VC_MAP_SHIFT(1)) |
+>  +						   (vc << UB960_RR_CSI_VC_MAP_SHIFT(0)));
+>  +			} else {
+>  +				unsigned int i;
+>  +
+>  +				/* Map all VCs from this port to VC(nport) */
+>  +				for (i = 0; i < 8; i++)
+>  +					ub960_rxport_write(priv, nport,
+>  +							   UB960_RR_VC_ID_MAP(i),
+>  +							   nport);
+>  +			}
+>  +
+>  +			break;
+>  +		}
+>  +
+>  +		/* Forwarding */
+>  +
+>  +		fwd_ctl |= BIT(4 + nport); /* forward disable */
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmRjkl0ACgkQJNaLcl1U
-h9DxbAf+IuWAJWHJfAChVJ2LTNEpiPn0Mmuqlf3KjNCljNWlid6xXrK7PpDqYv57
-CudgrzknJ/lP9snwYZ91h2fY4sOq/WBLUY1lZlxH6sracfVVk3TkIUW5UKZXevF3
-PkB6wC87xozR2QVCGSUGz99xymbPuCE6GOiQ5fY9/vXNvXtKHCtQiUKukggj8Iaz
-jSMJB2YZutlpAIumPt4YIDaAbEQtw0Qq56CDc0/A3m9creP1/088rm2okN2cPGI5
-8Ubhinc4INz/rXmxXOo6HULZ9ym6Bq4Lc0uE9fpFVnY2dXIVou+bRC7ilmxrPMmU
-xecoraefCIfYW/zmw3mnSGKzXaf30A==
-=tMxy
------END PGP SIGNATURE-----
+-		fwd_ctl |= BIT(4 + nport); /* forward disable */
++		fwd_ctl &= ~UB960_SR_FWD_CTL1_PORT_DIS(nport); /* clear disable
++								  forwarding */
 
---fdGB4dh9xyA/RRNs--
+According to the data sheet, the ds90ub960 and the ds90ub964 should be identical, so this change should fit both devices.
+
+>  +		if (rx_data[nport].tx_port == 1)
+>  +			fwd_ctl |= BIT(nport); /* forward to TX1 */
+>  +		else
+>  +			fwd_ctl &= ~BIT(nport); /* forward to TX0 */
+>  +	}
+>  +
+>  +	ub960_write(priv, UB960_SR_FWD_CTL1, fwd_ctl);
+>  +
+>  +	return 0;
+>  +}
+
+[...]
+
+Thanks and regards,
+Ludwig Zenz
