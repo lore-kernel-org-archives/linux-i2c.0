@@ -2,197 +2,120 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E157C77B7A
-	for <linux-i2c@archiver.kernel.org>; Tue, 16 May 2023 13:59:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0BE3C7EE2D
+	for <linux-i2c@archiver.kernel.org>; Tue, 16 May 2023 14:25:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232931AbjEPN7G (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 May 2023 09:59:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41550 "EHLO
+        id S233533AbjEPOZq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 16 May 2023 10:25:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232324AbjEPN7G (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 May 2023 09:59:06 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB30F1711;
-        Tue, 16 May 2023 06:59:04 -0700 (PDT)
-Received: from [192.168.88.20] (91-154-35-171.elisa-laajakaista.fi [91.154.35.171])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id C38EC496;
-        Tue, 16 May 2023 15:58:49 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1684245531;
-        bh=gEsB0fM6tfxewDDdl3+BOaZexrT5+eQ7tC+wPa1JWRw=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=djN2Trpe15eh46x7+13ZWImiBtHULSwhNVucLkofotQ0kvA7zZIzRc1Wpt2iGA2ey
-         PGUcOKEmw79drgPwMm7gG0kZ9tldicjQdvsUu0FriTt0qp4S9GUOyKB0Z8O3qEuzs+
-         qcw5gL9NN2Q39PbGiqNNOBFiXriY4TbhPE0ONv/I=
-Message-ID: <ed622265-326e-b150-1c18-c028c04da6e0@ideasonboard.com>
-Date:   Tue, 16 May 2023 16:58:57 +0300
+        with ESMTP id S233193AbjEPOZn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 May 2023 10:25:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A823772BD;
+        Tue, 16 May 2023 07:25:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09A7D63AB8;
+        Tue, 16 May 2023 14:25:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3223DC4339B;
+        Tue, 16 May 2023 14:25:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1684247138;
+        bh=56JVyKy+1Eo3iWQR1rFM2KRacIvVANlyt7QmXSsxXog=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Sw7ItSmQIbLslllD7oBOkdF9j/FlOj5dsXDqMdAVYTGXVePqgKGiqHLCWvHm2ORRr
+         6kGi23wPgbqtWH++GyKPDbfnOGJYRSItd42GnFFL9NiTCxbS5MlCYoaE7cja5CINAl
+         MBeAVXmYMLL0CaHOeAmMhwc3cfLmYm36VluT5zcF9NizSc+259zobJFUL5N3gEno4X
+         9u5F6216HG+frqCDI12sd/qoLpfPnHwDmm/KK8Xl+b3WsdT+JxGuGo+K5vAgHOJtRQ
+         LNksR965SsJyjo9psN0LiFLlQFkAsgnNiK5I91CtB8U03VZ1stI7eAzP3ggkislL7X
+         wgwUE3IVrbIFA==
+Date:   Tue, 16 May 2023 23:25:33 +0900
+From:   Mark Brown <broonie@kernel.org>
+To:     Michal Simek <michal.simek@amd.com>
+Cc:     piyush.mehta@amd.com, nava.kishore.manne@amd.com,
+        sai.krishna.potthuri@amd.com, shubhrajyoti.datta@amd.com,
+        vishal.sagar@amd.com, kalyani.akula@amd.com,
+        bharat.kumar.gogada@amd.com, linux-kernel@vger.kernel.org,
+        monstr@monstr.eu, michal.simek@xilinx.com, git@xilinx.com,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Damien Le Moal <dlemoal@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Jassi Brar <jassisinghbrar@gmail.com>,
+        Jolly Shah <jolly.shah@xilinx.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Manish Narani <manish.narani@xilinx.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Moritz Fischer <mdf@kernel.org>,
+        Rajan Vaja <rajan.vaja@xilinx.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Srinivas Neeli <srinivas.neeli@amd.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tom Rix <trix@redhat.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Wu Hao <hao.wu@intel.com>, Xu Yilun <yilun.xu@intel.com>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-fpga@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-ide@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: xilinx: Switch xilinx.com emails to amd.com
+Message-ID: <ZGOSXZs3H0wNxoOn@finisterre.sirena.org.uk>
+References: <f5b2bd1e78407e4128fc8f0b5874ba723e710a88.1684245058.git.michal.simek@amd.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH v13 6/8] media: i2c: add DS90UB960 driver
-Content-Language: en-US
-To:     Ludwig Zenz <lzenz@dh-electronics.com>
-Cc:     "Matti.Vaittinen@fi.rohmeurope.com" 
-        <Matti.Vaittinen@fi.rohmeurope.com>,
-        "andriy.shevchenko@intel.com" <andriy.shevchenko@intel.com>,
-        "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "hverkuil@xs4all.nl" <hverkuil@xs4all.nl>,
-        "khalasa@piap.pl" <khalasa@piap.pl>,
-        "krzysztof.kozlowski+dt@linaro.org" 
-        <krzysztof.kozlowski+dt@linaro.org>,
-        "laurent.pinchart+renesas@ideasonboard.com" 
-        <laurent.pinchart+renesas@ideasonboard.com>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
-        "luca.ceresoli@bootlin.com" <luca.ceresoli@bootlin.com>,
-        "m.tretter@pengutronix.de" <m.tretter@pengutronix.de>,
-        "marex@denx.de" <marex@denx.de>,
-        "mchehab@kernel.org" <mchehab@kernel.org>,
-        "mpagano@gentoo.org" <mpagano@gentoo.org>,
-        "peda@axentia.se" <peda@axentia.se>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>,
-        "satish.nagireddy@getcruise.com" <satish.nagireddy@getcruise.com>,
-        "wsa@kernel.org" <wsa@kernel.org>
-References: <e13dade162f74a3e812f9331b83928f0@dh-electronics.com>
-From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-In-Reply-To: <e13dade162f74a3e812f9331b83928f0@dh-electronics.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="fdGB4dh9xyA/RRNs"
+Content-Disposition: inline
+In-Reply-To: <f5b2bd1e78407e4128fc8f0b5874ba723e710a88.1684245058.git.michal.simek@amd.com>
+X-Cookie: Avoid contact with eyes.
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 16/05/2023 16:32, Ludwig Zenz wrote:
->> Hi,
->>
->> On 16/05/2023 15:35, Ludwig Zenz wrote:
->>> On Wed, 26 Apr 2023 14:51:12 +0300, Tomi Valkeinen wrote:
->>>
->>> [...]
->>>
->>>>    +static int ub960_configure_ports_for_streaming(struct ub960_data *priv,
->>>>    +                                         struct v4l2_subdev_state *state)
->>>>    +{
->>>>    +  u8 fwd_ctl;
->>>>    +  struct {
->>>>    +          u32 num_streams;
->>>>    +          u8 pixel_dt;
->>>>    +          u8 meta_dt;
->>>>    +          u32 meta_lines;
->>>>    +          u32 tx_port;
->>>>    +  } rx_data[UB960_MAX_RX_NPORTS] = {};
->>>>    +  u8 vc_map[UB960_MAX_RX_NPORTS] = {};
->>>>    +  struct v4l2_subdev_route *route;
->>>>    +  unsigned int nport;
->>>>    +  int ret;
->>>>    +
->>>>    +  ret = ub960_validate_stream_vcs(priv);
->>>>    +  if (ret)
->>>>    +          return ret;
->>>>    +
->>>>    +  ub960_get_vc_maps(priv, state, vc_map);
->>>>    +
->>>>    +  for_each_active_route(&state->routing, route) {
->>>>    +          struct ub960_rxport *rxport;
->>>>    +          struct ub960_txport *txport;
->>>>    +          struct v4l2_mbus_framefmt *fmt;
->>>>    +          const struct ub960_format_info *ub960_fmt;
->>>>    +          unsigned int nport;
->>>>    +
->>>>    +          nport = ub960_pad_to_port(priv, route->sink_pad);
->>>>    +
->>>>    +          rxport = priv->rxports[nport];
->>>>    +          if (!rxport)
->>>>    +                  return -EINVAL;
->>>>    +
->>>>    +          txport = priv->txports[ub960_pad_to_port(priv, route->source_pad)];
->>>>    +          if (!txport)
->>>>    +                  return -EINVAL;
->>>>    +
->>>>    +          rx_data[nport].tx_port = ub960_pad_to_port(priv, route->source_pad);
->>>>    +
->>>>    +          rx_data[nport].num_streams++;
->>>>    +
->>>>    +          /* For the rest, we are only interested in parallel busses */
->>>>    +          if (rxport->rx_mode == RXPORT_MODE_CSI2_SYNC ||
->>>>    +              rxport->rx_mode == RXPORT_MODE_CSI2_ASYNC)
->>>>    +                  continue;
->>>>    +
->>>>    +          if (rx_data[nport].num_streams > 2)
->>>>    +                  return -EPIPE;
->>>>    +
->>>>    +          fmt = v4l2_subdev_state_get_stream_format(state,
->>>>    +                                                    route->sink_pad,
->>>>    +                                                    route->sink_stream);
->>>>    +          if (!fmt)
->>>>    +                  return -EPIPE;
->>>>    +
->>>>    +          ub960_fmt = ub960_find_format(fmt->code);
->>>>    +          if (!ub960_fmt)
->>>>    +                  return -EPIPE;
->>>>    +
->>>>    +          if (ub960_fmt->meta) {
->>>>    +                  if (fmt->height > 3) {
->>>>    +                          dev_err(&priv->client->dev,
->>>>    +                                  "rx%u: unsupported metadata height %u\n",
->>>>    +                                  nport, fmt->height);
->>>>    +                          return -EPIPE;
->>>>    +                  }
->>>>    +
->>>>    +                  rx_data[nport].meta_dt = ub960_fmt->datatype;
->>>>    +                  rx_data[nport].meta_lines = fmt->height;
->>>>    +          } else {
->>>>    +                  rx_data[nport].pixel_dt = ub960_fmt->datatype;
->>>>    +          }
->>>>    +  }
->>>>    +
->>>>    +  /* Configure RX ports */
->>>>    +
->>>>    +  fwd_ctl = 0;
->>>
->>> Hello, I have only used the first RX port in my setup (ds90ub933 to ds90ub964). The logic for activating/deactivating the Rx ports did not work for me. My suggestion is:
->>
->> Why doesn't it work? What happens?
->>
->>   Tomi
-> 
-> Hello Tomi,
-> 
-> the port rx0 which I need was disabled and the other ports rx1 to rx3 were enabled. In other words, the exact inverse of the required selection.
-> 
->>>>   +		/* Forwarding */
->>>>   +
->>>>   +		fwd_ctl |= BIT(4 + nport); /* forward disable */
-> According to the data sheet, a set bit4-7 in fwd_ctl means that the channel is disabled. So the comment 'forward disable' is correct. While debugging, however, this code was only reached for the ports to be enabled but not for the ones which should be disabled.
 
-This is just a setup phase, where we initialize the registers for the 
-ports we want to use. The forwarding is then enabled later, in 
-ub960_enable_rx_port, and even later disabled in ub960_disable_rx_port.
+--fdGB4dh9xyA/RRNs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This assumes that the forwarding is disabled in the registers by default 
-(which it is in UB960).
+On Tue, May 16, 2023 at 03:51:08PM +0200, Michal Simek wrote:
+> @xilinx.com is still working but better to switch to new amd.com after
+> AMD/Xilinx acquisition.
 
-I need to try this on my HW to verify my understanding is correct, but 
-looking at the code, it is indeed a bit buggy.
+Acked-by: Mark Brown <broonie@kernel.org>
 
-At this setup phase we disable the forwarding for ports we'll use, and 
-enable the forwarding for ports we don't use (which doesn't make sense). 
-Later, when the streaming is started for that port, we enable the 
-forwarding. So here we should just always disable the forwarding for all 
-ports.
+--fdGB4dh9xyA/RRNs
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Saying "disable the forwarding" is perhaps a bit confusing here, as the 
-the forwarding should already be disabled in the HW here anyway. But as 
-we write the UB960_SR_FWD_CTL1, we need to set that bit.
+-----BEGIN PGP SIGNATURE-----
 
-So. You should see the rx0 getting enabled (later, in 
-ub960_enable_rx_port), and I'm curious why you don't see that.
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmRjkl0ACgkQJNaLcl1U
+h9DxbAf+IuWAJWHJfAChVJ2LTNEpiPn0Mmuqlf3KjNCljNWlid6xXrK7PpDqYv57
+CudgrzknJ/lP9snwYZ91h2fY4sOq/WBLUY1lZlxH6sracfVVk3TkIUW5UKZXevF3
+PkB6wC87xozR2QVCGSUGz99xymbPuCE6GOiQ5fY9/vXNvXtKHCtQiUKukggj8Iaz
+jSMJB2YZutlpAIumPt4YIDaAbEQtw0Qq56CDc0/A3m9creP1/088rm2okN2cPGI5
+8Ubhinc4INz/rXmxXOo6HULZ9ym6Bq4Lc0uE9fpFVnY2dXIVou+bRC7ilmxrPMmU
+xecoraefCIfYW/zmw3mnSGKzXaf30A==
+=tMxy
+-----END PGP SIGNATURE-----
 
-  Tomi
-
+--fdGB4dh9xyA/RRNs--
