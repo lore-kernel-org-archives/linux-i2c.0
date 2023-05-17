@@ -2,73 +2,114 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51575C7EE25
-	for <linux-i2c@archiver.kernel.org>; Wed, 17 May 2023 02:56:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31FAFC77B75
+	for <linux-i2c@archiver.kernel.org>; Wed, 17 May 2023 08:49:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231936AbjEQC4R convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 16 May 2023 22:56:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39064 "EHLO
+        id S230502AbjEQItN (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 17 May 2023 04:49:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231207AbjEQC4Q (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 May 2023 22:56:16 -0400
-Received: from smtpbg150.qq.com (smtpbg150.qq.com [18.132.163.193])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C49640F7;
-        Tue, 16 May 2023 19:56:13 -0700 (PDT)
-X-QQ-mid: Yeas44t1684292102t901t35219
-Received: from 3DB253DBDE8942B29385B9DFB0B7E889 (jiawenwu@trustnetic.com [115.200.228.151])
-X-QQ-SSF: 00400000000000F0FNF000000000000
-From:   =?utf-8?b?Smlhd2VuIFd1?= <jiawenwu@trustnetic.com>
-X-BIZMAIL-ID: 13198834293515255723
-To:     "'Andy Shevchenko'" <andy.shevchenko@gmail.com>
-Cc:     <netdev@vger.kernel.org>, <jarkko.nikula@linux.intel.com>,
-        <andriy.shevchenko@linux.intel.com>,
-        <mika.westerberg@linux.intel.com>, <jsd@semihalf.com>,
-        <Jose.Abreu@synopsys.com>, <andrew@lunn.ch>,
-        <hkallweit1@gmail.com>, <linux@armlinux.org.uk>,
-        <linux-i2c@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
-        <mengyuanlou@net-swift.com>
-References: <20230515063200.301026-1-jiawenwu@trustnetic.com> <20230515063200.301026-7-jiawenwu@trustnetic.com> <ZGH-fRzbGd_eCASk@surfacebook> <00cd01d9879f$8e444950$aaccdbf0$@trustnetic.com> <CAHp75VdthEZL6GvT5Q=f7rbcDfA5XX=7-VLfVz1kZmBFem_eCA@mail.gmail.com>
-In-Reply-To: <CAHp75VdthEZL6GvT5Q=f7rbcDfA5XX=7-VLfVz1kZmBFem_eCA@mail.gmail.com>
-Subject: RE: [PATCH net-next v8 6/9] net: txgbe: Support GPIO to SFP socket
-Date:   Wed, 17 May 2023 10:55:01 +0800
-Message-ID: <016701d9886a$f9b415a0$ed1c40e0$@trustnetic.com>
+        with ESMTP id S230516AbjEQItK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 17 May 2023 04:49:10 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF0522101;
+        Wed, 17 May 2023 01:49:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1684313348; x=1715849348;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=mwtRWrqDrj4nDmvAX7hgqry3RYlAqjIVusKkkudDzPQ=;
+  b=YHsIvEE7zLNzAzVjY3xMDTaY/EPMssQhPls0dbtgd8kpv+tgAfa0kDG7
+   0ec60gRbUvNSHbXd0nVKdtWm6yi0V+rNt6AuTglC7/8OTyjK5SK6lxdq8
+   Mnqm5ssAMFO2prDnnabk16VKZG4uiGdKRxeTfuCLzBl4YUGEkkI9uiRqB
+   RlwmBT2n/XCHHeOV+VLlSYfDTT5lQRuh+xmkaSwT0/pgzUnQcPAkJMBi+
+   m360WlX3s7N7CTqL/rrL34Oj+MCpwTolpHM9PAEFELn6qSHYUpQ+WSJP4
+   Lk0ekg+472WqmE5DENDQKc8YSuchef3ZRokcSj/6igfiUoXtBav2ipwhq
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10712"; a="341089511"
+X-IronPort-AV: E=Sophos;i="5.99,281,1677571200"; 
+   d="scan'208";a="341089511"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2023 01:49:07 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10712"; a="701671954"
+X-IronPort-AV: E=Sophos;i="5.99,281,1677571200"; 
+   d="scan'208";a="701671954"
+Received: from mylly.fi.intel.com (HELO [10.237.72.160]) ([10.237.72.160])
+  by orsmga002.jf.intel.com with ESMTP; 17 May 2023 01:49:03 -0700
+Message-ID: <85d058cd-2dd9-2a7b-efd0-e4c8d512ae29@linux.intel.com>
+Date:   Wed, 17 May 2023 11:49:03 +0300
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Outlook 16.0
-Content-Language: zh-cn
-Thread-Index: AQHvj8QD3pC+6Aq9H9h6P1+q5LrHRgMH5FTyAkITzAABJU2Y7wJ7xjhgrupZZcA=
-X-QQ-SENDSIZE: 520
-Feedback-ID: Yeas:trustnetic.com:qybglogicsvrgz:qybglogicsvrgz5a-1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.10.0
+Subject: Re: [PATCH net-next v8 2/9] i2c: designware: Add driver support for
+ Wangxun 10Gb NIC
+Content-Language: en-US
+To:     andy.shevchenko@gmail.com, Jiawen Wu <jiawenwu@trustnetic.com>
+Cc:     netdev@vger.kernel.org, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, jsd@semihalf.com,
+        Jose.Abreu@synopsys.com, andrew@lunn.ch, hkallweit1@gmail.com,
+        linux@armlinux.org.uk, linux-i2c@vger.kernel.org,
+        linux-gpio@vger.kernel.org, mengyuanlou@net-swift.com,
+        Piotr Raczynski <piotr.raczynski@intel.com>
+References: <20230515063200.301026-1-jiawenwu@trustnetic.com>
+ <20230515063200.301026-3-jiawenwu@trustnetic.com>
+ <ZGH6TmeiR0icT6Tc@surfacebook>
+From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
+In-Reply-To: <ZGH6TmeiR0icT6Tc@surfacebook>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-> > > > +   gc = devm_kzalloc(dev, sizeof(*gc), GFP_KERNEL);
-> > > > +   if (!gc)
-> > > > +           return -ENOMEM;
-> > > > +
-> > > > +   gc->label = devm_kasprintf(dev, GFP_KERNEL, "txgbe_gpio-%x",
-> > > > +                              (wx->pdev->bus->number << 8) | wx->pdev->devfn);
-> > > > +   gc->base = -1;
-> > > > +   gc->ngpio = 6;
-> > > > +   gc->owner = THIS_MODULE;
-> > > > +   gc->parent = dev;
-> > > > +   gc->fwnode = software_node_fwnode(txgbe->nodes.group[SWNODE_GPIO]);
-> > >
-> > > Looking at the I²C case, I'm wondering if gpio-regmap can be used for this piece.
-> >
-> > I can access this GPIO region directly, do I really need to use regmap?
+On 5/15/23 12:24, andy.shevchenko@gmail.com wrote:
+> Mon, May 15, 2023 at 02:31:53PM +0800, Jiawen Wu kirjoitti:
+>> Wangxun 10Gb ethernet chip is connected to Designware I2C, to communicate
+>> with SFP.
+>>
+>> Introduce the property "snps,i2c-platform" to match device data for Wangxun
+>> in software node case. Since IO resource was mapped on the ethernet driver,
+>> add a model quirk to get regmap from parent device.
+>>
+>> The exists IP limitations are dealt as workarounds:
+>> - IP does not support interrupt mode, it works on polling mode.
+>> - Additionally set FIFO depth address the chip issue.
 > 
-> It's not a matter of access, it's a matter of using an existing
-> wrapper that will give you already a lot of code done there, i.o.w.
-> you don't need to reinvent a wheel.
+> ...
+> 
+>>   	dev->flags = (uintptr_t)device_get_match_data(&pdev->dev);
+>> +	if (device_property_present(&pdev->dev, "snps,i2c-platform"))
+>> +		dev->flags |= MODEL_WANGXUN_SP;
+> 
+> What I meant here is to use device_property_present() _iff_ you have decided to
+> go with the _vendor-specific_ property name.
+> 
+> Otherwise it should be handled differently, i.e. with reading the actual value
+> of that property. Hence it should correspond the model enum, which you need to
+> declare in the Device Tree bindings before use.
+> 
+> So, either
+> 
+> 	if (device_property_present(&pdev->dev, "wx,..."))
+> 		dev->flags |= MODEL_WANGXUN_SP;
+> 
+> or
+> 
+> 	if ((dev->flags & MODEL_MASK) == MODEL_NONE) {
+> 	// you now have to distinguish that there is no model set in driver data
+> 		u32 model;
+> 
+> 		ret = device_property_read_u32(dev, "snps,i2c-platform");
+> 		if (ret) {
+> 			...handle error...
+> 		}
+> 		dev->flags |= model
+> 
+I'm not a device tree expert but I wonder would it be possible somehow 
+combine this and compatible properties in dw_i2c_of_match[]? They set 
+model flag for MODEL_MSCC_OCELOT and MODEL_BAIKAL_BT1.
 
-I took a look at the gpio-regmap code, when I call devm_gpio_regmap_register(),
-I should provide gpio_regmap_config.irq_domain if I want to add the gpio_irq_chip.
-But in this use, GPIO IRQs are requested by SFP driver. How can I get irq_domain
-before SFP probe? And where do I add IRQ parent handler?
-
-
+Then I'm thinking is "snps,i2c-platform" descriptive enough name for a 
+model and does it confuse with "snps,designware-i2c" compatible property?
