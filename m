@@ -2,88 +2,73 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82181C77B7D
-	for <linux-i2c@archiver.kernel.org>; Thu, 18 May 2023 07:31:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D7FBC77B7D
+	for <linux-i2c@archiver.kernel.org>; Thu, 18 May 2023 09:43:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229761AbjERHba (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 18 May 2023 03:31:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58658 "EHLO
+        id S230252AbjERJnv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 18 May 2023 05:43:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbjERHb3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 18 May 2023 03:31:29 -0400
-Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::228])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D8EB213A;
-        Thu, 18 May 2023 00:30:09 -0700 (PDT)
-Received: from booty (unknown [77.244.183.192])
-        (Authenticated sender: luca.ceresoli@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 7F2251BF204;
-        Thu, 18 May 2023 07:28:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1684394930;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6/pMkDHqpQee7Q5QnzaROcishnayyd/TZbSD01jovy8=;
-        b=Tx7Z33B3eVZShtKikhLKhfxKEn0I3M0zPi6qXKlztvv0WPqWAUnDaTGJ/vuKHs+/5YQ9MR
-        dUhfbCwqVN+7iXFC4I1x+qhAAdkMj+073xPwYtjpzOFNfsGcYJZRAhwll5VmEyRnKI+O9c
-        7KCWfqBtXqrUbC6bsTE0Ysih9q1tgPc9hu9J5ldSdgidhf7Inr5oCuNsJMY4lEfuizt6YS
-        ay/in2/LvjycUMlmTIIXeJjhS9uZ2KF9Q7vfyd3yWrgjSS+Rsm7bNCsIMvgMs8VXIy2DpI
-        1iygqIKW5xgKTvf19jdlDw+mP1d+cjWhbPzC8XNJw0727qxXe4y8gRM2dpIDYQ==
-Date:   Thu, 18 May 2023 09:28:46 +0200
-From:   Luca Ceresoli <luca.ceresoli@bootlin.com>
-To:     Uwe =?UTF-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Jean Delvare <jdelvare@suse.com>,
-        Eric Piel <eric.piel@tremplin-utc.net>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Justin Stitt <justinstitt@google.com>,
-        Yuan Can <yuancan@huawei.com>,
-        Dan Carpenter <error27@gmail.com>,
-        Adrien Grassein <adrien.grassein@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Petr Machata <petrm@nvidia.com>, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Subject: Re: [PATCH] misc: Switch i2c drivers back to use .probe()
-Message-ID: <20230518092846.2012482c@booty>
-In-Reply-To: <20230517220135.170379-1-u.kleine-koenig@pengutronix.de>
-References: <20230517220135.170379-1-u.kleine-koenig@pengutronix.de>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+        with ESMTP id S230240AbjERJnu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 18 May 2023 05:43:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA8F2120;
+        Thu, 18 May 2023 02:43:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 74B276090A;
+        Thu, 18 May 2023 09:43:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A78FC433D2;
+        Thu, 18 May 2023 09:43:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1684403025;
+        bh=s5q5Atssg2PIJLzWkKLBpdqUT9nDeyn3uS1X+z+Shac=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MCUkJHNY64CFnB6lp9hV0ctt7QbAAU1AdDj37uGTSyyUIKcFH9m46a87Ei1cGnAHV
+         cz5c4+Y9408Bgg3mX7feV8Qnpi1Tq9Y9N7x7t/cbJ3zO5ME5VswZAb6LNTPmB0+jYL
+         MpNPSiPqklUmhGkbvKuwCMI1q0Unh+4SQVxapYWOYf4dVjL1cH/VvmqoVX3PxIdG8+
+         369GdwIkO6RRUyjXTNYwP515nCEJhJL1FoK0VyBM8+WHFaI6dysDOPsj4pJaspxUil
+         Nh7lPTlcMLzg+3tXq4wTDFGlKWk5ffWwOP5y5pSIWRAdqUI45P49Ed0VFh7F2NxLx9
+         j4MQo0TyGlo5A==
+Date:   Thu, 18 May 2023 10:43:40 +0100
+From:   Lee Jones <lee@kernel.org>
+To:     Benjamin Bara <bbara93@gmail.com>
+Cc:     Wolfram Sang <wsa@kernel.org>, rafael.j.wysocki@intel.com,
+        dmitry.osipenko@collabora.com, peterz@infradead.org,
+        jonathanh@nvidia.com, richard.leitner@linux.dev,
+        treding@nvidia.com, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        Benjamin Bara <benjamin.bara@skidata.com>
+Subject: Re: [PATCH v6 4/5] mfd: tps6586x: use devm-based power off handler
+Message-ID: <20230518094340.GC404509@google.com>
+References: <20230327-tegra-pmic-reboot-v6-0-af44a4cd82e9@skidata.com>
+ <20230327-tegra-pmic-reboot-v6-4-af44a4cd82e9@skidata.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230327-tegra-pmic-reboot-v6-4-af44a4cd82e9@skidata.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Uwe,
+On Tue, 09 May 2023, Benjamin Bara wrote:
 
-On Thu, 18 May 2023 00:01:35 +0200
-Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de> wrote:
+> From: Benjamin Bara <benjamin.bara@skidata.com>
+> 
+> Convert the power off handler to a devm-based power off handler.
+> 
+> Signed-off-by: Benjamin Bara <benjamin.bara@skidata.com>
+> ---
+>  drivers/mfd/tps6586x.c | 29 +++++++++++++++++++++--------
+>  1 file changed, 21 insertions(+), 8 deletions(-)
 
-> After commit b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new()
-> call-back type"), all drivers being converted to .probe_new() and then
-> 03c835f498b5 ("i2c: Switch .probe() to not take an id parameter") convert
-> back to (the new) .probe() to be able to eventually drop .probe_new() from
-> struct i2c_driver.
->=20
-> While touching these drivers, fix alignment in apds990x.c and bh1770glc.c.
->=20
-> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+Do the 2 MFD patches depend on the others?
 
-It's finally happening, thanks! \o/
+For my own reference (apply this as-is to your sign-off block):
 
-Reviewed-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+Acked-for-MFD-by: Lee Jones <lee@kernel.org>
 
---=20
-Luca Ceresoli, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+-- 
+Lee Jones [李琼斯]
