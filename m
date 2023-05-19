@@ -2,166 +2,58 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F4F2C77B7F
-	for <linux-i2c@archiver.kernel.org>; Fri, 19 May 2023 08:27:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1013CC7EE26
+	for <linux-i2c@archiver.kernel.org>; Fri, 19 May 2023 08:49:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229599AbjESI1x (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 19 May 2023 04:27:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
+        id S229769AbjESItw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 19 May 2023 04:49:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229987AbjESI1w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 19 May 2023 04:27:52 -0400
-Received: from smtpbgjp3.qq.com (smtpbgjp3.qq.com [54.92.39.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D153F198
-        for <linux-i2c@vger.kernel.org>; Fri, 19 May 2023 01:27:50 -0700 (PDT)
-X-QQ-mid: Yeas54t1684484656t878t52425
-Received: from 3DB253DBDE8942B29385B9DFB0B7E889 (jiawenwu@trustnetic.com [115.200.228.151])
-X-QQ-SSF: 00400000000000F0FNF000000000000
-From:   =?utf-8?b?Smlhd2VuIFd1?= <jiawenwu@trustnetic.com>
-X-BIZMAIL-ID: 18003444399140416337
-To:     "'Andrew Lunn'" <andrew@lunn.ch>
-Cc:     "'Andy Shevchenko'" <andy.shevchenko@gmail.com>,
-        <netdev@vger.kernel.org>, <jarkko.nikula@linux.intel.com>,
-        <andriy.shevchenko@linux.intel.com>,
-        <mika.westerberg@linux.intel.com>, <jsd@semihalf.com>,
-        <Jose.Abreu@synopsys.com>, <hkallweit1@gmail.com>,
-        <linux@armlinux.org.uk>, <linux-i2c@vger.kernel.org>,
-        <linux-gpio@vger.kernel.org>, <mengyuanlou@net-swift.com>
-References: <20230515063200.301026-1-jiawenwu@trustnetic.com> <20230515063200.301026-7-jiawenwu@trustnetic.com> <ZGH-fRzbGd_eCASk@surfacebook> <00cd01d9879f$8e444950$aaccdbf0$@trustnetic.com> <CAHp75VdthEZL6GvT5Q=f7rbcDfA5XX=7-VLfVz1kZmBFem_eCA@mail.gmail.com> <016701d9886a$f9b415a0$ed1c40e0$@trustnetic.com> <90ef7fb8-feac-4288-98e9-6e67cd38cdf1@lunn.ch> <025b01d9897e$d8894660$899bd320$@trustnetic.com> <1e1615b3-566c-490c-8b1a-78f5521ca0b0@lunn.ch>
-In-Reply-To: <1e1615b3-566c-490c-8b1a-78f5521ca0b0@lunn.ch>
-Subject: RE: [PATCH net-next v8 6/9] net: txgbe: Support GPIO to SFP socket
-Date:   Fri, 19 May 2023 16:24:15 +0800
-Message-ID: <02ad01d98a2b$4cd080e0$e67182a0$@trustnetic.com>
+        with ESMTP id S231173AbjESItt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 19 May 2023 04:49:49 -0400
+X-Greylist: delayed 2574 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 19 May 2023 01:49:48 PDT
+Received: from mail.corrib.pl (mail.corrib.pl [185.58.226.145])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B967122
+        for <linux-i2c@vger.kernel.org>; Fri, 19 May 2023 01:49:48 -0700 (PDT)
+Received: by mail.corrib.pl (Postfix, from userid 1001)
+        id 6E725A3FE4; Fri, 19 May 2023 09:06:15 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=corrib.pl; s=mail;
+        t=1684483575; bh=85MOfYTjIHwki6Ys5IeFKzEzX5V7umZoL3TytLG0W/k=;
+        h=Date:From:To:Subject:From;
+        b=ZgX3wmOYK2XiyMw1ogyoq8sQ+q5fXnqDl0OptwS6+2cPr657zw2S/0zeZ0yAazUJS
+         ZlAcdN2xITeG+m1eekvkK/xbAahrN+oaxxGp4m2wG1kii75CqNAOzXtRjtiIigaBXs
+         +6J9oDIB0bvdzedk/OcajMo83g1nQBxxj0T2Snv3mhseLjdsF4OSscqYFWHzZ39xvd
+         RlKF9wbmPg9oGxfD+2s+QRqKSzgvO9s/kmxwp8q/jrpNb1p4S65t/bBrpGjXfbTnfq
+         MLQkNe/ZS6CyDUs7E/ExY1DRKRW1DPJnD70t5xIghnc+xCAEFbE30ZaithrzltdR7w
+         JxyTS+cf1mETQ==
+Received: by mail.corrib.pl for <linux-i2c@vger.kernel.org>; Fri, 19 May 2023 08:06:12 GMT
+Message-ID: <20230519074500-0.1.7b.of5t.0.arqkl65jn6@corrib.pl>
+Date:   Fri, 19 May 2023 08:06:12 GMT
+From:   "Szczepan Andryszczuk" <szczepan.andryszczuk@corrib.pl>
+To:     <linux-i2c@vger.kernel.org>
+Subject: Faktoring
+X-Mailer: mail.corrib.pl
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Content-Language: zh-cn
-Thread-Index: AQHvj8QD3pC+6Aq9H9h6P1+q5LrHRgMH5FTyAkITzAABJU2Y7wJ7xjhgAYjDQqsBr+FHUgDJ87o1AYTHtNeuwZQUsA==
-X-QQ-SENDSIZE: 520
-Feedback-ID: Yeas:trustnetic.com:qybglogicsvrgz:qybglogicsvrgz5a-1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thursday, May 18, 2023 8:49 PM, Andrew Lunn wrote:
-> > > I _think_ you are mixing upstream IRQs and downstream IRQs.
-> > >
-> > > Interrupts are arranged in trees. The CPU itself only has one or two
-> > > interrupts. e.g. for ARM you have FIQ and IRQ. When the CPU gets an
-> > > interrupt, you look in the interrupt controller to see what external
-> > > or internal interrupt triggered the CPU interrupt. And that interrupt
-> > > controller might indicate the interrupt came from another interrupt
-> > > controller. Hence the tree structure. And each node in the tree is
-> > > considered an interrupt domain.
-> > >
-> > > A GPIO controller can also be an interrupt controller. It has an
-> > > upstream interrupt, going to the controller above it. And it has
-> > > downstream interrupts, the GPIO lines coming into it which can cause
-> > > an interrupt. And the GPIO interrupt controller is a domain.
-> > >
-> > > So what exactly does gpio_regmap_config.irq_domain mean? Is it the
-> > > domain of the upstream interrupt controller? Is it an empty domain
-> > > structure to be used by the GPIO interrupt controller? It is very
-> > > unlikely to have anything to do with the SFP devices below it.
-> >
-> > Sorry, since I don't know much about interrupt,  it is difficult to understand
-> > regmap-irq in a short time. There are many questions about regmap-irq.
-> >
-> > When I want to add an IRQ chip for regmap, for the further irq_domain,
-> > I need to pass a parameter of IRQ, and this IRQ will be requested with handler:
-> > regmap_irq_thread(). Which IRQ does it mean?
-> 
-> That is your upstream IRQ, the interrupt indicating one of your GPIO
-> lines has changed state.
-> 
-> > In the previous code of using
-> > devm_gpiochip_add_data(), I set the MSI-X interrupt as gpio-irq's parent, but
-> > it was used to set chained handler only. Should the parent be this IRQ? I found
-> > the error with irq_free_descs and irq_domain_remove when I remove txgbe.ko.
-> 
-> Do you have one MSI-X dedicated for GPIOs. Or is it your general MAC
-> interrupt, and you need to read an interrupt controller register to
-> determine it was GPIOs which triggered the interrupt?
-> 
-> If you are getting errors when removing the driver it means you are
-> missing some level of undoing what us done in probe. Are you sure
-> regmap_del_irq_chip() is being called on unload?
-> 
-> > As you said, the interrupt of each tree node has its domain. Can I understand
-> > that there are two layer in the interrupt tree for MSI-X and GPIOs, and requesting
-> > them separately is not conflicting? Although I thought so, but after I implement
-> > gpio-regmap, SFP driver even could not find gpio_desc. Maybe I missed something
-> > on registering gpio-regmap...
-> 
-> That is probably some sort of naming issue. You might want to add some
-> prints in swnode_find_gpio() and gpiochip_find() to see what it is
-> looking for vs what the name actually is.
+Dzie=C5=84 dobry,
 
-It's true for the problem of name, but there is another problem. SFP driver has
-successfully got gpio_desc, then it failed to get gpio_irq from gpio_desc (with error
-return -517). I traced the function gpiod_to_irq():
+rozwa=C5=BCali Pa=C5=84stwo wyb=C3=B3r finansowania, kt=C3=B3re spe=C5=82=
+ni potrzeby firmy, zapewniaj=C4=85c natychmiastowy dost=C4=99p do got=C3=B3=
+wki, bez zb=C4=99dnych przestoj=C3=B3w?=20
 
-	gc = desc->gdev->chip;
-	offset = gpio_chip_hwgpio(desc);
-	if (gc->to_irq) {
-		int retirq = gc->to_irq(gc, offset);
+Przygotowali=C5=9Bmy rozwi=C4=85zania faktoringowe dopasowane do Pa=C5=84=
+stwa bran=C5=BCy i wielko=C5=9Bci firmy, dzi=C4=99ki kt=C3=B3rym, nie mus=
+z=C4=85 Pa=C5=84stwo martwi=C4=87 si=C4=99 o niewyp=C5=82acalno=C5=9B=C4=87=
+ kontrahent=C3=B3w, poniewa=C5=BC transakcje s=C4=85 zabezpieczone i posi=
+adaj=C4=85 gwarancj=C4=99 sp=C5=82aty.=20
 
-		/* Zero means NO_IRQ */
-		if (!retirq)
-			return -ENXIO;
-
-		return retirq;
-	}
-
-'gc->to_irq = gpiochip_to_irq' was set in [4]gpiochip_irqchip_add_domain().
-So:
-
-	static int gpiochip_to_irq(struct gpio_chip *gc, unsigned int offset)
-	{
-		struct irq_domain *domain = gc->irq.domain;
-
-	#ifdef CONFIG_GPIOLIB_IRQCHIP
-		/*
-		 * Avoid race condition with other code, which tries to lookup
-		 * an IRQ before the irqchip has been properly registered,
-		 * i.e. while gpiochip is still being brought up.
-		 */
-		if (!gc->irq.initialized)
-			return -EPROBE_DEFER;
-	#endif
-
-gc->irq.initialized is set to true at the end of [3]gpiochip_add_irqchip() only.
-Firstly, it checks if irqchip is NULL:
-
-	static int gpiochip_add_irqchip(struct gpio_chip *gc,
-					struct lock_class_key *lock_key,
-					struct lock_class_key *request_key)
-	{
-		struct fwnode_handle *fwnode = dev_fwnode(&gc->gpiodev->dev);
-		struct irq_chip *irqchip = gc->irq.chip;
-		unsigned int type;
-		unsigned int i;
-
-		if (!irqchip)
-			return 0;
-
-The result shows that it was NULL, so gc->irq.initialized = false.
-Above all, return irq = -EPROBE_DEFER.
-
-So let's sort the function calls. In chronological order, [1] calls [2], [2] calls
-[3], then [1] calls [4]. The irq_chip was added to irq_domain->host_data->irq_chip
-before [1]. But I don't find where to convert gpio_chip->irq.domain->host_data->irq_chip
-to gpio_chip->irq.chip, it seems like it should happen after [4] ? But if it wants to use
-'gc->to_irq' successfully, it should happen before [3]?
-
-[1] gpio_regmap_register()
-[2] gpiochip_add_data()
-[3] gpiochip_add_irqchip()
-[4] gpiochip_irqchip_add_domain()
-
-I'm sorry that I described the problem in a confusing way, apologize if I missed
-some code that caused this confusion.
+Chc=C4=85 Pa=C5=84stwo przeanalizowa=C4=87 dost=C4=99pne opcje?
 
 
+Pozdrawiam
+Szczepan Andryszczuk
