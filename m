@@ -2,59 +2,218 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B6C1C77B75
-	for <linux-i2c@archiver.kernel.org>; Fri, 19 May 2023 11:08:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ABF7C7EE23
+	for <linux-i2c@archiver.kernel.org>; Fri, 19 May 2023 12:19:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229963AbjESLIu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 19 May 2023 07:08:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50226 "EHLO
+        id S229586AbjESMTu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 19 May 2023 08:19:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230491AbjESLIt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 19 May 2023 07:08:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89FC0BB
-        for <linux-i2c@vger.kernel.org>; Fri, 19 May 2023 04:08:48 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F0116569A
-        for <linux-i2c@vger.kernel.org>; Fri, 19 May 2023 11:08:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FC96C433EF;
-        Fri, 19 May 2023 11:08:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684494527;
-        bh=H4YPFanThrqB0NIQ2ok02BcYnKhqEz2+xilHRIu1/5A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kXxV+qqJXVYQoQAlv1bndqI9XXu1QQTvl9aaQTaHimedzzLQDmRK6ouvKpRKv24LR
-         4Y7rokQqG4jc7kxF5B4Lcx2rlyg2Gi1bu35Zft1nNtfQa1d8nou1++W3E+fVZR8i8M
-         d9YL/zRcUmEJzkMDis4lOWnKvmCzWud8bqNUf2RioShpYKp5I3ZEmHg6wY0l1sKL0h
-         yDO/VefqST3rGmvjhpEnlr3dK3ltFKUlVVGiYXjiB2b3PYLF7aP09kZH0Uqr1ktfuw
-         AotkxiAjzaLbuWH/PD1P3QJX3InJL8vXiZKDZwarVIO26XCF8Eh+Tk4HdDTUtT6b0A
-         aCLXw6QQcESHg==
-Date:   Fri, 19 May 2023 13:08:44 +0200
-From:   Andi Shyti <andi.shyti@kernel.org>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: Re: [PATCH v3 3/3] i2c: i801: Add support for Intel Meteor Lake PCH-S
-Message-ID: <20230519110844.iolkgvnleaisd7oo@intel.intel>
-References: <20230512115001.81309-1-jarkko.nikula@linux.intel.com>
- <20230512115001.81309-3-jarkko.nikula@linux.intel.com>
+        with ESMTP id S229458AbjESMTt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 19 May 2023 08:19:49 -0400
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC28E199;
+        Fri, 19 May 2023 05:19:47 -0700 (PDT)
+Received: from [192.168.88.20] (91-154-35-171.elisa-laajakaista.fi [91.154.35.171])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 08AEDAF3;
+        Fri, 19 May 2023 14:19:29 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1684498771;
+        bh=gU37gYT5LJCo87RVuye14TUUNZjM/v0Qd/6iCFvpPPo=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=s1nDjSOze+Tpni8CpAkhe/SkyL65XWaEolPMnwfTQi9U83jN6VCled2YJ3wKA8rCS
+         2UUB31z2gz8JwOf19MgMZzlnynhtXsvdyh9PAQn6hQhwF03MswFI6cJDzo5WNB23zd
+         Nt7iHfwl0wBesha3dJk7j8I281KNw2Uif0JOLjvA=
+Message-ID: <e3c18904-4681-27be-827b-f64ebb036157@ideasonboard.com>
+Date:   Fri, 19 May 2023 15:19:40 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230512115001.81309-3-jarkko.nikula@linux.intel.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH v13 6/8] media: i2c: add DS90UB960 driver
+To:     Ludwig Zenz <lzenz@dh-electronics.com>
+Cc:     "Matti.Vaittinen@fi.rohmeurope.com" 
+        <Matti.Vaittinen@fi.rohmeurope.com>,
+        "andriy.shevchenko@intel.com" <andriy.shevchenko@intel.com>,
+        "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "hverkuil@xs4all.nl" <hverkuil@xs4all.nl>,
+        "khalasa@piap.pl" <khalasa@piap.pl>,
+        "krzysztof.kozlowski+dt@linaro.org" 
+        <krzysztof.kozlowski+dt@linaro.org>,
+        "laurent.pinchart+renesas@ideasonboard.com" 
+        <laurent.pinchart+renesas@ideasonboard.com>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
+        "luca.ceresoli@bootlin.com" <luca.ceresoli@bootlin.com>,
+        "m.tretter@pengutronix.de" <m.tretter@pengutronix.de>,
+        "marex@denx.de" <marex@denx.de>,
+        "mchehab@kernel.org" <mchehab@kernel.org>,
+        "mpagano@gentoo.org" <mpagano@gentoo.org>,
+        "peda@axentia.se" <peda@axentia.se>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>,
+        "satish.nagireddy@getcruise.com" <satish.nagireddy@getcruise.com>,
+        "wsa@kernel.org" <wsa@kernel.org>
+References: <5abbcb606e4c4a49821be5d107d9ddfc@dh-electronics.com>
+Content-Language: en-US
+From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+In-Reply-To: <5abbcb606e4c4a49821be5d107d9ddfc@dh-electronics.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Jarkko,
-
-On Fri, May 12, 2023 at 02:50:01PM +0300, Jarkko Nikula wrote:
-> Add SMBus PCI ID on Intel Meteor Lake PCH-S.
+On 16/05/2023 22:05, Ludwig Zenz wrote:
+>> On 16/05/2023 16:32, Ludwig Zenz wrote:
+>>>> Hi,
+>>>>
+>>>> On 16/05/2023 15:35, Ludwig Zenz wrote:
+>>>>> On Wed, 26 Apr 2023 14:51:12 +0300, Tomi Valkeinen wrote:
+>>>>>
+>>>>> [...]
+>>>>>
+>>>>>>     +static int ub960_configure_ports_for_streaming(struct ub960_data *priv,
+>>>>>>     +                                         struct v4l2_subdev_state *state)
+>>>>>>     +{
+>>>>>>     +  u8 fwd_ctl;
+>>>>>>     +  struct {
+>>>>>>     +          u32 num_streams;
+>>>>>>     +          u8 pixel_dt;
+>>>>>>     +          u8 meta_dt;
+>>>>>>     +          u32 meta_lines;
+>>>>>>     +          u32 tx_port;
+>>>>>>     +  } rx_data[UB960_MAX_RX_NPORTS] = {};
+>>>>>>     +  u8 vc_map[UB960_MAX_RX_NPORTS] = {};
+>>>>>>     +  struct v4l2_subdev_route *route;
+>>>>>>     +  unsigned int nport;
+>>>>>>     +  int ret;
+>>>>>>     +
+>>>>>>     +  ret = ub960_validate_stream_vcs(priv);
+>>>>>>     +  if (ret)
+>>>>>>     +          return ret;
+>>>>>>     +
+>>>>>>     +  ub960_get_vc_maps(priv, state, vc_map);
+>>>>>>     +
+>>>>>>     +  for_each_active_route(&state->routing, route) {
+>>>>>>     +          struct ub960_rxport *rxport;
+>>>>>>     +          struct ub960_txport *txport;
+>>>>>>     +          struct v4l2_mbus_framefmt *fmt;
+>>>>>>     +          const struct ub960_format_info *ub960_fmt;
+>>>>>>     +          unsigned int nport;
+>>>>>>     +
+>>>>>>     +          nport = ub960_pad_to_port(priv, route->sink_pad);
+>>>>>>     +
+>>>>>>     +          rxport = priv->rxports[nport];
+>>>>>>     +          if (!rxport)
+>>>>>>     +                  return -EINVAL;
+>>>>>>     +
+>>>>>>     +          txport = priv->txports[ub960_pad_to_port(priv, route->source_pad)];
+>>>>>>     +          if (!txport)
+>>>>>>     +                  return -EINVAL;
+>>>>>>     +
+>>>>>>     +          rx_data[nport].tx_port = ub960_pad_to_port(priv, route->source_pad);
+>>>>>>     +
+>>>>>>     +          rx_data[nport].num_streams++;
+>>>>>>     +
+>>>>>>     +          /* For the rest, we are only interested in parallel busses */
+>>>>>>     +          if (rxport->rx_mode == RXPORT_MODE_CSI2_SYNC ||
+>>>>>>     +              rxport->rx_mode == RXPORT_MODE_CSI2_ASYNC)
+>>>>>>     +                  continue;
+>>>>>>     +
+>>>>>>     +          if (rx_data[nport].num_streams > 2)
+>>>>>>     +                  return -EPIPE;
+>>>>>>     +
+>>>>>>     +          fmt = v4l2_subdev_state_get_stream_format(state,
+>>>>>>     +                                                    route->sink_pad,
+>>>>>>     +                                                    route->sink_stream);
+>>>>>>     +          if (!fmt)
+>>>>>>     +                  return -EPIPE;
+>>>>>>     +
+>>>>>>     +          ub960_fmt = ub960_find_format(fmt->code);
+>>>>>>     +          if (!ub960_fmt)
+>>>>>>     +                  return -EPIPE;
+>>>>>>     +
+>>>>>>     +          if (ub960_fmt->meta) {
+>>>>>>     +                  if (fmt->height > 3) {
+>>>>>>     +                          dev_err(&priv->client->dev,
+>>>>>>     +                                  "rx%u: unsupported metadata height %u\n",
+>>>>>>     +                                  nport, fmt->height);
+>>>>>>     +                          return -EPIPE;
+>>>>>>     +                  }
+>>>>>>     +
+>>>>>>     +                  rx_data[nport].meta_dt = ub960_fmt->datatype;
+>>>>>>     +                  rx_data[nport].meta_lines = fmt->height;
+>>>>>>     +          } else {
+>>>>>>     +                  rx_data[nport].pixel_dt = ub960_fmt->datatype;
+>>>>>>     +          }
+>>>>>>     +  }
+>>>>>>     +
+>>>>>>     +  /* Configure RX ports */
+>>>>>>     +
+>>>>>>     +  fwd_ctl = 0;
+>>>>>
+>>>>> Hello, I have only used the first RX port in my setup (ds90ub933 to ds90ub964). The logic for activating/deactivating the Rx ports did not work for me. My suggestion is:
+>>>>>
+>>>> Why doesn't it work? What happens?
+>>>>
+>>>>    Tomi
+>>>
+>>> Hello Tomi,
+>>>
+>>> the port rx0 which I need was disabled and the other ports rx1 to rx3 were enabled. In other words, the exact inverse of the required selection.
+>>>
+>>>>>>    +                /* Forwarding */
+>>>>>>    +
+>>>>>>    +                fwd_ctl |= BIT(4 + nport); /* forward disable */
+>>> According to the data sheet, a set bit4-7 in fwd_ctl means that the channel is disabled. So the comment 'forward disable' is correct. While debugging, however, this code was only reached for the ports to be enabled but not for the ones which should be disabled.
 > 
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>> This is just a setup phase, where we initialize the registers for the ports we want to use. The forwarding is then enabled later, in ub960_enable_rx_port, and even later disabled in ub960_disable_rx_port.
+> 
+> Thank you for the clarification. I had misinterpreted the intention of the code here.
+> 
+>> This assumes that the forwarding is disabled in the registers by default (which it is in UB960).
+>>
+>> I need to try this on my HW to verify my understanding is correct, but looking at the code, it is indeed a bit buggy.
+>>
+>> At this setup phase we disable the forwarding for ports we'll use, and enable the forwarding for ports we don't use (which doesn't make sense).
+>> Later, when the streaming is started for that port, we enable the forwarding. So here we should just always disable the forwarding for all ports.
+>>
+> 
+> The unused Rx ports were not disabled in my tests. Disabling all ports here should also work for my setup.
+> 
+>> Saying "disable the forwarding" is perhaps a bit confusing here, as the the forwarding should already be disabled in the HW here anyway. But as we write the UB960_SR_FWD_CTL1, we need to set that bit.
+>>
+>> So. You should see the rx0 getting enabled (later, in ub960_enable_rx_port), and I'm curious why you don't see that.
+> 
+> I will have another look at that next week. It could well be that in the end only the enabled but unused ports are the problem.
 
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org> 
+This should fix the issue:
 
-Andi
+@ -2486,7 +2488,7 @@ static int ub960_configure_ports_for_streaming(struct ub960_data *priv,
+  
+         /* Configure RX ports */
+  
+-       fwd_ctl = 0;
++       fwd_ctl = GENMASK(7, 4);
+  
+         for (nport = 0; nport < priv->hw_data->num_rxports; nport++) {
+                 struct ub960_rxport *rxport = priv->rxports[nport];
+@@ -2536,8 +2538,6 @@ static int ub960_configure_ports_for_streaming(struct ub960_data *priv,
+  
+                 /* Forwarding */
+  
+-               fwd_ctl |= BIT(4 + nport); /* forward disable */
+-
+                 if (rx_data[nport].tx_port == 1)
+                         fwd_ctl |= BIT(nport); /* forward to TX1 */
+                 else
+
+
+  Tomi
+
+
