@@ -2,31 +2,31 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43EA5C7EE23
-	for <linux-i2c@archiver.kernel.org>; Wed, 24 May 2023 15:55:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B952C77B73
+	for <linux-i2c@archiver.kernel.org>; Wed, 24 May 2023 16:08:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237715AbjEXPze (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 24 May 2023 11:55:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51958 "EHLO
+        id S229547AbjEXQIX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 24 May 2023 12:08:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237758AbjEXPz3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 24 May 2023 11:55:29 -0400
+        with ESMTP id S229611AbjEXQIW (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 24 May 2023 12:08:22 -0400
 Received: from hust.edu.cn (unknown [202.114.0.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75F6A1BB;
-        Wed, 24 May 2023 08:55:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7153135;
+        Wed, 24 May 2023 09:08:20 -0700 (PDT)
 Received: from van1shing-pc.localdomain ([10.12.182.0])
         (user=silver_code@hust.edu.cn mech=LOGIN bits=0)
-        by mx1.hust.edu.cn  with ESMTP id 34OFhl0k029330-34OFhl0l029330
+        by mx1.hust.edu.cn  with ESMTP id 34OFZupg004681-34OFZuph004681
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-        Wed, 24 May 2023 23:43:50 +0800
+        Wed, 24 May 2023 23:36:12 +0800
 From:   Wang Zhang <silver_code@hust.edu.cn>
 To:     Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
-Cc:     hust-os-kernel-patches@googlegroups.com,
+Cc:     os-kernel-patches@googlegroups.com,
         Wang Zhang <silver_code@hust.edu.cn>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: [PATCH v3] i2c: ocores: use devm_ managed clks
-Date:   Wed, 24 May 2023 23:43:18 +0800
-Message-Id: <20230524154318.2259-1-silver_code@hust.edu.cn>
+Date:   Wed, 24 May 2023 23:35:53 +0800
+Message-Id: <20230524153553.2118-1-silver_code@hust.edu.cn>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <5572a733.abc0.18846f13b0b.Coremail.m202171703@hust.edu.cn>
 References: <5572a733.abc0.18846f13b0b.Coremail.m202171703@hust.edu.cn>
