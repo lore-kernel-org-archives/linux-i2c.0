@@ -2,96 +2,101 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D209FC77B73
-	for <linux-i2c@archiver.kernel.org>; Tue, 30 May 2023 14:59:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF2BFC77B73
+	for <linux-i2c@archiver.kernel.org>; Tue, 30 May 2023 18:50:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231917AbjE3O7g (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 30 May 2023 10:59:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37214 "EHLO
+        id S230311AbjE3Sum (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 30 May 2023 14:50:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232505AbjE3O72 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 May 2023 10:59:28 -0400
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CA57114;
-        Tue, 30 May 2023 07:59:05 -0700 (PDT)
-Received: from lhrpeml500005.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4QVwQS2KXmz6J7S1;
-        Tue, 30 May 2023 22:54:08 +0800 (CST)
-Received: from SecurePC-101-06.china.huawei.com (10.122.247.231) by
- lhrpeml500005.china.huawei.com (7.191.163.240) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Tue, 30 May 2023 15:59:02 +0100
-From:   Jonathan Cameron <Jonathan.Cameron@huawei.com>
-To:     <linux-i2c@vger.kernel.org>
-CC:     Wolfram Sang <wsa@kernel.org>, Niyas Sait <niyas.sait@linaro.org>,
-        Klaus Jensen <its@irrelevant.dk>,
-        Andy Shevchenko <andy@kernel.org>,
-        <linux-acpi@vger.kernel.org>,
-        Jeremy Kerr <jk@codeconstruct.com.au>,
-        Matt Johnston <matt@codeconstruct.com.au>,
-        Shesha Bhushan Sreenivasamurthy <sheshas@marvell.com>,
-        <linux-cxl@vger.kernel.org>, <linuxarm@huawei.com>,
-        "Viacheslav A . Dubeyko" <viacheslav.dubeyko@bytedance.com>
-Subject: [RFC PATCH v2 6/6] HACK: i2c: aspeed: Comment clock out and make reset optional
-Date:   Tue, 30 May 2023 15:56:01 +0100
-Message-ID: <20230530145601.2592-7-Jonathan.Cameron@huawei.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230530145601.2592-1-Jonathan.Cameron@huawei.com>
-References: <20230530145601.2592-1-Jonathan.Cameron@huawei.com>
+        with ESMTP id S229630AbjE3Sul (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 May 2023 14:50:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 615B0C9;
+        Tue, 30 May 2023 11:50:40 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0729628AE;
+        Tue, 30 May 2023 18:50:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6ABBC4339B;
+        Tue, 30 May 2023 18:50:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685472639;
+        bh=IZndPRsXdrvOnJb0ewXcTHzPGDycIf5ne3eEnx8Ld9E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SobdW6evDpNp5XKzU2RTYcxgG6l3SzTGzHCt5xrkeFknfGnlWzrVbG7cP1lPwqiaP
+         0FfyQurrDzUSnsieubT4XEnyDT97hyJQtHJCkBqJnG0CujgiOkILFbSLR7zDNG2zfY
+         T0hRclOsh62yzX4bY8+RHhL+htMASIgNqijM8KK+6H5Ht8sJdg5Dv6cDj1Ps1Pey0s
+         oVJeNXw6Y551qe82DQGWsaSS1fwR6MjgToppxj6pwlWvbH7FwDh/O6iZVWx7bZhddo
+         NXJlP8NoZygP29UsklAodVhproIJN3PrDjO2Fv1p9/2bdMZGxOAU7sWK64Gi/PyPsy
+         8Ln+mS7SaCOWw==
+Date:   Tue, 30 May 2023 20:50:36 +0200
+From:   Andi Shyti <andi.shyti@kernel.org>
+To:     carlos.song@nxp.com
+Cc:     aisheng.dong@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
+        kernel@pengutronix.de, festevam@gmail.com, xiaoning.wang@nxp.com,
+        haibo.chen@nxp.com, linux-imx@nxp.com, linux-i2c@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: imx-lpi2c: fix type char overflow issue when
+ calculating the clock cycle
+Message-ID: <20230530185036.ggep3pv7booqtb6b@intel.intel>
+References: <20230529080251.3614380-1-carlos.song@nxp.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.122.247.231]
-X-ClientProxiedBy: lhrpeml100001.china.huawei.com (7.191.160.183) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230529080251.3614380-1-carlos.song@nxp.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Needs tidying up - hopefully can do clock right using ongoing
-work from Niyas
-https://linaro.atlassian.net/wiki/spaces/CLIENTPC/pages/28832333867/ACPI+Clock+Management
+On Mon, May 29, 2023 at 04:02:51PM +0800, carlos.song@nxp.com wrote:
+> From: Clark Wang <xiaoning.wang@nxp.com>
+> 
+> Claim clkhi and clklo as integer type to avoid possible calculation
+> errors caused by data overflow.
+> 
+> Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
+> Signed-off-by: Clark Wang <xiaoning.wang@nxp.com>
+> Signed-off-by: Carlos Song <carlos.song@nxp.com>
+> ---
+>  drivers/i2c/busses/i2c-imx-lpi2c.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+> index 40a4420d4c12..7dd33564cbe1 100644
+> --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
+> +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+> @@ -211,8 +211,8 @@ static void lpi2c_imx_stop(struct lpi2c_imx_struct *lpi2c_imx)
+>  /* CLKLO = I2C_CLK_RATIO * CLKHI, SETHOLD = CLKHI, DATAVD = CLKHI/2 */
+>  static int lpi2c_imx_config(struct lpi2c_imx_struct *lpi2c_imx)
+>  {
+> -	u8 prescale, filt, sethold, clkhi, clklo, datavd;
+> -	unsigned int clk_rate, clk_cycle;
+> +	u8 prescale, filt, sethold, datavd;
+> +	unsigned int clk_rate, clk_cycle, clkhi, clklo;
 
-ACPI does not provide an equivalent reset deassert / assert. _RST
-doesn't fit that model, so for now make the reset optional.
+looks OK.
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
----
-v2:
- - Use optional variant for the reset.
- - Left the clock with the hideous hack to keep it obvious that it is
-   a hack given no way for us to get the clk rate on ACPI firmware yet
-   and I don't want to pretend there is.
----
- drivers/i2c/busses/i2c-aspeed.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org> 
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index ae8e187f2233..f0b5789aee21 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -986,14 +986,14 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	if (IS_ERR(bus->base))
- 		return PTR_ERR(bus->base);
- 
--	parent_clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(parent_clk))
--		return PTR_ERR(parent_clk);
--	bus->parent_clk_frequency = clk_get_rate(parent_clk);
-+	//	parent_clk = devm_clk_get(&pdev->dev, NULL);
-+	//	if (IS_ERR(parent_clk))//
-+	//		return PTR_ERR(parent_clk);
-+	bus->parent_clk_frequency = 1000000;//clk_get_rate(parent_clk);
- 	/* We just need the clock rate, we don't actually use the clk object. */
--	devm_clk_put(&pdev->dev, parent_clk);
-+	//devm_clk_put(&pdev->dev, parent_clk);
- 
--	bus->rst = devm_reset_control_get_shared(&pdev->dev, NULL);
-+	bus->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
- 	if (IS_ERR(bus->rst)) {
- 		dev_err(&pdev->dev,
- 			"missing or invalid reset controller device tree entry\n");
--- 
-2.39.2
+there is, though, another part I would take care of, this bit:
 
+	clklo = clk_cycle - clkhi;
+	if (clklo < 64)
+		break;
+
+It might be unlikely, but if "clk_cycle > clkhi" then all the
+calculation. Do you mind adding a check:
+
+	if (unlikely(clk_cycle > clkhi))
+		break;
+
+Andi
+
+>  	enum lpi2c_imx_pincfg pincfg;
+>  	unsigned int temp;
+>  
+> -- 
+> 2.34.1
+> 
