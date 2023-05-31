@@ -2,99 +2,67 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78076C7EE23
-	for <linux-i2c@archiver.kernel.org>; Wed, 31 May 2023 16:11:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95D97C7EE2D
+	for <linux-i2c@archiver.kernel.org>; Wed, 31 May 2023 16:24:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbjEaQLg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 31 May 2023 12:11:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45878 "EHLO
+        id S229571AbjEaQYv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 31 May 2023 12:24:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbjEaQLf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 31 May 2023 12:11:35 -0400
-X-Greylist: delayed 60 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 31 May 2023 09:11:33 PDT
+        with ESMTP id S229446AbjEaQYu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 31 May 2023 12:24:50 -0400
 Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF41811F;
-        Wed, 31 May 2023 09:11:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27018E2
+        for <linux-i2c@vger.kernel.org>; Wed, 31 May 2023 09:24:50 -0700 (PDT)
 Received: from local
         by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256)
          (Exim 4.96)
         (envelope-from <daniel@makrotopia.org>)
-        id 1q4OQ8-0001Nc-0H;
-        Wed, 31 May 2023 16:11:32 +0000
-Date:   Wed, 31 May 2023 17:11:17 +0100
+        id 1q4OP4-0001N8-0V;
+        Wed, 31 May 2023 16:10:26 +0000
+Date:   Wed, 31 May 2023 17:10:14 +0100
 From:   Daniel Golle <daniel@makrotopia.org>
-To:     linux-i2c@vger.kernel.org, linux-mediatek@lists.infradead.org,
+To:     devicetree@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-mediatek@lists.infradead.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Conor Dooley <conor+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Qii Wang <qii.wang@mediatek.com>,
         Sam Shih <sam.shih@mediatek.com>
 Cc:     =?utf-8?B?6YOt5bCP5qGl?= <joe@gainstrong.cn>
-Subject: [PATCH 2/2] i2c: mt65xx: add additional clocks
-Message-ID: <6632ce37e260f5f5cbdd0c6a5da8fe9679352aee.1685549360.git.daniel@makrotopia.org>
-References: <5f15212060f82fb94239174c4e4b46c151645fe8.1685549360.git.daniel@makrotopia.org>
+Subject: [PATCH 1/2] dt-bindings: i2c: i2c-mt65xx: add additional clocks
+Message-ID: <5f15212060f82fb94239174c4e4b46c151645fe8.1685549360.git.daniel@makrotopia.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5f15212060f82fb94239174c4e4b46c151645fe8.1685549360.git.daniel@makrotopia.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On MT7981 additional clocks are required when accessing I2C registers.
-Add MCK and PCK optional clocks to i2c-mt65xx driver so we don't have
-to always have them enabled, but really only if I2C is used.
+Add pck and mck clocks which are needed to access I2C registers on MT7981.
 
-Fixes: f82fd1845d309 ("i2c: mediatek: add support for MT7981 SoC")
 Signed-off-by: Daniel Golle <daniel@makrotopia.org>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index a43c4d77739ab..cd28cbec2b96d 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -93,6 +93,8 @@
-  * @I2C_MT65XX_CLK_DMA:  DMA clock for i2c via DMA
-  * @I2C_MT65XX_CLK_PMIC: PMIC clock for i2c from PMIC
-  * @I2C_MT65XX_CLK_ARB:  Arbitrator clock for i2c
-+ * @I2C_MT65XX_CLK_MCK:  MCK clock for i2c
-+ * @I2C_MT65XX_CLK_PCK:  PCK clock for i2c
-  * @I2C_MT65XX_CLK_MAX:  Number of supported clocks
-  */
- enum i2c_mt65xx_clks {
-@@ -100,11 +102,13 @@ enum i2c_mt65xx_clks {
- 	I2C_MT65XX_CLK_DMA,
- 	I2C_MT65XX_CLK_PMIC,
- 	I2C_MT65XX_CLK_ARB,
-+	I2C_MT65XX_CLK_MCK,
-+	I2C_MT65XX_CLK_PCK,
- 	I2C_MT65XX_CLK_MAX
- };
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+index fda0467cdd954..550795f6573c5 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
++++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+@@ -78,6 +78,8 @@ properties:
+       - const: dma
+       - const: arb
+       - const: pmic
++      - const: mck
++      - const: pck
  
- static const char * const i2c_mt65xx_clk_ids[I2C_MT65XX_CLK_MAX] = {
--	"main", "dma", "pmic", "arb"
-+	"main", "dma", "pmic", "arb", "mck", "pck"
- };
- 
- enum DMA_REGS_OFFSET {
-@@ -1444,6 +1448,14 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 	if (IS_ERR(i2c->clocks[I2C_MT65XX_CLK_ARB].clk))
- 		return PTR_ERR(i2c->clocks[I2C_MT65XX_CLK_ARB].clk);
- 
-+	i2c->clocks[I2C_MT65XX_CLK_MCK].clk = devm_clk_get_optional(&pdev->dev, "mck");
-+	if (IS_ERR(i2c->clocks[I2C_MT65XX_CLK_MCK].clk))
-+		return PTR_ERR(i2c->clocks[I2C_MT65XX_CLK_MCK].clk);
-+
-+	i2c->clocks[I2C_MT65XX_CLK_PCK].clk = devm_clk_get_optional(&pdev->dev, "pck");
-+	if (IS_ERR(i2c->clocks[I2C_MT65XX_CLK_PCK].clk))
-+		return PTR_ERR(i2c->clocks[I2C_MT65XX_CLK_PCK].clk);
-+
- 	if (i2c->have_pmic) {
- 		i2c->clocks[I2C_MT65XX_CLK_PMIC].clk = devm_clk_get(&pdev->dev, "pmic");
- 		if (IS_ERR(i2c->clocks[I2C_MT65XX_CLK_PMIC].clk)) {
+   clock-div:
+     $ref: /schemas/types.yaml#/definitions/uint32
 -- 
 2.40.1
 
