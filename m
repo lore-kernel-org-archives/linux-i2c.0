@@ -2,206 +2,163 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19F7EC7EE31
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Jun 2023 03:16:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7261FC7EE24
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Jun 2023 03:40:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231213AbjFADP6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 31 May 2023 23:15:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47172 "EHLO
+        id S230437AbjFADkT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 31 May 2023 23:40:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229781AbjFADPt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 31 May 2023 23:15:49 -0400
-Received: from smtpbgbr2.qq.com (smtpbgbr2.qq.com [54.207.22.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C06A6D1;
-        Wed, 31 May 2023 20:15:43 -0700 (PDT)
-X-QQ-mid: bizesmtp86t1685588656tmp6o21f
-Received: from wxdbg.localdomain.com ( [183.159.96.128])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Thu, 01 Jun 2023 11:04:12 +0800 (CST)
-X-QQ-SSF: 01400000000000J0Z000000A0000000
-X-QQ-FEAT: iDzLjIm7mlYxVkhWRCuJ8so7Fnlcyj6Nk+cfswEV8q/++xRKNSgaEi7Z68Xvx
-        eilEsUjKtmx/gIHV3qM5l292rTopM7weKDghgS6hJVJFKothqhDLgrDp3HAoIlcYGoLCA5K
-        2FA6AXiXncUVY0WR+p2kUAufThBL0E5UxYQYyUEqGYSTkZmP/q7FP0SRgAlUeQ3UBDfTVmz
-        VxyK3oCKzCcl+NKrjsi3aNwv254x+XNEGprvWLPBc+VBJKs8/tq5oXieRCvvGnjbC5G8Ibc
-        tUV7S2piJLCpcekg8YvLPiHFK5u5OKNzWx2f+W2/RUbYzkSlfE4iZT17uZYY3GdQ+gAPTZ6
-        tbwqI30biXGKeYqiwOkDXY8kS/KWlh95Whc3jkN6RSko56VV6x/gfruF2aQ/RadPL6IiLzr
-        bqHv7xbeBXodwSvtHGErAQ==
-X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 12059851608889778048
-From:   Jiawen Wu <jiawenwu@trustnetic.com>
-To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
-        andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
-        jsd@semihalf.com, Jose.Abreu@synopsys.com, andrew@lunn.ch,
-        hkallweit1@gmail.com, linux@armlinux.org.uk
-Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>,
-        Piotr Raczynski <piotr.raczynski@intel.com>
-Subject: [PATCH net-next v10 4/9] net: txgbe: Register I2C platform device
-Date:   Thu,  1 Jun 2023 11:01:35 +0800
-Message-Id: <20230601030140.687493-5-jiawenwu@trustnetic.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20230601030140.687493-1-jiawenwu@trustnetic.com>
-References: <20230601030140.687493-1-jiawenwu@trustnetic.com>
+        with ESMTP id S229527AbjFADkS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 31 May 2023 23:40:18 -0400
+X-Greylist: delayed 345 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 31 May 2023 20:40:13 PDT
+Received: from mail-m11878.qiye.163.com (mail-m11878.qiye.163.com [115.236.118.78])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF1A9128;
+        Wed, 31 May 2023 20:40:13 -0700 (PDT)
+Received: from localhost.localdomain (unknown [58.22.7.114])
+        by mail-m11878.qiye.163.com (Hmail) with ESMTPA id F1464740464;
+        Thu,  1 Jun 2023 11:34:24 +0800 (CST)
+From:   David Wu <david.wu@rock-chips.com>
+To:     wsa@kernel.org, linux-i2c@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, Zhang aihui <zah@rock-chips.com>,
+        David Wu <david.wu@rock-chips.com>
+Subject: [PATCH] i2c: Devices which have some i2c addr can work in same i2c bus
+Date:   Thu,  1 Jun 2023 11:34:23 +0800
+Message-Id: <20230601033423.172021-1-david.wu@rock-chips.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:trustnetic.com:qybglogicsvrgz:qybglogicsvrgz5a-1
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+        tZV1koWUFDSUNOT01LS0k3V1ktWUFJV1kPCRoVCBIfWUFZQk5IGFZMQ0MfTx1NSx5OHx1VEwETFh
+        oSFyQUDg9ZV1kYEgtZQVlOQ1VJSVVMVUpKT1lXWRYaDxIVHRRZQVlPS0hVSkpLQ0hJVUpLS1VLWQ
+        Y+
+X-HM-Tid: 0a8875055a412eb4kusnf1464740464
+X-HM-MType: 1
+X-HM-Sender-Digest: e1kMHhlZQR0aFwgeV1kSHx4VD1lBWUc6Ny46Szo6Lz1DIjhLGRcsHz8x
+        EEkwCw5VSlVKTUNOTkJLT01OTU5IVTMWGhIXVR8aDRIfVQwOOwkUGBBWGBMSCwhVGBQWRVlXWRIL
+        WUFZTkNVSUlVTFVKSk9ZV1kIAVlBT0xDSTcG
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Register the platform device to use Designware I2C bus master driver.
-Use regmap to read/write I2C device region from given base offset.
+From: Zhang aihui <zah@rock-chips.com>
 
-Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
+If i2c slave devices don't work at the same time, which have
+the same i2c addr, it would register two devices, can make them
+working.
+
+Change-Id: I1bfb7783924b08bdc6e12bf47c2de01bdac7c2e2
+Signed-off-by: Zhang aihui <zah@rock-chips.com>
+Signed-off-by: David Wu <david.wu@rock-chips.com>
 ---
- drivers/net/ethernet/wangxun/Kconfig          |  3 +
- .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 70 +++++++++++++++++++
- .../net/ethernet/wangxun/txgbe/txgbe_type.h   |  4 ++
- 3 files changed, 77 insertions(+)
+ drivers/i2c/i2c-core-base.c | 51 +++++++++++++++++++++++++++++--------
+ 1 file changed, 41 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/wangxun/Kconfig b/drivers/net/ethernet/wangxun/Kconfig
-index 190d42a203b4..128cc1cb0605 100644
---- a/drivers/net/ethernet/wangxun/Kconfig
-+++ b/drivers/net/ethernet/wangxun/Kconfig
-@@ -41,6 +41,9 @@ config TXGBE
- 	tristate "Wangxun(R) 10GbE PCI Express adapters support"
- 	depends on PCI
- 	depends on COMMON_CLK
-+	select REGMAP
-+	select I2C
-+	select I2C_DESIGNWARE_PLATFORM
- 	select LIBWX
- 	help
- 	  This driver supports Wangxun(R) 10GbE PCI Express family of
-diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-index 06506cfb8d06..24a729150e08 100644
---- a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-+++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-@@ -6,6 +6,8 @@
- #include <linux/clkdev.h>
- #include <linux/i2c.h>
- #include <linux/pci.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index ae3af738b03f..53a8141e6238 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -62,6 +62,7 @@
+ static DEFINE_MUTEX(core_lock);
+ static DEFINE_IDR(i2c_adapter_idr);
  
- #include "../libwx/wx_type.h"
- #include "txgbe_type.h"
-@@ -98,6 +100,64 @@ static int txgbe_clock_register(struct txgbe *txgbe)
- 	return 0;
- }
++static int i2c_check_addr_ex(struct i2c_adapter *adapter, int addr);
+ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
  
-+static int txgbe_i2c_read(void *context, unsigned int reg, unsigned int *val)
-+{
-+	struct wx *wx = context;
-+
-+	*val = rd32(wx, reg + TXGBE_I2C_BASE);
-+
-+	return 0;
-+}
-+
-+static int txgbe_i2c_write(void *context, unsigned int reg, unsigned int val)
-+{
-+	struct wx *wx = context;
-+
-+	wr32(wx, reg + TXGBE_I2C_BASE, val);
-+
-+	return 0;
-+}
-+
-+static const struct regmap_config i2c_regmap_config = {
-+	.reg_bits = 32,
-+	.val_bits = 32,
-+	.reg_read = txgbe_i2c_read,
-+	.reg_write = txgbe_i2c_write,
-+	.fast_io = true,
-+};
-+
-+static int txgbe_i2c_register(struct txgbe *txgbe)
-+{
-+	struct platform_device_info info = {};
-+	struct platform_device *i2c_dev;
-+	struct regmap *i2c_regmap;
-+	struct pci_dev *pdev;
-+	struct wx *wx;
-+
-+	wx = txgbe->wx;
-+	pdev = wx->pdev;
-+	i2c_regmap = devm_regmap_init(&pdev->dev, NULL, wx, &i2c_regmap_config);
-+	if (IS_ERR(i2c_regmap)) {
-+		wx_err(wx, "failed to init I2C regmap\n");
-+		return PTR_ERR(i2c_regmap);
-+	}
-+
-+	info.parent = &pdev->dev;
-+	info.fwnode = software_node_fwnode(txgbe->nodes.group[SWNODE_I2C]);
-+	info.name = "i2c_designware";
-+	info.id = (pdev->bus->number << 8) | pdev->devfn;
-+
-+	info.res = &DEFINE_RES_IRQ(pdev->irq);
-+	info.num_res = 1;
-+	i2c_dev = platform_device_register_full(&info);
-+	if (IS_ERR(i2c_dev))
-+		return PTR_ERR(i2c_dev);
-+
-+	txgbe->i2c_dev = i2c_dev;
-+
-+	return 0;
-+}
-+
- int txgbe_init_phy(struct txgbe *txgbe)
+ static DEFINE_STATIC_KEY_FALSE(i2c_trace_msg_key);
+@@ -849,7 +850,8 @@ static void i2c_adapter_unlock_bus(struct i2c_adapter *adapter,
+ 
+ static void i2c_dev_set_name(struct i2c_adapter *adap,
+ 			     struct i2c_client *client,
+-			     struct i2c_board_info const *info)
++			     struct i2c_board_info const *info,
++			     int status)
  {
- 	int ret;
-@@ -114,8 +174,17 @@ int txgbe_init_phy(struct txgbe *txgbe)
- 		goto err_unregister_swnode;
+ 	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
+ 
+@@ -863,8 +865,12 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
+ 		return;
  	}
  
-+	ret = txgbe_i2c_register(txgbe);
-+	if (ret) {
-+		wx_err(txgbe->wx, "failed to init i2c interface: %d\n", ret);
-+		goto err_unregister_clk;
-+	}
+-	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
+-		     i2c_encode_flags_to_addr(client));
++	if (status == 0)
++		dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
++			i2c_encode_flags_to_addr(client));
++	else
++		dev_set_name(&client->dev, "%d-%04x-%01x", i2c_adapter_id(adap),
++			i2c_encode_flags_to_addr(client), status);
+ }
+ 
+ int i2c_dev_irq_from_resources(const struct resource *resources,
+@@ -940,9 +946,11 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ 	}
+ 
+ 	/* Check for address business */
+-	status = i2c_check_addr_busy(adap, i2c_encode_flags_to_addr(client));
++	status = i2c_check_addr_ex(adap, i2c_encode_flags_to_addr(client));
+ 	if (status)
+-		goto out_err;
++		dev_err(&adap->dev,
++			"%d i2c clients have been registered at 0x%02x",
++			status, client->addr);
+ 
+ 	client->dev.parent = &client->adapter->dev;
+ 	client->dev.bus = &i2c_bus_type;
+@@ -951,7 +959,7 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ 	client->dev.fwnode = info->fwnode;
+ 
+ 	device_enable_async_suspend(&client->dev);
+-	i2c_dev_set_name(adap, client, info);
++	i2c_dev_set_name(adap, client, info, status);
+ 
+ 	if (info->swnode) {
+ 		status = device_add_software_node(&client->dev, info->swnode);
+@@ -976,10 +984,6 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ 	device_remove_software_node(&client->dev);
+ out_err_put_of_node:
+ 	of_node_put(info->of_node);
+-out_err:
+-	dev_err(&adap->dev,
+-		"Failed to register i2c client %s at 0x%02x (%d)\n",
+-		client->name, client->addr, status);
+ out_err_silent:
+ 	kfree(client);
+ 	return ERR_PTR(status);
+@@ -1988,6 +1992,33 @@ EXPORT_SYMBOL(i2c_del_driver);
+ 
+ /* ------------------------------------------------------------------------- */
+ 
++struct i2c_addr_cnt {
++	int addr;
++	int cnt;
++};
 +
- 	return 0;
- 
-+err_unregister_clk:
-+	clkdev_drop(txgbe->clock);
-+	clk_unregister(txgbe->clk);
- err_unregister_swnode:
- 	software_node_unregister_node_group(txgbe->nodes.group);
- 
-@@ -124,6 +193,7 @@ int txgbe_init_phy(struct txgbe *txgbe)
- 
- void txgbe_remove_phy(struct txgbe *txgbe)
- {
-+	platform_device_unregister(txgbe->i2c_dev);
- 	clkdev_drop(txgbe->clock);
- 	clk_unregister(txgbe->clk);
- 	software_node_unregister_node_group(txgbe->nodes.group);
-diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-index cdbc4b37f832..55979abf01f2 100644
---- a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-+++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-@@ -55,6 +55,9 @@
- #define TXGBE_TS_CTL                            0x10300
- #define TXGBE_TS_CTL_EVAL_MD                    BIT(31)
- 
-+/* I2C registers */
-+#define TXGBE_I2C_BASE                          0x14900
++static int __i2c_check_addr_ex(struct device *dev, void *addrp)
++{
++	struct i2c_client *client = i2c_verify_client(dev);
++	struct i2c_addr_cnt *addrinfo = (struct i2c_addr_cnt *)addrp;
++	int addr = addrinfo->addr;
 +
- /* Part Number String Length */
- #define TXGBE_PBANUM_LENGTH                     32
- 
-@@ -146,6 +149,7 @@ struct txgbe_nodes {
- struct txgbe {
- 	struct wx *wx;
- 	struct txgbe_nodes nodes;
-+	struct platform_device *i2c_dev;
- 	struct clk_lookup *clock;
- 	struct clk *clk;
- };
++	if (client && client->addr == addr)
++		addrinfo->cnt++;
++
++	return 0;
++}
++
++static int i2c_check_addr_ex(struct i2c_adapter *adapter, int addr)
++{
++	struct i2c_addr_cnt addrinfo;
++
++	addrinfo.addr = addr;
++	addrinfo.cnt = 0;
++	device_for_each_child(&adapter->dev, &addrinfo, __i2c_check_addr_ex);
++	return addrinfo.cnt;
++}
++
+ struct i2c_cmd_arg {
+ 	unsigned	cmd;
+ 	void		*arg;
 -- 
-2.27.0
+2.25.1
 
