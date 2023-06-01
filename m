@@ -2,32 +2,32 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41051C7EE24
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Jun 2023 03:08:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A51CC7EE2E
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Jun 2023 03:11:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230387AbjFADIg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 31 May 2023 23:08:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39782 "EHLO
+        id S231343AbjFADLz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 31 May 2023 23:11:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231402AbjFADIR (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 31 May 2023 23:08:17 -0400
+        with ESMTP id S231394AbjFADLd (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 31 May 2023 23:11:33 -0400
 Received: from smtpbguseast3.qq.com (smtpbguseast3.qq.com [54.243.244.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F320C10D5;
-        Wed, 31 May 2023 20:07:30 -0700 (PDT)
-X-QQ-mid: bizesmtp86t1685588673t7isw8km
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A079CE5D;
+        Wed, 31 May 2023 20:11:24 -0700 (PDT)
+X-QQ-mid: bizesmtp86t1685588650t1z0jih8
 Received: from wxdbg.localdomain.com ( [183.159.96.128])
         by bizesmtp.qq.com (ESMTP) with 
-        id ; Thu, 01 Jun 2023 11:04:30 +0800 (CST)
+        id ; Thu, 01 Jun 2023 11:04:06 +0800 (CST)
 X-QQ-SSF: 01400000000000J0Z000000A0000000
-X-QQ-FEAT: D2GZf6M6C/jcBfylfpPngpr+7nNVvsQhCgtmPHqrc50nu3q+4MrlCaFKvqB1m
-        DWcu19HP73vT4xL9FeA6TG+4/bjK0tuEwwJUx6J8RWwJL/uC4EmyMMzIv5F1aXmzic7CzR9
-        4iVdfrlR9JCbLubyHrbnV2M6ykv1VTtIGjN3CUXez6r0jCHR4Om5TxpeV8SKuCW/BwPbsWS
-        5MMvNrdZHWdS43xF1lZ0HVYCKk5r66g6GIiSZ+n0BBWu9YX4liCFjJw34GVebhg60ZMtsxu
-        5iyVFxim5//S7ujLpsnNY9XZXnwFskgvcDd+ziwvinQ/ZgpjjmLysWbtX0x5F2pRwKhCA2G
-        kwQlBg7SAxnmFlo9JsNnzCjFc039IdC+6rin9W1VK2/Ar4cmTr8T6B0WLJZxRRqHQXzN5pY
-        eBNjRi4vcAVNUqn0EDn/QA==
+X-QQ-FEAT: CR3LFp2JE4k7lzmlCObq5QVh/vz5vf/K9cw9ZpmpnfMPCcKIfyjXMkeV5wbTD
+        qOsGlI2PJB7BQUawANxDeEif3BpIkQDQ+XRSpHzquC7tvkvGbiup6D0iG7pu62s5tnOBxRQ
+        x9GeH70huz676R2hIErpoVUdB9VlQoeaApFVkt19OlDpHouTykkgfKoe3VsQ9vw2QY+eP1F
+        PyZolI0da5hmpLutSDL2HLRpp+Czq32OuSUc4xH572eGF8jYOsHTUZWiISuBSQ7XNRG151L
+        L7wkK7/B3bX5hzzOTVnE6fw8zARpxTWK/m6RxrG/e7f817Il9ezgc0HtFVr3Z9SE03ZaV7G
+        ZEjadR5H0rUtpMdNJ/v3xYutmyLctBf1Z4ymfWtUq8LG7qsdKJN++ysbEbGma46EP8Zcz+q
+        7CvD7PR08Q4xxPARGZCVQQ==
 X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 2350022613580202111
+X-BIZMAIL-ID: 3191998063983009471
 From:   Jiawen Wu <jiawenwu@trustnetic.com>
 To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
@@ -35,9 +35,9 @@ To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         hkallweit1@gmail.com, linux@armlinux.org.uk
 Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
         mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>
-Subject: [PATCH net-next v10 7/9] net: pcs: Add 10GBASE-R mode for Synopsys Designware XPCS
-Date:   Thu,  1 Jun 2023 11:01:38 +0800
-Message-Id: <20230601030140.687493-8-jiawenwu@trustnetic.com>
+Subject: [PATCH net-next v10 3/9] net: txgbe: Register fixed rate clock
+Date:   Thu,  1 Jun 2023 11:01:34 +0800
+Message-Id: <20230601030140.687493-4-jiawenwu@trustnetic.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20230601030140.687493-1-jiawenwu@trustnetic.com>
 References: <20230601030140.687493-1-jiawenwu@trustnetic.com>
@@ -49,119 +49,112 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add basic support for XPCS using 10GBASE-R interface. This mode will
-be extended to use interrupt, so set pcs.poll false. And avoid soft
-reset so that the device using this mode is in the default configuration.
+In order for I2C to be able to work in standard mode, register a fixed
+rate clock for each I2C device.
 
 Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 ---
- drivers/net/pcs/pcs-xpcs.c   | 30 ++++++++++++++++++++++++++++++
- include/linux/pcs/pcs-xpcs.h |  1 +
- 2 files changed, 31 insertions(+)
+ drivers/net/ethernet/wangxun/Kconfig          |  1 +
+ .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 41 +++++++++++++++++++
+ .../net/ethernet/wangxun/txgbe/txgbe_type.h   |  2 +
+ 3 files changed, 44 insertions(+)
 
-diff --git a/drivers/net/pcs/pcs-xpcs.c b/drivers/net/pcs/pcs-xpcs.c
-index 1ba214429e01..b2ef5fdce3b0 100644
---- a/drivers/net/pcs/pcs-xpcs.c
-+++ b/drivers/net/pcs/pcs-xpcs.c
-@@ -64,6 +64,16 @@ static const int xpcs_xlgmii_features[] = {
- 	__ETHTOOL_LINK_MODE_MASK_NBITS,
+diff --git a/drivers/net/ethernet/wangxun/Kconfig b/drivers/net/ethernet/wangxun/Kconfig
+index c9d88673d306..190d42a203b4 100644
+--- a/drivers/net/ethernet/wangxun/Kconfig
++++ b/drivers/net/ethernet/wangxun/Kconfig
+@@ -40,6 +40,7 @@ config NGBE
+ config TXGBE
+ 	tristate "Wangxun(R) 10GbE PCI Express adapters support"
+ 	depends on PCI
++	depends on COMMON_CLK
+ 	select LIBWX
+ 	help
+ 	  This driver supports Wangxun(R) 10GbE PCI Express family of
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+index be4b5ad74a3c..06506cfb8d06 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+@@ -2,6 +2,8 @@
+ /* Copyright (c) 2015 - 2023 Beijing WangXun Technology Co., Ltd. */
+ 
+ #include <linux/gpio/property.h>
++#include <linux/clk-provider.h>
++#include <linux/clkdev.h>
+ #include <linux/i2c.h>
+ #include <linux/pci.h>
+ 
+@@ -70,6 +72,32 @@ static int txgbe_swnodes_register(struct txgbe *txgbe)
+ 	return software_node_register_node_group(nodes->group);
+ }
+ 
++static int txgbe_clock_register(struct txgbe *txgbe)
++{
++	struct pci_dev *pdev = txgbe->wx->pdev;
++	struct clk_lookup *clock;
++	char clk_name[32];
++	struct clk *clk;
++
++	snprintf(clk_name, sizeof(clk_name), "i2c_designware.%d",
++		 (pdev->bus->number << 8) | pdev->devfn);
++
++	clk = clk_register_fixed_rate(NULL, clk_name, NULL, 0, 156250000);
++	if (IS_ERR(clk))
++		return PTR_ERR(clk);
++
++	clock = clkdev_create(clk, NULL, clk_name);
++	if (!clock) {
++		clk_unregister(clk);
++		return -ENOMEM;
++	}
++
++	txgbe->clk = clk;
++	txgbe->clock = clock;
++
++	return 0;
++}
++
+ int txgbe_init_phy(struct txgbe *txgbe)
+ {
+ 	int ret;
+@@ -80,10 +108,23 @@ int txgbe_init_phy(struct txgbe *txgbe)
+ 		return ret;
+ 	}
+ 
++	ret = txgbe_clock_register(txgbe);
++	if (ret) {
++		wx_err(txgbe->wx, "failed to register clock: %d\n", ret);
++		goto err_unregister_swnode;
++	}
++
+ 	return 0;
++
++err_unregister_swnode:
++	software_node_unregister_node_group(txgbe->nodes.group);
++
++	return ret;
+ }
+ 
+ void txgbe_remove_phy(struct txgbe *txgbe)
+ {
++	clkdev_drop(txgbe->clock);
++	clk_unregister(txgbe->clk);
+ 	software_node_unregister_node_group(txgbe->nodes.group);
+ }
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+index 5bef0f9df523..cdbc4b37f832 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+@@ -146,6 +146,8 @@ struct txgbe_nodes {
+ struct txgbe {
+ 	struct wx *wx;
+ 	struct txgbe_nodes nodes;
++	struct clk_lookup *clock;
++	struct clk *clk;
  };
  
-+static const int xpcs_10gbaser_features[] = {
-+	ETHTOOL_LINK_MODE_Pause_BIT,
-+	ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-+	ETHTOOL_LINK_MODE_10000baseSR_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseLR_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseLRM_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseER_Full_BIT,
-+	__ETHTOOL_LINK_MODE_MASK_NBITS,
-+};
-+
- static const int xpcs_sgmii_features[] = {
- 	ETHTOOL_LINK_MODE_Pause_BIT,
- 	ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-@@ -106,6 +116,10 @@ static const phy_interface_t xpcs_xlgmii_interfaces[] = {
- 	PHY_INTERFACE_MODE_XLGMII,
- };
- 
-+static const phy_interface_t xpcs_10gbaser_interfaces[] = {
-+	PHY_INTERFACE_MODE_10GBASER,
-+};
-+
- static const phy_interface_t xpcs_sgmii_interfaces[] = {
- 	PHY_INTERFACE_MODE_SGMII,
- };
-@@ -123,6 +137,7 @@ enum {
- 	DW_XPCS_USXGMII,
- 	DW_XPCS_10GKR,
- 	DW_XPCS_XLGMII,
-+	DW_XPCS_10GBASER,
- 	DW_XPCS_SGMII,
- 	DW_XPCS_1000BASEX,
- 	DW_XPCS_2500BASEX,
-@@ -246,6 +261,7 @@ static int xpcs_soft_reset(struct dw_xpcs *xpcs,
- 
- 	switch (compat->an_mode) {
- 	case DW_AN_C73:
-+	case DW_10GBASER:
- 		dev = MDIO_MMD_PCS;
- 		break;
- 	case DW_AN_C37_SGMII:
-@@ -802,6 +818,8 @@ int xpcs_do_config(struct dw_xpcs *xpcs, phy_interface_t interface,
- 		return -ENODEV;
- 
- 	switch (compat->an_mode) {
-+	case DW_10GBASER:
-+		break;
- 	case DW_AN_C73:
- 		if (test_bit(ETHTOOL_LINK_MODE_Autoneg_BIT, advertising)) {
- 			ret = xpcs_config_aneg_c73(xpcs, compat);
-@@ -998,6 +1016,9 @@ static void xpcs_get_state(struct phylink_pcs *pcs,
- 		return;
- 
- 	switch (compat->an_mode) {
-+	case DW_10GBASER:
-+		phylink_mii_c45_pcs_get_state(xpcs->mdiodev, state);
-+		break;
- 	case DW_AN_C73:
- 		ret = xpcs_get_state_c73(xpcs, state, compat);
- 		if (ret) {
-@@ -1153,6 +1174,12 @@ static const struct xpcs_compat synopsys_xpcs_compat[DW_XPCS_INTERFACE_MAX] = {
- 		.num_interfaces = ARRAY_SIZE(xpcs_xlgmii_interfaces),
- 		.an_mode = DW_AN_C73,
- 	},
-+	[DW_XPCS_10GBASER] = {
-+		.supported = xpcs_10gbaser_features,
-+		.interface = xpcs_10gbaser_interfaces,
-+		.num_interfaces = ARRAY_SIZE(xpcs_10gbaser_interfaces),
-+		.an_mode = DW_10GBASER,
-+	},
- 	[DW_XPCS_SGMII] = {
- 		.supported = xpcs_sgmii_features,
- 		.interface = xpcs_sgmii_interfaces,
-@@ -1256,6 +1283,9 @@ struct dw_xpcs *xpcs_create(struct mdio_device *mdiodev,
- 		}
- 
- 		xpcs->pcs.ops = &xpcs_phylink_ops;
-+		if (compat->an_mode == DW_10GBASER)
-+			return xpcs;
-+
- 		xpcs->pcs.poll = true;
- 
- 		ret = xpcs_soft_reset(xpcs, compat);
-diff --git a/include/linux/pcs/pcs-xpcs.h b/include/linux/pcs/pcs-xpcs.h
-index a99972a6d046..daea67b6e3c0 100644
---- a/include/linux/pcs/pcs-xpcs.h
-+++ b/include/linux/pcs/pcs-xpcs.h
-@@ -18,6 +18,7 @@
- #define DW_AN_C37_SGMII			2
- #define DW_2500BASEX			3
- #define DW_AN_C37_1000BASEX		4
-+#define DW_10GBASER			5
- 
- struct xpcs_id;
- 
+ #endif /* _TXGBE_TYPE_H_ */
 -- 
 2.27.0
 
