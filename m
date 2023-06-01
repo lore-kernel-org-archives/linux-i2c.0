@@ -2,90 +2,71 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AD54C7EE23
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Jun 2023 20:16:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50ACFC77B7E
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Jun 2023 21:31:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229691AbjFAUQM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 1 Jun 2023 16:16:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46906 "EHLO
+        id S231696AbjFAVbK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 1 Jun 2023 17:31:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229610AbjFAUQM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Jun 2023 16:16:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09F2ED1;
-        Thu,  1 Jun 2023 13:16:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9274E6494B;
-        Thu,  1 Jun 2023 20:16:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F1CC433EF;
-        Thu,  1 Jun 2023 20:16:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685650570;
-        bh=wGPqJrvnThf2mG968n+KNP3y1zAJ7zJqs9zWqYFuPsk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cVPNfgg0tmc/Hg74YF1KHv0xBe7isHo/YFggxip+dCk8ewu3DFZpETA9JK4uG/jZU
-         i8A04VJbhCzl00dhGSDlVW2O4TQmkyBSvs+HAaEylFKyddMxyVZTsP2SM6WCflMRcg
-         cG4rs6oyzLpSXrj38X7D3+8OZ3mc9DdAMHfI45TOzA411/3X6nadMDhvl56oc2osHG
-         QLvlj1piJfw1VWKZdZxiVfu8Q2kbCd/ixrWL8umSU4q+pyLpffoF+6Kr0P50flLpTT
-         3J2UleCccULReH9OmReyIpikC/4TkinQdLXclbta2W+0HjUcj0nPmhqHb+dPnCBYcV
-         0TU3n8DuGhUkQ==
-Date:   Thu, 1 Jun 2023 21:16:04 +0100
-From:   Conor Dooley <conor@kernel.org>
-To:     Daniel Golle <daniel@makrotopia.org>
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        devicetree@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Conor Dooley <conor+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Qii Wang <qii.wang@mediatek.com>,
-        Sam Shih <sam.shih@mediatek.com>,
-        =?utf-8?B?6YOt5bCP5qGl?= <joe@gainstrong.cn>
-Subject: Re: [PATCH 1/2] dt-bindings: i2c: i2c-mt65xx: add additional clocks
-Message-ID: <20230601-exception-dodgy-97f2101d8a0e@spud>
-References: <5f15212060f82fb94239174c4e4b46c151645fe8.1685549360.git.daniel@makrotopia.org>
- <12fea13e-e2c3-487f-8d2b-cfd320c98ba7@linaro.org>
- <ZHjtExYIdVFo3HnB@makrotopia.org>
+        with ESMTP id S229651AbjFAVbJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Jun 2023 17:31:09 -0400
+X-Greylist: delayed 6593 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 01 Jun 2023 14:31:08 PDT
+Received: from 6.mo560.mail-out.ovh.net (6.mo560.mail-out.ovh.net [87.98.165.38])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F3B195
+        for <linux-i2c@vger.kernel.org>; Thu,  1 Jun 2023 14:31:08 -0700 (PDT)
+Received: from director6.ghost.mail-out.ovh.net (unknown [10.109.138.56])
+        by mo560.mail-out.ovh.net (Postfix) with ESMTP id DEB0024ADB
+        for <linux-i2c@vger.kernel.org>; Thu,  1 Jun 2023 19:05:22 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-v64b8 (unknown [10.110.115.101])
+        by director6.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 0858F1FDB4;
+        Thu,  1 Jun 2023 19:05:21 +0000 (UTC)
+Received: from etezian.org ([37.59.142.98])
+        by ghost-submission-6684bf9d7b-v64b8 with ESMTPSA
+        id isruOfHreGRUAwAA/zevJg
+        (envelope-from <andi@etezian.org>); Thu, 01 Jun 2023 19:05:21 +0000
+Authentication-Results: garm.ovh; auth=pass (GARM-98R002f027b0f7-cedf-4ad2-95e8-e13eec2dbd88,
+                    AA272FFB3D993AA473C4810146CC99B0E2A08255) smtp.auth=andi@etezian.org
+X-OVh-ClientIp: 178.238.172.216
+From:   Andi Shyti <andi.shyti@kernel.org>
+To:     Wolfram Sang <wsa@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] MAINTAINERS: Add myself as I2C host drivers maintainer
+Date:   Thu,  1 Jun 2023 21:04:27 +0200
+Message-Id: <20230601190427.21388-1-andi.shyti@kernel.org>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7maM1k8I9uCkvnld"
-Content-Disposition: inline
-In-Reply-To: <ZHjtExYIdVFo3HnB@makrotopia.org>
+Content-Transfer-Encoding: 8bit
+X-Ovh-Tracer-Id: 17001651546801769179
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrfeeluddgudefvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpedtgfevudejhffgleekffekvedukeehveeijefhleektdeiheelueffvdeufeejffenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeduvdejrddtrddtrddupddujeekrddvfeekrddujedvrddvudeipdefjedrheelrddugedvrdelkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomhepoegrnhguihesvghtvgiiihgrnhdrohhrgheqpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheeitddpmhhouggvpehsmhhtphhouhht
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+I will help Wolfram out with the i2c controllers patches.
 
---7maM1k8I9uCkvnld
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+Cc: Wolfram Sang <wsa@kernel.org>
+Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-On Thu, Jun 01, 2023 at 08:10:11PM +0100, Daniel Golle wrote:
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 74aeae10a1516..668f83d514a25 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9732,6 +9732,7 @@ F:	include/uapi/linux/i2c-*.h
+ F:	include/uapi/linux/i2c.h
+ 
+ I2C SUBSYSTEM HOST DRIVERS
++M:	Andi Shyti <andi.shyti@kernel.org>
+ L:	linux-i2c@vger.kernel.org
+ S:	Odd Fixes
+ W:	https://i2c.wiki.kernel.org/
+-- 
+2.40.1
 
-> Adding the clocks is done in patch 2/2 which just wasn't sent to
-> devicetree@ and dt maintainers, but to the relevant mailing lists
-> instead. Was that wrong and should I always send the complete series
-> also to devicetree@ as well as dt maintainers?
-
-Everyone is different, but getting both patches of a 2 patch series
-really should not annoy anyone and avoiding reviewers having to go
-hunting on lore etc is always a positive :)
-
---7maM1k8I9uCkvnld
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZHj8hAAKCRB4tDGHoIJi
-0gCxAPwJluO3r1kS32M0uweKJEPBXY4qvnAqMUrRvS0VRe6FegEAwEfuZCOXUdWI
-wW51d5BeoLvyIEciuumYzFvE7tKmtg4=
-=5SNU
------END PGP SIGNATURE-----
-
---7maM1k8I9uCkvnld--
