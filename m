@@ -2,115 +2,78 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4573C77B7A
-	for <linux-i2c@archiver.kernel.org>; Thu,  1 Jun 2023 17:17:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF7ECC77B7A
+	for <linux-i2c@archiver.kernel.org>; Thu,  1 Jun 2023 19:10:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232736AbjFARRb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 1 Jun 2023 13:17:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54540 "EHLO
+        id S231232AbjFATK0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 1 Jun 2023 15:10:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232670AbjFARRX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Jun 2023 13:17:23 -0400
-Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F0BFCD1;
-        Thu,  1 Jun 2023 10:17:17 -0700 (PDT)
-X-IronPort-AV: E=Sophos;i="6.00,210,1681138800"; 
-   d="scan'208";a="165365583"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie6.idc.renesas.com with ESMTP; 02 Jun 2023 02:17:17 +0900
-Received: from localhost.localdomain (unknown [10.226.93.19])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id A99954001DDC;
-        Fri,  2 Jun 2023 02:17:14 +0900 (JST)
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Wolfram Sang <wsa@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>, linux-i2c@vger.kernel.org,
-        linux-rtc@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v2] i2c: Add i2c_get_match_data()
-Date:   Thu,  1 Jun 2023 18:17:11 +0100
-Message-Id: <20230601171711.221430-1-biju.das.jz@bp.renesas.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229651AbjFATKZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Jun 2023 15:10:25 -0400
+Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DF7213E;
+        Thu,  1 Jun 2023 12:10:24 -0700 (PDT)
+Received: from local
+        by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256)
+         (Exim 4.96)
+        (envelope-from <daniel@makrotopia.org>)
+        id 1q4ngi-0007iO-06;
+        Thu, 01 Jun 2023 19:10:20 +0000
+Date:   Thu, 1 Jun 2023 20:10:11 +0100
+From:   Daniel Golle <daniel@makrotopia.org>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     devicetree@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Conor Dooley <conor+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Qii Wang <qii.wang@mediatek.com>,
+        Sam Shih <sam.shih@mediatek.com>,
+        =?utf-8?B?6YOt5bCP5qGl?= <joe@gainstrong.cn>
+Subject: Re: [PATCH 1/2] dt-bindings: i2c: i2c-mt65xx: add additional clocks
+Message-ID: <ZHjtExYIdVFo3HnB@makrotopia.org>
+References: <5f15212060f82fb94239174c4e4b46c151645fe8.1685549360.git.daniel@makrotopia.org>
+ <12fea13e-e2c3-487f-8d2b-cfd320c98ba7@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12fea13e-e2c3-487f-8d2b-cfd320c98ba7@linaro.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add i2c_get_match_data() similar to of_device_get_match_data(),
-so that we can optimize the driver code that uses both I2C and
-DT-based matching.
+On Thu, Jun 01, 2023 at 06:54:01PM +0200, Krzysztof Kozlowski wrote:
+> On 31/05/2023 18:10, Daniel Golle wrote:
+> > Add pck and mck clocks which are needed to access I2C registers on MT7981.
+> > 
+> > Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+> > index fda0467cdd954..550795f6573c5 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-mt65xx.yaml
+> > @@ -78,6 +78,8 @@ properties:
+> >        - const: dma
+> >        - const: arb
+> >        - const: pmic
+> > +      - const: mck
+> > +      - const: pck
+> >  
+> 
+> Adding names does not magically add the clocks. This wasn't tested.
 
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
----
-v1->v2:
- * Dropped parameter const struct i2c_device_id *id and the helper function.
+Adding the clocks is done in patch 2/2 which just wasn't sent to
+devicetree@ and dt maintainers, but to the relevant mailing lists
+instead. Was that wrong and should I always send the complete series
+also to devicetree@ as well as dt maintainers?
 
-eg: The RTC pcf85063/isl1208 driver code can be optimized with this patch.
--       if (client->dev.of_node) {
-+       if (client->dev.of_node)
-                config = of_device_get_match_data(&client->dev);
--               if (!config)
--                       return -ENODEV;
--       } else {
--               enum pcf85063_type type =
--                       i2c_match_id(pcf85063_ids, client)->driver_data;
--               if (type >= PCF85063_LAST_ID)
--                       return -ENODEV;
--               config = &pcf85063_cfg[type];
--       }
-+       else
-+               config = i2c_get_match_data(client);
-+
-+       if (!config)
-+               return -ENODEV;
----
- drivers/i2c/i2c-core-base.c | 14 ++++++++++++++
- include/linux/i2c.h         |  2 ++
- 2 files changed, 16 insertions(+)
-
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index ae3af738b03f..8576a1647785 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -114,6 +114,20 @@ const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- }
- EXPORT_SYMBOL_GPL(i2c_match_id);
- 
-+const void *i2c_get_match_data(const struct i2c_client *client)
-+{
-+	struct device_driver *drv = client->dev.driver;
-+	struct i2c_driver *driver = to_i2c_driver(drv);
-+	const struct i2c_device_id *match;
-+
-+	match = i2c_match_id(driver->id_table, client);
-+	if (!match)
-+		return NULL;
-+
-+	return (const void *)match->driver_data;
-+}
-+EXPORT_SYMBOL(i2c_get_match_data);
-+
- static int i2c_device_match(struct device *dev, struct device_driver *drv)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 13a1ce38cb0c..3430cc2b05a6 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -367,6 +367,8 @@ struct i2c_adapter *i2c_verify_adapter(struct device *dev);
- const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- 					 const struct i2c_client *client);
- 
-+const void *i2c_get_match_data(const struct i2c_client *client);
-+
- static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
- {
- 	struct device * const dev = kobj_to_dev(kobj);
--- 
-2.25.1
-
+Anyway. It turns out that arb and pmic clocks are intended for that,
+so we can cancel this and I'll just use those instead.
