@@ -2,93 +2,63 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 256B5C77B7A
-	for <linux-i2c@archiver.kernel.org>; Sat,  3 Jun 2023 09:24:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CA96C7EE2F
+	for <linux-i2c@archiver.kernel.org>; Sat,  3 Jun 2023 09:35:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229564AbjFCJYV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 3 Jun 2023 05:24:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40620 "EHLO
+        id S231894AbjFCJfC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 3 Jun 2023 05:35:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229953AbjFCJYT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 3 Jun 2023 05:24:19 -0400
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56ED61BB
-        for <linux-i2c@vger.kernel.org>; Sat,  3 Jun 2023 02:24:16 -0700 (PDT)
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:b231:465::1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4QYDvm2fFWz9slZ;
-        Sat,  3 Jun 2023 11:24:04 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mariushoch.de;
-        s=MBO0001; t=1685784244;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=aADV6nIiUjR0huya2Ol/0S4K/JZhwz+gBUzva5zIcEc=;
-        b=yNdLROCwlPnHukENeuWwHWkVNrtDU5JQa1kQyT/FVpBrPxbcrXn0uxCJKgAhSCxUt+r2Cv
-        R2fdhnAQhKSk5keqaDMy130UK0Btx8FAJIhhpZ5Y7J2NwkZnFvEwiK+qPJWZA0YmktG9tL
-        ldMH8ckEli2eudkePwVMOCEbaP9eDSP4251OkiHtQdGY+r1sUiqNPRflxUX7UcCvSCGFjB
-        U2h2TjYCgGW8iX4/7mDRAdtjXN4GHnR8P+S9FFmeDwKn5DHH6f1PNgtGRxUA/Tujy8wcbw
-        RcxYkYZGBKcggFhKCDyIa7p+Lj0U2WSrHyeSbmZXSqzqS+3RnW+dVc29x6zPvw==
-Message-ID: <59a6a917-2a93-d52d-37f3-091295dd0db4@mariushoch.de>
-Date:   Sat, 3 Jun 2023 11:24:02 +0200
+        with ESMTP id S230122AbjFCJez (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 3 Jun 2023 05:34:55 -0400
+X-Greylist: delayed 88736 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 03 Jun 2023 02:34:52 PDT
+Received: from mail.webtopbits.pl (mail.webtopbits.pl [195.231.64.176])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6FBE51
+        for <linux-i2c@vger.kernel.org>; Sat,  3 Jun 2023 02:34:52 -0700 (PDT)
+Received: by mail.webtopbits.pl (Postfix, from userid 1001)
+        id A86B4A397F; Fri,  2 Jun 2023 09:55:48 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=webtopbits.pl;
+        s=mail; t=1685696154;
+        bh=Eh8ECMiYd4baGAwPAzhz8mhJACXX7NSRkYjh+plaY18=;
+        h=Date:From:To:Subject:From;
+        b=X1jguEqeJF3or/HYgNClNee7ebd7t8/QrcNBGG7+3b3Z+6G3uoS9DEpUSDeEsGjZR
+         QpTCqGui8YEUsQw2YCWsSBRSwXfQyIze6PUQr8XWtjE0nXtniZW/PmCw32mZWZLUDA
+         8or4y3bvWVzIigA0qIm9f1D9cF/go49Yh/5P4zcVCeWOwLLausu0EudEwgIKt9Oxg4
+         s/i5Ga7PO01FB5w3R/urHjQZ1KnJ/D6v3ufM+WsqZFXLG5k4m2dvs2S+kN72O1OLRz
+         aTYWJDvwKVsiGpIUWIZH4Wa55YBVBdxNmjwhbDPTwCFJWuJJ+66mMG5O26Mkgtv2Me
+         /QScQBKAcyvVw==
+Received: by mail.webtopbits.pl for <linux-i2c@vger.kernel.org>; Fri,  2 Jun 2023 08:55:46 GMT
+Message-ID: <20230602085530-0.1.8w.5kzg.0.8ecyhzkqh4@webtopbits.pl>
+Date:   Fri,  2 Jun 2023 08:55:46 GMT
+From:   "Kamil Durjasz" <kamil.durjasz@webtopbits.pl>
+To:     <linux-i2c@vger.kernel.org>
+Subject: =?UTF-8?Q?Wy=C5=BCsza_konwersja_w_e-sklepie_?=
+X-Mailer: mail.webtopbits.pl
 MIME-Version: 1.0
-Subject: Re: [PATCH 0/2] i2c: i801: Force no IRQ for Dell Latitude E7450
-To:     Jean Delvare <jdelvare@suse.de>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230514103634.235917-1-mail@mariushoch.de>
- <20230523200350.62ab4788@endymion.delvare>
-Content-Language: en-US
-From:   Marius Hoch <mail@mariushoch.de>
-In-Reply-To: <20230523200350.62ab4788@endymion.delvare>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: 4QYDvm2fFWz9slZ
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+Dzie=C5=84 dobry,
 
-thank you for the reply!
+w jaki spos=C3=B3b docieraj=C4=85 Pa=C5=84stwo do odbiorc=C3=B3w?
 
-On 23/05/2023 20:03, Jean Delvare wrote:
-> Hi Marius,
->
-> On Sun, 14 May 2023 12:36:32 +0200, Marius Hoch wrote:
->> The Dell Latitude E7450 uses IRQ 18 for the accelerometer,
->> but also claims that the SMBus uses IRQ 18. This will
->> result in:
->>
->> i801_smbus 0000:00:1f.3: PCI INT C: failed to register GSI
->> i801_smbus 0000:00:1f.3: Failed to enable SMBus PCI device (-16)
->> i801_smbus: probe of 0000:00:1f.3 failed with error -16
-> The i2c-i801 driver supports shared IRQ. If this fails, this means that
-> the other driver is not passing IRQF_SHARED when registering the
-> interrupt. Which driver is this? I'd rather check whether sharing the
-> IRQ is possible, rather that falling back to polling, which has a
-> performance cost.
-I don't think this is a conflict rather than a completely bogus entry: 
-smo8800 uses IRQ 18 (the freefall sensor).
+Tworzymy pot=C4=99=C5=BCne narz=C4=99dzia sprzeda=C5=BCy, kt=C3=B3re pozw=
+alaj=C4=85 kompleksowo rozwi=C4=85za=C4=87 problemy potencjalnych klient=C3=
+=B3w i skutecznie wp=C5=82yn=C4=85=C4=87 na ich decyzje zakupowe.=20
 
-For the SMBus in acpi_pci_irq_enable, acpi_register_gsi fails for GSI 18 
-with IRQ 255 (dev->irq), independently from the presence of the 
-dell_smo8800 module.
+Skupiamy si=C4=99 na Pa=C5=84stwa potrzebach zwi=C4=85zanych z obs=C5=82u=
+g=C4=85 sklepu, oczekiwaniach i planach sprzeda=C5=BCowych. Szczeg=C3=B3=C5=
+=82owo dopasowujemy grafik=C4=99, funkcjonalno=C5=9Bci, struktur=C4=99 i =
+mikrointerakcje do Pa=C5=84stwa grupy docelowej, co przek=C5=82ada si=C4=99=
+ na oczekiwane rezultaty.
 
-Now looking into this again, seeing dev->irq at 255 seems very 
-suspicious here? Doesn't that mean not connected (although I'm not sure 
-how this relates to it supposedly having GSI 18)?
->
->> Force the SMBus IRQ to IRQ_NOTCONNECTED in this case, so that
->> we fall back to polling, which also seems to be what the (very
->> dated) Windows 7 drivers on the Dell Latitude E7450 do.
-> What makes you think so?
->
-According to the Windows 7 device manager IRQ view, the SMBus has no IRQ 
-assigned, which I assumed implies that polling is used. If there is 
-another way to check this on Windows 7, please let me know.
+Ch=C4=99tnie przedstawi=C4=99 dotychczasowe realizacje, aby mogli Pa=C5=84=
+stwo przekona=C4=87 si=C4=99 o naszych mo=C5=BCliwo=C5=9Bciach. Mog=C4=99=
+ si=C4=99 skontaktowa=C4=87?
 
-Cheers,
-Marius
+
+Pozdrawiam
+Kamil Durjasz
