@@ -2,46 +2,42 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95622C7EE2C
-	for <linux-i2c@archiver.kernel.org>; Mon,  5 Jun 2023 02:55:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54284C7EE2E
+	for <linux-i2c@archiver.kernel.org>; Mon,  5 Jun 2023 02:56:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232559AbjFECz6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 4 Jun 2023 22:55:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57052 "EHLO
+        id S232642AbjFEC4D (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 4 Jun 2023 22:56:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229886AbjFECz5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 4 Jun 2023 22:55:57 -0400
+        with ESMTP id S232592AbjFEC4B (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 4 Jun 2023 22:56:01 -0400
 Received: from smtpbg150.qq.com (smtpbg150.qq.com [18.132.163.193])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3538BD;
-        Sun,  4 Jun 2023 19:55:53 -0700 (PDT)
-X-QQ-mid: bizesmtp91t1685933695tfksiyad
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B94CC;
+        Sun,  4 Jun 2023 19:55:57 -0700 (PDT)
+X-QQ-mid: bizesmtp91t1685933675tpz2hoo1
 Received: from wxdbg.localdomain.com ( [60.177.99.31])
         by bizesmtp.qq.com (ESMTP) with 
-        id ; Mon, 05 Jun 2023 10:54:54 +0800 (CST)
+        id ; Mon, 05 Jun 2023 10:54:05 +0800 (CST)
 X-QQ-SSF: 01400000000000J0Z000000A0000000
-X-QQ-FEAT: +oIWmpEafD+EoQuwUxqJHSBUu6MT8p0DeRKj/ZYSPR4P6l+hNyNdFJ6gEmsC9
-        mfjYbiPRdjEF9eq2x48BTGkFG4667EQ9VXyws8CuhdJ0YiBe9Irug1U7XJ6jS73FR0tU9bR
-        T4SYGSTd8A0wOC9TJ1Bb6m1/PUM5T1WSgsKCjiIOmyntUTJlwkJ0TzlJprnUsWE7OeNuBYf
-        6wvcATw/MZ6LGo3fyPvmCydqUNOTwbWw6ZxRcylO72/Mz/ELO4jMQn8UYBwhFamVd/RJlND
-        ZTkeeh5PaHaF02H3BKi08QT39691uRLbpCt4hdaBtZ2w+jGzNOT1iSCkaVKI9t6pMImf6Pm
-        uDA/C3Ca5vL3GOVQ04k7BmHcucX0LzQb2spN/REBjCNg0BhoHFcmlVZvWPkChbOdSeYyvxe
-        2UmveB4fJQA5P5vBcGHfsg==
+X-QQ-FEAT: yFznwLkTCH73VW1diemjRB3wyxTs1/ja/AmPfHGZ3Inh5KzjSEJ+biJgslv/i
+        yFGijYeX86GdcQW9zMv8Y5DhIpS0FTFwD+GlMNUjLvSmg8/xfZl83CbQv4hNNeYV6yQ97pA
+        4VcDyL1g/PQN8oxe8CoomQf/P4ESmZBGYqRXBvGEy3nRH2FLit2MY3EIAh7Ss0e7zC8VCjR
+        gWkzKNrQxBnWfJh1AnKne80cvrcldicqrBeLmeRoUqSojjBdA8hA9CNTOuxd62HXwO0OpPj
+        pvji1AOqG5BBPYeep330WlXXtU+45oqvTHtVkQKMTLaLmGOmSqV1SHeYKZC8avOl3TJXP4e
+        tIKVsu8gBDOMFBjvNKqXISGXil0SClzY6eL7tMKMgKLgufFMzPUfZAUK2AJRw==
 X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 7898461126754656827
+X-BIZMAIL-ID: 7585106368754598496
 From:   Jiawen Wu <jiawenwu@trustnetic.com>
 To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
         jsd@semihalf.com, Jose.Abreu@synopsys.com, andrew@lunn.ch,
         hkallweit1@gmail.com, linux@armlinux.org.uk
 Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>,
-        Piotr Raczynski <piotr.raczynski@intel.com>
-Subject: [PATCH net-next v11 5/9] net: txgbe: Add SFP module identify
-Date:   Mon,  5 Jun 2023 10:52:07 +0800
-Message-Id: <20230605025211.743823-6-jiawenwu@trustnetic.com>
+        mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>
+Subject: [PATCH net-next v11 0/9] TXGBE PHYLINK support
+Date:   Mon,  5 Jun 2023 10:52:02 +0800
+Message-Id: <20230605025211.743823-1-jiawenwu@trustnetic.com>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20230605025211.743823-1-jiawenwu@trustnetic.com>
-References: <20230605025211.743823-1-jiawenwu@trustnetic.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
@@ -50,98 +46,110 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Register SFP platform device to get modules information.
+Implement I2C, SFP, GPIO and PHYLINK to setup TXGBE link.
 
-Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
----
- drivers/net/ethernet/wangxun/Kconfig          |  3 ++
- .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 28 +++++++++++++++++++
- .../net/ethernet/wangxun/txgbe/txgbe_type.h   |  1 +
- 3 files changed, 32 insertions(+)
+Because our I2C and PCS are based on Synopsys Designware IP-core, extend
+the i2c-designware and pcs-xpcs driver to realize our functions.
 
-diff --git a/drivers/net/ethernet/wangxun/Kconfig b/drivers/net/ethernet/wangxun/Kconfig
-index 128cc1cb0605..59f3a3f492cf 100644
---- a/drivers/net/ethernet/wangxun/Kconfig
-+++ b/drivers/net/ethernet/wangxun/Kconfig
-@@ -44,6 +44,9 @@ config TXGBE
- 	select REGMAP
- 	select I2C
- 	select I2C_DESIGNWARE_PLATFORM
-+	select PHYLINK
-+	select HWMON if TXGBE=y
-+	select SFP
- 	select LIBWX
- 	help
- 	  This driver supports Wangxun(R) 10GbE PCI Express family of
-diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-index 24a729150e08..d95dc131e91b 100644
---- a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-+++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
-@@ -158,6 +158,25 @@ static int txgbe_i2c_register(struct txgbe *txgbe)
- 	return 0;
- }
- 
-+static int txgbe_sfp_register(struct txgbe *txgbe)
-+{
-+	struct pci_dev *pdev = txgbe->wx->pdev;
-+	struct platform_device_info info = {};
-+	struct platform_device *sfp_dev;
-+
-+	info.parent = &pdev->dev;
-+	info.fwnode = software_node_fwnode(txgbe->nodes.group[SWNODE_SFP]);
-+	info.name = "sfp";
-+	info.id = (pdev->bus->number << 8) | pdev->devfn;
-+	sfp_dev = platform_device_register_full(&info);
-+	if (IS_ERR(sfp_dev))
-+		return PTR_ERR(sfp_dev);
-+
-+	txgbe->sfp_dev = sfp_dev;
-+
-+	return 0;
-+}
-+
- int txgbe_init_phy(struct txgbe *txgbe)
- {
- 	int ret;
-@@ -180,8 +199,16 @@ int txgbe_init_phy(struct txgbe *txgbe)
- 		goto err_unregister_clk;
- 	}
- 
-+	ret = txgbe_sfp_register(txgbe);
-+	if (ret) {
-+		wx_err(txgbe->wx, "failed to register sfp\n");
-+		goto err_unregister_i2c;
-+	}
-+
- 	return 0;
- 
-+err_unregister_i2c:
-+	platform_device_unregister(txgbe->i2c_dev);
- err_unregister_clk:
- 	clkdev_drop(txgbe->clock);
- 	clk_unregister(txgbe->clk);
-@@ -193,6 +220,7 @@ int txgbe_init_phy(struct txgbe *txgbe)
- 
- void txgbe_remove_phy(struct txgbe *txgbe)
- {
-+	platform_device_unregister(txgbe->sfp_dev);
- 	platform_device_unregister(txgbe->i2c_dev);
- 	clkdev_drop(txgbe->clock);
- 	clk_unregister(txgbe->clk);
-diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-index 6e471a4d68cc..f420e2569247 100644
---- a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-+++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
-@@ -150,6 +150,7 @@ struct txgbe_nodes {
- struct txgbe {
- 	struct wx *wx;
- 	struct txgbe_nodes nodes;
-+	struct platform_device *sfp_dev;
- 	struct platform_device *i2c_dev;
- 	struct clk_lookup *clock;
- 	struct clk *clk;
+v10 -> v11:
+- add gc->label NULL check
+- rebase on merging of wangxun patches
+
+v9 -> v10:
+- clear I2C device model flags
+- change the order of header files
+- use xpcs_create_mdiodev()
+- fix Kconfig warning
+
+v8 -> v9:
+- rename swnode property for specific I2C platform device
+- add ".fast_io = true" for I2C regmap
+- use raw_spinlock_t for GPIO reg lock and adjust its position
+- remove redundant txgbe->mdiodev
+- keep reverse x-mass tree order
+- other minor style changes
+
+v7 -> v8:
+- use macro defined I2C FIFO depth instead of magic number
+- fix return code of clock create failure
+- add spinlock for writing GPIO registers
+- implement triggering GPIO interrupts for both-edge type
+- remove the condition that enables interrupts
+- add mii bus check for PCS device
+- other minor style changes
+
+v6 -> v7:
+- change swnode property of I2C platform to be boolean
+- use device_property_present() to match I2C device data
+
+v5 -> v6:
+- fix to set error code if pointer of txgbe is NULL
+- change "if" to "switch" for *_i2c_dw_xfer_quirk()
+- rename property for I2C device flag
+- use regmap to access I2C mem region
+- use DEFINE_RES_IRQ()
+- use phylink_mii_c45_pcs_get_state() for DW_XPCS_10GBASER
+
+v4 -> v5:
+- add clock register
+- delete i2c-dw.h with platform data
+- introduce property "i2c-dw-flags" to match device flags
+- get resource from platform info to do ioremap
+- rename quirk functions in i2c-designware-*.c
+- fix calling txgbe_phylink_init()
+
+v3 -> v4:
+- modify I2C transfer to be generic implementation
+- avoid to read DW_IC_COMP_PARAM_1
+- remove redundant "if" statement
+- add specific labels to handle error in txgbe_init_phy(), and remove
+  "if" conditions in txgbe_remove_phy()
+
+v2 -> v3:
+- delete own I2C bus master driver, support it in i2c-designware
+- delete own PCS functions, remove pma configuration and 1000BASE-X mode
+- add basic function for 10GBASE-R interface in pcs-xpcs
+- add helper to get txgbe pointer from netdev
+
+v1 -> v2:
+- add comments to indicate GPIO lines
+- add I2C write operation support
+- modify GPIO direction functions
+- rename functions related to PHY interface
+- add condition on interface changing to re-config PCS
+- add to set advertise and fix to get status for 1000BASE-X mode
+- other redundant codes remove
+
+Jiawen Wu (9):
+  net: txgbe: Add software nodes to support phylink
+  i2c: designware: Add driver support for Wangxun 10Gb NIC
+  net: txgbe: Register fixed rate clock
+  net: txgbe: Register I2C platform device
+  net: txgbe: Add SFP module identify
+  net: txgbe: Support GPIO to SFP socket
+  net: pcs: Add 10GBASE-R mode for Synopsys Designware XPCS
+  net: txgbe: Implement phylink pcs
+  net: txgbe: Support phylink MAC layer
+
+ drivers/i2c/busses/i2c-designware-common.c    |   8 +
+ drivers/i2c/busses/i2c-designware-core.h      |   4 +
+ drivers/i2c/busses/i2c-designware-master.c    |  89 ++-
+ drivers/i2c/busses/i2c-designware-platdrv.c   |  15 +
+ drivers/net/ethernet/wangxun/Kconfig          |  10 +
+ drivers/net/ethernet/wangxun/libwx/wx_lib.c   |   3 +-
+ drivers/net/ethernet/wangxun/libwx/wx_type.h  |   4 +
+ drivers/net/ethernet/wangxun/txgbe/Makefile   |   1 +
+ .../ethernet/wangxun/txgbe/txgbe_ethtool.c    |  28 +
+ .../net/ethernet/wangxun/txgbe/txgbe_main.c   |  65 +-
+ .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 673 ++++++++++++++++++
+ .../net/ethernet/wangxun/txgbe/txgbe_phy.h    |  10 +
+ .../net/ethernet/wangxun/txgbe/txgbe_type.h   |  89 +++
+ drivers/net/pcs/pcs-xpcs.c                    |  30 +
+ include/linux/pcs/pcs-xpcs.h                  |   1 +
+ 15 files changed, 992 insertions(+), 38 deletions(-)
+ create mode 100644 drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+ create mode 100644 drivers/net/ethernet/wangxun/txgbe/txgbe_phy.h
+
 -- 
 2.27.0
 
