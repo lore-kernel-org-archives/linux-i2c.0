@@ -2,166 +2,111 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD356C7EE2C
-	for <linux-i2c@archiver.kernel.org>; Mon,  5 Jun 2023 02:56:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2E44C7EE24
+	for <linux-i2c@archiver.kernel.org>; Mon,  5 Jun 2023 07:03:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231737AbjFEC4h (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 4 Jun 2023 22:56:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57604 "EHLO
+        id S230282AbjFEHDb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 5 Jun 2023 03:03:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230437AbjFEC4g (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 4 Jun 2023 22:56:36 -0400
-Received: from smtpbgeu2.qq.com (smtpbgeu2.qq.com [18.194.254.142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DC8410A;
-        Sun,  4 Jun 2023 19:56:18 -0700 (PDT)
-X-QQ-mid: bizesmtp91t1685933704torb6egz
-Received: from wxdbg.localdomain.com ( [60.177.99.31])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Mon, 05 Jun 2023 10:55:02 +0800 (CST)
-X-QQ-SSF: 01400000000000J0Z000000A0000000
-X-QQ-FEAT: q+EIYT+FhZqRa8qhMBdSunMATqxn4lntSQ8wURsW2o8KdYF55X4HS+sheqzr4
-        i9qpbqHV/ibjv954hN8CnUk5aDP2XpT3kc2Qyx0Ig9RiWEANRedM0icRoFHdCiB5lXbVwfX
-        oNtBFHrG24qGSmjV9OSc2zjJU4yhU7cx726ZxorVeKFJQyxXhi9WTpfO1CDWN2kq7QbiFoP
-        RybHY2cSNnrEh3uJMn665kr11UMLU5BOf0rzony68RhI26D99ki7qITMIvgOxhF375I7md6
-        h0QP0MzmktkXQRUH5nc9nZ/0+PGSAFeVtj7a0t1mgWt0Z+wvB72C1dfaD60VFPCrQEX7wb/
-        kmMx8FYLbcBjjkX3Yv2KBQXSQVKoni3GEhzCZ85QE3D8Pz1GFvWU2bzXP6vRYa2TFwLVjuo
-        adDoAdTZAp0=
-X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 6366450031249175887
-From:   Jiawen Wu <jiawenwu@trustnetic.com>
-To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
+        with ESMTP id S230291AbjFEHDF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 5 Jun 2023 03:03:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C6191706;
+        Mon,  5 Jun 2023 00:02:26 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B92C861F9E;
+        Mon,  5 Jun 2023 07:02:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F522C433EF;
+        Mon,  5 Jun 2023 07:02:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685948524;
+        bh=UY3nLgx5ktjqstws5tU2oB1vOZhXh6L50Bolq73FYzo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=NjQVjTBw6Rf8UlLW8WTLW3bXDKiDFhS2c9HwJmdPwNLS/oTlipVqQu7dnj7tnt8tF
+         Q13nE97Xf7UFskZt0KEZaUBYbolmeQVMkRgUEf7oisbmZf1nL4mbUPkSbXiTQZnrtI
+         iZGuWovK6+7d6zqJD1q4TargREutBqctvZ6nKX6GwPuULvATlI++pclzsYMOMsme/r
+         NDaWIRUYekDHCMF2RxSJVQgV1UetbNyQLdBVhgWU3ctuhmOMJfCZWMk8/VEKiz8Ct2
+         fyhlxqo89DZ/o6JQnN/n9WekduA3xGjoam4meOUL+Eb7haV7WwH5EQ5tKTX7BwxxIe
+         d82v55d1BB35Q==
+Date:   Mon, 5 Jun 2023 09:02:00 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Jiawen Wu <jiawenwu@trustnetic.com>
+Cc:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
         andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
         jsd@semihalf.com, Jose.Abreu@synopsys.com, andrew@lunn.ch,
-        hkallweit1@gmail.com, linux@armlinux.org.uk
-Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>
-Subject: [PATCH net-next v11 7/9] net: pcs: Add 10GBASE-R mode for Synopsys Designware XPCS
-Date:   Mon,  5 Jun 2023 10:52:09 +0800
-Message-Id: <20230605025211.743823-8-jiawenwu@trustnetic.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20230605025211.743823-1-jiawenwu@trustnetic.com>
+        hkallweit1@gmail.com, linux@armlinux.org.uk,
+        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+        mengyuanlou@net-swift.com,
+        Piotr Raczynski <piotr.raczynski@intel.com>
+Subject: Re: [PATCH net-next v11 2/9] i2c: designware: Add driver support for
+ Wangxun 10Gb NIC
+Message-ID: <ZH2IaM86ei2gQkfA@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Jiawen Wu <jiawenwu@trustnetic.com>, netdev@vger.kernel.org,
+        jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, jsd@semihalf.com,
+        Jose.Abreu@synopsys.com, andrew@lunn.ch, hkallweit1@gmail.com,
+        linux@armlinux.org.uk, linux-i2c@vger.kernel.org,
+        linux-gpio@vger.kernel.org, mengyuanlou@net-swift.com,
+        Piotr Raczynski <piotr.raczynski@intel.com>
 References: <20230605025211.743823-1-jiawenwu@trustnetic.com>
+ <20230605025211.743823-3-jiawenwu@trustnetic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:trustnetic.com:qybglogicsvrgz:qybglogicsvrgz5a-1
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="C7Kg18qcwmutGUSx"
+Content-Disposition: inline
+In-Reply-To: <20230605025211.743823-3-jiawenwu@trustnetic.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add basic support for XPCS using 10GBASE-R interface. This mode will
-be extended to use interrupt, so set pcs.poll false. And avoid soft
-reset so that the device using this mode is in the default configuration.
 
-Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
----
- drivers/net/pcs/pcs-xpcs.c   | 30 ++++++++++++++++++++++++++++++
- include/linux/pcs/pcs-xpcs.h |  1 +
- 2 files changed, 31 insertions(+)
+--C7Kg18qcwmutGUSx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/net/pcs/pcs-xpcs.c b/drivers/net/pcs/pcs-xpcs.c
-index 1ba214429e01..b2ef5fdce3b0 100644
---- a/drivers/net/pcs/pcs-xpcs.c
-+++ b/drivers/net/pcs/pcs-xpcs.c
-@@ -64,6 +64,16 @@ static const int xpcs_xlgmii_features[] = {
- 	__ETHTOOL_LINK_MODE_MASK_NBITS,
- };
- 
-+static const int xpcs_10gbaser_features[] = {
-+	ETHTOOL_LINK_MODE_Pause_BIT,
-+	ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-+	ETHTOOL_LINK_MODE_10000baseSR_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseLR_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseLRM_Full_BIT,
-+	ETHTOOL_LINK_MODE_10000baseER_Full_BIT,
-+	__ETHTOOL_LINK_MODE_MASK_NBITS,
-+};
-+
- static const int xpcs_sgmii_features[] = {
- 	ETHTOOL_LINK_MODE_Pause_BIT,
- 	ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-@@ -106,6 +116,10 @@ static const phy_interface_t xpcs_xlgmii_interfaces[] = {
- 	PHY_INTERFACE_MODE_XLGMII,
- };
- 
-+static const phy_interface_t xpcs_10gbaser_interfaces[] = {
-+	PHY_INTERFACE_MODE_10GBASER,
-+};
-+
- static const phy_interface_t xpcs_sgmii_interfaces[] = {
- 	PHY_INTERFACE_MODE_SGMII,
- };
-@@ -123,6 +137,7 @@ enum {
- 	DW_XPCS_USXGMII,
- 	DW_XPCS_10GKR,
- 	DW_XPCS_XLGMII,
-+	DW_XPCS_10GBASER,
- 	DW_XPCS_SGMII,
- 	DW_XPCS_1000BASEX,
- 	DW_XPCS_2500BASEX,
-@@ -246,6 +261,7 @@ static int xpcs_soft_reset(struct dw_xpcs *xpcs,
- 
- 	switch (compat->an_mode) {
- 	case DW_AN_C73:
-+	case DW_10GBASER:
- 		dev = MDIO_MMD_PCS;
- 		break;
- 	case DW_AN_C37_SGMII:
-@@ -802,6 +818,8 @@ int xpcs_do_config(struct dw_xpcs *xpcs, phy_interface_t interface,
- 		return -ENODEV;
- 
- 	switch (compat->an_mode) {
-+	case DW_10GBASER:
-+		break;
- 	case DW_AN_C73:
- 		if (test_bit(ETHTOOL_LINK_MODE_Autoneg_BIT, advertising)) {
- 			ret = xpcs_config_aneg_c73(xpcs, compat);
-@@ -998,6 +1016,9 @@ static void xpcs_get_state(struct phylink_pcs *pcs,
- 		return;
- 
- 	switch (compat->an_mode) {
-+	case DW_10GBASER:
-+		phylink_mii_c45_pcs_get_state(xpcs->mdiodev, state);
-+		break;
- 	case DW_AN_C73:
- 		ret = xpcs_get_state_c73(xpcs, state, compat);
- 		if (ret) {
-@@ -1153,6 +1174,12 @@ static const struct xpcs_compat synopsys_xpcs_compat[DW_XPCS_INTERFACE_MAX] = {
- 		.num_interfaces = ARRAY_SIZE(xpcs_xlgmii_interfaces),
- 		.an_mode = DW_AN_C73,
- 	},
-+	[DW_XPCS_10GBASER] = {
-+		.supported = xpcs_10gbaser_features,
-+		.interface = xpcs_10gbaser_interfaces,
-+		.num_interfaces = ARRAY_SIZE(xpcs_10gbaser_interfaces),
-+		.an_mode = DW_10GBASER,
-+	},
- 	[DW_XPCS_SGMII] = {
- 		.supported = xpcs_sgmii_features,
- 		.interface = xpcs_sgmii_interfaces,
-@@ -1256,6 +1283,9 @@ struct dw_xpcs *xpcs_create(struct mdio_device *mdiodev,
- 		}
- 
- 		xpcs->pcs.ops = &xpcs_phylink_ops;
-+		if (compat->an_mode == DW_10GBASER)
-+			return xpcs;
-+
- 		xpcs->pcs.poll = true;
- 
- 		ret = xpcs_soft_reset(xpcs, compat);
-diff --git a/include/linux/pcs/pcs-xpcs.h b/include/linux/pcs/pcs-xpcs.h
-index a99972a6d046..daea67b6e3c0 100644
---- a/include/linux/pcs/pcs-xpcs.h
-+++ b/include/linux/pcs/pcs-xpcs.h
-@@ -18,6 +18,7 @@
- #define DW_AN_C37_SGMII			2
- #define DW_2500BASEX			3
- #define DW_AN_C37_1000BASEX		4
-+#define DW_10GBASER			5
- 
- struct xpcs_id;
- 
--- 
-2.27.0
+Hi,
 
+On Mon, Jun 05, 2023 at 10:52:04AM +0800, Jiawen Wu wrote:
+> Wangxun 10Gb ethernet chip is connected to Designware I2C, to communicate
+> with SFP.
+>=20
+> Introduce the property "wx,i2c-snps-model" to match device data for Wangx=
+un
+
+Does this not need some binding documentation somewhere?
+
+> in software node case. Since IO resource was mapped on the ethernet drive=
+r,
+> add a model quirk to get regmap from parent device.
+
+All the best,
+
+   Wolfram
+
+
+--C7Kg18qcwmutGUSx
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmR9iGUACgkQFA3kzBSg
+KbbYrQ/9FEyXD3uaVkL6TjkfZKbPWVKFYOJxtDnXR8jyBwK1G41bCdSggGp7ShSF
+tcF1YqIbZmDRiElwRDWgeYYvHfWETGFvAx+Jn5njZWOQSp1FeFNZh3//MTBd9Mv2
+weVom24lGR07d61JbAsei3ax3lqGCjkbvOUHXjeQWSAYWA5e6bK/KL3ZkrjJUmjx
+CglJFynmsXdbPMZ/oIFYON7xEJo2LXsd8MfLSoNYyscRA53ntezaOlKRiPd7ASe8
+3LW9y3dYAccZGrEenxoV3CPdCICt8AhE8bZa7/xJOaqjzvHDMOsxr58ptzw6HIRM
+rMAvt7RBiSv6IPBzUWAYh1JOpfjqmKXAi4rL5b6QVjpmxofB2M57kR/imueOHWx9
+12F/CbZj28seONdyDGDzhnwsxXQi6YOslB46b5D/g+K7s8znqmzRqPeN78j0TFoM
+5dUJQqvt/o8BlE9fGawb06rDn3VwDuMLq4+viHsCbQ1ZrTsXA9AtwCpXvaUFS++M
+i/qiUFnClmXtrYmb0PUCaLshQAsDttb1upNzbtzwPo3zDgrscB41tcl9tsZaZeNf
+vpGlPr3gQhk7c3hLCO8lLYfq/q7VtMkVYhQdpDZNHXsVUOEYexiW16Pzphv7kSwz
+LBdgLkNFgSUJaW+jCyX6GxzUMEqlIpfx3q1JFopfbfJJNzI630w=
+=/Ntz
+-----END PGP SIGNATURE-----
+
+--C7Kg18qcwmutGUSx--
