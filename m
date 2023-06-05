@@ -2,82 +2,338 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 481FDC7EE2A
-	for <linux-i2c@archiver.kernel.org>; Sun,  4 Jun 2023 20:49:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3DBEC7EE2D
+	for <linux-i2c@archiver.kernel.org>; Mon,  5 Jun 2023 02:55:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbjFDUtw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 4 Jun 2023 16:49:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57064 "EHLO
+        id S231868AbjFECzc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 4 Jun 2023 22:55:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231754AbjFDUtv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 4 Jun 2023 16:49:51 -0400
-X-Greylist: delayed 510 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 04 Jun 2023 13:49:49 PDT
-Received: from mail2.medvecky.net (mail2.medvecky.net [85.118.132.153])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0AD0DB;
-        Sun,  4 Jun 2023 13:49:49 -0700 (PDT)
-Message-ID: <ae93843f-7ab0-9d10-cf93-261f986962a5@assembler.cz>
-Date:   Sun, 4 Jun 2023 22:41:15 +0200
+        with ESMTP id S229886AbjFECzb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 4 Jun 2023 22:55:31 -0400
+Received: from smtpbgsg2.qq.com (smtpbgsg2.qq.com [54.254.200.128])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7B93C7;
+        Sun,  4 Jun 2023 19:55:25 -0700 (PDT)
+X-QQ-mid: bizesmtp91t1685933679tgkgr2hl
+Received: from wxdbg.localdomain.com ( [60.177.99.31])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Mon, 05 Jun 2023 10:54:37 +0800 (CST)
+X-QQ-SSF: 01400000000000J0Z000000A0000000
+X-QQ-FEAT: tJPajVdBfNJA/plFwIVF1V4Taj3vwmDGNKMIamQHXP2M0y6TvBOMiMODGYMMU
+        pbdfUbZnbS2BgVofT2REfM/1fjXIAc3x/kjNnV3Hq5JmRHJaF/U102ZpA0WLHkx3S6Z4tLK
+        uFcvfJckyUwRjLX/bkgbWmWbWyxJHgLxP3jRAuUw2I9cLKUTwtSxTH+/qpJPtnewgszC1tv
+        dXtjwp12/pRvHAzqm5YBKE88i4ssCpR4646Ae/P2yOGt8/rEC5xwEiRw/EoxqJKRPWrQVKj
+        1v0GL3j+tDSHGVTKTPYO85YUKU+g/PbKixY1E2mI8uTDx19kQnEwuQHfIAdJQU0eox3vioF
+        pEtUsH529r2DM1R27+0tOLEGEMsVTHmXd0uEYBDLQxUxjg6UoyU2DxTq2tj+Puy22ov6Y6Y
+        axk8XiSnJdNjpk8fY89cgA==
+X-QQ-GoodBg: 2
+X-BIZMAIL-ID: 10407025783392691638
+From:   Jiawen Wu <jiawenwu@trustnetic.com>
+To:     netdev@vger.kernel.org, jarkko.nikula@linux.intel.com,
+        andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
+        jsd@semihalf.com, Jose.Abreu@synopsys.com, andrew@lunn.ch,
+        hkallweit1@gmail.com, linux@armlinux.org.uk
+Cc:     linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+        mengyuanlou@net-swift.com, Jiawen Wu <jiawenwu@trustnetic.com>,
+        Piotr Raczynski <piotr.raczynski@intel.com>
+Subject: [PATCH net-next v11 1/9] net: txgbe: Add software nodes to support phylink
+Date:   Mon,  5 Jun 2023 10:52:03 +0800
+Message-Id: <20230605025211.743823-2-jiawenwu@trustnetic.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20230605025211.743823-1-jiawenwu@trustnetic.com>
+References: <20230605025211.743823-1-jiawenwu@trustnetic.com>
 MIME-Version: 1.0
-Content-Language: en-US
-To:     Jean Delvare <jdelvare@suse.de>, Marius Hoch <mail@mariushoch.de>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230514103634.235917-1-mail@mariushoch.de>
- <20230523200350.62ab4788@endymion.delvare>
- <59a6a917-2a93-d52d-37f3-091295dd0db4@mariushoch.de>
- <20230604160132.102dd6a7@endymion.delvare>
-From:   Rudolf Marek <r.marek@assembler.cz>
-Subject: Re: [PATCH 0/2] i2c: i801: Force no IRQ for Dell Latitude E7450
-In-Reply-To: <20230604160132.102dd6a7@endymion.delvare>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Authentication-Results: mail2.medvecky.net;
-        auth=pass smtp.mailfrom=r.marek@assembler.cz
-X-Spamd-Bar: /
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:trustnetic.com:qybglogicsvrgz:qybglogicsvrgz5a-1
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Register software nodes for GPIO, I2C, SFP and PHYLINK. Define the
+device properties.
 
-Dne 04. 06. 23 v 16:01 Jean Delvare napsal(a):
-> I admit I don't know. I'm not familiar with how GSI numbers relate to
-> IRQ numbers. I think I understand that GSI numbers are an ACPI thing,
-> and the ACPI layer is responsible for mapping these to actual IRQ
-> numbers? Is there a GSI-to-IRQ table available somewhere as part of the
-> ACPI tables? If so, it would be interesting to disassemble the ACPI
-> tables on your system and check what this looks like for you.
+Signed-off-by: Jiawen Wu <jiawenwu@trustnetic.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
+---
+ drivers/net/ethernet/wangxun/libwx/wx_type.h  |  1 +
+ drivers/net/ethernet/wangxun/txgbe/Makefile   |  1 +
+ .../net/ethernet/wangxun/txgbe/txgbe_main.c   | 22 ++++-
+ .../net/ethernet/wangxun/txgbe/txgbe_phy.c    | 89 +++++++++++++++++++
+ .../net/ethernet/wangxun/txgbe/txgbe_phy.h    | 10 +++
+ .../net/ethernet/wangxun/txgbe/txgbe_type.h   | 49 ++++++++++
+ 6 files changed, 171 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+ create mode 100644 drivers/net/ethernet/wangxun/txgbe/txgbe_phy.h
 
-You need to check _PRT method of PCI0 device in APIC mode.
-This will tell you to what GSI (APIC/pin) it goes.
-To check you need to have a look to the DSDT table and decompile
-it. You can obtain it by running acpidump > tables.txt and the acpixtract -a tables.txt
-and finally running iasl -d dsdt.asl.
-
-Then, because the SMBUS lives on bus0, you just need to check _PRT method
-under PCI0 device for the entry of 001fffff (INT C).
-If this entry exists it will tell you where is it connected.
-
-I assume this has no entry and then as a last chance Linux tries the PCI IRQ entry
-in the configuration space gets queried. And this has 0xff which is
-telling no IRQ connected.
-
-The southbridge has a IRQ routing configuration register which can be used to verify
-if this is routed anywhere or really left "unconnected". This is usually in the the RCBA base + something
-register. Have a look to "D31IP" register:
-
-SMBus Pin (SMIP) — R/W. Indicates which pin the SMBus controller drives as its
-interrupt. bits 15:12
-
-If there is 0, it is not routed anywhere. Also you need to check "D31IR" where the PIN C is going:
-
-Interrupt C Pin Route (ICR) — R/W. Indicates which physical pin on the PCH is
-connected to the INTC# pin reported for device 31 functions.
-
-The PIRQA corresponds to the PIN 16 of IOAPIC etc.
-
-If you need more info on that feel free to contact me. I can try to help.
-
-
-Thanks,
-Rudolf
+diff --git a/drivers/net/ethernet/wangxun/libwx/wx_type.h b/drivers/net/ethernet/wangxun/libwx/wx_type.h
+index 5063846e1b52..c61c18a842c4 100644
+--- a/drivers/net/ethernet/wangxun/libwx/wx_type.h
++++ b/drivers/net/ethernet/wangxun/libwx/wx_type.h
+@@ -814,6 +814,7 @@ enum wx_isb_idx {
+ struct wx {
+ 	unsigned long active_vlans[BITS_TO_LONGS(VLAN_N_VID)];
+ 
++	void *priv;
+ 	u8 __iomem *hw_addr;
+ 	struct pci_dev *pdev;
+ 	struct net_device *netdev;
+diff --git a/drivers/net/ethernet/wangxun/txgbe/Makefile b/drivers/net/ethernet/wangxun/txgbe/Makefile
+index 6db14a2cb2d0..7507f762edfe 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/Makefile
++++ b/drivers/net/ethernet/wangxun/txgbe/Makefile
+@@ -8,4 +8,5 @@ obj-$(CONFIG_TXGBE) += txgbe.o
+ 
+ txgbe-objs := txgbe_main.o \
+               txgbe_hw.o \
++              txgbe_phy.o \
+               txgbe_ethtool.o
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c
+index 0f0d9fa1cde1..2335fa863fa5 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_main.c
+@@ -15,6 +15,7 @@
+ #include "../libwx/wx_hw.h"
+ #include "txgbe_type.h"
+ #include "txgbe_hw.h"
++#include "txgbe_phy.h"
+ #include "txgbe_ethtool.h"
+ 
+ char txgbe_driver_name[] = "txgbe";
+@@ -518,6 +519,7 @@ static int txgbe_probe(struct pci_dev *pdev,
+ 	struct net_device *netdev;
+ 	int err, expected_gts;
+ 	struct wx *wx = NULL;
++	struct txgbe *txgbe;
+ 
+ 	u16 eeprom_verh = 0, eeprom_verl = 0, offset = 0;
+ 	u16 eeprom_cfg_blkh = 0, eeprom_cfg_blkl = 0;
+@@ -682,10 +684,23 @@ static int txgbe_probe(struct pci_dev *pdev,
+ 			 "0x%08x", etrack_id);
+ 	}
+ 
+-	err = register_netdev(netdev);
++	txgbe = devm_kzalloc(&pdev->dev, sizeof(*txgbe), GFP_KERNEL);
++	if (!txgbe) {
++		err = -ENOMEM;
++		goto err_release_hw;
++	}
++
++	txgbe->wx = wx;
++	wx->priv = txgbe;
++
++	err = txgbe_init_phy(txgbe);
+ 	if (err)
+ 		goto err_release_hw;
+ 
++	err = register_netdev(netdev);
++	if (err)
++		goto err_remove_phy;
++
+ 	pci_set_drvdata(pdev, wx);
+ 
+ 	netif_tx_stop_all_queues(netdev);
+@@ -713,6 +728,8 @@ static int txgbe_probe(struct pci_dev *pdev,
+ 
+ 	return 0;
+ 
++err_remove_phy:
++	txgbe_remove_phy(txgbe);
+ err_release_hw:
+ 	wx_clear_interrupt_scheme(wx);
+ 	wx_control_hw(wx, false);
+@@ -738,11 +755,14 @@ static int txgbe_probe(struct pci_dev *pdev,
+ static void txgbe_remove(struct pci_dev *pdev)
+ {
+ 	struct wx *wx = pci_get_drvdata(pdev);
++	struct txgbe *txgbe = wx->priv;
+ 	struct net_device *netdev;
+ 
+ 	netdev = wx->netdev;
+ 	unregister_netdev(netdev);
+ 
++	txgbe_remove_phy(txgbe);
++
+ 	pci_release_selected_regions(pdev,
+ 				     pci_select_bars(pdev, IORESOURCE_MEM));
+ 
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+new file mode 100644
+index 000000000000..be4b5ad74a3c
+--- /dev/null
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.c
+@@ -0,0 +1,89 @@
++// SPDX-License-Identifier: GPL-2.0
++/* Copyright (c) 2015 - 2023 Beijing WangXun Technology Co., Ltd. */
++
++#include <linux/gpio/property.h>
++#include <linux/i2c.h>
++#include <linux/pci.h>
++
++#include "../libwx/wx_type.h"
++#include "txgbe_type.h"
++#include "txgbe_phy.h"
++
++static int txgbe_swnodes_register(struct txgbe *txgbe)
++{
++	struct txgbe_nodes *nodes = &txgbe->nodes;
++	struct pci_dev *pdev = txgbe->wx->pdev;
++	struct software_node *swnodes;
++	u32 id;
++
++	id = (pdev->bus->number << 8) | pdev->devfn;
++
++	snprintf(nodes->gpio_name, sizeof(nodes->gpio_name), "txgbe_gpio-%x", id);
++	snprintf(nodes->i2c_name, sizeof(nodes->i2c_name), "txgbe_i2c-%x", id);
++	snprintf(nodes->sfp_name, sizeof(nodes->sfp_name), "txgbe_sfp-%x", id);
++	snprintf(nodes->phylink_name, sizeof(nodes->phylink_name), "txgbe_phylink-%x", id);
++
++	swnodes = nodes->swnodes;
++
++	/* GPIO 0: tx fault
++	 * GPIO 1: tx disable
++	 * GPIO 2: sfp module absent
++	 * GPIO 3: rx signal lost
++	 * GPIO 4: rate select, 1G(0) 10G(1)
++	 * GPIO 5: rate select, 1G(0) 10G(1)
++	 */
++	nodes->gpio_props[0] = PROPERTY_ENTRY_STRING("pinctrl-names", "default");
++	swnodes[SWNODE_GPIO] = NODE_PROP(nodes->gpio_name, nodes->gpio_props);
++	nodes->gpio0_ref[0] = SOFTWARE_NODE_REFERENCE(&swnodes[SWNODE_GPIO], 0, GPIO_ACTIVE_HIGH);
++	nodes->gpio1_ref[0] = SOFTWARE_NODE_REFERENCE(&swnodes[SWNODE_GPIO], 1, GPIO_ACTIVE_HIGH);
++	nodes->gpio2_ref[0] = SOFTWARE_NODE_REFERENCE(&swnodes[SWNODE_GPIO], 2, GPIO_ACTIVE_LOW);
++	nodes->gpio3_ref[0] = SOFTWARE_NODE_REFERENCE(&swnodes[SWNODE_GPIO], 3, GPIO_ACTIVE_HIGH);
++	nodes->gpio4_ref[0] = SOFTWARE_NODE_REFERENCE(&swnodes[SWNODE_GPIO], 4, GPIO_ACTIVE_HIGH);
++	nodes->gpio5_ref[0] = SOFTWARE_NODE_REFERENCE(&swnodes[SWNODE_GPIO], 5, GPIO_ACTIVE_HIGH);
++
++	nodes->i2c_props[0] = PROPERTY_ENTRY_STRING("compatible", "snps,designware-i2c");
++	nodes->i2c_props[1] = PROPERTY_ENTRY_BOOL("wx,i2c-snps-model");
++	nodes->i2c_props[2] = PROPERTY_ENTRY_U32("clock-frequency", I2C_MAX_STANDARD_MODE_FREQ);
++	swnodes[SWNODE_I2C] = NODE_PROP(nodes->i2c_name, nodes->i2c_props);
++	nodes->i2c_ref[0] = SOFTWARE_NODE_REFERENCE(&swnodes[SWNODE_I2C]);
++
++	nodes->sfp_props[0] = PROPERTY_ENTRY_STRING("compatible", "sff,sfp");
++	nodes->sfp_props[1] = PROPERTY_ENTRY_REF_ARRAY("i2c-bus", nodes->i2c_ref);
++	nodes->sfp_props[2] = PROPERTY_ENTRY_REF_ARRAY("tx-fault-gpios", nodes->gpio0_ref);
++	nodes->sfp_props[3] = PROPERTY_ENTRY_REF_ARRAY("tx-disable-gpios", nodes->gpio1_ref);
++	nodes->sfp_props[4] = PROPERTY_ENTRY_REF_ARRAY("mod-def0-gpios", nodes->gpio2_ref);
++	nodes->sfp_props[5] = PROPERTY_ENTRY_REF_ARRAY("los-gpios", nodes->gpio3_ref);
++	nodes->sfp_props[6] = PROPERTY_ENTRY_REF_ARRAY("rate-select1-gpios", nodes->gpio4_ref);
++	nodes->sfp_props[7] = PROPERTY_ENTRY_REF_ARRAY("rate-select0-gpios", nodes->gpio5_ref);
++	swnodes[SWNODE_SFP] = NODE_PROP(nodes->sfp_name, nodes->sfp_props);
++	nodes->sfp_ref[0] = SOFTWARE_NODE_REFERENCE(&swnodes[SWNODE_SFP]);
++
++	nodes->phylink_props[0] = PROPERTY_ENTRY_STRING("managed", "in-band-status");
++	nodes->phylink_props[1] = PROPERTY_ENTRY_REF_ARRAY("sfp", nodes->sfp_ref);
++	swnodes[SWNODE_PHYLINK] = NODE_PROP(nodes->phylink_name, nodes->phylink_props);
++
++	nodes->group[SWNODE_GPIO] = &swnodes[SWNODE_GPIO];
++	nodes->group[SWNODE_I2C] = &swnodes[SWNODE_I2C];
++	nodes->group[SWNODE_SFP] = &swnodes[SWNODE_SFP];
++	nodes->group[SWNODE_PHYLINK] = &swnodes[SWNODE_PHYLINK];
++
++	return software_node_register_node_group(nodes->group);
++}
++
++int txgbe_init_phy(struct txgbe *txgbe)
++{
++	int ret;
++
++	ret = txgbe_swnodes_register(txgbe);
++	if (ret) {
++		wx_err(txgbe->wx, "failed to register software nodes\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++void txgbe_remove_phy(struct txgbe *txgbe)
++{
++	software_node_unregister_node_group(txgbe->nodes.group);
++}
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.h
+new file mode 100644
+index 000000000000..1ab592124986
+--- /dev/null
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_phy.h
+@@ -0,0 +1,10 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/* Copyright (c) 2015 - 2023 Beijing WangXun Technology Co., Ltd. */
++
++#ifndef _TXGBE_PHY_H_
++#define _TXGBE_PHY_H_
++
++int txgbe_init_phy(struct txgbe *txgbe);
++void txgbe_remove_phy(struct txgbe *txgbe);
++
++#endif /* _TXGBE_NODE_H_ */
+diff --git a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+index 032972369965..9aa399acd9a0 100644
+--- a/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
++++ b/drivers/net/ethernet/wangxun/txgbe/txgbe_type.h
+@@ -4,6 +4,8 @@
+ #ifndef _TXGBE_TYPE_H_
+ #define _TXGBE_TYPE_H_
+ 
++#include <linux/property.h>
++
+ /* Device IDs */
+ #define TXGBE_DEV_ID_SP1000                     0x1001
+ #define TXGBE_DEV_ID_WX1820                     0x2001
+@@ -100,4 +102,51 @@
+ 
+ extern char txgbe_driver_name[];
+ 
++static inline struct txgbe *netdev_to_txgbe(struct net_device *netdev)
++{
++	struct wx *wx = netdev_priv(netdev);
++
++	return wx->priv;
++}
++
++#define NODE_PROP(_NAME, _PROP)			\
++	(const struct software_node) {		\
++		.name = _NAME,			\
++		.properties = _PROP,		\
++	}
++
++enum txgbe_swnodes {
++	SWNODE_GPIO = 0,
++	SWNODE_I2C,
++	SWNODE_SFP,
++	SWNODE_PHYLINK,
++	SWNODE_MAX
++};
++
++struct txgbe_nodes {
++	char gpio_name[32];
++	char i2c_name[32];
++	char sfp_name[32];
++	char phylink_name[32];
++	struct property_entry gpio_props[1];
++	struct property_entry i2c_props[3];
++	struct property_entry sfp_props[8];
++	struct property_entry phylink_props[2];
++	struct software_node_ref_args i2c_ref[1];
++	struct software_node_ref_args gpio0_ref[1];
++	struct software_node_ref_args gpio1_ref[1];
++	struct software_node_ref_args gpio2_ref[1];
++	struct software_node_ref_args gpio3_ref[1];
++	struct software_node_ref_args gpio4_ref[1];
++	struct software_node_ref_args gpio5_ref[1];
++	struct software_node_ref_args sfp_ref[1];
++	struct software_node swnodes[SWNODE_MAX];
++	const struct software_node *group[SWNODE_MAX + 1];
++};
++
++struct txgbe {
++	struct wx *wx;
++	struct txgbe_nodes nodes;
++};
++
+ #endif /* _TXGBE_TYPE_H_ */
+-- 
+2.27.0
 
