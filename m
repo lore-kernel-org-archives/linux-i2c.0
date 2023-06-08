@@ -2,134 +2,133 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00A92C7EE23
-	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jun 2023 20:36:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD261C7EE25
+	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jun 2023 23:10:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229660AbjFHUg4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 8 Jun 2023 16:36:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45276 "EHLO
+        id S236050AbjFHXKq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 8 Jun 2023 19:10:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236177AbjFHUgy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Jun 2023 16:36:54 -0400
+        with ESMTP id S230012AbjFHXKp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Jun 2023 19:10:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD44230C4
-        for <linux-i2c@vger.kernel.org>; Thu,  8 Jun 2023 13:36:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA84D2D7F
+        for <linux-i2c@vger.kernel.org>; Thu,  8 Jun 2023 16:10:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EFA461520
-        for <linux-i2c@vger.kernel.org>; Thu,  8 Jun 2023 20:36:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4247C433EF;
-        Thu,  8 Jun 2023 20:36:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 915A661F4E
+        for <linux-i2c@vger.kernel.org>; Thu,  8 Jun 2023 23:10:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FFF1C433D2;
+        Thu,  8 Jun 2023 23:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686256606;
-        bh=qcsPXVUfNrO5VaksuCPHsrro1Y+RCN8k67on2J6uhBk=;
+        s=k20201202; t=1686265844;
+        bh=fpIMMSriP/UCuOJyCkT+S5TImy4gw54+qLblhtXgX6s=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CDARGi2MnA5E4wFs9KnFE7QwUIrgyOoWluIoF9RCHritmDWI54AHcXUkl9OupxZpF
-         LVNaryuxGXVOp/H2n1MuI7c5eZRc/BRUSVbxRBCv7H0AczDEQPZJZWsLATiV5LTqhj
-         Xeih2G9ObwSKhufOQE00xrIfVA412GUwXS+eC4NDm1+yCBQJYOXf1rH/1k++8XcF/D
-         9zFwHykrbjz8W29SWzwZ4IbHKGiSpPJol21vgV6huwUUeegaI6PXZWvm21itM+d7w+
-         LcIhCmM2b9phgSLtvZZQPyQpG+xGDqk0HwtuTWNFm/4OGu3FkSFnUMSI+gb/GvT9bg
-         cmhFofzF7Sodg==
-Date:   Thu, 8 Jun 2023 22:36:42 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Yang Yingliang <yangyingliang@huawei.com>
-Cc:     linux-i2c@vger.kernel.org, syniurge@gmail.com,
-        shyam-sundar.s-k@amd.com, Raju.Rangoju@amd.com,
-        basavaraj.natikar@amd.com
-Subject: Re: [PATCH -next] i2c: amd-mp2: drop free_irq() of
- devm_request_irq() allocated irq
-Message-ID: <ZII72v6/ZQ4Oj+Wm@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        linux-i2c@vger.kernel.org, syniurge@gmail.com,
-        shyam-sundar.s-k@amd.com, Raju.Rangoju@amd.com,
-        basavaraj.natikar@amd.com
-References: <20221103121146.99836-1-yangyingliang@huawei.com>
+        b=jNEs/C5SOj3X6IMSsVncsAqEShA1M7+OPz82IQ/tjuddpnwxDsMBIBPkS04xr7k9K
+         o0SByL8IORvMXahqpZU7p9WXs73OlQfLav42qcy/qnIM153aNlhku5siNsxt4YbwKs
+         LjUMmL8mwARMGMF5liPoHoAU4IYLSLbFYKTkXrB8xaI0RIKYu/hD7N0KiJmuf6vCrF
+         zJuh4/1ruL9cY597yCvcW0u+jui0rVdT5feek5bVog1P4Fv2htRF7sJ7CPo0pU2Qhb
+         ad95JjUBxd+5KJ1Yv5jaw5HSCAnlRS2pe2K5E4zoKCLqMQJp2QeYre7tfxRNT735Zp
+         DABWnDagU2D7w==
+Date:   Fri, 9 Jun 2023 01:10:35 +0200
+From:   Andi Shyti <andi.shyti@kernel.org>
+To:     Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc:     Wolfram Sang <wsa@kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>
+Subject: Re: [PATCH v2] i2c: hix5hd2: Make sure clk is disabled in remove
+Message-ID: <20230608231035.ppfzyuegkk5ysjau@intel.intel>
+References: <20230608225513.1151574-1-andi.shyti@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Z9R52bUe4m7l6Z4n"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221103121146.99836-1-yangyingliang@huawei.com>
+In-Reply-To: <20230608225513.1151574-1-andi.shyti@kernel.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi Alexey,
 
---Z9R52bUe4m7l6Z4n
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+are you still around? Your patch looks good, just two things...
 
-On Thu, Nov 03, 2022 at 08:11:46PM +0800, Yang Yingliang wrote:
-> irq allocated with devm_request_irq() will be freed in devm_irq_release(),
-> using free_irq() in ->remove() will causes a dangling pointer, and a
-> subsequent double free. So remove the free_irq() in the error path and
-> remove path.
->=20
-> Fixes: 969864efae78 ("i2c: amd-mp2: use msix/msi if the hardware supports=
-")
-> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+On Fri, Jun 09, 2023 at 12:55:13AM +0200, Andi Shyti wrote:
+> From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+> 
+> pm_runtime_set_suspended() does not lead to call of suspend callback,
+> so clk may be left undisabled in hix5hd2_i2c_remove().
+> 
+> By the way, the patch adds error handling for clk_prepare_enable().
+
+could you please put this in a separate patch?
+
+> Found by Linux Driver Verification project (linuxtesting.org).
+> 
+> Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+> Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+
+if you're taking this, feel free to drop my SoB...
+
 > ---
+> Hi,
+> 
+> Look what I fished from the far December 2017 :)
+> 
+> It looked better to respin it rather than replying to such an old
+> mail.
+> 
+> I haven't made any modification to the patch exept for a little
+> rebase conflict. Here's a full changelog, anyway.
+> 
+> Changelog
+> =========
+> v1 -> v2:
+>  - Fished this out from the muddy pond.
+>  - Added my SoB
+>  - Fixed rebase conflict
 
-Elie, Shyam, are you OK with this patch?
+... but please keep the changelog.
 
->  drivers/i2c/busses/i2c-amd-mp2-pci.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-amd-mp2-pci.c b/drivers/i2c/busses/i2=
-c-amd-mp2-pci.c
-> index 143165300949..ef7370d3dbea 100644
-> --- a/drivers/i2c/busses/i2c-amd-mp2-pci.c
-> +++ b/drivers/i2c/busses/i2c-amd-mp2-pci.c
-> @@ -327,13 +327,11 @@ static int amd_mp2_pci_init(struct amd_mp2_dev *pri=
-vdata,
->  			      amd_mp2_irq_isr, irq_flag, dev_name(&pci_dev->dev), privdata);
->  	if (rc) {
->  		pci_err(pci_dev, "Failure requesting irq %i: %d\n", privdata->dev_irq,=
- rc);
-> -		goto free_irq_vectors;
-> +		goto err_dma_mask;
+> Andi
+> 
+>  drivers/i2c/busses/i2c-hix5hd2.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-hix5hd2.c b/drivers/i2c/busses/i2c-hix5hd2.c
+> index 0e34cbaca22dc..ec775ffefa9fc 100644
+> --- a/drivers/i2c/busses/i2c-hix5hd2.c
+> +++ b/drivers/i2c/busses/i2c-hix5hd2.c
+> @@ -421,7 +421,11 @@ static int hix5hd2_i2c_probe(struct platform_device *pdev)
+>  		dev_err(&pdev->dev, "cannot get clock\n");
+>  		return PTR_ERR(priv->clk);
 >  	}
-> =20
->  	return rc;
-> =20
-> -free_irq_vectors:
-> -	free_irq(privdata->dev_irq, privdata);
->  err_dma_mask:
->  	pci_clear_master(pci_dev);
->  err_pci_enable:
-> @@ -376,7 +374,6 @@ static void amd_mp2_pci_remove(struct pci_dev *pci_de=
-v)
->  	pm_runtime_forbid(&pci_dev->dev);
->  	pm_runtime_get_noresume(&pci_dev->dev);
-> =20
-> -	free_irq(privdata->dev_irq, privdata);
->  	pci_clear_master(pci_dev);
-> =20
->  	amd_mp2_clear_reg(privdata);
-> --=20
-> 2.25.1
->=20
+> -	clk_prepare_enable(priv->clk);
+> +	ret = clk_prepare_enable(priv->clk);
 
---Z9R52bUe4m7l6Z4n
-Content-Type: application/pgp-signature; name="signature.asc"
+please use devm_clk_get_enabled();
 
------BEGIN PGP SIGNATURE-----
+Thanks,
+Andi
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmSCO9oACgkQFA3kzBSg
-KbYXcRAAqjHxx95d+QJ9sLUXMIg/fj3X/qXpIz16vJ0I3AYBIigO/HyiiK57Z93m
-q6lz2XLPMkKeMKBnE02o1fcitcmtitaQR3HfBZuLDd+OnymB6xhF5c2Bza6iAeXL
-jgHpQC9Z2bqZ2MOpcSbGWPOoIMw5cb7un7cvRfPU1y5b4TQ/HQAyg3Ql/IFjbflm
-PBPf0O8Ntx6PAo5deChznmrpla90c4/Qw5MqOtNNR3A8cEVxCyib7Flpi6187BWp
-Y8/mSKam6Sfkwo225W0YwIdRTtwYTDzN1ctb4JD19m7bfq87H6uj+usSnyFb02Ii
-xQ1yeCQYdfI9+iK0F2WxgGuaRwWxxQoOVlQg0/BhcIxGhMA3/zsHuMFRdyHOgYTB
-mcl5UEAEX6p4OQSHmlGf94YqZHkF304FpjpELyCR84tfyXPU61AYTLHfYiLnB3tU
-RV3o6t10/n0aU6oWFTZW+jEfqUluOyVmg+BDN6ClLzrz+AM/hjHlrmi9lhU1vY7t
-oLEf9ad6gBuHzoGPbmq+YzF+r8lIb+W9zio3jMMLtP6K14LmbS5cOAj8//9UM0uW
-mqYmOcKVukcDNV4c1Y45FpRSyo4cZVcRTTuPgSjmvhVK3cVAeiX7ydqd13GmN2Y9
-GH+SJqkeA2QhgvD1kXiwnsnprkuu8SXIzovDVEL1tZAcGnqzCV8=
-=51Tk
------END PGP SIGNATURE-----
-
---Z9R52bUe4m7l6Z4n--
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "cannot enable clock\n");
+> +		return ret;
+> +	}
+>  
+>  	strscpy(priv->adap.name, "hix5hd2-i2c", sizeof(priv->adap.name));
+>  	priv->dev = &pdev->dev;
+> @@ -469,8 +473,10 @@ static int hix5hd2_i2c_remove(struct platform_device *pdev)
+>  	struct hix5hd2_i2c_priv *priv = platform_get_drvdata(pdev);
+>  
+>  	i2c_del_adapter(&priv->adap);
+> -	pm_runtime_disable(priv->dev);
+> -	pm_runtime_set_suspended(priv->dev);
+> +
+> +	/* Make sure priv->clk is disabled */
+> +	pm_runtime_force_suspend(priv->dev);
+> +
+>  	clk_disable_unprepare(priv->clk);
+>  
+>  	return 0;
+> -- 
+> 2.40.1
+> 
