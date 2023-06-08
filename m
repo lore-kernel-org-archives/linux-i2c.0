@@ -2,73 +2,88 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53025C7EE25
-	for <linux-i2c@archiver.kernel.org>; Wed,  7 Jun 2023 17:07:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03C5EC77B7A
+	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jun 2023 02:54:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230033AbjFGRHg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 7 Jun 2023 13:07:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45280 "EHLO
+        id S233755AbjFHCyc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 7 Jun 2023 22:54:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229589AbjFGRHf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 7 Jun 2023 13:07:35 -0400
-Received: from relmlie5.idc.renesas.com (relmlor1.renesas.com [210.160.252.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 87B161BEB;
-        Wed,  7 Jun 2023 10:07:34 -0700 (PDT)
-X-IronPort-AV: E=Sophos;i="6.00,224,1681138800"; 
-   d="scan'208";a="162595977"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 08 Jun 2023 02:07:34 +0900
-Received: from localhost.localdomain (unknown [10.226.92.241])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id D327C4009F86;
-        Thu,  8 Jun 2023 02:07:31 +0900 (JST)
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-Subject: [PATCH v2] MAINTAINERS: Add entries for Renesas RZ/V2M I2C driver
-Date:   Wed,  7 Jun 2023 18:07:29 +0100
-Message-Id: <20230607170729.139555-1-biju.das.jz@bp.renesas.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229991AbjFHCyb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 7 Jun 2023 22:54:31 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3374E50;
+        Wed,  7 Jun 2023 19:54:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=hRL53ufQNc+iuMhcj+kE/bG7v/x5YM0q+MX4eg7+/HE=; b=Cy1b1Eev0FUsLxSTCDDHeTpC6y
+        5WJgEsdM6aiw4DSARwXh5a6/hzFDgcJyZU8EGZyMuC1KPpIJJij8/KyV+t2AMaD2XO6ZP6vHUkrUE
+        ogvWdNez8ByVG2nEPG6f2S2klY4HnBlTr0BtpERIzG2/PyePmSuxJcYqgFyX069aQqBvti37F1IXj
+        XlzNaQKsXTpdnd1CZ+F2z578OZ9Ecruy9msz7DuWikbrkfXaSMQ9TM/Rzb/vzJewVCFKojnl8Wz1C
+        O1eom+yGdzhWSvMpDSJRqNg+xI8fwmID8FQzsVWCDuF8FcjKHrtT4lxMuvIJtXQqIctAgxtVGCqkx
+        HIJSukiA==;
+Received: from [2601:1c2:980:9ec0::2764] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1q75nA-007rlv-1j;
+        Thu, 08 Jun 2023 02:54:28 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>, linux-i2c@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH] eeprom: at24: also select REGMAP
+Date:   Wed,  7 Jun 2023 19:54:24 -0700
+Message-Id: <20230608025424.29033-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add the MAINTAINERS entries for the Renesas RZ/V2M I2C driver.
+Selecting only REGMAP_I2C can leave REGMAP unset, causing build errors,
+so also select REGMAP to prevent the build errors.
 
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Acked-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
+../drivers/misc/eeprom/at24.c:540:42: warning: 'struct regmap_config' declared inside parameter list will not be visible outside of this definition or declaration
+  540 |                                   struct regmap_config *regmap_config)
+../drivers/misc/eeprom/at24.c: In function 'at24_make_dummy_client':
+../drivers/misc/eeprom/at24.c:552:18: error: implicit declaration of function 'devm_regmap_init_i2c' [-Werror=implicit-function-declaration]
+  552 |         regmap = devm_regmap_init_i2c(dummy_client, regmap_config);
+../drivers/misc/eeprom/at24.c:552:16: warning: assignment to 'struct regmap *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+  552 |         regmap = devm_regmap_init_i2c(dummy_client, regmap_config);
+../drivers/misc/eeprom/at24.c: In function 'at24_probe':
+../drivers/misc/eeprom/at24.c:586:16: error: variable 'regmap_config' has initializer but incomplete type
+  586 |         struct regmap_config regmap_config = { };
+../drivers/misc/eeprom/at24.c:586:30: error: storage size of 'regmap_config' isn't known
+  586 |         struct regmap_config regmap_config = { };
+../drivers/misc/eeprom/at24.c:586:30: warning: unused variable 'regmap_config' [-Wunused-variable]
+
+Fixes: 5c015258478e ("eeprom: at24: add basic regmap_i2c support")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-i2c@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
 ---
-v1->v2:
- * Added I2C list in driver entries.
- * Added Ack tag from Fabrizio.
----
- MAINTAINERS | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/misc/eeprom/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 1acafdb642d8..73379366cce0 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18153,6 +18153,14 @@ S:	Maintained
- F:	Documentation/devicetree/bindings/usb/renesas,rzn1-usbf.yaml
- F:	drivers/usb/gadget/udc/renesas_usbf.c
- 
-+RENESAS RZ/V2M I2C DRIVER
-+M:	Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-+L:	linux-i2c@vger.kernel.org
-+L:	linux-renesas-soc@vger.kernel.org
-+S:	Supported
-+F:	Documentation/devicetree/bindings/i2c/renesas,rzv2m.yaml
-+F:	drivers/i2c/busses/i2c-rzv2m.c
-+
- RENESAS USB PHY DRIVER
- M:	Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
- L:	linux-renesas-soc@vger.kernel.org
--- 
-2.25.1
-
+diff -- a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
+--- a/drivers/misc/eeprom/Kconfig
++++ b/drivers/misc/eeprom/Kconfig
+@@ -6,6 +6,7 @@ config EEPROM_AT24
+ 	depends on I2C && SYSFS
+ 	select NVMEM
+ 	select NVMEM_SYSFS
++	select REGMAP
+ 	select REGMAP_I2C
+ 	help
+ 	  Enable this driver to get read/write support to most I2C EEPROMs
