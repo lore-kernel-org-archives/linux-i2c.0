@@ -2,73 +2,74 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 090FBC7EE29
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32A05C7EE2E
 	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jun 2023 07:55:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233697AbjFHHzo (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 8 Jun 2023 03:55:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46458 "EHLO
+        id S233258AbjFHHzp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 8 Jun 2023 03:55:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233258AbjFHHzn (ORCPT
+        with ESMTP id S232417AbjFHHzn (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Jun 2023 03:55:43 -0400
-X-Greylist: delayed 341 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 08 Jun 2023 00:55:42 PDT
 Received: from pokefinder.org (pokefinder.org [135.181.139.117])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 79C9F128
-        for <linux-i2c@vger.kernel.org>; Thu,  8 Jun 2023 00:55:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D67A810F8;
+        Thu,  8 Jun 2023 00:55:42 -0700 (PDT)
 Received: from localhost (120-123-142-46.pool.kielnet.net [46.142.123.120])
-        by pokefinder.org (Postfix) with ESMTPSA id 761C7A40F02;
-        Thu,  8 Jun 2023 09:50:00 +0200 (CEST)
-Date:   Thu, 8 Jun 2023 09:49:59 +0200
+        by pokefinder.org (Postfix) with ESMTPSA id 1034DA40E46;
+        Thu,  8 Jun 2023 09:47:41 +0200 (CEST)
+Date:   Thu, 8 Jun 2023 09:47:37 +0200
 From:   Wolfram Sang <wsa@the-dreams.de>
 To:     Markus Elfring <Markus.Elfring@web.de>
-Cc:     linux-i2c@vger.kernel.org, Till Harbaum <till@harbaum.org>,
-        kernel-janitors@vger.kernel.org
-Subject: Re: [linux-i2c] Patch notification: i2c-tiny-usb: patches updated
-Message-ID: <ZIGIJ93Ze7oCY7oq@shikoro>
+Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Kevin Hilman <khilman@kernel.org>,
+        Sekhar Nori <nsekhar@ti.com>, kernel-janitors@vger.kernel.org
+Subject: Re: [linux-i2c] Patch notification: DaVinci: 2 patches updated
+Message-ID: <ZIGHmSvptAC0cWHD@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
         Markus Elfring <Markus.Elfring@web.de>, linux-i2c@vger.kernel.org,
-        Till Harbaum <till@harbaum.org>, kernel-janitors@vger.kernel.org
-References: <168614100370.23273.6741328315484253780@legolas.ozlabs.org>
- <b103210f-affc-51cd-0540-a63072abba23@web.de>
+        linux-arm-kernel@lists.infradead.org,
+        Kevin Hilman <khilman@kernel.org>, Sekhar Nori <nsekhar@ti.com>,
+        kernel-janitors@vger.kernel.org
+References: <168613080300.11524.2783831689498520603@legolas.ozlabs.org>
+ <8af5aca3-184f-2561-bec7-c4950fdbaeb5@web.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="5BThGYoYYSmyNDOr"
+        protocol="application/pgp-signature"; boundary="GQEOI8YnKp1/dR+r"
 Content-Disposition: inline
-In-Reply-To: <b103210f-affc-51cd-0540-a63072abba23@web.de>
+In-Reply-To: <8af5aca3-184f-2561-bec7-c4950fdbaeb5@web.de>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---5BThGYoYYSmyNDOr
+--GQEOI8YnKp1/dR+r
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> May I know anything more about such a rejection according to my update suggestions (from 2018-02-01) here?
+> May I know which changes superseded my update suggestions (from 2018-02-02) here?
 
-I think the current code is easier maintainable if some functionality
-gets added to probe() in the future.
+http://patchwork.ozlabs.org/project/linux-i2c/patch/20230515175042.495377-2-afd@ti.com/
 
 
---5BThGYoYYSmyNDOr
+--GQEOI8YnKp1/dR+r
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmSBiCcACgkQFA3kzBSg
-KbaCLg/8CMl1Zdj0VQkVZR+bcgldWcCBx9XDw/I/ehajXBQNAOPLcTccTALyvLdB
-/CT6p1y6qiHX5iUkqHe0mCXfha/KYoaSh5v+yGQxkSdt2aVtzg9qJihGd8jQjgQ9
-5P/md8re1kon3W0JEIP8ASkaL3QoZVP9ZjfMEA3+idm4iReNorllX6kRWGDkU5mY
-UEnUn6A2VKGtdyUr+j70MCQe1xMyzAuFtPxTSXQgRXQD+i7goZPlGrSM+G7POkDH
-oJjqys3K9zCwmMVqNcSaEhRz4eNILsM9f2UitiZUz34Iq/BO6eVMQZxcN8wdSyq3
-PaQvHOlhcAHzuHSUE4KJX/LVMOTIBGWZSOGhpudH1ByC/lGkPwcsEzAlIRboaQaz
-IUkKwJnrGj9CD657Fn2M77pLBvcrWxaMnP3/Q5u6BFHweRlXi7t3gy3vqYWUjscT
-sxQiAqLaJN7K1hk48/tTkipgLvhqp+ap/mH81+9A1ODv9fgrbiJYaWWbXhBkL8GS
-SGSEql2WEmJJkuCtpfrDIfVsEUKfF6ErRK3S1ykmt/XBgfj0947vdIUQtJLB8gs7
-ymyuoyMxqxKHgEFfLAXh0/kKVO2IzSM14MiphxhQc86Mea5Yuf+fdJMjRSIqaftK
-zPvLz3e8yOX5NtMitCc9ybDjFN77/mKfIZiK9FSL/rtncm/MKLw=
-=u8Sw
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmSBh5UACgkQFA3kzBSg
+KbYg4RAArgl3g2yUy70as5mpUHMy7SnPZlKgpErhukuRmNJiobOBoJAAwpMDgtd6
+q5A9gwE6FCnZQdwxGH1gCt54y/u8JY9uWEzZru1BeINmfzcqSTtXPRJUTGrFMiqD
+72SMSLkmyj2b4euq1KO8mGY0bnrZSBPe+OlREvdl4nPloaHDqKnruPFSitw4d1fU
+FtpAajG6QX1T09Ko+FSTPeBd2g8BVNAiFY2pXEfpkowYC9izoooIpC3GocCEBAs/
+hMQ89EvVI30ZGEwmZbi/fYUjL2UucvR1mShRF0Inasg5RAXHBYNVD5ZcNFPhIywt
+SFKKnoh5wTcpm/mWj8k+McCnHK1lI+CoYj9rfZonEUfA4aVoHcA6Jlzeog0qD0k3
+7NPK/fN4wJeRGTmZPcyFgHKJLVid1OEisM+p6OwPN93UAwh1TrN9QK4WjQ+a6+XB
+OGujU65OXgc5DHcU1LzhJTRaZ7HloughrP+C/90poPf6ifHgnb2MjS+sC252lBgt
+KWwKvg3YibChdh7fig3bsg8rPaTlz3+4AL4lhAlmXSlhSf7ag1/oLYBXcWCQJMrv
+WJCgZPqODrnuYkJca5H5LWRujqyL8iDcyIQScUgH673AnwzAUohyDxWzZdlUAjM8
+XT7Q5XHZ5cdvtpYK8SScQGzzR286psKKPGTX+8pTkqUvgRXY/uw=
+=Hfjf
 -----END PGP SIGNATURE-----
 
---5BThGYoYYSmyNDOr--
+--GQEOI8YnKp1/dR+r--
