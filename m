@@ -2,74 +2,100 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32A05C7EE2E
-	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jun 2023 07:55:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E041DC7EE45
+	for <linux-i2c@archiver.kernel.org>; Thu,  8 Jun 2023 07:56:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233258AbjFHHzp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 8 Jun 2023 03:55:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
+        id S232891AbjFHH4Q (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 8 Jun 2023 03:56:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232417AbjFHHzn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Jun 2023 03:55:43 -0400
-Received: from pokefinder.org (pokefinder.org [135.181.139.117])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D67A810F8;
-        Thu,  8 Jun 2023 00:55:42 -0700 (PDT)
-Received: from localhost (120-123-142-46.pool.kielnet.net [46.142.123.120])
-        by pokefinder.org (Postfix) with ESMTPSA id 1034DA40E46;
-        Thu,  8 Jun 2023 09:47:41 +0200 (CEST)
-Date:   Thu, 8 Jun 2023 09:47:37 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Markus Elfring <Markus.Elfring@web.de>
-Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Kevin Hilman <khilman@kernel.org>,
-        Sekhar Nori <nsekhar@ti.com>, kernel-janitors@vger.kernel.org
-Subject: Re: [linux-i2c] Patch notification: DaVinci: 2 patches updated
-Message-ID: <ZIGHmSvptAC0cWHD@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
-        Markus Elfring <Markus.Elfring@web.de>, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Kevin Hilman <khilman@kernel.org>, Sekhar Nori <nsekhar@ti.com>,
-        kernel-janitors@vger.kernel.org
-References: <168613080300.11524.2783831689498520603@legolas.ozlabs.org>
- <8af5aca3-184f-2561-bec7-c4950fdbaeb5@web.de>
+        with ESMTP id S233801AbjFHH4O (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Jun 2023 03:56:14 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 276DF10F8;
+        Thu,  8 Jun 2023 00:56:12 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id a640c23a62f3a-977cf86aae5so53264266b.0;
+        Thu, 08 Jun 2023 00:56:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1686210970; x=1688802970;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5pxxVNO1ebNs7IeCt2Qr1fNijVL9D+WeUV59wK9pdas=;
+        b=hZgL/HLD2zhbj6owMSmd8rlf8UKLUxz0MrZl5tRQMQgqNewucNTRaElZaqPDlgNUMN
+         QpjbTYXuXzjHiBV8M/mRMXvMKIS0p7/Gu6wpusVn+bhHb0680YR/oA4GY44k9z8NWa0b
+         vEySSHz3TXsUpnz7a4mzUKt9XcJTbwUsZwhcS9X1SYep7x6ik0qyPV7PEfKSt8/QCG17
+         Wou1cpRvxFjy77IWoAQn3wPegUc0SF45ZRlgCkdA3DfYO2QPel6hbUKDN4+EfZLjHwgm
+         KdDY2i2ltjOEDiQRPscatT3phkLCso9e+EgD6eKOteC7Vdy54i66vABGjjr/uwCD/DZE
+         L6OQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686210970; x=1688802970;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5pxxVNO1ebNs7IeCt2Qr1fNijVL9D+WeUV59wK9pdas=;
+        b=eohCNbByOzcDpUQkveLkHsoJi6TkhkJNyAB26zMOgl0IUktzm+dqgMnLieoPVWxHje
+         WsmMX3KjbNRqLh5IvdApGHENc6LgMV2155fyykDIA3jcAeRMq2uhGLu79iBQYyopB8VC
+         bLvTe94bxoy/VB09VGF3NQ5gO8VbBGmKLV+p0ZDT9o+hFg6W3aJJ4zL6UjsMmwRMjnmP
+         HhqLBpQuSsBjTWMMMF1ueh+QYibwP8BBsH4DqHocd7V1sifcFBel6yUjLN8GwWuknXh9
+         TNSbOyvNhY+jh40Ua0G+QQULTs38udsj5BgwyY4c66zr7xNB4y8ErlUtB5H1UPB+vXT3
+         Q9jQ==
+X-Gm-Message-State: AC+VfDyJDuyor/UE+H9u+hAWwQ8+OA7666JyT4FV0LvkgRh92HwzkTgj
+        TOVbEoaJPVjC7U3cgRjJTvm/ijG+A0g=
+X-Google-Smtp-Source: ACHHUZ5EghSL+T2smSFXGaDDfGtSEs20h0mHG9wiXgx18PI4vRiqEqB1vTRkGMtyHfYeT+MGxnnm4Q==
+X-Received: by 2002:a17:907:a424:b0:960:ce5:20c0 with SMTP id sg36-20020a170907a42400b009600ce520c0mr8595282ejc.20.1686210970362;
+        Thu, 08 Jun 2023 00:56:10 -0700 (PDT)
+Received: from localhost (p200300e41f305300f22f74fffe1f3a53.dip0.t-ipconnect.de. [2003:e4:1f30:5300:f22f:74ff:fe1f:3a53])
+        by smtp.gmail.com with ESMTPSA id g11-20020a170906c18b00b009746023de34sm345781ejz.150.2023.06.08.00.56.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Jun 2023 00:56:10 -0700 (PDT)
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Wolfram Sang <wsa@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc:     Jon Hunter <jonathanh@nvidia.com>,
+        Akhil R <akhilrajeev@nvidia.com>, linux-i2c@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH] i2c: tegra: Fix failure during probe deferral cleanup
+Date:   Thu,  8 Jun 2023 09:56:06 +0200
+Message-Id: <20230608075606.3590744-1-thierry.reding@gmail.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="GQEOI8YnKp1/dR+r"
-Content-Disposition: inline
-In-Reply-To: <8af5aca3-184f-2561-bec7-c4950fdbaeb5@web.de>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+From: Thierry Reding <treding@nvidia.com>
 
---GQEOI8YnKp1/dR+r
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+If the driver fails to obtain a DMA channel, it will initiate cleanup
+and try to release the DMA channel that couldn't be retrieved. This will
+cause a crash because the cleanup will try to dereference an ERR_PTR()-
+encoded error code.
 
+However, there's nothing to clean up at this point yet, so we can avoid
+this by simply propagating the error code.
 
-> May I know which changes superseded my update suggestions (from 2018-02-02) here?
+Fixes: fcc8a89a1c83 ("i2c: tegra: Share same DMA channel for RX and TX")
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-http://patchwork.ozlabs.org/project/linux-i2c/patch/20230515175042.495377-2-afd@ti.com/
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index f155e9028f94..0eab199900ae 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -458,10 +458,8 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
+ 	 * with existing devicetrees.
+ 	 */
+ 	i2c_dev->dma_chan = dma_request_chan(i2c_dev->dev, "tx");
+-	if (IS_ERR(i2c_dev->dma_chan)) {
+-		err = PTR_ERR(i2c_dev->dma_chan);
+-		goto err_out;
+-	}
++	if (IS_ERR(i2c_dev->dma_chan))
++		return PTR_ERR(i2c_dev->dma_chan);
+ 
+ 	i2c_dev->dma_dev = i2c_dev->dma_chan->device->dev;
+ 	i2c_dev->dma_buf_size = i2c_dev->hw->quirks->max_write_len +
+-- 
+2.40.1
 
-
---GQEOI8YnKp1/dR+r
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmSBh5UACgkQFA3kzBSg
-KbYg4RAArgl3g2yUy70as5mpUHMy7SnPZlKgpErhukuRmNJiobOBoJAAwpMDgtd6
-q5A9gwE6FCnZQdwxGH1gCt54y/u8JY9uWEzZru1BeINmfzcqSTtXPRJUTGrFMiqD
-72SMSLkmyj2b4euq1KO8mGY0bnrZSBPe+OlREvdl4nPloaHDqKnruPFSitw4d1fU
-FtpAajG6QX1T09Ko+FSTPeBd2g8BVNAiFY2pXEfpkowYC9izoooIpC3GocCEBAs/
-hMQ89EvVI30ZGEwmZbi/fYUjL2UucvR1mShRF0Inasg5RAXHBYNVD5ZcNFPhIywt
-SFKKnoh5wTcpm/mWj8k+McCnHK1lI+CoYj9rfZonEUfA4aVoHcA6Jlzeog0qD0k3
-7NPK/fN4wJeRGTmZPcyFgHKJLVid1OEisM+p6OwPN93UAwh1TrN9QK4WjQ+a6+XB
-OGujU65OXgc5DHcU1LzhJTRaZ7HloughrP+C/90poPf6ifHgnb2MjS+sC252lBgt
-KWwKvg3YibChdh7fig3bsg8rPaTlz3+4AL4lhAlmXSlhSf7ag1/oLYBXcWCQJMrv
-WJCgZPqODrnuYkJca5H5LWRujqyL8iDcyIQScUgH673AnwzAUohyDxWzZdlUAjM8
-XT7Q5XHZ5cdvtpYK8SScQGzzR286psKKPGTX+8pTkqUvgRXY/uw=
-=Hfjf
------END PGP SIGNATURE-----
-
---GQEOI8YnKp1/dR+r--
