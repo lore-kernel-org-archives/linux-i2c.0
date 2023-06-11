@@ -2,48 +2,48 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BB02C77B7A
-	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jun 2023 23:17:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98465C7EE23
+	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jun 2023 23:17:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231922AbjFKXRJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 11 Jun 2023 19:17:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40702 "EHLO
+        id S229455AbjFKXRK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 11 Jun 2023 19:17:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbjFKXRI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 19:17:08 -0400
-X-Greylist: delayed 600 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 11 Jun 2023 16:17:07 PDT
-Received: from 13.mo581.mail-out.ovh.net (13.mo581.mail-out.ovh.net [87.98.150.175])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 414FEE5
+        with ESMTP id S232285AbjFKXRJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 19:17:09 -0400
+X-Greylist: delayed 615 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 11 Jun 2023 16:17:08 PDT
+Received: from 8.mo581.mail-out.ovh.net (8.mo581.mail-out.ovh.net [46.105.77.114])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23FFDCE
         for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 16:17:07 -0700 (PDT)
-Received: from director1.ghost.mail-out.ovh.net (unknown [10.109.146.163])
-        by mo581.mail-out.ovh.net (Postfix) with ESMTP id 4673523213
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:57:59 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-wjzs9 (unknown [10.110.171.220])
-        by director1.ghost.mail-out.ovh.net (Postfix) with ESMTPS id A69F91FD60;
-        Sun, 11 Jun 2023 22:57:58 +0000 (UTC)
-Received: from etezian.org ([37.59.142.108])
-        by ghost-submission-6684bf9d7b-wjzs9 with ESMTPSA
-        id e3MRInZRhmTO1A8AYBT6iw
-        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:57:58 +0000
-Authentication-Results: garm.ovh; auth=pass (GARM-108S0029d335423-99e2-42c1-a7ca-16d0a4c5d0a9,
+Received: from director6.ghost.mail-out.ovh.net (unknown [10.108.4.85])
+        by mo581.mail-out.ovh.net (Postfix) with ESMTP id 2A2C922FA4
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:57:49 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-pm5xw (unknown [10.110.103.73])
+        by director6.ghost.mail-out.ovh.net (Postfix) with ESMTPS id AF2C01FD71;
+        Sun, 11 Jun 2023 22:57:48 +0000 (UTC)
+Received: from etezian.org ([37.59.142.101])
+        by ghost-submission-6684bf9d7b-pm5xw with ESMTPSA
+        id tk1tDWxRhmSYZwoAd+tFlQ
+        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:57:48 +0000
+Authentication-Results: garm.ovh; auth=pass (GARM-101G0046797f24f-7da4-4297-924b-90d5f53172b3,
                     CC7C3CD7EA035B6EDB7D18A077CE8F666EF926BD) smtp.auth=andi@etezian.org
 X-OVh-ClientIp: 93.66.31.89
 From:   Andi Shyti <andi.shyti@kernel.org>
 To:     Linux I2C <linux-i2c@vger.kernel.org>
 Cc:     Andi Shyti <andi.shyti@kernel.org>,
-        Vladimir Zapolskiy <vz@mleia.com>
-Subject: [PATCH 07/15] i2c: busses: lpc2k: Use devm_clk_get_enabled()
-Date:   Mon, 12 Jun 2023 00:56:54 +0200
-Message-Id: <20230611225702.891856-8-andi.shyti@kernel.org>
+        Michal Simek <michal.simek@amd.com>
+Subject: [PATCH 02/15] i2c: busses: xiic: Use devm_clk_get_enabled()
+Date:   Mon, 12 Jun 2023 00:56:49 +0200
+Message-Id: <20230611225702.891856-3-andi.shyti@kernel.org>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230611225702.891856-1-andi.shyti@kernel.org>
 References: <20230611225702.891856-1-andi.shyti@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 5870160643544975949
+X-Ovh-Tracer-Id: 5867345891608758943
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupdelfedrieeirdefuddrkeelpdefjedrheelrddugedvrddutdeknecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpeeorghnughisegvthgviihirghnrdhorhhgqedpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkedupdhmohguvgepshhmthhpohhuth
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupdelfedrieeirdefuddrkeelpdefjedrheelrddugedvrddutddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpeeorghnughisegvthgviihirghnrdhorhhgqedpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkedupdhmohguvgepshhmthhpohhuth
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -53,77 +53,81 @@ clk_prepare_enable(), with a single function
 devm_clk_get_enabled().
 
 Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Cc: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Michal Simek <michal.simek@amd.com>
 ---
- drivers/i2c/busses/i2c-lpc2k.c | 22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-lpc2k.c b/drivers/i2c/busses/i2c-lpc2k.c
-index 469fe907723e8..5c6d965547539 100644
---- a/drivers/i2c/busses/i2c-lpc2k.c
-+++ b/drivers/i2c/busses/i2c-lpc2k.c
-@@ -365,23 +365,17 @@ static int i2c_lpc2k_probe(struct platform_device *pdev)
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 61288f8dd0672..f879af4def5ed 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -1256,16 +1256,11 @@ static int xiic_i2c_probe(struct platform_device *pdev)
  
- 	init_waitqueue_head(&i2c->wait);
+ 	mutex_init(&i2c->lock);
  
 -	i2c->clk = devm_clk_get(&pdev->dev, NULL);
 +	i2c->clk = devm_clk_get_enabled(&pdev->dev, NULL);
- 	if (IS_ERR(i2c->clk)) {
--		dev_err(&pdev->dev, "error getting clock\n");
-+		dev_err(&pdev->dev, "failed to enable clock.\n");
- 		return PTR_ERR(i2c->clk);
- 	}
+ 	if (IS_ERR(i2c->clk))
+ 		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
+-				     "input clock not found.\n");
++				     "failed to enable input clock.\n");
  
 -	ret = clk_prepare_enable(i2c->clk);
 -	if (ret) {
--		dev_err(&pdev->dev, "unable to enable clock.\n");
+-		dev_err(&pdev->dev, "Unable to enable clock.\n");
 -		return ret;
 -	}
--
- 	ret = devm_request_irq(&pdev->dev, i2c->irq, i2c_lpc2k_handler, 0,
- 			       dev_name(&pdev->dev), i2c);
+ 	i2c->dev = &pdev->dev;
+ 	pm_runtime_set_autosuspend_delay(i2c->dev, XIIC_PM_TIMEOUT);
+ 	pm_runtime_use_autosuspend(i2c->dev);
+@@ -1286,7 +1281,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 
  	if (ret < 0) {
- 		dev_err(&pdev->dev, "can't request interrupt.\n");
--		goto fail_clk;
-+		return ret;
+ 		dev_err(&pdev->dev, "Cannot claim IRQ\n");
+-		goto err_clk_dis;
++		goto err_pm_disable;
  	}
  
- 	disable_irq_nosync(i2c->irq);
-@@ -397,8 +391,7 @@ static int i2c_lpc2k_probe(struct platform_device *pdev)
- 	clkrate = clk_get_rate(i2c->clk);
- 	if (clkrate == 0) {
- 		dev_err(&pdev->dev, "can't get I2C base clock\n");
--		ret = -EINVAL;
--		goto fail_clk;
-+		return -EINVAL;
+ 	i2c->singlemaster =
+@@ -1307,14 +1302,14 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	ret = xiic_reinit(i2c);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Cannot xiic_reinit\n");
+-		goto err_clk_dis;
++		goto err_pm_disable;
  	}
  
- 	/* Setup I2C dividers to generate clock with proper duty cycle */
-@@ -424,15 +417,11 @@ static int i2c_lpc2k_probe(struct platform_device *pdev)
- 
+ 	/* add i2c adapter to i2c tree */
  	ret = i2c_add_adapter(&i2c->adap);
- 	if (ret < 0)
--		goto fail_clk;
-+		return ret;
+ 	if (ret) {
+ 		xiic_deinit(i2c);
+-		goto err_clk_dis;
++		goto err_pm_disable;
+ 	}
  
- 	dev_info(&pdev->dev, "LPC2K I2C adapter\n");
+ 	if (pdata) {
+@@ -1328,10 +1323,10 @@ static int xiic_i2c_probe(struct platform_device *pdev)
  
  	return 0;
--
--fail_clk:
+ 
+-err_clk_dis:
++err_pm_disable:
+ 	pm_runtime_set_suspended(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
 -	clk_disable_unprepare(i2c->clk);
--	return ret;
++
+ 	return ret;
  }
  
- static void i2c_lpc2k_remove(struct platform_device *dev)
-@@ -440,7 +429,6 @@ static void i2c_lpc2k_remove(struct platform_device *dev)
- 	struct lpc2k_i2c *i2c = platform_get_drvdata(dev);
+@@ -1352,7 +1347,6 @@ static void xiic_i2c_remove(struct platform_device *pdev)
+ 		xiic_deinit(i2c);
  
- 	i2c_del_adapter(&i2c->adap);
+ 	pm_runtime_put_sync(i2c->dev);
 -	clk_disable_unprepare(i2c->clk);
- }
- 
- #ifdef CONFIG_PM
+ 	pm_runtime_disable(&pdev->dev);
+ 	pm_runtime_set_suspended(&pdev->dev);
+ 	pm_runtime_dont_use_autosuspend(&pdev->dev);
 -- 
 2.40.1
 
