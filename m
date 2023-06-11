@@ -2,48 +2,48 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3E4CC7EE2F
-	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jun 2023 22:58:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E42F9C7EE23
+	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jun 2023 23:03:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231303AbjFKW6X (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 11 Jun 2023 18:58:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38620 "EHLO
+        id S229725AbjFKXDF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 11 Jun 2023 19:03:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229512AbjFKW6W (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 18:58:22 -0400
-Received: from 8.mo576.mail-out.ovh.net (8.mo576.mail-out.ovh.net [46.105.56.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2FCAE47
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 15:58:20 -0700 (PDT)
-Received: from director6.ghost.mail-out.ovh.net (unknown [10.108.4.72])
-        by mo576.mail-out.ovh.net (Postfix) with ESMTP id 37B182356E
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:58:19 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-sjm9b (unknown [10.110.208.177])
-        by director6.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 5F4361FDD6;
-        Sun, 11 Jun 2023 22:58:18 +0000 (UTC)
-Received: from etezian.org ([37.59.142.96])
-        by ghost-submission-6684bf9d7b-sjm9b with ESMTPSA
-        id eJG7E4pRhmRnRxAAgRmG/g
-        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:58:18 +0000
-Authentication-Results: garm.ovh; auth=pass (GARM-96R0019b62682e-042e-4ad5-b99a-a5b6e956abe5,
+        with ESMTP id S229512AbjFKXDE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 19:03:04 -0400
+Received: from 17.mo583.mail-out.ovh.net (17.mo583.mail-out.ovh.net [46.105.56.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B6BEBE
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 16:03:02 -0700 (PDT)
+Received: from director3.ghost.mail-out.ovh.net (unknown [10.108.4.253])
+        by mo583.mail-out.ovh.net (Postfix) with ESMTP id C1BBA24B52
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:57:51 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-8s98b (unknown [10.110.103.46])
+        by director3.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 1A9371FD4F;
+        Sun, 11 Jun 2023 22:57:51 +0000 (UTC)
+Received: from etezian.org ([37.59.142.98])
+        by ghost-submission-6684bf9d7b-8s98b with ESMTPSA
+        id mePMBG9RhmTn0Q8AyNC6/Q
+        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:57:51 +0000
+Authentication-Results: garm.ovh; auth=pass (GARM-98R00212037f6d-5d66-462c-a755-c6e5ad352955,
                     CC7C3CD7EA035B6EDB7D18A077CE8F666EF926BD) smtp.auth=andi@etezian.org
 X-OVh-ClientIp: 93.66.31.89
 From:   Andi Shyti <andi.shyti@kernel.org>
 To:     Linux I2C <linux-i2c@vger.kernel.org>
 Cc:     Andi Shyti <andi.shyti@kernel.org>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: [PATCH 14/15] i2c: busses: uniphier-f: Use devm_clk_get_enabled()
-Date:   Mon, 12 Jun 2023 00:57:01 +0200
-Message-Id: <20230611225702.891856-15-andi.shyti@kernel.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>
+Subject: [PATCH 04/15] i2c: busses: exynos5: Use devm_clk_get_enabled()
+Date:   Mon, 12 Jun 2023 00:56:51 +0200
+Message-Id: <20230611225702.891856-5-andi.shyti@kernel.org>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230611225702.891856-1-andi.shyti@kernel.org>
 References: <20230611225702.891856-1-andi.shyti@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 5875790140753709608
+X-Ovh-Tracer-Id: 5867908842054879970
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupdelfedrieeirdefuddrkeelpdefjedrheelrddugedvrdelieenucevlhhushhtvghrufhiiigvpeelnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomhepoegrnhguihesvghtvgiiihgrnhdrohhrgheqpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheejiedpmhhouggvpehsmhhtphhouhht
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupdelfedrieeirdefuddrkeelpdefjedrheelrddugedvrdelkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomhepoegrnhguihesvghtvgiiihgrnhdrohhrgheqpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheekfedpmhhouggvpehsmhhtphhouhht
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -53,67 +53,110 @@ clk_prepare_enable(), with a single function
 devm_clk_get_enabled().
 
 Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>
 ---
- drivers/i2c/busses/i2c-uniphier-f.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
+ drivers/i2c/busses/i2c-exynos5.c | 44 +++++++++-----------------------
+ 1 file changed, 12 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index 54b1624ef87ea..dbc91c7c3788f 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -540,21 +540,16 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index f378cd479e558..6f76d0027aeae 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -808,30 +808,20 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
+ 	i2c->adap.retries = 3;
  
--	priv->clk = devm_clk_get(dev, NULL);
-+	priv->clk = devm_clk_get_enabled(dev, NULL);
- 	if (IS_ERR(priv->clk)) {
--		dev_err(dev, "failed to get clock\n");
-+		dev_err(dev, "failed to enable clock\n");
- 		return PTR_ERR(priv->clk);
- 	}
+ 	i2c->dev = &pdev->dev;
+-	i2c->clk = devm_clk_get(&pdev->dev, "hsi2c");
+-	if (IS_ERR(i2c->clk)) {
+-		dev_err(&pdev->dev, "cannot get clock\n");
+-		return -ENOENT;
+-	}
++	i2c->clk = devm_clk_get_enabled(&pdev->dev, "hsi2c");
++	if (IS_ERR(i2c->clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
++				     "cannot enable clock\n");
  
--	ret = clk_prepare_enable(priv->clk);
+-	i2c->pclk = devm_clk_get_optional(&pdev->dev, "hsi2c_pclk");
+-	if (IS_ERR(i2c->pclk)) {
++	i2c->pclk = devm_clk_get_optional_enabled(&pdev->dev, "hsi2c_pclk");
++	if (IS_ERR(i2c->pclk))
+ 		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->pclk),
+-				     "cannot get pclk");
+-	}
+-
+-	ret = clk_prepare_enable(i2c->pclk);
 -	if (ret)
 -		return ret;
 -
- 	clk_rate = clk_get_rate(priv->clk);
- 	if (!clk_rate) {
- 		dev_err(dev, "input clock rate should not be zero\n");
--		ret = -EINVAL;
--		goto disable_clk;
-+		return -EINVAL;
- 	}
+-	ret = clk_prepare_enable(i2c->clk);
+-	if (ret)
+-		goto err_pclk;
++				     "cannot enable pclk");
  
- 	priv->clk_cycle = clk_rate / bus_speed;
-@@ -575,15 +570,10 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
- 			       pdev->name, priv);
- 	if (ret) {
- 		dev_err(dev, "failed to request irq %d\n", irq);
--		goto disable_clk;
+ 	i2c->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(i2c->regs)) {
+ 		ret = PTR_ERR(i2c->regs);
+-		goto err_clk;
 +		return ret;
  	}
  
--	ret = i2c_add_adapter(&priv->adap);
--disable_clk:
--	if (ret)
--		clk_disable_unprepare(priv->clk);
+ 	i2c->adap.dev.of_node = np;
+@@ -846,26 +836,26 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
+ 
+ 	i2c->irq = ret = platform_get_irq(pdev, 0);
+ 	if (ret < 0)
+-		goto err_clk;
++		return ret;
+ 
+ 	ret = devm_request_irq(&pdev->dev, i2c->irq, exynos5_i2c_irq,
+ 			       IRQF_NO_SUSPEND, dev_name(&pdev->dev), i2c);
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "cannot request HS-I2C IRQ %d\n", i2c->irq);
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	i2c->variant = of_device_get_match_data(&pdev->dev);
+ 
+ 	ret = exynos5_hsi2c_clock_setup(i2c);
+ 	if (ret)
+-		goto err_clk;
++		return ret;
+ 
+ 	exynos5_i2c_reset(i2c);
+ 
+ 	ret = i2c_add_adapter(&i2c->adap);
+ 	if (ret < 0)
+-		goto err_clk;
++		return ret;
+ 
+ 	platform_set_drvdata(pdev, i2c);
+ 
+@@ -873,13 +863,6 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
+ 	clk_disable(i2c->pclk);
+ 
+ 	return 0;
 -
+- err_clk:
+-	clk_disable_unprepare(i2c->clk);
+-
+- err_pclk:
+-	clk_disable_unprepare(i2c->pclk);
 -	return ret;
-+	return i2c_add_adapter(&priv->adap);
  }
  
- static void uniphier_fi2c_remove(struct platform_device *pdev)
-@@ -591,7 +581,6 @@ static void uniphier_fi2c_remove(struct platform_device *pdev)
- 	struct uniphier_fi2c_priv *priv = platform_get_drvdata(pdev);
+ static void exynos5_i2c_remove(struct platform_device *pdev)
+@@ -887,9 +870,6 @@ static void exynos5_i2c_remove(struct platform_device *pdev)
+ 	struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
  
- 	i2c_del_adapter(&priv->adap);
--	clk_disable_unprepare(priv->clk);
+ 	i2c_del_adapter(&i2c->adap);
+-
+-	clk_unprepare(i2c->clk);
+-	clk_unprepare(i2c->pclk);
  }
  
- static int __maybe_unused uniphier_fi2c_suspend(struct device *dev)
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.40.1
 
