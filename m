@@ -2,49 +2,51 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BEDEC7EE2F
-	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jun 2023 23:36:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CED9BC7EE23
+	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jun 2023 23:37:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbjFKXg1 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 11 Jun 2023 19:36:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41372 "EHLO
+        id S232878AbjFKXhQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 11 Jun 2023 19:37:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbjFKXg0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 19:36:26 -0400
-X-Greylist: delayed 2315 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 11 Jun 2023 16:36:24 PDT
-Received: from 11.mo561.mail-out.ovh.net (11.mo561.mail-out.ovh.net [87.98.184.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98EDC191
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 16:36:24 -0700 (PDT)
-Received: from director3.ghost.mail-out.ovh.net (unknown [10.109.143.145])
-        by mo561.mail-out.ovh.net (Postfix) with ESMTP id 3777D24000
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:58:20 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-vgw46 (unknown [10.110.171.111])
-        by director3.ghost.mail-out.ovh.net (Postfix) with ESMTPS id A75BB1FD4F;
-        Sun, 11 Jun 2023 22:58:19 +0000 (UTC)
-Received: from etezian.org ([37.59.142.97])
-        by ghost-submission-6684bf9d7b-vgw46 with ESMTPSA
-        id DoQ/J4tRhmSm/Q8A5Gss9Q
-        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:58:19 +0000
-Authentication-Results: garm.ovh; auth=pass (GARM-97G002a87088b6-a647-43ff-8b8b-d4874057fad8,
+        with ESMTP id S232654AbjFKXhG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 19:37:06 -0400
+X-Greylist: delayed 1784 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 11 Jun 2023 16:36:52 PDT
+Received: from 4.mo581.mail-out.ovh.net (4.mo581.mail-out.ovh.net [178.32.122.254])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C02139
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 16:36:51 -0700 (PDT)
+Received: from director9.ghost.mail-out.ovh.net (unknown [10.109.146.76])
+        by mo581.mail-out.ovh.net (Postfix) with ESMTP id 976A823020
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:57:50 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-bqp6v (unknown [10.110.103.167])
+        by director9.ghost.mail-out.ovh.net (Postfix) with ESMTPS id E938F1FDE9;
+        Sun, 11 Jun 2023 22:57:49 +0000 (UTC)
+Received: from etezian.org ([37.59.142.98])
+        by ghost-submission-6684bf9d7b-bqp6v with ESMTPSA
+        id tS+9Mm1RhmRl3Q8A2le5ag
+        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:57:49 +0000
+Authentication-Results: garm.ovh; auth=pass (GARM-98R00296a076f8-0597-48ea-a108-55ad6848b1fa,
                     CC7C3CD7EA035B6EDB7D18A077CE8F666EF926BD) smtp.auth=andi@etezian.org
 X-OVh-ClientIp: 93.66.31.89
 From:   Andi Shyti <andi.shyti@kernel.org>
 To:     Linux I2C <linux-i2c@vger.kernel.org>
 Cc:     Andi Shyti <andi.shyti@kernel.org>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: [PATCH 15/15] i2c: busses: uniphier: Use devm_clk_get_enabled()
-Date:   Mon, 12 Jun 2023 00:57:02 +0200
-Message-Id: <20230611225702.891856-16-andi.shyti@kernel.org>
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>
+Subject: [PATCH 03/15] i2c: busses: at91-core: Use devm_clk_get_enabled()
+Date:   Mon, 12 Jun 2023 00:56:50 +0200
+Message-Id: <20230611225702.891856-4-andi.shyti@kernel.org>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230611225702.891856-1-andi.shyti@kernel.org>
 References: <20230611225702.891856-1-andi.shyti@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 5876071616441813544
+X-Ovh-Tracer-Id: 5867627367089572552
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupdelfedrieeirdefuddrkeelpdefjedrheelrddugedvrdeljeenucevlhhushhtvghrufhiiigvpeejnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomhepoegrnhguihesvghtvgiiihgrnhdrohhrgheqpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheeiuddpmhhouggvpehsmhhtphhouhht
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupdelfedrieeirdefuddrkeelpdefjedrheelrddugedvrdelkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomhepoegrnhguihesvghtvgiiihgrnhdrohhrgheqpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheekuddpmhhouggvpehsmhhtphhouhht
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -54,67 +56,50 @@ clk_prepare_enable(), with a single function
 devm_clk_get_enabled().
 
 Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Claudiu Beznea <claudiu.beznea@microchip.com>
 ---
- drivers/i2c/busses/i2c-uniphier.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
+ drivers/i2c/busses/i2c-at91-core.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
-index 96b1eb7489a3c..854ac25b58628 100644
---- a/drivers/i2c/busses/i2c-uniphier.c
-+++ b/drivers/i2c/busses/i2c-uniphier.c
-@@ -335,21 +335,16 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at91-core.c
+index 05ad3bc3578ac..2251e0deed29c 100644
+--- a/drivers/i2c/busses/i2c-at91-core.c
++++ b/drivers/i2c/busses/i2c-at91-core.c
+@@ -226,12 +226,11 @@ static int at91_twi_probe(struct platform_device *pdev)
  
--	priv->clk = devm_clk_get(dev, NULL);
-+	priv->clk = devm_clk_get_enabled(dev, NULL);
- 	if (IS_ERR(priv->clk)) {
--		dev_err(dev, "failed to get clock\n");
-+		dev_err(dev, "failed to enable clock\n");
- 		return PTR_ERR(priv->clk);
- 	}
+ 	platform_set_drvdata(pdev, dev);
  
--	ret = clk_prepare_enable(priv->clk);
--	if (ret)
--		return ret;
+-	dev->clk = devm_clk_get(dev->dev, NULL);
++	dev->clk = devm_clk_get_enabled(dev->dev, NULL);
+ 	if (IS_ERR(dev->clk)) {
+-		dev_err(dev->dev, "no clock defined\n");
++		dev_err(dev->dev, "failed to enable clock\n");
+ 		return -ENODEV;
+ 	}
+-	clk_prepare_enable(dev->clk);
+ 
+ 	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
+ 	i2c_set_adapdata(&dev->adapter, dev);
+@@ -260,8 +259,6 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 
+ 	rc = i2c_add_numbered_adapter(&dev->adapter);
+ 	if (rc) {
+-		clk_disable_unprepare(dev->clk);
 -
- 	clk_rate = clk_get_rate(priv->clk);
- 	if (!clk_rate) {
- 		dev_err(dev, "input clock rate should not be zero\n");
--		ret = -EINVAL;
--		goto disable_clk;
-+		return -EINVAL;
- 	}
+ 		pm_runtime_disable(dev->dev);
+ 		pm_runtime_set_suspended(dev->dev);
  
- 	priv->clk_cycle = clk_rate / bus_speed;
-@@ -369,15 +364,10 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
- 			       priv);
- 	if (ret) {
- 		dev_err(dev, "failed to request irq %d\n", irq);
--		goto disable_clk;
-+		return ret;
- 	}
+@@ -278,7 +275,6 @@ static void at91_twi_remove(struct platform_device *pdev)
+ 	struct at91_twi_dev *dev = platform_get_drvdata(pdev);
  
--	ret = i2c_add_adapter(&priv->adap);
--disable_clk:
--	if (ret)
--		clk_disable_unprepare(priv->clk);
--
--	return ret;
-+	return i2c_add_adapter(&priv->adap);
- }
+ 	i2c_del_adapter(&dev->adapter);
+-	clk_disable_unprepare(dev->clk);
  
- static void uniphier_i2c_remove(struct platform_device *pdev)
-@@ -385,7 +375,6 @@ static void uniphier_i2c_remove(struct platform_device *pdev)
- 	struct uniphier_i2c_priv *priv = platform_get_drvdata(pdev);
- 
- 	i2c_del_adapter(&priv->adap);
--	clk_disable_unprepare(priv->clk);
- }
- 
- static int __maybe_unused uniphier_i2c_suspend(struct device *dev)
+ 	pm_runtime_disable(dev->dev);
+ 	pm_runtime_set_suspended(dev->dev);
 -- 
 2.40.1
 
