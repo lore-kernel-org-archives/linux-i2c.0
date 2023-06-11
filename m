@@ -2,51 +2,49 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EE0FC7EE2E
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jun 2023 00:16:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1ACDAC7EE23
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jun 2023 01:26:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229523AbjFLAQ6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 11 Jun 2023 20:16:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45434 "EHLO
+        id S229512AbjFLB0l (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 11 Jun 2023 21:26:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229477AbjFLAQ5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 20:16:57 -0400
-X-Greylist: delayed 3601 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 11 Jun 2023 17:16:55 PDT
-Received: from 19.mo581.mail-out.ovh.net (19.mo581.mail-out.ovh.net [178.33.251.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35A5DC7
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 17:16:55 -0700 (PDT)
-Received: from director1.ghost.mail-out.ovh.net (unknown [10.109.146.5])
-        by mo581.mail-out.ovh.net (Postfix) with ESMTP id DB1FF2342E
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:58:14 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-8s98b (unknown [10.110.171.220])
-        by director1.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 30A7C1FD58;
-        Sun, 11 Jun 2023 22:58:14 +0000 (UTC)
-Received: from etezian.org ([37.59.142.102])
-        by ghost-submission-6684bf9d7b-8s98b with ESMTPSA
-        id hqMECIZRhmQv0g8AyNC6/Q
-        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:58:14 +0000
-Authentication-Results: garm.ovh; auth=pass (GARM-102R00460118613-6016-4ed0-9d2f-7be3cb034c47,
+        with ESMTP id S229477AbjFLB0l (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 21:26:41 -0400
+Received: from 1.mo582.mail-out.ovh.net (1.mo582.mail-out.ovh.net [46.105.56.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B71619C
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 18:26:38 -0700 (PDT)
+Received: from director4.ghost.mail-out.ovh.net (unknown [10.108.20.107])
+        by mo582.mail-out.ovh.net (Postfix) with ESMTP id 4986923EDF
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:57:47 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-pmk5g (unknown [10.110.208.213])
+        by director4.ghost.mail-out.ovh.net (Postfix) with ESMTPS id B237A1FE09;
+        Sun, 11 Jun 2023 22:57:46 +0000 (UTC)
+Received: from etezian.org ([37.59.142.105])
+        by ghost-submission-6684bf9d7b-pmk5g with ESMTPSA
+        id 2I7yKGpRhmQ5LA4AMMBGyw
+        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:57:46 +0000
+Authentication-Results: garm.ovh; auth=pass (GARM-105G006c556ebc1-14a3-4f8c-9edd-0f6c01aa3388,
                     CC7C3CD7EA035B6EDB7D18A077CE8F666EF926BD) smtp.auth=andi@etezian.org
 X-OVh-ClientIp: 93.66.31.89
 From:   Andi Shyti <andi.shyti@kernel.org>
 To:     Linux I2C <linux-i2c@vger.kernel.org>
 Cc:     Andi Shyti <andi.shyti@kernel.org>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-        Alain Volmat <alain.volmat@foss.st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>
-Subject: [PATCH 11/15] i2c: busses: stm32f4: Use devm_clk_get_enabled()
-Date:   Mon, 12 Jun 2023 00:56:58 +0200
-Message-Id: <20230611225702.891856-12-andi.shyti@kernel.org>
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH 01/15] i2c: busses: emev2: Use devm_clk_get_enabled()
+Date:   Mon, 12 Jun 2023 00:56:48 +0200
+Message-Id: <20230611225702.891856-2-andi.shyti@kernel.org>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230611225702.891856-1-andi.shyti@kernel.org>
 References: <20230611225702.891856-1-andi.shyti@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 5874382765866158711
+X-Ovh-Tracer-Id: 5866782941251701270
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupdelfedrieeirdefuddrkeelpdefjedrheelrddugedvrddutddvnecuvehluhhsthgvrhfuihiivgepheenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpeeorghnughisegvthgviihirghnrdhorhhgqedpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkedupdhmohguvgepshhmthhpohhuth
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupdelfedrieeirdefuddrkeelpdefjedrheelrddugedvrddutdehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpeeorghnughisegvthgviihirghnrdhorhhgqedpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkedvpdhmohguvgepshhmthhpohhuth
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -56,101 +54,71 @@ clk_prepare_enable(), with a single function
 devm_clk_get_enabled().
 
 Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
-Cc: Alain Volmat <alain.volmat@foss.st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Magnus Damm <magnus.damm@gmail.com>
 ---
- drivers/i2c/busses/i2c-stm32f4.c | 32 ++++++++++----------------------
- 1 file changed, 10 insertions(+), 22 deletions(-)
+ drivers/i2c/busses/i2c-emev2.c | 17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
-index 6ad06a5a22b43..7bbb0acbdf74d 100644
---- a/drivers/i2c/busses/i2c-stm32f4.c
-+++ b/drivers/i2c/busses/i2c-stm32f4.c
-@@ -784,23 +784,17 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
+index 4ba93cd91c0f0..d080b829f142b 100644
+--- a/drivers/i2c/busses/i2c-emev2.c
++++ b/drivers/i2c/busses/i2c-emev2.c
+@@ -373,14 +373,10 @@ static int em_i2c_probe(struct platform_device *pdev)
  
--	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
-+	i2c_dev->clk = devm_clk_get_enabled(&pdev->dev, NULL);
- 	if (IS_ERR(i2c_dev->clk)) {
--		dev_err(&pdev->dev, "Error: Missing controller clock\n");
-+		dev_err(&pdev->dev, "Failed to enable clock\n");
- 		return PTR_ERR(i2c_dev->clk);
- 	}
--	ret = clk_prepare_enable(i2c_dev->clk);
--	if (ret) {
--		dev_err(i2c_dev->dev, "Failed to prepare_enable clock\n");
+ 	strscpy(priv->adap.name, "EMEV2 I2C", sizeof(priv->adap.name));
+ 
+-	priv->sclk = devm_clk_get(&pdev->dev, "sclk");
++	priv->sclk = devm_clk_get_enabled(&pdev->dev, "sclk");
+ 	if (IS_ERR(priv->sclk))
+ 		return PTR_ERR(priv->sclk);
+ 
+-	ret = clk_prepare_enable(priv->sclk);
+-	if (ret)
 -		return ret;
--	}
+-
+ 	priv->adap.timeout = msecs_to_jiffies(100);
+ 	priv->adap.retries = 5;
+ 	priv->adap.dev.parent = &pdev->dev;
+@@ -397,26 +393,22 @@ static int em_i2c_probe(struct platform_device *pdev)
  
- 	rst = devm_reset_control_get_exclusive(&pdev->dev, NULL);
--	if (IS_ERR(rst)) {
--		ret = dev_err_probe(&pdev->dev, PTR_ERR(rst),
--				    "Error: Missing reset ctrl\n");
--		goto clk_free;
--	}
-+	if (IS_ERR(rst))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(rst),
-+				     "Error: Missing reset ctrl\n");
-+
- 	reset_control_assert(rst);
- 	udelay(2);
- 	reset_control_deassert(rst);
-@@ -817,7 +811,7 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request irq event %i\n",
- 			irq_event);
--		goto clk_free;
+ 	ret = platform_get_irq(pdev, 0);
+ 	if (ret < 0)
+-		goto err_clk;
 +		return ret;
- 	}
- 
- 	ret = devm_request_irq(&pdev->dev, irq_error, stm32f4_i2c_isr_error, 0,
-@@ -825,12 +819,12 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request irq error %i\n",
- 			irq_error);
--		goto clk_free;
-+		return ret;
- 	}
- 
- 	ret = stm32f4_i2c_hw_config(i2c_dev);
+ 	priv->irq = ret;
+ 	ret = devm_request_irq(&pdev->dev, priv->irq, em_i2c_irq_handler, 0,
+ 				"em_i2c", priv);
  	if (ret)
--		goto clk_free;
+-		goto err_clk;
 +		return ret;
  
- 	adap = &i2c_dev->adap;
- 	i2c_set_adapdata(adap, i2c_dev);
-@@ -846,7 +840,7 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
+ 	ret = i2c_add_adapter(&priv->adap);
  
- 	ret = i2c_add_adapter(adap);
  	if (ret)
--		goto clk_free;
+-		goto err_clk;
 +		return ret;
  
- 	platform_set_drvdata(pdev, i2c_dev);
- 
-@@ -855,10 +849,6 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
- 	dev_info(i2c_dev->dev, "STM32F4 I2C driver registered\n");
+ 	dev_info(&pdev->dev, "Added i2c controller %d, irq %d\n", priv->adap.nr,
+ 		 priv->irq);
  
  	return 0;
 -
--clk_free:
--	clk_disable_unprepare(i2c_dev->clk);
+-err_clk:
+-	clk_disable_unprepare(priv->sclk);
 -	return ret;
  }
  
- static void stm32f4_i2c_remove(struct platform_device *pdev)
-@@ -866,8 +856,6 @@ static void stm32f4_i2c_remove(struct platform_device *pdev)
- 	struct stm32f4_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+ static void em_i2c_remove(struct platform_device *dev)
+@@ -424,7 +416,6 @@ static void em_i2c_remove(struct platform_device *dev)
+ 	struct em_i2c_device *priv = platform_get_drvdata(dev);
  
- 	i2c_del_adapter(&i2c_dev->adap);
--
--	clk_unprepare(i2c_dev->clk);
+ 	i2c_del_adapter(&priv->adap);
+-	clk_disable_unprepare(priv->sclk);
  }
  
- static const struct of_device_id stm32f4_i2c_match[] = {
+ static const struct of_device_id em_i2c_ids[] = {
 -- 
 2.40.1
 
