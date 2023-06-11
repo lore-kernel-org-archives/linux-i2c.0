@@ -2,132 +2,91 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98465C7EE23
-	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jun 2023 23:17:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F519C77B7A
+	for <linux-i2c@archiver.kernel.org>; Sun, 11 Jun 2023 23:36:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229455AbjFKXRK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 11 Jun 2023 19:17:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40708 "EHLO
+        id S229464AbjFKXf7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 11 Jun 2023 19:35:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232285AbjFKXRJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 19:17:09 -0400
-X-Greylist: delayed 615 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 11 Jun 2023 16:17:08 PDT
-Received: from 8.mo581.mail-out.ovh.net (8.mo581.mail-out.ovh.net [46.105.77.114])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23FFDCE
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 16:17:07 -0700 (PDT)
-Received: from director6.ghost.mail-out.ovh.net (unknown [10.108.4.85])
-        by mo581.mail-out.ovh.net (Postfix) with ESMTP id 2A2C922FA4
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:57:49 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-pm5xw (unknown [10.110.103.73])
-        by director6.ghost.mail-out.ovh.net (Postfix) with ESMTPS id AF2C01FD71;
-        Sun, 11 Jun 2023 22:57:48 +0000 (UTC)
-Received: from etezian.org ([37.59.142.101])
-        by ghost-submission-6684bf9d7b-pm5xw with ESMTPSA
-        id tk1tDWxRhmSYZwoAd+tFlQ
-        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:57:48 +0000
-Authentication-Results: garm.ovh; auth=pass (GARM-101G0046797f24f-7da4-4297-924b-90d5f53172b3,
+        with ESMTP id S229441AbjFKXf7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2023 19:35:59 -0400
+X-Greylist: delayed 1804 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 11 Jun 2023 16:35:56 PDT
+Received: from 18.mo584.mail-out.ovh.net (18.mo584.mail-out.ovh.net [188.165.54.143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B966018B
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 16:35:56 -0700 (PDT)
+Received: from director3.ghost.mail-out.ovh.net (unknown [10.108.1.146])
+        by mo584.mail-out.ovh.net (Postfix) with ESMTP id 248B723ACD
+        for <linux-i2c@vger.kernel.org>; Sun, 11 Jun 2023 22:57:46 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-mz2r5 (unknown [10.110.115.220])
+        by director3.ghost.mail-out.ovh.net (Postfix) with ESMTPS id DD8DE1FD4F;
+        Sun, 11 Jun 2023 22:57:45 +0000 (UTC)
+Received: from etezian.org ([37.59.142.95])
+        by ghost-submission-6684bf9d7b-mz2r5 with ESMTPSA
+        id HYi0M2lRhmTh0AIA8H4CEw
+        (envelope-from <andi@etezian.org>); Sun, 11 Jun 2023 22:57:45 +0000
+Authentication-Results: garm.ovh; auth=pass (GARM-95G001e86cf684-f498-400f-b0b2-f9ad1f212e0c,
                     CC7C3CD7EA035B6EDB7D18A077CE8F666EF926BD) smtp.auth=andi@etezian.org
 X-OVh-ClientIp: 93.66.31.89
 From:   Andi Shyti <andi.shyti@kernel.org>
 To:     Linux I2C <linux-i2c@vger.kernel.org>
-Cc:     Andi Shyti <andi.shyti@kernel.org>,
-        Michal Simek <michal.simek@amd.com>
-Subject: [PATCH 02/15] i2c: busses: xiic: Use devm_clk_get_enabled()
-Date:   Mon, 12 Jun 2023 00:56:49 +0200
-Message-Id: <20230611225702.891856-3-andi.shyti@kernel.org>
+Cc:     Andi Shyti <andi.shyti@kernel.org>
+Subject: [PATCH 00/15] i2c: busses: Use devm_clk_get_enabled()
+Date:   Mon, 12 Jun 2023 00:56:47 +0200
+Message-Id: <20230611225702.891856-1-andi.shyti@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230611225702.891856-1-andi.shyti@kernel.org>
-References: <20230611225702.891856-1-andi.shyti@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 5867345891608758943
+X-Ovh-Tracer-Id: 5866501466203753031
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupdelfedrieeirdefuddrkeelpdefjedrheelrddugedvrddutddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpeeorghnughisegvthgviihirghnrdhorhhgqedpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkedupdhmohguvgepshhmthhpohhuth
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrgedufedgudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpedvhefgveffteekueefgeehleekueegieeivdeiuedvhfeifeevieffgffhgfektdenucfkphepuddvjedrtddrtddruddpleefrdeiiedrfedurdekledpfeejrdehledrudegvddrleehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpeeorghnughisegvthgviihirghnrdhorhhgqedpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkeegpdhmohguvgepshhmthhpohhuth
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Replace the pair of functions, devm_clk_get() and
-clk_prepare_enable(), with a single function
-devm_clk_get_enabled().
+Hi,
 
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Cc: Michal Simek <michal.simek@amd.com>
----
- drivers/i2c/busses/i2c-xiic.c | 20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+After having sent some cleanups for using devm_clk_get_enabled(),
+I decided to expand a bit to some of the i2c drivers.
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 61288f8dd0672..f879af4def5ed 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -1256,16 +1256,11 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 
- 	mutex_init(&i2c->lock);
- 
--	i2c->clk = devm_clk_get(&pdev->dev, NULL);
-+	i2c->clk = devm_clk_get_enabled(&pdev->dev, NULL);
- 	if (IS_ERR(i2c->clk))
- 		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
--				     "input clock not found.\n");
-+				     "failed to enable input clock.\n");
- 
--	ret = clk_prepare_enable(i2c->clk);
--	if (ret) {
--		dev_err(&pdev->dev, "Unable to enable clock.\n");
--		return ret;
--	}
- 	i2c->dev = &pdev->dev;
- 	pm_runtime_set_autosuspend_delay(i2c->dev, XIIC_PM_TIMEOUT);
- 	pm_runtime_use_autosuspend(i2c->dev);
-@@ -1286,7 +1281,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "Cannot claim IRQ\n");
--		goto err_clk_dis;
-+		goto err_pm_disable;
- 	}
- 
- 	i2c->singlemaster =
-@@ -1307,14 +1302,14 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	ret = xiic_reinit(i2c);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "Cannot xiic_reinit\n");
--		goto err_clk_dis;
-+		goto err_pm_disable;
- 	}
- 
- 	/* add i2c adapter to i2c tree */
- 	ret = i2c_add_adapter(&i2c->adap);
- 	if (ret) {
- 		xiic_deinit(i2c);
--		goto err_clk_dis;
-+		goto err_pm_disable;
- 	}
- 
- 	if (pdata) {
-@@ -1328,10 +1323,10 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
--err_clk_dis:
-+err_pm_disable:
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
--	clk_disable_unprepare(i2c->clk);
-+
- 	return ret;
- }
- 
-@@ -1352,7 +1347,6 @@ static void xiic_i2c_remove(struct platform_device *pdev)
- 		xiic_deinit(i2c);
- 
- 	pm_runtime_put_sync(i2c->dev);
--	clk_disable_unprepare(i2c->clk);
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+Andi
+
+Andi Shyti (15):
+  i2c: busses: emev2: Use devm_clk_get_enabled()
+  i2c: busses: xiic: Use devm_clk_get_enabled()
+  i2c: busses: at91-core: Use devm_clk_get_enabled()
+  i2c: busses: exynos5: Use devm_clk_get_enabled()
+  i2c: busses: hix5hd2: Use devm_clk_get_enabled()
+  i2c: busses: jz4780: Use devm_clk_get_enabled()
+  i2c: busses: lpc2k: Use devm_clk_get_enabled()
+  i2c: busses: mt7621: Use devm_clk_get_enabled()
+  i2c: busses: owl: Use devm_clk_get_enabled()
+  i2c: busses: pasemi-platform: Use devm_clk_get_enabled()
+  i2c: busses: stm32f4: Use devm_clk_get_enabled()
+  i2c: busses: stm32f7: Use devm_clk_get_enabled()
+  i2c: busses: sun6i-p2wi: Use devm_clk_get_enabled()
+  i2c: busses: uniphier-f: Use devm_clk_get_enabled()
+  i2c: busses: uniphier: Use devm_clk_get_enabled()
+
+ drivers/i2c/busses/i2c-at91-core.c       |  8 ++---
+ drivers/i2c/busses/i2c-emev2.c           | 17 +++------
+ drivers/i2c/busses/i2c-exynos5.c         | 44 +++++++-----------------
+ drivers/i2c/busses/i2c-hix5hd2.c         | 11 +++---
+ drivers/i2c/busses/i2c-jz4780.c          | 25 ++++----------
+ drivers/i2c/busses/i2c-lpc2k.c           | 22 +++---------
+ drivers/i2c/busses/i2c-mt7621.c          | 20 +++--------
+ drivers/i2c/busses/i2c-owl.c             | 18 +++-------
+ drivers/i2c/busses/i2c-pasemi-platform.c | 22 +++---------
+ drivers/i2c/busses/i2c-stm32f4.c         | 32 ++++++-----------
+ drivers/i2c/busses/i2c-stm32f7.c         | 37 +++++++-------------
+ drivers/i2c/busses/i2c-sun6i-p2wi.c      | 17 ++-------
+ drivers/i2c/busses/i2c-uniphier-f.c      | 21 +++--------
+ drivers/i2c/busses/i2c-uniphier.c        | 21 +++--------
+ drivers/i2c/busses/i2c-xiic.c            | 20 ++++-------
+ 15 files changed, 87 insertions(+), 248 deletions(-)
+
 -- 
 2.40.1
 
