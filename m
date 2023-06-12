@@ -2,65 +2,66 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66417C7EE23
-	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jun 2023 13:07:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A239C7EE37
+	for <linux-i2c@archiver.kernel.org>; Mon, 12 Jun 2023 13:09:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbjFLNHq convert rfc822-to-8bit (ORCPT
+        id S229555AbjFLNJD convert rfc822-to-8bit (ORCPT
         <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 12 Jun 2023 09:07:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48500 "EHLO
+        Mon, 12 Jun 2023 09:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbjFLNHp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Jun 2023 09:07:45 -0400
-Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88CEBA0;
-        Mon, 12 Jun 2023 06:07:44 -0700 (PDT)
-Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-3f9cf20da1dso40450741cf.3;
-        Mon, 12 Jun 2023 06:07:44 -0700 (PDT)
+        with ESMTP id S230354AbjFLNJC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Jun 2023 09:09:02 -0400
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66AD5A0;
+        Mon, 12 Jun 2023 06:09:00 -0700 (PDT)
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-56cf32f5bf8so22915237b3.3;
+        Mon, 12 Jun 2023 06:09:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686575263; x=1689167263;
+        d=1e100.net; s=20221208; t=1686575339; x=1689167339;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=OOSPC68jRmmKm/N4lilGrY5D58VwuhvYh8IBlby8n7U=;
-        b=bx5uQNrvOGQ9zGPv54Rq+C9z9AApMjvYPPuIzdrbu2npNXrWd/hYB0KmkTqexEzirt
-         sFrE1omp083DtjBW2Jd8ohGEMiAQvs7KcOEZBfk4onaOU6MahGTXevH6bAV5rhI/ORWZ
-         73MiE4vmIDOf9g0bHLHTiLJy+uTUQDBUXf/r+WLOV7ff0bi3gaYkQzdCb561mNkXWOa5
-         cApX8oNCAiemmql1E+5Q7Zryz3cacXRIszCAYsE3ADqKLcRxytxv9dSb/L9EcEorQouq
-         +0jOgwIbGgCNSpmu4wX8AsvhMJh3MTq7QyJfZffgx9Srkpv7UK9sbrjKFSKtYjHMNOZt
-         oz7A==
-X-Gm-Message-State: AC+VfDwb4b863ooux2mR/emXip5SaXv7DhFARx7js3SzI8BUC+0taIfl
-        CMvcpzplN8p7sdVzwPLepaxp8sK286+qQg==
-X-Google-Smtp-Source: ACHHUZ75vLbBH4+KV+zPfV/EodLflsttpEOFZh151HYYHjvN0G8G0FcoirzScX0zNC4p+cLFxkHFlg==
-X-Received: by 2002:a05:622a:1cf:b0:3f9:ae23:5763 with SMTP id t15-20020a05622a01cf00b003f9ae235763mr11553051qtw.61.1686575263455;
-        Mon, 12 Jun 2023 06:07:43 -0700 (PDT)
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com. [209.85.219.49])
-        by smtp.gmail.com with ESMTPSA id w4-20020ac843c4000000b003f9af049c55sm3362216qtn.18.2023.06.12.06.07.43
+        bh=5XhZcZSHZMUBc906xfl0reyAu6fl6qfJnXfrRKfwIpg=;
+        b=MeOhhH71d9BNu6XPRpIkaakdm8mAaNAANC2lGr3OrNPR5p72/fOFgO4nZ/UPSwJNeS
+         7LTjI+FWxwtFQr/tHRsFTM7aXIGWzLR2IfnJ/9cg0lSzPVMMylBUjYOoNLj5fEgwxF6p
+         /39x238b3Q0gA6rdDSLJBPbtKMHp0aqoJRey/BB+WwoljUf7CAdHdKca34qaOwvDR/hG
+         gejxWi74aTIPBzZ2ibIbgO88fkQ9OFWdL/SKUEL6krgVEAWUfOZpM6RbSzc1hJNt4aPz
+         AZU0velBMD/zM2AhyovadZayK/Nn2bjrIFjA5rzXPs6rya3kX/n4ubRr50ucIGEakg3R
+         mN+g==
+X-Gm-Message-State: AC+VfDx2xznIMC6Y5t+YsEiHvzuXEkP6GLG7sbb/aU8leQQcgTE2Dx20
+        BcDsdl2RwOAXaLiF4Y9/TTdmUI8IWiBAag==
+X-Google-Smtp-Source: ACHHUZ4yxSONE2j7jvj74P0z+K/mCu3DW4upo6ynr+xOYq9KvF+ZQlnJkB5zraNGojA7UtRxvXI6Tg==
+X-Received: by 2002:a81:93c3:0:b0:561:8602:1a40 with SMTP id k186-20020a8193c3000000b0056186021a40mr11058011ywg.46.1686575339362;
+        Mon, 12 Jun 2023 06:08:59 -0700 (PDT)
+Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com. [209.85.219.179])
+        by smtp.gmail.com with ESMTPSA id v3-20020a814803000000b0055a416529bbsm1502921ywa.24.2023.06.12.06.08.58
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 12 Jun 2023 06:07:43 -0700 (PDT)
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-62de8bce252so11959946d6.0;
-        Mon, 12 Jun 2023 06:07:43 -0700 (PDT)
-X-Received: by 2002:a25:7642:0:b0:bc5:da39:e84 with SMTP id
- r63-20020a257642000000b00bc5da390e84mr6203110ybc.13.1686574813357; Mon, 12
- Jun 2023 06:00:13 -0700 (PDT)
+        Mon, 12 Jun 2023 06:08:58 -0700 (PDT)
+Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-bc50b217bc0so2258680276.1;
+        Mon, 12 Jun 2023 06:08:58 -0700 (PDT)
+X-Received: by 2002:a25:1e86:0:b0:ba9:b3dd:6b0d with SMTP id
+ e128-20020a251e86000000b00ba9b3dd6b0dmr8576899ybe.64.1686575338138; Mon, 12
+ Jun 2023 06:08:58 -0700 (PDT)
 MIME-Version: 1.0
 References: <ZIBFc3y9jD59lZ3A@shikoro> <OS0PR01MB5922A3A97439EA2F976940B28653A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
  <OS0PR01MB5922AA27B212F610A5E816138650A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
  <20230608103929.GO5058@pendragon.ideasonboard.com> <OS0PR01MB592259E6A7ACED4A0548DD228650A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
  <20230608125019.GD26742@pendragon.ideasonboard.com> <OS0PR01MB5922ECEABE4D6FC385D184008650A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
  <OS0PR01MB592265BFDF18F860E1EB4CFE8654A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
- <ZIcRKl3PDy0+yZS9@ninjato> <CAMuHMdV_iwdP+K1us86OB4VtDDqA=P_vNeCP15kqRuXqcYr3hg@mail.gmail.com>
- <ZIcUEdctlgRsGxJ3@ninjato>
-In-Reply-To: <ZIcUEdctlgRsGxJ3@ninjato>
+ <20230612122353.GA22391@pendragon.ideasonboard.com> <OS0PR01MB5922D335D53C7B0FA021B3218654A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <20230612125405.GA23921@pendragon.ideasonboard.com>
+In-Reply-To: <20230612125405.GA23921@pendragon.ideasonboard.com>
 From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 12 Jun 2023 15:00:01 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdVOkBeKOEW9PkWB3Tqwa6-rC3BQj=W9VAEgeZfgqvQmWQ@mail.gmail.com>
-Message-ID: <CAMuHMdVOkBeKOEW9PkWB3Tqwa6-rC3BQj=W9VAEgeZfgqvQmWQ@mail.gmail.com>
+Date:   Mon, 12 Jun 2023 15:08:46 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdV_xw-+_MakVeLVgv1nCW_GqKQ2hiEfb5J-p2WiSvWV_g@mail.gmail.com>
+Message-ID: <CAMuHMdV_xw-+_MakVeLVgv1nCW_GqKQ2hiEfb5J-p2WiSvWV_g@mail.gmail.com>
 Subject: Re: [PATCH v5 01/11] i2c: Enhance i2c_new_ancillary_device API
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Rob Herring <robh+dt@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>,
         Conor Dooley <conor+dt@kernel.org>,
         Andrzej Hajda <andrzej.hajda@intel.com>,
         Neil Armstrong <neil.armstrong@linaro.org>,
@@ -88,60 +89,98 @@ Cc:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
         "linux-renesas-soc@vger.kernel.org" 
         <linux-renesas-soc@vger.kernel.org>,
-        Mark Brown <broonie@kernel.org>
+        Mark Brown <broonie@kernel.org>,
+        Trent Piepho <tpiepho@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi Laurent,
 
-On Mon, Jun 12, 2023 at 2:48 PM Wolfram Sang <wsa@kernel.org> wrote:
-> > > Would this binding allow to not use the RTC if the second reg is
-> > > missing? What are the advantages of not enabling RTC? Saving power?
+On Mon, Jun 12, 2023 at 2:54 PM Laurent Pinchart
+<laurent.pinchart@ideasonboard.com> wrote:
+> On Mon, Jun 12, 2023 at 12:42:33PM +0000, Biju Das wrote:
+> > > Subject: Re: [PATCH v5 01/11] i2c: Enhance i2c_new_ancillary_device API
+> > > On Mon, Jun 12, 2023 at 09:53:02AM +0000, Biju Das wrote:
+> > > > How do we proceed here between [1] and [2]?
+> > > >
+> > > > DT-Maintainers suggestion:
+> > > > [1]
+> > > > raa215300: pmic@12 {
+> > > >   compatible = "renesas,raa215300";
+> > > >   reg = <0x12>, <0x6f>;
+> > > >   reg-names = "main", "rtc";
+> > > >
+> > > >   clocks = <&x2>;
+> > > >   clock-names = "xin";
+> > > >   /* Add Optional shared IRQ resource and share it to child and handle
+> > > > it both in parent and child */ };
+> > > >
+> > > > Laurent/Wolfram suggestion to split it into two nodes and get rid of this patch:
+> > > > [2]
+> > > >   raa215300: pmic @12 {
+> > > >           compatible = "renesas,raa215300";
+> > > >           reg = <0x12>;
+> > > >
+> > > >           /* Add Optional shared IRQ */
+> > > >           renesas,raa215300-rtc = <&rtc_raa215300>; /* Parse the handle and Enable RTC , if present.*/
+> > > >   };
+> > > >
+> > > >   rtc_raa215300: rtc@6f {
+> > > >           compatible = "renesas,raa215300-isl1208";
+> > >
+> > > Make this
+> > >
+> > >             compatible = "renesas,raa215300-isl1208", "isil,isl1208";
+> > >
+> > > >           reg = <0x6f>;
+> > > >
+> > > >           /* Add Optional shared IRQ */
+> > > >           clocks = <&x2>;
+> > > >           clock-names = "xin";
+> > > >           renesas,raa215300-pmic = <&pmic>; /* Parse the handle to get PMIC
+> > > > version to check Oscillator bit is inverted or not */
+> > >
+> > > This isn't nice. I would instead add a renesas,invert-xtoscb boolean
+> > > property. If you don't want different DT sources for different revisions
+> > > of the PMIC,
 > >
-> > It doesn't work if there is no clock?
+> > I need to support all PMIC versions with same image, as PMIC is just a component on the
+> > SoM module. So SoM's have different PMIC versions.
 >
-> Maybe I am confusing something now, but if the RTC _needs_ to be
-> enabled, then why we don't do it unconditionally?
-
-1. DT describes the hardware, which listens to two addresses, so the
-   device node should have two entries in the reg property.
-2. The RTC is enabled by instantiating an i2c ancillary device, and lets the
-   isl1208 driver bind against it.
-
-> > > Thinking more about this: DT is hardware description, so the RTC should
-> > > always be described in DT. If the RTC is actually activated is more a
-> > > configuration thing, or? Brainstorming: maybe the PMIC driver could try
-> > > to find the node with reg == 0x6f and see if firmware has enabled it or
-> > > not?
+> I understand it's not convenient, so let's try to find a good solution.
+>
+> > > one option is to perform the auto-detection in the boot
+> > > loader and update the DT dynamically there.
 > >
-> > I guess the RTC part would acknowledge anyway?
-> > It is always present, it is just part of the RAA215300.
+> > Yes, this is an option. Bootloader updates "renesas,invert-xtoscb" property based
+> > on PMIC version.
+> >
+> > Not sure, From binding perspective, Documenting "renesas,invert-xtoscb" is OK for
+> > the relevant maintainers??
 >
-> I mean the driver should scan for the DT node. Not on the bus. But a
-> phandle is probably safer.
+> It's fine with me at least :-) I think a property makes sense, as it
+> describes the device. Updating the device tree in the boot loader based
+> on auto-detection of features is also fairly common (to set the amount
+> of DRAM for instance).
 >
-> > Sure, you can put that in DT.  But it's a pity you have to do that,
-> > as the device (the PMIC part) does know the revision...
-> > That's why I suggested to let the PMIC part instantiate an i2c ancillary
-> > device...
->
-> I see. I'll let it sink in some more.
+> What I'm not entirely sure about in this case is if a property would be
+> the best option, or two different compatible strings. I'll let the
+> appropriate maintainer recommend one of those two options. In either
+> case, the boot loader would be responsible for updating the DT.
 
-Perhaps we should first think through what an ancillary device really
-is.  My understanding is that it is used to talk to secondary addresses
-of a multi-address I2C slave device.
+Indeed. DT binding best practices 101: do not use properties to
+distinguish, use compatible values instead.
 
-What's different here compared to e.g. adv748x?
-  - RAA215300 has a PMIC and an RTC, and there exists a separate
-    RTC driver for a similar part (which is thus Linux-specific,
-    not DT-specific!),
-  - I don't know much about adv748x, but I understand there is a
-    single driver talking to all subcomponents.
-    What if in the future we e.g. would want to spin off part of it
-    in a subdriver, as a subcomponent appeared in an unrelated device?
+And don't use different compatible values if you can distinguish using
+a version register.  Unfortunately the version register is part of the
+main/first device (the PMIC), so the RTC cannot find out easily...
+
+So basically you have an i2c mfd.  The Linux mfd subsystem is tailored
+for platform devices, so it's not a good match.  The closest we have
+in i2c is the ancillary device...
 
 Gr{oetje,eeting}s,
 
