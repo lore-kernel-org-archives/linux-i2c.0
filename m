@@ -2,127 +2,193 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12BA4EB64D8
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jun 2023 01:51:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9C28EB64DD
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jun 2023 08:15:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233018AbjFOBvm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 14 Jun 2023 21:51:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49222 "EHLO
+        id S243775AbjFOIPe convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 15 Jun 2023 04:15:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230514AbjFOBvl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Jun 2023 21:51:41 -0400
-Received: from smtp.bonedaddy.net (smtp.bonedaddy.net [45.33.94.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D981DF
-        for <linux-i2c@vger.kernel.org>; Wed, 14 Jun 2023 18:51:40 -0700 (PDT)
-Received: by smtp.bonedaddy.net (Postfix, from userid 10001)
-        id B5CD030738D; Wed, 14 Jun 2023 21:47:29 -0400 (EDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bonedaddy.net;
-        s=mail; t=1686793649;
-        bh=Ktx3MrA1IekIkert3j7d0rZRIYPIEG33HW+eoxbTDH0=;
-        h=Subject:From:To:Cc:In-Reply-To:References:Date;
-        b=lcsiXUxoeh8N9gX01Hv0nCzG1gvsYVzQxn8XcLCZp+FfGADudw1ERx+26qEhsB3f/
-         78VORCiS1lllLtoL1/KMUwvMi+DNvLVtHlUh6nOlh6uVoC2xaFBIAsQSOq3NcDQdPK
-         u0VQx2DUTmFtoKZQEXNFxwlKhvWatWYVjEBP10Fpbcsz/vZigfC8yJQQJdvzO51dHs
-         IZG5FvTseETlLMWOy2E4BFeNEoGVoM/JjmHQI6LpQN4Uh3XVRg4uH0Nks+WBC9I2ww
-         a9FB48LkBIdu73ygHssrDXfOxekjKJx9t8JU88i04ZcVKHVCAPd/bjNnAuqUbnjQfX
-         LYf3nDZ6PyOew==
-Message-ID: <738c0e105090e76d16303af479e2577af91192e6.camel@bonedaddy.net>
-Subject: Re: [PATCH i2c-tools v2] i2cdetect: add messages for errors during
- bus listing
-From:   Paul Wise <pabs3@bonedaddy.net>
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
-In-Reply-To: <ZIoxmbo9Cu+bPHsF@shikoro>
-References: <20230526002445.57064-1-pabs3@bonedaddy.net>
-         <ZIoxmbo9Cu+bPHsF@shikoro>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-Ur52jb23nGOnxQxf4AYD"
-Date:   Thu, 15 Jun 2023 09:51:15 +0800
+        with ESMTP id S240023AbjFOIPV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jun 2023 04:15:21 -0400
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9C661BD2;
+        Thu, 15 Jun 2023 01:15:17 -0700 (PDT)
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-56d378b75f0so17660067b3.1;
+        Thu, 15 Jun 2023 01:15:17 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686816917; x=1689408917;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=uwN7xkQsIMitCd4edPOUEfx3D1ulWw+mJLJ/cEru9Gs=;
+        b=OON6BiLLAOyKkAOVYALjTUSEpYPZJ7TpWH5J87kZqv/V+2Z+143AkEyxzDBLhP7sg/
+         ZSfnydKW8SCEttqYGeCjgUvZdYvFRLPvkCGFXUirp6mEhYvIGVtuYHy0smXPOJTj5nKU
+         lcACVhfhxB4fWS+xCg3/0QFLTPJheJ1iuAWMKUASJYkryyptK8an9Bbmx3K+afdT+sLw
+         1IWqPE1GI3Y34mmO2pq1Ko60a6tRq+D+2p81gwbY5ikWu6bw49Ikvxkvjil0nvlgZuUD
+         BXEmOXH0RkE4UNIyH1a3+20j1ZYDRsLEYHln5X6Lf2eg+mAuf8ysQGM6WdGFtFL7IUKI
+         xTkA==
+X-Gm-Message-State: AC+VfDxEFzOnNPRj5SSsNS6gZlz+mx6rc5L226JA1CO/2t4PSYul59yV
+        7ZqJpflurEKs40/NGl6bOKlodjTEGe567Q==
+X-Google-Smtp-Source: ACHHUZ6HIhY600/sV5b2wyjfutfK0Ms5tjkkteqLBo+4XDNWcYlKWgS30ooNRydSVtaHgOwBo0CzPA==
+X-Received: by 2002:a81:84d3:0:b0:56d:824e:d93f with SMTP id u202-20020a8184d3000000b0056d824ed93fmr4539084ywf.38.1686816916826;
+        Thu, 15 Jun 2023 01:15:16 -0700 (PDT)
+Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com. [209.85.219.174])
+        by smtp.gmail.com with ESMTPSA id x142-20020a0dd594000000b00559fb950d9fsm4341067ywd.45.2023.06.15.01.15.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Jun 2023 01:15:16 -0700 (PDT)
+Received: by mail-yb1-f174.google.com with SMTP id 3f1490d57ef6-bb2ffa1e235so1406031276.0;
+        Thu, 15 Jun 2023 01:15:16 -0700 (PDT)
+X-Received: by 2002:a25:2805:0:b0:bca:9326:2f5e with SMTP id
+ o5-20020a252805000000b00bca93262f5emr3925299ybo.39.1686816473432; Thu, 15 Jun
+ 2023 01:07:53 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Evolution 3.48.2-1 
+References: <OS0PR01MB5922AA27B212F610A5E816138650A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <20230608103929.GO5058@pendragon.ideasonboard.com> <OS0PR01MB592259E6A7ACED4A0548DD228650A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <20230608125019.GD26742@pendragon.ideasonboard.com> <OS0PR01MB5922ECEABE4D6FC385D184008650A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <OS0PR01MB592265BFDF18F860E1EB4CFE8654A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <ZIcRKl3PDy0+yZS9@ninjato> <CAMuHMdV_iwdP+K1us86OB4VtDDqA=P_vNeCP15kqRuXqcYr3hg@mail.gmail.com>
+ <ZIcUEdctlgRsGxJ3@ninjato> <CAMuHMdVOkBeKOEW9PkWB3Tqwa6-rC3BQj=W9VAEgeZfgqvQmWQ@mail.gmail.com>
+ <ZIeDcVcfxfcMx/BP@shikoro> <CAMuHMdV_Ty=rkcMzsrnJ3YHZngRbyWvYjR_K9Zh7RiAJ4LbvKg@mail.gmail.com>
+ <OS0PR01MB59225195B4F2C771F302F7EE8655A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <CAMuHMdUTAerddXG3zJVRZEAwcrR6V=NFeHwsKV9_tE+ccfw6_w@mail.gmail.com>
+ <OS0PR01MB59224D7C95B9B0037046FCF78655A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <CAMuHMdUhaSKiuVkmoYt1sm87emFZu7HSSCK-e95-Yy=g8Sgo4w@mail.gmail.com>
+In-Reply-To: <CAMuHMdUhaSKiuVkmoYt1sm87emFZu7HSSCK-e95-Yy=g8Sgo4w@mail.gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Thu, 15 Jun 2023 10:07:39 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdX4QxmFJi3q61ByOFG38KgcGMxPQMeXyPA3r1D9098BMg@mail.gmail.com>
+Message-ID: <CAMuHMdX4QxmFJi3q61ByOFG38KgcGMxPQMeXyPA3r1D9098BMg@mail.gmail.com>
+Subject: Re: [PATCH v5 01/11] i2c: Enhance i2c_new_ancillary_device API
+To:     Biju Das <biju.das.jz@bp.renesas.com>
+Cc:     Wolfram Sang <wsa@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Robert Foss <rfoss@kernel.org>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Corey Minyard <cminyard@mvista.com>,
+        =?UTF-8?B?TWFyZWsgQmVow7pu?= <kabel@kernel.org>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Antonio Borneo <antonio.borneo@foss.st.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
+        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+        "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi Biju,
 
---=-Ur52jb23nGOnxQxf4AYD
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jun 14, 2023 at 9:53 AM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> On Tue, Jun 13, 2023 at 6:11 PM Biju Das <biju.das.jz@bp.renesas.com> wrote:
+> > > Subject: Re: [PATCH v5 01/11] i2c: Enhance i2c_new_ancillary_device API
+> > > On Tue, Jun 13, 2023 at 12:45 PM Biju Das <biju.das.jz@bp.renesas.com>
+> > > wrote:
+> > > > > Subject: Re: [PATCH v5 01/11] i2c: Enhance i2c_new_ancillary_device
+> > > > > API On Mon, Jun 12, 2023 at 10:43 PM Wolfram Sang <wsa@kernel.org>
+> > > wrote:
+> > > > > > > Perhaps we should first think through what an ancillary device
+> > > > > > > really is.  My understanding is that it is used to talk to
+> > > > > > > secondary addresses of a multi-address I2C slave device.
+> > > > > >
+> > > > > > As I mentioned somewhere before, this is not the case. Ancillary
+> > > > > > devices are when one *driver* handles more than one address.
+> > > > > > Everything else has been handled differently in the past (for  all
+> > > > > > the
+> > > > > uses I am aware of).
+> > > > > >
+> > > > > > Yet, I have another idea which is so simple that I wonder if it
+> > > > > > maybe has already been discussed so far?
+> > > > > >
+> > > > > > * have two regs in the bindings
+> > > > > > * use the second reg with i2c_new_client_device to instantiate the
+> > > > > >   RTC sibling. 'struct i2c_board_info', which is one parameter,
+> > > should
+> > > > > >   have enough options to pass data, e.g it has a software_node.
+> > > > > >
+> > > > > > Should work or did I miss something here?
+> > > > >
+> > > > > That should work, mostly (i2c_new_dummy_device() also calls
+> > > > > i2c_new_client_device()).  And as i2c_board_info has an of_node
+> > > > > member (something I had missed before!), the new I2C device can
+> > > > > access the clocks in the DT node using the standard way.
+> > > >
+> > > > Looks like, I cannot assign of_node member like below as it results in
+> > > > pinctrl failure[1] during device bind.
+> > > >
+> > > > info.of_node = client->dev.of_node;
+> > > >
+> > > > [1]
+> > > > pinctrl-rzg2l 11030000.pinctrl: pin P43_0 already requested by 3-0012;
+> > > > cannot claim for 3-006f pinctrl-rzg2l 11030000.pinctrl: pin-344
+> > > > (3-006f) status -22 pinctrl-rzg2l 11030000.pinctrl: could not request
+> > > > pin 344 (P43_0) from group pmic  on device pinctrl-rzg2l
+> > > > raa215300 3-006f: Error applying setting, reverse things back
+> > >
+> > > Where do you have a reference to pin P43_0 in your DT?
+> >
+> > The reference to pin P43_0 is added in the PMIC node.
+> >
+> > I have done modification on my board to test PMIC INT# on RZ/G2L SMARC EVK
+> > by wiring R83 on SoM module and PMOD0 PIN7.
+> >
+> > > The last versions you posted did not have any pinctrl properties?
+> >
+> > By default, PMIC_INT# is not populated RZ/G2L SMARC EVK, so I haven't added
+> > Support for PMIC_INT# for the patches posted till date.
+> >
+> > Yesterday I checked with HW people, is there a way to enable PMIC_INT#
+> > and they told me to do the above HW modification.
+> >
+> > Today I found this issue, with this modified HW and PMIC INT# enabled on the DT,
+> > while assigning of_node of PMIC with info.of_node. It is just a coincidence.
+>
+> IC.
+>
+> So you now have two Linux devices pointing to the same DT node,
+> causing pinctrl issues...
 
-On Wed, 2023-06-14 at 23:31 +0200, Wolfram Sang wrote:
+So don't set info.of_node? ;-)
 
-> Hmm, I wonder if a simple "Is it mounted?" isn't enough?
+Without of_node, devm_clk_get() and friends falls back to registered
+clkdevs. So you could call clk_register_clkdev() from within the
+PMIC driver, and can keep on using devm_clk_get_optional() in the
+ISL1208 driver.
 
-It depends on the sophistication and mental state you want to require
-from i2cdetect users. Some i2cdetect users might not know or currently
-remember the exact commands needed to fix their issues. Personally, I
-haven't memorised how to mount these directories, so I would need to go
-look up the documentation. Others might go ask mailing lists, search
-engines or AI assistants if they are online. So as I said on the Debian
-ARM list, since the issues all have very simple solutions, I added the
-commands to fix them instead of pointers to documentation about each
-error, or expecting users to know about them. Given that the RPi has
-lead to a large influx of users with potentially little Linux
-experience doing GPIO stuff, this patch could reduce support requests.
-
-https://lists.debian.org/msgid-search/8e2bfcf0375433acec188bbbf11fa9117076f=
-e6b.camel@debian.org
-
-Please don't merge this just yet though; thinking about this more
-and reading the Debian thread a bit more, I think I want to send
-a v3 patch that also tells users that pass the wrong i2c bus number
-to run `i2cdetect -l` to find the right bus.
-
-https://lists.debian.org/msgid-search/e496b7d9-e047-43df-9fe3-f65bdc37bf93@=
-app.fastmail.com
-https://lists.debian.org/msgid-search/E1poJwd-0002Go-RM@enotuniq.net
+If that fails, there's also software_node.properties, or even the good
+old platform_data...
 
 
-> If there are no devices_present here, then we fail without printing
-> something? Is this intended?
+Gr{oetje,eeting}s,
 
-There wouldn't be a failure, just exit without printing any busses and
-without printing any error messages. Perhaps it should a print no
-busses found error message in that case instead?
+                        Geert
 
-> Yes, for rare cases this could mean that loading "i2c-dev" does not
-> solve the problem, but using i2ctools without i2c-dev is going to fail
-> at some point anyhow, so IMHO we can complain about this early?
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Sure, but that wouldn't necessarily be very user-friendly.
-
-If there are no i2c busses present in the other i2c directories (which
-IIRC are always present), then there are no i2c busses on the system
-and so loading i2c-dev will not make i2cdetect print any busses, so
-loading i2c-dev is pointless, so we don't ask the user to do that,
-because it would be frustrating to be asked to do something that will
-then not mean any change in the situation, aka zero devices output.
-
---=20
-bye,
-pabs
-
-https://bonedaddy.net/pabs3/
-
---=-Ur52jb23nGOnxQxf4AYD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEYQsotVz8/kXqG1Y7MRa6Xp/6aaMFAmSKbo8ACgkQMRa6Xp/6
-aaOmEA/9E0bE2bD4LOcfV4f/klmyKfirQdLMRt8SaBkfLvrtHHhRho3WgAskzh2b
-c/ZuQv0O/SE4/pT1030DMuElcmLRMrFILD8KjwHjxSaQWCJZ3qhHvHhBZc7N3bV9
-8ihHByaNaR6a6TcLwRZm9+s4rpSxbLLgiV8jBJw7GuWRqQkmD0fHyjpnWqg+99IW
-2vudjfR1wtmROC/ft2KWVH3TmB0e3AWMO6n/0RHbKFiIfsuw/hT98G4HmOmGby3L
-sYuLc0wPOJeK8Mw13/oMT9DJgr1w7IxInoLefHh4gY+4BjwEWsEggMgqLGXC9/aB
-uOxVSfKsOC3zhYS1p7RNWzqsNkzBnnqu94Kz0RfQ8XGym5NFoiqDRqK3psZ4dJzD
-GcmVz4/Fy8loZyyZA+oyh6091+HG5gAbs/X/+xPIts0CLb8bMBVoRFO/wfm3Wv3s
-wY5BHyCP+eqpadIju9h8semPWc09BNnc8Y5U0Dr2TB+sw+VSuJ5M9NysTWqJufH5
-ah69EbdzLyxQv4dZCWH1IhltumobNUqaCsAXEkSqi61a4rKvaicrrUMPF2lFuUkt
-y8+geIaRr10xl9YCAZf4yU8u/KTjHie1A2/3bMK/QyZg/V7UBP6zo4kqUZSd4GsW
-g+2b/nsKkq/YtyeOjHWn1nw07lPfOZX9fbAwxoVLI6zp9fsS+ns=
-=Rczx
------END PGP SIGNATURE-----
-
---=-Ur52jb23nGOnxQxf4AYD--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
