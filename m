@@ -2,56 +2,88 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AACFEEB64DB
-	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jun 2023 09:29:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA18AEB64D9
+	for <linux-i2c@archiver.kernel.org>; Thu, 15 Jun 2023 11:37:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245298AbjFOJ3Y (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 15 Jun 2023 05:29:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
+        id S1343944AbjFOLhk (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 15 Jun 2023 07:37:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245340AbjFOJ3C (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jun 2023 05:29:02 -0400
-Received: from mail.lokoho.com (mail.lokoho.com [217.61.105.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DD962963
-        for <linux-i2c@vger.kernel.org>; Thu, 15 Jun 2023 02:28:57 -0700 (PDT)
-Received: by mail.lokoho.com (Postfix, from userid 1001)
-        id 1349D8795B; Thu, 15 Jun 2023 10:27:05 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lokoho.com; s=mail;
-        t=1686821236; bh=Z0N5VlX9/JlryGOL5I747Le9USomZJCRNNGRT3LbbKc=;
-        h=Date:From:To:Subject:From;
-        b=LyM84IpgY2vmsPl6Y5It552dJzmXKLxZVe2jw95IsF60xzbhqWnRgWabZ/LnAsg0K
-         3Ip1kTF8DzKEEFlaSEEYaJv+hoQ4a5Tj2DaPDbXIFddoDgxL21BAUzpCLAF4n7vT4m
-         91+DyWNe4fBQYffA8owPBIiflIgpCMnHmUn7gTytARIumSmlku3IdE5u7DyQMbTlib
-         2qC+Ze9dSkTEQ0TJn72LCVK4doi54CG79ONz5eVPhzk2xGFYdtXD/j2kxzSTfj1wYL
-         1va4YdqkXB46n5EoVxg3Ty0ZP0UqLI84arAjB6OgrSxte7DdctkGO/+MtO+CKbGo56
-         ysj0UoJu8dNRg==
-Received: by mail.lokoho.com for <linux-i2c@vger.kernel.org>; Thu, 15 Jun 2023 09:26:02 GMT
-Message-ID: <20230615094301-0.1.6n.2mdsa.0.i8oge3gu3v@lokoho.com>
-Date:   Thu, 15 Jun 2023 09:26:02 GMT
-From:   "Adam Charachuta" <adam.charachuta@lokoho.com>
-To:     <linux-i2c@vger.kernel.org>
-Subject: =?UTF-8?Q?S=C5=82owa_kluczowe_do_wypozycjonowania?=
-X-Mailer: mail.lokoho.com
+        with ESMTP id S1343928AbjFOLhh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jun 2023 07:37:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E552297E;
+        Thu, 15 Jun 2023 04:37:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A01DE63948;
+        Thu, 15 Jun 2023 11:37:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B1DBC433C9;
+        Thu, 15 Jun 2023 11:37:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1686829040;
+        bh=wFknVUKg9Zep7d8KD5madwbt58kjiSFqs26HYAb1rbk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=s8wZ7QwQnAwBaJb/shpXNC8ztWfk7NIxmFM56AXHYktUqDHJdmxhysd0ZA6Wt3CDs
+         6KUhUniUBuODAE6OKAoMyDcOD9iAF2Kui7EC/JOGlsQpw3u5YUZWprfz1O/t2vIW31
+         7R0yRjpm0hfZFE21TJYs4by/L1wilgzZpHTeLskM=
+Date:   Thu, 15 Jun 2023 13:37:17 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Daniel Scally <djrscally@gmail.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Michael Hennerich <Michael.Hennerich@analog.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Andreas Klinger <ak@it-klinger.de>,
+        Marcin Wojtas <mw@semihalf.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Jonathan =?iso-8859-1?Q?Neusch=E4fer?= <j.neuschaefer@gmx.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Akhil R <akhilrajeev@nvidia.com>, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-iio@vger.kernel.org, netdev@vger.kernel.org,
+        openbmc@lists.ozlabs.org, linux-gpio@vger.kernel.org,
+        linux-mips@vger.kernel.org
+Subject: Re: [PATCH v7 0/9] fix fwnode_irq_get[_byname()] returnvalue
+Message-ID: <2023061553-urging-collision-32f8@gregkh>
+References: <cover.1685340157.git.mazziesaccount@gmail.com>
+ <20230530233438.572db3fb@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230530233438.572db3fb@kernel.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Dzie=C5=84 dobry,
+On Tue, May 30, 2023 at 11:34:38PM -0700, Jakub Kicinski wrote:
+> On Mon, 29 May 2023 09:22:15 +0300 Matti Vaittinen wrote:
+> > The fwnode_irq_get() and the fwnode_irq_get_byname() may have returned
+> > zero if mapping the IRQ fails. This contradicts the
+> > fwnode_irq_get_byname() documentation. Furthermore, returning zero or
+> > errno on error is unepected and can easily lead to problems
+> > like.
+> 
+> What's the merging plan? Could patch 1 go to a stable branch 
+> and then driver trees can pull it in and apply their respective 
+> patches locally?
 
-zapozna=C5=82em si=C4=99 z Pa=C5=84stwa ofert=C4=85 i z przyjemno=C5=9Bci=
-=C4=85 przyznaj=C4=99, =C5=BCe przyci=C4=85ga uwag=C4=99 i zach=C4=99ca d=
-o dalszych rozm=C3=B3w.=20
+I'll take patch 1 now, and then after 6.5-rc1, Matti, can you send the
+cleanup patches to the respective subsystems?
 
-Pomy=C5=9Bla=C5=82em, =C5=BCe mo=C5=BCe m=C3=B3g=C5=82bym mie=C4=87 sw=C3=
-=B3j wk=C5=82ad w Pa=C5=84stwa rozw=C3=B3j i pom=C3=B3c dotrze=C4=87 z t=C4=
-=85 ofert=C4=85 do wi=C4=99kszego grona odbiorc=C3=B3w. Pozycjonuj=C4=99 =
-strony www, dzi=C4=99ki czemu generuj=C4=85 =C5=9Bwietny ruch w sieci.
+thanks,
 
-Mo=C5=BCemy porozmawia=C4=87 w najbli=C5=BCszym czasie?
-
-
-Pozdrawiam
-Adam Charachuta
+greg k-h
