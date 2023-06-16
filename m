@@ -2,28 +2,28 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2286FEB64DA
-	for <linux-i2c@archiver.kernel.org>; Fri, 16 Jun 2023 14:02:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 674E6EB64D8
+	for <linux-i2c@archiver.kernel.org>; Fri, 16 Jun 2023 14:02:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345600AbjFPOB7 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 16 Jun 2023 10:01:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51836 "EHLO
+        id S1345416AbjFPOCE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 16 Jun 2023 10:02:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345702AbjFPOBX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Jun 2023 10:01:23 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEEB53C3E;
-        Fri, 16 Jun 2023 07:00:52 -0700 (PDT)
+        with ESMTP id S1345427AbjFPOB2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Jun 2023 10:01:28 -0400
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5AA4217;
+        Fri, 16 Jun 2023 07:00:58 -0700 (PDT)
 Received: from desky.lan (91-154-35-171.elisa-laajakaista.fi [91.154.35.171])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id D38349CA;
-        Fri, 16 Jun 2023 16:00:06 +0200 (CEST)
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 957C013C5;
+        Fri, 16 Jun 2023 15:59:57 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1686924008;
-        bh=e8hgMd9naRgk1G2Q6oVS0NzY0giecTRVjFGHh0pIH4g=;
+        s=mail; t=1686923999;
+        bh=FoGdEyjowh4KoMU7bekORi82avpRc1q3afQLZLU30b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzJeiLVtEg4EztEc7jsNCFtBWIaOg+0aiMLwbXXubqS7yTg0w/XNITL/kuxV5SJk0
-         ZBtiBzWvdjHj1V/zWydLpPZxlu80z79NuvQSFpQqqmCzuSMeZCaEcEqyc65JfdRAYP
-         XIYWT8Gr3f+WB1LHK2yPrgcu6iS3WXqWb+TbnmC4=
+        b=iskhj8ZgwLQplODwjp9qmAk6HekEdJcsQbtzW8zRHuBM0387UbXUdmHHLg2NubObK
+         qk3bXXIdISXY4U9mxuvrXJyidUlGWPyllyurNkM7EX3lMy/p6nqMsutVI3xZUYz747
+         hdpCsu/XlkuJrWtJ2bv8OCBID6n65oUM3VsI6W/0=
 From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 To:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -45,9 +45,9 @@ Cc:     Wolfram Sang <wsa@kernel.org>, Rob Herring <robh+dt@kernel.org>,
         Marek Vasut <marex@denx.de>,
         Satish Nagireddy <satish.nagireddy@getcruise.com>,
         Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Subject: [PATCH v14 18/18] media: i2c: ds90ub953: Support non-sync mode
-Date:   Fri, 16 Jun 2023 16:59:22 +0300
-Message-Id: <20230616135922.442979-19-tomi.valkeinen@ideasonboard.com>
+Subject: [PATCH v14 13/18] media: i2c: ds90ub953: Use v4l2_fwnode_endpoint_parse()
+Date:   Fri, 16 Jun 2023 16:59:17 +0300
+Message-Id: <20230616135922.442979-14-tomi.valkeinen@ideasonboard.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230616135922.442979-1-tomi.valkeinen@ideasonboard.com>
 References: <20230616135922.442979-1-tomi.valkeinen@ideasonboard.com>
@@ -57,84 +57,65 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add support for FPD-Link non-sync mode with external clock. The only
-thing that needs to be added is the calculation for the clkout.
+Use v4l2_fwnode_endpoint_parse() to parse the sink endpoint parameters.
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 ---
- drivers/media/i2c/ds90ub953.c | 34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ drivers/media/i2c/ds90ub953.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/media/i2c/ds90ub953.c b/drivers/media/i2c/ds90ub953.c
-index ff55740965eb..ae90a647489a 100644
+index 1e3827a60029..5b586855c77b 100644
 --- a/drivers/media/i2c/ds90ub953.c
 +++ b/drivers/media/i2c/ds90ub953.c
-@@ -143,6 +143,7 @@ struct ub953_data {
+@@ -25,6 +25,8 @@
+ #include <media/i2c/ds90ub9xx.h>
+ #include <media/v4l2-ctrls.h>
+ #include <media/v4l2-event.h>
++#include <media/v4l2-fwnode.h>
++#include <media/v4l2-mediabus.h>
+ #include <media/v4l2-subdev.h>
  
- 	struct i2c_client	*client;
- 	struct regmap		*regmap;
-+	struct clk		*clkin;
- 
- 	u32			num_data_lanes;
- 	bool			non_cont_clk;
-@@ -842,15 +843,21 @@ static int ub953_i2c_master_init(struct ub953_data *priv)
- 
- static u64 ub953_get_fc_rate(struct ub953_data *priv)
+ #define UB953_PAD_SINK			0
+@@ -1111,7 +1113,9 @@ static const struct regmap_config ub953_regmap_config = {
+ static int ub953_parse_dt(struct ub953_data *priv)
  {
--	if (priv->mode != UB953_MODE_SYNC) {
-+	switch (priv->mode) {
-+	case UB953_MODE_SYNC:
-+		if (priv->hw_data->is_ub971)
-+			return priv->plat_data->bc_rate * 160ull;
-+		else
-+			return priv->plat_data->bc_rate / 2 * 160ull;
+ 	struct device *dev = &priv->client->dev;
++	struct v4l2_fwnode_endpoint vep = {};
+ 	struct fwnode_handle *ep_fwnode;
++	unsigned char nlanes;
+ 	int ret;
+ 
+ 	ep_fwnode = fwnode_graph_get_endpoint_by_id(dev_fwnode(dev),
+@@ -1119,19 +1123,22 @@ static int ub953_parse_dt(struct ub953_data *priv)
+ 	if (!ep_fwnode)
+ 		return dev_err_probe(dev, -ENOENT, "no endpoint found\n");
+ 
+-	ret = fwnode_property_count_u32(ep_fwnode, "data-lanes");
++	vep.bus_type = V4L2_MBUS_CSI2_DPHY;
++	ret = v4l2_fwnode_endpoint_parse(ep_fwnode, &vep);
+ 
+ 	fwnode_handle_put(ep_fwnode);
+ 
+-	if (ret < 0)
++	if (ret)
+ 		return dev_err_probe(dev, ret,
+-				     "failed to parse property 'data-lanes'\n");
++				     "failed to parse sink endpoint data\n");
 +
-+	case UB953_MODE_NONSYNC_EXT:
-+		/* CLKIN_DIV = 1 always */
-+		return clk_get_rate(priv->clkin) * 80ull;
-+
-+	default:
- 		/* Not supported */
- 		return 0;
- 	}
--
--	if (priv->hw_data->is_ub971)
--		return priv->plat_data->bc_rate * 160ull;
--	else
--		return priv->plat_data->bc_rate / 2 * 160ull;
++	nlanes = vep.bus.mipi_csi2.num_data_lanes;
+ 
+-	if (ret != 1 && ret != 2 && ret != 4)
++	if (nlanes != 1 && nlanes != 2 && nlanes != 4)
+ 		return dev_err_probe(dev, -EINVAL,
+-				     "bad number of data-lanes: %d\n", ret);
++				     "bad number of data-lanes: %d\n", nlanes);
+ 
+-	priv->num_data_lanes = ret;
++	priv->num_data_lanes = nlanes;
+ 
+ 	return 0;
  }
- 
- static unsigned long ub953_calc_clkout_ub953(struct ub953_data *priv,
-@@ -1189,9 +1196,15 @@ static int ub953_hw_init(struct ub953_data *priv)
- 	dev_dbg(dev, "mode from %s: %#x\n", mode_override ? "reg" : "strap",
- 		priv->mode);
- 
--	if (priv->mode != UB953_MODE_SYNC)
-+	if (priv->mode != UB953_MODE_SYNC &&
-+	    priv->mode != UB953_MODE_NONSYNC_EXT)
- 		return dev_err_probe(dev, -ENODEV,
--				     "Only synchronous mode supported\n");
-+				     "Unsupported mode selected: %d\n",
-+				     priv->mode);
-+
-+	if (priv->mode == UB953_MODE_NONSYNC_EXT && !priv->clkin)
-+		return dev_err_probe(dev, -EINVAL,
-+				     "clkin required for non-sync ext mode\n");
- 
- 	ret = ub953_read(priv, UB953_REG_REV_MASK_ID, &v);
- 	if (ret)
-@@ -1319,6 +1332,11 @@ static int ub953_probe(struct i2c_client *client)
- 		goto err_mutex_destroy;
- 	}
- 
-+	priv->clkin = devm_clk_get_optional(dev, "clkin");
-+	if (IS_ERR(priv->clkin))
-+		return dev_err_probe(dev, PTR_ERR(priv->clkin),
-+				     "failed to parse 'clkin'\n");
-+
- 	ret = ub953_parse_dt(priv);
- 	if (ret)
- 		goto err_mutex_destroy;
 -- 
 2.34.1
 
