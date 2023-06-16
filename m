@@ -2,28 +2,28 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 656F2EB64DB
-	for <linux-i2c@archiver.kernel.org>; Fri, 16 Jun 2023 14:01:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D8FBEB64DC
+	for <linux-i2c@archiver.kernel.org>; Fri, 16 Jun 2023 14:01:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345539AbjFPOBV (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 16 Jun 2023 10:01:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51250 "EHLO
+        id S1345596AbjFPOBX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 16 Jun 2023 10:01:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345260AbjFPOAm (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Jun 2023 10:00:42 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E403AA4;
-        Fri, 16 Jun 2023 07:00:33 -0700 (PDT)
+        with ESMTP id S1345585AbjFPOAn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Jun 2023 10:00:43 -0400
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 900BE3AAD;
+        Fri, 16 Jun 2023 07:00:34 -0700 (PDT)
 Received: from desky.lan (91-154-35-171.elisa-laajakaista.fi [91.154.35.171])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id B995B9CA;
-        Fri, 16 Jun 2023 15:59:55 +0200 (CEST)
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id EFC8A12AE;
+        Fri, 16 Jun 2023 15:59:51 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1686923997;
-        bh=dm5HbePgcaPfLaX3yBGz4mvjF9Gw8NresEFgv9LiBwg=;
+        s=mail; t=1686923993;
+        bh=jOKJrxg/dduXr1jjTL8Zpj2VPkKOWDkg4G8B8PyOAso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7lpsgfyBcgVEjzk95eFobdWH7IL+5e48RA0imLvV+DhrlkW+qPUEWNZESGOjxHl4
-         43LLNeDplDQRzphGWpzL/TysN+GTDlCR794571j7RgZvDSiMrQeCKFOL2aFr/uSGNx
-         h3JJVN2519h+VUN98u0SwKVmMjkRTFYQDL13+1r4=
+        b=m6lBbMRjhxdXnFfX64BD2EGAO0rWWG/aAj1/AJ/kGAi3XHCRCHRu8GtW4jWcVVJX7
+         f9S+GH+Qt8dacSCpTK3+yvtHm7Jipa/NJquual4omH1u7GSu5Xdl31A+TFq6gST+KM
+         iFURJLpgA8pNZZuhY9VMQAFzXJUlboFuGdjMkrpY=
 From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 To:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -44,10 +44,11 @@ Cc:     Wolfram Sang <wsa@kernel.org>, Rob Herring <robh+dt@kernel.org>,
         =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
         Marek Vasut <marex@denx.de>,
         Satish Nagireddy <satish.nagireddy@getcruise.com>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Subject: [PATCH v14 12/18] media: i2c: ds90ub960: Configure CSI-2 continuous clock
-Date:   Fri, 16 Jun 2023 16:59:16 +0300
-Message-Id: <20230616135922.442979-13-tomi.valkeinen@ideasonboard.com>
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH v14 10/18] media: i2c: ds90ub9xx: Add COMMON_CLK kconfig dependency
+Date:   Fri, 16 Jun 2023 16:59:14 +0300
+Message-Id: <20230616135922.442979-11-tomi.valkeinen@ideasonboard.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230616135922.442979-1-tomi.valkeinen@ideasonboard.com>
 References: <20230616135922.442979-1-tomi.valkeinen@ideasonboard.com>
@@ -57,54 +58,51 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Use 'clock-noncontinuous' from DT to configure the
-continuous/non-continuous clock setting for the TX ports.
+Fix missing COMMON_CLK dependency:
 
+ERROR: modpost: "__clk_get_name" [drivers/media/i2c/ds90ub913.ko] undefined!
+ERROR: modpost: "devm_clk_hw_register_fixed_factor" [drivers/media/i2c/ds90ub913.ko] undefined!
+ERROR: modpost: "of_clk_hw_simple_get" [drivers/media/i2c/ds90ub913.ko] undefined!
+ERROR: modpost: "devm_of_clk_add_hw_provider" [drivers/media/i2c/ds90ub913.ko] undefined!
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/oe-kbuild-all/202305081255.n5KHsShj-lkp@intel.com/
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 ---
- drivers/media/i2c/ds90ub960.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/i2c/Kconfig | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/ds90ub960.c b/drivers/media/i2c/ds90ub960.c
-index e101bcf2356a..6b70fa5bb22f 100644
---- a/drivers/media/i2c/ds90ub960.c
-+++ b/drivers/media/i2c/ds90ub960.c
-@@ -149,6 +149,7 @@
+diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
+index 461df425c163..8a5f09a3de6c 100644
+--- a/drivers/media/i2c/Kconfig
++++ b/drivers/media/i2c/Kconfig
+@@ -1619,7 +1619,7 @@ menu "Video serializers and deserializers"
  
- #define UB960_TR_CSI_CTL			0x33
- #define UB960_TR_CSI_CTL_CSI_CAL_EN		BIT(6)
-+#define UB960_TR_CSI_CTL_CSI_CONTS_CLOCK	BIT(1)
- #define UB960_TR_CSI_CTL_CSI_ENABLE		BIT(0)
+ config VIDEO_DS90UB913
+ 	tristate "TI DS90UB913 FPD-Link III Serializer"
+-	depends on OF && I2C && VIDEO_DEV
++	depends on OF && I2C && VIDEO_DEV && COMMON_CLK
+ 	select I2C_ATR
+ 	select MEDIA_CONTROLLER
+ 	select OF_GPIO
+@@ -1632,7 +1632,7 @@ config VIDEO_DS90UB913
  
- #define UB960_TR_CSI_CTL2			0x34
-@@ -485,6 +486,7 @@ struct ub960_txport {
- 	u8                      nport;	/* TX port number, and index in priv->txport[] */
+ config VIDEO_DS90UB953
+ 	tristate "TI FPD-Link III/IV CSI-2 Serializers"
+-	depends on OF && I2C && VIDEO_DEV
++	depends on OF && I2C && VIDEO_DEV && COMMON_CLK
+ 	select I2C_ATR
+ 	select MEDIA_CONTROLLER
+ 	select OF_GPIO
+@@ -1645,7 +1645,7 @@ config VIDEO_DS90UB953
  
- 	u32 num_data_lanes;
-+	bool non_continous_clk;
- };
- 
- struct ub960_data {
-@@ -1133,6 +1135,9 @@ static int ub960_parse_dt_txport(struct ub960_data *priv,
- 		goto err_free_txport;
- 	}
- 
-+	txport->non_continous_clk = vep.bus.mipi_csi2.flags &
-+				    V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK;
-+
- 	txport->num_data_lanes = vep.bus.mipi_csi2.num_data_lanes;
- 
- 	if (vep.nr_of_link_frequencies != 1) {
-@@ -1744,6 +1749,9 @@ static void ub960_init_tx_port(struct ub960_data *priv,
- 
- 	csi_ctl |= (4 - txport->num_data_lanes) << 4;
- 
-+	if (!txport->non_continous_clk)
-+		csi_ctl |= UB960_TR_CSI_CTL_CSI_CONTS_CLOCK;
-+
- 	ub960_txport_write(priv, nport, UB960_TR_CSI_CTL, csi_ctl);
- }
- 
+ config VIDEO_DS90UB960
+ 	tristate "TI FPD-Link III/IV Deserializers"
+-	depends on OF && I2C && VIDEO_DEV
++	depends on OF && I2C && VIDEO_DEV && COMMON_CLK
+ 	select I2C_ATR
+ 	select MEDIA_CONTROLLER
+ 	select OF_GPIO
 -- 
 2.34.1
 
