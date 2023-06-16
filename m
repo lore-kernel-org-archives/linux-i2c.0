@@ -2,37 +2,57 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 674E6EB64D8
-	for <linux-i2c@archiver.kernel.org>; Fri, 16 Jun 2023 14:02:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42863EB64D7
+	for <linux-i2c@archiver.kernel.org>; Fri, 16 Jun 2023 14:17:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345416AbjFPOCE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 16 Jun 2023 10:02:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52228 "EHLO
+        id S1344801AbjFPORr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 16 Jun 2023 10:17:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345427AbjFPOB2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Jun 2023 10:01:28 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5AA4217;
-        Fri, 16 Jun 2023 07:00:58 -0700 (PDT)
-Received: from desky.lan (91-154-35-171.elisa-laajakaista.fi [91.154.35.171])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 957C013C5;
-        Fri, 16 Jun 2023 15:59:57 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1686923999;
-        bh=FoGdEyjowh4KoMU7bekORi82avpRc1q3afQLZLU30b4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iskhj8ZgwLQplODwjp9qmAk6HekEdJcsQbtzW8zRHuBM0387UbXUdmHHLg2NubObK
-         qk3bXXIdISXY4U9mxuvrXJyidUlGWPyllyurNkM7EX3lMy/p6nqMsutVI3xZUYz747
-         hdpCsu/XlkuJrWtJ2bv8OCBID6n65oUM3VsI6W/0=
-From:   Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-To:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
+        with ESMTP id S230209AbjFPORq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Jun 2023 10:17:46 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FC330D3;
+        Fri, 16 Jun 2023 07:17:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1686925063; x=1718461063;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=KpKlD4bekCsz5EYgTX0dmlOsSqC0fimS9KdgQ94QDjw=;
+  b=bhhmGGZzJDxEUzDt+cbfBHYRJOTdN64U2kDJ58ksL87sa0Gyedqe1NTy
+   o9ZSd4glhGWUT7UY4xzSJ4Hg+TicxHtJ7tJcEwX2YpDaKvs1LXQ2U4565
+   UJ78RqrhSMN8Ol+Y3I5ctkJ/4Y7x6NQ8MwV7U0QfDSjuIHC0GBMBvz3Rn
+   B4DwXhbCi8gFdQATLGDstFVxG0zYqD2bsIEGvlszhs9PWiito3wh/sUjX
+   q74WiDLSOCTMqV6kx7aEGkfMEOtMNvUuiMbNBXutktyUn1SjD0fjWIZlE
+   RMCjbTh+Zj1YgKdjzaQNVHqMdZLJHWa9oQ2fAyCpH5gpXxSts27kpf72C
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10742"; a="339552603"
+X-IronPort-AV: E=Sophos;i="6.00,247,1681196400"; 
+   d="scan'208";a="339552603"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2023 07:17:36 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10742"; a="857395954"
+X-IronPort-AV: E=Sophos;i="6.00,247,1681196400"; 
+   d="scan'208";a="857395954"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmsmga001.fm.intel.com with ESMTP; 16 Jun 2023 07:17:31 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1qAAGW-004Ikc-35;
+        Fri, 16 Jun 2023 17:17:28 +0300
+Date:   Fri, 16 Jun 2023 17:17:28 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Cc:     linux-media@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
         Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
         Matti Vaittinen <Matti.Vaittinen@fi.rohmeurope.com>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc:     Wolfram Sang <wsa@kernel.org>, Rob Herring <robh+dt@kernel.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Peter Rosin <peda@axentia.se>,
@@ -41,81 +61,74 @@ Cc:     Wolfram Sang <wsa@kernel.org>, Rob Herring <robh+dt@kernel.org>,
         Michael Tretter <m.tretter@pengutronix.de>,
         Hans Verkuil <hverkuil@xs4all.nl>,
         Mike Pagano <mpagano@gentoo.org>,
-        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
+        Krzysztof =?utf-8?Q?Ha=C5=82asa?= <khalasa@piap.pl>,
         Marek Vasut <marex@denx.de>,
-        Satish Nagireddy <satish.nagireddy@getcruise.com>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Subject: [PATCH v14 13/18] media: i2c: ds90ub953: Use v4l2_fwnode_endpoint_parse()
-Date:   Fri, 16 Jun 2023 16:59:17 +0300
-Message-Id: <20230616135922.442979-14-tomi.valkeinen@ideasonboard.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230616135922.442979-1-tomi.valkeinen@ideasonboard.com>
+        Satish Nagireddy <satish.nagireddy@getcruise.com>
+Subject: Re: [PATCH v14 11/18] media: i2c: ds90ub9xx: Select GPIOLIB rather
+ than OF_GPIO
+Message-ID: <ZIxu+IvTSaFW3erU@smile.fi.intel.com>
 References: <20230616135922.442979-1-tomi.valkeinen@ideasonboard.com>
+ <20230616135922.442979-12-tomi.valkeinen@ideasonboard.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230616135922.442979-12-tomi.valkeinen@ideasonboard.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Use v4l2_fwnode_endpoint_parse() to parse the sink endpoint parameters.
+On Fri, Jun 16, 2023 at 04:59:15PM +0300, Tomi Valkeinen wrote:
+> Select GPIOLIB rather than OF_GPIO, as the drivers use gpiolib
+> functionality, but no of_gpio (directly).
 
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
----
- drivers/media/i2c/ds90ub953.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+This is useful change, but has to be folded in the original code.
+We do not want even a trace of newly added OF_GPIO.
 
-diff --git a/drivers/media/i2c/ds90ub953.c b/drivers/media/i2c/ds90ub953.c
-index 1e3827a60029..5b586855c77b 100644
---- a/drivers/media/i2c/ds90ub953.c
-+++ b/drivers/media/i2c/ds90ub953.c
-@@ -25,6 +25,8 @@
- #include <media/i2c/ds90ub9xx.h>
- #include <media/v4l2-ctrls.h>
- #include <media/v4l2-event.h>
-+#include <media/v4l2-fwnode.h>
-+#include <media/v4l2-mediabus.h>
- #include <media/v4l2-subdev.h>
- 
- #define UB953_PAD_SINK			0
-@@ -1111,7 +1113,9 @@ static const struct regmap_config ub953_regmap_config = {
- static int ub953_parse_dt(struct ub953_data *priv)
- {
- 	struct device *dev = &priv->client->dev;
-+	struct v4l2_fwnode_endpoint vep = {};
- 	struct fwnode_handle *ep_fwnode;
-+	unsigned char nlanes;
- 	int ret;
- 
- 	ep_fwnode = fwnode_graph_get_endpoint_by_id(dev_fwnode(dev),
-@@ -1119,19 +1123,22 @@ static int ub953_parse_dt(struct ub953_data *priv)
- 	if (!ep_fwnode)
- 		return dev_err_probe(dev, -ENOENT, "no endpoint found\n");
- 
--	ret = fwnode_property_count_u32(ep_fwnode, "data-lanes");
-+	vep.bus_type = V4L2_MBUS_CSI2_DPHY;
-+	ret = v4l2_fwnode_endpoint_parse(ep_fwnode, &vep);
- 
- 	fwnode_handle_put(ep_fwnode);
- 
--	if (ret < 0)
-+	if (ret)
- 		return dev_err_probe(dev, ret,
--				     "failed to parse property 'data-lanes'\n");
-+				     "failed to parse sink endpoint data\n");
-+
-+	nlanes = vep.bus.mipi_csi2.num_data_lanes;
- 
--	if (ret != 1 && ret != 2 && ret != 4)
-+	if (nlanes != 1 && nlanes != 2 && nlanes != 4)
- 		return dev_err_probe(dev, -EINVAL,
--				     "bad number of data-lanes: %d\n", ret);
-+				     "bad number of data-lanes: %d\n", nlanes);
- 
--	priv->num_data_lanes = ret;
-+	priv->num_data_lanes = nlanes;
- 
- 	return 0;
- }
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+> ---
+>  drivers/media/i2c/Kconfig | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
+> index 8a5f09a3de6c..29fc00e30d8b 100644
+> --- a/drivers/media/i2c/Kconfig
+> +++ b/drivers/media/i2c/Kconfig
+> @@ -1622,7 +1622,7 @@ config VIDEO_DS90UB913
+>  	depends on OF && I2C && VIDEO_DEV && COMMON_CLK
+>  	select I2C_ATR
+>  	select MEDIA_CONTROLLER
+> -	select OF_GPIO
+> +	select GPIOLIB
+>  	select REGMAP_I2C
+>  	select V4L2_FWNODE
+>  	select VIDEO_V4L2_SUBDEV_API
+> @@ -1635,7 +1635,7 @@ config VIDEO_DS90UB953
+>  	depends on OF && I2C && VIDEO_DEV && COMMON_CLK
+>  	select I2C_ATR
+>  	select MEDIA_CONTROLLER
+> -	select OF_GPIO
+> +	select GPIOLIB
+>  	select REGMAP_I2C
+>  	select V4L2_FWNODE
+>  	select VIDEO_V4L2_SUBDEV_API
+> @@ -1648,7 +1648,7 @@ config VIDEO_DS90UB960
+>  	depends on OF && I2C && VIDEO_DEV && COMMON_CLK
+>  	select I2C_ATR
+>  	select MEDIA_CONTROLLER
+> -	select OF_GPIO
+> +	select GPIOLIB
+>  	select REGMAP_I2C
+>  	select V4L2_FWNODE
+>  	select VIDEO_V4L2_SUBDEV_API
+> -- 
+> 2.34.1
+> 
+
 -- 
-2.34.1
+With Best Regards,
+Andy Shevchenko
+
 
