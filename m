@@ -2,98 +2,158 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8E6DEB64DA
-	for <linux-i2c@archiver.kernel.org>; Mon, 26 Jun 2023 10:44:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 010A1EB64DA
+	for <linux-i2c@archiver.kernel.org>; Mon, 26 Jun 2023 11:00:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229731AbjFZKom (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 26 Jun 2023 06:44:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36240 "EHLO
+        id S229704AbjFZLAc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 26 Jun 2023 07:00:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229569AbjFZKol (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 26 Jun 2023 06:44:41 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13DA4E60;
-        Mon, 26 Jun 2023 03:44:39 -0700 (PDT)
+        with ESMTP id S229562AbjFZLAb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 26 Jun 2023 07:00:31 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91CFC8F;
+        Mon, 26 Jun 2023 04:00:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1687776280; x=1719312280;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=ulzjEKt9TPFPosS7yZEKwHAFl3FmcOd566vv02OR1+8=;
-  b=CGnOFrUvzSsjhnlwDqr1GevFin4FsUEoAdqimQEJhNcrwNWcFdCbYdCz
-   zKQ7SF4l/eZz2qNp5BdqKeRyNX+zVyYjJRNpRmauWH01yZpjFTSPdV2Io
-   G7VIEpH6L543UucYBzveR4xQ/Qrp9Gg+k3YsqLw0JZXEIrgRgVkMG4YLf
-   MGrc42owf0l56q7hJqIo2R2wiMmXrrOxPPig9akiBf4DAABzYKG58rV/a
-   TjP9tIqY6YoCLN4DY9VZwCK0sCpeF4l/j+1WL9q0wkNmDAuIE/flS/k97
-   CP8tqYdfATlN2MNe5FoK57F0MeZc3VyZkZVzRirs60kfZp5Sg79xIkRZJ
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="361278902"
+  t=1687777221; x=1719313221;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=hFZZA3JYAHFku7FNJhgT27T5vrlPbdtdbu9UvmFVRsk=;
+  b=gRlKcgY6AWYcUVsNq69wWk2ezRV+/J5MOBdvg4k8FfbSDnC/p8u09ANf
+   MhqRaqzDut1wUrmVpkKe1+JmUGDGE21M1HtTjw0EYoSP3MvR3xal7o5o6
+   H1Wb0Ct++iV6lA1pAqKQi5Xr2/3BujIy4Y8CgdYJB4wGVl4+oMMnYLSuj
+   VVV650VQ0pbwLyLVGbrbWir8NboOhyRNz2dD8whkfEK6BR8HmI5j4EiYP
+   M1cLn5pLOH3EZYq1Bk0w3kLm53BsV9hnSeeT2e7el7t+ZjHJ3CDByQSju
+   egtGwFkAYDiBzmqYSbtPfyhabZNwhW2RA8aC+TM0xz6xag/BGCPYr0rsk
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="351010833"
 X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
-   d="scan'208";a="361278902"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jun 2023 03:44:39 -0700
+   d="scan'208";a="351010833"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jun 2023 04:00:20 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="693441712"
+X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="781390995"
 X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
-   d="scan'208";a="693441712"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga006.jf.intel.com with ESMTP; 26 Jun 2023 03:44:36 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1qDjhy-006jkH-2a;
-        Mon, 26 Jun 2023 13:44:34 +0300
-Date:   Mon, 26 Jun 2023 13:44:34 +0300
+   d="scan'208";a="781390995"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga008.fm.intel.com with ESMTP; 26 Jun 2023 04:00:16 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 11BFB16E; Mon, 26 Jun 2023 14:00:28 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, acpica-devel@lists.linuxfoundation.org,
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, acpica-devel@lists.linuxfoundation.org
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
         Len Brown <lenb@kernel.org>,
         Andi Shyti <andi.shyti@kernel.org>,
         Robert Moore <robert.moore@intel.com>,
-        Michael Brunner <michael.brunner@kontron.com>
-Subject: Re: [PATCH v2 1/2] ACPI: platform: Ignore SMB0001 only when it has
- resources
-Message-ID: <ZJlsEggaJZc9u15T@smile.fi.intel.com>
-References: <20230621151652.79579-1-andriy.shevchenko@linux.intel.com>
- <CAJZ5v0jt8XCzUxQaBXLz0zXezih1Urq=dt-K9PWVY1JpN=Go6Q@mail.gmail.com>
- <ZJSQf07cO6qmNyCn@smile.fi.intel.com>
- <CAJZ5v0iKLtQpUnhMqB6zgwbURXGFZkje5rNORS9MLqYN=13nWg@mail.gmail.com>
- <ZJlJFtsXoC6JyLxY@smile.fi.intel.com>
+        Michael Walle <michael@walle.cc>
+Subject: [PATCH v3 3/4] ACPI: platform: Ignore SMB0001 only when it has resources
+Date:   Mon, 26 Jun 2023 14:00:25 +0300
+Message-Id: <20230626110026.65825-4-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
+In-Reply-To: <20230626110026.65825-1-andriy.shevchenko@linux.intel.com>
+References: <20230626110026.65825-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <ZJlJFtsXoC6JyLxY@smile.fi.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, Jun 26, 2023 at 11:15:19AM +0300, Andy Shevchenko wrote:
-> On Fri, Jun 23, 2023 at 04:43:55PM +0200, Rafael J. Wysocki wrote:
-> > On Thu, Jun 22, 2023 at 8:19 PM Andy Shevchenko
-> > <andriy.shevchenko@linux.intel.com> wrote:
-> > > On Thu, Jun 22, 2023 at 05:53:13PM +0200, Rafael J. Wysocki wrote:
-> > > > On Wed, Jun 21, 2023 at 5:16 PM Andy Shevchenko
-> > > > <andriy.shevchenko@linux.intel.com> wrote:
+After switching i2c-scmi driver to be a platform one, it stopped
+being enumerated on number of Kontron platforms, because it's
+listed in the forbidden_id_list.
 
-...
+To resolve the situation, add a flag to driver data to allow devices
+with no resources in _CRS to be enumerated via platform bus.
 
-> > BTW, this doesn't need to increment the count even.  It could just
-> > terminate the walk on the first valid resource found and tell the
-> > caller to return true in that case.
-> 
-> Indeed, thank you for the hint!
+Fixes: 03d4287add6e ("i2c: scmi: Convert to be a platform driver")
+Closes: https://lore.kernel.org/r/60c1756765b9a3f1eab0dcbd84f59f00fe1caf48.camel@kontron.com
+Link: https://lore.kernel.org/r/20230621151652.79579-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/acpi/acpi_platform.c | 31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
 
-Actually it's doesn't matter if we count them or not, we still must use the
-context of the call to set up a flag or whatever. With the current code in mind
-I prefer to count resources and compare that to be non-zero. This will help to
-read and understand code better.
-
-That said, I will go with (*counter)++;
-
+diff --git a/drivers/acpi/acpi_platform.c b/drivers/acpi/acpi_platform.c
+index fe00a5783f53..ee6ea1ee8396 100644
+--- a/drivers/acpi/acpi_platform.c
++++ b/drivers/acpi/acpi_platform.c
+@@ -9,6 +9,7 @@
+  */
+ 
+ #include <linux/acpi.h>
++#include <linux/bits.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
+ #include <linux/kernel.h>
+@@ -19,13 +20,16 @@
+ 
+ #include "internal.h"
+ 
++/* Exclude devices that have no _CRS resources provided */
++#define ACPI_ALLOW_WO_RESOURCES		BIT(0)
++
+ static const struct acpi_device_id forbidden_id_list[] = {
+ 	{"ACPI0009", 0},	/* IOxAPIC */
+ 	{"ACPI000A", 0},	/* IOAPIC */
+ 	{"PNP0000",  0},	/* PIC */
+ 	{"PNP0100",  0},	/* Timer */
+ 	{"PNP0200",  0},	/* AT DMA Controller */
+-	{"SMB0001",  0},	/* ACPI SMBUS virtual device */
++	{"SMB0001",  ACPI_ALLOW_WO_RESOURCES},	/* ACPI SMBUS virtual device */
+ 	{ }
+ };
+ 
+@@ -83,6 +87,15 @@ static void acpi_platform_fill_resource(struct acpi_device *adev,
+ 		dest->parent = pci_find_resource(to_pci_dev(parent), dest);
+ }
+ 
++static unsigned int acpi_platform_resource_count(struct acpi_resource *ares, void *data)
++{
++	int *count = data;
++
++	(*count)++;
++
++	return AE_OK;
++}
++
+ /**
+  * acpi_create_platform_device - Create platform device for ACPI device node
+  * @adev: ACPI device node to create a platform device for.
+@@ -100,17 +113,27 @@ struct platform_device *acpi_create_platform_device(struct acpi_device *adev,
+ 	struct acpi_device *parent = acpi_dev_parent(adev);
+ 	struct platform_device *pdev = NULL;
+ 	struct platform_device_info pdevinfo;
++	const struct acpi_device_id *match;
+ 	struct resource_entry *rentry;
+ 	struct list_head resource_list;
+ 	struct resource *resources = NULL;
+-	int count;
++	int count = 0;
+ 
+ 	/* If the ACPI node already has a physical device attached, skip it. */
+ 	if (adev->physical_node_count)
+ 		return NULL;
+ 
+-	if (!acpi_match_device_ids(adev, forbidden_id_list))
+-		return ERR_PTR(-EINVAL);
++	match = acpi_match_acpi_device(forbidden_id_list, adev);
++	if (match) {
++		if (match->driver_data & ACPI_ALLOW_WO_RESOURCES) {
++			acpi_walk_resources(adev->handle, METHOD_NAME__CRS,
++					    acpi_platform_resource_count, &count);
++			if (count > 0)
++				return ERR_PTR(-EINVAL);
++		} else {
++			return ERR_PTR(-EINVAL);
++		}
++	}
+ 
+ 	INIT_LIST_HEAD(&resource_list);
+ 	count = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.40.0.1.gaa8946217a0b
 
