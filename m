@@ -2,44 +2,44 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4281CEB64DD
-	for <linux-i2c@archiver.kernel.org>; Mon, 26 Jun 2023 11:00:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B889EB64D7
+	for <linux-i2c@archiver.kernel.org>; Mon, 26 Jun 2023 11:01:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229825AbjFZLAe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 26 Jun 2023 07:00:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44560 "EHLO
+        id S230138AbjFZLBB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 26 Jun 2023 07:01:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229664AbjFZLAc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 26 Jun 2023 07:00:32 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFC510DB;
-        Mon, 26 Jun 2023 04:00:20 -0700 (PDT)
+        with ESMTP id S230115AbjFZLAx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 26 Jun 2023 07:00:53 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42FB910DD;
+        Mon, 26 Jun 2023 04:00:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1687777221; x=1719313221;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=cfkHmvhL16siboX9Cx9flRIYjtdn8/awF8GL0BpfHpU=;
-  b=F3BZxFX6bPium+iZbkUPTbppIqKQW0/tgWrG28seB+980y/XOvOPbhtQ
-   XgPNyVBi5djSbzEqWMp2r+JrbbxsXAaaCjPyNfKktp8D5qMhM4iVOP1h8
-   FbEKvvgVUGBnYJub+9XrgUS7Xkbpjy/wHkVwdiS0QhZFYbBQkyLk+pxgz
-   B0jae98e1/CjMxb3d9VZkUn2UGD1tsV5OFJcXfxzG4HF/h1mmnaZpnszz
-   KSrNrPBxb+Lo4zt14haJYCzckHcyFHp9CT5HGcp3BuL9zc0n6dGsJkZWl
-   iZplQUeTBkt0vlZxzcFhDf5HSCyBAJrc4vnchvpADwG4bZ/l1YmjsquIN
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="427232827"
+  t=1687777231; x=1719313231;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=4I4jFx9s8H+UCd6OuK/ZZ1rbZacxqwP2cPh7/sdpD38=;
+  b=L4RYooK0PTLaa2J6q/XqgiTo2MW8XVXi7VOpMtlbD5OYPj1m4foyMmHu
+   XLru/lKXYwvx6gxswWEsEoIZjt116BsyAivAG1WvAMIDcK9dTxg/kjSJX
+   fAnYi440V5Yw+W0JzTYM8p/oZ2/hQFgO1ucIIvJLoWrvG2ITRGcDKceBw
+   aJJxdnWvjJkEXj7Hm+ke3kDIy+TNW6ge6Q2Vl/73/VR5/7/fpv85DVkAy
+   hiaVgy+stpalREufFneRc3J1shx6QXTHADqYiQVq9h3WXmAj6fmZgyHNW
+   RVe0DOd571vTVAvaWpR/ablUvF0mAuKDmV9Wn12MHjSm5qDCCmHRZjX+2
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="351010839"
 X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
-   d="scan'208";a="427232827"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jun 2023 04:00:19 -0700
+   d="scan'208";a="351010839"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jun 2023 04:00:20 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="890245264"
+X-IronPort-AV: E=McAfee;i="6600,9927,10752"; a="781390999"
 X-IronPort-AV: E=Sophos;i="6.01,159,1684825200"; 
-   d="scan'208";a="890245264"
+   d="scan'208";a="781390999"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga005.jf.intel.com with ESMTP; 26 Jun 2023 04:00:16 -0700
+  by fmsmga008.fm.intel.com with ESMTP; 26 Jun 2023 04:00:17 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 0C220370; Mon, 26 Jun 2023 14:00:28 +0300 (EEST)
+        id E1C50118; Mon, 26 Jun 2023 14:00:27 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
@@ -50,88 +50,43 @@ Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
         Andi Shyti <andi.shyti@kernel.org>,
         Robert Moore <robert.moore@intel.com>,
         Michael Walle <michael@walle.cc>
-Subject: [PATCH v3 2/4] ACPI: bus: Introduce acpi_match_acpi_device() helper
-Date:   Mon, 26 Jun 2023 14:00:24 +0300
-Message-Id: <20230626110026.65825-3-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 0/4] ACPI: platform: Fix SMB0001 enumeration on Kontron devices
+Date:   Mon, 26 Jun 2023 14:00:22 +0300
+Message-Id: <20230626110026.65825-1-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
-In-Reply-To: <20230626110026.65825-1-andriy.shevchenko@linux.intel.com>
-References: <20230626110026.65825-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-In some cases we can't have a physical node associated with
-the ACPI device. Yet we want to match it against ID table and
-get respective driver data. Introduce the helper for that.
+After switching i2c-scmi driver to be a plaform one, it stopped
+being enumerated on number of Kontron platforms, because it's
+listed in the forbidden_id_list.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/acpi/bus.c   | 15 +++++++++++----
- include/linux/acpi.h |  9 +++++++++
- 2 files changed, 20 insertions(+), 4 deletions(-)
+To resolve the situation, add a flag and count the resources of the
+forbiden device. If the count is non-zero, the device must be skipped.
 
-diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-index 20cdfb37da79..ee88bfb60ac2 100644
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -850,6 +850,16 @@ static bool __acpi_match_device(const struct acpi_device *device,
- 	return true;
- }
- 
-+const struct acpi_device_id *acpi_match_acpi_device(const struct acpi_device_id *ids,
-+						    const struct acpi_device *adev)
-+{
-+	const struct acpi_device_id *id = NULL;
-+
-+	__acpi_match_device(adev, ids, NULL, &id, NULL);
-+	return id;
-+}
-+EXPORT_SYMBOL_GPL(acpi_match_acpi_device);
-+
- /**
-  * acpi_match_device - Match a struct device against a given list of ACPI IDs
-  * @ids: Array of struct acpi_device_id object to match against.
-@@ -864,10 +874,7 @@ static bool __acpi_match_device(const struct acpi_device *device,
- const struct acpi_device_id *acpi_match_device(const struct acpi_device_id *ids,
- 					       const struct device *dev)
- {
--	const struct acpi_device_id *id = NULL;
--
--	__acpi_match_device(acpi_companion_match(dev), ids, NULL, &id, NULL);
--	return id;
-+	return acpi_match_acpi_device(ids, acpi_companion_match(dev));
- }
- EXPORT_SYMBOL_GPL(acpi_match_device);
- 
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 640f1c07c894..641dc4843987 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -707,6 +707,9 @@ extern int acpi_nvs_register(__u64 start, __u64 size);
- extern int acpi_nvs_for_each_region(int (*func)(__u64, __u64, void *),
- 				    void *data);
- 
-+const struct acpi_device_id *acpi_match_acpi_device(const struct acpi_device_id *ids,
-+						    const struct acpi_device *adev);
-+
- const struct acpi_device_id *acpi_match_device(const struct acpi_device_id *ids,
- 					       const struct device *dev);
- 
-@@ -922,6 +925,12 @@ static inline int acpi_nvs_for_each_region(int (*func)(__u64, __u64, void *),
- 
- struct acpi_device_id;
- 
-+static inline const struct acpi_device_id *acpi_match_acpi_device(
-+	const struct acpi_device_id *ids, const struct acpi_device *adev)
-+{
-+	return NULL;
-+}
-+
- static inline const struct acpi_device_id *acpi_match_device(
- 	const struct acpi_device_id *ids, const struct device *dev)
- {
+Changelog v3:
+- provided completely rewritten solution (Rafael)
+- due to above, added two new patches
+- due to above, dropped tags from patch 3
+
+Andy Shevchenko (4):
+  ACPI: bus: Constify acpi_companion_match() returned value
+  ACPI: bus: Introduce acpi_match_acpi_device() helper
+  ACPI: platform: Ignore SMB0001 only when it has resources
+  ACPI: platform: Move SMB0001 HID to the header and reuse
+
+ drivers/acpi/acpi_platform.c  | 31 +++++++++++++++++++++++++++----
+ drivers/acpi/bus.c            | 21 ++++++++++++++-------
+ drivers/acpi/device_sysfs.c   |  2 +-
+ drivers/acpi/internal.h       |  2 +-
+ drivers/i2c/busses/i2c-scmi.c |  3 ---
+ include/acpi/acpi_drivers.h   |  2 ++
+ include/linux/acpi.h          |  9 +++++++++
+ 7 files changed, 54 insertions(+), 16 deletions(-)
+
 -- 
 2.40.0.1.gaa8946217a0b
 
