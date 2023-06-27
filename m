@@ -2,94 +2,111 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45E4CEB64D9
-	for <linux-i2c@archiver.kernel.org>; Tue, 27 Jun 2023 12:17:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E60AEB64D9
+	for <linux-i2c@archiver.kernel.org>; Tue, 27 Jun 2023 13:33:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229690AbjF0MRf (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 27 Jun 2023 08:17:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38876 "EHLO
+        id S229748AbjF0Nd3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 27 Jun 2023 09:33:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229656AbjF0MRe (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Jun 2023 08:17:34 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D74C01BE5
-        for <linux-i2c@vger.kernel.org>; Tue, 27 Jun 2023 05:16:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1687868205;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=A1tzwOjzvNIIQMHyWV/M76eIB+EZFVKWOicLp48LPkY=;
-        b=NhJa58TqdBLnLkQOf1rtVKOCv7ki2oppnF2Vgbtu3MvJPex6ltTQYGtCQjTZvy77lwMiiE
-        Zpbv3T8SGYc94IxBuPqLRWq4uCHeb1erYw/rGRM24ks7PZk7PTbVxNWiOkaltm3U3XAzOu
-        etJnoyO+jjgqUKA4q6bM1aLgzRoir5Y=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-445-R73xBnadN1-rqg4QgwXO2w-1; Tue, 27 Jun 2023 08:16:43 -0400
-X-MC-Unique: R73xBnadN1-rqg4QgwXO2w-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-3fa06fc72f2so25417095e9.0
-        for <linux-i2c@vger.kernel.org>; Tue, 27 Jun 2023 05:16:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687868202; x=1690460202;
-        h=content-transfer-encoding:mime-version:message-id:date:references
-         :in-reply-to:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=A1tzwOjzvNIIQMHyWV/M76eIB+EZFVKWOicLp48LPkY=;
-        b=i3JOBd34EX+EovmNxoxXwZUuZvJqjHS+rEIKi9XyDmq+Oh2VBWGC+fInYACtRzkzc9
-         G+jNhWE9osczH73t4ttLnz66LnFJznp/unMdJNT4652kO8t07/ar2cMuRWs14Hs4hwmX
-         AIiAPX6xzdbEChtvtm1MCAHeA3u6P3xj4b6ZfQMv1RlzmIH1LOnz0L29J+TmHMCDAlhp
-         kzuki1xx9VhnVfHGupxmDpnOOgZXHA9h8HY1cG3ZnRz9vZb7OxP0iznhc9gFDWq+1MT2
-         PTnN7DM1wFrxmjdl+dFSWml/hzKAmfYjZMN1PKRlDlwCZsqQZOYjXulGsysXZnZ3+nLF
-         +TEg==
-X-Gm-Message-State: AC+VfDzuOtRB3KMcFJUIh+hbQgIZQnNblyTTS0v126Smml27a2BNAK4+
-        wsisFwByS7Mamz3Q8mEaM3/rcvdAX+GGQu78pKXxyx2pDLwONsJyQ1KVEOrSo6eGK0YWU33WeEU
-        kSWUsCGgb4aX/q64WToUV
-X-Received: by 2002:a5d:4091:0:b0:314:4d1:2402 with SMTP id o17-20020a5d4091000000b0031404d12402mr65417wrp.44.1687868202745;
-        Tue, 27 Jun 2023 05:16:42 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ73kZTtG2BEXPX/V3TkMlFYh+1FD7ANhBDVrpyvPaLJFX3ps45rV3irD+IIkKwAxeaHYF+mzQ==
-X-Received: by 2002:a5d:4091:0:b0:314:4d1:2402 with SMTP id o17-20020a5d4091000000b0031404d12402mr65403wrp.44.1687868202392;
-        Tue, 27 Jun 2023 05:16:42 -0700 (PDT)
-Received: from localhost (205.pool92-176-231.dynamic.orange.es. [92.176.231.205])
-        by smtp.gmail.com with ESMTPSA id q9-20020a056000136900b0030f9c3219aasm10275223wrz.47.2023.06.27.05.16.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jun 2023 05:16:41 -0700 (PDT)
-From:   Javier Martinez Canillas <javierm@redhat.com>
-To:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@kernel.org>
-Cc:     kernel@pengutronix.de, Jean Delvare <jdelvare@suse.de>,
-        linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: Update documentation to use .probe() again
-In-Reply-To: <20230627064522.593332-1-u.kleine-koenig@pengutronix.de>
-References: <20230627064522.593332-1-u.kleine-koenig@pengutronix.de>
-Date:   Tue, 27 Jun 2023 14:16:40 +0200
-Message-ID: <87a5wl2j87.fsf@minerva.mail-host-address-is-not-set>
+        with ESMTP id S229482AbjF0Nd2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Jun 2023 09:33:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 705BB2D53;
+        Tue, 27 Jun 2023 06:33:27 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02FE5611A1;
+        Tue, 27 Jun 2023 13:33:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80EABC433C0;
+        Tue, 27 Jun 2023 13:33:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1687872806;
+        bh=hU/bbFYDxlazJtaG0Aky+dV6lWTbtVrya1pQRCRiTcs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lRCpUOcgDLM5IsK6PYe4oGTEfki9RNeEaJeti5s+B+D2DmBrQJG24uumr+Qu+xnq9
+         NK6l4xpK09ScsXXxHQcm90Lqhi3L42FzaduuBHdCCOQ+haTaZcJP0wjd7ZjTiXBhsm
+         Ybk9lkD8iWS9I3dH7WNi5wSyCSIVDzIcoqLgdfBeKBc2Kc/cJ5jO4XMF7BEAjIXqmq
+         AIFPUm90kBWNf2B9XwWoZcHaSDC0rxHoAWpuyTa5LUCM7mNXRNbeFkcAjRNuinVUuR
+         GMHVF+CmP8uEM7h1VoHpPQQro3bzpyAoKg9EpHhP6SpOVdTygQwFQ9oPXHr5mpcsOm
+         B9uKvsSZic8CA==
+Date:   Tue, 27 Jun 2023 15:33:22 +0200
+From:   Andi Shyti <andi.shyti@kernel.org>
+To:     Dan Carpenter <dan.carpenter@linaro.org>
+Cc:     Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
+        kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH] i2c: sun6i-p2wi: Fix an error message in probe()
+Message-ID: <20230627133322.szotkthwsfwgkdby@intel.intel>
+References: <98afbc28-3366-459e-bd01-f77cf1a67fe9@moroto.mountain>
+ <20230627115920.c4ms65vgrbiyekc6@intel.intel>
+ <7c6db53c-427d-4ba5-80b7-a069ab9322a0@kadam.mountain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7c6db53c-427d-4ba5-80b7-a069ab9322a0@kadam.mountain>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de> writes:
+Hi Dan,
 
-Hello Uwe,
+On Tue, Jun 27, 2023 at 03:08:53PM +0300, Dan Carpenter wrote:
+> On Tue, Jun 27, 2023 at 01:59:20PM +0200, Andi Shyti wrote:
+> > Hi Dan,
+> > 
+> > On Tue, Jun 27, 2023 at 10:12:36AM +0300, Dan Carpenter wrote:
+> > > The "ret" variable is uninitialized.  It was the "p2wi->rstc" variable
+> > > that was intended.  We can also use the %pe string format to print the
+> > > error code name instead of just the number.
+> > > 
+> > > Fixes: 75ff8a340a81 ("i2c: sun6i-p2wi: Use devm_clk_get_enabled()")
+> > > Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
+> > > ---
+> > >  drivers/i2c/busses/i2c-sun6i-p2wi.c | 3 ++-
+> > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> > > index ad8270cdbd3e..fa6020dced59 100644
+> > > --- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> > > +++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> > > @@ -250,7 +250,8 @@ static int p2wi_probe(struct platform_device *pdev)
+> > >  
+> > >  	p2wi->rstc = devm_reset_control_get_exclusive(dev, NULL);
+> > >  	if (IS_ERR(p2wi->rstc)) {
+> > > -		dev_err(dev, "failed to retrieve reset controller: %d\n", ret);
+> > > +		dev_err(dev, "failed to retrieve reset controller: %pe\n",
+> > > +			p2wi->rstc);
+> > 
+> > Yes, good catch! Thanks! But I think we want to print the error
+> > value here, so I think it should be:
+> > 
+> > -		dev_err(dev, "failed to retrieve reset controller: %d\n", ret);
+> > +		dev_err(dev, "failed to retrieve reset controller: %d\n",
+> > +			PTR_ERR(p2wi->rstc));
+> > 
+> 
+> The %pe which I changed it to is a cool new thing that prints:
+> 
+> 	failed to retrieve reset controller: -EINVAL\n
 
-> Since commit 03c835f498b5 ("i2c: Switch .probe() to not take an id
-> parameter") .probe() is the recommended callback to implement (again).
-> Reflect this in the documentation and don't mention .probe_new() any
-> more.
->
-> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
-> ---
+oh... that's right! Sorry, I didn't know about it! Then,
+definitely:
 
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org> 
 
---=20
-Best regards,
+> We should create a similar %e printk format that works for ints instead
+> of error pointers.  But instead of that you have people who cast error
+> codes to pointers just to get the %pe functionality.  And other people
+> who make suggestions (this is the catagory that I'm in) but are too lazy
+> to do the actual work.
 
-Javier Martinez Canillas
-Core Platforms
-Red Hat
+Ahaha... that's right! It's indeed a nice feature to have. Let me
+see if I manage to scratch a few hours out of my time.
 
+Andi
