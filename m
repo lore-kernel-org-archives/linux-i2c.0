@@ -2,116 +2,166 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97EF1C0015E
-	for <linux-i2c@archiver.kernel.org>; Wed,  5 Jul 2023 19:39:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC7EAC001B0
+	for <linux-i2c@archiver.kernel.org>; Wed,  5 Jul 2023 20:43:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234317AbjGETj6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 5 Jul 2023 15:39:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46668 "EHLO
+        id S233797AbjGEUne (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 5 Jul 2023 16:43:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234279AbjGETjx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Jul 2023 15:39:53 -0400
-Received: from mail-io1-f51.google.com (mail-io1-f51.google.com [209.85.166.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29740199E;
-        Wed,  5 Jul 2023 12:39:49 -0700 (PDT)
-Received: by mail-io1-f51.google.com with SMTP id ca18e2360f4ac-78666f06691so164440839f.0;
-        Wed, 05 Jul 2023 12:39:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688585988; x=1691177988;
-        h=date:subject:message-id:references:in-reply-to:cc:to:from
-         :mime-version:content-transfer-encoding:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=EmigWppDMAwntmLPkpHMViFD3zfbB0BalUBHyRmY93I=;
-        b=O0Hx0DJjaXwYP+yvm0yoGbkrJfx9adX747Wx8eccbhjCijufql33tPIigemLgwYP07
-         WmdleyqbK2jthxf4WIbHBCB/D45wsSToLzMHer0D4wQ3OM1rYd8vrW8Ejea/XkxYgVlD
-         RdIFih6oJUvcTOUP3n/POr5sMXlTGRF7TtW1Tkl8Ut7J7TVlZ4vP/mLY/hcZ/Xn4MScL
-         ZZK7qu35f7CDOzEvY96oyGpv64sHtOlR9wGOmjmad/61EXZCEU7QZDfsG60G5zj9dc8N
-         KUgZujUdI+o3GqdLwoddvC7B+1M0qnJ2Ew7YJ8Uo2Ql45DJM4Yzke7qJ4wLnY+VHA4FV
-         G9jg==
-X-Gm-Message-State: ABy/qLZFlIKvxvKGqXQZTz0o/LFFOCdFQkrKPqlxpFh6gP4Gif3nQnv6
-        4sC4xEaxllPtYm8C2qF7FA==
-X-Google-Smtp-Source: APBJJlE1T+SG//kQOjsdrxPqC6WYFy+jVqYd/9wV9AIbQOA/LFJUSpnFw6o7MHDprdjfMYp8ihzVDA==
-X-Received: by 2002:a6b:3c02:0:b0:786:45f7:fb7e with SMTP id k2-20020a6b3c02000000b0078645f7fb7emr58527iob.13.1688585988126;
-        Wed, 05 Jul 2023 12:39:48 -0700 (PDT)
-Received: from robh_at_kernel.org ([64.188.179.250])
-        by smtp.gmail.com with ESMTPSA id d21-20020a02a495000000b0042ad887f705sm6314042jam.143.2023.07.05.12.39.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Jul 2023 12:39:47 -0700 (PDT)
-Received: (nullmailer pid 1714652 invoked by uid 1000);
-        Wed, 05 Jul 2023 19:39:32 -0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S233758AbjGEUnb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Jul 2023 16:43:31 -0400
+Received: from aposti.net (aposti.net [89.234.176.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4BED19B;
+        Wed,  5 Jul 2023 13:43:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1688589809;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=wyXkGZNGA5ysK2ltkve4RVlCutN+wjP1W2giIyjMZxk=;
+        b=nScC7Am7eHbPkqLsb+E2gznpiUpMVyfzuF8FL3UiEEkgxgDebdCyG0lG4/LsIyuatJlX4p
+        bLgSjmITOHNmgrkD8zSZN2pAMtILouf7m0vVi2R75j9CXCT1jpDBwzoRZP8oDzs/SSuMLd
+        FF8hRZbcRQMFlzMf9jstb8q8Hg0pEdM=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Paul Cercueil <paul@crapouillou.net>,
+        Elie Morisse <syniurge@gmail.com>,
+        Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        Kamal Dasu <kdasu.kdev@gmail.com>,
+        Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Jan Dabros <jsd@semihalf.com>,
+        Jean Delvare <jdelvare@suse.com>,
+        Qii Wang <qii.wang@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Conghui Chen <conghui.chen@intel.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Peter Rosin <peda@axentia.se>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-renesas-soc@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH 00/23] i2c: Use new PM macros
+Date:   Wed,  5 Jul 2023 22:42:51 +0200
+Message-Id: <20230705204314.89800-1-paul@crapouillou.net>
 MIME-Version: 1.0
-From:   Rob Herring <robh@kernel.org>
-To:     Gatien Chevallier <gatien.chevallier@foss.st.com>
-Cc:     fabrice.gasnier@foss.st.com, jic23@kernel.org, conor+dt@kernel.org,
-        hugues.fruchet@foss.st.com, richardcochran@gmail.com,
-        will@kernel.org, davem@davemloft.net, vkoul@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, linux-phy@lists.infradead.org,
-        arnd@kernel.org, gregkh@linuxfoundation.org,
-        linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org,
-        arnaud.pouliquen@foss.st.com, mchehab@kernel.org,
-        olivier.moysan@foss.st.com, andi.shyti@kernel.org,
-        alexandre.torgue@foss.st.com, kuba@kernel.org,
-        linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
-        alsa-devel@alsa-project.org, pabeni@redhat.com,
-        linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Oleksii_Moisieiev@epam.com, lee@kernel.org,
-        devicetree@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com, netdev@vger.kernel.org,
-        robh+dt@kernel.org, ulf.hansson@linaro.org,
-        catalin.marinas@arm.com, edumazet@google.com,
-        linux-spi@vger.kernel.org, herbert@gondor.apana.org.au,
-        linux-iio@vger.kernel.org, linux-crypto@vger.kernel.org
-In-Reply-To: <20230705172759.1610753-4-gatien.chevallier@foss.st.com>
-References: <20230705172759.1610753-1-gatien.chevallier@foss.st.com>
- <20230705172759.1610753-4-gatien.chevallier@foss.st.com>
-Message-Id: <168858597253.1714602.9996873148476929300.robh@kernel.org>
-Subject: Re: [PATCH 03/10] dt-bindings: bus: add device tree bindings for
- ETZPC
-Date:   Wed, 05 Jul 2023 13:39:32 -0600
+Content-Transfer-Encoding: 8bit
+X-Spam: Yes
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
-On Wed, 05 Jul 2023 19:27:52 +0200, Gatien Chevallier wrote:
-> Document ETZPC (Extended TrustZone protection controller). ETZPC is a
-> firewall controller.
-> 
-> Signed-off-by: Gatien Chevallier <gatien.chevallier@foss.st.com>
-> ---
->  .../bindings/bus/st,stm32-etzpc.yaml          | 90 +++++++++++++++++++
->  1 file changed, 90 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/bus/st,stm32-etzpc.yaml
-> 
+This patchset converts the I2C subsystem to use the PM macros that were
+introduced in v5.17, which allow the dev_pm_ops and related callbacks to
+be automatically dropped by the compiler when CONFIG_PM or
+CONFIG_PM_SLEEP are disabled, without having to use #ifdef guards.
 
-My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
-on your patch (DT_CHECKER_FLAGS is new in v5.13):
+The point of this, is that all this code is now compiled independently
+of any Kconfig option, which makes bugs and regressions easier to catch.
 
-yamllint warnings/errors:
+This continues the work that has been started in other subsystems (DRM,
+IIO, watchdog).
 
-dtschema/dtc warnings/errors:
-/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/bus/st,stm32-etzpc.yaml: title: 'STM32 Extended TrustZone protection controller bindings' should not be valid under {'pattern': '([Bb]inding| [Ss]chema)'}
-	hint: Everything is a binding/schema, no need to say it. Describe what hardware the binding is for.
-	from schema $id: http://devicetree.org/meta-schemas/core.yaml#
-Documentation/devicetree/bindings/bus/st,stm32-etzpc.example.dtb: /example-0/etzpc@5c007000: failed to match any schema with compatible: ['st,stm32mp13-sys-bus']
+As an added bonus, the diff is 71+/192-, that means less code you will
+have to maintain ;)
 
-doc reference errors (make refcheckdocs):
+The patches generally don't change the behaviour, with a few exceptions,
+that are documented in the corresponding patches.
 
-See https://patchwork.ozlabs.org/project/devicetree-bindings/patch/20230705172759.1610753-4-gatien.chevallier@foss.st.com
+I would like to draw the attention to a few patches in particular:
 
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
+- [01/23] the driver most likely does something that it shouldn't do
+  (use the same callbacks for runtime PM and system PM). The patch does
+  not change this behaviour but I have questions.
 
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
+- [11/23] uses platform_driver.{suspend,resume} instead of the regular
+  .driver.pm. I have no idea why it does that and I believe it doesn't
+  really have to.
 
-pip3 install dtschema --upgrade
+- [18/23] I feel like the qup_i2c_suspend / qup_i2c_resume don't really
+  need to exist, and the pm_runtime_force_suspend() /
+  pm_runtime_force_resume() helpers should be used instead, using the
+  DEFINE_RUNTIME_DEV_PM_OPS() macro.
 
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
+Cheers,
+-Paul
+
+Paul Cercueil (23):
+  i2c: amd-mp2: Remove #ifdef guards for PM related functions
+  i2c: au1550: Remove #ifdef guards for PM related functions
+  i2c: iproc: Remove #ifdef guards for PM related functions
+  i2c: brcmstb: Remove #ifdef guards for PM related functions
+  i2c: davinci: Remove #ifdef guards for PM related functions
+  i2c: designware: Remove #ifdef guards for PM related functions
+  i2c: exynos5: Remove #ifdef guards for PM related functions
+  i2c: hix5hd2: Remove #ifdef guards for PM related functions
+  i2c: i801: Remove #ifdef guards for PM related functions
+  i2c: img-scb: Remove #ifdef guards for PM related functions
+  i2c: kempld: Remove #ifdef guards for PM related functions
+  i2c: lpc2k: Remove #ifdef guards for PM related functions
+  i2c: mt65xx: Remove #ifdef guards for PM related functions
+  i2c: nomadik: Remove #ifdef guards for PM related functions
+  i2c: ocores: Remove #ifdef guards for PM related functions
+  i2c: pnx: Remove #ifdef guards for PM related functions
+  i2c: pxa: Remove #ifdef guards for PM related functions
+  i2c: qup: Remove #ifdef guards for PM related functions
+  i2c: rcar: Remove #ifdef guards for PM related functions
+  i2c: s3c2410: Remove #ifdef guards for PM related functions
+  i2c: sh-mobile: Remove #ifdef guards for PM related functions
+  i2c: virtio: Remove #ifdef guards for PM related functions
+  i2c: mux: pca954x: Remove #ifdef guards for PM related functions
+
+ drivers/i2c/busses/i2c-amd-mp2-pci.c        | 14 +++++--------
+ drivers/i2c/busses/i2c-amd-mp2-plat.c       |  8 ++------
+ drivers/i2c/busses/i2c-amd-mp2.h            |  2 --
+ drivers/i2c/busses/i2c-au1550.c             | 15 +++-----------
+ drivers/i2c/busses/i2c-bcm-iproc.c          | 10 +---------
+ drivers/i2c/busses/i2c-brcmstb.c            |  8 +++-----
+ drivers/i2c/busses/i2c-davinci.c            | 12 +++--------
+ drivers/i2c/busses/i2c-designware-platdrv.c | 22 ++++++---------------
+ drivers/i2c/busses/i2c-exynos5.c            |  8 +++-----
+ drivers/i2c/busses/i2c-hix5hd2.c            | 10 ++++------
+ drivers/i2c/busses/i2c-i801.c               |  6 ++----
+ drivers/i2c/busses/i2c-img-scb.c            | 13 ++++--------
+ drivers/i2c/busses/i2c-kempld.c             |  9 ++-------
+ drivers/i2c/busses/i2c-lpc2k.c              |  8 +-------
+ drivers/i2c/busses/i2c-mt65xx.c             |  8 +++-----
+ drivers/i2c/busses/i2c-nomadik.c            | 14 +++++--------
+ drivers/i2c/busses/i2c-ocores.c             | 10 +++-------
+ drivers/i2c/busses/i2c-pnx.c                | 12 ++++-------
+ drivers/i2c/busses/i2c-pxa.c                |  8 +-------
+ drivers/i2c/busses/i2c-qup.c                | 16 ++++-----------
+ drivers/i2c/busses/i2c-rcar.c               | 10 ++--------
+ drivers/i2c/busses/i2c-s3c2410.c            | 14 +++----------
+ drivers/i2c/busses/i2c-sh_mobile.c          | 12 +++--------
+ drivers/i2c/busses/i2c-virtio.c             |  8 ++------
+ drivers/i2c/muxes/i2c-mux-pca954x.c         |  6 ++----
+ 25 files changed, 71 insertions(+), 192 deletions(-)
+
+-- 
+2.40.1
 
