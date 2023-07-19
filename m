@@ -2,68 +2,127 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 507CCC001E0
-	for <linux-i2c@archiver.kernel.org>; Wed, 19 Jul 2023 18:30:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E168C001DC
+	for <linux-i2c@archiver.kernel.org>; Wed, 19 Jul 2023 19:27:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230072AbjGSSag (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 19 Jul 2023 14:30:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53368 "EHLO
+        id S230306AbjGST1p (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 19 Jul 2023 15:27:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230028AbjGSSae (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Jul 2023 14:30:34 -0400
-X-Greylist: delayed 475 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 19 Jul 2023 11:30:33 PDT
-Received: from out-54.mta0.migadu.com (out-54.mta0.migadu.com [IPv6:2001:41d0:1004:224b::36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EDD6172E
-        for <linux-i2c@vger.kernel.org>; Wed, 19 Jul 2023 11:30:32 -0700 (PDT)
+        with ESMTP id S229604AbjGST1o (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Jul 2023 15:27:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DADB1FC0;
+        Wed, 19 Jul 2023 12:27:43 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D86DF617C7;
+        Wed, 19 Jul 2023 19:27:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2600C433C8;
+        Wed, 19 Jul 2023 19:27:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1689794862;
+        bh=zt97BOS4bdaf5dk0BTyo2CkiDC24s45caGLHh2EraIQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YwooUnVURGjtn39uuMPKbvd9Kg5I5N5jMhKue1gC/8oz9wwyrWZMIGzyDx048OL32
+         me5OxxVjX46hhFw9GDXMF3boPMxFG9JqMYFFPAlOmoXyT9XK+DWSDAENYgnr9YNMfh
+         TJhdhSyhUFxd7vRa6rwn65wyA2JzM25aIm/Ya4Gbc5DM6fJuofZqjjk0GSA4WeylX8
+         UkHZRuejfzcMJOm795J33EpV1KRAmfN72rMpHX+pr05ajPEMWGuf01CtT+53L+DEIe
+         BqEZrRjt+zmh4yfvkHUnoJo5faXVOMblGMGRm1R3gAsdpmAUPxf4mPZWlGiWtnZNvB
+         Vgg1+Qh/SauoA==
+Received: by pali.im (Postfix)
+        id 231287CA; Wed, 19 Jul 2023 21:27:39 +0200 (CEST)
+Date:   Wed, 19 Jul 2023 21:27:39 +0200
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Marius Hoch <mail@mariushoch.de>
+Cc:     Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] i2c: i801: Force no IRQ for Dell Latitude E7450
+Message-ID: <20230719192739.z5mnlcfxczjayjri@pali>
+References: <20230514103634.235917-1-mail@mariushoch.de>
+ <20230523200350.62ab4788@endymion.delvare>
+ <59a6a917-2a93-d52d-37f3-091295dd0db4@mariushoch.de>
+ <20230604160132.102dd6a7@endymion.delvare>
+ <967411b3-7013-619e-4fef-90644fa8d489@mariushoch.de>
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1689790953;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=U+h7nF3iHJyXPGTjQCGPc4jOSdU2SFBb4VhoriSzvmw=;
-        b=Mbu00FFURdQu9G26tCptH/9qN208NliBSpa/YWw7dlECzT5NyEOnLR7wUuD0kg/NU2XbvU
-        4OAlFJTZF4XaJaWu1rVQdLU/t3+h53J2M/H0op2r3NCU1RryfiTvW7JEidUC+ZAHzW+7bM
-        eOSoidOQ+eINfYGKuGPARqi9urbNJw0=
-Date:   Wed, 19 Jul 2023 18:22:32 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   "Konstantin Ryabitsev" <konstantin.ryabitsev@linux.dev>
-Message-ID: <58d0c47502218fd689c5ecd100ba0d5d02d89926@linux.dev>
-TLS-Required: No
-Subject: Re: [PATCH v7 5/5] mfd: tps6586x: register restart handler
-To:     "Benjamin Bara" <bbara93@gmail.com>, dmitry.osipenko@collabora.com,
-        konstantin@linuxfoundation.org
-Cc:     bbara93@gmail.com, benjamin.bara@skidata.com, jonathanh@nvidia.com,
-        lee@kernel.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
-        peterz@infradead.org, rafael.j.wysocki@intel.com,
-        richard.leitner@linux.dev, treding@nvidia.com,
-        wsa+renesas@sang-engineering.com, wsa@kernel.org
-In-Reply-To: <20230719082251.3501424-1-bbara93@gmail.com>
-References: <20230719082251.3501424-1-bbara93@gmail.com>
- <215679f1-a866-1e92-1bab-9c80918927a6@collabora.com>
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <967411b3-7013-619e-4fef-90644fa8d489@mariushoch.de>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-July 19, 2023 at 4:22 AM, "Benjamin Bara" <bbara93@gmail.com> wrote:=20
->=20@Konstantin:
-> Do you think it makes sense to print a warning when adding "non-standar=
-d
-> trailers" during running "b4 trailers -u", maybe around the
-> find_trailers() checks? I could provide a RFC, if considered useful.
+Hello! In your log is one important information.
 
-With b4 being used for other projects than just the Linux kernel, I don't=
- think it makes sense for us to track what is a valid and what is an inva=
-lid "person-trailer". I know that we could make it configurable, but I do=
-n't think this will actually improve the situation.
+On Sunday 18 June 2023 15:42:40 Marius Hoch wrote:
+> Hi Jean,
+> 
+> thanks again for all the helpful replies!
+> 
+> On 04/06/2023 16:01, Jean Delvare wrote:
+> > Hi Marius,
+> > 
+> > On Sat, 3 Jun 2023 11:24:02 +0200, Marius Hoch wrote:
+> > > On 23/05/2023 20:03, Jean Delvare wrote:
+> > > > On Sun, 14 May 2023 12:36:32 +0200, Marius Hoch wrote:
+> > > > > The Dell Latitude E7450 uses IRQ 18 for the accelerometer,
+> > > > > but also claims that the SMBus uses IRQ 18. This will
+> > > > > result in:
+> > > > > 
+> > > > > i801_smbus 0000:00:1f.3: PCI INT C: failed to register GSI
+> > > > > i801_smbus 0000:00:1f.3: Failed to enable SMBus PCI device (-16)
+> > > > > i801_smbus: probe of 0000:00:1f.3 failed with error -16
+> > > > The i2c-i801 driver supports shared IRQ. If this fails, this means that
+> > > > the other driver is not passing IRQF_SHARED when registering the
+> > > > interrupt. Which driver is this? I'd rather check whether sharing the
+> > > > IRQ is possible, rather that falling back to polling, which has a
+> > > > performance cost.
+> > > I don't think this is a conflict rather than a completely bogus entry:
+> > > smo8800 uses IRQ 18 (the freefall sensor).
+> > You're probably right. I admit I misread your report originally and
+> > thought requesting the IRQ was failing. But actually the failure
+> > happens before that, when enabling the PCI device. So its not related
+> > to sharing the interrupt.
+> > 
+> > > For the SMBus in acpi_pci_irq_enable, acpi_register_gsi fails for GSI 18
+> > > with IRQ 255 (dev->irq), independently from the presence of the
+> > > dell_smo8800 module.
+> > > 
+> > > Now looking into this again, seeing dev->irq at 255 seems very
+> > > suspicious here? Doesn't that mean not connected (although I'm not sure
+> > > how this relates to it supposedly having GSI 18)?
+> > I admit I don't know. I'm not familiar with how GSI numbers relate to
+> > IRQ numbers. I think I understand that GSI numbers are an ACPI thing,
+> > and the ACPI layer is responsible for mapping these to actual IRQ
+> > numbers? Is there a GSI-to-IRQ table available somewhere as part of the
+> > ACPI tables? If so, it would be interesting to disassemble the ACPI
+> > tables on your system and check what this looks like for you.
+> > 
+> > If this is a bug in the ACPI data then it might be worth booting with
+> > acpi=noirq and see if it helps. This option might break other things
+> > though (like free fall detection or thermal management) so be cautious.
+> I just booted with acpi=noirq, the PCI device no longer fails to be enabled
+> and the device got assigned IRQ 19 now (according to lspci -v/
+> proc/interrupts), while the freefall device remained at IRQ 18.
+> Interestingly dmesg is full of spam from the freefall device (endlessly
+> reporting that freefall got detected, probably indicating a problem in IRQ
+> handling, yikes).
+> 
+> Booting without the smo8800 module results in:
+> [root@fedora ~]# dmesg | grep -i smbus
+> [   20.042515] i801_smbus 0000:00:1f.3: PCI->APIC IRQ transform: INT C ->
+> IRQ 19
+> [   20.042548] i801_smbus 0000:00:1f.3: SPD Write Disable is set
+> [   20.042574] i801_smbus 0000:00:1f.3: SMBus using PCI interrupt
+> [   20.051270] i801_smbus 0000:00:1f.3: Accelerometer lis3lv02d is present
+> on SMBus but its address is unknown, skipping registration
 
-One goal for b4 is to allow defining validation tests and requiring them =
-prior to "b4 send", so I think this is a better mechanism for dealing wit=
-h such situations.
+The accelerometer with "conflicting" interrupt line is connected via
+that same SMBus. You could be able to detects its address via i2cdetect
+and manually load via: echo lis3lv02d [address] > /sys/.../new_device
 
--K
+My guess, are not all devices on SMBus using same shared interrupt line?
