@@ -2,91 +2,75 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC1EEEB64DA
-	for <linux-i2c@archiver.kernel.org>; Wed, 19 Jul 2023 11:39:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD9CFC001B0
+	for <linux-i2c@archiver.kernel.org>; Wed, 19 Jul 2023 18:29:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229490AbjGSLju (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 19 Jul 2023 07:39:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57124 "EHLO
+        id S229981AbjGSS3f (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 19 Jul 2023 14:29:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229579AbjGSLjs (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Jul 2023 07:39:48 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D741FD2
-        for <linux-i2c@vger.kernel.org>; Wed, 19 Jul 2023 04:39:17 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id a640c23a62f3a-992acf67388so835655866b.1
-        for <linux-i2c@vger.kernel.org>; Wed, 19 Jul 2023 04:39:17 -0700 (PDT)
+        with ESMTP id S229897AbjGSS3f (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Jul 2023 14:29:35 -0400
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B700BB6
+        for <linux-i2c@vger.kernel.org>; Wed, 19 Jul 2023 11:29:32 -0700 (PDT)
+Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-4fba8f2197bso12298974e87.3
+        for <linux-i2c@vger.kernel.org>; Wed, 19 Jul 2023 11:29:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=devtank-co-uk.20221208.gappssmtp.com; s=20221208; t=1689766724; x=1690371524;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9bxBFdS57cHORvtflck/fJjDDdTOyQiFBPvjnTTOIAo=;
-        b=AWChI1fTZP0qKW2nktEcwMabEnYnuQc6o4Bkgb9UUQBnPd6ZLhbkUBLU4Zn5PX/VHH
-         XeWW+MH4OFoDZK6828TPkJpTpQgJoDnYriYFWbx4HtjBuV9tTRxvKoO8/w+Lvp9h8Xow
-         kyyWYbivXDugnlJNaONTBTj4kYzuNU4jyA2q44YioXa3tXdw9KF5y/v/llHXH/MQzkkz
-         i0ptN/4u6ERcLXNEEdTqdFdtpVPG8r5MQZuQoKaTS++6P1yPttgq1mtx8nU34ePhvEJz
-         F29bwltJIp8KVhC+5EDPsjyHeVFoHCSFWNfmDwPUuBW0gcWgbkq/nyvoWEYFy8CMKMIB
-         FS7A==
+        d=ragnatech-se.20221208.gappssmtp.com; s=20221208; t=1689791371; x=1692383371;
+        h=content-transfer-encoding:content-disposition:mime-version
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ILx5BAS5UUBbrh8vCk/KPrRkJkoZzB20/Y5cauCrFOA=;
+        b=txZNLovvSz7tkUe0GE8y1CmTI8Kr/Fq5clijqtcP5bLGKgeMrbS5P0e76kvcCadJIG
+         pQ86BvYNc07UHVuPpqGgyktKTeXWu0KehkE9BaFL47aANnL8IDCotJCa/sTKtCC5uput
+         /sUDdTnom9uMS30y7mvbHMP6php6LTXZPfIK7Gzsrda/VpNvQcBvicR+OzR+lSki3FdU
+         tT3xSf6kZxdSct0wrDjXkqEVIDpyCjlSlT6KMojMtEShsahL6g6+R2d9itGw1uWFxZAA
+         gTQ8bFUpEFqlhWze8d5G222gW7fDnIDRjf2ZhB7IrxGcX9JDACiSJ7LVlAh5V22tKXrg
+         4aqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689766724; x=1690371524;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9bxBFdS57cHORvtflck/fJjDDdTOyQiFBPvjnTTOIAo=;
-        b=bet1TqJW1mUkf2ltfbr/jeTRWzRLkBR56bJPilXvmXZcwIvnswvk0bsPeE8WR3N+be
-         RXSPoFXVKxfy9rYpSn6AkswJv9MLvanR846pCUPo4QS5HH4OjyktG+jVaLeoMEyV8gUV
-         bTOUdb66kxXztwOmaUp2XA7SrMNO9UJQ5qCotASurFq80E9ZwymZ6m9HXA6S0y4hr7n3
-         bIdVw7x6Dcd8YcpwrLVyZeS1/TNOPTyZ9Ri7li3TxcWLKMrl2Jkth8xNh8uPquZG1sjs
-         byFYsi9WZKHdBP6NQilFLjPbHdkjkig/j+G7FTmY1h5/fOP8yDOjr59r3jVryVSmte2C
-         9WAw==
-X-Gm-Message-State: ABy/qLbZF5YiAawL0E07BVAKH1ARSe/s69n3Tg4sr4azkhogTX+9ZBal
-        I1sMC+IG+Rc1VpkefARvo9SvqfTsRiYjTD1TchSpmg==
-X-Google-Smtp-Source: APBJJlFfYCJ6/WfRjAdI1uynrlVTweGQDlLU/PsO+gbBUoM2Ni+z0AbFT9zuRv+ZncjMDPta3LXPpA==
-X-Received: by 2002:a17:906:73d2:b0:982:8c28:c50d with SMTP id n18-20020a17090673d200b009828c28c50dmr2272964ejl.58.1689766724443;
-        Wed, 19 Jul 2023 04:38:44 -0700 (PDT)
-Received: from DevTop.lan ([212.82.82.3])
-        by smtp.gmail.com with ESMTPSA id y23-20020a17090668d700b00997cfef52fasm2235979ejr.94.2023.07.19.04.38.44
+        d=1e100.net; s=20221208; t=1689791371; x=1692383371;
+        h=content-transfer-encoding:content-disposition:mime-version
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ILx5BAS5UUBbrh8vCk/KPrRkJkoZzB20/Y5cauCrFOA=;
+        b=gkuqp7IbOmcmdJHMKHFaKHawEnDQm5JcXjvKoV1CZhgQX1js0gOuXEL8XKPDS6B45/
+         lqlUBqj30cVjYqFiHojmtGFmSvVE21YN46p1oAu5Q3jostrdk1q67BONtmFlJ0ZM4uom
+         jzYMYEtIiRKjnjICRGnKv4TQ5seWN77M2VNOWXD2h0JmgflGdJs9GpzfUWXfU+CVe5gI
+         gpOCu34aOklFSiOKuTCZDayX4IoeiZoDjdvt9E36IXHoojV8vGm09Qzbfq2wujaPGaoD
+         HMwEjHHr3Q2rK1vbgjFtF7RmTNo28Mnf0M6U7R9InqvOxQoGVepMFuAwGZVDPhMxdku4
+         6iJQ==
+X-Gm-Message-State: ABy/qLZstkvh7fFzfnBzAt2yoa8EYdGmMnbS2a8vNqGzRZv5OG88vQkC
+        x5lKR15j98cXx5I9c3CcMDjnfeiDkuLa/JtMKtNi7A==
+X-Google-Smtp-Source: APBJJlFIx6Rnf7u+Z15ZWK2MvsrC5i9Siqy9eUn5E0SKCuGfkgW75OqhftHF0kz6oNM7XkQJY81vdw==
+X-Received: by 2002:ac2:4e08:0:b0:4f8:7614:48a5 with SMTP id e8-20020ac24e08000000b004f8761448a5mr568398lfr.66.1689791370788;
+        Wed, 19 Jul 2023 11:29:30 -0700 (PDT)
+Received: from localhost (p54ac5327.dip0.t-ipconnect.de. [84.172.83.39])
+        by smtp.gmail.com with ESMTPSA id k23-20020aa7c397000000b0051d9dbf5edfsm3019727edq.55.2023.07.19.11.29.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Jul 2023 04:38:44 -0700 (PDT)
-From:   Harry Geyer <harry.geyer@devtank.co.uk>
-To:     Till Harbaum <till@harbaum.org>,
-        Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     harry.geyer@devtank.co.uk
-Subject: [PATCH] i2c: tiny-usb: check usb base class before assuming the interface on device is for this driver
-Date:   Wed, 19 Jul 2023 12:38:38 +0100
-Message-Id: <20230719113838.17714-1-harry.geyer@devtank.co.uk>
-X-Mailer: git-send-email 2.34.1
+        Wed, 19 Jul 2023 11:29:30 -0700 (PDT)
+Date:   Wed, 19 Jul 2023 20:29:29 +0200
+From:   Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>
+To:     linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa@kernel.org>
+Subject: Wolfram have computer problems
+Message-ID: <ZLgriSv3-v7Y6Px6@sleipner.dyn.berto.se>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Patch allows usb devices with multiple interfaces to use this driver without
-this driver assuming all interfaces are i2c-tiny-usb.
+Hi everyone,
 
-Signed-off-by: Harry Geyer <harry.geyer@devtank.co.uk>
----
- drivers/i2c/busses/i2c-tiny-usb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+I have been asked by Wolfram Sang to send an e-mail to the list with the 
+information the he have encountered some serious computer problems while 
+travelling, and might be off the net for while. He is working on 
+resolving the problem, but says he can't promise anything at this point.  
+Worse case he might be offline for 4 weeks.
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index d1fa9ff5aeab..fc194c65e50e 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -222,6 +222,11 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	int retval = -ENOMEM;
- 	u16 version;
- 
-+	if (interface->intf_assoc &&
-+		interface->intf_assoc->bFunctionClass != USB_CLASS_VENDOR_SPEC) {
-+		return -ENODEV;
-+	}
-+
- 	dev_dbg(&interface->dev, "probing usb device\n");
- 
- 	/* allocate memory for our device state and initialize it */
 -- 
-2.34.1
-
+Kind Regards,
+Niklas Söderlund
