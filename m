@@ -2,121 +2,124 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 363C6EB64DA
-	for <linux-i2c@archiver.kernel.org>; Sat, 22 Jul 2023 15:09:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AE63C0015E
+	for <linux-i2c@archiver.kernel.org>; Sat, 22 Jul 2023 19:06:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229552AbjGVPJX (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 22 Jul 2023 11:09:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44006 "EHLO
+        id S229569AbjGVTGd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 22 Jul 2023 15:06:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbjGVPJW (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 22 Jul 2023 11:09:22 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402BC1FF9;
-        Sat, 22 Jul 2023 08:09:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1690038560; x=1721574560;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=tP0c6UT1JUEzDEMg01H9+yYjfoMtWTAGuC2DlrbRxOU=;
-  b=AtFcxLwS/heBgoOeGwccjwN3iKY2e3vZVP2YtLEqTEBXWnSO8rCuLYxR
-   HteToGY6BcwxtgYiwYfOWijFHNnH+HE+yUxwiHiF64APBYfSDSYqeExQ/
-   HlkS6djSjWtslTVekLsqlfpOELyiB15JR/FKUeqqxtBUISJ01TMC+NqC6
-   c04+rH3G2Afu/J/a2Q3wvZzIFmf5pl6v09CUEK9rX2mo29777Jyrpw+wO
-   41Lhyz0xFfMY6Xe6WVpaC2Tme47I5L3uzPq5Vgnehvhupdd7e4auroPir
-   aK+8kUlKSdAw/HHn3Aodd1L06R12fDAJ4rQk5VAqBSxEMEZ0+i57Ya28U
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10779"; a="357195982"
-X-IronPort-AV: E=Sophos;i="6.01,224,1684825200"; 
-   d="scan'208";a="357195982"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jul 2023 08:09:19 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10779"; a="795301223"
-X-IronPort-AV: E=Sophos;i="6.01,224,1684825200"; 
-   d="scan'208";a="795301223"
-Received: from lkp-server02.sh.intel.com (HELO 36946fcf73d7) ([10.239.97.151])
-  by fmsmga004.fm.intel.com with ESMTP; 22 Jul 2023 08:09:18 -0700
-Received: from kbuild by 36946fcf73d7 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1qNEE8-0008Om-33;
-        Sat, 22 Jul 2023 15:09:13 +0000
-Date:   Sat, 22 Jul 2023 23:07:18 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Paul Cercueil <paul@crapouillou.net>,
-        Wolfram Sang <wsa-dev@sang-engineering.com>
-Cc:     llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Paul Cercueil <paul@crapouillou.net>,
+        with ESMTP id S229476AbjGVTGc (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 22 Jul 2023 15:06:32 -0400
+Received: from aposti.net (aposti.net [89.234.176.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C015E45;
+        Sat, 22 Jul 2023 12:06:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1690052788;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7guB4ZLz29lC5Mz2i2OthYSB2/BMWeO0nASQlIgRzPY=;
+        b=vTwlnTIAozIFBeEey9kTSN7kQfGflFzQIMU6ef7N3eHkTi2pT32bhu4G+CSr/HVijfzw9J
+        ztjvH+lqV4wKa/Obra29W78agD13UuzGwhonM9pdBQvxum7RPDoXbP0vnFywVliagz7V6h
+        zF4lNOGG7a92XX9XY6CG6ph7jYcPFAY=
+Message-ID: <96ce584d2ba6cb58ab3d5f8ea64f18ada54de944.camel@crapouillou.net>
+Subject: Re: [PATCH v2 21/22] i2c: virtio: Remove #ifdef guards for PM
+ related functions
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         Conghui Chen <conghui.chen@intel.com>,
         virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v2 21/22] i2c: virtio: Remove #ifdef guards for PM
- related functions
-Message-ID: <202307222246.K1GYOGCB-lkp@intel.com>
-References: <20230722115310.27681-5-paul@crapouillou.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date:   Sat, 22 Jul 2023 21:06:26 +0200
 In-Reply-To: <20230722115310.27681-5-paul@crapouillou.net>
+References: <20230722115046.27323-1-paul@crapouillou.net>
+         <20230722115310.27681-5-paul@crapouillou.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Paul,
+As the build bot noticed - this patch is invalid as the
+virtio_driver.{freeze,restore} callbacks are guarded by #ifdefs.
 
-kernel test robot noticed the following build errors:
+Feel free to apply the rest (if everybody is happy with them) and I'll
+respin this one.
 
-[auto build test ERROR on wsa/i2c/for-next]
-[also build test ERROR on brgl/gpio/for-next krzk/for-next linus/master v6.5-rc2 next-20230721]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Cheers,
+-Paul
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Paul-Cercueil/i2c-au1550-Remove-ifdef-guards-for-PM-related-functions/20230722-200209
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-patch link:    https://lore.kernel.org/r/20230722115310.27681-5-paul%40crapouillou.net
-patch subject: [PATCH v2 21/22] i2c: virtio: Remove #ifdef guards for PM related functions
-config: i386-randconfig-r015-20230722 (https://download.01.org/0day-ci/archive/20230722/202307222246.K1GYOGCB-lkp@intel.com/config)
-compiler: clang version 15.0.7 (https://github.com/llvm/llvm-project.git 8dfdcc7b7bf66834a761bd8de445840ef68e4d1a)
-reproduce: (https://download.01.org/0day-ci/archive/20230722/202307222246.K1GYOGCB-lkp@intel.com/reproduce)
+Le samedi 22 juillet 2023 =C3=A0 13:53 +0200, Paul Cercueil a =C3=A9crit=C2=
+=A0:
+> Use the new PM macros for the suspend and resume functions to be
+> automatically dropped by the compiler when CONFIG_PM or
+> CONFIG_PM_SLEEP are disabled, without having to use #ifdef guards.
+>=20
+> This has the advantage of always compiling these functions in,
+> independently of any Kconfig option. Thanks to that, bugs and other
+> regressions are subsequently easier to catch.
+>=20
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+>=20
+> ---
+> Cc: Conghui Chen <conghui.chen@intel.com>
+> Cc: Viresh Kumar <viresh.kumar@linaro.org>
+> Cc: virtualization@lists.linux-foundation.org
+> ---
+> =C2=A0drivers/i2c/busses/i2c-virtio.c | 8 ++------
+> =C2=A01 file changed, 2 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-virtio.c
+> b/drivers/i2c/busses/i2c-virtio.c
+> index 4b9536f50800..c60ae531ba57 100644
+> --- a/drivers/i2c/busses/i2c-virtio.c
+> +++ b/drivers/i2c/busses/i2c-virtio.c
+> @@ -243,7 +243,6 @@ static struct virtio_device_id id_table[] =3D {
+> =C2=A0};
+> =C2=A0MODULE_DEVICE_TABLE(virtio, id_table);
+> =C2=A0
+> -#ifdef CONFIG_PM_SLEEP
+> =C2=A0static int virtio_i2c_freeze(struct virtio_device *vdev)
+> =C2=A0{
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0virtio_i2c_del_vqs(vdev);
+> @@ -254,7 +253,6 @@ static int virtio_i2c_restore(struct
+> virtio_device *vdev)
+> =C2=A0{
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return virtio_i2c_setup_v=
+qs(vdev->priv);
+> =C2=A0}
+> -#endif
+> =C2=A0
+> =C2=A0static const unsigned int features[] =3D {
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0VIRTIO_I2C_F_ZERO_LENGTH_=
+REQUEST,
+> @@ -269,10 +267,8 @@ static struct virtio_driver virtio_i2c_driver =3D
+> {
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.driver=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=3D {
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0.name=C2=A0=C2=A0=C2=A0=3D "i2c_virtio",
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0},
+> -#ifdef CONFIG_PM_SLEEP
+> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.freeze =3D virtio_i2c_freeze,
+> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.restore =3D virtio_i2c_restor=
+e,
+> -#endif
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.freeze=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=3D pm_sleep_ptr(virtio_i2c_freeze),
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0.restore=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=3D pm_sleep_ptr(virtio_i2c_restore),
+> =C2=A0};
+> =C2=A0module_virtio_driver(virtio_i2c_driver);
+> =C2=A0
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202307222246.K1GYOGCB-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
->> drivers/i2c/busses/i2c-virtio.c:270:3: error: field designator 'freeze' does not refer to any field in type 'struct virtio_driver'
-           .freeze                 = pm_sleep_ptr(virtio_i2c_freeze),
-            ^
->> drivers/i2c/busses/i2c-virtio.c:271:3: error: field designator 'restore' does not refer to any field in type 'struct virtio_driver'
-           .restore                = pm_sleep_ptr(virtio_i2c_restore),
-            ^
-   2 errors generated.
-
-
-vim +270 drivers/i2c/busses/i2c-virtio.c
-
-   260	
-   261	static struct virtio_driver virtio_i2c_driver = {
-   262		.feature_table		= features,
-   263		.feature_table_size	= ARRAY_SIZE(features),
-   264		.id_table		= id_table,
-   265		.probe			= virtio_i2c_probe,
-   266		.remove			= virtio_i2c_remove,
-   267		.driver			= {
-   268			.name	= "i2c_virtio",
-   269		},
- > 270		.freeze			= pm_sleep_ptr(virtio_i2c_freeze),
- > 271		.restore		= pm_sleep_ptr(virtio_i2c_restore),
-   272	};
-   273	module_virtio_driver(virtio_i2c_driver);
-   274	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
