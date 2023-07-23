@@ -2,59 +2,116 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE7D8C001DF
-	for <linux-i2c@archiver.kernel.org>; Sun, 23 Jul 2023 08:37:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1563FC04A6A
+	for <linux-i2c@archiver.kernel.org>; Sun, 23 Jul 2023 08:37:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229614AbjGWIhc (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 23 Jul 2023 04:37:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57152 "EHLO
+        id S229660AbjGWIhj (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 23 Jul 2023 04:37:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbjGWIhb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 23 Jul 2023 04:37:31 -0400
+        with ESMTP id S229677AbjGWIhg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 23 Jul 2023 04:37:36 -0400
 Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5272E19BF;
-        Sun, 23 Jul 2023 01:37:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A08D8E7D;
+        Sun, 23 Jul 2023 01:37:35 -0700 (PDT)
 X-IronPort-AV: E=Sophos;i="6.01,226,1684767600"; 
-   d="scan'208";a="174151263"
+   d="scan'208";a="174151268"
 Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie6.idc.renesas.com with ESMTP; 23 Jul 2023 17:37:28 +0900
+  by relmlie6.idc.renesas.com with ESMTP; 23 Jul 2023 17:37:35 +0900
 Received: from localhost.localdomain (unknown [10.226.92.13])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 96A82400544A;
-        Sun, 23 Jul 2023 17:37:24 +0900 (JST)
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 74F3F4007214;
+        Sun, 23 Jul 2023 17:37:33 +0900 (JST)
 From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>, linux-acpi@vger.kernel.org,
-        linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>, linux-i2c@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH RFC 0/2] Extend device_get_match_data() to struct bus_type
-Date:   Sun, 23 Jul 2023 09:37:19 +0100
-Message-Id: <20230723083721.35384-1-biju.das.jz@bp.renesas.com>
+        linux-renesas-soc@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH RFC 2/2] i2c: Add i2c_device_get_match_data() callback
+Date:   Sun, 23 Jul 2023 09:37:21 +0100
+Message-Id: <20230723083721.35384-3-biju.das.jz@bp.renesas.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230723083721.35384-1-biju.das.jz@bp.renesas.com>
+References: <20230723083721.35384-1-biju.das.jz@bp.renesas.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This patch series extend device_get_match_data() to struct bus_type,
-so that buses like I2C can get matched data.
+Add i2c_device_get_match_data() callback to struct bus_type().
 
-Biju Das (2):
-  drivers: fwnode: Extend device_get_match_data() to struct bus_type
-  i2c: Add i2c_device_get_match_data() callback
+While at it, introduced i2c_get_match_data_helper() to avoid code
+duplication with i2c_get_match_data().
 
- drivers/base/property.c     |  8 +++++++-
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+---
  drivers/i2c/i2c-core-base.c | 38 +++++++++++++++++++++++++++++--------
- include/linux/device/bus.h  |  3 +++
- 3 files changed, 40 insertions(+), 9 deletions(-)
+ 1 file changed, 30 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 60746652fd52..80259111355b 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -114,20 +114,41 @@ const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+ }
+ EXPORT_SYMBOL_GPL(i2c_match_id);
+ 
++static void *i2c_get_match_data_helper(struct i2c_driver *driver,
++				       const struct i2c_client *client)
++{
++	const struct i2c_device_id *match;
++
++	match = i2c_match_id(driver->id_table, client);
++	if (!match)
++		return NULL;
++
++	return (const void *)match->driver_data;
++}
++
++static const void *i2c_device_get_match_data(const struct device *dev)
++{
++	const struct i2c_client *client = to_i2c_client(dev);
++	const struct i2c_driver *driver;
++
++	if (!dev->driver)
++		return NULL;
++
++	driver = to_i2c_driver(dev->driver);
++	if (!driver)
++		return NULL;
++
++	return i2c_get_match_data_helper(driver, client);
++}
++
+ const void *i2c_get_match_data(const struct i2c_client *client)
+ {
+ 	struct i2c_driver *driver = to_i2c_driver(client->dev.driver);
+-	const struct i2c_device_id *match;
+ 	const void *data;
+ 
+ 	data = device_get_match_data(&client->dev);
+-	if (!data) {
+-		match = i2c_match_id(driver->id_table, client);
+-		if (!match)
+-			return NULL;
+-
+-		data = (const void *)match->driver_data;
+-	}
++	if (!data)
++		data = i2c_get_match_data_helper(driver, client);
+ 
+ 	return data;
+ }
+@@ -695,6 +716,7 @@ struct bus_type i2c_bus_type = {
+ 	.probe		= i2c_device_probe,
+ 	.remove		= i2c_device_remove,
+ 	.shutdown	= i2c_device_shutdown,
++	.get_match_data	= i2c_device_get_match_data,
+ };
+ EXPORT_SYMBOL_GPL(i2c_bus_type);
+ 
 -- 
 2.25.1
 
