@@ -2,164 +2,126 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2D26C001DE
-	for <linux-i2c@archiver.kernel.org>; Tue, 25 Jul 2023 14:08:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7560FC001E0
+	for <linux-i2c@archiver.kernel.org>; Tue, 25 Jul 2023 14:30:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232276AbjGYOIt (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 25 Jul 2023 10:08:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55782 "EHLO
+        id S231843AbjGYOaW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 25 Jul 2023 10:30:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232298AbjGYOIs (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Jul 2023 10:08:48 -0400
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF82D1FD7;
-        Tue, 25 Jul 2023 07:08:46 -0700 (PDT)
-Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36PDXDMu010531;
-        Tue, 25 Jul 2023 16:08:01 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=selector1;
- bh=aKox1fifr/MD7CscnSNaYClzgh1MKEowYV/1CFbHY8Q=;
- b=4sFWeFLREgJioc9H+rODp72hj3AVdLAeXn//m7QoqBPjLcHM3h6ErPmn4WA399Y/aITY
- Es+zEl+7c1OuNWP/mY/sYFUWBgIrS0ZnwoA5voqLfap1MOnNtJ/zdQsJH70zP6mKb4It
- up4nrSg6m/QvGFbwtP1STGuEVZLJ00BGoK2EjvjlEjCcZJFyhQQwWBxUeAAPCbeV4q3h
- 6aBJcowFMNfbDdrNiVfgGpJZ6jk6/MU4C0knjVH4EQXo3oCJXoEvofraY3JZmoYetI5I
- ZcYWT0tL9hA+ODD+fHxyfM0nlDUmDa3FOMio5gfyLhC4I0CiM1Tbi4NIEhA6R3rIQpjx iw== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3s2bkbhv00-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jul 2023 16:08:01 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id B9F8E100048;
-        Tue, 25 Jul 2023 16:07:56 +0200 (CEST)
-Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 5ACB4241EF6;
-        Tue, 25 Jul 2023 16:07:56 +0200 (CEST)
-Received: from [10.201.21.121] (10.201.21.121) by SHFDAG1NODE1.st.com
- (10.75.129.69) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Tue, 25 Jul
- 2023 16:07:54 +0200
-Message-ID: <1faa5511-a341-9c17-5e2a-974f8139d1d6@foss.st.com>
-Date:   Tue, 25 Jul 2023 16:07:49 +0200
+        with ESMTP id S231751AbjGYOaV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Jul 2023 10:30:21 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F11D6C1;
+        Tue, 25 Jul 2023 07:30:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1690295421; x=1721831421;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Q0panVSTYmCRKnbyNukBF1nR+Y6nQu5AGzXVPFd7XFI=;
+  b=YZNoq7xkzsCqgExGPPKevv2f19oNzTQnxzIXmsKOqko5DI4t04uVvDSP
+   muPQHxZkEtpEHDiCqf8e4m9DMkDD5JPsJBBwxDeZArYimDfcUUfI3UpBt
+   4mf5bal9VcpYVX/qsM5UGFlPWKjcbHWNrAMiLJyZp14i0/+7Q2GPui8RL
+   eKubsXaJBZFBM+j4BdLPc2sFmHikRjdiKGLqzOY+/9WonIcAppxrx7YQK
+   p3VA1z5jZK9d6s7Rm9o6uZJBIfnU+ak9DSMzbRqXtrYdGRG1JtX3FJgc6
+   YUZBkZfc+saKgGrDIRrke5UIIorkCummKd4PY8IABE5MHNy7IGWjWbs5n
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10782"; a="433992455"
+X-IronPort-AV: E=Sophos;i="6.01,230,1684825200"; 
+   d="scan'208";a="433992455"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jul 2023 07:30:18 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10782"; a="1056804938"
+X-IronPort-AV: E=Sophos;i="6.01,230,1684825200"; 
+   d="scan'208";a="1056804938"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga005.fm.intel.com with ESMTP; 25 Jul 2023 07:30:16 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id AE4DA2FF; Tue, 25 Jul 2023 17:30:24 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Jan Dabros <jsd@semihalf.com>,
+        Andi Shyti <andi.shyti@kernel.org>
+Subject: [PATCH v1 3/9] i2c: designware: Align dw_i2c_of_configure() with i2c_dw_acpi_configure()
+Date:   Tue, 25 Jul 2023 17:30:17 +0300
+Message-Id: <20230725143023.86325-4-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
+In-Reply-To: <20230725143023.86325-1-andriy.shevchenko@linux.intel.com>
+References: <20230725143023.86325-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH 07/10] arm64: dts: st: add RIFSC as a domain controller
- for STM32MP25x boards
-Content-Language: en-US
-From:   Gatien CHEVALLIER <gatien.chevallier@foss.st.com>
-To:     Alexandre TORGUE <alexandre.torgue@foss.st.com>,
-        <Oleksii_Moisieiev@epam.com>, <gregkh@linuxfoundation.org>,
-        <herbert@gondor.apana.org.au>, <davem@davemloft.net>,
-        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
-        <conor+dt@kernel.org>, <vkoul@kernel.org>, <jic23@kernel.org>,
-        <olivier.moysan@foss.st.com>, <arnaud.pouliquen@foss.st.com>,
-        <mchehab@kernel.org>, <fabrice.gasnier@foss.st.com>,
-        <andi.shyti@kernel.org>, <ulf.hansson@linaro.org>,
-        <edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-        <hugues.fruchet@foss.st.com>, <lee@kernel.org>, <will@kernel.org>,
-        <catalin.marinas@arm.com>, <arnd@kernel.org>,
-        <richardcochran@gmail.com>
-CC:     <linux-crypto@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <dmaengine@vger.kernel.org>,
-        <linux-i2c@vger.kernel.org>, <linux-iio@vger.kernel.org>,
-        <alsa-devel@alsa-project.org>, <linux-media@vger.kernel.org>,
-        <linux-mmc@vger.kernel.org>, <netdev@vger.kernel.org>,
-        <linux-phy@lists.infradead.org>, <linux-serial@vger.kernel.org>,
-        <linux-spi@vger.kernel.org>, <linux-usb@vger.kernel.org>
-References: <20230705172759.1610753-1-gatien.chevallier@foss.st.com>
- <20230705172759.1610753-8-gatien.chevallier@foss.st.com>
- <61d93738-4ffd-411d-d32c-912c14eea56d@foss.st.com>
- <997780a9-1cbc-46a2-2743-7fd493682278@foss.st.com>
-In-Reply-To: <997780a9-1cbc-46a2-2743-7fd493682278@foss.st.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.201.21.121]
-X-ClientProxiedBy: SHFCAS1NODE2.st.com (10.75.129.73) To SHFDAG1NODE1.st.com
- (10.75.129.69)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-25_08,2023-07-25_01,2023-05-22_02
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Alex,
+For the sake of consistency align dw_i2c_of_configure() with
+i2c_dw_acpi_configure() and rename the former to i2c_dw_of_configure().
 
-On 7/6/23 11:30, Gatien CHEVALLIER wrote:
-> Hi Alex,
-> 
-> On 7/6/23 11:25, Alexandre TORGUE wrote:
->> Hi Gatien
->>
->> On 7/5/23 19:27, Gatien Chevallier wrote:
->>> RIFSC is a firewall controller. Change its compatible so that is matches
->>> the documentation and reference RIFSC as a feature-domain-controller.
->>>
->>> Signed-off-by: Gatien Chevallier <gatien.chevallier@foss.st.com>
->>> ---
->>>   arch/arm64/boot/dts/st/stm32mp251.dtsi | 5 ++++-
->>>   1 file changed, 4 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/arch/arm64/boot/dts/st/stm32mp251.dtsi 
->>> b/arch/arm64/boot/dts/st/stm32mp251.dtsi
->>> index 5268a4321841..62101084cab8 100644
->>> --- a/arch/arm64/boot/dts/st/stm32mp251.dtsi
->>> +++ b/arch/arm64/boot/dts/st/stm32mp251.dtsi
->>> @@ -106,17 +106,20 @@ soc@0 {
->>>           ranges = <0x0 0x0 0x0 0x80000000>;
->>>           rifsc: rifsc-bus@42080000 {
->>> -            compatible = "simple-bus";
->>> +            compatible = "st,stm32mp25-rifsc";
->>
->> You could keep "simple-bus" compatible (in second position). In case 
->> of the RIFSC is not probed, the platform will be able to boot. If you 
->> agree you can use the same for ETZPC.
->>
->> Cheers
->> Alex
-> 
-> Sure, good point.
-> 
-> I'll change that in V2
-> 
-> Best regards,
-> Gatien
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-Actually, it would be a bad idea to keep "simple-bus" as a compatible.
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index c60e55b8398e..d35a6bbcb6fb 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -132,9 +132,9 @@ static int mscc_twi_set_sda_hold_time(struct dw_i2c_dev *dev)
+ 	return 0;
+ }
+ 
+-static int dw_i2c_of_configure(struct platform_device *pdev)
++static void i2c_dw_of_do_configure(struct dw_i2c_dev *dev, struct device *device)
+ {
+-	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
++	struct platform_device *pdev = to_platform_device(device);
+ 
+ 	switch (dev->flags & MODEL_MASK) {
+ 	case MODEL_MSCC_OCELOT:
+@@ -145,8 +145,12 @@ static int dw_i2c_of_configure(struct platform_device *pdev)
+ 	default:
+ 		break;
+ 	}
++}
+ 
+-	return 0;
++static void i2c_dw_of_configure(struct dw_i2c_dev *dev)
++{
++	if (dev_of_node(dev->dev))
++		i2c_dw_of_do_configure(dev, dev->dev);
+ }
+ 
+ static const struct of_device_id dw_i2c_of_match[] = {
+@@ -162,10 +166,7 @@ static int bt1_i2c_request_regs(struct dw_i2c_dev *dev)
+ 	return -ENODEV;
+ }
+ 
+-static inline int dw_i2c_of_configure(struct platform_device *pdev)
+-{
+-	return -ENODEV;
+-}
++static inline void i2c_dw_of_configure(struct dw_i2c_dev *dev) { }
+ #endif
+ 
+ static int txgbe_i2c_request_regs(struct dw_i2c_dev *dev)
+@@ -311,9 +312,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 
+ 	i2c_dw_adjust_bus_speed(dev);
+ 
+-	if (pdev->dev.of_node)
+-		dw_i2c_of_configure(pdev);
+-
++	i2c_dw_of_configure(dev);
+ 	i2c_dw_acpi_configure(dev);
+ 
+ 	ret = i2c_dw_validate_speed(dev);
+-- 
+2.40.0.1.gaa8946217a0b
 
-Practical example:
-1) Firewall controller forbids a device probe by marking the device's
-node as populated (OF_POPULATED flag).
-2) The simple-bus, which is simple, populates all the devices
-from the device tree data, overriding what the firewall bus has done.
-3)=>Forbidden device's driver will be probed.
-
-I think it's best to keep one compatible. If someone wants these drivers
-as external modules, then it'll be best to handle this differently.
-I'll resubmit with a single compatible for V2, please do not
-hesitate to comment on the V2 if you're not okay with this.
-
-Best regards,
-Gatien
-
->>
->>>               reg = <0x42080000 0x1000>;
->>>               #address-cells = <1>;
->>>               #size-cells = <1>;
->>>               ranges;
->>> +            feature-domain-controller;
->>> +            #feature-domain-cells = <1>;
->>>               usart2: serial@400e0000 {
->>>                   compatible = "st,stm32h7-uart";
->>>                   reg = <0x400e0000 0x400>;
->>>                   interrupts = <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>;
->>>                   clocks = <&ck_flexgen_08>;
->>> +                feature-domains = <&rifsc 32>;
->>>                   status = "disabled";
->>>               };
->>>           };
->>
