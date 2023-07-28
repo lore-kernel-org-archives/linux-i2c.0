@@ -2,25 +2,25 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1067C05051
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6F0AC04FE1
 	for <linux-i2c@archiver.kernel.org>; Fri, 28 Jul 2023 01:32:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232077AbjG1Bco (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 27 Jul 2023 21:32:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46576 "EHLO
+        id S231743AbjG1Bcm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 27 Jul 2023 21:32:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232107AbjG1Bch (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 27 Jul 2023 21:32:37 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2635A35B5;
-        Thu, 27 Jul 2023 18:32:27 -0700 (PDT)
-Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4RBqmN6NclztRgT;
-        Fri, 28 Jul 2023 09:29:08 +0800 (CST)
+        with ESMTP id S232077AbjG1Bcg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 27 Jul 2023 21:32:36 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A442135AF;
+        Thu, 27 Jul 2023 18:32:25 -0700 (PDT)
+Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.56])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RBqpH04KdzVjd9;
+        Fri, 28 Jul 2023 09:30:46 +0800 (CST)
 Received: from huawei.com (10.67.174.53) by kwepemi500012.china.huawei.com
  (7.221.188.12) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Fri, 28 Jul
- 2023 09:32:24 +0800
+ 2023 09:32:22 +0800
 From:   Liao Chang <liaochang1@huawei.com>
 To:     <andi.shyti@kernel.org>, <florian.fainelli@broadcom.com>,
         <rjui@broadcom.com>, <sbranden@broadcom.com>,
@@ -35,9 +35,9 @@ CC:     <linux-i2c@vger.kernel.org>,
         <linux-rpi-kernel@lists.infradead.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-arm-msm@vger.kernel.org>, <liaochang1@huawei.com>
-Subject: [PATCH 5/9] i2c: qcom-cci: Use dev_err_probe in probe function
-Date:   Fri, 28 Jul 2023 09:31:44 +0800
-Message-ID: <20230728013148.1720978-6-liaochang1@huawei.com>
+Subject: [PATCH 3/9] i2c: xlp9xx: Use dev_err_probe in probe function
+Date:   Fri, 28 Jul 2023 09:31:42 +0800
+Message-ID: <20230728013148.1720978-4-liaochang1@huawei.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230728013148.1720978-1-liaochang1@huawei.com>
 References: <20230728013148.1720978-1-liaochang1@huawei.com>
@@ -58,26 +58,26 @@ so that the printed messge includes the return value and also handles
 
 Signed-off-by: Liao Chang <liaochang1@huawei.com>
 ---
- drivers/i2c/busses/i2c-qcom-cci.c | 6 ++----
+ drivers/i2c/busses/i2c-xlp9xx.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index 622dc14add9d..cf13abec05f1 100644
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -588,10 +588,8 @@ static int cci_probe(struct platform_device *pdev)
- 	/* Clocks */
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index f59e8c544f36..08a59a920929 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -529,10 +529,8 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
  
- 	ret = devm_clk_bulk_get_all(dev, &cci->clocks);
--	if (ret < 1) {
--		dev_err(dev, "failed to get clocks %d\n", ret);
--		return ret;
+ 	err = devm_request_irq(&pdev->dev, priv->irq, xlp9xx_i2c_isr, 0,
+ 			       pdev->name, priv);
+-	if (err) {
+-		dev_err(&pdev->dev, "IRQ request failed!\n");
+-		return err;
 -	}
-+	if (ret < 1)
-+		return dev_err_probe(dev, ret, "failed to get clocks\n");
- 	cci->nclocks = ret;
++	if (err)
++		return dev_err_probe(&pdev->dev, err, "IRQ request failed!\n");
  
- 	/* Retrieve CCI clock rate */
+ 	init_completion(&priv->msg_complete);
+ 	priv->adapter.dev.parent = &pdev->dev;
 -- 
 2.25.1
 
