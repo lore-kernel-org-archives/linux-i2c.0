@@ -2,84 +2,76 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6B35C00528
-	for <linux-i2c@archiver.kernel.org>; Tue,  1 Aug 2023 12:46:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22EEAC001DF
+	for <linux-i2c@archiver.kernel.org>; Tue,  1 Aug 2023 12:48:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbjHAMq0 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 1 Aug 2023 08:46:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46136 "EHLO
+        id S230462AbjHAMsh (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 1 Aug 2023 08:48:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231574AbjHAMq0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Aug 2023 08:46:26 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F08DDE6
-        for <linux-i2c@vger.kernel.org>; Tue,  1 Aug 2023 05:46:24 -0700 (PDT)
-Received: from dggpeml500025.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4RFZZn1XptzrS3Q;
-        Tue,  1 Aug 2023 20:45:21 +0800 (CST)
-Received: from ubuntu1804.huawei.com (10.67.174.202) by
- dggpeml500025.china.huawei.com (7.185.36.35) with Microsoft SMTP Server
+        with ESMTP id S230246AbjHAMsh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Aug 2023 08:48:37 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2615BE6
+        for <linux-i2c@vger.kernel.org>; Tue,  1 Aug 2023 05:48:36 -0700 (PDT)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.56])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RFZZX1BlnzNmCv;
+        Tue,  1 Aug 2023 20:45:08 +0800 (CST)
+Received: from localhost.localdomain (10.50.163.32) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Tue, 1 Aug 2023 20:46:22 +0800
-From:   Zhu Wang <wangzhu9@huawei.com>
-To:     <brgl@bgdev.pl>, <andi.shyti@kernel.org>,
-        <conor.dooley@microchip.com>, <daire.mcnamara@microchip.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-i2c@vger.kernel.org>, <linux-riscv@lists.infradead.org>
-CC:     <wangzhu9@huawei.com>
-Subject: [PATCH -next] i2c: remove redundant dev_err_probe()
-Date:   Tue, 1 Aug 2023 20:45:51 +0800
-Message-ID: <20230801124551.138541-1-wangzhu9@huawei.com>
-X-Mailer: git-send-email 2.17.1
+ 15.1.2507.27; Tue, 1 Aug 2023 20:48:33 +0800
+From:   Yicong Yang <yangyicong@huawei.com>
+To:     <wsa@kernel.org>, <andi.shyti@kernel.org>,
+        <linux-i2c@vger.kernel.org>
+CC:     <yangyicong@hisilicon.com>, <f.fangjian@huawei.com>,
+        <linuxarm@huawei.com>
+Subject: [PATCH] i2c: hisi: Only handle the interrupt of the driver's transfer
+Date:   Tue, 1 Aug 2023 20:46:25 +0800
+Message-ID: <20230801124625.63587-1-yangyicong@huawei.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.174.202]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpeml500025.china.huawei.com (7.185.36.35)
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.50.163.32]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ canpemm500009.china.huawei.com (7.192.105.203)
 X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-When platform_get_irq() is called, the error message has been printed,
-so it need not to call dev_err_probe() to print error, and
-platform_get_irq() never returned zero.
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-Signed-off-by: Zhu Wang <wangzhu9@huawei.com>
+The controller may be shared with other port, for example the firmware.
+Handle the interrupt from other sources will cause crash since some
+data are not initialized. So only handle the interrupt of the driver's
+transfer and discard others.
+
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
 ---
- drivers/i2c/busses/i2c-davinci.c           | 2 +-
- drivers/i2c/busses/i2c-microchip-corei2c.c | 5 ++---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-hisi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 52527189a7bf..329c952d5062 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -765,7 +765,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
+index e067671b3ce2..8328da4bc3ec 100644
+--- a/drivers/i2c/busses/i2c-hisi.c
++++ b/drivers/i2c/busses/i2c-hisi.c
+@@ -330,6 +330,14 @@ static irqreturn_t hisi_i2c_irq(int irq, void *context)
+ 	struct hisi_i2c_controller *ctlr = context;
+ 	u32 int_stat;
  
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0)
--		return dev_err_probe(&pdev->dev, irq, "can't get irq resource\n");
-+		return irq;
- 
- 	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
-diff --git a/drivers/i2c/busses/i2c-microchip-corei2c.c b/drivers/i2c/busses/i2c-microchip-corei2c.c
-index 7f58f7eaabb6..0b0a1c4d17ca 100644
---- a/drivers/i2c/busses/i2c-microchip-corei2c.c
-+++ b/drivers/i2c/busses/i2c-microchip-corei2c.c
-@@ -378,9 +378,8 @@ static int mchp_corei2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(idev->base);
- 
- 	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0)
--		return dev_err_probe(&pdev->dev, -ENXIO,
--				     "invalid IRQ %d for I2C controller\n", irq);
-+	if (irq < 0)
-+		return irq;
- 
- 	idev->i2c_clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(idev->i2c_clk))
++	/*
++	 * Don't handle the interrupt if cltr->completion is NULL. We may
++	 * reach here because the interrupt is spurious or the transfer is
++	 * started by another port rather than us.
++	 */
++	if (!ctlr->completion)
++		return IRQ_NONE;
++
+ 	int_stat = readl(ctlr->iobase + HISI_I2C_INT_MSTAT);
+ 	hisi_i2c_clear_int(ctlr, int_stat);
+ 	if (!(int_stat & HISI_I2C_INT_ALL))
 -- 
-2.17.1
+2.24.0
 
