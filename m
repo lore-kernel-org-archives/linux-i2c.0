@@ -2,25 +2,25 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89815C04FE2
-	for <linux-i2c@archiver.kernel.org>; Wed,  2 Aug 2023 09:58:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75C57C04FE1
+	for <linux-i2c@archiver.kernel.org>; Wed,  2 Aug 2023 09:58:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234207AbjHBJ6S (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 2 Aug 2023 05:58:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56340 "EHLO
+        id S231508AbjHBJ6T (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 2 Aug 2023 05:58:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234033AbjHBJ6O (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Aug 2023 05:58:14 -0400
+        with ESMTP id S233734AbjHBJ6P (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Aug 2023 05:58:15 -0400
 Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592F62101;
-        Wed,  2 Aug 2023 02:58:10 -0700 (PDT)
-Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RG6nL5NY2zVjth;
-        Wed,  2 Aug 2023 17:56:22 +0800 (CST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B91C268F;
+        Wed,  2 Aug 2023 02:58:12 -0700 (PDT)
+Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.57])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RG6lS21TlzNmZl;
+        Wed,  2 Aug 2023 17:54:44 +0800 (CST)
 Received: from huawei.com (10.67.174.53) by kwepemi500012.china.huawei.com
  (7.221.188.12) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Wed, 2 Aug
- 2023 17:58:06 +0800
+ 2023 17:58:09 +0800
 From:   Liao Chang <liaochang1@huawei.com>
 To:     <andi.shyti@kernel.org>, <florian.fainelli@broadcom.com>,
         <bcm-kernel-feedback-list@broadcom.com>, <rjui@broadcom.com>,
@@ -34,10 +34,12 @@ CC:     <linux-i2c@vger.kernel.org>,
         <linux-rpi-kernel@lists.infradead.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>
-Subject: [PATCH v2 0/9] Use dev_err_probe in i2c probe function
-Date:   Wed, 2 Aug 2023 17:57:28 +0800
-Message-ID: <20230802095737.3957587-1-liaochang1@huawei.com>
+Subject: [PATCH 4/9] i2c: hisi: Use dev_err_probe in probe function
+Date:   Wed, 2 Aug 2023 17:57:32 +0800
+Message-ID: <20230802095737.3957587-5-liaochang1@huawei.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230802095737.3957587-1-liaochang1@huawei.com>
+References: <20230802095737.3957587-1-liaochang1@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -53,35 +55,39 @@ Use the dev_err_probe function instead of dev_err in the probe function
 so that the printed messge includes the return value and also handles
 -EPROBE_DEFER nicely.
 
-v2:
-1. Convert all dev_err() in lpi2c_imx_probe(), synquacer_i2c_probe(),
-   mlxbf_i2c_probe() to dev_err_probe().
-2. Add Reviewed-by: Florian Fainelli <florian.fainelli@broadcom.com>
-3. Add Reviewed-by: Yicong Yang <yangyicong@hisilicon.com>
-4. Add Reviewed-by: Andi Shyti <andi.shyti@kernel.com>
+Reviewed-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Liao Chang <liaochang1@huawei.com>
+---
+ drivers/i2c/busses/i2c-hisi.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-Liao Chang (9):
-  i2c: bcm2835: Use dev_err_probe in probe function
-  i2c: mlxbf: Use dev_err_probe in probe function
-  i2c: xlp9xx: Use dev_err_probe in probe function
-  i2c: hisi: Use dev_err_probe in probe function
-  i2c: qcom-cci: Use dev_err_probe in probe function
-  i2c: pxa: Use dev_err_probe in probe function
-  i2c: dln2: Use dev_err_probe in probe function
-  i2c: imx-lpi2c: Use dev_err_probe in probe function
-  i2c: synquacer: Use dev_err_probe in probe function
-
- drivers/i2c/busses/i2c-bcm2835.c   | 14 ++++-----
- drivers/i2c/busses/i2c-dln2.c      |  6 ++--
- drivers/i2c/busses/i2c-hisi.c      | 12 +++----
- drivers/i2c/busses/i2c-imx-lpi2c.c | 12 +++----
- drivers/i2c/busses/i2c-mlxbf.c     | 50 ++++++++++--------------------
- drivers/i2c/busses/i2c-pxa.c       |  7 ++---
- drivers/i2c/busses/i2c-qcom-cci.c  |  6 ++--
- drivers/i2c/busses/i2c-synquacer.c | 19 ++++--------
- drivers/i2c/busses/i2c-xlp9xx.c    |  6 ++--
- 9 files changed, 46 insertions(+), 86 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
+index e067671b3ce2..6fc8d6fa43b6 100644
+--- a/drivers/i2c/busses/i2c-hisi.c
++++ b/drivers/i2c/busses/i2c-hisi.c
+@@ -462,18 +462,14 @@ static int hisi_i2c_probe(struct platform_device *pdev)
+ 	hisi_i2c_disable_int(ctlr, HISI_I2C_INT_ALL);
+ 
+ 	ret = devm_request_irq(dev, ctlr->irq, hisi_i2c_irq, 0, "hisi-i2c", ctlr);
+-	if (ret) {
+-		dev_err(dev, "failed to request irq handler, ret = %d\n", ret);
+-		return ret;
+-	}
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to request irq handler\n");
+ 
+ 	ctlr->clk = devm_clk_get_optional_enabled(&pdev->dev, NULL);
+ 	if (IS_ERR_OR_NULL(ctlr->clk)) {
+ 		ret = device_property_read_u64(dev, "clk_rate", &clk_rate_hz);
+-		if (ret) {
+-			dev_err(dev, "failed to get clock frequency, ret = %d\n", ret);
+-			return ret;
+-		}
++		if (ret)
++			return dev_err_probe(dev, ret, "failed to get clock frequency\n");
+ 	} else {
+ 		clk_rate_hz = clk_get_rate(ctlr->clk);
+ 	}
 -- 
 2.25.1
 
