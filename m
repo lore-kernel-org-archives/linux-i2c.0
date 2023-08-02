@@ -2,25 +2,25 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43456C00528
-	for <linux-i2c@archiver.kernel.org>; Wed,  2 Aug 2023 09:58:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B9D5C04A94
+	for <linux-i2c@archiver.kernel.org>; Wed,  2 Aug 2023 09:58:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234236AbjHBJ6d (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 2 Aug 2023 05:58:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56284 "EHLO
+        id S234265AbjHBJ6j (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 2 Aug 2023 05:58:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233744AbjHBJ6Q (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Aug 2023 05:58:16 -0400
+        with ESMTP id S234197AbjHBJ6R (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Aug 2023 05:58:17 -0400
 Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CEF4196;
-        Wed,  2 Aug 2023 02:58:13 -0700 (PDT)
-Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4RG6lY032YztRnd;
-        Wed,  2 Aug 2023 17:54:48 +0800 (CST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B9A2D53;
+        Wed,  2 Aug 2023 02:58:14 -0700 (PDT)
+Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4RG6pF3kh8zrS17;
+        Wed,  2 Aug 2023 17:57:09 +0800 (CST)
 Received: from huawei.com (10.67.174.53) by kwepemi500012.china.huawei.com
  (7.221.188.12) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Wed, 2 Aug
- 2023 17:58:09 +0800
+ 2023 17:58:11 +0800
 From:   Liao Chang <liaochang1@huawei.com>
 To:     <andi.shyti@kernel.org>, <florian.fainelli@broadcom.com>,
         <bcm-kernel-feedback-list@broadcom.com>, <rjui@broadcom.com>,
@@ -34,9 +34,9 @@ CC:     <linux-i2c@vger.kernel.org>,
         <linux-rpi-kernel@lists.infradead.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>
-Subject: [PATCH 5/9] i2c: qcom-cci: Use dev_err_probe in probe function
-Date:   Wed, 2 Aug 2023 17:57:33 +0800
-Message-ID: <20230802095737.3957587-6-liaochang1@huawei.com>
+Subject: [PATCH 7/9] i2c: dln2: Use dev_err_probe in probe function
+Date:   Wed, 2 Aug 2023 17:57:35 +0800
+Message-ID: <20230802095737.3957587-8-liaochang1@huawei.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230802095737.3957587-1-liaochang1@huawei.com>
 References: <20230802095737.3957587-1-liaochang1@huawei.com>
@@ -58,26 +58,26 @@ so that the printed messge includes the return value and also handles
 Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
 Signed-off-by: Liao Chang <liaochang1@huawei.com>
 ---
- drivers/i2c/busses/i2c-qcom-cci.c | 6 ++----
+ drivers/i2c/busses/i2c-dln2.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index 622dc14add9d..cf13abec05f1 100644
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -588,10 +588,8 @@ static int cci_probe(struct platform_device *pdev)
- 	/* Clocks */
+diff --git a/drivers/i2c/busses/i2c-dln2.c b/drivers/i2c/busses/i2c-dln2.c
+index 4f02cc2fb567..631109c7a098 100644
+--- a/drivers/i2c/busses/i2c-dln2.c
++++ b/drivers/i2c/busses/i2c-dln2.c
+@@ -218,10 +218,8 @@ static int dln2_i2c_probe(struct platform_device *pdev)
  
- 	ret = devm_clk_bulk_get_all(dev, &cci->clocks);
--	if (ret < 1) {
--		dev_err(dev, "failed to get clocks %d\n", ret);
+ 	/* initialize the i2c interface */
+ 	ret = dln2_i2c_enable(dln2, true);
+-	if (ret < 0) {
+-		dev_err(dev, "failed to initialize adapter: %d\n", ret);
 -		return ret;
 -	}
-+	if (ret < 1)
-+		return dev_err_probe(dev, ret, "failed to get clocks\n");
- 	cci->nclocks = ret;
++	if (ret < 0)
++		return dev_err_probe(dev, ret, "failed to initialize adapter\n");
  
- 	/* Retrieve CCI clock rate */
+ 	/* and finally attach to i2c layer */
+ 	ret = i2c_add_adapter(&dln2->adapter);
 -- 
 2.25.1
 
