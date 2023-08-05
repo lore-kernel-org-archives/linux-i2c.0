@@ -2,77 +2,91 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D50D6C00528
-	for <linux-i2c@archiver.kernel.org>; Sat,  5 Aug 2023 02:45:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EE76EB64DD
+	for <linux-i2c@archiver.kernel.org>; Sat,  5 Aug 2023 10:10:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229554AbjHECpY (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 4 Aug 2023 22:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33590 "EHLO
+        id S229449AbjHEKKK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 5 Aug 2023 06:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbjHECpY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 4 Aug 2023 22:45:24 -0400
-X-Greylist: delayed 3607 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 04 Aug 2023 19:45:21 PDT
-Received: from 8.mo581.mail-out.ovh.net (8.mo581.mail-out.ovh.net [46.105.77.114])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE9644EDB
-        for <linux-i2c@vger.kernel.org>; Fri,  4 Aug 2023 19:45:21 -0700 (PDT)
-Received: from director7.ghost.mail-out.ovh.net (unknown [10.109.143.189])
-        by mo581.mail-out.ovh.net (Postfix) with ESMTP id 2A8C120091
-        for <linux-i2c@vger.kernel.org>; Sat,  5 Aug 2023 01:30:06 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-pnhxz (unknown [10.110.171.120])
-        by director7.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 5B5731FE49;
-        Sat,  5 Aug 2023 01:30:05 +0000 (UTC)
-Received: from etezian.org ([37.59.142.108])
-        by ghost-submission-6684bf9d7b-pnhxz with ESMTPSA
-        id Ix4hDR2mzWQPPwAAYnACEA
-        (envelope-from <andi@etezian.org>); Sat, 05 Aug 2023 01:30:05 +0000
-Authentication-Results: garm.ovh; auth=pass (GARM-108S002dd6b534a-6dc9-46b8-bb69-b53ea92a6e10,
-                    05ACED94171614EC843435E2D99940E8A2AB1814) smtp.auth=andi@etezian.org
-X-OVh-ClientIp: 178.238.172.51
+        with ESMTP id S229477AbjHEKKI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 5 Aug 2023 06:10:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C60CFE57;
+        Sat,  5 Aug 2023 03:10:07 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FB6F60C6B;
+        Sat,  5 Aug 2023 10:10:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37E34C433C8;
+        Sat,  5 Aug 2023 10:10:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1691230206;
+        bh=RZD/okUT8P7W5bz60THY3oriTvZX3Irx0g2o/7jpNgM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nXu7JJHLU9Jooam3uyoQ6e0wCkbz7xIrGiNIEzv+H/djdFeKyXyWdoZ+cS3ex/nwx
+         Hf9os47q9i4O8rPUaHQEgCCnGE2sIREgy0TXaQFDlx0XI6OsZZ3twxM2UKb2vu8lk9
+         VjGfrOnun6jBInNaow/vZ6xwduNClFon1dJhbxDxobyoV0jJhVMfWkTshDyLIiZXx8
+         2JpDieuy6NeBfihyEuejwO1jTP//MyoaxMPoQ32cQNoIQeXAk9HZXylYzNVrd8TKZc
+         kH3hOayvpvoIsew6gxod6r315LuWEQMQ0jQq40j4QCIftMqMIxr0mjwDZBTOR7cW9P
+         a8t3p6xKC7M+g==
+Date:   Sat, 5 Aug 2023 12:10:04 +0200
 From:   Andi Shyti <andi.shyti@kernel.org>
-To:     pierre-yves.mordret@foss.st.com, alain.volmat@foss.st.com,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-        Ruan Jinjie <ruanjinjie@huawei.com>
-Cc:     Andi Shyti <andi.shyti@kernel.org>
-Subject: Re: [PATCH -next] i2c: stm32: fix the return value handle for platform_get_irq()
-Date:   Sat,  5 Aug 2023 03:29:12 +0200
-Message-Id: <169119887102.1781235.17733733758389845864.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230731112755.1943630-1-ruanjinjie@huawei.com>
-References: <20230731112755.1943630-1-ruanjinjie@huawei.com>
+To:     Lixue Liang <lianglixuehao@126.com>
+Cc:     brendan.higgins@linux.dev, benh@kernel.crashing.org,
+        joel@jms.id.au, Lixue Liang <lianglixue@greatwall.com.cn>,
+        linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        p.zabel@pengutronix.de, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] i2c: aspeed: Avoid accessing freed buffers during i2c
+ transfers.
+Message-ID: <20230805101004.dknxj7nqrt2aes5n@intel.intel>
+References: <20230728122416.17782-1-lianglixuehao@126.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 11970004863637654087
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedviedrkeehgdegfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepveevieffieefgfefuddvteelffeuhfelffejteejuddvveekveehvdejgeefteevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepuddvjedrtddrtddruddpudejkedrvdefkedrudejvddrhedupdefjedrheelrddugedvrddutdeknecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpeeorghnughisegvthgviihirghnrdhorhhgqedpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkedupdhmohguvgepshhmthhpohhuth
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230728122416.17782-1-lianglixuehao@126.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi
+Hi Lixue,
 
-On Mon, 31 Jul 2023 19:27:55 +0800, Ruan Jinjie wrote:
-> There is no possible for platform_get_irq() to return 0,
-> and the return value of platform_get_irq() is more sensible
-> to show the error reason.
+On Fri, Jul 28, 2023 at 12:24:16PM +0000, Lixue Liang wrote:
+> From: Lixue Liang <lianglixue@greatwall.com.cn>
 > 
-> 
+> After waiting for the transmission timeout, the I2C controller will
+> continue to transmit data when the bus is idle. Clearing bus->msg will
+> avoid kernel panic when accessing the freed msg->buf in
+> aspeed_i2c_master_irq.
 
-With the commit log fixed, applied to i2c/andi-for-next on
+actually in aspeed_i2c_master_irq() you are already checking for
+!bus->msgs.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
+What kind of panic are you referring to?
 
-Please note that this patch may still undergo further evaluation
-and the final decision will be made in collaboration with
-Wolfram.
-
-Thank you,
 Andi
 
-Patches applied
-===============
-[1/1] i2c: stm32: fix the return value handle for platform_get_irq()
-      commit: 603b3cf89d8a96cc0e51eb15853f28944eb78f31
+> Signed-off-by: Lixue Liang <lianglixue@greatwall.com.cn>
+> ---
+>  drivers/i2c/busses/i2c-aspeed.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index 2e5acfeb76c8..c83057497e26 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -713,6 +713,8 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
+>  		spin_lock_irqsave(&bus->lock, flags);
+>  		if (bus->master_state == ASPEED_I2C_MASTER_PENDING)
+>  			bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+> +
+> +		bus->msgs = NULL;
+>  		spin_unlock_irqrestore(&bus->lock, flags);
+>  
+>  		return -ETIMEDOUT;
+> -- 
+> 2.27.0
+> 
