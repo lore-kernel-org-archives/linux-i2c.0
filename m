@@ -2,77 +2,80 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 403CEC001DB
-	for <linux-i2c@archiver.kernel.org>; Sat,  5 Aug 2023 01:49:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 774BBC00528
+	for <linux-i2c@archiver.kernel.org>; Sat,  5 Aug 2023 02:44:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229543AbjHEBtD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 4 Aug 2023 21:49:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55288 "EHLO
+        id S229468AbjHECos (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 4 Aug 2023 22:44:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbjHEBtC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 4 Aug 2023 21:49:02 -0400
-X-Greylist: delayed 1141 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 04 Aug 2023 18:49:01 PDT
-Received: from 16.mo550.mail-out.ovh.net (16.mo550.mail-out.ovh.net [178.33.104.224])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 131761BE
-        for <linux-i2c@vger.kernel.org>; Fri,  4 Aug 2023 18:49:00 -0700 (PDT)
-Received: from director9.ghost.mail-out.ovh.net (unknown [10.108.16.251])
-        by mo550.mail-out.ovh.net (Postfix) with ESMTP id 9A46B25951
-        for <linux-i2c@vger.kernel.org>; Sat,  5 Aug 2023 01:29:57 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-ckdcs (unknown [10.109.156.99])
-        by director9.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 993DF1FD47;
-        Sat,  5 Aug 2023 01:29:55 +0000 (UTC)
-Received: from etezian.org ([37.59.142.95])
-        by ghost-submission-6684bf9d7b-ckdcs with ESMTPSA
-        id ai7tIROmzWTHWAMAIGJpLQ
-        (envelope-from <andi@etezian.org>); Sat, 05 Aug 2023 01:29:55 +0000
-Authentication-Results: garm.ovh; auth=pass (GARM-95G001d9e3624c-ac52-4978-b522-021b72bbbf33,
-                    05ACED94171614EC843435E2D99940E8A2AB1814) smtp.auth=andi@etezian.org
-X-OVh-ClientIp: 178.238.172.51
-From:   Andi Shyti <andi.shyti@kernel.org>
-To:     linux-kernel@vger.kernel.org, monstr@monstr.eu, git@xilinx.com,
-        Michal Simek <michal.simek@amd.com>
-Cc:     Andi Shyti <andi.shyti@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: i2c: cadence: Describe power-domains property
-Date:   Sat,  5 Aug 2023 03:29:11 +0200
-Message-Id: <169119887100.1781235.4441400054342220300.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <8774dba53cae5508f9f7aa173fbaf814d97898b1.1691047405.git.michal.simek@amd.com>
-References: <8774dba53cae5508f9f7aa173fbaf814d97898b1.1691047405.git.michal.simek@amd.com>
+        with ESMTP id S229441AbjHECor (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 4 Aug 2023 22:44:47 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A454EDB
+        for <linux-i2c@vger.kernel.org>; Fri,  4 Aug 2023 19:44:46 -0700 (PDT)
+Received: from kwepemi500008.china.huawei.com (unknown [172.30.72.56])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RHn1q37y5zVk2P;
+        Sat,  5 Aug 2023 10:42:55 +0800 (CST)
+Received: from [10.67.109.254] (10.67.109.254) by
+ kwepemi500008.china.huawei.com (7.221.188.139) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Sat, 5 Aug 2023 10:44:43 +0800
+Message-ID: <b5fbdc3f-0404-c939-9f33-8d7489c19921@huawei.com>
+Date:   Sat, 5 Aug 2023 10:44:37 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 11967471585594182288
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedviedrkeehgdeggecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepveevieffieefgfefuddvteelffeuhfelffejteejuddvveekveehvdejgeefteevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepuddvjedrtddrtddruddpudejkedrvdefkedrudejvddrhedupdefjedrheelrddugedvrdelheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomhepoegrnhguihesvghtvgiiihgrnhdrohhrgheqpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheehtddpmhhouggvpehsmhhtphhouhht
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
+Subject: Re: [PATCH -next] i2c: stm32: fix the return value handle for
+ platform_get_irq()
+To:     Andi Shyti <andi.shyti@kernel.org>,
+        <pierre-yves.mordret@foss.st.com>, <alain.volmat@foss.st.com>,
+        <mcoquelin.stm32@gmail.com>, <alexandre.torgue@foss.st.com>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>
+References: <20230731112755.1943630-1-ruanjinjie@huawei.com>
+ <169119887102.1781235.17733733758389845864.b4-ty@kernel.org>
+Content-Language: en-US
+From:   Ruan Jinjie <ruanjinjie@huawei.com>
+In-Reply-To: <169119887102.1781235.17733733758389845864.b4-ty@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.109.254]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ kwepemi500008.china.huawei.com (7.221.188.139)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi
 
-On Thu, 03 Aug 2023 09:23:31 +0200, Michal Simek wrote:
-> ZynqMP Cadence I2c IP core has own power domain that's why describe it as
-> optional property.
+
+On 2023/8/5 9:29, Andi Shyti wrote:
+> Hi
 > 
+> On Mon, 31 Jul 2023 19:27:55 +0800, Ruan Jinjie wrote:
+>> There is no possible for platform_get_irq() to return 0,
+>> and the return value of platform_get_irq() is more sensible
+>> to show the error reason.
+>>
+>>
 > 
+> With the commit log fixed, applied to i2c/andi-for-next on
 
-Applied to i2c/andi-for-next on
+Thank you!
 
-https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
-
-Please note that this patch may still undergo further evaluation
-and the final decision will be made in collaboration with
-Wolfram.
-
-Thank you,
-Andi
-
-Patches applied
-===============
-[1/1] dt-bindings: i2c: cadence: Describe power-domains property
-      commit: 26a106e540b100a887209a3012b6ac2ec9a577f8
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
+> 
+> Please note that this patch may still undergo further evaluation
+> and the final decision will be made in collaboration with
+> Wolfram.
+> 
+> Thank you,
+> Andi
+> 
+> Patches applied
+> ===============
+> [1/1] i2c: stm32: fix the return value handle for platform_get_irq()
+>       commit: 603b3cf89d8a96cc0e51eb15853f28944eb78f31
+> 
