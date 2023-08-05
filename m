@@ -2,87 +2,77 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82046C0015E
-	for <linux-i2c@archiver.kernel.org>; Sat,  5 Aug 2023 11:53:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1EC9C001DB
+	for <linux-i2c@archiver.kernel.org>; Sat,  5 Aug 2023 12:06:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229781AbjHELxJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 5 Aug 2023 07:53:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56912 "EHLO
+        id S229517AbjHEMGQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 5 Aug 2023 08:06:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbjHELxI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 5 Aug 2023 07:53:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C08E21720
-        for <linux-i2c@vger.kernel.org>; Sat,  5 Aug 2023 04:53:07 -0700 (PDT)
+        with ESMTP id S229456AbjHEMGP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 5 Aug 2023 08:06:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5FD844BD;
+        Sat,  5 Aug 2023 05:06:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5541960CBB
-        for <linux-i2c@vger.kernel.org>; Sat,  5 Aug 2023 11:53:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6204AC433C7;
-        Sat,  5 Aug 2023 11:53:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B7B860CBB;
+        Sat,  5 Aug 2023 12:06:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4BD2C433C7;
+        Sat,  5 Aug 2023 12:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691236386;
-        bh=Kid2m3FLS75HibfEZ+BwImQC32aGpD56PqxWjkRmQbE=;
+        s=k20201202; t=1691237173;
+        bh=TRPYCQRDP5jcMNBUvnQVXjyvFmfZ0bZwv5+82ppFp98=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mk+ggaFNpKfS23niW9HIcnPWHSxUWOCUNcXMm71mhNAfujQZBUzCAbkfCuB8nKuyU
-         EOX1mYhz5UZq6N9FLNjKl7DQ+dyP+IuUFp50yQSUuvuo8Cyoi3MFWtn+9PYH5yvCwF
-         VE6HH5/ZSVgNrZXphAwkU+BAzwuNBYliw+aIGIEgFeckzpzGuhDOdDhNKdA/kNLXNW
-         DgSMiMocgXcwE5mm5jSMsVe0fSmHAkbeV8BLOjfDz1YaEfWP+3MN4+tf3NXCGgvmMa
-         ICO/NMtku6oyh6CSmushigVi/pwR3IgdaVA6TqzEu90vIuTP1pqzddAYPPAviMz23f
-         5AEVzk+pGjglg==
-Date:   Sat, 5 Aug 2023 13:53:04 +0200
+        b=a8+v6/+HPGOyXUV1XSDmpMObQb0WhFfTvJhUlkdydkVP1x4mMA8elqyORYcklGVhH
+         X0R5095NXK6K7A4zAFUxV4TPO97xqfE+xKMzUEf81NTpdsRIkkfRujJrgUVuls48Kd
+         IR8AtjGG+nTCxDNx8IzfXTQK1CQ0SQX184Np36Ycq6iwYYxpbxsiIN1VtmBKvzydCI
+         lV1cDlFQhVDn9xk2n5qcwDvqXTxgAPwVuOIqvlcxQgy8KRgMBWxkQwNpwCEc3HBU2o
+         of9b/qOc7bA2iIZiSH4i6IiWo7jyzotl3AkuWIZGwXYDYxyc5CpAEoBvH9axdeuIxW
+         bbJLQYohTf4Jw==
+Date:   Sat, 5 Aug 2023 14:06:10 +0200
 From:   Andi Shyti <andi.shyti@kernel.org>
-To:     Ruan Jinjie <ruanjinjie@huawei.com>
-Cc:     michael.hennerich@analog.com, peda@axentia.se,
-        linux-i2c@vger.kernel.org
-Subject: Re: [PATCH -next] i2c: mux: ltc4306: Remove an unnecessary ternary
- operator
-Message-ID: <20230805115304.mas62dncqpznzane@intel.intel>
-References: <20230801025328.3380963-1-ruanjinjie@huawei.com>
+To:     Piyush Malgujar <pmalgujar@marvell.com>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        rric@kernel.org, cchavva@marvell.com, sgarapati@marvell.com,
+        jannadurai@marvell.com
+Subject: Re: [PATCH v2 0/4] i2c: thunderx: Marvell thunderx i2c changes
+Message-ID: <20230805120610.lvnyhggrwcwq66x4@intel.intel>
+References: <20230728120004.19680-1-pmalgujar@marvell.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230801025328.3380963-1-ruanjinjie@huawei.com>
+In-Reply-To: <20230728120004.19680-1-pmalgujar@marvell.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Ruan,
+Hi Robert,
 
-On Tue, Aug 01, 2023 at 10:53:28AM +0800, Ruan Jinjie wrote:
-> The true or false judgement of the ternary operator is unnecessary
-> in C language semantics. So remove it to clean Code.
+On Fri, Jul 28, 2023 at 05:00:00AM -0700, Piyush Malgujar wrote:
+> The changes are for Marvell OcteonTX2 SOC family:
 > 
-> Signed-off-by: Ruan Jinjie <ruanjinjie@huawei.com>
-> ---
->  drivers/i2c/muxes/i2c-mux-ltc4306.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> - Handling clock divisor logic using subsytem ID
+> - Support for high speed mode
+> - Handle watchdog timeout
+> - Added ioclk support
 > 
-> diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c b/drivers/i2c/muxes/i2c-mux-ltc4306.c
-> index 5a03031519be..637e25506490 100644
-> --- a/drivers/i2c/muxes/i2c-mux-ltc4306.c
-> +++ b/drivers/i2c/muxes/i2c-mux-ltc4306.c
-> @@ -62,7 +62,7 @@ static const struct chip_desc chips[] = {
->  
->  static bool ltc4306_is_volatile_reg(struct device *dev, unsigned int reg)
->  {
-> -	return (reg == LTC_REG_CONFIG) ? true : false;
-> +	return reg == LTC_REG_CONFIG;
+> Changes since V1:
+> - Addressed comments, added defines as required
+> - Removed unnecessary code
+> - Added a patch to support ioclk if sclk not present in ACPI table
+> 
+> Piyush Malgujar (1):
+>   i2c: thunderx: Adding ioclk support
+> 
+> Suneel Garapati (3):
+>   i2c: thunderx: Clock divisor logic changes
+>   i2c: thunderx: Add support for High speed mode
+>   i2c: octeon: Handle watchdog timeout
 
-This patch on its own is not bringing much improvement... I'm
-taking it into my branch, but next time please insert it in a
-wider scope.
-
-Acked-by: Andi Shyti <andi.shyti@kernel.org> 
+any chance you could take a look at this series?
 
 Thanks,
 Andi
-
->  }
->  
->  static const struct regmap_config ltc4306_regmap_config = {
-> -- 
-> 2.34.1
-> 
