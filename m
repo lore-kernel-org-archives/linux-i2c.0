@@ -2,239 +2,155 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C05F1C04E69
-	for <linux-i2c@archiver.kernel.org>; Sun,  6 Aug 2023 13:30:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61564C41513
+	for <linux-i2c@archiver.kernel.org>; Sun,  6 Aug 2023 14:21:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229804AbjHFNaC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sun, 6 Aug 2023 09:30:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41428 "EHLO
+        id S230338AbjHFOV4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 6 Aug 2023 10:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbjHFNaB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Aug 2023 09:30:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58EF6B5;
-        Sun,  6 Aug 2023 06:30:00 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E33D960F21;
-        Sun,  6 Aug 2023 13:29:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1493C433C8;
-        Sun,  6 Aug 2023 13:29:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691328599;
-        bh=7KXBsHrZKGdjI3D+ZTPDNywNWzwNv7z1Uwso7p57syk=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=TNTlLAJvs2yL1O26cBC5+pDYyohVGGKWvnzsOztk+SLo+8r0K1BnL3aamKZcbo3d2
-         OrUfr0LLoi4TTue1VH6NLPSg9piEZLgf+b4USdfp2YAjQ0+1LAUVbDd0ZL4WvJHp4Q
-         91u9WHJVLL/RirpcpCRBYUa8Z93JkNjMohYVipxo7eJ64izsKRqiJq37yot2dAr1Wv
-         tCbrnFuobKkH7L1/QG9oX5T9j1NsMq/IMOhGyGRQz7rGLHQN9oc4ELSkszcXsmAYg1
-         iasLafh+rRXzTPPSHHYYvFigNCGBrqnJEsRCExqxBUPyKJSBDF7QuD93At8j7AC7d2
-         dOYKSSaYYBpNg==
-Date:   Sun, 6 Aug 2023 14:29:50 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Biju Das <biju.das.jz@bp.renesas.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+        with ESMTP id S229468AbjHFOVz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Aug 2023 10:21:55 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2085.outbound.protection.outlook.com [40.107.244.85])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49540E49;
+        Sun,  6 Aug 2023 07:21:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=RtYCfM2AKIAVBUhPvf+oDA4umDf5224YDecpN/NEjH4BK4BbkiblIrHrTHI18adIntoHi47dipVendtD9ZVwUdTniIg5YFLpk2JnMvKsyvUVKDeMcqTLTQs8kG+dYBHb5PLVvdyDJb/6ft9TXllUi5HV+Bs5T/PcGAi7vZ9fRnwCcuw7RoiNPHm5YatYEaAKUC9d2hp9wR9IwPcpAuKN6J9et4mL/qAixRwcgL9ljuF4g8zZH5RoOBvI/LxOw1g32E1PsRUPfhCykVvV+3MTuUVnq7pV7KaMqSpwyZ55flH6zAAuh2jRB2l3O76RtlYOAziBj4C27fPjY9UrIbc5Gg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=CtqaAs7HS2Qzv2XvPgo5eQA/BTuLCLd3genJkzQgNfU=;
+ b=AXOElirZWdwhV5Sx5pvPSWUY5/I1oPFtL3Vk5wcJdO9qmjQ5WydpsyhTBPPTquA0t3A3JQ+PYe7VTc6k1xnJyL+ruP8U4WayP7mDolI+40GG4OP88ADpiE5WRUNRnCllLA2uIpvk4mENyrpJZGJ5cani/6egFiH34P2E8Q6xO5Mep0ghknpS9UierUTdQXhu7cySdBci09BlGQgjPKs8n8FBoXVSQmsA68fdTuYgDcreeZCIwjcIOi/70P2PLSGVkfr7qmkNcq0iDBtyo8X+3j6u5g/jX2XoQXL5T7qpqkVXdsDRlFJy2osifo2ayePGCqDGgcm/d1LuoJ57eSzgCA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CtqaAs7HS2Qzv2XvPgo5eQA/BTuLCLd3genJkzQgNfU=;
+ b=utjbH6w64sLTSiHPFkRQTQ9/3kE+5fqs0N4pApcW1QWv7eX5WCeuSKFEJ1XBikBKhz82/L/CLiM9cvu2EFZ3pfRhnK4eX+zCSsFS/2oEwZfkIgrgaQJMn+iQQa+ajHahYiGY8T3fOIBV9xls8EPYJRKKJROu3tmYqgU3KimAHO1ILuowvxp8yHNWlzMfW1nk5ADoBpD2nTX8xLt6VzgLCEwqvsF++R0gxBQYugxYcC0RhoJQhzdixvYXlMjBbiCj/ur2UnjwpK17TMUer7aIy1vbeN8d4gWYJ73GnsyD56TFTCxDCuRHv2r7O38ru8fjNUvwFO5W6D20Yaaxs3CLNg==
+Received: from DS7PR12MB6335.namprd12.prod.outlook.com (2603:10b6:8:94::11) by
+ DM4PR12MB7551.namprd12.prod.outlook.com (2603:10b6:8:10d::12) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6652.25; Sun, 6 Aug 2023 14:21:50 +0000
+Received: from DS7PR12MB6335.namprd12.prod.outlook.com
+ ([fe80::b545:e43e:779e:84f]) by DS7PR12MB6335.namprd12.prod.outlook.com
+ ([fe80::b545:e43e:779e:84f%4]) with mapi id 15.20.6652.025; Sun, 6 Aug 2023
+ 14:21:49 +0000
+From:   Akhil R <akhilrajeev@nvidia.com>
+To:     Andi Shyti <andi.shyti@kernel.org>,
+        Parker Newman <pnewman@connecttech.com>
+CC:     Laxman Dewangan <ldewangan@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
         "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org" 
-        <linux-renesas-soc@vger.kernel.org>
-Subject: Re: [PATCH v7 0/4] Extend device_get_match_data() to struct
- bus_type
-Message-ID: <20230806142950.6c409600@jic23-huawei>
-In-Reply-To: <OS0PR01MB59220491C7C8AA40BEFAAD82860EA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
-References: <20230804161728.394920-1-biju.das.jz@bp.renesas.com>
-        <20230805174036.129ffbc2@jic23-huawei>
-        <OS0PR01MB59220491C7C8AA40BEFAAD82860EA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-pc-linux-gnu)
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] i2c: tegra: Fix i2c-tegra DMA config option processing
+Thread-Topic: [PATCH] i2c: tegra: Fix i2c-tegra DMA config option processing
+Thread-Index: AQHZxx6LzpeyXcck3U+NjT3QFNG5jK/dQvCQ
+Date:   Sun, 6 Aug 2023 14:21:49 +0000
+Message-ID: <DS7PR12MB63358D8D877BBC81BF94C53AC00FA@DS7PR12MB6335.namprd12.prod.outlook.com>
+References: <fcfcf9b3-c8c4-9b34-2ff8-cd60a3d490bd@connecttech.com>
+ <20230804215631.wc22pkyetsyyt5ye@intel.intel>
+In-Reply-To: <20230804215631.wc22pkyetsyyt5ye@intel.intel>
+Accept-Language: en-IN, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DS7PR12MB6335:EE_|DM4PR12MB7551:EE_
+x-ms-office365-filtering-correlation-id: acdb719f-f41e-4799-7056-08db96887964
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: g4BWpRBaCOsO3d/55SfMHPtNb9RpSBoUI9WJKggqtEWYDOiDnsfkmm3mCqC8fOYmGv/wqxh4ShCqppAa6LWfyc0BvVWggDm1MRjSgS+iAFs59sRLJ306CWy6jR+wBM6nUF7h8CClYebeUmNvF5WxBQC0GbtrSOi9+twxPZEwTPMCjc0+q+gqmwW2Gz7B6xu4fR19la/6PyGl6gkgBpbnumCKzIt+G+WB5DNh+IBiBqLxDkIWN8GJB1es8A6jHjhFVv0bQp+Po+f9JFAvIw1JU+JR4PlwEnWOfspzORkNa2z68LJ5PWHWzRcXNlRXrwEjpZkhHpRiSEGE+4Za0/2K/spmz88TxhOb7IaVuwZ8j8Bp0x7rzTH36XLet1z5Zqz+kQe+kykKxYwo+rdBTzx5BKqO24KZdLIxbz+KyBAwpJBBmDTEgj+mEnRAIpd3GEX3TG7JKm2OepQMnZKI/FMRRIX1Vaz2e3U5G49LgC3l+5XhLZcY9OOjm5Dpcec5fF/LJFTJ6AvDPV4c/A9WuxRif2+6fH+YuAaE6agJs3Qct2yEyTgiLnOQ0g7TBLTbU8VuKCDGEM3ZP/aOfG7FjKoYfb8Jnp4G/5cYOipZvY2a5GJKeaKI+oDuJ8YTm1GQUkzR
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR12MB6335.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(376002)(39860400002)(366004)(396003)(136003)(186006)(1800799003)(451199021)(52536014)(38070700005)(41300700001)(2906002)(5660300002)(83380400001)(8936002)(8676002)(55016003)(122000001)(478600001)(86362001)(316002)(33656002)(6506007)(7696005)(38100700002)(110136005)(54906003)(76116006)(64756008)(66446008)(66476007)(66556008)(71200400001)(66946007)(4326008)(9686003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?pEpv/22U6tPGt9jv/pz9da0yv0mEa/SBc3VakXxhaNkUDP2ZZWn3mCTFu+xj?=
+ =?us-ascii?Q?p8B9GTs2BAK+eRb0gCb0GhaDDTFeXXbzAYWmyGFPq7TeoS1p95/Viz9DOrYb?=
+ =?us-ascii?Q?fuQ01kMNo1NkrX8XUCUe6Jrmfiu9f2VdnKBgoooNaGXeTYaClyoIMIIga4Us?=
+ =?us-ascii?Q?eqpAMBnZLUvTykPYaZx635X0AFon8onSm7INttKUhWbt9WCdNWhce8ssbAA8?=
+ =?us-ascii?Q?en+uF6AKq6CyJVH/5ZKsawCl/f6oteIB3Tlq2pytmrsV8Nd8+Oz8ReCLJoFZ?=
+ =?us-ascii?Q?vZOntLJi2lumjUhN247367NvihGXzn+dQAQ3pgAbb3DJ7kkIZdXrPO+bJS9D?=
+ =?us-ascii?Q?yHjoDaYXc996kUs4ATqefectlCctal2zJ+WgwC2FkkoJO1Vk3E23h1MDi1bc?=
+ =?us-ascii?Q?mSNgfOycJKCYtqu5TcxxfuMFzI3u8loBjP41RKE2h4kzXfyTgLgKoAU1xqUP?=
+ =?us-ascii?Q?PpnuVKkXJDgvLxTDoGXuZX7cdFrbCQXDJFZNKQRkjHrd0s3qClydj5yCuzJM?=
+ =?us-ascii?Q?Ps//ofstxgppqoPNNJq6pn+nYFKpgDKOCscqwxQndUs7WRgmyug8hyUBGrxm?=
+ =?us-ascii?Q?sE/injmx2ZTM9mNJtPOjo553dilt5pDzpKu1XELcwcH3zyPYTX811f1YQlul?=
+ =?us-ascii?Q?fN8mVZpMBSSd+C74pljboDXq59txjUlzEs85FFlytatkJGntdf+omwXusLqL?=
+ =?us-ascii?Q?ed31q/PiB7ta9EaVyryCYMnJ7LGJ+TyKyIUdWo21zPCqWoczS2L2UJwsp3jq?=
+ =?us-ascii?Q?pf+hYHcDqoE7RsSr/zqUk6SPIR8PJVyzImMdVEPCCmH1jSUKTXjUJ8UNeqyP?=
+ =?us-ascii?Q?yQdOFe24ur0KCjYKagXyIxV8osMT8OxAvS64haawCWNxC6v6vAMPslyH35Ww?=
+ =?us-ascii?Q?FRv/s7gSo1/itPztD3SDDIY5eMeAnpz/XIkJtdzL7UfXLKzZzcoFJ/ZMTaX6?=
+ =?us-ascii?Q?gnJrFu+GkV2QFpKLe9JetjVf4B8+MVJfbIbbWKw/pieUyGXY5wT7mp1WpA/w?=
+ =?us-ascii?Q?LQq6GkNCg7CHWDEhPSBrg7DTy1XqHayn5V5xAOlSIU/3w4blTsFUHmzuKYeG?=
+ =?us-ascii?Q?k3P7yqYE/4ihWGuG580JbGTyjconesof4amPyaJg8TDH1pKJGDT1pEVSKoPf?=
+ =?us-ascii?Q?K3j/oNhgs4XmhnEy3pQqUy22bp6u+GYCrzu3dWQef/Zlu3QH/FhvQgaq0n+B?=
+ =?us-ascii?Q?WNtk6a/3RCEEa44yCiSnvkwH7UyxwGZqah87r9MPHXPul25pnSpOLWVZuKtm?=
+ =?us-ascii?Q?oaQnKMPLk538goA4LcbS74pvR7ckHnvdVbYK4sj91h1p57ykxfl6236mk/V2?=
+ =?us-ascii?Q?S3R7W38o/NXrL/Bb9Bk3YjWZuMXm1joqsXT2G8vpxOdeCeRw3XB20SQCzpPr?=
+ =?us-ascii?Q?ZanV+fmTFjtgt8H0Scen8s0k2+v1WYJQ0y9VtYdNKu3XkjWm46YGfRLrCh80?=
+ =?us-ascii?Q?kqJqJGGIicCC05W3NUEwNg+Sca5I+mLv/g32+UhtMLtiYk7pLWamWBnZJ7mi?=
+ =?us-ascii?Q?4lQNlcImSqtmkdl8lmUIFPVwYIRX25ExZ4BuUZ4zRihxUPtgzUyIMVJ25/JB?=
+ =?us-ascii?Q?Q3ki5faU33J4wTc+UtQZh3JikSl/4HEE2rJPxj5CDeFqJWTit5dmGmf7MVrN?=
+ =?us-ascii?Q?H0NQoibtkB2jrTdSh2tVACJvmNKcdYYAO3KguJscI3L2?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DS7PR12MB6335.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: acdb719f-f41e-4799-7056-08db96887964
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Aug 2023 14:21:49.9135
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 9lO9RjCrkB7F+yRpws/PlhDS5/2wxljWVVWcZ/NDdYL0YEi2P4CuBCVoHNRxn6x8bdcdCxkX1NGssiNj+JsdAA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB7551
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Sat, 5 Aug 2023 17:42:21 +0000
-Biju Das <biju.das.jz@bp.renesas.com> wrote:
+>=20
+> BTW...
+>=20
+> On Thu, Aug 03, 2023 at 05:10:02PM +0000, Parker Newman wrote:
+> >
+>=20
+> you have a blank line here.
+>=20
+> > This patch fixes the Tegra DMA config option processing in the
+> > i2c-tegra driver.
+> >
+> > Tegra processors prior to Tegra186 used APB DMA for I2C requiring
+> > CONFIG_TEGRA20_APB_DMA=3Dy while Tegra186 and later use GPC DMA
+> > requiring CONFIG_TEGRA186_GPC_DMA=3Dy.
+> >
+> > The check for if the processor uses APB DMA is inverted and so the
+> > wrong DMA config options are checked.
+> >
+> > This means if CONFIG_TEGRA20_APB_DMA=3Dy but
+> CONFIG_TEGRA186_GPC_DMA=3Dn
+> > with a Tegra186 or later processor the driver will incorrectly think
+> > DMA is enabled and attempt to request DMA channels that will never be
+> > availible, leaving the driver in a perpetual EPROBE_DEFER state.
+> >
+> > Signed-off-by: Parker Newman <pnewman@connecttech.com>
+>=20
+> As this is a fix you also need to add
+>=20
+> Fixes: 48cb6356fae1 ("i2c: tegra: Add GPCDMA support")
+> Cc: Akhil R <akhilrajeev@nvidia.com>
+> Cc: <stable@vger.kernel.org> # v6.1+
+>=20
+> Cc'eing Akhil as well for his opinion on this.
+The fix looks valid to me. Must have been a typo there.
 
-> Hi Jonathan Cameron,
-> 
-> Thanks for the feedback.
-> 
-> > Subject: Re: [PATCH v7 0/4] Extend device_get_match_data() to struct
-> > bus_type
-> > 
-> > On Fri,  4 Aug 2023 17:17:24 +0100
-> > Biju Das <biju.das.jz@bp.renesas.com> wrote:
-> >   
-> > > This patch series extend device_get_match_data() to struct bus_type,
-> > > so that buses like I2C can get matched data.
-> > >
-> > > There is a plan to replace
-> > > i2c_get_match_data()->device_get_match_data()
-> > > later, once this patch hits mainline as it is redundant.  
-> > 
-> > Are we sure we don't have any instances left of the pattern that used to
-> > be common (typically for drivers where dt tables were added
-> > later) of
-> > 
-> > 	chip_info = device_get_match_data();
-> > 	if (!chip_info) {
-> > 		chip_info = arrayofchipinfo[id->driver_data];
-> > 	}
-> > 
-> > Looks like the first driver I checked, iio/adc/max1363.c does this still
-> > and will I think break with this series.
-> > 
-> > Or am I missing some reason this isn't a problem?  
-> 
-> Good catch, this will break.
-> we need to make I2C table like OF/ACPI tables.
-> 
-> Yes, before adding callback support to i2c_device_get_match_data(),
-> We need to make similar table for OF/ACPI/I2C for all i2c drivers
-> that use device_get_match_data()or of_get_device_match_data().
-
-To throw another option out there, could we make the I2C subsystem use
-the of_device_id table in place of the i2c_device_id table? 
-That is perform matches based only on the of_device_id table in all
-drivers (with some glue code making that work for the less common paths,
-remaining board files etc). The ACPI PRP0001 magic is doing similar
-already.
-
-I can't immediately see why that wouldn't work other than being a bit
-of a large job to implement in all drivers.
-
-Getting rid of the duplication would be good.  Probably some rough corners
-to make it possible to do this in a gradual process. In particular some
-of the naming used for i2c_device_id table entries won't be 'valid'
-DT compatibles (minus the vendor id)
-
-> 
-> May be first intermediate step is to use i2c_get_match_data()
-> For such table conversion. Once all table conversion is done
-> then we can add i2c_device_get_match_data() callback.
-> 
-> The below one is the recommendation from Andy.
-> 
-> + * Besides the fact that some drivers abuse the device ID driver_data type
-> + * and claim it to be integer, for the bus specific ID tables the driver_data
-> + * may be defined as kernel_ulong_t. For these tables 0 is a valid response,
-> + * but not for this function. It's recommended to convert those either to avoid
-> + * 0 or use a real pointer to the predefined driver data.
-> + */
-
-We still need to maintain consistency across the two tables, which
-is a stronger requirement than avoiding 0.  Some drivers already do that by
-forcing the enum used to start at 1 which doesn't solver the different data
-types issue.
-
-Jonathan
-
-> 
-> > 
-> > Clearly this only matters if we get to the bus callback, but enabling that
-> > is the whole point of this series.  Hence I think a lot of auditing is
-> > needed before this can be safely applied.  
-> 
-> Sure.
-> 
-> Cheers,
-> Biju
-> 
-> > 
-> > Jonathan
-> >   
-> > > v6->v7:
-> > >  * Added ack from Greg Kroah-Hartman for patch#1
-> > >  * Swapped patch#2 and patch#3 from v6.
-> > >  * Added Rb tag from Andy for patch#2 and patch#4
-> > >  * Updated commit description of patch#2 by removing unnecessary  
-> > wrapping.  
-> > >  * Updated typo in commit description struct bus_type()->struct  
-> > bus_type.  
-> > > v5->v6:
-> > >  * Cced linux-rtc and linux-iio as these subsytems uses i2c_get_match_
-> > >    data() and this function become redundant once this patch series hits
-> > >    mainline.
-> > >  * Added Rb tag from Sakari for patch#1.
-> > >  * Moved patch#3 from v5 to patch#2 and patch#2 from v5 to patch#4.
-> > >  * Added Rb tag from Andy for patch#2
-> > >  * Separate patch#3 to prepare for better difference for
-> > >    i2c_match_id() changes.
-> > >  * Merged patch#4 from v5 with patch#4.
-> > > v4->v5:
-> > >  * Added const struct device_driver variable 'drv' in  
-> > i2c_device_get_match  
-> > >    _data().
-> > >  * For code readability and maintenance perspective, added separate NULL
-> > >    check for drv and client variable and added comment for NULL check  
-> > for  
-> > >    drv variable.
-> > >  * Created separate patch for converting i2c_of_match_device_sysfs() to
-> > >    non-static.
-> > >  * Removed export symbol for i2c_of_match_device_sysfs().
-> > >  * Replaced 'dev->driver'->'drv'.
-> > >  * Replaced return value data->NULL to avoid (potentially) stale  
-> > pointers,  
-> > >    if there is no match.
-> > > v3->v4:
-> > >  * Documented corner case for device_get_match_data()
-> > >  * Dropped struct i2c_driver parameter from
-> > > i2c_get_match_data_helper()
-> > >  * Split I2C sysfs handling in separate patch(patch#3)
-> > >  * Added space after of_device_id for i2c_of_match_device_sysfs()
-> > >  * Added const parameter for struct i2c_client, to prevent overriding  
-> > it's  
-> > >    pointer.
-> > >  * Moved declaration from public i2c.h->i2c-core.h
-> > > v2->v3:
-> > >  * Added Rb tag from Andy for patch#1.
-> > >  * Extended to support i2c_of_match_device() as suggested by Andy.
-> > >  * Changed i2c_of_match_device_sysfs() as non-static function as it is
-> > >    needed for i2c_device_get_match_data().
-> > >  * Added a TODO comment to use i2c_verify_client() when it accepts const
-> > >    pointer.
-> > >  * Added multiple returns to make code path for device_get_match_data()
-> > >    faster in i2c_get_match_data().
-> > > RFC v1->v2:
-> > >  * Replaced "Signed-off-by"->"Suggested-by" tag for Dmitry.
-> > >  * Documented device_get_match_data().
-> > >  * Added multiple returns to make code path for generic fwnode-based
-> > >    lookup faster.
-> > >  * Fixed build warnings reported by kernel test robot <lkp@intel.com>
-> > >  * Added const qualifier to return type and parameter struct i2c_driver
-> > >    in i2c_get_match_data_helper().
-> > >  * Added const qualifier to struct i2c_driver in i2c_get_match_data()
-> > >  * Dropped driver variable from i2c_device_get_match_data()
-> > >  * Replaced to_i2c_client with logic for assigning verify_client as it
-> > >    returns non const pointer.
-> > >
-> > > Biju Das (4):
-> > >   drivers: fwnode: Extend device_get_match_data() to struct bus_type
-> > >   i2c: Enhance i2c_get_match_data()
-> > >   i2c: i2c-core-of: Convert i2c_of_match_device_sysfs() to non-static
-> > >   i2c: Add i2c_device_get_match_data() callback
-> > >
-> > >  drivers/base/property.c     | 27 ++++++++++++++++-
-> > >  drivers/i2c/i2c-core-base.c | 60 ++++++++++++++++++++++++++++++-------
-> > >  drivers/i2c/i2c-core-of.c   |  4 +--
-> > >  drivers/i2c/i2c-core.h      |  9 ++++++
-> > >  include/linux/device/bus.h  |  3 ++
-> > >  5 files changed, 90 insertions(+), 13 deletions(-)
-> > >  
-> 
+Regards,
+Akhil
 
