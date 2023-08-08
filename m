@@ -2,147 +2,133 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE112C001DB
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 16:44:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41CCDC04FDF
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 16:50:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233273AbjHHQov (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 8 Aug 2023 12:44:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34764 "EHLO
+        id S233562AbjHHQuZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 8 Aug 2023 12:50:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233277AbjHHQoF (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 12:44:05 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A766C1654B
-        for <linux-i2c@vger.kernel.org>; Tue,  8 Aug 2023 08:56:00 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id ffacd0b85a97d-3178dd81ac4so4835035f8f.3
-        for <linux-i2c@vger.kernel.org>; Tue, 08 Aug 2023 08:56:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1691510133; x=1692114933;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=rVTTn1AZhgKJEPeBZ7tIT6HQycZWcyfVoqPDmg5RGC4=;
-        b=EaQGXIPQ3j4vzWDTfWQhmgqY1GD88nEnrxhRrg/4Gcf1jwlXlMQP9aWomOPdrM5nFO
-         RywJRevD93f+VhA3MQgZVVeX52fNMrDqIjKGpvfCdNVB7tSg58HtAylh4APPhM27zoot
-         i2anFqi87KoD0B0O+1uXw/s9SAYWTcqHf8sTtSQdMu+N6cy6CGbvIfhNblx821NkAiIu
-         uyU1INw92dwgLUIZvBdm0Nvha7P0ylmMZfNmLVGtj3K9YohfsSOHa5BOoT45m89pujHg
-         jlhTLBUP64tjeWoJI7D+4M69Ge5l1zyiKZMFhL1uUyV2pUZwz2OglZkp5U/ZDnNJa8D/
-         FvWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691510133; x=1692114933;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rVTTn1AZhgKJEPeBZ7tIT6HQycZWcyfVoqPDmg5RGC4=;
-        b=e/9x7JHZ2ZfWSYY9QoBfTHDH7anmc1gKmtvut+0RybMWLBELgMLfN97VnzNOaF3Arb
-         0fedVWRUBVIjMXt1ga4JYG72V//YyHUw+TczVEy2thLsXKLFijcYIgiFXNRwS0c77x9U
-         +ECEWJOjvvn3CF7IMsiakMUh1o/TNHbdWlnlMaBNnEwYw43AsMXye6NSA4JMZT3l9fsE
-         zm6Pnox/tLRq8WvoL35Lb9zHnJC4LD1DTeCUEvci3Ut8IjNzzMdTSroD5ZACdNC+05KT
-         VHzHdDadsQeimjaKFHtNxjS3cnaEh5Lt/B7zOtNNQX5ODnqme9TnW9V8C8/8LhKbfX1f
-         DVkg==
-X-Gm-Message-State: AOJu0YwbEj4GxCpgQENjXrqKwzSgWHzinfXPVatfrkvemSPA6LH9wqbS
-        f44xscXFJXXpP/vkEU10GtoXbg==
-X-Google-Smtp-Source: AGHT+IGpiD830YQ5k6d6CQ5DckWiWf96jV+8KhexPtwkxYkpVDql5DrULb/UEUFZH/jZ/IltlIY3WQ==
-X-Received: by 2002:a5d:4d8a:0:b0:314:15b7:1fb5 with SMTP id b10-20020a5d4d8a000000b0031415b71fb5mr8767362wru.34.1691510133363;
-        Tue, 08 Aug 2023 08:55:33 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.222.113])
-        by smtp.gmail.com with ESMTPSA id x21-20020a05600c21d500b003fe18d03188sm14189615wmj.17.2023.08.08.08.55.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Aug 2023 08:55:32 -0700 (PDT)
-Message-ID: <7698ce68-c393-d566-25b9-7b2a08dd8274@linaro.org>
-Date:   Tue, 8 Aug 2023 17:55:29 +0200
+        with ESMTP id S232684AbjHHQtT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 12:49:19 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879F04AAAB;
+        Tue,  8 Aug 2023 08:57:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1691510246; x=1723046246;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=E5LRHteZkEMYNsco/1BxeEDeFFbk8r50PGxxwtuDxOc=;
+  b=exjbdw8fTLjQDA6qhjQkEDgpF35MkCeP6sEAvfXpqFaiodiPmUTj/sd5
+   jXs95AJAldGx/YdIiBibFOphj/xVkYLUtkAL5mfBS59Eq1UhPMj8czuKv
+   DqEEm8lcFOKttVfWdM+WnJ4ykXqcDXZkDy4x0tP6p0c/KG5rZ75foLEYM
+   5/LYxDr5F6V2piuG7CDNe8KW32o2ykFILkUIYfWNCl0IRegNAdx6Itc2i
+   tkfIz9Cj2t15mCdD/lYYBcC1OlCSvzuUJqVcAw6mxJeJB90+eONUJ631P
+   EvZ+DArYhdMriAFY3Ds7ecAXLBAf33E1h95mo9tya+QLQlBBwj1lUmdLv
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10795"; a="369704780"
+X-IronPort-AV: E=Sophos;i="6.01,156,1684825200"; 
+   d="scan'208";a="369704780"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Aug 2023 05:14:45 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10795"; a="821344916"
+X-IronPort-AV: E=Sophos;i="6.01,156,1684825200"; 
+   d="scan'208";a="821344916"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by FMSMGA003.fm.intel.com with ESMTP; 08 Aug 2023 05:14:41 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1qTLbj-007EVK-1V;
+        Tue, 08 Aug 2023 15:14:39 +0300
+Date:   Tue, 8 Aug 2023 15:14:39 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Jonathan Cameron <jic23@kernel.org>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Daniel Scally <djrscally@gmail.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>
+Subject: Re: [PATCH v7 0/4] Extend device_get_match_data() to struct bus_type
+Message-ID: <ZNIxr7yNcpSU4f3k@smile.fi.intel.com>
+References: <20230804161728.394920-1-biju.das.jz@bp.renesas.com>
+ <20230805174036.129ffbc2@jic23-huawei>
+ <OS0PR01MB59220491C7C8AA40BEFAAD82860EA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <20230806142950.6c409600@jic23-huawei>
+ <ZNEFjyAloqlkMWn7@smile.fi.intel.com>
+ <20230807204505.5f3f245e@jic23-huawei>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.14.0
-Subject: Re: [PATCH v3 2/9] i2c: mlxbf: Use dev_err_probe in probe function
-Content-Language: en-US
-To:     Andi Shyti <andi.shyti@kernel.org>
-Cc:     Liao Chang <liaochang1@huawei.com>, florian.fainelli@broadcom.com,
-        rjui@broadcom.com, sbranden@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, yangyicong@hisilicon.com,
-        aisheng.dong@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
-        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
-        kblaiech@nvidia.com, asmaa@nvidia.com, loic.poulain@linaro.org,
-        rfoss@kernel.org, ardb@kernel.org, gcherian@marvell.com,
-        linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-References: <20230808012954.1643834-1-liaochang1@huawei.com>
- <20230808012954.1643834-3-liaochang1@huawei.com>
- <a5b2f1a2-d509-0949-fc1d-929476c2618b@linaro.org>
- <20230808112907.4rnvmyha4v6cg5ds@intel.intel>
- <29e20953-5660-079e-2136-0962eec9cab5@linaro.org>
- <20230808114706.g27gy3rajqvjykce@intel.intel>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230808114706.g27gy3rajqvjykce@intel.intel>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230807204505.5f3f245e@jic23-huawei>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 08/08/2023 13:47, Andi Shyti wrote:
-> Hi Krzysztof,
+On Mon, Aug 07, 2023 at 08:45:05PM +0100, Jonathan Cameron wrote:
+> On Mon, 7 Aug 2023 17:54:07 +0300
+> Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
+> > On Sun, Aug 06, 2023 at 02:29:50PM +0100, Jonathan Cameron wrote:
+> > > On Sat, 5 Aug 2023 17:42:21 +0000
+> > > Biju Das <biju.das.jz@bp.renesas.com> wrote:  
+> > > > > On Fri,  4 Aug 2023 17:17:24 +0100
+> > > > > Biju Das <biju.das.jz@bp.renesas.com> wrote:  
+
+...
+
+> > > > + * Besides the fact that some drivers abuse the device ID driver_data type
+> > > > + * and claim it to be integer, for the bus specific ID tables the driver_data
+> > > > + * may be defined as kernel_ulong_t. For these tables 0 is a valid response,
+> > > > + * but not for this function. It's recommended to convert those either to avoid
+> > > > + * 0 or use a real pointer to the predefined driver data.  
+> > 
+> > > We still need to maintain consistency across the two tables, which
+> > > is a stronger requirement than avoiding 0.  
+> > 
+> > True. Any suggestion how to amend the above comment? Because the documentation
+> > makes sense on its own (may be split from the series?).
 > 
-> On Tue, Aug 08, 2023 at 01:31:31PM +0200, Krzysztof Kozlowski wrote:
->> On 08/08/2023 13:29, Andi Shyti wrote:
->>> Hi Krzysztof,
->>>
->>> On Tue, Aug 08, 2023 at 10:36:40AM +0200, Krzysztof Kozlowski wrote:
->>>> On 08/08/2023 03:29, Liao Chang wrote:
->>>>> Use the dev_err_probe function instead of dev_err in the probe function
->>>>> so that the printed messge includes the return value and also handles
->>>>> -EPROBE_DEFER nicely.
->>>>>
->>>>> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
->>>>> Signed-off-by: Liao Chang <liaochang1@huawei.com>
->>>>
->>>> ...
->>>>
->>>>> @@ -2413,10 +2399,8 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
->>>>>  	ret = devm_request_irq(dev, irq, mlxbf_i2c_irq,
->>>>>  			       IRQF_SHARED | IRQF_PROBE_SHARED,
->>>>>  			       dev_name(dev), priv);
->>>>> -	if (ret < 0) {
->>>>> -		dev_err(dev, "Cannot get irq %d\n", irq);
->>>>> -		return ret;
->>>>> -	}
->>>>> +	if (ret < 0)
->>>>> +		return dev_err_probe(dev, ret, "Cannot get irq %d\n", irq);
->>>>
->>>> I don't think this is needed:
->>>> https://lore.kernel.org/all/20230721094641.77189-1-frank.li@vivo.com/
->>>
->>> Hmm, that's a bit borderline, I'd say. The change to
->>
->> What's borderline exactly? devm_request_threaded_irq_probe() is coming,
->> right? If it is accepted this hunk is useless and soon should be
->> replaced with proper one.
+> For bus ID tables it is fine right now as long as no one checks for NULL.
+> I guess adding this to the i2c_get_match_data and spi equivalent wrapper
+> functions might avoid someone shooting themselves in the foot (I've done it
+> for starters more than once).
+
+Ah, okay.
+
+...
+
+> > > Some drivers already do that by forcing the enum used to start at 1 which
+> > > doesn't solver the different data types issue.  
+> > 
+> > And some maintainers do not want to see non-enum values in i2c ID table.
+> > *Shrug*.
 > 
-> Such change is out of the scope of this series, there are two
-> options that I'd prefer (in the listed order):
-> 
->  1. accept the patch as it is, this patch is not sent today the
->     first time and at the current state it's correct.
->  2. not accept a change on this line
+> That leaves us stuck unless we move to a form where the i2c ID table isn't
+> used if there is an of_device_id table (or maybe we invent yet another table
+> and if that is present it is used for dt and were i2c_device_id is used and
+> hence becomes an opt in?  That will also be tricky however.
 
-The 2 is what I commented here. This change should not be made and
-instead we should just switch all such users to new API, because this is
-preferred for all error messages, when applicable and does not result in
-lost context. If there was no such API, sure, but we have this API coming.
+This won't ever happen as it will break an ABI (as far as I understand
+the current state of affairs). Seems the easiest path is to try to sell
+the point that having pointers in I2C ID tables is okay to the maintainers
+who don't see it that way.
 
-> 
-> Replacing devm_request_irq belongs to another series and,
-> besides, I don't want to ask Liao to hold on this series for such
-> trivialities.
+-- 
+With Best Regards,
+Andy Shevchenko
 
-So the comment about this redundant and unneeded change, thus switching
-to new API you call 'triviality' but a comment of yours of changing the
-tone of error message to 'please' is appropriate.
-https://lore.kernel.org/all/20230807231320.svssge6uymw3jiho@intel.intel/
-
-That's double standards.
-
-Best regards,
-Krzysztof
 
