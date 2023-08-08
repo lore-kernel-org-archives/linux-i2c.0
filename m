@@ -2,113 +2,124 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 774F9C001B0
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 19:50:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11A42C41513
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 20:45:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233253AbjHHTus (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 8 Aug 2023 15:50:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37474 "EHLO
+        id S234668AbjHHUpM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 8 Aug 2023 16:45:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233961AbjHHTu1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 15:50:27 -0400
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 870F153509;
-        Tue,  8 Aug 2023 09:56:09 -0700 (PDT)
-Received: from lhrpeml500005.china.huawei.com (unknown [172.18.147.200])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4RKxV54TDFz6GD4v;
-        Tue,  8 Aug 2023 23:11:25 +0800 (CST)
-Received: from localhost (10.202.227.76) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Tue, 8 Aug
- 2023 16:16:20 +0100
-Date:   Tue, 8 Aug 2023 16:16:19 +0100
-From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org\" <linux-renesas-soc@vger.kernel.org>"@domain.invalid
-Subject: Re: [PATCH v7 0/4] Extend device_get_match_data() to struct
- bus_type
-Message-ID: <20230808161619.00000b92@Huawei.com>
-In-Reply-To: <ZNFV+C1HCIRJpbdC@google.com>
-References: <20230804161728.394920-1-biju.das.jz@bp.renesas.com>
-        <20230805174036.129ffbc2@jic23-huawei>
-        <OS0PR01MB59220491C7C8AA40BEFAAD82860EA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
-        <20230806142950.6c409600@jic23-huawei>
-        <ZNEFjyAloqlkMWn7@smile.fi.intel.com>
-        <ZNFV+C1HCIRJpbdC@google.com>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
+        with ESMTP id S234682AbjHHUoz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 16:44:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09B0936872;
+        Tue,  8 Aug 2023 09:36:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9731C624EB;
+        Tue,  8 Aug 2023 11:47:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A44FCC433C7;
+        Tue,  8 Aug 2023 11:47:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1691495229;
+        bh=uVffECseHnMN3v5iLYcqI1db1hTkaBuKZvryPwhJRns=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Znte4XL62lM+ZoiSFMMi+ZXkDB/EClSpHnqye3sCmKTMqec/e7YyJNR5+nZQoYA4l
+         scVziRZl7NQ4rsxCHgCm8Fjdc+tS10aFWvW+7wfBkws5VCdIMltVR8YdgAhNn6xXxg
+         W/WOpbeeXFXcHul+rCsI5IpteRHcJ7sHauxBB6tIkyVIIydP8dY1CISRrxBLQAcu3I
+         xJiOxeC6+pY40RCYUQF48rEFLIZZSKVgqMOzjKbXyW1bbsByzdP/LRkdU5hJJOBubd
+         wjTswi09bGo/2KsX3da1teP7sbgafryxurl2jfa+0I4Na6ni7Sed3xkrEMm8RoDlJE
+         bbaakn0Dobnvg==
+Date:   Tue, 8 Aug 2023 13:47:06 +0200
+From:   Andi Shyti <andi.shyti@kernel.org>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     Liao Chang <liaochang1@huawei.com>, florian.fainelli@broadcom.com,
+        rjui@broadcom.com, sbranden@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, yangyicong@hisilicon.com,
+        aisheng.dong@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
+        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        kblaiech@nvidia.com, asmaa@nvidia.com, loic.poulain@linaro.org,
+        rfoss@kernel.org, ardb@kernel.org, gcherian@marvell.com,
+        linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: Re: [PATCH v3 2/9] i2c: mlxbf: Use dev_err_probe in probe function
+Message-ID: <20230808114706.g27gy3rajqvjykce@intel.intel>
+References: <20230808012954.1643834-1-liaochang1@huawei.com>
+ <20230808012954.1643834-3-liaochang1@huawei.com>
+ <a5b2f1a2-d509-0949-fc1d-929476c2618b@linaro.org>
+ <20230808112907.4rnvmyha4v6cg5ds@intel.intel>
+ <29e20953-5660-079e-2136-0962eec9cab5@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.202.227.76]
-X-ClientProxiedBy: lhrpeml100001.china.huawei.com (7.191.160.183) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <29e20953-5660-079e-2136-0962eec9cab5@linaro.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Mon, 7 Aug 2023 13:37:12 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Hi Krzysztof,
 
-> On Mon, Aug 07, 2023 at 05:54:07PM +0300, Andy Shevchenko wrote:
-> > On Sun, Aug 06, 2023 at 02:29:50PM +0100, Jonathan Cameron wrote:  
-> > > On Sat, 5 Aug 2023 17:42:21 +0000
-> > > Biju Das <biju.das.jz@bp.renesas.com> wrote:  
-> > > > > On Fri,  4 Aug 2023 17:17:24 +0100
-> > > > > Biju Das <biju.das.jz@bp.renesas.com> wrote:  
+On Tue, Aug 08, 2023 at 01:31:31PM +0200, Krzysztof Kozlowski wrote:
+> On 08/08/2023 13:29, Andi Shyti wrote:
+> > Hi Krzysztof,
 > > 
-> > ...
-> >   
-> > > > + * Besides the fact that some drivers abuse the device ID driver_data type
-> > > > + * and claim it to be integer, for the bus specific ID tables the driver_data
-> > > > + * may be defined as kernel_ulong_t. For these tables 0 is a valid response,
-> > > > + * but not for this function. It's recommended to convert those either to avoid
-> > > > + * 0 or use a real pointer to the predefined driver data.  
-> >   
-> > > We still need to maintain consistency across the two tables, which
-> > > is a stronger requirement than avoiding 0.  
+> > On Tue, Aug 08, 2023 at 10:36:40AM +0200, Krzysztof Kozlowski wrote:
+> >> On 08/08/2023 03:29, Liao Chang wrote:
+> >>> Use the dev_err_probe function instead of dev_err in the probe function
+> >>> so that the printed messge includes the return value and also handles
+> >>> -EPROBE_DEFER nicely.
+> >>>
+> >>> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+> >>> Signed-off-by: Liao Chang <liaochang1@huawei.com>
+> >>
+> >> ...
+> >>
+> >>> @@ -2413,10 +2399,8 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
+> >>>  	ret = devm_request_irq(dev, irq, mlxbf_i2c_irq,
+> >>>  			       IRQF_SHARED | IRQF_PROBE_SHARED,
+> >>>  			       dev_name(dev), priv);
+> >>> -	if (ret < 0) {
+> >>> -		dev_err(dev, "Cannot get irq %d\n", irq);
+> >>> -		return ret;
+> >>> -	}
+> >>> +	if (ret < 0)
+> >>> +		return dev_err_probe(dev, ret, "Cannot get irq %d\n", irq);
+> >>
+> >> I don't think this is needed:
+> >> https://lore.kernel.org/all/20230721094641.77189-1-frank.li@vivo.com/
 > > 
-> > True. Any suggestion how to amend the above comment? Because the documentation
-> > makes sense on its own (may be split from the series?).
-> >   
-> > > Some drivers already do that by forcing the enum used to start at 1 which
-> > > doesn't solver the different data types issue.  
-> > 
-> > And some maintainers do not want to see non-enum values in i2c ID table.
-> > *Shrug*.  
+> > Hmm, that's a bit borderline, I'd say. The change to
 > 
-> So in legacy ID lookup path we can safely assume that values below 4096
-> are scalars and return NULL from the new device_get_match_data(). This
-> way current drivers using the values as indices or doing direct
-> comparisons against them can continue doing manual look up and using
-> them as they see fit. And we can convert the drivers at our leisure.
+> What's borderline exactly? devm_request_threaded_irq_probe() is coming,
+> right? If it is accepted this hunk is useless and soon should be
+> replaced with proper one.
 
-Good idea.  Though I suspect there may still be nasty cases. People have
-been known to put chip ID values in these fields so that they can then
-match them against a who am I register as a 'detect it's the right part' check.
+Such change is out of the scope of this series, there are two
+options that I'd prefer (in the listed order):
 
-No idea if we have any drivers doing that but if there are hopefully not too many!
+ 1. accept the patch as it is, this patch is not sent today the
+    first time and at the current state it's correct.
+ 2. not accept a change on this line
 
-Jonathan
+Replacing devm_request_irq belongs to another series and,
+besides, I don't want to ask Liao to hold on this series for such
+trivialities.
 
+Thank you,
+Andi
+
+> Instead of making many trivial changes doing the same, all these series
+> should be aligned.
 > 
-> Thanks.
+> > devm_request_irq/devm_request_threaded_irq_probe seems like
+> > something for another series. But for now, I think I'll accept
+> > this as it is since it fits within the scope of this current
+> > series.
 > 
-
+> 
+> Best regards,
+> Krzysztof
+> 
