@@ -2,105 +2,139 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84A97C04A6A
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 19:48:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63612C04A6A
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 19:50:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbjHHTs6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 8 Aug 2023 15:48:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
+        id S233586AbjHHTu3 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 8 Aug 2023 15:50:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236601AbjHHTg4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 15:36:56 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76BE25581
-        for <linux-i2c@vger.kernel.org>; Tue,  8 Aug 2023 10:45:07 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id 4fb4d7f45d1cf-52164adea19so7691433a12.1
-        for <linux-i2c@vger.kernel.org>; Tue, 08 Aug 2023 10:45:07 -0700 (PDT)
+        with ESMTP id S233625AbjHHTuO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 15:50:14 -0400
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D4B53525
+        for <linux-i2c@vger.kernel.org>; Tue,  8 Aug 2023 09:56:19 -0700 (PDT)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-583312344e7so73076607b3.1
+        for <linux-i2c@vger.kernel.org>; Tue, 08 Aug 2023 09:56:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1691516706; x=1692121506;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=HMEaWb1xblsQVJcXEol8oykgDk7Z/s9Dq4Nd7yRCjng=;
-        b=VheTujjW+vERSx6xUQyYNMyD5+sRXg0UDoVppplapOjrgG5b6yM94L7ycF5xc7AzMO
-         JBAkAlcnfDDGOKXScQGwkeX/2kVU1rhctwE3FEkBEO1JYdhzSJE+uHCOJCiYR9K5IMCV
-         xFCj42Y/YYl9eNPtHGNTj7V/cAGjV70q5nq8qih34VGfLMzJEKrSERAAS8tLxpR84IBR
-         eGZDJ0geNWcCA6uDzQhtHtwD4d6MUe6iGe7Nbwm8rkVeg0ytq0HoiC5HY7+e7x7XB0Cf
-         cfajx2+fP0oQgZOV/Ro7Rv8D1mnHGF1lWQPpl6Z8a3FVM9QujPXgdxBloUgorzgvLJvg
-         5SrA==
+        d=google.com; s=20221208; t=1691513778; x=1692118578;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=zRGROs0prSq9MFh0VojzEm9/faHihdz2gNY33winOk0=;
+        b=ZwuzzdZO9kYs2Oc/mNbJfARuvGlMIC3UUvNeZoKIvfQ2VX/159UeLD1ZOmH/QRku2q
+         UdxijLS1nyzh4vJapMPxBdB8Mw0I7WhzdZN5HIP1q4KkrgtgqCuWf6ebvKHNXq6l9tGA
+         r/JobYflpqEJayDjQmiSyLfBHt9cttoaedbWNQRVokc8GdBH1nN1OhMM71m5X6bnIFOX
+         jGZafbBDftxnGbVwxScApAzdztO3THQLw8zbAAexjzipo9xfZrido1s5h4shka1W8pRA
+         mt9oD6/q/ha3W6CQK/O/WueGTnREmrbLW/46ftFn+1ehcZRoL4uLnQTtAg2+1kfrNN1r
+         1RaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691516706; x=1692121506;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=HMEaWb1xblsQVJcXEol8oykgDk7Z/s9Dq4Nd7yRCjng=;
-        b=B1U7oAUUGexRlxp3SfC1kMtPMu5Nyo4Eq/x6ylCsDEg6QgwwJjKzqvFxO1nPmUclp/
-         EpCJotsDiwQs27w/TAkqSR3xeDx+c5dyhgjM+b10zDoRgzwkD3vAIdCe/DOhDUgjPgpb
-         C9viIZ12R6WbHo+5hEGdXPNvOYdw3MvVs8ZuiYBKHF98FpgeYL3SY7xHjnwqzq9RIETe
-         QaAZJX05NQuSTv79pYEwijxodGh/WxJLjv6OgBOR1XCzIxO3kuKh9xo3ZvSYACf+tN3B
-         YljlauwbOkeKwnKq6aubjsg2eJeu7hazPbSWM0vruZB8JJfIOnFHztMY0eri60fOJQcx
-         Hbmw==
-X-Gm-Message-State: AOJu0Yzp0Xxn1lF4AgY2vPAxDjTvSqKu9ljRQcsHbiYFu8O/bnyN/+z7
-        Rkl0Omk8HjrvKl2lm9CVbOB9WcdXxsT2hY3a2F0=
-X-Google-Smtp-Source: AGHT+IG+hPH130GsaAWOXOCOgUJ4jN56dYOBsImJMdrSAJG+P3lNXldoERLeCFvY2fbEGvnW5W5Tww==
-X-Received: by 2002:a05:6402:514:b0:51e:309:2e12 with SMTP id m20-20020a056402051400b0051e03092e12mr10221930edv.28.1691483803097;
-        Tue, 08 Aug 2023 01:36:43 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.222.113])
-        by smtp.gmail.com with ESMTPSA id d13-20020a50fe8d000000b0051e1660a34esm6227195edt.51.2023.08.08.01.36.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Aug 2023 01:36:42 -0700 (PDT)
-Message-ID: <a5b2f1a2-d509-0949-fc1d-929476c2618b@linaro.org>
-Date:   Tue, 8 Aug 2023 10:36:40 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.14.0
-Subject: Re: [PATCH v3 2/9] i2c: mlxbf: Use dev_err_probe in probe function
-Content-Language: en-US
-To:     Liao Chang <liaochang1@huawei.com>, andi.shyti@kernel.org,
-        florian.fainelli@broadcom.com, rjui@broadcom.com,
-        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
-        yangyicong@hisilicon.com, aisheng.dong@nxp.com,
-        shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
-        festevam@gmail.com, linux-imx@nxp.com, kblaiech@nvidia.com,
-        asmaa@nvidia.com, loic.poulain@linaro.org, rfoss@kernel.org,
-        ardb@kernel.org, gcherian@marvell.com
-Cc:     linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-References: <20230808012954.1643834-1-liaochang1@huawei.com>
- <20230808012954.1643834-3-liaochang1@huawei.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230808012954.1643834-3-liaochang1@huawei.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        d=1e100.net; s=20221208; t=1691513778; x=1692118578;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=zRGROs0prSq9MFh0VojzEm9/faHihdz2gNY33winOk0=;
+        b=IdS5lmCMDMA+PprB/bWpaiEM9Iu4PLdMzWN+p4GG4iUebnWr/xjjLmbylzq/EGJcwD
+         PZmUWdVuZ94SOa5mwQTGBrB5H8e4NazjK/Y2NDkLcFzVcdkBxfm1eO5aDTffECPX2kVm
+         TSdcuB0ccPNBndBEttHfhFlw0cQVzLiUMuysB36B9SdqeT1SPwDb0EpgNVFzFk8uQO3t
+         /6jnbJmxLKnCgwrLyTzROx/rluCepAonSicf0HDr1H/wVx4esYm+9H3LTzGsIfgtBGUy
+         cSiBhRWGhdy7grO5/CGwaPMw1cyGL6u8ZQWDMQPeLGlnW/bibmevcLW+rauzYNp3SE1I
+         5RvA==
+X-Gm-Message-State: AOJu0YyPHZVhMam0m/0DIyezmfCFZgk2iwEgMtVbHSLpZhF8NxtCj0lG
+        X08kzDgi7gsKQ25CA1n0d0DzadyjoJvMVbOt7A4=
+X-Google-Smtp-Source: AGHT+IHvp4RVooOae7EfRvNoe9ojEueuoOpKM3VV7FgRuePNPnjR9K9MVCvuT9PpaD6qBvXfpS2T7QcKSQIpYFkLMfU=
+X-Received: from ndesaulniers-desktop.svl.corp.google.com ([2620:15c:2d1:203:cc03:38d0:9718:e90b])
+ (user=ndesaulniers job=sendgmr) by 2002:a25:860e:0:b0:d5d:511b:16da with SMTP
+ id y14-20020a25860e000000b00d5d511b16damr1793ybk.2.1691513778422; Tue, 08 Aug
+ 2023 09:56:18 -0700 (PDT)
+Date:   Tue, 08 Aug 2023 09:56:16 -0700
+Mime-Version: 1.0
+X-B4-Tracking: v=1; b=H4sIAK9z0mQC/x3MQQqAIBBA0avIrBPUiqSrRISMU80iC40IxLsnL
+ d/i/wyJIlOCUWSI9HDiM1ToRgDuLmwk2VeDUaZVVlnJBqU7/JJudzNKq6lHMzjbIUGNrkgrv/9 wmkv5AFb2g4hgAAAA
+X-Developer-Key: i=ndesaulniers@google.com; a=ed25519; pk=UIrHvErwpgNbhCkRZAYSX0CFd/XFEwqX3D0xqtqjNug=
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1691513776; l=2427;
+ i=ndesaulniers@google.com; s=20220923; h=from:subject:message-id;
+ bh=si09L+ne/76nNtqRPQQNA8vh+v/vSOpRLqSBS/7yXBU=; b=rVdUpEz91pDMvj2lTvd62ib7crXJtBOPX1kW9foKJV39T/d9Twit/ju7Ur4Jw4tv+AsMmMlNb
+ X1Dlt6TmZSeDalyhdGjGC+BA2Yko/jKs/08sEV2wsETgddvbzoMAjbW
+X-Mailer: b4 0.12.3
+Message-ID: <20230808-i2c-amd_static-v1-1-1902f608bba1@google.com>
+Subject: [PATCH] i2c/busses: fix -Wmissing-variable-declarations
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     Jean Delvare <jdelvare@suse.com>,
+        Andi Shyti <andi.shyti@kernel.org>
+Cc:     Nathan Chancellor <nathan@kernel.org>, Tom Rix <trix@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        llvm@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 08/08/2023 03:29, Liao Chang wrote:
-> Use the dev_err_probe function instead of dev_err in the probe function
-> so that the printed messge includes the return value and also handles
-> -EPROBE_DEFER nicely.
-> 
-> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-> Signed-off-by: Liao Chang <liaochang1@huawei.com>
+I'm looking to enable -Wmissing-variable-declarations behind W=1. 0day
+bot spotted the following instance:
 
-...
+  drivers/i2c/busses/i2c-amd756.c:286:20: warning: no previous extern
+  declaration for non-static variable 'amd756_smbus'
+  [-Wmissing-variable-declarations]
+  286 | struct i2c_adapter amd756_smbus = {
+      |                    ^
+  drivers/i2c/busses/i2c-amd756.c:286:1: note: declare 'static' if the
+  variable is not intended to be used outside of this translation unit
+  286 | struct i2c_adapter amd756_smbus = {
+      | ^
 
-> @@ -2413,10 +2399,8 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
->  	ret = devm_request_irq(dev, irq, mlxbf_i2c_irq,
->  			       IRQF_SHARED | IRQF_PROBE_SHARED,
->  			       dev_name(dev), priv);
-> -	if (ret < 0) {
-> -		dev_err(dev, "Cannot get irq %d\n", irq);
-> -		return ret;
-> -	}
-> +	if (ret < 0)
-> +		return dev_err_probe(dev, ret, "Cannot get irq %d\n", irq);
+This symbol is referenced by more than one translation unit, so create
+then include the correct header for their declarations.
 
-I don't think this is needed:
-https://lore.kernel.org/all/20230721094641.77189-1-frank.li@vivo.com/
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/llvm/202308081000.tTL1ElTr-lkp@intel.com/
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ drivers/i2c/busses/i2c-amd756-s4882.c | 3 +--
+ drivers/i2c/busses/i2c-amd756.c       | 1 +
+ drivers/i2c/busses/i2c-amd756.h       | 3 +++
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-amd756-s4882.c b/drivers/i2c/busses/i2c-amd756-s4882.c
+index 063274388a75..8156cfc43df3 100644
+--- a/drivers/i2c/busses/i2c-amd756-s4882.c
++++ b/drivers/i2c/busses/i2c-amd756-s4882.c
+@@ -26,8 +26,7 @@
+ #include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/mutex.h>
+-
+-extern struct i2c_adapter amd756_smbus;
++#include "i2c-amd756.h"
+ 
+ static struct i2c_adapter *s4882_adapter;
+ static struct i2c_algorithm *s4882_algo;
+diff --git a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
+index ef1307a258e9..af77374d2ab3 100644
+--- a/drivers/i2c/busses/i2c-amd756.c
++++ b/drivers/i2c/busses/i2c-amd756.c
+@@ -31,6 +31,7 @@
+ #include <linux/i2c.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
++#include "i2c-amd756.h"
+ 
+ /* AMD756 SMBus address offsets */
+ #define SMB_ADDR_OFFSET		0xE0
+diff --git a/drivers/i2c/busses/i2c-amd756.h b/drivers/i2c/busses/i2c-amd756.h
+new file mode 100644
+index 000000000000..88698266d6d8
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-amd756.h
+@@ -0,0 +1,3 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#include <linux/i2c.h>
++extern struct i2c_adapter amd756_smbus;
+
+---
+base-commit: 14f9643dc90adea074a0ffb7a17d337eafc6a5cc
+change-id: 20230808-i2c-amd_static-81e5c27a84ce
 
 Best regards,
-Krzysztof
+-- 
+Nick Desaulniers <ndesaulniers@google.com>
 
