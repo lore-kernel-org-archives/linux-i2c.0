@@ -2,176 +2,105 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE0D9C41513
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 19:47:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84A97C04A6A
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 19:48:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231486AbjHHTrE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 8 Aug 2023 15:47:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40804 "EHLO
+        id S232344AbjHHTs6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 8 Aug 2023 15:48:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231167AbjHHTqt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 15:46:49 -0400
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E1FA17BB4
-        for <linux-i2c@vger.kernel.org>; Tue,  8 Aug 2023 09:50:49 -0700 (PDT)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.55])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4RKtm873D0z1hwGK;
-        Tue,  8 Aug 2023 21:08:24 +0800 (CST)
-Received: from [10.67.102.169] (10.67.102.169) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Tue, 8 Aug 2023 21:11:13 +0800
-CC:     <yangyicong@hisilicon.com>, <wsa@kernel.org>,
-        <linux-i2c@vger.kernel.org>, <f.fangjian@huawei.com>,
-        <linuxarm@huawei.com>
-Subject: Re: [PATCH] i2c: hisi: Only handle the interrupt of the driver's
- transfer
-To:     Andi Shyti <andi.shyti@kernel.org>
-References: <20230801124625.63587-1-yangyicong@huawei.com>
- <20230801221557.74z7lorwzq5nxqam@intel.intel>
- <517658b5-4f44-7903-bb86-074c7561e0f2@huawei.com>
- <20230804233029.xgqf6zszzbqcue5o@intel.intel>
-From:   Yicong Yang <yangyicong@huawei.com>
-Message-ID: <d50d5d19-4f5f-8c5b-2505-1195fa314976@huawei.com>
-Date:   Tue, 8 Aug 2023 21:11:13 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+        with ESMTP id S236601AbjHHTg4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 15:36:56 -0400
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76BE25581
+        for <linux-i2c@vger.kernel.org>; Tue,  8 Aug 2023 10:45:07 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id 4fb4d7f45d1cf-52164adea19so7691433a12.1
+        for <linux-i2c@vger.kernel.org>; Tue, 08 Aug 2023 10:45:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1691516706; x=1692121506;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=HMEaWb1xblsQVJcXEol8oykgDk7Z/s9Dq4Nd7yRCjng=;
+        b=VheTujjW+vERSx6xUQyYNMyD5+sRXg0UDoVppplapOjrgG5b6yM94L7ycF5xc7AzMO
+         JBAkAlcnfDDGOKXScQGwkeX/2kVU1rhctwE3FEkBEO1JYdhzSJE+uHCOJCiYR9K5IMCV
+         xFCj42Y/YYl9eNPtHGNTj7V/cAGjV70q5nq8qih34VGfLMzJEKrSERAAS8tLxpR84IBR
+         eGZDJ0geNWcCA6uDzQhtHtwD4d6MUe6iGe7Nbwm8rkVeg0ytq0HoiC5HY7+e7x7XB0Cf
+         cfajx2+fP0oQgZOV/Ro7Rv8D1mnHGF1lWQPpl6Z8a3FVM9QujPXgdxBloUgorzgvLJvg
+         5SrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1691516706; x=1692121506;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=HMEaWb1xblsQVJcXEol8oykgDk7Z/s9Dq4Nd7yRCjng=;
+        b=B1U7oAUUGexRlxp3SfC1kMtPMu5Nyo4Eq/x6ylCsDEg6QgwwJjKzqvFxO1nPmUclp/
+         EpCJotsDiwQs27w/TAkqSR3xeDx+c5dyhgjM+b10zDoRgzwkD3vAIdCe/DOhDUgjPgpb
+         C9viIZ12R6WbHo+5hEGdXPNvOYdw3MvVs8ZuiYBKHF98FpgeYL3SY7xHjnwqzq9RIETe
+         QaAZJX05NQuSTv79pYEwijxodGh/WxJLjv6OgBOR1XCzIxO3kuKh9xo3ZvSYACf+tN3B
+         YljlauwbOkeKwnKq6aubjsg2eJeu7hazPbSWM0vruZB8JJfIOnFHztMY0eri60fOJQcx
+         Hbmw==
+X-Gm-Message-State: AOJu0Yzp0Xxn1lF4AgY2vPAxDjTvSqKu9ljRQcsHbiYFu8O/bnyN/+z7
+        Rkl0Omk8HjrvKl2lm9CVbOB9WcdXxsT2hY3a2F0=
+X-Google-Smtp-Source: AGHT+IG+hPH130GsaAWOXOCOgUJ4jN56dYOBsImJMdrSAJG+P3lNXldoERLeCFvY2fbEGvnW5W5Tww==
+X-Received: by 2002:a05:6402:514:b0:51e:309:2e12 with SMTP id m20-20020a056402051400b0051e03092e12mr10221930edv.28.1691483803097;
+        Tue, 08 Aug 2023 01:36:43 -0700 (PDT)
+Received: from [192.168.1.20] ([178.197.222.113])
+        by smtp.gmail.com with ESMTPSA id d13-20020a50fe8d000000b0051e1660a34esm6227195edt.51.2023.08.08.01.36.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Aug 2023 01:36:42 -0700 (PDT)
+Message-ID: <a5b2f1a2-d509-0949-fc1d-929476c2618b@linaro.org>
+Date:   Tue, 8 Aug 2023 10:36:40 +0200
 MIME-Version: 1.0
-In-Reply-To: <20230804233029.xgqf6zszzbqcue5o@intel.intel>
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH v3 2/9] i2c: mlxbf: Use dev_err_probe in probe function
+Content-Language: en-US
+To:     Liao Chang <liaochang1@huawei.com>, andi.shyti@kernel.org,
+        florian.fainelli@broadcom.com, rjui@broadcom.com,
+        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+        yangyicong@hisilicon.com, aisheng.dong@nxp.com,
+        shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
+        festevam@gmail.com, linux-imx@nxp.com, kblaiech@nvidia.com,
+        asmaa@nvidia.com, loic.poulain@linaro.org, rfoss@kernel.org,
+        ardb@kernel.org, gcherian@marvell.com
+Cc:     linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+References: <20230808012954.1643834-1-liaochang1@huawei.com>
+ <20230808012954.1643834-3-liaochang1@huawei.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230808012954.1643834-3-liaochang1@huawei.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.169]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 2023/8/5 7:30, Andi Shyti wrote:
-> Hi Yicong,
+On 08/08/2023 03:29, Liao Chang wrote:
+> Use the dev_err_probe function instead of dev_err in the probe function
+> so that the printed messge includes the return value and also handles
+> -EPROBE_DEFER nicely.
 > 
-> On Wed, Aug 02, 2023 at 10:39:04AM +0800, Yicong Yang wrote:
->> On 2023/8/2 6:15, Andi Shyti wrote:
->>> Hi Yicong,
->>>
->>> On Tue, Aug 01, 2023 at 08:46:25PM +0800, Yicong Yang wrote:
->>>> From: Yicong Yang <yangyicong@hisilicon.com>
->>>>
->>>> The controller may be shared with other port, for example the firmware.
->>>> Handle the interrupt from other sources will cause crash since some
->>>> data are not initialized. So only handle the interrupt of the driver's
->>>> transfer and discard others.
->>>>
->>>> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
->>>
->>> Is this a fix? Then, could you please add:
->>>
->>> Fixes: d62fbdb99a85 ("i2c: add support for HiSilicon I2C controller")
->>> Cc: <stable@vger.kernel.org> # v5.13+
->>>
->>> What kind of crash is this? Is it a NULL pointer dereference?
->>
->> I not quite sure this is a fix of the driver. On some use case the controller is
->> shared between the firmware and the OS and we have no synchronization method
->> from the hardware. A transfer started by the firmware cause the interrupt handled
->> by the driver and cause a NULL pointer dereference.
-> 
-> So that the firmware is running on a controller and memory,
-> concurrently to the main CPU; which means that you are having
-> some kind of bus arbitration issue with two masters on the bus.
-> 
+> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+> Signed-off-by: Liao Chang <liaochang1@huawei.com>
 
-That is one case. Another case maybe the i2c rtc also locates on the same
-bus and the efi-rtc will access the i2c bus.
+...
 
-> Anyway, if we are talking about avoiding a NULL pointer
-> dereference then this is a fix and you need to add the tags
-> above.
-> 
-> (No need to resend for this, I can do it for you if you convince
-> me on the part below.)
+> @@ -2413,10 +2399,8 @@ static int mlxbf_i2c_probe(struct platform_device *pdev)
+>  	ret = devm_request_irq(dev, irq, mlxbf_i2c_irq,
+>  			       IRQF_SHARED | IRQF_PROBE_SHARED,
+>  			       dev_name(dev), priv);
+> -	if (ret < 0) {
+> -		dev_err(dev, "Cannot get irq %d\n", irq);
+> -		return ret;
+> -	}
+> +	if (ret < 0)
+> +		return dev_err_probe(dev, ret, "Cannot get irq %d\n", irq);
 
-Thanks!
+I don't think this is needed:
+https://lore.kernel.org/all/20230721094641.77189-1-frank.li@vivo.com/
 
-> 
->>>> ---
->>>>  drivers/i2c/busses/i2c-hisi.c | 8 ++++++++
->>>>  1 file changed, 8 insertions(+)
->>>>
->>>> diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
->>>> index e067671b3ce2..8328da4bc3ec 100644
->>>> --- a/drivers/i2c/busses/i2c-hisi.c
->>>> +++ b/drivers/i2c/busses/i2c-hisi.c
->>>> @@ -330,6 +330,14 @@ static irqreturn_t hisi_i2c_irq(int irq, void *context)
->>>>  	struct hisi_i2c_controller *ctlr = context;
->>>>  	u32 int_stat;
->>>>  
->>>> +	/*
->>>> +	 * Don't handle the interrupt if cltr->completion is NULL. We may
->>>> +	 * reach here because the interrupt is spurious or the transfer is
->>>> +	 * started by another port rather than us.
->>>> +	 */
->>>> +	if (!ctlr->completion)
->>>> +		return IRQ_NONE;
->>>
->>> Is this the place you should really check for completion being
->>> NULL? By reading the code I don't exclude that completion at this
->>> stage might be NULL.
->>>
->>> Can it be that the real fix is this one instead:
->>
->> Maybe not. If we handle the case as late as below, we'll operate the hardware
->> which should be handled by the firmware which start the transfer. So we check
->> it as early as possible.
-> 
-> But if i2c_master_xfer() is not called and we receive an irq,
-> most probably ctrl->completion is NULL. Right? Can this happen?
-> 
+Best regards,
+Krzysztof
 
-Yes, this is the case.
-
-> I can't really tell the sequence for enabling/disabling the
-> interrupt in this device. They might happen in
-> hisi_i2c_start_xfer() for enabling and in hisi_i2c_xfer_msg() for
-> desabling at the last message; which makes the scenario above a
-> bit difficult, indeed.
-> 
-
-The driver will keep the interrupt disabled if no transfer in progress.
-But since the transfer is driven by the interrupt so if the firmware
-start the transfer it will enable the interrupt. In such case the driver
-will receive an interrupt on the Tx FIFO empty, etc and since the
-transfer is not started by the driver ctlr->completion is not
-initialized.
-
-Thanks,
-Yicong
-
-> Thanks for the explanation,
-> Andi
-> 
->>> @@ -352,7 +352,7 @@ static irqreturn_t hisi_i2c_irq(int irq, void *context)
->>>          * Only use TRANS_CPLT to indicate the completion. On error cases we'll
->>>          * get two interrupts, INT_ERR first then TRANS_CPLT.
->>>          */
->>> -       if (int_stat & HISI_I2C_INT_TRANS_CPLT) {
->>> +       if (ctrl->completion && (int_stat & HISI_I2C_INT_TRANS_CPLT)) {
->>>                 hisi_i2c_disable_int(ctlr, HISI_I2C_INT_ALL);
->>>                 hisi_i2c_clear_int(ctlr, HISI_I2C_INT_ALL);
->>>                 complete(ctlr->completion);
->>>
->>> Anyway, this whole completion management smells a bit racy to me.
->>>
->>> Andi
->>>
->>>>  	int_stat = readl(ctlr->iobase + HISI_I2C_INT_MSTAT);
->>>>  	hisi_i2c_clear_int(ctlr, int_stat);
->>>>  	if (!(int_stat & HISI_I2C_INT_ALL))
->>>> -- 
->>>> 2.24.0
->>>>
->>> .
->>>
-> .
-> 
