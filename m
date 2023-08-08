@@ -2,116 +2,110 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AE23C05051
-	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 16:29:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69153C41513
+	for <linux-i2c@archiver.kernel.org>; Tue,  8 Aug 2023 16:36:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232686AbjHHQ3c (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 8 Aug 2023 12:29:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36020 "EHLO
+        id S233155AbjHHQgC (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 8 Aug 2023 12:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232747AbjHHQ2i (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 12:28:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90AEA1252B;
-        Tue,  8 Aug 2023 08:51:05 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5308D6148B;
-        Tue,  8 Aug 2023 13:23:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C1C5C433C8;
-        Tue,  8 Aug 2023 13:23:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691501000;
-        bh=Ej5BSAcAFQoRKPEbSvr0EDDMbbunYGKnJRjORk2jT44=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R/gcp1zkiO6/9zQgU4exHjrYiN/xwMjr15N8BGZNjHmqU0y8lyh09FNNyLLQUReAz
-         laXy0oBtOFI++WgrR00YOmYy674YKdd4NXIURtcrvwc+C+99DTJakcysGChJpev5Ts
-         FEEaBZD1fGL9RidM/eAE4So6BtKx5tAtx7fu9hJRvVXCNGS++8x4WQHsCIiiNDvtvf
-         YJ6QujQFKhLxa0Caa8ZZU1gj8gWMpn8MuhP8ePwDaNoZHxkoi30/gvJqR7vsSHOh3t
-         8hxJSiq5SEdlnsgrHDeC+Hw08BhYPuR2F/6cC7+PiZ94qPxE1K3007dbSxDdNpJ9wk
-         fCTnxIJwpfS/w==
-Date:   Tue, 8 Aug 2023 15:23:17 +0200
-From:   Andi Shyti <andi.shyti@kernel.org>
-To:     Parker Newman <pnewman@connecttech.com>
-Cc:     Akhil R <akhilrajeev@nvidia.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i2c: tegra: Fix i2c-tegra DMA config option processing
-Message-ID: <20230808132317.e6wxml5mo4hz7fjo@intel.intel>
-References: <fcfcf9b3-c8c4-9b34-2ff8-cd60a3d490bd@connecttech.com>
- <20230804215631.wc22pkyetsyyt5ye@intel.intel>
- <DS7PR12MB63358D8D877BBC81BF94C53AC00FA@DS7PR12MB6335.namprd12.prod.outlook.com>
- <eb8ceb2b-3a23-8cef-91b5-ef416fbc3594@connecttech.com>
+        with ESMTP id S232926AbjHHQex (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Aug 2023 12:34:53 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF0041424D
+        for <linux-i2c@vger.kernel.org>; Tue,  8 Aug 2023 08:52:36 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id a640c23a62f3a-99c136ee106so851273566b.1
+        for <linux-i2c@vger.kernel.org>; Tue, 08 Aug 2023 08:52:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1691509953; x=1692114753;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=sQgrfQw0P6pTmKNcUIhzKP/rgp8qN+H1U22DXchyEX8=;
+        b=odSCSjyoTpdaoDQR/7pXVJJVbKr3ENq78zanwE21XrwroDSHEziQ9Oqur698hiyIyu
+         VhU9trg4Z1nR6/0t1sEBZonD38Ut9bkJB9oXAglOyj1+/W6DPou8AeEZmRk8HngZM2gR
+         Ph8bwwP8VkabHYhj/SLtH0wtiBgQpH7MlJb69QaX5mkrZNCsFhM2rPn5cRgWK088kvV/
+         df3hTbrHUziwlxrKhnHneHEQsGiaGimnZA3/I+jY+J0Zu+boxssAZDgjX8SvDZNioRvn
+         H2LQxpTu1LuLnG7EXVCsSyDYMhcpvH4Pz8xS0n0Olrck332VjrGgWkmIn79S3r7syEsl
+         azFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1691509953; x=1692114753;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=sQgrfQw0P6pTmKNcUIhzKP/rgp8qN+H1U22DXchyEX8=;
+        b=DsipE51N5f0vHgLmwaC+HF2MaU11IGX6/x9y9j0PLgss4g1zGGLcPnSyX5NzWK6ZRR
+         HRZCJBoFHVxRvdfs+XvawNBmlnJRtk9Rfte8NzqWtS+0pm1tZAT4flpM9AUIsEPEiAj9
+         o6SypU8+h/ZssQ0o5XKcIW7gHnu3AKqPDT1Jbc4crYzDr0psp9TPj5ysvGt5TXdbOxTd
+         /O0/aElVVyTMBPQWJFj+woxHf3Aj7oqppN2wWP8NiJIygOq+mrHaSQVVQpg34tgXMw+0
+         5Dkg3d/NtSo24QDHOL4Ebr3EGU7nzG03+xUrNWNMJ2COcF2YyN2NXuMGj9LbZaQJjrDw
+         7RCg==
+X-Gm-Message-State: AOJu0YyGHUDRJavPAW5hqUWg5Noklby+/OMheQV0YJ9yg1fcTta07jy7
+        JfmzGDo4mgOGlOGzbfQ5oi9hoUZxYF8uKtf1cL8=
+X-Google-Smtp-Source: AGHT+IHOV1+SwptyB2y6PObKLYIfXb0SnPIa+qNzfFQDPldY+tNhzDRnIS3lyd9q6xt4sZxlqEOpfw==
+X-Received: by 2002:a17:906:84:b0:99c:980:d551 with SMTP id 4-20020a170906008400b0099c0980d551mr10554435ejc.50.1691483778414;
+        Tue, 08 Aug 2023 01:36:18 -0700 (PDT)
+Received: from [192.168.1.20] ([178.197.222.113])
+        by smtp.gmail.com with ESMTPSA id k2-20020a1709063fc200b00993470682e5sm6344518ejj.32.2023.08.08.01.36.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Aug 2023 01:36:17 -0700 (PDT)
+Message-ID: <ada9eaab-3ba7-3a14-5e33-5344d0511a60@linaro.org>
+Date:   Tue, 8 Aug 2023 10:36:15 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <eb8ceb2b-3a23-8cef-91b5-ef416fbc3594@connecttech.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH v3 4/9] i2c: hisi: Use dev_err_probe in probe function
+Content-Language: en-US
+To:     Liao Chang <liaochang1@huawei.com>, andi.shyti@kernel.org,
+        florian.fainelli@broadcom.com, rjui@broadcom.com,
+        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+        yangyicong@hisilicon.com, aisheng.dong@nxp.com,
+        shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
+        festevam@gmail.com, linux-imx@nxp.com, kblaiech@nvidia.com,
+        asmaa@nvidia.com, loic.poulain@linaro.org, rfoss@kernel.org,
+        ardb@kernel.org, gcherian@marvell.com
+Cc:     linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+References: <20230808012954.1643834-1-liaochang1@huawei.com>
+ <20230808012954.1643834-5-liaochang1@huawei.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230808012954.1643834-5-liaochang1@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Parker,
-
-On Tue, Aug 08, 2023 at 12:42:28PM +0000, Parker Newman wrote:
-> On 2023-08-06 10:21, Akhil R wrote:
-> >>
-> >> BTW...
-> >>
-> >> On Thu, Aug 03, 2023 at 05:10:02PM +0000, Parker Newman wrote:
-> >>>
-> >>
-> >> you have a blank line here.
-> >>
-> >>> This patch fixes the Tegra DMA config option processing in the
-> >>> i2c-tegra driver.
-> >>>
-> >>> Tegra processors prior to Tegra186 used APB DMA for I2C requiring
-> >>> CONFIG_TEGRA20_APB_DMA=y while Tegra186 and later use GPC DMA
-> >>> requiring CONFIG_TEGRA186_GPC_DMA=y.
-> >>>
-> >>> The check for if the processor uses APB DMA is inverted and so the
-> >>> wrong DMA config options are checked.
-> >>>
-> >>> This means if CONFIG_TEGRA20_APB_DMA=y but
-> >> CONFIG_TEGRA186_GPC_DMA=n
-> >>> with a Tegra186 or later processor the driver will incorrectly think
-> >>> DMA is enabled and attempt to request DMA channels that will never be
-> >>> availible, leaving the driver in a perpetual EPROBE_DEFER state.
-> >>>
-> >>> Signed-off-by: Parker Newman <pnewman@connecttech.com>
-> >>
-> >> As this is a fix you also need to add
-> >>
-> >> Fixes: 48cb6356fae1 ("i2c: tegra: Add GPCDMA support")
-> >> Cc: Akhil R <akhilrajeev@nvidia.com>
-> >> Cc: <stable@vger.kernel.org> # v6.1+
-> >>
-> >> Cc'eing Akhil as well for his opinion on this.
-> > The fix looks valid to me. Must have been a typo there.
-> > 
-> > Regards,
-> > Akhil
-> > 
-> Yes it appears to be a simple typo and if you have both DMA Config options 
-> set the bug would get missed. 
+On 08/08/2023 03:29, Liao Chang wrote:
+> Use the dev_err_probe function instead of dev_err in the probe function
+> so that the printed messge includes the return value and also handles
+> -EPROBE_DEFER nicely.
 > 
-> I am new to the Linux mailing list, should I send a new message to 
-> stable@vger.kernel.org or CC them on this one?
+> Reviewed-by: Yicong Yang <yangyicong@hisilicon.com>
+> Signed-off-by: Liao Chang <liaochang1@huawei.com>
+> ---
+>  drivers/i2c/busses/i2c-hisi.c | 12 ++++--------
+>  1 file changed, 4 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
+> index e067671b3ce2..6fc8d6fa43b6 100644
+> --- a/drivers/i2c/busses/i2c-hisi.c
+> +++ b/drivers/i2c/busses/i2c-hisi.c
+> @@ -462,18 +462,14 @@ static int hisi_i2c_probe(struct platform_device *pdev)
+>  	hisi_i2c_disable_int(ctlr, HISI_I2C_INT_ALL);
+>  
+>  	ret = devm_request_irq(dev, ctlr->irq, hisi_i2c_irq, 0, "hisi-i2c", ctlr);
+> -	if (ret) {
+> -		dev_err(dev, "failed to request irq handler, ret = %d\n", ret);
+> -		return ret;
+> -	}
+> +	if (ret)
+> +		return dev_err_probe(dev, ret, "failed to request irq handler\n");
 
-First of all... welcome to the Linux mailing list :)
+I don't think this is needed:
+https://lore.kernel.org/all/20230721094641.77189-1-frank.li@vivo.com/
 
-No need to resend, I can add it... I was hoping for an official
-ack, but as that's not coming, I will ack it
+Best regards,
+Krzysztof
 
-Acked-by: Andi Shyti <andi.shyti@kernel.org> 
-
-Thank you Parker and wishing to see more patches from you ;)
-
-Andi
