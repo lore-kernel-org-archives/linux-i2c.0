@@ -2,109 +2,70 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5147C001DB
-	for <linux-i2c@archiver.kernel.org>; Thu, 10 Aug 2023 08:11:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2FC5C001B0
+	for <linux-i2c@archiver.kernel.org>; Thu, 10 Aug 2023 08:56:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230153AbjHJILB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 10 Aug 2023 04:11:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56652 "EHLO
+        id S234367AbjHJI4o (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 10 Aug 2023 04:56:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231837AbjHJILA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Aug 2023 04:11:00 -0400
+        with ESMTP id S234222AbjHJI4m (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Aug 2023 04:56:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5E192136;
-        Thu, 10 Aug 2023 01:10:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B8B2123;
+        Thu, 10 Aug 2023 01:56:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D3B465236;
-        Thu, 10 Aug 2023 08:10:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D9DC433C7;
-        Thu, 10 Aug 2023 08:10:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0501860B7D;
+        Thu, 10 Aug 2023 08:56:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD84BC433C8;
+        Thu, 10 Aug 2023 08:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691655043;
-        bh=pPtrMnD+a1HV9tVnWccuGoqbvbAmQI0mFVpSTDqunzk=;
+        s=k20201202; t=1691657795;
+        bh=JnhEH4wMc8AeDCC0VFoQzQrj+iXNdjqhUQZWI00aVz4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PiJbYP3AfcmvS4dhCAbBYRrSXKLMBY1z9owaOJIubJq7IqLfgJHX0AUitRGtbNmQb
-         nsaudgbmLifGG9ihxAfEP2P5HXlXxCzELDp4l7RS2hV4gcIcZqQ2Vgvlmq7EG+MkcD
-         +VKtJXMK9kFrQAeMUuP3s6zqIhpKIzk+TBDhF5jAjrfplR3mztX+cGThE902/i/nB4
-         hot3F370IagNSd975t+FVIA71gjEw2m38j56HhBiBpglmC7eSvC8t10U8nhsyP1VjD
-         /od5y8Lrcljrc1VQuZtaqzQZ806yIlGN2xuKi0Ht6VU+PLV08DFJEA0BD5RbMYg/fe
-         f9JGFVMex46EA==
-Date:   Thu, 10 Aug 2023 10:10:40 +0200
+        b=Rr8FrM0ZIPljqAf/YtTP0nPqKVf0SAWcJYosFK7Q2LQ+ppagF7NZsocOKvKfWW8Iv
+         tOcB+r+K6DXD4L5lCrPuff4QCziSJERHeTikodP0HTpOD/bXibzsloh9hziKLqC7c3
+         r6so+GeqiVHXchJPSJ5b2diWokVjVvkYHEbSSQUrfFe4WgAHFuJcDA8gM2FSKercB5
+         6Yx7rg5ZQmO2uPu73ODAdx1gchqSnOzzoxs17BUMrfEqcUOV+NKYP1cLbIV4qtQr48
+         SkZ7r50kj9j3QHeeuRJEHBgoFHEHqE2Y5lz4RT294C8Y8Z9vYMsA47Ne6KJqBVh8sz
+         vRP4RsDiE8sKQ==
+Date:   Thu, 10 Aug 2023 10:56:32 +0200
 From:   Andi Shyti <andi.shyti@kernel.org>
-To:     "Liao, Chang" <liaochang1@huawei.com>
-Cc:     florian.fainelli@broadcom.com, rjui@broadcom.com,
-        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
-        yangyicong@hisilicon.com, aisheng.dong@nxp.com,
-        shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
-        festevam@gmail.com, linux-imx@nxp.com, kblaiech@nvidia.com,
-        asmaa@nvidia.com, loic.poulain@linaro.org, rfoss@kernel.org,
-        ardb@kernel.org, gcherian@marvell.com, linux-i2c@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
+To:     Justin Stitt <justinstitt@google.com>
+Cc:     Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
+        Broadcom internal kernel review list 
+        <bcm-kernel-feedback-list@broadcom.com>, linux-i2c@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: Re: [PATCH v3 9/9] i2c: synquacer: Use dev_err_probe in probe
- function
-Message-ID: <20230810081040.xrhaa2beru52hxlu@intel.intel>
-References: <20230808012954.1643834-1-liaochang1@huawei.com>
- <20230808012954.1643834-10-liaochang1@huawei.com>
- <20230809192117.h7rn6vwmvxdnkr2a@intel.intel>
- <46a39960-ad79-ca65-6b2b-ccaf982965f5@huawei.com>
+        llvm@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>
+Subject: Re: [PATCH 1/2] i2c: i2c-bcm-iproc: fix -Wvoid-pointer-to-enum-cast
+ warning
+Message-ID: <20230810085632.xzonkmse27mu4yew@intel.intel>
+References: <20230809-cbl-1903-v1-0-df9d66a3ba3e@google.com>
+ <20230809-cbl-1903-v1-1-df9d66a3ba3e@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <46a39960-ad79-ca65-6b2b-ccaf982965f5@huawei.com>
+In-Reply-To: <20230809-cbl-1903-v1-1-df9d66a3ba3e@google.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Liao,
+Hi Justin,
 
-On Thu, Aug 10, 2023 at 10:33:58AM +0800, Liao, Chang wrote:
-> Hi Andi and Krzysztof,
-> 
-> 在 2023/8/10 3:21, Andi Shyti 写道:
-> > Hi Liao,
-> > 
-> > On Tue, Aug 08, 2023 at 09:29:54AM +0800, Liao Chang wrote:
-> >> Use the dev_err_probe function instead of dev_err in the probe function
-> >> so that the printed messge includes the return value and also handles
-> >> -EPROBE_DEFER nicely.
-> >>
-> >> Signed-off-by: Liao Chang <liaochang1@huawei.com>
-> > 
-> > After some discussions and time, I think it's right to r-b this
-> > patch. If you agree more with Krzysztof, feel free to follow his
-> > recommendation and send another version otherwise I will go ahead
-> > and take this series in my branch. I do not really mind, both
-> > arguments are valid.
-> 
-> I saw that Frank Li developed some new APIs that look like they would be very
-> helpful for aligning the error messages of devm_request_irq in device probes.
-> However, the patches have been pending for weeks and the author hasn't sent a
-> new version. So I'm not planning to switch to the new APIs in this patch series,
-> if there are no objections.
-> 
-> Do I need to resend a new revision to add your R-B at this patch?
+> @@ -1036,7 +1036,7 @@ static int bcm_iproc_i2c_probe(struct platform_device *pdev)
+>  	platform_set_drvdata(pdev, iproc_i2c);
+>  	iproc_i2c->device = &pdev->dev;
+>  	iproc_i2c->type =
+> -		(enum bcm_iproc_i2c_type)of_device_get_match_data(&pdev->dev);
+> +		(unsigned long) of_device_get_match_data(&pdev->dev);
 
-no, no need. I'm also going to fix a typo in the commit message
-(messge/message) that Markus has pointed out.
+I think this should be uintptr_t, as defined in types.h:
 
-Thanks for this series of cleanups,
+    typedef unsigned long uintptr_t;
+
+(I'm a bit puzzled to see a void *data cast to a 0/1 value.)
+
 Andi
-
-> Thanks.
-> 
-> > 
-> > Reviewed-by: Andi Shyti <andi.shyti@kernel.org> 
-> > 
-> > Thanks,
-> > Andi
-> 
-> -- 
-> BR
-> Liao, Chang
