@@ -2,109 +2,94 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D83D0C04A94
-	for <linux-i2c@archiver.kernel.org>; Wed,  9 Aug 2023 21:25:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A4B1EB64DD
+	for <linux-i2c@archiver.kernel.org>; Thu, 10 Aug 2023 02:34:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230522AbjHIVZu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 9 Aug 2023 17:25:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55078 "EHLO
+        id S229730AbjHJCeF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 9 Aug 2023 22:34:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230301AbjHIVZs (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Aug 2023 17:25:48 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA8EE1724
-        for <linux-i2c@vger.kernel.org>; Wed,  9 Aug 2023 14:25:45 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-5865afcb825so4514247b3.0
-        for <linux-i2c@vger.kernel.org>; Wed, 09 Aug 2023 14:25:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1691616345; x=1692221145;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=xDx0Hy/g05LsgjXJunLNKRIVZ1PiGzjJ3aP3yYS1SPs=;
-        b=q95v/fDBA425ZRj8HB8knec/n4Wh3vXc8UbBeQ9+7ttjuOkZDgYRPpnfEmLqXf/K0c
-         9vUIwMzhWqcCXcQ3ORw3unREK+rNDPA94GFJB3geeKvjgleAH2TJzWdB4aiD1AgfKkI9
-         Z/bn4LDdalSqacEfSDlGVSB+SrKHJq+8AHxcNmoUPLE2evR/gffiSsW98OvDz7w+3DyV
-         T8HJ4BVxsFz1/VC2CZS3v9TY2Ew85MTPbGOCkMlUSQk0LvyVWCWPQ6Q0CKtwX4rYn4Mz
-         Bzrx5iddUJRYh3HidSo+HrZFmOUe4x5eekX/x5QVelGZKMWymoP1yjh830Hf898C+unA
-         TkHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691616345; x=1692221145;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xDx0Hy/g05LsgjXJunLNKRIVZ1PiGzjJ3aP3yYS1SPs=;
-        b=T+PbZ2w7b9cOIM/b9mpPjPPbCo+gfDPu+skLjs0zUTTdF7lhuq8biecPVjQqtwQavq
-         q5t3FkrfRQnLavMMSr1+R+e7W0Jrt7Bbz9hnVNkcvalIuRWgh4FmLiDVC/OpjtoqMk+b
-         ZTIe0fi4BSDE8pT6rypvP9Lc3ZXo+y6ffZ93RrI3Ouj66JtEygqiBHMV+JoB9EV7sbov
-         bKYdo9aIaI7jRJlaiy6RZGtfEMHRwvgogdxL+BVqfK6/gs6cZwduc3rZicBfAs3VI24p
-         p8ivANLTbya2f/IVwFNNY43R/J3CUgVpsmU94JLO0aD6rz5Ta6pBMsJe1ZAlze4YFzVV
-         B5NA==
-X-Gm-Message-State: AOJu0Yx2DCP2wMIkTA1J/8miVcQ+t4vv1Ky20wLGpsH3JctcwK5dKHQi
-        RcNGNLsykRqWuc80u0doq+NBTEhBFHRmDp3UxQ==
-X-Google-Smtp-Source: AGHT+IEsmlDYpjMBJObJR5jz4UIcD43JE1pStIMxSDRZxpyCeyJHub91Vaates1u0eDPesF/KIhjvHlbNAFHmDDJvQ==
-X-Received: from jstitt-linux1.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:23b5])
- (user=justinstitt job=sendgmr) by 2002:a81:b718:0:b0:576:f61f:adbc with SMTP
- id v24-20020a81b718000000b00576f61fadbcmr8718ywh.1.1691616345223; Wed, 09 Aug
- 2023 14:25:45 -0700 (PDT)
-Date:   Wed, 09 Aug 2023 21:25:35 +0000
-In-Reply-To: <20230809-cbl-1903-v1-0-df9d66a3ba3e@google.com>
-Mime-Version: 1.0
-References: <20230809-cbl-1903-v1-0-df9d66a3ba3e@google.com>
-X-Developer-Key: i=justinstitt@google.com; a=ed25519; pk=tC3hNkJQTpNX/gLKxTNQKDmiQl6QjBNCGKJINqAdJsE=
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1691616343; l=1671;
- i=justinstitt@google.com; s=20230717; h=from:subject:message-id;
- bh=1jpubBEYs5G/kONM8KXG1tjVjaf45XD96u1TgLGh88c=; b=HD13U7Lf7gLBUJgdxnwIDWUS5iUmJBBrEtQkf3kdA3nIJwjjfZ/thVFMV1IjFQZf6I2y84s5B
- 9rseL9CjIuVBaaF60aQ2gvWP/yFSYM2Erz2oCmo8XTvy/PYDz3u5bej
-X-Mailer: b4 0.12.3
-Message-ID: <20230809-cbl-1903-v1-1-df9d66a3ba3e@google.com>
-Subject: [PATCH 1/2] i2c: i2c-bcm-iproc: fix -Wvoid-pointer-to-enum-cast warning
-From:   Justin Stitt <justinstitt@google.com>
-To:     Andi Shyti <andi.shyti@kernel.org>, Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        Broadcom internal kernel review list 
-        <bcm-kernel-feedback-list@broadcom.com>
-Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-        Nathan Chancellor <nathan@kernel.org>,
-        Justin Stitt <justinstitt@google.com>
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229514AbjHJCeE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Aug 2023 22:34:04 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 072E41BF7;
+        Wed,  9 Aug 2023 19:34:04 -0700 (PDT)
+Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4RLrWx3vfBzkXxQ;
+        Thu, 10 Aug 2023 10:31:09 +0800 (CST)
+Received: from [10.67.110.108] (10.67.110.108) by
+ kwepemi500012.china.huawei.com (7.221.188.12) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Thu, 10 Aug 2023 10:33:59 +0800
+Message-ID: <46a39960-ad79-ca65-6b2b-ccaf982965f5@huawei.com>
+Date:   Thu, 10 Aug 2023 10:33:58 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.2
+Subject: Re: [PATCH v3 9/9] i2c: synquacer: Use dev_err_probe in probe
+ function
+To:     Andi Shyti <andi.shyti@kernel.org>
+CC:     <florian.fainelli@broadcom.com>, <rjui@broadcom.com>,
+        <sbranden@broadcom.com>, <bcm-kernel-feedback-list@broadcom.com>,
+        <yangyicong@hisilicon.com>, <aisheng.dong@nxp.com>,
+        <shawnguo@kernel.org>, <s.hauer@pengutronix.de>,
+        <kernel@pengutronix.de>, <festevam@gmail.com>, <linux-imx@nxp.com>,
+        <kblaiech@nvidia.com>, <asmaa@nvidia.com>,
+        <loic.poulain@linaro.org>, <rfoss@kernel.org>, <ardb@kernel.org>,
+        <gcherian@marvell.com>, <linux-i2c@vger.kernel.org>,
+        <linux-rpi-kernel@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+References: <20230808012954.1643834-1-liaochang1@huawei.com>
+ <20230808012954.1643834-10-liaochang1@huawei.com>
+ <20230809192117.h7rn6vwmvxdnkr2a@intel.intel>
+From:   "Liao, Chang" <liaochang1@huawei.com>
+In-Reply-To: <20230809192117.h7rn6vwmvxdnkr2a@intel.intel>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.67.110.108]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ kwepemi500012.china.huawei.com (7.221.188.12)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-When building with W=1 we see the following warning:
+Hi Andi and Krzysztof,
 
-|  drivers/i2c/busses/i2c-bcm-iproc.c:1039:3: error: cast to smaller \
-|       integer type 'enum bcm_iproc_i2c_type' from 'const void *' [-Werror,-Wvoid-pointer-to-enum-cast]
-|   1039 |                 (enum bcm_iproc_i2c_type)of_device_get_match_data(&pdev->dev);
-|        |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+在 2023/8/10 3:21, Andi Shyti 写道:
+> Hi Liao,
+> 
+> On Tue, Aug 08, 2023 at 09:29:54AM +0800, Liao Chang wrote:
+>> Use the dev_err_probe function instead of dev_err in the probe function
+>> so that the printed messge includes the return value and also handles
+>> -EPROBE_DEFER nicely.
+>>
+>> Signed-off-by: Liao Chang <liaochang1@huawei.com>
+> 
+> After some discussions and time, I think it's right to r-b this
+> patch. If you agree more with Krzysztof, feel free to follow his
+> recommendation and send another version otherwise I will go ahead
+> and take this series in my branch. I do not really mind, both
+> arguments are valid.
 
-This is due to the fact that the `bcm_iproc_i2c_type` enum members are
-int-width and a cast from pointer-width down to int will cause
-truncation and possible data loss. Although in this case `bcm_iproc_i2c_type`
-has only a few enumerated fields and thus there is likely no data loss
-occurring. Nonetheless, this patch is necessary to the goal of promoting
-this warning out of W=1.
+I saw that Frank Li developed some new APIs that look like they would be very
+helpful for aligning the error messages of devm_request_irq in device probes.
+However, the patches have been pending for weeks and the author hasn't sent a
+new version. So I'm not planning to switch to the new APIs in this patch series,
+if there are no objections.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1903
-Signed-off-by: Justin Stitt <justinstitt@google.com>
----
- drivers/i2c/busses/i2c-bcm-iproc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Do I need to resend a new revision to add your R-B at this patch?
 
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index 2d8342fdc25d..3464f3a376a5 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -1036,7 +1036,7 @@ static int bcm_iproc_i2c_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, iproc_i2c);
- 	iproc_i2c->device = &pdev->dev;
- 	iproc_i2c->type =
--		(enum bcm_iproc_i2c_type)of_device_get_match_data(&pdev->dev);
-+		(unsigned long) of_device_get_match_data(&pdev->dev);
- 	init_completion(&iproc_i2c->done);
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+Thanks.
+
+> 
+> Reviewed-by: Andi Shyti <andi.shyti@kernel.org> 
+> 
+> Thanks,
+> Andi
 
 -- 
-2.41.0.640.ga95def55d0-goog
-
+BR
+Liao, Chang
