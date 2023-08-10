@@ -2,84 +2,115 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B5DFC001E0
-	for <linux-i2c@archiver.kernel.org>; Thu, 10 Aug 2023 14:45:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5358C04E69
+	for <linux-i2c@archiver.kernel.org>; Thu, 10 Aug 2023 15:06:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235920AbjHJOpA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 10 Aug 2023 10:45:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37242 "EHLO
+        id S235509AbjHJPGi (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 10 Aug 2023 11:06:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235926AbjHJOo5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Aug 2023 10:44:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD3E92703;
-        Thu, 10 Aug 2023 07:44:55 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45B8665EB1;
-        Thu, 10 Aug 2023 14:44:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B7D5C433C9;
-        Thu, 10 Aug 2023 14:44:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691678694;
-        bh=U7AHW5DtWbmAG9Eg70mB7kcvRN4oEw4Uh2afJWCAUTI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VyaKpQ2+7cui0XWCAAhqdAd+VGbWec7bzimuAwAjPgzEFN63rEAeDsZZdIWCS8pJo
-         pBDMGxn7/3SG9+wcDy3QkA77PM5h4+w+nhNNV/DdvUebflEYS0/G+zPZmoVrMDW7ID
-         b0oEIcFtoHFOVY4ileOspjUBbzcxg0iMxQlGtv1CQV1FH8rs9Ph3vOpPR8n9ph22Pa
-         EG1ybYbPodLdCB9lKN+8vsxuslM5fAaPiCIJ47zgIU2T8sZZt5KQEQdrnT5uj1fTmZ
-         o/8PoBnNCHWAT1nBClRKzpSy7HRaKEzjTGZJnf2EGH9DfTSP0e78b/F1+/V7Al6Bpn
-         G5Y9257lvrD1w==
-Date:   Thu, 10 Aug 2023 07:44:52 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Andi Shyti <andi.shyti@kernel.org>
-Cc:     Justin Stitt <justinstitt@google.com>, Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        Broadcom internal kernel review list 
-        <bcm-kernel-feedback-list@broadcom.com>, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        llvm@lists.linux.dev
-Subject: Re: [PATCH 1/2] i2c: i2c-bcm-iproc: fix -Wvoid-pointer-to-enum-cast
- warning
-Message-ID: <20230810144452.GD1549244@dev-arch.thelio-3990X>
-References: <20230809-cbl-1903-v1-0-df9d66a3ba3e@google.com>
- <20230809-cbl-1903-v1-1-df9d66a3ba3e@google.com>
- <20230810085632.xzonkmse27mu4yew@intel.intel>
+        with ESMTP id S235999AbjHJPGh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Aug 2023 11:06:37 -0400
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D3226B5;
+        Thu, 10 Aug 2023 08:06:37 -0700 (PDT)
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37AERwXr018666;
+        Thu, 10 Aug 2023 15:06:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=date : from : to :
+ cc : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=qcppdkim1; bh=pz8PxBjSia+Poo9t9vfSuZHBGhA0g6sDShQiTqpbWqE=;
+ b=mZ+08+XgwoNO88z0xtxTYHgoz87zeKzAUO+5gANxDgXemGe1AeWMLCoCQjYmtvAbj/81
+ jpo/w7QRQv1zRpW8Q9wMsfZ+mm+oedqHjpQxYI0kRKrNyaHqoTOwkycSSu6ElObrmFI/
+ d6rP6IQIpAXXheoBZn61G3P6YCaq4NHNJikuBKP12/L/6FIawOkEeI64+YxhqAbHUnDE
+ elF6XkPkDLKTOVkLLAKP7mWkuJzL9nDz8pugevLFAzGW+x65axDSobhqJUsa/0SEoboX
+ 6bE60vwywTwosucRe55YQ9EO4+foYsVjaVlGLBIhAdmSVq1ekKVAq99/jbY3QHvNyn/B mA== 
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3scw2uru6d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Aug 2023 15:06:08 +0000
+Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
+        by NALASPPMTA02.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 37AF677u018009
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Aug 2023 15:06:07 GMT
+Received: from hu-bjorande-lv.qualcomm.com (10.49.16.6) by
+ nalasex01c.na.qualcomm.com (10.47.97.35) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.30; Thu, 10 Aug 2023 08:06:06 -0700
+Date:   Thu, 10 Aug 2023 08:06:05 -0700
+From:   Bjorn Andersson <quic_bjorande@quicinc.com>
+To:     Liao Chang <liaochang1@huawei.com>
+CC:     <andi.shyti@kernel.org>, <florian.fainelli@broadcom.com>,
+        <rjui@broadcom.com>, <sbranden@broadcom.com>,
+        <bcm-kernel-feedback-list@broadcom.com>,
+        <yangyicong@hisilicon.com>, <aisheng.dong@nxp.com>,
+        <shawnguo@kernel.org>, <s.hauer@pengutronix.de>,
+        <kernel@pengutronix.de>, <festevam@gmail.com>, <linux-imx@nxp.com>,
+        <kblaiech@nvidia.com>, <asmaa@nvidia.com>,
+        <loic.poulain@linaro.org>, <rfoss@kernel.org>, <ardb@kernel.org>,
+        <gcherian@marvell.com>, <linux-i2c@vger.kernel.org>,
+        <linux-rpi-kernel@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>
+Subject: Re: [PATCH v3 5/9] i2c: qcom-cci: Use dev_err_probe in probe function
+Message-ID: <20230810150605.GM1428172@hu-bjorande-lv.qualcomm.com>
+References: <20230808012954.1643834-1-liaochang1@huawei.com>
+ <20230808012954.1643834-6-liaochang1@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20230810085632.xzonkmse27mu4yew@intel.intel>
+In-Reply-To: <20230808012954.1643834-6-liaochang1@huawei.com>
+X-Originating-IP: [10.49.16.6]
+X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
+ nalasex01c.na.qualcomm.com (10.47.97.35)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: mAGN44fivB_znceJmiEne6nF9FdIzhdY
+X-Proofpoint-ORIG-GUID: mAGN44fivB_znceJmiEne6nF9FdIzhdY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-10_12,2023-08-10_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ suspectscore=0 mlxlogscore=999 priorityscore=1501 adultscore=0 bulkscore=0
+ phishscore=0 clxscore=1011 impostorscore=0 lowpriorityscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2308100128
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Andi,
-
-On Thu, Aug 10, 2023 at 10:56:32AM +0200, Andi Shyti wrote:
-> Hi Justin,
+On Tue, Aug 08, 2023 at 09:29:50AM +0800, Liao Chang wrote:
+> Use the dev_err_probe function instead of dev_err in the probe function
+> so that the printed messge includes the return value and also handles
+> -EPROBE_DEFER nicely.
 > 
-> > @@ -1036,7 +1036,7 @@ static int bcm_iproc_i2c_probe(struct platform_device *pdev)
-> >  	platform_set_drvdata(pdev, iproc_i2c);
-> >  	iproc_i2c->device = &pdev->dev;
-> >  	iproc_i2c->type =
-> > -		(enum bcm_iproc_i2c_type)of_device_get_match_data(&pdev->dev);
-> > +		(unsigned long) of_device_get_match_data(&pdev->dev);
+> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+> Signed-off-by: Liao Chang <liaochang1@huawei.com>
+> ---
+>  drivers/i2c/busses/i2c-qcom-cci.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 > 
-> I think this should be uintptr_t, as defined in types.h:
-> 
->     typedef unsigned long uintptr_t;
+> diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
+> index 622dc14add9d..cf13abec05f1 100644
+> --- a/drivers/i2c/busses/i2c-qcom-cci.c
+> +++ b/drivers/i2c/busses/i2c-qcom-cci.c
+> @@ -588,10 +588,8 @@ static int cci_probe(struct platform_device *pdev)
+>  	/* Clocks */
+>  
+>  	ret = devm_clk_bulk_get_all(dev, &cci->clocks);
+> -	if (ret < 1) {
+> -		dev_err(dev, "failed to get clocks %d\n", ret);
+> -		return ret;
+> -	}
+> +	if (ret < 1)
+> +		return dev_err_probe(dev, ret, "failed to get clocks\n");
 
-Yes, that is a valid comment, although I will say that I have seen some
-developers/maintainers prefer 'unsigned long' over 'uintptr_t', so it is
-really a crapshoot which one to pick :)
+devm_clk_bulk_get_all() will already have printed a more useful/specific
+error message. Unfortunately will not be carried as the deferred probe
+reason, but this error will just indicate that some clock controller
+wasn't ready...
 
-> (I'm a bit puzzled to see a void *data cast to a 0/1 value.)
+TL;DR I think we should just drop the error print from here instead.
 
-It is an odd pattern but as far as I understand it, the kernel uses it a
-lot to pass platform specific data around (just grepping for
-'.data = (void *)' shows a lot of instances.
-
-Cheers,
-Nathan
+Regards,
+Bjorn
