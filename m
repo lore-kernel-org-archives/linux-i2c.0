@@ -2,123 +2,258 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 716CDC3DA40
-	for <linux-i2c@archiver.kernel.org>; Thu, 10 Aug 2023 15:10:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1D9CC04FDF
+	for <linux-i2c@archiver.kernel.org>; Sat, 12 Aug 2023 14:09:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234398AbjHJPKT (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 10 Aug 2023 11:10:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36292 "EHLO
+        id S236923AbjHLOJW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 12 Aug 2023 10:09:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232967AbjHJPKS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Aug 2023 11:10:18 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DCB826B7;
-        Thu, 10 Aug 2023 08:10:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1691680218; x=1723216218;
-  h=resent-from:resent-date:resent-message-id:resent-to:date:
-   from:to:subject:message-id:references:mime-version:
-   in-reply-to;
-  bh=E3ZMke54mtosCQbG55UwhQh1q58r9W+COrYMi8FksLs=;
-  b=UUi6OmvgurLe6GQUvazqKkcz+DoptSvufz9wAAtoIzlhhdOoULsbq8uz
-   WRkSKSFUzQUXcfnmoCf8rJcElgNicr6fFQkWgYwGzTu0HtNqadmz90o5i
-   VnSWDqwZHgak8bPAqAPXsYIO5o/GeZNo2uvr/MAXk33N0lznUmN1PrTy3
-   6vZj5zX1zoKeFsGxu+5+xmM7enEzYYuhgOSk0ksFjiEb29bbNnRVq314z
-   GGhgn1UNNz9tJFoFONToXifF7rbQjkH6pznpQQs9Grn/Fh8yMFuUrrApI
-   ZOJWO+reoowe8CZ6GvGfQ10F2WmgCIMq3HXgkuaSoAuwWTXcDjJsvuLCV
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10798"; a="351033520"
-X-IronPort-AV: E=Sophos;i="6.01,162,1684825200"; 
-   d="scan'208";a="351033520"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2023 08:09:16 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10798"; a="855968836"
-X-IronPort-AV: E=Sophos;i="6.01,162,1684825200"; 
-   d="scan'208";a="855968836"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga004.jf.intel.com with ESMTP; 10 Aug 2023 08:09:12 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@intel.com>)
-        id 1qU7Hi-006DXR-1o;
-        Thu, 10 Aug 2023 18:09:10 +0300
-Date:   Thu, 10 Aug 2023 18:04:58 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v7 0/4] Extend device_get_match_data() to struct bus_type
-Message-ID: <ZNT8mrh6seDQL3kz@smile.fi.intel.com>
-References: <20230804161728.394920-1-biju.das.jz@bp.renesas.com>
- <20230805174036.129ffbc2@jic23-huawei>
- <OS0PR01MB59220491C7C8AA40BEFAAD82860EA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
- <20230806142950.6c409600@jic23-huawei>
- <ZNEFjyAloqlkMWn7@smile.fi.intel.com>
- <ZNFV+C1HCIRJpbdC@google.com>
- <ZNIyrG/2h/PeS9Oz@smile.fi.intel.com>
- <20230809182551.7eca502e@jic23-huawei>
+        with ESMTP id S233514AbjHLOJU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 12 Aug 2023 10:09:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8FA81FEE;
+        Sat, 12 Aug 2023 07:09:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 248D362493;
+        Sat, 12 Aug 2023 14:09:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEB08C433C8;
+        Sat, 12 Aug 2023 14:09:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1691849362;
+        bh=z+m4uxf5uQXSYdBR7XRst5uEUqfj5OU0THhKy2Pgzw0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=NRcuuSwRkCingBsl/vsEZbgeFFYLrf1y+jccW0/5Yc5HDj+1VoVAME8JmLoRwatmv
+         cq9vWxL4zAE9ZVUJLta84Dvv5Inw/EfKSi/yAs63VyBxmpmvFYbATcUsu77nljsk2A
+         aA3VJilGgMOpA/ket7dhpg569WOR9pO165Aa92NCsdjCCxPdIgZY5ieRy7nbUuFLnh
+         5IcBP4Gl/p7TKLadf1jSNE+GDBp+0bp0kFtLguMP/b1EWW/an8byu12FnBRohiFL9c
+         uRJrWRUhrLp3tNfyj4R8So0k0XxPic0tJx3E0PAmnu0wkeyaegTrtitZo78/ruaSpI
+         fW6TnxXPQeEnQ==
+Date:   Sat, 12 Aug 2023 16:09:12 +0200
+From:   Simon Horman <horms@kernel.org>
+To:     Gatien Chevallier <gatien.chevallier@foss.st.com>
+Cc:     Oleksii_Moisieiev@epam.com, gregkh@linuxfoundation.org,
+        herbert@gondor.apana.org.au, davem@davemloft.net,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        conor+dt@kernel.org, alexandre.torgue@foss.st.com,
+        vkoul@kernel.org, jic23@kernel.org, olivier.moysan@foss.st.com,
+        arnaud.pouliquen@foss.st.com, mchehab@kernel.org,
+        fabrice.gasnier@foss.st.com, andi.shyti@kernel.org,
+        ulf.hansson@linaro.org, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, hugues.fruchet@foss.st.com, lee@kernel.org,
+        will@kernel.org, catalin.marinas@arm.com, arnd@kernel.org,
+        richardcochran@gmail.com, Frank Rowand <frowand.list@gmail.com>,
+        peng.fan@oss.nxp.com, linux-crypto@vger.kernel.org,
+        devicetree@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-iio@vger.kernel.org, alsa-devel@alsa-project.org,
+        linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
+        netdev@vger.kernel.org, linux-phy@lists.infradead.org,
+        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: Re: [PATCH v4 05/11] firewall: introduce stm32_firewall framework
+Message-ID: <ZNeSiFQGdOXbR+2S@vergenet.net>
+References: <20230811100731.108145-1-gatien.chevallier@foss.st.com>
+ <20230811100731.108145-6-gatien.chevallier@foss.st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230809182551.7eca502e@jic23-huawei>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <20230811100731.108145-6-gatien.chevallier@foss.st.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Aug 09, 2023 at 06:25:51PM +0100, Jonathan Cameron wrote:
-> On Tue, 8 Aug 2023 15:18:52 +0300
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
-> > On Mon, Aug 07, 2023 at 01:37:12PM -0700, Dmitry Torokhov wrote:
-> > > On Mon, Aug 07, 2023 at 05:54:07PM +0300, Andy Shevchenko wrote:  
-> > > > On Sun, Aug 06, 2023 at 02:29:50PM +0100, Jonathan Cameron wrote:  
-> > > > > On Sat, 5 Aug 2023 17:42:21 +0000
-> > > > > Biju Das <biju.das.jz@bp.renesas.com> wrote:  
-> > > > > > > On Fri,  4 Aug 2023 17:17:24 +0100
-> > > > > > > Biju Das <biju.das.jz@bp.renesas.com> wrote:  
+On Fri, Aug 11, 2023 at 12:07:25PM +0200, Gatien Chevallier wrote:
 
 ...
 
-> > > > > > + * Besides the fact that some drivers abuse the device ID driver_data type
-> > > > > > + * and claim it to be integer, for the bus specific ID tables the driver_data
-> > > > > > + * may be defined as kernel_ulong_t. For these tables 0 is a valid response,
-> > > > > > + * but not for this function. It's recommended to convert those either to avoid
-> > > > > > + * 0 or use a real pointer to the predefined driver data.  
-> > > >   
-> > > > > We still need to maintain consistency across the two tables, which
-> > > > > is a stronger requirement than avoiding 0.  
-> > > > 
-> > > > True. Any suggestion how to amend the above comment? Because the documentation
-> > > > makes sense on its own (may be split from the series?).
-> > > >   
-> > > > > Some drivers already do that by forcing the enum used to start at 1 which
-> > > > > doesn't solver the different data types issue.  
-> > > > 
-> > > > And some maintainers do not want to see non-enum values in i2c ID table.
-> > > > *Shrug*.  
-> > > 
-> > > So in legacy ID lookup path we can safely assume that values below 4096
-> > > are scalars and return NULL from the new device_get_match_data(). This
-> > > way current drivers using the values as indices or doing direct
-> > > comparisons against them can continue doing manual look up and using
-> > > them as they see fit. And we can convert the drivers at our leisure.  
-> > 
-> > It's a good idea, but I believe will be received as hack.
-> > But why not to try? We indeed have an error pointers for the last page
-> > and NULL (which is only up to 16 IIRC) and reserved space in the first
-> > page. To be more robust I would check all enums that are being used
-> > in I2C ID tables for maximum value and if that is less than 16, use
-> > ZERO_OR_NULL_PTR() instead of custom stuff.
-> > 
-> See iio/adc/max1363 example that has 37ish.
-> 
-> Could tidy that one up first and hopefully not find any others that
-> are in subsystems not keen on the move away from enums.
+> diff --git a/drivers/bus/stm32_firewall.c b/drivers/bus/stm32_firewall.c
+> new file mode 100644
+> index 000000000000..900f3b052a66
+> --- /dev/null
+> +++ b/drivers/bus/stm32_firewall.c
+> @@ -0,0 +1,293 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Copyright (C) 2023, STMicroelectronics - All Rights Reserved
+> + */
+> +
+> +#include <linux/bitfield.h>
+> +#include <linux/bits.h>
+> +#include <linux/bus/stm32_firewall_device.h>
+> +#include <linux/device.h>
+> +#include <linux/err.h>
+> +#include <linux/init.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/types.h>
+> +#include <linux/slab.h>
+> +
+> +#include "stm32_firewall.h"
+> +
+> +/* Corresponds to STM32_FIREWALL_MAX_EXTRA_ARGS + firewall ID */
+> +#define STM32_FIREWALL_MAX_ARGS		(STM32_FIREWALL_MAX_EXTRA_ARGS + 1)
+> +
+> +static LIST_HEAD(firewall_controller_list);
+> +static DEFINE_MUTEX(firewall_controller_list_lock);
+> +
+> +/* Firewall device API */
+> +int stm32_firewall_get_firewall(struct device_node *np, struct stm32_firewall *firewall,
+> +				unsigned int nb_firewall)
+> +{
+> +	struct stm32_firewall_controller *ctrl;
+> +	struct of_phandle_iterator it;
+> +	unsigned int i, j = 0;
+> +	int err;
+> +
+> +	if (!firewall || !nb_firewall)
+> +		return -EINVAL;
+> +
+> +	/* Parse property with phandle parsed out */
+> +	of_for_each_phandle(&it, err, np, "feature-domains", "#feature-domain-cells", 0) {
+> +		struct of_phandle_args provider_args;
+> +		struct device_node *provider = it.node;
+> +		const char *fw_entry;
+> +		bool match = false;
+> +
+> +		if (err) {
+> +			pr_err("Unable to get feature-domains property for node %s\n, err: %d",
+> +			       np->full_name, err);
+> +			of_node_put(provider);
+> +			return err;
+> +		}
+> +
+> +		if (j > nb_firewall) {
+> +			pr_err("Too many firewall controllers");
+> +			of_node_put(provider);
+> +			return -EINVAL;
+> +		}
+> +
+> +		provider_args.args_count = of_phandle_iterator_args(&it, provider_args.args,
+> +								    STM32_FIREWALL_MAX_ARGS);
+> +
+> +		/* Check if the parsed phandle corresponds to a registered firewall controller */
+> +		mutex_lock(&firewall_controller_list_lock);
+> +		list_for_each_entry(ctrl, &firewall_controller_list, entry) {
+> +			if (ctrl->dev->of_node->phandle == it.phandle) {
+> +				match = true;
+> +				firewall[j].firewall_ctrl = ctrl;
+> +				break;
+> +			}
+> +		}
+> +		mutex_unlock(&firewall_controller_list_lock);
+> +
+> +		if (!match) {
+> +			firewall[j].firewall_ctrl = NULL;
+> +			pr_err("No firewall controller registered for %s\n", np->full_name);
+> +			of_node_put(provider);
+> +			return -ENODEV;
+> +		}
+> +
+> +		err = of_property_read_string_index(np, "feature-domain-names", j, &fw_entry);
+> +		if (err == 0)
+> +			firewall[j].entry = fw_entry;
+> +
+> +		/* Handle the case when there are no arguments given along with the phandle */
+> +		if (provider_args.args_count < 0 ||
+> +		    provider_args.args_count > STM32_FIREWALL_MAX_ARGS) {
+> +			of_node_put(provider);
+> +			return -EINVAL;
+> +		} else if (provider_args.args_count == 0) {
+> +			firewall[j].extra_args_size = 0;
+> +			firewall[j].firewall_id = U32_MAX;
+> +			j++;
+> +			continue;
+> +		}
+> +
+> +		/* The firewall ID is always the first argument */
+> +		firewall[j].firewall_id = provider_args.args[0];
+> +
+> +		/* Extra args start at the third argument */
+> +		for (i = 0; i < provider_args.args_count; i++)
+> +			firewall[j].extra_args[i] = provider_args.args[i + 1];
 
-Oh, yep, this needs a treewide audit and fixes around before going further.
-As you said.
+Hi Gatien,
 
--- 
-With Best Regards,
-Andy Shevchenko
+Above it is checked that the maximum value of provider_args.args_count is
+STM32_FIREWALL_MAX_ARGS.
+So here the maximum value of i is STM32_FIREWALL_MAX_ARGS - 1.
 
+STM32_FIREWALL_MAX_ARGS is defined as STM32_FIREWALL_MAX_EXTRA_ARGS + 1
+And STM32_FIREWALL_MAX_EXTRA_ARGS is defined as 5.
+So the maximum value of i is (5 + 1 - 1) = 5.
 
+firewall[j] is of type struct stm32_firewall.
+And its args field has STM32_FIREWALL_MAX_EXTRA_ARGS (5) elements.
+Thus the maximum valid index is (5 - 1) = 4.
+
+But the line above may access index 5.
+
+Flagged by Smatch.
+
+> +
+> +		/* Remove the firewall ID arg that is not an extra argument */
+> +		firewall[j].extra_args_size = provider_args.args_count - 1;
+> +
+> +		j++;
+> +	}
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(stm32_firewall_get_firewall);
+
+...
+
+> diff --git a/include/linux/bus/stm32_firewall_device.h b/include/linux/bus/stm32_firewall_device.h
+> new file mode 100644
+> index 000000000000..7b4450a8ec15
+> --- /dev/null
+> +++ b/include/linux/bus/stm32_firewall_device.h
+> @@ -0,0 +1,141 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Copyright (C) 2023, STMicroelectronics - All Rights Reserved
+> + */
+> +
+> +#ifndef STM32_FIREWALL_DEVICE_H
+> +#define STM32_FIREWALL_DEVICE_H
+> +
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/types.h>
+> +
+> +#define STM32_FIREWALL_MAX_EXTRA_ARGS		5
+> +
+> +/* Opaque reference to stm32_firewall_controller */
+> +struct stm32_firewall_controller;
+> +
+> +/**
+> + * struct stm32_firewall - Information on a device's firewall. Each device can have more than one
+> + *			   firewall.
+> + *
+> + * @firewall_ctrl:		Pointer referencing a firewall controller of the device. It is
+> + *				opaque so a device cannot manipulate the controller's ops or access
+> + *				the controller's data
+> + * @extra_args:			Extra arguments that are implementation dependent
+> + * @entry:			Name of the firewall entry
+> + * @extra_args_size:		Number of extra arguments
+> + * @firewall_id:		Firewall ID associated the device for this firewall controller
+> + */
+> +struct stm32_firewall {
+> +	struct stm32_firewall_controller *firewall_ctrl;
+> +	u32 extra_args[STM32_FIREWALL_MAX_EXTRA_ARGS];
+> +	const char *entry;
+> +	size_t extra_args_size;
+> +	u32 firewall_id;
+> +};
+
+...
