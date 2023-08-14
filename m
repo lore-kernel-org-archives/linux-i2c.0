@@ -2,108 +2,102 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3933C04E69
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Aug 2023 15:13:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B4B2C001E0
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Aug 2023 15:15:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232645AbjHNPMm (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Aug 2023 11:12:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48380 "EHLO
+        id S232492AbjHNPPZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Aug 2023 11:15:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232790AbjHNPMa (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Aug 2023 11:12:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F08D910D1;
-        Mon, 14 Aug 2023 08:12:24 -0700 (PDT)
+        with ESMTP id S233000AbjHNPPG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Aug 2023 11:15:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30C831BE7
+        for <linux-i2c@vger.kernel.org>; Mon, 14 Aug 2023 08:14:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FB3463763;
-        Mon, 14 Aug 2023 15:12:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74862C433C8;
-        Mon, 14 Aug 2023 15:12:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB72B6562D
+        for <linux-i2c@vger.kernel.org>; Mon, 14 Aug 2023 15:14:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE040C433C8;
+        Mon, 14 Aug 2023 15:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1692025944;
-        bh=S4zyki7PFmZ2cBORKIxO1VFOjZKURBWF9rTlNDun9pM=;
+        s=k20201202; t=1692026077;
+        bh=PG6FtD1ip+pZiry2bEeVhermxO5kKOn73yucbpsIIp0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Yc2OS+OTzaM+C2zzmWrAmmuioDm4pRZBMfrHMAq0G5S0vuvQCACesO3XuTRnFLCId
-         ehMZ83+72mLSyJb/do38gnSmpon17lzKMWw/QRDA6HBTbX/+eLh9lYf4zpcg9ih1f6
-         3x5rmzpzKXh8snL+JJCwQYEJuSLDArmHYxfHZD5hKRl+npTrJkS+uv6p2vJxJbs5pd
-         5YErktFtdjZiD8x+La4Kz0f4FO/6XagSapaof7Shvm6j/xi/SX1cjbg8kHggMddypS
-         6JO2Ulx2Kxr1Cqd4Sqjrgqr96mTT7jKpLe2TVHzwEyi5rrGkMI9mMgD82ZCW0CeZjn
-         TBMkTelLVMICg==
-Date:   Mon, 14 Aug 2023 17:12:21 +0200
+        b=aVDJxDqL7+401wcZju/POHlqg9F9YqVMYGW5xd+DUPLFFjkDUSWm8Bi/xD1l9fYdn
+         NB2Dt3dy2dq6v0I3Qy2zszNUqovD0H5xuP5OcrG/PFpzpFzteCK91W11xc1tApeZMN
+         yJaeyrBZs855MlSQ9NJz9EjQsKIrB/N5Ml8Xj/tNPQK6/0txdSsMVk+GdIpGC3ZLKG
+         LRj8js/aCi1jldCTxN8sfNsb1YrBvRLwKJuJvR99vmCxsaMnaSFi3F7yh7KVu7wN31
+         1U8aCP2m7SzxNPofg7eSTijvDvQ83ZXnUVXswS6ZNtLB8uBmh6o5qHL+uYkUqmtAxb
+         k4UuK0TNa7caQ==
+Date:   Mon, 14 Aug 2023 17:14:34 +0200
 From:   Wolfram Sang <wsa@kernel.org>
 To:     Andi Shyti <andi.shyti@kernel.org>
-Cc:     Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Doug Anderson <dianders@chromium.org>,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Conor Dooley <conor.dooley@microchip.com>
-Subject: Re: [PATCH v3 1/2] dt-bindings: i2c: nxp,pca9541: convert to DT
- schema
-Message-ID: <ZNpEVV3fRDVaEyya@shikoro>
+Cc:     pierre-yves.mordret@foss.st.com, alain.volmat@foss.st.com,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+        Ruan Jinjie <ruanjinjie@huawei.com>
+Subject: Re: [PATCH -next] i2c: stm32: fix the return value handle for
+ platform_get_irq()
+Message-ID: <ZNpE2g9682EmYPa3@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>, Peter Rosin <peda@axentia.se>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Doug Anderson <dianders@chromium.org>, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Conor Dooley <conor.dooley@microchip.com>
-References: <20230731163833.319258-1-krzysztof.kozlowski@linaro.org>
- <169100562788.1919254.3881890120063393214.b4-ty@kernel.org>
+        Andi Shyti <andi.shyti@kernel.org>, pierre-yves.mordret@foss.st.com,
+        alain.volmat@foss.st.com, mcoquelin.stm32@gmail.com,
+        alexandre.torgue@foss.st.com,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+        Ruan Jinjie <ruanjinjie@huawei.com>
+References: <20230731112755.1943630-1-ruanjinjie@huawei.com>
+ <169119887102.1781235.17733733758389845864.b4-ty@kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="aGK2mMw4XGLmgIjx"
+        protocol="application/pgp-signature"; boundary="9JuskXm4Fm5kE6Gm"
 Content-Disposition: inline
-In-Reply-To: <169100562788.1919254.3881890120063393214.b4-ty@kernel.org>
+In-Reply-To: <169119887102.1781235.17733733758389845864.b4-ty@kernel.org>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---aGK2mMw4XGLmgIjx
+--9JuskXm4Fm5kE6Gm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 02, 2023 at 10:10:33PM +0200, Andi Shyti wrote:
+On Sat, Aug 05, 2023 at 03:29:12AM +0200, Andi Shyti wrote:
 > Hi
 >=20
-> On Mon, 31 Jul 2023 18:38:32 +0200, Krzysztof Kozlowski wrote:
-> > Convert the bindings for NXP PCA9541 I2C bus master selector to DT
-> > schema.
+> On Mon, 31 Jul 2023 19:27:55 +0800, Ruan Jinjie wrote:
+> > There is no possible for platform_get_irq() to return 0,
+> > and the return value of platform_get_irq() is more sensible
+> > to show the error reason.
 > >=20
 > >=20
->=20
-> Applied to i2c/andi-for-next on
 
 Applied to for-next (via Andi's branch), thanks!
 
 
---aGK2mMw4XGLmgIjx
+--9JuskXm4Fm5kE6Gm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmTaRFUACgkQFA3kzBSg
-KbaMRA//ROA0SC/R9jc9TvyvJuUT8D/GydARldGXju/36hrEaBAPGBW3sX2T4grb
-/z9kBYJaPlqLJylCoseSeW2D7wxl+/CMfaA2+phe395PGA/q2W9RZI93ddMcXq2R
-pnh7p0qSGSDRhS3PxEgdxFoElUDlAg8tqYdySBd3KCvgc94TLzRPW+k0huz4UlmE
-sOGKunktaLPIxyRQQSnNbWWgPb9sEOuC9IEZbtmVxmDtcidnLm5pCy1CDtPASWEV
-GJwz4lsY4OgtzgRxKZiejKmsmueI/BLp0AfWxEv1OpZ/zAgnpcUAKWS7Pt2PfD7O
-V7K3A9SN1L/8YWDRnGE6e0YMKFufMm/QaDLmeJOsS8ARB7LaXD5JmL0pnBA4C5T6
-1u1X4xWVeu+9Edfx09zWomVQ9IEWvveEgrmFAqKrLpybnm+SeKTM9uWKTvCrkm3o
-IgzLy0a6zZWtnrdDYTHoSyElPQCxtn5eZQfTWuhBzoGOS5MCJBOcbbRn/bUsCewC
-nsa83ZcSp7V8yJDStZp2rF+yHPNo+jCUxtFqardIRcF25Qd6d4mjWNog9/mv48j0
-WhK+QCtuIOVfMD3ArGtiSBleUgxPXjQgnO29ZW4BAMGY635Vnb2c/HFa8XDE78Nk
-kDdIFwEJA5XybyH3qYjZYQ+oG3i1RnqPQTcRHq672iyeGaafekA=
-=QGqD
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmTaRNoACgkQFA3kzBSg
+KbZxPg//cstfDoCoeK3xgIuYxr57m0cxTCegkyg7J6+tO9hhH/P4ato9olYv3PnU
++lEPi5ajeqSVH66PUlh90WfJByukSOSFsavghRphoDd97G0FhPE6kEMwsNADJJt2
+M8Bw/6IGhEgJNvP40ubaqiYHhijynPCO+NCZxAya8onaY0DXTBH7PztcL6IT3r+S
+Z8Dek67bQ+WyDsroN1ci9LVD7Dr3maoqZOqnRHUJfa6jyglM/KcX0DWpSAMjhbJ2
+WLWqClq/UPC6ASylVZnE96mRpj9kby0D+moJQ/SNHisv0GMYGajYSF9yMT48Dk7u
+P4/9pusNYTEF8xVzyn57yFXCn19AvyCF95gBkB47uYyhw11FYoChCysUBqdo8P/m
+y6fcoQi/Kd0sqC2WxKIeDUwKllhfozgf3uZILRZwlAVduuGFbDNEUBYC2TYy7xbX
+N0GEUnW/AoQsDiiG5Shz/IzpURC4enEzo3xYJTyCfJ/AESHFSx0Fl0qxdQwShhYE
+j06+QPHVDIDihV9fyDBwXjVgZlm8dEYocXNR4UCHcmvqo/gL6Gx3XAA6JbxiTEWJ
+EbdV2ckFohH7s5/nPKHJ1NzC7Zl+7J78hBMM2mBgEXT8H37YJw7F+R0rGFebk3Il
+7VcssKFMMHiEuZO5eqpV9Y60jku05aUn+uS8nT0iWzyyuAD8gf0=
+=ySOT
 -----END PGP SIGNATURE-----
 
---aGK2mMw4XGLmgIjx--
+--9JuskXm4Fm5kE6Gm--
