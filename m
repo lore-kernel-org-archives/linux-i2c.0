@@ -2,96 +2,131 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D42E9C001B0
-	for <linux-i2c@archiver.kernel.org>; Mon, 14 Aug 2023 16:18:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79641C41513
+	for <linux-i2c@archiver.kernel.org>; Mon, 14 Aug 2023 21:54:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231332AbjHNQSW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 14 Aug 2023 12:18:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34574 "EHLO
+        id S232530AbjHNVxn (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 14 Aug 2023 17:53:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231825AbjHNQRz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Aug 2023 12:17:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246AC1BD;
-        Mon, 14 Aug 2023 09:17:55 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5F6B63E1D;
-        Mon, 14 Aug 2023 16:17:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BACEC433C7;
-        Mon, 14 Aug 2023 16:17:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1692029874;
-        bh=R+JfylcDTKNSxp7M/N5Is0OsD+bt7b/rmBp9CTcJ+8c=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eZg/p6XyNRoNiYPKWkkVIsZGnn+ehWk42rjMDvLNB1/UGjHN9m3qaazn7q0fookFQ
-         7VzjnSZnTvGpth+LAPCeE0710QCQkhtqnP8CAmKLyw3vpoMoeZ0PIcb30FIhUjiDp3
-         lMPBquJYsBXaJGL/CwTf6CQOCUpCI2vdEXOc5pE+RuKvdqAlAHOEOdDJycbZBMScfj
-         dXQKWDJzL+hQxmn6EF5YOCMXHpavWsD6TeT9K+vHidwuSAR7QdekY7GA8jROd+ez6g
-         j/8rvCj4HJ0H3feeTtR9Wq9ttI2KqKRSI9DnGy56eNhv0zImm0s1CNtOG2A9a57C4Q
-         0J9iukyqV8c2Q==
-Date:   Mon, 14 Aug 2023 18:17:48 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Chengfeng Ye <dg573847474@gmail.com>
-Cc:     andi.shyti@kernel.org, rjui@broadcom.com, sbranden@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: bcm-iproc: Fix bcm_iproc_i2c_isr deadlock issue
-Message-ID: <ZNpTrFj2RoGhg4T9@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Chengfeng Ye <dg573847474@gmail.com>, andi.shyti@kernel.org,
-        rjui@broadcom.com, sbranden@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20230707084941.28964-1-dg573847474@gmail.com>
+        with ESMTP id S233037AbjHNVxM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Aug 2023 17:53:12 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C107E110;
+        Mon, 14 Aug 2023 14:52:59 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-1bc0d39b52cso29423805ad.2;
+        Mon, 14 Aug 2023 14:52:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1692049979; x=1692654779;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ErgZTsUwfqdgH6PT40mXFD/nQxIBR8WLnzNxCoXWjK4=;
+        b=RJdNvY1f9I1BtI8sV0sMl4Eb42DKVZPFjPf9Cr9/YoNUN7PCQ3aOV9W1ALK4celB43
+         +8dZM7EvQVBExS1Kz5vFQOtY+OmOfc5FL3Kodm6WouLcaGqE9aQQyjbCDMKjjPuKuHY3
+         /335eAsXcheUkGoB3WOcEEWKqmNaxdECa4LYNhstlWJBXUsgENQyY4wLX4ICuQckx2Ed
+         Fr3uV/ygcN1z3PfmV/BelQTkEWlVsxz3O7RQiFVpPTW9mnlLwHXkQ3MNk8pY1nhuV3VW
+         iI2HscxZ036zWX0AR3wW9LUiblkpZ55utxA5poaOc8pNyqbkKQ1dWZ3p870xERXeAOPT
+         mVaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692049979; x=1692654779;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ErgZTsUwfqdgH6PT40mXFD/nQxIBR8WLnzNxCoXWjK4=;
+        b=TyNJwJRyKDU1KJ7hw4enNVQTmSkjdXLN9wZsGNhtHiOpv7jhLpYWb2rQxejkCkZbTy
+         iskKoy+2UIyS+hWhHVSOsU0CNu5AxPGx5p+4lpMy+33+Khwx8iXn2Rd2CHWT/1KXQggl
+         3xX7hutbvqIIlPN/rnoVxy3/fKPUCPnKCHJ0xCphvUatQntT9+HBzqGCUhoEQNOsXixp
+         OHRgpvgPW5PxNF66gJYv4TSQ4IK4nzJtCSXFQIVSWgS7Ft/5CAHX7uiWovOvaKVIfSjl
+         xy13+yCcKv18nf5jPp7UTup1S8VOVdo5zL6p6r6GppklDYJTO+YU8jOXOWOLynRUWcQG
+         O8JA==
+X-Gm-Message-State: AOJu0Yy8TniN43CTKYWkQ/GGUAEeTqMn1lj6M+Asp49Fb9mRdIwcaWCf
+        5RfM5cKywgiHujcKoUQzYm7LV65qp2E=
+X-Google-Smtp-Source: AGHT+IEVw7epAZaGmdKs4S4+6bnGSCjZvUmKj71sKSJdD67WcJnHn4gnF0UzRNsj8Pkw81yfC3qGRQ==
+X-Received: by 2002:a17:902:d481:b0:1bc:69d0:a024 with SMTP id c1-20020a170902d48100b001bc69d0a024mr12124180plg.33.1692049978951;
+        Mon, 14 Aug 2023 14:52:58 -0700 (PDT)
+Received: from dtor-ws.mtv.corp.google.com ([2620:15c:9d:2:6c34:7c96:4b56:4eca])
+        by smtp.gmail.com with ESMTPSA id ij13-20020a170902ab4d00b001b02bd00c61sm10056065plb.237.2023.08.14.14.52.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Aug 2023 14:52:58 -0700 (PDT)
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Peter Rosin <peda@axentia.se>
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH RFC 1/4] i2c: start migrating to a pointer in i2c_device_id
+Date:   Mon, 14 Aug 2023 14:52:49 -0700
+Message-ID: <20230814-i2c-id-rework-v1-1-3e5bc71c49ee@gmail.com>
+X-Mailer: git-send-email 2.41.0.694.ge786442a9b-goog
+In-Reply-To: <20230814-i2c-id-rework-v1-0-3e5bc71c49ee@gmail.com>
+References: <20230814-i2c-id-rework-v1-0-3e5bc71c49ee@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="lP44t/20Ow0y+TLX"
-Content-Disposition: inline
-In-Reply-To: <20230707084941.28964-1-dg573847474@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+X-Mailer: b4 0.13-dev-099c9
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+The of_device_id structure uses a void pointer to associate additional
+driver-private data with device id, most commonly used to refer to a
+structure containing additional characteristics of a particular chip.
+However i2c_device_id uses an unsigned long. While it can easily be
+converted to a pointer, several drivers use it to store a scalar (and it
+is possible to use a pointer in of_device_id to store a scalar value as
+well). The worst case comes when OF part of a driver uses pointers,
+while legacy part is using scalars, causing constructs like:
 
---lP44t/20Ow0y+TLX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	data = device_get_match_data(...);
+	if (!data)
+		data = &some_array[i2c_match_id(...)->data];
+	...
 
-On Fri, Jul 07, 2023 at 08:49:41AM +0000, Chengfeng Ye wrote:
-> iproc_i2c_rd_reg() and iproc_i2c_wr_reg() are called from both
-> interrupt context (e.g. bcm_iproc_i2c_isr) and process context
-> (e.g. bcm_iproc_i2c_suspend). Therefore, interrupts should be
-> disabled to avoid potential deadlock. To prevent this scenario,
-> use spin_lock_irqsave().
->=20
-> Fixes: 9a1038728037 ("i2c: iproc: add NIC I2C support")
-> Signed-off-by: Chengfeng Ye <dg573847474@gmail.com>
+To avoid this introduce a const void "data" pointer to i2c_device_id as
+well, so that we can convert drivers one by one, and drop driver_data
+member in the end.
 
-Applied to for-current, thanks!
+The end goal is to clean up all helpers and make device_get_match_data()
+work universally for all ACPI, DT, and legacy variants.
 
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/i2c/i2c-core-base.c     | 2 +-
+ include/linux/mod_devicetable.h | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---lP44t/20Ow0y+TLX
-Content-Type: application/pgp-signature; name="signature.asc"
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 60746652fd52..75d12d79d8f1 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -126,7 +126,7 @@ const void *i2c_get_match_data(const struct i2c_client *client)
+ 		if (!match)
+ 			return NULL;
+ 
+-		data = (const void *)match->driver_data;
++		data = match->data ?: (const void *)match->driver_data;
+ 	}
+ 
+ 	return data;
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index b0678b093cb2..21ac2a96e828 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -477,7 +477,8 @@ struct rpmsg_device_id {
+ 
+ struct i2c_device_id {
+ 	char name[I2C_NAME_SIZE];
+-	kernel_ulong_t driver_data;	/* Data private to the driver */
++	kernel_ulong_t driver_data;	/* This field is obsolete */
++	const void *data;		/* Data private to the driver */
+ };
+ 
+ /* pci_epf */
 
------BEGIN PGP SIGNATURE-----
+-- 
+2.41.0.694.ge786442a9b-goog
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmTaU6wACgkQFA3kzBSg
-KbaNKRAAtQ5yI2RX3kG1g6Nxx6xQk6u0UG8EvKyZsADukUZxn9ccsUZAuP4vjXOQ
-RqqwODwaKhGtngnRhqOkbE2rRoNc6NT7YJqLtnWAznDpW2/HMdbDMsmVbybQ7TiL
-uL+LLtT1HqhF24pZXo3XJZmFZI9W5/5ez3oGBgH0RhiSb/7znTX/bqHPpQnoYFHP
-tk0NJ6HpiUqHYYjT9ogUBH07CfXgUfW1phYyPZICSGjGdK+wzVlsFLWCEXyVNh8E
-hilzIQj3uz1PzuLty1VeJQpFhp+PDvtgZzh402iR/vn1wAELsFki/a5qGl5RQq5u
-auNzbT8HGLLlAG8Dfcm9wIdJ64OWnfYKE3WIEptaIYwwDQKBoFyzdr63Au2ShupU
-m3V+7he7urtUibjWe+ogWmLOVJEbXMOnCBhfsd5Zt/3uu3dqbnRnT5AWynLRuOKd
-RmLuiDx4Ahfx8VRbJ+TpmPjckoVdX7xKUN/crkRpFPORtKRRXHGfshwQE9t4amY0
-4QqAu/z44qHoWQ8BUb1OkZyxKcpdwMfIu5IbsjqszHYLG9zQztVuu9wuXDFwghtL
-uVU4lQ62CjtzU41BeAKDxmlAZqt+3woZzsZwgXPkZVz5IuAh6st8CGizRno/SA+9
-lXX0hZfjldqWMiXuG6grd6O80ZobZHq78CngCDXaBYB4FIHKmhM=
-=zNjM
------END PGP SIGNATURE-----
-
---lP44t/20Ow0y+TLX--
