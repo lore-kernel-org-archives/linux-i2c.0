@@ -2,415 +2,362 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA048C2FC06
-	for <linux-i2c@archiver.kernel.org>; Wed, 16 Aug 2023 22:33:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F2D6C27C7A
+	for <linux-i2c@archiver.kernel.org>; Wed, 16 Aug 2023 23:10:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346955AbjHPWc6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 16 Aug 2023 18:32:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49616 "EHLO
+        id S1345786AbjHPXKB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 16 Aug 2023 19:10:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346964AbjHPWcn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Aug 2023 18:32:43 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83DD31B2;
-        Wed, 16 Aug 2023 15:32:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1692225161; x=1723761161;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references;
-  bh=N9HyvxnhRVLPV7Gbyt1oXqcjXUydSoGkmKShwRSNroc=;
-  b=cVcxmJooQzABG2FW25k65DQ5XIvht0NBBzoaoocdyjYdxit1bgpz5ZkW
-   F//NjguiOZjg+wIy7ctxLgHUXiLm7KFU63JdGX4MYhs3lKSlklPZY3+i4
-   +eK9zSSUovmjhn+Fgnyiu0BExCF7Jx4s/yhB8Sh80oXB5YLYdI9KRK7xO
-   WihkZNdWyqn3VIR4L6nGWkRwnlTHP3N4Od6CTPt8mv3NCwEFPSbmE18gc
-   AMdK4CwSPKu8kuaD5jx8/nGNrvQehtv+m6uDVrQoJYPm3rsXVnNWq4Bm1
-   JU4pM3z1TH/fILy3BfptLc59Az+qGo8QVmvvTg/xgY0BfFTMCJ0bqd+Ic
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10803"; a="376392033"
-X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="376392033"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2023 15:32:41 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.01,202,1684825200"; 
-   d="scan'208";a="877974906"
-Received: from shsensorbuild2.sh.intel.com ([10.239.134.197])
-  by fmsmga001.fm.intel.com with ESMTP; 16 Aug 2023 15:32:39 -0700
-From:   Wentong Wu <wentong.wu@intel.com>
-To:     gregkh@linuxfoundation.org, arnd@arndb.de, mka@chromium.org,
-        oneukum@suse.com, lee@kernel.org, wsa@kernel.org,
-        kfting@nuvoton.com, broonie@kernel.org, linus.walleij@linaro.org,
-        maz@kernel.org, brgl@bgdev.pl, linux-usb@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-gpio@vger.kernel.org, andriy.shevchenko@linux.intel.com,
-        heikki.krogerus@linux.intel.com, andi.shyti@linux.intel.com,
-        sakari.ailus@linux.intel.com, srinivas.pandruvada@intel.com,
-        linux-drivers-review@eclists.intel.com
-Cc:     zhifeng.wang@intel.com, Wentong Wu <wentong.wu@intel.com>
-Subject: [PATCH v9 3/4] spi: Add support for Intel LJCA USB SPI driver
-Date:   Thu, 17 Aug 2023 06:31:50 +0800
-Message-Id: <1692225111-19216-4-git-send-email-wentong.wu@intel.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1692225111-19216-1-git-send-email-wentong.wu@intel.com>
-References: <1692225111-19216-1-git-send-email-wentong.wu@intel.com>
+        with ESMTP id S1347083AbjHPXJs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Aug 2023 19:09:48 -0400
+Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [IPv6:2001:df5:b000:5::4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C10B52690
+        for <linux-i2c@vger.kernel.org>; Wed, 16 Aug 2023 16:09:44 -0700 (PDT)
+Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id BFC1F2C00BA;
+        Thu, 17 Aug 2023 11:09:30 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1692227370;
+        bh=n3y2vKy+1ueTKmEA/z1D66wQWsdfEeKBBliEcRriIUg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=dK8gVpQnGncmFXI0+C69SDkma4KoQ2Vj21rM6EiIBQ3XMEJgHk5fXaA+M6QnnLS5w
+         rvt190YmEf5h0IaNByewwLSKQq0OWocTaamkMoAEfQ3+0B2DjWX/yrDfTwrZAeW33H
+         MUYTdz4Cbw/bLjms9FjTFG9vO3Zj7TWvF8pRLZaMz5WvdpcZmYeG6lPy4K2O/qV8Tu
+         3etXdYxVWSlFkgXP8l3iLrsU/c2H1d8PayLEaJIfz1eyBRIYGGz6PQ7LlMEznsPqk8
+         iu45JsM+ijgrjLmwj1tjNMP/pUgAm+ABISOPQR+ueWTCBs01AjNQvErJHaiIRfMkDy
+         572MQ7jx3PtCQ==
+Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
+        id <B64dd572a0000>; Thu, 17 Aug 2023 11:09:30 +1200
+Received: from aryans-dl.ws.atlnz.lc (aryans-dl.ws.atlnz.lc [10.33.22.26])
+        by pat.atlnz.lc (Postfix) with ESMTP id 95E7013EDA9;
+        Thu, 17 Aug 2023 11:09:30 +1200 (NZST)
+Received: by aryans-dl.ws.atlnz.lc (Postfix, from userid 1844)
+        id 90432203D25; Thu, 17 Aug 2023 11:09:30 +1200 (NZST)
+From:   Aryan Srivastava <aryan.srivastava@alliedtelesis.co.nz>
+To:     andi.shyti@kernel.org
+Cc:     aryan.srivastava@alliedtelesis.co.nz, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c:octeon:Add block-mode r/w
+Date:   Thu, 17 Aug 2023 11:07:09 +1200
+Message-ID: <20230816230708.2724780-2-aryan.srivastava@alliedtelesis.co.nz>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20230725223335.mzgdgr7qgeyc6hj7@intel.intel>
+References: <20230725223335.mzgdgr7qgeyc6hj7@intel.intel>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=fYfTNHYF c=1 sm=1 tr=0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=UttIx32zK-AA:10 a=ibm7KagTeOy16Jyts6sA:9
+X-SEG-SpamProfiler-Score: 0
+x-atlnz-ls: pat
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Implements the SPI function of Intel USB-I2C/GPIO/SPI adapter device
-named "La Jolla Cove Adapter" (LJCA). It communicate with LJCA SPI
-module with specific protocol through interfaces exported by LJCA USB
-driver.
+Add support for block mode read/write operations on
+Thunderx chips.
 
-Signed-off-by: Wentong Wu <wentong.wu@intel.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+When attempting r/w operations of greater then 8 bytes
+block mode is used, instead of performing a series of
+8 byte reads.
+
+Signed-off-by: Aryan Srivastava <aryan.srivastava@alliedtelesis.co.nz>
 ---
- drivers/spi/Kconfig    |  11 ++
- drivers/spi/Makefile   |   1 +
- drivers/spi/spi-ljca.c | 299 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 311 insertions(+)
- create mode 100644 drivers/spi/spi-ljca.c
 
-diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-index 8962b25..ad18864 100644
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -583,6 +583,17 @@ config SPI_FSL_ESPI
- 	  From MPC8536, 85xx platform uses the controller, and all P10xx,
- 	  P20xx, P30xx,P40xx, P50xx uses this controller.
- 
-+config SPI_LJCA
-+	tristate "Intel La Jolla Cove Adapter SPI support"
-+	depends on USB_LJCA
-+	default USB_LJCA
-+	help
-+	  Select this option to enable SPI driver for the Intel
-+	  La Jolla Cove Adapter (LJCA) board.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called spi-ljca.
-+
- config SPI_MESON_SPICC
- 	tristate "Amlogic Meson SPICC controller"
- 	depends on COMMON_CLK
-diff --git a/drivers/spi/Makefile b/drivers/spi/Makefile
-index 080c2c1..0847962 100644
---- a/drivers/spi/Makefile
-+++ b/drivers/spi/Makefile
-@@ -70,6 +70,7 @@ obj-$(CONFIG_SPI_INTEL_PCI)		+= spi-intel-pci.o
- obj-$(CONFIG_SPI_INTEL_PLATFORM)	+= spi-intel-platform.o
- obj-$(CONFIG_SPI_LANTIQ_SSC)		+= spi-lantiq-ssc.o
- obj-$(CONFIG_SPI_JCORE)			+= spi-jcore.o
-+obj-$(CONFIG_SPI_LJCA)			+= spi-ljca.o
- obj-$(CONFIG_SPI_LM70_LLP)		+= spi-lm70llp.o
- obj-$(CONFIG_SPI_LP8841_RTC)		+= spi-lp8841-rtc.o
- obj-$(CONFIG_SPI_MESON_SPICC)		+= spi-meson-spicc.o
-diff --git a/drivers/spi/spi-ljca.c b/drivers/spi/spi-ljca.c
-new file mode 100644
-index 0000000..6b5ecb0
---- /dev/null
-+++ b/drivers/spi/spi-ljca.c
-@@ -0,0 +1,299 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Intel La Jolla Cove Adapter USB-SPI driver
-+ *
-+ * Copyright (c) 2023, Intel Corporation.
-+ */
-+
-+#include <linux/auxiliary_bus.h>
-+#include <linux/bitfield.h>
-+#include <linux/bits.h>
-+#include <linux/dev_printk.h>
-+#include <linux/module.h>
-+#include <linux/spi/spi.h>
-+#include <linux/usb/ljca.h>
-+
-+#define LJCA_SPI_BUS_MAX_HZ		48000000
-+
-+#define LJCA_SPI_BUF_SIZE		60u
-+#define LJCA_SPI_MAX_XFER_SIZE		\
-+	(LJCA_SPI_BUF_SIZE - sizeof(struct ljca_spi_xfer_packet))
-+
-+#define LJCA_SPI_CLK_MODE_POLARITY	BIT(0)
-+#define LJCA_SPI_CLK_MODE_PHASE		BIT(1)
-+
-+#define LJCA_SPI_XFER_INDICATOR_ID	GENMASK(5, 0)
-+#define LJCA_SPI_XFER_INDICATOR_CMPL	BIT(6)
-+#define LJCA_SPI_XFER_INDICATOR_INDEX	BIT(7)
-+
-+/* SPI commands */
-+enum ljca_spi_cmd {
-+	LJCA_SPI_INIT = 1,
-+	LJCA_SPI_READ,
-+	LJCA_SPI_WRITE,
-+	LJCA_SPI_WRITEREAD,
-+	LJCA_SPI_DEINIT,
-+};
-+
-+enum {
-+	LJCA_SPI_BUS_SPEED_24M,
-+	LJCA_SPI_BUS_SPEED_12M,
-+	LJCA_SPI_BUS_SPEED_8M,
-+	LJCA_SPI_BUS_SPEED_6M,
-+	LJCA_SPI_BUS_SPEED_4_8M, /*4.8MHz*/
-+	LJCA_SPI_BUS_SPEED_MIN = LJCA_SPI_BUS_SPEED_4_8M,
-+};
-+
-+enum {
-+	LJCA_SPI_CLOCK_LOW_POLARITY,
-+	LJCA_SPI_CLOCK_HIGH_POLARITY,
-+};
-+
-+enum {
-+	LJCA_SPI_CLOCK_FIRST_PHASE,
-+	LJCA_SPI_CLOCK_SECOND_PHASE,
-+};
-+
-+struct ljca_spi_init_packet {
-+	u8 index;
-+	u8 speed;
-+	u8 mode;
-+} __packed;
-+
-+struct ljca_spi_xfer_packet {
-+	u8 indicator;
-+	u8 len;
-+	u8 data[];
-+} __packed;
-+
-+struct ljca_spi_dev {
-+	struct ljca_client *ljca;
-+	struct spi_controller *controller;
-+	struct ljca_spi_info *spi_info;
-+	u8 speed;
-+	u8 mode;
-+
-+	u8 obuf[LJCA_SPI_BUF_SIZE];
-+	u8 ibuf[LJCA_SPI_BUF_SIZE];
-+};
-+
-+static int ljca_spi_read_write(struct ljca_spi_dev *ljca_spi, const u8 *w_data,
-+			       u8 *r_data, int len, int id, int complete,
-+			       int cmd)
+Hi Andi,
+I have re-ran the patch through checkpatch --strict and changed the
+comments
+
+Thanks,=20
+Aryan
+
+Changes in v2:
+- comment style and formatting.
+
+ drivers/i2c/busses/i2c-octeon-core.c     | 162 ++++++++++++++++++++++-
+ drivers/i2c/busses/i2c-octeon-core.h     |  14 ++
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c |   4 +
+ 3 files changed, 174 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2=
+c-octeon-core.c
+index 845eda70b8ca..27a7f61f575b 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.c
++++ b/drivers/i2c/busses/i2c-octeon-core.c
+@@ -130,6 +130,24 @@ static void octeon_i2c_hlc_disable(struct octeon_i2c=
+ *i2c)
+ 	octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
+ }
+=20
++static void octeon_i2c_block_enable(struct octeon_i2c *i2c)
 +{
-+	struct ljca_spi_xfer_packet *w_packet =
-+			(struct ljca_spi_xfer_packet *)ljca_spi->obuf;
-+	struct ljca_spi_xfer_packet *r_packet =
-+			(struct ljca_spi_xfer_packet *)ljca_spi->ibuf;
-+	int ret;
++	if (i2c->block_enabled || !TWSI_BLOCK_CTL(i2c))
++		return;
 +
-+	w_packet->indicator = FIELD_PREP(LJCA_SPI_XFER_INDICATOR_ID, id) |
-+			      FIELD_PREP(LJCA_SPI_XFER_INDICATOR_CMPL, complete) |
-+			      FIELD_PREP(LJCA_SPI_XFER_INDICATOR_INDEX,
-+					 ljca_spi->spi_info->id);
-+
-+	if (cmd == LJCA_SPI_READ) {
-+		w_packet->len = sizeof(u16);
-+		*(__le16 *)&w_packet->data[0] = cpu_to_le16(len);
-+	} else {
-+		w_packet->len = len;
-+		memcpy(w_packet->data, w_data, len);
-+	}
-+
-+	ret = ljca_transfer(ljca_spi->ljca, cmd, w_packet,
-+			    struct_size(w_packet, data, w_packet->len),
-+			    r_packet, LJCA_SPI_BUF_SIZE);
-+	if (ret < 0)
-+		return ret;
-+	else if (ret < sizeof(*r_packet) || r_packet->len <= 0)
-+		return -EIO;
-+
-+	if (r_data)
-+		memcpy(r_data, r_packet->data, r_packet->len);
-+
-+	return 0;
++	i2c->block_enabled =3D true;
++	octeon_i2c_writeq_flush(TWSI_MODE_STRETCH
++		| TWSI_MODE_BLOCK_MODE, i2c->twsi_base + TWSI_MODE(i2c));
 +}
 +
-+static int ljca_spi_init(struct ljca_spi_dev *ljca_spi, u8 div, u8 mode)
++static void octeon_i2c_block_disable(struct octeon_i2c *i2c)
 +{
-+	struct ljca_spi_init_packet w_packet = {};
-+	int ret;
++	if (!i2c->block_enabled || !TWSI_BLOCK_CTL(i2c))
++		return;
 +
-+	if (ljca_spi->mode == mode && ljca_spi->speed == div)
-+		return 0;
-+
-+	w_packet.index = ljca_spi->spi_info->id;
-+	w_packet.speed = div;
-+	w_packet.mode = FIELD_PREP(LJCA_SPI_CLK_MODE_POLARITY,
-+				   (mode & SPI_CPOL) ? LJCA_SPI_CLOCK_HIGH_POLARITY :
-+						       LJCA_SPI_CLOCK_LOW_POLARITY) |
-+			FIELD_PREP(LJCA_SPI_CLK_MODE_PHASE,
-+				   (mode & SPI_CPHA) ? LJCA_SPI_CLOCK_SECOND_PHASE :
-+						       LJCA_SPI_CLOCK_FIRST_PHASE);
-+
-+	ret = ljca_transfer(ljca_spi->ljca, LJCA_SPI_INIT, &w_packet,
-+			    sizeof(w_packet), NULL, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	ljca_spi->mode = mode;
-+	ljca_spi->speed = div;
-+
-+	return 0;
++	i2c->block_enabled =3D false;
++	octeon_i2c_writeq_flush(TWSI_MODE_STRETCH, i2c->twsi_base + TWSI_MODE(i=
+2c));
 +}
-+
-+static int ljca_spi_deinit(struct ljca_spi_dev *ljca_spi)
+ /**
+  * octeon_i2c_hlc_wait - wait for an HLC operation to complete
+  * @i2c: The struct octeon_i2c
+@@ -268,6 +286,7 @@ static int octeon_i2c_start(struct octeon_i2c *i2c)
+ 	u8 stat;
+=20
+ 	octeon_i2c_hlc_disable(i2c);
++	octeon_i2c_block_disable(i2c);
+=20
+ 	octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB | TWSI_CTL_STA);
+ 	ret =3D octeon_i2c_wait(i2c);
+@@ -594,6 +613,128 @@ static int octeon_i2c_hlc_comp_write(struct octeon_=
+i2c *i2c, struct i2c_msg *msg
+ 	return ret;
+ }
+=20
++/* high-level-controller composite block write+read, m[0]len<=3D2, m[1]l=
+en<=3D1024 */
++static int octeon_i2c_hlc_block_comp_read(struct octeon_i2c *i2c, struct=
+ i2c_msg *msgs)
 +{
-+	struct ljca_spi_init_packet w_packet = {};
-+	int ret;
++	int i, j, len, ret =3D 0;
++	u64 cmd, rd;
 +
-+	w_packet.index = ljca_spi->spi_info->id;
++	octeon_i2c_hlc_enable(i2c);
++	octeon_i2c_block_enable(i2c);
 +
-+	ret = ljca_transfer(ljca_spi->ljca, LJCA_SPI_DEINIT, &w_packet,
-+			    sizeof(w_packet), NULL, 0);
-+	if (ret < 0)
-+		return ret;
++	len =3D msgs[1].len - 1;
++	/* Prepare core command */
++	cmd =3D SW_TWSI_V | SW_TWSI_R | SW_TWSI_SOVR;
++	/* SIZE */
++	octeon_i2c_writeq_flush((u64)(len), i2c->twsi_base + TWSI_BLOCK_CTL(i2c=
+));
++	/* ADDR */
++	cmd |=3D (u64)(msgs[0].addr & 0x7full) << SW_TWSI_ADDR_SHIFT;
 +
-+	return 0;
-+}
-+
-+static inline int ljca_spi_transfer(struct ljca_spi_dev *ljca_spi,
-+				    const u8 *tx_data, u8 *rx_data, u16 len)
-+{
-+	int complete, cur_len;
-+	int remaining = len;
-+	int cmd, ret, i;
-+	int offset = 0;
-+
-+	if (tx_data && rx_data)
-+		cmd = LJCA_SPI_WRITEREAD;
-+	else if (tx_data)
-+		cmd = LJCA_SPI_WRITE;
-+	else if (rx_data)
-+		cmd = LJCA_SPI_READ;
++	if (msgs[0].flags & I2C_M_TEN)
++		cmd |=3D SW_TWSI_OP_10_IA;
 +	else
-+		return -EINVAL;
++		cmd |=3D SW_TWSI_OP_7_IA;
 +
-+	for (i = 0; remaining > 0; i++) {
-+		cur_len = min_t(unsigned int, remaining, LJCA_SPI_MAX_XFER_SIZE);
-+		complete = (cur_len == remaining);
++	if (msgs[0].len =3D=3D 2) {
++		u64 ext =3D 0;
 +
-+		ret = ljca_spi_read_write(ljca_spi,
-+					  tx_data ? tx_data + offset : NULL,
-+					  rx_data ? rx_data + offset : NULL,
-+					  cur_len, i, complete, cmd);
-+		if (ret)
-+			return ret;
-+
-+		offset += cur_len;
-+		remaining -= cur_len;
++		cmd |=3D SW_TWSI_EIA;
++		ext =3D (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
++		cmd |=3D (u64)msgs[0].buf[1] << SW_TWSI_IA_SHIFT;
++		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
++	} else {
++		cmd |=3D (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
 +	}
 +
-+	return 0;
-+}
++	/* Send command to core (send data to FIFO) */
++	octeon_i2c_hlc_int_clear(i2c);
++	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
 +
-+static int ljca_spi_transfer_one(struct spi_controller *controller,
-+				 struct spi_device *spi,
-+				 struct spi_transfer *xfer)
-+{
-+	u8 div = DIV_ROUND_UP(controller->max_speed_hz, xfer->speed_hz) / 2 - 1;
-+	struct ljca_spi_dev *ljca_spi = spi_controller_get_devdata(controller);
-+	int ret;
-+
-+	div = min_t(u8, LJCA_SPI_BUS_SPEED_MIN, div);
-+
-+	ret = ljca_spi_init(ljca_spi, div, spi->mode);
-+	if (ret) {
-+		dev_err(&ljca_spi->ljca->auxdev.dev,
-+			"cannot initialize transfer ret %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = ljca_spi_transfer(ljca_spi, xfer->tx_buf, xfer->rx_buf, xfer->len);
++	/* Wait for transaction to complete */
++	ret =3D octeon_i2c_hlc_wait(i2c);
 +	if (ret)
-+		dev_err(&ljca_spi->ljca->auxdev.dev,
-+			"transfer failed len: %d\n", xfer->len);
++		goto err;
 +
++	cmd =3D __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
++	if ((cmd & SW_TWSI_R) =3D=3D 0)
++		return octeon_i2c_check_status(i2c, false);
++
++	/* read data in FIFO */
++	octeon_i2c_writeq_flush(TWSI_BLOCK_STS_RESET_PTR, i2c->twsi_base + TWSI=
+_BLOCK_STS(i2c));
++	for (i =3D 0; i < len; i +=3D 8) {
++		rd =3D __raw_readq(i2c->twsi_base + TWSI_BLOCK_FIFO(i2c));
++		for (j =3D 7; j >=3D 0; j--)
++			msgs[1].buf[i + (7 - j)] =3D (rd >> (8 * j)) & 0xff;
++	}
++
++	octeon_i2c_block_disable(i2c);
++
++err:
 +	return ret;
 +}
 +
-+static int ljca_spi_probe(struct auxiliary_device *auxdev,
-+			  const struct auxiliary_device_id *aux_dev_id)
++/* high-level-controller composite block write+write, m[0]len<=3D2, m[1]=
+len<=3D1024 */
++static int octeon_i2c_hlc_block_comp_write(struct octeon_i2c *i2c, struc=
+t i2c_msg *msgs)
 +{
-+	struct ljca_client *ljca = auxiliary_dev_to_ljca_client(auxdev);
-+	struct spi_controller *controller;
-+	struct ljca_spi_dev *ljca_spi;
-+	int ret;
++	bool set_ext =3D false;
++	int i, j, len, ret =3D 0;
++	u64 cmd, buf =3D 0, ext =3D 0;
 +
-+	controller = devm_spi_alloc_master(&auxdev->dev, sizeof(*ljca_spi));
-+	if (!controller)
-+		return -ENOMEM;
++	octeon_i2c_hlc_enable(i2c);
++	octeon_i2c_block_enable(i2c);
 +
-+	ljca_spi = spi_controller_get_devdata(controller);
-+	ljca_spi->ljca = ljca;
-+	ljca_spi->spi_info = dev_get_platdata(&auxdev->dev);
-+	ljca_spi->controller = controller;
++	len =3D msgs[1].len - 1;
++	/* Prepare core command */
++	cmd =3D SW_TWSI_V | SW_TWSI_SOVR;
++	/* SIZE */
++	octeon_i2c_writeq_flush((u64)(len), i2c->twsi_base + TWSI_BLOCK_CTL(i2c=
+));
++	/* ADDR */
++	cmd |=3D (u64)(msgs[0].addr & 0x7full) << SW_TWSI_ADDR_SHIFT;
 +
-+	controller->bus_num = -1;
-+	controller->mode_bits = SPI_CPHA | SPI_CPOL;
-+	controller->transfer_one = ljca_spi_transfer_one;
-+	controller->auto_runtime_pm = false;
-+	controller->max_speed_hz = LJCA_SPI_BUS_MAX_HZ;
++	if (msgs[0].flags & I2C_M_TEN)
++		cmd |=3D SW_TWSI_OP_10_IA;
++	else
++		cmd |=3D SW_TWSI_OP_7_IA;
 +
-+	device_set_node(&ljca_spi->controller->dev, dev_fwnode(&auxdev->dev));
-+	auxiliary_set_drvdata(auxdev, controller);
++	if (msgs[0].len =3D=3D 2) {
++		cmd |=3D SW_TWSI_EIA;
++		ext |=3D (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
++		set_ext =3D true;
++		cmd |=3D (u64)msgs[0].buf[1] << SW_TWSI_IA_SHIFT;
++	} else {
++		cmd |=3D (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
++	}
 +
-+	ret = spi_register_controller(controller);
++	/* Write msg into FIFO buffer */
++	octeon_i2c_writeq_flush(TWSI_BLOCK_STS_RESET_PTR, i2c->twsi_base + TWSI=
+_BLOCK_STS(i2c));
++	for (i =3D 0; i < len; i +=3D 8) {
++		buf =3D 0;
++		for (j =3D 7; j >=3D 0; j--)
++			buf |=3D (msgs[1].buf[i + (7 - j)] << (8 * j));
++		octeon_i2c_writeq_flush(buf, i2c->twsi_base + TWSI_BLOCK_FIFO(i2c));
++	}
++	if (set_ext)
++		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
++
++	/* Send command to core (send data in FIFO) */
++	octeon_i2c_hlc_int_clear(i2c);
++	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
++
++	/* Wait for transaction to complete */
++	ret =3D octeon_i2c_hlc_wait(i2c);
 +	if (ret)
-+		dev_err(&auxdev->dev, "Failed to register controller\n");
++		goto err;
 +
++	cmd =3D __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
++	if ((cmd & SW_TWSI_R) =3D=3D 0)
++		return octeon_i2c_check_status(i2c, false);
++
++	octeon_i2c_block_disable(i2c);
++
++err:
 +	return ret;
 +}
 +
-+static void ljca_spi_dev_remove(struct auxiliary_device *auxdev)
-+{
-+	struct spi_controller *controller = auxiliary_get_drvdata(auxdev);
-+	struct ljca_spi_dev *ljca_spi = spi_controller_get_devdata(controller);
+ /**
+  * octeon_i2c_xfer - The driver's master_xfer function
+  * @adap: Pointer to the i2c_adapter structure
+@@ -619,13 +760,21 @@ int octeon_i2c_xfer(struct i2c_adapter *adap, struc=
+t i2c_msg *msgs, int num)
+ 		if ((msgs[0].flags & I2C_M_RD) =3D=3D 0 &&
+ 		    (msgs[1].flags & I2C_M_RECV_LEN) =3D=3D 0 &&
+ 		    msgs[0].len > 0 && msgs[0].len <=3D 2 &&
+-		    msgs[1].len > 0 && msgs[1].len <=3D 8 &&
++		    msgs[1].len > 0 &&
+ 		    msgs[0].addr =3D=3D msgs[1].addr) {
+-			if (msgs[1].flags & I2C_M_RD)
+-				ret =3D octeon_i2c_hlc_comp_read(i2c, msgs);
+-			else
+-				ret =3D octeon_i2c_hlc_comp_write(i2c, msgs);
+-			goto out;
++			if (msgs[1].len <=3D 8) {
++				if (msgs[1].flags & I2C_M_RD)
++					ret =3D octeon_i2c_hlc_comp_read(i2c, msgs);
++				else
++					ret =3D octeon_i2c_hlc_comp_write(i2c, msgs);
++				goto out;
++			} else if (msgs[1].len <=3D 1024 && TWSI_BLOCK_CTL(i2c)) {
++				if (msgs[1].flags & I2C_M_RD)
++					ret =3D octeon_i2c_hlc_block_comp_read(i2c, msgs);
++				else
++					ret =3D octeon_i2c_hlc_block_comp_write(i2c, msgs);
++				goto out;
++			}
+ 		}
+ 	}
+=20
+@@ -720,6 +869,7 @@ int octeon_i2c_init_lowlevel(struct octeon_i2c *i2c)
+ 	/* toggle twice to force both teardowns */
+ 	octeon_i2c_hlc_enable(i2c);
+ 	octeon_i2c_hlc_disable(i2c);
 +
-+	spi_unregister_controller(controller);
-+	ljca_spi_deinit(ljca_spi);
-+}
+ 	return 0;
+ }
+=20
+diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2=
+c-octeon-core.h
+index 9bb9f64fdda0..b889ecf9968d 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.h
++++ b/drivers/i2c/busses/i2c-octeon-core.h
+@@ -85,6 +85,11 @@
+ #define TWSI_INT_SDA		BIT_ULL(10)
+ #define TWSI_INT_SCL		BIT_ULL(11)
+=20
++#define TWSI_MODE_STRETCH			BIT_ULL(1)
++#define TWSI_MODE_BLOCK_MODE		BIT_ULL(2)
 +
-+static int ljca_spi_dev_suspend(struct device *dev)
-+{
-+	struct spi_controller *controller = dev_get_drvdata(dev);
-+
-+	return spi_controller_suspend(controller);
-+}
-+
-+static int ljca_spi_dev_resume(struct device *dev)
-+{
-+	struct spi_controller *controller = dev_get_drvdata(dev);
-+
-+	return spi_controller_resume(controller);
-+}
-+
-+static const struct dev_pm_ops ljca_spi_pm = {
-+	SYSTEM_SLEEP_PM_OPS(ljca_spi_dev_suspend, ljca_spi_dev_resume)
-+};
-+
-+static const struct auxiliary_device_id ljca_spi_id_table[] = {
-+	{ "usb_ljca.ljca-spi", 0 },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(auxiliary, ljca_spi_id_table);
-+
-+static struct auxiliary_driver ljca_spi_driver = {
-+	.driver.pm	= &ljca_spi_pm,
-+	.probe		= ljca_spi_probe,
-+	.remove		= ljca_spi_dev_remove,
-+	.id_table	= ljca_spi_id_table,
-+};
-+module_auxiliary_driver(ljca_spi_driver);
-+
-+MODULE_AUTHOR("Wentong Wu <wentong.wu@intel.com>");
-+MODULE_AUTHOR("Zhifeng Wang <zhifeng.wang@intel.com>");
-+MODULE_AUTHOR("Lixu Zhang <lixu.zhang@intel.com>");
-+MODULE_DESCRIPTION("Intel La Jolla Cove Adapter USB-SPI driver");
-+MODULE_LICENSE("GPL");
-+MODULE_IMPORT_NS(LJCA);
--- 
-2.7.4
++#define TWSI_BLOCK_STS_RESET_PTR	BIT_ULL(0)
++#define TWSI_BLOCK_STS_BUSY			BIT_ULL(1)
+ #define I2C_OCTEON_EVENT_WAIT 80 /* microseconds */
+=20
+ /* Register offsets */
+@@ -92,11 +97,19 @@ struct octeon_i2c_reg_offset {
+ 	unsigned int sw_twsi;
+ 	unsigned int twsi_int;
+ 	unsigned int sw_twsi_ext;
++	unsigned int twsi_mode;
++	unsigned int twsi_block_ctl;
++	unsigned int twsi_block_sts;
++	unsigned int twsi_block_fifo;
+ };
+=20
+ #define SW_TWSI(x)	(x->roff.sw_twsi)
+ #define TWSI_INT(x)	(x->roff.twsi_int)
+ #define SW_TWSI_EXT(x)	(x->roff.sw_twsi_ext)
++#define TWSI_MODE(x)	(x->roff.twsi_mode)
++#define TWSI_BLOCK_CTL(x)	(x->roff.twsi_block_ctl)
++#define TWSI_BLOCK_STS(x)	(x->roff.twsi_block_sts)
++#define TWSI_BLOCK_FIFO(x)	(x->roff.twsi_block_fifo)
+=20
+ struct octeon_i2c {
+ 	wait_queue_head_t queue;
+@@ -110,6 +123,7 @@ struct octeon_i2c {
+ 	void __iomem *twsi_base;
+ 	struct device *dev;
+ 	bool hlc_enabled;
++	bool block_enabled;
+ 	bool broken_irq_mode;
+ 	bool broken_irq_check;
+ 	void (*int_enable)(struct octeon_i2c *);
+diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busse=
+s/i2c-thunderx-pcidrv.c
+index a77cd86fe75e..abde98117d7e 100644
+--- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
++++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+@@ -165,6 +165,10 @@ static int thunder_i2c_probe_pci(struct pci_dev *pde=
+v,
+ 	i2c->roff.sw_twsi =3D 0x1000;
+ 	i2c->roff.twsi_int =3D 0x1010;
+ 	i2c->roff.sw_twsi_ext =3D 0x1018;
++	i2c->roff.twsi_mode =3D 0x1038;
++	i2c->roff.twsi_block_ctl =3D 0x1048;
++	i2c->roff.twsi_block_sts =3D 0x1050;
++	i2c->roff.twsi_block_fifo =3D 0x1058;
+=20
+ 	i2c->dev =3D dev;
+ 	pci_set_drvdata(pdev, i2c);
+--=20
+2.41.0
 
