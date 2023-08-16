@@ -2,109 +2,115 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 585BAC001DF
-	for <linux-i2c@archiver.kernel.org>; Wed, 16 Aug 2023 09:53:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2885AC001E0
+	for <linux-i2c@archiver.kernel.org>; Wed, 16 Aug 2023 10:08:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243604AbjHPJxD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 16 Aug 2023 05:53:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43050 "EHLO
+        id S243727AbjHPKIU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 16 Aug 2023 06:08:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243644AbjHPJwk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Aug 2023 05:52:40 -0400
-Received: from mx4.sionneau.net (mx4.sionneau.net [51.15.250.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B5CADF;
-        Wed, 16 Aug 2023 02:52:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sionneau.net;
-        s=selectormx4; t=1692179535;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=/bQOVUk1e3G6QvspZ4ulPcqWFNFGRI07zJ9KxOxlZ5w=;
-        b=1rNAHQ1SUAhWqxSCvC9R+pMxQgyEQTeinvPk4eJZalNXYtHeWKPWoKRPVnhDMtpR5ypKRK
-        HBJkg8itrJ4DrX0/+Z19Z/QIlzaEwNKLdXrgnu9Nic6OL0UFN+7lmYQWOfTqgJ+85uQerW
-        aYoxVTdW3pdFlxRBYnBOK8C1TeN8LuE=
-Received: from fallen-ThinkPad-X260.home (<unknown> [109.190.253.11])
-        by mx4.sionneau.net (OpenSMTPD) with ESMTPSA id 7e150d35 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Wed, 16 Aug 2023 09:52:15 +0000 (UTC)
-From:   Yann Sionneau <yann@sionneau.net>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jan Dabros <jsd@semihalf.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Yann Sionneau <ysionneau@kalray.eu>
-Subject: [PATCH v2] i2c: designware: add support for pinctrl for recovery
-Date:   Wed, 16 Aug 2023 11:50:15 +0200
-Message-Id: <20230816095015.23705-1-yann@sionneau.net>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S243784AbjHPKIP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Aug 2023 06:08:15 -0400
+Received: from pandora.armlinux.org.uk (unknown [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8496E3
+        for <linux-i2c@vger.kernel.org>; Wed, 16 Aug 2023 03:08:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=jS5E3IDC20yQUz3d27cNi5f4Pv23ioPbtrI9hkgtSzc=; b=iMaYJgBeJAMEf9HdYIjCwHAOvR
+        QxSI7uColcdNvmfU+YwTm5t5MsXqC/kiCB9i+nukULQBddYA+em7erv2iHXSPNYX7+pfuI65R1ph1
+        D3zheN9aJaNBRMHRMdzQkWC29cb/f4arJzikIEhAwVfVpKQb3nzbivlPcLy88ZO+iJ7KwXWx58KZB
+        q2M15h+DMa4uiKkw1q9nXO7L7Ei+NZERaMfrACZhZMH29TdkABDx/i9FdboU0gfYkpadsBtgdkMKA
+        ZeJvjBRXCi5OS/5RpR+GD1DgBZbR6m91yV8MftrCz0kj+MBHPGXpRcAphERXn6zjf5VkgNm9TgDJS
+        /Pceuhow==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:45230)
+        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.96)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1qWDRe-0002co-15;
+        Wed, 16 Aug 2023 11:08:06 +0100
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1qWDRb-0007ut-EU; Wed, 16 Aug 2023 11:08:03 +0100
+Date:   Wed, 16 Aug 2023 11:08:03 +0100
+From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
+To:     Ruan Jinjie <ruanjinjie@huawei.com>
+Cc:     linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+        Oleksij Rempel <linux@rempel-privat.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>
+Subject: Re: [PATCH -next] I2C: Use helper function IS_ERR_OR_NULL()
+Message-ID: <ZNygA72nKogZvlG3@shell.armlinux.org.uk>
+References: <20230816094618.2854084-1-ruanjinjie@huawei.com>
+ <50f61322-de65-1632-d404-7dcfe9a82744@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <50f61322-de65-1632-d404-7dcfe9a82744@huawei.com>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Yann Sionneau <ysionneau@kalray.eu>
+On Wed, Aug 16, 2023 at 05:48:34PM +0800, Ruan Jinjie wrote:
+> 
+> 
+> On 2023/8/16 17:46, Ruan Jinjie wrote:
+> > Use IS_ERR_OR_NULL() instead of open-coding it
+> > to simplify the code.
+> > 
+> > Signed-off-by: Ruan Jinjie <ruanjinjie@huawei.com>
+> > ---
+> >  drivers/i2c/busses/i2c-at91-master.c | 2 +-
+> >  drivers/i2c/busses/i2c-imx.c         | 2 +-
+> >  2 files changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+> > index 94cff1cd527e..0e454c04a145 100644
+> > --- a/drivers/i2c/busses/i2c-at91-master.c
+> > +++ b/drivers/i2c/busses/i2c-at91-master.c
+> > @@ -831,7 +831,7 @@ static int at91_init_twi_recovery_gpio(struct platform_device *pdev,
+> >  	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+> >  
+> >  	rinfo->pinctrl = devm_pinctrl_get(&pdev->dev);
+> > -	if (!rinfo->pinctrl || IS_ERR(rinfo->pinctrl)) {
+> > +	if (IS_ERR_OR_NULL(rinfo->pinctrl)) {
+> >  		dev_info(dev->dev, "can't get pinctrl, bus recovery not supported\n");
+> >  		return PTR_ERR(rinfo->pinctrl);
+> >  	}
+> > diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> > index 10e89586ca72..8807c90df749 100644
+> > --- a/drivers/i2c/busses/i2c-imx.c
+> > +++ b/drivers/i2c/busses/i2c-imx.c
+> > @@ -1388,7 +1388,7 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+> >  	struct i2c_bus_recovery_info *rinfo = &i2c_imx->rinfo;
+> >  
+> >  	i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
+> > -	if (!i2c_imx->pinctrl || IS_ERR(i2c_imx->pinctrl)) {
+> > +	if (!IS_ERR_OR_NULL(i2c_imx->pinctrl)) {
+> 
+> Sorry, there is a problem, please ignore it.
 
-Currently if the SoC needs pinctrl to switch the SCL and SDA
-from the I2C function to GPIO function, the recovery won't work.
+I don't think these conversions are appropriate for devm_pinctrl_get().
+If one reads the code for devm_pinctrl_get() and pinctrl_get(), then
+one finds that it will never return NULL.
 
-scl-gpio = <>;
-sda-gpio = <>;
+So the tests for NULL do not serve any practical purpose than giving
+coders a warm fuzzy feeling that they've tested for a NULL pointer.
+Practically, they are of no use, so should be removed... thus making
+the conversion to IS_ERR_OR_NULL() irrelevant.
 
-Are not enough for some SoCs to have a working recovery.
-Some need:
-
-scl-gpio = <>;
-sda-gpio = <>;
-pinctrl-names = "default", "recovery";
-pinctrl-0 = <&i2c_pins_hw>;
-pinctrl-1 = <&i2c_pins_gpio>;
-
-The driver was not filling rinfo->pinctrl with the device node
-pinctrl data which is needed by generic recovery code.
-
-Tested-by: Yann Sionneau <ysionneau@kalray.eu>
-Signed-off-by: Yann Sionneau <ysionneau@kalray.eu>
----
-V1 -> V2:
-* remove the unnecessary 'if (!rinfo->pinctrl)' test
-* test if return is -EPROBE_DEFER, in that case, return it.
-* Reword the commit message according to review
-
- drivers/i2c/busses/i2c-designware-master.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 3bfd7a2232db..b45accbff915 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -17,6 +17,7 @@
- #include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/module.h>
-+#include <linux/pinctrl/consumer.h>
- #include <linux/pm_runtime.h>
- #include <linux/regmap.h>
- #include <linux/reset.h>
-@@ -905,6 +906,15 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
- 		return PTR_ERR(gpio);
- 	rinfo->sda_gpiod = gpio;
- 
-+	rinfo->pinctrl = devm_pinctrl_get(dev->dev);
-+	if (IS_ERR(rinfo->pinctrl)) {
-+		if (PTR_ERR(rinfo->pinctrl) == -EPROBE_DEFER)
-+			return PTR_ERR(rinfo->pinctrl);
-+
-+		rinfo->pinctrl = NULL;
-+		dev_info(dev->dev, "can't get pinctrl, bus recovery might not work\n");
-+	}
-+
- 	rinfo->recover_bus = i2c_generic_scl_recovery;
- 	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
- 	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
-
-base-commit: 2ccdd1b13c591d306f0401d98dedc4bdcd02b421
 -- 
-2.34.1
-
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
