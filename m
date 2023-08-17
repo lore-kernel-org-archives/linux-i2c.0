@@ -2,28 +2,28 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EA52C2FC0E
-	for <linux-i2c@archiver.kernel.org>; Thu, 17 Aug 2023 09:47:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06A41C2FC1A
+	for <linux-i2c@archiver.kernel.org>; Thu, 17 Aug 2023 09:47:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349458AbjHQJq4 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 17 Aug 2023 05:46:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52822 "EHLO
+        id S1349792AbjHQJrA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 17 Aug 2023 05:47:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349827AbjHQJqn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Aug 2023 05:46:43 -0400
-Received: from SHSQR01.spreadtrum.com (unknown [222.66.158.135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07EE82D61;
-        Thu, 17 Aug 2023 02:46:40 -0700 (PDT)
+        with ESMTP id S1349836AbjHQJqy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Aug 2023 05:46:54 -0400
+Received: from SHSQR01.spreadtrum.com (mx1.unisoc.com [222.66.158.135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FBF62D67;
+        Thu, 17 Aug 2023 02:46:52 -0700 (PDT)
 Received: from dlp.unisoc.com ([10.29.3.86])
-        by SHSQR01.spreadtrum.com with ESMTP id 37H9kFjS085239;
-        Thu, 17 Aug 2023 17:46:15 +0800 (+08)
+        by SHSQR01.spreadtrum.com with ESMTP id 37H9kLHA085564;
+        Thu, 17 Aug 2023 17:46:21 +0800 (+08)
         (envelope-from Huangzheng.Lai@unisoc.com)
 Received: from SHDLP.spreadtrum.com (shmbx04.spreadtrum.com [10.0.1.214])
-        by dlp.unisoc.com (SkyGuard) with ESMTPS id 4RRKpD0fTTz2Q0M6k;
-        Thu, 17 Aug 2023 17:44:04 +0800 (CST)
+        by dlp.unisoc.com (SkyGuard) with ESMTPS id 4RRKpK2LpLz2P3khb;
+        Thu, 17 Aug 2023 17:44:09 +0800 (CST)
 Received: from xm9614pcu.spreadtrum.com (10.13.2.29) by shmbx04.spreadtrum.com
  (10.0.1.214) with Microsoft SMTP Server (TLS) id 15.0.1497.23; Thu, 17 Aug
- 2023 17:46:14 +0800
+ 2023 17:46:19 +0800
 From:   Huangzheng Lai <Huangzheng.Lai@unisoc.com>
 To:     Andi Shyti <andi.shyti@kernel.org>
 CC:     Orson Zhai <orsonzhai@gmail.com>,
@@ -33,9 +33,9 @@ CC:     Orson Zhai <orsonzhai@gmail.com>,
         huangzheng lai <laihuangzheng@gmail.com>,
         Huangzheng Lai <Huangzheng.Lai@unisoc.com>,
         Xiongpeng Wu <xiongpeng.wu@unisoc.com>
-Subject: [PATCH 1/8] i2c: sprd: Add configurations that support 1Mhz and 3.4Mhz frequencies
-Date:   Thu, 17 Aug 2023 17:45:13 +0800
-Message-ID: <20230817094520.21286-2-Huangzheng.Lai@unisoc.com>
+Subject: [PATCH 6/8] i2c: sprd: Add additional IIC control bit configuration to adapt to the new IP version of the UNISOC platform
+Date:   Thu, 17 Aug 2023 17:45:18 +0800
+Message-ID: <20230817094520.21286-7-Huangzheng.Lai@unisoc.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20230817094520.21286-1-Huangzheng.Lai@unisoc.com>
 References: <20230817094520.21286-1-Huangzheng.Lai@unisoc.com>
@@ -44,48 +44,42 @@ Content-Type: text/plain
 X-Originating-IP: [10.13.2.29]
 X-ClientProxiedBy: SHCAS03.spreadtrum.com (10.0.1.207) To
  shmbx04.spreadtrum.com (10.0.1.214)
-X-MAIL: SHSQR01.spreadtrum.com 37H9kFjS085239
+X-MAIL: SHSQR01.spreadtrum.com 37H9kLHA085564
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-This patch adds I2C controller driver support for 1Mhz and 3.4Mhz
-frequency configurations.
+The new IIC IP version on the UNISOC platform has added I2C_NACK_EN and
+I2C_TRANS_EN control bits. To ensure that the IIC controller can initiate
+transmission smoothly, these two bits need to be configured.
 
 Signed-off-by: Huangzheng Lai <Huangzheng.Lai@unisoc.com>
 ---
- drivers/i2c/busses/i2c-sprd.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-sprd.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-index ffc54fbf814d..acc2a4d4eeae 100644
+index 7314c897525d..d867389c7f17 100644
 --- a/drivers/i2c/busses/i2c-sprd.c
 +++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -347,6 +347,10 @@ static void sprd_i2c_set_clk(struct sprd_i2c *i2c_dev, u32 freq)
- 		writel((6 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
- 	else if (freq == I2C_MAX_STANDARD_MODE_FREQ)
- 		writel((4 * apb_clk) / 1000000, i2c_dev->base + ADDR_STA0_DVD);
-+	else if (freq == I2C_MAX_FAST_MODE_PLUS_FREQ)
-+		writel((8 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
-+	else if (freq == I2C_MAX_HIGH_SPEED_MODE_FREQ)
-+		writel((8 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
+@@ -33,6 +33,8 @@
+ #define ADDR_RST		0x2c
+ 
+ /* I2C_CTL */
++#define I2C_NACK_EN		BIT(22)
++#define I2C_TRANS_EN		BIT(21)
+ #define STP_EN			BIT(20)
+ #define FIFO_AF_LVL_MASK	GENMASK(19, 16)
+ #define FIFO_AF_LVL		16
+@@ -397,7 +399,7 @@ static void sprd_i2c_enable(struct sprd_i2c *i2c_dev)
+ 	sprd_i2c_clear_irq(i2c_dev);
+ 
+ 	tmp = readl(i2c_dev->base + I2C_CTL);
+-	writel(tmp | I2C_EN | I2C_INT_EN, i2c_dev->base + I2C_CTL);
++	writel(tmp | I2C_EN | I2C_INT_EN | I2C_NACK_EN | I2C_TRANS_EN, i2c_dev->base + I2C_CTL);
  }
  
- static void sprd_i2c_enable(struct sprd_i2c *i2c_dev)
-@@ -519,9 +523,11 @@ static int sprd_i2c_probe(struct platform_device *pdev)
- 	if (!of_property_read_u32(dev->of_node, "clock-frequency", &prop))
- 		i2c_dev->bus_freq = prop;
- 
--	/* We only support 100k and 400k now, otherwise will return error. */
-+	/* We only support 100k\400k\1m\3.4m now, otherwise will return error. */
- 	if (i2c_dev->bus_freq != I2C_MAX_STANDARD_MODE_FREQ &&
--	    i2c_dev->bus_freq != I2C_MAX_FAST_MODE_FREQ)
-+			i2c_dev->bus_freq != I2C_MAX_FAST_MODE_FREQ &&
-+			i2c_dev->bus_freq != I2C_MAX_FAST_MODE_PLUS_FREQ &&
-+			i2c_dev->bus_freq != I2C_MAX_HIGH_SPEED_MODE_FREQ)
- 		return -EINVAL;
- 
- 	ret = sprd_i2c_clk_init(i2c_dev);
+ static irqreturn_t sprd_i2c_isr_thread(int irq, void *dev_id)
 -- 
 2.17.1
 
