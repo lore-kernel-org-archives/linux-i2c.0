@@ -2,113 +2,116 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86C14EE49A3
-	for <linux-i2c@archiver.kernel.org>; Wed, 23 Aug 2023 21:17:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01DD6C3DA66
+	for <linux-i2c@archiver.kernel.org>; Wed, 23 Aug 2023 21:22:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237327AbjHWVQ6 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 23 Aug 2023 17:16:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36574 "EHLO
+        id S236640AbjHWVVs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 23 Aug 2023 17:21:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237875AbjHWVQr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Aug 2023 17:16:47 -0400
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 099AB171A
-        for <linux-i2c@vger.kernel.org>; Wed, 23 Aug 2023 14:16:34 -0700 (PDT)
-Received: by mail-yb1-xb2a.google.com with SMTP id 3f1490d57ef6-d746d030a86so4837656276.1
-        for <linux-i2c@vger.kernel.org>; Wed, 23 Aug 2023 14:16:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1692825394; x=1693430194;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iEpTjrnLVqxen66G7Uvz7Jyy/E11cVlVrjCW6/VyKj8=;
-        b=ZDmv2BjJU3fBSftYGcNM3tb+ILU/d9+cLODcLN7bJx5jE0GqvFKrPnlSYGlL0k9kWu
-         m0bch7za38IJ+CLWsWjflpljG/O8F9HEsNE/VWjVNStBDOBq3iJDnH2eTLO/dJEAtALA
-         zbXY+4ZWcbcUYtwqB7UctSATyz1sDYmgfZ/uZj88iB4dhaAHsNB4lm1XJShf+lSlTUF4
-         q1mw8cBg/PsTLqlxfYRQ9OdT1JyBSqfrgsLuehUHu9V36ypWdR+RMX9JIQmW7yxqcnfx
-         Bu1+6uVlgAFqvayOjaJa8cEpXa7Hm+cDiofeMeKPmewLASFqzTHTuUzB1cC9zTcv8uzK
-         +bQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692825394; x=1693430194;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iEpTjrnLVqxen66G7Uvz7Jyy/E11cVlVrjCW6/VyKj8=;
-        b=QVGW5oPW/8PMBX/TLR7O9KCed/zUdMUHNr4woz5T/5//5u6Y3UDIq2V2I4vk/br8wt
-         VJeno95i68Etz/7TldhxCTQZ2+rJxvvsjFzBjp2/kjXk0b55Njp+GyhM8yz7Wl6O+PES
-         bxBYt2x95jdrUoNxBUxhl2Hvr0rDxgHGTJSZy+DiESVR2t/J04GOknWm91u+fDKJVOyj
-         HlMlQ2pKDVT4KLyXrcneyc4Xzyr9pASo3bCAl1VKTj8Ny+Y8n7crYUpascYP9ueLiU/V
-         TIMNkTbwWbTeE4X8XUtBDO38vkIuQlkVLXrPkPdjdpM/uUw8FstM0XWZFvDRKsMlykhO
-         HBqw==
-X-Gm-Message-State: AOJu0YxBlDT27FDNw4LmovCcNNrN0AoeJd2LNQdMirgQXhAHxsngJ8W8
-        sZXc4nujFM2MMJCQmW8QgE3mqJh/CuCaKK9WpvpBcQ==
-X-Google-Smtp-Source: AGHT+IGU5hlAbzjKR6dHf8nG7wjH+gLTIhLdkOAR0BQZYCAzmvxO+0vsobrLpwu8+6G8uJRZXAov+P50unjaO9+ZE7g=
-X-Received: by 2002:a25:c08f:0:b0:d09:f39b:cecf with SMTP id
- c137-20020a25c08f000000b00d09f39bcecfmr12862557ybf.9.1692825393910; Wed, 23
- Aug 2023 14:16:33 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230823183749.2609013-1-robh@kernel.org>
-In-Reply-To: <20230823183749.2609013-1-robh@kernel.org>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Wed, 23 Aug 2023 23:16:22 +0200
-Message-ID: <CACRpkdbuB-NotnMXc9vZj-byjk7spCSkZ+Dx=R_eOqoSV5CdTA@mail.gmail.com>
-Subject: Re: [PATCH] dt-bindings: Drop remaining unneeded quotes
-To:     Rob Herring <robh@kernel.org>
-Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        James Clark <james.clark@arm.com>,
-        Leo Yan <leo.yan@linaro.org>,
+        with ESMTP id S237833AbjHWVV1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Aug 2023 17:21:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9887910FB;
+        Wed, 23 Aug 2023 14:21:08 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1980B62B2B;
+        Wed, 23 Aug 2023 21:21:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9041C433C8;
+        Wed, 23 Aug 2023 21:21:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1692825667;
+        bh=Iyj/SmH3OAVbPBie+ofMRf1yo+cSncHOoZU2FBtcQaE=;
+        h=Date:From:To:Subject:References:In-Reply-To:From;
+        b=PaOalsK/nJsnnCc3SWlFWuYuiWQkeDHKwbwAi4B8e8OI7G4xf3eW8TrHOu4rAsABi
+         FxxmGdnLjbxCaL09xghDhTCwZ+Ot8hR538bl192L4Pad2i5InMBW0idAkyG5Gvqosb
+         y6TCIGaYrcst6FHAkeSCR404TjQcl/6hERu1hDdrl6UQlYYfz1+0NkTNE1hEaRG2El
+         6JiyDdkYvp8BTfAGW4l4loy03FU2W96SFFZVfF362DEuKYhQOPwqNQbYasE81J5k4n
+         /vpphubGGjAYm0z0TqtWuEfQ2Iv7HobGNf/Ly4NTQwDMzBaOGk3uxZa21kIG14RNn0
+         E8Hgecm0lA7Yg==
+Date:   Wed, 23 Aug 2023 23:21:03 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Patrick Rudolph <patrick.rudolph@9elements.com>,
+        Peter Rosin <peda@axentia.se>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        naresh.solanki@9elements.com,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Andy Shevchenko <andy@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>, Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Corey Minyard <minyard@acm.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        M ark Brown <broonie@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        coresight@lists.linaro.org, linux-arm-kernel@lists.infradead.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-i3c@lists.infradead.org,
-        linux-iio@vger.kernel.org,
-        openipmi-developer@lists.sourceforge.net,
-        linux-media@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        alsa-devel@alsa-project.org, linux-scsi@vger.kernel.org,
-        linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v15 1/4] dt-bindings: i2c: pca954x: Correct interrupt
+ support
+Message-ID: <ZOZ4P8rHT+nwK+rp@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Patrick Rudolph <patrick.rudolph@9elements.com>,
+        Peter Rosin <peda@axentia.se>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        naresh.solanki@9elements.com,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20230817071056.2125679-1-patrick.rudolph@9elements.com>
+ <20230817071056.2125679-2-patrick.rudolph@9elements.com>
+ <ZOZ23CEnQ+Cus2wh@shikoro>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Jg/jTplsJfy0PNOd"
+Content-Disposition: inline
+In-Reply-To: <ZOZ23CEnQ+Cus2wh@shikoro>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Wed, Aug 23, 2023 at 8:38=E2=80=AFPM Rob Herring <robh@kernel.org> wrote=
-:
 
-> Cleanup bindings dropping the last remaining unneeded quotes. With this,
-> the check for this can be enabled in yamllint.
->
-> Signed-off-by: Rob Herring <robh@kernel.org>
+--Jg/jTplsJfy0PNOd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+On Wed, Aug 23, 2023 at 11:15:08PM +0200, Wolfram Sang wrote:
+> On Thu, Aug 17, 2023 at 09:10:50AM +0200, Patrick Rudolph wrote:
+> > Only some of the PCA954x compatible ICs have interrupt
+> > capability, but the binding advertises it on all ICs.
+> >=20
+> > Sync the dt-binding with the driver and only advertise it on:
+> >  - nxp,pca9542
+> >  - nxp,pca9543
+> >  - nxp,pca9544
+> >  - nxp,pca9545
+> >=20
+> > Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
+> > Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+>=20
+> Applied to for-next, thanks!
 
-Yours,
-Linus Walleij
+I replied to V15 but I applied V16!
+
+
+
+--Jg/jTplsJfy0PNOd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmTmeD8ACgkQFA3kzBSg
+KbZBmQ//Q0kPa73CEJv9ToP+DoMvCIxZx392x4LLzOesGUS4qrStr/457jFc62wc
+rawi3q0doO882pbQ015rgpgOorzzcp8XWtJRcyV9D0xCZiKEcAsz1ShgxaJ+f+BW
+O7h8TNz1bKVSSbzIzux9OiTOhG0fmddgpBBUEdLLAwzuCfSZ9YbuEuMeJZCtrCag
+M5ALF37O1nJuTwo944V7LI6u1j3U5scbWjK8R8p3kz3fRy/xPBhB7yHYk7DnWj72
+9BxplWwlUb1hSQEHUFrOGLHYcTaWVYPKF2RYl6stvPq+DXoVATPLAMA/3WRUYc3n
++HhcDZEBpUqDnF2euIEitOaCPxxsubNxd6m/iD5eeFXidTJMnIcohARztb69nHyC
+ohdWcRAIWuZNzMMjvrxQnd/zlG+shdf3dPTo2mxMGMMV7U6TzChYCY1ggzgc63Lr
+boR4mwDvqvc+zazlAUblQtI1De878XEo+3UvjsYoFRD4f9yi9mahWObbuliLCWSu
+73T3Yg4aYCeAwYm/L18021M+Jb9g2WcnWOdyFbQbGRGf7/fc0OZpUBkDp4lvkjSj
+2Tc5H4FMHDn4xD9vQXASuidx0mkYfBGp1dOyPHzOj95YXIHXUBdXZdxxObFZWp7K
+SJ2QAogaGOcuHriTGwoowwrWhhYZGl6bIFnBlua9ABLOyTcC8cw=
+=Az6T
+-----END PGP SIGNATURE-----
+
+--Jg/jTplsJfy0PNOd--
