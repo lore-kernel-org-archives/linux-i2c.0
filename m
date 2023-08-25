@@ -2,75 +2,113 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAF16C3DA66
-	for <linux-i2c@archiver.kernel.org>; Fri, 25 Aug 2023 20:23:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 858AEEE49A0
+	for <linux-i2c@archiver.kernel.org>; Fri, 25 Aug 2023 20:27:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231171AbjHYUWw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 25 Aug 2023 16:22:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49958 "EHLO
+        id S230135AbjHYU1P (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 25 Aug 2023 16:27:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231183AbjHYUWj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Aug 2023 16:22:39 -0400
-X-Greylist: delayed 543 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 25 Aug 2023 13:22:34 PDT
-Received: from pokefinder.org (pokefinder.org [135.181.139.117])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D06A71A5
-        for <linux-i2c@vger.kernel.org>; Fri, 25 Aug 2023 13:22:34 -0700 (PDT)
-Received: from localhost (i5E861F7A.versanet.de [94.134.31.122])
-        by pokefinder.org (Postfix) with ESMTPSA id E93CCA42A15;
-        Fri, 25 Aug 2023 22:13:29 +0200 (CEST)
-Date:   Fri, 25 Aug 2023 22:13:29 +0200
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Vadim Pasternak <vadimp@nvidia.com>
-Cc:     linux-i2c@vger.kernel.org
-Subject: Re: [PATCH i2c-next 1/2] i2c: mlxcpld: Allow driver to run on ARM64
- architecture
-Message-ID: <ZOkLabwMmNI922Pk@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
-        Vadim Pasternak <vadimp@nvidia.com>, linux-i2c@vger.kernel.org
-References: <20230822185137.36215-1-vadimp@nvidia.com>
- <20230822185137.36215-2-vadimp@nvidia.com>
+        with ESMTP id S231199AbjHYU0o (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Aug 2023 16:26:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D551BF1;
+        Fri, 25 Aug 2023 13:26:42 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FD2161D12;
+        Fri, 25 Aug 2023 20:26:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51985C433C7;
+        Fri, 25 Aug 2023 20:26:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1692995201;
+        bh=3Cdu/uTYriSNWsOo9XVfGexrAvdYqJ+xqGlpP07m/rQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=setMzatwhC0Sq2F0eaTOfSx4f8HQrL8YmQArQ6YqiK4UDCGx1G1IvDidFdr30rjtq
+         A1hyhVKIGu0EzgKAljP+HVLkOBERZxZydvl8veog/nvVZRsRQHc+ZBoLXJsxnGRYAI
+         j7tz36Aw9NTJcr0LS2ZNgJ/hx0z4SLujt07FL51r6dkFyXD7kwYXzIbnk5TadtUUpB
+         QhEoKqOva2Mp6NsUAK1zlUYo6UYlhyqC0xFrEIh9bvIw+t/nXnS5j4LhbPI5lroCTM
+         +a5Jv+NzE0SdirxMGWtVEM5FTi+enUuzGhjGoxbrdtpZHSlaHRUAPcalFi0hhHVyvO
+         2PEh923+qR15w==
+Date:   Fri, 25 Aug 2023 22:26:38 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Yann Sionneau <ysionneau@kalray.eu>
+Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Julian Vetter <jvetter@kalrayinc.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6] i2c: designware: Add support for recovery when GPIO
+ need pinctrl.
+Message-ID: <ZOkOfjtYGUc4DlQW@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Yann Sionneau <ysionneau@kalray.eu>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Julian Vetter <jvetter@kalrayinc.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20230822143437.9395-1-ysionneau@kalray.eu>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="KIR94gU3+BsfVUNT"
+        protocol="application/pgp-signature"; boundary="hxh5RCi5VCAcnbl/"
 Content-Disposition: inline
-In-Reply-To: <20230822185137.36215-2-vadimp@nvidia.com>
+In-Reply-To: <20230822143437.9395-1-ysionneau@kalray.eu>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---KIR94gU3+BsfVUNT
+--hxh5RCi5VCAcnbl/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 22, 2023 at 06:51:36PM +0000, Vadim Pasternak wrote:
-> Extend driver dependency by ARM64 architecture.
+On Tue, Aug 22, 2023 at 04:34:37PM +0200, Yann Sionneau wrote:
+> Currently if the SoC needs pinctrl to switch the SCL and SDA from the I2C
+> function to GPIO function, the recovery won't work.
 >=20
-> Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-> Reviewed-by: Michael Shych <michaelsh@nvidia.com>
+> scl-gpio =3D <>;
+> sda-gpio =3D <>;
+>=20
+> Are not enough for some SoCs to have a working recovery.
+> Some need:
+>=20
+> scl-gpio =3D <>;
+> sda-gpio =3D <>;
+> pinctrl-names =3D "default", "recovery";
+> pinctrl-0 =3D <&i2c_pins_hw>;
+> pinctrl-1 =3D <&i2c_pins_gpio>;
+>=20
+> The driver was not filling rinfo->pinctrl with the device node
+> pinctrl data which is needed by generic recovery code.
+>=20
+> Signed-off-by: Yann Sionneau <ysionneau@kalray.eu>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 Applied to for-next, thanks!
 
 
---KIR94gU3+BsfVUNT
+--hxh5RCi5VCAcnbl/
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmTpC2kACgkQFA3kzBSg
-KbZDIg//b3iYuwYz9RHgbXKGzIq/MUL9TRx5sdK8CO0vCtp2vTcEPhiKFdwjf6iT
-VOjdlrSxjAsiPrMZ0y91P+vs0F+lhFMchr9cPLcQMYB5uqQZ8u+pYqAQZBGoplnW
-otbsfccf9qiVdU5Aj/7g+Q/2Fk1atfYn9IZD5ERF65SULPZSKWV2jC4yKAEyFHHv
-KMlMBH4db5N64W6C5qDb/oNGrgOPgosZF/CMDZ+8872vJ+vdtHllWHoOKdMaz/mt
-Q0I7Rv6MDWZdffWT60TZP/k4tvRhb96CkGYWJZccdAs6d65TSk8dmPrOeDFzUGH9
-+98nFr26T74ZZb4Lkl4bDO62ZIemmZpFUqvJHggBPItRl5rC9QRX5PixEwyysLIG
-c8HXJpI/cyI0OkCwaoSVSgzNQNPrKWeoAZKK+vDzgyQPbOa4TOcvtE2n4uClWgZ6
-Be1874f4aFYnvK+V9ye6k1GUfr9CwFf0E2akgEBaudcXOnIUUe9QqTmHwmTdI5N4
-T6d+qgPWKjwvdKFyLoBmooIzGyBGOFbU1UU7sOSgoQ6izifF3GVeLyFMYmAoaVNY
-gTYzGOUlysEYpwIT67j6WOiEnQcw9asQxOFjjFJuYCaNgq1XuUnYzaJADKBdVNFo
-7P2FRS1/xpCal8fHziDeqjyru0a2tShPbORHUDsTy3IXxoiOT7w=
-=emNm
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmTpDn4ACgkQFA3kzBSg
+KbaFAhAAtRCS2vD5BiW1pMDk3RbiaUpphxf1jPSlBAkAzZEj1KLYLRwTDS5H0Spw
+ggBWZJk/zisMKuUzh7VY8wjVE7Y4WKMoJxpkqm0fGe/Wi4aoLGrpPJxcrSyx0ArH
+zIcYj/DI48IgI04nJlKpD/wH+7KLLqipIDbZTDnvnhQhVUluyMI8Od6XTi6hO73L
+BWJ6RyFowBaM0ipGaju4TfDKVUmFFQoymPv3QMsuXyjWp3bk5DDeqC8iApgc6qiP
+hi3pFa+BdP0cONvXOsna3x3osiW+iu4JFG8RFfp8xIdKgFnJamnP/XGZRFXQtPor
+JBaID2Gin2bQQbkr+C9iT2tjagDSTjTFwtI3AJLCwWL+80QRLNpArhDs+QfSEJ0j
+gj7ZeR6UsQ4EXdX144BLzenRZfV0i3h5KjleJD2oQpVp0YlbM/tlOCRcn5BticZp
+k/EnBVEuKrEigiC2PkNazdSWtUCvgTa6pmrMzlFtPcqhBVvO+lL9v7nyLKhhxRXO
+L3uB0V61wKLuDGhjvVexwdOOv6x5qnqAhSvetiS+t1rt+3qQ/S/vmAyk5c1oYROQ
+IvUi9sF9PW5/R/EQqwy0+PwIyIRixOI2Owdr5wT6IRFClJMoHipUZZheQmiucaDF
+59xh/UJBJQLIfmIIzjqAfYySAuRVbz2ZCF3LsjVAsbpy7Wu3Aow=
+=d8Qm
 -----END PGP SIGNATURE-----
 
---KIR94gU3+BsfVUNT--
+--hxh5RCi5VCAcnbl/--
