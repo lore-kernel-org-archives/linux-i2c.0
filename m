@@ -2,107 +2,80 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA1CFEE49A3
-	for <linux-i2c@archiver.kernel.org>; Fri, 25 Aug 2023 20:08:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C787EE49A3
+	for <linux-i2c@archiver.kernel.org>; Fri, 25 Aug 2023 20:23:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230222AbjHYUIK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 25 Aug 2023 16:08:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51548 "EHLO
+        id S231279AbjHYUWv (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 25 Aug 2023 16:22:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230207AbjHYUH6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Aug 2023 16:07:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD00A2686;
-        Fri, 25 Aug 2023 13:07:56 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39DF362AD0;
-        Fri, 25 Aug 2023 20:07:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF3CEC433C8;
-        Fri, 25 Aug 2023 20:07:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1692994075;
-        bh=kvYJY9GVkYB1KvLokRDqmnYgpNsujZYT6/nl/kMTZHM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mAD1fmKqnwS1/LbiUvdzh0WfHfssTaHymtW7SXRUAa8qq8Y8Zi+AbANCzY8UMR69B
-         0aM8w3V9Lwr6wPexmih6fAyhbkkKE6Ukyfw9vxon87sOr1j+PGkS6Lw4W2vr2e0Tl9
-         02ADvZ+3COI8ZWf/i4vktTYdvLoVJz6MBKbwyR9kQAZpDMu4old3IbVoFSBetWfps9
-         11oKD+87PwhrH5NFOknacLolivH5wbIeG/4FH8JwtEmL2zGn15ejLoK3bGY5c9FVud
-         BfIh04UsB0TPrlx0cf5UuRxLG5pzcLKKzGyygTBGSJDvR13O3+lz6PQ/EKneHKKoI6
-         0vGJaRg34ODoA==
-Date:   Fri, 25 Aug 2023 22:07:52 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Cc:     dmitry.baryshkov@linaro.org,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Robert Foss <rfoss@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Liao Chang <liaochang1@huawei.com>,
-        Todor Tomov <todor.too@gmail.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dan.carpenter@linaro.org, kernel-janitors@vger.kernel.org,
-        error27@gmail.com, vegard.nossum@oracle.com
-Subject: Re: [PATCH next] i2c: qcom-cci: Fix error checking in cci_probe()
-Message-ID: <ZOkKGAv5iBHRNL4M@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        dmitry.baryshkov@linaro.org, Loic Poulain <loic.poulain@linaro.org>,
-        Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-        Liao Chang <liaochang1@huawei.com>,
-        Todor Tomov <todor.too@gmail.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dan.carpenter@linaro.org, kernel-janitors@vger.kernel.org,
-        error27@gmail.com, vegard.nossum@oracle.com
-References: <20230823194202.2280957-1-harshit.m.mogalapalli@oracle.com>
+        with ESMTP id S231181AbjHYUWj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Aug 2023 16:22:39 -0400
+Received: from pokefinder.org (pokefinder.org [135.181.139.117])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EC491E54
+        for <linux-i2c@vger.kernel.org>; Fri, 25 Aug 2023 13:22:34 -0700 (PDT)
+Received: from localhost (i5E861F7A.versanet.de [94.134.31.122])
+        by pokefinder.org (Postfix) with ESMTPSA id 13352A42A23;
+        Fri, 25 Aug 2023 22:13:35 +0200 (CEST)
+Date:   Fri, 25 Aug 2023 22:13:34 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Vadim Pasternak <vadimp@nvidia.com>
+Cc:     linux-i2c@vger.kernel.org
+Subject: Re: [PATCH i2c-next 2/2] i2c: mlxcpld: Add support for extended
+ transaction length
+Message-ID: <ZOkLbtb4adrNj7Ij@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@the-dreams.de>,
+        Vadim Pasternak <vadimp@nvidia.com>, linux-i2c@vger.kernel.org
+References: <20230822185137.36215-1-vadimp@nvidia.com>
+ <20230822185137.36215-3-vadimp@nvidia.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="B0A59Lbk1gxNIIfK"
+        protocol="application/pgp-signature"; boundary="loBirHhAgEDgINNV"
 Content-Disposition: inline
-In-Reply-To: <20230823194202.2280957-1-harshit.m.mogalapalli@oracle.com>
+In-Reply-To: <20230822185137.36215-3-vadimp@nvidia.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
 
---B0A59Lbk1gxNIIfK
+--loBirHhAgEDgINNV
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 23, 2023 at 12:42:02PM -0700, Harshit Mogalapalli wrote:
-> devm_clk_bulk_get_all() can return zero when no clocks are obtained.
-> Passing zero to dev_err_probe() is a success which is incorrect.
+On Tue, Aug 22, 2023 at 06:51:37PM +0000, Vadim Pasternak wrote:
+> Add support for extended length of read and write transactions.
+> New FPGA logic allows to increase size of the read and write
+> transactions length. This feature is verified through capability
+> register 'CPBLTY_REG'. Two bits 5 and 6 of the register are used for
+> length capability detection. Value '10' indicates support of extended
+> transaction length - 128 bytes for read transactions and 132 for write
+> transactions.
 >=20
-> Fixes: 605efbf43813 ("i2c: qcom-cci: Use dev_err_probe in probe function")
-> Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+> Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+> Reviewed-by: Michael Shych <michaelsh@nvidia.com>
 
 Applied to for-next, thanks!
 
 
---B0A59Lbk1gxNIIfK
+--loBirHhAgEDgINNV
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmTpChgACgkQFA3kzBSg
-KbYsYQ//fCeqqLuAljmXlXehorWuqtDXrAlPqj5kBBySFZEgZwvwZk8WtONlY6PL
-9I5SLVOwwUIHX7P5p9lrsN6E7dlVcSp5E6olJLV5fY/rANLgd6tLU9XbIvOig9zF
-D7atebwcLCRZuP407yt0OMPm8tf48KIAQBHeae5WreWnAdgDzARVFi8NrFrQI1oL
-NW7olTC76jtj9/9FGVAbvRAJsQU9nW/tV/ILS+S9rSqO1HLPfF2KXe5Ua6AAvOQy
-Y9vPkEWYsNMQO0vzoyFWem6cFxznzLRirtcv6R4DBrjmK64jivAYKeWtUt7i7tIY
-NsfFIKZBoMn+XxfGzogeib3ShdqUgFaNChwyh95wmG40HnIRHQn8fBdDzX9tJir8
-cYpnHS3zNY/iQh37uZRW+UZUvCR6VEUqev67LaFDm/4uRMAyKUUsVvWsizvMN/Ex
-7WOhzWMt/1M67pFBXDFRLssLTEJQ8qZPZDBhvr/97xr1xglGsR8+kLLLRssD52Sm
-PHuzPf7KCg/msJ1DJ9KzrBGoIPscpuM38aIleH0DLan8nql3zzCkK2OP3UmIrljh
-DMe+BN8NED12eFLkJWUr2oKaa3B28ux8FIUST7Fn24u5myNc6vVAeoBfbsjzcWTC
-HbPpPa+ylOSLBscEWEQR/GFW+z8qiYT7ai2yAQfXhBg8kDWEAWU=
-=F7WM
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmTpC24ACgkQFA3kzBSg
+KbYXLQ//W0JD/YmMtaCzeOJ2ABTg9naZrJ6kIXBtFQ7Oww69cw9tccO4fiyyHXCm
+g85MWsFdqeIZQieJMVmLJr9t7Tzsexn4t8+QdD87Q676Lel/+miIZLbh/iq3MrXd
+zlGi4CL2sIeyii3TCRZU0GmXKdLKBNkP/bTqwgDXnzBiMS65fMyacLDo450VoLDX
+UWlDf2pDjU/wa9wNEJT9Lz4cGfH2Ev5ivhaiCZPJgCXO0a0qZ4+DZUG7LFtUONf2
+PpCjQn8ll+KCt8jx1h8LBNkCu7Ndj/R2NgchE0kg9hLZOq3KFOiIpyfsdHBegpNb
+5OqTPvveMGoWGKdon7kotUYW5C4StZYjMEqdDky7WsfEMJ6Fyt1YIJVUFOhoYnze
+3iR+bySjeErwqEuuqEDNu3+/7O3fLq4NW732grxZAILMHhhWcEnXFIL7XZtb85PP
+DvjEebVVf1E+qmK6e3f4PR/zaOnG1vJzoDsTzgjU9d02ffiKwjJs4t/O6NODRIHU
+OSb6r6tVtRlNujoXiaj6dDML4+g0+Zh7rmZoxPsgCFT6ZGEZlUPteZWgLr9MfAm4
+osq4jbllc7a5G0mycaQauD0fYkuFzRnOsdNVfEsWweP0oUyOA8X9KnWGR0j9I38o
+Ac0V5Mjx3yS8SlOAgbQPybQEC0N9boAwX83U3aOJ95HmCAiM4Jw=
+=NVds
 -----END PGP SIGNATURE-----
 
---B0A59Lbk1gxNIIfK--
+--loBirHhAgEDgINNV--
