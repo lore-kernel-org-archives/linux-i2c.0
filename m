@@ -2,113 +2,122 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E67AC83F2A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 217EDC83F29
 	for <linux-i2c@archiver.kernel.org>; Wed, 30 Aug 2023 18:38:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231185AbjH3Sik (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 30 Aug 2023 14:38:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37102 "EHLO
+        id S232013AbjH3Sii (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 30 Aug 2023 14:38:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243326AbjH3Kmy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Aug 2023 06:42:54 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5883B83;
-        Wed, 30 Aug 2023 03:42:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1693392172; x=1724928172;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=YvbhLLjEvxspvvwFLcbNzIYMP/3JZ/zVIHYs3pSlMwE=;
-  b=j9Gdw6bWY6/JvbH7EvVzcgLzSdMn1xnv9mBy8RNd85Dkey9iHDFlmGXv
-   UGddeQKA7KiK5oqRjn2N7ujYdNdrqTo/t2BZ9jc+ZaFnBCxhk8dieCInJ
-   C8O3jgvTA1d0E3f+UmCE5pQoExsluAYpY8ptKo0NyMX68gQDG/FOIcT5j
-   g0hH/aR13wOT7CUsQVmQsrYLfWK9iCqn7IP+WBZVSSDM77xl7rdBlf/Oq
-   596oUR9kXPsML6HsPa8Ff9wFTSrvP09KWIT2FcES2yGYT2ItX6pyv0Enm
-   b469El6fgqwkmzA314ezn0IWg86Pk2vdGEuOAl/42r1G+yrJI71TtiraV
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10817"; a="461983201"
-X-IronPort-AV: E=Sophos;i="6.02,213,1688454000"; 
-   d="scan'208";a="461983201"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Aug 2023 03:42:51 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10817"; a="742187521"
-X-IronPort-AV: E=Sophos;i="6.02,213,1688454000"; 
-   d="scan'208";a="742187521"
-Received: from mylly.fi.intel.com (HELO [10.237.72.154]) ([10.237.72.154])
-  by fmsmga007.fm.intel.com with ESMTP; 30 Aug 2023 03:42:49 -0700
-Message-ID: <483369c5-2042-486f-ad95-10bfb1adb444@linux.intel.com>
-Date:   Wed, 30 Aug 2023 13:42:48 +0300
+        with ESMTP id S245164AbjH3OiQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Aug 2023 10:38:16 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED271A3
+        for <linux-i2c@vger.kernel.org>; Wed, 30 Aug 2023 07:38:13 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id 38308e7fff4ca-2bcb89b476bso85637591fa.1
+        for <linux-i2c@vger.kernel.org>; Wed, 30 Aug 2023 07:38:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1693406291; x=1694011091; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=cMgMrR7+l3U6InFHuLJKmHUuLjLzWvIThsVzLRt3aVA=;
+        b=boeH8U4vR+1Vf5QffwQHIOwj9K1UppXefxIOnmXcfZDJMLWz5h27gJGL0BjAv7NP2v
+         czLtXy8fTv8Ta4MKe8tmFDz3x+nYu8kvD7/JisJ8I0VWODUxat/ebLB+YAl1bvGvY0n6
+         BhwSU3096kAV8xGe1QVSjzqhf6SadAFA5Cs3wRQiZuGhKUTGElQS8vN5nm1SfZa+pl7E
+         L4ibf79GLQm5KVtsPa1LEor8Lo3FfL04VKYdbPDJ62kf9WQpFDXmXjk3/3u0/d41RFzY
+         a0s4HQzez8GacA5Ao2R6CuljBfjt9QpGhDfR/GKy6MV6NP8YpI6vqUDCjSatrvef4tNl
+         vwig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1693406291; x=1694011091;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=cMgMrR7+l3U6InFHuLJKmHUuLjLzWvIThsVzLRt3aVA=;
+        b=Ei3i6NWs1aZRp28z1Pe44+9ExxJKIHfcrLnsydbaRNLn1iCTIPzW0nWiZswpVLc/bo
+         MohtxZc95t2dOMB9pDmVt5gwS/n6wSen3wYdCzFiRR/AyaTzVKYtoEg2cJKaozb7Gm+d
+         cO978diZAvc7gq6ABHEwqQrER7wro2c2zJ9YKQgklDVNLjzofYcuVlhgSMNONeD7dMbr
+         XKzc/tefjvaw6UNbY2WAMxwrhLX6xBjT46z044hZ66lYL6EfGi9jsoygiLaZi6z/qZAb
+         jTxvnslQe8+E4zzeGbl7dVxc6RwuZqfs2/ZVLI5/4tW17nlVOpyOQPOFDPpKhD3Ii4Zh
+         RxAA==
+X-Gm-Message-State: AOJu0YzDwM1ImnPcB9z96l9GRL4C1S2EyUTIeaQWAMNccbdTopK9Nyww
+        3u+laDgi3Ai2Ul/6oiJD+iZzxQ==
+X-Google-Smtp-Source: AGHT+IErThUR7PX4P9tgEp26JOMA5iIFhpRzIW70CUb4TYwhSuoCzQURMIk4hJsKeGk6T83B+0C8aA==
+X-Received: by 2002:a2e:98d0:0:b0:2bd:10b7:4610 with SMTP id s16-20020a2e98d0000000b002bd10b74610mr1823901ljj.25.1693406291406;
+        Wed, 30 Aug 2023 07:38:11 -0700 (PDT)
+Received: from [192.168.0.22] (77-252-46-238.static.ip.netia.com.pl. [77.252.46.238])
+        by smtp.gmail.com with ESMTPSA id sd26-20020a170906ce3a00b00997d76981e0sm7249079ejb.208.2023.08.30.07.38.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 30 Aug 2023 07:38:10 -0700 (PDT)
+Message-ID: <b467c423-dbd4-8a14-8fa4-169658e21693@linaro.org>
+Date:   Wed, 30 Aug 2023 16:38:09 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] i2c: designware: fix __i2c_dw_disable() in case master
- is holding SCL low
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH 1/2] dt-binding: Add custom property for MAX7357
 Content-Language: en-US
-To:     Yann Sionneau <ysionneau@kalray.eu>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Julian Vetter <jvetter@kalrayinc.com>
-Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jonathan Borne <jborne@kalray.eu>
-References: <20230822090233.14885-1-ysionneau@kalray.eu>
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-In-Reply-To: <20230822090233.14885-1-ysionneau@kalray.eu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     Naresh Solanki <naresh.solanki@9elements.com>,
+        Peter Rosin <peda@axentia.se>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc:     Patrick Rudolph <patrick.rudolph@9elements.com>,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20230830115744.4102929-1-Naresh.Solanki@9elements.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230830115744.4102929-1-Naresh.Solanki@9elements.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi
+On 30/08/2023 13:57, Naresh Solanki wrote:
+> From: Patrick Rudolph <patrick.rudolph@9elements.com>
+> 
+> Add a custom property "maxim,bus-lockup-fix" to enable proprietary
+> features on MAX7357. The driver configures MAX7357 to isolate the
+> failing channel and trigger a flush-out sequence for bus lock-up
+> resolution.
 
-On 8/22/23 12:02, Yann Sionneau wrote:
-> The DesignWare IP can be synthesized with the IC_EMPTYFIFO_HOLD_MASTER_EN
-> parameter.
-> In this case, when the TX FIFO gets empty and the last command didn't have
-> the STOP bit (IC_DATA_CMD[9]), the controller will hold SCL low until
-> a new command is pushed into the TX FIFO or the transfer is aborted.
+Please use subject prefixes matching the subsystem. You can get them for
+example with `git log --oneline -- DIRECTORY_OR_FILE` on the directory
+your patch is touching.
+
+It is "dt-bindings" not binding and several other fields are needed.
+
+Also "add custom property" is quite generic. When you add next custom
+property you are going to have two commits with the same subject. Just
+make it descriptive - "Add foobar for MAX7357"
+
+
+
 > 
-> When the controller is holding SCL low, it cannot be disabled.
-> The transfer must first be aborted.
-> Also, the bus recovery won't work because SCL is held low by the master.
-> 
-> Check if the master is holding SCL low in __i2c_dw_disable() before trying
-> to disable the controller. If SCL is held low, an abort is initiated.
-> When the abort is done, then proceed with disabling the controller.
-> 
-> This whole situation can happen for instance during SMBus read data block
-> if the slave just responds with "byte count == 0".
-> This puts the driver in an unrecoverable state, because the controller is
-> holding SCL low and the current __i2c_dw_disable() procedure is not
-> working. In this situation only a SoC reset can fix the i2c bus.
-> 
-> Co-developed-by: Jonathan Borne <jborne@kalray.eu>
-> Signed-off-by: Jonathan Borne <jborne@kalray.eu>
-> Signed-off-by: Yann Sionneau <ysionneau@kalray.eu>
+> Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
+> Signed-off-by: Naresh Solanki <Naresh.Solanki@9elements.com>
 > ---
-> V2 -> V3:
-> * do not rename timeout variable for disabling loop
-> in order to ease backports
-> * replace abort loop with regmap_read_poll_timeout()
-> * remove extra empty line.
+>  .../devicetree/bindings/i2c/i2c-mux-pca954x.yaml  | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
 > 
-> V1 -> V2:
-> * use reverse christmas tree order for variable declarations
-> * use unsigned int type instead of u32 for regmap_read
-> * give its own loop to the abort procedure with its own timeout
-> * print an error message if the abort never finishes during the timeout
-> * rename the timeout variable for the controller disabling loop
-> * with the usleep_range(10, 20) it takes only 1 loop iteration.
-> Without it takes 75 iterations and with udelay(1) it takes 16
-> loop iterations.
-> 
->   drivers/i2c/busses/i2c-designware-common.c | 17 +++++++++++++++++
->   drivers/i2c/busses/i2c-designware-core.h   |  3 +++
->   2 files changed, 20 insertions(+)
-> 
-This doesn't apply against current code. Looks like your base is older 
-than v6.2? I.e. before commit 966b7d3c738a ("i2c: designware: Align 
-defines in i2c-designware-core.h").
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+> index 2d7bb998b0e9..984d4614a270 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+> @@ -71,6 +71,11 @@ properties:
+>      description: A voltage regulator supplying power to the chip. On PCA9846
+>        the regulator supplies power to VDD2 (core logic) and optionally to VDD1.
+>  
+> +  maxim,bus-lockup-fix:
+> +    type: boolean
+> +    description: Isolates only the stuck channel and generates a flush-out sequence
+> +      to attempt to clear the bus lock-up.
 
-Jarkko
+Why wouldn't you want it to be enabled all the time? Why should it be
+configurable per-board?
+
+Best regards,
+Krzysztof
+
