@@ -2,61 +2,99 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30F3BC83F18
-	for <linux-i2c@archiver.kernel.org>; Wed, 30 Aug 2023 18:38:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E9E4C83F15
+	for <linux-i2c@archiver.kernel.org>; Wed, 30 Aug 2023 19:52:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233516AbjH3Sim (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 30 Aug 2023 14:38:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46780 "EHLO
+        id S232248AbjH3TxA (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 30 Aug 2023 15:53:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242248AbjH3HgX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Aug 2023 03:36:23 -0400
-Received: from mail.bizcodes.pl (mail.bizcodes.pl [151.80.57.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C6ECC9
-        for <linux-i2c@vger.kernel.org>; Wed, 30 Aug 2023 00:36:20 -0700 (PDT)
-Received: by mail.bizcodes.pl (Postfix, from userid 1002)
-        id 9FFA6A1F85; Wed, 30 Aug 2023 07:35:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=bizcodes.pl; s=mail;
-        t=1693380957; bh=5QPMt7jNntM5ZbstM20BWsHIeLbmRE8lVU4Iu89IleQ=;
-        h=Date:From:To:Subject:From;
-        b=Ut0hzMuNKvJDjg6WbltvZ6ueYba64BtSf6P5y9fJwgbQJwvLeVfIeWi0dHcxCmmxw
-         UH3K2krwM+aMl6yS/qd+VWKJX1xC8U0tUnj6xNcPnKzIQfeJKEf5k0UED3ymPflW1c
-         HBFnQXD5ticfl8RCfpTXcv2jDc5pIJbPPS8g/9sgA7iHVEM7EHs7y5pwT/j0W7S3CE
-         mdNt4Yp2y6fo43HFYmyfE7OtgR8PJ7t04AQxHKlWuN4Ja6y2q7ddt+U3sbSvLyXHPO
-         4Nlw39RazN8M9YOtAUkrEfsQrCb2ax7x4RtLTUm0YV3DRpSEM4fB1j6pwD3A5PiwNA
-         e0HSZeZcnjADg==
-Received: by mail.bizcodes.pl for <linux-i2c@vger.kernel.org>; Wed, 30 Aug 2023 07:35:24 GMT
-Message-ID: <20230830064500-0.1.bd.1dfup.0.2y8831eanp@bizcodes.pl>
-Date:   Wed, 30 Aug 2023 07:35:24 GMT
-From:   "Marcin Chruszcz" <marcin.chruszcz@bizcodes.pl>
-To:     <linux-i2c@vger.kernel.org>
-Subject: Prezentacja
-X-Mailer: mail.bizcodes.pl
+        with ESMTP id S231927AbjH3Twf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Aug 2023 15:52:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D816659F76;
+        Wed, 30 Aug 2023 12:20:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27652649CA;
+        Wed, 30 Aug 2023 19:19:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D77CAC433C8;
+        Wed, 30 Aug 2023 19:18:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1693423139;
+        bh=DQehdTj1zGLksZp0kH4qhiZqixjDifmmemA/25jnu/k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IpF2BjCs2PIj9Ct0u35NKMNrn09TpMuu6e/wZuJS2cC2da0YnsBlhfNChW9jqSzsx
+         ExtuqwcwbNTAGnrwC47fIwc8g3SL1VE1thytKlwXp97GlAPJIH+E2o+1aRxJW1wxos
+         0LVrRinXcXTZThoXIv8n2ZbPROs+r6vCN7/oHCWOiMR1Q//9qKiVcW/+8LTBx0FR4C
+         Xek1XSTFznkJD7ehJCFQC5RX7d0tq5O1OpuFHFw30Vyhj1i+QW5CJql4vNibs6cpYj
+         SePwub2fCA3qmUqDbtP4zHS0nkJ8yUIty9OQj2Wg3LQVbeRqhoBSvxobSkrwGxNLTI
+         AA//rMHYe1zvw==
+Date:   Wed, 30 Aug 2023 21:18:55 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>
+Cc:     linux-pci@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Philippe =?utf-8?Q?Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 5/8] I2C: ali15x3: Do PCI error checks on own line
+Message-ID: <ZO+WH2LLkyM0PdM0@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
+        linux-pci@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Philippe =?utf-8?Q?Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20230827133705.12991-1-ilpo.jarvinen@linux.intel.com>
+ <20230827133705.12991-6-ilpo.jarvinen@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="35KUKm7IdQwcja9I"
+Content-Disposition: inline
+In-Reply-To: <20230827133705.12991-6-ilpo.jarvinen@linux.intel.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Dzie=C5=84 dobry!
 
-Czy m=C3=B3g=C5=82bym przedstawi=C4=87 rozwi=C4=85zanie, kt=C3=B3re umo=C5=
-=BCliwia monitoring ka=C5=BCdego auta w czasie rzeczywistym w tym jego po=
-zycj=C4=99, zu=C5=BCycie paliwa i przebieg?
+--35KUKm7IdQwcja9I
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Dodatkowo nasze narz=C4=99dzie minimalizuje koszty utrzymania samochod=C3=
-=B3w, skraca czas przejazd=C3=B3w, a tak=C5=BCe tworzenie planu tras czy =
-dostaw.
+On Sun, Aug 27, 2023 at 04:37:02PM +0300, Ilpo J=C3=A4rvinen wrote:
+> Instead of if conditions with line splits, use the usual error handling
+> pattern with a separate variable to improve readability.
+>=20
+> No functional changes intended.
+>=20
+> Signed-off-by: Ilpo J=C3=A4rvinen <ilpo.jarvinen@linux.intel.com>
 
-Z naszej wiedzy i do=C5=9Bwiadczenia korzysta ju=C5=BC ponad 49 tys. Klie=
-nt=C3=B3w. Monitorujemy 809 000 pojazd=C3=B3w na ca=C5=82ym =C5=9Bwiecie,=
- co jest nasz=C4=85 najlepsz=C4=85 wizyt=C3=B3wk=C4=85.
-
-Bardzo prosz=C4=99 o e-maila zwrotnego, je=C5=9Bli mogliby=C5=9Bmy wsp=C3=
-=B3lnie om=C3=B3wi=C4=87 potencja=C5=82 wykorzystania takiego rozwi=C4=85=
-zania w Pa=C5=84stwa firmie.
+Applied to for-next, thanks!
 
 
-Pozdrawiam
-Marcin Chruszcz
+--35KUKm7IdQwcja9I
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmTvlh8ACgkQFA3kzBSg
+KbYSXg//c8OcU6ixBEjPBdpYLtGQnTnzVraWKC3vVbipNSoeU9+vw7tN/m4YM3uv
+n0DUSlkmDGzmuxvxlXKDjINy8urJI2UbhhNCdSjgPz8PjdCLg2vqijPNFGcVNX7A
+DE9D6kBfb2hFlIlDYpmqBos9c6U4zgA31ypTD3K5bziVgyAS6PqK20qtes0jHqH6
+nD+HcKyNeMjborf6tnDQo2UPJNQlOo2KZXFD4kLBS4xqLcquGqDkueEjWi1CUX+H
+m16Ehqg2yo4eZ7PtrdCFBYBnK4uc51E81CKrws7pkBsUFdsuvXOQcfCz4c9zWK+9
+fES0hJx/NZbgs3JxJw5dLgwXufZcYCmw0v1k5ED8Mh5exyVuM1fFQMf+h0ytmEfz
+jPtbXw3bAJTHbutX8Bt5QK5tPEowM5LFReJkTXVRNN280ofFK+4kHUj8CIxkL2Iq
+65Fj+VEsDIQzKxHa6aefYS9ZTSGQrYMWokX1TwfP2StFNPSubbwyQF1fHmSfxyde
+57dO8pMBoCkq8r3ttv66lfAtv9IX73olx7OPUHelNax0qToRZErAXzVv37DB2CIQ
+o9O3QN2XZ/5kBaGrHj3TW5xFwHRg4YFOZ3Jvkrrl6Ak5O9rQhU4EWsOMJwra7YcN
+Bj1BRSFYRBiuXjGfEWIuHmj1blZCob5/PN3V2Y8Demli+2ZbX3Y=
+=osT3
+-----END PGP SIGNATURE-----
+
+--35KUKm7IdQwcja9I--
