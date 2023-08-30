@@ -2,95 +2,121 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6737C83F12
-	for <linux-i2c@archiver.kernel.org>; Tue, 29 Aug 2023 13:34:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7645AC83F18
+	for <linux-i2c@archiver.kernel.org>; Wed, 30 Aug 2023 18:38:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234377AbjH2Ndp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 29 Aug 2023 09:33:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59620 "EHLO
+        id S229986AbjH3Sig (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 30 Aug 2023 14:38:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236208AbjH2Ndc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 29 Aug 2023 09:33:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5D2CCE;
-        Tue, 29 Aug 2023 06:33:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E027C6574D;
-        Tue, 29 Aug 2023 13:32:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21693C433CD;
-        Tue, 29 Aug 2023 13:32:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1693315956;
-        bh=8BJat/PnflBGy2w/90xhTxQ3qWxwanl2fKWzgHIxuY4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=htrP20m58TDxn/rMgMu01M+GIejvxVRGkXR/OlwBXw5WYsRptnoUMlSQGRulTAHJE
-         MW7Y2cmddHebn2ExafjIsh//HZ4400+/gOpXJdmv6TLQ2XLYasqYCrlCCjRUGxJesm
-         MD+O6Y1jBfI3jvdZnsclCpNt7w9IPQpmfROar3Qs1/UIXiK7nNVNfRzpTRWBkzH/o7
-         wed5StNis6mSsNDaPX/7p0A2aRj/J68neKHqSdpenrSTKupRtrQb5bnAh1xq+YMWkP
-         1BYCsQKKnbBWrIgc0Mctk5dON5v6+qx+g/eJRBeSyDoIPYMRjuHVHv2vnrLi5FD48s
-         0BgnuE5uv+ONg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Carlos Song <carlos.song@nxp.com>,
-        Dong Aisheng <Aisheng.dong@nxp.com>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        aisheng.dong@nxp.com, shawnguo@kernel.org,
-        linux-i2c@vger.kernel.org, linux-imx@nxp.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.4 13/17] i2c: imx-lpi2c: return -EINVAL when i2c peripheral clk doesn't work
-Date:   Tue, 29 Aug 2023 09:32:00 -0400
-Message-Id: <20230829133211.519957-13-sashal@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230829133211.519957-1-sashal@kernel.org>
-References: <20230829133211.519957-1-sashal@kernel.org>
+        with ESMTP id S243856AbjH3L61 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Aug 2023 07:58:27 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C53321B0
+        for <linux-i2c@vger.kernel.org>; Wed, 30 Aug 2023 04:58:24 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id 4fb4d7f45d1cf-523100882f2so7099762a12.2
+        for <linux-i2c@vger.kernel.org>; Wed, 30 Aug 2023 04:58:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=9elements.com; s=google; t=1693396703; x=1694001503; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xraLT5LJsBHpcTpLojfKH2C0VbKrtJqn2idXpO3Q7k4=;
+        b=fKbvTNAcYIqvUBvyQCGYCQZn7YLtQKydWCHBlKKCw+z0TYo8PbPLOk2L5DsvqTrOuu
+         hw/2Z4J58tcFB0Klb0u1IrtkMEQ6gt//damfvOWX2AZf/XFVlpkYFEPBpNavkexNxeD+
+         Aw9n3WSp5bI2zLjnpLjmXzXg6/taXmrE/6gpLtMVmoXKOVLZfSO7f6q1tmVbt88JOzkB
+         gB+I+Ff6ImldVV3XzKX+NIQktDDzJEU5LhrdrZmcPDWKs538vDUeurVwCiVWTVE5JiyZ
+         dq6tVYfNfXpHINrflzM1b+l9SPwOuwUEJ7E1B5THa5aNGPf4dYn/Y63NNv0sfamAB8S+
+         +32Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1693396703; x=1694001503;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xraLT5LJsBHpcTpLojfKH2C0VbKrtJqn2idXpO3Q7k4=;
+        b=EUJ1k/FGywmzGAypmms/Lwe5ainFIZFDBRy/RLE7ayg2rEhG9FPyxY1vB6B/0V9vE/
+         3m6iBFb422AZJBJjWdjtd0u9F8WRWDlERy+ef5mrCgzKg5AJZ/YnS77vHPbBqGTD1XcG
+         I9pzeEwjKSBtUJiTKwLl1G97onUkYgO0daLSdViqGnU0cYq4SdaPN5aTsy+rVg+l5rki
+         SvQ5f1J3NWDy+erej8FaOuyFXtr2Q27FrW8l8jClwRH6mce+NbNF8xH3CCnngJ9WsEwA
+         2+V3LvgPvZKrFlAajlAA2Bd/0l+QErwLVUileKqaqeIJtN1WgN1vaN4kTt4kLizmt3kR
+         k10A==
+X-Gm-Message-State: AOJu0Yz8z2oSZyoUrXCKkXuHKZQ0858S1mijoY8MmEnvdqBUMIFydhj4
+        CwJdxpmByEwh86II8cfZdGXZ6A==
+X-Google-Smtp-Source: AGHT+IHvDPZ/6vvBEBfGlIX7oJAvbPEoFEmwc2hCyzNLDGBhuPPNYL7+Ecr9I/J2Mc1Sq/3iq7xFGw==
+X-Received: by 2002:a05:6402:1206:b0:525:7da7:af10 with SMTP id c6-20020a056402120600b005257da7af10mr1907238edw.23.1693396703233;
+        Wed, 30 Aug 2023 04:58:23 -0700 (PDT)
+Received: from stroh80.sec.9e.network (ip-078-094-000-051.um19.pools.vodafone-ip.de. [78.94.0.51])
+        by smtp.gmail.com with ESMTPSA id u8-20020aa7d888000000b00527e7087d5dsm6681571edq.15.2023.08.30.04.58.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Aug 2023 04:58:22 -0700 (PDT)
+From:   Naresh Solanki <naresh.solanki@9elements.com>
+X-Google-Original-From: Naresh Solanki <Naresh.Solanki@9elements.com>
+To:     Peter Rosin <peda@axentia.se>, Andi Shyti <andi.shyti@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc:     Patrick Rudolph <patrick.rudolph@9elements.com>,
+        Naresh Solanki <Naresh.Solanki@9elements.com>,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] dt-binding: Add custom property for MAX7357
+Date:   Wed, 30 Aug 2023 13:57:42 +0200
+Message-ID: <20230830115744.4102929-1-Naresh.Solanki@9elements.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.4.12
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-From: Carlos Song <carlos.song@nxp.com>
+From: Patrick Rudolph <patrick.rudolph@9elements.com>
 
-[ Upstream commit b610c4bbd153c2cde548db48559e170905d7c369 ]
+Add a custom property "maxim,bus-lockup-fix" to enable proprietary
+features on MAX7357. The driver configures MAX7357 to isolate the
+failing channel and trigger a flush-out sequence for bus lock-up
+resolution.
 
-On MX8X platforms, the default clock rate is 0 if without explicit
-clock setting in dts nodes. I2c can't work when i2c peripheral clk
-rate is 0.
-
-Add a i2c peripheral clk rate check before configuring the clock
-register. When i2c peripheral clk rate is 0 and directly return
--EINVAL.
-
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
-Acked-by: Dong Aisheng <Aisheng.dong@nxp.com>
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
+Signed-off-by: Naresh Solanki <Naresh.Solanki@9elements.com>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 3 +++
- 1 file changed, 3 insertions(+)
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.yaml  | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 4d24ceb57ee74..338171f76daf7 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -209,6 +209,9 @@ static int lpi2c_imx_config(struct lpi2c_imx_struct *lpi2c_imx)
- 	lpi2c_imx_set_mode(lpi2c_imx);
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+index 2d7bb998b0e9..984d4614a270 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+@@ -71,6 +71,11 @@ properties:
+     description: A voltage regulator supplying power to the chip. On PCA9846
+       the regulator supplies power to VDD2 (core logic) and optionally to VDD1.
  
- 	clk_rate = clk_get_rate(lpi2c_imx->clks[0].clk);
-+	if (!clk_rate)
-+		return -EINVAL;
++  maxim,bus-lockup-fix:
++    type: boolean
++    description: Isolates only the stuck channel and generates a flush-out sequence
++      to attempt to clear the bus lock-up.
 +
- 	if (lpi2c_imx->mode == HS || lpi2c_imx->mode == ULTRA_FAST)
- 		filt = 0;
- 	else
+ required:
+   - compatible
+   - reg
+@@ -95,6 +100,16 @@ allOf:
+         "#interrupt-cells": false
+         interrupt-controller: false
+ 
++  - if:
++      not:
++        properties:
++          compatible:
++            contains:
++              const: maxim,max7357
++    then:
++      properties:
++        maxim,bus-lockup-fix: false
++
+ unevaluatedProperties: false
+ 
+ examples:
+
+base-commit: f9ea75e087b81081f33e34c4e1ba8b4abe841d9f
 -- 
-2.40.1
+2.41.0
 
