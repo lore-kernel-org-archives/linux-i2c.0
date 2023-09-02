@@ -2,134 +2,115 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B9E1C83F3E
-	for <linux-i2c@archiver.kernel.org>; Sat,  2 Sep 2023 20:11:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74CFBC83F2C
+	for <linux-i2c@archiver.kernel.org>; Sat,  2 Sep 2023 20:26:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232099AbjIBULK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 2 Sep 2023 16:11:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41320 "EHLO
+        id S234215AbjIBU0H (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 2 Sep 2023 16:26:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231805AbjIBULJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Sep 2023 16:11:09 -0400
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CD7C197
-        for <linux-i2c@vger.kernel.org>; Sat,  2 Sep 2023 13:11:03 -0700 (PDT)
-Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2bcde83ce9fso2612931fa.1
-        for <linux-i2c@vger.kernel.org>; Sat, 02 Sep 2023 13:11:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1693685461; x=1694290261; darn=vger.kernel.org;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ftby5Ax0/kjaYty9en4KuOgCp6cKGzI0DdjbSXyue8s=;
-        b=rjGLOAnq5pTGCI/JRgRAh6utPkK+BFLLzqMNHldxP1GMxZJ1bZQ1CtYzGh302MVa4C
-         fdglA2fyE4dpdVaDXZBGgdIXldAw6qt0diWQRtQBAxBEY61sF/vNUJj6VgWmsae0ypRj
-         Hg5cn2CdPMeUtSo8GdiwPPsOV+/sV7T/XUadJy6gPXpXnLPNka1ecMro0XGh5t2sx01X
-         bZUE2SjzohAW43H+HRntNeec67X8yuNNSDKU4STyaQfIg8rj32YCVWGAciFjr0oz+Tre
-         WcSjW1zJEFkjT3eED7Id8yrDiQjvg5I+mDA0kepnURNd+sI4aQ+vBoyofrAzWvcqjmNJ
-         iP2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693685461; x=1694290261;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=ftby5Ax0/kjaYty9en4KuOgCp6cKGzI0DdjbSXyue8s=;
-        b=DIzm+QA2xdbkZDCrJhy47UgE7Ae7UFZisvZhrCue4hQzzUF8jVUcJ6m55+8v5Lorb+
-         ZK+DwuWtc6lQ2q/4J4jmTCb5tYjRyryU8lG0ZR+55+bREbrZWSPvp5f4O8UaCsfljMX5
-         HjrFVOe3/alvpC3FFuoEaio/1vDEQ3rGL5Oqu2jBhabFGcnpVpgsVIAH8rD5NwaUKC66
-         CQ4B/77bYyg6e6smhQWNdoaaY8+T3CeLmM/ZuQtRmCUEGn2WuZ5wo/e41wIPa+MWNtJF
-         jgpR1BU9EUcs65ZfaSb+0w32PWcejcnnM9ghhsFzHNw0NBGNLLWodB5LnXELC0bFX18f
-         QV5A==
-X-Gm-Message-State: AOJu0YwNDoOVN4bKt7JYfMHpj0EmEVNHM79pcLBckgZdO8O3iSl6WAfc
-        Cc7gtuaT0sblQa57ZcmKhrA=
-X-Google-Smtp-Source: AGHT+IGc6uVt2s9OncRlX70gJGzAubyL0Z1XVy+jxBUA4KAol/0/aZh0TTSZ0HaWZvIxQTpfyOLoVg==
-X-Received: by 2002:a2e:9082:0:b0:2b9:b693:c906 with SMTP id l2-20020a2e9082000000b002b9b693c906mr3750183ljg.27.1693685461067;
-        Sat, 02 Sep 2023 13:11:01 -0700 (PDT)
-Received: from ?IPV6:2a01:c22:7326:d300:b9c4:4b23:eec7:79e? (dynamic-2a01-0c22-7326-d300-b9c4-4b23-eec7-079e.c22.pool.telefonica.de. [2a01:c22:7326:d300:b9c4:4b23:eec7:79e])
-        by smtp.googlemail.com with ESMTPSA id j6-20020a170906278600b00992b50fbbe9sm3827846ejc.90.2023.09.02.13.11.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 02 Sep 2023 13:11:00 -0700 (PDT)
-Message-ID: <3d5143c3-9a6c-2107-62e4-5f328ce7ea26@gmail.com>
-Date:   Sat, 2 Sep 2023 22:06:14 +0200
+        with ESMTP id S234223AbjIBU0H (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Sep 2023 16:26:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0DABE5F;
+        Sat,  2 Sep 2023 13:25:40 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84851B8090A;
+        Sat,  2 Sep 2023 20:25:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8080FC433C8;
+        Sat,  2 Sep 2023 20:25:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1693686338;
+        bh=+WSTiNaglKsn0BH7JjBM55l1rreJQF3ZzL15znSALFU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=l3+ofwj+nPd9LpC4A9FvPVAWupwZCGhEL9TrlULCtfQs+CjoWVUkCSs6qj9ruUVs8
+         bbxaAFePua8cgnRqDNk5ly/0mg+ATVBdYre7WRorhlRSbsEjPDcjqWKUokSRGYp6Bv
+         lSXyQQ2AHgJvSFTthl0KuRCB7W6VX7HqFHD8Vlk0g92ocrFD8CgE33b1pvUVmVPhoF
+         /nYbPOVG5OI5qgQ3BezOdSY3toku8Oo9L/nazCz97mjh3pLYma4Jsj+tZAqR+o4WMI
+         h6mH8a6Nsy0TNaMSmqAbe2BCfs6ZKmzX0lMrBBZTZDXEk4DIW25/g+Xdv2bbXPtfsf
+         tKjEkjY0l7E6Q==
+Date:   Sat, 2 Sep 2023 22:25:33 +0200
+From:   Andi Shyti <andi.shyti@kernel.org>
+To:     Huangzheng Lai <Huangzheng.Lai@unisoc.com>
+Cc:     Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        huangzheng lai <laihuangzheng@gmail.com>,
+        Xiongpeng Wu <xiongpeng.wu@unisoc.com>
+Subject: Re: [PATCH 1/8] i2c: sprd: Add configurations that support 1Mhz and
+ 3.4Mhz frequencies
+Message-ID: <20230902202533.bpquxhjq3mrhmwew@zenone.zhora.eu>
+References: <20230817094520.21286-1-Huangzheng.Lai@unisoc.com>
+ <20230817094520.21286-2-Huangzheng.Lai@unisoc.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.0
-Content-Language: en-US
-To:     Jean Delvare <jdelvare@suse.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-From:   Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v2] i2c: i801: fix cleanup code in remove() and error path of
- probe()
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230817094520.21286-2-Huangzheng.Lai@unisoc.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Jean pointed out that the referenced patch resulted in the remove()
-path not having the reverse order of calls in probe(). I think there's
-more to be done to ensure proper cleanup.
-Especially cleanup in the probe() error path has to be extended.
-Not every step there may be strictly needed, but it's in line with
-remove() now.
+Hi Huangzheng,
 
-Fixes: 9b5bf5878138 ("i2c: i801: Restore INTREN on unload")
-Fixes: 9424693035a5 ("i2c: i801: Create iTCO device on newer Intel PCHs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-v2:
-- add Fixes tag for 9424693035a5
-- remove restoring SMBHSTCNT from probe error path
-- move restoring SMBHSTCNT to the end in remove/shutdown
----
- drivers/i2c/busses/i2c-i801.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+On Thu, Aug 17, 2023 at 05:45:13PM +0800, Huangzheng Lai wrote:
+> This patch adds I2C controller driver support for 1Mhz and 3.4Mhz
+> frequency configurations.
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 73ae06432..d4f59aecc 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1754,6 +1754,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 		"SMBus I801 adapter at %04lx", priv->smba);
- 	err = i2c_add_adapter(&priv->adapter);
- 	if (err) {
-+		platform_device_unregister(priv->tco_pdev);
-+		pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
- 		i801_acpi_remove(priv);
- 		return err;
- 	}
-@@ -1779,14 +1781,13 @@ static void i801_remove(struct pci_dev *dev)
- {
- 	struct i801_priv *priv = pci_get_drvdata(dev);
- 
--	outb_p(priv->original_hstcnt, SMBHSTCNT(priv));
--	i801_disable_host_notify(priv);
- 	i801_del_mux(priv);
-+	i801_disable_host_notify(priv);
- 	i2c_del_adapter(&priv->adapter);
--	i801_acpi_remove(priv);
--	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
--
- 	platform_device_unregister(priv->tco_pdev);
-+	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
-+	i801_acpi_remove(priv);
-+	outb_p(priv->original_hstcnt, SMBHSTCNT(priv));
- 
- 	/* if acpi_reserved is set then usage_count is incremented already */
- 	if (!priv->acpi_reserved)
-@@ -1803,9 +1804,9 @@ static void i801_shutdown(struct pci_dev *dev)
- 	struct i801_priv *priv = pci_get_drvdata(dev);
- 
- 	/* Restore config registers to avoid hard hang on some systems */
--	outb_p(priv->original_hstcnt, SMBHSTCNT(priv));
- 	i801_disable_host_notify(priv);
- 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
-+	outb_p(priv->original_hstcnt, SMBHSTCNT(priv));
- }
- 
- static int i801_suspend(struct device *dev)
--- 
-2.42.0
+please avoid the "This patch adds..." form, it can be sometimes
+misleading... Use always the imperative form.
 
+"Add support for 1Mhz and 3.5Mhz frequency configuration"
+
+> Signed-off-by: Huangzheng Lai <Huangzheng.Lai@unisoc.com>
+> ---
+>  drivers/i2c/busses/i2c-sprd.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
+> index ffc54fbf814d..acc2a4d4eeae 100644
+> --- a/drivers/i2c/busses/i2c-sprd.c
+> +++ b/drivers/i2c/busses/i2c-sprd.c
+> @@ -347,6 +347,10 @@ static void sprd_i2c_set_clk(struct sprd_i2c *i2c_dev, u32 freq)
+>  		writel((6 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
+>  	else if (freq == I2C_MAX_STANDARD_MODE_FREQ)
+>  		writel((4 * apb_clk) / 1000000, i2c_dev->base + ADDR_STA0_DVD);
+> +	else if (freq == I2C_MAX_FAST_MODE_PLUS_FREQ)
+> +		writel((8 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
+> +	else if (freq == I2C_MAX_HIGH_SPEED_MODE_FREQ)
+> +		writel((8 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
+
+if you want you can queue up a patch that makes this train of
+"else if" in a switch case.
+
+>  }
+>  
+>  static void sprd_i2c_enable(struct sprd_i2c *i2c_dev)
+> @@ -519,9 +523,11 @@ static int sprd_i2c_probe(struct platform_device *pdev)
+>  	if (!of_property_read_u32(dev->of_node, "clock-frequency", &prop))
+>  		i2c_dev->bus_freq = prop;
+>  
+> -	/* We only support 100k and 400k now, otherwise will return error. */
+> +	/* We only support 100k\400k\1m\3.4m now, otherwise will return error. */
+>  	if (i2c_dev->bus_freq != I2C_MAX_STANDARD_MODE_FREQ &&
+> -	    i2c_dev->bus_freq != I2C_MAX_FAST_MODE_FREQ)
+> +			i2c_dev->bus_freq != I2C_MAX_FAST_MODE_FREQ &&
+> +			i2c_dev->bus_freq != I2C_MAX_FAST_MODE_PLUS_FREQ &&
+> +			i2c_dev->bus_freq != I2C_MAX_HIGH_SPEED_MODE_FREQ)
+
+We finally make use of these defines :)
+
+Acked-by: Andi Shyti <andi.shyti@kernel.org> 
+
+Thanks,
+Andi
+
+>  		return -EINVAL;
+>  
+>  	ret = sprd_i2c_clk_init(i2c_dev);
+> -- 
+> 2.17.1
+> 
