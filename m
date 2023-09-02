@@ -2,225 +2,128 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3284C83F3E
-	for <linux-i2c@archiver.kernel.org>; Sat,  2 Sep 2023 19:01:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C401C83F2C
+	for <linux-i2c@archiver.kernel.org>; Sat,  2 Sep 2023 20:11:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232088AbjIBTBx (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 2 Sep 2023 15:01:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36320 "EHLO
+        id S233841AbjIBULJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 2 Sep 2023 16:11:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232042AbjIBTBw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Sep 2023 15:01:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F19CC1B0
-        for <linux-i2c@vger.kernel.org>; Sat,  2 Sep 2023 12:01:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1693681264;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DKaRuEfV1JYhGjZOMUwjpitc5IwOb3LiJf+iW+acoug=;
-        b=Wri+oRgpo74TfBfM6lWu4eOT365W7HGRX2/dc0OOVNULjyubAxUT+uPEoxcyV8z/rqXmXx
-        eiHNAxC8AnVAUkx4SXDdDOpJHvBBdSlKJhmHlw22bGpOX4Op6vmCp6L5nVcu+cE6qh5wsv
-        fnPZ3R1em27g69q+saDvVy3kCzSl2KY=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-496-BUtNhSaTO3eWiB3N8RtUFA-1; Sat, 02 Sep 2023 15:01:02 -0400
-X-MC-Unique: BUtNhSaTO3eWiB3N8RtUFA-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-99cc32f2ec5so10445466b.1
-        for <linux-i2c@vger.kernel.org>; Sat, 02 Sep 2023 12:01:02 -0700 (PDT)
+        with ESMTP id S232099AbjIBULJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Sep 2023 16:11:09 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0F4E54
+        for <linux-i2c@vger.kernel.org>; Sat,  2 Sep 2023 13:11:04 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-50087d47d4dso381178e87.1
+        for <linux-i2c@vger.kernel.org>; Sat, 02 Sep 2023 13:11:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1693685463; x=1694290263; darn=vger.kernel.org;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oagijnXdwApLzLrrhY/sdUJmvC/lVU1cxKXfNb3TM/k=;
+        b=miajlgTRekv4ugvHKsNqCCY6ZZ3xXQNwnRAj7sbw8IKjhcJw76QA5zB7tNsVpZIwOe
+         /HNpG1K0qKHiZihKNpdHBmcsYHX1fMp75TYfntRgn1KTi1tlqZcK4eKD+FIzCxerHfEE
+         NI3Ng7rqun5ZJZ7HYS4HY7tRYdkfDI8v030BhDkbi1sgzjgEj/LQ19NRJY+APzDTBchR
+         kvNIB3UHT2Su16pbF6vHMbftmh+Ke/12gBZkIF0zIxaI3GgyQhq0qefncW3HXk6mxltP
+         b/p28isxnzFk9iz0dlfWwOkW9Nm2Qs7SE7nwvHgXH7glPYs7JdMsQKydA/+xPfjdQgRi
+         17Ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693681261; x=1694286061;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=DKaRuEfV1JYhGjZOMUwjpitc5IwOb3LiJf+iW+acoug=;
-        b=NMuWRHxcSbH2fhLoHrt83TfxnhFFS+M/vGfNc/prvBAlRTIGuJJIhwrFc7kjhzXBFV
-         t6ir/F/KDCll1Lz/n4sksYfcjqn2MvvZPRYV7p20zZptKMl1NPsPfJV/LcZeD07k8yhE
-         BUL9ne+j2wVyzhJ0bZPt/Jurty/LB5kGlJW3BiscbVSTC0HqoXxUOy92ryc06XZgzvNG
-         fVgoMnUMa+0adHDinAdDNV9Kn3E/1aumpsFgIjotCgCqLoGXIs7oPovwanupcuJkfmmJ
-         kuxB7o3tUka+Q5L7Imo326R0Z4lLOFdaIozzC076+TvDRES4Jq0nd8YNLXZ/p+XmuP4Y
-         En2A==
-X-Gm-Message-State: AOJu0YzqfFF9HLqRXu7Z+0Lm8FsjnfgGTk5EcV1uI1SCqmY+suVQvHYv
-        4AeQk/d7HPu53zNgKcrWeBW3gIXjXDyaIjv1tmA0lxgC7cdWa4OCoUuXYoitZHNm+rBHAYok58p
-        Lo7H2O47Aj06KdRM/4IOe
-X-Received: by 2002:a17:906:212:b0:9a1:f6e0:12f4 with SMTP id 18-20020a170906021200b009a1f6e012f4mr4428476ejd.15.1693681261663;
-        Sat, 02 Sep 2023 12:01:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE8GFt3+eoTfDu3gXsGjHFp0ClwCoKO6h75CT4DwLBVqlg9+yLOGjZrUR+4L2+1WRnyXTibnA==
-X-Received: by 2002:a17:906:212:b0:9a1:f6e0:12f4 with SMTP id 18-20020a170906021200b009a1f6e012f4mr4428466ejd.15.1693681261322;
-        Sat, 02 Sep 2023 12:01:01 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
-        by smtp.gmail.com with ESMTPSA id l23-20020a1709060e1700b0098963eb0c3dsm3718244eji.26.2023.09.02.12.00.59
+        d=1e100.net; s=20221208; t=1693685463; x=1694290263;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=oagijnXdwApLzLrrhY/sdUJmvC/lVU1cxKXfNb3TM/k=;
+        b=lOLAICgFjBNivRuGExnv9Jh70VsWe8ckRWVKnOd5LEXgzUo8FL0dgNg2ptj+5uQTn8
+         teiyyuy0LYkCjl0nzlcGAmAbvAJf04XpCs1SgK11DOo/T3FeWFTqZo+Exs2YNdrU7bDs
+         wOEF/50MDDmi3MPpW7BwBt6/8K2OyALgD0JSXjxz+EE4UZab9DuIBo2McLSSVvwCTR9r
+         MECys7S7bRBPa9WkNDaWU3eJ982LZgJDtOZ5GxDmTHj1na+yp1eUWofadA4frYyQQ8xk
+         +YqCGS/bpRQ3D39uVpgsUVFxBuxtm7v+QQa9uCW4hOMkPykkj8IZ82rukVa4P2YViccs
+         tv8w==
+X-Gm-Message-State: AOJu0Ywbbfpm1Ka5w7IxRNE4Oi7THykE3msXkcGGLyLbxfqEarjfHePy
+        AunU6zT3+7nu2HL26QI2zQw=
+X-Google-Smtp-Source: AGHT+IGzP2EMc68dko915xjmK+dTSViwBDC6d/6W9bm5tuHrCZPPyX+N/r/MapZ3kl/GldixaDqE7w==
+X-Received: by 2002:a05:6512:4845:b0:4f8:74b5:b4ec with SMTP id ep5-20020a056512484500b004f874b5b4ecmr4068737lfb.41.1693685462482;
+        Sat, 02 Sep 2023 13:11:02 -0700 (PDT)
+Received: from ?IPV6:2a01:c22:7326:d300:b9c4:4b23:eec7:79e? (dynamic-2a01-0c22-7326-d300-b9c4-4b23-eec7-079e.c22.pool.telefonica.de. [2a01:c22:7326:d300:b9c4:4b23:eec7:79e])
+        by smtp.googlemail.com with ESMTPSA id g10-20020aa7c58a000000b005227e53cec2sm3762647edq.50.2023.09.02.13.11.01
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 02 Sep 2023 12:01:00 -0700 (PDT)
-Message-ID: <185f2f8a-e2ba-e198-79a2-6c01081f035e@redhat.com>
-Date:   Sat, 2 Sep 2023 21:00:59 +0200
+        Sat, 02 Sep 2023 13:11:01 -0700 (PDT)
+Message-ID: <f056286a-1db9-b88c-6d36-a3358190b9c9@gmail.com>
+Date:   Sat, 2 Sep 2023 22:10:52 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v12 0/4] Add Intel LJCA device driver
-Content-Language: en-US, nl
-To:     "Wu, Wentong" <wentong.wu@intel.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "mka@chromium.org" <mka@chromium.org>,
-        "oneukum@suse.com" <oneukum@suse.com>,
-        "lee@kernel.org" <lee@kernel.org>,
-        "wsa@kernel.org" <wsa@kernel.org>,
-        "kfting@nuvoton.com" <kfting@nuvoton.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "maz@kernel.org" <maz@kernel.org>, "brgl@bgdev.pl" <brgl@bgdev.pl>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        "heikki.krogerus@linux.intel.com" <heikki.krogerus@linux.intel.com>,
-        "andi.shyti@linux.intel.com" <andi.shyti@linux.intel.com>,
-        "sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>,
-        "bartosz.golaszewski@linaro.org" <bartosz.golaszewski@linaro.org>,
-        "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Cc:     "Wang, Zhifeng" <zhifeng.wang@intel.com>
-References: <1693546577-17824-1-git-send-email-wentong.wu@intel.com>
- <7fc37bb5-2121-4174-fb1d-9edf49213a6c@redhat.com>
- <DM6PR11MB4316D9C6026B6672872939DE8DEBA@DM6PR11MB4316.namprd11.prod.outlook.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <DM6PR11MB4316D9C6026B6672872939DE8DEBA@DM6PR11MB4316.namprd11.prod.outlook.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.0
+Content-Language: en-US
+To:     Jean Delvare <jdelvare@suse.com>,
+        Andi Shyti <andi.shyti@kernel.org>
+Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v2] i2c: i801: fix potential race in
+ i801_block_transaction_byte_by_byte
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+Currently we set SMBHSTCNT_LAST_BYTE only after the host has started
+receiving the last byte. If we get e.g. preempted before setting
+SMBHSTCNT_LAST_BYTE, the host may be finished with receiving the byte
+before SMBHSTCNT_LAST_BYTE is set.
+Therefore change the code to set SMBHSTCNT_LAST_BYTE before writing
+SMBHSTSTS_BYTE_DONE for the byte before the last byte. Now the code
+is also consistent with what we do in i801_isr_byte_done().
 
-On 9/2/23 19:15, Wu, Wentong wrote:
-> Hi Hans,
-> 
-> Thanks
-> 
->> From: Hans de Goede <hdegoede@redhat.com>
->>
->> Hi,
->>
->> On 9/1/23 07:36, Wentong Wu wrote:
->>> Add driver for Intel La Jolla Cove Adapter (LJCA) device. This is a
->>> USB-GPIO, USB-I2C and USB-SPI device. We add 4 drivers to support this
->>> device: a USB driver, a GPIO chip driver, a I2C controller driver and
->>> a SPI controller driver.
->>
->> Thanks. I've been testing this on a Lenovo X1 ThinkPad Yoga gen 8 with an
->> ov2740 sensor connected to the LJCA device.
-> 
-> Thanks, and I don’t have this laptop, could you please share your DSDT
-> so that I can understand it more?
+Reported-by: Jean Delvare <jdelvare@suse.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+v2:
+- remove incorrect Fixes tag
+---
+ drivers/i2c/busses/i2c-i801.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-I have send you an acpidump by private email.
-
-> And I will update this patch set after understand your DSDT and have the
-> patches tested on my setup.
-
-Ok. Note that the out of tree ivsc driver already does uid matching
-in the i2c-driver to fixup the wrong ACPI companion being assigned
-by the MFD driver, see:
-
-https://github.com/intel/ivsc-driver/blob/main/drivers/i2c/busses/i2c-ljca.c#L346
-
-For upstream it seemed cleaner to me to directly pick
-the correct ACPI companion at aux-device instantiation,
-something which was not possible with the MFD approach
-but is possible with the auxilary bus approach.
-
-And the other change which I'm proposing has already
-been merged into the out of tree version of the LJCA
-i2c driver:
-
-https://github.com/intel/ivsc-driver/commit/70d95269169cf9e452580b0c15471829df4a6d59
-
-Regards,
-
-Hans
-
-
-
-
-
-
->> I needed 2 small(ish) fixes to make everything work there.
->> I have attached the 2 fixes here.
->>
->> With these 2 fixes this series is:
->>
->> Tested-by: Hans de Goede <hdegoede@redhat.com>
-> 
-> Thanks a lot
-> 
-> BR,
-> Wentong
->>
->> Regards,
->>
->> Hans
->>
->>
->>
->>
->>
->>> ---
->>> v12:
->>>  - switch dev_err to dev_dbg for i2c-ljca driver
->>>  - avoid err printing because of calling usb_kill_urb when attempts to
->>> resubmit the rx urb
->>>
->>> v11:
->>>  - switch dev_err to dev_dbg for i2c-ljca driver
->>>  - remove message length check because of defined quirk structure
->>>  - remove I2C_FUNC_SMBUS_EMUL support
->>>
->>> v10:
->>>  - remove ljca_i2c_format_slave_addr
->>>  - remove memset before write write w_packet
->>>  - make ljca_i2c_stop void and print err message in case failure
->>>  - use dev_err_probe in ljca_i2c_probe function
->>>
->>> v9:
->>>  - overhaul usb-ljca driver to make it more structured and easy
->>> understand
->>>  - fix memory leak issue for usb-ljca driver
->>>  - add spinlock to protect tx_buf and ex_buf
->>>  - change exported APIs for usb-ljca driver
->>>  - unify prefix for structures and functions for i2c-ljca driver
->>>  - unify prefix for structures and functions for spi-ljca driver
->>>  - unify prefix for structures and functions for gpio-ljca driver
->>>  - update gpio-ljca, i2c-ljca and spi-ljca drivers according to
->>> usb-ljca's changes
->>>
->>> Wentong Wu (4):
->>>   usb: Add support for Intel LJCA device
->>>   i2c: Add support for Intel LJCA USB I2C driver
->>>   spi: Add support for Intel LJCA USB SPI driver
->>>   gpio: update Intel LJCA USB GPIO driver
->>>
->>>  drivers/gpio/Kconfig          |   4 +-
->>>  drivers/gpio/gpio-ljca.c      | 246 +++++++------
->>>  drivers/i2c/busses/Kconfig    |  11 +
->>>  drivers/i2c/busses/Makefile   |   1 +
->>>  drivers/i2c/busses/i2c-ljca.c | 326 +++++++++++++++++
->>>  drivers/spi/Kconfig           |  11 +
->>>  drivers/spi/Makefile          |   1 +
->>>  drivers/spi/spi-ljca.c        | 297 +++++++++++++++
->>>  drivers/usb/misc/Kconfig      |  14 +
->>>  drivers/usb/misc/Makefile     |   1 +
->>>  drivers/usb/misc/usb-ljca.c   | 817
->> ++++++++++++++++++++++++++++++++++++++++++
->>>  include/linux/usb/ljca.h      | 113 ++++++
->>>  12 files changed, 1737 insertions(+), 105 deletions(-)  create mode
->>> 100644 drivers/i2c/busses/i2c-ljca.c  create mode 100644
->>> drivers/spi/spi-ljca.c  create mode 100644 drivers/usb/misc/usb-ljca.c
->>> create mode 100644 include/linux/usb/ljca.h
->>>
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 7a0ccc584..8acf09539 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -679,15 +679,11 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+ 		return result ? priv->status : -ETIMEDOUT;
+ 	}
+ 
+-	for (i = 1; i <= len; i++) {
+-		if (i == len && read_write == I2C_SMBUS_READ)
+-			smbcmd |= SMBHSTCNT_LAST_BYTE;
+-		outb_p(smbcmd, SMBHSTCNT(priv));
+-
+-		if (i == 1)
+-			outb_p(inb(SMBHSTCNT(priv)) | SMBHSTCNT_START,
+-			       SMBHSTCNT(priv));
++	if (len == 1 && read_write == I2C_SMBUS_READ)
++		smbcmd |= SMBHSTCNT_LAST_BYTE;
++	outb_p(smbcmd | SMBHSTCNT_START, SMBHSTCNT(priv));
+ 
++	for (i = 1; i <= len; i++) {
+ 		status = i801_wait_byte_done(priv);
+ 		if (status)
+ 			return status;
+@@ -710,9 +706,12 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+ 			data->block[0] = len;
+ 		}
+ 
+-		/* Retrieve/store value in SMBBLKDAT */
+-		if (read_write == I2C_SMBUS_READ)
++		if (read_write == I2C_SMBUS_READ) {
+ 			data->block[i] = inb_p(SMBBLKDAT(priv));
++			if (i == len - 1)
++				outb_p(smbcmd | SMBHSTCNT_LAST_BYTE, SMBHSTCNT(priv));
++		}
++
+ 		if (read_write == I2C_SMBUS_WRITE && i+1 <= len)
+ 			outb_p(data->block[i+1], SMBBLKDAT(priv));
+ 
+-- 
+2.42.0
 
